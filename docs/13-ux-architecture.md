@@ -98,7 +98,8 @@ Five-slot bottom bar, persistent, with a centre action:
 | **S0.2** | Phone + OTP | onboarding | identity |
 | **S0.3** | "What will you use this for?" | onboarding | five cards; the trust card alone sets `tenant.type = organization` (07 §3.1) |
 | **S0.4** | Name & photo | onboarding | for approvals/ceremony |
-| **S0.5** | Recovery sheet | onboarding | key custody, print/save + verify |
+| **S0.5** | Keeping your books safe | onboarding | key sync stated on · automatic backup on with its disclosure · sheet action (04 §7.6, 07 §3.1) |
+| **S0.5b** | Recovery sheet | S0.5 | generate, print/save, verify by scanning back |
 | **S0.6** | Opening balances wizard | onboarding | resumable |
 | **S0.7** | Setup checklist (Home empty state) | S1 | progressive onboarding |
 | **S1** | Home / Position | root | banks, cash, get/give, advances, in-transit, month, verbs, today |
@@ -138,6 +139,7 @@ Five-slot bottom bar, persistent, with a centre action:
 | **S10.2** | Month summary card | S10 | shareable close reward |
 | **S10.3** | Late arrivals tray | S6 | re-date or re-open |
 | **S10.4** | Year close + carry-forward | S8 | certify, FY switcher appears |
+| **S11.4** | Backup settings | S11 | platform key sync toggle · save recovery sheet · readable monthly copy, each with its risk line (04 §7.6) |
 | **S11** | Devices & security | S8 | devices, guardians, recovery sheet, escrow, PIN |
 | **S11.1** | Guardian setup (mutual ceremony) | S11 | 2-of-3 |
 | **S11.2** | Recovery — ask guardians | activation | live k-of-n progress |

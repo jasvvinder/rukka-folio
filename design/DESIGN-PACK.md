@@ -10,7 +10,7 @@
 | **0b** | String sheet | the exact three-language strings — prevents invented translations |
 | **1** | P1 · P2 · P3 | the three components 90% of the app is made of |
 | **2** | S1 → S10 core screens | the app itself, entity-neutral |
-| **2b** | Onboarding set + role variants | first-run flow, and how each screen looks to each role |
+| **2b** | Onboarding · backup · recovery · role variants | first-run flow incl. backup setup (O5), the recovery flow (R2), devices and backup settings (R3, R4), and how each screen looks to each role |
 | **3** | Entity pack A (Individual) | the baseline app with real data |
 | **4** | Entity packs B / C / D | business, trust, joint-family variants and their unique screens, incl. partner positions (S14) and the quorum card (S6.3) |
 | **5** | States & deliverables | empty, error, offline variants + the handoff checklist |
@@ -236,7 +236,15 @@ Phone entry with a fixed +91 prefix and a large numeric field; then the OTP scre
 ## O4 · Name & photo
 Name field, optional circular photo picker, and a muted explanation: "Your family sees this when they approve your entries."
 
-## O5 · Recovery sheet *(the screen that must not feel like a chore)*
+## O5 · Keeping your books safe *(onboarding — backup is set up here, not in Settings)*
+One calm screen titled "Keeping your books safe", three stacked items:
+1. **Your key is kept in iCloud Keychain** — shown as **already on**, a tick rather than a question, with the muted line "So a new iPhone can open your books. Apple cannot read it." A small *change* link.
+2. **Automatic backup** — a toggle **on by default**, destination shown ("iCloud Drive"), and directly beneath it, in **warning amber and full sentences, never a footnote**: "One of these copies is readable — anyone with your Drive can read your books. Tap to change or turn off." This disclosure must be as prominent as the toggle itself; it is the single place in the product where readable financial data leaves the phone.
+3. **Your recovery sheet** — the paper key, as its own action below the two toggles.
+
+Design the **no-iCloud variant**: item 1 replaced by a plain "iCloud Keychain is off on this phone" line, and the recovery sheet promoted to the primary action.
+
+## O5b · Recovery sheet *(the screen that must not feel like a chore)*
 Calm, serious, one idea per line: heading "Only you can open your books", body explaining plainly that the data is locked so completely that even the makers cannot open it, therefore a paper key matters. A preview thumbnail of the printable A4 sheet with its QR. Two buttons: **Print / Save the sheet** (primary) and **I've kept it safe** (secondary, disabled until the sheet has been opened once).
 
 ## O6 · Opening balances wizard
@@ -262,7 +270,9 @@ Each variant must show the identity chip reading the user's name and their role 
 
 *Context for the designer: there are no passwords in this app, and the company genuinely cannot open anyone's data. When someone loses their phone, these screens are the only way back. The person using them is anxious and possibly at a shop counter. Tone: calm, plain, never blaming, never alarming — and never falsely reassuring.*
 
-**R2.1 · After OTP on a new phone — the fork.** A quiet screen: "Let's get your books back on this phone", then three options as full-width rows, in this order, each with a one-line explanation: **Use another phone you're signed in on** · **Ask your trusted members** · **Use your recovery sheet**. A muted line at the bottom: "Your family books can also be restored by your family — your own private book cannot."
+**R2.0 · Silent restore (the common case).** Before any fork appears: if the platform key store returns the key (same Apple ID), show a brief calm screen — a tick, "Your books are back", the number of books restored — then straight to Home. No choices, no explanation of cryptography. Most people will only ever see this one.
+
+**R2.1 · After OTP on a new phone — the fork.** A quiet screen: "Let's get your books back on this phone", then three options as full-width rows, in this order, each with a one-line explanation: **Use another phone you're signed in on** · **Ask your trusted members** · **Use your recovery sheet** (with a sub-line *paper or the file you saved*). A muted line at the bottom: "Your family books can also be restored by your family — your own private book cannot."
 
 **R2.2 · Ask your trusted members (S11.2).** The live waiting screen. Heading "Ask any 2 of 3 to approve", then a row per guardian with avatar, name, and a state: **approved ✓** (green) · **waiting…** (muted, with a quiet spinner) · **not asked**. Each waiting row has a small **Call** link — the pack's advice is literally "phone them, they are expecting this". A progress line: "1 of 2 approvals". Design the **completed** state too: all ticks, then a single calm line "Restoring your books…" with a progress bar. This screen may be open for minutes; it must not feel stuck.
 
@@ -270,7 +280,20 @@ Each variant must show the identity chip reading the user's name and their role 
 
 **R2.4 · Use your recovery sheet (S11.3).** Camera view for scanning the QR from the printed sheet, with a small illustration reminding them what the sheet looks like, and beneath it **Type the code instead** opening a grouped character field. Design the **failure** state: "That code didn't work" with the two likely causes stated plainly — a newer sheet was printed, or the code was mistyped — never a blank error.
 
-**R2.5 · Nothing worked — the honest screen.** No euphemisms. "We could not restore your private book." Then, in plain language: the family and business books can be restored once the family verifies them again on this phone; the private book is gone, and this is the privacy they were promised working as intended. One primary action: **Continue and set up this phone**. No retry loop, no false hope.
+**R2.5 · Nothing worked yet.** Reached only when every rung has failed. Honest but not falsely final — the entries still exist on the server, sealed. Heading: **"We can't open your private book on this phone yet."** Then three plain rows:
+- **Your family and business books** — restorable now, once the family verifies you again on this phone. Primary action.
+- **Your private book** — still sealed. Two things would open it: signing in to the Apple account that held your key, or finding your recovery sheet. State both as things that will *still work later*, not as lost causes.
+- **A readable copy**, if they kept one — "your books are in that file, and you can start fresh books from those closing balances."
+
+One primary button: **Continue and set up this phone**. 🔒 Do **not** write that the data is destroyed — it is not — and do not soften into "contact support", which cannot help. No retry loop.
+
+## R4 · Backup settings (S11.4) *(the same controls as onboarding O5, revisited later)*
+Design this **after O5** and keep the wording and ordering identical — a user changing a setting must recognise the screen that set it up. A settings section titled **Backup**, three rows, each carrying its trade-off in one muted line beneath it — never buried in a help article:
+1. **Keep my key in iCloud Keychain** — toggle, **on by default**, sub-line "Lets a new iPhone open your books automatically. Apple cannot read it."
+2. **Save my recovery sheet** — a row opening the system share sheet (Files, iCloud Drive, Google Drive, Print). Sub-line in **warning amber**: "Anyone who opens this file can open your books."
+3. **Keep a readable copy of my books** — Off / Monthly with a destination picker. Sub-line in **warning amber**: "This file is readable. Anyone with your Drive can read your books."
+
+Beneath the group, one muted line: "Your entries are already stored safely and encrypted. Backup is about getting *in* again, not about losing the books." Design the per-row status states: **on · last saved 12 Apr · never saved** (soft warning badge on the last).
 
 ## R3 · Devices & security (S11) and guardian setup (S11.1)
 

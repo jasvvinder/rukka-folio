@@ -56,11 +56,12 @@ Challenge–response; no bearer secrets that outlive minutes.
 | Scenario | Flow |
 |---|---|
 | Fresh signup | OTP → §3 → UMK + self-cert → sheet + guardians → done |
+| **New phone, same Apple/Google account** | **Platform key sync (04 §7.0) restores silently — the common case; no guardians, no sheet** |
 | Reinstall, same iPhone | Keychain intact? → keys found → normal device, no recovery. **On iOS-first this is the common path**, which materially reduces recovery-ladder traffic |
 | Reinstall, same Android | Keystore was wiped → treat as **new phone** |
 | New phone, has old device | OTP → §3 → **link** via ceremony (04 §9.1) |
 | New phone, no old device | OTP → §3 → **recovery ladder** (04 §7): guardians → paper sheet |
-| Nothing works | Login succeeds, vault is empty; plain-language explanation; shared-book data is re-wrappable to the user's *new* UMK by tenant members after a **fresh verification ceremony** (only the old personal book is lost — say so honestly) |
+| Every rung fails | Login succeeds, vault empty. Shared books are re-wrappable to the user's *new* UMK by tenant members after a **fresh verification ceremony**. The personal book stays sealed **for now** — its ciphertext remains on the server, so recovering the Apple/Google account or finding the recovery sheet later still opens it (04 §7.6). If a readable export exists it holds the books in plain form and can seed opening balances in a fresh book. Say all of this plainly; do not tell the user their data is destroyed when it is not |
 
 Recovery completion always revokes all prior sessions and devices of that user and notifies every tenant they belong to (04 §7.3 step 6).
 

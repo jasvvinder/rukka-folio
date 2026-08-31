@@ -189,6 +189,45 @@ Standard device linking (§9.1).
 - Recovery: scan/type RK → fetch blob → decrypt UMK → same completion as §7.3 step 6.
 - Mandatory for solo users (no guardians possible); strongly nudged for everyone.
 
+### 7.0 Rung 0 — platform key sync 🔒 (owner-directed, 31 Aug 2026; tried before every other rung)
+**iOS: iCloud Keychain. Android: Block Store.** Both are end-to-end encrypted by the platform — Apple and Google cannot read them — so storing the wrapped UMK there does **not** weaken zero-knowledge; it adds a second device-class custodian the vendor still cannot open.
+
+- Default **on**, with a plain explanation at signup and a switch in Devices & security.
+- Effect: a new iPhone signed into the same Apple ID **recovers silently** — no guardians, no paper, no OTP beyond activation. This will be the common case, and it removes most recovery traffic.
+- Limits stated honestly in the UI: it only works on the **same Apple/Google account**; it does not survive losing that account; and a user who has disabled iCloud Keychain has nothing here.
+- ⚠️ Verify current Block Store and iCloud Keychain guarantees and size limits at build; both have changed before.
+
+### 7.6 Backup files — what they can and cannot do 🔒 (owner-directed, 31 Aug 2026)
+
+**State the true position in the UI, because it is reassuring and correct:** entries are already stored, encrypted, on the server and are never lost with a phone. Backup exists to protect the **key**, and to leave a readable record that outlives even total key loss. Three optional artefacts, each with its trade-off written on the screen that offers it:
+
+| Artefact | What it holds | Restores the app? | Honest risk shown to the user |
+|---|---|---|---|
+| **Recovery sheet as a file** — Files, iCloud Drive, Google Drive, or print | the same key as the paper sheet | **Yes**, fully | *"Anyone who opens this file can open your books."* Cryptographically identical to the paper sheet; the paper's safety came from being offline |
+| **Readable export** — XLSX + PDF, on demand or a monthly schedule | your books in plain, readable form | **No** — it is a record, not a restore | *"This file is readable. Anyone with your Drive can read your books."* Google or Apple **can** read it, unlike anything in the app |
+| **Encrypted vault file** — a local `.rukka` file | every envelope, still encrypted | Only **with** a key from another rung | Useless to a thief without the key; equally useless to *you* without it |
+
+🔒 **Defaults 🔒 (owner-directed, 31 Aug 2026): backup is ON, and it is set up during onboarding, not hidden in Settings.**
+
+| Artefact | Default | Set where |
+|---|---|---|
+| Platform key sync (§7.0) | **On** | stated at onboarding, toggle in Settings |
+| Encrypted vault file to the user's own cloud | **On** | onboarding; destination = iCloud Drive / Google Drive |
+| Readable export, monthly | **On** ⚠️ *see the tension below* | onboarding, destination picker |
+| Recovery sheet saved as a file | **Off** — an explicit action, never automatic | onboarding offers Print / Save |
+
+⚠️ **The one tension, for the owner to hold consciously.** The readable export puts *plain, readable* books into the user's own Drive, where Apple or Google **can** read them — the single place in this product where that is true. Defaulting it on serves this audience correctly: for a shopkeeper or a gurudwara treasurer, losing the books is catastrophic while Google reading them is abstract. It is defensible because it is *their* storage, *their* choice, disclosed in one plain sentence at the moment of setup, with a one-tap off. But it is a real trade against the brand's central claim, so the disclosure must be prominent rather than buried, and must never be reworded into something softer.
+
+**Why the encrypted vault is also on:** it answers a question this audience does ask — *"what if this company disappears?"* With the vault plus any key rung, a family can reopen its books without us. That is worth the storage.
+
+🔒 **The rule that governs all three:** *a backup that can restore without a human is a backup that can be stolen without a human.* The paper sheet is safe because it is offline. Every convenience above trades some of that away, so each is **opt-in**, each states its risk in one plain sentence at the moment of choosing, and none is ever enabled silently.
+
+🔒 **Never backed up anywhere, by any route:** a member's personal-book key wrapped for anyone else, guardian shares in reconstructable form, or any device private key.
+
+🔒 **Every rung restores the personal book too (clarified 31 Aug 2026).** Platform key sync, guardians and the recovery sheet all return the **UMK**, and the UMK unwraps *every* book key the user holds — personal included. There is no separate personal-book backup because there is no need for one: the UMK is the root. The personal book is unreachable only when **all** rungs have failed, and even then not necessarily permanently — recovering the Apple/Google account or finding the sheet later restores it, because the ciphertext is still on the server.
+
+**Answering "the books must never be lost":** the layered answer is platform key sync (§7.0) for almost everyone · guardians (§7.3) when the phone and the Apple account both go · the sheet, paper or file (§7.4) as the offline backstop · and the readable export as the last line — because a family that has lost every key still has a PDF of its books, and can start a fresh book from those closing balances.
+
 ### 7.5 Rung 4 — head escrow (opt-in, per member) 🔒
 - Scope: the member's **Personal-Book BK only** — never the UMK. Least privilege: the head can eventually read the book; they can never *become* the member.
 - Member's device seals Personal BK to the head's UMK; server stores it under a policy object: release only on (a) member's live approval, or (b) head's request + **30-day veto window** during which every member device alarms daily; any member veto cancels and logs.
