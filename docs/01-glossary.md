@@ -8,7 +8,8 @@
 
 1. **Three launch languages:** English (default), ਪੰਜਾਬੀ, हिन्दी. Language is a per-member setting.
 2. **Register:** always respectful (ਤੁਸੀਂ / आप forms). Warm, plain, no officialese.
-3. **Professional terms are used, not hidden 🔒 (revised):** Dr./Cr. — **ਨਾਮੇ / ਜਮ੍ਹਾਂ**, **नामे / जमा** — plus balance, opening/closing balance, capital, debtors/creditors appear wherever a professional expects them: A/C statements, ledgers, reports, exports. **The entry screen stays verb-based** — the user never chooses Dr/Cr; the app derives the posting and then displays it professionally. Still forbidden in UI: journal, voucher, contra, accrual, folio, narration. **Carve-out 🔒:** *folio* is forbidden **as a common noun only**. The product name **Rukka Folio** is exempt wherever it appears as the name — splash, About, store listings, invoices, export footers — and the `check_strings.dart` jargon rule must whitelist the app-name keys (`app.name`, `app.name.short`, `about.*`) rather than flagging them. Never write "the folio" to mean a ledger page.
+3. **Never translate English function words literally 🔒 (owner-directed, 31 Aug 2026).** Words like *out, open, pending, due* are English state-adjectives; rendered word-for-word they land in the wrong sense — *open* became ਖੁੱਲ੍ਹੀ / खुली, which means *opened, like a door*. **State the fact instead**, using the postposition the language actually uses. Related: **labels never use gendered participles** (ਦਿੱਤੀ / दी), because they must agree with a noun that may vary; a bare noun is always the safer label.
+4. **Professional terms are used, not hidden 🔒 (revised):** Dr./Cr. — **ਨਾਮੇ / ਜਮ੍ਹਾਂ**, **नामे / जमा** — plus balance, opening/closing balance, capital, debtors/creditors appear wherever a professional expects them: A/C statements, ledgers, reports, exports. **The entry screen stays verb-based** — the user never chooses Dr/Cr; the app derives the posting and then displays it professionally. Still forbidden in UI: journal, voucher, contra, accrual, folio, narration. **Carve-out 🔒:** *folio* is forbidden **as a common noun only**. The product name **Rukka Folio** is exempt wherever it appears as the name — splash, About, store listings, invoices, export footers — and the `check_strings.dart` jargon rule must whitelist the app-name keys (`app.name`, `app.name.short`, `about.*`) rather than flagging them. Never write "the folio" to mean a ledger page.
 4. **Loanwords are fine** where they're what people say: ਬੈਂਕ/बैंक, ਐਂਟਰੀ/एंट्री, ਕੋਡ/कोड, ਰਿਕਵਰੀ/रिकवरी, ਟ੍ਰਾਂਸਫਰ/ट्रांसफ़र.
 5. **Digits:** Latin digits, Indian grouping (₹12,34,567) in all languages. Gurmukhi/Devanagari digits are not used.
 6. **Dates:** English `DD Aug YYYY` (abbreviated months); ਪੰਜਾਬੀ/हिन्दी use **full month names** (`02 ਅਗਸਤ 2026`, `02 अगस्त 2026`) — these scripts don't abbreviate months naturally 🔒 (owner). Today/Yesterday = ਅੱਜ/ਕੱਲ੍ਹ, आज/कल.
@@ -30,7 +31,7 @@
 | Verb 3 | gave_credit | Gave on credit | ਉਧਾਰ ਦਿੱਤਾ | उधार दिया |
 | Verb 4 | took_credit | Took on credit | ਉਧਾਰ ਲਿਆ | उधार लिया |
 | Verb 5 | transfer | Transfer | ਟ੍ਰਾਂਸਫਰ | ट्रांसफ़र |
-| Verb 6 | adjustment | Fix / Adjust | ਸੁਧਾਈ | सुधार |
+| Verb 6 | adjustment | Fix / Adjust | ਠੀਕ ਕਰੋ | ठीक करें |
 
 ### Books & ledger
 | Concept | Internal | EN | ਪੰਜਾਬੀ | हिन्दी |
@@ -49,8 +50,8 @@
 | Debit | line Dr | Dr. | ਨਾਮੇ | नामे |
 | Credit | line Cr | Cr. | ਜਮ੍ਹਾਂ | जमा |
 | Balance | — | Balance | ਬਾਕੀ | बाकी |
-| Opening balance b/f | — | Opening balance | ਸ਼ੁਰੂਆਤੀ ਬਾਕੀ | शुरुआती बाकी |
-| Closing balance c/f | — | Closing balance | ਅਖੀਰਲੀ ਬਾਕੀ | आख़िरी बाकी |
+| Opening balance b/f | — | Opening balance | ਸ਼ੁਰੂਆਤੀ ਬਕਾਇਆ | शुरुआती बकाया |
+| Closing balance c/f | — | Closing balance | ਅੰਤਿਮ ਬਕਾਇਆ | अंतिम बकाया |
 | Cash in hand | money(cash) | Cash in hand | ਰੋਕੜ | रोकड़ |
 | Shop cash drawer | money(cash) | Galla | ਗੱਲਾ | गल्ला |
 | Donation box | money(cash_collection) | Gollak | ਗੋਲਕ | गोलक |
@@ -59,8 +60,8 @@
 | Bank balance | money(bank) | Bank balance | ਬੈਂਕ ਬਾਕੀ | बैंक बाकी |
 | Debtors (receivable side) | party Dr | Debtors — You will get | ਦੇਣਦਾਰ (ਲੈਣੇ ਹਨ) | देनदार (लेने हैं) |
 | Creditors (payable side) | party Cr | Creditors — You will give | ਲੈਣਦਾਰ (ਦੇਣੇ ਹਨ) | लेनदार (देने हैं) |
-| Advance to a member | advance | Advance | ਪੇਸ਼ਗੀ | पेशगी |
-| Money you're holding | — | Advance with you | ਤੁਹਾਡੇ ਕੋਲ ਪੇਸ਼ਗੀ | आपके पास पेशगी |
+| Advance to a member | advance | Advance | ਐਡਵਾਂਸ | एडवांस |
+| Money you're holding | — | Advance with you | ਤੁਹਾਡੇ ਕੋਲ ਐਡਵਾਂਸ | आपके पास एडवांस |
 | Suspense | equity_system | Unexplained | ਅਣਪਛਾਤੀ ਰਕਮ | अज्ञात रकम |
 | Capital | equity | Capital | ਪੂੰਜੀ | पूँजी |
 | Drawings | equity | Drawings | ਘਰੂ ਖਾਤਾ | निजी खर्च |
@@ -87,9 +88,13 @@
 | Family match check | Family match check | ਪਰਿਵਾਰ ਮਿਲਾਨ | परिवार मिलान |
 | Today / Save / Undo | Today / Save / Undo | ਅੱਜ / ਸੇਵ ਕਰੋ / ਵਾਪਸ ਲਓ | आज / सेव करें / वापस लें |
 
-**Deliberate deviations from the reference file 🔒:** ਸ਼ਾਹੂਕਾਰ (moneylender) is avoided for creditors — loaded connotation; neutral ਲੈਣਦਾਰ is used. ਅਸਾਮੀ (debtor) is authentic bahi-khata but regional — kept as a **search synonym**, not a label. The A/C picker's search matches synonyms (ਅਸਾਮੀ→ਦੇਣਦਾਰ, ਸਰਮਾਇਆ→ਪੂੰਜੀ, ਮੀਜ਼ਾਨ→ਬਾਕੀ, बीजक→बिल) so users can type what they know.
+**ਬਕਾਇਆ for balance rows 🔒 (owner-directed, 31 Aug 2026).** The b/f and c/f rows use **ਸ਼ੁਰੂਆਤੀ ਬਕਾਇਆ / शुरुआती बकाया** and **ਅੰਤਿਮ ਬਕਾਇਆ / अंतिम बकाया** — *bakaya* is the standing-amount term a munim uses on those rows, where *baaki* reads as "the rest". **ਬਾਕੀ / बाकी** remains correct for the running Balance **column header** and for pending states (ਮਨਜ਼ੂਰੀ ਬਾਕੀ). **Fix / Adjust** is the imperative **ਠੀਕ ਕਰੋ / ठीक करें**, not the noun *sudhaar*.
 
-**Advance (ਪੇਸ਼ਗੀ) vs Suspense — kept distinct on purpose:** Advance = unexplained money **with a known responsible person**, settled by that person (02 §7). Suspense = unexplained money **with no person attached** (an unmatched bank line), which must reach zero before month close (02 §10). Merging them would lose "who is answerable."
+**Advance = ਐਡਵਾਂਸ / एडवांस 🔒 (owner-directed, 31 Aug 2026).** The English loanword, transliterated, is what people actually say — *"advance de diya"*, *"advance liya hai"* — and it follows rule 4 alongside ਬੈਂਕ and ਐਂਟਰੀ. The traditional **ਪੇਸ਼ਗੀ / पेशगी** is retained as a **search synonym** in the A/C picker, so an older user who knows that word still finds the account.
+
+**Deliberate deviations from the reference file 🔒:** ਸ਼ਾਹੂਕਾਰ (moneylender) is avoided for creditors — loaded connotation; neutral ਲੈਣਦਾਰ is used. ਅਸਾਮੀ (debtor) is authentic bahi-khata but regional — kept as a **search synonym**, not a label. The A/C picker's search matches synonyms (ਅਸਾਮੀ→ਦੇਣਦਾਰ, ਸਰਮਾਇਆ→ਪੂੰਜੀ, ਮੀਜ਼ਾਨ→ਬਾਕੀ, बीजक→बिल) so users can type what they know. Add ਪੇਸ਼ਗੀ→ਐਡਵਾਂਸ, पेशगी→एडवांस, ਬਾਕੀ→ਬਕਾਇਆ, बाकी→बकाया.
+
+**Advance (ਐਡਵਾਂਸ) vs Suspense — kept distinct on purpose:** Advance = unexplained money **with a known responsible person**, settled by that person (02 §7). Suspense = unexplained money **with no person attached** (an unmatched bank line), which must reach zero before month close (02 §10). Merging them would lose "who is answerable."
 
 **Reserved name (brand §2):** *Rokad* is the in-product feature name for the simple cash-book view — the day-one shopkeeper mode — never used in marketing.
 
@@ -98,6 +103,22 @@
 **Surface precedence:** this document governs in-product terminology; marketing/site/deck copy follows the brand voice and localisation rules (11 §5). Brand's "financial terms stay in English" rule applies to marketing and search-facing text, not to this table.
 
 Seeded category trees (household/shop/trust) ship in all three languages in a separate seed file, same review gate.
+
+## 2.0 Duration, ageing and status meta strings 🔒 (owner-approved, 31 Aug 2026)
+These appear under card titles and in list rows. Previously undefined, which is how a machine translation slipped in.
+
+| Use | English | ਪੰਜਾਬੀ | हिन्दी |
+|---|---|---|---|
+| Advance card label | Advance out | ਐਡਵਾਂਸ | एडवांस |
+| Advance held (member's own view) | Advance with you | ਤੁਹਾਡੇ ਕੋਲ ਐਡਵਾਂਸ | आपके पास एडवांस |
+| Ageing meta under a name | Sunita Devi · 11 days | ਸੁਨੀਤਾ ਦੇਵੀ · 11 ਦਿਨਾਂ ਤੋਂ | सुनीता देवी · 11 दिन से |
+| Ageing chip, receivables | > 30 days | 30 ਦਿਨਾਂ ਤੋਂ ਵੱਧ | 30 दिन से ज़्यादा |
+| Ageing chip, overdue | > 90 days | 90 ਦਿਨਾਂ ਤੋਂ ਵੱਧ | 90 दिन से ज़्यादा |
+| Last counted | Last counted 27 Aug | ਆਖ਼ਰੀ ਗਿਣਤੀ 27 ਅਗਸਤ | आख़िरी गिनती 27 अगस्त |
+| Not yet settled | Not settled | ਬਾਕੀ | बाकी |
+| In transit | In transit | ਰਸਤੇ ਵਿੱਚ | रास्ते में |
+
+The Indic forms use **ਤੋਂ / से** (*since*) rather than an adjective — the natural way both languages express elapsed time. ICU: `{name} · {n} {ਦਿਨਾਂ ਤੋਂ|दिन से}` with plural forms per language ⚠️ owner to confirm singular ("1 ਦਿਨ ਤੋਂ" / "1 दिन से").
 
 ## 2.1 Entry preview string 🔒 (07 §5 step 5.5)
 **One template, all languages** — the arrow carries the flow, so no postposition and no per-language word order:

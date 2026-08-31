@@ -111,7 +111,7 @@ Five-slot bottom bar, persistent, with a centre action:
 | **S3** | Ledger index (A–Z khatas) | root | search header, filter chips |
 | **S4** | A/C statement | S3 | grouped listing; professional columns in export |
 | **S4.1** | Entry detail | S4/S1 | audit trail, photo, amend/reverse |
-| **S5** | Advances (ਪੇਸ਼ਗੀ) | S1/S6 | mine held · given out, aged |
+| **S5** | Advances (ਐਡਵਾਂਸ) | S1/S6 | mine held · given out, aged |
 | **S5.1** | Advance request | S5 | amount + purpose → approver |
 | **S6** | Inbox | root | grouped cards, all attention types |
 | **S6.1** | Review — grouped card | S6 | Approve all / One by one |
@@ -203,7 +203,7 @@ Author: entry posts → amber clock on the row → one summary chip per book vie
 Reviewer: `push (digest) → S6 → S6.1 grouped card ◆ Approve all → done | One by one → S6.2 stepper: approve / reject+reason (auto-reversal posts) / skip ⟳ through n`
 Nothing is ever excluded from a balance because it is awaiting review.
 
-**F6 · Advance (ਪੇਸ਼ਗੀ) — the exception that gates first**
+**F6 · Advance (ਐਡਵਾਂਸ) — the exception that gates first**
 `S5.1 request (amount + purpose, required) → approver notified → ◆approve → cash disbursed, Advance–{member} opens → holder records spends against it ⟳ → returns remainder → advance closes at zero`
 Ageing counter from first disbursal; reminders to holder then approver; write-off requires approver + reason; open advances block member removal.
 

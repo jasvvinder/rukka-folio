@@ -906,7 +906,7 @@ Entity type: **Joint family with businesses.** Four independent, self-balancing 
 
 *Rahul and Geeta sub-family books (not reproduced) carry the mirror of their allowance balances shown in Book 1.*
 
-## 7. Open advances (ਪੇਸ਼ਗੀ) across the family, as on 29 August 2026
+## 7. Open advances (ਐਡਵਾਂਸ) across the family, as on 29 August 2026
 
 | Book | Held by | Balance | Since |
 |---|---|---:|---|

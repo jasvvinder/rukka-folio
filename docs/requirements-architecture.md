@@ -105,7 +105,7 @@ The accounting term is stored in the database. Only the vernacular term is shown
 | Ledger Account | Account | खाता | |
 | Sundry Debtor | You will get | जिनसे लेना है | ₹ shown in green |
 | Sundry Creditor | You will give | जिन्हें देना है | ₹ shown in red |
-| Advance / Suspense | Hand loan | हाथ उधार / पेशगी | §4.2 |
+| Advance / Suspense | Hand loan | हाथ उधार / एडवांस | §4.2 |
 | Capital | Own money | पूंजी | |
 | Drawings | Money taken out | निकासी | |
 | Trial Balance | Match check | मिलान | shown as ✓ or ✗, not as a report |

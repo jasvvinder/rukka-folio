@@ -23,7 +23,7 @@ Accounts are encrypted content with stable UUIDs. Each has a **class**, which dr
 |---|---|---|
 | `money` | Cash in hand, each bank account (subtype: saving / current / OD / CC / loan), wallet | **By sign:** Dr balance → asset, Cr balance → liability. An OD swinging past zero or a savings account overdrawn needs no special handling — the sign flips, the display color flips. |
 | `party` | one account per person/shop/firm you deal with | By sign: Dr → *You will get* (asset), Cr → *You will give* (liability). One party, one account, both roles. |
-| `advance` | `Advance – {member}` auto-created per member per book | Asset; drives the peshgi flow (§7) |
+| `advance` | `Advance – {member}` auto-created per member per book | Asset; drives the advance flow (§7) |
 | `partner` | `{Owner} — Partner Current A/c`, one per owner of a jointly-owned business | By sign: Cr = business owes them · Dr = they owe the business (§7.1) |
 | `category_income` / `category_expense` | Salary, Shop sales, Diesel, Groceries… (seeded tree per book type, editable) | P&L |
 | `equity_system` | Opening Balance, Adjustments, Due to/from {Book} (§6) | Equity / inter-book |
@@ -149,7 +149,7 @@ Family book:     Dr Bank 50,000 · Cr Due to/from Business 50,000
 
 ---
 
-## 7. Advances — the peshgi (ਪੇਸ਼ਗੀ / पेशगी) flow 🔒
+## 7. Advances — the advance (ਐਡਵਾਂਸ / एडवांस) flow 🔒
 
 - Advances are the deliberate exception to §3's post-then-review: **here the approval itself moves the money** — cash leaves the drawer upon approval, so nothing exists to mismatch. Requesting ₹X posts, on approval: `Dr Advance – {member} · Cr money`. Purpose text required; approval always required regardless of limit.
 - Spending against it: `Dr expense-category · Cr Advance – {member}` (entered by the member, approved per limits, bill photo encouraged).

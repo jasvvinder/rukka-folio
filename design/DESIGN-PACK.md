@@ -7,6 +7,7 @@
 | Step | What you paste | Produces |
 |---|---|---|
 | **0** | Shared context block | nothing yet — sets brand, tokens, rules for the session |
+| **0b** | String sheet | the exact three-language strings — prevents invented translations |
 | **1** | P1 · P2 · P3 | the three components 90% of the app is made of |
 | **2** | S1 → S10 core screens | the app itself, entity-neutral |
 | **2b** | Onboarding set + role variants | first-run flow, and how each screen looks to each role |
@@ -19,6 +20,27 @@
 **Three things the tool will skip unless you insist:** the dark theme, the Punjabi and Hindi versions of every screen, and Mukta Mahee for Gurmukhi rather than a fallback font. Ask for each explicitly.
 
 **Reference while designing:** `docs/13-ux-architecture.md` (screen inventory, flows, states) · `design/design-system.md` (rules and contrast audit) · `design/tokens/tokens.json` (import as Figma variables) · `docs/reference/worked-examples/*.md` (the real figures used below).
+
+## Working across multiple design chats
+
+Each new chat starts blank, so drift between sessions is the main risk. Two habits prevent it.
+
+**The paste ritual — every new chat, without exception:**
+1. **Step 0** (brand, tokens, rules)
+2. **Step 0b** (string sheet)
+3. **Screenshots of the approved P1, P2, P3** and any screen the new one must match, with the line: *"Match these exactly — same row height, type sizes, spacing and colours."*
+4. Only then, the screen prompt
+
+**Group screens by pattern, not by feature.** One chat for everything built on P1 (day book, statement, drill-downs, import inbox, review list), one for P2/P3 screens (Home, Inbox), one for onboarding, one per entity pack. Screens that share a component should share a chat — that's where consistency is cheapest.
+
+**After each chat, check the new screens against the last approved set:**
+- row height and vertical rhythm identical
+- amount type size, weight and tabular alignment identical
+- icon size and treatment (outlined, muted) identical
+- every label matches Step 0b exactly — no invented translations
+- dark mode present · all three languages present
+
+**Keep one running note** of anything you approved that isn't in this pack — a spacing choice, a new label, an interaction. That note is what comes back into `docs/07-ui-flows.md` and `docs/01-glossary.md` at the end. If it contradicts a 🔒 decision, it belongs in `docs/decisions/` as an ADR.
 
 ---
 
@@ -34,8 +56,58 @@ You are designing **Rukka Folio**, an iOS-first mobile bookkeeping app for India
 **Type:** Mukta (Latin/Devanagari) + Mukta Mahee (Gurmukhi). display 40/600 · page 28/600 · section 20/500 · body 16/400 · row 14/400 · caption 12/400 · hero amount 44/600. **All amounts tabular figures, ₹ prefix, Indian grouping (₹1,24,500).**
 **Grid:** 4pt · gutter 16 · card padding 16 · row min-height 56 · radii 4/8/12 · touch targets ≥ 44pt.
 **Languages:** English, ਪੰਜਾਬੀ, हिन्दी — equal status, every screen in all three. Indic runs 30–40% longer; never fix a text container's height.
+**Every label must come from the glossary, not from the tool's own translation.** Duration and status strings in particular: *"Sunita Devi · 11 days"* is **ਸੁਨੀਤਾ ਦੇਵੀ · 11 ਦਿਨਾਂ ਤੋਂ** / **सुनीता देवी · 11 दिन से** — never a literal rendering of English state-words like *open* or *out*. If a string you need isn't in `docs/01-glossary.md`, ask for it rather than translating it.
 **Identity & role are always visible:** the top-bar scope chip carries the signed-in user's avatar; tapping it reads "Amrit Kaur · Admin in this book". Where a capability is unavailable to a role, **state the reason in place of the control** — never silently omit it.
 **Rules:** colour never alone (always a sign, icon or word too) · indigo never means "good" · one accent per screen · dark mode is a designed theme, not an inversion · nothing bounces.
+
+---
+
+# STEP 0b — String sheet *(paste with Step 0; never translate anything)*
+
+**Use these exact strings. If a label you need is not here, ask for it — do not translate.** Every string below is owner-reviewed by a native Punjabi and Hindi speaker; machine translation has already produced wrong senses (*open* → ਖੁੱਲ੍ਹੀ / खुली, meaning *opened like a door*).
+
+| Use | English | ਪੰਜਾਬੀ | हिन्दी |
+|---|---|---|---|
+| **Nav** | Home · Ledger · Inbox · Menu | ਹੋਮ · ਖਾਤੇ · ਇਨਬਾਕਸ · ਮੀਨੂ | होम · खाते · इनबॉक्स · मेनू |
+| **Verb 1** | Money in | ਪੈਸੇ ਆਏ | पैसे आए |
+| **Verb 2** | Money out | ਪੈਸੇ ਗਏ | पैसे गए |
+| **Verb 3** | Gave on credit | ਉਧਾਰ ਦਿੱਤਾ | उधार दिया |
+| **Verb 4** | Took on credit | ਉਧਾਰ ਲਿਆ | उधार लिया |
+| Transfer · Fix/Adjust | Transfer · Fix | ਟ੍ਰਾਂਸਫਰ · ਠੀਕ ਕਰੋ | ट्रांसफ़र · ठीक करें |
+| Hero label | Total money you have | ਕੁੱਲ ਪੈਸੇ | कुल पैसे |
+| Books balanced | Books balanced | ਹਿਸਾਬ ਮਿਲਦਾ ਹੈ | हिसाब मिलता है |
+| Receivable row | You will get | ਲੈਣੇ ਹਨ | लेने हैं |
+| Payable row | You will give | ਦੇਣੇ ਹਨ | देने हैं |
+| Advance row | Advance out | **ਐਡਵਾਂਸ** | **एडवांस** |
+| Advance held | Advance with you | ਤੁਹਾਡੇ ਕੋਲ ਐਡਵਾਂਸ | आपके पास एडवांस |
+| **Ageing meta** | Sunita Devi · 11 days | ਸੁਨੀਤਾ ਦੇਵੀ · **11 ਦਿਨਾਂ ਤੋਂ** | सुनीता देवी · **11 दिन से** |
+| Ageing chips | > 30 days · > 90 days | 30 ਦਿਨਾਂ ਤੋਂ ਵੱਧ · 90 ਦਿਨਾਂ ਤੋਂ ਵੱਧ | 30 दिन से ज़्यादा · 90 दिन से ज़्यादा |
+| In transit | In transit | ਰਸਤੇ ਵਿੱਚ | रास्ते में |
+| This month | This month · In · Out | ਇਸ ਮਹੀਨੇ · ਆਏ · ਗਏ | इस महीने · आए · गए |
+| Cash | Cash in hand · Galla · Gollak | ਰੋਕੜ · ਗੱਲਾ · ਗੋਲਕ | रोकड़ · गल्ला · गोलक |
+| Last counted | Last counted 27 Aug | ਆਖ਼ਰੀ ਗਿਣਤੀ 27 ਅਗਸਤ | आख़िरी गिनती 27 अगस्त |
+| Today / Yesterday | Today · Yesterday | ਅੱਜ · ਕੱਲ੍ਹ | आज · कल |
+| Buttons | Save · Undo · Approve · Reject · Skip | ਸੇਵ ਕਰੋ · ਵਾਪਸ ਲਓ · ਮਨਜ਼ੂਰ ਕਰੋ · ਰੱਦ ਕਰੋ · ਛੱਡੋ | सेव करें · वापस लें · मंज़ूर करें · रद्द करें · छोड़ें |
+| Awaiting review | Waiting for approval · {name} will review | ਮਨਜ਼ੂਰੀ ਬਾਕੀ · {name} ਜਾਂਚ ਕਰੇਗੀ | मंज़ूरी बाकी · {name} जाँच करेंगी |
+| Old entries | Old entries waiting | ਪੁਰਾਣੀਆਂ ਐਂਟਰੀਆਂ ਬਾਕੀ | पुरानी एंट्रियाँ बाकी |
+| Statement cols | Dr · Cr · Balance | ਨਾਮੇ · ਜਮ੍ਹਾਂ · ਬਾਕੀ | नामे · जमा · बाकी |
+| Bank cols | Money in (Dr.) · Money out (Cr.) | ਪੈਸੇ ਆਏ (ਨਾਮੇ) · ਪੈਸੇ ਗਏ (ਜਮ੍ਹਾਂ) | पैसे आए (नामे) · पैसे गए (जमा) |
+| Creditor cols | You paid (Dr.) · You took (Cr.) | ਤੁਸੀਂ ਦਿੱਤੇ (ਨਾਮੇ) · ਤੁਸੀਂ ਲਏ (ਜਮ੍ਹਾਂ) | आपने दिए (नामे) · आपने लिए (जमा) |
+| Balance rows | Opening balance · Closing balance | ਸ਼ੁਰੂਆਤੀ ਬਕਾਇਆ · ਅੰਤਿਮ ਬਕਾਇਆ | शुरुआती बकाया · अंतिम बकाया |
+| Close | Close the month · Close the year | ਮਹੀਨਾ ਬੰਦ ਕਰੋ · ਸਾਲ ਬੰਦ ਕਰੋ | महीना बंद करें · साल बंद करें |
+| Count | Count cash · Open and count | ਰੋਕੜ ਗਿਣੋ · ਖੋਲ੍ਹ ਕੇ ਗਿਣੋ | रोकड़ गिनें · खोलकर गिनें |
+| Ceremony | Show my code · Verify | ਮੇਰਾ ਕੋਡ ਦਿਖਾਓ · ਤਸਦੀਕ ਕਰੋ | मेरा कोड दिखाएँ · तसदीक करें |
+| Guardian / recovery | Trusted member · Recovery sheet | ਭਰੋਸੇਮੰਦ ਮੈਂਬਰ · ਰਿਕਵਰੀ ਪਰਚੀ | भरोसेमंद सदस्य · रिकवरी पर्ची |
+| Reconciliation | Family match check | ਪਰਿਵਾਰ ਮਿਲਾਨ | परिवार मिलान |
+| Entry preview | ₹2,400 · Cash A/c → Diesel Expense A/c · {note} | same shape, same arrow | same shape, same arrow |
+
+**Two rules that produced errors before:**
+1. **Never translate English state-words** — *out, open, pending, due*. Say the fact instead: elapsed time uses **ਤੋਂ / से** (*since*), never an adjective.
+2. **No gendered participles in labels** (ਦਿੱਤੀ / दी) — they must agree with nouns that vary. A bare noun is always the safer label.
+
+**Loanwords are correct where people use them:** ਐਡਵਾਂਸ, ਬੈਂਕ, ਐਂਟਰੀ, ਕੋਡ, ਟ੍ਰਾਂਸਫਰ / एडवांस, बैंक, एंट्री, कोड, ट्रांसफ़र. Do not "purify" these into Sanskritised forms.
+
+**Full string set:** `docs/01-glossary.md`.
 
 ---
 
@@ -214,7 +286,7 @@ Trust SBI A/c · Gollak Cash A/c · Advance – Amritpal Singh A/c · Langar Exp
 Reuse **S5.5 collect mode** with the trust's language — title "Gollak · Open and count" (ਗੋਲਕ ਖੋਲ੍ਹ ਕੇ ਗਿਣੋ), Gollak Cash A/c preselected, an income-account row reading "Record as: Gollak Donation Income", no book-balance or difference line, and both name fields required. After saving, a confirmation stating plainly that the money has been recorded and remains in the gollak until it is deposited.
 
 ### C4 · Sevadar advance card
-Apply P2/P3 to the **ਪੇਸ਼ਗੀ** flow: "Amritpal Singh is holding ₹11,900 · given 12 Jul · 18 days" with a progress bar showing spent versus remaining, and two buttons — "Record spending" and "Return cash".
+Apply P2/P3 to the **ਐਡਵਾਂਸ** flow: "Amritpal Singh is holding ₹11,900 · given 12 Jul · 18 days" with a progress bar showing spent versus remaining, and two buttons — "Record spending" and "Return cash".
 
 ### C5 · Donation receipt *(trust-only screen)*
 A single-entry receipt preview on gurudwara letterhead: trust name, donor name, amount in figures and words in the chosen language, date, receipt number, and a Share button. **No tax language, no 80G claim** — this is an acknowledgement, not a tax document.
@@ -243,7 +315,7 @@ A list of book pairs, each showing both sides and a green tick: "Joint pool ↔ 
 ### D6 · Allowance flow
 The monthly household allowance from pool to sub-family, as a **repeating entry**: a card on the joint pool's Home reading "Monthly allowances · ₹1,15,000 · due 15 Sep" with a "Send now" button, expanding to per-sub-family rows with amounts editable before sending.
 
-### D7 · Advance (ਪੇਸ਼ਗੀ) full cycle *(joint + trust + business)*
+### D7 · Advance (ਐਡਵਾਂਸ) full cycle *(joint + trust + business)*
 Four states of the same card, designed as a set: **requested** (awaiting approval, amber) · **open** (₹5,800 with Sunil Sharma, 17 days, progress bar) · **overdue** (past the reminder threshold, red, with "Remind" button) · **settled** (green tick, collapsed).
 
 ### D7.1 · S14 — Partner positions *(shared-ownership businesses)*

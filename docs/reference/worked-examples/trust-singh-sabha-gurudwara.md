@@ -1,6 +1,6 @@
 # Trust Book — Singh Sabha Gurudwara
 
-Entity type: **Trust / religious organization**. Gollak collections, sponsor donations, langar expenses, and a sevadar advance (ਪੇਸ਼ਗੀ) tracked as its own account so every movement stays a real journal entry.
+Entity type: **Trust / religious organization**. Gollak collections, sponsor donations, langar expenses, and a sevadar advance (ਐਡਵਾਂਸ) tracked as its own account so every movement stays a real journal entry.
 
 **Period:** 01 April 2026 – 29 August 2026 (FY 2026-27) · **Every figure below is generated from the vouchers and verified to balance.**
 

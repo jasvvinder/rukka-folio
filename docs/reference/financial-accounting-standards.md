@@ -16,7 +16,7 @@ Every transaction is a set of journal lines summing to zero. A standalone entry 
 
 | Type | Class | Natural balance | Dr impact | Cr impact | Examples |
 |---|---|---|---|---|---|
-| Asset | Asset | **Dr** | + | − | Cash, banks, debtors (Ramesh), advances (ਪੇਸ਼ਗੀ) |
+| Asset | Asset | **Dr** | + | − | Cash, banks, debtors (Ramesh), advances (ਐਡਵਾਂਸ) |
 | Expense | P&L | **Dr** | + | − | Utility, Milk Expense, Langar, Purchases |
 | Liability | Liability | **Cr** | − | + | Creditors (Rahul, Milk Man, Aggarwal), OD, CC |
 | Equity | Internal claim (own class) | **Cr** | − | + | Capital, Opening Balance, Drawings (contra) |
@@ -30,7 +30,7 @@ Ledger columns never say bare "Dr/Cr" — each account type carries its contextu
 | Bank / Cash (money) | *Money in* | *Money out* | Dr = you have · Cr = overdraft (you owe bank) |
 | Debtor (party) | *Given / they owe you ↑* | *Received back* | Dr = you will get (ਲੈਣੇ ਹਨ) |
 | Creditor (party) | *You paid* | *You took / you owe ↑* | Cr = you will give (ਦੇਣੇ ਹਨ) |
-| Advance / ਪੇਸ਼ਗੀ | *Handed out* | *Bills settled / returned* | Dr = money out with the person |
+| Advance / ਐਡਵਾਂਸ | *Handed out* | *Bills settled / returned* | Dr = money out with the person |
 | Expense | *Spent* | *Refund / adjustment* | Dr = total spent |
 | Income | *Refund / adjustment* | *Earned / received* | Cr = total earned |
 | Equity / Capital | *Withdrawn (drawings)* | *Added (capital in)* | Cr = own money in the books |
@@ -221,7 +221,7 @@ Owner capital, cash & credit sales, credit purchases, customer receipts, supplie
 
 One family, four independent self-balancing books linked only by **Due to/from** pairs: **Joint Book** (common pool), **Family-A Book** (a sub-family), **Kirana Book** (a family business), **Amit's Personal Book**. Every inter-book event posts once in each book; the pair must always net to zero.
 
-**Use cases demonstrated:** business remits to the common pool · pool pays a common expense · monthly allowance to a sub-family · a member pays a family expense from his own pocket · the full **ਪੇਸ਼ਗੀ (advance) cycle** · a bank crossing zero into overdraft.
+**Use cases demonstrated:** business remits to the common pool · pool pays a common expense · monthly allowance to a sub-family · a member pays a family expense from his own pocket · the full **ਐਡਵਾਂਸ (advance) cycle** · a bank crossing zero into overdraft.
 
 ### 5.1 Daybooks (all four books)
 
@@ -235,7 +235,7 @@ One family, four independent self-balancing books linked only by **Due to/from**
 | F02 | Family-A | Groceries (cash) | Groceries Expense | Family-A Cash | 1,500 |
 | P01 | Amit personal | Pays Family-A electricity from own cash | Due from Family-A | Amit Cash | 2,300 |
 | F03 | Family-A | (pair of P01) | Electricity Expense | Due to Amit | 2,300 |
-| K02 | Kirana | ਪੇਸ਼ਗੀ to Ramesh (approved) | Advance–Ramesh | Kirana Bank | 20,000 |
+| K02 | Kirana | ਐਡਵਾਂਸ to Ramesh (approved) | Advance–Ramesh | Kirana Bank | 20,000 |
 | K03 | Kirana | Ramesh submits repair bills | Shop Repair Expense | Advance–Ramesh | 17,400 |
 | K04 | Kirana | Ramesh returns remainder | Kirana Cash | Advance–Ramesh | 2,600 |
 
@@ -252,7 +252,7 @@ Openings: Joint (Cash 10,000 · Bank 40,000 · Opening 50,000 Cr) · Family-A (C
 | 09 Aug | By Advance–Ramesh | — | 20,000 | 10,000 | **Cr** |
 | 31 Aug | Closing balance c/f | — | — | **10,000** | **Cr — overdraft (you owe the bank)** |
 
-**Advance–Ramesh A/c** (ਪੇਸ਼ਗੀ) — Dr *[Handed out]* · Cr *[Bills settled / returned]*
+**Advance–Ramesh A/c** (ਐਡਵਾਂਸ) — Dr *[Handed out]* · Cr *[Bills settled / returned]*
 
 | Date | Particulars | Dr | Cr | Balance | Side |
 |---|---|---|---|---|---|
@@ -283,7 +283,7 @@ Openings: Joint (Cash 10,000 · Bank 40,000 · Opening 50,000 Cr) · Family-A (C
 
 Non-profit: no commercial profit; inflows are donations, the year's surplus/deficit closes to **Corpus**. Trustee advances are per-person **Advance sub-accounts** — never tags inside Cash — so every movement stays a real journal entry (errata F-4).
 
-**Accounts:** Trust Cash (A) · Trust Bank–SBI (A) · Advance–Assistant A (A/ਪੇਸ਼ਗੀ) · Langar Expense (E) · Donation Income (I).
+**Accounts:** Trust Cash (A) · Trust Bank–SBI (A) · Advance–Assistant A (A/ਐਡਵਾਂਸ) · Langar Expense (E) · Donation Income (I).
 
 ### 6.1 Daybook
 
@@ -291,7 +291,7 @@ Non-profit: no commercial profit; inflows are donations, the year's surplus/defi
 |---|---|---|---|---|---|
 | T01 | 01 | Gollak (box) collection sorted | Trust Cash | Donation Income | 20,000 |
 | T02 | 02 | Sponsor donation (UPI) | Trust Bank | Donation Income | 15,000 |
-| T03 | 03 | ਪੇਸ਼ਗੀ to Assistant A for langar | Advance–Asst A | Trust Cash | 5,000 |
+| T03 | 03 | ਐਡਵਾਂਸ to Assistant A for langar | Advance–Asst A | Trust Cash | 5,000 |
 | T04 | 04 | A submits vegetable bills | Langar Expense | Advance–Asst A | 2,000 |
 | T05 | 05 | LPG cylinder paid (bank) | Langar Expense | Trust Bank | 3,200 |
 | T06 | 06 | A returns part cash | Trust Cash | Advance–Asst A | 1,000 |

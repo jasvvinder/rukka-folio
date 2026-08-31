@@ -136,7 +136,7 @@ One screen, two modes driven by the account's subtype (02 §8.2): **verify** for
 - Empty state: seeded tree is already present, so never truly empty; search-miss state = the create row.
 
 ## 7. You-will-get / You-will-give 🔒
-Drill-downs from Home: party list sorted by balance, ageing chips (`> 30 d` amber, `> 90 d` red), total header; row → party statement (§6); *Remind on WhatsApp* per party ⚠️ Phase 1?; bulk export.
+Drill-downs from Home: party list sorted by balance, ageing chips (`> 30 days` amber, `> 90 days` red — localised per 01 §2.0, never abbreviated in ਪੰਜਾਬੀ/हिन्दी), total header; row → party statement (§6); *Remind on WhatsApp* per party ⚠️ Phase 1?; bulk export.
 
 ## 8. Advances 🔒
 - **My advances** (money I'm holding): per-book cards — purpose, taken date, spent vs remaining bar, `Add spend` (pre-filtered entry) and `Return remaining` buttons.

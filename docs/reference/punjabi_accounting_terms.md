@@ -42,8 +42,8 @@ This document contains a comprehensive list of professional accounting, bookkeep
 | **Debit (Dr.)** | ਨਾਮੇ / ਡੈਬਿਟ | *Naame / Debit* |
 | **Credit (Cr.)** | ਜਮ੍ਹਾਂ / ਕ੍ਰੈਡਿਟ | *Jammah / Credit* |
 | **Balance** | ਬਾਕੀ / ਮੀਜ਼ਾਨ | *Baaki / Meezan* |
-| **Opening Balance** | ਸ਼ੁਰੂਆਤੀ ਬਾਕੀ | *Shuruati Baaki* |
-| **Closing Balance** | ਅਖੀਰਲੀ ਬਾਕੀ | *Akheerli Baaki* |
+| **Opening Balance** | ਸ਼ੁਰੂਆਤੀ ਬਕਾਇਆ | *Shuruati Baaki* |
+| **Closing Balance** | ਅੰਤਿਮ ਬਕਾਇਆ | *Akheerli Baaki* |
 | **Bad Debts** | ਡੁੱਬਿਆ ਕਰਜ਼ਾ / ਮਾਰੂ ਖਾਤਾ | *Dubbya Karza / Maaroo Khata* |
 
 ---
