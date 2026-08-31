@@ -130,17 +130,47 @@ Design a card for items awaiting a person: 36px circular avatar with initials, t
 ## S1 — Home
 Design the home screen, top to bottom: top bar with a scope chip (pill, book name + chevron) and sync/notification icons right. Then **hero**: small muted caps label "TOTAL MONEY YOU HAVE", a 34px bold tabular amount, and a muted breakdown line beneath ("Indian Bank ₹47,000 · Cash ₹14,500"). Then a **books-balanced card** — green check icon, "Books balanced" in green, chevron right, and beneath in muted tabular text "Dr ₹8,56,200 = Cr ₹8,56,200 · no difference". Then a **position card** (P2) with rows: You will get (green) · You will give (red) · Advance out (with the holder's name as meta). Then a slim **month card**: muted "This month" left, "In ₹1,75,000 · Out ₹1,38,200" right in green/red. Then a "Today · 30 Aug ▸ day book" label and 3 entry rows. Then, **docked directly above the bottom navigation**, a 4-across grid of verb buttons — Money in · Money out · Gave on credit · Took on credit — each a bordered tile with an icon above a 2-line-safe label. **The verb buttons carry no figures.** Bottom nav: Home · Ledger · Inbox (badge) · Menu.
 
-## S2 — Add entry
-Design a full-screen entry sheet where the **numeric keypad is already open**. Top: a coloured verb chip ("Money out", swipeable to change). Below it the amount, very large and tabular, with a ₹ prefix. Under the amount two selection rows: "From" showing horizontal account chips (Cash, SBI, Indian Bank), and "For" — a tappable field reading "Choose or type". Then a small row: a date chip reading **"Today"**, a note field, a camera icon. The keypad occupies the lower half with a wide primary Save button. Include a variant showing a saved-confirmation toast "Saved ✓ · Sunita will review" with an Undo link.
+## S2 — Add entry *(one screen, three states)*
 
-## S2 (variant) — Entry preview line
-Directly above the Save button, a single muted line showing the value flow:
+**One screen that never navigates, never overlays and never scrolls.** The lower region swaps in place: keypad by default, account list when the counterpart slot is tapped, keypad again once chosen. Everything above stays put throughout.
 
-**₹2,400 · Cash A/c → Diesel Expense A/c · for diesel in Isuzu car**
+**Layout, top to bottom:** close ✕ and a coloured verb chip (swipeable to change the verb) · the amount, very large and tabular, ₹ prefixed — **no amount-in-words** · the money-account **chip row** under its verb-dependent label · the **counterpart slot** reading "Choose an account" · a row of small chips for date, note and camera · the **live preview line** · the swapping region · **Save**.
 
-Amount emphasised and tabular; account names in normal weight; a clear arrow glyph between them with even spacing; narration in lighter muted type and absent entirely when the user wrote no note. Always visible, read-only, nothing tappable. Design three cases: the standard line, the **no-narration** case, and the **two-line wrap** with long Gurmukhi account names. Also a split variant reading "3 accounts → Purchases A/c".
+**Three states to design:**
+1. **Typing** — keypad in the lower region. Nothing is pre-selected: no chip ticked, counterpart empty, Save greyed.
+2. **Choosing** — the counterpart slot is highlighted and the **account list has replaced the keypad in the same space**: a search field, then plain rows of icon + account name, then "+ Create a new A/C". Not a sheet sliding over, not a new screen — the amount and chips above remain visible.
+3. **Chosen** — the keypad returns, the preview line completes, Save turns solid.
 
-## S2.1 — A/C picker
+🔒 **Nothing is remembered between entries** — no default account, no last-used, no repeat shortcuts anywhere. Explicit choice every time.
+
+**Slot labels change with the verb — never a fixed "FROM":**
+
+| Verb | Chip row | Counterpart slot |
+|---|---|---|
+| Money in | **INTO** | **FROM** — an income like Shop Sales, or a person paying you back |
+| Money out | **FROM** | **FOR** — an expense, or a person you are paying |
+| Gave on credit | **WHAT DID YOU GIVE** | **TO WHOM** — the person leads |
+| Took on credit | **WHAT DID YOU TAKE** | **FROM WHOM** — the person leads |
+
+The chip row shows the money accounts plus a **+** chip for the rest. Design one variant with **no chip row at all** — milk taken on khata touches no bank or cash.
+
+## S2 (variant) — Live preview line
+
+One line above Save that **fills as the user works**, not at the end. Design all five states:
+
+| State | Line |
+|---|---|
+| Empty | `₹0 · ⋯ → ⋯`, muted, dotted placeholders |
+| Typing | amount updates every digit, Indian grouping live |
+| One side chosen | `₹2,400 · ਰੋਕੜ ਖਾਤਾ → ⋯` |
+| Complete | `₹2,400 · ਰੋਕੜ ਖਾਤਾ → ਡੀਜ਼ਲ ਖਰਚ ਖਾਤਾ`, full ink |
+| With note | `· ਇਸੁਜ਼ੂ ਗੱਡੀ ਦੇ ਡੀਜ਼ਲ ਲਈ` appended, lighter type |
+
+It **reserves its full height from the first frame** so nothing below shifts as it fills. Empty slots are **dotted placeholders, never blank** — the line should read as a sentence with gaps. When the last slot lands the line goes from muted to full ink **and Save turns solid at the same moment**: that state change is the validation, so no error message is ever needed. Read-only, nothing tappable inside it. Also design the two-line wrap with long Gurmukhi account names.
+
+## S3.1 — Quick add sheet *(from the Ledger tab only — not the entry flow)*
+*Two presentations of the same picker, deliberately different: **S2-C** is a full screen because it is step 2 of 2 in the entry flow; **S3.1** is a bottom sheet because adding a khata from the Ledger tab is a small side task you return from. Do not merge them.*
+
 Design a bottom sheet: search field at top with the cursor active, a horizontal row of recent account chips, then a scrolling list of accounts each with an outlined icon, name, and current balance right-aligned in muted text. The first row when the search has no exact match reads **"+ Create 'Langar' A/C"** in indigo.
 
 ## S3 — Ledger index
@@ -162,7 +192,7 @@ Design a full-screen review step: header "Review 3 of 7" with a dot progress ind
 Two screens. **Upload:** the bank account preselected as a chip at top, then a large dashed drop zone with a cloud icon and the text "Tap to choose a file", and beneath it in muted type "CSV, XLS, OFX or PDF · up to 10 MB". **Column mapping:** a preview of the first three rows of the file as a small table, and above it four dropdowns already filled with the app's guesses — Date · Description · Money out · Money in — each changeable, plus a muted line "We'll remember this for {bank name}". Sticky button: **Looks right, continue**. Design a *duplicates skipped* banner for the next screen: "12 lines already imported — skipped".
 
 ## S7.1 — Statement import inbox
-Design a list where each row is a parsed bank line: the bank's raw text in small grey ("ATM WDL SBI0192"), the amount labelled **Money out ₹20,000** in red (or Money in, green), and beneath it a prominent single question in indigo — **"Where did it go?"** (or "Where did it come from?") — as a tappable field. Show four row states: matched (green tick, auto-linked), suggested (one-tap confirm chip), new (question unanswered), and a transfer-pair row asking "Is this the same money moving between your accounts?" with Yes / No.
+Design a list where each row is a parsed bank line: the bank's raw text in small grey ("ATM WDL SBI0192"), the amount labelled **Money out ₹20,000** in red (or Money in, green), and beneath it a prominent single question in indigo — **"Where did it go?"** (or "Where did it come from?") — as a tappable field. The bank's own text sits at the top of each row in **muted monospace**, never editable — it is evidence, not the user's words. It is **truncated to one line with a tail ellipsis** and expands on tap — Indian UPI narrations run long (`UPI/DR/425634789012/VERMA DAI/HDFC/vermadairy@okhdfc/Payment for milk`). Design both states. A classified row carries a subtle **+ note** link opening a small inline field for the user's own words, shown in **normal type** directly beneath the account — the monospace/normal contrast is what tells the two apart with no label. Design the row with and without a note. A classified row carries a subtle **+ note** link that expands a small inline field; design the row both without and with a note present. Show four row states: matched (green tick, auto-linked), suggested (one-tap confirm chip), new (question unanswered), and a transfer-pair row asking "Is this the same money moving between your accounts?" with Yes / No.
 
 ## S9.2 / S9.3 — Verification ceremony
 *Context for the designer: this is a 30-second face-to-face handshake when someone joins. The app cannot trust the server's word about who a new member is, so two people confirm it in person — one shows a code, the other scans it. Get the tone right: routine and quick, not alarming — until it fails, when it must be unmissable.*
@@ -187,7 +217,7 @@ A compact list inside the wizard showing every book's state: "Kirana Store — c
 The screen shown immediately after a book locks — a shareable card, not a receipt. Large month name, three figures ("In ₹1,75,000 · Out ₹1,38,200 · Saved ₹36,800" with the saved figure emphasised), then the three largest expenses as small rows with icons, and in a joint family a per-sub-family line. Bottom: **Share on WhatsApp** (primary) and Done. Warm, celebratory but quiet — a tick, not confetti. Design it to look right as an exported square image.
 
 ## S0.3 / S0.5 — Onboarding
-**Purpose picker:** "What will you use this for?" with four large illustrated cards — Myself · My shop · My businesses · My family — in a 2×2 grid, illustration style of paper, hands, shops and homes; never fintech gradients or 3D coins. **Recovery sheet:** a calm screen explaining plainly "Your books are locked so well that even we cannot open them", a preview of a printable A4 sheet with a QR, and two buttons — Print / Save · I've kept it safe.
+**Purpose picker:** "What will you use this for?" with **five** large illustrated cards — a 2×2 grid of Myself · My shop · My businesses · My family, plus **Our trust** full-width beneath carrying the muted subtitle *gurudwara, temple, society or registered trust* — illustration style of paper, hands, shops and homes; never fintech gradients or 3D coins. **Recovery sheet:** a calm screen explaining plainly "Your books are locked so well that even we cannot open them", a preview of a printable A4 sheet with a QR, and two buttons — Print / Save · I've kept it safe.
 
 
 ---
@@ -201,7 +231,7 @@ The first screen ever shown. Three large tap targets — **English · ਪੰਜ�
 Phone entry with a fixed +91 prefix and a large numeric field; then the OTP screen with six separate character boxes, a resend countdown, and one muted line: "We only send this when you set up a new phone." No password field anywhere, ever.
 
 ## O3 · Purpose picker
-"What will you use this for?" — four large illustrated cards in a 2×2 grid: **Myself · My shop · My businesses · My family**. Illustration style: paper, hands, shopfronts, homes — line-drawn, warm, never fintech gradients or 3D coins. A muted line beneath: "You can change this later."
+"What will you use this for?" — **five** large illustrated cards: a 2×2 grid of **Myself · My shop · My businesses · My family**, with **Our trust** as a **full-width card beneath** (five will not divide into a grid). This card alone carries a subtitle in smaller muted type — *gurudwara, temple, society or registered trust* — a deliberate asymmetry: the other four are self-explanatory, this one is not, and a mandir or sabha committee member must recognise themselves in it. Illustration style: paper, hands, shopfronts, homes — line-drawn, warm, never fintech gradients or 3D coins. A muted line beneath: "You can change this later."
 
 ## O4 · Name & photo
 Name field, optional circular photo picker, and a muted explanation: "Your family sees this when they approve your entries."
@@ -226,6 +256,27 @@ Take **Home**, **Add entry**, **A/C statement**, **Inbox** and **Members**, and 
 - **Operator** — day totals only, no P&L, no other books in the switcher; Inbox shows only their own rejected items.
 - **Viewer** — every entry control **replaced by a stated reason** ("You can view this book"), export still available, Inbox shows its empty state.
 Each variant must show the identity chip reading the user's name and their role **in this book**.
+
+
+## R2 · Recovery on a new phone *(the flow that decides whether someone loses their books)*
+
+*Context for the designer: there are no passwords in this app, and the company genuinely cannot open anyone's data. When someone loses their phone, these screens are the only way back. The person using them is anxious and possibly at a shop counter. Tone: calm, plain, never blaming, never alarming — and never falsely reassuring.*
+
+**R2.1 · After OTP on a new phone — the fork.** A quiet screen: "Let's get your books back on this phone", then three options as full-width rows, in this order, each with a one-line explanation: **Use another phone you're signed in on** · **Ask your trusted members** · **Use your recovery sheet**. A muted line at the bottom: "Your family books can also be restored by your family — your own private book cannot."
+
+**R2.2 · Ask your trusted members (S11.2).** The live waiting screen. Heading "Ask any 2 of 3 to approve", then a row per guardian with avatar, name, and a state: **approved ✓** (green) · **waiting…** (muted, with a quiet spinner) · **not asked**. Each waiting row has a small **Call** link — the pack's advice is literally "phone them, they are expecting this". A progress line: "1 of 2 approvals". Design the **completed** state too: all ticks, then a single calm line "Restoring your books…" with a progress bar. This screen may be open for minutes; it must not feel stuck.
+
+**R2.3 · Guardian's side.** The approval that arrives on someone else's phone: photo and name of the person asking, the words "wants to restore their books on a new phone", the new device's name and fingerprint in small monospace, and a **prominent caution**: "Call them first to be sure it is really them." Two buttons — **Approve** (indigo) and **Not now** (plain). This is a security decision made by a relative, so the caution must be impossible to skip past.
+
+**R2.4 · Use your recovery sheet (S11.3).** Camera view for scanning the QR from the printed sheet, with a small illustration reminding them what the sheet looks like, and beneath it **Type the code instead** opening a grouped character field. Design the **failure** state: "That code didn't work" with the two likely causes stated plainly — a newer sheet was printed, or the code was mistyped — never a blank error.
+
+**R2.5 · Nothing worked — the honest screen.** No euphemisms. "We could not restore your private book." Then, in plain language: the family and business books can be restored once the family verifies them again on this phone; the private book is gone, and this is the privacy they were promised working as intended. One primary action: **Continue and set up this phone**. No retry loop, no false hope.
+
+## R3 · Devices & security (S11) and guardian setup (S11.1)
+
+**S11 · Devices & security** — a settings screen listing: **This phone** and other signed-in devices (name, last active, a Revoke link, and a red **This phone was stolen** path); **Trusted members** with their names and a "change" link; **Recovery sheet** showing its status (*kept safe · printed 12 Apr* or a warning badge *not yet confirmed*); **Personal book PIN** toggle.
+
+**S11.1 · Guardian setup** — choosing 2 of 3: a member list with checkboxes and a rule line "Any 2 of the 3 you choose can help you get back in", then a per-guardian checklist showing the mutual verification ceremony as **done ✓** or **meet them** — because guardians verify in both directions. Finish is disabled until all are verified.
 
 ---
 

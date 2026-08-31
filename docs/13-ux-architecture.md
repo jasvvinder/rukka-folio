@@ -96,7 +96,7 @@ Five-slot bottom bar, persistent, with a centre action:
 |---|---|---|---|
 | **S0.1** | Language picker | onboarding | first screen ever shown |
 | **S0.2** | Phone + OTP | onboarding | identity |
-| **S0.3** | "What will you use this for?" | onboarding | seeds books |
+| **S0.3** | "What will you use this for?" | onboarding | five cards; the trust card alone sets `tenant.type = organization` (07 §3.1) |
 | **S0.4** | Name & photo | onboarding | for approvals/ceremony |
 | **S0.5** | Recovery sheet | onboarding | key custody, print/save + verify |
 | **S0.6** | Opening balances wizard | onboarding | resumable |

@@ -47,7 +47,8 @@ Bottom bar, five slots:
 ### 3.1 Fresh signup 🔒
 1. Language picker (EN / ਪੰਜਾਬੀ / हिन्दी) — first screen, before anything else.
 2. Phone → OTP (06 §2). Generic errors; resend with visible countdown. Splash and every successful unlock play the **sealed→open mark animation** (11 §4.2; m=0.6 on biometric unlock, jump cut under `prefers-reduced-motion`) — never decoratively.
-3. *"What will you use this for?"* — four illustrated cards: **Myself / My shop / My businesses / My family** (seeds books + category tree only; changeable later; no lock-in copy).
+3. *"What will you use this for?"* — **five** illustrated cards 🔒 (owner-added 31 Aug 2026): **Myself · My shop · My businesses · My family · Our trust** — the fifth carrying a subtitle the others do not need: *gurudwara, temple, society or registered trust*, because "trust" alone is abstract and a mandir or sabha committee member must see themselves in it. The list is examples, not an exhaustive set; the underlying tenant type is the generic `organization`.. Layout is 2 × 2 with the trust card **full width beneath**, since five does not divide into a grid and the trust label is the longest. Adding it here fixes a real discovery problem: a treasurer would otherwise have had to pick a wrong card and then find *Add organization* in Menu.
+   🔒 **This card is the only one that sets `tenant.type = organization`**, which carries consequences beyond seeded accounts: trustee role labels, gollak created as a `cash_collection` account, and **denomination counting mandatory on every cash account** (02 §8.2). Seeds: Trust Bank, Gollak Cash, Donation Income, Langar Expense, Building Repair, Honorarium. (seeds books + category tree only; changeable later; no lock-in copy).
 4. Name (+ optional photo — shown in approvals & ceremonies, worth asking here).
 5. **Recovery sheet moment** (04 §7.4): explain in one screen why there is no "forgot password" (*"Your data is locked so well that even we can't open it"*), generate PDF, share/print, then the **verified-storage nag** badge lives on Menu until they scan the printed sheet back.
 6. Opening balances wizard (02 §4) — skippable, resumable from Home's setup card.
@@ -101,23 +102,42 @@ Follows the scenario table in 06 §5 verbatim. Key screens: **Link with old phon
 
 **Screen order: amount first.** Full-screen numeric keypad with the amount huge at top; verb shown as a colored header chip (switchable by swipe or tap without losing the amount).
 
-1. **Amount** — keypad supports `+` quick-sum (`120+80+40`); paise via `.`; Next.
-2. **Slot A** (Into / From — a `money` A/C): horizontal chips of this book's money accounts, most-recent first. One tap.
-3. **Slot B** (From / For / Whom — per verb, 02 §2): search-first picker; recents and favorites on top; **inline create** per 02 §1.2 (*"+ Create 'Langar' A/C"*, class inferred from slot, the one two-chip question only when the slot is ambiguous).
+1. **Amount** — keypad supports `+` quick-sum (`120+80+40`); paise via `.`; Next. 🔒 **No amount-in-words on this screen** (31 Aug 2026) — it costs a line on a screen that must not scroll, and belongs on receipts and exports only (01 §1.10).
+2. **Slots are labelled by verb 🔒 (corrected 31 Aug 2026) — the money-account label is never a fixed "FROM".** Every entry has two sides: one is usually a money account, shown as quick chips; the other is any ledger account, shown as a picker.
+
+| Verb | Money-account slot | Ledger slot |
+|---|---|---|
+| Money in | **INTO** — chips | **FROM** — income category *or* a person paying you |
+| Money out | **FROM** — chips | **FOR** — expense category *or* a person you are paying |
+| Gave on credit | **WHAT DID YOU GIVE** — chips, or an income category | **TO WHOM** — party *(leads the screen)* |
+| Took on credit | **WHAT DID YOU TAKE** — expense category, or chips | **FROM WHOM** — party *(leads the screen)* |
+| Transfer | **FROM** — chips | **TO** — chips |
+
+🔒 The chip row shows the three most-used money accounts plus **+ More** for the full list; it is **absent entirely** when no money account is involved (milk on khata: `Dr Milk Expense · Cr Vardhman Dairy`). Default is the **last money account used for that verb**, Cash on first use.
+3. **Slot B** (per the table above): **a full screen, not a sheet** — recents and favourites fill it, search at the bottom; **inline create** per 02 §1.2 (*"+ Create 'Langar' A/C"*, class inferred from slot, the one two-chip question only when the slot is ambiguous).
 4. **Date chip — `Today`** 🔒: tap → calendar; any date in an open period selectable (backdating); **future dates disabled** (tooltip: *"Use a recurring entry for future dates"*); locked dates shown 🔒-greyed — tapping one explains the lock and offers ***Fix an old entry*** (reversal flow, 02 §5). Never a dead error.
 5. Optional row: note · 📷 bill photo (camera-first, auto-compress) · channel tag (Cash/UPI/Card/Bank ⚠️ finalize taxonomy).
-5.5. **Entry preview 🔒 (owner-directed, 30 Aug 2026).** Above Save, one line shows the value flow of the posting the app has already computed:
+5.5. **Live entry preview 🔒 (owner-directed, 31 Aug 2026).** One line above Save that **builds in real time** as the entry is filled, rather than appearing once complete:
 
-> **₹2,400 · ਰੋਕੜ ਖਾਤਾ → ਡੀਜ਼ਲ ਖਰਚ ਖਾਤਾ · ਇਸੁਜ਼ੂ ਗੱਡੀ ਦੇ ਡੀਜ਼ਲ ਲਈ**
+| State | Line |
+|---|---|
+| Nothing yet | `₹0 · ⋯ → ⋯` in muted type |
+| Typing | amount updates **on every digit**, Indian grouping applied live |
+| One side chosen | `₹2,400 · ਰੋਕੜ ਖਾਤਾ → ⋯` |
+| Complete | `₹2,400 · ਰੋਕੜ ਖਾਤਾ → ਡੀਜ਼ਲ ਖਰਚ ਖਾਤਾ` in full ink |
+| Note added | ` · ਇਸੁਜ਼ੂ ਗੱਡੀ ਦੇ ਡੀਜ਼ਲ ਲਈ` appended in lighter type |
 
-Left of the arrow is the credited account, right of it the debited account, then the user's own narration (clause and separator omitted when blank). Both sides are always **named ledger accounts** existing in the book.
-
-**Why an arrow rather than words 🔒:** prepositions like *from/to* imply an accounting rule that does not hold generally — debit and credit follow the **account's class**, not the direction of transfer (01 reference §1.2, DEAD CLIC). The arrow states the flow without asserting a rule, reads identically in all three languages (one ICU template, not three), avoids the Punjabi/Hindi oblique-case problem with user-typed account names (ਖਾਤਾ → ਖਾਤੇ before a postposition), and degrades cleanly for splits: `₹50,000 · 3 accounts → ਖਰੀਦ ਖਾਤਾ`.
-
-**The preview never computes anything.** It describes a posting already derived from the verb and the account classes (02 §2); it is read-only and cannot influence the entry. Formal **ਨਾਮੇ / ਜਮ੍ਹਾਂ** columns remain on statements, reports and exports (01 §1.9), where classification is explicit.
+- 🔒 **Reserves its full height from the first frame**, so nothing below shifts as slots fill — essential on a screen that must not scroll.
+- 🔒 **Empty slots are dotted placeholders**, never blank space: the line reads as a sentence with gaps, which signals what is missing without an error message.
+- 🔒 **Completion is the validation.** The line moves from muted to full ink and **Save turns solid** at the same moment; no "please choose an account" message is ever shown.
+- Read-only, arrow form per 01 §2.1. ⚠️ If per-digit re-formatting flickers on the minimum device, settle 150 ms after the last keystroke — verify on hardware.
 
 6. **Save** — instant local write, haptic tick, snackbar `Saved ✓ (on phone)` with **Undo (10 s)** (undo = amendment/void while still local). If over the member's limit for this book → snackbar reads `Saved ✓ · Sunita will review` — saved and counted either way (02 §3).
-7. After save: stay on keypad zeroed for rapid consecutive entries (shopkeeper mode); Back exits. Long-press [+] anywhere = repeat last entry pre-filled.
+7. After save: stay on keypad zeroed for rapid consecutive entries (shopkeeper mode); Back exits.
+
+**Single screen, always 🔒 (owner-directed, 31 Aug 2026 — supersedes the two-path model of 31 Aug).** The entry is one screen that never navigates, never overlays and never scrolls. The **lower region swaps in place**: it holds the keypad by default, and when the counterpart slot is tapped it holds the searchable account list instead, returning to the keypad once an account is chosen. Everything already entered — amount, verb, chips — stays visible throughout.
+- 🔒 **Nothing is pre-selected.** No chip is ticked on open, no last-used account is remembered, no repeat-pattern shortcuts appear on Home. A wrong default posts a wrong entry and nobody notices until the month will not reconcile; explicit choice each time is worth the tap.
+- 🔒 **No modal sheet and no second screen** for the counterpart picker: a sheet is a mode change mid-flow, and a second screen hides what the user already set.
 
 **Transfer** and **Adjustment** verbs live behind the [+] chooser's second row; Adjustment shows only its wizards (02 §2 row 6), never a freeform journal screen. Inter-book transfer: choosing a destination in another book switches the flow to §10.
 
@@ -132,7 +152,7 @@ One screen, two modes driven by the account's subtype (02 §8.2): **verify** for
 
 - A–Z list of every A/C in scope with live balance, colored by sign; sticky alphabet rail; **search is the header** (the fastest path to any khata); filter chips: All · Parties · Categories · Money · System.
 - Row tap → **A/C statement**: professional paper-ledger layout in the traditional three columns — **ਨਾਮੇ | ਜਮ੍ਹਾਂ | ਬਾਕੀ** (नामे | जमा | बाकी / Dr | Cr | Balance), cells colored directionally per the approved option A (design-system §5) — with *Opening balance b/f* carrying its as-on date (the period's first day, e.g. `as on 01 ਅਗਸਤ 2026`) and *Closing balance c/f* carrying the date it is forwarded — the period's last day, or today's date while the period is still open 🔒 (owner rule), dated entries with running balance between them; FY switcher (02 §8.1); export this A/C (PDF/XLSX) top-right; for parties: WhatsApp-share a statement image (the Khatabook habit — it drives adoption).
-- `+ New A/C` here opens the **deliberate-creation wizard 🔒 (owner-approved)** — step 1 is a grid of illustrated type tiles (Bank · Cash/vault · Credit card or OD · Person you'll pay (creditor) · Person who'll pay you (debtor) · Expense · Income · Capital), step 2 is name + **opening balance**, step 3 optional details. Inline creation during an entry keeps inferring the class from the slot (02 §1.2); the grid is for setup, where the user is choosing on purpose, and rename / merge-duplicates / delete-if-unused under ⋮. ⚠️ merge UX in mockup.
+- `+ New A/C` here opens the **quick add sheet** (a bottom sheet — the entry flow's picker is a full screen instead, 07 §5 step 3; same component, two presentations, deliberately) leading into the **deliberate-creation wizard 🔒 (owner-approved)** — step 1 is a grid of illustrated type tiles (Bank · Cash/vault · Credit card or OD · Person you'll pay (creditor) · Person who'll pay you (debtor) · Expense · Income · Capital), step 2 is name + **opening balance**, step 3 optional details. Inline creation during an entry keeps inferring the class from the slot (02 §1.2); the grid is for setup, where the user is choosing on purpose, and rename / merge-duplicates / delete-if-unused under ⋮. ⚠️ merge UX in mockup.
 - Empty state: seeded tree is already present, so never truly empty; search-miss state = the create row.
 
 ## 7. You-will-get / You-will-give 🔒
@@ -166,7 +186,7 @@ One flow: From (book + money A/C) → To (book + money A/C) → amount → save.
 2. **Import inbox** (also surfaces in main Inbox): each line = date · bank text (grey) · **Money in/out** amount · one question — *"Where did it come from?"* / *"Where did it go?"* — with state chip:
    - `Matched ✓` — auto-linked to an existing entry (confidence shown); tap to unlink.
    - `Suggested` — rule/fuzzy match awaiting one-tap confirm.
-   - `New` — answer the one question by picking or inline-creating an A/C (full picker) → posts normally; the user never chooses a side. **Narration is editable inline** on every row — the bank's text stays greyed beneath as the original, the user's words become the entry's note.
+   - `New` — answer the one question by picking or inline-creating an A/C (full picker) → posts normally; the user never chooses a side. **A `+ note` link on every classified row** opens a small inline field for the user's own narration — entirely optional, and skipped on most rows. The bank's text is never editable: it sits above in muted monospace as evidence, truncated to one line with a tail ellipsis and expandable on tap (02 §10). Most rows need no note; the category usually says enough (02 §10).
    - `Suggested` rows carry a green chip naming the guess (*"Milk Expense — suggested"*) with a one-tap **Approve**; approving teaches the rule, correcting re-teaches it.
    - `Transfer?` — an opposite line in another own-account matches (equal amount, date window): *"Is this the same money moving between your accounts?"* → one tap posts a single Transfer instead of two entries (02 §10).
    - `Suspense` — *"record now, explain later"* button; posts to Suspense (02 §10); a persistent chip on the book screen counts unexplained lines, and month-close step 3 walks them to zero.

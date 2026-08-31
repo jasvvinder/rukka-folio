@@ -303,7 +303,14 @@ All balances are **derived, never stored authoritatively**: balance(account) = �
 
 **The one question 🔒:** a statement line already states direction and amount; the only unknown is the **counterpart** — where the money came from or went to. Every import line therefore asks exactly one question — *"Where did it come from?"* (money in) or *"Where did it go?"* (money out) — answered by picking or inline-creating an A/C. The user never sees or chooses a side. This is precisely the gap a paper bank-column notebook cannot fill: it records the balance but not the source, so it can never produce a position, a P&L, or "who owes me".
 
-**Narration 🔒:** the bank's raw text is retained on the envelope for matching and shown greyed for recognition only; whatever the user types is the entry's note and the only narration that appears in their books, statements and exports.
+**Narration 🔒 (clarified 31 Aug 2026).** Two separate fields that coexist; neither replaces the other:
+- **`bank_text`** — the statement's own line, **immutable evidence**. Stored on the envelope **verbatim**: never edited, never re-cased, never "cleaned up", never re-wrapped. Shown in muted monospace so it is never mistaken for the user's words. Used for matching and for the learned rules.
+  - **Truncation is display-only 🔒.** Indian UPI narrations run long (`UPI/DR/425634789012/VERMA DAI/HDFC/vermadairy@okhdfc/Payment for milk`), so rows show a single truncated line with a tail ellipsis and reveal the full string on tap (entry detail shows it in full, wrapped). The stored value is always complete.
+  - **Exports print it in full**, wrapped rather than truncated — a PDF has the width, and a CA may need the reference number.
+  - Any parsing the app does for matching (extracting a merchant name, a UTR) is **derived metadata**, never written back over `bank_text`.
+- **`note`** — the user's own narration, **optional and additive**. Adding one never alters `bank_text`.
+
+**Display fallback 🔒:** a ledger row shows the user's `note` when present; when absent it shows `bank_text` in muted italic monospace, so the row is never blank and the bank's words are visibly the bank's. The entry detail always shows both.
 
 **Transfer pairing 🔒:** money leaving one own-account and arriving in another is **one** event. When an import line matches an opposite line in another own-account (amount equal, date within window), the app asks *"Is this the same money moving between your accounts?"* — one tap posts a single Transfer (02 §2 verb 5) instead of two entries. Un-paired, this is the classic notebook error of counting the same rupees as both an expense and an income.
 

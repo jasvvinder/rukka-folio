@@ -17,7 +17,7 @@
 8. **User-typed content carries its own language tag 🔒** — account names, notes and party names may be in any script regardless of the UI language, so each is stored and rendered with a `lang` marker (`pa`/`hi`/`en`) for correct screen-reader pronunciation and font selection (design-system §3.1 rule 1).
 9. Strings live in ARB files (`app_en.arb`, `app_pa.arb`, `app_hi.arb`); keys are `screen.element.state`; **CI fails if any key is missing in any language.**
 9. **Statement layout rule 🔒:** A/C statements and ledger exports use the traditional three columns — **ਨਾਮੇ | ਜਮ੍ਹਾਂ | ਬਾਕੀ** / **नामे | जमा | बाकी** / **Dr | Cr | Balance** — with b/d and c/d rows. Day-book lists keep the in/out arrows; the Dr/Cr detail shows on the entry view.
-10. **Amount-in-words** on receipts/exports in the user's language (…ਰੁਪਏ ਸਿਰਫ਼ / …रुपये मात्र). ⚠️ number-to-words functions need native review in both.
+10. **Amount-in-words** on receipts and exports only 🔒 — never on the entry screen, where it costs a line on a screen that must not scroll — in the user's language (…ਰੁਪਏ ਸਿਰਫ਼ / …रुपये मात्र). ⚠️ number-to-words functions need native review in both.
 
 ---
 
@@ -86,6 +86,12 @@
 | Recovery sheet | Recovery sheet | ਰਿਕਵਰੀ ਪਰਚੀ | रिकवरी पर्ची |
 | Show my code / Verify | Show my code / Verify | ਮੇਰਾ ਕੋਡ ਦਿਖਾਓ / ਤਸਦੀਕ ਕਰੋ | मेरा कोड दिखाएँ / तसदीक करें |
 | Family match check | Family match check | ਪਰਿਵਾਰ ਮਿਲਾਨ | परिवार मिलान |
+| Purpose card 1 | Myself | ਸਿਰਫ਼ ਮੈਂ | सिर्फ़ मैं |
+| Purpose card 2 | My shop | ਮੇਰੀ ਦੁਕਾਨ | मेरी दुकान |
+| Purpose card 3 | My businesses | ਮੇਰੇ ਕਾਰੋਬਾਰ | मेरे कारोबार |
+| Purpose card 4 | My family | ਮੇਰਾ ਪਰਿਵਾਰ | मेरा परिवार |
+| Purpose card 5 — label | Our trust | ਸਾਡਾ ਟਰੱਸਟ | हमारा ट्रस्ट |
+| Purpose card 5 — subtitle | gurudwara, temple, society or registered trust | ਗੁਰਦੁਆਰਾ, ਮੰਦਰ, ਸਭਾ ਜਾਂ ਰਜਿਸਟਰਡ ਟਰੱਸਟ | गुरुद्वारा, मंदिर, सभा या रजिस्टर्ड ट्रस्ट |
 | Today / Save / Undo | Today / Save / Undo | ਅੱਜ / ਸੇਵ ਕਰੋ / ਵਾਪਸ ਲਓ | आज / सेव करें / वापस लें |
 
 **ਬਕਾਇਆ for balance rows 🔒 (owner-directed, 31 Aug 2026).** The b/f and c/f rows use **ਸ਼ੁਰੂਆਤੀ ਬਕਾਇਆ / शुरुआती बकाया** and **ਅੰਤਿਮ ਬਕਾਇਆ / अंतिम बकाया** — *bakaya* is the standing-amount term a munim uses on those rows, where *baaki* reads as "the rest". **ਬਾਕੀ / बाकी** remains correct for the running Balance **column header** and for pending states (ਮਨਜ਼ੂਰੀ ਬਾਕੀ). **Fix / Adjust** is the imperative **ਠੀਕ ਕਰੋ / ठीक करें**, not the noun *sudhaar*.
