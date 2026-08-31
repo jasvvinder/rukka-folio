@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rukka Folio — Visual Brand Guidelines</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mukta:wght@300;400;500;600;700&family=Noto+Sans+Tamil:wght@400;500&family=Noto+Sans+Bengali:wght@400;500&family=Noto+Sans+Kannada:wght@400;500&family=Noto+Sans+Telugu:wght@400;500&family=Noto+Sans+Gujarati:wght@400;500&family=Noto+Sans+Malayalam:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --indigo:#2B3A67;
+  --indigo-deep:#1B2544;
+  --bahi:#C1502E;
+  --paper:#F5F0E4;
+  --paper-dim:#EBE4D4;
+  --ink:#1A1A18;
+  --ink-soft:#5C5A54;
+  --ink-faint:#8E8B82;
+  --credit:#2F7A55;
+  --debit:#A83232;
+  --rule:rgba(26,26,24,.14);
+  --rule-faint:rgba(26,26,24,.07);
+  --col:clamp(1.5rem,4vw,3.5rem);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Mukta',system-ui,sans-serif;
+  font-weight:400;
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:0 var(--col)}
+
+/* ── ledger rule: the structural signature ── */
+.sheet{border-left:1px solid var(--rule);border-right:1px solid var(--rule)}
+
+/* ── masthead ── */
+header{
+  background:var(--indigo);color:var(--paper);
+  padding:clamp(3rem,9vw,6.5rem) 0 clamp(2.5rem,6vw,4rem);
+  position:relative;overflow:hidden;
+}
+header::after{
+  content:"";position:absolute;inset:0;left:50%;
+  border-left:1px solid rgba(245,240,228,.13);pointer-events:none;
+}
+.lockup{display:flex;align-items:center;gap:clamp(1rem,3vw,1.75rem);flex-wrap:wrap}
+.lockup svg{flex:none;width:clamp(56px,9vw,86px);height:auto}
+.brand{font-size:clamp(2.2rem,6.5vw,4rem);font-weight:600;letter-spacing:-.025em;line-height:1}
+.brand em{font-style:normal;font-weight:300;opacity:.62}
+.tag{
+  font-size:clamp(1.05rem,2.4vw,1.5rem);font-weight:500;
+  margin-top:clamp(1.75rem,4vw,2.75rem);letter-spacing:-.01em;
+}
+.scope{color:rgba(245,240,228,.62);font-size:.95rem;margin-top:.4rem}
+.claim{
+  color:rgba(245,240,228,.62);font-size:.95rem;
+  padding-top:.55rem;margin-top:.55rem;
+  border-top:1px solid rgba(245,240,228,.18);display:inline-block;
+}
+.meta{
+  margin-top:clamp(2.5rem,6vw,4rem);padding-top:1rem;
+  border-top:1px solid rgba(245,240,228,.18);
+  display:flex;gap:2.5rem;flex-wrap:wrap;
+  font-family:'IBM Plex Mono',monospace;font-size:.72rem;
+  letter-spacing:.09em;text-transform:uppercase;color:rgba(245,240,228,.5);
+}
+
+/* ── sections, numbered as folio entries ── */
+section{padding:clamp(2.75rem,7vw,5rem) 0;border-bottom:1px solid var(--rule)}
+section:last-of-type{border-bottom:none}
+.head{display:flex;align-items:baseline;gap:1rem;margin-bottom:.5rem}
+.fol{
+  font-family:'IBM Plex Mono',monospace;font-size:.72rem;font-weight:500;
+  color:var(--bahi);letter-spacing:.12em;flex:none;
+}
+h2{font-size:clamp(1.5rem,3.6vw,2.1rem);font-weight:600;letter-spacing:-.02em;line-height:1.2}
+.lede{color:var(--ink-soft);max-width:60ch;margin-bottom:2.25rem;font-size:1.05rem}
+h3{
+  font-size:.74rem;font-weight:600;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--ink-faint);margin-bottom:.9rem;
+  padding-bottom:.45rem;border-bottom:1px solid var(--rule-faint);
+}
+p+p{margin-top:.85rem}
+
+/* ── two-column ledger grid ── */
+.ledger{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.ledger>*{padding:1.5rem 1.75rem}
+.ledger>*:first-child{border-right:1px solid var(--rule)}
+@media(max-width:720px){
+  .ledger{grid-template-columns:1fr}
+  .ledger>*:first-child{border-right:none;border-bottom:1px solid var(--rule)}
+}
+.grid{display:grid;gap:1.25rem}
+.g2{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(160px,1fr))}
+
+/* ── logo plate ── */
+.plate{
+  background:var(--paper-dim);border-radius:3px;
+  display:flex;align-items:center;justify-content:center;
+  padding:2.25rem 1rem;min-height:150px;
+}
+.plate.dark{background:var(--indigo)}
+.cap{
+  font-family:'IBM Plex Mono',monospace;font-size:.68rem;letter-spacing:.08em;
+  color:var(--ink-faint);margin-top:.55rem;text-transform:uppercase;
+}
+.sizes{display:flex;align-items:flex-end;gap:2.25rem;flex-wrap:wrap}
+.sizes>div{text-align:center}
+
+/* ── swatches ── */
+.sw{border:1px solid var(--rule-faint);border-radius:3px;overflow:hidden}
+.chip{height:96px}
+.sw dl{padding:.7rem .85rem;background:#fff}
+.sw dt{font-size:.9rem;font-weight:500}
+.sw dd{font-family:'IBM Plex Mono',monospace;font-size:.74rem;color:var(--ink-faint);margin-top:.1rem}
+.sw dd.use{font-family:'Mukta';font-size:.8rem;color:var(--ink-soft);line-height:1.4;margin-top:.35rem}
+
+/* ── type specimens ── */
+.spec{padding:1.1rem 0;border-bottom:1px solid var(--rule-faint);display:flex;align-items:baseline;gap:1.5rem;flex-wrap:wrap}
+.spec:last-child{border-bottom:none}
+.spec .lbl{
+  font-family:'IBM Plex Mono',monospace;font-size:.68rem;color:var(--ink-faint);
+  letter-spacing:.07em;width:130px;flex:none;
+}
+.scripts{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1.1rem 1.5rem}
+.scripts div{border-left:2px solid var(--rule);padding-left:.8rem}
+.scripts .s{font-size:1.4rem;line-height:1.5}
+.scripts .n{font-family:'IBM Plex Mono',monospace;font-size:.64rem;color:var(--ink-faint);letter-spacing:.07em;text-transform:uppercase}
+
+/* ── ledger demo ── */
+.demo{background:#fff;border:1px solid var(--rule-faint);border-radius:3px;overflow:hidden}
+.demo-h{
+  padding:.75rem 1.1rem;border-bottom:1px solid var(--rule);
+  display:flex;justify-content:space-between;align-items:baseline;
+}
+.demo-h b{font-size:.95rem;font-weight:600}
+.demo-h span{font-family:'IBM Plex Mono',monospace;font-size:.68rem;color:var(--ink-faint);letter-spacing:.06em}
+.row{
+  display:flex;justify-content:space-between;gap:1rem;align-items:baseline;
+  padding:.6rem 1.1rem;border-bottom:1px solid var(--rule-faint);font-size:.92rem;
+}
+.row:last-child{border-bottom:none}
+.row small{display:block;color:var(--ink-faint);font-size:.74rem;line-height:1.3}
+.amt{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:.92rem;white-space:nowrap}
+.cr{color:var(--credit)}
+.db{color:var(--debit)}
+.row.tot{background:var(--paper-dim);font-weight:600;border-bottom:none}
+
+/* ── do / don't ── */
+.dd{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:0;border:1px solid var(--rule-faint);border-radius:3px;overflow:hidden}
+.dd>div{padding:1.15rem 1.35rem;background:#fff}
+.dd>div:first-child{border-right:1px solid var(--rule-faint)}
+.dd h4{font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.85rem;font-weight:600}
+.dd .y{color:var(--credit)}
+.dd .n{color:var(--debit)}
+.dd li{list-style:none;padding:.4rem 0;border-bottom:1px solid var(--rule-faint);font-size:.92rem;line-height:1.5}
+.dd li:last-child{border-bottom:none}
+@media(max-width:560px){.dd>div:first-child{border-right:none;border-bottom:1px solid var(--rule-faint)}}
+
+/* ── surface table ── */
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th{
+  text-align:left;font-size:.68rem;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--ink-faint);font-weight:600;padding:.5rem .75rem .5rem 0;
+  border-bottom:1px solid var(--rule);
+}
+td{padding:.7rem .75rem .7rem 0;border-bottom:1px solid var(--rule-faint);vertical-align:top}
+td:first-child{font-weight:500;white-space:nowrap}
+tr:last-child td{border-bottom:none}
+
+footer{background:var(--indigo-deep);color:rgba(245,240,228,.6);padding:2.5rem 0;font-size:.85rem}
+footer b{color:var(--paper);font-weight:500}
+
+@media print{
+  header,footer{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  section{page-break-inside:avoid}
+}
+</style>
+</head>
+<body>
+
+<header>
+<div class="wrap">
+  <div class="lockup">
+    <svg viewBox="0 0 88 88" role="img" aria-label="Rukka Folio mark">
+      <rect x="12" y="12" width="64" height="64" rx="5" fill="#F5F0E4"/>
+      <rect x="54" y="33" width="16" height="4.5" rx="2.25" fill="#2B3A67"/>
+      <rect x="54" y="46.5" width="16" height="4.5" rx="2.25" fill="#2B3A67" opacity=".5"/>
+      <rect x="28" y="12" width="14" height="64" fill="#2B3A67" opacity=".88"/>
+      <circle cx="28" cy="56" r="10" fill="#C1502E"/>
+    </svg>
+    <div class="brand">Rukka <em>Folio</em></div>
+  </div>
+  <p class="tag">Every rupee. Accounted for.</p>
+  <p class="scope">For homes, joint families, businesses, trusts and societies.</p>
+  <p class="claim">End-to-end encrypted. We can't read your books.</p>
+  <div class="meta">
+    <span>Visual guidelines</span>
+    <span>Version 1.1</span>
+    <span>India · 9 scripts</span>
+  </div>
+</div>
+</header>
+
+<div class="wrap sheet">
+
+<section>
+  <div class="head"><span class="fol">01</span><h2>What we are</h2></div>
+  <p class="lede">Real double-entry underneath, a surface anyone can read on top. Encrypted so the books stay open to the people sharing the money and closed to everyone else — including us.</p>
+  <div class="ledger" style="border:1px solid var(--rule);border-radius:3px">
+    <div>
+      <h3>Legibility</h3>
+      <p>Competitors' output is correct and unreadable. Ours is correct and obvious. The person keeping the books and the person checking them see the same page.</p>
+    </div>
+    <div>
+      <h3>Directional trust</h3>
+      <p>Not a privacy product, not a transparency product. <b>Transparent in one direction, sealed in the other.</b> Preserve that asymmetry in every piece of messaging.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="head"><span class="fol">02</span><h2>Personality</h2></div>
+  <p class="lede">Trustworthy · plain-spoken · quietly precise · warm. The product should feel like a well-kept physical ledger — solid, orderly, a little handsome.</p>
+  <div class="dd">
+    <div>
+      <h4 class="y">We are</h4>
+      <ul>
+        <li>Orderly, like a ruled page</li>
+        <li>Direct about numbers and problems</li>
+        <li>Warm without being chatty</li>
+        <li>Respectful of the reader's competence</li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="n">We are not</h4>
+      <ul>
+        <li>Playful, disruptive, "fintech"</li>
+        <li>Minimal to the point of cold</li>
+        <li>Gamified — no streaks, no confetti</li>
+        <li>Reassuring when we should be specific</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="head"><span class="fol">03</span><h2>The mark — the sealed ledger</h2></div>
+  <p class="lede">A bound book, strap fastened by a wax seal, entries beside it. Two states with meaning: <b>sealed</b> is the brand mark everywhere — the promise that nobody has opened this. <b>Open</b> exists only in-product, after a successful unlock: the closure contracts and tucks left, a dog-ear folds in, the entries extend. Never decorative.</p>
+
+  <div class="grid g2" style="margin-bottom:2.25rem">
+    <div>
+      <div class="plate">
+        <svg width="88" height="88" viewBox="0 0 88 88" aria-label="Sealed mark — the brand mark">
+          <rect x="12" y="12" width="64" height="64" rx="5" fill="#2B3A67"/>
+          <rect x="54" y="33" width="16" height="4.5" rx="2.25" fill="#F5F0E4"/>
+          <rect x="54" y="46.5" width="16" height="4.5" rx="2.25" fill="#F5F0E4" opacity=".55"/>
+          <rect x="28" y="12" width="14" height="64" fill="#F5F0E4" opacity=".93"/>
+          <circle cx="28" cy="56" r="10" fill="#C1502E"/>
+        </svg>
+      </div>
+      <p class="cap">Sealed — the logo. Icon, favicon, lockups, print</p>
+    </div>
+    <div>
+      <div class="plate">
+        <svg width="88" height="88" viewBox="0 0 88 88" aria-label="Open state — in-product only">
+          <path d="M12 12 H64 L76 24 V76 H12 Z" fill="#2B3A67" stroke="#2B3A67" stroke-width="4" stroke-linejoin="round"/>
+          <path d="M64 12 L64 24 L76 24 Z" fill="#1B2544" stroke="#1B2544" stroke-width="3" stroke-linejoin="round"/>
+          <rect x="37" y="33" width="33" height="4.5" rx="2.25" fill="#F5F0E4"/>
+          <rect x="37" y="46.5" width="33" height="4.5" rx="2.25" fill="#F5F0E4" opacity=".55"/>
+          <rect x="37" y="60" width="24" height="4.5" rx="2.25" fill="#F5F0E4" opacity=".3"/>
+          <rect x="24" y="12" width="9" height="64" fill="#F5F0E4" opacity=".62"/>
+          <circle cx="24" cy="56" r="6" fill="#C1502E"/>
+        </svg>
+      </div>
+      <p class="cap">Open — in-product, post-unlock. Dog-ear appears only here</p>
+    </div>
+  </div>
+
+  <div class="grid g2" style="margin-bottom:2.25rem">
+    <div>
+      <div class="plate dark">
+        <svg width="88" height="88" viewBox="0 0 88 88" aria-label="Inverse sealed mark">
+          <rect x="12" y="12" width="64" height="64" rx="5" fill="#F5F0E4"/>
+          <rect x="54" y="33" width="16" height="4.5" rx="2.25" fill="#2B3A67"/>
+          <rect x="54" y="46.5" width="16" height="4.5" rx="2.25" fill="#2B3A67" opacity=".5"/>
+          <rect x="28" y="12" width="14" height="64" fill="#2B3A67" opacity=".88"/>
+          <circle cx="28" cy="56" r="10" fill="#C1502E"/>
+        </svg>
+      </div>
+      <p class="cap">Inverse — paper book on indigo, never white knockout</p>
+    </div>
+    <div>
+      <div class="plate dark">
+        <svg width="88" height="88" viewBox="0 0 88 88" aria-label="Circular crop treatment">
+          <circle cx="44" cy="44" r="40" fill="#2B3A67" stroke="#F5F0E4" stroke-opacity=".25" stroke-width="1"/>
+          <g transform="translate(44 44) scale(0.62) translate(-44 -44)">
+            <rect x="12" y="12" width="64" height="64" rx="5" fill="#F5F0E4"/>
+            <rect x="54" y="33" width="16" height="4.5" rx="2.25" fill="#2B3A67"/>
+            <rect x="54" y="46.5" width="16" height="4.5" rx="2.25" fill="#2B3A67" opacity=".5"/>
+            <rect x="28" y="12" width="14" height="64" fill="#2B3A67" opacity=".88"/>
+            <circle cx="28" cy="56" r="10" fill="#C1502E"/>
+          </g>
+        </svg>
+      </div>
+      <p class="cap">Circular crops and adaptive icons — inset at ~72%, never full-bleed</p>
+    </div>
+  </div>
+
+  <h3>Size behaviour — one geometry, every size</h3>
+  <div class="sizes" style="margin-bottom:1.25rem">
+    <div>
+      <svg width="16" height="16" viewBox="0 0 88 88" aria-label="Favicon">
+        <rect x="12" y="12" width="64" height="64" rx="6" fill="#2B3A67"/>
+        <rect x="54" y="33" width="16" height="4.5" rx="2.25" fill="#F5F0E4"/>
+        <rect x="54" y="46.5" width="16" height="4.5" rx="2.25" fill="#F5F0E4" opacity=".55"/>
+        <rect x="28" y="12" width="14" height="64" fill="#F5F0E4" opacity=".93"/>
+        <circle cx="28" cy="56" r="10" fill="#C1502E"/>
+      </svg>
+      <p class="cap">16px</p>
+    </div>
+    <div>
+      <svg width="32" height="32" viewBox="0 0 88 88" aria-label="Small icon">
+        <rect x="12" y="12" width="64" height="64" rx="5" fill="#2B3A67"/>
+        <rect x="54" y="33" width="16" height="4.5" rx="2.25" fill="#F5F0E4"/>
+        <rect x="54" y="46.5" width="16" height="4.5" rx="2.25" fill="#F5F0E4" opacity=".55"/>
+        <rect x="28" y="12" width="14" height="64" fill="#F5F0E4" opacity=".93"/>
+        <circle cx="28" cy="56" r="10" fill="#C1502E"/>
+      </svg>
+      <p class="cap">32px</p>
+    </div>
+    <div>
+      <svg width="56" height="56" viewBox="0 0 88 88" aria-label="App icon">
+        <rect x="12" y="12" width="64" height="64" rx="5" fill="#2B3A67"/>
+        <rect x="54" y="33" width="16" height="4.5" rx="2.25" fill="#F5F0E4"/>
+        <rect x="54" y="46.5" width="16" height="4.5" rx="2.25" fill="#F5F0E4" opacity=".55"/>
+        <rect x="28" y="12" width="14" height="64" fill="#F5F0E4" opacity=".93"/>
+        <circle cx="28" cy="56" r="10" fill="#C1502E"/>
+      </svg>
+      <p class="cap">56px app icon</p>
+    </div>
+  </div>
+  <p style="font-size:.85rem;color:var(--ink-soft);max-width:62ch;margin-bottom:2rem">Identical construction at every size; margins are 6 units on both sides in both states. Below 24px, entry strokes fall under one device pixel — optical thickening at asset-cutting time is a permitted production decision, not a redesign.</p>
+
+  <h3>The open animation</h3>
+  <p style="font-size:.92rem;max-width:64ch;margin-bottom:1rem">Total ≈ 860ms at natural speed; use 0.6× (~520ms) for the biometric-unlock moment. Sealing is the exact reverse, the seal returning to full size last. Respect <code style="font-family:'IBM Plex Mono';font-size:.85em">prefers-reduced-motion</code> with a jump cut. Strap, seal and entries are CSS transforms; the fold is a path morph — build production in Rive or Lottie as one asset.</p>
+  <table style="margin-bottom:2rem">
+    <thead><tr><th>Beat</th><th>Start</th><th>Duration</th><th>Easing</th></tr></thead>
+    <tbody>
+      <tr><td>Strap + seal contract, shift left; strap dims to 62%</td><td>0ms</td><td>400ms</td><td>cubic-bezier(.45,0,.25,1)</td></tr>
+      <tr><td>Dog-ear folds in</td><td>240ms</td><td>300ms</td><td>ease-in-out cubic</td></tr>
+      <tr><td>Entries sweep left (x 54→37, w 16→33)</td><td>260ms</td><td>340ms</td><td>cubic-bezier(.35,0,.2,1)</td></tr>
+      <tr><td>Third entry writes in, left to right</td><td>520ms</td><td>340ms + 160ms fade</td><td>same</td></tr>
+    </tbody>
+  </table>
+
+  <div class="dd">
+    <div>
+      <h4 class="y">Always</h4>
+      <ul>
+        <li>Sealed state for icon, favicon, print, lockups</li>
+        <li>Open state only after a real unlock — it is earned</li>
+        <li>Clear space equal to the strap width, all sides</li>
+        <li>Mark height = cap height × 1.6 in lockup</li>
+        <li>Commission Devanagari and Tamil lockups alongside Latin</li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="n">Never</h4>
+      <ul>
+        <li>Rotate, stretch, outline or add a gradient to the flat mark</li>
+        <li>Recolour outside the palette</li>
+        <li>Full-bleed into a circular crop — inset instead</li>
+        <li>Play the open animation decoratively</li>
+        <li>White knockout on dark — use the paper-book inverse</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="head"><span class="fol">04</span><h2>Colour</h2></div>
+  <p class="lede">Indigo carries the brand. Bahi red is an accent, one per screen, and never a value. Credit and debit are duller than the accent on purpose, so numbers read as data rather than alarm.</p>
+
+  <div class="grid g3">
+    <div class="sw"><div class="chip" style="background:#2B3A67"></div><dl><dt>Ledger indigo</dt><dd>#2B3A67</dd><dd class="use">Primary. Logo, headers, primary buttons</dd></dl></div>
+    <div class="sw"><div class="chip" style="background:#C1502E"></div><dl><dt>Bahi red</dt><dd>#C1502E</dd><dd class="use">Accent only. One per screen</dd></dl></div>
+    <div class="sw"><div class="chip" style="background:#F5F0E4"></div><dl><dt>Paper</dt><dd>#F5F0E4</dd><dd class="use">Background. Never pure white</dd></dl></div>
+    <div class="sw"><div class="chip" style="background:#1A1A18"></div><dl><dt>Ink</dt><dd>#1A1A18</dd><dd class="use">Body text. Never pure black</dd></dl></div>
+    <div class="sw"><div class="chip" style="background:#2F7A55"></div><dl><dt>Credit</dt><dd>#2F7A55</dd><dd class="use">Money in. Numerals only</dd></dl></div>
+    <div class="sw"><div class="chip" style="background:#A83232"></div><dl><dt>Debit</dt><dd>#A83232</dd><dd class="use">Money out. Numerals only</dd></dl></div>
+  </div>
+
+  <div class="ledger" style="border:1px solid var(--rule);border-radius:3px;margin-top:2rem">
+    <div>
+      <h3>Three rules above the hexes</h3>
+      <p><b>The primary is never a verdict.</b> Indigo must never read as "good" or "correct". Credit and debit are visually distinct from both indigo and bahi red.</p>
+      <p><b>Colour never carries meaning alone.</b> Every amount is also signed and column-positioned. Roughly 1 in 12 Indian men is red-green colour deficient; a ledger that fails them is a broken ledger.</p>
+      <p><b>The app is near-monochrome.</b> Let the numbers carry the colour. Marketing may lean into indigo; the product should not.</p>
+    </div>
+    <div>
+      <h3>Neutrals and dark mode</h3>
+      <p>Neutrals are warm greys derived from paper — never blue-grey. Mixing a cool grey into this palette is the fastest way to make it look generic.</p>
+      <p>Dark mode is required, not optional. Most users open this app at night after closing shop. Invert to ink background with paper text; keep the credit and debit hues but lift their lightness for contrast.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="head"><span class="fol">05</span><h2>Typography</h2></div>
+  <p class="lede">Mukta across all scripts, falling back to Noto Sans for anything it misses. One family in nine scripts is the single biggest contributor to the brand feeling like one thing.</p>
+
+  <div style="margin-bottom:2.25rem">
+    <div class="spec"><span class="lbl">Display / 600</span><span style="font-size:clamp(1.8rem,4.5vw,2.8rem);font-weight:600;letter-spacing:-.025em;line-height:1.15">Every rupee. Accounted for.</span></div>
+    <div class="spec"><span class="lbl">Heading / 600</span><span style="font-size:1.55rem;font-weight:600;letter-spacing:-.015em">Cash book · March</span></div>
+    <div class="spec"><span class="lbl">Section / 500</span><span style="font-size:1.2rem;font-weight:500">Opening balance</span></div>
+    <div class="spec"><span class="lbl">Body / 400</span><span style="font-size:1rem">Entries are recorded against a ledger account and reconciled monthly.</span></div>
+    <div class="spec"><span class="lbl">Table / 400</span><span style="font-size:.875rem">Staff advance — Ramesh</span></div>
+    <div class="spec"><span class="lbl">Caption / 400</span><span style="font-size:.75rem;color:var(--ink-soft)">Recorded 14 Mar, 6:42 pm</span></div>
+  </div>
+
+  <h3>Nine scripts, one voice</h3>
+  <div class="scripts" style="margin-bottom:2.25rem">
+    <div><p class="s">Rukka Folio</p><p class="n">Latin</p></div>
+    <div><p class="s">रुक्का फ़ोलियो</p><p class="n">Devanagari</p></div>
+    <div><p class="s" style="font-family:'Noto Sans Tamil'">ரூக்கா ஃபோலியோ</p><p class="n">Tamil</p></div>
+    <div><p class="s" style="font-family:'Noto Sans Bengali'">রুক্কা ফোলিও</p><p class="n">Bengali</p></div>
+    <div><p class="s" style="font-family:'Noto Sans Telugu'">రుక్కా ఫోలియో</p><p class="n">Telugu</p></div>
+    <div><p class="s" style="font-family:'Noto Sans Kannada'">ರುಕ್ಕಾ ಫೋಲಿಯೊ</p><p class="n">Kannada</p></div>
+    <div><p class="s" style="font-family:'Noto Sans Gujarati'">રુક્કા ફોલિયો</p><p class="n">Gujarati</p></div>
+    <div><p class="s" style="font-family:'Noto Sans Malayalam'">രുക്ക ഫോളിയോ</p><p class="n">Malayalam</p></div>
+  </div>
+
+  <div class="ledger" style="border:1px solid var(--rule);border-radius:3px">
+    <div>
+      <h3>Numerals</h3>
+      <p style="font-family:'IBM Plex Mono';font-variant-numeric:tabular-nums;font-size:1.35rem;margin-bottom:.6rem">₹1,24,500.00</p>
+      <p>Tabular figures, always. Columns that don't align are the fastest way to look amateur in accounting software.</p>
+      <p><b>Indian grouping, always.</b> ₹1,24,500.00 — not ₹124,500.00. Getting this wrong tells an Indian accountant in half a second that the software wasn't built for them.</p>
+    </div>
+    <div>
+      <h3>Layout under translation</h3>
+      <p>Assume Tamil and Malayalam run <b>30–40% longer</b> than English. Design containers to that, not to English.</p>
+      <p>Never concatenate strings to build a sentence — word order differs across the nine languages.</p>
+      <p>Financial terms — GST, TDS, ledger, journal — stay in English in every locale. Users search for them in English and their CA uses them in English.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="head"><span class="fol">06</span><h2>The ruled column</h2></div>
+  <p class="lede">Every accounting artifact in India is defined by ruled lines and paired columns: the cloth bahi-khata, the columnar pad, the audit sheet. That is the whole shape language. If an element isn't a rule, a column, or a fold — cut it.</p>
+
+  <div class="grid g2">
+    <div>
+      <div class="demo">
+        <div class="demo-h"><b>Cash book</b><span>MAR 2026</span></div>
+        <div class="row"><span>Opening balance<small>Carried from February</small></span><span class="amt">₹42,180.00</span></div>
+        <div class="row"><span>Rent received<small>Shop 2 · Ramesh</small></span><span class="amt cr">+18,000.00</span></div>
+        <div class="row"><span>Electricity<small>MSEB · March</small></span><span class="amt db">−2,340.00</span></div>
+        <div class="row"><span>Staff advance<small>Sunita</small></span><span class="amt db">−5,000.00</span></div>
+        <div class="row tot"><span>Closing balance</span><span class="amt">₹52,840.00</span></div>
+      </div>
+      <p class="cap">Product — near-monochrome, numbers carry the colour</p>
+    </div>
+    <div>
+      <div style="border-left:3px solid var(--indigo);padding:1.1rem 0 1.1rem 1.25rem;border-radius:0;background:#fff;border-top:1px solid var(--rule-faint);border-right:1px solid var(--rule-faint);border-bottom:1px solid var(--rule-faint)">
+        <h3 style="border:none;padding:0;margin-bottom:.5rem">Callout</h3>
+        <p style="font-size:.94rem">A 3px left rule marks callouts, quotes and section openings. Never round the corners on a single-sided rule.</p>
+      </div>
+      <div style="margin-top:1.25rem;padding:1.1rem 1.25rem;background:var(--indigo);color:var(--paper);border-radius:3px">
+        <p style="font-size:.72rem;letter-spacing:.12em;text-transform:uppercase;opacity:.6;margin-bottom:.4rem">Deck divider</p>
+        <p style="font-size:1.35rem;font-weight:600;letter-spacing:-.015em">How the books stay sealed</p>
+        <div style="height:1px;background:rgba(245,240,228,.25);margin-top:.9rem"></div>
+      </div>
+      <p class="cap">Deck — indigo field, hairline under every title</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="head"><span class="fol">07</span><h2>Voice</h2></div>
+  <p class="lede">Short sentences. Verbs first. Sentence case everywhere. State the number — "₹500 unaccounted" beats "the entry is unbalanced" every time.</p>
+
+  <table>
+    <thead><tr><th style="width:26%">Element</th><th style="width:37%">Write</th><th>Not</th></tr></thead>
+    <tbody>
+      <tr><td>Button</td><td>Add entry</td><td style="color:var(--ink-faint)">Create new transaction record</td></tr>
+      <tr><td>Empty state</td><td>No entries yet this month. Add your first one.</td><td style="color:var(--ink-faint)">Nothing here!</td></tr>
+      <tr><td>Error</td><td>This entry doesn't balance. ₹500 unaccounted.</td><td style="color:var(--ink-faint)">Oops! Something went wrong</td></tr>
+      <tr><td>Confirmation</td><td>Entry saved</td><td style="color:var(--ink-faint)">Your entry was successfully saved!</td></tr>
+      <tr><td>Destructive</td><td>Delete this entry? It stays in the audit trail.</td><td style="color:var(--ink-faint)">Are you sure?</td></tr>
+      <tr><td>Security</td><td>Only people you invite can open these books.</td><td style="color:var(--ink-faint)">Bank-grade military encryption</td></tr>
+    </tbody>
+  </table>
+
+  <p style="margin-top:1.5rem;color:var(--ink-soft);max-width:62ch"><b>Banned:</b> utilize, leverage, seamless, empower, simply, just, easy, effortless, revolutionise. No exclamation marks in system copy. No apology theatre — someone auditing a society wants to know what's wrong and where, not to be soothed.</p>
+</section>
+
+<section>
+  <div class="head"><span class="fol">08</span><h2>Across surfaces</h2></div>
+  <p class="lede">Fixed everywhere: logo, type family, colour tokens, credit/debit semantics, the ruled column, voice, Indian numeral grouping, tabular figures. Everything below is what's allowed to flex.</p>
+
+  <table>
+    <thead><tr><th>Surface</th><th>Density</th><th>Colour</th><th>Illustration</th></tr></thead>
+    <tbody>
+      <tr><td>Pitch deck</td><td>Airy</td><td>Full indigo, bahi accent</td><td>Yes</td></tr>
+      <tr><td>Website</td><td>Medium</td><td>Indigo-led</td><td>Sparing</td></tr>
+      <tr><td>Web app</td><td>Dense</td><td>Near-monochrome</td><td>No</td></tr>
+      <tr><td>Mobile app</td><td>Dense</td><td>Near-monochrome</td><td>Empty states only</td></tr>
+    </tbody>
+  </table>
+
+  <div class="ledger" style="border:1px solid var(--rule);border-radius:3px;margin-top:2rem">
+    <div>
+      <h3>Build order</h3>
+      <p><b>1.</b> Name clearance — IP India, classes 9/35/36/42<br>
+      <b>2.</b> Wordmark, then Devanagari and Tamil lockups<br>
+      <b>3.</b> Tokens as code, one source for site and both apps<br>
+      <b>4.</b> The ledger table component<br>
+      <b>5.</b> Mobile app — entry flow first<br>
+      <b>6.</b> Web app — reports and reconciliation<br>
+      <b>7.</b> Website<br>
+      <b>8.</b> Pitch deck, from real screens</p>
+    </div>
+    <div>
+      <h3>Don't skip step four</h3>
+      <p>The ledger table is the hardest and most-used screen. Design it first and let it constrain everything else. Test it in Tamil at 14px on a five-inch phone before you approve it.</p>
+      <p>If the table works in nine languages at small sizes with correct tabular alignment, every other screen is downhill. If it doesn't, no amount of brand polish will save the product.</p>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<footer>
+<div class="wrap">
+  <p><b>Rukka Folio</b> — Visual brand guidelines, version 1.1</p>
+  <p style="margin-top:.35rem">Pending trademark clearance in classes 9, 35, 36 and 42. Not legal advice.</p>
+</div>
+</footer>
+
+</body>
+</html>
