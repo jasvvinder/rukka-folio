@@ -212,13 +212,13 @@ A plain list of report names with a one-line description each: Day Book · Cash 
 A report rendered on screen with a sticky header carrying the report name, scope and date range, and two actions — **PDF** and **Share**. Below the header, a one-line takeaway in plain words ("August: in ₹1,75,000 · out ₹1,38,200 · saved ₹36,800"), then the table itself using P1's alignment rules. Design the empty state ("nothing in this period yet").
 
 ## S15 — App lock
-The screen between the app icon and the books. Centred: the Rukka Folio mark, then "Unlock to open your books". The biometric prompt **fires automatically on arrival** — the user should usually never touch this screen. Beneath, a quiet text button **Use PIN instead**. Design three states: waiting for Face ID · failed, showing "Try again" plus the PIN option · PIN entry, as grouped boxes with the device-passcode fallback. Nothing else on the screen — no balances, no book names, no branding beyond the mark.
+The screen between the app icon and the books. Centred: the Rukka Folio mark, then "Unlock to open your books". The biometric prompt **fires automatically on arrival** — the user should usually never touch this screen. Beneath, a quiet text button **Use PIN instead**. Design three states: waiting for Face ID · failed, showing "Try again" plus the PIN option · PIN entry, as six grouped boxes with a quiet **Forgot PIN** link (OTP + biometric — the device passcode is never offered, 06 §4.4 / ADR 2026-09-01). Nothing else on the screen — no balances, no book names, no branding beyond the mark.
 
 ## S15.1 — Privacy cover
 What the app shows the instant it is backgrounded: the mark on a plain paper field, nothing else. **No balances, no account names, no last screen.** This is what appears in the iOS app switcher. Design it in light and dark.
 
-## S15.2 — Personal Book PIN
-Two screens for the optional second lock. **Set:** an explanation line ("An extra step before your own book opens, in case someone else uses this phone"), then a 4-digit entry and confirm. **Enter:** the personal book's name, four boxes, and a muted "Forgot it? Use Face ID" fallback.
+## S15.2 — Personal Book lock
+One screen, and no number of its own 🔒 (owner-ruled 1 Sep 2026: one PIN, never a second — 06 §4.4). The opt-in extra lock **re-prompts the same 6-digit MPIN or Face ID** before the personal book opens: the book's name, six boxes, the Face ID button, and one plain line — "An extra step before your own book opens, in case someone else uses this phone. Same PIN as the app." There is no set/confirm flow: turning the toggle on (S11 · Devices & security) is the whole setup.
 
 ## S6 — Inbox
 Design a single tray screen: title "Inbox", "3 waiting" beneath, then a vertical stack of **P3** cards of different kinds — entries to review, bank lines to classify, an invitation awaiting verification. Each card's primary button differs ("Approve all 7", "Classify 12 lines", "Verify Ramesh").
@@ -351,7 +351,7 @@ Beneath the group, one muted line: "Your entries are already stored safely and e
 
 ## R3 · Devices & security (S11) and guardian setup (S11.1)
 
-**S11 · Devices & security** — a settings screen listing: **This phone** and other signed-in devices (name, last active, a Revoke link, and a red **This phone was stolen** path); **Trusted members** with their names and a "change" link; **Recovery sheet** showing its status (*kept safe · printed 12 Apr* or a warning badge *not yet confirmed*); **Personal book PIN** toggle.
+**S11 · Devices & security** — a settings screen listing: **This phone** and other signed-in devices (name, last active, a Revoke link, and a red **This phone was stolen** path); **Trusted members** with their names and a "change" link; **Recovery sheet** showing its status (*kept safe · printed 12 Apr* or a warning badge *not yet confirmed*); **Personal book lock** toggle (re-prompts the same MPIN/biometric).
 
 **S11.1 · Guardian setup** — choosing 2 of 3: a member list with checkboxes and a rule line "Any 2 of the 3 you choose can help you get back in", then a per-guardian checklist showing the mutual verification ceremony as **done ✓** or **meet them** — because guardians verify in both directions. Finish is disabled until all are verified.
 
@@ -548,7 +548,7 @@ Each entity pack must be delivered in **light and dark**, in **all three languag
 
 **S10.4 · Year close and carry-forward.** A ceremony, not a wizard: a preconditions checklist (all months locked ✓, Suspense zero ✓, nothing pending ✓), an optional *Distribute profit first* step for shared-ownership businesses, then the certified closing vector shown as a short summary, then **Close FY 2026-27**. After it seals: a confirmation carrying the b/f figures the new year opens with, and the **FY switcher** now visible on every ledger. Design the *reopened* state too — a loud banner reading "This year's certificate was voided".
 
-**S13 · Settings.** Language (three options, changes immediately) · notification preferences by type · app-lock timeout · **Personal Book PIN** · **Export everything** · date format. Plain grouped rows, no cleverness.
+**S13 · Settings.** Language (three options, changes immediately) · notification preferences by type · app-lock timeout · **Personal Book lock** · **Export everything** · date format. Plain grouped rows, no cleverness.
 
 
 **All of Step 6 in light and dark, all three languages, strings only from Step 0b.**

@@ -164,10 +164,10 @@ One screen, two modes driven by the account's subtype (02 §8.2): **verify** for
 
 ## 5.6 App lock 🔒 (owner-raised 31 Aug 2026)
 Face ID / Touch ID is **not optional and not a setting** — it already guards the keystore holding the device key (06 §4.4), so it is how the app opens. What was missing was the surface:
-- **Lock screen** on cold start and after the background timeout (default 2 min, configurable): the mark, "Unlock to open your books", biometric prompting **automatically** without a tap, and **Use PIN instead** beneath for failed or unavailable biometrics. It falls back to the **device passcode**, never to an app-specific password — the product has none.
+- **Lock screen** on cold start and after the background timeout (default 2 min, configurable): the mark, "Unlock to open your books", biometric prompting **automatically** without a tap, and **Use PIN instead** beneath for failed or unavailable biometrics. The PIN is the **6-digit MPIN** set at onboarding (06 §4.4, ADR 2026-09-01); the **device passcode is never offered** — in a joint family the passcode is common knowledge, which is why the MPIN exists. Forgot it → OTP to the registered number + biometric, then set a new one; never data loss.
 - 🔒 **Privacy cover.** The moment the app is backgrounded it covers itself with the mark on a plain paper field, so **no balance ever appears in the iOS app switcher**. This is a financial app; a task-switcher screenshot showing ₹4,81,000 is a real leak, and it must be in place before any screenshot is taken.
 - **Stated at onboarding, not asked:** one line on O5 — "Face ID keeps this app closed to everyone else" — because a question invites turning it off, and it cannot be turned off.
-- **Personal Book PIN** is a *second, separate* lock (04 §5.2): opt-in, guards only the personal book behind an extra step even after the app is unlocked, for shared or borrowed phones. Set and enter screens are its own.
+- **Personal Book lock** (04 §5.2 privacy; 06 §4.4 🔒 one PIN, not two): opt-in, guards only the personal book behind an extra step even after the app is unlocked, for shared or borrowed phones. It **re-prompts the same MPIN or biometric** — no second number, no set screen; enabling the toggle (§15) is the whole setup.
 
 ## 5.7 Adding a business 🔒 (gap closed 1 Sep 2026)
 Reached from Menu → Books, or immediately after the purpose card "My shop" / "My businesses". Four fields and nothing else: **name** · **who owns it** (*Just me* default / *Shared with others* → owners and ratio, 02 §7.1) · **financial year start** (1 April default) · **opening balances** (bank, cash, anyone who owes or is owed). Creating the book adds its chip to the scope switcher and seeds the shop or trade category tree.
@@ -257,7 +257,7 @@ Report screens are tables with a one-line takeaway header (*"August: In ₹1,21,
 ---
 
 ## 15. Devices & security screens 🔒
-Menu → Devices & security: **Backup** section first (04 §7.6 — platform key sync toggle on by default, save-recovery-sheet share action, optional monthly readable copy; each row states its own risk in one muted line, amber where the artefact is readable or restorable by anyone holding it) · linked devices list (06 §6) with revoke + **"This phone was stolen"** path (04 §9.2 consequences spelled out before confirm); guardians; recovery sheet (view status, re-verify, regenerate = old sheet invalid warning); escrow; app-lock timeout; **Personal Book PIN** toggle; security events log.
+Menu → Devices & security: **Backup** section first (04 §7.6 — platform key sync toggle on by default, save-recovery-sheet share action, optional monthly readable copy; each row states its own risk in one muted line, amber where the artefact is readable or restorable by anyone holding it) · linked devices list (06 §6) with revoke + **"This phone was stolen"** path (04 §9.2 consequences spelled out before confirm); guardians; recovery sheet (view status, re-verify, regenerate = old sheet invalid warning); escrow; app-lock timeout; **Personal Book lock** toggle (re-prompts the same MPIN/biometric, 06 §4.4); security events log.
 
 ## 16. Settings 🔒
 Language (per member) · book management (create/rename/archive, FY start) · category tree editor · notification preferences · export everything (06 §9.2 — always available, plan-independent) · subscription · about/support (WhatsApp).

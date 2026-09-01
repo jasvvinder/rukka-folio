@@ -133,7 +133,8 @@ Five-slot bottom bar, persistent, with a centre action:
 | **S6.2** | Review — stepper | S6.1 | approve / reject+reason / skip |
 | **S7** | Import — pick file & account | S8 | on-device parse |
 | **S7.1** | Import inbox | S7/S6 | one question per line |
-| **S7.2** | Transfer-pair confirm | S7.1 | "same money moving?" |
+| **S7.2** | Import balance check | S7 | statement's opening/closing vs the ledger; passing · matched · failing (07 §11.1, ADR 2026-09-01) |
+| **S7.3** | Transfer-pair confirm | S7.1 | "same money moving?" — a row-level card in the import inbox |
 | **S8** | Menu | root | hub |
 | **S8.1** | Reports list | S8 | day book, cash book, P&L, position, ageing, reconciliation |
 | **S8.2** | Report viewer + export | S8.1 | PDF/XLSX, FY switcher |
@@ -189,9 +190,9 @@ Five-slot bottom bar, persistent, with a centre action:
 | **S19.4** | Permission priming | before OS prompt | notifications and camera, asked in context |
 | **S20** | Attachment viewer | S4.1 | pinch-zoom bill photo, share, replace |
 | **S21** | Search | S3/S1 | across accounts, parties and notes |
-| **S15** | App lock | cold start / timeout | biometric auto-prompt, device-passcode fallback (07 §5.6) |
+| **S15** | App lock | cold start / timeout | biometric auto-prompt, **MPIN fallback — never the device passcode** (06 §4.4, 07 §5.6) |
 | **S15.1** | Privacy cover | background | mark on paper; no balances in the app switcher |
-| **S15.2** | Personal Book PIN — set & enter | S11 | the optional second lock |
+| **S15.2** | Personal Book lock — re-prompt | S11 | opt-in extra gate; asks the **same MPIN or biometric** again — one PIN, never a second number (06 §4.4, ADR 2026-09-01) |
 | **S13** | Settings | S8 | language, notifications, export everything |
 
 **Depth rule:** S1–S8 are roots; everything else is at most two levels below one of them.
@@ -244,7 +245,7 @@ Success: user reaches Home understanding that no password exists and the paper s
 `S3 search khata → S4 grouped listing → period tabs / date navigator → tap row → S4.1 entry detail (photo, audit trail, who entered) → [Amend | Reverse] → S8.2 export PDF/XLSX (classical columns, voucher, cross-check footer)`
 
 **F4 · Bank statement import**
-`S8 → S7 pick account + file → on-device parse → S7.1 inbox: each line shows bank text (grey) + Money in/out + one question ("Where did it come from?" / "Where did it go?") → ◆ matched(auto-link) | suggested(1-tap confirm) | new(pick A/C) | transfer-pair(S7.2 "same money moving?") | unknown("record now, explain later" → Suspense) ⟳ until inbox empty`
+`S8 → S7 pick account + file → on-device parse → S7.2 balance check → S7.1 inbox: each line shows bank text (grey) + Money in/out + one question ("Where did it come from?" / "Where did it go?") → ◆ matched(auto-link) | suggested(1-tap confirm) | new(pick A/C) | transfer-pair(S7.3 "same money moving?") | unknown("record now, explain later" → Suspense) ⟳ until inbox empty`
 Rule learned on first correction; Suspense must reach zero before month close.
 
 **F5 · Review cycle (post-then-review)**

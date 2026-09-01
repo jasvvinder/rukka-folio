@@ -65,7 +65,7 @@ Challenge–response; no bearer secrets that outlive minutes.
    - **Face ID is the fast path; the PIN is the alternative and the fallback.** Device passcode is no longer offered as the fallback.
    - **Forgetting it is not data loss:** re-verify by OTP to the registered number plus biometric, then set a new PIN. Nothing is re-encrypted.
    - 🔒 **One PIN, not two.** The Personal Book's extra lock re-prompts **the same PIN or biometric** rather than introducing a second number to remember.
-5. **Local unlock** is the OS's job: biometric/PIN gates the keystore; app-lock timeout configurable (default 2 min background); optional **separate PIN for the Personal Book**.
+5. **Local unlock** is the OS's job: biometric/PIN gates the keystore; app-lock timeout configurable (default 2 min background); the Personal Book's optional extra lock **re-prompts the same MPIN or biometric** — one PIN, never a second number (§4.4, ADR 2026-09-01).
 5. Server maintains a **minimum client version** per API route group; below it → HTTP 426 and the app shows a mandatory-update screen. Crypto- or sync-breaking releases bump it.
 
 ---
