@@ -55,6 +55,19 @@ Bottom bar, five slots:
 7. Opening balances wizard (02 §4) — skippable, resumable from Home's setup card.
 8. If invited (deep link): §12 flow instead of step 3.
 
+### 3.1.1 The purpose card branches the setup 🔒 (gap closed 1 Sep 2026)
+Onboarding is **not one linear path**. Steps 1–6 are shared by everyone; after them the flow **branches by the card chosen**, because what a trust needs named is not what a shopkeeper needs named. Every branch step is **skippable and resumable** from the setup checklist (§3.1 step 8) — nobody is trapped in setup, and a shopkeeper standing in his shop can reach Home in under a minute.
+
+| Card | Shared steps | Then |
+|---|---|---|
+| **Myself** | language · welcome · OTP · name · PIN · backup + sheet | **O6** your own opening balances → checklist |
+| **My shop** | ″ | **O6a** name the shop (type, FY) → **O6b** the shop's opening balances → **O6** your own → checklist |
+| **My businesses** | ″ | O6a → O6b → **O6c** *"Add another business?"* looping back to O6a → **O6** your own → checklist |
+| **My family** | ″ | **O6d** name the family → **O6e** *"Who else is in it?"* — invite the other heads by phone, **Skip for now** always visible → **O6f** the family's shared accounts (pool bank, cash) → **O6** your own → checklist |
+| **Our trust** | ″ | **O6g** name the trust **and its type** (gurudwara · temple · society · registered trust) → **O6h** *"Who runs it?"* — Chairman, Secretary, Trustees, Sevadars invited by phone, skippable → **O6i** the trust's accounts, **gollak created as `cash_collection`** and denomination counting switched on for every cash account (02 §8.2) → checklist |
+
+🔒 **Invitations are always skippable at signup.** Asking a karta to invite three brothers before he has seen a single screen is how onboarding dies; the checklist brings it back. 🔒 **The trust branch is the only one that sets `tenant.type = organization`**, which is what turns on trustee role labels (06 §1.0), mandatory cash counting, and the gollak's collect-mode counting.
+
 ### 3.2 Returning / new device
 Follows the scenario table in 06 §5 verbatim. Key screens: **Link with old phone** (camera + *Show my code* on the old device), **Ask your guardians** (live k-of-n progress: `Sunita ✓ · Rajesh …pending · Bauji —`, each row shows *called them?* hint), **Scan your paper sheet**, and the honest last screen: *"Shared books can be restored by your family after they verify you again; your old personal book cannot be recovered."* No euphemisms.
 
@@ -155,6 +168,11 @@ Face ID / Touch ID is **not optional and not a setting** — it already guards t
 - 🔒 **Privacy cover.** The moment the app is backgrounded it covers itself with the mark on a plain paper field, so **no balance ever appears in the iOS app switcher**. This is a financial app; a task-switcher screenshot showing ₹4,81,000 is a real leak, and it must be in place before any screenshot is taken.
 - **Stated at onboarding, not asked:** one line on O5 — "Face ID keeps this app closed to everyone else" — because a question invites turning it off, and it cannot be turned off.
 - **Personal Book PIN** is a *second, separate* lock (04 §5.2): opt-in, guards only the personal book behind an extra step even after the app is unlocked, for shared or borrowed phones. Set and enter screens are its own.
+
+## 5.7 Adding a business 🔒 (gap closed 1 Sep 2026)
+Reached from Menu → Books, or immediately after the purpose card "My shop" / "My businesses". Four fields and nothing else: **name** · **who owns it** (*Just me* default / *Shared with others* → owners and ratio, 02 §7.1) · **financial year start** (1 April default) · **opening balances** (bank, cash, anyone who owes or is owed). Creating the book adds its chip to the scope switcher and seeds the shop or trade category tree.
+
+🔒 **The scope switcher has two forms, and they are different controls:** with **one business** it is a two-chip inline toggle in the top bar (S1.2); from **three or more books** it becomes the grouped bottom sheet (S1.3). Never show the grouped sheet to someone who owns two books.
 
 ## 6. Ledger — the A/C index 🔒
 

@@ -11,7 +11,7 @@
 
 **A ledger everyone in the household, shop, or trust can actually read.**
 
-**"Books," defined once:** everywhere in this document and in all copy, *books* means the **books of account** — the bahi-khata (ਵਹੀ / बही-खाता) — the same object the product itself calls a **Book** (glossary, doc 01). Campaign lines like "One book the whole family can open" are therefore literal product statements, not metaphors. In translation, *books* is always ਹਿਸਾਬ-ਕਿਤਾਬ / ਵਹੀ or हिसाब-किताब / बही-खाता — **never** the literal ਕਿਤਾਬਾਂ / किताबें. In-product wording always follows doc 01.
+**"Books," defined once:** everywhere in this document and in all copy, *books* means the **books of account** — the bahi-khata (ਵਹੀ / बही-खाता) — the same object the product itself calls a **Book** (glossary, doc 01). Campaign lines like "One book the whole family can open" are therefore literal product statements, not metaphors. In translation, *books* is always ਵਹੀ-ਖਾਤੇ / ਵਹੀ or बही-खाते / बही-खाता — **never** the literal ਕਿਤਾਬਾਂ / किताबें. In-product wording always follows doc 01.
 
 Indian accounting software splits into two camps. On one side, cash-book apps that are easy but can't do real accounting. On the other, Tally-descended software that is correct but assumes you're a trained accountant.
 
@@ -243,7 +243,7 @@ Short sentences. Verbs first. Sentence case everywhere.
 - Never concatenate strings to build a sentence — word order differs across your nine languages.
 - Numerals stay Latin (0–9) in all locales unless the user opts into Devanagari numerals.
 - Financial terms (GST, TDS, ledger, journal) stay in English across all locales **in marketing and search-facing copy**; in-product terminology follows doc 01.
-- Marketing term map for the flagship nouns: *books* → ਹਿਸਾਬ-ਕਿਤਾਬ / हिसाब-किताब; *book* (the product object) → ਵਹੀ / बही; *ledger* → ਖਾਤਾ-ਵਹੀ / खाता-बही; *accounts* → ਖਾਤੇ / खाते. Never ਕਿਤਾਬ/किताब for books of account.
+- Marketing term map for the flagship nouns: *books* → ਵਹੀ-ਖਾਤੇ / बही-खाते; *book* (the product object) → ਵਹੀ / बही; *ledger* → ਖਾਤਾ-ਵਹੀ / खाता-बही; *accounts* → ਖਾਤੇ / खाते. Never ਕਿਤਾਬ/किताब for books of account.
 
 ---
 

@@ -14,7 +14,10 @@
 5. **Digits:** Latin digits, Indian grouping (₹12,34,567) in all languages. Gurmukhi/Devanagari digits are not used.
 6. **Dates:** English `DD Aug YYYY` (abbreviated months); ਪੰਜਾਬੀ/हिन्दी use **full month names** (`02 ਅਗਸਤ 2026`, `02 अगस्त 2026`) — these scripts don't abbreviate months naturally 🔒 (owner). Today/Yesterday = ਅੱਜ/ਕੱਲ੍ਹ, आज/कल.
 7. **No string concatenation** — ICU MessageFormat, named placeholders, plural rules per language.
-8. **Platform proper nouns stay untranslated 🔒 (design decision, 31 Aug 2026).** *iCloud Keychain · iCloud Drive · Files · Apple · Google Drive · Face ID · App Store · UPI · WhatsApp* appear in Latin script in all three languages, because that is how they appear on the phone itself — a user hunting for a setting must see the same words we do. Transliterating them would send people looking for something that does not exist on their device.
+8. **Platform nouns split into two classes 🔒 (owner-revised, 1 Sep 2026).**
+   - **Latin script, untranslated — names the user must *match against their own screen*:** *iCloud Keychain · iCloud Drive · Files · Google Drive · App Store · Apple · **UPI*** (owner: stays Latin — it appears that way on every bank screen and in every SMS). Someone hunting for a setting must see the same words their phone shows; transliterating sends them looking for something that does not exist.
+   - **Transliterated — words used *inside a sentence*:** *Face ID* → **ਫੇਸ ਆਈਡੀ / फेस आईडी** · *PIN* → **ਪਿੰਨ / पिन** · "Face ID ਵਰਤੋ" mixes scripts mid-sentence and reads badly; "ਫੇਸ ਆਈਡੀ ਦੀ ਵਰਤੋਂ ਕਰੋ" reads as Punjabi.
+   - The test: **is the user looking for it, or doing it?** Looking for it stays Latin; doing it gets transliterated.
 9. **User-typed content carries its own language tag 🔒** — account names, notes and party names may be in any script regardless of the UI language, so each is stored and rendered with a `lang` marker (`pa`/`hi`/`en`) for correct screen-reader pronunciation and font selection (design-system §3.1 rule 1).
 9. Strings live in ARB files (`app_en.arb`, `app_pa.arb`, `app_hi.arb`); keys are `screen.element.state`; **CI fails if any key is missing in any language.**
 9. **Statement layout rule 🔒:** A/C statements and ledger exports use the traditional three columns — **ਨਾਮੇ | ਜਮ੍ਹਾਂ | ਬਾਕੀ** / **नामे | जमा | बाकी** / **Dr | Cr | Balance** — with b/d and c/d rows. Day-book lists keep the in/out arrows; the Dr/Cr detail shows on the entry view.
@@ -43,7 +46,7 @@
 | Day book | — | Day Book | ਰੋਜ਼ਨਾਮਚਾ | रोज़नामचा |
 | Cash book | — | Cash Book | ਰੋਕੜ ਵਹੀ | रोकड़ बही |
 | Entry | entry | Entry | ਐਂਟਰੀ | एंट्री |
-| Books of account (collective) | — | the books | ਹਿਸਾਬ-ਕਿਤਾਬ | हिसाब-किताब |
+| Books of account (collective) | — | the books / your books | ਵਹੀ-ਖਾਤੇ · *your* → ਤੁਹਾਡੇ ਵਹੀ-ਖਾਤੇ | बही-खाते · *your* → आपके बही-खाते |
 
 ### Professional money terms (per reference file)
 | Concept | Internal | EN | ਪੰਜਾਬੀ | हिन्दी |
@@ -93,6 +96,8 @@
 | Purpose card 4 | My family | ਮੇਰਾ ਪਰਿਵਾਰ | मेरा परिवार |
 | Purpose card 5 — label | Our trust | ਸਾਡਾ ਟਰੱਸਟ | हमारा ट्रस्ट |
 | Purpose card 5 — subtitle | gurudwara, temple, society or registered trust | ਗੁਰਦੁਆਰਾ, ਮੰਦਰ, ਸਭਾ ਜਾਂ ਰਜਿਸਟਰਡ ਟਰੱਸਟ | गुरुद्वारा, मंदिर, सभा या रजिस्टर्ड ट्रस्ट |
+| Skip (welcome slides, review stepper) | Skip | ਛੱਡੋ | छोड़ें |
+| Skip for now (any resumable setup step) | Skip for now | ਹੁਣ ਲਈ ਛੱਡੋ | अभी के लिए छोड़ें |
 | Today / Save / Undo | Today / Save / Undo | ਅੱਜ / ਸੇਵ ਕਰੋ / ਵਾਪਸ ਲਓ | आज / सेव करें / वापस लें |
 
 **ਬਕਾਇਆ for balance rows 🔒 (owner-directed, 31 Aug 2026).** The b/f and c/f rows use **ਸ਼ੁਰੂਆਤੀ ਬਕਾਇਆ / शुरुआती बकाया** and **ਅੰਤਿਮ ਬਕਾਇਆ / अंतिम बकाया** — *bakaya* is the standing-amount term a munim uses on those rows, where *baaki* reads as "the rest". **ਬਾਕੀ / बाकी** remains correct for the running Balance **column header** and for pending states (ਮਨਜ਼ੂਰੀ ਬਾਕੀ). **Fix / Adjust** is the imperative **ਠੀਕ ਕਰੋ / ठीक करें**, not the noun *sudhaar*.
@@ -105,7 +110,7 @@
 
 **Reserved name (brand §2):** *Rokad* is the in-product feature name for the simple cash-book view — the day-one shopkeeper mode — never used in marketing.
 
-**"Books" alignment (brand 11 §1) 🔒:** *books* always means the books of account — the product's own Book (ਵਹੀ/बही) objects; the collective renders as ਹਿਸਾਬ-ਕਿਤਾਬ / हिसाब-किताब. The literal ਕਿਤਾਬ/किताब never appears for books of account — in-product, in copy, or in translation. Context split for *ledger*: the in-app tab stays ਖਾਤੇ/खाते (the A/C index); the concept in prose/marketing is ਖਾਤਾ-ਵਹੀ/खाता-बही.
+**"Books" alignment (brand 11 §1) 🔒:** *books* always means the books of account — the product's own Book (ਵਹੀ/बही) objects; the collective renders as ਵਹੀ-ਖਾਤੇ / बही-खाते. The literal ਕਿਤਾਬ/किताब never appears for books of account — in-product, in copy, or in translation. Context split for *ledger*: the in-app tab stays ਖਾਤੇ/खाते (the A/C index); the concept in prose/marketing is ਖਾਤਾ-ਵਹੀ/खाता-बही.
 
 **Surface precedence:** this document governs in-product terminology; marketing/site/deck copy follows the brand voice and localisation rules (11 §5). Brand's "financial terms stay in English" rule applies to marketing and search-facing text, not to this table.
 

@@ -94,12 +94,25 @@ Five-slot bottom bar, persistent, with a centre action:
 ### 3.2 Complete screen inventory
 | ID | Screen | Root | Purpose |
 |---|---|---|---|
+| **S0.0** | Splash | launch | mark, sealed→open animation on real unlock only |
+| **S0.05** | Welcome | first launch | 3 skippable slides, after language so they are in the user's language |
+| **S0.8** | Set your PIN | onboarding | 6-digit, set + confirm (06 §4.4) |
+| **S15.3** | Enter PIN | app lock | 6 boxes; Face ID button; *Forgot PIN* → OTP + biometric |
 | **S0.1** | Language picker | onboarding | first screen ever shown |
 | **S0.2** | Phone + OTP | onboarding | identity |
 | **S0.3** | "What will you use this for?" | onboarding | five cards; the trust card alone sets `tenant.type = organization` (07 §3.1) |
 | **S0.4** | Name & photo | onboarding | for approvals/ceremony |
 | **S0.5** | Keeping your books safe | onboarding | key sync stated on · automatic backup on with its disclosure · sheet action (04 §7.6, 07 §3.1) |
 | **S0.5b** | Recovery sheet | S0.5 | generate, print/save, verify by scanning back |
+| **S0.6a** | Name the business | O3 branch | name · just me / shared · FY start |
+| **S0.6b** | The business's opening balances | O6a | |
+| **S0.6c** | Add another business? | O6b | loop control, multi-business branch |
+| **S0.6d** | Name the family | O3 branch | |
+| **S0.6e** | Who else is in the family | O6d | invite heads by phone, **Skip for now** |
+| **S0.6f** | The family's shared accounts | O6e | pool bank and cash |
+| **S0.6g** | Name the trust and its type | O3 branch | gurudwara · temple · society · registered trust |
+| **S0.6h** | Who runs the trust | O6g | Chairman/Secretary/Trustee/Sevadar, skippable |
+| **S0.6i** | The trust's accounts | O6h | bank + gollak as `cash_collection` |
 | **S0.6** | Opening balances wizard | onboarding | resumable |
 | **S0.7** | Setup checklist (Home empty state) | S1 | progressive onboarding |
 | **S1** | Home / Position | root | banks, cash, get/give, advances, in-transit, month, verbs, today |
@@ -125,6 +138,9 @@ Five-slot bottom bar, persistent, with a centre action:
 | **S8.1** | Reports list | S8 | day book, cash book, P&L, position, ageing, reconciliation |
 | **S8.2** | Report viewer + export | S8.1 | PDF/XLSX, FY switcher |
 | **S9** | Books & members | S8 | roles, limits, verification log |
+| **S9.5** | Add a business | S9/Menu | name · type (just me / shared) · FY start · opening balances — creates the book (02 §7.1) |
+| **S1.2** | Scope switcher — two books | S1 | the small control when only Me + one business exist; **not** the grouped joint-family sheet (S1.3) |
+| **S1.3** | Scope switcher — grouped sheet | S1 | Me / Family / Businesses / Organizations / Everything |
 | **S9.1** | Invite member | S9 | phone + per-book roles |
 | **S9.2** | Show my code (QR + 8-digit) | ceremony | invitee side |
 | **S9.3** | Verify member (camera/code) | ceremony | verifier side |

@@ -109,6 +109,7 @@ You are designing **Rukka Folio**, an iOS-first mobile bookkeeping app for India
 | Cash | Cash in hand · Galla · Gollak | ਰੋਕੜ · ਗੱਲਾ · ਗੋਲਕ | रोकड़ · गल्ला · गोलक |
 | Last counted | Last counted 27 Aug | ਆਖ਼ਰੀ ਗਿਣਤੀ 27 ਅਗਸਤ | आख़िरी गिनती 27 अगस्त |
 | Today / Yesterday | Today · Yesterday | ਅੱਜ · ਕੱਲ੍ਹ | आज · कल |
+| Skip | Skip · **Skip for now** | ਛੱਡੋ · **ਹੁਣ ਲਈ ਛੱਡੋ** | छोड़ें · **अभी के लिए छोड़ें** |
 | Buttons | Save · Undo · Approve · Reject · Skip | ਸੇਵ ਕਰੋ · ਵਾਪਸ ਲਓ · ਮਨਜ਼ੂਰ ਕਰੋ · ਰੱਦ ਕਰੋ · ਛੱਡੋ | सेव करें · वापस लें · मंज़ूर करें · रद्द करें · छोड़ें |
 | Awaiting review | Waiting for approval · {name} will review | ਮਨਜ਼ੂਰੀ ਬਾਕੀ · {name} ਜਾਂਚ ਕਰੇਗੀ | मंज़ूरी बाकी · {name} जाँच करेंगी |
 | Old entries | Old entries waiting | ਪੁਰਾਣੀਆਂ ਐਂਟਰੀਆਂ ਬਾਕੀ | पुरानी एंट्रियाँ बाकी |
@@ -263,6 +264,18 @@ The screen shown immediately after a book locks — a shareable card, not a rece
 ---
 
 # STEP 2b — Onboarding & role variants
+
+## O0 · Splash
+The mark on a plain paper field, centred, nothing else — no tagline, no spinner. The **sealed→open animation plays only when a real unlock follows** (Face ID succeeding), never as decoration on a cold start that ends at the lock screen.
+
+## O0b · Welcome *(three slides, skippable, shown once)*
+Placed **after the language picker** so the slides are already in the user's language. Three only, each one idea, line-drawn illustration above a short line and a sentence: **1** "Your books, kept properly" — real double-entry, without the accounting · **2** "Your family, on the same page" — everyone who shares the money sees the same books · **3** "Sealed to everyone else" — even we cannot open them, which is why there is no password. Dots, **Skip** always visible, final slide's button reads **Get started**. ⚠️ Three slides maximum; this sits directly in front of the 8-second promise.
+
+## O4b · Set your PIN
+Six boxes, set and confirm, with one plain line: "You'll use Face ID most of the time. This is for when it doesn't work — and it keeps your books closed even to someone who knows your phone's passcode." Design the mismatch state on confirm.
+
+## S15.3 · Enter PIN
+Six boxes, a **Face ID** button above them for returning to the fast path, and a quiet **Forgot PIN** link. Design the wrong-PIN state (attempts remaining) and the forgot flow's first screen: "We'll send a code to your number, then you can set a new one — your books are not affected."
 
 ## O1 · Language picker
 The first screen ever shown. Three large tap targets — **English · ਪੰਜਾਬੀ · हिन्दी** — each rendered in its own script at 24px, on paper background, with the Rukka Folio mark above. No other chrome, no skip.

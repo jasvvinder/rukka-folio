@@ -12,6 +12,19 @@
 - Plaintext profile: phone, display name, photo (optional, shown in approvals/verification), preferred language (per-user, not per-tenant), WhatsApp opt-in.
 - Phone-number change is supported (§9.4) — the number is the *claim*; the UMK is the identity.
 
+### 1.0 Role labels are per tenant type 🔒 (gap closed 1 Sep 2026)
+The **stored** role is always one of five; only the **displayed** name changes, so capability and code are identical everywhere:
+
+| Stored | Family / business shows | Organization shows |
+|---|---|---|
+| `admin` | Admin | **Chairman** |
+| `head` | Head | **Secretary** |
+| `member` | Member | **Trustee** |
+| `operator` | Operator | **Sevadar** (ਸੇਵਾਦਾਰ) |
+| `viewer` | Viewer | **Auditor** |
+
+A gurudwara committee will not recognise "Operator"; it will recognise ਸੇਵਾਦਾਰ. ⚠️ Owner to confirm Secretary/Trustee ranking against how a Singh Sabha committee actually orders them.
+
 ### 1.1 Multi-tenancy 🔒
 - `tenants(id, type ∈ {family, business_group, organization}, name_ciphertext, plan, …)`
 - `memberships(tenant_id, user_id, status, verified_by, verified_method, …)` and `book_roles(book_id, user_id, role ∈ {admin, head, member, operator, viewer}, auto_post_limit_paise, …)` — one role **per book**, never global.
@@ -46,7 +59,13 @@ Challenge–response; no bearer secrets that outlive minutes.
 1. `POST /auth/challenge {device_id}` → 32-byte nonce (60 s TTL, single use).
 2. Device signs `nonce ‖ device_id ‖ unix_ts` with its hardware Ed25519 key → server verifies against the registered public key → issues **access JWT (15 min)** `{user_id, device_id}` + rotating **refresh token (30 days idle cap)** bound to `device_id`; every refresh requires a fresh signature. Reuse of a rotated refresh token revokes the family of tokens (theft signal).
 3. Clock-skew window ±90 s on `unix_ts`.
-4. **Local unlock** is the OS's job: biometric/PIN gates the keystore; app-lock timeout configurable (default 2 min background); optional **separate PIN for the Personal Book**.
+4. **App PIN (MPIN) 🔒 (owner-raised 31 Aug 2026).** A **6-digit** PIN set during onboarding, alongside Face ID.
+   - **Why, in this product specifically:** in a joint family, relatives commonly know each other's phone passcodes. Falling back to the device passcode would mean the family can open each other's books. A PIN the family does not know is a real layer, not ceremony — and Indian users already expect an MPIN from every banking app.
+   - 🔒 **It is a local gate on the hardware keystore, never a key.** It is not a KDF input, never wraps key material, and never authenticates to the server. This preserves 04 §2's rule that the system contains **no low-entropy secrets**: rate-limiting and key protection stay with the Secure Enclave, and a 6-digit PIN could never protect a key by itself.
+   - **Face ID is the fast path; the PIN is the alternative and the fallback.** Device passcode is no longer offered as the fallback.
+   - **Forgetting it is not data loss:** re-verify by OTP to the registered number plus biometric, then set a new PIN. Nothing is re-encrypted.
+   - 🔒 **One PIN, not two.** The Personal Book's extra lock re-prompts **the same PIN or biometric** rather than introducing a second number to remember.
+5. **Local unlock** is the OS's job: biometric/PIN gates the keystore; app-lock timeout configurable (default 2 min background); optional **separate PIN for the Personal Book**.
 5. Server maintains a **minimum client version** per API route group; below it → HTTP 426 and the app shows a mandatory-update screen. Crypto- or sync-breaking releases bump it.
 
 ---
