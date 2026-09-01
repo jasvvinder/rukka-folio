@@ -13,6 +13,7 @@
 | **2b** | Onboarding · backup · recovery · role variants | first-run flow incl. backup setup (O5), the recovery flow (R2), devices and backup settings (R3, R4), and how each screen looks to each role |
 | **3** | Entity pack A (Individual) | the baseline app with real data |
 | **4** | Entity packs B / C / D | business, trust, joint-family variants and their unique screens, incl. partner positions (S14) and the quorum card (S6.3) |
+| **6** | Account · subscription · support · legal · system states | the shipping layer: entry detail, invite, profile, plans, help, legal, update/maintenance, permissions, viewer, search |
 | **5** | States & deliverables | empty, error, offline variants + the handoff checklist |
 
 **Accessibility is not a later pass:** every amount is announced as value **plus direction**; the statement is a real table with associated headers; user-typed account names carry their own language tag; the QR ceremony always shows the 8-digit code as an equal alternative. Full rules in `design/design-system.md` §3.1.
@@ -41,6 +42,27 @@ Each new chat starts blank, so drift between sessions is the main risk. Two habi
 - dark mode present · all three languages present
 
 **Keep one running note** of anything you approved that isn't in this pack — a spacing choice, a new label, an interaction. That note is what comes back into `docs/07-ui-flows.md` and `docs/01-glossary.md` at the end. If it contradicts a 🔒 decision, it belongs in `docs/decisions/` as an ADR.
+
+## How to lay out the canvas 🔒
+
+**Group by flow, not by screen.** Put every screen of one flow on a **single canvas or page**, arranged left to right in the order the user meets them, with arrows between and a short label on each arrow describing the action that moves them forward ("taps Save", "code matches", "2 of 3 approved"). A reviewer should be able to read the whole journey without opening anything.
+
+**Suggested canvases**, one per flow:
+1. **Onboarding** — O1 → O2 → O3 → O4 → O5 → O5b → O6 → O8
+2. **Entry** — S2 typing → choosing → chosen, plus S2.1 date, S2.3 transfer, S2.4 adjustments, S4.1 entry detail, S20 attachment viewer
+3. **Reading the books** — S1 Home → S1.1 drill-down → S3 Ledger → S4 statement → S21 search
+4. **Bank import** — S7.0 file → mapping → S7.1 inbox four states → S7.2 balance check → submitted
+5. **Review & approval** — S6 Inbox → S6.1 grouped card → S6.2 stepper → approved / rejected
+6. **Members & ceremony** — S9 members → S9.1 invite → S9.2 show code ∥ S9.3 verify → S9.4 mismatch → active
+7. **Money between people** — S5 advances → S5.1 request → open → settled, plus S14 partner positions → S14.1 distribution → S14.2 settlement
+8. **Closing** — S5.5 cash count → S10 four steps → S10.1 family status → S10.2 summary card → S10.3 late arrivals → S10.4 year close
+9. **Losing and getting back in** — R2.0 → R2.1 → R2.2 ∥ R2.3 → R2.4 → R2.5, plus R3.1, R3.2, R4
+10. **Locks & system** — S15, S15.1, S15.2, S19.1–S19.4
+11. **Account, money and help** — S16.x, S12.x, S17.x, S18.x, S13
+
+**Every canvas carries all its variants.** For each flow, produce the **light** row first, then a **dark** row directly beneath it, then **ਪੰਜਾਬੀ** and **हिन्दी** rows beneath that — four horizontal bands of the same journey, vertically aligned so a reviewer can compare a screen across all four by looking down a column. Empty, error and offline variants sit at the right-hand end of the band they belong to.
+
+**Label each canvas** with the flow name and the S-ids it contains, so it maps back to `docs/13-ux-architecture.md`.
 
 ---
 
@@ -97,7 +119,7 @@ You are designing **Rukka Folio**, an iOS-first mobile bookkeeping app for India
 | Close | Close the month · Close the year | ਮਹੀਨਾ ਬੰਦ ਕਰੋ · ਸਾਲ ਬੰਦ ਕਰੋ | महीना बंद करें · साल बंद करें |
 | Count | Count cash · Open and count | ਰੋਕੜ ਗਿਣੋ · ਖੋਲ੍ਹ ਕੇ ਗਿਣੋ | रोकड़ गिनें · खोलकर गिनें |
 | Ceremony | Show my code · Verify | ਮੇਰਾ ਕੋਡ ਦਿਖਾਓ · ਤਸਦੀਕ ਕਰੋ | मेरा कोड दिखाएँ · तसदीक करें |
-| Guardian / recovery | Trusted member · Recovery sheet | ਭਰੋਸੇਮੰਦ ਮੈਂਬਰ · ਰਿਕਵਰੀ ਪਰਚੀ | भरोसेमंद सदस्य · रिकवरी पर्ची |
+| Guardian / recovery | Trusted member · Recovery sheet | ਭਰੋਸੇਮੰਦ ਮੈਂਬਰ · ਰਿਕਵਰੀ ਸ਼ੀਟ | भरोसेमंद सदस्य · रिकवरी शीट |
 | Reconciliation | Family match check | ਪਰਿਵਾਰ ਮਿਲਾਨ | परिवार मिलान |
 | Entry preview | ₹2,400 · Cash A/c → Diesel Expense A/c · {note} | same shape, same arrow | same shape, same arrow |
 
@@ -178,6 +200,24 @@ Design an A–Z list of accounts: search field as the header, filter chips (All 
 
 ## S4 — A/C statement
 Apply **P1** with a header: account name (20px), account type and financial year in muted text beneath, then a line "You will give ₹1,370" with the amount larger and red. Group headers carry the **running balance at end of that day** with its side tag. Rows show the counter-account as the primary label ("Milk Expense A/c") and the user's own note beneath ("Milk taken on credit"). Footer: a closing-balance strip and two text buttons — PDF and WhatsApp.
+
+## S8 — Menu *(the fifth nav destination — currently undesigned)*
+A hub screen, not a settings dump. Top: the signed-in person — avatar, name, and the muted line "Amrit Kaur · Admin in this book". Then grouped rows with icons and chevrons, in this order: **Reports** · **Books & members** · **Backup** · **Devices & security** · **Subscription** · **Settings** · **Help on WhatsApp**. Group with hairline dividers and small muted section labels; no more than three groups. Bottom: app version in small muted type.
+
+## S8.1 — Reports list
+A plain list of report names with a one-line description each: Day Book · Cash Book · A/C statement · **Trial Balance** · You will get / You will give with ageing · Profit and Loss · Full position · Advances ageing · Family match check · Partner positions *(shared-ownership businesses only)* · Business comparison *(Everything scope only)*. At the top, a scope chip and an FY selector. Design the state where scope-specific reports are absent rather than greyed.
+
+## S8.2 — Report viewer
+A report rendered on screen with a sticky header carrying the report name, scope and date range, and two actions — **PDF** and **Share**. Below the header, a one-line takeaway in plain words ("August: in ₹1,75,000 · out ₹1,38,200 · saved ₹36,800"), then the table itself using P1's alignment rules. Design the empty state ("nothing in this period yet").
+
+## S15 — App lock
+The screen between the app icon and the books. Centred: the Rukka Folio mark, then "Unlock to open your books". The biometric prompt **fires automatically on arrival** — the user should usually never touch this screen. Beneath, a quiet text button **Use PIN instead**. Design three states: waiting for Face ID · failed, showing "Try again" plus the PIN option · PIN entry, as grouped boxes with the device-passcode fallback. Nothing else on the screen — no balances, no book names, no branding beyond the mark.
+
+## S15.1 — Privacy cover
+What the app shows the instant it is backgrounded: the mark on a plain paper field, nothing else. **No balances, no account names, no last screen.** This is what appears in the iOS app switcher. Design it in light and dark.
+
+## S15.2 — Personal Book PIN
+Two screens for the optional second lock. **Set:** an explanation line ("An extra step before your own book opens, in case someone else uses this phone"), then a 4-digit entry and confirm. **Enter:** the personal book's name, four boxes, and a muted "Forgot it? Use Face ID" fallback.
 
 ## S6 — Inbox
 Design a single tray screen: title "Inbox", "3 waiting" beneath, then a vertical stack of **P3** cards of different kinds — entries to review, bank lines to classify, an invitation awaiting verification. Each card's primary button differs ("Approve all 7", "Classify 12 lines", "Verify Ramesh").
@@ -280,7 +320,7 @@ Each variant must show the identity chip reading the user's name and their role 
 
 **R2.4 · Use your recovery sheet (S11.3).** Camera view for scanning the QR from the printed sheet, with a small illustration reminding them what the sheet looks like, and beneath it **Type the code instead** opening a grouped character field. Design the **failure** state: "That code didn't work" with the two likely causes stated plainly — a newer sheet was printed, or the code was mistyped — never a blank error.
 
-**R2.5 · Nothing worked yet.** Reached only when every rung has failed. Honest but not falsely final — the entries still exist on the server, sealed. Heading: **"We can't open your private book on this phone yet."** Then three plain rows:
+**R2.5 · Nothing worked yet.** 🔒 **Build the whole screen around the word *yet*** — three bordered rows in green / amber / grey: family books restorable now (carrying the button), the private book *"still sealed on our server, exactly as you left it"* with the two keys that will open it *"today, next week, or next year"*, and the readable copy as a way to restart from closing balances. No "destroyed", no "contact support", no retry. Reached only when every rung has failed. Honest but not falsely final — the entries still exist on the server, sealed. Heading: **"We can't open your private book on this phone yet."** Then three plain rows:
 - **Your family and business books** — restorable now, once the family verifies you again on this phone. Primary action.
 - **Your private book** — still sealed. Two things would open it: signing in to the Apple account that held your key, or finding your recovery sheet. State both as things that will *still work later*, not as lost causes.
 - **A readable copy**, if they kept one — "your books are in that file, and you can start fresh books from those closing balances."
@@ -288,6 +328,7 @@ Each variant must show the identity chip reading the user's name and their role 
 One primary button: **Continue and set up this phone**. 🔒 Do **not** write that the data is destroyed — it is not — and do not soften into "contact support", which cannot help. No retry loop.
 
 ## R4 · Backup settings (S11.4) *(the same controls as onboarding O5, revisited later)*
+🔒 **Repeat O5's wording and ordering verbatim** — add only the per-row status: *on* · *last saved 12 Apr* · an amber **never saved** badge on the readable copy, which is the one row whose state actually matters.
 Design this **after O5** and keep the wording and ordering identical — a user changing a setting must recognise the screen that set it up. A settings section titled **Backup**, three rows, each carrying its trade-off in one muted line beneath it — never buried in a help article:
 1. **Keep my key in iCloud Keychain** — toggle, **on by default**, sub-line "Lets a new iPhone open your books automatically. Apple cannot read it."
 2. **Save my recovery sheet** — a row opening the system share sheet (Files, iCloud Drive, Google Drive, Print). Sub-line in **warning amber**: "Anyone who opens this file can open your books."
@@ -408,6 +449,96 @@ A list of family members with photo, name, their role per book as small chips ("
 
 ## Cross-entity checklist
 Each entity pack must be delivered in **light and dark**, in **all three languages**, with empty states. The Individual pack is the baseline; Business adds two party-statement variants and the drawings sheet; Trust adds the gollak counter, sevadar advance and receipt; Joint Family adds the scope switcher, Everything view, inter-book transfer, reconciliation, allowances and member roles.
+
+---
+
+# STEP 6 — Account, subscription, support and legal
+
+*The layer every shipping app needs. Nothing here is exciting, and all of it is load-bearing: this is where trust is either confirmed or quietly lost.*
+
+## The two screens that block existing flows
+
+**S4.1 · Entry detail.** The target of **every tap in every list** — day book, statement, drill-downs, review. Header: the amount, large and tabular in its direction colour, with the arrow preview line beneath (`₹2,400 · ਰੋਕੜ ਖਾਤਾ → ਡੀਜ਼ਲ ਖਰਚ ਖਾਤਾ`). Then: date and time · **who entered it**, with avatar · the user's note, and the bank's original text in muted monospace where the entry came from an import · the bill photo as a tappable thumbnail. Then an **audit trail** as a compact vertical list — "Entered by Ramesh, 27 Aug 2:02 pm" · "Reviewed by Sunita, 27 Aug 6:40 pm" · "Edited twice — see changes". Actions at the bottom: **Edit** (open period) or **Fix this entry** (locked period — posts a reversal). Design the amended variant showing struck-through history, and the reversed variant.
+
+**S9.1 · Invite member.** Phone number field with +91 fixed · a per-book role grid, one row per book with a role selector and an auto-post limit field · a plain summary sentence of what the person will be able to do · **Send invite**, offering WhatsApp or SMS. Design the pending state: "Invited 12 Apr · expires in 5 days · Resend".
+
+## Account
+
+**S16 · My account.** Photo, name, phone, language, member-since. Rows: **Edit profile** · **Change phone number** · **Delete account** (in muted red, at the bottom, never adjacent to anything routine).
+
+**S16.1 · Edit profile.** Name and photo only. The phone number appears greyed with "Change" pointing at S16.2 — a mis-tap here must not become a number change.
+
+**S16.2 · Change phone number.** Three steps: confirm the old number by OTP · enter the new one · verify. Design the **lost-number variant** where the old number is unreachable and guardians approve instead. A calm line throughout: "Your books, keys and family stay exactly as they are — only the number changes."
+
+**S16.3 · Delete account.** Honest, not hostile. Plainly what happens: *what is erased* (your name and number, your keys, your private book) and *what stays* (entries you made in family and business books remain those books' records, shown as "Removed member"). A **15-day cooling period** stated with its end date, and "You can cancel any time in those 15 days." Confirmation by typing the word, not by a slider. Offer **Export everything first** as the primary action above it.
+
+## Subscription
+
+**S12.1 · Plans.** Monthly/Annual toggle showing the annual saving. Plan cards with the current plan marked and a *popular* badge on the recommended one. Each card lists members, businesses and features in plain words, not a spec table. Bottom: "Your books are never locked. If you stop paying, everything stays readable and exportable."
+
+**S12.2 · Checkout.** ⚠️ **On iOS this is Apple's In-App Purchase sheet** (08 §3.2) — design the app-side screen that precedes it, not a payment form, and **no coupon field, no external payment link**, which Apple rejects. Design the **non-iOS variant separately**: coupon code, GSTIN capture for the buyer's own input credit, UPI/card/netbanking.
+
+**S12.3 · Manage subscription.** Current plan, renewal date, what is included, **Change plan**, and a quiet **Cancel** that states what continues to work afterwards. On iOS, cancelling deep-links to Apple's subscription settings.
+
+**S12.4 · Payment problem.** Grace countdown in days, what changes when it ends (entry stops; reading, exporting and closing continue), **Retry** and **Change payment method**.
+
+**S12.5 · Read-only mode.** A persistent slim banner, not a modal, plus the sheet shown when someone taps a verb: "Your plan has ended. You can still read, export and close your books." Two buttons: **Renew** and **Export everything**. Never blocks reading; never hides a figure.
+
+**S12.6 · Invoices.** A dated list with amounts and PDF links.
+
+## Help and legal
+
+**S17 · Help.** Search field, then grouped FAQ topics, then **Message us on WhatsApp**, then app version and device in small muted type.
+
+**S17.1 / S17.2 · FAQ list and article.** Grouped by task, not by feature: *Getting started · Entering money · Bank statements · Family and sharing · Closing the month · If you lose your phone · Plans and payment*. Articles are one screen, plain sentences, no walls of text.
+
+**S17.3 · Contact support.** WhatsApp as the primary action, because these users will never email. 🔒 **State plainly what support cannot do** — "We cannot see your entries or recover your keys, so we cannot restore your books. For that, use your trusted members or your recovery sheet." That sentence prevents the most painful support conversation this product can have.
+
+**S17.4 · Send diagnostics.** User-triggered only. **Show exactly what will be sent** in a scrollable box — app version, device, sync errors, with all financial values scrubbed — before the Send button. Never automatic.
+
+**S18.1 / S18.2 · Terms and Privacy.** Readable web views with a summary card at the top; ordinary legal screens.
+
+**S18.3 · What we can and cannot see.** 🔒 **A trust asset, not boilerplate.** Two columns: *what we can see* (your phone number, your plan, when your app syncs) and *what we cannot* (every amount, every account name, every note, every photo — and why the maths prevents it). Reachable from Legal, from onboarding's backup screen, and worth linking from the marketing site. Almost no competitor can publish this page truthfully.
+
+**S18.4 · Open-source licences.** A standard list.
+
+## System states
+
+**S19.1 · Update required.** Full screen, mark, "Please update Rukka Folio to keep going", one button to the App Store. Reached when the API returns 426 (06 §4.5) — every user meets this eventually.
+
+**S19.2 · Maintenance.** Same shape, with "Your books are safe" stated explicitly, because a blank screen on a money app reads as data loss.
+
+**S19.3 · No connection.** ⚠️ **Not a blocking screen.** A quiet inline chip only — the app works fully offline, and a "no internet" wall would be a lie.
+
+**S19.4 · Permission priming.** Two small in-app screens shown **before** the OS prompt, each stating the benefit in one line: notifications ("so you know when Sunita approves your entry") and camera ("to photograph bills and scan codes"). iOS gives one chance at the real prompt; priming protects it.
+
+**S20 · Attachment viewer.** Full-screen bill photo, pinch to zoom, with the entry's amount and date in a slim top bar. Actions: share, replace, delete photo.
+
+**S21 · Search.** One field across accounts, parties and notes, with results grouped by type and recent searches beneath. Reached from Ledger and Home.
+
+
+## The last nine — small but real
+
+**S1.1 · Position line drill-down.** Tapping any Home position row (You will get, You will give, Advance out, In transit) opens a P1 list filtered to it, with the row's total as the header and ageing chips where relevant. Design the *You will give* case.
+
+**S2.2 · Date picker.** A compact calendar sheet over the entry screen — today preselected, **future dates disabled** with the tooltip "Use a recurring entry for future dates", and **locked dates greyed with a 🔒**; tapping a locked date opens the explanation and offers *Fix an old entry* rather than an error.
+
+**S2.3 · Transfer.** From-block and To-block, each a book selector plus a money-account chip row, amount, note. Design both: **within one book** (cash → bank; no book selectors shown) and **between books**, where a plain confirmation line reads "Agriculture Business will show ₹50,000 going out. Sharma Joint Family will show ₹50,000 coming in." Plus the **in transit** state on the resulting rows.
+
+**S2.4 · Adjustment wizards.** Never a freeform journal screen — four guided one-purpose sheets: *cash-count difference* (from S5.5), *write off a balance* (approver only, reason required), *fix an old entry* (posts a reversal, shows both entries), *opening balance correction*. Each states in one line what it will post before it posts it.
+
+**S5.1 · Advance request.** Amount, **purpose (required)**, which book it comes from, and a plain line naming who will approve it. On send, the tracked state: "Waiting for Sunita · sent 2:40 pm".
+
+**S9.4 · Verification mismatch.** Full-bleed red, large warning mark, **"Do not continue."** Body: this code does not match the person's key, which can mean the invite went to the wrong number or something is wrong. **No dismiss, no retry, no override** — one button, *Contact support*. This is the one screen in the app that is allowed to be frightening.
+
+**S10.3 · Late arrivals tray.** A P1 list of entries that arrived after their month closed, each with why it is here and two actions — **Re-date to today** (default) and **Re-open August** (admin only, styled cautiously, states that certified balances will be voided).
+
+**S10.4 · Year close and carry-forward.** A ceremony, not a wizard: a preconditions checklist (all months locked ✓, Suspense zero ✓, nothing pending ✓), an optional *Distribute profit first* step for shared-ownership businesses, then the certified closing vector shown as a short summary, then **Close FY 2026-27**. After it seals: a confirmation carrying the b/f figures the new year opens with, and the **FY switcher** now visible on every ledger. Design the *reopened* state too — a loud banner reading "This year's certificate was voided".
+
+**S13 · Settings.** Language (three options, changes immediately) · notification preferences by type · app-lock timeout · **Personal Book PIN** · **Export everything** · date format. Plain grouped rows, no cleverness.
+
+
+**All of Step 6 in light and dark, all three languages, strings only from Step 0b.**
 
 ---
 

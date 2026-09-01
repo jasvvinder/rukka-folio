@@ -14,7 +14,8 @@
 5. **Digits:** Latin digits, Indian grouping (₹12,34,567) in all languages. Gurmukhi/Devanagari digits are not used.
 6. **Dates:** English `DD Aug YYYY` (abbreviated months); ਪੰਜਾਬੀ/हिन्दी use **full month names** (`02 ਅਗਸਤ 2026`, `02 अगस्त 2026`) — these scripts don't abbreviate months naturally 🔒 (owner). Today/Yesterday = ਅੱਜ/ਕੱਲ੍ਹ, आज/कल.
 7. **No string concatenation** — ICU MessageFormat, named placeholders, plural rules per language.
-8. **User-typed content carries its own language tag 🔒** — account names, notes and party names may be in any script regardless of the UI language, so each is stored and rendered with a `lang` marker (`pa`/`hi`/`en`) for correct screen-reader pronunciation and font selection (design-system §3.1 rule 1).
+8. **Platform proper nouns stay untranslated 🔒 (design decision, 31 Aug 2026).** *iCloud Keychain · iCloud Drive · Files · Apple · Google Drive · Face ID · App Store · UPI · WhatsApp* appear in Latin script in all three languages, because that is how they appear on the phone itself — a user hunting for a setting must see the same words we do. Transliterating them would send people looking for something that does not exist on their device.
+9. **User-typed content carries its own language tag 🔒** — account names, notes and party names may be in any script regardless of the UI language, so each is stored and rendered with a `lang` marker (`pa`/`hi`/`en`) for correct screen-reader pronunciation and font selection (design-system §3.1 rule 1).
 9. Strings live in ARB files (`app_en.arb`, `app_pa.arb`, `app_hi.arb`); keys are `screen.element.state`; **CI fails if any key is missing in any language.**
 9. **Statement layout rule 🔒:** A/C statements and ledger exports use the traditional three columns — **ਨਾਮੇ | ਜਮ੍ਹਾਂ | ਬਾਕੀ** / **नामे | जमा | बाकी** / **Dr | Cr | Balance** — with b/d and c/d rows. Day-book lists keep the in/out arrows; the Dr/Cr detail shows on the entry view.
 10. **Amount-in-words** on receipts and exports only 🔒 — never on the entry screen, where it costs a line on a screen that must not scroll — in the user's language (…ਰੁਪਏ ਸਿਰਫ਼ / …रुपये मात्र). ⚠️ number-to-words functions need native review in both.
@@ -83,7 +84,7 @@
 | Late arrivals | Old entries waiting | ਪੁਰਾਣੀਆਂ ਐਂਟਰੀਆਂ ਬਾਕੀ | पुरानी एंट्रियाँ बाकी |
 | In transit | In transit | ਰਸਤੇ ਵਿੱਚ | रास्ते में |
 | Guardian | Trusted member | ਭਰੋਸੇਮੰਦ ਮੈਂਬਰ | भरोसेमंद सदस्य |
-| Recovery sheet | Recovery sheet | ਰਿਕਵਰੀ ਪਰਚੀ | रिकवरी पर्ची |
+| Recovery sheet | Recovery sheet | ਰਿਕਵਰੀ ਸ਼ੀਟ | रिकवरी शीट |
 | Show my code / Verify | Show my code / Verify | ਮੇਰਾ ਕੋਡ ਦਿਖਾਓ / ਤਸਦੀਕ ਕਰੋ | मेरा कोड दिखाएँ / तसदीक करें |
 | Family match check | Family match check | ਪਰਿਵਾਰ ਮਿਲਾਨ | परिवार मिलान |
 | Purpose card 1 | Myself | ਸਿਰਫ਼ ਮੈਂ | सिर्फ़ मैं |

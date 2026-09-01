@@ -145,6 +145,37 @@ Five-slot bottom bar, persistent, with a centre action:
 | **S11.2** | Recovery — ask guardians | activation | live k-of-n progress |
 | **S11.3** | Recovery — paper sheet | activation | scan/type |
 | **S12** | Subscription | S8 | tiers, renewal, read-only banner |
+| **S4.1** | Entry detail | any P1 row | audit trail, photo, who entered, amend/reverse — the target of every tap in every list |
+| **S9.1** | Invite member | S9 | phone + per-book roles + limits |
+| **S16** | My account | S8 | name, photo, phone, language |
+| **S16.1** | Edit profile | S16 | name and photo only |
+| **S16.2** | Change phone number | S16 | OTP old + new, or guardian approval if the old number is lost (06 §9.4) |
+| **S16.3** | Delete account | S16 | 15-day cooling, what is erased vs retained (06 §9.3) |
+| **S12.1** | Plans | S12 | comparison, annual saving, current plan marked |
+| **S12.2** | Checkout | S12.1 | **iOS = In-App Purchase** (08 §3.2); coupon and GSTIN on non-iOS only |
+| **S12.3** | Manage subscription | S12 | plan, renewal date, change, cancel |
+| **S12.4** | Payment problem | S12 | grace countdown, retry, what happens at the end |
+| **S12.5** | Read-only mode | global | banner + blocked-entry sheet; export always works |
+| **S12.6** | Invoices | S12 | list + PDF |
+| **S17** | Help | S8 | search, FAQ, contact, diagnostics |
+| **S17.1** | FAQ list | S17 | grouped, searchable |
+| **S17.2** | FAQ article | S17.1 | one answer, plain language |
+| **S17.3** | Contact support | S17 | WhatsApp primary; states what support cannot do |
+| **S17.4** | Send diagnostics | S17.3 | user-triggered, financial values scrubbed, shown before sending |
+| **S18** | Legal | S8 | terms, privacy, licences |
+| **S18.1** | Terms of service | S18 | |
+| **S18.2** | Privacy policy | S18 | |
+| **S18.3** | What we can and cannot see | S18/onboarding | the impossibility table (12 §2) as a user-facing page — a trust asset, not boilerplate |
+| **S18.4** | Open-source licences | S18 | |
+| **S19.1** | Update required | global | 426 from the API (06 §4.5) |
+| **S19.2** | Maintenance | global | |
+| **S19.3** | No connection | global | non-blocking; the app works offline |
+| **S19.4** | Permission priming | before OS prompt | notifications and camera, asked in context |
+| **S20** | Attachment viewer | S4.1 | pinch-zoom bill photo, share, replace |
+| **S21** | Search | S3/S1 | across accounts, parties and notes |
+| **S15** | App lock | cold start / timeout | biometric auto-prompt, device-passcode fallback (07 §5.6) |
+| **S15.1** | Privacy cover | background | mark on paper; no balances in the app switcher |
+| **S15.2** | Personal Book PIN — set & enter | S11 | the optional second lock |
 | **S13** | Settings | S8 | language, notifications, export everything |
 
 **Depth rule:** S1–S8 are roots; everything else is at most two levels below one of them.

@@ -149,6 +149,13 @@ Follows the scenario table in 06 §5 verbatim. Key screens: **Link with old phon
 ## 5.5 Cash count sheet 🔒
 One screen, two modes driven by the account's subtype (02 §8.2): **verify** for a galla/household cash account (shows book balance and the difference) and **collect** for a gollak/donation box (shows only the counted total, posts it as income, requires the denomination grid and two names). Reached from a cash account's statement (*Count again* / *Open and count*), from month close step 1, or from the account screen. A denomination grid — one row per note (₹500 · ₹200 · ₹100 · ₹50 · ₹20 · ₹10, optional ₹2000), each with a stepper and a live line total, plus a single **coins** value field. The running **counted total** sits large at the top; beneath it, the book balance and the difference, stated in words ("₹230 less than the book — we'll adjust it"). Optional *counted by* and *witness* name fields (the gurudwara gollak pattern). Save records the count; only a non-zero difference posts an entry (02 §8.2). Cash statement header shows the last count and its breakdown.
 
+## 5.6 App lock 🔒 (owner-raised 31 Aug 2026)
+Face ID / Touch ID is **not optional and not a setting** — it already guards the keystore holding the device key (06 §4.4), so it is how the app opens. What was missing was the surface:
+- **Lock screen** on cold start and after the background timeout (default 2 min, configurable): the mark, "Unlock to open your books", biometric prompting **automatically** without a tap, and **Use PIN instead** beneath for failed or unavailable biometrics. It falls back to the **device passcode**, never to an app-specific password — the product has none.
+- 🔒 **Privacy cover.** The moment the app is backgrounded it covers itself with the mark on a plain paper field, so **no balance ever appears in the iOS app switcher**. This is a financial app; a task-switcher screenshot showing ₹4,81,000 is a real leak, and it must be in place before any screenshot is taken.
+- **Stated at onboarding, not asked:** one line on O5 — "Face ID keeps this app closed to everyone else" — because a question invites turning it off, and it cannot be turned off.
+- **Personal Book PIN** is a *second, separate* lock (04 §5.2): opt-in, guards only the personal book behind an extra step even after the app is unlocked, for shared or borrowed phones. Set and enter screens are its own.
+
 ## 6. Ledger — the A/C index 🔒
 
 - A–Z list of every A/C in scope with live balance, colored by sign; sticky alphabet rail; **search is the header** (the fastest path to any khata); filter chips: All · Parties · Categories · Money · System.
