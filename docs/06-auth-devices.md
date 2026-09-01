@@ -18,12 +18,12 @@ The **stored** role is always one of five; only the **displayed** name changes, 
 | Stored | Family / business shows | Organization shows |
 |---|---|---|
 | `admin` | Admin | **Chairman** |
-| `head` | Head | **Secretary** |
+| `head` | Head | **President** (ਪ੍ਰਧਾਨ) |
 | `member` | Member | **Trustee** |
 | `operator` | Operator | **Sevadar** (ਸੇਵਾਦਾਰ) |
 | `viewer` | Viewer | **Auditor** |
 
-A gurudwara committee will not recognise "Operator"; it will recognise ਸੇਵਾਦਾਰ. ⚠️ Owner to confirm Secretary/Trustee ranking against how a Singh Sabha committee actually orders them.
+A gurudwara committee will not recognise "Operator"; it will recognise ਸੇਵਾਦਾਰ. 🔒 **Owner-ruled 1 Sep 2026 (ADR 2026-09-01): `head` displays as President (ਪ੍ਰਧਾਨ)** — Secretary is not a role label. ⚠️ Gurmukhi sub-label for Chairman (ਚੇਅਰਮੈਨ) awaits the native-speaker pass with the rest.
 
 ### 1.1 Multi-tenancy 🔒
 - `tenants(id, type ∈ {family, business_group, organization}, name_ciphertext, plan, …)`

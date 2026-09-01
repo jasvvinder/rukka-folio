@@ -37,3 +37,22 @@ confirm becomes **S7.3**, a row-level card in the import inbox (matching how it 
 drawn and used).
 
 **Changed:** `docs/13-ux-architecture.md` §3.2 (S7.2 redefined, S7.3 added) and flow F4.
+
+**Follow-up (same day):** the owner noted S7.3 was not visible on Canvas 8 — it existed
+only as a row state inside S7.1. A dedicated **S7.3 transfer-pair card** is now drawn,
+and the owner added **S7.4 — Import preview & submit**: submit never posts sight-unseen;
+a final screen lists every entry about to be created with the balance check restated and
+the count in the button. Specced in 07 §11.1 and 13 §3.2/F4; drawn on Canvas 8.
+
+## 3. Trust role labels — `head` displays as President 🔒
+
+The ⚠️ in 06 §1.0 asked how a Singh Sabha committee actually ranks its officers.
+**Ruling: `head` displays as President (ਪ੍ਰਧਾਨ); Secretary is not a role label.**
+The stored roles are unchanged; admin stays Chairman (Gurmukhi sub-label moves to
+ਚੇਅਰਮੈਨ, pending the native-speaker pass like every other string).
+
+**Changed:** `docs/06-auth-devices.md` §1.0 · `docs/07-ui-flows.md` §3.1.1 ·
+`docs/13-ux-architecture.md` (S0.6h row). Design side: Canvas 4 *S9 "Members & roles ·
+a trust's labels"* (row + capability table), Canvas 14 *S9* and *S0.6h "Who runs it?"*,
+Canvas 5's "Secretary · signed in" meta line, and the `S9-trust` source in
+`partials/new-screens-a.json`.

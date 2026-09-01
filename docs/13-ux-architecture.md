@@ -111,7 +111,7 @@ Five-slot bottom bar, persistent, with a centre action:
 | **S0.6e** | Who else is in the family | O6d | invite heads by phone, **Skip for now** |
 | **S0.6f** | The family's shared accounts | O6e | pool bank and cash |
 | **S0.6g** | Name the trust and its type | O3 branch | gurudwara · temple · society · registered trust |
-| **S0.6h** | Who runs the trust | O6g | Chairman/Secretary/Trustee/Sevadar, skippable |
+| **S0.6h** | Who runs the trust | O6g | Chairman/President/Trustee/Sevadar, skippable |
 | **S0.6i** | The trust's accounts | O6h | bank + gollak as `cash_collection` |
 | **S0.6** | Opening balances wizard | onboarding | resumable |
 | **S0.7** | Setup checklist (Home empty state) | S1 | progressive onboarding |
@@ -135,6 +135,7 @@ Five-slot bottom bar, persistent, with a centre action:
 | **S7.1** | Import inbox | S7/S6 | one question per line |
 | **S7.2** | Import balance check | S7 | statement's opening/closing vs the ledger; passing · matched · failing (07 §11.1, ADR 2026-09-01) |
 | **S7.3** | Transfer-pair confirm | S7.1 | "same money moving?" — a row-level card in the import inbox |
+| **S7.4** | Import preview & submit | S7.1 | every entry about to post, balance check restated, count in the button (owner-added 1 Sep 2026) |
 | **S8** | Menu | root | hub |
 | **S8.1** | Reports list | S8 | day book, cash book, P&L, position, ageing, reconciliation |
 | **S8.2** | Report viewer + export | S8.1 | PDF/XLSX, FY switcher |
@@ -245,7 +246,7 @@ Success: user reaches Home understanding that no password exists and the paper s
 `S3 search khata → S4 grouped listing → period tabs / date navigator → tap row → S4.1 entry detail (photo, audit trail, who entered) → [Amend | Reverse] → S8.2 export PDF/XLSX (classical columns, voucher, cross-check footer)`
 
 **F4 · Bank statement import**
-`S8 → S7 pick account + file → on-device parse → S7.2 balance check → S7.1 inbox: each line shows bank text (grey) + Money in/out + one question ("Where did it come from?" / "Where did it go?") → ◆ matched(auto-link) | suggested(1-tap confirm) | new(pick A/C) | transfer-pair(S7.3 "same money moving?") | unknown("record now, explain later" → Suspense) ⟳ until inbox empty`
+`S8 → S7 pick account + file → on-device parse → S7.2 balance check → S7.1 inbox: each line shows bank text (grey) + Money in/out + one question ("Where did it come from?" / "Where did it go?") → ◆ matched(auto-link) | suggested(1-tap confirm) | new(pick A/C) | transfer-pair(S7.3 "same money moving?") | unknown("record now, explain later" → Suspense) ⟳ until inbox empty → S7.4 preview (every entry about to post) → submit`
 Rule learned on first correction; Suspense must reach zero before month close.
 
 **F5 · Review cycle (post-then-review)**

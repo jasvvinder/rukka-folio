@@ -64,7 +64,7 @@ Onboarding is **not one linear path**. Steps 1–6 are shared by everyone; after
 | **My shop** | ″ | **O6a** name the shop (type, FY) → **O6b** the shop's opening balances → **O6** your own → checklist |
 | **My businesses** | ″ | O6a → O6b → **O6c** *"Add another business?"* looping back to O6a → **O6** your own → checklist |
 | **My family** | ″ | **O6d** name the family → **O6e** *"Who else is in it?"* — invite the other heads by phone, **Skip for now** always visible → **O6f** the family's shared accounts (pool bank, cash) → **O6** your own → checklist |
-| **Our trust** | ″ | **O6g** name the trust **and its type** (gurudwara · temple · society · registered trust) → **O6h** *"Who runs it?"* — Chairman, Secretary, Trustees, Sevadars invited by phone, skippable → **O6i** the trust's accounts, **gollak created as `cash_collection`** and denomination counting switched on for every cash account (02 §8.2) → checklist |
+| **Our trust** | ″ | **O6g** name the trust **and its type** (gurudwara · temple · society · registered trust) → **O6h** *"Who runs it?"* — Chairman, President, Trustees, Sevadars invited by phone, skippable → **O6i** the trust's accounts, **gollak created as `cash_collection`** and denomination counting switched on for every cash account (02 §8.2) → checklist |
 
 🔒 **Invitations are always skippable at signup.** Asking a karta to invite three brothers before he has seen a single screen is how onboarding dies; the checklist brings it back. 🔒 **The trust branch is the only one that sets `tenant.type = organization`**, which is what turns on trustee role labels (06 §1.0), mandatory cash counting, and the gollak's collect-mode counting.
 
@@ -207,6 +207,7 @@ One flow: From (book + money A/C) → To (book + money A/C) → amount → save.
    - **Duplicates removed before anything is shown**, count stated up front ("12 lines already imported — skipped").
    - **Balance check** 🔒 — the statement's own opening and closing balances are compared with the ledger for those dates ("Opening matches your book ✓ · Closing will match once these 23 lines are recorded"). A mismatched opening means an earlier statement is missing, and says so.
    - **Partial submit always allowed** — classified lines post, the rest stay in the inbox; unknowns may go to Suspense but must clear before the month locks (§13).
+   - **Preview before submit 🔒 (owner-added 1 Sep 2026, ADR 2026-09-01) — S7.4.** Submit never posts sight-unseen: a final screen lists every entry about to be created — counter-account, Money in/out amount, transfer pairs as one line, Suspense lines flagged — with the balance check restated (*"Closing will match once these post ✓"*) and the count in the button (*"Post 21 entries"*). Back returns to the inbox with nothing posted.
 **Bank language throughout 🔒:** every line renders as the user's statement does — **Money in / Money out** with the amount — never Dr/Cr (02 §10). The bank's raw narration sits beneath in small grey type for recognition; the user's own words replace it in the books.
 
 2. **Import inbox** (also surfaces in main Inbox): each line = date · bank text (grey) · **Money in/out** amount · one question — *"Where did it come from?"* / *"Where did it go?"* — with state chip:
