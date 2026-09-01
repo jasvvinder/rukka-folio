@@ -1,1 +1,4 @@
 .DS_Store
+/.claude/*
+!/.claude/commands/
+/design/canvas-mirror/
