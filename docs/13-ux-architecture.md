@@ -222,7 +222,7 @@ are valid; this table is the translation. Canvas captions use the design id.
 | R2.0 · R2.1 · R2.2(+b) · R2.3 · R2.4(+b) · R2.5 | S11.5 · S11.6 · S11.2 · S11.7 · S11.3 · S11.8 | The recovery ladder |
 | D1 (renamed) | S1.3 | Grouped scope sheet |
 | D5 · B5 · C5 | S8.3 · S2.5 · S4.2 | Family reconciliation · Drawings · Donation receipt |
-| A1–A4 · B1–B4 · C1–C3b · D2/D3/D8 | — | Entity variants of S1/S3/S4/S5.5/S9 with real figures; not separate screens |
+| A1–A4 · B1–B4 · C1–C3c · D2/D3/D8 | — | Entity variants of S1/S3/S4/S5.5/S9 with real figures; not separate screens (C3c = the trust Cash A/c in S5.5 verify mode, owner-added 3 Sep 2026) |
 | R1 | — | Role-variant strips (§2.3.1), not screens |
 | E1–E7 | — | Empty/error/offline states of their parent screens (§4.3) |
 
