@@ -113,8 +113,9 @@ Five-slot bottom bar, persistent, with a centre action:
 | **S0.6g** | Name the trust and its type | O3 branch | gurudwara · temple · society · registered trust |
 | **S0.6h** | Who runs the trust | O6g | Chairman/President/Trustee/Sevadar, skippable |
 | **S0.6i** | The trust's accounts | O6h | bank + gollak as `cash_collection` |
-| **S0.6** | Opening balances wizard | onboarding | resumable |
+| **S0.6** | Opening balances wizard | onboarding | resumable (design O6a–c: what you have · who owes you · who you owe) |
 | **S0.7** | Setup checklist (Home empty state) | S1 | progressive onboarding |
+| **S0.9** | Invitation accept (design O7a/O7b) | deep link | invited path: accept → OTP → personal book works immediately, shared books greyed "Meet Sunita to activate" (07 §12) |
 | **S1** | Home / Position | root | banks, cash, get/give, advances, in-transit, month, verbs, today |
 | **S1.1** | Position line drill-down | S1 | list behind any position row |
 | **S2** | Add entry (keypad-first) | action | the 8-second flow |
@@ -124,6 +125,7 @@ Five-slot bottom bar, persistent, with a centre action:
 | **S2.4** | Adjustment wizards | S2 | guided only, never freeform |
 | **S2.5** | Drawings confirmation (design B5) | S2 | business books: owner takeout posts to Drawings; the sheet says "not a business expense" (07 §5) |
 | **S3** | Ledger index (A–Z khatas) | root | search header, filter chips |
+| **S3.1** | Quick add sheet | S3 | bottom-sheet A/C create from the Ledger tab (07 §6); the entry flow's picker is a full screen instead (design S2-C) — same component, two presentations, deliberately |
 | **S4** | A/C statement | S3 | grouped listing; professional columns in export |
 | **S4.1** | Entry detail | S4/S1 | audit trail, photo, amend/reverse |
 | **S4.2** | Donation receipt (design C5) | S4.1 | trust books: shareable receipt card from a donation entry; no tax language (07 §14) |
@@ -133,7 +135,7 @@ Five-slot bottom bar, persistent, with a centre action:
 | **S6.1** | Review — grouped card | S6 | Approve all / One by one |
 | **S6.3** | Structural approval card | S6 | states exactly what will change; Approve / Veto with reason; shows quorum progress (2 of 3) |
 | **S6.2** | Review — stepper | S6.1 | approve / reject+reason / skip |
-| **S7** | Import — pick file & account | S8 | on-device parse |
+| **S7** | Import — pick file & account | S8 | on-device parse (drawn as design S7.0a–c: file · column mapping · duplicates skipped) |
 | **S7.1** | Import inbox | S7/S6 | one question per line |
 | **S7.2** | Import balance check | S7 | statement's opening/closing vs the ledger; passing · matched · failing (07 §11.1, ADR 2026-09-01) |
 | **S7.3** | Transfer-pair confirm | S7.1 | "same money moving?" — a row-level card in the import inbox |
@@ -141,6 +143,7 @@ Five-slot bottom bar, persistent, with a centre action:
 | **S8** | Menu | root | hub |
 | **S8.1** | Reports list | S8 | day book, cash book, P&L, position, ageing, reconciliation |
 | **S8.2** | Report viewer + export | S8.1 | PDF/XLSX, FY switcher |
+| **S8.3** | Family reconciliation (design D5) | S8.1 | non-zero inter-book pairs with their composing entries; normally a single green ✓ (07 §10) |
 | **S9** | Books & members | S8 | roles, limits, verification log |
 | **S9.5** | Add a business | S9/Menu | name · type (just me / shared) · FY start · opening balances — creates the book (02 §7.1) |
 | **S1.2** | Scope switcher — two books | S1 | the small control when only Me + one business exist; **not** the grouped joint-family sheet (S1.3) |
@@ -162,8 +165,12 @@ Five-slot bottom bar, persistent, with a centre action:
 | **S11.4** | Backup settings | S11 | platform key sync toggle · save recovery sheet · readable monthly copy, each with its risk line (04 §7.6) |
 | **S11** | Devices & security | S8 | devices, guardians, recovery sheet, escrow, PIN |
 | **S11.1** | Guardian setup (mutual ceremony) | S11 | 2-of-3 |
-| **S11.2** | Recovery — ask guardians | activation | live k-of-n progress |
-| **S11.3** | Recovery — paper sheet | activation | scan/type |
+| **S11.2** | Recovery — ask guardians | activation | live k-of-n progress (design R2.2/R2.2b) |
+| **S11.3** | Recovery — paper sheet | activation | scan/type (design R2.4/R2.4b) |
+| **S11.5** | Recovery — silent restore (design R2.0) | activation | key returns from the platform keychain; the books open by themselves |
+| **S11.6** | Recovery — the fork (design R2.1) | activation | choose the path: old phone · guardians · paper sheet |
+| **S11.7** | Recovery — the guardian's side (design R2.3) | notification | approve a member's restore from your own phone |
+| **S11.8** | Recovery — nothing worked yet (design R2.5) | activation | the honest empty-vault screen + path forward (F11) |
 | **S12** | Subscription | S8 | tiers, renewal, read-only banner |
 | **S4.1** | Entry detail | any P1 row | audit trail, photo, who entered, amend/reverse — the target of every tap in every list |
 | **S9.1** | Invite member | S9 | phone + per-book roles + limits |
@@ -200,6 +207,26 @@ Five-slot bottom bar, persistent, with a centre action:
 
 **Depth rule:** S1–S8 are roots; everything else is at most two levels below one of them.
 
+### 3.3 Design ↔ doc id map (recorded 2 Sep 2026, audit B3)
+
+The canvases predate parts of this inventory and carry their own ids. Both vocabularies
+are valid; this table is the translation. Canvas captions use the design id.
+
+| Design id | Doc id | Screen |
+|---|---|---|
+| O0 · O0b · O1 | S0.0 · S0.05 · S0.1 | Splash · Welcome · Language |
+| O2a/O2b · O3 · O4 · O4b | S0.2 · S0.3 · S0.4 · S0.8 | Phone+OTP · Purpose · Name · Set PIN |
+| O5 · O5b · O6a–c · O7a/b · O8 | S0.5 · S0.5b · S0.6 · S0.9 · S0.7 | Books safe · Sheet · Balances wizard · Invitation · Checklist |
+| S2-B / S2-C | S2.1 | A/C picker (in-place state / quick-add presentation) |
+| S7.0a–c | S7 | Import: file · mapping · duplicates |
+| R3.1 · R3.2 · R4 | S11 · S11.1 · S11.4 | Devices & security · Guardians · Backup |
+| R2.0 · R2.1 · R2.2(+b) · R2.3 · R2.4(+b) · R2.5 | S11.5 · S11.6 · S11.2 · S11.7 · S11.3 · S11.8 | The recovery ladder |
+| D1 (renamed) | S1.3 | Grouped scope sheet |
+| D5 · B5 · C5 | S8.3 · S2.5 · S4.2 | Family reconciliation · Drawings · Donation receipt |
+| A1–A4 · B1–B4 · C1–C3b · D2/D3/D8 | — | Entity variants of S1/S3/S4/S5.5/S9 with real figures; not separate screens |
+| R1 | — | Role-variant strips (§2.3.1), not screens |
+| E1–E7 | — | Empty/error/offline states of their parent screens (§4.3) |
+
 ---
 
 ## 4. Component system
@@ -235,9 +262,9 @@ Every interactive component ships: default · pressed · disabled-with-reason ·
 
 Notation: `→` step · `◆` decision · `⟳` loops until · `‖` parallel.
 
-**F1 · First run (individual)**
-`S0.1 language → S0.2 phone+OTP → S0.3 purpose ◆(Myself|Shop|Businesses|Family) → S0.4 name → S0.5 recovery sheet (print → verify by scanning it back) → S0.6 opening balances (skippable) → S1 with setup checklist`
-Success: user reaches Home understanding that no password exists and the paper sheet matters.
+**F1 · First run**
+`S0.0 splash → S0.1 language → S0.05 welcome (3 slides, skippable) → S0.2 phone+OTP → S0.3 purpose ◆(Myself | My shop | My businesses | My family | Our trust) → S0.4 name → S0.8 set PIN → S0.5 keeping your books safe (+ S0.5b sheet: print → verify by scanning it back) → branch steps S0.6a–i per card, each skippable (07 §3.1.1) → S0.6 own opening balances (skippable) → S1 with setup checklist`
+Success: user reaches Home understanding that no password exists and the paper sheet matters. ⚠️ Canvas 1's master-map row draws the branch immediately after the purpose card, before name/PIN; 07 §3.1.1 (normative) branches after the shared steps — align the canvas or rule the order.
 
 **F2 · Daily entry (the 8-second path)**
 `S1 verb button (or ( + )) → S2 amount keypad → account chip → S2.1 counterpart (recents first; inline create if new) → [note/photo/date optional] → Save → toast "Saved ✓" + Undo 10s → keypad stays open, zeroed`
