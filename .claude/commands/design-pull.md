@@ -58,3 +58,30 @@ changed files/screens/strings; the on-disk mirror itself is the diff baseline.
 
 **Direction note:** this command pulls design → repo only. Pushing repo docs back into the
 project's `uploads/` is a separate, on-request action (`finalize_plan` → `write_files`).
+
+## ⚠️ Pushing rebuilt canvases: exact display names, never short names
+
+A rebuilt canvas MUST be written back to the project under its existing **display-named**
+path — writing `canvas5.dc.html` creates a *duplicate* canvas in the app (happened 2–3 Sep
+2026; four strays cleaned up 3 Sep). The canonical paths:
+
+| n | project path |
+|---|---|
+| 0 | `Canvas 0 - Master map.dc.html` |
+| 1 | `Canvas 1 - Onboarding.dc.html` |
+| 2 | `Canvas 2 - Entry.dc.html` |
+| 3 | `Canvas 3 - Locks and system.dc.html` |
+| 4 | `Canvas 4 - Members ceremony and roles.dc.html` |
+| 5 | `Canvas 5 - Closing.dc.html` |
+| 6 | `Canvas 6 - Money between people.dc.html` |
+| 7 | `Canvas 7 - Reading menu and reports.dc.html` |
+| 8 | `Canvas 8 - Bank import.dc.html` |
+| 9 | `Canvas 9 - Review and approval.dc.html` |
+| 10 | `Canvas 10 - Account money and help.dc.html` |
+| 11 | `Canvas 11 - Journey individual.dc.html` |
+| 12 | `Canvas 12 - Journey individual with a business.dc.html` |
+| 13 | `Canvas 13 - Journey joint family.dc.html` |
+| 14 | `Canvas 14 - Journey trust.dc.html` |
+
+(plus `Core Patterns.dc.html`, not canvas-numbered). If unsure, `list_files` first and
+match the existing name; a canvas rename is the owner's call only.
