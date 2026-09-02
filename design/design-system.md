@@ -56,6 +56,25 @@ Computed (WCAG 2.1 relative luminance), on light `bg #F5F0E4`: `text` 15.3:1 AAA
 
 Mukta everywhere (Mukta Mahee for Gurmukhi), Noto Sans fallback only. Scale: display 40/600 · page 28/600 · section 20/500 · body 16/400 · table-row 14/400 · caption 12/400 · amount-hero 44/600 · amount-row 16/500. 4pt grid, 16 gutter, 56 min row height. Radii 4/8/12; cards carry the 3px left rule with square corners on that side. Motion: brand easings, 120–400ms; nothing bounces.
 
+## 4.1 Bottom navigation — the four tab icons 🔒 (owner-directed, 3 Sep 2026)
+
+One tab bar everywhere: **Home · Ledger · Inbox · Menu**, 4-column, min-height 50, icons
+**21×21** (viewBox 24, feather-style stroke icons), label 10.5px. Active tab:
+`primary` color, stroke-width 2, label weight 600. Inactive: `muted`, stroke-width 1.8,
+label weight 400. The four glyphs — canonical, never redrawn per screen:
+
+| Tab | Glyph (path data) |
+|---|---|
+| Home | `M3 10.5 12 3l9 7.5` + `M5 9.5V21h14V9.5` (open two-path house) |
+| Ledger | `M4 19.5A2.5 2.5 0 0 1 6.5 17H20` + `M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z` (bound book) |
+| Inbox | `M22 12h-6l-2 3h-4l-2-3H2` + `M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z` (tray in box) |
+| Menu | `M4 6h16` + `M4 12h16` + `M4 18h16` (three lines) |
+
+Provenance: the fold left a second bar style (20×20, stroke 1.8, closed-house/document/
+bare-tray glyphs) on six screens and placeholder squares on one; the owner ruled one
+uniform set and the majority bar won (48 + 4 cells replaced, canvases 4/7/12/14 +
+new-screens sources — mirror CHANGES.md, 3 Sep 2026).
+
 ## 5. The ledger table — designed first (brand §7 step 4)
 
 The ਨਾਮੇ | ਜਮ੍ਹਾਂ | ਬਾਕੀ statement (01 §1.9) is the first Phase A artifact and constrains everything else. Its acceptance: correct tabular alignment in all three scripts at `table-row` 14px on a 360×800 viewport, b/d and c/d rows present, running balance never wraps, and it passes rules 1–5 above at a glance. English dates abbreviate months; ਪੰਜਾਬੀ/हिन्दी use full month names (owner rule). **No other screen is approved before this one is.**
