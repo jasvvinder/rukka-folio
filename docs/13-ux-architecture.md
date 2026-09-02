@@ -122,9 +122,11 @@ Five-slot bottom bar, persistent, with a centre action:
 | **S2.2** | Date picker | S2 | today default, backdate ok, future disabled |
 | **S2.3** | Transfer (within/between books) | S2 | pairs |
 | **S2.4** | Adjustment wizards | S2 | guided only, never freeform |
+| **S2.5** | Drawings confirmation (design B5) | S2 | business books: owner takeout posts to Drawings; the sheet says "not a business expense" (07 §5) |
 | **S3** | Ledger index (A–Z khatas) | root | search header, filter chips |
 | **S4** | A/C statement | S3 | grouped listing; professional columns in export |
 | **S4.1** | Entry detail | S4/S1 | audit trail, photo, amend/reverse |
+| **S4.2** | Donation receipt (design C5) | S4.1 | trust books: shareable receipt card from a donation entry; no tax language (07 §14) |
 | **S5** | Advances (ਐਡਵਾਂਸ) | S1/S6 | mine held · given out, aged |
 | **S5.1** | Advance request | S5 | amount + purpose → approver |
 | **S6** | Inbox | root | grouped cards, all attention types |

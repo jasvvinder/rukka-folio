@@ -155,6 +155,8 @@ Follows the scenario table in 06 §5 verbatim. Key screens: **Link with old phon
 
 **Transfer** and **Adjustment** verbs live behind the [+] chooser's second row; Adjustment shows only its wizards (02 §2 row 6), never a freeform journal screen. Inter-book transfer: choosing a destination in another book switches the flow to §10.
 
+**Owner's drawings 🔒 (ratified 2 Sep 2026, ADR 2026-09-02 — design B5, canvases 2/12):** in a business book, money the owner takes for himself posts to **Drawings (equity)**, never to an expense category. When the counterpart is the owner, a one-line confirmation states it plainly — *"Money taken for yourself — recorded as a drawing, not a business expense."* The sheet exists so a shopkeeper never inflates expenses by paying himself; the posting itself is 02's equity rule.
+
 **States:** offline = identical (that's the point); attachment upload failures retry silently, visible in entry detail; validation failures cannot happen by construction (the UI can't build an unbalanced entry) — any quarantined envelope from *other* devices surfaces in Inbox as a security event.
 
 ---
@@ -254,6 +256,8 @@ Menu → Reports, per scope, each with FY + date-range control and share/export 
 Day Book · Cash Book · A/C statement (any) · **Trial Balance** (02 §8) · You-will-get / You-will-give with ageing · Profit/Loss (per FY/range) · Full Position (balance-sheet layout by sign, 02 §1.2) · Advances ageing · Family Reconciliation · **Partner positions** (02 §7.1, shared-ownership businesses only) · Business comparison (Everything scope).
 
 Report screens are tables with a one-line takeaway header (*"August: In ₹1,21,400 · Out ₹84,250 · Saved ₹37,150"*). No dashboards-for-dashboards'-sake in Phase 1 ⚠️ charts revisit after pilot.
+
+**Donation receipt 🔒 (trust books — ratified 2 Sep 2026, ADR 2026-09-02; design C5, canvas 14):** any donation-income entry offers *Share a receipt* — a card naming the trust, the donor, the amount in figures and words, the date and who recorded it. **No tax language** (80G etc. is the committee's paperwork, not the app's claim). It is the artefact a committee actually hands over.
 
 ---
 
