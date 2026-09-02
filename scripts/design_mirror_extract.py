@@ -8,13 +8,16 @@ the persisted tool-results directory — and writes each to the mirror by its
 project-relative path. Later occurrences of a path win. Truncated results
 (content > 256 KiB) are reported, never written.
 
-Usage: python3 scripts/design_mirror_extract.py <session-id>
+Usage: python3 scripts/design_mirror_extract.py <session-id> [--since <unix-ts>]
+
+⚠️ Overwrites mirror files with the newest fetched copy per path — run it only right
+after fetching; earlier fetches in the same session are superseded by time order.
        (session id = the Claude Code session UUID; its transcript lives at
         ~/.claude/projects/-Users-office-Github-rukka-folio/<session-id>.jsonl)
 """
 import json, os, sys, glob, base64
 
-if len(sys.argv) != 2:
+if len(sys.argv) < 2:
     sys.exit(__doc__)
 SESSION_ID = sys.argv[1]
 SESSION_DIR = os.path.expanduser("~/.claude/projects/-Users-office-Github-rukka-folio")
@@ -57,21 +60,53 @@ def walk(x):
         for v in x:
             walk(v)
 
+# Chronological processing: envelopes are ordered by real time (transcript line
+# timestamps; tool-results file mtimes) so "later wins" means genuinely newer.
+# Optional: --since <unix-ts> ignores anything older (use for targeted re-pulls).
+SINCE = 0.0
+if "--since" in sys.argv:
+    SINCE = float(sys.argv[sys.argv.index("--since") + 1])
+
+timed = []  # (time, env-source callable)
+import datetime
+def line_time(obj):
+    ts = obj.get("timestamp")
+    if isinstance(ts, str):
+        try:
+            return datetime.datetime.fromisoformat(ts.replace("Z", "+00:00")).timestamp()
+        except ValueError:
+            return None
+    return None
+
 with open(TRANSCRIPT, "r", encoding="utf-8") as f:
+    order = 0
     for line in f:
         if '"method":"get_file"' not in line:
+            order += 1
             continue
         try:
-            walk(json.loads(line))
+            obj = json.loads(line)
         except json.JSONDecodeError:
+            order += 1
             continue
+        t = line_time(obj) or float(order)
+        timed.append((t, ("walk", obj)))
+        order += 1
 
-for path in sorted(glob.glob(os.path.join(RESULTS_DIR, "*.txt"))):
-    try:
-        with open(path, "r", encoding="utf-8") as f:
-            consider(json.load(f))
-    except (json.JSONDecodeError, UnicodeDecodeError):
+for path in glob.glob(os.path.join(RESULTS_DIR, "*.txt")):
+    timed.append((os.path.getmtime(path), ("file", path)))
+
+for t, (kind, payload) in sorted(timed, key=lambda x: x[0]):
+    if t < SINCE:
         continue
+    if kind == "walk":
+        walk(payload)
+    else:
+        try:
+            with open(payload, "r", encoding="utf-8") as f:
+                consider(json.load(f))
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            continue
 
 wrote, bad = [], []
 for p, env in sorted(envelopes.items()):
