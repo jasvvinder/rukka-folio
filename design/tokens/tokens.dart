@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 abstract final class RkColorsLight {
   static const bg = Color(0xFFF5F0E4);
   static const surface = Color(0xFFFBF8F0);
+  static const sunk = Color(0xFFEFE9DA); // PROPOSED — recessed wells
   static const text = Color(0xFF1A1A18);
   static const textMuted = Color(0xFF6E6A5E);
   static const hairline = Color(0xFFE3DCCB);
@@ -19,12 +20,14 @@ abstract final class RkColorsLight {
   static const pending = Color(0xFF8F5F00); // PROPOSED — owner sign-off
   static const locked = Color(0xFF8A857A); // PROPOSED — owner sign-off
   static const dangerSurface = Color(0xFFF6E3DD);
+  static const scrim = Color(0x6B1A1A18); // PROPOSED — rgba(26,26,24,0.42)
   static const focus = Color(0xFF2B3A67);
 }
 
 abstract final class RkColorsDark {
   static const bg = Color(0xFF1A1A18);
   static const surface = Color(0xFF24231F);
+  static const sunk = Color(0xFF1F1E1B); // PROPOSED
   static const text = Color(0xFFF5F0E4);
   static const textMuted = Color(0xFFA5A093);
   static const hairline = Color(0xFF3A382F);
@@ -36,6 +39,7 @@ abstract final class RkColorsDark {
   static const pending = Color(0xFFD9A93F); // PROPOSED
   static const locked = Color(0xFF7A756A); // PROPOSED
   static const dangerSurface = Color(0xFF3A2723);
+  static const scrim = Color(0x73000000); // PROPOSED — rgba(0,0,0,0.45)
   static const focus = Color(0xFF93A5D6);
 }
 

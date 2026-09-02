@@ -22,3 +22,18 @@ commission (the prompt that produced canvases 0–14), which settles provenance:
   archived at `design/canvas-mirror/_removed/D6-monthly-allowances.json` should it ever
   be reconsidered. A karta sending monthly money to sub-families uses the ordinary
   inter-book transfer (07 §10).
+
+## Tokens — danger-surface verdict; sunk and scrim added (audit B6/B7)
+
+Owner ruled "best shade, uniform": **tokens.json wins** — `danger-surface` stays
+`#F6E3DD` light / `#3A2723` dark (the brand-derived values; the canvases' drifted
+`#FBF0EC`/`#3A2420` read too close to `surface` to work as a warning ground). The
+canvases' `build-canvas.js` constants were aligned and every buildable canvas rebuilt.
+Canvases 1, 2, 7 and 11 still embed the old constants until they can be rebuilt (their
+partials exceed the 256 KiB read cap — pending the ZIP export).
+
+Two tokens the fold has been using without a definition are now in tokens.json /
+tokens.css / tokens.dart as **PROPOSED**: `sunk` (#EFE9DA / #1F1E1B — recessed wells:
+avatar discs, keypad wells, summary strips) and `scrim` (rgba(26,26,24,.42) /
+rgba(0,0,0,.45) — sheet backdrops). The canvases' `--frame` and `--dim` variables are
+canvas furniture (mockup frame border, dimmed bands), not product tokens, and stay out.
