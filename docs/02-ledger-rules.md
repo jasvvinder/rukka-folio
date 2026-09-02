@@ -280,16 +280,18 @@ This is the difference a shopkeeper and a granthi would both recognise instantly
 
 **A count never moves money 🔒.** Counted gollak cash that stays in the gollak stays on that account — the common real case where the committee counts, records, and leaves the money where it is. Depositing it later is an ordinary Transfer (§2 verb 5). **A count never silently changes a balance without an entry.**
 
-**The gollak empties only into the Cash A/c 🔒 (owner-ruled 2 Sep 2026, ADR).** A
-`cash_collection` account is not a spending or deposit source: its only outward posting
-is a Transfer to the book's **Cash A/c** — the ordinary cash-in-hand account every
-ledger has (`Dr Cash · Cr {collection a/c}`).
-Bank deposits, savings and expenses are then paid **from Cash**, never straight from the
-gollak — matching how a committee actually handles it (the box is emptied into the cash
-box; the cash box goes to the bank). The UI enforces it structurally: a transfer out of
-a collection account offers only the book's `cash` accounts as the destination, and a
-collection account never appears in an expense entry's money-account chips. Consequence:
-**every organization book seeds a plain Cash A/c alongside the gollak**
+**The gollak empties only into Cash or bank 🔒 (owner-ruled 2–3 Sep 2026, ADRs).** A
+`cash_collection` account is not a spending source: its only outward posting is a
+Transfer to one of the book's **money accounts — the Cash A/c or a bank account**
+(`Dr Cash/Bank · Cr {collection a/c}`). Trusts differ in practice — some empty the box
+into the cash drawer the moment it is counted, some bank the whole count directly, some
+take days — so the destination and the timing are **flexible: one deposit or several**.
+The collection account's balance is therefore always exactly **what is still in the
+box**; the gollak is not "emptied" until the counted cash is fully deposited. Expenses
+are never paid straight from the gollak. The UI enforces it structurally: a transfer out
+of a collection account offers only the book's `cash` and `bank` accounts as
+destinations, and a collection account never appears in an expense entry's money-account
+chips. **Every organization book still seeds a plain Cash A/c alongside the gollak**
 (07 §3.1).
 
 **Denomination sheet: optional by default, mandatory where it matters 🔒.**

@@ -76,6 +76,7 @@ review to admin/head only.
 designation field.
 
 ## Ledger — the gollak empties only into Cash in hand 🔒
+### ⚠ Refined by ADR 2026-09-03 (gollak-deposit-flexibility): destination widened to Cash **or bank**, in one deposit or several.
 
 Owner-ruled (2 Sep, two messages): **the Gollak account and the Cash account are
 different accounts**, and counted gollak money always moves Gollak → Cash first; bank
