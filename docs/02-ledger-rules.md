@@ -280,6 +280,18 @@ This is the difference a shopkeeper and a granthi would both recognise instantly
 
 **A count never moves money 🔒.** Counted gollak cash that stays in the gollak stays on that account — the common real case where the committee counts, records, and leaves the money where it is. Depositing it later is an ordinary Transfer (§2 verb 5). **A count never silently changes a balance without an entry.**
 
+**The gollak empties only into the Cash A/c 🔒 (owner-ruled 2 Sep 2026, ADR).** A
+`cash_collection` account is not a spending or deposit source: its only outward posting
+is a Transfer to the book's **Cash A/c** — the ordinary cash-in-hand account every
+ledger has (`Dr Cash · Cr {collection a/c}`).
+Bank deposits, savings and expenses are then paid **from Cash**, never straight from the
+gollak — matching how a committee actually handles it (the box is emptied into the cash
+box; the cash box goes to the bank). The UI enforces it structurally: a transfer out of
+a collection account offers only the book's `cash` accounts as the destination, and a
+collection account never appears in an expense entry's money-account chips. Consequence:
+**every organization book seeds a plain Cash A/c alongside the gollak**
+(07 §3.1).
+
 **Denomination sheet: optional by default, mandatory where it matters 🔒.**
 - **Organization (trust) books — always mandatory**, for every cash account including plain cash in hand, not only the gollak. A trust must be able to prove every rupee it holds.
 - **All other books** — optional; a single counted figure is always accepted.

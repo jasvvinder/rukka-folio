@@ -75,6 +75,20 @@ review to admin/head only.
 13 §2.4 + S9.1 row · 01 (designations ⚠ → ruled). Design: Canvas 4 S9.1 gains the
 designation field.
 
+## Ledger — the gollak empties only into Cash in hand 🔒
+
+Owner-ruled (2 Sep, two messages): **the Gollak account and the Cash account are
+different accounts**, and counted gollak money always moves Gollak → Cash first; bank
+deposits, savings and expenses are paid from Cash, never straight from the gollak. The
+follow-up ruled the name: it is not a trust-specific "Trust Cash" — **it is the ordinary
+Cash A/c that every ledger has**. Encoded in 02 §8.2 (a `cash_collection` account's only
+outward posting is a Transfer to a `cash` account; UI offers no other destination and
+never lists a collection account in expense chips). Trust seeds gain a plain **Cash A/c**
+(07 §3.1, O6i). Design: C3/C3b's "Deposit into Trust SBI" replaced with **"Move to Cash
+A/c"** and the explainer rewritten, EN/PA/HI (canvases 5 and 14); S0.6i shows the
+three-account setup (bank · cash · collection); the sample trust ledger C2 gains a
+visible Cash A/c row, native-sorted in each script (canvases 7 and 14).
+
 ## Vocabulary — Trial Balance transliterates 🔒
 
 Owner-directed (2 Sep): **ਟ੍ਰਾਇਲ ਬੈਲੇਂਸ / ट्रायल बैलेंस** is the label everywhere — the

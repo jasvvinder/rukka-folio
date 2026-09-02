@@ -2,3 +2,4 @@
 /.claude/*
 !/.claude/commands/
 /design/canvas-mirror/
+*.zip
