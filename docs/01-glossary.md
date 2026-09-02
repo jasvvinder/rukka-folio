@@ -114,6 +114,49 @@
 
 **"Books" alignment (brand 11 §1) 🔒:** *books* always means the books of account — the product's own Book (ਵਹੀ/बही) objects; the collective renders as ਵਹੀ-ਖਾਤੇ / बही-खाते. The literal ਕਿਤਾਬ/किताब never appears for books of account — in-product, in copy, or in translation. Context split for *ledger*: the in-app tab stays ਖਾਤੇ/खाते (the A/C index); the concept in prose/marketing is ਖਾਤਾ-ਵਹੀ/खाता-बही.
 
+### Designations 🔒 (owner-supplied, 2 Sep 2026)
+
+Display labels only — capability is always one of the five stored roles (06 §1.1), and
+these names never change what a person may do. Where the owner's table offers two forms,
+the **first** is the label; the second stays a search synonym. President takes अध्यक्ष in
+Hindi, so Chairman takes चेयरमैन to stay distinct.
+
+**Trust / organization**
+| EN | ਪੰਜਾਬੀ | हिन्दी |
+|---|---|---|
+| President | ਪ੍ਰਧਾਨ | अध्यक्ष |
+| Vice President | ਉਪ-ਪ੍ਰਧਾਨ | उपाध्यक्ष |
+| Chairman | ਚੇਅਰਮੈਨ | चेयरमैन |
+| Secretary / General Secretary | ਸਕੱਤਰ / ਜਨਰਲ ਸਕੱਤਰ | सचिव / महासचिव |
+| Joint Secretary | ਸੰਯੁਕਤ ਸਕੱਤਰ | सह-सचिव |
+| Treasurer / Cashier | ਖ਼ਜ਼ਾਨਚੀ / ਕੈਸ਼ੀਅਰ | कोषाध्यक्ष / कैशियर |
+| Trustee / Member | ਟਰੱਸਟੀ / ਮੈਂਬਰ | ट्रस्टी / सदस्य |
+| Managing Trustee | ਪ੍ਰਬੰਧਕੀ ਟਰੱਸਟੀ | प्रबंध ट्रस्टी |
+| Founder | ਬਾਨੀ / ਸੰਸਥਾਪਕ | संस्थापक |
+| Patron | ਸਰਪ੍ਰਸਤ | संरक्षक |
+| Executive Member | ਕਾਰਜਕਾਰਨੀ ਮੈਂਬਰ | कार्यकारिणी सदस्य |
+| Auditor | ਆਡੀਟਰ | ऑडिटर |
+
+**Business**
+| EN | ਪੰਜਾਬੀ | हिन्दी |
+|---|---|---|
+| Owner / Proprietor | ਮਾਲਕ / ਪ੍ਰੋਪਰਾਈਟਰ | मालिक / प्रोपराइटर |
+| Partner | ਹਿੱਸੇਦਾਰ / ਪਾਰਟਨਰ | साझेदार / पार्टनर |
+| Director | ਡਾਇਰੈਕਟਰ | निदेशक |
+| Managing Director | ਪ੍ਰਬੰਧਕੀ ਡਾਇਰੈਕਟਰ / MD | प्रबंध निदेशक / MD |
+| CEO | ਮੁੱਖ ਕਾਰਜਕਾਰੀ ਅਧਿਕਾਰੀ / ਸੀ.ਈ.ਓ. | मुख्य कार्यकारी अधिकारी / सीईओ |
+| General Manager | ਜਨਰਲ ਮੈਨੇਜਰ / GM | महाप्रबंधक / GM |
+| Manager | ਮੈਨੇਜਰ | प्रबंधक / मैनेजर |
+| Assistant Manager | ਸਹਾਇਕ ਮੈਨੇਜਰ | सहायक प्रबंधक |
+| Accountant | ਅਕਾਊਂਟੈਂਟ / ਮੁੰਸ਼ੀ | अकाउंटेंट / मुंशी |
+| Sales Executive | ਸੇਲਜ਼ ਐਗਜ਼ੀਕਿਊਟਿਵ | सेल्स एग्जीक्यूटिव |
+| Employee | ਕਰਮਚਾਰੀ / ਵਰਕਰ | कर्मचारी / वर्कर |
+| Advisor | ਸਲਾਹਕਾਰ | सलाहकार |
+
+⚠️ Open (owner to rule, 2 Sep 2026): how organizations use these — a curated financial
+role set, or free designation labels with capability granted only by the entity's owner.
+Until ruled, the five-role model of 06 §1.0/§1.1 stands unchanged.
+
 **Surface precedence:** this document governs in-product terminology; marketing/site/deck copy follows the brand voice and localisation rules (11 §5). Brand's "financial terms stay in English" rule applies to marketing and search-facing text, not to this table.
 
 Seeded category trees (household/shop/trust) ship in all three languages in a separate seed file, same review gate.
