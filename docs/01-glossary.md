@@ -74,7 +74,7 @@
 | Profit & Loss | report | Profit & Loss | ਨਫਾ-ਨੁਕਸਾਨ ਖਾਤਾ | नफ़ा-नुकसान खाता |
 | Full position (balance sheet) | report | Full position | ਚਿੱਠਾ | चिट्ठा |
 | Books-balanced check (on Home) | verification card | Books balanced | ਹਿਸਾਬ ਮਿਲਦਾ ਹੈ | हिसाब मिलता है |
-| Trial Balance (report) | report | Trial Balance | ਕੱਚਾ ਚਿੱਠਾ | कच्चा चिट्ठा |
+| Trial Balance (report) | report | Trial Balance | ਟ੍ਰਾਇਲ ਬੈਲੇਂਸ | ट्रायल बैलेंस |
 | Assets / Liabilities | report sides | Assets / Liabilities | ਸੰਪੱਤੀ / ਦੇਣਦਾਰੀਆਂ | संपत्ति / देनदारियाँ |
 
 ### Process & security
@@ -103,6 +103,8 @@
 **ਬਕਾਇਆ for balance rows 🔒 (owner-directed, 31 Aug 2026).** The b/f and c/f rows use **ਸ਼ੁਰੂਆਤੀ ਬਕਾਇਆ / शुरुआती बकाया** and **ਅੰਤਿਮ ਬਕਾਇਆ / अंतिम बकाया** — *bakaya* is the standing-amount term a munim uses on those rows, where *baaki* reads as "the rest". **ਬਾਕੀ / बाकी** remains correct for the running Balance **column header** and for pending states (ਮਨਜ਼ੂਰੀ ਬਾਕੀ). **Fix / Adjust** is the imperative **ਠੀਕ ਕਰੋ / ठीक करें**, not the noun *sudhaar*.
 
 **Advance = ਐਡਵਾਂਸ / एडवांस 🔒 (owner-directed, 31 Aug 2026).** The English loanword, transliterated, is what people actually say — *"advance de diya"*, *"advance liya hai"* — and it follows rule 4 alongside ਬੈਂਕ and ਐਂਟਰੀ. The traditional **ਪੇਸ਼ਗੀ / पेशगी** is retained as a **search synonym** in the A/C picker, so an older user who knows that word still finds the account.
+
+**Trial Balance = ਟ੍ਰਾਇਲ ਬੈਲੇਂਸ / ट्रायल बैलेंस 🔒 (owner-directed, 2 Sep 2026).** The transliterated English term is the label everywhere — it is what an accountant asks for by name. **ਕੱਚਾ ਚਿੱਠਾ / कच्चा चिट्ठा may follow in brackets only where space allows** (e.g. the reports-list row, not the viewer header or a chip); it also stays a **search synonym** (ਕੱਚਾ ਚਿੱਠਾ→ਟ੍ਰਾਇਲ ਬੈਲੇਂਸ) so the traditional word still finds the report.
 
 **Deliberate deviations from the reference file 🔒:** ਸ਼ਾਹੂਕਾਰ (moneylender) is avoided for creditors — loaded connotation; neutral ਲੈਣਦਾਰ is used. ਅਸਾਮੀ (debtor) is authentic bahi-khata but regional — kept as a **search synonym**, not a label. The A/C picker's search matches synonyms (ਅਸਾਮੀ→ਦੇਣਦਾਰ, ਸਰਮਾਇਆ→ਪੂੰਜੀ, ਮੀਜ਼ਾਨ→ਬਾਕੀ, बीजक→बिल) so users can type what they know. Add ਪੇਸ਼ਗੀ→ਐਡਵਾਂਸ, पेशगी→एडवांस, ਬਾਕੀ→ਬਕਾਇਆ, बाकी→बकाया.
 

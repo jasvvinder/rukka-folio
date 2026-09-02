@@ -56,3 +56,12 @@ canvas furniture (mockup frame border, dimmed bands), not product tokens, and st
   1's drawing) — identity and safety complete before any entity setup, and every branch
   step is skippable into the checklist regardless. Canvas 0's master map realigned;
   Canvas 1's flow band follows when its partial is recovered.
+
+## Vocabulary — Trial Balance transliterates 🔒
+
+Owner-directed (2 Sep): **ਟ੍ਰਾਇਲ ਬੈਲੇਂਸ / ट्रायल बैलेंस** is the label everywhere — the
+transliterated English term is what an accountant asks for by name. ਕੱਚਾ ਚਿੱਠਾ /
+कच्चा चिट्ठा appears **in brackets only where space allows** and stays a search synonym.
+Supersedes 01's earlier ਕੱਚਾ ਚਿੱਠਾ label and the fold dictionaries' ਤਲਪਟ/तलपट.
+Changed: docs/01 (§2 table + ruling note) · both master dictionaries and the canvas-7
+extracts (canvas 7's rendered file updates at its post-ZIP rebuild).
