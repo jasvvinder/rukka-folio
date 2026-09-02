@@ -57,6 +57,24 @@ canvas furniture (mockup frame border, dimmed bands), not product tokens, and st
   step is skippable into the checklist regardless. Canvas 0's master map realigned;
   Canvas 1's flow band follows when its partial is recovered.
 
+## Designations — Option B ruled 🔒
+
+Owner-ruled (2 Sep): **designations are free display labels; permissions come only from
+the admin.** Any organization may pick from the 01 §2 designation tables or type its own
+label per member; the capability stays one of the five stored roles plus the entry limit,
+granted/changed/revoked only by a book's admin (the creator is the first admin — the
+"superadmin" is the admin role itself, no new tier). A permission-verbs table now sits in
+06 §1.0 mapping the owner's read/write/read-only/delete framing onto the model — with one
+ledger-true refinement: **delete does not exist** (append-only, 02 §5); the corresponding
+power is amend/reverse with the trail kept. `memberships` gains `designation_label`
+(display-only, never consulted by permission checks). The A4 labels become *defaults*.
+Surfaced for a later ruling: canvases describe Trustee as "approves" while 13 §7 gives
+review to admin/head only.
+
+**Changed:** 06 §1.0 (rewritten) + §1.1 · 07 §12 (invite gains the designation field) ·
+13 §2.4 + S9.1 row · 01 (designations ⚠ → ruled). Design: Canvas 4 S9.1 gains the
+designation field.
+
 ## Vocabulary — Trial Balance transliterates 🔒
 
 Owner-directed (2 Sep): **ਟ੍ਰਾਇਲ ਬੈਲੇਂਸ / ट्रायल बैलेंस** is the label everywhere — the

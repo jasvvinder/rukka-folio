@@ -12,10 +12,37 @@
 - Plaintext profile: phone, display name, photo (optional, shown in approvals/verification), preferred language (per-user, not per-tenant), WhatsApp opt-in.
 - Phone-number change is supported (§9.4) — the number is the *claim*; the UMK is the identity.
 
-### 1.0 Role labels are per tenant type 🔒 (gap closed 1 Sep 2026)
-The **stored** role is always one of five; only the **displayed** name changes, so capability and code are identical everywhere:
+### 1.0 Designations are labels; capability is granted 🔒 (owner-ruled Option B, 2 Sep 2026 — ADR)
+Two separate things, never conflated:
 
-| Stored | Family / business shows | Organization shows |
+- **Capability** — always one of the five stored roles (§1.1) plus the per-book entry
+  limit. **Granted, changed and revoked only by an admin of that book** (its creator is
+  the first admin). This is the entire permission system; a designation never carries a
+  permission.
+- **Designation** — a display label per member per tenant: picked from the 01 §2
+  designation tables **or typed free** (every committee names itself differently).
+  Admin-editable; shown on member rows, the ceremony and receipts. The member row always
+  states the capability in plain words beside the designation (13 §2.3 — never let a
+  grand title imply powers it doesn't have): *"ਖ਼ਜ਼ਾਨਚੀ · runs the book day to day"*.
+
+**Permission verbs, stated once** (what read / write / delete mean in this product):
+
+| Verb | Who |
+|---|---|
+| Read (statements, reports) | every role; `operator` sees day totals only, no P&L (13 §7) |
+| Write (post entries) | admin · head · member · operator — each up to their limit; over-limit still posts, flagged for review (02 §3) |
+| Approve / review flags | admin · head (own book) |
+| Amend / reverse | admin · head. **Delete does not exist** — the ledger is append-only (02 §5); a wrong entry is reversed or amended and the trail stays. That is the product's integrity promise, not a missing feature. |
+| Close month / year | admin · head (own book) |
+| Invite / remove members · roles · limits · designations | admin only |
+| Structural changes (ratios, owners, year re-open) | owners' quorum (02 §7.2.1) |
+
+The everyday case designations exist for: the committee's **Treasurer (ਖ਼ਜ਼ਾਨਚੀ)** — the
+person who actually keeps the books — is *called* Treasurer while *holding* `head`.
+
+**Default designations by tenant type** (what a new book suggests; all relabelable):
+
+| Stored | Family / business default | Organization default |
 |---|---|---|
 | `admin` | Admin | **Chairman** |
 | `head` | Head | **President** (ਪ੍ਰਧਾਨ) |
@@ -23,11 +50,11 @@ The **stored** role is always one of five; only the **displayed** name changes, 
 | `operator` | Operator | **Sevadar** (ਸੇਵਾਦਾਰ) |
 | `viewer` | Viewer | **Auditor** |
 
-A gurudwara committee will not recognise "Operator"; it will recognise ਸੇਵਾਦਾਰ. 🔒 **Owner-ruled 1 Sep 2026 (ADR 2026-09-01): `head` displays as President (ਪ੍ਰਧਾਨ)** — Secretary is not a role label. ⚠️ Gurmukhi sub-label for Chairman (ਚੇਅਰਮੈਨ) awaits the native-speaker pass with the rest.
+A gurudwara committee will not recognise "Operator"; it will recognise ਸੇਵਾਦਾਰ. 🔒 `head` defaults to President (ਪ੍ਰਧਾਨ), ADR 2026-09-01; Secretary is not a default label. ⚠️ Chairman's Gurmukhi sub-label (ਚੇਅਰਮੈਨ) awaits the native-speaker pass. ⚠️ Canvas 4/14's trust capability table describes Trustee as "approves" while 13 §7 gives review to admin/head only — owner to confirm whether trust `member`s (Trustees) also review.
 
 ### 1.1 Multi-tenancy 🔒
 - `tenants(id, type ∈ {family, business_group, organization}, name_ciphertext, plan, …)`
-- `memberships(tenant_id, user_id, status, verified_by, verified_method, …)` and `book_roles(book_id, user_id, role ∈ {admin, head, member, operator, viewer}, auto_post_limit_paise, …)` — one role **per book**, never global.
+- `memberships(tenant_id, user_id, status, verified_by, verified_method, designation_label, …)` and `book_roles(book_id, user_id, role ∈ {admin, head, member, operator, viewer}, auto_post_limit_paise, …)` — one role **per book**, never global; `designation_label` is display-only (§1.0), admin-editable, never consulted by any permission check.
 - Access tokens carry `user_id` + `device_id` only — never a tenant. Every request is tenant-scoped by path and checked against memberships in Postgres **row-level security**. New tenant types (the trust case) are rows, not code.
 
 ---

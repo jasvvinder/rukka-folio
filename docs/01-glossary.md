@@ -153,9 +153,11 @@ Hindi, so Chairman takes चेयरमैन to stay distinct.
 | Employee | ਕਰਮਚਾਰੀ / ਵਰਕਰ | कर्मचारी / वर्कर |
 | Advisor | ਸਲਾਹਕਾਰ | सलाहकार |
 
-⚠️ Open (owner to rule, 2 Sep 2026): how organizations use these — a curated financial
-role set, or free designation labels with capability granted only by the entity's owner.
-Until ruled, the five-role model of 06 §1.0/§1.1 stands unchanged.
+🔒 **Ruled (owner, 2 Sep 2026 — Option B):** designations are **free display labels** —
+any organization may use any of these or type its own. Capability is separate and is
+granted **only by the book's admin**, always one of the five stored roles (06 §1.0 owns
+the model and the permission-verbs table; "delete" does not exist — the ledger is
+append-only, 02 §5).
 
 **Surface precedence:** this document governs in-product terminology; marketing/site/deck copy follows the brand voice and localisation rules (11 §5). Brand's "financial terms stay in English" rule applies to marketing and search-facing text, not to this table.
 

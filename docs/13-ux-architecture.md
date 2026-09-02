@@ -68,7 +68,7 @@ Because one person holds different roles in different books, **the current ident
 | Close | can lock, cannot lock alone | confirms own book | — | — | — |
 
 ### 2.4 Roles → capability, not navigation
-Roles (admin · head · member · operator · viewer) change *what actions appear*, never *which screens exist*. A viewer sees the same statement screen without the entry button. This keeps the mental model stable across a family where everyone has different rights.
+Roles (admin · head · member · operator · viewer) change *what actions appear*, never *which screens exist*. A viewer sees the same statement screen without the entry button. This keeps the mental model stable across a family where everyone has different rights. **Designations are separate** (06 §1.0 🔒, Option B): a free display label per member — ਖ਼ਜ਼ਾਨਚੀ, Munshi, Patron — admin-set, always shown *with* the capability in plain words, never *instead of* it.
 
 ---
 
@@ -173,7 +173,7 @@ Five-slot bottom bar, persistent, with a centre action:
 | **S11.8** | Recovery — nothing worked yet (design R2.5) | activation | the honest empty-vault screen + path forward (F11) |
 | **S12** | Subscription | S8 | tiers, renewal, read-only banner |
 | **S4.1** | Entry detail | any P1 row | audit trail, photo, who entered, amend/reverse — the target of every tap in every list |
-| **S9.1** | Invite member | S9 | phone + per-book roles + limits |
+| **S9.1** | Invite member | S9 | phone + per-book roles + limits + designation label (06 §1.0 Option B — a name, not a permission) |
 | **S16** | My account | S8 | name, photo, phone, language |
 | **S16.1** | Edit profile | S16 | name and photo only |
 | **S16.2** | Change phone number | S16 | OTP old + new, or guardian approval if the old number is lost (06 §9.4) |
