@@ -37,3 +37,22 @@ tokens.css / tokens.dart as **PROPOSED**: `sunk` (#EFE9DA / #1F1E1B — recessed
 avatar discs, keypad wells, summary strips) and `scrim` (rgba(26,26,24,.42) /
 rgba(0,0,0,.45) — sheet backdrops). The canvases' `--frame` and `--dim` variables are
 canvas furniture (mockup frame border, dimmed bands), not product tokens, and stay out.
+
+## Slice 4 — the last four audit calls (owner: "do recommended")
+
+- **S6.1 drawn.** The grouped review card ("Ramesh Sharma · Sharma Textile · 7 entries ·
+  ₹23,400", per-row ✕ quick-reject, **Approve all 7** / **One by one**) now sits on
+  Canvas 9 between the Inbox and the stepper, per 07 §9.
+- **S17.1 folded into S17.** The Help hub as drawn *is* the grouped, searchable FAQ list;
+  a separate list screen added a level for nothing. 13's row removed.
+- **S18.1/S18.2/S18.4 are document pages,** rendered in a shared template patterned on
+  S18.3 (which is fully drawn); the designed surface is each one's summary card on the
+  S18 hub. Recorded in 13; nothing further to draw.
+- **"Narration" on S7.0b stays.** It is the bank file's own column header quoted back as
+  data — the user matches it against the statement in their hand (01 rule 8). A second
+  carve-out is recorded under 01's forbidden-jargon rule; the app's own labels still
+  never use the word.
+- **Onboarding branch order ruled: after the shared steps** (07 §3.1.1 wins over Canvas
+  1's drawing) — identity and safety complete before any entity setup, and every branch
+  step is skippable into the checklist regardless. Canvas 0's master map realigned;
+  Canvas 1's flow band follows when its partial is recovered.

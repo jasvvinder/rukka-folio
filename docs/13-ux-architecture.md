@@ -184,16 +184,15 @@ Five-slot bottom bar, persistent, with a centre action:
 | **S12.4** | Payment problem | S12 | grace countdown, retry, what happens at the end |
 | **S12.5** | Read-only mode | global | banner + blocked-entry sheet; export always works |
 | **S12.6** | Invoices | S12 | list + PDF |
-| **S17** | Help | S8 | search, FAQ, contact, diagnostics |
-| **S17.1** | FAQ list | S17 | grouped, searchable |
+| **S17** | Help | S8 | search, contact, diagnostics — the grouped, searchable FAQ list lives on this hub (S17.1 folded in, ADR 2026-09-02) |
 | **S17.2** | FAQ article | S17.1 | one answer, plain language |
 | **S17.3** | Contact support | S17 | WhatsApp primary; states what support cannot do |
 | **S17.4** | Send diagnostics | S17.3 | user-triggered, financial values scrubbed, shown before sending |
 | **S18** | Legal | S8 | terms, privacy, licences |
-| **S18.1** | Terms of service | S18 | |
-| **S18.2** | Privacy policy | S18 | |
+| **S18.1** | Terms of service | S18 | document page, shared template patterned on S18.3; the designed surface is its summary card on the S18 hub (ADR 2026-09-02) |
+| **S18.2** | Privacy policy | S18 | document page, shared template; summary card "Privacy, in four lines" on the hub |
 | **S18.3** | What we can and cannot see | S18/onboarding | the impossibility table (12 §2) as a user-facing page — a trust asset, not boilerplate |
-| **S18.4** | Open-source licences | S18 | |
+| **S18.4** | Open-source licences | S18 | document page, shared template |
 | **S19.1** | Update required | global | 426 from the API (06 §4.5) |
 | **S19.2** | Maintenance | global | |
 | **S19.3** | No connection | global | non-blocking; the app works offline |
@@ -264,7 +263,7 @@ Notation: `→` step · `◆` decision · `⟳` loops until · `‖` parallel.
 
 **F1 · First run**
 `S0.0 splash → S0.1 language → S0.05 welcome (3 slides, skippable) → S0.2 phone+OTP → S0.3 purpose ◆(Myself | My shop | My businesses | My family | Our trust) → S0.4 name → S0.8 set PIN → S0.5 keeping your books safe (+ S0.5b sheet: print → verify by scanning it back) → branch steps S0.6a–i per card, each skippable (07 §3.1.1) → S0.6 own opening balances (skippable) → S1 with setup checklist`
-Success: user reaches Home understanding that no password exists and the paper sheet matters. ⚠️ Canvas 1's master-map row draws the branch immediately after the purpose card, before name/PIN; 07 §3.1.1 (normative) branches after the shared steps — align the canvas or rule the order.
+Success: user reaches Home understanding that no password exists and the paper sheet matters. 🔒 Branch order ruled 2 Sep 2026 (ADR): **after the shared steps**, per 07 §3.1.1 — identity and safety finish before any entity setup, and every branch step lands on the checklist anyway. Canvas 0's map is aligned; Canvas 1's flow band is realigned when its partial is recovered (256 KiB cap).
 
 **F2 · Daily entry (the 8-second path)**
 `S1 verb button (or ( + )) → S2 amount keypad → account chip → S2.1 counterpart (recents first; inline create if new) → [note/photo/date optional] → Save → toast "Saved ✓" + Undo 10s → keypad stays open, zeroed`
