@@ -27,3 +27,29 @@
 **Cross-references 🔒:** brand rules (11) bind every UI milestone · the admin console (12) is M13 · the UX architecture (13) is the screen-level contract for M5 onward and its S-ids are the milestone acceptance vocabulary.
 
 **Working method with Claude Code:** one milestone (or one coherent slice) per session; start by pointing at the exact spec sections; tests from 09 written/green before UI; any decision that changes a 🔒 line lands as a doc PR in the same commit; CLAUDE.md is updated whenever a convention is settled.
+
+---
+
+## Phase 2 parking lot (post-v1, non-normative)
+
+**Status:** Parking lot, opened 2026-09-03. Nothing here is scheduled, sized, or 🔒. Its job is scope discipline (11 §1): every idea that is not in M0–M14 lives here instead of leaking into a v1 milestone. **Plan for real at M14 exit**, with the pilot month's friction list, the Account Aggregator eligibility answer, and the external crypto review in hand — all three change what Phase 2 can contain.
+
+**Permanent non-goals still apply (00):** invoicing, GST, taxation, statutory filings, inventory, payroll never enter this list.
+
+| Candidate | Source / rationale | Gate before it can be planned | v1 hook to protect |
+|---|---|---|---|
+| Account Aggregator bank feeds via a TSP | req-arch §5.1; roadmap sequencing note | ⚠️ FIU eligibility for a non-regulated bookkeeping app — confirm with two TSPs | M10 import pipeline takes an *import source* interface; statement parsers are one implementation, an AA feed is another |
+| Voice entry (amount + party) in PA/HI/EN | req-arch §3 — highest-leverage accessibility feature for the target user | On-device recognition quality for PA/HI numerals; must not send plaintext money off-device (rule 4) | Voice is another *input* to the S-entry sheet (13), never a separate flow |
+| More languages: Marathi, Gujarati, Tamil, Telugu, Kannada, Bengali | req-arch §3 launch set | Native review gate per language (01 §1.8) | ARB-only strings + locale-driven digit grouping already mandated |
+| Desktop / web companion | roadmap sequencing note | Zero-knowledge on a browser: key storage and attestation story (04, 06) | Sync protocol (05) stays client-agnostic |
+| Key-transparency log | 04 §11 item 4 | Table design kept compatible in M4 | Append-only per-tenant key-change table shape |
+| Play Integrity / DeviceCheck enforcement | 06 §2, §11 item 2 | Field populated in v1; measure false-reject rate in pilot | `POST /devices` attestation field exists from M6 |
+| Tally XML export | req-arch §6 — banks, buyers, accountants ask for it | Mapping of 02 classes onto Tally groups | Export layer (M12) is format-pluggable |
+| Recurring entries & due reminders (rent, EMI, household salaries, udhaar follow-ups) | pilot expectation; req-arch Flow 6 step 6 | Reminder content must carry no plaintext amounts in notifications (rule 4) | Entry schema unknown-field round-trip (03 §3.3.4) |
+| Interest on hand loans (sood) | family lending practice | Ruling from 02 owner on whether interest is a verb, a posting rule, or a report-only figure | Advances model (02) — do not hard-code zero interest |
+| Encrypted receipt / bill photo on an entry | pilot expectation | Storage cost → likely a paid-tier feature (08) | Optional attachment reference field on entries, encrypted blob outside the envelope |
+| Time-boxed read-only accountant role | professional surfaces (02 §10) | Role model in 06 §7 must allow expiring grants | Roles table carries an optional expiry |
+| iOS widgets / Siri shortcuts for the 8-second entry | 07 §1 | Widget cannot hold book keys unlocked — design the locked-widget state | Entry sheet reachable by deep link |
+| Budgets per book | consumer request pattern | Consumer vocabulary only (rule 9); no new ledger class | Projector stays pure; budgets are a view over balances |
+
+**How to use this table:** when a v1 session surfaces an idea that is not in a milestone row above, add a row here in the same commit and move on. Do not size or sequence rows until M14.
