@@ -114,7 +114,7 @@ Follows the scenario table in 06 §5 verbatim. Key screens: **Link with old phon
 
 ## 5. Add Entry — the 8-second flow 🔒
 
-**Screen order: amount first.** Full-screen numeric keypad with the amount huge at top; verb shown as a colored header chip (switchable by swipe or tap without losing the amount).
+**Screen order: amount first.** Full-screen numeric keypad with the amount huge at top; verb shown as a colored header chip (switchable by swipe or tap without losing the amount). **The pill has five positions 🔒 (owner-ruled 3 Sep 2026, ADR 2026-09-03b): Money in · Money out · Gave on credit · Took on credit · Move money** — the transfer (S2.3) is the fifth swipe, not a separate door.
 
 1. **Amount** — keypad supports `+` quick-sum (`120+80+40`); paise via `.`; Next. 🔒 **No amount-in-words on this screen** (31 Aug 2026) — it costs a line on a screen that must not scroll, and belongs on receipts and exports only (01 §1.10).
 2. **Slots are labelled by verb 🔒 (corrected 31 Aug 2026) — the money-account label is never a fixed "FROM".** Every entry has two sides: one is usually a money account, shown as quick chips; the other is any ledger account, shown as a picker.

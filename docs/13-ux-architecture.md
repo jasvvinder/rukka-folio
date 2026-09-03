@@ -121,8 +121,8 @@ Five-slot bottom bar, persistent, with a centre action:
 | **S2** | Add entry (keypad-first) | action | the 8-second flow |
 | **S2.1** | A/C picker + inline create | S2 | search-first, class inferred by slot |
 | **S2.2** | Date picker | S2 | today default, backdate ok, future disabled |
-| **S2.3** | Transfer (within/between books) | S2 | pairs |
-| **S2.4** | Adjustment wizards | S2 | guided only, never freeform |
+| **S2.3** | Transfer (within/between books) | S2 (fifth position of the verb pill — ADR 2026-09-03b) | pairs |
+| **S2.4** | Adjustment wizards | S5.5 · S4 ⋯ menu · S4.1 · S13 (one door each — ADR 2026-09-03b) | guided only, never freeform |
 | **S2.5** | Drawings confirmation (design B5) | S2 | business books: owner takeout posts to Drawings; the sheet says "not a business expense" (07 §5) |
 | **S3** | Ledger index (A–Z khatas) | root | search header, filter chips |
 | **S3.1** | Quick add sheet | S3 | bottom-sheet A/C create from the Ledger tab (07 §6); the entry flow's picker is a full screen instead (design S2-C) — same component, two presentations, deliberately |
