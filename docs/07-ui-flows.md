@@ -36,7 +36,7 @@ Bottom bar, five slots:
 - **Ledger** — the A–Z A/C index (§6).
 - **[+]** — opens the verb chooser (or repeats the last verb on long-press) (§5).
 - **Inbox** — everything awaiting a human: approvals, late arrivals, import lines, verification requests, recovery requests, aged-advance reminders. Badge = count. One tray, so nothing important hides in five places.
-- **Menu** — reports, books & members, backup, devices & security, subscription, settings, help, **legal** (owner-added 3 Sep 2026; S18 — terms, privacy, licences, "what we can and cannot see").
+- **Menu** — reports, **close the month** (ADR 2026-09-03), books & members, backup, devices & security, subscription, settings, help, **legal** (owner-added 3 Sep 2026; S18 — terms, privacy, licences, "what we can and cannot see").
 
 **Scope switcher 🔒** — a chip in the top app bar showing the current scope. Tap → bottom sheet grouped: **Me** (personal book) · **Family** · **Businesses** · **Organizations** · **Everything** (position/reports only, read-only aggregate). Solo users never see the chip at all — the app *is* their personal book. Last-used scope persists per tab.
 
@@ -202,6 +202,8 @@ One flow: From (book + money A/C) → To (book + money A/C) → amount → save.
 ---
 
 ## 11. Statement import 🔒 (Phase 1: file upload)
+
+**Entry point 🔒 (owner-ruled 3 Sep 2026, ADR 2026-09-03):** the Import action lives on the **entry screen (S2) header, top right** — importing is a way of entering many lines at once — and is *not* a Menu row. Import lines also surface in the Inbox.
 
 1. **Pick account → pick file → confirm mapping → duplicates skipped → review → submit** 🔒 (refined 30 Aug 2026). All parsing on-device (04: nothing readable leaves the phone).
    - Pick the bank A/C, then the file. The drop zone states what it accepts: *CSV, XLS, OFX or PDF · up to 10 MB*.

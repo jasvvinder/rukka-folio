@@ -135,7 +135,7 @@ Five-slot bottom bar, persistent, with a centre action:
 | **S6.1** | Review — grouped card | S6 | Approve all / One by one |
 | **S6.3** | Structural approval card | S6 | states exactly what will change; Approve / Veto with reason; shows quorum progress (2 of 3) |
 | **S6.2** | Review — stepper | S6.1 | approve / reject+reason / skip |
-| **S7** | Import — pick file & account | S8 | on-device parse (drawn as design S7.0a–c: file · column mapping · duplicates skipped) |
+| **S7** | Import — pick file & account | S2 (import button, header — ADR 2026-09-03; not a Menu row) | on-device parse (drawn as design S7.0a–c: file · column mapping · duplicates skipped) |
 | **S7.1** | Import inbox | S7/S6 | one question per line |
 | **S7.2** | Import balance check | S7 | statement's opening/closing vs the ledger; passing · matched · failing (07 §11.1, ADR 2026-09-01) |
 | **S7.3** | Transfer-pair confirm | S7.1 | "same money moving?" — a row-level card in the import inbox |
@@ -274,7 +274,7 @@ Success: user reaches Home understanding that no password exists and the paper s
 `S3 search khata → S4 grouped listing → period tabs / date navigator → tap row → S4.1 entry detail (photo, audit trail, who entered) → [Amend | Reverse] → S8.2 export PDF/XLSX (classical columns, voucher, cross-check footer)`
 
 **F4 · Bank statement import**
-`S8 → S7 pick account + file → on-device parse → S7.2 balance check → S7.1 inbox: each line shows bank text (grey) + Money in/out + one question ("Where did it come from?" / "Where did it go?") → ◆ matched(auto-link) | suggested(1-tap confirm) | new(pick A/C) | transfer-pair(S7.3 "same money moving?") | unknown("record now, explain later" → Suspense) ⟳ until inbox empty → S7.4 preview (every entry about to post) → submit`
+`S2 import button (header, top right) → S7 pick account + file → on-device parse → S7.2 balance check → S7.1 inbox: each line shows bank text (grey) + Money in/out + one question ("Where did it come from?" / "Where did it go?") → ◆ matched(auto-link) | suggested(1-tap confirm) | new(pick A/C) | transfer-pair(S7.3 "same money moving?") | unknown("record now, explain later" → Suspense) ⟳ until inbox empty → S7.4 preview (every entry about to post) → submit`
 Rule learned on first correction; Suspense must reach zero before month close.
 
 **F5 · Review cycle (post-then-review)**
