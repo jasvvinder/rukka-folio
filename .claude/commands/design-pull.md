@@ -82,6 +82,8 @@ path — writing `canvas5.dc.html` creates a *duplicate* canvas in the app (happ
 | 12 | `Canvas 12 - Journey individual with a business.dc.html` |
 | 13 | `Canvas 13 - Journey joint family.dc.html` |
 | 14 | `Canvas 14 - Journey trust.dc.html` |
+| 15 | `Canvas 15 - Menu and reports.dc.html` |
+| 16 | `Canvas 16 - Reading by entity.dc.html` |
 
-(plus `Core Patterns.dc.html`, not canvas-numbered). If unsure, `list_files` first and
+(plus `Core Patterns.dc.html`, not canvas-numbered). Canvas 7's *title* became "Reading the books" on 3 Sep 2026 when its Menu/report and per-entity rows split off into 15 and 16; its project path keeps the old name until the owner renames it. If unsure, `list_files` first and
 match the existing name; a canvas rename is the owner's call only.
