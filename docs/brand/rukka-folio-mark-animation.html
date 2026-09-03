@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rukka Folio — Mark Animation Guidelines</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mukta:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --indigo:#2B3A67;--indigo-deep:#1B2544;--bahi:#C1502E;
+  --paper:#F5F0E4;--paper-dim:#EBE4D4;--ink:#1A1A18;--ink-soft:#5C5A54;--ink-faint:#8E8B82;
+  --rule:rgba(26,26,24,.14);--rule-faint:rgba(26,26,24,.07);
+  --m:1;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:'Mukta',system-ui,sans-serif;line-height:1.65;-webkit-font-smoothing:antialiased}
+.wrap{max-width:960px;margin:0 auto;padding:0 clamp(1.25rem,4vw,3rem)}
+header{background:var(--indigo);color:var(--paper);padding:clamp(2.5rem,7vw,4.5rem) 0 clamp(2rem,5vw,3rem)}
+h1{font-size:clamp(1.7rem,4.5vw,2.6rem);font-weight:600;letter-spacing:-.02em;line-height:1.15}
+.sub{color:rgba(245,240,228,.65);margin-top:.5rem;max-width:56ch}
+.meta{margin-top:2rem;padding-top:1rem;border-top:1px solid rgba(245,240,228,.18);display:flex;gap:2.5rem;flex-wrap:wrap;font-family:'IBM Plex Mono',monospace;font-size:.7rem;letter-spacing:.09em;text-transform:uppercase;color:rgba(245,240,228,.5)}
+section{padding:clamp(2.25rem,6vw,4rem) 0;border-bottom:1px solid var(--rule)}
+section:last-of-type{border-bottom:none}
+.head{display:flex;align-items:baseline;gap:1rem;margin-bottom:.5rem}
+.fol{font-family:'IBM Plex Mono',monospace;font-size:.72rem;font-weight:500;color:var(--bahi);letter-spacing:.12em}
+h2{font-size:clamp(1.3rem,3vw,1.8rem);font-weight:600;letter-spacing:-.015em}
+.lede{color:var(--ink-soft);max-width:62ch;margin-bottom:1.75rem;font-size:1.02rem}
+h3{font-size:.72rem;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-faint);margin:1.75rem 0 .8rem;padding-bottom:.4rem;border-bottom:1px solid var(--rule-faint)}
+p+p{margin-top:.8rem}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th{text-align:left;font-size:.66rem;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-faint);font-weight:600;padding:.45rem .75rem .45rem 0;border-bottom:1px solid var(--rule)}
+td{padding:.6rem .75rem .6rem 0;border-bottom:1px solid var(--rule-faint);vertical-align:top}
+tr:last-child td{border-bottom:none}
+code,pre{font-family:'IBM Plex Mono',monospace}
+code{font-size:.85em;background:var(--paper-dim);padding:.05em .35em;border-radius:3px}
+pre{background:var(--indigo-deep);color:#D9D3C2;font-size:.78rem;line-height:1.6;padding:1.1rem 1.25rem;border-radius:4px;overflow-x:auto;border-left:3px solid var(--bahi)}
+.dd{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:0;border:1px solid var(--rule-faint);border-radius:3px;overflow:hidden;margin-top:1.25rem}
+.dd>div{padding:1.1rem 1.3rem;background:#fff}
+.dd>div:first-child{border-right:1px solid var(--rule-faint)}
+.dd h4{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.8rem;font-weight:600}
+.dd .y{color:#2F7A55}.dd .n{color:#A83232}
+.dd li{list-style:none;padding:.38rem 0;border-bottom:1px solid var(--rule-faint);font-size:.9rem;line-height:1.5}
+.dd li:last-child{border-bottom:none}
+@media(max-width:560px){.dd>div:first-child{border-right:none;border-bottom:1px solid var(--rule-faint)}}
+
+/* ---------- specimen ---------- */
+.stage{background:#fff;border:1px solid var(--rule-faint);border-radius:4px;padding:2.25rem 1.25rem;display:flex;flex-direction:column;align-items:center;gap:1.6rem}
+.row{display:flex;align-items:flex-end;gap:40px;flex-wrap:wrap;justify-content:center}
+.item{text-align:center;cursor:pointer}
+.cap{font-size:.68rem;color:var(--ink-faint);margin-top:8px;font-family:'IBM Plex Mono',monospace}
+.ctl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center}
+button{font-family:inherit;font-size:.85rem;padding:8px 18px;border-radius:99px;border:1px solid var(--rule);background:#fff;color:var(--ink);cursor:pointer;transition:background .15s}
+button:hover{background:var(--paper-dim)}
+button.on{background:var(--indigo);color:var(--paper);border-color:var(--indigo)}
+.state{font-family:'IBM Plex Mono',monospace;font-size:.68rem;color:var(--ink-faint);letter-spacing:.08em;text-transform:uppercase;min-width:60px;text-align:center}
+
+/* ---------- the mark animation (reference implementation) ---------- */
+.rk .strap{transform-box:fill-box;transform-origin:left center;
+  transition:transform calc(var(--m)*400ms) cubic-bezier(.45,0,.25,1) calc(var(--m)*260ms),
+             opacity  calc(var(--m)*400ms) ease calc(var(--m)*260ms)}
+.rk.open .strap{transform:translateX(-4px) scaleX(.643);opacity:.62;transition-delay:0ms}
+.rk .seal{transform-box:fill-box;transform-origin:center;
+  transition:transform calc(var(--m)*400ms) cubic-bezier(.45,0,.25,1) calc(var(--m)*260ms)}
+.rk.open .seal{transform:translateX(-4px) scale(.6);transition-delay:0ms}
+.rk .rl{transition:x calc(var(--m)*340ms) cubic-bezier(.35,0,.2,1),
+                 width calc(var(--m)*340ms) cubic-bezier(.35,0,.2,1)}
+.rk.open .rl{x:37px;width:33px;transition-delay:calc(var(--m)*260ms)}
+.rk .r3{width:.5px;opacity:0;
+  transition:width calc(var(--m)*340ms) cubic-bezier(.35,0,.2,1),
+             opacity calc(var(--m)*160ms) ease}
+.rk.open .r3{width:24px;opacity:.3;transition-delay:calc(var(--m)*520ms)}
+@media (prefers-reduced-motion:reduce){.rk *{transition-duration:1ms !important;transition-delay:0ms !important}}
+
+footer{background:var(--indigo-deep);color:rgba(245,240,228,.6);padding:2.25rem 0;font-size:.85rem}
+footer b{color:var(--paper);font-weight:500}
+@media print{header,footer,pre{-webkit-print-color-adjust:exact;print-color-adjust:exact}section{page-break-inside:avoid}}
+</style>
+</head>
+<body>
+
+<header><div class="wrap">
+  <h1>The mark in motion</h1>
+  <p class="sub">Animation guidelines for the Rukka Folio sealed-ledger mark. This page is the reference implementation — inspect it, copy from it, hand it to design and engineering.</p>
+  <div class="meta"><span>Mark animation spec</span><span>Guidelines v1.2 · §4.2</span><span>Self-contained</span></div>
+</div></header>
+
+<div class="wrap">
+
+<section>
+  <div class="head"><span class="fol">01</span><h2>Live specimen</h2></div>
+  <p class="lede">Tap any mark, or use the controls. One geometry at every size; the animation is identical, only scaled.</p>
+
+  <div class="stage">
+    <div class="row" id="row">
+      <div class="item" title="Tap to toggle">
+        <svg class="rk" width="132" height="132" viewBox="0 0 88 88" role="img" aria-label="Rukka Folio mark, animated">
+          <path class="body" d="M14 14 H74 L74 14 V74 H14 Z" fill="#2B3A67" stroke="#2B3A67" stroke-width="4" stroke-linejoin="round"/>
+          <path class="tri" d="M74 14 L74 14 L74 14 Z" fill="#1B2544" stroke="#1B2544" stroke-width="3" stroke-linejoin="round" style="opacity:0"/>
+          <rect class="rl" x="54" y="33" width="16" height="4.5" rx="2.25" fill="#F5F0E4"/>
+          <rect class="rl" x="54" y="46.5" width="16" height="4.5" rx="2.25" fill="#F5F0E4" opacity=".55"/>
+          <rect class="r3" x="37" y="60" height="4.5" rx="2.25" fill="#F5F0E4"/>
+          <rect class="strap" x="28" y="14" width="14" height="60" fill="#F5F0E4" opacity=".93"/>
+          <circle class="seal" cx="28" cy="56" r="10" fill="#C1502E"/>
+        </svg>
+        <div class="cap">132px</div>
+      </div>
+      <div class="item" title="Tap to toggle">
+        <svg class="rk" width="44" height="44" viewBox="0 0 88 88" aria-hidden="true">
+          <path class="body" d="M14 14 H74 L74 14 V74 H14 Z" fill="#2B3A67" stroke="#2B3A67" stroke-width="4" stroke-linejoin="round"/>
+          <path class="tri" d="M74 14 L74 14 L74 14 Z" fill="#1B2544" stroke="#1B2544" stroke-width="3" stroke-linejoin="round" style="opacity:0"/>
+          <rect class="rl" x="54" y="33" width="16" height="4.5" rx="2.25" fill="#F5F0E4"/>
+          <rect class="rl" x="54" y="46.5" width="16" height="4.5" rx="2.25" fill="#F5F0E4" opacity=".55"/>
+          <rect class="r3" x="37" y="60" height="4.5" rx="2.25" fill="#F5F0E4"/>
+          <rect class="strap" x="28" y="14" width="14" height="60" fill="#F5F0E4" opacity=".93"/>
+          <circle class="seal" cx="28" cy="56" r="10" fill="#C1502E"/>
+        </svg>
+        <div class="cap">44px</div>
+      </div>
+      <div class="item" title="Tap to toggle">
+        <svg class="rk" width="16" height="16" viewBox="0 0 88 88" aria-hidden="true">
+          <path class="body" d="M14 14 H74 L74 14 V74 H14 Z" fill="#2B3A67" stroke="#2B3A67" stroke-width="4" stroke-linejoin="round"/>
+          <path class="tri" d="M74 14 L74 14 L74 14 Z" fill="#1B2544" stroke="#1B2544" stroke-width="3" stroke-linejoin="round" style="opacity:0"/>
+          <rect class="rl" x="54" y="33" width="16" height="4.5" rx="2.25" fill="#F5F0E4"/>
+          <rect class="rl" x="54" y="46.5" width="16" height="4.5" rx="2.25" fill="#F5F0E4" opacity=".55"/>
+          <rect class="r3" x="37" y="60" height="4.5" rx="2.25" fill="#F5F0E4"/>
+          <rect class="strap" x="28" y="14" width="14" height="60" fill="#F5F0E4" opacity=".93"/>
+          <circle class="seal" cx="28" cy="56" r="10" fill="#C1502E"/>
+        </svg>
+        <div class="cap">16px</div>
+      </div>
+    </div>
+    <div class="ctl">
+      <button id="toggle">Break seal</button>
+      <span class="state" id="state">Sealed</span>
+      <button id="loop">Loop</button>
+    </div>
+    <div class="ctl">
+      <button data-m="0.6">Fast · unlock</button>
+      <button data-m="1" class="on">Natural · splash</button>
+      <button data-m="2">Slow motion</button>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="head"><span class="fol">02</span><h2>The story</h2></div>
+  <p class="lede">Four beats, in cause-and-effect order. Nothing appears that wasn't already there; nothing leaves the book.</p>
+  <p><b>Opening:</b> the strap and seal contract together and tuck left — unfastened, smaller, still present (sealed is always one gesture away). The top-right corner folds down into a dog-ear: the page now in use. The entries sweep leftward into the cleared space, revealed as the closure moves aside. A third entry writes itself in, left to right — an open book is a book being written.</p>
+  <p><b>Sealing</b> is the exact reverse: the new entry retreats, the entries pull back, the corner flattens, and the strap and seal return to full size last. It should feel like putting the books away properly.</p>
+</section>
+
+<section>
+  <div class="head"><span class="fol">03</span><h2>Timing</h2></div>
+  <p class="lede">All values at multiplier <code>m = 1</code> (≈ 860ms total). Scale every duration and delay by <code>m</code>; never retime beats individually.</p>
+  <table>
+    <thead><tr><th>Beat</th><th>Start</th><th>Duration</th><th>Easing</th><th>Property</th></tr></thead>
+    <tbody>
+      <tr><td>Strap + seal contract, shift left; strap dims to 62%</td><td>0ms</td><td>400ms</td><td>cubic-bezier(.45,0,.25,1)</td><td>transform, opacity</td></tr>
+      <tr><td>Dog-ear folds in (corner 76,12 → notch 64,12 / 76,24)</td><td>240ms</td><td>300ms</td><td>ease-in-out cubic</td><td>path morph</td></tr>
+      <tr><td>Entries sweep left (x 54→37, width 16→33)</td><td>260ms</td><td>340ms</td><td>cubic-bezier(.35,0,.2,1)</td><td>x, width</td></tr>
+      <tr><td>Third entry writes in (width 0→24 @ 30% opacity)</td><td>520ms</td><td>340ms + 160ms fade</td><td>same</td><td>width, opacity</td></tr>
+    </tbody>
+  </table>
+  <h3>Speed multipliers</h3>
+  <table>
+    <thead><tr><th>m</th><th>Total</th><th>Use</th></tr></thead>
+    <tbody>
+      <tr><td><code>0.6</code></td><td>≈ 520ms</td><td>Biometric / PIN unlock moment — fires on <em>success</em>, never on prompt</td></tr>
+      <tr><td><code>1.0</code></td><td>≈ 860ms</td><td>App splash: play once, sealed → open, then hold open</td></tr>
+      <tr><td><code>2.0</code></td><td>≈ 1720ms</td><td>Review and QA only — never ships</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section>
+  <div class="head"><span class="fol">04</span><h2>Where each state lives</h2></div>
+  <table>
+    <thead><tr><th>Moment</th><th>State</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>App icon, favicon, print, lockups, marketing</td><td><b>Sealed, static — always</b></td><td>The brand mark. Never ship the open state as a static icon.</td></tr>
+      <tr><td>App splash</td><td>Sealed → Open, once</td><td>m = 1, then hold open into the app</td></tr>
+      <tr><td>Successful unlock (biometric/PIN)</td><td>Sealed → Open</td><td>m = 0.6</td></tr>
+      <tr><td>Failed auth</td><td>Stays sealed</td><td>Small horizontal shake (±2 units, 3 cycles, 240ms). No untie.</td></tr>
+      <tr><td>Locking / logout / backgrounding</td><td>Open → Sealed</td><td>m = 0.6; seal lands last</td></tr>
+      <tr><td>"Books open" indicator in-product</td><td>Open, static</td><td>The dog-ear appears only here</td></tr>
+    </tbody>
+  </table>
+  <div class="dd">
+    <div>
+      <h4 class="y">Always</h4>
+      <ul>
+        <li>The open state is <b>earned</b> — only after a real unlock</li>
+        <li>Respect <code>prefers-reduced-motion</code>: jump cut, no tween</li>
+        <li>Keep the beat order — the stagger is the story</li>
+        <li>Scale timing only via <code>m</code></li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="n">Never</h4>
+      <ul>
+        <li>Play the animation decoratively or on a repeating loop in shipped UI</li>
+        <li>Animate on the auth <em>prompt</em> — only on success</li>
+        <li>Let any element exit the book bounds</li>
+        <li>Recolour, add bounce/overshoot, or add new elements</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="head"><span class="fol">05</span><h2>Geometry reference</h2></div>
+  <p class="lede">All coordinates in the 88-unit viewBox. Margins are 6 units on both sides in both states — the seal's left extent and the entries' right extent.</p>
+  <table>
+    <thead><tr><th>Element</th><th>Sealed</th><th>Open</th></tr></thead>
+    <tbody>
+      <tr><td>Book</td><td>x12 y12 · 64×64 · r5 · <code>#2B3A67</code></td><td>same + notch (64,12)→(76,24), underside <code>#1B2544</code></td></tr>
+      <tr><td>Strap</td><td>x28 w14 · y14–74, inset 2 units · <code>#F5F0E4</code> @93%</td><td>x24 w9 (translateX −4 · scaleX .643) @62% · height unchanged</td></tr>
+      <tr><td>Seal</td><td>cx28 cy56 r10 · <code>#C1502E</code> · on strap's left edge</td><td>cx24 r6 (translateX −4 · scale .6) · same edge</td></tr>
+      <tr><td>Entries</td><td>x54 w16 · y33 / y46.5 · h4.5 r2.25 · 2nd @55%</td><td>x37 w33, left-aligned set; 3rd: x37 w0→24 @30%</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Implementation notes</h3>
+  <p>Strap, seal and entries are plain CSS: <code>transform</code> on strap and seal, geometry-property transitions (<code>x</code>, <code>width</code>) on the entry rects — no library needed; the CSS in this page's source is the canonical reference. The dog-ear is a path morph between <code>M14 14 H74 L74 14 V74 H14 Z</code> and <code>M14 14 H62 L74 26 V74 H14 Z</code> (with the fold triangle fading in). The path sits 2 units inside the book bounds and carries a same-colour 4-unit stroke with round joins, so its effective outline is exactly the 12–76 book with r5 corners. This page drives the morph with ~20 lines of JS. <b>For production, rebuild the whole sequence as one Rive or Lottie asset</b> so mobile and web share a single file, and keep this page as the acceptance reference.</p>
+
+  <pre>/* Spec constants — hand these to engineering */
+--m: 1;                       /* 0.6 unlock · 1 splash */
+strap/seal:  400ms cubic-bezier(.45,0,.25,1)  delay 0     (close: delay 260ms)
+fold:        300ms ease-in-out-cubic          delay 240ms (close: 120ms)
+entries:     340ms cubic-bezier(.35,0,.2,1)   delay 260ms (close: 0)
+3rd entry:   340ms + 160ms fade               delay 520ms (close: 0)
+open:  strap translateX(-4) scaleX(.643) → opacity .62
+       seal  translateX(-4) scale(.6)
+       entries x 54→37, width 16→33 · r3 width 0→24 @ .3
+reduced-motion: jump cut</pre>
+</section>
+
+</div>
+
+<footer><div class="wrap">
+  <p><b>Rukka Folio</b> — Mark animation guidelines · companion to Brand Guidelines v1.2 §4.2</p>
+  <p style="margin-top:.35rem">This file is self-contained and is the reference implementation. View source to copy the CSS and morph logic.</p>
+</div></footer>
+
+<script>
+(function(){
+  var svgs=[].slice.call(document.querySelectorAll('.rk'));
+  var parts=svgs.map(function(s){return{body:s.querySelector('.body'),tri:s.querySelector('.tri')}});
+  var btn=document.getElementById('toggle'),st=document.getElementById('state');
+  var loopBtn=document.getElementById('loop');
+  var open=false,timer=null,raf=null,cur=0,m=1;
+  var reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function ease(t){return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2}
+  function setFold(t){cur=t;var a=74-12*t,b=14+12*t;
+    parts.forEach(function(p){
+      p.body.setAttribute('d','M14 14 H'+a+' L74 '+b+' V74 H14 Z');
+      p.tri.setAttribute('d','M'+a+' 14 L'+a+' '+b+' L74 '+b+' Z');
+      p.tri.style.opacity=Math.min(1,t*1.2);});}
+  function foldTo(target,delay,dur){
+    if(raf)cancelAnimationFrame(raf);
+    if(reduced){setFold(target);return}
+    var from=cur,start=null;
+    function step(now){
+      if(start===null)start=now+delay;
+      if(now<start){raf=requestAnimationFrame(step);return}
+      var t=Math.min(1,(now-start)/dur);
+      setFold(from+(target-from)*ease(t));
+      if(t<1)raf=requestAnimationFrame(step);else raf=null;}
+    raf=requestAnimationFrame(step);}
+  function set(v){open=v;
+    svgs.forEach(function(s){s.classList.toggle('open',open)});
+    st.textContent=open?'Open':'Sealed';
+    btn.textContent=open?'Seal':'Break seal';
+    foldTo(open?1:0,m*(open?240:120),m*300);}
+  function stopLoop(){if(timer){clearInterval(timer);timer=null;loopBtn.classList.remove('on');loopBtn.textContent='Loop'}}
+  btn.addEventListener('click',function(){stopLoop();set(!open)});
+  document.querySelectorAll('.item').forEach(function(it){it.addEventListener('click',function(){stopLoop();set(!open)})});
+  loopBtn.addEventListener('click',function(){
+    if(timer){stopLoop();return}
+    loopBtn.classList.add('on');loopBtn.textContent='Stop';
+    set(!open);timer=setInterval(function(){set(!open)},2100);});
+  document.querySelectorAll('[data-m]').forEach(function(b){
+    b.addEventListener('click',function(){
+      document.querySelectorAll('[data-m]').forEach(function(x){x.classList.remove('on')});
+      b.classList.add('on');m=parseFloat(b.dataset.m);
+      document.documentElement.style.setProperty('--m',m);});});
+  setFold(0);
+  setTimeout(function(){set(true);setTimeout(function(){set(false)},1600)},700);
+})();
+</script>
+</body>
+</html>

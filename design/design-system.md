@@ -1,6 +1,6 @@
 # Design System — Rukka Folio
 
-**Status:** Phase 0 deliverable, v0.1. Source of truth for values: `design/tokens/tokens.json` (this doc explains; the JSON decides). `tokens.css` (Phase A mockups) and `tokens.dart` (M5 app) are generated views — hand-synced until `scripts/gen_tokens` lands in M0, after which CI fails on drift. Brand authority: `docs/11-brand-guidelines.md` v1.3 §4; screen behavior: `docs/07-ui-flows.md`.
+**Status:** Phase 0 deliverable, v0.1. Source of truth for values: `design/tokens/tokens.json` (this doc explains; the JSON decides). `tokens.css` (Phase A mockups) and `tokens.dart` (M5 app) are generated views — hand-synced until `scripts/gen_tokens` lands in M0, after which CI fails on drift. Brand authority: `docs/11-brand-guidelines.md` v1.4 §4 (mark geometry of record: `docs/brand/icons/master/*.svg`); screen behavior: `docs/07-ui-flows.md`.
 
 ---
 
@@ -86,6 +86,9 @@ The ਨਾਮੇ | ਜਮ੍ਹਾਂ | ਬਾਕੀ statement (01 §1.9) is the
 - [x] tokens.json / tokens.css / tokens.dart (this drop)
 - [ ] ⚠️ Owner sign-off: `pending` + `locked` values (§2)
 - [ ] ⚠️ Commission lockups **together**: Latin + ਪੰਜਾਬੀ (Gurmukhi) + हिन्दी (Devanagari) — brand §4.2's rule applied to Phase-1 languages; Tamil when its language ships
-- [ ] ⚠️ Mark animation as one Rive/Lottie asset from the geometry in 11 §4.2
+- [ ] ⚠️ Mark animation as one Rive/Lottie asset from the geometry in 11 §4.2 — acceptance reference `docs/brand/rukka-folio-mark-animation.html`; source geometry `docs/brand/icons/master/mark-sealed.svg` / `mark-open.svg` (v1.2, strap y14–74)
+- [x] Icon package v1.2.3 delivered (`docs/brand/icons/`) — wire into `/app` (iOS appiconset, Android res, web) when the scaffold lands
+- [x] Canvas 3 lock/system screens (S15, S15.1, S19.1, S19.2) carry the real sealed mark, theme-aware (light: indigo book; dark: paper-book inverse) — placeholder line-art removed 3 Sep 2026
+- [ ] ⚠️ Owner: loader/waiting pattern and splash treatment (pending ruling; see docs/brand/README.md)
 - [ ] M0: `scripts/gen_tokens` (json → css/dart) + CI drift check
 - [ ] Font licensing/bundling check: Mukta & Mukta Mahee (OFL) subset sizes for the APK budget (07: <25 MB)

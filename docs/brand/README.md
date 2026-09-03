@@ -1,7 +1,15 @@
 # Brand assets — precedence notes
 
-- `../11-brand-guidelines.md` — **owner’s Brand Guidelines v1.3 (v1.1 + owner-directed scope + terminology corrections), authoritative for all brand matters** (name usage, logo, tokens, type, voice, marketing surfaces). `rukka-folio-visual-guidelines.html` is its rendered visual companion (contains the logo SVG geometry).
+- `../11-brand-guidelines.md` — **owner's Brand Guidelines v1.4, authoritative for all brand matters** (name usage, logo, tokens, type, voice, marketing surfaces). v1.4 = v1.3 text + the v1.2 mark geometry below (ADR 2026-09-03c).
+- **The mark (owner-ruled 3 Sep 2026 — the v1.2 asset drop is canonical):**
+  - `icons/master/*.svg` — geometry of record (88-unit viewBox; strap inset y14–74). Edit these and re-render; never hand-edit PNGs or redraw the mark on a screen.
+  - `rukka-folio-mark-animation.html` — reference implementation and acceptance test for the sealed→open animation (11 §4.2 timings). Production asset is still to be built in Rive/Lottie (design-system §6).
+  - `icons/` — shipped icon package v1.2.3 (iOS appiconset, Android adaptive + themed + legacy, web favicons/PWA). See `icons/README.md`. Wire into `/app` when the Flutter scaffold lands.
+  - `rukka-folio-icons-preview.png` — contact sheet of the package.
+- `rukka-folio-visual-guidelines.html` — rendered visual companion to 11 (v1.2). Where its specimens and 11 disagree, 11 wins. Known erratum fixed 3 Sep 2026: its amount rows and numerals specimen were set in IBM Plex Mono; corrected to Mukta + `tabular-nums` per 11 §4.4 (one family across scripts; monospace is reserved for OTP/PIN boxes, codes and raw bank text).
+- `rukka-folio-brand-guidelines.md` — the designer's v1.2 text drop, kept for provenance. **Superseded by 11** on every text matter (its §1 still carries pre-scope-discipline copy that v1.2/v1.3 of 11 removed). Do not implement from it.
 - **Precedence where surfaces meet:** in-product *terminology* follows `docs/01-glossary.md` (trilingual, ਨਾਮੇ/ਜਮ੍ਹਾਂ, verb names — settled with the owner); marketing/site/deck copy follows 11 §5. Brand §5's "financial terms stay in English" applies to marketing and search-facing text, not to the in-app term table.
-- **Phasing:** brand v1.1 is written for the nine-language ambition; Phase 1 ships EN/ਪੰਜਾਬੀ/हिन्दी (01 §1.1). Container sizing follows the brand rule anyway (+30–40% for the longest scripts) so later languages need no redesign.
+- **Phasing:** brand text is written for the nine-language ambition; Phase 1 ships EN/ਪੰਜਾਬੀ/हिन्दी (01 §1.1). Container sizing follows the brand rule anyway (+30–40% for the longest scripts) so later languages need no redesign.
 - **"Rokad"** is a reserved in-product feature name (brand §2) for the simple cash-book view; never used in marketing.
-- Small gap flagged to the owner: the brand palette defines credit/debit but no **pending/amber** token (our approval states need one) and no token for the **locked/greyed** state — to be added to the token set in the design round.
+- Small gap flagged to the owner: the brand palette defines credit/debit but no **pending/amber** token (our approval states need one) and no token for the **locked/greyed** state — proposed values live in `design/tokens/tokens.json`, awaiting sign-off (design-system §2).
+- **Open (owner to decide):** loader/waiting pattern and the splash screen treatment — not covered by the brand drop; nothing in the repo should be built for them until ruled.

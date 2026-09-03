@@ -1,9 +1,4 @@
-# Rukka Folio — Brand Guidelines v1.4
-
-> v1.4 — §4.2 mark geometry aligned to the designer's v1.2 asset drop (owner-ruled 3 Sep 2026): the strap is inset 2 units top and bottom (y14–74) so a hairline of book keeps the silhouette closed on paper and light grounds. Canonical assets: `docs/brand/icons/master/*.svg` (geometry), `docs/brand/rukka-folio-mark-animation.html` (animation reference implementation), `docs/brand/icons/` (store/web icon package v1.2.3). ADR 2026-09-03c.
-
-> v1.3 — "books" defined on first use (books of account / bahi-khata, = the product's Book/ਵਹੀ object) with a marketing term map in §5; idiom rule now applies to our own flagship noun.
-> v1.2 — §1 positioning corrected to the finalized product scope (owner-directed): launch languages stated as EN/ਪੰਜਾਬੀ/हिन्दी, no compliance-outcome claims, "ledger app" wording, scope-discipline rule added; §5 segment-register example aligned. All other v1.1 text untouched.
+# Rukka Folio — Brand Guidelines v1.2
 
 > The working document for the logo, website, pitch deck, mobile app and web app. Everything here is a decision, not a suggestion. Where something is deliberately flexible, it says so.
 
@@ -12,8 +7,6 @@
 ## 1. Positioning
 
 **A ledger everyone in the household, shop, or trust can actually read.**
-
-**"Books," defined once:** everywhere in this document and in all copy, *books* means the **books of account** — the bahi-khata (ਵਹੀ / बही-खाता) — the same object the product itself calls a **Book** (glossary, doc 01). Campaign lines like "One book the whole family can open" are therefore literal product statements, not metaphors. In translation, *books* is always ਵਹੀ-ਖਾਤੇ / ਵਹੀ or बही-खाते / बही-खाता — **never** the literal ਕਿਤਾਬਾਂ / किताबें. In-product wording always follows doc 01.
 
 Indian accounting software splits into two camps. On one side, cash-book apps that are easy but can't do real accounting. On the other, Tally-descended software that is correct but assumes you're a trained accountant.
 
@@ -26,21 +19,17 @@ Rukka Folio sits between them: real double-entry underneath, a surface a joint f
 
 That second point has a shape worth naming precisely, because it's easy to get backwards in copy. We are not a privacy product, and we are not a transparency product. **We are transparent in one direction and sealed in the other.** A joint family's second brother can see the common pool. The vendor — us — cannot. Every piece of trust messaging should preserve that asymmetry.
 
-### Scope discipline (v1.2)
-
-Rukka Folio records what a family, shop or trust actually has — banks, cash, udhaar, advances — and produces books that hold up when someone asks. It does **not** file GST, compute tax, issue invoices, or protect any registration. Those live in Tally and the CA's office; we export cleanly to them (Tally XML, XLSX, PDF) and never compete there. **Positioning, campaigns and sales copy must never promise or imply a compliance outcome.** The promise is always the same shape: when the question comes — from a brother, a partner, a committee, or your accountant — you can answer it in one screen.
-
 ### Positioning statement
 
-> For families, small businesses and non-profits in India who need books of account that hold up when someone asks, Rukka Folio is a ledger app that keeps proper double-entry records in the family's own languages — English, ਪੰਜਾਬੀ and हिन्दी at launch — encrypted so that only the people sharing the money can read them. The person keeping the books and the person checking them see the same page, and nobody else sees any of it.
+> For families, small businesses and non-profits in India who need books that hold up to scrutiny, Rukka Folio is an accounting app that keeps proper double-entry records in nine languages, encrypted so that only the people sharing the money can read them — so the person keeping the books and the person checking them see the same page, and nobody else sees any of it.
 
 ### Segments
 
 | Segment | Who | Emotional job | What they fear |
 |---|---|---|---|
 | Family | Individual and joint households | "We know where the money goes" | Awkwardness about money between relatives |
-| Business | Kirana, traders, small services, SMEs | "My books are ready when asked" | A question about the money — from a partner, a bank, or their CA — they can't answer |
-| Non-profit | Trusts, societies, Section 8 | "We can prove every rupee" | A donor's or committee's question their records can't answer |
+| Business | Kirana, traders, small services, SMEs | "My books are ready when asked" | GST notice, an audit they can't answer |
+| Non-profit | Trusts, societies, Section 8 | "We can prove every rupee" | Losing 12A/80G registration |
 
 One brand serves all three. **Content differs; colour, type, voice and layout never do.**
 
@@ -132,7 +121,7 @@ It appears as:
 
 The mark is a **sealed ledger**: a bound book with its strap fastened by a wax seal, entries visible beside it. It has two states, and the states mean something.
 
-**Sealed** — the brand mark. Used everywhere: app icon, favicon, lockups, marketing, print. A clean rounded square (the book), a binding strap left of centre running almost the full height of the book (a hairline of book shows above and below it), a red seal riding the strap's left edge, and two short entries in the right field. No fold. This is the resting state because it is the promise: *nobody has opened this.*
+**Sealed** — the brand mark. Used everywhere: app icon, favicon, lockups, marketing, print. A clean rounded square (the book), a full-height binding strap left of centre, a red seal riding the strap's left edge, and two short entries in the right field. No fold. This is the resting state because it is the promise: *nobody has opened this.*
 
 **Open** — the in-product state only. The strap and seal contract and tuck left (still inside the book, still visible — sealed is always one gesture away), a dog-eared corner folds in at top right (the page in use), and the entries extend leftward into the cleared space, a third one writing itself in. Appears only after a successful unlock: splash end-state, post-auth transition, the "books open" indicator. **Never decorative** — if the open state plays without an actual unlock, it stops meaning anything.
 
@@ -146,9 +135,7 @@ The mark is a **sealed ledger**: a bound book with its strap fastened by a wax s
 | Entries | Two, left-aligned x54 w16 (right edge 70); y33, y46.5; h4.5 r2.25; second @55% | Extend to x37 w33, left-aligned as a set; third writes in x37 w0→24 @30% |
 | Margins | **6 units** from book edge — seal's left extent and entries' right extent; strap inset 2 units vertically so a hairline of book keeps the silhouette closed on paper backgrounds | Same 6 on both sides |
 
-One geometry at every size. Below 24px, sub-pixel entry strokes may be optically thickened at asset-cutting time — a production decision, not a redesign. The Android 13+ themed (monochrome) icon is the one sanctioned size adaptation: seal squeezed to r7 with an r10 clearance ring, applied at raster level by the icon generator, never to the colour marks (icon package v1.2.3).
-
-**Canonical files.** The master SVGs in `docs/brand/icons/master/` (`mark-sealed.svg`, `mark-sealed-inverse.svg`, `mark-open.svg`, and the icon bases) are the geometry of record; `docs/brand/rukka-folio-mark-animation.html` is the acceptance reference for the animation; `docs/brand/icons/{ios,android,web}` is the shipped icon package. Edit the masters and re-render — never hand-edit PNGs or redraw the mark on a screen.
+One geometry at every size. Below 24px, sub-pixel entry strokes may be optically thickened at asset-cutting time — a production decision, not a redesign.
 
 #### Animation (multiplier m = 1 ≈ 860ms total)
 
@@ -159,7 +146,7 @@ One geometry at every size. Below 24px, sub-pixel entry strokes may be optically
 | Entries sweep left (x 54→37, w 16→33) | 260ms | 340ms | cubic-bezier(.35,0,.2,1) |
 | Third entry writes in, left to right | 520ms | 340ms + 160ms fade | same |
 
-Sealing is the exact reverse: entries retract, corner flattens, strap and seal return to full size last. Use m = 0.6 (~520ms) for the biometric-unlock moment; m = 1 for the splash. Respect `prefers-reduced-motion` with a jump cut. Strap, seal and entries are plain CSS transforms/geometry transitions; the fold is a path morph between `M14 14 H74 L74 14 V74 H14 Z` and `M14 14 H62 L74 26 V74 H14 Z` (the path sits 2 units inside the book with a same-colour 4-unit round-joined stroke, so its outline is exactly the 12–76 book) — build the production version in Rive or Lottie as one asset, with `docs/brand/rukka-folio-mark-animation.html` as the acceptance reference. Closing delays: strap/seal 260ms, fold 120ms, entries 0.
+Sealing is the exact reverse: entries retract, corner flattens, strap and seal return to full size last. Use m = 0.6 (~520ms) for the biometric-unlock moment; m = 1 for the splash. Respect `prefers-reduced-motion` with a jump cut. Strap, seal and entries are plain CSS transforms/geometry transitions; the fold is a path morph — build the production version in Rive or Lottie as one asset.
 
 #### Usage
 
@@ -238,7 +225,7 @@ Short sentences. Verbs first. Sentence case everywhere.
 
 **No apology theatre.** People auditing a society don't want to be soothed, they want to know what's wrong and where.
 
-**Segment register.** Same voice, different content. Trust onboarding talks about corpus funds and committee questions; family onboarding talks about splitting a grocery bill. Neither is written down to.
+**Segment register.** Same voice, different content. Trust onboarding talks about 12A compliance and corpus funds; family onboarding talks about splitting a grocery bill. Neither is written down to.
 
 ### Localisation
 
@@ -246,8 +233,7 @@ Short sentences. Verbs first. Sentence case everywhere.
 - **Assume Tamil and Malayalam run 30–40% longer than English.** Design containers to that, not to English.
 - Never concatenate strings to build a sentence — word order differs across your nine languages.
 - Numerals stay Latin (0–9) in all locales unless the user opts into Devanagari numerals.
-- Financial terms (GST, TDS, ledger, journal) stay in English across all locales **in marketing and search-facing copy**; in-product terminology follows doc 01.
-- Marketing term map for the flagship nouns: *books* → ਵਹੀ-ਖਾਤੇ / बही-खाते; *book* (the product object) → ਵਹੀ / बही; *ledger* → ਖਾਤਾ-ਵਹੀ / खाता-बही; *accounts* → ਖਾਤੇ / खाते. Never ਕਿਤਾਬ/किताब for books of account.
+- Financial terms (GST, TDS, ledger, journal) stay in English across all locales. Users search for them in English and their CA uses them in English.
 
 ---
 

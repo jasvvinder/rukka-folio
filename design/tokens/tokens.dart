@@ -1,4 +1,4 @@
-// Rukka Folio tokens — generated view of design/tokens/tokens.json (v0.1.0).
+// Rukka Folio tokens — generated view of design/tokens/tokens.json (v0.1.0; brand 11 v1.4).
 // Hand-synced until scripts/gen_tokens exists (M0). Lives in app/ (UI layer);
 // never imported by core packages. Do not add values not present in tokens.json.
 

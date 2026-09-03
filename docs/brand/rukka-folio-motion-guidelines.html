@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rukka Folio — Loading & Splash Guidelines</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mukta:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --indigo:#2B3A67;--indigo-deep:#1B2544;--bahi:#C1502E;
+  --paper:#F5F0E4;--paper-dim:#EBE4D4;--ink:#1A1A18;--ink-soft:#5C5A54;--ink-faint:#8E8B82;
+  --rule:rgba(26,26,24,.14);--rule-faint:rgba(26,26,24,.07);
+  --credit:#2F7A55;--debit:#A83232;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--paper);color:var(--ink);font-family:'Mukta',system-ui,sans-serif;line-height:1.65;-webkit-font-smoothing:antialiased}
+.wrap{max-width:960px;margin:0 auto;padding:0 clamp(1.25rem,4vw,3rem)}
+header{background:var(--indigo);color:var(--paper);padding:clamp(2.5rem,7vw,4.5rem) 0 clamp(2rem,5vw,3rem)}
+h1{font-size:clamp(1.7rem,4.5vw,2.6rem);font-weight:600;letter-spacing:-.02em;line-height:1.15}
+.sub{color:rgba(245,240,228,.65);margin-top:.5rem;max-width:58ch}
+.meta{margin-top:2rem;padding-top:1rem;border-top:1px solid rgba(245,240,228,.18);display:flex;gap:2.5rem;flex-wrap:wrap;font-family:'IBM Plex Mono',monospace;font-size:.7rem;letter-spacing:.09em;text-transform:uppercase;color:rgba(245,240,228,.5)}
+section{padding:clamp(2.25rem,6vw,4rem) 0;border-bottom:1px solid var(--rule)}
+section:last-of-type{border-bottom:none}
+.head{display:flex;align-items:baseline;gap:1rem;margin-bottom:.5rem}
+.fol{font-family:'IBM Plex Mono',monospace;font-size:.72rem;font-weight:500;color:var(--bahi);letter-spacing:.12em}
+h2{font-size:clamp(1.3rem,3vw,1.8rem);font-weight:600;letter-spacing:-.015em}
+.lede{color:var(--ink-soft);max-width:64ch;margin-bottom:1.75rem;font-size:1.02rem}
+h3{font-size:.72rem;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-faint);margin:1.75rem 0 .8rem;padding-bottom:.4rem;border-bottom:1px solid var(--rule-faint)}
+p+p{margin-top:.8rem}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th{text-align:left;font-size:.66rem;letter-spacing:.11em;text-transform:uppercase;color:var(--ink-faint);font-weight:600;padding:.45rem .75rem .45rem 0;border-bottom:1px solid var(--rule)}
+td{padding:.6rem .75rem .6rem 0;border-bottom:1px solid var(--rule-faint);vertical-align:top}
+tr:last-child td{border-bottom:none}
+code,pre{font-family:'IBM Plex Mono',monospace}
+code{font-size:.85em;background:var(--paper-dim);padding:.05em .35em;border-radius:3px}
+pre{background:var(--indigo-deep);color:#D9D3C2;font-size:.78rem;line-height:1.6;padding:1.1rem 1.25rem;border-radius:4px;overflow-x:auto;border-left:3px solid var(--bahi)}
+.dd{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:0;border:1px solid var(--rule-faint);border-radius:3px;overflow:hidden;margin-top:1.25rem}
+.dd>div{padding:1.1rem 1.3rem;background:#fff}
+.dd>div:first-child{border-right:1px solid var(--rule-faint)}
+.dd h4{font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;margin-bottom:.8rem;font-weight:600}
+.dd .y{color:var(--credit)}.dd .n{color:var(--debit)}
+.dd li{list-style:none;padding:.38rem 0;border-bottom:1px solid var(--rule-faint);font-size:.9rem;line-height:1.5}
+.dd li:last-child{border-bottom:none}
+@media(max-width:560px){.dd>div:first-child{border-right:none;border-bottom:1px solid var(--rule-faint)}}
+
+/* ---------- demo cards ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:1.75rem}
+.card{background:#fff;border:1px solid var(--rule-faint);border-radius:6px;padding:1.4rem}
+.lbl{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint);margin-bottom:1.1rem;font-family:'IBM Plex Mono',monospace}
+.track{height:2px;background:var(--rule);position:relative;overflow:hidden;border-radius:1px}
+.seg{position:absolute;top:0;left:0;height:100%;width:30%;background:var(--ink);animation:sweep 1200ms cubic-bezier(.35,0,.2,1) infinite}
+@keyframes sweep{from{transform:translateX(-100%)}to{transform:translateX(333%)}}
+.fill{position:absolute;top:0;left:0;height:100%;background:var(--ink);width:0%}
+.txt{font-size:13px;color:var(--ink-soft);margin-top:.7rem;font-variant-numeric:tabular-nums}
+.esc{font-size:12px;color:var(--ink-faint);margin-top:.35rem;opacity:0;transition:opacity .4s}
+.note{font-size:11px;color:var(--ink-faint);margin-top:14px;line-height:1.55}
+.sk-row{display:flex;justify-content:space-between;align-items:center;padding:11px 0;border-bottom:1px solid var(--rule)}
+.sk-a{height:10px;border-radius:3px;background:rgba(26,26,24,.09)}
+.sk-b{height:10px;border-radius:3px;background:rgba(26,26,24,.13)}
+@media (prefers-reduced-motion:reduce){.seg{animation:none;width:100%;opacity:.25}}
+
+/* ---------- splash simulator ---------- */
+.sp-wrap{display:flex;flex-direction:column;align-items:center;gap:14px}
+.sp-phone{width:280px;height:540px;background:var(--paper);border:1px solid var(--rule);border-radius:28px;position:relative;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.12)}
+.sp-phase{position:absolute;top:12px;left:0;right:0;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.14em;color:var(--ink-faint);text-transform:uppercase}
+.sp-scene{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.sp-brand{font-size:17px;font-weight:600;letter-spacing:-.01em;color:var(--ink);margin-top:16px}
+.sp-brand em{font-style:normal;font-weight:300;opacity:.55}
+.sp-sub{font-size:12px;color:var(--ink-faint);margin-top:3px}
+.sp-lockui{position:absolute;left:0;right:0;bottom:56px;display:flex;flex-direction:column;align-items:center;gap:14px;opacity:0;transition:opacity .4s ease}
+.sp-dots{display:flex;gap:10px}
+.sp-dot{width:10px;height:10px;border-radius:50%;border:1.5px solid var(--ink-soft)}
+.sp-dot.f{background:var(--ink);border-color:var(--ink)}
+.sp-btn{font-family:inherit;font-size:13px;padding:9px 22px;border-radius:99px;border:none;background:var(--indigo);color:var(--paper);cursor:pointer}
+.sp-loader{position:absolute;left:50%;transform:translateX(-50%);bottom:120px;width:160px;opacity:0;transition:opacity .4s ease;text-align:center}
+.sp-ltxt{font-size:12px;color:var(--ink-soft);margin-top:8px}
+.sp-home{position:absolute;inset:0;background:var(--paper);padding:52px 20px 20px;opacity:0;pointer-events:none;transition:opacity .45s ease}
+.sp-h1{font-size:17px;font-weight:600;color:var(--ink);padding-bottom:9px;border-bottom:1px solid rgba(26,26,24,.2)}
+.sp-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid rgba(26,26,24,.09);font-size:13px;color:var(--ink)}
+.sp-amt{font-family:'IBM Plex Mono',monospace;font-variant-numeric:tabular-nums;font-size:12.5px}
+.ctl{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.cbtn{font-family:inherit;font-size:13px;padding:8px 16px;border-radius:99px;border:1px solid var(--rule);background:#fff;color:var(--ink);cursor:pointer}
+.cbtn:hover{background:var(--paper-dim)}
+/* mark animation — canonical spec */
+.mk .strap{transform-box:fill-box;transform-origin:left center;transition:transform calc(var(--mm,1)*400ms) cubic-bezier(.45,0,.25,1) calc(var(--mm,1)*260ms),opacity calc(var(--mm,1)*400ms) ease calc(var(--mm,1)*260ms)}
+.mk.open .strap{transform:translateX(-4px) scaleX(.643);opacity:.62;transition-delay:0ms}
+.mk .seal{transform-box:fill-box;transform-origin:center;transition:transform calc(var(--mm,1)*400ms) cubic-bezier(.45,0,.25,1) calc(var(--mm,1)*260ms)}
+.mk.open .seal{transform:translateX(-4px) scale(.6);transition-delay:0ms}
+.mk .rl{transition:x calc(var(--mm,1)*340ms) cubic-bezier(.35,0,.2,1),width calc(var(--mm,1)*340ms) cubic-bezier(.35,0,.2,1)}
+.mk.open .rl{x:37px;width:33px;transition-delay:calc(var(--mm,1)*260ms)}
+.mk .r3{width:.5px;opacity:0;transition:width calc(var(--mm,1)*340ms) cubic-bezier(.35,0,.2,1),opacity calc(var(--mm,1)*160ms) ease}
+.mk.open .r3{width:24px;opacity:.3;transition-delay:calc(var(--mm,1)*520ms)}
+@media (prefers-reduced-motion:reduce){.mk *{transition-duration:1ms !important;transition-delay:0ms !important}}
+
+/* ---------- dark mode (demo surfaces + inverse mark) ---------- */
+.mode{position:fixed;right:16px;bottom:16px;z-index:50;font-family:inherit;font-size:13px;padding:9px 18px;border-radius:99px;border:1px solid var(--rule);background:#fff;color:var(--ink);cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+body.dark .mode{background:#22221F;color:#F5F0E4;border-color:rgba(245,240,228,.25)}
+body.dark .card,body.dark .sp-phone{--credit:#4FA37A;--debit:#C96A6A}
+body.dark .card{background:#22221F;border-color:rgba(245,240,228,.08);color:#F5F0E4}
+body.dark .lbl{color:rgba(245,240,228,.45)}
+body.dark .track{background:rgba(245,240,228,.16)}
+body.dark .seg,body.dark .fill{background:#F5F0E4}
+body.dark .txt{color:rgba(245,240,228,.75)}
+body.dark .esc,body.dark .note{color:rgba(245,240,228,.45)}
+body.dark .sk-row{border-color:rgba(245,240,228,.14)}
+body.dark .sk-a{background:rgba(245,240,228,.09)}
+body.dark .sk-b{background:rgba(245,240,228,.14)}
+body.dark .sp-phone{background:#1A1A18;border-color:rgba(245,240,228,.15)}
+body.dark .sp-phase{color:rgba(245,240,228,.4)}
+body.dark .sp-brand{color:#F5F0E4}
+body.dark .sp-sub,body.dark .sp-ltxt{color:rgba(245,240,228,.55)}
+body.dark .sp-dot{border-color:rgba(245,240,228,.5)}
+body.dark .sp-dot.f{background:#F5F0E4;border-color:#F5F0E4}
+body.dark .sp-home{background:#1A1A18}
+body.dark .sp-h1{color:#F5F0E4;border-bottom-color:rgba(245,240,228,.25)}
+body.dark .sp-row{color:#F5F0E4;border-bottom-color:rgba(245,240,228,.09)}
+body.dark .mk .body{fill:#F5F0E4;stroke:#F5F0E4}
+body.dark .mk .tri{fill:#C7BFA9;stroke:#C7BFA9}
+body.dark .mk .rl,body.dark .mk .r3{fill:#2B3A67}
+body.dark .mk .strap{fill:#2B3A67;opacity:.88}
+body.dark .mk.open .strap{opacity:.55}
+
+footer{background:var(--indigo-deep);color:rgba(245,240,228,.6);padding:2.25rem 0;font-size:.85rem}
+footer b{color:var(--paper);font-weight:500}
+@media print{header,footer,pre{-webkit-print-color-adjust:exact;print-color-adjust:exact}section{page-break-inside:avoid}}
+</style>
+</head>
+<body>
+<button class="mode" id="modeBtn" aria-pressed="false">Dark mode</button>
+
+<header><div class="wrap">
+  <h1>Loading &amp; splash</h1>
+  <p class="sub">How Rukka Folio waits. Loaders, skeleton rows and the splash screen — every spec on this page runs live below it. Companion to Brand Guidelines v1.2 and the Mark Animation Guidelines.</p>
+  <div class="meta"><span>Motion in product</span><span>Guidelines v1.2 · §motion</span><span>Self-contained</span></div>
+</div></header>
+
+<div class="wrap">
+
+<section>
+  <div class="head"><span class="fol">01</span><h2>Principles</h2></div>
+  <p class="lede">Three brand rules corner the design, and the corner is the right place to be.</p>
+  <p><b>The mark never loads.</b> The seal-break animation is earned by a real unlock and is never decorative — so the logo cannot be the spinner, and there is no spinner. <b>Every decorative element is a rule, a column, or a fold</b> — so the loader is a rule: a 2px hairline in the rule colour carrying an ink segment. <b>State the number</b> — so whenever progress is known, the loader says what it counted, not a percentage.</p>
+  <p>A ledger loads the way a ledger fills: line by line. Everything below follows from that.</p>
+  <p>Every demo on this page has a dark counterpart — use the <b>Dark mode</b> toggle at the bottom right. Dark mode is required, not optional: most users open this app at night after closing shop.</p>
+</section>
+
+<section>
+  <div class="head"><span class="fol">02</span><h2>The loader rule</h2></div>
+  <p class="lede">One component, two modes. Ink segment on a hairline track — ink, not indigo, because indigo means <em>actionable</em> and a loader is not an affordance.</p>
+
+  <div class="grid">
+    <div class="card">
+      <div class="lbl">Indeterminate · sweep</div>
+      <div class="track"><div class="seg"></div></div>
+      <div class="txt">Syncing…</div>
+      <div class="esc" id="esc">Still working — parsing your bank statement.</div>
+      <div class="note">30% segment · 1200ms loop · cubic-bezier(.35,0,.2,1) — the entries curve from the mark animation. Escalation line joins after 8s (4s in this demo).</div>
+    </div>
+    <div class="card">
+      <div class="lbl">Determinate · restore</div>
+      <div class="track"><div class="fill" id="fill"></div></div>
+      <div class="txt" id="count">0 of 3,890 entries restored</div>
+      <div class="note">Counts, not percentages — in this product the number is the content. Indian grouping applies at 5 digits and above.</div>
+    </div>
+    <div class="card">
+      <div class="lbl">Reduced motion</div>
+      <div class="track"><div style="position:absolute;inset:0;background:var(--ink);opacity:.25"></div></div>
+      <div class="txt">Restoring your books…</div>
+      <div class="note">Static hairline at 25% ink, plus text. The words do the work. Applies whenever <code>prefers-reduced-motion</code> is set.</div>
+    </div>
+  </div>
+
+  <h3>Motion tokens</h3>
+  <table>
+    <thead><tr><th>Token</th><th>Value</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>loader-track</code></td><td>2px · rule colour (ink 14%)</td><td>The hairline. Minimum height 2 on every platform.</td></tr>
+      <tr><td><code>loader-segment</code></td><td>ink · 30% of track</td><td>The moving/filling portion. Never indigo, never bahi.</td></tr>
+      <tr><td><code>loader-loop-sweep</code></td><td>1200ms · cubic-bezier(.35,0,.2,1)</td><td>Indeterminate loop, continuous, no pause between sweeps.</td></tr>
+      <tr><td><code>loader-appear-delay</code></td><td>200ms</td><td>Operations faster than this show nothing. Flicker is worse than nothing.</td></tr>
+      <tr><td><code>loader-escalate</code></td><td>8s</td><td>Past this, add one line saying what is actually happening.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Behaviour</h3>
+  <p><b>Determinate whenever the app can count</b> — restore, statement import, month close, export. Copy pattern: <i>“{done} of {total} {things} {verbed}”</i>. <b>Indeterminate</b> only when counting is genuinely impossible, and always with a verb (“Syncing…”, never bare). <b>Announce it:</b> the loader is a live region — “Restoring, 1,240 of 3,890” — an accessible loader is part of the legibility promise.</p>
+  <p><b>Flutter note:</b> this is a plain <code>LinearProgressIndicator</code> with <code>minHeight: 2</code> and token colours — no dependency. Web: a 2px div pair; the CSS in this page's source is the reference.</p>
+
+  <h3>Dark mode</h3>
+  <p>The loader inverts exactly, keeping its logic: track becomes paper at 16%, segment becomes solid paper — the segment is always the surface's <em>ink</em>, whichever mode. Skeleton blocks become paper at 9% and 14%. Credit and debit keep their hues with lifted lightness (<code>#4FA37A</code> / <code>#C96A6A</code>) so signed amounts stay legible on ink without turning neon. Toggle the page to see all three cards inverted.</p>
+</section>
+
+<section>
+  <div class="head"><span class="fol">03</span><h2>Skeleton rows</h2></div>
+  <p class="lede">Lists load as ruled skeletons: hairlines at the true row pitch, a muted label block left, a right-aligned amount block. No shimmer — a pulsing gradient is decoration, and it isn't a rule, a column, or a fold.</p>
+
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+    <div class="card">
+      <div class="lbl">Loading</div>
+      <div class="sk-row"><div class="sk-a" style="width:44%"></div><div class="sk-b" style="width:22%"></div></div>
+      <div class="sk-row"><div class="sk-a" style="width:58%"></div><div class="sk-b" style="width:18%"></div></div>
+      <div class="sk-row"><div class="sk-a" style="width:38%"></div><div class="sk-b" style="width:24%"></div></div>
+      <div class="sk-row" style="border-bottom:none"><div class="sk-a" style="width:50%"></div><div class="sk-b" style="width:20%"></div></div>
+    </div>
+    <div class="card">
+      <div class="lbl">Loaded — same pitch, no jump</div>
+      <div class="sk-row" style="font-size:13px"><span>Rent received</span><span class="sp-amt" style="color:var(--credit)">+18,000.00</span></div>
+      <div class="sk-row" style="font-size:13px"><span>Electricity — MSEB March</span><span class="sp-amt" style="color:var(--debit)">−2,340.00</span></div>
+      <div class="sk-row" style="font-size:13px"><span>Staff advance</span><span class="sp-amt" style="color:var(--debit)">−5,000.00</span></div>
+      <div class="sk-row" style="font-size:13px;border-bottom:none"><span>Counter sales</span><span class="sp-amt" style="color:var(--credit)">+9,410.00</span></div>
+    </div>
+  </div>
+
+  <h3>Rules</h3>
+  <p>Row pitch, hairline weight and block positions match the real ledger row exactly, so content swaps in with <b>zero layout shift</b>. Label blocks vary width (38–58%) so the skeleton doesn't strobe as a grid. Amount blocks are right-aligned and slightly darker — the debit/credit column is present even before the data is. Show at most one screenful of skeleton rows; beyond that, the loader rule with a count is more honest. Skeletons are static in all cases; they are already the reduced-motion variant.</p>
+</section>
+
+<section>
+  <div class="head"><span class="fol">04</span><h2>The splash screen</h2></div>
+  <p class="lede">Two phases and three branches. Phase 1 is the OS's static frame; Phase 2 is the app's first frame — drawn pixel-identical so the handoff is invisible. Then the session state decides everything.</p>
+
+  <div class="sp-wrap">
+    <div class="sp-phone">
+      <div class="sp-phase" id="phase">TAP A LAUNCH BELOW</div>
+      <div class="sp-scene">
+        <svg class="mk" id="mark" width="100" height="100" viewBox="0 0 88 88" role="img" aria-label="Rukka Folio mark">
+          <path class="body" d="M14 14 H74 L74 14 V74 H14 Z" fill="#2B3A67" stroke="#2B3A67" stroke-width="4" stroke-linejoin="round"/>
+          <path class="tri" d="M74 14 L74 14 L74 14 Z" fill="#1B2544" stroke="#1B2544" stroke-width="3" stroke-linejoin="round" style="opacity:0"/>
+          <rect class="rl" x="54" y="33" width="16" height="4.5" rx="2.25" fill="#F5F0E4"/>
+          <rect class="rl" x="54" y="46.5" width="16" height="4.5" rx="2.25" fill="#F5F0E4" opacity=".55"/>
+          <rect class="r3" x="37" y="60" height="4.5" rx="2.25" fill="#F5F0E4"/>
+          <rect class="strap" x="28" y="14" width="14" height="60" fill="#F5F0E4" opacity=".93"/>
+          <circle class="seal" cx="28" cy="56" r="10" fill="#C1502E"/>
+        </svg>
+        <div class="sp-brand">Rukka <em>Folio</em></div>
+        <div class="sp-sub" id="marksub"></div>
+      </div>
+      <div class="sp-loader" id="sloader">
+        <div class="track"><div class="seg"></div></div>
+        <div class="sp-ltxt">Opening your books.</div>
+      </div>
+      <div class="sp-lockui" id="lockui">
+        <div class="sp-dots"><div class="sp-dot" id="d1"></div><div class="sp-dot" id="d2"></div><div class="sp-dot" id="d3"></div><div class="sp-dot" id="d4"></div></div>
+        <button class="sp-btn" id="unlock">Unlock</button>
+      </div>
+      <div class="sp-home" id="home">
+        <div class="sp-h1">Cash book · March</div>
+        <div class="sp-row"><span>Opening balance</span><span class="sp-amt">₹42,180.00</span></div>
+        <div class="sp-row"><span>Rent received</span><span class="sp-amt" style="color:var(--credit)">+18,000.00</span></div>
+        <div class="sp-row"><span>Electricity</span><span class="sp-amt" style="color:var(--debit)">−2,340.00</span></div>
+        <div class="sp-row"><span>Staff advance</span><span class="sp-amt" style="color:var(--debit)">−5,000.00</span></div>
+        <div class="sp-row" style="border-bottom:none;font-weight:600"><span>Closing balance</span><span class="sp-amt">₹52,840.00</span></div>
+      </div>
+    </div>
+    <div class="ctl">
+      <button class="cbtn" data-launch="locked">Launch · locked</button>
+      <button class="cbtn" data-launch="unlocked">Launch · unlocked</button>
+      <button class="cbtn" data-launch="slow">Launch · slow start</button>
+    </div>
+    <p style="font-size:12px;color:var(--ink-faint);max-width:52ch;text-align:center">Slow-start threshold compressed from 3s to 1.8s and escalation from 8s to 4s in these demos; production uses the token values.</p>
+  </div>
+
+  <h3>Composition</h3>
+  <p>Sealed mark centred with the <b>stacked lockup — mark above “Rukka Folio”</b>, Folio at light weight, per §4.2 (splash and deck covers are the only sanctioned uses of the stacked lockup). Background is <b>paper, not indigo</b> — the app lives on paper, and the splash must not flash-cut. Dark mode inverts to ink background with the paper-book inverse mark (paper book, indigo strap and entries, bahi seal — the seal never changes colour); toggle the page to preview it live in the simulator. No tagline; splashes are quiet. Once inside the app, the wordmark disappears — the product speaks through the ledger, not the logo.</p>
+
+  <h3>Phase handoff</h3>
+  <table>
+    <thead><tr><th>Phase</th><th>Who draws it</th><th>Requirement</th></tr></thead>
+    <tbody>
+      <tr><td>1 · Launch frame</td><td>The OS — iOS storyboard / Android 12+ splash theme</td><td>Static sealed mark + lockup on paper. Android: set <code>windowSplashScreenBackground</code> to paper and supply the sealed mark as the splash icon — don't let it pull the launcher icon.</td></tr>
+      <tr><td>2 · First app frame</td><td>Your code</td><td><b>Pixel-identical</b> to phase 1 — same mark, size, position. The handoff must be a non-event.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Branches</h3>
+  <table>
+    <thead><tr><th>Session state</th><th>What plays</th><th>Timing</th></tr></thead>
+    <tbody>
+      <tr><td>Locked (auth gate ahead)</td><td><b>Nothing.</b> Mark stays sealed through splash and auth screen. Seal breaks only on successful unlock — never on the prompt.</td><td>m = 0.6 on success</td></tr>
+      <tr><td>Session already open</td><td>Sealed → open, once, then hold open into home.</td><td>m = 1 (~860ms)</td></tr>
+      <tr><td>Failed auth</td><td>Stays sealed; horizontal shake ±2 units, 3 cycles.</td><td>240ms</td></tr>
+      <tr><td>Slow cold start</td><td>Hold the sealed mark; past 3s, fade in the loader rule beneath with “Opening your books.” Loader leaves before the seal breaks.</td><td>threshold 3s</td></tr>
+    </tbody>
+  </table>
+  <p>For an end-to-end-encrypted product the locked branch is the common one — which means on most launches the splash animates <b>nothing</b>, and that is correct. If the splash played the seal breaking and a lock screen followed, the mark would be lying. Never add artificial delay to finish the animation for its own sake: if the app is ready, go — completing whichever beat is mid-flight, never cutting the seal-break halfway. Reduced motion: jump cuts throughout.</p>
+</section>
+
+<section>
+  <div class="head"><span class="fol">05</span><h2>Rules &amp; constants</h2></div>
+  <div class="dd">
+    <div>
+      <h4 class="y">Always</h4>
+      <ul>
+        <li>Loader is a rule: 2px hairline + ink segment</li>
+        <li>Counts over percentages when progress is known</li>
+        <li>Skeleton rows at true pitch — zero layout shift on swap</li>
+        <li>Loader waits 200ms before appearing</li>
+        <li>Phase 1 and 2 of splash are pixel-identical</li>
+        <li>Seal breaks only after a real unlock</li>
+        <li>Live-region announcements on every loader</li>
+      </ul>
+    </div>
+    <div>
+      <h4 class="n">Never</h4>
+      <ul>
+        <li>Spinners, anywhere</li>
+        <li>The mark as a loading animation</li>
+        <li>Shimmer or pulsing skeletons</li>
+        <li>Indigo or bahi in the loader — ink only</li>
+        <li>Artificial splash delay to “finish” the animation</li>
+        <li>Seal-break on the auth prompt (only on success)</li>
+        <li>Percentages where a count exists</li>
+      </ul>
+    </div>
+  </div>
+
+  <pre>/* Spec constants — hand these to engineering */
+loader-track:        2px · rgba(26,26,24,.14)
+loader-segment:      #1A1A18 · 30% of track
+loader-loop-sweep:   1200ms · cubic-bezier(.35,0,.2,1) · continuous
+loader-appear-delay: 200ms
+loader-escalate:     8s  → add one line of plain-language status
+determinate copy:    "{done} of {total} {things} {verbed}" · tabular-nums
+skeleton:            row pitch = real rows · label 38–58% @ ink 9% ·
+                     amount right-aligned @ ink 13% · static, no shimmer
+splash bg:           paper #F5F0E4 (dark: ink #1A1A18, inverse mark)
+splash lockup:       stacked — mark above "Rukka Folio", Folio wt 300
+splash branches:     locked = no animation · open session = m 1 once ·
+                     unlock success = m 0.6 · fail = shake ±2u ×3 ·
+                     slow-start threshold = 3s → loader rule + text
+dark mode:           bg ink #1A1A18 · text paper #F5F0E4 · inverse mark
+                     (paper book, indigo strap/entries, bahi seal unchanged)
+loader (dark):       track rgba(245,240,228,.16) · segment #F5F0E4
+skeleton (dark):     paper 9% / 14% blocks · hairlines paper 14%
+credit/debit (dark): #4FA37A / #C96A6A — hue kept, lightness lifted
+reduced motion:      static hairline + text · jump cuts · static skeletons</pre>
+</section>
+
+</div>
+
+<footer><div class="wrap">
+  <p><b>Rukka Folio</b> — Loading &amp; splash guidelines · companion to Brand Guidelines v1.2 and Mark Animation Guidelines</p>
+  <p style="margin-top:.35rem">Self-contained reference implementation — view source to copy the loader CSS, skeleton markup and splash state machine.</p>
+</div></footer>
+
+<script>
+(function(){
+  // determinate counter
+  var fill=document.getElementById('fill'),count=document.getElementById('count');
+  var total=3890, dur=3200;
+  function fmt(n){return n.toString().replace(/\B(?=(\d{3})+(?!\d))/g,',')}
+  function easeOut(t){return 1-Math.pow(1-t,3)}
+  function run(){var start=null;
+    function step(now){if(!start)start=now;
+      var t=Math.min(1,(now-start)/dur), e=easeOut(t), n=Math.round(total*e);
+      fill.style.width=(e*100)+'%';
+      count.textContent=fmt(n)+' of '+fmt(total)+' entries restored';
+      if(t<1)requestAnimationFrame(step);
+      else setTimeout(function(){fill.style.width='0%';setTimeout(run,300)},1400);}
+    requestAnimationFrame(step);}
+  run();
+  setTimeout(function(){document.getElementById('esc').style.opacity=1},4000);
+
+  // splash simulator
+  var mark=document.getElementById('mark'),phase=document.getElementById('phase'),
+      lockui=document.getElementById('lockui'),home=document.getElementById('home'),
+      loader=document.getElementById('sloader'),sub=document.getElementById('marksub');
+  var parts={body:mark.querySelector('.body'),tri:mark.querySelector('.tri')};
+  var timers=[],raf=null,cur=0;
+  var reduced=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function T(fn,ms){timers.push(setTimeout(fn,ms))}
+  function clearAll(){timers.forEach(clearTimeout);timers=[];if(raf)cancelAnimationFrame(raf)}
+  function ease(t){return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2}
+  function setFold(t){cur=t;var a=74-12*t,b=14+12*t;
+    parts.body.setAttribute('d','M14 14 H'+a+' L74 '+b+' V74 H14 Z');
+    parts.tri.setAttribute('d','M'+a+' 14 L'+a+' '+b+' L74 '+b+' Z');
+    parts.tri.style.opacity=Math.min(1,t*1.2);}
+  function foldTo(target,delay,dur){
+    if(raf)cancelAnimationFrame(raf);
+    if(reduced){setFold(target);return}
+    var from=cur,start=null;
+    function step(now){if(start===null)start=now+delay;
+      if(now<start){raf=requestAnimationFrame(step);return}
+      var t=Math.min(1,(now-start)/dur);
+      setFold(from+(target-from)*ease(t));
+      if(t<1)raf=requestAnimationFrame(step);else raf=null;}
+    raf=requestAnimationFrame(step);}
+  function openMark(m){mark.style.setProperty('--mm',m);mark.classList.add('open');foldTo(1,m*240,m*300)}
+  function resetAll(){clearAll();mark.classList.remove('open');setFold(0);
+    lockui.style.opacity=0;home.style.opacity=0;home.style.pointerEvents='none';
+    loader.style.opacity=0;sub.textContent='';
+    [1,2,3,4].forEach(function(i){document.getElementById('d'+i).classList.remove('f')});}
+  function showHome(after){T(function(){home.style.opacity=1;home.style.pointerEvents='auto';
+    phase.textContent='HOME · BOOKS OPEN'},after)}
+  function launch(kind){resetAll();
+    phase.textContent='PHASE 1 · OS FRAME (STATIC)';
+    T(function(){phase.textContent='PHASE 2 · APP FRAME (IDENTICAL)'},700);
+    if(kind==='locked'){
+      T(function(){phase.textContent='LOCKED · MARK STAYS SEALED';
+        sub.textContent='Your books are sealed';lockui.style.opacity=1},1100);
+    } else if(kind==='unlocked'){
+      T(function(){phase.textContent='SESSION OPEN · SEAL BREAKS ONCE (m = 1)';openMark(1)},1100);
+      showHome(2300);
+    } else if(kind==='slow'){
+      T(function(){phase.textContent='COLD START · HOLDING SEALED'},1100);
+      T(function(){loader.style.opacity=1;
+        phase.textContent='> THRESHOLD · LOADER RULE APPEARS'},1800);
+      T(function(){loader.style.opacity=0;
+        phase.textContent='READY · SEAL BREAKS (m = 1)';openMark(1)},4400);
+      showHome(5600);
+    }}
+  document.getElementById('unlock').addEventListener('click',function(){
+    [1,2,3,4].forEach(function(i){T(function(){document.getElementById('d'+i).classList.add('f')},i*90)});
+    T(function(){lockui.style.opacity=0;
+      phase.textContent='UNLOCK SUCCESS · SEAL BREAKS (m = 0.6)';openMark(0.6)},500);
+    showHome(1400);});
+  document.querySelectorAll('[data-launch]').forEach(function(b){
+    b.addEventListener('click',function(){launch(b.dataset.launch)});});
+  setFold(0);
+})();
+// dark-mode toggle
+(function(){
+  var b=document.getElementById('modeBtn');
+  b.addEventListener('click',function(){
+    var d=document.body.classList.toggle('dark');
+    b.textContent=d?'Light mode':'Dark mode';
+    b.setAttribute('aria-pressed',d?'true':'false');
+  });
+})();
+</script>
+</body>
+</html>
