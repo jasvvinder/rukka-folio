@@ -63,8 +63,8 @@
   --primary: #93A5D6;
   --on-primary: #1A1A18;
   --accent: #D9754F;
-  --credit: #57A87F;
-  --debit: #D4776F;     /* ⚠️ SPEC: motion page uses #C96A6A — owner to pick (credit: #4FA37A) */
+  --credit: #4FA37A;    /* owner-ruled 4 Sep 2026: motion-page lift (ADR 2026-09-03d) */
+  --debit: #CB6F6F;
   --loader-track: rgba(245,240,228,0.16);
   --loader-segment: #F5F0E4;
   --skeleton-label: rgba(245,240,228,0.09);

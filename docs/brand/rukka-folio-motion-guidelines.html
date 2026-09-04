@@ -97,7 +97,7 @@ pre{background:var(--indigo-deep);color:#D9D3C2;font-size:.78rem;line-height:1.6
 /* ---------- dark mode (demo surfaces + inverse mark) ---------- */
 .mode{position:fixed;right:16px;bottom:16px;z-index:50;font-family:inherit;font-size:13px;padding:9px 18px;border-radius:99px;border:1px solid var(--rule);background:#fff;color:var(--ink);cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.18)}
 body.dark .mode{background:#22221F;color:#F5F0E4;border-color:rgba(245,240,228,.25)}
-body.dark .card,body.dark .sp-phone{--credit:#4FA37A;--debit:#C96A6A}
+body.dark .card,body.dark .sp-phone{--credit:#4FA37A;--debit:#CB6F6F}
 body.dark .card{background:#22221F;border-color:rgba(245,240,228,.08);color:#F5F0E4}
 body.dark .lbl{color:rgba(245,240,228,.45)}
 body.dark .track{background:rgba(245,240,228,.16)}
@@ -189,7 +189,7 @@ footer b{color:var(--paper);font-weight:500}
   <p><b>Flutter note:</b> this is a plain <code>LinearProgressIndicator</code> with <code>minHeight: 2</code> and token colours — no dependency. Web: a 2px div pair; the CSS in this page's source is the reference.</p>
 
   <h3>Dark mode</h3>
-  <p>The loader inverts exactly, keeping its logic: track becomes paper at 16%, segment becomes solid paper — the segment is always the surface's <em>ink</em>, whichever mode. Skeleton blocks become paper at 9% and 14%. Credit and debit keep their hues with lifted lightness (<code>#4FA37A</code> / <code>#C96A6A</code>) so signed amounts stay legible on ink without turning neon. Toggle the page to see all three cards inverted.</p>
+  <p>The loader inverts exactly, keeping its logic: track becomes paper at 16%, segment becomes solid paper — the segment is always the surface's <em>ink</em>, whichever mode. Skeleton blocks become paper at 9% and 14%. Credit and debit keep their hues with lifted lightness (<code>#4FA37A</code> / <code>#CB6F6F</code>) so signed amounts stay legible on ink — debit one step above the first draft so 16px amounts hold 4.5:1 on card surfaces — without turning neon. Toggle the page to see all three cards inverted.</p>
 </section>
 
 <section>
@@ -334,7 +334,7 @@ dark mode:           bg ink #1A1A18 · text paper #F5F0E4 · inverse mark
                      (paper book, indigo strap/entries, bahi seal unchanged)
 loader (dark):       track rgba(245,240,228,.16) · segment #F5F0E4
 skeleton (dark):     paper 9% / 14% blocks · hairlines paper 14%
-credit/debit (dark): #4FA37A / #C96A6A — hue kept, lightness lifted
+credit/debit (dark): #4FA37A / #CB6F6F — hue kept, lightness lifted (debit ≥ 4.5:1 on surface)
 reduced motion:      static hairline + text · jump cuts · static skeletons</pre>
 </section>
 

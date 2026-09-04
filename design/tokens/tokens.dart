@@ -38,8 +38,8 @@ abstract final class RkColorsDark {
   static const primary = Color(0xFF93A5D6);
   static const onPrimary = Color(0xFF1A1A18);
   static const accent = Color(0xFFD9754F);
-  static const credit = Color(0xFF57A87F);
-  static const debit = Color(0xFFD4776F); // ⚠️ SPEC: motion page uses C96A6A (credit 4FA37A) — owner to pick
+  static const credit = Color(0xFF4FA37A); // owner-ruled 4 Sep 2026: motion-page lift (ADR 2026-09-03d)
+  static const debit = Color(0xFFCB6F6F);
   static const loaderTrack = Color(0x29F5F0E4); // rgba(245,240,228,.16)
   static const loaderSegment = Color(0xFFF5F0E4);
   static const skeletonLabel = Color(0x17F5F0E4); // .09

@@ -23,11 +23,14 @@ added it and said "update"; this ADR records it as the ruling on the two items 0
    books."** and leaves before any seal-break. Never an artificial delay to finish the animation.
 4. **Dark mode** inverts the loader and skeletons exactly (track paper @16%, segment paper).
 
-## Left for the owner ⚠️
+## Dark credit/debit — ruled 4 Sep 2026 🔒
 
 The reference page lifts dark credit/debit to `#4FA37A` / `#C96A6A`; `tokens.json` (Phase 0
-drop) has `#57A87F` / `#D4776F`. Same precedence level — flagged `⚠️ SPEC` in 11 §4.5 and in
-tokens.json; tokens.json stands until the owner picks.
+drop) had `#57A87F` / `#D4776F`. **Owner picked the motion-page values,** then accepted a one-step lift of debit to
+`#CB6F6F` so that row amounts pass AA on `surface` (4.53:1; `#C96A6A` measured 4.31:1). Same hues,
+lightness raised so signed amounts stay legible on ink without going neon. tokens.json, tokens.css,
+tokens.dart, 11 §4.5, DESIGN-PACK's dark palette line and the canvas dark band (`--in`/`--out` in
+`partials/build-canvas.js`, every canvas rebuilt) updated; the ⚠️ SPEC flags are cleared.
 
 ## What changed where
 

@@ -38,7 +38,7 @@ Computed (WCAG 2.1 relative luminance), on light `bg #F5F0E4`: `text` 15.3:1 AAA
 
 ## 3.1 Accessibility conformance 🔒 (target: WCAG 2.2 AA)
 
-**Contrast — computed, both themes, on `bg` *and* `surface`.** All text and amount roles pass AA. Two deliberate exceptions, each safe because it never carries meaning alone: `accent` (light 4.15:1) is restricted to the seal, icons and large text; `locked` (3.23 / 3.80) marks disabled content and is always accompanied by a 🔒 icon. `debit` dark was lifted to `#D4776F` after measuring 4.29:1 on `surface` — below AA — at its previous value. **Re-run the audit on any token change; contrast must be checked against `surface`, not only `bg`.**
+**Contrast — computed, both themes, on `bg` *and* `surface`.** All text and amount roles pass AA. Two deliberate exceptions, each safe because it never carries meaning alone: `accent` (light 4.15:1) is restricted to the seal, icons and large text; `locked` (3.23 / 3.80) marks disabled content and is always accompanied by a 🔒 icon. `debit` dark had been lifted to `#D4776F` after measuring 4.29:1 on `surface` at its previous value. **4 Sep 2026 (owner-ruled, ADR 2026-09-03d):** dark `credit`/`debit` moved to the motion page's hues: `#4FA37A` / `#CB6F6F`. The page's original debit `#C96A6A` measured 4.31:1 on `surface`, below AA for 14–16px amounts on cards, so debit was lifted one step (owner-approved). Measured now: credit 5.69:1 on `bg`, 5.13:1 on `surface`; debit 5.02:1 on `bg`, 4.53:1 on `surface` — all AA ✓. **Re-run the audit on any token change; contrast must be checked against `surface`, not only `bg`.**
 
 **Beyond contrast — the rules that make this app usable non-visually:**
 1. **Language of parts (WCAG 3.1.2) 🔒** — account names, notes and party names are user-typed and may be in any of the three scripts *inside* a UI running in another language. Every such string carries its own `lang` attribute (`pa`, `hi`, `en`) so VoiceOver switches voice instead of reading Gurmukhi with an English synthesiser. This is the single most important a11y rule in a trilingual product and it must be implemented at the text-widget level, not per screen.
@@ -92,7 +92,7 @@ The ਨਾਮੇ | ਜਮ੍ਹਾਂ | ਬਾਕੀ statement (01 §1.9) is the
 - [x] Icon package v1.2.3 delivered (`docs/brand/icons/`) — wire into `/app` (iOS appiconset, Android res, web) when the scaffold lands
 - [x] Canvas 3 lock/system screens (S15, S15.1, S19.1, S19.2) carry the real sealed mark, theme-aware (light: indigo book; dark: paper-book inverse) — placeholder line-art removed 3 Sep 2026
 - [x] Loader / skeleton / splash ruled (ADR 2026-09-03d) — reference `docs/brand/rukka-folio-motion-guidelines.html`; tokens under `motion.loader/skeleton/splash`
-- [ ] ⚠️ Owner: dark credit/debit — tokens.json `#57A87F/#D4776F` vs motion page `#4FA37A/#C96A6A`
+- [x] Dark credit/debit ruled 4 Sep 2026: `#4FA37A` / `#CB6F6F` (motion-page hues; debit lifted one step for AA on surface — ADR 2026-09-03d)
 - [ ] M5: `RkLoader` (LinearProgressIndicator minHeight 2, token colours, live region) and `RkSkeletonRow` widgets; Android 12 splash theme + iOS storyboard from the sealed mark (11 §4.5 phase table)
 - [ ] M0: `scripts/gen_tokens` (json → css/dart) + CI drift check
 - [ ] Font licensing/bundling check: Mukta & Mukta Mahee (OFL) subset sizes for the APK budget (07: <25 MB)

@@ -73,7 +73,7 @@ You are designing **Rukka Folio**, an iOS-first mobile bookkeeping app for India
 **Feel:** a well-kept paper ledger, not a fintech app. Warm paper, ink text, structure from thin rules and columns. **Near-monochrome — colour appears almost only on numbers.** Hairlines, never shadows. Cards carry a 3px left rule in indigo, square on that edge.
 
 **Light:** bg `#F5F0E4` · surface `#FBF8F0` · text `#1A1A18` · muted `#6E6A5E` · hairline `#E3DCCB` · primary `#2B3A67` · accent `#C1502E` · money-in `#2F7A55` · money-out `#A83232` · pending `#8F5F00` · locked `#8A857A`
-**Dark (required):** bg `#1A1A18` · surface `#24231F` · text `#F5F0E4` · muted `#A5A093` · hairline `#3A382F` · primary `#93A5D6` · accent `#D9754F` · money-in `#57A87F` · money-out `#D4776F` · pending `#D9A93F` · locked `#7A756A`
+**Dark (required):** bg `#1A1A18` · surface `#24231F` · text `#F5F0E4` · muted `#A5A093` · hairline `#3A382F` · primary `#93A5D6` · accent `#D9754F` · money-in `#4FA37A` · money-out `#CB6F6F` · pending `#D9A93F` · locked `#7A756A`
 
 **Type:** Mukta (Latin/Devanagari) + Mukta Mahee (Gurmukhi). display 40/600 · page 28/600 · section 20/500 · body 16/400 · row 14/400 · caption 12/400 · hero amount 44/600. **All amounts tabular figures, ₹ prefix, Indian grouping (₹1,24,500).**
 **Grid:** 4pt · gutter 16 · card padding 16 · row min-height 56 · radii 4/8/12 · touch targets ≥ 44pt.

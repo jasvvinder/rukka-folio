@@ -277,7 +277,7 @@ For an end-to-end-encrypted product the locked branch is the common one — on m
 | Seal breaks only after a real unlock | Seal-break on the auth prompt |
 | Live-region announcement on every loader | Percentages where a count exists |
 
-⚠️ SPEC: the reference page lifts dark-mode credit/debit to `#4FA37A` / `#C96A6A`; `tokens.json` (dark) carries `#57A87F` / `#D4776F` from the Phase 0 token drop. Both sit at the same level; the owner picks one and the loser is corrected. Until then tokens.json stands (CLAUDE.md: tokens.json is the sole source for token values).
+**Dark-mode credit/debit (owner-ruled 4 Sep 2026):** `#4FA37A` / `#CB6F6F` — same hues as light, lightness raised so signed amounts stay legible on ink without going neon. Debit sits one step above the reference page's original `#C96A6A` so that 14–16px amounts reach AA (4.5:1) on `surface`, not only on `bg`. These replace the Phase 0 values (`#57A87F` / `#D4776F`); the reference page's engineering constants block covers both modes.
 
 ---
 
