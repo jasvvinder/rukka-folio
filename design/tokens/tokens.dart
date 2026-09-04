@@ -17,6 +17,10 @@ abstract final class RkColorsLight {
   static const accent = Color(0xFFC1502E); // bahi red — one accent per screen
   static const credit = Color(0xFF2F7A55); // numerals only, always with '+'
   static const debit = Color(0xFFA83232); // numerals only, always with '−'
+  static const loaderTrack = Color(0x241A1A18); // rgba(26,26,24,.14) — the loader is a rule (11 §4.5)
+  static const loaderSegment = Color(0xFF1A1A18); // ink, never primary/accent
+  static const skeletonLabel = Color(0x171A1A18); // rgba .09
+  static const skeletonAmount = Color(0x211A1A18); // rgba .13
   static const pending = Color(0xFF8F5F00); // PROPOSED — owner sign-off
   static const locked = Color(0xFF8A857A); // PROPOSED — owner sign-off
   static const dangerSurface = Color(0xFFF6E3DD);
@@ -35,7 +39,11 @@ abstract final class RkColorsDark {
   static const onPrimary = Color(0xFF1A1A18);
   static const accent = Color(0xFFD9754F);
   static const credit = Color(0xFF57A87F);
-  static const debit = Color(0xFFD4776F);
+  static const debit = Color(0xFFD4776F); // ⚠️ SPEC: motion page uses C96A6A (credit 4FA37A) — owner to pick
+  static const loaderTrack = Color(0x29F5F0E4); // rgba(245,240,228,.16)
+  static const loaderSegment = Color(0xFFF5F0E4);
+  static const skeletonLabel = Color(0x17F5F0E4); // .09
+  static const skeletonAmount = Color(0x24F5F0E4); // .14
   static const pending = Color(0xFFD9A93F); // PROPOSED
   static const locked = Color(0xFF7A756A); // PROPOSED
   static const dangerSurface = Color(0xFF3A2723);
@@ -88,6 +96,26 @@ abstract final class RkMotion {
 
   /// Sealed→open mark (brand §4.2): total ≈ 860ms × multiplier.
   /// Splash = 1.0; biometric unlock = 0.6. Plays ONLY on a real unlock.
-  static const markSplashMultiplier = 1.0;
+  static const markSplashMultiplier = 1.0; // only when the session is already open
   static const markBiometricMultiplier = 0.6;
+
+  /// Failed unlock: mark stays sealed, horizontal shake ±2 units × 3 (11 §4.5).
+  static const failShake = Duration(milliseconds: 240);
+  static const failShakeAmplitudeUnits = 2.0;
+  static const failShakeCycles = 3;
+
+  /// The loader is a RULE (11 §4.5): LinearProgressIndicator(minHeight: loaderTrackHeight,
+  /// backgroundColor: loaderTrack, color: loaderSegment). Never a spinner; never the mark.
+  static const loaderTrackHeight = 2.0;
+  static const loaderSegmentFraction = 0.3;
+  static const loaderSweep = Duration(milliseconds: 1200); // easeEntries, continuous
+  static const loaderAppearDelay = Duration(milliseconds: 200);
+  static const loaderEscalate = Duration(seconds: 8); // then one plain status line
+
+  /// Skeletons are static (no shimmer), true row pitch, label width 38–58 %.
+  static const skeletonLabelWidthMin = 0.38;
+  static const skeletonLabelWidthMax = 0.58;
+
+  /// Splash: past this, the loader rule fades in under the stacked lockup.
+  static const splashSlowStart = Duration(seconds: 3);
 }

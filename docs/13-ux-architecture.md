@@ -317,7 +317,7 @@ Recovery completion revokes all prior sessions and notifies every tenant.
 
 **Period:** `open → locked → (re-opened, logged)`. **Year:** `open → certified → (voided by re-open, loudly)`.
 
-**Sync:** `synced ✓` · `saved on phone (n)` · `offline` · `needs attention → Inbox`. Never a spinner on save.
+**Sync:** `synced ✓` · `saved on phone (n)` · `offline` · `needs attention → Inbox`. Never a spinner on save — or anywhere: waiting is shown by the 2px loader rule with a count, or by state words (11 §4.5, ADR 2026-09-03d).
 
 **Subscription:** `trial → active → grace(7d offline) → read-only(export always works)`. Lapse blocks new entry only.
 

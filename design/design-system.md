@@ -16,8 +16,10 @@
 6. **Dark mode is required**, full token set, hues kept and lifted — never derived by inversion at runtime. (11 §4.3)
 7. **Paper, not pixels:** background is `paper`, text is `ink`, structure is hairlines and the 3px left rule — shadows almost never. Decoration must be a rule, a column, or a fold, or it doesn't ship. (11 §4.1)
 8. **Containers budget +40%** over English for the longest scripts; text containers never have fixed heights; everything survives OS font scale 200%. (11 §5, 07 §18)
-9. **The mark's open state plays only on a real unlock** (m=0.6 biometric, m=1.0 splash; jump cut under reduced-motion). (11 §4.2, 07 §3.1)
+9. **The mark's open state plays only on a real unlock** (m=0.6 biometric; m=1.0 on splash *only when the session is already open* — a locked launch animates nothing; failed unlock = sealed + shake ±2u ×3 / 240ms; jump cut under reduced-motion). (11 §4.2, §4.5, 07 §3.1)
 10. UI code touches colors/type/spacing **only through tokens** — a hex literal in a widget is a review-blocking defect.
+11. **No spinner, anywhere 🔒 (owner-ruled 3 Sep 2026, ADR 2026-09-03d).** The loader is a *rule*: 2px `loader-track` hairline + `loader-segment` ink — never indigo, never bahi, never the mark. Determinate with a count whenever the app can count ("1,240 of 3,890 entries restored"), indeterminate only with a verb, shown after 200ms, escalates with one status line at 8s, announced as a live region. (11 §4.5)
+12. **Skeletons are static ruled rows** at the true pitch — no shimmer, zero layout shift, one screenful max. (11 §4.5)
 
 ## 2. The two new tokens ⚠️ (owner sign-off needed)
 
@@ -89,6 +91,25 @@ The ਨਾਮੇ | ਜਮ੍ਹਾਂ | ਬਾਕੀ statement (01 §1.9) is the
 - [ ] ⚠️ Mark animation as one Rive/Lottie asset from the geometry in 11 §4.2 — acceptance reference `docs/brand/rukka-folio-mark-animation.html`; source geometry `docs/brand/icons/master/mark-sealed.svg` / `mark-open.svg` (v1.2, strap y14–74)
 - [x] Icon package v1.2.3 delivered (`docs/brand/icons/`) — wire into `/app` (iOS appiconset, Android res, web) when the scaffold lands
 - [x] Canvas 3 lock/system screens (S15, S15.1, S19.1, S19.2) carry the real sealed mark, theme-aware (light: indigo book; dark: paper-book inverse) — placeholder line-art removed 3 Sep 2026
-- [ ] ⚠️ Owner: loader/waiting pattern and splash treatment (pending ruling; see docs/brand/README.md)
+- [x] Loader / skeleton / splash ruled (ADR 2026-09-03d) — reference `docs/brand/rukka-folio-motion-guidelines.html`; tokens under `motion.loader/skeleton/splash`
+- [ ] ⚠️ Owner: dark credit/debit — tokens.json `#57A87F/#D4776F` vs motion page `#4FA37A/#C96A6A`
+- [ ] M5: `RkLoader` (LinearProgressIndicator minHeight 2, token colours, live region) and `RkSkeletonRow` widgets; Android 12 splash theme + iOS storyboard from the sealed mark (11 §4.5 phase table)
 - [ ] M0: `scripts/gen_tokens` (json → css/dart) + CI drift check
 - [ ] Font licensing/bundling check: Mukta & Mukta Mahee (OFL) subset sizes for the APK budget (07: <25 MB)
+
+## 7. Loading, waiting and the splash (summary — rules in 11 §4.5)
+
+| Situation | Show | Never |
+|---|---|---|
+| Op < 200ms | nothing | a flash of loader |
+| Countable work (restore, import, close, export) | loader rule, determinate, "{done} of {total} {things} {verbed}" | a percentage |
+| Uncountable work | loader rule, indeterminate sweep 1200ms, verb copy ("Syncing…") | a spinner, a bare ellipsis |
+| Past 8s | + one plain line of what is actually happening | silence |
+| List loading | static ruled skeleton rows at true pitch, ≤ 1 screenful | shimmer, pulsing |
+| Save | the sync chip words (13) | any loader |
+| Splash, locked | sealed mark + stacked lockup on paper, nothing moves | seal-break before success |
+| Splash, session open | sealed→open once (m 1.0), hold into Home | a replay |
+| Splash, slow (> 3s) | loader rule beneath, "Opening your books." | artificial delay |
+| Waiting on people (R2.2, S16.2) | row state words + inline loader rule; "1 of 2 approvals" | a spinner |
+
+Reduced motion: static track @25% ink + text; skeletons unchanged; jump cuts. Dark mode: track paper @16%, segment paper; skeleton blocks paper @9% / @14%.

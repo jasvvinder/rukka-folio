@@ -15,6 +15,10 @@
   --accent: #C1502E;
   --credit: #2F7A55;
   --debit: #A83232;
+  --loader-track: rgba(26,26,24,0.14);   /* 11 §4.5 — the loader is a rule */
+  --loader-segment: #1A1A18;
+  --skeleton-label: rgba(26,26,24,0.09);
+  --skeleton-amount: rgba(26,26,24,0.13);
   --pending: #8F5F00;   /* PROPOSED */
   --locked: #8A857A;    /* PROPOSED */
   --danger-surface: #F6E3DD;
@@ -44,6 +48,9 @@
   --ease-brand: cubic-bezier(.45,0,.25,1);
   --ease-entries: cubic-bezier(.35,0,.2,1);
   --dur-xs: 120ms; --dur-s: 200ms; --dur-m: 300ms; --dur-l: 400ms;
+  --loader-track-h: 2px; --loader-segment-w: 30%; --loader-sweep: 1200ms;
+  --loader-appear-delay: 200ms; --loader-escalate: 8s;
+  --splash-slow-start: 3s; --shake-dur: 240ms;
 }
 
 [data-theme="dark"] {
@@ -57,7 +64,11 @@
   --on-primary: #1A1A18;
   --accent: #D9754F;
   --credit: #57A87F;
-  --debit: #D4776F;
+  --debit: #D4776F;     /* ⚠️ SPEC: motion page uses #C96A6A — owner to pick (credit: #4FA37A) */
+  --loader-track: rgba(245,240,228,0.16);
+  --loader-segment: #F5F0E4;
+  --skeleton-label: rgba(245,240,228,0.09);
+  --skeleton-amount: rgba(245,240,228,0.14);
   --pending: #D9A93F;   /* PROPOSED */
   --locked: #7A756A;    /* PROPOSED */
   --danger-surface: #3A2723;
@@ -87,6 +98,17 @@ body { background: var(--bg); color: var(--text); font-family: var(--font-ui);
 
 :focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
+/* The loader is a RULE (11 §4.5). Never a spinner; never --primary/--accent. */
+.loader { height: var(--loader-track-h); background: var(--loader-track); position: relative; overflow: hidden; }
+.loader > .seg { position: absolute; inset: 0 auto 0 0; width: var(--loader-segment-w); background: var(--loader-segment);
+                 animation: loader-sweep var(--loader-sweep) var(--ease-entries) infinite; }
+.loader.determinate > .seg { animation: none; width: var(--progress, 0%); }
+@keyframes loader-sweep { from { transform: translateX(-100%); } to { transform: translateX(333%); } }
+.skeleton-row { display: flex; justify-content: space-between; align-items: center; min-height: var(--row-min-h, 56px); border-bottom: 1px solid var(--hairline); }
+.skeleton-row > .label { height: 10px; border-radius: 3px; background: var(--skeleton-label); width: var(--w, 48%); }
+.skeleton-row > .amount { height: 10px; border-radius: 3px; background: var(--skeleton-amount); width: 22%; }
+
 @media (prefers-reduced-motion: reduce) {
   * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  .loader > .seg { animation: none; width: 100%; opacity: .25; } /* static track + the words do the work */
 }

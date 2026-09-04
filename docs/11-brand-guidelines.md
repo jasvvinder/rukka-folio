@@ -1,6 +1,6 @@
 # Rukka Folio — Brand Guidelines v1.4
 
-> v1.4 — §4.2 mark geometry aligned to the designer's v1.2 asset drop (owner-ruled 3 Sep 2026): the strap is inset 2 units top and bottom (y14–74) so a hairline of book keeps the silhouette closed on paper and light grounds. Canonical assets: `docs/brand/icons/master/*.svg` (geometry), `docs/brand/rukka-folio-mark-animation.html` (animation reference implementation), `docs/brand/icons/` (store/web icon package v1.2.3). ADR 2026-09-03c.
+> v1.4 — §4.2 mark geometry aligned to the designer's v1.2 asset drop (owner-ruled 3 Sep 2026): the strap is inset 2 units top and bottom (y14–74) so a hairline of book keeps the silhouette closed on paper and light grounds. Canonical assets: `docs/brand/icons/master/*.svg` (geometry), `docs/brand/rukka-folio-mark-animation.html` (animation reference implementation), `docs/brand/icons/` (store/web icon package v1.2.3). ADR 2026-09-03c. Also adds **§4.5 Motion in product** — loaders, skeleton rows and the splash screen — from the designer's Loading & Splash Guidelines (`docs/brand/rukka-folio-motion-guidelines.html`), owner-ruled 3 Sep 2026, ADR 2026-09-03d.
 
 > v1.3 — "books" defined on first use (books of account / bahi-khata, = the product's Book/ਵਹੀ object) with a marketing term map in §5; idiom rule now applies to our own flagship noun.
 > v1.2 — §1 positioning corrected to the finalized product scope (owner-directed): launch languages stated as EN/ਪੰਜਾਬੀ/हिन्दी, no compliance-outcome claims, "ledger app" wording, scope-discipline rule added; §5 segment-register example aligned. All other v1.1 text untouched.
@@ -167,7 +167,8 @@ Sealing is the exact reverse: entries retract, corner flattens, strap and seal r
 |---|---|
 | Favicon, app icon, print, lockup | **Sealed, always** |
 | Standard lockup | Mark + "Rukka Folio", horizontal, mark height = cap height × 1.6 |
-| Stacked lockup | Mark above wordmark — deck covers and splash only |
+| Stacked lockup | Mark above wordmark — deck covers and splash only (splash: *Folio* at weight 300, see §4.5) |
+| Failed unlock | Mark stays **sealed**; horizontal shake ±2 units, 3 cycles, 240ms. The seal never breaks on the prompt, only on success (§4.5) |
 | Wordmark alone | Invoices, PDFs, email footers |
 | Android adaptive icons, circular avatars | Inset the mark at ~72% on an indigo field (inverse colourway) — never full-bleed into a circular crop |
 | App-store icon rendering | The sealed geometry may be rendered in warm materials (cloth book, stitched strap, wax seal) for the marketing icon layer — same geometry exactly, closed, brand palette only, no satellite elements. The flat mark remains the brand asset. |
@@ -215,6 +216,68 @@ One family across all nine scripts. This constraint is the single biggest contri
 **Numerals must be tabular-figure, always.** Columns that don't align are the fastest way to look amateur in accounting software. Set `font-variant-numeric: tabular-nums` globally on any element containing an amount.
 
 Amounts use the Indian grouping system — **₹1,24,500.00**, not ₹124,500.00. This is non-negotiable and is a trust signal.
+
+### 4.5 Motion in product — loading and the splash screen
+
+Reference implementation and acceptance test: `docs/brand/rukka-folio-motion-guidelines.html` (every spec below runs live on that page, light and dark). Token values live in `design/tokens/tokens.json` under `motion.loader`, `motion.skeleton`, `motion.splash` and the `loader-*` / `skeleton-*` colours.
+
+**Principles.** Three brand rules corner the design. *The mark never loads* — the seal-break is earned by a real unlock and is never decorative, so the logo cannot be the spinner, and **there is no spinner, anywhere**. *Every decorative element is a rule, a column or a fold* — so the loader is a rule: a 2px hairline carrying an ink segment. *State the number* — whenever progress is known the loader says what it counted, never a percentage. A ledger loads the way a ledger fills: line by line.
+
+#### The loader rule
+
+One component, two modes. Ink segment on a hairline track — **ink, not indigo**: indigo means actionable and a loader is not an affordance. Never bahi.
+
+| Token | Value | Meaning |
+|---|---|---|
+| `loader-track` | 2px · ink @14% (dark: paper @16%) | The hairline. Minimum height 2 on every platform |
+| `loader-segment` | ink (dark: paper) · 30% of track | The moving or filling portion — always the surface's ink, whichever mode |
+| `loader-loop-sweep` | 1200ms · cubic-bezier(.35,0,.2,1) | Indeterminate loop, continuous, no pause between sweeps — the entries curve from the mark animation |
+| `loader-appear-delay` | 200ms | Operations faster than this show nothing. Flicker is worse than nothing |
+| `loader-escalate` | 8s | Past this, add one line saying what is actually happening ("Still working — parsing your bank statement.") |
+
+**Behaviour.** *Determinate* whenever the app can count — restore, statement import, month close, export. Copy pattern: **"{done} of {total} {things} {verbed}"** in tabular figures, Indian grouping from five digits ("1,240 of 3,890 entries restored"). *Indeterminate* only when counting is genuinely impossible, and always with a verb ("Syncing…", never bare). The loader is a live region — "Restoring, 1,240 of 3,890" — an accessible loader is part of the legibility promise. **Reduced motion:** static hairline at 25% ink plus the text; the words do the work.
+
+Flutter: a plain `LinearProgressIndicator` with `minHeight: 2` and token colours, no dependency. Web: a 2px div pair; the CSS in the reference page is canonical.
+
+#### Skeleton rows
+
+Lists load as ruled skeletons: hairlines at the **true row pitch**, a muted label block left (ink @9%, width varying 38–58% so the skeleton doesn't strobe as a grid), a right-aligned amount block (ink @13%, slightly darker — the debit/credit column is present before the data is). Pitch, hairline weight and block positions match the real ledger row exactly, so content swaps in with **zero layout shift**. **No shimmer** — a pulsing gradient is decoration and it isn't a rule, a column or a fold. Show at most one screenful of skeleton rows; beyond that the loader rule with a count is more honest. Skeletons are static in every case; they are already the reduced-motion variant.
+
+#### The splash screen
+
+**Composition.** Sealed mark centred with the **stacked lockup** — mark above "Rukka Folio", *Folio* at weight 300 (§4.2: splash and deck covers are the only sanctioned uses of the stacked lockup). Background is **paper, not indigo** — the app lives on paper and the splash must not flash-cut. Dark mode: ink background with the paper-book inverse mark (seal unchanged). No tagline, no spinner, no version string; splashes are quiet. Once inside the app the wordmark disappears — the product speaks through the ledger, not the logo.
+
+**Two phases, drawn pixel-identical so the handoff is a non-event.**
+
+| Phase | Who draws it | Requirement |
+|---|---|---|
+| 1 · Launch frame | The OS — iOS storyboard / Android 12+ splash theme | Static sealed mark + lockup on paper. Android: `windowSplashScreenBackground` = paper and the sealed mark supplied as the splash icon — never let it pull the launcher icon |
+| 2 · First app frame | Our code | Same mark, size and position as phase 1 |
+
+**Then the session state decides everything.**
+
+| Session state | What plays | Timing |
+|---|---|---|
+| Locked (auth gate ahead) | **Nothing.** Mark stays sealed through splash and the lock screen; the seal breaks only on successful unlock, never on the prompt | m = 0.6 on success |
+| Session already open | Sealed → open, once, then hold open into Home | m = 1 (~860ms) |
+| Failed auth | Stays sealed; horizontal shake ±2 units, 3 cycles | 240ms |
+| Slow cold start | Hold the sealed mark; past **3s** fade in the loader rule beneath with "Opening your books." The loader leaves before the seal breaks | threshold 3s |
+
+For an end-to-end-encrypted product the locked branch is the common one — on most launches the splash animates nothing, and that is correct: if the splash played the seal breaking and a lock screen followed, the mark would be lying. **Never add artificial delay** to finish the animation for its own sake: if the app is ready, go — completing whichever beat is mid-flight, never cutting the seal-break halfway. Reduced motion: jump cuts throughout.
+
+#### Always / never
+
+| Always | Never |
+|---|---|
+| Loader is a rule: 2px hairline + ink segment | Spinners, anywhere |
+| Counts over percentages when progress is known | The mark as a loading animation |
+| Skeleton rows at true pitch — zero layout shift on swap | Shimmer or pulsing skeletons |
+| Loader waits 200ms before appearing | Indigo or bahi in the loader — ink only |
+| Splash phases 1 and 2 pixel-identical | Artificial splash delay to "finish" the animation |
+| Seal breaks only after a real unlock | Seal-break on the auth prompt |
+| Live-region announcement on every loader | Percentages where a count exists |
+
+⚠️ SPEC: the reference page lifts dark-mode credit/debit to `#4FA37A` / `#C96A6A`; `tokens.json` (dark) carries `#57A87F` / `#D4776F` from the Phase 0 token drop. Both sit at the same level; the owner picks one and the loser is corrected. Until then tokens.json stands (CLAUDE.md: tokens.json is the sole source for token values).
 
 ---
 
