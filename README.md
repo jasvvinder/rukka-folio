@@ -25,10 +25,12 @@ Zero-knowledge, offline-first ledger app for individuals, joint families, and th
 | **Design / wireframing — start here** | `design/DESIGN-PACK.md` (stepped prompts, self-contained) |
 | Platform admin console | `docs/12-admin-console.md` |
 | Conventions Claude Code follows every session | `CLAUDE.md` (repo root) |
+| What changed, session by session | `CHANGELOG.md` (repo root) |
 
 ## Repository map
 ```
 README.md · CLAUDE.md            entry points
+CHANGELOG.md                     session-by-session record of changes (what + why; git holds the diff)
 docs/00–13                       normative specs (13 = UX architecture)
 docs/decisions/                  ADRs — one file per 🔒 change
 docs/brand/ · docs/reference/    brand assets · accounting reference + worked examples (.md + .pdf)

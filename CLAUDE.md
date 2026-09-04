@@ -48,6 +48,7 @@ Trunk-based on protected `main`; tags at milestone exits (`m1-ledger-core`); sec
 - Tests first for `core_ledger` and `core_crypto` — take them from 09 (suites A/B) and the doc excerpts before implementing.
 - One milestone slice per session (10); begin by reading the referenced spec sections; end with tests green and docs updated if any decision was made.
 - Commits small and scoped; commit message references the milestone (e.g. `M1: verb postings + invariants`).
+- **Every session ends with a `CHANGELOG.md` entry** (newest first, dated, milestone-tagged: Added / Changed / Decided / Open / Commits). Write it before handing files to the owner to commit; fill the commit hashes in the next session. Git holds the diff — the changelog holds the *what* and *why*.
 - If a spec is ambiguous, prefer the more conservative reading and leave a `⚠️ SPEC:` comment plus a note to the owner — do not silently invent behavior.
 
 ## Commands
