@@ -12,6 +12,41 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-04 — M1: ledger core (pure Dart)
+
+Exit gate (10 M1): **suite A incl. property tests, green** — `./scripts/ci.sh` passes end to end; `core_ledger` carries 134 tests, among them the golden replay of all five worked examples (8 books, 185 vouchers: every ledger row, every closing c/f, every trial-balance row and total, and the three Due to/from pairs whose both sides are in the package).
+
+**Added** (`packages/core_ledger/lib/src/`, ~2,900 lines + ~2,300 lines of tests)
+- `money.dart` — `Paise` extension type over `int`: integer arithmetic only, no path to a float (rule 1); `Side`; `floorDiv`, `roundHalfUp`.
+- `local_date.dart`, `hlc.dart` — `LocalDate` / `YearMonth` / `FinancialYear` (per-book start month, default April) with no clock anywhere; `Hlc` = 48-bit ms + 16-bit counter (03 §1), `tick()` takes the physical reading as an argument; `(hlc, id)` event order.
+- `accounts.dart` — `BookType`, the seven `AccountClass`es, `MoneySubtype` (incl. `cashCollection`), `SystemRole` for the equity_system wizards, `Account`, `Chart`.
+- `entry.dart` — `Entry` / `Line` / `EntryRefs` per 02 §1.3 wire names; `fromJson` rejects non-integer money; unknown fields ride along at entry, refs and line level and are written back byte-stable (03 §3.3.4); `amendWith` / `reversal` builders (02 §5).
+- `invariants.dart` — universal invariants 02 §1.4 + reader re-checks (`review_required` vs carried limit, `pending` only for an advance request shape); authoring-only future-date rule kept out of the projector.
+- `verbs.dart` — the six verbs, the adjustment wizards (opening, cash-count difference, write-off), advance request/spend/return, partner paid-cost/drawing, and one-entry `profitDistribution` (interest first, then remainder by ratio). Wrong-class slots throw; a gollak is never a spending source and empties only into Cash or a bank account (02 §8.2).
+- `ratio.dart` — `splitByRatio` 🔒 rule: floors, remainder to the largest ratio, ties to earliest; property-tested.
+- `projection.dart` — `project(events, chart, {opening, heldInTray})`: sorts by `(hlc, id)`, quarantines violators as security events, folds approval decisions (last wins; self-approval quarantined — 02 §7.2 item 1), amend chains (head only, kind fixed), reversals (exact mirror, once), the advance queue vs the review queue, period lock rule (02 §8), year close with reader-side vector re-verification and certificate voiding on re-open (02 §8.1); `BalanceVector.canonical()` as the close-hash input; `trialBalance`, `statement` (running balance + side per row), `netProfit`, `yearClosePreconditions`.
+- `partners.dart` — `interestOnCapital` (average daily balance, inclusive days, half-up to the paisa; debit balances charged unless told otherwise), `settlementCapacity`, `partnerDrift` (02 §7.1).
+- `advances.dart` — `openAdvances` with FIFO ageing (02 §7). `interbook.dart` — `InterBook.transfer` / `pocketExpense` pairs sharing `transfer_group`, `isInTransit`, `reconcile` (02 §6). `cash_count.dart` — `DenominationSheet`, `CashCount` memo event, `countPolicy` / `validateCount`, `resolveCount` → verified / adjustment / recognition (02 §8.2).
+- Tests: `test/golden_worked_examples_test.dart` parses the worked-example markdown directly (chart, daybook, ledger rows, TB) so the fixtures stay in `docs/reference/` as the single source; unit/property suites per module.
+
+**Decided** (interpretations, all conservative, marked `⚠️ SPEC` in code — no 🔒 change, no ADR)
+- `review_limit_paise` is nullable in the engine: `null` = no limit applies (own personal book, single-member book). 02 §1.3 types it as a plain int; the "never flagged" cases needed a representation.
+- Advance movements map onto the six kinds as request = `money_out` + `pending`, spend = `money_out`, return = `money_in`. 02 fixes the postings, not the kind; balances never depend on kind.
+- Re-dating a late arrival is the one amendment accepted against a locked period: lines identical, only the date moves, into a period open at the amendment's HLC. Everything else in a locked period must go through reversal. The tray itself (arrival order) is client-local and is passed to `project` as `heldInTray`.
+- Verified interest illustration in paise: Amrit ₹4,295.89 · Sukhdev ₹2,311.23 · Harjit ₹1,354.52 (8 %, 1 Apr–31 Jul, day of posting counts).
+
+**Open**
+- ⚠️ 02 §7.1 shows Harjit's interest as ₹1,354 and the remainder as ₹5,86,039; `joint-business-partnership.md` §5 shows ₹1,355 / ₹5,86,038. Both are whole-rupee displays of ₹1,354.52 — no engine conflict, but the two documents should agree. Suggest both print paise.
+- ⚠️ `joint-business-partnership.md` §5 "equal share of costs" splits ₹3,35,000 in rupees (1,11,668 / 1,11,666 / 1,11,666). The 🔒 rule divides in paise: 1,11,666.68 / 1,11,666.66 / 1,11,666.66. Presentation column only; flag for the bookkeeper pass.
+- ⚠️ `trust-singh-sabha-gurudwara.md` predates the 2–3 Sep gollak ADRs: its "Gollak Cash A/c" is spent from directly (T-003, T-018…), so the fixture treats it as plain `cash`. On sign-off, consider splitting it into a `cash_collection` Gollak plus the seeded Cash A/c with Transfer vouchers between them.
+- ⚠️ Owner to confirm the three interpretations under *Decided* (nullable limit, advance kinds, re-date rule) or point at the section that settles them.
+- Not in M1 by design: envelope signing/encryption around these payloads (M2, 04), Drift persistence + the running-balance cache (M3, 03 §3.2), HLC generation from a real clock (M4 sync), FY-scoped P&L views and statement presentation strings (M5+).
+
+**Commits**
+- _pending_
+
+---
+
 ## 2026-09-04 — M0: scaffold
 
 Exit gate: **CI green on hello-world tests** — `./scripts/ci.sh` passes end to end (pub get · generators current · format · purity · strings · analyze · 4 package suites · 3 app widget tests).
@@ -42,7 +77,7 @@ Exit gate: **CI green on hello-world tests** — `./scripts/ci.sh` passes end to
 - Not in M0 by design: `server/supabase` (M4, needs Docker), `testing/` harness (M4), Drift/SQLCipher/libsodium deps (M2/M3), `tokens.dart` consumers beyond the hello theme (M5).
 
 **Commits**
-- _pending_
+- `4eee9c1`
 
 ---
 
@@ -61,7 +96,7 @@ Exit gate: **CI green on hello-world tests** — `./scripts/ci.sh` passes end to
 - No Android emulator image yet; not needed before M12 (iOS ships first, 10 🔒).
 
 **Commits**
-- _pending_
+- `a08ec51`
 
 ---
 

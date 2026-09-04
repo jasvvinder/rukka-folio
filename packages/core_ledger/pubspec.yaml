@@ -1,5 +1,5 @@
 name: core_ledger
-description: "Ledger engine: entries, verbs to postings, invariants, amend/reverse, periods, balances (02). M1."
+description: "Ledger engine: entries, verbs to postings, invariants, amend/reverse, periods, advances, inter-book pairs, partners, cash counts, balances (02). M1."
 version: 0.0.1
 publish_to: none
 resolution: workspace
