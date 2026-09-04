@@ -25,7 +25,7 @@ If two sources at the same level genuinely conflict, stop and ask — leave a `�
 /server/admin    internal panel (M13)
 /testing         harness/(two-client rig, 09 §1) · fixtures/(SYNTHETIC data only — never real entries) · goldens/(export byte-comparisons)
 /design          design-system.md + tokens/ (tokens.json = single source → tokens.css, tokens.dart; UI code uses tokens ONLY — hex literals in widgets are review-blocking) · mockups, prototype exports, icons
-/scripts         ci.sh (the gate) · check_strings.dart (fails on missing EN/PA/HI key)
+/scripts         ci.sh (the gate) · check_strings.dart (fails on missing EN/PA/HI key, placeholder drift, forbidden jargon) · check_purity.sh (no Flutter in packages; no I/O/clock/RNG in core_*; no hex literals in app) · gen_tokens.dart (tokens.json → tokens.css/.dart; --check in CI) · gen_l10n_arb.dart (dotted ARB keys → identifier keys for gen_l10n)
 ```
 Trunk-based on protected `main`; tags at milestone exits (`m1-ledger-core`); secrets only in CI secrets + local `.env` (never committed).
 
@@ -52,6 +52,8 @@ Trunk-based on protected `main`; tags at milestone exits (`m1-ledger-core`); sec
 - If a spec is ambiguous, prefer the more conservative reading and leave a `⚠️ SPEC:` comment plus a note to the owner — do not silently invent behavior.
 
 ## Commands
+- Workspace: `dart pub get` at the root resolves every package (pub workspace; one lockfile).
 - App: `flutter test` · `flutter build ios` · `dart run build_runner build -d` (Drift codegen) · `flutter analyze`
+- Tokens / strings: `dart run scripts/gen_tokens.dart` after editing tokens.json · ARB keys stay dotted (`screen.element.state`); `scripts/gen_l10n_arb.dart` derives the identifier-keyed copies gen_l10n needs (`app.name` → `appName`), run by ci.sh
 - Server: `supabase db reset` (applies migrations + RLS tests) · `deno test server/functions`
 - Full gate: `./scripts/ci.sh` (suites A–E + lint + string check)

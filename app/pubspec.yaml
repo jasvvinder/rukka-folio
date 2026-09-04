@@ -1,0 +1,56 @@
+name: rukka_folio
+description: Rukka Folio — the family's chits, kept on proper ledger pages. Flutter UI layer only (CLAUDE.md § Layout).
+publish_to: none
+version: 0.1.0+1
+resolution: workspace
+
+environment:
+  sdk: ^3.13.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  intl: any # version pinned by flutter_localizations
+  # pure engine packages — the app never reimplements what they own
+  core_ledger:
+    path: ../packages/core_ledger
+  core_crypto:
+    path: ../packages/core_crypto
+  data:
+    path: ../packages/data
+  sync_engine:
+    path: ../packages/sync_engine
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+flutter:
+  uses-material-design: true
+  generate: true # gen_l10n from l10n.yaml (arb-dir is the generated identifier-keyed copy)
+
+  # 11 §4.4 — one family across nine scripts: Mukta (Latin + Devanagari), Mukta Mahee (Gurmukhi),
+  # Noto Sans as the only fallback. OFL licences sit beside the files.
+  fonts:
+    - family: Mukta
+      fonts:
+        - asset: assets/fonts/Mukta-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Mukta-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Mukta-SemiBold.ttf
+          weight: 600
+    - family: MuktaMahee
+      fonts:
+        - asset: assets/fonts/MuktaMahee-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/MuktaMahee-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/MuktaMahee-SemiBold.ttf
+          weight: 600
+    - family: NotoSans
+      fonts:
+        - asset: assets/fonts/NotoSans[wdth,wght].ttf

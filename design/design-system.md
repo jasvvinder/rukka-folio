@@ -1,6 +1,6 @@
 # Design System — Rukka Folio
 
-**Status:** Phase 0 deliverable, v0.1. Source of truth for values: `design/tokens/tokens.json` (this doc explains; the JSON decides). `tokens.css` (Phase A mockups) and `tokens.dart` (M5 app) are generated views — hand-synced until `scripts/gen_tokens` lands in M0, after which CI fails on drift. Brand authority: `docs/11-brand-guidelines.md` v1.4 §4 (mark geometry of record: `docs/brand/icons/master/*.svg`); screen behavior: `docs/07-ui-flows.md`.
+**Status:** Phase 0 deliverable, v0.1. Source of truth for values: `design/tokens/tokens.json` (this doc explains; the JSON decides). `tokens.css` (Phase A mockups) and `tokens.dart` (M5 app; the app imports its copy at `app/lib/shared/tokens.dart`) are generated views written by `scripts/gen_tokens.dart` (landed M0, 4 Sep 2026) — never edit them by hand; `scripts/ci.sh` fails on drift. Brand authority: `docs/11-brand-guidelines.md` v1.4 §4 (mark geometry of record: `docs/brand/icons/master/*.svg`); screen behavior: `docs/07-ui-flows.md`.
 
 ---
 
@@ -86,6 +86,7 @@ The ਨਾਮੇ | ਜਮ੍ਹਾਂ | ਬਾਕੀ statement (01 §1.9) is the
 ## 6. Phase 0 task list
 
 - [x] tokens.json / tokens.css / tokens.dart (this drop)
+- [x] `scripts/gen_tokens.dart` + CI drift check (M0, 4 Sep 2026)
 - [ ] ⚠️ Owner sign-off: `pending` + `locked` values (§2)
 - [ ] ⚠️ Commission lockups **together**: Latin + ਪੰਜਾਬੀ (Gurmukhi) + हिन्दी (Devanagari) — brand §4.2's rule applied to Phase-1 languages; Tamil when its language ships
 - [ ] ⚠️ Mark animation as one Rive/Lottie asset from the geometry in 11 §4.2 — acceptance reference `docs/brand/rukka-folio-mark-animation.html`; source geometry `docs/brand/icons/master/mark-sealed.svg` / `mark-open.svg` (v1.2, strap y14–74)
@@ -94,7 +95,7 @@ The ਨਾਮੇ | ਜਮ੍ਹਾਂ | ਬਾਕੀ statement (01 §1.9) is the
 - [x] Loader / skeleton / splash ruled (ADR 2026-09-03d) — reference `docs/brand/rukka-folio-motion-guidelines.html`; tokens under `motion.loader/skeleton/splash`
 - [x] Dark credit/debit ruled 4 Sep 2026: `#4FA37A` / `#CB6F6F` (motion-page hues; debit lifted one step for AA on surface — ADR 2026-09-03d)
 - [ ] M5: `RkLoader` (LinearProgressIndicator minHeight 2, token colours, live region) and `RkSkeletonRow` widgets; Android 12 splash theme + iOS storyboard from the sealed mark (11 §4.5 phase table)
-- [ ] M0: `scripts/gen_tokens` (json → css/dart) + CI drift check
+- [x] M0: `scripts/gen_tokens.dart` (json → css/dart) + CI drift check — landed 4 Sep 2026
 - [ ] Font licensing/bundling check: Mukta & Mukta Mahee (OFL) subset sizes for the APK budget (07: <25 MB)
 
 ## 7. Loading, waiting and the splash (summary — rules in 11 §4.5)

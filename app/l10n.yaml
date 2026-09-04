@@ -1,0 +1,8 @@
+# gen_l10n reads the identifier-keyed ARBs written by scripts/gen_l10n_arb.dart.
+# The canonical, dotted-key ARBs (01 §1 rule 9) live one level up in lib/l10n/.
+arb-dir: lib/l10n/gen
+template-arb-file: app_en.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+output-dir: lib/l10n/gen
+nullable-getter: false

@@ -1,0 +1,21 @@
+# Root analysis options — applies to scripts/. Each package/app has its own
+# analysis_options.yaml that includes package:lints or package:flutter_lints
+# and the same strict language modes.
+include: package:lints/recommended.yaml
+
+analyzer:
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+  exclude:
+    - app/**
+    - packages/**
+    - design/**
+    - docs/**
+
+linter:
+  rules:
+    - prefer_final_locals
+    - unawaited_futures
+    - avoid_dynamic_calls

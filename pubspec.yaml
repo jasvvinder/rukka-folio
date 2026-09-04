@@ -1,0 +1,19 @@
+# Rukka Folio — pub workspace root (CLAUDE.md § Layout).
+# One lockfile for every package; `dart pub get` here resolves all of them.
+name: rukka_folio_workspace
+description: Zero-knowledge, offline-first ledger for individuals, joint families and their businesses.
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+
+workspace:
+  - packages/core_ledger
+  - packages/core_crypto
+  - packages/data
+  - packages/sync_engine
+  - app
+
+# Root-level dev tooling only (scripts/*.dart). Package deps live in each package.
+dev_dependencies:
+  lints: ^6.0.0
