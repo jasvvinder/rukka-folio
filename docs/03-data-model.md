@@ -13,6 +13,7 @@
 - **HLC**: 64-bit — 48-bit physical ms + 16-bit logical counter — with `device_id` as the deterministic tiebreak. Stored as `BIGINT` (server) / `INTEGER` (SQLite); never compared across objects except where 02/05 say so (locks, sync cursors).
 - Money: `BIGINT` paise everywhere. No `NUMERIC`, no floats, including exports.
 - Times: server rows `timestamptz` UTC; domain dates are the entry's `accounting_date` (date only) inside ciphertext.
+- **Projector version 🔒 (ADR 2026-09-05c §3):** `core_ledger.projectorVersion` (int) is recorded in every `period_lock` and `year_close` envelope beside the vector hash; a reader on an older projector shows *"Update the app to verify this close"* instead of a mismatch. Result-changing projector changes bump it **and** `min_client_version` together and force a Recompute on upgrade.
 
 ---
 
@@ -21,7 +22,9 @@
 ### 2.1 Identity & tenancy (plaintext) 🔒
 
 ```sql
-users(id uuid pk, phone_e164 text unique, display_name text, photo_key text,
+users(id uuid pk,
+      phone_ct bytea, phone_hmac bytea unique,   -- encrypted under the server KMS key; HMAC for lookup (ADR 2026-09-05c §4)
+      display_name text, photo_key text,
       language text, whatsapp_opt_in bool, created_at, deletion_requested_at,
       deleted_at)                        -- 15-day cooling between the last two
 
@@ -56,7 +59,8 @@ wrapped_keys(id uuid pk, kind text check (kind in
         user_id, device_id null, book_id null, key_version int,
         share_set_version int null, blob bytea, created_at, revoked_at)
 
-invites(id uuid pk, tenant_id, phone_e164, roles jsonb, nonce bytea,
+invites(id uuid pk, tenant_id, invitee_hmac bytea,   -- NO plaintext number: the invitee consented to nothing (ADR 2026-09-05c §4)
+        roles jsonb, nonce bytea,
         status, expires_at, created_by)
 verification_events(id, tenant_id, subject_user, verifier_user, method text
         check (method in ('qr_in_person','code_remote','device_link')),
@@ -78,6 +82,7 @@ envelopes(
   object_id uuid not null, object_type text not null,
   key_version int, suite_version smallint, payload_schema smallint,
   author_device uuid not null, hlc bigint not null,
+  blob_hash bytea not null,              -- BLAKE2b-256(blob); server recomputes on write, readers on read (ADR 2026-09-05c §2)
   size int, blob bytea,                  -- ⚠️ blobs > 64 KB go to object storage,
   blob_ref text,                         --   with pointer here; threshold at build
   received_at timestamptz default now()
@@ -86,6 +91,8 @@ create index on envelopes (book_id, seq);                 -- the sync-pull index
 create index on envelopes (tenant_id);
 -- append-only: no UPDATE or DELETE grants to the API role, ever.
 ```
+
+**Shape checks — the complete list 🔒 (ADR 2026-09-05c §5):** `author_device == jwt.device_id` · `tenant_id == books.tenant_id` · `blob_hash` and `size` recompute · `suite_version`/`payload_schema` in registry · `key_version` ≤ highest issued · HLC sanity (05 §2) · caps/quotas (05 §3). Failure → `rejected:shape` naming the check. **Hash mismatch on read is corruption, not tampering:** re-fetch, count it, no security event; only an intact blob with a failing signature is quarantined (04 §8.3).
 
 **`object_type` registry 🔒:** `book_config · account · entry · approval_decision · period_lock · year_close · import_batch · import_line · rule · attachment_meta · cash_count` (+ reserved range). Everything in 02 and 07 maps into these; nothing financial exists outside them.
 
@@ -104,7 +111,7 @@ otp_challenges / activation_tickets     -- ephemeral, TTL-purged (06 §2–3)
 
 ### 2.5 Row-level security 🔒
 
-RLS on, `FORCE`, for every table above; the API connects as a non-superuser role with `request.user_id` set per transaction.
+RLS on, `FORCE`, for every table above; the API connects as a non-superuser role with **our** `request.user_id` / `request.device_id` claims (06 §4 JWT, not platform auth) set with `SET LOCAL` per transaction so a pooled connection never carries them across (ADR 2026-09-05c §7).
 
 - `envelopes`: **SELECT/INSERT only** where the user holds a `book_roles` row for `book_id` with a role permitting it (viewer ⇒ select only) **and** membership status = `active`. No UPDATE/DELETE policy exists at all.
 - `wrapped_keys`: readable only by the subject (`user_id` = requester, or guardian rows addressed to the requester); insertable per the flows in 04.
@@ -125,7 +132,8 @@ RLS on, `FORCE`, for every table above; the API connects as a non-superuser role
 envelopes_local(envelope_id pk, book_id, object_id, object_type, key_version,
         hlc, seq bigint null,                        -- server seq; revocation cut-off (ADR 2026-09-05b §5)
         author_device, author_seq int,               -- from inside the ciphertext (§3 of that ADR)
-        blob, verified int,                          -- 1 after sig-chain check
+        blob, blob_hash,                             -- hash verified on read; mismatch = corruption → re-bootstrap (ADR 2026-09-05c §2, §6)
+        verified int,                                -- 1 after sig-chain check
         quarantined int default 0, quarantine_reason text,
         held int default 0, held_for uuid null)      -- dangling ref, waiting for target (§4)
 outbox(envelope_id pk, book_id, blob, created_at, push_state text
@@ -206,9 +214,13 @@ Key indexes: `entry_lines_p(account_id, accounting_date)` (A/C statement, runnin
 - Server: forward-only SQL migrations, numbered, applied by CI; `payload_schema` registry lives with them.
 - Client: Drift schema versions with tested upgrade paths from every shipped version; a failed migration must fail *closed* (app blocks with support screen) — never run on a half-migrated ledger.
 - Envelope evolution: additive fields freely (rule 3.3.4); breaking changes bump `payload_schema` **and** min_client_version (06 §4.5) together.
+- **Projector evolution (ADR 2026-09-05c §3):** a change that can alter any result bumps `projectorVersion` **and** min_client_version together and forces a full Recompute on first launch after upgrade; the golden replay (09 A) is the proof of which kind a change is.
+- **Local corruption (ADR 2026-09-05c §6):** SQLCipher `quick_check` on every open; projections corrupt → drop + Recompute; envelope mirror corrupt → re-bootstrap the book (05 §8); `books_p.integrity_ok` gates the Home card so a book is never shown whole while any envelope is missing or unverified.
 
 ## 6. Retention 🔒
-Ephemeral auth rows TTL-purged (24 h). Revoked wrapped keys kept 90 days then purged. Envelopes: forever (they are the books), with closed-FY partitions eligible for cold storage behind the same API (02 §8.1). Deleted users per §2.5 — profile erased, keys and personal-book envelopes purged, **device certs and UMK public keys retained indefinitely** as verification material for entries they authored in shared books. ⚠️ confirm final DPDP retention wording.
+**Residency & durability 🔒 (ADR 2026-09-05c §1):** Postgres, object storage, backups and logs all in **India** (Mumbai region or equivalent; no Indian region = disqualified provider); backups never leave it. PITR on (⚠️ 7 d), daily encrypted snapshots 35 d, monthly 12 mo; backup access is a privileged audited path, never the API role; **quarterly restore drill** against written RTO/RPO (⚠️ ≤ 4 h / ≤ 5 min); **every restore bumps `store_epoch`** (05 §1). Platform backups of the client database are excluded (iOS attribute; Android `allowBackup=false`). Object storage: private bucket, per-tenant prefix, object written before row, nightly orphan sweep.
+
+Ephemeral auth rows TTL-purged (24 h). `audit_events` 24 months then aggregated; `verification_events` permanent. Revoked wrapped keys kept 90 days then purged. Envelopes: forever (they are the books), with closed-FY partitions eligible for cold storage behind the same API (02 §8.1). Deleted users per §2.5 — profile erased, keys and personal-book envelopes purged, **device certs and UMK public keys retained indefinitely** as verification material for entries they authored in shared books. ⚠️ confirm final DPDP retention wording.
 
 ---
 
@@ -221,7 +233,12 @@ Ephemeral auth rows TTL-purged (24 h). Revoked wrapped keys kept 90 days then pu
 - **Round-trip:** an old-schema client amending a new-schema entry preserves the unknown fields byte-for-byte in the replacement payload.
 - **Rebuild-from-vector:** after year close, Recompute using (vector + open-FY envelopes) equals Recompute using full history.
 - **At-rest:** the SQLite file is unreadable without the SQLCipher key (raw-bytes entropy test in CI).
+- **Blob integrity (ADR 2026-09-05c §2):** a flipped byte in a stored blob is reported as corruption and re-fetched — no quarantine, no security event, author untouched; the same blob with a forged signature is quarantined.
+- **Projector version (ADR 2026-09-05c §3):** a close certified on projector v(n+1) is shown as *update to verify* on v(n), never as a mismatch; after upgrade + Recompute it verifies.
+- **No phone list (ADR 2026-09-05c §4):** a full dump of `users` and `invites` yields no recoverable phone number without the KMS key; an expired invite leaves no number anywhere.
+- **Pooled claims (ADR 2026-09-05c §7):** two interleaved requests on one pooled connection never observe each other's `request.user_id`.
+- **Shape (ADR 2026-09-05c §5):** an envelope whose `author_device` is not the caller's device, or whose `tenant_id` mismatches the book, is refused at push with the check named.
 - **Erasure:** after a user's deletion, their shared-book entries still verify their signature chain **on a freshly-installed device**, render the author as *Removed member*, and remain in balances; their personal-book envelopes and all wrapped keys are absent server-side, and no envelope row was updated or deleted.
 
 ## 8. Open items ⚠️
-1. Envelope blob threshold for object-storage offload (proposal: 64 KB). 2. Object storage: Supabase Storage vs R2 (egress math at pilot scale). 3. UUIDv7 + HLC library choices for Dart. 4. Cold-archive trigger (age vs size) for closed FYs. 5. DPDP retention wording (§6).
+1. Envelope blob threshold for object-storage offload (proposal: 64 KB). 2. Object storage: Supabase Storage vs R2 (egress math at pilot scale). 3. UUIDv7 + HLC library choices for Dart. 4. Cold-archive trigger (age vs size) for closed FYs. 5. DPDP retention wording (§6). 6. PITR window / snapshot retention / RTO-RPO numbers vs hosting plan; KMS choice + rotation for the phone key (ADR 2026-09-05c).

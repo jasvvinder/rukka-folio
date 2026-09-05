@@ -110,7 +110,7 @@ Envelope {
 
 The AAD binds ciphertext to its identity — the server cannot move an envelope between books or objects without Poly1305 failing. **The server validates nothing about content** (it can't); it checks only shape, membership, size caps, and idempotency.
 
-**Plaintext on server (complete list):** user ids, phone numbers, display names, language, tenant/book/membership/role records, device records + certs, wrapped keys and shares (opaque), invite records, subscription/billing refs, envelope routing fields above, timestamps, sizes, audit events. **Everything else is ciphertext — including book names, account names, party names, amounts, notes, and attachments.**
+**Plaintext on server (complete list):** user ids, phone numbers (**encrypted at rest under a server KMS key with an HMAC index — ADR 2026-09-05c §4; invitees' numbers never stored**), display names, language, tenant/book/membership/role records, device records + certs, wrapped keys and shares (opaque), invite records, subscription/billing refs, envelope routing fields above, timestamps, sizes, audit events. **Everything else is ciphertext — including book names, account names, party names, amounts, notes, and attachments.**
 
 Push notifications carry object ids and generic text only ("Ramesh added an entry"), never amounts or names.
 

@@ -134,7 +134,7 @@ expired (one-tap re-invite)      blocked + security event (admin unblock only
                                   after investigation; new invite required)
 ```
 
-- **invited:** admin picks phone + per-book roles (+ auto-post limit); server stores the invite with its 128-bit ceremony nonce; delivery via WhatsApp/SMS link.
+- **invited:** admin picks phone + per-book roles (+ auto-post limit); server stores the invite with its 128-bit ceremony nonce **and only an HMAC of the number** — the plaintext goes into the outbound message job and is gone once sent (ADR 2026-09-05c §4); delivery via WhatsApp/SMS link. The admin's device shows whom it invited from its own contact card.
 - **joined_pending_verification:** invitee has an account, device, UMK — their **Personal Book works immediately** (it needs nobody's keys). Shared books are visible as named placeholders: *"Meet Sunita to activate."* Clients structurally cannot wrap BKs to this state (04 §5.1).
 - **active:** on ceremony success (any mode: in-person QR default / logged remote code / delegated by any active member — 04 §6.4), the verifier's device wraps the BKs per the role grants; membership flips.
 - **Every transition and every role/limit/designation change is a signed record authored on a certified admin device (ADR 2026-09-05b §1); the server's rows are its copy of them, and a client acts only on the verified record.** Role changes later are database-only if within already-held books; granting a *new* book wraps that BK (no new ceremony — the human is already verified); removal follows 04 §5.3 with the ledger's advance-settlement precondition.
@@ -161,6 +161,8 @@ Phone, name, photo, language, WhatsApp opt-in; tenants, memberships, per-book ro
 Available always, plan-independent, lapsed-plan included: full decrypted export (XLSX/CSV/PDF) generated **on device**. Open export is a trust feature, not a leak.
 
 ### 9.3 Deletion 🔒
+Phone erasure = drop `phone_ct`/`phone_hmac` (ADR 2026-09-05c §4); the KMS key never needs rotation for a single user's erasure.
+
 User-initiated (in-app) or via support: 15-day cooling period, every device + guardians notified, cancel-anytime; then **profile data is erased** (phone, name, photo, language, contact fields), all wrapped keys and the user's personal-book envelopes are hard-deleted, and every session dies. 🔒 **Verification material is retained, not deleted:** the user's UMK *public* key and their device certificates survive as pseudonymous cryptographic material, flagged `erased`. They contain no personal data, and without them a device joining later could not verify the signature chain (04 §3.4) on entries that user authored in *shared* books — it would quarantine them, compute different balances, and fail the close hash (02 §8). Erasure of personal data and integrity of other people's financial records are both satisfied; this is the same reasoning that lets financial records outlive an erasure request. envelopes the user authored in *shared* books remain (they are the tenant's records) with authorship pseudonymized to a fixed label. DPDP-aligned; ⚠️ confirm final DPDP rules' retention/grievance details at build.
 
 ### 9.4 Phone-number change 🔒

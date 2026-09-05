@@ -45,6 +45,7 @@ A device that cannot unwrap the new `BK` is not a member any more; it will recei
 | `rejected:too_large` | > size cap | shrink attachment / split ⚠️ cap: 256 KB/envelope |
 | `rejected:key_version_stale` | envelope sealed under a `BK` version superseded > 48 h ago (04 §5.3) | **not terminal:** run the re-seal above, retry **once**; if it fails again (new `BK` unavailable), surface in Inbox as *"couldn't send — waiting for a new key"* |
 | `rejected:version` | payload_schema above server registry | force-update path |
+| `rejected:shape` | a server shape check failed — the complete list is 03 §2.3 (author ≠ token device, tenant ≠ book's, `blob_hash`/`size`, registry, key_version) (ADR 2026-09-05c §5) | terminal; log with the named check |
 | `rejected:rate_limited` | per-device push rate exceeded (ADR 2026-09-05b §7; ⚠️ 600/min, 50 MB/day proposed) | backoff and retry; never Inbox |
 | `rejected:quota` | book's envelope count/bytes above plan (08 owns numbers ⚠️) | Inbox *"This book is full — upgrade the plan"*; book stays readable |
 
@@ -88,6 +89,9 @@ Separate channel from envelopes, `GET /sync/meta?after=cursor` (cursor = `update
 Content-free FCM (*"book X has news"*) → pull that book; foreground pull on app open and scope switch; backstop poll every 6 h on unmetered networks. FCM is a hint, never a dependency — correctness comes from cursors alone.
 
 ## 8. Bootstrap (fresh install / post-recovery) 🔒
+
+Also the path for **local corruption** (ADR 2026-09-05c §6): a book whose mirror fails `blob_hash` on open is re-bootstrapped here, with the determinate loader; verify `blob_hash` on every pulled envelope before storing.
+
 
 Order: profile+meta+keys (§5) → per book: `book_config`, `account`, `rule` objects (all-time; low volume) + latest `year_close` vector + all envelopes of the **open FY** (hot set) → project → app usable. Closed FYs fetch on demand (`?fy=2024-25`) behind the same pull API from warm or cold storage (03 §6) — opening a 3-year-old statement shows a one-time *"fetching old year…"* spinner, everything else is instant.
 

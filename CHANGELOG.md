@@ -12,6 +12,25 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-05 — docs: storage durability & integrity (ADR 2026-09-05c)
+
+Third review of the day, of the data model (03). Spine stands (envelopes are truth, projections disposable, integer paise, one plaintext boundary, append-only by grant). Gaps were at the edges 03 had not looked at.
+
+**Decided** — `docs/decisions/2026-09-05c-storage-durability-integrity.md`
+- 🔒 **India residency** for DB, object storage, backups, logs; PITR + snapshot policy (numbers ⚠️); quarterly restore drill; every restore bumps `store_epoch`.
+- 🔒 **`blob_hash`** plaintext column — corruption is re-fetched and counted, never quarantined; only an intact blob with a bad signature is tampering.
+- 🔒 **`projectorVersion`** recorded in every lock/close envelope; older readers show *update to verify*, never a false mismatch; result-changing projector changes bump min-client-version and force Recompute.
+- 🔒 **Phone numbers encrypted at rest** (`phone_ct` + `phone_hmac`, server KMS); **invitees' numbers never stored** (HMAC only).
+- Shape checks enumerated (`rejected:shape`); local corruption path (`quick_check`, drop+Recompute / re-bootstrap; `integrity_ok` gates Home); RLS with our own claims via `SET LOCAL`; platform backups excluded; private bucket + orphan sweep; audit retention 24 mo.
+
+**Changed** — 03 §1/§2.1/§2.3/§2.5/§3.1/§5/§6/§7/§8 · 02 §8 step 4 · 04 §4 · 05 §3, §8 · 06 §7, §9.3 · 09 suite E · 10 M2/M4.
+
+**Open** ⚠️ — PITR/snapshot/RTO-RPO numbers vs hosting plan; KMS/Vault choice + rotation; whether projector bumps share the crypto/sync min-version route group.
+
+**Commits** — pending.
+
+---
+
 ## 2026-09-05 — docs: sync trust boundaries (ADR 2026-09-05b)
 
 Same review as the client blueprint, applied to 05. Core of 05 stands (seq cursors, idempotency, key-sync-before-drain, content-blind server, cross-client close hashes). Every gap was one shape: the server was still trusted for things it should only relay.
