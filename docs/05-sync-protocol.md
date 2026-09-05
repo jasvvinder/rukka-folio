@@ -10,6 +10,7 @@
 ## 1. Transport & sessions 🔒
 
 - HTTPS + JSON; auth per 06 §4 (15-min JWT, signed refresh). Every write carries `envelope_id` as the idempotency key — no separate header needed.
+- **Public-key pinning 🔒 (ADR 2026-09-05):** the client pins the **SPKI hashes** of the API host's chain — key, not certificate — with at least two pins (current + backup) so rotation is never an outage. Pin failure is a hard fail with no fallback and no override, in every build that talks to a hosted environment, staging included; only a local-dev build may disable it, and CI asserts the release lane never does. OS transport rules forbid cleartext (Android network-security-config, iOS ATS). ⚠️ Pin at the intermediate-CA level for hosted Supabase; verify the exact chain and write the rotation runbook at M4.
 - **Min-version gate:** any sync route may answer `426` (06 §4.5); the client stops syncing and shows the update screen. Half-synced state is safe by construction (idempotent, append-only).
 - Compression: gzip request/response. Payloads are ciphertext (incompressible); gzip earns its keep on metadata and batching overhead only — don't expect ratio miracles.
 

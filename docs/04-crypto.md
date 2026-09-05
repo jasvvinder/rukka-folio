@@ -24,7 +24,7 @@
 - A **malicious server can withhold data or serve stale data** (denial of service). It cannot alter or read it.
 - A **removed member keeps what they already synced.** Rotation protects future entries only. State this honestly in the UI.
 - The **escrow timer (§7.5) is server-enforced policy**, not cryptography. A compromised server could release the escrow blob early — but the blob is only decryptable by the designated head, so the damage is bounded to the escrow's intended scope.
-- **Malware on an unlocked, activated device** sees what the user sees. Out of scope.
+- **Malware on an unlocked, activated device** sees what the user sees. Out of scope. Client hardening (pinning, obfuscation, screenshot block, modified-device notice — ADR 2026-09-05) raises the bar but does not change this line; a rooted phone is **warned and logged, never blocked**.
 - Traffic metadata (who syncs when, blob sizes) is visible to the server. Required for operation.
 
 ---

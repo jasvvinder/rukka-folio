@@ -18,9 +18,11 @@
 | M11 | Recovery & escrow | Guardians setup + k-of-n recovery, escrow with veto timer, stolen-phone path | H step 10, Suite B/C recovery tests |
 | M12 | ਪੰਜਾਬੀ + हिन्दी & polish | Full PA + HI strings (native review gate, 01), exports with b/d–c/d + amount-in-words, report suite (07 §14) | Suite F full incl. PA+HI overflow |
 | M13 | Subscription | Tiers, gateway webhooks, grace/read-only, admin panel (08) | Suite G |
-| M14 | Hardening & pilot | Threat-model walkthrough, external crypto review ⚠️ budget, perf budgets on low-end device, DPDP checklist, Play/App Store prep | Suite H full pass; pilot month begins |
+| M14 | Hardening & pilot | Threat-model walkthrough, external crypto review ⚠️ budget, perf budgets on low-end device, DPDP checklist, Play/App Store prep, **client-hardening gates + OWASP MASVS L2+R pass (ADR 2026-09-05; 09 §4)** — decompile, MITM, screen-capture, log-scrub, rooted-device notice, SAST over release builds | Suite H full pass; pilot month begins |
 
 **Platform 🔒 (owner ruling):** iOS ships first; the Android build follows from the same codebase at M12+. Store submission, IAP compliance (see 08 §3.2) and TestFlight distribution therefore land in M13–M14.
+
+**Hardening items by owning milestone (ADR 2026-09-05):** M0 app shell — Android `cleartextTrafficPermitted=false`, iOS ATS, `FLAG_SECURE`, `filterTouchesWhenObscured`, `--obfuscate --split-debug-info` in the release lane · M3 crypto — `Uint8List`/`SecureKey` only, purity grep against `String` key fields, FFI-only key crossing · M4 server/sync — SPKI pins + rotation runbook, gitleaks + OSV steps in `ci.sh`, `print(` check · M5 app — foreground inactivity lock, modified-device notice, iOS capture cover, temp-file purge after share.
 
 **Sequencing notes 🔒:** M1–M3 are pure packages — build and test them before any UI or network exists; they are the components that must be boringly correct. Dogfooding starts at M5 with the solo app (your own use case first). The mockup/prototype round the owner planned slots **between now and M5**, refining 07 before UI code. **iOS ships first**; Android follows from the same codebase after M12; AA bank integration, voice entry, more languages, and desktop remain post-v1 per the requirements doc.
 

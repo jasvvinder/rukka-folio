@@ -46,3 +46,5 @@ Run on the Kaur Family Agriculture fixture: three partners fund unequally · one
 
 ## 4. Release gates 🔒
 No release with: any red in A–E; any 🔒 spec deviation without a doc change merged first; any new string missing a PA or HI translation; any plaintext-boundary change (03 §4) without explicit owner sign-off.
+
+**Client-hardening gates 🔒 (ADR 2026-09-05).** Every push: secret scan over tree + history, dependency vulnerability audit of `pubspec.lock`, no bare `print(` in app or packages, release lane carries `--obfuscate --split-debug-info` and never the pinning-off define. Every store submission (M14 onward): decompiled release build shows no readable Dart symbols; MITM proxy attempt is refused by pinning on every screen; screenshot and screen recording are blocked on Android and amounts are covered under iOS capture; a full entry-to-export flow on a release build leaks nothing to logcat/syslog (no token, header, body, amount or name); the modified-device notice appears on a rooted test device **and the app keeps working**; OWASP MASVS L2 + R checklist passes.

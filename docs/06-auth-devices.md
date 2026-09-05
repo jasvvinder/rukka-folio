@@ -93,6 +93,8 @@ Challenge–response; no bearer secrets that outlive minutes.
    - **Forgetting it is not data loss:** re-verify by OTP to the registered number plus biometric, then set a new PIN. Nothing is re-encrypted.
    - 🔒 **One PIN, not two.** The Personal Book's extra lock re-prompts **the same PIN or biometric** rather than introducing a second number to remember.
 5. **Local unlock** is the OS's job: biometric/PIN gates the keystore; app-lock timeout configurable (default 2 min background); the Personal Book's optional extra lock **re-prompts the same MPIN or biometric** — one PIN, never a second number (§4.4, ADR 2026-09-01).
+   - **Foreground inactivity lock 🔒 (ADR 2026-09-05 §7):** the app also locks after **5 min without a touch in the foreground**, configurable in the same *Auto-lock* setting beside the background value. A half-typed entry survives as the draft and returns after unlock — the lock never discards work.
+   - **Modified-device notice 🔒 (ADR 2026-09-05 §6):** root/jailbreak, an attached debugger on a release build, or instrumentation is **detected, warned and logged — never blocked**. One plain notice with a path to Devices & security, and a `device_integrity` flag in the device's `attestation` field (03 §2). Emulators are not flagged (the test rig runs on them). Screenshots are blocked and keys never cross a platform channel — 07 §5.6, ADR 2026-09-05 §4, §8.
 5. Server maintains a **minimum client version** per API route group; below it → HTTP 426 and the app shows a mandatory-update screen. Crypto- or sync-breaking releases bump it.
 
 ---
@@ -185,3 +187,4 @@ OTP on old number (or, if lost, guardian approval k-of-n) + OTP on new number �
 2. Play Integrity / DeviceCheck enforcement timing (field now, enforce v2).
 3. DPDP rules status → consent text, grievance officer, retention windows (§9.3).
 4. Device cap + guardian-minimum defaults to revisit after the family pilot.
+5. SPKI pin set for the hosted API (intermediate CA + backup) and the rotation runbook — verify the chain at M4 (05 §1, ADR 2026-09-05).

@@ -12,6 +12,27 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-05 — docs: client hardening (ADR 2026-09-05)
+
+Owner brought a generic Flutter fintech security blueprint (MASVS / PCI framed) and asked what we adopt. Assessed against 04/05/06/07/13; about two thirds already decided or compatible.
+
+**Decided** — `docs/decisions/2026-09-05-client-hardening.md`
+- **Rejected 🔒:** "server is the sole authority for financial calculations" — contradicts zero-knowledge; the ADR tabulates our equivalents (signed envelopes, deterministic projector + cross-client hash, flag-for-review limits, signed quorum approvals) so the idea does not return.
+- **Adopted 🔒:** SPKI public-key pinning with backup pins, hard-fail in staging too (05 §1) · OS transport configs, `FLAG_SECURE`, tap-jacking flag (M0 shell) · obfuscated release builds with symbols kept as CI artefacts · **screenshots/recording blocked** — owner-ruled, because PDF/WhatsApp share already exists (07 §5.6) · root/jailbreak/debugger **detect-warn-log, never block** (06 §4; 04 §1.2) · foreground inactivity lock 5 min beside the 2 min background lock (06 §4) · key material only in `Uint8List`/`SecureKey`, FFI-only, never a `MethodChannel` · CI: secret scan, dependency audit, no bare `print(` · temp exports purged after share (readable Drive export untouched) · MASVS L2+R as the M14 checklist; PCI out of scope, DPDP not GDPR.
+
+**Changed**
+- 04 §1.2, 05 §1, 06 §4 + §11, 07 §5.6, 09 §4 (client-hardening gates), 10 (M14 row + hardening-by-milestone note).
+
+**Open** ⚠️
+- SPKI pin set for hosted Supabase (intermediate CA + backup) and rotation runbook — verify at M4.
+- `FLAG_SECURE` on the *Show my code* ceremony screen (consistent; confirm camera path unaffected).
+- Detection library: prefer a small native check we own over a third-party package in the trust path.
+- Code items (manifest flags, ci.sh steps, purity grep) land with their owning milestone — none written this session.
+
+**Commits** — pending.
+
+---
+
 ## 2026-09-04 — M1: ledger core (pure Dart)
 
 Exit gate (10 M1): **suite A incl. property tests, green** — `./scripts/ci.sh` passes end to end; `core_ledger` carries 134 tests, among them the golden replay of all five worked examples (8 books, 185 vouchers: every ledger row, every closing c/f, every trial-balance row and total, and the three Due to/from pairs whose both sides are in the package).
