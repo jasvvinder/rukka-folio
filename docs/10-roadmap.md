@@ -53,5 +53,6 @@
 | Time-boxed read-only accountant role | professional surfaces (02 §10) | Role model in 06 §7 must allow expiring grants | Roles table carries an optional expiry |
 | iOS widgets / Siri shortcuts for the 8-second entry | 07 §1 | Widget cannot hold book keys unlocked — design the locked-widget state | Entry sheet reachable by deep link |
 | Budgets per book | consumer request pattern | Consumer vocabulary only (rule 9); no new ledger class | Projector stays pure; budgets are a view over balances |
+| Company-assisted recovery — opt-in, per tenant, paid tier: a copy of the UMK escrowed with us under an HSM, released after identity checks + a visible waiting period | owner raised 5 Sep 2026 whether to drop zero-knowledge for a server-readable tier; **ruled: keep zero-knowledge for now**. This is the middle path — the opting tenant alone gives up ZK, disclosed in one plain sentence (04 §7.6 rule) | Owner ruling to build it at all; HSM/KMS choice; DPDP custodian obligations; must never touch the default tenant's guarantee | Recovery ladder (04 §7) is rung-pluggable; escrow policy object already exists for head escrow (04 §7.5) |
 
 **How to use this table:** when a v1 session surfaces an idea that is not in a milestone row above, add a row here in the same commit and move on. Do not size or sequence rows until M14.

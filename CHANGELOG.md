@@ -27,9 +27,9 @@ Same review as the client blueprint, applied to 05. Core of 05 stands (seq curso
 
 **Changed** — 05 §1/§3/§4/§5/§9/§10/§11 · 03 §2.5, §3.1 (schema) · 04 §1.2, §9.2 · 02 §5 · 06 §7 · 09 §2 suite D · 10 M2/M3/M4 rows.
 
-**Open** ⚠️ — quota/rate numbers per plan (08); guardian k-of-n revocation as multi-sig vs k records (M3); one `bigserial` for records + envelopes (with 05 §11.1 test). Owner also raised **whether to drop zero-knowledge** for a server-readable tier — not ruled; analysis given in session, decision pending.
+**Open** ⚠️ — quota/rate numbers per plan (08); guardian k-of-n revocation as multi-sig vs k records (M3); one `bigserial` for records + envelopes (with 05 §11.1 test). Owner raised **whether to drop zero-knowledge** for a server-readable tier; **ruled 5 Sep 2026: keep zero-knowledge for now.** The opt-in company-assisted-recovery tier is parked in 10 § Phase 2 (not scheduled, not 🔒). Owner also asked why libsodium rather than Flutter/Dart built-ins — answered in session (Dart has no AEAD/signature/KX primitives; libsodium is native C over FFI, audited, one implementation for both platforms); rule 7 stands.
 
-**Commits** — pending.
+**Commits** — `217818a` (ADR + cross-refs); zero-knowledge ruling + parking-lot row follow in the next commit.
 
 ---
 
@@ -50,7 +50,7 @@ Owner brought a generic Flutter fintech security blueprint (MASVS / PCI framed) 
 - Detection library: prefer a small native check we own over a third-party package in the trust path.
 - Code items (manifest flags, ci.sh steps, purity grep) land with their owning milestone — none written this session.
 
-**Commits** — pending.
+**Commits** — `2b89db7`.
 
 ---
 
