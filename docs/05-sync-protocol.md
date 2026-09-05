@@ -11,6 +11,7 @@
 
 - HTTPS + JSON; auth per 06 §4 (15-min JWT, signed refresh). Every write carries `envelope_id` as the idempotency key — no separate header needed.
 - **Public-key pinning 🔒 (ADR 2026-09-05):** the client pins the **SPKI hashes** of the API host's chain — key, not certificate — with at least two pins (current + backup) so rotation is never an outage. Pin failure is a hard fail with no fallback and no override, in every build that talks to a hosted environment, staging included; only a local-dev build may disable it, and CI asserts the release lane never does. OS transport rules forbid cleartext (Android network-security-config, iOS ATS). ⚠️ Pin at the intermediate-CA level for hosted Supabase; verify the exact chain and write the rotation runbook at M4.
+- **Store epoch 🔒 (ADR 2026-09-05b §6):** every ack, pull and meta response carries `store_epoch`; a change (server restore/rebuild) resets all cursors to 0 and re-pulls — idempotent, so nothing duplicates.
 - **Min-version gate:** any sync route may answer `426` (06 §4.5); the client stops syncing and shows the update screen. Half-synced state is safe by construction (idempotent, append-only).
 - Compression: gzip request/response. Payloads are ciphertext (incompressible); gzip earns its keep on metadata and batching overhead only — don't expect ratio miracles.
 
@@ -44,6 +45,10 @@ A device that cannot unwrap the new `BK` is not a member any more; it will recei
 | `rejected:too_large` | > size cap | shrink attachment / split ⚠️ cap: 256 KB/envelope |
 | `rejected:key_version_stale` | envelope sealed under a `BK` version superseded > 48 h ago (04 §5.3) | **not terminal:** run the re-seal above, retry **once**; if it fails again (new `BK` unavailable), surface in Inbox as *"couldn't send — waiting for a new key"* |
 | `rejected:version` | payload_schema above server registry | force-update path |
+| `rejected:rate_limited` | per-device push rate exceeded (ADR 2026-09-05b §7; ⚠️ 600/min, 50 MB/day proposed) | backoff and retry; never Inbox |
+| `rejected:quota` | book's envelope count/bytes above plan (08 owns numbers ⚠️) | Inbox *"This book is full — upgrade the plan"*; book stays readable |
+
+**After `acked` comes `observed` 🔒 (ADR 2026-09-05b §6):** the outbox keeps the acked blob until the envelope returns in the device's own pull; prune only then. Cursor past the acked `seq` without seeing it → re-push + `write_lost` security event; 30 days un-observed → Inbox. **Membership `blocked`** is refused at push like `membership_not_active`; garbage pushed before a block is permanent (append-only) — readers quarantine it and quotas bound its cost.
 
 - The server **never** rejects on content — a hostile client's unbalanced entry is stored and then quarantined by every honest reader (02 §11). This keeps the server dumb and the trust model clean.
 - Retry: exponential backoff with jitter (1 s → 2 → 4 → … cap 10 min), reset on connectivity change. Rejections are terminal per envelope — no blind retry loops. **The one exception is `key_version_stale`**, which permits exactly one re-seal-and-retry (bounded, so it cannot loop).
@@ -55,14 +60,21 @@ A device that cannot unwrap the new `BK` is not a member any more; it will recei
 - `GET /sync/pull?book_id=&after_seq=&limit=500` → ordered page + `next_seq`. Gap-free under concurrent writers because `seq` insertion is serialized per the DB sequence and the read is `where seq > $after order by seq` — an envelope is visible to pulls only after commit. ⚠️ Verify with an interleaved-commit test; if the chosen Postgres setup can expose out-of-order visibility, switch to a per-book counter assigned in a serialized txn.
 - Per-book cursor rows: `sync_cursors(book_id, last_seq)` (03 amended). Pull all books round-robin, active-scope book first.
 - **Applying pulls:** decrypt, verify signature chain (04 §8.3), store in `envelopes_local`, then project. If the envelope's HLC ≥ the book's applied-HLC watermark → apply incrementally. If **lower** (a late arrival), mark the book dirty and **replay** the projection from the latest certified year vector (03 §3.3.3) — cheap because the replay window is at most one FY, and correctness beats cleverness here. (This replay is the mechanical twin of the *Late Arrivals tray*: 02 §8 governs what humans see; this section governs what the math does.)
+- **Store `seq` with every envelope** (`envelopes_local.seq`) — it is the revocation cut-off (04 §9.2, ADR 2026-09-05b §5): an envelope from a device is accepted only if its `seq` is below the `seq` of that device's signed revocation or the member's removal record. Never the HLC.
+- **Per-author sequence 🔒 (ADR 2026-09-05b §3):** each payload carries `author_seq` (per book, per device, from 1, inside the ciphertext). Readers track the highest contiguous value per `(book, author_device)`; a gap → *"waiting for entries from Ramesh's phone"*, projection provisional, **month- and year-close blocked** until filled; Inbox after 24 h.
+- **Dangling references are held 🔒 (ADR 2026-09-05b §4):** an amend, reverse or decision whose target has not arrived sits in `held` — not projected, not quarantined. When every author's `author_seq` is contiguous and the target is still absent, quarantine `target_missing`.
 - Undecryptable envelopes (key not yet arrived) queue in `key_wait`; retried whenever §5 delivers keys. Not an error state for 24 h; after that, surface in Inbox.
 
 ## 5. Metadata & key sync 🔒
 
 Separate channel from envelopes, `GET /sync/meta?after=cursor` (cursor = `updated_at,id` on each table): memberships, book_roles, devices+certs, wrapped_keys, invites, verification_events, subscriptions, escrow/recovery states, tombstones.
 
+**Structural facts are signed records 🔒 (ADR 2026-09-05b §1).** Membership status, roles, limits, designations, device revocation, member removal and rotation notices are authored on a certified device as `SignedRecord{…, author_sig, hlc, seq}` with a plaintext payload (roles are plaintext already, 03 §4). The server applies them to its rows for RLS; the client **verifies the record** (04 §3.4) and treats the rows as the server's copy — row ≠ record → believe the record, log `meta_mismatch`.
+
+**No wipe on the server's word 🔒 (ADR 2026-09-05b §2).** Keys and projections are dropped only on a verified signed revocation/removal record or the user's own action. A bare 401 or row puts the device in **suspended** (sync stops, data stays, lock screen explains) until a record arrives or auth succeeds.
+
 - New `wrapped_keys` → unwrap, refresh `key_cache`, drain `key_wait`.
-- Revocations: own-device revoked → local wipe (best-effort; also triggered by push notification and by next auth failure); membership removed → drop that book's keys and projections, keep nothing but the row saying it existed.
+- Revocations: own-device revoked (**signed record verified**) → local wipe; push notification and auth failure only *prompt* the meta pull that fetches the record. Membership removed (signed) → drop that book's keys and projections, keep nothing but the row saying it existed.
 - Key-rotation notices (04 §5.3): client learns `BK(v+1)` exists; new outbox envelopes must use the highest version — a client still writing `v` after the 48 h grace gets reader-side quarantine, so the client hard-checks version on every save. **Envelopes already queued under `v` are not lost:** because this channel drains before the outbox does (§3 ordering rule), they are re-sealed under the highest version and pushed unchanged in every other respect.
 
 ## 6. Attachments 🔒
@@ -81,7 +93,7 @@ Order: profile+meta+keys (§5) → per book: `book_config`, `account`, `rule` ob
 
 ## 9. Status surface (feeds 07 §1.7) 🔒
 
-`Synced ✓` (outbox empty, cursors fresh) · `Saved on phone · will sync (N)` · `Offline` · `Needs attention` → Inbox (rejections, quarantines, key_wait > 24 h, clock warning). No other states; no spinners on entry save, ever.
+`Synced ✓` (outbox empty, cursors fresh, no author gaps) · `Saved on phone · will sync (N)` · `Offline` · `Waiting for entries from {name}'s phone` (author gap < 24 h, ADR 2026-09-05b §3) · `Needs attention` → Inbox (rejections, quarantines, key_wait > 24 h, author gap > 24 h, write_lost, clock warning). No other states; no spinners on entry save, ever.
 
 ---
 
@@ -98,6 +110,12 @@ Order: profile+meta+keys (§5) → per book: `book_config`, `account`, `rule` ob
 - **Key-later:** envelopes pulled before their BK arrives decrypt automatically once §5 delivers it; nothing surfaces to the user under 24 h.
 - **Removed member's device** gets `membership_not_active` on push, loses keys via §5, and its local shared-book projections are gone after wipe handling.
 - **Attachment resume:** an upload interrupted at 60% resumes, and the file hash verifies end-to-end.
+- **Withheld envelope (ADR 2026-09-05b §3):** the server drops one reversal from a pull; every reader shows the author gap, refuses month-close, and no balance includes the un-reversed figure as final.
+- **Orphan amendment (ADR 2026-09-05b §4):** an amendment arrives before its original; it is held, nothing is counted; the original arrives → exactly one entry in balances.
+- **Unsigned revocation (ADR 2026-09-05b §2):** a hostile meta response marks the device revoked without a signed record; the device suspends, wipes nothing, and resumes when auth succeeds.
+- **Stolen-phone backdate (ADR 2026-09-05b §5):** a revoked device pushes an envelope with an HLC from last week; its `seq` is above the revocation's → quarantined by every reader.
+- **Restore from backup (ADR 2026-09-05b §6):** server epoch changes; clients reset cursors, re-pull, zero duplicates, and an envelope acked before the restore but missing after it is re-pushed with a `write_lost` event.
+- **Flood (ADR 2026-09-05b §7):** a member pushes 10k garbage envelopes; `rate_limited` throttles, `quota` stops the book, readers quarantine what landed, and a fresh device bootstraps within the perf budget.
 
 ## 11. Open items ⚠️
-1. `seq` visibility under concurrency: bigserial + commit-visibility test vs per-book serialized counter (§4). 2. Envelope size cap (256 KB proposed) and blob-offload threshold alignment with 03 §8.1. 3. Attachment Wi-Fi default and cache cap. 4. Backstop poll interval on metered connections. 5. Whether pull should be multiplexed (one call, many books) at v1 or later.
+1. `seq` visibility under concurrency: bigserial + commit-visibility test vs per-book serialized counter (§4). 2. Envelope size cap (256 KB proposed) and blob-offload threshold alignment with 03 §8.1. 3. Attachment Wi-Fi default and cache cap. 4. Backstop poll interval on metered connections. 5. Whether pull should be multiplexed (one call, many books) at v1 or later. 6. Rate-limit/quota numbers per plan (ADR 2026-09-05b §7, 08). 7. Signed records share the envelope `bigserial` — confirm with the §11.1 visibility test.

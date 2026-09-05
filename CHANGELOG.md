@@ -12,6 +12,27 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-05 — docs: sync trust boundaries (ADR 2026-09-05b)
+
+Same review as the client blueprint, applied to 05. Core of 05 stands (seq cursors, idempotency, key-sync-before-drain, content-blind server, cross-client close hashes). Every gap was one shape: the server was still trusted for things it should only relay.
+
+**Decided** — `docs/decisions/2026-09-05b-sync-trust-boundaries.md`
+- 🔒 Structural facts (membership, roles, limits, revocation, removal, rotation) are **signed records** from certified devices; server rows are their projection; clients verify the record, not the row.
+- 🔒 **No wipe on the server's word** — unsigned revocation → *suspended*, data kept; wipe only on a verified signed record.
+- 🔒 **Per-author sequence inside the ciphertext** — withholding becomes a visible gap; provisional projection; month/year-close blocked while gaps exist.
+- 🔒 **Dangling refs are `held`**, not counted (fixes the M1 orphan-amendment double-count when the original arrives late).
+- 🔒 **Revocation cut-off = server `seq`**, never HLC (a stolen phone cannot backdate its receipt).
+- 🔒 **Store epoch** on every response + outbox `observed` state (read-your-writes; `write_lost` event) — survives a server restore.
+- Rate limits + per-plan quotas (numbers ⚠️ 08), plaintext padding to size buckets, signed-URL lifetimes, content-free server metrics, separate `maintenance` deletion role.
+
+**Changed** — 05 §1/§3/§4/§5/§9/§10/§11 · 03 §2.5, §3.1 (schema) · 04 §1.2, §9.2 · 02 §5 · 06 §7 · 09 §2 suite D · 10 M2/M3/M4 rows.
+
+**Open** ⚠️ — quota/rate numbers per plan (08); guardian k-of-n revocation as multi-sig vs k records (M3); one `bigserial` for records + envelopes (with 05 §11.1 test). Owner also raised **whether to drop zero-knowledge** for a server-readable tier — not ruled; analysis given in session, decision pending.
+
+**Commits** — pending.
+
+---
+
 ## 2026-09-05 — docs: client hardening (ADR 2026-09-05)
 
 Owner brought a generic Flutter fintech security blueprint (MASVS / PCI framed) and asked what we adopt. Assessed against 04/05/06/07/13; about two thirds already decided or compatible.

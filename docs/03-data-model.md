@@ -110,6 +110,8 @@ RLS on, `FORCE`, for every table above; the API connects as a non-superuser role
 - `wrapped_keys`: readable only by the subject (`user_id` = requester, or guardian rows addressed to the requester); insertable per the flows in 04.
 - `memberships`, `book_roles`, `verification_events`: readable by fellow active members of the tenant.
 - Cross-tenant reads are impossible by construction; the acceptance suite includes a hostile-query test (§7).
+- **Rows are projections of signed records 🔒 (ADR 2026-09-05b §1):** `memberships`, `book_roles` and device revocations are written by the server only when applying a `signed_records` row authored on a certified device; clients verify the record, not the row.
+- **Deletion runs under a separate `maintenance` role** (ADR 2026-09-05b §8) reachable only from the scheduled deletion function, limited to the erased user's personal-book envelopes and wrapped keys, audited. The API role keeps no DELETE grant.
 
 **Deletion mechanics (06 §9.3) 🔒:** erase the user row's **profile fields** (phone, name, photo, language, contacts) in place and set `erased_at`; hard-delete all their wrapped keys and their personal-book envelopes. 🔒 **Retain** `devices` rows, `device_certs` and the UMK public key, flagged `erased` — pseudonymous key material carrying no personal data, required so that a device joining later can still verify the signature chain (04 §3.4) on shared-book entries the user authored. **Shared-book envelopes are never updated or deleted**, and `author_device` is never re-pointed — that would violate the append-only grant (§2.3) and CLAUDE.md rule 2. Clients render an erased author as *"Removed member"* from the erased profile row; the signature chain still verifies on every device, old or new.
 
@@ -121,11 +123,18 @@ RLS on, `FORCE`, for every table above; the API connects as a non-superuser role
 
 ```sql
 envelopes_local(envelope_id pk, book_id, object_id, object_type, key_version,
-        hlc, author_device, blob, verified int,      -- 1 after sig-chain check
-        quarantined int default 0, quarantine_reason text)
+        hlc, seq bigint null,                        -- server seq; revocation cut-off (ADR 2026-09-05b §5)
+        author_device, author_seq int,               -- from inside the ciphertext (§3 of that ADR)
+        blob, verified int,                          -- 1 after sig-chain check
+        quarantined int default 0, quarantine_reason text,
+        held int default 0, held_for uuid null)      -- dangling ref, waiting for target (§4)
 outbox(envelope_id pk, book_id, blob, created_at, push_state text
-        check (push_state in ('queued','inflight','acked','rejected')),
-        reject_reason text)
+        check (push_state in ('queued','inflight','acked','observed','rejected')),
+        acked_seq bigint null, reject_reason text)   -- prune only at 'observed' (§6)
+author_seq_local(book_id, device_id, next_seq int, primary key (book_id, device_id))
+author_gaps(book_id, author_device, expected_seq int, since_hlc)  -- derived, drives the status surface
+signed_records_local(id pk, tenant_id, kind, payload, author_device, sig, hlc, seq, verified int)
+store_epoch(epoch uuid)                             -- one row; change → all cursors reset
 sync_cursors(book_id pk, last_seq bigint)               -- server-seq cursor (05 §4)
 key_cache(book_id, key_version, wrapped_blob, primary key (book_id, key_version))
         -- BKs stored wrapped; unwrapped only in memory. UMK per 04 §3.3.

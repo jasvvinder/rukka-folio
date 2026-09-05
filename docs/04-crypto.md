@@ -21,7 +21,7 @@
 
 ### 1.2 We accept (documented, not defended)
 
-- A **malicious server can withhold data or serve stale data** (denial of service). It cannot alter or read it.
+- A **malicious server can withhold data or serve stale data** (denial of service). It cannot alter or read it — and since ADR 2026-09-05b §3, withholding is **detected**: every payload carries a per-author sequence, so a missing envelope shows as a gap on every reader and blocks month-close rather than passing as a complete book.
 - A **removed member keeps what they already synced.** Rotation protects future entries only. State this honestly in the UI.
 - The **escrow timer (§7.5) is server-enforced policy**, not cryptography. A compromised server could release the escrow blob early — but the blob is only decryptable by the designated head, so the damage is bounded to the escrow's intended scope.
 - **Malware on an unlocked, activated device** sees what the user sees. Out of scope. Client hardening (pinning, obfuscation, screenshot block, modified-device notice — ADR 2026-09-05) raises the bar but does not change this line; a rooted phone is **warned and logged, never blocked**.
@@ -252,6 +252,8 @@ Standard device linking (§9.1).
 Old device runs *Verify member* against the new device's *Show my code* (same ceremony; the QR carries the new device's keys) → old device wraps UMK to the new device's X25519 key and issues its certificate.
 
 ### 9.2 Revocation 🔒
+**Cut-off is the server `seq` of the signed revocation record, never the HLC (ADR 2026-09-05b §5):** envelopes the device authored before that `seq` stay valid; anything after is quarantined by every reader. A device wipes only on a *verified* signed record — never on a bare server assertion (ADR 2026-09-05b §2).
+
 Any certified device (or k guardians) revokes a device: server deletes its wrapped UMK + sessions and pushes a best-effort remote-wipe. Because the device may retain cache, the UI offers **"This phone was stolen"** → additionally rotates BKs of every book the user can read and (recommended) rotates UMK, re-running §7.3/§7.4 distribution.
 
 ---

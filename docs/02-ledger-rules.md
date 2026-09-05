@@ -125,7 +125,7 @@ Guided setup per book, re-runnable until first lock: for each money account and 
 
 ## 5. Corrections 🔒
 
-- **Open period:** an entry may be **amended** — a new envelope, `kind` unchanged, `refs.amends = original`, carrying the complete replacement payload. Views show the latest amendment; history is preserved and inspectable ("edited by Ramesh, 2 changes"). Amend chains are linear (amend the head only).
+- **Open period:** an entry may be **amended** — a new envelope, `kind` unchanged, `refs.amends = original`, carrying the complete replacement payload. Views show the latest amendment; history is preserved and inspectable ("edited by Ramesh, 2 changes"). Amend chains are linear (amend the head only). **A reader holding an amendment, reversal or decision whose target has not arrived keeps it `held` — neither projected nor quarantined — until the target lands (ADR 2026-09-05b §4); only when every author's sequence is contiguous and the target is still absent is it quarantined as `target_missing`.**
 - **Locked period:** amendment is forbidden by rule. The only path: **reversal** — an auto-built mirror entry dated in the open period, `refs.reverses = original`, plus (optionally) the corrected re-entry. One guided flow: *"Fix an old entry"* → app posts both.
 - Reversed and amended-away entries remain visible in history, struck through. `void` status exists only as the derived state of a fully reversed entry.
 
