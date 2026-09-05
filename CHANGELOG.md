@@ -12,6 +12,26 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-05 — docs: auth & devices vs the hostile relative (ADR 2026-09-05d)
+
+Fourth review of the day, of 06. The strongest spec of the four; its gaps were flows that let a hostile human — or two colluding guardians — act faster than the owner can notice.
+
+**Decided** — `docs/decisions/2026-09-05d-auth-devices-human-attackers.md`
+- 🔒 Guardian recovery and guardian phone-change **wait 24 h with one-tap Cancel** on every existing device when the user still has an active device; immediate only when none exists.
+- 🔒 **Uncertified devices see nothing but themselves** — server verifies the cert under the UMK public key, RLS requires `certified` for every tenant table.
+- 🔒 **Support revocation delayed 24 h, cancellable**, lands unsigned → target suspends, never wipes.
+- 🔒 Keystore bound to the **current biometric set**; enrolment change → MPIN. 🔒 **MPIN attempt policy** (5 free, escalating, 10 → OTP+biometric), HMAC under a hardware-backed key, counter survives app-data clearance.
+- 🔒 **New-device notice on every path** (incl. silent platform key sync) + `device_added` signed record; verification events are signed records.
+- Threat model names Apple/Google-account + number compromise; invites phone-bound; 15-min revocation lag stated; challenge/registration rate limits.
+
+**Changed** — 06 §3, §4.4, §5, §6, §7, §8, §9.3 (placement fix), §9.4, §10, §11 · 04 §1.2, §7.3 · 03 §2.5 · 07 §5.6 · 09 suite C · 10 M6.
+
+**Open** ⚠️ — rate-limit numbers; per-tenant 24 h window; Android keystore invalidation across OEMs.
+
+**Commits** — pending.
+
+---
+
 ## 2026-09-05 — docs: storage durability & integrity (ADR 2026-09-05c)
 
 Third review of the day, of the data model (03). Spine stands (envelopes are truth, projections disposable, integer paise, one plaintext boundary, append-only by grant). Gaps were at the edges 03 had not looked at.
@@ -27,7 +47,7 @@ Third review of the day, of the data model (03). Spine stands (envelopes are tru
 
 **Open** ⚠️ — PITR/snapshot/RTO-RPO numbers vs hosting plan; KMS/Vault choice + rotation; whether projector bumps share the crypto/sync min-version route group.
 
-**Commits** — pending.
+**Commits** — `460eb53`.
 
 ---
 

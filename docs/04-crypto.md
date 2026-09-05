@@ -26,6 +26,7 @@
 - The **escrow timer (§7.5) is server-enforced policy**, not cryptography. A compromised server could release the escrow blob early — but the blob is only decryptable by the designated head, so the damage is bounded to the escrow's intended scope.
 - **Malware on an unlocked, activated device** sees what the user sees. Out of scope. Client hardening (pinning, obfuscation, screenshot block, modified-device notice — ADR 2026-09-05) raises the bar but does not change this line; a rooted phone is **warned and logged, never blocked**.
 - Traffic metadata (who syncs when, blob sizes) is visible to the server. Required for operation.
+- **Compromise of the user's Apple/Google account plus their phone number** defeats platform key sync (§7.0) and restores the vault silently. Accepted as the price of silent recovery for the common case; detection is the new-device notice on every path (ADR 2026-09-05d §6), mitigation is turning key sync off in Devices & security.
 
 ---
 
@@ -179,7 +180,7 @@ Standard device linking (§9.1).
 3. Guardian approves with biometric → guardian's device opens its sealed share and re-seals it to the candidate public key. The share transits and rests sealed; the server never sees plaintext shares.
 4. At k shares, the new device reconstructs `UMK_priv`, immediately zeroizes shares from memory.
 5. Its possession of UMK lets it decrypt all wrapped BKs → full restore.
-6. The device **self-issues its certificate** under the recovered UMK and 🔒 notifies all members and revokes all *previous* device sessions of this user (a recovery event is exactly when old devices should die).
+6. The device **self-issues its certificate** under the recovered UMK and 🔒 notifies all members and revokes all *previous* device sessions of this user (a recovery event is exactly when old devices should die). **If the user still has an active certified device, steps 4–6 wait 24 h behind a one-tap Cancel on every existing device (ADR 2026-09-05d §1); immediate only when none exists.**
 7. Guardian denial → requester notified; 3 denials or 72 h → recovery attempt closed and logged.
 
 ### 7.4 Rung 3 — paper sheet 🔒

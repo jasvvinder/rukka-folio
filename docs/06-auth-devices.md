@@ -74,7 +74,7 @@ On first run after OTP:
 
 1. Generate device keys per 04 §3.3 (Ed25519 in hardware keystore; X25519 stored under a hardware-backed AES key).
 2. `POST /devices` with activation ticket + public keys + model/OS metadata → server issues `device_id` and stores the record. ⚠️ Play Integrity / DeviceCheck attestation: design the field now, enforce in v2.
-3. The device is **registered but uncertified** until it holds a certificate under the user's UMK (issued at signup for the first device, or via linking/recovery — 04 §3.4, §9.1, §7). Uncertified devices can authenticate (§4) but other clients will not trust content they author, and they hold no keys.
+3. The device is **registered but uncertified** until it holds a certificate under the user's UMK (issued at signup for the first device, or via linking/recovery — 04 §3.4, §9.1, §7). Uncertified devices can authenticate (§4) but other clients will not trust content they author, and they hold no keys. **Uncertified devices see nothing but themselves 🔒 (ADR 2026-09-05d §2):** the server verifies the uploaded certificate under the user's registered UMK public key and sets `devices.status='certified'`; until then RLS returns only the device's own user row, its own device row, wrapped keys/shares addressed to it and its own recovery request — no memberships, names, roles, device lists or verification log. `/auth/challenge` and `/devices` carry per-IP and per-device rate limits (numbers ⚠️ M6).
 4. First device only: generate UMK, self-certify, then immediately walk the user through **recovery-sheet generation + verified-storage nag**, and **guardian selection** if the tenant has other members (04 §7.3–7.4).
 
 ---
@@ -92,6 +92,8 @@ Challenge–response; no bearer secrets that outlive minutes.
    - **Face ID is the fast path; the PIN is the alternative and the fallback.** Device passcode is no longer offered as the fallback.
    - **Forgetting it is not data loss:** re-verify by OTP to the registered number plus biometric, then set a new PIN. Nothing is re-encrypted.
    - 🔒 **One PIN, not two.** The Personal Book's extra lock re-prompts **the same PIN or biometric** rather than introducing a second number to remember.
+   - 🔒 **Keystore bound to the current biometric set (ADR 2026-09-05d §4):** any fingerprint/face enrolment change invalidates biometric access to the device-key item; the app falls back to the MPIN and re-creates the item. A relative who knows the passcode and enrols their face gets the PIN prompt.
+   - 🔒 **Attempt policy is ours (ADR 2026-09-05d §5):** 5 free attempts, then 30 s · 1 min · 5 min · 15 min · 1 h; after 10 failures the PIN is disabled and reset needs OTP + biometric. Stored as `HMAC(random hardware-backed key, pin)`, constant-time compare, counter and lockout in the same protected item.
 5. **Local unlock** is the OS's job: biometric/PIN gates the keystore; app-lock timeout configurable (default 2 min background); the Personal Book's optional extra lock **re-prompts the same MPIN or biometric** — one PIN, never a second number (§4.4, ADR 2026-09-01).
    - **Foreground inactivity lock 🔒 (ADR 2026-09-05 §7):** the app also locks after **5 min without a touch in the foreground**, configurable in the same *Auto-lock* setting beside the background value. A half-typed entry survives as the draft and returns after unlock — the lock never discards work.
    - **Modified-device notice 🔒 (ADR 2026-09-05 §6):** root/jailbreak, an attached debugger on a release build, or instrumentation is **detected, warned and logged — never blocked**. One plain notice with a path to Devices & security, and a `device_integrity` flag in the device's `attestation` field (03 §2). Emulators are not flagged (the test rig runs on them). Screenshots are blocked and keys never cross a platform channel — 07 §5.6, ADR 2026-09-05 §4, §8.
@@ -108,10 +110,10 @@ Challenge–response; no bearer secrets that outlive minutes.
 | Reinstall, same iPhone | Keychain intact? → keys found → normal device, no recovery. **On iOS-first this is the common path**, which materially reduces recovery-ladder traffic |
 | Reinstall, same Android | Keystore was wiped → treat as **new phone** |
 | New phone, has old device | OTP → §3 → **link** via ceremony (04 §9.1) |
-| New phone, no old device | OTP → §3 → **recovery ladder** (04 §7): guardians → paper sheet |
+| New phone, no old device | OTP → §3 → **recovery ladder** (04 §7): guardians → paper sheet. **Immediate only if the user has no active certified device**; otherwise guardian recovery completes after a **24 h window** during which every existing device alarms with one-tap Cancel (ADR 2026-09-05d §1) — a user who still has a phone should *link* instead, and the screen says so |
 | Every rung fails | Login succeeds, vault empty. Shared books are re-wrappable to the user's *new* UMK by tenant members after a **fresh verification ceremony**. The personal book stays sealed **for now** — its ciphertext remains on the server, so recovering the Apple/Google account or finding the recovery sheet later still opens it (04 §7.6). If a readable export exists it holds the books in plain form and can seed opening balances in a fresh book. Say all of this plainly; do not tell the user their data is destroyed when it is not |
 
-Recovery completion always revokes all prior sessions and devices of that user and notifies every tenant they belong to (04 §7.3 step 6).
+Recovery completion always revokes all prior sessions and devices of that user and notifies every tenant they belong to (04 §7.3 step 6). **Every newly certified device, on every path — signup, link, recovery, sheet, platform key sync, Keychain remnant — notifies all the user's other devices and every tenant, and lands as a `device_added` signed record (ADR 2026-09-05d §6).**
 
 ---
 
@@ -120,7 +122,7 @@ Recovery completion always revokes all prior sessions and devices of that user a
 - **Linked devices** screen (WhatsApp-style): name, model, last active, certified state.
 - Revoke: any certified device of the same user, k guardians, or support-on-request (§8). Effect per 04 §9.2; the **"stolen"** path additionally rotates BKs (+ recommended UMK rotation).
 - Device cap: 5 per user (plan-adjustable).
-- Every add/certify/revoke lands in the tenant-visible audit log.
+- Every add/certify/revoke lands in the tenant-visible audit log **as a signed record from the acting device (ADR 2026-09-05d §7) — the server's rows are its copy.** A revoked device can still read metadata for up to one access-token lifetime (15 min); accepted.
 
 ---
 
@@ -134,9 +136,9 @@ expired (one-tap re-invite)      blocked + security event (admin unblock only
                                   after investigation; new invite required)
 ```
 
-- **invited:** admin picks phone + per-book roles (+ auto-post limit); server stores the invite with its 128-bit ceremony nonce **and only an HMAC of the number** — the plaintext goes into the outbound message job and is gone once sent (ADR 2026-09-05c §4); delivery via WhatsApp/SMS link. The admin's device shows whom it invited from its own contact card.
+- **invited:** admin picks phone + per-book roles (+ auto-post limit); server stores the invite with its 128-bit ceremony nonce **and only an HMAC of the number** — the plaintext goes into the outbound message job and is gone once sent (ADR 2026-09-05c §4); delivery via WhatsApp/SMS link. The admin's device shows whom it invited from its own contact card. **The invite is accepted only by a device whose OTP-verified number matches `invitee_hmac` — the link alone admits nobody (ADR 2026-09-05d §9).**
 - **joined_pending_verification:** invitee has an account, device, UMK — their **Personal Book works immediately** (it needs nobody's keys). Shared books are visible as named placeholders: *"Meet Sunita to activate."* Clients structurally cannot wrap BKs to this state (04 §5.1).
-- **active:** on ceremony success (any mode: in-person QR default / logged remote code / delegated by any active member — 04 §6.4), the verifier's device wraps the BKs per the role grants; membership flips.
+- **active:** on ceremony success (any mode: in-person QR default / logged remote code / delegated by any active member — 04 §6.4), the verifier's device wraps the BKs per the role grants and publishes the **verification event as a signed record** (ADR 2026-09-05d §7); membership flips.
 - **Every transition and every role/limit/designation change is a signed record authored on a certified admin device (ADR 2026-09-05b §1); the server's rows are its copy of them, and a client acts only on the verified record.** Role changes later are database-only if within already-held books; granting a *new* book wraps that BK (no new ceremony — the human is already verified); removal follows 04 §5.3 with the ledger's advance-settlement precondition.
 - Trustee/treasurer handover (organizations) = invite-with-ceremony for the incoming + removal for the outgoing, in one guided flow.
 
@@ -147,7 +149,7 @@ expired (one-tap re-invite)      blocked + security event (admin unblock only
 Written policy, shipped with the product, so nobody can be socially engineered into an ability that doesn't exist.
 
 - **Caller verification:** callback to the registered number **plus** one account fact (registration month, last payment amount, or count of linked devices). Never OTP-read-back (training users to read OTPs to "support" is how fraud happens — and our OTPs unlock nothing anyway).
-- **Support CAN:** adjust plan/billing, extend trials, revoke a device, initiate account deletion (§9.3), resend invites.
+- **Support CAN:** adjust plan/billing, extend trials, revoke a device, initiate account deletion (§9.3), resend invites. **Support revocation is delayed 24 h and cancellable from any certified device of the user (ADR 2026-09-05d §3); it lands unsigned, so the target suspends and never wipes (ADR 2026-09-05b §2).**
 - **Support CANNOT:** read any content, recover any key, bypass a ceremony, add a member, release an escrow. **No such endpoints exist.** The support script for "I lost everything" is the recovery ladder, and if the ladder is exhausted, the honest answer: *"Your shared books can be restored by your family after re-verification; your old personal book is gone — this is the privacy you were promised, working."*
 
 ---
@@ -161,12 +163,12 @@ Phone, name, photo, language, WhatsApp opt-in; tenants, memberships, per-book ro
 Available always, plan-independent, lapsed-plan included: full decrypted export (XLSX/CSV/PDF) generated **on device**. Open export is a trust feature, not a leak.
 
 ### 9.3 Deletion 🔒
-Phone erasure = drop `phone_ct`/`phone_hmac` (ADR 2026-09-05c §4); the KMS key never needs rotation for a single user's erasure.
-
 User-initiated (in-app) or via support: 15-day cooling period, every device + guardians notified, cancel-anytime; then **profile data is erased** (phone, name, photo, language, contact fields), all wrapped keys and the user's personal-book envelopes are hard-deleted, and every session dies. 🔒 **Verification material is retained, not deleted:** the user's UMK *public* key and their device certificates survive as pseudonymous cryptographic material, flagged `erased`. They contain no personal data, and without them a device joining later could not verify the signature chain (04 §3.4) on entries that user authored in *shared* books — it would quarantine them, compute different balances, and fail the close hash (02 §8). Erasure of personal data and integrity of other people's financial records are both satisfied; this is the same reasoning that lets financial records outlive an erasure request. envelopes the user authored in *shared* books remain (they are the tenant's records) with authorship pseudonymized to a fixed label. DPDP-aligned; ⚠️ confirm final DPDP rules' retention/grievance details at build.
 
+Phone erasure = drop `phone_ct`/`phone_hmac` (ADR 2026-09-05c §4); the KMS key never needs rotation for a single user's erasure.
+
 ### 9.4 Phone-number change 🔒
-OTP on old number (or, if lost, guardian approval k-of-n) + OTP on new number → identity record updates; UMK, keys, memberships untouched. The number was only ever the doorbell.
+OTP on old number (or, if lost, guardian approval k-of-n) + OTP on new number → identity record updates; UMK, keys, memberships untouched. The number was only ever the doorbell. **The guardian path carries the same 24 h cancellable window as recovery when any active device exists (ADR 2026-09-05d §1), and the old number receives a plain notice that a change was requested.**
 
 ---
 
@@ -180,6 +182,12 @@ OTP on old number (or, if lost, guardian approval k-of-n) + OTP on new number �
 - **Given** account deletion completing, **then** the user's profile fields are erased and `erased_at` is set, their wrapped keys and personal-book envelopes are absent from storage, and **no shared-book envelope row was updated or deleted**.
 - **Given** a deleted member's shared-book entries and a **freshly-installed device** that never saw them before, **then** the signature chain still verifies (retained device certs + UMK public key), the entries are **not** quarantined, the author renders as *Removed member*, and the device computes the same balance-vector hash as every other device (§9.1, 02 §8).
 - **Given** a support agent's console session, **then** no UI or API path exists that returns key material or content (verified by endpoint inventory test).
+- **Given** a user with one active device and 2 of 3 guardians approving a recovery from a new device (ADR 2026-09-05d §1), **then** nothing decrypts for 24 h, the active device shows Cancel, and a cancel closes the attempt and notifies the approving guardians.
+- **Given** an OTP-only device (ADR 2026-09-05d §2), **when** it pulls meta, **then** it receives no membership, name, role, device or verification row of any tenant.
+- **Given** a support-initiated revocation (ADR 2026-09-05d §3), **then** the target suspends without wiping, every other device shows Cancel for 24 h, and a cancel restores it.
+- **Given** a new face enrolled on the phone (ADR 2026-09-05d §4), **then** the next unlock demands the MPIN and biometric access is re-established only after it.
+- **Given** 10 wrong MPINs (ADR 2026-09-05d §5), **then** the PIN is disabled and only OTP + biometric re-enables it; app-data clearance does not reset the counter.
+- **Given** a silent platform-key-sync restore (ADR 2026-09-05d §6), **then** every other device of the user and every tenant is notified of the new device.
 
 ---
 
@@ -190,3 +198,4 @@ OTP on old number (or, if lost, guardian approval k-of-n) + OTP on new number �
 3. DPDP rules status → consent text, grievance officer, retention windows (§9.3).
 4. Device cap + guardian-minimum defaults to revisit after the family pilot.
 5. SPKI pin set for the hosted API (intermediate CA + backup) and the rotation runbook — verify the chain at M4 (05 §1, ADR 2026-09-05).
+6. Challenge/registration rate-limit numbers; per-tenant configurability of the 24 h recovery window; Android keystore invalidation across OEMs (ADR 2026-09-05d).

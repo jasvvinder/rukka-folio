@@ -113,6 +113,7 @@ otp_challenges / activation_tickets     -- ephemeral, TTL-purged (06 §2–3)
 
 RLS on, `FORCE`, for every table above; the API connects as a non-superuser role with **our** `request.user_id` / `request.device_id` claims (06 §4 JWT, not platform auth) set with `SET LOCAL` per transaction so a pooled connection never carries them across (ADR 2026-09-05c §7).
 
+- **Certified-only (ADR 2026-09-05d §2):** every tenant-scoped policy below additionally requires the caller's `devices.status = 'certified'` (set by the server after verifying the cert under the user's UMK public key). An uncertified device reads only its own `users`/`devices` rows, wrapped keys addressed to it and its own `recovery_requests`.
 - `envelopes`: **SELECT/INSERT only** where the user holds a `book_roles` row for `book_id` with a role permitting it (viewer ⇒ select only) **and** membership status = `active`. No UPDATE/DELETE policy exists at all.
 - `wrapped_keys`: readable only by the subject (`user_id` = requester, or guardian rows addressed to the requester); insertable per the flows in 04.
 - `memberships`, `book_roles`, `verification_events`: readable by fellow active members of the tenant.
