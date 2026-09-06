@@ -26,6 +26,16 @@ hits=$(grep -rnE "Color\(0x|Color\.fromARGB|Color\.fromRGBO|#[0-9A-Fa-f]{6}\b" a
        | grep -v "app/lib/shared/tokens.dart" || true)
 [ -n "$hits" ] && { echo "$hits"; report "hex colour literal in app/lib — use tokens (design/tokens/tokens.json)"; }
 
+# Memory hygiene (ADR 2026-09-05 §8, B-04-8): key material in core_crypto lives in Uint8List /
+# SecureKey, never in a Dart String. Flag any String-typed field, parameter or local whose name says
+# it holds a key, secret, seed, share, nonce, signature or ciphertext. Ids (`bookId`, `deviceId`),
+# `keyVersion` and record `kind`s are Strings/ints by design and are excluded by the pattern.
+hits=$(grep -rnE "\bString\??\s+[A-Za-z0-9_]*([Kk]ey|[Ss]ecret|[Ss]eed|[Ss]hare|[Nn]once|[Ss]ignature|[Ss]ig\b|[Cc]iphertext|[Pp]riv|[Pp]laintext)[A-Za-z0-9_]*\b" packages/core_crypto/lib --include='*.dart' \
+       | grep -vE "[Kk]eyVersion|[Kk]eyRef|[Kk]eyId|[Kk]ind\b|^[^:]+:[0-9]+:\s*//" || true)
+[ -n "$hits" ] && { echo "$hits"; report "String-typed key material in core_crypto (use Uint8List/SecureKey — ADR 2026-09-05 §8)"; }
+hits=$(grep -rnE "MethodChannel|EventChannel" packages/core_crypto/lib packages/core_ledger/lib --include='*.dart' || true)
+[ -n "$hits" ] && { echo "$hits"; report "platform channel inside a core package (keys cross only over the libsodium FFI — ADR 2026-09-05 §8)"; }
+
 # Test-data hygiene (ADR 2026-09-05i §7). Mobile: 10 digits starting 6–9 as a standalone token,
 # or any +91 number outside the reserved 99999 block. Aadhaar: 4-4-4 digit groups. PAN: AAAAA9999A.
 # Paise amounts are never written with a leading 6–9 and exactly ten digits in fixtures; if one

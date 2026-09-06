@@ -1,4 +1,5 @@
-// Payload boundary: opening blobs (injected — core_crypto is M3) and decoding
+// Payload boundary: opening blobs (injected — `CryptoPayloadOpener` over
+// core_crypto, or the JSON opener for tests) and decoding
 // the JSON object inside into `core_ledger` events, accounts and book configs.
 //
 // ⚠️ SPEC: 02 §1.3 fixes the Entry wire shape; 03 §2.3 names the other object
@@ -12,20 +13,56 @@ import 'dart:typed_data';
 import 'package:core_ledger/core_ledger.dart';
 
 /// Hash of a blob, as stored in `envelopes_local.blob_hash` (ADR 05c §2).
-/// Injected: `core_crypto` supplies BLAKE2b at M3; tests inject a toy hash.
+/// Injected: `blake2bHasher` (core_crypto) in the app; tests inject a toy hash.
 typedef BlobHasher = Uint8List Function(Uint8List blob);
 
-/// Opens (decrypts, verifies, unwraps) an envelope blob into the object JSON.
-/// The real opener lands with `core_crypto` (M3); [JsonPayloadOpener] serves
-/// tests and the pre-M3 development loop.
-abstract interface class PayloadOpener {
-  /// Returns the object payload as JSON. Throws on any failure — the caller
-  /// quarantines the envelope with the reason.
-  Map<String, Object?> open(
-    Uint8List blob, {
-    required String objectType,
-    required int keyVersion,
+/// The plaintext routing fields of a mirror row (03 §3.1) that an opener needs
+/// beside the blob: the AAD of 04 §4 is rebuilt from them, so a header the
+/// server changed fails to open.
+final class BlobHeader {
+  /// Creates the header from a row's columns.
+  const BlobHeader({
+    required this.envelopeId,
+    required this.bookId,
+    required this.objectId,
+    required this.objectType,
+    required this.keyVersion,
+    required this.authorDevice,
+    required this.hlc,
   });
+
+  /// Envelope id.
+  final String envelopeId;
+
+  /// Book.
+  final String bookId;
+
+  /// Object id.
+  final String objectId;
+
+  /// Registry type.
+  final String objectType;
+
+  /// Book-key version the blob is sealed under.
+  final int keyVersion;
+
+  /// Author device.
+  final String authorDevice;
+
+  /// HLC.
+  final int hlc;
+}
+
+/// Opens (decrypts, unpads, decodes) an envelope blob into the object JSON.
+/// `CryptoPayloadOpener` (over `core_crypto`) is the real one; [JsonPayloadOpener]
+/// serves tests and the harness. Signature-chain verification is **not** the
+/// opener's job: Recompute only opens rows already marked `verified` (04 §8.3;
+/// the sync engine sets the flag after `ChainVerifier`, M4).
+abstract interface class PayloadOpener {
+  /// Returns the object payload as JSON, with the per-author sequence carried
+  /// as `author_seq` at the top level (ADR 2026-09-05b §3). Throws on any
+  /// failure — the caller quarantines the envelope with the reason.
+  Map<String, Object?> open(Uint8List blob, BlobHeader header);
 }
 
 /// Blob = UTF-8 JSON of the object. No cryptography — tests only.
@@ -34,11 +71,7 @@ final class JsonPayloadOpener implements PayloadOpener {
   const JsonPayloadOpener();
 
   @override
-  Map<String, Object?> open(
-    Uint8List blob, {
-    required String objectType,
-    required int keyVersion,
-  }) {
+  Map<String, Object?> open(Uint8List blob, BlobHeader header) {
     final decoded = jsonDecode(utf8.decode(blob));
     if (decoded is! Map<String, Object?>) {
       throw const FormatException('payload is not a JSON object');

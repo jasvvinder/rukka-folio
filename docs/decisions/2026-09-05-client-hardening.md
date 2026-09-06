@@ -80,7 +80,7 @@ every instrument (08 §4); privacy law is **DPDP**, not GDPR (06 §9.3).
    use (04 §8.1). Keys cross to native only over the libsodium FFI boundary — **never over a
    `MethodChannel`/`EventChannel`**. Platform-channel payloads (biometric prompts, secure-storage
    reads) carry handles or ciphertext, never plaintext keys. `check_purity.sh` gains a grep for
-   `String` typed fields in `core_crypto` key types when M3 lands.
+   `String` typed fields in `core_crypto` key types when M3 lands. ⟦tests: B-04-8, B-04-70, B-04-71⟧
 9. **Logging discipline enforced by CI, not convention.** Release builds strip all debug logging
    (`kDebugMode` guards, no bare `print`); CI fails on a bare `print(` in `app/lib` and packages.
    Authorization headers, request/response bodies and full stack traces never reach production

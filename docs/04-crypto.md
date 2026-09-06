@@ -30,7 +30,7 @@
 
 ---
 
-## 2. Primitives 🔒
+## 2. Primitives 🔒 ⟦tests: B-04-1, B-04-12, B-04-15, B-04-27, B-04-50, B-04-53⟧
 
 All client-side via **libsodium** (Flutter: `sodium_libs`). No hand-rolled crypto anywhere.
 
@@ -46,6 +46,8 @@ All client-side via **libsodium** (Flutter: `sodium_libs`). No hand-rolled crypt
 **No KDF / no Argon2 needed:** the system contains **no low-entropy secrets**. There are no passwords; the recovery sheet carries a full-entropy key. This is a feature — preserve it. If a future feature introduces a user-chosen secret, it must come back through this spec.
 
 **Crypto agility:** every stored artifact (envelope, wrapped key, share, certificate) carries a 1-byte `suite_version`. Current = `0x01` meaning the table above.
+
+> **ADR 2026-09-06 §1 (proposed)** — Shamir over GF(256) is implemented in-house in `core_crypto/shamir.dart`; the pub.dev audit found no audited package and combination wrapping was not adopted. Owner to ratify. ⟦tests: B-04-50, B-04-53, B-04-55⟧
 
 ---
 
@@ -66,18 +68,18 @@ User Master Key  UMK  (X25519 pair + Ed25519 pair)     ← the user's cryptograp
      └── Attachment Keys (random per file, wrapped under the book's BK)
 ```
 
-### 3.1 User Master Key (UMK) 🔒
+### 3.1 User Master Key (UMK) 🔒 ⟦tests: B-04-1, B-04-2⟧
 Generated on the first device at signup. The X25519 half receives wrapped book keys; the Ed25519 half signs device certificates (§3.4). `FP = BLAKE2b-256(UMK_pub_x25519 ‖ UMK_pub_ed25519)` is the user's **fingerprint** — the value the verification ceremony confirms.
 
-### 3.2 Book Keys (BK) 🔒
+### 3.2 Book Keys (BK) 🔒 ⟦tests: B-04-13, B-04-14, B-04-26⟧
 One symmetric key per book, per version: `(book_id, key_version)`. Every entry records the `key_version` it was encrypted under. Old versions are retained (wrapped) so history stays readable; new entries always use the highest version. Rotation triggers: member removal, device reported stolen, suspected compromise.
 
-### 3.3 Device Keys 🔒
+### 3.3 Device Keys 🔒 ⟦tests: B-04-11, B-04-34⟧
 Each device generates an Ed25519 signing pair **inside hardware keystore** (StrongBox / Secure Enclave when available) — used for auth (doc 06) and entry signing. The device also generates an X25519 pair for receiving the wrapped UMK; since mobile secure hardware does not natively host X25519, its private half is stored encrypted under a hardware-backed AES key from the OS keystore. ⚠️ Verify current platform support at build time; this is the accepted pattern as of spec date.
 
 **Platform nuance:** Android Keystore entries are destroyed on uninstall → reinstall on the same Android phone is a **new device**. iOS Keychain items survive reinstall → attempt Keychain restore first; only fall back to recovery if absent.
 
-### 3.4 Device certificates — the trust chain 🔒
+### 3.4 Device certificates — the trust chain 🔒 ⟦tests: B-04-34, B-04-35, B-04-36, B-04-37, B-04-39, B-04-40, B-04-41⟧
 The server's word about which devices belong to a user is never trusted. Instead:
 
 - At signup, the first device holds the UMK and **self-certifies**: `cert = Sign_UMK_ed(device_id ‖ device_pub_ed ‖ device_pub_x ‖ issued_at)`.
@@ -88,7 +90,7 @@ Root of all trust = a human scanned a QR or typed a code. Nothing rests on the s
 
 ---
 
-## 4. Encryption envelope 🔒
+## 4. Encryption envelope 🔒 ⟦tests: B-04-3, B-04-22, B-04-23, B-04-24, B-04-25, B-04-27, B-04-28, B-04-29, B-04-30, B-04-33, B-04-42, B-05b-8, E-04-2, E-04-3⟧
 
 Everything synced (entries, account definitions, book names, party names, comments) travels and rests as:
 
@@ -119,13 +121,13 @@ Push notifications carry object ids and generic text only ("Ramesh added an entr
 
 ## 5. Membership and key distribution
 
-### 5.1 Granting access 🔒
+### 5.1 Granting access 🔒 ⟦tests: B-04-13⟧
 Performed only on a member device, never by the server: seal `BK` (all live versions) to the new member's **ceremony-verified** UMK public key; upload the wrapped blobs. The server relays. Wrapping before verification completes is forbidden (enforced client-side; the state machine in doc 06 §7 makes it structural).
 
-### 5.2 Personal books 🔒
+### 5.2 Personal books 🔒 ⟦tests: B-04-13⟧
 BK wrapped only to the owner's UMK (+ optional escrow §7.5). No admin path exists. Privacy is a property, not a policy.
 
-### 5.3 Removal / revocation 🔒
+### 5.3 Removal / revocation 🔒 ⟦tests: B-04-14, B-04-26, B-04-31, B-04-32⟧
 1. Ledger precondition (doc 02): open advances settled or written off.
 2. Any remaining member's device generates `BK(v+1)` for every book the leaver could read, seals to all remaining members, uploads.
 3. Server marks the old wrapped copies revoked and rejects new envelopes under old versions after a **48 h grace**, answering `rejected:key_version_stale` (05 §3). **The grace covers the in-flight race only** — a device already mid-push when rotation lands. It is *not* how long-offline devices are accommodated: an offline device cannot learn of a rotation by waiting, so it instead **re-seals its queued envelopes under the new `BK` before pushing** (05 §3, mandatory ordering: key sync precedes outbox drain). That path is unbounded in time, so a device offline for a month loses nothing while the rotation guarantee still holds — no envelope authored after the rotation is ever *stored* under a key the removed member holds.
@@ -134,7 +136,7 @@ BK wrapped only to the owner's UMK (+ optional escrow §7.5). No admin path exis
 
 ---
 
-## 6. Verification ceremony 🔒
+## 6. Verification ceremony 🔒 ⟦tests: B-04-4, B-04-5, B-04-6, B-04-7, B-04-9, B-04-10, B-04-11⟧
 
 **Purpose:** bind a UMK fingerprint to a human. **Mandatory** before any shared-book key is wrapped to a new member, before guardian activation, before device linking, and before trustee handover. One component, four uses.
 
@@ -171,7 +173,7 @@ Reinstall on the same iPhone may find device keys intact → normal certified de
 ### 7.2 Rung 1 — another of your own devices
 Standard device linking (§9.1).
 
-### 7.3 Rung 2 — guardians (flagship) 🔒
+### 7.3 Rung 2 — guardians (flagship) 🔒 ⟦tests: B-04-53, B-04-54, B-04-55, B-04-62, B-04-64, B-04-65, B-04-67⟧
 **Setup:** choose guardians (default **2-of-3**; allowed n=2..5 with k=⌈(n+1)/2⌉; 2-of-2 permitted with an explicit data-loss warning). Mutual ceremony per guardian. Split `UMK_priv` via Shamir; seal `share_i` to guardian *i*'s UMK public key; upload. Re-split and re-upload on any guardian change or UMK rotation; shares carry `share_set_version`.
 
 **Recovery:**
@@ -183,7 +185,7 @@ Standard device linking (§9.1).
 6. The device **self-issues its certificate** under the recovered UMK and 🔒 notifies all members and revokes all *previous* device sessions of this user (a recovery event is exactly when old devices should die). **If the user still has an active certified device, steps 4–6 wait 24 h behind a one-tap Cancel on every existing device (ADR 2026-09-05d §1); immediate only when none exists.**
 7. Guardian denial → requester notified; 3 denials or 72 h → recovery attempt closed and logged.
 
-### 7.4 Rung 3 — paper sheet 🔒
+### 7.4 Rung 3 — paper sheet 🔒 ⟦tests: B-04-15, B-04-16, B-04-17, B-04-18⟧
 - `RK` = random 256-bit, generated at signup. Server stores `sealed_RK_blob = XChaCha20(RK, UMK_priv)`.
 - Sheet = one-page PDF: QR `base64url(version ‖ user_id ‖ RK)` + typed fallback (Crockford Base32, groups of 4, 2-char checksum) + instructions in English + the user's language (ਪੰਜਾਬੀ/हिन्दी). Framed as a document to keep with the Aadhaar and LIC papers.
 - **Verified-storage nag:** persistent badge until the user scans their *printed* sheet back. Re-verify prompt annually. Regenerating a sheet rotates RK and invalidates the old sheet.
@@ -229,7 +231,7 @@ Standard device linking (§9.1).
 
 **Answering "the books must never be lost":** the layered answer is platform key sync (§7.0) for almost everyone · guardians (§7.3) when the phone and the Apple account both go · the sheet, paper or file (§7.4) as the offline backstop · and the readable export as the last line — because a family that has lost every key still has a PDF of its books, and can start a fresh book from those closing balances.
 
-### 7.5 Rung 4 — head escrow (opt-in, per member) 🔒
+### 7.5 Rung 4 — head escrow (opt-in, per member) 🔒 ⟦tests: B-04-13⟧
 - Scope: the member's **Personal-Book BK only** — never the UMK. Least privilege: the head can eventually read the book; they can never *become* the member.
 - Member's device seals Personal BK to the head's UMK; server stores it under a policy object: release only on (a) member's live approval, or (b) head's request + **30-day veto window** during which every member device alarms daily; any member veto cancels and logs.
 - Intended for death/incapacity. Opt-in with plain-language disclosure; revocable (revocation rotates the Personal BK).
@@ -249,10 +251,10 @@ Standard device linking (§9.1).
 
 ## 9. Device lifecycle crypto (protocol details in doc 06)
 
-### 9.1 Linking a new device 🔒
+### 9.1 Linking a new device 🔒 ⟦tests: B-04-11⟧
 Old device runs *Verify member* against the new device's *Show my code* (same ceremony; the QR carries the new device's keys) → old device wraps UMK to the new device's X25519 key and issues its certificate.
 
-### 9.2 Revocation 🔒
+### 9.2 Revocation 🔒 ⟦tests: B-05b-6⟧
 **Cut-off is the server `seq` of the signed revocation record, never the HLC (ADR 2026-09-05b §5):** envelopes the device authored before that `seq` stay valid; anything after is quarantined by every reader. A device wipes only on a *verified* signed record — never on a bare server assertion (ADR 2026-09-05b §2).
 
 Any certified device (or k guardians) revokes a device: server deletes its wrapped UMK + sessions and pushes a best-effort remote-wipe. Because the device may retain cache, the UI offers **"This phone was stolen"** → additionally rotates BKs of every book the user can read and (recommended) rotates UMK, re-running §7.3/§7.4 distribution.

@@ -163,8 +163,15 @@ final class Recompute {
           r,
           opener.open(
             read.bytes,
-            objectType: r.objectType,
-            keyVersion: r.keyVersion,
+            BlobHeader(
+              envelopeId: r.envelopeId,
+              bookId: r.bookId,
+              objectId: r.objectId,
+              objectType: r.objectType,
+              keyVersion: r.keyVersion,
+              authorDevice: r.authorDevice,
+              hlc: r.hlc,
+            ),
           ),
         ));
       } on Object catch (e) {

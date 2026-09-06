@@ -8,6 +8,8 @@ environment:
   sdk: ^3.13.0
 
 dependencies:
+  core_crypto:
+    path: ../core_crypto
   core_ledger:
     path: ../core_ledger
   drift: ^2.34.4
@@ -16,6 +18,7 @@ dependencies:
 
 dev_dependencies:
   build_runner: ^2.16.1
+  sodium: ^4.1.0
   drift_dev: ^2.34.6
   lints: ^6.0.0
   test: ^1.25.0

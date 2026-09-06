@@ -21,7 +21,7 @@ and what we hold about people who never signed up. Owner confirmed 5 Sep 2026 ("
 - **Every restore bumps `store_epoch`** (ADR 2026-09-05b §6) so clients re-pull and re-push lost
   writes. A restore without an epoch bump is a runbook violation.
 
-### 2. Blob integrity hash — corruption is not tampering
+### 2. Blob integrity hash — corruption is not tampering ⟦tests: B-04-38, E-04-1⟧
 Every envelope carries `blob_hash = BLAKE2b-256(blob)` as a **plaintext column**, computed by the
 authoring client. The server recomputes on write and refuses a mismatch (`rejected:shape`). Every
 reader recomputes on read: hash mismatch → **corruption** — re-fetch (server) or re-bootstrap

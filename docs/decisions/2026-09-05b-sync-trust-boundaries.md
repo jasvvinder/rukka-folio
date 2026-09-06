@@ -9,7 +9,7 @@ Owner confirmed 5 Sep 2026 ("add these as an ADR, do whatever is best").
 
 ## Rulings 🔒
 
-### 1. Structural facts are signed records; server rows are their projection
+### 1. Structural facts are signed records; server rows are their projection ⟦tests: B-05b-1, B-05b-2, B-05b-3, B-05b-4, B-05b-5, B-05b-7⟧
 Membership status, per-book roles and limits, designations, device revocation, member removal and
 key-rotation notices are authored on a **certified device** and travel as **signed records**:
 
@@ -54,7 +54,7 @@ in **`held`** — not projected, not quarantined — until the target arrives. I
 output). This replaces the current M1 behaviour of counting an orphan amendment as a fresh entry,
 which double-counts when the original arrives later. 02 §5 amended.
 
-### 5. Revocation cut-off is the server `seq`, never the HLC
+### 5. Revocation cut-off is the server `seq`, never the HLC ⟦tests: B-05b-6⟧
 An envelope from device D is accepted only if its `seq` is **below the `seq` of D's signed
 revocation record** (or of the member's removal). HLC is author-controlled — a stolen phone can
 backdate it; `seq` is stamped by the server at receipt and cannot be. Consequence: every stored
@@ -79,7 +79,7 @@ pullable. Membership `blocked` is refused at push exactly like `membership_not_a
 honestly in 05: garbage pushed before a block is **permanent** (append-only) — readers quarantine
 it, quotas bound its cost, and that is the whole defence.
 
-### 8. Smaller rulings
+### 8. Smaller rulings ⟦tests: B-05b-8, B-04-20, B-04-21⟧
 - **Padding.** Plaintext is padded (libsodium `sodium_pad`) to 1 KiB buckets up to 16 KiB, then
   4 KiB steps, before encryption; sizes stop leaking note length or attachment presence.
 - **Signed URLs.** Upload URLs: single object, PUT-only, 15 min. Download URLs: 5 min. Leakage
@@ -108,6 +108,7 @@ in `core_crypto` envelope builder (M3), signed records, epoch, quotas, maintenan
 ## Open ⚠️
 1. Rate-limit and quota numbers per plan (08 owner).
 2. Whether guardians' k-of-n device revocation (04 §9.2) is a multi-signature record or k separate
-   records the client counts — decide at M3 with the Shamir choice.
+   records the client counts — decide at M3 with the Shamir choice. **Proposed in ADR 2026-09-06 §3:
+   k separate records, client-counted, cut-off at the k-th record's `seq`.**
 3. `seq` space for signed records vs envelopes: one `bigserial` for both (simplest, ruling 5
    assumes it) — confirm with the visibility test already open in 05 §11.1.

@@ -4,9 +4,11 @@
 /// CI-enforced by `scripts/check_purity.sh`). The database takes an injected
 /// `QueryExecutor`; the app supplies a SQLCipher-backed one (`sqlcipherSetup`),
 /// tests use `NativeDatabase.memory()`. Hashing and decryption are injected too
-/// (`BlobHasher`, `PayloadOpener`) — `core_crypto` lands at M3.
+/// (`BlobHasher`, `PayloadOpener`); `blake2bHasher` and `CryptoPayloadOpener`
+/// are the `core_crypto`-backed implementations (M3).
 library;
 
+export 'src/crypto_opener.dart';
 export 'src/database.dart';
 export 'src/mirror.dart';
 export 'src/payload_codec.dart';
