@@ -12,6 +12,26 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-06 — env: Claude Code hooks + project skills
+
+Owner asked whether to add plugins/skills for coding, testing and database work. Ruling: wire the existing `scripts/ci.sh` gate into the session via hooks, encode the CLAUDE.md workflow as project skills, defer stack plugins (Supabase MCP until the M4 server milestone and then against a local project only; TypeScript LSP once `server/functions` exists; no Dart/Flutter LSP exists in the official marketplace).
+
+**Added**
+- `.claude/settings.json` — three hooks. PostToolUse on Write|Edit runs `dart format` + `dart analyze --fatal-infos` (package-scoped; `flutter analyze` under `app/`) + `scripts/check_purity.sh`, failures returned to the model as a blocking reason. PreToolUse on Bash denies `git commit` / `git push` / `gh pr create` at command position (owner commits). Stop blocks once when the tree changed but `CHANGELOG.md` did not (`stop_hook_active` guard).
+- `.claude/hooks/{dart_post_edit,block_git_commit,stop_changelog}.sh` — the hook scripts; pipe-tested on pass and fail paths (nine-case table for the commit block, incl. prose mentions that must be allowed and `git -C . commit` that must be denied); PreToolUse proven live in-session.
+- `.claude/skills/` — `/slice M<n>` (orient on roadmap row + owning spec + ADRs + 09 ids, tests-first), `/gate [lane]` (run ci.sh, report by step/suite, mechanical fixes only), `/adr` (dated ADR scaffold with `⟦tests: …⟧` markers, spec cross-refs, changelog Decided line), `/changelog` (house-format entry), `/goldens` (suite A worked-example goldens with the engine-bug / spec-vs-reference / parser-drift triage).
+
+**Changed**
+- `.gitignore` — `.claude/settings.json`, `.claude/hooks/`, `.claude/skills/` now tracked alongside `.claude/commands/` so hooks and skills travel with the repo.
+
+**Open** ⚠️
+- `ci.sh` has no `LANE` switch and no `check_coverage.dart` yet, though CLAUDE.md § Commands describes both; they land at M2 per ADR 2026-09-05i. `/gate` passes `LANE` through and says so.
+- Plugins recommended but not installed (user action, `/plugin`): `hookify`, `context7` from `claude-plugins-official`.
+
+**Commits** — pending.
+
+---
+
 ## 2026-09-05 — docs: seven-spec review fan-out → five ADRs (05e–05i) + M2 code follow-ups
 
 Seven parallel review agents (02, 07, 08, 09, 12, 13, design system) produced one consolidated decision sheet of 40 items; owner ruled **"accept all recommendations"**. Five forked agents drafted one ADR each plus an edit script; scripts applied serially (e → g → h → i → f), shifted anchors re-anchored by hand, zero table breakage, `gen_tokens --check` green.
