@@ -40,14 +40,14 @@ All client-side via **libsodium** (Flutter: `sodium_libs`). No hand-rolled crypt
 | Key wrapping to a person | X25519 sealed box (`crypto_box_seal`) |
 | Signatures (entries, device certs, auth) | Ed25519 |
 | Hashing / fingerprints | BLAKE2b-256 |
-| Secret sharing (guardians) | Shamir over GF(256) — ⚠️ select an audited package; libsodium does not ship one. Fallback if none passes review: for k-of-n, wrap the key under each k-sized guardian combination (fine for n ≤ 5) |
+| Secret sharing (guardians) | Shamir over GF(256), in-house in `core_crypto/shamir.dart` (ADR 2026-09-06 §1) — no audited Dart package exists; libsodium does not ship one; combination wrapping was not adopted. External one-file review before M14 |
 | Randomness | libsodium CSPRNG only |
 
 **No KDF / no Argon2 needed:** the system contains **no low-entropy secrets**. There are no passwords; the recovery sheet carries a full-entropy key. This is a feature — preserve it. If a future feature introduces a user-chosen secret, it must come back through this spec.
 
 **Crypto agility:** every stored artifact (envelope, wrapped key, share, certificate) carries a 1-byte `suite_version`. Current = `0x01` meaning the table above.
 
-> **ADR 2026-09-06 §1 (proposed)** — Shamir over GF(256) is implemented in-house in `core_crypto/shamir.dart`; the pub.dev audit found no audited package and combination wrapping was not adopted. Owner to ratify. ⟦tests: B-04-50, B-04-53, B-04-55, B-04-73⟧
+> **ADR 2026-09-06 §1 (ratified 7 Sep 2026)** — Shamir over GF(256) is implemented in-house in `core_crypto/shamir.dart`; the pub.dev audit found no audited package and combination wrapping was not adopted. ⟦tests: B-04-50, B-04-53, B-04-55, B-04-73⟧
 
 ---
 
@@ -174,13 +174,13 @@ Reinstall on the same iPhone may find device keys intact → normal certified de
 Standard device linking (§9.1).
 
 ### 7.3 Rung 2 — guardians (flagship) 🔒 ⟦tests: B-04-53, B-04-54, B-04-55, B-04-62, B-04-64, B-04-65, B-04-67, B-04-72⟧
-**Setup:** choose guardians (default **2-of-3**; allowed n=2..5 with k=⌈(n+1)/2⌉; 2-of-2 permitted with an explicit data-loss warning). Mutual ceremony per guardian. Split `UMK_priv` via Shamir; seal `share_i` to guardian *i*'s UMK public key; upload. Re-split and re-upload on any guardian change or UMK rotation; shares carry `share_set_version`.
+**Setup:** choose guardians (default **2-of-3**; allowed n=2..5 with k=⌈(n+1)/2⌉; 2-of-2 permitted only behind a **typed confirmation**, never a dismissible warning — ADR 2026-09-06 checklist 4). Mutual ceremony per guardian. Split `UMK_priv` via Shamir; seal `share_i` to guardian *i*'s UMK public key; upload. Re-split and re-upload on any guardian change or UMK rotation; shares carry `share_set_version`.
 
 **Recovery:**
 1. New device generates fresh device keys + a *candidate* X25519 pair; requests recovery.
 2. Guardians get a push (no financial content): requester name + photo + **new device fingerprint** + prominent advice: *"Call them before approving."*
 3. Guardian approves with biometric → guardian's device opens its sealed share and re-seals it to the candidate public key. The share transits and rests sealed; the server never sees plaintext shares.
-4. At k shares, the new device reconstructs `UMK_priv`, immediately zeroizes shares from memory.
+4. At k shares, the new device reconstructs `UMK_priv` **and verifies the re-derived public key against the user's known UMK** (`reconstructVerified`; mismatch fails closed, bytes zeroised — ADR 2026-09-06 §2), then immediately zeroizes shares from memory.
 5. Its possession of UMK lets it decrypt all wrapped BKs → full restore.
 6. The device **self-issues its certificate** under the recovered UMK and 🔒 notifies all members and revokes all *previous* device sessions of this user (a recovery event is exactly when old devices should die). **If the user still has an active certified device, steps 4–6 wait 24 h behind a one-tap Cancel on every existing device (ADR 2026-09-05d §1); immediate only when none exists.**
 7. Guardian denial → requester notified; 3 denials or 72 h → recovery attempt closed and logged.
@@ -254,8 +254,10 @@ Standard device linking (§9.1).
 ### 9.1 Linking a new device 🔒 ⟦tests: B-04-11⟧
 Old device runs *Verify member* against the new device's *Show my code* (same ceremony; the QR carries the new device's keys) → old device wraps UMK to the new device's X25519 key and issues its certificate.
 
-### 9.2 Revocation 🔒 ⟦tests: B-05b-6⟧
+### 9.2 Revocation 🔒 ⟦tests: B-05b-6, D-06a-1, D-06a-2, D-06a-3, D-06a-4⟧
 **Cut-off is the server `seq` of the signed revocation record, never the HLC (ADR 2026-09-05b §5):** envelopes the device authored before that `seq` stay valid; anything after is quarantined by every reader. A device wipes only on a *verified* signed record — never on a bare server assertion (ADR 2026-09-05b §2).
+
+**Guardians' k-of-n revocation is k separate `device_revocation` signed records, counted by the client (ADR 2026-09-06 §3):** each approving guardian authors its own record over `{revoked_device_id, subject_user_id, share_set_version}`; the revocation is effective at the `seq` of the k-th counted record. Two rules follow. **The cut-off only moves earlier** — a late approval with a lower `seq` moves it back and envelopes accepted meanwhile are re-quarantined on the next Recompute; the cut-off is derived from the record set, never cached as final. **A re-split does not reset the count** — a record counts if its author was a guardian at the `share_set_version` it names, approvals carry across versions, and the threshold is the k of the *earliest* version among counted records.
 
 Any certified device (or k guardians) revokes a device: server deletes its wrapped UMK + sessions and pushes a best-effort remote-wipe. Because the device may retain cache, the UI offers **"This phone was stolen"** → additionally rotates BKs of every book the user can read and (recommended) rotates UMK, re-running §7.3/§7.4 distribution.
 
@@ -276,7 +278,7 @@ Any certified device (or k guardians) revokes a device: server deletes its wrapp
 
 ## 11. Open items ⚠️
 
-1. Audited Shamir GF(256) package for Dart/Flutter — or adopt the combination-wrapping fallback (§2).
+1. ~~Audited Shamir GF(256) package for Dart/Flutter — or adopt the combination-wrapping fallback (§2).~~ **Closed** — ADR 2026-09-06 §1: in-house GF(256); external one-file review before M14.
 2. Confirm current Android StrongBox / iOS Secure Enclave capabilities and the X25519 at-rest pattern (§3.3) on target OS versions.
-3. Decide guardian minimum at launch: allow 2-of-2, or require ≥3 with paper-sheet mandatory below that.
+3. ~~Decide guardian minimum at launch: allow 2-of-2, or require ≥3 with paper-sheet mandatory below that.~~ **Closed** — ADR 2026-09-06 checklist 4: default 2-of-3; 2-of-2 allowed only behind a typed confirmation.
 4. Key-transparency log (append-only public log of key changes per tenant) — valuable hardening; defer to v2, keep table design compatible.

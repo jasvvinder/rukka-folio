@@ -20,7 +20,7 @@ spec authority stays in `docs/` (this file is a tracker, never a spec).
 | `app/` (07, 13) | ⬜ shell | `main.dart`, `shared/tokens.dart`, ARB EN/PA/HI — **no feature yet** |
 | Traceability | ✅ | `check_coverage`: 242 tests · 242 ids · 0 orphans (warn-only until M4) |
 
-⛔ **Owner now:** ratify ADR 2026-09-06 (four lines at its end) · start the external lead-times in §4.
+✅ ADR 2026-09-06 ratified 7 Sep (four answers recorded in the ADR; 04 §2/§7.3/§9.2/§11 updated). ⛔ **Owner now:** the §4 lead-times — each row names its first action; details in `docs/ops/lead-times.md`.
 
 ---
 
@@ -61,7 +61,7 @@ drop 🔒 roadmap gates by ADR — the tracker does not assume that.
 - ✅ `CryptoSuite` injection · key types (verified vs unverified) · envelopes + AAD + padding · wrapping
 - ✅ ceremony (QR/code) · recovery key + sheet · device certs + chain · signed records · Shamir + guardian shares
 - ✅ `reconstructVerified` (B-04-72) · independent KAT (B-04-73)
-- ⛔ owner: ratify ADR 2026-09-06 · ⬜ third-party Shamir vector · ⛔ external review of `shamir.dart` (M14)
+- ✅ ADR 2026-09-06 ratified (7 Sep) · ⬜ third-party Shamir vector · ⛔ external review of `shamir.dart` (M14)
 - ⬜ open from the M3 changelog: `hlc` in the signed digest (ADR before M4) · `suite_version`/`payload_schema` on `envelopes_local`
 
 ### P0 Tooling for parallel lanes ⬜ (Phase A, day 1 — before any UI lane starts)
@@ -158,17 +158,21 @@ drop 🔒 roadmap gates by ADR — the tracker does not assume that.
 
 ---
 
-## 4. External lead-times — start today, run in parallel with Phase A ⛔ owner
+## 4. External lead-times — kicked off 7 Sep, run in parallel with Phase A ⛔ owner
 
-| Item | Needed by | Why it cannot be compressed |
-|---|---|---|
-| Ratify ADR 2026-09-06 | Phase A day 1 | unblocks M4 counting + M11 recovery |
-| Supabase project — India region, PITR, KMS | Phase A | lane S deploys into it |
-| Apple developer account + TestFlight | Phase B | family testing |
-| OTP/SMS provider account | Phase B | live auth |
-| Pilot banks (2) + sample statements (synthetic) | Phase C | M10 parsers |
-| Native PA / HI reviewers | Phase C | 01 §1.8 gate |
-| Payment gateway KYC; IAP products | Phase C | M13 |
-| Bookkeeper sign-off of worked examples | Phase D exit | 🔒 ADR 05i §3 |
-| External crypto reviewer (1 h, `shamir.dart` + envelope) | Phase D | 🔒 M14 |
-| Pilot families (3–5) | Oct | 🔒 M14 pilot month |
+Status legend as above. Step-by-step for each row, what to hand back to the repo, and what the local
+machine already has (Xcode 26.6, supabase/gh/deno CLIs installed, **none logged in**) live in
+`docs/ops/lead-times.md`. The repo needs only ids and public URLs; secrets go to `.env` (see `.env.example`).
+
+| Item | Needed by | Status | First action (owner) | Why it cannot be compressed |
+|---|---|---|---|---|
+| Ratify ADR 2026-09-06 | Phase A day 1 | ✅ 7 Sep | — | unblocks M4 counting + M11 recovery |
+| Supabase project — India region (`ap-south-1`), PITR, KMS | Phase A (lane S) | ⛔ | create org + project on Pro; `supabase login`; project ref → `.env` | lane S deploys into it |
+| Apple developer account + TestFlight | Phase B | ⛔ | enrol (Organization, D-U-N-S ≈ 1–2 wk) or Individual today; bundle id `com.rukkafolio.rukkaFolio` (already in the Xcode project) | family testing |
+| OTP/SMS provider account | Phase B | ⛔ | pick a DLT-registered Indian provider; DLT entity + template registration ≈ 1–2 wk | live auth |
+| Pilot banks (2) + sample statements (synthetic) | Phase C | ⛔ | choose 2 banks; export one CSV + one PDF each from a *test* account, then synthesise | M10 parsers |
+| Native PA / HI reviewers | Phase C | ⛔ | one reviewer per language, ~4 h each in week of 21 Sep | 01 §1.8 gate |
+| Payment gateway KYC; IAP products | Phase C | ⛔ | gateway KYC (business docs, ≈ 1–2 wk); App Store Connect products after Apple enrolment | M13 |
+| Bookkeeper sign-off of worked examples | Phase D exit | ⛔ | book a CA/bookkeeper for a 2 h review of `docs/reference/worked-examples/` in week of 28 Sep | 🔒 ADR 05i §3 |
+| External crypto reviewer (1 h, `shamir.dart` + envelope) | Phase D | ⛔ | approach a reviewer now; send `shamir.dart` + `shamir_ref.py` + a libgfshare vector | 🔒 M14 |
+| Pilot families (3–5) | Oct | ⛔ | shortlist 5 households; ask 3 to commit to October | 🔒 M14 pilot month |

@@ -107,8 +107,8 @@ in `core_crypto` envelope builder (M3), signed records, epoch, quotas, maintenan
 
 ## Open ⚠️
 1. Rate-limit and quota numbers per plan (08 owner).
-2. Whether guardians' k-of-n device revocation (04 §9.2) is a multi-signature record or k separate
-   records the client counts — decide at M3 with the Shamir choice. **Proposed in ADR 2026-09-06 §3:
-   k separate records, client-counted, cut-off at the k-th record's `seq`.**
+2. ~~Whether guardians' k-of-n device revocation (04 §9.2) is a multi-signature record or k separate
+   records the client counts.~~ **Closed by ADR 2026-09-06 §3 (ratified 7 Sep 2026):** k separate
+   records, client-counted, cut-off at the k-th record's `seq`; cut-off only moves earlier; re-split does not reset.
 3. `seq` space for signed records vs envelopes: one `bigserial` for both (simplest, ruling 5
    assumes it) — confirm with the visibility test already open in 05 §11.1.

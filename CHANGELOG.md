@@ -12,6 +12,28 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-07 — docs: ADR 2026-09-06 ratified; §4 lead-times kicked off
+
+Owner ratified the Shamir / guardian-revocation ADR with its four recommended answers and asked for the external lead-times to start. Docs-only session; no code changed, no tests moved.
+
+**Decided** 🔒 — [ADR 2026-09-06](docs/decisions/2026-09-06-shamir-and-guardian-revocation-records.md) status *proposed* → **accepted**, four checklist answers recorded: (1) in-house GF(256) Shamir, no package — yes; (2) share wire form + `reconstructVerified` against the pinned UMK public key — yes; (3) k counted `device_revocation` records, cut-off only moves earlier, re-split does not reset, **earliest-k** — yes; (4) guardian minimum: default 2-of-3, **2-of-2 only behind a typed confirmation**, never a dismissible warning. Applied the ADR's "on ratification" list: 04 §2 Shamir row rewritten (in-house; external one-file review before M14); 04 §7.3 setup says typed confirmation, step 4 verifies the re-derived public key; 04 §9.2 gains the k-records paragraph with both rules and the D-06a ids in its marker; 04 §11 items 1 and 3 closed; ADR 2026-09-05b Open 2 closed; 10 M3 row no longer flags §11.1. New reserved id **F1-06a-1** (S11.1, n = 2 Continue disabled until the phrase is typed; M11).
+
+**Added**
+- `docs/ops/lead-times.md` — kickoff sheet for the nine external items: steps, the spec each must satisfy, what comes back to the repo, and the local-machine state (Xcode 26.6; supabase/gh CLIs installed but not logged in; no provisioning profiles).
+- `.env.example` — the variable names lane S, the OTP client and M13 will read; `.env` and `.env.*` were already git-ignored.
+
+**Changed**
+- `PLAN.md` §0 owner line (ADR ✅; lead-times are the only ⛔), §2 M3 row, §4 table gains **Status** and **First action** columns; the iOS bundle id cited is the one already in the Xcode project (`com.rukkafolio.rukkaFolio`).
+
+**Open** ⚠️
+- Owner: the nine §4 items — the Supabase project (Mumbai, Pro + PITR) and the Apple enrolment (D-U-N-S if Organization) are the long poles; TRAI DLT registration for OTP is 1–2 weeks.
+- 03 §11 item 6 (KMS choice for the phone key) — lane S will default to Supabase Vault unless the owner says otherwise.
+- `check_coverage` now lists D-06a-1…4 (M4) and F1-06a-1 (M11) as dangling ids by design; warn-only until M4.
+
+**Commits** — pending.
+
+---
+
 ## 2026-09-07 — env: build tracker, parallel-lane workflow, lane skills, session economy
 
 Owner asked for the fastest path to completion with parallel agents and the smallest possible usage per session. Re-planned M4–M14 as four phases of disjoint lanes; every session now starts from one tracker file and runs milestone work through one saved workflow.

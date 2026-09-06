@@ -1,6 +1,6 @@
 # ADR 2026-09-06 — Shamir over GF(256) in-house; guardian revocation as k counted records
 
-**Status: proposed — ⚠️ SPEC: owner to confirm.** Prepared during the M3 crypto-core slice (6 Sep
+**Status: accepted — ratified by the owner 7 Sep 2026 (four checklist answers below).** Prepared during the M3 crypto-core slice (6 Sep
 2026) because 04 §2 and §11.1 leave the Shamir source open ("select an audited package; fallback:
 combination wrapping") and ADR 2026-09-05b Open 2 defers the shape of a guardians' k-of-n device
 revocation "to M3 with the Shamir choice". Both are implemented as recommended below and are
@@ -9,7 +9,7 @@ Reviewed the same evening: §2 gained verified reconstruction (no new field), §
 rulings a counting scheme needs (cut-off direction, re-split), ids reserved for M4, and a
 ratification checklist for the owner at the end.
 
-## Rulings 🔒 (proposed)
+## Rulings 🔒
 
 ### 1. Shamir secret sharing is implemented in-house, over GF(256) ⟦tests: B-04-50, B-04-51, B-04-52, B-04-53, B-04-54, B-04-55, B-04-56, B-04-57, B-04-58, B-04-59, B-04-60, B-04-61, B-04-69, B-04-73⟧
 - `packages/core_crypto/lib/src/shamir.dart`: GF(2⁸) with the AES polynomial 0x11b; branch-free
@@ -40,7 +40,7 @@ ratification checklist for the owner at the end.
   `u8(suite_version) ‖ u32be(share_set_version) ‖ u8(k) ‖ u8(n) ‖ u8(index) ‖ share bytes`.
 - Reconstruction refuses shares of mixed `share_set_version` (a re-split after a guardian change
   supersedes the old set), fewer than k, duplicate indices, or metadata that disagrees. 2-of-2 is
-  permitted; the data-loss warning is the UI's (04 §7.3, 04 §11.3 stays open for the owner).
+  permitted only behind a typed confirmation, not a dismissible warning (ruling 4; 04 §7.3, 04 §11.3 closed).
 - **Integrity at reconstruction comes from the key itself, not from a new field.** Shamir has no
   integrity of its own — a tampered share yields a wrong secret silently (B-04-57) — but the
   recovered 64 bytes re-derive both UMK public halves, and the recovering device already holds
@@ -73,8 +73,7 @@ ratification checklist for the owner at the end.
   `revoked_device_id` carry across versions, and the threshold applied is the k of the *earliest*
   version among the counted records (a bump cannot raise the bar mid-revocation). A guardian
   removed by a bump keeps the approval already authored and can author no new one.
-  ⚠️ SPEC: the *earliest-k* rule is the proposer's choice; the owner may prefer the current k
-  with a rule that a set change by a device with a pending revocation is itself refused.
+  Ratified as *earliest-k* (checklist 3); the current-k alternative was not taken.
   ⟦tests: D-06a-3, D-06a-4⟧
 - **Why not a multi-signature record.** libsodium ships no threshold signature; Shamir here splits
   the UMK, not a signing key, and reconstructing the UMK to sign a revocation is exactly what a
@@ -91,34 +90,34 @@ ratification checklist for the owner at the end.
   which needs the guardian-set history by `share_set_version` (not only the current set) in the
   meta channel (05 §5); recovery UI (M11) calls the verified reconstruction and shows *2 of 3
   guardians approved* for a pending revocation (07 owner — no such state is drawn today).
-- Docs (on ratification): 04 §2 Shamir row → "in-house GF(256), `core_crypto/shamir.dart`; no
+- Docs (applied on ratification, 7 Sep 2026): 04 §2 Shamir row → "in-house GF(256), `core_crypto/shamir.dart`; no
   audited package exists; combination wrapping not adopted"; 04 §11.1 closed; 04 §9.2 gains the
   k-records sentence plus the two §3 rules; 04 §7.3 step 4 gains "and verifies the re-derived
   public key against the user's known UMK"; ADR 2026-09-05b Open 2 closed; 03 §3.1
   `signed_records_local` unchanged.
 - Milestone: M3 (rulings 1–2), M4 (ruling 3).
 
-## Ids reserved for M4 (suite D; `check_coverage` reports them dangling until the tests land)
+## Ids reserved for M4 / M11 (`check_coverage` reports them dangling until the tests land)
 | Id | Ruling | One-line test |
 |---|---|---|
 | D-06a-1 | k-th record's `seq` is the cut-off | 2-of-3: approvals at seq 10 and 14 → device's envelopes at seq 12 valid, seq 15 quarantined |
 | D-06a-2 | cut-off moves earlier, never later | third approval arrives with seq 8 → cut-off becomes 10; seq 12 now quarantined on Recompute; two clients with opposite arrival order agree |
 | D-06a-3 | re-split does not reset | one approval at version 3; device bumps to version 4; second approval naming 4 → revocation effective |
 | D-06a-4 | removed guardian's approval stands; non-guardian's does not | approval by a guardian dropped in the bump still counts; a record from a never-guardian UMK is ignored and logged |
+| F1-06a-1 (M11, suite F1) | checklist 4 | S11.1 with n = 2: the Continue button stays disabled until the user types the confirmation phrase; a dismissible warning alone never enables it |
 
-## Ratification checklist — four answers close this ADR
-1. **Ruling 1** — in-house GF(256) Shamir, no package: yes / no.
-2. **Ruling 2** — share wire form + verified reconstruction via the pinned public key: yes / no.
+## Ratification checklist — four answers, given by the owner 7 Sep 2026 🔒 ⟦tests: n/a — heading; each answer below carries its own marker⟧
+1. **Ruling 1** — in-house GF(256) Shamir, no package: **yes.** ⟦tests: B-04-50, B-04-73⟧
+2. **Ruling 2** — share wire form + verified reconstruction via the pinned public key: **yes.** ⟦tests: B-04-62, B-04-72⟧
 3. **Ruling 3** — k counted records, cut-off moves earlier, re-split does not reset, earliest-k:
-   yes / yes-with-current-k / no (multi-signature record instead).
-4. **04 §11.3** — guardian minimum: **recommendation — default 2-of-3, n = 2 allowed only behind a
-   typed confirmation, not a dismissible warning.** 2-of-2 has no loss tolerance *and* needs both
+   **yes** (earliest-k; not current-k, not a multi-signature record). ⟦tests: D-06a-1, D-06a-2, D-06a-3, D-06a-4⟧
+4. **04 §11.3** — guardian minimum: **default 2-of-3; n = 2 allowed only behind a typed
+   confirmation, not a dismissible warning.** 2-of-2 has no loss tolerance *and* needs both
    guardians to act — the worst of both shapes — but forbidding it excludes a couple with no third
-   person they would trust with this, which is a real Rukka household.
+   person they would trust with this, which is a real Rukka household. The typed confirmation is a
+   UI rule for S11.1 (07/13 owner). ⟦tests: B-04-63, F1-06a-1⟧
 
 ## Open ⚠️
-- Owner to ratify (checklist above; status *proposed*). Until then the code stands as `⚠️ SPEC`
-  and the 04 markers point at these tests.
 - External review of `shamir.dart` before M14 (ruling 1); a third-party known-answer vector first.
 - 07 has no screen state for a pending k-of-n revocation (*2 of 3 approved*) or for a re-quarantine
   after the cut-off moved earlier — design owner, before M11.
