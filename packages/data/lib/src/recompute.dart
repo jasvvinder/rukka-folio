@@ -23,8 +23,11 @@ final class BookRecompute {
     required this.unverified,
     required this.corrupt,
     required this.authorGaps,
+    required this.authorDuplicates,
     required this.seededFromVector,
     required this.integrityOk,
+    required this.state,
+    required this.chart,
   });
 
   /// Book.
@@ -45,15 +48,27 @@ final class BookRecompute {
   /// Envelopes whose blob failed its hash — re-bootstrap (ADR 05c §6).
   final List<String> corrupt;
 
-  /// Open author gaps (ADR 05b §3): mirror-derived (every object type) plus
-  /// those the projector saw among its own events.
+  /// Open author gaps (ADR 05b §3), mirror-derived over every object type;
+  /// `state.authorGaps` names the same holes by projected rank.
   final int authorGaps;
+
+  /// Repeated `author_seq` values (ADR 05b §3): the later envelope of each
+  /// pair is quarantined `author_seq_duplicate`; the book is not whole.
+  final List<String> authorDuplicates;
 
   /// True when the rebuild seeded from a certified vector (03 §3.3 rule 3).
   final bool seededFromVector;
 
   /// `books_p.integrity_ok` as written.
   final bool integrityOk;
+
+  /// The projector's state for this book as Recompute composed it — the same
+  /// `authorGaps` / `held` the rows were written from, so callers
+  /// (`monthLockPreconditions`, `yearClosePreconditions`, tests) see one truth.
+  final LedgerState state;
+
+  /// The chart the state was projected against.
+  final Chart chart;
 
   /// `books_p.needs_rebootstrap` as written.
   bool get needsRebootstrap => corrupt.isNotEmpty;
@@ -104,9 +119,25 @@ final class Recompute {
   }
 
   Future<BookRecompute> _rebuildBook(String bookId) async {
-    final rows = await mirror.envelopesOf(bookId);
+    var rows = await mirror.envelopesOf(bookId);
     final gaps = await mirror.recomputeAuthorGaps(bookId);
     // (gaps is List<SeqGap>)
+
+    // 0. Duplicate author sequences (ADR 05b §3): the earlier envelope by
+    //    (hlc, envelope_id) keeps the number; every later one is quarantined —
+    //    the mirror counterpart of the projector's `authorSeqDuplicate`. A
+    //    duplicate cannot be removed (append-only), so the book stays not-whole
+    //    for as long as it exists, and a second Recompute finds the same state.
+    final duplicates = await mirror.recomputeAuthorDuplicates(bookId);
+    final duplicateIds = <String>[];
+    for (final d in duplicates) {
+      duplicateIds.add(d.duplicateEnvelopeId);
+      final row = rows.firstWhere((r) => r.envelopeId == d.duplicateEnvelopeId);
+      if (row.quarantined != 1) {
+        await mirror.quarantine(d.duplicateEnvelopeId, 'author_seq_duplicate');
+      }
+    }
+    if (duplicateIds.isNotEmpty) rows = await mirror.envelopesOf(bookId);
 
     // 1. Open every usable payload; note corruption, quarantine failures.
     final corrupt = <String>[];
@@ -142,27 +173,31 @@ final class Recompute {
       }
     }
 
-    // 1b. Author sequences for the projector (ADR 05b §3–4). The projector sees
-    //     only the object types it consumes, while an author's `author_seq`
-    //     numbers every object (accounts, rules, config …), so handing it the raw
-    //     seqs would show holes that are not gaps. The mirror holds the complete
-    //     view: `author_gaps` is derived there over every object type. For an
-    //     author with **no** mirror gap we pass the projector a dense rank of its
-    //     projected events (contiguous ⇒ a missing target is provably absent →
-    //     `target_missing`); for an author **with** a gap we pass null, so the
-    //     projector keeps that author's dangling references `held`.
+    // 1b. Author sequences for the projector (ADR 05b §3–4) — ONE ranking rule
+    //     for every event. The projector sees only the object types it consumes,
+    //     while an author's `author_seq` numbers every object (accounts, rules,
+    //     config …), so handing it raw seqs would show holes that are not gaps.
+    //     Per author we rank, in seq order, the set of its *projected* seqs ∪ the
+    //     seqs the mirror knows are *missing* (`author_gaps`, derived over every
+    //     object type). A hole keeps its rank and nothing occupies it, so the
+    //     projector reports the gap with the right device and `expectedSeq` =
+    //     the hole's rank; a contiguous author proves a missing target absent
+    //     (`target_missing`). Mirror `author_gaps` and `state.authorGaps` are
+    //     thereby one truth (existence + device exact; the numbers differ by
+    //     construction: mirror = the authored seq, state = its projected rank).
     //     ⚠️ SPEC: interpretation of 05b §3–4 for a projector that sees a subset
-    //     of the authored objects; the mirror's gap table stays authoritative.
-    final authorsWithGaps = {for (final g in gaps) g.authorDevice};
-    final projectedSeqs = <String, List<int>>{};
+    //     of the authored objects.
+    final seqsByAuthor = <String, Set<int>>{};
     for (final (r, _) in opened) {
       if (!projectedObjectTypes.contains(r.objectType)) continue;
-      if (authorsWithGaps.contains(r.authorDevice)) continue;
-      projectedSeqs.putIfAbsent(r.authorDevice, () => []).add(r.authorSeq);
+      seqsByAuthor.putIfAbsent(r.authorDevice, () => {}).add(r.authorSeq);
+    }
+    for (final g in gaps) {
+      seqsByAuthor.putIfAbsent(g.authorDevice, () => {}).add(g.expectedSeq);
     }
     final rankOf = <(String, int), int>{};
-    for (final MapEntry(key: author, value: seqs) in projectedSeqs.entries) {
-      seqs.sort();
+    for (final MapEntry(key: author, value: set) in seqsByAuthor.entries) {
+      final seqs = set.toList()..sort();
       for (var i = 0; i < seqs.length; i++) {
         rankOf[(author, seqs[i])] = i + 1;
       }
@@ -182,6 +217,17 @@ final class Recompute {
             // Latest version of each account object wins (rows are in (hlc, id) order).
             accountsByObject[r.objectId] = AccountPayload.fromJson(json);
           default:
+            // The inner `author_seq` (05b §3, inside the ciphertext) and the
+            // mirror row's column (03 §3.1) must agree; a disagreement is a
+            // shape problem, not a gap. ⚠️ SPEC: quarantine reason
+            // `author_seq_mismatch` (05c §5 names shape refusals server-side;
+            // this is the client-side counterpart for the one field it can check).
+            final inner = json['author_seq'];
+            if (inner is int && inner != r.authorSeq) {
+              await mirror.quarantine(r.envelopeId, 'author_seq_mismatch');
+              quarantined.add(r.envelopeId);
+              continue;
+            }
             final ev = decodeEvent(
               r.objectType,
               json,
@@ -270,6 +316,7 @@ final class Recompute {
         corrupt.isEmpty &&
         held.isEmpty &&
         gaps.isEmpty &&
+        duplicateIds.isEmpty &&
         state.authorGaps.isEmpty;
     await db
         .into(db.booksP)
@@ -444,10 +491,21 @@ final class Recompute {
       quarantined: quarantined,
       unverified: unverified,
       corrupt: corrupt,
-      authorGaps: gaps.length + state.authorGaps.length,
+      authorGaps: gaps.length,
+      authorDuplicates: duplicateIds,
       seededFromVector: seed != null,
       integrityOk: integrityOk,
+      state: state,
+      chart: chart,
     );
+  }
+
+  /// Rebuilds [bookId] and returns the projector state and chart it was written
+  /// from. This *is* a Recompute (rows rewritten) — there is deliberately no
+  /// read-only composition path, so nobody can hold a state the rows disagree with.
+  Future<(LedgerState, Chart)> stateOf(String bookId) async {
+    final r = (await run(bookId: bookId)).single;
+    return (r.state, r.chart);
   }
 
   Future<void> _dropBook(String bookId) async {

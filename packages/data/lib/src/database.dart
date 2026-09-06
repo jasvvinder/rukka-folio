@@ -18,6 +18,7 @@ const int ledgerSchemaVersion = 1;
     Outbox,
     AuthorSeqLocal,
     AuthorGaps,
+    AuthorDuplicates,
     SignedRecordsLocal,
     StoreEpoch,
     SyncCursors,

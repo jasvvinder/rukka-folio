@@ -12,6 +12,34 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-06 — M2 close-out: duplicate author_seq at the mirror, dead violation kinds pruned, first two-device tests on the harness
+
+Third M2 session of the day, three forks. Part A (data + core_ledger follow-ups) and part B (the first behavioural suite D tests on `/testing/harness`) landed; part B exposed two seams in Recompute's author-sequence handling, fixed by part C so the harness needs no local workaround.
+
+**Added**
+- `packages/data` — derived table `author_duplicates(book_id, author_device, author_seq, kept_envelope_id, duplicate_envelope_id)` (schema version still 1, unshipped); `Mirror.recomputeAuthorDuplicates(book)` keeps the earliest by `(hlc, envelope_id)` and reports every later carrier of the same seq; Recompute step 0 quarantines each duplicate with reason `author_seq_duplicate` and holds `integrity_ok` at 0 while one exists. Test `E-05b-4` (seqs 1, 2, 2 → later 2 quarantined, earlier counted, no gap, stable across a second Recompute). Data package: 25 tests.
+- `testing/harness` — `SimulatedDevice` (in-memory `LedgerDatabase` via `openLedgerDatabase`, `Mirror` with an FNV `BlobHasher`, `Recompute` with `JsonPayloadOpener`, HLC ticked from the scheduler's virtual clock; `author`, `receive`, `dump`, `integrityOk`, `balance`, `gaps`, `state`) and `Relay` (content-blind stand-in for the server: broadcasts every authored envelope to every other device through the seeded `Network`, applies arrivals in scheduler order). Harness pubspec depends on `core_ledger`, `data`, `drift`. `Scheduler.run(untilMs)` now advances `now` to `untilMs` even when later events remain queued (D-09-4 adjusted).
+- Suite D behavioural tests (`test/two_device_test.dart`): **D-05b-2** orphan amendment — seed 1 delivers the amendment to device B 845 ms before its original; B holds it (`held_for` = original, not in `entries_p`, Cash unchanged, `integrity_ok` 0), then folds both once (Cash −₹300, `superseded_by` set, integrity 1), A and B dumps byte-identical, and the whole run replays from `model.log` through `ReplayNetwork` with the same intermediate observation. **D-05b-3** withheld envelope — seed 10 at drop rate 0.34 drops seq 2 (asserted); B shows the gap, keeps counting seqs 1 and 3 live, and both `monthLockPreconditions` and `yearClosePreconditions` refuse with `authorGapOpen`; a re-send clears everything and dumps match. **D-05b-4** twenty interleaved entries from two authors under reordering — arrival orders differ, dumps identical. Setup envelopes reach the peer out of band (bootstrap pull, 05 §8) so pinned seeds address entries only.
+- `packages/data` Recompute (part C) ranks every event of an author uniformly over its projected seqs ∪ the mirror's missing seqs — a hole keeps its rank and nothing occupies it — so `project()` reports the gap with the exact device, `monthLockPreconditions` / `yearClosePreconditions` refuse with `authorGapOpen` from Recompute's own state, and healthy config/account objects never fake a gap. An inner `author_seq` that disagrees with the mirror row is quarantined `author_seq_mismatch` (⚠️ SPEC). `BookRecompute.state/chart` and `Recompute.stateOf(book)` expose the ranked state (a real Recompute, so it can never disagree with the rows). Tests `E-05b-5` (setup objects + entries with one reserved seq missing → one hole, provisional, preconditions refuse, integrity 0; arrival clears all; `stateOf` agrees with `run`) and `E-05b-6` (inner seq ≠ row → `author_seq_mismatch`). The harness's local ranking and its ⚠️ SPEC workaround are deleted; `SimulatedDevice.state()` is `recompute.stateOf`. Data 27 tests, harness 8.
+
+**Changed**
+- `packages/core_ledger` — `ViolationKind.amendTargetMissing`, `reverseTargetMissing`, `decisionTargetMissing` removed (no reference anywhere in packages/, testing/, app/); `targetMissing` stays. 155 tests green.
+- ADR 05b §3 marker gains `E-05b-4`.
+- ADR 05b §3 marker also gains `D-05b-3, E-05b-5, E-05b-6`, §4 `D-05b-2`; 09 §2 suite D sentence names `D-05b-2..4`.
+- Coverage at close: 315 🔒 lines · 63 marked or heading-covered · 252 unmarked · 165 tests · 165 ids · 0 dangling · 0 orphans · 0 tests without id · 0 live skips. Push gate green.
+
+**Decided** — nothing 🔒. Duplicates are caught at the mirror before Recompute's dense-rank pass, so the projector's own `authorSeqDuplicate` rule is unreachable from Recompute by design (it still guards direct `project()` callers).
+
+**Fixed the same day (surfaced by the harness, closed by part C)** — (1) Recompute took an entry's inner `author_seq` verbatim while dense-ranking every other event, so a healthy single device that numbers its config/account objects too reported a gap. (2) Recompute gave a gap author no seqs at all, so `project()` saw no gap and the close preconditions could not refuse — the harness had to rank over present ∪ missing seqs itself. Both were Recompute's job; the rig's workaround is gone.
+
+**Open** ⚠️
+- **M2 exit reached** (10 M2 row: suite E client half green, harness created, held/gaps/as-of/shape/projectorVersion landed, skip re-landed). Tag after committing: `git tag m2-local-persistence`. Test-id rule learned: ids must end in digits (`E-05b-5b` is rejected), so sibling cases take the next integer.
+- Platform backup exclusion (ADR 05c §8) remains app-level work at M5.
+
+**Commits** — pending.
+
+---
+
 ## 2026-09-06 — M2: ledger time boundary (ADR 05e/05b/05c in core_ledger) + local persistence (packages/data)
 
 Second M2 slice, run as three forked agents on disjoint file sets (core_ledger rulings · data persistence · re-pointing data to the new projector output), then one gate. `projectorVersion` is now **2**: the certified-vector as-of rule and `held` change results for existing envelope sets (ADR 05c §3), so this bump also requires a min-client-version bump when the app ships (06 §4.5). Goldens unchanged and green.
@@ -48,7 +76,7 @@ Second M2 slice, run as three forked agents on disjoint file sets (core_ledger r
 - ADR 05c §8 (backup attribute, private bucket, sweeper) is untested by design at M2 — app (M5) and server (M4) work.
 - Two agents each needed one round of API reconciliation; both landed. Remaining M2 roadmap item not in code: platform backup exclusion (app-level, M5).
 
-**Commits** — pending.
+**Commits** — `e5acd22` (together with the test-contract slice).
 
 ---
 
@@ -81,7 +109,7 @@ First M2 slice. Lands the traceability, lane, seed and harness machinery that AD
 - The skipped `A-02-45` (amend target missing → `held`) re-lands with the `held` state in the next M2 slice, as the skip reason says.
 - `flutter_test` accepts `@Tags`; whether `flutter test` honours the root `dart_test.yaml` include is untested until F1 grows past one file.
 
-**Commits** — pending.
+**Commits** — `e5acd22` (together with the ledger-time-boundary + persistence slice).
 
 ---
 

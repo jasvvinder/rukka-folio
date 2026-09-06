@@ -2049,6 +2049,406 @@ class AuthorGapsCompanion extends UpdateCompanion<AuthorGap> {
   }
 }
 
+class $AuthorDuplicatesTable extends AuthorDuplicates
+    with TableInfo<$AuthorDuplicatesTable, AuthorDuplicate> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AuthorDuplicatesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _bookIdMeta = const VerificationMeta('bookId');
+  @override
+  late final GeneratedColumn<String> bookId = GeneratedColumn<String>(
+    'book_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _authorDeviceMeta = const VerificationMeta(
+    'authorDevice',
+  );
+  @override
+  late final GeneratedColumn<String> authorDevice = GeneratedColumn<String>(
+    'author_device',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _authorSeqMeta = const VerificationMeta(
+    'authorSeq',
+  );
+  @override
+  late final GeneratedColumn<int> authorSeq = GeneratedColumn<int>(
+    'author_seq',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _keptEnvelopeIdMeta = const VerificationMeta(
+    'keptEnvelopeId',
+  );
+  @override
+  late final GeneratedColumn<String> keptEnvelopeId = GeneratedColumn<String>(
+    'kept_envelope_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _duplicateEnvelopeIdMeta =
+      const VerificationMeta('duplicateEnvelopeId');
+  @override
+  late final GeneratedColumn<String> duplicateEnvelopeId =
+      GeneratedColumn<String>(
+        'duplicate_envelope_id',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: true,
+      );
+  @override
+  List<GeneratedColumn> get $columns => [
+    bookId,
+    authorDevice,
+    authorSeq,
+    keptEnvelopeId,
+    duplicateEnvelopeId,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'author_duplicates';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<AuthorDuplicate> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('book_id')) {
+      context.handle(
+        _bookIdMeta,
+        bookId.isAcceptableOrUnknown(data['book_id']!, _bookIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_bookIdMeta);
+    }
+    if (data.containsKey('author_device')) {
+      context.handle(
+        _authorDeviceMeta,
+        authorDevice.isAcceptableOrUnknown(
+          data['author_device']!,
+          _authorDeviceMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_authorDeviceMeta);
+    }
+    if (data.containsKey('author_seq')) {
+      context.handle(
+        _authorSeqMeta,
+        authorSeq.isAcceptableOrUnknown(data['author_seq']!, _authorSeqMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_authorSeqMeta);
+    }
+    if (data.containsKey('kept_envelope_id')) {
+      context.handle(
+        _keptEnvelopeIdMeta,
+        keptEnvelopeId.isAcceptableOrUnknown(
+          data['kept_envelope_id']!,
+          _keptEnvelopeIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_keptEnvelopeIdMeta);
+    }
+    if (data.containsKey('duplicate_envelope_id')) {
+      context.handle(
+        _duplicateEnvelopeIdMeta,
+        duplicateEnvelopeId.isAcceptableOrUnknown(
+          data['duplicate_envelope_id']!,
+          _duplicateEnvelopeIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_duplicateEnvelopeIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {bookId, duplicateEnvelopeId};
+  @override
+  AuthorDuplicate map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AuthorDuplicate(
+      bookId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}book_id'],
+      )!,
+      authorDevice: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}author_device'],
+      )!,
+      authorSeq: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}author_seq'],
+      )!,
+      keptEnvelopeId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}kept_envelope_id'],
+      )!,
+      duplicateEnvelopeId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}duplicate_envelope_id'],
+      )!,
+    );
+  }
+
+  @override
+  $AuthorDuplicatesTable createAlias(String alias) {
+    return $AuthorDuplicatesTable(attachedDatabase, alias);
+  }
+}
+
+class AuthorDuplicate extends DataClass implements Insertable<AuthorDuplicate> {
+  /// Book.
+  final String bookId;
+
+  /// Author whose sequence repeats.
+  final String authorDevice;
+
+  /// The repeated sequence number.
+  final int authorSeq;
+
+  /// The envelope that keeps the seq (earliest by `(hlc, envelope_id)`).
+  final String keptEnvelopeId;
+
+  /// The later envelope, quarantined.
+  final String duplicateEnvelopeId;
+  const AuthorDuplicate({
+    required this.bookId,
+    required this.authorDevice,
+    required this.authorSeq,
+    required this.keptEnvelopeId,
+    required this.duplicateEnvelopeId,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['book_id'] = Variable<String>(bookId);
+    map['author_device'] = Variable<String>(authorDevice);
+    map['author_seq'] = Variable<int>(authorSeq);
+    map['kept_envelope_id'] = Variable<String>(keptEnvelopeId);
+    map['duplicate_envelope_id'] = Variable<String>(duplicateEnvelopeId);
+    return map;
+  }
+
+  AuthorDuplicatesCompanion toCompanion(bool nullToAbsent) {
+    return AuthorDuplicatesCompanion(
+      bookId: Value(bookId),
+      authorDevice: Value(authorDevice),
+      authorSeq: Value(authorSeq),
+      keptEnvelopeId: Value(keptEnvelopeId),
+      duplicateEnvelopeId: Value(duplicateEnvelopeId),
+    );
+  }
+
+  factory AuthorDuplicate.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AuthorDuplicate(
+      bookId: serializer.fromJson<String>(json['bookId']),
+      authorDevice: serializer.fromJson<String>(json['authorDevice']),
+      authorSeq: serializer.fromJson<int>(json['authorSeq']),
+      keptEnvelopeId: serializer.fromJson<String>(json['keptEnvelopeId']),
+      duplicateEnvelopeId: serializer.fromJson<String>(
+        json['duplicateEnvelopeId'],
+      ),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'bookId': serializer.toJson<String>(bookId),
+      'authorDevice': serializer.toJson<String>(authorDevice),
+      'authorSeq': serializer.toJson<int>(authorSeq),
+      'keptEnvelopeId': serializer.toJson<String>(keptEnvelopeId),
+      'duplicateEnvelopeId': serializer.toJson<String>(duplicateEnvelopeId),
+    };
+  }
+
+  AuthorDuplicate copyWith({
+    String? bookId,
+    String? authorDevice,
+    int? authorSeq,
+    String? keptEnvelopeId,
+    String? duplicateEnvelopeId,
+  }) => AuthorDuplicate(
+    bookId: bookId ?? this.bookId,
+    authorDevice: authorDevice ?? this.authorDevice,
+    authorSeq: authorSeq ?? this.authorSeq,
+    keptEnvelopeId: keptEnvelopeId ?? this.keptEnvelopeId,
+    duplicateEnvelopeId: duplicateEnvelopeId ?? this.duplicateEnvelopeId,
+  );
+  AuthorDuplicate copyWithCompanion(AuthorDuplicatesCompanion data) {
+    return AuthorDuplicate(
+      bookId: data.bookId.present ? data.bookId.value : this.bookId,
+      authorDevice: data.authorDevice.present
+          ? data.authorDevice.value
+          : this.authorDevice,
+      authorSeq: data.authorSeq.present ? data.authorSeq.value : this.authorSeq,
+      keptEnvelopeId: data.keptEnvelopeId.present
+          ? data.keptEnvelopeId.value
+          : this.keptEnvelopeId,
+      duplicateEnvelopeId: data.duplicateEnvelopeId.present
+          ? data.duplicateEnvelopeId.value
+          : this.duplicateEnvelopeId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AuthorDuplicate(')
+          ..write('bookId: $bookId, ')
+          ..write('authorDevice: $authorDevice, ')
+          ..write('authorSeq: $authorSeq, ')
+          ..write('keptEnvelopeId: $keptEnvelopeId, ')
+          ..write('duplicateEnvelopeId: $duplicateEnvelopeId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    bookId,
+    authorDevice,
+    authorSeq,
+    keptEnvelopeId,
+    duplicateEnvelopeId,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AuthorDuplicate &&
+          other.bookId == this.bookId &&
+          other.authorDevice == this.authorDevice &&
+          other.authorSeq == this.authorSeq &&
+          other.keptEnvelopeId == this.keptEnvelopeId &&
+          other.duplicateEnvelopeId == this.duplicateEnvelopeId);
+}
+
+class AuthorDuplicatesCompanion extends UpdateCompanion<AuthorDuplicate> {
+  final Value<String> bookId;
+  final Value<String> authorDevice;
+  final Value<int> authorSeq;
+  final Value<String> keptEnvelopeId;
+  final Value<String> duplicateEnvelopeId;
+  final Value<int> rowid;
+  const AuthorDuplicatesCompanion({
+    this.bookId = const Value.absent(),
+    this.authorDevice = const Value.absent(),
+    this.authorSeq = const Value.absent(),
+    this.keptEnvelopeId = const Value.absent(),
+    this.duplicateEnvelopeId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  AuthorDuplicatesCompanion.insert({
+    required String bookId,
+    required String authorDevice,
+    required int authorSeq,
+    required String keptEnvelopeId,
+    required String duplicateEnvelopeId,
+    this.rowid = const Value.absent(),
+  }) : bookId = Value(bookId),
+       authorDevice = Value(authorDevice),
+       authorSeq = Value(authorSeq),
+       keptEnvelopeId = Value(keptEnvelopeId),
+       duplicateEnvelopeId = Value(duplicateEnvelopeId);
+  static Insertable<AuthorDuplicate> custom({
+    Expression<String>? bookId,
+    Expression<String>? authorDevice,
+    Expression<int>? authorSeq,
+    Expression<String>? keptEnvelopeId,
+    Expression<String>? duplicateEnvelopeId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (bookId != null) 'book_id': bookId,
+      if (authorDevice != null) 'author_device': authorDevice,
+      if (authorSeq != null) 'author_seq': authorSeq,
+      if (keptEnvelopeId != null) 'kept_envelope_id': keptEnvelopeId,
+      if (duplicateEnvelopeId != null)
+        'duplicate_envelope_id': duplicateEnvelopeId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  AuthorDuplicatesCompanion copyWith({
+    Value<String>? bookId,
+    Value<String>? authorDevice,
+    Value<int>? authorSeq,
+    Value<String>? keptEnvelopeId,
+    Value<String>? duplicateEnvelopeId,
+    Value<int>? rowid,
+  }) {
+    return AuthorDuplicatesCompanion(
+      bookId: bookId ?? this.bookId,
+      authorDevice: authorDevice ?? this.authorDevice,
+      authorSeq: authorSeq ?? this.authorSeq,
+      keptEnvelopeId: keptEnvelopeId ?? this.keptEnvelopeId,
+      duplicateEnvelopeId: duplicateEnvelopeId ?? this.duplicateEnvelopeId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (bookId.present) {
+      map['book_id'] = Variable<String>(bookId.value);
+    }
+    if (authorDevice.present) {
+      map['author_device'] = Variable<String>(authorDevice.value);
+    }
+    if (authorSeq.present) {
+      map['author_seq'] = Variable<int>(authorSeq.value);
+    }
+    if (keptEnvelopeId.present) {
+      map['kept_envelope_id'] = Variable<String>(keptEnvelopeId.value);
+    }
+    if (duplicateEnvelopeId.present) {
+      map['duplicate_envelope_id'] = Variable<String>(
+        duplicateEnvelopeId.value,
+      );
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AuthorDuplicatesCompanion(')
+          ..write('bookId: $bookId, ')
+          ..write('authorDevice: $authorDevice, ')
+          ..write('authorSeq: $authorSeq, ')
+          ..write('keptEnvelopeId: $keptEnvelopeId, ')
+          ..write('duplicateEnvelopeId: $duplicateEnvelopeId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $SignedRecordsLocalTable extends SignedRecordsLocal
     with TableInfo<$SignedRecordsLocalTable, SignedRecordsLocalData> {
   @override
@@ -9490,6 +9890,9 @@ abstract class _$LedgerDatabase extends GeneratedDatabase {
   late final $OutboxTable outbox = $OutboxTable(this);
   late final $AuthorSeqLocalTable authorSeqLocal = $AuthorSeqLocalTable(this);
   late final $AuthorGapsTable authorGaps = $AuthorGapsTable(this);
+  late final $AuthorDuplicatesTable authorDuplicates = $AuthorDuplicatesTable(
+    this,
+  );
   late final $SignedRecordsLocalTable signedRecordsLocal =
       $SignedRecordsLocalTable(this);
   late final $StoreEpochTable storeEpoch = $StoreEpochTable(this);
@@ -9518,6 +9921,7 @@ abstract class _$LedgerDatabase extends GeneratedDatabase {
     outbox,
     authorSeqLocal,
     authorGaps,
+    authorDuplicates,
     signedRecordsLocal,
     storeEpoch,
     syncCursors,
@@ -10598,6 +11002,231 @@ typedef $$AuthorGapsTableProcessedTableManager =
         BaseReferences<_$LedgerDatabase, $AuthorGapsTable, AuthorGap>,
       ),
       AuthorGap,
+      PrefetchHooks Function()
+    >;
+typedef $$AuthorDuplicatesTableCreateCompanionBuilder =
+    AuthorDuplicatesCompanion Function({
+      required String bookId,
+      required String authorDevice,
+      required int authorSeq,
+      required String keptEnvelopeId,
+      required String duplicateEnvelopeId,
+      Value<int> rowid,
+    });
+typedef $$AuthorDuplicatesTableUpdateCompanionBuilder =
+    AuthorDuplicatesCompanion Function({
+      Value<String> bookId,
+      Value<String> authorDevice,
+      Value<int> authorSeq,
+      Value<String> keptEnvelopeId,
+      Value<String> duplicateEnvelopeId,
+      Value<int> rowid,
+    });
+
+class $$AuthorDuplicatesTableFilterComposer
+    extends Composer<_$LedgerDatabase, $AuthorDuplicatesTable> {
+  $$AuthorDuplicatesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get bookId => $composableBuilder(
+    column: $table.bookId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get authorDevice => $composableBuilder(
+    column: $table.authorDevice,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get authorSeq => $composableBuilder(
+    column: $table.authorSeq,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get keptEnvelopeId => $composableBuilder(
+    column: $table.keptEnvelopeId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get duplicateEnvelopeId => $composableBuilder(
+    column: $table.duplicateEnvelopeId,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$AuthorDuplicatesTableOrderingComposer
+    extends Composer<_$LedgerDatabase, $AuthorDuplicatesTable> {
+  $$AuthorDuplicatesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get bookId => $composableBuilder(
+    column: $table.bookId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get authorDevice => $composableBuilder(
+    column: $table.authorDevice,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get authorSeq => $composableBuilder(
+    column: $table.authorSeq,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get keptEnvelopeId => $composableBuilder(
+    column: $table.keptEnvelopeId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get duplicateEnvelopeId => $composableBuilder(
+    column: $table.duplicateEnvelopeId,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$AuthorDuplicatesTableAnnotationComposer
+    extends Composer<_$LedgerDatabase, $AuthorDuplicatesTable> {
+  $$AuthorDuplicatesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get bookId =>
+      $composableBuilder(column: $table.bookId, builder: (column) => column);
+
+  GeneratedColumn<String> get authorDevice => $composableBuilder(
+    column: $table.authorDevice,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get authorSeq =>
+      $composableBuilder(column: $table.authorSeq, builder: (column) => column);
+
+  GeneratedColumn<String> get keptEnvelopeId => $composableBuilder(
+    column: $table.keptEnvelopeId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get duplicateEnvelopeId => $composableBuilder(
+    column: $table.duplicateEnvelopeId,
+    builder: (column) => column,
+  );
+}
+
+class $$AuthorDuplicatesTableTableManager
+    extends
+        RootTableManager<
+          _$LedgerDatabase,
+          $AuthorDuplicatesTable,
+          AuthorDuplicate,
+          $$AuthorDuplicatesTableFilterComposer,
+          $$AuthorDuplicatesTableOrderingComposer,
+          $$AuthorDuplicatesTableAnnotationComposer,
+          $$AuthorDuplicatesTableCreateCompanionBuilder,
+          $$AuthorDuplicatesTableUpdateCompanionBuilder,
+          (
+            AuthorDuplicate,
+            BaseReferences<
+              _$LedgerDatabase,
+              $AuthorDuplicatesTable,
+              AuthorDuplicate
+            >,
+          ),
+          AuthorDuplicate,
+          PrefetchHooks Function()
+        > {
+  $$AuthorDuplicatesTableTableManager(
+    _$LedgerDatabase db,
+    $AuthorDuplicatesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AuthorDuplicatesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AuthorDuplicatesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AuthorDuplicatesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> bookId = const Value.absent(),
+                Value<String> authorDevice = const Value.absent(),
+                Value<int> authorSeq = const Value.absent(),
+                Value<String> keptEnvelopeId = const Value.absent(),
+                Value<String> duplicateEnvelopeId = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => AuthorDuplicatesCompanion(
+                bookId: bookId,
+                authorDevice: authorDevice,
+                authorSeq: authorSeq,
+                keptEnvelopeId: keptEnvelopeId,
+                duplicateEnvelopeId: duplicateEnvelopeId,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String bookId,
+                required String authorDevice,
+                required int authorSeq,
+                required String keptEnvelopeId,
+                required String duplicateEnvelopeId,
+                Value<int> rowid = const Value.absent(),
+              }) => AuthorDuplicatesCompanion.insert(
+                bookId: bookId,
+                authorDevice: authorDevice,
+                authorSeq: authorSeq,
+                keptEnvelopeId: keptEnvelopeId,
+                duplicateEnvelopeId: duplicateEnvelopeId,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$AuthorDuplicatesTable, AuthorDuplicate>(table),
+                  BaseReferences<
+                    _$LedgerDatabase,
+                    $AuthorDuplicatesTable,
+                    AuthorDuplicate
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$AuthorDuplicatesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$LedgerDatabase,
+      $AuthorDuplicatesTable,
+      AuthorDuplicate,
+      $$AuthorDuplicatesTableFilterComposer,
+      $$AuthorDuplicatesTableOrderingComposer,
+      $$AuthorDuplicatesTableAnnotationComposer,
+      $$AuthorDuplicatesTableCreateCompanionBuilder,
+      $$AuthorDuplicatesTableUpdateCompanionBuilder,
+      (
+        AuthorDuplicate,
+        BaseReferences<
+          _$LedgerDatabase,
+          $AuthorDuplicatesTable,
+          AuthorDuplicate
+        >,
+      ),
+      AuthorDuplicate,
       PrefetchHooks Function()
     >;
 typedef $$SignedRecordsLocalTableCreateCompanionBuilder =
@@ -14529,6 +15158,8 @@ class $LedgerDatabaseManager {
       $$AuthorSeqLocalTableTableManager(_db, _db.authorSeqLocal);
   $$AuthorGapsTableTableManager get authorGaps =>
       $$AuthorGapsTableTableManager(_db, _db.authorGaps);
+  $$AuthorDuplicatesTableTableManager get authorDuplicates =>
+      $$AuthorDuplicatesTableTableManager(_db, _db.authorDuplicates);
   $$SignedRecordsLocalTableTableManager get signedRecordsLocal =>
       $$SignedRecordsLocalTableTableManager(_db, _db.signedRecordsLocal);
   $$StoreEpochTableTableManager get storeEpoch =>

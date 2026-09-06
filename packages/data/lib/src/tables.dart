@@ -117,6 +117,34 @@ class AuthorSeqLocal extends Table {
   Set<Column<Object>> get primaryKey => {bookId, deviceId};
 }
 
+/// Derived: two envelopes from one author carrying the same `author_seq`
+/// (ADR 05b §3). The earlier by `(hlc, envelope_id)` is kept; the later is
+/// quarantined `author_seq_duplicate` by Recompute and the book stays
+/// `integrity_ok = 0` while a duplicate exists — the mirror is append-only, so a
+/// duplicate can never be removed, only remembered.
+class AuthorDuplicates extends Table {
+  @override
+  String get tableName => 'author_duplicates';
+
+  /// Book.
+  TextColumn get bookId => text()();
+
+  /// Author whose sequence repeats.
+  TextColumn get authorDevice => text()();
+
+  /// The repeated sequence number.
+  IntColumn get authorSeq => integer()();
+
+  /// The envelope that keeps the seq (earliest by `(hlc, envelope_id)`).
+  TextColumn get keptEnvelopeId => text()();
+
+  /// The later envelope, quarantined.
+  TextColumn get duplicateEnvelopeId => text()();
+
+  @override
+  Set<Column<Object>> get primaryKey => {bookId, duplicateEnvelopeId};
+}
+
 /// Derived: missing `author_seq` values per (book, author) — drives the status
 /// surface and blocks close (ADR 05b §3, ADR 05e §4).
 class AuthorGaps extends Table {
@@ -629,6 +657,7 @@ const layer1Tables = [
   'outbox',
   'author_seq_local',
   'author_gaps',
+  'author_duplicates',
   'signed_records_local',
   'store_epoch',
   'sync_cursors',

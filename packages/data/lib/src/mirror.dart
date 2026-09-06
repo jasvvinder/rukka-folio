@@ -439,6 +439,89 @@ final class Mirror {
         }
         return gaps;
       });
+
+  /// Recomputes `author_duplicates` for [bookId] from the mirror: every
+  /// `(author_device, author_seq)` carried by more than one envelope
+  /// (ADR 05b §3). The earliest envelope by `(hlc, envelope_id)` keeps the
+  /// seq; each later one is reported as a duplicate for Recompute to quarantine.
+  /// Quarantined rows are still counted — a duplicate never goes away.
+  Future<List<SeqDuplicate>> recomputeAuthorDuplicates(String bookId) =>
+      db.transaction(() async {
+        final rows = await db
+            .customSelect(
+              'SELECT envelope_id, author_device, author_seq, hlc '
+              'FROM envelopes_local WHERE book_id = ? '
+              'ORDER BY author_device, author_seq, hlc, envelope_id',
+              variables: [Variable.withString(bookId)],
+            )
+            .get();
+        final dups = <SeqDuplicate>[];
+        String? prevKeyAuthor;
+        int? prevKeySeq;
+        String? kept;
+        for (final r in rows) {
+          final author = r.read<String>('author_device');
+          final seq = r.read<int>('author_seq');
+          final id = r.read<String>('envelope_id');
+          if (author == prevKeyAuthor && seq == prevKeySeq) {
+            dups.add(SeqDuplicate(bookId, author, seq, kept!, id));
+          } else {
+            prevKeyAuthor = author;
+            prevKeySeq = seq;
+            kept = id;
+          }
+        }
+        await (db.delete(
+          db.authorDuplicates,
+        )..where((t) => t.bookId.equals(bookId))).go();
+        for (final d in dups) {
+          await db
+              .into(db.authorDuplicates)
+              .insert(
+                AuthorDuplicatesCompanion.insert(
+                  bookId: d.bookId,
+                  authorDevice: d.authorDevice,
+                  authorSeq: d.authorSeq,
+                  keptEnvelopeId: d.keptEnvelopeId,
+                  duplicateEnvelopeId: d.duplicateEnvelopeId,
+                ),
+              );
+        }
+        return dups;
+      });
+}
+
+/// A repeated `author_seq` (ADR 05b §3) — the derived value behind
+/// `author_duplicates`.
+final class SeqDuplicate {
+  /// Creates a duplicate report.
+  const SeqDuplicate(
+    this.bookId,
+    this.authorDevice,
+    this.authorSeq,
+    this.keptEnvelopeId,
+    this.duplicateEnvelopeId,
+  );
+
+  /// Book.
+  final String bookId;
+
+  /// Author.
+  final String authorDevice;
+
+  /// The repeated number.
+  final int authorSeq;
+
+  /// Envelope that keeps the seq (earliest by `(hlc, envelope_id)`).
+  final String keptEnvelopeId;
+
+  /// The later envelope — quarantined `author_seq_duplicate`.
+  final String duplicateEnvelopeId;
+
+  @override
+  String toString() =>
+      'dup($bookId $authorDevice #$authorSeq keeps $keptEnvelopeId, '
+      'refuses $duplicateEnvelopeId)';
 }
 
 /// A missing `author_seq` (ADR 05b §3) — the derived value behind `author_gaps`.

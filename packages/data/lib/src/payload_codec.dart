@@ -238,8 +238,8 @@ const projectedObjectTypes = {
 ///
 /// [authorDevice] / [authorSeq] are the mirror row's columns (03 §3.1) — the
 /// plaintext mirror of the `author_seq` that travels inside the ciphertext
-/// (ADR 2026-09-05b §3). Non-entry events carry them from here; an entry keeps
-/// its own `author_seq` from the JSON and falls back to the row's when absent.
+/// (ADR 2026-09-05b §3). Every event carries them from here; an entry's inner
+/// `author_seq` is kept only when no [authorSeq] is given.
 /// `period_lock` / `year_close` carry `projector_version` (ADR 2026-09-05c §3).
 LedgerEvent? decodeEvent(
   String objectType,
@@ -250,9 +250,10 @@ LedgerEvent? decodeEvent(
   switch (objectType) {
     case 'entry':
       final e = Entry.fromJson(json);
-      return e.authorSeq == null && authorSeq != null
-          ? e.copyWith(authorSeq: authorSeq)
-          : e;
+      // The caller's [authorSeq] is the projector-facing rank (see Recompute
+      // step 1b); when given it replaces the inner seq, which Recompute has
+      // already checked against the mirror row.
+      return authorSeq != null ? e.copyWith(authorSeq: authorSeq) : e;
     case 'approval_decision':
       return ApprovalDecision(
         id: json['id'] as String,

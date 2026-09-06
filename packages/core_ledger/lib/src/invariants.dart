@@ -36,9 +36,6 @@ enum ViolationKind {
   /// 02 §1.3: `pending` on something other than an advance request.
   pendingNotAdvance,
 
-  /// 02 §5: amends an entry this reader has not accepted.
-  amendTargetMissing,
-
   /// 02 §5: amend chains are linear — only the head may be amended.
   amendNotHead,
 
@@ -47,9 +44,6 @@ enum ViolationKind {
 
   /// 02 §5: amendment in a locked period is forbidden by rule.
   amendInLockedPeriod,
-
-  /// 02 §5: reverses an entry this reader has not accepted.
-  reverseTargetMissing,
 
   /// 02 §5: only a counted (posted) head may be reversed.
   reverseTargetNotPosted,
@@ -62,9 +56,6 @@ enum ViolationKind {
 
   /// 02 §7.2 item 1: nobody clears their own flag.
   selfApproval,
-
-  /// A decision on an entry this reader has not accepted.
-  decisionTargetMissing,
 
   /// 02 §8.2: the denomination sheet is mandatory here.
   countSheetRequired,

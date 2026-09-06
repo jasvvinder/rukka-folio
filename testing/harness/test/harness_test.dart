@@ -43,7 +43,7 @@ void main() {
       expect(s.cancel(c), isFalse);
       expect(s.run(untilMs: 100), 3);
       expect(order, ['a1', 'a2', 'b']);
-      expect(s.now, 50);
+      expect(s.now, 100, reason: 'time advances to untilMs');
       expect(s.pending, 1);
       s.run();
       expect(order.last, 'late');

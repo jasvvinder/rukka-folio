@@ -70,7 +70,8 @@ class Scheduler {
   bool cancel(ScheduledEvent e) => _queue.remove(e);
 
   /// Runs events in `(at, seq)` order until the queue is empty or [untilMs] is reached
-  /// (events due after [untilMs] stay queued). Returns the number of events executed.
+  /// (events due after [untilMs] stay queued; [now] becomes [untilMs]). Returns the
+  /// number of events executed.
   int run({int? untilMs, int maxEvents = 1 << 20}) {
     var n = 0;
     while (_queue.isNotEmpty && n < maxEvents) {
@@ -83,7 +84,9 @@ class Scheduler {
       n++;
       e.action(this);
     }
-    if (untilMs != null && _now < untilMs && _queue.isEmpty) _now = untilMs;
+    // Time advances to [untilMs] even when later events remain queued — every
+    // one of them is due after it, so a caller may author "now" at that instant.
+    if (untilMs != null && _now < untilMs) _now = untilMs;
     if (n >= maxEvents) {
       throw StateError('scheduler exceeded $maxEvents events — runaway loop?');
     }

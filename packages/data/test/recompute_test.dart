@@ -535,6 +535,169 @@ void main() {
       await db.close();
     });
 
+    test('E-05b-4 a repeated author_seq is a duplicate: the later envelope by '
+        '(hlc, envelope_id) is quarantined author_seq_duplicate, the earlier one '
+        'counts, integrity_ok is 0, and a second Recompute finds the same state '
+        '(append-only: the duplicate can never leave)', () async {
+      final f = Fixture();
+      final db = await openMemory();
+      final (m, r) = rig(db);
+      await storeAll(m, f.setupEnvelopes());
+      Entry x(String id, int rupees, LocalDate d) => f.entry(
+        id,
+        Verbs.moneyIn(
+          into: f.cash,
+          from: f.salary,
+          amount: Paise.rupees(rupees),
+        ),
+        date: d,
+        kind: EntryKind.moneyIn,
+        device: 'dev-x',
+      );
+      final x1 = x('x1', 100, LocalDate(2026, 4, 1));
+      final x2 = x('x2', 200, LocalDate(2026, 4, 2));
+      final x3 = x('x3', 300, LocalDate(2026, 4, 3));
+      await m.append(f.eventEnvelope(x1, authorSeq: 1));
+      await m.append(f.eventEnvelope(x2, authorSeq: 2));
+      await m.append(f.eventEnvelope(x3, authorSeq: 2)); // later hlc, same seq
+
+      Future<void> check() async {
+        final rep = (await r.run()).single;
+        expect(rep.integrityOk, isFalse);
+        expect(rep.authorDuplicates, ['env-x3']);
+        expect(rep.authorGaps, 0, reason: 'a duplicate is not a hole');
+        expect(rep.quarantined, contains('env-x3'));
+        final rows = await m.envelopesOf(f.bookId);
+        final dup = rows.singleWhere((e) => e.envelopeId == 'env-x3');
+        expect(dup.quarantined, 1);
+        expect(dup.quarantineReason, 'author_seq_duplicate');
+        expect(
+          rows.singleWhere((e) => e.envelopeId == 'env-x2').quarantined,
+          0,
+        );
+        final table = await db.select(db.authorDuplicates).get();
+        expect(table.single.authorDevice, 'dev-x');
+        expect(table.single.authorSeq, 2);
+        expect(table.single.keptEnvelopeId, 'env-x2');
+        expect(table.single.duplicateEnvelopeId, 'env-x3');
+        expect((await bookRow(db, f.bookId)).integrityOk, 0);
+        // The kept envelope counts; the duplicate never does.
+        expect(await storedBalance(db, f.cash.id), 300 * 100);
+      }
+
+      await check();
+      await check(); // stable: nothing to un-quarantine, nothing new to find
+      await db.close();
+    });
+
+    test(
+      'E-05b-5 one ranking rule for every event: an author whose seq numbers '
+      'config and account objects too (1–3) then entries 4 and 6 with 5 '
+      'missing → state.authorGaps names device X once, yearClosePreconditions '
+      'refuses with authorGapOpen, integrity 0; seq 5 arriving clears all',
+      () async {
+        final f = Fixture();
+        final db = await openMemory();
+        final (m, r) = rig(db);
+        // Setup objects are authored by dev-a with seqs 1…n (config + accounts):
+        // the healthy single device must NOT read as gapped afterwards.
+        await storeAll(m, f.setupEnvelopes());
+        Entry x(String id, int rupees, LocalDate d, int seq) => f
+            .entry(
+              id,
+              Verbs.moneyIn(
+                into: f.cash,
+                from: f.salary,
+                amount: Paise.rupees(rupees),
+              ),
+              date: d,
+              kind: EntryKind.moneyIn,
+            )
+            .copyWith(authorSeq: seq); // inner seq written (ADR 05b §3)
+        final s4 = f.reserveSeq();
+        final s5 = f.reserveSeq(); // the hole
+        final s6 = f.reserveSeq();
+        final e4 = x('e4', 100, LocalDate(2026, 4, 1), s4);
+        final e5 = x('e5', 200, LocalDate(2026, 4, 2), s5);
+        final e6 = x('e6', 300, LocalDate(2026, 4, 3), s6);
+        await m.append(f.eventEnvelope(e4, authorSeq: s4));
+        await m.append(f.eventEnvelope(e6, authorSeq: s6));
+
+        var rep = (await r.run()).single;
+        expect(rep.integrityOk, isFalse);
+        // Mirror: the authored number. State: the projected rank of the same hole.
+        final mirrorGaps = await db.select(db.authorGaps).get();
+        expect(mirrorGaps.single.authorDevice, f.device);
+        expect(mirrorGaps.single.expectedSeq, s5);
+        expect(rep.state.authorGaps.single.authorDevice, f.device);
+        expect(
+          rep.state.authorGaps.single.expectedSeq,
+          2,
+        ); // e4 = 1, hole = 2, e6 = 3
+        expect(rep.state.isProvisional, isTrue);
+        final fy = FinancialYear.of(LocalDate(2026, 4, 1), startMonth: 4);
+        final blockers = yearClosePreconditions(rep.state, rep.chart, fy);
+        expect(
+          blockers
+              .where((b) => b.kind == CloseBlocker.authorGapOpen)
+              .single
+              .ref,
+          f.device,
+        );
+        expect((await bookRow(db, f.bookId)).integrityOk, 0);
+        expect(await storedBalance(db, f.cash.id), 400 * 100);
+
+        await m.append(f.eventEnvelope(e5, authorSeq: s5));
+        rep = (await r.run()).single;
+        expect(rep.integrityOk, isTrue);
+        expect(rep.state.authorGaps, isEmpty);
+        expect(await db.select(db.authorGaps).get(), isEmpty);
+        expect(
+          yearClosePreconditions(
+            rep.state,
+            rep.chart,
+            fy,
+          ).where((b) => b.kind == CloseBlocker.authorGapOpen),
+          isEmpty,
+        );
+        expect(await storedBalance(db, f.cash.id), 600 * 100);
+        // stateOf() is the same truth as run().
+        final (st, _) = await r.stateOf(f.bookId);
+        expect(st.authorGaps, isEmpty);
+        await db.close();
+      },
+    );
+
+    test('E-05b-6 an inner author_seq that disagrees with the mirror row is '
+        'quarantined author_seq_mismatch, not read as a gap', () async {
+      final f = Fixture();
+      final db = await openMemory();
+      final (m, r) = rig(db);
+      await storeAll(m, f.setupEnvelopes());
+      final seq = f.reserveSeq();
+      final e = f
+          .entry(
+            'bad',
+            Verbs.moneyIn(
+              into: f.cash,
+              from: f.salary,
+              amount: Paise.rupees(100),
+            ),
+            date: LocalDate(2026, 4, 1),
+            kind: EntryKind.moneyIn,
+          )
+          .copyWith(authorSeq: seq + 7);
+      await m.append(f.eventEnvelope(e, authorSeq: seq));
+      final rep = (await r.run()).single;
+      expect(rep.quarantined, ['env-bad']);
+      expect(rep.state.authorGaps, isEmpty);
+      final row = (await m.envelopesOf(f.bookId))
+          .singleWhere((x) => x.envelopeId == 'env-bad');
+      expect(row.quarantineReason, 'author_seq_mismatch');
+      expect(await storedBalance(db, f.cash.id), anyOf(isNull, 0));
+      await db.close();
+    });
+
     test('E-05c-6 projector_version round-trips through the codec and lands in '
         'year_close_p; a close certified by a newer projector whose vector this '
         'reader cannot reproduce is reader_outdated, never mismatch', () async {

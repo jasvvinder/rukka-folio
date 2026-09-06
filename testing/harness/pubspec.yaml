@@ -1,5 +1,5 @@
 name: harness
-description: "Two-client test rig: deterministic scheduler over a seeded, replayable network-reorder log (09 §1, ADR 2026-09-05i §7). Created at M2; devices + server join at M4."
+description: "Two-client test rig: deterministic scheduler over a seeded, replayable network-reorder log, simulated devices on the real data layer (09 §1, ADR 2026-09-05i §7). Created at M2; the server + sync engine join at M4."
 version: 0.0.1
 publish_to: none
 resolution: workspace
@@ -9,6 +9,11 @@ environment:
 
 dependencies:
   meta: ^1.16.0
+  core_ledger:
+    path: ../../packages/core_ledger
+  data:
+    path: ../../packages/data
+  drift: ^2.34.4
 
 dev_dependencies:
   lints: ^6.0.0
