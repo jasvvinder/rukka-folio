@@ -4,14 +4,14 @@
 
 **Traceability 🔒 (ADR 2026-09-05i §1).** Every test carries a stable id `<Suite>-<source>-<n>` (`A-02-9`, `D-05b-3`) as the first token of its name; every 🔒 line in `docs/` ends with `⟦tests: id, id⟧` (or `⟦tests: n/a — reason⟧`); `scripts/check_coverage.dart` fails on an unmarked 🔒 line or a dangling id — warn-only until M4 exit, blocking after. **Supersession 🔒 (ADR 2026-09-05i §4):** a doc change that flips behaviour marks the old test `@Skip('superseded by ADR <id> §<n>; re-lands at M<n>')` in the same commit.
 
-## 1. Test infrastructure requirements 🔒
+## 1. Test infrastructure requirements 🔒 ⟦tests: A-09-1, D-09-1, D-09-2, D-09-3, D-09-4, D-09-5⟧
 - **Injected clock and injected RNG** everywhere (no direct `DateTime.now()`/`Random()` in core packages) — required for HLC tests and deterministic crypto tests.
 - **Property-based testing** for the ledger core (every verb × every input shape ⇒ invariants hold).
 - **Two-client harness:** integration rig running ≥ 2 simulated devices against one server instance, with scriptable connectivity (offline windows, reordering, retries).
 - **Hostile-client fixture:** a build flag that emits invariant-violating envelopes (unbalanced lines, post-lock HLCs, wrong key versions) to exercise reader-side quarantine.
 - **Golden exports:** byte-comparison of generated PDFs/XLSX against approved goldens (locale-pinned) for the closed-year immutability tests.
 - Perf budgets as tests: cold start < 2 s, entry save < 300 ms, Home render < 100 ms at 10k entries — **p95 of 20 runs on iPhone SE 3rd gen / iOS 16** (13 §10 item 9), nightly on simulator and RC on device; **Android 9 / 2 GB / 360×800 from M12**; app size < 40 MB; a nightly p95 > 15 % worse than the 7-day median fails the lane (ADR 2026-09-05i §6).
-- **Property tests shrink or reproduce (ADR 2026-09-05i §5):** a shrinking generator (⚠️ package at M2); until then `PROPTEST_SEED` from env with the seed printed on failure and every failing seed checked into `test/regress/seeds.txt`.
+- **Property tests shrink or reproduce (ADR 2026-09-05i §5):** a shrinking generator (⚠️ package at M2); until then `PROPTEST_SEED` from env with the seed printed on failure and every failing seed checked into `test/regress/seeds.txt`. ⟦tests: A-05i-1, A-09-1, A-02-60, A-03-5⟧
 - **Harness home (ADR 2026-09-05i §7):** `/testing/harness` (created at M2) — deterministic scheduler over a seeded network-reorder log so any failure replays; `/testing/fixtures` synthetic only, accounting goldens stay in `docs/reference/`; `/testing/goldens` for export byte-goldens. The hostile fixture is `--dart-define=HOSTILE_ENVELOPES=true` and the release lane asserts it is absent.
 - **Hygiene & flakiness (ADR 2026-09-05i §7):** `check_purity.sh` greps test trees for real-looking mobile/Aadhaar/PAN strings; a test that fails-then-passes unchanged is quarantined the same day (`flaky` tag, nightly only, owner + deadline ≤ 2 weeks); no blind retries. `dart_test.yaml` at the root carries per-suite tags and timeouts.
 

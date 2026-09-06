@@ -4,16 +4,26 @@ on:
   push:
     branches: [main]
   pull_request:
+  schedule:
+    - cron: "30 21 * * *" # 03:00 IST — nightly lane (09 §preamble, ADR 2026-09-05i §2)
+  workflow_dispatch:
+    inputs:
+      lane:
+        description: "push | nightly | rc | release"
+        default: push
+        required: false
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ci-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
 jobs:
   gate:
-    name: scripts/ci.sh
+    name: scripts/ci.sh (${{ github.event_name == 'schedule' && 'nightly' || inputs.lane || 'push' }} lane)
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      LANE: ${{ github.event_name == 'schedule' && 'nightly' || inputs.lane || 'push' }}
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2

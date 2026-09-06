@@ -6,8 +6,8 @@ description: Run the CI gate (scripts/ci.sh) for a lane and report failures grou
 # /gate $ARGUMENTS
 
 Run the gate exactly as CI does. `$ARGUMENTS` is the lane: `push` (default), `nightly`, `rc`, `release`
-(ADR 2026-09-05i §2). Until `ci.sh` grows its `LANE` switch the variable is passed through and ignored;
-say so in the report if a non-push lane was requested.
+(ADR 2026-09-05i §2). `ci.sh` honours `LANE` since M2: nightly re-enables `flaky` tests; steps a lane does not
+own yet print *scheduled — lands at M<n>* — report those as scheduled, not as passed.
 
 ```bash
 LANE=${ARGUMENTS:-push} ./scripts/ci.sh 2>&1 | tee "$CLAUDE_JOB_DIR/tmp/gate.log"

@@ -14,6 +14,16 @@ abstract interface class LedgerEvent {
 
   /// Ordering authority; projection order is `(hlc, id)`.
   Hlc get hlc;
+
+  /// The authoring device (05 §4, ADR 2026-09-05b §3). `null` on a legacy
+  /// envelope written before per-author sequencing existed.
+  String? get authorDevice;
+
+  /// Per-`(book, device)` sequence, monotone from 1, carried **inside** the
+  /// ciphertext so the server can neither see nor alter it (ADR 2026-09-05b §3).
+  /// Readers track the highest contiguous value per author; a gap means an
+  /// envelope is being withheld. `null` = legacy, not tracked.
+  int? get authorSeq;
 }
 
 /// Approve or reject.
@@ -38,6 +48,8 @@ final class ApprovalDecision implements LedgerEvent {
     required this.byUser,
     required this.hlc,
     this.reason,
+    this.authorDevice,
+    this.authorSeq,
   });
 
   @override
@@ -46,6 +58,10 @@ final class ApprovalDecision implements LedgerEvent {
   final String bookId;
   @override
   final Hlc hlc;
+  @override
+  final String? authorDevice;
+  @override
+  final int? authorSeq;
 
   /// The entry decided on.
   final String entryId;
@@ -74,6 +90,9 @@ final class PeriodLock implements LedgerEvent {
     required this.hlc,
     this.declaredBalances,
     this.vectorCanonical,
+    this.projectorVersion,
+    this.authorDevice,
+    this.authorSeq,
   });
 
   @override
@@ -82,6 +101,10 @@ final class PeriodLock implements LedgerEvent {
   final String bookId;
   @override
   final Hlc hlc;
+  @override
+  final String? authorDevice;
+  @override
+  final int? authorSeq;
 
   /// The month locked.
   final YearMonth period;
@@ -94,6 +117,11 @@ final class PeriodLock implements LedgerEvent {
 
   /// The canonical balance vector at close, for independent re-verification.
   final String? vectorCanonical;
+
+  /// The `projectorVersion` that computed [vectorCanonical] (ADR 2026-09-05c §3):
+  /// an older reader shows *update to verify* instead of a false mismatch.
+  /// `null` on a lock written before versions were recorded.
+  final int? projectorVersion;
 }
 
 /// Re-opening a locked month (02 §8: admin, logged, requires re-close).
@@ -106,6 +134,8 @@ final class PeriodUnlock implements LedgerEvent {
     required this.byUser,
     required this.reason,
     required this.hlc,
+    this.authorDevice,
+    this.authorSeq,
   });
 
   @override
@@ -114,6 +144,10 @@ final class PeriodUnlock implements LedgerEvent {
   final String bookId;
   @override
   final Hlc hlc;
+  @override
+  final String? authorDevice;
+  @override
+  final int? authorSeq;
 
   /// The month re-opened.
   final YearMonth period;
@@ -126,7 +160,8 @@ final class PeriodUnlock implements LedgerEvent {
 }
 
 /// The Year Close ceremony envelope (02 §8.1): the closing balance vector of
-/// every account, published by the closer and re-verified by every member.
+/// every **balance-sheet** account as of the FY's last day (ADR 2026-09-05e §2),
+/// published by the closer and re-verified by every member.
 final class YearClose implements LedgerEvent {
   /// Creates a year close.
   const YearClose({
@@ -136,6 +171,9 @@ final class YearClose implements LedgerEvent {
     required this.vector,
     required this.byUser,
     required this.hlc,
+    this.projectorVersion,
+    this.authorDevice,
+    this.authorSeq,
   });
 
   @override
@@ -144,6 +182,10 @@ final class YearClose implements LedgerEvent {
   final String bookId;
   @override
   final Hlc hlc;
+  @override
+  final String? authorDevice;
+  @override
+  final int? authorSeq;
 
   /// The year closed.
   final FinancialYear financialYear;
@@ -153,4 +195,7 @@ final class YearClose implements LedgerEvent {
 
   /// Who closed.
   final String byUser;
+
+  /// The `projectorVersion` that computed [vector] (ADR 2026-09-05c §3).
+  final int? projectorVersion;
 }

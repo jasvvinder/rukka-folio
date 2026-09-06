@@ -1,22 +1,22 @@
 # 02 — Ledger Rules
 
 **Status:** Draft 1 for build. 🔒 = locked. ⚠️ = decide/verify before the affected milestone.
-**Behavioural reference 🔒:** `reference/financial-accounting-standards.md` and `reference/worked-examples/` — verified ledgers for all four entity types; the engine must reproduce them exactly.
+**Behavioural reference 🔒:** `reference/financial-accounting-standards.md` and `reference/worked-examples/` — verified ledgers for all four entity types; the engine must reproduce them exactly. ⟦tests: A-ref-1, A-ref-2, A-ref-3, A-ref-4, A-ref-5, A-ref-6, A-ref-7⟧
 
 **Companions:** 04-crypto.md (every ledger object travels as a signed, encrypted envelope), 06-auth-devices.md (roles, limits, membership states).
 
 **Design goal:** Textbook double-entry underneath; a cashbook on top. The user chooses one of six verbs and answers two or three plain questions; the posting rule is fixed and cannot be gotten wrong. **The entry screen speaks plain verbs; statements, ledgers, and reports speak the professional terms** — Dr./Cr. as ਨਾਮੇ/ਜਮ੍ਹਾਂ, नामे/जमा in the traditional three-column layout (01 §1.9) — because professionals cannot be asked to work without them. Deep jargon (journal, voucher, contra, accrual, folio, narration) never appears.
 
-**Zero-knowledge consequence 🔒:** the server cannot read entries, so **it enforces no ledger rule**. Every invariant in this document is enforced by the authoring client and re-verified by every reading client (entries are author-signed, 04 §8.3). An envelope violating an invariant is quarantined and raised as a security event — never silently displayed or summed.
+**Zero-knowledge consequence 🔒:** the server cannot read entries, so **it enforces no ledger rule**. Every invariant in this document is enforced by the authoring client and re-verified by every reading client (entries are author-signed, 04 §8.3). An envelope violating an invariant is quarantined and raised as a security event — never silently displayed or summed. ⟦tests: A-02-56, A-02-57, A-02-7⟧
 
 ---
 
 ## 1. Objects
 
-### 1.1 Books 🔒
+### 1.1 Books 🔒 ⟦tests: A-02-33, A-02-34⟧
 A book is an independent, self-balancing ledger. Types: `personal`, `family`, `joint`, `business` (and, per tenant type `organization`, books are the same objects with different display names). Books never nest; they connect only via due-to/due-from pairs (§6). Each book has its own chart of accounts, its own financial year (default 1 April – 31 March), and its own period locks.
 
-### 1.2 Accounts 🔒
+### 1.2 Accounts 🔒 ⟦tests: A-02-26, A-02-18, A-02-19⟧
 Accounts are encrypted content with stable UUIDs. Each has a **class**, which drives behavior and report placement:
 
 | Class | Examples | Report placement |
@@ -32,7 +32,7 @@ Placement-by-sign means the user never classifies anything. **Accumulated surplu
 
 **User-facing naming 🔒:** every account of every class appears to the user as simply an **A/C (khata)** — one unified, searchable A–Z list with live balances (the Ledger tab *is* the index page of a bound ledger). The words *party* and *category* are internal. Creation is always **inline**: typing an unknown name in any picker slot offers *"+ Create '{name}' A/C"* on the spot; the class is **inferred from the slot** (created in *To whom?* → `party`; in *For what?* of Money Out → `category_expense`; in *From what?* of Money In → `category_income`). Where a slot legitimately allows both (e.g. Money Out's counterpart may be an expense category or a party being repaid), the app asks one plain question with two icon chips: *person/shop (udhaar possible)* vs *type of expense*. The same real-world name may exist as both — *Verma Dairy A/c* (`party`) and *Dairy Expense A/C* (`category_expense`) — and a party may carry an optional **usual category** so credit purchases auto-fill their expense side. Seeded trees per tenant type use the traditional names (household: Kirana, Doodh/Dairy, School Fees…; trust: Donation A/C, Langar A/C, Bhent A/C…), all renamable and deletable-if-unused, shipped trilingually per 01.
 
-### 1.3 Entries 🔒
+### 1.3 Entries 🔒 ⟦tests: A-02-22, A-02-6, A-02-24, A-05b-6⟧
 The plaintext JSON inside an envelope (04 §4):
 
 ```
@@ -41,14 +41,14 @@ Entry {
   kind          : money_in | money_out | gave_credit | took_credit
                 | transfer | adjustment
   status        : pending | posted | void
-                // 🔒 `pending` is ONLY an advance request awaiting approval (§7),
+                // 🔒 `pending` is ONLY an advance request awaiting approval (§7), ⟦tests: A-02-6, A-02-72⟧
                 // the one case where approval itself moves the money. Every other
                 // entry is `posted` from the moment it is saved (§3). An ordinary
                 // over-limit entry is `posted` with review_required=true — never
                 // `pending`, and it counts in balances from the first moment (§9).
                 // The open/approved/rejected *state* is not stored on the envelope:
                 // it is projected by folding approval_decision envelopes (03 §3.3.5).
-  review_required : bool           // 🔒 authored at save time by the client that
+  review_required : bool           // 🔒 authored at save time by the client that ⟦tests: A-02-38, A-02-7⟧
                                    // knows the limit; the projector may NOT read
                                    // book_roles (03 §3.3.5). Readers re-check it
                                    // against review_limit_paise below.
@@ -67,7 +67,7 @@ Entry {
 }
 ```
 
-### 1.4 Universal invariants 🔒
+### 1.4 Universal invariants 🔒 ⟦tests: A-02-1, A-02-2, A-02-3, A-02-4, A-02-5, A-02-8, A-02-23, A-02-25, A-09-1, A-05e-8⟧
 1. `sum(lines.amount_paise) == 0`, ≥ 2 lines, every line non-zero.
 2. Amounts are **integer paise**. No floats anywhere — client, export, or display math.
 3. Every `account_id` belongs to the entry's book. Cross-book effects only via §6.
@@ -78,7 +78,7 @@ Entry {
 
 ---
 
-## 2. The six verbs and their fixed postings 🔒
+## 2. The six verbs and their fixed postings 🔒 ⟦tests: A-02-9, A-02-10, A-02-11, A-02-12, A-02-13, A-02-14, A-02-16, A-02-17, A-02-18, A-02-20, A-02-21, A-05e-8⟧
 
 The user answers plain questions; the app builds the lines. Party-facing verbs auto-resolve against existing balances (paying ₹500 to a party you owe ₹2,000 simply reduces the payable — the user never chooses debit or credit).
 
@@ -91,13 +91,13 @@ The user answers plain questions; the app builds the lines. Party-facing verbs a
 | 5 | **Transfer** | Within a book: from/to two money accounts (covers cash↔bank, bank↔bank, and CC/loan payments: Dr CC · Cr bank). Across books: §6. | Dr to-account · Cr from-account |
 | 6 | **Adjustment** (guided only) | Never freeform. Wizards: opening balances (§4), cash-count difference (§8), write-off a party/advance balance, reversal (§5). | Counter-account is always `equity_system` or the reversed entry's mirror |
 
-**Every row above is a reader-enforced invariant, not only an authoring rule (§1.4 rule 7, ADR 2026-09-05e §6).** Verbs 3 and 4 with the "money" answer overlap verbs 1 and 2 with a party — same posting, reached from either door. 🔒 Keep both doors; users think in both idioms.
+**Every row above is a reader-enforced invariant, not only an authoring rule (§1.4 rule 7, ADR 2026-09-05e §6).** Verbs 3 and 4 with the "money" answer overlap verbs 1 and 2 with a party — same posting, reached from either door. 🔒 Keep both doors; users think in both idioms. ⟦tests: A-02-15⟧
 
 **Online/offline paid** (from your one-screen requirement) is simply which money account the entry touches — cash vs a bank/UPI account — plus an optional `channel` tag for filtering. No separate accounting treatment.
 
 ---
 
-## 3. Status lifecycle — post-then-review 🔒 (revised by owner decision)
+## 3. Status lifecycle — post-then-review 🔒 (revised by owner decision) ⟦tests: A-02-38, A-02-39, A-02-40, A-02-41⟧
 
 **Principle: if the money already moved in the world, the book says so immediately. Approval-before exists only where the approval itself moves the money (advances §7).**
 
@@ -119,7 +119,7 @@ The user answers plain questions; the app builds the lines. Party-facing verbs a
 
 ---
 
-## 4. Opening balances 🔒
+## 4. Opening balances 🔒 ⟦tests: A-02-17, A-ref-3⟧
 
 **Every new account asks for its opening balance at creation 🔒 (owner-approved)** — not only during first-run setup. The question is phrased by class, never as Dr/Cr: money accounts ask *"balance today"* (negative allowed → overdraft); party accounts ask *"do they owe you, or do you owe them?"* with the amount (**you will get** / **you will give**); expense/income accounts default to zero for the current FY. Each posts one `adjustment` against Opening Balance (equity).
 
@@ -127,7 +127,7 @@ Guided setup per book, re-runnable until first lock: for each money account and 
 
 ---
 
-## 5. Corrections 🔒
+## 5. Corrections 🔒 ⟦tests: A-02-42, A-02-43, A-02-44, A-02-45, A-02-46, A-02-47, A-02-50, A-05b-1, A-05b-2, A-05b-3, A-02-57⟧
 
 - **Open period:** an entry may be **amended** — a new envelope, `kind` unchanged, `refs.amends = original`, carrying the complete replacement payload. Views show the latest amendment; history is preserved and inspectable ("edited by Ramesh, 2 changes"). Amend chains are linear (amend the head only). **A reader holding an amendment, reversal or decision whose target has not arrived keeps it `held` — neither projected nor quarantined — until the target lands (ADR 2026-09-05b §4); only when every author's sequence is contiguous and the target is still absent is it quarantined as `target_missing`.** `held` means this and nothing else; the closer's-tray state of a late arrival is `inTray` (ADR 2026-09-05e §10).
 - **Locked period:** amendment is forbidden by rule. The only path: **reversal** — an auto-built mirror entry dated in the open period, `refs.reverses = original`, plus (optionally) the corrected re-entry. One guided flow: *"Fix an old entry"* → app posts both.
@@ -135,7 +135,7 @@ Guided setup per book, re-runnable until first lock: for each money account and 
 
 ---
 
-## 6. Inter-book movement 🔒
+## 6. Inter-book movement 🔒 ⟦tests: A-02-78, A-02-79, A-02-80, A-02-82, A-ref-6, A-05e-10⟧
 
 Books connect through **paired system accounts** auto-created on first use: in book A, `Due to/from B`; in book B, `Due to/from A` (class `equity_system`, placement by sign).
 
@@ -148,12 +148,12 @@ Family book:     Dr Bank 50,000 · Cr Due to/from Business 50,000
 
 - Both halves post immediately (the money moved). If the actor lacks posting rights in one of the books, that half carries the *needs review* flag (§3) for that book's approver; position screens label the pair *in transit* while the flag is open. Reconciliation nets to zero from the moment of entry.
 - The one-sided everyday case — a member pays a family expense from his own pocket — is the same mechanism: personal book `Dr Due to/from Family · Cr Cash`; family book `Dr Expense · Cr Due to/from Personal(member)` (flagged for review if over limit). Nothing is ever lost in someone's pocket.
-- **Family Reconciliation report 🔒:** for every pair, balance(A→B) + balance(B→A) must equal 0. Any non-zero pair is listed with the entries composing it. This is the only cross-book integrity check that exists or is needed. **A pair is reconcilable only when the reader holds both books' keys; a side inside a personal or sub-family book the reader cannot open (04 §5.2) is shown as *one-sided · unconfirmed*, never as a mismatch (ADR 2026-09-05e §7).**
+- **Family Reconciliation report 🔒:** for every pair, balance(A→B) + balance(B→A) must equal 0. Any non-zero pair is listed with the entries composing it. This is the only cross-book integrity check that exists or is needed. **A pair is reconcilable only when the reader holds both books' keys; a side inside a personal or sub-family book the reader cannot open (04 §5.2) is shown as *one-sided · unconfirmed*, never as a mismatch (ADR 2026-09-05e §7).** ⟦tests: A-02-79, A-02-81, A-ref-6, A-05e-10⟧
 - Business↔business movement is the same mechanism. **Profit distribution is *not* an inter-book operation** — it is a single multi-line entry inside the business book against Partner Current A/cs (§7.1). Remitting business surplus to a family pool *is* an inter-book transfer, and the two must not be conflated.
 
 ---
 
-## 7. Advances — the advance (ਐਡਵਾਂਸ / एडवांस) flow 🔒
+## 7. Advances — the advance (ਐਡਵਾਂਸ / एडवांस) flow 🔒 ⟦tests: A-02-72, A-02-73, A-02-74, A-02-75, A-02-76, A-02-77⟧
 
 - Advances are the deliberate exception to §3's post-then-review: **here the approval itself moves the money** — cash leaves the drawer upon approval, so nothing exists to mismatch. Requesting ₹X posts, on approval: `Dr Advance – {member} · Cr money`. Purpose text required; approval always required regardless of limit.
 - Spending against it: `Dr expense-category · Cr Advance – {member}` (entered by the member, approved per limits, bill photo encouraged).
@@ -165,7 +165,7 @@ Family book:     Dr Bank 50,000 · Cr Due to/from Business 50,000
 
 ---
 
-## 7.1 Jointly-owned businesses — partner accounts 🔒 (owner-approved, 30 Aug 2026)
+## 7.1 Jointly-owned businesses — partner accounts 🔒 (owner-approved, 30 Aug 2026) ⟦tests: A-02-62⟧
 
 **Shared ownership is optional 🔒 (owner-approved).** Adding a business asks one question — *"Who owns this business?"* → **Just me** (default) or **Shared with others**. Choosing *Just me* creates a plain business book with a single Capital/Drawings pair and **never mentions partners, ratios or profit distribution anywhere in the app**. Only *Shared with others* asks for the owners and their ratio, and only then do partner accounts, the distribution wizard and the partner-position screen exist. Ownership can be changed later (a structural change: requires every current owner's approval and is recorded as a dated envelope).
 
@@ -181,22 +181,22 @@ A business owned by several people or sub-families gets one **Partner Current A/
 
 🔒 **The payer never books an expense in their own book.** In their personal book it is `Dr {Business} · Cr Cash` — money owed to them, not an expense. The expense belongs to the business.
 
-**Profit distribution 🔒.** Net profit for the period — **the open FY's income minus expense, minus distributions already posted in that FY (ADR 2026-09-05e §8)** — × each owner's agreed ratio (fixed at business creation), posted as **one multi-line entry**: `Dr Profit Distributed (equity_system) · Cr each Partner Current`. It moves no cash — it converts undistributed surplus into debts the business owes its owners. Using a `Profit Distributed` account preserves §1.2's no-closing-entries rule: accumulated surplus stays computed, and this account records how much of it has been handed out.
+**Profit distribution 🔒.** Net profit for the period — **the open FY's income minus expense, minus distributions already posted in that FY (ADR 2026-09-05e §8)** — × each owner's agreed ratio (fixed at business creation), posted as **one multi-line entry**: `Dr Profit Distributed (equity_system) · Cr each Partner Current`. It moves no cash — it converts undistributed surplus into debts the business owes its owners. Using a `Profit Distributed` account preserves §1.2's no-closing-entries rule: accumulated surplus stays computed, and this account records how much of it has been handed out. ⟦tests: A-02-63, A-02-64, A-05e-3, A-05e-6⟧
 
-🔒 **Contribution never changes the sharing ratio.** Paying more costs does not earn more profit — it earns a larger claim for repayment. The two are separate rows of the same account.
+🔒 **Contribution never changes the sharing ratio.** Paying more costs does not earn more profit — it earns a larger claim for repayment. The two are separate rows of the same account. ⟦tests: A-02-64⟧
 
 **Settlement 🔒 — default is carry forward.** Three routes, offered at year close after distribution, with *carry forward* preselected:
 1. **Business pays out** a partner's balance (needs cash) — `Dr Partner Current · Cr bank`.
 2. **Partner-to-partner** settlement outside the business — `Dr {over-funded partner} · Cr {under-funded partner}`: the payer has bought part of the other's claim.
 3. **Carry forward** — the balance closes and re-opens under the year-close ceremony (§8.1) as a certified, dated opening balance. Never a remembered number.
 
-**Settlement capacity 🔒.** The partner-position screen states in words whether the business could pay everyone out today: *"The business can settle all partner balances today"* (money accounts ≥ total partner credit balances) or *"Short by ₹X to settle all balances"*. Figures are shown beneath, never left for the reader to subtract.
+**Settlement capacity 🔒.** The partner-position screen states in words whether the business could pay everyone out today: *"The business can settle all partner balances today"* (money accounts ≥ total partner credit balances) or *"Short by ₹X to settle all balances"*. Figures are shown beneath, never left for the reader to subtract. ⟦tests: A-02-65⟧
 
-**Debit balances are real and must be shown 🔒.** An owner who has taken out more than they put in plus their profit share carries a **Dr** balance: *they owe the business*. This is displayed as plainly as the credit case.
+**Debit balances are real and must be shown 🔒.** An owner who has taken out more than they put in plus their profit share carries a **Dr** balance: *they owe the business*. This is displayed as plainly as the credit case. ⟦tests: A-02-66⟧
 
-**Drift visibility 🔒.** Where one partner's balance exceeds the group average by a configurable margin, the business dashboard shows a quiet card ("Harjit has ₹2,40,000 more with the business than the others"). Informational, never a demand.
+**Drift visibility 🔒.** Where one partner's balance exceeds the group average by a configurable margin, the business dashboard shows a quiet card ("Harjit has ₹2,40,000 more with the business than the others"). Informational, never a demand. ⟦tests: A-02-67⟧
 
-**Interest on capital 🔒 — optional, off by default (owner-approved, Phase 1).** The classical remedy for the partner who funds but rarely draws. A per-business setting; enabling, changing the rate, or disabling it requires **every partner's approval** and is recorded as a dated business-setting envelope, so the terms in force for any past period are always recoverable.
+**Interest on capital 🔒 — optional, off by default (owner-approved, Phase 1).** The classical remedy for the partner who funds but rarely draws. A per-business setting; enabling, changing the rate, or disabling it requires **every partner's approval** and is recorded as a dated business-setting envelope, so the terms in force for any past period are always recoverable. ⟦tests: A-02-31, A-02-68, A-02-69, A-02-70, A-02-71, A-05e-7⟧
 
 - **Computation:** `interest = average daily balance × rate × days in period ÷ 365` (**Actual/365** — a 366-day year still divides by 365, ADR 2026-09-05e §8), per partner, computed by the app from the ledger itself — never typed. Only **credit** balances earn interest; a partner in debit balance is charged at the same rate unless the setting says otherwise ⚠️.
 - **Posting:** it is an **appropriation of profit, not a business expense** — `Dr Profit Distributed · Cr Partner Current`, tagged `interest`, exactly like a profit share but for a different reason. Keeping it out of the expense accounts means the farm's true operating cost is never distorted by how the partners chose to fund it.
@@ -204,13 +204,13 @@ A business owned by several people or sub-families gets one **Partner Current A/
 - **Rounding:** each partner's interest is computed independently and rounded **half-up to the nearest paisa**; interest is not a ratio split, so the §7.1 remainder rule does not apply to it. The residual profit that is then split *does* use the remainder rule.
 - **The distribution preview shows both lines per partner** — interest and share — before anything posts, so the family sees the effect of the setting rather than discovering it.
 
-**Losses, ceiling, interest above profit 🔒 (ADR 2026-09-05e §8).** A loss is shared by the **mirror posting** `Dr each Partner Current · Cr Profit Distributed`, same ratio, same remainder rule, so sum-to-zero holds identically. Cumulative distributions may never exceed accumulated surplus (§1.2's computed line) — the wizard refuses and says by how much. Interest is credited in full even when it exceeds profit; the remaining negative figure is then shared as a loss. The preview shows both lines.
+**Losses, ceiling, interest above profit 🔒 (ADR 2026-09-05e §8).** A loss is shared by the **mirror posting** `Dr each Partner Current · Cr Profit Distributed`, same ratio, same remainder rule, so sum-to-zero holds identically. Cumulative distributions may never exceed accumulated surplus (§1.2's computed line) — the wizard refuses and says by how much. Interest is credited in full even when it exceeds profit; the remaining negative figure is then shared as a loss. The preview shows both lines. ⟦tests: A-05e-4, A-05e-5, A-05e-6⟧
 
-**Rounding rule 🔒 (applies to every ratio split, including profit shares).** Divide in integer paise; assign each partner `floor(amount × weight ÷ Σweights)` in integer paise (never `amount × ratio` as a float); the remainder — always fewer paise than there are partners — goes to the partner with the **largest ratio**, ties broken by the earliest-created partner account. Deterministic on every device, so the split can never break §1.4's sum-to-zero invariant or diverge across the family's phones.
+**Rounding rule 🔒 (applies to every ratio split, including profit shares).** Divide in integer paise; assign each partner `floor(amount × weight ÷ Σweights)` in integer paise (never `amount × ratio` as a float); the remainder — always fewer paise than there are partners — goes to the partner with the **largest ratio**, ties broken by the earliest-created partner account. Deterministic on every device, so the split can never break §1.4's sum-to-zero invariant or diverge across the family's phones. ⟦tests: A-02-58, A-02-59, A-02-60, A-02-61, A-05e-5⟧
 
 **Business surplus remitted to a family pool is not a drawing 🔒.** It is an ordinary inter-book transfer (§6) between the business book and the pool book. Money the family then takes "as needed" is tracked by the pool's own sub-family accounts. Two separate fairness ledgers — partner accounts for the business, sub-family accounts for the pool — and conflating them corrupts the partnership arithmetic.
 
-## 7.2 Who checks the admin 🔒 (owner-approved, 30 Aug 2026)
+## 7.2 Who checks the admin 🔒 (owner-approved, 30 Aug 2026) ⟦tests: A-02-40⟧
 
 The admin holds every permission, so review cannot rely on someone senior to them. Four mechanisms, none of which depends on hierarchy:
 
@@ -241,7 +241,7 @@ Admin power then splits in two:
 
 🔒 **The boundary this draws:** the admin's authority is over *structure and permission* — who is a member, what the limits are, when a period locks. It is **not** authority over the truth of the record. That is protected by the append-only journal (§1.4), per-entry author signatures (04 §8.3), independent close verification (§8), and the fact that personal books are cryptographically closed to them (04 §5.2). An admin can add themselves to a book; they cannot make an entry that never happened, alter one that did, or read a member's personal book.
 
-## 8. Periods and locking 🔒
+## 8. Periods and locking 🔒 ⟦tests: A-02-48, A-02-49, A-02-50, A-02-51, A-02-52, A-05e-1, A-05c-2⟧
 
 - Periods are calendar months within the book's financial year. States: `open` → `locked` (re-openable by book admin, logged).
 - A **lock is itself a signed envelope** with an HLC; so is an unlock (`period_unlock`). **Both are all-time objects in the bootstrap hot set (05 §8, ADR 2026-09-05e §5)** — the validity rule below needs the complete history even for archived years. Deterministic rule every client applies: an entry whose `accounting_date` falls in period P is valid only if its HLC precedes the HLC of P's lock. Violations from a tampered client are quarantined by every honest reader.
@@ -253,7 +253,7 @@ Admin power then splits in two:
   4. *Confirm & lock* — the close envelope records the declared balances **and the client-computed balance vector hash; every other member's device recomputes and verifies it**, flagging any mismatch. It also records the **`projector_version`** that computed the hash (03 §1, ADR 2026-09-05c §3): a reader on an older projector shows *update to verify* rather than a false mismatch. Books close only when their own arithmetic agrees everywhere.
 - **Two distinct surfaces 🔒 (conflict resolved 30 Aug 2026):** (a) the **integrity check** is the always-visible books-balanced card on Home (07 §4) — status, total Dr, total Cr, difference — verifying stored state and catching sync or storage corruption; (b) the **Trial Balance report** exists under Reports (07 §14) and in exports, because the accounting reference is built on it and any accountant will ask for one. The earlier rule that a trial balance "never appears as a report" is superseded: it was written before the verification card was approved.
 
-### 8.1 Financial year close and carry-forward 🔒
+### 8.1 Financial year close and carry-forward 🔒 ⟦tests: A-02-53, A-02-54, A-02-55, A-05e-2, A-05e-1, A-05c-2⟧
 
 The ledger is continuous, so money, party, and advance balances carry forward across 31 March automatically — no amounts are ever re-posted. The **Year Close ceremony** makes that carry-forward official, verified, and displayable, exactly like *"To Balance b/d"* in a paper khata:
 
@@ -266,15 +266,15 @@ The ledger is continuous, so money, party, and advance balances carry forward ac
 
 ---
 
-## 8.2 Cash counts and note denominations 🔒 (owner-approved, 30 Aug 2026)
+## 8.2 Cash counts and note denominations 🔒 (owner-approved, 30 Aug 2026) ⟦tests: A-02-83, A-02-84⟧
 
 Any `money` account of subtype **cash** supports a **cash count**: a dated record of how much was physically there and, optionally, **how many notes of each denomination**.
 
-**Denominations are a memo, never a sub-ledger 🔒.** Ordinary entries record value only — requiring a note breakdown on every payment would destroy the 8-second rule (§07 law 1) and is not how cash works anyway, since paying ₹2,400 usually means tendering ₹2,500 and taking change. The composition is captured **at count time** and held as a snapshot on that count.
+**Denominations are a memo, never a sub-ledger 🔒.** Ordinary entries record value only — requiring a note breakdown on every payment would destroy the 8-second rule (§07 law 1) and is not how cash works anyway, since paying ₹2,400 usually means tendering ₹2,500 and taking change. The composition is captured **at count time** and held as a snapshot on that count. ⟦tests: A-02-89, A-02-93⟧
 
 **Denominations (INR):** ₹500 · ₹200 · ₹100 · ₹50 · ₹20 · ₹10 · coins (₹20/10/5/2/1 entered as a value, not counted individually). ₹2000 is shown only if a previous count used it — still legal tender but rarely held.
 
-### Two kinds of count 🔒 (owner-directed, 30 Aug 2026)
+### Two kinds of count 🔒 (owner-directed, 30 Aug 2026) ⟦tests: A-02-89, A-02-90, A-02-91, A-02-92⟧
 Cash accounts carry a subtype that decides what a count *means*:
 
 | Subtype | Example | Balance before counting | What the count is | Posting |
@@ -284,9 +284,9 @@ Cash accounts carry a subtype that decides what a count *means*:
 
 This is the difference a shopkeeper and a granthi would both recognise instantly: the galla's balance is already known from the day's sales, so counting checks it; the gollak's contents are unknown until opened, so counting *creates* the record. Treating them the same would either invent phantom adjustments in a gurudwara or book a shop's daily takings twice.
 
-**A count never moves money 🔒.** Counted gollak cash that stays in the gollak stays on that account — the common real case where the committee counts, records, and leaves the money where it is. Depositing it later is an ordinary Transfer (§2 verb 5). **A count never silently changes a balance without an entry.**
+**A count never moves money 🔒.** Counted gollak cash that stays in the gollak stays on that account — the common real case where the committee counts, records, and leaves the money where it is. Depositing it later is an ordinary Transfer (§2 verb 5). **A count never silently changes a balance without an entry.** ⟦tests: A-02-93, A-02-89⟧
 
-**The gollak empties only into Cash or bank 🔒 (owner-ruled 2–3 Sep 2026, ADRs).** A
+**The gollak empties only into Cash or bank 🔒 (owner-ruled 2–3 Sep 2026, ADRs).** A ⟦tests: A-02-19⟧
 `cash_collection` account is not a spending source: its only outward posting is a
 Transfer to one of the book's **money accounts — the Cash A/c or a bank account**
 (`Dr Cash/Bank · Cr {collection a/c}`). Trusts differ in practice — some empty the box
@@ -300,7 +300,7 @@ destinations, and a collection account never appears in an expense entry's money
 chips. **Every organization book still seeds a plain Cash A/c alongside the gollak**
 (07 §3.1).
 
-**Denomination sheet: optional by default, mandatory where it matters 🔒.**
+**Denomination sheet: optional by default, mandatory where it matters 🔒.** ⟦tests: A-02-85, A-02-86, A-02-87, A-02-88⟧
 - **Organization (trust) books — always mandatory**, for every cash account including plain cash in hand, not only the gollak. A trust must be able to prove every rupee it holds.
 - **All other books** — optional; a single counted figure is always accepted.
 - **`cash_collection` accounts** additionally require **two names** (*counted by* and *witness*), because a collection count is the one case with no independent record to check against.
@@ -309,7 +309,7 @@ chips. **Every organization book still seeds a plain Cash A/c alongside the goll
 
 **Multiple cash accounts** each count separately (shop drawer, home vault, gollak) — this is why cash is an account, not a single global figure.
 
-## 9. Balances and derived state 🔒
+## 9. Balances and derived state 🔒 ⟦tests: A-02-35, A-02-36, A-02-37, A-03-5, A-05e-9⟧
 
 All balances are **derived, never stored authoritatively**: balance(account) = Σ signed lines of **the head of every accepted amend chain** with status `posted` or `void`, excluding advance requests still `pending` (§7) and — for *certified* figures only — late arrivals in the tray (§8). **A reversed entry and its reversal both count** (they net to zero; excluding `void` would remove the amount twice). Running balances sort by `(accounting_date, hlc, envelope_id)` on every device (ADR 2026-09-05e §1, §12). Superseded wording: "entries with `status = posted`". Per §3 that is **every saved entry except an advance request still awaiting approval** (§7), which sits at `status = pending` and is excluded until approved — the one case where the money genuinely has not moved. **`review_state` never affects a balance:** a `posted` entry counts in full whether its review flag is open, approved, or rejected (a rejection removes its effect through the mirror reversal, not by excluding the original). Clients maintain a local running-balance cache and per-day snapshots for O(1) rendering of the position screen and reports; the cache is rebuildable from envelopes at any time (*Recompute* in settings, also run automatically on integrity-light ✗). **Negative physical cash** is legal but always a missing entry — the `cash` subtype shows a warning (ADR 2026-09-05e §12). After a year close, the rebuild baseline is the certified opening vector (§8.1) rather than all-time history.
 

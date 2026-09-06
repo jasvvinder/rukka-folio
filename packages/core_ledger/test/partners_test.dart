@@ -1,6 +1,7 @@
 // Suite A / H2 — jointly-owned businesses (02 §7.1): partner accounts, ratio rounding,
 // one-entry profit distribution, interest on capital, settlement capacity, drift.
-import 'dart:math';
+@Tags(['A'])
+library;
 
 import 'package:core_ledger/core_ledger.dart';
 import 'package:test/test.dart';
@@ -9,7 +10,7 @@ import 'helpers.dart';
 
 void main() {
   group('ratio rounding rule (02 §7.1 🔒)', () {
-    test('floor each share; remainder to the largest ratio', () {
+    test('A-02-58 floor each share; remainder to the largest ratio', () {
       // 100 paise split 50/30/20 → 50/30/20 exactly.
       expect(splitByRatio(const Paise(100), [50, 30, 20]).map((p) => p.raw), [
         50,
@@ -36,45 +37,48 @@ void main() {
       ]);
     });
 
-    test('worked: ₹3,35,000 of costs shared equally in paise → 1,11,666.68 / 1,11,666.66 / 1,11,666.66', () {
+    test('A-02-59 worked: ₹3,35,000 of costs shared equally in paise → 1,11,666.68 / 1,11,666.66 / 1,11,666.66', () {
       final shares = splitByRatio(rs(335000), [1, 1, 1]);
       expect(shares.map((p) => p.raw), [11166668, 11166666, 11166666]);
     });
 
-    test('property: sums exactly, deterministic, remainder only ever on the largest ratio', () {
-      final rng = Random(71);
-      for (var i = 0; i < 2000; i++) {
-        final n = 2 + rng.nextInt(5);
-        final ratios = List.generate(n, (_) => 1 + rng.nextInt(99));
-        final total = Paise(rng.nextInt(1 << 32) * 1024 + rng.nextInt(1024));
-        final shares = splitByRatio(total, ratios);
-        expect(Paise.sum(shares), total, reason: '$total / $ratios');
-        expect(shares, splitByRatio(total, ratios));
-        final sum = ratios.fold<int>(0, (a, b) => a + b);
-        var largest = 0;
-        for (var k = 1; k < n; k++) {
-          if (ratios[k] > ratios[largest]) largest = k;
+    test(
+      'A-02-60 property: sums exactly, deterministic, remainder only ever on the largest ratio',
+      () => forEachSeed('A-02-60', (rng, seed) {
+        for (var i = 0; i < 2000; i++) {
+          final n = 2 + rng.nextInt(5);
+          final ratios = List.generate(n, (_) => 1 + rng.nextInt(99));
+          final total = Paise(rng.nextInt(1 << 32) * 1024 + rng.nextInt(1024));
+          final shares = splitByRatio(total, ratios);
+          expect(Paise.sum(shares), total, reason: '$total / $ratios');
+          expect(shares, splitByRatio(total, ratios));
+          final sum = ratios.fold<int>(0, (a, b) => a + b);
+          var largest = 0;
+          for (var k = 1; k < n; k++) {
+            if (ratios[k] > ratios[largest]) largest = k;
+          }
+          for (var k = 0; k < n; k++) {
+            final exactFloor =
+                (BigInt.from(total.raw) *
+                        BigInt.from(ratios[k]) ~/
+                        BigInt.from(sum))
+                    .toInt();
+            // Everyone gets their floor; only the largest ratio (earliest on ties) carries the remainder, < n paise.
+            expect(
+              shares[k].raw - exactFloor,
+              k == largest ? inInclusiveRange(0, n - 1) : 0,
+              reason: '$total / $ratios [$k]',
+            );
+          }
         }
-        for (var k = 0; k < n; k++) {
-          final exactFloor =
-              (BigInt.from(total.raw) *
-                      BigInt.from(ratios[k]) ~/
-                      BigInt.from(sum))
-                  .toInt();
-          // Everyone gets their floor; only the largest ratio (earliest on ties) carries the remainder, < n paise.
-          expect(
-            shares[k].raw - exactFloor,
-            k == largest ? inInclusiveRange(0, n - 1) : 0,
-            reason: '$total / $ratios [$k]',
-          );
-        }
-      }
-    });
+      }),
+      tags: 'property',
+    );
 
-    test('rejects empty or non-positive ratios and negative totals', () {
+    test('A-02-61 rejects empty or non-positive ratios', () {
       expect(() => splitByRatio(const Paise(1), []), throwsArgumentError);
       expect(() => splitByRatio(const Paise(1), [1, 0]), throwsArgumentError);
-      expect(() => splitByRatio(const Paise(-1), [1, 1]), throwsArgumentError);
+      // A negative total is a loss and splits as the mirror (A-05e-7).
     });
   });
 
@@ -159,36 +163,42 @@ void main() {
       ),
     ];
 
-    test('three events, three postings: cost paid, drawing, profit share', () {
-      expect(
-        Verbs.partnerPaidCost(
-          partner: amrit,
-          expense: seed,
-          amount: rs(180000),
-        ),
-        [dr(seed, rs(180000)), cr(amrit, rs(180000))],
-      );
-      expect(
-        Verbs.partnerDrawing(partner: amrit, from: bank, amount: rs(50000)),
-        [dr(amrit, rs(50000)), cr(bank, rs(50000))],
-      );
-      expect(
-        () =>
-            Verbs.partnerPaidCost(partner: seed, expense: seed, amount: rs(1)),
-        throwsArgumentError,
-      );
-      expect(
-        () => Verbs.partnerDrawing(partner: amrit, from: seed, amount: rs(1)),
-        throwsArgumentError,
-      );
-    });
+    test(
+      'A-02-62 three events, three postings: cost paid, drawing, profit share',
+      () {
+        expect(
+          Verbs.partnerPaidCost(
+            partner: amrit,
+            expense: seed,
+            amount: rs(180000),
+          ),
+          [dr(seed, rs(180000)), cr(amrit, rs(180000))],
+        );
+        expect(
+          Verbs.partnerDrawing(partner: amrit, from: bank, amount: rs(50000)),
+          [dr(amrit, rs(50000)), cr(bank, rs(50000))],
+        );
+        expect(
+          () => Verbs.partnerPaidCost(
+            partner: seed,
+            expense: seed,
+            amount: rs(1),
+          ),
+          throwsArgumentError,
+        );
+        expect(
+          () => Verbs.partnerDrawing(partner: amrit, from: seed, amount: rs(1)),
+          throwsArgumentError,
+        );
+      },
+    );
 
-    test('net profit for the period is computed, never typed', () {
+    test('A-02-63 net profit for the period is computed, never typed', () {
       final s = project(season(), chart);
-      expect(netProfit(s, chart), rs(594000));
+      expect(netProfit(s, chart, FinancialYear.of(d(2026, 4, 1))), rs(594000));
     });
 
-    test('distribution is one multi-line entry: Dr Profit Distributed · Cr each partner', () {
+    test('A-02-64 distribution is one multi-line entry: Dr Profit Distributed · Cr each partner', () {
       final lines = Verbs.profitDistribution(
         profitDistributed: profitDistributed,
         partners: partners,
@@ -214,7 +224,7 @@ void main() {
       expect(s.balances.isBalanced, isTrue);
     });
 
-    test('settlement capacity states in words whether the business could pay everyone out today', () {
+    test('A-02-65 settlement capacity states in words whether the business could pay everyone out today', () {
       final dist = book.entry(
         Verbs.profitDistribution(
           profitDistributed: profitDistributed,
@@ -232,7 +242,7 @@ void main() {
       expect(cap.shortBy, Paise.zero);
     });
 
-    test('a partner who draws more than put in plus share carries a Dr balance — shown plainly', () {
+    test('A-02-66 a partner who draws more than put in plus share carries a Dr balance — shown plainly', () {
       final over = book.entry(
         Verbs.partnerDrawing(partner: harjit, from: bank, amount: rs(70000)),
         kind: EntryKind.moneyOut,
@@ -253,50 +263,44 @@ void main() {
       );
     });
 
-    test(
-      'drift card: a partner more than the margin above the group average',
-      () {
-        final dist = book.entry(
-          Verbs.profitDistribution(
-            profitDistributed: profitDistributed,
-            partners: partners,
-            netProfit: rs(594000),
-          ),
-          kind: EntryKind.adjustment,
-          date: d(2026, 7, 31),
-        );
-        final s = project([...season(), dist], chart);
-        // Balances 3,28,000 / 2,93,000 / 2,58,000; average 2,93,000.
-        final drift = partnerDrift(s, chart, margin: rs(30000));
-        expect(drift.single.accountId, amrit.id);
-        expect(drift.single.aboveAverage, rs(35000));
-        expect(partnerDrift(s, chart, margin: rs(40000)), isEmpty);
-      },
-    );
+    test('A-02-67 drift card: a partner more than the margin above the group average', () {
+      final dist = book.entry(
+        Verbs.profitDistribution(
+          profitDistributed: profitDistributed,
+          partners: partners,
+          netProfit: rs(594000),
+        ),
+        kind: EntryKind.adjustment,
+        date: d(2026, 7, 31),
+      );
+      final s = project([...season(), dist], chart);
+      // Balances 3,28,000 / 2,93,000 / 2,58,000; average 2,93,000.
+      final drift = partnerDrift(s, chart, margin: rs(30000));
+      expect(drift.single.accountId, amrit.id);
+      expect(drift.single.aboveAverage, rs(35000));
+      expect(partnerDrift(s, chart, margin: rs(40000)), isEmpty);
+    });
 
     group('interest on capital (02 §7.1, 8% for the 122-day season)', () {
       final from = d(2026, 4, 1);
       final to = d(2026, 7, 31);
 
-      test(
-        'average-daily-balance interest per partner, half-up to the paisa',
-        () {
-          final s = project(season(), chart);
-          final interest = interestOnCapital(
-            s,
-            chart,
-            partners: partners,
-            from: from,
-            to: to,
-            rateBasisPoints: 800,
-          );
-          expect(interest[amrit.id]!.raw, 429589); // ₹4,295.89
-          expect(interest[sukhdev.id]!.raw, 231123); // ₹2,311.23
-          expect(interest[harjit.id]!.raw, 135452); // ₹1,354.52
-        },
-      );
+      test('A-02-68 average-daily-balance interest per partner, half-up to the paisa', () {
+        final s = project(season(), chart);
+        final interest = interestOnCapital(
+          s,
+          chart,
+          partners: partners,
+          from: from,
+          to: to,
+          rateBasisPoints: 800,
+        );
+        expect(interest[amrit.id]!.raw, 429589); // ₹4,295.89
+        expect(interest[sukhdev.id]!.raw, 231123); // ₹2,311.23
+        expect(interest[harjit.id]!.raw, 135452); // ₹1,354.52
+      });
 
-      test('interest is credited first, tagged, then the remainder splits by ratio', () {
+      test('A-02-69 interest is credited first, tagged, then the remainder splits by ratio', () {
         final s = project(season(), chart);
         final interest = interestOnCapital(
           s,
@@ -329,7 +333,7 @@ void main() {
         ]);
       });
 
-      test('debit balances are charged at the same rate by default; not when the setting says otherwise', () {
+      test('A-02-70 debit balances are charged at the same rate by default; not when the setting says otherwise', () {
         final over = book.entry(
           Verbs.partnerDrawing(partner: harjit, from: bank, amount: rs(70000)),
           kind: EntryKind.moneyOut,
@@ -362,14 +366,17 @@ void main() {
   });
 
   group('half-up rounding helper', () {
-    test('rounds .5 up, exact integers unchanged, negatives toward +∞', () {
-      expect(roundHalfUp(numerator: 7, denominator: 2), 4);
-      expect(roundHalfUp(numerator: 5, denominator: 2), 3);
-      expect(roundHalfUp(numerator: 4, denominator: 2), 2);
-      expect(roundHalfUp(numerator: -7, denominator: 2), -3);
-      expect(roundHalfUp(numerator: -5, denominator: 2), -2);
-      expect(roundHalfUp(numerator: 1, denominator: 3), 0);
-      expect(roundHalfUp(numerator: 2, denominator: 3), 1);
-    });
+    test(
+      'A-02-71 rounds .5 up, exact integers unchanged, negatives toward +∞',
+      () {
+        expect(roundHalfUp(numerator: 7, denominator: 2), 4);
+        expect(roundHalfUp(numerator: 5, denominator: 2), 3);
+        expect(roundHalfUp(numerator: 4, denominator: 2), 2);
+        expect(roundHalfUp(numerator: -7, denominator: 2), -3);
+        expect(roundHalfUp(numerator: -5, denominator: 2), -2);
+        expect(roundHalfUp(numerator: 1, denominator: 3), 0);
+        expect(roundHalfUp(numerator: 2, denominator: 3), 1);
+      },
+    );
   });
 }

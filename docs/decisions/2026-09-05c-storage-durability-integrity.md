@@ -30,7 +30,7 @@ signature failing → **tampering** — quarantine and security event as today (
 column a flipped bit in object storage files an honest author as hostile. The same column verifies
 offloaded blobs and gives the local mirror a cheap integrity check. `size` is verified the same way.
 
-### 3. Projector version — determinism across app versions
+### 3. Projector version — determinism across app versions ⟦tests: A-05c-1, A-05c-2, E-05c-6⟧
 The projector is pure (03 §3.3), but purity is per implementation. A bug fix changes results, and
 then a month close certified on the newer app fails verification on the older, or passes wrongly.
 - `core_ledger` exports a `projectorVersion` integer. **Every `period_lock` and `year_close`
@@ -64,7 +64,7 @@ and `payload_schema` within the registry · `key_version` ≤ highest issued for
 sanity (05 §2) · caps and quotas (05 §3). Nothing else — never content. Failure →
 `rejected:shape` with the failing check named; the client treats it as terminal and logs it.
 
-### 6. Local corruption has a path
+### 6. Local corruption has a path ⟦tests: E-05c-1, E-05c-2, E-05c-3, E-05c-4, E-05c-5⟧
 On every open the client runs SQLCipher `quick_check`. Projection tables corrupt → drop and
 Recompute from `envelopes_local` (the user sees the determinate loader, 11 §4.5). Envelope mirror
 corrupt (row fails `blob_hash`) → re-bootstrap that book from the server (05 §8); outbox rows are

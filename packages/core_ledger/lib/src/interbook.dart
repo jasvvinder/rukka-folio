@@ -23,7 +23,11 @@ final class TransferPair {
   final Entry to;
 }
 
-/// One pair of `Due to/from` accounts to reconcile: `balance(A→B) + balance(B→A)` must be 0.
+/// One pair of `Due to/from` accounts to reconcile: `balance(A→B) + balance(B→A)`
+/// must be 0. A side whose book this reader cannot open (a personal or
+/// sub-family book whose key it does not hold, 04 §5.2) is given as `null`
+/// state: the pair is then *one-sided · unconfirmed*, never a mismatch
+/// (ADR 2026-09-05e §7).
 final class InterBookPair {
   /// Creates a pair.
   const InterBookPair({
@@ -33,23 +37,36 @@ final class InterBookPair {
     required this.accountB,
   });
 
-  /// Book A's state.
-  final LedgerState a;
+  /// Book A's state, or `null` when the reader does not hold A's key.
+  final LedgerState? a;
 
   /// Book A's `Due to/from B`.
   final String accountA;
 
-  /// Book B's state.
-  final LedgerState b;
+  /// Book B's state, or `null` when the reader does not hold B's key.
+  final LedgerState? b;
 
   /// Book B's `Due to/from A`.
   final String accountB;
+}
+
+/// What the report can say about a pair (02 §6 🔒, ADR 2026-09-05e §7).
+enum PairStatus {
+  /// Both sides readable and they net to zero.
+  balanced,
+
+  /// Both sides readable and they do not net to zero — listed with entries.
+  mismatch,
+
+  /// One side is a sealed book: shown one-sided, *unconfirmed*, never as a mismatch.
+  unconfirmed,
 }
 
 /// One row of the Family Reconciliation report (02 §6 🔒).
 final class PairReconciliation {
   const PairReconciliation._(
     this.pair,
+    this.status,
     this.net,
     this.entryIdsA,
     this.entryIdsB,
@@ -58,7 +75,11 @@ final class PairReconciliation {
   /// The pair.
   final InterBookPair pair;
 
-  /// `balance(A→B) + balance(B→A)`; zero when the books agree.
+  /// Balanced, mismatch, or unconfirmed (a sealed side).
+  final PairStatus status;
+
+  /// `balance(A→B) + balance(B→A)` when both sides are readable; for an
+  /// unconfirmed pair, the readable side's balance alone.
   final Paise net;
 
   /// Entries in A composing the balance (listed when the pair is off).
@@ -67,8 +88,11 @@ final class PairReconciliation {
   /// Entries in B composing the balance.
   final List<String> entryIdsB;
 
-  /// True when the pair nets to zero.
-  bool get isBalanced => net.isZero;
+  /// True when both sides are readable and net to zero.
+  bool get isBalanced => status == PairStatus.balanced;
+
+  /// True when the check could not run because a side is sealed.
+  bool get isUnconfirmed => status == PairStatus.unconfirmed;
 }
 
 /// Inter-book movement (02 §6): books connect only through paired
@@ -214,23 +238,41 @@ abstract final class InterBook {
   static bool isInTransit(ProjectedEntry a, ProjectedEntry b) =>
       a.reviewState == ReviewState.open || b.reviewState == ReviewState.open;
 
-  /// The Family Reconciliation report: every pair with its net and, for any
-  /// non-zero pair, the entries composing both sides.
+  /// The Family Reconciliation report: every pair with its status and net and,
+  /// for any non-zero pair, the entries composing both sides. A pair with a
+  /// sealed side is reported *unconfirmed* — the only cross-book integrity check
+  /// says so when it cannot run (ADR 2026-09-05e §7).
   static List<PairReconciliation> reconcile(List<InterBookPair> pairs) => [
-    for (final p in pairs)
-      PairReconciliation._(
-        p,
-        p.a.balances[p.accountA] + p.b.balances[p.accountB],
-        [
-          for (final e in p.a.counted)
-            if (e.entry.lines.any((l) => l.accountId == p.accountA)) e.entry.id,
-        ],
-        [
-          for (final e in p.b.counted)
-            if (e.entry.lines.any((l) => l.accountId == p.accountB)) e.entry.id,
-        ],
-      ),
+    for (final p in pairs) _reconcileOne(p),
   ];
+
+  static PairReconciliation _reconcileOne(InterBookPair p) {
+    List<String> touching(LedgerState? s, String account) => [
+      if (s != null)
+        for (final e in s.counted)
+          if (e.entry.lines.any((l) => l.accountId == account)) e.entry.id,
+    ];
+    final a = p.a;
+    final b = p.b;
+    if (a == null || b == null) {
+      final visible = a?.balances[p.accountA] ?? b?.balances[p.accountB];
+      return PairReconciliation._(
+        p,
+        PairStatus.unconfirmed,
+        visible ?? Paise.zero,
+        touching(a, p.accountA),
+        touching(b, p.accountB),
+      );
+    }
+    final net = a.balances[p.accountA] + b.balances[p.accountB];
+    return PairReconciliation._(
+      p,
+      net.isZero ? PairStatus.balanced : PairStatus.mismatch,
+      net,
+      touching(a, p.accountA),
+      touching(b, p.accountB),
+    );
+  }
 
   static void _due(Account a, String slot) {
     if (a.accountClass != AccountClass.equitySystem ||

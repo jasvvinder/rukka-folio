@@ -1,5 +1,75 @@
 // Shared builders for suite A (09 §2 A). Synthetic data only — never real entries.
+// Test code may read files, the clock and dart:math — the purity rule (CLAUDE.md rule 3)
+// binds lib/, not test/.
+import 'dart:io';
+import 'dart:math';
+
 import 'package:core_ledger/core_ledger.dart';
+import 'package:test/test.dart';
+
+/// The repository root (the directory holding CLAUDE.md), whether `dart test` runs from the
+/// package or from the workspace root (ADR 2026-09-05i §9).
+String workspaceRoot() {
+  var d = Directory.current.absolute;
+  while (!File('${d.path}/CLAUDE.md').existsSync()) {
+    if (d.parent.path == d.path) {
+      throw StateError(
+        'not inside the rukka-folio repository: ${Directory.current.path}',
+      );
+    }
+    d = d.parent;
+  }
+  return d.path;
+}
+
+/// `test/regress/seeds.txt`, relative to this package (ADR 2026-09-05i §5).
+String get seedsFile =>
+    '${workspaceRoot()}/packages/core_ledger/test/regress/seeds.txt';
+
+/// Seeds recorded for [testId] in the regression file: `<test-id> <seed>` per line, `#` comments.
+List<int> regressionSeeds(String testId) {
+  final f = File(seedsFile);
+  if (!f.existsSync()) return const [];
+  final out = <int>[];
+  for (final raw in f.readAsLinesSync()) {
+    final line = raw.split('#').first.trim();
+    if (line.isEmpty) continue;
+    final parts = line.split(RegExp(r'\s+'));
+    if (parts.length >= 2 && parts[0] == testId) {
+      final seed = int.tryParse(parts[1]);
+      if (seed == null) {
+        throw FormatException('bad seed line in seeds.txt: $raw');
+      }
+      out.add(seed);
+    }
+  }
+  return out;
+}
+
+/// The fresh seed for this run: `PROPTEST_SEED` when set, else drawn from the clock so every
+/// run explores new inputs. Always printed in a failure (ADR 2026-09-05i §5).
+int freshSeed() {
+  final pinned = int.tryParse(Platform.environment['PROPTEST_SEED'] ?? '');
+  return pinned ?? DateTime.now().microsecondsSinceEpoch & 0x7fffffff;
+}
+
+/// Runs [body] once per recorded regression seed for [testId], then once with [freshSeed].
+/// A failure re-throws with the seed and the replay command, so the case can be pinned
+/// (`PROPTEST_SEED=<seed>`) and then checked into `test/regress/seeds.txt` permanently.
+void forEachSeed(String testId, void Function(Random rng, int seed) body) {
+  final seeds = [...regressionSeeds(testId), freshSeed()];
+  for (final seed in seeds) {
+    try {
+      body(Random(seed), seed);
+    } on TestFailure catch (e) {
+      throw TestFailure(
+        '${e.message}\n\n$testId failed with seed $seed.\n'
+        '  replay : PROPTEST_SEED=$seed dart test packages/core_ledger\n'
+        '  pin    : add "$testId $seed   # ${'<date> — <why>'}" to test/regress/seeds.txt',
+      );
+    }
+  }
+}
 
 /// A book under test: a chart of accounts plus a monotonically increasing HLC
 /// so entries are created in causal order without touching any clock.

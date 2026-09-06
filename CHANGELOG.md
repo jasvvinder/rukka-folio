@@ -12,6 +12,79 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-06 — M2: ledger time boundary (ADR 05e/05b/05c in core_ledger) + local persistence (packages/data)
+
+Second M2 slice, run as three forked agents on disjoint file sets (core_ledger rulings · data persistence · re-pointing data to the new projector output), then one gate. `projectorVersion` is now **2**: the certified-vector as-of rule and `held` change results for existing envelope sets (ADR 05c §3), so this bump also requires a min-client-version bump when the app ships (06 §4.5). Goldens unchanged and green.
+
+**Added — `packages/core_ledger` (154 → 155 tests incl. the shrink pilot; ids `A-05b-1…6`, `A-05e-1…11`, `A-05c-1…2`, `A-05i-1`)**
+- **`held` (ADR 05b §4, 05e §10):** an amendment, reversal or decision whose target is absent goes to `LedgerState.held` (event, `heldFor`, reason) — not counted, not quarantined; when the target is in the set the chain folds once, whatever the arrival order. `targetMissing` quarantine only when every author in the set carries `authorSeq` and no author has a gap (the target provably never existed). The M1 skip on `A-02-45` is gone; `A-02-57` (decision for an unknown entry) now asserts held.
+- **Author sequence (ADR 05b §3):** `LedgerEvent.authorDevice` / `authorSeq` on every event; `Entry` JSON gains `author_seq` (positive int, validated, round-tripped). The projector reports `authorGaps` (device, expectedSeq, sinceHlc) and `isProvisional`; a duplicate seq refuses the later event.
+- **Close blocks (05e §4):** `yearClosePreconditions` and new `monthLockPreconditions` refuse on `authorGapOpen` / `heldEnvelope`. The projector still records any lock it receives (all-time object, 05e §5) and re-verifies its vector — `lockVerification`.
+- **Certified vector (05e §2):** `closingVector(state, chart, fy)` — money/party/advance/partner/equity_system only, cut by `accounting_date ≤ FY last day` regardless of HLC; categories not carried; one `net_result:<fy>` line per year; `trialBalance` shows net-result lines so a seeded state balances. `netProfit(state, chart, fy)` is FY-scoped (minus distributions in that FY) — **breaking: the FY argument is now required**. `accumulatedSurplus` and `distributionHeadroom` (returns the excess for the wizard's "by how much").
+- **Loss distribution (05e §8):** `splitByRatio` takes a negative total as the exact mirror of `|total|`; `Verbs.profitDistribution` posts a loss (Dr partners · Cr Profit Distributed) and handles interest > profit (interest in full, negative remainder shared as loss). Actual/365 verified across leap-year 2028.
+- **Shape invariants (05e §6):** `checkShape` for all six kinds (`shapeViolation`), extended with ⚠️ SPEC interpretations for classes the ADR table omits — `partner` party-like; `advance` beside money; Due to/from stands in for money on the far side of a transfer and the payee half of a pocket expense; reversals exempt (the projector proves the mirror). Table-driven `A-05e-8` over 6 wrong + 17 right shapes. The golden parser's kind inference was tightened to the same shapes; no figure changed.
+- **`projectorVersion` (05c §3):** exported constant, recorded on `PeriodLock`/`YearClose`; `CloseVerification {verified, mismatch, readerOutdated, certifierOutdated}` — an older reader shows *update to verify*, never a false mismatch.
+- Statement order locked to `(accounting_date, hlc, envelope_id)` (05e §12); `InterBook.reconcile` reports a sealed side as `unconfirmed`, never mismatch (05e §7); `negativeCashWarnings` for the `cash` subtype only (05e §12).
+- **Shrinking property tests (ADR 05i §5, closes its Open 1):** `kiri_check` 1.3.1 adopted as a dev dependency (Dart 3, no Flutter dependency, maintained Jan 2026; `glados` is Dart-2-era and unmaintained, `propcheck` Dart 1). Pilot `A-05i-1` shrinks counter-examples over the ratio-split rule incl. the loss mirror, seeded from the same `PROPTEST_SEED`. `forEachSeed` stays for generators the combinators cannot express. `check_coverage` recognises `property(` declarations.
+
+**Added — `packages/data` (24 tests; ids `E-03-1…14`, `E-05b-1…3`, `E-05c-1…6`)**
+- Drift 2.34 + sqlite3 3.5, pure Dart; `database.g.dart` committed. `openLedgerDatabase(executor, {cipherKey})` → `Opened | MigrationFailed | QuickCheckFailed | OpenFailed`: migrations (downgrade fails closed, 03 §5), `PRAGMA quick_check` on every open (05c §6), key buffer zeroised. `sqlcipherSetup(key32)` is the `NativeDatabase(setup:)` hook that issues `PRAGMA key` from raw bytes — ⚠️ SPEC: the key cannot go through `openLedgerDatabase` itself because drift reads `user_version` inside the executor's own open. The app supplies the SQLCipher executor at M5; tests use in-memory sqlite.
+- Schema v1 = 03 §3.1 + §3.2 verbatim (all Layer-1 and Layer-2 tables, key indexes incl. the partial Inbox and advance-request indexes, `push_state`/`review_state` checks, single-row `store_epoch`), plus append-only triggers on the mirror (UPDATE of blob/hlc and DELETE throw; only flag columns change). Rebuildable additions to §3.2, ⚠️ SPEC: `books_p.needs_rebootstrap`, `accounts_p.{system_role, member_id, counterpart_book_id, created_order}`, `entry_lines_p.line_index`, `year_close_p.{projector_version, verification}`, `periods_p.verification`.
+- `Mirror`: idempotent append, `blob_hash` re-verified on every read via an injected hasher (core_crypto at M3) — mismatch is `BlobCorrupt`, never quarantine (05c §2); outbox state machine `queued→inflight→acked→observed` (+`rejected` with reason) with the legal-move table, prune only at `observed`; `nextAuthorSeq` atomic 1…n per (book, device) under concurrency; `observeStoreEpoch` resets all cursors and returns acked rows to queued (05b §6); `recomputeAuthorGaps` derived from the mirror; `rebootstrapBook` guarded delete that never touches the outbox.
+- `Recompute`: per-book transaction; drops Layer 2, seeds from the latest `year_close_p` vector when that FY's entries are absent locally (03 §3.3 rule 3), replays verified/non-quarantined envelopes in `(hlc, envelope_id)` order through `core_ledger.project()` with an injected `PayloadOpener` (JSON in tests; M3 supplies decryption), mirrors `state.held` into the flag columns, writes every projection table; `integrity_ok` = 0 while anything is unverified, corrupt, held or gapped. Determinism: three insertion orders → byte-identical dumps of every projection table (`dumpProjections`, ⚠️ SPEC format). `verifyBalances` / `checkAndRepair` detect tampered or deleted `balances` rows and repair by Recompute.
+- ⚠️ SPEC (in code): the projector sees only projected object types while `author_seq` numbers every object, so for an author with no mirror gap Recompute feeds the projector a dense rank of its projected events (contiguous ⇒ a missing target is provably absent), and for an author with a mirror gap it feeds null seqs so dangling refs stay `held`. The mirror's `author_gaps` table is authoritative. Payload wire shapes for `approval_decision`, `period_lock`, `period_unlock`, `year_close`, `cash_count`, `account`, `book_config` are M2 interpretations (snake_case, paise ints, `YYYY-MM`).
+
+**Changed**
+- `docs/02-ledger-rules.md` markers extended on §1.3, §1.4, §2, §5, §6, §7.1, §8, §8.1, §9; ADR 05e §1–§8, §10–§12, ADR 05b §3, §4, §6, ADR 05c §3, §6, ADR 05i §2 (`n/a`), §5, §7 and 03 §3.1, §3.2, §3.3, §5 carry markers. Coverage now: 315 🔒 lines · 62 marked or heading-covered · 253 unmarked · 5 `n/a` · 159 tests · 159 ids · 0 orphans · 0 dangling · 0 live superseded skips.
+- `docs/09-acceptance-tests.md` §1 property line names the pilot.
+- `scripts/check_coverage.dart` — counts `property(` declarations.
+- `pubspec.lock` — drift, sqlite3, drift_dev, build_runner, kiri_check and transitive deps.
+
+**Decided** — no 🔒 change. All interpretations are `⚠️ SPEC` comments in code and listed above; the owner may promote any of them to an ADR. Notable: negative `splitByRatio` as the mirror of the positive rule; net-result vector lines keyed `net_result:<fy>`; a quarantined target counts as absent for `held`; version-outdated states decided on mismatch only.
+
+**Open** ⚠️
+- **Authoring-time gap checks:** `yearClosePreconditions` sees only the projector's (dense-rank) gaps; the authoring client at M9 must also consult the mirror's `author_gaps` before offering a close. Follow-up: `Mirror.recomputeAuthorGaps` does not yet flag duplicate `author_seq`.
+- `ViolationKind.{amend,reverse,decision}TargetMissing` are no longer emitted; prune once nothing serialises them (M3).
+- ADR 05c §8 (backup attribute, private bucket, sweeper) is untested by design at M2 — app (M5) and server (M4) work.
+- Two agents each needed one round of API reconciliation; both landed. Remaining M2 roadmap item not in code: platform backup exclusion (app-level, M5).
+
+**Commits** — pending.
+
+---
+
+## 2026-09-06 — M2: test contract infrastructure (ADR 2026-09-05i)
+
+First M2 slice. Lands the traceability, lane, seed and harness machinery that ADR 2026-09-05i assigned to M2, and pays down M1's traceability backlog: every suite A test now carries an id and every 02 🔒 line those tests cover names them. Persistence (Drift + projector, 03 §3) is the next slice.
+
+**Added**
+- `scripts/check_coverage.dart` — 🔒 ↔ test-id checker (ADR 05i §1) + golden governance (§3). Scans `docs/`, `design/*.md`, `CLAUDE.md` (not `requirements-architecture.md`, not the canvas mirror) for lock marks; a heading's marker covers its section; a 🔒 followed by a lowercase word or `=` is a mention, not a mark. Fails on unmarked 🔒 lines, marker ids no test declares, malformed ids, superseded skips past their `--milestone`, and a `content_hash` that no longer matches the five worked-example files (BLAKE2b-256 via `pointycastle`, root dev dependency). Warns on orphan ids and tests without an id; lists live `superseded by ADR …` skips. **Warn-only** (exit 0) until M4 — `--strict` / `COVERAGE_STRICT=1` enforce. Wired into `ci.sh` after the strings step. Today: 315 🔒 lines · 58 marked or heading-covered · 257 unmarked (backlog, annotated milestone by milestone) · 3 `n/a` · 116 tests · 116 ids · 0 orphans · 0 tests without an id. Push and nightly lanes both green.
+- **Test ids everywhere they exist.** All 111 `core_ledger` tests renamed `A-02-1 … A-02-93`, `A-03-1 … A-03-5` (HLC, unknown-field round-trip, determinism), `A-09-1` (property), `A-ref-1 … A-ref-7` (golden replay), `A-10-1`; M0 hello-worlds `B-10-1`, `D-10-1`, `E-10-1`, `F1-10-1`; harness `D-09-1 … D-09-5`. Numbering is a running integer per source, in test-file order — ids are stable from here.
+- **`⟦tests: …⟧` markers** on 34 lines of 02 (§1.1–§1.4, §2, §3, §4, §5, §6, §7, §7.1 rules that have engine tests, §8, §8.1, §8.2, §9), 3 of 03 (§1, §3.3, unknown-field rule), 3 of the worked-examples README, 3 of the accounting standards, 09 §1, CLAUDE.md (Accounting authority; Precedence = `n/a`), 10 (Platform / Cross-references = `n/a`; Sequencing → the four hello-world ids). UI-only, M9+ and §10 import lines were **left unmarked on purpose** — an unmarked line is honest backlog; `n/a` is reserved for rules that are untestable by nature.
+- `dart_test.yaml` at the workspace root (tags `A B C D E F1 G property flaky slow`, per-tag timeouts, `flaky` skipped by default and re-enabled by `--preset nightly`), included by every package's own `dart_test.yaml`. `@Tags(['A'])` on every suite A file, `tags: 'property'` on the three generators, `D` on the harness, `F1` on the app shell test. Probe-tested: a `flaky` test is skipped in the default preset and runs under `nightly`.
+- **Seeds (ADR 05i §5):** `forEachSeed(testId, body)` in `core_ledger/test/helpers.dart` replays every seed listed for the test in `test/regress/seeds.txt`, then one fresh seed (`PROPTEST_SEED` pins it, else drawn from the clock — test code, not lib/). A failure re-throws with the seed, the replay command and the pin instruction. The three M1 generators (`Random(20260904)`, `Random(71)`, `Random(7)`) moved to the seeds file as permanent regression cases.
+- **Golden path fix (ADR 05i §9):** `workspaceRoot()` walks up to `CLAUDE.md`; `dart test packages/core_ledger/test/golden_worked_examples_test.dart` now passes from the repository root as well as from the package.
+- **`/testing/harness`** (workspace package `harness`, pure Dart, `dart:math` allowed — not a `core_*` package): `Scheduler` (discrete-event, virtual clock, `(at, seq)` order, `run(untilMs)`, `cancel`, `trace`), `NetworkModel` (one seed → uniform delay, reorder by delay, drop rate, `OfflineWindow`s that hold sender and receiver traffic until reconnect), `NetworkLog` (JSON round-trip) and `ReplayNetwork` (drives the identical run from the log and refuses a drifted scenario) behind a `Network` interface for M4's devices and server. Five self-tests. `/testing/fixtures` and `/testing/goldens` created with READMEs stating the synthetic-only and goldens-stay-in-docs rules.
+- `.github/workflows/ci.yml` — nightly schedule (03:00 IST) runs `LANE=nightly`; `workflow_dispatch` takes a lane input.
+
+**Changed**
+- `scripts/ci.sh` — `LANE=push|nightly|rc|release` (default push); nightly runs `dart test --preset nightly`; steps a lane does not own yet print *scheduled — lands at M<n>* instead of pretending to run; test loop now includes `testing/harness`; coverage step added.
+- `scripts/check_purity.sh` — Flutter-import check extends to `testing/`; test-data hygiene grep (ADR 05i §7) over `packages/*/test`, `app/test`, `testing/` for real-looking Indian mobile numbers (standalone `[6-9]\d{9}`, or `+91` outside the reserved `99999` block), Aadhaar-shaped and PAN-shaped strings. Zero false positives on the current trees — the ₹-amount concern in ADR 05i Open 3 does not bite because paise in tests are written as `rs(…)` expressions.
+- `pubspec.yaml` (workspace) — `testing/harness` joins the workspace; `pointycastle` root dev dependency.
+- `docs/10-roadmap.md` — parking-lot status line says "locked" in words (the emoji was a mention the checker would otherwise read as a mark).
+- `CHANGELOG.md` — commit hashes filled for M0 (`4eee9c1`), M1 (`ae7293d`), 05d (`b7d7535`), the 05e–i fan-out (`354437a`) and the env session (`d1d26c6`, `4bc3048`); the env session's Open item (no `LANE`, no `check_coverage`) closed.
+
+**Decided** — no 🔒 change, no ADR. Conventions fixed in code comments: id numbering is a running integer per source in test-file order; the golden `content_hash` is BLAKE2b-256 over the five example files' bytes concatenated in the README's file order; `n/a` markers only for rules untestable by nature.
+
+**Open** ⚠️
+- **Shrinking property-test package (ADR 05i §5, Open 1)** — not adopted this slice; `forEachSeed` is the interim rule the ADR allows. Candidates to evaluate next slice: `glados` (shrinking, Flutter-free, maintenance to confirm) vs staying on seeded loops; recommendation: decide only once a generator actually needs shrinking.
+- 257 🔒 lines still unmarked — by design, they are annotated as their milestone's tests land (03/05 at M2–M4, 04 at M3, 06 at M6, 07/13/design at M5+, 08/12 at M13). The checker stays warn-only until M4 exit.
+- The skipped `A-02-45` (amend target missing → `held`) re-lands with the `held` state in the next M2 slice, as the skip reason says.
+- `flutter_test` accepts `@Tags`; whether `flutter test` honours the root `dart_test.yaml` include is untested until F1 grows past one file.
+
+**Commits** — pending.
+
+---
+
 ## 2026-09-06 — env: Claude Code hooks + project skills
 
 Owner asked whether to add plugins/skills for coding, testing and database work. Ruling: wire the existing `scripts/ci.sh` gate into the session via hooks, encode the CLAUDE.md workflow as project skills, defer stack plugins (Supabase MCP until the M4 server milestone and then against a local project only; TypeScript LSP once `server/functions` exists; no Dart/Flutter LSP exists in the official marketplace).
@@ -26,9 +99,9 @@ Owner asked whether to add plugins/skills for coding, testing and database work.
 - `.gitignore` — `.claude/settings.json`, `.claude/hooks/`, `.claude/skills/` now tracked alongside `.claude/commands/` so hooks and skills travel with the repo.
 
 **Open** ⚠️
-- `ci.sh` has no `LANE` switch and no `check_coverage.dart` yet, though CLAUDE.md § Commands describes both; they land at M2 per ADR 2026-09-05i. `/gate` passes `LANE` through and says so.
+- `ci.sh` has no `LANE` switch and no `check_coverage.dart` yet, though CLAUDE.md § Commands describes both; they land at M2 per ADR 2026-09-05i. `/gate` passes `LANE` through and says so. → *closed 2026-09-06 (M2 test-contract slice).*
 
-**Commits** — pending.
+**Commits** — `d1d26c6`, `4bc3048`.
 
 ---
 
@@ -49,7 +122,7 @@ Seven parallel review agents (02, 07, 08, 09, 12, 13, design system) produced on
 
 **Open** ⚠️ — per-ADR Open sections; notably exact hex for the darker light `credit` (05f), shrinking-generator package (05i), SAC code (05g), canvas-mirror versioning (05f), 07 §19 renumber pass.
 
-**Commits** — pending.
+**Commits** — `354437a`.
 
 ---
 
@@ -69,7 +142,7 @@ Fourth review of the day, of 06. The strongest spec of the four; its gaps were f
 
 **Open** ⚠️ — rate-limit numbers; per-tenant 24 h window; Android keystore invalidation across OEMs.
 
-**Commits** — pending.
+**Commits** — `b7d7535`.
 
 ---
 
@@ -165,7 +238,7 @@ Exit gate (10 M1): **suite A incl. property tests, green** — `./scripts/ci.sh`
 - Not in M1 by design: envelope signing/encryption around these payloads (M2, 04), Drift persistence + the running-balance cache (M3, 03 §3.2), HLC generation from a real clock (M4 sync), FY-scoped P&L views and statement presentation strings (M5+).
 
 **Commits**
-- _pending_
+- `ae7293d`
 
 ---
 

@@ -1,0 +1,2 @@
+# Includes the workspace test configuration (tags, timeouts, flaky quarantine) — ADR 2026-09-05i §9.
+include: ../../dart_test.yaml

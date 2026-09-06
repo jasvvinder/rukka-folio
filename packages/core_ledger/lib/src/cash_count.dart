@@ -60,6 +60,8 @@ final class CashCount implements LedgerEvent {
     this.sheet,
     this.countedBy,
     this.witness,
+    this.authorDevice,
+    this.authorSeq,
   });
 
   @override
@@ -68,6 +70,10 @@ final class CashCount implements LedgerEvent {
   final String bookId;
   @override
   final Hlc hlc;
+  @override
+  final String? authorDevice;
+  @override
+  final int? authorSeq;
 
   /// The cash or collection account.
   final String accountId;

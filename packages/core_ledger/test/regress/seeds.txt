@@ -1,0 +1,7 @@
+# Regression seeds for suite A property tests — ADR 2026-09-05i §5 (09 §1).
+# One per line: <test-id> <seed>   # date — why it is here
+# forEachSeed() in test/helpers.dart replays every seed listed for a test before drawing a fresh
+# one (PROPTEST_SEED pins the fresh seed). A seed that ever failed is added here and never removed.
+A-09-1  20260904   # 2026-09-04 — the M1 generator's original fixed seed, kept as a permanent case
+A-02-60 71         # 2026-09-04 — original fixed seed of the ratio-split property
+A-03-5  7          # 2026-09-04 — original fixed seed of the input-order determinism property

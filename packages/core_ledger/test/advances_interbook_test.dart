@@ -1,4 +1,7 @@
 // Suite A — advances (02 §7) and inter-book movement (02 §6).
+@Tags(['A'])
+library;
+
 import 'package:core_ledger/core_ledger.dart';
 import 'package:test/test.dart';
 
@@ -20,7 +23,7 @@ void main() {
       chart = kirana.chart;
     });
 
-    test('a request is pending and moves nothing until approved; approval moves the money', () {
+    test('A-02-72 a request is pending and moves nothing until approved; approval moves the money', () {
       final req = kirana.entry(
         Verbs.advanceRequest(advance: advRamesh, from: bank, amount: rs(20000)),
         kind: EntryKind.moneyOut,
@@ -51,7 +54,7 @@ void main() {
       expect(s.pendingAdvances, isEmpty);
     });
 
-    test('a rejected request never counts', () {
+    test('A-02-73 a rejected request never counts', () {
       final req = kirana.entry(
         Verbs.advanceRequest(advance: advRamesh, from: bank, amount: rs(20000)),
         kind: EntryKind.moneyOut,
@@ -72,7 +75,7 @@ void main() {
       expect(s.balances[advRamesh.id], Paise.zero);
     });
 
-    test('₹20,000 advance, ₹17,400 settled, ₹2,600 returned → balance zero, gone from ageing (02 §11)', () {
+    test('A-02-74 ₹20,000 advance, ₹17,400 settled, ₹2,600 returned → balance zero, gone from ageing (02 §11)', () {
       final req = kirana.entry(
         Verbs.advanceRequest(advance: advRamesh, from: bank, amount: rs(20000)),
         kind: EntryKind.moneyOut,
@@ -117,59 +120,48 @@ void main() {
       expect(openAdvances(s, chart, asOf: d(2026, 8, 31)), isEmpty);
     });
 
-    test(
-      'ageing is FIFO: a second advance keeps the oldest unsettled date',
-      () {
-        final a1 = kirana.entry(
-          Verbs.advanceRequest(
-            advance: advRamesh,
-            from: bank,
-            amount: rs(1000),
-          ),
-          kind: EntryKind.moneyOut,
-          date: d(2026, 8, 1),
-        );
-        final a2 = kirana.entry(
-          Verbs.advanceRequest(
-            advance: advRamesh,
-            from: bank,
-            amount: rs(1000),
-          ),
-          kind: EntryKind.moneyOut,
-          date: d(2026, 8, 10),
-        );
-        final part = kirana.entry(
-          Verbs.advanceSpend(
-            advance: advRamesh,
-            forWhat: repair,
-            amount: rs(700),
-          ),
-          kind: EntryKind.moneyOut,
-          date: d(2026, 8, 12),
-        );
-        var s = project([a1, a2, part], chart);
-        expect(
-          openAdvances(s, chart, asOf: d(2026, 8, 20)).single.oldestUnsettled,
-          d(2026, 8, 1),
-        );
-        final more = kirana.entry(
-          Verbs.advanceSpend(
-            advance: advRamesh,
-            forWhat: repair,
-            amount: rs(400),
-          ),
-          kind: EntryKind.moneyOut,
-          date: d(2026, 8, 13),
-        );
-        s = project([a1, a2, part, more], chart);
-        expect(
-          openAdvances(s, chart, asOf: d(2026, 8, 20)).single.oldestUnsettled,
-          d(2026, 8, 10),
-        );
-      },
-    );
+    test('A-02-75 ageing is FIFO: a second advance keeps the oldest unsettled date', () {
+      final a1 = kirana.entry(
+        Verbs.advanceRequest(advance: advRamesh, from: bank, amount: rs(1000)),
+        kind: EntryKind.moneyOut,
+        date: d(2026, 8, 1),
+      );
+      final a2 = kirana.entry(
+        Verbs.advanceRequest(advance: advRamesh, from: bank, amount: rs(1000)),
+        kind: EntryKind.moneyOut,
+        date: d(2026, 8, 10),
+      );
+      final part = kirana.entry(
+        Verbs.advanceSpend(
+          advance: advRamesh,
+          forWhat: repair,
+          amount: rs(700),
+        ),
+        kind: EntryKind.moneyOut,
+        date: d(2026, 8, 12),
+      );
+      var s = project([a1, a2, part], chart);
+      expect(
+        openAdvances(s, chart, asOf: d(2026, 8, 20)).single.oldestUnsettled,
+        d(2026, 8, 1),
+      );
+      final more = kirana.entry(
+        Verbs.advanceSpend(
+          advance: advRamesh,
+          forWhat: repair,
+          amount: rs(400),
+        ),
+        kind: EntryKind.moneyOut,
+        date: d(2026, 8, 13),
+      );
+      s = project([a1, a2, part, more], chart);
+      expect(
+        openAdvances(s, chart, asOf: d(2026, 8, 20)).single.oldestUnsettled,
+        d(2026, 8, 10),
+      );
+    });
 
-    test('write-off is a guided adjustment against Adjustments', () {
+    test('A-02-76 write-off is a guided adjustment against Adjustments', () {
       expect(
         Verbs.writeOff(
           account: advRamesh,
@@ -180,7 +172,7 @@ void main() {
       );
     });
 
-    test('class checks', () {
+    test('A-02-77 class checks', () {
       expect(
         () => Verbs.advanceRequest(advance: repair, from: bank, amount: rs(1)),
         throwsArgumentError,
@@ -226,34 +218,40 @@ void main() {
       famExpense = fam.expense('House Repair');
     });
 
-    test('one action → two envelopes sharing transfer_group, one per book', () {
-      final pair = InterBook.transfer(
-        amount: rs(50000),
-        accountingDate: d(2026, 8, 5),
-        from: (money: bizBank, dueToFrom: bizDueFam),
-        to: (money: famBank, dueToFrom: famDueBiz),
-        transferGroup: 'g1',
-        ids: (from: 'k01', to: 'j01'),
-        hlcs: (from: const Hlc(10), to: const Hlc(11)),
-        createdByUser: 'karta',
-        createdByDevice: 'd1',
-        reviewRequiredIn: (from: false, to: true),
-        reviewLimitPaise: (from: null, to: rs(5000)),
-      );
-      expect(pair.from.lines, [
-        dr(bizDueFam, rs(50000)),
-        cr(bizBank, rs(50000)),
-      ]);
-      expect(pair.to.lines, [dr(famBank, rs(50000)), cr(famDueBiz, rs(50000))]);
-      expect(pair.from.refs.transferGroup, 'g1');
-      expect(pair.to.refs.transferGroup, 'g1');
-      expect(pair.from.kind, EntryKind.transfer);
-      expect(pair.to.reviewRequired, isTrue);
-      expect(pair.from.bookId, 'biz');
-      expect(pair.to.bookId, 'fam');
-    });
+    test(
+      'A-02-78 one action → two envelopes sharing transfer_group, one per book',
+      () {
+        final pair = InterBook.transfer(
+          amount: rs(50000),
+          accountingDate: d(2026, 8, 5),
+          from: (money: bizBank, dueToFrom: bizDueFam),
+          to: (money: famBank, dueToFrom: famDueBiz),
+          transferGroup: 'g1',
+          ids: (from: 'k01', to: 'j01'),
+          hlcs: (from: const Hlc(10), to: const Hlc(11)),
+          createdByUser: 'karta',
+          createdByDevice: 'd1',
+          reviewRequiredIn: (from: false, to: true),
+          reviewLimitPaise: (from: null, to: rs(5000)),
+        );
+        expect(pair.from.lines, [
+          dr(bizDueFam, rs(50000)),
+          cr(bizBank, rs(50000)),
+        ]);
+        expect(pair.to.lines, [
+          dr(famBank, rs(50000)),
+          cr(famDueBiz, rs(50000)),
+        ]);
+        expect(pair.from.refs.transferGroup, 'g1');
+        expect(pair.to.refs.transferGroup, 'g1');
+        expect(pair.from.kind, EntryKind.transfer);
+        expect(pair.to.reviewRequired, isTrue);
+        expect(pair.from.bookId, 'biz');
+        expect(pair.to.bookId, 'fam');
+      },
+    );
 
-    test('both halves post at once; the flagged half shows in transit; reconciliation nets to zero', () {
+    test('A-02-79 both halves post at once; the flagged half shows in transit; reconciliation nets to zero', () {
       final pair = InterBook.transfer(
         amount: rs(50000),
         accountingDate: d(2026, 8, 5),
@@ -302,7 +300,7 @@ void main() {
       );
     });
 
-    test('pocket expense: personal book Dr Due to/from Family · Cr Cash; family Dr Expense · Cr Due to/from Personal', () {
+    test('A-02-80 pocket expense: personal book Dr Due to/from Family · Cr Cash; family Dr Expense · Cr Due to/from Personal', () {
       final personal = TestBook('amit');
       final amitCash = personal.cash('Cash');
       final amitDueFam = personal.dueToFrom('fam');
@@ -341,7 +339,7 @@ void main() {
       expect(recon.single.net, Paise.zero);
     });
 
-    test('a non-zero pair is listed with the entries composing it', () {
+    test('A-02-81 a non-zero pair is listed with the entries composing it', () {
       final lonely = biz.entry(
         Verbs.transfer(from: bizBank, to: bizDueFam, amount: rs(100)),
         kind: EntryKind.transfer,
@@ -363,7 +361,7 @@ void main() {
       expect(recon.single.entryIdsB, isEmpty);
     });
 
-    test('builder rejects a non due-to/from counterpart', () {
+    test('A-02-82 builder rejects a non due-to/from counterpart', () {
       expect(
         () => InterBook.transfer(
           amount: rs(1),

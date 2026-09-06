@@ -1,3 +1,4 @@
+import '../core_ledger.dart' show projectorVersion;
 import 'accounts.dart';
 import 'balances.dart';
 import 'cash_count.dart';
@@ -25,10 +26,10 @@ enum EffectiveStatus {
   /// Fully reversed; both it and its mirror stay in history (02 §5).
   voided,
 
-  /// A late arrival in the closer's tray — valid, but absent from totals
-  /// until re-dated or the month is re-opened (02 §8). Named `inTray` so that
-  /// `held` means one thing only: a dangling reference awaiting its target
-  /// (02 §5, ADR 2026-09-05b §4, ADR 2026-09-05e) — that state lands at M2.
+  /// A late arrival in the closer's tray — valid, in every *live* balance, but
+  /// out of the *certified* month until re-dated or the month is re-opened
+  /// (02 §3, §8; ADR 2026-09-05e §3). Named `inTray` so that `held` means one
+  /// thing only: a dangling reference awaiting its target (ADR 2026-09-05e §10).
   inTray,
 }
 
@@ -114,6 +115,79 @@ final class QuarantinedEvent {
   String toString() => 'Quarantined($eventId: ${violations.join('; ')})';
 }
 
+/// Which reference of a held envelope is dangling.
+enum HeldReason {
+  /// `refs.amends` points at an entry this reader has not accepted.
+  amends,
+
+  /// `refs.reverses` points at an entry this reader has not accepted.
+  reverses,
+
+  /// An approval decision on an entry this reader has not accepted.
+  decision,
+}
+
+/// An envelope waiting for its target (02 §5; ADR 2026-09-05b §4): not
+/// projected, not quarantined. It counts nothing until the target arrives; when
+/// the target is in the set, folding is ordinary. Part of the projector's
+/// output, so `project()` stays a pure function of the envelope set.
+final class HeldEvent {
+  const HeldEvent._(this.event, this.heldFor, this.reason);
+
+  /// The waiting envelope.
+  final LedgerEvent event;
+
+  /// The missing target's id.
+  final String heldFor;
+
+  /// Which reference dangles.
+  final HeldReason reason;
+
+  @override
+  String toString() => 'Held(${event.id} ${reason.name} $heldFor)';
+}
+
+/// A hole in one author's sequence (ADR 2026-09-05b §3): the book is waiting
+/// for envelope [expectedSeq] from [authorDevice]; every later envelope of that
+/// author has arrived out of order or something is being withheld. The status
+/// surface says *waiting for entries from {device}'s phone*; the projection is
+/// provisional and no month or year closes while a gap is open (ADR 2026-09-05e §4).
+final class AuthorGap {
+  const AuthorGap._(this.authorDevice, this.expectedSeq, this.sinceHlc);
+
+  /// The author with the hole.
+  final String authorDevice;
+
+  /// The first missing `author_seq`.
+  final int expectedSeq;
+
+  /// HLC of the first envelope seen past the hole — how long the gap has been
+  /// visible (the 24 h Inbox rule is applied by the caller against its clock).
+  final Hlc sinceHlc;
+
+  @override
+  String toString() =>
+      'AuthorGap($authorDevice expects #$expectedSeq since ${sinceHlc.raw})';
+}
+
+/// How this reader's replay relates to a certified close (02 §8 step 4, §8.1;
+/// ADR 2026-09-05c §3).
+enum CloseVerification {
+  /// This reader reproduced the published vector.
+  verified,
+
+  /// Same projector version, different vector — a real discrepancy, flagged.
+  mismatch,
+
+  /// The certifier used a **newer** projector than this reader: *Update the app
+  /// to verify this close*. Kept as unverified-by-you, never shown as a mismatch.
+  readerOutdated,
+
+  /// The certifier used an **older** projector and this reader's newer one does
+  /// not reproduce the vector: the close needs re-certifying on a current app.
+  certifierOutdated,
+}
+
 /// Period state (02 §8).
 enum PeriodStatus {
   /// Accepts entries.
@@ -124,6 +198,8 @@ enum PeriodStatus {
 }
 
 /// The lock / unlock history of every month, answering "was P open at HLC h?".
+/// Locks and unlocks are all-time objects (ADR 2026-09-05e §5): the rule needs
+/// the complete history even for archived years.
 final class PeriodTimeline {
   PeriodTimeline._(this._events);
 
@@ -178,7 +254,7 @@ final class PeriodTimeline {
   List<YearMonth> get periods => _events.keys.toList()..sort();
 }
 
-/// Year state (02 §8.1).
+/// Year state (02 §8.1). "Certified ✓" is badge copy, not a state (ADR 2026-09-05e §12).
 enum YearStatus {
   /// Not closed.
   open,
@@ -197,7 +273,7 @@ final class YearState {
     this.status, {
     this.certifiedVector,
     this.closeId,
-    this.vectorMatchesReplay,
+    this.verification,
   });
 
   /// Status.
@@ -209,12 +285,16 @@ final class YearState {
   /// The close envelope.
   final String? closeId;
 
-  /// Whether this reader's own replay reproduced the published vector at the
-  /// moment of close (02 §8.1: every member's device independently recomputes).
-  final bool? vectorMatchesReplay;
+  /// How this reader's own replay relates to the published vector.
+  final CloseVerification? verification;
+
+  /// Whether this reader's own replay reproduced the published vector.
+  bool? get vectorMatchesReplay =>
+      verification == null ? null : verification == CloseVerification.verified;
 }
 
-/// A blocker of the Year Close ceremony (02 §8.1 preconditions).
+/// A blocker of a month lock or the Year Close ceremony (02 §8 step 3, §8.1;
+/// ADR 2026-09-05e §4).
 enum CloseBlocker {
   /// A month of the FY is not locked.
   monthOpen,
@@ -227,6 +307,13 @@ enum CloseBlocker {
 
   /// An advance request is pending (02 §7) — a distinct queue from flags.
   advancePending,
+
+  /// An author's sequence has a hole — entries are known to be missing
+  /// (ADR 2026-09-05b §3). Nobody certifies a balance with entries missing.
+  authorGapOpen,
+
+  /// An envelope is held for a target that has not arrived (ADR 2026-09-05b §4).
+  heldEnvelope,
 }
 
 /// One blocker with the object it points at.
@@ -237,7 +324,7 @@ final class CloseBlockerItem {
   /// Kind.
   final CloseBlocker kind;
 
-  /// The month, account or entry id concerned.
+  /// The month, account, entry, envelope or device id concerned.
   final String ref;
 }
 
@@ -248,7 +335,10 @@ final class LedgerState {
     required this.balances,
     required this.entries,
     required this.quarantined,
+    required this.held,
+    required this.authorGaps,
     required this.periods,
+    required this.lockVerification,
     required this.years,
     required this.lastCount,
     required this.opening,
@@ -257,14 +347,24 @@ final class LedgerState {
   /// Live balances.
   final BalanceVector balances;
 
-  /// Every accepted entry by id (quarantined envelopes are not here).
+  /// Every accepted entry by id (quarantined and held envelopes are not here).
   final Map<String, ProjectedEntry> entries;
 
   /// Refused envelopes — security events, never summed.
   final List<QuarantinedEvent> quarantined;
 
+  /// Envelopes waiting for a target (ADR 2026-09-05b §4), in `(hlc, id)` order.
+  final List<HeldEvent> held;
+
+  /// Open holes in author sequences (ADR 2026-09-05b §3), one per author.
+  final List<AuthorGap> authorGaps;
+
   /// Lock history.
   final PeriodTimeline periods;
+
+  /// This reader's verification of every month lock that published a vector,
+  /// by lock envelope id (02 §8 step 4; ADR 2026-09-05c §3).
+  final Map<String, CloseVerification> lockVerification;
 
   /// Year close states.
   final Map<FinancialYear, YearState> years;
@@ -275,6 +375,10 @@ final class LedgerState {
   /// The certified opening vector this projection started from.
   final BalanceVector opening;
 
+  /// True while envelopes are known to be missing: an author gap or a held
+  /// envelope. Figures are shown, but marked provisional (05 §9).
+  bool get isProvisional => authorGaps.isNotEmpty || held.isNotEmpty;
+
   /// Entries whose review flag is open — the approver's Inbox (02 §3).
   List<ProjectedEntry> get openReviewFlags => entries.values
       .where((p) => p.reviewState == ReviewState.open && p.isCounted)
@@ -284,7 +388,9 @@ final class LedgerState {
   List<ProjectedEntry> get pendingAdvances =>
       entries.values.where((p) => p.status == EffectiveStatus.pending).toList();
 
-  /// Entries whose lines are in the balances, in `(accounting_date, hlc, id)` order.
+  /// Entries whose lines are in the balances, in `(accounting_date, hlc, id)`
+  /// order — the locked statement order (ADR 2026-09-05e §12), identical on
+  /// every device.
   List<ProjectedEntry> get counted {
     final list = entries.values.where((p) => p.isCounted).toList();
     list.sort((a, b) {
@@ -307,11 +413,28 @@ final class LedgerState {
   }
 }
 
+/// The key under which a closing vector records one financial year's net
+/// surplus (Cr, negative) or deficit (Dr, positive) — one line per certified
+/// year (ADR 2026-09-05e §2). Category accounts are never carried; these lines
+/// are what *Accumulated surplus* / *Corpus* sums. Sorts beside account ids in
+/// [BalanceVector.canonical].
+String netResultKey(FinancialYear fy) => 'net_result:${fy.label}';
+
+/// True for a [netResultKey].
+bool isNetResultKey(String key) => key.startsWith('net_result:');
+
 /// Projects one book. Pure and deterministic: input order does not matter
 /// (events are sorted by `(hlc, id)`), nothing here reads a clock, the network
 /// or settings. [opening] is the certified vector a rebuild seeds from (02 §8.1,
 /// 03 §3.3 rule 3). [heldInTray] are late arrivals the closer has not yet
 /// re-dated (02 §8) — a client-local fact, passed in, never read.
+///
+/// An amendment, reversal or decision whose target is not in the set is
+/// **held** (ADR 2026-09-05b §4), whatever its HLC: the set is scanned as a
+/// whole, so an orphan that arrives before its original counts exactly once
+/// either way. A held envelope is quarantined `target_missing` only when the
+/// target can be proven never to have existed — every envelope in the set
+/// carries an `author_seq` and no author has a gap.
 LedgerState project(
   Iterable<LedgerEvent> events,
   Chart chart, {
@@ -320,12 +443,64 @@ LedgerState project(
 }) {
   final ordered = events.toList()
     ..sort((a, b) => compareEventOrder(a.hlc, a.id, b.hlc, b.id));
-  final periods = PeriodTimeline.fromEvents(ordered);
+  final quarantined = <QuarantinedEvent>[];
+
+  // ── author sequences: duplicates refused, gaps reported (ADR 2026-09-05b §3) ──
+  final seqOwner = <String, Set<int>>{}; // device → seqs seen
+  final accepted = <LedgerEvent>[];
+  var everyEventSequenced = true;
+  for (final ev in ordered) {
+    final dev = ev.authorDevice;
+    final seq = ev.authorSeq;
+    if (dev == null || seq == null) {
+      everyEventSequenced = false;
+      accepted.add(ev);
+      continue;
+    }
+    final seen = seqOwner.putIfAbsent(dev, () => {});
+    if (!seen.add(seq)) {
+      quarantined.add(
+        QuarantinedEvent(ev.id, ev.hlc, [
+          Violation(
+            ViolationKind.authorSeqDuplicate,
+            '$dev already used author_seq $seq',
+          ),
+        ]),
+      );
+      continue;
+    }
+    accepted.add(ev);
+  }
+  final authorGaps = <AuthorGap>[];
+  for (final MapEntry(key: dev, value: seqs) in seqOwner.entries) {
+    final sorted = seqs.toList()..sort();
+    var expected = 1;
+    for (final s in sorted) {
+      if (s == expected) {
+        expected++;
+        continue;
+      }
+      // First hole: since the earliest envelope (in projection order) past it.
+      final since = accepted
+          .where((e) => e.authorDevice == dev && (e.authorSeq ?? 0) > expected)
+          .first
+          .hlc;
+      authorGaps.add(AuthorGap._(dev, expected, since));
+      break;
+    }
+  }
+  authorGaps.sort((a, b) => a.authorDevice.compareTo(b.authorDevice));
+  final provenComplete = everyEventSequenced && authorGaps.isEmpty;
+
+  final periods = PeriodTimeline.fromEvents(accepted);
   final balances = <String, Paise>{...?opening?.nonZero};
   final entries = <String, ProjectedEntry>{};
-  final quarantined = <QuarantinedEvent>[];
   final years = <FinancialYear, YearState>{};
   final lastCount = <String, CashCount>{};
+  final lockVerification = <String, CloseVerification>{};
+  final openingVector = opening ?? BalanceVector(const {});
+  // target id → envelopes waiting for it, in projection order
+  final waiting = <String, List<(LedgerEvent, HeldReason)>>{};
 
   void apply(Entry e, {required bool add}) {
     for (final l in e.lines) {
@@ -345,7 +520,21 @@ LedgerState project(
     return true;
   }
 
-  for (final ev in ordered) {
+  void defer(LedgerEvent ev, String target, HeldReason reason) =>
+      waiting.putIfAbsent(target, () => []).add((ev, reason));
+
+  late void Function(LedgerEvent ev) process;
+
+  /// Once [id] is accepted, everything that was waiting for it folds in order.
+  void release(String id) {
+    final list = waiting.remove(id);
+    if (list == null) return;
+    for (final (ev, _) in list) {
+      process(ev);
+    }
+  }
+
+  process = (LedgerEvent ev) {
     if (ev.bookId != chart.bookId) {
       quarantined.add(
         QuarantinedEvent(ev.id, ev.hlc, [
@@ -355,7 +544,7 @@ LedgerState project(
           ),
         ]),
       );
-      continue;
+      return;
     }
     switch (ev) {
       case Entry():
@@ -369,13 +558,25 @@ LedgerState project(
             ),
           );
         }
+        // Dangling targets: held (ADR 2026-09-05b §4), unless the envelope is
+        // broken on its own terms — then it is refused outright.
+        if (ev.refs.amends case final t? when !entries.containsKey(t)) {
+          if (violations.isEmpty) {
+            defer(ev, t, HeldReason.amends);
+            return;
+          }
+        }
+        if (ev.refs.reverses case final t? when !entries.containsKey(t)) {
+          if (violations.isEmpty) {
+            defer(ev, t, HeldReason.reverses);
+            return;
+          }
+        }
         ProjectedEntry? amendTarget;
         if (ev.refs.amends case final targetId?) {
           amendTarget = entries[targetId];
           if (amendTarget == null) {
-            violations.add(
-              Violation(ViolationKind.amendTargetMissing, targetId),
-            );
+            violations.add(Violation(ViolationKind.targetMissing, targetId));
           } else if (amendTarget.reversedBy != null) {
             violations.add(
               Violation(ViolationKind.alreadyReversed, '$targetId is void'),
@@ -412,9 +613,7 @@ LedgerState project(
         if (ev.refs.reverses case final targetId?) {
           reverseTarget = entries[targetId];
           if (reverseTarget == null) {
-            violations.add(
-              Violation(ViolationKind.reverseTargetMissing, targetId),
-            );
+            violations.add(Violation(ViolationKind.targetMissing, targetId));
           } else if (reverseTarget.reversedBy != null) {
             violations.add(
               Violation(
@@ -440,7 +639,7 @@ LedgerState project(
         }
         if (violations.isNotEmpty) {
           quarantined.add(QuarantinedEvent(ev.id, ev.hlc, violations));
-          continue;
+          return;
         }
         final EffectiveStatus status;
         if (heldInTray.contains(ev.id)) {
@@ -469,16 +668,13 @@ LedgerState project(
             reversedBy: ev.id,
           );
         }
+        release(ev.id);
 
       case ApprovalDecision():
         final target = entries[ev.entryId];
         if (target == null) {
-          quarantined.add(
-            QuarantinedEvent(ev.id, ev.hlc, [
-              Violation(ViolationKind.decisionTargetMissing, ev.entryId),
-            ]),
-          );
-          continue;
+          defer(ev, ev.entryId, HeldReason.decision);
+          return;
         }
         if (ev.byUser == target.entry.createdByUser) {
           quarantined.add(
@@ -489,7 +685,7 @@ LedgerState project(
               ),
             ]),
           );
-          continue;
+          return;
         }
         if (target.entry.status == EntryStatus.pending) {
           // The advance queue: approval itself moves the money (02 §7).
@@ -518,7 +714,13 @@ LedgerState project(
         }
 
       case PeriodLock():
-        break; // already in the timeline
+        // Already in the timeline. Re-verify the published vector (02 §8 step 4).
+        if (ev.vectorCanonical case final published?) {
+          lockVerification[ev.id] = _verify(
+            ev.projectorVersion,
+            matches: BalanceVector(balances).canonical() == published,
+          );
+        }
 
       case PeriodUnlock():
         // Re-opening a month of a closed year voids that certificate and every later one (02 §8.1).
@@ -533,19 +735,27 @@ LedgerState project(
                 YearStatus.uncertified,
                 certifiedVector: st.certifiedVector,
                 closeId: st.closeId,
-                vectorMatchesReplay: st.vectorMatchesReplay,
+                verification: st.verification,
               );
             }
           }
         }
 
       case YearClose():
-        final replay = BalanceVector(balances);
+        final replay = _closingVector(
+          entries.values.where((p) => p.isCounted),
+          openingVector,
+          chart,
+          ev.financialYear,
+        );
         years[ev.financialYear] = YearState._(
           YearStatus.closed,
           certifiedVector: ev.vector,
           closeId: ev.id,
-          vectorMatchesReplay: replay == ev.vector,
+          verification: _verify(
+            ev.projectorVersion,
+            matches: replay == ev.vector,
+          ),
         );
 
       case CashCount():
@@ -559,24 +769,71 @@ LedgerState project(
               ),
             ]),
           );
-          continue;
+          return;
         }
         lastCount[ev.accountId] = ev; // a count never moves money (02 §8.2)
 
       default:
         break;
     }
+  };
+
+  for (final ev in accepted) {
+    process(ev);
   }
+
+  // Whatever is still waiting is held — or, when the set is provably complete,
+  // its target never existed (ADR 2026-09-05b §4).
+  final held = <HeldEvent>[];
+  for (final MapEntry(key: target, value: list) in waiting.entries) {
+    for (final (ev, reason) in list) {
+      if (provenComplete) {
+        quarantined.add(
+          QuarantinedEvent(ev.id, ev.hlc, [
+            Violation(
+              ViolationKind.targetMissing,
+              '${reason.name} $target: every author sequence is contiguous and it never arrived',
+            ),
+          ]),
+        );
+      } else {
+        held.add(HeldEvent._(ev, target, reason));
+      }
+    }
+  }
+  held.sort(
+    (a, b) =>
+        compareEventOrder(a.event.hlc, a.event.id, b.event.hlc, b.event.id),
+  );
+  quarantined.sort(
+    (a, b) => compareEventOrder(a.hlc, a.eventId, b.hlc, b.eventId),
+  );
 
   return LedgerState._(
     balances: BalanceVector(balances),
     entries: Map.unmodifiable(entries),
     quarantined: List.unmodifiable(quarantined),
+    held: List.unmodifiable(held),
+    authorGaps: List.unmodifiable(authorGaps),
     periods: periods,
+    lockVerification: Map.unmodifiable(lockVerification),
     years: Map.unmodifiable(years),
     lastCount: Map.unmodifiable(lastCount),
-    opening: opening ?? BalanceVector(const {}),
+    opening: openingVector,
   );
+}
+
+/// The reader's verdict on a published vector, given the projector version that
+/// produced it (ADR 2026-09-05c §3). A missing version (pre-M2 envelope) is
+/// verified as if current.
+CloseVerification _verify(int? recorded, {required bool matches}) {
+  if (matches) return CloseVerification.verified;
+  if (recorded == null || recorded == projectorVersion) {
+    return CloseVerification.mismatch;
+  }
+  return recorded > projectorVersion
+      ? CloseVerification.readerOutdated
+      : CloseVerification.certifierOutdated;
 }
 
 /// The one amendment 02 §5 allows against a locked period: the closer *re-dating*
@@ -617,8 +874,52 @@ bool isLateArrival(
     lock.period.contains(entry.accountingDate) &&
     entry.hlc < lock.hlc;
 
-/// Preconditions to close [fy] (02 §8.1): every month locked, Suspense zero,
-/// no open review flag, no pending advance request. Aged advances warn only.
+// ─── the certified vector (02 §8.1; ADR 2026-09-05e §2) ───────────────────────
+
+const _balanceSheetClasses = {
+  AccountClass.money,
+  AccountClass.party,
+  AccountClass.advance,
+  AccountClass.partner,
+  AccountClass.equitySystem,
+};
+
+BalanceVector _closingVector(
+  Iterable<ProjectedEntry> counted,
+  BalanceVector opening,
+  Chart chart,
+  FinancialYear fy,
+) {
+  final v = <String, Paise>{...opening.nonZero};
+  for (final p in counted) {
+    final date = p.entry.accountingDate;
+    if (date.isAfter(fy.lastDay)) continue;
+    for (final l in p.entry.lines) {
+      final cls = chart.account(l.accountId).accountClass;
+      final key = _balanceSheetClasses.contains(cls)
+          ? l.accountId
+          : netResultKey(FinancialYear.of(date, startMonth: fy.startMonth));
+      v[key] = (v[key] ?? Paise.zero) + l.amount;
+    }
+  }
+  return BalanceVector(v);
+}
+
+/// The closing balance vector of [fy] as every device must compute it (02 §8.1;
+/// ADR 2026-09-05e §2): every **money, party, advance, partner and
+/// equity_system** account, restricted to counted entries whose
+/// `accounting_date` ≤ the FY's last day **regardless of HLC** — an entry dated
+/// 3 April posted before a 5 April close belongs to the new year. Category
+/// accounts are not carried; each year's net result is one [netResultKey] line,
+/// so the vector still balances and *Accumulated surplus* / *Corpus* is a
+/// computed sum, never a stored account. Lines in [state.opening] carry through
+/// unchanged (they are earlier years' certified figures).
+BalanceVector closingVector(LedgerState state, Chart chart, FinancialYear fy) =>
+    _closingVector(state.counted, state.opening, chart, fy);
+
+/// Preconditions to close [fy] (02 §8.1; ADR 2026-09-05e §4): every month
+/// locked, Suspense zero, no open review flag, no pending advance request, no
+/// author-sequence gap, no held envelope. Aged advances warn only.
 List<CloseBlockerItem> yearClosePreconditions(
   LedgerState state,
   Chart chart,
@@ -641,8 +942,37 @@ List<CloseBlockerItem> yearClosePreconditions(
   for (final p in state.pendingAdvances) {
     out.add(CloseBlockerItem(CloseBlocker.advancePending, p.entry.id));
   }
+  out.addAll(_syncBlockers(state));
   return out;
 }
+
+/// Preconditions to lock [month] (02 §8 step 3; ADR 2026-09-05b §3–4, ADR
+/// 2026-09-05e §4): no open review flag, no author-sequence gap, no held
+/// envelope. Suspense lines join at M10 (import). The closer's wizard refuses
+/// on any item; the projector itself still records a lock it receives — a lock
+/// is a signed all-time object every reader must agree on (ADR 2026-09-05e §5),
+/// and the figures it certifies are re-verified through [LedgerState.lockVerification].
+/// ⚠️ SPEC: 02 §8 step 3 says the lock "is refused"; refusing at authoring time
+/// rather than at projection is the reading under which two honest readers with
+/// different envelope sets cannot disagree about whether a month is locked.
+List<CloseBlockerItem> monthLockPreconditions(
+  LedgerState state,
+  YearMonth month,
+) {
+  final out = <CloseBlockerItem>[];
+  for (final p in state.openReviewFlags) {
+    out.add(CloseBlockerItem(CloseBlocker.reviewFlagOpen, p.entry.id));
+  }
+  out.addAll(_syncBlockers(state));
+  return out;
+}
+
+List<CloseBlockerItem> _syncBlockers(LedgerState state) => [
+  for (final g in state.authorGaps)
+    CloseBlockerItem(CloseBlocker.authorGapOpen, g.authorDevice),
+  for (final h in state.held)
+    CloseBlockerItem(CloseBlocker.heldEnvelope, h.event.id),
+];
 
 // ─── reports on a state ───────────────────────────────────────────────────────
 
@@ -651,7 +981,8 @@ final class TrialBalanceRow {
   /// Creates a row.
   const TrialBalanceRow(this.accountId, this.dr, this.cr);
 
-  /// Account.
+  /// Account — or a [netResultKey] for a certified year's result, presented as
+  /// *Accumulated surplus* / *Corpus* (ADR 2026-09-05e §2).
   final String accountId;
 
   /// Debit column, or `null`.
@@ -680,6 +1011,8 @@ final class TrialBalance {
 }
 
 /// The trial balance of [state]; zero balances omitted unless [includeZero].
+/// Certified net-result lines carried in from the opening vector follow the
+/// chart's accounts, so a state seeded from a year close still balances.
 TrialBalance trialBalance(
   LedgerState state,
   Chart chart, {
@@ -688,18 +1021,26 @@ TrialBalance trialBalance(
   final rows = <TrialBalanceRow>[];
   var dr = Paise.zero;
   var cr = Paise.zero;
-  for (final a in chart.accounts) {
-    final b = state.balances[a.id];
-    if (b.isZero && !includeZero) continue;
+  void row(String id, Paise b) {
+    if (b.isZero && !includeZero) return;
     if (b.isDebit) {
       dr += b;
-      rows.add(TrialBalanceRow(a.id, b, null));
+      rows.add(TrialBalanceRow(id, b, null));
     } else if (b.isCredit) {
       cr += -b;
-      rows.add(TrialBalanceRow(a.id, null, -b));
+      rows.add(TrialBalanceRow(id, null, -b));
     } else {
-      rows.add(TrialBalanceRow(a.id, null, null));
+      rows.add(TrialBalanceRow(id, null, null));
     }
+  }
+
+  for (final a in chart.accounts) {
+    row(a.id, state.balances[a.id]);
+  }
+  final results = state.balances.nonZero.keys.where(isNetResultKey).toList()
+    ..sort();
+  for (final k in results) {
+    row(k, state.balances[k]);
   }
   return TrialBalance(rows, dr, cr);
 }
@@ -740,10 +1081,10 @@ final class StatementRow {
 }
 
 /// The statement of [accountId]: one row per counted line, in
-/// `(accounting_date, hlc, id)` order, running from the certified opening
-/// (b/f). [from]/[to] bound the rows returned; the running balance still
-/// starts from the true b/f, so the first row in range carries the balance
-/// brought down as of [from].
+/// `(accounting_date, hlc, id)` order (ADR 2026-09-05e §12 — locked, identical
+/// on every device), running from the certified opening (b/f). [from]/[to]
+/// bound the rows returned; the running balance still starts from the true b/f,
+/// so the first row in range carries the balance brought down as of [from].
 List<StatementRow> statement(
   LedgerState state,
   String accountId, {
@@ -774,20 +1115,108 @@ List<StatementRow> statement(
   return rows;
 }
 
-/// Net profit for the projected span: income earned − expenses spent (02 §7.1,
-/// computed by the app from the ledger itself — never typed).
-Paise netProfit(LedgerState state, Chart chart) {
+/// Net profit for [fy] (02 §7.1; ADR 2026-09-05e §8): that year's income earned
+/// − expenses spent − distributions already posted in the year, from counted
+/// entries **dated** in the FY — computed by the app from the ledger itself,
+/// never typed. Income and expense open every FY at zero (ADR §2).
+Paise netProfit(LedgerState state, Chart chart, FinancialYear fy) {
+  final (:income, :expense, :distributions) = _fyFigures(state, chart, fy);
+  return income - expense - distributions;
+}
+
+({Paise income, Paise expense, Paise distributions}) _fyFigures(
+  LedgerState state,
+  Chart chart,
+  FinancialYear fy,
+) {
   var income = Paise.zero;
   var expense = Paise.zero;
-  for (final a in chart.accounts) {
-    switch (a.accountClass) {
-      case AccountClass.categoryIncome:
-        income += -state.balances[a.id];
-      case AccountClass.categoryExpense:
-        expense += state.balances[a.id];
-      default:
-        break;
+  var distributions = Paise.zero;
+  for (final p in state.counted) {
+    if (!fy.contains(p.entry.accountingDate)) continue;
+    for (final l in p.entry.lines) {
+      final a = chart.account(l.accountId);
+      switch (a.accountClass) {
+        case AccountClass.categoryIncome:
+          income += -l.amount;
+        case AccountClass.categoryExpense:
+          expense += l.amount;
+        case AccountClass.equitySystem:
+          if (a.systemRole == SystemRole.profitDistributed &&
+              l.amount.isDebit) {
+            distributions += l.amount;
+          }
+        default:
+          break;
+      }
     }
   }
-  return income - expense;
+  return (income: income, expense: expense, distributions: distributions);
 }
+
+/// *Accumulated surplus* (business / family) or *Corpus* (trust) — a computed
+/// line, never a stored account (ADR 2026-09-05e §2): Σ certified net results
+/// + opening equity − distributions. Certified results are the [netResultKey]
+/// lines the state was seeded with plus, in a full replay, the category lines of
+/// every counted entry dated before [openFy]; opening equity is the Opening
+/// Balance account; distributions are every debit to Profit Distributed.
+/// ⚠️ SPEC: Adjustments and Suspense are equity_system accounts too; the ADR's
+/// formula does not name them, so they are left out here and stay visible as
+/// their own lines.
+Paise accumulatedSurplus(
+  LedgerState state,
+  Chart chart, {
+  required FinancialYear openFy,
+}) {
+  var surplus = Paise.zero;
+  for (final MapEntry(key: k, value: v) in state.balances.nonZero.entries) {
+    if (isNetResultKey(k)) surplus += -v;
+  }
+  for (final p in state.counted) {
+    if (!p.entry.accountingDate.isBefore(openFy.firstDay)) continue;
+    for (final l in p.entry.lines) {
+      switch (chart.account(l.accountId).accountClass) {
+        case AccountClass.categoryIncome || AccountClass.categoryExpense:
+          surplus += -l.amount;
+        default:
+          break;
+      }
+    }
+  }
+  for (final a in chart.accounts) {
+    if (a.accountClass != AccountClass.equitySystem) continue;
+    if (a.systemRole == SystemRole.openingBalance) {
+      surplus += -state.balances[a.id];
+    } else if (a.systemRole == SystemRole.profitDistributed) {
+      final b = state.balances[a.id];
+      if (b.isDebit) surplus -= b;
+    }
+  }
+  return surplus;
+}
+
+/// The distribution ceiling (ADR 2026-09-05e §8): cumulative distributions may
+/// not exceed accumulated surplus. [headroom] is what may still be distributed
+/// today — certified surplus plus the open year's result so far, net of every
+/// distribution already posted; [excess] is how far [proposed] overshoots it
+/// (zero when it fits), so the wizard can refuse and say by how much.
+({Paise headroom, Paise excess}) distributionHeadroom(
+  LedgerState state,
+  Chart chart, {
+  required FinancialYear fy,
+  required Paise proposed,
+}) {
+  final (:income, :expense, distributions: _) = _fyFigures(state, chart, fy);
+  final headroom =
+      accumulatedSurplus(state, chart, openFy: fy) + income - expense;
+  final excess = proposed > headroom ? proposed - headroom : Paise.zero;
+  return (headroom: headroom, excess: excess);
+}
+
+/// `cash` accounts whose balance has gone negative (ADR 2026-09-05e §12): legal
+/// by placement-by-sign, but physical cash below zero is always a missing entry,
+/// so the account shows a warning. Collection boxes and bank subtypes do not.
+List<String> negativeCashWarnings(LedgerState state, Chart chart) => [
+  for (final a in chart.accounts)
+    if (a.subtype == MoneySubtype.cash && state.balances[a.id].isCredit) a.id,
+];

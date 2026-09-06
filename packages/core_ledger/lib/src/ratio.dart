@@ -6,13 +6,20 @@ import 'money.dart';
 /// **largest ratio**, ties broken by the earliest-created (lowest index).
 /// Deterministic on every device, so a split can never break sum-to-zero or
 /// diverge across the family's phones. [ratios] must be in creation order.
+///
+/// A **negative** total (a loss, ADR 2026-09-05e §8) is split as the exact
+/// mirror of the positive case: the rule is applied to `|total|` and every share
+/// is negated, so the remainder still lands on the largest ratio and the shares
+/// still sum to the total. ⚠️ SPEC: 02 §7.1 states the rule for a positive
+/// amount only; mirroring is the reading under which "the loss is shared by the
+/// mirror posting … same ratio, same remainder rule" holds paisa for paisa.
 List<Paise> splitByRatio(Paise total, List<int> ratios) {
   if (ratios.isEmpty) throw ArgumentError('at least one ratio');
   if (ratios.any((r) => r <= 0)) {
     throw ArgumentError.value(ratios, 'ratios', 'every ratio must be positive');
   }
   if (total.isCredit) {
-    throw ArgumentError.value(total.raw, 'total', 'must not be negative');
+    return [for (final s in splitByRatio(-total, ratios)) -s];
   }
   final sum = ratios.fold<int>(0, (a, b) => a + b);
   final shares = <int>[];

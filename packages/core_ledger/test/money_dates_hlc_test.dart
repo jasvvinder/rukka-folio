@@ -1,10 +1,13 @@
 // Suite A — foundations: integer paise (02 §1.4 rule 2), dates (02 §1.4 rule 6, §8), HLC (03 §1).
+@Tags(['A'])
+library;
+
 import 'package:core_ledger/core_ledger.dart';
 import 'package:test/test.dart';
 
 void main() {
   group('Paise', () {
-    test('is integer arithmetic only', () {
+    test('A-02-25 is integer arithmetic only', () {
       const a = Paise(150);
       const b = Paise(-50);
       expect((a + b).raw, 100);
@@ -16,14 +19,14 @@ void main() {
       expect(b.abs().raw, 50);
     });
 
-    test('side follows sign: + is Dr, − is Cr, zero has no side', () {
+    test('A-02-26 side follows sign: + is Dr, − is Cr, zero has no side', () {
       expect(const Paise(1).side, Side.dr);
       expect(const Paise(-1).side, Side.cr);
       expect(const Paise(0).side, isNull);
       expect(Paise.zero.isZero, isTrue);
     });
 
-    test('compares and sums', () {
+    test('A-02-27 compares and sums', () {
       expect(const Paise(5) < const Paise(7), isTrue);
       expect(const Paise(7) >= const Paise(7), isTrue);
       expect(
@@ -34,19 +37,19 @@ void main() {
   });
 
   group('LocalDate', () {
-    test('parses and prints ISO dates', () {
+    test('A-02-28 parses and prints ISO dates', () {
       final date = LocalDate.parse('2026-04-01');
       expect(date, LocalDate(2026, 4, 1));
       expect(date.toIso(), '2026-04-01');
     });
 
-    test('rejects impossible dates', () {
+    test('A-02-29 rejects impossible dates', () {
       expect(() => LocalDate(2026, 2, 30), throwsArgumentError);
       expect(() => LocalDate(2026, 13, 1), throwsArgumentError);
       expect(LocalDate(2028, 2, 29).day, 29); // leap year
     });
 
-    test('day arithmetic', () {
+    test('A-02-30 day arithmetic', () {
       final a = LocalDate(2026, 4, 8);
       final b = LocalDate(2026, 7, 31);
       expect(a.daysUntil(b), 114);
@@ -56,14 +59,14 @@ void main() {
       expect(a.compareTo(b) < 0, isTrue);
     });
 
-    test('inclusive day count as used by interest on capital', () {
+    test('A-02-31 inclusive day count as used by interest on capital', () {
       // 01 Apr – 31 Jul 2026 is the 122-day season of 02 §7.1.
       expect(LocalDate(2026, 4, 1).daysUntil(LocalDate(2026, 7, 31)) + 1, 122);
     });
   });
 
   group('YearMonth / FinancialYear', () {
-    test('period of a date and its bounds', () {
+    test('A-02-32 period of a date and its bounds', () {
       final ym = LocalDate(2026, 5, 10).yearMonth;
       expect(ym, YearMonth(2026, 5));
       expect(ym.firstDay, LocalDate(2026, 5, 1));
@@ -74,7 +77,7 @@ void main() {
       expect(ym.contains(LocalDate(2026, 6, 1)), isFalse);
     });
 
-    test('financial year defaults to 1 April – 31 March (02 §1.1)', () {
+    test('A-02-33 financial year defaults to 1 April – 31 March (02 §1.1)', () {
       final fy = FinancialYear.of(LocalDate(2026, 4, 1));
       expect(fy.startYear, 2026);
       expect(fy.firstDay, LocalDate(2026, 4, 1));
@@ -87,7 +90,7 @@ void main() {
       expect(fy.months.last, YearMonth(2027, 3));
     });
 
-    test('financial year start month is per book', () {
+    test('A-02-34 financial year start month is per book', () {
       final fy = FinancialYear.of(LocalDate(2026, 2, 1), startMonth: 1);
       expect(fy.startYear, 2026);
       expect(fy.label, '2026');
@@ -96,7 +99,7 @@ void main() {
   });
 
   group('Hlc', () {
-    test('composes 48-bit physical ms and 16-bit counter (03 §1)', () {
+    test('A-03-2 composes 48-bit physical ms and 16-bit counter (03 §1)', () {
       final h = Hlc.compose(physicalMs: 1725000000000, counter: 7);
       expect(h.physicalMs, 1725000000000);
       expect(h.counter, 7);
@@ -106,7 +109,7 @@ void main() {
       );
     });
 
-    test('tick is monotonic with an injected physical clock', () {
+    test('A-03-3 tick is monotonic with an injected physical clock', () {
       final h0 = Hlc.compose(physicalMs: 1000, counter: 0);
       final h1 = h0.tick(physicalMs: 1000); // same ms → counter bumps
       expect(h1.physicalMs, 1000);
@@ -119,7 +122,7 @@ void main() {
       expect(h3.counter, 0);
     });
 
-    test('event order is (hlc, id) — deterministic tiebreak', () {
+    test('A-03-4 event order is (hlc, id) — deterministic tiebreak', () {
       expect(
         compareEventOrder(const Hlc(1), 'b', const Hlc(2), 'a') < 0,
         isTrue,

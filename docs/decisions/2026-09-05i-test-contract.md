@@ -27,7 +27,7 @@ recommendations").
   is annotated milestone by milestone as their tests land); **blocking from M4**. The 05e/05g/05h/05f
   ADRs written today annotate their own rulings from the start.
 
-### 2. CI lanes — what runs when
+### 2. CI lanes — what runs when ⟦tests: n/a — CI configuration; ci.sh LANE is exercised by the lanes themselves⟧
 | Lane | Trigger | Runs |
 |---|---|---|
 | **push** | every push / PR | format · purity · strings · `check_coverage` · `check_contrast` (design ADR) · secret scan (gitleaks) · OSV audit of `pubspec.lock` · bare-`print(` check · suites **A, B, E-client, G** (as they land) · **F1** widget tests · release-define assertions (no pinning-off, no hostile-fixture define in the release lane) |
@@ -67,7 +67,7 @@ quarantined"* asserts immediate `amendTargetMissing` quarantine; 02 §5 + ADR 05
 Skip with `superseded by ADR 2026-09-05b §4; re-lands at M2` and split the kind-check half out so it
 stays green.
 
-### 5. Property tests shrink, or at least reproduce
+### 5. Property tests shrink, or at least reproduce ⟦tests: A-05i-1, A-09-1, A-02-60, A-03-5⟧
 The three seeded loops (`Random(20260904)`, `Random(71)`, `Random(7)`) do not shrink and do not print
 their seed on failure. Rule: adopt a **shrinking property-testing package** (⚠️ candidates to evaluate
 at M2: `glados`, `dart_check`/`propcheck`-class — pick the one still maintained and Flutter-free) for
@@ -84,7 +84,7 @@ every failing seed is checked into `test/regress/seeds.txt` as a permanent regre
 Regression threshold: a nightly p95 more than **15 % worse** than the 7-day median fails the lane.
 ⚠️ App-size budget split between iOS IPA and Android AAB to confirm at M12. 07 §19 item 6 closes.
 
-### 7. Harness, fixtures and hygiene
+### 7. Harness, fixtures and hygiene ⟦tests: D-09-1, D-09-2, D-09-3, D-09-4, D-09-5⟧
 - **`/testing/harness`** (CLAUDE.md layout, created at M2) holds the two-client rig: ≥ 2 simulated
   devices, one server, **deterministic scheduler** driven by a **seeded network-reorder log** so any
   failure replays from its seed. `/testing/fixtures` holds **synthetic** sync/UI fixtures only; the

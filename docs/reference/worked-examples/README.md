@@ -19,7 +19,7 @@ Five entity types, eight books, 185 vouchers, FY 2026-27 (the partnership exampl
 
 ---
 
-## 1. Account-type labels ⇄ engine classes 🔒
+## 1. Account-type labels ⇄ engine classes 🔒 ⟦tests: A-ref-4, A-ref-5⟧
 
 **These documents are written for a bookkeeper, not for the parser.** They use the traditional labels a CA expects to see on a chart of accounts. The engine has seven classes (02 §1.2) and does not know these words. Fixtures must compare on the **class** column, never on the label.
 
@@ -34,13 +34,13 @@ Five entity types, eight books, 185 vouchers, FY 2026-27 (the partnership exampl
 | Equity | `equity_system` | Opening Balance / Capital, Adjustments, Suspense |
 | Interbook | `equity_system` | the `Due to/from {Book}` pairs of 02 §6 |
 
-### Why Debtor and Creditor are one class 🔒
+### Why Debtor and Creditor are one class 🔒 ⟦tests: A-02-10, A-02-12, A-ref-4⟧
 
 02 §1.2 locks **one party, one account, both roles** — placement is **by sign**, so a party that owes you (Dr) shows under *You will get* and the same account showing Cr shows under *You will give*, with no reclassification and no second account. The Debtor/Creditor split in these documents is **presentation only**: each label happens to match that account's sign on the closing date, and would be wrong the moment the balance crossed zero.
 
 This is not cosmetic. It is the same error class the audit errata caught as **E-1** (an account classified as both expense and liability), and 02's single-party model exists precisely so it cannot be entered. A fixture that asserts `type == 'Creditor'` would encode the bug the design removes.
 
-### The credit card 🔒
+### The credit card 🔒 ⟦tests: A-02-16, A-02-21⟧
 
 `PNB Credit Card A/c` is class **`money`, subtype `CC`** — not a party. 02 §1.2 puts cards in `money` (sign flips to liability when overdrawn, exactly like an OD), and 02 §2 verb 5 routes the bill payment as a **Transfer** (`Dr CC · Cr bank`), not a party settlement. The postings are arithmetically identical either way — V-018 and V-019 are correct as written — but the class drives report placement and which verb the entry screen offers, so the engine and the fixture must agree.
 

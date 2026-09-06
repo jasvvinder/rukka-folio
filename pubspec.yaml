@@ -12,8 +12,10 @@ workspace:
   - packages/core_crypto
   - packages/data
   - packages/sync_engine
+  - testing/harness
   - app
 
 # Root-level dev tooling only (scripts/*.dart). Package deps live in each package.
 dev_dependencies:
   lints: ^6.0.0
+  pointycastle: ^4.0.0 # BLAKE2b-256 for scripts/check_coverage.dart golden content_hash (ADR 2026-09-05i §3)

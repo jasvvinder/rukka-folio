@@ -16,9 +16,9 @@ entries. The question was put to the owner as decision A1 and ruled: **the engin
 no-closing-entries rule; the reference is amended, not the engine.** Recorded here so it is never
 re-litigated at the golden freeze.
 
-## Rulings 🔒
+## Rulings 🔒 ⟦tests: n/a — section heading; each ruling below carries its own ids⟧
 
-### 1. The balance formula (02 §9)
+### 1. The balance formula (02 §9) ⟦tests: A-02-35, A-02-39, A-02-45⟧
 `balance(account)` = Σ signed lines of **the head of every accepted amend chain** whose status is
 `posted` or `void`, **excluding** (a) advance requests still `pending` (§7) and (b) late arrivals
 sitting in the closer's tray (§8). A reversed entry and its reversal **both count** — they net to
@@ -26,7 +26,7 @@ zero; excluding `void` entries, as the old wording did, would remove the amount 
 entries count through their head only. `review_state` never affects a balance. The M1 code
 (`projection.dart` `isCounted`) already does this; the spec now says it.
 
-### 2. The certified vector has an as-of rule, and carries balance-sheet accounts only (02 §8.1)
+### 2. The certified vector has an as-of rule, and carries balance-sheet accounts only (02 §8.1) ⟦tests: A-05e-2, A-02-53⟧
 - The year-close vector is the balance of every **money, party, advance, partner and
   equity_system** account restricted to entries whose **`accounting_date` ≤ the FY's last day**,
   regardless of HLC. An entry dated 3 April posted before a 5 April close belongs to the new year.
@@ -41,7 +41,7 @@ entries count through their head only. `review_state` never affects a balance. T
 - 03 §3.3 rule 3 and 05 §8 ("seed from vector, replay open FY") now produce an FY-scoped P&L by
   construction.
 
-### 3. Late arrivals: in the live balance, out of the certified month (02 §3, §8)
+### 3. Late arrivals: in the live balance, out of the certified month (02 §3, §8) ⟦tests: A-02-51⟧
 §3's principle wins: **no recorded reality is excluded from a live balance.** A late arrival counts
 in every live figure the moment it lands. What it does not do is alter a **certified** month: the
 locked month's statements, reports and close hash stay as certified; the tray is the reconciliation
@@ -49,17 +49,17 @@ surface where the closer re-dates it (default) or re-opens the month. Ruling 1's
 applies to *certified* figures only. 02 §8's "absent from all report totals" and §11's test are
 reworded accordingly.
 
-### 4. Close preconditions gain the sync-layer blocks (02 §8 step 3, §8.1)
+### 4. Close preconditions gain the sync-layer blocks (02 §8 step 3, §8.1) ⟦tests: A-05e-1⟧
 A month cannot lock and a year cannot close while the book has **any open author-sequence gap**
 (ADR 2026-09-05b §3) or **any `held` envelope** (ADR 2026-09-05b §4). Nobody certifies a balance
 with entries known to be missing. `yearClosePreconditions` gains both checks at M2.
 
-### 5. Locks are all-time objects (02 §8; 05 §8)
+### 5. Locks are all-time objects (02 §8; 05 §8) ⟦tests: A-02-48, A-02-49⟧
 The validity rule "entry HLC precedes the lock HLC of its period" needs the complete lock history,
 including for cold-archived years. `period_lock` and **`period_unlock`** join `book_config`,
 `account` and `rule` as **all-time** objects in the bootstrap hot set. They are tiny.
 
-### 6. Verb → posting shapes are reader-enforced invariants (02 §1.4, §2)
+### 6. Verb → posting shapes are reader-enforced invariants (02 §1.4, §2) ⟦tests: A-05e-8⟧
 §2's posting table is no longer authoring-only. Each `kind` has a **class-shape invariant** every
 reader re-checks (as the advance shape already is): `money_in` = Dr money · Cr {income | party};
 `money_out` = Dr {expense | party} · Cr money; `gave_credit` = Dr party · Cr {money | income};
@@ -69,13 +69,13 @@ Violation → quarantine `shape_violation`. This closes the last hostile-author 
 kind can no longer corrupt day-books, P&L or ageing while passing sum-to-zero. The optional expert
 Dr/Cr mode (§12 item 5), if ever built, is bound by the same shapes.
 
-### 7. Family Reconciliation across sealed books (02 §6)
+### 7. Family Reconciliation across sealed books (02 §6) ⟦tests: A-05e-10⟧
 A due-to/due-from pair is **reconcilable only when the reader holds both books' keys**. Where one
 side is a personal or sub-family book the reader cannot open (04 §5.2), the report shows that
 book's side as **one-sided · unconfirmed**, never as a mismatch. The check remains the only
 cross-book integrity check; it now says when it cannot run.
 
-### 8. Profit distribution: losses, period, ceiling (02 §7.1)
+### 8. Profit distribution: losses, period, ceiling (02 §7.1) ⟦tests: A-05e-3, A-05e-4, A-05e-5, A-05e-6, A-05e-7⟧
 - **Loss sharing mirrors the profit posting:** `Dr each Partner Current · Cr Profit Distributed`,
   split by the same ratio with the same remainder rule (remainder to the largest ratio), so
   sum-to-zero holds identically. `splitByRatio` accepts a negative total at M2.
@@ -99,12 +99,12 @@ cross-book integrity check; it now says when it cannot run.
   peer and is not the author. The projector stays pure (03 §3.3 rule 5) and self-approval is
   detectable by everyone.
 
-### 10. One word, one state: `held` (02 §5; 03 §3.1; M2)
+### 10. One word, one state: `held` (02 §5; 03 §3.1; M2) ⟦tests: A-02-45, A-02-51⟧
 `held` means **dangling reference awaiting its target** (ADR 2026-09-05b §4) and nothing else. The
 M1 `EffectiveStatus.held` (a late arrival in the closer's tray) is renamed **`inTray`**. The tray
 is a *presentation and certification* state (ruling 3); `held` is a *projection* state.
 
-### 11. Registry and object housekeeping (02 §1.2, §1.3; 03 §2.3)
+### 11. Registry and object housekeeping (02 §1.2, §1.3; 03 §2.3) ⟦tests: A-05b-6⟧
 - `object_type` registry gains **`period_unlock`**, **`structural_approval`** (initiation,
   approval, veto, lapse — one type, a `phase` field) and **`business_setting`** (ratio, interest
   terms, quorum rule, FY start). Recurring entries stay parked (10 § Phase 2).
@@ -114,7 +114,7 @@ is a *presentation and certification* state (ruling 3); `held` is a *projection*
 - The Entry JSON gains `currency` (already locked by §1.4 rule 5), `channel` (§2 prose) and
   `author_seq` (05 §4).
 
-### 12. Smaller rulings
+### 12. Smaller rulings ⟦tests: A-05e-9, A-05e-11⟧
 - **Running-balance order is locked:** statements sort by `(accounting_date, hlc, envelope_id)`;
   identical on every device.
 - **Import duplicate hash** is `(account, date, amount, normalised description, per-file ordinal)`;

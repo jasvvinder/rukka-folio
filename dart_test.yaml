@@ -1,0 +1,36 @@
+# Workspace test configuration — ADR 2026-09-05i §9 (09 §1).
+# Every package includes this file from its own dart_test.yaml (`include: ../../dart_test.yaml`)
+# so one place owns the suite tags, their timeouts and the flaky quarantine.
+#
+# Suite tags (09 §2): A ledger core · B crypto · C auth & devices · D sync · E data & RLS ·
+# F1 widget · G subscription. `property` marks seeded generators (ADR 05i §5), `slow` widens
+# the timeout, `flaky` quarantines a test (ADR 05i §7: nightly only, owner + deadline in the reason).
+#
+# Lanes: the default preset is the push lane. `dart test --preset nightly` re-enables `flaky`.
+tags:
+  A:
+    timeout: 2x
+  B:
+    timeout: 2x
+  C:
+    timeout: 2x
+  D:
+    timeout: 4x
+  E:
+    timeout: 4x
+  F1:
+    timeout: 2x
+  G:
+    timeout: 2x
+  property:
+    timeout: 4x
+  slow:
+    timeout: 10x
+  flaky:
+    skip: "quarantined as flaky (ADR 2026-09-05i §7) — runs in the nightly lane only; the test's own skip reason names owner + deadline"
+
+presets:
+  nightly:
+    tags:
+      flaky:
+        skip: false

@@ -1,4 +1,7 @@
 // Suite A — entry payload shape (02 §1.3) and unknown-field round-trip (03 §3.3.4, CLAUDE.md rule 6).
+@Tags(['A'])
+library;
+
 import 'dart:convert';
 
 import 'package:core_ledger/core_ledger.dart';
@@ -11,7 +14,7 @@ void main() {
   final cash = book.cash('Cash');
   final kirana = book.expense('Kirana');
 
-  test('serialises per 02 §1.3 wire names', () {
+  test('A-02-22 serialises per 02 §1.3 wire names', () {
     final e = book.entry(
       [dr(kirana, rs(250)), cr(cash, rs(250))],
       id: 'e1',
@@ -42,7 +45,7 @@ void main() {
     expect(json.containsKey('refs'), isFalse, reason: 'empty refs are omitted');
   });
 
-  test('round-trips, preserving fields it does not understand', () {
+  test('A-03-1 round-trips, preserving fields it does not understand', () {
     final wire = <String, Object?>{
       'id': 'e2',
       'book_id': 'b1',
@@ -89,7 +92,7 @@ void main() {
     expect(jsonEncode(Entry.fromJson(out).toJson()), jsonEncode(out));
   });
 
-  test('rejects a non-integer amount (02 §1.4 rule 2)', () {
+  test('A-02-23 rejects a non-integer amount (02 §1.4 rule 2)', () {
     final wire = <String, Object?>{
       'id': 'e4',
       'book_id': 'b1',
@@ -108,7 +111,7 @@ void main() {
     expect(() => Entry.fromJson(wire), throwsFormatException);
   });
 
-  test('total is the sum of debits', () {
+  test('A-02-24 total is the sum of debits', () {
     final e = book.entry([
       dr(kirana, rs(300)),
       dr(cash, rs(200)),

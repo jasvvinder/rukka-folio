@@ -7,7 +7,7 @@
 
 ---
 
-## 1. Identifiers, time, and money 🔒
+## 1. Identifiers, time, and money 🔒 ⟦tests: A-03-2, A-03-3, A-03-4, A-02-25, A-02-27, A-02-28, A-02-29, A-02-30, A-02-32⟧
 
 - All object IDs are **client-minted UUIDv7** (time-ordered for index locality; ordering *authority* is still the HLC).
 - **HLC**: 64-bit — 48-bit physical ms + 16-bit logical counter — with `device_id` as the deterministic tiebreak. Stored as `BIGINT` (server) / `INTEGER` (SQLite); never compared across objects except where 02/05 say so (locks, sync cursors).
@@ -137,7 +137,7 @@ RLS on, `FORCE`, for every table above; the API connects as a non-superuser role
 
 ## 3. Client schema (SQLite via Drift, SQLCipher at rest)
 
-### 3.1 Layer 1 — envelope mirror & outbox 🔒
+### 3.1 Layer 1 — envelope mirror & outbox 🔒 ⟦tests: E-03-1, E-03-4, E-03-5, E-03-6, E-03-7, E-05c-1, E-05b-1⟧
 
 ```sql
 envelopes_local(envelope_id pk, book_id, object_id, object_type, key_version,
@@ -160,7 +160,7 @@ key_cache(book_id, key_version, wrapped_blob, primary key (book_id, key_version)
 attachment_cache(id pk, book_id, local_path, state)
 ```
 
-### 3.2 Layer 2 — projections (rebuildable, indexed for the UI) 🔒
+### 3.2 Layer 2 — projections (rebuildable, indexed for the UI) 🔒 ⟦tests: E-03-1, E-03-2, E-03-3, E-03-9⟧
 
 ```sql
 books_p(id pk, tenant_id, type, name, fy_start_month, integrity_ok int)
@@ -197,11 +197,11 @@ daily_snapshots(account_id, date, balance_paise, primary key (account_id, date))
 
 Key indexes: `entry_lines_p(account_id, accounting_date)` (A/C statement, running balance), `entries_p(book_id, accounting_date desc)` (day book), `entries_p(book_id, review_approver) where review_state='open'` (**Inbox** — the approvals queue, 02 §3/07 §9), `entries_p(book_id) where status='pending'` (**advance requests** awaiting approval, 02 §7 — a separate, much smaller queue), `import_lines_p(book_id, state)`.
 
-### 3.3 Projection rules 🔒
+### 3.3 Projection rules 🔒 ⟦tests: A-03-5, A-03-1, E-03-9, E-03-10, E-03-11, E-03-13, E-03-14⟧
 1. Apply only envelopes with `verified = 1` and `quarantined = 0`, in `(hlc, envelope_id)` order per book.
 2. The projector is a **pure, deterministic function** of the ordered envelope stream + certified opening vectors — this is what makes the close-hash verification (02 §8) and *Recompute* possible. No projector step may read the clock, the network, or local settings.
 3. `balances` and `daily_snapshots` update transactionally with each applied entry; a full rebuild seeds from the latest `year_close_p` vector (02 §8.1) then replays the open FY.
-4. **Unknown-field round-trip 🔒:** payloads are JSON; clients must preserve fields they don't understand when amending an object (older app editing an entry created by a newer app must not strip new fields). `payload_schema` gates *interpretation*, never storage.
+4. **Unknown-field round-trip 🔒:** payloads are JSON; clients must preserve fields they don't understand when amending an object (older app editing an entry created by a newer app must not strip new fields). `payload_schema` gates *interpretation*, never storage. ⟦tests: A-03-1, E-03-8⟧
 5. **`review_state` folds from envelopes only 🔒 (the peer reviewer lives in the `book_config` envelope, ADR 2026-09-05e §9):** `auto_post_limit_paise` lives in `book_roles` — **plaintext server metadata, not an envelope** — so the projector may never read it (rule 2). The *authoring* client evaluates the limit at save time and writes the boolean `review_required` into the entry payload (02 §1.3); the projector then sets `review_state = 'open'` iff `review_required` and no decision has arrived, and folds any `approval_decision` envelopes for that entry in `(hlc, envelope_id)` order, last one winning, to `approved` or `rejected`. This keeps the projection a pure function of the envelope stream, so two devices with different cached role metadata still compute an identical close-hash (02 §8). A hostile client that sets `review_required=false` on an over-limit entry is caught by readers the same way any invariant violation is (02 preamble) — the limit is *also* carried in the payload for that check.
 
 ---
@@ -220,7 +220,7 @@ Key indexes: `entry_lines_p(account_id, accounting_date)` (A/C statement, runnin
 
 ---
 
-## 5. Migrations & versioning 🔒
+## 5. Migrations & versioning 🔒 ⟦tests: E-03-12⟧
 
 - Server: forward-only SQL migrations, numbered, applied by CI; `payload_schema` registry lives with them.
 - Client: Drift schema versions with tested upgrade paths from every shipped version; a failed migration must fail *closed* (app blocks with support screen) — never run on a half-migrated ledger.

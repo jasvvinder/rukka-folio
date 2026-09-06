@@ -297,15 +297,21 @@ abstract final class Verbs {
   /// Profit distribution — **one multi-line entry**: `Dr Profit Distributed · Cr each
   /// Partner Current` (02 §7.1). Interest on capital, when enabled, is credited
   /// first (tagged `interest`, negative = charged on a debit balance), then the
-  /// **remaining** profit splits by the agreed ratio under the rounding rule
+  /// **remaining** figure splits by the agreed ratio under the rounding rule
   /// (tagged `share`). Moves no cash. [partners] must be in creation order.
+  ///
+  /// A **loss** (negative [netProfit]) posts the mirror, `Dr each Partner
+  /// Current · Cr Profit Distributed`, same ratio, same remainder rule (ADR
+  /// 2026-09-05e §8). Interest exceeding profit is still credited in full — it
+  /// is a contractual appropriation — and the negative remainder is shared as a
+  /// loss; the preview shows both lines.
   static List<Line> profitDistribution({
     required Account profitDistributed,
     required List<PartnerShare> partners,
     required Paise netProfit,
     Map<String, Paise> interest = const {},
   }) {
-    _positive(netProfit);
+    _nonZero(netProfit);
     _role(profitDistributed, 'profitDistributed', SystemRole.profitDistributed);
     if (partners.isEmpty) throw ArgumentError('at least one partner');
     for (final p in partners) {
@@ -322,11 +328,6 @@ abstract final class Verbs {
       );
     }
     final remaining = netProfit - interestTotal;
-    if (remaining.isCredit) {
-      throw ArgumentError(
-        'interest ${interestTotal.raw} exceeds net profit ${netProfit.raw}',
-      );
-    }
     final shares = remaining.isZero
         ? List.filled(partners.length, Paise.zero)
         : splitByRatio(remaining, [for (final p in partners) p.ratio]);

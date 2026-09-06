@@ -1,3 +1,6 @@
+@Tags(['F1'])
+library;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/main.dart';
@@ -12,7 +15,7 @@ void main() {
   };
 
   for (final entry in expected.entries) {
-    testWidgets('renders in ${entry.key}', (tester) async {
+    testWidgets('F1-10-1 renders in ${entry.key}', (tester) async {
       await tester.pumpWidget(RukkaFolioApp(locale: Locale(entry.key)));
       await tester.pumpAndSettle();
       expect(find.text('Rukka Folio'), findsOneWidget);

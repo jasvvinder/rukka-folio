@@ -22,7 +22,7 @@ Every transaction is a set of journal lines summing to zero. A standalone entry 
 | Equity | Internal claim (own class) | **Cr** | − | + | Capital, Opening Balance, Drawings (contra) |
 | Income | P&L | **Cr** | − | + | Salary Income, Sales, Donation Income |
 
-### 1.3 What Dr and Cr *mean*, per account type 🔒
+### 1.3 What Dr and Cr *mean*, per account type 🔒 ⟦tests: A-02-26, A-ref-4⟧
 Ledger columns never say bare "Dr/Cr" — each account type carries its contextual meaning in the column header, exactly as used in every ledger image below:
 
 | Account type | Debit (Dr.) means | Credit (Cr.) means | Balance side reads as |
@@ -36,7 +36,7 @@ Ledger columns never say bare "Dr/Cr" — each account type carries its contextu
 | Equity / Capital | *Withdrawn (drawings)* | *Added (capital in)* | Cr = own money in the books |
 | Due to/from {Book} | *That book owes this one* | *This book owes that one* | Sign shows direction |
 
-### 1.3.1 Why classification, not direction, decides Dr/Cr 🔒
+### 1.3.1 Why classification, not direction, decides Dr/Cr 🔒 ⟦tests: A-02-26⟧
 Debit and credit follow the **account's class**, never the direction in which money appears to travel. Prepositional shortcuts ("from = credit, to = debit") hold for simple two-party transfers and fail for revenue, liabilities, equity and adjustments. The engine therefore derives every posting from the verb plus the classification matrix (§1.1), and the UI's entry preview (07 §5.5) uses a neutral arrow that states flow without asserting a rule.
 
 **Modern frame — DEAD CLIC:** **D**ebit increases **E**xpenses, **A**ssets, **D**rawings · **C**redit increases **L**iabilities, **I**ncome, **C**apital.
@@ -52,7 +52,7 @@ The bank's SMS says "credited" because in *the bank's* ledger your deposit is it
 ### 1.6 Rukka Folio mapping
 Classes: `money` + `party` + `advance` ↔ Asset/Liability **resolved by sign** (02 §1.2) · categories ↔ Expense/Income · `equity_system` ↔ Equity. The six entry verbs (02 §2) generate every posting in this document; the user never chooses Dr/Cr.
 
-## 2. Ledger presentation standard 🔒 (used in all images below)
+## 2. Ledger presentation standard 🔒 (used in all images below) ⟦tests: A-ref-4, A-02-37⟧
 Columns: **Date · Particulars (counter-account: "To …" on the debit side, "By …" on the credit side) · Debit (Dr.) [contextual] · Credit (Cr.) [contextual] · Balance · Side (Dr./Cr. on every row)**. Dated *Opening balance b/f* (period's first day) and *Closing balance c/f* (day forwarded) rows. Professional surfaces show absolute values + side, never a minus sign.
 
 ---

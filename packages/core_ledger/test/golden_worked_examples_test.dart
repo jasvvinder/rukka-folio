@@ -10,12 +10,19 @@
 // ⚠️ The documents are pending bookkeeper sign-off; until then this test is the
 // engine's proof against the reference as it stands. Test code may read files —
 // the purity rule (CLAUDE.md rule 3) binds lib/, not test/.
+@Tags(['A'])
+library;
+
 import 'dart:io';
 
 import 'package:core_ledger/core_ledger.dart';
 import 'package:test/test.dart';
 
-const _dir = '../../docs/reference/worked-examples';
+import 'helpers.dart' show workspaceRoot;
+
+// Resolved from the repository root so `dart test` passes from the package or the
+// workspace root (ADR 2026-09-05i §9).
+final _dir = '${workspaceRoot()}/docs/reference/worked-examples';
 const _files = [
   'individual-rahul-sharma.md',
   'business-sharma-textile.md',
@@ -30,7 +37,7 @@ void main() {
     books.addAll(parseFixtureFile(File('$_dir/$f').readAsStringSync(), f));
   }
 
-  test('the package holds eight books and 185 vouchers', () {
+  test('A-ref-1 the package holds eight books and 185 vouchers', () {
     expect(books.length, 8);
     expect(books.fold<int>(0, (n, b) => n + b.vouchers.length), 185);
   });
@@ -45,67 +52,73 @@ void main() {
         replayed[fixture.title] = r;
       });
 
-      test('nothing is quarantined', () {
+      test('A-ref-2 nothing is quarantined', () {
         expect(r.state.quarantined, isEmpty);
       });
 
-      test('Opening Balance / Capital absorbs the openings exactly', () {
-        final ob = fixture.accounts.singleWhere((a) => a.isOpeningBalance);
-        expect(r.state.balances[r.ids[ob.name]!], ob.opening);
-      });
+      test(
+        'A-ref-3 Opening Balance / Capital absorbs the openings exactly',
+        () {
+          final ob = fixture.accounts.singleWhere((a) => a.isOpeningBalance);
+          expect(r.state.balances[r.ids[ob.name]!], ob.opening);
+        },
+      );
 
-      test('every ledger row: running balance and side; closing c/f', () {
-        for (final ledger in fixture.ledgers) {
-          final id = r.ids[ledger.account];
-          expect(
-            id,
-            isNotNull,
-            reason: 'ledger "${ledger.account}" is not in the chart',
-          );
-          // 02 §4 posts openings as adjustments dated 1 April; the ledger image shows them
-          // as the b/f row, not as vouchers — so they are stripped before the row compare.
-          final rows = statement(
-            r.state,
-            id!,
-          ).where((row) => !row.entryId.startsWith('open:')).toList();
-          expect(
-            rows.length,
-            ledger.rows.length,
-            reason: '${ledger.account}: row count',
-          );
-          for (var i = 0; i < rows.length; i++) {
-            final want = ledger.rows[i];
-            final got = rows[i];
+      test(
+        'A-ref-4 every ledger row: running balance and side; closing c/f',
+        () {
+          for (final ledger in fixture.ledgers) {
+            final id = r.ids[ledger.account];
             expect(
-              got.entryId,
-              r.voucherEntryIds[want.voucher],
-              reason: '${ledger.account} row $i voucher',
+              id,
+              isNotNull,
+              reason: 'ledger "${ledger.account}" is not in the chart',
             );
+            // 02 §4 posts openings as adjustments dated 1 April; the ledger image shows them
+            // as the b/f row, not as vouchers — so they are stripped before the row compare.
+            final rows = statement(
+              r.state,
+              id!,
+            ).where((row) => !row.entryId.startsWith('open:')).toList();
             expect(
-              got.dr ?? Paise.zero,
-              want.dr,
-              reason: '${ledger.account} row $i (${want.voucher}) Dr',
+              rows.length,
+              ledger.rows.length,
+              reason: '${ledger.account}: row count',
             );
+            for (var i = 0; i < rows.length; i++) {
+              final want = ledger.rows[i];
+              final got = rows[i];
+              expect(
+                got.entryId,
+                r.voucherEntryIds[want.voucher],
+                reason: '${ledger.account} row $i voucher',
+              );
+              expect(
+                got.dr ?? Paise.zero,
+                want.dr,
+                reason: '${ledger.account} row $i (${want.voucher}) Dr',
+              );
+              expect(
+                got.cr ?? Paise.zero,
+                want.cr,
+                reason: '${ledger.account} row $i (${want.voucher}) Cr',
+              );
+              expect(
+                got.running,
+                want.running,
+                reason: '${ledger.account} row $i (${want.voucher}) running',
+              );
+            }
             expect(
-              got.cr ?? Paise.zero,
-              want.cr,
-              reason: '${ledger.account} row $i (${want.voucher}) Cr',
-            );
-            expect(
-              got.running,
-              want.running,
-              reason: '${ledger.account} row $i (${want.voucher}) running',
+              r.state.balances[id],
+              ledger.closing,
+              reason: '${ledger.account} closing c/f',
             );
           }
-          expect(
-            r.state.balances[id],
-            ledger.closing,
-            reason: '${ledger.account} closing c/f',
-          );
-        }
-      });
+        },
+      );
 
-      test('trial balance rows and totals', () {
+      test('A-ref-5 trial balance rows and totals', () {
         final tb = trialBalance(r.state, r.chart);
         final got = {
           for (final row in tb.rows)
@@ -127,7 +140,7 @@ void main() {
     });
   }
 
-  test('Family Reconciliation: the three pairs present in the package net to zero (02 §6)', () {
+  test('A-ref-6 Family Reconciliation: the three pairs present in the package net to zero (02 §6)', () {
     ReplayedBook byTitle(String needle) =>
         replayed.values.singleWhere((b) => b.title.contains(needle));
     final joint = byTitle('Sharma Joint Family Book');
@@ -170,17 +183,20 @@ void main() {
     );
   });
 
-  test('every voucher is one entry that passes the universal invariants', () {
-    for (final r in replayed.values) {
-      for (final e in r.entries) {
-        expect(
-          checkUniversalInvariants(e, r.chart),
-          isEmpty,
-          reason: '${r.title} ${e.id}',
-        );
+  test(
+    'A-ref-7 every voucher is one entry that passes the universal invariants',
+    () {
+      for (final r in replayed.values) {
+        for (final e in r.entries) {
+          expect(
+            checkUniversalInvariants(e, r.chart),
+            isEmpty,
+            reason: '${r.title} ${e.id}',
+          );
+        }
       }
-    }
-  });
+    },
+  );
 }
 
 // ─── replay ──────────────────────────────────────────────────────────────────
@@ -282,17 +298,16 @@ ReplayedBook replay(FixtureBook fixture) {
       for (final row in rows)
         Line(accountId: ids[row.cr]!, amount: -row.amount),
     ];
-    // Kind is presentation for the fixture (balances never depend on it); infer loosely.
-    final drClass = chart.account(ids[rows.first.dr]!).accountClass;
-    final crClass = chart.account(ids[rows.first.cr]!).accountClass;
-    final kind = switch ((drClass, crClass)) {
-      (AccountClass.money, AccountClass.money) => EntryKind.transfer,
-      (AccountClass.money, _) => EntryKind.moneyIn,
-      (_, AccountClass.money) => EntryKind.moneyOut,
-      (AccountClass.party, _) => EntryKind.gaveCredit,
-      (_, AccountClass.party) => EntryKind.tookCredit,
-      _ => EntryKind.adjustment,
+    // Kind is presentation for the fixture (balances never depend on it), but it
+    // must fit the 02 §2 class shape the reader enforces (ADR 2026-09-05e §6), so
+    // it is inferred from the classes on both sides of the voucher.
+    final drClasses = {
+      for (final r in rows) chart.account(ids[r.dr]!).accountClass,
     };
+    final crClasses = {
+      for (final r in rows) chart.account(ids[r.cr]!).accountClass,
+    };
+    final kind = _inferKind(drClasses, crClasses);
     final e = make(voucher, rows.first.date, kind, lines);
     entries.add(e);
     voucherEntryIds[voucher] = e.id;
@@ -308,6 +323,42 @@ ReplayedBook replay(FixtureBook fixture) {
     voucherEntryIds,
     entries,
   );
+}
+
+/// The 02 §2 verb whose class shape the voucher fits; `adjustment` otherwise
+/// (capital introduced, drawings, corpus — one equity_system counter-account).
+EntryKind _inferKind(Set<AccountClass> dr, Set<AccountClass> cr) {
+  const partyLike = {AccountClass.party, AccountClass.partner};
+  bool only(Set<AccountClass> xs, Set<AccountClass> allowed) =>
+      xs.every(allowed.contains);
+  if (only(dr, {AccountClass.money}) && only(cr, {AccountClass.money})) {
+    return EntryKind.transfer;
+  }
+  if (only(dr, {AccountClass.money}) &&
+      only(cr, {
+        AccountClass.categoryIncome,
+        ...partyLike,
+        AccountClass.advance,
+      })) {
+    return EntryKind.moneyIn;
+  }
+  if (only(cr, {AccountClass.money, AccountClass.advance}) &&
+      only(dr, {
+        AccountClass.categoryExpense,
+        ...partyLike,
+        AccountClass.advance,
+      })) {
+    return EntryKind.moneyOut;
+  }
+  if (only(dr, partyLike) &&
+      only(cr, {AccountClass.money, AccountClass.categoryIncome})) {
+    return EntryKind.gaveCredit;
+  }
+  if (only(cr, partyLike) &&
+      only(dr, {AccountClass.money, AccountClass.categoryExpense})) {
+    return EntryKind.tookCredit;
+  }
+  return EntryKind.adjustment;
 }
 
 // ─── fixture model ───────────────────────────────────────────────────────────

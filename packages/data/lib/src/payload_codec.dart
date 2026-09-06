@@ -1,0 +1,427 @@
+// Payload boundary: opening blobs (injected — core_crypto is M3) and decoding
+// the JSON object inside into `core_ledger` events, accounts and book configs.
+//
+// ⚠️ SPEC: 02 §1.3 fixes the Entry wire shape; 03 §2.3 names the other object
+// types but no spec enumerates their JSON fields yet. The shapes below are the
+// M2 interpretation (snake_case, ids as strings, money as integer paise, dates
+// ISO, periods `YYYY-MM`). Unknown fields are never dropped by this layer: the
+// blob in `envelopes_local` is the stored truth and is never rewritten.
+import 'dart:convert';
+import 'dart:typed_data';
+
+import 'package:core_ledger/core_ledger.dart';
+
+/// Hash of a blob, as stored in `envelopes_local.blob_hash` (ADR 05c §2).
+/// Injected: `core_crypto` supplies BLAKE2b at M3; tests inject a toy hash.
+typedef BlobHasher = Uint8List Function(Uint8List blob);
+
+/// Opens (decrypts, verifies, unwraps) an envelope blob into the object JSON.
+/// The real opener lands with `core_crypto` (M3); [JsonPayloadOpener] serves
+/// tests and the pre-M3 development loop.
+abstract interface class PayloadOpener {
+  /// Returns the object payload as JSON. Throws on any failure — the caller
+  /// quarantines the envelope with the reason.
+  Map<String, Object?> open(
+    Uint8List blob, {
+    required String objectType,
+    required int keyVersion,
+  });
+}
+
+/// Blob = UTF-8 JSON of the object. No cryptography — tests only.
+final class JsonPayloadOpener implements PayloadOpener {
+  /// Creates the opener.
+  const JsonPayloadOpener();
+
+  @override
+  Map<String, Object?> open(
+    Uint8List blob, {
+    required String objectType,
+    required int keyVersion,
+  }) {
+    final decoded = jsonDecode(utf8.decode(blob));
+    if (decoded is! Map<String, Object?>) {
+      throw const FormatException('payload is not a JSON object');
+    }
+    return decoded;
+  }
+}
+
+/// Encodes an object payload the way [JsonPayloadOpener] reads it.
+Uint8List encodeJsonPayload(Map<String, Object?> payload) =>
+    Uint8List.fromList(utf8.encode(jsonEncode(payload)));
+
+/// A book's configuration envelope (`book_config`, 03 §2.3): what `books_p`
+/// is projected from.
+final class BookConfig {
+  /// Creates a config.
+  const BookConfig({
+    required this.id,
+    required this.tenantId,
+    required this.type,
+    required this.name,
+    this.fyStartMonth = 4,
+    this.extra = const {},
+  });
+
+  /// Reads the wire form, keeping unknown fields in [extra].
+  factory BookConfig.fromJson(Map<String, Object?> json) {
+    const known = {'id', 'tenant_id', 'type', 'name', 'fy_start_month'};
+    return BookConfig(
+      id: json['id'] as String,
+      tenantId: json['tenant_id'] as String,
+      type: BookType.values.byName(json['type'] as String),
+      name: json['name'] as String,
+      fyStartMonth: json['fy_start_month'] as int? ?? 4,
+      extra: Map.unmodifiable(
+        Map<String, Object?>.of(json)..removeWhere((k, _) => known.contains(k)),
+      ),
+    );
+  }
+
+  /// Book id.
+  final String id;
+
+  /// Tenant.
+  final String tenantId;
+
+  /// Book type.
+  final BookType type;
+
+  /// Name.
+  final String name;
+
+  /// FY start month (02 §1.1).
+  final int fyStartMonth;
+
+  /// Fields this client did not understand.
+  final Map<String, Object?> extra;
+
+  /// Wire form, unknown fields written back.
+  Map<String, Object?> toJson() => {
+    'id': id,
+    'tenant_id': tenantId,
+    'type': type.name,
+    'name': name,
+    'fy_start_month': fyStartMonth,
+    ...extra,
+  };
+}
+
+/// Wire names for [AccountClass] (02 §1.2).
+const accountClassWire = {
+  AccountClass.money: 'money',
+  AccountClass.party: 'party',
+  AccountClass.advance: 'advance',
+  AccountClass.partner: 'partner',
+  AccountClass.categoryIncome: 'category_income',
+  AccountClass.categoryExpense: 'category_expense',
+  AccountClass.equitySystem: 'equity_system',
+};
+
+/// Wire names for [MoneySubtype] (03 §3.2 comment).
+const moneySubtypeWire = {
+  MoneySubtype.cash: 'cash',
+  MoneySubtype.cashCollection: 'cash_collection',
+  MoneySubtype.saving: 'saving',
+  MoneySubtype.current: 'current',
+  MoneySubtype.od: 'od',
+  MoneySubtype.cc: 'cc',
+  MoneySubtype.loan: 'loan',
+  MoneySubtype.wallet: 'wallet',
+};
+
+/// Wire names for [SystemRole].
+const systemRoleWire = {
+  SystemRole.openingBalance: 'opening_balance',
+  SystemRole.adjustments: 'adjustments',
+  SystemRole.suspense: 'suspense',
+  SystemRole.dueToFrom: 'due_to_from',
+  SystemRole.profitDistributed: 'profit_distributed',
+  SystemRole.drawings: 'drawings',
+};
+
+T _byWire<T>(Map<T, String> table, String wire, String what) => table.entries
+    .firstWhere(
+      (e) => e.value == wire,
+      orElse: () => throw FormatException('unknown $what', wire),
+    )
+    .key;
+
+/// An `account` payload (02 §1.2) as [Account] plus the projection-only fields.
+final class AccountPayload {
+  /// Creates the decoded payload.
+  const AccountPayload(
+    this.account, {
+    this.collectionIncomeAccountId,
+    this.usualCategoryId,
+    this.archived = false,
+  });
+
+  /// Reads the wire form.
+  factory AccountPayload.fromJson(Map<String, Object?> json) {
+    final subtype = json['money_subtype'] as String?;
+    final role = json['system_role'] as String?;
+    return AccountPayload(
+      Account(
+        id: json['id'] as String,
+        bookId: json['book_id'] as String,
+        name: json['name'] as String,
+        accountClass: _byWire(
+          accountClassWire,
+          json['class'] as String,
+          'account class',
+        ),
+        subtype: subtype == null
+            ? null
+            : _byWire(moneySubtypeWire, subtype, 'money subtype'),
+        systemRole: role == null
+            ? null
+            : _byWire(systemRoleWire, role, 'system role'),
+        memberId: json['member_id'] as String?,
+        counterpartBookId: json['counterpart_book_id'] as String?,
+        createdOrder: json['created_order'] as int,
+      ),
+      collectionIncomeAccountId:
+          json['collection_income_account_id'] as String?,
+      usualCategoryId: json['usual_category_id'] as String?,
+      archived: json['archived'] as bool? ?? false,
+    );
+  }
+
+  /// The engine account.
+  final Account account;
+
+  /// Where a collection count posts income (02 §8.2).
+  final String? collectionIncomeAccountId;
+
+  /// Quick-entry default.
+  final String? usualCategoryId;
+
+  /// Archived flag.
+  final bool archived;
+
+  /// Wire form.
+  Map<String, Object?> toJson() => {
+    'id': account.id,
+    'book_id': account.bookId,
+    'name': account.name,
+    'class': accountClassWire[account.accountClass],
+    if (account.subtype != null)
+      'money_subtype': moneySubtypeWire[account.subtype],
+    if (account.systemRole != null)
+      'system_role': systemRoleWire[account.systemRole],
+    if (account.memberId != null) 'member_id': account.memberId,
+    if (account.counterpartBookId != null)
+      'counterpart_book_id': account.counterpartBookId,
+    'created_order': account.createdOrder,
+    if (collectionIncomeAccountId != null)
+      'collection_income_account_id': collectionIncomeAccountId,
+    if (usualCategoryId != null) 'usual_category_id': usualCategoryId,
+    if (archived) 'archived': true,
+  };
+}
+
+/// Object types the projector consumes (03 §2.3 registry). Everything else is
+/// stored, counted for integrity, and ignored by Recompute at M2.
+const projectedObjectTypes = {
+  'entry',
+  'approval_decision',
+  'period_lock',
+  'period_unlock',
+  'year_close',
+  'cash_count',
+};
+
+/// Decodes a projector event, or returns null for object types the projector
+/// does not consume (`account`, `book_config`, `rule`, `import_*`, …).
+///
+/// [authorDevice] / [authorSeq] are the mirror row's columns (03 §3.1) — the
+/// plaintext mirror of the `author_seq` that travels inside the ciphertext
+/// (ADR 2026-09-05b §3). Non-entry events carry them from here; an entry keeps
+/// its own `author_seq` from the JSON and falls back to the row's when absent.
+/// `period_lock` / `year_close` carry `projector_version` (ADR 2026-09-05c §3).
+LedgerEvent? decodeEvent(
+  String objectType,
+  Map<String, Object?> json, {
+  String? authorDevice,
+  int? authorSeq,
+}) {
+  switch (objectType) {
+    case 'entry':
+      final e = Entry.fromJson(json);
+      return e.authorSeq == null && authorSeq != null
+          ? e.copyWith(authorSeq: authorSeq)
+          : e;
+    case 'approval_decision':
+      return ApprovalDecision(
+        id: json['id'] as String,
+        bookId: json['book_id'] as String,
+        entryId: json['entry_id'] as String,
+        decision: Decision.values.byName(json['decision'] as String),
+        byUser: json['by_user'] as String,
+        hlc: Hlc(json['hlc'] as int),
+        reason: json['reason'] as String?,
+        authorDevice: authorDevice,
+        authorSeq: authorSeq,
+      );
+    case 'period_lock':
+      final declared = json['declared_balances'] as Map<String, Object?>?;
+      return PeriodLock(
+        id: json['id'] as String,
+        bookId: json['book_id'] as String,
+        period: _yearMonth(json['period'] as String),
+        byUser: json['by_user'] as String,
+        hlc: Hlc(json['hlc'] as int),
+        declaredBalances: declared == null
+            ? null
+            : {for (final e in declared.entries) e.key: Paise(e.value as int)},
+        vectorCanonical: json['vector_canonical'] as String?,
+        projectorVersion: json['projector_version'] as int?,
+        authorDevice: authorDevice,
+        authorSeq: authorSeq,
+      );
+    case 'period_unlock':
+      return PeriodUnlock(
+        id: json['id'] as String,
+        bookId: json['book_id'] as String,
+        period: _yearMonth(json['period'] as String),
+        byUser: json['by_user'] as String,
+        reason: json['reason'] as String,
+        hlc: Hlc(json['hlc'] as int),
+        authorDevice: authorDevice,
+        authorSeq: authorSeq,
+      );
+    case 'year_close':
+      final vector = json['vector'] as Map<String, Object?>;
+      return YearClose(
+        id: json['id'] as String,
+        bookId: json['book_id'] as String,
+        financialYear: FinancialYear(
+          json['fy_start_year'] as int,
+          startMonth: json['fy_start_month'] as int? ?? 4,
+        ),
+        vector: BalanceVector({
+          for (final e in vector.entries) e.key: Paise(e.value as int),
+        }),
+        byUser: json['by_user'] as String,
+        hlc: Hlc(json['hlc'] as int),
+        projectorVersion: json['projector_version'] as int?,
+        authorDevice: authorDevice,
+        authorSeq: authorSeq,
+      );
+    case 'cash_count':
+      final sheet = json['sheet'] as Map<String, Object?>?;
+      return CashCount(
+        id: json['id'] as String,
+        bookId: json['book_id'] as String,
+        accountId: json['account_id'] as String,
+        date: LocalDate.parse(json['date'] as String),
+        counted: Paise(json['counted_paise'] as int),
+        hlc: Hlc(json['hlc'] as int),
+        authorDevice: authorDevice,
+        authorSeq: authorSeq,
+        sheet: sheet == null
+            ? null
+            : DenominationSheet(
+                notes: {
+                  for (final e
+                      in (sheet['notes'] as Map<String, Object?>? ?? const {})
+                          .entries)
+                    int.parse(e.key): e.value as int,
+                },
+                coinsPaise: Paise(sheet['coins_paise'] as int? ?? 0),
+              ),
+        countedBy: json['counted_by'] as String?,
+        witness: json['witness'] as String?,
+      );
+    default:
+      return null;
+  }
+}
+
+/// The wire form of a projector event — the inverse of [decodeEvent], used by
+/// tests and by authoring code until `core_ledger` grows `toJson` on events.
+Map<String, Object?> encodeEvent(LedgerEvent event) => switch (event) {
+  Entry() => event.toJson(),
+  ApprovalDecision() => {
+    'id': event.id,
+    'book_id': event.bookId,
+    'entry_id': event.entryId,
+    'decision': event.decision.name,
+    'by_user': event.byUser,
+    'hlc': event.hlc.raw,
+    if (event.reason != null) 'reason': event.reason,
+  },
+  PeriodLock() => {
+    'id': event.id,
+    'book_id': event.bookId,
+    'period': event.period.toString(),
+    'by_user': event.byUser,
+    'hlc': event.hlc.raw,
+    if (event.declaredBalances != null)
+      'declared_balances': {
+        for (final e in event.declaredBalances!.entries) e.key: e.value.raw,
+      },
+    if (event.vectorCanonical != null)
+      'vector_canonical': event.vectorCanonical,
+    if (event.projectorVersion != null)
+      'projector_version': event.projectorVersion,
+  },
+  PeriodUnlock() => {
+    'id': event.id,
+    'book_id': event.bookId,
+    'period': event.period.toString(),
+    'by_user': event.byUser,
+    'reason': event.reason,
+    'hlc': event.hlc.raw,
+  },
+  YearClose() => {
+    'id': event.id,
+    'book_id': event.bookId,
+    'fy_start_year': event.financialYear.startYear,
+    'fy_start_month': event.financialYear.startMonth,
+    'vector': {
+      for (final e in event.vector.nonZero.entries) e.key: e.value.raw,
+    },
+    'by_user': event.byUser,
+    'hlc': event.hlc.raw,
+    if (event.projectorVersion != null)
+      'projector_version': event.projectorVersion,
+  },
+  CashCount() => {
+    'id': event.id,
+    'book_id': event.bookId,
+    'account_id': event.accountId,
+    'date': event.date.toIso(),
+    'counted_paise': event.counted.raw,
+    'hlc': event.hlc.raw,
+    if (event.sheet != null)
+      'sheet': {
+        'notes': {
+          for (final e in event.sheet!.notes.entries) '${e.key}': e.value,
+        },
+        'coins_paise': event.sheet!.coinsPaise.raw,
+      },
+    if (event.countedBy != null) 'counted_by': event.countedBy,
+    if (event.witness != null) 'witness': event.witness,
+  },
+  _ => throw ArgumentError.value(event, 'event', 'unknown event type'),
+};
+
+/// The `object_type` registry value for a projector event.
+String objectTypeOf(LedgerEvent event) => switch (event) {
+  Entry() => 'entry',
+  ApprovalDecision() => 'approval_decision',
+  PeriodLock() => 'period_lock',
+  PeriodUnlock() => 'period_unlock',
+  YearClose() => 'year_close',
+  CashCount() => 'cash_count',
+  _ => throw ArgumentError.value(event, 'event', 'unknown event type'),
+};
+
+YearMonth _yearMonth(String s) {
+  final parts = s.split('-');
+  if (parts.length != 2) throw FormatException('period must be YYYY-MM', s);
+  return YearMonth(int.parse(parts[0]), int.parse(parts[1]));
+}

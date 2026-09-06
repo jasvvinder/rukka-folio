@@ -2,7 +2,7 @@
 
 You are building **Rukka Folio** — a zero-knowledge, offline-first ledger app for individuals, joint families, and their businesses. The `/docs` folder is the source of truth; **when code and docs disagree, the docs win** — fix the code or PR the doc in the same commit. Lines marked 🔒 in docs are owner-locked: never change behavior they specify without asking.
 
-## Precedence 🔒 (when two documents disagree)
+## Precedence 🔒 (when two documents disagree) ⟦tests: n/a — precedence rule, not behaviour⟧
 
 `docs/` is not flat. Resolve conflicts in this order, highest first:
 
@@ -29,7 +29,7 @@ If two sources at the same level genuinely conflict, stop and ask — leave a `�
 ```
 Trunk-based on protected `main`; tags at milestone exits (`m1-ledger-core`); secrets only in CI secrets + local `.env` (never committed).
 
-## Accounting authority 🔒
+## Accounting authority 🔒 ⟦tests: A-ref-1, A-ref-2, A-ref-3, A-ref-4, A-ref-5, A-ref-6, A-ref-7⟧
 `docs/reference/financial-accounting-standards.md` + `docs/reference/worked-examples/` (five entity types, eight books, 185 vouchers, machine-verified trial balances) are the **behavioural reference for the ledger engine**. When 02 and the worked examples appear to disagree, stop and ask — do not guess. On bookkeeper sign-off these examples become golden fixtures: the engine must reproduce every ledger and trial balance exactly (09, suite A).
 
 ## Non-negotiable rules

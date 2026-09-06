@@ -31,3 +31,13 @@ export 'src/verbs.dart';
 
 /// Package identity used by the M0 hello-world gate.
 const String packageName = 'core_ledger';
+
+/// The projector's result-affecting version (ADR 2026-09-05c §3; 03 §5).
+/// Recorded in every `period_lock` and `year_close` envelope beside the
+/// vector hash. Bump it — together with the minimum client version — for any
+/// change that can alter a result for an existing envelope set; the golden
+/// replay (09 suite A) is the proof either way.
+///
+/// History: 1 = M1 · 2 = M2 (ADR 2026-09-05e: certified vector as-of
+/// `accounting_date`, balance-sheet accounts only; dangling refs `held`).
+const int projectorVersion = 2;

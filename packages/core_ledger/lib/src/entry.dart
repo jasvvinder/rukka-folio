@@ -235,6 +235,7 @@ final class Entry implements LedgerEvent {
     this.attachmentIds = const [],
     this.refs = const EntryRefs(),
     this.currency = 'INR',
+    this.authorSeq,
     this.extra = const {},
   });
 
@@ -248,6 +249,10 @@ final class Entry implements LedgerEvent {
     }
     final hlc = json['hlc'];
     if (hlc is! int) throw FormatException('hlc must be an integer', hlc);
+    final seq = json['author_seq'];
+    if (seq != null && (seq is! int || seq < 1)) {
+      throw FormatException('author_seq must be a positive integer', seq);
+    }
     return Entry(
       id: json['id'] as String,
       bookId: json['book_id'] as String,
@@ -276,6 +281,7 @@ final class Entry implements LedgerEvent {
       createdByDevice: json['created_by_device'] as String,
       hlc: Hlc(hlc),
       currency: json['currency'] as String? ?? 'INR',
+      authorSeq: seq as int?,
       extra: extra,
     );
   }
@@ -299,6 +305,7 @@ final class Entry implements LedgerEvent {
     'created_by_device',
     'hlc',
     'currency',
+    'author_seq',
   };
 
   @override
@@ -358,6 +365,15 @@ final class Entry implements LedgerEvent {
   /// Always `INR` in Phase 1 (02 §1.4 rule 5).
   final String currency;
 
+  /// Per-author sequence inside the ciphertext (02 §1.3, ADR 2026-09-05b §3);
+  /// `null` on entries written before M2.
+  @override
+  final int? authorSeq;
+
+  /// The authoring device — [createdByDevice] (05 §4).
+  @override
+  String? get authorDevice => createdByDevice;
+
   /// Unknown top-level fields, preserved verbatim.
   final Map<String, Object?> extra;
 
@@ -385,6 +401,7 @@ final class Entry implements LedgerEvent {
     'created_by_device': createdByDevice,
     'hlc': hlc.raw,
     'currency': currency,
+    if (authorSeq != null) 'author_seq': authorSeq,
     ...extra,
   };
 
@@ -407,6 +424,7 @@ final class Entry implements LedgerEvent {
     String? createdByDevice,
     Hlc? hlc,
     String? currency,
+    int? authorSeq,
   }) => Entry(
     id: id ?? this.id,
     bookId: bookId,
@@ -426,6 +444,7 @@ final class Entry implements LedgerEvent {
     createdByDevice: createdByDevice ?? this.createdByDevice,
     hlc: hlc ?? this.hlc,
     currency: currency ?? this.currency,
+    authorSeq: authorSeq ?? this.authorSeq,
     extra: extra,
   );
 
@@ -447,9 +466,11 @@ final class Entry implements LedgerEvent {
     String? reviewApprover,
     String? createdByUser,
     String? createdByDevice,
+    int? authorSeq,
   }) => copyWith(
     id: newId,
     hlc: hlc,
+    authorSeq: authorSeq,
     lines: lines,
     accountingDate: accountingDate,
     note: note,
@@ -474,6 +495,7 @@ final class Entry implements LedgerEvent {
     required String createdByUser,
     required String createdByDevice,
     String? note,
+    int? authorSeq,
   }) => Entry(
     id: newId,
     bookId: bookId,
@@ -498,6 +520,7 @@ final class Entry implements LedgerEvent {
     createdByDevice: createdByDevice,
     hlc: hlc,
     currency: currency,
+    authorSeq: authorSeq,
   );
 
   @override

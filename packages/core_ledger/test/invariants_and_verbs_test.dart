@@ -1,4 +1,7 @@
 // Suite A — universal invariants (02 §1.4) and the six verbs' fixed postings (02 §2, §11).
+@Tags(['A'])
+library;
+
 import 'dart:math';
 
 import 'package:core_ledger/core_ledger.dart';
@@ -28,12 +31,12 @@ void main() {
   final foreignCash = other.cash('Cash');
 
   group('universal invariants', () {
-    test('a balanced two-line entry has no violations', () {
+    test('A-02-1 a balanced two-line entry has no violations', () {
       final e = book.entry([dr(dairy, rs(100)), cr(cash, rs(100))]);
       expect(checkUniversalInvariants(e, chart), isEmpty);
     });
 
-    test('lines must sum to zero', () {
+    test('A-02-2 lines must sum to zero', () {
       final e = book.entry([dr(dairy, rs(100)), cr(cash, rs(99))]);
       expect(
         checkUniversalInvariants(e, chart).map((v) => v.kind),
@@ -41,7 +44,7 @@ void main() {
       );
     });
 
-    test('at least two lines, every line non-zero', () {
+    test('A-02-3 at least two lines, every line non-zero', () {
       final one = book.entry([dr(dairy, Paise.zero)]);
       final kinds = checkUniversalInvariants(
         one,
@@ -53,7 +56,7 @@ void main() {
       );
     });
 
-    test('every account belongs to the entry book (rule 3)', () {
+    test('A-02-4 every account belongs to the entry book (rule 3)', () {
       // An entry claiming to belong to b2 while posting to b1's accounts.
       final e = Entry(
         id: 'x',
@@ -89,7 +92,7 @@ void main() {
       );
     });
 
-    test('INR only in Phase 1 (rule 5)', () {
+    test('A-02-5 INR only in Phase 1 (rule 5)', () {
       final e = book
           .entry([dr(dairy, rs(1)), cr(cash, rs(1))])
           .copyWith(currency: 'USD');
@@ -99,7 +102,7 @@ void main() {
       );
     });
 
-    test('pending is only for advance requests (02 §1.3)', () {
+    test('A-02-6 pending is only for advance requests (02 §1.3)', () {
       final e = book.entry([
         dr(dairy, rs(1)),
         cr(cash, rs(1)),
@@ -110,33 +113,30 @@ void main() {
       );
     });
 
-    test(
-      'readers re-check review_required against the carried limit (03 §3.3.5)',
-      () {
-        final e = book.entry([
-          dr(dairy, rs(7000)),
-          cr(cash, rs(7000)),
-        ], reviewLimit: rs(5000));
-        expect(
-          checkUniversalInvariants(e, chart).map((v) => v.kind),
-          contains(ViolationKind.reviewFlagMissing),
-        );
-        final ok = book.entry(
-          [dr(dairy, rs(7000)), cr(cash, rs(7000))],
-          reviewLimit: rs(5000),
-          reviewRequired: true,
-        );
-        expect(checkUniversalInvariants(ok, chart), isEmpty);
-        final noLimit = book.entry([dr(dairy, rs(7000)), cr(cash, rs(7000))]);
-        expect(
-          checkUniversalInvariants(noLimit, chart),
-          isEmpty,
-          reason: 'no limit in force → never flagged',
-        );
-      },
-    );
+    test('A-02-7 readers re-check review_required against the carried limit (03 §3.3.5)', () {
+      final e = book.entry([
+        dr(dairy, rs(7000)),
+        cr(cash, rs(7000)),
+      ], reviewLimit: rs(5000));
+      expect(
+        checkUniversalInvariants(e, chart).map((v) => v.kind),
+        contains(ViolationKind.reviewFlagMissing),
+      );
+      final ok = book.entry(
+        [dr(dairy, rs(7000)), cr(cash, rs(7000))],
+        reviewLimit: rs(5000),
+        reviewRequired: true,
+      );
+      expect(checkUniversalInvariants(ok, chart), isEmpty);
+      final noLimit = book.entry([dr(dairy, rs(7000)), cr(cash, rs(7000))]);
+      expect(
+        checkUniversalInvariants(noLimit, chart),
+        isEmpty,
+        reason: 'no limit in force → never flagged',
+      );
+    });
 
-    test('authoring: accounting_date may be backdated but never in the future (rule 6)', () {
+    test('A-02-8 authoring: accounting_date may be backdated but never in the future (rule 6)', () {
       final today = d(2026, 5, 10);
       final back = book.entry([
         dr(dairy, rs(1)),
@@ -155,33 +155,33 @@ void main() {
   });
 
   group('verbs → postings (02 §2)', () {
-    test('1 Money in from an income category: Dr money · Cr income', () {
+    test('A-02-9 1 Money in from an income category: Dr money · Cr income', () {
       final lines = Verbs.moneyIn(into: bank, from: salary, amount: rs(95000));
       expect(lines, [dr(bank, rs(95000)), cr(salary, rs(95000))]);
     });
 
-    test('1 Money in from a party: Cr party (their udhaar shrinks / your payable grows)', () {
+    test('A-02-10 1 Money in from a party: Cr party (their udhaar shrinks / your payable grows)', () {
       expect(Verbs.moneyIn(into: cash, from: verma, amount: rs(500)), [
         dr(cash, rs(500)),
         cr(verma, rs(500)),
       ]);
     });
 
-    test('2 Money out for an expense: Dr expense · Cr money', () {
+    test('A-02-11 2 Money out for an expense: Dr expense · Cr money', () {
       expect(Verbs.moneyOut(from: cash, forWhat: dairy, amount: rs(250)), [
         dr(dairy, rs(250)),
         cr(cash, rs(250)),
       ]);
     });
 
-    test('2 Money out to a party: Dr party · Cr money', () {
+    test('A-02-12 2 Money out to a party: Dr party · Cr money', () {
       expect(Verbs.moneyOut(from: bank, forWhat: verma, amount: rs(500)), [
         dr(verma, rs(500)),
         cr(bank, rs(500)),
       ]);
     });
 
-    test('3 Gave on credit: Dr party · Cr money or income', () {
+    test('A-02-13 3 Gave on credit: Dr party · Cr money or income', () {
       expect(Verbs.gaveCredit(toWhom: verma, gave: cash, amount: rs(20000)), [
         dr(verma, rs(20000)),
         cr(cash, rs(20000)),
@@ -192,7 +192,7 @@ void main() {
       ]);
     });
 
-    test('4 Took on credit: Dr money or expense · Cr party', () {
+    test('A-02-14 4 Took on credit: Dr money or expense · Cr party', () {
       expect(Verbs.tookCredit(fromWhom: verma, took: dairy, amount: rs(3500)), [
         dr(dairy, rs(3500)),
         cr(verma, rs(3500)),
@@ -203,7 +203,7 @@ void main() {
       ]);
     });
 
-    test('verbs 3/4 with the money answer equal verbs 1/2 with a party — both doors kept', () {
+    test('A-02-15 verbs 3/4 with the money answer equal verbs 1/2 with a party — both doors kept', () {
       expect(
         Verbs.gaveCredit(toWhom: verma, gave: cash, amount: rs(9)),
         Verbs.moneyOut(from: cash, forWhat: verma, amount: rs(9)),
@@ -214,7 +214,7 @@ void main() {
       );
     });
 
-    test('5 Transfer within a book: Dr to · Cr from; a card payment is Dr CC · Cr bank', () {
+    test('A-02-16 5 Transfer within a book: Dr to · Cr from; a card payment is Dr CC · Cr bank', () {
       expect(Verbs.transfer(from: bank, to: cash, amount: rs(40000)), [
         dr(cash, rs(40000)),
         cr(bank, rs(40000)),
@@ -225,7 +225,7 @@ void main() {
       ]);
     });
 
-    test('6 Adjustment wizards only: opening balance, cash-count difference, write-off', () {
+    test('A-02-17 6 Adjustment wizards only: opening balance, cash-count difference, write-off', () {
       // Money account opening +4,000 → Dr Cash · Cr Opening Balance.
       expect(
         Verbs.openingBalance(
@@ -273,7 +273,7 @@ void main() {
       );
     });
 
-    test('class checks: the posting rule cannot be gotten wrong', () {
+    test('A-02-18 class checks: the posting rule cannot be gotten wrong', () {
       expect(
         () => Verbs.moneyIn(into: dairy, from: salary, amount: rs(1)),
         throwsArgumentError,
@@ -321,7 +321,7 @@ void main() {
       );
     });
 
-    test('a collection account (gollak) is not a spending source; it empties only into cash/bank (02 §8.2)', () {
+    test('A-02-19 a collection account (gollak) is not a spending source; it empties only into cash/bank (02 §8.2)', () {
       expect(
         () => Verbs.moneyOut(from: gollak, forWhat: dairy, amount: rs(1)),
         throwsArgumentError,
@@ -351,7 +351,7 @@ void main() {
   });
 
   group('02 §11 worked assertions', () {
-    test('₹500 money out to a party you owe ₹2,000 → ₹1,500 you will give; no debtor asset', () {
+    test('A-02-20 ₹500 money out to a party you owe ₹2,000 → ₹1,500 you will give; no debtor asset', () {
       final e1 = book.entry(
         Verbs.tookCredit(fromWhom: verma, took: dairy, amount: rs(2000)),
         kind: EntryKind.tookCredit,
@@ -368,7 +368,7 @@ void main() {
       );
     });
 
-    test('OD at +₹10,000 then a ₹25,000 payment → −₹15,000, liabilities side, no error', () {
+    test('A-02-21 OD at +₹10,000 then a ₹25,000 payment → −₹15,000, liabilities side, no error', () {
       final e1 = book.entry(
         Verbs.openingBalance(
           account: od,
@@ -391,70 +391,78 @@ void main() {
     });
   });
 
-  group(
-    'property: every verb × every input shape ⇒ invariants hold (09 §1)',
-    () {
-      final rng = Random(20260904);
-      final moneyAccounts = [cash, bank, od, cc];
-      final categoriesIn = [salary];
-      final categoriesOut = [dairy];
-      final parties = [verma];
-      T pick<T>(List<T> xs) => xs[rng.nextInt(xs.length)];
-      Paise amt() => Paise(1 + rng.nextInt(1 << 31));
+  group('property: every verb × every input shape ⇒ invariants hold (09 §1)', () {
+    // Seeded per ADR 2026-09-05i §5: regression seeds first, then a fresh one.
+    late Random rng;
+    final moneyAccounts = [cash, bank, od, cc];
+    final categoriesIn = [salary];
+    final categoriesOut = [dairy];
+    final parties = [verma];
+    T pick<T>(List<T> xs) => xs[rng.nextInt(xs.length)];
+    Paise amt() => Paise(1 + rng.nextInt(1 << 31));
 
-      test(
-        '1,000 generated postings all sum to zero, are integer paise, in-book',
-        () {
-          for (var i = 0; i < 1000; i++) {
-            final List<Line> lines;
-            switch (rng.nextInt(6)) {
-              case 0:
-                lines = Verbs.moneyIn(
-                  into: pick(moneyAccounts),
-                  from: pick([...categoriesIn, ...parties]),
-                  amount: amt(),
-                );
-              case 1:
-                lines = Verbs.moneyOut(
-                  from: pick(moneyAccounts),
-                  forWhat: pick([...categoriesOut, ...parties]),
-                  amount: amt(),
-                );
-              case 2:
-                lines = Verbs.gaveCredit(
-                  toWhom: pick(parties),
-                  gave: pick([...moneyAccounts, ...categoriesIn]),
-                  amount: amt(),
-                );
-              case 3:
-                lines = Verbs.tookCredit(
-                  fromWhom: pick(parties),
-                  took: pick([...moneyAccounts, ...categoriesOut]),
-                  amount: amt(),
-                );
-              case 4:
-                final from = pick(moneyAccounts);
-                final to = pick(moneyAccounts.where((a) => a != from).toList());
-                lines = Verbs.transfer(from: from, to: to, amount: amt());
-              default:
-                final signed = rng.nextBool() ? amt() : -amt();
-                lines = Verbs.openingBalance(
-                  account: pick([...moneyAccounts, ...parties]),
-                  balance: signed,
-                  openingAccount: opening,
-                );
-            }
-            final e = book.entry(lines);
-            expect(
-              checkUniversalInvariants(e, chart),
-              isEmpty,
-              reason: 'iteration $i: $lines',
-            );
-            expect(Paise.sum(lines.map((l) => l.amount)), Paise.zero);
-            expect(lines.length, greaterThanOrEqualTo(2));
+    test(
+      'A-09-1 1,000 generated postings all sum to zero, are integer paise, in-book',
+      () => forEachSeed('A-09-1', (r, seed) {
+        rng = r;
+        for (var i = 0; i < 1000; i++) {
+          final List<Line> lines;
+          final kind = switch (rng.nextInt(6)) {
+            0 => EntryKind.moneyIn,
+            1 => EntryKind.moneyOut,
+            2 => EntryKind.gaveCredit,
+            3 => EntryKind.tookCredit,
+            4 => EntryKind.transfer,
+            _ => EntryKind.adjustment,
+          };
+          switch (kind) {
+            case EntryKind.moneyIn:
+              lines = Verbs.moneyIn(
+                into: pick(moneyAccounts),
+                from: pick([...categoriesIn, ...parties]),
+                amount: amt(),
+              );
+            case EntryKind.moneyOut:
+              lines = Verbs.moneyOut(
+                from: pick(moneyAccounts),
+                forWhat: pick([...categoriesOut, ...parties]),
+                amount: amt(),
+              );
+            case EntryKind.gaveCredit:
+              lines = Verbs.gaveCredit(
+                toWhom: pick(parties),
+                gave: pick([...moneyAccounts, ...categoriesIn]),
+                amount: amt(),
+              );
+            case EntryKind.tookCredit:
+              lines = Verbs.tookCredit(
+                fromWhom: pick(parties),
+                took: pick([...moneyAccounts, ...categoriesOut]),
+                amount: amt(),
+              );
+            case EntryKind.transfer:
+              final from = pick(moneyAccounts);
+              final to = pick(moneyAccounts.where((a) => a != from).toList());
+              lines = Verbs.transfer(from: from, to: to, amount: amt());
+            case EntryKind.adjustment:
+              final signed = rng.nextBool() ? amt() : -amt();
+              lines = Verbs.openingBalance(
+                account: pick([...moneyAccounts, ...parties]),
+                balance: signed,
+                openingAccount: opening,
+              );
           }
-        },
-      );
-    },
-  );
+          final e = book.entry(lines, kind: kind);
+          expect(
+            checkUniversalInvariants(e, chart),
+            isEmpty,
+            reason: 'iteration $i: $lines',
+          );
+          expect(Paise.sum(lines.map((l) => l.amount)), Paise.zero);
+          expect(lines.length, greaterThanOrEqualTo(2));
+        }
+      }),
+      tags: 'property',
+    );
+  });
 }

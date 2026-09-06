@@ -35,7 +35,7 @@ keys stay, the lock screen explains, and the state resolves when a signed record
 succeeds again. Fail-safe, never fail-destructive. 04 §9.2's best-effort remote wipe is carried by
 the signed record's push notification, not by the notification alone.
 
-### 3. Per-author sequence inside the ciphertext — omission becomes visible
+### 3. Per-author sequence inside the ciphertext — omission becomes visible ⟦tests: A-05b-4, A-05b-5, A-05b-6, A-05e-1, E-05b-3⟧
 Each device keeps a monotone `author_seq` per book, starting at 1, written **inside the encrypted
 payload** (`{author_seq, object}`), so the server can neither see nor alter it. Readers track the
 highest contiguous `author_seq` per `(book, author_device)`:
@@ -46,7 +46,7 @@ highest contiguous `author_seq` per `(book, author_device)`:
 - This is the v1 stand-in for the key-transparency log (04 §11.4) on the content side: a server
   that withholds one reversal is now caught by every reader, not by the next year-close.
 
-### 4. Dangling references are held, not counted
+### 4. Dangling references are held, not counted ⟦tests: A-02-45, A-02-57, A-05b-1, A-05b-2, A-05b-3, E-05b-2, E-03-11⟧
 An envelope whose `refs.amends`, `refs.reverses` or decision target is **not present** is placed
 in **`held`** — not projected, not quarantined — until the target arrives. If every author's
 `author_seq` is contiguous and the target is still absent, the target never existed: quarantine
@@ -62,7 +62,7 @@ envelope carries its `seq` (`envelopes_local` gains the column) and signed recor
 sequence space as envelopes so the comparison is meaningful. An offline legitimate member's queued
 entries are already refused at push (`membership_not_active`); this rule closes the read side.
 
-### 6. Store epoch and read-your-writes
+### 6. Store epoch and read-your-writes ⟦tests: E-05b-1⟧
 - Every push ack, pull and meta response carries **`store_epoch`** (uuid, changes only when the
   server store is restored or rebuilt). A client seeing a new epoch resets **all** cursors to 0 and
   re-pulls; `envelopes_local` is idempotent so nothing duplicates.
