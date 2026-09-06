@@ -752,6 +752,209 @@ void main() {
       expect(view.shareSetVersion, 5);
       expect(view.index, 1);
     });
+    test('B-04-72 reconstructVerified: k good shares yield a pair re-deriving the known UMK public key; one tampered share, or another user\'s key, → GuardianShareMismatch with the bytes zeroised (04 §7.3 step 4–5, ADR 2026-09-06 §2)', () async {
+      final s = await testSuite(seed: 21);
+      final umk = UmkKeyPair.generate(s);
+      final other = UmkKeyPair.generate(s);
+      addTearDown(umk.dispose);
+      addTearDown(other.dispose);
+      final priv = umk.exportSecretBytes();
+      final shares = GuardianShareSet.create(
+        s,
+        umkSecret: priv,
+        n: 3,
+        shareSetVersion: 7,
+      );
+      final wire = [for (final g in shares) GuardianShare.decode(g.encode())];
+
+      // Every k-subset verifies against the public key the device already has.
+      for (final idx in _subsets(3, 2)) {
+        final pair = GuardianShareSet.reconstructVerified(s, [
+          for (final i in idx) wire[i],
+        ], expected: umk.public);
+        expect(pair.public, umk.public, reason: 'subset $idx');
+        expect(pair.exportSecretBytes(), priv);
+        pair.dispose();
+      }
+
+      // A single flipped bit in one share — undetectable by reconstruct()
+      // (B-04-57) — is caught here.
+      final tampered = GuardianShare(
+        suiteVersion: wire[0].suiteVersion,
+        shareSetVersion: 7,
+        k: 2,
+        n: 3,
+        index: 1,
+        bytes: Uint8List.fromList(wire[0].bytes)..[5] ^= 0x01,
+      );
+      expect(GuardianShareSet.reconstruct([tampered, wire[1]]), isNot(priv));
+      expect(
+        () => GuardianShareSet.reconstructVerified(s, [
+          tampered,
+          wire[1],
+        ], expected: umk.public),
+        throwsA(isA<GuardianShareMismatch>()),
+      );
+
+      // Good shares of the wrong account are refused too.
+      expect(
+        () => GuardianShareSet.reconstructVerified(s, [
+          wire[1],
+          wire[2],
+        ], expected: other.public),
+        throwsA(isA<GuardianShareMismatch>()),
+      );
+
+      // Structural refusals still surface as ArgumentError, not as mismatch.
+      expect(
+        () => GuardianShareSet.reconstructVerified(s, [
+          wire[0],
+        ], expected: umk.public),
+        throwsArgumentError,
+      );
+      s.zeroize(priv);
+    });
+
+    test('B-04-73 known-answer vector from an independent GF(256) reference (table-free Russian-peasant multiply, brute-force inverse; scratch Python, 6 Sep 2026): fixed 3-of-5 shares combine to the fixed secret from every 3-subset, and split() under a scripted RNG reproduces the shares byte for byte', () async {
+      // Secret and shares as printed by the reference. The reference fixed the
+      // coefficients of x¹ and x² for secret byte j at (j·29 + 7) and
+      // (j·113 + 91) mod 256, so the split side can be replayed by scripting
+      // the suite's random source with exactly that buffer (layout of
+      // Shamir.split: coefficients[j·(k−1) + t] = coefficient of x^(t+1)).
+      final secret = Uint8List.fromList([
+        0x00, 0x01, 0x7f, 0x80, 0xff, 0x11, 0x22, 0x33, //
+        0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xaa, 0xbb,
+      ]);
+      const vectors = <int, List<int>>{
+        1: [
+          0x5c,
+          0xe9,
+          0x03,
+          0x70,
+          0x9b,
+          0x19,
+          0x96,
+          0x93,
+          0x48,
+          0x0d,
+          0x8a,
+          0x07,
+          0x4c,
+          0x01,
+          0xbe,
+          0xfb,
+        ],
+        2: [
+          0x79,
+          0x54,
+          0x09,
+          0xb2,
+          0x75,
+          0x4c,
+          0x57,
+          0x5f,
+          0x20,
+          0x06,
+          0x0d,
+          0x23,
+          0xe4,
+          0xe2,
+          0x99,
+          0x11,
+        ],
+        3: [
+          0x25,
+          0xbc,
+          0x75,
+          0x42,
+          0x11,
+          0x44,
+          0xe3,
+          0xff,
+          0x2c,
+          0x5e,
+          0xe1,
+          0x53,
+          0x20,
+          0x7a,
+          0x8d,
+          0x51,
+        ],
+        4: [
+          0xdb,
+          0xe5,
+          0x9d,
+          0xed,
+          0xe3,
+          0x84,
+          0xd0,
+          0x37,
+          0x67,
+          0x52,
+          0x26,
+          0x39,
+          0x81,
+          0x34,
+          0xa0,
+          0x5c,
+        ],
+        5: [
+          0x87,
+          0x0d,
+          0xe1,
+          0x1d,
+          0x87,
+          0x8c,
+          0x64,
+          0x97,
+          0x6b,
+          0x0a,
+          0xca,
+          0x49,
+          0x45,
+          0xac,
+          0xb4,
+          0x1c,
+        ],
+      };
+      final shares = [
+        for (final e in vectors.entries)
+          ShamirShare(
+            index: e.key,
+            bytes: Uint8List.fromList(e.value),
+            threshold: 3,
+          ),
+      ];
+
+      // Combine side: every 3-subset, in reverse order too.
+      for (final idx in _subsets(5, 3)) {
+        final picked = [for (final i in idx) shares[i]];
+        expect(Shamir.combine(picked), secret, reason: 'subset $idx');
+        expect(Shamir.combine(picked.reversed.toList()), secret);
+      }
+      expect(Shamir.combine(shares), secret);
+
+      // Split side: script the RNG with the reference's coefficient buffer.
+      final coefficients = Uint8List(secret.length * 2);
+      for (var j = 0; j < secret.length; j++) {
+        coefficients[j * 2] = (j * 29 + 7) & 0xff;
+        coefficients[j * 2 + 1] = (j * 113 + 91) & 0xff;
+      }
+      var draws = 0;
+      final scripted = CryptoSuite(
+        await sodium(),
+        random: (n) {
+          draws++;
+          expect(n, coefficients.length, reason: 'one draw of len·(k−1)');
+          return Uint8List.fromList(coefficients);
+        },
+      );
+      final produced = Shamir.split(scripted, secret, k: 3, n: 5);
+      expect(draws, 1);
+      for (final p in produced) {
+        expect(p.bytes, vectors[p.index], reason: 'share ${p.index}');
+      }
+    });
   });
 
   group('property', () {

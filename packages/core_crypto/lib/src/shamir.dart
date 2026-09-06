@@ -6,6 +6,7 @@
 import 'dart:typed_data';
 
 import 'bytes.dart';
+import 'keys.dart';
 import 'suite.dart';
 
 /// The library-level [suiteVersion], reachable from inside [GuardianShare]
@@ -398,6 +399,20 @@ final class GuardianShare {
   void dispose() => bytes.fillRange(0, bytes.length, 0);
 }
 
+/// The bytes reconstructed from k guardian shares do not re-derive the UMK
+/// public key the recovering device already knows (04 §7.3 steps 4–5; ADR
+/// 2026-09-06 §2). Raised by [GuardianShareSet.reconstructVerified] after the
+/// bytes have been zeroised; nothing about *which* share was wrong is known
+/// at this layer — the UI re-requests shares.
+final class GuardianShareMismatch implements Exception {
+  /// Creates the failure.
+  const GuardianShareMismatch();
+
+  @override
+  String toString() =>
+      'GuardianShareMismatch(reconstructed UMK does not match the known public key)';
+}
+
 /// Splitting `UMK_priv` for guardians and putting it back together (04 §7.3).
 ///
 /// Deliberately stateless — static functions only — so there is no object
@@ -482,6 +497,44 @@ abstract final class GuardianShareSet {
       for (final p in points) {
         p.dispose();
       }
+    }
+  }
+
+  /// [reconstruct], then proves the result is the right UMK before anyone
+  /// trusts it: the 64 bytes re-derive both public halves, which must equal
+  /// [expected] — the UMK public key the recovering device already holds for
+  /// this user (it is in every device certificate and wrapped-key row, 04 §3.1,
+  /// §3.4). Plain [reconstruct] cannot tell a tampered or mis-sealed share
+  /// from a good one (B-04-57); this can, with no field added to the share set
+  /// and no new primitive (ADR 2026-09-06 §2).
+  ///
+  /// On mismatch the reconstructed bytes are zeroised, the derived pair is
+  /// disposed and [GuardianShareMismatch] is thrown. On success the caller
+  /// owns the returned [UmkKeyPair] (secrets in guarded memory) and must
+  /// [UmkKeyPair.dispose] it; the intermediate bytes are already zeroised
+  /// (04 §7.3 step 4).
+  static UmkKeyPair reconstructVerified(
+    CryptoSuite suite,
+    List<GuardianShare> shares, {
+    required UmkPublic expected,
+  }) {
+    final secret = reconstruct(shares);
+    UmkKeyPair? pair;
+    try {
+      pair = UmkKeyPair.fromSecretBytes(suite, secret);
+      final ok =
+          suite.constantTimeEquals(pair.public.x25519, expected.x25519) &&
+          suite.constantTimeEquals(pair.public.ed25519, expected.ed25519);
+      if (!ok) {
+        pair.dispose();
+        throw const GuardianShareMismatch();
+      }
+      return pair;
+    } on ArgumentError {
+      // Not 64 bytes — cannot be a UMK; treat as a mismatch, not a bug.
+      throw const GuardianShareMismatch();
+    } finally {
+      suite.zeroize(secret);
     }
   }
 }

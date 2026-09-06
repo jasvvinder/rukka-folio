@@ -12,6 +12,30 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-06 — M3 follow-up: Shamir ADR reviewed — verified reconstruction, independent known-answer vector, ruling 3 sharpened
+
+Evening pass over `docs/decisions/2026-09-06-shamir-and-guardian-revocation-records.md` at the owner's request ("what does it mean, any suggestions — do the best of your knowledge"). Three findings acted on, two owner decisions surfaced, and the ADR now ends in a four-line ratification checklist. Still **proposed**. `core_crypto`: 75 tests (+B-04-72, B-04-73), all green.
+
+**Added**
+- `GuardianShareSet.reconstructVerified(suite, shares, expected:)` + `GuardianShareMismatch` — reconstruct, re-derive both UMK public halves from the 64 bytes, compare (constant time) with the UMK public key the recovering device already holds; fail closed with the bytes zeroised. Closes the "tampered share yields a wrong secret silently" gap (B-04-57) **without a new field** — the BLAKE2b(UMK_priv)-beside-the-shares option is withdrawn (a digest travelling with the shares can be replaced with them; the pinned key cannot). B-04-72.
+- `packages/core_crypto/test/vectors/shamir_ref.py` — a second, table-free GF(256) Shamir (Russian-peasant multiply, brute-force inverse) written without consulting `shamir.dart`; B-04-73 replays its 3-of-5 vector on the combine side (every subset, both orders) and, through a scripted RNG, reproduces the shares byte for byte on the split side. Every earlier test was self-consistent; this is the first cross-implementation check. A third-party vector (libgfshare / Vault) is still wanted before the external review.
+
+**Changed**
+- ADR 2026-09-06 §3 gains the two rules a counting scheme needs: (a) the cut-off is the k-th *smallest* `seq`, so it can only move **earlier** as approvals arrive — deterministic across devices, conservative, but it means re-quarantine on Recompute and the cut-off is never cached as final; (b) a **re-split does not reset the count** — the device under revocation is still certified and could otherwise bump `share_set_version` to discard k−1 approvals; records count against the version they name, carry across versions, threshold = k of the earliest counted version (⚠️ SPEC: proposer's choice). Counting set reworded from "current set" to "set at the version the record names".
+- ADR §3 marker `n/a` → reserved ids **D-06a-1…4** with one-line tests (table in the ADR); `check_coverage` reports them dangling until M4 — intended (05i §1 warn-only until then).
+- ADR §1/§2 markers gain B-04-73 / B-04-72; 04 §2 (ADR quote line) and §7.3 markers likewise. ADR consequences: M4 meta channel needs guardian-set *history* by `share_set_version`; 07 has no state for "2 of 3 approved" or a moved cut-off.
+
+**Decided** — nothing 🔒 ratified; recommendation recorded for 04 §11.3: default 2-of-3, n = 2 allowed only behind a typed confirmation (2-of-2 has no loss tolerance *and* needs both guardians — but forbidding it excludes a two-person household).
+
+**Open** ⚠️
+- **Owner: the four-line ratification checklist at the end of the ADR** (rulings 1, 2, 3 incl. earliest-k vs current-k, and 04 §11.3).
+- 07 owner: screen states for a pending k-of-n revocation and for a re-quarantine after the cut-off moved — before M11.
+- External review of `shamir.dart` before M14, with a third-party KAT pasted in first.
+
+**Commits** — pending.
+
+---
+
 ## 2026-09-06 — M3: crypto core (suite B) — envelopes, key hierarchy, ceremony, signed records, trust chain, Shamir
 
 First and only M3 slice. A shared skeleton (suite, bytes, key types, test helpers) was written first; three agents then filled disjoint modules in parallel — ceremony/wrapping/recovery · padding/envelope/certs/signed records/chain · Shamir — and the data package was wired to the new crypto boundary. One agent lost its session to a rate limit after its five library files; its three missing test files were written by hand. `core_crypto`: 73 tests (B-04-1…71 with gaps, B-05b-1…8, B-10-1). `data`: 30 tests (+E-04-1…3). Push gate green. **M3 exit reached** (10 M3 row: suite B) — tag after committing: `git tag m3-crypto-core`.
