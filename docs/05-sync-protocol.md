@@ -46,8 +46,9 @@ A device that cannot unwrap the new `BK` is not a member any more; it will recei
 | `rejected:key_version_stale` | envelope sealed under a `BK` version superseded > 48 h ago (04 §5.3) | **not terminal:** run the re-seal above, retry **once**; if it fails again (new `BK` unavailable), surface in Inbox as *"couldn't send — waiting for a new key"* |
 | `rejected:version` | payload_schema above server registry | force-update path |
 | `rejected:shape` | a server shape check failed — the complete list is 03 §2.3 (author ≠ token device, tenant ≠ book's, `blob_hash`/`size`, registry, key_version) (ADR 2026-09-05c §5) | terminal; log with the named check |
-| `rejected:rate_limited` | per-device push rate exceeded (ADR 2026-09-05b §7; ⚠️ 600/min, 50 MB/day proposed) | backoff and retry; never Inbox |
-| `rejected:quota` | book's envelope count/bytes above plan (08 owns numbers ⚠️) | Inbox *"This book is full — upgrade the plan"*; book stays readable |
+| `rejected:rate_limited` | per-device push rate exceeded — **600 envelopes/min, 5,000/h, 50 MB/day, plan-independent** (ADR 2026-09-05b §7, ruled ADR 2026-09-05g §3) | backoff and retry; never Inbox |
+| `rejected:quota` | book's envelope count/bytes above plan — numbers in 08 §2 (ADR 2026-09-05g §3: 10 k/100 k/250 k/1 M envelopes per book; 250 MB/2/5/15 GB per tenant; 10 MB per file); warning at 80 % | Inbox *"This book is full — upgrade the plan"*; book stays readable, pullable and exportable |
+| `rejected:tenant_frozen` | tenant frozen by support on one of 06 §8's grounds (ADR 2026-09-05h §1) — pushes only; pull, decrypt and export continue | Inbox *"Entries can't be sent right now — see the notice from support"*; stop pushing that tenant's books until the freeze lifts or expires (≤ 30 days) |
 
 **After `acked` comes `observed` 🔒 (ADR 2026-09-05b §6):** the outbox keeps the acked blob until the envelope returns in the device's own pull; prune only then. Cursor past the acked `seq` without seeing it → re-push + `write_lost` security event; 30 days un-observed → Inbox. **Membership `blocked`** is refused at push like `membership_not_active`; garbage pushed before a block is permanent (append-only) — readers quarantine it and quotas bound its cost.
 
@@ -68,7 +69,7 @@ A device that cannot unwrap the new `BK` is not a member any more; it will recei
 
 ## 5. Metadata & key sync 🔒
 
-Separate channel from envelopes, `GET /sync/meta?after=cursor` (cursor = `updated_at,id` on each table): memberships, book_roles, devices+certs, wrapped_keys, invites, verification_events, subscriptions, escrow/recovery states, tombstones.
+Separate channel from envelopes, `GET /sync/meta?after=cursor` (cursor = `updated_at,id` on each table): memberships, book_roles, devices+certs, wrapped_keys, invites, verification_events, subscriptions (which therefore carries `updated_at`, 03 §2.4), **entitlement tokens** (Ed25519 by the server's `entitlement_key`, verified against the pinned public key; a tenant with no valid token is *Free*, never *locked* — ADR 2026-09-05g §1, §4), escrow/recovery states, tombstones.
 
 **Structural facts are signed records 🔒 (ADR 2026-09-05b §1).** Membership status, roles, limits, designations, device revocation, member removal and rotation notices are authored on a certified device as `SignedRecord{…, author_sig, hlc, seq}` with a plaintext payload (roles are plaintext already, 03 §4). The server applies them to its rows for RLS; the client **verifies the record** (04 §3.4) and treats the rows as the server's copy — row ≠ record → believe the record, log `meta_mismatch`.
 
@@ -93,11 +94,11 @@ Content-free FCM (*"book X has news"*) → pull that book; foreground pull on ap
 Also the path for **local corruption** (ADR 2026-09-05c §6): a book whose mirror fails `blob_hash` on open is re-bootstrapped here, with the determinate loader; verify `blob_hash` on every pulled envelope before storing.
 
 
-Order: profile+meta+keys (§5) → per book: `book_config`, `account`, `rule` objects (all-time; low volume) + latest `year_close` vector + all envelopes of the **open FY** (hot set) → project → app usable. Closed FYs fetch on demand (`?fy=2024-25`) behind the same pull API from warm or cold storage (03 §6) — opening a 3-year-old statement shows a one-time *"fetching old year…"* spinner, everything else is instant.
+Order: profile+meta+keys (§5) → per book: `book_config`, `account`, `rule`, `period_lock`, `period_unlock`, `business_setting` objects (all-time; low volume — locks must be complete for 02 §8's validity rule, ADR 2026-09-05e §5) + latest `year_close` vector + all envelopes of the **open FY** (hot set) → project → app usable. Closed FYs fetch on demand (`?fy=2024-25`) behind the same pull API from warm or cold storage (03 §6) — opening a 3-year-old statement shows a one-time *"fetching old year…"* spinner, everything else is instant.
 
 ## 9. Status surface (feeds 07 §1.7) 🔒
 
-`Synced ✓` (outbox empty, cursors fresh, no author gaps) · `Saved on phone · will sync (N)` · `Offline` · `Waiting for entries from {name}'s phone` (author gap < 24 h, ADR 2026-09-05b §3) · `Needs attention` → Inbox (rejections, quarantines, key_wait > 24 h, author gap > 24 h, write_lost, clock warning). No other states; no spinners on entry save, ever.
+`Synced ✓` (outbox empty, cursors fresh, no author gaps) · `Saved on phone · will sync (N)` · `Offline` · `Waiting for entries from {name}'s phone` (author gap < 24 h, ADR 2026-09-05b §3) · `Needs attention` → Inbox (rejections, quarantines, key_wait > 24 h, author gap > 24 h, write_lost, clock warning). No other states; no spinners on entry save, ever. Screen homes: the author-gap state carries a **provisional** badge on position cards and blocks close at **S10.5**; a rebuilding book shows **S1.4** with the determinate loader; `rate_limited` has no UI (13 §6, ADR 2026-09-05f §B).
 
 ---
 

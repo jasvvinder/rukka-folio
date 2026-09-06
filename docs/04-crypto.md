@@ -111,7 +111,7 @@ Envelope {
 
 The AAD binds ciphertext to its identity — the server cannot move an envelope between books or objects without Poly1305 failing. **The server validates nothing about content** (it can't); it checks only shape, membership, size caps, and idempotency.
 
-**Plaintext on server (complete list):** user ids, phone numbers (**encrypted at rest under a server KMS key with an HMAC index — ADR 2026-09-05c §4; invitees' numbers never stored**), display names, language, tenant/book/membership/role records, device records + certs, wrapped keys and shares (opaque), invite records, subscription/billing refs, envelope routing fields above, timestamps, sizes, audit events. **Everything else is ciphertext — including book names, account names, party names, amounts, notes, and attachments.**
+**Plaintext on server (complete list):** the server's `entitlement_key` public half and the entitlement tokens it signs (plan metadata only — ADR 2026-09-05g §1), user ids, phone numbers (**encrypted at rest under a server KMS key with an HMAC index — ADR 2026-09-05c §4; invitees' numbers never stored**), display names, language, tenant/book/membership/role records, device records + certs, wrapped keys and shares (opaque), invite records, subscription/billing refs, envelope routing fields above, timestamps, sizes, audit events. **Everything else is ciphertext — including book names, account names, party names, amounts, notes, and attachments.**
 
 Push notifications carry object ids and generic text only ("Ramesh added an entry"), never amounts or names.
 
@@ -243,7 +243,7 @@ Standard device linking (§9.1).
 3. Every envelope's signature chain (§3.4) is verified on read; failures quarantine the envelope and raise a security event — never display unverified content as trusted.
 4. All random values from libsodium CSPRNG.
 5. Any schema/suite change bumps `suite_version`; old suites remain readable (decrypt-only) for ≥ 2 years.
-6. The server's crypto surface is minimal by design: verify Ed25519 auth challenges, store opaque blobs, enforce timers. If server code ever needs a content key, the design has been violated.
+6. The server's crypto surface is minimal by design: verify Ed25519 auth challenges, store opaque blobs, enforce timers — and, since ADR 2026-09-05g §1, **sign entitlement tokens with the one server signing key** (`entitlement_key`; public half pinned in the app beside the SPKI pins; annual rotation with 30-day overlap). That key signs plan metadata the server already holds and nothing else. If server code ever needs a content key, the design has been violated.
 
 ---
 

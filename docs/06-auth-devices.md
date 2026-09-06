@@ -35,7 +35,7 @@ Two separate things, never conflated:
 | Amend / reverse | admin · head. **Delete does not exist** — the ledger is append-only (02 §5); a wrong entry is reversed or amended and the trail stays. That is the product's integrity promise, not a missing feature. |
 | Close month / year | admin · head (own book) |
 | Invite / remove members · roles · limits · designations | admin only |
-| Structural changes (ratios, owners, year re-open) | owners' quorum (02 §7.2.1) |
+| Structural changes (ratios, owners, year re-open, **member removal, FY-start change, book archive/delete** — ADR 2026-09-05e §9) | owners' quorum (02 §7.2.1) |
 
 The everyday case designations exist for: the committee's **Treasurer (ਖ਼ਜ਼ਾਨਚੀ)** — the
 person who actually keeps the books — is *called* Treasurer while *holding* `head`.
@@ -121,7 +121,7 @@ Recovery completion always revokes all prior sessions and devices of that user a
 
 - **Linked devices** screen (WhatsApp-style): name, model, last active, certified state.
 - Revoke: any certified device of the same user, k guardians, or support-on-request (§8). Effect per 04 §9.2; the **"stolen"** path additionally rotates BKs (+ recommended UMK rotation).
-- Device cap: 5 per user (plan-adjustable).
+- Device cap: **the highest cap among the user's active tenants** — 5 / 5 / 8 / 15 for Free / Personal / Family / Family+ (08 §2, ADR 2026-09-05g §7); enforced server-side at `POST /devices`.
 - Every add/certify/revoke lands in the tenant-visible audit log **as a signed record from the acting device (ADR 2026-09-05d §7) — the server's rows are its copy.** A revoked device can still read metadata for up to one access-token lifetime (15 min); accepted.
 
 ---
@@ -136,6 +136,7 @@ expired (one-tap re-invite)      blocked + security event (admin unblock only
                                   after investigation; new invite required)
 ```
 
+- **Seats (ADR 2026-09-05g §6):** the plan's member cap counts `invited` + `joined_pending_verification` + `active`; removal frees the seat at once; re-inviting the same `user_id` within 30 days is free; rolling cap 2 × seats distinct members per year.
 - **invited:** admin picks phone + per-book roles (+ auto-post limit); server stores the invite with its 128-bit ceremony nonce **and only an HMAC of the number** — the plaintext goes into the outbound message job and is gone once sent (ADR 2026-09-05c §4); delivery via WhatsApp/SMS link. The admin's device shows whom it invited from its own contact card. **The invite is accepted only by a device whose OTP-verified number matches `invitee_hmac` — the link alone admits nobody (ADR 2026-09-05d §9).**
 - **joined_pending_verification:** invitee has an account, device, UMK — their **Personal Book works immediately** (it needs nobody's keys). Shared books are visible as named placeholders: *"Meet Sunita to activate."* Clients structurally cannot wrap BKs to this state (04 §5.1).
 - **active:** on ceremony success (any mode: in-person QR default / logged remote code / delegated by any active member — 04 §6.4), the verifier's device wraps the BKs per the role grants and publishes the **verification event as a signed record** (ADR 2026-09-05d §7); membership flips.
@@ -149,7 +150,7 @@ expired (one-tap re-invite)      blocked + security event (admin unblock only
 Written policy, shipped with the product, so nobody can be socially engineered into an ability that doesn't exist.
 
 - **Caller verification:** callback to the registered number **plus** one account fact (registration month, last payment amount, or count of linked devices). Never OTP-read-back (training users to read OTPs to "support" is how fraud happens — and our OTPs unlock nothing anyway).
-- **Support CAN:** adjust plan/billing, extend trials, revoke a device, initiate account deletion (§9.3), resend invites. **Support revocation is delayed 24 h and cancellable from any certified device of the user (ADR 2026-09-05d §3); it lands unsigned, so the target suspends and never wipes (ADR 2026-09-05b §2).**
+- **Support CAN:** adjust plan/billing, extend trials, revoke a device, **request** account deletion (§9.3), resend invites, **freeze a tenant**. **Support revocation is delayed 24 h and cancellable from any certified device of the user (ADR 2026-09-05d §3); it lands unsigned, so the target suspends and never wipes (ADR 2026-09-05b §2); the same device is not re-revoked after a user cancel without four-eyes and a fresh callback (ADR 2026-09-05h §2).** **Deletion is request-only:** support sends a request to the user's devices and only the user's own device starts the 15-day clock (ADR 2026-09-05h §2). **Freeze 🔒 (ADR 2026-09-05h §1):** grounds exhaustive — payment fraud, legal order, abuse; effect = the tenant's pushes are refused (`rejected:tenant_frozen`, 05 §3) while pull, read and export continue; four-eyes; expiry ≤ 30 days; every member device notified with the ground class and expiry.
 - **Support CANNOT:** read any content, recover any key, bypass a ceremony, add a member, release an escrow. **No such endpoints exist.** The support script for "I lost everything" is the recovery ladder, and if the ladder is exhausted, the honest answer: *"Your shared books can be restored by your family after re-verification; your old personal book is gone — this is the privacy you were promised, working."*
 
 ---
@@ -157,7 +158,7 @@ Written policy, shipped with the product, so nobody can be socially engineered i
 ## 9. Account lifecycle
 
 ### 9.1 Data stored (plaintext) — the complete list 🔒
-Phone, name, photo, language, WhatsApp opt-in; tenants, memberships, per-book roles and limits; devices + certificates; wrapped keys/shares/escrow blobs (opaque); invites + ceremony logs; subscription state + payment-gateway reference IDs (gateway holds the instruments); audit events; envelope routing metadata (04 §4). **Not stored:** address (at most: state, only if subscription-GST demands it), DOB, Aadhaar, PAN, contacts upload, and — by construction — any financial content.
+Phone, name, photo, language, WhatsApp opt-in; tenants, memberships, per-book roles and limits; devices + certificates; wrapped keys/shares/escrow blobs (opaque); invites + ceremony logs; subscription state + payment-gateway reference IDs (gateway holds the instruments); audit events; envelope routing metadata (04 §4). **Not stored:** address (at most: **recipient state, captured only for GSTIN buyers on the web checkout** — ADR 2026-09-05g §10), DOB, Aadhaar, PAN, contacts upload, and — by construction — any financial content.
 
 ### 9.2 Data export 🔒
 Available always, plan-independent, lapsed-plan included: full decrypted export (XLSX/CSV/PDF) generated **on device**. Open export is a trust feature, not a leak.

@@ -36,3 +36,11 @@
 - E-1 is a live demonstration of *why* 02 separates the **party** from the **expense category**: the error class cannot be entered in our engine.
 - File 1 §8 (zero-crossing inversions) is precisely our placement-by-sign rule, case for case; §9 (atomicity, month lock, adjustment-only corrections) is already 02 §5/§8 and 03/05.
 - Presentation gaps our statement must adopt (pending owner approval): To/By counter-account particulars; Dr/Cr side on every running balance; no minus sign on professional surfaces.
+
+## 4. Corrections ruled by ADR 2026-09-05e (5 Sep 2026) — ⚠️ pending bookkeeper sign-off
+
+| # | Location | Issue | Correction |
+|---|---|---|---|
+| F-5 | standards §6 / F-3 | "Donation Income closes to **Corpus** only at year end" — a closing entry, which 02 §1.2 🔒 forbids | Corpus is a **computed presentation line** (Σ certified net results + opening equity − distributions); Donation Income stays a category account, opens each FY at zero, and is *presented under* Corpus on the balance sheet. Engine unchanged; owner ruled 5 Sep 2026 |
+| F-6 | worked-examples/joint-business-partnership.md §4 | Interest on capital: Harjit ₹1,355, remaining ₹5,86,038 | Half-up to the paisa gives ₹1,354.52 → **₹1,354**, remaining **₹5,86,039** (02 §7.1; `partners_test.dart`) |
+| F-7 | worked-examples/joint-business-partnership.md §5 | Equal share of costs stated in rupees (1,11,668 / 1,11,666 / 1,11,666) | State in paise (02 §7.1 rounding rule: `floor(amount × weight ÷ Σweights)`, remainder to the largest ratio, ties to earliest) |

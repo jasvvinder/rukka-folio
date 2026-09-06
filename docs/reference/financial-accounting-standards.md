@@ -299,7 +299,7 @@ Non-profit: no commercial profit; inflows are donations, the year's surplus/defi
 ### 6.2 Ledger images
 
 **Advance–Assistant A** — Dr *[Handed out]* · Cr *[Bills settled / returned]*: T03 5,000 → T04 −2,000 = 3,000 → T06 −1,000 = **2,000 Dr** c/f — *still with Assistant A, ageing since 03rd; the position screen shows "Cash ₹16,000 · with Asst A ₹2,000".*
-**Trust Cash**: 20,000 → −5,000 = 15,000 → +1,000 = **16,000 Dr**. **Trust Bank**: 15,000 → −3,200 = **11,800 Dr**. **Langar Expense**: 2,000 → 5,200 = **5,200 Dr**. **Donation Income**: 20,000 → **35,000 Cr** (shown as Donation Income mid-period; closes to Corpus only at year end — errata F-3).
+**Trust Cash**: 20,000 → −5,000 = 15,000 → +1,000 = **16,000 Dr**. **Trust Bank**: 15,000 → −3,200 = **11,800 Dr**. **Langar Expense**: 2,000 → 5,200 = **5,200 Dr**. **Donation Income**: 20,000 → **35,000 Cr** (shown as Donation Income mid-period; presented under Corpus on the balance sheet as a computed line, never closed by an entry — errata F-3, F-5 / ADR 2026-09-05e §2).
 
 ### 6.3 Trial balance (machine-verified): Dr — Cash 16,000 · Bank 11,800 · Advance–A 2,000 · Langar 5,200 = **₹35,000** · Cr — Donation Income **₹35,000** ✓
 

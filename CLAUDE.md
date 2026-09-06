@@ -23,7 +23,7 @@ If two sources at the same level genuinely conflict, stop and ask — leave a `�
                  core_ledger(02) · core_crypto(04) · data(03: Drift+SQLCipher+projector) · sync_engine(05)
 /server/supabase migrations/(incl. all RLS) · functions/(sync-push, sync-pull, sync-meta, auth-challenge, billing-webhook) · tests/rls/
 /server/admin    internal panel (M13)
-/testing         harness/(two-client rig, 09 §1) · fixtures/(SYNTHETIC data only — never real entries) · goldens/(export byte-comparisons)
+/testing         harness/(two-client rig, 09 §1; created at M2, ADR 2026-09-05i §7) · fixtures/(SYNTHETIC sync/UI data only — never real entries; accounting goldens stay in docs/reference/) · goldens/(export byte-comparisons, suite F3)
 /design          design-system.md + tokens/ (tokens.json = single source → tokens.css, tokens.dart; UI code uses tokens ONLY — hex literals in widgets are review-blocking) · mockups, prototype exports, icons
 /scripts         ci.sh (the gate) · check_strings.dart (fails on missing EN/PA/HI key, placeholder drift, forbidden jargon) · check_purity.sh (no Flutter in packages; no I/O/clock/RNG in core_*; no hex literals in app) · gen_tokens.dart (tokens.json → tokens.css/.dart; --check in CI) · gen_l10n_arb.dart (dotted ARB keys → identifier keys for gen_l10n)
 ```
@@ -46,6 +46,8 @@ Trunk-based on protected `main`; tags at milestone exits (`m1-ledger-core`); sec
 
 ## Workflow
 - Tests first for `core_ledger` and `core_crypto` — take them from 09 (suites A/B) and the doc excerpts before implementing.
+- **Traceability (ADR 2026-09-05i §1):** every test name starts with its id (`A-02-9 …`); every 🔒 line you write or touch in `docs/` ends with `⟦tests: id, id⟧` (or `⟦tests: n/a — reason⟧`). `scripts/check_coverage.dart` enforces this (warn-only until M4).
+- **Supersession (ADR 2026-09-05i §4):** when a doc change flips behaviour a green test asserts, mark that test `@Skip('superseded by ADR <id> §<n>; re-lands at M<n>')` in the same commit — never leave a test green against a superseded rule.
 - One milestone slice per session (10); begin by reading the referenced spec sections; end with tests green and docs updated if any decision was made.
 - Commits small and scoped; commit message references the milestone (e.g. `M1: verb postings + invariants`).
 - **Every session ends with a `CHANGELOG.md` entry** (newest first, dated, milestone-tagged: Added / Changed / Decided / Open / Commits). Write it before handing files to the owner to commit; fill the commit hashes in the next session. Git holds the diff — the changelog holds the *what* and *why*.
@@ -56,4 +58,4 @@ Trunk-based on protected `main`; tags at milestone exits (`m1-ledger-core`); sec
 - App: `flutter test` · `flutter build ios` · `dart run build_runner build -d` (Drift codegen) · `flutter analyze`
 - Tokens / strings: `dart run scripts/gen_tokens.dart` after editing tokens.json · ARB keys stay dotted (`screen.element.state`); `scripts/gen_l10n_arb.dart` derives the identifier-keyed copies gen_l10n needs (`app.name` → `appName`), run by ci.sh
 - Server: `supabase db reset` (applies migrations + RLS tests) · `deno test server/functions`
-- Full gate: `./scripts/ci.sh` (suites A–E + lint + string check)
+- Full gate: `./scripts/ci.sh` (push lane by default; `LANE=nightly|rc|release` selects the others — 09 §preamble, ADR 2026-09-05i §2) · `dart run scripts/check_coverage.dart` (🔒→test ids; warn-only until M4)

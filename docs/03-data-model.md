@@ -22,7 +22,7 @@
 ### 2.1 Identity & tenancy (plaintext) 🔒
 
 ```sql
-users(id uuid pk,
+users(id uuid pk, trial_consumed_at timestamptz null,   -- trial once per user (ADR 2026-09-05g §12)
       phone_ct bytea, phone_hmac bytea unique,   -- encrypted under the server KMS key; HMAC for lookup (ADR 2026-09-05c §4)
       display_name text, photo_key text,
       language text, whatsapp_opt_in bool, created_at, deletion_requested_at,
@@ -94,15 +94,25 @@ create index on envelopes (tenant_id);
 
 **Shape checks — the complete list 🔒 (ADR 2026-09-05c §5):** `author_device == jwt.device_id` · `tenant_id == books.tenant_id` · `blob_hash` and `size` recompute · `suite_version`/`payload_schema` in registry · `key_version` ≤ highest issued · HLC sanity (05 §2) · caps/quotas (05 §3). Failure → `rejected:shape` naming the check. **Hash mismatch on read is corruption, not tampering:** re-fetch, count it, no security event; only an intact blob with a failing signature is quarantined (04 §8.3).
 
-**`object_type` registry 🔒:** `book_config · account · entry · approval_decision · period_lock · year_close · import_batch · import_line · rule · attachment_meta · cash_count` (+ reserved range). Everything in 02 and 07 maps into these; nothing financial exists outside them.
+**`object_type` registry 🔒:** `book_config · account · entry · approval_decision · period_lock · year_close · import_batch · import_line · rule · attachment_meta · cash_count · period_unlock · structural_approval · business_setting` (+ reserved range; the last three added by ADR 2026-09-05e §11 — `period_lock`/`period_unlock` are all-time objects in the bootstrap hot set, 05 §8). Everything in 02 and 07 maps into these; nothing financial exists outside them.
 
 `attachments(id, book_id, storage_key, size, created_at)` — ciphertext files in object storage; their per-file keys ride inside `attachment_meta` envelopes (04 §3).
 
 ### 2.4 Billing, audit, ops 🔒
 
 ```sql
-subscriptions(tenant_id pk, plan, status, gateway, gateway_ref, current_period_end)
+subscriptions(tenant_id pk, plan, status, gateway, gateway_ref, current_period_end,
+        source text check (source in ('razorpay','apple','google','manual')),
+        original_transaction_id, payer_user_id uuid,     -- only a tenant admin (ADR 2026-09-05g §7)
+        trial_end, grace_until, grace_kind text null check (grace_kind in ('dunning')),
+        cancel_at_period_end bool, seats_addon int, dispute_state, updated_at)  -- 05 §5 cursor
+billing_events(event_id pk, gateway, type, payload_hash, received_at, applied_at null)
+        -- signature-verified, deduped, out-of-order guarded (ADR 2026-09-05g §9)
+promo_codes(code pk, max_redemptions, per_user_limit, first_purchase_only bool, valid_from, valid_to)
+promo_redemptions(code, user_id, tenant_id, at)     -- server-validated, never stacked (§12)
 audit_events(id, tenant_id null, user_id null, kind, details jsonb, at)
+   -- member-facing operational log. The STAFF audit log is a separate, hash-chained,
+   -- off-box store the admin role cannot write (12 §3, ADR 2026-09-05h §6) — not this table.
    -- operational/tenant-visible: device added, invite sent, member removed,
    -- recovery requested, escrow countdown… (never financial content)
 app_config(key pk, value)               -- min_client_version per route group, etc.
@@ -136,7 +146,7 @@ envelopes_local(envelope_id pk, book_id, object_id, object_type, key_version,
         blob, blob_hash,                             -- hash verified on read; mismatch = corruption → re-bootstrap (ADR 2026-09-05c §2, §6)
         verified int,                                -- 1 after sig-chain check
         quarantined int default 0, quarantine_reason text,
-        held int default 0, held_for uuid null)      -- dangling ref, waiting for target (§4)
+        held int default 0, held_for uuid null)      -- dangling ref, waiting for target (§4); the tray state is `inTray`, never `held` (ADR 2026-09-05e §10)
 outbox(envelope_id pk, book_id, blob, created_at, push_state text
         check (push_state in ('queued','inflight','acked','observed','rejected')),
         acked_seq bigint null, reject_reason text)   -- prune only at 'observed' (§6)
@@ -192,7 +202,7 @@ Key indexes: `entry_lines_p(account_id, accounting_date)` (A/C statement, runnin
 2. The projector is a **pure, deterministic function** of the ordered envelope stream + certified opening vectors — this is what makes the close-hash verification (02 §8) and *Recompute* possible. No projector step may read the clock, the network, or local settings.
 3. `balances` and `daily_snapshots` update transactionally with each applied entry; a full rebuild seeds from the latest `year_close_p` vector (02 §8.1) then replays the open FY.
 4. **Unknown-field round-trip 🔒:** payloads are JSON; clients must preserve fields they don't understand when amending an object (older app editing an entry created by a newer app must not strip new fields). `payload_schema` gates *interpretation*, never storage.
-5. **`review_state` folds from envelopes only 🔒:** `auto_post_limit_paise` lives in `book_roles` — **plaintext server metadata, not an envelope** — so the projector may never read it (rule 2). The *authoring* client evaluates the limit at save time and writes the boolean `review_required` into the entry payload (02 §1.3); the projector then sets `review_state = 'open'` iff `review_required` and no decision has arrived, and folds any `approval_decision` envelopes for that entry in `(hlc, envelope_id)` order, last one winning, to `approved` or `rejected`. This keeps the projection a pure function of the envelope stream, so two devices with different cached role metadata still compute an identical close-hash (02 §8). A hostile client that sets `review_required=false` on an over-limit entry is caught by readers the same way any invariant violation is (02 preamble) — the limit is *also* carried in the payload for that check.
+5. **`review_state` folds from envelopes only 🔒 (the peer reviewer lives in the `book_config` envelope, ADR 2026-09-05e §9):** `auto_post_limit_paise` lives in `book_roles` — **plaintext server metadata, not an envelope** — so the projector may never read it (rule 2). The *authoring* client evaluates the limit at save time and writes the boolean `review_required` into the entry payload (02 §1.3); the projector then sets `review_state = 'open'` iff `review_required` and no decision has arrived, and folds any `approval_decision` envelopes for that entry in `(hlc, envelope_id)` order, last one winning, to `approved` or `rejected`. This keeps the projection a pure function of the envelope stream, so two devices with different cached role metadata still compute an identical close-hash (02 §8). A hostile client that sets `review_required=false` on an over-limit entry is caught by readers the same way any invariant violation is (02 preamble) — the limit is *also* carried in the payload for that check.
 
 ---
 
@@ -221,7 +231,7 @@ Key indexes: `entry_lines_p(account_id, accounting_date)` (A/C statement, runnin
 ## 6. Retention 🔒
 **Residency & durability 🔒 (ADR 2026-09-05c §1):** Postgres, object storage, backups and logs all in **India** (Mumbai region or equivalent; no Indian region = disqualified provider); backups never leave it. PITR on (⚠️ 7 d), daily encrypted snapshots 35 d, monthly 12 mo; backup access is a privileged audited path, never the API role; **quarterly restore drill** against written RTO/RPO (⚠️ ≤ 4 h / ≤ 5 min); **every restore bumps `store_epoch`** (05 §1). Platform backups of the client database are excluded (iOS attribute; Android `allowBackup=false`). Object storage: private bucket, per-tenant prefix, object written before row, nightly orphan sweep.
 
-Ephemeral auth rows TTL-purged (24 h). `audit_events` 24 months then aggregated; `verification_events` permanent. Revoked wrapped keys kept 90 days then purged. Envelopes: forever (they are the books), with closed-FY partitions eligible for cold storage behind the same API (02 §8.1). Deleted users per §2.5 — profile erased, keys and personal-book envelopes purged, **device certs and UMK public keys retained indefinitely** as verification material for entries they authored in shared books. ⚠️ confirm final DPDP retention wording.
+Ephemeral auth rows TTL-purged (24 h). `audit_events` 24 months then aggregated; `verification_events` permanent. **The staff audit log (12 §3) is a separate store retained ≥ 3 years and is outside this aggregation — the purge job never touches it (ADR 2026-09-05h §6).** **Long-lapsed tenants (ADR 2026-09-05g §5):** 24 months with no login → three notices over 90 days → envelopes to cold storage, still pullable on next login; never deleted. Revoked wrapped keys kept 90 days then purged. Envelopes: forever (they are the books), with closed-FY partitions eligible for cold storage behind the same API (02 §8.1). Deleted users per §2.5 — profile erased, keys and personal-book envelopes purged, **device certs and UMK public keys retained indefinitely** as verification material for entries they authored in shared books. ⚠️ confirm final DPDP retention wording.
 
 ---
 

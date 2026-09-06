@@ -25,9 +25,11 @@ enum EffectiveStatus {
   /// Fully reversed; both it and its mirror stay in history (02 §5).
   voided,
 
-  /// A late arrival held in the closer's tray — valid, but absent from totals
-  /// until re-dated or the month is re-opened (02 §8).
-  held,
+  /// A late arrival in the closer's tray — valid, but absent from totals
+  /// until re-dated or the month is re-opened (02 §8). Named `inTray` so that
+  /// `held` means one thing only: a dangling reference awaiting its target
+  /// (02 §5, ADR 2026-09-05b §4, ADR 2026-09-05e) — that state lands at M2.
+  inTray,
 }
 
 /// The review flag of a posted entry (03 §3.3.5). Never affects a balance (02 §9).
@@ -442,7 +444,7 @@ LedgerState project(
         }
         final EffectiveStatus status;
         if (heldInTray.contains(ev.id)) {
-          status = EffectiveStatus.held;
+          status = EffectiveStatus.inTray;
         } else if (ev.status == EntryStatus.pending) {
           status = EffectiveStatus.pending;
         } else {
@@ -498,7 +500,7 @@ LedgerState project(
           if (!shouldCount && target.isCounted) apply(target.entry, add: false);
           final newStatus = ev.decision == Decision.approve
               ? (heldInTray.contains(target.entry.id)
-                    ? EffectiveStatus.held
+                    ? EffectiveStatus.inTray
                     : EffectiveStatus.posted)
               : EffectiveStatus.rejected;
           entries[ev.entryId] = target._with(

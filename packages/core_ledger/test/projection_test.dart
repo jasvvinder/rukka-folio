@@ -271,33 +271,47 @@ void main() {
       expect(s.balances[cash.id], -rs(250));
     });
 
+    test('amendment must keep the kind', () {
+      final e = book.entry(
+        Verbs.moneyOut(from: cash, forWhat: kirana, amount: rs(250)),
+        kind: EntryKind.moneyOut,
+        id: 'orig',
+      );
+      final wrongKind = book.entry(
+        Verbs.moneyOut(from: cash, forWhat: kirana, amount: rs(1)),
+        kind: EntryKind.transfer,
+        refs: const EntryRefs(amends: 'orig'),
+      );
+      final s = project([e, wrongKind], chart);
+      expect(
+        s.quarantined.single.violations.single.kind,
+        ViolationKind.amendKindChanged,
+      );
+    });
+
     test(
-      'amendment must keep the kind; amending a missing target is quarantined',
+      'amending a missing target is quarantined',
       () {
         final e = book.entry(
           Verbs.moneyOut(from: cash, forWhat: kirana, amount: rs(250)),
           kind: EntryKind.moneyOut,
           id: 'orig',
         );
-        final wrongKind = book.entry(
-          Verbs.moneyOut(from: cash, forWhat: kirana, amount: rs(1)),
-          kind: EntryKind.transfer,
-          refs: const EntryRefs(amends: 'orig'),
-        );
         final orphan = book.entry(
           Verbs.moneyOut(from: cash, forWhat: kirana, amount: rs(1)),
           kind: EntryKind.moneyOut,
           refs: const EntryRefs(amends: 'ghost'),
         );
-        final s = project([e, wrongKind, orphan], chart);
+        final s = project([e, orphan], chart);
         expect(
-          s.quarantined.map((q) => q.violations.single.kind),
-          containsAll([
-            ViolationKind.amendKindChanged,
-            ViolationKind.amendTargetMissing,
-          ]),
+          s.quarantined.single.violations.single.kind,
+          ViolationKind.amendTargetMissing,
         );
       },
+      skip:
+          'superseded by ADR 2026-09-05b §4 / 02 §5: a dangling reference is '
+          '`held` (not projected, not quarantined) until its target arrives; '
+          're-lands with the held state at M2 (ADR 2026-09-05e).',
     );
 
     test(
@@ -504,7 +518,7 @@ void main() {
       expect(isLateArrival(late, lock, arrivedAfterLock: false), isFalse);
       final held = project([late, lock], chart, heldInTray: {late.id});
       expect(held.balances[cash.id], Paise.zero);
-      expect(held.entries[late.id]!.status, EffectiveStatus.held);
+      expect(held.entries[late.id]!.status, EffectiveStatus.inTray);
       // Re-dated into the open period by the closer: an amendment dated June.
       final redated = late.amendWith(
         newId: 'rd',

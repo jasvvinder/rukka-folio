@@ -1,8 +1,14 @@
+---
+approved_by:      # bookkeeper name — empty = PROVISIONAL (ADR 2026-09-05i §3)
+approved_on:      # YYYY-MM-DD
+content_hash:     # BLAKE2b-256 over the five example .md files; checked by scripts/check_coverage.dart
+---
+
 # Worked Examples — reading guide and class mapping
 
-Four entity types, seven books, 175 vouchers, FY 2026-27. Every ledger and trial balance here is generated from the voucher register and verified to balance.
+Five entity types, eight books, 185 vouchers, FY 2026-27 (the partnership example was added 30 Aug 2026 after this header was first written; counts corrected per ADR 2026-09-05i §3). Every ledger and trial balance here is generated from the voucher register and verified to balance.
 
-**Status:** ⚠️ pending bookkeeper sign-off. On sign-off these freeze as **golden fixtures** (09 suite A) and the engine must reproduce every ledger and trial balance exactly.
+**Status:** ⚠️ **PROVISIONAL** — pending bookkeeper sign-off; sign-off blocks **M14** exit, not M2 (ADR 2026-09-05i §3). Any post-approval change to a figure needs an ADR and a new `content_hash`. On sign-off these freeze as **golden fixtures** (09 suite A) and the engine must reproduce every ledger and trial balance exactly.
 
 | File | Entity | Books | Vouchers | TB total |
 |---|---|---:|---:|---:|

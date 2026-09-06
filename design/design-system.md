@@ -11,8 +11,9 @@
 1. **Color lives in the numerals.** `credit`/`debit` tint amounts only — never rows, cards, or chips — and every colored amount also carries its sign (`+`/`−`) and column position. The app is near-monochrome; the numbers are the color. (11 §4.3)
 2. **`primary` is never a value judgement.** Indigo means "interface", not "good" or "selected-correct". (11 §4.3)
 3. **One `accent` per screen, maximum.** (11 §4.3)
-4. **Tabular figures on every amount, everywhere** — `tabular-nums` / `FontFeature.tabularFigures()`. Misaligned columns are how accounting software looks amateur. (11 §4.4)
-5. **Indian grouping, ₹ prefixed:** ₹1,24,500.00. Latin digits in all locales. (11 §4.4, 01 §1.5)
+4. **Tabular figures on every amount, everywhere** — `tabular-nums` / `FontFeature.tabularFigures()`. Misaligned columns are how accounting software looks amateur. (11 §4.4) **Amount columns keep Latin digits even under the Devanagari-numeral opt-in** — Mukta has no tabular Indic digits (ADR 2026-09-05f §H8).
+5. **Indian grouping, ₹ prefixed:** ₹1,24,500 in the app — **no paise on screen; two decimals only in statements and exports** (ADR 2026-09-05f §H9, reconciling 11 §4.4 with DESIGN-PACK Step 0). Latin digits in all locales. (11 §4.4, 01 §1.5)
+13. **Status colours are words, icons and borders — never amounts** (ADR 2026-09-05f §H1). `success` / `warning` / `info` / `danger` exist for chips, banners and cards; `credit`/`debit` remain the only colours a numeral may wear. `danger` absorbs the S9.4/S10.4 pair.
 6. **Dark mode is required**, full token set, hues kept and lifted — never derived by inversion at runtime. (11 §4.3)
 7. **Paper, not pixels:** background is `paper`, text is `ink`, structure is hairlines and the 3px left rule — shadows almost never. Decoration must be a rule, a column, or a fold, or it doesn't ship. (11 §4.1)
 8. **Containers budget +40%** over English for the longest scripts; text containers never have fixed heights; everything survives OS font scale 200%. (11 §5, 07 §18)
@@ -21,7 +22,9 @@
 11. **No spinner, anywhere 🔒 (owner-ruled 3 Sep 2026, ADR 2026-09-03d).** The loader is a *rule*: 2px `loader-track` hairline + `loader-segment` ink — never indigo, never bahi, never the mark. Determinate with a count whenever the app can count ("1,240 of 3,890 entries restored"), indeterminate only with a verb, shown after 200ms, escalates with one status line at 8s, announced as a live region. (11 §4.5)
 12. **Skeletons are static ruled rows** at the true pitch — no shimmer, zero layout shift, one screenful max. (11 §4.5)
 
-## 2. The two new tokens ⚠️ (owner sign-off needed)
+## 2. The two new tokens — approved 5 Sep 2026 (ADR 2026-09-05f §H11), plus the status family ⚠️ values pending
+
+`pending`, `locked`, `sunk`, `scrim` are **approved** at the values below/in tokens.json; `sunk` carries the caveat that light `credit` is darkened one step so amounts pass AA on it (§3.1). **New family** (values ⚠️ token session): `success`, `warning`, `info`, `danger`, `on-danger`, `focus-on-primary`, `minTouchTarget: 44`, a dark reduced-motion track and a dark `shadow-soft`.
 
 The brand palette had no states for our approval and locking flows; proposed, chosen to sit inside the warm palette and stay distinct from `accent` and `debit`:
 
@@ -34,11 +37,11 @@ Both obey rule 1's spirit: `pending` may tint the status word/icon and the amoun
 
 ## 3. Contrast audit (computed, WCAG 2.1)
 
-Computed (WCAG 2.1 relative luminance), on light `bg #F5F0E4`: `text` 15.3:1 AAA · `primary` 9.7:1 AAA · `debit` 5.8:1 AA · `pending` 4.9:1 AA (darkened from the first proposal, which measured 4.0) · `text-muted` 4.8:1 AA · `credit` 4.6:1 AA · `accent` 4.1:1 — **below AA by brand-fixed value: use for the seal, icons, and large text only, never body text** · `locked` 3.2:1 — **intentionally sub-AA: marks disabled content, never the only signal (🔒 icon always accompanies)**. Dark set on `#1A1A18`: text 15.3 · pending 8.0 · primary 7.1 · text-muted 6.7 · credit 6.1 · accent 5.5 · debit 4.8 — all amount/text roles ≥ AA. The audit script lives in this repo's history and moves to `scripts/` at M0; re-run on any value change. Grayscale check (07 §18) still applies — ~1 in 12 male users is red-green deficient.
+Computed (WCAG 2.1 relative luminance), on light `bg #F5F0E4`: `text` 15.3:1 AAA · `primary` 9.7:1 AAA · `debit` 5.8:1 AA · `pending` 4.9:1 AA (darkened from the first proposal, which measured 4.0) · `text-muted` 4.8:1 AA · `credit` 4.6:1 AA · `accent` 4.1:1 — **below AA by brand-fixed value: use for the seal, icons, and large text only, never body text** · `locked` 3.2:1 — **intentionally sub-AA: marks disabled content, never the only signal (🔒 icon always accompanies)**. Dark set on `#1A1A18`: text 15.3 · pending 8.0 · primary 7.1 · text-muted 6.7 · credit 6.1 · accent 5.5 · debit 4.8 — all amount/text roles ≥ AA. The audit script becomes **`scripts/check_contrast.dart`, run by `ci.sh`**, computing every text/amount role on **all four grounds** (`bg`, `surface`, `sunk`, `danger-surface`), both modes (ADR 2026-09-05f §H2, §H10); this prose is superseded by its output. Grayscale check (07 §18) still applies — ~1 in 12 male users is red-green deficient.
 
 ## 3.1 Accessibility conformance 🔒 (target: WCAG 2.2 AA)
 
-**Contrast — computed, both themes, on `bg` *and* `surface`.** All text and amount roles pass AA. Two deliberate exceptions, each safe because it never carries meaning alone: `accent` (light 4.15:1) is restricted to the seal, icons and large text; `locked` (3.23 / 3.80) marks disabled content and is always accompanied by a 🔒 icon. `debit` dark had been lifted to `#D4776F` after measuring 4.29:1 on `surface` at its previous value. **4 Sep 2026 (owner-ruled, ADR 2026-09-03d):** dark `credit`/`debit` moved to the motion page's hues: `#4FA37A` / `#CB6F6F`. The page's original debit `#C96A6A` measured 4.31:1 on `surface`, below AA for 14–16px amounts on cards, so debit was lifted one step (owner-approved). Measured now: credit 5.69:1 on `bg`, 5.13:1 on `surface`; debit 5.02:1 on `bg`, 4.53:1 on `surface` — all AA ✓. **Re-run the audit on any token change; contrast must be checked against `surface`, not only `bg`.**
+**Contrast — computed, both themes, on `bg` *and* `surface`.** All text and amount roles pass AA. Two deliberate exceptions, each safe because it never carries meaning alone: `accent` (light 4.15:1) is restricted to the seal, icons and large text; `locked` (3.23 / 3.80) marks disabled content and is always accompanied by a 🔒 icon. `debit` dark had been lifted to `#D4776F` after measuring 4.29:1 on `surface` at its previous value. **4 Sep 2026 (owner-ruled, ADR 2026-09-03d):** dark `credit`/`debit` moved to the motion page's hues: `#4FA37A` / `#CB6F6F`. The page's original debit `#C96A6A` measured 4.31:1 on `surface`, below AA for 14–16px amounts on cards, so debit was lifted one step (owner-approved). Measured now: credit 5.69:1 on `bg`, 5.13:1 on `surface`; debit 5.02:1 on `bg`, 4.53:1 on `surface` — all AA ✓. **Re-run the audit on any token change; contrast must be checked against all four grounds — `bg`, `surface`, `sunk` and `danger-surface`.** Measured 5 Sep 2026 (ADR 2026-09-05f §H2): light `credit` on `sunk` **4.30:1** and on `danger-surface` **4.20:1**, dark `debit` on `danger-surface` **4.04:1** — all below AA. Ruling: light `credit` is **darkened one step** (⚠️ hex at the token session); amounts are **never placed on `danger-surface`**. **Focus** (WCAG 2.2 §2.4.11 / §1.4.11): the ring is `focus` on every ground and **`focus-on-primary`** on primary buttons — today's `focus` equals `primary` and vanishes there.
 
 **Beyond contrast — the rules that make this app usable non-visually:**
 1. **Language of parts (WCAG 3.1.2) 🔒** — account names, notes and party names are user-typed and may be in any of the three scripts *inside* a UI running in another language. Every such string carries its own `lang` attribute (`pa`, `hi`, `en`) so VoiceOver switches voice instead of reading Gurmukhi with an English synthesiser. This is the single most important a11y rule in a trilingual product and it must be implemented at the text-widget level, not per screen.
@@ -58,9 +61,22 @@ Computed (WCAG 2.1 relative luminance), on light `bg #F5F0E4`: `text` 15.3:1 AAA
 
 Mukta everywhere (Mukta Mahee for Gurmukhi), Noto Sans fallback only. Scale: display 40/600 · page 28/600 · section 20/500 · body 16/400 · table-row 14/400 · caption 12/400 · amount-hero 44/600 · amount-row 16/500. 4pt grid, 16 gutter, 56 min row height. Radii 4/8/12; cards carry the 3px left rule with square corners on that side. Motion: brand easings, 120–400ms; nothing bounces.
 
+**Type scale is a token, and the canvases follow it (ADR 2026-09-05f §H4).** `partials/src/kit.js` and DESIGN-PACK Step 1 use 11.5 / 12.5 / 14.5 / 15 / 15.5 / 17 / 34, none of which exist here — they become named roles in `typography.scale` (row-primary, row-narration, chip, nav-label, hero-amount-compact) or die. **Line-height is per role** with an **Indic floor of 1.4** — 1.2 clips stacked Gurmukhi matras and Devanagari conjuncts.
+
+**One palette source — the name map (ADR 2026-09-05f §H5).** `scripts/gen_tokens.dart` emits every view, including the canvas band; nothing is hand-kept.
+
+| tokens.json | tokens.css | tokens.dart | Figma variable | canvas (`build-canvas.js`) |
+|---|---|---|---|---|
+| `color.light.credit` | `--credit` | `RkColors.credit` | `color/credit` | `--in` |
+| `color.light.debit` | `--debit` | `RkColors.debit` | `color/debit` | `--out` |
+| `color.light.text-muted` | `--text-muted` | `RkColors.textMuted` | `color/text-muted` | `--muted` |
+| `color.light.hairline` | `--hairline` | `RkColors.hairline` | `color/hairline` | `--hair` |
+| `on-primary`, `focus`, `loader-track`, `loader-segment`, `skeleton-label`, `skeleton-amount` | same | same | same | **emitted from now on** (had no canvas name) |
+| — | — | — | — | `--frame`, `--dim` become tokens or are removed |
+
 ## 4.1 Bottom navigation — the four tab icons 🔒 (owner-directed, 3 Sep 2026)
 
-One tab bar everywhere: **Home · Ledger · Inbox · Menu**, 4-column, min-height 50, icons
+One tab bar everywhere: **Home · Ledger · Inbox · Menu**, 4-column, **plus a docked centre ( + ) action that is not a tab** — no active state, no label; 13 §3.1, 07 §2 and DESIGN-PACK S1 state the same bar (ADR 2026-09-05f §A). Min-height 50, icons
 **21×21** (viewBox 24, feather-style stroke icons), label 10.5px. Active tab:
 `primary` color, stroke-width 2, label weight 600. Inactive: `muted`, stroke-width 1.8,
 label weight 400. The four glyphs — canonical, never redrawn per screen:
@@ -87,7 +103,12 @@ The ਨਾਮੇ | ਜਮ੍ਹਾਂ | ਬਾਕੀ statement (01 §1.9) is the
 
 - [x] tokens.json / tokens.css / tokens.dart (this drop)
 - [x] `scripts/gen_tokens.dart` + CI drift check (M0, 4 Sep 2026)
-- [ ] ⚠️ Owner sign-off: `pending` + `locked` values (§2)
+- [x] Owner sign-off: `pending` + `locked` (+ `sunk`, `scrim`) — approved 5 Sep 2026 (ADR 2026-09-05f §H11)
+- [ ] ⚠️ Token session (ADR 2026-09-05f §H): status family `success`/`warning`/`info`/`danger`/`on-danger` · `focus-on-primary` · light `credit` darkened for `sunk` · dark reduced-motion track · dark `shadow-soft` · `minTouchTarget` · per-role line-heights (Indic floor 1.4) · canvas type roles · `iconography` gains nav stroke 1.8 and sizes 21/34/36 · `$meta.version` bump
+- [ ] `scripts/check_contrast.dart` in `ci.sh` — four grounds, both modes
+- [ ] `gen_tokens.dart` emits the canvas band; delete `build-canvas.js` lines 6–7; tokenise `kit.js` `FRAME`/`note()`; remove `#d9d5cd` dark frames, `#ffffff`, `#ec3013`, rgba sheet shadows; tokenise Canvas 0
+- [ ] Draw skeletons on every list screen and the loader rule (with `loader-*` tokens) on O0 slow start, R2.0, R2.2, S16.2 — currently drawn on 0 of 23 canvases
+- [ ] Components for the 5 Sep states: banner (suspended / read-only / book full), toast, countdown (cancel windows, PIN cooldown), progress meter, provisional badge, held row state, S15.3 cooldown + disabled
 - [ ] ⚠️ Commission lockups **together**: Latin + ਪੰਜਾਬੀ (Gurmukhi) + हिन्दी (Devanagari) — brand §4.2's rule applied to Phase-1 languages; Tamil when its language ships
 - [ ] ⚠️ Mark animation as one Rive/Lottie asset from the geometry in 11 §4.2 — acceptance reference `docs/brand/rukka-folio-mark-animation.html`; source geometry `docs/brand/icons/master/mark-sealed.svg` / `mark-open.svg` (v1.2, strap y14–74)
 - [x] Icon package v1.2.3 delivered (`docs/brand/icons/`) — wire into `/app` (iOS appiconset, Android res, web) when the scaffold lands
@@ -113,4 +134,4 @@ The ਨਾਮੇ | ਜਮ੍ਹਾਂ | ਬਾਕੀ statement (01 §1.9) is the
 | Splash, slow (> 3s) | loader rule beneath, "Opening your books." | artificial delay |
 | Waiting on people (R2.2, S16.2) | row state words + inline loader rule; "1 of 2 approvals" | a spinner |
 
-Reduced motion: static track @25% ink + text; skeletons unchanged; jump cuts. Dark mode: track paper @16%, segment paper; skeleton blocks paper @9% / @14%.
+Reduced motion: static track @25% ink + text (⚠️ dark value for the static track pending — ADR 2026-09-05f §H11); skeletons unchanged; jump cuts. Dark mode: track paper @16%, segment paper; skeleton blocks paper @9% / @14%. **Rebuild (S1.4)** and **close blocked (S10.5)** use the determinate rule and state words respectively — never a spinner (ADR 2026-09-05f §B).

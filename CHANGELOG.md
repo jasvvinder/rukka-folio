@@ -12,6 +12,27 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-05 — docs: seven-spec review fan-out → five ADRs (05e–05i) + M2 code follow-ups
+
+Seven parallel review agents (02, 07, 08, 09, 12, 13, design system) produced one consolidated decision sheet of 40 items; owner ruled **"accept all recommendations"**. Five forked agents drafted one ADR each plus an edit script; scripts applied serially (e → g → h → i → f), shifted anchors re-anchored by hand, zero table breakage, `gen_tokens --check` green.
+
+**Decided**
+- `2026-09-05e-ledger-time-boundary.md` — 🔒 §9 balance formula restated (reversal + target both count); certified vector as-of `accounting_date`, balance-sheet accounts only, FY P&L from FY envelopes, Corpus a computed line (accounting-reference conflict owner-ruled; errata F-5/F-6/F-7 pending bookkeeper sign-off); late arrivals in live balance, out of certified month; close blocked on author gap / `held`; `period_lock`/`period_unlock` all-time objects; per-kind shape invariants; sealed-book pairs *unconfirmed*; loss distribution + FY-scoped period + ceiling; member removal / FY-start / archive structural (quorum), FY-start frozen after any close; peer reviewer in `book_config`; `held` = dangling ref only, tray state renamed `inTray`; registry + `period_unlock`, `structural_approval`, `business_setting`.
+- `2026-09-05f-ux-design-catch-up.md` — 🔒 tab bar = four tabs + docked centre (+) in 13/07/design-system/DESIGN-PACK; the seventeen ADR states given screens (S1.4, S10.5, S11.9, S11.10, S15.4, S19.5, variants), 13 §6 gains Device and App-lock models, Sync aligned to 05 §9; 07 §5 contradictions resolved (later rulings win); Inbox card taxonomy; notification→destination map (13 §3.4); nine screens 07 did not own + Opening-balances door; copy honesty fixes; design system: status colour family (icons/borders/words, never amounts), four grounds audited, `focus-on-primary`, type scale + Indic line-height floor, canvas palette generated from tokens, skeletons/loader drawn, paise none in-app / two decimals in statements, `check_contrast.dart` in ci.sh; pending/locked/sunk/scrim approved with the sunk caveat; PIN lockout = ADR behaviour + canvas tone.
+- `2026-09-05g-subscription-entitlement.md` — 🔒 entitlement token under the **one** server signing key (pinned beside SPKI pins); hard caps server-side, watermark soft and reports-only; quota table (10k/100k/250k/1M envelopes per book · 250 MB/2/5/15 GB · attachments 100 MB/2/5/20 GB · 10 MB/file · devices 5/5/8/15 = max across tenants · 600/min, 5k/h, 50 MB/day) closes 05b §7 ⚠️; dunning grace ≠ offline grace, clock floor; seats count invited+pending+active; `payer_user_id`; IAP option 1 + web GST checkout + single INR price; `billing_events`, `subscriptions.updated_at` etc.; GST in paise half-up; refunds scoped to gateway, one per user lifetime; trial once per user; 24-month lapsed → cold storage, never deletion.
+- `2026-09-05h-admin-console-staff.md` — 🔒 freeze exists narrowly (fraud/legal/abuse, four-eyes, ≤30 d, member notified; `rejected:tenant_frozen` pushes only) and is in 06 §8; support revocation pending-window + no re-revoke after cancel; support deletion = request to user devices; admin role has no KMS decrypt, phone lookup by HMAC, own column allowlist; break-glass doctrine (12 §3.1) for backup/maintenance/KMS incl. Phase-0 SQL; staff lookup quotas; hash-chained off-box staff log ≥3 y separate from 03 §6; staff roles + SSO + quarterly review; four-eyes by irreversibility; config canary/rollback; DPDP & legal (12 §7); transparency event Phase 1; ≥2 staff accounts.
+- `2026-09-05i-test-contract.md` — 🔒 test ids + `⟦tests: …⟧` marker on every 🔒 line, `check_coverage.dart` warn→block at M4; four CI lanes; golden governance (provisional until bookkeeper sign-off, README front-matter approval + hash, blocks M14 exit; README header corrected 5/8/185); supersession `@Skip` rule; shrinking property tests / seed corpus; perf gate SE 3 p95/20 nightly, Android at M12; `/testing/harness`; hygiene grep + flaky policy; suite F → F1/F2/F3; E server runner; 13 previously untested 🔒 rulings given ids.
+
+**Added (code, M2 follow-ups)** — `packages/core_ledger`: `EffectiveStatus.held` → `inTray`; orphan-amendment test split, the superseded half `@Skip`ped with the ADR pointer. `dart analyze` clean; 134 passed, 1 skipped.
+
+**Changed** — 02, 03, 04, 05, 06, 07 (+ new §§20–28), 09, 10, 11, 13, CLAUDE.md, design-system.md, DESIGN-PACK.md, tokens.json (`_proposed_2026-09-05f` note only), reference errata + worked-examples README + one Corpus sentence + one interest figure (pending sign-off).
+
+**Open** ⚠️ — per-ADR Open sections; notably exact hex for the darker light `credit` (05f), shrinking-generator package (05i), SAC code (05g), canvas-mirror versioning (05f), 07 §19 renumber pass.
+
+**Commits** — pending.
+
+---
+
 ## 2026-09-05 — docs: auth & devices vs the hostile relative (ADR 2026-09-05d)
 
 Fourth review of the day, of 06. The strongest spec of the four; its gaps were flows that let a hostile human — or two colluding guardians — act faster than the owner can notice.

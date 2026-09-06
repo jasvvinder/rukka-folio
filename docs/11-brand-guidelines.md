@@ -215,9 +215,11 @@ One family across all nine scripts. This constraint is the single biggest contri
 
 **Numerals must be tabular-figure, always.** Columns that don't align are the fastest way to look amateur in accounting software. Set `font-variant-numeric: tabular-nums` globally on any element containing an amount.
 
-Amounts use the Indian grouping system — **₹1,24,500.00**, not ₹124,500.00. This is non-negotiable and is a trust signal.
+Amounts use the Indian grouping system — **₹1,24,500.00**, not ₹124,500.00. This is non-negotiable and is a trust signal. In the app the paise are **not shown** (₹1,24,500); statements and exports carry two decimals — and amount columns keep **Latin digits** even where a user opts into Devanagari numerals, because Mukta has no tabular Indic digits (ADR 2026-09-05f §H8–9).
 
 ### 4.5 Motion in product — loading and the splash screen
+
+> ADR 2026-09-05f §H6: the skeleton and loader rules below are 🔒 and tokenised but were drawn on none of the 23 canvases at 5 Sep 2026; the next canvas session draws them (every list, O0 slow start, R2.0, R2.2, S16.2, S1.4) with the `loader-*` / `skeleton-*` tokens.
 
 Reference implementation and acceptance test: `docs/brand/rukka-folio-motion-guidelines.html` (every spec below runs live on that page, light and dark). Token values live in `design/tokens/tokens.json` under `motion.loader`, `motion.skeleton`, `motion.splash` and the `loader-*` / `skeleton-*` colours.
 

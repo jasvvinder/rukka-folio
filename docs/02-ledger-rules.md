@@ -26,9 +26,9 @@ Accounts are encrypted content with stable UUIDs. Each has a **class**, which dr
 | `advance` | `Advance – {member}` auto-created per member per book | Asset; drives the advance flow (§7) |
 | `partner` | `{Owner} — Partner Current A/c`, one per owner of a jointly-owned business | By sign: Cr = business owes them · Dr = they owe the business (§7.1) |
 | `category_income` / `category_expense` | Salary, Shop sales, Diesel, Groceries… (seeded tree per book type, editable) | P&L |
-| `equity_system` | Opening Balance, Adjustments, Due to/from {Book} (§6) | Equity / inter-book |
+| `equity_system` | Opening Balance, Adjustments, Suspense (§10), Profit Distributed (§7.1), Drawings (07 §5.7), Corpus (trusts), Due to/from {Book} (§6) | Equity / inter-book |
 
-Placement-by-sign means the user never classifies anything. There are **no destructive closing journal entries** at year end 🔒 — carry-forward happens through the Year Close ceremony (§8.1), which certifies the closing balances and brings them forward as the opening balances (b/f) of the next financial year. P&L is computed per financial year; the balance sheet shows *Accumulated surplus*. Fewer concepts, nothing for a layperson to run or get wrong.
+Placement-by-sign means the user never classifies anything. **Accumulated surplus (business/family) and Corpus (trust) are computed lines — Σ certified net results + opening equity − distributions — never stored accounts and never closing entries (ADR 2026-09-05e §2; the accounting reference's trust §6 is amended to match, errata F-5).** There are **no destructive closing journal entries** at year end 🔒 — carry-forward happens through the Year Close ceremony (§8.1), which certifies the closing balances and brings them forward as the opening balances (b/f) of the next financial year. P&L is computed per financial year; the balance sheet shows *Accumulated surplus*. Fewer concepts, nothing for a layperson to run or get wrong.
 
 **User-facing naming 🔒:** every account of every class appears to the user as simply an **A/C (khata)** — one unified, searchable A–Z list with live balances (the Ledger tab *is* the index page of a bound ledger). The words *party* and *category* are internal. Creation is always **inline**: typing an unknown name in any picker slot offers *"+ Create '{name}' A/C"* on the spot; the class is **inferred from the slot** (created in *To whom?* → `party`; in *For what?* of Money Out → `category_expense`; in *From what?* of Money In → `category_income`). Where a slot legitimately allows both (e.g. Money Out's counterpart may be an expense category or a party being repaid), the app asks one plain question with two icon chips: *person/shop (udhaar possible)* vs *type of expense*. The same real-world name may exist as both — *Verma Dairy A/c* (`party`) and *Dairy Expense A/C* (`category_expense`) — and a party may carry an optional **usual category** so credit purchases auto-fill their expense side. Seeded trees per tenant type use the traditional names (household: Kirana, Doodh/Dairy, School Fees…; trust: Donation A/C, Langar A/C, Bhent A/C…), all renamable and deletable-if-unused, shipped trilingually per 01.
 
@@ -60,6 +60,9 @@ Entry {
   note?         , attachment_ids[]
   refs?         : { amends?: entry_id, reverses?: entry_id,
                     transfer_group?: uuid, import_line?: uuid, close?: uuid }
+  currency      : "INR"            // §1.4 rule 5
+  channel?      : upi | card | netbanking | cash   // §2, ⚠️ §12 item 3
+  author_seq    : int              // per book per device, inside the ciphertext (05 §4, ADR 2026-09-05b §3)
   created_by_user, created_by_device, hlc
 }
 ```
@@ -71,6 +74,7 @@ Entry {
 4. Append-only: nothing is updated or deleted; state changes are new envelopes (amend, void, approve, lock).
 5. Currency: INR only in Phase 1; the field exists (`"INR"`) so multi-currency is a migration, not a rewrite. ⚠️ revisit if NRI members demand it.
 6. `accounting_date` defaults to today, is freely editable to any **backdate within an open period** (the forgot-an-entry case), must not be in the future (recurring entries own the future), and must fall in an open period as of the entry's HLC (§8).
+7. **Shape (ADR 2026-09-05e §6):** the lines of every `kind` match its §2 class-shape — `money_in` = Dr money · Cr {income | party}; `money_out` = Dr {expense | party} · Cr money; `gave_credit` = Dr party · Cr {money | income}; `took_credit` = Dr {money | expense} · Cr party; `transfer` = Dr money · Cr money or a §6 pair; `adjustment` = exactly one `equity_system` counter-account or a `refs.reverses` mirror. Readers re-check it; violation → quarantine `shape_violation`.
 
 ---
 
@@ -87,7 +91,7 @@ The user answers plain questions; the app builds the lines. Party-facing verbs a
 | 5 | **Transfer** | Within a book: from/to two money accounts (covers cash↔bank, bank↔bank, and CC/loan payments: Dr CC · Cr bank). Across books: §6. | Dr to-account · Cr from-account |
 | 6 | **Adjustment** (guided only) | Never freeform. Wizards: opening balances (§4), cash-count difference (§8), write-off a party/advance balance, reversal (§5). | Counter-account is always `equity_system` or the reversed entry's mirror |
 
-Verbs 3 and 4 with the "money" answer overlap verbs 1 and 2 with a party — same posting, reached from either door. 🔒 Keep both doors; users think in both idioms.
+**Every row above is a reader-enforced invariant, not only an authoring rule (§1.4 rule 7, ADR 2026-09-05e §6).** Verbs 3 and 4 with the "money" answer overlap verbs 1 and 2 with a party — same posting, reached from either door. 🔒 Keep both doors; users think in both idioms.
 
 **Online/offline paid** (from your one-screen requirement) is simply which money account the entry touches — cash vs a bank/UPI account — plus an optional `channel` tag for filtering. No separate accounting treatment.
 
@@ -107,7 +111,7 @@ Verbs 3 and 4 with the "money" answer overlap verbs 1 and 2 with a party — sam
                                                                  entries stay in history
 ```
 
-- **Every entry posts and affects balances the moment it is saved** — the collaborator's cash-in-hand always matches the drawer. There is no state in which recorded reality is excluded from a balance.
+- **Every entry posts and affects balances the moment it is saved** — the collaborator's cash-in-hand always matches the drawer. There is no state in which recorded reality is excluded from a **live** balance — including a late arrival (§8), which counts the moment it lands and is held out of *certified* month figures only (ADR 2026-09-05e §3).
 - `auto_post_limit_paise` (06 §1.1) is a **review threshold, not a gate**: above it, the entry carries a *needs review* flag shown in amber with the approver's name, and lands in the approver's Inbox.
 - Approve = a signed envelope clearing the flag. Reject = a signed rejection that auto-posts the mirror reversal (§5) with the reason; the original and the reversal both remain visible — the audit trail never hides a dispute.
 - **Nothing escapes review:** month close step 3 (§8) requires zero open flags before a book can lock.
@@ -125,7 +129,7 @@ Guided setup per book, re-runnable until first lock: for each money account and 
 
 ## 5. Corrections 🔒
 
-- **Open period:** an entry may be **amended** — a new envelope, `kind` unchanged, `refs.amends = original`, carrying the complete replacement payload. Views show the latest amendment; history is preserved and inspectable ("edited by Ramesh, 2 changes"). Amend chains are linear (amend the head only). **A reader holding an amendment, reversal or decision whose target has not arrived keeps it `held` — neither projected nor quarantined — until the target lands (ADR 2026-09-05b §4); only when every author's sequence is contiguous and the target is still absent is it quarantined as `target_missing`.**
+- **Open period:** an entry may be **amended** — a new envelope, `kind` unchanged, `refs.amends = original`, carrying the complete replacement payload. Views show the latest amendment; history is preserved and inspectable ("edited by Ramesh, 2 changes"). Amend chains are linear (amend the head only). **A reader holding an amendment, reversal or decision whose target has not arrived keeps it `held` — neither projected nor quarantined — until the target lands (ADR 2026-09-05b §4); only when every author's sequence is contiguous and the target is still absent is it quarantined as `target_missing`.** `held` means this and nothing else; the closer's-tray state of a late arrival is `inTray` (ADR 2026-09-05e §10).
 - **Locked period:** amendment is forbidden by rule. The only path: **reversal** — an auto-built mirror entry dated in the open period, `refs.reverses = original`, plus (optionally) the corrected re-entry. One guided flow: *"Fix an old entry"* → app posts both.
 - Reversed and amended-away entries remain visible in history, struck through. `void` status exists only as the derived state of a fully reversed entry.
 
@@ -144,7 +148,7 @@ Family book:     Dr Bank 50,000 · Cr Due to/from Business 50,000
 
 - Both halves post immediately (the money moved). If the actor lacks posting rights in one of the books, that half carries the *needs review* flag (§3) for that book's approver; position screens label the pair *in transit* while the flag is open. Reconciliation nets to zero from the moment of entry.
 - The one-sided everyday case — a member pays a family expense from his own pocket — is the same mechanism: personal book `Dr Due to/from Family · Cr Cash`; family book `Dr Expense · Cr Due to/from Personal(member)` (flagged for review if over limit). Nothing is ever lost in someone's pocket.
-- **Family Reconciliation report 🔒:** for every pair, balance(A→B) + balance(B→A) must equal 0. Any non-zero pair is listed with the entries composing it. This is the only cross-book integrity check that exists or is needed.
+- **Family Reconciliation report 🔒:** for every pair, balance(A→B) + balance(B→A) must equal 0. Any non-zero pair is listed with the entries composing it. This is the only cross-book integrity check that exists or is needed. **A pair is reconcilable only when the reader holds both books' keys; a side inside a personal or sub-family book the reader cannot open (04 §5.2) is shown as *one-sided · unconfirmed*, never as a mismatch (ADR 2026-09-05e §7).**
 - Business↔business movement is the same mechanism. **Profit distribution is *not* an inter-book operation** — it is a single multi-line entry inside the business book against Partner Current A/cs (§7.1). Remitting business surplus to a family pool *is* an inter-book transfer, and the two must not be conflated.
 
 ---
@@ -177,7 +181,7 @@ A business owned by several people or sub-families gets one **Partner Current A/
 
 🔒 **The payer never books an expense in their own book.** In their personal book it is `Dr {Business} · Cr Cash` — money owed to them, not an expense. The expense belongs to the business.
 
-**Profit distribution 🔒.** Net profit for the period × each owner's agreed ratio (fixed at business creation), posted as **one multi-line entry**: `Dr Profit Distributed (equity_system) · Cr each Partner Current`. It moves no cash — it converts undistributed surplus into debts the business owes its owners. Using a `Profit Distributed` account preserves §1.2's no-closing-entries rule: accumulated surplus stays computed, and this account records how much of it has been handed out.
+**Profit distribution 🔒.** Net profit for the period — **the open FY's income minus expense, minus distributions already posted in that FY (ADR 2026-09-05e §8)** — × each owner's agreed ratio (fixed at business creation), posted as **one multi-line entry**: `Dr Profit Distributed (equity_system) · Cr each Partner Current`. It moves no cash — it converts undistributed surplus into debts the business owes its owners. Using a `Profit Distributed` account preserves §1.2's no-closing-entries rule: accumulated surplus stays computed, and this account records how much of it has been handed out.
 
 🔒 **Contribution never changes the sharing ratio.** Paying more costs does not earn more profit — it earns a larger claim for repayment. The two are separate rows of the same account.
 
@@ -194,13 +198,15 @@ A business owned by several people or sub-families gets one **Partner Current A/
 
 **Interest on capital 🔒 — optional, off by default (owner-approved, Phase 1).** The classical remedy for the partner who funds but rarely draws. A per-business setting; enabling, changing the rate, or disabling it requires **every partner's approval** and is recorded as a dated business-setting envelope, so the terms in force for any past period are always recoverable.
 
-- **Computation:** `interest = average daily balance × rate × days in period ÷ 365`, per partner, computed by the app from the ledger itself — never typed. Only **credit** balances earn interest; a partner in debit balance is charged at the same rate unless the setting says otherwise ⚠️.
+- **Computation:** `interest = average daily balance × rate × days in period ÷ 365` (**Actual/365** — a 366-day year still divides by 365, ADR 2026-09-05e §8), per partner, computed by the app from the ledger itself — never typed. Only **credit** balances earn interest; a partner in debit balance is charged at the same rate unless the setting says otherwise ⚠️.
 - **Posting:** it is an **appropriation of profit, not a business expense** — `Dr Profit Distributed · Cr Partner Current`, tagged `interest`, exactly like a profit share but for a different reason. Keeping it out of the expense accounts means the farm's true operating cost is never distorted by how the partners chose to fund it.
-- **Order of operations:** interest is credited first, then the **remaining** profit splits by the agreed ratio. Worked illustration on the §7.1 example at 8% for the 122-day season: Amrit ₹4,296 · Sukhdev ₹2,311 · Harjit ₹1,354 (total ₹7,961); remaining profit ₹5,86,039 splits three ways.
+- **Order of operations:** interest is credited first, then the **remaining** profit splits by the agreed ratio. Worked illustration on the §7.1 example at 8% for the 122-day season: Amrit ₹4,296 · Sukhdev ₹2,311 · Harjit ₹1,354 (₹1,354.52 to the paisa; total ₹7,961); remaining profit ₹5,86,039 — the worked example's ₹1,355 / ₹5,86,038 is a rounding slip, errata F-6 splits three ways.
 - **Rounding:** each partner's interest is computed independently and rounded **half-up to the nearest paisa**; interest is not a ratio split, so the §7.1 remainder rule does not apply to it. The residual profit that is then split *does* use the remainder rule.
 - **The distribution preview shows both lines per partner** — interest and share — before anything posts, so the family sees the effect of the setting rather than discovering it.
 
-**Rounding rule 🔒 (applies to every ratio split, including profit shares).** Divide in integer paise; assign each partner `floor(amount × ratio)`; the remainder — always fewer paise than there are partners — goes to the partner with the **largest ratio**, ties broken by the earliest-created partner account. Deterministic on every device, so the split can never break §1.4's sum-to-zero invariant or diverge across the family's phones.
+**Losses, ceiling, interest above profit 🔒 (ADR 2026-09-05e §8).** A loss is shared by the **mirror posting** `Dr each Partner Current · Cr Profit Distributed`, same ratio, same remainder rule, so sum-to-zero holds identically. Cumulative distributions may never exceed accumulated surplus (§1.2's computed line) — the wizard refuses and says by how much. Interest is credited in full even when it exceeds profit; the remaining negative figure is then shared as a loss. The preview shows both lines.
+
+**Rounding rule 🔒 (applies to every ratio split, including profit shares).** Divide in integer paise; assign each partner `floor(amount × weight ÷ Σweights)` in integer paise (never `amount × ratio` as a float); the remainder — always fewer paise than there are partners — goes to the partner with the **largest ratio**, ties broken by the earliest-created partner account. Deterministic on every device, so the split can never break §1.4's sum-to-zero invariant or diverge across the family's phones.
 
 **Business surplus remitted to a family pool is not a drawing 🔒.** It is an ordinary inter-book transfer (§6) between the business book and the pool book. Money the family then takes "as needed" is tracked by the pool's own sub-family accounts. Two separate fairness ledgers — partner accounts for the business, sub-family accounts for the pool — and conflating them corrupts the partnership arithmetic.
 
@@ -208,7 +214,7 @@ A business owned by several people or sub-families gets one **Partner Current A/
 
 The admin holds every permission, so review cannot rely on someone senior to them. Four mechanisms, none of which depends on hierarchy:
 
-1. **Nobody clears their own flag.** A review flag (§3) can only be cleared by a *different* member. Each shared book names a **peer reviewer** — normally another sub-family head — who receives the admin's flagged entries. If a book has exactly one member, no flag is raised (there is nothing to check and nobody to check it).
+1. **Nobody clears their own flag.** A review flag (§3) can only be cleared by a *different* member. Each shared book names a **peer reviewer** — stored in the `book_config` envelope, never in `book_roles`, so the author writes a verifiable `review_approver` and every reader re-checks it purely (03 §3.3 rule 5, ADR 2026-09-05e §9) — — normally another sub-family head — who receives the admin's flagged entries. If a book has exactly one member, no flag is raised (there is nothing to check and nobody to check it).
 2. **The admin's own entries can be held to a lower threshold** than everyone else's, per book — a deliberate inversion of the usual hierarchy, off by default, set when the book is created ⚠️ default value to confirm.
 3. **A permanent, member-visible admin-actions feed.** Role changes, limit changes, period re-opens, business-setting and ownership changes, member removals and profit distributions are written as signed envelopes and shown to every member of the tenant, forever. The admin can perform these; they cannot perform them quietly.
 4. **Closing is a joint act, verified by arithmetic.** The admin cannot close a period alone — each book owner confirms their own book (§8), and every member's device independently recomputes the balance-vector hash. A tampered book fails on other people's phones, not on the admin's.
@@ -222,7 +228,7 @@ Admin power then splits in two:
 | | Who may act | Examples |
 |---|---|---|
 | **Routine admin** | any one admin, alone | invite a member, set an auto-post limit, create or rename accounts, lock a period, run the close wizard |
-| **Structural** 🔒 | **quorum of owners required** | change the ownership ratio · distribute profit · enable/change/disable interest on capital · add or remove an owner · remove a member · re-open a **closed year** · change the book's financial-year start · delete or archive the book |
+| **Structural** 🔒 | **quorum of owners required** | change the ownership ratio · distribute profit · enable/change/disable interest on capital · add or remove an owner · remove a member · re-open a **closed year** · change the book's financial-year start (**forbidden outright once any year has closed** — it would re-boundary every certificate, ADR 2026-09-05e §9) · delete or archive the book |
 
 **How quorum works.** Each shared book carries a `structural_quorum` setting: **all owners** (default) or a **majority** (⌈n/2⌉ + 1), chosen at creation and itself a structural action to change. An admin *initiates* a structural action; it enters a **pending-structural** state and appears in every owner's Inbox as a distinct card stating exactly what will change ("Ownership ratio: Amrit 40% · Sukhdev 30% · Harjit 30% — currently equal thirds"). It takes effect only when the quorum of **signed approval envelopes** exists; each approval is authored on that owner's own device, so the server cannot manufacture one.
 
@@ -238,12 +244,12 @@ Admin power then splits in two:
 ## 8. Periods and locking 🔒
 
 - Periods are calendar months within the book's financial year. States: `open` → `locked` (re-openable by book admin, logged).
-- A **lock is itself a signed envelope** with an HLC. Deterministic rule every client applies: an entry whose `accounting_date` falls in period P is valid only if its HLC precedes the HLC of P's lock. Violations from a tampered client are quarantined by every honest reader.
-- **Late arrivals** (created offline before the lock, synced after): they are *valid* by the rule above but would silently change closed figures — so they land in a **Late Arrivals tray** for the book's closer, who either re-dates them into the open period (default, one tap) or re-opens the month (admin, logged, requires re-close).
+- A **lock is itself a signed envelope** with an HLC; so is an unlock (`period_unlock`). **Both are all-time objects in the bootstrap hot set (05 §8, ADR 2026-09-05e §5)** — the validity rule below needs the complete history even for archived years. Deterministic rule every client applies: an entry whose `accounting_date` falls in period P is valid only if its HLC precedes the HLC of P's lock. Violations from a tampered client are quarantined by every honest reader.
+- **Late arrivals** (created offline before the lock, synced after): they are *valid* by the rule above but would silently change closed figures — so they **count in every live balance the moment they land (§3) but leave the certified month untouched**, and land in a **Late Arrivals tray** (`inTray`, ADR 2026-09-05e §3, §10) for the book's closer, who either re-dates them into the open period (default, one tap) or re-opens the month (admin, logged, requires re-close).
 - **Month-close wizard** (this is what replaces the CA):
   1. *Count your cash* — either a single counted figure, or the **denomination sheet** (§8.2); any difference posts a guided adjustment (`Dr/Cr Cash · Cr/Dr Adjustments`) with the difference shown plainly.
   2. *Confirm each bank balance* against the bank's app/statement; differences prompt the reconciliation screen (§10).
-  3. *Clear the tray* — every open *needs review* flag (§3), open import line in Suspense (§10), and (warn-only) aged advance.
+  3. *Clear the tray* — every open *needs review* flag (§3), open import line in Suspense (§10), and (warn-only) aged advance. **The lock is also refused while the book has any open author-sequence gap or any `held` envelope (ADR 2026-09-05b §3–4, ADR 2026-09-05e §4).**
   4. *Confirm & lock* — the close envelope records the declared balances **and the client-computed balance vector hash; every other member's device recomputes and verifies it**, flagging any mismatch. It also records the **`projector_version`** that computed the hash (03 §1, ADR 2026-09-05c §3): a reader on an older projector shows *update to verify* rather than a false mismatch. Books close only when their own arithmetic agrees everywhere.
 - **Two distinct surfaces 🔒 (conflict resolved 30 Aug 2026):** (a) the **integrity check** is the always-visible books-balanced card on Home (07 §4) — status, total Dr, total Cr, difference — verifying stored state and catching sync or storage corruption; (b) the **Trial Balance report** exists under Reports (07 §14) and in exports, because the accounting reference is built on it and any accountant will ask for one. The earlier rule that a trial balance "never appears as a report" is superseded: it was written before the verification card was approved.
 
@@ -251,8 +257,8 @@ Admin power then splits in two:
 
 The ledger is continuous, so money, party, and advance balances carry forward across 31 March automatically — no amounts are ever re-posted. The **Year Close ceremony** makes that carry-forward official, verified, and displayable, exactly like *"To Balance b/d"* in a paper khata:
 
-- **Year states:** `open` → `closed`, per book. Preconditions to close FY: every month locked, Suspense = 0, **no open review flags** (`review_state = 'open'`, §3) **and no `pending` advance requests** (§7) — these are two distinct queues and both must be empty; businesses are prompted (optional) to run profit distribution first; aged advances warn but don't block.
-- **Ceremony:** the closer's device computes the **closing balance vector** (every account) and publishes it as a signed year-close envelope; every member's device independently recomputes and verifies it — the same mechanism as month-close step 4. On success the year flips to `closed` and the vector becomes the **certified opening balances (b/f) of the new FY**.
+- **Year states:** `open` → `closed`, per book ("Certified ✓" is the badge copy, not a state — 13 §6). Preconditions to close FY: every month locked, Suspense = 0, **no open author-sequence gap and no `held` envelope (ADR 2026-09-05e §4)**, **no open review flags** (`review_state = 'open'`, §3) **and no `pending` advance requests** (§7) — these are two distinct queues and both must be empty; businesses are prompted (optional) to run profit distribution first; aged advances warn but don't block.
+- **Ceremony:** the closer's device computes the **closing balance vector** — every money, party, advance, partner and equity_system account, **restricted to entries whose `accounting_date` ≤ the FY's last day regardless of HLC**; category accounts are **not** carried, the year's net surplus/deficit is recorded as one line, and each FY's P&L is computed from that FY's envelopes alone (ADR 2026-09-05e §2) — and publishes it as a signed year-close envelope; every member's device independently recomputes and verifies it — the same mechanism as month-close step 4. On success the year flips to `closed` and the vector becomes the **certified opening balances (b/f) of the new FY**.
 - **Presentation:** a financial-year switcher on every ledger, report, and export. Each FY view opens with *Opening balance b/f* and ends with *Closing balance c/f*; P&L figures are scoped to the selected FY; printed/exported ledgers carry the b/d and c/d rows so they read exactly like the traditional book.
 - **Prior-year corrections:** after a year closes, corrections post as reversals dated in the current FY (§5 already enforces this via month locks). The certified opening of a closed year **never changes** — the fix appears in the year it is made, which is standard practice and keeps every past-year report permanently true once printed.
 - **Reopening:** unlocking any month of a closed year voids that year's certificate *and every later year's*, admin-only, loudly warned, logged; re-closing is required in order.
@@ -305,7 +311,7 @@ chips. **Every organization book still seeds a plain Cash A/c alongside the goll
 
 ## 9. Balances and derived state 🔒
 
-All balances are **derived, never stored authoritatively**: balance(account) = Σ signed lines of entries with `status = posted`. Per §3 that is **every saved entry except an advance request still awaiting approval** (§7), which sits at `status = pending` and is excluded until approved — the one case where the money genuinely has not moved. **`review_state` never affects a balance:** a `posted` entry counts in full whether its review flag is open, approved, or rejected (a rejection removes its effect through the mirror reversal, not by excluding the original). Clients maintain a local running-balance cache and per-day snapshots for O(1) rendering of the position screen and reports; the cache is rebuildable from envelopes at any time (*Recompute* in settings, also run automatically on integrity-light ✗). After a year close, the rebuild baseline is the certified opening vector (§8.1) rather than all-time history.
+All balances are **derived, never stored authoritatively**: balance(account) = Σ signed lines of **the head of every accepted amend chain** with status `posted` or `void`, excluding advance requests still `pending` (§7) and — for *certified* figures only — late arrivals in the tray (§8). **A reversed entry and its reversal both count** (they net to zero; excluding `void` would remove the amount twice). Running balances sort by `(accounting_date, hlc, envelope_id)` on every device (ADR 2026-09-05e §1, §12). Superseded wording: "entries with `status = posted`". Per §3 that is **every saved entry except an advance request still awaiting approval** (§7), which sits at `status = pending` and is excluded until approved — the one case where the money genuinely has not moved. **`review_state` never affects a balance:** a `posted` entry counts in full whether its review flag is open, approved, or rejected (a rejection removes its effect through the mirror reversal, not by excluding the original). Clients maintain a local running-balance cache and per-day snapshots for O(1) rendering of the position screen and reports; the cache is rebuildable from envelopes at any time (*Recompute* in settings, also run automatically on integrity-light ✗). **Negative physical cash** is legal but always a missing entry — the `cash` subtype shows a warning (ADR 2026-09-05e §12). After a year close, the rebuild baseline is the certified opening vector (§8.1) rather than all-time history.
 
 **The position screen** (the product's reason to exist) derives entirely from this section: per selected scope (Me / a book / everything I can see): money accounts with signed balances; You-will-get and You-will-give totals with drill-down and ageing; open advances held and given; in-transit inter-book transfers; this-month income vs expense. One screen, all live-computed, correct offline.
 
@@ -332,7 +338,7 @@ All balances are **derived, never stored authoritatively**: balance(account) = �
 - **Match** to an existing entry (amount within date window ± party/note fuzz): links `refs.import_line`, marks both reconciled. No posting.
 - **Confirm as new**: user (or a learned rule) picks the counterpart → normal verb posting with `refs.import_line`.
 - **Unknown counterpart**: posts `Dr/Cr Bank · Cr/Dr Suspense (equity_system)`. Suspense must reach zero to pass close step 3 — imported money can be *unexplained* for a while, but never *unrecorded*.
-- Duplicate defense: hash of (account, date, amount, normalized description) rejects re-uploads; near-duplicates flag for review.
+- Duplicate defense: hash of (account, date, amount, normalised description, **per-file ordinal**) rejects re-uploads; normalisation = trim, collapse whitespace, case-fold, strip the bank's running balance (ADR 2026-09-05e §12) — two genuine identical same-day withdrawals never collide; near-duplicates flag for review.
 
 ---
 
@@ -345,12 +351,18 @@ All balances are **derived, never stored authoritatively**: balance(account) = �
 - **Given** an inter-book transfer where the actor lacks rights in the receiving book, **then** both halves post at once, book B carries a review flag, the pair shows *in transit* until cleared, and Family Reconciliation nets to zero from the moment of entry.
 - **Given** an advance of ₹20,000 with ₹17,400 settled and ₹2,600 returned, **then** the advance balance is zero and the ageing list no longer shows it.
 - **Given** an advance request awaiting approval **and** an over-limit ordinary entry in the same book, **then** the advance request is `status='pending'` and contributes **nothing** to any balance, while the ordinary entry is `status='posted'` with `review_state='open'` and contributes **in full**; the Inbox lists the second, the advance queue lists the first, and FY close is blocked by both until each is cleared.
-- **Given** an entry dated 5 May synced after May's lock but created (HLC) before it, **then** it appears in Late Arrivals and is absent from all report totals until re-dated or the month is re-opened.
+- **Given** an entry dated 5 May synced after May's lock but created (HLC) before it, **then** it appears in Late Arrivals, **counts in every live balance**, and is absent from May's *certified* statements and hash until re-dated or the month is re-opened (ADR 2026-09-05e §3).
 - **Given** an envelope whose lines sum to −100 (hostile client), **then** every reading client quarantines it, raises a security event, and no balance includes it.
 - **Given** close step 4 on two devices with identical envelope sets, **then** both compute the identical balance-vector hash.
 - **Given** the same bank CSV uploaded twice, **then** zero new inbox lines the second time.
 - **Given** FY 2026-27 with all months locked and Suspense at zero, **when** Year Close runs, **then** every member device computes an identical closing vector, and the FY 2027-28 view of each ledger opens with those exact figures as *Opening balance b/f*.
 - **Given** a correction to an entry in a closed FY, **then** it posts as a reversal dated in the open FY, and the closed year's exported reports are byte-identical before and after the correction.
+- **Given** a reversal and its target (ADR 2026-09-05e §1), **then** both are in balances and net to zero; **given** an amended entry, **then** only the chain head counts.
+- **Given** an entry dated 3 April posted before the 5 April year close (ADR 2026-09-05e §2), **then** it is absent from the certified vector and present in the new FY; **given** the certified vector, **then** it contains no category account and P&L for the new FY starts at zero.
+- **Given** an open author gap or a `held` envelope (ADR 2026-09-05e §4), **then** month lock and year close are refused with the reason.
+- **Given** a `money_out` envelope whose debit line is an income category (ADR 2026-09-05e §6), **then** every reader quarantines it as `shape_violation`.
+- **Given** a net loss for the FY (ADR 2026-09-05e §8), **then** distribution posts `Dr each Partner Current · Cr Profit Distributed` by ratio and sums to zero.
+- **Given** a due-to/due-from pair where one book is sealed to the reader (ADR 2026-09-05e §7), **then** Family Reconciliation shows it *one-sided · unconfirmed*, not as a mismatch.
 - **Given** an admin unlocking a month inside a closed FY, **then** that year's certificate and all later years' certificates are voided, the action is logged, and reports for those years show an *uncertified* banner until re-closed in order.
 
 ---
@@ -361,4 +373,4 @@ All balances are **derived, never stored authoritatively**: balance(account) = �
 2. Reminder-day defaults for advance ageing (15/30 proposed).
 3. `channel` tag taxonomy for online/offline filtering (UPI / card / netbanking / cash) — finalize with 07-ui-flows.md.
 4. Whether Late Arrivals may auto-post if the month is re-opened anyway — decide after pilot friction is observed.
-5. Optional **expert Dr/Cr entry mode** (raw two-line ਨਾਮੇ/ਜਮ੍ਹਾਂ journal screen for professional users) — decide post-pilot; the verb-based entry remains the default and only mode until then.
+5. Optional **expert Dr/Cr entry mode** (bound by §1.4 rule 7 shapes if ever built, ADR 2026-09-05e §6) (raw two-line ਨਾਮੇ/ਜਮ੍ਹਾਂ journal screen for professional users) — decide post-pilot; the verb-based entry remains the default and only mode until then.
