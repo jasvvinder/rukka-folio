@@ -22,11 +22,11 @@ Owner asked whether to add plugins/skills for coding, testing and database work.
 - `.claude/skills/` — `/slice M<n>` (orient on roadmap row + owning spec + ADRs + 09 ids, tests-first), `/gate [lane]` (run ci.sh, report by step/suite, mechanical fixes only), `/adr` (dated ADR scaffold with `⟦tests: …⟧` markers, spec cross-refs, changelog Decided line), `/changelog` (house-format entry), `/goldens` (suite A worked-example goldens with the engine-bug / spec-vs-reference / parser-drift triage).
 
 **Changed**
+- Plugins installed by the owner from `claude-plugins-official` (user-level, not in the repo): `hookify` (rule-based hooks from conversation analysis) and `context7` (live library docs via MCP — Drift, sodium_libs, Supabase, Deno).
 - `.gitignore` — `.claude/settings.json`, `.claude/hooks/`, `.claude/skills/` now tracked alongside `.claude/commands/` so hooks and skills travel with the repo.
 
 **Open** ⚠️
 - `ci.sh` has no `LANE` switch and no `check_coverage.dart` yet, though CLAUDE.md § Commands describes both; they land at M2 per ADR 2026-09-05i. `/gate` passes `LANE` through and says so.
-- Plugins recommended but not installed (user action, `/plugin`): `hookify`, `context7` from `claude-plugins-official`.
 
 **Commits** — pending.
 

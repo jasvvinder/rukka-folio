@@ -21,7 +21,7 @@
             "type": "command",
             "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/dart_post_edit.sh",
             "timeout": 180,
-            "statusMessage": "dart format \u00b7 analyze \u00b7 purity"
+            "statusMessage": "dart format · analyze · purity"
           }
         ]
       }
@@ -37,5 +37,9 @@
         ]
       }
     ]
+  },
+  "enabledPlugins": {
+    "hookify@claude-plugins-official": true,
+    "context7@claude-plugins-official": true
   }
 }
