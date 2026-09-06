@@ -16,7 +16,7 @@ If two sources at the same level genuinely conflict, stop and ask — leave a `�
 
 ## Layout
 ```
-/CLAUDE.md /README.md /pubspec.yaml(workspace) /.github/workflows(ci.yml…)
+/CLAUDE.md /README.md /PLAN.md(build tracker — read first) /pubspec.yaml(workspace) /.github/workflows(ci.yml…)
 /docs            00-vision … 13-ux-architecture + requirements-architecture; docs/decisions/ = ADRs (one dated file per 🔒 change)
 /app             Flutter UI only: lib/features/*, lib/shared/, lib/l10n/(app_en.arb, app_pa.arb, app_hi.arb), assets/fonts/(Mukta, Mukta Mahee; fallback Noto Sans — 11 §4.4)
 /packages        pure Dart, NO Flutter imports (CI-enforced):
@@ -52,6 +52,13 @@ Trunk-based on protected `main`; tags at milestone exits (`m1-ledger-core`); sec
 - Commits small and scoped; commit message references the milestone (e.g. `M1: verb postings + invariants`).
 - **Every session ends with a `CHANGELOG.md` entry** (newest first, dated, milestone-tagged: Added / Changed / Decided / Open / Commits). Write it before handing files to the owner to commit; fill the commit hashes in the next session. Git holds the diff — the changelog holds the *what* and *why*.
 - If a spec is ambiguous, prefer the more conservative reading and leave a `⚠️ SPEC:` comment plus a note to the owner — do not silently invent behavior.
+
+## Session economy (owner-directed, 7 Sep 2026)
+- **Start with `PLAN.md`** §0 + the current phase; not CHANGELOG, not whole specs. Read spec *sections*: `grep -n "^## \|^### " docs/<n>.md` → `sed -n 'a,bp'`.
+- **Milestone work runs as `/fanout`:** one orchestrator session, lanes as subagents owning disjoint directories (skills `ui-screen`, `server`, `sync-slice`, `slice`), one gate per phase. Lanes return JSON, never run `ci.sh`, never re-read files after editing.
+- **Right-size lanes:** `effort: low` + haiku for mechanical work (ARB drafts, codegen, fixtures); default for logic; `high` only for `core_*` verification.
+- The post-edit hook formats/analyzes/purity-checks — never repeat it by hand. Tests by file while working; package once at the end; the full gate once.
+- **End every session:** `/plan` (✅ only for ids green in the gate) → `/changelog` → commit message for the owner. Do not fan out for work under ~30 minutes.
 
 ## Commands
 - Workspace: `dart pub get` at the root resolves every package (pub workspace; one lockfile).

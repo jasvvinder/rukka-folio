@@ -12,6 +12,29 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-07 — env: build tracker, parallel-lane workflow, lane skills, session economy
+
+Owner asked for the fastest path to completion with parallel agents and the smallest possible usage per session. Re-planned M4–M14 as four phases of disjoint lanes; every session now starts from one tracker file and runs milestone work through one saved workflow.
+
+**Added**
+- `PLAN.md` — the build tracker: §0 where we are (M0–M3 ✅ with evidence; app is a shell, server absent, sync_engine a stub), §1 four phases with dated lanes (A foundations 7–13 Sep · B people 14–20 · C import/exports/subscription 21–27 · D harden + pilot 28 Sep–4 Oct), §2 every milestone broken into modules with ✅/🟡/⬜/⛔, incl. **P0 tooling** that makes UI lanes conflict-free (ARB parts + merge, theme from tokens, router skeleton, feature folders, fake sync/auth seams, server skeleton), §3 session-economy rules, §4 external lead-times to start today.
+- `.claude/workflows/milestone-lanes.js` — saved workflow: lanes in parallel (`parallel`, disjoint dirs, structured LANE_SCHEMA returns, per-lane effort/model), then one gate agent running `ci.sh` once and fixing only mechanical failures.
+- Skills: `fanout` (prepare lanes from PLAN rows → run workflow → integrate → `/plan` `/changelog`), `ui-screen` (S-id screens: tokens only, ARB parts EN/PA/HI, 13 §4.3 states, F1 test per screen), `server` (migrations + RLS + functions + hostile-query tests; the 🔒 server rules in one page), `sync-slice` (sync_engine modules on the harness, suite D incl. D-06a-1…4), `plan` (refresh the tracker; ✅ only from a green gate).
+
+**Changed**
+- `CLAUDE.md` — Layout lists `PLAN.md`; new **Session economy** section (start from PLAN, sections not docs, fanout with lanes, right-sized effort, one gate, `/plan` then `/changelog`).
+
+**Decided** — nothing 🔒. The tracker assumes every roadmap gate (pilot month, sign-offs, external review) stays; dropping any is an owner ADR.
+
+**Open** ⚠️
+- Owner: ratify ADR 2026-09-06; start the §4 lead-times (Supabase India project, Apple account, OTP provider, PA/HI reviewers, bookkeeper, crypto reviewer, pilot banks, gateway KYC).
+- If the saved workflow is not found by name, `/fanout` falls back to `scriptPath` — verify on the first Phase A run.
+- P0 tooling (ARB parts merge in `gen_l10n_arb.dart`, `check_strings` on merged files) must land before the first UI lane.
+
+**Commits** — pending.
+
+---
+
 ## 2026-09-06 — M3 follow-up: Shamir ADR reviewed — verified reconstruction, independent known-answer vector, ruling 3 sharpened
 
 Evening pass over `docs/decisions/2026-09-06-shamir-and-guardian-revocation-records.md` at the owner's request ("what does it mean, any suggestions — do the best of your knowledge"). Three findings acted on, two owner decisions surfaced, and the ADR now ends in a four-line ratification checklist. Still **proposed**. `core_crypto`: 75 tests (+B-04-72, B-04-73), all green.
