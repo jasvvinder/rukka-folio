@@ -39,8 +39,10 @@ scripts/check_purity.sh
 step "strings (EN / PA / HI)"
 dart run scripts/check_strings.dart
 
-step "coverage — 🔒 lines ↔ test ids, golden front-matter (warn-only until M4, ADR 2026-09-05i §1)"
-dart run scripts/check_coverage.dart --milestone M1
+step "coverage — 🔒 lines ↔ test ids, golden front-matter (blocking from M4, ADR 2026-09-05i §1)"
+# --strict from M4 exit as 05i §1 phased it: every 🔒 line is annotated as of 8 Sep. --milestone M4
+# additionally fails a superseded skip, or an ` @M<k>` planned test (ADR 2026-09-08 §2), that is due.
+dart run scripts/check_coverage.dart --strict --milestone M4
 
 step "analyze"
 dart analyze --fatal-infos scripts test
@@ -58,16 +60,23 @@ step "tests — app"
 (cd app && flutter test)
 
 step "tests — server functions + schema (deno; suite E-server, 03 §2.5 / 05 / 06)"
-# rls.test.ts needs a live Postgres (RLS_REQUIRE=1 + RF_TEST_DB_URL) and skips otherwise — the
-# hostile-query suite runs against the local `supabase start` stack in the nightly lane (M4).
+# rls.test.ts (E-03-22 … E-05c-7) needs a live Postgres in RF_TEST_DB_URL and skips otherwise.
+# The migrations are plain Postgres + pgcrypto, so any server will do — `scripts/rls_db.sh` builds
+# one from a Homebrew postgresql@16, no Docker and no `supabase start` needed. The nightly and rc
+# lanes set RLS_REQUIRE=1 so a missing database fails loudly instead of skipping in silence.
+case "$LANE" in nightly|rc|release) export RLS_REQUIRE=1 ;; esac
 if command -v deno >/dev/null 2>&1; then
+  if [ -z "${RF_TEST_DB_URL:-}" ] && [ "${RLS_REQUIRE:-}" != 1 ]; then
+    printf '   (RF_TEST_DB_URL unset — the 7 hostile-query tests will skip; eval "$(scripts/rls_db.sh)" to run them)\n'
+  fi
   (cd server && deno task lint && deno task test)
 else
   scheduled "deno not installed on this runner"
 fi
 
 case "$LANE" in
-  nightly) step "nightly — two-client soak (D), fresh-seed fuzz, perf p95, E-server"; scheduled "M4" ;;
+  nightly) step "nightly — two-client soak (D), fresh-seed fuzz, perf p95"; scheduled "M4"
+           printf '   (E-server: the RLS hostile-query suite ran above under RLS_REQUIRE=1)\n' ;;
   rc)      step "rc — F2 device lab, F3 export goldens, H"; scheduled "M5 (F2/F3 at M12)" ;;
   release) step "release — MASVS L2+R, decompile, MITM, log-scrub, restore-drill artefact"; scheduled "M4 scanners · M14 gates" ;;
 esac
