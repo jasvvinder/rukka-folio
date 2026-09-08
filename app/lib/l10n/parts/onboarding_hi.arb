@@ -1,0 +1,19 @@
+{
+  "@@locale": "hi",
+  "onboarding.language.title": "अपनी भाषा चुनें",
+  "onboarding.language.subtitle": "आप इसे बाद में सेटिंग्स में बदल सकते हैं",
+  "onboarding.language.option.en": "English",
+  "onboarding.language.option.pa": "ਪੰਜਾਬੀ",
+  "onboarding.language.option.hi": "हिन्दी",
+  "onboarding.language.continue": "आगे बढ़ें",
+  "onboarding.welcome.slide1.title": "आपके खाते, हमेशा आपके साथ",
+  "onboarding.welcome.slide1.body": "नकद, बैंक, पार्टियाँ — सब एक जगह, आपके फ़ोन में",
+  "onboarding.welcome.slide2.title": "न पासवर्ड, न ख़तरा",
+  "onboarding.welcome.slide2.body": "आपके खाते इतने सुरक्षित हैं कि हम ख़ुद भी इन्हें नहीं खोल सकते",
+  "onboarding.welcome.slide3.title": "परिवार और कारोबार, साथ-साथ",
+  "onboarding.welcome.slide3.body": "जो चाहें साझा करें, बाकी निजी रखें",
+  "onboarding.welcome.skip": "छोड़ें",
+  "onboarding.welcome.next": "आगे",
+  "onboarding.welcome.get_started": "शुरू करें",
+  "onboarding.welcome.slide_of": "स्लाइड {n} / {total}"
+}

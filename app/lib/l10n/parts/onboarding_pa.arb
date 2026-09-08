@@ -1,0 +1,19 @@
+{
+  "@@locale": "pa",
+  "onboarding.language.title": "ਆਪਣੀ ਭਾਸ਼ਾ ਚੁਣੋ",
+  "onboarding.language.subtitle": "ਤੁਸੀਂ ਇਸਨੂੰ ਬਾਅਦ ਵਿੱਚ ਸੈਟਿੰਗਜ਼ ਵਿੱਚ ਬਦਲ ਸਕਦੇ ਹੋ",
+  "onboarding.language.option.en": "English",
+  "onboarding.language.option.pa": "ਪੰਜਾਬੀ",
+  "onboarding.language.option.hi": "हिन्दी",
+  "onboarding.language.continue": "ਅੱਗੇ ਵਧੋ",
+  "onboarding.welcome.slide1.title": "ਤੁਹਾਡੇ ਖਾਤੇ, ਹਮੇਸ਼ਾ ਤੁਹਾਡੇ ਨਾਲ",
+  "onboarding.welcome.slide1.body": "ਨਕਦ, ਬੈਂਕ, ਪਾਰਟੀਆਂ — ਸਭ ਇੱਕ ਥਾਂ, ਤੁਹਾਡੇ ਫ਼ੋਨ ਵਿੱਚ",
+  "onboarding.welcome.slide2.title": "ਨਾ ਪਾਸਵਰਡ, ਨਾ ਖ਼ਤਰਾ",
+  "onboarding.welcome.slide2.body": "ਤੁਹਾਡੇ ਖਾਤੇ ਇੰਨੇ ਸੁਰੱਖਿਅਤ ਹਨ ਕਿ ਅਸੀਂ ਖ਼ੁਦ ਵੀ ਇਹਨਾਂ ਨੂੰ ਨਹੀਂ ਖੋਲ੍ਹ ਸਕਦੇ",
+  "onboarding.welcome.slide3.title": "ਪਰਿਵਾਰ ਅਤੇ ਕਾਰੋਬਾਰ, ਇਕੱਠੇ",
+  "onboarding.welcome.slide3.body": "ਜੋ ਚਾਹੋ ਸਾਂਝਾ ਕਰੋ, ਬਾਕੀ ਨਿੱਜੀ ਰੱਖੋ",
+  "onboarding.welcome.skip": "ਛੱਡੋ",
+  "onboarding.welcome.next": "ਅੱਗੇ",
+  "onboarding.welcome.get_started": "ਸ਼ੁਰੂ ਕਰੀਏ",
+  "onboarding.welcome.slide_of": "ਸਲਾਈਡ {n} / {total}"
+}
