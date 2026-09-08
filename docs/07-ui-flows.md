@@ -44,7 +44,7 @@ Bottom bar 🔒 (ADR 2026-09-05f §A): **four tabs — Home · Ledger · Inbox �
 
 ## 3. Onboarding & activation
 
-### 3.1 Fresh signup 🔒 ⟦tests: F1-07-15 @M5⟧
+### 3.1 Fresh signup 🔒 ⟦tests: F1-07-15 @M5, F1-07-39, F1-07-40, F1-07-41⟧
 1. Language picker (EN / ਪੰਜਾਬੀ / हिन्दी) — first screen, before anything else.
 2. Phone → OTP (06 §2). Generic errors; resend with visible countdown. Every successful unlock plays the **sealed→open mark animation** (11 §4.2; m=0.6 on biometric unlock); the splash plays it (m=1.0, once) **only when the session is already open** — a launch that ends at the lock screen animates nothing, a failed unlock shakes the sealed mark, and a cold start slower than 3s shows the 2px loader rule beneath the stacked lockup (11 §4.5, ADR 2026-09-03d). Jump cut under `prefers-reduced-motion`; never decoratively.
 3. *"What will you use this for?"* — **five** illustrated cards 🔒 (owner-added 31 Aug 2026): **Myself · My shop · My businesses · My family · Our trust** — the fifth carrying a subtitle the others do not need: *gurudwara, temple, society or registered trust*, because "trust" alone is abstract and a mandir or sabha committee member must see themselves in it. The list is examples, not an exhaustive set; the underlying tenant type is the generic `organization`.. Layout is 2 × 2 with the trust card **full width beneath**, since five does not divide into a grid and the trust label is the longest. Adding it here fixes a real discovery problem: a treasurer would otherwise have had to pick a wrong card and then find *Add organization* in Menu.

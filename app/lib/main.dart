@@ -17,6 +17,7 @@ import 'features/auth/http_client_transport.dart';
 import 'features/devices/at_rest.dart';
 import 'features/devices/devices_routes.dart';
 import 'features/devices/keychain_key_store.dart';
+import 'features/onboarding/onboarding_routes.dart';
 import 'l10n/gen/app_localizations.dart';
 import 'shared/app_scope.dart';
 import 'shared/ledger/ledger_scope.dart';
@@ -90,7 +91,7 @@ Future<void> main() async {
             now: DateTime.now,
           ),
           updateRequired: auth.updateRequired,
-          featureRoutes: [...authRoutes, ...devicesRoutes],
+          featureRoutes: [...onboardingRoutes, ...authRoutes, ...devicesRoutes],
         ),
       );
     case MigrationFailed() || QuickCheckFailed() || OpenFailed():

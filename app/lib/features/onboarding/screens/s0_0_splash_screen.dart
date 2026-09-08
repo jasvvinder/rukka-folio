@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 
 import '../../../l10n/gen/app_localizations.dart';
+import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../widgets/sealed_mark.dart';
 

@@ -11,6 +11,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../l10n/gen/app_localizations.dart';
+import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 
 class LanguagePickerScreen extends StatefulWidget {
@@ -42,20 +43,34 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(l10n.onboardingLanguageTitle, style: text.headlineMedium),
-              const SizedBox(height: RkSpace.s2),
-              Text(l10n.onboardingLanguageSubtitle, style: text.bodyLarge),
-              const SizedBox(height: RkSpace.s6),
-              for (final (locale, label) in options) ...[
-                _LanguageOption(
-                  locale: locale,
-                  label: label,
-                  selected: _picked == locale,
-                  onTap: () => setState(() => _picked = locale),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        l10n.onboardingLanguageTitle,
+                        style: text.headlineMedium,
+                      ),
+                      const SizedBox(height: RkSpace.s2),
+                      Text(
+                        l10n.onboardingLanguageSubtitle,
+                        style: text.bodyLarge,
+                      ),
+                      const SizedBox(height: RkSpace.s6),
+                      for (final (locale, label) in options) ...[
+                        _LanguageOption(
+                          locale: locale,
+                          label: label,
+                          selected: _picked == locale,
+                          onTap: () => setState(() => _picked = locale),
+                        ),
+                        const SizedBox(height: RkSpace.s3),
+                      ],
+                    ],
+                  ),
                 ),
-                const SizedBox(height: RkSpace.s3),
-              ],
-              const Spacer(),
+              ),
               FilledButton(
                 onPressed: _picked == null
                     ? null
