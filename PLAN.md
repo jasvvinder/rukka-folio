@@ -106,7 +106,7 @@ drop 🔒 roadmap gates by ADR — the tracker does not assume that.
 expect ~10 lanes for M5. Split before running, never raise the cap (`/lane` §1.4).
 
 **Lane U1 — foundation + onboarding** (`features/onboarding`, `features/lock`, `shared/`)
-- 🟡 **U1a** S0.0 splash ✅ · S0.1 language ✅ · S0.05 welcome ⬜ — ARB trio en/pa/hi ✅ (169 keys × 3, gen + strings green); **no F1 tests written** (F1-07-39/40/41 still owed); `onboarding_routes.dart` absent so nothing is wired into `router.dart`
+- ✅ **U1a** S0.0 splash · S0.1 language · S0.05 welcome — ARB trio en/pa/hi (169 keys × 3), `F1-07-39/40/41` green (11 tests with `router_test.dart`), `onboarding_routes.dart` composed into `main.dart` `featureRoutes`. Fixed 3 pre-existing defects: missing `shared/theme.dart` import in S0.0 **and** S0.1 (`RkStatusColors` undefined — a live compile error), 200% text-scale overflow in S0.1. ⬜ `initialLocation` still points at the shell, not the splash — first-launch routing is an owner decision
 - ⬜ S0.3 purpose cards · S0.4 name/photo · S0.5/S0.5b safety + recovery sheet
 - ⬜ S0.6a–i business/family/trust setup · S0.6 opening balances wizard · S0.7 setup checklist · S0.8 set PIN
 - ⬜ S15 app lock (biometric, MPIN fallback) · S15.1 privacy cover · S15.3 cooldown states · idle lock with draft restore (C-05a-7)
@@ -116,8 +116,8 @@ expect ~10 lanes for M5. Split before running, never raise the cap (`/lane` §1.
 - ⬜ S2 keypad-first entry · S2.1 A/C picker + inline create · S2.2 date · S2.3 transfer · S2.5 drawings confirmation
 - ⬜ stopwatch test ≤ 8 s (F1 + device) · Money in / Money out vocabulary only (rule 9)
 **Lane U3 — Ledger + statement + export** (`features/ledger`, `features/reports`)
-- 🟡 S3 ledger index ✅ (`s3_ledger_index_screen.dart`, 365 lines, no test) — rest of the lane untouched
-- ⬜ S3.1 quick add · S4 A/C statement (Dr/Cr, running balance) · S4.1 entry detail + amend/reverse · S21 search
+- ⛔ **U3a broke the tree — `features/ledger` does not compile (64 analyze errors).** S3 index ✅ (365 lines, still no test); U3a died at its turn cap leaving `s3_1_quick_add_sheet.dart` + `s4_account_statement_screen.dart` untested with ~31 undefined l10n getters (no `ledger_*.arb`), `StatementRow` `ambiguous_import` (`core_ledger` vs `shared/ledger/local_ledger.dart`), missing `shared/theme.dart`. **Fix this first**: ARB trio + `F1-07-42/43/44` + `ledger_routes.dart`, treating the two screens as drafts to make green. See `.claude/lane-reports/M5-U3a.json`
+- ⬜ **U3b** (after U3a is green): S4.1 entry detail + amend/reverse · S21 search
 - ⬜ S8 menu · S8.1/S8.2 day book + export (CSV/PDF, temp-file purge) · S12.5 read-only sheet pattern (used by book-full)
 - ⬜ A-02-10 both vocabularies render from one posting set
 

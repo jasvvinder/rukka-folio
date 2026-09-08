@@ -1,7 +1,7 @@
 ---
 name: lane-server
 description: Rukka Folio Supabase lane — migrations with RLS, edge functions (sync-push/pull/meta, auth-challenge, billing-webhook) and hostile-query RLS tests, from 03 §2, 05, 06 and ADRs 05b/05c/05d. Use for any server/ lane.
-model: sonnet
+model: opus
 effort: medium
 maxTurns: 40
 skills: ["server"]

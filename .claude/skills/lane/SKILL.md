@@ -35,8 +35,9 @@ Fable 5.1 resets weekly on **Sunday** — that reset is the budget. If the week 
    | Agent | Model · effort · turns | For |
    |---|---|---|
    | `lane-mech` | haiku · low · 15 turns | ARB drafts, l10n parts, fixtures, codegen and token regen, file moves |
-   | `lane-ui` | sonnet · medium · 40 | screens by S-id (13 §3.2), feature folders, F1 widget tests |
-   | `lane-server` | sonnet · medium · 40 | migrations + RLS, edge functions, hostile-query tests |
+   | `lane-ui` | sonnet · medium · 40 | **repeat** screens by S-id (13 §3.2) on a settled pattern, F1 widget tests |
+   | `lane-ui-hard` | opus · medium · 40 | new design-system components, foundation (theme/shell/nav), 200% · 360×800 layout defects, state-machine screens (S10, S15, S7) |
+   | `lane-server` | opus · medium · 40 | migrations + RLS, edge functions, hostile-query tests |
    | `lane-sync` | opus · medium · 50 | `sync_engine`, ordering/cursor/conflict/trust logic, projector |
    | `lane-core` | fable · high · 60 | ⚠️ **escalation only** — see §4 |
 
@@ -51,6 +52,12 @@ Fable 5.1 resets weekly on **Sunday** — that reset is the budget. If the week 
 
    Model and effort live in `.claude/agents/*.md`, **not** in your args. Do not pass `model` or
    `effort` unless you are deliberately overriding a tier, and say why when you do.
+   **Opus at the ends, never haiku on tests** (ADR 2026-09-08b). A settled-pattern screen goes to
+   `lane-ui`; a new component, foundation work, a 200%/360×800 layout defect or a state-machine
+   screen goes to `lane-ui-hard`. `lane-mech` never authors a test — test authoring belongs to the
+   lane that owns the behaviour. **Tier up, never cap up:** if the work will not fit 40 turns,
+   split it (§1.3).
+
    **No lane starts on `lane-core`.**
 5. For each lane write a prompt with, in this order:
    - the **spec sections by number** (`03 §2.3, §2.5; ADR 2026-09-05b §5`) — sections, not docs

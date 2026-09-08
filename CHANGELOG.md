@@ -12,6 +12,58 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-08 (third session) — M5 lanes U1a + U3a, and the model-tier ruling
+
+Ran `/lane U1a U3` as the orchestrator. U1a landed; U3 died at its turn cap for the third time this
+week, which prompted the owner to revisit the tier table — and the week's own telemetry to be read
+before changing it.
+
+**Added**
+- S0.05 Welcome (3 skippable slides, dot progress, live-region slide announcement, Skip always
+  present) — `app/lib/features/onboarding/screens/s0_05_welcome_screen.dart`.
+- `F1-07-39/40/41` (S0.0 splash · S0.1 language · S0.05 welcome), 11 tests green with
+  `router_test.dart`; the three ids attached to the 🔒 marker on 07 §3.1, which they were orphaned from.
+- `onboarding_routes.dart`, composed into `main.dart` `featureRoutes` by the orchestrator (lanes may
+  not touch `shared/router.dart`).
+- `.claude/agents/lane-ui-hard.md` — the opus UI tier (ADR 2026-09-08b §2).
+
+**Changed**
+- `lane-server` → opus; `lane-mech` explicitly barred from authoring tests; tier tables in
+  CLAUDE.md § Session economy and `.claude/skills/lane/SKILL.md` §1.4 restated to match the agent
+  frontmatter, which is the only real source.
+- U1a fixed three pre-existing defects its tests exposed on `main`: a missing `shared/theme.dart`
+  import left `RkStatusColors` undefined in **both** S0.0 and S0.1 (a live compile error), and a
+  200% text-scale overflow in the language screen's `Column`+`Spacer` layout.
+- `onboarding_routes.dart` now uses `AuthPaths.phoneOtp` rather than a retyped `/auth/phone`.
+
+**Decided** 🔒 — [ADR 2026-09-08b](docs/decisions/2026-09-08b-model-tiers.md). The owner proposed
+dropping sonnet from development entirely (Opus for UI + business logic, fable for complex logic).
+Adopted in a narrower form after the telemetry was checked: of seven runs since 6 Sep, three did not
+complete and **none** failed on model quality — all three were over-scoped against `maxTurns`, while
+sonnet at correct scope (U1a) completed *and* found three real defects. So: Opus at the pipeline ends
+and on the hard cases (`lane-server`, new `lane-ui-hard`, orchestration/integration, which was
+already opus), sonnet for settled-pattern screens, **never haiku on a test** (the owner's own clause —
+in this repo the test is the specification), and *tier up, never cap up*. Fable's remit unchanged:
+`lane-core` stays escalation-only at 2 runs/week.
+
+**Open** ⚠️
+- **U3a is incomplete and `features/ledger` does not compile.** Two screens survived on disk
+  (`s3_1_quick_add_sheet.dart`, `s4_account_statement_screen.dart`), untested, with 64 analyze errors
+  in three classes: ~31 undefined l10n getters (no `ledger_*.arb` exists), `StatementRow`
+  `ambiguous_import` (exported by both `core_ledger` and `shared/ledger/local_ledger.dart`), and the
+  same missing `shared/theme.dart` import U1a hit. `F1-07-42/43/44` all still owed. Report written by
+  the orchestrator, since the lane died before writing one: `.claude/lane-reports/M5-U3a.json`.
+- **`flutter analyze` gave a false green.** Bare from `app/`: `No issues found! (ran in 0.2s)`.
+  Scoped to the directory: 64 errors on the same tree. If `scripts/ci.sh` shells out to the bare
+  form, the gate can pass over non-compiling code — a gate-integrity defect, unfixed.
+- Fable spend stands at **5 runs against 2 budgeted** for the week to 8 Sep.
+- `initialLocation` was deliberately **not** pointed at the splash for a fresh install: U1a suggested
+  it, but first-launch routing is a behavioural decision for the owner, not an integration step.
+
+**Commits** — pending.
+
+---
+
 ## 2026-09-08 (second session) — M4 exit gates: the RLS suite finally runs, traceability goes blocking, M5 started
 
 Picked up the three ⛔ items standing in `PLAN.md` §0. Two are now closed; the third (the M5 app lanes) is
