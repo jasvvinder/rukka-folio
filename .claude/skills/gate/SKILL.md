@@ -1,19 +1,26 @@
 ---
 name: gate
-description: Run the CI gate (scripts/ci.sh) for a lane and report failures grouped by step and suite, with the fix for each. Use before handing files to the owner, or when asked "does CI pass".
+description: Run the CI gate (scripts/ci.sh) once for a lane as a separate cheap subagent, then report failures grouped by step and suite with the fix for each. Use after /lane reports ok:true, before handing files to the owner, or when asked "does CI pass".
 ---
 
 # /gate $ARGUMENTS
 
-Run the gate exactly as CI does. `$ARGUMENTS` is the lane: `push` (default), `nightly`, `rc`, `release`
-(ADR 2026-09-05i §2). `ci.sh` honours `LANE` since M2: nightly re-enables `flaky` tests; steps a lane does not
-own yet print *scheduled — lands at M<n>* — report those as scheduled, not as passed.
+`$ARGUMENTS` is the lane: `push` (default), `nightly`, `rc`, `release` (ADR 2026-09-05i §2).
+`ci.sh` honours `LANE` since M2: nightly re-enables `flaky` tests; steps a lane does not own yet
+print *scheduled — lands at M<n>* — report those as **scheduled**, not as passed.
 
-```bash
-LANE=${ARGUMENTS:-push} ./scripts/ci.sh 2>&1 | tee "$CLAUDE_JOB_DIR/tmp/gate.log"
+## Run it as its own agent
 ```
-(Fall back to `/tmp/rukka-gate.log` when `$CLAUDE_JOB_DIR` is unset.) Timeout generously — Flutter
-analyze and `flutter test` are the slow steps.
+Workflow({ name: 'gate-run', args: { lane: 'push', landed: [ { key, files, tests } ] } })
+```
+Fallback: `Workflow({ scriptPath: '.claude/workflows/gate-run.js', args })`.
+
+The `gate` agent (`.claude/agents/gate.md`, sonnet · low) pipes `ci.sh` to a file and greps it, so
+the full CI log never enters your context. **Do not run `ci.sh` in this session yourself** — that
+is the single most expensive thing the orchestrator can do.
+
+First, refuse to gate a partial phase: if the last `/lane` returned `ok: false`, or
+`ls .claude/lane-reports/` is missing a lane the phase needs, re-run that lane instead.
 
 ## Report
 Lead with **green** or **red**. If red, one bullet per failing step in `ci.sh` order:
@@ -24,8 +31,15 @@ Lead with **green** or **red**. If red, one bullet per failing step in `ci.sh` o
 - **strings** — missing EN/PA/HI keys, placeholder drift, forbidden jargon (01 §1.3).
 - **analyze** — per package, error count and the first three diagnostics.
 - **tests** — per package: failed test names (they start with their suite id, so group by suite
-  A/B/C/D/E/F1/G) and the assertion message. A failing golden in suite A means the engine and the
-  worked examples disagree: **stop and ask**, do not patch the fixture (CLAUDE.md § Accounting authority).
+  A/B/C/D/E/F1/G) and the assertion message verbatim.
 
-Then fix what is mechanical (format, generated files, analyzer infos) and re-run once. Leave
-behavioural failures to the caller with the diagnosis. Never `git commit`.
+The gate agent has already fixed what is mechanical and re-run once. What comes back is
+behavioural. Route it:
+- a failure inside one lane's directories → **one fix agent for that lane's tier**, with the
+  failing test names and assertion messages verbatim. **One round.** Still red → report to the
+  owner, do not loop.
+- a failing **suite-A golden** → the engine and the worked examples disagree: **stop and ask**.
+  Never patch the fixture (CLAUDE.md § Accounting authority).
+- a 🔒 line in the way → `/adr`, owner ratifies. Never `git commit`.
+
+Then `/close`.

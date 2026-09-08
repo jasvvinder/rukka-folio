@@ -26,9 +26,12 @@ spec authority stays in `docs/` (this file is a tracker, never a spec).
 
 ## 1. The fast path — four phases, parallel lanes
 
-**Principle.** One orchestrator session per phase runs `/fanout`: lanes are subagents that own
-**disjoint directories** (so no worktrees, no merge), each builds tests-first against named spec
-sections, and the gate runs **once** per phase. The owner reviews on a device each evening.
+**Principle.** A phase is built one **lane** at a time, not one phase at a time. `/lane` runs one
+to three subagents that own **disjoint directories** (so no worktrees, no merge), each tests-first
+against named spec sections, each writing a durable report to `.claude/lane-reports/`; then it
+**stops**. `/gate` is a separate run, once the phase's lanes have all reported. The tier — and so
+the model and effort — comes from `.claude/agents/*.md`, never from the caller (§3). The owner
+reviews on a device each evening.
 
 | Phase | Dates | Lanes in parallel | Exit |
 |---|---|---|---|
@@ -146,15 +149,45 @@ drop 🔒 roadmap gates by ADR — the tracker does not assume that.
 
 ## 3. Session economy — how every session stays cheap
 
-1. **Start:** read `PLAN.md` §0 + the current phase only. Not CHANGELOG, not whole specs.
-2. **Read specs by section:** `grep -n "^## \|^### " docs/<n>.md` → `sed -n 'a,bp'`. A lane reads only the sections its PLAN row names.
-3. **Orchestrate, don't implement, in the main session.** `/fanout` spawns lanes; the orchestrator holds ≈ nothing but PLAN rows and lane reports. Lanes return structured JSON, not prose.
-4. **Right-size each lane:** `effort: low` + `haiku` for mechanical work (ARB drafts, codegen, tokens, fixtures); default for logic; `high` only for `core_*` verification and adversarial checks.
-5. **The post-edit hook already formats/analyzes/purity-checks.** Lanes never re-run those by hand and never run `ci.sh`; the gate agent runs it **once** per phase.
-6. **Tests by file during a lane** (`dart test test/x_test.dart`), full package once at lane end. Goldens once per phase (`/goldens`).
-7. **No re-reading after edits** — the harness tracks file state. No verification loops beyond one gate + one fix pass.
-8. **End:** `/plan` (mark ✅ from green ids) then `/changelog` — one pass, then hand the commit message to the owner.
-9. **Never** spawn a lane for something a grep answers; never fan out on a task under ~30 minutes of work.
+Restructured 8 Sep 2026 after `wf_16e00993` died on the session limit with three high-effort Fable
+lanes in flight: 725K tokens, two lanes' work on disk and their reports lost. The rules below make
+that failure cheap instead of preventing nothing.
+
+1. **Check the budget first:** `.claude/bin/wf-spend.sh`. Fable 5.1 resets **Sunday**; that reset is
+   the budget. Two fable runs a week, and only by escalation (item 5).
+2. **One lane per session** where the work allows; `/lane` caps a run at **3** and refuses more.
+   `/gate` is always its own invocation. A limit hit then costs one lane, never a phase.
+3. **Start:** read `PLAN.md` §0 + the rows for this lane only. Not CHANGELOG, not whole specs.
+4. **Read specs by section:** `grep -n "^## \|^### " docs/<n>.md` → `sed -n 'a,bp'`. A lane reads only
+   the sections its PLAN row names.
+5. **Tiers are structural.** Pick a lane by naming an agent; model and effort come from its file:
+
+   | Agent | Model · effort | For |
+   |---|---|---|
+   | `lane-mech` | haiku · low | ARB drafts, l10n parts, fixtures, codegen, token regen |
+   | `lane-ui` | sonnet · medium | screens by S-id (13 §3.2), F1 widget tests |
+   | `lane-server` | sonnet · medium | migrations + RLS, edge functions, hostile-query tests |
+   | `lane-sync` | opus · medium | `sync_engine`, ordering/conflict/trust logic, projector |
+   | `lane-core` | **fable · high** | ⚠️ escalation only — `core_*` behaviour, 🔒/ADR reasoning, suite-A goldens |
+
+   **No lane starts on `lane-core`.** It is entered only when a lower tier reported a blocker it
+   could not resolve, and only with the owner's say-so. Never pass `model`/`effort` in lane args —
+   that is exactly how the whole of Phase A's first week went to Fable by accident.
+6. **Orchestrate, don't implement, in the main session.** The orchestrator holds PLAN rows and lane
+   reports; lanes return structured JSON, not prose.
+7. **Reports are durable.** A lane's last action writes `.claude/lane-reports/<milestone>-<key>.json`,
+   so an interrupted run loses the run, not the work. `/lane` skips lanes already reported there.
+8. **The post-edit hook already formats/analyzes/purity-checks.** Lanes never re-run those by hand
+   and **never run `ci.sh`**; the `gate` agent runs it once per phase and greps its log to a file so
+   the log never enters anyone's context.
+9. **Tests by file during a lane** (`dart test test/x_test.dart`), full package once at lane end.
+   Goldens once per phase (`/goldens`).
+10. **No re-reading after edits** — the harness tracks file state. No verification loops beyond one
+    gate + one fix pass.
+11. **End with `/close`:** `/plan` (✅ from green ids) → `/changelog` → commit message for the owner
+    → **`/clear`**. Never chain the next lane onto a finished one; a fresh session is the cheapest
+    session, because context is resent in full every turn.
+12. **Never** spawn a lane for something a `grep` answers; never fan out on a task under ~30 minutes.
 
 ---
 

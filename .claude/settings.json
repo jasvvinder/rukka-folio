@@ -21,7 +21,7 @@
             "type": "command",
             "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/dart_post_edit.sh",
             "timeout": 180,
-            "statusMessage": "dart format · analyze · purity"
+            "statusMessage": "dart format \u00b7 analyze \u00b7 purity"
           }
         ]
       }
@@ -33,6 +33,16 @@
             "type": "command",
             "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/stop_changelog.sh",
             "timeout": 15
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/stop_clear_hint.sh",
+            "timeout": 15,
+            "statusMessage": "session close hint"
           }
         ]
       }

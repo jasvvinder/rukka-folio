@@ -34,5 +34,8 @@ Secrets only in CI secrets and local `.env` (gitignored). Region: India (ap-sout
 - `deno test server/functions` — shape refusals named, idempotent replay, seq monotonic, epoch change → full re-pull.
 - Wire both into `ci.sh` nightly/rc lanes (they are "scheduled — M4" today).
 
-## Return (to /fanout)
-files · tests (ids) · open (every 🔒 conflict or 05 §11 / 03 §8 open item you hit) · notes (ops checklist: PITR, KMS, bucket, sweep).
+## Return (to /lane)
+Write the report to `.claude/lane-reports/<milestone>-<key>.json` as your **last action**, then
+return the same object:
+files · tests (ids) · open (every 🔒 conflict or 05 §11 / 03 §8 open item you hit) · notes (ops
+checklist: PITR, KMS, bucket, sweep).

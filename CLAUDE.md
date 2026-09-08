@@ -25,6 +25,7 @@ If two sources at the same level genuinely conflict, stop and ask — leave a `�
 /server/admin    internal panel (M13)
 /testing         harness/(two-client rig, 09 §1; created at M2, ADR 2026-09-05i §7) · fixtures/(SYNTHETIC sync/UI data only — never real entries; accounting goldens stay in docs/reference/) · goldens/(export byte-comparisons, suite F3)
 /design          design-system.md + tokens/ (tokens.json = single source → tokens.css, tokens.dart; UI code uses tokens ONLY — hex literals in widgets are review-blocking) · mockups, prototype exports, icons
+/.claude         agents/(lane tiers — model+effort per lane) · workflows/(lanes.js, gate-run.js) · skills/ · hooks/ · bin/wf-spend.sh · lane-reports/(git-ignored, durable lane output)
 /scripts         ci.sh (the gate) · check_strings.dart (fails on missing EN/PA/HI key, placeholder drift, forbidden jargon) · check_purity.sh (no Flutter in packages; no I/O/clock/RNG in core_*; no hex literals in app) · gen_tokens.dart (tokens.json → tokens.css/.dart; --check in CI) · gen_l10n_arb.dart (dotted ARB keys → identifier keys for gen_l10n)
 ```
 Trunk-based on protected `main`; tags at milestone exits (`m1-ledger-core`); secrets only in CI secrets + local `.env` (never committed).
@@ -53,16 +54,29 @@ Trunk-based on protected `main`; tags at milestone exits (`m1-ledger-core`); sec
 - **Every session ends with a `CHANGELOG.md` entry** (newest first, dated, milestone-tagged: Added / Changed / Decided / Open / Commits). Write it before handing files to the owner to commit; fill the commit hashes in the next session. Git holds the diff — the changelog holds the *what* and *why*.
 - If a spec is ambiguous, prefer the more conservative reading and leave a `⚠️ SPEC:` comment plus a note to the owner — do not silently invent behavior.
 
-## Session economy (owner-directed, 7 Sep 2026)
+## Session economy 🔒 (owner-directed, 7 Sep 2026; restructured 8 Sep 2026) ⟦tests: n/a — process rule, not behaviour⟧
 - **Start with `PLAN.md`** §0 + the current phase; not CHANGELOG, not whole specs. Read spec *sections*: `grep -n "^## \|^### " docs/<n>.md` → `sed -n 'a,bp'`.
-- **Milestone work runs as `/fanout`:** one orchestrator session, lanes as subagents owning disjoint directories (skills `ui-screen`, `server`, `sync-slice`, `slice`), one gate per phase. Lanes return JSON, never run `ci.sh`, never re-read files after editing.
-- **Right-size lanes:** `effort: low` + haiku for mechanical work (ARB drafts, codegen, fixtures); default for logic; `high` only for `core_*` verification.
-- The post-edit hook formats/analyzes/purity-checks — never repeat it by hand. Tests by file while working; package once at the end; the full gate once.
-- **End every session:** `/plan` (✅ only for ids green in the gate) → `/changelog` → commit message for the owner. Do not fan out for work under ~30 minutes.
+- **Milestone work runs as `/lane`, one lane per session where it can:** one orchestrator session that holds PLAN rows and lane reports and nothing else; lanes are subagents owning **disjoint directories**. `/lane` runs at most **3** lanes and then **stops**.
+- **`/gate` is a separate invocation** — never in the same run as the lanes. A session-limit kill must cost one lane, not a phase.
+- **Tiers are structural, not remembered.** Model and effort live in `.claude/agents/*.md`; a lane is chosen by naming an agent, never by passing a model:
+
+  | Agent | Model · effort | For |
+  |---|---|---|
+  | `lane-mech` | haiku · low | ARB drafts, l10n parts, fixtures, codegen, token regen |
+  | `lane-ui` | sonnet · medium | screens by S-id (13 §3.2), F1 widget tests |
+  | `lane-server` | sonnet · medium | migrations + RLS, edge functions, hostile-query tests |
+  | `lane-sync` | opus · medium | `sync_engine`, ordering/conflict/trust logic, projector |
+  | `lane-core` | fable · high | ⚠️ **escalation only** — `core_*` behaviour, 🔒/ADR reasoning, suite-A goldens |
+
+  **No lane starts on `lane-core`.** Fable 5.1 resets weekly on Sunday and is entered only when a lower tier reported a blocker it could not resolve — and only with the owner's say-so. Budget: **2 fable runs per week**. Check before spending: `.claude/bin/wf-spend.sh`.
+- **Lane reports are durable.** A lane's last action writes `.claude/lane-reports/<milestone>-<key>.json`; `/lane` skips lanes already reported there. That is what makes an interrupted run cheap — the work survives even when the run does not.
+- Lanes return JSON, never run `ci.sh`, never read whole docs, never re-read files after editing. The post-edit hook formats/analyzes/purity-checks — never repeat it by hand. Tests by file while working; package once at lane end; the gate once per phase.
+- **End every session with `/close`:** `/plan` (✅ only for ids green in the gate) → `/changelog` → commit message for the owner → **`/clear`**. Never chain the next lane onto a finished one. Do not spawn a lane for work under ~30 minutes, or for what a `grep` answers.
 
 ## Commands
 - Workspace: `dart pub get` at the root resolves every package (pub workspace; one lockfile).
 - App: `flutter test` · `flutter build ios` · `dart run build_runner build -d` (Drift codegen) · `flutter analyze`
 - Tokens / strings: `dart run scripts/gen_tokens.dart` after editing tokens.json · ARB keys stay dotted (`screen.element.state`); `scripts/gen_l10n_arb.dart` derives the identifier-keyed copies gen_l10n needs (`app.name` → `appName`), run by ci.sh
 - Server: `supabase db reset` (applies migrations + RLS tests) · `deno test server/functions`
+- Build: `/lane <keys>` (≤3 lanes, then stops) · `/gate [lane]` (separate run) · `/close` (plan → changelog → clear) · `.claude/bin/wf-spend.sh` (week's token spend; `--all` for every run)
 - Full gate: `./scripts/ci.sh` (push lane by default; `LANE=nightly|rc|release` selects the others — 09 §preamble, ADR 2026-09-05i §2) · `dart run scripts/check_coverage.dart` (🔒→test ids; warn-only until M4)

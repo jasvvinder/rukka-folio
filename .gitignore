@@ -4,6 +4,9 @@
 !/.claude/settings.json
 !/.claude/hooks/
 !/.claude/skills/
+!/.claude/agents/
+!/.claude/workflows/
+!/.claude/bin/
 /design/canvas-mirror/
 *.zip
 

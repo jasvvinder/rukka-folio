@@ -25,5 +25,8 @@ description: Build one or more Flutter screens by S-id (13 §3.2) inside a featu
 ## Test (F1, every push)
 `app/test/features/<feature>/<screen>_test.dart`; names start with the id (`F1-07-<n>` — next free number from `dart run scripts/check_coverage.dart`). Per screen: renders each state; strings resolve in EN/PA/HI (`Localizations` pumped per locale, no overflow at 200 %); primary action reaches the engine (fake) with integer paise; for S2: tap sequence completes in ≤ 8 steps.
 
-## Return (to /fanout)
-files · tests (ids) · open (any 🔒 line you would have needed to change, any design gap: cite canvas + S-id) · notes.
+## Return (to /lane)
+Write the report to `.claude/lane-reports/<milestone>-<key>.json` as your **last action**, then
+return the same object:
+files · tests (ids) · open (any 🔒 line you would have needed to change, any design gap: cite
+canvas + S-id) · notes.

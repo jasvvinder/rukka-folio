@@ -12,6 +12,63 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-08 — env: build harness restructured around lane tiers, durable reports and short sessions
+
+Phase A's first week spent 2.69M tokens across five `/fanout` runs, all of them on Fable 5.1, and two died mid-run — `wf_16e00993` on the session limit with three `effort: high` lanes in flight (725K tokens, 15 min), leaving two lanes' files on disk and their reports lost, so the phase could not be marked. Cause: lane args carried `effort` but never `model`, so every lane fell through to the workflow default (`claude-fable-5-1`), and lanes + gate were one atomic unit that had to survive half an hour. No code behaviour changed in this session.
+
+**Added**
+- `.claude/agents/` — six lane tiers, each pinning **model and effort in frontmatter** so a forgotten arg can no longer choose the model: `lane-mech` (haiku · low), `lane-ui` (sonnet · medium), `lane-server` (sonnet · medium), `lane-sync` (opus · medium), `lane-core` (**fable · high, escalation only**), `gate` (sonnet · low, `Bash`/`Read`/`Edit` only). The repo rules that were re-sent per lane inside the workflow script now live once per tier in these bodies, with each tier carrying the rules it can actually violate.
+- `.claude/workflows/lanes.js` — runs 1–3 lanes in parallel **by `agentType`** and then stops. Caps the run at 3 and refuses more; refuses a lane missing `key`/`agent`/`dirs`/`prompt`; reports `ok: false` plus `incomplete: [keys]` when a lane dies instead of silently dropping it; surfaces `escalate: [keys]` for lanes whose `open` items mention 🔒, an ADR, a golden or a STOP.
+- `.claude/workflows/gate-run.js` — the gate as its own invocation, so a limit hit costs one lane and not a phase.
+- **Durable lane reports.** A lane's last action writes `.claude/lane-reports/<milestone>-<key>.json` (git-ignored); `/lane` skips lanes already reported there. `resumeFromRunId` is same-session only and so useless when the limit takes the session — disk is not.
+- `.claude/bin/wf-spend.sh` — token spend per run and per week from the persisted workflow run state, grouped by model, with the fable budget (2 runs/week) and any non-completed run called out. Run at session start, before spending more.
+- Skills `lane` (budget check → PLAN rows → skip-if-reported → disjointness → **tier choice** → run → integrate → stop) and `close` (`/plan` → `/changelog` → commit message → ask for `/clear`).
+- Hook `stop_clear_hint.sh` (Stop) — after a session in which a build workflow actually ran and the changelog was written, prints the week's spend and asks for `/clear`.
+
+**Changed**
+- `CLAUDE.md` § Session economy — rewritten and marked 🔒: `/lane` replaces `/fanout`, the gate is a separate invocation, the tier table is normative, no lane starts on `lane-core`, reports are durable, every session ends with `/close` and a clear. Layout gains a `/.claude` row; Commands gains the build and budget commands.
+- `PLAN.md` §1 principle and §3 (all twelve items) — a phase is built one lane at a time, not one phase at a time; tiers are structural; the failure that prompted it is recorded inline so the reasoning survives.
+- Skills `gate` (now delegates to the `gate-run` workflow and pipes `ci.sh` to a file to grep, so the CI log never enters the orchestrator's context; routes each remaining failure to a tier, one round), `ui-screen` / `server` / `sync-slice` (**Return** sections now name the report path and, for `sync-slice`, make a `core_*` behaviour change an escalation trigger rather than lane work).
+- `.gitignore` — `!/.claude/agents/`, `!/.claude/workflows/`, `!/.claude/bin/`. `milestone-lanes.js`, the script that ran the entire build, was untracked; `lane-reports/` stays ignored.
+- `~/.claude/settings.json` (not in the repo; backup alongside) — `model: opus` (was `opus[1m]`: a premium tier above 200K, and the headroom invited context growth), opus `effortLevel: medium` (was `high` on every turn, against our own rule that `high` is for `core_*` only), `env.CLAUDE_CODE_SUBAGENT_MODEL=sonnet` (the default that Fable was standing in for; agent files still win), `skipWorkflowUsageWarning` removed.
+- Removed: skill `fanout`, workflow `milestone-lanes.js`.
+
+**Decided** — nothing 🔒 in `docs/`. The CLAUDE.md § Session economy rules are owner-directed process, marked 🔒 with `⟦tests: n/a⟧`; the fable budget of **2 escalation runs per week** is the owner's number and can be changed without an ADR.
+
+**Open** ⚠️
+- `effort:` as an agent-frontmatter key is documented ("model, reasoning effort, and tools come from its definition") and matches the `agent()` opt and the `--effort` flag, but has not been observed parsed. Confirm in `/agents` on the first `/lane`; if it is ignored, effort moves to the `agent()` call site in `lanes.js` — still one file, still structural.
+- Expected effect to confirm against `wf-spend.sh` over the next runs: peak per run **150–250K** instead of 700K–1M, and fable at zero unless escalated.
+
+**Commits** — pending.
+
+---
+
+## 2026-09-07 — P0: tooling for parallel lanes (Phase A, stage 1) — gate green; stage 2a lanes running
+
+First `/fanout` of Phase A. P0 ran as two disjoint lanes plus one gate (`LANE=push ./scripts/ci.sh` green, nothing to fix). Stage 2a (lanes S server · Y sync_engine · U0 app ledger facade · C auth/devices client) was launched at the end of this session and reports in the next one; its files are not in this entry.
+
+**Added**
+- ARB parts: lanes write `app/lib/l10n/parts/<feature>_{en,pa,hi}.arb`; `scripts/gen_l10n_arb.dart` now merges parts → `app_*.arb` (generated, `@@x-generated`, still committed) → identifier copies in `gen/`; fails naming the part file on duplicate keys, a language missing for a feature, or a malformed ARB. Logic in `scripts/src/arb_merge.dart`; `check_strings.dart` blames the part file. `app/lib/l10n/README.md` documents it.
+- `scripts/check_contrast.dart` (+ `scripts/src/contrast.dart`): WCAG 2.1 for every colour token × four grounds (`bg`, `surface`, `sunk`, `danger-surface`) × both modes, role mapping documented at the top; 74 gated pairs, 0 failing, 3 waived as *pending ruling* (see Open). Wired into `ci.sh` after the generated-files step; root `test/scripts/` (F1-10-2 … F1-10-15) runs in a new `dart test test/` step; root pubspec gains `test`.
+- App shell: `shared/theme.dart` (`rkTheme` light/dark from tokens only, `RkStatusColors` extension), `shared/router.dart` (go_router shell — Home · Ledger · ( + ) · Inbox · Menu per 13 §3.1; `RkPaths`, `RkTabRoot`, `buildRouter(featureRoutes:)`), `shared/widgets/rk_tab_bar.dart` (design-system §4.1 verbatim glyphs, 21×21, min-height 50, active/inactive styling), `shared/seams/{sync_client,auth_client,key_store}.dart` (sealed five-state `SyncStatus`; `AuthClient` OTP → ticket → session; `KeyStore` bytes-by-id with `KeyIds`; in-memory fakes for all three), `shared/app_scope.dart` (`RkScope`: db · sync · auth · keys · injected clock), `features/README.md` (the lane convention), `app/test/shared/test_app.dart` (`pumpRk`). Tests F1-13-1 … F1-13-14; F1-10-1 now boots the shell in EN/PA/HI. Dependencies: go_router, drift, path_provider.
+
+**Changed**
+- `main.dart` — `MaterialApp.router`, `RkScope` with fakes, file-backed `NativeDatabase` under app documents; **plain SQLite until lane C's Keychain-held SQLCipher key is wired** (`⚠️ SPEC` comment in the file). Must not ship past the dev loop.
+- `scripts/ci.sh` — contrast step; root test step; `test/` added to format and analyze.
+
+**Decided** — nothing 🔒.
+
+**Open** ⚠️
+- Owner ruling: light `text-muted` measures 4.46:1 on `sunk` and 4.36:1 on `danger-surface` (below AA 4.5 for captions). Not covered by any design-system §3/§3.1 ruling; waived as *pending ruling* in `scripts/src/contrast.dart` — darken the token or accept, then delete the waiver.
+- Already ruled, hex pending: light `credit` on `sunk` = 4.30:1 (design-system §3.1 "darken one step"); waived until the token session lands the new value.
+- Role-mapping judgement calls documented at the top of `check_contrast.dart` (`primary` as text, `accent` as UI, `locked` disabled-exempt, hairline/skeleton/scrim decorative, amounts never on `danger-surface`) — owner may confirm.
+- `app_{en,pa,hi}.arb` are generated but committed; git-ignoring them is a one-line change if preferred.
+- 07 §1.7 speaks of six status states (adds *rebuilding*); 05 §9 owns five and the sealed `SyncStatus` has five — rebuilding is Home's S1.4 state, not a sync state. Lane U2 is told so.
+
+**Commits** — pending.
+
+---
+
 ## 2026-09-07 — docs: ADR 2026-09-06 ratified; §4 lead-times kicked off
 
 Owner ratified the Shamir / guardian-revocation ADR with its four recommended answers and asked for the external lead-times to start. Docs-only session; no code changed, no tests moved.
