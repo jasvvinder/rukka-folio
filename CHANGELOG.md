@@ -12,6 +12,89 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-08 (second session) — M4 exit gates: the RLS suite finally runs, traceability goes blocking, M5 started
+
+Picked up the three ⛔ items standing in `PLAN.md` §0. Two are now closed; the third (the M5 app lanes) is
+begun and explicitly unfinished. Along the way the session found one real privilege bug, four defects in
+the traceability checker and two in the lane harness — every one of them a tool that was reporting success
+over work it was not actually checking.
+
+**Added**
+- `scripts/rls_db.sh` — builds the RLS database from a local Postgres and exports `RF_TEST_DB_URL`.
+  **Docker was never the requirement**: the migrations are plain Postgres + `pgcrypto`, no `auth.`/`storage.`
+  /Supabase extensions, so a Homebrew `postgresql@16` serves. `eval "$(scripts/rls_db.sh)"` resets the
+  database, applies all five migrations and prints the URL. This closes ⛔ item 1, open since M4 began.
+- `docs/decisions/2026-09-08-planned-test-markers.md` — 🔒 ADR adding a **third marker form**, ` @M<n>`.
+  05i §1 allowed only real ids or `n/a — reason`, and neither fits the ~90 🔒 lines whose behaviour is real
+  but whose milestone is unbuilt: an intended id fails the dangling-id check, and `n/a` is both false and
+  *terminal* — nothing would ever force those lines to gain real ids. A planned marker instead **expires**:
+  `--milestone M<n>` fails any ` @M<k>` with `k ≤ n` that still has no test. Verified both ways (fails at
+  M4, passes at M3). ADR 2026-09-06 §7 was already writing `F1-06a-1 (M11)` illegally; it is now legal.
+
+**Changed**
+- `server/supabase/migrations/0005_rls_and_grants.sql` — **security fix.** `:296` revoked
+  `bump_store_epoch` from `rf_api` but omitted the sibling revoke for `purge_ephemeral_auth`, which the
+  blanket `grant execute on all functions in schema rf to rf_api` then handed over. It is `SECURITY
+  DEFINER`, so `rf_api` could bypass RLS to delete `refresh_tokens`, `auth_nonces`, `otp_challenges`,
+  `activation_tickets` and revoked `wrapped_keys`. Found by `E-03-26` on the suite's **first ever run** —
+  exactly the class of bug the 7 Sep entry warned was unevidenced. Restores what 03 §2.5 already says; no
+  🔒 rule changed, so no ADR.
+- `server/supabase/tests/rls/schema.test.ts` — `E-03-20` claimed to assert "maintenance-only powers are
+  revoked from rf_api" but its `||` accepted the `from public` revoke, which does **not** take back an
+  explicit later grant. That is why a static test sat green over the hole above. Tightened to require the
+  `rf_api` revoke by name; confirmed it fails when the migration fix is reverted.
+- `scripts/check_coverage.dart` — **four defects, all of them false assurance**: (a) object-form
+  `Deno.test({name:…})` unmatched, so the entire RLS suite read as declaring no ids and its markers looked
+  dangling; (b) root `test/` absent from `_testRoots` (and from the path filter), hiding 15 green `F1-10-*`
+  tests; (c) an `n/a` marker on a heading blanketed its whole section — an `n/a` on `## Rulings 🔒` would
+  have excused every ruling beneath it; (d) 🔒 *mentions* (`🔒/ADR`, `🔒→test ids`, a line-wrapped "on 🔒
+  / lines") counted as rulings. Fixing these alone took discovered tests 373 → 395. Also teaches it the
+  ` @M<n>` form and skips fenced code blocks so a doc documenting marker syntax is not parsed as using it.
+- `scripts/ci.sh` — coverage step flipped to `--strict --milestone M4` (05i §1 phased it to block at M4;
+  it now passes). Server step documents the no-Docker path and sets `RLS_REQUIRE=1` on nightly/rc/release
+  so an absent database **fails loudly instead of skipping in silence**.
+- `.claude/workflows/lanes.js` — **`/lane` has been broken since `bfc3714`.** Unescaped backticks inside a
+  template literal meant the script never parsed; every earlier run used the older `milestone-lanes`
+  workflow, so the restructured harness had never actually been exercised. Second bug on the failure path:
+  `settled.filter(r => r.dead)` threw `TypeError` because `parallel` yields `null` for a schema-failed
+  agent — losing *which* lanes to re-run, defeating durable reports precisely when needed. Both fixed.
+- `docs/` + `design/` — every 🔒 line now carries a marker: **0 unmarked** (was 185), 0 dangling, 0
+  malformed, 0 orphan tests, 0 tests without an id. 83 lines carry planned ` @M<n>` markers. Malformed
+  `E-03-16b`/`E-05-1b` renamed to `E-03-28`/`E-05-13` (tests and markers together). 14 ADR `## Rulings 🔒`
+  container headings marked `n/a` now that an `n/a` heading no longer launders its section.
+- `PLAN.md` — `server/` ⬜→✅ M4 (Deno 31 → **38**, RLS included); Traceability ⚠️→✅; `app/` records the
+  partial M5 work; the M5 section carries the lane-sizing warning below.
+
+**Verified**
+- RLS hostile-query suite **7/7 green** against a real Postgres (`E-03-22…28`, `E-05c-7`); full server
+  Deno suite **38 passed**, lint clean. Nightly-without-a-database fails loudly, as intended.
+- `check_coverage --strict --milestone M4` → `coverage ok`, zero findings and zero warnings (from 198).
+- `flutter analyze --fatal-infos` clean; `gen_l10n_arb` + `check_strings` green (169 keys × 3 languages);
+  no hex literals in the new app code.
+- ⚠️ **`ci.sh` was not run end to end this session** — the gate is a separate invocation (`/gate`) and the
+  M5 tree is mid-lane. The individual steps above were run directly.
+
+**Decided** — ADR 2026-09-08 (planned-test markers) 🔒. Nothing else 🔒: the `purge_ephemeral_auth` revoke
+and the checker fixes restore what the specs already said rather than changing a rule.
+
+**Open** ⚠️
+- ⛔ **M5 is ~10 lanes, not 3.** U1/U2/U3 were given 10–16 screens each against `lane-ui`'s 40-turn cap;
+  all three capped mid-read — **418K tokens for one screen, an EN-only ARB and empty directories**. A
+  re-scoped 3-screen lane (U1a) still capped at 55 tool uses. Budget **2–3 screens per lane**. My
+  over-scoping, not the harness's fault; the harness bugs above merely hid the outcome.
+- **U1a incomplete**: S0.0 splash and S0.1 language built; **S0.05 welcome missing, no F1 tests written**
+  (F1-07-39/40/41 owed), and `onboarding_routes.dart` was never created so nothing is wired into
+  `router.dart`. **U3 incomplete**: S3 ledger index only, no test. Both reports are on disk and current.
+- The lanes wrote **no tests at all** — both capped before the tests-first step could produce anything.
+  The next lane on these features must write the owed F1 ids before adding screens.
+- Postgres now runs locally as a Homebrew service; `RF_TEST_DB_URL` is not persisted anywhere — each
+  session runs `eval "$(scripts/rls_db.sh)"`. CI still has no database; the RLS suite skips on any runner
+  that does not set one, which is why the push lane stays silent about RLS.
+- Unchanged from the last session: hardening gates still absent from `ci.sh` (gitleaks, OSV, `print(`);
+  SPKI rotation runbook still missing; goldens still PROVISIONAL (no `approved_on`).
+
+**Commits** — pending; see the handover blocks.
+
 ## 2026-09-08 — M4 + M6: stage 2a closed out — server, sync_engine and the auth/devices client gated and recorded
 
 The four stage-2a lanes (S server · Y sync_engine · C auth+devices client · U0 ledger facade) landed their files in the session that died on its limit (`wf_16e00993`), and their lane reports died with it. So ~40 files of security-critical work sat on disk **never analyzed, never tested, never PLAN-marked, and named in no changelog entry** — the 7 Sep entry says outright that its files are not in it. This session did no new feature work: it gated that tree, fixed what the gate found, and wrote down what is actually true about it.

@@ -16,16 +16,16 @@ spec authority stays in `docs/` (this file is a tracker, never a spec).
 | `testing/harness` | ✅ M2 | two-client rig; D-05b-2/3/4 |
 | `core_crypto` (04) | ✅ M3 | suite B: 75 tests — envelopes, keys, ceremony, wrapping, recovery, signed records, chain, Shamir |
 | `sync_engine` (05) | 🟡 M4 | suite D: 17 tests — outbox/push, `seq` cursors, epoch, key-wait, revocation cut-off, k-of-n `D-06a-1…4`, SPKI pins |
-| `server/` (03 §2, 05, 06) | 🟡 M4 | 5 migrations + RLS + 5 edge functions; Deno 31 green — **RLS hostile-query suite (7) never executed, no Docker** |
-| `app/` (07, 13) | 🟡 M6 client | theme + router + seams + `features/auth` + `features/devices` (7 screens); 85 tests green — no onboarding/home/entry yet (M5) |
-| Traceability | ⚠️ | `check_coverage` (warn-only until M4): 373 tests · 319 🔒 lines, **185 unmarked** · 44 orphan ids · 11 markers naming no test · 2 malformed ids · 2 tests with no id |
+| `server/` (03 §2, 05, 06) | ✅ M4 | 5 migrations + RLS + 5 edge functions; **Deno 38 green incl. the 7 hostile-query RLS tests** (`E-03-22…27`, `E-05c-7`) against a real Postgres — `scripts/rls_db.sh`, no Docker |
+| `app/` (07, 13) | 🟡 M6 client · M5 started | theme + router + seams + `features/auth` + `features/devices` (7 screens), 85 tests green · **M5 begun 8 Sep and unfinished**: `features/onboarding` S0.0 + S0.1 (no S0.05, no tests, routes not wired), `features/ledger` S3 only. See `.claude/lane-reports/M5-U1a.json`, `M5-U3.json` |
+| Traceability | ✅ | `check_coverage --strict --milestone M4` **green** and blocking in `ci.sh`: 395 ids · 317 🔒 lines, **0 unmarked** · 0 orphans · 0 dangling · 0 malformed. 83 lines carry planned ` @M<n>` markers (ADR 2026-09-08) that fail once their milestone lands |
 
 ✅ ADR 2026-09-06 ratified 7 Sep (four answers recorded in the ADR; 04 §2/§7.3/§9.2/§11 updated).
 
 ⛔ **Owner now, in order:**
-1. **A Postgres for the RLS suite.** `server/supabase/tests/rls/rls.test.ts` (7 hostile-query tests) has never executed — Docker is absent on this machine, so `supabase db reset` cannot run and `RF_TEST_DB_URL` is unset. The push lane skips it by design, which means *M4's security-critical half is written but unevidenced*. Until this runs, no claim about RLS holds.
+1. ✅ **Done 8 Sep — the RLS suite runs.** Docker was never the requirement: the migrations are plain Postgres + `pgcrypto`, so a Homebrew `postgresql@16` serves. `scripts/rls_db.sh` resets the database, applies the 5 migrations and exports `RF_TEST_DB_URL`; nightly/rc set `RLS_REQUIRE=1` so a missing database fails loudly. First run found one real defect (`E-03-26`) — see M4 below.
 2. The §4 lead-times — each row names its first action; details in `docs/ops/lead-times.md`.
-3. **Traceability debt before M4 exit** (`--strict` blocks at M4, ADR 2026-09-05i §1) — see the new reconciliation row under M4.
+3. ✅ **Done 8 Sep — traceability debt cleared.** All 198 findings resolved; `ci.sh` now runs `check_coverage --strict --milestone M4`. Four checker defects fixed along the way (object-form `Deno.test` invisible, root `test/` tree not scanned, `n/a` on a heading laundering the whole section, 🔒 mentions counted as rulings). ADR 2026-09-08 adds the ` @M<n>` planned-test marker.
 
 ---
 
@@ -100,8 +100,14 @@ drop 🔒 roadmap gates by ADR — the tracker does not assume that.
 - Not a build lane: it spans lane-sync/lane-ui/lane-server territory and is a docs+naming pass. `check_coverage --strict` turns blocking at M4.
 
 ### M5 Single-user app ⬜ (suite F1 + stopwatch)
+⚠️ **Lanes must be split to ~3 screens each.** The 8 Sep run gave U1/U2/U3 10–16 screens apiece against
+`lane-ui`'s 40-turn cap; all three capped mid-read, 418K tokens for one screen. A re-scoped 3-screen lane
+(U1a) still capped at 55 tool uses, landing 2 screens and no tests. **Budget ~2–3 screens per lane**, and
+expect ~10 lanes for M5. Split before running, never raise the cap (`/lane` §1.4).
+
 **Lane U1 — foundation + onboarding** (`features/onboarding`, `features/lock`, `shared/`)
-- ⬜ S0.0 splash · S0.1 language · S0.05 welcome · S0.3 purpose cards · S0.4 name/photo · S0.5/S0.5b safety + recovery sheet
+- 🟡 **U1a** S0.0 splash ✅ · S0.1 language ✅ · S0.05 welcome ⬜ — ARB trio en/pa/hi ✅ (169 keys × 3, gen + strings green); **no F1 tests written** (F1-07-39/40/41 still owed); `onboarding_routes.dart` absent so nothing is wired into `router.dart`
+- ⬜ S0.3 purpose cards · S0.4 name/photo · S0.5/S0.5b safety + recovery sheet
 - ⬜ S0.6a–i business/family/trust setup · S0.6 opening balances wizard · S0.7 setup checklist · S0.8 set PIN
 - ⬜ S15 app lock (biometric, MPIN fallback) · S15.1 privacy cover · S15.3 cooldown states · idle lock with draft restore (C-05a-7)
 - ⬜ S13 settings (language, Appearance, auto-lock) · S19.3 no-connection · S19.5 modified-device notice
@@ -110,7 +116,8 @@ drop 🔒 roadmap gates by ADR — the tracker does not assume that.
 - ⬜ S2 keypad-first entry · S2.1 A/C picker + inline create · S2.2 date · S2.3 transfer · S2.5 drawings confirmation
 - ⬜ stopwatch test ≤ 8 s (F1 + device) · Money in / Money out vocabulary only (rule 9)
 **Lane U3 — Ledger + statement + export** (`features/ledger`, `features/reports`)
-- ⬜ S3 ledger index · S3.1 quick add · S4 A/C statement (Dr/Cr, running balance) · S4.1 entry detail + amend/reverse · S21 search
+- 🟡 S3 ledger index ✅ (`s3_ledger_index_screen.dart`, 365 lines, no test) — rest of the lane untouched
+- ⬜ S3.1 quick add · S4 A/C statement (Dr/Cr, running balance) · S4.1 entry detail + amend/reverse · S21 search
 - ⬜ S8 menu · S8.1/S8.2 day book + export (CSV/PDF, temp-file purge) · S12.5 read-only sheet pattern (used by book-full)
 - ⬜ A-02-10 both vocabularies render from one posting set
 
