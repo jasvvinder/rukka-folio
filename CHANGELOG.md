@@ -36,10 +36,17 @@ Phase A's first week spent 2.69M tokens across five `/fanout` runs, all of them 
 **Decided** — nothing 🔒 in `docs/`. The CLAUDE.md § Session economy rules are owner-directed process, marked 🔒 with `⟦tests: n/a⟧`; the fable budget of **2 escalation runs per week** is the owner's number and can be changed without an ADR.
 
 **Open** ⚠️
-- `effort:` as an agent-frontmatter key is documented ("model, reasoning effort, and tools come from its definition") and matches the `agent()` opt and the `--effort` flag, but has not been observed parsed. Confirm in `/agents` on the first `/lane`; if it is ignored, effort moves to the `agent()` call site in `lanes.js` — still one file, still structural.
+- ~~`effort:` frontmatter unverified~~ **Closed 8 Sep** against the subagent docs: `effort` is a documented field (`low`/`medium`/`high`/`xhigh`/`max`, "overrides the session effort level"), as is `model: fable`. All six definitions are valid as written; the `lanes.js` fallback is not needed. (`/agents` is not the way to check — the wizard was removed in v2.1.263.)
 - Expected effect to confirm against `wf-spend.sh` over the next runs: peak per run **150–250K** instead of 700K–1M, and fable at zero unless escalated.
 
-**Commits** — pending.
+**Follow-on, same day** (after `bfc3714`)
+- Agent frontmatter gains `maxTurns` (15 mech · 40 ui/server · 50 sync · 60 core · 20 gate) — a capped lane returns **partial and resumable** instead of running until the session limit does it for us; `skills:` preloads each lane's own skill (`ui-screen`, `server`, `sync-slice`) so a lane no longer spends a turn reading it; `disallowedTools: ["WebSearch", "WebFetch"]` on the four unrestricted lanes, since every spec is local.
+- Consequence, and the reason the report shape changed: a turn cap makes a **partial report the normal outcome**, so reports are now written early and kept current rather than as a last action, and carry **`complete: bool`**. `/lane` skips only complete reports and re-runs the rest with their own `notes` fed back; `lanes.js` counts `complete: false` as incomplete alongside a dead lane, and `LANE_SCHEMA` requires the field. Without it, skip-if-reported would have silently dropped the unfinished half of a capped lane.
+- `.claude/bin/lane-status.sh` — which lanes have landed and which are only part-way, with each report's `notes`. Replaces an inline glob in `/lane` that **errored under zsh on an empty `lane-reports/`**, i.e. failed precisely at the start of a fresh phase.
+- `permissionMode: acceptEdits` on the four build lanes (owner-approved) — a lane no longer stalls on an edit prompt part-way through a run, which was another way a run failed to finish. The trade is recorded because it matters: that prompt was the only mechanism actually enforcing the disjoint-directory split, so all four bodies now carry the boundary themselves ("check the path before every write; an edit outside your directories is a build break, not a merge conflict"), and `/lane` step 3 is marked load-bearing. `lane-mech` and `gate` keep default permissions.
+- Verified every field against the subagent frontmatter docs: all six definitions valid, `effort` and `model: fable` included.
+
+**Commits** — `bfc3714` (the restructure). The same-day follow-on above is a second commit, pending.
 
 ---
 

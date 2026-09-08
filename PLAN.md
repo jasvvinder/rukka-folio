@@ -162,21 +162,28 @@ that failure cheap instead of preventing nothing.
    the sections its PLAN row names.
 5. **Tiers are structural.** Pick a lane by naming an agent; model and effort come from its file:
 
-   | Agent | Model · effort | For |
+   | Agent | Model · effort · turns | For |
    |---|---|---|
-   | `lane-mech` | haiku · low | ARB drafts, l10n parts, fixtures, codegen, token regen |
-   | `lane-ui` | sonnet · medium | screens by S-id (13 §3.2), F1 widget tests |
-   | `lane-server` | sonnet · medium | migrations + RLS, edge functions, hostile-query tests |
-   | `lane-sync` | opus · medium | `sync_engine`, ordering/conflict/trust logic, projector |
-   | `lane-core` | **fable · high** | ⚠️ escalation only — `core_*` behaviour, 🔒/ADR reasoning, suite-A goldens |
+   | `lane-mech` | haiku · low · 15 | ARB drafts, l10n parts, fixtures, codegen, token regen |
+   | `lane-ui` | sonnet · medium · 40 | screens by S-id (13 §3.2), F1 widget tests |
+   | `lane-server` | sonnet · medium · 40 | migrations + RLS, edge functions, hostile-query tests |
+   | `lane-sync` | opus · medium · 50 | `sync_engine`, ordering/conflict/trust logic, projector |
+   | `lane-core` | **fable · high** · 60 | ⚠️ escalation only — `core_*` behaviour, 🔒/ADR reasoning, suite-A goldens |
 
    **No lane starts on `lane-core`.** It is entered only when a lower tier reported a blocker it
    could not resolve, and only with the owner's say-so. Never pass `model`/`effort` in lane args —
    that is exactly how the whole of Phase A's first week went to Fable by accident.
+
+   Build lanes run `permissionMode: acceptEdits` so a run never stalls on an edit prompt. The
+   trade: the permission prompt was the only thing actually enforcing the directory split, so the
+   lane prompt now carries that job alone (item 6).
 6. **Orchestrate, don't implement, in the main session.** The orchestrator holds PLAN rows and lane
    reports; lanes return structured JSON, not prose.
-7. **Reports are durable.** A lane's last action writes `.claude/lane-reports/<milestone>-<key>.json`,
-   so an interrupted run loses the run, not the work. `/lane` skips lanes already reported there.
+7. **Reports are durable.** A lane writes `.claude/lane-reports/<milestone>-<key>.json` as soon as it
+   has anything to record and keeps it current, flagging `complete: false` until the task is wholly
+   done. `/lane` skips only complete reports and re-runs the rest, feeding each its own `notes`. Every
+   lane carries a `maxTurns` cap (15–60 by tier), so an interrupted run loses the run, not the work —
+   and a partial report is a normal outcome, not a fault. Work that will not fit a cap gets split.
 8. **The post-edit hook already formats/analyzes/purity-checks.** Lanes never re-run those by hand
    and **never run `ci.sh`**; the `gate` agent runs it once per phase and greps its log to a file so
    the log never enters anyone's context.

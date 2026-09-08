@@ -3,6 +3,7 @@ name: gate
 description: Runs the Rukka Folio CI gate (scripts/ci.sh) once for a lane, fixes only mechanical failures, and reports every remaining failure verbatim. Never changes logic or tests. Use as the single gate per phase, in its own invocation after lanes have landed.
 model: sonnet
 effort: low
+maxTurns: 20
 tools: ["Bash", "Read", "Edit"]
 color: yellow
 ---

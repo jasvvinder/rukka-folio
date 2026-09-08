@@ -25,7 +25,7 @@ If two sources at the same level genuinely conflict, stop and ask — leave a `�
 /server/admin    internal panel (M13)
 /testing         harness/(two-client rig, 09 §1; created at M2, ADR 2026-09-05i §7) · fixtures/(SYNTHETIC sync/UI data only — never real entries; accounting goldens stay in docs/reference/) · goldens/(export byte-comparisons, suite F3)
 /design          design-system.md + tokens/ (tokens.json = single source → tokens.css, tokens.dart; UI code uses tokens ONLY — hex literals in widgets are review-blocking) · mockups, prototype exports, icons
-/.claude         agents/(lane tiers — model+effort per lane) · workflows/(lanes.js, gate-run.js) · skills/ · hooks/ · bin/wf-spend.sh · lane-reports/(git-ignored, durable lane output)
+/.claude         agents/(lane tiers — model+effort per lane) · workflows/(lanes.js, gate-run.js) · skills/ · hooks/ · bin/(wf-spend.sh, lane-status.sh) · lane-reports/(git-ignored, durable lane output)
 /scripts         ci.sh (the gate) · check_strings.dart (fails on missing EN/PA/HI key, placeholder drift, forbidden jargon) · check_purity.sh (no Flutter in packages; no I/O/clock/RNG in core_*; no hex literals in app) · gen_tokens.dart (tokens.json → tokens.css/.dart; --check in CI) · gen_l10n_arb.dart (dotted ARB keys → identifier keys for gen_l10n)
 ```
 Trunk-based on protected `main`; tags at milestone exits (`m1-ledger-core`); secrets only in CI secrets + local `.env` (never committed).
@@ -60,16 +60,17 @@ Trunk-based on protected `main`; tags at milestone exits (`m1-ledger-core`); sec
 - **`/gate` is a separate invocation** — never in the same run as the lanes. A session-limit kill must cost one lane, not a phase.
 - **Tiers are structural, not remembered.** Model and effort live in `.claude/agents/*.md`; a lane is chosen by naming an agent, never by passing a model:
 
-  | Agent | Model · effort | For |
+  | Agent | Model · effort · turns | For |
   |---|---|---|
-  | `lane-mech` | haiku · low | ARB drafts, l10n parts, fixtures, codegen, token regen |
-  | `lane-ui` | sonnet · medium | screens by S-id (13 §3.2), F1 widget tests |
-  | `lane-server` | sonnet · medium | migrations + RLS, edge functions, hostile-query tests |
-  | `lane-sync` | opus · medium | `sync_engine`, ordering/conflict/trust logic, projector |
-  | `lane-core` | fable · high | ⚠️ **escalation only** — `core_*` behaviour, 🔒/ADR reasoning, suite-A goldens |
+  | `lane-mech` | haiku · low · 15 | ARB drafts, l10n parts, fixtures, codegen, token regen |
+  | `lane-ui` | sonnet · medium · 40 | screens by S-id (13 §3.2), F1 widget tests |
+  | `lane-server` | sonnet · medium · 40 | migrations + RLS, edge functions, hostile-query tests |
+  | `lane-sync` | opus · medium · 50 | `sync_engine`, ordering/conflict/trust logic, projector |
+  | `lane-core` | fable · high · 60 | ⚠️ **escalation only** — `core_*` behaviour, 🔒/ADR reasoning, suite-A goldens |
 
   **No lane starts on `lane-core`.** Fable 5.1 resets weekly on Sunday and is entered only when a lower tier reported a blocker it could not resolve — and only with the owner's say-so. Budget: **2 fable runs per week**. Check before spending: `.claude/bin/wf-spend.sh`.
-- **Lane reports are durable.** A lane's last action writes `.claude/lane-reports/<milestone>-<key>.json`; `/lane` skips lanes already reported there. That is what makes an interrupted run cheap — the work survives even when the run does not.
+- The four build lanes run `permissionMode: acceptEdits` (no stalling on edit prompts mid-run) and are denied `WebSearch`/`WebFetch` (every spec is local). Because edits are auto-accepted, **the disjoint-directory rule is enforced only by the lane prompt** — naming each lane's directories precisely is a correctness requirement, not tidiness.
+- **Lane reports are durable.** A lane writes `.claude/lane-reports/<milestone>-<key>.json` as soon as it has anything to record and keeps it current, with `complete: false` until the task is wholly done; `/lane` skips only the complete ones and re-runs the rest. Every lane carries a `maxTurns` cap, so a partial report is a normal outcome — that is what makes an interrupted run cheap: the work survives even when the run does not.
 - Lanes return JSON, never run `ci.sh`, never read whole docs, never re-read files after editing. The post-edit hook formats/analyzes/purity-checks — never repeat it by hand. Tests by file while working; package once at lane end; the gate once per phase.
 - **End every session with `/close`:** `/plan` (✅ only for ids green in the gate) → `/changelog` → commit message for the owner → **`/clear`**. Never chain the next lane onto a finished one. Do not spawn a lane for work under ~30 minutes, or for what a `grep` answers.
 
@@ -78,5 +79,6 @@ Trunk-based on protected `main`; tags at milestone exits (`m1-ledger-core`); sec
 - App: `flutter test` · `flutter build ios` · `dart run build_runner build -d` (Drift codegen) · `flutter analyze`
 - Tokens / strings: `dart run scripts/gen_tokens.dart` after editing tokens.json · ARB keys stay dotted (`screen.element.state`); `scripts/gen_l10n_arb.dart` derives the identifier-keyed copies gen_l10n needs (`app.name` → `appName`), run by ci.sh
 - Server: `supabase db reset` (applies migrations + RLS tests) · `deno test server/functions`
-- Build: `/lane <keys>` (≤3 lanes, then stops) · `/gate [lane]` (separate run) · `/close` (plan → changelog → clear) · `.claude/bin/wf-spend.sh` (week's token spend; `--all` for every run)
+- Build: `/lane <keys>` (≤3 lanes, then stops) · `/gate [lane]` (separate run) · `/close` (plan → changelog → clear)
+- Budget / recovery: `.claude/bin/wf-spend.sh` (week's token spend; `--all` for every run) · `.claude/bin/lane-status.sh` (which lanes landed, which are only part-way)
 - Full gate: `./scripts/ci.sh` (push lane by default; `LANE=nightly|rc|release` selects the others — 09 §preamble, ADR 2026-09-05i §2) · `dart run scripts/check_coverage.dart` (🔒→test ids; warn-only until M4)

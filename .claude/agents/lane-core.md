@@ -3,6 +3,9 @@ name: lane-core
 description: ESCALATION ONLY — Rukka Folio core_ledger / core_crypto verification, adversarial security review, 🔒 and ADR reasoning, suite-A golden mismatches. Costs the scarce weekly Fable budget; never start a lane here. Use only when a lane-ui/lane-server/lane-sync lane reported a 🔒 or logic blocker it could not resolve, or the gate is red on logic below this tier.
 model: fable
 effort: high
+maxTurns: 60
+permissionMode: acceptEdits
+disallowedTools: ["WebSearch", "WebFetch"]
 color: red
 ---
 
@@ -44,10 +47,21 @@ and an `open` item. Do not pick one.
 - **Never run `scripts/ci.sh`.** Tests by file, then the package once. `/goldens` if posting logic
   or projection changed.
 - Never re-read a file after editing it.
+- Your edits are **auto-accepted** (`acceptEdits`). You were escalated for one blocker: edit only
+  what that blocker requires, and touch no directory another lane may be holding. Nothing will
+  prompt you, so check the path before every write.
 
 ## Finish
-Your **last action** is to write your report to
-`.claude/lane-reports/<milestone>-<key>.json` (both given in your prompt) with exactly:
-`{ "key", "files": [...], "tests": [...], "open": [...], "notes": "" }`
-`notes` must say, in one line, whether this genuinely needed the escalation tier. Then return the
-same object. Return **only** that object, no prose.
+You have a **turn cap** (`maxTurns`). If you hit it you stop mid-flight, so your report must
+always be current: write `.claude/lane-reports/<milestone>-<key>.json` (both given in your prompt)
+**as soon as you have anything worth recording**, and rewrite it each time you finish a piece.
+Never leave it until the end. Shape:
+`{ "key", "complete": bool, "files": [...], "tests": [...], "open": [...], "notes": "" }`
+
+`complete` is the important field: **`false`** every time you write the file mid-flight, and
+**`true`** only when the blocker you were escalated for is resolved. `/lane` re-runs any lane
+whose report is incomplete, so a wrong `true` silently drops work — and re-running this tier
+costs the weekly Fable budget.
+
+`notes` must say, in one line, whether this genuinely needed the escalation tier. Then return
+the same object — **only** that object, no prose.

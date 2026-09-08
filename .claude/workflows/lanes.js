@@ -15,12 +15,13 @@ export const meta = {
 const LANE_SCHEMA = {
   type: 'object',
   properties: {
+    complete: { type: 'boolean', description: 'true only if the whole task is finished; false if the turn cap or anything else cut it short' },
     files: { type: 'array', items: { type: 'string' } },
     tests: { type: 'array', items: { type: 'string' }, description: 'test ids added or made green' },
     open: { type: 'array', items: { type: 'string' }, description: '⚠️ SPEC / 🔒 / owner items; a 🔒 item is the escalation trigger' },
     notes: { type: 'string' },
   },
-  required: ['files', 'tests', 'open'],
+  required: ['complete', 'files', 'tests', 'open'],
 }
 
 const MAX_LANES = 3
@@ -48,7 +49,7 @@ const settled = await parallel(
 You own these directories and must not touch anything else:
 ${l.dirs.map((d) => `  - ${d}`).join('\n')}
 
-Write your report, as your last action, to:
+Your report file (write it early, keep it current, `complete: false` until wholly done):
   .claude/lane-reports/${args.milestone}-${l.key}.json
 
 ${l.prompt}`,
@@ -64,13 +65,15 @@ ${l.prompt}`,
   ),
 )
 
+// A lane is unfinished either because it died (no report returned) or because it capped out
+// mid-flight and said so. Both need another /lane run; neither may be gated over.
 const lanes = settled.filter((r) => !r.dead)
-const incomplete = settled.filter((r) => r.dead).map((r) => r.key)
+const incomplete = settled.filter((r) => r.dead || r.complete === false).map((r) => r.key)
 const escalate = lanes.filter((l) => (l.open || []).some((o) => /🔒|ADR|golden|STOP/i.test(o))).map((l) => l.key)
 
 log(`${lanes.length}/${args.lanes.length} lanes reported`)
 if (incomplete.length) {
-  log(`INCOMPLETE: ${incomplete.join(', ')} — files may be on disk, report is not. Re-run /lane for these keys; do NOT gate yet.`)
+  log(`INCOMPLETE: ${incomplete.join(', ')} — work is partly on disk and the report says so. Re-run /lane for these keys; do NOT gate yet.`)
 }
 if (escalate.length) {
   log(`ESCALATION CANDIDATES (🔒 / ADR / golden): ${escalate.join(', ')} — owner decides before any lane-core run.`)

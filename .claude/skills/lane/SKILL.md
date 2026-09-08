@@ -21,21 +21,33 @@ Fable 5.1 resets weekly on **Sunday** — that reset is the budget. If the week 
 1. Read **`PLAN.md` §0 and only the rows for the requested lanes.** Not CHANGELOG, not whole specs.
 2. **Skip what already landed:**
    ```bash
-   ls .claude/lane-reports/ 2>/dev/null
+   .claude/bin/lane-status.sh          # or: lane-status.sh M4   to filter
    ```
-   A lane with a report there is done — drop it from the run and use the report. This is what
-   makes a session-limit kill cheap: the work survives on disk even though the run did not.
+   `complete=True` → that lane is done: drop it from the run and use its report.
+   `complete=False` → it hit its turn cap or was killed part-way: **re-run it**, and put its
+   `notes` in the new prompt so it does not redo finished work.
+   This is what makes a session-limit kill cheap — the work survives on disk even when the run
+   does not. Lanes carry a `maxTurns` cap, so a partial report is a normal outcome, not a fault.
 3. **Confirm the directories are disjoint.** If two lanes need the same file, either give it to one
    lane and let the other consume an interface with a fake, or run it first, alone.
 4. **Pick the tier** — this is the whole point, so pick deliberately:
 
-   | Agent | Model · effort | For |
+   | Agent | Model · effort · turns | For |
    |---|---|---|
-   | `lane-mech` | haiku · low | ARB drafts, l10n parts, fixtures, codegen and token regen, file moves |
-   | `lane-ui` | sonnet · medium | screens by S-id (13 §3.2), feature folders, F1 widget tests |
-   | `lane-server` | sonnet · medium | migrations + RLS, edge functions, hostile-query tests |
-   | `lane-sync` | opus · medium | `sync_engine`, ordering/cursor/conflict/trust logic, projector |
-   | `lane-core` | fable · high | ⚠️ **escalation only** — see §4 |
+   | `lane-mech` | haiku · low · 15 turns | ARB drafts, l10n parts, fixtures, codegen and token regen, file moves |
+   | `lane-ui` | sonnet · medium · 40 | screens by S-id (13 §3.2), feature folders, F1 widget tests |
+   | `lane-server` | sonnet · medium · 40 | migrations + RLS, edge functions, hostile-query tests |
+   | `lane-sync` | opus · medium · 50 | `sync_engine`, ordering/cursor/conflict/trust logic, projector |
+   | `lane-core` | fable · high · 60 | ⚠️ **escalation only** — see §4 |
+
+   Each tier preloads its own skill (`ui-screen`, `server`, `sync-slice`) and is denied
+   `WebSearch`/`WebFetch` — the specs are local. If a lane's work genuinely will not fit its turn
+   cap, **split the work**, do not raise the cap.
+
+   The four build lanes run `permissionMode: acceptEdits`, so they will not stall on edit prompts
+   mid-run — which also means **nothing enforces the directory split but the prompt you write.**
+   Step 3 is therefore load-bearing: name each lane's directories exactly, and never give two
+   concurrent lanes a path in common.
 
    Model and effort live in `.claude/agents/*.md`, **not** in your args. Do not pass `model` or
    `effort` unless you are deliberately overriding a tier, and say why when you do.
@@ -64,9 +76,9 @@ The script caps the run at 3 lanes and refuses more.
 - Merge ARB parts: `dart run scripts/gen_l10n_arb.dart`.
 - `dart pub get` if a lane added a dependency.
 
-If the result has **`ok: false`**, some lane died (usually the session limit). Its files may be on
-disk but its report is not: re-run `/lane <those keys>` in a fresh session. **Do not gate on a
-partial phase.**
+If the result has **`ok: false`**, `incomplete` names the lanes that either died (usually the
+session limit) or hit their turn cap. Re-run `/lane <those keys>` in a fresh session, feeding each
+one its own report's `notes`. **Do not gate on a partial phase.**
 
 ## 4. Escalation (the only route to Fable)
 `escalate` in the result lists lanes whose `open` items mention 🔒, an ADR, a golden, or a STOP.

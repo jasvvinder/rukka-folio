@@ -35,7 +35,8 @@ Secrets only in CI secrets and local `.env` (gitignored). Region: India (ap-sout
 - Wire both into `ci.sh` nightly/rc lanes (they are "scheduled — M4" today).
 
 ## Return (to /lane)
-Write the report to `.claude/lane-reports/<milestone>-<key>.json` as your **last action**, then
+Write `.claude/lane-reports/<milestone>-<key>.json` as soon as you have anything to record and
+keep it current (you have a turn cap) — `complete: false` until the task is wholly finished. Then
 return the same object:
 files · tests (ids) · open (every 🔒 conflict or 05 §11 / 03 §8 open item you hit) · notes (ops
 checklist: PITR, KMS, bucket, sweep).

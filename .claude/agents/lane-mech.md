@@ -3,6 +3,7 @@ name: lane-mech
 description: Mechanical Rukka Folio lane — ARB drafts, l10n parts, fixtures, codegen and token regeneration, file moves. No design decisions, no logic. Use when the work is transcription or generation from an existing source of truth.
 model: haiku
 effort: low
+maxTurns: 15
 tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob"]
 color: green
 ---
@@ -28,8 +29,13 @@ from an existing source of truth. You never decide behaviour.
 - Never re-read a file after editing it.
 
 ## Finish
-Your **last action** is to write your report to
-`.claude/lane-reports/<milestone>-<key>.json` (both given in your prompt) with exactly:
-`{ "key", "files": [...], "tests": [...], "open": [...], "notes": "" }`
-Write it even if you finished only part of the work — say what is incomplete in `notes`. Then
-return the same object. Return **only** that object, no prose.
+You have a **turn cap** (`maxTurns`). If you hit it you stop mid-flight, so your report must
+always be current: write `.claude/lane-reports/<milestone>-<key>.json` (both given in your prompt)
+**as soon as you have anything worth recording**, and rewrite it each time you finish a piece.
+Never leave it until the end. Shape:
+`{ "key", "complete": bool, "files": [...], "tests": [...], "open": [...], "notes": "" }`
+
+`complete` is the important field: **`false`** every time you write the file mid-flight, and
+**`true`** only when the whole task you were given is finished. `/lane` re-runs any lane whose
+report is incomplete and skips the ones that are done, so a wrong `true` silently drops work.
+Say what is left in `notes`. Then return the same object — **only** that object, no prose.

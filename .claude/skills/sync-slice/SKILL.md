@@ -22,7 +22,8 @@ description: Build a packages/sync_engine module (outbox/push, pull cursors, key
 Ids `D-05-<n>`, `D-05b-<n>`, `D-06a-<n>` — next free from `dart run scripts/check_coverage.dart`. Every 05 §10 and ADR 05b Open case has one: withheld envelope blocks close, orphan amend held then counted once, unsigned revocation suspends, backdated push quarantined by seq, epoch re-pull zero duplicates, flood throttled + quota-stopped, and the four D-06a cases. Run `dart test` in `packages/sync_engine` and `testing/harness` by file while working, once whole at the end.
 
 ## Return (to /lane)
-Write the report to `.claude/lane-reports/<milestone>-<key>.json` as your **last action**, then
+Write `.claude/lane-reports/<milestone>-<key>.json` as soon as you have anything to record and
+keep it current (you have a turn cap) — `complete: false` until the task is wholly finished. Then
 return the same object:
 files · tests (ids) · open (a 🔒 or `core_*` behaviour change is an **escalation trigger** — report
 it, never make it) · notes (any transport shape the `server` lane must match — name the function
