@@ -7,11 +7,11 @@
 
 ---
 
-## 1. Transport & sessions 🔒
+## 1. Transport & sessions 🔒 ⟦tests: E-05-6, E-06-6⟧
 
 - HTTPS + JSON; auth per 06 §4 (15-min JWT, signed refresh). Every write carries `envelope_id` as the idempotency key — no separate header needed.
 - **Public-key pinning 🔒 (ADR 2026-09-05):** the client pins the **SPKI hashes** of the API host's chain — key, not certificate — with at least two pins (current + backup) so rotation is never an outage. Pin failure is a hard fail with no fallback and no override, in every build that talks to a hosted environment, staging included; only a local-dev build may disable it, and CI asserts the release lane never does. OS transport rules forbid cleartext (Android network-security-config, iOS ATS). ⚠️ Pin at the intermediate-CA level for hosted Supabase; verify the exact chain and write the rotation runbook at M4.
-- **Store epoch 🔒 (ADR 2026-09-05b §6):** every ack, pull and meta response carries `store_epoch`; a change (server restore/rebuild) resets all cursors to 0 and re-pulls — idempotent, so nothing duplicates.
+- **Store epoch 🔒 (ADR 2026-09-05b §6):** every ack, pull and meta response carries `store_epoch`; a change (server restore/rebuild) resets all cursors to 0 and re-pulls — idempotent, so nothing duplicates. ⟦tests: E-05-11, D-05-5⟧
 - **Min-version gate:** any sync route may answer `426` (06 §4.5); the client stops syncing and shows the update screen. Half-synced state is safe by construction (idempotent, append-only).
 - Compression: gzip request/response. Payloads are ciphertext (incompressible); gzip earns its keep on metadata and batching overhead only — don't expect ratio miracles.
 
@@ -21,13 +21,13 @@
 - **Server sanity check (plaintext, allowed):** reject any envelope whose HLC physical part exceeds `server_now + 5 min` → `hlc_future`. The client re-stamps (new envelope_id, same object) and marks its clock skewed. This exists so a wrong-clock phone cannot stamp entries "after" a period lock it has already seen (02 §8 depends on honest-ish HLCs; readers still quarantine independently).
 - Clients also clamp: if wall clock < last seen HLC by > 24 h, warn the user (*"Phone date looks wrong"*) and keep issuing monotone HLCs.
 
-## 3. Push — the outbox 🔒
+## 3. Push — the outbox 🔒 ⟦tests: E-05-1, E-05-2, E-05-4, E-05-5, D-05-6, D-05-8, D-05-9, D-05-10⟧
 
 - Source: `outbox` (03 §3.1), per-book FIFO in local creation order. Batch ≤ 100 envelopes or 1 MB.
 
-**Key-sync precedes outbox drain 🔒 (ordering rule):** on **every** reconnect — not only bootstrap (§8) — the client completes the meta/key channel (§5) for a book **before** pushing that book's outbox. This is what makes the next rule possible.
+**Key-sync precedes outbox drain 🔒 (ordering rule):** on **every** reconnect — not only bootstrap (§8) — the client completes the meta/key channel (§5) for a book **before** pushing that book's outbox. This is what makes the next rule possible. ⟦tests: D-05-11, D-05-12⟧
 
-**Re-seal before push 🔒 — the long-offline case.** A device offline across a key rotation (04 §5.3) holds queued envelopes sealed under a superseded `BK(v)`. It cannot have learned of the rotation while offline, so it must fix them on the way back:
+**Re-seal before push 🔒 — the long-offline case.** A device offline across a key rotation (04 §5.3) holds queued envelopes sealed under a superseded `BK(v)`. It cannot have learned of the rotation while offline, so it must fix them on the way back: ⟦tests: D-05-11, D-05-12⟧
 
 > For each queued envelope whose `key_version` is below the highest version the client now holds for that book: **decrypt with `BK(v)` (still in `key_cache`, which retains all versions), re-encrypt the identical plaintext under the highest `BK`, recompute the AAD and re-sign.** Preserve `envelope_id`, `object_id`, `hlc` and payload **byte-for-byte** — only `key_version`, `nonce`, `ciphertext` and `author_sig` change.
 
@@ -50,12 +50,12 @@ A device that cannot unwrap the new `BK` is not a member any more; it will recei
 | `rejected:quota` | book's envelope count/bytes above plan — numbers in 08 §2 (ADR 2026-09-05g §3: 10 k/100 k/250 k/1 M envelopes per book; 250 MB/2/5/15 GB per tenant; 10 MB per file); warning at 80 % | Inbox *"This book is full — upgrade the plan"*; book stays readable, pullable and exportable |
 | `rejected:tenant_frozen` | tenant frozen by support on one of 06 §8's grounds (ADR 2026-09-05h §1) — pushes only; pull, decrypt and export continue | Inbox *"Entries can't be sent right now — see the notice from support"*; stop pushing that tenant's books until the freeze lifts or expires (≤ 30 days) |
 
-**After `acked` comes `observed` 🔒 (ADR 2026-09-05b §6):** the outbox keeps the acked blob until the envelope returns in the device's own pull; prune only then. Cursor past the acked `seq` without seeing it → re-push + `write_lost` security event; 30 days un-observed → Inbox. **Membership `blocked`** is refused at push like `membership_not_active`; garbage pushed before a block is permanent (append-only) — readers quarantine it and quotas bound its cost.
+**After `acked` comes `observed` 🔒 (ADR 2026-09-05b §6):** the outbox keeps the acked blob until the envelope returns in the device's own pull; prune only then. Cursor past the acked `seq` without seeing it → re-push + `write_lost` security event; 30 days un-observed → Inbox. **Membership `blocked`** is refused at push like `membership_not_active`; garbage pushed before a block is permanent (append-only) — readers quarantine it and quotas bound its cost. ⟦tests: D-05-8, D-05-5⟧
 
 - The server **never** rejects on content — a hostile client's unbalanced entry is stored and then quarantined by every honest reader (02 §11). This keeps the server dumb and the trust model clean.
 - Retry: exponential backoff with jitter (1 s → 2 → 4 → … cap 10 min), reset on connectivity change. Rejections are terminal per envelope — no blind retry loops. **The one exception is `key_version_stale`**, which permits exactly one re-seal-and-retry (bounded, so it cannot loop).
 
-## 4. Pull — server-sequence cursors 🔒
+## 4. Pull — server-sequence cursors 🔒 ⟦tests: E-05-7, E-05-3, D-05-1, D-05-2, D-05-13, D-05-4, D-06a-1, D-06a-2, D-06a-3, D-06a-4, D-05-12⟧
 
 **The subtle rule that prevents silent data loss:** cursors run on the server-assigned **`seq`** (global `bigserial` stamped at receipt), *never* on HLC. A device offline for a month uploads envelopes whose HLCs are weeks old; an HLC cursor on other clients would already be past them and skip them forever. `seq` is monotone by receipt, so nothing is skippable.
 
@@ -63,17 +63,17 @@ A device that cannot unwrap the new `BK` is not a member any more; it will recei
 - Per-book cursor rows: `sync_cursors(book_id, last_seq)` (03 amended). Pull all books round-robin, active-scope book first.
 - **Applying pulls:** decrypt, verify signature chain (04 §8.3), store in `envelopes_local`, then project. If the envelope's HLC ≥ the book's applied-HLC watermark → apply incrementally. If **lower** (a late arrival), mark the book dirty and **replay** the projection from the latest certified year vector (03 §3.3.3) — cheap because the replay window is at most one FY, and correctness beats cleverness here. (This replay is the mechanical twin of the *Late Arrivals tray*: 02 §8 governs what humans see; this section governs what the math does.)
 - **Store `seq` with every envelope** (`envelopes_local.seq`) — it is the revocation cut-off (04 §9.2, ADR 2026-09-05b §5): an envelope from a device is accepted only if its `seq` is below the `seq` of that device's signed revocation or the member's removal record. Never the HLC.
-- **Per-author sequence 🔒 (ADR 2026-09-05b §3):** each payload carries `author_seq` (per book, per device, from 1, inside the ciphertext). Readers track the highest contiguous value per `(book, author_device)`; a gap → *"waiting for entries from Ramesh's phone"*, projection provisional, **month- and year-close blocked** until filled; Inbox after 24 h.
-- **Dangling references are held 🔒 (ADR 2026-09-05b §4):** an amend, reverse or decision whose target has not arrived sits in `held` — not projected, not quarantined. When every author's `author_seq` is contiguous and the target is still absent, quarantine `target_missing`.
+- **Per-author sequence 🔒 (ADR 2026-09-05b §3):** each payload carries `author_seq` (per book, per device, from 1, inside the ciphertext). Readers track the highest contiguous value per `(book, author_device)`; a gap → *"waiting for entries from Ramesh's phone"*, projection provisional, **month- and year-close blocked** until filled; Inbox after 24 h. ⟦tests: D-05-1, D-05-2⟧
+- **Dangling references are held 🔒 (ADR 2026-09-05b §4):** an amend, reverse or decision whose target has not arrived sits in `held` — not projected, not quarantined. When every author's `author_seq` is contiguous and the target is still absent, quarantine `target_missing`. ⟦tests: D-05-2⟧
 - Undecryptable envelopes (key not yet arrived) queue in `key_wait`; retried whenever §5 delivers keys. Not an error state for 24 h; after that, surface in Inbox.
 
-## 5. Metadata & key sync 🔒
+## 5. Metadata & key sync 🔒 ⟦tests: E-05-9, D-05-11, D-05-12, D-05b-1⟧
 
 Separate channel from envelopes, `GET /sync/meta?after=cursor` (cursor = `updated_at,id` on each table): memberships, book_roles, devices+certs, wrapped_keys, invites, verification_events, subscriptions (which therefore carries `updated_at`, 03 §2.4), **entitlement tokens** (Ed25519 by the server's `entitlement_key`, verified against the pinned public key; a tenant with no valid token is *Free*, never *locked* — ADR 2026-09-05g §1, §4), escrow/recovery states, tombstones.
 
-**Structural facts are signed records 🔒 (ADR 2026-09-05b §1).** Membership status, roles, limits, designations, device revocation, member removal and rotation notices are authored on a certified device as `SignedRecord{…, author_sig, hlc, seq}` with a plaintext payload (roles are plaintext already, 03 §4). The server applies them to its rows for RLS; the client **verifies the record** (04 §3.4) and treats the rows as the server's copy — row ≠ record → believe the record, log `meta_mismatch`.
+**Structural facts are signed records 🔒 (ADR 2026-09-05b §1).** Membership status, roles, limits, designations, device revocation, member removal and rotation notices are authored on a certified device as `SignedRecord{…, author_sig, hlc, seq}` with a plaintext payload (roles are plaintext already, 03 §4). The server applies them to its rows for RLS; the client **verifies the record** (04 §3.4) and treats the rows as the server's copy — row ≠ record → believe the record, log `meta_mismatch`. ⟦tests: E-05-10, E-03-19, D-05b-1⟧
 
-**No wipe on the server's word 🔒 (ADR 2026-09-05b §2).** Keys and projections are dropped only on a verified signed revocation/removal record or the user's own action. A bare 401 or row puts the device in **suspended** (sync stops, data stays, lock screen explains) until a record arrives or auth succeeds.
+**No wipe on the server's word 🔒 (ADR 2026-09-05b §2).** Keys and projections are dropped only on a verified signed revocation/removal record or the user's own action. A bare 401 or row puts the device in **suspended** (sync stops, data stays, lock screen explains) until a record arrives or auth succeeds. ⟦tests: D-05-3, D-05-4⟧
 
 - New `wrapped_keys` → unwrap, refresh `key_cache`, drain `key_wait`.
 - Revocations: own-device revoked (**signed record verified**) → local wipe; push notification and auth failure only *prompt* the meta pull that fetches the record. Membership removed (signed) → drop that book's keys and projections, keep nothing but the row saying it existed.
@@ -96,7 +96,7 @@ Also the path for **local corruption** (ADR 2026-09-05c §6): a book whose mirro
 
 Order: profile+meta+keys (§5) → per book: `book_config`, `account`, `rule`, `period_lock`, `period_unlock`, `business_setting` objects (all-time; low volume — locks must be complete for 02 §8's validity rule, ADR 2026-09-05e §5) + latest `year_close` vector + all envelopes of the **open FY** (hot set) → project → app usable. Closed FYs fetch on demand (`?fy=2024-25`) behind the same pull API from warm or cold storage (03 §6) — opening a 3-year-old statement shows a one-time *"fetching old year…"* spinner, everything else is instant.
 
-## 9. Status surface (feeds 07 §1.7) 🔒
+## 9. Status surface (feeds 07 §1.7) 🔒 ⟦tests: D-05-1, D-05-6, D-05-9, D-05-10⟧
 
 `Synced ✓` (outbox empty, cursors fresh, no author gaps) · `Saved on phone · will sync (N)` · `Offline` · `Waiting for entries from {name}'s phone` (author gap < 24 h, ADR 2026-09-05b §3) · `Needs attention` → Inbox (rejections, quarantines, key_wait > 24 h, author gap > 24 h, write_lost, clock warning). No other states; no spinners on entry save, ever. Screen homes: the author-gap state carries a **provisional** badge on position cards and blocks close at **S10.5**; a rebuilding book shows **S1.4** with the determinate loader; `rate_limited` has no UI (13 §6, ADR 2026-09-05f §B).
 

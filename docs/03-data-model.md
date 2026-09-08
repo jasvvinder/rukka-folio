@@ -72,7 +72,7 @@ escrow_policies(id, member_user, head_user, book_id, blob_ref uuid,
         state, release_requested_at)     -- veto window enforced from this row
 ```
 
-### 2.3 The envelope store 🔒
+### 2.3 The envelope store 🔒 ⟦tests: E-03-16, E-03-25, E-03-26⟧
 
 ```sql
 envelopes(
@@ -92,9 +92,9 @@ create index on envelopes (tenant_id);
 -- append-only: no UPDATE or DELETE grants to the API role, ever.
 ```
 
-**Shape checks — the complete list 🔒 (ADR 2026-09-05c §5):** `author_device == jwt.device_id` · `tenant_id == books.tenant_id` · `blob_hash` and `size` recompute · `suite_version`/`payload_schema` in registry · `key_version` ≤ highest issued · HLC sanity (05 §2) · caps/quotas (05 §3). Failure → `rejected:shape` naming the check. **Hash mismatch on read is corruption, not tampering:** re-fetch, count it, no security event; only an intact blob with a failing signature is quarantined (04 §8.3).
+**Shape checks — the complete list 🔒 (ADR 2026-09-05c §5):** `author_device == jwt.device_id` · `tenant_id == books.tenant_id` · `blob_hash` and `size` recompute · `suite_version`/`payload_schema` in registry · `key_version` ≤ highest issued · HLC sanity (05 §2) · caps/quotas (05 §3). Failure → `rejected:shape` naming the check. **Hash mismatch on read is corruption, not tampering:** re-fetch, count it, no security event; only an intact blob with a failing signature is quarantined (04 §8.3). ⟦tests: E-05-1, E-05-1b⟧
 
-**`object_type` registry 🔒:** `book_config · account · entry · approval_decision · period_lock · year_close · import_batch · import_line · rule · attachment_meta · cash_count · period_unlock · structural_approval · business_setting` (+ reserved range; the last three added by ADR 2026-09-05e §11 — `period_lock`/`period_unlock` are all-time objects in the bootstrap hot set, 05 §8). Everything in 02 and 07 maps into these; nothing financial exists outside them.
+**`object_type` registry 🔒:** `book_config · account · entry · approval_decision · period_lock · year_close · import_batch · import_line · rule · attachment_meta · cash_count · period_unlock · structural_approval · business_setting` (+ reserved range; the last three added by ADR 2026-09-05e §11 — `period_lock`/`period_unlock` are all-time objects in the bootstrap hot set, 05 §8). Everything in 02 and 07 maps into these; nothing financial exists outside them. ⟦tests: E-03-21, E-05-1⟧
 
 `attachments(id, book_id, storage_key, size, created_at)` — ciphertext files in object storage; their per-file keys ride inside `attachment_meta` envelopes (04 §3).
 
@@ -119,7 +119,7 @@ app_config(key pk, value)               -- min_client_version per route group, e
 otp_challenges / activation_tickets     -- ephemeral, TTL-purged (06 §2–3)
 ```
 
-### 2.5 Row-level security 🔒
+### 2.5 Row-level security 🔒 ⟦tests: E-03-15, E-03-18, E-03-19, E-03-23, E-03-24, E-03-27, E-05-8, E-05-9, E-06-6⟧
 
 RLS on, `FORCE`, for every table above; the API connects as a non-superuser role with **our** `request.user_id` / `request.device_id` claims (06 §4 JWT, not platform auth) set with `SET LOCAL` per transaction so a pooled connection never carries them across (ADR 2026-09-05c §7).
 
@@ -131,13 +131,13 @@ RLS on, `FORCE`, for every table above; the API connects as a non-superuser role
 - **Rows are projections of signed records 🔒 (ADR 2026-09-05b §1):** `memberships`, `book_roles` and device revocations are written by the server only when applying a `signed_records` row authored on a certified device; clients verify the record, not the row.
 - **Deletion runs under a separate `maintenance` role** (ADR 2026-09-05b §8) reachable only from the scheduled deletion function, limited to the erased user's personal-book envelopes and wrapped keys, audited. The API role keeps no DELETE grant.
 
-**Deletion mechanics (06 §9.3) 🔒:** erase the user row's **profile fields** (phone, name, photo, language, contacts) in place and set `erased_at`; hard-delete all their wrapped keys and their personal-book envelopes. 🔒 **Retain** `devices` rows, `device_certs` and the UMK public key, flagged `erased` — pseudonymous key material carrying no personal data, required so that a device joining later can still verify the signature chain (04 §3.4) on shared-book entries the user authored. **Shared-book envelopes are never updated or deleted**, and `author_device` is never re-pointed — that would violate the append-only grant (§2.3) and CLAUDE.md rule 2. Clients render an erased author as *"Removed member"* from the erased profile row; the signature chain still verifies on every device, old or new.
+**Deletion mechanics (06 §9.3) 🔒:** erase the user row's **profile fields** (phone, name, photo, language, contacts) in place and set `erased_at`; hard-delete all their wrapped keys and their personal-book envelopes. 🔒 **Retain** `devices` rows, `device_certs` and the UMK public key, flagged `erased` — pseudonymous key material carrying no personal data, required so that a device joining later can still verify the signature chain (04 §3.4) on shared-book entries the user authored. **Shared-book envelopes are never updated or deleted**, and `author_device` is never re-pointed — that would violate the append-only grant (§2.3) and CLAUDE.md rule 2. Clients render an erased author as *"Removed member"* from the erased profile row; the signature chain still verifies on every device, old or new. ⟦tests: E-03-26⟧
 
 ---
 
 ## 3. Client schema (SQLite via Drift, SQLCipher at rest)
 
-### 3.1 Layer 1 — envelope mirror & outbox 🔒 ⟦tests: E-03-1, E-03-4, E-03-5, E-03-6, E-03-7, E-05c-1, E-05b-1⟧
+### 3.1 Layer 1 — envelope mirror & outbox 🔒 ⟦tests: E-03-1, E-03-4, E-03-5, E-03-6, E-03-7, E-05c-1, E-05b-1, F1-03-1, F1-03-3, F1-03-5⟧
 
 ```sql
 envelopes_local(envelope_id pk, book_id, object_id, object_type, key_version,
@@ -160,7 +160,7 @@ key_cache(book_id, key_version, wrapped_blob, primary key (book_id, key_version)
 attachment_cache(id pk, book_id, local_path, state)
 ```
 
-### 3.2 Layer 2 — projections (rebuildable, indexed for the UI) 🔒 ⟦tests: E-03-1, E-03-2, E-03-3, E-03-9⟧
+### 3.2 Layer 2 — projections (rebuildable, indexed for the UI) 🔒 ⟦tests: E-03-1, E-03-2, E-03-3, E-03-9, F1-02-9, F1-02-10, F1-02-11⟧
 
 ```sql
 books_p(id pk, tenant_id, type, name, fy_start_month, integrity_ok int)
@@ -197,7 +197,7 @@ daily_snapshots(account_id, date, balance_paise, primary key (account_id, date))
 
 Key indexes: `entry_lines_p(account_id, accounting_date)` (A/C statement, running balance), `entries_p(book_id, accounting_date desc)` (day book), `entries_p(book_id, review_approver) where review_state='open'` (**Inbox** — the approvals queue, 02 §3/07 §9), `entries_p(book_id) where status='pending'` (**advance requests** awaiting approval, 02 §7 — a separate, much smaller queue), `import_lines_p(book_id, state)`.
 
-### 3.3 Projection rules 🔒 ⟦tests: A-03-5, A-03-1, E-03-9, E-03-10, E-03-11, E-03-13, E-03-14⟧
+### 3.3 Projection rules 🔒 ⟦tests: A-03-5, A-03-1, E-03-9, E-03-10, E-03-11, E-03-13, E-03-14, F1-03-2, F1-03-4⟧
 1. Apply only envelopes with `verified = 1` and `quarantined = 0`, in `(hlc, envelope_id)` order per book.
 2. The projector is a **pure, deterministic function** of the ordered envelope stream + certified opening vectors — this is what makes the close-hash verification (02 §8) and *Recompute* possible. No projector step may read the clock, the network, or local settings.
 3. `balances` and `daily_snapshots` update transactionally with each applied entry; a full rebuild seeds from the latest `year_close_p` vector (02 §8.1) then replays the open FY.

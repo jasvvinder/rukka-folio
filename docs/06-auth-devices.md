@@ -59,7 +59,7 @@ A gurudwara committee will not recognise "Operator"; it will recognise ਸੇਵ
 
 ---
 
-## 2. OTP subsystem 🔒
+## 2. OTP subsystem 🔒 ⟦tests: E-06-1, E-06-2, C-06-7, C-06-8, F1-06-1, F1-06-2, F1-06-3, F1-06-4⟧
 
 - Channels: WhatsApp Business API first (cheaper, higher delivery in India), SMS fallback, auto-failover. Provider behind an interface (MSG91 / Kaleyra / Gupshup — ⚠️ pick by current pricing at build).
 - Fires **only** at: signup, device activation, phone-number change, account deletion confirmation. Never at routine login.
@@ -68,7 +68,7 @@ A gurudwara committee will not recognise "Operator"; it will recognise ਸੇਵ
 
 ---
 
-## 3. Device registration 🔒
+## 3. Device registration 🔒 ⟦tests: E-06-3, E-06-6, E-06-7, E-03-24, C-06-9, C-06-12, C-06-13, C-05d-6⟧
 
 On first run after OTP:
 
@@ -79,7 +79,7 @@ On first run after OTP:
 
 ---
 
-## 4. Sessions 🔒
+## 4. Sessions 🔒 ⟦tests: E-06-4, E-06-5, E-05-6, E-06-6, C-06-9, C-06-10, C-06-11, F1-06-5, F1-06-7⟧
 
 Challenge–response; no bearer secrets that outlive minutes.
 
@@ -117,7 +117,7 @@ Recovery completion always revokes all prior sessions and devices of that user a
 
 ---
 
-## 6. Device management 🔒
+## 6. Device management 🔒 ⟦tests: E-06-3, F1-06-8, F1-06-9, F1-06-10, F1-06-11⟧
 
 - **Linked devices** screen (WhatsApp-style): name, model, last active, certified state.
 - Revoke: any certified device of the same user, k guardians, or support-on-request (§8). Effect per 04 §9.2; the **"stolen"** path additionally rotates BKs (+ recommended UMK rotation).

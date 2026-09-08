@@ -110,7 +110,7 @@ Regression threshold: a nightly p95 more than **15 % worse** than the 7-day medi
   `supabase db reset` + `deno test server/functions` (nightly, RC).
 - **Suite G** runs "as it lands in its milestone" (M13), matching `ci.sh`'s header.
 
-### 9. Small rules that close known holes
+### 9. Small rules that close known holes ⟦tests: C-05d-8, C-05d-10, F1-06-13, F1-06-14⟧
 - `dart_test.yaml` at the workspace root: tags `A B C D E F1 G property flaky slow`, per-tag timeouts,
   `flaky` excluded from the default preset.
 - The golden test's `../../docs/reference/worked-examples` path becomes package-root-relative (via

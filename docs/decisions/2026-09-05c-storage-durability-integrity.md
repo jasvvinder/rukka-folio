@@ -44,7 +44,7 @@ then a month close certified on the newer app fails verification on the older, o
   Recompute on first launch after upgrade. Changes that provably cannot alter results (performance,
   new object types) do not bump. The golden replay (09 suite A) is the proof either way.
 
-### 4. Phone numbers — encrypted at rest, and never kept for people who did not sign up
+### 4. Phone numbers — encrypted at rest, and never kept for people who did not sign up ⟦tests: E-03-17, E-06-2, E-06-8⟧
 - `users.phone_e164` becomes **`phone_ct`** (application-level encryption under a server KMS/Vault
   key, needed only to *send* one-time codes) plus **`phone_hmac`** (keyed hash, unique index) for
   lookup. A database dump yields no phone list. The KMS key is the one server-side secret with a
@@ -57,7 +57,7 @@ then a month close certified on the newer app fails verification on the older, o
 - Display names and photos remain plaintext as 03 §4 says — they are shown in approvals and
   ceremonies and the user chose them for that purpose.
 
-### 5. Server shape checks, enumerated
+### 5. Server shape checks, enumerated ⟦tests: E-05-1⟧
 The server "checks shape" (05 preamble). It checks exactly: `author_device == jwt.device_id` ·
 `tenant_id == books.tenant_id` for `book_id` · `blob_hash` and `size` recompute · `suite_version`
 and `payload_schema` within the registry · `key_version` ≤ highest issued for the book · HLC
@@ -71,13 +71,13 @@ corrupt (row fails `blob_hash`) → re-bootstrap that book from the server (05 �
 never dropped without the user seeing them in Inbox. **A book is never shown as whole while any of
 its envelopes is missing or unverified** — `books_p.integrity_ok` gates the Home card.
 
-### 7. Row-level security with our own claims
+### 7. Row-level security with our own claims ⟦tests: E-03-20, E-05c-7⟧
 Sessions are challenge-response with our own JWT (06 §4), not the platform's default auth. RLS
 policies read **our** `user_id` / `device_id` claims; the per-transaction setting is `SET LOCAL`
 so a pooled connection can never carry it across transactions. Suite E gains a test that two
 interleaved requests on one pooled connection never see each other's claims.
 
-### 8. Smaller rulings
+### 8. Smaller rulings ⟦tests: E-05c-8⟧
 - **Platform backups excluded.** iOS: the local database and key cache carry the
   excluded-from-backup attribute (the keystore key does not travel, so the copy would be useless
   and would spend the user's iCloud quota). Android: `allowBackup=false`, backup rules empty.

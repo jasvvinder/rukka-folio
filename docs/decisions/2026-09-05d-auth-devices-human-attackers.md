@@ -9,7 +9,7 @@ are a waiting period and a notification. Owner confirmed 5 Sep 2026 ("do whateve
 
 ## Rulings 🔒
 
-### 1. Recovery waits when the owner still has a working device
+### 1. Recovery waits when the owner still has a working device ⟦tests: C-05d-10, F1-06-11, F1-06-14⟧
 Guardian recovery (04 §7.3) and guardian-approved phone-number change (06 §9.4) complete
 **immediately only when the user has no active certified device** — the genuine lost-phone case.
 If any active device exists, completion is **delayed 24 h**; every existing device alarms with the
@@ -19,7 +19,7 @@ guardians plus a borrowed phone can no longer take a member's identity — and t
 before the member sees it. A user who still has a device and wants a new one should **link**
 (rung 1), which is instant; the app says so on the recovery screen.
 
-### 2. Uncertified devices see nothing but themselves
+### 2. Uncertified devices see nothing but themselves ⟦tests: E-03-18, E-03-24, E-05-8, E-05-9, E-06-6, E-06-7, C-05d-6, F1-06-1⟧
 An OTP proves the doorbell, not the person. Until a device holds a certificate the **server has
 verified** under the user's registered UMK public key (one more Ed25519 verify — within 04 §8.6's
 minimal surface), RLS returns only: the device's own `users` row, its own `devices` row, wrapped
@@ -28,7 +28,7 @@ names, no roles, no device lists, no verification log. A SIM-swapper learns noth
 family. `devices.status` gains `certified` set by the server on cert verification; the RLS
 predicate for every tenant table requires it.
 
-### 3. Support actions are delayed and cancellable
+### 3. Support actions are delayed and cancellable ⟦tests: C-05d-8, F1-06-13, F1-06-15⟧
 Support-initiated **device revocation** follows the deletion pattern: a 24 h window, a notice on
 every certified device of the user — *"Support revoked {device} at your request. Not you? Cancel."*
 — and the revocation lands as an **unsigned** server assertion, so per ADR 2026-09-05b §2 the

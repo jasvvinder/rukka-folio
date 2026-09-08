@@ -74,7 +74,7 @@ Generated on the first device at signup. The X25519 half receives wrapped book k
 ### 3.2 Book Keys (BK) 🔒 ⟦tests: B-04-13, B-04-14, B-04-26⟧
 One symmetric key per book, per version: `(book_id, key_version)`. Every entry records the `key_version` it was encrypted under. Old versions are retained (wrapped) so history stays readable; new entries always use the highest version. Rotation triggers: member removal, device reported stolen, suspected compromise.
 
-### 3.3 Device Keys 🔒 ⟦tests: B-04-11, B-04-34⟧
+### 3.3 Device Keys 🔒 ⟦tests: B-04-11, B-04-34, F1-03-1, F1-03-2⟧
 Each device generates an Ed25519 signing pair **inside hardware keystore** (StrongBox / Secure Enclave when available) — used for auth (doc 06) and entry signing. The device also generates an X25519 pair for receiving the wrapped UMK; since mobile secure hardware does not natively host X25519, its private half is stored encrypted under a hardware-backed AES key from the OS keystore. ⚠️ Verify current platform support at build time; this is the accepted pattern as of spec date.
 
 **Platform nuance:** Android Keystore entries are destroyed on uninstall → reinstall on the same Android phone is a **new device**. iOS Keychain items survive reinstall → attempt Keychain restore first; only fall back to recovery if absent.
@@ -200,7 +200,7 @@ Standard device linking (§9.1).
 - Limits stated honestly in the UI: it only works on the **same Apple/Google account**; it does not survive losing that account; and a user who has disabled iCloud Keychain has nothing here.
 - ⚠️ Verify current Block Store and iCloud Keychain guarantees and size limits at build; both have changed before.
 
-### 7.6 Backup files — what they can and cannot do 🔒 (owner-directed, 31 Aug 2026)
+### 7.6 Backup files — what they can and cannot do 🔒 (owner-directed, 31 Aug 2026) ⟦tests: F1-06-12⟧
 
 **State the true position in the UI, because it is reassuring and correct:** entries are already stored, encrypted, on the server and are never lost with a phone. Backup exists to protect the **key**, and to leave a readable record that outlives even total key loss. Three optional artefacts, each with its trade-off written on the screen that offers it:
 

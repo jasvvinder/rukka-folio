@@ -67,7 +67,7 @@ Entry {
 }
 ```
 
-### 1.4 Universal invariants 🔒 ⟦tests: A-02-1, A-02-2, A-02-3, A-02-4, A-02-5, A-02-8, A-02-23, A-02-25, A-09-1, A-05e-8⟧
+### 1.4 Universal invariants 🔒 ⟦tests: A-02-1, A-02-2, A-02-3, A-02-4, A-02-5, A-02-8, A-02-23, A-02-25, A-09-1, A-05e-8, F1-02-3, F1-02-4⟧
 1. `sum(lines.amount_paise) == 0`, ≥ 2 lines, every line non-zero.
 2. Amounts are **integer paise**. No floats anywhere — client, export, or display math.
 3. Every `account_id` belongs to the entry's book. Cross-book effects only via §6.
@@ -78,7 +78,7 @@ Entry {
 
 ---
 
-## 2. The six verbs and their fixed postings 🔒 ⟦tests: A-02-9, A-02-10, A-02-11, A-02-12, A-02-13, A-02-14, A-02-16, A-02-17, A-02-18, A-02-20, A-02-21, A-05e-8⟧
+## 2. The six verbs and their fixed postings 🔒 ⟦tests: A-02-9, A-02-10, A-02-11, A-02-12, A-02-13, A-02-14, A-02-16, A-02-17, A-02-18, A-02-20, A-02-21, A-05e-8, F1-02-3⟧
 
 The user answers plain questions; the app builds the lines. Party-facing verbs auto-resolve against existing balances (paying ₹500 to a party you owe ₹2,000 simply reduces the payable — the user never chooses debit or credit).
 
@@ -119,7 +119,7 @@ The user answers plain questions; the app builds the lines. Party-facing verbs a
 
 ---
 
-## 4. Opening balances 🔒 ⟦tests: A-02-17, A-ref-3⟧
+## 4. Opening balances 🔒 ⟦tests: A-02-17, A-ref-3, F1-02-7⟧
 
 **Every new account asks for its opening balance at creation 🔒 (owner-approved)** — not only during first-run setup. The question is phrased by class, never as Dr/Cr: money accounts ask *"balance today"* (negative allowed → overdraft); party accounts ask *"do they owe you, or do you owe them?"* with the amount (**you will get** / **you will give**); expense/income accounts default to zero for the current FY. Each posts one `adjustment` against Opening Balance (equity).
 
@@ -127,7 +127,7 @@ Guided setup per book, re-runnable until first lock: for each money account and 
 
 ---
 
-## 5. Corrections 🔒 ⟦tests: A-02-42, A-02-43, A-02-44, A-02-45, A-02-46, A-02-47, A-02-50, A-05b-1, A-05b-2, A-05b-3, A-02-57⟧
+## 5. Corrections 🔒 ⟦tests: A-02-42, A-02-43, A-02-44, A-02-45, A-02-46, A-02-47, A-02-50, A-05b-1, A-05b-2, A-05b-3, A-02-57, F1-02-5, F1-02-6⟧
 
 - **Open period:** an entry may be **amended** — a new envelope, `kind` unchanged, `refs.amends = original`, carrying the complete replacement payload. Views show the latest amendment; history is preserved and inspectable ("edited by Ramesh, 2 changes"). Amend chains are linear (amend the head only). **A reader holding an amendment, reversal or decision whose target has not arrived keeps it `held` — neither projected nor quarantined — until the target lands (ADR 2026-09-05b §4); only when every author's sequence is contiguous and the target is still absent is it quarantined as `target_missing`.** `held` means this and nothing else; the closer's-tray state of a late arrival is `inTray` (ADR 2026-09-05e §10).
 - **Locked period:** amendment is forbidden by rule. The only path: **reversal** — an auto-built mirror entry dated in the open period, `refs.reverses = original`, plus (optionally) the corrected re-entry. One guided flow: *"Fix an old entry"* → app posts both.
@@ -309,7 +309,7 @@ chips. **Every organization book still seeds a plain Cash A/c alongside the goll
 
 **Multiple cash accounts** each count separately (shop drawer, home vault, gollak) — this is why cash is an account, not a single global figure.
 
-## 9. Balances and derived state 🔒 ⟦tests: A-02-35, A-02-36, A-02-37, A-03-5, A-05e-9⟧
+## 9. Balances and derived state 🔒 ⟦tests: A-02-35, A-02-36, A-02-37, A-03-5, A-05e-9, F1-02-8, F1-02-9, F1-02-10⟧
 
 All balances are **derived, never stored authoritatively**: balance(account) = Σ signed lines of **the head of every accepted amend chain** with status `posted` or `void`, excluding advance requests still `pending` (§7) and — for *certified* figures only — late arrivals in the tray (§8). **A reversed entry and its reversal both count** (they net to zero; excluding `void` would remove the amount twice). Running balances sort by `(accounting_date, hlc, envelope_id)` on every device (ADR 2026-09-05e §1, §12). Superseded wording: "entries with `status = posted`". Per §3 that is **every saved entry except an advance request still awaiting approval** (§7), which sits at `status = pending` and is excluded until approved — the one case where the money genuinely has not moved. **`review_state` never affects a balance:** a `posted` entry counts in full whether its review flag is open, approved, or rejected (a rejection removes its effect through the mirror reversal, not by excluding the original). Clients maintain a local running-balance cache and per-day snapshots for O(1) rendering of the position screen and reports; the cache is rebuildable from envelopes at any time (*Recompute* in settings, also run automatically on integrity-light ✗). **Negative physical cash** is legal but always a missing entry — the `cash` subtype shows a warning (ADR 2026-09-05e §12). After a year close, the rebuild baseline is the certified opening vector (§8.1) rather than all-time history.
 
@@ -317,7 +317,7 @@ All balances are **derived, never stored authoritatively**: balance(account) = �
 
 ---
 
-## 10. Statement import postings 🔒 (Phase 1: file upload)
+## 10. Statement import postings 🔒 (Phase 1: file upload) ⟦tests: F1-02-12⟧
 
 **The vocabulary rule 🔒 (owner-directed):** users read bank statements, where *credit = money in* and *debit = money out* — the mirror of our ledger, because the bank keeps its own book (your deposit is its liability). **The engine's Dr/Cr logic never changes; the words the user sees do.** Import screens, entry screens and day-book lists speak only **Money in / Money out**; the bank's own credit/debit column is mapped on read and never shown as "Dr/Cr" to the user. Professional surfaces (A/C statements, trial balance, exports) show true ledger Dr/Cr per 01 §1.9. Mixing the two conventions anywhere in one surface is a defect.
 

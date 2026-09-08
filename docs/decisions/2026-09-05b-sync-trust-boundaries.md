@@ -9,7 +9,7 @@ Owner confirmed 5 Sep 2026 ("add these as an ADR, do whatever is best").
 
 ## Rulings 🔒
 
-### 1. Structural facts are signed records; server rows are their projection ⟦tests: B-05b-1, B-05b-2, B-05b-3, B-05b-4, B-05b-5, B-05b-7⟧
+### 1. Structural facts are signed records; server rows are their projection ⟦tests: B-05b-1, B-05b-2, B-05b-3, B-05b-4, B-05b-5, B-05b-7, D-05b-1, E-05-10, E-03-19⟧
 Membership status, per-book roles and limits, designations, device revocation, member removal and
 key-rotation notices are authored on a **certified device** and travel as **signed records**:
 
@@ -27,7 +27,7 @@ roles/limits/removal; any certified device of the same user or k guardians for d
 04 §9.2; any remaining member for rotation, 04 §5.3). The server still enforces the rows at push
 and pull — a lie there can only *deny* service, which 04 §1.2 already accepts.
 
-### 2. A device never wipes on the server's word
+### 2. A device never wipes on the server's word ⟦tests: D-05-3, D-05-4⟧
 Local wipe of keys and projections happens only on (a) a **verified** signed revocation or removal
 record, or (b) the user's own action. An **unsigned** server assertion of revocation — a 401
 `device_revoked`, a bare row — puts the device into **suspended**: syncing stops, ciphertext and
@@ -54,7 +54,7 @@ in **`held`** — not projected, not quarantined — until the target arrives. I
 output). This replaces the current M1 behaviour of counting an orphan amendment as a fresh entry,
 which double-counts when the original arrives later. 02 §5 amended.
 
-### 5. Revocation cut-off is the server `seq`, never the HLC ⟦tests: B-05b-6⟧
+### 5. Revocation cut-off is the server `seq`, never the HLC ⟦tests: B-05b-6, D-05-4, E-05-3, E-03-16b⟧
 An envelope from device D is accepted only if its `seq` is **below the `seq` of D's signed
 revocation record** (or of the member's removal). HLC is author-controlled — a stolen phone can
 backdate it; `seq` is stamped by the server at receipt and cannot be. Consequence: every stored
@@ -62,7 +62,7 @@ envelope carries its `seq` (`envelopes_local` gains the column) and signed recor
 sequence space as envelopes so the comparison is meaningful. An offline legitimate member's queued
 entries are already refused at push (`membership_not_active`); this rule closes the read side.
 
-### 6. Store epoch and read-your-writes ⟦tests: E-05b-1⟧
+### 6. Store epoch and read-your-writes ⟦tests: E-05b-1, D-05-5, D-05-8, E-05-11⟧
 - Every push ack, pull and meta response carries **`store_epoch`** (uuid, changes only when the
   server store is restored or rebuilt). A client seeing a new epoch resets **all** cursors to 0 and
   re-pulls; `envelopes_local` is idempotent so nothing duplicates.
@@ -71,7 +71,7 @@ entries are already refused at push (`membership_not_active`); this rule closes 
   `seq` returned in the ack and the envelope was not seen, the client **re-pushes** and logs
   `write_lost` as a security event. Cap: 30 days un-observed → Inbox.
 
-### 7. Rate limits and quotas — the server's only new powers
+### 7. Rate limits and quotas — the server's only new powers ⟦tests: D-05-6, E-05-4, E-05-5⟧
 `rejected:rate_limited` (per-device push: ⚠️ proposal 600 envelopes / min and 50 MB / day) →
 backoff and retry, never Inbox. `rejected:quota` (per-book envelope count and bytes by plan — 08
 owns the numbers ⚠️) → Inbox *"This book is full — upgrade the plan"*, book still readable and
@@ -79,7 +79,7 @@ pullable. Membership `blocked` is refused at push exactly like `membership_not_a
 honestly in 05: garbage pushed before a block is **permanent** (append-only) — readers quarantine
 it, quotas bound its cost, and that is the whole defence.
 
-### 8. Smaller rulings ⟦tests: B-05b-8, B-04-20, B-04-21⟧
+### 8. Smaller rulings ⟦tests: B-05b-8, B-04-20, B-04-21, E-05b-8, E-03-16, E-03-26⟧
 - **Padding.** Plaintext is padded (libsodium `sodium_pad`) to 1 KiB buckets up to 16 KiB, then
   4 KiB steps, before encryption; sizes stop leaking note length or attachment presence.
 - **Signed URLs.** Upload URLs: single object, PUT-only, 15 min. Download URLs: 5 min. Leakage

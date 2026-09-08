@@ -4,7 +4,7 @@
 
 **Traceability 🔒 (ADR 2026-09-05i §1).** Every test carries a stable id `<Suite>-<source>-<n>` (`A-02-9`, `D-05b-3`) as the first token of its name; every 🔒 line in `docs/` ends with `⟦tests: id, id⟧` (or `⟦tests: n/a — reason⟧`); `scripts/check_coverage.dart` fails on an unmarked 🔒 line or a dangling id — warn-only until M4 exit, blocking after. **Supersession 🔒 (ADR 2026-09-05i §4):** a doc change that flips behaviour marks the old test `@Skip('superseded by ADR <id> §<n>; re-lands at M<n>')` in the same commit.
 
-## 1. Test infrastructure requirements 🔒 ⟦tests: A-09-1, B-04-19, B-04-29, B-04-56, D-09-1, D-09-2, D-09-3, D-09-4, D-09-5⟧
+## 1. Test infrastructure requirements 🔒 ⟦tests: A-09-1, B-04-19, B-04-29, B-04-56, D-09-1, D-09-2, D-09-3, D-09-4, D-09-5, D-05-13⟧
 - **Injected clock and injected RNG** everywhere (no direct `DateTime.now()`/`Random()` in core packages) — required for HLC tests and deterministic crypto tests.
 - **Property-based testing** for the ledger core (every verb × every input shape ⇒ invariants hold).
 - **Two-client harness:** integration rig running ≥ 2 simulated devices against one server instance, with scriptable connectivity (offline windows, reordering, retries).

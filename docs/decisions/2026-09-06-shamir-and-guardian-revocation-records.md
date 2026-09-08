@@ -52,7 +52,7 @@ ratification checklist for the owner at the end.
   not adopted: a digest travelling with the shares can be replaced with them; the pinned public
   key cannot. Transit integrity is still the sealed box (04 §7.3 step 3).
 
-### 3. Guardians' k-of-n device revocation = k separate signed records, counted by the client ⟦tests: D-06a-1, D-06a-2, D-06a-3, D-06a-4⟧
+### 3. Guardians' k-of-n device revocation = k separate signed records, counted by the client ⟦tests: D-06a-1, D-06a-2, D-06a-3, D-06a-4, E-05-10⟧
 - Each approving guardian's device authors its own `device_revocation` `SignedRecord`
   (ADR 2026-09-05b §1) over the same body `{revoked_device_id, subject_user_id, share_set_version}`;
   readers count distinct verified guardian authors whose UMKs are in the subject's guardian set

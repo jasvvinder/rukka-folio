@@ -73,7 +73,7 @@ Follows the scenario table in 06 §5 verbatim. Key screens: **Link with old phon
 
 ---
 
-## 4. Home 🔒
+## 4. Home 🔒 ⟦tests: F1-02-8⟧
 
 ```
 ┌──────────────────────────────────────┐
@@ -178,7 +178,7 @@ Reached from Menu → Books, or immediately after the purpose card "My shop" / "
 
 🔒 **The scope switcher has two forms, and they are different controls:** with **one business** it is a two-chip inline toggle in the top bar (S1.2); from **three or more books** it becomes the grouped bottom sheet (S1.3). Never show the grouped sheet to someone who owns two books.
 
-## 6. Ledger — the A/C index 🔒
+## 6. Ledger — the A/C index 🔒 ⟦tests: F1-02-9, F1-02-10⟧
 
 - A–Z list of every A/C in scope with live balance, colored by sign; sticky alphabet rail; **search is the header** (the fastest path to any khata); filter chips: All · Parties · Categories · Money · System.
 - Row tap → **A/C statement**: professional paper-ledger layout in the traditional three columns — **ਨਾਮੇ | ਜਮ੍ਹਾਂ | ਬਾਕੀ** (नामे | जमा | बाकी / Dr | Cr | Balance), cells colored directionally per the approved option A (design-system §5) — with *Opening balance b/f* carrying its as-on date (the period's first day, e.g. `as on 01 ਅਗਸਤ 2026`) and *Closing balance c/f* carrying the date it is forwarded — the period's last day, or today's date while the period is still open 🔒 (owner rule), dated entries with running balance between them; FY switcher (02 §8.1); export this A/C (PDF/XLSX) top-right; for parties: WhatsApp-share a statement image (the Khatabook habit — it drives adoption).
@@ -265,7 +265,7 @@ Report screens are tables with a one-line takeaway header (*"August: In ₹1,21,
 
 ---
 
-## 15. Devices & security screens 🔒
+## 15. Devices & security screens 🔒 ⟦tests: F1-06-8, F1-06-9, F1-06-12⟧
 Menu → Devices & security: **Backup** section first (04 §7.6 — platform key sync toggle on by default, save-recovery-sheet share action, optional monthly readable copy; each row states its own risk in one muted line, amber where the artefact is readable or restorable by anyone holding it) · linked devices list (06 §6) with revoke + **"This phone was stolen"** path (04 §9.2 consequences spelled out before confirm); guardians; recovery sheet (view status, re-verify, regenerate = old sheet invalid warning); escrow; **Auto-lock** showing both values — background (2 min) and idle (5 min) — (ADR 2026-09-05 §7); **Personal Book lock** toggle (re-prompts the same MPIN/biometric, 06 §4.4); security events log; a permanent **phone integrity** row when a modified device was detected (S19.5, ADR 2026-09-05 §6); **S11.9 Recovery in progress — Cancel** and **S11.10 Support action pending — Cancel** cards while a 24 h window is open (ADR 2026-09-05d §1, §3); every newly certified device of yours is listed with its added-on date (ADR 2026-09-05f §B). The Backup section states that a phone backup does not carry the books (ADR 2026-09-05f §G).
 
 ## 16. Settings 🔒
@@ -301,7 +301,7 @@ Review requested — **digest per author+book**: the first flag notifies, later 
 ## 23. Legal & trust (S18.x) 🔒 (ADR 2026-09-05f §F)
 **S18.3 What we can and cannot see** — the impossibility table (12 §2) as a page, with one line on **where the data lives: India** (ADR 2026-09-05c §1) and one on what a rooted phone changes (nothing about the server; everything about that phone).
 
-## 24. System screens (S19.x) 🔒 (ADR 2026-09-05f §B, §F)
+## 24. System screens (S19.x) 🔒 (ADR 2026-09-05f §B, §F) ⟦tests: F1-06-7, F1-06-16⟧
 **S19.1 Update required** (426) · **S19.2 Maintenance** · **S19.3 No connection** (non-blocking) · **S19.4 Permission priming** (notifications, camera — asked in context) · **S19.5 This phone has been modified** — shown once per app version after root / debugger / instrumentation detection: *"Your books are still encrypted, but anyone who controls this phone can see what you see. Make sure your backups are set."* → Devices & security; never blocks (ADR 2026-09-05 §6).
 
 ## 25. Attachment viewer (S20) and Search (S21) 🔒 (ADR 2026-09-05f §F)
