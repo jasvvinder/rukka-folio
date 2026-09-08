@@ -7,7 +7,7 @@ spec authority stays in `docs/` (this file is a tracker, never a spec).
 
 ---
 
-## 0. Where we are — 2026-09-07
+## 0. Where we are — 2026-09-08
 
 | Layer | State | Evidence |
 |---|---|---|
@@ -15,12 +15,17 @@ spec authority stays in `docs/` (this file is a tracker, never a spec).
 | `data` (03 client) | ✅ M2 | suite E client half: Drift + SQLCipher schema v1, mirror/outbox, Recompute, corruption path |
 | `testing/harness` | ✅ M2 | two-client rig; D-05b-2/3/4 |
 | `core_crypto` (04) | ✅ M3 | suite B: 75 tests — envelopes, keys, ceremony, wrapping, recovery, signed records, chain, Shamir |
-| `sync_engine` (05) | ⬜ stub | one hello-world test |
-| `server/` (03 §2, 05, 06) | ⬜ absent | — |
-| `app/` (07, 13) | ⬜ shell | `main.dart`, `shared/tokens.dart`, ARB EN/PA/HI — **no feature yet** |
-| Traceability | ✅ | `check_coverage`: 242 tests · 242 ids · 0 orphans (warn-only until M4) |
+| `sync_engine` (05) | 🟡 M4 | suite D: 17 tests — outbox/push, `seq` cursors, epoch, key-wait, revocation cut-off, k-of-n `D-06a-1…4`, SPKI pins |
+| `server/` (03 §2, 05, 06) | 🟡 M4 | 5 migrations + RLS + 5 edge functions; Deno 31 green — **RLS hostile-query suite (7) never executed, no Docker** |
+| `app/` (07, 13) | 🟡 M6 client | theme + router + seams + `features/auth` + `features/devices` (7 screens); 85 tests green — no onboarding/home/entry yet (M5) |
+| Traceability | ⚠️ | `check_coverage` (warn-only until M4): 373 tests · 319 🔒 lines, **185 unmarked** · 44 orphan ids · 11 markers naming no test · 2 malformed ids · 2 tests with no id |
 
-✅ ADR 2026-09-06 ratified 7 Sep (four answers recorded in the ADR; 04 §2/§7.3/§9.2/§11 updated). ⛔ **Owner now:** the §4 lead-times — each row names its first action; details in `docs/ops/lead-times.md`.
+✅ ADR 2026-09-06 ratified 7 Sep (four answers recorded in the ADR; 04 §2/§7.3/§9.2/§11 updated).
+
+⛔ **Owner now, in order:**
+1. **A Postgres for the RLS suite.** `server/supabase/tests/rls/rls.test.ts` (7 hostile-query tests) has never executed — Docker is absent on this machine, so `supabase db reset` cannot run and `RF_TEST_DB_URL` is unset. The push lane skips it by design, which means *M4's security-critical half is written but unevidenced*. Until this runs, no claim about RLS holds.
+2. The §4 lead-times — each row names its first action; details in `docs/ops/lead-times.md`.
+3. **Traceability debt before M4 exit** (`--strict` blocks at M4, ADR 2026-09-05i §1) — see the new reconciliation row under M4.
 
 ---
 
@@ -35,7 +40,7 @@ reviews on a device each evening.
 
 | Phase | Dates | Lanes in parallel | Exit |
 |---|---|---|---|
-| **A — foundations** | 7–13 Sep | P0 tooling → then **S** server · **Y** sync_engine · **U1** app foundation · **U2** entry+home · **U3** ledger+statement · **C** auth client | push lane green; app installs on the owner's iPhone; solo entries flow end to end **offline** |
+| **A — foundations** | 7–13 Sep | ✅ P0 tooling · ✅ **S** server · ✅ **Y** sync_engine · ✅ **C** auth client → remaining: **U1** app foundation · **U2** entry+home · **U3** ledger+statement | push lane green ✅ (8 Sep); ⬜ app installs on the owner's iPhone; ⬜ solo entries flow end to end **offline** (needs U1–U3) |
 | **B — people** | 14–20 Sep | **S2** server (invites, ceremony, approvals) · **Y2** sync (multi-author, revocation counting) · **U4** members+ceremony · **U5** family money · **U6** close · **U7** recovery screens | two phones sync; **TestFlight to the owner's family** |
 | **C — money in, money for us** | 21–27 Sep | **U8** import · **U9** reports/exports + PA/HI polish · **S3+U10** subscription + console | F3 goldens; RC lane |
 | **D — harden & pilot** | 28 Sep–4 Oct | hardening gates · MASVS pass · perf lane · store prep | Suite H; **pilot month starts** (Oct) |
@@ -67,25 +72,32 @@ drop 🔒 roadmap gates by ADR — the tracker does not assume that.
 - ✅ ADR 2026-09-06 ratified (7 Sep) · ⬜ third-party Shamir vector · ⛔ external review of `shamir.dart` (M14)
 - ⬜ open from the M3 changelog: `hlc` in the signed digest (ADR before M4) · `suite_version`/`payload_schema` on `envelopes_local`
 
-### P0 Tooling for parallel lanes ⬜ (Phase A, day 1 — before any UI lane starts)
-- ⬜ **ARB parts**: lanes write `app/lib/l10n/parts/<feature>_{en,pa,hi}.arb`; `gen_l10n_arb.dart` merges parts → `app_*.arb` → identifier copies. Removes the one shared file every UI lane would fight over. `check_strings` runs on the merged files.
-- ⬜ **App theme from tokens**: `app/lib/shared/theme.dart` (light/dark from `tokens.dart`, Mukta/Mukta Mahee, status-colour family, `check_contrast.dart` in ci.sh)
-- ⬜ **Router skeleton**: `app/lib/shared/router.dart` — four-tab bar + docked ( + ); each feature exports `routes` and U1 wires them at integration
-- ⬜ **Feature folder convention**: `app/lib/features/<feature>/` + `app/test/features/<feature>/` — one lane per folder
-- ⬜ **Fake sync/auth seams**: `app` depends on interfaces (`SyncClient`, `AuthClient`) with in-memory fakes so U-lanes never wait on S/Y lanes
-- ⬜ `server/` skeleton: `supabase/config.toml`, `migrations/`, `functions/`, `tests/rls/`, `deno.json`
+### P0 Tooling for parallel lanes ✅ (Phase A, day 1)
+- ✅ **ARB parts**: lanes write `app/lib/l10n/parts/<feature>_{en,pa,hi}.arb`; `gen_l10n_arb.dart` merges parts → `app_*.arb` → identifier copies. Removes the one shared file every UI lane would fight over. `check_strings` runs on the merged files.
+- ✅ **App theme from tokens**: `app/lib/shared/theme.dart` (light/dark from `tokens.dart`, Mukta/Mukta Mahee, status-colour family, `check_contrast.dart` in ci.sh — 74 gated pairs, 3 waived)
+- ✅ **Router skeleton**: `app/lib/shared/router.dart` — four-tab bar + docked ( + ); each feature exports `routes` and U1 wires them at integration
+- ✅ **Feature folder convention**: `app/lib/features/<feature>/` + `app/test/features/<feature>/` — one lane per folder
+- ✅ **Fake sync/auth seams**: `app/lib/shared/seams/` (`sync_client.dart`, `auth_client.dart`, `key_store.dart`) + `app_scope.dart`
+- ✅ `server/` skeleton: `supabase/config.toml`, `migrations/`, `functions/`, `tests/rls/`, `deno.json`
 
-### M4 Server + sync engine ⬜ (suites D, E server)
+### M4 Server + sync engine 🟡 (suites D, E server) — landed 8 Sep, push lane green
 **Lane S — `server/supabase`** (03 §2, §2.5; 05; ADR 05b, 05c)
-- ⬜ migrations: identity & tenancy · devices/keys/ceremonies · envelope store (`seq bigserial`, `blob_hash`) · billing/audit/ops
-- ⬜ RLS for every table; server role has **no UPDATE/DELETE on `envelopes`**; `SET LOCAL` claims; `phone_ct`/`phone_hmac` + KMS
-- ⬜ functions: `sync-push` (idempotent, shape checks, quotas) · `sync-pull` (seq cursors) · `sync-meta` (keys, guardian-set history by `share_set_version`) · `auth-challenge` · `billing-webhook` stub
-- ⬜ `tests/rls` hostile-query suite (E-server) · `deno test` · India region + PITR + private bucket + orphan sweep (ops checklist)
-**Lane Y — `packages/sync_engine`** (05 §3–§9; ADR 05b §1–§6)
-- ⬜ outbox drain + push · pull with `seq` cursors · `store_epoch` + read-your-writes · key-sync-before-drain + re-seal
-- ⬜ signed records applied to rows · `seq` revocation cut-off · **k-of-n counting (D-06a-1…4)** · rate-limit/quota handling · status surface (05 §9)
-- ⬜ D suite on the harness: withheld envelope, orphan amend, unsigned revocation, backdated push, epoch re-pull, flood
-- ⬜ hardening: SPKI pins + rotation runbook, gitleaks + OSV in `ci.sh`, `print(` check (ADR 2026-09-05)
+- ✅ migrations `0001`–`0005`: identity & tenancy · devices/keys/ceremonies · envelope store (`seq bigserial`, `blob_hash`) · billing/audit/ops
+- 🟡 RLS written for every table (`0005_rls_and_grants.sql`): `envelopes` is `grant select, insert` to `rf_api` only, `DELETE` to `rf_maintenance` alone (rule 2 ✓); `SET LOCAL` claims; `phone_ct`/`phone_hmac` + KMS, no plaintext number. **Written but not executed** — see the hostile-query row.
+- ✅ functions: `sync-push` (idempotent, shape checks, quotas) · `sync-pull` (seq cursors) · `sync-meta` (keys, guardian-set history by `share_set_version`) · `auth-challenge` · `billing-webhook` stub — Deno suite 31 green
+- ⛔ `tests/rls` hostile-query suite (`E-03-22`…`E-05c-7`, 7 tests) **written but never run**: needs `RF_TEST_DB_URL` → a Postgres with migrations applied (`supabase db reset`); Docker absent on this machine. `ci.sh` defers it to the nightly lane by design (`ci.sh:62`), so the push lane going green does **not** evidence the policies. **Owner: this is the M4 exit gate.**
+- ⬜ ops checklist: India region + PITR + private bucket + orphan sweep
+**Lane Y — `packages/sync_engine`** (05 §3–§9; ADR 05b §1–§6) — 17 tests green
+- ✅ outbox drain + push · pull with `seq` cursors · `store_epoch` + read-your-writes (`D-05-8`) · key-sync-before-drain + re-seal (`D-05-11`, `D-05-12`)
+- ✅ signed records applied to rows · `seq` revocation cut-off (`D-05-3`, `D-05-4`) · **k-of-n counting `D-06a-1…4`** (cut-off moves earlier never later; re-split does not reset) · rate-limit/quota (`D-05-6`) · status surface (`D-05-9`, `D-05-10`)
+- ✅ D suite: withheld envelope `D-05-1` · orphan amend `D-05-2` · unsigned revocation `D-05-3` · backdated push `D-05-4` · epoch re-pull `D-05-5` · flood `D-05-6` · `meta_mismatch` `D-05b-1` · lossy two-author convergence `D-05-13` (harness)
+- 🟡 hardening: SPKI pins ✅ (`lib/src/spki_pins.dart`) · ⬜ rotation runbook · ⬜ **gitleaks + OSV + `print(` check absent from `ci.sh`** (ADR 2026-09-05)
+**Traceability reconciliation ⬜ (new, discovered 8 Sep — blocks M4 exit)**
+- ⬜ 185 unmarked 🔒 lines need `⟦tests: …⟧` (or `⟦tests: n/a — reason⟧`); 44 orphan test ids need a marker naming them
+- ⬜ 11 markers name ids no test declares — `E-03-25/26/27`, `E-05c-7`, `F1-06a-1`
+- ⬜ 2 malformed ids — `E-05-1b`, `E-03-16b` (the `Nb` suffix is not the `A-02-9` shape ADR 2026-09-05i §1 specifies)
+- ⬜ 2 tests with no id — `server/supabase/tests/rls/schema.test.ts:215`, `server/supabase/functions/_tests/sync_push.test.ts:97`
+- Not a build lane: it spans lane-sync/lane-ui/lane-server territory and is a docs+naming pass. `check_coverage --strict` turns blocking at M4.
 
 ### M5 Single-user app ⬜ (suite F1 + stopwatch)
 **Lane U1 — foundation + onboarding** (`features/onboarding`, `features/lock`, `shared/`)
@@ -102,11 +114,13 @@ drop 🔒 roadmap gates by ADR — the tracker does not assume that.
 - ⬜ S8 menu · S8.1/S8.2 day book + export (CSV/PDF, temp-file purge) · S12.5 read-only sheet pattern (used by book-full)
 - ⬜ A-02-10 both vocabularies render from one posting set
 
-### M6 Auth & devices ⬜ (suite C)
+### M6 Auth & devices 🟡 (suite C) — client half landed 8 Sep, 37 tests green
 **Lane C — `features/auth`, `features/devices`** (06; ADR 05d) — client side in Phase A against fakes, real server in Phase B
-- ⬜ S0.2 phone + OTP · device keys in Keychain · sessions · min-version gate S19.1 · OTP-only device sees no tenant metadata
-- ⬜ S11 devices & security · S11.4 backup settings · S11.9/S11.10 cancel windows (24 h) · S15.4 suspended · new-device notice on every path
-- ⬜ biometric-set binding · MPIN lockout surviving app-data clearance · certified-only RLS (server side, lane S)
+- ✅ S0.2 phone + OTP (`s0_2_phone_otp_screen.dart`) · device keys in Keychain (`keychain_key_store.dart`) · sessions (`http_auth_client.dart`) · min-version gate S19.1 (`s19_1_update_required_screen.dart`) · `C-06-1…13`
+- ✅ S11 devices & security · S11.4 backup settings · S11.9/S11.10 cancel windows (24 h, `cancel_window.dart` + `s11_9_10_cancel_window_screen.dart`) · S15.4 suspended · S19.5 modified-device · `F1-06-1…16`
+- ✅ at-rest + PIN vault (`at_rest.dart`, `pin_vault.dart`) · `C-05d-1…10`
+- ⬜ OTP-only device sees no tenant metadata (needs the real server — Phase B)
+- ⬜ biometric-set binding · MPIN lockout surviving app-data clearance · certified-only RLS (server side, lane S — blocked on the same unrun RLS suite)
 
 ### M7 Multi-user ⬜ (H steps 1–2)
 - ⬜ S9 books & members · S9.1 invite · S9.2/S9.3/S9.4 ceremony (QR, code, mismatch hard-fail) · S9.5 add a business

@@ -1,0 +1,47 @@
+{
+  "@@locale": "en",
+  "nav.home.label": "Home",
+  "@nav.home.label": {
+    "description": "Tab 1 of 4 (13 §3.1, S1). Bar label 10.5px — keep to one short word."
+  },
+  "nav.ledger.label": "Ledger",
+  "@nav.ledger.label": {
+    "description": "Tab 2 of 4 (S3): the A–Z index of every account. 'Ledger' is allowed on the nav (01 §1 rule 4 targets journal/voucher/folio/narration)."
+  },
+  "nav.inbox.label": "Inbox",
+  "@nav.inbox.label": {
+    "description": "Tab 3 of 4 (S6): everything awaiting a human."
+  },
+  "nav.menu.label": "Menu",
+  "@nav.menu.label": {
+    "description": "Tab 4 of 4 (S8): reports, books, members, settings."
+  },
+  "nav.entry.label": "Add entry",
+  "@nav.entry.label": {
+    "description": "Spoken label ONLY for the docked ( + ) — it renders no text (design-system §4.1 🔒). Also titles the S2 placeholder."
+  },
+  "home.placeholder.body": "Your position and today’s entries will appear here.",
+  "@home.placeholder.body": {
+    "description": "P0 placeholder until S1 lands (M5)."
+  },
+  "ledger.placeholder.body": "Every account, A to Z, will be listed here.",
+  "@ledger.placeholder.body": {
+    "description": "P0 placeholder until S3 lands."
+  },
+  "inbox.placeholder.body": "Anything waiting for you will appear here.",
+  "@inbox.placeholder.body": {
+    "description": "P0 placeholder until S6 lands."
+  },
+  "menu.placeholder.body": "Reports, books, members and settings.",
+  "@menu.placeholder.body": {
+    "description": "P0 placeholder until S8 lands."
+  },
+  "entry.placeholder.body": "The entry keypad will appear here.",
+  "@entry.placeholder.body": {
+    "description": "P0 placeholder until S2 lands."
+  },
+  "app.open_failed.body": "Your books could not be opened on this phone.",
+  "@app.open_failed.body": {
+    "description": "Fail-closed screen when the local ledger cannot open (03 §5). One plain sentence; no error codes (07 §1 rule 12)."
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "@@locale": "en",
+  "app.name": "Rukka Folio",
+  "@app.name": { "description": "Product name. Exempt from the folio jargon rule (01 §1 rule 4 carve-out). Stays Latin in PA/HI — the lockup shows it this way (11 §4.2)." },
+  "splash.opening": "Opening your books.",
+  "@splash.opening": { "description": "Slow cold start (>3 s): shown under the loader rule beneath the sealed mark (11 §4.5). ⚠️ PA/HI need native review (M12 gate)." }
+}

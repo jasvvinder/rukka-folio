@@ -13,6 +13,17 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: any # version pinned by flutter_localizations
+  go_router: ^17.1.0 # shell + feature routes (13 §3.1; shared/router.dart)
+  drift: ^2.34.4 # NativeDatabase executor for package:data's LedgerDatabase
+  # package:sqlite3 3.x (via data) bundles its native library through build hooks — no
+  # sqlite3_flutter_libs. SQLCipher is selected the same way (sqlcipher_flutter_libs is EOL):
+  # `hooks.user_defines.sqlite3.source: sqlcipher` in the WORKSPACE ROOT pubspec.yaml —
+  # see features/devices/at_rest.dart. The key comes from KeychainKeyStore (06 §3, 04 §3.3).
+  flutter_secure_storage: ^11.0.0 # iOS Keychain / Android Keystore for KeychainKeyStore (04 §3.3, ADR 2026-09-05d §4)
+  sodium_libs: ^4.0.1 # libsodium binary for the app; core_crypto's CryptoSuite is injected with it (rule 7)
+  path_provider: ^2.1.5 # app documents dir for the ledger file
+  http: ^1.6.0 # HttpClientTransport → HttpAuthClient (06 §2–§4); the only HTTP door in the app
+  path: ^1.9.1
   # pure engine packages — the app never reimplements what they own
   core_ledger:
     path: ../packages/core_ledger

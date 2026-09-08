@@ -1,0 +1,21 @@
+{
+  "@@locale": "pa",
+  "money.direction.in": "ਪੈਸੇ ਆਏ",
+  "money.direction.out": "ਪੈਸੇ ਗਏ",
+  "money.side.dr": "ਨਾਮੇ",
+  "money.side.cr": "ਜਮ੍ਹਾਂ",
+  "date.today": "ਅੱਜ",
+  "date.yesterday": "ਕੱਲ੍ਹ",
+  "date.month.jan": "ਜਨਵਰੀ",
+  "date.month.feb": "ਫ਼ਰਵਰੀ",
+  "date.month.mar": "ਮਾਰਚ",
+  "date.month.apr": "ਅਪ੍ਰੈਲ",
+  "date.month.may": "ਮਈ",
+  "date.month.jun": "ਜੂਨ",
+  "date.month.jul": "ਜੁਲਾਈ",
+  "date.month.aug": "ਅਗਸਤ",
+  "date.month.sep": "ਸਤੰਬਰ",
+  "date.month.oct": "ਅਕਤੂਬਰ",
+  "date.month.nov": "ਨਵੰਬਰ",
+  "date.month.dec": "ਦਸੰਬਰ"
+}

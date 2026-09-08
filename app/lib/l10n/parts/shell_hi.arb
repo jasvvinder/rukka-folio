@@ -1,0 +1,14 @@
+{
+  "@@locale": "hi",
+  "nav.home.label": "होम",
+  "nav.ledger.label": "खाते",
+  "nav.inbox.label": "इनबॉक्स",
+  "nav.menu.label": "मेनू",
+  "nav.entry.label": "एंट्री जोड़ें",
+  "home.placeholder.body": "आपकी स्थिति और आज की एंट्रियाँ यहाँ दिखेंगी।",
+  "ledger.placeholder.body": "सभी खाते, अ से ज्ञ तक, यहाँ सूची में होंगे।",
+  "inbox.placeholder.body": "जो कुछ आपकी प्रतीक्षा में है, यहाँ दिखेगा।",
+  "menu.placeholder.body": "रिपोर्ट, बहियाँ, सदस्य और सेटिंग।",
+  "entry.placeholder.body": "एंट्री का कीपैड यहाँ होगा।",
+  "app.open_failed.body": "इस फ़ोन पर आपके बही-खाते खोले नहीं जा सके।"
+}

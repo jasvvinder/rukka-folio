@@ -12,6 +12,28 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-08 — M4 + M6: stage 2a closed out — server, sync_engine and the auth/devices client gated and recorded
+
+The four stage-2a lanes (S server · Y sync_engine · C auth+devices client · U0 ledger facade) landed their files in the session that died on its limit (`wf_16e00993`), and their lane reports died with it. So ~40 files of security-critical work sat on disk **never analyzed, never tested, never PLAN-marked, and named in no changelog entry** — the 7 Sep entry says outright that its files are not in it. This session did no new feature work: it gated that tree, fixed what the gate found, and wrote down what is actually true about it.
+
+**Changed**
+- `packages/sync_engine/test/engine_crypto_test.dart`, `test/wire_test.dart` — dropped a stale `userId:` argument from two `WireDeviceCert(...)` call sites. This was the gate's only hard blocker (`analyze`, exit 3). The field belongs on `WireDevice`, not the cert row, and three independent sources agree: `device_certs` has no `user_id` column (migration `0002:19–21`, it lives on `devices`), `sync-meta/index.ts:234` carries an explicit `⚠️ WIRE:` note saying user_id comes from the devices row in the same response, and `guard.dart:110` takes `buildCert(WireDeviceCert, WireDevice)` precisely so it can read it from there. Both tests already construct the paired `WireDevice` carrying `userId`, so no coverage was lost. Tests only — no production code, no assertion changed.
+- `app/lib/main.dart`, `app/lib/shared/router.dart` — `dart format` (the gate's first failure).
+- `docs/` — `⟦tests: …⟧` markers on the 🔒 lines stage 2a now covers, across `02`, `03`, `04`, `05`, `06`, `07`, `09` and ADRs `05b`, `05c`, `05d`, `05i`, `2026-09-06`: 35 lines gain a marker, 15 have theirs extended (ADR 2026-09-05i §1). Marker-only — every added line carries a marker and no specification prose changed, so no ADR is implicated. Committed separately as `b08abc6` to keep the 🔒-line diff readable.
+- `PLAN.md` — §0 redated and rewritten against the tree rather than the intent: `sync_engine` ⬜ stub → 🟡 M4, `server/` ⬜ absent → 🟡 M4, `app/` ⬜ shell → 🟡 M6 client. P0 → ✅ (all six items). M4/M6 rows marked per green id. Phase A row: P0/S/Y/C done, U1–U3 remaining.
+
+**Verified** — `LANE=push ./scripts/ci.sh` green (exit 0), reaching the end for the first time over this tree. 393 Dart tests + 31 Deno, 0 failures: root `test/` 21 · `core_crypto` 75 · `core_ledger` 155 · `data` 30 · **`sync_engine` 17** · **`testing/harness` 10** · **`app` 85** · server Deno 31. Confirmed from the log that every stage-2a file actually ran (`ci.sh:55` iterates `packages/*` wholesale, so the new `engine_plain`/`engine_crypto`/`wire`/`engine_two_device` files were all in scope) — the ids now evidenced are `D-05-1…13`, `D-05b-1`, `D-06a-1…4`, `D-10-1`, `C-06-1…13`, `C-05d-1…10`, `F1-06-1…16`, `E-03-15…21`, `E-05-1…12`, `E-06-1…8`.
+
+**Decided** — nothing 🔒; no ADR. The `WireDeviceCert` fix restores code to what the specs and the server schema already said, rather than changing a rule.
+
+**Open** ⚠️
+- ⛔ **The RLS hostile-query suite has never executed.** `server/supabase/tests/rls/rls.test.ts` (7 tests, `E-03-22`…`E-05c-7`) skips for want of `RF_TEST_DB_URL`: Docker is absent on this machine, so `supabase db reset` cannot apply the migrations. `ci.sh:62` defers it to the nightly lane by design, so **the push lane going green is not evidence about RLS** — the policies in `0005_rls_and_grants.sql` are written and unverified. This is M4's exit gate and the first thing the owner should unblock; it is why `server/` is 🟡 and not ✅. (Static reading is reassuring — `envelopes` is `grant select, insert` to `rf_api` with `DELETE` to `rf_maintenance` alone, satisfying rule 2; `phone_ct`/`phone_hmac` with no plaintext number — but reading is not testing.)
+- **Traceability debt, new PLAN row, blocks M4 exit** (`check_coverage --strict` turns blocking at M4, ADR 2026-09-05i §1): 319 🔒 lines with **185 unmarked**; 44 orphan test ids named by no `⟦tests⟧` marker; 11 markers naming ids no test declares (`E-03-25/26/27`, `E-05c-7`, `F1-06a-1`); 2 malformed ids (`E-05-1b`, `E-03-16b` — the `Nb` suffix is not the `A-02-9` shape); 2 tests with no id (`tests/rls/schema.test.ts:215`, `_tests/sync_push.test.ts:97`). Stage 2a widened this considerably. It spans three lanes' territory and is a docs+naming pass, so it is tracked as its own item rather than folded into a build lane.
+- Hardening still absent from `ci.sh`: gitleaks, OSV, the `print(` check (ADR 2026-09-05). SPKI pins landed; the rotation runbook did not.
+- Process note: both gate agents hit their 20-turn cap — the first before reporting anything. The cap is right, but a gate over a never-tested tree needs two runs (fix, then verify), so budgeting one `/gate` invocation per *run* rather than per *phase* is the cheaper shape when the tree is cold.
+
+**Commits** — `b08abc6` (docs markers). The stage-2a code commit is pending.
+
 ## 2026-09-08 — env: build harness restructured around lane tiers, durable reports and short sessions
 
 Phase A's first week spent 2.69M tokens across five `/fanout` runs, all of them on Fable 5.1, and two died mid-run — `wf_16e00993` on the session limit with three `effort: high` lanes in flight (725K tokens, 15 min), leaving two lanes' files on disk and their reports lost, so the phase could not be marked. Cause: lane args carried `effort` but never `model`, so every lane fell through to the workflow default (`claude-fable-5-1`), and lanes + gate were one atomic unit that had to survive half an hour. No code behaviour changed in this session.

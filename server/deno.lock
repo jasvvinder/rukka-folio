@@ -1,0 +1,57 @@
+{
+  "version": "5",
+  "specifiers": {
+    "jsr:@std/assert@1.0.13": "1.0.13",
+    "jsr:@std/encoding@1.0.10": "1.0.10",
+    "jsr:@std/internal@^1.0.6": "1.0.14",
+    "npm:libpg-query@17.5.2": "17.5.2",
+    "npm:libsodium-wrappers-sumo@0.7.15": "0.7.15",
+    "npm:postgres@3.4.5": "3.4.5"
+  },
+  "jsr": {
+    "@std/assert@1.0.13": {
+      "integrity": "ae0d31e41919b12c656c742b22522c32fb26ed0cba32975cb0de2a273cb68b29",
+      "dependencies": [
+        "jsr:@std/internal"
+      ]
+    },
+    "@std/encoding@1.0.10": {
+      "integrity": "8783c6384a2d13abd5e9e87a7ae0520a30e9f56aeeaa3bdf910a3eaaf5c811a1"
+    },
+    "@std/internal@1.0.14": {
+      "integrity": "291516b3d4c35024d6ffbc0a9df5bf4c64116e05b50012cf846710152d2ffdf7"
+    }
+  },
+  "npm": {
+    "@pgsql/types@17.6.2": {
+      "integrity": "sha512-1UtbELdbqNdyOShhrVfSz3a1gDi0s9XXiQemx+6QqtsrXe62a6zOGU+vjb2GRfG5jeEokI1zBBcfD42enRv0Rw=="
+    },
+    "libpg-query@17.5.2": {
+      "integrity": "sha512-9VhuzWrWyZ6AalSCtF2+BDx/aHpp8JKLAsYa1qF77x7f+kJ5BxAXvdRYOduNNFqdwu67110eFpoBr6BtN4WH/A==",
+      "dependencies": [
+        "@pgsql/types"
+      ]
+    },
+    "libsodium-sumo@0.7.16": {
+      "integrity": "sha512-x6atrz2AdXCJg6G709x9W9TTJRI6/0NcL5dD0l5GGVqNE48UJmDsjO4RUWYTeyXXUpg+NXZ2SHECaZnFRYzwGA=="
+    },
+    "libsodium-wrappers-sumo@0.7.15": {
+      "integrity": "sha512-aSWY8wKDZh5TC7rMvEdTHoyppVq/1dTSAeAR7H6pzd6QRT3vQWcT5pGwCotLcpPEOLXX6VvqihSPkpEhYAjANA==",
+      "dependencies": [
+        "libsodium-sumo"
+      ]
+    },
+    "postgres@3.4.5": {
+      "integrity": "sha512-cDWgoah1Gez9rN3H4165peY9qfpEo+SA61oQv65O3cRUE1pOEoJWwddwcqKE8XZYjbblOJlYDlLV4h67HrEVDg=="
+    }
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@std/assert@1.0.13",
+      "jsr:@std/encoding@1.0.10",
+      "npm:libpg-query@17.5.2",
+      "npm:libsodium-wrappers-sumo@0.7.15",
+      "npm:postgres@3.4.5"
+    ]
+  }
+}

@@ -14,3 +14,4 @@ library;
 export 'src/device.dart';
 export 'src/network.dart';
 export 'src/scheduler.dart';
+export 'src/synced_device.dart';

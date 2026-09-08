@@ -27,8 +27,11 @@ dart run scripts/gen_tokens.dart --check        # tokens.json → tokens.css / t
 dart run scripts/gen_l10n_arb.dart               # dotted ARB → identifier ARB for gen_l10n
 (cd app && flutter gen-l10n)
 
+step "contrast — every colour token × four grounds × both modes (design-system §3.1)"
+dart run scripts/check_contrast.dart
+
 step "format"
-dart format --output=none --set-exit-if-changed packages scripts app/lib app/test
+dart format --output=none --set-exit-if-changed packages scripts test app/lib app/test
 
 step "package purity"
 scripts/check_purity.sh
@@ -40,9 +43,12 @@ step "coverage — 🔒 lines ↔ test ids, golden front-matter (warn-only until
 dart run scripts/check_coverage.dart --milestone M1
 
 step "analyze"
-dart analyze --fatal-infos scripts
+dart analyze --fatal-infos scripts test
 for p in packages/*; do (cd "$p" && dart analyze --fatal-infos); done
 (cd app && flutter analyze --fatal-infos)
+
+step "tests — root scripts (gen_l10n_arb merge, check_contrast; suite F1-10)"
+dart test test/
 
 step "tests — pure packages (suites A/B/D/E as they land) + harness [$LANE]"
 # $TEST_PRESET unquoted on purpose: empty, or the two words "--preset nightly".
@@ -50,6 +56,15 @@ for p in packages/* testing/harness; do (cd "$p" && dart test $TEST_PRESET); don
 
 step "tests — app"
 (cd app && flutter test)
+
+step "tests — server functions + schema (deno; suite E-server, 03 §2.5 / 05 / 06)"
+# rls.test.ts needs a live Postgres (RLS_REQUIRE=1 + RF_TEST_DB_URL) and skips otherwise — the
+# hostile-query suite runs against the local `supabase start` stack in the nightly lane (M4).
+if command -v deno >/dev/null 2>&1; then
+  (cd server && deno task lint && deno task test)
+else
+  scheduled "deno not installed on this runner"
+fi
 
 case "$LANE" in
   nightly) step "nightly — two-client soak (D), fresh-seed fuzz, perf p95, E-server"; scheduled "M4" ;;

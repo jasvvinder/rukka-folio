@@ -1,0 +1,21 @@
+{
+  "@@locale": "hi",
+  "money.direction.in": "पैसे आए",
+  "money.direction.out": "पैसे गए",
+  "money.side.dr": "नामे",
+  "money.side.cr": "जमा",
+  "date.today": "आज",
+  "date.yesterday": "कल",
+  "date.month.jan": "जनवरी",
+  "date.month.feb": "फ़रवरी",
+  "date.month.mar": "मार्च",
+  "date.month.apr": "अप्रैल",
+  "date.month.may": "मई",
+  "date.month.jun": "जून",
+  "date.month.jul": "जुलाई",
+  "date.month.aug": "अगस्त",
+  "date.month.sep": "सितंबर",
+  "date.month.oct": "अक्टूबर",
+  "date.month.nov": "नवंबर",
+  "date.month.dec": "दिसंबर"
+}

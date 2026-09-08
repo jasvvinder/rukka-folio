@@ -1,0 +1,53 @@
+{
+  "@@locale": "en",
+  "money.direction.in": "Money in",
+  "@money.direction.in": {
+    "description": "Consumer vocabulary (02 §10 🔒): the word beside a positive amount on entry screens, day-book lists, imports. Never 'Cr'/'Dr' here."
+  },
+  "money.direction.out": "Money out",
+  "@money.direction.out": {
+    "description": "Consumer vocabulary (02 §10 🔒): the word beside a negative amount. Verb table 02 §2 row 2."
+  },
+  "money.side.dr": "Dr",
+  "@money.side.dr": {
+    "description": "Professional vocabulary (01 §1.9, 02 §10): debit side tag on A/C statements, trial balance, exports. PA ਨਾਮੇ / HI नामे."
+  },
+  "money.side.cr": "Cr",
+  "@money.side.cr": {
+    "description": "Professional vocabulary (01 §1.9, 02 §10): credit side tag. PA ਜਮ੍ਹਾਂ / HI जमा."
+  },
+  "date.today": "Today",
+  "@date.today": {
+    "description": "Relative date label in lists (07 §1 rule 5)."
+  },
+  "date.yesterday": "Yesterday",
+  "@date.yesterday": {
+    "description": "Relative date label in lists (07 §1 rule 5)."
+  },
+  "date.month.jan": "Jan",
+  "@date.month.jan": {
+    "description": "Month name for dates. EN abbreviates (DD Aug YYYY); PA and HI carry FULL names — abbreviations do not exist naturally in those scripts (07 §1 rule 5, design-system §5)."
+  },
+  "date.month.feb": "Feb",
+  "@date.month.feb": { "description": "See date.month.jan." },
+  "date.month.mar": "Mar",
+  "@date.month.mar": { "description": "See date.month.jan." },
+  "date.month.apr": "Apr",
+  "@date.month.apr": { "description": "See date.month.jan." },
+  "date.month.may": "May",
+  "@date.month.may": { "description": "See date.month.jan." },
+  "date.month.jun": "Jun",
+  "@date.month.jun": { "description": "See date.month.jan." },
+  "date.month.jul": "Jul",
+  "@date.month.jul": { "description": "See date.month.jan." },
+  "date.month.aug": "Aug",
+  "@date.month.aug": { "description": "See date.month.jan." },
+  "date.month.sep": "Sep",
+  "@date.month.sep": { "description": "See date.month.jan." },
+  "date.month.oct": "Oct",
+  "@date.month.oct": { "description": "See date.month.jan." },
+  "date.month.nov": "Nov",
+  "@date.month.nov": { "description": "See date.month.jan." },
+  "date.month.dec": "Dec",
+  "@date.month.dec": { "description": "See date.month.jan." }
+}

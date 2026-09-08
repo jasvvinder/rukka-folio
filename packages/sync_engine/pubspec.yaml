@@ -1,5 +1,5 @@
 name: sync_engine
-description: "Sync engine: push/pull with seq cursors, meta/key channel, outbox (05). M4."
+description: "Sync engine: push/pull with seq cursors, meta/key channel, outbox, signed-record application, revocation cut-off (05; ADR 05b, 2026-09-06 §3). M4."
 version: 0.0.1
 publish_to: none
 resolution: workspace
@@ -8,8 +8,16 @@ environment:
   sdk: ^3.13.0
 
 dependencies:
+  core_crypto:
+    path: ../core_crypto
+  core_ledger:
+    path: ../core_ledger
+  data:
+    path: ../data
+  drift: ^2.34.4
   meta: ^1.16.0
 
 dev_dependencies:
   lints: ^6.0.0
+  sodium: ^4.1.0
   test: ^1.25.0

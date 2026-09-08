@@ -1,0 +1,14 @@
+{
+  "@@locale": "pa",
+  "nav.home.label": "ਹੋਮ",
+  "nav.ledger.label": "ਖਾਤੇ",
+  "nav.inbox.label": "ਇਨਬਾਕਸ",
+  "nav.menu.label": "ਮੀਨੂ",
+  "nav.entry.label": "ਐਂਟਰੀ ਜੋੜੋ",
+  "home.placeholder.body": "ਤੁਹਾਡੀ ਸਥਿਤੀ ਅਤੇ ਅੱਜ ਦੀਆਂ ਐਂਟਰੀਆਂ ਇੱਥੇ ਦਿਖਣਗੀਆਂ।",
+  "ledger.placeholder.body": "ਸਾਰੇ ਖਾਤੇ, ੳ ਤੋਂ ਹ, ਇੱਥੇ ਸੂਚੀ ਵਿੱਚ ਹੋਣਗੇ।",
+  "inbox.placeholder.body": "ਜੋ ਕੁਝ ਤੁਹਾਡੀ ਉਡੀਕ ਵਿੱਚ ਹੈ, ਇੱਥੇ ਦਿਖੇਗਾ।",
+  "menu.placeholder.body": "ਰਿਪੋਰਟਾਂ, ਵਹੀਆਂ, ਮੈਂਬਰ ਅਤੇ ਸੈਟਿੰਗਾਂ।",
+  "entry.placeholder.body": "ਐਂਟਰੀ ਦਾ ਕੀਪੈਡ ਇੱਥੇ ਹੋਵੇਗਾ।",
+  "app.open_failed.body": "ਇਸ ਫ਼ੋਨ ’ਤੇ ਤੁਹਾਡੇ ਵਹੀ-ਖਾਤੇ ਖੋਲ੍ਹੇ ਨਹੀਂ ਜਾ ਸਕੇ।"
+}
