@@ -32,7 +32,7 @@ The four stage-2a lanes (S server · Y sync_engine · C auth+devices client · U
 - Hardening still absent from `ci.sh`: gitleaks, OSV, the `print(` check (ADR 2026-09-05). SPKI pins landed; the rotation runbook did not.
 - Process note: both gate agents hit their 20-turn cap — the first before reporting anything. The cap is right, but a gate over a never-tested tree needs two runs (fix, then verify), so budgeting one `/gate` invocation per *run* rather than per *phase* is the cheaper shape when the tree is cold.
 
-**Commits** — `b08abc6` (docs markers). The stage-2a code commit is pending.
+**Commits** — `b08abc6` (docs markers), `f45a940` (stage-2a code: server, sync_engine, auth/devices client; 148 files, push lane green).
 
 ## 2026-09-08 — env: build harness restructured around lane tiers, durable reports and short sessions
 
