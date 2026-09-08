@@ -212,7 +212,7 @@ Deno.test("E-03-16 append-only store: rf_api holds SELECT/INSERT only on envelop
   );
 });
 
-Deno.test("E-03-16b one sequence for envelopes and signed records (ADR 05b §5)", () => {
+Deno.test("E-03-28 one sequence for envelopes and signed records (ADR 05b §5)", () => {
   const seqCols = columns.filter((c) => c.name === "seq");
   assertEquals(seqCols.map((c) => c.table).sort(), ["envelopes", "signed_records"]);
   const m = allSql.match(/seq bigint not null unique default nextval\('store_seq'\)/g) ?? [];
@@ -336,9 +336,13 @@ Deno.test("E-03-20 claims are SET LOCAL and read from our settings; platform rol
   );
   assert(revokes, "platform roles revoked");
   assertStringIncludes(allSql, "revoke execute on function rf.bump_store_epoch(text) from rf_api");
-  assert(
-    grants.some((g) => !g.is_grant && g.tables.includes("rf.purge_ephemeral_auth")) ||
-      /revoke all on function rf\.purge_ephemeral_auth\(\) from public/.test(allSql),
+  // `revoke ... from public` is NOT enough: `grant execute on all functions in schema rf to rf_api`
+  // hands the function to rf_api afterwards, and a PUBLIC revoke does not take it back from a role
+  // holding an explicit grant. Both maintenance-only functions need the rf_api revoke by name —
+  // asserting only the PUBLIC revoke is what let the live suite's E-03-26 catch this instead.
+  assertStringIncludes(
+    allSql,
+    "revoke execute on function rf.purge_ephemeral_auth() from rf_api",
   );
   assertEquals(
     grantsOn("push_rate", "rf_api").length,

@@ -295,6 +295,10 @@ revoke all on all functions in schema rf from public;
 grant execute on all functions in schema rf to rf_api;
 revoke execute on function rf.bump_store_epoch(text) from rf_api;
 grant execute on function rf.bump_store_epoch(text) to rf_maintenance;
+-- purge_ephemeral_auth is SECURITY DEFINER and deletes otp_challenges, activation_tickets,
+-- auth_nonces, refresh_tokens and revoked wrapped_keys: maintenance only, never the API role
+-- (E-03-26). The blanket `grant execute on all functions` above would otherwise hand it to rf_api.
+revoke execute on function rf.purge_ephemeral_auth() from rf_api;
 grant execute on function rf.purge_ephemeral_auth() to rf_maintenance;
 grant execute on function rf.user_id(), rf.device_id(), rf.set_claims(uuid, uuid) to rf_maintenance;
 grant usage on sequence store_seq to rf_api;
