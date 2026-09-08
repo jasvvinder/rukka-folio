@@ -3,7 +3,7 @@
 **Status:** Draft 1 for build. 🔒 = locked. ⚠️ = decide before the affected milestone.
 **Companions:** 02 (ordering rules & quarantine), 03 (envelope store, projections, cursors), 04 (what the server may see), 06 (sessions, min-version).
 
-**Guarantees 🔒:** delivery is **at-least-once**; envelopes are idempotent by `envelope_id`; therefore application is effectively exactly-once. The server orders *receipt* (`seq`); clients order *meaning* (HLC). The server never validates content — it checks membership, shape, size, and HLC sanity only. Convergence claim: any two clients holding the same envelope set and keys produce byte-identical projections (03 §3.3).
+**Guarantees 🔒:** delivery is **at-least-once**; envelopes are idempotent by `envelope_id`; therefore application is effectively exactly-once. The server orders *receipt* (`seq`); clients order *meaning* (HLC). The server never validates content — it checks membership, shape, size, and HLC sanity only. Convergence claim: any two clients holding the same envelope set and keys produce byte-identical projections (03 §3.3). ⟦tests: D-05-1, D-05-2, D-05-7⟧
 
 ---
 
@@ -15,7 +15,7 @@
 - **Min-version gate:** any sync route may answer `426` (06 §4.5); the client stops syncing and shows the update screen. Half-synced state is safe by construction (idempotent, append-only).
 - Compression: gzip request/response. Payloads are ciphertext (incompressible); gzip earns its keep on metadata and batching overhead only — don't expect ratio miracles.
 
-## 2. HLC discipline 🔒
+## 2. HLC discipline 🔒 ⟦tests: D-05-3, A-02-90⟧
 
 - On every local event: `hlc = max(wall_ms, last_hlc.physical) , counter++ if equal`. Tiebreak `device_id` (03 §1).
 - **Server sanity check (plaintext, allowed):** reject any envelope whose HLC physical part exceeds `server_now + 5 min` → `hlc_future`. The client re-stamps (new envelope_id, same object) and marks its clock skewed. This exists so a wrong-clock phone cannot stamp entries "after" a period lock it has already seen (02 §8 depends on honest-ish HLCs; readers still quarantine independently).
@@ -79,17 +79,17 @@ Separate channel from envelopes, `GET /sync/meta?after=cursor` (cursor = `update
 - Revocations: own-device revoked (**signed record verified**) → local wipe; push notification and auth failure only *prompt* the meta pull that fetches the record. Membership removed (signed) → drop that book's keys and projections, keep nothing but the row saying it existed.
 - Key-rotation notices (04 §5.3): client learns `BK(v+1)` exists; new outbox envelopes must use the highest version — a client still writing `v` after the 48 h grace gets reader-side quarantine, so the client hard-checks version on every save. **Envelopes already queued under `v` are not lost:** because this channel drains before the outbox does (§3 ordering rule), they are re-sealed under the highest version and pushed unchanged in every other respect.
 
-## 6. Attachments 🔒
+## 6. Attachments 🔒 ⟦tests: E-05b-8⟧
 
 1. Entry saves instantly; `attachment_meta` envelope carries the file hash + wrapped file key; the ciphertext file (and its pre-generated ciphertext thumbnail) upload afterward via signed URLs, resumable, Wi-Fi-preferred setting ⚠️ default on/off.
 2. States on the entry detail: `uploading / uploaded / waiting for Wi-Fi / failed (retry)`. Never blocks the ledger.
 3. Download lazily: thumbnails prefetched per current scope; full images on tap; LRU cache cap ⚠️ size.
 
-## 7. Triggers & cadence 🔒
+## 7. Triggers & cadence 🔒 ⟦tests: D-05-9, D-05-10⟧
 
 Content-free FCM (*"book X has news"*) → pull that book; foreground pull on app open and scope switch; backstop poll every 6 h on unmetered networks. FCM is a hint, never a dependency — correctness comes from cursors alone.
 
-## 8. Bootstrap (fresh install / post-recovery) 🔒
+## 8. Bootstrap (fresh install / post-recovery) 🔒 ⟦tests: D-05-11⟧
 
 Also the path for **local corruption** (ADR 2026-09-05c §6): a book whose mirror fails `blob_hash` on open is re-bootstrapped here, with the determinate loader; verify `blob_hash` on every pulled envelope before storing.
 

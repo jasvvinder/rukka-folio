@@ -7,7 +7,7 @@ attacker. Its gaps cluster in one place — **the ceremony defeats a hostile ser
 flows still let a hostile human, or two, act faster than the real owner can notice.** Most fixes
 are a waiting period and a notification. Owner confirmed 5 Sep 2026 ("do whatever is best").
 
-## Rulings 🔒
+## Rulings 🔒 ⟦tests: n/a — container heading; each ruling below carries its own marker⟧
 
 ### 1. Recovery waits when the owner still has a working device ⟦tests: C-05d-10, F1-06-11, F1-06-14⟧
 Guardian recovery (04 §7.3) and guardian-approved phone-number change (06 §9.4) complete

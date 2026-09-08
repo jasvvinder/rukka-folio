@@ -6,7 +6,7 @@ children 13's screen table listed but the drawn Menu (S8) lacked:
 > Close the Month could be listed in menu, but Import a bank statement is the part of
 > entry, so it should be manage accordingly.
 
-## The rulings 🔒
+## The rulings 🔒 ⟦tests: n/a — container heading; each ruling below carries its own marker⟧
 
 1. **Close the month is a Menu row** — in *The books* group, directly after Reports, with a
    live subtitle (e.g. *August open · 3 items waiting*). It opens the month-close wizard

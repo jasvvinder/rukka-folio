@@ -43,7 +43,7 @@ Each new chat starts blank, so drift between sessions is the main risk. Two habi
 
 **Keep one running note** of anything you approved that isn't in this pack — a spacing choice, a new label, an interaction. That note is what comes back into `docs/07-ui-flows.md` and `docs/01-glossary.md` at the end. If it contradicts a 🔒 decision, it belongs in `docs/decisions/` as an ADR.
 
-## How to lay out the canvas 🔒
+## How to lay out the canvas 🔒 ⟦tests: n/a — canvas layout instruction for the design tool, not app behaviour⟧
 
 **Group by flow, not by screen.** Put every screen of one flow on a **single canvas or page**, arranged left to right in the order the user meets them, with arrows between and a short label on each arrow describing the action that moves them forward ("taps Save", "code matches", "2 of 3 approved"). A reviewer should be able to read the whole journey without opening anything.
 
@@ -164,7 +164,7 @@ Design the home screen, top to bottom: top bar with a scope chip (pill, book nam
 2. **Choosing** — the counterpart slot is highlighted and the **account list has replaced the keypad in the same space**: a search field, then plain rows of icon + account name, then "+ Create a new A/C". Not a sheet sliding over, not a new screen — the amount and chips above remain visible.
 3. **Chosen** — the keypad returns, the preview line completes, Save turns solid.
 
-🔒 **Nothing is remembered between entries** — no default account, no last-used, no repeat shortcuts anywhere. Explicit choice every time.
+🔒 **Nothing is remembered between entries** — no default account, no last-used, no repeat shortcuts anywhere. Explicit choice every time. ⟦tests: F1-07-17 @M5⟧
 
 **Slot labels change with the verb — never a fixed "FROM":**
 
@@ -218,7 +218,7 @@ The screen between the app icon and the books. Centred: the Rukka Folio mark, th
 What the app shows the instant it is backgrounded: the mark on a plain paper field, nothing else. **No balances, no account names, no last screen.** This is what appears in the iOS app switcher. Design it in light and dark.
 
 ## S15.2 — Personal Book lock
-One screen, and no number of its own 🔒 (owner-ruled 1 Sep 2026: one PIN, never a second — 06 §4.4). The opt-in extra lock **re-prompts the same 6-digit MPIN or Face ID** before the personal book opens: the book's name, six boxes, the Face ID button, and one plain line — "An extra step before your own book opens, in case someone else uses this phone. Same PIN as the app." There is no set/confirm flow: turning the toggle on (S11 · Devices & security) is the whole setup.
+One screen, and no number of its own 🔒 (owner-ruled 1 Sep 2026: one PIN, never a second — 06 §4.4). The opt-in extra lock **re-prompts the same 6-digit MPIN or Face ID** before the personal book opens: the book's name, six boxes, the Face ID button, and one plain line — "An extra step before your own book opens, in case someone else uses this phone. Same PIN as the app." There is no set/confirm flow: turning the toggle on (S11 · Devices & security) is the whole setup. ⟦tests: C-05d-1, C-05d-2, C-05d-3, C-05d-4, C-05d-5⟧
 
 ## S6 — Inbox
 Design a single tray screen: title "Inbox", "3 waiting" beneath, then a vertical stack of **P3** cards of different kinds — entries to review, bank lines to classify, an invitation awaiting verification. Each card's primary button differs ("Approve all 7", "Classify 12 lines", "Verify Ramesh").
@@ -333,15 +333,15 @@ Each variant must show the identity chip reading the user's name and their role 
 
 **R2.4 · Use your recovery sheet (S11.3).** Camera view for scanning the QR from the printed sheet, with a small illustration reminding them what the sheet looks like, and beneath it **Type the code instead** opening a grouped character field. Design the **failure** state: "That code didn't work" with the two likely causes stated plainly — a newer sheet was printed, or the code was mistyped — never a blank error.
 
-**R2.5 · Nothing worked yet.** 🔒 **Build the whole screen around the word *yet*** — three bordered rows in green / amber / grey: family books restorable now (carrying the button), the private book *"still sealed on our server, exactly as you left it"* with the two keys that will open it *"today, next week, or next year"*, and the readable copy as a way to restart from closing balances. No "destroyed", no "contact support", no retry. Reached only when every rung has failed. Honest but not falsely final — the entries still exist on the server, sealed. Heading: **"We can't open your private book on this phone yet."** Then three plain rows:
+**R2.5 · Nothing worked yet.** 🔒 **Build the whole screen around the word *yet*** — three bordered rows in green / amber / grey: family books restorable now (carrying the button), the private book *"still sealed on our server, exactly as you left it"* with the two keys that will open it *"today, next week, or next year"*, and the readable copy as a way to restart from closing balances. No "destroyed", no "contact support", no retry. Reached only when every rung has failed. Honest but not falsely final — the entries still exist on the server, sealed. Heading: **"We can't open your private book on this phone yet."** Then three plain rows: ⟦tests: F1-07-38 @M5⟧
 - **Your family and business books** — restorable now, once the family verifies you again on this phone. Primary action.
 - **Your private book** — still sealed. Two things would open it: signing in to the Apple account that held your key, or finding your recovery sheet. State both as things that will *still work later*, not as lost causes.
 - **A readable copy**, if they kept one — "your books are in that file, and you can start fresh books from those closing balances."
 
-One primary button: **Continue and set up this phone**. 🔒 Do **not** write that the data is destroyed — it is not — and do not soften into "contact support", which cannot help. No retry loop.
+One primary button: **Continue and set up this phone**. 🔒 Do **not** write that the data is destroyed — it is not — and do not soften into "contact support", which cannot help. No retry loop. ⟦tests: F1-07-38 @M5⟧
 
 ## R4 · Backup settings (S11.4) *(the same controls as onboarding O5, revisited later)*
-🔒 **Repeat O5's wording and ordering verbatim** — add only the per-row status: *on* · *last saved 12 Apr* · an amber **never saved** badge on the readable copy, which is the one row whose state actually matters.
+🔒 **Repeat O5's wording and ordering verbatim** — add only the per-row status: *on* · *last saved 12 Apr* · an amber **never saved** badge on the readable copy, which is the one row whose state actually matters. ⟦tests: F1-07-38 @M5⟧
 Design this **after O5** and keep the wording and ordering identical — a user changing a setting must recognise the screen that set it up. A settings section titled **Backup**, three rows, each carrying its trade-off in one muted line beneath it — never buried in a help article:
 1. **Keep my key in iCloud Keychain** — toggle, **on by default**, sub-line "Lets a new iPhone open your books automatically. Apple cannot read it."
 2. **Save my recovery sheet** — a row opening the system share sheet (Files, iCloud Drive, Google Drive, Print). Sub-line in **warning amber**: "Anyone who opens this file can open your books."
@@ -505,13 +505,13 @@ Each entity pack must be delivered in **light and dark**, in **all three languag
 
 **S17.1 / S17.2 · FAQ list and article.** Grouped by task, not by feature: *Getting started · Entering money · Bank statements · Family and sharing · Closing the month · If you lose your phone · Plans and payment*. Articles are one screen, plain sentences, no walls of text.
 
-**S17.3 · Contact support.** WhatsApp as the primary action, because these users will never email. 🔒 **State plainly what support cannot do** — "We cannot see your entries or recover your keys, so we cannot restore your books. For that, use your trusted members or your recovery sheet." That sentence prevents the most painful support conversation this product can have.
+**S17.3 · Contact support.** WhatsApp as the primary action, because these users will never email. 🔒 **State plainly what support cannot do** — "We cannot see your entries or recover your keys, so we cannot restore your books. For that, use your trusted members or your recovery sheet." That sentence prevents the most painful support conversation this product can have. ⟦tests: F1-07-33 @M14⟧
 
 **S17.4 · Send diagnostics.** User-triggered only. **Show exactly what will be sent** in a scrollable box — app version, device, sync errors, with all financial values scrubbed — before the Send button. Never automatic.
 
 **S18.1 / S18.2 · Terms and Privacy.** Readable web views with a summary card at the top; ordinary legal screens.
 
-**S18.3 · What we can and cannot see.** 🔒 **A trust asset, not boilerplate.** Two columns: *what we can see* (your phone number, your plan, when your app syncs) and *what we cannot* (every amount, every account name, every note, every photo — and why the maths prevents it). Reachable from Legal, from onboarding's backup screen, and worth linking from the marketing site. Almost no competitor can publish this page truthfully.
+**S18.3 · What we can and cannot see.** 🔒 **A trust asset, not boilerplate.** Two columns: *what we can see* (your phone number, your plan, when your app syncs) and *what we cannot* (every amount, every account name, every note, every photo — and why the maths prevents it). Reachable from Legal, from onboarding's backup screen, and worth linking from the marketing site. Almost no competitor can publish this page truthfully. ⟦tests: F1-07-34 @M14⟧
 
 **S18.4 · Open-source licences.** A standard list.
 
@@ -534,7 +534,7 @@ Each entity pack must be delivered in **light and dark**, in **all three languag
 
 **S1.1 · Position line drill-down.** Tapping any Home position row (You will get, You will give, Advance out, In transit) opens a P1 list filtered to it, with the row's total as the header and ageing chips where relevant. Design the *You will give* case.
 
-**S2.2 · Date picker.** A compact calendar sheet over the entry screen — today preselected, **future dates disabled** with the tooltip "Use a recurring entry for future dates", and **locked dates greyed with a 🔒**; tapping a locked date opens the explanation and offers *Fix an old entry* rather than an error.
+**S2.2 · Date picker.** A compact calendar sheet over the entry screen — today preselected, **future dates disabled** with the tooltip "Use a recurring entry for future dates", and **locked dates greyed with a 🔒**; tapping a locked date opens the explanation and offers *Fix an old entry* rather than an error. ⟦tests: F1-07-17 @M5⟧
 
 **S2.3 · Transfer.** From-block and To-block, each a book selector plus a money-account chip row, amount, note. Design both: **within one book** (cash → bank; no book selectors shown) and **between books**, where a plain confirmation line reads "Agriculture Business will show ₹50,000 going out. Sharma Joint Family will show ₹50,000 coming in." Plus the **in transit** state on the resulting rows.
 

@@ -9,7 +9,7 @@ staff power in one (tenant freeze, which 06 §8 does not grant). Its structural 
 privileged paths 05c created, and no rate limits on staff lookups. Owner confirmed 5 Sep 2026
 ("accept all recommendations").
 
-## Rulings 🔒
+## Rulings 🔒 ⟦tests: n/a — container heading; each ruling below carries its own marker⟧
 
 ### 1. Tenant freeze exists — narrowly, and it belongs to 06 §8
 **Grounds, exhaustive:** payment fraud · legal order · abuse (flood or harassment of members).

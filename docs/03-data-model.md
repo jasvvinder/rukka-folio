@@ -3,7 +3,7 @@
 **Status:** Draft 1 for build. 🔒 = locked. ⚠️ = decide before the affected milestone.
 **Companions:** 02 (domain objects & invariants), 04 (envelope format & keys), 05 (sync — cursors defined here, protocol there), 06 (identity & membership states).
 
-**The one architectural sentence 🔒:** *Envelopes are the truth; everything else is a projection.* The server stores envelopes it cannot read plus the minimum plaintext needed to route, authorize, and bill. The client decrypts envelopes into relational tables purely for querying — those tables can be dropped and rebuilt from envelopes at any time, and "Recompute" does exactly that.
+**The one architectural sentence 🔒:** *Envelopes are the truth; everything else is a projection.* The server stores envelopes it cannot read plus the minimum plaintext needed to route, authorize, and bill. The client decrypts envelopes into relational tables purely for querying — those tables can be dropped and rebuilt from envelopes at any time, and "Recompute" does exactly that. ⟦tests: E-03-1, E-03-2, F1-02-1, F1-02-2, F1-03-6⟧
 
 ---
 
@@ -19,7 +19,7 @@
 
 ## 2. Server schema (Postgres)
 
-### 2.1 Identity & tenancy (plaintext) 🔒
+### 2.1 Identity & tenancy (plaintext) 🔒 ⟦tests: E-03-17, E-03-21, E-03-23, E-03-22⟧
 
 ```sql
 users(id uuid pk, trial_consumed_at timestamptz null,   -- trial once per user (ADR 2026-09-05g §12)
@@ -47,7 +47,7 @@ book_roles(book_id, user_id, role text check (role in
         auto_post_limit_paise bigint, primary key (book_id, user_id))
 ```
 
-### 2.2 Devices, keys, ceremonies (plaintext rows, opaque blobs) 🔒
+### 2.2 Devices, keys, ceremonies (plaintext rows, opaque blobs) 🔒 ⟦tests: E-03-18, E-03-24, E-03-27⟧
 
 ```sql
 devices(id uuid pk, user_id fk, pub_ed bytea, pub_x bytea, model, os,
@@ -92,13 +92,13 @@ create index on envelopes (tenant_id);
 -- append-only: no UPDATE or DELETE grants to the API role, ever.
 ```
 
-**Shape checks — the complete list 🔒 (ADR 2026-09-05c §5):** `author_device == jwt.device_id` · `tenant_id == books.tenant_id` · `blob_hash` and `size` recompute · `suite_version`/`payload_schema` in registry · `key_version` ≤ highest issued · HLC sanity (05 §2) · caps/quotas (05 §3). Failure → `rejected:shape` naming the check. **Hash mismatch on read is corruption, not tampering:** re-fetch, count it, no security event; only an intact blob with a failing signature is quarantined (04 §8.3). ⟦tests: E-05-1, E-05-1b⟧
+**Shape checks — the complete list 🔒 (ADR 2026-09-05c §5):** `author_device == jwt.device_id` · `tenant_id == books.tenant_id` · `blob_hash` and `size` recompute · `suite_version`/`payload_schema` in registry · `key_version` ≤ highest issued · HLC sanity (05 §2) · caps/quotas (05 §3). Failure → `rejected:shape` naming the check. **Hash mismatch on read is corruption, not tampering:** re-fetch, count it, no security event; only an intact blob with a failing signature is quarantined (04 §8.3). ⟦tests: E-05-1, E-05-13⟧
 
 **`object_type` registry 🔒:** `book_config · account · entry · approval_decision · period_lock · year_close · import_batch · import_line · rule · attachment_meta · cash_count · period_unlock · structural_approval · business_setting` (+ reserved range; the last three added by ADR 2026-09-05e §11 — `period_lock`/`period_unlock` are all-time objects in the bootstrap hot set, 05 §8). Everything in 02 and 07 maps into these; nothing financial exists outside them. ⟦tests: E-03-21, E-05-1⟧
 
 `attachments(id, book_id, storage_key, size, created_at)` — ciphertext files in object storage; their per-file keys ride inside `attachment_meta` envelopes (04 §3).
 
-### 2.4 Billing, audit, ops 🔒
+### 2.4 Billing, audit, ops 🔒 ⟦tests: E-03-21, E-05-12⟧
 
 ```sql
 subscriptions(tenant_id pk, plan, status, gateway, gateway_ref, current_period_end,
@@ -206,7 +206,7 @@ Key indexes: `entry_lines_p(account_id, accounting_date)` (A/C statement, runnin
 
 ---
 
-## 4. Plaintext ⇄ ciphertext boundary (single reference table) 🔒
+## 4. Plaintext ⇄ ciphertext boundary (single reference table) 🔒 ⟦tests: E-03-27, B-05b-8⟧
 
 | Plaintext (server can see) | Ciphertext (server never sees) |
 |---|---|
@@ -228,8 +228,8 @@ Key indexes: `entry_lines_p(account_id, accounting_date)` (A/C statement, runnin
 - **Projector evolution (ADR 2026-09-05c §3):** a change that can alter any result bumps `projectorVersion` **and** min_client_version together and forces a full Recompute on first launch after upgrade; the golden replay (09 A) is the proof of which kind a change is.
 - **Local corruption (ADR 2026-09-05c §6):** SQLCipher `quick_check` on every open; projections corrupt → drop + Recompute; envelope mirror corrupt → re-bootstrap the book (05 §8); `books_p.integrity_ok` gates the Home card so a book is never shown whole while any envelope is missing or unverified.
 
-## 6. Retention 🔒
-**Residency & durability 🔒 (ADR 2026-09-05c §1):** Postgres, object storage, backups and logs all in **India** (Mumbai region or equivalent; no Indian region = disqualified provider); backups never leave it. PITR on (⚠️ 7 d), daily encrypted snapshots 35 d, monthly 12 mo; backup access is a privileged audited path, never the API role; **quarterly restore drill** against written RTO/RPO (⚠️ ≤ 4 h / ≤ 5 min); **every restore bumps `store_epoch`** (05 §1). Platform backups of the client database are excluded (iOS attribute; Android `allowBackup=false`). Object storage: private bucket, per-tenant prefix, object written before row, nightly orphan sweep.
+## 6. Retention 🔒 ⟦tests: E-05c-8⟧
+**Residency & durability 🔒 (ADR 2026-09-05c §1):** Postgres, object storage, backups and logs all in **India** (Mumbai region or equivalent; no Indian region = disqualified provider); backups never leave it. PITR on (⚠️ 7 d), daily encrypted snapshots 35 d, monthly 12 mo; backup access is a privileged audited path, never the API role; **quarterly restore drill** against written RTO/RPO (⚠️ ≤ 4 h / ≤ 5 min); **every restore bumps `store_epoch`** (05 §1). Platform backups of the client database are excluded (iOS attribute; Android `allowBackup=false`). Object storage: private bucket, per-tenant prefix, object written before row, nightly orphan sweep. ⟦tests: REL-05c-1 @M14⟧
 
 Ephemeral auth rows TTL-purged (24 h). `audit_events` 24 months then aggregated; `verification_events` permanent. **The staff audit log (12 §3) is a separate store retained ≥ 3 years and is outside this aggregation — the purge job never touches it (ADR 2026-09-05h §6).** **Long-lapsed tenants (ADR 2026-09-05g §5):** 24 months with no login → three notices over 90 days → envelopes to cold storage, still pullable on next login; never deleted. Revoked wrapped keys kept 90 days then purged. Envelopes: forever (they are the books), with closed-FY partitions eligible for cold storage behind the same API (02 §8.1). Deleted users per §2.5 — profile erased, keys and personal-book envelopes purged, **device certs and UMK public keys retained indefinitely** as verification material for entries they authored in shared books. ⚠️ confirm final DPDP retention wording.
 

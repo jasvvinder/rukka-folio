@@ -6,7 +6,7 @@ it we adopt. About two thirds was already decided in 04 / 05 / 06 / 07 / 13 or i
 principle contradicts the architecture and is **rejected**; the rest are gaps this ADR closes.
 Owner confirmed 5 Sep 2026 ("add the gaps … do whatever we can do the best").
 
-## Rejected 🔒 — the server is not the financial authority
+## Rejected 🔒 — the server is not the financial authority ⟦tests: n/a — records an option rejected; the accepted rule is marked where it is stated⟧
 
 The blueprint's first mandate — *treat the client as a presentation layer; all financial
 calculations, authorisation checks and state transitions are validated server-side* — is the
@@ -35,7 +35,7 @@ field designed now, enforced v2 (06 §3.2); no client secret exists to hardcode 
 key is public by design and gated by RLS (06 §1.1); PCI scope avoided because the gateway holds
 every instrument (08 §4); privacy law is **DPDP**, not GDPR (06 §9.3).
 
-## Rulings 🔒
+## Rulings 🔒 ⟦tests: n/a — container heading; each ruling below carries its own marker⟧
 
 1. **Public-key pinning (SPKI), key not certificate.** The client pins the SPKI hashes of the API
    host's certificate chain — **two pins minimum** (current + backup) so a rotation is never an
@@ -51,7 +51,7 @@ every instrument (08 §4); privacy law is **DPDP**, not GDPR (06 §9.3).
    release lane of `ci.sh`; the symbol files are kept as **CI artefacts only**, never shipped, so
    crash reports can be symbolised without exposing symbols. Gate: decompile the release build at
    M14 and confirm Dart symbols are unreadable (09 §4).
-4. **Screenshots and screen recording are blocked 🔒 (owner-ruled 5 Sep 2026).** Android:
+4. **Screenshots and screen recording are blocked 🔒 (owner-ruled 5 Sep 2026).** Android: ⟦tests: F2-07-1 @M12⟧
    `FLAG_SECURE` on the whole app. iOS has no equivalent API, so the privacy cover (07 §5.6) stays
    and the app additionally listens for screen capture / recording and covers amounts while it is
    active. **Rationale:** the product already gives every legitimate reason to capture a screen a
@@ -60,7 +60,7 @@ every instrument (08 §4); privacy law is **DPDP**, not GDPR (06 §9.3).
    to Google Photos is exactly the leak 04 §1.1 exists to stop. The blocked-screenshot toast (Android
    shows the OS's own) needs no copy of ours.
 5. **Tap-jacking.** `android:filterTouchesWhenObscured="true"` on the main activity. One line, M0.
-6. **Root / jailbreak / debugger / instrumentation: detect, warn, log — never block 🔒.** The app
+6. **Root / jailbreak / debugger / instrumentation: detect, warn, log — never block 🔒.** The app ⟦tests: F2-07-2 @M12⟧
    checks on launch and on foreground (su binaries, Magisk/Cydia markers, ptrace/debugger attached
    to a release build, known instrumentation agents). On detection it shows **one plain-language
    notice** — *"This phone has been modified. Your books are still encrypted, but anyone who

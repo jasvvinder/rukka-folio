@@ -4,7 +4,7 @@ Follow-on to ADR 2026-09-03c. The designer delivered `docs/brand/rukka-folio-mot
 (Loading & Splash Guidelines, v1.2 §motion — a self-contained reference implementation). The owner
 added it and said "update"; this ADR records it as the ruling on the two items 03c left open.
 
-## Rulings 🔒
+## Rulings 🔒 ⟦tests: n/a — container heading; each ruling below carries its own marker⟧
 
 1. **No spinner, anywhere.** The mark never loads (its seal-break is earned by a real unlock).
    The loader is a **rule**: a 2px hairline track (ink @14%) carrying an ink segment (30% of
@@ -23,7 +23,7 @@ added it and said "update"; this ADR records it as the ruling on the two items 0
    books."** and leaves before any seal-break. Never an artificial delay to finish the animation.
 4. **Dark mode** inverts the loader and skeletons exactly (track paper @16%, segment paper).
 
-## Dark credit/debit — ruled 4 Sep 2026 🔒
+## Dark credit/debit — ruled 4 Sep 2026 🔒 ⟦tests: F1-13-8, F1-11-9⟧
 
 The reference page lifts dark credit/debit to `#4FA37A` / `#C96A6A`; `tokens.json` (Phase 0
 drop) had `#57A87F` / `#D4776F`. **Owner picked the motion-page values,** then accepted a one-step lift of debit to

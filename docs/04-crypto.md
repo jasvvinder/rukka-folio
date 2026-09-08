@@ -153,7 +153,7 @@ BK wrapped only to the owner's UMK (+ optional escrow §7.5). No admin path exis
 - **QR path:** verifier's device compares scanned public keys **byte-for-byte** against the server-relayed keys for that user. Equal → verified. Unequal → hard-fail red screen: *"Do not proceed. Contact support."* Log a `verification_mismatch` security event. There is no override.
 - **Code path:** verifier's device computes the expected code from the *server-relayed* keys + nonce and compares to the typed digits. 3 attempts per nonce; nonce lifetime 10 minutes; *Regenerate* issues a fresh nonce. Rate limits make 8 digits sufficient.
 
-### 6.4 Modes & policy 🔒
+### 6.4 Modes & policy 🔒 ⟦tests: B-04-40, B-04-41⟧
 - **Default: QR, in person.**
 - **Remote:** admin toggles *Verify remotely* per invite → verifier scans the QR off a **video call**, or the code is read aloud on a **voice call** and typed. Direction is irrelevant (the code originates on the invitee's device; either side may read it) — the UI never mentions direction.
 - **Channel rule:** the code must travel over a channel where the verifier recognizes the *person* (voice/video/in person). Therefore **no share/copy button** on the code — the remote screen says *"Call them and ask them to read the code aloud."* SMS/WhatsApp-text delivery would hand the code to precisely the attacker this ceremony exists to stop.
@@ -192,7 +192,7 @@ Standard device linking (§9.1).
 - Recovery: scan/type RK → fetch blob → decrypt UMK → same completion as §7.3 step 6.
 - Mandatory for solo users (no guardians possible); strongly nudged for everyone.
 
-### 7.0 Rung 0 — platform key sync 🔒 (owner-directed, 31 Aug 2026; tried before every other rung)
+### 7.0 Rung 0 — platform key sync 🔒 (owner-directed, 31 Aug 2026; tried before every other rung) ⟦tests: B-04-52, C-06-2, C-06-3, C-06-1, C-06-4, C-06-5, C-06-6⟧
 **iOS: iCloud Keychain. Android: Block Store.** Both are end-to-end encrypted by the platform — Apple and Google cannot read them — so storing the wrapped UMK there does **not** weaken zero-knowledge; it adds a second device-class custodian the vendor still cannot open.
 
 - Default **on**, with a plain explanation at signup and a switch in Devices & security.

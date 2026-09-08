@@ -4,28 +4,28 @@
 
 ---
 
-## 1. Language rules 🔒
+## 1. Language rules 🔒 ⟦tests: F1-10-2, F1-10-3, F1-10-4, F1-10-5, F1-10-6, F1-10-7, F1-10-8, F1-10-16⟧
 
 1. **Three launch languages:** English (default), ਪੰਜਾਬੀ, हिन्दी. Language is a per-member setting.
 2. **Register:** always respectful (ਤੁਸੀਂ / आप forms). Warm, plain, no officialese.
-3. **Never translate English function words literally 🔒 (owner-directed, 31 Aug 2026).** Words like *out, open, pending, due* are English state-adjectives; rendered word-for-word they land in the wrong sense — *open* became ਖੁੱਲ੍ਹੀ / खुली, which means *opened, like a door*. **State the fact instead**, using the postposition the language actually uses. Related: **labels never use gendered participles** (ਦਿੱਤੀ / दी), because they must agree with a noun that may vary; a bare noun is always the safer label.
-4. **Professional terms are used, not hidden 🔒 (revised):** Dr./Cr. — **ਨਾਮੇ / ਜਮ੍ਹਾਂ**, **नामे / जमा** — plus balance, opening/closing balance, capital, debtors/creditors appear wherever a professional expects them: A/C statements, ledgers, reports, exports. **The entry screen stays verb-based** — the user never chooses Dr/Cr; the app derives the posting and then displays it professionally. Still forbidden in UI: journal, voucher, contra, accrual, folio, narration. **Carve-out 🔒:** *folio* is forbidden **as a common noun only**. The product name **Rukka Folio** is exempt wherever it appears as the name — splash, About, store listings, invoices, export footers — and the `check_strings.dart` jargon rule must whitelist the app-name keys (`app.name`, `app.name.short`, `about.*`) rather than flagging them. Never write "the folio" to mean a ledger page. **Second carve-out 🔒 (2 Sep 2026, ADR):** a bank file's own column headers (*Narration*, *Chq/Ref*, …) quoted back on the import mapping screen (S7.0b) are **data, not UI labels** — the user must match them against the statement they are holding, rule 8's looking-for-it test. The app's own labels still never use these words.
+3. **Never translate English function words literally 🔒 (owner-directed, 31 Aug 2026).** Words like *out, open, pending, due* are English state-adjectives; rendered word-for-word they land in the wrong sense — *open* became ਖੁੱਲ੍ਹੀ / खुली, which means *opened, like a door*. **State the fact instead**, using the postposition the language actually uses. Related: **labels never use gendered participles** (ਦਿੱਤੀ / दी), because they must agree with a noun that may vary; a bare noun is always the safer label. ⟦tests: F3-01-2 @M12⟧
+4. **Professional terms are used, not hidden 🔒 (revised):** Dr./Cr. — **ਨਾਮੇ / ਜਮ੍ਹਾਂ**, **नामे / जमा** — plus balance, opening/closing balance, capital, debtors/creditors appear wherever a professional expects them: A/C statements, ledgers, reports, exports. **The entry screen stays verb-based** — the user never chooses Dr/Cr; the app derives the posting and then displays it professionally. Still forbidden in UI: journal, voucher, contra, accrual, folio, narration. **Carve-out 🔒:** *folio* is forbidden **as a common noun only**. The product name **Rukka Folio** is exempt wherever it appears as the name — splash, About, store listings, invoices, export footers — and the `check_strings.dart` jargon rule must whitelist the app-name keys (`app.name`, `app.name.short`, `about.*`) rather than flagging them. Never write "the folio" to mean a ledger page. **Second carve-out 🔒 (2 Sep 2026, ADR):** a bank file's own column headers (*Narration*, *Chq/Ref*, …) quoted back on the import mapping screen (S7.0b) are **data, not UI labels** — the user must match them against the statement they are holding, rule 8's looking-for-it test. The app's own labels still never use these words. ⟦tests: F3-01-1 @M12⟧
 4. **Loanwords are fine** where they're what people say: ਬੈਂਕ/बैंक, ਐਂਟਰੀ/एंट्री, ਕੋਡ/कोड, ਰਿਕਵਰੀ/रिकवरी, ਟ੍ਰਾਂਸਫਰ/ट्रांसफ़र.
 5. **Digits:** Latin digits, Indian grouping (₹12,34,567) in all languages. Gurmukhi/Devanagari digits are not used.
-6. **Dates:** English `DD Aug YYYY` (abbreviated months); ਪੰਜਾਬੀ/हिन्दी use **full month names** (`02 ਅਗਸਤ 2026`, `02 अगस्त 2026`) — these scripts don't abbreviate months naturally 🔒 (owner). Today/Yesterday = ਅੱਜ/ਕੱਲ੍ਹ, आज/कल.
+6. **Dates:** English `DD Aug YYYY` (abbreviated months); ਪੰਜਾਬੀ/हिन्दी use **full month names** (`02 ਅਗਸਤ 2026`, `02 अगस्त 2026`) — these scripts don't abbreviate months naturally 🔒 (owner). Today/Yesterday = ਅੱਜ/ਕੱਲ੍ਹ, आज/कल. ⟦tests: F1-11-10, F1-11-11, F1-11-12, F1-11-13⟧
 7. **No string concatenation** — ICU MessageFormat, named placeholders, plural rules per language.
-8. **Platform nouns split into two classes 🔒 (owner-revised, 1 Sep 2026).**
+8. **Platform nouns split into two classes 🔒 (owner-revised, 1 Sep 2026).** ⟦tests: F3-01-3 @M12⟧
    - **Latin script, untranslated — names the user must *match against their own screen*:** *iCloud Keychain · iCloud Drive · Files · Google Drive · App Store · Apple · **UPI*** (owner: stays Latin — it appears that way on every bank screen and in every SMS). Someone hunting for a setting must see the same words their phone shows; transliterating sends them looking for something that does not exist.
    - **Transliterated — words used *inside a sentence*:** *Face ID* → **ਫੇਸ ਆਈਡੀ / फेस आईडी** · *PIN* → **ਪਿੰਨ / पिन** · "Face ID ਵਰਤੋ" mixes scripts mid-sentence and reads badly; "ਫੇਸ ਆਈਡੀ ਦੀ ਵਰਤੋਂ ਕਰੋ" reads as Punjabi.
    - The test: **is the user looking for it, or doing it?** Looking for it stays Latin; doing it gets transliterated.
-9. **User-typed content carries its own language tag 🔒** — account names, notes and party names may be in any script regardless of the UI language, so each is stored and rendered with a `lang` marker (`pa`/`hi`/`en`) for correct screen-reader pronunciation and font selection (design-system §3.1 rule 1).
+9. **User-typed content carries its own language tag 🔒** — account names, notes and party names may be in any script regardless of the UI language, so each is stored and rendered with a `lang` marker (`pa`/`hi`/`en`) for correct screen-reader pronunciation and font selection (design-system §3.1 rule 1). ⟦tests: F3-01-4 @M12⟧
 9. Strings live in ARB files (`app_en.arb`, `app_pa.arb`, `app_hi.arb`); keys are `screen.element.state`; **CI fails if any key is missing in any language.**
-9. **Statement layout rule 🔒:** A/C statements and ledger exports use the traditional three columns — **ਨਾਮੇ | ਜਮ੍ਹਾਂ | ਬਾਕੀ** / **नामे | जमा | बाकी** / **Dr | Cr | Balance** — with b/d and c/d rows. Day-book lists keep the in/out arrows; the Dr/Cr detail shows on the entry view.
-10. **Amount-in-words** on receipts and exports only 🔒 — never on the entry screen, where it costs a line on a screen that must not scroll — in the user's language (…ਰੁਪਏ ਸਿਰਫ਼ / …रुपये मात्र). ⚠️ number-to-words functions need native review in both.
+9. **Statement layout rule 🔒:** A/C statements and ledger exports use the traditional three columns — **ਨਾਮੇ | ਜਮ੍ਹਾਂ | ਬਾਕੀ** / **नामे | जमा | बाकी** / **Dr | Cr | Balance** — with b/d and c/d rows. Day-book lists keep the in/out arrows; the Dr/Cr detail shows on the entry view. ⟦tests: F3-01-5 @M12, F1-11-1, F1-11-2, F1-11-3, F1-11-6, F1-11-7, F1-11-8⟧
+10. **Amount-in-words** on receipts and exports only 🔒 — never on the entry screen, where it costs a line on a screen that must not scroll — in the user's language (…ਰੁਪਏ ਸਿਰਫ਼ / …रुपये मात्र). ⚠️ number-to-words functions need native review in both. ⟦tests: F3-01-6 @M12, F1-11-4, F1-11-5⟧
 
 ---
 
-## 2. Core term table 🔒 (concept → internal → EN → ਪੰਜਾਬੀ → हिन्दी)
+## 2. Core term table 🔒 (concept → internal → EN → ਪੰਜਾਬੀ → हिन्दी) ⟦tests: F1-10-4, F1-10-5⟧
 
 ### Entry verbs (plain by design — never replaced by Dr/Cr)
 | Concept | Internal | EN | ਪੰਜਾਬੀ | हिन्दी |
@@ -100,21 +100,21 @@
 | Skip for now (any resumable setup step) | Skip for now | ਹੁਣ ਲਈ ਛੱਡੋ | अभी के लिए छोड़ें |
 | Today / Save / Undo | Today / Save / Undo | ਅੱਜ / ਸੇਵ ਕਰੋ / ਵਾਪਸ ਲਓ | आज / सेव करें / वापस लें |
 
-**ਬਕਾਇਆ for balance rows 🔒 (owner-directed, 31 Aug 2026).** The b/f and c/f rows use **ਸ਼ੁਰੂਆਤੀ ਬਕਾਇਆ / शुरुआती बकाया** and **ਅੰਤਿਮ ਬਕਾਇਆ / अंतिम बकाया** — *bakaya* is the standing-amount term a munim uses on those rows, where *baaki* reads as "the rest". **ਬਾਕੀ / बाकी** remains correct for the running Balance **column header** and for pending states (ਮਨਜ਼ੂਰੀ ਬਾਕੀ). **Fix / Adjust** is the imperative **ਠੀਕ ਕਰੋ / ठीक करें**, not the noun *sudhaar*.
+**ਬਕਾਇਆ for balance rows 🔒 (owner-directed, 31 Aug 2026).** The b/f and c/f rows use **ਸ਼ੁਰੂਆਤੀ ਬਕਾਇਆ / शुरुआती बकाया** and **ਅੰਤਿਮ ਬਕਾਇਆ / अंतिम बकाया** — *bakaya* is the standing-amount term a munim uses on those rows, where *baaki* reads as "the rest". **ਬਾਕੀ / बाकी** remains correct for the running Balance **column header** and for pending states (ਮਨਜ਼ੂਰੀ ਬਾਕੀ). **Fix / Adjust** is the imperative **ਠੀਕ ਕਰੋ / ठीक करें**, not the noun *sudhaar*. ⟦tests: F3-01-7 @M12⟧
 
-**Advance = ਐਡਵਾਂਸ / एडवांस 🔒 (owner-directed, 31 Aug 2026).** The English loanword, transliterated, is what people actually say — *"advance de diya"*, *"advance liya hai"* — and it follows rule 4 alongside ਬੈਂਕ and ਐਂਟਰੀ. The traditional **ਪੇਸ਼ਗੀ / पेशगी** is retained as a **search synonym** in the A/C picker, so an older user who knows that word still finds the account.
+**Advance = ਐਡਵਾਂਸ / एडवांस 🔒 (owner-directed, 31 Aug 2026).** The English loanword, transliterated, is what people actually say — *"advance de diya"*, *"advance liya hai"* — and it follows rule 4 alongside ਬੈਂਕ and ਐਂਟਰੀ. The traditional **ਪੇਸ਼ਗੀ / पेशगी** is retained as a **search synonym** in the A/C picker, so an older user who knows that word still finds the account. ⟦tests: F3-01-8 @M12⟧
 
-**Trial Balance = ਟ੍ਰਾਇਲ ਬੈਲੇਂਸ / ट्रायल बैलेंस 🔒 (owner-directed, 2 Sep 2026).** The transliterated English term is the label everywhere — it is what an accountant asks for by name. **ਕੱਚਾ ਚਿੱਠਾ / कच्चा चिट्ठा may follow in brackets only where space allows** (e.g. the reports-list row, not the viewer header or a chip); it also stays a **search synonym** (ਕੱਚਾ ਚਿੱਠਾ→ਟ੍ਰਾਇਲ ਬੈਲੇਂਸ) so the traditional word still finds the report.
+**Trial Balance = ਟ੍ਰਾਇਲ ਬੈਲੇਂਸ / ट्रायल बैलेंस 🔒 (owner-directed, 2 Sep 2026).** The transliterated English term is the label everywhere — it is what an accountant asks for by name. **ਕੱਚਾ ਚਿੱਠਾ / कच्चा चिट्ठा may follow in brackets only where space allows** (e.g. the reports-list row, not the viewer header or a chip); it also stays a **search synonym** (ਕੱਚਾ ਚਿੱਠਾ→ਟ੍ਰਾਇਲ ਬੈਲੇਂਸ) so the traditional word still finds the report. ⟦tests: F3-01-1 @M12⟧
 
-**Deliberate deviations from the reference file 🔒:** ਸ਼ਾਹੂਕਾਰ (moneylender) is avoided for creditors — loaded connotation; neutral ਲੈਣਦਾਰ is used. ਅਸਾਮੀ (debtor) is authentic bahi-khata but regional — kept as a **search synonym**, not a label. The A/C picker's search matches synonyms (ਅਸਾਮੀ→ਦੇਣਦਾਰ, ਸਰਮਾਇਆ→ਪੂੰਜੀ, ਮੀਜ਼ਾਨ→ਬਾਕੀ, बीजक→बिल) so users can type what they know. Add ਪੇਸ਼ਗੀ→ਐਡਵਾਂਸ, पेशगी→एडवांस, ਬਾਕੀ→ਬਕਾਇਆ, बाकी→बकाया.
+**Deliberate deviations from the reference file 🔒:** ਸ਼ਾਹੂਕਾਰ (moneylender) is avoided for creditors — loaded connotation; neutral ਲੈਣਦਾਰ is used. ਅਸਾਮੀ (debtor) is authentic bahi-khata but regional — kept as a **search synonym**, not a label. The A/C picker's search matches synonyms (ਅਸਾਮੀ→ਦੇਣਦਾਰ, ਸਰਮਾਇਆ→ਪੂੰਜੀ, ਮੀਜ਼ਾਨ→ਬਾਕੀ, बीजक→बिल) so users can type what they know. Add ਪੇਸ਼ਗੀ→ਐਡਵਾਂਸ, पेशगी→एडवांस, ਬਾਕੀ→ਬਕਾਇਆ, बाकी→बकाया. ⟦tests: F3-01-9 @M12⟧
 
 **Advance (ਐਡਵਾਂਸ) vs Suspense — kept distinct on purpose:** Advance = unexplained money **with a known responsible person**, settled by that person (02 §7). Suspense = unexplained money **with no person attached** (an unmatched bank line), which must reach zero before month close (02 §10). Merging them would lose "who is answerable."
 
 **Reserved name (brand §2):** *Rokad* is the in-product feature name for the simple cash-book view — the day-one shopkeeper mode — never used in marketing.
 
-**"Books" alignment (brand 11 §1) 🔒:** *books* always means the books of account — the product's own Book (ਵਹੀ/बही) objects; the collective renders as ਵਹੀ-ਖਾਤੇ / बही-खाते. The literal ਕਿਤਾਬ/किताब never appears for books of account — in-product, in copy, or in translation. Context split for *ledger*: the in-app tab stays ਖਾਤੇ/खाते (the A/C index); the concept in prose/marketing is ਖਾਤਾ-ਵਹੀ/खाता-बही.
+**"Books" alignment (brand 11 §1) 🔒:** *books* always means the books of account — the product's own Book (ਵਹੀ/बही) objects; the collective renders as ਵਹੀ-ਖਾਤੇ / बही-खाते. The literal ਕਿਤਾਬ/किताब never appears for books of account — in-product, in copy, or in translation. Context split for *ledger*: the in-app tab stays ਖਾਤੇ/खाते (the A/C index); the concept in prose/marketing is ਖਾਤਾ-ਵਹੀ/खाता-बही. ⟦tests: F3-01-10 @M12⟧
 
-### Designations 🔒 (owner-supplied, 2 Sep 2026)
+### Designations 🔒 (owner-supplied, 2 Sep 2026) ⟦tests: C-06-15 @M7⟧
 
 Display labels only — capability is always one of the five stored roles (06 §1.1), and
 these names never change what a person may do. Where the owner's table offers two forms,
@@ -153,7 +153,7 @@ Hindi, so Chairman takes चेयरमैन to stay distinct.
 | Employee | ਕਰਮਚਾਰੀ / ਵਰਕਰ | कर्मचारी / वर्कर |
 | Advisor | ਸਲਾਹਕਾਰ | सलाहकार |
 
-🔒 **Ruled (owner, 2 Sep 2026 — Option B):** designations are **free display labels** —
+🔒 **Ruled (owner, 2 Sep 2026 — Option B):** designations are **free display labels** — ⟦tests: C-06-15 @M7⟧
 any organization may use any of these or type its own. Capability is separate and is
 granted **only by the book's admin**, always one of the five stored roles (06 §1.0 owns
 the model and the permission-verbs table; "delete" does not exist — the ledger is
@@ -163,7 +163,7 @@ append-only, 02 §5).
 
 Seeded category trees (household/shop/trust) ship in all three languages in a separate seed file, same review gate.
 
-## 2.0 Duration, ageing and status meta strings 🔒 (owner-approved, 31 Aug 2026)
+## 2.0 Duration, ageing and status meta strings 🔒 (owner-approved, 31 Aug 2026) ⟦tests: F3-01-11 @M12⟧
 These appear under card titles and in list rows. Previously undefined, which is how a machine translation slipped in.
 
 | Use | English | ਪੰਜਾਬੀ | हिन्दी |
@@ -179,7 +179,7 @@ These appear under card titles and in list rows. Previously undefined, which is 
 
 The Indic forms use **ਤੋਂ / से** (*since*) rather than an adjective — the natural way both languages express elapsed time. ICU: `{name} · {n} {ਦਿਨਾਂ ਤੋਂ|दिन से}` with plural forms per language ⚠️ owner to confirm singular ("1 ਦਿਨ ਤੋਂ" / "1 दिन से").
 
-## 2.1 Entry preview string 🔒 (07 §5 step 5.5)
+## 2.1 Entry preview string 🔒 (07 §5 step 5.5) ⟦tests: F1-07-17 @M5⟧
 **One template, all languages** — the arrow carries the flow, so no postposition and no per-language word order:
 
 `{amt} · {credited_account} → {debited_account} · {note}`
@@ -192,7 +192,7 @@ The Indic forms use **ਤੋਂ / से** (*since*) rather than an adjective �
 
 The `· {note}` clause and its separator are omitted when the narration is blank. Splits render the many side as a count: `{amt} · {n} accounts → {debited_account} · {note}` (⚠️ plural forms with the native reviewer). **This avoids the oblique-case trap** — Punjabi and Hindi inflect a noun before a postposition (ਖਾਤਾ → ਖਾਤੇ, खाता → खाते), which the app cannot reliably do to user-typed account names.
 
-## 3. Voice & microcopy rules 🔒
+## 3. Voice & microcopy rules 🔒 ⟦tests: F3-01-12 @M12⟧
 Honest and unbabying: the recovery explanation says plainly *"ਤੁਹਾਡਾ ਡਾਟਾ ਇੰਨਾ ਸੁਰੱਖਿਅਤ ਹੈ ਕਿ ਅਸੀਂ ਵੀ ਨਹੀਂ ਖੋਲ੍ਹ ਸਕਦੇ"* / *"आपका डेटा इतना सुरक्षित है कि हम भी नहीं खोल सकते"*. Blocked actions state the reason and the path (07 §1.6). Success is quiet; security warnings (mismatch, recovery request, new device) are loud, red, never cute.
 
 ## 4. Open items ⚠️

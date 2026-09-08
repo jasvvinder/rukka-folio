@@ -7,7 +7,7 @@ could be multiple cases. So this should be done flexible"):
 > The gollak will not be emptied until the counted cash fully deposits to cash account
 > or bank a/c.
 
-## The rule 🔒 (02 §8.2)
+## The rule 🔒 (02 §8.2) ⟦tests: A-02-63, A-02-64⟧
 
 - A `cash_collection` account's only outward posting is a Transfer to one of the book's
   **money accounts — the Cash A/c or a bank account**. The 2 Sep "Cash first, always"

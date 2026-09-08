@@ -57,7 +57,7 @@ canvas furniture (mockup frame border, dimmed bands), not product tokens, and st
   step is skippable into the checklist regardless. Canvas 0's master map realigned;
   Canvas 1's flow band follows when its partial is recovered.
 
-## Designations — Option B ruled 🔒
+## Designations — Option B ruled 🔒 ⟦tests: C-06-15 @M7⟧
 
 Owner-ruled (2 Sep): **designations are free display labels; permissions come only from
 the admin.** Any organization may pick from the 01 §2 designation tables or type its own
@@ -75,7 +75,7 @@ review to admin/head only.
 13 §2.4 + S9.1 row · 01 (designations ⚠ → ruled). Design: Canvas 4 S9.1 gains the
 designation field.
 
-## Ledger — the gollak empties only into Cash in hand 🔒
+## Ledger — the gollak empties only into Cash in hand 🔒 ⟦tests: A-02-63, A-02-64⟧
 ### ⚠ Refined by ADR 2026-09-03 (gollak-deposit-flexibility): destination widened to Cash **or bank**, in one deposit or several.
 
 Owner-ruled (2 Sep, two messages): **the Gollak account and the Cash account are
@@ -90,7 +90,7 @@ A/c"** and the explainer rewritten, EN/PA/HI (canvases 5 and 14); S0.6i shows th
 three-account setup (bank · cash · collection); the sample trust ledger C2 gains a
 visible Cash A/c row, native-sorted in each script (canvases 7 and 14).
 
-## Vocabulary — Trial Balance transliterates 🔒
+## Vocabulary — Trial Balance transliterates 🔒 ⟦tests: F3-01-1 @M12⟧
 
 Owner-directed (2 Sep): **ਟ੍ਰਾਇਲ ਬੈਲੇਂਸ / ट्रायल बैलेंस** is the label everywhere — the
 transliterated English term is what an accountant asks for by name. ਕੱਚਾ ਚਿੱਠਾ /

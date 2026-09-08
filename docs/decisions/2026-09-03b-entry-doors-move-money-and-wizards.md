@@ -3,7 +3,7 @@
 Follow-on to ADR 2026-09-03 (Menu rows). Reviewing canvas 2 the owner accepted two gaps and
 said "Okay, Close them."
 
-## Rulings 🔒
+## Rulings 🔒 ⟦tests: n/a — container heading; each ruling below carries its own marker⟧
 
 1. **Move money is the fifth position of the entry screen's verb pill** — Money in · Money
    out · Gave on credit · Took on credit · **Move money**. The pill already switches by swipe

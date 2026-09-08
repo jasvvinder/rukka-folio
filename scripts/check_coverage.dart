@@ -33,7 +33,9 @@ const _docExcludes = [
   'design/canvas-mirror', // generated mirror of the design tool
   'docs/brand', // brand assets
 ];
-const _testRoots = ['packages', 'app/test', 'testing', 'server'];
+// 'test' is the root suite ci.sh runs as `dart test test/` (F1-10-*: the ARB merge and contrast
+// checkers). Omitting it made every id those tests declare read as a dangling marker.
+const _testRoots = ['packages', 'app/test', 'testing', 'server', 'test'];
 const _goldenDir = 'docs/reference/worked-examples';
 const _goldenFiles = [
   'individual-rahul-sharma.md',
@@ -45,12 +47,27 @@ const _goldenFiles = [
 
 final _idPattern = RegExp(r'^[A-Z]+[0-9]?-[0-9A-Za-z]+-[0-9]+$');
 final _marker = RegExp(r'⟦tests:\s*([^⟧]*)⟧');
+// ` @M<n>` on a marker id: planned test, lands at milestone n (ADR 2026-09-08 §1).
+final _plannedSuffix = RegExp(r'\s*@M(\d+)$');
 final _codeSpan = RegExp(r'`[^`]*`');
-final _lockMark = RegExp(r'🔒\s*(?:$|[^a-z=\s])');
+final _lockMark = RegExp(r'🔒\s*(?:$|[^a-z=/→\s])');
+// A 🔒 at end of line whose sentence continues in lowercase on the next line is a mention
+// ("…contradicts itself three times on 🔒\nlines…"), not a ruling that can name tests.
+final _wrappedMention = RegExp(r'🔒\s*$');
+final _lowerStart = RegExp(r'^\s*[a-z]');
 final _heading = RegExp(r'^#{1,6}\s');
+final _fence = RegExp(r'^\s*(```|~~~)');
 final _testName = RegExp(
   r'''\b(test|group|testWidgets|property)\(\s*(?:r)?(['"])((?:\\.|(?!\2).)*)\2''',
   multiLine: true,
+);
+// Deno's object form — `Deno.test({ name: "E-03-26 …", ignore, async fn() {} })`. Without this the
+// whole RLS hostile-query suite reads as "declares no id" and its 🔒 markers look like dangling
+// references, which is exactly what happened to E-03-22…27 / E-05c-7 before the suite could run.
+final _denoObjectTestName = RegExp(
+  r'''Deno\.test\(\s*\{[^}]*?\bname\s*:\s*(?:r)?(['"])((?:\\.|(?!\1).)*)\1''',
+  multiLine: true,
+  dotAll: true,
 );
 final _skipReason = RegExp(
   r'''(?:@Skip\(|skip:)\s*((?:\s*(?:r)?'(?:[^'\\]|\\.)*'\s*)+)''',
@@ -85,6 +102,10 @@ void main(List<String> args) {
   final markerIds = <String, List<String>>{}; // id → where declared
   final naMarkers = <Finding>[];
   final badIds = <Finding>[];
+  // id → milestone n, for ` @M<n>` planned markers (ADR 2026-09-08 §1). Planned ids are exempt from
+  // the "no test declares this id" check and are reported separately from real coverage (§3).
+  final plannedIds = <String, int>{};
+  final plannedWhere = <String, List<String>>{};
   var lockedLines = 0;
   var lockedCoveredBySection = 0;
 
@@ -92,22 +113,42 @@ void main(List<String> args) {
     final rel = _rel(file);
     final lines = file.readAsLinesSync();
     var sectionMarked = false;
+    var inFence = false;
     for (var i = 0; i < lines.length; i++) {
       final raw = lines[i];
+      // Fenced blocks are examples, not rulings: a doc that *documents* the marker syntax must not
+      // have its sample markers counted as real ones (this ADR 2026-09-08 does exactly that).
+      if (_fence.hasMatch(raw)) {
+        inFence = !inFence;
+        continue;
+      }
+      if (inFence) continue;
       final where = '$rel:${i + 1}';
       final isHeading = _heading.hasMatch(raw);
       final noCode = raw.replaceAll(_codeSpan, '');
       final marker = _marker.firstMatch(noCode);
+      var isNaMarker = false;
       if (marker != null) {
         final body = marker.group(1)!.trim();
         if (body.startsWith('n/a')) {
           naMarkers.add(Finding(where, body));
+          isNaMarker = true;
         } else {
-          for (final id in body.split(',').map((s) => s.trim())) {
-            if (id.isEmpty) continue;
+          for (final entry in body.split(',').map((s) => s.trim())) {
+            if (entry.isEmpty) continue;
+            // ` @M<n>` marks a planned test (ADR 2026-09-08 §1): a property of the marker, not of
+            // the id, so the id itself must still be well-formed.
+            final plan = _plannedSuffix.firstMatch(entry);
+            final id = plan == null ? entry : entry.substring(0, plan.start).trim();
             if (!_idPattern.hasMatch(id)) {
-              badIds.add(Finding(where, 'malformed id "$id"'));
+              badIds.add(Finding(where, 'malformed id "$entry"'));
               continue;
+            }
+            if (plan != null) {
+              final n = int.parse(plan.group(1)!);
+              final prev = plannedIds[id];
+              plannedIds[id] = prev == null || n < prev ? n : prev;
+              plannedWhere.putIfAbsent(id, () => []).add(where);
             }
             markerIds.putIfAbsent(id, () => []).add(where);
           }
@@ -115,9 +156,18 @@ void main(List<String> args) {
       }
       if (isHeading) sectionMarked = false;
       if (!_lockMark.hasMatch(noCode)) continue;
+      if (marker == null &&
+          _wrappedMention.hasMatch(noCode) &&
+          i + 1 < lines.length &&
+          _lowerStart.hasMatch(lines[i + 1])) {
+        continue; // mid-sentence mention wrapped across two lines
+      }
       lockedLines++;
       if (marker != null) {
-        if (isHeading) sectionMarked = true;
+        // Only a heading naming real tests covers the lines beneath it. `n/a` says *this line* is
+        // untestable; letting it blanket a section would excuse every ruling under a "## Rulings 🔒"
+        // heading — the section marker exists to save repetition, not to launder coverage.
+        if (isHeading && !isNaMarker) sectionMarked = true;
         continue;
       }
       if (sectionMarked) {
@@ -150,6 +200,17 @@ void main(List<String> args) {
       }
       if (kind != 'group') testCount++;
     }
+    for (final m in _denoObjectTestName.allMatches(src)) {
+      final name = m.group(2)!;
+      final where = '$rel:${_lineOf(src, m.start)}';
+      final first = name.split(RegExp(r'\s+')).first;
+      if (_idPattern.hasMatch(first)) {
+        declared.putIfAbsent(first, () => []).add(where);
+      } else {
+        testsWithoutId.add(Finding(where, _excerpt(name)));
+      }
+      testCount++;
+    }
     for (final m in _skipReason.allMatches(src)) {
       final reason = _joinLiterals(m.group(1)!);
       final adr = _supersededBy.firstMatch(reason);
@@ -168,11 +229,26 @@ void main(List<String> args) {
     }
   }
 
+  // A planned id (` @M<n>`) is exempt from (b) until its milestone arrives — ADR 2026-09-08 §1.
   final dangling = <Finding>[
     for (final e in markerIds.entries)
-      if (!declared.containsKey(e.key))
+      if (!declared.containsKey(e.key) && !plannedIds.containsKey(e.key))
         for (final where in e.value)
           Finding(where, 'no test declares ${e.key}'),
+  ];
+  // …and expires at it: a promise kept open past its milestone is a failure, not a note (§2).
+  final overduePlanned = <Finding>[
+    if (currentMilestone != null)
+      for (final e in plannedIds.entries)
+        if (e.value <= currentMilestone && !declared.containsKey(e.key))
+          for (final where in plannedWhere[e.key]!)
+            Finding(where, '${e.key} was promised at M${e.value} and no test declares it'),
+  ];
+  final plannedLanded = <Finding>[
+    for (final e in plannedIds.entries)
+      if (declared.containsKey(e.key))
+        for (final where in plannedWhere[e.key]!)
+          Finding(where, '${e.key} has landed — drop the "@M${e.value}" suffix'),
   ];
   final orphans = <Finding>[
     for (final e in declared.entries)
@@ -201,7 +277,7 @@ void main(List<String> args) {
   out.writeln(
     '  🔒 lines: $lockedLines · marked: ${lockedLines - unmarked.length - lockedCoveredBySection}'
     ' · covered by a marked heading: $lockedCoveredBySection · unmarked: ${unmarked.length}'
-    ' · n/a: ${naMarkers.length}',
+    ' · n/a: ${naMarkers.length} · planned (@M): ${plannedIds.length}',
   );
   out.writeln(
     '  tests: $testCount · ids declared: ${declared.length} · ids named in markers: ${markerIds.length}'
@@ -214,6 +290,8 @@ void main(List<String> args) {
 
   section('FAIL — 🔒 lines without a ⟦tests⟧ marker', unmarked);
   section('FAIL — marker ids no test declares', dangling);
+  section('FAIL — planned tests past their milestone', overduePlanned);
+  section('warn — planned tests that have landed (drop the @M suffix)', plannedLanded);
   section('FAIL — malformed ids', badIds);
   section('FAIL — superseded skips past their re-land milestone', overdueSkips);
   if (golden.error != null) out.writeln('\nFAIL — goldens: ${golden.error}');
@@ -224,6 +302,7 @@ void main(List<String> args) {
   final failures =
       unmarked.length +
       dangling.length +
+      overduePlanned.length +
       badIds.length +
       overdueSkips.length +
       (golden.error == null ? 0 : 1);
@@ -289,7 +368,9 @@ Iterable<File> _testFiles() sync* {
       if (rel.contains('/.dart_tool/') || rel.contains('/build/')) continue;
       final isDartTest =
           rel.endsWith('_test.dart') &&
-          (rel.contains('/test/') || rel.startsWith('app/test/'));
+          (rel.contains('/test/') ||
+              rel.startsWith('app/test/') ||
+              rel.startsWith('test/'));
       final isDenoTest = rel.endsWith('.test.ts') || rel.endsWith('_test.ts');
       final isSql = rel.endsWith('.sql') && rel.contains('/tests/');
       if (isDartTest || isDenoTest || isSql) yield f;

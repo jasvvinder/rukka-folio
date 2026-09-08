@@ -5,14 +5,14 @@
 
 ---
 
-## 1. Identity model 🔒
+## 1. Identity model 🔒 ⟦tests: C-06-14 @M7⟧
 
 - **One phone number (E.164) = one human = one account, globally.** A user is not per-tenant; Harpreet is one identity who belongs to n tenants (family, businesses, trust) via memberships.
 - No passwords exist anywhere in the system. No email required (optional contact field only).
 - Plaintext profile: phone, display name, photo (optional, shown in approvals/verification), preferred language (per-user, not per-tenant), WhatsApp opt-in.
 - Phone-number change is supported (§9.4) — the number is the *claim*; the UMK is the identity.
 
-### 1.0 Designations are labels; capability is granted 🔒 (owner-ruled Option B, 2 Sep 2026 — ADR)
+### 1.0 Designations are labels; capability is granted 🔒 (owner-ruled Option B, 2 Sep 2026 — ADR) ⟦tests: C-06-15 @M7⟧
 Two separate things, never conflated:
 
 - **Capability** — always one of the five stored roles (§1.1) plus the per-book entry
@@ -52,7 +52,7 @@ person who actually keeps the books — is *called* Treasurer while *holding* `h
 
 A gurudwara committee will not recognise "Operator"; it will recognise ਸੇਵਾਦਾਰ. 🔒 `head` defaults to President (ਪ੍ਰਧਾਨ), ADR 2026-09-01; Secretary is not a default label. ⚠️ Chairman's Gurmukhi sub-label (ਚੇਅਰਮੈਨ) awaits the native-speaker pass. ⚠️ Canvas 4/14's trust capability table describes Trustee as "approves" while 13 §7 gives review to admin/head only — owner to confirm whether trust `member`s (Trustees) also review.
 
-### 1.1 Multi-tenancy 🔒
+### 1.1 Multi-tenancy 🔒 ⟦tests: C-06-16 @M7⟧
 - `tenants(id, type ∈ {family, business_group, organization}, name_ciphertext, plan, …)`
 - `memberships(tenant_id, user_id, status, verified_by, verified_method, designation_label, …)` and `book_roles(book_id, user_id, role ∈ {admin, head, member, operator, viewer}, auto_post_limit_paise, …)` — one role **per book**, never global; `designation_label` is display-only (§1.0), admin-editable, never consulted by any permission check.
 - Access tokens carry `user_id` + `device_id` only — never a tenant. Every request is tenant-scoped by path and checked against memberships in Postgres **row-level security**. New tenant types (the trust case) are rows, not code.
@@ -101,7 +101,7 @@ Challenge–response; no bearer secrets that outlive minutes.
 
 ---
 
-## 5. Activation flows by scenario 🔒
+## 5. Activation flows by scenario 🔒 ⟦tests: C-06-17 @M7, F1-06-6⟧
 
 | Scenario | Flow |
 |---|---|
@@ -126,7 +126,7 @@ Recovery completion always revokes all prior sessions and devices of that user a
 
 ---
 
-## 7. Invitation & membership state machine 🔒
+## 7. Invitation & membership state machine 🔒 ⟦tests: C-06-18 @M7⟧
 
 ```
 invited ──install+OTP──▶ joined_pending_verification ──ceremony ✓──▶ active
@@ -145,7 +145,7 @@ expired (one-tap re-invite)      blocked + security event (admin unblock only
 
 ---
 
-## 8. Support: verification & powers 🔒
+## 8. Support: verification & powers 🔒 ⟦tests: G-12-1 @M13⟧
 
 Written policy, shipped with the product, so nobody can be socially engineered into an ability that doesn't exist.
 
@@ -157,18 +157,18 @@ Written policy, shipped with the product, so nobody can be socially engineered i
 
 ## 9. Account lifecycle
 
-### 9.1 Data stored (plaintext) — the complete list 🔒
+### 9.1 Data stored (plaintext) — the complete list 🔒 ⟦tests: C-06-20 @M14⟧
 Phone, name, photo, language, WhatsApp opt-in; tenants, memberships, per-book roles and limits; devices + certificates; wrapped keys/shares/escrow blobs (opaque); invites + ceremony logs; subscription state + payment-gateway reference IDs (gateway holds the instruments); audit events; envelope routing metadata (04 §4). **Not stored:** address (at most: **recipient state, captured only for GSTIN buyers on the web checkout** — ADR 2026-09-05g §10), DOB, Aadhaar, PAN, contacts upload, and — by construction — any financial content.
 
-### 9.2 Data export 🔒
+### 9.2 Data export 🔒 ⟦tests: C-06-21 @M12⟧
 Available always, plan-independent, lapsed-plan included: full decrypted export (XLSX/CSV/PDF) generated **on device**. Open export is a trust feature, not a leak.
 
-### 9.3 Deletion 🔒
+### 9.3 Deletion 🔒 ⟦tests: C-06-22 @M14⟧
 User-initiated (in-app) or via support: 15-day cooling period, every device + guardians notified, cancel-anytime; then **profile data is erased** (phone, name, photo, language, contact fields), all wrapped keys and the user's personal-book envelopes are hard-deleted, and every session dies. 🔒 **Verification material is retained, not deleted:** the user's UMK *public* key and their device certificates survive as pseudonymous cryptographic material, flagged `erased`. They contain no personal data, and without them a device joining later could not verify the signature chain (04 §3.4) on entries that user authored in *shared* books — it would quarantine them, compute different balances, and fail the close hash (02 §8). Erasure of personal data and integrity of other people's financial records are both satisfied; this is the same reasoning that lets financial records outlive an erasure request. envelopes the user authored in *shared* books remain (they are the tenant's records) with authorship pseudonymized to a fixed label. DPDP-aligned; ⚠️ confirm final DPDP rules' retention/grievance details at build.
 
 Phone erasure = drop `phone_ct`/`phone_hmac` (ADR 2026-09-05c §4); the KMS key never needs rotation for a single user's erasure.
 
-### 9.4 Phone-number change 🔒
+### 9.4 Phone-number change 🔒 ⟦tests: C-06-23 @M14⟧
 OTP on old number (or, if lost, guardian approval k-of-n) + OTP on new number → identity record updates; UMK, keys, memberships untouched. The number was only ever the doorbell. **The guardian path carries the same 24 h cancellable window as recovery when any active device exists (ADR 2026-09-05d §1), and the old number receives a plain notice that a change was requested.**
 
 ---

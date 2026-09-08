@@ -11,7 +11,7 @@ versions across equally ranked documents; and that the design system has no stat
 unaudited grounds, a forked type scale and a second hand-kept palette in the canvas build script.
 Owner confirmed 5 Sep 2026 ("accept all recommendations").
 
-## Rulings 🔒
+## Rulings 🔒 ⟦tests: n/a — container heading; each ruling below carries its own marker⟧
 
 ### A. One tab bar, stated once
 **Four tabs — Home · Ledger · Inbox · Menu — plus a docked centre ( + ) action.** The bar is the

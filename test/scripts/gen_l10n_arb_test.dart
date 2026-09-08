@@ -124,7 +124,7 @@ void main() {
         );
       });
     }
-    test('part file name must be <feature>_<lang>.arb', () {
+    test('F1-10-16 part file name must be <feature>_<lang>.arb', () {
       expect(
         () => mergeParts([
           ArbPart(path: 'parts/home.arb', text: '{"@@locale":"en"}'),

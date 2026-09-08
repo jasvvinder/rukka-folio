@@ -7,7 +7,7 @@ a content-blind server behind append-only grants, cross-client hash checks at mo
 relay**, and it has no story for a server that lies by omission, forks, or is restored from backup.
 Owner confirmed 5 Sep 2026 ("add these as an ADR, do whatever is best").
 
-## Rulings 🔒
+## Rulings 🔒 ⟦tests: n/a — container heading; each ruling below carries its own marker⟧
 
 ### 1. Structural facts are signed records; server rows are their projection ⟦tests: B-05b-1, B-05b-2, B-05b-3, B-05b-4, B-05b-5, B-05b-7, D-05b-1, E-05-10, E-03-19⟧
 Membership status, per-book roles and limits, designations, device revocation, member removal and
@@ -54,7 +54,7 @@ in **`held`** — not projected, not quarantined — until the target arrives. I
 output). This replaces the current M1 behaviour of counting an orphan amendment as a fresh entry,
 which double-counts when the original arrives later. 02 §5 amended.
 
-### 5. Revocation cut-off is the server `seq`, never the HLC ⟦tests: B-05b-6, D-05-4, E-05-3, E-03-16b⟧
+### 5. Revocation cut-off is the server `seq`, never the HLC ⟦tests: B-05b-6, D-05-4, E-05-3, E-03-28⟧
 An envelope from device D is accepted only if its `seq` is **below the `seq` of D's signed
 revocation record** (or of the member's removal). HLC is author-controlled — a stolen phone can
 backdate it; `seq` is stamped by the server at receipt and cannot be. Consequence: every stored

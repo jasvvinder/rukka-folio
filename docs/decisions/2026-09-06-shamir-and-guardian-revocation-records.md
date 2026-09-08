@@ -9,7 +9,7 @@ Reviewed the same evening: §2 gained verified reconstruction (no new field), §
 rulings a counting scheme needs (cut-off direction, re-split), ids reserved for M4, and a
 ratification checklist for the owner at the end.
 
-## Rulings 🔒
+## Rulings 🔒 ⟦tests: n/a — container heading; each ruling below carries its own marker⟧
 
 ### 1. Shamir secret sharing is implemented in-house, over GF(256) ⟦tests: B-04-50, B-04-51, B-04-52, B-04-53, B-04-54, B-04-55, B-04-56, B-04-57, B-04-58, B-04-59, B-04-60, B-04-61, B-04-69, B-04-73⟧
 - `packages/core_crypto/lib/src/shamir.dart`: GF(2⁸) with the AES polynomial 0x11b; branch-free
@@ -115,7 +115,7 @@ ratification checklist for the owner at the end.
    confirmation, not a dismissible warning.** 2-of-2 has no loss tolerance *and* needs both
    guardians to act — the worst of both shapes — but forbidding it excludes a couple with no third
    person they would trust with this, which is a real Rukka household. The typed confirmation is a
-   UI rule for S11.1 (07/13 owner). ⟦tests: B-04-63, F1-06a-1⟧
+   UI rule for S11.1 (07/13 owner). ⟦tests: B-04-63, F1-06a-1 @M11⟧
 
 ## Open ⚠️
 - External review of `shamir.dart` before M14 (ruling 1); a third-party known-answer vector first.

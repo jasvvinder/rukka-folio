@@ -10,7 +10,7 @@ The golden-fixture approval gate that CLAUDE.md and the reference README both pr
 nowhere in 09, yet the goldens are already frozen in code. Owner confirmed 5 Sep 2026 ("accept all
 recommendations").
 
-## Rulings 🔒
+## Rulings 🔒 ⟦tests: n/a — container heading; each ruling below carries its own marker⟧
 
 ### 1. Every 🔒 line names its tests — traceability is machine-checked
 - **Test ids** are stable strings `<Suite>-<source>-<n>`: suite letter (A–H, F1/F2/F3), the owning
@@ -21,6 +21,10 @@ recommendations").
   brackets, comma-separated ids). A 🔒 heading covers its section: the marker may sit on the heading
   line instead of every bullet beneath it. A ruling that is *deliberately* untestable (a naming rule,
   a precedence rule) carries `⟦tests: n/a — reason⟧`.
+- **Amended by ADR 2026-09-08** (planned-test markers): a marker id may carry ` @M<n>`, meaning the
+  test is planned and lands at milestone n. Such an id is exempt from check (b) below until that
+  milestone, and **fails** once it is reached with no test — the form this ruling was missing for the
+  ~90 🔒 lines whose behaviour is real but whose milestone is unbuilt.
 - **`scripts/check_coverage.dart`** (new, wired into `ci.sh`) fails on (a) a 🔒 line with no marker,
   (b) an id in a marker that no test declares, (c) an id declared by a test that no marker names
   (orphan test — warning only). **Phased:** warn-only until M4 exit (the backlog of existing 🔒 lines

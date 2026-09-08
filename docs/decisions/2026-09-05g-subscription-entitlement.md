@@ -9,7 +9,7 @@ delivered on the IAP path §3.2 recommends, and a content-blind free tier with n
 encrypted file hosting. Owner ruled 5 Sep 2026: **"accept all recommendations"** (decision sheet
 items 22–28 plus every reviewer gap).
 
-## Rulings 🔒
+## Rulings 🔒 ⟦tests: n/a — container heading; each ruling below carries its own marker⟧
 
 ### 1. The entitlement token — the only new server key in the system
 The server holds **one Ed25519 signing key** (`entitlement_key`, rotated annually with a 30-day

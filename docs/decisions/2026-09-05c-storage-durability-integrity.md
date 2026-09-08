@@ -7,7 +7,7 @@ boundary, append-only by grant. The gaps are at the edges 03 had not yet looked 
 store lives and how it survives, whether a stored blob is intact, whether two app versions agree,
 and what we hold about people who never signed up. Owner confirmed 5 Sep 2026 ("do whatever is best").
 
-## Rulings 🔒
+## Rulings 🔒 ⟦tests: n/a — container heading; each ruling below carries its own marker⟧
 
 ### 1. Residency and durability of the server store
 - **Everything lives in India:** Postgres, object storage, backups, logs. Supabase region

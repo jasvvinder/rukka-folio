@@ -17,7 +17,7 @@
 | **Platform config** | Feature flags, minimum client version (06 §4.5), statement-parser toggles per bank, maintenance mode. **Governed as a kill switch:** four-eyes, staged rollout with a canary cohort, one-click rollback, every change a recorded config version (ADR 2026-09-05h §9) |
 | **Analytics** | MRR, active tenants, retention cohorts, crash rates, sync error rates, parser success rates |
 
-## 2. What the console cannot do — and why it's structural 🔒
+## 2. What the console cannot do — and why it's structural 🔒 ⟦tests: G-12-2 @M13⟧
 
 Not "forbidden by policy". **Impossible by construction**, which is a stronger guarantee and worth publishing:
 
@@ -34,17 +34,17 @@ Not "forbidden by policy". **Impossible by construction**, which is a stronger g
 
 **Publish this table.** "Here is what our staff cannot do, and why the maths prevents it" is the strongest form of the brand's directional-trust claim (11 §1).
 
-## 3. Architecture 🔒
+## 3. Architecture 🔒 ⟦tests: G-12-3 @M13⟧
 
 - **Separate application, separate deployment, separate database role** from the member API. It reads the same Postgres through a dedicated role whose grants exclude `envelopes.blob`, `wrapped_keys.blob`, and all attachment storage. CI asserts the grant set.
 - **Separate admin identity:** work email + **passkey/hardware key**, never phone OTP (staff must not share the members' auth path). Session ≤ 8 h for reads; **idle re-auth every 30–60 min on the write path**. Reached only through an **identity-aware proxy or VPN, no public DNS, a domain sharing no cookie scope with the member app** — "IP-allowlisted" is retired as too thin (ADR 2026-09-05h §11).
-- **Staff roles 🔒 (ADR 2026-09-05h §7):** support-L1 · billing · SRE · security-compliance · super-admin. The four-eyes approver is a **different human on a different role**. SSO-driven joiner-mover-leaver; quarterly access review with a signed record. **Phase 1 does not ship with fewer than two staff accounts held by two people.**
-- **Lookup quotas 🔒 (ADR 2026-09-05h §5):** per-staff lookup limits with velocity alerts; every write carries a **ticket id** beside the typed reason.
-- **Read-only by default.** Every write action requires a typed reason and a ticket id. **Four-eyes is triggered by irreversibility, not value 🔒 (ADR 2026-09-05h §8):** any refund > ₹5,000 · any freeze · any deletion request · any `min_client_version` or production feature-flag change · any break-glass (§3.1).
-- **Staff audit log 🔒 (ADR 2026-09-05h §6):** **hash-chained**, shipped **off-box** to a store the admin role cannot write, **reads logged as well as writes**, exportable per tenant, retained ≥ 3 years. It is a **separate store from `audit_events`** and explicitly outside 03 §6's 24-month aggregation — the purge job never sees it.
-- **Transparency to the member 🔒 (ships at Phase 1 — ADR 2026-09-05h §11):** when staff view a tenant's metadata or take an action on it, write a tenant-visible audit event — *"Support viewed your account details on 14 Sep"*. Almost no competitor does this, it costs one row, and it makes the privacy claim inspectable rather than asserted. **Session recording** is metadata plus justification, not screen capture.
+- **Staff roles 🔒 (ADR 2026-09-05h §7):** support-L1 · billing · SRE · security-compliance · super-admin. The four-eyes approver is a **different human on a different role**. SSO-driven joiner-mover-leaver; quarterly access review with a signed record. **Phase 1 does not ship with fewer than two staff accounts held by two people.** ⟦tests: G-12-4 @M13⟧
+- **Lookup quotas 🔒 (ADR 2026-09-05h §5):** per-staff lookup limits with velocity alerts; every write carries a **ticket id** beside the typed reason. ⟦tests: G-12-5 @M13⟧
+- **Read-only by default.** Every write action requires a typed reason and a ticket id. **Four-eyes is triggered by irreversibility, not value 🔒 (ADR 2026-09-05h §8):** any refund > ₹5,000 · any freeze · any deletion request · any `min_client_version` or production feature-flag change · any break-glass (§3.1). ⟦tests: G-12-6 @M13⟧
+- **Staff audit log 🔒 (ADR 2026-09-05h §6):** **hash-chained**, shipped **off-box** to a store the admin role cannot write, **reads logged as well as writes**, exportable per tenant, retained ≥ 3 years. It is a **separate store from `audit_events`** and explicitly outside 03 §6's 24-month aggregation — the purge job never sees it. ⟦tests: G-12-7 @M13⟧
+- **Transparency to the member 🔒 (ships at Phase 1 — ADR 2026-09-05h §11):** when staff view a tenant's metadata or take an action on it, write a tenant-visible audit event — *"Support viewed your account details on 14 Sep"*. Almost no competitor does this, it costs one row, and it makes the privacy claim inspectable rather than asserted. **Session recording** is metadata plus justification, not screen capture. ⟦tests: G-12-8 @M13⟧
 
-### 3.1 Break-glass 🔒 (ADR 2026-09-05h §4)
+### 3.1 Break-glass 🔒 (ADR 2026-09-05h §4) ⟦tests: G-12-9 @M13⟧
 One doctrine for every privileged path: backup access (ADR 2026-09-05c §1), the `maintenance` deletion role (ADR 2026-09-05b §8, 03 §2.5), the phone KMS key (ADR 2026-09-05c §4), and any direct database session.
 - **Named accounts** (never shared) with a **hardware key**; **two-person authorisation** to open.
 - **Short-lived brokered credentials** — minted for the session, expire with it. **No standing human access** to maintenance, backup or KMS.
@@ -69,7 +69,7 @@ Extend the endpoint-inventory test (06 §10): **no admin route may return cipher
 ## 6. Open items ⚠️
 ~~1. Four-eyes threshold values.~~ Ruled by irreversibility, §3 (ADR 2026-09-05h §8). ~~2. IP allowlist vs device-bound admin sessions.~~ Identity-aware proxy/VPN, §3 (ADR 2026-09-05h §11). ~~3. Whether the member-visible transparency log ships at Phase 1 or Phase 2.~~ Phase 1 (ADR 2026-09-05h §11). 4. Data-residency for staff access — India, per ADR 2026-09-05c §1; the staff access policy is §3/§3.1/§7. 5. Lookup-quota and velocity numbers per role (M13). 6. Off-box log store choice (M13).
 
-## 7. DPDP & legal 🔒 (ADR 2026-09-05h §10)
+## 7. DPDP & legal 🔒 (ADR 2026-09-05h §10) ⟦tests: G-12-10 @M13⟧
 - A **named grievance officer** with a published SLA (⚠️ window set against the final DPDP rules, 06 §11.3).
 - **Data-principal request intake** — access, correction, erasure — resolving to 06 §9.2 (export, always available) and 06 §9.3 (deletion, user-device-initiated). The console records the request and its resolution; it cannot perform either itself.
 - **Breach-notification runbook** to the Data Protection Board and to affected members, rehearsed with the restore drill.

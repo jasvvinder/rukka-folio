@@ -94,7 +94,7 @@ Deno.test("E-05-1 push: the eight shape checks refuse with the check named, in 0
   assertEquals(SHAPE_CHECKS.length, 8);
 });
 
-Deno.test("E-05-1b push: key_version below highest is fine inside 48 h and rejected:key_version_stale after", async () => {
+Deno.test("E-05-13 push: key_version below highest is fine inside 48 h and rejected:key_version_stale after", async () => {
   const { r, tenant, book, m } = await scene();
   r.db.addWrappedKey({ kind: "bk_for_user", user_id: m.user, book_id: book, key_version: 2 });
   let res = await body(

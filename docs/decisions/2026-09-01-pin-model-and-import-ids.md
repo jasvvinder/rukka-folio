@@ -2,7 +2,7 @@
 
 Two owner rulings from the Phase-1 design↔docs audit (findings A1 and A2), ruled 1 Sep 2026.
 
-## 1. One PIN, never two 🔒
+## 1. One PIN, never two 🔒 ⟦tests: C-05d-1, C-05d-2, C-05d-3, C-05d-4, C-05d-5⟧
 
 **Conflict.** 06 §4.4 (owner-raised, 1 Sep) locked *"One PIN, not two — the Personal
 Book's extra lock re-prompts the same PIN or biometric."* But 07 §5.6, 13 §3.2 (S15.2),
@@ -26,7 +26,7 @@ S11, S13 briefs. Design side: Canvas 3 screens *S15 "PIN instead"* (drop "Use th
 phone's passcode") and both *S15.2 "Personal book PIN"* screens redrawn as the single
 re-prompt; stale strings removed from the PA/HI dictionaries.
 
-## 2. Import screen IDs — S7.2 is the balance check 🔒
+## 2. Import screen IDs — S7.2 is the balance check 🔒 ⟦tests: F1-07-25 @M10⟧
 
 **Conflict.** 13 §3.2 used **S7.2** for the transfer-pair confirm, while the design pack
 and Canvas 8 use **S7.2** for the **balance check** (passing · matched · failing) and
@@ -44,7 +44,7 @@ and the owner added **S7.4 — Import preview & submit**: submit never posts sig
 a final screen lists every entry about to be created with the balance check restated and
 the count in the button. Specced in 07 §11.1 and 13 §3.2/F4; drawn on Canvas 8.
 
-## 3. Trust role labels — `head` displays as President 🔒
+## 3. Trust role labels — `head` displays as President 🔒 ⟦tests: C-06-15 @M7⟧
 
 The ⚠️ in 06 §1.0 asked how a Singh Sabha committee actually ranks its officers.
 **Ruling: `head` displays as President (ਪ੍ਰਧਾਨ); Secretary is not a role label.**

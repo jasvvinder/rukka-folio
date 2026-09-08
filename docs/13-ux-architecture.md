@@ -53,7 +53,7 @@ Scope = { Me | one Book | Everything }
 ```
 Scope persists per tab, defaults to last used, and is visible as a chip in the top bar **whenever the user has more than one book** (hidden for an individual, §2.1; 07 §2). Switching scope never loses the current screen — the same screen re-renders in the new context. In Everything scope each book card carries a **provisional** badge while that book has an author gap (ADR 2026-09-05f §B).
 
-### 2.3 Who am I, here? 🔒
+### 2.3 Who am I, here? 🔒 ⟦tests: F1-13-6, F1-13-7, F1-13-9, F1-13-10, F1-13-11, F1-13-12, F1-13-13, F1-13-14⟧
 Because one person holds different roles in different books, **the current identity and role are always visible**: the top bar's scope chip carries the user's avatar, and tapping it shows *"Amrit Kaur · Admin in this book"*. On every screen where capability differs, the role is stated rather than implied — a viewer sees "You can view this book" where the entry button would be, not an absent button. Rule: **never hide a capability silently; either show it enabled, or state why it is not there.**
 
 ### 2.3.1 Role variants each screen must be designed for
@@ -68,14 +68,14 @@ Because one person holds different roles in different books, **the current ident
 | Close | can lock, cannot lock alone | confirms own book | — | — | — |
 
 ### 2.4 Roles → capability, not navigation
-Roles (admin · head · member · operator · viewer) change *what actions appear*, never *which screens exist*. A viewer sees the same statement screen without the entry button. This keeps the mental model stable across a family where everyone has different rights. **Designations are separate** (06 §1.0 🔒, Option B): a free display label per member — ਖ਼ਜ਼ਾਨਚੀ, Munshi, Patron — admin-set, always shown *with* the capability in plain words, never *instead of* it.
+Roles (admin · head · member · operator · viewer) change *what actions appear*, never *which screens exist*. A viewer sees the same statement screen without the entry button. This keeps the mental model stable across a family where everyone has different rights. **Designations are separate** (06 §1.0 🔒, Option B): a free display label per member — ਖ਼ਜ਼ਾਨਚੀ, Munshi, Patron — admin-set, always shown *with* the capability in plain words, never *instead of* it. ⟦tests: F1-07-36 @M7⟧
 
 ---
 
 ## 3. Information architecture
 
 ### 3.1 Navigation model
-**Four tabs plus a docked centre action** 🔒 (ADR 2026-09-05f §A) — the 4-column bar of design-system §4.1 (Home · Ledger · Inbox · Menu) with ( + ) docked between Ledger and Inbox as an action, not a tab (no active state, no label). 07 §2 and DESIGN-PACK S1 say the same:
+**Four tabs plus a docked centre action** 🔒 (ADR 2026-09-05f §A) — the 4-column bar of design-system §4.1 (Home · Ledger · Inbox · Menu) with ( + ) docked between Ledger and Inbox as an action, not a tab (no active state, no label). 07 §2 and DESIGN-PACK S1 say the same: ⟦tests: F1-13-1, F1-13-2, F1-13-3, F1-13-4, F1-13-5⟧
 
 ```
 ┌──────────────────────────────────────────────────────┐
@@ -287,7 +287,7 @@ Notation: `→` step · `◆` decision · `⟳` loops until · `‖` parallel.
 
 **F1 · First run**
 `S0.0 splash → S0.1 language → S0.05 welcome (3 slides, skippable) → S0.2 phone+OTP → S0.3 purpose ◆(Myself | My shop | My businesses | My family | Our trust) → S0.4 name → S0.8 set PIN → S0.5 keeping your books safe (+ S0.5b sheet: print → verify by scanning it back) → branch steps S0.6a–i per card, each skippable (07 §3.1.1) → S0.6 own opening balances (skippable) → S1 with setup checklist`
-Success: user reaches Home understanding that no password exists and the paper sheet matters. 🔒 Branch order ruled 2 Sep 2026 (ADR): **after the shared steps**, per 07 §3.1.1 — identity and safety finish before any entity setup, and every branch step lands on the checklist anyway. Canvas 0's map is aligned; Canvas 1's flow band is realigned when its partial is recovered (256 KiB cap).
+Success: user reaches Home understanding that no password exists and the paper sheet matters. 🔒 Branch order ruled 2 Sep 2026 (ADR): **after the shared steps**, per 07 §3.1.1 — identity and safety finish before any entity setup, and every branch step lands on the checklist anyway. Canvas 0's map is aligned; Canvas 1's flow band is realigned when its partial is recovered (256 KiB cap). ⟦tests: F1-07-16 @M5⟧
 
 **F2 · Daily entry (the 8-second path)**
 `S1 verb button (or ( + )) → S2 amount keypad → account chip (none pre-selected) → S2.1 counterpart (recents first; inline create if new) → [note/photo/date optional] → Save → toast "Saved ✓" + Undo 10s → keypad stays open, zeroed`
@@ -406,7 +406,7 @@ Recovery completion revokes all prior sessions and notifies every tenant; **ever
 - [ ] Every screen holds at **375×667 and 360×800** at 200% font scale; reduced-motion and dark passes
 - [ ] Token names used in the canvases follow the **token ↔ CSS ↔ Dart ↔ Figma ↔ canvas map** (design-system §4); no second palette anywhere
 
-## 10. Decisions — settled 🔒
+## 10. Decisions — settled 🔒 ⟦tests: n/a — index of decisions settled elsewhere; each is marked at its owning ruling⟧
 
 All resolved from existing locked rules rather than fresh preference; the governing rule is cited for each.
 
