@@ -49,7 +49,7 @@ const settled = await parallel(
 You own these directories and must not touch anything else:
 ${l.dirs.map((d) => `  - ${d}`).join('\n')}
 
-Your report file (write it early, keep it current, `complete: false` until wholly done):
+Your report file (write it early, keep it current, \`complete: false\` until wholly done):
   .claude/lane-reports/${args.milestone}-${l.key}.json
 
 ${l.prompt}`,
@@ -61,14 +61,21 @@ ${l.prompt}`,
         ...(l.model ? { model: l.model } : {}),
         ...(l.effort ? { effort: l.effort } : {}),
       },
-    ).then((r) => (r ? { key: l.key, agent: l.agent, ...r } : { key: l.key, agent: l.agent, dead: true })),
+    )
+      .then((r) => (r ? { key: l.key, agent: l.agent, ...r } : { key: l.key, agent: l.agent, dead: true }))
+      // A lane that throws — most often the turn cap ending it before StructuredOutput — resolves
+      // to null in `parallel`, which loses the key with it. Catch here so every slot stays an
+      // object and the run can still name which lanes need re-running.
+      .catch((e) => ({ key: l.key, agent: l.agent, dead: true, error: String((e && e.message) || e) })),
   ),
 )
 
 // A lane is unfinished either because it died (no report returned) or because it capped out
 // mid-flight and said so. Both need another /lane run; neither may be gated over.
-const lanes = settled.filter((r) => !r.dead)
-const incomplete = settled.filter((r) => r.dead || r.complete === false).map((r) => r.key)
+// `parallel` can still hand back a null slot; keep it aligned with the lane that produced it.
+const results = settled.map((r, i) => r ?? { key: args.lanes[i].key, agent: args.lanes[i].agent, dead: true })
+const lanes = results.filter((r) => !r.dead)
+const incomplete = results.filter((r) => r.dead || r.complete === false).map((r) => r.key)
 const escalate = lanes.filter((l) => (l.open || []).some((o) => /🔒|ADR|golden|STOP/i.test(o))).map((l) => l.key)
 
 log(`${lanes.length}/${args.lanes.length} lanes reported`)
