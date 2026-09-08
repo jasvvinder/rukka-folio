@@ -78,7 +78,9 @@ Trunk-based on protected `main`; tags at milestone exits (`m1-ledger-core`); sec
 - Workspace: `dart pub get` at the root resolves every package (pub workspace; one lockfile).
 - App: `flutter test` · `flutter build ios` · `dart run build_runner build -d` (Drift codegen) · `flutter analyze`
 - Tokens / strings: `dart run scripts/gen_tokens.dart` after editing tokens.json · ARB keys stay dotted (`screen.element.state`); `scripts/gen_l10n_arb.dart` derives the identifier-keyed copies gen_l10n needs (`app.name` → `appName`), run by ci.sh
-- Server: `supabase db reset` (applies migrations + RLS tests) · `deno test server/functions`
+- Server: `eval "$(scripts/rls_db.sh)"` builds the RLS database from a local Postgres (no Docker — the migrations are
+  plain Postgres + `pgcrypto`) and exports `RF_TEST_DB_URL`; then `cd server && deno task test` runs the hostile-query
+  suite. `supabase db reset` remains the Docker path. · `deno test server/functions`
 - Build: `/lane <keys>` (≤3 lanes, then stops) · `/gate [lane]` (separate run) · `/close` (plan → changelog → clear)
 - Budget / recovery: `.claude/bin/wf-spend.sh` (week's token spend; `--all` for every run) · `.claude/bin/lane-status.sh` (which lanes landed, which are only part-way)
 - Full gate: `./scripts/ci.sh` (push lane by default; `LANE=nightly|rc|release` selects the others — 09 §preamble, ADR 2026-09-05i §2) · `dart run scripts/check_coverage.dart` (🔒→test ids; warn-only until M4)
