@@ -84,6 +84,17 @@ final class JsonPayloadOpener implements PayloadOpener {
 Uint8List encodeJsonPayload(Map<String, Object?> payload) =>
     Uint8List.fromList(utf8.encode(jsonEncode(payload)));
 
+/// Who owns a business book (02 §7.1 🔒, ADR 2026-09-09b §2). Asked on S0.6a;
+/// it decides whether the book gets a Capital/Drawings pair or one Partner
+/// Current A/c per owner — never both.
+enum BookOwnership {
+  /// One owner. Gets `Drawings A/c` alongside `Opening Balance / Capital`.
+  justMe,
+
+  /// Several owners. Gets a Partner Current A/c each, and no Drawings A/c.
+  shared,
+}
+
 /// A book's configuration envelope (`book_config`, 03 §2.3): what `books_p`
 /// is projected from.
 final class BookConfig {
@@ -94,18 +105,31 @@ final class BookConfig {
     required this.type,
     required this.name,
     this.fyStartMonth = 4,
+    this.ownership = BookOwnership.justMe,
     this.extra = const {},
   });
 
   /// Reads the wire form, keeping unknown fields in [extra].
   factory BookConfig.fromJson(Map<String, Object?> json) {
-    const known = {'id', 'tenant_id', 'type', 'name', 'fy_start_month'};
+    const known = {
+      'id',
+      'tenant_id',
+      'type',
+      'name',
+      'fy_start_month',
+      'ownership',
+    };
     return BookConfig(
       id: json['id'] as String,
       tenantId: json['tenant_id'] as String,
       type: BookType.values.byName(json['type'] as String),
       name: json['name'] as String,
       fyStartMonth: json['fy_start_month'] as int? ?? 4,
+      // Absent on books written before ADR 2026-09-09b; a book with no
+      // ownership recorded is a single-owner book.
+      ownership: BookOwnership.values.byName(
+        json['ownership'] as String? ?? BookOwnership.justMe.name,
+      ),
       extra: Map.unmodifiable(
         Map<String, Object?>.of(json)..removeWhere((k, _) => known.contains(k)),
       ),
@@ -127,6 +151,10 @@ final class BookConfig {
   /// FY start month (02 §1.1).
   final int fyStartMonth;
 
+  /// Who owns it (02 §7.1 🔒). Meaningful for [BookType.business]; every other
+  /// book type is [BookOwnership.justMe] and ignores it.
+  final BookOwnership ownership;
+
   /// Fields this client did not understand.
   final Map<String, Object?> extra;
 
@@ -137,6 +165,7 @@ final class BookConfig {
     'type': type.name,
     'name': name,
     'fy_start_month': fyStartMonth,
+    'ownership': ownership.name,
     ...extra,
   };
 }

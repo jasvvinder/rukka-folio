@@ -139,7 +139,9 @@ void main(List<String> args) {
             // ` @M<n>` marks a planned test (ADR 2026-09-08 §1): a property of the marker, not of
             // the id, so the id itself must still be well-formed.
             final plan = _plannedSuffix.firstMatch(entry);
-            final id = plan == null ? entry : entry.substring(0, plan.start).trim();
+            final id = plan == null
+                ? entry
+                : entry.substring(0, plan.start).trim();
             if (!_idPattern.hasMatch(id)) {
               badIds.add(Finding(where, 'malformed id "$entry"'));
               continue;
@@ -242,13 +244,19 @@ void main(List<String> args) {
       for (final e in plannedIds.entries)
         if (e.value <= currentMilestone && !declared.containsKey(e.key))
           for (final where in plannedWhere[e.key]!)
-            Finding(where, '${e.key} was promised at M${e.value} and no test declares it'),
+            Finding(
+              where,
+              '${e.key} was promised at M${e.value} and no test declares it',
+            ),
   ];
   final plannedLanded = <Finding>[
     for (final e in plannedIds.entries)
       if (declared.containsKey(e.key))
         for (final where in plannedWhere[e.key]!)
-          Finding(where, '${e.key} has landed — drop the "@M${e.value}" suffix'),
+          Finding(
+            where,
+            '${e.key} has landed — drop the "@M${e.value}" suffix',
+          ),
   ];
   final orphans = <Finding>[
     for (final e in declared.entries)
@@ -291,7 +299,10 @@ void main(List<String> args) {
   section('FAIL — 🔒 lines without a ⟦tests⟧ marker', unmarked);
   section('FAIL — marker ids no test declares', dangling);
   section('FAIL — planned tests past their milestone', overduePlanned);
-  section('warn — planned tests that have landed (drop the @M suffix)', plannedLanded);
+  section(
+    'warn — planned tests that have landed (drop the @M suffix)',
+    plannedLanded,
+  );
   section('FAIL — malformed ids', badIds);
   section('FAIL — superseded skips past their re-land milestone', overdueSkips);
   if (golden.error != null) out.writeln('\nFAIL — goldens: ${golden.error}');

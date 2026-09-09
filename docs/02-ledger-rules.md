@@ -169,6 +169,13 @@ Family book:     Dr Bank 50,000 · Cr Due to/from Business 50,000
 
 **Shared ownership is optional 🔒 (owner-approved).** Adding a business asks one question — *"Who owns this business?"* → **Just me** (default) or **Shared with others**. Choosing *Just me* creates a plain business book with a single Capital/Drawings pair and **never mentions partners, ratios or profit distribution anywhere in the app**. Only *Shared with others* asks for the owners and their ratio, and only then do partner accounts, the distribution wizard and the partner-position screen exist. Ownership can be changed later (a structural change: requires every current owner's approval and is recorded as a dated envelope).
 
+> **ADR 2026-09-09b** — `Drawings A/c` is seeded for a *Just me* business book and owner takeout posts
+> `Dr Drawings · Cr money`, never an expense. Capital is **not** a separate account: `Opening Balance / Capital`
+> already is it, as both worked examples name it. A shared business gets Partner Current accounts and **no**
+> Drawings account. ⟦tests: A-09b-1, A-09b-2, A-09b-3, A-09b-4 @M5⟧
+> **ADR 2026-09-09c §2** — a joint family that owns businesses is several books linked by Due-to/from pairs;
+> sub-family shares are books, never accounts inside one book. ⟦tests: A-09c-4 @M5⟧
+
 A business owned by several people or sub-families gets one **Partner Current A/c** per owner (class `partner`, natural balance **Cr** = the business owes them). It is the single place that relationship lives.
 
 **Three distinct events post to it — keeping them distinct is the whole model:**
@@ -260,6 +267,11 @@ The ledger is continuous, so money, party, and advance balances carry forward ac
 - **Year states:** `open` → `closed`, per book ("Certified ✓" is the badge copy, not a state — 13 §6). Preconditions to close FY: every month locked, Suspense = 0, **no open author-sequence gap and no `held` envelope (ADR 2026-09-05e §4)**, **no open review flags** (`review_state = 'open'`, §3) **and no `pending` advance requests** (§7) — these are two distinct queues and both must be empty; businesses are prompted (optional) to run profit distribution first; aged advances warn but don't block.
 - **Ceremony:** the closer's device computes the **closing balance vector** — every money, party, advance, partner and equity_system account, **restricted to entries whose `accounting_date` ≤ the FY's last day regardless of HLC**; category accounts are **not** carried, the year's net surplus/deficit is recorded as one line, and each FY's P&L is computed from that FY's envelopes alone (ADR 2026-09-05e §2) — and publishes it as a signed year-close envelope; every member's device independently recomputes and verifies it — the same mechanism as month-close step 4. On success the year flips to `closed` and the vector becomes the **certified opening balances (b/f) of the new FY**.
 - **Presentation:** a financial-year switcher on every ledger, report, and export. Each FY view opens with *Opening balance b/f* and ends with *Closing balance c/f*; P&L figures are scoped to the selected FY; printed/exported ledgers carry the b/d and c/d rows so they read exactly like the traditional book.
+> **ADR 2026-09-09 §4** — the switcher is one control on three surfaces (S4 · S8.2 · S10.4): the year
+> becomes a chip, a closed year shows the b/f it hands on with the badge copy *Certified*, and there is no
+> switcher at all until the first year close. Until S10.4 exists (M9) b/f is computed from entries before
+> the FY start; the certified vector replaces it then. ⟦tests: F1-07-46 @M5⟧
+
 - **Prior-year corrections:** after a year closes, corrections post as reversals dated in the current FY (§5 already enforces this via month locks). The certified opening of a closed year **never changes** — the fix appears in the year it is made, which is standard practice and keeps every past-year report permanently true once printed.
 - **Reopening:** unlocking any month of a closed year voids that year's certificate *and every later year's*, admin-only, loudly warned, logged; re-closing is required in order.
 - **Performance and archive:** after a year close, clients compute live balances as *certified opening vector + current-FY envelopes* instead of replaying all history, and closed-year envelopes may be cold-archived server-side and fetched on demand. Ten years of family data stays instant.

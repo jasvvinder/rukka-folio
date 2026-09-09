@@ -55,6 +55,7 @@ Future<List<String>> projectionDump(LocalLedger l) async {
 }
 
 void main() {
+  _adr2026_09_09b();
   group('bootstrap', () {
     test('F1-02-1 LedgerNotOpen before bootstrapSolo', () async {
       final l = await openTestLedger();
@@ -187,12 +188,19 @@ void main() {
         accountClass: AccountClass.party,
       );
       final chart = await l.chartOf(bookId);
+      // Since ADR 2026-09-09b §2 a *Just me* business book is seeded with two
+      // system accounts, not one: Opening Balance / Capital, then Drawings.
+      final system = chart.byClass(AccountClass.equitySystem);
       expect(chart.accounts.map((a) => a.id), [
-        chart.byClass(AccountClass.equitySystem).single.id,
+        ...system.map((a) => a.id),
         cash.id,
         party.id,
       ]);
-      final opening = chart.byClass(AccountClass.equitySystem).single;
+      expect(system.map((a) => a.systemRole), [
+        SystemRole.openingBalance,
+        SystemRole.drawings,
+      ]);
+      final opening = system.first;
       expect(opening.systemRole, SystemRole.openingBalance);
       expect(opening.name, 'Opening Balance');
       expect(chart.account(cash.id).subtype, MoneySubtype.cash);
@@ -900,6 +908,123 @@ void main() {
       expect(h.authorGapCount, 0);
       expect(h.quarantinedCount, 0);
       expect(h.isProvisional, isFalse);
+    });
+  });
+}
+
+void _adr2026_09_09b() {
+  group('ADR 2026-09-09b — Capital is Opening Balance; Drawings is seeded', () {
+    testWidgets(
+      'A-09b-1 Capital is the Opening Balance account, not a second one',
+      (tester) async {
+        final l = await openTestLedger();
+        await l.bootstrapSolo(firstBookName: 'Me');
+        final bookId = await l.createBook(
+          name: 'Shop',
+          type: BookType.business,
+        );
+        final chart = await l.chartOf(bookId);
+        final equity = chart.accounts
+            .where((a) => a.accountClass == AccountClass.equitySystem)
+            .toList();
+        // Exactly one account carries the opening-balance role: both worked
+        // examples name it `Opening Balance / Capital A/c`, so splitting Capital
+        // off would break their trial balances.
+        expect(
+          equity.where((a) => a.systemRole == SystemRole.openingBalance),
+          hasLength(1),
+        );
+        expect(
+          SystemRole.values.where((r) => r.name == 'capital'),
+          isEmpty,
+          reason: 'ADR 2026-09-09b §1: no separate capital role exists',
+        );
+      },
+    );
+
+    testWidgets('A-09b-2 a Just me business book is seeded with Drawings A/c', (
+      tester,
+    ) async {
+      final l = await openTestLedger();
+      await l.bootstrapSolo(firstBookName: 'Me');
+      final bookId = await l.createBook(
+        name: 'Sharma Super Store',
+        type: BookType.business,
+      );
+      final chart = await l.chartOf(bookId);
+      final drawings = chart.accounts
+          .where((a) => a.systemRole == SystemRole.drawings)
+          .toList();
+      expect(drawings, hasLength(1));
+      expect(drawings.single.accountClass, AccountClass.equitySystem);
+      expect(drawings.single.name, 'Drawings');
+    });
+
+    testWidgets(
+      'A-09b-3 no Drawings A/c for a shared business, or any non-business book',
+      (tester) async {
+        final l = await openTestLedger();
+        await l.bootstrapSolo(firstBookName: 'Me');
+
+        Future<int> drawingsCount(String bookId) async {
+          final chart = await l.chartOf(bookId);
+          return chart.accounts
+              .where((a) => a.systemRole == SystemRole.drawings)
+              .length;
+        }
+
+        // 02 §7.1: a shared business gets one Partner Current A/c per owner,
+        // "the single place that relationship lives" — never a Drawings A/c
+        // as well.
+        final shared = await l.createBook(
+          name: 'Amrit Kaur Agri',
+          type: BookType.business,
+          ownership: BookOwnership.shared,
+        );
+        expect(await drawingsCount(shared), 0);
+
+        for (final t in [
+          BookType.personal,
+          BookType.family,
+          BookType.joint,
+          BookType.organization,
+        ]) {
+          final id = await l.createBook(name: 'B-${t.name}', type: t);
+          expect(
+            await drawingsCount(id),
+            0,
+            reason: '${t.name} books have no owner/business boundary',
+          );
+        }
+      },
+    );
+
+    testWidgets('A-09b-3 ownership round-trips, and defaults to justMe', (
+      tester,
+    ) async {
+      // Rule 6 / ADR 2026-09-09b §2: a book written before this ADR carries no
+      // `ownership` on the wire and must read back as a single-owner book.
+      final legacy = BookConfig.fromJson({
+        'id': 'b1',
+        'tenant_id': 't1',
+        'type': 'business',
+        'name': 'Old Shop',
+        'fy_start_month': 4,
+        'something_new': 42,
+      });
+      expect(legacy.ownership, BookOwnership.justMe);
+      expect(legacy.extra['something_new'], 42);
+
+      final shared = BookConfig.fromJson(
+        BookConfig(
+          id: 'b2',
+          tenantId: 't1',
+          type: BookType.business,
+          name: 'Agri',
+          ownership: BookOwnership.shared,
+        ).toJson(),
+      );
+      expect(shared.ownership, BookOwnership.shared);
     });
   });
 }

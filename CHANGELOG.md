@@ -12,6 +12,133 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-09 — M5 lane U3a closed: ledger index, quick add, A/C statement
+
+`U3a` had been `complete: false` for three runs. Run four went up a tier to `lane-ui-hard` (opus) and
+cleared the blocker; the owner then called out that a lane should land green **and gated** in one
+go, so the remainder — under the ~30-minute lane threshold — was finished inline rather than by
+spawning a fifth lane. **`./scripts/ci.sh` is green on the push lane.**
+
+**Added**
+- `F1-07-44` — the S4 A/C statement widget test (7 cases): professional Dr/Cr vocabulary with the
+  consumer *Money in / Money out* asserted absent (02 §10 🔒), b/f and c/f rows, the counter account
+  as particulars, empty · loading · error states (13 §4.3), and EN/PA/HI at 200% on 360×800.
+- `F1-07-43` — the S3.1 quick-add sheet test (5 cases).
+- A sticky alphabet rail on S3 (07 §6): the list is now a `CustomScrollView` of `SliverMainAxisGroup`
+  + a pinned `SliverPersistentHeader` per letter, asserted both structurally and by scrolling.
+- **19/19 green** in `app/test/features/ledger`.
+
+**Changed**
+- `flutter test test/features/ledger` finishes at all: it was killed at 600s before this session.
+  Two real defects behind it — S3.1's action `Row` put a `FilledButton` under unbounded width against
+  the theme's `Size.fromHeight(48)`, so every frame threw *BoxConstraints forces an infinite width*
+  and `pumpAndSettle` ground through ten simulated minutes of error frames (actions are now stacked
+  full-width); and the test awaited a drift stream's `.first` inside the fake-async zone, whose
+  zero-duration timer never fires (now read through `tester.runAsync`).
+- **S4 carried the same `initState` defect S3 had**, found by `F1-07-44`: it read
+  `LedgerScope.of(context)` from `initState`, which throws, and the caught throw pinned every case to
+  the error state. Moved to `didChangeDependencies` behind a `_resolveStarted` guard, with a
+  `_retry()` that clears the error.
+- S4 at 200% on 360×800: the Dr | Cr | Balance columns were hard-coded 72/72/84 px and could not fit
+  beside the particulars. They are now scaled by `MediaQuery.textScalerOf`, the line folds so the
+  figures take a row of their own when they would need more than two-thirds of the width, and the
+  b/f and c/f rows stack past 1.3×.
+- 07 §6 marker line now reads `⟦tests: F1-02-9, F1-02-10, F1-07-42, F1-07-43, F1-07-44⟧`
+  (marker append on a 🔒 heading; no behaviour of §6 changed).
+- `dart format` over the tree, which the gate requires — it also touched `scripts/check_coverage.dart`,
+  unformatted before this session and unrelated to this lane.
+
+**Decided** 🔒 — [ADR 2026-09-09](docs/decisions/2026-09-09-shared-ownership-and-fy-switcher.md).
+- **S0.6a1 "Who owns this business?"** is a screen — the *Shared with others* branch of S0.6a had no
+  designed surface at all (canvas 4 drew the chip pair and stopped), so a shared business could not be
+  created. Owner ruled: owners are **invited by phone at setup**, reusing the S0.6e row unchanged.
+- **Shares are whole-number weights, not percentages.** 02 §7.1 divides by weight, so three equal owners
+  cannot be written in percent — 33/33/34 is a real 1% difference on every distribution. The percentage
+  is computed and shown, never typed, which removes the "must add to 100" state entirely.
+- **S0.6a1 is not skippable**, unlike every other S0.6 branch step: the ratio is fixed at creation. Its
+  secondary returns to *Just me* rather than being a dead end (07 §1 rule 6).
+- **The FY switcher is one control on three surfaces** (S4 · S8.2 · S10.4), absent until the first year
+  close, with b/f computed until S10.4 certifies it in M9.
+
+- **The chart of accounts is seeded from the setup answers** — [ADR 2026-09-09c](docs/decisions/2026-09-09c-seeded-chart-and-opening-balances.md).
+  Seeding was already implied by 02, 07 §5.7 and 07 §3.1; this settles the whole seed per book type and
+  turns S0.6b from the three-step O6 wizard into **one grouped review-and-fill**. No party accounts are
+  ever seeded (02 §1.2 🔒 — one party, one account, sign decides), banks are seeded unnamed, and
+  Due-to/from accounts appear as books are created rather than being typed. §4 fixes the arithmetic:
+  opening balances must balance, `Opening Balance / Capital` absorbs the difference and the screen says
+  so out loud, and a shared business's owner contributions are **asked, never derived from the sharing
+  ratio** (02 §7.1 🔒 keeps the two apart).
+- **Sub-family shares are books, not accounts.** `joint-family-sharma.md` is four books joined by
+  Due-to/from pairs; putting sub-family shares inside one book is the conflation 02 §7.1 warns
+  "corrupts the partnership arithmetic".
+- **Capital/Drawings is real** — [ADR 2026-09-09b](docs/decisions/2026-09-09b-capital-drawings-pair.md).
+  02 §7.1 always said a *Just me* business book gets a Capital/Drawings pair; nothing created one.
+  `SystemRole.drawings` turned out to already exist and be referenced **nowhere**, there was no `capital`
+  role at all, and `openingBalance` was documented as being Capital too. Owner ruled: make it real, seeded
+  by `createBook` for business books. A shared business gets Partner Current accounts *instead of* the pair
+  (02 §7.1 calls them "the single place that relationship lives"). Owner takeout posts
+  `Dr Drawings · Cr money` and is never an expense, which makes S2.5 buildable. Not implemented this
+  session — it is core_ledger work against a 🔒 line, and fable is 5/2 over budget.
+
+**Design**
+- Five journey variants of the seeded opening-balances screen pushed as `partials/new-screens-d.json`
+  (personal · business Just-me · business Shared · family pool · trust). Two owner corrections shaped
+  them: business books say the accounting words outright — `01 §1` rule 4 🔒 requires it, so the Just-me
+  variant groups by *Sundry debtors / Sundry creditors* and names `Capital A/c` and `Drawings A/c` —
+  and there is now **one** *Add an account* per screen opening S3.1's type grid, rather than a
+  per-group add that pre-decided the class. That matches the ratified S9.5 artboard, which already
+  worked that way.
+- Three artboards drafted and pushed to the Claude Design project as `partials/new-screens-c.json`
+  (S0.6a1 in both states, and the FY switcher). Written to a **new** staging file on purpose:
+  `canvas12-screens.json` is 247 KB and the additions would breach the 256 KiB cap, and the mirror had
+  not re-pulled since 3 Sep so overwriting an existing file risked clobbering remote work. Placement into
+  Canvas 12 and the rebuild remain to be done in the design app; PA/HI copy joins the existing
+  `TRANSLATION-PENDING.md` backlog for the S0.6 branches.
+- S4's ⚠️ SPEC comment about the missing FY switcher is resolved into a TODO pointing at ADR §4.
+
+**Decided** 🔒 — CLAUDE.md rule 11, *never assume, never guess* (owner-directed).
+Verify before asserting, and attach the evidence to the claim. Written against three failures from this
+session rather than as a maxim: *"the engine has no Drawings account"* (it had been declared and unused
+since day one), *"I can't do that from here"* (node, the build script and a write API were all present),
+and an ADR ruling that split Capital from Opening Balance without opening `docs/reference/`, where both
+worked examples name the single account `Opening Balance / Capital A/c`. Extends, and does not replace,
+the existing stop-and-ask rules in § Accounting authority and § Workflow.
+
+**Also landed**
+- **The Drawings seeding is built and green** — `BookOwnership { justMe, shared }` on `BookConfig`
+  (`packages/data`), threaded through `LocalLedger.createBook`, which now seeds `Drawings A/c` for a
+  *Just me* business book and for nothing else. `A-09b-1`–`A-09b-3`, four tests, plus `F1-02-2` updated:
+  a business book legitimately has **two** system accounts now, so its `.single` assertion became a
+  two-element expectation rather than being skipped — the behaviour it guards (system accounts first, in
+  creation order) is unchanged. 22/22 green in `local_ledger_test.dart`. Old books carry no `ownership`
+  on the wire and read back as `justMe` (rule 6, unknown-field round-trip).
+- **Category trees drafted** — `docs/reference/seed-category-trees.md`, EN only, every name lifted
+  verbatim from the worked examples. **Finding: there are four trees, not three.** `01 §1.8` and `02` say
+  household/shop/trust, but the examples carry a distinct farm vocabulary (Seed & Fertiliser, Diesel &
+  Machinery, Cattle Feed, Crop Sale, Milk Sale) that no shop tree covers, and `07 §5.7` already hedges
+  with *"the shop or trade category tree"*. ਪੰਜਾਬੀ/हिन्दी columns are deliberately blank — `01 §1.8` puts
+  them behind native review, not translation.
+- The remaining `lane-core` item is now only the **Drawings verb** (ADR 2026-09-09b §3); the seeding
+  needed no escalation.
+
+**Open**
+- ⚠️ **Owner call:** 07 §6 bullet 3 is 🔒 and lists eight quick-add tiles including Capital; S3.1 ships
+  seven, because 02 §7.1 makes the Capital/Drawings pair structural and created at business setup, and
+  no `AccountClass` models an ad-hoc capital account. Matching §6 needs either a doc change or invented
+  engine semantics. ⚠️ SPEC comment stays in `s3_1_quick_add_sheet.dart` until ruled.
+- ⚠️ S4 has no FY switcher or period tabs (07 §6, 13 §7): `watchStatement()` takes no date range, so
+  this needs a data-seam change in a later lane. ⚠️ SPEC comment in the screen.
+- ⚠️ Process, for the owner: four runs died on this one lane. Only run 1 was over-scoping. Run 4 spent
+  roughly a quarter of its 40 turns discovering that `timeout` does not exist on macOS and working out
+  how to run a hanging test — a repo gap, not a model gap. Worth one line in CLAUDE.md § Commands
+  (`flutter test --timeout 30s`), and worth separating *diagnosis* lanes from *build* lanes, since a
+  bug hunt cannot be sized against a turn cap in advance.
+
+**Commits**
+- _(pending — the owner commits)_
+
+---
+
 ## 2026-09-08 (third session) — M5 lanes U1a + U3a, and the model-tier ruling
 
 Ran `/lane U1a U3` as the orchestrator. U1a landed; U3 died at its turn cap for the third time this

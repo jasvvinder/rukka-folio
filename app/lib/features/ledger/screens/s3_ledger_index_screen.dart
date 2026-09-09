@@ -14,8 +14,10 @@ import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/format/money_format.dart';
 import '../../../shared/ledger/ledger_scope.dart';
 import '../../../shared/ledger/local_ledger.dart';
+import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../ledger_book.dart';
+import 's3_1_quick_add_sheet.dart';
 
 /// Filter chips over the index (07 §6).
 enum LedgerFilter { all, parties, categories, money, system }
@@ -57,9 +59,16 @@ class _LedgerIndexScreenState extends State<LedgerIndexScreen> {
   String? _bookId;
   Object? _resolveError;
 
+  bool _resolveStarted = false;
+
   @override
-  void initState() {
-    super.initState();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // The scope is an InheritedWidget, so it may only be read from here on —
+    // reading it in initState() throws, and a caught throw would pin the
+    // screen to its error state forever.
+    if (_resolveStarted) return;
+    _resolveStarted = true;
     _resolveBook();
   }
 
@@ -68,12 +77,18 @@ class _LedgerIndexScreenState extends State<LedgerIndexScreen> {
       setState(() => _bookId = widget.bookId);
       return;
     }
+    final ledger = LedgerScope.of(context);
     try {
-      final id = await soloBookId(LedgerScope.of(context));
+      final id = await soloBookId(ledger);
       if (mounted) setState(() => _bookId = id);
     } catch (e) {
       if (mounted) setState(() => _resolveError = e);
     }
+  }
+
+  void _retry() {
+    setState(() => _resolveError = null);
+    _resolveBook();
   }
 
   Future<void> _openQuickAdd(String bookId) async {
@@ -94,7 +109,7 @@ class _LedgerIndexScreenState extends State<LedgerIndexScreen> {
       appBar: AppBar(title: Text(l10n.ledgerTitle)),
       body: SafeArea(
         child: _resolveError != null
-            ? _ErrorState(text: l10n.ledgerListError, onRetry: _resolveBook)
+            ? _ErrorState(text: l10n.ledgerListError, onRetry: _retry)
             : _bookId == null
             ? _Skeleton(label: l10n.ledgerListSkeleton)
             : _body(context, _bookId!),
@@ -183,7 +198,6 @@ class _LedgerIndexScreenState extends State<LedgerIndexScreen> {
   Widget _list(BuildContext context, List<AccountBalance> rows) {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
-    final status = RkStatusColors.of(context);
     final q = _query.trim().toLowerCase();
     final filtered =
         rows
@@ -198,62 +212,70 @@ class _LedgerIndexScreenState extends State<LedgerIndexScreen> {
           );
 
     if (filtered.isEmpty) {
-      return _SearchMiss(query: _query);
+      return _SearchMiss(
+        query: _query,
+        onCreate: _bookId == null ? null : () => _openQuickAdd(_bookId!),
+      );
     }
 
-    String? lastLetter;
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(vertical: RkSpace.s2),
-      itemCount: filtered.length,
-      itemBuilder: (context, i) {
-        final row = filtered[i];
-        final letter = row.account.name.isEmpty
-            ? '#'
-            : row.account.name[0].toUpperCase();
-        final showHeader = letter != lastLetter;
-        lastLetter = letter;
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (showHeader)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  RkSpace.gutter,
-                  RkSpace.s3,
-                  RkSpace.gutter,
-                  RkSpace.s1,
-                ),
-                child: Text(
-                  letter,
-                  style: text.labelLarge?.copyWith(color: status.muted),
-                ),
+    // 07 §6: a *sticky* alphabet rail — each letter's header stays pinned
+    // while its own accounts are on screen, so the A-Z position is never
+    // lost mid-scroll.
+    final groups = <String, List<AccountBalance>>{};
+    final letters = <String>[];
+    for (final row in filtered) {
+      final letter = row.account.name.isEmpty
+          ? '#'
+          : row.account.name[0].toUpperCase();
+      if (!groups.containsKey(letter)) {
+        groups[letter] = [];
+        letters.add(letter);
+      }
+      groups[letter]!.add(row);
+    }
+
+    return CustomScrollView(
+      slivers: [
+        for (final letter in letters)
+          SliverMainAxisGroup(
+            slivers: [
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: _LetterHeader(letter: letter),
               ),
-            ListTile(
-              minTileHeight: RkSpace.rowMinHeight,
-              title: Text(
-                row.account.name,
-                style: text.bodyLarge,
-                // 01 §1 rule 9 / design-system §3.1 rule 1: user-typed text
-                // carries its own language tag for the screen reader. Names
-                // are free text; we don't know the script, so this leaves the
-                // ambient locale — logged in the lane report.
+              SliverList.builder(
+                itemCount: groups[letter]!.length,
+                itemBuilder: (context, i) {
+                  final row = groups[letter]![i];
+                  return ListTile(
+                    minTileHeight: RkSpace.rowMinHeight,
+                    title: Text(
+                      row.account.name,
+                      style: text.bodyLarge,
+                      // 01 §1 rule 9 / design-system §3.1 rule 1: user-typed
+                      // text carries its own language tag for the screen
+                      // reader. Names are free text; we don't know the
+                      // script, so this leaves the ambient locale — logged in
+                      // the lane report.
+                    ),
+                    subtitle: Text(
+                      _classLabel(l10n, row.account.accountClass),
+                      style: text.bodySmall,
+                    ),
+                    trailing: MoneyText(
+                      row.balancePaise,
+                      vocabulary: Vocabulary.professional,
+                      favour: row.balancePaise >= 0
+                          ? Favour.favourable
+                          : Favour.unfavourable,
+                    ),
+                    onTap: () => widget.onOpenAccount?.call(row.account.id),
+                  );
+                },
               ),
-              subtitle: Text(
-                _classLabel(l10n, row.account.accountClass),
-                style: text.bodySmall,
-              ),
-              trailing: MoneyText(
-                row.balancePaise,
-                vocabulary: Vocabulary.professional,
-                favour: row.balancePaise >= 0
-                    ? Favour.favourable
-                    : Favour.unfavourable,
-              ),
-              onTap: () => widget.onOpenAccount?.call(row.account.id),
-            ),
-          ],
-        );
-      },
+            ],
+          ),
+      ],
     );
   }
 
@@ -269,10 +291,13 @@ class _LedgerIndexScreenState extends State<LedgerIndexScreen> {
 }
 
 class _SearchMiss extends StatelessWidget {
-  const _SearchMiss({required this.query, required this.bookId});
+  const _SearchMiss({required this.query, this.onCreate});
 
   final String query;
-  final String? bookId;
+
+  /// Opens the quick-add sheet (S3.1). 07 §6: the search-miss state *is* the
+  /// create row — a miss must never be a dead end (07 §1 rule 6).
+  final VoidCallback? onCreate;
 
   @override
   Widget build(BuildContext context) {
@@ -287,6 +312,17 @@ class _SearchMiss extends StatelessWidget {
                 ? l10n.ledgerListEmpty
                 : l10n.ledgerListEmptyQuery(query),
             style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          const SizedBox(height: RkSpace.s3),
+          Card(
+            margin: EdgeInsets.zero,
+            child: ListTile(
+              minTileHeight: RkSpace.rowMinHeight,
+              leading: const Icon(Icons.add),
+              title: Text(l10n.ledgerNewAccount),
+              subtitle: query.isEmpty ? null : Text(query),
+              onTap: onCreate,
+            ),
           ),
         ],
       ),
@@ -362,4 +398,37 @@ class _Skeleton extends StatelessWidget {
       ),
     );
   }
+}
+
+/// The pinned letter of the alphabet rail (07 §6). Opaque, so the rows it
+/// pins over do not read through it, and sized in text so it still fits its
+/// own letter at 200%.
+class _LetterHeader extends SliverPersistentHeaderDelegate {
+  const _LetterHeader({required this.letter});
+
+  final String letter;
+
+  @override
+  double get minExtent => RkSpace.s6;
+
+  @override
+  double get maxExtent => RkSpace.s6;
+
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlaps) {
+    final status = RkStatusColors.of(context);
+    return Container(
+      alignment: Alignment.centerLeft,
+      color: Theme.of(context).colorScheme.surface,
+      padding: const EdgeInsets.symmetric(horizontal: RkSpace.gutter),
+      child: Text(
+        letter,
+        style: Theme.of(context).textTheme.labelLarge
+            ?.copyWith(color: status.muted),
+      ),
+    );
+  }
+
+  @override
+  bool shouldRebuild(_LetterHeader old) => old.letter != letter;
 }

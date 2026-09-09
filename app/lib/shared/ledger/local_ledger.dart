@@ -626,7 +626,9 @@ final class LocalLedger {
     required String name,
     required BookType type,
     int fyStartMonth = 4,
+    BookOwnership ownership = BookOwnership.justMe,
     String openingBalanceName = 'Opening Balance',
+    String drawingsName = 'Drawings',
   }) async {
     _requireOpen();
     final id = _identity!;
@@ -651,6 +653,7 @@ final class LocalLedger {
       type: type,
       name: name,
       fyStartMonth: fyStartMonth,
+      ownership: ownership,
     );
     await _author(
       bookId: bookId,
@@ -665,6 +668,19 @@ final class LocalLedger {
       accountClass: AccountClass.equitySystem,
       systemRole: SystemRole.openingBalance,
     );
+    // ADR 2026-09-09b §2: the Capital/Drawings pair belongs to a *Just me*
+    // business. Capital is the Opening Balance account above — both worked
+    // examples name it `Opening Balance / Capital A/c`, so it is not a second
+    // account. A shared business gets one Partner Current A/c per owner
+    // instead, which 02 §7.1 calls the single place that relationship lives.
+    if (type == BookType.business && ownership == BookOwnership.justMe) {
+      await addAccount(
+        bookId,
+        name: drawingsName,
+        accountClass: AccountClass.equitySystem,
+        systemRole: SystemRole.drawings,
+      );
+    }
     return bookId;
   }
 

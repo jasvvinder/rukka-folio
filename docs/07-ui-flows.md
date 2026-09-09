@@ -176,9 +176,15 @@ Face ID / Touch ID is **not optional and not a setting** — it already guards t
 ## 5.7 Adding a business 🔒 (gap closed 1 Sep 2026) ⟦tests: F1-07-20 @M5⟧
 Reached from Menu → Books, or immediately after the purpose card "My shop" / "My businesses". Four fields and nothing else: **name** · **who owns it** (*Just me* default / *Shared with others* → owners and ratio, 02 §7.1) · **financial year start** (1 April default) · **opening balances** (bank, cash, anyone who owes or is owed). Creating the book adds its chip to the scope switcher and seeds the shop or trade category tree.
 
+> **ADR 2026-09-09c §1, §3** — the seed is specified per book type (money, equity, income/expense; no party accounts, banks seeded unnamed), and S0.6b is **one grouped screen** rather than the three-step O6 wizard: once the accounts exist the screen is review-and-fill. ⟦tests: A-09c-1 @M5, F1-09c-1 @M5⟧
+
+> **ADR 2026-09-09 §1–3** — the *Shared with others* branch is a screen, **S0.6a1**: owners are invited
+> by phone at setup (the S0.6e row, unchanged), shares are whole-number weights rather than percentages,
+> and the step is not skippable — its secondary returns to *Just me*. ⟦tests: F1-07-45 @M5⟧
+
 🔒 **The scope switcher has two forms, and they are different controls:** with **one business** it is a two-chip inline toggle in the top bar (S1.2); from **three or more books** it becomes the grouped bottom sheet (S1.3). Never show the grouped sheet to someone who owns two books.
 
-## 6. Ledger — the A/C index 🔒 ⟦tests: F1-02-9, F1-02-10⟧
+## 6. Ledger — the A/C index 🔒 ⟦tests: F1-02-9, F1-02-10, F1-07-42, F1-07-43, F1-07-44⟧
 
 - A–Z list of every A/C in scope with live balance, colored by sign; sticky alphabet rail; **search is the header** (the fastest path to any khata); filter chips: All · Parties · Categories · Money · System.
 - Row tap → **A/C statement**: professional paper-ledger layout in the traditional three columns — **ਨਾਮੇ | ਜਮ੍ਹਾਂ | ਬਾਕੀ** (नामे | जमा | बाकी / Dr | Cr | Balance), cells colored directionally per the approved option A (design-system §5) — with *Opening balance b/f* carrying its as-on date (the period's first day, e.g. `as on 01 ਅਗਸਤ 2026`) and *Closing balance c/f* carrying the date it is forwarded — the period's last day, or today's date while the period is still open 🔒 (owner rule), dated entries with running balance between them; FY switcher (02 §8.1); export this A/C (PDF/XLSX) top-right; for parties: WhatsApp-share a statement image (the Khatabook habit — it drives adoption).

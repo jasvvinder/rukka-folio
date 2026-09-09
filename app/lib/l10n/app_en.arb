@@ -592,9 +592,174 @@
   "@inbox.placeholder.body": {
     "description": "P0 placeholder until S6 lands."
   },
+  "ledger.filter.all": "All",
+  "@ledger.filter.all": {
+    "description": "S3 index filter chip (07 §6)."
+  },
+  "ledger.filter.categories": "Categories",
+  "@ledger.filter.categories": {
+    "description": "S3 index filter chip; also the account-class label shown on an income/expense row."
+  },
+  "ledger.filter.money": "Money",
+  "@ledger.filter.money": {
+    "description": "S3 index filter chip; also the account-class label shown on a cash/bank/credit row."
+  },
+  "ledger.filter.parties": "Parties",
+  "@ledger.filter.parties": {
+    "description": "S3 index filter chip; also the account-class label shown on a party row."
+  },
+  "ledger.filter.system": "System",
+  "@ledger.filter.system": {
+    "description": "S3 index filter chip; also the account-class label shown on an advance/partner/equity row."
+  },
+  "ledger.list.empty": "No accounts here yet",
+  "@ledger.list.empty": {
+    "description": "S3 index — never truly empty in practice, but shown if a filter clears the seeded tree (13 §4.3 empty state)."
+  },
+  "ledger.list.empty_query": "No account matches \"{query}\"",
+  "@ledger.list.empty_query": {
+    "description": "S3 index — a search miss, which is the one real empty state (07 §6); offers the create row below it.",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.list.error": "Couldn't load your accounts",
+  "@ledger.list.error": {
+    "description": "S3 index — book resolve/watch error state (13 §4.3)."
+  },
+  "ledger.list.retry": "Try again",
+  "@ledger.list.retry": {
+    "description": "Retry action on the S3/S4 error states."
+  },
+  "ledger.list.skeleton": "Loading accounts",
+  "@ledger.list.skeleton": {
+    "description": "S3 index — loading skeleton announcement (11 §4.5)."
+  },
+  "ledger.new_account": "New A/C",
+  "@ledger.new_account": {
+    "description": "S3 index — FAB opening the S3.1 quick-add sheet."
+  },
   "ledger.placeholder.body": "Every account, A to Z, will be listed here.",
   "@ledger.placeholder.body": {
     "description": "P0 placeholder until S3 lands."
+  },
+  "ledger.quick_add.back": "Back",
+  "@ledger.quick_add.back": {
+    "description": "S3.1 step 2 — return to the type grid, keeping this sheet open (07 §1 rule 2: no dead ends)."
+  },
+  "ledger.quick_add.cancel": "Cancel",
+  "@ledger.quick_add.cancel": {
+    "description": "S3.1 step 1 — dismiss the sheet without creating anything."
+  },
+  "ledger.quick_add.name_error": "Enter a name",
+  "@ledger.quick_add.name_error": {
+    "description": "S3.1 step 2 — name left blank."
+  },
+  "ledger.quick_add.name_hint": "e.g. HDFC Savings",
+  "@ledger.quick_add.name_hint": {
+    "description": "S3.1 step 2 — name field placeholder."
+  },
+  "ledger.quick_add.name_label": "Name",
+  "@ledger.quick_add.name_label": {
+    "description": "S3.1 step 2 — the account's name field."
+  },
+  "ledger.quick_add.opening_error": "Enter a valid amount",
+  "@ledger.quick_add.opening_error": {
+    "description": "S3.1 step 2 — the typed opening figure didn't parse."
+  },
+  "ledger.quick_add.opening_hint": "0.00",
+  "@ledger.quick_add.opening_hint": {
+    "description": "S3.1 step 2 — opening-figure field placeholder."
+  },
+  "ledger.quick_add.opening_label_money": "Opening balance",
+  "@ledger.quick_add.opening_label_money": {
+    "description": "S3.1 step 2 — opening-figure label for a money tile; negative allowed for overdraft (02 §4)."
+  },
+  "ledger.quick_add.opening_label_party": "How much, and who owes whom",
+  "@ledger.quick_add.opening_label_party": {
+    "description": "S3.1 step 2 — opening-figure label for a party tile; the tile already fixed the direction (02 §4)."
+  },
+  "ledger.quick_add.save": "Save",
+  "@ledger.quick_add.save": {
+    "description": "S3.1 step 2 — create the account."
+  },
+  "ledger.quick_add.save_error": "Couldn't save this account. Try again.",
+  "@ledger.quick_add.save_error": {
+    "description": "S3.1 step 2 — the create call failed."
+  },
+  "ledger.quick_add.title": "Add an account",
+  "@ledger.quick_add.title": {
+    "description": "S3.1 quick-add sheet heading (07 §6 step 1)."
+  },
+  "ledger.quick_add.type.bank": "Bank",
+  "@ledger.quick_add.type.bank": {
+    "description": "S3.1 type tile — a savings/current bank account (02 §1.3 money subtype)."
+  },
+  "ledger.quick_add.type.cash": "Cash",
+  "@ledger.quick_add.type.cash": {
+    "description": "S3.1 type tile — a cash-in-hand account."
+  },
+  "ledger.quick_add.type.credit": "Credit card",
+  "@ledger.quick_add.type.credit": {
+    "description": "S3.1 type tile — a credit-card money account."
+  },
+  "ledger.quick_add.type.creditor": "Someone I owe",
+  "@ledger.quick_add.type.creditor": {
+    "description": "S3.1 type tile — a party account where you owe them (Money out vocabulary framing, 02 §10)."
+  },
+  "ledger.quick_add.type.debtor": "Someone who owes me",
+  "@ledger.quick_add.type.debtor": {
+    "description": "S3.1 type tile — a party account where they owe you."
+  },
+  "ledger.quick_add.type.expense": "Expense category",
+  "@ledger.quick_add.type.expense": {
+    "description": "S3.1 type tile — an expense category (no opening balance, 02 §1.2)."
+  },
+  "ledger.quick_add.type.income": "Income category",
+  "@ledger.quick_add.type.income": {
+    "description": "S3.1 type tile — an income category (no opening balance, 02 §1.2)."
+  },
+  "ledger.quick_add.type_section": "What kind of account?",
+  "@ledger.quick_add.type_section": {
+    "description": "S3.1 step 1 — label above the type-tile grid."
+  },
+  "ledger.search_hint": "Search accounts",
+  "@ledger.search_hint": {
+    "description": "S3 index — search-in-header field hint (07 §6)."
+  },
+  "ledger.statement.closing": "Closing balance c/f",
+  "@ledger.statement.closing": {
+    "description": "S4 statement — closing-balance row, dated the period's last day or today while it is still open (07 §6)."
+  },
+  "ledger.statement.column_balance": "Balance",
+  "@ledger.statement.column_balance": {
+    "description": "S4 statement — third professional column header, after Dr and Cr (money.side.dr/cr, 02 §10)."
+  },
+  "ledger.statement.empty": "No entries on this account yet",
+  "@ledger.statement.empty": {
+    "description": "S4 statement — empty state before any entry has posted."
+  },
+  "ledger.statement.empty_action": "Add the first entry from the Ledger tab",
+  "@ledger.statement.empty_action": {
+    "description": "S4 statement — empty-state guidance, so the empty state is never a dead end (07 §1 rule 2)."
+  },
+  "ledger.statement.error": "Couldn't load this statement",
+  "@ledger.statement.error": {
+    "description": "S4 statement — resolve/watch error state (13 §4.3)."
+  },
+  "ledger.statement.opening": "Opening balance b/f",
+  "@ledger.statement.opening": {
+    "description": "S4 statement — opening-balance row, dated as-on the first entry (07 §6, professional surface, 02 §10)."
+  },
+  "ledger.statement.skeleton": "Loading statement",
+  "@ledger.statement.skeleton": {
+    "description": "S4 statement — loading skeleton announcement (11 §4.5)."
+  },
+  "ledger.title": "Ledger",
+  "@ledger.title": {
+    "description": "S3 ledger index app bar title (07 §6)."
   },
   "menu.placeholder.body": "Reports, books, members and settings.",
   "@menu.placeholder.body": {

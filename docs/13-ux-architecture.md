@@ -105,6 +105,7 @@ Roles (admin · head · member · operator · viewer) change *what actions appea
 | **S0.5** | Keeping your books safe | onboarding | key sync stated on · automatic backup on with its disclosure · sheet action (04 §7.6, 07 §3.1) |
 | **S0.5b** | Recovery sheet | S0.5 | generate, print/save, verify by scanning back |
 | **S0.6a** | Name the business | O3 branch | name · just me / shared · FY start |
+| **S0.6a1** | Who owns this business? | S0.6a (*Shared with others* only) | owners invited by phone, reusing the S0.6e row; shares as whole-number weights, not percentages; not skippable — the secondary returns to *Just me* (ADR 2026-09-09 §1–3) |
 | **S0.6b** | The business's opening balances | O6a | |
 | **S0.6c** | Add another business? | O6b | loop control, multi-business branch |
 | **S0.6d** | Name the family | O3 branch | |
@@ -113,7 +114,7 @@ Roles (admin · head · member · operator · viewer) change *what actions appea
 | **S0.6g** | Name the trust and its type | O3 branch | gurudwara · temple · society · registered trust |
 | **S0.6h** | Who runs the trust | O6g | Chairman/President/Trustee/Sevadar, skippable |
 | **S0.6i** | The trust's accounts | O6h | bank + gollak as `cash_collection` |
-| **S0.6** | Opening balances wizard | onboarding | resumable (design O6a–c: what you have · who owes you · who you owe) |
+| **S0.6** | Opening balances — one grouped screen | onboarding | resumable; the three O6a–c steps become three **groups** on one screen now that the chart is seeded (ADR 2026-09-09c §3): *what you have · who owes you · who you owe*, plus *what each owner put in* for a shared business |
 | **S0.7** | Setup checklist (Home empty state) | S1 | progressive onboarding |
 | **S0.9** | Invitation accept (design O7a/O7b) | deep link | invited path: accept → OTP → personal book works immediately, shared books greyed "Meet Sunita to activate" (07 §12) |
 | **S1** | Home / Position | root | banks, cash, get/give, advances, in-transit, month, verbs, today |

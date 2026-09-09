@@ -17,6 +17,7 @@ import 'features/auth/http_client_transport.dart';
 import 'features/devices/at_rest.dart';
 import 'features/devices/devices_routes.dart';
 import 'features/devices/keychain_key_store.dart';
+import 'features/ledger/ledger_routes.dart';
 import 'features/onboarding/onboarding_routes.dart';
 import 'l10n/gen/app_localizations.dart';
 import 'shared/app_scope.dart';
@@ -91,7 +92,13 @@ Future<void> main() async {
             now: DateTime.now,
           ),
           updateRequired: auth.updateRequired,
-          featureRoutes: [...onboardingRoutes, ...authRoutes, ...devicesRoutes],
+          ledgerTabRoot: ledgerRoot,
+          featureRoutes: [
+            ...onboardingRoutes,
+            ...authRoutes,
+            ...devicesRoutes,
+            ...ledgerRoutes,
+          ],
         ),
       );
     case MigrationFailed() || QuickCheckFailed() || OpenFailed():
@@ -113,6 +120,7 @@ class RukkaFolioApp extends StatefulWidget {
     required this.now,
     this.locale,
     this.featureRoutes = const [],
+    this.ledgerTabRoot,
     this.router,
     this.ledger,
     this.updateRequired,
@@ -132,6 +140,9 @@ class RukkaFolioApp extends StatefulWidget {
   /// Routes from `features/*/<feature>_routes.dart`.
   final List<RouteBase> featureRoutes;
 
+  /// The Ledger tab's root (S3); null leaves the tab's placeholder in place.
+  final RkTabRoot? ledgerTabRoot;
+
   /// A prebuilt router (tests); otherwise [buildRouter] with [featureRoutes].
   final GoRouter? router;
 
@@ -148,7 +159,11 @@ class RukkaFolioApp extends StatefulWidget {
 
 class _RukkaFolioAppState extends State<RukkaFolioApp> {
   late final GoRouter _router =
-      widget.router ?? buildRouter(featureRoutes: widget.featureRoutes);
+      widget.router ??
+      buildRouter(
+        featureRoutes: widget.featureRoutes,
+        ledger: widget.ledgerTabRoot,
+      );
 
   @override
   void initState() {

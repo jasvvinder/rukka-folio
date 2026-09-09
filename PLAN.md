@@ -17,7 +17,7 @@ spec authority stays in `docs/` (this file is a tracker, never a spec).
 | `core_crypto` (04) | ✅ M3 | suite B: 75 tests — envelopes, keys, ceremony, wrapping, recovery, signed records, chain, Shamir |
 | `sync_engine` (05) | 🟡 M4 | suite D: 17 tests — outbox/push, `seq` cursors, epoch, key-wait, revocation cut-off, k-of-n `D-06a-1…4`, SPKI pins |
 | `server/` (03 §2, 05, 06) | ✅ M4 | 5 migrations + RLS + 5 edge functions; **Deno 38 green incl. the 7 hostile-query RLS tests** (`E-03-22…27`, `E-05c-7`) against a real Postgres — `scripts/rls_db.sh`, no Docker |
-| `app/` (07, 13) | 🟡 M6 client · M5 started | theme + router + seams + `features/auth` + `features/devices` (7 screens), 85 tests green · **M5 begun 8 Sep and unfinished**: `features/onboarding` S0.0 + S0.1 (no S0.05, no tests, routes not wired), `features/ledger` S3 only. See `.claude/lane-reports/M5-U1a.json`, `M5-U3.json` |
+| `app/` (07, 13) | 🟡 M6 client · M5 in progress | theme + router + seams + `features/auth` + `features/devices` (7 screens), 85 tests green · **M5**: `features/onboarding` S0.0/S0.05/S0.1 (`F1-07-39/40/41`), `features/ledger` S3 + S3.1 + S4 ✅ (`F1-07-42/43/44`, 19/19). See `.claude/lane-reports/M5-U1a.json`, `M5-U3a.json` |
 | Traceability | ✅ | `check_coverage --strict --milestone M4` **green** and blocking in `ci.sh`: 395 ids · 317 🔒 lines, **0 unmarked** · 0 orphans · 0 dangling · 0 malformed. 83 lines carry planned ` @M<n>` markers (ADR 2026-09-08) that fail once their milestone lands |
 
 ✅ ADR 2026-09-06 ratified 7 Sep (four answers recorded in the ADR; 04 §2/§7.3/§9.2/§11 updated).
@@ -108,7 +108,11 @@ expect ~10 lanes for M5. Split before running, never raise the cap (`/lane` §1.
 **Lane U1 — foundation + onboarding** (`features/onboarding`, `features/lock`, `shared/`)
 - ✅ **U1a** S0.0 splash · S0.1 language · S0.05 welcome — ARB trio en/pa/hi (169 keys × 3), `F1-07-39/40/41` green (11 tests with `router_test.dart`), `onboarding_routes.dart` composed into `main.dart` `featureRoutes`. Fixed 3 pre-existing defects: missing `shared/theme.dart` import in S0.0 **and** S0.1 (`RkStatusColors` undefined — a live compile error), 200% text-scale overflow in S0.1. ⬜ `initialLocation` still points at the shell, not the splash — first-launch routing is an owner decision
 - ⬜ S0.3 purpose cards · S0.4 name/photo · S0.5/S0.5b safety + recovery sheet
-- ⬜ S0.6a–i business/family/trust setup · S0.6 opening balances wizard · S0.7 setup checklist · S0.8 set PIN
+- ⬜ **U1b** S0.3 purpose cards · S0.4 name/photo — both fully designed, unblocked
+- ⬜ **U1c** S0.6a · **S0.6a1** owners+ratio (ADR 2026-09-09 §1–3) · S0.6b — artboards staged in the design project
+- ⬜ **U1d/U1e** S0.6c loop · S0.6d–f family · S0.6g–i trust
+- ⬜ **U1f** S0.6 opening balances wizard · S0.7 setup checklist · S0.8 set PIN (S9.5 = second presentation of U1c)
+- ⬜ **Capital/Drawings pair** (ADR 2026-09-09b): `SystemRole.capital`, seeding in `createBook`, `A-09b-1`–`A-09b-4`. Rulings 1–2 fit `lane-ui-hard` tests-first; ruling 3's verbs are `lane-core` — ⛔ fable is 5/2 over budget, so either the owner authorises the spend or it waits for Sunday's reset
 - ⬜ S15 app lock (biometric, MPIN fallback) · S15.1 privacy cover · S15.3 cooldown states · idle lock with draft restore (C-05a-7)
 - ⬜ S13 settings (language, Appearance, auto-lock) · S19.3 no-connection · S19.5 modified-device notice
 **Lane U2 — Home + the 8-second entry** (`features/home`, `features/entry`)
@@ -116,8 +120,8 @@ expect ~10 lanes for M5. Split before running, never raise the cap (`/lane` §1.
 - ⬜ S2 keypad-first entry · S2.1 A/C picker + inline create · S2.2 date · S2.3 transfer · S2.5 drawings confirmation
 - ⬜ stopwatch test ≤ 8 s (F1 + device) · Money in / Money out vocabulary only (rule 9)
 **Lane U3 — Ledger + statement + export** (`features/ledger`, `features/reports`)
-- ⛔ **U3a broke the tree — `features/ledger` does not compile (64 analyze errors).** S3 index ✅ (365 lines, still no test); U3a died at its turn cap leaving `s3_1_quick_add_sheet.dart` + `s4_account_statement_screen.dart` untested with ~31 undefined l10n getters (no `ledger_*.arb`), `StatementRow` `ambiguous_import` (`core_ledger` vs `shared/ledger/local_ledger.dart`), missing `shared/theme.dart`. **Fix this first**: ARB trio + `F1-07-42/43/44` + `ledger_routes.dart`, treating the two screens as drafts to make green. See `.claude/lane-reports/M5-U3a.json`
-- ⬜ **U3b** (after U3a is green): S4.1 entry detail + amend/reverse · S21 search
+- ✅ **U3a** — S3 index · S3.1 quick-add sheet · S4 A/C statement, `F1-07-42/43/44` **19/19 green**, `ci.sh` green on the push lane (9 Sep). Sticky alphabet rail landed; 07 §6 marker carries all three ids. Open, both ⚠️ SPEC in-file: the 8th (Capital) quick-add tile is an owner call, and S4 has no FY switcher (`watchStatement()` takes no date range). See `.claude/lane-reports/M5-U3a.json`
+- ⬜ **U3b** (after U3a is green): S4.1 entry detail + amend/reverse · S21 search · **FY switcher** (ADR 2026-09-09 §4) — needs a date range on `watchStatement()`; b/f computed until S10.4 certifies it in M9, `F1-07-46`
 - ⬜ S8 menu · S8.1/S8.2 day book + export (CSV/PDF, temp-file purge) · S12.5 read-only sheet pattern (used by book-full)
 - ⬜ A-02-10 both vocabularies render from one posting set
 
