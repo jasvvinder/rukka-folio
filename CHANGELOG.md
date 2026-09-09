@@ -12,6 +12,63 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-10 — M5: the book start date built end to end; design synced both ways
+
+The owner reopened Capital/Drawings, was left confused by a day of fragment-by-fragment iteration, and
+asked for the flow to be fixed as one coherent model. This entry is that model landing: an immutable
+**book start date**, opening balances dated there, nothing dated before it — built, tested, gated — plus
+the design project pushed and pulled so canvas 1 and the repo agree.
+
+**Built 10 Sep — the book start date, end to end (ADR 2026-09-09d §4)**
+- `BookConfig.startDate` → `books_p.start_date` (schema **v2**, `m.addColumn` forward migration, Drift
+  regenerated) → `createBook` stamps `startDate ?? today()` → `openingBalances` dates at the start by
+  default → `post()` refuses `ViolationKind.beforeBookStart`. **Stamp is at creation, not first opening
+  balance**: the lazy version had a hole (skip balances, post for a week, record one on day 8 — the floor
+  would land after live entries). `A-09d-3`–`A-09d-6` + `E-09d-1`; `F1-02-2` unchanged; fixture books
+  now begin a week before "today" so their back-dated history stays legal. **45/45** ledger tests, **31/31**
+  data tests.
+- The one `core_ledger` touch is the enum value `beforeBookStart`, authoring-only like `futureDate`;
+  `A-09d-6` proves no reader invariant emits it — that is the difference between a rule and a security
+  event fired at a family member for using the app offline.
+- Deferred: `E-09d-2`, the v1→v2 migration fixture test (needs drift's schema-dump tooling).
+
+**Changed**
+- **ADR 2026-09-09d §4 re-cut, §4a/§4b added.** Stamp at **creation**, not first opening balance (the lazy
+  stamp had a hole); the floor is an **authoring guard, never a §1.4 invariant** — as an invariant, the
+  zero-knowledge rule would raise a family member as a security event for recording a sale while offline;
+  a pre-start entry that does arrive by sync is an **Inbox review flag**, never quarantined. Owner-ruled
+  boundary: *"the date on which the first time user recorded the o/b during account setup or ledger book
+  setup"* — a stored property of the book, not a figure derived from the entry stream, so every device
+  agrees on the floor the moment it holds the book.
+- **The five opening-balance artboards, final:** every figure blank on first run; a plain read-only
+  *Balances as on <today>* line (no box, no picker); seed is cash only in every journey — **no bank is
+  seeded anywhere**, the trust included (ADR 09d §1–2 amended 07 §3.1 🔒); no "Made for you" group. Pushed
+  to the design project as `partials/new-screens-d.json`.
+- **Design pulled** (`/design-pull`): canvas 1 rebuilt by the app agent with `S0.6a1` (state pair), the five
+  `S0.6` variants replacing the three-step O6a–c wizard, and S9.5 on canvas 4 stripped of its seeded bank
+  row; dictionaries untouched (1497 keys each). All copy/design-only and already ratified — no behavioural
+  change awaited the owner. `design/DESIGN-PACK.md` O6 rewritten to the grouped single screen.
+
+**Decided** 🔒 — see ADR 2026-09-09d §4/§4a/§4b above (owner-ruled 9–10 Sep). *"It should not be before the
+opening balance, never."*
+
+**Open**
+- ⚠️ `E-09d-2`, the v1→v2 in-place migration fixture test, deferred (needs drift's schema-dump tooling).
+- ⚠️ The refusal copy for a pre-start date needs writing in EN/PA/HI — it may not offer *"change your
+  starting date"*; the date is immutable.
+- ⚠️ *"Partner Current A/c"* and *"Capital"* are not in the master dictionaries; the shop footer's
+  markup-split *Capital* is fixed at source in `new-screens-d.json` but **not yet re-pushed**.
+- ⚠️ Not re-pulled this sync: canvases 2–3, 5–16 and `partials/src/*` (the project's own records name no
+  work on them since 3 Sep); `src/core.json` remains over the 256 KiB cap.
+- The Drawings **verb** (ADR 09b §3) is still `lane-core`; fable is over budget until Sunday.
+
+**Commits**
+- `b33a5e3` — M5: book start date end to end (ADR 2026-09-09d §4) + Drawings seeding + 4 ADRs
+- `a36740c` — design-sync: O6 brief follows canvas 1 — grouped opening-balances screen, S0.6a1 placed, S9.5 loses its seeded bank
+- _(pending — this CHANGELOG entry)_
+
+---
+
 ## 2026-09-09 — M5 lane U3a closed: ledger index, quick add, A/C statement
 
 `U3a` had been `complete: false` for three runs. Run four went up a tier to `lane-ui-hard` (opus) and
@@ -124,19 +181,6 @@ since day one), *"I can't do that from here"* (node, the build script and a writ
 and an ADR ruling that split Capital from Opening Balance without opening `docs/reference/`, where both
 worked examples name the single account `Opening Balance / Capital A/c`. Extends, and does not replace,
 the existing stop-and-ask rules in § Accounting authority and § Workflow.
-
-**Built 10 Sep — the book start date, end to end (ADR 2026-09-09d §4)**
-- `BookConfig.startDate` → `books_p.start_date` (schema **v2**, `m.addColumn` forward migration, Drift
-  regenerated) → `createBook` stamps `startDate ?? today()` → `openingBalances` dates at the start by
-  default → `post()` refuses `ViolationKind.beforeBookStart`. **Stamp is at creation, not first opening
-  balance**: the lazy version had a hole (skip balances, post for a week, record one on day 8 — the floor
-  would land after live entries). `A-09d-3`–`A-09d-6` + `E-09d-1`; `F1-02-2` unchanged; fixture books
-  now begin a week before "today" so their back-dated history stays legal. **45/45** ledger tests, **31/31**
-  data tests.
-- The one `core_ledger` touch is the enum value `beforeBookStart`, authoring-only like `futureDate`;
-  `A-09d-6` proves no reader invariant emits it — that is the difference between a rule and a security
-  event fired at a family member for using the app offline.
-- Deferred: `E-09d-2`, the v1→v2 migration fixture test (needs drift's schema-dump tooling).
 
 **Also landed**
 - **The Drawings seeding is built and green** — `BookOwnership { justMe, shared }` on `BookConfig`
