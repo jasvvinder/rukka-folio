@@ -152,10 +152,12 @@ class _QuickAddSheetState extends State<QuickAddSheet> {
           ? (magnitude ?? 0).abs() * tile.partySign
           : (magnitude ?? 0);
       if (signed != 0) {
+        // Dated at the book's start (ADR 2026-09-09d §4): an opening balance
+        // is the position on the day the books began, whenever the account
+        // was added.
         await ledger.openingBalances(
           widget.bookId,
           balances: {account.id: signed},
-          date: ledger.today(),
         );
       }
       if (mounted) Navigator.of(context).pop();

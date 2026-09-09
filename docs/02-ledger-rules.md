@@ -123,6 +123,13 @@ The user answers plain questions; the app builds the lines. Party-facing verbs a
 
 **Every new account asks for its opening balance at creation 🔒 (owner-approved)** — not only during first-run setup. The question is phrased by class, never as Dr/Cr: money accounts ask *"balance today"* (negative allowed → overdraft); party accounts ask *"do they owe you, or do you owe them?"* with the amount (**you will get** / **you will give**); expense/income accounts default to zero for the current FY. Each posts one `adjustment` against Opening Balance (equity).
 
+> **ADR 2026-09-09d §4, §4a, §4b** — creating a book stamps it with an **immutable start date**, and opening
+> balances are dated there by default; nothing may be dated before it, and re-running setup corrects the amounts, never the date. The
+> floor is an **authoring guard, not a §1.4 invariant** — an offline device can legitimately author an
+> earlier entry, and quarantining it would raise a family member as a security event; such an entry
+> arrives as an Inbox review flag instead.
+> ⟦tests: A-09d-3, A-09d-4, A-09d-5, A-09d-6, E-09d-1, A-09d-7 @M5, F1-09d-2 @M5, F1-09d-3 @M5⟧
+
 Guided setup per book, re-runnable until first lock: for each money account and party, the user states today's balance; each produces one `adjustment`: Dr/Cr account · Cr/Dr **Opening Balance** (`equity_system`). Individual entries need not net to zero across the book — Opening Balance absorbs the difference, and that is correct.
 
 ---

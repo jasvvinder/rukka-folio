@@ -114,6 +114,35 @@ void main() {
     );
   });
 
+  group('schema v2 (ADR 2026-09-09d §4)', () {
+    test(
+      'E-09d-1 books_p carries start_date, nullable, and user_version is 2',
+      () async {
+        final db = await openMemory();
+        final cols = await db.customSelect('PRAGMA table_info(books_p)').get();
+        final byName = {
+          for (final c in cols) c.read<String>('name'): c.read<int>('notnull'),
+        };
+        expect(byName, contains('start_date'));
+        expect(
+          byName['start_date'],
+          0,
+          reason: 'nullable: older books carry none',
+        );
+        final version = await db
+            .customSelect('PRAGMA user_version')
+            .getSingle();
+        expect(version.data.values.first, 2);
+        await db.close();
+      },
+    );
+
+    // ⚠️ E-09d-2 (v1 → v2 in-place upgrade) needs a full v1 schema fixture —
+    // drift's schema-dump tooling, not a hand-rolled table — and is tracked in
+    // ADR 2026-09-09d Open. The forward step itself is a single
+    // `m.addColumn(booksP, booksP.startDate)` guarded by `from < 2`.
+  });
+
   group('open (03 §5, ADR 05c §6)', () {
     test('E-05c-4 every open runs quick_check and reports a typed outcome; a '
         'healthy file is Opened', () async {

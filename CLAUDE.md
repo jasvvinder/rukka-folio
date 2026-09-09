@@ -44,7 +44,7 @@ Trunk-based on protected `main`; tags at milestone exits (`m1-ledger-core`); sec
 8. Every user-facing string goes through ARB with EN, PA and HI entries (01 §1.8); CI fails on missing keys. Respect the forbidden-jargon list (01 §1.3).
 9. **Two vocabularies, one engine:** consumer surfaces say *Money in / Money out*; professional surfaces (A/C statement, trial balance, exports) say true ledger Dr/Cr. The engine's posting logic never bends to the display language (02 §10).
 10. UI rules of 07 §1 (8-second entry, no dead ends, color-never-alone) apply to every screen you build.
-11. **Never assume, never guess** 🔒 (owner-directed, 9 Sep 2026). Verify before you assert — read the
+11. **Never assume, never guess** 🔒 (owner-directed, 9 Sep 2026) ⟦tests: n/a — process rule, not behaviour⟧. Verify before you assert — read the
     file, run the test, check the tool's own contract. State findings with the evidence attached
     (`accounts.dart:99`, `02 §7.1`, the worked example's row), so a claim can be checked rather than
     trusted. This binds three cases that all failed on 9 Sep: **the code** — *"the engine has no Drawings

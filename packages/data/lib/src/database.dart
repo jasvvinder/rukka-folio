@@ -9,7 +9,8 @@ part 'database.g.dart';
 
 /// Current client schema version (03 §5: tested upgrade paths from every
 /// shipped version; a failed migration fails closed).
-const int ledgerSchemaVersion = 1;
+/// v2 (ADR 2026-09-09d §4): `books_p.start_date`.
+const int ledgerSchemaVersion = 2;
 
 /// The client database: Layer 1 mirror + outbox and Layer 2 projections.
 @DriftDatabase(
@@ -63,6 +64,12 @@ class LedgerDatabase extends _$LedgerDatabase {
         );
       }
       // Forward migrations land here, version by version, each with a test.
+      if (from < 2) {
+        // v2 — ADR 2026-09-09d §4: the book's start date, projected from
+        // book_config. Nullable, so existing rows need no backfill; the next
+        // Recompute fills it for books whose config carries one.
+        await m.addColumn(booksP, booksP.startDate);
+      }
       for (final sql in schemaStatements) {
         await customStatement(sql);
       }

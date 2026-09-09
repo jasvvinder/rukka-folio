@@ -296,6 +296,10 @@ class BooksP extends Table {
   /// Financial-year start month (02 §1.1).
   IntColumn get fyStartMonth => integer().withDefault(const Constant(4))();
 
+  /// The day the books begin, ISO `YYYY-MM-DD` (ADR 2026-09-09d §4). Null on
+  /// books written before the ADR. Projected from `book_config`, like [type].
+  TextColumn get startDate => text().nullable()();
+
   /// 1 only when every envelope of the book is present, verified and not held
   /// (ADR 05c §6) — gates the Home card.
   IntColumn get integrityOk => integer().withDefault(const Constant(0))();

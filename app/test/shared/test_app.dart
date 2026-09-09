@@ -134,7 +134,11 @@ Future<SeededLedger> seedSoloLedger({
   FakeKeyStore? keys,
 }) async {
   final ledger = await openTestLedger(now: clock, keys: keys);
-  await ledger.bootstrapSolo(firstBookName: 'Me');
+  // The seeded history runs over the week before [clock], so the book's start
+  // date (ADR 2026-09-09d §4) sits a week back too — otherwise every
+  // back-dated fixture entry would be refused as before the books began.
+  final start = ledger.today().addDays(-7);
+  await ledger.bootstrapSolo(firstBookName: 'Me', startDate: start);
   final bookId = (await ledger.mirror.bookIds()).single;
   final cash = await ledger.addAccount(
     bookId,

@@ -4076,6 +4076,17 @@ class $BooksPTable extends BooksP with TableInfo<$BooksPTable, BooksPData> {
     requiredDuringInsert: false,
     defaultValue: const Constant(4),
   );
+  static const VerificationMeta _startDateMeta = const VerificationMeta(
+    'startDate',
+  );
+  @override
+  late final GeneratedColumn<String> startDate = GeneratedColumn<String>(
+    'start_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _integrityOkMeta = const VerificationMeta(
     'integrityOk',
   );
@@ -4107,6 +4118,7 @@ class $BooksPTable extends BooksP with TableInfo<$BooksPTable, BooksPData> {
     type,
     name,
     fyStartMonth,
+    startDate,
     integrityOk,
     needsRebootstrap,
   ];
@@ -4160,6 +4172,12 @@ class $BooksPTable extends BooksP with TableInfo<$BooksPTable, BooksPData> {
         ),
       );
     }
+    if (data.containsKey('start_date')) {
+      context.handle(
+        _startDateMeta,
+        startDate.isAcceptableOrUnknown(data['start_date']!, _startDateMeta),
+      );
+    }
     if (data.containsKey('integrity_ok')) {
       context.handle(
         _integrityOkMeta,
@@ -4207,6 +4225,10 @@ class $BooksPTable extends BooksP with TableInfo<$BooksPTable, BooksPData> {
         DriftSqlType.int,
         data['${effectivePrefix}fy_start_month'],
       )!,
+      startDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}start_date'],
+      ),
       integrityOk: attachedDatabase.typeMapping.read(
         DriftSqlType.int,
         data['${effectivePrefix}integrity_ok'],
@@ -4240,6 +4262,10 @@ class BooksPData extends DataClass implements Insertable<BooksPData> {
   /// Financial-year start month (02 §1.1).
   final int fyStartMonth;
 
+  /// The day the books begin, ISO `YYYY-MM-DD` (ADR 2026-09-09d §4). Null on
+  /// books written before the ADR. Projected from `book_config`, like [type].
+  final String? startDate;
+
   /// 1 only when every envelope of the book is present, verified and not held
   /// (ADR 05c §6) — gates the Home card.
   final int integrityOk;
@@ -4254,6 +4280,7 @@ class BooksPData extends DataClass implements Insertable<BooksPData> {
     required this.type,
     required this.name,
     required this.fyStartMonth,
+    this.startDate,
     required this.integrityOk,
     required this.needsRebootstrap,
   });
@@ -4265,6 +4292,9 @@ class BooksPData extends DataClass implements Insertable<BooksPData> {
     map['type'] = Variable<String>(type);
     map['name'] = Variable<String>(name);
     map['fy_start_month'] = Variable<int>(fyStartMonth);
+    if (!nullToAbsent || startDate != null) {
+      map['start_date'] = Variable<String>(startDate);
+    }
     map['integrity_ok'] = Variable<int>(integrityOk);
     map['needs_rebootstrap'] = Variable<int>(needsRebootstrap);
     return map;
@@ -4277,6 +4307,9 @@ class BooksPData extends DataClass implements Insertable<BooksPData> {
       type: Value(type),
       name: Value(name),
       fyStartMonth: Value(fyStartMonth),
+      startDate: startDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(startDate),
       integrityOk: Value(integrityOk),
       needsRebootstrap: Value(needsRebootstrap),
     );
@@ -4293,6 +4326,7 @@ class BooksPData extends DataClass implements Insertable<BooksPData> {
       type: serializer.fromJson<String>(json['type']),
       name: serializer.fromJson<String>(json['name']),
       fyStartMonth: serializer.fromJson<int>(json['fyStartMonth']),
+      startDate: serializer.fromJson<String?>(json['startDate']),
       integrityOk: serializer.fromJson<int>(json['integrityOk']),
       needsRebootstrap: serializer.fromJson<int>(json['needsRebootstrap']),
     );
@@ -4306,6 +4340,7 @@ class BooksPData extends DataClass implements Insertable<BooksPData> {
       'type': serializer.toJson<String>(type),
       'name': serializer.toJson<String>(name),
       'fyStartMonth': serializer.toJson<int>(fyStartMonth),
+      'startDate': serializer.toJson<String?>(startDate),
       'integrityOk': serializer.toJson<int>(integrityOk),
       'needsRebootstrap': serializer.toJson<int>(needsRebootstrap),
     };
@@ -4317,6 +4352,7 @@ class BooksPData extends DataClass implements Insertable<BooksPData> {
     String? type,
     String? name,
     int? fyStartMonth,
+    Value<String?> startDate = const Value.absent(),
     int? integrityOk,
     int? needsRebootstrap,
   }) => BooksPData(
@@ -4325,6 +4361,7 @@ class BooksPData extends DataClass implements Insertable<BooksPData> {
     type: type ?? this.type,
     name: name ?? this.name,
     fyStartMonth: fyStartMonth ?? this.fyStartMonth,
+    startDate: startDate.present ? startDate.value : this.startDate,
     integrityOk: integrityOk ?? this.integrityOk,
     needsRebootstrap: needsRebootstrap ?? this.needsRebootstrap,
   );
@@ -4337,6 +4374,7 @@ class BooksPData extends DataClass implements Insertable<BooksPData> {
       fyStartMonth: data.fyStartMonth.present
           ? data.fyStartMonth.value
           : this.fyStartMonth,
+      startDate: data.startDate.present ? data.startDate.value : this.startDate,
       integrityOk: data.integrityOk.present
           ? data.integrityOk.value
           : this.integrityOk,
@@ -4354,6 +4392,7 @@ class BooksPData extends DataClass implements Insertable<BooksPData> {
           ..write('type: $type, ')
           ..write('name: $name, ')
           ..write('fyStartMonth: $fyStartMonth, ')
+          ..write('startDate: $startDate, ')
           ..write('integrityOk: $integrityOk, ')
           ..write('needsRebootstrap: $needsRebootstrap')
           ..write(')'))
@@ -4367,6 +4406,7 @@ class BooksPData extends DataClass implements Insertable<BooksPData> {
     type,
     name,
     fyStartMonth,
+    startDate,
     integrityOk,
     needsRebootstrap,
   );
@@ -4379,6 +4419,7 @@ class BooksPData extends DataClass implements Insertable<BooksPData> {
           other.type == this.type &&
           other.name == this.name &&
           other.fyStartMonth == this.fyStartMonth &&
+          other.startDate == this.startDate &&
           other.integrityOk == this.integrityOk &&
           other.needsRebootstrap == this.needsRebootstrap);
 }
@@ -4389,6 +4430,7 @@ class BooksPCompanion extends UpdateCompanion<BooksPData> {
   final Value<String> type;
   final Value<String> name;
   final Value<int> fyStartMonth;
+  final Value<String?> startDate;
   final Value<int> integrityOk;
   final Value<int> needsRebootstrap;
   final Value<int> rowid;
@@ -4398,6 +4440,7 @@ class BooksPCompanion extends UpdateCompanion<BooksPData> {
     this.type = const Value.absent(),
     this.name = const Value.absent(),
     this.fyStartMonth = const Value.absent(),
+    this.startDate = const Value.absent(),
     this.integrityOk = const Value.absent(),
     this.needsRebootstrap = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -4408,6 +4451,7 @@ class BooksPCompanion extends UpdateCompanion<BooksPData> {
     required String type,
     required String name,
     this.fyStartMonth = const Value.absent(),
+    this.startDate = const Value.absent(),
     this.integrityOk = const Value.absent(),
     this.needsRebootstrap = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -4421,6 +4465,7 @@ class BooksPCompanion extends UpdateCompanion<BooksPData> {
     Expression<String>? type,
     Expression<String>? name,
     Expression<int>? fyStartMonth,
+    Expression<String>? startDate,
     Expression<int>? integrityOk,
     Expression<int>? needsRebootstrap,
     Expression<int>? rowid,
@@ -4431,6 +4476,7 @@ class BooksPCompanion extends UpdateCompanion<BooksPData> {
       if (type != null) 'type': type,
       if (name != null) 'name': name,
       if (fyStartMonth != null) 'fy_start_month': fyStartMonth,
+      if (startDate != null) 'start_date': startDate,
       if (integrityOk != null) 'integrity_ok': integrityOk,
       if (needsRebootstrap != null) 'needs_rebootstrap': needsRebootstrap,
       if (rowid != null) 'rowid': rowid,
@@ -4443,6 +4489,7 @@ class BooksPCompanion extends UpdateCompanion<BooksPData> {
     Value<String>? type,
     Value<String>? name,
     Value<int>? fyStartMonth,
+    Value<String?>? startDate,
     Value<int>? integrityOk,
     Value<int>? needsRebootstrap,
     Value<int>? rowid,
@@ -4453,6 +4500,7 @@ class BooksPCompanion extends UpdateCompanion<BooksPData> {
       type: type ?? this.type,
       name: name ?? this.name,
       fyStartMonth: fyStartMonth ?? this.fyStartMonth,
+      startDate: startDate ?? this.startDate,
       integrityOk: integrityOk ?? this.integrityOk,
       needsRebootstrap: needsRebootstrap ?? this.needsRebootstrap,
       rowid: rowid ?? this.rowid,
@@ -4477,6 +4525,9 @@ class BooksPCompanion extends UpdateCompanion<BooksPData> {
     if (fyStartMonth.present) {
       map['fy_start_month'] = Variable<int>(fyStartMonth.value);
     }
+    if (startDate.present) {
+      map['start_date'] = Variable<String>(startDate.value);
+    }
     if (integrityOk.present) {
       map['integrity_ok'] = Variable<int>(integrityOk.value);
     }
@@ -4497,6 +4548,7 @@ class BooksPCompanion extends UpdateCompanion<BooksPData> {
           ..write('type: $type, ')
           ..write('name: $name, ')
           ..write('fyStartMonth: $fyStartMonth, ')
+          ..write('startDate: $startDate, ')
           ..write('integrityOk: $integrityOk, ')
           ..write('needsRebootstrap: $needsRebootstrap, ')
           ..write('rowid: $rowid')
@@ -12200,6 +12252,7 @@ typedef $$BooksPTableCreateCompanionBuilder = BooksPCompanion Function({
   required String type,
   required String name,
   Value<int> fyStartMonth,
+  Value<String?> startDate,
   Value<int> integrityOk,
   Value<int> needsRebootstrap,
   Value<int> rowid,
@@ -12210,6 +12263,7 @@ typedef $$BooksPTableUpdateCompanionBuilder = BooksPCompanion Function({
   Value<String> type,
   Value<String> name,
   Value<int> fyStartMonth,
+  Value<String?> startDate,
   Value<int> integrityOk,
   Value<int> needsRebootstrap,
   Value<int> rowid,
@@ -12246,6 +12300,11 @@ class $$BooksPTableFilterComposer
 
   ColumnFilters<int> get fyStartMonth => $composableBuilder(
     column: $table.fyStartMonth,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get startDate => $composableBuilder(
+    column: $table.startDate,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -12294,6 +12353,11 @@ class $$BooksPTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get startDate => $composableBuilder(
+    column: $table.startDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get integrityOk => $composableBuilder(
     column: $table.integrityOk,
     builder: (column) => ColumnOrderings(column),
@@ -12330,6 +12394,9 @@ class $$BooksPTableAnnotationComposer
     column: $table.fyStartMonth,
     builder: (column) => column,
   );
+
+  GeneratedColumn<String> get startDate =>
+      $composableBuilder(column: $table.startDate, builder: (column) => column);
 
   GeneratedColumn<int> get integrityOk => $composableBuilder(
     column: $table.integrityOk,
@@ -12378,6 +12445,7 @@ class $$BooksPTableTableManager
                 Value<String> type = const Value.absent(),
                 Value<String> name = const Value.absent(),
                 Value<int> fyStartMonth = const Value.absent(),
+                Value<String?> startDate = const Value.absent(),
                 Value<int> integrityOk = const Value.absent(),
                 Value<int> needsRebootstrap = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -12387,6 +12455,7 @@ class $$BooksPTableTableManager
                 type: type,
                 name: name,
                 fyStartMonth: fyStartMonth,
+                startDate: startDate,
                 integrityOk: integrityOk,
                 needsRebootstrap: needsRebootstrap,
                 rowid: rowid,
@@ -12398,6 +12467,7 @@ class $$BooksPTableTableManager
                 required String type,
                 required String name,
                 Value<int> fyStartMonth = const Value.absent(),
+                Value<String?> startDate = const Value.absent(),
                 Value<int> integrityOk = const Value.absent(),
                 Value<int> needsRebootstrap = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
@@ -12407,6 +12477,7 @@ class $$BooksPTableTableManager
                 type: type,
                 name: name,
                 fyStartMonth: fyStartMonth,
+                startDate: startDate,
                 integrityOk: integrityOk,
                 needsRebootstrap: needsRebootstrap,
                 rowid: rowid,

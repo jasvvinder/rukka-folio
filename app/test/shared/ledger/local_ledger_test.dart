@@ -56,6 +56,7 @@ Future<List<String>> projectionDump(LocalLedger l) async {
 
 void main() {
   _adr2026_09_09b();
+  _adr2026_09_09d();
   group('bootstrap', () {
     test('F1-02-1 LedgerNotOpen before bootstrapSolo', () async {
       final l = await openTestLedger();
@@ -914,55 +915,50 @@ void main() {
 
 void _adr2026_09_09b() {
   group('ADR 2026-09-09b — Capital is Opening Balance; Drawings is seeded', () {
-    testWidgets(
-      'A-09b-1 Capital is the Opening Balance account, not a second one',
-      (tester) async {
+    test('A-09b-1 Capital is the Opening Balance account, not a second one', () async {
+      final l = await openTestLedger();
+      await l.bootstrapSolo(firstBookName: 'Me');
+      final bookId = await l.createBook(name: 'Shop', type: BookType.business);
+      final chart = await l.chartOf(bookId);
+      final equity = chart.accounts
+          .where((a) => a.accountClass == AccountClass.equitySystem)
+          .toList();
+      // Exactly one account carries the opening-balance role: both worked
+      // examples name it `Opening Balance / Capital A/c`, so splitting Capital
+      // off would break their trial balances.
+      expect(
+        equity.where((a) => a.systemRole == SystemRole.openingBalance),
+        hasLength(1),
+      );
+      expect(
+        SystemRole.values.where((r) => r.name == 'capital'),
+        isEmpty,
+        reason: 'ADR 2026-09-09b §1: no separate capital role exists',
+      );
+    });
+
+    test(
+      'A-09b-2 a Just me business book is seeded with Drawings A/c',
+      () async {
         final l = await openTestLedger();
         await l.bootstrapSolo(firstBookName: 'Me');
         final bookId = await l.createBook(
-          name: 'Shop',
+          name: 'Sharma Super Store',
           type: BookType.business,
         );
         final chart = await l.chartOf(bookId);
-        final equity = chart.accounts
-            .where((a) => a.accountClass == AccountClass.equitySystem)
+        final drawings = chart.accounts
+            .where((a) => a.systemRole == SystemRole.drawings)
             .toList();
-        // Exactly one account carries the opening-balance role: both worked
-        // examples name it `Opening Balance / Capital A/c`, so splitting Capital
-        // off would break their trial balances.
-        expect(
-          equity.where((a) => a.systemRole == SystemRole.openingBalance),
-          hasLength(1),
-        );
-        expect(
-          SystemRole.values.where((r) => r.name == 'capital'),
-          isEmpty,
-          reason: 'ADR 2026-09-09b §1: no separate capital role exists',
-        );
+        expect(drawings, hasLength(1));
+        expect(drawings.single.accountClass, AccountClass.equitySystem);
+        expect(drawings.single.name, 'Drawings');
       },
     );
 
-    testWidgets('A-09b-2 a Just me business book is seeded with Drawings A/c', (
-      tester,
-    ) async {
-      final l = await openTestLedger();
-      await l.bootstrapSolo(firstBookName: 'Me');
-      final bookId = await l.createBook(
-        name: 'Sharma Super Store',
-        type: BookType.business,
-      );
-      final chart = await l.chartOf(bookId);
-      final drawings = chart.accounts
-          .where((a) => a.systemRole == SystemRole.drawings)
-          .toList();
-      expect(drawings, hasLength(1));
-      expect(drawings.single.accountClass, AccountClass.equitySystem);
-      expect(drawings.single.name, 'Drawings');
-    });
-
-    testWidgets(
+    test(
       'A-09b-3 no Drawings A/c for a shared business, or any non-business book',
-      (tester) async {
+      () async {
         final l = await openTestLedger();
         await l.bootstrapSolo(firstBookName: 'Me');
 
@@ -999,9 +995,7 @@ void _adr2026_09_09b() {
       },
     );
 
-    testWidgets('A-09b-3 ownership round-trips, and defaults to justMe', (
-      tester,
-    ) async {
+    test('A-09b-3 ownership round-trips, and defaults to justMe', () async {
       // Rule 6 / ADR 2026-09-09b §2: a book written before this ADR carries no
       // `ownership` on the wire and must read back as a single-owner book.
       final legacy = BookConfig.fromJson({
@@ -1025,6 +1019,137 @@ void _adr2026_09_09b() {
         ).toJson(),
       );
       expect(shared.ownership, BookOwnership.shared);
+    });
+  });
+}
+
+void _adr2026_09_09d() {
+  group('ADR 2026-09-09d §4 — the books begin on a day, and nothing is dated before it', () {
+    Future<(LocalLedger, String, Account, Account)> shop({
+      LocalDate? startDate,
+    }) async {
+      final l = await openTestLedger();
+      await l.bootstrapSolo(firstBookName: 'Me');
+      final bookId = await l.createBook(
+        name: 'Shop',
+        type: BookType.business,
+        startDate: startDate,
+      );
+      final cash = await l.addAccount(
+        bookId,
+        name: 'Cash',
+        accountClass: AccountClass.money,
+        subtype: MoneySubtype.cash,
+      );
+      final sales = await l.addAccount(
+        bookId,
+        name: 'Sales',
+        accountClass: AccountClass.categoryIncome,
+      );
+      return (l, bookId, cash, sales);
+    }
+
+    test('A-09d-3 an entry dated before the start date is refused; on it or after is fine', () async {
+      final (l, bookId, cash, sales) = await shop();
+      final start = (await l.startDateOf(bookId))!;
+      expect(start, l.today(), reason: 'stamped at creation, read-only today');
+
+      await expectLater(
+        l.moneyIn(
+          bookId: bookId,
+          into: cash.id,
+          from: sales.id,
+          paise: 200_000,
+          date: start.addDays(-1),
+        ),
+        throwsA(
+          isA<PostRejected>().having(
+            (e) => e.violations.map((v) => v.kind),
+            'kinds',
+            contains(ViolationKind.beforeBookStart),
+          ),
+        ),
+      );
+      // The refusal appended nothing: the cash balance is untouched.
+      final before = await l.watchAccounts(bookId).first;
+      expect(before.firstWhere((a) => a.account.id == cash.id).balancePaise, 0);
+
+      final ok = await l.moneyIn(
+        bookId: bookId,
+        into: cash.id,
+        from: sales.id,
+        paise: 200_000,
+        date: start,
+      );
+      expect(ok.accountingDate, start);
+    });
+
+    test('A-09d-4 the start date is stamped at creation even when no balance is ever entered, and is absent on older books', () async {
+      final (l, bookId, _, _) = await shop();
+      // No openingBalances() call at all — still a boundary.
+      expect(await l.startDateOf(bookId), l.today());
+
+      // Rule 6 / ADR 2026-09-09d: a book written before the ADR has no
+      // start_date on the wire and reads back as null, unknown fields kept.
+      final legacy = BookConfig.fromJson({
+        'id': 'b1',
+        'tenant_id': 't1',
+        'type': 'business',
+        'name': 'Old Shop',
+        'fy_start_month': 4,
+        'ownership': 'justMe',
+        'later_field': true,
+      });
+      expect(legacy.startDate, isNull);
+      expect(legacy.extra['later_field'], true);
+      final rt = BookConfig.fromJson(
+        BookConfig(
+          id: 'b2',
+          tenantId: 't1',
+          type: BookType.business,
+          name: 'Shop',
+          startDate: LocalDate(2026, 9, 10),
+        ).toJson(),
+      );
+      expect(rt.startDate, LocalDate(2026, 9, 10));
+    });
+
+    test('A-09d-5 opening balances are dated at the start by default, and re-running them never moves it', () async {
+      final start = LocalDate(2026, 8, 31);
+      final (l, bookId, cash, _) = await shop(startDate: start);
+      final first = await l.openingBalances(
+        bookId,
+        balances: {cash.id: 1_500_000},
+      );
+      expect(first.single.accountingDate, start);
+
+      // "Re-runnable until first lock" (02 §4) corrects the amount, not the day.
+      final again = await l.openingBalances(
+        bookId,
+        balances: {cash.id: 250_000},
+      );
+      expect(again.single.accountingDate, start);
+      expect(await l.startDateOf(bookId), start);
+    });
+
+    test('A-09d-6 the floor is an authoring guard, not a §1.4 invariant — a reader raises nothing on an earlier-dated entry', () async {
+      final (l, bookId, cash, sales) = await shop();
+      final start = (await l.startDateOf(bookId))!;
+      final posted = await l.moneyIn(
+        bookId: bookId,
+        into: cash.id,
+        from: sales.id,
+        paise: 100_000,
+        date: start,
+      );
+      // The same entry as another (offline) device might have authored it,
+      // dated before this device's boundary. The universal invariants — the
+      // reader-side checks that would quarantine and raise a security event
+      // (02, zero-knowledge consequence) — must not know this rule at all.
+      final earlier = posted.copyWith(accountingDate: start.addDays(-3));
+      final chart = await l.chartOf(bookId);
+      final kinds = checkUniversalInvariants(earlier, chart).map((v) => v.kind);
+      expect(kinds, isNot(contains(ViolationKind.beforeBookStart)));
     });
   });
 }

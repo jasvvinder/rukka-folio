@@ -106,6 +106,7 @@ final class BookConfig {
     required this.name,
     this.fyStartMonth = 4,
     this.ownership = BookOwnership.justMe,
+    this.startDate,
     this.extra = const {},
   });
 
@@ -118,6 +119,7 @@ final class BookConfig {
       'name',
       'fy_start_month',
       'ownership',
+      'start_date',
     };
     return BookConfig(
       id: json['id'] as String,
@@ -130,6 +132,11 @@ final class BookConfig {
       ownership: BookOwnership.values.byName(
         json['ownership'] as String? ?? BookOwnership.justMe.name,
       ),
+      // Absent on books written before ADR 2026-09-09d.
+      startDate: switch (json['start_date']) {
+        final String iso => LocalDate.parse(iso),
+        _ => null,
+      },
       extra: Map.unmodifiable(
         Map<String, Object?>.of(json)..removeWhere((k, _) => known.contains(k)),
       ),
@@ -155,6 +162,11 @@ final class BookConfig {
   /// book type is [BookOwnership.justMe] and ignores it.
   final BookOwnership ownership;
 
+  /// The day the books begin (ADR 2026-09-09d §4): stamped once when the book
+  /// is created and never changed. Opening balances are dated here, and no
+  /// entry may be dated before it. Null only on books older than the ADR.
+  final LocalDate? startDate;
+
   /// Fields this client did not understand.
   final Map<String, Object?> extra;
 
@@ -166,6 +178,7 @@ final class BookConfig {
     'name': name,
     'fy_start_month': fyStartMonth,
     'ownership': ownership.name,
+    if (startDate != null) 'start_date': startDate!.toIso(),
     ...extra,
   };
 }

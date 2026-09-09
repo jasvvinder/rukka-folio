@@ -109,7 +109,7 @@ expect ~10 lanes for M5. Split before running, never raise the cap (`/lane` §1.
 - ✅ **U1a** S0.0 splash · S0.1 language · S0.05 welcome — ARB trio en/pa/hi (169 keys × 3), `F1-07-39/40/41` green (11 tests with `router_test.dart`), `onboarding_routes.dart` composed into `main.dart` `featureRoutes`. Fixed 3 pre-existing defects: missing `shared/theme.dart` import in S0.0 **and** S0.1 (`RkStatusColors` undefined — a live compile error), 200% text-scale overflow in S0.1. ⬜ `initialLocation` still points at the shell, not the splash — first-launch routing is an owner decision
 - ⬜ S0.3 purpose cards · S0.4 name/photo · S0.5/S0.5b safety + recovery sheet
 - ⬜ **U1b** S0.3 purpose cards · S0.4 name/photo — both fully designed, unblocked
-- ⬜ **U1c** S0.6a · **S0.6a1** owners+ratio (ADR 2026-09-09 §1–3) · S0.6b — artboards staged in the design project
+- ⬜ **U1c** S0.6a · **S0.6a1** owners+ratio (ADR 2026-09-09 §1–3) · S0.6b grouped opening balances (ADR 2026-09-09c §3, 09d) — artboards drafted; engine side **built and green 10 Sep**: book `startDate` stamped at creation (schema v2), opening balances dated there by default, `post()` refuses anything earlier (`A-09d-3`–`6`, `E-09d-1`). Screen work only remains
 - ⬜ **U1d/U1e** S0.6c loop · S0.6d–f family · S0.6g–i trust
 - ⬜ **U1f** S0.6 opening balances wizard · S0.7 setup checklist · S0.8 set PIN (S9.5 = second presentation of U1c)
 - ⬜ **Capital/Drawings pair** (ADR 2026-09-09b): `SystemRole.capital`, seeding in `createBook`, `A-09b-1`–`A-09b-4`. Rulings 1–2 fit `lane-ui-hard` tests-first; ruling 3's verbs are `lane-core` — ⛔ fable is 5/2 over budget, so either the owner authorises the spend or it waits for Sunday's reset

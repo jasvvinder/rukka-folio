@@ -392,6 +392,7 @@ final class LocalLedger {
     String? firstBookName,
     BookType firstBookType = BookType.personal,
     String openingBalanceName = 'Opening Balance',
+    LocalDate? startDate,
   }) async {
     if (_identity == null) {
       final stored = await keys.read(LocalLedgerKeys.identity);
@@ -406,6 +407,7 @@ final class LocalLedger {
         name: firstBookName,
         type: firstBookType,
         openingBalanceName: openingBalanceName,
+        startDate: startDate,
       );
     }
     return _identity!;
@@ -629,6 +631,7 @@ final class LocalLedger {
     BookOwnership ownership = BookOwnership.justMe,
     String openingBalanceName = 'Opening Balance',
     String drawingsName = 'Drawings',
+    LocalDate? startDate,
   }) async {
     _requireOpen();
     final id = _identity!;
@@ -654,6 +657,10 @@ final class LocalLedger {
       name: name,
       fyStartMonth: fyStartMonth,
       ownership: ownership,
+      // ADR 2026-09-09d §4: the books begin on the day the book is made —
+      // stamped once, never moved. The UI never offers a picker (owner-ruled:
+      // read-only today); the parameter exists for fixtures and imports.
+      startDate: startDate ?? today(),
     );
     await _author(
       bookId: bookId,
@@ -686,6 +693,17 @@ final class LocalLedger {
 
   /// Books this device holds, as projected.
   Stream<List<BooksPData>> watchBooks() => db.select(db.booksP).watch();
+
+  /// The day [bookId]'s books begin (ADR 2026-09-09d §4), or null for a book
+  /// written before the ADR. Read from the projection, so a book that arrived
+  /// by sync carries its boundary the moment its config is projected.
+  Future<LocalDate?> startDateOf(String bookId) async {
+    final row = await (db.select(
+      db.booksP,
+    )..where((b) => b.id.equals(bookId))).getSingleOrNull();
+    final iso = row?.startDate;
+    return iso == null ? null : LocalDate.parse(iso);
+  }
 
   /// Adds an account (02 §1.2 — created inline, class inferred by the caller
   /// from the picker slot) and rebuilds the book. Returns the engine account.
@@ -769,6 +787,19 @@ final class LocalLedger {
     if (state.periods.currentStatus(period) == PeriodStatus.locked) {
       violations.add(
         Violation(ViolationKind.periodLocked, '$period is locked (02 §8)'),
+      );
+    }
+    // ADR 2026-09-09d §4/§4a: nothing is dated before the books begin. An
+    // authoring guard only — a reader never rejects, quarantines or hides an
+    // earlier-dated entry that arrives by sync (§4b routes it to the Inbox).
+    final start = await startDateOf(entry.bookId);
+    if (start != null && entry.accountingDate.compareTo(start) < 0) {
+      violations.add(
+        Violation(
+          ViolationKind.beforeBookStart,
+          '${entry.accountingDate} is before the books begin ($start); '
+          'the opening balance already includes it (ADR 2026-09-09d §4)',
+        ),
       );
     }
     if (violations.isNotEmpty) throw PostRejected(entry.id, violations);
@@ -964,11 +995,17 @@ final class LocalLedger {
   /// = overdraft); party = + *you will get* / − *you will give*; advance =
   /// held. Zero balances post nothing. The entries need not net to zero —
   /// Opening Balance absorbs the difference.
+  ///
+  /// [date] defaults to the book's start date (ADR 2026-09-09d §4): an opening
+  /// balance describes the position on the day the books began, whenever the
+  /// account happens to be added. Pass a later date only when that month is
+  /// already locked — the 02 §8.1 pattern, the fix lands in the open period.
   Future<List<Entry>> openingBalances(
     String bookId, {
     required Map<String, int> balances,
-    required LocalDate date,
+    LocalDate? date,
   }) async {
+    final when = date ?? await startDateOf(bookId) ?? today();
     final c = await chartOf(bookId);
     final opening = c
         .byClass(AccountClass.equitySystem)
@@ -991,7 +1028,7 @@ final class LocalLedger {
               balance: Paise(paise),
               openingAccount: opening,
             ),
-            date: date,
+            date: when,
             partyId: _partyOf(account),
           ),
         ),

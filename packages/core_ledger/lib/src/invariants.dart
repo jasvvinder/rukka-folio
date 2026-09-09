@@ -27,6 +27,11 @@ enum ViolationKind {
   /// 02 §1.4 rule 6 (authoring only): accounting_date after today.
   futureDate,
 
+  /// ADR 2026-09-09d §4 (authoring only, never a reader invariant):
+  /// accounting_date before the book's start date. The opening balance is a
+  /// counted figure, so anything earlier is already inside it.
+  beforeBookStart,
+
   /// 02 §8: accounting_date in a period locked before this HLC.
   periodLocked,
 

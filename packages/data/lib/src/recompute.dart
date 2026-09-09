@@ -334,6 +334,7 @@ final class Recompute {
             type: config?.type.name ?? BookType.family.name,
             name: config?.name ?? bookId,
             fyStartMonth: Value(fyStart),
+            startDate: Value(config?.startDate?.toIso()),
             integrityOk: Value(integrityOk ? 1 : 0),
             needsRebootstrap: Value(corrupt.isEmpty ? 0 : 1),
           ),

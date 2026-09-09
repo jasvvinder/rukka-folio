@@ -17,18 +17,18 @@ seeded, editable defaults; the user renames them on S0.6b (ruling 3).
 
 | Book | Money | Equity | Income · Expense | Interbook |
 |---|---|---|---|---|
-| **Personal** | `Cash A/c`, `Bank A/c` | `Opening Balance / Capital` | household tree | — |
-| **Business · Just me** | `Business Cash A/c`, `Bank A/c` | `Opening Balance / Capital`, `Drawings A/c` | `Sales A/c` + shop or trade tree | — |
+| **Personal** | `Cash A/c` | `Opening Balance / Capital` | household tree | — |
+| **Business · Just me** | `Business Cash A/c` | `Opening Balance / Capital`, `Drawings A/c` | `Sales A/c` + shop or trade tree | — |
 | **Business · Shared** | same | `Opening Balance / Capital`, `Profit Distributed`, **one `{Name} — Partner Current A/c` per owner** | same | — |
-| **Family pool** | `Joint Bank A/c`, `Joint Cash A/c` | `Opening Balance / Capital` | household tree | one per linked book |
-| **Trust** | `Trust Bank`, `Cash`, `Gollak Cash` (`cash_collection`) | `Opening Balance / Capital` | Donation Income · Langar, Building Repair, Honorarium | — |
+| **Family pool** | `Joint Cash A/c` | `Opening Balance / Capital` | household tree | one per linked book |
+| **Trust** | `Cash`, `Gollak Cash` (`cash_collection`) | `Opening Balance / Capital` | Donation Income · Langar, Building Repair, Honorarium | — |
 
 - The trust row restates `07 §3.1` 🔒 unchanged, including that the gollak and the Cash A/c are different
   accounts. ⟦tests: A-09c-1 @M5⟧
 - **No party accounts are ever seeded** — `02 §1.2` 🔒, one party, one account, both roles, placement by sign, so there is no Sundry Debtors and no Sundry Creditors to create. ⟦tests: A-09c-2 @M5⟧
   Customers and suppliers appear as they are traded with, inline, class inferred from the slot. Seeding
   them would slow the 8-second entry and misrepresent the model.
-- **Bank accounts are seeded unnamed.** The app cannot know the bank; the seed is a generic `Bank A/c`
+- **Superseded by ADR 2026-09-09d §1 — no bank is seeded at all.** Formerly: bank accounts are seeded unnamed. The app cannot know the bank; the seed is a generic `Bank A/c`
   captioned *name it later*, and S0.6b is where it becomes *HDFC Bank*. This is already how the designed
   S9.5 artboard reads. ⟦tests: A-09c-3 @M5⟧
 - **Interbook accounts are never typed.** A pool book gains one Due-to/from account per linked book

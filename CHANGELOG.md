@@ -60,6 +60,27 @@ spawning a fifth lane. **`./scripts/ci.sh` is green on the push lane.**
 - **The FY switcher is one control on three surfaces** (S4 · S8.2 · S10.4), absent until the first year
   close, with b/f computed until S10.4 certifies it in M9.
 
+- **A book gets an immutable start date, and nothing may be dated before it** — ADR 2026-09-09d §4/§4a/§4b,
+  owner-ruled: *"It should not be before the opening balance, never"*, with the boundary being *"the date on
+  which the first time user recorded the o/b"*. Refused, not warned. The opening figure is **counted**, so
+  anything earlier is already inside it — and the ledger being append-only means a bad back-dated entry can
+  only be reversed, never removed, so the door is the one cheap point of control. Re-running setup (`02 §4`
+  🔒, re-runnable until first lock) corrects the **amounts**, never the date.
+  - Stamped once on `book_config`, not derived from the entry stream, so every device agrees on the floor
+    the moment it has the book.
+  - 🔒 **An authoring guard, never a §1.4 invariant.** `02`'s zero-knowledge rule quarantines an
+    invariant-violating envelope and raises a security event — so as an invariant this would accuse a family
+    member of an attack for recording a sale while their phone was offline. Only `post()` refuses; no reading
+    client rejects or hides.
+  - A pre-start entry that does arrive by sync raises an **Inbox review flag** (`02 §3`), offering the two
+    real repairs — correct the opening balance, or reverse the entry. Never quarantined.
+- **No book seeds a bank account** — [ADR 2026-09-09d](docs/decisions/2026-09-09d-no-seeded-bank-account.md).
+  Owner-ruled: a bank is added, not seeded, in every book type — the trust included, which amends the 🔒 seed
+  list in `07 §3.1` (everything else on that line, including the gollak rules and mandatory denomination
+  counting, is untouched). The argument is `02 §4` 🔒's own: *"Every new account asks for its opening balance
+  at creation — not only during first-run setup"*, so adding a bank later costs one tap and asks for its
+  balance in the same breath. Seeding it costs more: `local_ledger.dart:982` skips zero balances, so a bank
+  left blank posts nothing and just sits there under a name the user never chose.
 - **The chart of accounts is seeded from the setup answers** — [ADR 2026-09-09c](docs/decisions/2026-09-09c-seeded-chart-and-opening-balances.md).
   Seeding was already implied by 02, 07 §5.7 and 07 §3.1; this settles the whole seed per book type and
   turns S0.6b from the three-step O6 wizard into **one grouped review-and-fill**. No party accounts are
@@ -103,6 +124,19 @@ since day one), *"I can't do that from here"* (node, the build script and a writ
 and an ADR ruling that split Capital from Opening Balance without opening `docs/reference/`, where both
 worked examples name the single account `Opening Balance / Capital A/c`. Extends, and does not replace,
 the existing stop-and-ask rules in § Accounting authority and § Workflow.
+
+**Built 10 Sep — the book start date, end to end (ADR 2026-09-09d §4)**
+- `BookConfig.startDate` → `books_p.start_date` (schema **v2**, `m.addColumn` forward migration, Drift
+  regenerated) → `createBook` stamps `startDate ?? today()` → `openingBalances` dates at the start by
+  default → `post()` refuses `ViolationKind.beforeBookStart`. **Stamp is at creation, not first opening
+  balance**: the lazy version had a hole (skip balances, post for a week, record one on day 8 — the floor
+  would land after live entries). `A-09d-3`–`A-09d-6` + `E-09d-1`; `F1-02-2` unchanged; fixture books
+  now begin a week before "today" so their back-dated history stays legal. **45/45** ledger tests, **31/31**
+  data tests.
+- The one `core_ledger` touch is the enum value `beforeBookStart`, authoring-only like `futureDate`;
+  `A-09d-6` proves no reader invariant emits it — that is the difference between a rule and a security
+  event fired at a family member for using the app offline.
+- Deferred: `E-09d-2`, the v1→v2 migration fixture test (needs drift's schema-dump tooling).
 
 **Also landed**
 - **The Drawings seeding is built and green** — `BookOwnership { justMe, shared }` on `BookConfig`

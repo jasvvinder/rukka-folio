@@ -65,8 +65,8 @@ Source: `joint-business-partnership.md`, `joint-family-sharma.md` (book 2).
 | Cattle Feed Expense | | | expense |
 
 ## 4. Trust — `BookType.organization`
-Source: `trust-singh-sabha-gurudwara.md`. `07 §3.1` 🔒 already names this seed and it is reproduced
-unchanged. The gollak is a `cash_collection` **money** account, not a category, and 🔒 stays a different
+Source: `trust-singh-sabha-gurudwara.md`. `07 §3.1` 🔒 names this seed; ADR 2026-09-09d §2 removed
+`Trust Bank` from it — no book type seeds a bank. The gollak is a `cash_collection` **money** account, not a category, and 🔒 stays a different
 account from the Cash A/c (02 §8.2).
 
 | EN | ਪੰਜਾਬੀ | हिन्दी | Class |
