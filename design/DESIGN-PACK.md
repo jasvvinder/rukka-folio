@@ -300,8 +300,21 @@ Design the **no-iCloud variant**: item 1 replaced by a plain "iCloud Keychain is
 ## O5b · Recovery sheet *(the screen that must not feel like a chore)*
 Calm, serious, one idea per line: heading "Only you can open your books", body explaining plainly that the data is locked so completely that even the makers cannot open it, therefore a paper key matters. A preview thumbnail of the printable A4 sheet with its QR. Two buttons: **Print / Save the sheet** (primary) and **I've kept it safe** (secondary, disabled until the sheet has been opened once).
 
-## O6 · Opening balances wizard
-Three steps with a progress bar: bank and cash balances (rows with account name and amount field) · "Does anyone owe you?" (add-person rows, amount, marked *you will get*) · "Do you owe anyone?" (same, *you will give*). A "Skip for now" link on each — the setup checklist on Home will bring them back.
+## O6 · Opening balances — one grouped screen *(replaces the three-step wizard, ADR 2026-09-09c §3)*
+One screen, not three steps. Title *"What do you have?"* (business: *"What does the shop have?"* / *"What
+does the business have?"*, family: *"What does the pool have?"*, trust: *"What does the trust have?"*), then a
+**plain read-only line** — *Balances as on 10 September 2026* — no box, no picker: 02 §4 🔒 asks money
+accounts for "balance today", so there is nothing to choose, and nothing may ever be dated before it
+(ADR 2026-09-09d §4). Beneath, **groups** where the wizard had steps: *What you have · Who owes you · Who you
+owe* (business books say *sundry debtors / creditors*, 01 §1 rule 4 🔒; a shared business adds *Capital — what
+each owner put in*, one row per owner from S0.6a1). **First-run state: every figure blank** — the app knows
+none of the numbers. The seed is **cash only** (Cash · Business Cash · Joint Cash; the trust keeps Cash and
+Gollak Cash); **no bank is seeded in any book** (ADR 2026-09-09d) — it arrives through the one **Add an
+account** row, which opens S3.1's type grid and asks for an opening balance at creation. Empty groups read
+*None yet.* / *Nobody yet.* Capital and Drawings have **no row**: they take no opening balance and S3's System
+chip lists them. A footer line says in words what the figures will become (*"…what the shop is worth to you —
+your Capital"*). **Skip for now** stays on every variant; the setup checklist on Home brings the user back.
+Drawn as five journey variants on canvas 1 (S0.6 · S0.6b Just me · S0.6b Shared · S0.6f · S0.6i).
 
 ## O7 · Join by invitation
 The invitee's alternate path: after O2, a screen reading "Amrit Kaur has invited you to Sharma Family" with the roles being granted listed as chips, and two buttons — Accept · Not now. On accept, the pending-verification state: "Your own book is ready. Meet Amrit to unlock the family books."
