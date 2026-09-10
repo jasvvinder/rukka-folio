@@ -49,13 +49,13 @@ Bottom bar 🔒 (ADR 2026-09-05f §A): **four tabs — Home · Ledger · Inbox �
 2. Phone → OTP (06 §2). Generic errors; resend with visible countdown. Every successful unlock plays the **sealed→open mark animation** (11 §4.2; m=0.6 on biometric unlock); the splash plays it (m=1.0, once) **only when the session is already open** — a launch that ends at the lock screen animates nothing, a failed unlock shakes the sealed mark, and a cold start slower than 3s shows the 2px loader rule beneath the stacked lockup (11 §4.5, ADR 2026-09-03d). Jump cut under `prefers-reduced-motion`; never decoratively.
 3. *"What will you use this for?"* — **five** illustrated cards 🔒 (owner-added 31 Aug 2026): **Myself · My shop · My businesses · My family · Our trust** — the fifth carrying a subtitle the others do not need: *gurudwara, temple, society or registered trust*, because "trust" alone is abstract and a mandir or sabha committee member must see themselves in it. The list is examples, not an exhaustive set; the underlying tenant type is the generic `organization`.. Layout is 2 × 2 with the trust card **full width beneath**, since five does not divide into a grid and the trust label is the longest. Adding it here fixes a real discovery problem: a treasurer would otherwise have had to pick a wrong card and then find *Add organization* in Menu.
    🔒 **This card is the only one that sets `tenant.type = organization`**, which carries consequences beyond seeded accounts: trustee role labels, gollak created as a `cash_collection` account, and **denomination counting mandatory on every cash account** (02 §8.2). Seeds: **Cash (the ordinary cash-in-hand A/c every ledger has)**, Gollak Cash, Donation Income, Langar Expense, Building Repair, Honorarium — **no bank account** (ADR 2026-09-09d §2: a bank is added, not seeded, in every book type). ⟦tests: A-09d-2 @M5⟧ (seeds books + category tree only; changeable later; no lock-in copy). 🔒 The gollak and the Cash A/c are **different accounts**: counted money leaves the gollak only by deposit into the Cash A/c or the trust's bank — in one go or in parts, the gollak's balance always showing what is still in the box — and expenses are never paid straight from it (02 §8.2, owner-ruled 2–3 Sep 2026).
-4. Name (+ optional photo — shown in approvals & ceremonies, worth asking here).
+4. Name (+ optional photo — shown in approvals & ceremonies, worth asking here). ⟦tests: F1-07-48⟧
 5. **Keeping your books safe 🔒 (one onboarding step, owner-directed 31 Aug 2026)** — backup is configured **here, at signup**, not left in Settings, because backup found later mostly never happens. One screen, three items: (a) *Your key is kept in iCloud Keychain* — **on**, stated rather than asked, with the plain line that Apple cannot read it, and one more: *"A phone backup does not carry your books — your key comes back with your Apple account, your books come back from the server"* (ADR 2026-09-05c §8, ADR 2026-09-05f §G); (b) *Automatic backup* — **on**, showing the destination, with the readable-copy disclosure in one prominent sentence and a one-tap off (04 §7.6); (c) the **recovery sheet** action below. If iCloud Keychain is unavailable or disabled on the device, the screen says so plainly and makes the sheet the primary action instead.
 6. **Recovery sheet moment** (04 §7.4): explain in one screen why there is no "forgot password" (*"Your data is locked so well that even we can't open it"*), generate PDF, share/print, then the **verified-storage nag** badge lives on Menu until they scan the printed sheet back.
 7. Opening balances wizard (02 §4) — skippable, resumable from Home's setup card.
 8. If invited (deep link): §12 flow instead of step 3.
 
-### 3.1.1 The purpose card branches the setup 🔒 (gap closed 1 Sep 2026) ⟦tests: F1-07-16 @M5⟧
+### 3.1.1 The purpose card branches the setup 🔒 (gap closed 1 Sep 2026) ⟦tests: F1-07-16⟧
 Onboarding is **not one linear path**. Steps 1–6 are shared by everyone; after them the flow **branches by the card chosen**, because what a trust needs named is not what a shopkeeper needs named. Every branch step is **skippable and resumable** from the setup checklist (§3.1 step 8) — nobody is trapped in setup, and a shopkeeper standing in his shop can reach Home in under a minute.
 
 | Card | Shared steps | Then |
@@ -73,7 +73,7 @@ Follows the scenario table in 06 §5 verbatim. Key screens: **Link with old phon
 
 ---
 
-## 4. Home 🔒 ⟦tests: F1-02-8⟧
+## 4. Home 🔒 ⟦tests: F1-02-8, F1-07-49, F1-07-50⟧
 
 ```
 ┌──────────────────────────────────────┐

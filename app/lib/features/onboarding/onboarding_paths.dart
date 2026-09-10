@@ -12,4 +12,13 @@ abstract final class OnboardingPaths {
 
   /// S0.05 Welcome — 3 skippable slides, after language (13 §3.2).
   static const welcome = '/onboarding/welcome';
+
+  /// S0.3 Purpose — five-card branch, after S0.2 phone+OTP (07 §3.1 step 3,
+  /// 13 §3.2). Owned here (not aliased off `RkPaths`, same posture as the
+  /// three paths above) because S0.2 lives in features/auth and this lane
+  /// does not touch router.dart.
+  static const purpose = '/onboarding/purpose';
+
+  /// S0.4 Name & photo — after S0.3 (07 §3.1 step 4, 13 §3.2).
+  static const namePhoto = '/onboarding/name-photo';
 }

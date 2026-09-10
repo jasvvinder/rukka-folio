@@ -584,9 +584,199 @@
   "@entry.placeholder.body": {
     "description": "P0 placeholder until S2 lands."
   },
+  "home.drilldown.empty": "Nothing behind this line yet",
+  "@home.drilldown.empty": {
+    "description": "S1.1 empty state (13 §4.3); the next action is recording an entry."
+  },
+  "home.drilldown.empty_action": "Record an entry",
+  "@home.drilldown.empty_action": {
+    "description": "S1.1 empty state — the single next action (13 §8)."
+  },
+  "home.drilldown.error": "Couldn't load this list",
+  "@home.drilldown.error": {
+    "description": "S1.1 error state with retry (13 §4.3)."
+  },
+  "home.drilldown.skeleton": "Loading this list",
+  "@home.drilldown.skeleton": {
+    "description": "S1.1 loading skeleton announcement (11 §4.5)."
+  },
+  "home.drilldown.title": "{label}",
+  "@home.drilldown.title": {
+    "description": "S1.1 position drill-down app-bar title — the position row's own label (13 §3.2 row S1.1).",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "home.drilldown.total": "Total",
+  "@home.drilldown.total": {
+    "description": "S1.1 total of the rows behind the position line."
+  },
+  "home.error": "Couldn't load your position",
+  "@home.error": {
+    "description": "S1 error state: book resolve or projection stream failed (13 §4.3 error-with-retry)."
+  },
+  "home.hero.empty": "No money accounts yet",
+  "@home.hero.empty": {
+    "description": "S1 hero breakdown when the book has no cash or bank account yet (13 §4.3 empty)."
+  },
+  "home.hero.label": "Total money you have",
+  "@home.hero.label": {
+    "description": "S1 hero label 🔒 owner-approved (07 §4): sum of every money account in scope, overdrafts subtracted."
+  },
+  "home.month.in": "In",
+  "@home.month.in": {
+    "description": "S1 this-month figure label — money that came in. Consumer vocabulary (02 §10)."
+  },
+  "home.month.label": "This month",
+  "@home.month.label": {
+    "description": "S1 this-month line 🔒 owner-confirmed (07 §4): income against expense for the current month."
+  },
+  "home.month.out": "Out",
+  "@home.month.out": {
+    "description": "S1 this-month figure label — money that went out. Consumer vocabulary (02 §10)."
+  },
   "home.placeholder.body": "Your position and today’s entries will appear here.",
   "@home.placeholder.body": {
     "description": "P0 placeholder until S1 lands (M5)."
+  },
+  "home.position.advances_out": "Advances out",
+  "@home.position.advances_out": {
+    "description": "S1 position row: open advances given out (02 §7, 02 §9)."
+  },
+  "home.position.cash": "Cash in hand",
+  "@home.position.cash": {
+    "description": "S1 position row: sum of money accounts of subtype cash (02 §9)."
+  },
+  "home.position.drill": "Show the list",
+  "@home.position.drill": {
+    "description": "Screen-reader hint on a position row: every line drills into its list (S1.1, 07 §4)."
+  },
+  "home.position.in_transit": "In transit",
+  "@home.position.in_transit": {
+    "description": "S1 position row: money moving between your own books (02 §6, 02 §9)."
+  },
+  "home.position.title": "Position",
+  "@home.position.title": {
+    "description": "S1 position card heading (07 §4; the card is 02 §9 exactly)."
+  },
+  "home.position.you_will_get": "You will get",
+  "@home.position.you_will_get": {
+    "description": "S1 position row: parties who owe you (02 §9, 07 §7)."
+  },
+  "home.position.you_will_give": "You will give",
+  "@home.position.you_will_give": {
+    "description": "S1 position row: parties you owe (02 §9, 07 §7)."
+  },
+  "home.retry": "Try again",
+  "@home.retry": {
+    "description": "Retry action on the S1 and S1.1 error states."
+  },
+  "home.setup.add_family": "Add your family",
+  "@home.setup.add_family": {
+    "description": "S0.7 checklist step 4 (07 §4 empty state)."
+  },
+  "home.setup.done": "Done",
+  "@home.setup.done": {
+    "description": "S0.7 checklist — a step already finished, paired with a tick so colour is never alone (07 §1 rule 3)."
+  },
+  "home.setup.first_entry": "Record your first entry",
+  "@home.setup.first_entry": {
+    "description": "S0.7 checklist step 2 (07 §4 empty state)."
+  },
+  "home.setup.opening_balances": "Add your opening balances",
+  "@home.setup.opening_balances": {
+    "description": "S0.7 checklist step 1 (07 §4 empty state)."
+  },
+  "home.setup.recovery_sheet": "Print your recovery sheet",
+  "@home.setup.recovery_sheet": {
+    "description": "S0.7 checklist step 3 (07 §4 empty state)."
+  },
+  "home.setup.title": "Get your book going",
+  "@home.setup.title": {
+    "description": "S0.7 setup checklist heading — the S1 empty state replaces the position card with it (07 §4, 13 §3.2 row S0.7)."
+  },
+  "home.skeleton": "Loading your position",
+  "@home.skeleton": {
+    "description": "S1 loading state announcement for the ruled skeleton (11 §4.5, 13 §4.3)."
+  },
+  "home.title": "Home",
+  "@home.title": {
+    "description": "S1 Home tab title / app-bar fallback (13 §3.2 row S1)."
+  },
+  "home.today.empty": "Nothing recorded today yet",
+  "@home.today.empty": {
+    "description": "S1 today section empty state; the four verb buttons above are the one next action (13 §4.3, 13 §8)."
+  },
+  "home.today.full_day_book": "Full day book",
+  "@home.today.full_day_book": {
+    "description": "S1 today section action — opens the whole day's entries (07 §4)."
+  },
+  "home.today.review_chip": "{count, plural, =1{1 under review · {amount}} other{{count} under review · {amount}}}",
+  "@home.today.review_chip": {
+    "description": "S1 single summary chip — the one place the review status is written out (07 §4); tapping it opens the filtered list.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "home.today.title": "Today",
+  "@home.today.title": {
+    "description": "S1 today section heading; the list is newest first (07 §4)."
+  },
+  "home.today.under_review": "Under review",
+  "@home.today.under_review": {
+    "description": "S1 amber-clock marker beside a posted entry whose review flag is open — the entry still counts in every balance (02 §3)."
+  },
+  "home.verb.gave": "Gave on credit",
+  "@home.verb.gave": {
+    "description": "S1 verb button (02 §2 row 3) — goods or money handed over against a promise to pay."
+  },
+  "home.verb.money_in": "Money in",
+  "@home.verb.money_in": {
+    "description": "S1 verb button opening the 07 §5 entry flow with the verb pre-chosen (02 §2 row 1)."
+  },
+  "home.verb.money_out": "Money out",
+  "@home.verb.money_out": {
+    "description": "S1 verb button (02 §2 row 2)."
+  },
+  "home.verb.took": "Took on credit",
+  "@home.verb.took": {
+    "description": "S1 verb button (02 §2 row 4) — what you took against a promise to pay."
+  },
+  "home.verify.action": "See the full check",
+  "@home.verify.action": {
+    "description": "S1 verification card action — opens the S8.2 trial balance where Dr and Cr totals live (ADR 2026-09-05f §F)."
+  },
+  "home.verify.balanced": "Books balanced · difference nil",
+  "@home.verify.balanced": {
+    "description": "S1 verification card 🔒 owner-approved (07 §4): plain words on a consumer surface — never Dr/Cr (02 §10)."
+  },
+  "home.verify.off": "Books off by {amount}",
+  "@home.verify.off": {
+    "description": "S1 verification card when the difference is not nil; plain words, consumer vocabulary (07 §4, 02 §10).",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "home.verify.pill_balanced": "Balanced",
+  "@home.verify.pill_balanced": {
+    "description": "S1 verification status pill, paired with a tick icon so colour is never alone (07 §1 rule 3)."
+  },
+  "home.verify.pill_check": "Needs checking",
+  "@home.verify.pill_check": {
+    "description": "S1 verification status pill when the books do not balance or integrity is off."
+  },
+  "home.verify.provisional": "Waiting for entries from another phone",
+  "@home.verify.provisional": {
+    "description": "S1 provisional badge on the position card when the book has an author gap (13 §4.1 P2, 07 §1 rule 7)."
   },
   "inbox.placeholder.body": "Anything waiting for you will appear here.",
   "@inbox.placeholder.body": {
@@ -840,6 +1030,82 @@
   "onboarding.language.title": "Choose your language",
   "@onboarding.language.title": {
     "description": "S0.1 language picker (07 §3.1 step 1) — the first screen ever shown."
+  },
+  "onboarding.name_photo.continue_label": "Continue",
+  "@onboarding.name_photo.continue_label": {
+    "description": "S0.4 primary action."
+  },
+  "onboarding.name_photo.name_error": "Enter your name to continue",
+  "@onboarding.name_photo.name_error": {
+    "description": "S0.4 disabled-with-reason (13 §4.3) — why Continue is disabled."
+  },
+  "onboarding.name_photo.name_hint": "e.g. Sunita Kaur",
+  "@onboarding.name_photo.name_hint": {
+    "description": "S0.4 name field hint."
+  },
+  "onboarding.name_photo.name_label": "Your name",
+  "@onboarding.name_photo.name_label": {
+    "description": "S0.4 required name field."
+  },
+  "onboarding.name_photo.photo_added": "Photo added",
+  "@onboarding.name_photo.photo_added": {
+    "description": "S0.4 confirms a photo was picked — paired with the icon changing, colour never alone (07 §1 rule 3)."
+  },
+  "onboarding.name_photo.photo_label": "Add a photo (optional)",
+  "@onboarding.name_photo.photo_label": {
+    "description": "S0.4 optional photo affordance, tapped to invoke the picker seam."
+  },
+  "onboarding.name_photo.subtitle": "Shown in approvals and the verification ceremony — not shared beyond your books",
+  "@onboarding.name_photo.subtitle": {
+    "description": "S0.4 states the reason a name and photo are asked, per 07 §3.1 step 4."
+  },
+  "onboarding.name_photo.title": "What should we call you?",
+  "@onboarding.name_photo.title": {
+    "description": "S0.4 name & photo (07 §3.1 step 4)."
+  },
+  "onboarding.purpose.card.businesses.description": "More than one business",
+  "@onboarding.purpose.card.businesses.description": {
+    "description": "S0.3 card 3 description."
+  },
+  "onboarding.purpose.card.businesses.label": "My businesses",
+  "@onboarding.purpose.card.businesses.label": {
+    "description": "S0.3 card 3 of 5."
+  },
+  "onboarding.purpose.card.family.description": "Shared with the people at home",
+  "@onboarding.purpose.card.family.description": {
+    "description": "S0.3 card 4 description."
+  },
+  "onboarding.purpose.card.family.label": "My family",
+  "@onboarding.purpose.card.family.label": {
+    "description": "S0.3 card 4 of 5."
+  },
+  "onboarding.purpose.card.myself.description": "Track your own money",
+  "@onboarding.purpose.card.myself.description": {
+    "description": "S0.3 card 1 description — pairs with the icon so the card is distinguishable without colour (07 §1 rule 3)."
+  },
+  "onboarding.purpose.card.myself.label": "Myself",
+  "@onboarding.purpose.card.myself.label": {
+    "description": "S0.3 card 1 of 5."
+  },
+  "onboarding.purpose.card.shop.description": "One shop's cash and bank",
+  "@onboarding.purpose.card.shop.description": {
+    "description": "S0.3 card 2 description."
+  },
+  "onboarding.purpose.card.shop.label": "My shop",
+  "@onboarding.purpose.card.shop.label": {
+    "description": "S0.3 card 2 of 5."
+  },
+  "onboarding.purpose.card.trust.description": "gurudwara, temple, society or registered trust",
+  "@onboarding.purpose.card.trust.description": {
+    "description": "S0.3 card 5 subtitle — the trust card alone needs this, so a treasurer sees themselves in it (07 §3.1.1)."
+  },
+  "onboarding.purpose.card.trust.label": "Our trust",
+  "@onboarding.purpose.card.trust.label": {
+    "description": "S0.3 card 5 of 5 — full width beneath the 2x2 grid (07 §3.1.1); the only card that sets tenant.type = organization."
+  },
+  "onboarding.purpose.title": "What will you use this for?",
+  "@onboarding.purpose.title": {
+    "description": "S0.3 purpose (07 §3.1 step 3, 07 §3.1.1) — the five-card branch."
   },
   "onboarding.welcome.get_started": "Get started",
   "@onboarding.welcome.get_started": {
