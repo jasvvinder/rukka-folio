@@ -617,6 +617,14 @@
   "@home.error": {
     "description": "S1 error state: book resolve or projection stream failed (13 §4.3 error-with-retry)."
   },
+  "home.everything.empty": "No books yet",
+  "@home.everything.empty": {
+    "description": "S1 Everything-scope empty state (13 §4.3)."
+  },
+  "home.everything.read_only": "Every book together — view only",
+  "@home.everything.read_only": {
+    "description": "S1 Everything-scope banner: the aggregate is read-only (13 §2.2); paired with a lock icon so colour is never alone (07 §1 rule 3)."
+  },
   "home.hero.empty": "No money accounts yet",
   "@home.hero.empty": {
     "description": "S1 hero breakdown when the book has no cash or bank account yet (13 §4.3 empty)."
@@ -669,9 +677,65 @@
   "@home.position.you_will_give": {
     "description": "S1 position row: parties you owe (02 §9, 07 §7)."
   },
+  "home.rebuild.note": "Your figures will be right as soon as this finishes.",
+  "@home.rebuild.note": {
+    "description": "S1.4 note: the book is not shown as whole while it rebuilds (13 §3.2 row S1.4)."
+  },
+  "home.rebuild.progress": "{done} of {total} entries restored",
+  "@home.rebuild.progress": {
+    "description": "S1.4 determinate loader count 🔒 (07 §28, 11 §4.5): counts, never percentages, never a spinner.",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "home.rebuild.title": "Putting this book back together",
+  "@home.rebuild.title": {
+    "description": "S1.4 heading — plain words for a projection rebuild (07 §28 🔒, ADR 2026-09-05f §B); consumer vocabulary, never Dr/Cr."
+  },
   "home.retry": "Try again",
   "@home.retry": {
     "description": "Retry action on the S1 and S1.1 error states."
+  },
+  "home.scope.change": "Change which books you are seeing",
+  "@home.scope.change": {
+    "description": "S1.3 tooltip / screen-reader hint on the control that opens the grouped scope sheet (07 §5.7 🔒)."
+  },
+  "home.scope.everything": "Everything",
+  "@home.scope.everything": {
+    "description": "S1.3 scope row: the read-only aggregate across every book the user can see (13 §2.2)."
+  },
+  "home.scope.everything_meta": "Every book together, view only",
+  "@home.scope.everything_meta": {
+    "description": "S1.3 second line under Everything — says the aggregate is read-only (13 §2.2)."
+  },
+  "home.scope.group.businesses": "Businesses",
+  "@home.scope.group.businesses": {
+    "description": "S1.3 group header: business books (02 §7.1)."
+  },
+  "home.scope.group.family": "Family",
+  "@home.scope.group.family": {
+    "description": "S1.3 group header: family, sub-family and joint books (13 §3.2 row S1.3)."
+  },
+  "home.scope.group.me": "Me",
+  "@home.scope.group.me": {
+    "description": "S1.3 group header: the user's own personal book (13 §2.2 Me)."
+  },
+  "home.scope.group.organizations": "Organizations",
+  "@home.scope.group.organizations": {
+    "description": "S1.3 group header: trusts, societies and organizations (02 §8.2)."
+  },
+  "home.scope.label": "Which books",
+  "@home.scope.label": {
+    "description": "S1.2/S1.3 scope control group label (13 §2.2 scope model; visible only when the user has more than one book)."
+  },
+  "home.scope.sheet_title": "Which books do you want to see?",
+  "@home.scope.sheet_title": {
+    "description": "S1.3 grouped bottom-sheet heading (13 §3.2 row S1.3)."
   },
   "home.setup.add_family": "Add your family",
   "@home.setup.add_family": {
@@ -1006,6 +1070,251 @@
   "nav.menu.label": "Menu",
   "@nav.menu.label": {
     "description": "Tab 4 of 4 (S8): reports, books, members, settings."
+  },
+  "onboarding.business.continue_label": "Continue",
+  "@onboarding.business.continue_label": {
+    "description": "S0.6a primary action."
+  },
+  "onboarding.business.fy_label": "Financial year starts",
+  "@onboarding.business.fy_label": {
+    "description": "S0.6a financial-year start month (07 §5.7, 02 §8.1)."
+  },
+  "onboarding.business.fy_note": "April for most businesses in India",
+  "@onboarding.business.fy_note": {
+    "description": "S0.6a explains the 1 April default."
+  },
+  "onboarding.business.name_error": "Give the business a name to continue",
+  "@onboarding.business.name_error": {
+    "description": "S0.6a disabled-with-reason (13 §4.3)."
+  },
+  "onboarding.business.name_hint": "e.g. Sharma Traders",
+  "@onboarding.business.name_hint": {
+    "description": "S0.6a name hint."
+  },
+  "onboarding.business.name_label": "Business name",
+  "@onboarding.business.name_label": {
+    "description": "S0.6a required name field."
+  },
+  "onboarding.business.ownership_just_me": "Just me",
+  "@onboarding.business.ownership_just_me": {
+    "description": "S0.6a ownership option 1 — the default branch, no S0.6a1."
+  },
+  "onboarding.business.ownership_just_me_note": "You are the only owner",
+  "@onboarding.business.ownership_just_me_note": {
+    "description": "S0.6a option 1 description."
+  },
+  "onboarding.business.ownership_question": "Who owns it?",
+  "@onboarding.business.ownership_question": {
+    "description": "S0.6a ownership chips (07 §5.7)."
+  },
+  "onboarding.business.ownership_shared": "Shared with others",
+  "@onboarding.business.ownership_shared": {
+    "description": "S0.6a ownership option 2 — branches to S0.6a1 (ADR 2026-09-09 §1)."
+  },
+  "onboarding.business.ownership_shared_note": "Next you will name the other owners and their shares",
+  "@onboarding.business.ownership_shared_note": {
+    "description": "S0.6a option 2 description."
+  },
+  "onboarding.business.start_note": "Your books begin on {date}. Nothing can be dated before that day.",
+  "@onboarding.business.start_note": {
+    "description": "S0.6a states the book start date and the ADR 2026-09-09d §4 floor.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.business.subtitle": "You can change any of this later.",
+  "@onboarding.business.subtitle": {
+    "description": "S0.6a reassurance — 07 §3.1.1 makes every branch step resumable."
+  },
+  "onboarding.business.title": "Name your business",
+  "@onboarding.business.title": {
+    "description": "S0.6a (13 §3.2, 07 §5.7) — name, who owns it, financial-year start."
+  },
+  "onboarding.business_opening.add_another": "Add another",
+  "@onboarding.business_opening.add_another": {
+    "description": "S0.6b adds another account of the same kind."
+  },
+  "onboarding.business_opening.add_bank": "Add a bank account",
+  "@onboarding.business_opening.add_bank": {
+    "description": "S0.6b — no book seeds a bank (ADR 2026-09-09d §1); it is added here, named properly the first time."
+  },
+  "onboarding.business_opening.balance_label": "Amount today",
+  "@onboarding.business_opening.balance_label": {
+    "description": "S0.6b per-row opening amount field, in rupees."
+  },
+  "onboarding.business_opening.balancing_label": "Opening Balance / Capital A/c",
+  "@onboarding.business_opening.balancing_label": {
+    "description": "S0.6b names the account that absorbs the difference (ADR 2026-09-09c §4)."
+  },
+  "onboarding.business_opening.balancing_note": "{amount} goes to Opening Balance / Capital A/c, so the opening entry balances.",
+  "@onboarding.business_opening.balancing_note": {
+    "description": "S0.6b shows the balancing figure and where it goes — never a silent plug (ADR 2026-09-09c §4).",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.business_opening.balancing_zero": "The opening entry balances exactly — nothing is left for Opening Balance / Capital A/c.",
+  "@onboarding.business_opening.balancing_zero": {
+    "description": "S0.6b zero-difference wording of the balancing line."
+  },
+  "onboarding.business_opening.dated_note": "Everything here is dated {date}, the day the books begin.",
+  "@onboarding.business_opening.dated_note": {
+    "description": "S0.6b states the opening date; nothing is ever dated earlier (ADR 2026-09-09d §4).",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.business_opening.group_have": "What you have",
+  "@onboarding.business_opening.group_have": {
+    "description": "S0.6b group 1 — consumer vocabulary, never Assets (02 §10, ADR 2026-09-09c §3)."
+  },
+  "onboarding.business_opening.group_owed_to_you": "Who owes you",
+  "@onboarding.business_opening.group_owed_to_you": {
+    "description": "S0.6b group 2."
+  },
+  "onboarding.business_opening.group_owner_contributions": "What each owner put in",
+  "@onboarding.business_opening.group_owner_contributions": {
+    "description": "S0.6b group 4 — shared business only (ADR 2026-09-09c §4)."
+  },
+  "onboarding.business_opening.group_you_owe": "Who you owe",
+  "@onboarding.business_opening.group_you_owe": {
+    "description": "S0.6b group 3."
+  },
+  "onboarding.business_opening.save": "Save and continue",
+  "@onboarding.business_opening.save": {
+    "description": "S0.6b primary action."
+  },
+  "onboarding.business_opening.skip": "Skip for now",
+  "@onboarding.business_opening.skip": {
+    "description": "S0.6b secondary — the S0.7 checklist brings the user back (ADR 2026-09-09c §3)."
+  },
+  "onboarding.business_opening.subtitle": "These accounts are ready. Fill in what each one holds, or add another.",
+  "@onboarding.business_opening.subtitle": {
+    "description": "S0.6b subtitle — the accounts already exist, so this is review-and-fill, not creation."
+  },
+  "onboarding.business_opening.suggestion_note": "Suggested from the shares — change it if the money that came in was different.",
+  "@onboarding.business_opening.suggestion_note": {
+    "description": "S0.6b labels the contribution suggestion as a suggestion; contribution is asked, never derived (ADR 2026-09-09c §4)."
+  },
+  "onboarding.business_opening.title": "What the business starts with",
+  "@onboarding.business_opening.title": {
+    "description": "S0.6b (13 §3.2, ADR 2026-09-09c §3) — one grouped review-and-fill over the seeded accounts."
+  },
+  "onboarding.business_opening.zero_note": "A row left empty is still created.",
+  "@onboarding.business_opening.zero_note": {
+    "description": "S0.6b — rows left at zero are still created (ADR 2026-09-09c §3)."
+  },
+  "onboarding.business_owners.add_owner": "Add an owner",
+  "@onboarding.business_owners.add_owner": {
+    "description": "S0.6a1 adds another owner row."
+  },
+  "onboarding.business_owners.continue_label": "Continue",
+  "@onboarding.business_owners.continue_label": {
+    "description": "S0.6a1 primary action."
+  },
+  "onboarding.business_owners.decrease": "One share less for {name}",
+  "@onboarding.business_owners.decrease": {
+    "description": "S0.6a1 stepper down, accessible label; floors at one share.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.business_owners.fixed_note": "Shares are fixed when the business is created. Putting in more money later earns a larger claim for repayment, never a bigger share.",
+  "@onboarding.business_owners.fixed_note": {
+    "description": "S0.6a1 states the 02 §7.1 rule in words (ADR 2026-09-09 §2)."
+  },
+  "onboarding.business_owners.increase": "One more share for {name}",
+  "@onboarding.business_owners.increase": {
+    "description": "S0.6a1 stepper up, accessible label.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.business_owners.invite_tag": "to invite",
+  "@onboarding.business_owners.invite_tag": {
+    "description": "S0.6a1 tag on every invited owner, the S0.6e row unchanged."
+  },
+  "onboarding.business_owners.just_me": "Just me after all",
+  "@onboarding.business_owners.just_me": {
+    "description": "S0.6a1 secondary — not Skip for now; it returns to the Just me branch (ADR 2026-09-09 §3)."
+  },
+  "onboarding.business_owners.mode_different": "Different shares",
+  "@onboarding.business_owners.mode_different": {
+    "description": "S0.6a1 per-owner stepper in whole shares (ADR 2026-09-09 §2)."
+  },
+  "onboarding.business_owners.mode_equal": "Equal shares",
+  "@onboarding.business_owners.mode_equal": {
+    "description": "S0.6a1 default share mode — real weights 1:1:1, never 33/33/34 (ADR 2026-09-09 §2)."
+  },
+  "onboarding.business_owners.name_label": "Owner's name",
+  "@onboarding.business_owners.name_label": {
+    "description": "S0.6a1 owner row name field."
+  },
+  "onboarding.business_owners.percent_note": "{percent}% of the business",
+  "@onboarding.business_owners.percent_note": {
+    "description": "S0.6a1 computed percentage shown beneath the share count, never typed (ADR 2026-09-09 §2).",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.business_owners.phone_label": "Phone number",
+  "@onboarding.business_owners.phone_label": {
+    "description": "S0.6a1 owner row phone field."
+  },
+  "onboarding.business_owners.remove": "Remove {name}",
+  "@onboarding.business_owners.remove": {
+    "description": "S0.6a1 row action — an owner cannot hold zero shares, so removal is a row action (ADR 2026-09-09 §2).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.business_owners.shares_count": "{shares} shares",
+  "@onboarding.business_owners.shares_count": {
+    "description": "S0.6a1 whole-number weight on an owner row — never a percentage typed by the user.",
+    "placeholders": {
+      "shares": {
+        "type": "int"
+      }
+    }
+  },
+  "onboarding.business_owners.subtitle": "Add every owner by phone number, then set the shares.",
+  "@onboarding.business_owners.subtitle": {
+    "description": "S0.6a1 subtitle — owners are invited by phone, reusing the S0.6e row."
+  },
+  "onboarding.business_owners.title": "Who owns this business?",
+  "@onboarding.business_owners.title": {
+    "description": "S0.6a1 (13 §3.2, ADR 2026-09-09 §1) — shown on the Shared with others branch only."
+  },
+  "onboarding.business_owners.total_note": "{total} shares in all",
+  "@onboarding.business_owners.total_note": {
+    "description": "S0.6a1 running total of the weights.",
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "onboarding.business_owners.unverified_note": "Invited owners stay unverified until you meet them and verify them in person.",
+  "@onboarding.business_owners.unverified_note": {
+    "description": "S0.6a1 states that a phone number alone adds nobody (ADR 2026-09-09 §1, 06 §1)."
+  },
+  "onboarding.business_owners.you_tag": "you",
+  "@onboarding.business_owners.you_tag": {
+    "description": "S0.6a1 tag on the first row, the creating user (ADR 2026-09-09 §1)."
   },
   "onboarding.language.continue": "Continue",
   "@onboarding.language.continue": {

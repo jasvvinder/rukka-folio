@@ -3,9 +3,16 @@
 // `buildRouter(home: homeRoot, ...)`. S1.1 sits one level below it and mounts
 // on the *root* navigator so it covers the tab bar, as S4 does.
 //
-// S1.2/S1.3 (the scope switcher) and S1.4 (rebuilding) are later lanes; until
-// S1.2 lands every screen here resolves the one book a solo ledger has
-// ([soloBookId]), and the S1.4 slot on S1 stays empty.
+// S1.2/S1.3 (the scope switcher) now live inside [HomeScreen]: it owns a
+// [HomeScopeController] for its own lifetime, so the chip appears by itself
+// the moment a second book exists (13 §2.2 🔒) and nothing is routed. The
+// shell will pass a controller in when scope persists per tab.
+//
+// S1.4 needs a producer for its progress seam ([RebuildProgressSource]) and
+// `Recompute.run` has none yet (see home_rebuild.dart), so `rebuildProgress`
+// is left null here — the screen then always shows the book, which is the
+// behaviour before this lane. S1.1 resolves the one book a solo ledger has
+// ([soloBookId]) until it takes scope too.
 import 'package:go_router/go_router.dart';
 
 import '../../shared/router.dart';

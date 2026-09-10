@@ -42,5 +42,19 @@
   "home.drilldown.empty": "इस पंक्ति के पीछे अभी कुछ नहीं",
   "home.drilldown.empty_action": "प्रविष्टि दर्ज करें",
   "home.drilldown.error": "यह सूची लोड नहीं हो सकी",
-  "home.drilldown.skeleton": "यह सूची लोड हो रही है"
+  "home.drilldown.skeleton": "यह सूची लोड हो रही है",
+  "home.scope.label": "कौन-सी बहियाँ",
+  "home.scope.change": "बदलें कि आप कौन-सी बहियाँ देख रहे हैं",
+  "home.scope.everything": "सब कुछ",
+  "home.scope.everything_meta": "सभी बहियाँ एक साथ, केवल देखने के लिए",
+  "home.scope.sheet_title": "आप कौन-सी बहियाँ देखना चाहते हैं?",
+  "home.scope.group.me": "मैं",
+  "home.scope.group.family": "परिवार",
+  "home.scope.group.businesses": "कारोबार",
+  "home.scope.group.organizations": "संस्थाएँ",
+  "home.everything.read_only": "सभी बहियाँ एक साथ — केवल देखने के लिए",
+  "home.everything.empty": "अभी कोई बही नहीं",
+  "home.rebuild.title": "यह बही दोबारा जोड़ी जा रही है",
+  "home.rebuild.progress": "{total} में से {done} प्रविष्टियाँ वापस आईं",
+  "home.rebuild.note": "यह पूरा होते ही आपके आंकड़े सही हो जाएँगे।"
 }

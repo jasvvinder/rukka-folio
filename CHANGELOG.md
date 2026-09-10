@@ -12,6 +12,98 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-10 — M5: U2b lands the Home scope switcher and rebuilding state (S1.2, S1.3, S1.4); gate green
+
+One `lane-ui-hard` run in its own session, then this gate in its own invocation. The push lane is green
+with nothing mechanical to fix. Verified against the log, not the summary: exit 0, `check_coverage --strict`
+clean, root scripts 21, pure packages 75 + 155 + 31 + 17 + 10, app 183, Deno 31 passed / 7 ignored; the two
+landed test files re-run by name (32/32) so every id below is seen green, not inferred.
+
+**Added — U2b, S1.2 · S1.3 · Everything · S1.4 (`F1-07-52`, `F1-07-53`, `F1-07-38`)**
+- S1.2 two-chip inline toggle for one business; S1.3 grouped bottom sheet from three books, empty groups
+  omitted, never shown at exactly two (07 §2 🔒); *Everything* renders read-only book cards.
+- S1.4 determinate rebuild loader — "{done} of {total} entries restored" on a 2 px rule, no spinner anywhere
+  (07 §28 🔒, 11 §4.5 🔒); the return to the normal Home card is gated on `BookHealth.integrityOk`.
+- Wired into S1's app bar. The Home body is passed as a `WidgetBuilder` because `watchHome`'s combined
+  stream is single-subscription — returning from S1.4 must build a fresh one. New stream combinators cancel
+  synchronously (unawaited), applying U2a's teardown-deadlock finding.
+- 10 tests in `s1_scope_switcher_test.dart`, EN/PA/HI at 200%; `test/features/home` 30/30; `F1-07-49/50`
+  unchanged and green. 14 new `home.*` keys in EN/PA/HI (335 × 3 now); PA/HI are lane drafts, not
+  native-reviewed (01 §1.8).
+- Traceability: 07 §28's `F1-07-38` marker lost its `@M5`; the S1.2/S1.3 🔒 line in 07 §2 carries
+  `F1-07-52`, `F1-07-53`.
+
+**Changed**
+- `PLAN.md` §0 and M5: U2b ✅; the app row names all six gated lanes (183 tests); two new ⬜ rows for the
+  seams below.
+
+**Open**
+- ⚠️ SPEC / seam — **scope does not persist per tab.** 13 §2.2 says "scope persists per tab, defaults to
+  last used"; that is shell state and `HomeScopeController` lives only for the screen. `HomeScreen`
+  already takes `scopeController:` — the shell (`app/lib/shared/`, outside the lane) needs to own one
+  per tab or persist the `Scope` value.
+- **S1.4 has no real producer.** `Recompute.run` (`packages/data/lib/src/recompute.dart:112`) exposes no
+  progress. S1.4 consumes `RebuildProgressSource` fed by a fake in `F1-07-38`; `homeRoot` passes
+  `rebuildProgress: null`, so behaviour is unchanged for users until `packages/data` grows a per-book
+  progress stream and the shell feeds it.
+- Gate note, unchanged from U1c: the 7 RLS hostile-query tests reported *ignored* because `RF_TEST_DB_URL`
+  was not set in the gate agent's shell. Push permits it; nightly/rc set `RLS_REQUIRE=1`.
+- Fable spend stands at 5 / 2 for the week; nothing in this session touched it.
+
+**Commits**
+- (fill next session)
+
+---
+
+## 2026-09-10 — M5: U1c lands the business branch of onboarding (S0.6a, S0.6a1, S0.6b); gate green
+
+One `lane-ui-hard` run, then the gate in its own invocation. The push lane is green with nothing mechanical
+to fix — the first M5 gate that found no drift at all.
+
+**Added — U1c, S0.6a · S0.6a1 · S0.6b (`F1-07-51`, `F1-07-45`, `F1-13-15`, `F1-09c-1`)**
+- S0.6a business name; S0.6a1 owners with share weights and steppers (ADR 2026-09-09 §1–3) — percentages
+  are integer arithmetic on the weights and are displayed only, never typed; S0.6b grouped opening balances
+  (ADR 2026-09-09c §3, 09d) taking its rows from the caller as `List<OpeningRow>`, so the screen tests
+  without a database. Money is integer paise throughout: `parseRupeesToPaise` is string arithmetic.
+- 22 tests in `s0_6_business_screens_test.dart`, all asserted at 200% on 360×800 in EN/PA/HI; the
+  onboarding directory is at 41 tests and the app package at 173.
+- `createBook` (`app/lib/shared/ledger/local_ledger.dart`) seeds the shared-business branch: *Profit
+  Distributed* plus one `{Name} — Partner Current A/c` per owner. Just-me still seeds Opening Balance /
+  Capital + Drawings; no bank, as ADR 09d §1 requires.
+- 50 new `onboarding.*` keys in EN/PA/HI (321 × 3 now). PA/HI are lane drafts, not native-reviewed (01 §1.8).
+- Routes: *Just me* goes S0.4 → S0.6b directly; the business purposes go S0.6a → S0.6a1 → S0.6b.
+- Traceability: 13 §3.2's S0.6a row gained `F1-07-51`; the `@M5` planned markers came off `F1-07-45`,
+  `F1-13-15` and `F1-09c-1` in 13, 07 and the two ADRs. `check_coverage --strict` clean.
+- Tiering note: this lane was correctly on `lane-ui-hard` — owner rows with weight steppers and a
+  grouped balancing screen are new components, not repeats of a settled pattern. It finished under the
+  ADR 2026-09-10 cap in one run.
+
+**Changed**
+- `PLAN.md` §0 and M5: U1c ✅; five new ⬜ rows carrying the lane's open findings (below); the app row now
+  names all five gated lanes.
+
+**Open**
+- ⚠️ SPEC (`local_ledger.dart:700`) — **the S0.6a1 share weights have nowhere to persist.** `BookConfig`
+  (`packages/data/lib/src/payload_codec.dart:100`) carries `ownership` but no partner ratio, and
+  `PartnerShare` takes its weight per call (`core_ledger/lib/src/verbs.dart:432`). ADR 2026-09-09 §2 makes
+  the weights load-bearing (02 §7.1 divides by them), so they need a field in the `book_config` envelope.
+  That is a `packages/data` schema change the lane did not own; S0.6a1 hands the weights up in
+  `OwnerDraft.shares` and nothing stores them. Owner call on where they live.
+- ⚠️ SPEC (`onboarding_routes.dart:73`) — the book is not created in the routes: S0.6b mounts with
+  `rows: const []` and S0.6a1 with `yourName: ''`, because the committing step (07 §3.1 step 8 / S0.7) has
+  no screen yet and S0.4's name is still not carried forward (U1b's gap, unchanged). U1f owns the wiring.
+- `A-09c-1` is unwritten: the shared-business seed added to `createBook` is untested (its test lives in
+  `app/test/shared/ledger`, outside the lane), and `createBook` still seeds none of ADR 2026-09-09c §1's
+  `Business Cash A/c`, `Sales A/c` or the shop/trade tree.
+- Design app: S0.6a1 (ADR 2026-09-09, Canvas 1 branch segment) and the five S0.6b variants
+  (`partials/new-screens-d.json`) are not placed yet — these screens were built from ADR text, not artboards.
+- Gate note: the RLS suite (`E-03-22…27`) reported *ignored* — `RF_TEST_DB_URL` was not set in the gate
+  agent's shell. The push lane permits that; nightly/rc set `RLS_REQUIRE=1`. Run `eval "$(scripts/rls_db.sh)"`
+  first if the next gate should exercise it.
+
+**Commits**
+- (fill next session)
+
 ## 2026-09-10 — M5: three UI lanes land (S0.3/S0.4, S1/S1.1), and the push lane goes green
 
 Three `lane-ui` runs against disjoint feature folders, then the gate. Home stops being a tab placeholder,

@@ -42,5 +42,19 @@
   "home.drilldown.empty": "ਇਸ ਲਾਈਨ ਪਿੱਛੇ ਹਾਲੇ ਕੁਝ ਨਹੀਂ",
   "home.drilldown.empty_action": "ਇੰਦਰਾਜ ਦਰਜ ਕਰੋ",
   "home.drilldown.error": "ਇਹ ਸੂਚੀ ਲੋਡ ਨਹੀਂ ਹੋ ਸਕੀ",
-  "home.drilldown.skeleton": "ਇਹ ਸੂਚੀ ਲੋਡ ਹੋ ਰਹੀ ਹੈ"
+  "home.drilldown.skeleton": "ਇਹ ਸੂਚੀ ਲੋਡ ਹੋ ਰਹੀ ਹੈ",
+  "home.scope.label": "ਕਿਹੜੀਆਂ ਬਹੀਆਂ",
+  "home.scope.change": "ਬਦਲੋ ਕਿ ਤੁਸੀਂ ਕਿਹੜੀਆਂ ਬਹੀਆਂ ਵੇਖ ਰਹੇ ਹੋ",
+  "home.scope.everything": "ਸਭ ਕੁਝ",
+  "home.scope.everything_meta": "ਸਾਰੀਆਂ ਬਹੀਆਂ ਇਕੱਠੀਆਂ, ਸਿਰਫ਼ ਵੇਖਣ ਲਈ",
+  "home.scope.sheet_title": "ਤੁਸੀਂ ਕਿਹੜੀਆਂ ਬਹੀਆਂ ਵੇਖਣਾ ਚਾਹੁੰਦੇ ਹੋ?",
+  "home.scope.group.me": "ਮੈਂ",
+  "home.scope.group.family": "ਪਰਿਵਾਰ",
+  "home.scope.group.businesses": "ਕਾਰੋਬਾਰ",
+  "home.scope.group.organizations": "ਸੰਸਥਾਵਾਂ",
+  "home.everything.read_only": "ਸਾਰੀਆਂ ਬਹੀਆਂ ਇਕੱਠੀਆਂ — ਸਿਰਫ਼ ਵੇਖਣ ਲਈ",
+  "home.everything.empty": "ਹਾਲੇ ਕੋਈ ਬਹੀ ਨਹੀਂ",
+  "home.rebuild.title": "ਇਹ ਬਹੀ ਦੁਬਾਰਾ ਜੋੜੀ ਜਾ ਰਹੀ ਹੈ",
+  "home.rebuild.progress": "{total} ਵਿੱਚੋਂ {done} ਇੰਦਰਾਜ ਵਾਪਸ ਆਏ",
+  "home.rebuild.note": "ਇਹ ਪੂਰਾ ਹੁੰਦੇ ਹੀ ਤੁਹਾਡੇ ਅੰਕੜੇ ਸਹੀ ਹੋ ਜਾਣਗੇ।"
 }
