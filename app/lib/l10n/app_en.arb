@@ -580,9 +580,179 @@
   "@devices.window.support.title": {
     "description": "S11.10 card title (ADR 2026-09-05d §3)."
   },
+  "entry.amount.a11y": "{amount} · {verb}",
+  "@entry.amount.a11y": {
+    "description": "S2 screen-reader label for the amount: the figure with its direction (07 §1).",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "verb": {
+        "type": "String"
+      }
+    }
+  },
+  "entry.amount.label": "How much",
+  "@entry.amount.label": {
+    "description": "S2 label above the amount (design canvas 2, S2.3)."
+  },
+  "entry.chips.more": "+ More",
+  "@entry.chips.more": {
+    "description": "S2 chip row — opens the full money-account list in the same space (07 §5 step 2)."
+  },
+  "entry.create.ask": "What kind of account?",
+  "@entry.create.ask": {
+    "description": "S2.1 the one two-chip question, asked only where the slot is ambiguous (07 §5 step 3 🔒)."
+  },
+  "entry.create.expense": "Expense",
+  "@entry.create.expense": {
+    "description": "S2.1 create chip — an expense category."
+  },
+  "entry.create.income": "Income",
+  "@entry.create.income": {
+    "description": "S2.1 create chip — an income category."
+  },
+  "entry.create.person": "A person",
+  "@entry.create.person": {
+    "description": "S2.1 create chip — a party (person, shop or firm)."
+  },
+  "entry.create.row": "+ Create \"{name}\" A/C",
+  "@entry.create.row": {
+    "description": "S2.1 inline create (02 §1.2); the class comes from the slot.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "entry.date.today": "Today",
+  "@entry.date.today": {
+    "description": "S2 date chip; the calendar behind it is S2.2."
+  },
+  "entry.error": "Couldn't open your books",
+  "@entry.error": {
+    "description": "S2 book-resolve error state (13 §4.3)."
+  },
+  "entry.keypad.add": "Add another amount",
+  "@entry.keypad.add": {
+    "description": "S2 keypad + key — quick-sum (07 §5 step 1)."
+  },
+  "entry.keypad.backspace": "Delete last digit",
+  "@entry.keypad.backspace": {
+    "description": "S2 keypad backspace key."
+  },
+  "entry.keypad.label": "Amount keypad",
+  "@entry.keypad.label": {
+    "description": "S2 keypad region announcement."
+  },
+  "entry.keypad.paise": "Paise",
+  "@entry.keypad.paise": {
+    "description": "S2 keypad . key — paise."
+  },
+  "entry.loading": "Loading",
+  "@entry.loading": {
+    "description": "S2 loading skeleton announcement (11 §4.5)."
+  },
+  "entry.picker.empty": "No account matches \"{query}\"",
+  "@entry.picker.empty": {
+    "description": "S2.1 picker search miss; the create row sits below it, so never a dead end.",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
   "entry.placeholder.body": "The entry keypad will appear here.",
   "@entry.placeholder.body": {
     "description": "P0 placeholder until S2 lands."
+  },
+  "entry.retry": "Try again",
+  "@entry.retry": {
+    "description": "Retry action on the S2 error state."
+  },
+  "entry.save": "Save",
+  "@entry.save": {
+    "description": "S2 primary action; solid only once the entry is complete (07 §5.5 🔒)."
+  },
+  "entry.save_error": "Couldn't save — try again",
+  "@entry.save_error": {
+    "description": "S2 save failure (13 §4.3 error-with-retry); the amount and both slots are kept."
+  },
+  "entry.saved": "Saved ✓ (on phone)",
+  "@entry.saved": {
+    "description": "S2 snackbar after an instant local write (07 §5 step 6)."
+  },
+  "entry.search_hint": "Search accounts",
+  "@entry.search_hint": {
+    "description": "S2.1 in-place picker — search sits at the bottom (07 §5 step 3)."
+  },
+  "entry.slot.choose": "Choose an account",
+  "@entry.slot.choose": {
+    "description": "S2 empty slot value — nothing is pre-selected (07 §5 🔒)."
+  },
+  "entry.slot.for_what": "For",
+  "@entry.slot.for_what": {
+    "description": "S2 ledger slot label for Money out — an expense, or a person you are paying."
+  },
+  "entry.slot.from": "From",
+  "@entry.slot.from": {
+    "description": "S2 money-account slot label for Money out; also the ledger slot of Money in."
+  },
+  "entry.slot.from_whom": "From whom",
+  "@entry.slot.from_whom": {
+    "description": "S2 ledger slot label for Took on credit — the party leads the screen."
+  },
+  "entry.slot.into": "Into",
+  "@entry.slot.into": {
+    "description": "S2 money-account slot label for Money in (07 §5 slots-by-verb table)."
+  },
+  "entry.slot.move_from": "From",
+  "@entry.slot.move_from": {
+    "description": "S2.3 Move money — the money account the amount leaves (07 §5 table, row Transfer)."
+  },
+  "entry.slot.move_to": "To",
+  "@entry.slot.move_to": {
+    "description": "S2.3 Move money — the money account the amount lands in."
+  },
+  "entry.slot.to_whom": "To whom",
+  "@entry.slot.to_whom": {
+    "description": "S2 ledger slot label for Gave on credit — the party leads the screen."
+  },
+  "entry.slot.what_you_gave": "What did you give",
+  "@entry.slot.what_you_gave": {
+    "description": "S2 money-account slot label for Gave on credit."
+  },
+  "entry.slot.what_you_took": "What did you take",
+  "@entry.slot.what_you_took": {
+    "description": "S2 money-account slot label for Took on credit."
+  },
+  "entry.undo": "Undo",
+  "@entry.undo": {
+    "description": "S2 snackbar action, 10 seconds — posts a reversal, never a delete (02 §5)."
+  },
+  "entry.undone": "Undone — both entries stay in your history",
+  "@entry.undone": {
+    "description": "S2 snackbar after Undo; the ledger is append-only (02 §5)."
+  },
+  "entry.verb.gave_credit": "Gave on credit",
+  "@entry.verb.gave_credit": {
+    "description": "S2 verb pill, position 3."
+  },
+  "entry.verb.money_in": "Money in",
+  "@entry.verb.money_in": {
+    "description": "S2 verb pill, position 1 (01 §2 verb table)."
+  },
+  "entry.verb.money_out": "Money out",
+  "@entry.verb.money_out": {
+    "description": "S2 verb pill, position 2."
+  },
+  "entry.verb.move_money": "Move money",
+  "@entry.verb.move_money": {
+    "description": "S2 verb pill, position 5 — the transfer (S2.3), ADR 2026-09-03b ruling 1."
+  },
+  "entry.verb.took_credit": "Took on credit",
+  "@entry.verb.took_credit": {
+    "description": "S2 verb pill, position 4."
   },
   "home.drilldown.empty": "Nothing behind this line yet",
   "@home.drilldown.empty": {

@@ -12,6 +12,74 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-10 — M5: U2c completes — S2 keypad-first entry green, gate green (supersedes the capped entry below)
+
+The `lane-ui-hard` re-run finished U2c (run 2, 19:31 report), and this session ran `/gate push` as its own
+invocation. Green: the only thing to fix was `dart format` on the seven new `features/entry` files
+(whitespace). No behavioural failure, so no fix lane and no ADR. All seven M5 lane reports are now
+`complete: true`.
+
+**Added — U2c, S2 · S2.1 · S2.3 now green (`F1-07-17`, `F1-07-54`, `F1-07-55`, `F1-07-56`)**
+- `app/test/features/entry/` 19/19 green in ~3 s; app package 202/202. `entryScreen` wired into
+  `main.dart` as `entryRoot`, so the shell's centre ( + ) opens the real S2 instead of the placeholder.
+- Doc markers placed now that the ids are seen green: `@M5` dropped from `F1-07-17` in 07 §5 and 01 §2.1;
+  `⟦tests: F1-07-56⟧` on ADR 2026-09-03b ruling 1; `⟦tests: F1-07-17⟧` on ADR 2026-09-05f §C.
+
+**Changed — two real defects fixed in the re-run (no 🔒 behaviour changed)**
+- `entry_account_picker.dart`: `_ClassQuestion` overflowed its 78 pt region by 62 px — it now scrolls
+  inside the picker; the entry screen itself still never scrolls (07 §5 🔒).
+- `s2_add_entry_screen.dart` + `entry_slot_field.dart`: chrome tightens at `textScale ≥ 1.5` (row padding
+  s2→s1, slot-field padding s1→0) to absorb the 35 px overflow on *Move money* at 375×667 / 200 %.
+- Test harness only: a `_settleIo` helper — a ledger write started from a tap is real sqlite I/O and
+  `pumpAndSettle` only turns the fake clock, which is what hung the Undo test to the 10-minute timeout
+  (the U2a finding again, in a second shape).
+
+**Open**
+- ⛔ **Owner call:** 07 §5 🔒 "never scrolls" and 200 % text scale genuinely collide on *Move money* at
+  375×667 — the keypad is left ~30 px, present and correct but unusable. Conservative reading is in the
+  code (no-scroll stands, chrome tightens). Either the transfer verb shows one chip row at a time at large
+  scale, or the lower region gets a floor and 07 §5 gains a large-text exception (design canvas 2, S2/S2.3).
+  ⚠️ SPEC in `s2_add_entry_screen.dart`.
+- ⬜ Still unbuilt in Lane U2: S2.2 date, S2.5 drawings confirmation, the ≤ 8 s stopwatch test; plus U2b's
+  two seams (scope does not persist per tab; rebuild progress has no producer in `packages/data`).
+- PA/HI entry strings are lane drafts, not native-reviewed — M12 pass.
+- Budget unchanged: fable runs this week 5 / 2 budgeted — no `lane-core` without the owner.
+
+**Commits**
+- _(pending)_
+
+---
+
+## 2026-09-10 — M5: U2c S2 keypad-first entry — lane capped part-way, 15/19 green, re-run needed
+
+One `lane-ui-hard` run (`/lane` with no key; U2c chosen from PLAN as the next unbuilt piece of the Phase A
+exit "solo entries flow end to end offline"). The lane wrote the whole screen and hit its 90-turn cap while
+re-running its own tests. No gate this session; the route is not yet wired into `main.dart`.
+
+**Added — U2c, S2 · S2.1 in place · S2.3 within one book (`F1-07-17`, `F1-07-54`, `F1-07-55`, `F1-07-56`) — ⬜ not yet green**
+- `features/entry`: keypad with `+` quick-sum and `.` paise, five-position verb pill (Move money fifth,
+  ADR 2026-09-03b), slots labelled per the 07 §5 verb table, chip row of the three most-used money A/Cs
+  + More (absent when no money A/C is involved), live preview line with reserved height, in-place picker
+  in the lower region with inline create (class inferred from slot), Save → `LocalLedger` verbs, zeroed
+  keypad stays, Undo as an append-only reversal. `entry_routes.dart` exports the builder for `RkPaths.entry`.
+- `entry_{en,pa,hi}.arb` parts (PA/HI lane drafts, not native-reviewed). Date chip is static; note/photo/
+  channel, S2.2, S2.5, over-limit snackbar, inter-book transfer and book-full are `// U2d:` attach points.
+- 19 tests in `s2_add_entry_screen_test.dart`; 15 green, 4 red after the cap (200 % EN/PA/HI, Undo
+  reversal, chip row absent, ambiguous-slot two-chip question). Wall time 10:02 points at one test hanging
+  to the per-test timeout — the U2a fake-async pattern. Details in `.claude/lane-reports/M5-U2c.json`.
+
+**Open**
+- ⚠️ Re-run `/lane U2c` in a fresh session; the report's `notes` carry the four failing names and the
+  hit-test warning to fix first. Then wire `entryRoutes`/builder into `main.dart`, then `/gate`.
+- ⚠️ `@M5` on `F1-07-17` (07 §5, 01 §2.1) and the ADR 03b / 05f §C markers are still to be placed —
+  only once the ids are seen green.
+- Budget: fable runs this week 5 / 2 budgeted — no `lane-core` without the owner.
+
+**Commits**
+- _(pending)_
+
+---
+
 ## 2026-09-10 — M5: U2b lands the Home scope switcher and rebuilding state (S1.2, S1.3, S1.4); gate green
 
 One `lane-ui-hard` run in its own session, then this gate in its own invocation. The push lane is green

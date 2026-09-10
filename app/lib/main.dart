@@ -16,6 +16,7 @@ import 'features/auth/http_auth_client.dart';
 import 'features/auth/http_client_transport.dart';
 import 'features/devices/at_rest.dart';
 import 'features/devices/devices_routes.dart';
+import 'features/entry/entry_routes.dart';
 import 'features/home/home_routes.dart';
 import 'features/devices/keychain_key_store.dart';
 import 'features/ledger/ledger_routes.dart';
@@ -95,6 +96,7 @@ Future<void> main() async {
           updateRequired: auth.updateRequired,
           homeTabRoot: homeRoot,
           ledgerTabRoot: ledgerRoot,
+          entryRoot: entryScreen,
           featureRoutes: [
             ...onboardingRoutes,
             ...authRoutes,
@@ -125,6 +127,7 @@ class RukkaFolioApp extends StatefulWidget {
     this.featureRoutes = const [],
     this.homeTabRoot,
     this.ledgerTabRoot,
+    this.entryRoot,
     this.router,
     this.ledger,
     this.updateRequired,
@@ -150,6 +153,10 @@ class RukkaFolioApp extends StatefulWidget {
   /// The Ledger tab's root (S3); null leaves the tab's placeholder in place.
   final RkTabRoot? ledgerTabRoot;
 
+  /// S2 Add entry, pushed over the shell by the centre ( + ) — not a tab
+  /// (13 §3.1); null leaves the entry placeholder in place.
+  final WidgetBuilder? entryRoot;
+
   /// A prebuilt router (tests); otherwise [buildRouter] with [featureRoutes].
   final GoRouter? router;
 
@@ -171,6 +178,7 @@ class _RukkaFolioAppState extends State<RukkaFolioApp> {
         featureRoutes: widget.featureRoutes,
         home: widget.homeTabRoot,
         ledger: widget.ledgerTabRoot,
+        entry: widget.entryRoot,
       );
 
   @override

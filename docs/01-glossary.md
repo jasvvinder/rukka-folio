@@ -179,7 +179,7 @@ These appear under card titles and in list rows. Previously undefined, which is 
 
 The Indic forms use **ਤੋਂ / से** (*since*) rather than an adjective — the natural way both languages express elapsed time. ICU: `{name} · {n} {ਦਿਨਾਂ ਤੋਂ|दिन से}` with plural forms per language ⚠️ owner to confirm singular ("1 ਦਿਨ ਤੋਂ" / "1 दिन से").
 
-## 2.1 Entry preview string 🔒 (07 §5 step 5.5) ⟦tests: F1-07-17 @M5⟧
+## 2.1 Entry preview string 🔒 (07 §5 step 5.5) ⟦tests: F1-07-17⟧
 **One template, all languages** — the arrow carries the flow, so no postposition and no per-language word order:
 
 `{amt} · {credited_account} → {debited_account} · {note}`

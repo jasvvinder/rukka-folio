@@ -48,7 +48,7 @@ pin-disabled → OTP+biometric`. **Membership** gains `expired` (06 §7). **Sync
 states 05 §9 owns. **§8 rule:** *lock and interruption never discard work — a half-typed entry or a
 half-done wizard returns to the same field.*
 
-### C. 07 §5 — the later rulings win
+### C. 07 §5 — the later rulings win ⟦tests: F1-07-17⟧
 1. Delete *"Default is the last money account used for that verb, Cash on first use"*; the
    single-screen block's **nothing is pre-selected** stands.
 2. The paragraph *"Transfer and Adjustment verbs live behind the [+] chooser's second row"* is

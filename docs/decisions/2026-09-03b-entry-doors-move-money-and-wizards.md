@@ -5,7 +5,7 @@ said "Okay, Close them."
 
 ## Rulings 🔒 ⟦tests: n/a — container heading; each ruling below carries its own marker⟧
 
-1. **Move money is the fifth position of the entry screen's verb pill** — Money in · Money
+1. **Move money is the fifth position of the entry screen's verb pill** ⟦tests: F1-07-56⟧ — Money in · Money
    out · Gave on credit · Took on credit · **Move money**. The pill already switches by swipe
    or tap without losing the amount (07 §entry); the transfer (S2.3) is one more swipe, not a
    separate button, tile or Menu row. Home keeps its four verb tiles.

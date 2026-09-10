@@ -112,7 +112,7 @@ Follows the scenario table in 06 §5 verbatim. Key screens: **Link with old phon
 
 ---
 
-## 5. Add Entry — the 8-second flow 🔒 ⟦tests: F1-07-17 @M5⟧
+## 5. Add Entry — the 8-second flow 🔒 ⟦tests: F1-07-17⟧
 
 **Screen order: amount first.** Full-screen numeric keypad with the amount huge at top; verb shown as a colored header chip (switchable by swipe or tap without losing the amount). **The pill has five positions 🔒 (owner-ruled 3 Sep 2026, ADR 2026-09-03b): Money in · Money out · Gave on credit · Took on credit · Move money** — the transfer (S2.3) is the fifth swipe, not a separate door.
 
