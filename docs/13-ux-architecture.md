@@ -104,7 +104,7 @@ Roles (admin · head · member · operator · viewer) change *what actions appea
 | **S0.4** | Name & photo | onboarding | for approvals/ceremony |
 | **S0.5** | Keeping your books safe | onboarding | key sync stated on · automatic backup on with its disclosure · sheet action (04 §7.6, 07 §3.1) |
 | **S0.5b** | Recovery sheet | S0.5 | generate, print/save, verify by scanning back |
-| **S0.6a** | Name the business | O3 branch | name · just me / shared · FY start |
+| **S0.6a** | Name the business | O3 branch | name · just me / shared · FY start; the FY start and the book's start date feed `createBook` (ADR 2026-09-09d §4 — the start date is stated, never picked) ⟦tests: F1-07-51⟧ |
 | **S0.6a1** | Who owns this business? | S0.6a (*Shared with others* only) | owners invited by phone, reusing the S0.6e row; shares as whole-number weights, not percentages; not skippable — the secondary returns to *Just me* (ADR 2026-09-09 §1–3) |
 | **S0.6b** | The business's opening balances | O6a | |
 | **S0.6c** | Add another business? | O6b | loop control, multi-business branch |

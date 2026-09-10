@@ -1,73 +1,396 @@
 {
   "@@locale": "en",
   "onboarding.language.title": "Choose your language",
-  "@onboarding.language.title": {"description": "S0.1 language picker (07 §3.1 step 1) — the first screen ever shown."},
+  "@onboarding.language.title": {
+    "description": "S0.1 language picker (07 §3.1 step 1) — the first screen ever shown."
+  },
   "onboarding.language.subtitle": "You can change this later in Settings",
-  "@onboarding.language.subtitle": {"description": "S0.1 reassurance line."},
+  "@onboarding.language.subtitle": {
+    "description": "S0.1 reassurance line."
+  },
   "onboarding.language.option.en": "English",
-  "@onboarding.language.option.en": {"description": "S0.1 language option — always rendered in its own script regardless of app locale."},
+  "@onboarding.language.option.en": {
+    "description": "S0.1 language option — always rendered in its own script regardless of app locale."
+  },
   "onboarding.language.option.pa": "ਪੰਜਾਬੀ",
-  "@onboarding.language.option.pa": {"description": "S0.1 language option — always rendered in its own script regardless of app locale."},
+  "@onboarding.language.option.pa": {
+    "description": "S0.1 language option — always rendered in its own script regardless of app locale."
+  },
   "onboarding.language.option.hi": "हिन्दी",
-  "@onboarding.language.option.hi": {"description": "S0.1 language option — always rendered in its own script regardless of app locale."},
+  "@onboarding.language.option.hi": {
+    "description": "S0.1 language option — always rendered in its own script regardless of app locale."
+  },
   "onboarding.language.continue": "Continue",
-  "@onboarding.language.continue": {"description": "S0.1 primary action to S0.05 welcome, enabled once a language is picked."},
+  "@onboarding.language.continue": {
+    "description": "S0.1 primary action to S0.05 welcome, enabled once a language is picked."
+  },
   "onboarding.welcome.slide1.title": "Your books, always with you",
-  "@onboarding.welcome.slide1.title": {"description": "S0.05 welcome slide 1 of 3 (13 §3.2)."},
+  "@onboarding.welcome.slide1.title": {
+    "description": "S0.05 welcome slide 1 of 3 (13 §3.2)."
+  },
   "onboarding.welcome.slide1.body": "Cash, bank, parties — one place, on your phone",
-  "@onboarding.welcome.slide1.body": {"description": "S0.05 welcome slide 1 body."},
+  "@onboarding.welcome.slide1.body": {
+    "description": "S0.05 welcome slide 1 body."
+  },
   "onboarding.welcome.slide2.title": "No password, no risk",
-  "@onboarding.welcome.slide2.title": {"description": "S0.05 welcome slide 2 of 3."},
+  "@onboarding.welcome.slide2.title": {
+    "description": "S0.05 welcome slide 2 of 3."
+  },
   "onboarding.welcome.slide2.body": "Your books are locked so well that even we can't open them",
-  "@onboarding.welcome.slide2.body": {"description": "S0.05 welcome slide 2 body (04 §7.4 recovery framing)."},
+  "@onboarding.welcome.slide2.body": {
+    "description": "S0.05 welcome slide 2 body (04 §7.4 recovery framing)."
+  },
   "onboarding.welcome.slide3.title": "Family and business, together",
-  "@onboarding.welcome.slide3.title": {"description": "S0.05 welcome slide 3 of 3."},
+  "@onboarding.welcome.slide3.title": {
+    "description": "S0.05 welcome slide 3 of 3."
+  },
   "onboarding.welcome.slide3.body": "Share what you choose, keep the rest private",
-  "@onboarding.welcome.slide3.body": {"description": "S0.05 welcome slide 3 body."},
+  "@onboarding.welcome.slide3.body": {
+    "description": "S0.05 welcome slide 3 body."
+  },
   "onboarding.welcome.skip": "Skip",
-  "@onboarding.welcome.skip": {"description": "S0.05 skip the slides — 07 §3.1 says the welcome slides are skippable."},
+  "@onboarding.welcome.skip": {
+    "description": "S0.05 skip the slides — 07 §3.1 says the welcome slides are skippable."
+  },
   "onboarding.welcome.next": "Next",
-  "@onboarding.welcome.next": {"description": "S0.05 advance to the next slide."},
+  "@onboarding.welcome.next": {
+    "description": "S0.05 advance to the next slide."
+  },
   "onboarding.welcome.get_started": "Get started",
-  "@onboarding.welcome.get_started": {"description": "S0.05 final slide's primary action, continuing to S0.2."},
+  "@onboarding.welcome.get_started": {
+    "description": "S0.05 final slide's primary action, continuing to S0.2."
+  },
   "onboarding.welcome.slide_of": "Slide {n} of {total}",
-  "@onboarding.welcome.slide_of": {"description": "S0.05 live-region page announcement for the slide deck (design-system §3.1 rule 3, status messages).", "placeholders": {"n": {"type": "int"}, "total": {"type": "int"}}},
+  "@onboarding.welcome.slide_of": {
+    "description": "S0.05 live-region page announcement for the slide deck (design-system §3.1 rule 3, status messages).",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "onboarding.purpose.title": "What will you use this for?",
-  "@onboarding.purpose.title": {"description": "S0.3 purpose (07 §3.1 step 3, 07 §3.1.1) — the five-card branch."},
+  "@onboarding.purpose.title": {
+    "description": "S0.3 purpose (07 §3.1 step 3, 07 §3.1.1) — the five-card branch."
+  },
   "onboarding.purpose.card.myself.label": "Myself",
-  "@onboarding.purpose.card.myself.label": {"description": "S0.3 card 1 of 5."},
+  "@onboarding.purpose.card.myself.label": {
+    "description": "S0.3 card 1 of 5."
+  },
   "onboarding.purpose.card.myself.description": "Track your own money",
-  "@onboarding.purpose.card.myself.description": {"description": "S0.3 card 1 description — pairs with the icon so the card is distinguishable without colour (07 §1 rule 3)."},
+  "@onboarding.purpose.card.myself.description": {
+    "description": "S0.3 card 1 description — pairs with the icon so the card is distinguishable without colour (07 §1 rule 3)."
+  },
   "onboarding.purpose.card.shop.label": "My shop",
-  "@onboarding.purpose.card.shop.label": {"description": "S0.3 card 2 of 5."},
+  "@onboarding.purpose.card.shop.label": {
+    "description": "S0.3 card 2 of 5."
+  },
   "onboarding.purpose.card.shop.description": "One shop's cash and bank",
-  "@onboarding.purpose.card.shop.description": {"description": "S0.3 card 2 description."},
+  "@onboarding.purpose.card.shop.description": {
+    "description": "S0.3 card 2 description."
+  },
   "onboarding.purpose.card.businesses.label": "My businesses",
-  "@onboarding.purpose.card.businesses.label": {"description": "S0.3 card 3 of 5."},
+  "@onboarding.purpose.card.businesses.label": {
+    "description": "S0.3 card 3 of 5."
+  },
   "onboarding.purpose.card.businesses.description": "More than one business",
-  "@onboarding.purpose.card.businesses.description": {"description": "S0.3 card 3 description."},
+  "@onboarding.purpose.card.businesses.description": {
+    "description": "S0.3 card 3 description."
+  },
   "onboarding.purpose.card.family.label": "My family",
-  "@onboarding.purpose.card.family.label": {"description": "S0.3 card 4 of 5."},
+  "@onboarding.purpose.card.family.label": {
+    "description": "S0.3 card 4 of 5."
+  },
   "onboarding.purpose.card.family.description": "Shared with the people at home",
-  "@onboarding.purpose.card.family.description": {"description": "S0.3 card 4 description."},
+  "@onboarding.purpose.card.family.description": {
+    "description": "S0.3 card 4 description."
+  },
   "onboarding.purpose.card.trust.label": "Our trust",
-  "@onboarding.purpose.card.trust.label": {"description": "S0.3 card 5 of 5 — full width beneath the 2x2 grid (07 §3.1.1); the only card that sets tenant.type = organization."},
+  "@onboarding.purpose.card.trust.label": {
+    "description": "S0.3 card 5 of 5 — full width beneath the 2x2 grid (07 §3.1.1); the only card that sets tenant.type = organization."
+  },
   "onboarding.purpose.card.trust.description": "gurudwara, temple, society or registered trust",
-  "@onboarding.purpose.card.trust.description": {"description": "S0.3 card 5 subtitle — the trust card alone needs this, so a treasurer sees themselves in it (07 §3.1.1)."},
+  "@onboarding.purpose.card.trust.description": {
+    "description": "S0.3 card 5 subtitle — the trust card alone needs this, so a treasurer sees themselves in it (07 §3.1.1)."
+  },
   "onboarding.name_photo.title": "What should we call you?",
-  "@onboarding.name_photo.title": {"description": "S0.4 name & photo (07 §3.1 step 4)."},
+  "@onboarding.name_photo.title": {
+    "description": "S0.4 name & photo (07 §3.1 step 4)."
+  },
   "onboarding.name_photo.subtitle": "Shown in approvals and the verification ceremony — not shared beyond your books",
-  "@onboarding.name_photo.subtitle": {"description": "S0.4 states the reason a name and photo are asked, per 07 §3.1 step 4."},
+  "@onboarding.name_photo.subtitle": {
+    "description": "S0.4 states the reason a name and photo are asked, per 07 §3.1 step 4."
+  },
   "onboarding.name_photo.name_label": "Your name",
-  "@onboarding.name_photo.name_label": {"description": "S0.4 required name field."},
+  "@onboarding.name_photo.name_label": {
+    "description": "S0.4 required name field."
+  },
   "onboarding.name_photo.name_hint": "e.g. Sunita Kaur",
-  "@onboarding.name_photo.name_hint": {"description": "S0.4 name field hint."},
+  "@onboarding.name_photo.name_hint": {
+    "description": "S0.4 name field hint."
+  },
   "onboarding.name_photo.name_error": "Enter your name to continue",
-  "@onboarding.name_photo.name_error": {"description": "S0.4 disabled-with-reason (13 §4.3) — why Continue is disabled."},
+  "@onboarding.name_photo.name_error": {
+    "description": "S0.4 disabled-with-reason (13 §4.3) — why Continue is disabled."
+  },
   "onboarding.name_photo.photo_label": "Add a photo (optional)",
-  "@onboarding.name_photo.photo_label": {"description": "S0.4 optional photo affordance, tapped to invoke the picker seam."},
+  "@onboarding.name_photo.photo_label": {
+    "description": "S0.4 optional photo affordance, tapped to invoke the picker seam."
+  },
   "onboarding.name_photo.photo_added": "Photo added",
-  "@onboarding.name_photo.photo_added": {"description": "S0.4 confirms a photo was picked — paired with the icon changing, colour never alone (07 §1 rule 3)."},
+  "@onboarding.name_photo.photo_added": {
+    "description": "S0.4 confirms a photo was picked — paired with the icon changing, colour never alone (07 §1 rule 3)."
+  },
   "onboarding.name_photo.continue_label": "Continue",
-  "@onboarding.name_photo.continue_label": {"description": "S0.4 primary action."}
+  "@onboarding.name_photo.continue_label": {
+    "description": "S0.4 primary action."
+  },
+  "onboarding.business.title": "Name your business",
+  "@onboarding.business.title": {
+    "description": "S0.6a (13 §3.2, 07 §5.7) — name, who owns it, financial-year start."
+  },
+  "onboarding.business.subtitle": "You can change any of this later.",
+  "@onboarding.business.subtitle": {
+    "description": "S0.6a reassurance — 07 §3.1.1 makes every branch step resumable."
+  },
+  "onboarding.business.name_label": "Business name",
+  "@onboarding.business.name_label": {
+    "description": "S0.6a required name field."
+  },
+  "onboarding.business.name_hint": "e.g. Sharma Traders",
+  "@onboarding.business.name_hint": {
+    "description": "S0.6a name hint."
+  },
+  "onboarding.business.name_error": "Give the business a name to continue",
+  "@onboarding.business.name_error": {
+    "description": "S0.6a disabled-with-reason (13 §4.3)."
+  },
+  "onboarding.business.fy_label": "Financial year starts",
+  "@onboarding.business.fy_label": {
+    "description": "S0.6a financial-year start month (07 §5.7, 02 §8.1)."
+  },
+  "onboarding.business.fy_note": "April for most businesses in India",
+  "@onboarding.business.fy_note": {
+    "description": "S0.6a explains the 1 April default."
+  },
+  "onboarding.business.start_note": "Your books begin on {date}. Nothing can be dated before that day.",
+  "@onboarding.business.start_note": {
+    "description": "S0.6a states the book start date and the ADR 2026-09-09d §4 floor.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.business.continue_label": "Continue",
+  "@onboarding.business.continue_label": {
+    "description": "S0.6a primary action."
+  },
+  "onboarding.business_owners.title": "Who owns this business?",
+  "@onboarding.business_owners.title": {
+    "description": "S0.6a1 (13 §3.2, ADR 2026-09-09 §1) — shown on the Shared with others branch only."
+  },
+  "onboarding.business_owners.subtitle": "Add every owner by phone number, then set the shares.",
+  "@onboarding.business_owners.subtitle": {
+    "description": "S0.6a1 subtitle — owners are invited by phone, reusing the S0.6e row."
+  },
+  "onboarding.business_owners.you_tag": "you",
+  "@onboarding.business_owners.you_tag": {
+    "description": "S0.6a1 tag on the first row, the creating user (ADR 2026-09-09 §1)."
+  },
+  "onboarding.business_owners.invite_tag": "to invite",
+  "@onboarding.business_owners.invite_tag": {
+    "description": "S0.6a1 tag on every invited owner, the S0.6e row unchanged."
+  },
+  "onboarding.business_owners.unverified_note": "Invited owners stay unverified until you meet them and verify them in person.",
+  "@onboarding.business_owners.unverified_note": {
+    "description": "S0.6a1 states that a phone number alone adds nobody (ADR 2026-09-09 §1, 06 §1)."
+  },
+  "onboarding.business_owners.add_owner": "Add an owner",
+  "@onboarding.business_owners.add_owner": {
+    "description": "S0.6a1 adds another owner row."
+  },
+  "onboarding.business_owners.name_label": "Owner's name",
+  "@onboarding.business_owners.name_label": {
+    "description": "S0.6a1 owner row name field."
+  },
+  "onboarding.business_owners.phone_label": "Phone number",
+  "@onboarding.business_owners.phone_label": {
+    "description": "S0.6a1 owner row phone field."
+  },
+  "onboarding.business_owners.mode_equal": "Equal shares",
+  "@onboarding.business_owners.mode_equal": {
+    "description": "S0.6a1 default share mode — real weights 1:1:1, never 33/33/34 (ADR 2026-09-09 §2)."
+  },
+  "onboarding.business_owners.mode_different": "Different shares",
+  "@onboarding.business_owners.mode_different": {
+    "description": "S0.6a1 per-owner stepper in whole shares (ADR 2026-09-09 §2)."
+  },
+  "onboarding.business_owners.shares_count": "{shares} shares",
+  "@onboarding.business_owners.shares_count": {
+    "description": "S0.6a1 whole-number weight on an owner row — never a percentage typed by the user.",
+    "placeholders": {
+      "shares": {
+        "type": "int"
+      }
+    }
+  },
+  "onboarding.business_owners.percent_note": "{percent}% of the business",
+  "@onboarding.business_owners.percent_note": {
+    "description": "S0.6a1 computed percentage shown beneath the share count, never typed (ADR 2026-09-09 §2).",
+    "placeholders": {
+      "percent": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.business_owners.total_note": "{total} shares in all",
+  "@onboarding.business_owners.total_note": {
+    "description": "S0.6a1 running total of the weights.",
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "onboarding.business_owners.increase": "One more share for {name}",
+  "@onboarding.business_owners.increase": {
+    "description": "S0.6a1 stepper up, accessible label.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.business_owners.decrease": "One share less for {name}",
+  "@onboarding.business_owners.decrease": {
+    "description": "S0.6a1 stepper down, accessible label; floors at one share.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.business_owners.remove": "Remove {name}",
+  "@onboarding.business_owners.remove": {
+    "description": "S0.6a1 row action — an owner cannot hold zero shares, so removal is a row action (ADR 2026-09-09 §2).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.business_owners.fixed_note": "Shares are fixed when the business is created. Putting in more money later earns a larger claim for repayment, never a bigger share.",
+  "@onboarding.business_owners.fixed_note": {
+    "description": "S0.6a1 states the 02 §7.1 rule in words (ADR 2026-09-09 §2)."
+  },
+  "onboarding.business_owners.continue_label": "Continue",
+  "@onboarding.business_owners.continue_label": {
+    "description": "S0.6a1 primary action."
+  },
+  "onboarding.business_owners.just_me": "Just me after all",
+  "@onboarding.business_owners.just_me": {
+    "description": "S0.6a1 secondary — not Skip for now; it returns to the Just me branch (ADR 2026-09-09 §3)."
+  },
+  "onboarding.business_opening.title": "What the business starts with",
+  "@onboarding.business_opening.title": {
+    "description": "S0.6b (13 §3.2, ADR 2026-09-09c §3) — one grouped review-and-fill over the seeded accounts."
+  },
+  "onboarding.business_opening.subtitle": "These accounts are ready. Fill in what each one holds, or add another.",
+  "@onboarding.business_opening.subtitle": {
+    "description": "S0.6b subtitle — the accounts already exist, so this is review-and-fill, not creation."
+  },
+  "onboarding.business_opening.group_have": "What you have",
+  "@onboarding.business_opening.group_have": {
+    "description": "S0.6b group 1 — consumer vocabulary, never Assets (02 §10, ADR 2026-09-09c §3)."
+  },
+  "onboarding.business_opening.group_owed_to_you": "Who owes you",
+  "@onboarding.business_opening.group_owed_to_you": {
+    "description": "S0.6b group 2."
+  },
+  "onboarding.business_opening.group_you_owe": "Who you owe",
+  "@onboarding.business_opening.group_you_owe": {
+    "description": "S0.6b group 3."
+  },
+  "onboarding.business_opening.group_owner_contributions": "What each owner put in",
+  "@onboarding.business_opening.group_owner_contributions": {
+    "description": "S0.6b group 4 — shared business only (ADR 2026-09-09c §4)."
+  },
+  "onboarding.business_opening.add_bank": "Add a bank account",
+  "@onboarding.business_opening.add_bank": {
+    "description": "S0.6b — no book seeds a bank (ADR 2026-09-09d §1); it is added here, named properly the first time."
+  },
+  "onboarding.business_opening.add_another": "Add another",
+  "@onboarding.business_opening.add_another": {
+    "description": "S0.6b adds another account of the same kind."
+  },
+  "onboarding.business_opening.balance_label": "Amount today",
+  "@onboarding.business_opening.balance_label": {
+    "description": "S0.6b per-row opening amount field, in rupees."
+  },
+  "onboarding.business_opening.suggestion_note": "Suggested from the shares — change it if the money that came in was different.",
+  "@onboarding.business_opening.suggestion_note": {
+    "description": "S0.6b labels the contribution suggestion as a suggestion; contribution is asked, never derived (ADR 2026-09-09c §4)."
+  },
+  "onboarding.business_opening.zero_note": "A row left empty is still created.",
+  "@onboarding.business_opening.zero_note": {
+    "description": "S0.6b — rows left at zero are still created (ADR 2026-09-09c §3)."
+  },
+  "onboarding.business_opening.balancing_label": "Opening Balance / Capital A/c",
+  "@onboarding.business_opening.balancing_label": {
+    "description": "S0.6b names the account that absorbs the difference (ADR 2026-09-09c §4)."
+  },
+  "onboarding.business_opening.balancing_note": "{amount} goes to Opening Balance / Capital A/c, so the opening entry balances.",
+  "@onboarding.business_opening.balancing_note": {
+    "description": "S0.6b shows the balancing figure and where it goes — never a silent plug (ADR 2026-09-09c §4).",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.business_opening.balancing_zero": "The opening entry balances exactly — nothing is left for Opening Balance / Capital A/c.",
+  "@onboarding.business_opening.balancing_zero": {
+    "description": "S0.6b zero-difference wording of the balancing line."
+  },
+  "onboarding.business_opening.dated_note": "Everything here is dated {date}, the day the books begin.",
+  "@onboarding.business_opening.dated_note": {
+    "description": "S0.6b states the opening date; nothing is ever dated earlier (ADR 2026-09-09d §4).",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.business_opening.skip": "Skip for now",
+  "@onboarding.business_opening.skip": {
+    "description": "S0.6b secondary — the S0.7 checklist brings the user back (ADR 2026-09-09c §3)."
+  },
+  "onboarding.business_opening.save": "Save and continue",
+  "@onboarding.business_opening.save": {
+    "description": "S0.6b primary action."
+  },
+  "onboarding.business.ownership_question": "Who owns it?",
+  "@onboarding.business.ownership_question": {
+    "description": "S0.6a ownership chips (07 §5.7)."
+  },
+  "onboarding.business.ownership_just_me": "Just me",
+  "@onboarding.business.ownership_just_me": {
+    "description": "S0.6a ownership option 1 — the default branch, no S0.6a1."
+  },
+  "onboarding.business.ownership_just_me_note": "You are the only owner",
+  "@onboarding.business.ownership_just_me_note": {
+    "description": "S0.6a option 1 description."
+  },
+  "onboarding.business.ownership_shared": "Shared with others",
+  "@onboarding.business.ownership_shared": {
+    "description": "S0.6a ownership option 2 — branches to S0.6a1 (ADR 2026-09-09 §1)."
+  },
+  "onboarding.business.ownership_shared_note": "Next you will name the other owners and their shares",
+  "@onboarding.business.ownership_shared_note": {
+    "description": "S0.6a option 2 description."
+  }
 }

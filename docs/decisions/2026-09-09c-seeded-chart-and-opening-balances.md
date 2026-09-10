@@ -43,17 +43,17 @@ seeded, editable defaults; the user renames them on S0.6b (ruling 3).
 - Consequently the family branch (S0.6d–f) creates **the pool book only**. Each head's own book comes from
   their own onboarding; each business is its own book via S0.6a. ⟦tests: A-09c-4 @M5⟧
 
-### 3. S0.6b is one grouped screen, not a three-step wizard ⟦tests: F1-09c-1 @M5⟧
+### 3. S0.6b is one grouped screen, not a three-step wizard ⟦tests: F1-09c-1⟧
 - The wizard shape recorded in `13 §3.2` (S0.6, *"design O6a–c: what you have · who owes you · who you
   owe"*) and in DESIGN-PACK O6 (*"Three steps with a progress bar"*) is **superseded for every branch**:
   once the accounts are seeded, this screen is a **review-and-fill**, not a creation flow, and the three
-  steps become three **groups on one screen**. ⟦tests: F1-09c-1 @M5⟧
-- Groups use the consumer vocabulary (`02 §10` 🔒) — never Assets/Liabilities, which belong to the professional surfaces. ⟦tests: F1-09c-1 @M5⟧
+  steps become three **groups on one screen**. ⟦tests: F1-09c-1⟧
+- Groups use the consumer vocabulary (`02 §10` 🔒) — never Assets/Liabilities, which belong to the professional surfaces. ⟦tests: F1-09c-1⟧
   *What you have* · *Who owes you* · *Who you owe*, plus *What each owner put in* on a shared business.
   A business book still names its accounts professionally (`01 §1` rule 4): Capital A/c, Drawings A/c,
   and Sundry debtors / creditors as group labels derived by sign.
 - Every seeded row is editable in place: rename, set an opening balance, or add another of the same kind.
-  *Skip for now* survives, and the S0.7 setup checklist still brings the user back. ⟦tests: F1-09c-1 @M5⟧
+  *Skip for now* survives, and the S0.7 setup checklist still brings the user back. ⟦tests: F1-09c-1⟧
 - Rows the user leaves at ₹0 are **still created** — the seeded chart is the point. ⟦tests: F1-09c-2 @M5⟧
 
 ### 4. The opening entry must balance, and the screen says how ⟦tests: A-09c-5 @M5⟧

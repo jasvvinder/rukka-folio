@@ -176,13 +176,13 @@ Face ID / Touch ID is **not optional and not a setting** — it already guards t
 ## 5.7 Adding a business 🔒 (gap closed 1 Sep 2026) ⟦tests: F1-07-20 @M5⟧
 Reached from Menu → Books, or immediately after the purpose card "My shop" / "My businesses". Four fields and nothing else: **name** · **who owns it** (*Just me* default / *Shared with others* → owners and ratio, 02 §7.1) · **financial year start** (1 April default) · **opening balances** (bank, cash, anyone who owes or is owed). Creating the book adds its chip to the scope switcher and seeds the shop or trade category tree.
 
-> **ADR 2026-09-09c §1, §3** — the seed is specified per book type (money, equity, income/expense; no party accounts, banks seeded unnamed), and S0.6b is **one grouped screen** rather than the three-step O6 wizard: once the accounts exist the screen is review-and-fill. ⟦tests: A-09c-1 @M5, F1-09c-1 @M5⟧
+> **ADR 2026-09-09c §1, §3** — the seed is specified per book type (money, equity, income/expense; no party accounts, banks seeded unnamed), and S0.6b is **one grouped screen** rather than the three-step O6 wizard: once the accounts exist the screen is review-and-fill. ⟦tests: A-09c-1 @M5, F1-09c-1⟧
 
 > **ADR 2026-09-09 §1–3** — the *Shared with others* branch is a screen, **S0.6a1**: owners are invited
 > by phone at setup (the S0.6e row, unchanged), shares are whole-number weights rather than percentages,
-> and the step is not skippable — its secondary returns to *Just me*. ⟦tests: F1-07-45 @M5⟧
+> and the step is not skippable — its secondary returns to *Just me*. ⟦tests: F1-07-45⟧
 
-🔒 **The scope switcher has two forms, and they are different controls:** with **one business** it is a two-chip inline toggle in the top bar (S1.2); from **three or more books** it becomes the grouped bottom sheet (S1.3). Never show the grouped sheet to someone who owns two books.
+🔒 **The scope switcher has two forms, and they are different controls:** with **one business** it is a two-chip inline toggle in the top bar (S1.2); from **three or more books** it becomes the grouped bottom sheet (S1.3). Never show the grouped sheet to someone who owns two books. ⟦tests: F1-07-52, F1-07-53⟧
 
 ## 6. Ledger — the A/C index 🔒 ⟦tests: F1-02-9, F1-02-10, F1-07-42, F1-07-43, F1-07-44⟧
 
@@ -319,7 +319,7 @@ States exactly what will change, in words with figures (*"Ownership ratio: Amrit
 ## 27. Partner drift & settlement (S14.2) 🔒 (ADR 2026-09-05f §F; 02 §7.1) ⟦tests: F1-07-37 @M8⟧
 Quiet card when one partner's balance exceeds the group average by the configured margin — informational, never a demand — with three doors: pay out · partner-to-partner · carry forward.
 
-## 28. Rebuild and gap states (S1.4, S10.5) 🔒 (ADR 2026-09-05f §B) ⟦tests: F1-07-38 @M5⟧
+## 28. Rebuild and gap states (S1.4, S10.5) 🔒 (ADR 2026-09-05f §B) ⟦tests: F1-07-38⟧
 **S1.4 Book incomplete — rebuilding**: the determinate loader rule with *"{done} of {total} entries restored"* (11 §4.5) replaces the Home card while projections are dropped and recomputed (local corruption, Recompute on upgrade, `store_epoch` re-pull — ADR 2026-09-05c); the book is never shown as whole meanwhile. **S10.5 Close blocked — waiting on a device**: names the phone, explains that entries from it have not arrived, offers *Remind {name}*; lock stays disabled until the gap closes (ADR 2026-09-05b §3).
 
 ## 19. Open items ⚠️

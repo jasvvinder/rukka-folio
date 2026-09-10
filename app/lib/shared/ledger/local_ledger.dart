@@ -631,6 +631,8 @@ final class LocalLedger {
     BookOwnership ownership = BookOwnership.justMe,
     String openingBalanceName = 'Opening Balance',
     String drawingsName = 'Drawings',
+    String profitDistributedName = 'Profit Distributed',
+    List<String> ownerNames = const [],
     LocalDate? startDate,
   }) async {
     _requireOpen();
@@ -688,8 +690,42 @@ final class LocalLedger {
         systemRole: SystemRole.drawings,
       );
     }
+    // ADR 2026-09-09c §1: a shared business seeds `Profit Distributed` and
+    // **one `{Name} — Partner Current A/c` per owner** — the names come from
+    // S0.6a1 ([ownerNames], in the order shown there, the creating user
+    // first). 02 §7.1 calls the Partner Current A/c the single place that
+    // relationship lives, which is why an owner's opening contribution posts
+    // there and never to a Capital account (ADR 2026-09-09c §4).
+    //
+    // ⚠️ SPEC: the **share weights** collected on S0.6a1 have nowhere to
+    // persist — `BookConfig` (packages/data) carries `ownership` but no
+    // partner ratio, and `PartnerShare` takes its weight per call at
+    // distribution time (verbs.dart:432). The weights are therefore held by
+    // the caller for now; giving them a home is a `packages/data` change and
+    // is recorded in the lane report rather than invented here.
+    if (type == BookType.business && ownership == BookOwnership.shared) {
+      await addAccount(
+        bookId,
+        name: profitDistributedName,
+        accountClass: AccountClass.equitySystem,
+        systemRole: SystemRole.profitDistributed,
+      );
+      for (final owner in ownerNames) {
+        await addAccount(
+          bookId,
+          name: partnerCurrentAccountName(owner),
+          accountClass: AccountClass.partner,
+        );
+      }
+    }
     return bookId;
   }
+
+  /// `{Name} — Partner Current A/c`, the seeded name of an owner's partner
+  /// account (ADR 2026-09-09c §1, 02 §7.1). Editable afterwards like any
+  /// seeded name; the engine keys on the account id, never on this string.
+  static String partnerCurrentAccountName(String owner) =>
+      '$owner — Partner Current A/c';
 
   /// Books this device holds, as projected.
   Stream<List<BooksPData>> watchBooks() => db.select(db.booksP).watch();

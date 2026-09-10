@@ -21,4 +21,15 @@ abstract final class OnboardingPaths {
 
   /// S0.4 Name & photo — after S0.3 (07 §3.1 step 4, 13 §3.2).
   static const namePhoto = '/onboarding/name-photo';
+
+  /// S0.6a Name the business — the O6a branch step (07 §3.1.1, 13 §3.2).
+  static const business = '/onboarding/business';
+
+  /// S0.6a1 Who owns this business? — the *Shared with others* branch only
+  /// (ADR 2026-09-09 §1); a *Just me* business never reaches this path.
+  static const businessOwners = '/onboarding/business/owners';
+
+  /// S0.6b The business's opening balances — one grouped review-and-fill
+  /// screen over the seeded accounts (ADR 2026-09-09c §3).
+  static const businessOpening = '/onboarding/business/opening';
 }
