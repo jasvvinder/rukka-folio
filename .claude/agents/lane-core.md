@@ -3,7 +3,7 @@ name: lane-core
 description: ESCALATION ONLY — Rukka Folio core_ledger / core_crypto verification, adversarial security review, 🔒 and ADR reasoning, suite-A golden mismatches. Costs the scarce weekly Fable budget; never start a lane here. Use only when a lane-ui/lane-server/lane-sync lane reported a 🔒 or logic blocker it could not resolve, or the gate is red on logic below this tier.
 model: fable
 effort: high
-maxTurns: 60
+maxTurns: 120
 permissionMode: acceptEdits
 disallowedTools: ["WebSearch", "WebFetch"]
 color: red

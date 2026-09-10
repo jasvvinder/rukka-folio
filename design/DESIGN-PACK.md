@@ -306,8 +306,8 @@ does the business have?"*, family: *"What does the pool have?"*, trust: *"What d
 **plain read-only line** — *Balances as on 10 September 2026* — no box, no picker: 02 §4 🔒 asks money
 accounts for "balance today", so there is nothing to choose, and nothing may ever be dated before it
 (ADR 2026-09-09d §4). Beneath, **groups** where the wizard had steps: *What you have · Who owes you · Who you
-owe* (business books say *sundry debtors / creditors*, 01 §1 rule 4 🔒; a shared business adds *Capital — what
-each owner put in*, one row per owner from S0.6a1). **First-run state: every figure blank** — the app knows
+owe* (business books say *sundry debtors / creditors*, 01 §1 rule 4 🔒; a shared business adds *Capital — what each owner put in*, one row per owner from S0.6a1). ⟦tests: F3-01-1 @M12⟧
+**First-run state: every figure blank** — the app knows
 none of the numbers. The seed is **cash only** (Cash · Business Cash · Joint Cash; the trust keeps Cash and
 Gollak Cash); **no bank is seeded in any book** (ADR 2026-09-09d) — it arrives through the one **Add an
 account** row, which opens S3.1's type grid and asks for an opening balance at creation. Empty groups read

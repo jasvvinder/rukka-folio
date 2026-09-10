@@ -7,7 +7,7 @@ spec authority stays in `docs/` (this file is a tracker, never a spec).
 
 ---
 
-## 0. Where we are — 2026-09-08
+## 0. Where we are — 2026-09-10
 
 | Layer | State | Evidence |
 |---|---|---|
@@ -17,8 +17,8 @@ spec authority stays in `docs/` (this file is a tracker, never a spec).
 | `core_crypto` (04) | ✅ M3 | suite B: 75 tests — envelopes, keys, ceremony, wrapping, recovery, signed records, chain, Shamir |
 | `sync_engine` (05) | 🟡 M4 | suite D: 17 tests — outbox/push, `seq` cursors, epoch, key-wait, revocation cut-off, k-of-n `D-06a-1…4`, SPKI pins |
 | `server/` (03 §2, 05, 06) | ✅ M4 | 5 migrations + RLS + 5 edge functions; **Deno 38 green incl. the 7 hostile-query RLS tests** (`E-03-22…27`, `E-05c-7`) against a real Postgres — `scripts/rls_db.sh`, no Docker |
-| `app/` (07, 13) | 🟡 M6 client · M5 in progress | theme + router + seams + `features/auth` + `features/devices` (7 screens), 85 tests green · **M5**: `features/onboarding` S0.0/S0.05/S0.1 (`F1-07-39/40/41`), `features/ledger` S3 + S3.1 + S4 ✅ (`F1-07-42/43/44`, 19/19). See `.claude/lane-reports/M5-U1a.json`, `M5-U3a.json` |
-| Traceability | ✅ | `check_coverage --strict --milestone M4` **green** and blocking in `ci.sh`: 395 ids · 317 🔒 lines, **0 unmarked** · 0 orphans · 0 dangling · 0 malformed. 83 lines carry planned ` @M<n>` markers (ADR 2026-09-08) that fail once their milestone lands |
+| `app/` (07, 13) | 🟡 M6 client · M5 in progress | theme + router + seams + `features/auth` + `features/devices` (7 screens), 85 tests green · **M5**: `features/onboarding` S0.0/S0.05/S0.1/S0.3/S0.4 (`F1-07-39/40/41`, `F1-07-16`, `F1-07-48`, 19/19), `features/home` S1 + S1.1 (`F1-07-49/50`, wired into `main.dart` so Home is no longer a placeholder), `features/ledger` S3 + S3.1 + S4 (`F1-07-42/43/44`, 19/19) — **all four lanes gated green on the push lane 10 Sep**. See `.claude/lane-reports/M5-{U1a,U1b,U2a,U3a}.json` |
+| Traceability | ✅ | `check_coverage --strict` **green** and blocking in `ci.sh`: 461 tests · 413 ids · 329 🔒 lines, **0 unmarked** · 0 orphans · 0 warnings. 103 lines carry planned ` @M<n>` markers (ADR 2026-09-08) that fail once their milestone lands |
 
 ✅ ADR 2026-09-06 ratified 7 Sep (four answers recorded in the ADR; 04 §2/§7.3/§9.2/§11 updated).
 
@@ -100,15 +100,16 @@ drop 🔒 roadmap gates by ADR — the tracker does not assume that.
 - Not a build lane: it spans lane-sync/lane-ui/lane-server territory and is a docs+naming pass. `check_coverage --strict` turns blocking at M4.
 
 ### M5 Single-user app ⬜ (suite F1 + stopwatch)
-⚠️ **Lanes must be split to ~3 screens each.** The 8 Sep run gave U1/U2/U3 10–16 screens apiece against
-`lane-ui`'s 40-turn cap; all three capped mid-read, 418K tokens for one screen. A re-scoped 3-screen lane
-(U1a) still capped at 55 tool uses, landing 2 screens and no tests. **Budget ~2–3 screens per lane**, and
-expect ~10 lanes for M5. Split before running, never raise the cap (`/lane` §1.4).
+⚠️ **Lanes must be split to ~3 screens each** (~1 where a screen is built from scratch). The 8 Sep run gave
+U1/U2/U3 10–16 screens apiece; all three capped mid-read, 418K tokens for one screen. Expect ~10 lanes for M5.
+**Splitting is still the first answer** — but a cap is no longer a ceiling to design around: **ADR 2026-09-10**
+roughly doubled every tier after U2a died twice on a verification toll and a slow test rather than on
+over-scoping. If a lane dies at its cap, read the transcript before raising it again.
 
 **Lane U1 — foundation + onboarding** (`features/onboarding`, `features/lock`, `shared/`)
 - ✅ **U1a** S0.0 splash · S0.1 language · S0.05 welcome — ARB trio en/pa/hi (169 keys × 3), `F1-07-39/40/41` green (11 tests with `router_test.dart`), `onboarding_routes.dart` composed into `main.dart` `featureRoutes`. Fixed 3 pre-existing defects: missing `shared/theme.dart` import in S0.0 **and** S0.1 (`RkStatusColors` undefined — a live compile error), 200% text-scale overflow in S0.1. ⬜ `initialLocation` still points at the shell, not the splash — first-launch routing is an owner decision
-- ⬜ S0.3 purpose cards · S0.4 name/photo · S0.5/S0.5b safety + recovery sheet
-- ⬜ **U1b** S0.3 purpose cards · S0.4 name/photo — both fully designed, unblocked
+- ⬜ S0.5/S0.5b safety + recovery sheet
+- ✅ **U1b** S0.3 purpose cards · S0.4 name/photo — `F1-07-16`, `F1-07-48` green (19/19 in `test/features/onboarding`). S0.3 lays the five purpose cards 2×2 with the trust card full width beneath (07 §3.1.1); trust alone sets `tenant.type = organization`. S0.4 keeps Continue disabled-with-reason until a name is typed (13 §4.3) and takes the photo through a callback seam, no plugin. Both assert EN/PA/HI at 200% on 360×800. See `.claude/lane-reports/M5-U1b.json`
 - ⬜ **U1c** S0.6a · **S0.6a1** owners+ratio (ADR 2026-09-09 §1–3) · S0.6b grouped opening balances (ADR 2026-09-09c §3, 09d) — artboards drafted; engine side **built and green 10 Sep**: book `startDate` stamped at creation (schema v2), opening balances dated there by default, `post()` refuses anything earlier (`A-09d-3`–`6`, `E-09d-1`). Screen work only remains
 - ⬜ **U1d/U1e** S0.6c loop · S0.6d–f family · S0.6g–i trust
 - ⬜ **U1f** S0.6 opening balances wizard · S0.7 setup checklist · S0.8 set PIN (S9.5 = second presentation of U1c)
@@ -116,7 +117,9 @@ expect ~10 lanes for M5. Split before running, never raise the cap (`/lane` §1.
 - ⬜ S15 app lock (biometric, MPIN fallback) · S15.1 privacy cover · S15.3 cooldown states · idle lock with draft restore (C-05a-7)
 - ⬜ S13 settings (language, Appearance, auto-lock) · S19.3 no-connection · S19.5 modified-device notice
 **Lane U2 — Home + the 8-second entry** (`features/home`, `features/entry`)
-- ⬜ S1 Home/Position · S1.1 drill-down · S1.2/S1.3 scope switcher · S1.4 rebuilding state
+- ✅ **U2a** S1 Home/Position · S1.1 drill-down — `F1-07-49` (8/8) and `F1-07-50` (12 cases) green; `homeRoot` wired into `main.dart` mirroring `ledgerTabRoot`, shell tests 10/10. Killed two runs at the cap on a real defect, since fixed: `_combine`'s `onCancel` in `home_data.dart` awaited each Drift subscription's cancel, so widget disposal awaited a future that never completes inside `flutter_test`'s fake-async zone — teardown deadlocked for the full 10-minute timeout, and `--timeout` does **not** cut it short. See `.claude/lane-reports/M5-U2a.json`
+- ⬜ **U2b** S1.2/S1.3 scope switcher · S1.4 rebuilding state
+- ⬜ S1.1's bank drill-down app-bar title falls back to `home.position.title` ("Position") — `positionLineLabel()` has no per-account label for `PositionLine.bank`. Design nit, asserted as-built
 - ⬜ S2 keypad-first entry · S2.1 A/C picker + inline create · S2.2 date · S2.3 transfer · S2.5 drawings confirmation
 - ⬜ stopwatch test ≤ 8 s (F1 + device) · Money in / Money out vocabulary only (rule 9)
 **Lane U3 — Ledger + statement + export** (`features/ledger`, `features/reports`)

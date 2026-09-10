@@ -74,14 +74,14 @@ Trunk-based on protected `main`; tags at milestone exits (`m1-ledger-core`); sec
 
   | Agent | Model · effort · turns | For |
   |---|---|---|
-  | `lane-mech` | haiku · low · 15 | ARB drafts, l10n parts, fixtures, codegen, token regen |
-  | `lane-ui` | sonnet · medium · 40 | **repeat** screens by S-id (13 §3.2) on a settled pattern, F1 widget tests |
-  | `lane-ui-hard` | opus · medium · 40 | new design-system components, foundation (theme/shell/nav), 200% · 360×800 layout defects, state-machine screens (S10, S15, S7) |
-  | `lane-server` | opus · medium · 40 | migrations + RLS, edge functions, hostile-query tests |
-  | `lane-sync` | opus · medium · 50 | `sync_engine`, ordering/conflict/trust logic, projector |
-  | `lane-core` | fable · high · 60 | ⚠️ **escalation only** — `core_*` behaviour, 🔒/ADR reasoning, suite-A goldens |
+  | `lane-mech` | haiku · low · 30 | ARB drafts, l10n parts, fixtures, codegen, token regen |
+  | `lane-ui` | sonnet · medium · 90 | **repeat** screens by S-id (13 §3.2) on a settled pattern, F1 widget tests |
+  | `lane-ui-hard` | opus · medium · 90 | new design-system components, foundation (theme/shell/nav), 200% · 360×800 layout defects, state-machine screens (S10, S15, S7) |
+  | `lane-server` | opus · medium · 90 | migrations + RLS, edge functions, hostile-query tests |
+  | `lane-sync` | opus · medium · 110 | `sync_engine`, ordering/conflict/trust logic, projector |
+  | `lane-core` | fable · high · 120 | ⚠️ **escalation only** — `core_*` behaviour, 🔒/ADR reasoning, suite-A goldens |
 
-  **Opus sits at the ends and on the hard cases; never haiku on tests** 🔒 (owner-directed, 8 Sep 2026; ADR 2026-09-08b) ⟦tests: n/a — process rule, not behaviour⟧. Orchestration, integration and review are Opus (they already are — that is this session's `/lane` seat). `lane-server` is Opus because RLS and hostile-query work is adversarial security, not CRUD. UI splits: settled patterns on `lane-ui`, foundation-shaped and multi-state screens on `lane-ui-hard`. **`lane-mech` never authors a test** — in this repo the test *is* the specification (tests-first from 09, ids blocking under `check_coverage --strict`), so test authoring belongs to the lane that owns the behaviour, minimum sonnet. **Tier up, never cap up:** every lane death this week was over-scoping against `maxTurns`, not model quality — split the work (§M5: ~2–3 screens, ~1 where a screen is built from scratch).
+  **Opus sits at the ends and on the hard cases; never haiku on tests** 🔒 (owner-directed, 8 Sep 2026; ADR 2026-09-08b) ⟦tests: n/a — process rule, not behaviour⟧. Orchestration, integration and review are Opus (they already are — that is this session's `/lane` seat). `lane-server` is Opus because RLS and hostile-query work is adversarial security, not CRUD. UI splits: settled patterns on `lane-ui`, foundation-shaped and multi-state screens on `lane-ui-hard`. **`lane-mech` never authors a test** — in this repo the test *is* the specification (tests-first from 09, ids blocking under `check_coverage --strict`), so test authoring belongs to the lane that owns the behaviour, minimum sonnet. **Split for scope; caps are a backstop** 🔒 (owner-directed, 10 Sep 2026; ADR 2026-09-10) — splitting is still the first answer when a lane simply has too many screens in it (§M5: ~2–3 screens, ~1 where a screen is built from scratch), but a cap is no longer a ceiling to design around: ADR 2026-09-10 roughly doubled every tier after M5-U2a died twice on a verification toll and a slow test rather than on over-scoping. If a lane dies at its cap, read the transcript before raising it again.
 
   **No lane starts on `lane-core`.** Fable 5.1 resets weekly on Sunday and is entered only when a lower tier reported a blocker it could not resolve — and only with the owner's say-so. Budget: **2 fable runs per week**. Check before spending: `.claude/bin/wf-spend.sh`.
 - The four build lanes run `permissionMode: acceptEdits` (no stalling on edit prompts mid-run) and are denied `WebSearch`/`WebFetch` (every spec is local). Because edits are auto-accepted, **the disjoint-directory rule is enforced only by the lane prompt** — naming each lane's directories precisely is a correctness requirement, not tidiness.

@@ -3,7 +3,7 @@ name: lane-ui-hard
 description: Rukka Folio Flutter screen lane for the HARD cases — new design-system components, foundation-shaped work (theme, shell, navigation), layout defects at 200% text scale or 360x800, and the multi-state screens (S10 month/year close, S15 app lock + cooldown, S7 statement import mapping). Use when a screen is not a reuse of an established pattern; ordinary repeat screens go to lane-ui.
 model: opus
 effort: medium
-maxTurns: 40
+maxTurns: 90
 skills: ["ui-screen"]
 permissionMode: acceptEdits
 disallowedTools: ["WebSearch", "WebFetch"]

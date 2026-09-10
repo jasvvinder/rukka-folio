@@ -34,12 +34,12 @@ Fable 5.1 resets weekly on **Sunday** — that reset is the budget. If the week 
 
    | Agent | Model · effort · turns | For |
    |---|---|---|
-   | `lane-mech` | haiku · low · 15 turns | ARB drafts, l10n parts, fixtures, codegen and token regen, file moves |
-   | `lane-ui` | sonnet · medium · 40 | **repeat** screens by S-id (13 §3.2) on a settled pattern, F1 widget tests |
-   | `lane-ui-hard` | opus · medium · 40 | new design-system components, foundation (theme/shell/nav), 200% · 360×800 layout defects, state-machine screens (S10, S15, S7) |
-   | `lane-server` | opus · medium · 40 | migrations + RLS, edge functions, hostile-query tests |
-   | `lane-sync` | opus · medium · 50 | `sync_engine`, ordering/cursor/conflict/trust logic, projector |
-   | `lane-core` | fable · high · 60 | ⚠️ **escalation only** — see §4 |
+   | `lane-mech` | haiku · low · 30 turns | ARB drafts, l10n parts, fixtures, codegen and token regen, file moves |
+   | `lane-ui` | sonnet · medium · 90 | **repeat** screens by S-id (13 §3.2) on a settled pattern, F1 widget tests |
+   | `lane-ui-hard` | opus · medium · 90 | new design-system components, foundation (theme/shell/nav), 200% · 360×800 layout defects, state-machine screens (S10, S15, S7) |
+   | `lane-server` | opus · medium · 90 | migrations + RLS, edge functions, hostile-query tests |
+   | `lane-sync` | opus · medium · 110 | `sync_engine`, ordering/cursor/conflict/trust logic, projector |
+   | `lane-core` | fable · high · 120 | ⚠️ **escalation only** — see §4 |
 
    Each tier preloads its own skill (`ui-screen`, `server`, `sync-slice`) and is denied
    `WebSearch`/`WebFetch` — the specs are local. If a lane's work genuinely will not fit its turn
@@ -55,8 +55,12 @@ Fable 5.1 resets weekly on **Sunday** — that reset is the budget. If the week 
    **Opus at the ends, never haiku on tests** (ADR 2026-09-08b). A settled-pattern screen goes to
    `lane-ui`; a new component, foundation work, a 200%/360×800 layout defect or a state-machine
    screen goes to `lane-ui-hard`. `lane-mech` never authors a test — test authoring belongs to the
-   lane that owns the behaviour. **Tier up, never cap up:** if the work will not fit 40 turns,
-   split it (§1.3).
+   lane that owns the behaviour. **Split for scope; the cap is a backstop** (ADR 2026-09-10): if a lane
+   simply has too many screens in it, split it (§1.3) — but the caps roughly doubled on
+   10 Sep and are no longer a ceiling to design around. Do not put a file inventory in a
+   prompt: rule 11 makes a lane verify every file you list, so it commissions the reads it
+   meant to save. State the rule instead ("everything outside `screens/` and `test/` is
+   settled").
 
    **No lane starts on `lane-core`.**
 5. For each lane write a prompt with, in this order:

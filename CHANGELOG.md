@@ -12,6 +12,69 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-10 — M5: three UI lanes land (S0.3/S0.4, S1/S1.1), and the push lane goes green
+
+Three `lane-ui` runs against disjoint feature folders, then the gate. Home stops being a tab placeholder,
+onboarding reaches the name-and-photo step, and `ci.sh` is green on the push lane with every M5 screen id
+in it. Two reds on the way, both mechanical, both fixed here — one of them pre-existing on `main`.
+
+**Added — U1b, onboarding S0.3 + S0.4 (`F1-07-16`, `F1-07-48`)**
+- S0.3 purpose cards: the five cards 2x2 with the trust card full width beneath (07 §3.1.1's layout
+  ruling); the trust card alone sets `tenant.type = organization`.
+- S0.4 name & photo: Continue **disabled-with-reason** until a name is typed (13 §4.3), and the photo goes
+  through a callback seam rather than a plugin, so the screen tests without a platform channel.
+- Both assert EN/PA/HI at 200% text scale on 360x800 with no overflow. 19/19 in `test/features/onboarding`.
+
+**Added — U2a, Home S1 + S1.1 (`F1-07-49`, `F1-07-50`)**
+- `features/home`: position hero, cards and states, plus the drill-down behind any position row.
+  `homeRoot` wired into `main.dart` mirroring `ledgerTabRoot`, so Home is no longer the tab placeholder;
+  shell tests 10/10. `F1-07-49` 8/8, `F1-07-50` 12 cases.
+- **Why the lane died twice before landing**, recorded because the symptom lies: `_combine`'s `onCancel`
+  in `home_data.dart` was async and awaited each Drift subscription's cancel, so widget **disposal**
+  awaited a future that only completes on a real event-loop turn — never delivered inside `flutter_test`'s
+  fake-async zone. Teardown deadlocked for the full 10-minute timeout. It was not `pumpAndSettle` and not
+  the screen: a bounded-pump probe rendered the hero correctly and still hung at unmount, and
+  `flutter test --timeout` does **not** cut this deadlock short.
+
+**Changed — the gate, two mechanical reds**
+- **Strings (8 keys).** U1b's `onboarding.namePhoto.*` used camelCase segments, which `check_strings.dart`
+  rejects — every other key in the repo is snake_case within a segment (`auth.otp.sent_to`). Renamed to
+  `onboarding.name_photo.*`. **No Dart change was needed**: `gen_l10n_arb` folds snake to camel
+  (`home.money_in.label` → `homeMoneyInLabel`), so the regenerated identifiers are byte-identical to the
+  ones the screen already calls. 271 keys x 3 languages.
+- **Coverage (1 line), pre-existing on `main` from `a36740c`.** `design/DESIGN-PACK.md:309` cites
+  *01 §1 rule 4 🔒* and was followed by a semicolon; `check_coverage.dart:53` reads 🔒 + punctuation as a
+  ruling but 🔒 + lowercase as a citation, so the identical citation on line 306 (`02 §4 🔒 asks money`)
+  passed and this one did not. Fixed **without changing a word of the prose** — the wrap point moved so
+  the clause ends its line, and the line now carries `⟦tests: F3-01-1 @M12⟧`, the marker rule 4 itself
+  carries in `01-glossary.md:12`. It names the cited rule's test rather than inventing one.
+- Traceability warnings cleared, both this phase's debt: `13-ux-architecture.md:291` dropped the stale
+  `@M5` on the landed `F1-07-16`, and `07 §4. Home 🔒` now names `F1-07-49, F1-07-50` so U2a's tests are no
+  longer orphans (the precedent U3a set for §6). `check_coverage --strict`: 0 unmarked, 0 warnings.
+- `dart format` reformatted `home_data.dart` and `home_cards.dart` (done by the gate agent).
+
+**Decided**
+- **ADR 2026-09-10 — lane turn caps** (`docs/decisions/2026-09-10-lane-turn-caps.md`): every tier's cap
+  roughly doubled, and `.claude/agents/*.md` + `.claude/skills/lane/SKILL.md` updated to match. U2a is the
+  evidence — it died twice on a verification toll and a slow test, not on over-scoping, then finished in
+  22 tool uses once the cap rose and file inventories left the lane prompt. **Splitting stays the first
+  answer** for a lane with too many screens; a cap is a backstop, not a ceiling to design around. If a lane
+  dies at its cap, read the transcript before raising it again.
+
+**Open**
+- ⚠️ `design/DESIGN-PACK.md:309` is a 🔒 line — the marker above wants owner ratification. The alternative
+  was rewording the citation into the mention form line 306 uses, which would have edited the owner's prose.
+- ⚠️ SPEC (U3a, in-file, still open): S3.1 ships 7 quick-add tiles not 8 — Capital/Drawings is structural
+  per 02 §7.1, an owner call. S4 has no FY switcher (07 §6, 13 §7): `watchStatement()` takes no date range,
+  so it needs a data-seam change in U3b.
+- S1.1's bank drill-down app-bar title falls back to `home.position.title` ("Position") —
+  `positionLineLabel()` has no per-account label for `PositionLine.bank`. Asserted as-built; a design nit.
+- `buildRouter`'s `initialLocation` still points at the shell, not `OnboardingPaths.splash` — first-launch
+  routing remains an owner decision (carried from U1a).
+
+**Commits**
+- (fill next session)
+
 ## 2026-09-10 — M5: the book start date built end to end; design synced both ways
 
 The owner reopened Capital/Drawings, was left confused by a day of fragment-by-fragment iteration, and

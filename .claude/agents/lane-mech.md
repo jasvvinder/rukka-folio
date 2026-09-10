@@ -3,7 +3,7 @@ name: lane-mech
 description: Mechanical Rukka Folio lane — ARB drafts, l10n parts, fixtures, codegen and token regeneration, file moves. No design decisions, no logic, and NEVER tests. Use when the work is transcription or generation from an existing source of truth.
 model: haiku
 effort: low
-maxTurns: 15
+maxTurns: 30
 tools: ["Read", "Write", "Edit", "Bash", "Grep", "Glob"]
 color: green
 ---
