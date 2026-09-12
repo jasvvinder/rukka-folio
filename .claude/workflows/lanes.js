@@ -24,7 +24,7 @@ const LANE_SCHEMA = {
   required: ['complete', 'files', 'tests', 'open'],
 }
 
-const MAX_LANES = 3
+const MAX_LANES = 5
 
 if (!args || !Array.isArray(args.lanes) || args.lanes.length === 0) {
   throw new Error('args.lanes must be a non-empty array of { key, agent, dirs, prompt }')
@@ -32,7 +32,7 @@ if (!args || !Array.isArray(args.lanes) || args.lanes.length === 0) {
 if (args.lanes.length > MAX_LANES) {
   throw new Error(
     `${args.lanes.length} lanes requested; the cap is ${MAX_LANES} per run (PLAN.md §3 session economy). ` +
-      `Split into separate runs — a limit hit should cost one run, not a phase.`,
+      `Split into separate rounds — a limit hit should cost one round, not a phase.`,
   )
 }
 const missing = args.lanes.filter((l) => !l.key || !l.agent || !l.dirs?.length || !l.prompt)

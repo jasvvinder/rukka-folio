@@ -1,12 +1,13 @@
 ---
 name: lane
-description: Run one to three Rukka Folio build lanes as tiered subagents (disjoint directories, tests-first against named spec sections), write durable reports, then stop without gating. This is the default way to build M4 onward — one lane per session wherever possible.
+description: Run up to five Rukka Folio build lanes as tiered subagents (disjoint directories, tests-first against named spec sections), write durable reports, then stop without gating. This is the default way to build M4 onward — round after round until the budget is low.
 ---
 
 # /lane $ARGUMENTS
 
-`$ARGUMENTS` = the lane keys to run — normally **one** (`U2`), at most **three** (`S Y`). One
-`/lane` per session. You are the orchestrator: you hold PLAN rows and lane reports, **nothing else**.
+`$ARGUMENTS` = the lane keys to run — at most **five** per run (ADR 2026-09-12b §5). A session
+runs round after round (`/lane` → `/gate` → `/lane` → …) and closes with `/close`, not `/clear`
+after every round (ADR 2026-09-12b §6). You are the orchestrator: you hold PLAN rows and lane reports, **nothing else**.
 You do not implement, and you do not gate.
 
 ## 0. Budget check (always, first)
@@ -34,18 +35,18 @@ Fable 5.1 resets weekly on **Sunday** — that reset is the budget. If the week 
 
    | Agent | Model · effort · turns | For |
    |---|---|---|
-   | `lane-mech` | haiku · low · 30 turns | ARB drafts, l10n parts, fixtures, codegen and token regen, file moves |
-   | `lane-ui` | sonnet · medium · 90 | **repeat** screens by S-id (13 §3.2) on a settled pattern, F1 widget tests |
-   | `lane-ui-hard` | opus · medium · 90 | new design-system components, foundation (theme/shell/nav), 200% · 360×800 layout defects, state-machine screens (S10, S15, S7) |
-   | `lane-server` | opus · medium · 90 | migrations + RLS, edge functions, hostile-query tests |
-   | `lane-sync` | opus · medium · 110 | `sync_engine`, ordering/cursor/conflict/trust logic, projector |
-   | `lane-core` | fable · high · 120 | ⚠️ **escalation only** — see §4 |
+   | `lane-mech` | haiku · low · 60 turns | ARB drafts, l10n parts, fixtures, codegen and token regen, file moves |
+   | `lane-ui` | opus · medium · 180 | **repeat** screens by S-id (13 §3.2) on a settled pattern, F1 widget tests |
+   | `lane-ui-hard` | opus · high · 180 | new design-system components, foundation (theme/shell/nav), 200% · 360×800 layout defects, state-machine screens (S10, S15, S7) |
+   | `lane-server` | opus · high · 180 | migrations + RLS, edge functions, hostile-query tests |
+   | `lane-sync` | opus · high · 220 | `sync_engine`, ordering/cursor/conflict/trust logic, projector |
+   | `lane-core` | fable · high · 240 | ⚠️ **escalation only** — see §4 |
 
    Each tier preloads its own skill (`ui-screen`, `server`, `sync-slice`) and is denied
    `WebSearch`/`WebFetch` — the specs are local. If a lane's work genuinely will not fit its turn
    cap, **split the work**, do not raise the cap.
 
-   The four build lanes run `permissionMode: acceptEdits`, so they will not stall on edit prompts
+   The five build lanes run `permissionMode: acceptEdits`, so they will not stall on edit prompts
    mid-run — which also means **nothing enforces the directory split but the prompt you write.**
    Step 3 is therefore load-bearing: name each lane's directories exactly, and never give two
    concurrent lanes a path in common.
@@ -78,7 +79,7 @@ Workflow({ name: 'lanes', args: { milestone: 'M4', lanes: [
 ] } })
 ```
 If the name does not resolve, `Workflow({ scriptPath: '.claude/workflows/lanes.js', args })`.
-The script caps the run at 3 lanes and refuses more.
+The script caps the run at 5 lanes and refuses more.
 
 **While it runs, do nothing.** Do not poll, do not pre-read lane files, do not start the next thing.
 
@@ -88,7 +89,7 @@ The script caps the run at 3 lanes and refuses more.
 - `dart pub get` if a lane added a dependency.
 
 If the result has **`ok: false`**, `incomplete` names the lanes that either died (usually the
-session limit) or hit their turn cap. Re-run `/lane <those keys>` in a fresh session, feeding each
+session limit) or hit their turn cap. Re-run `/lane <those keys>` in the next round, feeding each
 one its own report's `notes`. **Do not gate on a partial phase.**
 
 ## 4. Escalation (the only route to Fable)
@@ -107,7 +108,8 @@ lane, not a phase. Report to the owner:
 - what you integrated
 - the next single step (`/gate`, or `/lane <key>`)
 
-Then say plainly: **run `/clear` before the next lane.** A fresh session is the cheapest session.
+Then either start the next round (`/lane <keys>` after `/gate`) or, when the budget is genuinely
+low or the phase is done, close with `/close` (ADR 2026-09-12b §6).
 
 ## Economy rules (PLAN.md §3)
 Lanes never run `ci.sh`, never read whole docs, never re-read files after editing; one gate per

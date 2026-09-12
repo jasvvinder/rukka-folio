@@ -42,4 +42,6 @@ behavioural. Route it:
   Never patch the fixture (CLAUDE.md § Accounting authority).
 - a 🔒 line in the way → `/adr`, owner ratifies. Never `git commit`.
 
-Then `/close`.
+Then, per ADR 2026-09-12b §6, **keep filling the session**: green gate → next `/lane` round →
+`/gate` again. `/close` is for when the budget is genuinely low or the phase is done, not after
+every gate.
