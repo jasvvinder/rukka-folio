@@ -8,12 +8,24 @@ import 'package:go_router/go_router.dart';
 
 import 'reports_paths.dart';
 import 'screens/s8_1_reports_list_screen.dart';
+import 'screens/s8_2_report_viewer_screen.dart';
 
 export 'reports_paths.dart';
 
+/// The routes `features/menu` mounts as the Menu tab root's own: S8.1, and
+/// S8.2 nested under it (see [ReportsPaths.dayBook] for the ⚠️ SPEC note on
+/// the 13 §3.2 depth rule).
 final List<RouteBase> reportsRoutes = [
   GoRoute(
     path: ReportsPaths.root,
-    builder: (context, state) => const ReportsListScreen(),
+    builder: (context, state) => ReportsListScreen(
+      onOpenDayBook: () => context.push(ReportsPaths.dayBookLocation),
+    ),
+    routes: [
+      GoRoute(
+        path: ReportsPaths.dayBook,
+        builder: (context, state) => const ReportViewerScreen(),
+      ),
+    ],
   ),
 ];

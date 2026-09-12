@@ -107,7 +107,7 @@ Roles (admin · head · member · operator · viewer) change *what actions appea
 | **S0.6a** | Name the business | O3 branch | name · just me / shared · FY start; the FY start and the book's start date feed `createBook` (ADR 2026-09-09d §4 — the start date is stated, never picked) ⟦tests: F1-07-51⟧ |
 | **S0.6a1** | Who owns this business? | S0.6a (*Shared with others* only) | owners invited by phone, reusing the S0.6e row; shares as whole-number weights, not percentages; not skippable — the secondary returns to *Just me* (ADR 2026-09-09 §1–3) |
 | **S0.6b** | The business's opening balances | O6a | |
-| **S0.6c** | Add another business? | O6b | loop control, multi-business branch |
+| **S0.6c** | Add another business? | O6b | loop control, multi-business branch ⟦tests: F1-07-83⟧ |
 | **S0.6d** | Name the family | O3 branch | ⟦tests: F1-07-74⟧ |
 | **S0.6e** | Who else is in the family | O6d | invite heads by phone, **Skip for now** — the archetype S0.6a1 reuses (ADR 2026-09-09 §1) ⟦tests: F1-07-75⟧ |
 | **S0.6f** | The family's shared accounts | O6e | pool bank and cash; no bank seeded, added as `Add a bank account` (ADR 2026-09-09d §1) ⟦tests: F1-07-76⟧ |
@@ -144,7 +144,7 @@ Roles (admin · head · member · operator · viewer) change *what actions appea
 | **S7.4** | Import preview & submit | S7.1 | every entry about to post, balance check restated, count in the button (owner-added 1 Sep 2026) |
 | **S8** | Menu | root | hub ⟦tests: F1-07-77⟧ |
 | **S8.1** | Reports list | S8 | day book, cash book, P&L, position, ageing, reconciliation |
-| **S8.2** | Report viewer + export | S8.1 | PDF/CSV/XLSX (ADR 2026-09-12 §1), FY switcher ⟦tests: F1-07-79 @M5⟧ |
+| **S8.2** | Report viewer + export | S8.1 | PDF/CSV/XLSX all generating (ADR 2026-09-12 §1, 12e §1); Download/Share defaults to PDF, sheet always reachable (ADR 2026-09-12d §2), FY switcher ⟦tests: F1-07-79⟧ |
 | **S8.3** | Family reconciliation (design D5) | S8.1 | non-zero inter-book pairs with their composing entries; normally a single green ✓ (07 §10) |
 | **S9** | Books & members | S8 | roles, limits, verification log |
 | **S9.5** | Add a business | S9/Menu | name · type (just me / shared) · FY start · opening balances — creates the book (02 §7.1) |

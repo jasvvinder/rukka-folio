@@ -20,3 +20,16 @@ dev_dependencies:
   lints: ^6.0.0
   test: ^1.25.0 # test/scripts/ — the script logic in scripts/src/
   pointycastle: ^4.0.0 # BLAKE2b-256 for scripts/check_coverage.dart golden content_hash (ADR 2026-09-05i §3)
+
+# archive is pinned into `pdf`'s window (owner-directed, 12 Sep 2026; ADR 2026-09-12d §1).
+# package:sodium 4.1.x declares `archive: ^4.2.0`, but its ONLY use of archive is the
+# build-time extractor that untars the libsodium binaries
+# (sodium/lib/src/hooks/common/extractor.dart) — nothing in the crypto runtime touches it,
+# and every symbol it uses (InputFileStream, OutputMemoryStream, GZipDecoder.decodeStream,
+# TarDecoder.decodeBytes) is present in 4.0.9 with the same signatures. Pinning archive
+# rather than downgrading sodium keeps sodium at 4.1.x, which is where `Sodium.memcmp`
+# lives — so CryptoSuite.constantTimeEquals stays libsodium-backed (rule 7, 04 §2).
+# Verified 12 Sep 2026: suite B 75/75 with the hook cache cleared, so the extractor was
+# recompiled and run against 4.0.9, not served from cache.
+dependency_overrides:
+  archive: '>=4.0.9 <4.1.0'

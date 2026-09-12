@@ -54,7 +54,7 @@ void main() {
     );
 
     testWidgets(
-      'F1-07-28 every report is disabled-with-reason — S8.2 has not landed, never a silently inert tap (07 §1 rule 6)',
+      'F1-07-28 with no destination wired, every report is disabled-with-reason — never a silently inert tap (07 §1 rule 6)',
       (tester) async {
         await pumpRk(tester, const ReportsListScreen());
 
@@ -63,33 +63,36 @@ void main() {
           findsNWidgets(expectedOrder.length),
         );
         expect(
-          find.text('The report viewer has not been built yet.'),
+          find.text('This report has not been built yet.'),
           findsNWidgets(expectedOrder.length),
         );
       },
     );
 
-    for (final locale in const [Locale('en'), Locale('pa'), Locale('hi')]) {
-      testWidgets(
-        'F1-07-28 Reports list resolves in ${locale.languageCode} without overflow at 200%',
-        (tester) async {
-          tester.view.physicalSize = const Size(360, 800);
-          tester.view.devicePixelRatio = 1.0;
-          addTearDown(tester.view.resetPhysicalSize);
-          addTearDown(tester.view.resetDevicePixelRatio);
+    // `pumpRk`'s own `textScale:`/`viewport:` (M5-T1). The wrapper this loop
+    // used to build — a bare `MediaQueryData(textScaler: …)` — carries
+    // `size: Size.zero`, so the list was being asserted against a screen with
+    // no area: nothing can overflow nothing, and the case passed for the wrong
+    // reason.
+    for (final locale in rkLocales) {
+      for (final phone in rkPhones) {
+        testWidgets(
+          'F1-07-28 Reports list resolves in ${locale.languageCode} without '
+          'overflow at 200% on ${phone.width.toInt()}x${phone.height.toInt()}',
+          (tester) async {
+            await pumpRk(
+              tester,
+              const ReportsListScreen(),
+              locale: locale,
+              textScale: 2,
+              viewport: phone,
+            );
 
-          await pumpRk(
-            tester,
-            MediaQuery(
-              data: const MediaQueryData(textScaler: TextScaler.linear(2.0)),
-              child: const ReportsListScreen(),
-            ),
-            locale: locale,
-          );
-
-          expect(tester.takeException(), isNull);
-        },
-      );
+            expect(tester.takeException(), isNull);
+            expectTextFits(tester, reason: 'S8.1 at 200% on $phone');
+          },
+        );
+      }
     }
   });
 }

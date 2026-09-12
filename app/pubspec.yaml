@@ -24,6 +24,18 @@ dependencies:
   path_provider: ^2.1.5 # app documents dir for the ledger file
   http: ^1.6.0 # HttpClientTransport → HttpAuthClient (06 §2–§4); the only HTTP door in the app
   path: ^1.9.1
+  # S8.2 report export (ADR 2026-09-12 §1 🔒 — the sheet offers PDF, CSV & XLSX, every
+  # format generated on device). CSV needs no package: `features/reports/export/csv_report.dart`.
+  # `pdf` resolves because the workspace root pins `archive` into its window — see the
+  # dependency_overrides comment there, and ADR 2026-09-12d §1.
+  pdf: ^3.11.3 # S8.2 PDF export (ADR 2026-09-12d §2)
+  # XLSX is written in-house (ADR 2026-09-12e §1) — no XLSX package exists that this
+  # workspace can take: `excel` and `spreadsheet_decoder` need archive 3.x (compile-verified
+  # against 4.0.9: ZipDecoder.decodeBuffer and ArchiveFile.compress are gone), and sodium
+  # needs archive 4.x. An .xlsx is a zip of XML, so these two are the whole toolkit.
+  archive: ^4.0.9 # narrowed by the root dependency_overrides to pdf's window
+  xml: ^7.0.1
+  printing: ^5.13.4 # share sheet + A4 print-clean (ADR 2026-09-12 §1)
   # pure engine packages — the app never reimplements what they own
   core_ledger:
     path: ../packages/core_ledger

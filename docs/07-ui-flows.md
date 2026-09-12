@@ -187,7 +187,7 @@ Reached from Menu → Books, or immediately after the purpose card "My shop" / "
 ## 6. Ledger — the A/C index 🔒 ⟦tests: F1-02-9, F1-02-10, F1-07-42, F1-07-43, F1-07-44, F1-07-60, F1-07-61⟧
 
 - A–Z list of every A/C in scope with live balance, colored by sign; sticky alphabet rail; **search is the header** (the fastest path to any khata); filter chips: All · Parties · Categories · Money · System.
-- Row tap → **A/C statement**: professional paper-ledger layout in the traditional three columns — **ਨਾਮੇ | ਜਮ੍ਹਾਂ | ਬਾਕੀ** (नामे | जमा | बाकी / Dr | Cr | Balance), cells colored directionally per the approved option A (design-system §5) — with *Opening balance b/f* carrying its as-on date (the period's first day, e.g. `as on 01 ਅਗਸਤ 2026`) and *Closing balance c/f* carrying the date it is forwarded — the period's last day, or today's date while the period is still open 🔒 (owner rule), dated entries with running balance between them; FY switcher (02 §8.1); export this A/C (PDF/XLSX) top-right; for parties: WhatsApp-share a statement image (the Khatabook habit — it drives adoption).
+- Row tap → **A/C statement**: professional paper-ledger layout in the traditional three columns — **ਨਾਮੇ | ਜਮ੍ਹਾਂ | ਬਾਕੀ** (नामे | जमा | बाकी / Dr | Cr | Balance), cells colored directionally per the approved option A (design-system §5) — with *Opening balance b/f* carrying its as-on date (the period's first day, e.g. `as on 01 ਅਗਸਤ 2026`) and *Closing balance c/f* carrying the date it is forwarded — the period's last day, or today's date while the period is still open 🔒 (owner rule), dated entries with running balance between them; FY switcher (02 §8.1); export this A/C (**PDF/CSV/XLSX**, ADR 2026-09-12e §2 ⟦tests: F1-07-79⟧) top-right; for parties: WhatsApp-share a statement image (the Khatabook habit — it drives adoption).
 - `+ New A/C` here opens the **quick add sheet** (a bottom sheet — the entry flow's picker is a full screen instead, 07 §5 step 3; same component, two presentations, deliberately) leading into the **deliberate-creation wizard 🔒 (owner-approved)** — step 1 is a grid of illustrated type tiles (Bank · Cash/vault · Credit card or OD · Person you'll pay (creditor) · Person who'll pay you (debtor) · Expense · Income · Capital), step 2 is name + **opening balance**, step 3 optional details. Inline creation during an entry keeps inferring the class from the slot (02 §1.2); the grid is for setup, where the user is choosing on purpose, and rename / merge-duplicates / delete-if-unused under ⋮. ⚠️ merge UX in mockup.
 - Empty state: seeded tree is already present, so never truly empty; search-miss state = the create row.
 
@@ -259,9 +259,11 @@ One flow: From (book + money A/C) → To (book + money A/C) → amount → save.
 
 ---
 
-## 14. Reports & Export 🔒 ⟦tests: F1-07-28, F1-07-79 @M5⟧
+## 14. Reports & Export 🔒 ⟦tests: F1-07-28, F1-07-79⟧
 
-> **ADR 2026-09-12 §1** — S8.2's export sheet offers exactly **PDF, CSV and XLSX**; View report opens in-app and Download/Share defaults to PDF. ⟦tests: F1-07-79 @M5⟧
+> **ADR 2026-09-12 §1** — S8.2's export sheet offers exactly **PDF, CSV and XLSX**; View report opens in-app. ⟦tests: F1-07-79⟧
+> **ADR 2026-09-12e §1–§2** — XLSX is generated in-house over `archive` + `xml` (no package: the free writers need archive 3.x, sodium needs 4.x), so all three formats work; and View · Download/Share · Export is the same trio on the statement (S4) and the report viewer. ⟦tests: F1-07-79⟧
+> **ADR 2026-09-12d §2–§3** — Download/Share defaults to **PDF** again and the PDF row generates: the workspace pins `archive` into `pdf`'s window rather than downgrading sodium, so `constantTimeEquals` stays libsodium-backed. The format sheet stays reachable from the viewer (ADR 2026-09-12c §1, the half that survives); XLSX remains disabled-with-reason. ⟦tests: F1-07-79⟧
 
 Menu → Reports, per scope, each with FY + date-range control and share/export (PDF, CSV & XLSX — ADR 2026-09-12 §1; on-device generation; b/d–c/d rows on ledgers; amount-in-words; A4 print-clean):
 
@@ -309,7 +311,7 @@ Review requested — **digest per author+book**: the first flag notifies, later 
 ## 23. Legal & trust (S18.x) 🔒 (ADR 2026-09-05f §F) ⟦tests: F1-07-34 @M14⟧
 **S18.3 What we can and cannot see** — the impossibility table (12 §2) as a page, with one line on **where the data lives: India** (ADR 2026-09-05c §1) and one on what a rooted phone changes (nothing about the server; everything about that phone).
 
-## 24. System screens (S19.x) 🔒 (ADR 2026-09-05f §B, §F) ⟦tests: F1-06-7, F1-06-16⟧
+## 24. System screens (S19.x) 🔒 (ADR 2026-09-05f §B, §F) ⟦tests: F1-06-7, F1-06-16, F1-07-85⟧
 **S19.1 Update required** (426) · **S19.2 Maintenance** · **S19.3 No connection** (non-blocking) · **S19.4 Permission priming** (notifications, camera — asked in context) · **S19.5 This phone has been modified** — shown once per app version after root / debugger / instrumentation detection: *"Your books are still encrypted, but anyone who controls this phone can see what you see. Make sure your backups are set."* → Devices & security; never blocks (ADR 2026-09-05 §6).
 
 ## 25. Attachment viewer (S20) and Search (S21) 🔒 (ADR 2026-09-05f §F) ⟦tests: F1-07-35 @M12⟧
@@ -321,7 +323,7 @@ States exactly what will change, in words with figures (*"Ownership ratio: Amrit
 ## 27. Partner drift & settlement (S14.2) 🔒 (ADR 2026-09-05f §F; 02 §7.1) ⟦tests: F1-07-37 @M8⟧
 Quiet card when one partner's balance exceeds the group average by the configured margin — informational, never a demand — with three doors: pay out · partner-to-partner · carry forward.
 
-## 28. Rebuild and gap states (S1.4, S10.5) 🔒 (ADR 2026-09-05f §B) ⟦tests: F1-07-38⟧
+## 28. Rebuild and gap states (S1.4, S10.5) 🔒 (ADR 2026-09-05f §B) ⟦tests: F1-07-38, E-03-29⟧
 **S1.4 Book incomplete — rebuilding**: the determinate loader rule with *"{done} of {total} entries restored"* (11 §4.5) replaces the Home card while projections are dropped and recomputed (local corruption, Recompute on upgrade, `store_epoch` re-pull — ADR 2026-09-05c); the book is never shown as whole meanwhile. **S10.5 Close blocked — waiting on a device**: names the phone, explains that entries from it have not arrived, offers *Remind {name}*; lock stays disabled until the gap closes (ADR 2026-09-05b §3).
 
 ## 19. Open items ⚠️
