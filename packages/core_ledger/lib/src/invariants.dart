@@ -193,6 +193,14 @@ Violation? checkShape(Entry entry, Chart chart) {
   bool isDue(Account a) =>
       a.accountClass == AccountClass.equitySystem &&
       a.systemRole == SystemRole.dueToFrom;
+  // Owner takeout in a *Just me* business is an ordinary Money out whose
+  // counterpart is Drawings (02 §7.1, ADR 2026-09-09b §3, 07 §5 "Owner's
+  // drawings" 🔒): `Dr Drawings · Cr money`. Only that one equity_system role
+  // is admitted here — Opening Balance, Adjustments, Suspense, Profit
+  // Distributed, Corpus and Due to/from keep to their own verbs.
+  bool isDrawings(Account a) =>
+      a.accountClass == AccountClass.equitySystem &&
+      a.systemRole == SystemRole.drawings;
   bool all(List<Account> xs, bool Function(Account) ok) => xs.every(ok);
   const partyLike = {AccountClass.party, AccountClass.partner};
   bool party(Account a) => partyLike.contains(a.accountClass);
@@ -206,7 +214,10 @@ Violation? checkShape(Entry entry, Chart chart) {
       all(debits, money) &&
           all(credits, (a) => income(a) || party(a) || advance(a)),
     EntryKind.moneyOut =>
-      all(debits, (a) => expense(a) || party(a) || advance(a)) &&
+      all(
+            debits,
+            (a) => expense(a) || party(a) || advance(a) || isDrawings(a),
+          ) &&
           all(credits, (a) => money(a) || advance(a) || isDue(a)),
     EntryKind.gaveCredit =>
       all(debits, party) && all(credits, (a) => money(a) || income(a)),

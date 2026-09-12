@@ -808,18 +808,10 @@ void main() {
         }
       });
 
-      // BLOCKED, not superseded: `packages/core_ledger` contradicts itself on
-      // this posting and the contradiction is not this lane's to resolve.
-      // `Verbs.moneyOut` accepts `AccountClass.equitySystem` for `forWhat`
-      // (verbs.dart:43-47) — which is what 07 §5 "Owner's drawings" 🔒 asks
-      // for — but `checkShape` restricts `money_out` debits to
-      // `expense | party | advance` (invariants.dart:208-210), so the post is
-      // rejected `shapeViolation: money_out: Dr equitySystem · Cr money` and
-      // S2 shows its save-error snackbar. Drawings is `equitySystem` +
-      // `SystemRole.drawings` — the account 02 §7.1 and ADR 2026-09-09b name.
       // The screen calls the one `ledger.moneyOut` every Money out entry uses
-      // (s2_add_entry_screen.dart `_save`), so the fix belongs in the engine,
-      // not here. Un-skip with the `core_ledger` change.
+      // (s2_add_entry_screen.dart `_save`); `core_ledger` admits a
+      // `SystemRole.drawings` debit on `money_out` on both the verb and the
+      // `checkShape` side (A-09b-4, ADR 2026-09-09b §3).
       testWidgets(
         'F1-07-59 a drawing posts through moneyOut, unchanged (02 §10 🔒)',
         (tester) async {
@@ -847,9 +839,6 @@ void main() {
           expect(after[s.cashId], before[s.cashId]! - 50000);
           await _unmount(tester);
         },
-        // Blocked on core_ledger's `checkShape` rejecting
-        // `money_out: Dr equitySystem` — see the comment above.
-        skip: true,
       );
 
       testWidgets('F1-07-59 EN/PA/HI at 200 % on 360×800 — no overflow', (

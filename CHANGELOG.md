@@ -12,10 +12,79 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-12 (d) — M5: the drawings engine blocker (escalation to `lane-core`)
+
+One escalation lane, scoped to the single blocker `M5-U2d` raised and nothing else, then `/gate` on
+the push lane — **green, with nothing mechanical to fix**. The week's fable budget was already spent
+(5 of 2 budgeted) so the run went ahead only on the owner's explicit say-so, per CLAUDE.md
+§ Session economy.
+
+**Changed — `core_ledger` no longer contradicts itself on owner drawings (`A-09b-4`)**
+- `Verbs.moneyOut` accepted any `AccountClass.equitySystem` for `forWhat`, but `checkShape`
+  admitted `moneyOut` debits of `expense|party|advance` only — so the verb *constructed* a posting
+  its own invariant *rejected*, and the takeout 07 §5 line 158 🔒 (ADR 2026-09-02) and ADR
+  2026-09-09b §3 mandate failed `shapeViolation: money_out: Dr equitySystem · Cr money`. S2.5 showed
+  its save-error snackbar instead of recording a drawing.
+- Fixed on **both** sides, deliberately: `checkShape` now admits `isDrawings` (equitySystem **and**
+  `SystemRole.drawings`) only, and the verb routes an equitySystem `forWhat` through the same
+  `_role` guard. The reasoning is ADR 05e §6 — the verb is the constructor-side guard and
+  `checkShape` the reader-side one, and *a verb looser than its reader is exactly this class of
+  bug*. Narrowing one side alone would have left the trap armed.
+- Closed to every other equity role (Opening Balance, Adjustments, Suspense, Profit Distributed,
+  Corpus, Due to/from — 02 line 29) and **proved, not inspected**: `A-09b-4`'s fourth case iterates
+  every `SystemRole` and asserts the covered set equals `SystemRole.values − {drawings}`, so a role
+  added later fails the test rather than slipping through.
+- Why suite A never caught it: the golden replay's `_inferKind` keys on account *classes* alone and
+  routes equity-counterpart vouchers to `adjustment`, so worked-example B11 exercised the
+  `adjustment` path, never the `moneyOut` path the UI is 🔒-required to use. The broken route had no
+  test at all — which is why `A-09b-4` had been reserved `@M5` and left unwritten.
+
+**Added**
+- `packages/core_ledger/test/drawings_test.dart` — `A-09b-4`, against the reference amounts ADR
+  2026-09-09b §3 names (B-022, B-031) plus standards §4.2 B11. `core_ledger` 159/159.
+- `F1-07-59`'s fourth case un-skipped in `app/test/features/entry/s2_add_entry_screen_test.dart`;
+  the app package's last skip is gone (339 passed / 0 skipped).
+
+**Decided — no ADR, and why that is the right call**
+- Nothing 🔒 changed. 07 §5 line 158, ADR 2026-09-09b §3 and worked-example B11 already agreed with
+  each other; the engine was simply non-compliant with rulings that existed. Bringing code up to a
+  ratified 🔒 line is a fix, not a decision — an ADR here would have recorded a choice nobody made.
+- The ` @M5` planned markers were dropped at `docs/02-ledger-rules.md:182` and ADR
+  2026-09-09b §3 (three lines) now that `A-09b-4` is green — `check_coverage` was warning on all four.
+- ADR 2026-09-05i §4 (supersession) checked and clear: no green test asserted the old rejection, so
+  nothing needed `@Skip`. The two near-misses were ruled out by reading, and named in the report.
+
+**Open**
+- ⚠️ **The same bug is latent in `Verbs.moneyIn`** and is now the 7th owner item in `PLAN.md` §0:
+  `from` accepts any `equitySystem` while `checkShape`'s `moneyIn` credits admit
+  `income|party|advance` only. It bites when the 8th S3.1 quick-add tile (*capital introduced*, ADR
+  2026-09-09b Open) is built as `Dr money · Cr Opening Balance/Capital`. Needs an owner ruling on
+  the entry kind — `money_in` vs `adjustment`; if `money_in`, the fix mirrors this one. **Routine
+  once ruled: opus tier, not fable.**
+- ADR 2026-09-09b § Consequences mentions "a drawings verb with the `_role` guard" — a dedicated
+  builder was **not** added, because 07 §5 🔒 and `F1-07-59` both route takeout through the ordinary
+  Money out verb and §3 fixes only the posting. Consequences are not 🔒; a named `Verbs.drawing`
+  would be a two-line delegating wrapper if the owner wants one.
+- **Process, worth keeping:** the lane's own verdict was that it *did not need the fable tier* — "an
+  opus lane with `core_ledger` in its directory set would have landed the same ten lines". Fable now
+  stands at **6 runs against a budget of 2** this week. The tier rule (`core_*` ⇒ `lane-core`) sent
+  this to the most expensive model for what turned out to be a ten-line compliance fix; the signal
+  worth watching is whether *scale of reasoning* rather than *directory* should pick the tier.
+- The escalation brief cited **B-018** for the ₹25,000 drawing; it is **B-022** (B-018 is a ₹60,000
+  cash deposit). Caught by the lane against the source before it wrote the test — no code impact.
+
+**Commits**
+- _(hash to be filled next session)_
+
+---
+
 ## 2026-09-12 (c) — M5: S12.5 read-only / book-full pattern · the status-colour token session · ADR on S8.2 export formats
 
-One `/lane` (`S12.5`, `lane-ui-hard`), one `/gate` (green), then two pieces of owner-directed work
-that are not lane-shaped: an ADR and the token session the lane's own report asked for.
+One `/lane` (`S12.5`, `lane-ui-hard`), then two pieces of owner-directed work that are not
+lane-shaped: an ADR and the token session the lane's own report asked for. `/gate` ran **twice on
+the push lane, green both times** — once after the lane, and again at the end so the token session,
+the theme extension, the `contrast.dart` role plumbing and the ADR cross-references went through
+`ci.sh` rather than resting on direct checks alone.
 
 **Added — S12.5 read-only / book-full sheet pattern (`F1-07-78`, 18 tests)**
 - `app/lib/shared/widgets/rk_restriction.dart` + `rk_restriction_copy.dart`: `RkRestrictionKind
@@ -82,9 +151,6 @@ that are not lane-shaped: an ADR and the token session the lane's own report ask
   13 §4.2 banner atom. Fold it into `RkRestrictionKind`; copy is owned by 07 §15, no design needed.
 - ⬜ `C-05a-7` (`entry_lock_seam_test.dart:34`, left by U2e) is named by no ⟦tests⟧ marker —
   warn-level, gate stays green, but it wants a marker on the idle-lock 🔒 line.
-- The gate ran green **before** the token session; that work is verified directly (338 passed / 1
-  skipped, contrast / coverage / strings / purity / format / `gen_tokens --check` all clean) but has
-  not itself been through `ci.sh`.
 
 **Commits**
 - _(hashes next session)_

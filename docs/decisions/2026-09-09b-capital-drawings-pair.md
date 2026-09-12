@@ -35,12 +35,12 @@ Owner ruled 9 Sep 2026: the pair is real and created at business setup.
 - Personal, family, joint and organization books get no Drawings account: they have no
   owner-versus-business boundary to record. ⟦tests: A-09b-3⟧
 
-### 3. Owner takeout posts to Drawings, and is never an expense ⟦tests: A-09b-4 @M5⟧
+### 3. Owner takeout posts to Drawings, and is never an expense ⟦tests: A-09b-4⟧
 - `Dr Drawings A/c · Cr {business money a/c}` — matching `business-sharma-textile.md` B-022
-  (`Cr Business Cash`, ₹25,000) and B-031 (`Cr Indian Bank`, ₹30,000). ⟦tests: A-09b-4 @M5⟧
+  (`Cr Business Cash`, ₹25,000) and B-031 (`Cr Indian Bank`, ₹30,000). ⟦tests: A-09b-4⟧
 - Drawings is `equitySystem`, so it cannot reach the P&L and `02 §1.2`'s no-closing-entries rule is
   untouched. An owner takeout landing in an expense category is a defect, not a preference.
-  ⟦tests: A-09b-4 @M5⟧
+  ⟦tests: A-09b-4⟧
 - The `S2.5` sheet says so in words. ⟦tests: F1-07-47 @M5⟧
 
 ## Consequences

@@ -179,7 +179,7 @@ Family book:     Dr Bank 50,000 · Cr Due to/from Business 50,000
 > **ADR 2026-09-09b** — `Drawings A/c` is seeded for a *Just me* business book and owner takeout posts
 > `Dr Drawings · Cr money`, never an expense. Capital is **not** a separate account: `Opening Balance / Capital`
 > already is it, as both worked examples name it. A shared business gets Partner Current accounts and **no**
-> Drawings account. ⟦tests: A-09b-1, A-09b-2, A-09b-3, A-09b-4 @M5⟧
+> Drawings account. ⟦tests: A-09b-1, A-09b-2, A-09b-3, A-09b-4⟧
 > **ADR 2026-09-09c §2** — a joint family that owns businesses is several books linked by Due-to/from pairs;
 > sub-family shares are books, never accounts inside one book. ⟦tests: A-09c-4 @M5⟧
 

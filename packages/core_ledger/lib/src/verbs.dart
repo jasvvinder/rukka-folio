@@ -33,6 +33,13 @@ abstract final class Verbs {
 
   /// 2 · Money out / ਪੈਸੇ ਗਏ / पैसे गए — *From (cash/bank)? For (category or party)?*
   /// `Dr expense-category` or `Dr party` · `Cr money`.
+  ///
+  /// In a *Just me* business the counterpart may also be the book's
+  /// `Drawings A/c` — owner takeout is `Dr Drawings · Cr money`, never an
+  /// expense (02 §7.1, ADR 2026-09-09b §3, 07 §5 "Owner's drawings" 🔒). It is
+  /// the only `equity_system` account this verb accepts, so the verb and
+  /// `checkShape` agree in both directions; every other system account posts
+  /// through its own builder below.
   static List<Line> moneyOut({
     required Account from,
     required Account forWhat,
@@ -40,11 +47,14 @@ abstract final class Verbs {
   }) {
     _positive(amount);
     _spendable(from, 'from');
-    _oneOf(forWhat, 'forWhat', const {
-      AccountClass.categoryExpense,
-      AccountClass.party,
-      AccountClass.equitySystem,
-    });
+    if (forWhat.accountClass == AccountClass.equitySystem) {
+      _role(forWhat, 'forWhat', SystemRole.drawings);
+    } else {
+      _oneOf(forWhat, 'forWhat', const {
+        AccountClass.categoryExpense,
+        AccountClass.party,
+      });
+    }
     return [
       Line(accountId: forWhat.id, amount: amount),
       Line(accountId: from.id, amount: -amount),
