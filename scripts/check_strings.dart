@@ -31,7 +31,10 @@ final forbidden = RegExp(
 bool whitelisted(String key) =>
     key == 'app.name' || key == 'app.name.short' || key.startsWith('about.');
 final keyShape = RegExp(r'^[a-z][a-z0-9]*(\.[a-z][a-z0-9_]*)+$');
-final placeholder = RegExp(r'\{([a-zA-Z_][a-zA-Z0-9_]*)');
+// An ICU *argument* is `{name}` or `{name, ...}`. The trailing `[},]` keeps a plural
+// branch's own text (`=1{Locks after 1 minute}`) from being read as a placeholder —
+// it matched in EN and not in PA/HI, so every such plural failed as placeholder drift.
+final placeholder = RegExp(r'\{([a-zA-Z_][a-zA-Z0-9_]*)\s*[},]');
 
 void main() {
   final errors = <String>[];
