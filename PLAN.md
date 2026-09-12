@@ -227,17 +227,22 @@ that failure cheap instead of preventing nothing.
 
    | Agent | Model · effort · turns | For |
    |---|---|---|
-   | `lane-mech` | haiku · low · 15 | ARB drafts, l10n parts, fixtures, codegen, token regen |
-   | `lane-ui` | sonnet · medium · 40 | screens by S-id (13 §3.2), F1 widget tests |
-   | `lane-server` | sonnet · medium · 40 | migrations + RLS, edge functions, hostile-query tests |
-   | `lane-sync` | opus · medium · 50 | `sync_engine`, ordering/conflict/trust logic, projector |
-   | `lane-core` | **fable · high** · 60 | ⚠️ escalation only — `core_*` behaviour, 🔒/ADR reasoning, suite-A goldens |
+   | `lane-mech` | haiku · low · 60 | ARB drafts, l10n parts, fixtures, codegen, token regen |
+   | `lane-ui` | opus · medium · 180 | **repeat** screens by S-id (13 §3.2) on a settled pattern, F1 widget tests |
+   | `lane-ui-hard` | opus · high · 180 | new components, foundation (theme/shell/nav), 200 % · 360×800 defects, state-machine screens |
+   | `lane-server` | opus · high · 180 | migrations + RLS, edge functions, hostile-query tests |
+   | `lane-sync` | opus · high · 220 | `sync_engine`, ordering/conflict/trust logic, projector |
+   | `lane-core` | **fable · high** · 240 | ⚠️ escalation only — `core_*` behaviour, 🔒/ADR reasoning, suite-A goldens |
+
+   Current as of **ADR 2026-09-12b** (this table was three ADRs stale: it still read sonnet for
+   `lane-server`, had no `lane-ui-hard` row, and carried the pre-10 Sep caps). `CLAUDE.md`
+   § Session economy is the copy that governs; keep the two in step.
 
    **No lane starts on `lane-core`.** It is entered only when a lower tier reported a blocker it
    could not resolve, and only with the owner's say-so. Never pass `model`/`effort` in lane args —
    that is exactly how the whole of Phase A's first week went to Fable by accident.
 
-   Build lanes run `permissionMode: acceptEdits` so a run never stalls on an edit prompt. The
+   Build lanes **and the gate** run `permissionMode: acceptEdits` so a run never stalls on an edit prompt. The
    trade: the permission prompt was the only thing actually enforcing the directory split, so the
    lane prompt now carries that job alone (item 6).
 6. **Orchestrate, don't implement, in the main session.** The orchestrator holds PLAN rows and lane

@@ -56,7 +56,31 @@ recorded); those are now written up rather than re-run.
   Traceability line updated to the verified counts: **662 tests · 460 ids · 332 🔒 lines · 0 unmarked ·
   0 orphans**.
 
+**Decided**
+- `docs/decisions/2026-09-12b-opus-lanes-and-session-throughput.md` — 🔒 **every build lane is Opus;
+  caps double again; a session is filled, not ended.** `lane-ui` sonnet → opus·medium;
+  `lane-ui-hard`, `lane-server`, `lane-sync` → opus·**high** (RLS and ordering work is adversarial,
+  and a subtle sync error is a green test over a wrong ledger). Caps: mech 60 · ui/ui-hard/server
+  **180** · sync **220** · core **240** · gate 40, so that a cap is never why a slice comes back
+  partial. The `gate` agent gains `permissionMode: acceptEdits` — it may fix mechanical failures but
+  could stall on a prompt with the whole CI run already paid for. `MAX_LANES` 3 → 5. And the session
+  rule inverts: **round after round of `/lane` → `/gate` until the budget is low**, then one
+  `/close` — this session finished at **29 %**, which is the same waste as dying mid-phase, in the
+  other direction. Unchanged: disjoint directories **per run**, never haiku on a test, no lane
+  starts on `lane-core`, fable stays 2/week.
+- `PLAN.md` §3's tier table was **three ADRs stale** (sonnet `lane-server`, no `lane-ui-hard` row,
+  pre-10 Sep caps) and is corrected in the same commit.
+
 **Open** ⚠️
+- **Two `.claude/` files the session could not edit** — the harness refuses self-modification of its
+  own skill and workflow definitions, so the owner must apply these by hand:
+  `.claude/workflows/lanes.js:27` `const MAX_LANES = 3` → `5` (without it a 4-lane run is refused),
+  and `.claude/skills/lane/SKILL.md` §1.4's tier table (stale models/efforts/caps; the agent files
+  govern at run time, so lanes already run at the new tiers — the table just misinforms whoever
+  picks one).
+- **`lane-ui-hard` at high effort is an inference, not a stated instruction.** The owner named
+  `lane-server`, `lane-ui` and `lane-sync`; leaving `lane-ui-hard` at medium would have made it
+  indistinguishable from `lane-ui`, which is now also opus. Say so if both should sit at medium.
 - **`TrustType` has nowhere to persist** (gurudwara · temple · society · registered trust) — held on
   `OnboardingFlow` and never reaching `createBook`. This is **the same gap as U1c's share weights**:
   `BookConfig` carries neither an organization subtype nor a partner ratio. One `packages/data`
