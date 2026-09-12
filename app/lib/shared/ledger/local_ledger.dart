@@ -739,9 +739,28 @@ final class LocalLedger {
     String gollakName = 'Gollak Cash',
     List<SeedCategory>? categories,
     List<String> ownerNames = const [],
+    List<int> ownerShares = const [],
+    OrganizationSubtype? organizationSubtype,
     LocalDate? startDate,
   }) async {
     _requireOpen();
+    if (ownerShares.isNotEmpty && ownerShares.length != ownerNames.length) {
+      throw ArgumentError.value(
+        ownerShares,
+        'ownerShares',
+        'must be empty or one weight per owner name',
+      );
+    }
+    if (ownerShares.any((w) => w <= 0)) {
+      // ADR 2026-09-09 §2: the stepper floors at 1 and an owner cannot hold
+      // zero shares. A non-positive weight here is a caller bug, and 02 §7.1
+      // would divide by a wrong Σweights rather than fail loudly.
+      throw ArgumentError.value(
+        ownerShares,
+        'ownerShares',
+        'share weights are whole and positive',
+      );
+    }
     final id = _identity!;
     final bookId = newId();
     final bk = BookKey.generate(suite, bookId: bookId, keyVersion: 1);
@@ -758,6 +777,18 @@ final class LocalLedger {
     _keySource.keys[bk.ref] = bk;
     _keySource.tenants[bookId] = id.tenantId;
 
+    // The partner accounts' ids are minted here, before the config is
+    // authored, because `book_config.partner_shares` keys the weights to the
+    // **account id** — the one identity that survives renaming either the
+    // owner or the `{Name} — Partner Current A/c` the seed names after them
+    // (02 §7.1 🔒, whose remainder rule also keys on the partner account).
+    // The accounts themselves are authored below, with these ids.
+    final shared =
+        type == BookType.business && ownership == BookOwnership.shared;
+    final partnerAccountIds = [
+      if (shared)
+        for (final _ in ownerNames) newId(),
+    ];
     final config = BookConfig(
       id: bookId,
       tenantId: id.tenantId,
@@ -765,6 +796,19 @@ final class LocalLedger {
       name: name,
       fyStartMonth: fyStartMonth,
       ownership: ownership,
+      // Recorded only when the caller collected them (S0.6a1, ADR
+      // 2026-09-09 §2). Absent means *not recorded* and a reader must say so;
+      // it never means equal shares.
+      partnerShares: {
+        if (ownerShares.isNotEmpty)
+          for (final (i, accountId) in partnerAccountIds.indexed)
+            accountId: ownerShares[i],
+      },
+      // 07 §3.1.1 🔒: the trust branch names the trust *and its type*. Null on
+      // every other book type, and on a trust whose type was never collected.
+      organizationSubtype: type == BookType.organization
+          ? organizationSubtype
+          : null,
       // ADR 2026-09-09d §4: the books begin on the day the book is made —
       // stamped once, never moved. The UI never offers a picker (owner-ruled:
       // read-only today); the parameter exists for fixtures and imports.
@@ -824,22 +868,22 @@ final class LocalLedger {
     // relationship lives, which is why an owner's opening contribution posts
     // there and never to a Capital account (ADR 2026-09-09c §4).
     //
-    // ⚠️ SPEC: the **share weights** collected on S0.6a1 have nowhere to
-    // persist — `BookConfig` (packages/data) carries `ownership` but no
-    // partner ratio, and `PartnerShare` takes its weight per call at
-    // distribution time (verbs.dart:432). The weights are therefore held by
-    // the caller for now; giving them a home is a `packages/data` change and
-    // is recorded in the lane report rather than invented here.
-    if (type == BookType.business && ownership == BookOwnership.shared) {
+    // The weights collected on S0.6a1 ride in the `book_config` envelope
+    // above, keyed to the ids these accounts are created with, so 02 §7.1's
+    // division has a source of truth that outlives the screen. `PartnerShare`
+    // (core_ledger) still takes its weight per call at distribution time —
+    // the engine is told the ratio, it does not look it up.
+    if (shared) {
       await addAccount(
         bookId,
         name: profitDistributedName,
         accountClass: AccountClass.equitySystem,
         systemRole: SystemRole.profitDistributed,
       );
-      for (final owner in ownerNames) {
+      for (final (i, owner) in ownerNames.indexed) {
         await addAccount(
           bookId,
+          id: partnerAccountIds[i],
           name: partnerCurrentAccountName(owner),
           accountClass: AccountClass.partner,
         );
@@ -915,10 +959,16 @@ final class LocalLedger {
 
   /// Adds an account (02 §1.2 — created inline, class inferred by the caller
   /// from the picker slot) and rebuilds the book. Returns the engine account.
+  ///
+  /// [id] is minted when omitted. [createBook] passes one so that the
+  /// `book_config` it has already authored can name the Partner Current
+  /// accounts it is about to create (02 §7.1's weights key to the account id,
+  /// never to the name).
   Future<Account> addAccount(
     String bookId, {
     required String name,
     required AccountClass accountClass,
+    String? id,
     MoneySubtype? subtype,
     SystemRole? systemRole,
     String? usualCategoryId,
@@ -937,7 +987,7 @@ final class LocalLedger {
             .map((r) => r.read(countExp)!)
             .getSingle();
     final account = Account(
-      id: newId(),
+      id: id ?? newId(),
       bookId: bookId,
       name: name,
       accountClass: accountClass,
@@ -962,6 +1012,13 @@ final class LocalLedger {
   /// The chart as last projected (rebuilding if this process has not yet).
   Future<Chart> chartOf(String bookId) async =>
       (_last[bookId] ?? await _rebuild(bookId)).chart;
+
+  /// The book's `book_config` as last projected (03 §2.3), or null for a book
+  /// with no config envelope. The read path for the fields `books_p` does not
+  /// project: [BookConfig.ownership], the 02 §7.1 🔒 partner share weights and
+  /// the 07 §3.1.1 organization subtype.
+  Future<BookConfig?> configOf(String bookId) async =>
+      (_last[bookId] ?? await _rebuild(bookId)).config;
 
   Future<LedgerState> _stateOf(String bookId) async =>
       (_last[bookId] ?? await _rebuild(bookId)).state;

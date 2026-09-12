@@ -99,6 +99,10 @@ class _BusinessOpeningHostState extends State<BusinessOpeningHost> {
                 ? BookOwnership.shared
                 : BookOwnership.justMe,
             ownerNames: flow.ownerNames,
+            // ADR 2026-09-09 §2: the ratio is fixed at creation, so this is
+            // the one moment it can be recorded. `createBook` keys it to the
+            // partner account ids it mints (02 §7.1 🔒).
+            ownerShares: flow.ownerShares,
             startDate: widget.startDate,
           );
       flow.businessBookId = bookId;

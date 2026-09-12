@@ -46,6 +46,10 @@ abstract final class OnboardingPaths {
   /// screen over the seeded accounts (ADR 2026-09-09c §3).
   static const businessOpening = '/onboarding/business/opening';
 
+  /// S0.6c Add another business? — the O6c loop control, reached only from
+  /// the **My businesses** card (07 §3.1.1: the *My shop* row has no O6c).
+  static const businessAnother = '/onboarding/business/another';
+
   /// S0.6d Name the family — the O6d branch step (07 §3.1.1, 13 §3.2).
   static const family = '/onboarding/family';
 

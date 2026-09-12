@@ -21,6 +21,7 @@ import 'screens/s0_5_books_safe_screen.dart';
 import 'screens/s0_5b_recovery_sheet_screen.dart';
 import 'screens/s0_6a1_business_owners_screen.dart';
 import 'screens/s0_6a_business_name_screen.dart';
+import 'screens/s0_6c_add_another_business_screen.dart';
 import 'screens/s0_6d_family_name_screen.dart';
 import 'screens/s0_6e_family_members_screen.dart';
 import 'screens/s0_6g_trust_name_screen.dart';
@@ -44,6 +45,8 @@ export 'screens/s0_5b_recovery_sheet_screen.dart'
 export 'screens/s0_8_set_pin_screen.dart' show SetPinScreen, SetPinStep;
 export 'screens/s0_6b_business_opening_balances_screen.dart'
     show BusinessOpeningBalancesScreen, OpeningGroup, OpeningRow;
+export 'screens/s0_6c_add_another_business_screen.dart'
+    show AddAnotherBusinessScreen, AddedBusiness;
 export 'screens/s0_6d_family_name_screen.dart'
     show FamilyDraft, FamilyNameScreen;
 export 'screens/s0_6e_family_members_screen.dart'
@@ -213,9 +216,34 @@ final List<RouteBase> onboardingRoutes = [
     builder: (context, state) => BusinessOpeningHost(
       flow: onboardingFlow,
       startDate: bookStartDateOf(context),
-      // Skipped or saved, the next stop is Home — where the S0.7 checklist
-      // brings a skipped wizard back (07 §3.1 step 7).
+      // Skipped or saved, the *My businesses* card goes on to S0.6c and the
+      // *My shop* card does not (07 §3.1.1) — see [afterBusinessOpening].
+      onDone: () => context.go(afterBusinessOpening(onboardingFlow)),
+    ),
+  ),
+  // S0.6c — the loop control of the multi-business branch (07 §3.1.1 O6c,
+  // 13 §3.2). *Add another* rewinds the branch to S0.6a for a fresh business:
+  // the flow's cursor moves past the finished one, so the S0.6a screen opens
+  // blank and the committing step creates a second book rather than reusing
+  // the first (07 §3.1.1 — resumable, never duplicated).
+  GoRoute(
+    path: OnboardingPaths.businessAnother,
+    builder: (context, state) => AddAnotherBusinessScreen(
+      businesses: [
+        for (final entry in onboardingFlow.businesses)
+          if (entry.draft case final draft?)
+            AddedBusiness(name: draft.name, fyStartMonth: draft.fyStartMonth),
+      ],
+      onAddAnother: () {
+        onboardingFlow.addAnotherBusiness();
+        context.go(OnboardingPaths.business);
+      },
+      // O6 (the user's own opening balances) is not this lane's screen; Home's
+      // S0.7 checklist is what brings it back (07 §3.1 step 7), the same
+      // landing every other branch takes — and the same landing for the skip,
+      // since 07 §3.1.1 makes every branch step skippable.
       onDone: () => context.go(HomePaths.home),
+      onSkip: () => context.go(HomePaths.home),
     ),
   ),
   // The family branch (07 §3.1.1 O6d → O6e → O6f). Every step is skippable
@@ -308,6 +336,15 @@ LocalDate bookStartDateOf(BuildContext context) {
 /// Every branch but *Myself* now has screens; *Myself* lands on Home, whose
 /// S0.7 checklist brings the skipped opening-balances step back (07 §3.1
 /// step 7 — that step is O6, not built by this lane).
+/// Where the business branch goes after S0.6b (07 §3.1.1 🔒 branch table).
+/// Only the **My businesses** row carries an O6c — *My shop* reads O6a → O6b →
+/// O6 your own → checklist and never sees the loop, so a shopkeeper is not
+/// asked whether he has a second shop.
+String afterBusinessOpening(OnboardingFlow flow) =>
+    flow.purpose == OnboardingPurpose.businesses
+    ? OnboardingPaths.businessAnother
+    : HomePaths.home;
+
 String afterSetPin(OnboardingFlow flow) => switch (flow.purpose) {
   OnboardingPurpose.shop ||
   OnboardingPurpose.businesses => OnboardingPaths.business,

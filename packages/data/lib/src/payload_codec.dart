@@ -95,6 +95,35 @@ enum BookOwnership {
   shared,
 }
 
+/// Which kind of organization a [BookType.organization] book is (07 §3.1.1 🔒:
+/// gurudwara · temple · society · registered trust). The four are the
+/// *illustrative* list that spec calls examples, not an exhaustive set — every
+/// value is the same `tenant.type = organization`, so a later addition changes
+/// this enum and nothing else. A value this client does not recognise is kept
+/// verbatim in [BookConfig.extra] and never guessed at (03 §3.3.4 🔒).
+enum OrganizationSubtype {
+  /// ਗੁਰਦੁਆਰਾ.
+  gurudwara,
+
+  /// A temple / मंदिर.
+  temple,
+
+  /// A registered society.
+  society,
+
+  /// A registered trust.
+  registeredTrust,
+}
+
+/// Wire names for [OrganizationSubtype] (07 §3.1.1). Wire names are `snake_case`
+/// and fixed: renaming the Dart identifier must never change them.
+const organizationSubtypeWire = {
+  OrganizationSubtype.gurudwara: 'gurudwara',
+  OrganizationSubtype.temple: 'temple',
+  OrganizationSubtype.society: 'society',
+  OrganizationSubtype.registeredTrust: 'registered_trust',
+};
+
 /// A book's configuration envelope (`book_config`, 03 §2.3): what `books_p`
 /// is projected from.
 final class BookConfig {
@@ -107,12 +136,26 @@ final class BookConfig {
     this.fyStartMonth = 4,
     this.ownership = BookOwnership.justMe,
     this.startDate,
+    this.partnerShares = const {},
+    this.organizationSubtype,
     this.extra = const {},
   });
 
   /// Reads the wire form, keeping unknown fields in [extra].
+  ///
+  /// A field whose *value* this client cannot interpret counts as unknown:
+  /// it is left in [extra] verbatim and written back untouched, so an older
+  /// app amending a config a newer app wrote strips nothing (03 §3.3.4 🔒).
   factory BookConfig.fromJson(Map<String, Object?> json) {
-    const known = {
+    // Absent on books written before this change; a book with no weights
+    // recorded simply has none — the ADR 2026-09-09b precedent for
+    // `ownership`. Null here means the key is present but uninterpretable,
+    // which keeps it in [extra].
+    final shares = json.containsKey('partner_shares')
+        ? _readPartnerShares(json['partner_shares'])
+        : const <String, int>{};
+    final subtype = _readOrganizationSubtype(json['organization_subtype']);
+    final known = {
       'id',
       'tenant_id',
       'type',
@@ -120,6 +163,8 @@ final class BookConfig {
       'fy_start_month',
       'ownership',
       'start_date',
+      if (shares != null) 'partner_shares',
+      if (subtype != null) 'organization_subtype',
     };
     return BookConfig(
       id: json['id'] as String,
@@ -137,6 +182,8 @@ final class BookConfig {
         final String iso => LocalDate.parse(iso),
         _ => null,
       },
+      partnerShares: shares ?? const {},
+      organizationSubtype: subtype,
       extra: Map.unmodifiable(
         Map<String, Object?>.of(json)..removeWhere((k, _) => known.contains(k)),
       ),
@@ -167,6 +214,37 @@ final class BookConfig {
   /// entry may be dated before it. Null only on books older than the ADR.
   final LocalDate? startDate;
 
+  /// Each owner's agreed share weight, **keyed by Partner Current A/c id**,
+  /// fixed at business creation (02 §7.1 🔒, ADR 2026-09-09 §2). Whole
+  /// positive weights, never percentages: 02 §7.1 divides by
+  /// `floor(amount × weight ÷ Σweights)`, so 1:1:1 is three equal thirds and
+  /// 33/33/34 is not.
+  ///
+  /// Keyed by account id because that is the only identity that survives a
+  /// rename — the account is seeded as `{Name} — Partner Current A/c` and the
+  /// owner may rename it or themselves — and because 02 §7.1's own remainder
+  /// rule keys on the partner *account* (largest ratio, ties by earliest
+  /// created). ADR 2026-09-09 §1 collects the weights against owner rows, but
+  /// each owner gets exactly one partner account and, since owners are only
+  /// *invited* at setup, no member identity exists yet to key on.
+  ///
+  /// Empty means no weights are recorded — a book written before this field
+  /// existed, or a [BookOwnership.justMe] book, which has no partners at all.
+  /// It never means "equal": a reader that finds none must say so rather than
+  /// assume a split.
+  ///
+  /// The keys are checked here for shape only. A distributing caller must
+  /// still match them against the book's chart — an id that is absent, or is
+  /// not a `partner` account, is a claim from an envelope like any other and
+  /// is not evidence (02 preamble: readers re-check).
+  final Map<String, int> partnerShares;
+
+  /// Which of 07 §3.1.1's four kinds of organization this book is. Null on a
+  /// book written before this field existed, on every non-organization book,
+  /// and when the stored value is one this client does not recognise (in
+  /// which case it is preserved in [extra], 03 §3.3.4 🔒).
+  final OrganizationSubtype? organizationSubtype;
+
   /// Fields this client did not understand.
   final Map<String, Object?> extra;
 
@@ -179,8 +257,38 @@ final class BookConfig {
     'fy_start_month': fyStartMonth,
     'ownership': ownership.name,
     if (startDate != null) 'start_date': startDate!.toIso(),
+    // Omitted when there are none, so a book with no partners carries no key
+    // — and so an uninterpretable value held in [extra] is written back by
+    // the spread below without colliding with a key of ours.
+    if (partnerShares.isNotEmpty)
+      'partner_shares': Map<String, Object?>.of(partnerShares),
+    if (organizationSubtype != null)
+      'organization_subtype': organizationSubtypeWire[organizationSubtype]!,
     ...extra,
   };
+
+  /// `{account id: weight}` when every entry is a positive whole weight, else
+  /// null — the value is then not understood and stays in [extra] (03 §3.3.4).
+  /// A float weight is refused like any float touching arithmetic.
+  static Map<String, int>? _readPartnerShares(Object? raw) {
+    if (raw is! Map) return null;
+    final out = <String, int>{};
+    for (final MapEntry(:key, :value) in raw.entries) {
+      if (key is! String || value is! int || value <= 0) return null;
+      out[key] = value;
+    }
+    return Map.unmodifiable(out);
+  }
+
+  /// The subtype for a wire name, or null when absent *or* unrecognised — a
+  /// value a newer client wrote must survive, never throw (03 §3.3.4 🔒).
+  static OrganizationSubtype? _readOrganizationSubtype(Object? raw) {
+    if (raw is! String) return null;
+    for (final MapEntry(:key, :value) in organizationSubtypeWire.entries) {
+      if (value == raw) return key;
+    }
+    return null;
+  }
 }
 
 /// Wire names for [AccountClass] (02 §1.2).

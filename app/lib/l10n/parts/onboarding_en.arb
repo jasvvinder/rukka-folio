@@ -189,6 +189,39 @@
   "@onboarding.business.continue_label": {
     "description": "S0.6a primary action."
   },
+  "onboarding.business.another.title": "Add another business?",
+  "@onboarding.business.another.title": {
+    "description": "S0.6c — the loop control of the multi-business branch (07 §3.1.1 O6c, 13 §3.2, canvas 1 screen S0.6c); only the My businesses card reaches it."
+  },
+  "onboarding.business.another.subtitle": "You can add one now, or from the Menu at any time.",
+  "@onboarding.business.another.subtitle": {
+    "description": "S0.6c reassurance line (canvas 1 screen S0.6c; 07 §5.7 — a business is also added from Menu → Books)."
+  },
+  "onboarding.business.another.row_meta": "FY from 1 {month}",
+  "@onboarding.business.another.row_meta": {
+    "description": "S0.6c recap row, second line — the financial year that business keeps (02 §8.1).",
+    "placeholders": {"month": {"type": "String"}}
+  },
+  "onboarding.business.another.ready_tag": "set up",
+  "@onboarding.business.another.ready_tag": {
+    "description": "S0.6c recap row tick, spoken label — colour is never the only signal (07 §1 rule 3)."
+  },
+  "onboarding.business.another.add": "Add another business",
+  "@onboarding.business.another.add": {
+    "description": "S0.6c loop row — back to S0.6a for the next business (07 §3.1.1)."
+  },
+  "onboarding.business.another.books_note": "Every business is its own book, with its own closing and its own members. The scope chip appears on Home as soon as there are two.",
+  "@onboarding.business.another.books_note": {
+    "description": "S0.6c note (canvas 1 screen S0.6c; the chip is 07 §5.7 🔒 S1.2)."
+  },
+  "onboarding.business.another.done": "No, that’s all",
+  "@onboarding.business.another.done": {
+    "description": "S0.6c primary — on to your own opening balances and the S0.7 checklist (07 §3.1 step 7)."
+  },
+  "onboarding.business.another.skip": "Skip for now",
+  "@onboarding.business.another.skip": {
+    "description": "S0.6c skip — every branch step is skippable and resumable (07 §3.1.1)."
+  },
   "onboarding.business_owners.title": "Who owns this business?",
   "@onboarding.business_owners.title": {
     "description": "S0.6a1 (13 §3.2, ADR 2026-09-09 §1) — shown on the Shared with others branch only."

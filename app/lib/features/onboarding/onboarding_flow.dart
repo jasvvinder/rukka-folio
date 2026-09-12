@@ -27,17 +27,67 @@ class OnboardingFlow extends ChangeNotifier {
   /// The purpose card chosen on S0.3, which branches the setup (07 §3.1.1).
   OnboardingPurpose? purpose;
 
-  /// The S0.6a answers — name, ownership, FY start.
-  BusinessDraft? business;
+  /// Every business this onboarding has collected, in the order they were
+  /// named. The *My businesses* card loops O6a → O6b → **O6c** → O6a
+  /// (07 §3.1.1), so one answer set is never enough: each pass appends an
+  /// entry and each entry becomes its own book.
+  ///
+  /// The single-business accessors below ([business], [owners],
+  /// [businessBookId]) all read and write **the entry being collected now**,
+  /// which is why S0.6a, S0.6a1 and the committing step need no idea that a
+  /// list exists.
+  List<BusinessEntry> get businesses => List.unmodifiable(_businesses);
+  final List<BusinessEntry> _businesses = [];
 
-  /// The S0.6a1 owners, first row the creating user (ADR 2026-09-09 §1).
-  /// Empty on the *Just me* branch.
-  List<OwnerDraft> owners = const [];
+  /// Index of the business being collected. Equal to `_businesses.length`
+  /// between S0.6c's *Add another* and the next S0.6a answer — that is what
+  /// makes the loop's S0.6a blank rather than a re-edit of the last one.
+  int _cursor = 0;
 
-  /// The book created at the committing step, once it exists. Set so a
-  /// resumed step (07 §3.1.1: every branch step is resumable) never creates
-  /// a second book for the same answers.
-  String? businessBookId;
+  /// The names of the businesses collected so far, for S0.6c's recap. An
+  /// entry whose S0.6a is still unanswered contributes nothing.
+  List<String> get businessNames => [
+    for (final b in _businesses)
+      if (b.draft case final draft?) draft.name,
+  ];
+
+  BusinessEntry? get _current =>
+      _cursor < _businesses.length ? _businesses[_cursor] : null;
+
+  BusinessEntry _ensureCurrent() {
+    while (_businesses.length <= _cursor) {
+      _businesses.add(BusinessEntry());
+    }
+    return _businesses[_cursor];
+  }
+
+  /// The S0.6a answers of the business being collected — name, ownership, FY
+  /// start. Null on a fresh pass round the loop.
+  BusinessDraft? get business => _current?.draft;
+
+  /// The S0.6a1 owners of the business being collected, first row the
+  /// creating user (ADR 2026-09-09 §1). Empty on the *Just me* branch.
+  List<OwnerDraft> get owners => _current?.owners ?? const [];
+
+  /// The book created at the committing step for the business being
+  /// collected, once it exists. Set so a resumed step (07 §3.1.1: every
+  /// branch step is resumable) never creates a second book for the same
+  /// answers.
+  String? get businessBookId => _current?.bookId;
+
+  set businessBookId(String? value) {
+    _ensureCurrent().bookId = value;
+    notifyListeners();
+  }
+
+  /// S0.6c's *Add another business* (07 §3.1.1: O6c loops back to O6a).
+  /// Moves the cursor past the finished entry so the next [setBusiness]
+  /// starts a new business instead of editing the last one — nothing
+  /// already collected is touched, and nothing already created is re-created.
+  void addAnotherBusiness() {
+    _cursor = _businesses.length;
+    notifyListeners();
+  }
 
   /// The S0.6d answer — the family's name. Null on every other branch.
   FamilyDraft? family;
@@ -90,17 +140,20 @@ class OnboardingFlow extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Records S0.6a's answers. Changing them invalidates any owners collected
-  /// under the previous ownership choice.
+  /// Records S0.6a's answers for the business being collected. Changing them
+  /// invalidates any owners collected under the previous ownership choice.
   void setBusiness(BusinessDraft draft) {
-    business = draft;
-    if (draft.ownership == BusinessOwnershipChoice.justMe) owners = const [];
+    final entry = _ensureCurrent();
+    entry.draft = draft;
+    if (draft.ownership == BusinessOwnershipChoice.justMe) {
+      entry.owners = const [];
+    }
     notifyListeners();
   }
 
-  /// Records S0.6a1's answers.
+  /// Records S0.6a1's answers for the business being collected.
   void setOwners(List<OwnerDraft> value) {
-    owners = List.unmodifiable(value);
+    _ensureCurrent().owners = List.unmodifiable(value);
     notifyListeners();
   }
 
@@ -128,17 +181,56 @@ class OnboardingFlow extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// The owner names `createBook` seeds one Partner Current A/c from, in the
+  /// The owners `createBook` seeds one Partner Current A/c each from, in the
   /// order S0.6a1 showed them (ADR 2026-09-09c §1). Unnamed rows fall back to
   /// the creating user's own name for row one and are dropped otherwise —
   /// an account with no name would be a chore, not a seed.
-  List<String> get ownerNames => [
+  ///
+  /// Name and weight are taken in **one pass** so they cannot drift apart: a
+  /// dropped row must drop its weight too, or every later owner would be
+  /// seeded with the share of the one before them (ADR 2026-09-09 §2 — the
+  /// ratio is fixed at creation and never re-asked).
+  List<({String name, int shares})> get ownerSeeds => [
     for (final (i, o) in owners.indexed)
       if (o.name.trim().isNotEmpty)
-        o.name.trim()
+        (name: o.name.trim(), shares: o.shares)
       else if (i == 0 && yourName.isNotEmpty)
-        yourName,
+        (name: yourName, shares: o.shares),
   ];
+
+  /// The seeded partner account names, in S0.6a1 order.
+  List<String> get ownerNames => [for (final o in ownerSeeds) o.name];
+
+  /// The share weights of [ownerNames], index for index (02 §7.1 🔒 divides by
+  /// weight). Empty when no owners were collected — *Just me*, or a branch
+  /// that never reached S0.6a1 — so nothing is recorded rather than a ratio
+  /// being invented.
+  List<int> get ownerShares => [for (final o in ownerSeeds) o.shares];
+}
+
+/// One business collected by the branch: its S0.6a answers, its S0.6a1 owners
+/// and the book it became. The *My businesses* card can produce several
+/// (07 §3.1.1 O6c), and each becomes its own book through the ordinary seed
+/// path (ADR 2026-09-09c §3, ADR 2026-09-09d §1) — nothing about `createBook`
+/// changes because there are now two of them.
+///
+/// The S0.6a1 **share weights** ([OwnerDraft.shares]) are held here only until
+/// the committing step: `createBook` writes them into that business's
+/// `book_config` envelope keyed by Partner Current A/c id, which is where
+/// 02 §7.1's division reads its ratio from afterwards. Per business, never per
+/// flow — two businesses collected by the O6c loop have two ratios.
+final class BusinessEntry {
+  /// Creates an entry; every field is filled as its step is answered.
+  BusinessEntry({this.draft, this.owners = const [], this.bookId});
+
+  /// The S0.6a answers, once that step has been answered.
+  BusinessDraft? draft;
+
+  /// The S0.6a1 owners; empty on the *Just me* branch.
+  List<OwnerDraft> owners;
+
+  /// The book created for this business at the committing step.
+  String? bookId;
 }
 
 /// The [OnboardingFlow] for the widget tree below.

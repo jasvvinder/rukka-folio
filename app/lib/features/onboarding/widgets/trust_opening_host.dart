@@ -11,15 +11,19 @@
 // a resumed step never creates a second book (07 §3.1.1: every branch step is
 // resumable).
 //
-// ⚠️ SPEC: S0.6g's [TrustType] has nowhere to persist (see that screen's
-// file) — `createBook` is called with only the name; the type is not passed
-// on, because `BookConfig` carries no field for it. Named in the lane report
-// rather than invented here.
+// S0.6g's [TrustType] is persisted as `book_config.organization_subtype`
+// (07 §3.1.1 🔒). It is display-only today — every value is the same
+// `tenant.type = organization`, and nothing branches on it — but it is the
+// user's own answer, so the ledger keeps it rather than the wizard throwing it
+// away. The two enums are mapped explicitly by [_subtypeOf] rather than being
+// one type: 07 §3.1.1 calls its four an illustrative list, so the screen's
+// choices and the stored vocabulary are free to diverge.
 //
 // The three states of 13 §4.3 that can happen here are all drawn: working
 // (the ruled skeleton of 11 §4.5, never a spinner), error-with-retry (07 §1
 // rule 12), and the screen itself.
 import 'package:core_ledger/core_ledger.dart';
+import 'package:data/data.dart' show OrganizationSubtype;
 import 'package:flutter/material.dart';
 
 import '../../../l10n/gen/app_localizations.dart';
@@ -29,7 +33,18 @@ import '../../../shared/tokens.dart';
 import '../onboarding_flow.dart';
 import '../screens/s0_6b_business_opening_balances_screen.dart'
     show OpeningGroup, OpeningRow;
+import '../screens/s0_6g_trust_name_screen.dart' show TrustType;
 import '../screens/s0_6i_trust_accounts_screen.dart';
+
+/// The stored subtype for a screen choice (07 §3.1.1's four 🔒). Exhaustive on
+/// purpose: a fifth [TrustType] must be given a wire name here, not silently
+/// stored as a gurudwara.
+OrganizationSubtype _subtypeOf(TrustType type) => switch (type) {
+  TrustType.gurudwara => OrganizationSubtype.gurudwara,
+  TrustType.temple => OrganizationSubtype.temple,
+  TrustType.society => OrganizationSubtype.society,
+  TrustType.registeredTrust => OrganizationSubtype.registeredTrust,
+};
 
 /// Creates the trust book from [flow], then shows S0.6i over its chart.
 class TrustOpeningHost extends StatefulWidget {
@@ -87,6 +102,7 @@ class _TrustOpeningHostState extends State<TrustOpeningHost> {
           await ledger.createBook(
             name: draft.name,
             type: BookType.organization,
+            organizationSubtype: _subtypeOf(draft.type),
             startDate: widget.startDate,
           );
       flow.trustBookId = bookId;
