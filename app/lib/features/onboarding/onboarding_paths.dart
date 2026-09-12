@@ -56,4 +56,16 @@ abstract final class OnboardingPaths {
   /// S0.6f The family's shared accounts — one grouped review-and-fill screen
   /// over the pool's seeded chart (07 §3.1.1, ADR 2026-09-09c §3).
   static const familyAccounts = '/onboarding/family/accounts';
+
+  /// S0.6g Name the trust and its type — the O6g branch step (07 §3.1.1,
+  /// 13 §3.2).
+  static const trust = '/onboarding/trust';
+
+  /// S0.6h Who runs the trust — invite the committee by phone, Skip for now
+  /// always visible (07 §3.1.1, 13 §3.2).
+  static const trustMembers = '/onboarding/trust/members';
+
+  /// S0.6i The trust's accounts — one grouped review-and-fill screen over the
+  /// trust's seeded chart (07 §3.1.1, ADR 2026-09-09c §3, ADR 2026-09-09d §2).
+  static const trustAccounts = '/onboarding/trust/accounts';
 }

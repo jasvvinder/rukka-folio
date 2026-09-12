@@ -236,6 +236,18 @@ void main() {
                   .read<String>('id'),
         ))!;
         expect(reversal, isNot(original.id));
+        // …which the facade answers for S4.1 (ADR 2026-09-09 §4 consequences:
+        // no screen reaches into the Drift tables itself). `reversalOf` is
+        // the only way entry_detail learns what reversed an entry.
+        expect(
+          await tester.runAsync(() => seed.ledger.reversalOf(original.id)),
+          reversal,
+        );
+        expect(
+          await tester.runAsync(() => seed.ledger.reversalOf(reversal)),
+          isNull,
+          reason: 'a reversal is not itself reversed',
+        );
         await tester.pumpAndSettle();
 
         // …and the original, unchanged, now reads as reversed, with both
@@ -375,6 +387,18 @@ void main() {
           tester,
           const EntryDetailScreen(entryId: heldId),
           ledger: seed.ledger,
+        );
+
+        // The facade answers *is this envelope held, and what is it waiting
+        // for* — `heldFor` — so the screen never queries the mirror itself.
+        final held = await tester.runAsync(() => seed.ledger.heldFor(heldId));
+        expect(held, isNotNull);
+        expect(held!.objectId, heldId);
+        expect(held.waitingForId, target);
+        expect(
+          await tester.runAsync(() => seed.ledger.heldFor(target)),
+          isNull,
+          reason: 'a projected entry is not held',
         );
 
         expect(find.text('Waiting for the entry this changes'), findsOneWidget);

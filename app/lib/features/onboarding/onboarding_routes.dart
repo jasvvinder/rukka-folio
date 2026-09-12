@@ -23,9 +23,12 @@ import 'screens/s0_6a1_business_owners_screen.dart';
 import 'screens/s0_6a_business_name_screen.dart';
 import 'screens/s0_6d_family_name_screen.dart';
 import 'screens/s0_6e_family_members_screen.dart';
+import 'screens/s0_6g_trust_name_screen.dart';
+import 'screens/s0_6h_trust_members_screen.dart';
 import 'screens/s0_8_set_pin_screen.dart';
 import 'widgets/business_opening_host.dart';
 import 'widgets/family_opening_host.dart';
+import 'widgets/trust_opening_host.dart';
 
 export 'onboarding_flow.dart' show OnboardingFlow, OnboardingFlowScope;
 export 'onboarding_paths.dart';
@@ -47,8 +50,13 @@ export 'screens/s0_6e_family_members_screen.dart'
     show FamilyMemberDraft, FamilyMembersScreen;
 export 'screens/s0_6f_family_accounts_screen.dart'
     show FamilySharedAccountsScreen;
+export 'screens/s0_6g_trust_name_screen.dart' show TrustDraft, TrustNameScreen;
+export 'screens/s0_6h_trust_members_screen.dart'
+    show TrustMemberDraft, TrustMembersScreen, TrustRole;
+export 'screens/s0_6i_trust_accounts_screen.dart' show TrustAccountsScreen;
 export 'widgets/business_opening_host.dart' show BusinessOpeningHost;
 export 'widgets/family_opening_host.dart' show FamilyOpeningHost;
+export 'widgets/trust_opening_host.dart' show TrustOpeningHost;
 
 /// S0.0 at [OnboardingPaths.splash]; S0.1 at [OnboardingPaths.language]; S0.05
 /// at [OnboardingPaths.welcome]; S0.3 at [OnboardingPaths.purpose]; S0.4 at
@@ -70,10 +78,9 @@ export 'widgets/family_opening_host.dart' show FamilyOpeningHost;
 /// on the same branch step Continue would, and the verified-storage nag
 /// (04 §7.4 🔒) is what brings the sheet back.
 ///
-/// ⚠️ SPEC: the chosen [OnboardingPurpose] is recorded on the flow, but only
-/// the business branch (O6a/O6a1/O6b) and the family branch (O6d/O6e/O6f)
-/// have screens; the trust branch is a later lane, so it lands on Home,
-/// where the S0.7 checklist brings the missing steps back.
+/// The chosen [OnboardingPurpose] is recorded on the flow: the business
+/// branch (O6a/O6a1/O6b), the family branch (O6d/O6e/O6f) and the trust
+/// branch (O6g/O6h/O6i) all have screens now (U1e, M5).
 final OnboardingFlow onboardingFlow = OnboardingFlow();
 
 final List<RouteBase> onboardingRoutes = [
@@ -249,6 +256,45 @@ final List<RouteBase> onboardingRoutes = [
       onDone: () => context.go(HomePaths.home),
     ),
   ),
+  // The trust branch (07 §3.1.1 O6g → O6h → O6i). Every step is skippable
+  // and resumable; S0.6h's *Skip for now* is always visible (🔒) and simply
+  // carries an empty (or partial) committee list forward rather than
+  // blocking — the same shape as the family branch's S0.6e.
+  GoRoute(
+    path: OnboardingPaths.trust,
+    builder: (context, state) => TrustNameScreen(
+      startDate: bookStartDateOf(context),
+      initial: onboardingFlow.trust,
+      onSubmit: (draft) {
+        onboardingFlow.setTrust(draft);
+        context.go(OnboardingPaths.trustMembers);
+      },
+    ),
+  ),
+  GoRoute(
+    path: OnboardingPaths.trustMembers,
+    builder: (context, state) => TrustMembersScreen(
+      yourName: onboardingFlow.yourName,
+      initialMembers: onboardingFlow.trustMembers.isEmpty
+          ? null
+          : onboardingFlow.trustMembers,
+      onSubmit: (members) {
+        onboardingFlow.setTrustMembers(members);
+        context.go(OnboardingPaths.trustAccounts);
+      },
+      onSkip: () => context.go(OnboardingPaths.trustAccounts),
+    ),
+  ),
+  GoRoute(
+    path: OnboardingPaths.trustAccounts,
+    builder: (context, state) => TrustOpeningHost(
+      flow: onboardingFlow,
+      startDate: bookStartDateOf(context),
+      // Skipped or saved, the next stop is Home — where the S0.7 checklist
+      // brings a skipped wizard back (07 §3.1 step 7).
+      onDone: () => context.go(HomePaths.home),
+    ),
+  ),
 ];
 
 /// The day a book created now would begin (ADR 2026-09-09d §4) — read from the
@@ -259,12 +305,13 @@ LocalDate bookStartDateOf(BuildContext context) {
 }
 
 /// Where S0.8 goes next: the branch step the purpose card chose (07 §3.1.1).
-/// The business and family branches have screens; the trust branch is a
-/// later lane, so it lands on Home, whose S0.7 checklist brings the skipped
-/// setup back (07 §3.1 step 7).
+/// Every branch but *Myself* now has screens; *Myself* lands on Home, whose
+/// S0.7 checklist brings the skipped opening-balances step back (07 §3.1
+/// step 7 — that step is O6, not built by this lane).
 String afterSetPin(OnboardingFlow flow) => switch (flow.purpose) {
   OnboardingPurpose.shop ||
   OnboardingPurpose.businesses => OnboardingPaths.business,
   OnboardingPurpose.family => OnboardingPaths.family,
+  OnboardingPurpose.trust => OnboardingPaths.trust,
   _ => HomePaths.home,
 };

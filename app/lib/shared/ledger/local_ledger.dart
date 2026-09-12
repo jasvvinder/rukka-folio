@@ -20,6 +20,7 @@
 // carries `extra`), keys only through `KeyStore`, book keys wrapped to a
 // *verified* UMK only (04 §8.2 — the type system insists).
 import 'dart:async';
+import 'dart:collection';
 import 'dart:convert';
 
 import 'package:core_crypto/core_crypto.dart';
@@ -188,6 +189,74 @@ final class AccountBalance {
 /// Both vocabularies read from the same figures: consumer surfaces take
 /// [amountPaise] (signed); professional surfaces take [debitPaise] /
 /// [creditPaise] (absolute, one of them zero) — 02 §10, A-02-10.
+/// One account's statement over a period (07 §6, ADR 2026-09-09 §4): the
+/// balance the period opens on (**b/f**), the rows inside it, and the balance
+/// it closes at (**c/f**).
+///
+/// Until Year Close lands (M9) the b/f is **computed** — the sum of this
+/// account's lines dated before the period — which is correct for a
+/// continuous ledger (02 §8.1, ADR 2026-09-09 §4). When S10.4 exists the
+/// certified opening vector replaces the computed figure.
+///
+/// It *is* the list of rows, so a caller that wants only the rows keeps
+/// reading it as one.
+final class Statement extends ListBase<StatementRow> {
+  /// Creates the statement.
+  Statement({
+    required this.accountId,
+    required List<StatementRow> rows,
+    required this.openingPaise,
+    this.from,
+    this.to,
+  }) : _rows = List.unmodifiable(rows);
+
+  final List<StatementRow> _rows;
+
+  /// The account this is the statement of.
+  final String accountId;
+
+  /// First day of the period, or null for the whole history.
+  final LocalDate? from;
+
+  /// Last day of the period, or null for *up to the latest entry*.
+  final LocalDate? to;
+
+  /// **b/f** — the balance carried into [from], signed paise (+ = Dr).
+  final int openingPaise;
+
+  /// **c/f** — the balance the period closes at, signed paise.
+  int get closingPaise =>
+      _rows.isEmpty ? openingPaise : _rows.last.runningBalancePaise;
+
+  @override
+  int get length => _rows.length;
+
+  @override
+  set length(int value) =>
+      throw UnsupportedError('A statement is a read-only view');
+
+  @override
+  StatementRow operator [](int index) => _rows[index];
+
+  @override
+  void operator []=(int index, StatementRow value) =>
+      throw UnsupportedError('A statement is a read-only view');
+}
+
+/// A held envelope as the mirror recorded it (ADR 2026-09-05b §4): verified,
+/// not projected, not counted — and, when the mirror knows it, the target it
+/// is waiting for. Held is never an error.
+final class HeldObject {
+  /// Creates the record.
+  const HeldObject({required this.objectId, this.waitingForId});
+
+  /// The object id the envelope carries (an entry id, for S4.1).
+  final String objectId;
+
+  /// `envelopes_local.held_for` — the target that has not arrived, if known.
+  final String? waitingForId;
+}
+
 final class StatementRow {
   /// Creates the row.
   const StatementRow({
@@ -835,6 +904,15 @@ final class LocalLedger {
     return iso == null ? null : LocalDate.parse(iso);
   }
 
+  /// The month [bookId]'s financial year starts in (02 §1.1, default April).
+  /// Read from the projection, so a synced book carries its own calendar.
+  Future<int> fyStartMonthOf(String bookId) async {
+    final row = await (db.select(
+      db.booksP,
+    )..where((b) => b.id.equals(bookId))).getSingleOrNull();
+    return row?.fyStartMonth ?? 4;
+  }
+
   /// Adds an account (02 §1.2 — created inline, class inferred by the caller
   /// from the picker slot) and rebuilds the book. Returns the engine account.
   Future<Account> addAccount(
@@ -1424,7 +1502,17 @@ final class LocalLedger {
   /// accepted amend chains only, advance requests still pending excluded,
   /// reversed entries and their mirrors both present (02 §9), ordered by
   /// `(accounting_date, hlc, entry_id)` with the running balance.
-  Stream<List<StatementRow>> watchStatement(String accountId) {
+  ///
+  /// [from] and [to] bound the period, both inclusive (ADR 2026-09-09 §4 — the
+  /// FY switcher). Rows dated before [from] are not listed but are still
+  /// summed into [Statement.openingPaise], the **b/f**: the ledger is
+  /// continuous, so a period opens on what the periods before it left behind.
+  /// With no bounds the statement is the whole history and the b/f is zero.
+  Stream<Statement> watchStatement(
+    String accountId, {
+    LocalDate? from,
+    LocalDate? to,
+  }) {
     final l = db.entryLinesP;
     final e = db.entriesP;
     final q = db.customSelect(
@@ -1435,8 +1523,12 @@ final class LocalLedger {
       'WHERE l.entry_id IN '
       '(SELECT entry_id FROM entry_lines_p WHERE account_id = ?) '
       "AND e.superseded_by IS NULL AND e.status NOT IN ('pending','rejected') "
+      '${to == null ? '' : 'AND e.accounting_date <= ? '}'
       'ORDER BY e.accounting_date, e.hlc, e.id, l.line_index',
-      variables: [Variable.withString(accountId)],
+      variables: [
+        Variable.withString(accountId),
+        if (to != null) Variable.withString(to.toIso()),
+      ],
       readsFrom: {l, e},
     );
     return q.watch().map((rows) {
@@ -1457,16 +1549,23 @@ final class LocalLedger {
         }
       }
       var running = 0;
+      var opening = 0;
       for (final entryId in order) {
         final r = own[entryId];
         if (r == null) continue;
         final amount = r.read<int>('amount_paise');
         running += amount;
+        final date = LocalDate.parse(r.read<String>('accounting_date'));
+        // Before the period: it is not a row, it is part of the b/f.
+        if (from != null && date.isBefore(from)) {
+          opening = running;
+          continue;
+        }
         out.add(
           StatementRow(
             entryId: entryId,
             accountId: accountId,
-            date: LocalDate.parse(r.read<String>('accounting_date')),
+            date: date,
             kind: EntryKind.parse(r.read<String>('kind')),
             status: r.read<String>('status'),
             reviewState: r.read<String>('review_state'),
@@ -1479,8 +1578,41 @@ final class LocalLedger {
           ),
         );
       }
-      return out;
+      return Statement(
+        accountId: accountId,
+        rows: out,
+        openingPaise: opening,
+        from: from,
+        to: to,
+      );
     });
+  }
+
+  /// The held envelope carrying [objectId], or null when nothing on this
+  /// phone holds it (ADR 2026-09-05b §4). *Held* means verified, in the
+  /// mirror, not projected and not counted — S4.1 draws it as waiting, never
+  /// as an error. The earliest hold wins when a book somehow holds two.
+  Future<HeldObject?> heldFor(String objectId) async {
+    final row =
+        await (db.select(db.envelopesLocal)
+              ..where((t) => t.objectId.equals(objectId) & t.held.equals(1))
+              ..orderBy([(t) => OrderingTerm.asc(t.hlc)])
+              ..limit(1))
+            .getSingleOrNull();
+    return row == null
+        ? null
+        : HeldObject(objectId: objectId, waitingForId: row.heldFor);
+  }
+
+  /// The id of the entry that reverses [entryId], or null when none does.
+  /// One reversal per entry (02 §5, `alreadyReversed`), so at most one row.
+  Future<String?> reversalOf(String entryId) async {
+    final row =
+        await (db.select(db.entriesP)
+              ..where((t) => t.reverses.equals(entryId))
+              ..limit(1))
+            .getSingleOrNull();
+    return row?.id;
   }
 
   /// One entry with its lines, or null.

@@ -277,7 +277,7 @@ The ledger is continuous, so money, party, and advance balances carry forward ac
 > **ADR 2026-09-09 §4** — the switcher is one control on three surfaces (S4 · S8.2 · S10.4): the year
 > becomes a chip, a closed year shows the b/f it hands on with the badge copy *Certified*, and there is no
 > switcher at all until the first year close. Until S10.4 exists (M9) b/f is computed from entries before
-> the FY start; the certified vector replaces it then. ⟦tests: F1-07-46 @M5⟧
+> the FY start; the certified vector replaces it then. ⟦tests: F1-07-46⟧
 
 - **Prior-year corrections:** after a year closes, corrections post as reversals dated in the current FY (§5 already enforces this via month locks). The certified opening of a closed year **never changes** — the fix appears in the year it is made, which is standard practice and keeps every past-year report permanently true once printed.
 - **Reopening:** unlocking any month of a closed year voids that year's certificate *and every later year's*, admin-only, loudly warned, logged; re-closing is required in order.

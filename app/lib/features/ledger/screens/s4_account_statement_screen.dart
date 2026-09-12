@@ -4,13 +4,14 @@
 // PROFESSIONAL surface (02 §10 🔒): true ledger Dr/Cr, never Money in/out —
 // the engine's sign never bends, `Vocabulary.professional` only picks words.
 //
-// TODO(ADR 2026-09-09 §4, lane U3b): the FY switcher is ruled — one control on
-// S4, S8.2 and S10.4; the year becomes a chip, a closed year shows the b/f it
-// hands on, and there is no switcher at all until the first year close. It
-// needs a date range on `watchStatement`, which this build does not have: the
-// screen shows the whole history, b/f is zero as of the first row and c/f is
-// "as on today" (the owner rule for a period still open, 07 §6). Until Year
-// Close lands (M9) b/f is computed, not certified.
+// The statement is scoped to one financial year, through the switcher ruled
+// by ADR 2026-09-09 §4 🔒 (see `widgets/fy_switcher.dart`): the year is a chip
+// once a year has closed and plain text before that, because a control that
+// opens a list of one is a lie. The b/f is **computed** — the sum of this
+// account's lines dated before the year began, which is correct for a
+// continuous ledger — until Year Close (S10.4, M9) publishes the certified
+// opening vector of 02 §8.1 to replace it. The c/f falls on the year's last
+// day, or on today while the year is still open (07 §6 🔒, owner rule).
 //
 // Export (S8.1/S8.2) and entry detail (S4.1) are separate lanes; a row here
 // only reports its entry id through [onOpenEntry].
@@ -25,6 +26,7 @@ import '../../../shared/ledger/local_ledger.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../ledger_book.dart';
+import '../widgets/fy_switcher.dart';
 
 class AccountStatementScreen extends StatefulWidget {
   const AccountStatementScreen({
@@ -32,6 +34,7 @@ class AccountStatementScreen extends StatefulWidget {
     required this.accountId,
     this.bookId,
     this.onOpenEntry,
+    this.closedYears = noClosedYears,
   });
 
   /// The account whose statement this is.
@@ -42,6 +45,11 @@ class AccountStatementScreen extends StatefulWidget {
 
   final void Function(String entryId)? onOpenEntry;
 
+  /// The certified-years seam (ADR 2026-09-09 §4, [ClosedYearsSource]). The
+  /// default reports none, which is every build before Year Close (M9) — so
+  /// the year ships as plain text and no switcher is drawn.
+  final ClosedYearsSource closedYears;
+
   @override
   State<AccountStatementScreen> createState() => _AccountStatementScreenState();
 }
@@ -51,6 +59,29 @@ class _AccountStatementScreenState extends State<AccountStatementScreen> {
   Object? _resolveError;
 
   bool _resolveStarted = false;
+
+  /// The book's FY calendar (02 §1.1), its certified years, and the year on
+  /// screen — all resolved once, with the book.
+  int _fyStartMonth = 4;
+  List<ClosedYear> _closed = const [];
+  FinancialYear? _fy;
+
+  /// Memoised so a rebuild does not resubscribe the drift stream every frame.
+  Stream<Statement>? _rows;
+  String? _rowsKey;
+
+  Stream<Statement> _statementStream(LocalLedger ledger, FinancialYear fy) {
+    final key = '${widget.accountId}|${fy.label}|${fy.startMonth}';
+    if (_rowsKey != key) {
+      _rowsKey = key;
+      _rows = ledger.watchStatement(
+        widget.accountId,
+        from: fy.firstDay,
+        to: fy.lastDay,
+      );
+    }
+    return _rows!;
+  }
 
   @override
   void didChangeDependencies() {
@@ -64,14 +95,18 @@ class _AccountStatementScreenState extends State<AccountStatementScreen> {
   }
 
   Future<void> _resolveBook() async {
-    if (widget.bookId != null) {
-      setState(() => _bookId = widget.bookId);
-      return;
-    }
     final ledger = LedgerScope.of(context);
     try {
-      final id = await soloBookId(ledger);
-      if (mounted) setState(() => _bookId = id);
+      final id = widget.bookId ?? await soloBookId(ledger);
+      final startMonth = await ledger.fyStartMonthOf(id);
+      final closed = await widget.closedYears(id, widget.accountId);
+      if (!mounted) return;
+      setState(() {
+        _bookId = id;
+        _fyStartMonth = startMonth;
+        _closed = closed;
+        _fy = FinancialYear.of(ledger.today(), startMonth: startMonth);
+      });
     } catch (e) {
       if (mounted) setState(() => _resolveError = e);
     }
@@ -82,6 +117,8 @@ class _AccountStatementScreenState extends State<AccountStatementScreen> {
     _resolveBook();
   }
 
+  void _selectYear(FinancialYear fy) => setState(() => _fy = fy);
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -89,7 +126,7 @@ class _AccountStatementScreenState extends State<AccountStatementScreen> {
       body: SafeArea(
         child: _resolveError != null
             ? _ErrorState(text: l10n.ledgerStatementError, onRetry: _retry)
-            : _bookId == null
+            : _bookId == null || _fy == null
             ? _Skeleton(label: l10n.ledgerStatementSkeleton)
             : _body(context, _bookId!),
       ),
@@ -114,8 +151,8 @@ class _AccountStatementScreenState extends State<AccountStatementScreen> {
           );
         }
         final account = chart.maybeAccount(widget.accountId);
-        return StreamBuilder<List<StatementRow>>(
-          stream: ledger.watchStatement(widget.accountId),
+        return StreamBuilder<Statement>(
+          stream: _statementStream(ledger, _fy!),
           builder: (context, snap) {
             final l10n = AppLocalizations.of(context);
             return Scaffold(
@@ -135,37 +172,60 @@ class _AccountStatementScreenState extends State<AccountStatementScreen> {
     );
   }
 
-  Widget _statement(
-    BuildContext context,
-    Chart chart,
-    List<StatementRow> rows,
-  ) {
+  Widget _statement(BuildContext context, Chart chart, Statement statement) {
     final l10n = AppLocalizations.of(context);
     final ledger = LedgerScope.of(context);
     final now = ledger.now();
-    if (rows.isEmpty) {
-      return _EmptyStatement(now: now);
+    final fy = _fy!;
+    // Nothing in this year *and* nothing carried into it: the account has
+    // never been touched. A year with no rows but a b/f is a real statement —
+    // the ledger is continuous — and still draws its b/f and c/f.
+    if (statement.isEmpty && statement.openingPaise == 0) {
+      return ListView(
+        children: [
+          // The switcher stays: an empty year must not be a dead end you
+          // cannot switch out of (07 §1 rule 2).
+          FySwitcher(
+            selected: fy,
+            closedYears: _closed,
+            openYear: FinancialYear.of(
+              ledger.today(),
+              startMonth: _fyStartMonth,
+            ),
+            onSelected: _selectYear,
+          ),
+          _EmptyStatement(now: now),
+        ],
+      );
     }
     final today = ledger.today();
     final groups = <LocalDate, List<StatementRow>>{};
     final order = <LocalDate>[];
-    for (final r in rows) {
+    for (final r in statement) {
       if (!groups.containsKey(r.date)) {
         groups[r.date] = [];
         order.add(r.date);
       }
       groups[r.date]!.add(r);
     }
-    final closing = rows.last.runningBalancePaise;
+    // 07 §6 🔒 (owner rule): the c/f is dated the period's last day, or
+    // today's date while the period is still open.
+    final closingDate = fy.contains(today) ? today : fy.lastDay;
 
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: RkSpace.s2),
       children: [
+        FySwitcher(
+          selected: fy,
+          closedYears: _closed,
+          openYear: FinancialYear.of(today, startMonth: _fyStartMonth),
+          onSelected: _selectYear,
+        ),
         _ColumnHeader(l10n: l10n),
         _OpeningClosingRow(
           label: l10n.ledgerStatementOpening,
-          date: formatLedgerDate(rows.first.date, strings: l10n),
-          balancePaise: 0,
+          date: formatLedgerDate(fy.firstDay, strings: l10n),
+          balancePaise: statement.openingPaise,
         ),
         for (final date in order) ...[
           Padding(
@@ -195,8 +255,8 @@ class _AccountStatementScreenState extends State<AccountStatementScreen> {
         ],
         _OpeningClosingRow(
           label: l10n.ledgerStatementClosing,
-          date: formatLedgerDate(today, strings: l10n),
-          balancePaise: closing,
+          date: formatLedgerDate(closingDate, strings: l10n),
+          balancePaise: statement.closingPaise,
         ),
       ],
     );

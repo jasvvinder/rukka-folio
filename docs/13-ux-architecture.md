@@ -111,9 +111,9 @@ Roles (admin · head · member · operator · viewer) change *what actions appea
 | **S0.6d** | Name the family | O3 branch | ⟦tests: F1-07-74⟧ |
 | **S0.6e** | Who else is in the family | O6d | invite heads by phone, **Skip for now** — the archetype S0.6a1 reuses (ADR 2026-09-09 §1) ⟦tests: F1-07-75⟧ |
 | **S0.6f** | The family's shared accounts | O6e | pool bank and cash; no bank seeded, added as `Add a bank account` (ADR 2026-09-09d §1) ⟦tests: F1-07-76⟧ |
-| **S0.6g** | Name the trust and its type | O3 branch | gurudwara · temple · society · registered trust |
-| **S0.6h** | Who runs the trust | O6g | Chairman/President/Trustee/Sevadar, skippable |
-| **S0.6i** | The trust's accounts | O6h | bank + gollak as `cash_collection` |
+| **S0.6g** | Name the trust and its type | O3 branch | gurudwara · temple · society · registered trust ⟦tests: F1-07-80⟧ |
+| **S0.6h** | Who runs the trust | O6g | Chairman/President/Trustee/Sevadar, skippable ⟦tests: F1-07-81⟧ |
+| **S0.6i** | The trust's accounts | O6h | bank + gollak as `cash_collection` ⟦tests: F1-07-82⟧ |
 | **S0.6** | Opening balances — one grouped screen | onboarding | resumable; the three O6a–c steps become three **groups** on one screen now that the chart is seeded (ADR 2026-09-09c §3): *what you have · who owes you · who you owe*, plus *what each owner put in* for a shared business |
 | **S0.7** | Setup checklist (Home empty state) | S1 | progressive onboarding; it outlives the empty state — the card stays until the opening balances are in, so a skipped wizard always has a door (07 §3.1 step 7) ⟦tests: F1-07-57⟧ |
 | **S0.9** | Invitation accept (design O7a/O7b) | deep link | invited path: accept → OTP → personal book works immediately, shared books greyed "Meet Sunita to activate" (07 §12) |

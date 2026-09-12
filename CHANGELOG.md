@@ -12,6 +12,77 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-12 (e) — M5: U1e the trust branch · U3d the FY switcher and the real b/f; **push lane green**
+
+One `/lane` run, two disjoint lanes, then `/gate` on the push lane — **green, with only `dart format`
+to fix**. Between them they close the last missing onboarding branch and the placeholder at the top of
+every A/C statement. `PLAN.md` was three rows stale on entry (U1d and U2e had landed without being
+recorded); those are now written up rather than re-run.
+
+**Added**
+- **U1e (`lane-ui`) — the trust branch: S0.6g name the trust and its type · S0.6h who runs it · S0.6i
+  the trust's accounts** — `F1-07-80`, `F1-07-81`, `F1-07-82` (17 tests; `test/features/onboarding` 98).
+  **This was the last unbuilt purpose card** — picking *Our trust* on S0.3 no longer dead-ends, and the
+  trust branch is the only one that sets `tenant.type = organization` (07 §3.1.1 🔒). Built on the settled
+  S0.6d/e/f pattern, reusing S0.6b's `OpeningRow`/`OpeningGroup`/`parseRupeesToPaise`/`signOf` rather than
+  redefining them; the one addition is `OpeningRow.isCollection` (default `false`, so every existing caller
+  is untouched) which lets S0.6i mark the gollak's `cash_collection` note apart from the plain Cash A/c row.
+  Trust seeding was **read and not edited** — U1f's Cash + Gollak + the four 07 §3.1 step 3 🔒 category
+  accounts are asserted present by the `F1-07-82` host test rather than assumed.
+- **U3d (`lane-ui-hard`) — the financial-year switcher and a real b/f on S4** — `F1-07-46` landed, its
+  ` @M5` dropped from all six markers. `watchStatement(accountId, {from, to})` now returns a `Statement`
+  carrying opening/closing paise, so S4 loses its hard-coded 0 b/f and its *as on today* c/f; **b/f is
+  computed** by summing the account's lines dated before `from`, which ADR 2026-09-09 §4 rules correct for
+  a continuous ledger until S10.4 certifies it in M9. No `packages/data` change was needed — `books_p`
+  already carries `fy_start_month`, now read through `LocalLedger.fyStartMonthOf`.
+- `LocalLedger.heldFor(objectId)` and `LocalLedger.reversalOf(entryId)` — the two questions U3b's
+  `entry_detail.dart` was answering by reaching into the Drift tables itself. It no longer imports drift;
+  `F1-07-60`/`F1-07-61` were **extended rather than given a new id**, since S4.1's posted/held/missing
+  behaviour is unchanged and a refactor that mints an id would overstate what is new.
+- A real 200 % layout defect fixed in the FY sheet's carried-forward row — it overflowed even at 1×.
+
+**Changed**
+- **`C-05a-7` was an orphan and is now marked — on 07 §5.6, not 06 §4.4.** `check_coverage` reported the id
+  named by no `⟦tests⟧` marker after U2e landed the test. It was first marked on 06's *foreground
+  inactivity lock* line, then **moved**: U2e's test asserts the lock is **suppressed** while digits sit in
+  the keypad, which is 07 §5.6's wording, and CLAUDE.md's precedence gives screens to 07. The marker now
+  sits on the sentence it actually proves. Coverage is back to **0 warnings**.
+- The FY chip is **dormant by design**: ADR §4 🔒 says there is no switcher before the first year close, so
+  `ClosedYearsSource` defaults to none and shipped behaviour stays plain muted text. The chip, the bottom
+  sheet and the *Certified* badge (tick **and** word — 07 §1, and copy not a state — 13 §6) are proven from
+  a fake. No year-close producer was invented; there is none until M9.
+- `PLAN.md` §0, §1 and §2 refreshed — U1d (family S0.6d/e/f) and U2e (the lock draft seam, `C-05a-7` +
+  `F1-07-13`) had landed in earlier sessions without a row; both are now recorded alongside U1e and U3d.
+  Traceability line updated to the verified counts: **662 tests · 460 ids · 332 🔒 lines · 0 unmarked ·
+  0 orphans**.
+
+**Open** ⚠️
+- **`TrustType` has nowhere to persist** (gurudwara · temple · society · registered trust) — held on
+  `OnboardingFlow` and never reaching `createBook`. This is **the same gap as U1c's share weights**:
+  `BookConfig` carries neither an organization subtype nor a partner ratio. One `packages/data`
+  envelope-schema change closes both rows; neither should be invented by a UI lane.
+- **ADR 2026-09-09 §4's Consequences are still owed in `docs/`** — a 13 §3.2 inventory row for the switcher
+  and cross-reference lines at 07 §5.7 and 07 §6. U3d was held to the `F1-07-46` marker edits.
+- **M9 owes the FY switcher two things**: wiring `ClosedYearsSource` to the certified years, and swapping
+  the computed b/f for 02 §8.1's certified opening vector. The ADR's second surface, S8.2, is untouched.
+- **The `C-05a-7` erratum still stands** (carried from the 12 Sep (b) entry, now sharper): ADR 2026-09-05i
+  §10's table still describes the test as *"idle 5 min with digits typed → lock → unlock → same digits"*,
+  the opposite of the suppression 07 §5.6 🔒 specifies and the test now asserts. Owner's ruling, then an
+  ADR erratum to the 05i row.
+- **S0.6c *Add another business?* is the last onboarding gap.** Not a repeat screen — it makes
+  `OnboardingFlow` hold a list of businesses and loop back to S0.6a, i.e. flow surgery under 98 green
+  tests. `lane-ui-hard`, its own session.
+- PA/HI for the new `ledger.statement.fy*` and trust keys are **faithful drafts, not native-reviewed**
+  (01 §1.8; review lands at M12).
+- `PLAN.md` is now **281 lines against the ~200 the skill asks for** — M5's finished rows want compressing
+  into this changelog.
+- **Fable is 6 of 2 budgeted this week**; the reset is Sunday 13 Sep. Nothing this session needed it.
+
+**Commits**
+- _(hash to be filled next session)_
+
+---
+
 ## 2026-09-12 (d) — M5: the drawings engine blocker (escalation to `lane-core`)
 
 One escalation lane, scoped to the single blocker `M5-U2d` raised and nothing else, then `/gate` on
@@ -74,7 +145,7 @@ the push lane — **green, with nothing mechanical to fix**. The week's fable bu
   cash deposit). Caught by the lane against the source before it wrote the test — no code impact.
 
 **Commits**
-- _(hash to be filled next session)_
+- `00297e3` M5: drawings post through moneyOut — checkShape and verb narrowed to the drawings role
 
 ---
 

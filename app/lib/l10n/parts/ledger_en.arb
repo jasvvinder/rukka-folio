@@ -157,6 +157,27 @@
   "@ledger.statement.column_balance": {
     "description": "S4 statement — third professional column header, after Dr and Cr (money.side.dr/cr, 02 §10)."
   },
+  "ledger.statement.fy": "FY {year}",
+  "@ledger.statement.fy": {
+    "description": "S4 statement \u2014 the financial year the statement covers, e.g. FY 2026-27 (02 \u00a78.1, ADR 2026-09-09 \u00a74). Plain text until the first year close; a chip after it.",
+    "placeholders": { "year": { "type": "String", "example": "2026-27" } }
+  },
+  "ledger.statement.fy_change": "Change financial year",
+  "@ledger.statement.fy_change": {
+    "description": "S4 statement \u2014 semantic label and sheet title for the FY switcher chip (ADR 2026-09-09 \u00a74). Only ever shown once a year has closed."
+  },
+  "ledger.statement.fy_certified": "Certified",
+  "@ledger.statement.fy_certified": {
+    "description": "S4 statement \u2014 badge copy on a closed financial year (02 \u00a78.1: copy, not a state, 13 \u00a76). Always beside the tick, never colour alone (07 \u00a71)."
+  },
+  "ledger.statement.fy_open": "Still open",
+  "@ledger.statement.fy_open": {
+    "description": "S4 statement \u2014 the year that has not been closed yet, in the FY switcher sheet."
+  },
+  "ledger.statement.fy_carried": "Carried forward to next year",
+  "@ledger.statement.fy_carried": {
+    "description": "S4 statement \u2014 in the FY switcher sheet, labels the b/f a closed year hands to the next (ADR 2026-09-09 \u00a74)."
+  },
   "ledger.statement.empty": "No entries on this account yet",
   "@ledger.statement.empty": {
     "description": "S4 statement — empty state before any entry has posted."

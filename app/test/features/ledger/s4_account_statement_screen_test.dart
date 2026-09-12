@@ -10,6 +10,7 @@ import 'package:core_ledger/core_ledger.dart' hide StatementRow;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/features/ledger/screens/s4_account_statement_screen.dart';
+import 'package:rukka_folio/features/ledger/widgets/fy_switcher.dart';
 import 'package:rukka_folio/main.dart';
 import 'package:rukka_folio/shared/app_scope.dart';
 import 'package:rukka_folio/shared/format/money_format.dart';
@@ -245,6 +246,193 @@ void main() {
           expect(tester.takeException(), isNull);
           await unmount(tester);
         }
+      },
+    );
+  });
+
+  group('S4 financial year (ADR 2026-09-09 §4 🔒, 02 §8.1)', () {
+    /// A clock four days into FY 2026-27, so [seedSoloLedger]'s week of
+    /// history straddles 1 April: the two openings and the sales entry fall in
+    /// FY 2025-26, the other three in FY 2026-27. That split is what makes a
+    /// *computed* b/f visible at all.
+    DateTime aprilClock() => DateTime(2026, 4, 4, 10);
+
+    /// The year-close seam as M9 will fill it. Until then the app ships
+    /// [noClosedYears] and there is no switcher (ADR 2026-09-09 §4).
+    ClosedYearsSource fakeClosedYears(List<ClosedYear> years) =>
+        (bookId, accountId) async => years;
+
+    testWidgets(
+      'F1-07-46 the b/f is computed from entries dated before the FY start, '
+      'and the c/f falls at the range end (02 §8.1)',
+      (tester) async {
+        tallViewport(tester);
+        final seed = await seedSoloLedger(clock: aprilClock);
+
+        // The facade answers the same question directly: the year's rows, and
+        // the balance carried into it from everything before 1 April.
+        final fy = FinancialYear(2026);
+        final statement = (await tester.runAsync(
+          () => seed.ledger
+              .watchStatement(seed.cashId, from: fy.firstDay, to: fy.lastDay)
+              .first,
+        ))!;
+        // Cash opened at 25,000 on 28 March — prior year, so it is b/f, not a
+        // row. The four dated inside the year remain rows.
+        expect(statement.openingPaise, 2_500_000);
+        expect(statement, hasLength(4));
+        expect(statement.closingPaise, 2_160_000);
+        expect(statement.first.runningBalancePaise, 2_260_000);
+
+        await pumpRk(
+          tester,
+          AccountStatementScreen(accountId: seed.cashId),
+          ledger: seed.ledger,
+        );
+
+        // On screen: b/f is the computed figure dated the year's first day —
+        // no longer the hard-coded zero — and c/f is the closing balance.
+        // The b/f row is dated the year's first day, not the first entry's,
+        // and the c/f carries today's date because the year is still open
+        // (07 §6 🔒, owner rule).
+        expect(find.text('Opening balance b/f · 01 Apr 2026'), findsOneWidget);
+        expect(find.text('Closing balance c/f · 04 Apr 2026'), findsOneWidget);
+        final money = moneyOn(tester);
+        expect(money.first.paise, 2_500_000);
+        expect(money.last.paise, 2_160_000);
+        // The opening entry itself is outside the year and is not listed.
+        expect(find.widgetWithText(ListTile, 'Opening Balance'), findsNothing);
+        await unmount(tester);
+      },
+    );
+
+    testWidgets(
+      'F1-07-46 before the first year close the year is plain text, never a '
+      'control that opens a list of one',
+      (tester) async {
+        tallViewport(tester);
+        final seed = await seedSoloLedger();
+        await pumpRk(
+          tester,
+          AccountStatementScreen(accountId: seed.cashId),
+          ledger: seed.ledger,
+        );
+
+        // testNow is 7 Sep 2026 → FY 2026-27, and nothing has closed.
+        expect(find.text('FY 2026-27'), findsOneWidget);
+        expect(find.byType(ActionChip), findsNothing);
+        expect(find.byType(FySwitcher), findsOneWidget);
+        await unmount(tester);
+      },
+    );
+
+    testWidgets(
+      'F1-07-46 once a year has closed the year is a chip, and the sheet '
+      'shows the b/f it hands on with the badge copy Certified (13 §6, 07 §1)',
+      (tester) async {
+        tallViewport(tester);
+        final seed = await seedSoloLedger(clock: aprilClock);
+        await pumpRk(
+          tester,
+          AccountStatementScreen(
+            accountId: seed.cashId,
+            closedYears: fakeClosedYears([
+              ClosedYear(
+                year: FinancialYear(2025),
+                carriedForwardPaise: 2_500_000,
+              ),
+            ]),
+          ),
+          ledger: seed.ledger,
+        );
+
+        expect(find.byType(ActionChip), findsOneWidget);
+        expect(find.text('FY 2026-27'), findsOneWidget);
+
+        await tester.tap(find.byType(ActionChip));
+        await tester.pumpAndSettle();
+
+        // Both years are offered — the closed one and the one still running.
+        expect(find.text('FY 2025-26'), findsOneWidget);
+        expect(find.text('Still open'), findsOneWidget);
+        // Certified is copy, not a state (13 §6), and the word rides beside
+        // the tick so the meaning is never colour alone (07 §1).
+        expect(find.text('Certified'), findsOneWidget);
+        expect(find.byIcon(Icons.verified_outlined), findsOneWidget);
+        // …and the closed year shows the b/f it hands to the next year.
+        expect(find.text('Carried forward to next year'), findsOneWidget);
+        expect(moneyOn(tester).map((m) => m.paise), contains(2_500_000));
+        await unmount(tester);
+      },
+    );
+
+    testWidgets(
+      'F1-07-46 the chip and its sheet survive 200% on a 360x800 phone in '
+      'EN, PA and HI (07 §1 rule 11)',
+      (tester) async {
+        for (final locale in const [Locale('en'), Locale('pa'), Locale('hi')]) {
+          tallViewport(tester, width: 360);
+          final seed = await seedSoloLedger(clock: aprilClock);
+          await pumpRk(
+            tester,
+            MediaQuery(
+              data: const MediaQueryData(textScaler: TextScaler.linear(2)),
+              child: AccountStatementScreen(
+                accountId: seed.cashId,
+                closedYears: fakeClosedYears([
+                  ClosedYear(
+                    year: FinancialYear(2025),
+                    carriedForwardPaise: 2_500_000,
+                  ),
+                ]),
+              ),
+            ),
+            ledger: seed.ledger,
+            locale: locale,
+          );
+          expect(tester.takeException(), isNull);
+          await tester.tap(find.byType(ActionChip));
+          await tester.pumpAndSettle();
+          expect(tester.takeException(), isNull);
+          await unmount(tester);
+        }
+      },
+    );
+
+    testWidgets(
+      'F1-07-46 picking a year re-scopes the statement to it, b/f and all',
+      (tester) async {
+        tallViewport(tester);
+        final seed = await seedSoloLedger(clock: aprilClock);
+        await pumpRk(
+          tester,
+          AccountStatementScreen(
+            accountId: seed.cashId,
+            closedYears: fakeClosedYears([
+              ClosedYear(
+                year: FinancialYear(2025),
+                carriedForwardPaise: 2_500_000,
+              ),
+            ]),
+          ),
+          ledger: seed.ledger,
+        );
+
+        await tester.tap(find.byType(ActionChip));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('FY 2025-26'));
+        await tester.pumpAndSettle();
+
+        expect(find.text('FY 2025-26'), findsOneWidget);
+        // FY 2025-26 holds only the 28 March opening: nothing before it, so
+        // b/f is zero, and the c/f is dated the year's last day because the
+        // year is over (07 §6 🔒).
+        final money = moneyOn(tester);
+        expect(money.first.paise, 0);
+        expect(money.last.paise, 2_500_000);
+        expect(find.text('Opening balance b/f · 01 Apr 2025'), findsOneWidget);
+        expect(find.text('Closing balance c/f · 31 Mar 2026'), findsOneWidget);
+        await unmount(tester);
       },
     );
   });

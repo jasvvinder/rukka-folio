@@ -15,7 +15,6 @@
 // an amendment is a *new* entry; the version it replaces stays exactly as it
 // was posted).
 import 'package:core_ledger/core_ledger.dart';
-import 'package:drift/drift.dart' show BooleanExpressionOperators, OrderingTerm;
 
 import '../../shared/ledger/local_ledger.dart';
 
@@ -120,32 +119,22 @@ final class EntryDetailMissing extends EntryDetail {
 
 /// Resolves [id] against the local ledger.
 ///
-/// Reads only. `LocalLedger.entry` answers the projected case; the two lookups
-/// it has no method for — *is this envelope held?* and *what reverses this
-/// entry?* — are plain Drift reads of the mirror and of `entries_p`
-/// (see the lane report's `open` items for the facade signatures wanted).
+/// Reads only, and only through the facade: `LocalLedger.entry` answers the
+/// projected case, `LocalLedger.heldFor` answers *is this envelope held, and
+/// what is it waiting for*, and `LocalLedger.reversalOf` answers *what
+/// reversed this entry* (both added for this screen — no screen reaches into
+/// the Drift tables itself).
 Future<EntryDetail> loadEntryDetail(LocalLedger ledger, String id) async {
   final view = await ledger.entry(id);
   if (view == null) {
-    final db = ledger.db;
-    final held =
-        await (db.select(db.envelopesLocal)
-              ..where((t) => t.objectId.equals(id) & t.held.equals(1))
-              ..orderBy([(t) => OrderingTerm.asc(t.hlc)])
-              ..limit(1))
-            .getSingleOrNull();
+    final held = await ledger.heldFor(id);
     if (held != null) {
-      return EntryDetailHeld(id, waitingForId: held.heldFor);
+      return EntryDetailHeld(id, waitingForId: held.waitingForId);
     }
     return EntryDetailMissing(id);
   }
   final chart = await ledger.chartOf(view.bookId);
-  final db = ledger.db;
-  final reversalRow =
-      await (db.select(db.entriesP)
-            ..where((t) => t.reverses.equals(id))
-            ..limit(1))
-          .getSingleOrNull();
+  final reversalId = await ledger.reversalOf(id);
   return EntryDetailPosted(
     view: view,
     chart: chart,
@@ -154,6 +143,6 @@ Future<EntryDetail> loadEntryDetail(LocalLedger ledger, String id) async {
         ? null
         : await ledger.entry(view.supersededBy!),
     reverses: view.reverses == null ? null : await ledger.entry(view.reverses!),
-    reversedBy: reversalRow == null ? null : await ledger.entry(reversalRow.id),
+    reversedBy: reversalId == null ? null : await ledger.entry(reversalId),
   );
 }

@@ -1442,6 +1442,32 @@
   "@ledger.statement.error": {
     "description": "S4 statement — resolve/watch error state (13 §4.3)."
   },
+  "ledger.statement.fy": "FY {year}",
+  "@ledger.statement.fy": {
+    "description": "S4 statement — the financial year the statement covers, e.g. FY 2026-27 (02 §8.1, ADR 2026-09-09 §4). Plain text until the first year close; a chip after it.",
+    "placeholders": {
+      "year": {
+        "type": "String",
+        "example": "2026-27"
+      }
+    }
+  },
+  "ledger.statement.fy_carried": "Carried forward to next year",
+  "@ledger.statement.fy_carried": {
+    "description": "S4 statement — in the FY switcher sheet, labels the b/f a closed year hands to the next (ADR 2026-09-09 §4)."
+  },
+  "ledger.statement.fy_certified": "Certified",
+  "@ledger.statement.fy_certified": {
+    "description": "S4 statement — badge copy on a closed financial year (02 §8.1: copy, not a state, 13 §6). Always beside the tick, never colour alone (07 §1)."
+  },
+  "ledger.statement.fy_change": "Change financial year",
+  "@ledger.statement.fy_change": {
+    "description": "S4 statement — semantic label and sheet title for the FY switcher chip (ADR 2026-09-09 §4). Only ever shown once a year has closed."
+  },
+  "ledger.statement.fy_open": "Still open",
+  "@ledger.statement.fy_open": {
+    "description": "S4 statement — the year that has not been closed yet, in the FY switcher sheet."
+  },
   "ledger.statement.opening": "Opening balance b/f",
   "@ledger.statement.opening": {
     "description": "S4 statement — opening-balance row, dated as-on the first entry (07 §6, professional surface, 02 §10)."
@@ -2427,6 +2453,202 @@
   "onboarding.set_pin.why": "Your family knows your phone's passcode. They won't know this.",
   "@onboarding.set_pin.why": {
     "description": "S0.8 the reason the MPIN exists (06 §4.4) — said plainly, not asked."
+  },
+  "onboarding.trust.accounts.add_bank": "Add a bank account",
+  "@onboarding.trust.accounts.add_bank": {
+    "description": "S0.6i — no bank is seeded (ADR 2026-09-09d §1/§2); this is how one arrives."
+  },
+  "onboarding.trust.accounts.balance_label": "Opening balance",
+  "@onboarding.trust.accounts.balance_label": {
+    "description": "S0.6i amount field label."
+  },
+  "onboarding.trust.accounts.balancing_label": "Balances against",
+  "@onboarding.trust.accounts.balancing_label": {
+    "description": "S0.6i — the balancing figure is named, never a silent plug (ADR 2026-09-09c §4)."
+  },
+  "onboarding.trust.accounts.balancing_note": "{amount} goes to Opening Balance / Capital A/c so the entry balances.",
+  "@onboarding.trust.accounts.balancing_note": {
+    "description": "S0.6i — names the account that absorbs the difference (ADR 2026-09-09c §4).",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.trust.accounts.balancing_zero": "Nothing extra needed — everything you entered adds up.",
+  "@onboarding.trust.accounts.balancing_zero": {
+    "description": "S0.6i — the balancing amount is zero."
+  },
+  "onboarding.trust.accounts.collection_note": "This is the gollak — counted money leaves it only by deposit into Cash or the bank, and denomination counting is on for every cash account.",
+  "@onboarding.trust.accounts.collection_note": {
+    "description": "S0.6i — the gollak is a cash_collection account, a different account from Cash A/c (02 §8.2 🔒)."
+  },
+  "onboarding.trust.accounts.create_error": "Your trust's book could not be created. Nothing was changed.",
+  "@onboarding.trust.accounts.create_error": {
+    "description": "S0.6i error state (07 §1 rule 12: never a dead end)."
+  },
+  "onboarding.trust.accounts.creating": "Setting up your trust's accounts…",
+  "@onboarding.trust.accounts.creating": {
+    "description": "S0.6i working state — the ruled skeleton of 11 §4.5, never a spinner."
+  },
+  "onboarding.trust.accounts.dated_note": "Every balance here is dated {date}.",
+  "@onboarding.trust.accounts.dated_note": {
+    "description": "S0.6i — ADR 2026-09-09d §4.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.trust.accounts.group_have": "What the trust has",
+  "@onboarding.trust.accounts.group_have": {
+    "description": "S0.6i group heading, consumer vocabulary (02 §10)."
+  },
+  "onboarding.trust.accounts.retry": "Try again",
+  "@onboarding.trust.accounts.retry": {
+    "description": "S0.6i error retry."
+  },
+  "onboarding.trust.accounts.save": "Save",
+  "@onboarding.trust.accounts.save": {
+    "description": "S0.6i primary action."
+  },
+  "onboarding.trust.accounts.skip": "Skip for now",
+  "@onboarding.trust.accounts.skip": {
+    "description": "S0.6i skip — the S0.7 checklist brings the user back (07 §3.1 step 7)."
+  },
+  "onboarding.trust.accounts.subtitle": "These accounts already exist — fill in what the trust has, or skip for now.",
+  "@onboarding.trust.accounts.subtitle": {
+    "description": "S0.6i screen subtitle."
+  },
+  "onboarding.trust.accounts.title": "The trust's accounts",
+  "@onboarding.trust.accounts.title": {
+    "description": "S0.6i screen title."
+  },
+  "onboarding.trust.accounts.zero_note": "A row left at ₹0 is still created — you can fill it in any time.",
+  "@onboarding.trust.accounts.zero_note": {
+    "description": "S0.6i — a zero row is still created (ADR 2026-09-09c §3)."
+  },
+  "onboarding.trust.continue_label": "Continue",
+  "@onboarding.trust.continue_label": {
+    "description": "S0.6g primary action."
+  },
+  "onboarding.trust.members.add_member": "Add a committee member",
+  "@onboarding.trust.members.add_member": {
+    "description": "S0.6h add-row action."
+  },
+  "onboarding.trust.members.continue_label": "Continue",
+  "@onboarding.trust.members.continue_label": {
+    "description": "S0.6h primary action."
+  },
+  "onboarding.trust.members.invite_tag": "to invite",
+  "@onboarding.trust.members.invite_tag": {
+    "description": "S0.6h tag for a row waiting on the verification ceremony."
+  },
+  "onboarding.trust.members.name_label": "Name",
+  "@onboarding.trust.members.name_label": {
+    "description": "S0.6h name field label."
+  },
+  "onboarding.trust.members.phone_label": "Phone number",
+  "@onboarding.trust.members.phone_label": {
+    "description": "S0.6h phone field label."
+  },
+  "onboarding.trust.members.remove": "Remove {name}",
+  "@onboarding.trust.members.remove": {
+    "description": "S0.6h remove-row action.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.trust.members.role_label": "Role",
+  "@onboarding.trust.members.role_label": {
+    "description": "S0.6h — the committee designation this row is tagged with (06 §1.0)."
+  },
+  "onboarding.trust.members.skip": "Skip for now",
+  "@onboarding.trust.members.skip": {
+    "description": "S0.6h skip — 🔒 always visible (07 §3.1.1, 13 §3.2)."
+  },
+  "onboarding.trust.members.subtitle": "Invite the committee by phone. They join only after you verify each other in person.",
+  "@onboarding.trust.members.subtitle": {
+    "description": "S0.6h screen subtitle."
+  },
+  "onboarding.trust.members.title": "Who runs the trust?",
+  "@onboarding.trust.members.title": {
+    "description": "S0.6h screen title."
+  },
+  "onboarding.trust.members.unverified_note": "Invited members stay unverified until you meet them and verify them in person.",
+  "@onboarding.trust.members.unverified_note": {
+    "description": "S0.6h — same unverified-invite note as S0.6e."
+  },
+  "onboarding.trust.members.you_tag": "you",
+  "@onboarding.trust.members.you_tag": {
+    "description": "S0.6h tag for the creating user's own row."
+  },
+  "onboarding.trust.name_error": "Name the trust to continue",
+  "@onboarding.trust.name_error": {
+    "description": "S0.6g disabled-with-reason (13 §4.3)."
+  },
+  "onboarding.trust.name_hint": "e.g. Guru Nanak Gurudwara",
+  "@onboarding.trust.name_hint": {
+    "description": "S0.6g name field hint."
+  },
+  "onboarding.trust.name_label": "Trust name",
+  "@onboarding.trust.name_label": {
+    "description": "S0.6g name field label."
+  },
+  "onboarding.trust.role.chairman": "Chairman",
+  "@onboarding.trust.role.chairman": {
+    "description": "S0.6h role option — the admin default (06 §1.0)."
+  },
+  "onboarding.trust.role.president": "President",
+  "@onboarding.trust.role.president": {
+    "description": "S0.6h role option — the head default (06 §1.0, ADR 2026-09-01)."
+  },
+  "onboarding.trust.role.sevadar": "Sevadar",
+  "@onboarding.trust.role.sevadar": {
+    "description": "S0.6h role option — the operator default (06 §1.0)."
+  },
+  "onboarding.trust.role.trustee": "Trustee",
+  "@onboarding.trust.role.trustee": {
+    "description": "S0.6h role option — the member default (06 §1.0)."
+  },
+  "onboarding.trust.start_note": "Your trust's books begin on {date}. Nothing can be dated before that day.",
+  "@onboarding.trust.start_note": {
+    "description": "S0.6g — the book's start date is stated, never picked (ADR 2026-09-09d §4).",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.trust.subtitle": "You can change this later.",
+  "@onboarding.trust.subtitle": {
+    "description": "S0.6g screen subtitle."
+  },
+  "onboarding.trust.title": "Name your trust",
+  "@onboarding.trust.title": {
+    "description": "S0.6g screen title."
+  },
+  "onboarding.trust.type.gurudwara": "Gurudwara",
+  "@onboarding.trust.type.gurudwara": {
+    "description": "S0.6g trust-type option."
+  },
+  "onboarding.trust.type.registered_trust": "Registered trust",
+  "@onboarding.trust.type.registered_trust": {
+    "description": "S0.6g trust-type option."
+  },
+  "onboarding.trust.type.society": "Society",
+  "@onboarding.trust.type.society": {
+    "description": "S0.6g trust-type option."
+  },
+  "onboarding.trust.type.temple": "Temple",
+  "@onboarding.trust.type.temple": {
+    "description": "S0.6g trust-type option."
+  },
+  "onboarding.trust.type_question": "What kind of trust is it?",
+  "@onboarding.trust.type_question": {
+    "description": "S0.6g — the four illustrative types of 07 §3.1 step 3 🔒."
   },
   "onboarding.welcome.get_started": "Get started",
   "@onboarding.welcome.get_started": {

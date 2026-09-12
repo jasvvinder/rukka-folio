@@ -57,6 +57,7 @@ final class OpeningRow {
     required this.group,
     this.initialPaise = 0,
     this.suggested = false,
+    this.isCollection = false,
   });
 
   /// The engine account id this row's opening balance posts against.
@@ -75,6 +76,13 @@ final class OpeningRow {
   /// weights. ADR 2026-09-09c §4: a contribution is asked, never derived, so
   /// the suggestion is labelled as one and stays editable.
   final bool suggested;
+
+  /// True for a `cash_collection` account — the trust's gollak (07 §3.1 step
+  /// 3 🔒, 02 §8.2). Still a money row here (an opening figure is any
+  /// account's first entry, 02 §4 🔒, not the count mechanic), but the
+  /// screen that renders it may add the collection-specific note this flag
+  /// asks for.
+  final bool isCollection;
 }
 
 /// Parses a rupee amount the user typed into integer paise. Digits only, an

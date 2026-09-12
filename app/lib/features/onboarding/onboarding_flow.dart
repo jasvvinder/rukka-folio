@@ -15,6 +15,8 @@ import 'screens/s0_6a1_business_owners_screen.dart';
 import 'screens/s0_6a_business_name_screen.dart';
 import 'screens/s0_6d_family_name_screen.dart';
 import 'screens/s0_6e_family_members_screen.dart';
+import 'screens/s0_6g_trust_name_screen.dart';
+import 'screens/s0_6h_trust_members_screen.dart';
 
 /// The answers gathered so far. Mutated in place by the route callbacks; read
 /// by the steps that need an earlier answer.
@@ -47,6 +49,18 @@ class OnboardingFlow extends ChangeNotifier {
   /// The pool book created at S0.6f, once it exists (07 §3.1.1: resumable —
   /// never a second book for the same answers).
   String? familyBookId;
+
+  /// The S0.6g answer — the trust's name and illustrative type. Null on
+  /// every other branch.
+  TrustDraft? trust;
+
+  /// The S0.6h invited committee. Empty on *Skip for now* and on every other
+  /// branch.
+  List<TrustMemberDraft> trustMembers = const [];
+
+  /// The trust book created at S0.6i, once it exists (07 §3.1.1: resumable —
+  /// never a second book for the same answers).
+  String? trustBookId;
 
   /// Whether a recovery sheet has been generated and is still waiting to be
   /// scanned back (S0.5b, 04 §7.4 🔒 verified-storage nag). Null until S0.5b
@@ -99,6 +113,18 @@ class OnboardingFlow extends ChangeNotifier {
   /// Records S0.6e's answers.
   void setFamilyMembers(List<FamilyMemberDraft> value) {
     familyMembers = List.unmodifiable(value);
+    notifyListeners();
+  }
+
+  /// Records S0.6g's answer.
+  void setTrust(TrustDraft draft) {
+    trust = draft;
+    notifyListeners();
+  }
+
+  /// Records S0.6h's answers.
+  void setTrustMembers(List<TrustMemberDraft> value) {
+    trustMembers = List.unmodifiable(value);
     notifyListeners();
   }
 

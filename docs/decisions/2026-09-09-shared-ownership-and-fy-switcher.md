@@ -46,18 +46,18 @@ drafted artboards — which state the shares-versus-percentages and skippability
 - Instead of *Skip for now*, the secondary action returns to the **Just me** branch, so the step is
   escapable without becoming a dead end (`07 §1` rule 6). ⟦tests: F1-07-45⟧
 
-### 4. The financial-year switcher is one control on three surfaces ⟦tests: F1-07-46 @M5⟧
+### 4. The financial-year switcher is one control on three surfaces ⟦tests: F1-07-46⟧
 - Surfaces: **S4** (A/C statement), **S8.2** (report viewer and export), and **S10.4**, where it first
-  appears after the year seals. ⟦tests: F1-07-46 @M5⟧
+  appears after the year seals. ⟦tests: F1-07-46⟧
 - The year renders as a **chip** in the header where it is currently flat muted text; tapping it opens a
-  bottom sheet listing the years. ⟦tests: F1-07-46 @M5⟧
+  bottom sheet listing the years. ⟦tests: F1-07-46⟧
 - A closed year shows the **b/f it hands to the next year** and the badge copy **Certified** — copy, not
-  a state (`13 §6`) — with the word beside the tick, never colour alone (`07 §1`). ⟦tests: F1-07-46 @M5⟧
+  a state (`13 §6`) — with the word beside the tick, never colour alone (`07 §1`). ⟦tests: F1-07-46⟧
 - **Before the first year close there is no switcher**: one year exists, so the year stays plain text. A
-  control that opens a list of one is a lie. ⟦tests: F1-07-46 @M5⟧
+  control that opens a list of one is a lie. ⟦tests: F1-07-46⟧
 - **Until Year Close exists (M9), b/f is computed** by summing entries dated before the FY start, which
   is correct for a continuous ledger. When `S10.4` lands, the **certified opening vector** of `02 §8.1`
-  replaces the computed figure. The switcher does not wait for M9. ⟦tests: F1-07-46 @M5⟧
+  replaces the computed figure. The switcher does not wait for M9. ⟦tests: F1-07-46⟧
 
 ## Consequences
 - **Code:** `app/lib/features/onboarding/` gains S0.6a1 (lane U1c). `app/lib/shared/ledger/local_ledger.dart`
