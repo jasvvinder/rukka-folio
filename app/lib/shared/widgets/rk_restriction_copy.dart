@@ -45,6 +45,25 @@ extension RkRestrictionCopyL10n on RkRestrictionKind {
         sheetDismissLabel: l.subscriptionSheetDismiss,
         exportLabel: l.subscriptionActionExport,
       ),
+      // S15.4. The copy is **owned by 07 §15** — every string here is a
+      // `suspended.*` key minted by the devices surface; nothing is invented
+      // for the banner and nothing is borrowed from the subscription family,
+      // because a suspended phone has no billing problem. The banner is the
+      // one line 07 §15 gives it (body and action null): the screen beneath
+      // carries *Try again* and *Devices & security*, so there is no dead end.
+      // The two neutral sheet words (`Back to my entry`, `Export everything`)
+      // are action labels, not lapse copy.
+      RkRestrictionKind.suspended => RkRestrictionCopy(
+        bannerTitle: l.suspendedBanner,
+        bannerBody: null,
+        bannerActionLabel: null,
+        sheetTitle: l.suspendedTitle,
+        sheetBlocked: l.suspendedBanner,
+        sheetStillWorks: l.suspendedBody,
+        sheetActionLabel: l.suspendedRetry,
+        sheetDismissLabel: l.subscriptionSheetDismiss,
+        exportLabel: l.subscriptionActionExport,
+      ),
       RkRestrictionKind.bookFull => RkRestrictionCopy(
         bannerTitle: l.subscriptionBannerBookFullTitle,
         bannerBody: l.subscriptionBannerBookFullBody,

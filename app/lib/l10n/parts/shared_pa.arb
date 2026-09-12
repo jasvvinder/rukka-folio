@@ -17,5 +17,8 @@
   "date.month.sep": "ਸਤੰਬਰ",
   "date.month.oct": "ਅਕਤੂਬਰ",
   "date.month.nov": "ਨਵੰਬਰ",
-  "date.month.dec": "ਦਸੰਬਰ"
+  "date.month.dec": "ਦਸੰਬਰ",
+  "connection.notice.title": "ਕੋਈ ਕਨੈਕਸ਼ਨ ਨਹੀਂ",
+  "connection.notice.body": "ਐਪ ਬਿਨਾਂ ਇੰਟਰਨੈੱਟ ਚੱਲਦੀ ਹੈ। ਤੁਸੀਂ ਜੋ ਵੀ ਦਰਜ ਕਰਦੇ ਹੋ, ਉਹ ਇਸ ਫ਼ੋਨ ’ਤੇ ਸੰਭਾਲਿਆ ਜਾਂਦਾ ਹੈ ਅਤੇ ਕਨੈਕਸ਼ਨ ਵਾਪਸ ਆਉਣ ’ਤੇ ਆਪੇ ਸਿੰਕ ਹੋ ਜਾਂਦਾ ਹੈ।",
+  "connection.notice.retry": "ਹੁਣੇ ਜਾਂਚੋ"
 }

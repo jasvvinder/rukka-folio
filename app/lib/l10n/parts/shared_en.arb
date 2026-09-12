@@ -49,5 +49,11 @@
   "date.month.nov": "Nov",
   "@date.month.nov": { "description": "See date.month.jan." },
   "date.month.dec": "Dec",
-  "@date.month.dec": { "description": "See date.month.jan." }
+  "@date.month.dec": { "description": "See date.month.jan." },
+  "connection.notice.title": "No connection",
+  "@connection.notice.title": {"description": "S19.3 No connection (13 §3.2, 07 §24) — non-blocking notice on the 13 §4.2 banner atom; never a modal, never gates export."},
+  "connection.notice.body": "The app works offline. Everything you enter is saved on this phone and syncs by itself when the connection comes back.",
+  "@connection.notice.body": {"description": "S19.3 body. 13 §5 🔒 two graces, two copies: this is the radio being off, NOT the entitlement offline grace ('Connect once to keep entering') — it must never mention the plan or a lapse."},
+  "connection.notice.retry": "Check now",
+  "@connection.notice.retry": {"description": "S19.3 optional manual check. Deliberately not 'Try again' (suspended.retry, subscription.action.retry) — nothing failed."}
 }

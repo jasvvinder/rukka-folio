@@ -17,5 +17,8 @@
   "date.month.sep": "सितंबर",
   "date.month.oct": "अक्टूबर",
   "date.month.nov": "नवंबर",
-  "date.month.dec": "दिसंबर"
+  "date.month.dec": "दिसंबर",
+  "connection.notice.title": "कोई कनेक्शन नहीं",
+  "connection.notice.body": "ऐप बिना इंटरनेट चलती है। आप जो भी दर्ज करते हैं वह इसी फ़ोन पर सेव रहता है और कनेक्शन वापस आने पर अपने आप सिंक हो जाता है।",
+  "connection.notice.retry": "अभी जाँचें"
 }

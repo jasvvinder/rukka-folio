@@ -26,6 +26,7 @@ import 'package:flutter/material.dart';
 
 import '../theme.dart';
 import '../tokens.dart';
+import 'rk_banner.dart';
 
 /// Which restriction the surfaces are narrating.
 ///
@@ -35,8 +36,11 @@ import '../tokens.dart';
 /// said so. They are separate members here so no caller can accidentally show
 /// the lapse words to a phone that has merely been off-network.
 ///
-/// `suspended` (S15.4) shares this banner atom in 13 §4.2 but its copy is
-/// owned by the devices/security surface (07 §15) and is not minted here.
+/// `suspended` (S15.4) is a member here because 13 §4.2 names it as one of
+/// the three the banner atom carries — one atom, not a second implementation
+/// per feature. Its **copy stays owned by 07 §15** (the devices/security
+/// surface): the mapping in `rk_restriction_copy.dart` reads the
+/// `suspended.*` strings and mints nothing of its own.
 enum RkRestrictionKind {
   /// Tenant-wide, server-declared: the plan lapsed (or dunning grace ran out).
   /// Reading and exports keep working; new entries are blocked.
@@ -51,7 +55,14 @@ enum RkRestrictionKind {
   /// `rejected:quota` — the book hit its plan limit. Posting only is blocked;
   /// the draft is preserved and reads/exports keep working (ADR 2026-09-05b
   /// §7, ADR 2026-09-05f §B).
-  bookFull;
+  bookFull,
+
+  /// S15.4 — the server asserted a revocation without a signed record. The
+  /// device is read-only, sync has stopped and **nothing was wiped** (ADR
+  /// 2026-09-05b §2, 05d §3). Not a billing state: the way forward is
+  /// *Retry*, never S12.1 Plans, and the screen beneath the banner carries
+  /// it (07 §15).
+  suspended;
 
   /// Whether this kind blocks posting a new entry.
   ///
@@ -88,10 +99,17 @@ class RkRestrictionCopy {
   final String bannerTitle;
 
   /// Banner body — why, and what still works.
-  final String bannerBody;
+  ///
+  /// Null where the spec mints a single banner line and the screen beneath
+  /// says the rest (S15.4, 07 §15): the atom states the fact and does not
+  /// invent a second sentence.
+  final String? bannerBody;
 
   /// Banner's one way forward (07 §1 rule 6).
-  final String bannerActionLabel;
+  ///
+  /// Null only where the screen beneath already carries that way forward, so
+  /// the user is never left at a dead end.
+  final String? bannerActionLabel;
 
   /// Sheet headline.
   final String sheetTitle;
@@ -124,16 +142,27 @@ class RkRestrictionCopy {
 /// security event, and 13 §5 forbids alarming copy before the server has
 /// spoken. `bookFull` is `warning` — the user can act on it. `offlineGrace`
 /// is `info` at lower weight: nothing is blocked and nothing has lapsed.
-({Color tint, IconData icon}) _look(RkRestrictionKind kind, RkStatusColors s) =>
+({RkBannerTone tone, IconData icon}) _look(RkRestrictionKind kind) =>
     switch (kind) {
-      RkRestrictionKind.readOnly => (tint: s.info, icon: Icons.lock_outline),
+      RkRestrictionKind.readOnly => (
+        tone: RkBannerTone.info,
+        icon: Icons.lock_outline,
+      ),
       RkRestrictionKind.offlineGrace => (
-        tint: s.info,
+        tone: RkBannerTone.info,
         icon: Icons.cloud_off_outlined,
       ),
       RkRestrictionKind.bookFull => (
-        tint: s.warning,
+        tone: RkBannerTone.warning,
         icon: Icons.inventory_2_outlined,
+      ),
+      // `suspended` is the one `danger` member: a revocation was asserted
+      // against this phone. The loud `dangerSurface` ground stays reserved
+      // for the two full security screens (design-system §3.1) — a banner
+      // takes the tint on its rule and its icon, not the whole ground.
+      RkRestrictionKind.suspended => (
+        tone: RkBannerTone.danger,
+        icon: Icons.lock_outline,
       ),
     };
 
@@ -143,11 +172,14 @@ class RkRestrictionBanner extends StatelessWidget {
   /// Creates the banner. [onAction] is the way forward — S12.1 Plans for
   /// read-only and book full, a retry for offline grace. [onExport] is
   /// optional and, when given, is **always enabled**.
+  ///
+  /// [onAction] is null only where the screen beneath owns the way forward
+  /// (S15.4: *Retry* and *Devices & security* sit in the screen body).
   const RkRestrictionBanner({
     super.key,
     required this.kind,
     required this.copy,
-    required this.onAction,
+    this.onAction,
     this.onExport,
   });
 
@@ -157,76 +189,28 @@ class RkRestrictionBanner extends StatelessWidget {
   /// The strings.
   final RkRestrictionCopy copy;
 
-  /// The one way forward.
-  final VoidCallback onAction;
+  /// The one way forward; null where the screen beneath carries it.
+  final VoidCallback? onAction;
 
   /// Export — never blocked; omitted where the surface has no export.
   final VoidCallback? onExport;
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final status = RkStatusColors.of(context);
-    final look = _look(kind, status);
-    final text = Theme.of(context).textTheme;
-    return Semantics(
-      container: true,
-      liveRegion: true,
-      label: '${copy.bannerTitle}. ${copy.bannerBody}',
-      child: Material(
-        color: status.sunk,
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border(
-              // The 3px left rule of the brand's card language (brand §4.1).
-              left: BorderSide(color: look.tint, width: RkRadius.ruleLeftWidth),
-              bottom: BorderSide(color: status.hairline),
-            ),
-          ),
-          padding: const EdgeInsets.all(RkSpace.cardPadding),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Icon(look.icon, color: look.tint, size: RkIcon.grid),
-              const SizedBox(width: RkSpace.s3),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      copy.bannerTitle,
-                      style: text.titleSmall?.copyWith(color: scheme.onSurface),
-                    ),
-                    const SizedBox(height: RkSpace.s1),
-                    Text(
-                      copy.bannerBody,
-                      style: text.bodySmall?.copyWith(color: status.muted),
-                    ),
-                    const SizedBox(height: RkSpace.s2),
-                    // Wrap, not Row: at 200 % text scale on 360 px the two
-                    // actions stack instead of overflowing (07 §18).
-                    Wrap(
-                      spacing: RkSpace.s4,
-                      runSpacing: RkSpace.s1,
-                      children: [
-                        TextButton(
-                          onPressed: onAction,
-                          child: Text(copy.bannerActionLabel),
-                        ),
-                        if (onExport != null)
-                          TextButton(
-                            onPressed: onExport,
-                            child: Text(copy.exportLabel),
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+    final look = _look(kind);
+    final actionLabel = copy.bannerActionLabel;
+    final onAction = this.onAction;
+    return RkBannerSurface(
+      tone: look.tone,
+      icon: look.icon,
+      title: copy.bannerTitle,
+      body: copy.bannerBody,
+      actions: [
+        if (actionLabel != null && onAction != null)
+          TextButton(onPressed: onAction, child: Text(actionLabel)),
+        if (onExport != null)
+          TextButton(onPressed: onExport, child: Text(copy.exportLabel)),
+      ],
     );
   }
 }
@@ -276,7 +260,7 @@ class RkBlockedEntrySheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final status = RkStatusColors.of(context);
-    final look = _look(kind, status);
+    final look = _look(kind);
     final text = Theme.of(context).textTheme;
     return SafeArea(
       top: false,
@@ -289,7 +273,11 @@ class RkBlockedEntrySheet extends StatelessWidget {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(look.icon, color: look.tint, size: RkIcon.grid),
+                Icon(
+                  look.icon,
+                  color: look.tone.tint(status),
+                  size: RkIcon.grid,
+                ),
                 const SizedBox(width: RkSpace.s3),
                 Expanded(
                   child: Text(

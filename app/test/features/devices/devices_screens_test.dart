@@ -13,6 +13,7 @@ import 'package:rukka_folio/features/devices/screens/s15_4_suspended_screen.dart
 import 'package:rukka_folio/features/devices/screens/s19_5_modified_device_screen.dart';
 import 'package:rukka_folio/features/devices/widgets/countdown.dart';
 import 'package:rukka_folio/shared/seams/sync_client.dart';
+import 'package:rukka_folio/shared/widgets/rk_restriction.dart';
 
 import '../../shared/test_app.dart';
 
@@ -369,6 +370,10 @@ void main() {
           find.text('This phone is paused — read only. Sync has stopped.'),
           findsOneWidget,
         );
+        // One banner atom (13 §4.2), not a second implementation: S15.4 is a
+        // state the shared restriction banner carries, with its copy still
+        // owned by 07 §15 and the way forward still in the screen below.
+        expect(find.byType(RkRestrictionBanner), findsOneWidget);
         expect(find.text('This phone is paused'), findsOneWidget);
         expect(
           find.textContaining('Nothing has been deleted from this phone.'),

@@ -6,6 +6,8 @@ import 'package:flutter/material.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../../shared/widgets/rk_restriction.dart';
+import '../../../shared/widgets/rk_restriction_copy.dart';
 import '../devices_repository.dart';
 
 class SuspendedScreen extends StatefulWidget {
@@ -43,7 +45,16 @@ class _SuspendedScreenState extends State<SuspendedScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            SuspendedBanner(text: l10n.suspendedBanner),
+            // One banner atom, not a second implementation: 13 §4.2 lists
+            // the persistent banner once and names *suspended* as one of the
+            // states it carries. The copy stays owned by 07 §15 — the
+            // `suspended.*` strings — and the way forward (Retry, Devices &
+            // security) stays in the screen body below, so the banner states
+            // the fact in the one line 07 §15 mints for it.
+            RkRestrictionBanner(
+              kind: RkRestrictionKind.suspended,
+              copy: RkRestrictionKind.suspended.copy(context),
+            ),
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.all(RkSpace.s6),
@@ -72,38 +83,6 @@ class _SuspendedScreenState extends State<SuspendedScreen> {
                   ),
                 ],
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-/// The persistent banner atom (13 §4.2): icon + word, never colour alone.
-class SuspendedBanner extends StatelessWidget {
-  const SuspendedBanner({super.key, required this.text});
-
-  final String text;
-
-  @override
-  Widget build(BuildContext context) {
-    final status = RkStatusColors.of(context);
-    final scheme = Theme.of(context).colorScheme;
-    return Semantics(
-      liveRegion: true,
-      child: Container(
-        color: status.dangerSurface,
-        padding: const EdgeInsets.symmetric(
-          horizontal: RkSpace.gutter,
-          vertical: RkSpace.s3,
-        ),
-        child: Row(
-          children: [
-            Icon(Icons.lock_outline, color: scheme.error),
-            const SizedBox(width: RkSpace.s2),
-            Expanded(
-              child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
             ),
           ],
         ),

@@ -87,7 +87,6 @@ void main() {
           final context = tester.element(find.byType(RkRestrictionBanner));
           final copy = kind.copy(context);
           expect(find.text(copy.bannerTitle), findsOneWidget);
-          expect(find.text(copy.bannerBody), findsOneWidget);
           expect(
             find.descendant(
               of: find.byType(RkRestrictionBanner),
@@ -98,8 +97,23 @@ void main() {
                 '$kind lost its icon — tint would be carrying meaning '
                 'alone',
           );
-          // No dead end: the banner always offers a way forward (07 §1 rule 6).
-          expect(find.text(copy.bannerActionLabel), findsOneWidget);
+          // S15.4 is the one kind whose banner is a single line: 07 §15 mints
+          // that line and the screen beneath carries Retry and the path to
+          // S11, so the atom neither invents a second sentence nor duplicates
+          // the screen's buttons. Every other kind states its body and its
+          // way forward in the banner itself.
+          final body = copy.bannerBody;
+          final action = copy.bannerActionLabel;
+          if (kind == RkRestrictionKind.suspended) {
+            expect(body, isNull);
+            expect(action, isNull);
+          } else {
+            expect(body, isNotNull, reason: '$kind lost its body');
+            expect(find.text(body!), findsOneWidget);
+            // No dead end: the banner offers a way forward (07 §1 rule 6).
+            expect(action, isNotNull, reason: '$kind lost its way forward');
+            expect(find.text(action!), findsOneWidget);
+          }
         }
       },
     );
@@ -114,7 +128,8 @@ void main() {
 
         // 07 §20 🔒 names this line exactly.
         expect(offline.bannerTitle, 'Connect once to keep entering');
-        for (final line in [offline.bannerTitle, offline.bannerBody]) {
+        expect(offline.bannerBody, isNotNull);
+        for (final line in [offline.bannerTitle, offline.bannerBody!]) {
           expect(
             line.toLowerCase(),
             isNot(anyOf(contains('lapse'), contains('plan'))),
@@ -141,6 +156,9 @@ void main() {
         expect(RkRestrictionKind.offlineGrace.blocksEntry, isFalse);
         expect(RkRestrictionKind.readOnly.blocksEntry, isTrue);
         expect(RkRestrictionKind.bookFull.blocksEntry, isTrue);
+        // S15.4 is read-only too (ADR 2026-09-05b §2) — and exports, like
+        // every other kind, keep working.
+        expect(RkRestrictionKind.suspended.blocksEntry, isTrue);
         for (final kind in RkRestrictionKind.values) {
           expect(kind.blocksExport, isFalse, reason: '$kind blocked export');
         }
@@ -157,14 +175,14 @@ void main() {
 
         // A lapse stops entry only — reading, exporting and closing continue
         // (07 §20 S12.4).
-        for (final line in [readOnly.bannerBody, readOnly.sheetStillWorks]) {
+        for (final line in [readOnly.bannerBody!, readOnly.sheetStillWorks]) {
           expect(line, contains('read'));
           expect(line, contains('export'));
           expect(line, contains('close'));
         }
         // A full book cannot accept the envelopes a close writes, so the
         // book-full copy must not promise it.
-        for (final line in [bookFull.bannerBody, bookFull.sheetStillWorks]) {
+        for (final line in [bookFull.bannerBody!, bookFull.sheetStillWorks]) {
           expect(line.toLowerCase(), contains('read'));
           expect(line.toLowerCase(), contains('export'));
           expect(line.toLowerCase(), isNot(contains('clos')));
