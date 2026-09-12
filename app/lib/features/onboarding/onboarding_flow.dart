@@ -13,6 +13,8 @@ import 'package:flutter/widgets.dart';
 import 'screens/s0_3_purpose_screen.dart';
 import 'screens/s0_6a1_business_owners_screen.dart';
 import 'screens/s0_6a_business_name_screen.dart';
+import 'screens/s0_6d_family_name_screen.dart';
+import 'screens/s0_6e_family_members_screen.dart';
 
 /// The answers gathered so far. Mutated in place by the route callbacks; read
 /// by the steps that need an earlier answer.
@@ -34,6 +36,17 @@ class OnboardingFlow extends ChangeNotifier {
   /// resumed step (07 §3.1.1: every branch step is resumable) never creates
   /// a second book for the same answers.
   String? businessBookId;
+
+  /// The S0.6d answer — the family's name. Null on every other branch.
+  FamilyDraft? family;
+
+  /// The S0.6e invited heads. Empty on *Skip for now* and on every other
+  /// branch.
+  List<FamilyMemberDraft> familyMembers = const [];
+
+  /// The pool book created at S0.6f, once it exists (07 §3.1.1: resumable —
+  /// never a second book for the same answers).
+  String? familyBookId;
 
   /// Whether a recovery sheet has been generated and is still waiting to be
   /// scanned back (S0.5b, 04 §7.4 🔒 verified-storage nag). Null until S0.5b
@@ -74,6 +87,18 @@ class OnboardingFlow extends ChangeNotifier {
   /// Records S0.6a1's answers.
   void setOwners(List<OwnerDraft> value) {
     owners = List.unmodifiable(value);
+    notifyListeners();
+  }
+
+  /// Records S0.6d's answer.
+  void setFamily(FamilyDraft draft) {
+    family = draft;
+    notifyListeners();
+  }
+
+  /// Records S0.6e's answers.
+  void setFamilyMembers(List<FamilyMemberDraft> value) {
+    familyMembers = List.unmodifiable(value);
     notifyListeners();
   }
 

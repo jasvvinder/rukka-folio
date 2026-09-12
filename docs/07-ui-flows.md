@@ -5,7 +5,7 @@
 
 ---
 
-## 1. Global design rules 🔒 ⟦tests: F1-07-13 @M5⟧
+## 1. Global design rules 🔒 ⟦tests: F1-07-13⟧
 
 1. **The 8-second entry.** From app icon to saved cash entry in ≤ 8 s. Every design decision loses to this.
 2. **One-hand, bottom-heavy** (respect the iOS home-indicator inset; nothing critical under it). Primary actions in thumb reach; nothing critical only at the top.
@@ -22,7 +22,7 @@
 
 ---
 
-## 2. Navigation map 🔒 ⟦tests: F1-07-14 @M5⟧
+## 2. Navigation map 🔒 ⟦tests: F1-07-14⟧
 
 Bottom bar 🔒 (ADR 2026-09-05f §A): **four tabs — Home · Ledger · Inbox · Menu — plus a docked centre [ + ] action** that is not a tab (no active state, no label). Glyphs and sizes per design-system §4.1; 13 §3.1 and DESIGN-PACK S1 say the same.
 
@@ -259,9 +259,11 @@ One flow: From (book + money A/C) → To (book + money A/C) → amount → save.
 
 ---
 
-## 14. Reports & Export 🔒 ⟦tests: F1-07-28 @M5⟧
+## 14. Reports & Export 🔒 ⟦tests: F1-07-28, F1-07-79 @M5⟧
 
-Menu → Reports, per scope, each with FY + date-range control and share/export (PDF & XLSX; on-device generation; b/d–c/d rows on ledgers; amount-in-words; A4 print-clean):
+> **ADR 2026-09-12 §1** — S8.2's export sheet offers exactly **PDF, CSV and XLSX**; View report opens in-app and Download/Share defaults to PDF. ⟦tests: F1-07-79 @M5⟧
+
+Menu → Reports, per scope, each with FY + date-range control and share/export (PDF, CSV & XLSX — ADR 2026-09-12 §1; on-device generation; b/d–c/d rows on ledgers; amount-in-words; A4 print-clean):
 
 Day Book · Cash Book · A/C statement (any) · **Trial Balance** (02 §8) · You-will-get / You-will-give with ageing · Profit/Loss (per FY/range) · Full Position (balance-sheet layout by sign, 02 §1.2) · Advances ageing · Family Reconciliation · **Partner positions** (02 §7.1, shared-ownership businesses only) · Business comparison (Everything scope).
 
@@ -295,7 +297,7 @@ Review requested — **digest per author+book**: the first flag notifies, later 
 - Reduced-motion pass and dark-mode pass on every screen; the stopwatch test includes the biometric unlock; smallest screens **375×667 and 360×800** at 200% font scale (ADR 2026-09-05f §G, §H15).
 - Every list screen has a drawn skeleton; the loader rule appears only after 200 ms and is announced (ADR 2026-09-05f §H6).
 
-## 20. Subscription screens (S12.x) 🔒 (ADR 2026-09-05f §F; rules in 08 and ADR 2026-09-05g) ⟦tests: F1-07-31 @M13⟧
+## 20. Subscription screens (S12.x) 🔒 (ADR 2026-09-05f §F; rules in 08 and ADR 2026-09-05g) ⟦tests: F1-07-31 @M13, F1-07-78⟧
 **S12 Subscription** (plan, renewal, entitlement state) · **S12.1 Plans** (comparison, annual saving, current plan marked, quota rows) · **S12.2 Checkout** (iOS = In-App Purchase; coupon and GSTIN on the web path) · **S12.3 Manage** · **S12.4 Payment problem** — the **dunning** grace, tenant-wide, with countdown and retry · **S12.5 Read-only mode** — banner + blocked-entry sheet; export always works; also the **book full** sheet (quota) pointing to S12.1 · **S12.6 Invoices**. Two graces, two copies: dunning (payment failed) is tenant-wide; **offline grace** is device-local and reads *"Connect once to keep entering"* — never "your plan lapsed" before the server has said so.
 
 ## 21. Account screens (S16.x) 🔒 (ADR 2026-09-05f §F) ⟦tests: F1-07-32 @M6⟧

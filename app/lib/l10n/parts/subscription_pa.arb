@@ -1,0 +1,26 @@
+{
+  "@@locale": "pa",
+  "subscription.banner.read_only.title": "ਤੁਹਾਡੀਆਂ ਬਹੀਆਂ ਸਿਰਫ਼ ਪੜ੍ਹਨ ਲਈ ਹਨ",
+  "subscription.banner.read_only.body": "ਤੁਹਾਡਾ ਪਲਾਨ ਖ਼ਤਮ ਹੋ ਗਿਆ ਹੈ। ਤੁਸੀਂ ਹੁਣ ਵੀ ਬਹੀਆਂ ਪੜ੍ਹ ਸਕਦੇ ਹੋ, ਐਕਸਪੋਰਟ ਕਰ ਸਕਦੇ ਹੋ ਅਤੇ ਬੰਦ ਕਰ ਸਕਦੇ ਹੋ।",
+
+  "subscription.banner.offline_grace.title": "ਐਂਟਰੀ ਜਾਰੀ ਰੱਖਣ ਲਈ ਇੱਕ ਵਾਰ ਜੁੜੋ",
+  "subscription.banner.offline_grace.body": "ਇਸ ਫ਼ੋਨ ਨੂੰ ਸਰਵਰ ਨਾਲ ਜੁੜਿਆਂ ਕਾਫ਼ੀ ਸਮਾਂ ਹੋ ਗਿਆ ਹੈ। ਕੁਝ ਵੀ ਬੰਦ ਨਹੀਂ ਹੋਇਆ — ਇੱਕ ਵਾਰ ਜੁੜੋ, ਐਂਟਰੀ ਚਲਦੀ ਰਹੇਗੀ।",
+
+  "subscription.banner.book_full.title": "ਇਹ ਬਹੀ ਭਰ ਗਈ ਹੈ",
+  "subscription.banner.book_full.body": "ਇਹ ਬਹੀ ਪਲਾਨ ਦੀ ਹੱਦ ਤੱਕ ਪਹੁੰਚ ਗਈ ਹੈ। ਪੜ੍ਹਨਾ ਅਤੇ ਐਕਸਪੋਰਟ ਚਲਦੇ ਰਹਿਣਗੇ; ਨਵੀਆਂ ਐਂਟਰੀਆਂ ਰੁਕੀਆਂ ਹੋਈਆਂ ਹਨ।",
+
+  "subscription.sheet.read_only.title": "ਨਵੀਆਂ ਐਂਟਰੀਆਂ ਰੁਕੀਆਂ ਹੋਈਆਂ ਹਨ",
+  "subscription.sheet.read_only.blocked": "ਤੁਹਾਡਾ ਪਲਾਨ ਖ਼ਤਮ ਹੋ ਗਿਆ ਹੈ, ਇਸ ਲਈ ਇਹ ਐਂਟਰੀ ਹਾਲੇ ਸੰਭਾਲੀ ਨਹੀਂ ਜਾ ਸਕਦੀ।",
+
+  "subscription.sheet.book_full.title": "ਇਹ ਬਹੀ ਭਰ ਗਈ ਹੈ",
+  "subscription.sheet.book_full.blocked": "ਇਹ ਬਹੀ ਪਲਾਨ ਦੀ ਹੱਦ ਤੱਕ ਪਹੁੰਚ ਗਈ ਹੈ, ਇਸ ਲਈ ਇਹ ਐਂਟਰੀ ਹਾਲੇ ਸੰਭਾਲੀ ਨਹੀਂ ਜਾ ਸਕਦੀ।",
+
+  "subscription.sheet.read_only.still_works": "ਤੁਸੀਂ ਜੋ ਲਿਖਿਆ ਹੈ ਉਹ ਸੁਰੱਖਿਅਤ ਹੈ। ਤੁਸੀਂ ਹੁਣ ਵੀ ਬਹੀਆਂ ਪੜ੍ਹ ਸਕਦੇ ਹੋ, ਐਕਸਪੋਰਟ ਕਰ ਸਕਦੇ ਹੋ ਅਤੇ ਬੰਦ ਕਰ ਸਕਦੇ ਹੋ।",
+  "subscription.sheet.book_full.still_works": "ਤੁਸੀਂ ਜੋ ਲਿਖਿਆ ਹੈ ਉਹ ਸੁਰੱਖਿਅਤ ਹੈ। ਪੜ੍ਹਨਾ ਅਤੇ ਐਕਸਪੋਰਟ ਚਲਦੇ ਰਹਿਣਗੇ।",
+  "subscription.sheet.dismiss": "ਆਪਣੀ ਐਂਟਰੀ 'ਤੇ ਵਾਪਸ",
+
+  "subscription.action.plans": "ਪਲਾਨ ਵੇਖੋ",
+  "subscription.action.renew": "ਨਵਿਆਓ",
+  "subscription.action.export": "ਸਭ ਕੁਝ ਐਕਸਪੋਰਟ ਕਰੋ",
+  "subscription.action.retry": "ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ"
+}

@@ -1,0 +1,31 @@
+{
+  "@@locale": "pa",
+  "menu.title": "ਮੀਨੂ",
+
+  "menu.reports.row.title": "ਰਿਪੋਰਟਾਂ",
+  "menu.reports.row.subtitle": "ਦਿਨ ਦੀ ਕਿਤਾਬ, ਨਕਦ ਕਿਤਾਬ, ਸਟੇਟਮੈਂਟਾਂ, ਟ੍ਰਾਇਲ ਬੈਲੰਸ ਅਤੇ ਹੋਰ।",
+
+  "menu.close_month.row.title": "ਮਹੀਨਾ ਬੰਦ ਕਰੋ",
+  "menu.close_month.row.reason": "ਮਹੀਨਾ ਬੰਦ ਕਰਨ ਦਾ ਵਿਜ਼ਾਰਡ ਅਜੇ ਬਣਿਆ ਨਹੀਂ।",
+
+  "menu.books_members.row.title": "ਬਹੀਆਂ ਅਤੇ ਮੈਂਬਰ",
+  "menu.books_members.row.reason": "ਬਹੀਆਂ ਅਤੇ ਮੈਂਬਰ ਅਜੇ ਨਹੀਂ ਬਣੇ।",
+
+  "menu.backup.row.title": "ਬੈਕਅੱਪ",
+  "menu.backup.row.subtitle": "ਪਲੇਟਫਾਰਮ ਕੁੰਜੀ ਸਿੰਕ, ਆਪਣੀ ਰਿਕਵਰੀ ਸ਼ੀਟ ਸੰਭਾਲੋ, ਅਤੇ ਮਹੀਨਾਵਾਰ ਪੜ੍ਹਨਯੋਗ ਕਾਪੀ।",
+
+  "menu.devices.row.title": "ਡਿਵਾਈਸਾਂ ਅਤੇ ਸੁਰੱਖਿਆ",
+  "menu.devices.row.subtitle": "ਜੁੜੀਆਂ ਡਿਵਾਈਸਾਂ, ਗਾਰਡੀਅਨ, ਰਿਕਵਰੀ ਸ਼ੀਟ, ਆਟੋ-ਲਾਕ।",
+
+  "menu.subscription.row.title": "ਸਬਸਕ੍ਰਿਪਸ਼ਨ",
+  "menu.subscription.row.reason": "ਸਬਸਕ੍ਰਿਪਸ਼ਨ ਅਜੇ ਨਹੀਂ ਬਣੀ।",
+
+  "menu.settings.row.title": "ਸੈਟਿੰਗਾਂ",
+  "menu.settings.row.subtitle": "ਭਾਸ਼ਾ, ਦਿੱਖ, ਆਟੋ-ਲਾਕ, ਸ਼ੁਰੂਆਤੀ ਬਕਾਏ, ਐਕਸਪੋਰਟ।",
+
+  "menu.help.row.title": "ਮਦਦ",
+  "menu.help.row.reason": "ਮਦਦ ਅਜੇ ਨਹੀਂ ਬਣੀ।",
+
+  "menu.legal.row.title": "ਕਾਨੂੰਨੀ",
+  "menu.legal.row.reason": "ਕਾਨੂੰਨੀ ਅਤੇ ਭਰੋਸੇ ਦੇ ਸਫ਼ੇ ਅਜੇ ਨਹੀਂ ਬਣੇ।"
+}

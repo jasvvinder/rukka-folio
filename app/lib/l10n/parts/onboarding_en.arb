@@ -626,5 +626,157 @@
   "onboarding.recovery_sheet.done": "Done",
   "@onboarding.recovery_sheet.done": {
     "description": "S0.5b continue to the next step."
+  },
+  "onboarding.family.title": "Name your family",
+  "@onboarding.family.title": {
+    "description": "S0.6d (13 §3.2, 07 §3.1.1 branch O6d) — name the family pool."
+  },
+  "onboarding.family.subtitle": "You can change this later.",
+  "@onboarding.family.subtitle": {
+    "description": "S0.6d reassurance line, matching S0.6a's."
+  },
+  "onboarding.family.name_label": "Family name",
+  "@onboarding.family.name_label": {
+    "description": "S0.6d name field label."
+  },
+  "onboarding.family.name_hint": "e.g. Sharma Family",
+  "@onboarding.family.name_hint": {
+    "description": "S0.6d name field hint."
+  },
+  "onboarding.family.name_error": "Give the family a name to continue",
+  "@onboarding.family.name_error": {
+    "description": "S0.6d disabled-with-reason (13 §4.3)."
+  },
+  "onboarding.family.continue_label": "Continue",
+  "@onboarding.family.continue_label": {
+    "description": "S0.6d primary action, to S0.6e."
+  },
+  "onboarding.family.start_note": "Your family's books begin on {date}. Nothing can be dated before that day.",
+  "@onboarding.family.start_note": {
+    "description": "S0.6d states the book's start date (ADR 2026-09-09d §4) — stated, never picked.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.family.members.title": "Who else is in the family?",
+  "@onboarding.family.members.title": {
+    "description": "S0.6e (13 §3.2, 07 §3.1.1 branch O6e)."
+  },
+  "onboarding.family.members.subtitle": "Invite the other heads by phone. They join once you verify each other in person.",
+  "@onboarding.family.members.subtitle": {
+    "description": "S0.6e subtitle."
+  },
+  "onboarding.family.members.unverified_note": "Invited members stay unverified until you meet them and verify them in person.",
+  "@onboarding.family.members.unverified_note": {
+    "description": "S0.6e — the S0.6e row (ADR 2026-09-09 §1), read as the general case: an invitation is not a verified key."
+  },
+  "onboarding.family.members.you_tag": "you",
+  "@onboarding.family.members.you_tag": {
+    "description": "S0.6e tag for the creating user's own row."
+  },
+  "onboarding.family.members.invite_tag": "to invite",
+  "@onboarding.family.members.invite_tag": {
+    "description": "S0.6e tag for an invited row."
+  },
+  "onboarding.family.members.name_label": "Name",
+  "@onboarding.family.members.name_label": {
+    "description": "S0.6e member name field label."
+  },
+  "onboarding.family.members.phone_label": "Phone number",
+  "@onboarding.family.members.phone_label": {
+    "description": "S0.6e member phone field label."
+  },
+  "onboarding.family.members.add_member": "Add a family member",
+  "@onboarding.family.members.add_member": {
+    "description": "S0.6e add-row action."
+  },
+  "onboarding.family.members.remove": "Remove {name}",
+  "@onboarding.family.members.remove": {
+    "description": "S0.6e row remove action.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.family.members.continue_label": "Continue",
+  "@onboarding.family.members.continue_label": {
+    "description": "S0.6e primary action, to S0.6f."
+  },
+  "onboarding.family.members.skip": "Skip for now",
+  "@onboarding.family.members.skip": {
+    "description": "S0.6e 🔒 always-visible skip (07 §3.1.1, 13 §3.2)."
+  },
+  "onboarding.family.accounts.title": "Your family's shared accounts",
+  "@onboarding.family.accounts.title": {
+    "description": "S0.6f (13 §3.2, 07 §3.1.1 branch O6f)."
+  },
+  "onboarding.family.accounts.subtitle": "These accounts already exist — fill in what the pool has, or leave it for now.",
+  "@onboarding.family.accounts.subtitle": {
+    "description": "S0.6f — a review-and-fill screen, not a creation flow (ADR 2026-09-09c §3)."
+  },
+  "onboarding.family.accounts.dated_note": "Every balance here is dated {date}.",
+  "@onboarding.family.accounts.dated_note": {
+    "description": "S0.6f states the book's start date (ADR 2026-09-09d §4).",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.family.accounts.group_have": "What the pool has",
+  "@onboarding.family.accounts.group_have": {
+    "description": "S0.6f group heading, consumer vocabulary (02 §10)."
+  },
+  "onboarding.family.accounts.balance_label": "Opening balance",
+  "@onboarding.family.accounts.balance_label": {
+    "description": "S0.6f amount field label."
+  },
+  "onboarding.family.accounts.add_bank": "Add a bank account",
+  "@onboarding.family.accounts.add_bank": {
+    "description": "S0.6f — no bank is seeded (ADR 2026-09-09d §1); this is how one arrives."
+  },
+  "onboarding.family.accounts.zero_note": "A row left at ₹0 is still created — you can fill it in any time.",
+  "@onboarding.family.accounts.zero_note": {
+    "description": "S0.6f — a zero row is still created (ADR 2026-09-09c §3)."
+  },
+  "onboarding.family.accounts.balancing_label": "Balances against",
+  "@onboarding.family.accounts.balancing_label": {
+    "description": "S0.6f — the balancing figure is named, never a silent plug (ADR 2026-09-09c §4)."
+  },
+  "onboarding.family.accounts.balancing_zero": "Nothing extra needed — everything you entered adds up.",
+  "@onboarding.family.accounts.balancing_zero": {
+    "description": "S0.6f — the balancing amount is zero."
+  },
+  "onboarding.family.accounts.balancing_note": "{amount} goes to Opening Balance / Capital A/c so the entry balances.",
+  "@onboarding.family.accounts.balancing_note": {
+    "description": "S0.6f — names the account that absorbs the difference (ADR 2026-09-09c §4).",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.family.accounts.save": "Save",
+  "@onboarding.family.accounts.save": {
+    "description": "S0.6f primary action."
+  },
+  "onboarding.family.accounts.skip": "Skip for now",
+  "@onboarding.family.accounts.skip": {
+    "description": "S0.6f skip — the S0.7 checklist brings the user back (07 §3.1 step 7)."
+  },
+  "onboarding.family.accounts.creating": "Setting up your family's pool…",
+  "@onboarding.family.accounts.creating": {
+    "description": "S0.6f working state — the ruled skeleton of 11 §4.5, never a spinner."
+  },
+  "onboarding.family.accounts.create_error": "Your family's pool could not be created. Nothing was changed.",
+  "@onboarding.family.accounts.create_error": {
+    "description": "S0.6f error state (07 §1 rule 12: never a dead end)."
+  },
+  "onboarding.family.accounts.retry": "Try again",
+  "@onboarding.family.accounts.retry": {
+    "description": "S0.6f error retry."
   }
 }

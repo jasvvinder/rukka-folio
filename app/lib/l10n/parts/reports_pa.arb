@@ -1,0 +1,17 @@
+{
+  "@@locale": "pa",
+  "reports.title": "ਰਿਪੋਰਟਾਂ",
+  "reports.row.reason": "ਰਿਪੋਰਟ ਦੇਖਣ ਵਾਲੀ ਸਕ੍ਰੀਨ ਅਜੇ ਬਣੀ ਨਹੀਂ।",
+
+  "reports.day_book.row.title": "ਦਿਨ ਦੀ ਕਿਤਾਬ",
+  "reports.cash_book.row.title": "ਨਕਦ ਕਿਤਾਬ",
+  "reports.account_statement.row.title": "ਖਾਤਾ ਸਟੇਟਮੈਂਟ (ਕੋਈ ਵੀ)",
+  "reports.trial_balance.row.title": "ਟ੍ਰਾਇਲ ਬੈਲੰਸ",
+  "reports.get_give_ageing.row.title": "ਲੈਣਾ ਹੈ / ਦੇਣਾ ਹੈ (ਉਮਰ ਸਮੇਤ)",
+  "reports.profit_loss.row.title": "ਲਾਭ/ਹਾਨੀ (ਵਿੱਤੀ ਸਾਲ/ਮਿਆਦ ਅਨੁਸਾਰ)",
+  "reports.full_position.row.title": "ਪੂਰੀ ਸਥਿਤੀ",
+  "reports.advances_ageing.row.title": "ਐਡਵਾਂਸਾਂ ਦੀ ਉਮਰ",
+  "reports.family_reconciliation.row.title": "ਪਰਿਵਾਰਕ ਮਿਲਾਣ",
+  "reports.partner_positions.row.title": "ਪਾਰਟਨਰ ਸਥਿਤੀ",
+  "reports.business_comparison.row.title": "ਕਾਰੋਬਾਰਾਂ ਦੀ ਤੁਲਨਾ"
+}

@@ -108,9 +108,9 @@ Roles (admin · head · member · operator · viewer) change *what actions appea
 | **S0.6a1** | Who owns this business? | S0.6a (*Shared with others* only) | owners invited by phone, reusing the S0.6e row; shares as whole-number weights, not percentages; not skippable — the secondary returns to *Just me* (ADR 2026-09-09 §1–3) |
 | **S0.6b** | The business's opening balances | O6a | |
 | **S0.6c** | Add another business? | O6b | loop control, multi-business branch |
-| **S0.6d** | Name the family | O3 branch | |
-| **S0.6e** | Who else is in the family | O6d | invite heads by phone, **Skip for now** |
-| **S0.6f** | The family's shared accounts | O6e | pool bank and cash |
+| **S0.6d** | Name the family | O3 branch | ⟦tests: F1-07-74⟧ |
+| **S0.6e** | Who else is in the family | O6d | invite heads by phone, **Skip for now** — the archetype S0.6a1 reuses (ADR 2026-09-09 §1) ⟦tests: F1-07-75⟧ |
+| **S0.6f** | The family's shared accounts | O6e | pool bank and cash; no bank seeded, added as `Add a bank account` (ADR 2026-09-09d §1) ⟦tests: F1-07-76⟧ |
 | **S0.6g** | Name the trust and its type | O3 branch | gurudwara · temple · society · registered trust |
 | **S0.6h** | Who runs the trust | O6g | Chairman/President/Trustee/Sevadar, skippable |
 | **S0.6i** | The trust's accounts | O6h | bank + gollak as `cash_collection` |
@@ -142,9 +142,9 @@ Roles (admin · head · member · operator · viewer) change *what actions appea
 | **S7.2** | Import balance check | S7 | statement's opening/closing vs the ledger; passing · matched · failing (07 §11.1, ADR 2026-09-01) |
 | **S7.3** | Transfer-pair confirm | S7.1 | "same money moving?" — a row-level card in the import inbox |
 | **S7.4** | Import preview & submit | S7.1 | every entry about to post, balance check restated, count in the button (owner-added 1 Sep 2026) |
-| **S8** | Menu | root | hub |
+| **S8** | Menu | root | hub ⟦tests: F1-07-77⟧ |
 | **S8.1** | Reports list | S8 | day book, cash book, P&L, position, ageing, reconciliation |
-| **S8.2** | Report viewer + export | S8.1 | PDF/XLSX, FY switcher |
+| **S8.2** | Report viewer + export | S8.1 | PDF/CSV/XLSX (ADR 2026-09-12 §1), FY switcher ⟦tests: F1-07-79 @M5⟧ |
 | **S8.3** | Family reconciliation (design D5) | S8.1 | non-zero inter-book pairs with their composing entries; normally a single green ✓ (07 §10) |
 | **S9** | Books & members | S8 | roles, limits, verification log |
 | **S9.5** | Add a business | S9/Menu | name · type (just me / shared) · FY start · opening balances — creates the book (02 §7.1) |
@@ -184,7 +184,7 @@ Roles (admin · head · member · operator · viewer) change *what actions appea
 | **S12.2** | Checkout | S12.1 | **iOS = In-App Purchase** (08 §3.2); coupon and GSTIN on non-iOS only |
 | **S12.3** | Manage subscription | S12 | plan, renewal date, change, cancel |
 | **S12.4** | Payment problem | S12 | grace countdown, retry, what happens at the end |
-| **S12.5** | Read-only mode | global | banner + blocked-entry sheet; export always works; the same sheet pattern serves **book full** (`rejected:quota`) → S12.1, drafts preserved (ADR 2026-09-05b §7, ADR 2026-09-05f §B) |
+| **S12.5** | Read-only mode | global | banner + blocked-entry sheet; export always works; the same sheet pattern serves **book full** (`rejected:quota`) → S12.1, drafts preserved (ADR 2026-09-05b §7, ADR 2026-09-05f §B) ⟦tests: F1-07-78⟧ |
 | **S12.6** | Invoices | S12 | list + PDF |
 | **S17** | Help | S8 | search, contact, diagnostics — the grouped, searchable FAQ list lives on this hub (S17.1 folded in, ADR 2026-09-02) |
 | **S17.2** | FAQ article | S17 | one answer, plain language |
@@ -298,7 +298,7 @@ Success: user reaches Home understanding that no password exists and the paper s
 ◆ offline → identical; chip reads "Saved on phone · will sync".
 
 **F3 · Statement review (the reader's path)**
-`S3 search khata → S4 grouped listing → period tabs / date navigator → tap row → S4.1 entry detail (photo, audit trail, who entered) → [Amend | Reverse] → S8.2 export PDF/XLSX (classical columns, voucher, cross-check footer)`
+`S3 search khata → S4 grouped listing → period tabs / date navigator → tap row → S4.1 entry detail (photo, audit trail, who entered) → [Amend | Reverse] → S8.2 export PDF/CSV/XLSX (classical columns, voucher, cross-check footer)`
 
 **F4 · Bank statement import**
 `S2 import button (header, top right) → S7 pick account + file → on-device parse → S7.2 balance check → S7.1 inbox: each line shows bank text (grey) + Money in/out + one question ("Where did it come from?" / "Where did it go?") → ◆ matched(auto-link) | suggested(1-tap confirm) | new(pick A/C) | transfer-pair(S7.3 "same money moving?") | unknown("record now, explain later" → Suspense) ⟳ until inbox empty → S7.4 preview (every entry about to post) → submit`

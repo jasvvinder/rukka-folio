@@ -1,0 +1,17 @@
+{
+  "@@locale": "hi",
+  "reports.title": "रिपोर्टें",
+  "reports.row.reason": "रिपोर्ट देखने वाली स्क्रीन अभी नहीं बनी।",
+
+  "reports.day_book.row.title": "डे बुक",
+  "reports.cash_book.row.title": "कैश बुक",
+  "reports.account_statement.row.title": "खाता स्टेटमेंट (कोई भी)",
+  "reports.trial_balance.row.title": "ट्रायल बैलेंस",
+  "reports.get_give_ageing.row.title": "लेना है / देना है (आयु सहित)",
+  "reports.profit_loss.row.title": "लाभ/हानि (वित्तीय वर्ष/अवधि अनुसार)",
+  "reports.full_position.row.title": "पूरी स्थिति",
+  "reports.advances_ageing.row.title": "एडवांस की आयु",
+  "reports.family_reconciliation.row.title": "पारिवारिक मिलान",
+  "reports.partner_positions.row.title": "पार्टनर स्थिति",
+  "reports.business_comparison.row.title": "व्यवसायों की तुलना"
+}

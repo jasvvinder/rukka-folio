@@ -86,7 +86,10 @@ enum Role {
   ground(null),
 
   /// Text that only ever sits on `primary`; measured against it alone.
-  onPrimary(4.5);
+  onPrimary(4.5),
+
+  /// Text that only ever sits on the `danger` fill; measured against it alone.
+  onDanger(4.5);
 
   const Role(this.threshold);
   final double? threshold;
@@ -120,6 +123,15 @@ const roles = <String, Role>{
   'skeleton-amount': Role.decorative,
   'scrim': Role.decorative,
   'on-primary': Role.onPrimary,
+  // Status family (ADR 2026-09-05f §H; values landed at the 12 Sep token
+  // session). success/warning/info/danger are status words and icons — text
+  // role, all four grounds. The two derived tokens sit on one fill only.
+  'success': Role.text,
+  'warning': Role.text,
+  'info': Role.text,
+  'danger': Role.text,
+  'on-danger': Role.onDanger,
+  'focus-on-primary': Role.onPrimary,
 };
 
 /// A (mode, token, ground) pair a design-system ruling excludes from the
@@ -260,7 +272,11 @@ List<Measurement> audit(
     for (final token in names) {
       final role = roleOf[token] ?? Role.text;
       if (role == Role.ground) continue;
-      final against = role == Role.onPrimary ? ['primary'] : grounds;
+      final against = switch (role) {
+        Role.onPrimary => ['primary'],
+        Role.onDanger => ['danger'],
+        _ => grounds,
+      };
       for (final g in against) {
         final ground = values[g];
         if (ground == null) continue;
@@ -302,7 +318,12 @@ String renderTable(List<Measurement> ms) {
       );
     }
     final cells = <String>[];
-    for (final g in first.role == Role.onPrimary ? ['primary'] : grounds) {
+    final against = switch (first.role) {
+      Role.onPrimary => ['primary'],
+      Role.onDanger => ['danger'],
+      _ => grounds,
+    };
+    for (final g in against) {
       final m = e.value.firstWhere((m) => m.ground == g);
       final mark = m.fails
           ? ' ✗'

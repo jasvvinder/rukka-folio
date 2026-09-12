@@ -12,6 +12,140 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-12 (c) — M5: S12.5 read-only / book-full pattern · the status-colour token session · ADR on S8.2 export formats
+
+One `/lane` (`S12.5`, `lane-ui-hard`), one `/gate` (green), then two pieces of owner-directed work
+that are not lane-shaped: an ADR and the token session the lane's own report asked for.
+
+**Added — S12.5 read-only / book-full sheet pattern (`F1-07-78`, 18 tests)**
+- `app/lib/shared/widgets/rk_restriction.dart` + `rk_restriction_copy.dart`: `RkRestrictionKind
+  {readOnly, offlineGrace, bookFull}` with `blocksEntry` (false for offline grace) and
+  `blocksExport` (**false, always** — 07 §20's "export always works", asserted), the persistent
+  `RkRestrictionBanner`, and `RkBlockedEntrySheet` / `showRkBlockedEntrySheet()`.
+- The 🔒 half most easily lost is **draft preserved**: the sheet is a modal route that holds no
+  draft and mutates nothing of the caller's, and the test proves it by dismissing back onto a
+  still-filled field. The two graces are written apart so the offline variant never borrows a lapse
+  string (13 §5) — dunning is tenant-wide, offline grace is device-local and never says *your plan
+  lapsed* before the server has.
+- Not wired to S2, by instruction and by fact: no entitlement or quota source exists yet.
+- New ARB parts `subscription_{en,pa,hi}.arb`; `app/test/shared/restriction_test.dart`.
+
+**Added — the status-colour family, executing ADR 2026-09-05f §H**
+- `tokens.json` v0.1.1 gains `success` · `warning` · `info` · `danger` · `on-danger` ·
+  `focus-on-primary` in both modes. Light `#276A49` / `#7C5200` / `#1F6785` / `#9C2C2C` /
+  `#F5F0E4` / `#F5F0E4`; dark `#5CB489` / `#E0AE55` / `#86C6DC` / `#E08C8C` / `#1A1A18` / `#1A1A18`.
+- Values were **computed, not chosen** — `scripts/check_contrast.dart` already existed (checking
+  before asserting, rule 11) and now gates **110 pairs, up from 74, all passing** on four grounds in
+  both modes. Two deliberate separations: `danger` is not `debit`, so a security warning never reads
+  as money out; `info` is not `primary`, separated by hue.
+- Purely additive: **no existing token value changed**, so the three pre-existing pending-ruling
+  contrast warnings are untouched. `check_contrast.dart` was deliberately **not** wired into
+  `ci.sh` — that is its own checkbox (`design-system.md:108`) and would not have been additive.
+
+**Changed**
+- `scripts/src/contrast.dart`: new `Role.onDanger` (measured against `danger`, as `onPrimary` is
+  against `primary`), the status family classified in `roles`. `renderTable` carried a **duplicate**
+  of `audit`'s ground-selection logic and crashed until both were fixed — worth recording, because
+  the first fix looked complete and was not.
+- `app/lib/shared/theme.dart`: `RkStatusColors` gains the six fields; its ⚠️ SPEC is answered.
+- `rk_restriction.dart` now tints semantically (`info` for read-only and offline grace, `warning`
+  for book full) instead of borrowing `locked`/`pending`; its ⚠️ SPEC is gone.
+- `design-system.md` §2 records the landed hexes and what is still outstanding; §3.1 records the
+  finding below. Removed the landed names from `tokens.json`'s `_proposed_2026-09-05f`.
+
+**Decided**
+- `docs/decisions/2026-09-12-s8-2-export-formats.md` — 🔒 S8.2's export sheet offers **exactly PDF,
+  CSV and XLSX**; View report opens in-app and Download/Share defaults to PDF. `07 §14`'s 🔒
+  enumeration amended from *PDF & XLSX*. The **watermark follows the format, not the surface** —
+  ADR 2026-09-05g §5 extended, not reopened. Byte-goldens are F3/RC; purge rides `F2-05a-11`.
+  Cross-referenced into 07 §14, 13 §3.2, 13 §5 and 08 §1.
+- Milestone split corrected against `10` while writing it: **M5 is "basic day-book export"**, the
+  full report suite (07 §14) and every F3 golden are **M12**. A lane builds the surface and the day
+  book now, not eleven reports.
+- **Recorded rather than designed away** (`design-system.md` §3.1): the four status colours are
+  near-iso-luminant — light relative luminance 0.091–0.117, dark `success` 0.367 vs `danger` 0.365 —
+  so **in grayscale they cannot be told apart from each other**. Chasing separation would have
+  distorted a brand-correct palette and is unnecessary, since 07 §1 rule 3 and the 07 §18 grayscale
+  test are satisfied by the icon and the word. The consequence is a hard constraint: a status colour
+  may never be the only signal.
+
+**Open**
+- ⛔ **Owner sign-off on the status hexes** — the 5 Sep pattern (`pending`/`locked` were proposed in
+  code, then ratified).
+- ⛔ **XLSX package choice** — the last thing blocking S8.2. PDF is settled by need (`pdf` +
+  `printing`, which also gives the share sheet and *A4 print-clean*); CSV needs no package.
+- ⚠️ `07 §6`'s per-A/C export (S4) still reads *PDF/XLSX*. Consistency argues it should match S8.2,
+  but a 🔒 line is not extended by inference (rule 11) — wanted: a yes/no.
+- ⬜ The banner is **built but undrawn** (`design-system.md:111`); reconcile against
+  `DESIGN-PACK.md:511` §11 S12.5's *"a persistent slim banner, not a modal"* when it is drawn.
+- ⬜ `SuspendedBanner` (`s15_4_suspended_screen.dart:84`, M6) is a **second implementation** of the
+  13 §4.2 banner atom. Fold it into `RkRestrictionKind`; copy is owned by 07 §15, no design needed.
+- ⬜ `C-05a-7` (`entry_lock_seam_test.dart:34`, left by U2e) is named by no ⟦tests⟧ marker —
+  warn-level, gate stays green, but it wants a marker on the idle-lock 🔒 line.
+- The gate ran green **before** the token session; that work is verified directly (338 passed / 1
+  skipped, contrast / coverage / strings / purity / format / `gen_tokens --check` all clean) but has
+  not itself been through `ci.sh`.
+
+**Commits**
+- _(hashes next session)_
+
+## 2026-09-12 (b) — M5: U3c S8 Menu + S8.1 Reports list; **all four tabs now real**; push lane green
+
+`/lane U3c` was asked for and **no lane was run**. U3c's report was `complete: false` from a killed
+run, but what it had left was minutes of work — under CLAUDE.md's ~30-minute floor for spawning a
+lane — so the orchestrator finished it inline, the same call `/lane U3a` made. The gate then ran as
+its own invocation and came back green with nothing mechanical to fix.
+
+**Changed — the killed run's two defects, neither what its own report claimed**
+- The report said `s8_menu_screen.dart` was *truncated at line 56*. It was not: the file was complete
+  in content and simply **unbalanced by one `)`** — the run died mid-conversion from `ListView` to
+  `SingleChildScrollView` + `Column` and never added the closer. That is why it read as a finished
+  108-line file while refusing to compile. Worth recording because a stale report is evidence, not
+  fact (rule 11): the file, not the note, settled it.
+- S8.1's two reds were **not** unfinished list content, which is what the report inferred. The screen
+  had all 11 rows of 07 §14 🔒 order and the right ARB strings; it kept a **lazy `ListView`**, so at
+  the test viewport rows 9–11 (Family Reconciliation, Partner positions, Business comparison) were
+  never built — the order assertion reported *"missing report"* and the disabled-with-reason icon
+  count came up short. Both screens now take the non-lazy `SingleChildScrollView` + `Column` shape
+  S13 (07 §16) already uses, with the reason at the call site.
+
+**Added — S8 Menu + S8.1 Reports list (`F1-07-14`, `F1-07-77`, `F1-07-28`)**
+- Menu rows in 07 §2 🔒 order (Reports · Close the month · Books & members · Backup · Devices &
+  security · Subscription · Settings · Help · Legal); Reports rows in 07 §14 🔒 order (Day Book first,
+  Business comparison last). The four rows with a destination today — Reports, Backup, Devices &
+  security, Settings — push it; every other row renders **disabled-with-reason**, dimmed with an icon
+  and a sentence, never silently inert and never dropped from the list (13 §4.3, 07 §1 rule 6).
+- 14 tests across `test/features/{menu,reports}`; app package **320 passed / 1 skipped** (the skip
+  stays `F1-07-59`'s drawings posting, blocked on the engine).
+
+**Changed — the shell mounts Menu, so no bottom-bar tab is a placeholder any more**
+- `RukkaFolioApp` gained `menuTabRoot`; `buildRouter` already accepted `menu:`; `main()` passes
+  `menuRoot`. S8 replaces `RkPlaceholderScreen` on the fourth tab, and S8.1 nests **inside** the tab
+  root rather than covering it, so `/menu/reports` keeps the tab bar visible — a hub page inside Menu,
+  not a detail viewer exempt from the 13 §3.2 depth rule.
+
+**Open**
+- ⬜ **S8.2 report viewer + export** is not built, so all 11 Reports rows are disabled today. Scope it
+  against 09's suite split before estimating: export byte-goldens are **F3 (RC lane)** and the
+  temp-file purge is **F2-05a-11 (device lab, RC)** — only the screen is F1/push.
+- ⛔ **Owner call — export dependencies.** `app/pubspec.yaml` carries no pdf/xlsx/share package, and
+  07 §14 🔒 asks for PDF & XLSX with on-device generation. CSV needs nothing new; PDF/XLSX needs two
+  plugin dependencies added to a deliberately dependency-light app. Not decided here.
+- ⬜ **S12.5 read-only / book-full sheet** (13 §3.2, 07 §20) — the other half of the PLAN M5 U3 row.
+  A `shared/widgets` component, so disjoint from S8.2 and a separate lane.
+- ⚠️ **SPEC (comment in `s8_menu_screen.dart`)** — 07 §3.1 step 6 puts a verified-storage nag badge on
+  Menu until the printed recovery sheet is scanned back, but no persisted *sheet verified* flag exists
+  anywhere the shell can read; `features/onboarding`'s S0.5b keeps that state to itself. Badge left
+  **off** rather than invented. Wanted: a flag on `AppSettings` that S0.5b writes and S8 reads.
+- ⬜ Housekeeping, pre-existing: 37 test files carry `@Tags(['F1'])` with no `dart_test.yaml`
+  declaring the tag, so every run prints *"A tag was used that wasn't specified"*. Harmless until
+  09's four-lane split actually selects by tag.
+
+**Commits**
+- `` (pending) — M5: U3c S8 menu + S8.1 reports list, menu tab wired, push lane green
+
+---
+
 ## 2026-09-12 — M5: three lanes — U1j S0.5/S0.5b, U1h shell wiring, U2d finished; **push lane green**
 
 One `/lane` run (three lanes, all `lane-ui-hard`, disjoint directories) then `/gate` as a separate

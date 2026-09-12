@@ -1,0 +1,31 @@
+{
+  "@@locale": "hi",
+  "menu.title": "मेन्यू",
+
+  "menu.reports.row.title": "रिपोर्टें",
+  "menu.reports.row.subtitle": "डे बुक, कैश बुक, स्टेटमेंट, ट्रायल बैलेंस और अन्य।",
+
+  "menu.close_month.row.title": "महीना बंद करें",
+  "menu.close_month.row.reason": "महीना बंद करने का विज़ार्ड अभी नहीं बना।",
+
+  "menu.books_members.row.title": "बहियाँ और सदस्य",
+  "menu.books_members.row.reason": "बहियाँ और सदस्य अभी नहीं बने।",
+
+  "menu.backup.row.title": "बैकअप",
+  "menu.backup.row.subtitle": "प्लेटफ़ॉर्म की-सिंक, अपनी रिकवरी शीट सहेजें, और मासिक पठनीय प्रति।",
+
+  "menu.devices.row.title": "डिवाइस और सुरक्षा",
+  "menu.devices.row.subtitle": "जुड़े डिवाइस, गार्डियन, रिकवरी शीट, ऑटो-लॉक।",
+
+  "menu.subscription.row.title": "सब्सक्रिप्शन",
+  "menu.subscription.row.reason": "सब्सक्रिप्शन अभी नहीं बना।",
+
+  "menu.settings.row.title": "सेटिंग्स",
+  "menu.settings.row.subtitle": "भाषा, दिखावट, ऑटो-लॉक, शुरुआती बकाया, एक्सपोर्ट।",
+
+  "menu.help.row.title": "मदद",
+  "menu.help.row.reason": "मदद अभी नहीं बनी।",
+
+  "menu.legal.row.title": "कानूनी",
+  "menu.legal.row.reason": "कानूनी और भरोसे के पन्ने अभी नहीं बने।"
+}

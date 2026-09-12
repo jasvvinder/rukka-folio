@@ -147,9 +147,11 @@ TextTheme rkTextTheme(Color ink) {
 /// 07 §1 rule 3: credit/debit colour NUMERALS ONLY, with sign and column;
 /// pending/locked tint status words; nothing here floods a surface.
 ///
-/// ⚠️ SPEC: the `success` / `warning` / `info` / `danger` family is approved
-/// in name but its values are pending a token session (design-system §2);
-/// add them here when tokens.json carries them — never invent values.
+/// The `success` / `warning` / `info` / `danger` family landed at the 12 Sep
+/// token session (ADR 2026-09-05f §H; design-system §3.1). Every value is
+/// measured by `scripts/check_contrast.dart` on all four grounds in both
+/// modes. They are near-iso-luminant by hue choice, so they are **never the
+/// only signal** — an icon and a word always travel with the tint (07 §1).
 @immutable
 class RkStatusColors extends ThemeExtension<RkStatusColors> {
   const RkStatusColors({
@@ -167,6 +169,12 @@ class RkStatusColors extends ThemeExtension<RkStatusColors> {
     required this.loaderSegment,
     required this.skeletonLabel,
     required this.skeletonAmount,
+    required this.success,
+    required this.warning,
+    required this.info,
+    required this.danger,
+    required this.onDanger,
+    required this.focusOnPrimary,
   });
 
   /// Money in — numerals only, always with + and column position.
@@ -211,6 +219,26 @@ class RkStatusColors extends ThemeExtension<RkStatusColors> {
   /// Skeleton amount block.
   final Color skeletonAmount;
 
+  /// Confirmed / healthy state — status word + icon, never alone.
+  final Color success;
+
+  /// Recoverable problem the user can act on (book full, quota near).
+  final Color warning;
+
+  /// Neutral notice in the app's own voice (read-only, offline grace).
+  final Color info;
+
+  /// Security or destructive state — distinct from [debit], so a warning
+  /// never reads as money out.
+  final Color danger;
+
+  /// Text/icons on a filled [danger].
+  final Color onDanger;
+
+  /// Focus ring on primary buttons, where [focus] equals primary and
+  /// vanishes (WCAG 2.2 §2.4.11).
+  final Color focusOnPrimary;
+
   /// Full light set.
   static const light = RkStatusColors(
     credit: RkColorsLight.credit,
@@ -227,6 +255,12 @@ class RkStatusColors extends ThemeExtension<RkStatusColors> {
     loaderSegment: RkColorsLight.loaderSegment,
     skeletonLabel: RkColorsLight.skeletonLabel,
     skeletonAmount: RkColorsLight.skeletonAmount,
+    success: RkColorsLight.success,
+    warning: RkColorsLight.warning,
+    info: RkColorsLight.info,
+    danger: RkColorsLight.danger,
+    onDanger: RkColorsLight.onDanger,
+    focusOnPrimary: RkColorsLight.focusOnPrimary,
   );
 
   /// Full dark set.
@@ -245,6 +279,12 @@ class RkStatusColors extends ThemeExtension<RkStatusColors> {
     loaderSegment: RkColorsDark.loaderSegment,
     skeletonLabel: RkColorsDark.skeletonLabel,
     skeletonAmount: RkColorsDark.skeletonAmount,
+    success: RkColorsDark.success,
+    warning: RkColorsDark.warning,
+    info: RkColorsDark.info,
+    danger: RkColorsDark.danger,
+    onDanger: RkColorsDark.onDanger,
+    focusOnPrimary: RkColorsDark.focusOnPrimary,
   );
 
   /// Reads the extension from the ambient theme.
@@ -273,6 +313,12 @@ class RkStatusColors extends ThemeExtension<RkStatusColors> {
       loaderSegment: l(loaderSegment, other.loaderSegment),
       skeletonLabel: l(skeletonLabel, other.skeletonLabel),
       skeletonAmount: l(skeletonAmount, other.skeletonAmount),
+      success: l(success, other.success),
+      warning: l(warning, other.warning),
+      info: l(info, other.info),
+      danger: l(danger, other.danger),
+      onDanger: l(onDanger, other.onDanger),
+      focusOnPrimary: l(focusOnPrimary, other.focusOnPrimary),
     );
   }
 }

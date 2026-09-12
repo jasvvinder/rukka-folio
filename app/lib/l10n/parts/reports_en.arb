@@ -1,0 +1,57 @@
+{
+  "@@locale": "en",
+  "reports.title": "Reports",
+  "@reports.title": {
+    "description": "S8.1 Reports list app bar title (13 §3.2 row S8.1, 07 §14 🔒)."
+  },
+
+  "reports.row.reason": "The report viewer has not been built yet.",
+  "@reports.row.reason": {
+    "description": "S8.1 disabled-with-reason line (13 §4.3, 07 §1 rule 6): S8.2 report viewer + export is a later lane, so every report name is present but not yet enterable — never a dead end."
+  },
+
+  "reports.day_book.row.title": "Day Book",
+  "@reports.day_book.row.title": {
+    "description": "S8.1 report row 1 of 11, in 07 §14 🔒 order."
+  },
+  "reports.cash_book.row.title": "Cash Book",
+  "@reports.cash_book.row.title": {
+    "description": "S8.1 report row 2 of 11, in 07 §14 🔒 order."
+  },
+  "reports.account_statement.row.title": "A/C statement (any)",
+  "@reports.account_statement.row.title": {
+    "description": "S8.1 report row 3 of 11, in 07 §14 🔒 order."
+  },
+  "reports.trial_balance.row.title": "Trial Balance",
+  "@reports.trial_balance.row.title": {
+    "description": "S8.1 report row 4 of 11, in 07 §14 🔒 order (02 §8)."
+  },
+  "reports.get_give_ageing.row.title": "You-will-get / You-will-give with ageing",
+  "@reports.get_give_ageing.row.title": {
+    "description": "S8.1 report row 5 of 11, in 07 §14 🔒 order."
+  },
+  "reports.profit_loss.row.title": "Profit/Loss (per FY/range)",
+  "@reports.profit_loss.row.title": {
+    "description": "S8.1 report row 6 of 11, in 07 §14 🔒 order."
+  },
+  "reports.full_position.row.title": "Full Position",
+  "@reports.full_position.row.title": {
+    "description": "S8.1 report row 7 of 11, in 07 §14 🔒 order (balance-sheet layout by sign, 02 §1.2)."
+  },
+  "reports.advances_ageing.row.title": "Advances ageing",
+  "@reports.advances_ageing.row.title": {
+    "description": "S8.1 report row 8 of 11, in 07 §14 🔒 order."
+  },
+  "reports.family_reconciliation.row.title": "Family Reconciliation",
+  "@reports.family_reconciliation.row.title": {
+    "description": "S8.1 report row 9 of 11, in 07 §14 🔒 order."
+  },
+  "reports.partner_positions.row.title": "Partner positions",
+  "@reports.partner_positions.row.title": {
+    "description": "S8.1 report row 10 of 11, in 07 §14 🔒 order (02 §7.1, shared-ownership businesses only)."
+  },
+  "reports.business_comparison.row.title": "Business comparison",
+  "@reports.business_comparison.row.title": {
+    "description": "S8.1 report row 11 of 11, in 07 §14 🔒 order (Everything scope only)."
+  }
+}

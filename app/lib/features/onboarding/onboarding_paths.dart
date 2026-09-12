@@ -45,4 +45,15 @@ abstract final class OnboardingPaths {
   /// S0.6b The business's opening balances — one grouped review-and-fill
   /// screen over the seeded accounts (ADR 2026-09-09c §3).
   static const businessOpening = '/onboarding/business/opening';
+
+  /// S0.6d Name the family — the O6d branch step (07 §3.1.1, 13 §3.2).
+  static const family = '/onboarding/family';
+
+  /// S0.6e Who else is in the family — invite heads by phone, Skip for now
+  /// always visible (07 §3.1.1, 13 §3.2).
+  static const familyMembers = '/onboarding/family/members';
+
+  /// S0.6f The family's shared accounts — one grouped review-and-fill screen
+  /// over the pool's seeded chart (07 §3.1.1, ADR 2026-09-09c §3).
+  static const familyAccounts = '/onboarding/family/accounts';
 }

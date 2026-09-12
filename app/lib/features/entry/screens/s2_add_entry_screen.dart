@@ -38,6 +38,7 @@ import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/format/money_format.dart';
 import '../../../shared/ledger/ledger_scope.dart';
 import '../../../shared/ledger/local_ledger.dart';
+import '../../../shared/lock/draft_activity.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../../ledger/ledger_book.dart';
@@ -143,15 +144,39 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
   Stream<List<AccountBalance>>? _accounts;
   Stream<Map<String, int>>? _counts;
 
+  /// The shell's lock seam (07 §5.6 🔒, ADR 2026-09-05 §7): reported into on
+  /// every keypad change so the idle lock is suppressed while digits sit in
+  /// the draft, and cleared in [dispose]. Null in a host that never mounted
+  /// [DraftActivityScope] (previews, tests that don't need it) — the screen
+  /// carries on exactly as before.
+  DraftActivity? _draft;
+
   VerbPlan get _plan => VerbPlan.of(_kind);
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _draft = DraftActivityScope.maybeOf(context);
     // LedgerScope is an InheritedWidget, so it may only be read from here on.
     if (_resolveStarted) return;
     _resolveStarted = true;
     _resolveBook();
+  }
+
+  @override
+  void dispose() {
+    // The screen's own token (`this`) — two screens can never clear each
+    // other's flag, and a screen that never reported anything clears a no-op.
+    _draft?.clear(this);
+    super.dispose();
+  }
+
+  /// The one place [_amount] is assigned: keeps the draft seam in step with
+  /// whatever the keypad and Save do to it, so neither call site can forget
+  /// to report (07 §5.6 🔒 C-05a-7).
+  void _setAmount(AmountExpression amount) {
+    _amount = amount;
+    _draft?.report(this, hasDigits: !_amount.isEmpty);
   }
 
   Future<void> _resolveBook() async {
@@ -247,12 +272,12 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
   }
 
   void _onKey(String key) => setState(() {
-    _amount = switch (key) {
+    _setAmount(switch (key) {
       keypadPlus => _amount.plus(),
       keypadDot => _amount.dot(),
       keypadBackspace => _amount.backspace(),
       _ => _amount.digit(key),
-    };
+    });
   });
 
   bool get _complete =>
@@ -364,7 +389,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
       // sides are kept so a repeat is one amount away (design canvas 2, S2-B
       // "Both sides kept for the next one").
       setState(() {
-        _amount = _amount.cleared;
+        _setAmount(_amount.cleared);
         _saving = false;
         _openSlot = null;
       });
@@ -384,7 +409,15 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
       // (07 §5 step 6, 02 §3). The limit itself does not exist yet.
       // Out of scope (S12.5, book full / `rejected:quota`): Save is blocked
       // with the S12.5 sheet pointing at S12.1 and the draft is preserved
-      // (ADR 2026-09-05b §7) — the quota signal lands with sync.
+      // (ADR 2026-09-05b §7). The surfaces now exist as shared components —
+      // `showRkBlockedEntrySheet(context, kind: RkRestrictionKind.bookFull,
+      // copy: kind.copy(context))` in `shared/widgets/rk_restriction.dart`,
+      // with `RkRestrictionBanner` for the persistent half. What still blocks
+      // the wiring is the signal, not the surface: no entitlement or quota
+      // source exists in the app yet — it lands with sync, when push can
+      // answer `rejected:quota` and the entitlement token is read off meta
+      // (ADR 2026-09-05g §3, §4). Until then nothing may drive the sheet, and
+      // this save path stays as it is.
       // S2.5 (ADR 2026-09-02): a *business* book's Drawings account is a
       // real account of the chart (SystemRole.drawings) — choosing it as
       // Money out's ledger slot posts through this same `ledger.moneyOut`

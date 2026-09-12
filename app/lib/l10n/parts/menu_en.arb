@@ -1,0 +1,88 @@
+{
+  "@@locale": "en",
+  "menu.title": "Menu",
+  "@menu.title": {
+    "description": "S8 Menu app bar title (13 §3.2 row S8, 07 §2 bottom bar 🔒)."
+  },
+
+  "menu.reports.row.title": "Reports",
+  "@menu.reports.row.title": {
+    "description": "S8 first row (07 §2 🔒 Menu bullet order) — opens S8.1 Reports list, built in this lane."
+  },
+  "menu.reports.row.subtitle": "Day book, cash book, statements, trial balance and more.",
+  "@menu.reports.row.subtitle": {
+    "description": "S8 Reports row description, summarising 07 §14's report list."
+  },
+
+  "menu.close_month.row.title": "Close the month",
+  "@menu.close_month.row.title": {
+    "description": "S8 second row (07 §2 🔒 Menu bullet order, ADR 2026-09-03) — S10 month close wizard."
+  },
+  "menu.close_month.row.reason": "The month close wizard has not been built yet.",
+  "@menu.close_month.row.reason": {
+    "description": "S8 disabled-with-reason line (13 §4.3, 07 §1 rule 6): S10 (07 §13 @M9) has not landed."
+  },
+
+  "menu.books_members.row.title": "Books & members",
+  "@menu.books_members.row.title": {
+    "description": "S8 third row (07 §2 🔒 Menu bullet order) — S9 roles, limits, verification log."
+  },
+  "menu.books_members.row.reason": "Books & members has not been built yet.",
+  "@menu.books_members.row.reason": {
+    "description": "S8 disabled-with-reason line: S9 (13 §3.2) has not landed in this milestone."
+  },
+
+  "menu.backup.row.title": "Backup",
+  "@menu.backup.row.title": {
+    "description": "S8 fourth row (07 §2 🔒 Menu bullet order) — opens S11.4 Backup settings (04 §7.6), already built by the devices lane and live here."
+  },
+  "menu.backup.row.subtitle": "Platform key sync, save your recovery sheet, and a monthly readable copy.",
+  "@menu.backup.row.subtitle": {
+    "description": "S8 Backup row description (04 §7.6)."
+  },
+
+  "menu.devices.row.title": "Devices & security",
+  "@menu.devices.row.title": {
+    "description": "S8 fifth row (07 §2 🔒 Menu bullet order, 07 §15) — opens S11, already built and live here."
+  },
+  "menu.devices.row.subtitle": "Linked devices, guardians, recovery sheet, auto-lock.",
+  "@menu.devices.row.subtitle": {
+    "description": "S8 Devices & security row description (07 §15)."
+  },
+
+  "menu.subscription.row.title": "Subscription",
+  "@menu.subscription.row.title": {
+    "description": "S8 sixth row (07 §2 🔒 Menu bullet order) — S12 (07 §20, @M13)."
+  },
+  "menu.subscription.row.reason": "Subscription has not been built yet.",
+  "@menu.subscription.row.reason": {
+    "description": "S8 disabled-with-reason line: 07 §20 S12.x is marked @M13."
+  },
+
+  "menu.settings.row.title": "Settings",
+  "@menu.settings.row.title": {
+    "description": "S8 seventh row (07 §2 🔒 Menu bullet order, 07 §16) — opens S13, already built and live here."
+  },
+  "menu.settings.row.subtitle": "Language, appearance, auto-lock, opening balances, export.",
+  "@menu.settings.row.subtitle": {
+    "description": "S8 Settings row description (07 §16)."
+  },
+
+  "menu.help.row.title": "Help",
+  "@menu.help.row.title": {
+    "description": "S8 eighth row (07 §2 🔒 Menu bullet order) — S17 (07 §22, @M14)."
+  },
+  "menu.help.row.reason": "Help has not been built yet.",
+  "@menu.help.row.reason": {
+    "description": "S8 disabled-with-reason line: 07 §22 S17.x is marked @M14."
+  },
+
+  "menu.legal.row.title": "Legal",
+  "@menu.legal.row.title": {
+    "description": "S8 ninth and last row (07 §2 🔒 Menu bullet order, owner-added 3 Sep 2026) — S18 terms, privacy, licences, and \"what we can and cannot see\" (07 §23, @M14)."
+  },
+  "menu.legal.row.reason": "Legal & trust pages have not been built yet.",
+  "@menu.legal.row.reason": {
+    "description": "S8 disabled-with-reason line: 07 §23 S18.x is marked @M14."
+  }
+}

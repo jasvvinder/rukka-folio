@@ -18,6 +18,14 @@
 //   F1-07-59  S2.5 choosing the book's Drawings account as Money out's
 //             ledger slot shows the one-line confirmation and posts through
 //             the same `moneyOut` call the engine always uses (02 §10 🔒).
+//   F1-07-13  07 §1's global design rules as they bind S2: nothing
+//             pre-selected, no dead end in the screen or its pickers, colour
+//             never alone, and the 8-second entry's F1 proxy — the ui-screen
+//             contract's "tap sequence completes in ≤ 8 steps" for the
+//             shortest complete Money in entry. This is an interaction-count
+//             and no-blocking-step proxy; it does not and cannot honestly
+//             measure eight wall-clock seconds — that stopwatch is F2, run at
+//             RC on the device lab (09 §preamble suite F).
 import 'package:core_ledger/core_ledger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -884,4 +892,118 @@ void main() {
       });
     },
   );
+
+  group('F1-07-13 07 §1 global design rules, bound to S2', () {
+    testWidgets(
+      'F1-07-13 nothing pre-selected; an unmatched search still offers '
+      'create, never a dead end (07 §1 rules 1 and 6)',
+      (tester) async {
+        await _pumpEntry(tester, kind: EntryKind.moneyIn);
+        final l10n = _l10n(tester);
+        // Rule 1 ("every design decision loses to this"): a fresh screen
+        // asks nothing on your behalf — the ADR 2026-09-05f §C reading F1-07-17
+        // already covers slot-by-slot; here it is the *screen-level* claim
+        // 07 §1 makes, so it is asserted again under this id.
+        expect(find.text(l10n.entrySlotChoose), findsNWidgets(2));
+        expect(_saveEnabled(tester), isFalse);
+        expect(
+          tester
+              .widgetList<EntryAccountChip>(find.byType(EntryAccountChip))
+              .every((c) => !c.selected),
+          isTrue,
+        );
+
+        // Rule 6, inside S2's own picker (S2.1): a search that matches
+        // nothing never strands the user — it offers inline create.
+        await tester.tap(find.byKey(AddEntryKeys.slot(EntrySlot.ledger)));
+        await tester.pumpAndSettle();
+        await tester.enterText(
+          find.byKey(AddEntryKeys.search),
+          'Something nobody has',
+        );
+        await tester.pumpAndSettle();
+        expect(find.byKey(AddEntryKeys.create), findsOneWidget);
+        await _unmount(tester);
+      },
+    );
+
+    testWidgets(
+      'F1-07-13 colour is never the only signal: the preview\'s muted/ink '
+      'states pair with placeholder dots vs real account names (07 §1 rule 3)',
+      (tester) async {
+        await _pumpEntry(tester, kind: EntryKind.moneyOut);
+        final ctx = tester.element(find.byType(AddEntryScreen));
+        final muted = RkStatusColors.of(ctx).muted;
+
+        // Incomplete: muted colour, and the sentence itself carries the gap
+        // as written dots, never a blank colour swatch (07 §5.5 🔒).
+        expect(_previewColor(tester), muted);
+        expect(find.textContaining('⋯'), findsWidgets);
+
+        await _typeAmount(tester, '500');
+        await tester.tap(find.text('Cash in hand'));
+        await tester.pump();
+        await tester.tap(find.byKey(AddEntryKeys.slot(EntrySlot.ledger)));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Diesel').last);
+        await tester.pumpAndSettle();
+
+        // Complete: the colour changes, but never alone — the dots are
+        // replaced by the real account names in the same instant (07 §5.5
+        // "completion is the validation" 🔒).
+        expect(_previewColor(tester), isNot(muted));
+        expect(find.textContaining('⋯'), findsNothing);
+        expect(find.textContaining('Diesel'), findsWidgets);
+        await _unmount(tester);
+      },
+    );
+
+    testWidgets(
+      'F1-07-13 the shortest complete Money in entry reaches Save in ≤ 8 '
+      'taps — the ui-screen contract\'s F1 proxy for the 8-second budget '
+      '(07 §1 rule 1, 07 §5 🔒)',
+      (tester) async {
+        // What this proves and what it does not: a widget test has no clock
+        // a person would recognise as honest, so this counts *interactions*
+        // (taps) and confirms none of them is a blocking step (a modal, a
+        // forced question, a route push) — never wall-clock seconds. The
+        // ui-screen skill's own contract for S2 is "tap sequence completes in
+        // ≤ 8 steps"; the actual stopwatch is F2, run on the device lab at
+        // RC (09 §preamble suite F).
+        final s = await seedSoloLedger();
+        await _pumpEntry(tester, kind: EntryKind.moneyIn, seeded: s);
+        var taps = 0;
+        Future<void> tap(Finder finder) async {
+          await tester.tap(finder);
+          await tester.pump();
+          taps++;
+        }
+
+        // ₹500 — 3 digit taps, no `+` or `.` needed for the shortest case.
+        for (final k in '500'.split('')) {
+          await tap(find.byKey(AddEntryKeys.pad(k)));
+        }
+        // INTO: a chip, no picker (07 §5 step 2 🔒).
+        await tap(find.text('Cash in hand'));
+        // FROM: opens in place (no sheet, no route — 07 §5 single-screen 🔒)
+        // and the seeded income account is already a candidate row, so no
+        // search is needed for the shortest path.
+        await tap(find.byKey(AddEntryKeys.slot(EntrySlot.ledger)));
+        await tester.pumpAndSettle();
+        await tap(find.text('Shop sales').last);
+        await tester.pumpAndSettle();
+        expect(_saveEnabled(tester), isTrue);
+        await tap(find.byKey(AddEntryKeys.save));
+
+        expect(
+          taps,
+          lessThanOrEqualTo(8),
+          reason:
+              '$taps taps for the shortest complete Money in entry — the '
+              'ui-screen S2 contract caps this at 8',
+        );
+        await _unmount(tester);
+      },
+    );
+  });
 }

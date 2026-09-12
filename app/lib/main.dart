@@ -26,6 +26,7 @@ import 'features/home/screens/s1_home_screen.dart';
 import 'features/devices/keychain_key_store.dart';
 import 'features/ledger/ledger_routes.dart';
 import 'features/lock/lock_routes.dart';
+import 'features/menu/menu_routes.dart';
 import 'features/onboarding/onboarding_routes.dart';
 import 'features/settings/settings_routes.dart';
 import 'l10n/gen/app_localizations.dart';
@@ -149,6 +150,7 @@ Future<void> main() async {
             ),
           ),
           ledgerTabRoot: ledgerRoot,
+          menuTabRoot: menuRoot,
           entryRoot: entryScreen,
           featureRoutes: [
             ...onboardingRoutes,
@@ -181,6 +183,7 @@ class RukkaFolioApp extends StatefulWidget {
     this.featureRoutes = const [],
     this.homeTabRoot,
     this.ledgerTabRoot,
+    this.menuTabRoot,
     this.entryRoot,
     this.router,
     this.ledger,
@@ -210,6 +213,11 @@ class RukkaFolioApp extends StatefulWidget {
 
   /// The Ledger tab's root (S3); null leaves the tab's placeholder in place.
   final RkTabRoot? ledgerTabRoot;
+
+  /// The Menu tab's root (S8); null leaves the tab's placeholder in place.
+  /// Its `routes` carry S8.1 Reports one level below (13 §3.2 depth rule),
+  /// so Reports opens with the tab bar still visible.
+  final RkTabRoot? menuTabRoot;
 
   /// S2 Add entry, pushed over the shell by the centre ( + ) — not a tab
   /// (13 §3.1); null leaves the entry placeholder in place.
@@ -275,6 +283,7 @@ class _RukkaFolioAppState extends State<RukkaFolioApp> {
         ],
         home: widget.homeTabRoot,
         ledger: widget.ledgerTabRoot,
+        menu: widget.menuTabRoot,
         entry: widget.entryRoot,
       );
 

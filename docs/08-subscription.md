@@ -6,7 +6,7 @@
 1. **Price the family, not the seat.** Per-seat pricing makes the karta share one login and kills collaboration.
 2. **Annual billing** (UPI Autopay e-mandate where possible ⚠️ verify current RBI e-mandate limits); monthly only as a fallback.
 3. **Never charge per transaction** — and structurally can't: the server can't count them (03 §4).
-4. **Lapsed ≠ locked 🔒:** expiry → read-only + full export forever. Data is never held hostage; this is a trust feature and a marketing claim. **Made precise (ADR 2026-09-05g §5):** the watermark applies to **reports (PDF) only, never to the CSV/XLSX data export** (06 §9.2 stays literally true); 04 §7.6's monthly readable export is not plan-gated. **Long-lapsed:** 24 months with no login → three notices over 90 days → envelopes move to cold storage (03 §6), still pullable on next login. **Never deletion.** ⟦tests: G-08-2 @M13⟧
+4. **Lapsed ≠ locked 🔒:** expiry → read-only + full export forever. Data is never held hostage; this is a trust feature and a marketing claim. **Made precise (ADR 2026-09-05g §5):** the watermark applies to **reports (PDF) only, never to the CSV/XLSX data export** (06 §9.2 stays literally true); 04 §7.6's monthly readable export is not plan-gated. **Extended, not reopened (ADR 2026-09-12 §2):** CSV joined the *report* export surface at S8.2, and the watermark still follows the **format** — a Free tenant's PDF report carries it, its CSV and XLSX never do, on either surface. ⟦tests: F3-07-3 @M12⟧ **Long-lapsed:** 24 months with no login → three notices over 90 days → envelopes move to cold storage (03 §6), still pullable on next login. **Never deletion.** ⟦tests: G-08-2 @M13⟧
 
 ## 2. Tiers (INR/year, placeholder)
 | Tier | Limits (plaintext metadata) | Price |

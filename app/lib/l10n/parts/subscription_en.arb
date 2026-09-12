@@ -1,0 +1,77 @@
+{
+  "@@locale": "en",
+  "subscription.banner.read_only.title": "Your books are read-only",
+  "@subscription.banner.read_only.title": {
+    "description": "S12.5 persistent banner (13 §4.2 banner atom), read-only variant. Tenant-wide and SERVER-DECLARED: the plan lapsed or the dunning grace ran out (ADR 2026-09-05g §4). Never shown for a merely off-network phone — that is subscription.banner.offline_grace.*."
+  },
+  "subscription.banner.read_only.body": "Your plan has ended. You can still read, export and close your books.",
+  "@subscription.banner.read_only.body": {
+    "description": "S12.5 read-only banner body — the sentence DESIGN-PACK §11 (S12.5) 🔒 writes. Names what still works (ADR 2026-09-05g §5: lapsed = read-only + full export forever; 07 §20 S12.4: entry stops, reading, exporting and closing continue)."
+  },
+
+  "subscription.banner.offline_grace.title": "Connect once to keep entering",
+  "@subscription.banner.offline_grace.title": {
+    "description": "S12.5 banner, OFFLINE GRACE variant — the exact 🔒 line of 07 §20. Device-local, from the last entitlement token seen; nothing is blocked and the word 'lapsed' must never appear before the server has said so (ADR 2026-09-05g §4, 13 §5: two graces, two copies)."
+  },
+  "subscription.banner.offline_grace.body": "This phone has not reached the server for a while. Nothing is locked — connect once and entry carries on.",
+  "@subscription.banner.offline_grace.body": {
+    "description": "S12.5 offline-grace banner body. Deliberately says nothing about the plan (07 §1 rule 7: offline is normal, not an error)."
+  },
+
+  "subscription.banner.book_full.title": "This book is full",
+  "@subscription.banner.book_full.title": {
+    "description": "S12.5 banner, BOOK FULL variant (`rejected:quota`, ADR 2026-09-05b §7). Matches the Inbox P3 card wording of ADR 2026-09-05g §3, 'This book is full — upgrade the plan'."
+  },
+  "subscription.banner.book_full.body": "This book has reached the plan's limit. Reading and exports keep working; new entries are paused.",
+  "@subscription.banner.book_full.body": {
+    "description": "S12.5 book-full banner body. Quota blocks posting only — reads, pulls, statements and exports are never blocked (ADR 2026-09-05g §3)."
+  },
+
+  "subscription.sheet.read_only.title": "New entries are paused",
+  "@subscription.sheet.read_only.title": {
+    "description": "S12.5 blocked-entry sheet heading, read-only variant — what Save raises (07 §20 🔒)."
+  },
+  "subscription.sheet.read_only.blocked": "Your plan has ended, so this entry cannot be saved yet.",
+  "@subscription.sheet.read_only.blocked": {
+    "description": "S12.5 sheet: what exactly is blocked. Only saving a new entry — nothing else."
+  },
+
+  "subscription.sheet.book_full.title": "This book is full",
+  "@subscription.sheet.book_full.title": {
+    "description": "S12.5 blocked-entry sheet heading, book-full variant (ADR 2026-09-05f §B)."
+  },
+  "subscription.sheet.book_full.blocked": "This book has reached the plan's limit, so this entry cannot be saved yet.",
+  "@subscription.sheet.book_full.blocked": {
+    "description": "S12.5 sheet: what exactly is blocked when a book hits its quota. Posting only."
+  },
+
+  "subscription.sheet.read_only.still_works": "What you typed is kept. You can still read, export and close your books.",
+  "@subscription.sheet.read_only.still_works": {
+    "description": "S12.5 sheet, read-only variant: the draft is preserved (07 §5 final paragraph 🔒, ADR 2026-09-05f §B) and DESIGN-PACK §11 (S12.5) 🔒 names what continues — reading, exporting and closing (07 §20 S12.4)."
+  },
+  "subscription.sheet.book_full.still_works": "What you typed is kept. Reading and exports keep working.",
+  "@subscription.sheet.book_full.still_works": {
+    "description": "S12.5 sheet, book-full variant. Deliberately does NOT promise month close: a close writes envelopes and a quota-full book cannot accept them (ADR 2026-09-05g §3). Reads, pulls, statements and exports are never blocked."
+  },
+  "subscription.sheet.dismiss": "Back to my entry",
+  "@subscription.sheet.dismiss": {
+    "description": "S12.5 sheet dismiss — returns to the still-filled entry screen. The words promise the draft is there."
+  },
+
+  "subscription.action.plans": "See plans",
+  "@subscription.action.plans": {
+    "description": "The one way forward from both S12.5 surfaces → S12.1 Plans (13 §3.2 rows S12.5, S12.1)."
+  },
+  "subscription.action.renew": "Renew",
+  "@subscription.action.renew": {
+    "description": "The read-only way forward → S12.1 Plans. DESIGN-PACK §11 (S12.5) 🔒 names this button *Renew*; 13 §3.2 row S12.5 names its destination. Book full uses subscription.action.plans instead — nothing has lapsed there."
+  },
+  "subscription.action.export": "Export everything",
+  "@subscription.action.export": {
+    "description": "Export action offered on both S12.5 surfaces and ALWAYS enabled — export is never blocked by a lapse or a quota (ADR 2026-09-05g §3, §5; 07 §20 🔒). Wording from DESIGN-PACK §11 (S12.5) 🔒."
+  },
+  "subscription.action.retry": "Try again",
+  "@subscription.action.retry": {
+    "description": "Offline-grace banner action: reach the server once. Never an upgrade prompt — the plan may be perfectly current (ADR 2026-09-05g §4)."
+  }
+}
