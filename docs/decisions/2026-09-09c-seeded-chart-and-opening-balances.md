@@ -11,7 +11,7 @@ becomes once the accounts already exist.
 
 ## Rulings 🔒 ⟦tests: n/a — container heading; each ruling below carries its own marker⟧
 
-### 1. The seed, per book ⟦tests: A-09c-1 @M5⟧
+### 1. The seed, per book ⟦tests: A-09c-1⟧
 Created by `createBook` from the answers already given on S0.6a / S0.6a1 / S0.6d / S0.6g. Names are the
 seeded, editable defaults; the user renames them on S0.6b (ruling 3).
 
@@ -24,8 +24,8 @@ seeded, editable defaults; the user renames them on S0.6b (ruling 3).
 | **Trust** | `Cash`, `Gollak Cash` (`cash_collection`) | `Opening Balance / Capital` | Donation Income · Langar, Building Repair, Honorarium | — |
 
 - The trust row restates `07 §3.1` 🔒 unchanged, including that the gollak and the Cash A/c are different
-  accounts. ⟦tests: A-09c-1 @M5⟧
-- **No party accounts are ever seeded** — `02 §1.2` 🔒, one party, one account, both roles, placement by sign, so there is no Sundry Debtors and no Sundry Creditors to create. ⟦tests: A-09c-2 @M5⟧
+  accounts. ⟦tests: A-09c-1⟧
+- **No party accounts are ever seeded** — `02 §1.2` 🔒, one party, one account, both roles, placement by sign, so there is no Sundry Debtors and no Sundry Creditors to create. ⟦tests: A-09c-2⟧
   Customers and suppliers appear as they are traded with, inline, class inferred from the slot. Seeding
   them would slow the 8-second entry and misrepresent the model.
 - **Superseded by ADR 2026-09-09d §1 — no bank is seeded at all.** Formerly: bank accounts are seeded unnamed. The app cannot know the bank; the seed is a generic `Bank A/c`

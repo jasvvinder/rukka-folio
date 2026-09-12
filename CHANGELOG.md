@@ -12,6 +12,188 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-12 — M5: three lanes — U1j S0.5/S0.5b, U1h shell wiring, U2d finished; **push lane green**
+
+One `/lane` run (three lanes, all `lane-ui-hard`, disjoint directories) then `/gate` as a separate
+invocation, per the session-economy rule. No keys were given; the slate came from PLAN §M5's ⬜ rows,
+picked for the Phase A exit *"solo entries flow end to end **offline**"*: the one incomplete report
+(U2d), the wiring three separate lanes had each blocked on (U1h), and the two shared onboarding steps
+every purpose card passes through and neither of which existed (U1j). **The gate is green on the push
+lane** — first M5 gate with the shell actually mounting what the screen lanes built.
+
+**Added — U1j, S0.5 *Keeping your books safe* + S0.5b recovery sheet (`F1-07-71/72/73`)**
+- Both routed at the 07 §3.1 position — S0.8 → S0.5 → S0.5b → branch step — each skippable and
+  resumable (§3.1.1). 11 tests; `test/features/onboarding` 65/65.
+- S0.5 consumes `features/devices`' `DevicesRepository`/`BackupSetting` read-only for the two backup
+  toggles. When key sync is unavailable the screen says so plainly and the sheet becomes the primary
+  action (`F1-07-72`); a check that *throws* falls to the same copy — the conservative reading, because
+  offering the sheet beats promising a recovery that may not exist.
+- S0.5b renders **no key material** — no QR, no Base32 fallback, no PDF preview. 04 §7.4 specifies a
+  *printed* document and 07 §5.6 blocks screenshots, so inventing an on-screen rendering of RK would
+  have been a crypto and layout decision a screen lane must not make.
+
+**Added — U1h, the shell finally mounts the app (`F1-07-68/69/70`)**
+- U1g (lock), U1i (settings) and U2b (home) had each landed green screens that nothing drove. `main()`
+  now builds `PinVault(keys, suite, DateTime.now)` **at the mount point** — `RkScope` was left alone
+  rather than given a `CryptoSuite` — and mounts `LockScope` + `lockRoutes` on the **root** navigator,
+  `PrivacyCover` inside `MaterialApp.builder` (theme and strings available, no route can escape it),
+  and `RkAutoLock` above the app. Cold start with a PIN set pushes `/lock`; unlock pops back to the
+  exact route that was showing.
+- Auto-lock timers read the live `AppSettings` values (5 min idle · 2 min background) that S13 displays,
+  so the number on the settings row and the number that locks the app cannot drift apart.
+- Locale and Appearance persist across restart through a new `RkPrefs` seam over the existing `KeyStore`
+  (`KeyStorePrefs`, one item per `rk.pref.<key>`) — the app has no preferences plugin and a stored scope
+  *names a book*, so it does not belong in plaintext. **No new pubspec dependency.**
+- Scope persists per tab and defaults to last used (13 §2.2).
+- `BiometricGate` now defaults to **unavailable** rather than answering success, so a real build is never
+  waved through the lock; MPIN carries the unlock until a platform gate exists.
+
+**Added — U2d, S2.2 date chip + S2.5 drawings confirmation (`F1-07-58`, `F1-07-59`)**
+- Finished across three runs. The first two died at their cap on what looked like a screen defect and was
+  a **fixture** bug: `_pick` used `find.text(name).last`, but once the query is typed the search field's own
+  `EditableText` carries that exact string — so `.last` tapped the search box, left the slot unanswered, and
+  the next `_pick` toggled the picker shut. It now taps the first `find.text` descendant of
+  `AddEntryKeys.picker`, and the group runs on 360×800 (the 800×600 default leaves the in-place picker under
+  100 pt — a test-surface artefact, not a screen defect).
+- Two real 200 % layout defects found and fixed in the lane's own widgets: the picker's create row wrapped to
+  three lines and squeezed the account list to a ~20 pt strip in which no row could be read or tapped, and the
+  S2.5 banner overflowed the body by ~90 pt.
+
+**Changed — `scripts/check_strings.dart`, a checker defect (not bad copy)**
+- `RegExp(r'\{([a-zA-Z_][a-zA-Z0-9_]*)')` read an ICU plural *branch* as a placeholder: `=1{Locks after 1
+  minute…}` yielded a placeholder named `Locks`, which matched in EN and not in PA/HI, so every plural whose
+  `=1` branch opens with an ASCII word failed as placeholder drift. The regex now requires `}` or `,` after the
+  identifier, which is what an ICU *argument* actually looks like. This is the fifth checker defect found since
+  8 Sep; each one had been silently shaping how lanes wrote strings. `check_strings`: 548 keys × 3 languages.
+
+**Changed — traceability markers the lanes could not reach**
+- `F1-07-68/69/70` added to 07 §5.6, 07 §16 and 13's S15.1 row by the orchestrator: `docs/` was outside U1h's
+  owned directories, so it correctly reported the debt rather than reaching across the split.
+  `check_coverage --strict`: 597 tests · 446 ids · 329 🔒 lines, **0 unmarked · 0 orphans**.
+
+**Open — ⛔ owner calls, in priority order**
+- ⛔ **🔒 `core_ledger` contradicts itself on the drawings posting 07 §5 🔒 mandates.** `Verbs.moneyOut` accepts
+  `AccountClass.equitySystem` for `forWhat` (`packages/core_ledger/lib/src/verbs.dart:43-47`), but `checkShape`
+  restricts money_out debits to expense|party|advance (`packages/core_ledger/lib/src/invariants.dart:208-210`),
+  so Money out → Drawings is rejected `shapeViolation: money_out: Dr equitySystem · Cr money` and S2 shows its
+  save-error snackbar. Verified by calling `ledger.moneyOut` directly against a `SystemRole.drawings` account.
+  One `F1-07-59` test is `@Skip` with the reason inline. `lane-core` work — **fable is 5/2 over budget**, so it
+  waits for the Sunday reset (13 Sep) and pairs naturally with the parked ADR 2026-09-09b Capital/Drawings run.
+- ⚠️ **`C-05a-7` contradicts 07 §5.6 🔒.** The ADR 2026-09-05i §10 table reads *"idle 5 min with digits typed →
+  lock → unlock → same digits in the same field"*, while 07 §5.6 🔒 and 09 §F say the idle lock is **suppressed**
+  while a draft has digits. 07 owns screens, so U1h took suppression and did **not** land `C-05a-7`. Probably an
+  errata to the 05i table — owner's ruling, then an ADR.
+- ⛔ **07 §5 🔒 "never scrolls" vs 200 % text scale** gained a second instance: at 200 % on 360×800 the S2.5
+  confirmation sentence 07 §5 🔒 fixes measures ~312 pt, more than the whole free height the fixed rows leave.
+  Nothing was resolved — the screen still never scrolls and the banner is `Flexible` + internally scrollable,
+  the precedent the picker's own list already set. The owner still picks: a large-text exception to 07 §5, or a
+  floor on the lower region.
+- ⚠️ **04 §7.6 vs 07 §3.1 step 5** (comment in `s0_5_books_safe_screen.dart`): step 5 names **one** item
+  *"Automatic backup"* with *"a one-tap off"*, while 04 §7.6's defaults table has **two** artefacts on by default
+  — the encrypted vault file and the monthly readable export — and only the readable one carries a disclosure.
+  Conservative reading: one block, both artefacts as their own rows, each risk line beside the switch that turns
+  that artefact off. Nothing is toggled in a pair, because turning off a switch the user cannot see is exactly
+  the silent behaviour 04 §7.6 forbids. No 🔒 line was changed.
+
+**Open — seams the next lanes owe**
+- `features/entry` must report into the shell's `DraftActivityScope` (`report(this, hasDigits:)` on every keypad
+  change, `.clear(this)` in `dispose`), or the idle lock fires mid-entry in the running app. The widget test
+  drives the seam from a fake, so nothing is red today — this is a *running-app* defect, not a test defect.
+- `features/devices` has no recovery module: wanted `RecoveryRepository.generateSheet()` / `shareSheet()` /
+  `verifyScannedSheet()`, scoped like `DevicesRepositoryScope`. Until it exists S0.5b shows its intro with the
+  actions disabled — **it never pretends a sheet was made.**
+- `features/devices` has no platform-key-sync availability check for 04 §7.0. `KeychainKeyStore` is deliberately
+  `synchronizable:false` and is the *device-key* store, never the §7.0 item, so it cannot answer the question.
+- The verified-storage nag (07 §3.1 step 6) lives on **Menu**; onboarding can only record the fact
+  (`OnboardingFlow.recoverySheetVerified`: null = no sheet, false = generated but unscanned, true = scanned back).
+  Carrying it to Menu and persisting it belongs to whoever owns Menu.
+- `main()` builds its own Home `RkTabRoot` so it can pass `scopeController:`; `features/home`'s `homeRoot` is the
+  same screen without it. **The two wirings must change together** — editing `features/home` was out of bounds.
+- **TRANSLATION-PENDING** (ADR 2026-09-09 Open ⚠️): all 42 new PA/HI strings under `onboarding.books_safe.*` and
+  `onboarding.recovery_sheet.*` are drafts. The readable-copy disclosure (04 §7.6 🔒 *"must never be reworded into
+  something softer"*) and the ADR 2026-09-05f §G phone-backup line especially need a native reviewer — softening
+  either in PA/HI breaks a 🔒 rule the EN check cannot see.
+
+**Commits**
+- `_______` M5: U1j S0.5/S0.5b + U1h shell wiring + U2d S2.2/S2.5, push lane green
+
+---
+
+## 2026-09-11 — M5: three lanes — U1f seeded chart + S0.6b wiring + S0.7, U3b S4.1 entry detail, U2d S2.2 (U2d capped part-way)
+
+One `/lane` run with three lanes on disjoint directories (no keys given; the slate came from PLAN §M5's ⬜
+rows, aimed at the Phase A exit "solo entries flow end to end **offline**"). `app/lib/shared/ledger/local_ledger.dart`
+holds both `createBook` and `watchStatement`, so it went to exactly one lane (U1f) — which is why U3b lost the
+FY switcher and why S21 dropped out entirely (07 §25 is `@M12`). No gate this session.
+
+**Added — U1f, the seeded chart is real (`A-09c-1`, `A-09c-2`, `A-09d-2` landed; `@M5` dropped)** — `lane-ui-hard`
+- `createBook` seeds the per-type money account (Cash A/c · Business Cash A/c · Joint Cash A/c · Cash + Gollak
+  Cash as `cash_collection`), **never a bank in any book type** (ADR 2026-09-09d §1–2), plus the trust's four
+  🔒-fixed category accounts (07 §3.1 step 3). A new `SeedCategory` value type carries a caller-supplied tree.
+  The shared-business seed a previous lane added is now covered too. Tests in `app/test/shared/ledger/`.
+- Both ⚠️ SPEC gaps in `onboarding_routes.dart` are closed: an `OnboardingFlow` holder carries S0.4's name
+  across routes (S0.6a1 tags the first owner row with it; an unnamed first row falls back to it), and a new
+  `BusinessOpeningHost` creates the book once at the committing step (07 §3.1 step 8) and turns its seeded
+  chart into S0.6b's rows, with loading and error-with-retry states. Resuming the step reuses the book.
+- **S0.7 setup checklist** (`F1-07-57`, newly minted): `HomeSnapshot.openingBalancesDone` reads the Opening
+  Balance counterpart, so the checklist outlives the empty state and a skipped wizard always has a door
+  (07 §3.1 step 7 🔒). Markers appended at 07 §3.1 step 7 and 13 §3.2 row S0.7.
+
+**Added — U3b, S4.1 entry detail (`F1-07-60`, `F1-07-61`, both newly minted)** — `lane-ui-hard`
+- One screen, all its states: normal posted entry (amount, both sides, date, note, who entered, audit trail),
+  **held** — *"waiting for the entry this changes"*, not projected and not counted, and not read as an error
+  (ADR 2026-09-05b §4) — amended, and reversed, with the chain shown and the original never mutated.
+  Amend and reverse as actions per 02 §5. Money in / Money out only: S4.1 is a consumer surface (rule 9).
+
+**Added — U2d, S2.2 date picker (`F1-07-58` green)** — `lane-ui`, ⬜ lane not complete
+- Date chip opens the calendar **in place** in the lower region (07 §5's single-screen 🔒 holds); future dates
+  disabled, locked dates 🔒-greyed with the *Fix an old entry* door, backdating inside an open period allowed.
+  Save now uses the picked date. The S2.5 banner, `drawingsAccountOf()` and its screen wiring are on disk but
+  `F1-07-59` and the 07 §5 marker append are not done — the lane kept `complete: false`, correctly.
+
+**Changed**
+- Three pre-existing tests (`F1-02-2`, `F1-02-9`, `F1-03-3`) and two `F1-07-50` cases counted accounts and
+  needed updating for the extra seeded account. All inside U1f's directories; none skipped.
+- Six landed planned-markers cleared by the orchestrator (grep-sized, no lane): `F1-07-17 @M5` ×3 and
+  `F1-07-54 @M11` ×3 in `design/DESIGN-PACK.md` and `design/design-system.md`.
+- ARB parts merged (9 features). No router wiring was needed — every lane exported through its own
+  `<feature>_routes.dart`, which `main.dart` already composes.
+
+**Decided** — nothing new; no 🔒 line changed and no ADR was needed this session. ADR 2026-09-09b
+(Capital/Drawings) stayed parked as instructed: ADR 2026-09-09c §1's equity column names
+`Opening Balance / Capital`, which the existing single `openingBalance` account already is (`A-09b-1` asserts
+exactly that), so the seed never needed the parked ruling.
+
+**Open**
+- ⛔ **Owner call — the seed category trees are unratified.** `docs/reference/seed-category-trees.md` calls
+  itself *"Draft, not shippable"*, EN only, and ADR 2026-09-09c's Open ⚠️ agrees. Conservative reading taken:
+  only the trust's four 🔒-fixed names are seeded; every other book type seeds none unless the caller passes
+  `categories:`. Ratification + PA/HI native review are needed before 09c §1's income·expense column can ship.
+- ⬜ **Share weights still have no persistent home**, now confirmed load-bearing: `OpeningRow.suggested` exists
+  but `BusinessOpeningHost` passes 0, so `A-09c-6` cannot wire. Wants a `BookConfig` field in `packages/data`.
+- ⬜ **U3b wants three things outside its directories**: `heldFor(objectId)` and `reversalOf(entryId)` on
+  `LocalLedger` (it reads `envelopes_local` and `entries_p` directly for now), and `EntryView.attachmentIds`
+  plus the `entries_p` projection column — without the last, S4.1's photo section can only render its empty
+  state. ⚠️ SPEC in `s4_1_entry_detail_screen.dart`. "Who entered" resolves to *you* / *another member* until
+  a members projection lands (M7).
+- ⬜ `docs/07-ui-flows.md:179` still reads *"banks seeded unnamed"* — superseded by ADR 2026-09-09d §1. Not a
+  🔒 line, but stale; left for the owner rather than edited outside a sanctioned marker change.
+- ⬜ **S0.8 set PIN has no screen** (07 §3.1 step 5), so S0.4's Continue still has no next step.
+- Still open from U2c: the 07 §5 🔒 "never scrolls" vs 200 % collision on *Move money*.
+- Two `check_coverage` orphans remain — `F1-07-55` and `F1-07-58`, both on the 07 §5 line U2d still owes.
+  `check_coverage` otherwise green: 547 tests · 431 ids · 0 unmarked.
+- PA/HI copy for the three new S0.6b keys is a lane draft, not native-reviewed — M12 pass.
+- Budget unchanged: fable 5 / 2 budgeted this week — no `lane-core` without the owner. Reset is Sunday 13 Sep.
+
+**Note for the next session** — U3b reported `s0_6b_business_opening_host_test.dart` (`F1-09c-1`) failing. It
+is not: that was a mid-flight read of U1f's file while U1f was still editing. Re-run after both lanes landed,
+7/7 green. A concurrent lane's full-suite run is not evidence about another lane's files.
+
+**Commits**
+- _(pending)_
+
+---
+
 ## 2026-09-10 — M5: U2c completes — S2 keypad-first entry green, gate green (supersedes the capped entry below)
 
 The `lane-ui-hard` re-run finished U2c (run 2, 19:31 report), and this session ran `/gate push` as its own

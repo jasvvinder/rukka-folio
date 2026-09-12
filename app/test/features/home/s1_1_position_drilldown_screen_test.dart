@@ -90,9 +90,12 @@ void main() {
       );
 
       expect(titleText('Cash in hand'), findsOneWidget);
-      // One row (the seed's only cash account), plus the line total — both
-      // read ₹21,600, and integer paise never became a float on the way.
-      expect(find.byType(RkLabelAmountRow), findsNWidgets(2));
+      // Two rows — the seed's own cash account and the `Cash A/c` every book
+      // is seeded with (ADR 2026-09-09c §1) — plus the line total. The total
+      // and the funded account both read ₹21,600, and integer paise never
+      // became a float on the way.
+      expect(find.byType(RkLabelAmountRow), findsNWidgets(3));
+      expect(find.text('Cash A/c'), findsOneWidget);
       expect(money('+₹21,600'), findsNWidgets(2));
       expect(find.text('Total'), findsOneWidget);
       // Not the other lines' accounts.
@@ -234,9 +237,16 @@ void main() {
         ledger: seed.ledger,
       );
 
-      // The total row carries no drill-down; only the account row does.
-      expect(find.byType(InkWell), findsOneWidget);
-      await tester.tap(find.byType(InkWell), warnIfMissed: false);
+      // The total row carries no drill-down; only the account rows do — the
+      // funded one and the seeded `Cash A/c` (ADR 2026-09-09c §1).
+      expect(find.byType(InkWell), findsNWidgets(2));
+      await tester.tap(
+        find.ancestor(
+          of: find.text('Cash in hand'),
+          matching: find.byType(InkWell),
+        ),
+        warnIfMissed: false,
+      );
       await tester.pump();
       expect(opened, [seed.cashId]);
       await unmount(tester);

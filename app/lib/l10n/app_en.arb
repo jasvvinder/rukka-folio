@@ -625,9 +625,60 @@
       }
     }
   },
+  "entry.date.a11y": "Date: {date}. Change date",
+  "@entry.date.a11y": {
+    "description": "S2.2 date chip accessibility label — the chip is a button that opens the in-place calendar.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "entry.date.future_tooltip": "Use a recurring entry for future dates",
+  "@entry.date.future_tooltip": {
+    "description": "S2.2 tooltip on a disabled future day (07 §5 step 4 🔒, exact wording)."
+  },
+  "entry.date.locked_back": "Back to the calendar",
+  "@entry.date.locked_back": {
+    "description": "S2.2 locked-day explanation — returns to picking a date instead."
+  },
+  "entry.date.locked_fix": "Fix an old entry",
+  "@entry.date.locked_fix": {
+    "description": "S2.2 locked-day explanation action — the reversal flow of 02 §5."
+  },
+  "entry.date.locked_message": "{date} is locked. To change something on this day, fix the old entry instead of starting a new one here.",
+  "@entry.date.locked_message": {
+    "description": "S2.2 explanation shown when a 🔒-greyed locked day is tapped (07 §5 step 4 🔒; never a dead error, 07 §1 rule 6).",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "entry.date.next_month": "Next month",
+  "@entry.date.next_month": {
+    "description": "S2.2 calendar month-forward button (a11y label); disabled once the shown month is the current one — the ledger never books a future date."
+  },
+  "entry.date.picked": "{date}",
+  "@entry.date.picked": {
+    "description": "S2.2 date chip once a date other than today is chosen (07 §5 step 4).",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "entry.date.prev_month": "Previous month",
+  "@entry.date.prev_month": {
+    "description": "S2.2 calendar month-back button (a11y label)."
+  },
   "entry.date.today": "Today",
   "@entry.date.today": {
     "description": "S2 date chip; the calendar behind it is S2.2."
+  },
+  "entry.drawings.confirmation": "Money taken for yourself — recorded as a drawing, not a business expense.",
+  "@entry.drawings.confirmation": {
+    "description": "S2.5 (design B5, ADR 2026-09-02): fires on Money out when the ledger slot is the book's Drawings account (07 §5 'Owner's drawings' 🔒 paragraph, exact wording)."
   },
   "entry.error": "Couldn't open your books",
   "@entry.error": {
@@ -1016,6 +1067,224 @@
   "@inbox.placeholder.body": {
     "description": "P0 placeholder until S6 lands."
   },
+  "ledger.entry.amend": "Correct this",
+  "@ledger.entry.amend": {
+    "description": "S4.1 primary correction action — amend (02 §5); plain words, never 'amend' as jargon."
+  },
+  "ledger.entry.amend.cancel": "Cancel",
+  "@ledger.entry.amend.cancel": {
+    "description": "S4.1 amend sheet — close without posting."
+  },
+  "ledger.entry.amend.date_note": "Change the date or the note",
+  "@ledger.entry.amend.date_note": {
+    "description": "S4.1 amend sheet — the two fields corrected here."
+  },
+  "ledger.entry.amend.error": "Couldn't save this correction",
+  "@ledger.entry.amend.error": {
+    "description": "S4.1 amend sheet — the amend call was refused."
+  },
+  "ledger.entry.amend.explain": "A correction is saved as a new entry. The version you are looking at stays in the history.",
+  "@ledger.entry.amend.explain": {
+    "description": "S4.1 amend sheet — plain-words append-only explanation (02 §5)."
+  },
+  "ledger.entry.amend.figures": "Change the amount or the accounts",
+  "@ledger.entry.amend.figures": {
+    "description": "S4.1 amend sheet — hands off to the entry screen with these figures (07 §5)."
+  },
+  "ledger.entry.amend.figures_hint": "Opens the entry screen with these figures filled in",
+  "@ledger.entry.amend.figures_hint": {
+    "description": "S4.1 amend sheet — what the figures row does."
+  },
+  "ledger.entry.amend.locked": "This month is closed, so nothing in it can be changed. Reverse the entry instead and enter it again.",
+  "@ledger.entry.amend.locked": {
+    "description": "S4.1 — amendInLockedPeriod: the one path 02 §5 allows, offered instead of a dead end (07 §1 rule 2, rule 6)."
+  },
+  "ledger.entry.amend.locked_action": "Fix an old entry",
+  "@ledger.entry.amend.locked_action": {
+    "description": "S4.1 — the guided reversal flow 02 §5 names for a locked period."
+  },
+  "ledger.entry.amend.save": "Save the correction",
+  "@ledger.entry.amend.save": {
+    "description": "S4.1 amend sheet — posts the amendment (a new entry; the old version stays)."
+  },
+  "ledger.entry.amend.title": "Correct this entry",
+  "@ledger.entry.amend.title": {
+    "description": "S4.1 amend sheet heading — a guided flow, never a freeform ledger screen (02 §5, ADR 2026-09-03b)."
+  },
+  "ledger.entry.amend_blocked": "Open the newest version to correct it",
+  "@ledger.entry.amend_blocked": {
+    "description": "S4.1 — disabled-with-reason on Correct this when this is not the head of its chain (13 §4.3, 02 §5 linear chains)."
+  },
+  "ledger.entry.channel": "Paid by",
+  "@ledger.entry.channel": {
+    "description": "S4.1 — the channel tag (UPI, card, netbanking, cash)."
+  },
+  "ledger.entry.date": "Date",
+  "@ledger.entry.date": {
+    "description": "S4.1 — the entry's accounting date."
+  },
+  "ledger.entry.details": "Details",
+  "@ledger.entry.details": {
+    "description": "S4.1 — heading above date, note, channel and photo."
+  },
+  "ledger.entry.entered_by": "Entered by {name}",
+  "@ledger.entry.entered_by": {
+    "description": "S4.1 — who saved this entry (07 §6 flow line: who entered).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.entry.entered_by_other": "another member",
+  "@ledger.entry.entered_by_other": {
+    "description": "S4.1 — the author is someone else in the book and no name is known on this phone yet."
+  },
+  "ledger.entry.entered_by_you": "you",
+  "@ledger.entry.entered_by_you": {
+    "description": "S4.1 — the author is this user; substituted into ledger.entry.entered_by."
+  },
+  "ledger.entry.error": "Couldn't load this entry",
+  "@ledger.entry.error": {
+    "description": "S4.1 — error-with-retry state (13 §4.3)."
+  },
+  "ledger.entry.held": "Waiting for the entry this changes",
+  "@ledger.entry.held": {
+    "description": "S4.1 held state 🔒 wording from 13 §3.2 row S4.1 / ADR 2026-09-05b §4: a dangling amend, reversal or decision."
+  },
+  "ledger.entry.held_badge": "Waiting",
+  "@ledger.entry.held_badge": {
+    "description": "S4.1 held-state chip, paired with an hourglass icon so colour is never alone (07 §1 rule 3)."
+  },
+  "ledger.entry.held_hint": "This correction reached your phone before the entry it corrects. Nothing is lost, and nothing is counted yet — it will open here as soon as that entry arrives.",
+  "@ledger.entry.held_hint": {
+    "description": "S4.1 held state — held is normal waiting, never an error (ADR 2026-09-05b §4)."
+  },
+  "ledger.entry.held_waiting_for": "Waiting for entry {id}",
+  "@ledger.entry.held_waiting_for": {
+    "description": "S4.1 held state — the missing target's id, shown only when the mirror recorded one.",
+    "placeholders": {
+      "id": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.entry.kind.adjustment": "Adjustment",
+  "@ledger.entry.kind.adjustment": {
+    "description": "S4.1 — headline verb label for a guided adjustment; the other five reuse entry.verb.* (01 §2 verb table)."
+  },
+  "ledger.entry.missing": "This entry isn't on this phone",
+  "@ledger.entry.missing": {
+    "description": "S4.1 — the id resolves to nothing: not projected and not held."
+  },
+  "ledger.entry.missing_hint": "It may not have reached this phone yet. It will open here once it does.",
+  "@ledger.entry.missing_hint": {
+    "description": "S4.1 — missing state guidance, so the state is never a dead end (07 §1 rule 2)."
+  },
+  "ledger.entry.no_note": "No note",
+  "@ledger.entry.no_note": {
+    "description": "S4.1 — the entry was saved without a note."
+  },
+  "ledger.entry.no_photo": "No bill photo on this entry",
+  "@ledger.entry.no_photo": {
+    "description": "S4.1 — attachment section, empty state."
+  },
+  "ledger.entry.note": "Note",
+  "@ledger.entry.note": {
+    "description": "S4.1 — the user's own words on the entry."
+  },
+  "ledger.entry.photo": "Bill photo",
+  "@ledger.entry.photo": {
+    "description": "S4.1 — heading of the attachment section (S20 opens from here at M12)."
+  },
+  "ledger.entry.reverse": "Reverse this",
+  "@ledger.entry.reverse": {
+    "description": "S4.1 secondary correction action — reversal (02 §5)."
+  },
+  "ledger.entry.reverse.cancel": "Cancel",
+  "@ledger.entry.reverse.cancel": {
+    "description": "S4.1 reverse sheet — close without posting."
+  },
+  "ledger.entry.reverse.confirm": "Post the reversal",
+  "@ledger.entry.reverse.confirm": {
+    "description": "S4.1 reverse sheet — posts the mirror entry."
+  },
+  "ledger.entry.reverse.error": "Couldn't reverse this entry",
+  "@ledger.entry.reverse.error": {
+    "description": "S4.1 reverse sheet — the reverse call was refused."
+  },
+  "ledger.entry.reverse.explain": "An opposite entry is posted, dated today. Both stay in the history — the original is never rubbed out.",
+  "@ledger.entry.reverse.explain": {
+    "description": "S4.1 reverse sheet — what reversal does, in plain words (02 §5)."
+  },
+  "ledger.entry.reverse.reason": "Why (optional)",
+  "@ledger.entry.reverse.reason": {
+    "description": "S4.1 reverse sheet — the note carried on the reversing entry."
+  },
+  "ledger.entry.reverse.title": "Reverse this entry",
+  "@ledger.entry.reverse.title": {
+    "description": "S4.1 reverse sheet heading."
+  },
+  "ledger.entry.reverse_blocked": "This entry is already reversed",
+  "@ledger.entry.reverse_blocked": {
+    "description": "S4.1 — disabled-with-reason on Reverse this."
+  },
+  "ledger.entry.sides": "Both sides",
+  "@ledger.entry.sides": {
+    "description": "S4.1 — heading above the entry's lines; consumer surface, so each line reads Money in / Money out (02 §10)."
+  },
+  "ledger.entry.skeleton": "Loading this entry",
+  "@ledger.entry.skeleton": {
+    "description": "S4.1 — loading skeleton announcement (11 §4.5, 13 §4.3)."
+  },
+  "ledger.entry.status.replaced": "Replaced",
+  "@ledger.entry.status.replaced": {
+    "description": "S4.1 status chip on a superseded entry, paired with an icon (07 §1 rule 3)."
+  },
+  "ledger.entry.status.reversed": "Reversed",
+  "@ledger.entry.status.reversed": {
+    "description": "S4.1 status chip on a void (fully reversed) entry."
+  },
+  "ledger.entry.status.review": "Waiting for review",
+  "@ledger.entry.status.review": {
+    "description": "S4.1 status chip when review_state is open (02 §3)."
+  },
+  "ledger.entry.title": "Entry",
+  "@ledger.entry.title": {
+    "description": "S4.1 entry detail app-bar title (13 §3.2 row S4.1)."
+  },
+  "ledger.entry.trail": "History",
+  "@ledger.entry.trail": {
+    "description": "S4.1 — heading of the audit trail (13 §3.2 row S4.1)."
+  },
+  "ledger.entry.trail.amends": "Corrects an earlier version",
+  "@ledger.entry.trail.amends": {
+    "description": "S4.1 audit trail — this entry carries refs.amends (02 §5)."
+  },
+  "ledger.entry.trail.append_only": "Nothing is ever rubbed out. Every version stays here.",
+  "@ledger.entry.trail.append_only": {
+    "description": "S4.1 audit trail — plain-words statement of the append-only rule (02 §5, CLAUDE.md rule 2)."
+  },
+  "ledger.entry.trail.open": "Open",
+  "@ledger.entry.trail.open": {
+    "description": "S4.1 audit trail — opens the linked version, so a chain is never a dead end (07 §1 rule 2)."
+  },
+  "ledger.entry.trail.reversed": "A later entry has reversed this one",
+  "@ledger.entry.trail.reversed": {
+    "description": "S4.1 audit trail — the original of a reversal; its status becomes void (02 §5)."
+  },
+  "ledger.entry.trail.reverses": "Reverses an earlier entry",
+  "@ledger.entry.trail.reverses": {
+    "description": "S4.1 audit trail — this entry carries refs.reverses (02 §5)."
+  },
+  "ledger.entry.trail.saved": "Saved",
+  "@ledger.entry.trail.saved": {
+    "description": "S4.1 audit trail — the entry was posted."
+  },
+  "ledger.entry.trail.superseded": "A newer version has replaced this one",
+  "@ledger.entry.trail.superseded": {
+    "description": "S4.1 audit trail — this entry was amended away; it stays in the history (02 §5)."
+  },
   "ledger.filter.all": "All",
   "@ledger.filter.all": {
     "description": "S3 index filter chip (07 §6)."
@@ -1185,6 +1454,117 @@
   "@ledger.title": {
     "description": "S3 ledger index app bar title (07 §6)."
   },
+  "lock.biometric.failed": "Face ID didn't work — type your PIN",
+  "@lock.biometric.failed": {
+    "description": "S15 line after biometric fails; the fallback is the 6-digit MPIN, never the phone's passcode (06 §4.4)."
+  },
+  "lock.biometric.prompt": "Unlock your books",
+  "@lock.biometric.prompt": {
+    "description": "S15 reason string shown by the platform biometric sheet, which is raised automatically without a tap (07 §5.6)."
+  },
+  "lock.biometric.reenrolled": "A new face or fingerprint was added to this phone — enter your PIN once",
+  "@lock.biometric.reenrolled": {
+    "description": "S15 copy variant after biometric re-enrolment (ADR 2026-09-05d §4)."
+  },
+  "lock.biometric.retry": "Try Face ID again",
+  "@lock.biometric.retry": {
+    "description": "S15 secondary action after a failed biometric attempt — never a dead end (07 §1 rule 6)."
+  },
+  "lock.biometric.unavailable": "Face ID isn't available on this phone right now — type your PIN",
+  "@lock.biometric.unavailable": {
+    "description": "S15 line when the platform reports no usable biometric."
+  },
+  "lock.cooldown.body": "It's a code, not a lockout. The PIN comes back on its own — nothing is lost.",
+  "@lock.cooldown.body": {
+    "description": "S15.3 cooldown reassurance, keeping the canvas's tone."
+  },
+  "lock.cooldown.countdown": "Try again in {time}",
+  "@lock.cooldown.countdown": {
+    "description": "S15.3 countdown row; {time} is mm:ss counted down from the injected clock.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "lock.cooldown.title": "Take a short break",
+  "@lock.cooldown.title": {
+    "description": "S15.3 cooldown heading — a code, not a lockout (ADR 2026-09-05d §5)."
+  },
+  "lock.cover.semantics": "The app is covered while it is in the background",
+  "@lock.cover.semantics": {
+    "description": "S15.1 privacy cover — the mark on plain paper so no balance reaches the app switcher (07 §5.6 🔒)."
+  },
+  "lock.disabled.body": "Your books are safe and nothing is lost. Confirm the code we send to your number, then Face ID, and pick a new PIN.",
+  "@lock.disabled.body": {
+    "description": "S15.3 disabled explanation — forgetting the PIN is never data loss (06 §4.4)."
+  },
+  "lock.disabled.title": "The PIN is switched off",
+  "@lock.disabled.title": {
+    "description": "S15.3 disabled state after 10 failures (ADR 2026-09-05d §5)."
+  },
+  "lock.forgot.action": "Forgot your PIN?",
+  "@lock.forgot.action": {
+    "description": "S15 door to the reset path — OTP to the registered number plus biometric (07 §5.6)."
+  },
+  "lock.forgot.body": "We'll send a code to your registered number and ask for Face ID. Then you pick a new PIN — your books are untouched.",
+  "@lock.forgot.body": {
+    "description": "S15 forgot-PIN explanation; nothing is re-encrypted (06 §4.4)."
+  },
+  "lock.forgot.cancel": "Back",
+  "@lock.forgot.cancel": {
+    "description": "S15 leaves the forgot-PIN door without starting the reset."
+  },
+  "lock.forgot.start": "Send me a code",
+  "@lock.forgot.start": {
+    "description": "S15 primary action on the forgot-PIN door."
+  },
+  "lock.forgot.title": "Set a new PIN",
+  "@lock.forgot.title": {
+    "description": "S15 forgot-PIN heading."
+  },
+  "lock.keypad.delete": "Delete",
+  "@lock.keypad.delete": {
+    "description": "PIN keypad backspace key label (screen reader)."
+  },
+  "lock.pin.entered": "{count} of 6 digits entered",
+  "@lock.pin.entered": {
+    "description": "Screen-reader label for the six PIN boxes — never the digits themselves.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lock.pin.label": "Enter your PIN",
+  "@lock.pin.label": {
+    "description": "S15.3 heading over the six boxes."
+  },
+  "lock.pin.one_try_left": "One try left before the PIN switches off",
+  "@lock.pin.one_try_left": {
+    "description": "S15.3 warning row on the last attempt."
+  },
+  "lock.pin.tries_left": "{count} tries left before the PIN switches off",
+  "@lock.pin.tries_left": {
+    "description": "S15.3 warning row once the free attempts are spent (ADR 2026-09-05d §5).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lock.pin.use_instead": "Use PIN instead",
+  "@lock.pin.use_instead": {
+    "description": "S15 action beneath the mark that reveals the PIN pad (07 §5.6)."
+  },
+  "lock.pin.wrong": "That PIN is not right",
+  "@lock.pin.wrong": {
+    "description": "S15.3 error after a wrong PIN."
+  },
+  "lock.title": "Unlock to open your books",
+  "@lock.title": {
+    "description": "S15 app lock heading under the mark (07 §5.6)."
+  },
   "menu.placeholder.body": "Reports, books, members and settings.",
   "@menu.placeholder.body": {
     "description": "P0 placeholder until S8 lands."
@@ -1240,6 +1620,108 @@
   "nav.menu.label": "Menu",
   "@nav.menu.label": {
     "description": "Tab 4 of 4 (S8): reports, books, members, settings."
+  },
+  "onboarding.books_safe.backup.destination": "Saved to {destination}",
+  "@onboarding.books_safe.backup.destination": {
+    "description": "S0.5 item (b) destination line (04 §7.6 defaults table).",
+    "placeholders": {
+      "destination": {
+        "type": "String",
+        "example": "iCloud Drive"
+      }
+    }
+  },
+  "onboarding.books_safe.backup.destination_unset": "Saved to your own cloud drive",
+  "@onboarding.books_safe.backup.destination_unset": {
+    "description": "S0.5 item (b) when the host has not named a destination yet."
+  },
+  "onboarding.books_safe.backup.off_hint": "One tap turns either of these off.",
+  "@onboarding.books_safe.backup.off_hint": {
+    "description": "S0.5 item (b): the one-tap off (07 §3.1 step 5 🔒)."
+  },
+  "onboarding.books_safe.backup.readable_disclosure": "This file is readable. Anyone who can open that drive can read your books, and so can Apple or Google. It is the one file this app does not encrypt.",
+  "@onboarding.books_safe.backup.readable_disclosure": {
+    "description": "S0.5 readable-copy disclosure 🔒 — prominent, never softened (04 §7.6)."
+  },
+  "onboarding.books_safe.backup.readable_title": "Readable copy, every month",
+  "@onboarding.books_safe.backup.readable_title": {
+    "description": "S0.5 item (b), the monthly readable export (04 §7.6)."
+  },
+  "onboarding.books_safe.backup.save_failed": "We couldn't save that change — try once more",
+  "@onboarding.books_safe.backup.save_failed": {
+    "description": "S0.5 error state; the switch reverts (13 §4.3)."
+  },
+  "onboarding.books_safe.backup.state_on": "On",
+  "@onboarding.books_safe.backup.state_on": {
+    "description": "S0.5 item (b) state chip."
+  },
+  "onboarding.books_safe.backup.title": "Automatic backup",
+  "@onboarding.books_safe.backup.title": {
+    "description": "S0.5 item (b) heading (07 §3.1 step 5 🔒, 04 §7.6)."
+  },
+  "onboarding.books_safe.backup.vault_body": "Still encrypted: useless to anyone who does not have your key — and useless to you too, without it.",
+  "@onboarding.books_safe.backup.vault_body": {
+    "description": "S0.5 vault risk line (04 §7.6)."
+  },
+  "onboarding.books_safe.backup.vault_title": "Encrypted copy of your books",
+  "@onboarding.books_safe.backup.vault_title": {
+    "description": "S0.5 item (b), the encrypted vault file (04 §7.6)."
+  },
+  "onboarding.books_safe.continue_label": "Continue",
+  "@onboarding.books_safe.continue_label": {
+    "description": "S0.5 primary action."
+  },
+  "onboarding.books_safe.intro": "Your entries are already stored on our server, encrypted — losing a phone does not lose them. What needs keeping safe is your key.",
+  "@onboarding.books_safe.intro": {
+    "description": "S0.5 intro; the true position stated plainly (04 §7.6)."
+  },
+  "onboarding.books_safe.keysync.apple": "Apple cannot read it.",
+  "@onboarding.books_safe.keysync.apple": {
+    "description": "S0.5 item (a) plain line (04 §7.0)."
+  },
+  "onboarding.books_safe.keysync.off_body": "Your key cannot be kept there, so a new phone will not find it by itself. Make a recovery sheet instead — it is your way back in.",
+  "@onboarding.books_safe.keysync.off_body": {
+    "description": "S0.5 unavailable state body; the sheet becomes the primary action."
+  },
+  "onboarding.books_safe.keysync.off_title": "iCloud Keychain is off on this phone",
+  "@onboarding.books_safe.keysync.off_title": {
+    "description": "S0.5 unavailable state (07 §3.1 step 5 🔒: the screen says so plainly)."
+  },
+  "onboarding.books_safe.keysync.phone_backup": "A phone backup does not carry your books — your key comes back with your Apple account, your books come back from the server.",
+  "@onboarding.books_safe.keysync.phone_backup": {
+    "description": "S0.5 item (a), verbatim intent of ADR 2026-09-05f §G / ADR 2026-09-05c §8."
+  },
+  "onboarding.books_safe.keysync.state_on": "On",
+  "@onboarding.books_safe.keysync.state_on": {
+    "description": "S0.5 item (a) state chip; paired with an icon (07 §1 colour-never-alone)."
+  },
+  "onboarding.books_safe.keysync.title": "Your key is kept in iCloud Keychain",
+  "@onboarding.books_safe.keysync.title": {
+    "description": "S0.5 item (a): stated, not asked (07 §3.1 step 5 🔒, 04 §7.0)."
+  },
+  "onboarding.books_safe.resume_note": "You can come back to this from the setup list on Home.",
+  "@onboarding.books_safe.resume_note": {
+    "description": "S0.5 resumability note (07 §3.1.1, S0.7 checklist)."
+  },
+  "onboarding.books_safe.sheet.action": "Make my recovery sheet",
+  "@onboarding.books_safe.sheet.action": {
+    "description": "S0.5 item (c) action → S0.5b."
+  },
+  "onboarding.books_safe.sheet.body": "One printed page that brings your books back when everything else is gone.",
+  "@onboarding.books_safe.sheet.body": {
+    "description": "S0.5 item (c) body (04 §7.4)."
+  },
+  "onboarding.books_safe.sheet.title": "Recovery sheet",
+  "@onboarding.books_safe.sheet.title": {
+    "description": "S0.5 item (c) heading (07 §3.1 step 5 🔒)."
+  },
+  "onboarding.books_safe.skip": "Skip for now",
+  "@onboarding.books_safe.skip": {
+    "description": "S0.5 skip; the step is resumable (07 §3.1.1)."
+  },
+  "onboarding.books_safe.title": "Keeping your books safe",
+  "@onboarding.books_safe.title": {
+    "description": "S0.5 title (07 §3.1 step 5 🔒, 13 §3.2)."
   },
   "onboarding.business.continue_label": "Continue",
   "@onboarding.business.continue_label": {
@@ -1331,6 +1813,14 @@
   "@onboarding.business_opening.balancing_zero": {
     "description": "S0.6b zero-difference wording of the balancing line."
   },
+  "onboarding.business_opening.create_error": "We could not set up this book.",
+  "@onboarding.business_opening.create_error": {
+    "description": "S0.6b error state when the book could not be created — never a dead end (07 §1 rule 12)."
+  },
+  "onboarding.business_opening.creating": "Setting up your books…",
+  "@onboarding.business_opening.creating": {
+    "description": "S0.6b working state while createBook seeds the chart (ADR 2026-09-09c §1)."
+  },
   "onboarding.business_opening.dated_note": "Everything here is dated {date}, the day the books begin.",
   "@onboarding.business_opening.dated_note": {
     "description": "S0.6b states the opening date; nothing is ever dated earlier (ADR 2026-09-09d §4).",
@@ -1355,6 +1845,10 @@
   "onboarding.business_opening.group_you_owe": "Who you owe",
   "@onboarding.business_opening.group_you_owe": {
     "description": "S0.6b group 3."
+  },
+  "onboarding.business_opening.retry": "Try again",
+  "@onboarding.business_opening.retry": {
+    "description": "S0.6b retry action on the error state."
   },
   "onboarding.business_opening.save": "Save and continue",
   "@onboarding.business_opening.save": {
@@ -1586,6 +2080,126 @@
   "@onboarding.purpose.title": {
     "description": "S0.3 purpose (07 §3.1 step 3, 07 §3.1.1) — the five-card branch."
   },
+  "onboarding.recovery_sheet.done": "Done",
+  "@onboarding.recovery_sheet.done": {
+    "description": "S0.5b continue to the next step."
+  },
+  "onboarding.recovery_sheet.error": "The sheet could not be made. Nothing was changed.",
+  "@onboarding.recovery_sheet.error": {
+    "description": "S0.5b error state with retry (13 §4.3)."
+  },
+  "onboarding.recovery_sheet.generate": "Make the sheet",
+  "@onboarding.recovery_sheet.generate": {
+    "description": "S0.5b primary action, the generate step (04 §7.4)."
+  },
+  "onboarding.recovery_sheet.generating": "Making your sheet…",
+  "@onboarding.recovery_sheet.generating": {
+    "description": "S0.5b loading state (13 §4.3)."
+  },
+  "onboarding.recovery_sheet.nag_body": "We will keep reminding you until you scan the printed sheet back, so you find out today — not on the day you need it.",
+  "@onboarding.recovery_sheet.nag_body": {
+    "description": "S0.5b nag body; the badge also lives on Menu (07 §3.1 step 6)."
+  },
+  "onboarding.recovery_sheet.nag_title": "Not verified yet",
+  "@onboarding.recovery_sheet.nag_title": {
+    "description": "S0.5b verified-storage nag (04 §7.4) — persists until the printed sheet is scanned back."
+  },
+  "onboarding.recovery_sheet.ready_body": "It is never shown on this screen — print it or save it, then put it where you keep your papers.",
+  "@onboarding.recovery_sheet.ready_body": {
+    "description": "S0.5b: the sheet's contents are not rendered in the app."
+  },
+  "onboarding.recovery_sheet.ready_title": "Your sheet is ready",
+  "@onboarding.recovery_sheet.ready_title": {
+    "description": "S0.5b state after generating."
+  },
+  "onboarding.recovery_sheet.retry": "Try again",
+  "@onboarding.recovery_sheet.retry": {
+    "description": "S0.5b retry."
+  },
+  "onboarding.recovery_sheet.risk": "Anyone who opens this sheet can open your books.",
+  "@onboarding.recovery_sheet.risk": {
+    "description": "S0.5b risk line 🔒 (04 §7.6) — stated at the moment of choosing."
+  },
+  "onboarding.recovery_sheet.scan": "Scan the printed sheet back",
+  "@onboarding.recovery_sheet.scan": {
+    "description": "S0.5b verify action (04 §7.4 verified-storage)."
+  },
+  "onboarding.recovery_sheet.scan_failed": "That didn't match this sheet. Scan the printed page again.",
+  "@onboarding.recovery_sheet.scan_failed": {
+    "description": "S0.5b scan error; never a dead end (07 §1 rule 6)."
+  },
+  "onboarding.recovery_sheet.share": "Print or save",
+  "@onboarding.recovery_sheet.share": {
+    "description": "S0.5b share/print action (04 §7.4, 04 §7.6)."
+  },
+  "onboarding.recovery_sheet.skip": "Skip for now",
+  "@onboarding.recovery_sheet.skip": {
+    "description": "S0.5b skip; the nag brings it back (07 §3.1.1, 04 §7.4)."
+  },
+  "onboarding.recovery_sheet.title": "Your recovery sheet",
+  "@onboarding.recovery_sheet.title": {
+    "description": "S0.5b title (13 §3.2 row S0.5b, 07 §3.1 step 6, 04 §7.4)."
+  },
+  "onboarding.recovery_sheet.verified": "Verified — we read your printed sheet back.",
+  "@onboarding.recovery_sheet.verified": {
+    "description": "S0.5b verified state; the nag stops here."
+  },
+  "onboarding.recovery_sheet.why_body": "Your data is locked so well that even we can't open it. This sheet is the one key you keep yourself — print it and keep it with your Aadhaar and LIC papers.",
+  "@onboarding.recovery_sheet.why_body": {
+    "description": "S0.5b explanation, 07 §3.1 step 6's own words plus 04 §7.4's framing."
+  },
+  "onboarding.recovery_sheet.why_title": "There is no “forgot password”",
+  "@onboarding.recovery_sheet.why_title": {
+    "description": "S0.5b: the one-screen explanation (07 §3.1 step 6)."
+  },
+  "onboarding.set_pin.biometric_note": "Face ID keeps this app closed to everyone else — if a new face is added to this phone, the app asks for your PIN",
+  "@onboarding.set_pin.biometric_note": {
+    "description": "S0.8 the app-lock line stated at onboarding, never offered as a setting (07 §5.6, ADR 2026-09-05d §4)."
+  },
+  "onboarding.set_pin.confirm.subtitle": "So a typo can't lock you out later",
+  "@onboarding.set_pin.confirm.subtitle": {
+    "description": "S0.8 confirm step subtitle."
+  },
+  "onboarding.set_pin.confirm.title": "Type it once more",
+  "@onboarding.set_pin.confirm.title": {
+    "description": "S0.8 confirm step heading."
+  },
+  "onboarding.set_pin.continue": "Continue",
+  "@onboarding.set_pin.continue": {
+    "description": "S0.8 primary action."
+  },
+  "onboarding.set_pin.incomplete": "Type all 6 digits to continue",
+  "@onboarding.set_pin.incomplete": {
+    "description": "S0.8 disabled-with-reason line under Continue (13 §4.3)."
+  },
+  "onboarding.set_pin.mismatch": "Those two didn't match — start again",
+  "@onboarding.set_pin.mismatch": {
+    "description": "S0.8 error when the confirm step differs from the first entry."
+  },
+  "onboarding.set_pin.save_failed": "We couldn't save that PIN — try once more",
+  "@onboarding.set_pin.save_failed": {
+    "description": "S0.8 error state with retry (13 §4.3)."
+  },
+  "onboarding.set_pin.saving": "Saving your PIN…",
+  "@onboarding.set_pin.saving": {
+    "description": "S0.8 loading state while the vault writes the protected item (13 §4.3)."
+  },
+  "onboarding.set_pin.start_over": "Change PIN",
+  "@onboarding.set_pin.start_over": {
+    "description": "S0.8 returns from the confirm step to the first entry — no dead end (07 §1 rule 6)."
+  },
+  "onboarding.set_pin.subtitle": "Six digits, only for this app",
+  "@onboarding.set_pin.subtitle": {
+    "description": "S0.8 subtitle."
+  },
+  "onboarding.set_pin.title": "Set your PIN",
+  "@onboarding.set_pin.title": {
+    "description": "S0.8 heading (07 §3.1 step 5 chain, 06 §4.4) — a 6-digit MPIN set at onboarding."
+  },
+  "onboarding.set_pin.why": "Your family knows your phone's passcode. They won't know this.",
+  "@onboarding.set_pin.why": {
+    "description": "S0.8 the reason the MPIN exists (06 §4.4) — said plainly, not asked."
+  },
   "onboarding.welcome.get_started": "Get started",
   "@onboarding.welcome.get_started": {
     "description": "S0.05 final slide's primary action, continuing to S0.2."
@@ -1633,6 +2247,148 @@
         "type": "int"
       }
     }
+  },
+  "settings.about.row.reason": "Help & support has not been built yet.",
+  "@settings.about.row.reason": {
+    "description": "S13 disabled-with-reason line: 07 §22 S17.x is marked @M14."
+  },
+  "settings.about.row.title": "About & support",
+  "@settings.about.row.title": {
+    "description": "S13 last row (07 §16) — about/support (WhatsApp)."
+  },
+  "settings.appearance.option.dark": "Dark",
+  "@settings.appearance.option.dark": {
+    "description": "Appearance three-way control (ADR 2026-09-05f §H12)."
+  },
+  "settings.appearance.option.light": "Light",
+  "@settings.appearance.option.light": {
+    "description": "Appearance three-way control (ADR 2026-09-05f §H12)."
+  },
+  "settings.appearance.option.system": "System",
+  "@settings.appearance.option.system": {
+    "description": "Appearance three-way control (ADR 2026-09-05f §H12)."
+  },
+  "settings.appearance.row.title": "Appearance",
+  "@settings.appearance.row.title": {
+    "description": "S13 second row (07 §16, ADR 2026-09-05f §H12)."
+  },
+  "settings.autolock.row.background": "{minutes, plural, =1{Locks after 1 minute in the background} other{Locks after {minutes} minutes in the background}}",
+  "@settings.autolock.row.background": {
+    "description": "S13 auto-lock background value (06 §4.5, default 2 min).",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "settings.autolock.row.idle": "{minutes, plural, =1{Locks after 1 minute of no touch in the app} other{Locks after {minutes} minutes of no touch in the app}}",
+  "@settings.autolock.row.idle": {
+    "description": "S13 auto-lock idle value (ADR 2026-09-05 §7, default 5 min foreground inactivity).",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "settings.autolock.row.reason": "Adjusted from Devices & security once that screen is wired in.",
+  "@settings.autolock.row.reason": {
+    "description": "S13 disabled-with-reason line: this row is read-only display here — the lock feature (a concurrent lane) owns the control that changes these values."
+  },
+  "settings.autolock.row.title": "Auto-lock",
+  "@settings.autolock.row.title": {
+    "description": "S13 row (07 §16) — shows both auto-lock values (ADR 2026-09-05 §7). Read-only display in this lane; the lock feature (concurrent lane) owns changing it."
+  },
+  "settings.books_manage.row.reason": "Not built yet — coming in a later update.",
+  "@settings.books_manage.row.reason": {
+    "description": "S13 disabled-with-reason line (07 §1 rule 6): book management's own screen has not landed in this milestone. Never a silently inert tap."
+  },
+  "settings.books_manage.row.subtitle": "Create, rename or archive a book, and set its financial year start.",
+  "@settings.books_manage.row.subtitle": {
+    "description": "S13 book management row description (07 §16)."
+  },
+  "settings.books_manage.row.title": "Book management",
+  "@settings.books_manage.row.title": {
+    "description": "S13 row (07 §16) — create/rename/archive a book, FY start."
+  },
+  "settings.categories.row.reason": "The category editor has not been built yet.",
+  "@settings.categories.row.reason": {
+    "description": "S13 disabled-with-reason line: no category tree editor screen exists yet."
+  },
+  "settings.categories.row.title": "Categories",
+  "@settings.categories.row.title": {
+    "description": "S13 row (07 §16) — the category tree editor."
+  },
+  "settings.export.row.reason": "The export screen has not been built yet.",
+  "@settings.export.row.reason": {
+    "description": "S13 disabled-with-reason line: 06 §9.2 makes export always available in policy, but no export screen exists in the app yet. ⚠️ SPEC: the reason names the missing screen, never a plan or payment gate — the row must never read as paywalled."
+  },
+  "settings.export.row.subtitle": "A full decrypted export of your books, generated on this phone. Always available, on every plan.",
+  "@settings.export.row.subtitle": {
+    "description": "S13 export row description (06 §9.2 🔒: always available, plan-independent — a trust feature, not a leak)."
+  },
+  "settings.export.row.title": "Export everything",
+  "@settings.export.row.title": {
+    "description": "S13 row (07 §16, 06 §9.2) — full decrypted export, generated on device."
+  },
+  "settings.language.option.en": "English",
+  "@settings.language.option.en": {
+    "description": "S13 language name, own script, invariant across app locales (matches onboarding.language.option.en, 07 §3.1)."
+  },
+  "settings.language.option.hi": "हिन्दी",
+  "@settings.language.option.hi": {
+    "description": "S13 language name, own script, invariant across app locales (matches onboarding.language.option.hi)."
+  },
+  "settings.language.option.pa": "ਪੰਜਾਬੀ",
+  "@settings.language.option.pa": {
+    "description": "S13 language name, own script, invariant across app locales (matches onboarding.language.option.pa)."
+  },
+  "settings.language.row.title": "Language",
+  "@settings.language.row.title": {
+    "description": "S13 first row (07 §16) — per-member language."
+  },
+  "settings.language.sheet.title": "Language",
+  "@settings.language.sheet.title": {
+    "description": "S13 language picker sheet heading. Every option renders in its own script regardless of the current app locale (matches S0.1)."
+  },
+  "settings.notifications.row.reason": "Notification preferences arrive with the notification catalog (07 §17).",
+  "@settings.notifications.row.reason": {
+    "description": "S13 disabled-with-reason line: 07 §17 notification catalog is marked @M7, not built yet."
+  },
+  "settings.notifications.row.title": "Notifications",
+  "@settings.notifications.row.title": {
+    "description": "S13 row (07 §16) — notification preferences."
+  },
+  "settings.opening_balances.row.reason": "The opening balance correction wizard has not been built yet.",
+  "@settings.opening_balances.row.reason": {
+    "description": "S13 disabled-with-reason line: the S2.4 adjustment wizard behind this door has not landed. ⚠️ SPEC: not a plan/paywall reason — this door is the correction wizard for an existing book, distinct from S0.6b's onboarding opening-balances screen."
+  },
+  "settings.opening_balances.row.subtitle": "Correct an opening balance after it has already been posted.",
+  "@settings.opening_balances.row.subtitle": {
+    "description": "S13 opening balances row description (ADR 2026-09-03b ruling 2)."
+  },
+  "settings.opening_balances.row.title": "Opening balances",
+  "@settings.opening_balances.row.title": {
+    "description": "S13 row — the correction-wizard door (ADR 2026-09-03b ruling 2: opening balance correction ← Settings → Your books → Opening balances)."
+  },
+  "settings.section.books": "Your books",
+  "@settings.section.books": {
+    "description": "S13 section header (07 §16, ADR 2026-09-03b ruling 2 names this exact path: Settings → Your books → Opening balances)."
+  },
+  "settings.section.general": "General",
+  "@settings.section.general": {
+    "description": "S13 section header over Language and Appearance (07 §16 row order)."
+  },
+  "settings.subscription.row.reason": "Subscription management has not been built yet.",
+  "@settings.subscription.row.reason": {
+    "description": "S13 disabled-with-reason line: 07 §20 S12.x is marked @M13."
+  },
+  "settings.subscription.row.title": "Subscription",
+  "@settings.subscription.row.title": {
+    "description": "S13 row (07 §16, 07 §20 S12.x, @M13)."
+  },
+  "settings.title": "Settings",
+  "@settings.title": {
+    "description": "S13 Settings app bar title (07 §16)."
   },
   "splash.opening": "Opening your books.",
   "@splash.opening": {

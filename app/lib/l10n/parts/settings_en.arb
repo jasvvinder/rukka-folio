@@ -1,0 +1,149 @@
+{
+  "@@locale": "en",
+  "settings.title": "Settings",
+  "@settings.title": {
+    "description": "S13 Settings app bar title (07 §16)."
+  },
+
+  "settings.section.general": "General",
+  "@settings.section.general": {
+    "description": "S13 section header over Language and Appearance (07 §16 row order)."
+  },
+  "settings.language.row.title": "Language",
+  "@settings.language.row.title": {
+    "description": "S13 first row (07 §16) — per-member language."
+  },
+  "settings.language.option.en": "English",
+  "@settings.language.option.en": {
+    "description": "S13 language name, own script, invariant across app locales (matches onboarding.language.option.en, 07 §3.1)."
+  },
+  "settings.language.option.pa": "ਪੰਜਾਬੀ",
+  "@settings.language.option.pa": {
+    "description": "S13 language name, own script, invariant across app locales (matches onboarding.language.option.pa)."
+  },
+  "settings.language.option.hi": "हिन्दी",
+  "@settings.language.option.hi": {
+    "description": "S13 language name, own script, invariant across app locales (matches onboarding.language.option.hi)."
+  },
+  "settings.language.sheet.title": "Language",
+  "@settings.language.sheet.title": {
+    "description": "S13 language picker sheet heading. Every option renders in its own script regardless of the current app locale (matches S0.1)."
+  },
+  "settings.appearance.row.title": "Appearance",
+  "@settings.appearance.row.title": {
+    "description": "S13 second row (07 §16, ADR 2026-09-05f §H12)."
+  },
+  "settings.appearance.option.system": "System",
+  "@settings.appearance.option.system": {
+    "description": "Appearance three-way control (ADR 2026-09-05f §H12)."
+  },
+  "settings.appearance.option.light": "Light",
+  "@settings.appearance.option.light": {
+    "description": "Appearance three-way control (ADR 2026-09-05f §H12)."
+  },
+  "settings.appearance.option.dark": "Dark",
+  "@settings.appearance.option.dark": {
+    "description": "Appearance three-way control (ADR 2026-09-05f §H12)."
+  },
+
+  "settings.section.books": "Your books",
+  "@settings.section.books": {
+    "description": "S13 section header (07 §16, ADR 2026-09-03b ruling 2 names this exact path: Settings → Your books → Opening balances)."
+  },
+  "settings.books_manage.row.title": "Book management",
+  "@settings.books_manage.row.title": {
+    "description": "S13 row (07 §16) — create/rename/archive a book, FY start."
+  },
+  "settings.books_manage.row.subtitle": "Create, rename or archive a book, and set its financial year start.",
+  "@settings.books_manage.row.subtitle": {
+    "description": "S13 book management row description (07 §16)."
+  },
+  "settings.books_manage.row.reason": "Not built yet — coming in a later update.",
+  "@settings.books_manage.row.reason": {
+    "description": "S13 disabled-with-reason line (07 §1 rule 6): book management's own screen has not landed in this milestone. Never a silently inert tap."
+  },
+  "settings.opening_balances.row.title": "Opening balances",
+  "@settings.opening_balances.row.title": {
+    "description": "S13 row — the correction-wizard door (ADR 2026-09-03b ruling 2: opening balance correction ← Settings → Your books → Opening balances)."
+  },
+  "settings.opening_balances.row.subtitle": "Correct an opening balance after it has already been posted.",
+  "@settings.opening_balances.row.subtitle": {
+    "description": "S13 opening balances row description (ADR 2026-09-03b ruling 2)."
+  },
+  "settings.opening_balances.row.reason": "The opening balance correction wizard has not been built yet.",
+  "@settings.opening_balances.row.reason": {
+    "description": "S13 disabled-with-reason line: the S2.4 adjustment wizard behind this door has not landed. ⚠️ SPEC: not a plan/paywall reason — this door is the correction wizard for an existing book, distinct from S0.6b's onboarding opening-balances screen."
+  },
+
+  "settings.categories.row.title": "Categories",
+  "@settings.categories.row.title": {
+    "description": "S13 row (07 §16) — the category tree editor."
+  },
+  "settings.categories.row.reason": "The category editor has not been built yet.",
+  "@settings.categories.row.reason": {
+    "description": "S13 disabled-with-reason line: no category tree editor screen exists yet."
+  },
+
+  "settings.notifications.row.title": "Notifications",
+  "@settings.notifications.row.title": {
+    "description": "S13 row (07 §16) — notification preferences."
+  },
+  "settings.notifications.row.reason": "Notification preferences arrive with the notification catalog (07 §17).",
+  "@settings.notifications.row.reason": {
+    "description": "S13 disabled-with-reason line: 07 §17 notification catalog is marked @M7, not built yet."
+  },
+
+  "settings.autolock.row.title": "Auto-lock",
+  "@settings.autolock.row.title": {
+    "description": "S13 row (07 §16) — shows both auto-lock values (ADR 2026-09-05 §7). Read-only display in this lane; the lock feature (concurrent lane) owns changing it."
+  },
+  "settings.autolock.row.idle": "{minutes, plural, =1{Locks after 1 minute of no touch in the app} other{Locks after {minutes} minutes of no touch in the app}}",
+  "@settings.autolock.row.idle": {
+    "description": "S13 auto-lock idle value (ADR 2026-09-05 §7, default 5 min foreground inactivity).",
+    "placeholders": {
+      "minutes": {"type": "int"}
+    }
+  },
+  "settings.autolock.row.background": "{minutes, plural, =1{Locks after 1 minute in the background} other{Locks after {minutes} minutes in the background}}",
+  "@settings.autolock.row.background": {
+    "description": "S13 auto-lock background value (06 §4.5, default 2 min).",
+    "placeholders": {
+      "minutes": {"type": "int"}
+    }
+  },
+  "settings.autolock.row.reason": "Adjusted from Devices & security once that screen is wired in.",
+  "@settings.autolock.row.reason": {
+    "description": "S13 disabled-with-reason line: this row is read-only display here — the lock feature (a concurrent lane) owns the control that changes these values."
+  },
+
+  "settings.export.row.title": "Export everything",
+  "@settings.export.row.title": {
+    "description": "S13 row (07 §16, 06 §9.2) — full decrypted export, generated on device."
+  },
+  "settings.export.row.subtitle": "A full decrypted export of your books, generated on this phone. Always available, on every plan.",
+  "@settings.export.row.subtitle": {
+    "description": "S13 export row description (06 §9.2 🔒: always available, plan-independent — a trust feature, not a leak)."
+  },
+  "settings.export.row.reason": "The export screen has not been built yet.",
+  "@settings.export.row.reason": {
+    "description": "S13 disabled-with-reason line: 06 §9.2 makes export always available in policy, but no export screen exists in the app yet. ⚠️ SPEC: the reason names the missing screen, never a plan or payment gate — the row must never read as paywalled."
+  },
+
+  "settings.subscription.row.title": "Subscription",
+  "@settings.subscription.row.title": {
+    "description": "S13 row (07 §16, 07 §20 S12.x, @M13)."
+  },
+  "settings.subscription.row.reason": "Subscription management has not been built yet.",
+  "@settings.subscription.row.reason": {
+    "description": "S13 disabled-with-reason line: 07 §20 S12.x is marked @M13."
+  },
+
+  "settings.about.row.title": "About & support",
+  "@settings.about.row.title": {
+    "description": "S13 last row (07 §16) — about/support (WhatsApp)."
+  },
+  "settings.about.row.reason": "Help & support has not been built yet.",
+  "@settings.about.row.reason": {
+    "description": "S13 disabled-with-reason line: 07 §22 S17.x is marked @M14."
+  }
+}

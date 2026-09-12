@@ -108,6 +108,21 @@ final class HomeSnapshot {
   /// Projection health, or null before the book has been projected.
   final BookHealth? health;
 
+  /// Whether the opening-balances wizard has been run (07 §3.1 step 7, S0.7
+  /// checklist step 1). Every opening posts against `Opening Balance /
+  /// Capital A/c` (02 §4 🔒) and `openingBalances` skips zero rows, so a nil
+  /// balance on that account means nothing was ever recorded.
+  ///
+  /// ⚠️ SPEC: 02 §4 makes guided setup *"re-runnable until first lock"* but
+  /// no doc says how Home decides the step is finished. This is the
+  /// conservative reading — the counterpart account carries a figure — and it
+  /// never marks the step done on a book that has none.
+  bool get openingBalancesDone => accounts.any(
+    (a) =>
+        a.account.systemRole == SystemRole.openingBalance &&
+        a.balancePaise != 0,
+  );
+
   /// The verification card's own state (07 §4 🔒).
   bool get booksBalanced =>
       differencePaise == 0 && (health?.integrityOk ?? true);

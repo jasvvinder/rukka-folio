@@ -164,7 +164,7 @@ Design the home screen, top to bottom: top bar with a scope chip (pill, book nam
 2. **Choosing** — the counterpart slot is highlighted and the **account list has replaced the keypad in the same space**: a search field, then plain rows of icon + account name, then "+ Create a new A/C". Not a sheet sliding over, not a new screen — the amount and chips above remain visible.
 3. **Chosen** — the keypad returns, the preview line completes, Save turns solid.
 
-🔒 **Nothing is remembered between entries** — no default account, no last-used, no repeat shortcuts anywhere. Explicit choice every time. ⟦tests: F1-07-17 @M5⟧
+🔒 **Nothing is remembered between entries** — no default account, no last-used, no repeat shortcuts anywhere. Explicit choice every time. ⟦tests: F1-07-17⟧
 
 **Slot labels change with the verb — never a fixed "FROM":**
 
@@ -346,15 +346,15 @@ Each variant must show the identity chip reading the user's name and their role 
 
 **R2.4 · Use your recovery sheet (S11.3).** Camera view for scanning the QR from the printed sheet, with a small illustration reminding them what the sheet looks like, and beneath it **Type the code instead** opening a grouped character field. Design the **failure** state: "That code didn't work" with the two likely causes stated plainly — a newer sheet was printed, or the code was mistyped — never a blank error.
 
-**R2.5 · Nothing worked yet.** 🔒 **Build the whole screen around the word *yet*** — three bordered rows in green / amber / grey: family books restorable now (carrying the button), the private book *"still sealed on our server, exactly as you left it"* with the two keys that will open it *"today, next week, or next year"*, and the readable copy as a way to restart from closing balances. No "destroyed", no "contact support", no retry. Reached only when every rung has failed. Honest but not falsely final — the entries still exist on the server, sealed. Heading: **"We can't open your private book on this phone yet."** Then three plain rows: ⟦tests: F1-07-54 @M11⟧
+**R2.5 · Nothing worked yet.** 🔒 **Build the whole screen around the word *yet*** — three bordered rows in green / amber / grey: family books restorable now (carrying the button), the private book *"still sealed on our server, exactly as you left it"* with the two keys that will open it *"today, next week, or next year"*, and the readable copy as a way to restart from closing balances. No "destroyed", no "contact support", no retry. Reached only when every rung has failed. Honest but not falsely final — the entries still exist on the server, sealed. Heading: **"We can't open your private book on this phone yet."** Then three plain rows: ⟦tests: F1-07-54⟧
 - **Your family and business books** — restorable now, once the family verifies you again on this phone. Primary action.
 - **Your private book** — still sealed. Two things would open it: signing in to the Apple account that held your key, or finding your recovery sheet. State both as things that will *still work later*, not as lost causes.
 - **A readable copy**, if they kept one — "your books are in that file, and you can start fresh books from those closing balances."
 
-One primary button: **Continue and set up this phone**. 🔒 Do **not** write that the data is destroyed — it is not — and do not soften into "contact support", which cannot help. No retry loop. ⟦tests: F1-07-54 @M11⟧
+One primary button: **Continue and set up this phone**. 🔒 Do **not** write that the data is destroyed — it is not — and do not soften into "contact support", which cannot help. No retry loop. ⟦tests: F1-07-54⟧
 
 ## R4 · Backup settings (S11.4) *(the same controls as onboarding O5, revisited later)*
-🔒 **Repeat O5's wording and ordering verbatim** — add only the per-row status: *on* · *last saved 12 Apr* · an amber **never saved** badge on the readable copy, which is the one row whose state actually matters. ⟦tests: F1-07-54 @M11⟧
+🔒 **Repeat O5's wording and ordering verbatim** — add only the per-row status: *on* · *last saved 12 Apr* · an amber **never saved** badge on the readable copy, which is the one row whose state actually matters. ⟦tests: F1-07-54⟧
 Design this **after O5** and keep the wording and ordering identical — a user changing a setting must recognise the screen that set it up. A settings section titled **Backup**, three rows, each carrying its trade-off in one muted line beneath it — never buried in a help article:
 1. **Keep my key in iCloud Keychain** — toggle, **on by default**, sub-line "Lets a new iPhone open your books automatically. Apple cannot read it."
 2. **Save my recovery sheet** — a row opening the system share sheet (Files, iCloud Drive, Google Drive, Print). Sub-line in **warning amber**: "Anyone who opens this file can open your books."
@@ -547,7 +547,7 @@ Each entity pack must be delivered in **light and dark**, in **all three languag
 
 **S1.1 · Position line drill-down.** Tapping any Home position row (You will get, You will give, Advance out, In transit) opens a P1 list filtered to it, with the row's total as the header and ageing chips where relevant. Design the *You will give* case.
 
-**S2.2 · Date picker.** A compact calendar sheet over the entry screen — today preselected, **future dates disabled** with the tooltip "Use a recurring entry for future dates", and **locked dates greyed with a 🔒**; tapping a locked date opens the explanation and offers *Fix an old entry* rather than an error. ⟦tests: F1-07-17 @M5⟧
+**S2.2 · Date picker.** A compact calendar sheet over the entry screen — today preselected, **future dates disabled** with the tooltip "Use a recurring entry for future dates", and **locked dates greyed with a 🔒**; tapping a locked date opens the explanation and offers *Fix an old entry* rather than an error. ⟦tests: F1-07-17⟧
 
 **S2.3 · Transfer.** From-block and To-block, each a book selector plus a money-account chip row, amount, note. Design both: **within one book** (cash → bank; no book selectors shown) and **between books**, where a plain confirmation line reads "Agriculture Business will show ₹50,000 going out. Sharma Joint Family will show ₹50,000 coming in." Plus the **in transit** state on the resulting rows.
 

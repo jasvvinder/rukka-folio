@@ -70,6 +70,19 @@ List<AccountBalance> topMoneyAccounts(
   return money.take(take).toList();
 }
 
+/// The book's Drawings account (`SystemRole.drawings`, 02 §7.1 *Just me*),
+/// or null when the chart has none seeded — the ADR 2026-09-09b seeding gap
+/// (07 §5 "Owner's drawings" 🔒 paragraph, S2.5).
+Account? drawingsAccountOf(List<AccountBalance> all) {
+  for (final a in all) {
+    if (a.account.accountClass == AccountClass.equitySystem &&
+        a.account.systemRole == SystemRole.drawings) {
+      return a.account;
+    }
+  }
+  return null;
+}
+
 /// Accounts that may answer [spec], matching [query], most-used money first
 /// and then the chart's order — recents-and-favourites shaped, which is what
 /// 07 §5 step 3 asks the in-place picker to fill itself with.

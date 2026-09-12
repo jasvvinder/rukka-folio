@@ -24,15 +24,15 @@ seeded account is recoverable — but not seeding it is better than making the u
 - A bank arrives through **Add an account** (S3.1's type grid), during setup or at any time after, and
   asks for its opening balance at creation per `02 §4` 🔒. ⟦tests: F1-09d-1 @M5⟧
 
-### 2. `07 §3.1`'s trust seed loses its bank ⟦tests: A-09d-2 @M5⟧
+### 2. `07 §3.1`'s trust seed loses its bank ⟦tests: A-09d-2⟧
 - The trust seed becomes **`Cash`** (the ordinary cash-in-hand A/c every ledger has) and **`Gollak Cash`**
   (`cash_collection`), plus the category accounts it already names — Donation Income, Langar Expense,
-  Building Repair, Honorarium. `Trust Bank` is removed from the seed list. ⟦tests: A-09d-2 @M5⟧
+  Building Repair, Honorarium. `Trust Bank` is removed from the seed list. ⟦tests: A-09d-2⟧
 - **Everything else in that 🔒 line is untouched**, and this ADR changes none of it: the trust card remains
   the only one setting `tenant.type = organization`; trustee role labels, the gollak as a
   `cash_collection` account and **denomination counting mandatory on every cash account** all stand; and
   🔒 the gollak and the Cash A/c remain **different accounts** — counted money leaves the gollak only by
-  deposit, and expenses are never paid straight from it (`02 §8.2`). ⟦tests: A-09d-2 @M5⟧
+  deposit, and expenses are never paid straight from it (`02 §8.2`). ⟦tests: A-09d-2⟧
 - A trust that banks — most do — adds its bank on the same screen, one tap, named properly the first time.
   ⟦tests: F1-09d-1 @M5⟧
 

@@ -56,6 +56,7 @@ Future<List<String>> projectionDump(LocalLedger l) async {
 
 void main() {
   _adr2026_09_09b();
+  _adr2026_09_09c();
   _adr2026_09_09d();
   group('bootstrap', () {
     test('F1-02-1 LedgerNotOpen before bootstrapSolo', () async {
@@ -167,8 +168,8 @@ void main() {
   });
 
   group('books and accounts', () {
-    test('F1-02-2 createBook + addAccount + chartOf: Opening Balance system '
-        'account first, then the user chart, in creation order', () async {
+    test('F1-02-2 createBook + addAccount + chartOf: the seeded chart first, '
+        'then the user chart, all in creation order', () async {
       final l = await openTestLedger();
       await l.bootstrapSolo();
       final bookId = await l.createBook(name: 'Shop', type: BookType.business);
@@ -192,7 +193,15 @@ void main() {
       // Since ADR 2026-09-09b §2 a *Just me* business book is seeded with two
       // system accounts, not one: Opening Balance / Capital, then Drawings.
       final system = chart.byClass(AccountClass.equitySystem);
+      // …and since ADR 2026-09-09c §1 with its own cash account, created
+      // before either of them (`Business Cash A/c`, ADR 2026-09-09d §1: no
+      // bank joins it).
+      final seededCash = chart.byClass(AccountClass.money).first;
+      expect(seededCash.name, 'Business Cash A/c');
+      // Creation order throughout: the seeded cash account, then the two
+      // system accounts, then what the user added.
       expect(chart.accounts.map((a) => a.id), [
+        seededCash.id,
         ...system.map((a) => a.id),
         cash.id,
         party.id,
@@ -647,6 +656,9 @@ void main() {
       () async {
         final rows = await s.ledger.watchAccounts(s.bookId).first;
         expect(rows.map((r) => r.account.name), [
+          // `Cash A/c` is the personal book's seeded cash account (ADR
+          // 2026-09-09c §1); the fixture's own accounts follow, A–Z.
+          'Cash A/c',
           'Cash in hand',
           'Diesel',
           'Opening Balance',
@@ -815,8 +827,9 @@ void main() {
       final pending = await l.watchPendingPushes().first;
       expect(await outboxCount(l), envelopes);
       expect(pending, envelopes, reason: 'nothing has been pushed yet');
-      // book_config + 6 accounts (incl. Opening Balance) + 2 opening + 5 verbs.
-      expect(envelopes, 1 + 6 + 2 + 5);
+      // book_config + 7 accounts (Opening Balance and the seeded `Cash A/c`
+      // of ADR 2026-09-09c §1 included) + 2 opening + 5 verbs.
+      expect(envelopes, 1 + 7 + 2 + 5);
 
       await l.moneyOut(
         bookId: s.bookId,
@@ -1150,6 +1163,187 @@ void _adr2026_09_09d() {
       final chart = await l.chartOf(bookId);
       final kinds = checkUniversalInvariants(earlier, chart).map((v) => v.kind);
       expect(kinds, isNot(contains(ViolationKind.beforeBookStart)));
+    });
+  });
+}
+
+/// ADR 2026-09-09c §1 (as amended by ADR 2026-09-09d §1–§2): what `createBook`
+/// seeds, per book type. Names are the seeded, editable defaults; the engine
+/// keys on the id and the class, never on the string.
+void _adr2026_09_09c() {
+  group('ADR 2026-09-09c §1 — the seeded chart, per book type', () {
+    Future<LocalLedger> ledger() async {
+      final l = await openTestLedger();
+      await l.bootstrapSolo(firstBookName: 'Me');
+      return l;
+    }
+
+    List<Account> money(Chart c) => c.byClass(AccountClass.money).toList();
+
+    test('A-09c-1 a personal book seeds Cash A/c and Opening Balance, '
+        'and nothing else', () async {
+      final l = await ledger();
+      final id = await l.createBook(name: 'Rahul', type: BookType.personal);
+      final chart = await l.chartOf(id);
+      expect(money(chart).map((a) => a.name), ['Cash A/c']);
+      expect(money(chart).single.subtype, MoneySubtype.cash);
+      expect(
+        chart.accounts
+            .where((a) => a.systemRole == SystemRole.openingBalance)
+            .map((a) => a.name),
+        ['Opening Balance'],
+      );
+      // No category tree is seeded unless the caller passes one: the
+      // household/shop trees are drafted and unratified (ADR 2026-09-09c
+      // Open ⚠️, docs/reference/seed-category-trees.md).
+      expect(
+        chart.accounts.where(
+          (a) =>
+              a.accountClass == AccountClass.categoryIncome ||
+              a.accountClass == AccountClass.categoryExpense,
+        ),
+        isEmpty,
+      );
+    });
+
+    test('A-09c-1 a business book seeds Business Cash A/c; family and joint '
+        'seed Joint Cash A/c', () async {
+      final l = await ledger();
+      final shop = await l.createBook(name: 'Shop', type: BookType.business);
+      expect(money(await l.chartOf(shop)).map((a) => a.name), [
+        'Business Cash A/c',
+      ]);
+      for (final t in [BookType.family, BookType.joint]) {
+        final id = await l.createBook(name: 'B-${t.name}', type: t);
+        expect(money(await l.chartOf(id)).map((a) => a.name), [
+          'Joint Cash A/c',
+        ]);
+      }
+    });
+
+    test('A-09c-1 a shared business seeds Profit Distributed and one Partner '
+        'Current A/c per owner, in the order S0.6a1 showed them', () async {
+      final l = await ledger();
+      final id = await l.createBook(
+        name: 'Amrit Kaur Agri',
+        type: BookType.business,
+        ownership: BookOwnership.shared,
+        ownerNames: const ['Amrit Kaur', 'Sukhdev Singh'],
+      );
+      final chart = await l.chartOf(id);
+      expect(
+        chart.accounts
+            .where((a) => a.systemRole == SystemRole.profitDistributed)
+            .map((a) => a.name),
+        ['Profit Distributed'],
+      );
+      expect(chart.byClass(AccountClass.partner).map((a) => a.name), [
+        'Amrit Kaur — Partner Current A/c',
+        'Sukhdev Singh — Partner Current A/c',
+      ]);
+      // 02 §7.1: the Partner Current A/c is where the relationship lives, so
+      // a shared business never also gets Drawings (ADR 2026-09-09b §2).
+      expect(
+        chart.accounts.where((a) => a.systemRole == SystemRole.drawings),
+        isEmpty,
+      );
+    });
+
+    test('A-09c-1 the trust seeds Cash and Gollak Cash as different accounts, '
+        'the gollak a cash_collection (07 §3.1 🔒)', () async {
+      final l = await ledger();
+      final id = await l.createBook(
+        name: 'Singh Sabha',
+        type: BookType.organization,
+      );
+      final chart = await l.chartOf(id);
+      final cash = money(chart);
+      expect(cash.map((a) => a.name), ['Cash', 'Gollak Cash']);
+      expect(cash.first.subtype, MoneySubtype.cash);
+      expect(cash.last.subtype, MoneySubtype.cashCollection);
+      expect(cash.first.id, isNot(cash.last.id));
+      // 07 §3.1 step 3 🔒 names the trust's category seeds.
+      expect(
+        [
+          for (final a in chart.accounts)
+            if (a.accountClass == AccountClass.categoryIncome ||
+                a.accountClass == AccountClass.categoryExpense)
+              a.name,
+        ],
+        ['Donation Income', 'Langar Expense', 'Building Repair', 'Honorarium'],
+      );
+      expect(
+        chart.byClass(AccountClass.categoryIncome).map((a) => a.name).toList(),
+        ['Donation Income'],
+      );
+    });
+
+    test(
+      'A-09c-1 a caller-supplied category tree is seeded with its classes',
+      () async {
+        final l = await ledger();
+        final id = await l.createBook(
+          name: 'Sharma Textile',
+          type: BookType.business,
+          categories: const [
+            SeedCategory('Sales', AccountClass.categoryIncome),
+            SeedCategory('Purchases', AccountClass.categoryExpense),
+          ],
+        );
+        final chart = await l.chartOf(id);
+        expect(chart.byClass(AccountClass.categoryIncome).map((a) => a.name), [
+          'Sales',
+        ]);
+        expect(chart.byClass(AccountClass.categoryExpense).map((a) => a.name), [
+          'Purchases',
+        ]);
+      },
+    );
+
+    test('A-09c-2 no party account is ever seeded, in any book type — '
+        '02 §1.2 🔒, one party one account, placement by sign', () async {
+      final l = await ledger();
+      for (final t in BookType.values) {
+        for (final o in BookOwnership.values) {
+          final id = await l.createBook(
+            name: 'B-${t.name}-${o.name}',
+            type: t,
+            ownership: o,
+            ownerNames: const ['Amrit Kaur', 'Sukhdev Singh'],
+          );
+          final chart = await l.chartOf(id);
+          expect(
+            chart.byClass(AccountClass.party),
+            isEmpty,
+            reason: 'no Sundry Debtors / Creditors exist to seed (${t.name})',
+          );
+        }
+      }
+    });
+
+    test('A-09d-2 no book type seeds a bank account — a bank is added, '
+        'never seeded (ADR 2026-09-09d §1–§2)', () async {
+      final l = await ledger();
+      const bankish = {
+        MoneySubtype.saving,
+        MoneySubtype.current,
+        MoneySubtype.od,
+        MoneySubtype.cc,
+        MoneySubtype.loan,
+        MoneySubtype.wallet,
+      };
+      for (final t in BookType.values) {
+        final id = await l.createBook(name: 'B-${t.name}', type: t);
+        final chart = await l.chartOf(id);
+        for (final a in money(chart)) {
+          expect(
+            bankish.contains(a.subtype),
+            isFalse,
+            reason: '${t.name} seeded a bank-shaped account: ${a.name}',
+          );
+          expect(a.name.toLowerCase(), isNot(contains('bank')));
+        }
+      }
     });
   });
 }

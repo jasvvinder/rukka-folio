@@ -1,0 +1,114 @@
+{
+  "@@locale": "en",
+  "lock.title": "Unlock to open your books",
+  "@lock.title": {
+    "description": "S15 app lock heading under the mark (07 §5.6)."
+  },
+  "lock.biometric.prompt": "Unlock your books",
+  "@lock.biometric.prompt": {
+    "description": "S15 reason string shown by the platform biometric sheet, which is raised automatically without a tap (07 §5.6)."
+  },
+  "lock.biometric.retry": "Try Face ID again",
+  "@lock.biometric.retry": {
+    "description": "S15 secondary action after a failed biometric attempt — never a dead end (07 §1 rule 6)."
+  },
+  "lock.biometric.failed": "Face ID didn't work — type your PIN",
+  "@lock.biometric.failed": {
+    "description": "S15 line after biometric fails; the fallback is the 6-digit MPIN, never the phone's passcode (06 §4.4)."
+  },
+  "lock.biometric.unavailable": "Face ID isn't available on this phone right now — type your PIN",
+  "@lock.biometric.unavailable": {
+    "description": "S15 line when the platform reports no usable biometric."
+  },
+  "lock.biometric.reenrolled": "A new face or fingerprint was added to this phone — enter your PIN once",
+  "@lock.biometric.reenrolled": {
+    "description": "S15 copy variant after biometric re-enrolment (ADR 2026-09-05d §4)."
+  },
+  "lock.pin.use_instead": "Use PIN instead",
+  "@lock.pin.use_instead": {
+    "description": "S15 action beneath the mark that reveals the PIN pad (07 §5.6)."
+  },
+  "lock.pin.label": "Enter your PIN",
+  "@lock.pin.label": {
+    "description": "S15.3 heading over the six boxes."
+  },
+  "lock.pin.entered": "{count} of 6 digits entered",
+  "@lock.pin.entered": {
+    "description": "Screen-reader label for the six PIN boxes — never the digits themselves.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lock.pin.wrong": "That PIN is not right",
+  "@lock.pin.wrong": {
+    "description": "S15.3 error after a wrong PIN."
+  },
+  "lock.pin.tries_left": "{count} tries left before the PIN switches off",
+  "@lock.pin.tries_left": {
+    "description": "S15.3 warning row once the free attempts are spent (ADR 2026-09-05d §5).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lock.pin.one_try_left": "One try left before the PIN switches off",
+  "@lock.pin.one_try_left": {
+    "description": "S15.3 warning row on the last attempt."
+  },
+  "lock.cooldown.title": "Take a short break",
+  "@lock.cooldown.title": {
+    "description": "S15.3 cooldown heading — a code, not a lockout (ADR 2026-09-05d §5)."
+  },
+  "lock.cooldown.body": "It's a code, not a lockout. The PIN comes back on its own — nothing is lost.",
+  "@lock.cooldown.body": {
+    "description": "S15.3 cooldown reassurance, keeping the canvas's tone."
+  },
+  "lock.cooldown.countdown": "Try again in {time}",
+  "@lock.cooldown.countdown": {
+    "description": "S15.3 countdown row; {time} is mm:ss counted down from the injected clock.",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "lock.disabled.title": "The PIN is switched off",
+  "@lock.disabled.title": {
+    "description": "S15.3 disabled state after 10 failures (ADR 2026-09-05d §5)."
+  },
+  "lock.disabled.body": "Your books are safe and nothing is lost. Confirm the code we send to your number, then Face ID, and pick a new PIN.",
+  "@lock.disabled.body": {
+    "description": "S15.3 disabled explanation — forgetting the PIN is never data loss (06 §4.4)."
+  },
+  "lock.forgot.action": "Forgot your PIN?",
+  "@lock.forgot.action": {
+    "description": "S15 door to the reset path — OTP to the registered number plus biometric (07 §5.6)."
+  },
+  "lock.forgot.title": "Set a new PIN",
+  "@lock.forgot.title": {
+    "description": "S15 forgot-PIN heading."
+  },
+  "lock.forgot.body": "We'll send a code to your registered number and ask for Face ID. Then you pick a new PIN — your books are untouched.",
+  "@lock.forgot.body": {
+    "description": "S15 forgot-PIN explanation; nothing is re-encrypted (06 §4.4)."
+  },
+  "lock.forgot.start": "Send me a code",
+  "@lock.forgot.start": {
+    "description": "S15 primary action on the forgot-PIN door."
+  },
+  "lock.forgot.cancel": "Back",
+  "@lock.forgot.cancel": {
+    "description": "S15 leaves the forgot-PIN door without starting the reset."
+  },
+  "lock.keypad.delete": "Delete",
+  "@lock.keypad.delete": {
+    "description": "PIN keypad backspace key label (screen reader)."
+  },
+  "lock.cover.semantics": "The app is covered while it is in the background",
+  "@lock.cover.semantics": {
+    "description": "S15.1 privacy cover — the mark on plain paper so no balance reaches the app switcher (07 §5.6 🔒)."
+  }
+}

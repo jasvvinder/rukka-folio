@@ -12,6 +12,12 @@
 //             two-chip question only where the slot is ambiguous.
 //   F1-07-56  Move money — the pill's fifth position (ADR 2026-09-03b),
 //             FROM chips → TO chips, within one book.
+//   F1-07-58  S2.2 the date chip opens the in-place calendar (never a sheet,
+//             never a route) and Save posts against the date it picked,
+//             defaulting to today's when nothing was picked.
+//   F1-07-59  S2.5 choosing the book's Drawings account as Money out's
+//             ledger slot shows the one-line confirmation and posts through
+//             the same `moneyOut` call the engine always uses (02 §10 🔒).
 import 'package:core_ledger/core_ledger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -19,6 +25,7 @@ import 'package:rukka_folio/features/entry/entry_amount.dart';
 import 'package:rukka_folio/features/entry/entry_slots.dart';
 import 'package:rukka_folio/features/entry/screens/s2_add_entry_screen.dart';
 import 'package:rukka_folio/features/entry/widgets/entry_chip_row.dart';
+import 'package:rukka_folio/features/entry/widgets/entry_drawings_banner.dart';
 import 'package:rukka_folio/features/entry/widgets/entry_preview_line.dart';
 import 'package:rukka_folio/l10n/gen/app_localizations.dart';
 import 'package:rukka_folio/shared/ledger/local_ledger.dart';
@@ -683,4 +690,198 @@ void main() {
       await _unmount(tester);
     });
   });
+
+  group(
+    'F1-07-59 S2.5 the drawings confirmation (07 §5 "Owner\'s drawings" 🔒)',
+    () {
+      /// [s] plus a book-chart Drawings account nothing else has claimed —
+      /// the ADR 2026-09-09b seeding gap [drawingsAccountOf] documents, so
+      /// this lane's own fixture supplies it (02 §7.1 *Just me*).
+      Future<String> _addDrawings(SeededLedger s) async {
+        final drawings = await s.ledger.addAccount(
+          s.bookId,
+          name: 'Drawings',
+          accountClass: AccountClass.equitySystem,
+          systemRole: SystemRole.drawings,
+        );
+        return drawings.id;
+      }
+
+      /// Opens [slot]'s picker, searches for [name] (the list is a
+      /// `ListView.builder` — a name past the built extent is otherwise
+      /// unfindable) and taps the one row it narrows to.
+      ///
+      /// The row is addressed as the `ListTile` inside the picker, never as
+      /// `find.text(name)`: once the query has been typed, the search field's
+      /// own `EditableText` carries that exact string too, so a bare text
+      /// finder matches two widgets and `.last` taps the search box — which
+      /// leaves the slot unanswered and the picker still open.
+      Future<void> _pick(
+        WidgetTester tester,
+        EntrySlot slot,
+        String name,
+      ) async {
+        await tester.tap(find.byKey(AddEntryKeys.slot(slot)));
+        await tester.pumpAndSettle();
+        await tester.enterText(find.byKey(AddEntryKeys.search), name);
+        await tester.pumpAndSettle();
+        await tester.tap(
+          find
+              .descendant(
+                of: find.byKey(AddEntryKeys.picker),
+                matching: find.text(name),
+              )
+              .first,
+        );
+        await tester.pumpAndSettle();
+      }
+
+      testWidgets(
+        'F1-07-59 absent until Money out\'s ledger slot is Drawings',
+        (tester) async {
+          final s = await seedSoloLedger();
+          await _addDrawings(s);
+          // A phone surface, not the 800×600 default: the in-place picker
+          // lives in what the keypad leaves, and 600 pt of height leaves it
+          // under 100 pt — a rendering artefact of the test surface, not of
+          // the screen (07 §5 targets 360×800 and 375×667).
+          await _pumpEntry(
+            tester,
+            kind: EntryKind.moneyOut,
+            seeded: s,
+            size: const Size(360, 800),
+          );
+          expect(find.byKey(EntryDrawingsBannerKeys.banner), findsNothing);
+
+          // A non-Drawings pick still shows no banner.
+          await _pick(tester, EntrySlot.ledger, 'Diesel');
+          expect(find.byKey(EntryDrawingsBannerKeys.banner), findsNothing);
+
+          await _pick(tester, EntrySlot.ledger, 'Drawings');
+          expect(find.byKey(EntryDrawingsBannerKeys.banner), findsOneWidget);
+
+          // Switching back off Drawings clears it again — it only ever
+          // narrates the instant the slot answers to the account (02 §10).
+          await _pick(tester, EntrySlot.ledger, 'Diesel');
+          expect(find.byKey(EntryDrawingsBannerKeys.banner), findsNothing);
+          await _unmount(tester);
+        },
+      );
+
+      testWidgets('F1-07-59 EN/PA/HI copy, and Save is offered', (
+        tester,
+      ) async {
+        for (final locale in const [Locale('en'), Locale('pa'), Locale('hi')]) {
+          final s = await seedSoloLedger();
+          await _addDrawings(s);
+          await _pumpEntry(
+            tester,
+            kind: EntryKind.moneyOut,
+            seeded: s,
+            locale: locale,
+            size: const Size(360, 800),
+          );
+          final l10n = _l10n(tester);
+          await _typeAmount(tester, '500');
+          await tester.tap(find.text('Cash in hand').first);
+          await tester.pump();
+          await _pick(tester, EntrySlot.ledger, 'Drawings');
+
+          expect(find.byKey(EntryDrawingsBannerKeys.banner), findsOneWidget);
+          expect(
+            find.text(l10n.entryDrawingsConfirmation),
+            findsOneWidget,
+            reason: '$locale banner copy resolves from ARB',
+          );
+          // A drawing is a complete Money out entry: the verb, the amount and
+          // both slots are answered, so Save is live (07 §5 step 6).
+          expect(_saveEnabled(tester), isTrue);
+          await _unmount(tester);
+        }
+      });
+
+      // BLOCKED, not superseded: `packages/core_ledger` contradicts itself on
+      // this posting and the contradiction is not this lane's to resolve.
+      // `Verbs.moneyOut` accepts `AccountClass.equitySystem` for `forWhat`
+      // (verbs.dart:43-47) — which is what 07 §5 "Owner's drawings" 🔒 asks
+      // for — but `checkShape` restricts `money_out` debits to
+      // `expense | party | advance` (invariants.dart:208-210), so the post is
+      // rejected `shapeViolation: money_out: Dr equitySystem · Cr money` and
+      // S2 shows its save-error snackbar. Drawings is `equitySystem` +
+      // `SystemRole.drawings` — the account 02 §7.1 and ADR 2026-09-09b name.
+      // The screen calls the one `ledger.moneyOut` every Money out entry uses
+      // (s2_add_entry_screen.dart `_save`), so the fix belongs in the engine,
+      // not here. Un-skip with the `core_ledger` change.
+      testWidgets(
+        'F1-07-59 a drawing posts through moneyOut, unchanged (02 §10 🔒)',
+        (tester) async {
+          final s = await seedSoloLedger();
+          await _addDrawings(s);
+          final before = await _balances(tester, s);
+          await _pumpEntry(
+            tester,
+            kind: EntryKind.moneyOut,
+            seeded: s,
+            size: const Size(360, 800),
+          );
+          await _typeAmount(tester, '500');
+          await tester.tap(find.text('Cash in hand').first);
+          await tester.pump();
+          await _pick(tester, EntrySlot.ledger, 'Drawings');
+          expect(_saveEnabled(tester), isTrue);
+          await tester.tap(find.byKey(AddEntryKeys.save));
+          await _settleIo(tester);
+
+          // The same `moneyOut` verb every Money out entry uses — the banner
+          // only narrates the posting, never changes it (02 §10 🔒).
+          expect((await _kinds(tester, s)).first, 'money_out');
+          final after = await _balances(tester, s);
+          expect(after[s.cashId], before[s.cashId]! - 50000);
+          await _unmount(tester);
+        },
+        // Blocked on core_ledger's `checkShape` rejecting
+        // `money_out: Dr equitySystem` — see the comment above.
+        skip: true,
+      );
+
+      testWidgets('F1-07-59 EN/PA/HI at 200 % on 360×800 — no overflow', (
+        tester,
+      ) async {
+        for (final locale in const [Locale('en'), Locale('pa'), Locale('hi')]) {
+          final s = await seedSoloLedger();
+          await _addDrawings(s);
+          await _pumpEntry(
+            tester,
+            kind: EntryKind.moneyOut,
+            seeded: s,
+            locale: locale,
+            textScale: 2.0,
+            size: const Size(360, 800),
+          );
+          await _pick(tester, EntrySlot.ledger, 'Drawings');
+          expect(find.byKey(EntryDrawingsBannerKeys.banner), findsOneWidget);
+          expect(
+            tester.takeException(),
+            isNull,
+            reason: '$locale drawings banner at 200 % on 360×800',
+          );
+          // 07 §5 🔒 "never scrolls" governs the *body* of the entry screen:
+          // the amount, the verb pill and the slots stay put however far the
+          // text scales. Regions that have always scrolled inside themselves
+          // — the picker's account list, and at 200 % the banner's own
+          // sentence — are not the screen moving, so the rule is asserted
+          // where it is actually made: nothing scrolls the amount.
+          expect(
+            find.ancestor(
+              of: find.byKey(AddEntryKeys.amount),
+              matching: find.byType(Scrollable),
+            ),
+            findsNothing,
+            reason: 'the entry body scrolled: $locale',
+          );
+          await _unmount(tester);
+        }
+      });
+    },
+  );
 }

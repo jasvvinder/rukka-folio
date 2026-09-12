@@ -1,0 +1,44 @@
+{
+  "@@locale": "pa",
+  "settings.title": "ਸੈਟਿੰਗਾਂ",
+
+  "settings.section.general": "ਆਮ",
+  "settings.language.row.title": "ਭਾਸ਼ਾ",
+  "settings.language.option.en": "English",
+  "settings.language.option.pa": "ਪੰਜਾਬੀ",
+  "settings.language.option.hi": "हिन्दी",
+  "settings.language.sheet.title": "ਭਾਸ਼ਾ",
+  "settings.appearance.row.title": "ਦਿੱਖ",
+  "settings.appearance.option.system": "ਸਿਸਟਮ",
+  "settings.appearance.option.light": "ਹਲਕੀ",
+  "settings.appearance.option.dark": "ਗੂੜ੍ਹੀ",
+
+  "settings.section.books": "ਤੁਹਾਡੇ ਵਹੀ-ਖਾਤੇ",
+  "settings.books_manage.row.title": "ਖਾਤਾ-ਬਹੀ ਪ੍ਰਬੰਧ",
+  "settings.books_manage.row.subtitle": "ਬਹੀ ਬਣਾਓ, ਨਾਂ ਬਦਲੋ ਜਾਂ ਆਰਕਾਈਵ ਕਰੋ, ਅਤੇ ਉਸ ਦਾ ਵਿੱਤੀ ਸਾਲ ਸ਼ੁਰੂ ਮਿਤੀ ਸੈੱਟ ਕਰੋ।",
+  "settings.books_manage.row.reason": "ਅਜੇ ਬਣਿਆ ਨਹੀਂ — ਅਗਲੇ ਅੱਪਡੇਟ ਵਿੱਚ ਆਵੇਗਾ।",
+  "settings.opening_balances.row.title": "ਸ਼ੁਰੂਆਤੀ ਬਕਾਏ",
+  "settings.opening_balances.row.subtitle": "ਪੋਸਟ ਹੋ ਚੁੱਕੇ ਸ਼ੁਰੂਆਤੀ ਬਕਾਏ ਨੂੰ ਠੀਕ ਕਰੋ।",
+  "settings.opening_balances.row.reason": "ਸ਼ੁਰੂਆਤੀ ਬਕਾਏ ਠੀਕ ਕਰਨ ਵਾਲਾ ਵਿਜ਼ਰਡ ਅਜੇ ਬਣਿਆ ਨਹੀਂ।",
+
+  "settings.categories.row.title": "ਸ਼੍ਰੇਣੀਆਂ",
+  "settings.categories.row.reason": "ਸ਼੍ਰੇਣੀ ਸੰਪਾਦਕ ਅਜੇ ਬਣਿਆ ਨਹੀਂ।",
+
+  "settings.notifications.row.title": "ਸੂਚਨਾਵਾਂ",
+  "settings.notifications.row.reason": "ਸੂਚਨਾ ਤਰਜੀਹਾਂ ਸੂਚਨਾ ਸੂਚੀ ਦੇ ਨਾਲ ਆਉਣਗੀਆਂ।",
+
+  "settings.autolock.row.title": "ਆਟੋ-ਲੌਕ",
+  "settings.autolock.row.idle": "{minutes, plural, =1{ਐਪ ਵਿੱਚ 1 ਮਿੰਟ ਬਿਨਾਂ ਛੋਹ ਦੇ ਮਗਰੋਂ ਲੌਕ ਹੋ ਜਾਂਦੀ ਹੈ} other{ਐਪ ਵਿੱਚ {minutes} ਮਿੰਟ ਬਿਨਾਂ ਛੋਹ ਦੇ ਮਗਰੋਂ ਲੌਕ ਹੋ ਜਾਂਦੀ ਹੈ}}",
+  "settings.autolock.row.background": "{minutes, plural, =1{ਪਿਛੋਕੜ ਵਿੱਚ 1 ਮਿੰਟ ਮਗਰੋਂ ਲੌਕ ਹੋ ਜਾਂਦੀ ਹੈ} other{ਪਿਛੋਕੜ ਵਿੱਚ {minutes} ਮਿੰਟ ਮਗਰੋਂ ਲੌਕ ਹੋ ਜਾਂਦੀ ਹੈ}}",
+  "settings.autolock.row.reason": "ਡਿਵਾਈਸ ਤੇ ਸੁਰੱਖਿਆ ਤੋਂ ਬਦਲੀ ਜਾਵੇਗੀ, ਜਦੋਂ ਉਹ ਸਕਰੀਨ ਜੁੜ ਜਾਵੇ।",
+
+  "settings.export.row.title": "ਸਾਰਾ ਡਾਟਾ ਐਕਸਪੋਰਟ ਕਰੋ",
+  "settings.export.row.subtitle": "ਤੁਹਾਡੀਆਂ ਬਹੀਆਂ ਦਾ ਪੂਰਾ ਡੀਕ੍ਰਿਪਟਡ ਐਕਸਪੋਰਟ, ਇਸੇ ਫ਼ੋਨ ਉੱਤੇ ਬਣਿਆ। ਹਰ ਪਲਾਨ ਉੱਤੇ, ਹਮੇਸ਼ਾ ਉਪਲਬਧ।",
+  "settings.export.row.reason": "ਐਕਸਪੋਰਟ ਸਕਰੀਨ ਅਜੇ ਬਣੀ ਨਹੀਂ।",
+
+  "settings.subscription.row.title": "ਸਬਸਕ੍ਰਿਪਸ਼ਨ",
+  "settings.subscription.row.reason": "ਸਬਸਕ੍ਰਿਪਸ਼ਨ ਪ੍ਰਬੰਧ ਅਜੇ ਬਣਿਆ ਨਹੀਂ।",
+
+  "settings.about.row.title": "ਬਾਰੇ ਤੇ ਮਦਦ",
+  "settings.about.row.reason": "ਮਦਦ ਤੇ ਸਹਾਇਤਾ ਅਜੇ ਬਣੀ ਨਹੀਂ।"
+}

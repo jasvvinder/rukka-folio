@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import '../../shared/router.dart';
 import 'ledger_paths.dart';
 import 'screens/s3_ledger_index_screen.dart';
+import 'screens/s4_1_entry_detail_screen.dart';
 import 'screens/s4_account_statement_screen.dart';
 
 export 'ledger_paths.dart';
@@ -25,12 +26,25 @@ final RkTabRoot ledgerRoot = RkTabRoot(
 );
 
 /// Root-navigator routes this feature owns beyond its tab root: S4 A/C
-/// statement today; S4.1 entry detail and S21 search follow in later lanes
-/// (ledger_paths.dart already reserves their paths).
+/// statement and S4.1 entry detail (07 §6 flow line `tap row → S4.1 entry
+/// detail → [Amend | Reverse]`). S4.1 is a *detail viewer*, exempt from the
+/// depth rule — it opens from a row, it is not a destination (13 §211). S21
+/// search follows at M12 (07 §25); ledger_paths.dart reserves its path.
 final List<RouteBase> ledgerRoutes = [
   GoRoute(
     path: LedgerPaths.statement,
-    builder: (context, state) =>
-        AccountStatementScreen(accountId: state.pathParameters['id']!),
+    builder: (context, state) => AccountStatementScreen(
+      accountId: state.pathParameters['id']!,
+      onOpenEntry: (entryId) => context.push(LedgerPaths.entryOf(entryId)),
+    ),
+  ),
+  GoRoute(
+    path: LedgerPaths.entry,
+    builder: (context, state) => EntryDetailScreen(
+      entryId: state.pathParameters['id']!,
+      // A version of the chain replaces this one rather than stacking, so
+      // walking an amend chain never grows the back stack (13 §211).
+      onOpenEntry: (entryId) => context.replace(LedgerPaths.entryOf(entryId)),
+    ),
   ),
 ];

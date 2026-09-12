@@ -357,16 +357,22 @@ class _HomeBody extends StatelessWidget {
               differencePaise: snapshot.differencePaise,
               onOpenTrialBalance: onOpenTrialBalance,
             ),
-        if (firstRun)
+        // 07 §3.1 step 7 🔒: the opening-balances wizard is skippable and
+        // **resumable from Home's setup card**. So the checklist outlives the
+        // empty state — it stays until the balances are in, or a user who
+        // skipped them and then posted an entry would have no way back to
+        // them at all (07 §1 rule 6, no dead ends). Once they are recorded it
+        // goes, and the position card stands alone.
+        if (firstRun || !snapshot.openingBalancesDone)
           HomeSetupChecklist(
-            // With no entries in the book neither step can be done; the
-            // completion sources for steps 3 and 4 are the widget's own
-            // ⚠️ SPEC note (S11.4, S13).
-            openingBalancesDone: false,
-            firstEntryDone: false,
+            openingBalancesDone: snapshot.openingBalancesDone,
+            // The book's first entry, which is also what ends the empty
+            // state. Steps 3 and 4 have no completion source yet — the
+            // widget's own ⚠️ SPEC note (S11.4, S13).
+            firstEntryDone: !firstRun,
             onStep: onSetupStep,
-          )
-        else
+          ),
+        if (!firstRun)
           HomePositionCard(
             snapshot: snapshot,
             onOpenPosition: onOpenPosition,

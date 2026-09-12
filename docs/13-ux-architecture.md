@@ -96,14 +96,14 @@ Roles (admin · head · member · operator · viewer) change *what actions appea
 |---|---|---|---|
 | **S0.0** | Splash | launch | mark, sealed→open animation on real unlock only |
 | **S0.05** | Welcome | first launch | 3 skippable slides, after language so they are in the user's language |
-| **S0.8** | Set your PIN | onboarding | 6-digit, set + confirm (06 §4.4) |
-| **S15.3** | Enter PIN | app lock | 6 boxes; Face ID button; *Forgot PIN* → OTP + biometric; **cooldown** states (5 free · 30 s · 1 min · 5 min · 15 min · 1 h, countdown row) and **PIN disabled** after 10 → OTP + biometric — the canvas's "a code, not a lockout" tone stays as copy (ADR 2026-09-05d §5, ADR 2026-09-05f §B) |
+| **S0.8** | Set your PIN | onboarding | 6-digit, set + confirm (06 §4.4) ⟦tests: F1-07-62⟧ |
+| **S15.3** | Enter PIN | app lock | 6 boxes; Face ID button; *Forgot PIN* → OTP + biometric; **cooldown** states (5 free · 30 s · 1 min · 5 min · 15 min · 1 h, countdown row) and **PIN disabled** after 10 → OTP + biometric — the canvas's "a code, not a lockout" tone stays as copy (ADR 2026-09-05d §5, ADR 2026-09-05f §B) ⟦tests: F1-07-63⟧ |
 | **S0.1** | Language picker | onboarding | first screen ever shown |
 | **S0.2** | Phone + OTP | onboarding | identity |
 | **S0.3** | "What will you use this for?" | onboarding | five cards; the trust card alone sets `tenant.type = organization` (07 §3.1) |
 | **S0.4** | Name & photo | onboarding | for approvals/ceremony |
-| **S0.5** | Keeping your books safe | onboarding | key sync stated on · automatic backup on with its disclosure · sheet action (04 §7.6, 07 §3.1) |
-| **S0.5b** | Recovery sheet | S0.5 | generate, print/save, verify by scanning back |
+| **S0.5** | Keeping your books safe | onboarding | key sync stated on · automatic backup on with its disclosure · sheet action (04 §7.6, 07 §3.1) ⟦tests: F1-07-71, F1-07-72⟧ |
+| **S0.5b** | Recovery sheet | S0.5 | generate, print/save, verify by scanning back ⟦tests: F1-07-73⟧ |
 | **S0.6a** | Name the business | O3 branch | name · just me / shared · FY start; the FY start and the book's start date feed `createBook` (ADR 2026-09-09d §4 — the start date is stated, never picked) ⟦tests: F1-07-51⟧ |
 | **S0.6a1** | Who owns this business? | S0.6a (*Shared with others* only) | owners invited by phone, reusing the S0.6e row; shares as whole-number weights, not percentages; not skippable — the secondary returns to *Just me* (ADR 2026-09-09 §1–3) |
 | **S0.6b** | The business's opening balances | O6a | |
@@ -115,21 +115,21 @@ Roles (admin · head · member · operator · viewer) change *what actions appea
 | **S0.6h** | Who runs the trust | O6g | Chairman/President/Trustee/Sevadar, skippable |
 | **S0.6i** | The trust's accounts | O6h | bank + gollak as `cash_collection` |
 | **S0.6** | Opening balances — one grouped screen | onboarding | resumable; the three O6a–c steps become three **groups** on one screen now that the chart is seeded (ADR 2026-09-09c §3): *what you have · who owes you · who you owe*, plus *what each owner put in* for a shared business |
-| **S0.7** | Setup checklist (Home empty state) | S1 | progressive onboarding |
+| **S0.7** | Setup checklist (Home empty state) | S1 | progressive onboarding; it outlives the empty state — the card stays until the opening balances are in, so a skipped wizard always has a door (07 §3.1 step 7) ⟦tests: F1-07-57⟧ |
 | **S0.9** | Invitation accept (design O7a/O7b) | deep link | invited path: accept → OTP → personal book works immediately, shared books greyed "Meet Sunita to activate" (07 §12) |
 | **S1** | Home / Position | root | banks, cash, get/give, advances, in-transit, month, verbs, today |
 | **S1.1** | Position line drill-down | S1 | list behind any position row |
 | **S1.4** | Book incomplete — rebuilding | S1 | replaces the Home card while projections rebuild (local corruption, Recompute on upgrade, `store_epoch` re-pull); determinate loader "{done} of {total} entries restored"; `integrity_ok` gates it (ADR 2026-09-05c §3/§6, ADR 2026-09-05f §B) |
 | **S2** | Add entry (keypad-first) | action | the 8-second flow |
-| **S2.1** | A/C picker + inline create | S2 | search-first, class inferred by slot |
-| **S2.2** | Date picker | S2 | today default, backdate ok, future disabled |
+| **S2.1** | A/C picker + inline create | S2 | search-first, class inferred by slot ⟦tests: F1-07-55⟧ |
+| **S2.2** | Date picker | S2 | today default, backdate ok, future disabled ⟦tests: F1-07-58⟧ |
 | **S2.3** | Transfer (within/between books) | S2 (fifth position of the verb pill — ADR 2026-09-03b) | pairs |
 | **S2.4** | Adjustment wizards | S5.5 · S4 ⋯ menu · S4.1 · S13 (one door each — ADR 2026-09-03b) | guided only, never freeform |
-| **S2.5** | Drawings confirmation (design B5) | S2 | business books: owner takeout posts to Drawings; the sheet says "not a business expense" (07 §5) |
+| **S2.5** | Drawings confirmation (design B5) | S2 | business books: owner takeout posts to Drawings; the sheet says "not a business expense" (07 §5) ⟦tests: F1-07-59⟧ |
 | **S3** | Ledger index (A–Z khatas) | root | search header, filter chips |
 | **S3.1** | Quick add sheet | S3 | bottom-sheet A/C create from the Ledger tab (07 §6); the entry flow's picker is a full screen instead (design S2-C) — same component, two presentations, deliberately |
 | **S4** | A/C statement | S3 | grouped listing; professional columns in export |
-| **S4.1** | Entry detail | any P1 row | audit trail, photo, who entered, amend/reverse — the target of every tap in every list; a **held** entry (dangling amend/reverse/decision) shows *"waiting for the entry this changes"* (ADR 2026-09-05b §4) |
+| **S4.1** | Entry detail | any P1 row | audit trail, photo, who entered, amend/reverse — the target of every tap in every list; a **held** entry (dangling amend/reverse/decision) shows *"waiting for the entry this changes"* (ADR 2026-09-05b §4) ⟦tests: F1-07-60, F1-07-61⟧ |
 | **S4.2** | Donation receipt (design C5) | S4.1 | trust books: shareable receipt card from a donation entry; no tax language (07 §14) |
 | **S5** | Advances (ਐਡਵਾਂਸ) | S1/S6 | mine held · given out, aged |
 | **S5.1** | Advance request | S5 | amount + purpose → approver |
@@ -202,11 +202,11 @@ Roles (admin · head · member · operator · viewer) change *what actions appea
 | **S19.5** | This phone has been modified | global, once per app version | root / debugger / instrumentation detected: plain notice → S11; never blocks; permanent S11 row (ADR 2026-09-05 §6) |
 | **S20** | Attachment viewer | S4.1 | pinch-zoom bill photo, share, replace |
 | **S21** | Search | S3/S1 | across accounts, parties and notes |
-| **S15** | App lock | cold start / background 2 min / idle 5 min | biometric auto-prompt, **MPIN fallback — never the device passcode** (06 §4.4, 07 §5.6); idle lock suppressed while a draft has digits; copy variant after biometric re-enrolment (ADR 2026-09-05d §4) |
-| **S15.1** | Privacy cover | background | mark on paper; no balances in the app switcher |
+| **S15** | App lock | cold start / background 2 min / idle 5 min | biometric auto-prompt, **MPIN fallback — never the device passcode** (06 §4.4, 07 §5.6); idle lock suppressed while a draft has digits; copy variant after biometric re-enrolment (ADR 2026-09-05d §4) ⟦tests: F1-07-63⟧ |
+| **S15.1** | Privacy cover | background | mark on paper; no balances in the app switcher ⟦tests: F1-07-64, F1-07-68⟧ |
 | **S15.2** | Personal Book lock — re-prompt | S11 | opt-in extra gate; asks the **same MPIN or biometric** again — one PIN, never a second number (06 §4.4, ADR 2026-09-01) |
 | **S15.4** | Device suspended | global | server asserted a revocation without a signed record: read-only + persistent banner, sync stopped, nothing wiped, *Retry* (ADR 2026-09-05b §2, 05d §3) |
-| **S13** | Settings | S8 | language, **Appearance** (system/light/dark), notifications, **Auto-lock (background · idle)**, **Your books → Opening balances** (ADR 2026-09-03b ruling 2), export everything |
+| **S13** | Settings | S8 | language, **Appearance** (system/light/dark), notifications, **Auto-lock (background · idle)**, **Your books → Opening balances** (ADR 2026-09-03b ruling 2), export everything ⟦tests: F1-07-29, F1-07-65, F1-07-66, F1-07-67⟧ |
 
 **Depth rule** (ADR 2026-09-05f §H13): S1–S8 are roots; everything else is at most **two levels of navigation** below one of them. Detail viewers and sheets — S4.1, S4.2, S20, S7.3, S7.4, S2.4 — are exempt: they open *from* a row, they are not destinations.
 

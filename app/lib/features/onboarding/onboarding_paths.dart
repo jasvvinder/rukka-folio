@@ -22,6 +22,19 @@ abstract final class OnboardingPaths {
   /// S0.4 Name & photo — after S0.3 (07 §3.1 step 4, 13 §3.2).
   static const namePhoto = '/onboarding/name-photo';
 
+  /// S0.8 Set your PIN — after S0.4 (07 §3.1's chain via 13 §5 flow F1,
+  /// 06 §4.4 🔒 six digits). Also the landing after a forgot-PIN
+  /// reverification (07 §5.6: OTP + biometric, then set a new one).
+  static const setPin = '/onboarding/set-pin';
+
+  /// S0.5 Keeping your books safe — after S0.8, before the branch step
+  /// (07 §3.1 step 5 🔒, 13 §3.2 row S0.5, 13's onboarding flow line).
+  static const booksSafe = '/onboarding/books-safe';
+
+  /// S0.5b Recovery sheet — after S0.5 (07 §3.1 step 6, 04 §7.4 🔒,
+  /// 13 §3.2 row S0.5b).
+  static const recoverySheet = '/onboarding/recovery-sheet';
+
   /// S0.6a Name the business — the O6a branch step (07 §3.1.1, 13 §3.2).
   static const business = '/onboarding/business';
 

@@ -373,6 +373,18 @@
   "@onboarding.business_opening.save": {
     "description": "S0.6b primary action."
   },
+  "onboarding.business_opening.creating": "Setting up your books…",
+  "@onboarding.business_opening.creating": {
+    "description": "S0.6b working state while createBook seeds the chart (ADR 2026-09-09c §1)."
+  },
+  "onboarding.business_opening.create_error": "We could not set up this book.",
+  "@onboarding.business_opening.create_error": {
+    "description": "S0.6b error state when the book could not be created — never a dead end (07 §1 rule 12)."
+  },
+  "onboarding.business_opening.retry": "Try again",
+  "@onboarding.business_opening.retry": {
+    "description": "S0.6b retry action on the error state."
+  },
   "onboarding.business.ownership_question": "Who owns it?",
   "@onboarding.business.ownership_question": {
     "description": "S0.6a ownership chips (07 §5.7)."
@@ -392,5 +404,227 @@
   "onboarding.business.ownership_shared_note": "Next you will name the other owners and their shares",
   "@onboarding.business.ownership_shared_note": {
     "description": "S0.6a option 2 description."
+  },
+  "onboarding.set_pin.title": "Set your PIN",
+  "@onboarding.set_pin.title": {
+    "description": "S0.8 heading (07 §3.1 step 5 chain, 06 §4.4) — a 6-digit MPIN set at onboarding."
+  },
+  "onboarding.set_pin.subtitle": "Six digits, only for this app",
+  "@onboarding.set_pin.subtitle": {
+    "description": "S0.8 subtitle."
+  },
+  "onboarding.set_pin.why": "Your family knows your phone's passcode. They won't know this.",
+  "@onboarding.set_pin.why": {
+    "description": "S0.8 the reason the MPIN exists (06 §4.4) — said plainly, not asked."
+  },
+  "onboarding.set_pin.biometric_note": "Face ID keeps this app closed to everyone else — if a new face is added to this phone, the app asks for your PIN",
+  "@onboarding.set_pin.biometric_note": {
+    "description": "S0.8 the app-lock line stated at onboarding, never offered as a setting (07 §5.6, ADR 2026-09-05d §4)."
+  },
+  "onboarding.set_pin.confirm.title": "Type it once more",
+  "@onboarding.set_pin.confirm.title": {
+    "description": "S0.8 confirm step heading."
+  },
+  "onboarding.set_pin.confirm.subtitle": "So a typo can't lock you out later",
+  "@onboarding.set_pin.confirm.subtitle": {
+    "description": "S0.8 confirm step subtitle."
+  },
+  "onboarding.set_pin.mismatch": "Those two didn't match — start again",
+  "@onboarding.set_pin.mismatch": {
+    "description": "S0.8 error when the confirm step differs from the first entry."
+  },
+  "onboarding.set_pin.incomplete": "Type all 6 digits to continue",
+  "@onboarding.set_pin.incomplete": {
+    "description": "S0.8 disabled-with-reason line under Continue (13 §4.3)."
+  },
+  "onboarding.set_pin.continue": "Continue",
+  "@onboarding.set_pin.continue": {
+    "description": "S0.8 primary action."
+  },
+  "onboarding.set_pin.start_over": "Change PIN",
+  "@onboarding.set_pin.start_over": {
+    "description": "S0.8 returns from the confirm step to the first entry — no dead end (07 §1 rule 6)."
+  },
+  "onboarding.set_pin.saving": "Saving your PIN…",
+  "@onboarding.set_pin.saving": {
+    "description": "S0.8 loading state while the vault writes the protected item (13 §4.3)."
+  },
+  "onboarding.set_pin.save_failed": "We couldn't save that PIN — try once more",
+  "@onboarding.set_pin.save_failed": {
+    "description": "S0.8 error state with retry (13 §4.3)."
+  },
+  "onboarding.books_safe.title": "Keeping your books safe",
+  "@onboarding.books_safe.title": {
+    "description": "S0.5 title (07 §3.1 step 5 🔒, 13 §3.2)."
+  },
+  "onboarding.books_safe.intro": "Your entries are already stored on our server, encrypted — losing a phone does not lose them. What needs keeping safe is your key.",
+  "@onboarding.books_safe.intro": {
+    "description": "S0.5 intro; the true position stated plainly (04 §7.6)."
+  },
+  "onboarding.books_safe.keysync.title": "Your key is kept in iCloud Keychain",
+  "@onboarding.books_safe.keysync.title": {
+    "description": "S0.5 item (a): stated, not asked (07 §3.1 step 5 🔒, 04 §7.0)."
+  },
+  "onboarding.books_safe.keysync.state_on": "On",
+  "@onboarding.books_safe.keysync.state_on": {
+    "description": "S0.5 item (a) state chip; paired with an icon (07 §1 colour-never-alone)."
+  },
+  "onboarding.books_safe.keysync.apple": "Apple cannot read it.",
+  "@onboarding.books_safe.keysync.apple": {
+    "description": "S0.5 item (a) plain line (04 §7.0)."
+  },
+  "onboarding.books_safe.keysync.phone_backup": "A phone backup does not carry your books — your key comes back with your Apple account, your books come back from the server.",
+  "@onboarding.books_safe.keysync.phone_backup": {
+    "description": "S0.5 item (a), verbatim intent of ADR 2026-09-05f §G / ADR 2026-09-05c §8."
+  },
+  "onboarding.books_safe.keysync.off_title": "iCloud Keychain is off on this phone",
+  "@onboarding.books_safe.keysync.off_title": {
+    "description": "S0.5 unavailable state (07 §3.1 step 5 🔒: the screen says so plainly)."
+  },
+  "onboarding.books_safe.keysync.off_body": "Your key cannot be kept there, so a new phone will not find it by itself. Make a recovery sheet instead — it is your way back in.",
+  "@onboarding.books_safe.keysync.off_body": {
+    "description": "S0.5 unavailable state body; the sheet becomes the primary action."
+  },
+  "onboarding.books_safe.backup.title": "Automatic backup",
+  "@onboarding.books_safe.backup.title": {
+    "description": "S0.5 item (b) heading (07 §3.1 step 5 🔒, 04 §7.6)."
+  },
+  "onboarding.books_safe.backup.state_on": "On",
+  "@onboarding.books_safe.backup.state_on": {
+    "description": "S0.5 item (b) state chip."
+  },
+  "onboarding.books_safe.backup.destination": "Saved to {destination}",
+  "@onboarding.books_safe.backup.destination": {
+    "description": "S0.5 item (b) destination line (04 §7.6 defaults table).",
+    "placeholders": {
+      "destination": {
+        "type": "String",
+        "example": "iCloud Drive"
+      }
+    }
+  },
+  "onboarding.books_safe.backup.destination_unset": "Saved to your own cloud drive",
+  "@onboarding.books_safe.backup.destination_unset": {
+    "description": "S0.5 item (b) when the host has not named a destination yet."
+  },
+  "onboarding.books_safe.backup.vault_title": "Encrypted copy of your books",
+  "@onboarding.books_safe.backup.vault_title": {
+    "description": "S0.5 item (b), the encrypted vault file (04 §7.6)."
+  },
+  "onboarding.books_safe.backup.vault_body": "Still encrypted: useless to anyone who does not have your key — and useless to you too, without it.",
+  "@onboarding.books_safe.backup.vault_body": {
+    "description": "S0.5 vault risk line (04 §7.6)."
+  },
+  "onboarding.books_safe.backup.readable_title": "Readable copy, every month",
+  "@onboarding.books_safe.backup.readable_title": {
+    "description": "S0.5 item (b), the monthly readable export (04 §7.6)."
+  },
+  "onboarding.books_safe.backup.readable_disclosure": "This file is readable. Anyone who can open that drive can read your books, and so can Apple or Google. It is the one file this app does not encrypt.",
+  "@onboarding.books_safe.backup.readable_disclosure": {
+    "description": "S0.5 readable-copy disclosure 🔒 — prominent, never softened (04 §7.6)."
+  },
+  "onboarding.books_safe.backup.off_hint": "One tap turns either of these off.",
+  "@onboarding.books_safe.backup.off_hint": {
+    "description": "S0.5 item (b): the one-tap off (07 §3.1 step 5 🔒)."
+  },
+  "onboarding.books_safe.backup.save_failed": "We couldn't save that change — try once more",
+  "@onboarding.books_safe.backup.save_failed": {
+    "description": "S0.5 error state; the switch reverts (13 §4.3)."
+  },
+  "onboarding.books_safe.sheet.title": "Recovery sheet",
+  "@onboarding.books_safe.sheet.title": {
+    "description": "S0.5 item (c) heading (07 §3.1 step 5 🔒)."
+  },
+  "onboarding.books_safe.sheet.body": "One printed page that brings your books back when everything else is gone.",
+  "@onboarding.books_safe.sheet.body": {
+    "description": "S0.5 item (c) body (04 §7.4)."
+  },
+  "onboarding.books_safe.sheet.action": "Make my recovery sheet",
+  "@onboarding.books_safe.sheet.action": {
+    "description": "S0.5 item (c) action → S0.5b."
+  },
+  "onboarding.books_safe.continue_label": "Continue",
+  "@onboarding.books_safe.continue_label": {
+    "description": "S0.5 primary action."
+  },
+  "onboarding.books_safe.skip": "Skip for now",
+  "@onboarding.books_safe.skip": {
+    "description": "S0.5 skip; the step is resumable (07 §3.1.1)."
+  },
+  "onboarding.books_safe.resume_note": "You can come back to this from the setup list on Home.",
+  "@onboarding.books_safe.resume_note": {
+    "description": "S0.5 resumability note (07 §3.1.1, S0.7 checklist)."
+  },
+  "onboarding.recovery_sheet.title": "Your recovery sheet",
+  "@onboarding.recovery_sheet.title": {
+    "description": "S0.5b title (13 §3.2 row S0.5b, 07 §3.1 step 6, 04 §7.4)."
+  },
+  "onboarding.recovery_sheet.why_title": "There is no “forgot password”",
+  "@onboarding.recovery_sheet.why_title": {
+    "description": "S0.5b: the one-screen explanation (07 §3.1 step 6)."
+  },
+  "onboarding.recovery_sheet.why_body": "Your data is locked so well that even we can't open it. This sheet is the one key you keep yourself — print it and keep it with your Aadhaar and LIC papers.",
+  "@onboarding.recovery_sheet.why_body": {
+    "description": "S0.5b explanation, 07 §3.1 step 6's own words plus 04 §7.4's framing."
+  },
+  "onboarding.recovery_sheet.generate": "Make the sheet",
+  "@onboarding.recovery_sheet.generate": {
+    "description": "S0.5b primary action, the generate step (04 §7.4)."
+  },
+  "onboarding.recovery_sheet.generating": "Making your sheet…",
+  "@onboarding.recovery_sheet.generating": {
+    "description": "S0.5b loading state (13 §4.3)."
+  },
+  "onboarding.recovery_sheet.ready_title": "Your sheet is ready",
+  "@onboarding.recovery_sheet.ready_title": {
+    "description": "S0.5b state after generating."
+  },
+  "onboarding.recovery_sheet.ready_body": "It is never shown on this screen — print it or save it, then put it where you keep your papers.",
+  "@onboarding.recovery_sheet.ready_body": {
+    "description": "S0.5b: the sheet's contents are not rendered in the app."
+  },
+  "onboarding.recovery_sheet.share": "Print or save",
+  "@onboarding.recovery_sheet.share": {
+    "description": "S0.5b share/print action (04 §7.4, 04 §7.6)."
+  },
+  "onboarding.recovery_sheet.risk": "Anyone who opens this sheet can open your books.",
+  "@onboarding.recovery_sheet.risk": {
+    "description": "S0.5b risk line 🔒 (04 §7.6) — stated at the moment of choosing."
+  },
+  "onboarding.recovery_sheet.scan": "Scan the printed sheet back",
+  "@onboarding.recovery_sheet.scan": {
+    "description": "S0.5b verify action (04 §7.4 verified-storage)."
+  },
+  "onboarding.recovery_sheet.nag_title": "Not verified yet",
+  "@onboarding.recovery_sheet.nag_title": {
+    "description": "S0.5b verified-storage nag (04 §7.4) — persists until the printed sheet is scanned back."
+  },
+  "onboarding.recovery_sheet.nag_body": "We will keep reminding you until you scan the printed sheet back, so you find out today — not on the day you need it.",
+  "@onboarding.recovery_sheet.nag_body": {
+    "description": "S0.5b nag body; the badge also lives on Menu (07 §3.1 step 6)."
+  },
+  "onboarding.recovery_sheet.verified": "Verified — we read your printed sheet back.",
+  "@onboarding.recovery_sheet.verified": {
+    "description": "S0.5b verified state; the nag stops here."
+  },
+  "onboarding.recovery_sheet.scan_failed": "That didn't match this sheet. Scan the printed page again.",
+  "@onboarding.recovery_sheet.scan_failed": {
+    "description": "S0.5b scan error; never a dead end (07 §1 rule 6)."
+  },
+  "onboarding.recovery_sheet.error": "The sheet could not be made. Nothing was changed.",
+  "@onboarding.recovery_sheet.error": {
+    "description": "S0.5b error state with retry (13 §4.3)."
+  },
+  "onboarding.recovery_sheet.retry": "Try again",
+  "@onboarding.recovery_sheet.retry": {
+    "description": "S0.5b retry."
+  },
+  "onboarding.recovery_sheet.skip": "Skip for now",
+  "@onboarding.recovery_sheet.skip": {
+    "description": "S0.5b skip; the nag brings it back (07 §3.1.1, 04 §7.4)."
+  },
+  "onboarding.recovery_sheet.done": "Done",
+  "@onboarding.recovery_sheet.done": {
+    "description": "S0.5b continue to the next step."
   }
 }

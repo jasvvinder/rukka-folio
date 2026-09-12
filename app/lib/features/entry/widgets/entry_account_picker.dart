@@ -123,12 +123,22 @@ class _EntryAccountPickerState extends State<EntryAccountPicker> {
                   ),
                 ),
         ),
+        // The create row is chrome, not content: it stays one line however
+        // far the text scales, so the account list keeps a whole row of the
+        // lower region at 200 % on 360×800 (07 §1 accessibility, 13 §8).
+        // Letting it wrap to three lines squeezed the list to a ~20 pt strip
+        // in which no row could be read or tapped.
         if (canCreate && !_asking)
           ListTile(
             key: widget.createKey,
             dense: true,
+            visualDensity: VisualDensity.compact,
             leading: const Icon(Icons.add),
-            title: Text(l10n.entryCreateRow(name)),
+            title: Text(
+              l10n.entryCreateRow(name),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
             onTap: _create,
           ),
         // Search at the bottom (07 §5 step 3) — under the thumb, not under

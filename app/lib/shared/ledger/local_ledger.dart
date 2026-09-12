@@ -37,6 +37,40 @@ abstract final class LocalLedgerKeys {
   static const identity = 'rk.ledger.identity';
 }
 
+/// One seeded income or expense category (ADR 2026-09-09c §1's third column).
+///
+/// These are **account names** — user data the user may rename — not UI
+/// labels, so they never become ARB keys; the UI loads the tree for the book
+/// type and locale and passes it to [LocalLedger.createBook]
+/// (docs/reference/seed-category-trees.md).
+final class SeedCategory {
+  /// Creates a seeded category.
+  const SeedCategory(this.name, this.accountClass)
+    : assert(
+        accountClass == AccountClass.categoryIncome ||
+            accountClass == AccountClass.categoryExpense,
+        'a seeded category is an income or expense account (02 §1.2)',
+      );
+
+  /// The seeded, editable account name.
+  final String name;
+
+  /// [AccountClass.categoryIncome] or [AccountClass.categoryExpense].
+  final AccountClass accountClass;
+
+  @override
+  bool operator ==(Object other) =>
+      other is SeedCategory &&
+      other.name == name &&
+      other.accountClass == accountClass;
+
+  @override
+  int get hashCode => Object.hash(name, accountClass);
+
+  @override
+  String toString() => 'SeedCategory($name, ${accountClass.name})';
+}
+
 /// Who this install is: the ids every envelope is stamped with (04 §4).
 final class LedgerIdentity {
   /// Creates the identity.
@@ -632,6 +666,9 @@ final class LocalLedger {
     String openingBalanceName = 'Opening Balance',
     String drawingsName = 'Drawings',
     String profitDistributedName = 'Profit Distributed',
+    String? cashName,
+    String gollakName = 'Gollak Cash',
+    List<SeedCategory>? categories,
     List<String> ownerNames = const [],
     LocalDate? startDate,
   }) async {
@@ -671,6 +708,27 @@ final class LocalLedger {
       hlc: _tick(),
       object: (_) => config.toJson(),
     );
+    // ADR 2026-09-09c §1 — the money the book *certainly* has, and only that
+    // (ADR 2026-09-09d §3: seed a floor, never a guess). No bank is seeded in
+    // any book type (ADR 2026-09-09d §1); one arrives through *Add an
+    // account* and asks for its balance in the same breath (02 §4 🔒).
+    await addAccount(
+      bookId,
+      name: cashName ?? defaultCashName(type),
+      accountClass: AccountClass.money,
+      subtype: MoneySubtype.cash,
+    );
+    // 07 §3.1 step 3 🔒 / ADR 2026-09-09d §2: the trust's gollak is a
+    // `cash_collection` account and stays a **different account** from the
+    // Cash A/c — counted money leaves the box only by deposit (02 §8.2).
+    if (type == BookType.organization) {
+      await addAccount(
+        bookId,
+        name: gollakName,
+        accountClass: AccountClass.money,
+        subtype: MoneySubtype.cashCollection,
+      );
+    }
     await addAccount(
       bookId,
       name: openingBalanceName,
@@ -718,8 +776,44 @@ final class LocalLedger {
         );
       }
     }
+    // ADR 2026-09-09c §1's income/expense column. Category names are *user
+    // data* the user may rename, not ARB labels, so they are passed in by the
+    // caller localised (docs/reference/seed-category-trees.md, "How these
+    // reach the app") — which is also what keeps `core_ledger` free of
+    // strings.
+    //
+    // ⚠️ SPEC: only the **trust** tree has a default here, because 07 §3.1
+    // step 3 🔒 names it. The household / shop / farm trees are a DRAFT that
+    // 01 §1.8 and 02 put behind the pilot and the native-review gate (ADR
+    // 2026-09-09c Open ⚠️), so seeding them from an unratified file would be
+    // inventing the user's chart. Until they are ratified the caller supplies
+    // them or the book starts with no categories; see the lane report.
+    for (final c in categories ?? defaultCategorySeed(type)) {
+      await addAccount(bookId, name: c.name, accountClass: c.accountClass);
+    }
     return bookId;
   }
+
+  /// The seeded name of the one cash account a [type] of book certainly has
+  /// (ADR 2026-09-09c §1). Editable afterwards like any seeded name.
+  static String defaultCashName(BookType type) => switch (type) {
+    BookType.personal => 'Cash A/c',
+    BookType.business => 'Business Cash A/c',
+    BookType.family || BookType.joint => 'Joint Cash A/c',
+    BookType.organization => 'Cash',
+  };
+
+  /// The category accounts seeded when the caller passes none. Empty for
+  /// every type but the trust, whose four names 07 §3.1 step 3 🔒 fixes.
+  static List<SeedCategory> defaultCategorySeed(BookType type) =>
+      type == BookType.organization
+      ? const [
+          SeedCategory('Donation Income', AccountClass.categoryIncome),
+          SeedCategory('Langar Expense', AccountClass.categoryExpense),
+          SeedCategory('Building Repair', AccountClass.categoryExpense),
+          SeedCategory('Honorarium', AccountClass.categoryExpense),
+        ]
+      : const [];
 
   /// `{Name} — Partner Current A/c`, the seeded name of an owner's partner
   /// account (ADR 2026-09-09c §1, 02 §7.1). Editable afterwards like any

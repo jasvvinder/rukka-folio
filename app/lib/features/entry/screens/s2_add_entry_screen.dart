@@ -41,11 +41,14 @@ import '../../../shared/ledger/local_ledger.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../../ledger/ledger_book.dart';
+import '../../../shared/format/date_format.dart';
 import '../entry_amount.dart';
 import '../entry_data.dart';
 import '../entry_slots.dart';
 import '../widgets/entry_account_picker.dart';
 import '../widgets/entry_chip_row.dart';
+import '../widgets/entry_date_picker.dart';
+import '../widgets/entry_drawings_banner.dart';
 import '../widgets/entry_keypad.dart';
 import '../widgets/entry_preview_line.dart';
 import '../widgets/entry_slot_field.dart';
@@ -80,8 +83,15 @@ abstract final class AddEntryKeys {
   /// Save.
   static const save = Key('entry.save');
 
-  /// The static `Today` chip (S2.2 opens the calendar behind it — U2d).
+  /// The `Today` / picked-date chip — tapping it opens S2.2's calendar in
+  /// place, exactly like a slot field opens its picker.
   static const dateChip = Key('entry.date_chip');
+
+  /// The lower region holding S2.2's in-place calendar.
+  static const datePicker = Key('entry.date_picker');
+
+  /// The S2.5 drawings confirmation banner.
+  static const drawingsBanner = EntryDrawingsBannerKeys.banner;
 
   /// One keypad key.
   static Key pad(String key) => Key('entry.pad.$key');
@@ -114,6 +124,16 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
 
   /// Which slot's list holds the lower region; null = the keypad does.
   EntrySlot? _openSlot;
+
+  /// True while S2.2's calendar holds the lower region instead (mutually
+  /// exclusive with [_openSlot] — only one thing replaces the keypad at a
+  /// time, 07 §5's single-screen block 🔒).
+  bool _dateOpen = false;
+
+  /// The date chip's answer; null means *Today* — re-resolved against the
+  /// injected clock on every read rather than captured once, so a book left
+  /// open across midnight still calls "today" today.
+  LocalDate? _selectedDate;
 
   String? _bookId;
   Object? _resolveError;
@@ -190,7 +210,41 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
     _moneyId = null;
     _ledgerId = null;
     _openSlot = null;
+    _dateOpen = false;
   });
+
+  /// Opens a slot's list, closing the calendar first — only one thing ever
+  /// replaces the keypad (07 §5 🔒).
+  void _openSlotTap(EntrySlot slot) => setState(() {
+    _openSlot = _openSlot == slot ? null : slot;
+    _dateOpen = false;
+  });
+
+  /// Toggles S2.2's calendar, closing any open slot list first.
+  void _toggleDate() => setState(() {
+    _dateOpen = !_dateOpen;
+    _openSlot = null;
+  });
+
+  void _pickDate(LocalDate date) => setState(() {
+    _selectedDate = date;
+    _dateOpen = false;
+  });
+
+  /// *Fix an old entry* on a locked day (02 §5's reversal flow). This screen
+  /// never navigates itself (07 §5 🔒); leaving to fix an old entry is a
+  /// different task from creating this one, so it takes the exit 07 §5 step
+  /// 7 already offers (Back) when there is somewhere to go back to, and
+  /// otherwise just closes the calendar rather than dead-ending (07 §1 rule
+  /// 6) — the F1-07-58 test drives both paths.
+  void _fixOldEntry() {
+    final nav = Navigator.of(context);
+    if (nav.canPop()) {
+      nav.maybePop();
+    } else {
+      setState(() => _dateOpen = false);
+    }
+  }
 
   void _onKey(String key) => setState(() {
     _amount = switch (key) {
@@ -221,6 +275,37 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
     return chosen == null || chosen.accountClass == AccountClass.money;
   }
 
+  /// The candidates for [slot]'s in-place list — [slotCandidates] plus, on
+  /// Money out's ledger slot only, the book's Drawings account (S2.5, 07 §5
+  /// "Owner's drawings" 🔒): `VerbPlan.moneyOut.ledger.classes` deliberately
+  /// excludes `equitySystem` (every other equity-system role — Suspense,
+  /// Adjustments, Opening Balance — must never be a manual pick target), so
+  /// Drawings is added back in here, narrowly, by `SystemRole` rather than by
+  /// widening the slot's classes.
+  List<AccountBalance> _candidatesFor(
+    EntrySlot slot,
+    List<AccountBalance> accounts,
+    Map<String, int> counts,
+  ) {
+    final rows = slotCandidates(
+      accounts,
+      _plan.spec(slot),
+      counts: counts,
+      exclude: _idOf(
+        slot == EntrySlot.money ? EntrySlot.ledger : EntrySlot.money,
+      ),
+    );
+    if (_kind != EntryKind.moneyOut || slot != EntrySlot.ledger) return rows;
+    final drawings = drawingsAccountOf(accounts);
+    if (drawings == null || rows.any((r) => r.account.id == drawings.id)) {
+      return rows;
+    }
+    for (final a in accounts) {
+      if (a.account.id == drawings.id) return [...rows, a];
+    }
+    return rows;
+  }
+
   Future<void> _save(LocalLedger ledger, String bookId) async {
     if (!_complete || _saving) return;
     final l10n = AppLocalizations.of(context);
@@ -228,7 +313,9 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
     final money = _moneyId!;
     final other = _ledgerId!;
     final paise = _amount.paise;
-    final date = ledger.today();
+    // S2.2 (07 §5 step 4 🔒): the date chip's answer, or today's date when
+    // nothing was picked.
+    final date = _selectedDate ?? ledger.today();
     setState(() => _saving = true);
     try {
       // The engine's own verbs (02 §2) — this screen never builds lines.
@@ -298,9 +385,11 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
       // Out of scope (S12.5, book full / `rejected:quota`): Save is blocked
       // with the S12.5 sheet pointing at S12.1 and the draft is preserved
       // (ADR 2026-09-05b §7) — the quota signal lands with sync.
-      // Out of scope (S2.5, ADR 2026-09-02): in a *business* book a takeout
-      // by the owner posts to Drawings and a one-line confirmation says so.
-      // This lane builds personal books only.
+      // S2.5 (ADR 2026-09-02): a *business* book's Drawings account is a
+      // real account of the chart (SystemRole.drawings) — choosing it as
+      // Money out's ledger slot posts through this same `ledger.moneyOut`
+      // call, the banner above only narrates it (02 §10 🔒: the posting
+      // logic never bends to the display language).
     } catch (e) {
       if (!mounted) return;
       setState(() => _saving = false);
@@ -456,8 +545,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
             value: _accountOf(accounts, _idOf(slot))?.name,
             placeholder: l10n.entrySlotChoose,
             open: _openSlot == slot,
-            onTap: () =>
-                setState(() => _openSlot = _openSlot == slot ? null : slot),
+            onTap: () => _openSlotTap(slot),
           ),
           if (_chipsVisible(slot, accounts))
             Padding(
@@ -477,8 +565,40 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                 ],
                 selectedId: _idOf(slot),
                 onPick: (id) => _choose(slot, id),
-                onMore: () => setState(() => _openSlot = slot),
+                onMore: () => setState(() {
+                  _openSlot = slot;
+                  _dateOpen = false;
+                }),
                 moreLabel: l10n.entryChipsMore,
+              ),
+            ),
+          // S2.5 (07 §5 "Owner's drawings" 🔒, ADR 2026-09-02): fires the
+          // instant Money out's ledger slot answers to the book's Drawings
+          // account — never silently, and never as a blocking sheet.
+          if (_kind == EntryKind.moneyOut &&
+              slot == EntrySlot.ledger &&
+              _idOf(slot) != null &&
+              _idOf(slot) == drawingsAccountOf(accounts)?.id)
+            // ⚠️ SPEC: at 200 % on 360×800 the sentence 07 §5 🔒 fixes runs
+            // to ~312 pt — more than the whole free height the fixed rows
+            // leave, so a rigid banner overflows the body by ~90 pt. 07 §5's
+            // "never scrolls" 🔒 governs the *screen*, and it still does not
+            // move: the banner is made flexible instead, so it takes only
+            // what is free (splitting it with the lower region) and carries
+            // its own scroll for the remainder, exactly as the picker's list
+            // and its create question already do. This is a second instance
+            // of the collision the owner parked on 07 §5 — the conservative
+            // reading is kept and nothing is resolved here; see the lane
+            // report.
+            Flexible(
+              fit: FlexFit.loose,
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: RkSpace.s2),
+                  child: EntryDrawingsBanner(
+                    message: l10n.entryDrawingsConfirmation,
+                  ),
+                ),
               ),
             ),
         ],
@@ -487,17 +607,36 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
           padding: EdgeInsets.symmetric(vertical: rowPad),
           child: Align(
             alignment: AlignmentDirectional.centerStart,
-            // U2d: S2.2 attaches here — tapping this chip opens the calendar
-            // (backdating inside an open period, future dates disabled, a
-            // locked day explains the lock and offers *Fix an old entry*).
-            // Until then it is a static, non-tappable label: today.
-            // U2d: the optional row (note · 📷 bill photo · channel tag,
-            // 07 §5 step 5) attaches immediately below this line; the preview
-            // already renders a note when one is given.
-            child: Text(
-              l10n.entryDateToday,
-              key: AddEntryKeys.dateChip,
-              style: RkType.caption.copyWith(color: status.muted),
+            // S2.2 (07 §5 step 4 🔒): tapping the chip opens the calendar in
+            // the lower region, exactly like a slot field opens its picker.
+            // TODO(U-next): the optional row (note · 📷 bill photo · channel
+            // tag, 07 §5 step 5) attaches immediately below this line; the
+            // preview already renders a note when one is given.
+            child: Semantics(
+              button: true,
+              label: l10n.entryDateA11y(
+                _selectedDate == null
+                    ? l10n.entryDateToday
+                    : formatLedgerDate(_selectedDate!, strings: l10n),
+              ),
+              excludeSemantics: true,
+              child: InkWell(
+                key: AddEntryKeys.dateChip,
+                onTap: _toggleDate,
+                child: Text(
+                  _selectedDate == null
+                      ? l10n.entryDateToday
+                      : l10n.entryDatePicked(
+                          formatLedgerDate(_selectedDate!, strings: l10n),
+                        ),
+                  style: RkType.caption.copyWith(
+                    color: _dateOpen
+                        ? Theme.of(context).colorScheme.primary
+                        : status.muted,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
             ),
           ),
         ),
@@ -512,7 +651,19 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
         ),
         // ── the lower region: keypad, or one slot's list, in place ────────
         Expanded(
-          child: _openSlot == null
+          child: _dateOpen
+              ? EntryDatePicker(
+                  key: AddEntryKeys.datePicker,
+                  today: ledger.today(),
+                  selected: _selectedDate ?? ledger.today(),
+                  onPick: _pickDate,
+                  onFixOldEntry: _fixOldEntry,
+                  // ⚠️ SPEC (see entry_date_picker.dart's file-level note):
+                  // `LocalLedger` has no public period-lock query yet, so
+                  // every period reads as open here — no book in this
+                  // milestone's build ever locks a month.
+                )
+              : _openSlot == null
               ? EntryKeypad(
                   key: AddEntryKeys.keypad,
                   onKey: _onKey,
@@ -523,16 +674,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                   searchKey: AddEntryKeys.search,
                   createKey: AddEntryKeys.create,
                   spec: plan.spec(_openSlot!),
-                  rows: slotCandidates(
-                    accounts,
-                    plan.spec(_openSlot!),
-                    counts: counts,
-                    exclude: _idOf(
-                      _openSlot == EntrySlot.money
-                          ? EntrySlot.ledger
-                          : EntrySlot.money,
-                    ),
-                  ),
+                  rows: _candidatesFor(_openSlot!, accounts, counts),
                   onPick: (id) => _choose(_openSlot!, id),
                   onCreate: (name, accountClass) =>
                       _create(ledger, bookId, name, accountClass),

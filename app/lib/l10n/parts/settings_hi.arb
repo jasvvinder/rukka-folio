@@ -1,0 +1,44 @@
+{
+  "@@locale": "hi",
+  "settings.title": "सेटिंग्स",
+
+  "settings.section.general": "सामान्य",
+  "settings.language.row.title": "भाषा",
+  "settings.language.option.en": "English",
+  "settings.language.option.pa": "ਪੰਜਾਬੀ",
+  "settings.language.option.hi": "हिन्दी",
+  "settings.language.sheet.title": "भाषा",
+  "settings.appearance.row.title": "दिखावट",
+  "settings.appearance.option.system": "सिस्टम",
+  "settings.appearance.option.light": "हल्की",
+  "settings.appearance.option.dark": "गहरी",
+
+  "settings.section.books": "आपकी बहियाँ",
+  "settings.books_manage.row.title": "बही प्रबंधन",
+  "settings.books_manage.row.subtitle": "बही बनाएँ, नाम बदलें या आर्काइव करें, और उसकी वित्तीय वर्ष शुरुआत तय करें।",
+  "settings.books_manage.row.reason": "अभी नहीं बना — अगले अपडेट में आएगा।",
+  "settings.opening_balances.row.title": "शुरुआती बकाया",
+  "settings.opening_balances.row.subtitle": "पोस्ट हो चुके शुरुआती बकाये को ठीक करें।",
+  "settings.opening_balances.row.reason": "शुरुआती बकाया ठीक करने वाला विज़र्ड अभी नहीं बना।",
+
+  "settings.categories.row.title": "श्रेणियाँ",
+  "settings.categories.row.reason": "श्रेणी संपादक अभी नहीं बना।",
+
+  "settings.notifications.row.title": "सूचनाएँ",
+  "settings.notifications.row.reason": "सूचना प्राथमिकताएँ सूचना सूची के साथ आएँगी।",
+
+  "settings.autolock.row.title": "ऑटो-लॉक",
+  "settings.autolock.row.idle": "{minutes, plural, =1{ऐप में 1 मिनट बिना छुए रहने पर लॉक हो जाती है} other{ऐप में {minutes} मिनट बिना छुए रहने पर लॉक हो जाती है}}",
+  "settings.autolock.row.background": "{minutes, plural, =1{बैकग्राउंड में 1 मिनट बाद लॉक हो जाती है} other{बैकग्राउंड में {minutes} मिनट बाद लॉक हो जाती है}}",
+  "settings.autolock.row.reason": "डिवाइस और सुरक्षा से बदली जाएगी, जब वह स्क्रीन जुड़ जाए।",
+
+  "settings.export.row.title": "सब कुछ एक्सपोर्ट करें",
+  "settings.export.row.subtitle": "आपकी बहियों का पूरा डीक्रिप्टेड एक्सपोर्ट, इसी फ़ोन पर बना। हर प्लान पर, हमेशा उपलब्ध।",
+  "settings.export.row.reason": "एक्सपोर्ट स्क्रीन अभी नहीं बनी।",
+
+  "settings.subscription.row.title": "सब्सक्रिप्शन",
+  "settings.subscription.row.reason": "सब्सक्रिप्शन प्रबंधन अभी नहीं बना।",
+
+  "settings.about.row.title": "बारे में और सहायता",
+  "settings.about.row.reason": "मदद और सहायता अभी नहीं बनी।"
+}
