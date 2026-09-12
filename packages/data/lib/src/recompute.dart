@@ -3,6 +3,7 @@
 // This file is the ONE place the data layer touches the projector's API. `held`,
 // `authorGaps`, `lockVerification` and `YearState.verification` are projector
 // output (ADR 2026-09-05b §3–4, 05c §3); this layer only mirrors them into rows.
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:core_ledger/core_ledger.dart';
@@ -28,6 +29,7 @@ final class BookRecompute {
     required this.integrityOk,
     required this.state,
     required this.chart,
+    this.config,
   });
 
   /// Book.
@@ -70,6 +72,13 @@ final class BookRecompute {
   /// The chart the state was projected against.
   final Chart chart;
 
+  /// The book's `book_config` as decoded (03 §2.3), or null when the book has
+  /// no config envelope yet. Handed out so the fields `books_p` does not
+  /// project — `ownership`, the 02 §7.1 🔒 share weights, the 07 §3.1.1
+  /// organization subtype — have a read path that is still the envelope
+  /// stream, not a second copy of the truth.
+  final BookConfig? config;
+
   /// `books_p.needs_rebootstrap` as written.
   bool get needsRebootstrap => corrupt.isNotEmpty;
 }
@@ -92,6 +101,48 @@ final class BalanceMismatch {
   String toString() => '$accountId: balances=$stored lines=$recomputed';
 }
 
+/// One reading of a book's rebuild: [done] of [total] entry envelopes read
+/// back (07 §28 🔒, 11 §4.5 🔒).
+///
+/// A **count**, never a percentage and never a spinner — the loader rule says
+/// *"{done} of {total} entries restored"*, so the producer hands over the two
+/// numbers and nothing derived. [total] is the book's `entry` envelopes as the
+/// plaintext mirror column reports them (03 §3.1), which is why it is known
+/// before a single payload is opened and the loader can be determinate.
+final class RecomputeProgress {
+  /// Creates the reading.
+  const RecomputeProgress({
+    required this.bookId,
+    required this.done,
+    required this.total,
+  });
+
+  /// The book being rebuilt.
+  final String bookId;
+
+  /// Entry envelopes read back so far. Never decreases within one rebuild and
+  /// ends equal to [total], whatever each envelope turned out to be — a
+  /// corrupt or quarantined row is still a reading, so the count cannot stall
+  /// short of the number the user was shown.
+  final int done;
+
+  /// Entry envelopes this rebuild has to read.
+  final int total;
+
+  @override
+  bool operator ==(Object other) =>
+      other is RecomputeProgress &&
+      other.bookId == bookId &&
+      other.done == done &&
+      other.total == total;
+
+  @override
+  int get hashCode => Object.hash(bookId, done, total);
+
+  @override
+  String toString() => 'RecomputeProgress($bookId, $done/$total)';
+}
+
 /// Rebuilds Layer 2 from Layer 1.
 final class Recompute {
   /// Creates the rebuilder. [opener] decrypts payloads (`core_crypto`, M3).
@@ -106,6 +157,67 @@ final class Recompute {
   /// Payload opener.
   final PayloadOpener opener;
 
+  // ── rebuild progress (S1.4; 07 §28 🔒, ADR 2026-09-05c §3/§6) ─────────────
+  //
+  // Counts only. Nothing here reads a clock, a locale or a setting, and the
+  // projector never sees this controller — `project()` is still called once,
+  // with the whole ordered event list, from `_rebuildBook`. Progress is an
+  // observation *about* the rebuild, never an input to it, so two runs over
+  // the same envelopes still produce byte-identical projections (E-03-9).
+  final StreamController<(String, RecomputeProgress?)> _progress =
+      StreamController<(String, RecomputeProgress?)>.broadcast();
+
+  /// Book → the reading in hand. Absent means "not rebuilding".
+  final Map<String, RecomputeProgress> _live = {};
+
+  /// Book → how many `run()` calls are inside it. A book stops reporting only
+  /// when the last one leaves, so an overlapping rebuild cannot end the first
+  /// one's report early and drop the loader on a half-built book.
+  final Map<String, int> _running = {};
+
+  /// The reading in hand for [bookId], or null when it is not rebuilding.
+  RecomputeProgress? progressOf(String bookId) => _live[bookId];
+
+  /// Live rebuild readings for [bookId]: a [RecomputeProgress] while the book
+  /// is being rebuilt, `null` while it is not.
+  ///
+  /// The reading in hand is replayed to **every** new listener, so a screen
+  /// that mounts in the middle of a rebuild renders S1.4 at once instead of
+  /// waiting for the next tick — which is the normal case for the three
+  /// triggers (local corruption, Recompute-on-upgrade, `store_epoch` re-pull;
+  /// ADR 2026-09-05c §3/§6), all of which start before Home is on screen.
+  ///
+  /// Re-listenable and multi-listener by construction ([Stream.multi]): Home
+  /// unmounts the gate when the scope switches to *Everything* and mounts it
+  /// again on the way back, over the same memoised stream.
+  Stream<RecomputeProgress?> watchProgress(String bookId) =>
+      Stream<RecomputeProgress?>.multi((controller) {
+        // Captured at listen time, so the replay is the reading that was true
+        // when the listener arrived — not whatever it has become by the time
+        // the event is delivered.
+        controller.add(_live[bookId]);
+        final sub = _progress.stream.listen((e) {
+          if (e.$1 == bookId) controller.add(e.$2);
+        }, onDone: controller.close);
+        // Deliberately synchronous: awaiting a cancel inside `flutter_test`'s
+        // fake-async zone deadlocks widget teardown (the U2a finding).
+        controller.onCancel = () => unawaited(sub.cancel());
+      });
+
+  /// Stops the progress stream. The facade owns a [Recompute] for the life of
+  /// the process, so this is for tests and for a store that is torn down.
+  Future<void> dispose() {
+    _live.clear();
+    _running.clear();
+    return _progress.close();
+  }
+
+  void _report(String bookId, int done, int total) {
+    final reading = RecomputeProgress(bookId: bookId, done: done, total: total);
+    _live[bookId] = reading;
+    if (!_progress.isClosed) _progress.add((bookId, reading));
+  }
+
   /// Rebuilds every book, or just [bookId]. Each book is one transaction:
   /// projection rows dropped and rewritten atomically, so a reader never sees a
   /// half-built book (03 §5 fail-closed spirit).
@@ -113,7 +225,22 @@ final class Recompute {
     final books = bookId == null ? await mirror.bookIds() : [bookId];
     final out = <BookRecompute>[];
     for (final b in books) {
-      out.add(await db.transaction(() => _rebuildBook(b)));
+      _running[b] = (_running[b] ?? 0) + 1;
+      try {
+        out.add(await db.transaction(() => _rebuildBook(b)));
+      } finally {
+        // Whatever happened — finished, or the transaction rolled back on a
+        // throw — the book stops reporting, so S1.4 can never stick up over a
+        // rebuild that is no longer running (07 §28 🔒, 07 §1 no dead ends).
+        final left = (_running[b] ?? 1) - 1;
+        if (left > 0) {
+          _running[b] = left;
+        } else {
+          _running.remove(b);
+          _live.remove(b);
+          if (!_progress.isClosed) _progress.add((b, null));
+        }
+      }
     }
     return out;
   }
@@ -140,43 +267,63 @@ final class Recompute {
     if (duplicateIds.isNotEmpty) rows = await mirror.envelopesOf(bookId);
 
     // 1. Open every usable payload; note corruption, quarantine failures.
+    //
+    //    S1.4 (07 §28 🔒) is produced from this loop: `object_type` is a
+    //    plaintext mirror column (03 §3.1), so the number of `entry` envelopes
+    //    is known before the first payload is opened and the loader is
+    //    determinate (11 §4.5 🔒 — a count, never a percentage, never a
+    //    spinner). Only entries are counted, so the number matches the words
+    //    the user reads: an `account` or `book_config` envelope is restored
+    //    too but is not an entry. ⚠️ SPEC: 07 §28 quotes the copy and names no
+    //    unit; counting the object the copy names is the conservative reading.
+    final entryTotal = rows.where((r) => r.objectType == 'entry').length;
+    var entryDone = 0;
+    _report(bookId, 0, entryTotal);
+
     final corrupt = <String>[];
     final quarantined = <String>[];
     var unverified = 0;
     final opened = <(EnvelopesLocalData, Map<String, Object?>)>[];
     for (final r in rows) {
-      if (r.quarantined == 1) {
-        quarantined.add(r.envelopeId);
-        continue;
-      }
-      if (r.verified != 1) {
-        unverified++;
-        continue;
-      }
-      final read = mirror.readBlobOfRow(r);
-      if (read is! BlobOk) {
-        corrupt.add(r.envelopeId);
-        continue;
-      }
       try {
-        opened.add((
-          r,
-          opener.open(
-            read.bytes,
-            BlobHeader(
-              envelopeId: r.envelopeId,
-              bookId: r.bookId,
-              objectId: r.objectId,
-              objectType: r.objectType,
-              keyVersion: r.keyVersion,
-              authorDevice: r.authorDevice,
-              hlc: r.hlc,
+        if (r.quarantined == 1) {
+          quarantined.add(r.envelopeId);
+          continue;
+        }
+        if (r.verified != 1) {
+          unverified++;
+          continue;
+        }
+        final read = mirror.readBlobOfRow(r);
+        if (read is! BlobOk) {
+          corrupt.add(r.envelopeId);
+          continue;
+        }
+        try {
+          opened.add((
+            r,
+            opener.open(
+              read.bytes,
+              BlobHeader(
+                envelopeId: r.envelopeId,
+                bookId: r.bookId,
+                objectId: r.objectId,
+                objectType: r.objectType,
+                keyVersion: r.keyVersion,
+                authorDevice: r.authorDevice,
+                hlc: r.hlc,
+              ),
             ),
-          ),
-        ));
-      } on Object catch (e) {
-        await mirror.quarantine(r.envelopeId, 'payload: $e');
-        quarantined.add(r.envelopeId);
+          ));
+        } on Object catch (e) {
+          await mirror.quarantine(r.envelopeId, 'payload: $e');
+          quarantined.add(r.envelopeId);
+        }
+      } finally {
+        // Every path through the row — opened, held back, corrupt, thrown —
+        // is one reading, so the count always reaches the total the user was
+        // shown. `continue` runs this too.
+        if (r.objectType == 'entry') _report(bookId, ++entryDone, entryTotal);
       }
     }
 
@@ -505,6 +652,7 @@ final class Recompute {
       integrityOk: integrityOk,
       state: state,
       chart: chart,
+      config: config,
     );
   }
 

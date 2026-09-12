@@ -174,28 +174,40 @@ void main() {
       }
     });
 
-    testWidgets('F1-07-57 holds at 200% text scale on a 360x800 phone', (
-      tester,
-    ) async {
-      _tall(tester, width: 360, height: 800);
-      for (final locale in _locales) {
-        final (ledger, _) = await _newUser();
-        await pumpRk(
-          tester,
-          const MediaQuery(
-            data: MediaQueryData(textScaler: TextScaler.linear(2)),
-            child: HomeScreen(),
-          ),
-          ledger: ledger,
-          locale: locale,
-        );
-        expect(tester.takeException(), isNull);
-        // Reachable, not clipped: the list scrolls to the checklist.
-        await tester.drag(find.byType(ListView), const Offset(0, -1200));
-        await tester.pumpAndSettle();
-        expect(tester.takeException(), isNull);
-        await _unmount(tester);
+    // Layout sweep (09 suite F, ADR 2026-09-05f §H): both phone viewports,
+    // 1.3 as well as 200 %, all three languages. The scale rides on
+    // `pumpRk(textScale:)` so the viewport survives it — a bare
+    // `MediaQueryData` hands the screen `Size.zero`, where nothing can
+    // overflow and the assertion means nothing.
+    for (final locale in _locales) {
+      for (final size in rkPhones) {
+        for (final scale in rkTextScales) {
+          testWidgets(
+            'F1-07-57 the checklist holds in ${locale.languageCode} at '
+            '${(scale * 100).round()}% on ${size.width.toInt()}x'
+            '${size.height.toInt()}',
+            (tester) async {
+              final (ledger, _) = await _newUser();
+              await pumpRk(
+                tester,
+                const HomeScreen(),
+                ledger: ledger,
+                locale: locale,
+                textScale: scale,
+                viewport: size,
+              );
+              expect(tester.takeException(), isNull);
+              expectTextFits(tester, reason: 'above the fold');
+              // Reachable, not clipped: the list scrolls to the checklist.
+              await tester.drag(find.byType(ListView), const Offset(0, -1200));
+              await tester.pumpAndSettle();
+              expect(tester.takeException(), isNull);
+              expectTextFits(tester, reason: 'scrolled to the checklist');
+              await _unmount(tester);
+            },
+          );
+        }
       }
-    });
+    }
   });
 }

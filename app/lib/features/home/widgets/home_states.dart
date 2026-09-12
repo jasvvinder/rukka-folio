@@ -114,28 +114,40 @@ class RkRuledCard extends StatelessWidget {
         border: Border.all(color: status.hairline),
       ),
       clipBehavior: Clip.antiAlias,
-      // IntrinsicHeight, not a bare stretched Row: inside a ListView the
-      // card's height is unbounded, and `CrossAxisAlignment.stretch` would
-      // hand the 3px rule an infinite height constraint.
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Container(
-              width: RkRadius.ruleLeftWidth,
+      // A Stack, not an IntrinsicHeight + stretched Row. The rule has to run
+      // the full height of a card whose height is unbounded inside a
+      // ListView, and a positioned child pinned top-to-bottom does that
+      // without anyone asking the contents for an intrinsic height — which
+      // matters, because [RkFitText] measures itself against the width it is
+      // actually given and a `LayoutBuilder` cannot answer an intrinsic
+      // query. The card sizes to `child`; the rule only paints.
+      child: Stack(
+        children: [
+          Padding(
+            padding: const EdgeInsetsDirectional.only(
+              start: RkRadius.ruleLeftWidth,
+            ),
+            child: child,
+          ),
+          PositionedDirectional(
+            start: 0,
+            top: 0,
+            bottom: 0,
+            width: RkRadius.ruleLeftWidth,
+            child: ColoredBox(
               color: ruleColor ?? Theme.of(context).colorScheme.primary,
             ),
-            Expanded(child: child),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
 
-/// A label on the left and a figure on the right that **stacks** past 1.3×
-/// text scale instead of overflowing (07 §1 rule 11; the defect S4 fixed the
-/// same way). Everything Home draws as `label … amount` goes through here.
+/// A label on the left and a figure on the right that drops the figure to its
+/// own line **when the two no longer fit as measured** — not at a text-scale
+/// threshold (07 §1 rule 11). Everything Home draws as `label … amount` goes
+/// through here.
 class RkLabelAmountRow extends StatelessWidget {
   /// Creates the row.
   const RkLabelAmountRow({
@@ -168,29 +180,35 @@ class RkLabelAmountRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final stacked = MediaQuery.textScalerOf(context).scale(1) > 1.3;
     final left = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [label, ?meta],
     );
-    final body = stacked
-        ? Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              left,
-              const SizedBox(height: RkSpace.s1),
-              amount,
-            ],
-          )
-        : Row(
-            children: [
-              Expanded(child: left),
-              const SizedBox(width: RkSpace.s3),
-              Flexible(child: amount),
-            ],
-          );
+    // Measured, never thresholded. The old rule stacked past 1.3× text scale,
+    // which split the row 50/50 below it: at exactly 1.3× on a 360 px phone
+    // `+₹1,14,600` needed 188 px of the 139 px it was given and lost its last
+    // digits — silently, because a paragraph too narrow for one unbreakable
+    // word draws past its edge instead of throwing. A scale number cannot
+    // answer that question; it does not know how wide a word is in the font
+    // being drawn, and 1.3× in Gurmukhi is not 1.3× in English.
+    //
+    // `Wrap` asks the font instead: label and amount sit side by side while
+    // both fit the row as measured, and the amount drops to its own line the
+    // moment they do not (07 §1 rule 11).
+    final body = Wrap(
+      alignment: WrapAlignment.spaceBetween,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: RkSpace.s3,
+      runSpacing: RkSpace.s1,
+      children: [
+        left,
+        // Last resort, for a figure wider than the whole row: shrink it to
+        // fit rather than lose its final digits. A cut number is a wrong
+        // number — the one thing a ledger may never show.
+        FittedBox(fit: BoxFit.scaleDown, child: amount),
+      ],
+    );
     final withLeading = leading == null
         ? body
         : Row(
@@ -223,6 +241,58 @@ class RkLabelAmountRow extends StatelessWidget {
       button: true,
       hint: semanticHint,
       child: InkWell(onTap: onTap, child: row),
+    );
+  }
+}
+
+/// Text that never draws a word past the edge of its box.
+///
+/// Flutter wraps *between* words; a single word wider than the line is laid
+/// out at the line width and drawn straight past it — no exception thrown, no
+/// ellipsis, just letters over the edge, which is why a test can be green
+/// over text the reader cannot finish. Devanagari and Gurmukhi compounds
+/// reach that width long before English does: at 200 % on a 360 px phone
+/// *प्रविष्टियाँ* alone needs 339 px of the 291 px a card has to give.
+///
+/// So this measures the widest unbreakable word in the string — in the font
+/// and at the scale actually in force, never from a scale threshold — and
+/// steps the scale down only as far as that word needs. Anything that already
+/// fits is drawn at exactly the size the reader asked for (07 §1 rule 11).
+class RkFitText extends StatelessWidget {
+  /// Creates the text.
+  const RkFitText(this.data, {super.key, this.style});
+
+  /// The string to draw.
+  final String data;
+
+  /// Style, merged onto the inherited one exactly as [Text] merges it.
+  final TextStyle? style;
+
+  @override
+  Widget build(BuildContext context) {
+    final resolved = DefaultTextStyle.of(context).style.merge(style);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final asked = MediaQuery.textScalerOf(context);
+        var scaler = asked;
+        final room = constraints.maxWidth;
+        if (room.isFinite && room > 1) {
+          final painter = TextPainter(
+            text: TextSpan(text: data, style: resolved),
+            textScaler: asked,
+            textDirection: Directionality.of(context),
+            locale: Localizations.maybeLocaleOf(context),
+          )..layout();
+          final widest = painter.minIntrinsicWidth;
+          painter.dispose();
+          // A pixel of slack: glyph advances do not scale perfectly linearly,
+          // and landing exactly on the boundary would still clip.
+          if (widest > room) {
+            scaler = TextScaler.linear(asked.scale(1) * (room - 1) / widest);
+          }
+        }
+        return Text(data, style: style, textScaler: scaler);
+      },
     );
   }
 }
@@ -275,7 +345,7 @@ class HomeRebuildingCard extends StatelessWidget {
                 Icon(Icons.autorenew, size: RkSpace.s4, color: status.pending),
                 const SizedBox(width: RkSpace.s2),
                 Expanded(
-                  child: Text(
+                  child: RkFitText(
                     title,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
@@ -298,13 +368,13 @@ class HomeRebuildingCard extends StatelessWidget {
             // A live region: the count is announced as it moves (11 §4.5).
             Semantics(
               liveRegion: true,
-              child: Text(
+              child: RkFitText(
                 progressText,
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
             ),
             const SizedBox(height: RkSpace.s1),
-            Text(
+            RkFitText(
               note,
               style: Theme.of(context).textTheme.bodySmall
                   ?.copyWith(color: status.muted),

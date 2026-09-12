@@ -3,6 +3,7 @@
 @Tags(['E'])
 library;
 
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:core_ledger/core_ledger.dart';
@@ -796,4 +797,152 @@ void main() {
       await Future.wait([dbA.close(), dbB.close()]);
     });
   });
+
+  // S1.4's producer (07 §28 🔒, 11 §4.5 🔒, ADR 2026-09-05c §3/§6). The
+  // readings are counts and nothing else: no clock, no locale, no settings —
+  // the projector stays a pure function of (ordered envelopes, certified
+  // vectors) and Recompute stays reproducible.
+  group('Rebuild progress (07 §28 🔒)', () {
+    test('E-03-29 a rebuild reports a determinate per-book count — replayed to '
+        'a listener that arrives mid-rebuild, monotone, ending at total and '
+        'then null', () async {
+      final f = Fixture();
+      final db = await openMemory();
+      final m = Mirror(db, hasher: toyHash);
+
+      // A listener that arrives *during* the rebuild must be told the reading
+      // in hand, not left blank until the next tick (the Recompute-on-upgrade
+      // and `store_epoch` re-pull cases mount Home mid-flight, ADR 05c §3/§6).
+      late final Recompute r;
+      final mid = <RecomputeProgress?>[];
+      var attached = false;
+      StreamSubscription<RecomputeProgress?>? midSub;
+      final r0 = Recompute(
+        db,
+        mirror: m,
+        opener: _SpyOpener(() {
+          if (attached) return;
+          attached = true;
+          midSub = r.watchProgress(f.bookId).listen(mid.add);
+        }),
+      );
+      r = r0;
+      addTearDown(() => midSub?.cancel());
+
+      await storeAll(m, [
+        ...f.setupEnvelopes(),
+        for (final e in f.ordinaryMonth()) f.eventEnvelope(e),
+      ]);
+
+      final readings = <RecomputeProgress?>[];
+      final sub = r.watchProgress(f.bookId).listen(readings.add);
+      final other = <RecomputeProgress?>[];
+      final otherSub = r.watchProgress('b2').listen(other.add);
+      addTearDown(() => Future.wait<void>([sub.cancel(), otherSub.cancel()]));
+
+      await r.run();
+      await pumpEventQueue();
+
+      // Not rebuilding when the listener arrived, and not rebuilding at the
+      // end: the gate returns to the book (07 §28).
+      expect(readings.first, isNull);
+      expect(readings.last, isNull);
+      final ticks = readings
+          .sublist(1, readings.length - 1)
+          .cast<RecomputeProgress>();
+
+      // Four `entry` envelopes in `ordinaryMonth()`; the approval_decision is
+      // not an entry and is not counted, so the count matches the words
+      // ("{done} of {total} entries restored", 11 §4.5 🔒).
+      expect(
+        ticks.first,
+        const RecomputeProgress(bookId: 'b1', done: 0, total: 4),
+      );
+      expect(
+        ticks.last,
+        const RecomputeProgress(bookId: 'b1', done: 4, total: 4),
+      );
+      for (var i = 0; i < ticks.length; i++) {
+        expect(ticks[i].bookId, 'b1');
+        expect(ticks[i].total, 4, reason: 'the total never moves');
+        expect(ticks[i].done, lessThanOrEqualTo(ticks[i].total));
+        if (i > 0) {
+          expect(
+            ticks[i].done,
+            greaterThanOrEqualTo(ticks[i - 1].done),
+            reason: 'a count never goes backwards',
+          );
+        }
+      }
+      // Determinate, and never a percentage: the reading carries the two
+      // numbers the copy needs and nothing derived from a clock.
+      expect(ticks.last.done, ticks.last.total);
+
+      // The mid-rebuild listener was handed the live reading straight away.
+      expect(mid, isNotEmpty);
+      expect(mid.first, isNotNull);
+      expect(mid.first!.total, 4);
+      expect(mid.last, isNull);
+
+      // Another book's watcher never sees this book's rebuild.
+      expect(other, [null]);
+
+      // Re-listenable: Home unmounts the gate when the scope switches to
+      // Everything and mounts it again on the way back, over the same stream.
+      final again = r.watchProgress(f.bookId);
+      final s1 = again.listen((_) {});
+      await s1.cancel();
+      final s2 = again.listen((_) {});
+      await pumpEventQueue();
+      await s2.cancel();
+
+      await db.close();
+    });
+
+    test('E-03-29 a rebuild that fails still ends the report, so the loader '
+        'can never stick', () async {
+      final f = Fixture();
+      final db = await openMemory();
+      // Store through a working mirror, then rebuild through one whose hasher
+      // throws while the blobs are read back.
+      final good = Mirror(db, hasher: toyHash);
+      await storeAll(good, [
+        ...f.setupEnvelopes(),
+        for (final e in f.ordinaryMonth()) f.eventEnvelope(e),
+      ]);
+      final bad = Mirror(db, hasher: (_) => throw StateError('disk'));
+      final r = Recompute(db, mirror: bad, opener: const JsonPayloadOpener());
+
+      final readings = <RecomputeProgress?>[];
+      final sub = r.watchProgress(f.bookId).listen(readings.add);
+      addTearDown(sub.cancel);
+
+      await expectLater(r.run(bookId: f.bookId), throwsStateError);
+      await pumpEventQueue();
+
+      expect(readings.first, isNull);
+      expect(
+        readings,
+        contains(const RecomputeProgress(bookId: 'b1', done: 0, total: 4)),
+      );
+      expect(readings.last, isNull, reason: 'the book stops reporting');
+      expect(r.progressOf(f.bookId), isNull);
+      await db.close();
+    });
+  });
+}
+
+/// A [JsonPayloadOpener] that runs [onOpen] before each payload — the test's
+/// hook into the middle of a running rebuild.
+final class _SpyOpener implements PayloadOpener {
+  _SpyOpener(this.onOpen);
+
+  final void Function() onOpen;
+  final PayloadOpener _inner = const JsonPayloadOpener();
+
+  @override
+  Map<String, Object?> open(Uint8List blob, BlobHeader header) {
+    onOpen();
+    return _inner.open(blob, header);
+  }
 }

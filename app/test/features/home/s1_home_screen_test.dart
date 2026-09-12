@@ -292,28 +292,39 @@ void main() {
       }
     });
 
-    testWidgets('F1-07-49 holds at 200% text scale on a 360x800 phone', (
-      tester,
-    ) async {
-      tester.view.physicalSize = const Size(360, 800);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      final seed = await seedSoloLedger();
-      await pumpRk(
-        tester,
-        const MediaQuery(
-          data: MediaQueryData(textScaler: TextScaler.linear(2)),
-          child: HomeScreen(),
-        ),
-        ledger: seed.ledger,
-      );
-      expect(tester.takeException(), isNull);
+    // Layout sweep (09 suite F, ADR 2026-09-05f §H): both phone viewports,
+    // both scales, all three languages. 1.3 is not a milder 2.0 — it is where
+    // a label is still drawn and therefore widest, and PA/HI words are not
+    // the EN ones (U3g's S8.2 finding: green at 200 %, 88 px over at 1.3).
+    // The scale comes from `pumpRk(textScale:)`, never a bare MediaQueryData,
+    // which would hand the screen a zero size and assert nothing.
+    for (final locale in rkLocales) {
+      for (final size in rkPhones) {
+        for (final scale in rkTextScales) {
+          testWidgets('F1-07-49 Home holds in ${locale.languageCode} at '
+              '${(scale * 100).round()}% on ${size.width.toInt()}x'
+              '${size.height.toInt()}', (tester) async {
+            final seed = await seedSoloLedger();
+            await pumpRk(
+              tester,
+              const HomeScreen(),
+              ledger: seed.ledger,
+              locale: locale,
+              textScale: scale,
+              viewport: size,
+            );
+            expect(tester.takeException(), isNull);
+            expectTextFits(tester, reason: 'above the fold');
 
-      // And every card is still reachable: the list scrolls, it does not clip.
-      await tester.drag(find.byType(ListView), const Offset(0, -2000));
-      await tester.pumpAndSettle();
-      expect(tester.takeException(), isNull);
-      await unmount(tester);
-    });
+            // Every card is still reachable: the list scrolls, not clips.
+            await tester.drag(find.byType(ListView), const Offset(0, -2000));
+            await tester.pumpAndSettle();
+            expect(tester.takeException(), isNull);
+            expectTextFits(tester, reason: 'scrolled to the end');
+            await unmount(tester);
+          });
+        }
+      }
+    }
   });
 }

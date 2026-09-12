@@ -57,11 +57,31 @@ class HomeHero extends StatelessWidget {
                 ?.copyWith(color: status.muted),
           ),
           const SizedBox(height: RkSpace.s1),
-          Text(
-            formatPaise(totalPaise, locale: locale),
-            style: RkType.amountHero.copyWith(
-              color: Theme.of(context).colorScheme.onSurface,
-              fontFeatures: RkType.tabular,
+          // Scale-to-fit, because `₹1,36,200` is one unbreakable word: at the
+          // hero size it already needs 398 px of a 360 px phone's 328 px
+          // column at 1.0×, and 794 px at 200 %. Left as a plain Text it did
+          // not throw — it drew its last digits past the edge of the screen,
+          // which is how a ledger comes to show a wrong number. Shrinking is
+          // the only honest answer: the figure stays whole, and at 200 % it is
+          // still drawn as large as the column can hold.
+          //
+          // ⚠️ SPEC: 07 §4 fixes the hero's type but says nothing about what
+          // happens when the figure outgrows the phone. Shrinking is the
+          // conservative reading — no digit is ever lost and no dead end is
+          // created (07 §1) — but it does mean a 200 % reader gets roughly
+          // 83 % of the hero size on a 7-figure total. If the intent is the
+          // full 200 %, the answer is a shorter format (lakh/crore) or a
+          // smaller hero token, both design calls: owner to rule.
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: AlignmentDirectional.centerStart,
+            child: Text(
+              formatPaise(totalPaise, locale: locale),
+              maxLines: 1,
+              style: RkType.amountHero.copyWith(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontFeatures: RkType.tabular,
+              ),
             ),
           ),
           const SizedBox(height: RkSpace.s2),

@@ -12,10 +12,19 @@
 //
 // A book that never rebuilt is never gated: integrity off on its own is the
 // verification card's business (07 §4), not S1.4's.
+//
+// Between the two sits `loader-appear-delay` (11 §4.5 🔒: *"Operations faster
+// than this show nothing. Flicker is worse than nothing."*). It is load-bearing
+// here, not a polish: the facade re-projects the whole book after every post
+// (`local_ledger.dart` `_rebuild`), so a reading arrives each time the user
+// records an entry. Below the delay the rebuild is over before S1.4 could be
+// read, and the gate never swaps the card; above it the rebuild is real and
+// the determinate loader shows with its count.
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 
+import '../../../shared/tokens.dart';
 import '../home_rebuild.dart';
 
 /// Shows [rebuilding] while the book is rebuilding, and [book] otherwise.
@@ -27,6 +36,7 @@ class HomeRebuildGate extends StatefulWidget {
     required this.integrityOk,
     required this.rebuilding,
     required this.book,
+    this.appearDelay = RkMotion.loaderAppearDelay,
   });
 
   /// Live rebuild readings for the book; `null` events mean "not rebuilding".
@@ -44,6 +54,10 @@ class HomeRebuildGate extends StatefulWidget {
   /// fresh one rather than re-listen to the cancelled stream.
   final WidgetBuilder book;
 
+  /// How long a rebuild has to run before S1.4 replaces the card
+  /// (`loader-appear-delay`, 11 §4.5 🔒). Zero in tests that assert the swap.
+  final Duration appearDelay;
+
   @override
   State<HomeRebuildGate> createState() => _HomeRebuildGateState();
 }
@@ -55,6 +69,7 @@ class _HomeRebuildGateState extends State<HomeRebuildGate> {
   RebuildProgress? _last;
   bool _held = false;
   bool _ok = true;
+  Timer? _appear;
 
   @override
   void initState() {
@@ -78,9 +93,14 @@ class _HomeRebuildGateState extends State<HomeRebuildGate> {
         _current = p;
         if (p != null) {
           _last = p;
-          _held = true;
-        } else if (_ok) {
-          _held = false;
+          // One timer per rebuild: the first reading arms it, later readings
+          // only update the count. A rebuild that finishes before it fires
+          // never showed, so from the user's side it never happened.
+          _appear ??= Timer(widget.appearDelay, _show);
+        } else {
+          _appear?.cancel();
+          _appear = null;
+          if (_ok) _held = false;
         }
       });
     });
@@ -99,6 +119,13 @@ class _HomeRebuildGateState extends State<HomeRebuildGate> {
     unawaited(_healthSub?.cancel());
     _progressSub = null;
     _healthSub = null;
+    _appear?.cancel();
+    _appear = null;
+  }
+
+  void _show() {
+    if (!mounted) return;
+    setState(() => _held = true);
   }
 
   @override

@@ -7,13 +7,15 @@
 // (11 §4.5 🔒: never a spinner, counts and never percentages), and the book
 // is never shown as whole meanwhile.
 //
-// ⚠️ SPEC / seam: `Recompute.run` (packages/data, recompute.dart:112) exposes
-// no progress today — it returns when it is done. This typedef is the shape
-// S1 consumes; the missing `Stream<RebuildProgress>` on `packages/data` is
-// recorded as an open item rather than invented here (that package is another
-// lane's). Until it exists, a caller supplies the stream (the app's shell
-// while a rebuild runs; a fake in tests) and Home renders whatever it emits.
-import 'package:flutter/foundation.dart';
+// The producer is `Recompute.watchProgress` (packages/data, E-03-29): a live
+// per-book reading of (done, total) entry envelopes read back, `null` when the
+// book is not rebuilding, with the reading in hand replayed to every new
+// listener so a Home that mounts mid-rebuild renders S1.4 at once. The shell
+// adapts it with [recomputeRebuildProgress]; tests still pass a fake stream.
+import 'package:data/data.dart';
+import 'package:flutter/widgets.dart';
+
+import '../../shared/ledger/ledger_scope.dart';
 
 /// How far a rebuild has got: [done] of [total] entries restored (07 §28).
 @immutable
@@ -44,3 +46,23 @@ final class RebuildProgress {
 typedef RebuildProgressSource = Stream<RebuildProgress?> Function(
   String bookId,
 );
+
+/// The real S1.4 producer: `Recompute`'s per-book readings as [RebuildProgress].
+///
+/// A straight `map` — no `await` anywhere in the chain, so cancelling the
+/// subscription stays synchronous inside `flutter_test`'s fake-async zone
+/// (an awaited cancel deadlocks widget teardown for the whole timeout).
+RebuildProgressSource recomputeRebuildProgress(Recompute recompute) =>
+    (bookId) => recompute
+        .watchProgress(bookId)
+        .map(
+          (p) =>
+              p == null ? null : RebuildProgress(done: p.done, total: p.total),
+        );
+
+/// The S1.4 producer for the tree below [context], or null when no ledger is
+/// in scope (a screen pumped without data has no rebuild to report).
+RebuildProgressSource? rebuildProgressOf(BuildContext context) {
+  final ledger = LedgerScope.maybeOf(context);
+  return ledger == null ? null : recomputeRebuildProgress(ledger.recompute);
+}

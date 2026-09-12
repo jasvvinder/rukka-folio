@@ -20,6 +20,7 @@ import 'features/devices/at_rest.dart';
 import 'features/devices/devices_routes.dart';
 import 'features/devices/pin_vault.dart';
 import 'features/entry/entry_routes.dart';
+import 'features/home/home_rebuild.dart';
 import 'features/home/home_routes.dart';
 import 'features/home/home_scope.dart';
 import 'features/home/screens/s1_home_screen.dart';
@@ -141,6 +142,9 @@ Future<void> main() async {
           homeTabRoot: RkTabRoot(
             builder: (context) => HomeScreen(
               scopeController: homeScope,
+              // S1.4's producer (07 §28 🔒) — the same source `homeRoot`
+              // passes; the two wirings change together.
+              rebuildProgress: rebuildProgressOf(context),
               onOpenPosition: (line) =>
                   context.push(HomePaths.positionOf(line)),
               onOpenAccount: (accountId) =>

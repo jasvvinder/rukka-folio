@@ -12,11 +12,13 @@ import 'package:core_ledger/core_ledger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/features/home/home_rebuild.dart';
+import 'package:rukka_folio/features/home/home_routes.dart';
 import 'package:rukka_folio/features/home/screens/s1_home_screen.dart';
 import 'package:rukka_folio/features/home/widgets/home_cards.dart';
 import 'package:rukka_folio/features/home/widgets/home_everything.dart';
 import 'package:rukka_folio/features/home/widgets/home_scope_switcher.dart';
 import 'package:rukka_folio/features/home/widgets/home_states.dart';
+import 'package:rukka_folio/shared/tokens.dart';
 
 import '../../shared/test_app.dart';
 
@@ -38,6 +40,15 @@ void tallViewport(
 Future<void> unmount(WidgetTester tester) async {
   await tester.pumpWidget(const SizedBox.shrink());
   await tester.pump(const Duration(milliseconds: 1));
+}
+
+/// Pumps past `loader-appear-delay` (11 §4.5 🔒) and settles. S1.4 only
+/// replaces the Home card once a rebuild has run longer than the delay.
+Future<void> settleAfterAppearDelay(WidgetTester tester) async {
+  await tester.pump(
+    RkMotion.loaderAppearDelay + const Duration(milliseconds: 1),
+  );
+  await tester.pumpAndSettle();
 }
 
 /// The seeded solo book plus [extra] further books, so the switcher has a
@@ -145,37 +156,45 @@ void main() {
       },
     );
 
-    testWidgets('F1-07-52 EN, PA and HI at 200% on a 360x800 phone', (
-      tester,
-    ) async {
-      for (final locale in const [Locale('en'), Locale('pa'), Locale('hi')]) {
-        tester.view.physicalSize = const Size(360, 800);
-        tester.view.devicePixelRatio = 1;
-        addTearDown(tester.view.reset);
-        final seed = await withBooks([('Shop', BookType.business)]);
-        await pumpRk(
-          tester,
-          const MediaQuery(
-            data: MediaQueryData(textScaler: TextScaler.linear(2)),
-            child: HomeScreen(),
-          ),
-          ledger: seed.ledger,
-          locale: locale,
-        );
-        expect(tester.takeException(), isNull, reason: '$locale');
-        expect(find.byType(HomeScopeToggle), findsOneWidget, reason: '$locale');
-        // The toggle still reaches both books: the chip row scrolls.
-        expect(
-          find.descendant(
-            of: find.byType(HomeScopeToggle),
-            matching: find.text('Shop'),
-          ),
-          findsOneWidget,
-          reason: '$locale',
-        );
-        await unmount(tester);
+    // Layout sweep (09 suite F, ADR 2026-09-05f §H): both phone viewports,
+    // 1.3 as well as 200 %, all three languages. The two-book toggle is the
+    // widest thing on Home at 1.3× — both book names are still words there.
+    for (final locale in rkLocales) {
+      for (final size in rkPhones) {
+        for (final scale in rkTextScales) {
+          testWidgets('F1-07-52 the toggle holds in ${locale.languageCode} at '
+              '${(scale * 100).round()}% on ${size.width.toInt()}x'
+              '${size.height.toInt()}', (tester) async {
+            final seed = await withBooks([('Shop', BookType.business)]);
+            await pumpRk(
+              tester,
+              const HomeScreen(),
+              ledger: seed.ledger,
+              locale: locale,
+              textScale: scale,
+              viewport: size,
+            );
+            expect(tester.takeException(), isNull, reason: '$locale');
+            expect(
+              find.byType(HomeScopeToggle),
+              findsOneWidget,
+              reason: '$locale',
+            );
+            // The toggle still reaches both books: the chip row scrolls.
+            expect(
+              find.descendant(
+                of: find.byType(HomeScopeToggle),
+                matching: find.text('Shop'),
+              ),
+              findsOneWidget,
+              reason: '$locale',
+            );
+            expectTextFits(tester, reason: '$locale');
+            await unmount(tester);
+          });
+        }
       }
-    });
+    }
   });
 
   group('S1.3 scope switcher — three or more books (07 §5.7 🔒)', () {
@@ -325,6 +344,10 @@ void main() {
       progress.add(const RebuildProgress(done: 3, total: 10));
       await tester.pumpAndSettle();
 
+      // `pumpAndSettle` has already run past `loader-appear-delay` here; the
+      // delay itself is asserted by the short-rebuild test below.
+      await settleAfterAppearDelay(tester);
+
       expect(find.byType(HomeRebuildingCard), findsOneWidget);
       expect(find.text('3 of 10 entries restored'), findsOneWidget);
       // The book is not shown as whole meanwhile (13 §3.2 row S1.4).
@@ -352,37 +375,132 @@ void main() {
       await unmount(tester);
     });
 
-    testWidgets('F1-07-38 strings resolve in EN, PA and HI at 200%', (
-      tester,
-    ) async {
-      for (final (locale, text) in const [
-        (Locale('en'), '3 of 10 entries restored'),
-        (Locale('pa'), '10 ਵਿੱਚੋਂ 3 ਇੰਦਰਾਜ ਵਾਪਸ ਆਏ'),
-        (Locale('hi'), '10 में से 3 प्रविष्टियाँ वापस आईं'),
-      ]) {
-        tester.view.physicalSize = const Size(360, 800);
-        tester.view.devicePixelRatio = 1;
-        addTearDown(tester.view.reset);
+    // The rebuild line is one long sentence with two numbers in it, so it is
+    // the narrowest fit on Home: swept over both viewports and both scales in
+    // all three languages (09 suite F, ADR 2026-09-05f §H).
+    for (final (locale, text) in const [
+      (Locale('en'), '3 of 10 entries restored'),
+      (Locale('pa'), '10 ਵਿੱਚੋਂ 3 ਇੰਦਰਾਜ ਵਾਪਸ ਆਏ'),
+      (Locale('hi'), '10 में से 3 प्रविष्टियाँ वापस आईं'),
+    ]) {
+      for (final size in rkPhones) {
+        for (final scale in rkTextScales) {
+          testWidgets(
+            'F1-07-38 the rebuild line resolves in ${locale.languageCode} at '
+            '${(scale * 100).round()}% on ${size.width.toInt()}x'
+            '${size.height.toInt()}',
+            (tester) async {
+              final seed = await seedSoloLedger();
+              final progress = StreamController<RebuildProgress?>();
+              addTearDown(progress.close);
+              await pumpRk(
+                tester,
+                HomeScreen(rebuildProgress: (_) => progress.stream),
+                ledger: seed.ledger,
+                locale: locale,
+                textScale: scale,
+                viewport: size,
+              );
+              progress.add(const RebuildProgress(done: 3, total: 10));
+              await settleAfterAppearDelay(tester);
+
+              expect(find.text(text), findsOneWidget, reason: '$locale');
+              expect(tester.takeException(), isNull, reason: '$locale');
+              expect(find.byType(CircularProgressIndicator), findsNothing);
+              expectTextFits(tester, reason: '$locale');
+              await unmount(tester);
+            },
+          );
+        }
+      }
+    }
+
+    testWidgets(
+      'F1-07-38 a rebuild shorter than loader-appear-delay never swaps the '
+      'card (11 §4.5 🔒) — the facade re-projects the book after every post',
+      (tester) async {
+        tallViewport(tester);
         final seed = await seedSoloLedger();
         final progress = StreamController<RebuildProgress?>();
         addTearDown(progress.close);
         await pumpRk(
           tester,
-          MediaQuery(
-            data: const MediaQueryData(textScaler: TextScaler.linear(2)),
-            child: HomeScreen(rebuildProgress: (_) => progress.stream),
-          ),
+          HomeScreen(rebuildProgress: (_) => progress.stream),
           ledger: seed.ledger,
-          locale: locale,
         );
-        progress.add(const RebuildProgress(done: 3, total: 10));
+
+        progress.add(const RebuildProgress(done: 1, total: 40));
+        await tester.pump(const Duration(milliseconds: 50));
+        progress.add(const RebuildProgress(done: 40, total: 40));
+        await tester.pump(const Duration(milliseconds: 50));
+        progress.add(null);
         await tester.pumpAndSettle();
 
-        expect(find.text(text), findsOneWidget, reason: '$locale');
-        expect(tester.takeException(), isNull, reason: '$locale');
-        expect(find.byType(CircularProgressIndicator), findsNothing);
+        // Nothing was ever shown, and nothing is pending afterwards.
+        expect(find.byType(HomeRebuildingCard), findsNothing);
+        expect(find.byType(HomePositionCard), findsOneWidget);
+        await settleAfterAppearDelay(tester);
+        expect(find.byType(HomeRebuildingCard), findsNothing);
+        expect(find.byType(HomePositionCard), findsOneWidget);
         await unmount(tester);
-      }
+      },
+    );
+
+    testWidgets('F1-07-38 homeRoot passes the real producer, and a screen '
+        'pumped without a ledger has none', (tester) async {
+      tallViewport(tester);
+      final seed = await seedSoloLedger();
+      await pumpRk(
+        tester,
+        Builder(builder: homeRoot.builder),
+        ledger: seed.ledger,
+      );
+      final wired = tester.widget<HomeScreen>(find.byType(HomeScreen));
+      expect(
+        wired.rebuildProgress,
+        isNotNull,
+        reason: 'S1.4 has a real source (Recompute.watchProgress, E-03-29)',
+      );
+      // It is the live seam, not a fake: it answers for the seeded book and
+      // says "not rebuilding" rather than never emitting.
+      await expectLater(
+        wired.rebuildProgress!(seed.bookId).first,
+        completion(isNull),
+      );
+      await unmount(tester);
+
+      RebuildProgressSource? loose;
+      await tester.pumpWidget(
+        Builder(
+          builder: (context) {
+            loose = rebuildProgressOf(context);
+            return const SizedBox.shrink();
+          },
+        ),
+      );
+      expect(loose, isNull);
+    });
+
+    test('F1-07-38 the real Recompute feeds the seam: a rebuild of the seeded '
+        'book arrives as counted readings and ends', () async {
+      final seed = await seedSoloLedger();
+      final source = recomputeRebuildProgress(seed.ledger.recompute);
+      final readings = <RebuildProgress?>[];
+      final sub = source(seed.bookId).listen(readings.add);
+
+      await seed.ledger.rebuild(seed.bookId);
+      await Future<void>.delayed(Duration.zero);
+      await sub.cancel();
+
+      expect(readings.first, isNull, reason: 'not rebuilding when we listened');
+      expect(readings.last, isNull, reason: 'and not rebuilding at the end');
+      final ticks = readings
+          .sublist(1, readings.length - 1)
+          .cast<RebuildProgress>();
+      expect(ticks, isNotEmpty);
+      expect(ticks.last.done, ticks.last.total);
+      expect(ticks.last.total, seed.entries.length);
+      expect(ticks.last.fraction, 1.0);
     });
   });
 }

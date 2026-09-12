@@ -339,29 +339,43 @@ void main() {
       }
     });
 
-    testWidgets('F1-07-50 holds at 200% text scale on a 360x800 phone', (
-      tester,
-    ) async {
-      tester.view.physicalSize = const Size(360, 800);
-      tester.view.devicePixelRatio = 1;
-      addTearDown(tester.view.reset);
-      final seed = await seedSoloLedger();
-      await pumpRk(
-        tester,
-        const MediaQuery(
-          data: MediaQueryData(textScaler: TextScaler.linear(2)),
-          child: PositionDrilldownScreen(line: PositionLine.cash),
-        ),
-        ledger: seed.ledger,
-      );
-      expect(tester.takeException(), isNull);
-      expect(money('+₹21,600'), findsNWidgets(2));
+    // Layout sweep (09 suite F, ADR 2026-09-05f §H): both phone viewports,
+    // 1.3 as well as 200 %, all three languages. `pumpRk(textScale:)` scales
+    // the live MediaQuery, so the viewport is real — a bare `MediaQueryData`
+    // would make the screen zero-sized and the assertion vacuous.
+    for (final locale in rkLocales) {
+      for (final size in rkPhones) {
+        for (final scale in rkTextScales) {
+          testWidgets(
+            'F1-07-50 the drilldown holds in ${locale.languageCode} at '
+            '${(scale * 100).round()}% on ${size.width.toInt()}x'
+            '${size.height.toInt()}',
+            (tester) async {
+              final seed = await seedSoloLedger();
+              await pumpRk(
+                tester,
+                const PositionDrilldownScreen(line: PositionLine.cash),
+                ledger: seed.ledger,
+                locale: locale,
+                textScale: scale,
+                viewport: size,
+              );
+              expect(tester.takeException(), isNull);
+              // The amount is digits and grouping in every language.
+              expect(money('+₹21,600'), findsNWidgets(2));
 
-      // Still reachable: the list scrolls, it does not clip.
-      await tester.drag(find.byType(ListView), const Offset(0, -2000));
-      await tester.pumpAndSettle();
-      expect(tester.takeException(), isNull);
-      await unmount(tester);
-    });
+              expectTextFits(tester, reason: 'above the fold');
+
+              // Still reachable: the list scrolls, it does not clip.
+              await tester.drag(find.byType(ListView), const Offset(0, -2000));
+              await tester.pumpAndSettle();
+              expect(tester.takeException(), isNull);
+              expectTextFits(tester, reason: 'scrolled to the end');
+              await unmount(tester);
+            },
+          );
+        }
+      }
+    }
   });
 }
