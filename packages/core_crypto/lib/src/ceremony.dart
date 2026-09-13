@@ -411,3 +411,422 @@ final class Ceremony {
     );
   }
 }
+
+// ---------------------------------------------------------------------------
+// Commitment-based short authentication string (SAS) — the code path against
+// a substituting relay. ADR 2026-09-13d (proposed 13 Sep 2026, escalation lane
+// M7-K4; owner to ratify). Nothing above this line changed.
+//
+// Why it exists. `verificationCode` is a function of two values the server
+// holds or chooses — the registered fingerprint (06 §3 item 3) and the invite
+// nonce (04 §6.1) — so a relay that substitutes UMK′ can *predict* the honest
+// eight digits and search its own inputs until the codes collide: ~10⁸
+// BLAKE2b evaluations when it controls one nonce, ~2·10⁴ (a birthday search)
+// when it relays independent nonces to the two sides. First attempt, no
+// mismatch shown, rate limits never engaged (B-04-87). The 3-attempt and
+// 10-minute rules of 04 §6.3 bound an *online guesser*; they do nothing
+// against an *offline searcher* who controls one side's inputs.
+//
+// The repair is the textbook one (Vaudenay 2005 SAS authentication; Bluetooth
+// numeric comparison): each side contributes randomness the other cannot see
+// in time. The shower commits to r_S before anyone learns it; the verifier
+// draws r_V only once it holds the commitment *and* the relayed key; the
+// shower opens r_S only after r_V has arrived — and exactly once. Every value
+// the relay could tune is therefore fixed before the value it would have to
+// be tuned against exists, and a substituting relay is reduced to one blind
+// guess in 10⁸ per attempt (B-04-88) — which is what "3 attempts per nonce"
+// was always sized for.
+//
+// Landed alongside `verificationCode` / `CodeChallenge`, which S9.2 / S9.3
+// keep using until the ADR is ratified and the server relays the three values
+// (commitment → r_V → opening; S2). No production caller yet. Purity as above:
+// randomness from the injected suite, the clock from `nowMs`, no I/O.
+// ---------------------------------------------------------------------------
+
+/// Bytes in each side's random contribution (`r_S`, `r_V`): 128-bit.
+const int sasContributionBytes = 16;
+
+/// Bytes in a commitment: BLAKE2b-256.
+const int sasCommitmentBytes = 32;
+
+/// Domain tag hashed into a commitment.
+final Uint8List _sasCommitV1 = Uint8List.fromList(
+  utf8.encode('rf-sas-commit-v1'),
+);
+
+/// Domain tag hashed into the code.
+final Uint8List _sasCodeV1 = Uint8List.fromList(utf8.encode('rf-sas-code-v1'));
+
+Uint8List _checkedContribution(Uint8List r, String name) {
+  if (r.length != sasContributionBytes) {
+    throw ArgumentError.value(
+      r.length,
+      name,
+      'SAS contribution is $sasContributionBytes bytes',
+    );
+  }
+  return Uint8List.fromList(r);
+}
+
+String _checkedUserId(String userId) {
+  if (!Uuid16.isCanonical(userId)) {
+    throw FormatException('user_id must be a canonical uuid', userId);
+  }
+  return userId;
+}
+
+/// `c = BLAKE2b-256( "rf-sas-commit-v1" ‖ FP ‖ user_id ‖ r_S )`.
+///
+/// Every field is fixed-length, so the concatenation is unambiguous. Binding
+/// the fingerprint and the user id into the commitment is what stops a relay
+/// from replaying an honest commitment under a substituted key or another
+/// person (B-04-89); `r_S` (128 random bits) is what makes it hiding.
+Uint8List sasCommitment(
+  CryptoSuite suite, {
+  required Fingerprint fp,
+  required String userId,
+  required Uint8List showerRandom,
+}) {
+  final rS = _checkedContribution(showerRandom, 'showerRandom');
+  return suite.blake2b256(
+    Bytes.concat([
+      _sasCommitV1,
+      fp.bytes,
+      Uuid16.toBytes(_checkedUserId(userId)),
+      rS,
+    ]),
+  );
+}
+
+/// The eight-digit SAS:
+/// `decimal( first4bytes( BLAKE2b-256( "rf-sas-code-v1" ‖ FP ‖ user_id ‖ r_S ‖ r_V ) ) ) mod 10⁸`,
+/// zero-padded, first four bytes big-endian — the same shape as
+/// [verificationCode], so 07 §12's eight boxes and S9.3's entry field need no
+/// change when the switch is made.
+String sasCode(
+  CryptoSuite suite, {
+  required Fingerprint fp,
+  required String userId,
+  required Uint8List showerRandom,
+  required Uint8List verifierRandom,
+}) {
+  final rS = _checkedContribution(showerRandom, 'showerRandom');
+  final rV = _checkedContribution(verifierRandom, 'verifierRandom');
+  final h = suite.blake2b256(
+    Bytes.concat([
+      _sasCodeV1,
+      fp.bytes,
+      Uuid16.toBytes(_checkedUserId(userId)),
+      rS,
+      rV,
+    ]),
+  );
+  final first4 = ByteData.sublistView(h, 0, 4).getUint32(0);
+  return (first4 % 100000000).toString().padLeft(8, '0');
+}
+
+/// What the shower's device relays and shows once `r_V` has arrived.
+@immutable
+final class SasResponse {
+  const SasResponse._(this.opening, this.code);
+
+  /// `r_S` — relayed to the verifier, whose device checks it against the
+  /// commitment it already holds.
+  final Uint8List opening;
+
+  /// The eight digits to show beneath the QR and read aloud.
+  final String code;
+}
+
+/// The invitee's side of the SAS code path (04 §6.2 *Show my code*).
+///
+/// One session is one `r_S`, one commitment and **one** response. [respond]
+/// is single-use on purpose: a second code under the same `r_S` would hand a
+/// relay that has just learned `r_S` a fresh code to search `r_V′` against
+/// (B-04-88). When a verifier needs another try, *Regenerate* opens a new
+/// session — the same gesture 04 §6.3 already has.
+final class SasShower {
+  SasShower._(this.userId, this.umk, this._rS, this.commitment);
+
+  /// Draws `r_S` from the suite's RNG and commits to it under this device's
+  /// own [umk] and [userId]. Only [commitment] leaves the device before `r_V`
+  /// arrives.
+  factory SasShower.open(
+    CryptoSuite suite, {
+    required String userId,
+    required UmkPublic umk,
+  }) {
+    final id = _checkedUserId(userId);
+    final rS = suite.randomBytes(sasContributionBytes);
+    return SasShower._(
+      id,
+      umk,
+      rS,
+      sasCommitment(
+        suite,
+        fp: Fingerprint.of(suite, umk),
+        userId: id,
+        showerRandom: rS,
+      ),
+    );
+  }
+
+  /// This device's user id, as it goes into the commitment.
+  final String userId;
+
+  /// This device's own UMK public halves.
+  final UmkPublic umk;
+
+  final Uint8List _rS;
+
+  /// The commitment to relay.
+  final Uint8List commitment;
+
+  bool _spent = false;
+
+  /// True once [respond] has run; the session then never shows another code.
+  bool get isSpent => _spent;
+
+  /// Opens the commitment for the relayed [verifierRandom] and derives the
+  /// code to show. Exactly once per session: a second call throws
+  /// [StateError] — open a new [SasShower] instead.
+  SasResponse respond(CryptoSuite suite, Uint8List verifierRandom) {
+    if (_spent) {
+      throw StateError(
+        'SasShower.respond called twice: one code per commitment — '
+        'open a new session (Regenerate)',
+      );
+    }
+    final rV = _checkedContribution(verifierRandom, 'verifierRandom');
+    _spent = true;
+    return SasResponse._(
+      Uint8List.fromList(_rS),
+      sasCode(
+        suite,
+        fp: Fingerprint.of(suite, umk),
+        userId: userId,
+        showerRandom: _rS,
+        verifierRandom: rV,
+      ),
+    );
+  }
+}
+
+/// Outcome of opening the relayed commitment on the verifier's device.
+sealed class SasOpenResult {
+  const SasOpenResult();
+}
+
+/// The opening matched the commitment under the relayed key and id; the
+/// [challenge] now takes the typed digits.
+final class SasOpened extends SasOpenResult {
+  /// Wraps the ready challenge.
+  const SasOpened(this.challenge);
+
+  /// Attempt state for this session.
+  final SasChallenge challenge;
+}
+
+/// The relayed opening does not open the relayed commitment under the relayed
+/// key and user id — the relay lied about at least one of the three. Treat
+/// exactly as [CeremonyMismatch] (04 §6.3): hard fail, *"Do not proceed.
+/// Contact support."*, log `verification_mismatch`, no override.
+final class SasOpeningMismatch extends SasOpenResult {
+  /// Creates the outcome.
+  const SasOpeningMismatch();
+}
+
+/// The verifier's side of the SAS code path (04 §6.2 *Verify member* →
+/// *Enter code instead*).
+///
+/// Ordering is structural, not advisory: `r_V` is drawn inside
+/// [SasVerifier.begin], which cannot run without the relayed key **and** the
+/// relayed commitment — so the relay has fixed both before `r_V` exists
+/// (B-04-88). [open] is single-use; a mismatch there ends the session.
+final class SasVerifier {
+  SasVerifier._(
+    this.relayed,
+    this.relayedUserId,
+    this.commitment,
+    this.issuedAtMs,
+    this.verifierRandom,
+  );
+
+  /// Holds the server-relayed [relayed] key, [relayedUserId] and
+  /// [commitment] (issued at [issuedAtMs], the server's timestamp on the
+  /// commitment, ms since epoch — 04 §6.3's ten minutes run from it), and
+  /// only then draws `r_V`.
+  factory SasVerifier.begin(
+    CryptoSuite suite, {
+    required UmkPublic relayed,
+    required String relayedUserId,
+    required Uint8List commitment,
+    required int issuedAtMs,
+  }) {
+    if (commitment.length != sasCommitmentBytes) {
+      throw ArgumentError.value(
+        commitment.length,
+        'commitment',
+        'SAS commitment is $sasCommitmentBytes bytes',
+      );
+    }
+    return SasVerifier._(
+      relayed,
+      _checkedUserId(relayedUserId),
+      Uint8List.fromList(commitment),
+      issuedAtMs,
+      suite.randomBytes(sasContributionBytes),
+    );
+  }
+
+  /// Server-relayed UMK public halves of the person being verified.
+  final UmkPublic relayed;
+
+  /// The user id the server relayed.
+  final String relayedUserId;
+
+  /// The commitment the server relayed.
+  final Uint8List commitment;
+
+  /// Server timestamp of the commitment (ms since epoch).
+  final int issuedAtMs;
+
+  /// `r_V` — relayed to the shower. It exists only because [relayed] and
+  /// [commitment] were in hand first.
+  final Uint8List verifierRandom;
+
+  bool _opened = false;
+
+  /// True once [open] has run.
+  bool get isOpened => _opened;
+
+  /// Checks that [showerRandom] opens [commitment] under the *relayed* key
+  /// and id (constant time) and hands back the challenge. Exactly once: a
+  /// second call throws [StateError].
+  SasOpenResult open(CryptoSuite suite, Uint8List showerRandom) {
+    if (_opened) {
+      throw StateError(
+        'SasVerifier.open called twice: one opening per session',
+      );
+    }
+    final rS = _checkedContribution(showerRandom, 'showerRandom');
+    _opened = true;
+    final fp = Fingerprint.of(suite, relayed);
+    final expected = sasCommitment(
+      suite,
+      fp: fp,
+      userId: relayedUserId,
+      showerRandom: rS,
+    );
+    if (!suite.constantTimeEquals(expected, commitment)) {
+      return const SasOpeningMismatch();
+    }
+    return SasOpened(
+      SasChallenge._(
+        relayed,
+        fp,
+        relayedUserId,
+        rS,
+        Uint8List.fromList(verifierRandom),
+        issuedAtMs,
+        0,
+        false,
+      ),
+    );
+  }
+}
+
+/// Attempt state of one SAS session on the verifier's device. 04 §6.3's
+/// rules are unchanged — [codeMaxAttempts] wrong tries kill the session, it
+/// expires [codeNonceLifetimeMs] after the commitment's server timestamp,
+/// success retires it — and the shape mirrors [CodeChallenge]: immutable,
+/// each [attempt] returns its successor beside the result, no clock inside.
+@immutable
+final class SasChallenge {
+  const SasChallenge._(
+    this.relayed,
+    this._fp,
+    this.userId,
+    this._rS,
+    this._rV,
+    this.issuedAtMs,
+    this.attemptsUsed,
+    this.dead,
+  );
+
+  /// Server-relayed UMK public halves — what a match verifies.
+  final UmkPublic relayed;
+
+  final Fingerprint _fp;
+
+  /// The user id the server relayed.
+  final String userId;
+
+  final Uint8List _rS;
+  final Uint8List _rV;
+
+  /// Server timestamp of the commitment (ms since epoch).
+  final int issuedAtMs;
+
+  /// Wrong attempts consumed so far.
+  final int attemptsUsed;
+
+  /// True once the session can never verify again (exhausted or consumed).
+  final bool dead;
+
+  /// Attempts still available.
+  int get attemptsLeft => dead ? 0 : codeMaxAttempts - attemptsUsed;
+
+  /// True when [nowMs] is past the session's lifetime — same boundary as
+  /// [CodeChallenge.isExpiredAt].
+  bool isExpiredAt(int nowMs) => nowMs - issuedAtMs > codeNonceLifetimeMs;
+
+  SasChallenge _next(int used, bool isDead) =>
+      SasChallenge._(relayed, _fp, userId, _rS, _rV, issuedAtMs, used, isDead);
+
+  /// Checks [typed] against `sasCode(FP_relayed, user_id, r_S, r_V)`. Order:
+  /// dead → expired → compare (constant time). Whitespace read aloud in
+  /// pairs is tolerated; a malformed entry is a wrong attempt; the third
+  /// wrong attempt kills the session; success also retires it.
+  ({SasChallenge next, CeremonyResult result}) attempt(
+    CryptoSuite suite, {
+    required String typed,
+    required int nowMs,
+  }) {
+    if (dead) return (next: this, result: const CodeExhausted());
+    if (isExpiredAt(nowMs)) return (next: this, result: const CodeExpired());
+
+    final expected = sasCode(
+      suite,
+      fp: _fp,
+      userId: userId,
+      showerRandom: _rS,
+      verifierRandom: _rV,
+    );
+    final cleaned = typed.replaceAll(RegExp(r'\s'), '');
+    final ok = suite.constantTimeEquals(
+      Uint8List.fromList(utf8.encode(expected)),
+      Uint8List.fromList(utf8.encode(cleaned)),
+    );
+    if (ok) {
+      return (
+        next: _next(attemptsUsed, true),
+        result: CeremonyVerified(
+          VerifiedUmkPublic.internal(
+            relayed,
+            _fp,
+            VerificationMethod.codeRemote,
+          ),
+        ),
+      );
+    }
+    final used = attemptsUsed + 1;
+    if (used >= codeMaxAttempts) {
+      return (next: _next(used, true), result: const CodeExhausted());
+    }
+    return (
+      next: _next(used, false),
+      result: CodeWrong(attemptsLeft: codeMaxAttempts - used),
+    );
+  }
+}
