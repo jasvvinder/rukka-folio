@@ -106,7 +106,7 @@ abstract final class Gf256 {
 final class ShamirShare {
   /// Creates a share; [bytes] are copied.
   ShamirShare({required this.index, required Uint8List bytes, this.threshold})
-    : bytes = Uint8List.fromList(bytes) {
+    : _bytes = Uint8List.fromList(bytes) {
     if (index < 1 || index > 255) {
       throw ArgumentError.value(index, 'index', 'must be in 1..255');
     }
@@ -120,14 +120,30 @@ final class ShamirShare {
   /// never a share.
   final int index;
 
-  /// One y byte per secret byte.
-  final Uint8List bytes;
+  final Uint8List _bytes;
+  bool _disposed = false;
+
+  /// One y byte per secret byte. Throws [StateError] once [dispose] has run:
+  /// a zeroised share handed to [Shamir.combine] would otherwise interpolate
+  /// to plausible garbage instead of failing (B-04-78; ADR 2026-09-05 §8).
+  Uint8List get bytes {
+    if (_disposed) throw StateError('ShamirShare used after dispose()');
+    return _bytes;
+  }
+
+  /// True once [dispose] ran.
+  bool get isDisposed => _disposed;
 
   /// The `k` this share was produced under, when known.
   final int? threshold;
 
-  /// Overwrites [bytes] with zeros (04 §7.3 step 4, 04 §8.1).
-  void dispose() => bytes.fillRange(0, bytes.length, 0);
+  /// Overwrites the bytes with zeros (04 §7.3 step 4, 04 §8.1). Idempotent;
+  /// every later read of [bytes] throws.
+  void dispose() {
+    if (_disposed) return;
+    _disposed = true;
+    _bytes.fillRange(0, _bytes.length, 0);
+  }
 }
 
 /// Shamir's scheme over GF(256): split a byte string into `n` shares any `k`
@@ -201,15 +217,24 @@ abstract final class Shamir {
 
   /// Reconstructs the secret from [shares] by Lagrange interpolation at `x = 0`.
   ///
-  /// Refuses an empty list, duplicate indices, mismatched lengths, and — when
-  /// any share carries a [ShamirShare.threshold] — disagreeing thresholds or
-  /// fewer shares than that threshold. Every share given is used: with `m ≥ k`
+  /// Refuses an empty list, a **single** share (split refuses `k = 1`, so no
+  /// set with `k = 1` exists and one share alone would only ever "reconstruct"
+  /// to its own bytes — B-04-76), duplicate indices, mismatched lengths, and —
+  /// when any share carries a [ShamirShare.threshold] — disagreeing
+  /// thresholds or fewer shares than that threshold. Every share given is used: with `m ≥ k`
   /// consistent shares the interpolation is exact, and with an inconsistent
   /// (tampered) share the result is wrong either way — this layer has no
   /// integrity check; the sealed transit of 04 §7.3 step 3 provides it.
   /// The caller owns and must zeroise the returned bytes.
   static Uint8List combine(List<ShamirShare> shares) {
     if (shares.isEmpty) throw ArgumentError.value(shares, 'shares', 'empty');
+    if (shares.length < 2) {
+      throw ArgumentError.value(
+        shares,
+        'shares',
+        'need at least 2 shares — no threshold below 2 is ever issued',
+      );
+    }
     final len = shares.first.bytes.length;
     int? threshold;
     final seen = <int>{};
@@ -312,7 +337,7 @@ final class GuardianShare {
     required this.n,
     required this.index,
     required Uint8List bytes,
-  }) : bytes = Uint8List.fromList(bytes) {
+  }) : _bytes = Uint8List.fromList(bytes) {
     if (suiteVersion < 0 || suiteVersion > 0xff) {
       throw ArgumentError.value(suiteVersion, 'suiteVersion', 'not a byte');
     }
@@ -378,8 +403,18 @@ final class GuardianShare {
   /// This guardian's x-coordinate, `1..n`.
   final int index;
 
+  final Uint8List _bytes;
+  bool _disposed = false;
+
   /// The Shamir share bytes — as secret as the UMK itself until sealed.
-  final Uint8List bytes;
+  /// Throws [StateError] once [dispose] has run (B-04-78).
+  Uint8List get bytes {
+    if (_disposed) throw StateError('GuardianShare used after dispose()');
+    return _bytes;
+  }
+
+  /// True once [dispose] ran.
+  bool get isDisposed => _disposed;
 
   /// Canonical wire bytes; see the class comment for the layout.
   Uint8List encode() => Bytes.concat([
@@ -395,8 +430,13 @@ final class GuardianShare {
   ShamirShare toShamirShare() =>
       ShamirShare(index: index, bytes: bytes, threshold: k);
 
-  /// Overwrites [bytes] with zeros (04 §7.3 step 4).
-  void dispose() => bytes.fillRange(0, bytes.length, 0);
+  /// Overwrites the bytes with zeros (04 §7.3 step 4). Idempotent; every
+  /// later read of [bytes], [encode] or [toShamirShare] throws.
+  void dispose() {
+    if (_disposed) return;
+    _disposed = true;
+    _bytes.fillRange(0, _bytes.length, 0);
+  }
 }
 
 /// The bytes reconstructed from k guardian shares do not re-derive the UMK
@@ -460,7 +500,11 @@ abstract final class GuardianShareSet {
   /// Reconstructs `UMK_priv` from at least `k` guardian shares of one
   /// generation. Refuses shares from different `share_set_version`s (a re-split
   /// after a guardian change — 04 §7.3), differing `(suite, k, n)`, duplicate
-  /// indices and fewer than `k` shares. The caller zeroises the result.
+  /// indices, fewer than `k` shares, and a set [create] could never have
+  /// issued — an unknown `suite_version` or `n` outside [GuardianPolicy]'s
+  /// `2..5` (both reachable only by building [GuardianShare] by hand, since
+  /// [GuardianShare.decode] already refuses the former; B-04-81). The caller
+  /// zeroises the result.
   static Uint8List reconstruct(List<GuardianShare> shares) {
     if (shares.isEmpty) throw ArgumentError.value(shares, 'shares', 'empty');
     final first = shares.first;
@@ -483,6 +527,24 @@ abstract final class GuardianShareSet {
         );
       }
     }
+    // ⚠️ SPEC: same reading as GuardianShare.decode — only 0x01 exists, so any
+    // other suite_version is unknown, not "old" (04 §8.5). Revisit at 0x02.
+    if (first.suiteVersion != suiteVersion) {
+      throw ArgumentError.value(
+        first.suiteVersion,
+        'suiteVersion',
+        'unknown suite_version',
+      );
+    }
+    if (first.n < GuardianPolicy.minGuardians ||
+        first.n > GuardianPolicy.maxGuardians) {
+      throw ArgumentError.value(
+        first.n,
+        'n',
+        'guardian count must be in ${GuardianPolicy.minGuardians}..'
+            '${GuardianPolicy.maxGuardians} — no such set was ever issued',
+      );
+    }
     if (shares.length < first.k) {
       throw ArgumentError.value(
         shares,
@@ -502,11 +564,18 @@ abstract final class GuardianShareSet {
 
   /// [reconstruct], then proves the result is the right UMK before anyone
   /// trusts it: the 64 bytes re-derive both public halves, which must equal
-  /// [expected] — the UMK public key the recovering device already holds for
-  /// this user (it is in every device certificate and wrapped-key row, 04 §3.1,
-  /// §3.4). Plain [reconstruct] cannot tell a tampered or mis-sealed share
-  /// from a good one (B-04-57); this can, with no field added to the share set
-  /// and no new primitive (ADR 2026-09-06 §2).
+  /// [expected]. Plain [reconstruct] cannot tell a tampered or mis-sealed
+  /// share from a good one (B-04-57); this can, with no field added to the
+  /// share set and no new primitive (ADR 2026-09-06 §2).
+  ///
+  /// [expected] is a [VerifiedUmkPublic] — **never** the server's registered
+  /// copy (ADR 2026-09-13c §1). A fresh device holds nothing of the user's;
+  /// the only copy in reach is the server's, and `crypto_box_seal` names no
+  /// sender, so a server that relays its own key and forges the boxes would
+  /// pass a check against its own copy (B-04-83). The recovery ceremony
+  /// produces the type: a verified member's device shows the user's key as a
+  /// `QrPayload` and `Ceremony.verifyQr` compares it against the relay
+  /// (04 §6.3). A `UmkPublic` here is a compile error, not a runtime check.
   ///
   /// On mismatch the reconstructed bytes are zeroised, the derived pair is
   /// disposed and [GuardianShareMismatch] is thrown. On success the caller
@@ -516,15 +585,16 @@ abstract final class GuardianShareSet {
   static UmkKeyPair reconstructVerified(
     CryptoSuite suite,
     List<GuardianShare> shares, {
-    required UmkPublic expected,
+    required VerifiedUmkPublic expected,
   }) {
     final secret = reconstruct(shares);
     UmkKeyPair? pair;
     try {
       pair = UmkKeyPair.fromSecretBytes(suite, secret);
+      final known = expected.public;
       final ok =
-          suite.constantTimeEquals(pair.public.x25519, expected.x25519) &&
-          suite.constantTimeEquals(pair.public.ed25519, expected.ed25519);
+          suite.constantTimeEquals(pair.public.x25519, known.x25519) &&
+          suite.constantTimeEquals(pair.public.ed25519, known.ed25519);
       if (!ok) {
         pair.dispose();
         throw const GuardianShareMismatch();
