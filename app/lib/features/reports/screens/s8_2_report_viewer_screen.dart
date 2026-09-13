@@ -37,6 +37,7 @@ import '../../../shared/ledger/local_ledger.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../../ledger/ledger_book.dart';
+import '../../../shared/seams/closed_years.dart';
 import '../../ledger/widgets/fy_switcher.dart';
 import '../day_book.dart';
 import '../export/csv_report.dart';

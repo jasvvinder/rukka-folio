@@ -11,51 +11,18 @@
 //     lie, so this file draws plain text whenever no year has closed.
 //
 // There is no year-close source until S10.4 lands (M9), so the closed years
-// arrive through the [ClosedYearsSource] seam, which defaults to *none* — the
-// same shape as `features/home`'s `RebuildProgressSource`. Shipped behaviour
-// today is therefore plain text, and the chip is exercised from a fake.
+// arrive through the [ClosedYearsSource] seam, which defaults to *none*.
+// That seam is a domain type shared with `features/reports`, so it lives in
+// `shared/seams/closed_years.dart`, not here (13 Sep 2026). Shipped behaviour
+// today is plain text, and the chip is exercised from a fake.
 import 'package:core_ledger/core_ledger.dart';
 import 'package:flutter/material.dart';
 
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/format/money_format.dart';
+import '../../../shared/seams/closed_years.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
-
-/// A financial year that has been closed and certified (02 §8.1).
-@immutable
-final class ClosedYear {
-  /// Creates the record.
-  const ClosedYear({required this.year, required this.carriedForwardPaise});
-
-  /// The year itself.
-  final FinancialYear year;
-
-  /// The **b/f it hands to the next year** for the account being shown,
-  /// signed paise (+ = Dr) — the certified closing balance of 02 §8.1.
-  final int carriedForwardPaise;
-
-  @override
-  bool operator ==(Object other) =>
-      other is ClosedYear &&
-      other.year == year &&
-      other.carriedForwardPaise == carriedForwardPaise;
-
-  @override
-  int get hashCode => Object.hash(year, carriedForwardPaise);
-}
-
-/// The seam S4 consumes: the certified years of [bookId], for [accountId],
-/// oldest first. Empty until the first year close — which is every build
-/// before M9, so [noClosedYears] is what the app ships.
-typedef ClosedYearsSource = Future<List<ClosedYear>> Function(
-  String bookId,
-  String accountId,
-);
-
-/// The shipped source: no year has closed, so there is no switcher.
-Future<List<ClosedYear>> noClosedYears(String bookId, String accountId) async =>
-    const <ClosedYear>[];
 
 /// The year on a statement header: plain text until a year has closed, a chip
 /// after it (ADR 2026-09-09 §4).

@@ -26,6 +26,7 @@ import '../../../shared/ledger/local_ledger.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../ledger_book.dart';
+import '../../../shared/seams/closed_years.dart';
 import '../widgets/fy_switcher.dart';
 
 class AccountStatementScreen extends StatefulWidget {

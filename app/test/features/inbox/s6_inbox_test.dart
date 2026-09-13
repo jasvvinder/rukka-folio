@@ -16,7 +16,7 @@ import 'package:rukka_folio/features/inbox/inbox_routes.dart';
 import 'package:rukka_folio/features/inbox/review_queue.dart';
 import 'package:rukka_folio/features/inbox/screens/s6_inbox_screen.dart';
 import 'package:rukka_folio/l10n/gen/app_localizations.dart';
-import 'package:rukka_folio/main.dart' show rkLocalizationsDelegates;
+import 'package:rukka_folio/l10n/l10n.dart';
 import 'package:rukka_folio/shared/app_scope.dart';
 import 'package:rukka_folio/shared/router.dart';
 import 'package:rukka_folio/shared/seams/auth_client.dart';

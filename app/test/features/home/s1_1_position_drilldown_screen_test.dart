@@ -10,7 +10,7 @@ import 'package:rukka_folio/features/home/home_paths.dart';
 import 'package:rukka_folio/features/home/screens/s1_1_position_drilldown_screen.dart';
 import 'package:rukka_folio/features/home/widgets/home_states.dart';
 import 'package:rukka_folio/l10n/gen/app_localizations.dart';
-import 'package:rukka_folio/main.dart';
+import 'package:rukka_folio/l10n/l10n.dart';
 import 'package:rukka_folio/shared/app_scope.dart';
 import 'package:rukka_folio/shared/ledger/ledger_scope.dart';
 import 'package:rukka_folio/shared/ledger/local_ledger.dart';

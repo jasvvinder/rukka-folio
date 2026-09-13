@@ -14,7 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/l10n/gen/app_localizations.dart';
-import 'package:rukka_folio/main.dart';
+import 'package:rukka_folio/l10n/l10n.dart';
 import 'package:rukka_folio/shared/app_scope.dart';
 import 'package:rukka_folio/shared/ledger/ledger_scope.dart';
 import 'package:rukka_folio/shared/ledger/local_ledger.dart';
