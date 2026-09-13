@@ -45,6 +45,14 @@ const PK: Record<MetaTable, string[]> = {
   umk_public_keys: ["user_id", "key_version"],
 };
 
+// Columns the API role may read per meta table. `invites` is the one narrowing: ADR 2026-09-05c §4
+// keeps `invitee_hmac` (and the ceremony nonce) outside rf_api's grant, so `select *` would raise
+// 42501 — and should. Whom an admin invited comes from the admin's own contact card, never from us.
+const COLS: Partial<Record<MetaTable, string>> = {
+  invites:
+    "id, tenant_id, roles, status, expires_at, created_by, created_at, accepted_by, accepted_at, source_record_id, updated_at",
+};
+
 export class PgStore implements Store {
   private sql: postgres.Sql;
   constructor(url: string) {
@@ -170,7 +178,7 @@ class PgTx implements Tx {
     const pk = PK[table];
     const idExpr = pk.map((c) => `${c}::text`).join(" || ':' || ");
     const rows = await this.sql.unsafe(
-      `select *, (${idExpr}) as __id from ${table}
+      `select ${COLS[table] ?? "*"}, (${idExpr}) as __id from ${table}
        where ($1::timestamptz is null or updated_at > $1 or (updated_at = $1 and (${idExpr}) > $2))
        order by updated_at, (${idExpr}) limit $3`,
       [after?.updated_at ?? null, after?.id ?? "", limit],
@@ -239,6 +247,11 @@ class PgTx implements Tx {
     // visible rows only — bootstrap is "no membership exists yet", which the caller can see when true
     const [r] = await this.sql`select count(*)::int as n from memberships where tenant_id = ${t}`;
     return r.n as number;
+  }
+  async membershipStatus(t: string, u: string): Promise<string | null> {
+    const [r] = await this
+      .sql`select status from memberships where tenant_id = ${t} and user_id = ${u}`;
+    return (r?.status as string) ?? null;
   }
   async bookInfo(bookId: string) {
     const [r] = await this.sql`select b.tenant_id, b.owner_user_id, b.type,

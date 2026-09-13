@@ -76,6 +76,11 @@ async function seed(): Promise<Fixture> {
     dave = await mk(4),
     erin = await mk(5);
   await sql`update users set erased_at = now(), phone_ct = null, phone_hmac = null where id = ${erin}`;
+  // 06 §7: nobody reaches `active` without a verified ceremony (the founder of each tenant aside),
+  // and rf.membership_guard enforces that for every writer — the seed included.
+  await sql`insert into verification_events (tenant_id, subject_user, verifier_user, method, result) values
+    (${ta.id}, ${bob}, ${alice}, 'qr_in_person', 'verified'),
+    (${ta.id}, ${dave}, ${alice}, 'qr_in_person', 'verified')`;
   await sql`insert into memberships (tenant_id, user_id, status) values
     (${ta.id}, ${alice}, 'active'), (${ta.id}, ${bob}, 'active'), (${tb.id}, ${carol}, 'active'), (${ta.id}, ${dave}, 'active'), (${ta.id}, ${erin}, 'removed')`;
   const dev: Record<string, string> = {};

@@ -147,15 +147,17 @@ Deno.test("E-05-10 meta/records: signed records are verified under the device ke
   await t.step(
     "admin's membership_status record projects a membership row and is acked with seq",
     async () => {
+      // `joined_pending_verification`, not `active`: 06 §7 reserves the active edge for a
+      // successful ceremony, and both rf.membership_guard and applyRecord now refuse the jump.
       const rec = await signedRecord(admin, tenant, "membership_status", {
         user_id: newbie,
-        status: "active",
+        status: "joined_pending_verification",
       });
       const res = await body(await send(admin, [rec.wire]));
       assertEquals(res.results[0].result, "acked");
       assertExists(res.results[0].seq);
       const row = r.db.memberships.find((m) => m.user_id === newbie)!;
-      assertEquals(row.status, "active");
+      assertEquals(row.status, "joined_pending_verification");
       assertEquals(row.source_record_id, rec.row.id, "row points at the record that made it");
       const replay = await body(await send(admin, [rec.wire]));
       assertEquals(replay.results[0].result, "acked");

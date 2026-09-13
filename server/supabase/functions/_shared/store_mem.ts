@@ -511,6 +511,10 @@ class MemTx implements Tx {
   membershipCount(t: string): Promise<number> {
     return Promise.resolve(this.db.memberships.filter((m) => m.tenant_id === t).length);
   }
+  membershipStatus(t: string, u: string): Promise<string | null> {
+    const m = this.db.memberships.find((x) => x.tenant_id === t && x.user_id === u);
+    return Promise.resolve((m?.status as string) ?? null);
+  }
   bookInfo(bookId: string) {
     const b = this.db.books.get(bookId);
     if (!b) return Promise.resolve(null);

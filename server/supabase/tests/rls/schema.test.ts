@@ -409,3 +409,52 @@ Deno.test("E-05c-8 (static) private bucket, 10 MB cap, 24 h auth-row purge, 90 d
   assertStringIncludes(allSql, "approved_by <> imposed_by");
   // ⚠️ the 24-month audit_events aggregation and the orphan sweeper are scheduled jobs (README §5), not schema.
 });
+
+Deno.test("E-06-17 invites & membership (06 §7): the state machine is on the tables, invitee_hmac and the nonce are outside rf_api's grant, and the sweep is maintenance-only", () => {
+  // ADR 2026-09-05c §4 — a second admin's device sees that an invite exists and who sent it, never
+  // whom. Postgres demands SELECT on every column a query REFERENCES, so dropping these two from
+  // the grant closes the filter-as-oracle route as well as the read.
+  assertStringIncludes(allSql, "revoke select on invites from rf_api");
+  const invSelect = grantsOn("invites", "rf_api").filter((g) => g.privileges.includes("select"));
+  assert(invSelect.length > 0);
+  const granted = invSelect.at(-1)!.columns;
+  assert(granted.length > 0, "the surviving invites SELECT grant is a column list");
+  for (const c of ["invitee_hmac", "nonce"]) {
+    assert(!granted.includes(c), `invites grant leaks ${c}`);
+  }
+  assertEquals([...privsOf("invites", "rf_api")].sort(), ["insert", "select"], "no UPDATE/DELETE");
+
+  // 06 §7's machine is enforced in the database — an edge function is a client from RLS's view.
+  for (
+    const [table, guard] of [["invites", "rf.invite_guard"], ["memberships", "rf.membership_guard"]]
+  ) {
+    const t = triggers.find((x) => x.table === table && x.fn === guard);
+    assert(t, `${table} carries ${guard}`);
+    assert((t!.timing & 2) !== 0, `${guard} runs BEFORE the write`);
+  }
+  // the transition table has no edge that skips the ceremony, and none back out of blocked
+  const edges = fn("rf.membership_transition_ok");
+  assertStringIncludes(edges, "when 'invited'");
+  assert(!/when 'invited'\s+then p_new in \([^)]*'active'/.test(edges), "invited → active");
+  assert(!/when 'blocked'\s+then p_new in \([^)]*'active'/.test(edges), "blocked → active");
+  assertStringIncludes(fn("rf.membership_guard"), "ceremony_required");
+  assertStringIncludes(fn("rf.membership_guard"), "no_live_invite");
+
+  // ADR 2026-09-05d §9 — the link alone admits nobody; acceptance lands short of active.
+  const accept = fn("rf.accept_invite");
+  assertStringIncludes(accept, "phone_mismatch");
+  assertStringIncludes(accept, "i.invitee_hmac is distinct from h");
+  assertStringIncludes(accept, "'joined_pending_verification'");
+  assert(!/status = 'active'/.test(accept), "accept never reaches active");
+
+  // 06 §7 shape: 7-day window, 128-bit ceremony nonce, and the sweep as a maintenance power only.
+  assertStringIncludes(allSql, "expires_at <= created_at + interval '7 days'");
+  assertStringIncludes(allSql, "check (octet_length(nonce) = 16)");
+  assertStringIncludes(allSql, "revoke execute on function rf.expire_invites() from rf_api");
+  assertStringIncludes(allSql, "grant execute on function rf.expire_invites() to rf_maintenance");
+
+  // ADR 2026-09-05b §1 — invites and the verification flip stay projections of signed records.
+  assertStringIncludes(fn("rf.invite_guard"), "signed_records");
+  assertStringIncludes(fn("rf.create_invite"), "rf.require_record(");
+  assertStringIncludes(fn("rf.project_verification_event"), "rf.require_record(");
+});

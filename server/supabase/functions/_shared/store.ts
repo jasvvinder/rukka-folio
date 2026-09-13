@@ -162,6 +162,8 @@ export interface Tx {
   ): Promise<{ user_id: string; pub_ed: Uint8Array; status: string } | null>;
   isTenantAdmin(tenantId: string): Promise<boolean>;
   membershipCount(tenantId: string): Promise<number>;
+  /** Current membership status, or null when there is no row yet (06 §7's starting state). */
+  membershipStatus(tenantId: string, userId: string): Promise<string | null>;
   bookInfo(
     bookId: string,
   ): Promise<
@@ -258,7 +260,11 @@ export function denialFromPg(e: unknown): StoreDenied | null {
   const code = (e as { code?: string })?.code ?? "";
   if (code === "42501" || code === "28000") return new StoreDenied("rls"); // insufficient_privilege
   if (code === "P0001") return new StoreDenied(msg.split(/\s/)[0]); // raise exception '<reason>'
-  if (code === "23514") return new StoreDenied("check"); // check_violation (caps, enums)
+  // check_violation: a bare-token message is one of our own guards raising a named reason
+  // (rf.membership_guard / rf.invite_guard, 06 §7); anything else is a column CHECK.
+  if (code === "23514") {
+    return new StoreDenied(/^[a-z][a-z0-9_]*$/.test(msg.trim()) ? msg.trim() : "check");
+  }
   if (code === "23503") return new StoreDenied("fk"); // unknown book / tenant / device
   return null;
 }

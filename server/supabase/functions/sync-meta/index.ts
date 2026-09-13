@@ -275,11 +275,16 @@ export function shapeRow(table: MetaTable, r: Record<string, unknown>): Record<s
       return {
         id,
         tenant_id: r.tenant_id,
-        invitee_hmac: bin(r.invitee_hmac),
+        // NO invitee_hmac on the wire (ADR 2026-09-05c §4): the row says that an invite exists and
+        // who sent it. The inviting device already holds the contact card it picked; nobody else
+        // gets to learn whom the family invited — not even a second admin.
         roles: r.roles,
         status: r.status,
         expires_at: ms(r.expires_at),
         created_by: r.created_by,
+        accepted_by: r.accepted_by ?? null,
+        accepted_at: ms(r.accepted_at),
+        source_record_id: r.source_record_id ?? null,
         updated_at: ms(r.updated_at),
       };
     case "subscriptions":

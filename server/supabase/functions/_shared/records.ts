@@ -87,6 +87,32 @@ const MEMBERSHIP_STATUSES = new Set([
 const ROLES = new Set(["admin", "head", "member", "operator", "viewer"]);
 
 /**
+ * 06 §7's membership graph, mirrored from `rf.membership_transition_ok` so the function answers
+ * with a named refusal instead of letting the database's guard surface as a generic denial. The
+ * database stays the authority — an edge function is just another client — but the client asking
+ * deserves to be told which edge it tried to walk.
+ */
+const MEMBERSHIP_EDGES: Record<string, string[]> = {
+  // no row yet: an admin record may invite or record a join, never grant `active` — that edge
+  // belongs to the ceremony. The one exception is the tenant's founder, who has nobody to verify
+  // them (06 §5); `bootstrap` below is that exception, and the database's guard agrees.
+  "-": ["invited", "joined_pending_verification", "removed"],
+  invited: ["invited", "joined_pending_verification", "removed"],
+  joined_pending_verification: ["joined_pending_verification", "active", "blocked", "removed"],
+  active: ["active", "removed"],
+  blocked: ["blocked", "removed"],
+  removed: ["removed", "invited", "joined_pending_verification"],
+};
+export function membershipTransitionOk(
+  from: string | null,
+  to: string,
+  bootstrap = false,
+): boolean {
+  if (from === null && bootstrap && to === "active") return true;
+  return (MEMBERSHIP_EDGES[from ?? "-"] ?? []).includes(to);
+}
+
+/**
  * Apply one verified record authored by the *caller's* device. Returns the apply note, or a
  * refusal string beginning with "rejected:". Caller has already inserted the row (so `seq` is set)
  * — projection happens in the same transaction and rolls back with it.
@@ -105,6 +131,12 @@ export async function applyRecord(
       }
       const bootstrap = user === authorUserId && (await tx.membershipCount(r.tenant_id)) === 0;
       if (!bootstrap && !(await tx.isTenantAdmin(r.tenant_id))) return "rejected:unauthorized";
+      // 06 §7: the graph, not the admin, decides what the next state may be. `active` in particular
+      // is the ceremony's to grant (rf.membership_guard refuses it without one, even to us).
+      const from = await tx.membershipStatus(r.tenant_id, user);
+      if (!membershipTransitionOk(from, status, bootstrap)) {
+        return "rejected:membership_transition";
+      }
       await tx.projectMembership(r.id, r.tenant_id, user, status);
       return `membership ${status}`;
     }
