@@ -239,7 +239,7 @@ The admin holds every permission, so review cannot rely on someone senior to the
 3. **A permanent, member-visible admin-actions feed.** Role changes, limit changes, period re-opens, business-setting and ownership changes, member removals and profit distributions are written as signed envelopes and shown to every member of the tenant, forever. The admin can perform these; they cannot perform them quietly.
 4. **Closing is a joint act, verified by arithmetic.** The admin cannot close a period alone — each book owner confirms their own book (§8), and every member's device independently recomputes the balance-vector hash. A tampered book fails on other people's phones, not on the admin's.
 
-### 7.2.1 Multiple admins and the quorum rule 🔒 (owner-approved, 30 Aug 2026) ⟦tests: A-02-94 @M7⟧
+### 7.2.1 Multiple admins and the quorum rule 🔒 (owner-approved, 30 Aug 2026) ⟦tests: A-02-94⟧
 
 **A book may have any number of admins.** Roles are per-book (06 §1.1), so all three sub-family heads can be admins of the joint business while holding different roles elsewhere. Recommended for any shared book, for one reason beyond convenience: **succession** — with a single admin, a lost phone or a death leaves the book with nobody who can invite, close or manage it.
 
@@ -248,7 +248,7 @@ Admin power then splits in two:
 | | Who may act | Examples |
 |---|---|---|
 | **Routine admin** | any one admin, alone | invite a member, set an auto-post limit, create or rename accounts, lock a period, run the close wizard |
-| **Structural** 🔒 | **quorum of owners required** | change the ownership ratio · distribute profit · enable/change/disable interest on capital · add or remove an owner · remove a member · re-open a **closed year** · change the book's financial-year start (**forbidden outright once any year has closed** — it would re-boundary every certificate, ADR 2026-09-05e §9) · delete or archive the book | ⟦tests: A-02-95 @M7⟧
+| **Structural** 🔒 | **quorum of owners required** | change the ownership ratio · distribute profit · enable/change/disable interest on capital · add or remove an owner · remove a member · re-open a **closed year** · change the book's financial-year start (**forbidden outright once any year has closed** — it would re-boundary every certificate, ADR 2026-09-05e §9) · delete or archive the book | ⟦tests: A-02-95⟧
 
 **How quorum works.** Each shared book carries a `structural_quorum` setting: **all owners** (default) or a **majority** (⌈n/2⌉ + 1), chosen at creation and itself a structural action to change. An admin *initiates* a structural action; it enters a **pending-structural** state and appears in every owner's Inbox as a distinct card stating exactly what will change ("Ownership ratio: Amrit 40% · Sukhdev 30% · Harjit 30% — currently equal thirds"). It takes effect only when the quorum of **signed approval envelopes** exists; each approval is authored on that owner's own device, so the server cannot manufacture one.
 

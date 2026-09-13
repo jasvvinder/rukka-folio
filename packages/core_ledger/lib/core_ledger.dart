@@ -27,6 +27,7 @@ export 'src/money.dart';
 export 'src/partners.dart';
 export 'src/projection.dart';
 export 'src/ratio.dart';
+export 'src/structural.dart';
 export 'src/verbs.dart';
 
 /// Package identity used by the M0 hello-world gate.
