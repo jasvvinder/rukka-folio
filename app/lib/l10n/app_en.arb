@@ -200,6 +200,18 @@
   "@backup.vault.title": {
     "description": "S11.4 row 2: encrypted .rukka vault (04 §7.6), default ON. Platform nouns stay Latin (01 §1 rule 8)."
   },
+  "connection.notice.body": "The app works offline. Everything you enter is saved on this phone and syncs by itself when the connection comes back.",
+  "@connection.notice.body": {
+    "description": "S19.3 body. 13 §5 🔒 two graces, two copies: this is the radio being off, NOT the entitlement offline grace ('Connect once to keep entering') — it must never mention the plan or a lapse."
+  },
+  "connection.notice.retry": "Check now",
+  "@connection.notice.retry": {
+    "description": "S19.3 optional manual check. Deliberately not 'Try again' (suspended.retry, subscription.action.retry) — nothing failed."
+  },
+  "connection.notice.title": "No connection",
+  "@connection.notice.title": {
+    "description": "S19.3 No connection (13 §3.2, 07 §24) — non-blocking notice on the 13 §4.2 banner atom; never a modal, never gates export."
+  },
   "date.month.apr": "Apr",
   "@date.month.apr": {
     "description": "See date.month.jan."
@@ -1825,6 +1837,43 @@
   "@onboarding.books_safe.title": {
     "description": "S0.5 title (07 §3.1 step 5 🔒, 13 §3.2)."
   },
+  "onboarding.business.another.add": "Add another business",
+  "@onboarding.business.another.add": {
+    "description": "S0.6c loop row — back to S0.6a for the next business (07 §3.1.1)."
+  },
+  "onboarding.business.another.books_note": "Every business is its own book, with its own closing and its own members. The scope chip appears on Home as soon as there are two.",
+  "@onboarding.business.another.books_note": {
+    "description": "S0.6c note (canvas 1 screen S0.6c; the chip is 07 §5.7 🔒 S1.2)."
+  },
+  "onboarding.business.another.done": "No, that’s all",
+  "@onboarding.business.another.done": {
+    "description": "S0.6c primary — on to your own opening balances and the S0.7 checklist (07 §3.1 step 7)."
+  },
+  "onboarding.business.another.ready_tag": "set up",
+  "@onboarding.business.another.ready_tag": {
+    "description": "S0.6c recap row tick, spoken label — colour is never the only signal (07 §1 rule 3)."
+  },
+  "onboarding.business.another.row_meta": "FY from 1 {month}",
+  "@onboarding.business.another.row_meta": {
+    "description": "S0.6c recap row, second line — the financial year that business keeps (02 §8.1).",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.business.another.skip": "Skip for now",
+  "@onboarding.business.another.skip": {
+    "description": "S0.6c skip — every branch step is skippable and resumable (07 §3.1.1)."
+  },
+  "onboarding.business.another.subtitle": "You can add one now, or from the Menu at any time.",
+  "@onboarding.business.another.subtitle": {
+    "description": "S0.6c reassurance line (canvas 1 screen S0.6c; 07 §5.7 — a business is also added from Menu → Books)."
+  },
+  "onboarding.business.another.title": "Add another business?",
+  "@onboarding.business.another.title": {
+    "description": "S0.6c — the loop control of the multi-business branch (07 §3.1.1 O6c, 13 §3.2, canvas 1 screen S0.6c); only the My businesses card reaches it."
+  },
   "onboarding.business.continue_label": "Continue",
   "@onboarding.business.continue_label": {
     "description": "S0.6a primary action."
@@ -2718,6 +2767,76 @@
   "@reports.day_book.row.title": {
     "description": "S8.1 report row 1 of 11, in 07 §14 🔒 order."
   },
+  "reports.export.csv": "CSV",
+  "@reports.export.csv": {
+    "description": "S8.2 export sheet, format 2 of 3 in ADR 2026-09-12 §1 🔒 order."
+  },
+  "reports.export.csv.description": "Opens in any spreadsheet",
+  "@reports.export.csv.description": {
+    "description": "S8.2 export sheet — what CSV is for."
+  },
+  "reports.export.failed": "The report could not be saved.",
+  "@reports.export.failed": {
+    "description": "S8.2 — an export that failed to write. Never silent (07 §1 rule 6)."
+  },
+  "reports.export.file_name": "day-book-{year}.{extension}",
+  "@reports.export.file_name": {
+    "description": "S8.2 — the exported file's name. Latin and ASCII in every locale on purpose: a file name is metadata that travels with the file, and it carries no account name, party name or figure (CLAUDE.md rule 4).",
+    "placeholders": {
+      "year": {
+        "type": "String",
+        "example": "2026-27"
+      },
+      "extension": {
+        "type": "String",
+        "example": "csv"
+      }
+    }
+  },
+  "reports.export.page": "Page {page} of {pages}",
+  "@reports.export.page": {
+    "description": "S8.2 PDF export — the page footer of the printed day book (07 §14 🔒 'A4 print-clean'). A multi-page report that does not number its pages cannot be checked once it is off the printer. Digits are Latin in every locale (11 §4.4).",
+    "placeholders": {
+      "page": {
+        "type": "int",
+        "example": "1"
+      },
+      "pages": {
+        "type": "int",
+        "example": "3"
+      }
+    }
+  },
+  "reports.export.pdf": "PDF",
+  "@reports.export.pdf": {
+    "description": "S8.2 export sheet, format 1 of 3 in ADR 2026-09-12 §1 🔒 order — the default of Download/Share, and a working row since ADR 2026-09-12d §3 🔒."
+  },
+  "reports.export.pdf.description": "The one to hand to someone else",
+  "@reports.export.pdf.description": {
+    "description": "S8.2 export sheet — what PDF is for (ADR 2026-09-12 §1: 'the format a person hands to someone else')."
+  },
+  "reports.export.saved": "Saved: {where}",
+  "@reports.export.saved": {
+    "description": "S8.2 — confirmation after an export, naming where the file landed. The file name only, never a figure or an account name (CLAUDE.md rule 4).",
+    "placeholders": {
+      "where": {
+        "type": "String",
+        "example": "day-book-2026-27.pdf"
+      }
+    }
+  },
+  "reports.export.title": "Download or share this report",
+  "@reports.export.title": {
+    "description": "S8.2 export sheet title (ADR 2026-09-12 §1 🔒). Every format is generated on device (07 §14 🔒)."
+  },
+  "reports.export.xlsx": "XLSX",
+  "@reports.export.xlsx": {
+    "description": "S8.2 export sheet, format 3 of 3 in ADR 2026-09-12 §1 🔒 order."
+  },
+  "reports.export.xlsx.description": "A spreadsheet file",
+  "@reports.export.xlsx.description": {
+    "description": "S8.2 export sheet — what XLSX is for."
+  },
   "reports.family_reconciliation.row.title": "Family Reconciliation",
   "@reports.family_reconciliation.row.title": {
     "description": "S8.1 report row 9 of 11, in 07 §14 🔒 order."
@@ -2738,9 +2857,9 @@
   "@reports.profit_loss.row.title": {
     "description": "S8.1 report row 6 of 11, in 07 §14 🔒 order."
   },
-  "reports.row.reason": "The report viewer has not been built yet.",
+  "reports.row.reason": "This report has not been built yet.",
   "@reports.row.reason": {
-    "description": "S8.1 disabled-with-reason line (13 §4.3, 07 §1 rule 6): S8.2 report viewer + export is a later lane, so every report name is present but not yet enterable — never a dead end."
+    "description": "S8.1 disabled-with-reason line (13 §4.3, 07 §1 rule 6). S8.2 the report viewer has landed, but only against the Day Book (10's M5 row: \"basic day-book export\"; ADR 2026-09-12 Consequences — \"the remaining ten reports … are M12\"). Every other report name is present but not yet enterable — never a dead end."
   },
   "reports.title": "Reports",
   "@reports.title": {
@@ -2749,6 +2868,68 @@
   "reports.trial_balance.row.title": "Trial Balance",
   "@reports.trial_balance.row.title": {
     "description": "S8.1 report row 4 of 11, in 07 §14 🔒 order (02 §8)."
+  },
+  "reports.viewer.book.label": "Book",
+  "@reports.viewer.book.label": {
+    "description": "S8.2 report viewer + CSV export — heading for the book the report covers."
+  },
+  "reports.viewer.column.date": "Date",
+  "@reports.viewer.column.date": {
+    "description": "S8.2 day book — date column heading."
+  },
+  "reports.viewer.column.note": "Note",
+  "@reports.viewer.column.note": {
+    "description": "S8.2 day book — note column heading (CSV export only; on screen the note sits under the line)."
+  },
+  "reports.viewer.column.particulars": "Particulars",
+  "@reports.viewer.column.particulars": {
+    "description": "S8.2 day book — the account each posting line touches. Classical ledger column (07 §14, design-system §5); a PROFESSIONAL surface, so Dr/Cr, never Money in/out (02 §10 🔒)."
+  },
+  "reports.viewer.crosscheck.mismatch": "Dr and Cr do not agree — please contact support",
+  "@reports.viewer.crosscheck.mismatch": {
+    "description": "S8.2 — cross-check footer, the bad case. Every entry balances (02 §1.4), so a mismatch is a fault to report, not something the reader can fix. Words beside a warning icon, never colour alone (07 §1 rule 3)."
+  },
+  "reports.viewer.crosscheck.ok": "Dr and Cr agree",
+  "@reports.viewer.crosscheck.ok": {
+    "description": "S8.2 — cross-check footer, the good case. Words beside a tick, never colour alone (07 §1 rule 3). Professional surface: Dr/Cr (02 §10 🔒)."
+  },
+  "reports.viewer.empty": "Nothing has been entered in this period.",
+  "@reports.viewer.empty": {
+    "description": "S8.2 empty state (13 §4.3). Never a dead end (07 §1 rule 6) — the year control and the export action stay on screen."
+  },
+  "reports.viewer.entries.count": "{count, plural, =0{No entries} =1{1 entry} other{{count} entries}}",
+  "@reports.viewer.entries.count": {
+    "description": "S8.2 — the one-line takeaway header's count of entries in the period (07 §14: 'a one-line takeaway header').",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "12"
+      }
+    }
+  },
+  "reports.viewer.error": "The day book could not be read.",
+  "@reports.viewer.error": {
+    "description": "S8.2 error state (13 §4.3), with Try again."
+  },
+  "reports.viewer.export": "Download / Share",
+  "@reports.viewer.export": {
+    "description": "S8.2 primary action — writes the report as PDF straight out, no sheet (ADR 2026-09-12 §1 🔒, default restored by ADR 2026-09-12d §2 🔒: PDF is the format a person hands to someone else). View report opens in-app."
+  },
+  "reports.viewer.export.formats": "Choose a format",
+  "@reports.viewer.export.formats": {
+    "description": "S8.2 second app-bar action — opens the export sheet so a person can choose a format rather than accept the PDF default (ADR 2026-09-12c §1 🔒: the sheet stays reachable from the viewer — the half of 12c that survives 12d). Icon-only at every text scale, so this string is its tooltip and its screen-reader label (07 §1 rules 3 and 11)."
+  },
+  "reports.viewer.period.label": "Period",
+  "@reports.viewer.period.label": {
+    "description": "S8.2 — heading for the financial year the report covers (the FY switcher's year, ADR 2026-09-09 §4)."
+  },
+  "reports.viewer.skeleton": "Opening the day book",
+  "@reports.viewer.skeleton": {
+    "description": "S8.2 loading state — semantic label on the ruled skeleton (11 §4.5)."
+  },
+  "reports.viewer.total": "Total",
+  "@reports.viewer.total": {
+    "description": "S8.2 — the cross-check line at the foot of the day book (13 §5 flow F3 'cross-check footer'): the Dr and Cr columns totalled."
   },
   "settings.about.row.reason": "Help & support has not been built yet.",
   "@settings.about.row.reason": {
