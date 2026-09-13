@@ -151,8 +151,11 @@ class Waiver {
   final bool pendingRuling;
 }
 
-/// design-system §3.1 🔒 rulings (5 Sep 2026, ADR 2026-09-05f §H2) plus the
-/// two pairs awaiting the token session. Removing a `pendingRuling` entry
+/// design-system §3.1 🔒 rulings (5 Sep 2026, ADR 2026-09-05f §H2). Since
+/// ADR 2026-09-13 §2 🔒 closed the last three pending pairs by moving the
+/// tokens, every entry left is a **placement** rule — a pair the design puts
+/// out of scope — and none is `pendingRuling`. Adding a `pendingRuling` entry
+/// is how a newly-found sub-AA pair is parked for the owner; removing one
 /// flips CI red until tokens.json changes.
 const waivers = <Waiver>[
   Waiver(
@@ -191,32 +194,11 @@ const waivers = <Waiver>[
     'danger-surface',
     'amounts are never placed on danger-surface (design-system §3.1)',
   ),
-  Waiver(
-    'light',
-    'credit',
-    'sunk',
-    'ruled: light credit darkened one step, hex at the token session '
-        '(design-system §2, §3.1; tokens.json _proposed_2026-09-05f)',
-    pendingRuling: true,
-  ),
-  Waiver(
-    'light',
-    'text-muted',
-    'sunk',
-    '⚠️ SPEC: unruled — fails the design-system §3.1 four-ground rule; found '
-        '7 Sep 2026 by check_contrast; owner to darken text-muted or keep '
-        'captions off sunk',
-    pendingRuling: true,
-  ),
-  Waiver(
-    'light',
-    'text-muted',
-    'danger-surface',
-    '⚠️ SPEC: unruled — fails the design-system §3.1 four-ground rule; found '
-        '7 Sep 2026 by check_contrast; owner to darken text-muted or keep '
-        'captions off danger-surface',
-    pendingRuling: true,
-  ),
+  // The three `pendingRuling` waivers that stood here — light credit on sunk,
+  // light text-muted on sunk and on danger-surface — are **gone, not relaxed**
+  // (ADR 2026-09-13 §2 🔒, 13 Sep 2026). The owner darkened the two tokens
+  // instead of writing placement rules nobody could enforce in code, so all
+  // three pairs now clear AA on their own and the gate holds them to it.
 ];
 
 /// One measured pair.

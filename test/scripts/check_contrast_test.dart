@@ -142,10 +142,14 @@ void main() {
   test('F1-10-14 waivers: a ruled pair is excluded (~), a pending-ruling '
       'pair warns (⚠) but neither fails; a non-matching waiver changes '
       'nothing', () {
+    // The pre-13-Sep values of `credit` and `text-muted`, kept deliberately:
+    // this test is about the waiver *mechanism*, and it needs a pair that
+    // genuinely measures below AA. ADR 2026-09-13 §2 🔒 darkened both tokens,
+    // so the shipped palette no longer supplies one.
     final t = tokens({
       'light': {...paperGrounds, 'credit': '#2F7A55', 'text-muted': '#6E6A5E'},
     });
-    // Unwaived: the real light-credit-on-sunk (4.30) fails.
+    // Unwaived: light credit on sunk at the old hex (4.30) fails.
     final bare = audit(t, waived: const []);
     expect(pick(bare, 'light', 'credit', 'sunk').fails, isTrue);
     expect(pick(bare, 'light', 'credit', 'bg').fails, isFalse);

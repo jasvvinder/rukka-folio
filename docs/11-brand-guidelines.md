@@ -185,7 +185,7 @@ Sealing is the exact reverse: entries retract, corner flattens, strap and seal r
 | `--bahi-red` | `#C1502E` | Accent. Sparingly — one accent per screen |
 | `--paper` | `#F5F0E4` | Warm background. Never pure white |
 | `--ink` | `#1A1A18` | Body text. Never pure black |
-| `--credit` | `#2F7A55` | Money in. Numerals only |
+| `--credit` | `#2B724F` | Money in. Numerals only. Darkened from `#2F7A55` 13 Sep 2026 (ADR 2026-09-13 §2 🔒) so amounts reach AA on the `sunk` well — same hue, half the step to `success` ⟦tests: F1-10-12⟧ |
 | `--debit` | `#A83232` | Money out. Numerals only |
 
 Neutrals are **warm greys**, derived from paper — never blue-grey.
@@ -367,7 +367,7 @@ Motif       The ruled column
 
 Indigo      #2B3A67      Bahi red    #C1502E
 Paper       #F5F0E4      Ink         #1A1A18
-Credit      #2F7A55      Debit       #A83232
+Credit      #2B724F      Debit       #A83232
 
 Type        Mukta, fallback Noto Sans
 Numerals    Tabular figures, Indian grouping — ₹1,24,500.00
