@@ -1,24 +1,14 @@
 // The app's shipped [ReportSink]: raises the platform share sheet, and falls
-// back to a named file when it cannot.
+// back to a named file when it cannot (ADR 2026-09-13 §1 🔒, which is the
+// ruling — this comment does not restate it).
 //
-// **ADR 2026-09-13 §1 🔒 took the decision this file was written around.**
-// ADR 2026-09-12 §1 🔒 made *Download/Share* the primary action of S8.2, and
-// the share half of that is `printing`'s OS sheet; `printing` has resolved
-// since ADR 2026-09-12d §1 pinned `archive` into `pdf`'s window. What was
-// missing was not code but a ruling — swapping the sink changes what the
-// primary action *does* on a real phone — and until 13 Sep the export ended at
-// a sandbox temp path no reader could reach. It no longer does.
+// `Printing.sharePdf` shares all three formats despite its name: the iOS plugin
+// writes the bytes to `NSTemporaryDirectory()/<name>` and presents a
+// `UIActivityViewController` over that file URL, so our extension is what the
+// system reads the type from (`printing-5.14.3/ios/Classes/PrintJob.swift:255`).
 //
-// `Printing.sharePdf` shares **any** of the three formats despite its name: the
-// iOS plugin writes the bytes to `NSTemporaryDirectory()/<name>` and presents a
-// `UIActivityViewController` over that file URL, so the extension we pass —
-// `.pdf`, `.csv`, `.xlsx` — is what the system reads the type from
-// (`printing-5.14.3/ios/Classes/PrintJob.swift:255`).
-//
-// The file is plaintext financial data (CLAUDE.md rule 4), so nothing here is
-// logged — not the path, not the exception, not the bytes — and any file
-// written purges under the rule `F2-05a-11` already carries (ADR 2026-09-12 §4
-// — no new rule minted).
+// Nothing here is logged — not the path, not the exception, not the bytes
+// (CLAUDE.md rule 4); files purge under `F2-05a-11` (ADR 2026-09-12 §4).
 import 'dart:io';
 
 import 'package:path/path.dart' as p;
