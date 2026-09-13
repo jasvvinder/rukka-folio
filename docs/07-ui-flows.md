@@ -199,7 +199,7 @@ Drill-downs from Home: party list sorted by balance, ageing chips (`> 30 days` a
 - **Given out** (book view): aged list per 02 §7; approver sees `Remind` and `Write off (reason)` actions.
 - Request flow: amount → purpose (required) → from which book → submits to approver; tracked in Inbox both sides.
 
-## 9. Approvals (in Inbox) 🔒 ⟦tests: F1-07-23 @M7⟧
+## 9. Approvals (in Inbox) 🔒 ⟦tests: F1-07-23⟧
 Flags group into **one card per author + book + day**: avatar, "Ramesh · Kirana Store · 7 entries · ₹23,400", expandable list with photo thumbnails and a per-row ✕ quick-reject. Two actions 🔒 (owner-approved):
 - **Approve all** — clears every flag in the card in one tap (entries were already posted and counted, 02 §3).
 - **One by one** — a guided stepper: each entry full-screen (photo, amount, A/Cs, date/time, author, note) with **Approve / Reject (reason required → auto-reversal posts) / Skip (stays flagged)** and a quiet *ask for a better photo* link; every decision advances, progress shown ("3 of 7"). Nothing is approved unseen; rejecting one never blocks the rest.
@@ -234,7 +234,7 @@ One flow: From (book + money A/C) → To (book + money A/C) → amount → save.
 
 ---
 
-## 12. Members, invitations & the ceremony 🔒 ⟦tests: F1-07-26 @M7⟧
+## 12. Members, invitations & the ceremony 🔒 ⟦tests: F1-07-26⟧
 
 - **Members screen** (per tenant): list with role badges per book, verification method + date (the permanent log, 04 §6.4), auto-post limits (tap to edit, admin only), `+ Invite`.
 - **Invite:** phone → per-book role + limit grid → **designation (optional)** — picked from the 01 §2 tables for the tenant type, or typed free; one muted line states it plainly: *"A name, not a permission — what they can do is set above"* (06 §1.0 🔒, Option B) → sends WhatsApp/SMS link. Invite card shows state machine (06 §7): `Invited (expires in 7 d)` → `Joined — verification needed` → `Active` → or `Expired` (one-tap re-invite). **A second admin's screen cannot show whom was invited** — only the inviting device holds the contact (ADR 2026-09-05c §4); the row reads *"Invited by Amrit · awaiting join"* (ADR 2026-09-05f §G).

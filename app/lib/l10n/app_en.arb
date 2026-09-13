@@ -200,6 +200,223 @@
   "@backup.vault.title": {
     "description": "S11.4 row 2: encrypted .rukka vault (04 §7.6), default ON. Platform nouns stay Latin (01 §1 rule 8)."
   },
+  "ceremony.mismatch.body": "The code on that phone does not match the keys we hold for this person. Someone may be standing in for them. Do not give this phone access to your books.",
+  "@ceremony.mismatch.body": {
+    "description": "S9.4 body — says plainly what happened and what not to do. There is no override and no retry (04 §6.3 🔒)."
+  },
+  "ceremony.mismatch.causes": "It can mean the invitation went to the wrong number, or that someone is trying to get into your books.",
+  "@ceremony.mismatch.causes": {
+    "description": "S9.4 — the two honest explanations, from Canvas 4 (S9.4 \"Mismatch · no way past\"). Neither blames the user."
+  },
+  "ceremony.mismatch.close": "Close",
+  "@ceremony.mismatch.close": {
+    "description": "S9.4 way off the screen — back to Members, with the person still unverified. Not an override: nothing is verified and nothing is retried."
+  },
+  "ceremony.mismatch.logged": "This has been written to your security log, with the date and who was being verified.",
+  "@ceremony.mismatch.logged": {
+    "description": "S9.4 line confirming the verification_mismatch security event (04 §6.3) and the permanent verification log (04 §6.4)."
+  },
+  "ceremony.mismatch.next_step": "Do not try again on this phone. Speak to the person face to face first, then call us.",
+  "@ceremony.mismatch.next_step": {
+    "description": "S9.4 — Canvas 4 (S9.4). Says plainly that retrying is not the path, without offering a retry control (04 §6.3 🔒)."
+  },
+  "ceremony.mismatch.nothing_shared": "Nothing has been shared. No access was given.",
+  "@ceremony.mismatch.nothing_shared": {
+    "description": "S9.4 — Canvas 4 (S9.4). The one reassurance that is true: the ceremony failed before any book key was wrapped (04 §8.2 🔒)."
+  },
+  "ceremony.mismatch.semantics": "Warning. Verification failed.",
+  "@ceremony.mismatch.semantics": {
+    "description": "S9.4 icon semantics — the red ground is never the only signal (07 §1 rule 3, design-system §3.1)."
+  },
+  "ceremony.mismatch.support": "Contact support",
+  "@ceremony.mismatch.support": {
+    "description": "S9.4 only action, from 04 §6.3 🔒."
+  },
+  "ceremony.mismatch.title": "Do not proceed.",
+  "@ceremony.mismatch.title": {
+    "description": "S9.4 title, from 04 §6.3 🔒 (\"Do not proceed. Contact support.\"). Full red screen, no override."
+  },
+  "ceremony.show.body": "Let them scan this square. If they can’t, read the eight digits out to them.",
+  "@ceremony.show.body": {
+    "description": "S9.2 lead line. Both paths are equal (design-system §3.1 rule 7 — camera-free path)."
+  },
+  "ceremony.show.channel_rule": "Never send this code in a message. Say it out loud on a call, or let them scan the square.",
+  "@ceremony.show.channel_rule": {
+    "description": "S9.2 standing line explaining why there is no share button (04 §6.4 channel rule 🔒). Never soften."
+  },
+  "ceremony.show.code.label": "Your 8-digit code",
+  "@ceremony.show.code.label": {
+    "description": "S9.2 label above the eight character boxes (07 §12 🔒 owner-approved)."
+  },
+  "ceremony.show.code.semantics": "Your 8-digit code: {digits}",
+  "@ceremony.show.code.semantics": {
+    "description": "S9.2 spoken form of the eight boxes — the boxes are presentation, the digits are read as one code.",
+    "placeholders": {
+      "digits": {
+        "type": "String"
+      }
+    }
+  },
+  "ceremony.show.error": "Couldn’t get your code.",
+  "@ceremony.show.error": {
+    "description": "S9.2 error state (13 §4.3 error-with-retry)."
+  },
+  "ceremony.show.expired": "This code has expired.",
+  "@ceremony.show.expired": {
+    "description": "S9.2 expired state — the nonce is past 04 §6.3's ten minutes."
+  },
+  "ceremony.show.expires_in": "Expires in {time}",
+  "@ceremony.show.expires_in": {
+    "description": "S9.2 visible expiry countdown beside the code (07 §12 🔒). Nonce lifetime is 10 minutes (04 §6.3).",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "ceremony.show.loading": "Getting your code.",
+  "@ceremony.show.loading": {
+    "description": "S9.2 loading state (13 §4.3). A verb, never a percentage (11 §4.5)."
+  },
+  "ceremony.show.offline": "Offline — this code still works face to face.",
+  "@ceremony.show.offline": {
+    "description": "S9.2 quiet offline chip (07 §1 rule 7). The code is derived on this phone, so it keeps working."
+  },
+  "ceremony.show.qr.semantics": "Your verification square. The same code is written below as eight digits.",
+  "@ceremony.show.qr.semantics": {
+    "description": "S9.2 QR semantics label — a screen reader can never read the square, so it is told the digits are the equal alternative."
+  },
+  "ceremony.show.regenerate": "Get a new code",
+  "@ceremony.show.regenerate": {
+    "description": "S9.2 action: Regenerate issues a fresh nonce (04 §6.3). The one next step from the expired state."
+  },
+  "ceremony.show.retry": "Try again",
+  "@ceremony.show.retry": {
+    "description": "Retry action on the S9.2 / S9.3 error states."
+  },
+  "ceremony.show.time.minutes_seconds": "{minutes} min {seconds} s",
+  "@ceremony.show.time.minutes_seconds": {
+    "description": "S9.2 countdown format above one minute. Latin digits, tabular figures.",
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      },
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "ceremony.show.time.seconds": "{seconds} s",
+  "@ceremony.show.time.seconds": {
+    "description": "S9.2 countdown format under one minute.",
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "ceremony.show.title": "Show my code",
+  "@ceremony.show.title": {
+    "description": "S9.2 title (13 §3.2, 07 §12) — the invitee's side of the ceremony."
+  },
+  "ceremony.verify.camera.denied": "This app hasn’t been given the camera. Type their eight digits instead.",
+  "@ceremony.verify.camera.denied": {
+    "description": "S9.3 permission-denied state — the code path takes over, never a wall."
+  },
+  "ceremony.verify.camera.enter_code": "Enter code instead",
+  "@ceremony.verify.camera.enter_code": {
+    "description": "S9.3 button, always present (04 §6.2 🔒, design-system §3.1 rule 7). A blind user or a broken camera must never block joining."
+  },
+  "ceremony.verify.camera.hint": "Point the camera at the square on their phone.",
+  "@ceremony.verify.camera.hint": {
+    "description": "S9.3 camera state — camera is open by default (04 §6.2)."
+  },
+  "ceremony.verify.camera.unavailable": "The camera isn’t available on this phone. Type their eight digits instead.",
+  "@ceremony.verify.camera.unavailable": {
+    "description": "S9.3 camera-unavailable state — no dead end (07 §1 rule 6); the code path takes over."
+  },
+  "ceremony.verify.check": "Check code",
+  "@ceremony.verify.check": {
+    "description": "S9.3 primary action on the code path."
+  },
+  "ceremony.verify.checking": "Checking.",
+  "@ceremony.verify.checking": {
+    "description": "S9.3 loading state while the code is compared (13 §4.3)."
+  },
+  "ceremony.verify.code.hint": "Ask them to read it out from their phone.",
+  "@ceremony.verify.code.hint": {
+    "description": "S9.3 code-entry hint — the code originates on the invitee's device (04 §6.4)."
+  },
+  "ceremony.verify.code.label": "Their 8-digit code",
+  "@ceremony.verify.code.label": {
+    "description": "S9.3 code-entry label."
+  },
+  "ceremony.verify.code.use_camera": "Use the camera instead",
+  "@ceremony.verify.code.use_camera": {
+    "description": "S9.3 way back to the camera from the code path — both paths are equal."
+  },
+  "ceremony.verify.error": "Couldn’t check that just now.",
+  "@ceremony.verify.error": {
+    "description": "S9.3 error state (13 §4.3 error-with-retry). Never shows a raw code (07 §1 rule 12)."
+  },
+  "ceremony.verify.exhausted": "That code is used up. Ask them to get a new one on their phone.",
+  "@ceremony.verify.exhausted": {
+    "description": "S9.3 dead-nonce state — three wrong tries, or already verified (04 §6.3)."
+  },
+  "ceremony.verify.expired": "That code has expired. Ask them to get a new one on their phone.",
+  "@ceremony.verify.expired": {
+    "description": "S9.3 expired-nonce state (04 §6.3, ten minutes) — with the one next step."
+  },
+  "ceremony.verify.offline": "Offline — checking needs a connection. Try again when you’re back.",
+  "@ceremony.verify.offline": {
+    "description": "S9.3 offline state: the keys being compared are server-relayed (04 §6.3), so this one check truly needs the network. States the path back (07 §1 rule 6)."
+  },
+  "ceremony.verify.read_only": "Only an active, verified member can verify someone. Ask one of them to do it.",
+  "@ceremony.verify.read_only": {
+    "description": "S9.3 read-only variant (13 §2.3.1, S12.5 pattern): this member may not run the ceremony — with the way forward."
+  },
+  "ceremony.verify.remote.instruction": "Call them and ask them to read the code aloud.",
+  "@ceremony.verify.remote.instruction": {
+    "description": "S9.3 remote mode, exact wording 🔒 (04 §6.4, 07 §12). There is no share button on this screen, by design."
+  },
+  "ceremony.verify.remote.why": "A voice or video call only. A text message would hand the code to exactly the person this check exists to stop.",
+  "@ceremony.verify.remote.why": {
+    "description": "S9.3 remote-mode explanation of the channel rule (04 §6.4 🔒). Never soften."
+  },
+  "ceremony.verify.scan.not_a_code": "That isn’t a verification square. Ask them to open Show my code.",
+  "@ceremony.verify.scan.not_a_code": {
+    "description": "S9.3 state when the camera read some other QR (a shop's payment square, say). NOT a mismatch — nothing is compared and nothing is logged; 04 §6.3's hard fail is only for a real ceremony payload whose keys differ."
+  },
+  "ceremony.verify.success.body": "{name} is confirmed. Their shared books open now.",
+  "@ceremony.verify.success.body": {
+    "description": "S9.3 success line. The member's name is user-typed — carries its own lang (design-system §3.1 rule 1).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ceremony.verify.success.done": "Done",
+  "@ceremony.verify.success.done": {
+    "description": "S9.3 success action — back to the Members screen."
+  },
+  "ceremony.verify.success.title": "Verified",
+  "@ceremony.verify.success.title": {
+    "description": "S9.3 success state — green tick, restrained (07 §12). The word carries the meaning; the colour never alone (07 §1 rule 3)."
+  },
+  "ceremony.verify.title": "Verify member",
+  "@ceremony.verify.title": {
+    "description": "S9.3 title (13 §3.2, 07 §12) — the verifier's side. Any active member may do this (04 §6.4, delegated)."
+  },
+  "ceremony.verify.wrong": "Those digits don’t match. {left, plural, =1{1 try left.} other{{left} tries left.}}",
+  "@ceremony.verify.wrong": {
+    "description": "S9.3 wrong-code state — 3 attempts per nonce (04 §6.3). Not a mismatch: a mis-typed code is a slip, not an attack.",
+    "placeholders": {
+      "left": {
+        "type": "int"
+      }
+    }
+  },
   "connection.notice.body": "The app works offline. Everything you enter is saved on this phone and syncs by itself when the connection comes back.",
   "@connection.notice.body": {
     "description": "S19.3 body. 13 §5 🔒 two graces, two copies: this is the radio being off, NOT the entitlement offline grace ('Connect once to keep entering') — it must never mention the plan or a lapse."
@@ -1075,9 +1292,523 @@
   "@home.verify.provisional": {
     "description": "S1 provisional badge on the position card when the book has an author gap (13 §4.1 P2, 07 §1 rule 7)."
   },
+  "inbox.card.approve.all": "Approve all",
+  "@inbox.card.approve.all": {
+    "description": "S6.1 primary action 🔒 (07 §9, owner-approved): clears every flag on the card in one tap."
+  },
+  "inbox.card.approved": "{count, plural, =1{1 entry approved.} other{{count} entries approved.}}",
+  "@inbox.card.approved": {
+    "description": "S6.1 confirmation after Approve all.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inbox.card.collapse": "Hide the entries",
+  "@inbox.card.collapse": {
+    "description": "S6.1 collapses the card’s list."
+  },
+  "inbox.card.count": "{count, plural, =1{1 entry} other{{count} entries}}",
+  "@inbox.card.count": {
+    "description": "S6.1 card meta: how many entries the card covers (07 §9).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inbox.card.error": "Couldn’t send that. Nothing has changed.",
+  "@inbox.card.error": {
+    "description": "S6.1 error state — says the write did not land, so the reviewer knows the flag is still open."
+  },
+  "inbox.card.expand": "Show the entries",
+  "@inbox.card.expand": {
+    "description": "S6.1 expands the card’s list (07 §9)."
+  },
+  "inbox.card.flag": "Needs your review",
+  "@inbox.card.flag": {
+    "description": "S6.1 status chip — the amber needs-review flag of 02 §3, always with its icon and word so colour is never alone (07 §1 rule 3)."
+  },
+  "inbox.card.one.by.one": "One by one",
+  "@inbox.card.one.by.one": {
+    "description": "S6.1 secondary action 🔒 (07 §9): opens the S6.2 stepper — nothing is approved unseen."
+  },
+  "inbox.card.posted": "Already in the book. These counted the moment {author} saved them — you are checking them, not releasing them.",
+  "@inbox.card.posted": {
+    "description": "S6.1 post-then-review line 🔒 (02 §3): there is no state in which a recorded entry is held out of a live balance. Never soften into ‘pending’ or ‘awaiting approval’.",
+    "placeholders": {
+      "author": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.card.subtitle": "{book} · {day}",
+  "@inbox.card.subtitle": {
+    "description": "S6.1 card second line: the book and the day the entries were made (07 §9 — one card per author, book and day). Date pre-formatted per 07 §1 rule 5.",
+    "placeholders": {
+      "book": {
+        "type": "String"
+      },
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.card.total": "{amount} in all",
+  "@inbox.card.total": {
+    "description": "S6.1 card meta: the entries added up. A card mixes money in and money out, so the total carries no sign and no colour (07 §1 rule 3). Amount pre-formatted.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.card.working": "Sending…",
+  "@inbox.card.working": {
+    "description": "S6.1 loading state while an approval is being recorded (13 §4.3)."
+  },
+  "inbox.empty.action": "Open your books",
+  "@inbox.empty.action": {
+    "description": "S6 empty state’s single next action — no dead ends (07 §1 rule 6)."
+  },
+  "inbox.empty.body": "Entries above your book’s review limit land here. Everything your family has entered is already counted.",
+  "@inbox.empty.body": {
+    "description": "S6 empty state, second line — restates post-then-review so the empty tray is not read as ‘nothing has been entered’ (02 §3 🔒)."
+  },
+  "inbox.empty.title": "Nothing needs you right now.",
+  "@inbox.empty.title": {
+    "description": "S6 empty state, friendly line (07 §1 rule 12)."
+  },
+  "inbox.empty.viewer.body": "Reviewing entries is not part of your access here, so nothing arrives in this tray.",
+  "@inbox.empty.viewer.body": {
+    "description": "S6 viewer variant, reason line."
+  },
+  "inbox.empty.viewer.title": "You can view this book.",
+  "@inbox.empty.viewer.title": {
+    "description": "S6 viewer variant (13 §2.3.1: Inbox · Viewer → empty state). States the capability rather than hiding it (13 §2.3 🔒)."
+  },
+  "inbox.error": "Couldn’t load your inbox.",
+  "@inbox.error": {
+    "description": "S6 list error state — named cause, with the retry beside it (13 §8)."
+  },
+  "inbox.offline": "Offline — showing what this phone last saw.",
+  "@inbox.offline": {
+    "description": "S6 quiet offline chip, never a blocking banner (07 §1 rule 7)."
+  },
   "inbox.placeholder.body": "Anything waiting for you will appear here.",
   "@inbox.placeholder.body": {
     "description": "P0 placeholder until S6 lands."
+  },
+  "inbox.retry": "Try again",
+  "@inbox.retry": {
+    "description": "Retry action on the S6 / S6.2 error states."
+  },
+  "inbox.row.note.none": "No note",
+  "@inbox.row.note.none": {
+    "description": "S6.1 / S6.2 state when the author wrote no note."
+  },
+  "inbox.row.photo": "Bill photo",
+  "@inbox.row.photo": {
+    "description": "S6.1 row thumbnail label (07 §9)."
+  },
+  "inbox.row.photo.none": "No photo",
+  "@inbox.row.photo.none": {
+    "description": "S6.1 row state when the author attached nothing."
+  },
+  "inbox.row.reject": "Reject this entry",
+  "@inbox.row.reject": {
+    "description": "S6.1 per-row quick reject (07 §9) — the screen-reader label on the ✕."
+  },
+  "inbox.row.route": "{from} → {to}",
+  "@inbox.row.route": {
+    "description": "S6.1 row: where the money came from and where it went, in the user’s own words. Consumer vocabulary only — never Dr/Cr (02 §10 🔒).",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.section.review": "Needs your review",
+  "@inbox.section.review": {
+    "description": "S6 section header over the S6.1 review cards (07 §9)."
+  },
+  "inbox.skeleton": "Loading your inbox",
+  "@inbox.skeleton": {
+    "description": "S6 loading state, announced with the ruled skeleton (11 §4.5, 13 §4.3)."
+  },
+  "inbox.step.approve": "Approve",
+  "@inbox.step.approve": {
+    "description": "S6.2 action 1 (07 §9)."
+  },
+  "inbox.step.author": "Entered by {author}",
+  "@inbox.step.author": {
+    "description": "S6.2 author line (07 §9).",
+    "placeholders": {
+      "author": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.step.book": "In {book}",
+  "@inbox.step.book": {
+    "description": "S6.2 which book the entry landed in.",
+    "placeholders": {
+      "book": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.step.cancel": "Cancel",
+  "@inbox.step.cancel": {
+    "description": "S6.2 dismisses the rejection sheet without deciding."
+  },
+  "inbox.step.done.action": "Back to Inbox",
+  "@inbox.step.done.action": {
+    "description": "S6.2 end state’s one next action — no dead ends (07 §1 rule 6)."
+  },
+  "inbox.step.done.clear": "Nothing from this card is left for you.",
+  "@inbox.step.done.clear": {
+    "description": "S6.2 end state when every entry was decided."
+  },
+  "inbox.step.done.skipped": "{count, plural, =1{1 entry you skipped is still in your inbox.} other{{count} entries you skipped are still in your inbox.}}",
+  "@inbox.step.done.skipped": {
+    "description": "S6.2 end state when some were skipped — they stay flagged (07 §9).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inbox.step.done.title": "{count, plural, =1{You have looked at the 1 entry.} other{You have looked at all {count} entries.}}",
+  "@inbox.step.done.title": {
+    "description": "S6.2 end of the stepper (07 §9: every decision advances).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inbox.step.error": "Couldn’t record that. The entry is still waiting for you.",
+  "@inbox.step.error": {
+    "description": "S6.2 error state — says the flag is unchanged, so the reviewer can retry safely."
+  },
+  "inbox.step.field.date": "Date",
+  "@inbox.step.field.date": {
+    "description": "S6.2 field label: the entry’s own date."
+  },
+  "inbox.step.field.from": "From",
+  "@inbox.step.field.from": {
+    "description": "S6.2 field label: where the money came from. Consumer wording (02 §10 🔒)."
+  },
+  "inbox.step.field.note": "Note",
+  "@inbox.step.field.note": {
+    "description": "S6.2 field label: the author’s own words."
+  },
+  "inbox.step.field.saved": "Saved",
+  "@inbox.step.field.saved": {
+    "description": "S6.2 field label: when the entry was saved — the moment it started counting (02 §3)."
+  },
+  "inbox.step.field.to": "To",
+  "@inbox.step.field.to": {
+    "description": "S6.2 field label: where the money went."
+  },
+  "inbox.step.gone.body": "Someone else may have reviewed these, or they have already been cleared.",
+  "@inbox.step.gone.body": {
+    "description": "S6.2 missing-group reason line."
+  },
+  "inbox.step.gone.title": "That card is not here any more.",
+  "@inbox.step.gone.title": {
+    "description": "S6.2 state when the group has gone (approved on another phone, or already cleared) — never a blank screen."
+  },
+  "inbox.step.photo.ask": "Ask for a better photo",
+  "@inbox.step.photo.ask": {
+    "description": "S6.2 quiet link 🔒 (07 §9). The flag stays exactly as it was."
+  },
+  "inbox.step.photo.asked": "Asked {author} for a better photo.",
+  "@inbox.step.photo.asked": {
+    "description": "S6.2 confirmation after the ask.",
+    "placeholders": {
+      "author": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.step.photo.none": "No photo came with this entry.",
+  "@inbox.step.photo.none": {
+    "description": "S6.2 empty photo state (07 §9)."
+  },
+  "inbox.step.posted": "Already in the book. Approving changes no balance; rejecting posts a reversal beside it.",
+  "@inbox.step.posted": {
+    "description": "S6.2 post-then-review line 🔒 (02 §3, §5). The card reviews an entry that is already counted; it does not gate it."
+  },
+  "inbox.step.progress": "{done} of {total}",
+  "@inbox.step.progress": {
+    "description": "S6.2 progress, counts and never a percentage (11 §4.5).",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "inbox.step.reject": "Reject",
+  "@inbox.step.reject": {
+    "description": "S6.2 action 2 (07 §9) — opens the reason sheet; a reason is required."
+  },
+  "inbox.step.reject.body": "A reversal for the same amount is posted straight away, with your reason. Both entries stay in the book — a disagreement is never hidden.",
+  "@inbox.step.reject.body": {
+    "description": "S6.2 rejection sheet: consequences before confirm (02 §3, §5 🔒 — the audit trail never hides a dispute)."
+  },
+  "inbox.step.reject.confirm": "Reject and reverse",
+  "@inbox.step.reject.confirm": {
+    "description": "S6.2 rejection confirm — names both halves of what happens (02 §5)."
+  },
+  "inbox.step.reject.hint": "Your reason",
+  "@inbox.step.reject.hint": {
+    "description": "S6.2 rejection reason field label."
+  },
+  "inbox.step.reject.required": "Write a reason first — it goes to the person who made the entry.",
+  "@inbox.step.reject.required": {
+    "description": "S6.2 rejection validation message: named cause plus the path (13 §8)."
+  },
+  "inbox.step.reject.title": "Why is this being rejected?",
+  "@inbox.step.reject.title": {
+    "description": "S6.2 rejection sheet title — a reason is required (07 §9, 02 §3)."
+  },
+  "inbox.step.saved.at": "{date}, {time}",
+  "@inbox.step.saved.at": {
+    "description": "S6.2 saved value: date and clock time (07 §9 asks for date/time). Both pre-formatted.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.step.skip": "Skip",
+  "@inbox.step.skip": {
+    "description": "S6.2 action 3 (07 §9) — the entry stays flagged, nothing is written."
+  },
+  "inbox.step.skip.hint": "Stays in your inbox.",
+  "@inbox.step.skip.hint": {
+    "description": "S6.2 line under Skip, so the reviewer knows skipping decides nothing (07 §9)."
+  },
+  "inbox.step.title": "Reviewing",
+  "@inbox.step.title": {
+    "description": "S6.2 stepper title (07 §9)."
+  },
+  "inbox.step.working": "Saving…",
+  "@inbox.step.working": {
+    "description": "S6.2 loading state while a decision is being recorded."
+  },
+  "inbox.title": "Inbox",
+  "@inbox.title": {
+    "description": "S6 title (13 §3.2) — the one tray for everything awaiting a human."
+  },
+  "invite.book.none": "No access",
+  "@invite.book.none": {
+    "description": "S9.1 grid: no role in that book — no `book_roles` row is written for it (06 §1.1)."
+  },
+  "invite.book.role": "Role in {book}",
+  "@invite.book.role": {
+    "description": "S9.1 grid: the role picker for one book.",
+    "placeholders": {
+      "book": {
+        "type": "String"
+      }
+    }
+  },
+  "invite.designation.accountant": "Accountant",
+  "@invite.designation.accountant": {
+    "description": "01 §2 designation table, business. First form; \"Munshi\" is the synonym."
+  },
+  "invite.designation.advisor": "Advisor",
+  "@invite.designation.advisor": {
+    "description": "01 §2 designation table, business."
+  },
+  "invite.designation.assistant_manager": "Assistant Manager",
+  "@invite.designation.assistant_manager": {
+    "description": "01 §2 designation table, business."
+  },
+  "invite.designation.auditor": "Auditor",
+  "@invite.designation.auditor": {
+    "description": "01 §2 designation table, trust / organisation."
+  },
+  "invite.designation.ceo": "CEO",
+  "@invite.designation.ceo": {
+    "description": "01 §2 designation table, business. EN keeps the initialism; PA/HI take the table's first (spelled-out) form."
+  },
+  "invite.designation.chairman": "Chairman",
+  "@invite.designation.chairman": {
+    "description": "01 §2 designation table, trust / organisation."
+  },
+  "invite.designation.director": "Director",
+  "@invite.designation.director": {
+    "description": "01 §2 designation table, business."
+  },
+  "invite.designation.employee": "Employee",
+  "@invite.designation.employee": {
+    "description": "01 §2 designation table, business. First form; \"Worker\" is the synonym."
+  },
+  "invite.designation.executive_member": "Executive Member",
+  "@invite.designation.executive_member": {
+    "description": "01 §2 designation table, trust / organisation."
+  },
+  "invite.designation.founder": "Founder",
+  "@invite.designation.founder": {
+    "description": "01 §2 designation table, trust / organisation."
+  },
+  "invite.designation.free": "Or type your own",
+  "@invite.designation.free": {
+    "description": "S9.1: 01 §2 🔒 — any organisation may use any of these names or type its own."
+  },
+  "invite.designation.general_manager": "General Manager",
+  "@invite.designation.general_manager": {
+    "description": "01 §2 designation table, business."
+  },
+  "invite.designation.hint": "Type a name",
+  "@invite.designation.hint": {
+    "description": "S9.1 free-text designation field."
+  },
+  "invite.designation.joint_secretary": "Joint Secretary",
+  "@invite.designation.joint_secretary": {
+    "description": "01 §2 designation table, trust / organisation."
+  },
+  "invite.designation.manager": "Manager",
+  "@invite.designation.manager": {
+    "description": "01 §2 designation table, business."
+  },
+  "invite.designation.managing_director": "Managing Director",
+  "@invite.designation.managing_director": {
+    "description": "01 §2 designation table, business."
+  },
+  "invite.designation.managing_trustee": "Managing Trustee",
+  "@invite.designation.managing_trustee": {
+    "description": "01 §2 designation table, trust / organisation."
+  },
+  "invite.designation.no_table": "Type the name your family uses.",
+  "@invite.designation.no_table": {
+    "description": "S9.1 for a family tenant: 01 §2 publishes designation tables for organisations and businesses only, so nothing is suggested here rather than a list being invented."
+  },
+  "invite.designation.none": "No name",
+  "@invite.designation.none": {
+    "description": "S9.1: the designation is optional; this is the default choice."
+  },
+  "invite.designation.note": "A name, not a permission — what they can do is set above.",
+  "@invite.designation.note": {
+    "description": "07 §12 / 06 §1.0 🔒 Option B — the one muted line, word for word. Never reworded."
+  },
+  "invite.designation.optional": "This one is optional.",
+  "@invite.designation.optional": {
+    "description": "S9.1 step 3 — 07 §12 marks the designation optional; said in its own short line so the heading stays readable at 200 % text scale."
+  },
+  "invite.designation.owner": "Owner",
+  "@invite.designation.owner": {
+    "description": "01 §2 designation table, business. First form; \"Proprietor\" is the synonym."
+  },
+  "invite.designation.partner": "Partner",
+  "@invite.designation.partner": {
+    "description": "01 §2 designation table, business."
+  },
+  "invite.designation.patron": "Patron",
+  "@invite.designation.patron": {
+    "description": "01 §2 designation table, trust / organisation."
+  },
+  "invite.designation.president": "President",
+  "@invite.designation.president": {
+    "description": "01 §2 designation table, trust / organisation. Display label only (06 §1.0 🔒)."
+  },
+  "invite.designation.sales_executive": "Sales Executive",
+  "@invite.designation.sales_executive": {
+    "description": "01 §2 designation table, business."
+  },
+  "invite.designation.secretary": "Secretary",
+  "@invite.designation.secretary": {
+    "description": "01 §2 designation table, trust / organisation. The first form is the label; \"General Secretary\" stays a search synonym."
+  },
+  "invite.designation.treasurer": "Treasurer",
+  "@invite.designation.treasurer": {
+    "description": "01 §2 designation table, trust / organisation. First form; \"Cashier\" is the synonym."
+  },
+  "invite.designation.trustee": "Trustee",
+  "@invite.designation.trustee": {
+    "description": "01 §2 designation table, trust / organisation. First form; \"Member\" is the synonym."
+  },
+  "invite.designation.vice_president": "Vice President",
+  "@invite.designation.vice_president": {
+    "description": "01 §2 designation table, trust / organisation."
+  },
+  "invite.error": "Couldn’t send that invite. Try again.",
+  "@invite.error": {
+    "description": "S9.1 failure — error with retry, the form still filled (13 §8 Interruption)."
+  },
+  "invite.expiry.note": "The link works for 7 days, and only on a phone with that number.",
+  "@invite.expiry.note": {
+    "description": "06 §7 (7-day expiry) + ADR 2026-09-05d §9 🔒 (accepted only by a device whose OTP-verified number matches; the link alone admits nobody)."
+  },
+  "invite.limit.hint": "Limit in rupees (optional)",
+  "@invite.limit.hint": {
+    "description": "S9.1 grid: the per-book auto-post limit, whole rupees, stored as integer paise."
+  },
+  "invite.offline": "You’re offline. An invite needs one connection — try again when you’re back.",
+  "@invite.offline": {
+    "description": "S9.1 disabled-with-reason (13 §4.3): the link is sent by the server (06 §7), so this one action cannot complete offline. It never claims the invite was queued."
+  },
+  "invite.phone.help": "One number, one person. They get a link on WhatsApp or SMS.",
+  "@invite.phone.help": {
+    "description": "06 §1: one phone number = one human = one account. 06 §7: delivery by WhatsApp/SMS link."
+  },
+  "invite.phone.hint": "+91 98765 43210",
+  "@invite.phone.hint": {
+    "description": "S9.1 phone field hint — E.164 with country code (06 §1)."
+  },
+  "invite.phone.invalid": "Add the country code too, like +91 98765 43210.",
+  "@invite.phone.invalid": {
+    "description": "S9.1 phone validation — named cause + the shape that works (13 §8 Errors)."
+  },
+  "invite.roles.help": "One role per book, and you can change it later. A role is the whole of what they may do.",
+  "@invite.roles.help": {
+    "description": "06 §1.0 🔒 + §1.1: capability is the stored role plus the limit, granted only by an admin; roles are per book, never global."
+  },
+  "invite.roles.required": "Give them a role in at least one book.",
+  "@invite.roles.required": {
+    "description": "S9.1 validation: an invite with no grant at all would admit nobody to anything."
+  },
+  "invite.send": "Send invite",
+  "@invite.send": {
+    "description": "S9.1 primary action."
+  },
+  "invite.sending": "Sending…",
+  "@invite.sending": {
+    "description": "S9.1 primary action while the invite is being written."
+  },
+  "invite.sent": "Invite sent.",
+  "@invite.sent": {
+    "description": "S9.1 success — returns to S9, where the new row carries its own state (06 §7)."
+  },
+  "invite.step.designation": "What they’re called",
+  "@invite.step.designation": {
+    "description": "S9.1 step 3 — the designation label (07 §12, 06 §1.0 Option B). The word \"optional\" sits on its own line below: at 200 % on a 360 px phone a parenthesised word in the heading style needs 440 px and is cut (F1-07-26)."
+  },
+  "invite.step.phone": "Their phone number",
+  "@invite.step.phone": {
+    "description": "S9.1 step 1 (07 §12: phone → roles + limits → designation)."
+  },
+  "invite.step.roles": "What they can do",
+  "@invite.step.roles": {
+    "description": "S9.1 step 2 — the per-book role + limit grid (07 §12)."
+  },
+  "invite.title": "Invite someone",
+  "@invite.title": {
+    "description": "S9.1 title (13 §3.2 row S9.1)."
   },
   "ledger.entry.amend": "Correct this",
   "@ledger.entry.amend": {
@@ -1602,6 +2333,282 @@
   "lock.title": "Unlock to open your books",
   "@lock.title": {
     "description": "S15 app lock heading under the mark (07 §5.6)."
+  },
+  "members.cancel": "Cancel",
+  "@members.cancel": {
+    "description": "Dismiss a sheet without acting."
+  },
+  "members.invite.action": "Invite",
+  "@members.invite.action": {
+    "description": "S9 `+ Invite` (07 §12). Admin only (06 §1.0 verbs table, 13 §7)."
+  },
+  "members.invite.blocked": "Only an admin can invite people, change roles or set limits.",
+  "@members.invite.blocked": {
+    "description": "S9 stated reason where the Invite button would be, for head/member/operator/viewer (13 §2.3 🔒 — never hide a capability silently)."
+  },
+  "members.invited_by": "Invited by {name} · awaiting join",
+  "@members.invited_by": {
+    "description": "ADR 2026-09-05f §G / ADR 2026-09-05c §4 🔒 — a second admin's screen cannot show whom was invited; only the inviting device holds the contact. This is the exact row wording.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "members.invited_by.unknown": "Invited · awaiting join",
+  "@members.invited_by.unknown": {
+    "description": "Same row where even the inviter's name is not known to this device."
+  },
+  "members.limit.edit.clear": "Remove the limit",
+  "@members.limit.edit.clear": {
+    "description": "S9 limit sheet: set no limit at all for that book."
+  },
+  "members.limit.edit.error": "Couldn’t save that limit. Try again.",
+  "@members.limit.edit.error": {
+    "description": "S9 limit change failed — error with retry, never a dead end (07 §1 rule 6)."
+  },
+  "members.limit.edit.field": "Amount in rupees",
+  "@members.limit.edit.field": {
+    "description": "S9 limit sheet field label. Whole rupees; stored as integer paise (CLAUDE.md rule 1)."
+  },
+  "members.limit.edit.invalid": "Enter a rupee amount, like 5000.",
+  "@members.limit.edit.invalid": {
+    "description": "S9 limit sheet validation — named cause + path (13 §8 Errors)."
+  },
+  "members.limit.edit.save": "Save limit",
+  "@members.limit.edit.save": {
+    "description": "S9 limit sheet confirm."
+  },
+  "members.limit.edit.subtitle": "{name} · {book}",
+  "@members.limit.edit.subtitle": {
+    "description": "S9 limit sheet: whose limit, in which book.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "book": {
+        "type": "String"
+      }
+    }
+  },
+  "members.limit.edit.title": "Auto-post limit",
+  "@members.limit.edit.title": {
+    "description": "S9 limit sheet title (tap to edit, admin only — 07 §12)."
+  },
+  "members.limit.edit.working": "Saving…",
+  "@members.limit.edit.working": {
+    "description": "S9 limit sheet button while the change is being written."
+  },
+  "members.limit.help": "Entries above this still post — they are flagged for someone else to check.",
+  "@members.limit.help": {
+    "description": "02 §3 / 06 §1.0: over-limit is never blocked, it is flagged for review. Never soften into \"blocked\"."
+  },
+  "members.limit.label": "Auto-post limit",
+  "@members.limit.label": {
+    "description": "S9 / S9.1 per-book auto-post limit (06 §1.1 `auto_post_limit_paise`)."
+  },
+  "members.limit.locked": "Only an admin can change a limit.",
+  "@members.limit.locked": {
+    "description": "S9 stated reason on a non-admin's screen (13 §2.3 🔒)."
+  },
+  "members.limit.none": "No limit",
+  "@members.limit.none": {
+    "description": "S9 row where no auto-post limit is set for that book."
+  },
+  "members.limit.value": "Up to {amount}",
+  "@members.limit.value": {
+    "description": "S9 row: the auto-post limit, pre-formatted as whole rupees.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "members.list.empty": "It’s just you here so far.",
+  "@members.list.empty": {
+    "description": "S9 empty state — a book always has its creator (13 §4.3: friendly line + the one next action)."
+  },
+  "members.list.empty.action": "Invite someone",
+  "@members.list.empty.action": {
+    "description": "S9 empty state's one next action → S9.1."
+  },
+  "members.list.error": "Couldn’t load the members.",
+  "@members.list.error": {
+    "description": "S9 error-with-retry state (13 §4.3)."
+  },
+  "members.list.offline": "Offline — showing what this phone last saw.",
+  "@members.list.offline": {
+    "description": "S9 quiet offline chip (07 §1 rule 7; offline is the default assumption, 13 §8)."
+  },
+  "members.list.retry": "Try again",
+  "@members.list.retry": {
+    "description": "Retry action on S9 / S9.1 error states."
+  },
+  "members.list.skeleton": "Loading members…",
+  "@members.list.skeleton": {
+    "description": "S9 loading state — the ruled skeleton's label (11 §4.5, 13 §4.3)."
+  },
+  "members.pending_books.help": "Your own book works right now. A shared book opens once someone already in it checks your code — face to face, or on a call.",
+  "@members.pending_books.help": {
+    "description": "06 §7 joined_pending_verification + 04 §6.4 modes. No dead end: it says what unlocks it."
+  },
+  "members.pending_books.locked": "Meet {name} to activate",
+  "@members.pending_books.locked": {
+    "description": "07 §12 / 06 §7 🔒 — the exact greyed-book line for a joined-but-unverified member.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "members.pending_books.section": "Shared books",
+  "@members.pending_books.section": {
+    "description": "S9 section for the invitee experience (07 §12): shared books greyed until the ceremony."
+  },
+  "members.reinvite.action": "Invite again",
+  "@members.reinvite.action": {
+    "description": "07 §12: `Expired` carries a one-tap re-invite."
+  },
+  "members.reinvite.error": "Couldn’t send that invite. Try again.",
+  "@members.reinvite.error": {
+    "description": "S9 re-invite failure — error with retry."
+  },
+  "members.reinvite.working": "Sending…",
+  "@members.reinvite.working": {
+    "description": "S9 re-invite button while the request runs."
+  },
+  "members.role.admin": "Admin",
+  "@members.role.admin": {
+    "description": "Stored role `admin` (06 §1.1). A capability, never a designation."
+  },
+  "members.role.admin.plain": "Invites people, sets limits, checks entries and closes the books.",
+  "@members.role.admin.plain": {
+    "description": "The capability in plain words beside the designation (06 §1.0 🔒, 13 §2.4). From the permission-verbs table: invite/remove/roles/limits, review, close."
+  },
+  "members.role.head": "Head",
+  "@members.role.head": {
+    "description": "Stored role `head` (06 §1.1)."
+  },
+  "members.role.head.plain": "Runs the book day to day — posts, checks entries and closes.",
+  "@members.role.head.plain": {
+    "description": "06 §1.0's own example line for `head` (\"runs the book day to day\") plus its verbs: write, review, amend, close."
+  },
+  "members.role.member": "Member",
+  "@members.role.member": {
+    "description": "Stored role `member` (06 §1.1)."
+  },
+  "members.role.member.plain": "Posts entries up to their limit.",
+  "@members.role.member.plain": {
+    "description": "06 §1.0 verbs table: write up to the limit; over-limit still posts and is flagged (02 §3)."
+  },
+  "members.role.operator": "Operator",
+  "@members.role.operator": {
+    "description": "Stored role `operator` (06 §1.1)."
+  },
+  "members.role.operator.plain": "Posts entries up to their limit; sees day totals, not profit.",
+  "@members.role.operator.plain": {
+    "description": "06 §1.0 verbs table + 13 §7: operator sees day totals only, no P&L."
+  },
+  "members.role.viewer": "Viewer",
+  "@members.role.viewer": {
+    "description": "Stored role `viewer` (06 §1.1)."
+  },
+  "members.role.viewer.plain": "Can look and export, cannot post.",
+  "@members.role.viewer.plain": {
+    "description": "06 §1.0 verbs table: read + export, no write."
+  },
+  "members.row.book_role": "{book} · {role}",
+  "@members.row.book_role": {
+    "description": "S9 role badge: one role per book, never global (06 §1.1).",
+    "placeholders": {
+      "book": {
+        "type": "String"
+      },
+      "role": {
+        "type": "String"
+      }
+    }
+  },
+  "members.row.designation": "{designation} · {capability}",
+  "@members.row.designation": {
+    "description": "S9 member row: the display label always travels with the capability in plain words (06 §1.0 🔒 Option B, 13 §2.4 — never let a grand title imply powers it doesn't have).",
+    "placeholders": {
+      "designation": {
+        "type": "String"
+      },
+      "capability": {
+        "type": "String"
+      }
+    }
+  },
+  "members.section.people": "People",
+  "@members.section.people": {
+    "description": "S9 section header above the member rows."
+  },
+  "members.state.active": "Active",
+  "@members.state.active": {
+    "description": "06 §7 state `active` — keys wrapped, membership live."
+  },
+  "members.state.blocked": "Blocked after a failed check",
+  "@members.state.blocked": {
+    "description": "06 §7 state `blocked` — a ceremony mismatch; an admin unblocks only after investigation and a new invite is needed."
+  },
+  "members.state.blocked.help": "An admin has to look into this before a new invite can go out.",
+  "@members.state.blocked.help": {
+    "description": "06 §7: blocked + security event; admin unblock only after investigation, new invite required. States the path without inventing a button for it."
+  },
+  "members.state.expired": "Invite expired",
+  "@members.state.expired": {
+    "description": "06 §7 state `expired` — 7 days passed; one-tap re-invite (07 §12)."
+  },
+  "members.state.invited": "{days, plural, =0{Invited · expires today} =1{Invited · expires in 1 day} other{Invited · expires in {days} days}}",
+  "@members.state.invited": {
+    "description": "06 §7 state `invited`, with the 7-day expiry counted down.",
+    "placeholders": {
+      "days": {
+        "type": "int"
+      }
+    }
+  },
+  "members.state.joined": "Joined — verification needed",
+  "@members.state.joined": {
+    "description": "06 §7 state `joined_pending_verification` (07 §12 names this card wording)."
+  },
+  "members.title": "Members",
+  "@members.title": {
+    "description": "S9 title (07 §12, 13 §3.2). The tenant's people, their role per book and their verification log."
+  },
+  "members.verified.pending": "Not verified yet",
+  "@members.verified.pending": {
+    "description": "S9 row for a member with no verification log entry (06 §7 joined_pending_verification)."
+  },
+  "members.verified.qr": "Verified in person by {name} on {date}",
+  "@members.verified.qr": {
+    "description": "S9 permanent verification log, method `qr_in_person` (04 §6.4: who verified whom, method, date — visible to members permanently).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "members.verified.remote": "Verified over a call by {name} on {date}",
+  "@members.verified.remote": {
+    "description": "S9 verification log, method `code_remote` (04 §6.4). The UI never mentions which side read the code.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "members.you": "You",
+  "@members.you": {
+    "description": "S9 badge on the signed-in user's own row (13 §2.3 — who am I, here)."
   },
   "menu.backup.row.subtitle": "Platform key sync, save your recovery sheet, and a monthly readable copy.",
   "@menu.backup.row.subtitle": {

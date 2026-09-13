@@ -126,7 +126,7 @@ Recovery completion always revokes all prior sessions and devices of that user a
 
 ---
 
-## 7. Invitation & membership state machine 🔒 ⟦tests: C-06-18 @M7⟧
+## 7. Invitation & membership state machine 🔒 ⟦tests: C-06-18 @M7, E-06-9, E-06-10, E-06-11, E-06-12, E-06-13, E-06-14, E-06-15, E-06-16, E-06-17, E-06-18, E-06-19⟧
 
 ```
 invited ──install+OTP──▶ joined_pending_verification ──ceremony ✓──▶ active

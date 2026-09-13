@@ -18,15 +18,18 @@ import 'features/auth/http_auth_client.dart';
 import 'features/auth/http_client_transport.dart';
 import 'features/devices/at_rest.dart';
 import 'features/devices/devices_routes.dart';
+import 'features/ceremony/ceremony_routes.dart';
 import 'features/devices/pin_vault.dart';
 import 'features/entry/entry_routes.dart';
 import 'features/home/home_rebuild.dart';
 import 'features/home/home_routes.dart';
 import 'features/home/home_scope.dart';
+import 'features/inbox/inbox_routes.dart';
 import 'features/home/screens/s1_home_screen.dart';
 import 'features/devices/keychain_key_store.dart';
 import 'features/ledger/ledger_routes.dart';
 import 'features/lock/lock_routes.dart';
+import 'features/members/members_routes.dart';
 import 'features/menu/menu_routes.dart';
 import 'features/onboarding/onboarding_routes.dart';
 import 'features/settings/settings_routes.dart';
@@ -154,14 +157,20 @@ Future<void> main() async {
             ),
           ),
           ledgerTabRoot: ledgerRoot,
+          // S6 Inbox (07 §9). `inboxRoutes` carries S6.2's stepper on the root
+          // navigator, so the review flow covers the tab bar.
+          inboxTabRoot: inboxRoot(),
           menuTabRoot: menuRoot,
           entryRoot: entryScreen,
           featureRoutes: [
             ...onboardingRoutes,
             ...authRoutes,
+            ...ceremonyRoutes,
             ...devicesRoutes,
             ...homeRoutes,
+            ...inboxRoutes,
             ...ledgerRoutes,
+            ...membersRoutes,
             ...settingsRoutes,
           ],
         ),
@@ -187,6 +196,7 @@ class RukkaFolioApp extends StatefulWidget {
     this.featureRoutes = const [],
     this.homeTabRoot,
     this.ledgerTabRoot,
+    this.inboxTabRoot,
     this.menuTabRoot,
     this.entryRoot,
     this.router,
@@ -217,6 +227,12 @@ class RukkaFolioApp extends StatefulWidget {
 
   /// The Ledger tab's root (S3); null leaves the tab's placeholder in place.
   final RkTabRoot? ledgerTabRoot;
+
+  /// The Inbox tab's root (S6); null leaves the tab's placeholder in place.
+  /// Its `routes` are empty — S6.2's stepper is full-screen and covers the tab
+  /// bar, so it mounts on the root navigator through [featureRoutes]
+  /// (`inboxRoutes`), the same treatment S4.1 gets.
+  final RkTabRoot? inboxTabRoot;
 
   /// The Menu tab's root (S8); null leaves the tab's placeholder in place.
   /// Its `routes` carry S8.1 Reports one level below (13 §3.2 depth rule),
@@ -287,6 +303,7 @@ class _RukkaFolioAppState extends State<RukkaFolioApp> {
         ],
         home: widget.homeTabRoot,
         ledger: widget.ledgerTabRoot,
+        inbox: widget.inboxTabRoot,
         menu: widget.menuTabRoot,
         entry: widget.entryRoot,
       );
