@@ -141,14 +141,47 @@ final class ReportFile {
   final Uint8List bytes;
 }
 
+/// What became of a generated report — the two ends of *Download/Share*
+/// (ADR 2026-09-13 §1 🔒).
+///
+/// A sealed pair rather than a string, because the two outcomes need different
+/// words on the screen and only the sink knows which happened: the share sheet
+/// is its own confirmation, a file on disk is not.
+sealed class ReportDelivery {
+  /// Creates a delivery.
+  const ReportDelivery();
+}
+
+/// Handed to the platform share sheet — the reader chose where it goes from
+/// there (WhatsApp, Files, Mail).
+///
+/// **No snackbar follows this.** The sheet is the confirmation, it covers the
+/// screen the snackbar would appear on, and the platform reports neither
+/// completion nor cancellation — so any sentence we wrote would be a guess
+/// about what the reader did next (07 §1 rule 12).
+final class ReportShared extends ReportDelivery {
+  /// Creates the shared outcome.
+  const ReportShared();
+}
+
+/// Written to a file at [where] — the fallback when no share sheet can be
+/// raised, so an export is never a dead end (07 §1 rules 2 and 6).
+final class ReportSaved extends ReportDelivery {
+  /// Creates the saved outcome.
+  const ReportSaved(this.where);
+
+  /// The file's full path, shown to the reader. A path, never a figure and
+  /// never an account name (CLAUDE.md rule 4).
+  final String where;
+}
+
 /// Where a generated report goes — the seam S8.2 hands its bytes to.
 ///
 /// Shaped as a seam for the same reason `ClosedYearsSource` is: the app's sink
-/// saves the file and reports where it landed, while a test injects a fake and
-/// reads the bytes. Now that `printing` resolves (ADR 2026-09-12d §1), the
-/// share half of *Download/Share* is a sink swap and nothing else — see
-/// `file_report_sink.dart`.
+/// raises the share sheet, while a test injects a fake and reads the bytes.
+/// `printing` resolves since ADR 2026-09-12d §1, and ADR 2026-09-13 §1 🔒 took
+/// the decision the swap was waiting on — see `file_report_sink.dart`.
 ///
-/// Returns a short, human-readable description of what happened to the file —
-/// shown to the reader so an export is never a silent no-op (07 §1 rule 6).
-typedef ReportSink = Future<String> Function(ReportFile file);
+/// Returns which of the two deliveries happened, so an export is never a
+/// silent no-op (07 §1 rule 6).
+typedef ReportSink = Future<ReportDelivery> Function(ReportFile file);

@@ -33,11 +33,18 @@ import '../../../shared/tokens.dart';
 import '../export/report_export.dart';
 import 'reports_row.dart';
 
-/// Builds the report in [format], hands it to [sink] and tells the reader
-/// where it went — the single path **both** of S8.2's export affordances take
+/// Builds the report in [format], hands it to [sink] and tells the reader what
+/// became of it — the single path **both** of S8.2's export affordances take
 /// (ADR 2026-09-12c §1 🔒, ADR 2026-09-12d §2 🔒): the app bar's primary action
 /// calls it straight with [ReportFormat.pdf], and this sheet calls it for the
 /// row that was tapped.
+///
+/// The two deliveries get different treatment, which is the whole reason
+/// [ReportDelivery] is a pair rather than a string (ADR 2026-09-13 §1 🔒):
+/// a [ReportShared] needs no snackbar — the share sheet is the confirmation,
+/// it covers the screen a snackbar would appear on, and the platform tells us
+/// neither that the reader finished nor that they cancelled — while a
+/// [ReportSaved] must name the file, or the export is a silent no-op.
 ///
 /// [l10n] and [messenger] are passed in rather than read from a context,
 /// because the sheet closes itself before the file is written and its own
@@ -51,10 +58,14 @@ Future<void> runReportExport({
 }) async {
   try {
     final file = await buildFile(format);
-    final where = await sink(file);
-    messenger.showSnackBar(
-      SnackBar(content: Text(l10n.reportsExportSaved(where))),
-    );
+    switch (await sink(file)) {
+      case ReportShared():
+        break;
+      case ReportSaved(:final where):
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n.reportsExportSaved(where))),
+        );
+    }
   } catch (_) {
     // The exception itself is never surfaced or logged: it can carry a path
     // and this is plaintext financial data (CLAUDE.md rule 4). One plain
@@ -67,8 +78,8 @@ Future<void> runReportExport({
 ///
 /// [buildFile] generates the report in the chosen format — every one of the
 /// three at M5 (ADR 2026-09-12e §1 🔒).
-/// [sink] takes the finished bytes and returns a short description of where
-/// they went, which is shown to the reader (an export is never silent).
+/// [sink] takes the finished bytes and reports which [ReportDelivery]
+/// happened — shared, or saved and named (an export is never silent).
 Future<void> showReportExportSheet(
   BuildContext context, {
   required Future<ReportFile> Function(ReportFormat format) buildFile,

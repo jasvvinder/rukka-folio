@@ -55,12 +55,21 @@ import 'package:xml/xml.dart';
 import '../../shared/test_app.dart';
 
 /// A [ReportSink] that keeps what it was handed instead of writing a file.
+///
+/// Reports [ReportSaved] by default — the fallback delivery, which is the one
+/// that puts a sentence on the screen — so every assertion written before
+/// ADR 2026-09-13 §1 🔒 still reads the same. Pass [delivery] to exercise the
+/// shipped path instead, where the share sheet is the confirmation and the
+/// app says nothing.
 final class _CapturingSink {
+  _CapturingSink({this.delivery});
+
+  final ReportDelivery? delivery;
   ReportFile? file;
 
-  Future<String> call(ReportFile f) async {
+  Future<ReportDelivery> call(ReportFile f) async {
     file = f;
-    return f.name;
+    return delivery ?? ReportSaved(f.name);
   }
 }
 
@@ -602,6 +611,37 @@ void main() {
         expect(file.bytes.length, greaterThan(10000));
         // Never silent: the reader is told where it went (07 §1 rule 6).
         expect(find.text('Saved: day-book-2026-27.pdf'), findsOneWidget);
+        await unmount(tester);
+      },
+    );
+
+    testWidgets(
+      'F1-07-79 the shipped delivery is the share sheet, and it needs no '
+      'sentence of ours (ADR 2026-09-13 §1 🔒)',
+      (tester) async {
+        final seeded = await seedSoloLedger();
+        // What `shareReportFile` reports once the platform sheet is up.
+        final sink = _CapturingSink(delivery: const ReportShared());
+        await pumpRk(
+          tester,
+          ReportViewerScreen(sink: sink.call),
+          ledger: seeded.ledger,
+          viewport: rkTallViewport,
+        );
+
+        await tester.tap(find.text('Download / Share'));
+        await tester.pumpAndSettle();
+
+        // The report still reaches the sink — the export ran.
+        expect(sink.file, isNotNull, reason: 'the default export never ran');
+        expect(sink.file!.format, ReportFormat.pdf);
+        // And nothing is claimed about it. The sheet covers this screen, and
+        // the platform reports neither completion nor cancellation, so a
+        // "Saved:" line would be both hidden and a guess. The *failure* path
+        // keeps its sentence — the test below proves the fallback still names
+        // the file.
+        expect(find.textContaining('Saved:'), findsNothing);
+        expect(find.text('The report could not be saved.'), findsNothing);
         await unmount(tester);
       },
     );

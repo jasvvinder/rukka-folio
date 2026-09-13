@@ -15,9 +15,11 @@
 // the shipped state and the chip is exercised from a fake.
 //
 // Export: **View report** is this screen — it opens in-app. **Download/Share**
-// is the primary action and writes **PDF** straight out — *the format a person
-// hands to someone else* (ADR 2026-09-12 §1 🔒, restored by ADR 2026-09-12d
-// §2 🔒 after 12c's CSV stopgap lapsed). Beside it sits *Choose a format*,
+// is the primary action and sends **PDF** straight to the platform share sheet
+// — *the format a person hands to someone else* (ADR 2026-09-12 §1 🔒, default
+// restored by ADR 2026-09-12d §2 🔒 after 12c's CSV stopgap lapsed, and the
+// *Share* half wired by ADR 2026-09-13 §1 🔒: before that the export ended at a
+// temp path no reader could reach). Beside it sits *Choose a format*,
 // which opens the three-format sheet — the ruling requires **both** paths and
 // lets neither become the only one. See `widgets/export_sheet.dart` for the
 // enumeration — all three rows generate since ADR 2026-09-12e §1 🔒 — and
@@ -55,7 +57,7 @@ class ReportViewerScreen extends StatefulWidget {
     this.bookId,
     this.onOpenEntry,
     this.closedYears = noClosedYears,
-    this.sink = saveReportToTempFile,
+    this.sink = shareReportFile,
   });
 
   /// Explicit book; when null the solo book is resolved ([soloBookId]).
@@ -70,8 +72,9 @@ class ReportViewerScreen extends StatefulWidget {
   /// ships as plain text and no switcher is drawn.
   final ClosedYearsSource closedYears;
 
-  /// Where a generated report goes ([ReportSink]). The app saves the file and
-  /// names it; a test injects a fake and reads the bytes.
+  /// Where a generated report goes ([ReportSink]). The app raises the
+  /// platform share sheet and names a file only if it cannot (ADR
+  /// 2026-09-13 §1 🔒); a test injects a fake and reads the bytes.
   final ReportSink sink;
 
   @override
