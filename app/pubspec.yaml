@@ -36,6 +36,11 @@ dependencies:
   archive: ^4.0.9 # narrowed by the root dependency_overrides to pdf's window
   xml: ^7.0.1
   printing: ^5.13.4 # share sheet + A4 print-clean (ADR 2026-09-12 §1)
+  # S9.2's verification QR (04 §6.1 🔒). Direct because `features/ceremony/widgets/qr_view.dart`
+  # imports it: it resolved only transitively through pdf → barcode, which is a dependency this
+  # app does not control. The QR is a *rendering* of a code core_crypto derives — never a
+  # generator of one.
+  qr: ^3.0.2
   # pure engine packages — the app never reimplements what they own
   core_ledger:
     path: ../packages/core_ledger

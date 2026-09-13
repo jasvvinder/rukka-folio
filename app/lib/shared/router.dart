@@ -47,6 +47,21 @@ abstract final class RkPaths {
   /// S19.5 This phone has been modified (global, once per app version).
   static const modifiedDevice = '/modified-device';
 
+  /// S9 Members (features/members); reached from Menu (07 §12).
+  static const members = '/members';
+
+  /// S9.1 Invite a member.
+  static const membersInvite = '/members/invite';
+
+  /// S9.2 Show my code — the invitee's side of the ceremony (04 §6.2).
+  static const ceremonyShowMyCode = '/ceremony/my-code';
+
+  /// S9.3 Verify member — the verifier's side; `:invite` is the invite id.
+  static const ceremonyVerifyMember = '/ceremony/verify/:invite';
+
+  /// S9.4 Verification mismatch — hard fail, no override (04 §6.3 🔒).
+  static const ceremonyMismatch = '/ceremony/mismatch';
+
   /// Path of a tab's root.
   static String of(RkTab tab) => switch (tab) {
     RkTab.home => home,
