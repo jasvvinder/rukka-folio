@@ -181,6 +181,13 @@ List<Violation> checkUniversalInvariants(Entry entry, Chart chart) {
 ///   (`transfer` and the payee half of a pocket expense, `Dr Expense · Cr Due to/from`);
 /// - a reversal (`refs.reverses` set) is exempt: the projector proves it is the
 ///   exact mirror of its target, whose shape was already checked.
+///
+/// Two `equity_system` roles are admitted by name, one on each of the two
+/// money verbs, and both are rulings rather than readings: `drawings` on the
+/// debit side of `money_out` (ADR 2026-09-09b §3 🔒) and `openingBalance` —
+/// which *is* Capital (ADR 2026-09-09b §1 🔒) — on the credit side of
+/// `money_in` (ADR 2026-09-13 §4 🔒). Every other system account posts through
+/// its own verb, and neither role is admitted on the other's side.
 Violation? checkShape(Entry entry, Chart chart) {
   if (entry.refs.reverses != null) return null;
   final debits = <Account>[];
@@ -201,6 +208,17 @@ Violation? checkShape(Entry entry, Chart chart) {
   bool isDrawings(Account a) =>
       a.accountClass == AccountClass.equitySystem &&
       a.systemRole == SystemRole.drawings;
+  // Capital introduced is an ordinary Money in whose counterpart is the
+  // book's Opening Balance / Capital A/c (02 §7.1, ADR 2026-09-13 §4;
+  // `financial-accounting-standards.md` §4.1 B01 "Owner adds capital",
+  // `Dr HDFC · Cr Capital`). The exact mirror of [isDrawings]: one
+  // equity_system role admitted on one side of one verb, and Capital is the
+  // Opening Balance account itself (ADR 2026-09-09b §1 🔒 — no separate
+  // `capital` role exists, as both worked examples name it
+  // `Opening Balance / Capital A/c`).
+  bool isCapital(Account a) =>
+      a.accountClass == AccountClass.equitySystem &&
+      a.systemRole == SystemRole.openingBalance;
   bool all(List<Account> xs, bool Function(Account) ok) => xs.every(ok);
   const partyLike = {AccountClass.party, AccountClass.partner};
   bool party(Account a) => partyLike.contains(a.accountClass);
@@ -212,7 +230,10 @@ Violation? checkShape(Entry entry, Chart chart) {
   final ok = switch (entry.kind) {
     EntryKind.moneyIn =>
       all(debits, money) &&
-          all(credits, (a) => income(a) || party(a) || advance(a)),
+          all(
+            credits,
+            (a) => income(a) || party(a) || advance(a) || isCapital(a),
+          ),
     EntryKind.moneyOut =>
       all(
             debits,

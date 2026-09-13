@@ -13,6 +13,20 @@ import 'ratio.dart';
 abstract final class Verbs {
   /// 1 · Money in / ਪੈਸੇ ਆਏ / पैसे आए — *Into (cash/bank)? From (category or party)?*
   /// `Dr money · Cr income-category` or `Cr party`.
+  ///
+  /// In a business the counterpart may also be the book's
+  /// `Opening Balance / Capital A/c` — capital introduced is
+  /// `Dr money · Cr Capital`, never income (02 §7.1, ADR 2026-09-13 §4,
+  /// `financial-accounting-standards.md` §4.1 B01 *"Owner adds capital"*). It
+  /// is the exact mirror of [moneyOut]'s Drawings slot and, like it, the only
+  /// `equity_system` account this verb accepts, so the verb and `checkShape`
+  /// agree in both directions; every other system account posts through its
+  /// own builder below.
+  ///
+  /// Until ADR 2026-09-13 §4 this slot took **any** `equitySystem` account
+  /// while `checkShape` admitted none — so the verb could build an entry the
+  /// reader then quarantined. That is the same defect ADR 2026-09-09b §3 fixed
+  /// on the money-out side, and it is fixed here the same way.
   static List<Line> moneyIn({
     required Account into,
     required Account from,
@@ -20,11 +34,14 @@ abstract final class Verbs {
   }) {
     _positive(amount);
     _spendable(into, 'into');
-    _oneOf(from, 'from', const {
-      AccountClass.categoryIncome,
-      AccountClass.party,
-      AccountClass.equitySystem,
-    });
+    if (from.accountClass == AccountClass.equitySystem) {
+      _role(from, 'from', SystemRole.openingBalance);
+    } else {
+      _oneOf(from, 'from', const {
+        AccountClass.categoryIncome,
+        AccountClass.party,
+      });
+    }
     return [
       Line(accountId: into.id, amount: amount),
       Line(accountId: from.id, amount: -amount),

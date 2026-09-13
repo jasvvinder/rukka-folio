@@ -116,7 +116,9 @@ void main() {
       // because 02 §7.1 creates the Capital/Drawings pair structurally at
       // business setup and no `AccountClass` models an ad-hoc one. Logged as
       // an open item in the lane report — the day it lands, this count goes
-      // to eight rather than tracking the enum.
+      // to eight rather than tracking the enum. The *engine* half unblocked on
+      // 13 Sep (ADR 2026-09-13 §4 🔒, `A-09b-5`): capital introduced posts as
+      // Money in. What this tile does with that is still the open UX ruling.
       expect(QuickAddTile.values.length, 7);
       for (final label in const [
         'Bank',

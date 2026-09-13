@@ -17,6 +17,17 @@
 // Capital account from this sheet should coexist with that pair. Rather than
 // guess, this build offers the other seven tiles and leaves Capital as an
 // open item (see the lane report).
+//
+// **Half of that is now settled (ADR 2026-09-13 §4 🔒, 13 Sep 2026).** The
+// engine can post capital introduced: `Verbs.moneyIn(into: money, from:
+// openingBalance)` builds `Dr money · Cr Opening Balance/Capital` and
+// `checkShape` admits it, the exact mirror of Drawings on money out
+// (`A-09b-5`). What is still unruled is this sheet's own question — whether
+// the eighth tile *creates an account* (which it cannot: Capital is the
+// Opening Balance system account, minted with the book) or **opens the entry
+// flow with Capital preselected**, which is what ADR 2026-09-09b's Open
+// recommends and which would amend `07 §6` bullet 3. That is a UX ruling and
+// a different lane; the engine is no longer what blocks it.
 import 'package:core_ledger/core_ledger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
