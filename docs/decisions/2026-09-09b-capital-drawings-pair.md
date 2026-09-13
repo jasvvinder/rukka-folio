@@ -62,3 +62,7 @@ Owner ruled 9 Sep 2026: the pair is real and created at business setup.
   The tile most plausibly means **record capital introduced** — an entry, not an account. Recommendation:
   it opens the entry flow with the Capital account preselected, and `07 §6` bullet 3 is amended to say so.
   ⚠️ SPEC comment stands in `s3_1_quick_add_sheet.dart` until ruled.
+  > **Engine half closed 13 Sep 2026 (ADR 2026-09-13 §4 🔒).** ⟦tests: A-09b-5⟧
+  > Capital introduced posts as Money in — `Dr money · Cr Opening Balance/Capital` — and both the verb
+  > and `checkShape` admit it (`A-09b-5`). The twin defect this ADR fixed on money out was live on money
+  > in until that day. What is still open is only the **UX** question above: what the eighth tile does.

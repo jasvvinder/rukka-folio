@@ -182,6 +182,10 @@ Family book:     Dr Bank 50,000 · Cr Due to/from Business 50,000
 > Drawings account. ⟦tests: A-09b-1, A-09b-2, A-09b-3, A-09b-4⟧
 > **ADR 2026-09-09c §2** — a joint family that owns businesses is several books linked by Due-to/from pairs;
 > sub-family shares are books, never accounts inside one book. ⟦tests: A-09c-4 @M5⟧
+> **ADR 2026-09-13 §4** — **capital introduced is an ordinary Money in**: `Dr money · Cr Opening Balance/Capital`,
+> never income, the exact mirror of owner takeout on Money out. `Verbs.moneyIn` and `checkShape` admit
+> `openingBalance` and no other `equity_system` role, as `moneyOut` admits `drawings` and no other.
+> ⟦tests: A-09b-5⟧
 
 A business owned by several people or sub-families gets one **Partner Current A/c** per owner (class `partner`, natural balance **Cr** = the business owes them). It is the single place that relationship lives.
 
@@ -221,6 +225,8 @@ A business owned by several people or sub-families gets one **Partner Current A/
 **Losses, ceiling, interest above profit 🔒 (ADR 2026-09-05e §8).** A loss is shared by the **mirror posting** `Dr each Partner Current · Cr Profit Distributed`, same ratio, same remainder rule, so sum-to-zero holds identically. Cumulative distributions may never exceed accumulated surplus (§1.2's computed line) — the wizard refuses and says by how much. Interest is credited in full even when it exceeds profit; the remaining negative figure is then shared as a loss. The preview shows both lines. ⟦tests: A-05e-4, A-05e-5, A-05e-6⟧
 
 **Rounding rule 🔒 (applies to every ratio split, including profit shares).** Divide in integer paise; assign each partner `floor(amount × weight ÷ Σweights)` in integer paise (never `amount × ratio` as a float); the remainder — always fewer paise than there are partners — goes to the partner with the **largest ratio**, ties broken by the earliest-created partner account. Deterministic on every device, so the split can never break §1.4's sum-to-zero invariant or diverge across the family's phones. ⟦tests: A-02-58, A-02-59, A-02-60, A-02-61, A-05e-5⟧
+
+**Where the ratio lives 🔒 (owner-confirmed, 13 Sep 2026; ADR 2026-09-13 §3).** The weights are recorded once, in the book's `book_config` envelope, as `partner_shares` — a map of **Partner Current A/c id → whole-number weight** (ADR 2026-09-09 §2; weights, never percentages). The key is the account id and nothing else: no member identity exists when a shared business is created — the owners are at that point only *invited* — and the account id is the one handle that survives renaming either the owner or the `{Name} — Partner Current A/c` seeded after them. It is also the identity the remainder rule above already ties to (*"ties broken by the earliest-created partner account"*), so the ratio and the split key on the same thing. Because the ratio is fixed at creation, the ids are minted **before** the config is authored and one envelope carries the whole ratio — an amend would be a second version of a number that is not allowed to change. **An absent or empty map means the ratio was never recorded — never that the shares are equal**: equal shares are held as real weights (1:1:1), so a reader that finds no map must say so rather than divide evenly. ⟦tests: E-03-30, F1-07-86⟧
 
 **Business surplus remitted to a family pool is not a drawing 🔒.** It is an ordinary inter-book transfer (§6) between the business book and the pool book. Money the family then takes "as needed" is tracked by the pool's own sub-family accounts. Two separate fairness ledgers — partner accounts for the business, sub-family accounts for the pool — and conflating them corrupts the partnership arithmetic.
 

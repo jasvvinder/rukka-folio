@@ -40,11 +40,12 @@ drafted artboards — which state the shares-versus-percentages and skippability
 - An owner cannot hold zero shares; the stepper floors at 1, and removing an owner is a row action.
   ⟦tests: F1-07-45⟧
 
-> **Implemented 12 Sep 2026 (lane M5-U4d), owner to confirm the keying** — the weights persist in the
-> `book_config` envelope as `partner_shares`, keyed to each **Partner Current A/c id**, not to the owner
-> row or the partner's name: one account exists per owner, no member identity exists at setup (owners are
-> only *invited*), and an account id is the one handle that survives a rename. ⚠️ SPEC: no doc states this
-> keying — it wants a line in `02 §7.1` or the next ADR on distribution. ⟦tests: E-03-30, F1-07-86⟧
+> **Implemented 12 Sep 2026 (lane M5-U4d); keying confirmed by the owner 13 Sep 2026** — the weights
+> persist in the `book_config` envelope as `partner_shares`, keyed to each **Partner Current A/c id**, not
+> to the owner row or the partner's name: one account exists per owner, no member identity exists at setup
+> (owners are only *invited*), and an account id is the one handle that survives a rename. The ⚠️ SPEC is
+> closed: `02 §7.1` now states the keying, and that an empty map means *not recorded*, never *equal*
+> (ADR 2026-09-13 §3). ⟦tests: E-03-30, F1-07-86⟧
 
 ### 3. S0.6a1 is not skippable; its secondary is *Just me after all* ⟦tests: F1-07-45⟧
 - Every other S0.6 branch step is skippable (`13 §3.2`, flow line; `07 §3.1.1`). **This one is not**: the

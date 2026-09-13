@@ -33,14 +33,15 @@ about. Owner ruled 12 Sep 2026: **write it ourselves.**
 - The output is frozen by the F3 byte-goldens when they land (`F3-07-1/2 @M12`), which is what makes
   an in-house format safe to maintain. ⟦tests: F3-07-1 @M12, F3-07-2 @M12⟧
 
-### 2. Every report surface offers the same trio ⟦tests: F1-07-79⟧
+### 2. Every report surface offers the same trio ⟦tests: F1-07-79⟧ — **confirmed by the owner 13 Sep 2026**
 - **View · Download/Share · Export** is the shape on **both** the statement (S4) and the report
   viewer (S8.2), and Export offers the ruled three — **PDF, CSV, XLSX** (ADR 2026-09-12 §1). ⟦tests: F1-07-79⟧
 - `07 §6` 🔒 is amended from *export this A/C (PDF/XLSX)* to **PDF/CSV/XLSX**. ⟦tests: F1-07-79⟧
   The two surfaces stop disagreeing about what an export is.
 - Provenance: this is the owner's own framing of 12 Sep 2026 — *"three kind of options for every
   account/overview/ledger report … view, download/share pdf, either statement or report, and export
-  as pdf/csv/excel"* — recorded here rather than left as an inference. See Open ⚠️ if it misreads it. ⟦tests: n/a — provenance, not behaviour⟧
+  as pdf/csv/excel"* — recorded here rather than left as an inference. **Put back to the owner on
+  13 Sep 2026 and confirmed as written**, before S4's export surface is built. ⟦tests: n/a — provenance, not behaviour⟧
 - **Only the day book exists today.** The other ten reports of `07 §14` are M12 (ADR 2026-09-12), so
   the trio applies to the day book now and to each report as it lands. ⟦tests: n/a — scope note⟧
 
@@ -71,9 +72,9 @@ about. Owner ruled 12 Sep 2026: **write it ourselves.**
   byte-goldens stay M12.
 
 ## Open ⚠️
-- **If §2 misreads the owner's framing, §2 is the line to correct** — the Excel ruling in §1 stands
-  either way, and S4's surface has not been built yet, so the correction is cheap today and
-  expensive after that lane runs.
+- ~~**If §2 misreads the owner's framing, §2 is the line to correct**~~ — **closed 13 Sep 2026**: the
+  owner confirmed §2 as written, while S4's export surface is still unbuilt. The trio is binding on the
+  statement (S4) as it already is on the report viewer (S8.2), and `07 §6`'s amended export line stands.
 - **The root `dependency_overrides` hid excel's incompatibility at resolution time**, surfacing it
   only at compile. Worth remembering whenever a package is evaluated while that pin is in place:
   resolve **and** compile before believing a candidate fits.
