@@ -771,7 +771,7 @@ void main() {
       for (final idx in _subsets(3, 2)) {
         final pair = GuardianShareSet.reconstructVerified(s, [
           for (final i in idx) wire[i],
-        ], expected: umk.public);
+        ], expected: verifiedUmk(s, umk));
         expect(pair.public, umk.public, reason: 'subset $idx');
         expect(pair.exportSecretBytes(), priv);
         pair.dispose();
@@ -792,7 +792,7 @@ void main() {
         () => GuardianShareSet.reconstructVerified(s, [
           tampered,
           wire[1],
-        ], expected: umk.public),
+        ], expected: verifiedUmk(s, umk)),
         throwsA(isA<GuardianShareMismatch>()),
       );
 
@@ -801,7 +801,7 @@ void main() {
         () => GuardianShareSet.reconstructVerified(s, [
           wire[1],
           wire[2],
-        ], expected: other.public),
+        ], expected: verifiedUmk(s, other, userId: userB)),
         throwsA(isA<GuardianShareMismatch>()),
       );
 
@@ -809,7 +809,7 @@ void main() {
       expect(
         () => GuardianShareSet.reconstructVerified(s, [
           wire[0],
-        ], expected: umk.public),
+        ], expected: verifiedUmk(s, umk)),
         throwsArgumentError,
       );
       s.zeroize(priv);

@@ -30,7 +30,7 @@
 
 ---
 
-## 2. Primitives 🔒 ⟦tests: B-04-1, B-04-12, B-04-15, B-04-27, B-04-50, B-04-53⟧
+## 2. Primitives 🔒 ⟦tests: B-04-1, B-04-12, B-04-15, B-04-27, B-04-50, B-04-53, B-04-74, B-04-79⟧
 
 All client-side via **libsodium** (Flutter: `sodium_libs`). No hand-rolled crypto anywhere.
 
@@ -47,7 +47,7 @@ All client-side via **libsodium** (Flutter: `sodium_libs`). No hand-rolled crypt
 
 **Crypto agility:** every stored artifact (envelope, wrapped key, share, certificate) carries a 1-byte `suite_version`. Current = `0x01` meaning the table above.
 
-> **ADR 2026-09-06 §1 (ratified 7 Sep 2026)** — Shamir over GF(256) is implemented in-house in `core_crypto/shamir.dart`; the pub.dev audit found no audited package and combination wrapping was not adopted. ⟦tests: B-04-50, B-04-53, B-04-55, B-04-73⟧
+> **ADR 2026-09-06 §1 (ratified 7 Sep 2026)** — Shamir over GF(256) is implemented in-house in `core_crypto/shamir.dart`; the pub.dev audit found no audited package and combination wrapping was not adopted. ⟦tests: B-04-50, B-04-53, B-04-55, B-04-73, B-04-74⟧
 
 ---
 
@@ -173,7 +173,7 @@ Reinstall on the same iPhone may find device keys intact → normal certified de
 ### 7.2 Rung 1 — another of your own devices
 Standard device linking (§9.1).
 
-### 7.3 Rung 2 — guardians (flagship) 🔒 ⟦tests: B-04-53, B-04-54, B-04-55, B-04-62, B-04-64, B-04-65, B-04-67, B-04-72⟧
+### 7.3 Rung 2 — guardians (flagship) 🔒 ⟦tests: B-04-53, B-04-54, B-04-55, B-04-62, B-04-64, B-04-65, B-04-67, B-04-72, B-04-75, B-04-76, B-04-77, B-04-78, B-04-80, B-04-81⟧
 **Setup:** choose guardians (default **2-of-3**; allowed n=2..5 with k=⌈(n+1)/2⌉; 2-of-2 permitted only behind a **typed confirmation**, never a dismissible warning — ADR 2026-09-06 checklist 4). Mutual ceremony per guardian. Split `UMK_priv` via Shamir; seal `share_i` to guardian *i*'s UMK public key; upload. Re-split and re-upload on any guardian change or UMK rotation; shares carry `share_set_version`.
 
 **Recovery:**
