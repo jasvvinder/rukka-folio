@@ -12,6 +12,179 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-13 — M5: four carried decisions, taken
+
+No lanes. Four items had been sitting on `PLAN.md` §0 across sessions — three of them *decisions* rather
+than work, which is why they had not moved: a lane can build a screen, but it cannot rule on what the
+primary action does to someone's phone, sign off a brand colour, or classify an entry kind. The owner took
+all four, and the code that had been waiting on each went in behind it. **Push lane green, exit 0.**
+
+**Added**
+- **Share is wired** (ADR 2026-09-13 §1 🔒, `F1-07-79`). The shipped `ReportSink` is now `shareReportFile`
+  over `Printing.sharePdf`. Until today it was `saveReportToTempFile` and **the export ended at a sandbox
+  temp path no reader could reach** — the one item on the owner list where something was visibly broken.
+  `sharePdf` carries all three formats despite its name: the iOS plugin writes the bytes to
+  `NSTemporaryDirectory()/<name>` and presents a `UIActivityViewController` over that URL, so the extension
+  we pass is what the system reads the type from (read in `printing-5.14.3/ios/Classes/PrintJob.swift:255`
+  rather than assumed). No second package.
+- **`A-09b-5` — capital introduced is Money in** (ADR 2026-09-13 §4 🔒). `Dr money ·
+  Cr Opening Balance/Capital`, kind `money_in`. Five tests; core_ledger **164/164**, golden replay unmoved.
+
+**Changed**
+- **A successful share gets no sentence from us.** The sheet is its own confirmation, it covers the screen
+  a snackbar would appear on, and the platform reports neither completion nor cancellation — so any line we
+  wrote would be a guess about what the reader did next (07 §1 rule 12). If **no** sheet can be raised the
+  file is written and named exactly as before, so the export is never a dead end. That is why `ReportSink`
+  now returns a sealed `ReportDelivery` (`ReportShared` | `ReportSaved(where)`) instead of a string: the two
+  outcomes need different words and only the sink knows which happened. `_CapturingSink` reports
+  `ReportSaved` by default, so every assertion written before today reads unchanged; one new test covers the
+  shipped path.
+- **`Verbs.moneyIn` takes a `_role` guard — this fixed a live defect, not a gap.** It accepted **any**
+  `equitySystem` account in `from` while `checkShape`'s `money_in` arm admitted **none**, so the verb could
+  build an entry the reader then quarantined. The exact twin of the drawings defect ADR 2026-09-09b §3 fixed
+  on the other side, and fixed the same way. The two money verbs are now mirror images: `money_in` admits
+  `openingBalance` and refuses `drawings`, `money_out` the reverse, every other system account through its
+  own builder.
+- **Two token values moved, and the contrast audit is clean for the first time** (ADR 2026-09-13 §2 🔒,
+  `F1-10-12`…`F1-10-15`). Light `credit` **#2F7A55 → #2B724F** (on `sunk` 4.30 → 4.79) and light
+  `text-muted` **#6E6A5E → #696558** (on `sunk` 4.46 → 4.81, on `danger-surface` 4.36 → 4.70).
+  `check_contrast` reports **110 gated pairs pass, 0 waived pending ruling** — the three `pendingRuling`
+  waivers are **deleted, not relaxed**. `tokens.json` → v0.1.2, regenerated into `tokens.css`,
+  `tokens.dart` and `app/lib/shared/tokens.dart`; `11 §4` and `DESIGN-PACK.md` carry the new hexes.
+- **Eight stale `PROPOSED` markers removed from `tokens.json`.** Light and dark `sunk`, `pending`, `locked`
+  and `scrim` have been *approved* in `design-system §2` since 5 Sep (ADR 2026-09-05f §H11); the markers
+  contradicted the doc, in the file CLAUDE.md calls the sole source for token values.
+- `02 §7.1` gains the `partner_shares` keying line and the capital cross-reference; `s3_1_quick_add_sheet`'s
+  ⚠️ SPEC now says which half of it is closed.
+
+**Decided** — [ADR 2026-09-13](docs/decisions/2026-09-13-share-tokens-and-capital.md), four rulings.
+- **§1 Download/Share raises the platform share sheet**; a file is the fallback, not the product.
+- **§2 The palette is signed off.** The status family is ratified at the 12 Sep values; the light `credit`
+  hex `design-system §3.1` 🔒 left open is **#2B724F** — *half* the documented credit→success step, because
+  the **full** step lands exactly on `success` #276A49 and would erase the distinction. The closeness is
+  safe precisely because `credit` is numerals-only and `success` is a word plus an icon: they are never
+  read against each other. `text-muted` was darkened rather than taking the alternative the finding
+  offered (*keep captions off `sunk` and `danger-surface`*) — a placement rule for captions is
+  unenforceable in code, where a token value is checked on every run.
+- **§3 `partner_shares` keys to the Partner Current A/c id**, confirmed as built and now stated in
+  `02 §7.1`: no member identity exists at setup (owners are only *invited*), the account id is the one
+  handle that survives a rename, and it is what the remainder rule already ties to. **An absent or empty
+  map means *not recorded*, never *equal*.** ADR 2026-09-09 §2's ⚠️ SPEC closed.
+- **§4 Capital introduced is `money_in`** — ruled from the behavioural reference, not from taste:
+  `financial-accounting-standards.md` §4.1 lists **B01 "Owner adds capital" — Dr HDFC · Cr Capital ₹5,000**
+  among the ten ordinary daybook transaction types, beside **B11 "Owner drawing"**, which 09b §3 already
+  ruled `money_out`. One event from either end takes the same kind. No new system role: Capital *is*
+  Opening Balance (09b §1 🔒).
+- **ADR 2026-09-12e §2 confirmed as written** — the View · Download/Share · Export trio binds **S4** as
+  well as S8.2, while S4's export surface is still unbuilt, so it lands right the first time.
+  ADR 2026-09-12e's Open closed.
+
+**Open** ⚠️
+- **`Printing.sharePdf` returns `true` whether or not the sheet appeared.** The iOS plugin calls
+  `result(NSNumber(value: 1))` unconditionally and only `print`s a write failure — so our fallback cannot
+  trigger on that one path and the reader would see nothing. Writing to `NSTemporaryDirectory()` is not a
+  realistic failure, and writing our own copy first does not help: `sharePdf` writes its own regardless,
+  and a second copy of plaintext financial data is worse. Recorded, not designed around.
+- **iPad popover anchor** — the sink is deliberately context-free, so `sharePdf` gets the plugin's default
+  bounds. Unused on iPhone, the pilot device; worth real bounds if iPad is ever a target.
+- **The 8th S3.1 quick-add tile is still unruled** — a **UX** question now, not an engine one. It cannot
+  *create* a Capital account (Capital is the Opening Balance system account, minted with the book); ADR
+  2026-09-09b's standing recommendation is that it opens the entry flow with Capital preselected, which
+  would amend `07 §6` bullet 3.
+- The export-sheet copy item from 12 Sep still stands: with all three rows live, *"Opens in any
+  spreadsheet"* and *"A spreadsheet file"* no longer say why to pick one.
+
+**Gate** — push lane green (exit 0): core_ledger 164 · packages 37/17/10 · app **492 passed / 0 skipped** ·
+root scripts 7 · Deno 31 passed (37 steps) incl. the hostile-query RLS suite. `check_coverage --strict
+--milestone M4`: **727 tests · 468 ids declared · 559 ids named · 345 🔒 lines, 0 unmarked · 0 orphans · 0
+tests without an id**. Golden `content_hash` unchanged (`771288a0…`).
+
+**Commits** — (fill in after commit)
+
+---
+
+## 2026-09-12 (f) — M5: the export surface finished, and a test harness that could not see the screen
+
+Six `/lane` rounds, ten lanes, **four green push gates** — the first session run under ADR 2026-09-12b's
+*fill the session* rule rather than one-lane-then-clear. Two threads dominate. **Onboarding and the
+envelope caught up with each other**: the last purpose-card branch was built, and the two answers setup had
+been collecting and throwing away (partner share weights, trust type) now persist. **The export surface went
+from one working format to three** — via a dependency fight that was lost, re-opened by the owner, and won.
+
+**Added**
+- **U1k (`lane-ui-hard`) — S0.6c *Add another business?*** — `F1-07-83`. `OnboardingFlow` holds a
+  `List<BusinessEntry>`, so the loop's S0.6a opens blank and creates a **second book**. The 98 existing
+  onboarding tests needed **no edit at all**. Only *My businesses* reaches the loop, checked against
+  07 §3.1.1's table. **Onboarding has no dead end left.**
+- **U3e · U3g · U3h · U3i — S8.2 report viewer and the day book in PDF, CSV and XLSX** — `F1-07-79`.
+  **PDF** (`pdf` + `printing`, A4) embeds Mukta and Mukta Mahee, with `unsupportedRunes()` asserted empty
+  over a Gurmukhi/Devanagari book — package:pdf defaults to Helvetica, which has no Gurmukhi, so without
+  this a Punjabi ledger exports as a page of empty boxes. `maxPages` raised off the package default of 20.
+  **CSV** carries a UTF-8 BOM. **XLSX** is written in-house over `archive` + `xml`: money as **number**
+  cells in a money style (never text — a ledger that arrives as strings cannot be summed, which is the
+  whole reason an accountant wanted it), dates as Excel serials, and the zip stamped 1980-01-01 so the same
+  day book exports **byte for byte** the same file. No row of the sheet is disabled any more.
+- **U2f (`lane-sync`) — the rebuild-progress producer** — `E-03-29`, `F1-07-38` extended.
+  `Recompute.watchProgress` is a re-listenable `Stream.multi` replaying the reading in hand, so a rebuild
+  started before Home mounted is still visible; `done` ticks in a `try/finally` so every path counts.
+- **U4d (`lane-sync`) — `BookConfig` gains `partnerShares` and `organizationSubtype`** — `E-03-30`,
+  `E-03-31`, `F1-07-86`. `createBook` mints the Partner Current A/c ids **before** authoring `book_config`,
+  so one envelope carries the whole ratio. Round-trip 🔒 held: a value this build cannot interpret stays in
+  `extra` verbatim, and the subtype lookup never uses `values.byName`.
+- **SW1 (`lane-ui`) — one banner atom** — `F1-07-85`. `RkBannerSurface` backs `RkRestrictionBanner` and the
+  new S19.3 notice; the duplicate `SuspendedBanner` is gone. S19.3 shares the **atom** but not the
+  restriction **family**, so it can never borrow `offlineGrace`'s copy.
+- **T1 (`lane-ui-hard`) — `pumpRk` gained `textScale:`/`viewport:` and now rejects a zero-sized screen.**
+
+**Changed**
+- **Six real layout defects, all hidden by the same harness bug.** Tests wrapped screens in a bare
+  `MediaQueryData(textScaler:)`, whose `size` is `Size.zero` — so any widget budgeting against
+  `MediaQuery.sizeOf` collapsed to nothing and `findsOneWidget` passed anyway. U3g found it by *measuring*:
+  an app-bar action 0.0 px wide while its assertion was green. Behind it: the S1 hero total cut (398 px
+  needed in 328 at 1×), `RkLabelAmountRow` splitting 50/50 so `+₹1,14,600` lost digits across four screens
+  in three languages, S8.2's *Particulars* heading clipped at **1×**, and more. A scale threshold can never
+  be right — it cannot know how wide a word is in a font it has not measured.
+- `.claude/workflows/lanes.js` `MAX_LANES` 3 → 5 and the `/lane` and `/gate` skills' tier tables, which
+  still carried pre-ADR-2026-09-12b models and caps (`lane-ui` on sonnet). Ratified but never executed.
+- `07 §6`, `07 §14`, `13 §3.2` follow the four export ADRs below.
+
+**Decided**
+- `docs/decisions/2026-09-12c-export-default-csv.md` — 🔒 Download/Share defaults to **CSV** while `pdf`
+  cannot resolve. **Superseded the same day** by 12d; kept, because the reasoning was sound on the evidence
+  then available and the arc is worth reading.
+- `docs/decisions/2026-09-12d-pdf-via-archive-pin.md` — 🔒 **pin `archive`, never downgrade sodium.**
+  sodium's *only* use of `archive` is its build-time libsodium extractor; pinning `archive: >=4.0.9 <4.1.0`
+  admits `pdf` while sodium stays 4.1.x, where `Sodium.memcmp` lives — so `constantTimeEquals` keeps its
+  libsodium backing (rule 7). Verified with the hook cache deleted: suite B 75/75. The PDF default returns.
+- `docs/decisions/2026-09-12e-xlsx-in-house.md` — 🔒 **XLSX is written in-house; no package is adopted.**
+  `excel` and `spreadsheet_decoder` need archive 3.x (compile-verified: `ZipDecoder.decodeBuffer` and
+  `ArchiveFile.compress` are gone in 4.x) while sodium needs 4.x; `syncfusion_flutter_xlsio` fits but is
+  proprietary, on a product that charges from M13. §2 records the owner's export-trio framing (View ·
+  Download/Share · Export) for **both** S4 and S8.2, amending `07 §6`. §3 fixes the CSV BOM in place.
+- **The route not taken, recorded so it is not retried:** loosening `sodium` to `>=4.0.4 <5.0.0` *does*
+  resolve, and then `core_crypto` fails to compile — `sodium_memcmp` reached the public Dart API only in
+  4.1.0. Tried, measured, reverted.
+
+**Open**
+- ⚠️ **Share is not wired.** `Printing.sharePdf` is a one-function swap, but today the export ends at a
+  temp path inside the app sandbox that no user can reach — the feature is a stub on a real phone.
+- ⚠️ **`partner_shares` keys to the Partner Current A/c id** — the only identity surviving a rename, but no
+  doc says so. Wants a line in `02 §7.1`.
+- ⚠️ **ADR 2026-09-12e §2 is the assistant's reading of the owner's framing** — cheap to correct now,
+  expensive once S4's export surface is built.
+- ⚠️ **20 test files still wrap a bare `MediaQueryData`** and warn rather than fail. Converting them will
+  surface more real defects; then `rkStrictViewport = true`.
+- ⚠️ `RkFitText` sits in `features/home` but belongs in `shared/`; export-sheet row copy no longer says why
+  to choose XLSX over CSV; XLSX money format is neutral `#,##0.00`, not Indian (display only, M12).
+- ⚠️ A correction worth keeping: *"the CSV writer does not emit a BOM"* was asserted here without reading
+  the file, and was wrong — it had one since it was built (`csv_report.dart:154`). The real gap was that
+  **nothing asserted it**; `F1-07-79` now does. Rule 11 applies to the assistant's own claims about the code.
+
+**Commits**
+- _(filled next session)_
+
+---
+
 ## 2026-09-12 (e) — M5: U1e the trust branch · U3d the FY switcher and the real b/f; **push lane green**
 
 One `/lane` run, two disjoint lanes, then `/gate` on the push lane — **green, with only `dart format`
