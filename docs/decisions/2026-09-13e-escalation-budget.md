@@ -1,6 +1,7 @@
 # ADR 2026-09-13e — The escalation budget is a quota and a question, not a run count
 
-**Proposed 13 Sep 2026, awaiting owner ratification.** Amends the 🔒 owner-directed § Session economy
+**RATIFIED by the owner, 14 Sep 2026 (proposed 13 Sep)** — *"Fix the four items that are waiting."* Answers recorded from that instruction; the reasoning for each is in the ruling it belongs to.
+The cap becomes a quota plus the existing say-so; the run count is removed from `wf-spend.sh`; security and protocol reasoning is never skipped for budget. **Open question answered: print the token total only** — a soft run-count line would re-introduce the gameable unit this ADR removes. Amends the 🔒 owner-directed § Session economy
 line in `CLAUDE.md`: *"Budget: **2 fable runs per week**."*
 
 Raised because the rule and the owner's own meter disagreed three times in one session. `wf-spend.sh`

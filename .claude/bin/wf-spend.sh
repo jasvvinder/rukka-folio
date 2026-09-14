@@ -55,8 +55,12 @@ label = "all time" if show_all else f"since {week_start:%a %d %b}"
 print(f"{len(shown)} run(s) {label}: {tot:,} tokens total · {fable:,} on fable")
 n_fable = sum(1 for r in shown if "fable" in r["models"])
 if not show_all:
-    print(f"fable runs this week: {n_fable} / 2 budgeted  "
-          + ("⚠️ OVER BUDGET — escalate only with the owner's say-so" if n_fable > 2 else "(escalation tier)"))
+    # ADR 2026-09-13e 🔒: report the spend, do not rule on it. A "run" holds one
+    # lane or five, so a run count is blind to cost and gameable by packing; the
+    # budget is the week's quota, which this script cannot see. The control is the
+    # owner's say-so, which CLAUDE.md § Session economy already requires.
+    print(f"fable this week: {fable:,} tokens over {n_fable} run(s) "
+          f"(escalation tier — the owner reads the quota; say-so is required either way)")
 killed = [r["run"] for r in shown if r["status"] != "completed"]
 if killed:
     print(f"did not complete: {', '.join(killed)} — check .claude/lane-reports/ before re-running those lanes")
