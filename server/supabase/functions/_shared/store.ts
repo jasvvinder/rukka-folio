@@ -133,6 +133,21 @@ export interface RefreshToken {
   revoked_at: Date | null;
 }
 
+/** ADR 2026-09-13d ruling 4: commitment 32 B, verifier_random 16 B, opening 16 B + server times. */
+export interface CeremonySession {
+  id: string;
+  tenant_id: string;
+  subject_user: string;
+  commitment: Uint8Array;
+  committed_at: Date;
+  expires_at: Date;
+  verifier_user: string | null;
+  verifier_random: Uint8Array | null;
+  verifier_random_at: Date | null;
+  opening: Uint8Array | null;
+  opened_at: Date | null;
+}
+
 export interface Tx {
   storeEpoch(): Promise<string>;
   appConfig(key: string): Promise<unknown>;
@@ -169,6 +184,12 @@ export interface Tx {
   ): Promise<
     { tenant_id: string; owner_user_id: string | null; type: string; role_count: number } | null
   >;
+  // ADR 2026-09-13d ruling 4 — the ceremony session relay. Three opaque values, no computation:
+  // the server neither derives nor checks a code, it only forwards bytes in a fixed order.
+  ceremonyCommit(tenant: string, commitment: Uint8Array): Promise<CeremonySession>;
+  ceremonyContribute(session: string, verifierRandom: Uint8Array): Promise<CeremonySession>;
+  ceremonyOpen(session: string, opening: Uint8Array): Promise<CeremonySession>;
+  ceremonySession(session: string): Promise<CeremonySession | null>;
   projectMembership(record: string, tenant: string, user: string, status: string): Promise<void>;
   projectBookRole(
     record: string,

@@ -8,6 +8,7 @@ import type { Plan } from "./registry.ts";
 import {
   type ActivationTicket,
   type BookAccess,
+  type CeremonySession,
   denialFromPg,
   DeviceCapError,
   type EnvelopeRow,
@@ -282,6 +283,37 @@ class PgTx implements Tx {
         limit === null ? null : limit.toString()
       }::bigint)`;
     });
+  }
+  // ---- ADR 2026-09-13d ruling 4: the ceremony session relay.
+  // Nothing here hashes, derives or compares a ceremony value; it inserts bytes and reads them back.
+  // Ordering, write-once and the ten-minute lifetime are enforced by 0007's guard, not here, so an
+  // edge function with a bug cannot relax them.
+  ceremonyCommit(tenant: string, commitment: Uint8Array): Promise<CeremonySession> {
+    return this.guarded(async () => {
+      const [r] = await this.sql`insert into ceremony_sessions
+        (tenant_id, subject_user, subject_device, commitment)
+        values (${tenant}, rf.user_id(), rf.device_id(), ${commitment}) returning *`;
+      return r as unknown as CeremonySession;
+    });
+  }
+  ceremonyContribute(session: string, verifierRandom: Uint8Array): Promise<CeremonySession> {
+    return this.guarded(async () => {
+      await this.sql`select rf.ceremony_contribute(${session}, ${verifierRandom})`;
+      return (await this.readCeremony(session))!;
+    });
+  }
+  ceremonyOpen(session: string, opening: Uint8Array): Promise<CeremonySession> {
+    return this.guarded(async () => {
+      await this.sql`select rf.ceremony_open(${session}, ${opening})`;
+      return (await this.readCeremony(session))!;
+    });
+  }
+  ceremonySession(session: string): Promise<CeremonySession | null> {
+    return this.readCeremony(session);
+  }
+  private async readCeremony(session: string): Promise<CeremonySession | null> {
+    const [r] = await this.sql`select * from ceremony_sessions where id = ${session}`;
+    return (r as unknown as CeremonySession) ?? null;
   }
   projectDeviceStatus(
     record: string,

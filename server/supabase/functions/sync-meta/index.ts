@@ -6,13 +6,14 @@
 // Cursor: `after` is opaque — base64url JSON {tables: {table: {updated_at, id}}, records_seq}; each
 // table's own cursor is (updated_at, id) as 05 §5 says. `next` is ALWAYS present (the resume point);
 // `has_more` is true when any table or the records stream had more than a page (engine contract: wire.dart).
-import { b64url, isUuid } from "../_shared/bytes.ts";
+import { b64any, b64url, isUuid } from "../_shared/bytes.ts";
 import { type Deps, serve } from "../_shared/deps.ts";
 import { error, readJson, subPath } from "../_shared/http.ts";
 import { applyRecord, parseRecord, type RecordResult, verifyRecord } from "../_shared/records.ts";
 import { PULL_LIMIT_MAX } from "../_shared/registry.ts";
 import { authenticate, gate, jsonBigResponse, recordToWire } from "../_shared/route.ts";
 import {
+  type CeremonySession,
   META_TABLES,
   type MetaCursors,
   type MetaTable,
@@ -35,6 +36,7 @@ export async function handler(req: Request, deps: Deps): Promise<Response> {
   const path = subPath(req, "sync-meta");
   if (req.method === "GET" && path === "/") return pull(req, deps, claims);
   if (req.method === "POST" && path === "/records") return postRecords(req, deps, claims);
+  if (path.startsWith("/ceremony")) return ceremony(req, deps, claims, path);
   return error(404, "not_found");
 }
 
@@ -95,6 +97,86 @@ async function pull(
     return body;
   });
   return jsonBigResponse(200, out);
+}
+
+// ---------------------------------------------------------------- ceremony session relay
+// ADR 2026-09-13d ruling 4 🔒. Three opaque values and their server timestamps; the server does not
+// derive, compare or validate a code (04 §8.6) — grep this block for a hash and you will not find
+// one. Delivery is SHORT POLLING (ADR Open 2, decided here): the two devices GET the session while a
+// ceremony screen is open. Realtime was declined because it authorises from the platform's
+// `authenticated` role, which 0005 strips of every grant; a second authorisation path over the table
+// that carries the trust root is the wrong trade for a two-round-trip exchange at human pace.
+//
+//   POST /sync-meta/ceremony            {tenant_id, commitment}      → the session (invitee)
+//   POST /sync-meta/ceremony/verifier   {session_id, verifier_random}→ the session (active member)
+//   POST /sync-meta/ceremony/opening    {session_id, opening}        → the session (invitee)
+//   GET  /sync-meta/ceremony?session_id=…                            → the session (either side)
+//
+// Every rule is enforced by 0007's guard and its policies, in the database. This handler shapes
+// JSON; it cannot loosen anything, which is the point.
+async function ceremony(
+  req: Request,
+  deps: Deps,
+  claims: { user_id: string; device_id: string },
+  path: string,
+): Promise<Response> {
+  if (req.method === "GET" && path === "/ceremony") {
+    const id = new URL(req.url).searchParams.get("session_id");
+    if (!isUuid(id)) return error(400, "bad_request");
+    const row = await deps.store.withClaims(claims, (tx) => tx.ceremonySession(id));
+    return row ? jsonBigResponse(200, sessionToWire(row)) : error(404, "not_found");
+  }
+  if (req.method !== "POST") return error(404, "not_found");
+  const body = await readJson(req, 4096) as Record<string, unknown> | null;
+  if (!body) return error(400, "bad_request");
+
+  try {
+    const out = await deps.store.withClaims(claims, (tx) => {
+      if (path === "/ceremony") {
+        const c = b64any(body.commitment);
+        if (!isUuid(body.tenant_id) || !c || c.length !== 32) throw new StoreDenied("bad_request");
+        return tx.ceremonyCommit(body.tenant_id, c);
+      }
+      if (!isUuid(body.session_id)) throw new StoreDenied("bad_request");
+      if (path === "/ceremony/verifier") {
+        const r = b64any(body.verifier_random);
+        if (!r || r.length !== 16) throw new StoreDenied("bad_request");
+        return tx.ceremonyContribute(body.session_id, r);
+      }
+      if (path === "/ceremony/opening") {
+        const o = b64any(body.opening);
+        if (!o || o.length !== 16) throw new StoreDenied("bad_request");
+        return tx.ceremonyOpen(body.session_id, o);
+      }
+      throw new StoreDenied("not_found");
+    });
+    return jsonBigResponse(200, sessionToWire(out));
+  } catch (e) {
+    if (!(e instanceof StoreDenied)) throw e;
+    if (e.reason === "not_found") return error(404, "not_found");
+    if (e.reason === "bad_request") return error(400, "bad_request");
+    // The database named the refusal; pass the name through unchanged (05c: never a silent drop).
+    const forbidden = ["rls", "unknown_session", "self_verification", "subject_not_in_tenant"];
+    const status = forbidden.includes(e.reason) ? 403 : e.reason === "ceremony_flood" ? 429 : 409;
+    return error(status, e.reason);
+  }
+}
+
+/** Opaque bytes out, base64url, exactly as they went in. */
+function sessionToWire(s: CeremonySession): Record<string, unknown> {
+  return {
+    session_id: s.id,
+    tenant_id: s.tenant_id,
+    subject_user_id: s.subject_user,
+    commitment: b64url.enc(s.commitment),
+    committed_at: new Date(s.committed_at).toISOString(),
+    expires_at: new Date(s.expires_at).toISOString(),
+    verifier_user_id: s.verifier_user,
+    verifier_random: s.verifier_random ? b64url.enc(s.verifier_random) : null,
+    verifier_random_at: s.verifier_random_at ? new Date(s.verifier_random_at).toISOString() : null,
+    opening: s.opening ? b64url.enc(s.opening) : null,
+    opened_at: s.opened_at ? new Date(s.opened_at).toISOString() : null,
+  };
 }
 
 async function postRecords(

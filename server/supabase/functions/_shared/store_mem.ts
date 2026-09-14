@@ -8,6 +8,7 @@ import { WRITER_ROLES } from "./registry.ts";
 import {
   type ActivationTicket,
   type BookAccess,
+  type CeremonySession,
   DeviceCapError,
   type EnvelopeRow,
   type GuardianSet,
@@ -71,6 +72,7 @@ export class MemDb {
   guardian_set_members: Row[] = [];
   invites: Row[] = [];
   verification_events: Row[] = [];
+  ceremony_sessions: CeremonySession[] = [];
   recovery_requests: Row[] = [];
   escrow_policies: Row[] = [];
   subscriptions: Row[] = [];
@@ -601,6 +603,74 @@ class MemTx implements Tx {
       }
     }
     return Promise.resolve();
+  }
+  // ---- ADR 2026-09-13d ruling 4: the ceremony session relay, with 0007's guard re-stated here.
+  // The rules are the security property, so the in-memory seam enforces the same four: who writes
+  // what, write-once, ordering, and ten minutes from the commitment's server timestamp. Nothing in
+  // this block hashes or compares a ceremony value — the server relays opaque bytes.
+  ceremonyCommit(tenant: string, commitment: Uint8Array): Promise<CeremonySession> {
+    if (!this.isCertified() || !this.me) throw new StoreDenied("rls");
+    const st = this.db.memberships.find((x) => x.tenant_id === tenant && x.user_id === this.me)
+      ?.status;
+    if (st !== "joined_pending_verification" && st !== "active") {
+      throw new StoreDenied("subject_not_in_tenant");
+    }
+    if (commitment.length !== 32) throw new StoreDenied("check");
+    const live = this.db.ceremony_sessions.filter((x) =>
+      x.tenant_id === tenant && x.subject_user === this.me && x.expires_at > this.now
+    );
+    if (live.length >= 10) throw new StoreDenied("ceremony_flood");
+    const committed = this.now;
+    const row: CeremonySession = {
+      id: uuid(),
+      tenant_id: tenant,
+      subject_user: this.me,
+      commitment,
+      committed_at: committed,
+      expires_at: new Date(committed.getTime() + 10 * 60_000),
+      verifier_user: null,
+      verifier_random: null,
+      verifier_random_at: null,
+      opening: null,
+      opened_at: null,
+    };
+    (row as unknown as Row).subject_device = this.dev;
+    this.db.ceremony_sessions.push(row);
+    return Promise.resolve(row);
+  }
+  ceremonyContribute(session: string, verifierRandom: Uint8Array): Promise<CeremonySession> {
+    if (verifierRandom.length !== 16) throw new StoreDenied("ceremony_shape");
+    const row = this.db.ceremony_sessions.find((x) => x.id === session);
+    if (!row || !this.activeInTenant(row.tenant_id)) throw new StoreDenied("unknown_session");
+    if (row.subject_user === this.me) throw new StoreDenied("self_verification");
+    if (row.expires_at <= this.now) throw new StoreDenied("ceremony_expired");
+    if (row.verifier_random) throw new StoreDenied("ceremony_spent");
+    row.verifier_random = verifierRandom;
+    row.verifier_random_at = this.now;
+    row.verifier_user = this.me;
+    return Promise.resolve(row);
+  }
+  ceremonyOpen(session: string, opening: Uint8Array): Promise<CeremonySession> {
+    if (opening.length !== 16) throw new StoreDenied("ceremony_shape");
+    const row = this.db.ceremony_sessions.find((x) => x.id === session);
+    if (
+      !row || !this.isCertified() || row.subject_user !== this.me ||
+      (row as unknown as Row).subject_device !== this.dev
+    ) throw new StoreDenied("unknown_session");
+    if (!row.verifier_random) throw new StoreDenied("ceremony_order");
+    if (row.expires_at <= this.now) throw new StoreDenied("ceremony_expired");
+    if (row.opening) throw new StoreDenied("ceremony_spent");
+    row.opening = opening;
+    row.opened_at = this.now;
+    return Promise.resolve(row);
+  }
+  ceremonySession(session: string): Promise<CeremonySession | null> {
+    const row = this.db.ceremony_sessions.find((x) => x.id === session);
+    if (!row || !this.isCertified()) return Promise.resolve(null);
+    if (row.subject_user !== this.me && !this.activeInTenant(row.tenant_id)) {
+      return Promise.resolve(null);
+    }
+    return Promise.resolve(row);
   }
   projectVerificationEvent(
     record: string,
