@@ -124,8 +124,13 @@ async function seed(): Promise<Fx> {
   // for the second admin — the guard refuses `active` without one.
   await sql`insert into memberships (tenant_id, user_id, status)
     values (${t1.id}, ${admin1}, 'active'), (${t2.id}, ${outsider}, 'active')`;
-  await sql`insert into verification_events (tenant_id, subject_user, verifier_user, method, result)
-    values (${t1.id}, ${admin2}, ${admin1}, 'qr_in_person', 'verified')`;
+  // since 0008 the ceremony must be signed before it is believed (ADR 2026-09-05d §7)
+  await sql`insert into verification_events (tenant_id, subject_user, verifier_user, method, result, source_record_id)
+    values (${t1.id}, ${admin2}, ${admin1}, 'qr_in_person', 'verified', ${await record(
+    t1.id,
+    dev.admin1,
+    "verification_event",
+  )})`;
   await sql`insert into memberships (tenant_id, user_id, status)
     values (${t1.id}, ${admin2}, 'active')`;
 
@@ -151,7 +156,9 @@ async function seed(): Promise<Fx> {
 
 /** Issue an invite as admin1 through the API path. Returns the invite id. */
 async function invite(to: Uint8Array, roles: unknown = []): Promise<string> {
-  const rec = await record(fx.t1, fx.dev.admin1);
+  // 0008: the authorising record is an `invite` — a membership_status payload is {user_id, status}
+  // and an invitee has no user_id yet (06 §7).
+  const rec = await record(fx.t1, fx.dev.admin1, "invite");
   const [r] = await asApi(
     fx.admin1,
     fx.dev.admin1,

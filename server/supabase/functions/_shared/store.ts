@@ -148,6 +148,15 @@ export interface CeremonySession {
   opened_at: Date | null;
 }
 
+/** 06 §7: what a joining device may learn about an invite addressed to its OWN number. */
+export interface InviteOffer {
+  invite_id: string;
+  tenant_id: string;
+  roles: unknown;
+  expires_at: Date;
+  created_by: string;
+}
+
 export interface Tx {
   storeEpoch(): Promise<string>;
   appConfig(key: string): Promise<unknown>;
@@ -190,6 +199,19 @@ export interface Tx {
   ceremonyContribute(session: string, verifierRandom: Uint8Array): Promise<CeremonySession>;
   ceremonyOpen(session: string, opening: Uint8Array): Promise<CeremonySession>;
   ceremonySession(session: string): Promise<CeremonySession | null>;
+  // 06 §7 invites. `inviteeHmac` is computed at the edge from a number that is never stored
+  // (ADR 2026-09-05c §4); the record is the admin's signed `invite` (0008 ⚠️ SPEC).
+  createInvite(
+    record: string,
+    tenant: string,
+    inviteeHmac: Uint8Array,
+    roles: unknown,
+    nonce: Uint8Array,
+  ): Promise<string>;
+  /** Invites addressed to the CALLER's OTP-verified number. Never a list of anyone else's. */
+  myInvites(): Promise<InviteOffer[]>;
+  /** Phone-bound acceptance (ADR 2026-09-05d §9); returns the membership status it landed on. */
+  acceptInvite(invite: string): Promise<string>;
   projectMembership(record: string, tenant: string, user: string, status: string): Promise<void>;
   projectBookRole(
     record: string,
@@ -279,7 +301,14 @@ export class StoreDenied extends Error {
 export function denialFromPg(e: unknown): StoreDenied | null {
   const msg = (e as { message?: string })?.message ?? "";
   const code = (e as { code?: string })?.code ?? "";
-  if (code === "42501" || code === "28000") return new StoreDenied("rls"); // insufficient_privilege
+  // insufficient_privilege. Postgres' own message is a sentence ("permission denied for table
+  // invites"); a bare token is one of OUR guards raising a named refusal with errcode 42501
+  // (rf.accept_invite's `phone_mismatch`, rf.create_invite's `not_admin`…). Pass the name through:
+  // 05c says a refusal is always named, never a silent or generic drop.
+  if (code === "42501" || code === "28000") {
+    const m = msg.trim();
+    return new StoreDenied(/^[a-z][a-z0-9_]*$/.test(m) ? m : "rls");
+  }
   if (code === "P0001") return new StoreDenied(msg.split(/\s/)[0]); // raise exception '<reason>'
   // check_violation: a bare-token message is one of our own guards raising a named reason
   // (rf.membership_guard / rf.invite_guard, 06 §7); anything else is a column CHECK.

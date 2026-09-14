@@ -19,6 +19,7 @@ export const OBJECT_TYPES: ReadonlySet<string> = new Set([
 ]);
 export const RECORD_KINDS: ReadonlySet<string> = new Set([
   "membership_status",
+  "invite", // 06 §7: the admin's device authorises the invite; payload {roles, nonce} (0008 ⚠️ SPEC)
   "book_role",
   "member_removal",
   "device_revocation",

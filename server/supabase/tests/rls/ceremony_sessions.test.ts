@@ -121,8 +121,15 @@ async function seed(): Promise<Fx> {
   // invitee sitting at joined_pending_verification — exactly where the code path is used.
   await sql`insert into memberships (tenant_id, user_id, status)
     values (${t1.id}, ${admin1}, 'active'), (${t2.id}, ${outsider}, 'active')`;
-  await sql`insert into verification_events (tenant_id, subject_user, verifier_user, method, result)
-    values (${t1.id}, ${admin2}, ${admin1}, 'qr_in_person', 'verified')`;
+  // since 0008 a ceremony is believed only where a signed record backs it (ADR 2026-09-05d §7)
+  const vrec = crypto.randomUUID();
+  await sql`insert into signed_records
+    (id, suite_version, tenant_id, kind, payload_json, payload_bytes, author_device, author_sig, hlc)
+    values (${vrec}, 1, ${t1.id}, 'verification_event', '{}'::jsonb, ${
+    bytes(8, 1)
+  }, ${dev.admin1}, ${bytes(64, 2)}, 1)`;
+  await sql`insert into verification_events (tenant_id, subject_user, verifier_user, method, result, source_record_id)
+    values (${t1.id}, ${admin2}, ${admin1}, 'qr_in_person', 'verified', ${vrec})`;
   await sql`insert into memberships (tenant_id, user_id, status)
     values (${t1.id}, ${admin2}, 'active')`;
   await sql`insert into memberships (tenant_id, user_id, status)

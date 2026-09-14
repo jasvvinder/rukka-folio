@@ -38,6 +38,21 @@ export async function verifyRecord(r: SignedRecordRow, authorPubEd: Uint8Array):
 
 export type RecordResult = { id: string; result: string; seq?: string; check?: string };
 
+/**
+ * 06 §7's invite payload: the roles the invitee is being offered and the 128-bit ceremony nonce.
+ * **No identifier of the invitee** — the admin's device cannot compute `invitee_hmac` (the HMAC key
+ * is the server's, ADR 2026-09-05c §4) and the plaintext number is never stored (0008 ⚠️ SPEC).
+ */
+export function parseInvitePayload(
+  p: Record<string, unknown>,
+): { roles: unknown[]; nonce: Uint8Array } | null {
+  const roles = p.roles ?? [];
+  if (!Array.isArray(roles)) return null;
+  const nonce = b64any(p.nonce);
+  if (!nonce || nonce.length !== 16) return null;
+  return { roles, nonce };
+}
+
 /** Wire → row. `payload_json` travels as a base64 UTF-8 JSON string so its bytes are exactly what was signed. */
 export function parseRecord(raw: unknown): SignedRecordRow | { result: string; check: string } {
   const e = raw as Record<string, unknown>;
@@ -167,6 +182,11 @@ export async function applyRecord(
       await tx.projectBookRole(r.id, book, user, role as string | null, limit);
       return role ? `role ${role}` : "role removed";
     }
+    case "invite":
+      // Issued through POST /sync-meta/invites, never here: the route needs the invitee's number in
+      // the same request (it alone can compute `invitee_hmac` — ADR 2026-09-05c §4), and the number
+      // must not be part of anything the server stores. The record is still stored and signed.
+      return "rejected:invite_route";
     case "designation":
       // Labels, not capability (06 §1.0) — the record is the fact; the server keeps no column.
       return "label only";

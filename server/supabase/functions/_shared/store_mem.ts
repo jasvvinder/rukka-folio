@@ -12,6 +12,7 @@ import {
   DeviceCapError,
   type EnvelopeRow,
   type GuardianSet,
+  type InviteOffer,
   META_TABLES,
   type MetaCursor,
   type MetaTable,
@@ -527,10 +528,11 @@ class MemTx implements Tx {
       role_count: this.db.book_roles.filter((r) => r.book_id === bookId).length,
     });
   }
-  private requireRecord(record: string, tenant: string): void {
+  private requireRecord(record: string, tenant: string, kind?: string): void {
     if (
       !this.db.signed_records.some((r) =>
-        r.id === record && r.tenant_id === tenant && r.author_device === this.dev
+        r.id === record && r.tenant_id === tenant && r.author_device === this.dev &&
+        (kind === undefined || r.kind === kind)
       )
     ) {
       throw new StoreDenied("no_record");
@@ -672,6 +674,95 @@ class MemTx implements Tx {
     }
     return Promise.resolve(row);
   }
+  // ---- 06 §7 invites (0006/0008 in the database; mirrored here so the fake refuses what Postgres
+  // refuses — a fake that is laxer than the row policies is a test that proves nothing).
+  createInvite(
+    record: string,
+    tenant: string,
+    inviteeHmac: Uint8Array,
+    roles: unknown,
+    nonce: Uint8Array,
+  ): Promise<string> {
+    if (!this.tenantAdmin(tenant)) throw new StoreDenied("not_admin");
+    this.requireRecord(record, tenant, "invite");
+    if (nonce.length !== 16) throw new StoreDenied("check"); // 06 §7: a 128-bit ceremony nonce
+    for (const i of this.db.invites) {
+      if (
+        i.tenant_id === tenant && i.status === "sent" &&
+        bytesEqual(i.invitee_hmac as Uint8Array, inviteeHmac)
+      ) {
+        i.status = "revoked"; // 06 §7 one-tap re-invite supersedes the live one
+        i.updated_at = this.now;
+      }
+    }
+    const id = uuid();
+    this.db.invites.push({
+      id,
+      tenant_id: tenant,
+      invitee_hmac: inviteeHmac,
+      roles: roles ?? [],
+      nonce,
+      status: "sent",
+      created_by: this.me,
+      created_at: this.now,
+      expires_at: new Date(this.now.getTime() + 7 * 24 * 3600 * 1000),
+      accepted_by: null,
+      accepted_at: null,
+      source_record_id: record,
+      updated_at: this.now,
+    });
+    return Promise.resolve(id);
+  }
+  myInvites(): Promise<InviteOffer[]> {
+    const h = this.me ? this.db.users.get(this.me)?.phone_hmac ?? null : null;
+    if (!h) return Promise.resolve([]);
+    return Promise.resolve(
+      this.db.invites.filter((i) =>
+        i.status === "sent" && (i.expires_at as Date) > this.now &&
+        bytesEqual(i.invitee_hmac as Uint8Array, h)
+      ).map((i) => ({
+        invite_id: i.id as string,
+        tenant_id: i.tenant_id as string,
+        roles: i.roles,
+        expires_at: i.expires_at as Date,
+        created_by: i.created_by as string,
+      })),
+    );
+  }
+  acceptInvite(invite: string): Promise<string> {
+    if (!this.me || !this.dev) throw new StoreDenied("no_claims");
+    const u = this.db.users.get(this.me);
+    const i = this.db.invites.find((x) => x.id === invite);
+    // An unknown invite and a wrong number refuse identically: neither tells the caller which it was.
+    if (!i) throw new StoreDenied("unknown_invite");
+    if (
+      !u?.phone_hmac || u.erased_at || !bytesEqual(i.invitee_hmac as Uint8Array, u.phone_hmac)
+    ) throw new StoreDenied("phone_mismatch");
+    if ((i.expires_at as Date) <= this.now) {
+      if (i.status === "sent") i.status = "expired";
+      throw new StoreDenied("invite_expired");
+    }
+    if (i.status !== "sent") throw new StoreDenied("invite_not_live");
+    const m = this.db.memberships.find((x) => x.tenant_id === i.tenant_id && x.user_id === this.me);
+    if (m) {
+      m.status = "joined_pending_verification";
+      m.source_record_id = i.source_record_id;
+      m.updated_at = this.now;
+    } else {
+      this.db.memberships.push({
+        tenant_id: i.tenant_id,
+        user_id: this.me,
+        status: "joined_pending_verification",
+        source_record_id: i.source_record_id,
+        updated_at: this.now,
+      });
+    }
+    i.status = "accepted";
+    i.accepted_by = this.me;
+    i.accepted_at = this.now;
+    i.updated_at = this.now;
+    return Promise.resolve("joined_pending_verification");
+  }
   projectVerificationEvent(
     record: string,
     tenant: string,
@@ -680,7 +771,10 @@ class MemTx implements Tx {
     method: string,
     result: string,
   ): Promise<void> {
-    this.requireRecord(record, tenant);
+    // ADR 2026-09-05d §7 / 0008: the row exists only as the copy of a signed `verification_event`.
+    this.requireRecord(record, tenant, "verification_event");
+    const m = this.db.memberships.find((x) => x.tenant_id === tenant && x.user_id === subject);
+    if (!m || m.status === "removed") throw new StoreDenied("subject_not_in_tenant");
     this.db.verification_events.push({
       id: uuid(),
       tenant_id: tenant,
@@ -692,6 +786,19 @@ class MemTx implements Tx {
       source_record_id: record,
       updated_at: this.now,
     });
+    // 06 §7's flip, as 0006 performs it in the database.
+    if (m.status === "joined_pending_verification") {
+      if (result === "verified") {
+        m.status = "active";
+        m.verified_by = verifier;
+        m.verified_method = method;
+        m.verified_at = this.now;
+        m.updated_at = this.now;
+      } else if (result === "mismatch") {
+        m.status = "blocked";
+        m.updated_at = this.now;
+      }
+    }
     return Promise.resolve();
   }
   markRecordApplied(record: string, note: string): Promise<void> {

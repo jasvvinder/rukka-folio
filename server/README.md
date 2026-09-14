@@ -43,6 +43,9 @@ them as `int`. Every sync response carries `store_epoch` (05 §1).
 | `GET /sync-pull?book_id&after_seq&limit≤500[&object_types=a,b][&fy=]` | `{store_epoch, envelopes[], next_seq}`; 404 `unknown_book` also covers "not your tenant"; 403 `no_role` |
 | `GET /sync-meta[?after=<cursor>][&subject_user_id=]` | every 05 §5 table + `signed_records` (after seq) + `guardian_sets` (history by `share_set_version`) + `min_client_version` + `next` (null when drained) + `cursor` (always) |
 | `POST /sync-meta/records {records[]}` | `{store_epoch, results:[{id, result, seq?, check?}]}` — records verified under the caller's device key, stored, projected |
+| `POST /sync-meta/invites {record, phone}` | `{invite_id, record_id, seq}` — the admin's signed `invite` record (payload `{roles, nonce}`) plus the invitee's E.164 number, which is HMAC'd and dropped; 403 `not_admin`, 409 `no_record`/`record_replayed`, 400 `bad_phone` (06 §7, 0008 ⚠️ SPEC) |
+| `GET /sync-meta/invites` | `{invites:[{invite_id, tenant_id, roles, expires_at, created_by}]}` — invites addressed to the CALLER's OTP-verified number only |
+| `POST /sync-meta/invites/accept {invite_id}` | `{invite_id, status:"joined_pending_verification"}`; 403 `invite_not_for_you` (wrong number **or** unknown invite — identical, ADR 2026-09-05d §9), 410 `invite_expired`, 409 `invite_not_live` |
 | `POST /auth-challenge/otp/request · /otp/verify · /devices · /devices/certify · /challenge · /token · /refresh` | 06 §2–§4; see the header comment in `auth-challenge/index.ts` |
 | `POST /billing-webhook` | `x-razorpay-signature` HMAC over the raw body; idempotent by event id; stub until M13 |
 
@@ -99,7 +102,7 @@ has **no** decrypt right — only `auth-challenge` holds `RF_PHONE_KEK`.
 - [ ] **PITR 7 days** on; daily snapshots retained 30 days; **quarterly restore drill** → `REL-05c-1` artefact (report dated < 90 days, RTO/RPO within target). ⚠️ RTO/RPO numbers are 03 §11 open item 1.
 - [ ] **Private `attachments` bucket**, per-tenant key prefix `<tenant_id>/<book_id>/<attachment_id>`, anonymous GET = 403; signed URLs: upload PUT-only single object 15 min, download 5 min (`_shared/storage.ts`, E-05b-8). Object written *before* the row.
 - [ ] **Orphan sweep** (nightly, `rf_maintenance`): delete objects whose `attachments` row never landed after 24 h; lifecycle rules only for orphans. E-05c-8 live half runs in the nightly lane.
-- [ ] **pg_cron** jobs under `rf_maintenance`: `rf.purge_ephemeral_auth()` hourly (24 h auth rows, 90 d revoked keys); user erasure (06 §9.3) after the 15-day cooling; `audit_events` aggregation after 24 months (`verification_events` are permanent).
+- [ ] **pg_cron** jobs under `rf_maintenance`: `rf.expire_invites()` hourly (06 §7's 7-day window; lazy expiry already binds at accept time, so a missed sweep is a stale row, never an admitted invite); `rf.purge_ephemeral_auth()` hourly (24 h auth rows, 90 d revoked keys); user erasure (06 §9.3) after the 15-day cooling; `audit_events` aggregation after 24 months (`verification_events` are permanent).
 - [ ] **Store epoch**: bump (`rf.bump_store_epoch(reason)`) after every restore or rebuild — clients reset cursors (05 §1). Never bump casually; every client re-pulls everything.
 - [ ] **SPKI pin rotation** (05 §1 🔒): clients pin ≥ 2 SPKI hashes (current + backup) of the API host's chain at the intermediate-CA level. Runbook: (1) publish the backup pin in a release *before* any rotation; (2) rotate the certificate; (3) verify the exact chain with `openssl s_client -showcerts` and recompute pins (`openssl x509 -pubkey | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | base64`); (4) ship the next backup. A pin failure is a hard fail with no override; only local-dev builds disable pinning, and the release lane asserts it.
 - [ ] **Edge Function secrets**: `RF_API_DB_URL`, `RF_MAINT_DB_URL`, `RF_JWT_HMAC_KEY`, `RF_PHONE_HMAC_KEY`, `RF_PHONE_KEK`, `OTP_PROVIDER` (+ key, DLT ids), `PAYMENT_GATEWAY_WEBHOOK_SECRET`. A hosted build with `OTP_PROVIDER=fake` sends nothing — deploy refuses it.
@@ -107,6 +110,13 @@ has **no** decrypt right — only `auth-challenge` holds `RF_PHONE_KEK`.
 - [ ] **Rate limits** (05 §3): 600 envelopes/min, 5,000/h, 50 MB/day per device via `rf.push_rate_check`; OTP 5/h + 10/day per number, 30/h per IP (⚠️ per-IP number is M6).
 
 ## 6. Open (owner)
+
+**Invite delivery is not wired.** 06 §7 says the link travels by WhatsApp/SMS from an outbound
+message job; the only provider seam here is `OtpProvider`, which is code-shaped (template + OTP),
+and no invite-message job exists. Today `POST /sync-meta/invites` returns the `invite_id` to the
+admin's own device, which is where 06 §7 puts the contact card anyway — so the admin's phone can
+send the link itself. Owner call whether that stays (zero-knowledge friendly: the number then never
+leaves the admin's phone except to be HMAC'd) or an outbound job is added.
 
 See the lane's structured return and `CHANGELOG.md`: cold-storage `fy` tiering (05 §8) needs an
 ops story, not a wire change; `recipient_fingerprint` on `wrapped_keys` is not in 03 §2.2; the live

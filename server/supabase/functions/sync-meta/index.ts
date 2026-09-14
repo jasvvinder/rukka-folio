@@ -3,13 +3,22 @@
 // POST /sync-meta/records {records[]} → per-record {id, result, seq} — signed records authored on the
 //      caller's certified device are verified under its Ed25519 key, stored, then projected onto rows
 //      (ADR 2026-09-05b §1). The server never invents a record.
+// POST /sync-meta/invites {record, phone} → {invite_id}  · GET /sync-meta/invites → my invites
+// POST /sync-meta/invites/accept {invite_id} → {status}  (06 §7, ADR 2026-09-05d §9)
 // Cursor: `after` is opaque — base64url JSON {tables: {table: {updated_at, id}}, records_seq}; each
 // table's own cursor is (updated_at, id) as 05 §5 says. `next` is ALWAYS present (the resume point);
 // `has_more` is true when any table or the records stream had more than a page (engine contract: wire.dart).
 import { b64any, b64url, isUuid } from "../_shared/bytes.ts";
 import { type Deps, serve } from "../_shared/deps.ts";
 import { error, readJson, subPath } from "../_shared/http.ts";
-import { applyRecord, parseRecord, type RecordResult, verifyRecord } from "../_shared/records.ts";
+import {
+  applyRecord,
+  parseInvitePayload,
+  parseRecord,
+  type RecordResult,
+  verifyRecord,
+} from "../_shared/records.ts";
+import { normaliseE164, phoneHmac } from "../_shared/phone.ts";
 import { PULL_LIMIT_MAX } from "../_shared/registry.ts";
 import { authenticate, gate, jsonBigResponse, recordToWire } from "../_shared/route.ts";
 import {
@@ -18,7 +27,9 @@ import {
   type MetaCursors,
   type MetaTable,
   rowId,
+  type SignedRecordRow,
   StoreDenied,
+  type Tx,
 } from "../_shared/store.ts";
 
 const PAGE = 200;
@@ -37,6 +48,7 @@ export async function handler(req: Request, deps: Deps): Promise<Response> {
   if (req.method === "GET" && path === "/") return pull(req, deps, claims);
   if (req.method === "POST" && path === "/records") return postRecords(req, deps, claims);
   if (path.startsWith("/ceremony")) return ceremony(req, deps, claims, path);
+  if (path.startsWith("/invites")) return invites(req, deps, claims, path);
   return error(404, "not_found");
 }
 
@@ -179,6 +191,172 @@ function sessionToWire(s: CeremonySession): Record<string, unknown> {
   };
 }
 
+// ---------------------------------------------------------------- 06 §7 invites
+// The invite a second phone can actually accept, and the one place a phone number passes through
+// this server (ADR 2026-09-05c §4, 06 §7): the admin's device sends the E.164 number with the
+// signed `invite` record, the edge HMACs it under the server key, and the number is never written
+// anywhere — not the invites row, not signed_records, not a log line (deps.serve logs error NAMES
+// only). The admin's device cannot compute the HMAC itself, which is exactly why the number has to
+// travel; 06 §7 already allows that ("the plaintext goes into the outbound message job and is gone
+// once sent"). Delivery of the link is ⚠️ not wired: no invite-message provider exists yet (the
+// OtpProvider seam is code-shaped), so today the admin's own phone sends it.
+//
+//   POST /sync-meta/invites         {record, phone}   → {invite_id, seq}     (tenant admin)
+//   GET  /sync-meta/invites                           → {invites: [...]}     (the joiner, own number)
+//   POST /sync-meta/invites/accept  {invite_id}       → {invite_id, status}  (the joiner)
+//
+// Refusals are the database's, passed through by name. A wrong number and an unknown id both come
+// back `invite_not_for_you` (C-05d-9) — identical, so the route is not an oracle for who was
+// invited.
+async function invites(
+  req: Request,
+  deps: Deps,
+  claims: { user_id: string; device_id: string },
+  path: string,
+): Promise<Response> {
+  if (req.method === "GET" && path === "/invites") {
+    const rows = await deps.store.withClaims(claims, (tx) => tx.myInvites());
+    return jsonBigResponse(200, {
+      invites: rows.map((i) => ({
+        invite_id: i.invite_id,
+        tenant_id: i.tenant_id,
+        roles: i.roles,
+        expires_at: i.expires_at.getTime(),
+        created_by: i.created_by,
+      })),
+    });
+  }
+  if (req.method !== "POST") return error(404, "not_found");
+  const body = await readJson(req, 1 << 16) as Record<string, unknown> | null;
+  if (!body) return error(400, "bad_request");
+
+  if (path === "/invites/accept") {
+    if (!isUuid(body.invite_id)) return error(400, "bad_request");
+    try {
+      const status = await deps.store.withClaims(
+        claims,
+        (tx) => tx.acceptInvite(body.invite_id as string),
+      );
+      return jsonBigResponse(200, { invite_id: body.invite_id, status });
+    } catch (e) {
+      if (!(e instanceof StoreDenied)) throw e;
+      return inviteError(e.reason);
+    }
+  }
+  if (path !== "/invites") return error(404, "not_found");
+
+  // The number: normalised, HMAC'd, dropped. It is a local const and reaches no store call.
+  const e164 = normaliseE164(body.phone);
+  if (!e164) return error(400, "bad_phone");
+  const hmac = await phoneHmac(deps.phoneHmacKey, e164);
+
+  try {
+    const out = await deps.store.withClaims(claims, async (tx) => {
+      const me = await tx.deviceAuthRow(claims.device_id);
+      const taken = await intakeRecord(tx, body.record, claims, me);
+      if ("result" in taken) return taken; // a named refusal, not a record
+      const { record, seq, duplicate } = taken;
+      if (record.kind !== "invite") {
+        return { id: record.id, result: "rejected:shape", check: "kind" };
+      }
+      const payload = parseInvitePayload(record.payload_json);
+      if (!payload) return { id: record.id, result: "rejected:shape", check: "payload_json" };
+      if (duplicate) {
+        // The record is the action. A replay is the same invite, already issued — the admin's
+        // device finds it in the meta pull by `source_record_id`; re-issuing would mint a second
+        // row and revoke the first (06 §7's one-tap re-invite), which a retry must not do.
+        return { id: record.id, result: "rejected:record_replayed" };
+      }
+      try {
+        const invite_id = await tx.createInvite(
+          record.id,
+          record.tenant_id,
+          hmac,
+          payload.roles,
+          payload.nonce,
+        );
+        await tx.markRecordApplied(record.id, "invite issued");
+        return { invite_id, record_id: record.id, seq: seq.toString() };
+      } catch (e) {
+        if (!(e instanceof StoreDenied)) throw e;
+        // As on /records: the record is a signed fact and stays stored (append-only); the note says
+        // why it was not applied. Keeping it inside the transaction is what makes that true — a
+        // throw here would roll the record back with it.
+        await tx.markRecordApplied(record.id, `rejected:${e.reason}`);
+        return { denied: e.reason };
+      }
+    });
+    if ("denied" in out) return inviteError(out.denied as string);
+    if ("result" in out) {
+      const r = out as RecordResult;
+      return r.result === "rejected:record_replayed"
+        ? error(409, "record_replayed")
+        : r.result === "rejected:unauthorized"
+        ? error(403, "unauthorized")
+        : jsonBigResponse(400, { error: "bad_record", check: r.check ?? r.result });
+    }
+    return jsonBigResponse(200, out);
+  } catch (e) {
+    if (!(e instanceof StoreDenied)) throw e;
+    return inviteError(e.reason);
+  }
+}
+
+/** The database named the refusal; the wire name is the client's, and never an oracle. */
+function inviteError(reason: string): Response {
+  switch (reason) {
+    // ADR 2026-09-05d §9 🔒 — the link alone admits nobody. An unknown invite refuses identically:
+    // a joiner with the wrong number learns nothing about whether that invite exists.
+    case "unknown_invite":
+    case "phone_mismatch":
+      return error(403, "invite_not_for_you");
+    case "invite_expired":
+      return error(410, "invite_expired"); // 06 §7: 7 days, then one-tap re-invite
+    case "invite_not_live":
+      return error(409, "invite_not_live");
+    case "not_admin":
+      return error(403, "not_admin");
+    case "no_record":
+      return error(409, "no_record");
+    case "fk":
+      return error(404, "unknown_tenant");
+    case "check":
+      return error(400, "bad_request");
+    default:
+      return error(403, reason === "rls" ? "forbidden" : reason);
+  }
+}
+
+/**
+ * Verify one signed record authored by the caller's certified device and store it (ADR 2026-09-05b
+ * §1) — the intake both /records and /invites share, so neither can be the lax one.
+ */
+async function intakeRecord(
+  tx: Tx,
+  raw: unknown,
+  claims: { user_id: string; device_id: string },
+  me: { user_id: string; pub_ed: Uint8Array; status: string } | null,
+): Promise<
+  { record: SignedRecordRow; seq: bigint; duplicate: boolean } | RecordResult
+> {
+  const parsed = parseRecord(raw);
+  const id = typeof (raw as Record<string, unknown>)?.id === "string"
+    ? (raw as Record<string, string>).id
+    : "";
+  if (!("kind" in parsed)) return { id, ...parsed };
+  if (parsed.author_device !== claims.device_id) {
+    return { id, result: "rejected:shape", check: "author_device_id" };
+  }
+  if (!me || me.status !== "certified") {
+    return { id, result: "rejected:unauthorized", check: "device_status" };
+  }
+  if (!(await verifyRecord(parsed, me.pub_ed))) {
+    return { id, result: "rejected:shape", check: "author_sig" };
+  }
+  const { seq, duplicate } = await tx.insertSignedRecord(parsed);
+  return { record: { ...parsed, seq }, seq, duplicate };
+}
+
 async function postRecords(
   req: Request,
   deps: Deps,
@@ -192,33 +370,21 @@ async function postRecords(
     const me = await tx.deviceAuthRow(claims.device_id);
     const results: RecordResult[] = [];
     for (const raw of body.records!) {
-      const parsed = parseRecord(raw);
       const id = typeof (raw as Record<string, unknown>)?.id === "string"
         ? (raw as Record<string, string>).id
         : "";
-      if (!("kind" in parsed)) {
-        results.push({ id, ...parsed });
-        continue;
-      }
-      if (parsed.author_device !== claims.device_id) {
-        results.push({ id, result: "rejected:shape", check: "author_device_id" });
-        continue;
-      }
-      if (!me || me.status !== "certified") {
-        results.push({ id, result: "rejected:unauthorized", check: "device_status" });
-        continue;
-      }
-      if (!(await verifyRecord(parsed, me.pub_ed))) {
-        results.push({ id, result: "rejected:shape", check: "author_sig" });
-        continue;
-      }
       try {
-        const { seq, duplicate } = await tx.insertSignedRecord(parsed);
+        const taken = await intakeRecord(tx, raw, claims, me);
+        if ("result" in taken) {
+          results.push(taken);
+          continue;
+        }
+        const { record: parsed, seq, duplicate } = taken;
         if (duplicate) {
           results.push({ id, result: "acked", seq: seq.toString() });
           continue;
         }
-        const note = await applyRecord(tx, { ...parsed, seq }, me.user_id);
+        const note = await applyRecord(tx, parsed, me!.user_id);
         if (note.startsWith("rejected:")) {
           // Stored (append-only, it is a signed fact) but not applied; the note says why.
           await tx.markRecordApplied(parsed.id, note);

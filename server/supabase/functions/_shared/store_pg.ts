@@ -13,6 +13,7 @@ import {
   DeviceCapError,
   type EnvelopeRow,
   type GuardianSet,
+  type InviteOffer,
   META_TABLES,
   type MetaCursor,
   type MetaTable,
@@ -310,6 +311,40 @@ class PgTx implements Tx {
   }
   ceremonySession(session: string): Promise<CeremonySession | null> {
     return this.readCeremony(session);
+  }
+  // ---- 06 §7 invites. Every rule (admin-only, the record, the 7-day window, the phone binding,
+  // the state machine) lives in 0006/0008's functions and triggers; this is the call, not the rule.
+  createInvite(
+    record: string,
+    tenant: string,
+    inviteeHmac: Uint8Array,
+    roles: unknown,
+    nonce: Uint8Array,
+  ): Promise<string> {
+    return this.guarded(async () => {
+      const [r] = await this.sql`select rf.create_invite(${tenant}::uuid, ${inviteeHmac}, ${
+        JSON.stringify(roles ?? [])
+      }::jsonb, ${nonce}, ${record}::uuid) as id`;
+      return r.id as string;
+    });
+  }
+  myInvites(): Promise<InviteOffer[]> {
+    return this.guarded(async () => {
+      const rows = await this.sql`select * from rf.my_invites()`;
+      return rows.map((r) => ({
+        invite_id: r.id as string,
+        tenant_id: r.tenant_id as string,
+        roles: r.roles,
+        expires_at: r.expires_at as Date,
+        created_by: r.created_by as string,
+      }));
+    });
+  }
+  acceptInvite(invite: string): Promise<string> {
+    return this.guarded(async () => {
+      const [r] = await this.sql`select rf.accept_invite(${invite}::uuid) as status`;
+      return r.status as string;
+    });
   }
   private async readCeremony(session: string): Promise<CeremonySession | null> {
     const [r] = await this.sql`select * from ceremony_sessions where id = ${session}`;

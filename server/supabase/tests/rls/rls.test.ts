@@ -76,13 +76,6 @@ async function seed(): Promise<Fixture> {
     dave = await mk(4),
     erin = await mk(5);
   await sql`update users set erased_at = now(), phone_ct = null, phone_hmac = null where id = ${erin}`;
-  // 06 §7: nobody reaches `active` without a verified ceremony (the founder of each tenant aside),
-  // and rf.membership_guard enforces that for every writer — the seed included.
-  await sql`insert into verification_events (tenant_id, subject_user, verifier_user, method, result) values
-    (${ta.id}, ${bob}, ${alice}, 'qr_in_person', 'verified'),
-    (${ta.id}, ${dave}, ${alice}, 'qr_in_person', 'verified')`;
-  await sql`insert into memberships (tenant_id, user_id, status) values
-    (${ta.id}, ${alice}, 'active'), (${ta.id}, ${bob}, 'active'), (${tb.id}, ${carol}, 'active'), (${ta.id}, ${dave}, 'active'), (${ta.id}, ${erin}, 'removed')`;
   const dev: Record<string, string> = {};
   for (
     const [name, user, status] of [
@@ -98,6 +91,23 @@ async function seed(): Promise<Fixture> {
     }, ${b(32, 8)}, ${status}) returning id`;
     dev[name] = d.id;
   }
+  // 06 §7: nobody reaches `active` without a verified ceremony (the founder of each tenant aside),
+  // and rf.membership_guard enforces that for every writer — the seed included. Since 0008 the
+  // ceremony must itself be signed (ADR 2026-09-05d §7), so the record comes first.
+  const vrec = async (tenant: string, device: string) => {
+    const id = crypto.randomUUID();
+    await sql`insert into signed_records
+      (id, suite_version, tenant_id, kind, payload_json, payload_bytes, author_device, author_sig, hlc)
+      values (${id}, 1, ${tenant}, 'verification_event', '{}'::jsonb, ${b(8, 1)}, ${device}, ${
+      b(64, 2)
+    }, 1)`;
+    return id;
+  };
+  await sql`insert into verification_events (tenant_id, subject_user, verifier_user, method, result, source_record_id) values
+    (${ta.id}, ${bob}, ${alice}, 'qr_in_person', 'verified', ${await vrec(ta.id, dev.alice)}),
+    (${ta.id}, ${dave}, ${alice}, 'qr_in_person', 'verified', ${await vrec(ta.id, dev.alice)})`;
+  await sql`insert into memberships (tenant_id, user_id, status) values
+    (${ta.id}, ${alice}, 'active'), (${ta.id}, ${bob}, 'active'), (${tb.id}, ${carol}, 'active'), (${ta.id}, ${dave}, 'active'), (${ta.id}, ${erin}, 'removed')`;
   const bookA = crypto.randomUUID(),
     bookB = crypto.randomUUID(),
     personalErin = crypto.randomUUID();
