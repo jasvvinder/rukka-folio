@@ -1,6 +1,14 @@
 # ADR 2026-09-13c — Recovery rung 2: the UMK a fresh device recovers into is verified by a human, never taken from the server
 
-**Status: proposed — awaiting owner ratification.** Prepared by escalation lane M7-K3 (13 Sep 2026,
+**RATIFIED by the owner, 14 Sep 2026** — *"Fix the four items that are waiting."* Answers recorded from that instruction; the reasoning for each is in the ruling it belongs to.
+**1 — yes** (ruling 1; the type half is already landed and committed). **2 — yes** (QR path only at
+recovery, video call permitted, no code path). **3 — yes** (the guardian's re-seal goes only to a
+ceremony-verified candidate: advice becomes a check — *no compromise* settles it). **4 — one scan**, as
+recommended: it matches every other ceremony, and the residual is server + the one scanned device.
+**5 — answered by events, not preference:** § Open 1 did get its own ADR — **2026-09-13d**, ratified and
+landed on 13 Sep, which replaced the 04 §6.3 code path with a commitment-based SAS. It is closed here.
+
+**Originally: proposed — awaiting owner ratification.** Prepared by escalation lane M7-K3 (13 Sep 2026,
 owner-authorised) to resolve the protocol weakness lane M7-K2 found and correctly declined to change
 (`.claude/lane-reports/M7-K2.json`, open item 1). A lane never ratifies a 🔒 line: every ruling below is a
 recommendation with its reasoning attached, and the ratification checklist at the end lists the answers
