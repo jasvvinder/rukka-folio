@@ -1,6 +1,16 @@
 # ADR 2026-09-13d — Verification ceremony, code path: eight digits the server cannot pre-compute (commitment-based SAS)
 
-**Status: proposed — awaiting owner ratification.** Prepared by escalation lane M7-K4 (13 Sep 2026,
+**Status: RATIFIED by the owner, 13 Sep 2026.** *"How to deal with this attack, issue, needs to fix …
+fix the required, things do update, repair anything required, best I don't want any compromise to built
+the app architecture, security etc."* The five checklist answers below are recorded from that instruction:
+**1 — yes** (rulings 1–3); **2 — (a)**, the commitment SAS, because *no compromise* rules out the
+sixteen-digit fallback offered only for the case where a live relay is unwelcome; **3 — yes** (the session
+record is S2 design input); **4 — yes** (digits on demand; the verifier's device never shows its expected
+code); **5 — M7**, pulled forward from M11, so the breakable derivation is never in production. The
+numbered-spec edits under Consequences are applied in the ratification commit; the switch-over is briefed
+to a dedicated server lane and a dedicated ceremony lane.
+
+**Originally: proposed — awaiting owner ratification.** Prepared by escalation lane M7-K4 (13 Sep 2026,
 owner-authorised, budget override) to resolve **ADR 2026-09-13c Open 1**, which lane K3 found and correctly
 left alone. A lane never ratifies a 🔒 line: every ruling below is a recommendation with its reasoning
 attached, and the checklist at the end lists the answers the owner has to give. **The new primitive is
@@ -179,19 +189,19 @@ and take `@Skip('superseded by ADR 2026-09-13d §1; re-lands at M11')` in the sw
   malformed entry is a wrong attempt; success retires the session; whitespace read in pairs is tolerated.
   ⟦tests: B-04-90⟧
 
-### 4. The wire: three opaque values the server stores and forwards ⟦tests: E-13d-1 @M11⟧
+### 4. The wire: three opaque values the server stores and forwards ⟦tests: E-13d-1⟧
 - Per ceremony session the server holds `commitment` (32 bytes), `verifier_random` (16), `opening` (16)
   and their timestamps, and computes nothing (04 §8.6). The invitee's device writes the commitment and the
   opening; only an already-verified active member's device (04 §6.4 *delegated*) writes `verifier_random`;
-  a session is immutable once written (append-only, like the invite row). ⟦tests: E-13d-1 @M11⟧
+  a session is immutable once written (append-only, like the invite row). ⟦tests: E-13d-1⟧
 
-### 5. Screens: the digits appear on demand; the verifier's device never shows its expected code ⟦tests: F1-13d-1 @M11, F1-13d-2 @M11⟧
+### 5. Screens: the digits appear on demand; the verifier's device never shows its expected code ⟦tests: F1-13d-1, F1-13d-2⟧
 - S9.2 shows the QR at once and the eight boxes filled only once `r_V` has arrived; until then the boxes
   read *Waiting for {name} to enter the code* (a 13 §4.3 state, design owner). The eight boxes, the
-  countdown and the no-share rule (04 §6.4, 07 §12) are unchanged. ⟦tests: F1-13d-1 @M11⟧
+  countdown and the no-share rule (04 §6.4, 07 §12) are unchanged. ⟦tests: F1-13d-1⟧
 - S9.3 keeps its camera-first shape and *Enter code instead*; its device never displays the digits it
   expects, so typing remains the check and nothing on either screen can be forwarded. `SasOpeningMismatch`
-  routes to S9.4 exactly as `CeremonyMismatch` does. ⟦tests: F1-13d-2 @M11⟧
+  routes to S9.4 exactly as `CeremonyMismatch` does. ⟦tests: F1-13d-2⟧
 
 ### 6. Nothing switches before ratification and the relay ⟦tests: n/a — sequencing rule, not behaviour⟧
 - Until the owner ratifies and S2 relays the three values, S9.2 / S9.3 keep the 04 §6.1 code as shipped
@@ -245,9 +255,9 @@ and take `@Skip('superseded by ADR 2026-09-13d §1; re-lands at M11')` in the sw
 | B-04-88 (landed) | 1, 2 | the relay with every power — honest commitment forwarded, own commitment, own `r_V′`, own opening, 2 000 alternative openings after `r_V`, a second response demanded — never gets the honest digits verified; both sides single-use |
 | B-04-89 (landed) | 2 | commitment binds FP and user_id: substituted key, other person, half-swapped key, flipped bit in opening or commitment → `SasOpeningMismatch`; replay of an honest session opens only to the true key and its old code no longer verifies |
 | B-04-90 (landed) | 3 | 3 wrong → exhausted, right code dead; 10:00.000 live, 10:00.001 expired, no attempt spent; garbage is wrong; success retires |
-| E-13d-1 @M11 | 4 | ceremony session row: opaque bytes, invitee writes commitment/opening, only an active member writes `verifier_random`, immutable once written, no server-side computation |
-| F1-13d-1 @M11 | 5 | S9.2: boxes empty with *Waiting for {name}…* until `r_V` arrives, then eight digits; no share/copy control in the tree |
-| F1-13d-2 @M11 | 5 | S9.3: *Enter code instead* runs `SasVerifier`; the expected digits are nowhere in the tree; `SasOpeningMismatch` hands off to S9.4 with the event written |
+| E-13d-1 | 4 | ceremony session row: opaque bytes, invitee writes commitment/opening, only an active member writes `verifier_random`, immutable once written, no server-side computation |
+| F1-13d-1 | 5 | S9.2: boxes empty with *Waiting for {name}…* until `r_V` arrives, then eight digits; no share/copy control in the tree |
+| F1-13d-2 | 5 | S9.3: *Enter code instead* runs `SasVerifier`; the expected digits are nowhere in the tree; `SasOpeningMismatch` hands off to S9.4 with the event written |
 
 ## Ratification checklist — five answers for the owner 🔒 ⟦tests: n/a — heading; each answer below carries its own marker⟧
 1. **Rulings 1–3** — the code path becomes the commitment-based SAS, eight digits kept: **yes / no.**
@@ -255,9 +265,9 @@ and take `@Skip('superseded by ADR 2026-09-13d §1; re-lands at M11')` in the sw
 2. **(a) or (b)** — if the live relay in the ceremony is unwelcome, adopt § 4's sixteen-digit local code
    instead (flips the 🔒 lines of 07 §12 and design-system §3.1 rule 7; no server surface): **(a) / (b).**
    ⟦tests: n/a — the choice; (a) is B-04-86…90, (b) would mint B-04-91⟧
-3. **Ruling 4** — the ceremony session record as S2 design input: **yes / no.** ⟦tests: E-13d-1 @M11⟧
+3. **Ruling 4** — the ceremony session record as S2 design input: **yes / no.** ⟦tests: E-13d-1⟧
 4. **Ruling 5** — digits appear on demand on S9.2; the verifier's device never displays its expected code:
-   **yes / no.** ⟦tests: F1-13d-1 @M11, F1-13d-2 @M11⟧
+   **yes / no.** ⟦tests: F1-13d-1, F1-13d-2⟧
 5. **Milestone** — leave the switch-over at M11 as briefed, or pull it to M7 (S2 + U4) so the shipped code
    path is never in production: **M11 / M7.** ⟦tests: n/a — scheduling⟧
 

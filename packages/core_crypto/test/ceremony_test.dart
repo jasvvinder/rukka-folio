@@ -46,7 +46,7 @@ void main() {
       throwsArgumentError,
       reason: 'nonce is 128-bit',
     );
-  });
+  }, skip: 'superseded by ADR 2026-09-13d §1; re-lands at M11');
 
   test('B-04-5 QR payload = base64url(suite ‖ user_id ‖ UMK_pub_ed ‖ UMK_pub_x ‖ nonce) in that order; round-trips; wrong length / unknown suite refused', () async {
     // 04 §6.1: "QR payload: base64url( suite_version ‖ user_id ‖ UMK_pub_ed ‖
@@ -202,7 +202,7 @@ void main() {
     // Garbage counts as a wrong attempt, never as a match.
     final r4 = c0.attempt(s, typed: 'abcdefgh', nowMs: issued);
     expect(r4.result, isA<CodeWrong>());
-  });
+  }, skip: 'superseded by ADR 2026-09-13d §1; re-lands at M11');
 
   test('B-04-9 wrong 8-digit code entered 3× → nonce dead (CodeExhausted); the correct code no longer verifies on that nonce', () async {
     // 04 §10: "Given a wrong 8-digit code entered 3×, then the nonce is dead
@@ -256,7 +256,7 @@ void main() {
       fresh.attempt(s, typed: code2, nowMs: issued).result,
       isA<CeremonyVerified>(),
     );
-  });
+  }, skip: 'superseded by ADR 2026-09-13d §1; re-lands at M11');
 
   test('B-04-10 nonce lifetime 10 minutes: expired at 10 min + 1 ms, not at 9 min 59 s (nor at exactly 10 min)', () async {
     // 04 §6.3: "nonce lifetime 10 minutes; Regenerate issues a fresh nonce."
@@ -291,7 +291,7 @@ void main() {
       3,
       reason: 'expiry does not consume attempts',
     );
-  });
+  }, skip: 'superseded by ADR 2026-09-13d §1; re-lands at M11');
 
   test('B-04-11 device linking: new device\'s QR (suite ‖ device_id ‖ ed ‖ x ‖ nonce) round-trips; matching relayed record → VerifiedDevicePublic; a flipped byte or other id → mismatch; UMK wrapped to the verified device round-trips and no other device opens it', () async {
     // 04 §9.1: "Old device runs Verify member against the new device's Show my

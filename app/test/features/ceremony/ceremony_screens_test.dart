@@ -1,6 +1,7 @@
 @Tags(['F1'])
 library;
 
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:core_crypto/core_crypto.dart';
@@ -36,7 +37,14 @@ Uint8List get _nonceBytes => _bytes(9, ceremonyNonceBytes);
 InviteNonce _nonce([DateTime? at]) =>
     InviteNonce(bytes: _nonceBytes, issuedAt: at ?? testNow());
 
-MyCode _myCode({String digits = '04871523', DateTime? expiresAt}) => MyCode(
+/// The invitee's contribution `r_S` and the verifier's `r_V`
+/// (ADR 2026-09-13d §1). Fixed here only so a test can recompute the digits
+/// both devices derive; on a phone each is drawn from the suite's RNG.
+Uint8List get _showerRandom => _bytes(21, sasContributionBytes);
+
+Uint8List get _verifierRandom => _bytes(33, sasContributionBytes);
+
+MyCode _myCode({String? digits = '04871523', DateTime? expiresAt}) => MyCode(
   qrPayload: QrPayload(
     userId: _memberId,
     umk: _umk(1),
@@ -45,6 +53,84 @@ MyCode _myCode({String digits = '04871523', DateTime? expiresAt}) => MyCode(
   digits: digits,
   expiresAt: expiresAt ?? testNow().add(const Duration(minutes: 9)),
 );
+
+/// A relay whose commitment really does open to [showerRandom] under [umk] —
+/// the honest case. Hand it an opening that does not, and the verifier's
+/// device must hard-fail before a digit can be typed (ADR 2026-09-13d §2).
+FakeVerifierSessionRelay _verifierRelay(
+  CryptoSuite suite, {
+  UmkPublic? umk,
+  Uint8List? showerRandom,
+  Uint8List? opening,
+  String userId = _memberId,
+  DateTime? issuedAt,
+}) {
+  final rS = showerRandom ?? _showerRandom;
+  return FakeVerifierSessionRelay(
+    commitmentBytes: sasCommitment(
+      suite,
+      fp: Fingerprint.of(suite, umk ?? _umk(1)),
+      userId: userId,
+      showerRandom: rS,
+    ),
+    openingBytes: opening ?? rS,
+    issuedAt: issuedAt ?? testNow(),
+  );
+}
+
+/// The eight digits the *verifier's* device expects for this session — the
+/// number ADR 2026-09-13d §5 🔒 says must never appear on the verifier's
+/// screen. Recomputed here from what the relay saw, never read off a widget.
+String _expectedCode(
+  CryptoSuite suite,
+  FakeVerifierSessionRelay relay, {
+  UmkPublic? umk,
+  Uint8List? showerRandom,
+  String userId = _memberId,
+}) => sasCode(
+  suite,
+  fp: Fingerprint.of(suite, umk ?? _umk(1)),
+  userId: userId,
+  showerRandom: showerRandom ?? _showerRandom,
+  verifierRandom: relay.contributions.single,
+);
+
+/// Scrolls [label] into view and taps it — at 200 % and in remote mode the
+/// buttons of S9.3 sit below the fold, which is allowed (04 §6.2 asks for them
+/// on the screen, not above the fold).
+Future<void> tapText(WidgetTester tester, String label) async {
+  await tester.ensureVisible(find.text(label));
+  await tester.pumpAndSettle();
+  await tester.tap(find.text(label));
+  await tester.pumpAndSettle();
+}
+
+/// Asserts [code] is nowhere a person or a screen reader could reach it:
+/// no rendered text, no semantics label, no field value, no code box
+/// (ADR 2026-09-13d §5 🔒 — a verifier's device that shows the number it wants
+/// to hear turns the ceremony into a prompt).
+void expectCodeNotOnScreen(
+  WidgetTester tester,
+  String code, {
+  required String reason,
+}) {
+  expect(find.textContaining(code), findsNothing, reason: reason);
+  for (final boxes in tester.widgetList<RkCodeBoxes>(
+    find.byType(RkCodeBoxes),
+  )) {
+    expect(boxes.digits, isNot(contains(code)), reason: reason);
+    expect(boxes.semanticsLabel ?? '', isNot(contains(code)), reason: reason);
+  }
+  for (final node in tester.widgetList<Semantics>(find.byType(Semantics))) {
+    expect(node.properties.label ?? '', isNot(contains(code)), reason: reason);
+    expect(node.properties.value ?? '', isNot(contains(code)), reason: reason);
+  }
+  for (final field in tester.widgetList<EditableText>(
+    find.byType(EditableText),
+  )) {
+    expect(field.controller.text, isNot(contains(code)), reason: reason);
+  }
+}
 
 /// The eight boxes, as widgets — one `_Box` per character position.
 Finder get _codeBoxes => find.byType(RkCodeBoxes);
@@ -116,38 +202,71 @@ void main() {
     );
 
     testWidgets(
-      'F1-07-26 S9.2 the digits and the QR are derived by core_crypto from the '
-      'fingerprint and the invite nonce, never by the widget (04 §6.1)',
+      'F1-07-26 S9.2 the QR and the digits are derived by core_crypto — the '
+      'square from the invite nonce, the digits from both devices’ randomness '
+      '(04 §6.1 🔒 as amended, ADR 2026-09-13d §1)',
       (tester) async {
         final suite = await testSuite();
         final umk = _umk(1);
         final nonce = _nonce();
+        final relay = FakeShowerSessionRelay(
+          issuedAt: testNow(),
+          verifier: _verifierRandom,
+        );
         final repository = CryptoShowMyCodeRepository(
           suite: suite,
           userId: _memberId,
           umk: umk,
           nonces: ({bool fresh = false}) async => nonce,
-        );
-        final expected = verificationCode(
-          suite,
-          Fingerprint.of(suite, umk),
-          nonce.bytes,
+          relay: relay,
+          verifierName: 'Sunita',
         );
 
+        String? encoded;
         await pumpRk(
           tester,
           ShowMyCodeScreen(
             repository: repository,
             now: testNow,
-            encode: (_) => const FakeQrModules(),
+            encode: (payload) {
+              encoded = payload;
+              return const FakeQrModules();
+            },
           ),
           viewport: rkPhone360,
         );
 
-        expect(tester.widget<RkCodeBoxes>(_codeBoxes).digits, expected);
+        // The commitment went out; the opening followed it, never the other
+        // way round — that ordering is the whole repair (ADR 2026-09-13d §1).
+        expect(relay.commitments, hasLength(1));
+        expect(relay.openings, hasLength(1));
+        final rS = relay.openings.single;
+        expect(
+          relay.commitments.single,
+          sasCommitment(
+            suite,
+            fp: Fingerprint.of(suite, umk),
+            userId: _memberId,
+            showerRandom: rS,
+          ),
+          reason: 'the relayed commitment binds this device’s key, id and r_S',
+        );
 
-        final payload = await repository.load();
-        final decoded = QrPayload.decode(payload.qrPayload);
+        // The digits are the SAS over both contributions — never the retired
+        // BLAKE2b(FP ‖ nonce ‖ "verify-v1"), which the server could compute.
+        expect(
+          tester.widget<RkCodeBoxes>(_codeBoxes).digits,
+          sasCode(
+            suite,
+            fp: Fingerprint.of(suite, umk),
+            userId: _memberId,
+            showerRandom: rS,
+            verifierRandom: _verifierRandom,
+          ),
+        );
+
+        // The invite nonce lives on in the QR payload, and nowhere else.
+        final decoded = QrPayload.decode(encoded!);
         expect(decoded.userId, _memberId);
         expect(decoded.nonce, nonce.bytes);
         expect(decoded.umk.ed25519, umk.ed25519);
@@ -227,6 +346,103 @@ void main() {
         expect(repo.regenerations, 1);
       },
     );
+
+    testWidgets(
+      'F1-13d-1 S9.2 the square is up at once but the eight boxes stand empty '
+      'and say who they are waiting for — the digits do not exist until the '
+      'verifier’s contribution arrives (ADR 2026-09-13d §5 🔒)',
+      (tester) async {
+        final repository = FakeShowMyCodeRepository(
+          code: _myCode(),
+          waitForVerifier: true,
+        );
+        await pumpRk(
+          tester,
+          ShowMyCodeScreen(
+            repository: repository,
+            now: testNow,
+            encode: (_) => const FakeQrModules(),
+          ),
+          viewport: rkPhone360,
+        );
+
+        // The QR never waits for anybody: it is the fast path and it is drawn
+        // from the first frame (ADR 2026-09-13d §5).
+        expect(find.byType(RkQrView), findsOneWidget);
+
+        // The boxes are there, at full size, and empty.
+        expect(tester.widget<RkCodeBoxes>(_codeBoxes).digits, isEmpty);
+        expect(find.text('04871523'), findsNothing);
+        expect(
+          find.text('Waiting for Sunita to enter the code'),
+          findsOneWidget,
+        );
+        expect(
+          find.textContaining('The digits appear the moment they begin'),
+          findsOneWidget,
+        );
+        // A screen reader hears why the boxes are empty, not eight blanks.
+        expect(
+          tester.widget<RkCodeBoxes>(_codeBoxes).semanticsLabel,
+          contains('not ready yet'),
+        );
+        // The countdown is already running: the ten minutes belong to the
+        // commitment, which is on the server (04 §6.3, ADR 2026-09-13d §3).
+        expect(find.textContaining('Expires in'), findsOneWidget);
+        expectNoShareAffordance(tester);
+
+        // r_V lands; this device opens its commitment and the code exists.
+        repository.arrive();
+        await tester.pumpAndSettle();
+
+        expect(tester.widget<RkCodeBoxes>(_codeBoxes).digits, '04871523');
+        expect(find.text('Your 8-digit code'), findsOneWidget);
+        expect(find.text('Waiting for Sunita to enter the code'), findsNothing);
+        expect(find.byType(RkQrView), findsOneWidget);
+        expectNoShareAffordance(tester);
+      },
+    );
+
+    testWidgets(
+      'F1-13d-1 S9.2 Regenerate opens a fresh session, and a stale r_V from '
+      'the session it replaced is never shown (ADR 2026-09-13d §2)',
+      (tester) async {
+        final repository = FakeShowMyCodeRepository(
+          code: _myCode(
+            expiresAt: testNow().subtract(const Duration(hours: 1)),
+          ),
+          next: _myCode(digits: '99887766'),
+          waitForVerifier: true,
+        );
+        await pumpRk(
+          tester,
+          ShowMyCodeScreen(
+            repository: repository,
+            now: testNow,
+            encode: (_) => const FakeQrModules(),
+          ),
+          viewport: rkPhone360,
+        );
+        expect(find.text('This code has expired.'), findsOneWidget);
+
+        await tester.ensureVisible(find.text('Get a new code'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Get a new code'));
+        await tester.pumpAndSettle();
+
+        // The new session is waiting on its own verifier, not on the old one.
+        expect(repository.regenerations, 1);
+        expect(tester.widget<RkCodeBoxes>(_codeBoxes).digits, isEmpty);
+        expect(
+          find.text('Waiting for Sunita to enter the code'),
+          findsOneWidget,
+        );
+
+        repository.arrive();
+        await tester.pumpAndSettle();
+        expect(tester.widget<RkCodeBoxes>(_codeBoxes).digits, '99887766');
+      },
+    );
   });
 
   // -------------------------------------------------------------------------
@@ -301,7 +517,7 @@ void main() {
           suite: suite,
           relayedUmk: umk,
           relayedUserId: _memberId,
-          nonce: _nonce(),
+          relay: _verifierRelay(suite, umk: umk),
           memberName: 'Sunita',
           now: testNow,
           log: log,
@@ -351,7 +567,7 @@ void main() {
           suite: suite,
           relayedUmk: _umk(1),
           relayedUserId: _memberId,
-          nonce: _nonce(),
+          relay: _verifierRelay(suite),
           memberName: 'Sunita',
           now: testNow,
           log: log,
@@ -535,6 +751,206 @@ void main() {
         );
       },
     );
+
+    testWidgets(
+      'F1-13d-2 S9.3 Enter code instead arms the SAS session — and the digits '
+      'this device expects are nowhere in its widget tree, before typing, '
+      'after a wrong try, and in the notice it shows (ADR 2026-09-13d §5 🔒)',
+      (tester) async {
+        final suite = await testSuite();
+        final umk = _umk(1);
+        final relay = _verifierRelay(suite, umk: umk);
+        final log = RecordingCeremonyEventLog();
+        final repository = CryptoVerifyMemberRepository(
+          suite: suite,
+          relayedUmk: umk,
+          relayedUserId: _memberId,
+          relay: relay,
+          memberName: 'Sunita',
+          now: testNow,
+          log: log,
+          mode: CeremonyMode.remote,
+        );
+        var mismatched = 0;
+        var verified = 0;
+        await pumpRk(
+          tester,
+          VerifyMemberScreen(
+            repository: repository,
+            scanner: FakeCeremonyScanner(),
+            onMismatch: () => mismatched++,
+            onVerified: () => verified++,
+          ),
+          viewport: rkPhone360,
+        );
+
+        await tapText(tester, 'Enter code instead');
+
+        // Armed: this device drew exactly one contribution, and only after it
+        // held the relayed key and the relayed commitment.
+        expect(relay.contributions, hasLength(1));
+        expect(find.byType(RkCodeField), findsOneWidget);
+        expect(mismatched, 0);
+        expect(
+          find.textContaining('This phone never shows their code'),
+          findsOneWidget,
+        );
+
+        final expected = _expectedCode(suite, relay, umk: umk);
+        expectCodeNotOnScreen(
+          tester,
+          expected,
+          reason:
+              'ADR 2026-09-13d §5 🔒: the verifier’s device never shows '
+              'the code it expects — typing it is the check',
+        );
+
+        // A wrong try must not coax the number out of the screen either.
+        final wrong = expected == '00000000' ? '11111111' : '00000000';
+        await tester.enterText(find.byType(TextField), wrong);
+        await tester.pumpAndSettle();
+        await tapText(tester, 'Check code');
+        expect(find.textContaining('2 tries left.'), findsOneWidget);
+        expectCodeNotOnScreen(
+          tester,
+          expected,
+          reason: 'a wrong attempt must not reveal the expected code',
+        );
+
+        // Going back to the camera and returning re-uses the session: one
+        // session, one contribution (ADR 2026-09-13d §2).
+        await tapText(tester, 'Use the camera instead');
+        await tapText(tester, 'Enter code instead');
+        expect(relay.contributions, hasLength(1));
+
+        // The real code, read aloud by the person, verifies.
+        await tester.enterText(find.byType(TextField), expected);
+        await tester.pumpAndSettle();
+        await tapText(tester, 'Check code');
+        expect(find.text('Verified'), findsOneWidget);
+        expect(log.verifications, [('Sunita', VerificationMethod.codeRemote)]);
+        expect(repository.mismatchesLogged, 0);
+        expect(mismatched, 0);
+        expectNoShareAffordance(tester);
+
+        await tapText(tester, 'Done');
+        expect(verified, 1);
+      },
+    );
+
+    testWidgets(
+      'F1-13d-2 S9.3 an opening that does not open the relayed commitment is a '
+      'relay that lied: hard fail to S9.4 with the event written, before a '
+      'single digit can be typed (ADR 2026-09-13d §2, 04 §6.3 🔒)',
+      (tester) async {
+        final suite = await testSuite();
+        final log = RecordingCeremonyEventLog();
+        final repository = CryptoVerifyMemberRepository(
+          suite: suite,
+          relayedUmk: _umk(1),
+          relayedUserId: _memberId,
+          // The commitment was made over one r_S; the relay hands back another.
+          relay: _verifierRelay(
+            suite,
+            opening: _bytes(77, sasContributionBytes),
+          ),
+          memberName: 'Sunita',
+          now: testNow,
+          log: log,
+        );
+        var mismatched = 0;
+        await pumpRk(
+          tester,
+          VerifyMemberScreen(
+            repository: repository,
+            scanner: FakeCeremonyScanner(status: CameraStatus.unavailable),
+            onMismatch: () => mismatched++,
+          ),
+          viewport: rkPhone360,
+        );
+
+        expect(
+          mismatched,
+          1,
+          reason:
+              'handed off to S9.4, exactly as a QR '
+              'mismatch is',
+        );
+        expect(repository.mismatchesLogged, 1);
+        expect(log.mismatches, ['Sunita']);
+        // Nothing was offered to type: there is no session to type against.
+        expect(find.byType(RkCodeField), findsNothing);
+        expect(find.text('Check code'), findsNothing);
+        expect(find.text('Verified'), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'F1-13d-2 S9.3 while the session is being armed the screen says so and '
+      'offers the camera back — never an empty box to type into (13 §4.3)',
+      (tester) async {
+        final gate = Completer<CodePathArming>();
+        final repository = FakeVerifyMemberRepository(onArm: () => gate.future);
+        await pumpRk(
+          tester,
+          VerifyMemberScreen(
+            repository: repository,
+            scanner: FakeCeremonyScanner(),
+          ),
+          viewport: rkPhone360,
+        );
+
+        await tester.ensureVisible(find.text('Enter code instead'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Enter code instead'));
+        await tester.pump();
+
+        expect(find.text('Getting ready for their code.'), findsOneWidget);
+        expect(find.byType(RkCodeField), findsNothing);
+        expect(find.text('Use the camera instead'), findsOneWidget);
+
+        gate.complete(CodePathArming.armed);
+        await tester.pumpAndSettle();
+        expect(find.byType(RkCodeField), findsOneWidget);
+        expect(repository.arms, 1);
+      },
+    );
+
+    testWidgets(
+      'F1-13d-2 S9.3 a relay this device cannot reach is a retry, not a '
+      'mismatch: nothing is logged and Try again arms a clean session '
+      '(04 §6.3)',
+      (tester) async {
+        var calls = 0;
+        final repository = FakeVerifyMemberRepository(
+          onArm: () async {
+            calls++;
+            if (calls == 1) throw const CeremonyFailure(offline: true);
+            return CodePathArming.armed;
+          },
+        );
+        var mismatched = 0;
+        await pumpRk(
+          tester,
+          VerifyMemberScreen(
+            repository: repository,
+            scanner: FakeCeremonyScanner(status: CameraStatus.unavailable),
+            onMismatch: () => mismatched++,
+          ),
+          viewport: rkPhone360,
+        );
+
+        expect(
+          find.textContaining('checking needs a connection'),
+          findsOneWidget,
+        );
+        expect(mismatched, 0);
+        expect(repository.mismatchesLogged, 0);
+
+        await tapText(tester, 'Try again');
+        expect(find.byType(RkCodeField), findsOneWidget);
+      },
+    );
   });
 
   // -------------------------------------------------------------------------
@@ -619,6 +1035,30 @@ void main() {
               expect(tester.takeException(), isNull);
               expect(_codeBoxes, findsOneWidget);
               expectTextFits(tester, reason: 'S9.2 $where');
+            },
+          );
+
+          testWidgets(
+            'F1-13d-1 S9.2 the waiting state fits too — the empty boxes, the '
+            'line naming who we are waiting for and the countdown — $where',
+            (tester) async {
+              await pumpRk(
+                tester,
+                ShowMyCodeScreen(
+                  repository: FakeShowMyCodeRepository(
+                    code: _myCode(),
+                    waitForVerifier: true,
+                  ),
+                  now: testNow,
+                  encode: (_) => const FakeQrModules(),
+                ),
+                locale: locale,
+                textScale: scale,
+                viewport: viewport,
+              );
+              expect(tester.takeException(), isNull);
+              expect(tester.widget<RkCodeBoxes>(_codeBoxes).digits, isEmpty);
+              expectTextFits(tester, reason: 'S9.2 waiting $where');
             },
           );
 

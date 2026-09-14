@@ -319,6 +319,28 @@
   "@ceremony.show.title": {
     "description": "S9.2 title (13 §3.2, 07 §12) — the invitee's side of the ceremony."
   },
+  "ceremony.show.waiting.semantics": "Your 8-digit code is not ready yet. Waiting for {name} to enter it.",
+  "@ceremony.show.waiting.semantics": {
+    "description": "S9.2 spoken form of the empty boxes while waiting — a screen reader hears why they are empty rather than eight blanks.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ceremony.show.waiting.title": "Waiting for {name} to enter the code",
+  "@ceremony.show.waiting.title": {
+    "description": "S9.2 waiting state 🔒 (ADR 2026-09-13d §5, ratified 13 Sep 2026). The eight boxes stand empty because the digits do not yet exist: they are derived from this phone's r_S and the verifier's r_V together, and r_V is drawn only when the verifier begins. Not an error and not a delay to apologise for — copy is the 07/13 design owner's to settle.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ceremony.show.waiting.why": "The digits appear the moment they begin. They can scan the square now instead.",
+  "@ceremony.show.waiting.why": {
+    "description": "S9.2 waiting state, the muted line beneath: says what will happen and names the faster path, so waiting is never a dead end (07 §1 rule 6). The QR works throughout — it never waits for anyone."
+  },
   "ceremony.verify.camera.denied": "This app hasn’t been given the camera. Type their eight digits instead.",
   "@ceremony.verify.camera.denied": {
     "description": "S9.3 permission-denied state — the code path takes over, never a wall."
@@ -351,9 +373,17 @@
   "@ceremony.verify.code.label": {
     "description": "S9.3 code-entry label."
   },
+  "ceremony.verify.code.preparing": "Getting ready for their code.",
+  "@ceremony.verify.code.preparing": {
+    "description": "S9.3 loading state while the code path is armed (04 §6.3, ADR 2026-09-13d §1): this device holds the relayed key and commitment, draws its own contribution, relays it and waits for the opening. A verb, never a percentage (11 §4.5)."
+  },
   "ceremony.verify.code.use_camera": "Use the camera instead",
   "@ceremony.verify.code.use_camera": {
     "description": "S9.3 way back to the camera from the code path — both paths are equal."
+  },
+  "ceremony.verify.code.why_hidden": "This phone never shows their code. Typing what they read out is the check.",
+  "@ceremony.verify.code.why_hidden": {
+    "description": "S9.3 muted line under the entry boxes 🔒 (ADR 2026-09-13d §5): the verifier's device never displays the digits it expects. Says why the number is not on screen, so its absence reads as design rather than as something missing. Never soften into offering to show it."
   },
   "ceremony.verify.error": "Couldn’t check that just now.",
   "@ceremony.verify.error": {

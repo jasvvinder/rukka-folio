@@ -2,9 +2,17 @@
 //
 // 🔒 A huge QR with the 8-digit code beneath it, rendered as eight separate
 // character boxes with a visible expiry countdown (07 §12, owner-approved).
-// Presentation only: both halves are derived from the key fingerprint and the
-// invite nonce in `core_crypto` (04 §6.1) and handed here as [MyCode]. Nothing
-// on this screen is a password and nothing on it is generated in a widget.
+// Presentation only: both halves are derived in `core_crypto` (04 §6.1) and
+// handed here as [MyCode]. Nothing on this screen is a password and nothing on
+// it is generated in a widget.
+//
+// 🔒 **The boxes stand empty until the verifier begins** (04 §6.2, §6.1 as
+// amended by ADR 2026-09-13d §5, ratified 13 Sep 2026). The code is a
+// commitment-based SAS over *both* devices' randomness, so before the
+// verifier's `r_V` has been relayed there are no digits to show — not hidden,
+// not loading: they do not exist. The square does not wait for anyone, which
+// is why it is drawn from the first frame and the waiting line sits under it
+// rather than over the whole screen.
 //
 // 🔒 No share button, no copy affordance — 04 §6.4's channel rule. The code
 // must travel over a channel where the verifier recognises the *person*; a
@@ -22,8 +30,13 @@ import '../widgets/qr_view.dart';
 
 /// The states of S9.2 (13 §4.3).
 enum ShowMyCodeState {
-  /// Deriving / fetching the nonce.
+  /// Opening the session — drawing `r_S`, relaying the commitment.
   loading,
+
+  /// The square is up and the session is live, but the verifier has not begun:
+  /// the eight boxes are empty because the digits do not exist yet
+  /// (ADR 2026-09-13d §5 🔒).
+  waitingForVerifier,
 
   /// QR and digits are on screen.
   ready,
@@ -48,7 +61,7 @@ class ShowMyCodeScreen extends StatefulWidget {
     this.encode = QrModules.of,
   });
 
-  /// The seam over `core_crypto` and the server's nonce.
+  /// The seam over `core_crypto` and the ceremony session on the server.
   final ShowMyCodeRepository repository;
 
   /// Injected clock.
@@ -70,6 +83,12 @@ class _ShowMyCodeScreenState extends State<ShowMyCodeScreen> {
   QrModules? _modules;
   Timer? _tick;
 
+  /// Which session's answers this screen still wants. *Regenerate* opens a new
+  /// one (a new `r_S`, ADR 2026-09-13d §2), and the old session's `r_V` may
+  /// still be in flight — it belongs to a commitment nobody will open, so it
+  /// is dropped rather than shown.
+  int _session = 0;
+
   @override
   void initState() {
     super.initState();
@@ -90,31 +109,61 @@ class _ShowMyCodeScreenState extends State<ShowMyCodeScreen> {
   }
 
   Future<void> _load({bool fresh = false}) async {
+    final session = ++_session;
     setState(() => _state = ShowMyCodeState.loading);
     try {
       final code = fresh
           ? await widget.repository.regenerate()
           : await widget.repository.load();
-      if (!mounted) return;
-      setState(() {
-        _code = code;
-        _modules = widget.encode(code.qrPayload);
-        _state = _left == Duration.zero
-            ? ShowMyCodeState.expired
-            : ShowMyCodeState.ready;
-      });
+      if (!mounted || session != _session) return;
+      setState(() => _show(code));
       _startTicking();
+      // The session is open and the commitment relayed; the digits arrive when
+      // the verifier's contribution does (ADR 2026-09-13d §1 step 3).
+      if (code.isWaiting) unawaited(_awaitVerifier(session));
     } on CeremonyFailure {
-      if (!mounted) return;
+      if (!mounted || session != _session) return;
       setState(() => _state = ShowMyCodeState.error);
     }
   }
 
-  /// One tick a second, only while a code is live — a countdown that stops at
-  /// zero rather than a timer that outlives the screen.
+  /// Waits for `r_V`. The invitee does nothing while this runs: the square is
+  /// already scannable, so this is the slow path staying out of the way of the
+  /// fast one.
+  Future<void> _awaitVerifier(int session) async {
+    try {
+      final code = await widget.repository.awaitVerifier();
+      if (!mounted || session != _session) return;
+      setState(() => _show(code));
+      _startTicking();
+    } on CeremonyFailure {
+      if (!mounted || session != _session) return;
+      setState(() => _state = ShowMyCodeState.error);
+    }
+  }
+
+  /// Puts [code] on screen in the state its own contents imply — never a state
+  /// the widget decided for itself.
+  void _show(MyCode code) {
+    _code = code;
+    _modules = widget.encode(code.qrPayload);
+    _state = _left == Duration.zero
+        ? ShowMyCodeState.expired
+        : code.isWaiting
+        ? ShowMyCodeState.waitingForVerifier
+        : ShowMyCodeState.ready;
+  }
+
+  /// One tick a second, only while a session is live — a countdown that stops
+  /// at zero rather than a timer that outlives the screen. It runs while the
+  /// screen waits too: the ten minutes are the commitment's, and they are
+  /// already running (04 §6.3, ADR 2026-09-13d §3).
   void _startTicking() {
     _tick?.cancel();
-    if (_state != ShowMyCodeState.ready) return;
+    if (_state != ShowMyCodeState.ready &&
+        _state != ShowMyCodeState.waitingForVerifier) {
+      return;
+    }
     _tick = Timer.periodic(const Duration(seconds: 1), (_) {
       if (!mounted) return;
       setState(() {
@@ -138,11 +187,14 @@ class _ShowMyCodeScreenState extends State<ShowMyCodeScreen> {
           child: switch (_state) {
             ShowMyCodeState.loading => const _ShowMyCodeSkeleton(),
             ShowMyCodeState.error => _ShowMyCodeError(onRetry: _load),
-            ShowMyCodeState.ready || ShowMyCodeState.expired => _ShowMyCodeBody(
+            ShowMyCodeState.waitingForVerifier ||
+            ShowMyCodeState.ready ||
+            ShowMyCodeState.expired => _ShowMyCodeBody(
               code: _code!,
               modules: _modules!,
               left: _left,
               expired: _state == ShowMyCodeState.expired,
+              verifierName: widget.repository.verifierName,
               offline: widget.offline,
               onRegenerate: () => _load(fresh: true),
             ),
@@ -159,6 +211,7 @@ class _ShowMyCodeBody extends StatelessWidget {
     required this.modules,
     required this.left,
     required this.expired,
+    required this.verifierName,
     required this.offline,
     required this.onRegenerate,
   });
@@ -167,6 +220,7 @@ class _ShowMyCodeBody extends StatelessWidget {
   final QrModules modules;
   final Duration left;
   final bool expired;
+  final String verifierName;
   final bool offline;
   final VoidCallback onRegenerate;
 
@@ -184,6 +238,8 @@ class _ShowMyCodeBody extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final status = RkStatusColors.of(context);
+    final digits = code.digits;
+    final waiting = digits == null && !expired;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -208,17 +264,36 @@ class _ShowMyCodeBody extends StatelessWidget {
           ),
         ),
         const SizedBox(height: RkSpace.s6),
-        Text(
-          l10n.ceremonyShowCodeLabel,
-          textAlign: TextAlign.center,
-          style: theme.textTheme.titleLarge,
+        // Waiting is a state of the *code*, not of the screen: the square above
+        // is live throughout, so only this block changes (ADR 2026-09-13d §5).
+        Semantics(
+          liveRegion: waiting,
+          child: Text(
+            waiting
+                ? l10n.ceremonyShowWaitingTitle(verifierName)
+                : l10n.ceremonyShowCodeLabel,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.titleLarge,
+          ),
         ),
         const SizedBox(height: RkSpace.s3),
         RkCodeBoxes(
-          digits: code.digits,
+          // Empty, because before the verifier's contribution arrives there is
+          // no code — not a hidden one, not a loading one.
+          digits: digits ?? '',
           muted: expired,
-          semanticsLabel: l10n.ceremonyShowCodeSemantics(code.digits),
+          semanticsLabel: digits == null
+              ? l10n.ceremonyShowWaitingSemantics(verifierName)
+              : l10n.ceremonyShowCodeSemantics(digits),
         ),
+        if (waiting) ...[
+          const SizedBox(height: RkSpace.s3),
+          Text(
+            l10n.ceremonyShowWaitingWhy,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyMedium?.copyWith(color: status.muted),
+          ),
+        ],
         const SizedBox(height: RkSpace.s3),
         RkCodeExpiry(left: left),
         if (expired) ...[

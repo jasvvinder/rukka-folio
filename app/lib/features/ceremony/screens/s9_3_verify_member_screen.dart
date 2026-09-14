@@ -14,7 +14,20 @@
 //
 // A mismatch leaves this screen for S9.4 and never comes back: 04 §6.3 gives
 // the QR path no override. A *wrong typed code* is not a mismatch — it is one
-// of three attempts on the nonce (04 §6.3) — and neither is a stranger's QR.
+// of three attempts on the session (04 §6.3) — and neither is a stranger's QR.
+//
+// 🔒 **This device never displays the code it expects** (ADR 2026-09-13d §5,
+// ratified 13 Sep 2026). A verifier's screen that showed the number it wanted
+// to hear would turn the ceremony into a prompt: the person on the other end
+// reads back what they are shown, and the check checks nothing. So the eight
+// boxes here are only ever the digits *typed on this phone*, and the expected
+// code exists nowhere in this widget tree — asserted, not assumed (F1-13d-2).
+//
+// 🔒 The code path is armed before it can be typed into (04 §6.3 as amended):
+// this device holds the relayed key **and the relayed commitment**, only then
+// draws its own contribution, relays it, and checks the opening that comes
+// back. A bad opening is a relay that lied — the same hard fail as a QR
+// mismatch, straight to S9.4 with the event written, no override.
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -31,8 +44,11 @@ enum VerifyMemberState {
   /// Camera open, waiting for a square (the default, 04 §6.2).
   scanning,
 
-  /// The camera is not available or not permitted; the code path took over.
-  cameraBlocked,
+  /// Arming the code path: the commitment is in hand, this device's
+  /// contribution is relayed, and the opening is on its way back
+  /// (ADR 2026-09-13d §1). Nothing may be typed yet — there is no session to
+  /// type against.
+  preparingCode,
 
   /// The eight boxes, ready for typed digits.
   enteringCode,
@@ -89,6 +105,11 @@ class _VerifyMemberScreenState extends State<VerifyMemberScreen> {
   VerifyMemberState _state = VerifyMemberState.scanning;
   CameraStatus _camera = CameraStatus.ready;
 
+  /// True once [VerifyMemberRepository.armCodePath] has returned armed: one
+  /// session, one contribution (ADR 2026-09-13d §2). Going back to the camera
+  /// and returning must not draw a second one.
+  bool _armed = false;
+
   /// The line under the boxes: wrong code, expired nonce, dead nonce, a
   /// stranger's QR, or a failed call. Never a raw error (07 §1 rule 12).
   String? Function(AppLocalizations)? _notice;
@@ -117,16 +138,55 @@ class _VerifyMemberScreenState extends State<VerifyMemberScreen> {
   Future<void> _startCamera() async {
     final status = await widget.scanner.start();
     if (!mounted) return;
-    setState(() {
-      _camera = status;
+    setState(() => _camera = status);
+    if (status != CameraStatus.ready) {
       // No camera is not a dead end: the equal alternative simply becomes the
-      // path (design-system §3.1 rule 7 🔒).
-      _state = status == CameraStatus.ready
-          ? VerifyMemberState.scanning
-          : VerifyMemberState.cameraBlocked;
-    });
-    if (status != CameraStatus.ready) return;
+      // path (design-system §3.1 rule 7 🔒). The camera's own reason stays on
+      // screen above it.
+      await _enterCodePath();
+      return;
+    }
+    setState(() => _state = VerifyMemberState.scanning);
     _scans = widget.scanner.codes.listen(_onScanned);
+  }
+
+  /// Opens the code path, arming the session on first use.
+  Future<void> _enterCodePath() async {
+    if (_armed) {
+      setState(() {
+        _state = VerifyMemberState.enteringCode;
+        _notice = null;
+      });
+      return;
+    }
+    setState(() {
+      _state = VerifyMemberState.preparingCode;
+      _notice = null;
+    });
+    final CodePathArming arming;
+    try {
+      arming = await widget.repository.armCodePath();
+    } on CeremonyFailure catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _state = VerifyMemberState.error;
+        _notice = (l10n) =>
+            e.offline ? l10n.ceremonyVerifyOffline : l10n.ceremonyVerifyError;
+      });
+      return;
+    }
+    if (!mounted) return;
+    switch (arming) {
+      case CodePathArming.mismatch:
+        // The relayed opening did not open the relayed commitment under the
+        // relayed key: hard fail, already logged, no override (04 §6.3 🔒).
+        widget.onMismatch?.call();
+      case CodePathArming.armed:
+        setState(() {
+          _armed = true;
+          _state = VerifyMemberState.enteringCode;
+        });
+    }
   }
 
   void _onTyped() {
@@ -204,15 +264,8 @@ class _VerifyMemberScreenState extends State<VerifyMemberScreen> {
     }
   }
 
-  void _showCodePath() => setState(() {
-    _state = VerifyMemberState.enteringCode;
-    _notice = null;
-  });
-
   void _showCamera() => setState(() {
-    _state = _camera == CameraStatus.ready
-        ? VerifyMemberState.scanning
-        : VerifyMemberState.cameraBlocked;
+    _state = VerifyMemberState.scanning;
     _notice = null;
   });
 
@@ -269,7 +322,7 @@ class _VerifyMemberScreenState extends State<VerifyMemberScreen> {
       ),
       const SizedBox(height: RkSpace.s4),
       FilledButton(
-        onPressed: _showCodePath,
+        onPressed: () => unawaited(_enterCodePath()),
         child: Text(l10n.ceremonyShowRetry),
       ),
     ],
@@ -293,26 +346,50 @@ class _VerifyMemberScreenState extends State<VerifyMemberScreen> {
       // Always on the screen — never behind a menu, never only after the
       // camera fails (design-system §3.1 rule 7 🔒).
       OutlinedButton(
-        onPressed: _showCodePath,
+        onPressed: () => unawaited(_enterCodePath()),
         child: Text(l10n.ceremonyVerifyCameraEnterCode),
       ),
     ],
-    VerifyMemberState.cameraBlocked => [
-      _Notice(
-        icon: Icons.no_photography_outlined,
-        text: _camera == CameraStatus.denied
-            ? l10n.ceremonyVerifyCameraDenied
-            : l10n.ceremonyVerifyCameraUnavailable,
-        tone: _Tone.info,
+    VerifyMemberState.preparingCode => [
+      ..._cameraNotice(l10n),
+      const SizedBox(height: RkSpace.s8),
+      Semantics(
+        liveRegion: true,
+        child: Text(
+          l10n.ceremonyVerifyCodePreparing,
+          textAlign: TextAlign.center,
+          style: Theme.of(context).textTheme.bodyLarge,
+        ),
       ),
-      const SizedBox(height: RkSpace.s4),
-      ..._codeEntry(l10n, offerCamera: false),
+      if (_camera == CameraStatus.ready) ...[
+        const SizedBox(height: RkSpace.s4),
+        TextButton(
+          onPressed: _showCamera,
+          child: Text(l10n.ceremonyVerifyCodeUseCamera),
+        ),
+      ],
     ],
-    VerifyMemberState.enteringCode => _codeEntry(
-      l10n,
-      offerCamera: _camera == CameraStatus.ready,
-    ),
+    VerifyMemberState.enteringCode => [
+      ..._cameraNotice(l10n),
+      ..._codeEntry(l10n, offerCamera: _camera == CameraStatus.ready),
+    ],
   };
+
+  /// Why the camera is not the path here — stated, never left as an absence
+  /// (07 §1 rule 6). Sits above the code path whenever the camera is out.
+  List<Widget> _cameraNotice(AppLocalizations l10n) =>
+      _camera == CameraStatus.ready
+      ? const []
+      : [
+          _Notice(
+            icon: Icons.no_photography_outlined,
+            text: _camera == CameraStatus.denied
+                ? l10n.ceremonyVerifyCameraDenied
+                : l10n.ceremonyVerifyCameraUnavailable,
+            tone: _Tone.info,
+          ),
+          const SizedBox(height: RkSpace.s4),
+        ];
 
   List<Widget> _codeEntry(AppLocalizations l10n, {required bool offerCamera}) {
     final theme = Theme.of(context);
@@ -325,11 +402,18 @@ class _VerifyMemberScreenState extends State<VerifyMemberScreen> {
         style: theme.textTheme.bodyMedium?.copyWith(color: status.muted),
       ),
       const SizedBox(height: RkSpace.s4),
+      // The only digits these boxes ever hold are the ones typed on this
+      // phone. The expected code is never put on screen (ADR 2026-09-13d §5 🔒).
       RkCodeField(
         controller: _typed,
         label: l10n.ceremonyVerifyCodeLabel,
         autofocus: true,
         onSubmitted: (_) => unawaited(_checkTyped()),
+      ),
+      const SizedBox(height: RkSpace.s3),
+      Text(
+        l10n.ceremonyVerifyCodeWhyHidden,
+        style: theme.textTheme.bodySmall?.copyWith(color: status.muted),
       ),
       if (_notice != null) ...[
         const SizedBox(height: RkSpace.s3),

@@ -47,7 +47,7 @@ book_roles(book_id, user_id, role text check (role in
         auto_post_limit_paise bigint, primary key (book_id, user_id))
 ```
 
-### 2.2 Devices, keys, ceremonies (plaintext rows, opaque blobs) 🔒 ⟦tests: E-03-18, E-03-24, E-03-27⟧
+### 2.2 Devices, keys, ceremonies (plaintext rows, opaque blobs) 🔒 ⟦tests: E-03-18, E-03-24, E-03-27, E-13d-1⟧
 
 ```sql
 devices(id uuid pk, user_id fk, pub_ed bytea, pub_x bytea, model, os,
@@ -65,6 +65,17 @@ invites(id uuid pk, tenant_id, invitee_hmac bytea,   -- NO plaintext number: the
 verification_events(id, tenant_id, subject_user, verifier_user, method text
         check (method in ('qr_in_person','code_remote','device_link')),
         result text, at)                 -- the permanent tenant-visible log
+
+-- The code path's per-session values (ADR 2026-09-13d ruling 4, ratified 13 Sep 2026).
+-- Opaque bytes: the server relays and NEVER derives, compares or validates a code.
+-- Written once each, in order (commitment → verifier_random → opening), enforced by
+-- trigger; rf_api holds SELECT+INSERT only, the later writes go through SECURITY
+-- DEFINER functions. 10 min from committed_at; swept a day past expiry.
+ceremony_sessions(id uuid pk, tenant_id, subject_user, subject_device,
+        commitment bytea not null check (octet_length(commitment) = 32),
+        verifier_user, verifier_random bytea check (octet_length(verifier_random) = 16),
+        opening bytea check (octet_length(opening) = 16),
+        committed_at, verifier_random_at, opened_at, expires_at)
 
 recovery_requests(id, user_id, candidate_device uuid, state, approvals int,
         expires_at)
@@ -119,7 +130,7 @@ app_config(key pk, value)               -- min_client_version per route group, e
 otp_challenges / activation_tickets     -- ephemeral, TTL-purged (06 §2–3)
 ```
 
-### 2.5 Row-level security 🔒 ⟦tests: E-03-15, E-03-18, E-03-19, E-03-23, E-03-24, E-03-27, E-05-8, E-05-9, E-06-6⟧
+### 2.5 Row-level security 🔒 ⟦tests: E-03-15, E-03-18, E-03-19, E-03-23, E-03-24, E-03-27, E-05-8, E-05-9, E-06-6, E-06-29⟧
 
 RLS on, `FORCE`, for every table above; the API connects as a non-superuser role with **our** `request.user_id` / `request.device_id` claims (06 §4 JWT, not platform auth) set with `SET LOCAL` per transaction so a pooled connection never carries them across (ADR 2026-09-05c §7).
 

@@ -150,7 +150,7 @@ Roles (admin · head · member · operator · viewer) change *what actions appea
 | **S9.5** | Add a business | S9/Menu | name · type (just me / shared) · FY start · opening balances — creates the book (02 §7.1) |
 | **S1.2** | Scope switcher — two books | S1 | the small control when only Me + one business exist; **not** the grouped joint-family sheet (S1.3) |
 | **S1.3** | Scope switcher — grouped sheet | S1 | Me / Family / Businesses / Organizations / Everything |
-| **S9.2** | Show my code (QR + 8-digit) | ceremony | invitee side |
+| **S9.2** | Show my code (QR + 8-digit; QR from the first frame, the digits once the verifier has begun — state `waitingForVerifier`, ADR 2026-09-13d §5 🔒) | ceremony | invitee side | ⟦tests: F1-13d-1⟧
 | **S9.3** | Verify member (camera/code) | ceremony | verifier side |
 | **S9.4** | Verification mismatch | S9.3 | hard-fail, no override |
 | **S5.5** | Cash count sheet (verify / collect modes) | S4/S10 | denomination grid; mandatory in trust books (02 §8.2) |
