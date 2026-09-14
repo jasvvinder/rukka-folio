@@ -60,6 +60,11 @@ disagreeing with each other (§4).
   shares are held as real weights (1:1:1, ADR 2026-09-09 §2), so a reader that finds no map must say so
   rather than divide evenly. ⟦tests: E-03-30⟧
 
+> **ADR 2026-09-14b (proposed), 14 Sep 2026** — the placement stands, as the ratio **agreed at creation** (the
+> deed). The sentence this ruling put into `02 §7.1` — *"a number that is not allowed to change"* — contradicted
+> `02 §7.1` line 177 and `§7.2.1` and is struck: the ratio changes by structural quorum and the change is recorded
+> as a dated `business_setting`; the ratio in force is the fold of the two. ⟦tests: E-03-34⟧
+
 ### 4. Capital introduced is an ordinary **Money in** ⟦tests: A-09b-5⟧
 - `Dr {money a/c} · Cr Opening Balance/Capital`, kind `money_in` — never income, and never an
   adjustment. The behavioural reference settles the posting and the framing together:

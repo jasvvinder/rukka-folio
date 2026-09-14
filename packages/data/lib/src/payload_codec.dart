@@ -3,10 +3,11 @@
 // the JSON object inside into `core_ledger` events, accounts and book configs.
 //
 // ⚠️ SPEC: 02 §1.3 fixes the Entry wire shape; 03 §2.3 names the other object
-// types but no spec enumerates their JSON fields yet. The shapes below are the
-// M2 interpretation (snake_case, ids as strings, money as integer paise, dates
-// ISO, periods `YYYY-MM`). Unknown fields are never dropped by this layer: the
-// blob in `envelopes_local` is the stored truth and is never rewritten.
+// types but no spec enumerates their JSON fields yet — except `business_setting`,
+// fixed by ADR 2026-09-14b §5. The shapes below are the M2 interpretation
+// (snake_case, ids as strings, money as integer paise, dates ISO, periods
+// `YYYY-MM`). Unknown fields are never dropped by this layer: the blob in
+// `envelopes_local` is the stored truth and is never rewritten.
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -137,6 +138,7 @@ final class BookConfig {
     this.ownership = BookOwnership.justMe,
     this.startDate,
     this.partnerShares = const {},
+    this.structuralQuorum,
     this.organizationSubtype,
     this.extra = const {},
   });
@@ -155,6 +157,9 @@ final class BookConfig {
         ? _readPartnerShares(json['partner_shares'])
         : const <String, int>{};
     final subtype = _readOrganizationSubtype(json['organization_subtype']);
+    // Absent = the default, all owners (02 §7.2.1); a value this build cannot
+    // interpret is null here and stays in [extra] (ADR 2026-09-14b §3).
+    final quorum = StructuralQuorum.fromWire(json[structuralQuorumKey]);
     final known = {
       'id',
       'tenant_id',
@@ -164,6 +169,7 @@ final class BookConfig {
       'ownership',
       'start_date',
       if (shares != null) 'partner_shares',
+      if (quorum != null) structuralQuorumKey,
       if (subtype != null) 'organization_subtype',
     };
     return BookConfig(
@@ -183,6 +189,7 @@ final class BookConfig {
         _ => null,
       },
       partnerShares: shares ?? const {},
+      structuralQuorum: quorum,
       organizationSubtype: subtype,
       extra: Map.unmodifiable(
         Map<String, Object?>.of(json)..removeWhere((k, _) => known.contains(k)),
@@ -215,10 +222,16 @@ final class BookConfig {
   final LocalDate? startDate;
 
   /// Each owner's agreed share weight, **keyed by Partner Current A/c id**,
-  /// fixed at business creation (02 §7.1 🔒, ADR 2026-09-09 §2). Whole
-  /// positive weights, never percentages: 02 §7.1 divides by
-  /// `floor(amount × weight ÷ Σweights)`, so 1:1:1 is three equal thirds and
-  /// 33/33/34 is not.
+  /// as **agreed at business creation** — the deed (02 §7.1 🔒, ADR 2026-09-09
+  /// §2, ADR 2026-09-14b §2/§4). Whole positive weights, never percentages:
+  /// 02 §7.1 divides by `floor(amount × weight ÷ Σweights)`, so 1:1:1 is three
+  /// equal thirds and 33/33/34 is not.
+  ///
+  /// This is the creation-time value and it never changes here: a ratio change
+  /// is the structural action of 02 §7.2.1, recorded once quorum exists as a
+  /// dated [BusinessSetting]. The ratio **in force** is read through
+  /// [structuralSettingsInForce] and [partnerSharesInForce], never from this
+  /// field alone — a distribution under a stale ratio is a wrong ledger.
   ///
   /// Keyed by account id because that is the only identity that survives a
   /// rename — the account is seeded as `{Name} — Partner Current A/c` and the
@@ -238,6 +251,15 @@ final class BookConfig {
   /// not a `partner` account, is a claim from an envelope like any other and
   /// is not evidence (02 preamble: readers re-check).
   final Map<String, int> partnerShares;
+
+  /// The `structural_quorum` chosen at creation (02 §7.2.1 🔒, ADR 2026-09-14b
+  /// §3) — the deed's value, like [partnerShares]. Null when the key is absent
+  /// (the default, all owners, applies) **or** when the stored value is one
+  /// this build does not recognise (kept verbatim in [extra], 03 §3.3.4 🔒,
+  /// and read by the engine as all owners — the strictest rule). Changes are
+  /// dated [BusinessSetting] records; the rule in force at any order point is
+  /// `quorumInForce(structuralSettingsInForce(...))`.
+  final StructuralQuorum? structuralQuorum;
 
   /// Which of 07 §3.1.1's four kinds of organization this book is. Null on a
   /// book written before this field existed, on every non-organization book,
@@ -262,6 +284,9 @@ final class BookConfig {
     // the spread below without colliding with a key of ours.
     if (partnerShares.isNotEmpty)
       'partner_shares': Map<String, Object?>.of(partnerShares),
+    // Written only when recorded and understood; an uninterpretable value
+    // rides in [extra] below under the same key, so the two never collide.
+    if (structuralQuorum != null) structuralQuorumKey: structuralQuorum!.wire,
     if (organizationSubtype != null)
       'organization_subtype': organizationSubtypeWire[organizationSubtype]!,
     ...extra,
@@ -609,3 +634,151 @@ YearMonth _yearMonth(String s) {
   if (parts.length != 2) throw FormatException('period must be YYYY-MM', s);
   return YearMonth(int.parse(parts[0]), int.parse(parts[1]));
 }
+
+/// The structural keys a `book_config` envelope carries as the deed — the
+/// terms agreed at creation (ADR 2026-09-14b §2). `fy_start_month` is not
+/// among them: it is the one structural key the projector reads and its
+/// change path is its own slice (ADR 2026-09-14b § Open).
+const Set<String> structuralSettingKeys = {
+  'partner_shares',
+  structuralQuorumKey,
+};
+
+/// A `business_setting` envelope (03 §2.3 registry; ADR 2026-09-05e §11;
+/// ADR 2026-09-14b §2, §5): the dated record of **one applied structural
+/// change** — a new object per change, never amended. It names the
+/// `structural_approval` request whose quorum authorised it, and carries the
+/// settings it set as the flat map the engine speaks (`structural_quorum`,
+/// `partner_shares`, …), so `structuralQuorumOf(record.settings)` reads it
+/// directly and the fold below is `applyStructural` composed.
+///
+/// The codec does not judge a record: whether its [requestId] names an
+/// approved request whose payload equals [settings] is the verifier's rule
+/// (ADR 2026-09-14b §5, `E-03-36 @M7`), and a record that fails it is
+/// quarantined with its reason. Reading never throws on that question — only
+/// on a malformed shape.
+///
+/// Not a projector event: Recompute neither sums nor quarantines it on shape,
+/// `decodeEvent` returns null for it, and `project()` never sees it.
+final class BusinessSetting {
+  /// Creates a record.
+  const BusinessSetting({
+    required this.id,
+    required this.bookId,
+    required this.hlc,
+    required this.byUser,
+    required this.settings,
+    this.requestId,
+    this.extra = const {},
+  });
+
+  /// Reads the wire form. Unknown top-level fields are kept in [extra];
+  /// unknown keys **or values** inside `settings` are kept verbatim inside
+  /// [settings] — their consumers read them conservatively (03 §3.3.4 🔒).
+  /// Throws [FormatException] when `settings` is not a JSON object: a record
+  /// that sets nothing is malformed, and the caller quarantines it.
+  factory BusinessSetting.fromJson(Map<String, Object?> json) {
+    final settings = json['settings'];
+    if (settings is! Map) {
+      throw const FormatException(
+        'business_setting: `settings` must be a JSON object',
+      );
+    }
+    const known = {'id', 'book_id', 'hlc', 'by_user', 'request_id', 'settings'};
+    return BusinessSetting(
+      id: json['id'] as String,
+      bookId: json['book_id'] as String,
+      hlc: Hlc(json['hlc'] as int),
+      byUser: json['by_user'] as String,
+      requestId: json['request_id'] as String?,
+      settings: Map.unmodifiable(Map<String, Object?>.from(settings)),
+      extra: Map.unmodifiable(
+        Map<String, Object?>.of(json)..removeWhere((k, _) => known.contains(k)),
+      ),
+    );
+  }
+
+  /// Object id — one per change.
+  final String id;
+
+  /// Book.
+  final String bookId;
+
+  /// When it was recorded; with [id], its place in the `(hlc, envelope_id)`
+  /// order every device folds in.
+  final Hlc hlc;
+
+  /// Who recorded it — the device that observed quorum reached. Joins the
+  /// admin-actions feed (02 §7.2 item 3).
+  final String byUser;
+
+  /// The `structural_approval` request this record applies. Null is legal at
+  /// the codec and illegal at the verifier: a record with no authorising
+  /// request never enters the fold.
+  final String? requestId;
+
+  /// The structural keys this change set, verbatim.
+  final Map<String, Object?> settings;
+
+  /// Top-level fields this client did not understand.
+  final Map<String, Object?> extra;
+
+  /// Wire form, unknown fields written back.
+  Map<String, Object?> toJson() => {
+    'id': id,
+    'book_id': bookId,
+    'hlc': hlc.raw,
+    'by_user': byUser,
+    if (requestId != null) 'request_id': requestId,
+    'settings': Map<String, Object?>.of(settings),
+    ...extra,
+  };
+}
+
+/// The structural settings **in force** after [applied] — the deed's
+/// [structuralSettingKeys] from [deed], overridden by each record's
+/// [BusinessSetting.settings] in `(hlc, id)` order whatever order they are
+/// given in (ADR 2026-09-14b §2). This is `applyStructural` composed over the
+/// approved requests the records stand for, and the **only** path a
+/// distributing or counting caller may read a structural setting through.
+///
+/// [applied] must already be verified (ADR 2026-09-14b §5) — the fold trusts
+/// what it is handed, like the engine's `evaluateStructural` trusts its
+/// records. A record of another book is a caller error and throws. Values a
+/// build cannot interpret — in the deed or a record — are carried verbatim, so
+/// `structuralQuorumOf` reads them as all owners and [partnerSharesInForce] as
+/// *not recorded*. Neither input is mutated.
+Map<String, Object?> structuralSettingsInForce({
+  required BookConfig deed,
+  required Iterable<BusinessSetting> applied,
+}) {
+  final wire = deed.toJson();
+  final inForce = <String, Object?>{
+    for (final k in structuralSettingKeys)
+      if (wire.containsKey(k)) k: wire[k],
+  };
+  final ordered = applied.toList()
+    ..sort((a, b) => compareEventOrder(a.hlc, a.id, b.hlc, b.id));
+  for (final record in ordered) {
+    if (record.bookId != deed.id) {
+      throw ArgumentError.value(
+        record.id,
+        'applied',
+        'business_setting of book ${record.bookId} folded into ${deed.id}',
+      );
+    }
+    inForce.addAll(record.settings);
+  }
+  return Map.unmodifiable(inForce);
+}
+
+/// The quorum rule in force — the engine's conservative read of the fold:
+/// absent or uninterpretable is all owners (ADR 2026-09-14b §3).
+StructuralQuorum quorumInForce(Map<String, Object?> inForce) =>
+    structuralQuorumOf(inForce);
+
+/// The ratio in force, `{partner account id: weight}` — or empty when none is
+/// recorded **or** the recorded value is one this build cannot divide by
+/// (ADR 2026-09-13 §3: empty never means equal; a reader says so).
+Map<String, int> partnerSharesInForce(Map<String, Object?> inForce) =>
+    BookConfig._readPartnerShares(inForce['partner_shares']) ?? const {};
