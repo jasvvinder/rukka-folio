@@ -38,6 +38,57 @@ abstract interface class SyncTransport {
   Future<MetaResponse> meta(MetaRequest request);
 }
 
+/// The **write** half of the metadata plane: publishing a signed record
+/// (ADR 2026-09-05b §1 🔒). Without it a device can read every structural fact
+/// the family authored and contribute none of its own — no revocation, no role
+/// change, no verification event.
+///
+/// Kept as its own interface rather than folded into [SyncTransport] because
+/// the three read routes and this one are separately implementable, and a test
+/// double that only reads stays valid. A transport that can do both declares
+/// [FullSyncTransport].
+abstract interface class RecordTransport {
+  /// `POST /sync-meta/records` — at most [PostRecordsRequest.batchMax] records
+  /// per call; beyond that the whole batch is [BatchTooLarge] and **nothing**
+  /// is stored, so the caller must split rather than assume a partial apply.
+  ///
+  /// A 200 judges each record on its own: a `rejected:` [RecordAck] is not a
+  /// route failure and the record is still stored (append-only — it is a
+  /// signed fact; the note says why it was not applied).
+  Future<PostRecordsResponse> postRecords(PostRecordsRequest request);
+}
+
+/// 06 §7's invitation routes — the one place a phone number passes through the
+/// server, and the only route that can mint an invite (a record of kind
+/// `invite` posted to [RecordTransport.postRecords] is stored and refused
+/// `rejected:invite_route`, because that route has no number to HMAC).
+abstract interface class InviteTransport {
+  /// `POST /sync-meta/invites` — the admin's signed `invite` record plus the
+  /// invitee's number. Refusals: [RouteRefused.notAdmin],
+  /// [RouteRefused.badPhone], [RouteRefused.badRecord],
+  /// [RouteRefused.recordReplayed], [RouteRefused.unknownTenant].
+  Future<InviteIssued> createInvite(CreateInviteRequest request);
+
+  /// `GET /sync-meta/invites` — the invites addressed to **this** device's own
+  /// OTP-verified number. Never anyone else's, and never an empty-vs-forbidden
+  /// distinction a caller could probe with.
+  Future<List<WireInviteOffer>> myInvites();
+
+  /// `POST /sync-meta/invites/accept` — lands on
+  /// [InviteAcceptance.joinedPendingVerification]; the ceremony, not this
+  /// route, grants `active`. Refusals: [RouteRefused.inviteNotForYou]
+  /// (identical for a wrong number and an unknown id),
+  /// [RouteRefused.inviteExpired], [RouteRefused.inviteNotLive].
+  Future<InviteAcceptance> acceptInvite(String inviteId);
+}
+
+/// Everything a certified device needs: the three sync routes plus the two
+/// ways to write to the metadata plane. The app's real transport and the
+/// harness's fake both implement this; the engine asks for the narrower
+/// [SyncTransport] and tests a capability before using the rest.
+abstract interface class FullSyncTransport
+    implements SyncTransport, RecordTransport, InviteTransport {}
+
 /// Why a route could not be completed. Every failure is typed so the engine
 /// never parses strings (05 §9: a typed status, no spinners).
 sealed class TransportFailure implements Exception {
@@ -49,7 +100,11 @@ sealed class TransportFailure implements Exception {
   /// share this one mapping.
   static TransportFailure fromHttp(int status, Map<String, Object?>? body) {
     final code = body?['error'] as String?;
-    final detail = body?['detail'] as String?;
+    // `check` is `detail` by another name on the record routes: a 400
+    // `{error:"bad_record", check:"payload_json"}` says which field the server
+    // refused (`sync-meta/index.ts` invites). Losing it would leave the Inbox
+    // with a refusal it cannot explain.
+    final detail = (body?['detail'] ?? body?['check']) as String?;
     return switch (status) {
       401 => AuthFailed(code: code),
       426 => UpdateRequired(
@@ -84,6 +139,42 @@ final class RouteRefused extends TransportFailure {
 
   /// 403: a member without a role on the book.
   static const String noRole = 'no_role';
+
+  // The invite routes' refusals (06 §7, ADR 2026-09-05d §9; `inviteError` in
+  // `sync-meta/index.ts`). Named so the engine and the UI branch on a constant
+  // rather than a string literal, and so the two that must stay
+  // indistinguishable are visibly one code.
+
+  /// 403 on accept: **either** the invite is addressed to another number
+  /// **or** it does not exist. One code for both, deliberately: the link alone
+  /// admits nobody and the route is no oracle for who was invited
+  /// (ADR 2026-09-05d §9 🔒).
+  static const String inviteNotForYou = 'invite_not_for_you';
+
+  /// 410: past 06 §7's 7-day window. The offer is gone; re-invite is one tap.
+  static const String inviteExpired = 'invite_expired';
+
+  /// 409: already accepted, revoked or superseded — an invite is spent once.
+  static const String inviteNotLive = 'invite_not_live';
+
+  /// 403 on issue: issuing is an admin power (06 §1.0).
+  static const String notAdmin = 'not_admin';
+
+  /// 409: this exact signed record was already taken. The record **is** the
+  /// action, so a retry must not mint a second invite; the first one stands
+  /// and the admin's device finds it by `source_record_id` in the meta pull.
+  static const String recordReplayed = 'record_replayed';
+
+  /// 400: the number was not E.164 (`_shared/phone.ts` `normaliseE164`). It
+  /// never reached the HMAC, and no invite was created.
+  static const String badPhone = 'bad_phone';
+
+  /// 400: the signed record itself was refused; [detail] carries the server's
+  /// `check` (the field at fault).
+  static const String badRecord = 'bad_record';
+
+  /// 404 on issue: no such tenant for this caller.
+  static const String unknownTenant = 'unknown_tenant';
 
   @override
   String toString() => 'RouteRefused($status ${code ?? ''})';

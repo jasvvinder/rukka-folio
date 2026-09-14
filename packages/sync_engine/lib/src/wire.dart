@@ -19,10 +19,29 @@ import 'dart:typed_data';
 import 'package:meta/meta.dart';
 
 String _b64(Uint8List b) => base64Url.encode(b);
+
+/// Decodes bytes off the wire. The alphabet is base64url and the server emits
+/// it **unpadded** (Deno `@std/encoding/base64url` via `_shared/bytes.ts`
+/// `b64url.enc`), while Dart's `base64Url.decode` throws
+/// `FormatException: Invalid length, must be multiple of four` on unpadded
+/// input. `base64.normalize` maps `-_` → `+/` and restores the padding, so
+/// this end accepts exactly what the server's `b64any` accepts — base64 or
+/// base64url, padded or not (D-05-14).
 Uint8List _bytes(Object? v) =>
-    Uint8List.fromList(base64Url.decode(v! as String));
+    Uint8List.fromList(base64.decode(base64.normalize(v! as String)));
 List<Map<String, Object?>> _list(Object? v) =>
     v == null ? const [] : (v as List<Object?>).cast<Map<String, Object?>>();
+
+/// A `seq` the server wrote as a decimal **string** (`sync-meta/index.ts`
+/// answers `/records` and `/invites` with `seq.toString()`, while a *pulled*
+/// record carries the bare integer literal `jsonBig` emits). Both are read
+/// here, so neither end has to remember which route it is on.
+int? _seq(Object? v) => switch (v) {
+  null => null,
+  final int i => i,
+  final String s => int.parse(s),
+  _ => throw FormatException('seq', v),
+};
 
 /// One envelope on the wire (03 §2.3 `envelopes` columns). `seq` is absent on
 /// push (the server stamps it) and present on pull.
@@ -971,4 +990,435 @@ final class MetaResponse {
     'book_roles': [for (final r in bookRoles) r.toJson()],
     'guardian_sets': [for (final r in guardianSets) r.toJson()],
   };
+}
+
+// ── the write half of /sync-meta ────────────────────────────────────────────
+// `GET /sync-meta` above is the read side. These are the two ways a device puts
+// something *into* the metadata plane, and both of them are a signed record the
+// server only projects (ADR 2026-09-05b §1 🔒, 06 §7 🔒):
+//
+//   POST /sync-meta/records         {records: [record]}  → {store_epoch, results}
+//   POST /sync-meta/invites         {record, phone}      → {invite_id, record_id, seq}
+//   GET  /sync-meta/invites                              → {invites: [...]}
+//   POST /sync-meta/invites/accept  {invite_id}          → {invite_id, status}
+//
+// Every field name below is `sync-meta/index.ts` + `_shared/records.ts`
+// `parseRecord`, which is what the server actually reads.
+
+/// A signed record **on its way out** — the eight fields `parseRecord` reads,
+/// and no `seq`: the sequence is the server's to stamp at receipt (ADR 05b §5),
+/// exactly as an unpushed [WireEnvelope] carries no `seq`. A client that
+/// claimed one would be asserting an ordering it cannot know.
+@immutable
+final class WireRecordPost {
+  /// Creates an outbound record.
+  const WireRecordPost({
+    required this.id,
+    required this.suiteVersion,
+    required this.tenantId,
+    required this.kind,
+    required this.payloadJson,
+    required this.authorDeviceId,
+    required this.authorSig,
+    required this.hlc,
+  });
+
+  /// The outbound form of a record this device authored.
+  factory WireRecordPost.fromRecord(WireSignedRecord r) => WireRecordPost(
+    id: r.id,
+    suiteVersion: r.suiteVersion,
+    tenantId: r.tenantId,
+    kind: r.kind,
+    payloadJson: r.payloadJson,
+    authorDeviceId: r.authorDeviceId,
+    authorSig: r.authorSig,
+    hlc: r.hlc,
+  );
+
+  /// Decodes (the fake server reads a request with this).
+  factory WireRecordPost.fromJson(Map<String, Object?> j) => WireRecordPost(
+    id: j['id']! as String,
+    suiteVersion: j['suite_version']! as int,
+    tenantId: j['tenant_id']! as String,
+    kind: j['kind']! as String,
+    payloadJson: _bytes(j['payload_json']),
+    authorDeviceId: j['author_device_id']! as String,
+    authorSig: _bytes(j['author_sig']),
+    hlc: j['hlc']! as int,
+  );
+
+  /// `id` — the record's own uuid, chosen by the author; the server keys
+  /// replay detection on it (`insertSignedRecord` → `duplicate`).
+  final String id;
+
+  /// `suite_version`.
+  final int suiteVersion;
+
+  /// `tenant_id`.
+  final String tenantId;
+
+  /// `kind` — one of the server's `RECORD_KINDS` (`_shared/registry.ts`).
+  final String kind;
+
+  /// `payload_json` — the exact signed bytes (plaintext JSON), base64url on
+  /// the wire. Never re-encoded here: the signature is over these bytes.
+  final Uint8List payloadJson;
+
+  /// `author_device_id` — must be the calling device (`intakeRecord`).
+  final String authorDeviceId;
+
+  /// `author_sig` — 64 bytes.
+  final Uint8List authorSig;
+
+  /// `hlc` — a bare integer literal on the wire, past 2^53 (05 §2).
+  final int hlc;
+
+  /// The same record once the server has stamped [seq].
+  WireSignedRecord stamped(int seq) => WireSignedRecord(
+    id: id,
+    suiteVersion: suiteVersion,
+    tenantId: tenantId,
+    kind: kind,
+    payloadJson: payloadJson,
+    authorDeviceId: authorDeviceId,
+    authorSig: authorSig,
+    hlc: hlc,
+    seq: seq,
+  );
+
+  /// Encodes.
+  Map<String, Object?> toJson() => {
+    'id': id,
+    'suite_version': suiteVersion,
+    'tenant_id': tenantId,
+    'kind': kind,
+    'payload_json': _b64(payloadJson),
+    'author_device_id': authorDeviceId,
+    'author_sig': _b64(authorSig),
+    'hlc': hlc,
+  };
+}
+
+/// `POST /sync-meta/records` (ADR 05b §1). At most [batchMax] records per
+/// call — beyond it the whole batch is refused 413, nothing stored.
+@immutable
+final class PostRecordsRequest {
+  /// Creates the request.
+  const PostRecordsRequest({required this.records});
+
+  /// Decodes.
+  factory PostRecordsRequest.fromJson(Map<String, Object?> j) =>
+      PostRecordsRequest(
+        records: [
+          for (final r in _list(j['records'])) WireRecordPost.fromJson(r),
+        ],
+      );
+
+  /// `sync-meta/index.ts` `RECORDS_BATCH_MAX`.
+  static const int batchMax = 50;
+
+  /// The records, in the order the author wants them applied.
+  final List<WireRecordPost> records;
+
+  /// Encodes.
+  Map<String, Object?> toJson() => {
+    'records': [for (final r in records) r.toJson()],
+  };
+}
+
+/// What the server did with one posted record. `acked` means stored **and**
+/// applied; anything starting with `rejected:` means the record is stored
+/// (it is a signed fact, append-only) but was not projected onto a row.
+@immutable
+final class RecordAck {
+  /// Creates a result.
+  const RecordAck({
+    required this.id,
+    required this.result,
+    this.seq,
+    this.check,
+  });
+
+  /// Decodes. `seq` travels as a decimal **string** here (`seq.toString()` in
+  /// `postRecords`), unlike the bare integer of a pulled record.
+  factory RecordAck.fromJson(Map<String, Object?> j) => RecordAck(
+    id: j['id']! as String,
+    result: j['result']! as String,
+    seq: _seq(j['seq']),
+    check: j['check'] as String?,
+  );
+
+  /// Stored and applied.
+  static const String acked = 'acked';
+
+  /// Prefix of every refusal (`_shared/records.ts` `applyRecord`).
+  static const String rejectedPrefix = 'rejected:';
+
+  /// The record's shape is wrong — `check` names the field.
+  static const String rejectedShape = 'rejected:shape';
+
+  /// The author's device may not author this fact (06 §1.0).
+  static const String rejectedUnauthorized = 'rejected:unauthorized';
+
+  /// An `invite` record belongs on `/sync-meta/invites`, which is the only
+  /// place the invitee's number can be HMAC'd (0008 ⚠️ SPEC, 06 §7).
+  static const String rejectedInviteRoute = 'rejected:invite_route';
+
+  /// The membership edge the record asks for is not in 06 §7's graph.
+  static const String rejectedMembershipTransition =
+      'rejected:membership_transition';
+
+  /// `id` — the record's uuid, echoed back.
+  final String id;
+
+  /// `result`.
+  final String result;
+
+  /// `seq` — the stamped sequence when the record was stored.
+  final int? seq;
+
+  /// `check` — the field that failed, on a shape refusal.
+  final String? check;
+
+  /// Whether the record was applied.
+  bool get isAcked => result == acked;
+
+  /// The refusal without its prefix, or null when [isAcked].
+  String? get rejection =>
+      result.startsWith(rejectedPrefix) ? result.substring(9) : null;
+
+  /// Encodes (`seq` as the decimal string the server writes).
+  Map<String, Object?> toJson() => {
+    'id': id,
+    'result': result,
+    if (seq != null) 'seq': '$seq',
+    if (check != null) 'check': check,
+  };
+}
+
+/// `POST /sync-meta/records` → `{store_epoch, results}`. A per-record refusal
+/// is **not** a route failure: the call is 200 and every record is judged on
+/// its own (only a batch over [PostRecordsRequest.batchMax], a bad body or a
+/// failed gate refuses the route as a whole).
+@immutable
+final class PostRecordsResponse {
+  /// Creates the response.
+  const PostRecordsResponse({
+    required this.storeEpoch,
+    this.results = const [],
+  });
+
+  /// Decodes.
+  factory PostRecordsResponse.fromJson(Map<String, Object?> j) =>
+      PostRecordsResponse(
+        storeEpoch: j['store_epoch']! as String,
+        results: [for (final r in _list(j['results'])) RecordAck.fromJson(r)],
+      );
+
+  /// `store_epoch` — a change means the store was restored (ADR 05b §6).
+  final String storeEpoch;
+
+  /// One result per record, in request order.
+  final List<RecordAck> results;
+
+  /// The result for [recordId], or null when the server did not judge it.
+  ///
+  /// Null is the answer to use: a server may answer with fewer results than
+  /// records sent, or with an id nobody posted. An absent result means
+  /// **unacknowledged** — the record stays in the caller's outbox and is sent
+  /// again; nothing here may be read as an ack by position.
+  RecordAck? operator [](String recordId) {
+    for (final r in results) {
+      if (r.id == recordId) return r;
+    }
+    return null;
+  }
+
+  /// Encodes.
+  Map<String, Object?> toJson() => {
+    'store_epoch': storeEpoch,
+    'results': [for (final r in results) r.toJson()],
+  };
+}
+
+/// `POST /sync-meta/invites` (06 §7 🔒): the admin's signed `invite` record
+/// plus the invitee's number **in the same request**.
+///
+/// The number travels exactly once and is stored nowhere: the edge HMACs it
+/// under the server's key and drops the plaintext (ADR 2026-09-05c §4). The
+/// record deliberately carries no identifier of the invitee — the admin's
+/// device cannot compute that HMAC — so whom the family invited stays on the
+/// admin's own phone (0008 ⚠️ SPEC). Nothing in this class is ever logged or
+/// persisted by the transport.
+@immutable
+final class CreateInviteRequest {
+  /// Creates the request.
+  const CreateInviteRequest({required this.record, required this.phone});
+
+  /// Decodes.
+  factory CreateInviteRequest.fromJson(Map<String, Object?> j) =>
+      CreateInviteRequest(
+        record: WireRecordPost.fromJson(j['record']! as Map<String, Object?>),
+        phone: j['phone']! as String,
+      );
+
+  /// The signed `invite` record: payload `{roles, nonce}`, nonce 128 bits.
+  final WireRecordPost record;
+
+  /// `phone` — E.164 (`_shared/phone.ts` `normaliseE164`: `+` then 8–15
+  /// digits, spaces and dashes stripped). Not normalised here: the server's
+  /// regex is the authority, and a refusal is `400 bad_phone`.
+  final String phone;
+
+  /// Encodes.
+  Map<String, Object?> toJson() => {'record': record.toJson(), 'phone': phone};
+
+  @override
+  String toString() => 'CreateInviteRequest(${record.id})'; // never the number
+}
+
+/// `POST /sync-meta/invites` → the invite the admin's device now shows against
+/// its own contact card.
+@immutable
+final class InviteIssued {
+  /// Creates the result.
+  const InviteIssued({
+    required this.inviteId,
+    required this.recordId,
+    required this.seq,
+  });
+
+  /// Decodes (`seq` is a decimal string, as on `/records`).
+  factory InviteIssued.fromJson(Map<String, Object?> j) => InviteIssued(
+    inviteId: j['invite_id']! as String,
+    recordId: j['record_id']! as String,
+    seq: _seq(j['seq']) ?? 0,
+  );
+
+  /// `invite_id`.
+  final String inviteId;
+
+  /// `record_id` — the signed record the invite row is a projection of.
+  final String recordId;
+
+  /// `seq` stamped on that record.
+  final int seq;
+
+  /// Encodes.
+  Map<String, Object?> toJson() => {
+    'invite_id': inviteId,
+    'record_id': recordId,
+    'seq': '$seq',
+  };
+}
+
+/// One offer from `GET /sync-meta/invites` — an invite addressed to **this
+/// device's own OTP-verified number** and nobody else's (06 §7). The offer
+/// carries no `invitee_hmac`, no nonce and no number: a joiner learns that it
+/// was invited, by whom, to which tenant, and until when.
+///
+/// ⚠️ This is the server's word and cannot be verified on the device — the
+/// matching HMAC key is the server's (ADR 2026-09-05c §4). It grants nothing:
+/// the offer is a prompt to *try* accepting, the accept is re-checked against
+/// the number server-side, and the membership it can reach is only
+/// `joined_pending_verification`, which holds no book key (04 §5.1). A
+/// fabricated offer therefore costs a tap, never access.
+@immutable
+final class WireInviteOffer {
+  /// Creates an offer.
+  const WireInviteOffer({
+    required this.inviteId,
+    required this.tenantId,
+    required this.createdBy,
+    required this.expiresAtMs,
+    this.roles,
+    this.extra = const {},
+  });
+
+  /// Decodes, keeping fields this build does not read (rule 6).
+  factory WireInviteOffer.fromJson(Map<String, Object?> j) => WireInviteOffer(
+    inviteId: j['invite_id']! as String,
+    tenantId: j['tenant_id']! as String,
+    createdBy: j['created_by']! as String,
+    expiresAtMs: j['expires_at']! as int,
+    roles: j['roles'],
+    extra: {
+      for (final e in j.entries)
+        if (!_offerKnown.contains(e.key)) e.key: e.value,
+    },
+  );
+
+  static const _offerKnown = {
+    'invite_id',
+    'tenant_id',
+    'created_by',
+    'expires_at',
+    'roles',
+  };
+
+  /// `invite_id` — what `/invites/accept` takes.
+  final String inviteId;
+
+  /// `tenant_id`.
+  final String tenantId;
+
+  /// `created_by` — the admin's `user_id`.
+  final String createdBy;
+
+  /// `expires_at` — epoch ms; 06 §7's 7-day window, stamped server-side.
+  final int expiresAtMs;
+
+  /// `roles` — the grants the record offered, as the record spelled them.
+  /// Kept raw: the shape is the invite record's payload, not this file's.
+  final Object? roles;
+
+  /// Fields this build does not read, preserved.
+  final Map<String, Object?> extra;
+
+  /// The offered grants when they are the `[{book_id, role}]` the invite
+  /// payload uses; empty for any other shape (conservative: never guess).
+  List<Map<String, Object?>> get roleGrants {
+    final r = roles;
+    if (r is! List) return const [];
+    return [
+      for (final g in r)
+        if (g is Map<String, Object?>) g,
+    ];
+  }
+
+  /// Encodes.
+  Map<String, Object?> toJson() => {
+    ...extra,
+    'invite_id': inviteId,
+    'tenant_id': tenantId,
+    'created_by': createdBy,
+    'expires_at': expiresAtMs,
+    if (roles != null) 'roles': roles,
+  };
+}
+
+/// `POST /sync-meta/invites/accept` → the membership state the join reached.
+/// Never `active`: 06 §7 gives that edge to the ceremony alone.
+@immutable
+final class InviteAcceptance {
+  /// Creates the result.
+  const InviteAcceptance({required this.inviteId, required this.status});
+
+  /// Decodes.
+  factory InviteAcceptance.fromJson(Map<String, Object?> j) => InviteAcceptance(
+    inviteId: j['invite_id']! as String,
+    status: j['status']! as String,
+  );
+
+  /// The membership status an accepted invite lands on (06 §7).
+  static const String joinedPendingVerification = 'joined_pending_verification';
+
+  /// `invite_id`.
+  final String inviteId;
+
+  /// `status`.
+  final String status;
+
+  /// Encodes.
+  Map<String, Object?> toJson() => {'invite_id': inviteId, 'status': status};
 }

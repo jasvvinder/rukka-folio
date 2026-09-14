@@ -1,6 +1,8 @@
 // Test doubles the two-client harness and suite D drive: an in-memory
 // [FakeSyncServer] that speaks the three routes of 05 §3–§5 exactly as
-// `wire.dart` spells them, a per-device [FakeTransport] with an on/off switch,
+// `wire.dart` spells them — plus the write half of `/sync-meta`, signed
+// records (ADR 05b §1) and 06 §7's invites — a per-device [FakeTransport]
+// with an on/off switch,
 // and a [PlainGuard] for devices that author plaintext JSON blobs (the harness's
 // `SimulatedDevice`). Pure Dart: the server clock is injected, nothing here
 // reads the wall clock or `Random()`.
@@ -97,6 +99,24 @@ final class FakeSyncServer {
 
   /// Devices that get `401 device_revoked` on every route (unsigned word).
   final Set<String> authRevoked = {};
+
+  /// Devices whose posted records are refused `rejected:unauthorized`
+  /// (`intakeRecord`: the author's device row must be `certified`).
+  final Set<String> uncertifiedDevices = {};
+
+  /// Devices whose user is a tenant admin (06 §1.0): the only ones whose
+  /// membership/role records apply and the only ones who may issue an invite.
+  final Set<String> adminDevices = {};
+
+  /// Device → the OTP-verified E.164 number behind it. The server hashes it to
+  /// match invites; a device with no number here is offered none.
+  final Map<String, String> devicePhones = {};
+
+  /// 06 §7's invite window.
+  int inviteTtlMs = 7 * 24 * 3600 * 1000;
+
+  /// The `invites` table (06 §7).
+  final List<FakeInvite> invites = [];
 
   /// Per-envelope size cap (05 §3 ⚠️ 256 KB).
   int maxEnvelopeBytes = 256 * 1024;
@@ -329,14 +349,350 @@ final class FakeSyncServer {
     );
   }
 
+  // ── the write half of /sync-meta (ADR 05b §1, 06 §7) ──────────────────────
+  // The order of the checks below is `sync-meta/index.ts`'s, deliberately: a
+  // record is stored FIRST (it is a signed fact — append-only, even when it is
+  // refused) and judged after, so a test that asserts "refused but kept" is
+  // asserting the server's real shape and not this file's convenience.
+
+  /// `POST /sync-meta/records` as [deviceId].
+  PostRecordsResponse postRecords(String deviceId, PostRecordsRequest request) {
+    _gate(deviceId);
+    if (request.records.length > PostRecordsRequest.batchMax) {
+      throw const BatchTooLarge(detail: 'max 50 records');
+    }
+    final results = <RecordAck>[];
+    for (final p in request.records) {
+      final taken = _intake(deviceId, p);
+      final refusal = taken.refusal;
+      if (refusal != null) {
+        results.add(refusal);
+        continue;
+      }
+      final stored = taken.record!;
+      if (taken.duplicate) {
+        results.add(
+          RecordAck(id: p.id, result: RecordAck.acked, seq: stored.seq),
+        );
+        continue;
+      }
+      results.add(_apply(deviceId, stored));
+    }
+    return PostRecordsResponse(storeEpoch: _epoch, results: results);
+  }
+
+  /// `POST /sync-meta/invites` as [deviceId] (06 §7). The number is hashed and
+  /// dropped: [FakeInvite] keeps [FakeInvite.inviteeHash] and nothing else, so
+  /// a test that greps the server for the plaintext finds none.
+  InviteIssued createInvite(String deviceId, CreateInviteRequest request) {
+    _gate(deviceId);
+    final phone = normaliseE164(request.phone);
+    if (phone == null) {
+      throw const RouteRefused(status: 400, code: RouteRefused.badPhone);
+    }
+    final taken = _intake(deviceId, request.record);
+    final refusal = taken.refusal;
+    if (refusal != null) {
+      // `unauthorized` is a 403; a shape refusal is `400 bad_record` naming
+      // the field (`sync-meta/index.ts` invites).
+      if (refusal.result == RecordAck.rejectedUnauthorized) {
+        throw const RouteRefused(status: 403, code: 'unauthorized');
+      }
+      throw RouteRefused(
+        status: 400,
+        code: RouteRefused.badRecord,
+        detail: refusal.check,
+      );
+    }
+    final record = taken.record!;
+    if (record.kind != 'invite') {
+      throw const RouteRefused(
+        status: 400,
+        code: RouteRefused.badRecord,
+        detail: 'kind',
+      );
+    }
+    final payload = _payloadOf(record);
+    final nonce = payload?['nonce'];
+    if (payload == null ||
+        payload['roles'] is! List ||
+        nonce is! String ||
+        base64.decode(base64.normalize(nonce)).length != 16) {
+      throw const RouteRefused(
+        status: 400,
+        code: RouteRefused.badRecord,
+        detail: 'payload_json',
+      );
+    }
+    if (taken.duplicate) {
+      // The record IS the action: replaying it must not mint a second invite
+      // (the first stands, found by `source_record_id` in the meta pull).
+      throw const RouteRefused(status: 409, code: RouteRefused.recordReplayed);
+    }
+    if (!adminDevices.contains(deviceId)) {
+      throw const RouteRefused(status: 403, code: RouteRefused.notAdmin);
+    }
+    final invite = FakeInvite(
+      id: 'invite-${invites.length + 1}',
+      tenantId: record.tenantId,
+      recordId: record.id,
+      inviteeHash: inviteeHashOf(phone),
+      roles: payload['roles'],
+      createdBy: userOf(deviceId),
+      createdAtMs: clock.nowMs(),
+      expiresAtMs: clock.nowMs() + inviteTtlMs,
+    );
+    invites.add(invite);
+    _metaVersion++;
+    return InviteIssued(
+      inviteId: invite.id,
+      recordId: record.id,
+      seq: record.seq,
+    );
+  }
+
+  /// `GET /sync-meta/invites` as [deviceId]: the live invites addressed to
+  /// **this** device's own number, and nothing about anyone else's.
+  List<WireInviteOffer> myInvites(String deviceId) {
+    _gate(deviceId);
+    final hash = inviteeHashOf(devicePhones[deviceId] ?? '');
+    return [
+      for (final i in invites)
+        if (i.inviteeHash == hash &&
+            i.status == FakeInvite.sent &&
+            clock.nowMs() <= i.expiresAtMs)
+          WireInviteOffer(
+            inviteId: i.id,
+            tenantId: i.tenantId,
+            createdBy: i.createdBy,
+            expiresAtMs: i.expiresAtMs,
+            roles: i.roles,
+          ),
+    ];
+  }
+
+  /// `POST /sync-meta/invites/accept` as [deviceId]. Expiry binds here, lazily,
+  /// so a missed sweep never admits anyone (06 §7's 7-day window).
+  InviteAcceptance acceptInvite(String deviceId, String inviteId) {
+    _gate(deviceId);
+    final hash = inviteeHashOf(devicePhones[deviceId] ?? '');
+    FakeInvite? row;
+    for (final i in invites) {
+      if (i.id == inviteId) row = i;
+    }
+    // ADR 2026-09-05d §9 🔒: a wrong number and an unknown id refuse
+    // IDENTICALLY — the route is no oracle for who was invited.
+    if (row == null || row.inviteeHash != hash) {
+      throw const RouteRefused(status: 403, code: RouteRefused.inviteNotForYou);
+    }
+    if (clock.nowMs() > row.expiresAtMs) {
+      row.status = FakeInvite.expired;
+      throw const RouteRefused(status: 410, code: RouteRefused.inviteExpired);
+    }
+    if (row.status != FakeInvite.sent) {
+      throw const RouteRefused(status: 409, code: RouteRefused.inviteNotLive);
+    }
+    final user = userOf(deviceId);
+    row
+      ..status = FakeInvite.accepted
+      ..acceptedBy = user;
+    // Never `active`: 06 §7 gives that edge to the ceremony alone.
+    memberships['${row.tenantId}:$user'] = WireMembership(
+      id: '${row.tenantId}:$user',
+      tenantId: row.tenantId,
+      userId: user,
+      status: InviteAcceptance.joinedPendingVerification,
+    );
+    _metaVersion++;
+    return InviteAcceptance(
+      inviteId: inviteId,
+      status: InviteAcceptance.joinedPendingVerification,
+    );
+  }
+
+  /// The user behind [deviceId] — the `devices` row when the test seeded one,
+  /// else the device id itself (the harness's one-device-per-user case).
+  String userOf(String deviceId) => devices[deviceId]?.userId ?? deviceId;
+
+  /// The fake's stand-in for the server-keyed `invitee_hmac`: a one-way tag
+  /// over the number. Like the real HMAC, the client cannot compute it —
+  /// nothing outside this server ever sees the number again.
+  static String inviteeHashOf(String e164) =>
+      base64Url.encode(fnv1a32(Uint8List.fromList(utf8.encode(e164))));
+
+  /// `_shared/phone.ts` `normaliseE164`: `+`, a non-zero digit, then 7–14 more,
+  /// with spaces and dashes stripped. Anything else never reaches the hash.
+  static String? normaliseE164(String s) {
+    final t = s.replaceAll(RegExp(r'[\s-]'), '');
+    return RegExp(r'^\+[1-9]\d{7,14}$').hasMatch(t) ? t : null;
+  }
+
+  /// Verifies, stores and stamps one posted record. Mirrors `intakeRecord`:
+  /// the record is stored even when the *application* is later refused.
+  ({WireSignedRecord? record, RecordAck? refusal, bool duplicate}) _intake(
+    String deviceId,
+    WireRecordPost p,
+  ) {
+    RecordAck reject(String result, String check) =>
+        RecordAck(id: p.id, result: result, check: check);
+    if (p.authorDeviceId != deviceId) {
+      return (
+        record: null,
+        refusal: reject(RecordAck.rejectedShape, 'author_device_id'),
+        duplicate: false,
+      );
+    }
+    if (p.authorSig.length != 64) {
+      return (
+        record: null,
+        refusal: reject(RecordAck.rejectedShape, 'author_sig'),
+        duplicate: false,
+      );
+    }
+    if (uncertifiedDevices.contains(deviceId)) {
+      return (
+        record: null,
+        refusal: reject(RecordAck.rejectedUnauthorized, 'device_status'),
+        duplicate: false,
+      );
+    }
+    for (final existing in signedRecords) {
+      if (existing.id == p.id) {
+        return (record: existing, refusal: null, duplicate: true);
+      }
+    }
+    return (
+      record: addSignedRecord(p.stamped(0)),
+      refusal: null,
+      duplicate: false,
+    );
+  }
+
+  /// Projects a stored record onto the server's rows, or says why it did not.
+  RecordAck _apply(String deviceId, WireSignedRecord r) {
+    RecordAck ack(String result) =>
+        RecordAck(id: r.id, result: result, seq: r.seq);
+    final p = _payloadOf(r) ?? const <String, Object?>{};
+    switch (r.kind) {
+      case 'invite':
+        // The generic route is not a second way in: it has no number to hash
+        // (`_shared/records.ts` applyRecord).
+        return ack(RecordAck.rejectedInviteRoute);
+      case 'membership_status':
+        if (!adminDevices.contains(deviceId)) {
+          return ack(RecordAck.rejectedUnauthorized);
+        }
+        final user = p['user_id'];
+        final status = p['status'];
+        if (user is! String || status is! String) {
+          return ack(RecordAck.rejectedShape);
+        }
+        memberships['${r.tenantId}:$user'] = WireMembership(
+          id: '${r.tenantId}:$user',
+          tenantId: r.tenantId,
+          userId: user,
+          status: status,
+        );
+      case 'book_role':
+        if (!adminDevices.contains(deviceId)) {
+          return ack(RecordAck.rejectedUnauthorized);
+        }
+        final user = p['user_id'];
+        final book = p['book_id'];
+        if (user is! String || book is! String) {
+          return ack(RecordAck.rejectedShape);
+        }
+        bookRoles['$book:$user'] = WireBookRole(
+          id: '$book:$user',
+          bookId: book,
+          userId: user,
+          role: p['role'] as String?,
+          limits: p['limits'] as Map<String, Object?>?,
+        );
+      default:
+        // Every other kind is kept and relayed; the clients judge it. A kind
+        // this fake does not project is NOT a refusal (rule 6).
+        break;
+    }
+    _metaVersion++;
+    return ack(RecordAck.acked);
+  }
+
+  Map<String, Object?>? _payloadOf(WireSignedRecord r) {
+    try {
+      final v = jsonDecode(utf8.decode(r.payloadJson));
+      return v is Map<String, Object?> ? v : null;
+    } on Object {
+      return null;
+    }
+  }
+
   /// The transport one device uses.
   FakeTransport transportFor(String deviceId) => FakeTransport(this, deviceId);
+}
+
+/// An `invites` row as 06 §7's machine holds it. The invitee is present only
+/// as [inviteeHash]; the plaintext number reached this server once, in the
+/// issuing request, and was never written down (ADR 2026-09-05c §4).
+final class FakeInvite {
+  /// Creates a row.
+  FakeInvite({
+    required this.id,
+    required this.tenantId,
+    required this.recordId,
+    required this.inviteeHash,
+    required this.roles,
+    required this.createdBy,
+    required this.createdAtMs,
+    required this.expiresAtMs,
+    this.status = sent,
+    this.acceptedBy,
+  });
+
+  /// Live and unspent.
+  static const String sent = 'sent';
+
+  /// Spent — an invite admits exactly one join.
+  static const String accepted = 'accepted';
+
+  /// Past its 7-day window (bound lazily, at accept time).
+  static const String expired = 'expired';
+
+  /// Row id.
+  final String id;
+
+  /// Tenant the invite is into.
+  final String tenantId;
+
+  /// `source_record_id` — the admin's signed `invite` record.
+  final String recordId;
+
+  /// One-way tag over the invitee's number.
+  final String inviteeHash;
+
+  /// The grants offered, as the record spelled them.
+  final Object? roles;
+
+  /// The admin's user id.
+  final String createdBy;
+
+  /// When it was issued (server clock).
+  final int createdAtMs;
+
+  /// When it stops admitting anyone.
+  final int expiresAtMs;
+
+  /// `sent` / `accepted` / `expired`.
+  String status;
+
+  /// Who accepted it.
+  String? acceptedBy;
 }
 
 /// A device's line to the [FakeSyncServer]: on/off switch, call log, and an
 /// optional per-call hook the harness uses to route each request through the
 /// seeded network (drops → [TransportOffline]).
-final class FakeTransport implements SyncTransport {
+final class FakeTransport implements FullSyncTransport {
   /// Creates the transport.
   FakeTransport(this.server, this.deviceId);
 
@@ -373,6 +729,22 @@ final class FakeTransport implements SyncTransport {
   @override
   Future<MetaResponse> meta(MetaRequest request) =>
       _call('meta', () => server.meta(deviceId, request));
+
+  @override
+  Future<PostRecordsResponse> postRecords(PostRecordsRequest request) =>
+      _call('records', () => server.postRecords(deviceId, request));
+
+  @override
+  Future<InviteIssued> createInvite(CreateInviteRequest request) =>
+      _call('invites', () => server.createInvite(deviceId, request));
+
+  @override
+  Future<List<WireInviteOffer>> myInvites() =>
+      _call('invites', () => server.myInvites(deviceId));
+
+  @override
+  Future<InviteAcceptance> acceptInvite(String inviteId) =>
+      _call('invites/accept', () => server.acceptInvite(deviceId, inviteId));
 }
 
 /// A deterministic 32-bit FNV-1a — the harness's blob hash.

@@ -15,6 +15,7 @@ dependencies:
   data:
     path: ../data
   drift: ^2.34.4
+  http: ^1.6.0 # the only HTTP door in sync_engine (05 §1); MockClient drives it in tests
   meta: ^1.16.0
 
 dev_dependencies:

@@ -39,8 +39,9 @@ enum StructuralQuorum {
   /// Every current owner (the default).
   allOwners('all_owners'),
 
-  /// ⌈n/2⌉ + 1, as 02 §7.2.1 writes it — which coincides with all owners for
-  /// n ≤ 3 — and never more than there are owners.
+  /// More than half: ⌊n/2⌋ + 1 (ADR 2026-09-14 ruling 1 🔒). 02 §7.2.1 read
+  /// ⌈n/2⌉ + 1, which equals *all owners* for n ≤ 3 and so made this quorum
+  /// indistinguishable from [allOwners] in every book the app has today.
   majority('majority');
 
   const StructuralQuorum(this.wire);
