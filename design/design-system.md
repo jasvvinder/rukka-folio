@@ -93,6 +93,56 @@ bare-tray glyphs) on six screens and placeholder squares on one; the owner ruled
 uniform set and the majority bar won (48 + 4 cells replaced, canvases 4/7/12/14 +
 new-screens sources — mirror CHANGES.md, 3 Sep 2026).
 
+## 4.2 Form factor — breakpoints, the two-tier width rule, the rail 🔒 (ADR 2026-09-13b §2, ratified 14 Sep 2026) ⟦tests: F1-13-17, F1-13-19⟧
+
+**One set of screens on two form factors.** iPad and Android tablets are supported; there are no tablet
+artboards and none are needed — one set of rules, applied by the shell.
+
+**Breakpoints** — Material 3's canonical set, which Flutter aligns to; values live in
+`design/tokens/tokens.json` → `layout.breakpoint` and are mirrored by `RkLayout` in
+`app/lib/shared/layout.dart`, with `F1-13-17` reading the JSON so the two cannot drift:
+
+| Class | Width (logical px) | What it is |
+|---|---|---|
+| `compact` | < 600 | phones; a split-screen tablet pane |
+| `medium` | 600–839 | **portrait iPads** (≈ 744–834pt), large foldables |
+| `expanded` | ≥ 840 | **landscape iPads** |
+
+**The width rule is two-tier, and it is the part that matters.** Reading and form surfaces are capped to
+the readable measure and centred. **Professional surfaces are not** — the A/C statement, the trial
+balance and the reports take the full width they are given, because `ਨਾਮੇ | ਜਮ੍ਹਾਂ | ਬਾਕੀ` is a real data
+table and §3.1 rule 8 already requires it to reflow wide. Capping everything would waste a tablet on
+exactly the surfaces a bookkeeper bought one for. In code: the shell wraps every branch in
+`RkReadablePane`, and a professional screen opts out by wrapping itself in `RkWideSurface` — which is a
+no-op outside a shell, so screen tests that pump directly are unaffected.
+
+⚠️ **`layout.readableMeasure` = 600 is proposed, not ruled** — it is the one number ADR 2026-09-13b left
+open and it **wants the owner's eye**. Reasoning, so it can be argued with: 600 − 32 (the two 16px
+gutters) is 568px of text, ≈ **75 characters** at body 16 Mukta — the top of the 45–75 readable measure
+and inside WCAG 1.4.8's 80. It is set **equal to the `medium` floor** so the cap provably never engages
+on a phone: below 600 there is nothing to cap, which makes the rule's behaviour on the whole existing
+phone fleet trivially checkable rather than a matter of measurement.
+
+**Navigation is a presentation switch, not a second information architecture.** The bottom bar of §4.1
+holds at `compact` and `medium`; at `expanded` — and nowhere below it — the shell presents `RkNavRail`
+instead: the same four destinations in the same order, the same canonical glyphs, the same labels from
+the same ARB keys, the same docked ( + ) that is an action and not a tab. Rail width is
+`layout.railMinWidth` = 88 at 1.0 and grows with the user's font scale, because a 200 % label drawn into
+88px is a cut label. The selected destination is marked by a `sunk` pill **and** the heavier label **and**
+the thicker stroke — colour is never the only signal (§3.1, 07 §1 rule 3).
+
+🔒 **The shell applies all of this, so no screen knows about breakpoints. A screen that reads one is a
+defect**, and `RkWideSurface` is the only layout decision a screen is allowed to make.
+⟦tests: F1-13-17⟧
+
+**Why `RkTabBar` bounds its own height** (ADR 2026-09-13b §3). As a `bottomNavigationBar` the bar is laid
+out with a *loose* height; a bar that declares only `minHeight` fills it. From M5 until 14 Sep 2026
+`RkTabBar` measured 800×600 on an 800×600 screen and every tab's content got **0px** — a `ListView` in
+that viewport builds no rows, while a `Text` still has an element, so `find.text` passed and two gates
+and a nightly run saw nothing. The bar now constrains only its horizontal axis, so nothing inside it can
+fill, and every tab root is rendered through the real shell and asserted on **height** by `F1-13-19`.
+⟦tests: F1-13-19⟧
+
 ## 5. The ledger table — designed first (brand §7 step 4)
 
 The ਨਾਮੇ | ਜਮ੍ਹਾਂ | ਬਾਕੀ statement (01 §1.9) is the first Phase A artifact and constrains everything else. Its acceptance: correct tabular alignment in all three scripts at `table-row` 14px on a 360×800 viewport, b/d and c/d rows present, running balance never wraps, and it passes rules 1–5 above at a glance. English dates abbreviate months; ਪੰਜਾਬੀ/हिन्दी use full month names (owner rule). **No other screen is approved before this one is.**

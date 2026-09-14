@@ -237,6 +237,18 @@ const rkPhone375 = Size(375, 667);
 /// Both F1 phone viewports, in the order the suite names them.
 const rkPhones = [rkPhone360, rkPhone375];
 
+/// A portrait tablet — 11-inch iPad, the `medium` class (ADR 2026-09-13b §2).
+/// The shell still shows the bottom tab bar here.
+const rkTabletPortrait = Size(834, 1194);
+
+/// A landscape tablet — the `expanded` class, and the only place the shell
+/// swaps the tab bar for a [NavigationRail].
+const rkTabletLandscape = Size(1194, 834);
+
+/// Both tablet viewports, portrait first. Take these beside [rkPhones] in any
+/// layout case that should hold on both form factors (ADR 2026-09-13b §2).
+const rkTablets = [rkTabletPortrait, rkTabletLandscape];
+
 /// The three languages every user-facing string ships in (CLAUDE.md rule 8).
 const rkLocales = [Locale('en'), Locale('pa'), Locale('hi')];
 

@@ -77,6 +77,8 @@ Roles (admin · head · member · operator · viewer) change *what actions appea
 ### 3.1 Navigation model
 **Four tabs plus a docked centre action** 🔒 (ADR 2026-09-05f §A) — the 4-column bar of design-system §4.1 (Home · Ledger · Inbox · Menu) with ( + ) docked between Ledger and Inbox as an action, not a tab (no active state, no label). 07 §2 and DESIGN-PACK S1 say the same: ⟦tests: F1-13-1, F1-13-2, F1-13-3, F1-13-4, F1-13-5⟧
 
+**Two presentations of that one model 🔒 (ADR 2026-09-13b §2, ratified 14 Sep 2026).** At `compact` and `medium` (< 840dp — phones, and portrait tablets at ~744–834dp) the four tabs are the **bottom bar** above. At `expanded` (≥ 840dp — landscape tablets) the shell presents a **`NavigationRail`** instead: the same four destinations in the same order, the same ARB keys, the same docked ( + ), and selection marked by a sunk pill **and** the heavier label **and** the thicker stroke, so colour is never alone (07 §1 rule 3). This is a presentation switch, not a second information architecture — there is still one navigation model, and **no screen reads a breakpoint**: the shell applies it. ⟦tests: F1-13-17, F1-13-19⟧
+
 ```
 ┌──────────────────────────────────────────────────────┐
 │   Home      Ledger      ( + )      Inbox•     Menu    │

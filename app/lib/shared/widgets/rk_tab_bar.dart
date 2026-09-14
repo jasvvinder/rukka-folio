@@ -113,17 +113,34 @@ class RkTabBar extends StatelessWidget {
             constraints: const BoxConstraints(
               minHeight: RkTabBarSpec.minHeight,
             ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                tab(RkTab.home),
-                tab(RkTab.ledger),
-                Expanded(
-                  child: RkCentreAction(label: actionLabel, onTap: onAction),
-                ),
-                tab(RkTab.inbox),
-                tab(RkTab.menu),
-              ],
+            // The bar bounds its own height (ADR 2026-09-13b §3). As a
+            // `bottomNavigationBar` it is laid out with a *loose* height, and
+            // a bar that merely declares `minHeight` fills it: from M5 until
+            // 14 Sep 2026 RkTabBar measured 800x600 on an 800x600 screen and
+            // every tab's content got 0px — a `ListView` in that viewport
+            // builds no rows, while a `Text` still has an element, so
+            // `find.text` passed and no test saw it (F1-13-19).
+            //
+            // Constraining only the horizontal axis hands the Row an
+            // *unbounded* height, so nothing inside it can fill: every child
+            // reports its intrinsic height and the box clamps back to the
+            // incoming constraints. The bar is therefore `max(50, content)`
+            // at any text scale, and can never be taller than what it draws.
+            child: UnconstrainedBox(
+              constrainedAxis: Axis.horizontal,
+              alignment: Alignment.topCenter,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  tab(RkTab.home),
+                  tab(RkTab.ledger),
+                  Expanded(
+                    child: RkCentreAction(label: actionLabel, onTap: onAction),
+                  ),
+                  tab(RkTab.inbox),
+                  tab(RkTab.menu),
+                ],
+              ),
             ),
           ),
         ),
@@ -214,7 +231,12 @@ class RkCentreAction extends StatelessWidget {
       button: true,
       label: label,
       excludeSemantics: true,
+      // `heightFactor`/`widthFactor` 1 so the action sizes to the disc rather
+      // than to whatever room it is offered — a bare `Center` under loose
+      // constraints fills them, which is how the bar came to eat the screen.
       child: Center(
+        heightFactor: 1,
+        widthFactor: 1,
         child: SizedBox.square(
           dimension: RkTabBarSpec.minTouchTarget,
           child: Material(

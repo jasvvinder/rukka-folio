@@ -10,7 +10,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../l10n/gen/app_localizations.dart';
+import 'layout.dart';
 import 'widgets/placeholder_screen.dart';
+import 'widgets/rk_nav_rail.dart';
 import 'widgets/rk_tab_bar.dart';
 
 export 'package:go_router/go_router.dart' show GoRouter, GoRoute, RouteBase;
@@ -133,7 +135,15 @@ GoRouter buildRouter({
   );
 }
 
-/// The shell: branch content above the one tab bar.
+/// The shell: branch content beside or above the one navigation, and the one
+/// place the width rule is applied.
+///
+/// Form factor (ADR 2026-09-13b §2 🔒): at `compact` and `medium` the branch
+/// content sits above [RkTabBar]; at `expanded` it sits beside [RkNavRail].
+/// Either way the content goes through [RkReadablePane], so **no screen knows
+/// about breakpoints** — a screen that reads one is a defect. A professional
+/// surface opts out of the readable cap with [RkWideSurface], never by
+/// measuring the window itself.
 class RkShell extends StatelessWidget {
   const RkShell({super.key, required this.shell});
 
@@ -142,23 +152,48 @@ class RkShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
-      body: shell,
-      bottomNavigationBar: RkTabBar(
-        selected: RkTab.values[shell.currentIndex],
-        labels: {
-          RkTab.home: l10n.navHomeLabel,
-          RkTab.ledger: l10n.navLedgerLabel,
-          RkTab.inbox: l10n.navInboxLabel,
-          RkTab.menu: l10n.navMenuLabel,
-        },
-        actionLabel: l10n.navEntryLabel,
-        onSelect: (tab) => shell.goBranch(
-          tab.index,
-          // Re-tapping the active tab returns to its root (13 §3.1).
-          initialLocation: tab.index == shell.currentIndex,
+    final labels = {
+      RkTab.home: l10n.navHomeLabel,
+      RkTab.ledger: l10n.navLedgerLabel,
+      RkTab.inbox: l10n.navInboxLabel,
+      RkTab.menu: l10n.navMenuLabel,
+    };
+    final selected = RkTab.values[shell.currentIndex];
+    void select(RkTab tab) => shell.goBranch(
+      tab.index,
+      // Re-tapping the active tab returns to its root (13 §3.1).
+      initialLocation: tab.index == shell.currentIndex,
+    );
+    void action() => context.push(RkPaths.entry);
+
+    // The content region. Never `shell` bare: the branch needs a pane with a
+    // real height, which is what M5 through 13 Sep 2026 did not give it.
+    final content = RkReadablePane(child: shell);
+
+    if (RkLayout.railAt(RkLayout.of(context))) {
+      return Scaffold(
+        body: Row(
+          children: [
+            RkNavRail(
+              selected: selected,
+              labels: labels,
+              actionLabel: l10n.navEntryLabel,
+              onSelect: select,
+              onAction: action,
+            ),
+            Expanded(child: content),
+          ],
         ),
-        onAction: () => context.push(RkPaths.entry),
+      );
+    }
+    return Scaffold(
+      body: content,
+      bottomNavigationBar: RkTabBar(
+        selected: selected,
+        labels: labels,
+        actionLabel: l10n.navEntryLabel,
+        onSelect: select,
+        onAction: action,
       ),
     );
   }
