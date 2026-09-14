@@ -58,11 +58,12 @@ for (const f of files) {
   const sql = await Deno.readTextFile(new URL(f, MIGRATIONS));
   allSql += `\n-- ${f}\n${sql}`;
   const res = await parse(sql);
+  // libpg-query reports BYTE offsets; a JS string slice counts UTF-16 units, so any non-ASCII in a
+  // migration (§, ─, ⁸ …) shifts every statement after it. Slice the bytes, then decode.
+  const raw = new TextEncoder().encode(sql);
   for (const s of res.stmts) {
-    const src = sql.slice(
-      s.stmt_location ?? 0,
-      (s.stmt_location ?? 0) + (s.stmt_len ?? sql.length),
-    );
+    const at = s.stmt_location ?? 0;
+    const src = new TextDecoder().decode(raw.slice(at, at + (s.stmt_len ?? raw.length)));
     const st: any = s.stmt;
     if (st.CreateStmt) {
       const t = st.CreateStmt.relation.relname;
@@ -141,6 +142,7 @@ const TENANT_TABLES = [
   "guardian_set_members",
   "invites",
   "verification_events",
+  "ceremony_sessions",
   "escrow_policies",
   "envelopes",
   "signed_records",
@@ -457,4 +459,63 @@ Deno.test("E-06-17 invites & membership (06 §7): the state machine is on the ta
   assertStringIncludes(fn("rf.invite_guard"), "signed_records");
   assertStringIncludes(fn("rf.create_invite"), "rf.require_record(");
   assertStringIncludes(fn("rf.project_verification_event"), "rf.require_record(");
+});
+
+Deno.test("E-06-29 (static) ceremony session record (ADR 2026-09-13d ruling 4): 32/16/16 opaque bytes, rf_api holds SELECT+INSERT only, the guard is BEFORE on the table, the ten-minute window is a CHECK, and nothing in the schema hashes a ceremony value", () => {
+  // shape — three opaque values, pinned lengths, nothing derived
+  assertStringIncludes(allSql, "octet_length(commitment) = 32");
+  assertStringIncludes(allSql, "octet_length(verifier_random) = 16");
+  assertStringIncludes(allSql, "octet_length(opening) = 16");
+  for (const c of ["commitment", "verifier_random", "opening"]) {
+    const col = columns.find((x) => x.table === "ceremony_sessions" && x.name === c);
+    assert(col, `ceremony_sessions.${c} exists`);
+    assertStringIncludes(col!.type, "bytea", `${c} is opaque bytes`);
+  }
+
+  // rule 2 — write-once means no UPDATE and no DELETE for the API role, the `envelopes` shape
+  assertEquals(
+    [...privsOf("ceremony_sessions", "rf_api")].sort(),
+    ["insert", "select"],
+    "rf_api may open a session and read one; it may never rewrite one (ADR 2026-09-13d ruling 4)",
+  );
+  for (const p of policiesOn("ceremony_sessions")) {
+    assert(
+      !(p.roles.includes("rf_api") && ["UPDATE", "DELETE", "ALL"].includes(p.cmd.toUpperCase())),
+      `ceremony_sessions has an ${p.cmd} policy for rf_api`,
+    );
+  }
+
+  // rules 1–3, 5 — enforced on the table, BEFORE the write (the 0006 precedent)
+  const t = triggers.find((x) =>
+    x.table === "ceremony_sessions" && x.fn === "rf.ceremony_session_guard"
+  );
+  assert(t, "ceremony_sessions carries rf.ceremony_session_guard");
+  assert((t!.timing & 2) !== 0, "the guard runs BEFORE the write");
+  const guard = fn("rf.ceremony_session_guard");
+  for (const reason of ["ceremony_order", "ceremony_immutable", "ceremony_flood"]) {
+    assertStringIncludes(guard, reason);
+  }
+  assertStringIncludes(allSql, "expires_at = committed_at + interval '10 minutes'");
+  assertStringIncludes(fn("rf.ceremony_contribute"), "rf.active_in_tenant(");
+  assertStringIncludes(fn("rf.ceremony_contribute"), "self_verification");
+  assertStringIncludes(fn("rf.ceremony_open"), "ceremony_order");
+  assertStringIncludes(
+    allSql,
+    "revoke execute on function rf.sweep_ceremony_sessions() from rf_api",
+  );
+
+  // rule 4 — no server-side computation anywhere near these values (04 §8.6)
+  const bodies = [
+    "rf.ceremony_session_guard",
+    "rf.ceremony_contribute",
+    "rf.ceremony_open",
+    "rf.ceremony_subject_ok",
+    "rf.sweep_ceremony_sessions",
+  ].map(fn).join("\n");
+  for (const h of ["digest(", "hmac(", "blake2", "sha256", "sha512", "md5("]) {
+    assert(
+      !bodies.toLowerCase().includes(h),
+      `the relay computes ${h}; it must only forward bytes`,
+    );
+  }
 });
