@@ -12,6 +12,89 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-14 — M7: Phase B opens, and two protocol weaknesses found in code that shipped the same day
+
+Continues the 13 Sep session past midnight; the sixteen commits from `f88d6a6` to `f30d945` land here.
+Phase B (people) opened with four parallel lanes, then the escalation tier was pointed at `core_crypto`
+and **found two exploitable protocol weaknesses in shipped code** — one of them in screens built hours
+earlier. Both are now closed in spec, server, engine and UI. Push lane green throughout; nightly
+(hostile-query RLS) verified separately against a real Postgres.
+
+**Added**
+- **M7 round 1 — four lanes.** `S2` server invites + the 06 §7 membership state machine enforced in the
+  **database** by BEFORE triggers, so it binds the SECURITY DEFINER projectors and the table owner, not
+  only the edge function (`E-06-9`…`E-06-19`). `U4a` S9 Members + S9.1 Invite, `U4b` S9.2/S9.3/S9.4
+  ceremony (50 tests), `U6a` S6 Inbox + S6.1/S6.2 review stepper (30 cases) — all `F1-07-26` / `F1-07-23`.
+- **Structural quorum engine** — `A-02-94`, `A-02-95`. 02 §7.2.1's machine: pending-structural requests,
+  approval counting over signed records, veto, a 14-day lapse on an injected clock. Follows ADR
+  2026-09-06 §3's revocation precedent rather than inventing a second counting scheme.
+- **`ceremony_sessions`** (migration `0007`) — the commitment/verifier_random/opening relay, opaque bytes,
+  written once each and strictly ordered, enforced by trigger **and** CHECK so it survives a disabled
+  trigger. Short polling chosen over Realtime: Realtime authorises from the platform `authenticated` role,
+  which `0005` deliberately strips of every grant (`E-13d-1`, `E-06-20`…`E-06-29`).
+
+**Changed**
+- **The ceremony code path is off the breakable derivation.** S9.3 no longer builds `CodeChallenge`.
+- **`main.dart` 478 → 280** — the composition root is now `bootstrap.dart`. `ClosedYearsSource` moved out
+  of `features/ledger/widgets/` into `shared/seams/`: `features/reports` had been reaching into another
+  feature's *widgets* folder for a domain type. All six test files importing `main.dart` needed it only
+  for the l10n delegates, so the harness is decoupled from the composition root.
+- `B-04-4/7/9/10` marked `skip:` superseded (ADR 2026-09-05i §4) — as the **named argument**, not `@Skip`,
+  which is library-level and would have silently done nothing while `check_coverage` matched either string.
+
+**Decided** — four ADRs, two ratified.
+- **[2026-09-13d](docs/decisions/2026-09-13d-ceremony-code-path-commitment-sas.md) 🔒 RATIFIED.** The
+  8-digit ceremony code was derived from values a malicious server holds (the registered fingerprint) or
+  chooses (the nonce). A substituting relay pre-computed a match by **birthday search — ~2×10⁴ BLAKE2b,
+  under a second** — and the ghost key verified on the **first attempt with `attemptsUsed == 0`**, logging
+  nothing. Replaced by a commitment-based SAS. `04 §6.3`'s *"Rate limits make 8 digits sufficient"* was
+  the root cause: it conflated an online **guesser** (whom 3 attempts and 10 minutes do bound) with an
+  offline **pre-computer** (whom they do not). The QR path was confirmed sound — `verifyQr` compares 64 key
+  bytes from the scanned payload and never used the nonce. Switch-over pulled M11 → M7 so the breakable
+  derivation is never in production. Open 5 closed 14 Sep: a ceremony subject may be
+  `joined_pending_verification` **or** `active`, since 04 §6's *one component, four uses* makes guardian
+  setup mutual between two active members.
+- **[2026-09-13c](docs/decisions/2026-09-13c-recovery-umk-provenance.md) ⚠️ proposed.** `expected` in
+  `reconstructVerified` could come from the server; with `crypto_box_seal` being sender-anonymous, a server
+  substituting both it and the guardians' sealed boxes could make a fresh device recover into a
+  server-known UMK. Blast radius wider than first found: a fresh ceremony cannot tell a server-generated
+  key from a device-generated one, so re-wrapped **shared** book keys were exposed too. Type half landed;
+  option (b) proved circular (device certs root in the very UMK a recovering device lacks, `B-04-84`).
+- **[2026-09-13b](docs/decisions/2026-09-13b-ui-contract.md) ⚠️ proposed** — components before screens;
+  iPad/tablet in scope with breakpoints in tokens and a **two-tier** width rule (reading surfaces capped,
+  the statement and reports take the width); the shell tested *through* rather than around.
+- **[2026-09-13e](docs/decisions/2026-09-13e-escalation-budget.md) ⚠️ proposed** — the escalation cap is a
+  quota and a question, not a run count: a *run* holds one lane or five, so the unit is blind to cost and
+  gameable by packing.
+
+**Fixed (found by adversarial review, not by a failing test)**
+- **Three wrong-answer paths in Shamir** (`B-04-74`…`B-04-81`): a disposed share fed to `combine`
+  interpolated zeros into **plausible garbage**; a lone threshold-less share "reconstructed" to its own
+  bytes; hand-built `GuardianShareSet`s that `create()` never issues were accepted. All 22 prior Shamir
+  tests unchanged — nothing was loosened to fit.
+- **Silent statement mis-attribution in the RLS schema test**: `schema.test.ts` sliced statement sources
+  with `String.slice` on libpg-query's **byte** offsets, so any non-ASCII in a migration (`§`, `─`, `⁸`)
+  shifted every later statement and the wrong SQL was attributed to a policy. Prior runs were not
+  necessarily checking what they reported.
+- **`RkTabBar` takes the full screen height** as `bottomNavigationBar`, leaving every tab's content at
+  zero. Pre-existing since M5, invisible to both gates because no test renders through the shell.
+  **Diagnosed, not fixed** — first lane of the next round.
+
+**Open** ⚠️
+- `RkTabBar` above; ADRs `13b`, `13c`, `13e` await ratification.
+- ADR 2026-09-13c's five questions, including whether `expected` is scanned from a guardian's screen.
+- `structural_quorum` placement (ADR 05e §11 `business_setting` vs `book_config`) and the majority formula
+  — 02 §7.2.1's ⌈n/2⌉+1 equals *all owners* for n ≤ 3 and first differs at n = 4.
+- `wf-spend.sh` counts runs, the owner measures quota; the two disagree (see `13e`).
+- `gate-run` did not honour its `lane` argument — three invocations all reported `push`, so `/gate nightly`
+  silently skipped the RLS suite until it was run directly.
+
+**Commits** — `f88d6a6`, `a37ff18`, `af5e0b9`, `27fac2c`, `2455918`, `92f6800`, `494f0f1`, `ab56b64`,
+`6ab2f57`, `9334ced`, `2a3bb12`, `baba311`, `fa61060`, `25dadc4`, `6bcb192`, `f30d945`; the subject-filter
+confirmation is uncommitted at time of writing.
+
+---
+
 ## 2026-09-13 — M5: four carried decisions, taken
 
 No lanes. Four items had been sitting on `PLAN.md` §0 across sessions — three of them *decisions* rather

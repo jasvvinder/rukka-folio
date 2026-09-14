@@ -85,9 +85,12 @@ create index ceremony_sessions_live_idx on ceremony_sessions (expires_at);
 -- A session is a member of this tenant's ceremony, so the subject must already be *in* the tenant:
 -- joined_pending_verification (the member ceremony of 06 §7) or active (guardian activation,
 -- trustee handover, device linking — 04 §6's other three uses of the same component).
--- ⚠️ SPEC: ADR 2026-09-13d speaks only of the member ceremony; 04 §6 says "one component, four
--- uses", and guardian setup is mutual between two ACTIVE members, so refusing an active subject
--- would break a ceremony 04 §6 mandates. Narrower than "any user", wider than "invitees only".
+-- OWNER-CONFIRMED 14 Sep 2026 (ADR 2026-09-13d Open 5, closed). ADR 2026-09-13d speaks only of
+-- the member ceremony; 04 §6 says "one component, four uses", and guardian setup is mutual between
+-- two ACTIVE members, so refusing an active subject would break a ceremony 04 §6 mandates. The
+-- filter is therefore narrower than "any user" and wider than "invitees only": a subject must hold
+-- a membership in this tenant that is joined_pending_verification or active. Widening it further
+-- is a 🔒 change — the subject of a ceremony is who the trust root gets bound to.
 create or replace function rf.ceremony_subject_ok(p_tenant uuid, p_user uuid) returns boolean
 language sql stable security definer set search_path = public as $$
   select exists (select 1 from memberships m

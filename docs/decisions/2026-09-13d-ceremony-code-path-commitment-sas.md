@@ -280,5 +280,10 @@ and take `@Skip('superseded by ADR 2026-09-13d §1; re-lands at M11')` in the sw
    permanent log (04 §6.4) — useful for audit, no security role; 05d §7 owner.
 4. Not checked: nothing in the S2 or U4 lane briefs yet names this ADR — the orchestrator should add it to
    both rows so the relay and the switch are built once, not retrofitted.
-5. The other 04 §6 uses of the code path (guardian setup, trustee handover) inherit the change through the
-   same two screens; no separate ruling needed, but the owner should confirm that reading.
+5. ~~The other 04 §6 uses of the code path (guardian setup, trustee handover) inherit the change through
+   the same two screens; no separate ruling needed, but the owner should confirm that reading.~~
+   **Closed — owner-confirmed 14 Sep 2026.** The reading stands: one component, four uses, and all four
+   inherit the commitment SAS through S9.2 / S9.3. Consequently a ceremony **subject** may hold a
+   membership that is `joined_pending_verification` **or** `active` — an invitees-only filter would refuse
+   the mutual guardian setup 04 §6 mandates. Enforced by `rf.ceremony_subject_ok`
+   (`0007_ceremony_sessions.sql`), which the INSERT policy calls. ⟦tests: E-06-20, E-06-21⟧
