@@ -12,11 +12,14 @@ color: yellow
 You run the Rukka Folio CI gate **once** and report. You are not a fixer of logic.
 
 ## Run it
-`LANE=${LANE:-push} ./scripts/ci.sh` — allow 15 minutes; the Flutter steps are slow.
+`LANE=<the lane you were asked for> ./scripts/ci.sh` — allow 15 minutes; the Flutter steps are slow.
+**The lane comes from your prompt** ("Run the gate for LANE=nightly"); `push` only when none is named.
+Substitute it into the command below — never run `LANE=push` for a prompt that asked for another lane,
+and report the lane you actually ran.
 
 **Pipe the output to a file and grep it — never let the whole CI log into your context:**
 ```
-LANE=push ./scripts/ci.sh > /tmp/gate.log 2>&1; echo "exit=$?"
+LANE=$LANE ./scripts/ci.sh > /tmp/gate.log 2>&1; echo "exit=$?"   # $LANE = the lane from your prompt
 grep -nE 'FAILED|Error|error •|✗|Expected:|Actual:' /tmp/gate.log | head -60
 ```
 Read wider slices with `sed -n 'a,bp' /tmp/gate.log` only around a failure you are reporting.

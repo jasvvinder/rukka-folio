@@ -12,6 +12,77 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-14 (later session) — M7: the client half of multi-user, and the engine meets its server
+
+Three lane rounds in one session (ADR 2026-09-12b §6), gate green after each of the last two.
+Round 1 (15 lanes, 13–14 Sep) had already landed the screens and the server; this session built the
+**client** half that `06`'s ` @M7` markers had been naming since M6, and the transport underneath it.
+Repo-wide **929 → 1039 tests**; `check_coverage --strict` clean at 365 🔒 lines, 0 unmarked, 0 orphans.
+Golden `content_hash` unchanged — the ledger engine was not touched.
+
+### Added
+
+- **The HTTP transport (`D-05-14…23`).** `SyncTransport` had been an interface with no implementation:
+  nothing in this repository had ever pushed or pulled over HTTP, so the engine had never met the server
+  it was written for. `HttpSyncTransport` now speaks to `sync-push`/`sync-pull`/`sync-meta`, carries the
+  15-minute access token per call, pins through the existing `SpkiPins`, and maps every non-2xx and
+  network condition onto the distinct `TransportFailure` cases `engine.dart` already branches on.
+- **The record and invite routes (`D-05-24…35`).** `POST /sync-meta/records` and the three
+  `/sync-meta/invites` routes, with `FakeTransport` in `testing/harness` widened to match — a device
+  could previously pull the family's records and never contribute one.
+- **The client half of `06` (`C-05d-7`, `C-05d-9`, `C-06-14…19`).** A real `MembersRepository` over the
+  server, with the trust rule that is the point of ADR 2026-09-05d §7: a verification is believed **only**
+  when a signed record backs it — the client must not be more credulous than `rf.membership_guard`.
+- **S0.9 invitation accept (`F1-07-89…94`).** The joiner's screen. `F1-07-90` proves ADR 2026-09-05d §9 🔒
+  the strong way: it compares the *whole rendered screen* across three situations (server refused, no
+  invites, link not offered to this phone) and asserts the text sets are identical, so the screen cannot
+  become the oracle the route deliberately refuses to be.
+- **The app's sync and identity plumbing (`F1-05-1…31`).** The real `SyncClient` over `SyncEngine`,
+  an `IoTlsChainSource`, `AuthSyncCredentials`, and a `DeviceRecordAuthor` that genuinely signs.
+
+### Changed
+
+- **A wire bug fixed before the transport existed.** `server/_shared/bytes.ts` emits **unpadded**
+  base64url (Deno's `encodeBase64Url`); `wire.dart` decoded with `base64Url.decode`, which throws
+  `FormatException: Invalid length, must be multiple of four` on unpadded input. Every blob, `blob_hash`,
+  `pub_ed`, `pub_x`, certificate signature, `payload_json` and `author_sig` the three functions have ever
+  emitted would have thrown **on the phone and never in CI** — because nothing here had decoded a real
+  server response before. Both ends now accept padded or unpadded (`D-05-14`).
+- `HttpAuthClient.invalidateAccessToken()` — a 401 on a sync route drops the cached token without
+  signing out. ADR 2026-09-05b §2 🔒 forbids treating a bare status code as a logout.
+- `app/pubspec.yaml` takes `crypto ^3.0.7` (already transitive) for SHA-256 over the presented SPKI;
+  libsodium offers no plain digest and rule 7 forbids hand-rolling one. Until it was added the lane had
+  made a hosted build *refuse to configure at all* rather than ship unpinned — the right fail-closed call.
+- Traceability markers: the landed ` @M7` suffixes dropped from `C-06-14…18`, and the 56 new ids added
+  to the markers that own them across `05`, `06`, `07` and `13`.
+
+### Open ⚠️
+
+1. **The engine socket is open at both ends and not joined.** `bootstrap.dart` still builds
+   `FakeSyncClient()`. Not the transport's fault: `SyncEngine` needs a `CryptoGuard`, which needs the
+   `DeviceKeyPair`, `BookKeyStore` and `UmkKeyPair` held **private** inside `LocalLedger`
+   (`local_ledger.dart:469–472`) — and nothing in `app/lib` ever calls `LocalLedger.bootstrapSolo()`,
+   so today's build opens no ledger at all. A second key-unwrap path was deliberately not invented.
+   **The ask: one accessor, plus a caller.**
+2. **Pinning can only pin the leaf.** 05 §1 asks for intermediate-CA pins; `dart:io` exposes one
+   `X509Certificate` and never the chain. Accept leaf pins (shorter rotation — the M4 runbook must say
+   so) or add a platform channel. Separately the chain probe opens its **own** socket, so a host could
+   present one key to the probe and another to the request.
+3. A pin failure has no status of its own and reads as plain *Offline*; `TransportFailure` is sealed,
+   so giving it one is a 🔒 behaviour change.
+4. `SignedRecordKind.all` omits `invite` (`signed_record.dart:44-53`), which `0008` added to the
+   server's `RECORD_KINDS`. No live rejection today, but the fix flips a green test — core_crypto,
+   escalation tier, owner's say-so.
+5. **ADR 2026-09-14b still awaits ratification** (six rulings); `E-03-35`/`E-03-36` stay unwritten.
+6. `SyncEngine` never calls `postRecords` — no record outbox, and 05 §5 states no ordering or retry
+   policy to build one from.
+
+### Commits
+
+- _(to be filled next session)_
+
+---
+
 ## 2026-09-14 — M7: Phase B opens, and two protocol weaknesses found in code that shipped the same day
 
 Continues the 13 Sep session past midnight; the sixteen commits from `f88d6a6` to `f30d945` land here.

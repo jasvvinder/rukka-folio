@@ -7,7 +7,7 @@
 
 ---
 
-## 1. Transport & sessions 🔒 ⟦tests: E-05-6, E-06-6⟧
+## 1. Transport & sessions 🔒 ⟦tests: E-05-6, E-06-6, D-05-14, D-05-15, D-05-16, D-05-17, D-05-18, D-05-19, D-05-20, D-05-21, D-05-22, D-05-23, F1-05-14, F1-05-15, F1-05-16, F1-05-17, F1-05-18, F1-05-19, F1-05-20, F1-05-21, F1-05-22, F1-05-23, F1-05-24, F1-05-25, F1-05-26, F1-05-27, F1-05-28, F1-05-29, F1-05-30, F1-05-31⟧
 
 - HTTPS + JSON; auth per 06 §4 (15-min JWT, signed refresh). Every write carries `envelope_id` as the idempotency key — no separate header needed.
 - **Public-key pinning 🔒 (ADR 2026-09-05):** the client pins the **SPKI hashes** of the API host's chain — key, not certificate — with at least two pins (current + backup) so rotation is never an outage. Pin failure is a hard fail with no fallback and no override, in every build that talks to a hosted environment, staging included; only a local-dev build may disable it, and CI asserts the release lane never does. OS transport rules forbid cleartext (Android network-security-config, iOS ATS). ⚠️ Pin at the intermediate-CA level for hosted Supabase; verify the exact chain and write the rotation runbook at M4.
@@ -67,7 +67,7 @@ A device that cannot unwrap the new `BK` is not a member any more; it will recei
 - **Dangling references are held 🔒 (ADR 2026-09-05b §4):** an amend, reverse or decision whose target has not arrived sits in `held` — not projected, not quarantined. When every author's `author_seq` is contiguous and the target is still absent, quarantine `target_missing`. ⟦tests: D-05-2⟧
 - Undecryptable envelopes (key not yet arrived) queue in `key_wait`; retried whenever §5 delivers keys. Not an error state for 24 h; after that, surface in Inbox.
 
-## 5. Metadata & key sync 🔒 ⟦tests: E-05-9, D-05-11, D-05-12, D-05b-1⟧
+## 5. Metadata & key sync 🔒 ⟦tests: E-05-9, D-05-11, D-05-12, D-05b-1, D-05-24, D-05-25, D-05-26, D-05-27, D-05-28, D-05-29, D-05-30, D-05-31, D-05-32, D-05-33, D-05-34, D-05-35⟧
 
 Separate channel from envelopes, `GET /sync/meta?after=cursor` (cursor = `updated_at,id` on each table): memberships, book_roles, devices+certs, wrapped_keys, invites, verification_events, subscriptions (which therefore carries `updated_at`, 03 §2.4), **entitlement tokens** (Ed25519 by the server's `entitlement_key`, verified against the pinned public key; a tenant with no valid token is *Free*, never *locked* — ADR 2026-09-05g §1, §4), escrow/recovery states, tombstones.
 
@@ -96,7 +96,7 @@ Also the path for **local corruption** (ADR 2026-09-05c §6): a book whose mirro
 
 Order: profile+meta+keys (§5) → per book: `book_config`, `account`, `rule`, `period_lock`, `period_unlock`, `business_setting` objects (all-time; low volume — locks must be complete for 02 §8's validity rule, ADR 2026-09-05e §5) + latest `year_close` vector + all envelopes of the **open FY** (hot set) → project → app usable. Closed FYs fetch on demand (`?fy=2024-25`) behind the same pull API from warm or cold storage (03 §6) — opening a 3-year-old statement shows a one-time *"fetching old year…"* spinner, everything else is instant.
 
-## 9. Status surface (feeds 07 §1.7) 🔒 ⟦tests: D-05-1, D-05-6, D-05-9, D-05-10⟧
+## 9. Status surface (feeds 07 §1.7) 🔒 ⟦tests: D-05-1, D-05-6, D-05-9, D-05-10, F1-05-1, F1-05-2, F1-05-3, F1-05-4, F1-05-5, F1-05-6, F1-05-7, F1-05-8, F1-05-9, F1-05-10, F1-05-11, F1-05-12, F1-05-13⟧
 
 `Synced ✓` (outbox empty, cursors fresh, no author gaps) · `Saved on phone · will sync (N)` · `Offline` · `Waiting for entries from {name}'s phone` (author gap < 24 h, ADR 2026-09-05b §3) · `Needs attention` → Inbox (rejections, quarantines, key_wait > 24 h, author gap > 24 h, write_lost, clock warning). No other states; no spinners on entry save, ever. Screen homes: the author-gap state carries a **provisional** badge on position cards and blocks close at **S10.5**; a rebuilding book shows **S1.4** with the determinate loader; `rate_limited` has no UI (13 §6, ADR 2026-09-05f §B).
 

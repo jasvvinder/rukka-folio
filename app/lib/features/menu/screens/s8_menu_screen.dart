@@ -3,8 +3,9 @@
 // 2026-09-03) · Books & members · Backup · Devices & security ·
 // Subscription · Settings · Help · Legal (owner-added 3 Sep 2026).
 //
-// Reports (S8.1, built in this lane), Backup (S11.4), Devices & security
-// (S11) and Settings (S13) already have a real destination — S11.4/S11/S13
+// Reports (S8.1), Books (S9 — `features/books`, whose list carries the S9.5
+// *Add a business* entry point 07 §5.7 🔒 names this row as), Backup (S11.4),
+// Devices & security (S11) and Settings (S13) already have a real destination — S11.4/S11/S13
 // were built by earlier lanes and are wired into the app's featureRoutes
 // (main.dart), so this screen only needs their path to push. Every other
 // row's screen has not landed in this milestone, so it renders
@@ -33,6 +34,7 @@ class MenuScreen extends StatelessWidget {
   const MenuScreen({
     super.key,
     required this.onOpenReports,
+    required this.onOpenBooks,
     required this.onOpenBackup,
     required this.onOpenDevices,
     required this.onOpenSettings,
@@ -40,6 +42,10 @@ class MenuScreen extends StatelessWidget {
 
   /// Pushes S8.1 Reports list (built in this lane).
   final VoidCallback onOpenReports;
+
+  /// Pushes S9 Books (features/books) — Menu → Books, the entry point
+  /// 07 §5.7 🔒 gives S9.5 *Add a business*.
+  final VoidCallback onOpenBooks;
 
   /// Pushes S11.4 Backup settings (features/devices).
   final VoidCallback onOpenBackup;
@@ -69,9 +75,10 @@ class MenuScreen extends StatelessWidget {
                 title: l10n.menuCloseMonthRowTitle,
                 reason: l10n.menuCloseMonthRowReason,
               ),
-              MenuDisabledRow(
+              MenuRow(
                 title: l10n.menuBooksMembersRowTitle,
-                reason: l10n.menuBooksMembersRowReason,
+                subtitle: l10n.menuBooksMembersRowSubtitle,
+                onTap: onOpenBooks,
               ),
               MenuRow(
                 title: l10n.menuBackupRowTitle,

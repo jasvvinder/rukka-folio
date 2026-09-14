@@ -6,6 +6,10 @@
 // than covering the tab bar, per this lane's brief — `features/menu`
 // composes the routes it imports from `features/reports`.
 //
+// Books (S9) is the same shape: `features/books` owns `booksRoutes` and the
+// orchestrator mounts them on the root navigator; Menu only pushes the path,
+// which is the entry point 07 §5.7 🔒 requires for S9.5.
+//
 // Devices & security (S11), Backup (S11.4) and Settings (S13) are
 // root-navigator routes already wired into the app's `featureRoutes`
 // (`devicesRoutes`/`settingsRoutes` in main.dart, built by earlier lanes) —
@@ -14,6 +18,7 @@
 import 'package:go_router/go_router.dart';
 
 import '../../shared/router.dart';
+import '../books/books_paths.dart';
 import '../devices/devices_paths.dart';
 import '../reports/reports_routes.dart';
 import '../settings/settings_paths.dart';
@@ -23,11 +28,12 @@ import 'screens/s8_menu_screen.dart';
 export 'menu_paths.dart';
 
 /// S8 Menu — the Menu tab's root screen. Row taps push a nested route
-/// (Reports) or an existing feature's root-navigator screen (Backup,
+/// (Reports) or an existing feature's root-navigator screen (Books, Backup,
 /// Devices & security, Settings).
 final RkTabRoot menuRoot = RkTabRoot(
   builder: (context) => MenuScreen(
     onOpenReports: () => context.push(MenuPaths.reports),
+    onOpenBooks: () => context.push(BooksPaths.root),
     onOpenBackup: () => context.push(DevicesPaths.backup),
     onOpenDevices: () => context.push(DevicesPaths.devices),
     onOpenSettings: () => context.push(SettingsPaths.root),

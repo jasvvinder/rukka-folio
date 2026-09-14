@@ -1,0 +1,17 @@
+{
+  "@@locale": "pa",
+  "books.title": "ਬਹੀਆਂ",
+  "books.list.heading": "ਤੁਹਾਡੀਆਂ ਬਹੀਆਂ",
+  "books.loading": "ਤੁਹਾਡੀਆਂ ਬਹੀਆਂ ਖੋਲ੍ਹੀਆਂ ਜਾ ਰਹੀਆਂ ਹਨ…",
+  "books.error": "ਇਸ ਵੇਲੇ ਤੁਹਾਡੀਆਂ ਬਹੀਆਂ ਪੜ੍ਹੀਆਂ ਨਹੀਂ ਜਾ ਸਕੀਆਂ।",
+  "books.error.retry": "ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
+  "books.type.personal": "ਨਿੱਜੀ",
+  "books.type.family": "ਪਰਿਵਾਰ",
+  "books.type.joint": "ਸਾਂਝਾ ਪੂਲ",
+  "books.type.business": "ਕਾਰੋਬਾਰ",
+  "books.type.organization": "ਟਰੱਸਟ ਜਾਂ ਸੁਸਾਇਟੀ",
+  "books.add_business.row.title": "ਨਵਾਂ ਕਾਰੋਬਾਰ ਜੋੜੋ",
+  "books.add_business.row.subtitle": "ਨਾਂ ਦਿਓ, ਦੱਸੋ ਕਿ ਮਾਲਕ ਕੌਣ ਹੈ, ਸਾਲ ਦੀ ਸ਼ੁਰੂਆਤ ਚੁਣੋ, ਅਤੇ ਸ਼ੁਰੂਆਤੀ ਬਕਾਏ ਭਰੋ।",
+  "books.members.row.title": "ਭੂਮਿਕਾਵਾਂ, ਹੱਦਾਂ ਅਤੇ ਮੈਂਬਰ",
+  "books.members.row.reason": "ਭੂਮਿਕਾਵਾਂ, ਹੱਦਾਂ ਅਤੇ ਤਸਦੀਕ ਦਾ ਰਿਕਾਰਡ ਅਜੇ ਨਹੀਂ ਬਣੇ।"
+}

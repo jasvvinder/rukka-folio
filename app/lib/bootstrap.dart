@@ -6,9 +6,12 @@
 // function, and the order in which it is built (libsodium, then the keystore,
 // then the SQLCipher key, then the database) is itself the contract.
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:core_crypto/core_crypto.dart';
+import 'package:crypto/crypto.dart' as crypto;
 import 'package:data/data.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
@@ -17,10 +20,11 @@ import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:sodium_libs/sodium_libs.dart';
+import 'package:sync_engine/sync_engine.dart' as eng;
 
 import 'features/auth/auth_routes.dart';
 import 'features/auth/http_auth_client.dart';
-import 'features/auth/http_client_transport.dart';
+import 'features/books/books_routes.dart';
 import 'features/ceremony/ceremony_routes.dart';
 import 'features/devices/at_rest.dart';
 import 'features/devices/devices_routes.dart';
@@ -33,16 +37,23 @@ import 'features/home/home_scope.dart';
 import 'features/home/screens/s1_home_screen.dart';
 import 'features/inbox/inbox_routes.dart';
 import 'features/ledger/ledger_routes.dart';
+import 'features/members/members_api.dart';
 import 'features/members/members_routes.dart';
+import 'features/members/server_members_repository.dart';
 import 'features/menu/menu_routes.dart';
 import 'features/onboarding/onboarding_routes.dart';
 import 'features/settings/settings_routes.dart';
+import 'l10n/gen/app_localizations.dart';
 import 'main.dart';
 import 'shared/app_settings.dart';
 import 'shared/ledger/local_ledger.dart';
 import 'shared/prefs.dart';
+import 'shared/records/device_record_author.dart';
 import 'shared/router.dart';
+import 'shared/seams/http_transport.dart';
+import 'shared/seams/key_store.dart';
 import 'shared/seams/sync_client.dart';
+import 'shared/sync/sync.dart';
 import 'shared/widgets/blocked_screen.dart';
 
 /// Where the edge functions live; `--dart-define=RF_API_BASE=…` in release
@@ -57,6 +68,88 @@ const clientVersion = String.fromEnvironment(
   'RF_CLIENT_VERSION',
   defaultValue: '0.1.0',
 );
+
+/// The SPKI pins for the API host, as comma-separated base64 SHA-256 digests:
+/// `--dart-define=RF_SPKI_PINS=<current>,<backup>` (05 §1 🔒 needs at least two
+/// so rotation is never an outage).
+const spkiPinsB64 = String.fromEnvironment('RF_SPKI_PINS');
+
+/// Builds the pin set for this build (05 §1 🔒, ADR 2026-09-05 §1).
+///
+/// Empty ⇒ the local-dev set, the only one allowed to disable pinning, and the
+/// one the default `RF_API_BASE` (127.0.0.1) needs. The release lane asserts a
+/// release never ships it.
+///
+/// ⚠️ SPEC 05 §1: a configured pin set currently throws, because verifying one
+/// needs SHA-256 over the presented certificate's SPKI and this app has no
+/// SHA-256 source — libsodium exposes BLAKE2b and HKDF-SHA256, neither of which
+/// is a plain digest, and rule 7 forbids hand-rolling one. `package:crypto` in
+/// `app/pubspec.yaml` (the shell lane's file) plus one argument below is the
+/// whole fix; until then a hosted build **cannot be configured at all**, which
+/// is the fail-closed reading: the app can never ship talking to a hosted host
+/// with pinning off by accident (lane report M7-W1).
+(eng.SpkiPins, eng.TlsChainSource?) spkiPins() {
+  if (spkiPinsB64.isEmpty) return (const eng.SpkiPins.localDev(), null);
+  final digests = [
+    for (final b64 in spkiPinsB64.split(',').where((s) => s.isNotEmpty))
+      eng.SpkiPin(Uint8List.fromList(base64.decode(base64.normalize(b64)))),
+  ];
+  return (
+    eng.SpkiPins(digests),
+    IoTlsChainSource(
+      sha256: (b) => Uint8List.fromList(crypto.sha256.convert(b).bytes),
+    ),
+  );
+}
+
+/// The live [eng.SyncTransport] (05 §1 transport, §3 push, §4 pull, §5 meta):
+/// HTTPS + JSON to the deployed edge functions, the 15-minute access token of
+/// 06 §4 asked for per request, the min-version header of 06 §4.5, and the pin
+/// set of [spkiPins] checked before any request leaves.
+///
+/// Separate from [bootstrap] because its consumer — `eng.SyncEngine` — is not
+/// constructible yet (see the ⚠️ SPEC note at the wiring site); this is the
+/// half that is finished, and F1-05-30 pins it.
+eng.HttpSyncTransport buildSyncTransport({
+  required http.Client client,
+  required Future<String> Function() accessTokenOf,
+  ForgetAccessToken? forgetAccessToken,
+  Uri? functionsRoot,
+}) {
+  final (pins, tlsChain) = spkiPins();
+  return eng.HttpSyncTransport(
+    client: client,
+    functionsRoot: functionsRoot ?? Uri.parse(apiBase),
+    // One token per call, never cached in the transport; a 401 drops the
+    // cached token and nothing else — a device never wipes, and never logs
+    // out, on the server's word (ADR 2026-09-05b §2 🔒).
+    credentials: AuthSyncCredentials(
+      accessTokenOf: accessTokenOf,
+      forget: forgetAccessToken,
+    ),
+    clientVersion: clientVersion,
+    pins: pins,
+    tlsChainSource: tlsChain,
+  );
+}
+
+/// The identity `LocalLedger` wrote at bootstrap, read without opening the
+/// ledger: `{device_id, user_id, tenant_id}`, all canonical uuids. Null on a
+/// device that has never bootstrapped a ledger — which is every device until
+/// somebody calls `LocalLedger.bootstrapSolo()`.
+Future<LedgerIdentity?> storedIdentity(KeyStore keys) async {
+  final raw = await keys.read(LocalLedgerKeys.identity);
+  if (raw == null) return null;
+  try {
+    final j = jsonDecode(utf8.decode(raw));
+    if (j is! Map) return null;
+    final device = j['device_id'], user = j['user_id'], tenant = j['tenant_id'];
+    if (device is! String || user is! String || tenant is! String) return null;
+    return LedgerIdentity(deviceId: device, userId: user, tenantId: tenant);
+  } on FormatException {
+    return null;
+  }
+}
 
 /// Builds every dependency and starts the app (03 §5: fail closed).
 Future<void> bootstrap() async {
@@ -82,8 +175,14 @@ Future<void> bootstrap() async {
   );
   switch (result) {
     case Opened(:final db):
+      // One HTTP door for the whole app (05 §1, 06 §2–§4): one `http.Client`,
+      // one transport, one place that speaks `package:http`. `features/auth`
+      // and `features/members` each see it through their own seam.
+      final httpClient = http.Client();
+      final httpDoor = HttpClientRkTransport(httpClient);
+
       final auth = HttpAuthClient(
-        transport: HttpClientTransport(http.Client()),
+        transport: AuthTransportOverRkHttp(httpDoor),
         suite: suite,
         keys: keys,
         now: DateTime.now,
@@ -113,65 +212,164 @@ Future<void> bootstrap() async {
         final scope = decodeScope(storedScope);
         if (scope != null) homeScope.select(scope);
       }
-      homeScope.addListener(
-        () => unawaited(
-          settings.setScope(RkTab.home, encodeScope(homeScope.selected)),
-        ),
+      // Signing structural facts (ADR 2026-09-05b §1 🔒). Null when this
+      // device holds no Ed25519 key or has never registered — and null is the
+      // input `ServerMembersRepository` turns into `unauthorized`, which is
+      // the correct refusal and stays reachable.
+      final recordAuthor = await DeviceRecordAuthor.ifAvailable(
+        suite: suite,
+        keys: keys,
+        deviceIdOf: () async {
+          final raw = await keys.read(SessionItems.deviceId);
+          return raw == null ? null : utf8.decode(raw);
+        },
+        clock: RecordHlcClock(DateTime.now),
       );
 
-      runApp(
-        RukkaFolioApp(
+      // The members feature against the real server (06 §7, ADR 2026-09-05d
+      // §9 🔒), for the tenant this install belongs to. `believeNothing` is
+      // the posture of a device that has verified nobody: every membership
+      // then reads as pending, which is the truth — the guard that would
+      // upgrade it needs the book keys `LocalLedger` keeps private (below).
+      final identity = await storedIdentity(keys);
+      final l10n = await AppLocalizations.delegate.load(
+        settings.locale ?? const Locale('en'),
+      );
+      final members = identity == null
+          ? null
+          : ServerMembersRepository(
+              api: HttpMembersApi(
+                transport: MembersTransportOverRkHttp(httpDoor),
+                functionsRoot: Uri.parse(apiBase),
+                accessToken: () async {
+                  try {
+                    return await auth.accessToken();
+                  } on Object {
+                    return null; // no live session ⇒ `unauthorized`
+                  }
+                },
+                clientVersion: clientVersion,
+              ),
+              tenantId: identity.tenantId,
+              userId: identity.userId,
+              believes: believeNothing,
+              unknownVerifierName: l10n.membersVerifiedSomeone,
+              someoneToMeetName: l10n.membersPendingBooksSomeone,
+              author: recordAuthor,
+            );
+
+      // ── the socket (05 §1) ──────────────────────────────────────────────
+      //
+      // ⚠️ SPEC 05 §7 / ADR 2026-09-05b §1: the engine-backed [SyncClient] is
+      // built and tested (`shared/sync/engine_sync_client.dart`, F1-05-1…13)
+      // and its transport now exists above — but `eng.SyncEngine` also needs
+      // an `EnvelopeGuard`, and `CryptoGuard` takes this device's
+      // `DeviceKeyPair`, its `BookKeyStore` and the user's `UmkKeyPair`.
+      // `shared/ledger/local_ledger.dart` holds all three privately (`_device`,
+      // `_keySource`, `_umk`) and nothing in `app/lib` ever calls
+      // `bootstrapSolo()`, so on today's build there is no opened ledger and
+      // no legitimate way to reach them. Standing up a *second* key-unwrap
+      // path beside it would be inventing behaviour in the one place this
+      // repo least wants it, so the fake stays until `LocalLedger` exposes
+      // what it already holds (lane report M7-W1). [buildSyncTransport] is
+      // that wiring's other half and is built and tested already, so the
+      // change is: guard + identity, then
+      // `EngineSyncClient(engine: eng.SyncEngine(transport:
+      // buildSyncTransport(client: httpClient, accessTokenOf:
+      // auth.accessToken), mirror: ledger.mirror, …))`.
+      //
+      // The members feature above is **not** waiting on any of that: it talks
+      // to `sync-meta` over the same door today.
+      final SyncClient sync = FakeSyncClient();
+
+      homeScope.addListener(() {
+        unawaited(
+          settings.setScope(RkTab.home, encodeScope(homeScope.selected)),
+        );
+        // 05 §7 🔒: a scope switch is a foreground pull. Fire-and-forget —
+        // 07 §1.7 says a sync cycle never stands in front of the user.
+        unawaited(sync.syncNow());
+      });
+      if (sync is EngineSyncClient) {
+        // App open / resume (05 §7).
+        await sync.start();
+        WidgetsBinding.instance.addObserver(SyncLifecycleObserver(sync));
+      }
+
+      final app = RukkaFolioApp(
+        db: db,
+        sync: sync,
+        auth: auth,
+        keys: keys,
+        now: DateTime.now,
+        ledger: LocalLedger(
           db: db,
-          // ⚠️ SPEC: the sync_engine adapter onto the `SyncClient` seam lands
-          // with the next integration (engine API in packages/sync_engine).
-          sync: FakeSyncClient(),
-          auth: auth,
           keys: keys,
+          suite: suite,
           now: DateTime.now,
-          ledger: LocalLedger(
-            db: db,
-            keys: keys,
-            suite: suite,
-            now: DateTime.now,
-          ),
-          updateRequired: auth.updateRequired,
-          settings: settings,
-          pinVault: vault,
-          // S1 with the shell's scope holder. `homeRoot` (features/home) is
-          // the same screen without it — kept there for tests and previews;
-          // the two wirings must be changed together.
-          homeTabRoot: RkTabRoot(
-            builder: (context) => HomeScreen(
-              scopeController: homeScope,
-              // S1.4's producer (07 §28 🔒) — the same source `homeRoot`
-              // passes; the two wirings change together.
-              rebuildProgress: rebuildProgressOf(context),
-              onOpenPosition: (line) =>
-                  context.push(HomePaths.positionOf(line)),
-              onOpenAccount: (accountId) =>
-                  context.push(LedgerPaths.statementOf(accountId)),
-              onVerb: (kind) =>
-                  context.push('${RkPaths.entry}?verb=${kind.wire}'),
-            ),
-          ),
-          ledgerTabRoot: ledgerRoot,
-          // S6 Inbox (07 §9). `inboxRoutes` carries S6.2's stepper on the root
-          // navigator, so the review flow covers the tab bar.
-          inboxTabRoot: inboxRoot(),
-          menuTabRoot: menuRoot,
-          entryRoot: entryScreen,
-          featureRoutes: [
-            ...onboardingRoutes,
-            ...authRoutes,
-            ...ceremonyRoutes,
-            ...devicesRoutes,
-            ...homeRoutes,
-            ...inboxRoutes,
-            ...ledgerRoutes,
-            ...membersRoutes,
-            ...settingsRoutes,
-          ],
         ),
+        updateRequired: auth.updateRequired,
+        settings: settings,
+        pinVault: vault,
+        // S1 with the shell's scope holder. `homeRoot` (features/home) is
+        // the same screen without it — kept there for tests and previews;
+        // the two wirings must be changed together.
+        homeTabRoot: RkTabRoot(
+          builder: (context) => HomeScreen(
+            scopeController: homeScope,
+            // S1.4's producer (07 §28 🔒) — the same source `homeRoot`
+            // passes; the two wirings change together.
+            rebuildProgress: rebuildProgressOf(context),
+            onOpenPosition: (line) => context.push(HomePaths.positionOf(line)),
+            onOpenAccount: (accountId) =>
+                context.push(LedgerPaths.statementOf(accountId)),
+            onVerb: (kind) =>
+                context.push('${RkPaths.entry}?verb=${kind.wire}'),
+          ),
+        ),
+        ledgerTabRoot: ledgerRoot,
+        // S6 Inbox (07 §9). `inboxRoutes` carries S6.2's stepper on the root
+        // navigator, so the review flow covers the tab bar.
+        inboxTabRoot: inboxRoot(),
+        menuTabRoot: menuRoot,
+        entryRoot: entryScreen,
+        featureRoutes: [
+          ...onboardingRoutes,
+          ...authRoutes,
+          ...booksRoutes,
+          ...ceremonyRoutes,
+          ...devicesRoutes,
+          ...homeRoutes,
+          ...inboxRoutes,
+          ...ledgerRoutes,
+          ...membersRoutes,
+          ...settingsRoutes,
+        ],
+      );
+
+      // S9/S9.1 read the repository off the tree; with no tenant yet there is
+      // nothing to read and the scope's own empty fake is the right answer.
+      // S0.9 (13 §3.2) reads its invitations off the tree the same way. Bound
+      // to the real repository the joiner's screen shows a real invitation;
+      // unbound it falls back to the scope's empty fake, which is the safe
+      // state (no invitation claimed) but never a true one. `pending` is the
+      // greyed shared books of 07 §12 — absent until a meta pull has run, so
+      // the gateway reports none rather than guessing.
+      runApp(
+        members == null
+            ? app
+            : MembersRepositoryScope(
+                repository: members,
+                child: InvitationGatewayScope(
+                  gateway: DelegatedInvitationGateway(
+                    offers: members.myInvites,
+                    accept: members.acceptInvite,
+                    pending: () async =>
+                        members.current?.pendingBooks ?? const <PendingBook>[],
+                  ),
+                  child: app,
+                ),
+              ),
       );
     case MigrationFailed() || QuickCheckFailed() || OpenFailed():
       // 03 §5: fail closed. The support screen (S19.x) is a later lane; this

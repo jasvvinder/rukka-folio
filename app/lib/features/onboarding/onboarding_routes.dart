@@ -27,6 +27,7 @@ import 'screens/s0_6e_family_members_screen.dart';
 import 'screens/s0_6g_trust_name_screen.dart';
 import 'screens/s0_6h_trust_members_screen.dart';
 import 'screens/s0_8_set_pin_screen.dart';
+import 'screens/s0_9_invitation_screen.dart';
 import 'widgets/business_opening_host.dart';
 import 'widgets/family_opening_host.dart';
 import 'widgets/trust_opening_host.dart';
@@ -42,7 +43,15 @@ export 'screens/s0_5_books_safe_screen.dart'
     show BooksSafeScreen, KeySyncAvailability;
 export 'screens/s0_5b_recovery_sheet_screen.dart'
     show RecoverySheetScreen, RecoverySheetStep;
+export 'invitation_gateway.dart'
+    show
+        DelegatedInvitationGateway,
+        FakeInvitationGateway,
+        InvitationGateway,
+        InvitationGatewayScope;
 export 'screens/s0_8_set_pin_screen.dart' show SetPinScreen, SetPinStep;
+export 'screens/s0_9_invitation_screen.dart'
+    show InvitationScreen, InvitationStep;
 export 'screens/s0_6b_business_opening_balances_screen.dart'
     show BusinessOpeningBalancesScreen, OpeningGroup, OpeningRow;
 export 'screens/s0_6c_add_another_business_screen.dart'
@@ -321,6 +330,37 @@ final List<RouteBase> onboardingRoutes = [
       // Skipped or saved, the next stop is Home — where the S0.7 checklist
       // brings a skipped wizard back (07 §3.1 step 7).
       onDone: () => context.go(HomePaths.home),
+    ),
+  ),
+  // S0.9 Invitation accept — 13 §3.2's deep-link entry. It is a root route,
+  // not a step of flow F1: a joiner arrives here from a WhatsApp/SMS link,
+  // possibly before any of S0.1–S0.8 has run.
+  //
+  // ⚠️ WIRE — three things belong to the orchestrator's router.dart, not here:
+  //   1. the **deep-link mapping**: the external `https://…/join/<id>` (or
+  //      custom-scheme) URL onto [OnboardingPaths.invitation] with the id in
+  //      the `invite` query parameter;
+  //   2. an **[InvitationGatewayScope]** above the router, bound with
+  //      [DelegatedInvitationGateway] to the concrete
+  //      `ServerMembersRepository`'s `myInvites` / `acceptInvite` and to
+  //      `MembersSnapshot.pendingBooks` — without it S0.9 falls back to an
+  //      empty fake, which is the safe state but never a real invitation;
+  //   3. `onConfirmNumber` currently goes straight to S0.2, which **loses the
+  //      link**. The return hop (come back to this path with the same invite
+  //      id after the OTP) needs a redirect in router.dart; ⚠️ SPEC: neither
+  //      13 nor 07 says where a joiner lands after the OTP step of 13 §3.2's
+  //      `accept → OTP → …`, and this lane does not invent it.
+  GoRoute(
+    path: OnboardingPaths.invitation,
+    builder: (context, state) => InvitationScreen(
+      inviteId: state.uri.queryParameters[OnboardingPaths.invitationIdParam],
+      onOpenMyBook: () => context.go(HomePaths.home),
+      onConfirmNumber: () => context.go(AuthPaths.phoneOtp),
+      // The F11 ladder (13 §5) is features/devices' and features/auth's, not
+      // this lane's; until router.dart names its entry the action is absent
+      // rather than wrong — a disabled button with its reason on screen, not
+      // a door to nowhere (07 §1 rule 6).
+      onSetUpPhone: null,
     ),
   ),
 ];

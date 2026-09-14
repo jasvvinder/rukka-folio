@@ -173,7 +173,7 @@ Face ID / Touch ID is **not optional and not a setting** — it already guards t
 - **Stated at onboarding, not asked:** one line on O5 — "Face ID keeps this app closed to everyone else — if a new face is added to this phone, the app asks for your PIN" (ADR 2026-09-05d §4) — because a question invites turning it off, and it cannot be turned off.
 - **Personal Book lock** (04 §5.2 privacy; 06 §4.4 🔒 one PIN, not two): opt-in, guards only the personal book behind an extra step even after the app is unlocked, for shared or borrowed phones. It **re-prompts the same MPIN or biometric** — no second number, no set screen; enabling the toggle (§15) is the whole setup.
 
-## 5.7 Adding a business 🔒 (gap closed 1 Sep 2026) ⟦tests: F1-07-20 @M5⟧
+## 5.7 Adding a business 🔒 (gap closed 1 Sep 2026) ⟦tests: F1-07-20⟧
 Reached from Menu → Books, or immediately after the purpose card "My shop" / "My businesses". Four fields and nothing else: **name** · **who owns it** (*Just me* default / *Shared with others* → owners and ratio, 02 §7.1) · **financial year start** (1 April default) · **opening balances** (bank, cash, anyone who owes or is owed). Creating the book adds its chip to the scope switcher and seeds the shop or trade category tree.
 
 > **ADR 2026-09-09c §1, §3** — the seed is specified per book type (money, equity, income/expense; no party accounts, banks seeded unnamed), and S0.6b is **one grouped screen** rather than the three-step O6 wizard: once the accounts exist the screen is review-and-fill. ⟦tests: A-09c-1, F1-09c-1⟧
@@ -182,7 +182,7 @@ Reached from Menu → Books, or immediately after the purpose card "My shop" / "
 > by phone at setup (the S0.6e row, unchanged), shares are whole-number weights rather than percentages,
 > and the step is not skippable — its secondary returns to *Just me*. ⟦tests: F1-07-45⟧
 
-🔒 **The scope switcher has two forms, and they are different controls:** with **one business** it is a two-chip inline toggle in the top bar (S1.2); from **three or more books** it becomes the grouped bottom sheet (S1.3). Never show the grouped sheet to someone who owns two books. ⟦tests: F1-07-52, F1-07-53⟧
+🔒 **The scope switcher has two forms, and they are different controls:** with **one business** it is a two-chip inline toggle in the top bar (S1.2); from **three or more books** it becomes the grouped bottom sheet (S1.3). Never show the grouped sheet to someone who owns two books. ⟦tests: F1-07-52, F1-07-53, F1-07-87⟧
 
 ## 6. Ledger — the A/C index 🔒 ⟦tests: F1-02-9, F1-02-10, F1-07-42, F1-07-43, F1-07-44, F1-07-60, F1-07-61⟧
 
@@ -234,7 +234,7 @@ One flow: From (book + money A/C) → To (book + money A/C) → amount → save.
 
 ---
 
-## 12. Members, invitations & the ceremony 🔒 ⟦tests: F1-07-26⟧
+## 12. Members, invitations & the ceremony 🔒 ⟦tests: F1-07-26, F1-07-89, F1-07-90, F1-07-91, F1-07-92, F1-07-93, F1-07-94⟧
 
 - **Members screen** (per tenant): list with role badges per book, verification method + date (the permanent log, 04 §6.4), auto-post limits (tap to edit, admin only), `+ Invite`.
 - **Invite:** phone → per-book role + limit grid → **designation (optional)** — picked from the 01 §2 tables for the tenant type, or typed free; one muted line states it plainly: *"A name, not a permission — what they can do is set above"* (06 §1.0 🔒, Option B) → sends WhatsApp/SMS link. Invite card shows state machine (06 §7): `Invited (expires in 7 d)` → `Joined — verification needed` → `Active` → or `Expired` (one-tap re-invite). **A second admin's screen cannot show whom was invited** — only the inviting device holds the contact (ADR 2026-09-05c §4); the row reads *"Invited by Amrit · awaiting join"* (ADR 2026-09-05f §G).
@@ -317,7 +317,7 @@ Review requested — **digest per author+book**: the first flag notifies, later 
 ## 25. Attachment viewer (S20) and Search (S21) 🔒 (ADR 2026-09-05f §F) ⟦tests: F1-07-35 @M12⟧
 **S20** pinch-zoom bill photo, share (as PDF/image via the share sheet — the only capture path), replace. **S21** search across accounts, parties and notes in scope; results are P1 rows.
 
-## 26. Structural approval card (S6.3) 🔒 (ADR 2026-09-05f §D; 02 §7.2.1) ⟦tests: F1-07-36 @M7⟧
+## 26. Structural approval card (S6.3) 🔒 (ADR 2026-09-05f §D; 02 §7.2.1) ⟦tests: F1-07-36⟧
 States exactly what will change, in words with figures (*"Ownership ratio: Amrit 40 · Sukhdev 30 · Harjit 30 — currently equal thirds"*), quorum progress (*2 of 3*), **Approve** / **Veto with reason**; a veto cancels and logs. Member removal, FY-start change and book archive are structural (05e).
 
 ## 27. Partner drift & settlement (S14.2) 🔒 (ADR 2026-09-05f §F; 02 §7.1) ⟦tests: F1-07-37 @M8⟧

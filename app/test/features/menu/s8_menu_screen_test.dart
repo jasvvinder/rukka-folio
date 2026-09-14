@@ -18,6 +18,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:rukka_folio/features/books/books_paths.dart';
 import 'package:rukka_folio/features/menu/menu_routes.dart';
 import 'package:rukka_folio/features/menu/screens/s8_menu_screen.dart';
 import 'package:rukka_folio/features/reports/reports_routes.dart';
@@ -41,11 +42,13 @@ void main() {
 
   Widget buildScreen({
     VoidCallback? onOpenReports,
+    VoidCallback? onOpenBooks,
     VoidCallback? onOpenBackup,
     VoidCallback? onOpenDevices,
     VoidCallback? onOpenSettings,
   }) => MenuScreen(
     onOpenReports: onOpenReports ?? () {},
+    onOpenBooks: onOpenBooks ?? () {},
     onOpenBackup: onOpenBackup ?? () {},
     onOpenDevices: onOpenDevices ?? () {},
     onOpenSettings: onOpenSettings ?? () {},
@@ -106,20 +109,23 @@ void main() {
       (tester) async {
         await pumpRk(tester, buildScreen());
 
-        // 5 disabled rows: Close the month, Books & members, Subscription,
-        // Help, Legal (07 §2) — each pairs the clock icon with a reason.
-        expect(find.byIcon(Icons.schedule), findsNWidgets(5));
+        // 4 disabled rows: Close the month, Subscription, Help, Legal
+        // (07 §2) — each pairs the clock icon with a reason. Books & members
+        // left this list when S9 landed: it now opens `features/books`, the
+        // Menu → Books entry point 07 §5.7 🔒 gives S9.5.
+        expect(find.byIcon(Icons.schedule), findsNWidgets(4));
       },
     );
 
     testWidgets(
-      'F1-07-77 the 4 rows with a destination today (Reports, Backup, Devices & security, Settings) each reach their own callback, never the wrong one',
+      'F1-07-77 the 5 rows with a destination today (Reports, Books & members, Backup, Devices & security, Settings) each reach their own callback, never the wrong one',
       (tester) async {
-        var reports = 0, backup = 0, devices = 0, settings = 0;
+        var reports = 0, books = 0, backup = 0, devices = 0, settings = 0;
         await pumpRk(
           tester,
           buildScreen(
             onOpenReports: () => reports++,
+            onOpenBooks: () => books++,
             onOpenBackup: () => backup++,
             onOpenDevices: () => devices++,
             onOpenSettings: () => settings++,
@@ -127,12 +133,14 @@ void main() {
         );
 
         await tester.tap(find.text('Reports'));
+        await tester.tap(find.text('Books & members'));
         await tester.tap(find.text('Backup'));
         await tester.tap(find.text('Devices & security'));
         await tester.tap(find.text('Settings'));
         await tester.pumpAndSettle();
 
         expect(reports, 1);
+        expect(books, 1);
         expect(backup, 1);
         expect(devices, 1);
         expect(settings, 1);
@@ -147,6 +155,14 @@ void main() {
       // than a root-navigator route that would cover the tab bar), so
       // Reports stays inside the Menu tab.
       expect(menuRoot.routes, same(reportsRoutes));
+    });
+
+    test('F1-07-20 Menu → Books pushes S9 on the root navigator (07 §5.7 🔒 — the entry point for S9.5)', () {
+      // A root-navigator path, like Devices and Settings: S9 covers the tab
+      // bar rather than nesting inside the Menu tab, and `features/books`
+      // owns the routes the orchestrator mounts.
+      expect(BooksPaths.root, '/books');
+      expect(BooksPaths.addBusiness, '/books/add-business');
     });
   });
 }

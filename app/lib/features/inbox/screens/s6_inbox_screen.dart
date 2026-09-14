@@ -1,10 +1,10 @@
 // S6 Inbox (13 §3.2, 07 §9) — the one tray for everything awaiting a human.
 //
-// This slice draws the **review** cards (S6.1) only. 13 §4.1 P3's other typed
-// cards (imports, invites, recoveries, reminders, late arrivals, structural
-// approval S6.3, quota, security) each need a source this build does not have
-// yet; a state that cannot be sourced is not drawn. They arrive with their own
-// slices — S6.3's is planned at A-02-94 @M7.
+// This slice draws two of 13 §4.1 P3's typed cards: the **review** card (S6.1)
+// and the **structural approval** card (S6.3, 07 §26 🔒 — quorum, Approve and
+// Veto with reason). The rest (imports, invites, recoveries, reminders, late
+// arrivals, quota, security) each need a source this build does not have yet;
+// a state that cannot be sourced is not drawn.
 //
 // States (13 §4.3): loading (ruled skeleton) · populated · empty with its one
 // next action · error-with-retry · offline chip (never a blocking banner,
@@ -21,19 +21,30 @@ import '../../../shared/seams/sync_client.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../review_queue.dart';
+import '../structural_requests.dart';
 import '../widgets/reject_sheet.dart';
 import '../widgets/review_card.dart';
+import '../widgets/structural_card.dart';
+import '../widgets/veto_sheet.dart';
 
 /// The Inbox tab root.
 class InboxScreen extends StatefulWidget {
   /// Creates the screen.
-  const InboxScreen({super.key, this.onOpenLedger, this.onReviewGroup});
+  const InboxScreen({
+    super.key,
+    this.onOpenLedger,
+    this.onReviewGroup,
+    this.onOpenStructural,
+  });
 
   /// The empty state's one next action (07 §1 rule 6 — no dead ends).
   final VoidCallback? onOpenLedger;
 
   /// *One by one* → S6.2 for that card.
   final void Function(String groupId)? onReviewGroup;
+
+  /// *See the full request* → S6.3's review surface for that request.
+  final void Function(String requestId)? onOpenStructural;
 
   @override
   State<InboxScreen> createState() => _InboxScreenState();
@@ -45,6 +56,9 @@ class _InboxScreenState extends State<InboxScreen> {
   String? _busyGroup;
   String? _errorGroup;
   ({String groupId, int count})? _approved;
+  String? _busyRequest;
+  String? _errorRequest;
+  ({String requestId, StructuralResult result})? _decided;
 
   @override
   void initState() {
@@ -56,18 +70,71 @@ class _InboxScreenState extends State<InboxScreen> {
 
   Future<void> _refresh() async {
     final queue = ReviewQueueScope.of(context);
+    final structural = StructuralRequestsScope.of(context);
     setState(() {
       _loading = true;
       _error = false;
     });
     try {
       await queue.refresh();
+      await structural.refresh();
     } on ReviewQueueFailure {
+      if (mounted) setState(() => _error = true);
+    } on StructuralRequestFailure {
       if (mounted) setState(() => _error = true);
     } finally {
       if (mounted) setState(() => _loading = false);
     }
   }
+
+  /// One structural write (02 §7.2.1): one signed envelope, nothing applied
+  /// here. Busy and failure are per-card, so a failed veto never blanks the
+  /// tray (13 §4.3).
+  Future<void> _structuralWrite(
+    StructuralItem item,
+    Future<void> Function(StructuralRequests seam) act,
+    StructuralResult? result,
+  ) async {
+    final seam = StructuralRequestsScope.of(context);
+    final id = item.request.id;
+    setState(() {
+      _busyRequest = id;
+      _errorRequest = null;
+      _decided = null;
+    });
+    try {
+      await act(seam);
+      if (mounted && result != null) {
+        setState(() => _decided = (requestId: id, result: result));
+      }
+    } on StructuralRequestFailure {
+      if (mounted) setState(() => _errorRequest = id);
+    } finally {
+      if (mounted) setState(() => _busyRequest = null);
+    }
+  }
+
+  Future<void> _approveStructural(StructuralItem item) async {
+    if (!await confirmApproval(context) || !mounted) return;
+    await _structuralWrite(
+      item,
+      (seam) => seam.approve(item.request.id),
+      StructuralResult.approved,
+    );
+  }
+
+  Future<void> _vetoStructural(StructuralItem item) async {
+    final reason = await showVetoSheet(context);
+    if (reason == null || !mounted) return;
+    await _structuralWrite(
+      item,
+      (seam) => seam.veto(requestId: item.request.id, reason: reason),
+      StructuralResult.vetoed,
+    );
+  }
+
+  Future<void> _reinitiateStructural(StructuralItem item) =>
+      _structuralWrite(item, (seam) => seam.reinitiate(item.request.id), null);
 
   Future<void> _approveAll(ReviewGroup g) async {
     final queue = ReviewQueueScope.of(context);
@@ -129,14 +196,20 @@ class _InboxScreenState extends State<InboxScreen> {
               }
               return const _Skeleton();
             }
-            return StreamBuilder<SyncStatus>(
-              stream: scope.sync.status,
-              initialData: scope.sync.current,
-              builder: (context, ss) => _body(
-                context,
-                s,
-                offline: ss.data is Offline,
-                now: scope.now(),
+            final structural = StructuralRequestsScope.of(context);
+            return StreamBuilder<StructuralInbox>(
+              stream: structural.watch(),
+              initialData: structural.current,
+              builder: (context, st) => StreamBuilder<SyncStatus>(
+                stream: scope.sync.status,
+                initialData: scope.sync.current,
+                builder: (context, ss) => _body(
+                  context,
+                  s,
+                  structural: st.data ?? const StructuralInbox(),
+                  offline: ss.data is Offline,
+                  now: scope.now(),
+                ),
               ),
             );
           },
@@ -148,6 +221,7 @@ class _InboxScreenState extends State<InboxScreen> {
   Widget _body(
     BuildContext context,
     InboxSnapshot s, {
+    required StructuralInbox structural,
     required bool offline,
     required DateTime now,
   }) {
@@ -179,9 +253,35 @@ class _InboxScreenState extends State<InboxScreen> {
                 ],
               ),
             ),
-          if (s.isEmpty)
-            _EmptyState(readOnly: s.readOnly, onAction: widget.onOpenLedger)
-          else ...[
+          if (s.isEmpty && structural.isEmpty)
+            _EmptyState(readOnly: s.readOnly, onAction: widget.onOpenLedger),
+          // S6.3 first: a structural change is the only card that can alter
+          // who may do what (02 §7.2.1), so it outranks a review flag.
+          if (!structural.isEmpty) ...[
+            Padding(
+              padding: const EdgeInsets.only(bottom: RkSpace.s3),
+              child: Text(l10n.inboxSectionStructural, style: text.titleLarge),
+            ),
+            for (final item in structural.visible)
+              Padding(
+                padding: const EdgeInsets.only(bottom: RkSpace.s4),
+                child: StructuralCard(
+                  item: item,
+                  busy: _busyRequest == item.request.id,
+                  error: _errorRequest == item.request.id,
+                  result: _decided?.requestId == item.request.id
+                      ? _decided?.result
+                      : null,
+                  onApprove: () => _approveStructural(item),
+                  onVeto: () => _vetoStructural(item),
+                  onReinitiate: () => _reinitiateStructural(item),
+                  onOpen: widget.onOpenStructural == null
+                      ? null
+                      : () => widget.onOpenStructural!(item.request.id),
+                ),
+              ),
+          ],
+          if (!s.isEmpty) ...[
             Padding(
               padding: const EdgeInsets.only(bottom: RkSpace.s3),
               child: Text(l10n.inboxSectionReview, style: text.titleLarge),

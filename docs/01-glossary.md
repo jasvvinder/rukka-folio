@@ -114,7 +114,7 @@
 
 **"Books" alignment (brand 11 §1) 🔒:** *books* always means the books of account — the product's own Book (ਵਹੀ/बही) objects; the collective renders as ਵਹੀ-ਖਾਤੇ / बही-खाते. The literal ਕਿਤਾਬ/किताब never appears for books of account — in-product, in copy, or in translation. Context split for *ledger*: the in-app tab stays ਖਾਤੇ/खाते (the A/C index); the concept in prose/marketing is ਖਾਤਾ-ਵਹੀ/खाता-बही. ⟦tests: F3-01-10 @M12⟧
 
-### Designations 🔒 (owner-supplied, 2 Sep 2026) ⟦tests: C-06-15 @M7⟧
+### Designations 🔒 (owner-supplied, 2 Sep 2026) ⟦tests: C-06-15⟧
 
 Display labels only — capability is always one of the five stored roles (06 §1.1), and
 these names never change what a person may do. Where the owner's table offers two forms,
@@ -153,7 +153,7 @@ Hindi, so Chairman takes चेयरमैन to stay distinct.
 | Employee | ਕਰਮਚਾਰੀ / ਵਰਕਰ | कर्मचारी / वर्कर |
 | Advisor | ਸਲਾਹਕਾਰ | सलाहकार |
 
-🔒 **Ruled (owner, 2 Sep 2026 — Option B):** designations are **free display labels** — ⟦tests: C-06-15 @M7⟧
+🔒 **Ruled (owner, 2 Sep 2026 — Option B):** designations are **free display labels** — ⟦tests: C-06-15⟧
 any organization may use any of these or type its own. Capability is separate and is
 granted **only by the book's admin**, always one of the five stored roles (06 §1.0 owns
 the model and the permission-verbs table; "delete" does not exist — the ledger is

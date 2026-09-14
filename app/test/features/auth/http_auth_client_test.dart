@@ -540,4 +540,147 @@ void main() {
       );
     });
   });
+
+  group('C-06-19 — an OTP-only device surfaces no tenant metadata', () {
+    // ADR 2026-09-05d §2 🔒 + 06 §3 step 3: until the server has verified a
+    // certificate under the user's UMK, the device sees only itself. The
+    // server half landed in M7, so the client half is testable: even when a
+    // server volunteers tenant metadata on the activation responses, the
+    // client must surface none of it — not a name, not a count.
+    const planted = [
+      'Sharma Family',
+      'Sharma Trading Co',
+      'Personal book',
+      'Sunita',
+      'owner',
+      'tnt-9f2c',
+    ];
+
+    void scriptOversharingServer() {
+      t.on(
+        '/otp/request',
+        ScriptedTransport.ok({'ok': true, 'resend_after_s': 30}),
+      );
+      t.on(
+        '/otp/verify',
+        ScriptedTransport.ok({
+          'ticket': 'tk-1',
+          'user_id': 'u-1',
+          'expires_in_s': 600,
+          // Not in the contract; a server that leaks it must not be believed.
+          'tenant_name': 'Sharma Family',
+          'member_count': 4,
+        }),
+      );
+      t.on(
+        '/devices',
+        ScriptedTransport.ok({
+          'device_id': deviceId,
+          'user_id': 'u-1',
+          'status': 'registered',
+          'tenant_id': 'tnt-9f2c',
+          'tenant_name': 'Sharma Family',
+          'books': [
+            {'id': 'b-1', 'name': 'Personal book'},
+            {'id': 'b-2', 'name': 'Sharma Trading Co'},
+          ],
+          'members': [
+            {'name': 'Sunita', 'role': 'owner'},
+          ],
+          'device_count': 3,
+        }),
+      );
+      t.on(
+        '/challenge',
+        ScriptedTransport.ok({
+          'nonce': Bytes.base64Url(nonce),
+          'expires_in_s': 60,
+        }),
+      );
+      t.on(
+        '/token',
+        ScriptedTransport.ok({
+          ...sessionBody('acc-1', 'ref-1'),
+          'tenant_name': 'Sharma Family',
+          'memberships': [
+            {'tenant': 'tnt-9f2c', 'role': 'owner'},
+          ],
+        }),
+      );
+    }
+
+    test('C-06-19 the client state of an OTP-only session names only this user and this device, and carries no tenant, book or member metadata the server volunteered', () async {
+      final c = await client();
+      scriptOversharingServer();
+      final session = await activate(c);
+
+      final state = c.current;
+      expect(
+        state,
+        isA<Active>().having((a) => a.deviceCertified, 'certified', false),
+      );
+      expect(session.userId, 'u-1');
+      expect(session.deviceId, deviceId);
+
+      // Everything the seam exposes about the session, in one string.
+      final surfaced = [
+        state.toString(),
+        session.userId,
+        session.deviceId,
+        (state as Active).session.userId,
+        state.session.deviceId,
+      ].join('|');
+      for (final leak in planted) {
+        expect(
+          surfaced,
+          isNot(contains(leak)),
+          reason: 'ADR 2026-09-05d §2: an uncertified device sees only itself',
+        );
+      }
+    });
+
+    test('C-06-19 nothing tenant-shaped reaches the key store or the log on the OTP-only path', () async {
+      final c = await client();
+      scriptOversharingServer();
+      await activate(c);
+
+      // Only this device's own keys (04 §3.3) and the three session items
+      // 06 §4 needs. No tenant cache, no member list, no book names.
+      expect(keys.writes.toSet(), {
+        'rk.device.sign',
+        'rk.device.agree',
+        'rk.device.id',
+        'rk.session.user',
+        'rk.session.refresh',
+      });
+      for (final id in keys.writes.toSet()) {
+        final bytes = await keys.read(id);
+        final text = String.fromCharCodes(bytes!);
+        for (final leak in planted) {
+          expect(text, isNot(contains(leak)), reason: '$id');
+        }
+      }
+      // Rule 4: fixed event names only — no phone, no tenant, no name.
+      for (final line in log) {
+        for (final leak in [...planted, phone, code]) {
+          expect(line, isNot(contains(leak)));
+        }
+      }
+    });
+
+    test('C-06-19 an OTP-only device asks for no tenant metadata — the five activation routes and nothing else', () async {
+      final c = await client();
+      scriptOversharingServer();
+      await activate(c);
+      expect(t.requests.map((r) => r.url.path).toSet(), {
+        '/functions/v1/auth-challenge/otp/request',
+        '/functions/v1/auth-challenge/otp/verify',
+        '/functions/v1/auth-challenge/devices',
+        '/functions/v1/auth-challenge/challenge',
+        '/functions/v1/auth-challenge/token',
+      });
+      // No sync-meta, no memberships, no books call before certification.
+      expect(t.requests.any((r) => r.url.path.contains('sync-meta')), isFalse);
+    });
+  });
 }

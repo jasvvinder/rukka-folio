@@ -1,0 +1,17 @@
+{
+  "@@locale": "hi",
+  "books.title": "बहियाँ",
+  "books.list.heading": "आपकी बहियाँ",
+  "books.loading": "आपकी बहियाँ खोली जा रही हैं…",
+  "books.error": "अभी आपकी बहियाँ पढ़ी नहीं जा सकीं।",
+  "books.error.retry": "फिर कोशिश करें",
+  "books.type.personal": "निजी",
+  "books.type.family": "परिवार",
+  "books.type.joint": "साझा पूल",
+  "books.type.business": "कारोबार",
+  "books.type.organization": "ट्रस्ट या सोसाइटी",
+  "books.add_business.row.title": "नया कारोबार जोड़ें",
+  "books.add_business.row.subtitle": "नाम दें, बताएँ कि मालिक कौन है, साल की शुरुआत चुनें, और शुरुआती बकाया भरें।",
+  "books.members.row.title": "भूमिकाएँ, सीमाएँ और सदस्य",
+  "books.members.row.reason": "भूमिकाएँ, सीमाएँ और सत्यापन का रिकॉर्ड अभी नहीं बने।"
+}

@@ -68,7 +68,7 @@ Because one person holds different roles in different books, **the current ident
 | Close | can lock, cannot lock alone | confirms own book | — | — | — |
 
 ### 2.4 Roles → capability, not navigation
-Roles (admin · head · member · operator · viewer) change *what actions appear*, never *which screens exist*. A viewer sees the same statement screen without the entry button. This keeps the mental model stable across a family where everyone has different rights. **Designations are separate** (06 §1.0 🔒, Option B): a free display label per member — ਖ਼ਜ਼ਾਨਚੀ, Munshi, Patron — admin-set, always shown *with* the capability in plain words, never *instead of* it. ⟦tests: F1-07-36 @M7⟧
+Roles (admin · head · member · operator · viewer) change *what actions appear*, never *which screens exist*. A viewer sees the same statement screen without the entry button. This keeps the mental model stable across a family where everyone has different rights. **Designations are separate** (06 §1.0 🔒, Option B): a free display label per member — ਖ਼ਜ਼ਾਨਚੀ, Munshi, Patron — admin-set, always shown *with* the capability in plain words, never *instead of* it. ⟦tests: F1-07-88 @M7⟧
 
 ---
 
@@ -118,7 +118,7 @@ Roles (admin · head · member · operator · viewer) change *what actions appea
 | **S0.6i** | The trust's accounts | O6h | bank + gollak as `cash_collection` ⟦tests: F1-07-82⟧ |
 | **S0.6** | Opening balances — one grouped screen | onboarding | resumable; the three O6a–c steps become three **groups** on one screen now that the chart is seeded (ADR 2026-09-09c §3): *what you have · who owes you · who you owe*, plus *what each owner put in* for a shared business |
 | **S0.7** | Setup checklist (Home empty state) | S1 | progressive onboarding; it outlives the empty state — the card stays until the opening balances are in, so a skipped wizard always has a door (07 §3.1 step 7) ⟦tests: F1-07-57⟧ |
-| **S0.9** | Invitation accept (design O7a/O7b) | deep link | invited path: accept → OTP → personal book works immediately, shared books greyed "Meet Sunita to activate" (07 §12) |
+| **S0.9** | Invitation accept (design O7a/O7b) | deep link | invited path: accept → OTP → personal book works immediately, shared books greyed "Meet Sunita to activate" (07 §12) ⟦tests: F1-07-89, F1-07-90, F1-07-91, F1-07-92, F1-07-93, F1-07-94⟧ |
 | **S1** | Home / Position | root | banks, cash, get/give, advances, in-transit, month, verbs, today |
 | **S1.1** | Position line drill-down | S1 | list behind any position row |
 | **S1.4** | Book incomplete — rebuilding | S1 | replaces the Home card while projections rebuild (local corruption, Recompute on upgrade, `store_epoch` re-pull); determinate loader "{done} of {total} entries restored"; `integrity_ok` gates it (ADR 2026-09-05c §3/§6, ADR 2026-09-05f §B) |

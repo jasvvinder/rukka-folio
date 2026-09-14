@@ -57,7 +57,7 @@ canvas furniture (mockup frame border, dimmed bands), not product tokens, and st
   step is skippable into the checklist regardless. Canvas 0's master map realigned;
   Canvas 1's flow band follows when its partial is recovered.
 
-## Designations — Option B ruled 🔒 ⟦tests: C-06-15 @M7⟧
+## Designations — Option B ruled 🔒 ⟦tests: C-06-15⟧
 
 Owner-ruled (2 Sep): **designations are free display labels; permissions come only from
 the admin.** Any organization may pick from the 01 §2 designation tables or type its own

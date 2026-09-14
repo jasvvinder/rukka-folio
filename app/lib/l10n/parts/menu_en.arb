@@ -27,9 +27,9 @@
   "@menu.books_members.row.title": {
     "description": "S8 third row (07 §2 🔒 Menu bullet order) — S9 roles, limits, verification log."
   },
-  "menu.books_members.row.reason": "Books & members has not been built yet.",
-  "@menu.books_members.row.reason": {
-    "description": "S8 disabled-with-reason line: S9 (13 §3.2) has not landed in this milestone."
+  "menu.books_members.row.subtitle": "Your books, and adding a business.",
+  "@menu.books_members.row.subtitle": {
+    "description": "S8 Books & members row description — the row now opens S9 (features/books), whose list carries the S9.5 add-a-business entry point (07 §5.7 🔒). Roles, limits and the verification log are disabled-with-reason inside S9."
   },
 
   "menu.backup.row.title": "Backup",

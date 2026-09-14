@@ -13,4 +13,13 @@ abstract final class InboxPaths {
   /// The location to push for [groupId].
   static String stepperFor(String groupId) =>
       '${RkPaths.inbox}/review/$groupId';
+
+  /// S6.3 structural review surface — a root-navigator route for the same
+  /// reason S6.2 is one: it is the full statement of one request, and the
+  /// owner decides on it without the tab bar competing for the thumb.
+  static const structural = '${RkPaths.inbox}/structural/:requestId';
+
+  /// The location to push for [requestId].
+  static String structuralFor(String requestId) =>
+      '${RkPaths.inbox}/structural/$requestId';
 }

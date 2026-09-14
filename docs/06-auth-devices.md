@@ -5,14 +5,14 @@
 
 ---
 
-## 1. Identity model 🔒 ⟦tests: C-06-14 @M7⟧
+## 1. Identity model 🔒 ⟦tests: C-06-14⟧
 
 - **One phone number (E.164) = one human = one account, globally.** A user is not per-tenant; Harpreet is one identity who belongs to n tenants (family, businesses, trust) via memberships.
 - No passwords exist anywhere in the system. No email required (optional contact field only).
 - Plaintext profile: phone, display name, photo (optional, shown in approvals/verification), preferred language (per-user, not per-tenant), WhatsApp opt-in.
 - Phone-number change is supported (§9.4) — the number is the *claim*; the UMK is the identity.
 
-### 1.0 Designations are labels; capability is granted 🔒 (owner-ruled Option B, 2 Sep 2026 — ADR) ⟦tests: C-06-15 @M7⟧
+### 1.0 Designations are labels; capability is granted 🔒 (owner-ruled Option B, 2 Sep 2026 — ADR) ⟦tests: C-06-15⟧
 Two separate things, never conflated:
 
 - **Capability** — always one of the five stored roles (§1.1) plus the per-book entry
@@ -52,7 +52,7 @@ person who actually keeps the books — is *called* Treasurer while *holding* `h
 
 A gurudwara committee will not recognise "Operator"; it will recognise ਸੇਵਾਦਾਰ. 🔒 `head` defaults to President (ਪ੍ਰਧਾਨ), ADR 2026-09-01; Secretary is not a default label. ⚠️ Chairman's Gurmukhi sub-label (ਚੇਅਰਮੈਨ) awaits the native-speaker pass. ⚠️ Canvas 4/14's trust capability table describes Trustee as "approves" while 13 §7 gives review to admin/head only — owner to confirm whether trust `member`s (Trustees) also review.
 
-### 1.1 Multi-tenancy 🔒 ⟦tests: C-06-16 @M7⟧
+### 1.1 Multi-tenancy 🔒 ⟦tests: C-06-16⟧
 - `tenants(id, type ∈ {family, business_group, organization}, name_ciphertext, plan, …)`
 - `memberships(tenant_id, user_id, status, verified_by, verified_method, designation_label, …)` and `book_roles(book_id, user_id, role ∈ {admin, head, member, operator, viewer}, auto_post_limit_paise, …)` — one role **per book**, never global; `designation_label` is display-only (§1.0), admin-editable, never consulted by any permission check.
 - Access tokens carry `user_id` + `device_id` only — never a tenant. Every request is tenant-scoped by path and checked against memberships in Postgres **row-level security**. New tenant types (the trust case) are rows, not code.
@@ -68,7 +68,7 @@ A gurudwara committee will not recognise "Operator"; it will recognise ਸੇਵ
 
 ---
 
-## 3. Device registration 🔒 ⟦tests: E-06-3, E-06-6, E-06-7, E-03-24, C-06-9, C-06-12, C-06-13, C-05d-6⟧
+## 3. Device registration 🔒 ⟦tests: E-06-3, E-06-6, E-06-7, E-03-24, C-06-9, C-06-12, C-06-13, C-05d-6, C-06-19⟧
 
 On first run after OTP:
 
@@ -101,7 +101,7 @@ Challenge–response; no bearer secrets that outlive minutes.
 
 ---
 
-## 5. Activation flows by scenario 🔒 ⟦tests: C-06-17 @M7, F1-06-6⟧
+## 5. Activation flows by scenario 🔒 ⟦tests: C-06-17, F1-06-6⟧
 
 | Scenario | Flow |
 |---|---|
@@ -126,7 +126,7 @@ Recovery completion always revokes all prior sessions and devices of that user a
 
 ---
 
-## 7. Invitation & membership state machine 🔒 ⟦tests: C-06-18 @M7, E-06-9, E-06-10, E-06-11, E-06-12, E-06-13, E-06-14, E-06-15, E-06-16, E-06-17, E-06-18, E-06-19, E-06-20, E-06-21, E-06-22, E-06-23, E-06-24, E-06-25, E-06-26, E-06-27, E-06-28⟧
+## 7. Invitation & membership state machine 🔒 ⟦tests: C-06-18, E-06-9, E-06-10, E-06-11, E-06-12, E-06-13, E-06-14, E-06-15, E-06-16, E-06-17, E-06-18, E-06-19, E-06-20, E-06-21, E-06-22, E-06-23, E-06-24, E-06-25, E-06-26, E-06-27, E-06-28, E-06-30, E-06-31, E-06-32, E-06-33, E-06-34, E-06-35, E-06-36, E-06-37, E-06-38, E-06-39, D-05-24, D-05-25, D-05-26, D-05-27, D-05-28, D-05-29, D-05-30, D-05-31, D-05-32, D-05-33, D-05-34, D-05-35⟧
 
 ```
 invited ──install+OTP──▶ joined_pending_verification ──ceremony ✓──▶ active

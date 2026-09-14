@@ -200,6 +200,62 @@
   "@backup.vault.title": {
     "description": "S11.4 row 2: encrypted .rukka vault (04 §7.6), default ON. Platform nouns stay Latin (01 §1 rule 8)."
   },
+  "books.add_business.row.subtitle": "Name it, say who owns it, pick the year start, and fill its opening balances.",
+  "@books.add_business.row.subtitle": {
+    "description": "S9.5 row description — 07 §5.7 🔒's four fields and nothing else."
+  },
+  "books.add_business.row.title": "Add a business",
+  "@books.add_business.row.title": {
+    "description": "S9.5 entry point on S9 (07 §5.7 🔒 — reached from Menu → Books)."
+  },
+  "books.error": "Could not read your books just now.",
+  "@books.error": {
+    "description": "S9 error state (07 §1 rule 12 — the cause named, the way on offered)."
+  },
+  "books.error.retry": "Try again",
+  "@books.error.retry": {
+    "description": "S9 error-state action, retries the books query."
+  },
+  "books.list.heading": "Your books",
+  "@books.list.heading": {
+    "description": "S9 section heading above the books this device holds."
+  },
+  "books.loading": "Opening your books…",
+  "@books.loading": {
+    "description": "S9 working state (13 §4.3, 11 §4.5 — a ruled line and a sentence, never a bare spinner)."
+  },
+  "books.members.row.reason": "Roles, limits and the verification log have not been built yet.",
+  "@books.members.row.reason": {
+    "description": "S9 disabled-with-reason line (13 §4.3, 07 §1 rule 6) — the row explains itself rather than disappearing."
+  },
+  "books.members.row.title": "Roles, limits and members",
+  "@books.members.row.title": {
+    "description": "S9's other half (13 §3.2 row S9: roles, limits, verification log), not built in this milestone."
+  },
+  "books.title": "Books",
+  "@books.title": {
+    "description": "S9 Books app bar title, reached from Menu → Books (07 §5.7 🔒, 13 §3.2 row S9)."
+  },
+  "books.type.business": "Business",
+  "@books.type.business": {
+    "description": "Book type label (02 §1.1 BookType.business)."
+  },
+  "books.type.family": "Family",
+  "@books.type.family": {
+    "description": "Book type label (02 §1.1 BookType.family)."
+  },
+  "books.type.joint": "Shared pool",
+  "@books.type.joint": {
+    "description": "Book type label (02 §1.1 BookType.joint — the family common pool)."
+  },
+  "books.type.organization": "Trust or society",
+  "@books.type.organization": {
+    "description": "Book type label (02 §1.1 BookType.organization, 02 §8.2)."
+  },
+  "books.type.personal": "Personal",
+  "@books.type.personal": {
+    "description": "Book type label (02 §1.1 BookType.personal)."
+  },
   "ceremony.mismatch.body": "The code on that phone does not match the keys we hold for this person. Someone may be standing in for them. Do not give this phone access to your books.",
   "@ceremony.mismatch.body": {
     "description": "S9.4 body — says plainly what happened and what not to do. There is no override and no retry (04 §6.3 🔒)."
@@ -1466,6 +1522,10 @@
   "@inbox.section.review": {
     "description": "S6 section header over the S6.1 review cards (07 §9)."
   },
+  "inbox.section.structural": "Needs the owners’ decision",
+  "@inbox.section.structural": {
+    "description": "S6 section header over the S6.3 structural cards (07 §26, 02 §7.2.1 🔒)."
+  },
   "inbox.skeleton": "Loading your inbox",
   "@inbox.skeleton": {
     "description": "S6 loading state, announced with the ruled skeleton (11 §4.5, 13 §4.3)."
@@ -1638,6 +1698,329 @@
   "inbox.step.working": "Saving…",
   "@inbox.step.working": {
     "description": "S6.2 loading state while a decision is being recorded."
+  },
+  "inbox.structural.approve": "Approve",
+  "@inbox.structural.approve": {
+    "description": "S6.3 primary action (07 §26 🔒)."
+  },
+  "inbox.structural.approve.body": "Your approval is signed on this phone and counted with the others. The change takes effect only once enough owners have approved.",
+  "@inbox.structural.approve.body": {
+    "description": "S6.3 approve confirmation body (02 §7.2.1: each approval is authored on that owner’s own device)."
+  },
+  "inbox.structural.approve.recorded": "Your approval is recorded.",
+  "@inbox.structural.approve.recorded": {
+    "description": "S6.3 result after an approval lands."
+  },
+  "inbox.structural.approve.title": "Approve this change?",
+  "@inbox.structural.approve.title": {
+    "description": "S6.3 approve confirmation — a structural approval is signed and cannot be taken back."
+  },
+  "inbox.structural.deadline": "Lapses on {date} if the owners have not agreed by then.",
+  "@inbox.structural.deadline": {
+    "description": "S6.3 — the 14-day expiry of 02 §7.2.1, taken from the engine’s own deadline.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.structural.detail.approvers": "Who has approved",
+  "@inbox.structural.detail.approvers": {
+    "description": "S6.3 review surface — the owners whose signed approval the engine counted."
+  },
+  "inbox.structural.detail.approvers.none": "Nobody has approved yet.",
+  "@inbox.structural.detail.approvers.none": {
+    "description": "S6.3 review surface, empty approver list."
+  },
+  "inbox.structural.detail.back": "Back to Inbox",
+  "@inbox.structural.detail.back": {
+    "description": "S6.3 review surface’s one next action (07 §1 rule 6)."
+  },
+  "inbox.structural.detail.gone.body": "It may have been decided, vetoed or left to lapse on another phone.",
+  "@inbox.structural.detail.gone.body": {
+    "description": "S6.3 review surface missing-request reason line."
+  },
+  "inbox.structural.detail.gone.title": "That request is not here any more.",
+  "@inbox.structural.detail.gone.title": {
+    "description": "S6.3 review surface when the request has gone — never a blank screen."
+  },
+  "inbox.structural.detail.raised": "Raised on {date} by {name}",
+  "@inbox.structural.detail.raised": {
+    "description": "S6.3 review surface — when the 14-day window started.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.structural.detail.title": "Structural change",
+  "@inbox.structural.detail.title": {
+    "description": "S6.3 review surface title."
+  },
+  "inbox.structural.detail.you": "{name} (you)",
+  "@inbox.structural.detail.you": {
+    "description": "S6.3 review surface — marks the reader in the approver list.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.structural.done.body": "{done} of {total} owners approved, so this is now in force.",
+  "@inbox.structural.done.body": {
+    "description": "S6.3 approved state body.",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "inbox.structural.done.title": "The owners agreed",
+  "@inbox.structural.done.title": {
+    "description": "S6.3 approved state — quorum reached."
+  },
+  "inbox.structural.flag": "Owners must agree",
+  "@inbox.structural.flag": {
+    "description": "S6.3 card chip — the review flag’s structural counterpart; always drawn with its icon so colour is never alone (07 §1 rule 3)."
+  },
+  "inbox.structural.kind.archive": "Archive {book}",
+  "@inbox.structural.kind.archive": {
+    "description": "S6.3 title for StructuralAction.bookArchiveOrDelete.",
+    "placeholders": {
+      "book": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.structural.kind.fy.start": "Change when the book’s year starts",
+  "@inbox.structural.kind.fy.start": {
+    "description": "S6.3 title for StructuralAction.fyStartChange (forbidden outright once any year has closed — the engine refuses it before it is raised)."
+  },
+  "inbox.structural.kind.interest": "Change interest on capital",
+  "@inbox.structural.kind.interest": {
+    "description": "S6.3 title for StructuralAction.interestOnCapital (02 §7.1)."
+  },
+  "inbox.structural.kind.member.removal": "Remove {name} from this book",
+  "@inbox.structural.kind.member.removal": {
+    "description": "S6.3 title for StructuralAction.memberRemoval, when the member is named (ADR 2026-09-05e §9).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.structural.kind.member.removal.plain": "Remove a member from this book",
+  "@inbox.structural.kind.member.removal.plain": {
+    "description": "S6.3 title for a member removal whose subject has not reached this phone."
+  },
+  "inbox.structural.kind.owner": "Change who owns this book",
+  "@inbox.structural.kind.owner": {
+    "description": "S6.3 title for StructuralAction.ownerAddOrRemove."
+  },
+  "inbox.structural.kind.ownership.ratio": "Change the ownership shares",
+  "@inbox.structural.kind.ownership.ratio": {
+    "description": "S6.3 title for StructuralAction.ownershipRatio (02 §7.2.1 table 🔒)."
+  },
+  "inbox.structural.kind.profit": "Share out the profit",
+  "@inbox.structural.kind.profit": {
+    "description": "S6.3 title for StructuralAction.profitDistribution (02 §7.1)."
+  },
+  "inbox.structural.kind.quorum": "Change how many owners must agree",
+  "@inbox.structural.kind.quorum": {
+    "description": "S6.3 title for StructuralAction.quorumSetting — changing the quorum is itself structural (02 §7.2.1 🔒)."
+  },
+  "inbox.structural.kind.year.reopen": "Re-open the closed year {year}",
+  "@inbox.structural.kind.year.reopen": {
+    "description": "S6.3 title for StructuralAction.yearReopen — it voids certified balances, so it is never a solo act (02 §7.2.1 🔒).",
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.structural.kind.year.reopen.plain": "Re-open a closed year",
+  "@inbox.structural.kind.year.reopen.plain": {
+    "description": "S6.3 title for a year re-open whose subject has not reached this phone."
+  },
+  "inbox.structural.lapsed.action": "Raise it again",
+  "@inbox.structural.lapsed.action": {
+    "description": "S6.3 lapsed state’s one next action, for a reader who may initiate."
+  },
+  "inbox.structural.lapsed.ask": "An admin of {book} can raise it again.",
+  "@inbox.structural.lapsed.ask": {
+    "description": "S6.3 lapsed state for a reader who may not initiate — still not a dead end.",
+    "placeholders": {
+      "book": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.structural.lapsed.body": "{name}’s request closed on its own. Nothing changed, and it stays on the book’s record.",
+  "@inbox.structural.lapsed.body": {
+    "description": "S6.3 lapsed state body.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.structural.lapsed.title": "Lapsed — 14 days with no decision",
+  "@inbox.structural.lapsed.title": {
+    "description": "S6.3 lapsed state (02 §7.2.1: 14 days without quorum → lapsed, logged, re-initiable)."
+  },
+  "inbox.structural.not.owner": "The owners of {book} decide this one. You can see it because every structural change stays on the book’s record for all members.",
+  "@inbox.structural.not.owner": {
+    "description": "S6.3 role variant (13 §2.3.1) — a member who is not an owner is told who decides, never shown a dead control.",
+    "placeholders": {
+      "book": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.structural.nothing.applied": "Nothing has changed yet. No money and no permission moves until the owners agree.",
+  "@inbox.structural.nothing.applied": {
+    "description": "S6.3 — 02 §7.2.1 🔒 “Nothing is applied early”."
+  },
+  "inbox.structural.open": "See the full request",
+  "@inbox.structural.open": {
+    "description": "S6.3 card → the review surface."
+  },
+  "inbox.structural.quorum.progress": "{done} of {total} owners have approved",
+  "@inbox.structural.quorum.progress": {
+    "description": "S6.3 quorum progress (07 §26 🔒 “2 of 3”). Both numbers come from the engine’s own outcome — never counted on this screen.",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "inbox.structural.quorum.rule": "{total} of the {owners} owners must approve.",
+  "@inbox.structural.quorum.rule": {
+    "description": "S6.3 detail — the threshold in force for this request (02 §7.2.1; ⌊n/2⌋+1 for a majority, ADR 2026-09-14 ruling 1 🔒).",
+    "placeholders": {
+      "total": {
+        "type": "int"
+      },
+      "owners": {
+        "type": "int"
+      }
+    }
+  },
+  "inbox.structural.quorum.unknown": "This phone doesn’t yet know who the owners were when this was raised, so it cannot count the approvals.",
+  "@inbox.structural.quorum.unknown": {
+    "description": "S6.3 disabled-with-reason: the request names an owner-set version this reader has not seen (13 §4.3)."
+  },
+  "inbox.structural.raised.by": "{name} raised this in {book}.",
+  "@inbox.structural.raised.by": {
+    "description": "S6.3 — the initiator is shown, never inferred (13 §2.3).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "book": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.structural.ratio.unrecorded": "The shares in force were never written down. That is not the same as equal shares, so nothing here assumes them.",
+  "@inbox.structural.ratio.unrecorded": {
+    "description": "S6.3 note when an ownership-ratio request finds no ratio recorded — 02 §7.1 🔒 forbids reading an absent map as equal shares."
+  },
+  "inbox.structural.term.now": "Now",
+  "@inbox.structural.term.now": {
+    "description": "S6.3 column label for the term in force."
+  },
+  "inbox.structural.term.proposed": "Proposed",
+  "@inbox.structural.term.proposed": {
+    "description": "S6.3 column label for the term being asked for."
+  },
+  "inbox.structural.term.removed": "Removed",
+  "@inbox.structural.term.removed": {
+    "description": "S6.3 value when the proposal drops the subject altogether."
+  },
+  "inbox.structural.term.unrecorded": "Not recorded",
+  "@inbox.structural.term.unrecorded": {
+    "description": "S6.3 value when the book holds nothing for this term — never a stand-in default (02 §7.1 🔒)."
+  },
+  "inbox.structural.terms.title": "What will change",
+  "@inbox.structural.terms.title": {
+    "description": "S6.3 heading over the terms in force beside the proposed ones (07 §26 🔒)."
+  },
+  "inbox.structural.veto": "Veto with reason",
+  "@inbox.structural.veto": {
+    "description": "S6.3 second action (07 §26 🔒) — a veto closes the request and is recorded."
+  },
+  "inbox.structural.veto.body": "One veto closes this request for everyone, straight away. Your name and your reason go on the book’s record, where every member can read them.",
+  "@inbox.structural.veto.body": {
+    "description": "S6.3 veto sheet — the consequence is stated before the confirm (02 §7.2.1, §7.2 item 3)."
+  },
+  "inbox.structural.veto.confirm": "Veto this request",
+  "@inbox.structural.veto.confirm": {
+    "description": "S6.3 veto sheet confirm."
+  },
+  "inbox.structural.veto.hint": "Your reason",
+  "@inbox.structural.veto.hint": {
+    "description": "S6.3 veto sheet field label."
+  },
+  "inbox.structural.veto.recorded": "Vetoed. The request is closed.",
+  "@inbox.structural.veto.recorded": {
+    "description": "S6.3 result after a veto lands."
+  },
+  "inbox.structural.veto.required": "Write a reason first — every owner will read it.",
+  "@inbox.structural.veto.required": {
+    "description": "S6.3 veto sheet validation — a blank reason can never leave the sheet."
+  },
+  "inbox.structural.veto.title": "Why are you vetoing this?",
+  "@inbox.structural.veto.title": {
+    "description": "S6.3 veto sheet title — the reason is required (07 §26 🔒)."
+  },
+  "inbox.structural.vetoed.logged": "The veto and its reason stay on the book’s record. Any admin can raise the change again.",
+  "@inbox.structural.vetoed.logged": {
+    "description": "S6.3 vetoed state — logged permanently (02 §7.2 item 3) and no dead end (07 §1 rule 6)."
+  },
+  "inbox.structural.vetoed.reason": "Reason: {reason}",
+  "@inbox.structural.vetoed.reason": {
+    "description": "S6.3 — the reason recorded with the veto.",
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.structural.vetoed.title": "Cancelled by {name}",
+  "@inbox.structural.vetoed.title": {
+    "description": "S6.3 vetoed state (02 §7.2.1 🔒: any owner may veto, which closes the request immediately).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.structural.waiting": "{count, plural, =1{Waiting on 1 more owner.} other{Waiting on {count} more owners.}}",
+  "@inbox.structural.waiting": {
+    "description": "S6.3 — how many approvals the engine still wants, so a voted owner is never left guessing (07 §1 rule 6).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inbox.structural.you.approved": "You approved this.",
+  "@inbox.structural.you.approved": {
+    "description": "S6.3 state for an owner whose approval is already counted."
+  },
+  "inbox.structural.you.raised": "You raised this. Raising it is not approving it — it still needs your own approval.",
+  "@inbox.structural.you.raised": {
+    "description": "S6.3 state for the initiator. 02 §7.2.1: a quorum counts signed approvals, and the initiator authors one like every other owner."
   },
   "inbox.title": "Inbox",
   "@inbox.title": {
@@ -2495,6 +2878,10 @@
   "@members.pending_books.section": {
     "description": "S9 section for the invitee experience (07 §12): shared books greyed until the ceremony."
   },
+  "members.pending_books.someone": "someone already in this book",
+  "@members.pending_books.someone": {
+    "description": "07 §12 name slot when this phone knows nobody in the book by name yet — the greyed-book line still says who to meet."
+  },
   "members.reinvite.action": "Invite again",
   "@members.reinvite.action": {
     "description": "07 §12: `Expired` carries a one-tap re-invite."
@@ -2636,6 +3023,10 @@
       }
     }
   },
+  "members.verified.someone": "someone in this book",
+  "@members.verified.someone": {
+    "description": "S9 verification log, name slot, when the ceremony is signed and believed but this phone does not know the verifier's name (ADR 2026-09-05c §4 — names are not the server's to hold)."
+  },
   "members.you": "You",
   "@members.you": {
     "description": "S9 badge on the signed-in user's own row (13 §2.3 — who am I, here)."
@@ -2648,9 +3039,9 @@
   "@menu.backup.row.title": {
     "description": "S8 fourth row (07 §2 🔒 Menu bullet order) — opens S11.4 Backup settings (04 §7.6), already built by the devices lane and live here."
   },
-  "menu.books_members.row.reason": "Books & members has not been built yet.",
-  "@menu.books_members.row.reason": {
-    "description": "S8 disabled-with-reason line: S9 (13 §3.2) has not landed in this milestone."
+  "menu.books_members.row.subtitle": "Your books, and adding a business.",
+  "@menu.books_members.row.subtitle": {
+    "description": "S8 Books & members row description — the row now opens S9 (features/books), whose list carries the S9.5 add-a-business entry point (07 §5.7 🔒). Roles, limits and the verification log are disabled-with-reason inside S9."
   },
   "menu.books_members.row.title": "Books & members",
   "@menu.books_members.row.title": {
@@ -3319,6 +3710,145 @@
   "onboarding.family.title": "Name your family",
   "@onboarding.family.title": {
     "description": "S0.6d (13 §3.2, 07 §3.1.1 branch O6d) — name the family pool."
+  },
+  "onboarding.invite.checking": "Checking your invitation…",
+  "@onboarding.invite.checking": {
+    "description": "S0.9 loading state (13 §4.3) — the skeleton's label."
+  },
+  "onboarding.invite.error.body": "Nothing has changed. Try again in a moment.",
+  "@onboarding.invite.error.body": {
+    "description": "S0.9 error state — says what did not happen, so a retry is safe."
+  },
+  "onboarding.invite.error.retry": "Try again",
+  "@onboarding.invite.error.retry": {
+    "description": "S0.9 error-with-retry action."
+  },
+  "onboarding.invite.error.title": "We could not check your invitation",
+  "@onboarding.invite.error.title": {
+    "description": "S0.9 error-with-retry (13 §4.3). Never a raw error code (07 §1 rule 12)."
+  },
+  "onboarding.invite.expired.body": "Invitations last seven days. Ask whoever invited you to send it again.",
+  "@onboarding.invite.expired.body": {
+    "description": "S0.9 — 06 §7's one-tap re-invite is the admin's action, so the way out is to ask."
+  },
+  "onboarding.invite.expired.title": "This invitation has run out",
+  "@onboarding.invite.expired.title": {
+    "description": "S0.9 refusal `invite_expired` (06 §7 🔒 7-day window). Distinct from not_for_you because the server only answers it to the number the invite was for."
+  },
+  "onboarding.invite.joined.heading": "You are in",
+  "@onboarding.invite.joined.heading": {
+    "description": "S0.9 accepted state (06 §7 joined_pending_verification)."
+  },
+  "onboarding.invite.joined.open": "Open my book",
+  "@onboarding.invite.joined.open": {
+    "description": "S0.9 accepted state, primary action → S1 Home."
+  },
+  "onboarding.invite.joined.own": "Your own book works right now. It waits for nobody.",
+  "@onboarding.invite.joined.own": {
+    "description": "07 §12 🔒 / 06 §7 🔒 — the personal book needs nobody's keys, so post-then-review never parks a joiner on someone else's phone."
+  },
+  "onboarding.invite.joined.waiting": "{count, plural, =1{1 shared book is waiting for you} other{{count} shared books are waiting for you}}",
+  "@onboarding.invite.joined.waiting": {
+    "description": "S0.9 accepted state, before the meta pull has named the shared books — a count, never an invented name.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "onboarding.invite.not_for_you.action": "Use my own book",
+  "@onboarding.invite.not_for_you.action": {
+    "description": "S0.9 — no dead end: a joiner with no usable invitation still has their own book (07 §12)."
+  },
+  "onboarding.invite.not_for_you.body": "An invitation only works on the number it was sent to. Ask whoever invited you to send a new one to this number.",
+  "@onboarding.invite.not_for_you.body": {
+    "description": "S0.9 — the way out (07 §1 rule 6). It says what to do without saying whether a link existed."
+  },
+  "onboarding.invite.not_for_you.title": "This invitation cannot be used on this phone",
+  "@onboarding.invite.not_for_you.title": {
+    "description": "S0.9 — ADR 2026-09-05d §9 🔒: the ONE message for \"this link is not for your number\" AND \"there is no such link\". Never two, and never a second sentence that separates them: two messages would make the screen the oracle the route (C-05d-9) refuses to be."
+  },
+  "onboarding.invite.not_live.body": "It has already been used, or a newer invitation replaced it. Open the newest link, or ask for a fresh one.",
+  "@onboarding.invite.not_live.body": {
+    "description": "S0.9 — re-issuing to the same number revokes the live invite (06 §7, E-06-35), so the newest link is the one that works."
+  },
+  "onboarding.invite.not_live.title": "This link is no longer the live one",
+  "@onboarding.invite.not_live.title": {
+    "description": "S0.9 refusal `invite_not_live` (06 §7): already accepted, revoked, or replaced by a newer invite."
+  },
+  "onboarding.invite.offer.accept": "Accept invitation",
+  "@onboarding.invite.offer.accept": {
+    "description": "S0.9 primary action → 06 §7 `joined_pending_verification`."
+  },
+  "onboarding.invite.offer.accepting": "Accepting…",
+  "@onboarding.invite.offer.accepting": {
+    "description": "S0.9 primary action, loading state (13 §4.3)."
+  },
+  "onboarding.invite.offer.books": "{count, plural, =1{1 shared book} other{{count} shared books}}",
+  "@onboarding.invite.offer.books": {
+    "description": "S0.9 — how many shared books the invitation covers. A count is all the server sends before acceptance; the names are not its to give.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "onboarding.invite.offer.expires": "This link stops working on {date}",
+  "@onboarding.invite.offer.expires": {
+    "description": "S0.9 — the 7-day window of 06 §7 🔒, as a date rather than a countdown.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.invite.offer.heading": "You have been invited",
+  "@onboarding.invite.offer.heading": {
+    "description": "S0.9 offer state heading. It names nobody: the server tells a phone that has not joined neither the tenant's name nor the inviter's (ADR 2026-09-05c §4, ADR 2026-09-05d §2)."
+  },
+  "onboarding.invite.offer.hidden": "The names come after you accept. A phone that has not joined is shown nothing about a family or a business — not even who asked.",
+  "@onboarding.invite.offer.hidden": {
+    "description": "S0.9 — why the offer names nothing (ADR 2026-09-05d §2 🔒). Said plainly so silence reads as design, not as a bug."
+  },
+  "onboarding.invite.offer.not_now": "Not now",
+  "@onboarding.invite.offer.not_now": {
+    "description": "S0.9 secondary — the invitation keeps for its 7 days; the joiner's own book does not wait on it (07 §1 rule 6)."
+  },
+  "onboarding.invite.offline.body": "An invitation is one of the few things that needs the internet. Your own book keeps working without it.",
+  "@onboarding.invite.offline.body": {
+    "description": "S0.9 offline state — names the cause and leaves the joiner a door (07 §1 rule 6)."
+  },
+  "onboarding.invite.offline.title": "No connection",
+  "@onboarding.invite.offline.title": {
+    "description": "S0.9 offline state (13 §4.3). Offline is normal (07 §1 rule 7) — an invitation is one of the few things that is not."
+  },
+  "onboarding.invite.sign_in.action": "Confirm my number",
+  "@onboarding.invite.sign_in.action": {
+    "description": "S0.9 unauthorized action → S0.2 phone + OTP."
+  },
+  "onboarding.invite.sign_in.body": "An invitation belongs to a phone number, so we check yours before opening it.",
+  "@onboarding.invite.sign_in.body": {
+    "description": "S0.9 unauthorized — why the OTP step exists, without hinting which number the link was for."
+  },
+  "onboarding.invite.sign_in.title": "Confirm your number first",
+  "@onboarding.invite.sign_in.title": {
+    "description": "S0.9 unauthorized — an invite is accepted only by a device whose OTP-verified number matches (ADR 2026-09-05d §9 🔒). 13 §3.2's happy path is accept → OTP."
+  },
+  "onboarding.invite.title": "Your invitation",
+  "@onboarding.invite.title": {
+    "description": "S0.9 invitation accept (13 §3.2 row S0.9, design O7a/O7b) — the joiner's side of 07 §12."
+  },
+  "onboarding.invite.unset.action": "Set up this phone",
+  "@onboarding.invite.unset.action": {
+    "description": "S0.9 variant action → the F11 ladder (link an existing device, guardians, or the paper sheet). No dead end (07 §1 rule 6)."
+  },
+  "onboarding.invite.unset.body": "Until this phone holds your keys it shows nothing but itself — no books, no people, and no invitation. Finish setting it up, then open the link again.",
+  "@onboarding.invite.unset.body": {
+    "description": "S0.9 variant — it does not claim an invitation is waiting, because this device cannot know (06 §3 step 3 🔒)."
+  },
+  "onboarding.invite.unset.title": "This phone is not set up yet",
+  "@onboarding.invite.unset.title": {
+    "description": "S0.9 variant for an uncertified device (13 §5 flow F11: \"device certified? no → sees nothing of the family, S0.9 variant\"). It names no tenant, no book and no member — an uncertified device is shown none of them (ADR 2026-09-05d §2 🔒, C-06-19)."
   },
   "onboarding.language.continue": "Continue",
   "@onboarding.language.continue": {

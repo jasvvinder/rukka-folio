@@ -51,7 +51,10 @@ class _InviteScreenState extends State<InviteScreen> {
 
   Designation? _designation;
   bool _sending = false;
-  bool _error = false;
+
+  /// The last refusal, or null. Named rather than a bare bool so the form can
+  /// offer the right way out of each one (07 §1 rule 6 — no dead ends).
+  MembersRefusal? _failure;
   bool _phoneInvalid = false;
   bool _rolesInvalid = false;
   bool _limitInvalid = false;
@@ -110,7 +113,7 @@ class _InviteScreenState extends State<InviteScreen> {
         : designationLabel(l10n, _designation!);
     setState(() {
       _sending = true;
-      _error = false;
+      _failure = null;
     });
     try {
       await repo.invite(
@@ -127,12 +130,24 @@ class _InviteScreenState extends State<InviteScreen> {
       } else {
         Navigator.of(context).maybePop();
       }
+    } on MembersFailure catch (e) {
+      if (mounted) setState(() => _failure = e.reason);
     } on Exception {
-      if (mounted) setState(() => _error = true);
+      if (mounted) setState(() => _failure = MembersRefusal.server);
     } finally {
       if (mounted) setState(() => _sending = false);
     }
   }
+
+  /// What to say about a refusal, in the words the form already owns: the
+  /// number, the permission, the connection — and a plain retry for the rest.
+  static String _failureMessage(AppLocalizations l10n, MembersRefusal reason) =>
+      switch (reason) {
+        MembersRefusal.offline => l10n.inviteOffline,
+        MembersRefusal.badPhone => l10n.invitePhoneInvalid,
+        MembersRefusal.notAdmin => l10n.membersInviteBlocked,
+        _ => l10n.inviteError,
+      };
 
   /// A viewer cannot post, so an auto-post limit means nothing for them
   /// (06 §1.0 verbs table).
@@ -266,11 +281,11 @@ class _InviteScreenState extends State<InviteScreen> {
               Expanded(child: Text(l10n.inviteOffline, style: text.bodySmall)),
             ],
           ),
-        if (_error)
+        if (_failure != null)
           Padding(
             padding: const EdgeInsets.only(bottom: RkSpace.s2),
             child: Text(
-              l10n.inviteError,
+              _failureMessage(l10n, _failure!),
               style: text.bodyMedium?.copyWith(color: scheme.error),
             ),
           ),

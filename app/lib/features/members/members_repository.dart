@@ -251,15 +251,79 @@ final class InviteRequest {
   final String? designationLabel;
 }
 
+/// Why a members call failed. Named, because 07 §1 rule 6 forbids a dead end
+/// and a screen cannot offer the right way out of an unnamed failure — and
+/// because ADR 2026-09-05d §9 🔒 needs [inviteNotForYou] to mean *exactly*
+/// what the server means by it: a wrong number **or** an invite that does not
+/// exist, indistinguishable on purpose, so the client is no oracle either.
+enum MembersRefusal {
+  /// The request never reached a response. The server said nothing.
+  offline,
+
+  /// No session, or the session is not allowed here (06 §4).
+  unauthorized,
+
+  /// Invite / roles / limits are admin-only (06 §1.0 verbs table 🔒).
+  notAdmin,
+
+  /// This link is not for this phone — or there is no such link
+  /// (ADR 2026-09-05d §9 🔒: the two are one answer).
+  inviteNotForYou,
+
+  /// The 7-day window closed (06 §7). One-tap re-invite is the way out.
+  inviteExpired,
+
+  /// Already accepted, revoked or superseded by a newer invite (06 §7).
+  inviteNotLive,
+
+  /// This exact signed record was already applied — a retry, not a new
+  /// invite (06 §7's one-tap re-invite must not fire twice).
+  recordReplayed,
+
+  /// The action needed a signed record and none backed it
+  /// (ADR 2026-09-05b §1).
+  noRecord,
+
+  /// This phone does not hold the contact card for that invite, so it cannot
+  /// re-invite: the number never left the device that sent it
+  /// (ADR 2026-09-05c §4, ADR 2026-09-05f §G 🔒).
+  unknownInvitee,
+
+  /// The number is not E.164.
+  badPhone,
+
+  /// The record's shape or payload was refused.
+  badRecord,
+
+  /// No such tenant for this caller.
+  unknownTenant,
+
+  /// The tenant is frozen: pushes are refused, reads and exports continue
+  /// (06 §8 🔒).
+  tenantFrozen,
+
+  /// This build is below the server's floor (05 §7).
+  upgradeRequired,
+
+  /// Anything else the server said. Never guessed into a friendlier name.
+  server,
+}
+
 /// Thrown by repository calls that failed; screens show the error state and
 /// keep the retry path (07 §1 rule 6 — no dead ends).
 final class MembersFailure implements Exception {
-  const MembersFailure([this.message = '']);
+  const MembersFailure([
+    this.message = '',
+    this.reason = MembersRefusal.server,
+  ]);
 
   final String message;
 
+  /// What went wrong, in the vocabulary a screen can act on.
+  final MembersRefusal reason;
+
   @override
-  String toString() => 'MembersFailure($message)';
+  String toString() => 'MembersFailure(${reason.name}: $message)';
 }
 
 /// What S9 and S9.1 need.

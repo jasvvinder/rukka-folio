@@ -72,4 +72,20 @@ abstract final class OnboardingPaths {
   /// S0.6i The trust's accounts — one grouped review-and-fill screen over the
   /// trust's seeded chart (07 §3.1.1, ADR 2026-09-09c §3, ADR 2026-09-09d §2).
   static const trustAccounts = '/onboarding/trust/accounts';
+
+  /// S0.9 Invitation accept — the joiner's side of 07 §12 (13 §3.2 row S0.9,
+  /// design O7a/O7b). Its entry point is a **deep link**, so the invite id
+  /// rides as the [invitationIdParam] query parameter:
+  /// `/onboarding/invitation?invite=<id>`.
+  ///
+  /// ⚠️ WIRE — mapping the external `https://…/join/<id>` (or custom-scheme)
+  /// link onto this path is `app/lib/shared/router.dart`'s job, not this
+  /// lane's; see the note on [invitationIdParam].
+  static const invitation = '/onboarding/invitation';
+
+  /// The query parameter S0.9 reads the invite id from. Absent is legal and
+  /// means *"whatever is addressed to this number"* — and, by ADR
+  /// 2026-09-05d §9 🔒, an id this phone was offered none of is answered
+  /// exactly like no offer at all, so a malformed link leaks nothing.
+  static const invitationIdParam = 'invite';
 }

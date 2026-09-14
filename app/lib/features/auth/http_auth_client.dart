@@ -447,6 +447,18 @@ final class HttpAuthClient
     }
   }
 
+  /// Drops the cached access token WITHOUT signing out — the refresh token
+  /// stays, so the next call re-mints one (06 §4).
+  ///
+  /// This is what a 401 on a sync route is allowed to do. ADR 2026-09-05b §2 🔒
+  /// forbids treating a plain 401 as a logout: a revoked device is suspended by
+  /// a *signed* revocation record, never by a bare status code, so a server
+  /// answering 401 must not be able to log a family out of its own ledger.
+  void invalidateAccessToken() {
+    _accessToken = null;
+    _accessExpiresAt = null;
+  }
+
   @override
   Future<void> signOut() async {
     _accessToken = null;

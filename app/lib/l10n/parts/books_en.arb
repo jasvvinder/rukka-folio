@@ -1,0 +1,59 @@
+{
+  "@@locale": "en",
+  "books.title": "Books",
+  "@books.title": {
+    "description": "S9 Books app bar title, reached from Menu → Books (07 §5.7 🔒, 13 §3.2 row S9)."
+  },
+  "books.list.heading": "Your books",
+  "@books.list.heading": {
+    "description": "S9 section heading above the books this device holds."
+  },
+  "books.loading": "Opening your books…",
+  "@books.loading": {
+    "description": "S9 working state (13 §4.3, 11 §4.5 — a ruled line and a sentence, never a bare spinner)."
+  },
+  "books.error": "Could not read your books just now.",
+  "@books.error": {
+    "description": "S9 error state (07 §1 rule 12 — the cause named, the way on offered)."
+  },
+  "books.error.retry": "Try again",
+  "@books.error.retry": {
+    "description": "S9 error-state action, retries the books query."
+  },
+  "books.type.personal": "Personal",
+  "@books.type.personal": {
+    "description": "Book type label (02 §1.1 BookType.personal)."
+  },
+  "books.type.family": "Family",
+  "@books.type.family": {
+    "description": "Book type label (02 §1.1 BookType.family)."
+  },
+  "books.type.joint": "Shared pool",
+  "@books.type.joint": {
+    "description": "Book type label (02 §1.1 BookType.joint — the family common pool)."
+  },
+  "books.type.business": "Business",
+  "@books.type.business": {
+    "description": "Book type label (02 §1.1 BookType.business)."
+  },
+  "books.type.organization": "Trust or society",
+  "@books.type.organization": {
+    "description": "Book type label (02 §1.1 BookType.organization, 02 §8.2)."
+  },
+  "books.add_business.row.title": "Add a business",
+  "@books.add_business.row.title": {
+    "description": "S9.5 entry point on S9 (07 §5.7 🔒 — reached from Menu → Books)."
+  },
+  "books.add_business.row.subtitle": "Name it, say who owns it, pick the year start, and fill its opening balances.",
+  "@books.add_business.row.subtitle": {
+    "description": "S9.5 row description — 07 §5.7 🔒's four fields and nothing else."
+  },
+  "books.members.row.title": "Roles, limits and members",
+  "@books.members.row.title": {
+    "description": "S9's other half (13 §3.2 row S9: roles, limits, verification log), not built in this milestone."
+  },
+  "books.members.row.reason": "Roles, limits and the verification log have not been built yet.",
+  "@books.members.row.reason": {
+    "description": "S9 disabled-with-reason line (13 §4.3, 07 §1 rule 6) — the row explains itself rather than disappearing."
+  }
+}

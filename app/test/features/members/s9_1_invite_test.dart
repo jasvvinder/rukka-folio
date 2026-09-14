@@ -233,6 +233,46 @@ void main() {
     );
 
     testWidgets(
+      'F1-07-26 a refusal is named, not generic: the number, the permission '
+      'and the connection each get the words that say what to do next '
+      '(07 §1 rule 6 — no dead ends)',
+      (tester) async {
+        for (final (reason, message) in <(MembersRefusal, String)>[
+          (
+            MembersRefusal.badPhone,
+            'Add the country code too, like +91 98765 43210.',
+          ),
+          (
+            MembersRefusal.notAdmin,
+            'Only an admin can invite people, change roles or set limits.',
+          ),
+          (
+            MembersRefusal.offline,
+            'You’re offline. An invite needs one connection — try again when you’re back.',
+          ),
+          (MembersRefusal.server, 'Couldn’t send that invite. Try again.'),
+        ]) {
+          final repo = FakeMembersRepository(
+            initial: _snapshot(TenantType.organization),
+          )..failNext = MembersFailure('refused', reason);
+          await pumpRk(
+            tester,
+            // A fresh key per case: the same widget type would otherwise
+            // reuse the previous State, and with it the previous message.
+            _scoped(repo, InviteScreen(key: ValueKey(reason))),
+            viewport: rkTallViewport,
+          );
+          await tester.enterText(find.byType(TextField).first, '+919876543210');
+          await tester.tap(find.widgetWithText(ChoiceChip, 'Member').first);
+          await tester.pumpAndSettle();
+          await tester.tap(find.text('Send invite'));
+          await tester.pumpAndSettle();
+          expect(find.text(message), findsOneWidget, reason: reason.name);
+        }
+      },
+    );
+
+    testWidgets(
       'F1-07-26 offline: Send is disabled and the reason is stated — the link '
       'is sent by the server (06 §7), so this one action needs a connection',
       (tester) async {

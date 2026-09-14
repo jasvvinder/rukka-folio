@@ -9,7 +9,7 @@
   "menu.close_month.row.reason": "महीना बंद करने का विज़ार्ड अभी नहीं बना।",
 
   "menu.books_members.row.title": "बहियाँ और सदस्य",
-  "menu.books_members.row.reason": "बहियाँ और सदस्य अभी नहीं बने।",
+  "menu.books_members.row.subtitle": "आपकी बहियाँ, और नया कारोबार जोड़ना।",
 
   "menu.backup.row.title": "बैकअप",
   "menu.backup.row.subtitle": "प्लेटफ़ॉर्म की-सिंक, अपनी रिकवरी शीट सहेजें, और मासिक पठनीय प्रति।",

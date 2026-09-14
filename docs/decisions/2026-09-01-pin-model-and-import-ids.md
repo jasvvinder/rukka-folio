@@ -44,7 +44,7 @@ and the owner added **S7.4 — Import preview & submit**: submit never posts sig
 a final screen lists every entry about to be created with the balance check restated and
 the count in the button. Specced in 07 §11.1 and 13 §3.2/F4; drawn on Canvas 8.
 
-## 3. Trust role labels — `head` displays as President 🔒 ⟦tests: C-06-15 @M7⟧
+## 3. Trust role labels — `head` displays as President 🔒 ⟦tests: C-06-15⟧
 
 The ⚠️ in 06 §1.0 asked how a Singh Sabha committee actually ranks its officers.
 **Ruling: `head` displays as President (ਪ੍ਰਧਾਨ); Secretary is not a role label.**
