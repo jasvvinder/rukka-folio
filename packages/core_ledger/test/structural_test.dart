@@ -72,18 +72,27 @@ void main() {
       );
 
   group('A-02-94 the quorum rule (02 §7.2.1 🔒)', () {
-    test('A-02-94 quorum sizes: all owners = n; majority = ⌈n/2⌉+1 capped at n; one owner = 1', () {
+    test('A-02-94 quorum sizes: all owners = n; majority = ⌊n/2⌋+1, more than half; one owner = 1', () {
       for (var n = 1; n <= 7; n++) {
         expect(StructuralQuorum.allOwners.requiredOf(n), n, reason: 'all/$n');
       }
-      // ⌈n/2⌉ + 1 as written in 02 §7.2.1, never more than the owners there are.
+      // ⌊n/2⌋ + 1 — a strict majority (ADR 2026-09-14 ruling 1 🔒). 02 §7.2.1
+      // read ⌈n/2⌉ + 1, which returned n for n ≤ 3 and so made *majority*
+      // indistinguishable from *all owners* for a two- or three-owner
+      // business — the sizes this product is built around.
       expect(StructuralQuorum.majority.requiredOf(1), 1);
       expect(StructuralQuorum.majority.requiredOf(2), 2);
-      expect(StructuralQuorum.majority.requiredOf(3), 3);
+      expect(StructuralQuorum.majority.requiredOf(3), 2); // was 3 = unanimity
       expect(StructuralQuorum.majority.requiredOf(4), 3);
-      expect(StructuralQuorum.majority.requiredOf(5), 4);
+      expect(StructuralQuorum.majority.requiredOf(5), 3); // was 4
       expect(StructuralQuorum.majority.requiredOf(6), 4);
-      expect(StructuralQuorum.majority.requiredOf(7), 5);
+      expect(StructuralQuorum.majority.requiredOf(7), 4); // was 5
+      // A majority is always more than half and never more than everyone.
+      for (var n = 1; n <= 20; n++) {
+        final k = StructuralQuorum.majority.requiredOf(n);
+        expect(k * 2, greaterThan(n), reason: 'majority/$n');
+        expect(k, lessThanOrEqualTo(n), reason: 'cap/$n');
+      }
       expect(
         () => StructuralQuorum.majority.requiredOf(0),
         throwsArgumentError,

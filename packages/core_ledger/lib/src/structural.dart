@@ -63,8 +63,11 @@ enum StructuralQuorum {
     if (owners == 1) return 1;
     return switch (this) {
       allOwners => owners,
-      majority =>
-        (owners + 1) ~/ 2 + 1 > owners ? owners : (owners + 1) ~/ 2 + 1,
+      // ⌊n/2⌋ + 1 — *more than half*, ADR 2026-09-14 ruling 1 🔒. 02 §7.2.1 read
+      // ⌈n/2⌉ + 1, which equals `owners` for n ≤ 3 and so made *majority*
+      // identical to *all owners* for the family sizes this product is built
+      // around; the clamp that needed is gone with it.
+      majority => owners ~/ 2 + 1,
     };
   }
 }
