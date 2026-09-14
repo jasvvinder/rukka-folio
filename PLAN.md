@@ -7,19 +7,19 @@ spec authority stays in `docs/` (this file is a tracker, never a spec).
 
 ---
 
-## 0. Where we are — 2026-09-13
+## 0. Where we are — 2026-09-14
 
 | Layer | State | Evidence |
 |---|---|---|
-| `core_ledger` (02) | ✅ M1 | suite A: 111 ids + golden replay of 8 worked-example books (content_hash unchanged since M1) · **`A-09b-4` drawings 12 Sep, `A-09b-5` capital introduced 13 Sep — the mirror pair is complete, 164/164** |
+| `core_ledger` (02) | ✅ M1 | suite A: golden replay of 8 worked-example books (content_hash unchanged since M1) · `A-09b-4` drawings + `A-09b-5` capital — the mirror pair is complete · **`A-02-94`/`A-02-95` structural quorum landed 13 Sep, 185/185** |
 | `data` (03 client) | ✅ M2 | suite E client half: Drift + SQLCipher schema v1, mirror/outbox, Recompute, corruption path |
 | `testing/harness` | ✅ M2 | two-client rig; D-05b-2/3/4 |
-| `core_crypto` (04) | ✅ M3 | suite B: 75 tests — envelopes, keys, ceremony, wrapping, recovery, signed records, chain, Shamir |
+| `core_crypto` (04) | ✅ M3 | suite B: **87 passed / 4 skipped** — envelopes, keys, ceremony, wrapping, recovery, signed records, chain, Shamir · **adversarial review 13 Sep fixed 3 wrong-answer paths in Shamir (`B-04-74…81`), tightened recovery to a verified UMK (`B-04-82…84`), and added the commitment-SAS primitive (`B-04-86…90`)** · the 4 skips are the derivation ADR 2026-09-13d retired |
 | `sync_engine` (05) | 🟡 M4 | suite D: 17 tests — outbox/push, `seq` cursors, epoch, key-wait, revocation cut-off, k-of-n `D-06a-1…4`, SPKI pins |
-| `server/` (03 §2, 05, 06) | ✅ M4 | 5 migrations + RLS + 5 edge functions; **Deno 38 green incl. the 7 hostile-query RLS tests** (`E-03-22…27`, `E-05c-7`) against a real Postgres — `scripts/rls_db.sh`, no Docker |
+| `server/` (03 §2, 05, 06) | ✅ M4 · 🟡 M7 | **7 migrations** + RLS + edge functions; **60 passed / 0 failed** against a real Postgres (`scripts/rls_db.sh`, no Docker) · `0006` invites + the 06 §7 membership machine on the tables, `0007` `ceremony_sessions` (write-once, ordered, server computes nothing) — `E-06-9…29`, `E-13d-1` |
 | `app/` (07, 13) | 🟡 M6 client · M5 near done | theme + router + seams + `features/auth` + `features/devices` (7 screens) · **M5**: `features/onboarding` S0.0…S0.8 — **every purpose card built, S0.6c loop included, so onboarding has no dead end left** · `features/home` S1/S1.1/S1.2/S1.3/S1.4 + S0.7 · `features/ledger` S3/S3.1/S4 + FY switcher/S4.1 · `features/entry` S2/S2.1/S2.2/S2.3/S2.5 · `features/lock` S15/S15.1/S15.3 · `features/settings` S13 · `features/menu` S8 · **`features/reports` S8.1 + S8.2 viewer and day-book export in all three formats — PDF (embedded Mukta/Mukta Mahee), CSV (UTF-8 BOM) and XLSX (in-house, money as numbers, byte-reproducible), now reaching the reader through the platform share sheet rather than a temp path** · `shared/widgets` one banner atom (S12.5 + S15.4 + S19.3). **Push lane green 13 Sep**, app package **492 passed / 0 skipped**. See `.claude/lane-reports/M5-*.json` |
 
-| Traceability | ✅ | `check_coverage --strict` **green** and blocking in `ci.sh`: **727 tests · 468 ids declared · 559 ids named · 345 🔒 lines, 0 unmarked · 0 orphans** (13 Sep). 91 lines carry planned ` @M<n>` markers (ADR 2026-09-08) |
+| Traceability | ✅ | `check_coverage --strict` **green** and blocking in `ci.sh`: **357 🔒 lines, 0 unmarked · 0 orphans** (14 Sep). 97 lines carry planned ` @M<n>` markers (ADR 2026-09-08); 4 live superseded skips re-land at M11 |
 
 ✅ ADR 2026-09-06 ratified 7 Sep (four answers recorded in the ADR; 04 §2/§7.3/§9.2/§11 updated).
 
@@ -181,10 +181,14 @@ over-scoping. If a lane dies at its cap, read the transcript before raising it a
 - ⬜ OTP-only device sees no tenant metadata (needs the real server — Phase B)
 - ⬜ biometric-set binding · MPIN lockout surviving app-data clearance · certified-only RLS (server side, lane S — blocked on the same unrun RLS suite)
 
-### M7 Multi-user ⬜ (H steps 1–2)
-- ⬜ S9 books & members · S9.1 invite · S9.2/S9.3/S9.4 ceremony (QR, code, mismatch hard-fail) · S9.5 add a business
-- ⬜ S6 inbox · S6.1/S6.2 review cards + stepper · S6.3 structural approval (quorum) · roles/limits (06 §7, Option B labels)
-- ⬜ server: invites, `invitee_hmac`, membership state machine, verification records as signed records (C-05d-7/9)
+### M7 Multi-user 🟡 (H steps 1–2) — round 1 landed 13–14 Sep, push lane green
+- ✅ **S9 members + S9.1 invite** (`U4a`, `F1-07-26`) · ✅ **S9.2/S9.3/S9.4 ceremony** (`U4b`, 50 tests) — then **switched off the breakable code path** by `U4c` (ADR 2026-09-13d, `F1-13d-1/2`; suite 50 → 68). ⬜ S9.5 add a business
+- ✅ **S6 inbox + S6.1/S6.2 review stepper** (`U6a`, `F1-07-23`, 30 cases) — post-then-review held by test, not only copy. ⬜ **S6.3 structural approval**: the engine is ready (`A-02-94`/`A-02-95`), the screen is not
+- ✅ **server invites + the 06 §7 machine enforced in the database** (`S2`, `0006`, `E-06-9…19`) · ✅ **`ceremony_sessions` relay** (`S3`, `0007`, `E-13d-1`, `E-06-20…29`) · ⬜ verification records as signed records (C-05d-7/9)
+- ⛔ **`structural_quorum` cannot reach `packages/data` until two owner rulings land**: where the field lives (ADR 05e §11 `business_setting` vs `book_config`) and the majority formula — 02 §7.2.1's ⌈n/2⌉+1 equals *all owners* for n ≤ 3 and first differs at n = 4
+- ⬜ **`RkTabBar` lays every tab's content out at zero height** — pre-existing since M5, invisible to both gates because no test renders through the shell. First lane of the next round (`lane-ui-hard`), with the shell-integration test ADR 2026-09-13b §3 requires
+- ⬜ **ADR 2026-09-13c awaits ratification** — the recovery twin of the ceremony attack; its type half is landed. ⬜ `13b` (UI contract, tablet) and `13e` (escalation budget) also proposed
+- ⬜ `gate-run` ignores its `lane` argument (three invocations all reported `push`), so `/gate nightly` skips the RLS suite silently — fix before relying on it
 
 ### M8 Family money ⬜ (H 3–6, H2)
 - ⬜ S5/S5.1 advances · S2.3 inter-book + in-transit · S8.3 family reconciliation · pocket-expense flow
