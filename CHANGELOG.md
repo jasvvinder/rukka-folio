@@ -12,6 +12,187 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-16 — M7: the pinning decision, verified
+
+A session spent almost entirely on one owner decision that three lanes had deferred: **where the API
+terminates TLS**, and therefore what a pin can mean at all. `05 §1` had asked for the chain to be
+*verified* and deferred the runbook to M4; verifying it is what changed the answer. No code landed —
+the engine-socket lane (`M7-W4`, `lane-sync`) was launched at the end of the session and is still in
+flight; it has since landed and **the socket is closed** — see below. The owner then delegated the remaining decisions
+(*"I don't have any server knowledge and security knowledge … do the best as much as possible"*), and four
+of the five open items were taken rather than handed back — they never needed the owner at all.
+
+### Added
+
+- **The engine socket is closed (`M7-W4`, `F1-05-43…48`).** `bootstrap.dart` no longer builds
+  `FakeSyncClient()`: it opens the ledger, then builds `RecordTrustStore` → `CryptoGuard` → `SyncEngine` →
+  `EngineSyncClient`, starts it, registers the lifecycle observer, and wires the scope-switch and
+  entry-save triggers (05 §7). `LocalLedger.keyMaterial` is the single accessor — it hands over live
+  objects and copies no secret byte, so `dispose()` empties a store a holder still points at (`F1-05-43`),
+  and `verifiedUmkOf` answers only for this install's own user, so 04 §8.2 🔒 cannot be crossed for a third
+  party through the seam. Four of the five 05 §7 triggers are armed; the 6-hour backstop stays disarmed
+  because the app still has no metering source and guessing one would spend a metered user's data.
+- **One device, one id (`M7-K6`, escalation tier, ADR 2026-09-16 — `B-04-92`, `C-06-24…27`,
+  `F1-05-49`, `F1-05-50`).** The fix for the defect below. **Ruling: the ledger mints `device_id` once at
+  first run, `POST /devices` carries it, and the server records it or refuses** — the client never adopts a
+  different id. `06 §3` step 2 said the server issues it, but that loses to two facts it was written
+  without: `04 §3.3` has the first device self-certify **offline at signup**, with the id inside the
+  signature, and CLAUDE.md rule 2 means an envelope already authored under that id can never be rewritten.
+  Adopting a server id would strand every envelope written before registration. Three shapes were costed;
+  this is the one that survives. Mismatch, `device_id_taken` and a stale stored session all **fail closed**.
+- **ADR 2026-09-15 — TLS termination and leaf SPKI pinning** (`docs/decisions/`). Six rulings, each
+  backed by an evidence row that was run or fetched in session rather than recalled.
+- **`docs/ops/tls-pinning-runbook.md`** — the rotation runbook `05 §1` defers to M4: key generation,
+  issuance with the key held fixed, pin computation, the release gates, and the rotation order that
+  makes two pins an outage-free rotation rather than decoration.
+- **`scripts/dev_macos_sdk_shim.sh` — the app test suite runs on this machine for the first time.**
+  `package:sodium`'s build hook looks for the macOS SDK at
+  `<xcode-select -p>/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk`, which exists only under a full
+  Xcode; under the Command Line Tools it is at `/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk`, so
+  every `flutter test` died with *"C compiler cannot create executables"*. Selecting Xcode instead requires
+  `sudo` **and** an accepted licence — and selecting it *without* accepting the licence takes the whole
+  Dart toolchain down (`dart` exits 127), which is what happened mid-session. The script builds a throwaway
+  developer dir with the expected layout, backed by the CLT SDK, and an `xcode-select` shim that reports
+  it: **no sudo, nothing changed about the machine**, and it no-ops when a real Xcode is properly selected.
+  `eval "$(scripts/dev_macos_sdk_shim.sh)"` then `flutter test`.
+- **`scripts/check_release_flags.sh`, wired into every `ci.sh` lane.** `09 §4` has required the release lane
+  to carry `--obfuscate --split-debug-info` and never the pinning-off define since ADR 2026-09-05; neither
+  flag appeared anywhere in the repository. The gate is **fail-closed**: with no release build defined it
+  warns on push and **fails the release lane**, because a release that cannot be checked is not a pass.
+  Verified against three synthetic builds (good · empty `RF_SPKI_PINS` · missing flag) — the first draft
+  passed the good one wrongly, because `*RF_SPKI_PINS=''*` undergoes quote removal in a `case` pattern and
+  collapses to `*RF_SPKI_PINS=*`, matching every build.
+
+### Decided (ADR 2026-09-15)
+
+- **Hosted Supabase cannot be pinned, and that is documented by Supabase.** It issues across *"multiple
+  Certificate Authorities (including Let's Encrypt, Google Trust Services and SSL.com) … chosen based on
+  availability"* — so the intermediate can change CA at any renewal, unannounced. Against `05 §1`'s
+  *"hard fail with no fallback and no override"* that is an outage generator, and the union of three CAs'
+  intermediates would be a weak pin besides. The option had been recommended in this same session on
+  unverified reasoning and was withdrawn.
+- **The API terminates on an origin we hold the key to**, in the Supabase project's region, reverse-proxying
+  to `<ref>.supabase.co`. Cloudflare custom certificates give us the key but only on the Business plan.
+- **The pinned object stays the key; the pinned level moves intermediate → leaf.** Certificate pinning is
+  not merely worse — it is structurally incapable of satisfying `05 §1`'s two-pin requirement, because a
+  backup pin must ship for a key whose certificate does not yet exist to be hashed.
+- **The pin is checked on the socket that carries the request** (`HttpClient.connectionFactory`), closing
+  the probe-vs-request gap in pure Dart.
+- **`rukkafolio.com` primary; `rukkafolio.app` 301s to it.** `.app`'s TLD-wide HSTS preload is obtainable
+  for `.com` by submission; an unfamiliar TLD in an invite link shared over WhatsApp is not recoverable.
+- **Native pinning and RASP declined, with reasons recorded** so they are not re-proposed: neither defends
+  the network attacker pinning exists for, and a RASP SDK's telemetry contradicts rule 4. Obfuscation and
+  Certificate Transparency monitoring adopted instead; runtime integrity and modified-device detection stay
+  at M14 under MASVS L2+R, where `09 §4` already rules the rooted device gets a notice and keeps working.
+
+### Changed
+
+- **`05 §1` line 13 applied** (the edit ADR 2026-09-15 named for ratification): the API terminates TLS on an
+  origin whose key we hold and the pin is over **our own leaf's SPKI**; hosted Supabase stated as unpinnable
+  at any level. SPKI-not-certificate, two pins, hard fail with no override and the local-dev exemption are
+  untouched — only the *level* moved.
+- **`05 §9` gains the `pin_failed` Inbox reason** (ADR 2026-09-15 §7). A pin failure previously reached the
+  user as plain `Offline`, which instructs them to wait for a network when the truth may be an attacker on
+  it. The five states are **not** disturbed: this is a reason inside *Needs attention*, not a sixth state.
+- **`SignedRecordKind` gains `invite`.** `core_crypto` knew eight kinds; the server's `RECORD_KINDS` has had
+  nine since migration `0008` (06 §7). No live rejection — the set has no production caller, which is the
+  more interesting finding: `all` is a dead allowlist that nothing enforces at the record-apply seam.
+  Recorded as open. `B-05b-1` asserts the ninth kind by name, not only by count.
+- **ADR 2026-09-14b ratified, all six rulings**, and its `02` / `03` edits applied: `02 §7.1` line 202
+  (*"fixed at"* → *"agreed at"* business creation), line 229 (the ⚠️ SPEC and the *"not allowed to change"*
+  sentence struck, replaced by the deed-and-amendments rule), `02 §7.2.1` quorum placement, and the
+  `03 §2.3` registry cross-reference for the `business_setting` wire shape. **Business meaning in plain
+  terms: an ownership share *can* be changed after the business is created — but only with the approval
+  quorum, never by one owner and never by putting in more money.** `E-03-35`/`E-03-36` are unblocked.
+- Five 🔒 **citations** in the new ADR reworded to name the lock in words: `check_coverage` counts
+  a 🔒 glyph as a ruling needing its own `⟦tests⟧` marker, and a citation of another doc's lock is not one.
+  `coverage ok` restored.
+
+### Found while verifying (the reason the answer moved)
+
+- **The runbook draft handed to the owner was wrong in a dangerous way.** `csplit … '{*}'` is a GNU
+  extension that macOS rejects; the pipeline then emitted `47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU=`
+  — the SHA-256 of *empty input* — which is indistinguishable from a real pin. Corrected to `awk` plus a
+  DER-length guard that refuses rather than emits, and the failure is documented in the runbook so it is
+  not rediscovered.
+- **`W1`'s "invisible to any test by construction" is wrong.** `SecureSocket.secureServer` plus
+  `SecurityContext.usePrivateKeyBytes` allow a test server that presents a **different key per connection**,
+  which makes the probe-vs-request gap directly testable (`F1-05-35`, red before the fix, green after).
+- **`W1`'s "add a SHA-256 source" blocker is already closed.** `crypto: ^3.0.7` is in `app/pubspec.yaml`
+  and `bootstrap.dart:100` wires `crypto.sha256`; the ⚠️ SPEC comment at `bootstrap.dart:86` claiming a
+  configured pin set throws is stale and `M7-W4` removes it.
+- **`09 §4`'s release-lane requirement is unimplemented**: `--obfuscate --split-debug-info` appears in
+  neither `scripts/` nor `.github/workflows/`.
+
+### Found by closing the socket — two defects that would have shipped
+
+Both confirmed at the line level before being recorded; neither is a lane's opinion.
+
+- 🔒 **This device has two device ids, and every envelope it authors would be quarantined by every other
+  device.** `LocalLedger._firstRun` mints one locally (`local_ledger.dart:619`) and stamps it on every
+  envelope as `author_device_id`; `HttpAuthClient.activateDevice` stores the **server-assigned** id from
+  `POST /devices` and signs signed records under that one. They are different uuids, so
+  `ChainVerifier` looks the certificate up by `author_device_id`, finds none, and quarantines
+  `certMissing` (`verify_chain.dart:164-167`). A revocation counted against one id also fails to cover the
+  other (ADR 05b §5). Invisible until two devices exchange data — which had never happened, because the
+  socket was only just closed. **Precedence resolves the ownership** (CLAUDE.md: 06 owns identity):
+  `06 §3` step 2 says *"server issues `device_id`"*, so the server's id is canonical and the ledger must
+  adopt it. What that costs is the real question — `04 §3.3` has the first device **self-certify at
+  signup**, offline, before any server exists to issue anything. Escalation tier; not taken here.
+- 🔒 **A wrapped key that arrives on the meta channel is never persisted.** `CryptoGuard.acceptWrappedKey`
+  puts the unwrapped key in an in-memory `BookKeyStore`; nothing in `packages/sync_engine/lib` writes
+  `key_cache` (verified: zero hits; only `packages/data` and `local_ledger.dart` write it). `LocalLedger`
+  rebuilds the store from `key_cache` alone and the meta cursor has already passed those `wrapped_keys`
+  rows — so on its **second** launch a device that joined someone else's book has no key and never asks
+  again: permanent `key_wait` (05 §4). Silent by construction.
+
+### Open
+
+- ⛔ **Device activation is deliberately broken against the deployed server until the server half lands.**
+  ADR 2026-09-16 §6 specifies it exactly: migration `0009_client_minted_device_id.sql`, `rf.register_device`
+  gaining a leading `p_device uuid` (idempotent for the same user and keys, `device_id_taken` otherwise),
+  and `POST /devices` requiring and echoing `device_id` with a 409 distinct from `device_cap`
+  (`E-06-40…42`, planned). Until then the server mints its own id, the client refuses the echo and reports
+  `unavailable`. **Chosen over silently wrong** — no device may sign under an id its envelopes do not carry.
+  Next action: one `lane-server` run; the ADR is written so it can be taken directly.
+- ⛔ **`certifyDevice()` is still an `UnimplementedError` stub** (`http_auth_client.dart:342`) and no
+  `DeviceCert` is issued anywhere in `app/lib`. So **every device is `certMissing` to every other device
+  regardless of the id fix** — K6 was necessary but not sufficient, and two phones still will not accept
+  each other's entries until the ceremony lane issues the cert over `ledger.keyMaterial.device.public`.
+  With the id now canonical it will be right by construction.
+- ⚠️ **`user_id` and `tenant_id` carry the same split, unruled.** `local_ledger.dart:620-621` mints both;
+  `http_auth_client.dart:409,487` store the **server's** `user_id`. The device ruling does not carry over —
+  a user spans devices, so it needs its own reasoning before members and sync are trusted end to end.
+
+- ⚠️ **The origin is not built.** The one item that genuinely needs the owner: a small box in the Supabase
+  project's region, ~$6/month. Until it exists no hosted build can be configured — `spkiPins()` fails closed
+  by construction, which is the intended state. Runbook § 1–3 is the whole of it.
+- ⚠️ **`SignedRecordKind.all` is a dead allowlist.** `invite` is now present, but nothing validates an
+  incoming record kind against the set at the apply seam. That is the real question and it is core_crypto
+  trust reasoning — escalation tier, owner's say-so, not taken here.
+- ⚠️ **ADR 2026-09-14b ruling 6's open question** stands: whether a ratio change *inside* an FY pro-rates
+  that FY's undistributed surplus. A bookkeeper question, deliberately not invented.
+- ⚠️ **`--reuse-key` is trusted but unverified** (certbot #7361, closed, fix version unrecorded). The
+  runbook's § 5 makes the first renewal a gate rather than an assumption.
+- ⚠️ The origin is not built; Certificate Transparency monitoring has no owner.
+
+### Gate
+
+**`./scripts/ci.sh` — CI green (push lane), exit 0**, for the first time with the app suite included on this
+machine. **1167 tests**: `core_ledger` 185 (golden replay unmoved), `core_crypto` 87 + 4 known skips, `data`
+50, `sync_engine` 52, harness 14, `app` 758 + 1 skip, plus 21 root; server `deno test` 44 passed / 0 failed.
+`contrast ok` at 110 gated pairs, `strings ok` at 1033 keys × 3 languages, purity ok, `check_coverage
+--strict` ok. One mechanical failure fixed on the way: three W4 files were unformatted.
+
+**Re-run after `M7-K6`: green again, exit 0 — 1174 tests** (`core_crypto` 88, `app` 764). `bootstrap.dart`'s
+`storedIdentity` now delegates to `readStoredIdentity` instead of parsing the identity a second time.
+
+### Commits
+
+- (pending)
+
+---
+
 ## 2026-09-14 (later session) — M7: the client half of multi-user, and the engine meets its server
 
 Three lane rounds in one session (ADR 2026-09-12b §6), gate green after each of the last two.
