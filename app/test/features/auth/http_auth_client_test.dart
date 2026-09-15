@@ -8,6 +8,7 @@ import 'package:core_crypto/core_crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/features/auth/auth_transport.dart';
 import 'package:rukka_folio/features/auth/http_auth_client.dart';
+import 'package:rukka_folio/shared/ledger/ledger_identity.dart';
 import 'package:rukka_folio/shared/seams/auth_client.dart';
 import 'package:rukka_folio/shared/seams/key_store.dart';
 
@@ -60,6 +61,23 @@ final class ScriptedTransport implements AuthTransport {
 const phone = '+919876543210';
 const code = '482913';
 const deviceId = '0b7a4c2e-9d41-4f3a-8e6b-2f1c9a7d5e30';
+// The ledger identity every install has before any screen (ADR 2026-09-16
+// §1): the device id above is the LEDGER's; the scripted server echoes it.
+const ledgerUserId = '7d2f9c1a-4b6e-4c8d-9e0f-1a2b3c4d5e6f';
+const ledgerTenantId = '9e0f1a2b-3c4d-4e5f-8a6b-7c8d9e0f1a2b';
+const otherDeviceId = '5c3e1a7f-2b9d-4e6a-8f1c-0d2e4a6b8c1e';
+
+Future<void> seedLedgerIdentity(
+  FakeKeyStore keys, {
+  String device = deviceId,
+}) => keys.write(
+  LocalLedgerKeys.identity,
+  LedgerIdentity(
+    deviceId: device,
+    userId: ledgerUserId,
+    tenantId: ledgerTenantId,
+  ).encode(suiteVersion: 1),
+);
 
 final nonce = Uint8List.fromList(List.generate(32, (i) => 255 - i));
 
@@ -134,9 +152,11 @@ void main() {
     return c.activateDevice(ticket);
   }
 
-  setUp(() {
+  setUp(() async {
     t = ScriptedTransport();
     keys = FakeKeyStore();
+    await seedLedgerIdentity(keys);
+    keys.writes.clear(); // the fixture's write, not the client's
     clock = TestClock(DateTime.utc(2026, 9, 7, 4, 30));
     log = [];
   });
@@ -323,6 +343,7 @@ void main() {
 
       final reg = t.last('/devices');
       expect(reg['ticket'], 'tk-1');
+      expect(reg['device_id'], deviceId); // the ledger's (ADR 2026-09-16 §2)
       expect(Bytes.fromBase64Url(reg['pub_ed'] as String), ed.publicKey);
       expect(Bytes.fromBase64Url(reg['pub_x'] as String), x.publicKey);
       expect(reg['pub_ed'], isNot(contains('=')));
@@ -681,6 +702,129 @@ void main() {
       });
       // No sync-meta, no memberships, no books call before certification.
       expect(t.requests.any((r) => r.url.path.contains('sync-meta')), isFalse);
+    });
+  });
+
+  group('ADR 2026-09-16 — one device, one id', () {
+    test('C-06-24 activateDevice sends the ledger-minted device_id in POST devices and every later artefact carries that same id — session, challenge, token signature and SessionItems.deviceId; the server echo is accepted', () async {
+      scriptHappyPath();
+      final c = await client();
+      final s = await activate(c);
+
+      expect(t.last('/devices')['device_id'], deviceId);
+      expect(s.deviceId, deviceId);
+      expect(t.last('/challenge')['device_id'], deviceId);
+      expect(t.last('/token')['device_id'], deviceId);
+      expect(utf8.decode((await keys.read(SessionItems.deviceId))!), deviceId);
+      // The device id was read, never minted: the client never writes the
+      // identity record — it is the ledger's.
+      expect(keys.writes, isNot(contains(LocalLedgerKeys.identity)));
+      expect((await readStoredIdentity(keys))!.deviceId, deviceId);
+      // The same key pair the ledger holds signs the challenge (one seed pair
+      // under KeyIds — 04 §3.3).
+      expect(await keys.contains(KeyIds.deviceSigningKey), isTrue);
+    });
+
+    test('C-06-25 a server that answers with a different device_id, or 409 device_id_taken, is refused as unavailable — no session, nothing stored under the foreign id, no challenge signed; 409 device_cap keeps DeviceCapReached', () async {
+      // Different id echoed.
+      scriptHappyPath();
+      t.script['/devices'] = [
+        ScriptedTransport.ok({
+          'device_id': otherDeviceId,
+          'user_id': 'u-1',
+          'status': 'registered',
+        }),
+      ];
+      final c = await client();
+      await expectLater(
+        activate(c),
+        throwsA(
+          isA<AuthFailure>().having(
+            (f) => f.kind,
+            'kind',
+            AuthFailureKind.unavailable,
+          ),
+        ),
+      );
+      expect(c.current, isNot(isA<Active>()));
+      expect(await keys.contains(SessionItems.deviceId), isFalse);
+      expect(await keys.contains(SessionItems.refreshToken), isFalse);
+      expect(t.count('/challenge'), 0);
+      expect(log, contains('device_id_mismatch'));
+      expect(log.any((e) => e.contains(otherDeviceId)), isFalse);
+
+      // 409 device_id_taken: distinct from the cap, also fails closed.
+      t.script['/devices'] = [
+        ScriptedTransport.ok({'error': 'device_id_taken'}, 409),
+      ];
+      final c2 = await client();
+      await expectLater(
+        activate(c2),
+        throwsA(
+          isA<AuthFailure>().having(
+            (f) => f.kind,
+            'kind',
+            AuthFailureKind.unavailable,
+          ),
+        ),
+      );
+      expect(await keys.contains(SessionItems.deviceId), isFalse);
+      expect(log, contains('device_id_taken'));
+
+      // 409 device_cap is still the cap.
+      t.script['/devices'] = [
+        ScriptedTransport.ok({'error': 'device_cap'}, 409),
+      ];
+      final c3 = await client();
+      await expectLater(activate(c3), throwsA(isA<DeviceCapReached>()));
+    });
+
+    test('C-06-26 with no ledger identity in the store activateDevice throws NoDeviceIdentity before any request — it never mints an id of its own and writes nothing', () async {
+      await keys.delete(LocalLedgerKeys.identity);
+      scriptHappyPath();
+      final c = await client();
+      await c.requestOtp(phone);
+      final ticket = await c.verifyOtp(code);
+      final writesBefore = keys.writes.length;
+      await expectLater(
+        c.activateDevice(ticket),
+        throwsA(isA<NoDeviceIdentity>()),
+      );
+      expect(t.count('/devices'), 0);
+      expect(keys.writes.length, writesBefore);
+      expect(await keys.contains(LocalLedgerKeys.identity), isFalse);
+      expect(await keys.contains(SessionItems.deviceId), isFalse);
+      expect(c.current, isNot(isA<Active>()));
+    });
+
+    test('C-06-27 restore() does not restore a stored session whose device id is not the ledger\'s — it logs device_id_stale, stays SignedOut and deletes nothing; a matching id restores', () async {
+      scriptHappyPath();
+      final c = await client();
+      await activate(c);
+
+      // A pre-ratification install: the session was stored under a server-
+      // issued id that is not the ledger's.
+      await keys.write(
+        SessionItems.deviceId,
+        Uint8List.fromList(utf8.encode(otherDeviceId)),
+      );
+      final stale = await client();
+      await stale.restore();
+      expect(stale.current, isA<SignedOut>());
+      expect(log, contains('device_id_stale'));
+      expect(await keys.contains(SessionItems.refreshToken), isTrue);
+      expect(await keys.contains(KeyIds.deviceSigningKey), isTrue);
+
+      await keys.write(
+        SessionItems.deviceId,
+        Uint8List.fromList(utf8.encode(deviceId)),
+      );
+      final fresh = await client();
+      await fresh.restore();
+      expect(
+        fresh.current,
+        isA<Active>().having((a) => a.session.deviceId, 'device', deviceId),
+      );
     });
   });
 }

@@ -332,4 +332,82 @@ void main() {
       quarantine(QuarantineReason.suiteUnsupported),
     );
   });
+
+  test('B-04-92 one key pair under two device ids is two devices to every verifier (ADR 2026-09-16 §5): the certified key sealing under a second id is certMissing, filing the cert under that id is certInvalid, and a revocation of the first id never reaches the second', () async {
+    final w = await world(seed: 92);
+    // The same two seeds replayed under two ids — exactly what a phone whose
+    // ledger and auth client disagree on its id does: one seed pair under
+    // KeyIds, two names.
+    final s = w.s.sodium;
+    final devL = DeviceKeyPair.generate(
+      CryptoSuite(s, random: deterministicRandom(s, 9216)),
+      deviceId: deviceA,
+    );
+    final devS = DeviceKeyPair.generate(
+      CryptoSuite(s, random: deterministicRandom(s, 9216)),
+      deviceId: deviceB,
+    );
+    addTearDown(devL.dispose);
+    addTearDown(devS.dispose);
+    expect(devS.public.ed25519, devL.public.ed25519);
+    expect(devS.public.x25519, devL.public.x25519);
+    expect(devS.deviceId, isNot(devL.deviceId));
+
+    // Alice self-certifies the device under the ledger's id (04 §3.4).
+    final cert = DeviceCert.issue(
+      w.s,
+      issuer: w.alice,
+      userId: userA,
+      device: devL.public,
+      issuedAtMs: issuedAt,
+    );
+    final trust = MapTrustStore(
+      umks: {userA: verifiedUmk(w.s, w.alice)},
+      certs: {deviceA: cert},
+    );
+    final verifier = ChainVerifier(w.s, trust);
+    Envelope seal(DeviceKeyPair d, String envelopeId) => EnvelopeBuilder.seal(
+      w.s,
+      tenantId: tenantA,
+      bookId: bookA,
+      objectId: objectX,
+      objectType: 'entry',
+      envelopeId: envelopeId,
+      hlc: hlc0,
+      authorSeq: 1,
+      object: const {'amount_paise': 500},
+      bookKey: w.key,
+      author: d,
+    );
+    final underL = seal(devL, envId);
+    final underS = seal(devS, '66666666-6666-4666-8666-666666666692');
+
+    expect(verifier.verifyEnvelope(underL, seq: 1), isA<ChainVerified>());
+    // Same key, other id: no cert is resolved for it — quarantined.
+    expect(
+      verifier.verifyEnvelope(underS, seq: 2),
+      quarantine(QuarantineReason.certMissing),
+    );
+    // Filing the same cert under the second id does not help: the id is
+    // inside the signed bytes (04 §3.4), so no cert-side mapping can exist.
+    trust.certs[deviceB] = cert;
+    expect(
+      verifier.verifyEnvelope(underS, seq: 2),
+      quarantine(QuarantineReason.certInvalid),
+    );
+    trust.certs.remove(deviceB);
+
+    // Revocation of the first id at seq 1 (ADR 05b §5): the same key under
+    // the second id is not `revoked` — it is simply unknown. A revocation
+    // counted against one id leaves the other untouched.
+    trust.revocations[deviceA] = 1;
+    expect(
+      verifier.verifyEnvelope(underL, seq: 5),
+      quarantine(QuarantineReason.revoked),
+    );
+    expect(
+      verifier.verifyEnvelope(underS, seq: 5),
+      quarantine(QuarantineReason.certMissing),
+    );
+  });
 }

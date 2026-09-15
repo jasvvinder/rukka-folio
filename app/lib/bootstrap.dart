@@ -52,7 +52,6 @@ import 'shared/records/device_record_author.dart';
 import 'shared/router.dart';
 import 'shared/seams/http_transport.dart';
 import 'shared/seams/key_store.dart';
-import 'shared/seams/sync_client.dart';
 import 'shared/sync/sync.dart';
 import 'shared/widgets/blocked_screen.dart';
 
@@ -80,14 +79,13 @@ const spkiPinsB64 = String.fromEnvironment('RF_SPKI_PINS');
 /// one the default `RF_API_BASE` (127.0.0.1) needs. The release lane asserts a
 /// release never ships it.
 ///
-/// ⚠️ SPEC 05 §1: a configured pin set currently throws, because verifying one
-/// needs SHA-256 over the presented certificate's SPKI and this app has no
-/// SHA-256 source — libsodium exposes BLAKE2b and HKDF-SHA256, neither of which
-/// is a plain digest, and rule 7 forbids hand-rolling one. `package:crypto` in
-/// `app/pubspec.yaml` (the shell lane's file) plus one argument below is the
-/// whole fix; until then a hosted build **cannot be configured at all**, which
-/// is the fail-closed reading: the app can never ship talking to a hosted host
-/// with pinning off by accident (lane report M7-W1).
+/// A configured set is verified against SHA-256 over the presented
+/// certificate's SPKI: `package:crypto` (app/pubspec.yaml) is the digest —
+/// libsodium offers BLAKE2b and HKDF-SHA256, neither a plain digest, and rule
+/// 7 forbids hand-rolling one. What the chain source can *see* is still one
+/// leaf certificate, and it is a probe rather than the request's own
+/// connection — the two ⚠️ SPEC items are in `shared/sync/tls_chain_source.dart`
+/// (ADR 2026-09-15, whose suite is F1-05-32…42 and another lane's).
 (eng.SpkiPins, eng.TlsChainSource?) spkiPins() {
   if (spkiPinsB64.isEmpty) return (const eng.SpkiPins.localDev(), null);
   final digests = [
@@ -107,9 +105,9 @@ const spkiPinsB64 = String.fromEnvironment('RF_SPKI_PINS');
 /// 06 §4 asked for per request, the min-version header of 06 §4.5, and the pin
 /// set of [spkiPins] checked before any request leaves.
 ///
-/// Separate from [bootstrap] because its consumer — `eng.SyncEngine` — is not
-/// constructible yet (see the ⚠️ SPEC note at the wiring site); this is the
-/// half that is finished, and F1-05-30 pins it.
+/// Separate from [bootstrap] so a test can build the door without the whole
+/// object graph (F1-05-30 pins it); [bootstrap] hands the result straight to
+/// `eng.SyncEngine`.
 eng.HttpSyncTransport buildSyncTransport({
   required http.Client client,
   required Future<String> Function() accessTokenOf,
@@ -133,23 +131,28 @@ eng.HttpSyncTransport buildSyncTransport({
   );
 }
 
+/// The engine's clock (05 §2, 09 §1). `sync_engine` is pure Dart and never
+/// calls `DateTime.now()` itself; the composition root is where the real clock
+/// enters, exactly as the ledger's own `now` does below.
+final class SystemSyncClock implements eng.Clock {
+  /// Creates the clock.
+  const SystemSyncClock();
+
+  @override
+  int nowMs() => DateTime.now().millisecondsSinceEpoch;
+}
+
 /// The identity `LocalLedger` wrote at bootstrap, read without opening the
 /// ledger: `{device_id, user_id, tenant_id}`, all canonical uuids. Null on a
 /// device that has never bootstrapped a ledger — which is every device until
 /// somebody calls `LocalLedger.bootstrapSolo()`.
-Future<LedgerIdentity?> storedIdentity(KeyStore keys) async {
-  final raw = await keys.read(LocalLedgerKeys.identity);
-  if (raw == null) return null;
-  try {
-    final j = jsonDecode(utf8.decode(raw));
-    if (j is! Map) return null;
-    final device = j['device_id'], user = j['user_id'], tenant = j['tenant_id'];
-    if (device is! String || user is! String || tenant is! String) return null;
-    return LedgerIdentity(deviceId: device, userId: user, tenantId: tenant);
-  } on FormatException {
-    return null;
-  }
-}
+///
+/// Delegates to [readStoredIdentity], which is the one implementation
+/// (`shared/ledger/ledger_identity.dart`). Kept as a name because F1-05-31 and
+/// the bootstrap wiring tests call it; the parsing lived here twice until
+/// ADR 2026-09-16 gave the ledger sole authority over the device id.
+Future<LedgerIdentity?> storedIdentity(KeyStore keys) =>
+    readStoredIdentity(keys);
 
 /// Builds every dependency and starts the app (03 §5: fail closed).
 Future<void> bootstrap() async {
@@ -212,6 +215,32 @@ Future<void> bootstrap() async {
         final scope = decodeScope(storedScope);
         if (scope != null) homeScope.select(scope);
       }
+      // The ledger itself (02 · 03 · 04), opened here because every screen
+      // below `LedgerScope` assumes an open facade and because the identity it
+      // mints (or reopens) is what the members feature and the sync engine are
+      // stamped with. `bootstrapSolo` is idempotent: first run mints device,
+      // user and tenant ids and the keys; every later run reopens them. No
+      // book is named, so nothing is invented — onboarding still creates the
+      // first book (features/onboarding).
+      final ledger = LocalLedger(
+        db: db,
+        keys: keys,
+        suite: suite,
+        now: DateTime.now,
+      );
+      final LedgerIdentity identity;
+      try {
+        identity = await ledger.bootstrapSolo();
+      } on Object {
+        // 03 §5 fail closed. The one reachable case is *identity present,
+        // device keys missing* — a keystore wiped under us, which is the
+        // recovery path (04 §7) and not something to paper over by minting a
+        // second identity for the same books. ⚠️ SPEC: S19.x explains it; this
+        // blocks with one plain line until that screen exists.
+        runApp(const RukkaFolioBlocked());
+        return;
+      }
+
       // Signing structural facts (ADR 2026-09-05b §1 🔒). Null when this
       // device holds no Ed25519 key or has never registered — and null is the
       // input `ServerMembersRepository` turns into `unauthorized`, which is
@@ -229,72 +258,112 @@ Future<void> bootstrap() async {
       // The members feature against the real server (06 §7, ADR 2026-09-05d
       // §9 🔒), for the tenant this install belongs to. `believeNothing` is
       // the posture of a device that has verified nobody: every membership
-      // then reads as pending, which is the truth — the guard that would
-      // upgrade it needs the book keys `LocalLedger` keeps private (below).
-      final identity = await storedIdentity(keys);
+      // then reads as pending, which is the truth. A guard now exists below
+      // and could check a record's chain, but believing a *membership* on it
+      // is a trust decision this seam's owner makes, not a wiring detail —
+      // left as it stands (lane report M7-W4).
       final l10n = await AppLocalizations.delegate.load(
         settings.locale ?? const Locale('en'),
       );
-      final members = identity == null
-          ? null
-          : ServerMembersRepository(
-              api: HttpMembersApi(
-                transport: MembersTransportOverRkHttp(httpDoor),
-                functionsRoot: Uri.parse(apiBase),
-                accessToken: () async {
-                  try {
-                    return await auth.accessToken();
-                  } on Object {
-                    return null; // no live session ⇒ `unauthorized`
-                  }
-                },
-                clientVersion: clientVersion,
-              ),
-              tenantId: identity.tenantId,
-              userId: identity.userId,
-              believes: believeNothing,
-              unknownVerifierName: l10n.membersVerifiedSomeone,
-              someoneToMeetName: l10n.membersPendingBooksSomeone,
-              author: recordAuthor,
-            );
+      final members = ServerMembersRepository(
+        api: HttpMembersApi(
+          transport: MembersTransportOverRkHttp(httpDoor),
+          functionsRoot: Uri.parse(apiBase),
+          accessToken: () async {
+            try {
+              return await auth.accessToken();
+            } on Object {
+              return null; // no live session ⇒ `unauthorized`
+            }
+          },
+          clientVersion: clientVersion,
+        ),
+        tenantId: identity.tenantId,
+        userId: identity.userId,
+        believes: believeNothing,
+        unknownVerifierName: l10n.membersVerifiedSomeone,
+        someoneToMeetName: l10n.membersPendingBooksSomeone,
+        author: recordAuthor,
+      );
 
       // ── the socket (05 §1) ──────────────────────────────────────────────
       //
-      // ⚠️ SPEC 05 §7 / ADR 2026-09-05b §1: the engine-backed [SyncClient] is
-      // built and tested (`shared/sync/engine_sync_client.dart`, F1-05-1…13)
-      // and its transport now exists above — but `eng.SyncEngine` also needs
-      // an `EnvelopeGuard`, and `CryptoGuard` takes this device's
-      // `DeviceKeyPair`, its `BookKeyStore` and the user's `UmkKeyPair`.
-      // `shared/ledger/local_ledger.dart` holds all three privately (`_device`,
-      // `_keySource`, `_umk`) and nothing in `app/lib` ever calls
-      // `bootstrapSolo()`, so on today's build there is no opened ledger and
-      // no legitimate way to reach them. Standing up a *second* key-unwrap
-      // path beside it would be inventing behaviour in the one place this
-      // repo least wants it, so the fake stays until `LocalLedger` exposes
-      // what it already holds (lane report M7-W1). [buildSyncTransport] is
-      // that wiring's other half and is built and tested already, so the
-      // change is: guard + identity, then
-      // `EngineSyncClient(engine: eng.SyncEngine(transport:
-      // buildSyncTransport(client: httpClient, accessTokenOf:
-      // auth.accessToken), mirror: ledger.mirror, …))`.
+      // The engine over the real transport. Its key material comes from the
+      // ledger through the one accessor that hands it over — device pair, UMK
+      // and the **live** book-key store the projector also reads, so a key
+      // that arrives on a pull opens envelopes for both halves at once (05 §5)
+      // and there is no second unwrap path anywhere in the app.
       //
-      // The members feature above is **not** waiting on any of that: it talks
-      // to `sync-meta` over the same door today.
-      final SyncClient sync = FakeSyncClient();
+      // `trust` starts holding exactly one belief: this user's own
+      // ceremony-verified UMK (`material` is the `VerifiedUmkSource`, and it
+      // answers for nobody else — 04 §8.2 🔒). Device certificates arrive on
+      // the meta channel and the engine files them; another member's UMK is
+      // believed only after a ceremony, so their envelopes stay
+      // `authorUnverified` until one happens. That is the conservative
+      // reading, and it is the reason `believes: believeNothing` above is
+      // still right.
+      final material = ledger.keyMaterial;
+      final trust = eng.RecordTrustStore(umks: material);
+      final engine = eng.SyncEngine(
+        db: db,
+        mirror: ledger.mirror,
+        transport: buildSyncTransport(
+          client: httpClient,
+          accessTokenOf: auth.accessToken,
+        ),
+        clock: const SystemSyncClock(),
+        guard: eng.CryptoGuard(
+          suite: suite,
+          keys: material.bookKeys,
+          trust: trust,
+          me: material.device,
+          umk: material.umk,
+        ),
+        trust: trust,
+        deviceId: identity.deviceId,
+        userId: identity.userId,
+        tenantId: identity.tenantId,
+        // Pulled envelopes are projected by the same projector the write path
+        // uses — one Recompute, one set of keys (03 §3.3: a pure function of
+        // the ordered envelopes).
+        recompute: ledger.recompute,
+      );
+      final sync = EngineSyncClient(
+        engine: engine,
+        // 05 §9's `Waiting for entries from {name}'s phone`. The engine speaks
+        // device ids; the device → user step is the trust store's (from meta),
+        // the user → name step this device's own contact knowledge. Neither is
+        // the server's to hold (ADR 2026-09-05c §4), so an unknown author is
+        // *"someone in this book"* rather than a uuid.
+        memberName: (deviceId) {
+          final userId = trust.userOf(deviceId);
+          if (userId != null) {
+            for (final m in members.current?.members ?? const <Member>[]) {
+              if (m.id == userId && m.displayName != null) {
+                return m.displayName!;
+              }
+            }
+          }
+          return l10n.membersVerifiedSomeone;
+        },
+        // 05 §7's backstop poll is *on unmetered networks*; this app has no
+        // metering source yet, and the client arms no poll without one rather
+        // than guessing. The other four triggers are all wired.
+        unmetered: null,
+      );
+      // App open (05 §7) — one status read now, then a cycle; resumes come
+      // through the observer. Fire-and-forget: 07 §1.7 🔒 says a sync cycle
+      // never stands in front of the user, so nothing below awaits it.
+      await sync.start();
+      WidgetsBinding.instance.addObserver(SyncLifecycleObserver(sync));
 
       homeScope.addListener(() {
         unawaited(
           settings.setScope(RkTab.home, encodeScope(homeScope.selected)),
         );
-        // 05 §7 🔒: a scope switch is a foreground pull. Fire-and-forget —
-        // 07 §1.7 says a sync cycle never stands in front of the user.
-        unawaited(sync.syncNow());
+        // 05 §7 🔒: a scope switch is a foreground pull.
+        sync.onScopeSwitch();
       });
-      if (sync is EngineSyncClient) {
-        // App open / resume (05 §7).
-        await sync.start();
-        WidgetsBinding.instance.addObserver(SyncLifecycleObserver(sync));
-      }
 
       final app = RukkaFolioApp(
         db: db,
@@ -302,12 +371,7 @@ Future<void> bootstrap() async {
         auth: auth,
         keys: keys,
         now: DateTime.now,
-        ledger: LocalLedger(
-          db: db,
-          keys: keys,
-          suite: suite,
-          now: DateTime.now,
-        ),
+        ledger: ledger,
         updateRequired: auth.updateRequired,
         settings: settings,
         pinVault: vault,
@@ -356,20 +420,18 @@ Future<void> bootstrap() async {
       // greyed shared books of 07 §12 — absent until a meta pull has run, so
       // the gateway reports none rather than guessing.
       runApp(
-        members == null
-            ? app
-            : MembersRepositoryScope(
-                repository: members,
-                child: InvitationGatewayScope(
-                  gateway: DelegatedInvitationGateway(
-                    offers: members.myInvites,
-                    accept: members.acceptInvite,
-                    pending: () async =>
-                        members.current?.pendingBooks ?? const <PendingBook>[],
-                  ),
-                  child: app,
-                ),
-              ),
+        MembersRepositoryScope(
+          repository: members,
+          child: InvitationGatewayScope(
+            gateway: DelegatedInvitationGateway(
+              offers: members.myInvites,
+              accept: members.acceptInvite,
+              pending: () async =>
+                  members.current?.pendingBooks ?? const <PendingBook>[],
+            ),
+            child: app,
+          ),
+        ),
       );
     case MigrationFailed() || QuickCheckFailed() || OpenFailed():
       // 03 §5: fail closed. The support screen (S19.x) is a later lane; this

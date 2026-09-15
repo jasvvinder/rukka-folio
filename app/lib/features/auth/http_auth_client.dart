@@ -2,7 +2,9 @@
 //
 //   OTP request (WhatsApp first, SMS fallback surfaced as state)
 //     → verify → activation ticket
-//     → POST devices with the device's public keys → device_id
+//     → POST devices with the LEDGER's device_id + the device's public keys
+//       → the server records that id or refuses (ADR 2026-09-16 §2); it is
+//       never issued by the server and never adopted from it
 //     → POST challenge {device_id} → nonce
 //     → sign nonce ‖ uuid16(device_id) ‖ i64be(unix_ts) with the device Ed25519 key
 //     → access JWT (15 min) + rotating refresh token (30-day idle cap)
@@ -23,6 +25,10 @@
 //   • sub-routes under `auth-challenge/` — `otp/request`, `otp/verify`,
 //     `devices`, `devices/certify`, `challenge`, `token`, `refresh`
 //     ([AuthEndpoints]);
+//   • `devices` carries `device_id` (the ledger's) and answers 409
+//     `device_id_taken` when another key pair holds it — ADR 2026-09-16 §6
+//     names the server change; until it lands the server ignores the field
+//     and mints its own, which this client refuses (§3);
 //   • `purpose` on both OTP calls (`PURPOSES` in index.ts) — [OtpPurpose];
 //   • error bodies `{ "error": "otp_invalid", "attempts_left"? }`,
 //     `ticket_invalid` (401), `device_cap` (409), `challenge_failed`,
@@ -44,6 +50,7 @@ import 'package:flutter/foundation.dart';
 // ignore: deprecated_member_use
 import 'package:sodium_libs/sodium_libs.dart' show KeyPair;
 
+import '../../shared/ledger/ledger_identity.dart';
 import '../../shared/seams/auth_client.dart';
 import '../../shared/seams/key_store.dart';
 import 'auth_transport.dart';
@@ -115,6 +122,18 @@ final class DeviceCapReached implements Exception {
   String toString() => 'DeviceCapReached';
 }
 
+/// `activateDevice` was called on an install whose ledger has never run:
+/// there is no device id to register (ADR 2026-09-16 §3). The ledger is
+/// bootstrapped before any screen (`bootstrap.dart`), so this is an ordering
+/// bug surfaced — never a state to mint a second id around.
+final class NoDeviceIdentity implements Exception {
+  const NoDeviceIdentity();
+
+  @override
+  String toString() =>
+      'NoDeviceIdentity: LocalLedger.bootstrapSolo() must run before activateDevice()';
+}
+
 /// Exposes the min-version gate to screens (S0.2, S19.1) without widening
 /// the sealed [AuthState].
 abstract class MinVersionGate {
@@ -155,7 +174,9 @@ final class AuthEndpoints {
 /// the device seeds (there is no preferences seam, and the refresh token is a
 /// secret in any case).
 abstract final class SessionItems {
-  /// Server-issued `device_id` (06 §3 step 2), UTF-8.
+  /// The registered `device_id`, UTF-8 — always the ledger's
+  /// (`rk.ledger.identity`), written at activation so `restore()` and the
+  /// signed-record author read the one id (ADR 2026-09-16 §1, §4).
   static const deviceId = 'rk.device.id';
 
   /// `user_id` from the session response, UTF-8.
@@ -190,12 +211,21 @@ final class HttpAuthClient
     this.defaultPurpose = OtpPurpose.signup,
     this.language,
     void Function(String event)? log,
+    Future<String?> Function()? deviceIdSource,
   }) : endpoints = AuthEndpoints(baseUrl),
-       _log = log ?? _noLog;
+       _log = log ?? _noLog,
+       _deviceIdSource =
+           deviceIdSource ??
+           (() async => (await readStoredIdentity(_keys))?.deviceId);
 
   final AuthTransport _transport;
   final CryptoSuite _suite;
   final KeyStore _keys;
+
+  /// Where this device's id comes from: the ledger identity in the same key
+  /// store by default (ADR 2026-09-16 §1). Injected only so a test can pin
+  /// one; production never passes it.
+  final Future<String?> Function() _deviceIdSource;
   final DateTime Function() _now;
   final String _clientVersion;
   final void Function(String) _log;
@@ -277,6 +307,15 @@ final class HttpAuthClient
     final user = await _readText(SessionItems.userId);
     if (dev == null || user == null) return;
     if (!await _keys.contains(SessionItems.refreshToken)) return;
+    // ADR 2026-09-16 §4: a session stored under any id but the ledger's is
+    // not restored (a pre-ratification install that took a server-issued
+    // id). Nothing is deleted — a wipe needs a signed record (ADR 05b §2);
+    // the next activation registers the one true id.
+    final mine = await _deviceIdSource();
+    if (mine != null && mine != dev) {
+      _log('device_id_stale');
+      return;
+    }
     _states.value = Active(
       AuthSession(userId: user, deviceId: dev),
       deviceCertified: false,
@@ -398,10 +437,17 @@ final class HttpAuthClient
 
   @override
   Future<AuthSession> activateDevice(ActivationTicket ticket) async {
+    // ADR 2026-09-16 §1–§3: the id is the ledger's, read before any request.
+    // No identity → fail closed; this client never mints one.
+    final deviceId = await _deviceIdSource();
+    if (deviceId == null || !Uuid16.isCanonical(deviceId)) {
+      throw const NoDeviceIdentity();
+    }
     final pair = await _deviceKeys();
     try {
       final r = await _post(endpoints.devices, {
         'ticket': ticket.value,
+        'device_id': deviceId,
         'pub_ed': Bytes.base64Url(pair.ed.publicKey),
         'pub_x': Bytes.base64Url(pair.x.publicKey),
         if (deviceModel.isNotEmpty) 'model': deviceModel,
@@ -415,6 +461,12 @@ final class HttpAuthClient
         if (err == 'ticket_invalid' || r.statusCode == 401) {
           throw const AuthFailure(AuthFailureKind.invalidTicket);
         }
+        if (err == 'device_id_taken') {
+          // Another key pair holds this id (ADR 2026-09-16 §2). The id is
+          // this device's for life, so there is nothing to retry with.
+          _log('device_id_taken');
+          throw const AuthFailure(AuthFailureKind.unavailable);
+        }
         if (err == 'device_cap' || r.statusCode == 409) {
           _log('device_cap');
           throw const DeviceCapReached();
@@ -422,8 +474,11 @@ final class HttpAuthClient
         _throwGeneric(r, 'device_register');
       }
       final body = _json(r);
-      final deviceId = body['device_id'];
-      if (deviceId is! String || deviceId.isEmpty) {
+      // §3: the server records the id; it never issues one. An echo of any
+      // other id is a server this client cannot register with — fail closed,
+      // store nothing (the id itself never reaches the log, rule 4).
+      if (body['device_id'] != deviceId) {
+        _log('device_id_mismatch');
         throw const AuthFailure(AuthFailureKind.unavailable);
       }
       await _writeText(SessionItems.deviceId, deviceId);

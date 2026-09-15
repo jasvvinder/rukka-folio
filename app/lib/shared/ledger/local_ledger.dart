@@ -21,22 +21,19 @@
 // *verified* UMK only (04 §8.2 — the type system insists).
 import 'dart:async';
 import 'dart:collection';
-import 'dart:convert';
 
 import 'package:core_crypto/core_crypto.dart';
 import 'package:core_ledger/core_ledger.dart';
 import 'package:data/data.dart';
 import 'package:drift/drift.dart';
+import 'package:sync_engine/sync_engine.dart'
+    show BookKeyStore, VerifiedUmkSource;
 
 import '../seams/key_store.dart';
+import 'ledger_identity.dart';
 
-/// Ids this facade keeps in the [KeyStore] beside [KeyIds]. The identity
-/// record is not secret (device/user/tenant ids) but the seam is the only
-/// persistent store the shell offers outside the ledger database.
-abstract final class LocalLedgerKeys {
-  /// JSON `{device_id, user_id, tenant_id, suite_version}` (all uuids).
-  static const identity = 'rk.ledger.identity';
-}
+export 'ledger_identity.dart'
+    show LedgerIdentity, LocalLedgerKeys, readStoredIdentity;
 
 /// One seeded income or expense category (ADR 2026-09-09c §1's third column).
 ///
@@ -70,25 +67,6 @@ final class SeedCategory {
 
   @override
   String toString() => 'SeedCategory($name, ${accountClass.name})';
-}
-
-/// Who this install is: the ids every envelope is stamped with (04 §4).
-final class LedgerIdentity {
-  /// Creates the identity.
-  const LedgerIdentity({
-    required this.deviceId,
-    required this.userId,
-    required this.tenantId,
-  });
-
-  /// `author_device_id` — canonical uuid (04 §3.3).
-  final String deviceId;
-
-  /// `created_by_user` — canonical uuid.
-  final String userId;
-
-  /// `tenant_id` in every AAD (04 §4).
-  final String tenantId;
 }
 
 /// A posting the engine refused *before* it was sealed (02 §1.4, §2, §5).
@@ -427,6 +405,83 @@ final class BookHealth {
   bool get isProvisional => heldCount > 0 || authorGapCount > 0;
 }
 
+/// Everything a reader of this install's envelopes needs, as one value: the
+/// consumer is `sync_engine`'s `EnvelopeGuard` (05 §1, §4, §5), which opens
+/// pulled envelopes, re-seals outbox rows after a key rotation and unwraps
+/// `wrapped_keys` rows.
+///
+/// This is a **borrowed** view, never a copy. [device], [umk] and [bookKeys]
+/// are the live objects [LocalLedger] owns and zeroises in
+/// [LocalLedger.dispose]; the holder must not dispose them, and after the
+/// ledger is disposed a retained reference is empty rather than dangerous.
+///
+/// What it permits: opening, verifying and re-sealing this tenant's
+/// envelopes; unwrapping `wrapped_keys` rows addressed to this user (05 §5);
+/// and believing this user's own signature chain (04 §3.4).
+///
+/// What it does not permit: believing anybody else — [verifiedUmkOf] answers
+/// only for this install's own user and returns null for every other user id,
+/// so no book key can be wrapped to an unverified fingerprint through this
+/// seam (04 §8.2 🔒, rule 5). It carries no ledger write path either: posting,
+/// book creation and key minting stay behind [LocalLedger]'s own methods.
+final class LedgerKeyMaterial implements VerifiedUmkSource {
+  const LedgerKeyMaterial._({
+    required this.userId,
+    required this.device,
+    required this.umk,
+    required this.bookKeys,
+    required VerifiedUmkPublic ownUmk,
+  }) : _ownUmk = ownUmk; // ignore: prefer_initializing_formals
+
+  /// The user every key here belongs to (`created_by_user`, 04 §4).
+  final String userId;
+
+  /// This device's Ed25519 + X25519 pair: signs envelopes and records, and
+  /// opens the wrapped UMK.
+  final DeviceKeyPair device;
+
+  /// This user's UMK — what opens a `wrapped_keys` row (05 §5).
+  final UmkKeyPair umk;
+
+  /// The **live** book-key store, shared with the ledger's own projector: a
+  /// key the guard unwraps during a pull is visible to [LocalLedger.recompute]
+  /// in the same round, which is what lets `key_wait` drain once (05 §4)
+  /// instead of decrypting for the guard and quarantining for the projector.
+  final BookKeyStore bookKeys;
+
+  final VerifiedUmkPublic _ownUmk;
+
+  /// The ceremony-verified UMK of [userId] — this install's own user, whose
+  /// fingerprint it checked byte-for-byte at bootstrap (04 §3.4). Null for
+  /// every other user: another member is believed only after a ceremony, never
+  /// because this device happens to know their id.
+  @override
+  VerifiedUmkPublic? verifiedUmkOf(String userId) =>
+      userId == this.userId ? _ownUmk : null;
+}
+
+/// The ledger's [KeySource] over the one [BookKeyStore] the sync engine's
+/// guard also holds (05 §5). Two stores would mean a key that arrives on a
+/// pull opens envelopes for the guard and not for the projector; the book →
+/// tenant map stays here because a book's tenant is its own row's
+/// (`books_p.tenant_id`), not the store's single tenant — the store answers
+/// only for books this install learned about through sync.
+final class _SharedKeySource implements KeySource {
+  BookKeyStore? store;
+
+  final Map<String, String> tenants = {};
+
+  /// The store, or [LedgerNotOpen] before bootstrap.
+  BookKeyStore get required => store ?? (throw const LedgerNotOpen());
+
+  @override
+  BookKey? bookKey(BookKeyRef ref) => store?.bookKey(ref);
+
+  @override
+  String? tenantIdOf(String bookId) =>
+      tenants[bookId] ?? store?.tenantIdOf(bookId);
+}
+
 /// The local ledger.
 final class LocalLedger {
   /// Creates the facade. [suite] is the app's libsodium binding wrapped in a
@@ -462,7 +517,7 @@ final class LocalLedger {
   /// Projection rebuilder (03 §3.3).
   late final Recompute recompute;
 
-  final InMemoryKeySource _keySource = InMemoryKeySource();
+  final _SharedKeySource _keySource = _SharedKeySource();
   final Map<String, BookRecompute> _last = {};
 
   LedgerIdentity? _identity;
@@ -480,6 +535,27 @@ final class LocalLedger {
   /// The last Recompute report for [bookId] (S1.4), if the book was rebuilt
   /// in this process.
   BookRecompute? lastRecompute(String bookId) => _last[bookId];
+
+  /// The one seam through which this install's key material leaves the
+  /// ledger: [LedgerKeyMaterial], read by `sync_engine`'s `CryptoGuard` and
+  /// nothing else. One accessor rather than three getters so a caller takes
+  /// the whole coherent set (device + UMK + the live book keys of *this*
+  /// install) or none of it — a guard built from half of another device's
+  /// material would decrypt nothing and verify everything.
+  ///
+  /// Borrowed, not copied: the returned value holds the ledger's own objects
+  /// and no copy of any secret byte, so [dispose] zeroises what a holder
+  /// still points at. Throws [LedgerNotOpen] before [bootstrapSolo].
+  LedgerKeyMaterial get keyMaterial {
+    _requireOpen();
+    return LedgerKeyMaterial._(
+      userId: _identity!.userId,
+      device: _device!,
+      umk: _umk!,
+      bookKeys: _keySource.required,
+      ownUmk: _umkVerified!,
+    );
+  }
 
   // ── bootstrap ─────────────────────────────────────────────────────────────
 
@@ -516,6 +592,9 @@ final class LocalLedger {
     return _identity!;
   }
 
+  /// The one place a device id is minted (ADR 2026-09-16 §1 🔒): the auth
+  /// client registers this id with the server and signs challenges under it;
+  /// every envelope and signed record carries it. Nothing else mints one.
   Future<void> _firstRun() async {
     final deviceId = newId();
     final userId = newId();
@@ -537,35 +616,28 @@ final class LocalLedger {
     final wrapped = wrapUmkToDevice(suite, umk, _selfVerifyDevice(device));
     await keys.write(KeyIds.wrappedUmk, wrapped.bytes);
 
-    final record = <String, Object?>{
-      'device_id': deviceId,
-      'user_id': userId,
-      'tenant_id': tenantId,
-      'suite_version': suiteVersion,
-    };
+    final identity = LedgerIdentity(
+      deviceId: deviceId,
+      userId: userId,
+      tenantId: tenantId,
+    );
     await keys.write(
       LocalLedgerKeys.identity,
-      Uint8List.fromList(utf8.encode(jsonEncode(record))),
+      identity.encode(suiteVersion: suiteVersion),
     );
 
     _device = device;
     _umk = umk;
     _umkVerified = _selfVerifyUmk(umk, userId);
-    _identity = LedgerIdentity(
-      deviceId: deviceId,
-      userId: userId,
-      tenantId: tenantId,
-    );
+    _keySource.store = BookKeyStore(tenantId: tenantId);
+    _identity = identity;
   }
 
   Future<void> _reopen(Uint8List identityBytes) async {
-    final record =
-        jsonDecode(utf8.decode(identityBytes)) as Map<String, Object?>;
-    final id = LedgerIdentity(
-      deviceId: record['device_id'] as String,
-      userId: record['user_id'] as String,
-      tenantId: record['tenant_id'] as String,
-    );
+    final id = LedgerIdentity.decode(identityBytes);
+    if (id == null) {
+      throw StateError('identity record unreadable — recovery (03 §5)');
+    }
     final edSeed = await keys.read(KeyIds.deviceSigningKey);
     final xSeed = await keys.read(KeyIds.deviceAgreementKey);
     final wrappedUmk = await keys.read(KeyIds.wrappedUmk);
@@ -587,6 +659,7 @@ final class LocalLedger {
     _device = device;
     _umk = umk;
     _umkVerified = _selfVerifyUmk(umk, id.userId);
+    _keySource.store = BookKeyStore(tenantId: id.tenantId);
     _identity = id;
 
     // Tenants and wrapped book keys back into memory (03 §3.1 key_cache).
@@ -596,10 +669,8 @@ final class LocalLedger {
     for (final row in await db.select(db.keyCache).get()) {
       _keySource.tenants.putIfAbsent(row.bookId, () => id.tenantId);
       final ref = BookKeyRef(bookId: row.bookId, keyVersion: row.keyVersion);
-      _keySource.keys[ref] = unwrapBookKey(
-        suite,
-        _decodeWrappedBookKey(ref, row.wrappedBlob),
-        umk,
+      _keySource.required.put(
+        unwrapBookKey(suite, _decodeWrappedBookKey(ref, row.wrappedBlob), umk),
       );
     }
     await _seedClock();
@@ -695,12 +766,12 @@ final class LocalLedger {
   }
 
   BookKey _currentKey(String bookId) {
-    BookKey? best;
-    for (final MapEntry(key: ref, value: key) in _keySource.keys.entries) {
-      if (ref.bookId != bookId) continue;
-      if (best == null || ref.keyVersion > best.ref.keyVersion) best = key;
-    }
-    return best ?? (throw StateError('no key for book $bookId'));
+    final store = _keySource.required;
+    final version = store.highestVersion(bookId);
+    final key = version == null
+        ? null
+        : store.bookKey(BookKeyRef(bookId: bookId, keyVersion: version));
+    return key ?? (throw StateError('no key for book $bookId'));
   }
 
   /// `suite_version(1) ‖ recipient fingerprint(32) ‖ sealed box` — the
@@ -774,7 +845,7 @@ final class LocalLedger {
             wrappedBlob: _encodeWrappedBookKey(wrapped),
           ),
         );
-    _keySource.keys[bk.ref] = bk;
+    _keySource.required.put(bk);
     _keySource.tenants[bookId] = id.tenantId;
 
     // The partner accounts' ids are minted here, before the config is
@@ -1747,10 +1818,12 @@ final class LocalLedger {
 
   /// Zeroises in-memory key material. The database is the caller's to close.
   void dispose() {
-    for (final k in _keySource.keys.values) {
-      k.dispose();
-    }
-    _keySource.keys.clear();
+    // The store is shared with the sync engine's guard (see
+    // [LedgerKeyMaterial]): clearing it here zeroises those keys for the guard
+    // too, which is the point — one device, one set of keys, one wipe.
+    _keySource.store?.clear();
+    _keySource.store = null;
+    _keySource.tenants.clear();
     _umk?.dispose();
     _device?.dispose();
     _umk = null;
