@@ -32,6 +32,20 @@ of the five open items were taken rather than handed back — they never needed 
   and `verifiedUmkOf` answers only for this install's own user, so 04 §8.2 🔒 cannot be crossed for a third
   party through the seam. Four of the five 05 §7 triggers are armed; the 6-hour backstop stays disarmed
   because the app still has no metering source and guessing one would spend a metered user's data.
+- **The trust chain closes locally (`M7-S5` + `M7-U7`).** Two lanes on disjoint directories finished what
+  K6 started. **Server (`S5`, `E-06-40…42`)**: migration `0009_client_minted_device_id.sql` — `devices.id`
+  loses its default, `rf.register_device` takes a leading `p_device uuid`, re-registering the same device
+  with the same keys returns the same row without charging the device cap, and anything else raises
+  `device_id_taken` (a concurrent primary-key duplicate included). The malformed-id `400` fires **before**
+  the activation ticket is consumed, so a typo does not cost the user their ticket. **Client (`U7`,
+  `F1-05-51…56`, `C-06-28…31`)**: `certifyDevice()` is no longer a stub. The UMK secret never enters
+  `features/auth` — `LocalLedger` implements a new `DeviceCertifier` seam that signs and, crucially,
+  **re-verifies the certificate under this install's own UMK before persisting it**. Certification runs
+  once at the end of activation, guarded on what this install *holds* rather than what the server *says*,
+  so a server claiming `status: "certified"` to a device that filed nothing cannot leave the chain rooted
+  in nothing (`C-06-31`). **`F1-05-53` is the one that matters**: `ChainVerifier` over the app's real trust
+  store reports `certMissing` for this device's own envelopes before activation and accepts every one of
+  them after.
 - **One device, one id (`M7-K6`, escalation tier, ADR 2026-09-16 — `B-04-92`, `C-06-24…27`,
   `F1-05-49`, `F1-05-50`).** The fix for the defect below. **Ruling: the ledger mints `device_id` once at
   first run, `POST /devices` carries it, and the server records it or refuses** — the client never adopts a
@@ -160,6 +174,17 @@ Both confirmed at the line level before being recorded; neither is a lane's opin
   regardless of the id fix** — K6 was necessary but not sufficient, and two phones still will not accept
   each other's entries until the ceremony lane issues the cert over `ledger.keyMaterial.device.public`.
   With the id now canonical it will be right by construction.
+- 🔒 **The same split now actively breaks certification across a sync round — third appearance, and it
+  needs the ruling ADR 2026-09-16 gave the device id.** `ChainVerifier` resolves a certificate through
+  `trust.verifiedUmkOf(cert.userId)`. The certificate this device files locally names the **ledger's**
+  `user_id` and verifies. The certificate the sync engine rebuilds from a meta pull takes its owner from
+  the server's `devices` row (`guard.dart:310` — the signed bytes carry no user id, so 04 §3.4 cannot
+  settle it), names the **server's** `user_id`, reads `authorUnverified`, **and overwrites the good one**
+  (`engine.dart:594` assigns unconditionally). Same signature either way. So U7's chain closes locally and
+  re-opens the moment a meta pull lands. ⚠️ SPEC comment left at the trust wiring in `bootstrap.dart`.
+- ⚠️ **`06 §5` requires a `device_added` signed record on certification; none is emitted.** `certifyDevice()`
+  files the cert and stops. The author lives in `shared/records` and the route in `server/` — neither was
+  U7's directory.
 - ⚠️ **`user_id` and `tenant_id` carry the same split, unruled.** `local_ledger.dart:620-621` mints both;
   `http_auth_client.dart:409,487` store the **server's** `user_id`. The device ruling does not carry over —
   a user spans devices, so it needs its own reasoning before members and sync are trusted end to end.
@@ -184,7 +209,11 @@ machine. **1167 tests**: `core_ledger` 185 (golden replay unmoved), `core_crypto
 `contrast ok` at 110 gated pairs, `strings ok` at 1033 keys × 3 languages, purity ok, `check_coverage
 --strict` ok. One mechanical failure fixed on the way: three W4 files were unformatted.
 
-**Re-run after `M7-K6`: green again, exit 0 — 1174 tests** (`core_crypto` 88, `app` 764). `bootstrap.dart`'s
+**Re-run after `M7-S5` and `M7-U7`: green, exit 0 — 1184 tests** (`app` 774) plus **46** server tests
+(78 under `RLS_REQUIRE=1` with all nine migrations applying cleanly). Two format-only failures fixed on
+the way, both from lane files.
+
+**Re-run after `M7-K6`: green, exit 0 — 1174 tests** (`core_crypto` 88, `app` 764). `bootstrap.dart`'s
 `storedIdentity` now delegates to `readStoredIdentity` instead of parsing the identity a second time.
 
 ### Commits
