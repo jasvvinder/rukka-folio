@@ -8,6 +8,7 @@ import 'package:core_crypto/core_crypto.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/features/auth/auth_transport.dart';
 import 'package:rukka_folio/features/auth/http_auth_client.dart';
+import 'package:rukka_folio/shared/ledger/device_certification.dart';
 import 'package:rukka_folio/shared/ledger/ledger_identity.dart';
 import 'package:rukka_folio/shared/seams/auth_client.dart';
 import 'package:rukka_folio/shared/seams/key_store.dart';
@@ -97,23 +98,73 @@ Map<String, Object?> sessionBody(
   'device_status': status,
 };
 
+/// The ledger, as `certifyDevice` sees it (04 §3.4): it issues a real
+/// certificate under a real UMK and files what the server accepted. The
+/// signing lives here, not in the auth client — the UMK secret never crosses
+/// the seam.
+final class FakeCertifier implements DeviceCertifier {
+  FakeCertifier(this.suite, {this.certDeviceId = deviceId})
+    : device = DeviceKeyPair.generate(suite, deviceId: certDeviceId),
+      umk = UmkKeyPair.generate(suite);
+
+  final CryptoSuite suite;
+
+  /// The id the issued certificate names — [deviceId] unless a test pins
+  /// another to prove the mismatch is caught.
+  final String certDeviceId;
+
+  final DeviceKeyPair device;
+  final UmkKeyPair umk;
+
+  /// Certificates issued, and the ones the client filed after a 200.
+  int issued = 0;
+  final filed = <DeviceCert>[];
+
+  /// Set to fail as a closed (or absent) ledger does.
+  bool unopenable = false;
+
+  @override
+  DeviceCertOffer issueOwnCert() {
+    if (unopenable) throw StateError('ledger not open');
+    issued++;
+    return DeviceCertOffer(
+      cert: DeviceCert.issue(
+        suite,
+        issuer: umk,
+        userId: ledgerUserId,
+        device: device.public,
+        issuedAtMs: 1789000000000,
+      ),
+      umkPubEd: umk.public.ed25519,
+    );
+  }
+
+  @override
+  Future<void> installOwnCert(DeviceCert cert) async => filed.add(cert);
+
+  @override
+  DeviceCert? get ownDeviceCert => filed.isEmpty ? null : filed.last;
+}
+
 void main() {
   late ScriptedTransport t;
   late FakeKeyStore keys;
   late TestClock clock;
   late List<String> log;
 
-  Future<HttpAuthClient> client() async => HttpAuthClient(
-    transport: t,
-    suite: await liveSuite(),
-    keys: keys,
-    now: clock.call,
-    baseUrl: Uri.parse('https://api.test/functions/v1/'),
-    clientVersion: '1.2.0',
-    deviceModel: 'Pixel 8',
-    deviceOs: 'Android 15',
-    log: log.add,
-  );
+  Future<HttpAuthClient> client({DeviceCertifier? certifier}) async =>
+      HttpAuthClient(
+        transport: t,
+        suite: await liveSuite(),
+        keys: keys,
+        now: clock.call,
+        baseUrl: Uri.parse('https://api.test/functions/v1/'),
+        clientVersion: '1.2.0',
+        deviceModel: 'Pixel 8',
+        deviceOs: 'Android 15',
+        log: log.add,
+        certifier: certifier,
+      );
 
   void scriptHappyPath() {
     t.on(
@@ -825,6 +876,206 @@ void main() {
         fresh.current,
         isA<Active>().having((a) => a.session.deviceId, 'device', deviceId),
       );
+    });
+  });
+
+  group('06 §3 step 3 — devices/certify (04 §3.4 🔒)', () {
+    Map<String, Object?> certBody() =>
+        t.last('/devices/certify')['cert']! as Map<String, Object?>;
+
+    test('C-06-28 activation certifies the device: one Bearer call to devices/certify carrying the signature, the issue time and the UMK public half, then the certificate is filed and the session flips to certified', () async {
+      scriptHappyPath();
+      t.on(
+        '/devices/certify',
+        ScriptedTransport.ok({'device_id': deviceId, 'status': 'certified'}),
+      );
+      final certifier = FakeCertifier(await liveSuite());
+      final c = await client(certifier: certifier);
+      await activate(c);
+
+      expect(t.count('/devices/certify'), 1);
+      final sent = t.last('/devices/certify');
+      final cert = certBody();
+      expect(
+        Bytes.fromBase64Url(cert['signature']! as String),
+        hasLength(DeviceCert.deviceCertSigBytes),
+      );
+      expect(cert['issued_at_ms'], 1789000000000);
+      expect(cert['issued_by_device'], deviceId, reason: 'self-issued');
+      expect(sent['umk_key_version'], umkKeyVersionFirst);
+      expect(
+        Bytes.fromBase64Url(sent['umk_pub_ed']! as String),
+        certifier.umk.public.ed25519,
+      );
+      // Bearer, per the route table — the same access token the session holds.
+      final req = t.requests.lastWhere(
+        (r) => r.url.path.endsWith('/devices/certify'),
+      );
+      expect(req.headers['Authorization'], 'Bearer acc-1');
+
+      expect(certifier.filed.single.deviceId, deviceId);
+      expect((c.current as Active).deviceCertified, isTrue);
+      expect(log, contains('device_certified'));
+      // Nothing about the certificate reaches the log beyond the event name.
+      expect(log.any((e) => e.contains(deviceId)), isFalse);
+    });
+
+    test('C-06-29 every refusal fails closed: cert_malformed, cert_invalid, umk_unknown, 401 and 500 each leave the device registered-but-uncertified with nothing filed, and surface a typed reason on a retry', () async {
+      const cases = <(int, String, CertRefusal)>[
+        (400, 'cert_malformed', CertRefusal.certMalformed),
+        (400, 'cert_invalid', CertRefusal.certInvalid),
+        (400, 'umk_unknown', CertRefusal.umkUnknown),
+        (401, 'unauthenticated', CertRefusal.unavailable),
+        (500, '', CertRefusal.unavailable),
+      ];
+      for (final (status, error, reason) in cases) {
+        t = ScriptedTransport();
+        keys = FakeKeyStore();
+        await seedLedgerIdentity(keys);
+        log = [];
+        scriptHappyPath();
+        t.on(
+          '/devices/certify',
+          ScriptedTransport.ok({if (error.isNotEmpty) 'error': error}, status),
+        );
+        final certifier = FakeCertifier(await liveSuite());
+        final c = await client(certifier: certifier);
+
+        // Activation itself still succeeds — the device is registered and
+        // signed in; it simply sees nothing but itself (ADR 05d §2).
+        final session = await activate(c);
+        expect(session.deviceId, deviceId, reason: error);
+        expect((c.current as Active).deviceCertified, isFalse, reason: error);
+        expect(certifier.filed, isEmpty, reason: error);
+        expect(log, contains('device_uncertified'), reason: error);
+        expect(log, isNot(contains('device_certified')), reason: error);
+
+        // Retried by hand (S0.9), the reason is typed, not a status code.
+        await expectLater(
+          c.certifyDevice(),
+          throwsA(
+            isA<CertificationRefused>().having(
+              (r) => r.reason,
+              'reason',
+              reason,
+            ),
+          ),
+          reason: error,
+        );
+        expect(certifier.filed, isEmpty, reason: error);
+        expect((c.current as Active).deviceCertified, isFalse, reason: error);
+      }
+    });
+
+    test('C-06-30 refusals that never reach the network: no session, no ledger bound, a ledger that cannot issue, and a certificate over another device id — none of them post anything', () async {
+      scriptHappyPath();
+      t.on(
+        '/devices/certify',
+        ScriptedTransport.ok({'device_id': deviceId, 'status': 'certified'}),
+      );
+
+      // Signed out: there is no device to certify.
+      final none = await client();
+      await expectLater(none.certifyDevice(), throwsA(isA<SessionEnded>()));
+
+      // Active, but no ledger bound: activation reaches for nothing and the
+      // explicit call refuses with the typed reason.
+      final unbound = await client();
+      await activate(unbound);
+      expect(t.count('/devices/certify'), 0);
+      await expectLater(
+        unbound.certifyDevice(),
+        throwsA(
+          isA<CertificationRefused>().having(
+            (r) => r.reason,
+            'reason',
+            CertRefusal.noKeyMaterial,
+          ),
+        ),
+      );
+
+      // A ledger that will not open.
+      final shut = FakeCertifier(await liveSuite())..unopenable = true;
+      final c2 = await client(certifier: shut);
+      await activate(c2);
+      await expectLater(
+        c2.certifyDevice(),
+        throwsA(
+          isA<CertificationRefused>().having(
+            (r) => r.reason,
+            'reason',
+            CertRefusal.noKeyMaterial,
+          ),
+        ),
+      );
+
+      // ADR 2026-09-16 §1: a certificate over any other id is not this
+      // device's, and is refused before a byte is sent.
+      final wrong = FakeCertifier(
+        await liveSuite(),
+        certDeviceId: otherDeviceId,
+      );
+      final c3 = await client(certifier: wrong);
+      await activate(c3);
+      await expectLater(
+        c3.certifyDevice(),
+        throwsA(
+          isA<CertificationRefused>().having(
+            (r) => r.reason,
+            'reason',
+            CertRefusal.deviceIdMismatch,
+          ),
+        ),
+      );
+      expect(t.count('/devices/certify'), 0);
+      expect(log, contains('device_cert_id_mismatch'));
+      expect(log.any((e) => e.contains(otherDeviceId)), isFalse);
+    });
+
+    test('C-06-31 certification runs once, at activation: a device that already holds its certificate signs no second one, a server that merely says certified does not stop it from holding one, and a later launch posts nothing', () async {
+      // A server that calls this device certified while the device has filed
+      // no certificate: it certifies anyway, because the chain is rooted in
+      // what this install holds, not in a status string.
+      scriptHappyPath();
+      t.script['/devices'] = [
+        ScriptedTransport.ok({
+          'device_id': deviceId,
+          'user_id': 'u-1',
+          'status': 'certified',
+        }),
+      ];
+      t.script['/token'] = [
+        ScriptedTransport.ok(
+          sessionBody('acc-1', 'ref-1', status: 'certified'),
+        ),
+      ];
+      t.on(
+        '/devices/certify',
+        ScriptedTransport.ok({'device_id': deviceId, 'status': 'certified'}),
+      );
+      final certifier = FakeCertifier(await liveSuite());
+      final c = await client(certifier: certifier);
+      await activate(c);
+      expect((c.current as Active).deviceCertified, isTrue);
+      expect(t.count('/devices/certify'), 1);
+      expect(certifier.filed, hasLength(1));
+
+      // A later launch: restore, then a token refresh past the margin. The
+      // certificate is the ledger's to hold, so neither asks the server.
+      clock.advance(const Duration(minutes: 20));
+      t.on('/refresh', ScriptedTransport.ok(sessionBody('acc-2', 'ref-2')));
+      final later = await client(certifier: certifier);
+      await later.restore();
+      await later.accessToken();
+      expect(t.count('/devices/certify'), 1);
+
+      // And a fresh activation on an install that already holds one (06 §5
+      // Keychain remnant) signs nothing new.
+      final before = certifier.issued;
+      final again = await client(certifier: certifier);
+      await activate(again);
+      expect(certifier.issued, before);
+      expect(t.count('/devices/certify'), 1);
     });
   });
 }

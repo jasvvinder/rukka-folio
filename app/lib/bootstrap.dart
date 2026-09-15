@@ -304,6 +304,37 @@ Future<void> bootstrap() async {
       // still right.
       final material = ledger.keyMaterial;
       final trust = eng.RecordTrustStore(umks: material);
+
+      // 04 §3.4 🔒 — the device certificate, the root of the chain. Three
+      // wires, all of them late because the trust store is built *from* the
+      // ledger's material and so cannot be handed to either constructor:
+      //   • the ledger issues and files this device's certificate (the UMK
+      //     secret never leaves it) and the auth client uploads it over
+      //     `devices/certify` at activation (06 §3 step 3);
+      //   • a certificate filed in an earlier session is read back at open
+      //     and seeds the trust store, so a cold start verifies its own
+      //     envelopes instead of quarantining them `certMissing`;
+      //   • one filed later in this session reaches the same store live.
+      // Other devices' certificates still arrive on the meta channel and are
+      // believed only under a ceremony-verified UMK — this adds exactly one
+      // belief, about this install itself.
+      //
+      // ⚠️ SPEC — the same question ADR 2026-09-16 settled for the device id,
+      // still open for the *user* id. `ChainVerifier` looks a certificate's
+      // user up with `verifiedUmkOf(cert.user_id)`, and this install's
+      // certificate names the user id the ledger minted, which is the only one
+      // that resolves. The server mints its own `user_id` at OTP verify and
+      // the `devices` meta row carries that one, so the certificate the sync
+      // engine rebuilds from meta (`CryptoGuard.buildCert`) is labelled with
+      // an id no UMK is verified for — `authorUnverified` — and it replaces
+      // this one in `trust.certs`. The signature is identical either way
+      // (04 §3.4 does not sign the user id); only the label differs. Left as
+      // it stands: reconciling the two is an identity decision, not a wiring
+      // one (lane report M7-U7 `open`).
+      auth.certifier = ledger;
+      final ownCert = ledger.ownDeviceCert;
+      if (ownCert != null) trust.certs[ownCert.deviceId] = ownCert;
+      ledger.onOwnCert = (cert) => trust.certs[cert.deviceId] = cert;
       final engine = eng.SyncEngine(
         db: db,
         mirror: ledger.mirror,

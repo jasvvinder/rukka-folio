@@ -23,6 +23,12 @@ import '../seams/key_store.dart';
 abstract final class LocalLedgerKeys {
   /// JSON `{device_id, user_id, tenant_id, suite_version}` (all uuids).
   static const identity = 'rk.ledger.identity';
+
+  /// This device's own certificate (04 §3.4), JSON — see
+  /// `device_certification.dart`. Absent until the server has accepted one
+  /// (06 §3 step 3); its presence is what lets the trust store root this
+  /// device's own chain on a cold start, without a meta round trip.
+  static const deviceCert = 'rk.ledger.device_cert';
 }
 
 /// Who this install is: the ids every envelope is stamped with (04 §4).

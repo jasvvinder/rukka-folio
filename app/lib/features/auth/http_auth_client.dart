@@ -50,6 +50,7 @@ import 'package:flutter/foundation.dart';
 // ignore: deprecated_member_use
 import 'package:sodium_libs/sodium_libs.dart' show KeyPair;
 
+import '../../shared/ledger/device_certification.dart';
 import '../../shared/ledger/ledger_identity.dart';
 import '../../shared/seams/auth_client.dart';
 import '../../shared/seams/key_store.dart';
@@ -120,6 +121,47 @@ final class DeviceCapReached implements Exception {
 
   @override
   String toString() => 'DeviceCapReached';
+}
+
+/// Why `devices/certify` did not certify this device (06 §3 step 3). Typed
+/// rather than a string so a screen can branch: [umkUnknown] and
+/// [certInvalid] are *this* install's UMK against the one the server holds —
+/// a recovery question — while [unavailable] is a retry.
+enum CertRefusal {
+  /// No ledger is bound, or it is not open: nothing can be signed.
+  noKeyMaterial,
+
+  /// The certificate names a device the session does not (ADR 2026-09-16 §1).
+  deviceIdMismatch,
+
+  /// 400 `cert_malformed` — the server could not read the certificate.
+  certMalformed,
+
+  /// 400 `cert_invalid` — it does not verify under the UMK the server holds
+  /// for this user. A different UMK signs this device's certificate than the
+  /// one this account is registered with (04 §7 recovery, not a retry).
+  certInvalid,
+
+  /// 400 `umk_unknown` — the server holds no UMK public key for this version
+  /// and the request offered none.
+  umkUnknown,
+
+  /// 401, 5xx, transport: nothing is known about the certificate's fate.
+  unavailable,
+}
+
+/// `POST devices/certify` refused. The device stays **registered but
+/// uncertified** (06 §3 step 3): it sees nothing but itself, nothing was
+/// filed locally, and [HttpAuthClient.certifyDevice] can be called again.
+final class CertificationRefused implements Exception {
+  /// Creates the refusal.
+  const CertificationRefused(this.reason);
+
+  /// Which link failed.
+  final CertRefusal reason;
+
+  @override
+  String toString() => 'CertificationRefused(${reason.name})';
 }
 
 /// `activateDevice` was called on an install whose ledger has never run:
@@ -212,6 +254,7 @@ final class HttpAuthClient
     this.language,
     void Function(String event)? log,
     Future<String?> Function()? deviceIdSource,
+    this.certifier,
   }) : endpoints = AuthEndpoints(baseUrl),
        _log = log ?? _noLog,
        _deviceIdSource =
@@ -221,6 +264,17 @@ final class HttpAuthClient
   final AuthTransport _transport;
   final CryptoSuite _suite;
   final KeyStore _keys;
+
+  /// The ledger, which issues this device's certificate under the user's UMK
+  /// and files the one the server accepts (04 §3.4; `shared/ledger`). The UMK
+  /// secret never crosses this seam — [DeviceCertifier] hands over a
+  /// signature and a public key.
+  ///
+  /// Settable because the composition root builds this client *before* the
+  /// ledger (a session is restored before any screen) and binds it straight
+  /// after — `bootstrap.dart`. Null ⇒ [certifyDevice] refuses with
+  /// [CertRefusal.noKeyMaterial] and activation never reaches for it.
+  DeviceCertifier? certifier;
 
   /// Where this device's id comes from: the ledger identity in the same key
   /// store by default (ADR 2026-09-16 §1). Injected only so a test can pin
@@ -337,12 +391,84 @@ final class HttpAuthClient
   /// index.ts `certify`: `{cert: {signature, issued_at_ms,
   /// issued_by_device?}, umk_key_version?, umk_pub_ed?}` → 200
   /// `{device_id, status: "certified"}` | 400 `cert_malformed` /
-  /// `cert_invalid` / `umk_unknown`. Stub: the ceremony lane lands it with
-  /// core_crypto/device_cert.dart and calls [markCertified] on 200.
-  Future<void> certifyDevice() {
-    throw UnimplementedError(
-      'devices/certify lands with the ceremony lane (${endpoints.devicesCertify.path})',
-    );
+  /// `cert_invalid` / `umk_unknown`.
+  ///
+  /// **When this runs.** Once, at the end of [activateDevice], on every path
+  /// that registers a device — and nowhere else. Not on launch: a certified
+  /// device already holds its certificate (the ledger filed it) and the
+  /// server already said `device_status: "certified"` when the session
+  /// opened, so a launch-time call would be a signature and a round trip
+  /// asking a question both sides have answered. A screen that wants to
+  /// retry after a refusal (S0.9 *Devices & security*) calls this directly.
+  ///
+  /// ⚠️ SPEC: 04 §3.4 has the first device self-certify *at signup*, and
+  /// index.ts will do it inline inside `POST /devices` when that call carries
+  /// a `umk` object. This client does not send one — it registers, opens a
+  /// session, then certifies over the authenticated route, so first device
+  /// and later devices take one code path. Same certificate, same bytes, one
+  /// extra round trip.
+  ///
+  /// The certified id is the ledger's, because the certificate is issued over
+  /// the ledger's own device public (ADR 2026-09-16 §1) — and it is checked
+  /// against the session's id before anything is sent. Every refusal is
+  /// closed: nothing is filed, [markCertified] is not called, and the device
+  /// stays *registered but uncertified*.
+  Future<void> certifyDevice() async {
+    final s = current;
+    if (s is! Active) throw const SessionEnded();
+    final ledger = certifier;
+    if (ledger == null) {
+      throw const CertificationRefused(CertRefusal.noKeyMaterial);
+    }
+    final DeviceCertOffer offer;
+    try {
+      offer = ledger.issueOwnCert();
+    } on Object {
+      _log('device_cert_unissuable');
+      throw const CertificationRefused(CertRefusal.noKeyMaterial);
+    }
+    final cert = offer.cert;
+    if (cert.deviceId != s.session.deviceId) {
+      // One device, one id: a certificate over any other id would certify a
+      // device this session is not (ADR 2026-09-16 §1). The id never reaches
+      // the log (rule 4).
+      _log('device_cert_id_mismatch');
+      throw const CertificationRefused(CertRefusal.deviceIdMismatch);
+    }
+    final token = await accessToken();
+    final r = await _post(endpoints.devicesCertify, {
+      'cert': {
+        'signature': Bytes.base64Url(cert.signature),
+        'issued_at_ms': cert.issuedAtMs,
+        // Self-issued (04 §3.4 first bullet). A linked device's certificate
+        // will name the device that issued it (§9.1, M8).
+        'issued_by_device': cert.deviceId,
+      },
+      'umk_key_version': offer.umkKeyVersion,
+      // The first device's UMK is new to the server; a later one's is already
+      // on file and this field is ignored (⚠️ WIRE certifyWith).
+      'umk_pub_ed': Bytes.base64Url(offer.umkPubEd),
+    }, bearer: token);
+    final body = _json(r);
+    if (r.statusCode == 200 &&
+        body['status'] == 'certified' &&
+        body['device_id'] == cert.deviceId) {
+      // Filed only now, and only after the ledger re-checks it: from here the
+      // trust store roots this device's own chain (04 §3.4) instead of
+      // quarantining its envelopes `certMissing`.
+      await ledger.installOwnCert(cert);
+      markCertified();
+      _log('device_certified');
+      return;
+    }
+    final reason = switch (body['error']) {
+      'cert_malformed' => CertRefusal.certMalformed,
+      'cert_invalid' => CertRefusal.certInvalid,
+      'umk_unknown' => CertRefusal.umkUnknown,
+      _ => CertRefusal.unavailable,
+    };
+    _log('device_certify_refused_${reason.name}');
+    throw CertificationRefused(reason);
   }
 
   // --- 06 §2 OTP ----------------------------------------------------------
@@ -496,6 +622,27 @@ final class HttpAuthClient
         session,
         deviceCertified: body['status'] == 'certified' || opened.certified,
       );
+      // 06 §3 steps 3–4: registered is not certified. This is the one moment
+      // the device both can and must certify — a session is open and the
+      // ledger holds the UMK that vouches for it — so it happens here rather
+      // than on some later launch. A refusal is not an activation failure:
+      // the device is registered and signed in, and stays *sees nothing but
+      // itself* (ADR 2026-09-05d §2) until a retry succeeds.
+      //
+      // The test is what this install *holds*, not what the server *says*: a
+      // server that answers `status: "certified"` while this device has filed
+      // no certificate would otherwise leave the chain rooted in nothing, and
+      // every envelope this device authors quarantined `certMissing` by every
+      // reader — including itself after a re-pull. Holding one is cheap;
+      // believing a status string instead is not.
+      final ledger = certifier;
+      if (ledger != null && ledger.ownDeviceCert == null) {
+        try {
+          await certifyDevice();
+        } on Object {
+          _log('device_uncertified');
+        }
+      }
       return session;
     } finally {
       pair.dispose();
@@ -691,7 +838,11 @@ final class HttpAuthClient
 
   // --- transport ------------------------------------------------------------
 
-  Future<AuthHttpResponse> _post(Uri url, Map<String, Object?> body) async {
+  Future<AuthHttpResponse> _post(
+    Uri url,
+    Map<String, Object?> body, {
+    String? bearer,
+  }) async {
     final AuthHttpResponse r;
     try {
       r = await _transport.post(
@@ -699,6 +850,7 @@ final class HttpAuthClient
         headers: {
           'Content-Type': 'application/json',
           clientVersionHeader: _clientVersion,
+          if (bearer != null) 'Authorization': 'Bearer $bearer',
         },
         body: jsonEncode(body),
       );

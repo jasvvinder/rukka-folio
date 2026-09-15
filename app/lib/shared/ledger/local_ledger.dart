@@ -30,8 +30,11 @@ import 'package:sync_engine/sync_engine.dart'
     show BookKeyStore, VerifiedUmkSource;
 
 import '../seams/key_store.dart';
+import 'device_certification.dart';
 import 'ledger_identity.dart';
 
+export 'device_certification.dart'
+    show DeviceCertOffer, DeviceCertifier, umkKeyVersionFirst;
 export 'ledger_identity.dart'
     show LedgerIdentity, LocalLedgerKeys, readStoredIdentity;
 
@@ -483,7 +486,7 @@ final class _SharedKeySource implements KeySource {
 }
 
 /// The local ledger.
-final class LocalLedger {
+final class LocalLedger implements DeviceCertifier {
   /// Creates the facade. [suite] is the app's libsodium binding wrapped in a
   /// [CryptoSuite]; [now] is the injected wall clock the HLC ticks against.
   LocalLedger({
@@ -524,7 +527,15 @@ final class LocalLedger {
   DeviceKeyPair? _device;
   UmkKeyPair? _umk;
   VerifiedUmkPublic? _umkVerified;
+  DeviceCert? _ownCert;
   Hlc _clock = const Hlc(0);
+
+  /// Called with this device's own certificate the moment it is filed —
+  /// [installOwnCert] at activation, and again at open when one was already
+  /// stored. The composition root's one late binding: the trust store the
+  /// sync engine reads is built *from* this ledger's key material, so it
+  /// cannot be handed to this constructor (`bootstrap.dart`).
+  void Function(DeviceCert cert)? onOwnCert;
 
   /// True after [bootstrapSolo] (or a successful re-open).
   bool get isOpen => _identity != null;
@@ -555,6 +566,86 @@ final class LocalLedger {
       bookKeys: _keySource.required,
       ownUmk: _umkVerified!,
     );
+  }
+
+  // ── device certificate (04 §3.4 🔒 · 06 §3 step 3) ────────────────────────
+
+  /// This install's own certificate, or null while it is uncertified.
+  @override
+  DeviceCert? get ownDeviceCert => _ownCert;
+
+  /// Self-certifies this device under its own UMK (04 §3.4: *at signup, the
+  /// first device holds the UMK and self-certifies*).
+  ///
+  /// The signed bytes are `DeviceCert.signedBytes` — `uuid16(device_id) ‖
+  /// device_pub_ed ‖ device_pub_x ‖ i64be(issued_at_ms)`, the 🔒 order — over
+  /// **this ledger's** device id (ADR 2026-09-16 §1: there is no other one)
+  /// and the public halves of the pair whose seeds sit in [keys]. The clock is
+  /// the injected one (rule 3); nothing secret leaves.
+  ///
+  /// The certificate is not filed here: [installOwnCert] does that, once the
+  /// server has accepted it.
+  @override
+  DeviceCertOffer issueOwnCert() {
+    _requireOpen();
+    final umk = _umk!;
+    return DeviceCertOffer(
+      cert: DeviceCert.issue(
+        suite,
+        issuer: umk,
+        userId: _identity!.userId,
+        device: _device!.public,
+        issuedAtMs: now().millisecondsSinceEpoch,
+      ),
+      umkPubEd: umk.public.ed25519,
+    );
+  }
+
+  /// Files [cert] as this device's own (see [DeviceCertifier.installOwnCert]).
+  ///
+  /// Checked before it is believed, even though this device issued it: it must
+  /// name this device, carry its public halves, and verify under this
+  /// install's own UMK. A certificate that fails any of those is not this
+  /// device's and is refused — the trust chain never widens by accident
+  /// (04 §8.2 🔒).
+  @override
+  Future<void> installOwnCert(DeviceCert cert) async {
+    _requireOpen();
+    final device = _device!.public;
+    if (cert.device != device) {
+      throw ArgumentError.value(
+        cert.deviceId,
+        'cert',
+        'is not this device (04 §3.4)',
+      );
+    }
+    if (cert.userId != _identity!.userId || !cert.verify(suite, _umk!.public)) {
+      throw ArgumentError.value(
+        cert.deviceId,
+        'cert',
+        'does not verify under this install\'s UMK',
+      );
+    }
+    await keys.write(LocalLedgerKeys.deviceCert, encodeDeviceCert(cert));
+    _ownCert = cert;
+    onOwnCert?.call(cert);
+  }
+
+  /// Reads a filed certificate back at open. A record that will not parse, or
+  /// that no longer matches this device (a re-keyed install), is ignored: the
+  /// device reads as uncertified, which is the recoverable state 06 §3 step 3
+  /// already describes. Nothing is deleted (ADR 05b §2 — a wipe needs a signed
+  /// record).
+  Future<void> _loadOwnCert() async {
+    final raw = await keys.read(LocalLedgerKeys.deviceCert);
+    if (raw == null) return;
+    final cert = decodeDeviceCert(raw);
+    if (cert == null) return;
+    if (cert.device != _device!.public || cert.userId != _identity!.userId) {
+      return;
+    }
+    if (!cert.verify(suite, _umk!.public)) return;
+    _ownCert = cert;
   }
 
   // ── bootstrap ─────────────────────────────────────────────────────────────
@@ -661,6 +752,7 @@ final class LocalLedger {
     _umkVerified = _selfVerifyUmk(umk, id.userId);
     _keySource.store = BookKeyStore(tenantId: id.tenantId);
     _identity = id;
+    await _loadOwnCert();
 
     // Tenants and wrapped book keys back into memory (03 §3.1 key_cache).
     for (final b in await db.select(db.booksP).get()) {
@@ -1829,6 +1921,7 @@ final class LocalLedger {
     _umk = null;
     _device = null;
     _umkVerified = null;
+    _ownCert = null;
     _identity = null;
   }
 }

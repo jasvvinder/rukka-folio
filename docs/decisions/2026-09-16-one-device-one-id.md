@@ -63,7 +63,7 @@ record's `author_device_id`, the challenge signature of 06 §4 and the device ce
 No other component mints, derives or adopts a device id. The **only** reader of the id outside the
 ledger is `readStoredIdentity(keys)` over the same key store (`app/lib/shared/ledger/ledger_identity.dart`).
 
-### 2. `POST /devices` carries the id; the server records it or refuses — it never issues one ⟦tests: C-06-24, E-06-40 @M7, E-06-41 @M7⟧
+### 2. `POST /devices` carries the id; the server records it or refuses — it never issues one ⟦tests: C-06-24, E-06-40, E-06-41⟧
 The registration body gains a required `device_id` (canonical uuid). The server inserts the row
 **with that id**, echoes it, and refuses with `409 device_id_taken` when the id already exists
 under a different key pair or user. When the id exists under the **same** user **and** the same
@@ -96,7 +96,7 @@ opening balances, every entry made before sign-in — and a revocation of the id
 convenient: one key pair sealing under two ids is two devices to every verifier — the cert for one
 never vouches for the other and a revocation of one never reaches the other.
 
-### 6. The server change, specified for `lane-server` ⟦tests: E-06-40 @M7, E-06-41 @M7, E-06-42 @M7⟧
+### 6. The server change, specified for `lane-server` ⟦tests: E-06-40, E-06-41, E-06-42⟧
 Not implemented here — `server/` is another lane's directory. Everything a `lane-server` run needs:
 
 **Migration `0009_client_minted_device_id.sql`**
@@ -158,7 +158,7 @@ Edits for the owner to apply on ratification (this ADR edits no numbered spec):
   *"→ with the device's own `device_id` (minted once by the ledger at first run, ADR 2026-09-16 §1);
   the server **records** it — `409 device_id_taken` if another key pair holds it, idempotent for
   the same user and keys — and never issues one."* Append `C-06-24, C-06-25, C-06-26, C-06-27,
-  E-06-40 @M7, E-06-41 @M7, E-06-42 @M7` to the §3 marker.
+  E-06-40, E-06-41, E-06-42` to the §3 marker.
 - **06 §5** row *Reinstall, same iPhone* — append: *"re-registration carries the same `device_id`
   and the same keys and is idempotent on the server (ADR 2026-09-16 §2)."*
 - **04 §3.3** — append one sentence: *"The device's id is minted by the ledger at first run and is
