@@ -112,8 +112,10 @@ async function seed(): Promise<Fx> {
       ["inviteeraw", invitee, "registered"],
     ] as const
   ) {
-    const [d] = await sql`insert into devices (user_id, pub_ed, pub_x, status)
-      values (${user}, ${bytes(32, 4)}, ${bytes(32, 5)}, ${status}) returning id`;
+    const [d] = await sql`insert into devices (id, user_id, pub_ed, pub_x, status)
+      values (gen_random_uuid(), ${user}, ${bytes(32, 4)}, ${
+      bytes(32, 5)
+    }, ${status}) returning id`;
     dev[name] = d.id;
   }
 
@@ -350,8 +352,10 @@ Deno.test({
     // a member still at joined_pending_verification is not yet "already verified" (04 §6.4)
     const [p] = await sql`insert into users (phone_hmac, phone_ct)
       values (${bytes(32, 0xa5)}, ${bytes(40, 0xa5)}) returning id`;
-    const [pd] = await sql`insert into devices (user_id, pub_ed, pub_x, status)
-      values (${p.id}, ${bytes(32, 4)}, ${bytes(32, 5)}, 'certified') returning id`;
+    const [pd] = await sql`insert into devices (id, user_id, pub_ed, pub_x, status)
+      values (gen_random_uuid(), ${p.id}, ${bytes(32, 4)}, ${
+      bytes(32, 5)
+    }, 'certified') returning id`;
     await sql`insert into memberships (tenant_id, user_id, status)
       values (${fx.t1}, ${p.id}, 'joined_pending_verification')`;
     assertEquals(await pgCode(rv(p.id, pd.id)), "42501", "pending members do not verify");

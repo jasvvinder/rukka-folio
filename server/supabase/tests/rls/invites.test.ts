@@ -115,8 +115,10 @@ async function seed(): Promise<Fx> {
       ["stranger", stranger, "certified"],
     ] as const
   ) {
-    const [d] = await sql`insert into devices (user_id, pub_ed, pub_x, status)
-      values (${user}, ${bytes(32, 4)}, ${bytes(32, 5)}, ${status}) returning id`;
+    const [d] = await sql`insert into devices (id, user_id, pub_ed, pub_x, status)
+      values (gen_random_uuid(), ${user}, ${bytes(32, 4)}, ${
+      bytes(32, 5)
+    }, ${status}) returning id`;
     dev[name] = d.id;
   }
 
@@ -592,8 +594,10 @@ Deno.test({
       "42501",
       "wrong number first — an expired invite still tells you nothing",
     );
-    const [lateDev] = await sql`insert into devices (user_id, pub_ed, pub_x, status)
-      values (${late.id}, ${bytes(32, 4)}, ${bytes(32, 5)}, 'certified') returning id`;
+    const [lateDev] = await sql`insert into devices (id, user_id, pub_ed, pub_x, status)
+      values (gen_random_uuid(), ${late.id}, ${bytes(32, 4)}, ${
+      bytes(32, 5)
+    }, 'certified') returning id`;
     const exp2 = await pgErr(
       asApi(late.id, lateDev.id, (s) => s`select rf.accept_invite(${idL})`),
     );
@@ -644,8 +648,10 @@ Deno.test({
     const [blocked] = await sql`insert into users (phone_hmac, phone_ct) values (${hmacB}, ${
       bytes(40, 31)
     }) returning id`;
-    const [devB] = await sql`insert into devices (user_id, pub_ed, pub_x, status)
-      values (${blocked.id}, ${bytes(32, 4)}, ${bytes(32, 5)}, 'certified') returning id`;
+    const [devB] = await sql`insert into devices (id, user_id, pub_ed, pub_x, status)
+      values (gen_random_uuid(), ${blocked.id}, ${bytes(32, 4)}, ${
+      bytes(32, 5)
+    }, 'certified') returning id`;
     const invB = await invite(hmacB);
     await asApi(blocked.id, devB.id, (s) => s`select rf.accept_invite(${invB})`);
     const recB = await record(fx.t1, fx.dev.admin1, "verification_event");

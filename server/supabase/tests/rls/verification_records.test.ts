@@ -103,8 +103,10 @@ async function seed(): Promise<Fx> {
       ["outsider", outsider, "certified"],
     ] as const
   ) {
-    const [d] = await sql`insert into devices (user_id, pub_ed, pub_x, status)
-      values (${user}, ${bytes(32, 4)}, ${bytes(32, 5)}, ${status}) returning id`;
+    const [d] = await sql`insert into devices (id, user_id, pub_ed, pub_x, status)
+      values (gen_random_uuid(), ${user}, ${bytes(32, 4)}, ${
+      bytes(32, 5)
+    }, ${status}) returning id`;
     dev[name] = d.id;
   }
   // the founder (06 §5: nobody to verify them), the other tenant's founder, and the person waiting

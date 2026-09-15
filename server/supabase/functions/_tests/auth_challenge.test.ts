@@ -1,4 +1,5 @@
-// auth-challenge (06 §2–§4 🔒; ADR 2026-09-05d §2). Ids E-06-1 … E-06-8.
+// auth-challenge (06 §2–§4 🔒; ADR 2026-09-05d §2, ADR 2026-09-16 §2). Ids E-06-1 … E-06-8,
+// E-06-40, E-06-41.
 import { assert, assertEquals, assertNotEquals, assertStringIncludes } from "@std/assert";
 import { b64url } from "../_shared/bytes.ts";
 import { verifyAccessToken } from "../_shared/claims.ts";
@@ -28,10 +29,13 @@ async function otpTicket(r: Rig, phone = PHONE, purpose = "signup") {
   const code = r.otp.sent.at(-1)!.code;
   return await body(await call(r, "/otp/verify", { phone, purpose, code }));
 }
-async function registered(r: Rig, opts: { umk?: boolean } = {}) {
+async function registered(r: Rig, opts: { umk?: boolean; deviceId?: string } = {}) {
   const t = await otpTicket(r);
   const dev = await edKeypair(), xpub = await random(32), umk = await edKeypair();
+  // The ledger minted this id at first run (ADR 2026-09-16 §1); registration carries it.
+  const deviceId = opts.deviceId ?? crypto.randomUUID();
   const req: Record<string, unknown> = {
+    device_id: deviceId,
     ticket: t.ticket,
     pub_ed: b64url.enc(dev.pub),
     pub_x: b64url.enc(xpub),
@@ -40,7 +44,7 @@ async function registered(r: Rig, opts: { umk?: boolean } = {}) {
   };
   const res = await body(await call(r, "/devices", req));
   if (opts.umk) {
-    // cert is over the device id the server just issued, so self-certification is a second call
+    // cert is over the device's own id, which the server echoed; self-certification is a second call
     const tok = await session(r, res.device_id, dev.priv);
     const issued = r.clock.now.getTime();
     const sig = await sign(certBytes(res.device_id, dev.pub, xpub, issued), umk.priv);
@@ -192,6 +196,7 @@ Deno.test("E-06-2 otp/verify: 3 attempts then a new code; 5-min expiry; ticket s
   // a ticket is consumable exactly once
   const dev = await edKeypair();
   const reg = {
+    device_id: crypto.randomUUID(),
     ticket: ok.ticket,
     pub_ed: b64url.enc(dev.pub),
     pub_x: b64url.enc(await random(32)),
@@ -214,6 +219,7 @@ Deno.test("E-06-3 devices: registration stores keys + metadata as `registered`; 
   advance(r, 61 * 60_000);
   const t = await otpTicket(r);
   const res = await call(r, "/devices", {
+    device_id: crypto.randomUUID(),
     ticket: t.ticket,
     pub_ed: b64url.enc((await edKeypair()).pub),
     pub_x: b64url.enc(await random(32)),
@@ -221,6 +227,129 @@ Deno.test("E-06-3 devices: registration stores keys + metadata as `registered`; 
   assertEquals(res.status, 409);
   assertEquals((await body(res)).error, "device_cap");
   assertEquals([...r.db.devices.values()].filter((x) => x.user_id === first.user_id).length, 5);
+});
+
+// ADR 2026-09-16 §2, §6 🔒 — one device, one id: the ledger mints it, the server records it.
+Deno.test("E-06-40 devices: the client's device_id is recorded and echoed; missing or non-uuid → 400 bad_request before the ticket is consumed", async () => {
+  const r = rig();
+  const t = await otpTicket(r);
+  const dev = await edKeypair(), xpub = await random(32);
+  const base = {
+    ticket: t.ticket,
+    pub_ed: b64url.enc(dev.pub),
+    pub_x: b64url.enc(xpub),
+    model: "Pixel 8a",
+    os: "Android 15",
+  };
+  const id = crypto.randomUUID();
+  // absent, empty, unhyphenated, uppercase, not a string, not a scalar: all bad_request.
+  for (
+    const bad of [
+      undefined,
+      null,
+      "",
+      "not-a-uuid",
+      id.replaceAll("-", ""),
+      id.toUpperCase(),
+      42,
+      {},
+    ]
+  ) {
+    const req: Record<string, unknown> = { ...base };
+    if (bad !== undefined) req.device_id = bad;
+    const res = await call(r, "/devices", req);
+    assertEquals(res.status, 400, `device_id ${JSON.stringify(bad)}`);
+    assertEquals((await body(res)).error, "bad_request");
+    assertEquals(r.db.devices.size, 0, "a malformed id writes nothing");
+  }
+  // Every refusal above happened BEFORE the ticket was consumed: a typo must not cost the ticket.
+  const ok = await body(await call(r, "/devices", { ...base, device_id: id }));
+  assertEquals(ok.device_id, id, "the id the client minted is the id the server echoes");
+  assertEquals(ok.user_id, t.user_id);
+  assertEquals([...r.db.devices.keys()], [id], "the row carries the client's id, not a minted one");
+  const row = r.db.devices.get(id)!;
+  assertEquals(row.user_id, ok.user_id);
+  assertEquals(row.status, "registered");
+  assertEquals(row.model, "Pixel 8a");
+});
+
+Deno.test("E-06-41 devices: an id held by another user or under other keys → 409 device_id_taken; the same user with the same keys is idempotent and is not charged the cap", async (t) => {
+  const r = rig();
+  const first = await registered(r);
+  const id = first.device_id as string;
+  const mine = {
+    device_id: id,
+    pub_ed: b64url.enc(first.dev.pub),
+    pub_x: b64url.enc(first.xpub),
+    model: "Pixel 8a",
+    os: "Android 15",
+  };
+
+  await t.step(
+    "another user claiming the id: 409 device_id_taken, no row, ticket consumed",
+    async () => {
+      advance(r, 61 * 60_000);
+      const other = await otpTicket(r, "+919876500001");
+      const req = {
+        device_id: id,
+        ticket: other.ticket,
+        pub_ed: b64url.enc((await edKeypair()).pub),
+        pub_x: b64url.enc(await random(32)),
+      };
+      const res = await call(r, "/devices", req);
+      assertEquals(res.status, 409);
+      // device_cap and device_id_taken share the status; the client branches on the string (§3).
+      assertEquals((await body(res)).error, "device_id_taken");
+      assertEquals(r.db.devices.size, 1);
+      assertEquals(
+        r.db.devices.get(id)!.user_id,
+        first.user_id,
+        "the id still belongs to its owner",
+      );
+      // The ticket WAS consumed: the refusal is a refusal, not a free retry.
+      assertEquals((await call(r, "/devices", req)).status, 401);
+    },
+  );
+
+  await t.step("the same user under a different key pair: still taken", async () => {
+    advance(r, 61 * 60_000);
+    const t2 = await otpTicket(r);
+    const res = await call(r, "/devices", {
+      device_id: id,
+      ticket: t2.ticket,
+      pub_ed: b64url.enc((await edKeypair()).pub),
+      pub_x: b64url.enc(await random(32)),
+    });
+    assertEquals(res.status, 409);
+    assertEquals((await body(res)).error, "device_id_taken");
+    assertEquals(r.db.devices.size, 1);
+  });
+
+  await t.step("the same user with the same keys: 200, the same row, no second row", async () => {
+    advance(r, 61 * 60_000);
+    const t3 = await otpTicket(r);
+    const before = r.db.devices.get(id)!;
+    const res = await body(await call(r, "/devices", { ...mine, ticket: t3.ticket }));
+    assertEquals(res.device_id, id);
+    assertEquals(res.user_id, first.user_id);
+    assertEquals(res.status, "registered");
+    assertEquals(r.db.devices.size, 1, "reinstall on one phone is one device (06 §5)");
+    assertEquals(r.db.devices.get(id), before, "the row is returned, not rewritten");
+  });
+
+  await t.step("re-registration is not charged against the device cap", async () => {
+    for (let i = 0; i < 4; i++) {
+      advance(r, 61 * 60_000);
+      await registered(r); // the Free cap of 5 is now full
+    }
+    assertEquals([...r.db.devices.values()].filter((d) => d.user_id === first.user_id).length, 5);
+    advance(r, 61 * 60_000);
+    const t5 = await otpTicket(r);
+    const res = await call(r, "/devices", { ...mine, ticket: t5.ticket });
+    assertEquals(res.status, 200, "an id the user already holds needs no cap headroom");
+    assertEquals((await body(res)).device_id, id);
+    assertEquals(r.db.devices.size, 5);
+  });
 });
 
 Deno.test("E-06-4 sessions: nonce single-use + 60 s TTL, ±90 s skew, signature under the registered key, JWT {user_id, device_id} 15 min", async (t) => {

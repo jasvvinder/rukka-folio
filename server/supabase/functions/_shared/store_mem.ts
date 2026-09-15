@@ -10,6 +10,7 @@ import {
   type BookAccess,
   type CeremonySession,
   DeviceCapError,
+  DeviceIdTakenError,
   type EnvelopeRow,
   type GuardianSet,
   type InviteOffer,
@@ -154,10 +155,11 @@ export class MemDb {
     pub_ed: Uint8Array,
     pub_x: Uint8Array,
     status: MemDevice["status"] = "certified",
+    id: string = uuid(),
   ): MemDevice {
     const t = this.now();
     const d: MemDevice = {
-      id: uuid(),
+      id,
       user_id,
       pub_ed,
       pub_x,
@@ -871,6 +873,7 @@ class MemTx implements Tx {
     return Promise.resolve(t);
   }
   registerDevice(
+    device: string,
     user: string,
     pubEd: Uint8Array,
     pubX: Uint8Array,
@@ -878,6 +881,16 @@ class MemTx implements Tx {
     os: string | null,
     attestation: unknown,
   ): Promise<string> {
+    // ADR 2026-09-16 §2: the id is the client's. Same user + same keys on a live row is the
+    // reinstall of 06 §5 — the row is returned, nothing is written, the cap is not charged.
+    const held = this.db.devices.get(device);
+    if (held) {
+      if (
+        held.user_id === user && bytesEqual(held.pub_ed, pubEd) && bytesEqual(held.pub_x, pubX) &&
+        held.status !== "revoked"
+      ) return Promise.resolve(held.id);
+      throw new DeviceIdTakenError();
+    }
     const active =
       [...this.db.devices.values()].filter((d) => d.user_id === user && d.status !== "revoked")
         .length;
@@ -887,7 +900,7 @@ class MemTx implements Tx {
       );
     const cap = Math.max(5, ...plans.map((p) => p === "family_plus" ? 15 : p === "family" ? 8 : 5));
     if (active >= cap) throw new DeviceCapError();
-    const d = this.db.addDevice(user, pubEd, pubX, "registered");
+    const d = this.db.addDevice(user, pubEd, pubX, "registered", device);
     d.model = model;
     d.os = os;
     d.attestation = attestation;

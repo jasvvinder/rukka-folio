@@ -1,7 +1,9 @@
 // Identity without platform auth (06 §2–§4 🔒; ADR 2026-09-05c §7, 05d §2). Sub-routes:
 //   POST /otp/request   {phone, purpose, channel?, language?}      → {ok, resend_after_s}   (generic: no oracle)
 //   POST /otp/verify    {phone, purpose, code}                     → {ticket, user_id, expires_in_s}
-//   POST /devices       {ticket, pub_ed, pub_x, model?, os?, attestation?, umk?} → {device_id, user_id, status}
+//   POST /devices       {device_id, ticket, pub_ed, pub_x, model?, os?, attestation?, umk?} → {device_id, user_id, status}
+//                       device_id is the ledger's own id (ADR 2026-09-16 §2 🔒) — recorded, echoed,
+//                       never issued here; already held → 409 device_id_taken (409 device_cap keeps its string)
 //   POST /devices/certify  (Bearer) {cert:{signature, issued_at_ms, issued_by_device?}, umk_key_version?, umk_pub_ed?}
 //   POST /challenge     {device_id}                                → {nonce, expires_in_s}
 //   POST /token         {device_id, nonce, unix_ts, signature}     → {access_token, expires_in, refresh_token, …}
@@ -23,7 +25,12 @@ import {
   hmacSha256,
   randomBytes,
 } from "../_shared/sodium.ts";
-import { DeviceCapError, type RefreshToken, StoreDenied } from "../_shared/store.ts";
+import {
+  DeviceCapError,
+  DeviceIdTakenError,
+  type RefreshToken,
+  StoreDenied,
+} from "../_shared/store.ts";
 
 export const OTP_TTL_S = 5 * 60;
 export const OTP_MAX_ATTEMPTS = 3;
@@ -171,6 +178,10 @@ async function otpVerify(deps: Deps, b: Record<string, unknown>): Promise<Respon
 // ---------------------------------------------------------------- devices (06 §3)
 async function registerDevice(deps: Deps, b: Record<string, unknown>): Promise<Response> {
   const ticket = b64any(b.ticket), pubEd = b64any(b.pub_ed), pubX = b64any(b.pub_x);
+  // ADR 2026-09-16 §2 🔒: the ledger minted this id at first run; we record it, we never issue one.
+  // The shape check is BEFORE the ticket is consumed — a typo must not cost the user their ticket.
+  if (!isUuid(b.device_id)) return error(400, "bad_request");
+  const device = b.device_id;
   if (
     !ticket || ticket.length !== 32 || !pubEd || pubEd.length !== 32 || !pubX || pubX.length !== 32
   ) return error(400, "bad_request");
@@ -187,15 +198,21 @@ async function registerDevice(deps: Deps, b: Record<string, unknown>): Promise<R
       return {
         status: 200 as const,
         user_id: t.user_id,
-        device_id: await tx.registerDevice(t.user_id, pubEd, pubX, model, os, attestation),
+        device_id: await tx.registerDevice(device, t.user_id, pubEd, pubX, model, os, attestation),
       };
     } catch (e) {
-      if (e instanceof DeviceCapError) return { status: 409 as const };
+      // Both are 409; the client branches on the `error` string, never the status (ADR §3).
+      if (e instanceof DeviceCapError) {
+        return { status: 409 as const, error: "device_cap" as const };
+      }
+      if (e instanceof DeviceIdTakenError) {
+        return { status: 409 as const, error: "device_id_taken" as const };
+      }
       throw e;
     }
   });
   if (reg.status === 401) return error(401, "ticket_invalid");
-  if (reg.status === 409) return error(409, "device_cap");
+  if (reg.status === 409) return error(409, reg.error);
 
   let status = "registered";
   if (b.umk && typeof b.umk === "object") {

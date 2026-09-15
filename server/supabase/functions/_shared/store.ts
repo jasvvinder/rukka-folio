@@ -247,7 +247,10 @@ export interface Tx {
   consumeOtpChallenge(id: string): Promise<void>;
   createActivationTicket(t: Omit<ActivationTicket, "id">): Promise<string>;
   consumeActivationTicket(ticketHash: Uint8Array, now: Date): Promise<ActivationTicket | null>;
+  /** ADR 2026-09-16 §2: the client's `device` id is recorded, never minted here. Idempotent for
+   *  the same user with the same keys on a live row; any other holder → DeviceIdTakenError. */
   registerDevice(
+    device: string,
     user: string,
     pubEd: Uint8Array,
     pubX: Uint8Array,
@@ -287,6 +290,15 @@ export interface Store {
 export class DeviceCapError extends Error {
   constructor() {
     super("device_cap");
+  }
+}
+
+/** The device id is already held by another user, another key pair, or a revoked row
+ *  (ADR 2026-09-16 §2). 409 like the cap, but a different `error` string: the client branches
+ *  on the string, not the status. */
+export class DeviceIdTakenError extends Error {
+  constructor() {
+    super("device_id_taken");
   }
 }
 

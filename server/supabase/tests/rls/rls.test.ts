@@ -86,9 +86,10 @@ async function seed(): Promise<Fixture> {
       ["erin", erin, "certified"],
     ] as const
   ) {
-    const [d] = await sql`insert into devices (user_id, pub_ed, pub_x, status) values (${user}, ${
-      b(32, 9)
-    }, ${b(32, 8)}, ${status}) returning id`;
+    const [d] =
+      await sql`insert into devices (id, user_id, pub_ed, pub_x, status) values (gen_random_uuid(), ${user}, ${
+        b(32, 9)
+      }, ${b(32, 8)}, ${status}) returning id`;
     dev[name] = d.id;
   }
   // 06 §7: nobody reaches `active` without a verified ceremony (the founder of each tenant aside),
@@ -261,7 +262,10 @@ Deno.test({
       await pgCode(asMaint((s) => s`delete from envelopes where envelope_id = ${fx.envA}`)),
       "P0001",
     );
-    const [{ n }] = await sql`select count(*)::int as n from envelopes`;
+    // Scoped to this file's own three envelopes: the suite shares one database with the other
+    // hostile-query files, so a global count asserts their fixtures rather than this one's.
+    const [{ n }] = await sql`select count(*)::int as n from envelopes
+      where envelope_id in (${fx.envA}, ${fx.envB}, ${fx.envErin})`;
     assertEquals(n, 3, "nothing deleted");
   },
 });
@@ -277,7 +281,7 @@ Deno.test({
     const pb = crypto.randomUUID();
     await sql`insert into books (id, tenant_id, type, owner_user_id) values (${pb}, ${fx.tenantA}, 'personal', ${live.id})`;
     const [d] =
-      await sql`insert into devices (user_id, pub_ed, pub_x, status) values (${live.id}, ${new Uint8Array(
+      await sql`insert into devices (id, user_id, pub_ed, pub_x, status) values (gen_random_uuid(), ${live.id}, ${new Uint8Array(
         32,
       )}, ${new Uint8Array(32)}, 'certified') returning id`;
     const liveEnv = crypto.randomUUID();

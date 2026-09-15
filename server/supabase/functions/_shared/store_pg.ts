@@ -11,6 +11,7 @@ import {
   type CeremonySession,
   denialFromPg,
   DeviceCapError,
+  DeviceIdTakenError,
   type EnvelopeRow,
   type GuardianSet,
   type InviteOffer,
@@ -443,6 +444,7 @@ class PgTx implements Tx {
       : null;
   }
   async registerDevice(
+    device: string,
     user: string,
     pubEd: Uint8Array,
     pubX: Uint8Array,
@@ -452,7 +454,7 @@ class PgTx implements Tx {
   ): Promise<string> {
     try {
       const [r] = await this
-        .sql`select rf.register_device(${user}::uuid, ${pubEd}, ${pubX}, ${model}, ${os},
+        .sql`select rf.register_device(${device}::uuid, ${user}::uuid, ${pubEd}, ${pubX}, ${model}, ${os},
         ${
         attestation === undefined || attestation === null
           ? null
@@ -460,7 +462,9 @@ class PgTx implements Tx {
       }) as id`;
       return r.id as string;
     } catch (e) {
-      if (denialFromPg(e)?.reason === "device_cap") throw new DeviceCapError();
+      const reason = denialFromPg(e)?.reason;
+      if (reason === "device_cap") throw new DeviceCapError();
+      if (reason === "device_id_taken") throw new DeviceIdTakenError();
       throw e;
     }
   }
