@@ -107,6 +107,8 @@ create index on envelopes (tenant_id);
 
 **`object_type` registry 🔒:** `book_config · account · entry · approval_decision · period_lock · year_close · import_batch · import_line · rule · attachment_meta · cash_count · period_unlock · structural_approval · business_setting` (+ reserved range; the last three added by ADR 2026-09-05e §11 — `period_lock`/`period_unlock` are all-time objects in the bootstrap hot set, 05 §8). Everything in 02 and 07 maps into these; nothing financial exists outside them. ⟦tests: E-03-21, E-05-1⟧
 
+> **ADR 2026-09-14b §5** — the `business_setting` wire shape (`id · book_id · hlc · by_user · request_id · settings{…}`), **one object per change, never amended**; unknown keys and values inside `settings` round-trip verbatim and are read conservatively (quorum → all owners; ratio → *not recorded*). A record counts toward the in-force fold only when `request_id` names a `structural_approval` whose `evaluateStructural(…).isApplied` is true **and** `settings` equals that request's payload; anything else is quarantined with its reason, never silently skipped. ⟦tests: E-03-33, E-03-36⟧
+
 `attachments(id, book_id, storage_key, size, created_at)` — ciphertext files in object storage; their per-file keys ride inside `attachment_meta` envelopes (04 §3).
 
 ### 2.4 Billing, audit, ops 🔒 ⟦tests: E-03-21, E-05-12⟧
@@ -171,7 +173,9 @@ key_cache(book_id, key_version, wrapped_blob, primary key (book_id, key_version)
 attachment_cache(id pk, book_id, local_path, state)
 ```
 
-### 3.2 Layer 2 — projections (rebuildable, indexed for the UI) 🔒 ⟦tests: E-03-1, E-03-2, E-03-3, E-03-9, F1-02-9, F1-02-10, F1-02-11⟧
+### 3.2 Layer 2 — projections (rebuildable, indexed for the UI) 🔒 ⟦tests: E-03-1, E-03-2, E-03-3, E-03-9, F1-02-9, F1-02-10, F1-02-11, E-03-46⟧
+
+> ⚠️ SPEC (CL2, 17 Sep 2026 — owner to ratify a third category): `close_progress_local(book_id, year, month, step, confirmed_banks_json)` is **device-local wizard state** for the resumable month close (07 §13) — never an envelope, never pushed, and in *neither* layer: Recompute does not drop it, because nothing in the envelope stream could put it back. Schema v3 adds it (§5). ⟦tests: E-03-46, F1-02-51⟧
 
 ```sql
 books_p(id pk, tenant_id, type, name, fy_start_month, integrity_ok int)

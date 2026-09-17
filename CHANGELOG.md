@@ -12,6 +12,280 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-17 — M8/M9: family money lands, close opens (three rounds, three green gates — second session)
+
+Orchestrator session (`/lane` → `/gate` × 3, then `/close`). Round 1 (`wf_0912c84d-d90`, three `lane-ui-hard`,
+~680k tokens) · gate green (`wf_5287c538-059`, two files formatted). Round 2 (`wf_2024cc36-0b4` + `wf_33336c4d-6bb`,
+three `lane-ui-hard` + one `lane-ui`, ~860k) · gate green (`wf_43fcd859-d46`, six files formatted). Round 3
+(`wf_8aa84f04-95d`, one `lane-ui-hard` + one `lane-ui`, ~300k) · gate green (`wf_4fb36a4d-41b`, six files
+formatted). No behavioural failure reached any gate. **1273 tests** repo-wide; `check_coverage --strict`
+**0 orphans**. Docs markers were reserved to the orchestrator all session so that parallel lanes never touched
+`07` at once; every lane listed its markers in `notes` and they were placed verbatim.
+
+### Added
+
+- **Inter-book movement has a ledger surface, and the pair is atomic (`U5b`, `CL2`; 02 §6 🔒).**
+  `LocalLedger.transferBetweenBooks` / `pocketExpense` author two envelopes sharing `refs.transfer_group`,
+  auto-creating the paired `Due to/from` accounts; `reconciliation` / `watchReconciliation` read every pair
+  the device holds as balanced · non-zero-with-entries · *one-sided · unconfirmed* (ADR 2026-09-05e §7).
+  **Defect found by U5f and fixed by CL2 before anything shipped:** the two halves were appended sequentially
+  with no rollback, so a refused receiving half left a broken pair. `post` is now stamp → validate → append,
+  and `_postPair` validates both halves against both books' states before appending either — never
+  compensating, because the ledger is append-only (rule 2). `F1-02-19…28`, `F1-02-47`.
+- **S8.3 Family reconciliation, S2.3 between books, S1 *In transit* (`U5b`, `U5f`).** S8.3 is normally one
+  green ✓ stated in words; a one-sided pair reads *unconfirmed*, never *mismatch*. The *Move money* TO chooser
+  lists the other books the device holds; choosing one keeps the amount and posts through
+  `transferBetweenBooks`, one tap over the within-book path. Home's position card grows `HomeInTransitChip`
+  (⏳ + sentence + door to S8.3) only while a pair is in transit. `F1-07-24`, `F1-07-100…104`, `F1-07-118…123`.
+- **S5.5 Cash count sheet, end to end (`U5c`, `U5e`, `U5g`; 02 §8.2 🔒).** Verify mode for `cash` (book
+  balance and the difference in words), collect mode for `cash_collection` (counted total posted as income,
+  grid and two names required). `recordCashCount` validates with `validateCount`, posts exactly what
+  `resolveCount` returns — nothing, one guided adjustment, or one recognition — then authors the count
+  envelope; a refused posting leaves no count. The S4 cash statement header shows *Last counted … ·
+  20×500 …* and the *Count again* / *Open and count* door. `F1-07-18`, `F1-07-105…109`, `F1-02-29…39`,
+  `F1-07-124…127`.
+- **S14 Partner positions + S14.2 drift card (`U5d`, `U5e`, `U5g`; 02 §7.1 🔒).** Consumer vocabulary only
+  (`F1-07-111` fails on any Dr/Cr); a *Just me* business never sees a partner word (`F1-07-128`, ADR
+  2026-09-09b). Put in / took out / share had **no derivation anywhere** — now a pure `partnerPositions` in
+  `packages/data` classifying each Partner Current line by the event that posted it (`E-02-1…10`); an
+  unclassifiable line goes to a named `other`, never folded silently. `F1-07-37`, `F1-07-110…114`,
+  `F1-02-40…46`.
+- **S10 Month close wizard + S10.5, resumable, over the real ledger (`CL1`, `CL2`; 02 §8 🔒, 07 §13 🔒).**
+  Four steps, blocks vs warns carried by two enums so they can never arrive as one list; S10.5 replaces the
+  lock while a gap or `held` envelope is open. `monthClosePreconditions` = the engine's
+  `monthLockPreconditions` ∪ the mirror-level facts; `lockMonth` authors the signed `period_lock` with the
+  declared balances, the **projector's** canonical vector and `projectorVersion` — never recomputed in the
+  facade — and success is read back out of the rebuilt projection. Progress persists in a new device-local
+  table `close_progress_local` (schema v3). `F1-07-27`, `F1-07-129…139`, `F1-02-48…51`, `E-03-46`.
+- **Shared atoms (`W1`; 13 §4).** `RkFitText`, `RkSkeleton`, `RkErrorState`, `RkRuledCard` and one `paiseOf`
+  parser moved to `shared/`; three feature copies deleted (the orchestrator swapped the fourth in
+  `features/close` inline). Found and fixed: `RkFitText`'s single step-down under-predicted on a long word
+  (`F1-13-22`). `F1-13-20…27`.
+- **Wired by the orchestrator:** `cashCountRoutes`, `partnersRoutes`, `closeRoutes` on the root navigator;
+  `RkPaths.cashCount/partners/close`; `CashCountScope`, `CloseScope`, `PartnersScope` mounted in
+  `bootstrap.dart` over the live ledger; ARB parts merged (22 features, 1257 keys × 3).
+
+### Changed
+
+- `LocalLedger.post` split into `_stamp` / `_violationsOf` / `_append` (behaviour unchanged for single entries).
+- `packages/data` schema v2 → **v3**; `database_test.dart` `E-09d-1` now asserts `ledgerSchemaVersion`.
+- 03 §3.2 carries a ⚠️ SPEC block naming `close_progress_local` as a **third** storage category.
+
+### Decided
+
+- **S5.1 was deliberately not started.** 02 §7 (*always* approved) and 02 §7.2 item 1 (never your own entry)
+  are a same-level conflict for a solo book; `approveAdvance` refuses self-approval (conservative). Owner rules.
+- **Nothing went to `lane-core`.** The one engine blocker (partner-to-partner settlement) is reported, its test
+  written and skipped, the facade posts and surfaces the engine's own refusal.
+
+### Open
+
+- 🔒 **OWNER RULING — 02 §7 vs 02 §7.2 item 1** (S5.1, see Decided).
+- 🔒 **ENGINE — 02 §7.1 settlement route 2** `Dr partner · Cr partner` is admitted by `checkShape` under no
+  `EntryKind`. Needs `Verbs.partnerSettlement` + a shape rule, or 02 naming the kind. `F1-02-44` skipped.
+- ⚠️ **SPEC 02 §7.1 drift margin** — configurable, but no storage key and no default anywhere. `driftMargin`
+  stays null; S14.2 never shows.
+- ⚠️ **SPEC 07 §5 pocket expense** has no screen; a sixth pill position is ruled out (ADR 2026-09-03b).
+- ⚠️ **SPEC 13 §3.2 row S14** shows three buckets; cash contributions, settlements and carried-in balances sit
+  in `PartnerPosition.other`, so the figures may not sum to net on screen.
+- ⚠️ **SPEC 03 §3.2** — a third storage category (device-local, never dropped by Recompute) needs ratifying.
+- **S10.5 cannot name the phone** — no table carries a device label; likely a signed `device_label` record.
+- ⚠️ **SPEC 07 §13 vs 07 §1 rule 5** — *Close August* vs abbreviated months; S10 says *Close Aug 2026*.
+- ⚠️ **SPEC 02 §6 reconciliation** — a held counterpart whose `Due to/from` has not arrived reads as a
+  non-zero pair, not *unconfirmed*; owner's call whether it should read *in transit*.
+- ⚠️ **SPEC 02 §5 vs §6** — Undo of a pair reverses both halves; a paired reversal is the engine's to define.
+- Rights seam still empty (`reviewRequiredIn` never set; `readOnly` always false) — no book-role source.
+- Advance ageing hard-coded 30 d in `ledger_close_source.dart`; `book_config` has no field for it.
+- Engine keeps only the latest cash count per account, so a superseded in-period count reads *not counted*.
+- ADR 2026-09-14b §4 ratio *in force* is not read in `app/` (no mirror-level structural reader) — S14 shows the
+  deed ratio; S14.1 waits on it.
+- `check_strings.dart:37` reads any `{word}` as a placeholder, so ICU `=0{today}` branches cannot be written.
+- Design gaps: no canvas for S5, S8.3 (canvas 15 row 3 vs D5 naming still open), S5.5 C3c only.
+
+### Commits
+
+- _pending — owner commits; hashes filled next session_
+
+## 2026-09-17 — M7/M8: the socket's follow-through, advances, the owner-set fold (three rounds)
+
+Orchestrator session. Round 1 (`wf_f7632712-fbf`, three `lane-sync` lanes, ~477k tokens) landed complete;
+**the push-lane gate then went green** (`wf_21493a66-3da`) over both today's lanes and the ungated 16 Sep round
+— four files formatted, nothing else. Round 2 (`wf_fcd0fe77-729`, one `lane-ui-hard` lane, ~239k tokens,
+36 minutes) opened M8. The orchestrator wired what no lane could. **Round 2 gated green too**
+(`wf_2e46060d-13a`; one file formatted, nothing else) — the tree is green on the push lane as of this entry.
+Round 3 (`wf_9f3645da-11b`, one `lane-sync` lane, ~166k tokens, 14 minutes) closed the last unbuilt piece of
+ADR 2026-09-14b's reader; it is **not yet gated**.
+
+### Added
+
+- **A wrapped key accepted on the meta channel now survives a restart (`W5`, `D-05-40`, `D-05-41`,
+  `F1-05-57`, `F1-05-58`).** The 16 Sep finding was re-verified at the line first: nothing under
+  `packages/sync_engine/lib` wrote `key_cache`, so a device that joined someone else's book had the key only
+  until its second launch — permanent `key_wait`. `CryptoGuard.acceptWrappedKey` now returns a sealed
+  `KeyAcceptance` (accepted · already held · not accepted); the engine **awaits** an injected `AcceptedKeySink`
+  before draining `key_wait`; `LocalLedger` is the sink and does the Drift write, persisting the **wire blob
+  unchanged** (already sealed to this user's UMK) and refusing a blob whose recipient is not this install.
+  Why not a hook on `BookKeyStore`: it holds unwrapped keys, so persisting from there means re-wrapping —
+  exactly what 04 §8.2 forbids. Why not a fire-and-forget event: persistence must be awaited and exactly-once,
+  and an unheard event loses the key silently. The engine gains no storage knowledge — the `key_cache` layout
+  stays private to the ledger that reads it back. Wired in `bootstrap.dart` (`keySink: ledger`).
+- **A pin failure is *Needs attention*, never *Offline* (`W5`, `D-05-38`, `D-05-39`; ADR 2026-09-15 §7).**
+  `TransportFailure` gains `PinFailed`; the request socket raises it instead of `TransportOffline`; the engine
+  maps it to `AttentionReason.pinFailed` without setting offline, so 05 §9's precedence yields
+  *Needs attention*. No sixth state, no bypassing retry, one `PinCheckFailed` event per raising. Four existing
+  pin expectations (`D-05-22` and two in `tls_chain_source_test.dart`) were retyped — the rule they assert
+  (hard fail, the request never leaves) is unchanged, so no supersession skip.
+- **A newly certified device announces itself (`R1`, `C-06-32…36`; 06 §5 🔒, ADR 2026-09-05d §6).**
+  `certifyDevice()` had filed the cert and stopped. `DeviceAddedRecorder` in `shared/records` signs the
+  certificate as a `device_added` record through the existing `DeviceRecordAuthor` and posts it through the
+  existing `postRecords` route — no second author, no second wire path. Order: install locally, mark
+  certified, then announce, and only when the device did not already hold a certificate (06 §5 *"newly"*).
+  A failed post logs one fixed content-free name and never un-certifies. The server's shape checks were read
+  before choosing field names: `applyRecord`'s `device_added` arm reads no payload field, so the five names
+  are the client's contract and match the `devices/certify` body. **Wired by the orchestrator** in
+  `bootstrap.dart`: `HttpMembersApi` hoisted to a local, `auth.announcer` set beside `auth.certifier` when a
+  record author exists; without one the client certifies exactly as before.
+- **`E-03-35` and `E-03-36` landed (`E3`; ADR 2026-09-14b §2, §5), `packages/data` 60/60.** New pure module
+  `structural_reader.dart` in front of the existing fold. `readBookConfigVersions`: the creation version is the
+  earliest in `(hlc, envelope_id)`; a later version that changes, drops **or adds** a structural key is refused
+  whole and the last accepted version stands; a routine amend carrying the keys forward verbatim is accepted
+  with unknown fields byte-for-byte; an older build "tidying" an uninterpretable value is refused. Wired into
+  Recompute step 2b — `book_config` is not a projected event, so no golden moves. `verifyBusinessSettings`:
+  six typed refusals (no request · unknown · not applied · sets nothing · payload mismatch · other book);
+  applied + quarantined always partition the input; payload equality deep and key-order-insensitive.
+  **Adversarial case closed:** a record citing an *approved* request whose action changes no config
+  (a `member_removal` carrying `partner_shares`) is refused — an approved non-config ceremony can never smuggle
+  a ratio in. 03 §3.3 rule 2 asserted in-test: `decodeEvent` null, `project()` identical with and without.
+
+- **M8 opens: the advance flow has a ledger surface and its hub screen (`U5a`, `lane-ui-hard`;
+  `F1-02-13…18`, `F1-07-22`, `F1-07-95…99`).** `core_ledger` had the postings and the open-advance derivation
+  since M1 (`A-02-72…77`) but `LocalLedger` exposed no advance verb. It now has `requestAdvance` (posts
+  `pending`, moves nothing, purpose required), `approveAdvance` (authors the approval decision the projector
+  folds — the one place where approving moves money, 02 §7 🔒; refuses unknown, not-pending, already-decided
+  and self-approval through a typed refusal), `spendAgainstAdvance`, `returnAdvance`, and reads
+  `openAdvances` / `myAdvances` with watch variants — every one on the engine's own derivation, no parallel
+  state. **S5 Advances** (`features/advances`): *Advance with you* cards (purpose, taken date,
+  spent-vs-remaining bar, Add spend, Return remaining through in-feature sheets) and *Advance out* aged rows
+  (status word + icon + tint, colour never alone). Every 13 §4.3 state; the 200 % pass on 360×800 found and
+  fixed a real defect — *Return remaining* could not fit inside gutter + card padding and a button label is
+  not something to truncate. App package 795 green; `check_strings` 1068 keys × 3. **Wired by the
+  orchestrator**: `advancesRoutes` on the root navigator, `RkPaths.advances`, ARB parts merged (19 features).
+
+- **The owner-set fold, and the reader composed end to end (`E4`, `E-03-37…45`; ADR 2026-09-14b §3, § Open
+  bullet 4).** `ownerSetVersions` in `packages/data`: version 1 is the founding owner set — the `memberId` of
+  every partner-class account the deed's `partner_shares` names, with the deed's quorum (absent = all
+  owners); each later version is one approved `owner_add_or_remove` or `quorum_setting`, evaluated once against
+  the versions before it and coming into force **when quorum was reached**, not at initiation, so an add
+  approved after a quorum change carries the new rule (`E-03-42`). Pending, vetoed or lapsed bumps nothing. Six
+  typed refusals; **a deed the chart cannot resolve yields zero versions, never a smaller set** — `E-03-38`
+  states the wrong answer explicitly, because the shrunk set would have applied the same two signatures.
+  `readStructuralState` composes deed → owners → verified `business_setting` records → in-force terms in one
+  call for S6.3 and the distribution wizard. No `business_setting` is read inside the owner fold, so no record
+  can vouch for its own quorum. 25 tests; data package green; purity green. **Contract for the app writer
+  (unbuilt):** an `owner_add_or_remove` payload carries the *whole new* `partner_shares` map, never a delta —
+  `applyStructural` is a key-level replace, so a delta would read as removing everyone else.
+
+### Changed
+
+- **The `shared/seams/http_transport.dart` move is finished (`R1`).** `RkHttpPoster` (POST) and
+  `RkHttpTransport` (GET+POST) are the only declarations; `AuthTransport`/`MembersTransport` and their
+  response/exception types are typedefs of them (typedefs, not a hard swap, because tests outside the lane
+  implement `AuthTransport` and name both exceptions). `features/auth/http_client_transport.dart` deleted
+  (no callers). Consequence worth naming: the two exception types are now one, so the seam test's
+  `isA<…>` assertions no longer distinguish the adapters — still green, still pin the typed failure.
+- **Traceability: 0 orphans.** Twenty test ids named by no marker — the 16 Sep lanes' `F1-05-43…48`,
+  `F1-05-51…56`, `C-06-28…31` and today's `D-05-40/41`, `F1-05-57/58` — placed on the rule each asserts
+  (05 §5 key sync, 05 §7 triggers, 04 §3.4 device certificates, 06 §3 registration); ` @M7` dropped from
+  `D-05-38/39` in 05 §9 and ADR 2026-09-15 §7, and from every marker naming `E-03-35/36`. `check_coverage`:
+  `coverage ok`, 0 orphans. `app/pubspec.yaml` comment names the class that exists.
+
+### Decided
+
+- **The advances screens (S5/S5.1, 07 §8) were deliberately not started this round.** They need new verbs in
+  `app/lib/shared/ledger`, which `W5` owned; they are the next `lane-ui-hard` slice. Certified-only RLS,
+  listed ⬜ under M6, is already present (`0005_rls_and_grants.sql`, `rf.is_certified()` on every
+  tenant-scoped policy) and needs no lane.
+
+### Open
+
+- 🔒 **Bootstrap gap is worse than E3 recorded (ADR 2026-09-14b § Open bullet 2; 05 line 97) — 05 owner.** The
+  owner fold needs the approved `owner_add_or_remove` / `quorum_setting` requests *and their approvals* from
+  whatever FY they fell in. A device that bootstraps after that FY derives only version 1 and counts new
+  requests under a **smaller** owner set — *all owners* of two where the book has three: quorum made easier by
+  a fetch policy. "Accept provisionally, verify on fetch" does not cover it (the owner set is an input to
+  counting, not an output to re-check). Adding `structural_approval` to the all-time bootstrap set now looks
+  like the only safe option. Escalation-shaped; needs the ruling.
+- ⚠️ **SPEC ADR 2026-09-14b §5 🔒 — the reader rule does not check that a request's *action* owns the keys it
+  sets.** An approved `ownership_ratio` whose payload changes the *key set* of `partner_shares` adds or drops
+  a shareholder without an `owner_add_or_remove`; any `changesConfig` request carrying `structural_quorum`
+  changes the rule without a `quorum_setting`. Both land in the displayed terms while the owner fold ignores
+  them, so displayed terms and counting terms can disagree — in the safe direction (counting stays strict).
+  Tightening §5 to "each action owns its keys" is a 🔒 change to a ratified ruling. Not made; ⚠️ SPEC on
+  `readStructuralState`.
+- ⚠️ **SPEC 02 §7.2.1 / ADR §3 — `member_removal` of an owner is not an ownership change**, taken literally
+  as instructed. Consequence: a removed member stays in `ownerIds`, so *all owners* waits on a signature
+  from someone no longer a member until an `owner_add_or_remove` follows. `E-03-39` pins the literal reading
+  and takes a supersession skip if the owner rules otherwise.
+- ⚠️ **Single-owner books have no derivable owner set.** The fold derives owners from partner accounts; a
+  *Just me* business (ADR 2026-09-09b) and a personal book have none, so every structural request on such a
+  book stays pending forever — a personal book cannot re-open a closed year, a Just-me business cannot be
+  archived. Needs a sole-owner input to the fold or a caller rule for `ownership == justMe`. Not invented.
+- 🔒 **OWNER RULING — 02 §7 vs 02 §7.2 item 1, a same-level conflict.** 02 §7 requires approval on every
+  advance request *"regardless of limit"*; 02 §7.2 item 1 forbids deciding on your own entry, and the
+  projector enforces it (`projection.dart:673-690`, `ViolationKind.selfApproval`). A book whose only member
+  is the requester therefore has **no path from `pending` to posted**. `approveAdvance` refuses a
+  self-approval rather than author an envelope every reader would quarantine — the conservative reading,
+  ⚠️ SPEC comment in place. Two shapes: (a) advances are a shared-book feature and a solo book never requests
+  one — S5.1 must then block it; (b) a named exception to §7.2 for the advance queue. Not guessed at.
+- ⚠️ **Roles:** 13 §7 gives *Approve advance* to owner and admin only, but the app has no book-role source.
+  `AdvancesScreen.canApprove` defaults to true — right for the solo book — and is the parameter the shell
+  passes once roles land. ⚠️ SPEC comment on the screen.
+- ⬜ **S5.1 (advance request) and the Inbox approve card** are the next lane's. S5's empty state carries no CTA
+  because 07 §1 rule 6 (no door that leads nowhere) beats rule 12 (one next action) until the form exists;
+  `AdvancesPaths.request` reserves the path. Write-off (guided adjustment, S2.4) and Remind (no notification
+  source, 07 §17) render disabled-with-reason.
+- ⚠️ **Design gap:** 07 §8 and 13 §3.2 row S5 carry no canvas reference and `design/` has no S5 mockup; the
+  card, bar and aged row are composed from spec text and tokens only.
+- ⚠️ **Vocabulary:** 01 §2.0 🔒 fixes the advance card label as `Advance out / ਐਡਵਾਂਸ / एडवांस`; taken
+  literally the PA/HI section heading equals the screen title, so *Given out* reads `ਦਿੱਤਾ ਹੋਇਆ ਐਡਵਾਂਸ` /
+  `दिया हुआ एडवांस` — the 🔒 noun kept, disambiguated. Owner to confirm; the 🔒 line was not edited. PA/HI
+  beyond the approved forms is a draft pending native review (M12).
+- ⚠️ **Tooling:** `check_strings.dart:37` reads any `{word}` as a placeholder, so a one-word ICU branch like
+  `=0{today}` reports drift against PA/HI. Worked around with a space; better fixed in the checker.
+- ⚠️ **Inbox row for `pin_failed`** (`features/inbox` lane): an ARB trio saying the app could not confirm it
+  was talking to the real Rukka Folio server and stopped rather than risk it (01 §1.3), no retry affordance.
+  It also needs a way to *read* the reason — the seam's `NeedsAttention` carries no payload, so **every**
+  `AttentionReason` stops at the engine today. Extending `shared/seams/sync_client.dart` is a seams decision.
+- ⚠️ **SPEC 05 §5 — records have no durable queue, ordering or retry.** A `device_added` post that fails is
+  dropped after a log line; `certifyDevice` runs once, so an offline activation never announces. If a record
+  must survive that, it is an 05 §5 decision. ⚠️ SPEC comment in `device_added_record.dart`.
+- ⚠️ **ADR 2026-09-05d §6 says *every* tenant the user belongs to; this build files one record**, in the
+  ledger identity's tenant — an install has one tenant (ADR 2026-09-16 §1) and no route enumerates others.
+  Fan-out left undone, not guessed.
+- ⚠️ **SPEC ADR 2026-09-14b §2 — "the creation version" is not defined for a reader.** `E3` takes the earliest
+  in `(hlc, envelope_id)`. A backdated version would sort first; one of any disagreeing pair is always
+  refused, so nothing differing is silently applied, but *which* is the impostor is an authorship question
+  (04 §8.3), not a fold question. Owner may want a rule.
+- ⚠️ **05 line 97 puts `business_setting` in the all-time bootstrap set while `structural_approval` rides
+  with its FY**, so a late-bootstrapping device holds the record without the approvals and can only report
+  `unknownRequest` — "not yet verifiable" indistinguishable from "never existed". Documented on the function:
+  treat `unknownRequest` as provisional, never a permanent quarantine. A rule is needed (verify-on-fetch, or
+  move `structural_approval` to the all-time set).
+- ⬜ `OwnerSetVersion` derivation (ADR 2026-09-14b § Open) still unbuilt; `verifyBusinessSettings` takes
+  `owners` injected so it plugs straight in. ⬜ No caller composes the reader yet — the S6.3 / distribution
+  caller must fold `readBookConfigVersions(...).inForce` with `verifyBusinessSettings(...).applied` and
+  quarantine the refusals.
+- ⬜ **Flake:** `F1-05-18` (`tls_chain_source_test.dart`) failed once in a full `flutter test` run and passed
+  alone and on re-run (781 green). Worth a look by whoever owns `shared/sync`.
+- ⛔ **The `user_id` / `tenant_id` split** (16 Sep Open, unruled). `R1` sends no user id in the payload and
+  names the ledger-minted tenant; the certificate the engine rebuilds from meta still names the server's user.
+  Needs a ruling of the shape ADR 2026-09-16 gave the device id. Escalation tier; not taken without the owner.
+- ⛔ **The origin is not built** (ADR 2026-09-15; runbook §1–3). Owner-only.
+
+### Commits
+
+- *(none yet — the 16 Sep and 17 Sep work is uncommitted on `main`; hashes next session)*
+
 ## 2026-09-16 — M7: the pinning decision, verified
 
 A session spent almost entirely on one owner decision that three lanes had deferred: **where the API

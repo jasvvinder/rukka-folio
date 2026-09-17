@@ -257,7 +257,7 @@ are valid; this table is the translation. Canvas captions use the design id.
 
 ## 4. Component system
 
-### 4.1 The three load-bearing patterns
+### 4.1 The three load-bearing patterns ⟦tests: F1-13-20, F1-13-21, F1-13-22, F1-13-26⟧
 Ninety percent of the app is these three. Design them once, reuse everywhere.
 
 **P1 — Entry listing** (day book, A/C statement, drill-downs, import inbox, review lists)
@@ -279,7 +279,7 @@ Avatar/icon · who + where + count + total · expandable list · primary action 
 ### 4.2 Atoms
 Amount text (3 sizes × in/out/pending/neutral) · account chip · scope chip (avatar + role) · date chip · status chip (review/locked/in-transit/offline/**provisional**) · keypad · books-balanced verification card · search field · picker row with "+ Create" · stepper progress · loud-warning panel · **banner** (persistent: suspended, read-only, book full) · **toast** (the 10 s Undo depends on it) · **countdown** (cancel windows, PIN cooldown) · **progress meter** (the determinate loader rule) · **skeleton row** (ADR 2026-09-05f §D, §H).
 
-### 4.3 Component states
+### 4.3 Component states ⟦tests: F1-13-23, F1-13-24, F1-13-25⟧
 Every interactive component ships: default · pressed · disabled-with-reason · loading · error. Every list ships: populated · empty (with the one next action) · error-with-retry · offline.
 
 ---

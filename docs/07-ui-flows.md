@@ -73,7 +73,7 @@ Follows the scenario table in 06 §5 verbatim. Key screens: **Link with old phon
 
 ---
 
-## 4. Home 🔒 ⟦tests: F1-02-8, F1-07-49, F1-07-50⟧
+## 4. Home 🔒 ⟦tests: F1-02-8, F1-07-49, F1-07-50, F1-07-122, F1-07-123⟧
 
 ```
 ┌──────────────────────────────────────┐
@@ -112,7 +112,7 @@ Follows the scenario table in 06 §5 verbatim. Key screens: **Link with old phon
 
 ---
 
-## 5. Add Entry — the 8-second flow 🔒 ⟦tests: F1-07-17, F1-07-55, F1-07-58, F1-07-59⟧
+## 5. Add Entry — the 8-second flow 🔒 ⟦tests: F1-07-17, F1-07-55, F1-07-58, F1-07-59, F1-07-118, F1-07-119, F1-07-120, F1-07-121⟧
 
 **Screen order: amount first.** Full-screen numeric keypad with the amount huge at top; verb shown as a colored header chip (switchable by swipe or tap without losing the amount). **The pill has five positions 🔒 (owner-ruled 3 Sep 2026, ADR 2026-09-03b): Money in · Money out · Gave on credit · Took on credit · Move money** — the transfer (S2.3) is the fifth swipe, not a separate door.
 
@@ -161,7 +161,7 @@ Follows the scenario table in 06 §5 verbatim. Key screens: **Link with old phon
 
 ---
 
-## 5.5 Cash count sheet 🔒 ⟦tests: F1-07-18 @M5⟧
+## 5.5 Cash count sheet 🔒 ⟦tests: F1-07-18, F1-07-105, F1-07-106, F1-07-107, F1-07-108, F1-07-109, F1-07-124, F1-07-125, F1-07-126, F1-07-127⟧
 One screen, two modes driven by the account's subtype (02 §8.2): **verify** for a galla/household cash account (shows book balance and the difference) and **collect** for a gollak/donation box (shows only the counted total, posts it as income, requires the denomination grid and two names). Reached from a cash account's statement (*Count again* / *Open and count*), from month close step 1, or from the account screen. A denomination grid — one row per note (₹500 · ₹200 · ₹100 · ₹50 · ₹20 · ₹10, optional ₹2000), each with a stepper and a live line total, plus a single **coins** value field. The running **counted total** sits large at the top; beneath it, the book balance and the difference, stated in words ("₹230 less than the book — we'll adjust it"). Optional *counted by* and *witness* name fields (the gurudwara gollak pattern). Save records the count; only a non-zero difference posts an entry (02 §8.2). Cash statement header shows the last count and its breakdown. In a trust book **both cash accounts are counted**: the gollak in collect mode, and the Cash A/c in verify mode — its notes change with every purchase and bank run, so the box gets its own regular check with the denomination grid mandatory (owner-added 3 Sep 2026; drawn as C3c on canvases 5 and 14). Two names remain the gollak's rule alone.
 
 ## 5.6 App lock 🔒 (owner-raised 31 Aug 2026) ⟦tests: F1-07-19, F1-07-63, F1-07-64, F1-07-68, F1-07-69⟧
@@ -194,7 +194,7 @@ Reached from Menu → Books, or immediately after the purpose card "My shop" / "
 ## 7. You-will-get / You-will-give 🔒 ⟦tests: F1-07-21 @M5⟧
 Drill-downs from Home: party list sorted by balance, ageing chips (`> 30 days` amber, `> 90 days` red — localised per 01 §2.0, never abbreviated in ਪੰਜਾਬੀ/हिन्दी), total header; row → party statement (§6); *Remind on WhatsApp* per party ⚠️ Phase 1?; bulk export.
 
-## 8. Advances 🔒 ⟦tests: F1-07-22 @M8⟧
+## 8. Advances 🔒 ⟦tests: F1-07-22, F1-07-95, F1-07-96, F1-07-97, F1-07-98, F1-07-99⟧
 - **My advances** (money I'm holding): per-book cards — purpose, taken date, spent vs remaining bar, `Add spend` (pre-filtered entry) and `Return remaining` buttons.
 - **Given out** (book view): aged list per 02 §7; approver sees `Remind` and `Write off (reason)` actions.
 - Request flow: amount → purpose (required) → from which book → submits to approver; tracked in Inbox both sides.
@@ -204,7 +204,7 @@ Flags group into **one card per author + book + day**: avatar, "Ramesh · Kirana
 - **Approve all** — clears every flag in the card in one tap (entries were already posted and counted, 02 §3).
 - **One by one** — a guided stepper: each entry full-screen (photo, amount, A/Cs, date/time, author, note) with **Approve / Reject (reason required → auto-reversal posts) / Skip (stays flagged)** and a quiet *ask for a better photo* link; every decision advances, progress shown ("3 of 7"). Nothing is approved unseen; rejecting one never blocks the rest.
 
-## 10. Inter-book transfer 🔒 ⟦tests: F1-07-24 @M8⟧
+## 10. Inter-book transfer 🔒 ⟦tests: F1-07-24, F1-07-100, F1-07-101, F1-07-102, F1-07-103, F1-07-104, F1-07-118, F1-07-119, F1-07-120, F1-07-121, F1-07-122, F1-07-123⟧
 One flow: From (book + money A/C) → To (book + money A/C) → amount → save. Creates the pair (02 §6). If the actor lacks rights on one side, that half shows ⏳ and the position lines show **In transit** until both halves post. The **Family Reconciliation** screen (Menu → Reports) lists any non-zero pair with its composing entries — normally a single proud green ✓.
 
 ---
@@ -245,7 +245,7 @@ One flow: From (book + money A/C) → To (book + money A/C) → amount → save.
 
 ---
 
-## 13. Month close, Late Arrivals, Year close 🔒 ⟦tests: F1-07-27 @M9⟧
+## 13. Month close, Late Arrivals, Year close 🔒 ⟦tests: F1-07-27, F1-07-129, F1-07-130, F1-07-131, F1-07-132, F1-07-133, F1-07-134, F1-07-135, F1-07-136, F1-07-137, F1-07-138, F1-07-139⟧
 
 - **Close card** appears on Home from the 1st for each book the user closes: `Close August ▸ 4 steps`.
 - **Resumable 🔒:** progress saves at every step; leaving and returning resumes where the user stopped. A shopkeeper will not finish this in one sitting.
@@ -259,7 +259,7 @@ One flow: From (book + money A/C) → To (book + money A/C) → amount → save.
 
 ---
 
-## 14. Reports & Export 🔒 ⟦tests: F1-07-28, F1-07-79⟧
+## 14. Reports & Export 🔒 ⟦tests: F1-07-28, F1-07-79, F1-07-128⟧
 
 > **ADR 2026-09-12 §1** — S8.2's export sheet offers exactly **PDF, CSV and XLSX**; View report opens in-app. ⟦tests: F1-07-79⟧
 > **ADR 2026-09-12e §1–§2** — XLSX is generated in-house over `archive` + `xml` (no package: the free writers need archive 3.x, sodium needs 4.x), so all three formats work; and View · Download/Share · Export is the same trio on the statement (S4) and the report viewer. ⟦tests: F1-07-79⟧
@@ -320,10 +320,10 @@ Review requested — **digest per author+book**: the first flag notifies, later 
 ## 26. Structural approval card (S6.3) 🔒 (ADR 2026-09-05f §D; 02 §7.2.1) ⟦tests: F1-07-36⟧
 States exactly what will change, in words with figures (*"Ownership ratio: Amrit 40 · Sukhdev 30 · Harjit 30 — currently equal thirds"*), quorum progress (*2 of 3*), **Approve** / **Veto with reason**; a veto cancels and logs. Member removal, FY-start change and book archive are structural (05e).
 
-## 27. Partner drift & settlement (S14.2) 🔒 (ADR 2026-09-05f §F; 02 §7.1) ⟦tests: F1-07-37 @M8⟧
+## 27. Partner drift & settlement (S14.2) 🔒 (ADR 2026-09-05f §F; 02 §7.1) ⟦tests: F1-07-37, F1-07-110, F1-07-111, F1-07-112, F1-07-113, F1-07-114⟧
 Quiet card when one partner's balance exceeds the group average by the configured margin — informational, never a demand — with three doors: pay out · partner-to-partner · carry forward.
 
-## 28. Rebuild and gap states (S1.4, S10.5) 🔒 (ADR 2026-09-05f §B) ⟦tests: F1-07-38, E-03-29⟧
+## 28. Rebuild and gap states (S1.4, S10.5) 🔒 (ADR 2026-09-05f §B) ⟦tests: F1-07-38, E-03-29, F1-07-134⟧
 **S1.4 Book incomplete — rebuilding**: the determinate loader rule with *"{done} of {total} entries restored"* (11 §4.5) replaces the Home card while projections are dropped and recomputed (local corruption, Recompute on upgrade, `store_epoch` re-pull — ADR 2026-09-05c); the book is never shown as whole meanwhile. **S10.5 Close blocked — waiting on a device**: names the phone, explains that entries from it have not arrived, offers *Remind {name}*; lock stays disabled until the gap closes (ADR 2026-09-05b §3).
 
 ## 19. Open items ⚠️

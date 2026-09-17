@@ -69,7 +69,7 @@ Entry {
 
 ### 1.4 Universal invariants 🔒 ⟦tests: A-02-1, A-02-2, A-02-3, A-02-4, A-02-5, A-02-8, A-02-23, A-02-25, A-09-1, A-05e-8, F1-02-3, F1-02-4⟧
 1. `sum(lines.amount_paise) == 0`, ≥ 2 lines, every line non-zero.
-2. Amounts are **integer paise**. No floats anywhere — client, export, or display math.
+2. Amounts are **integer paise**. No floats anywhere — client, export, or display math. ⟦tests: F1-13-27⟧
 3. Every `account_id` belongs to the entry's book. Cross-book effects only via §6.
 4. Append-only: nothing is updated or deleted; state changes are new envelopes (amend, void, approve, lock).
 5. Currency: INR only in Phase 1; the field exists (`"INR"`) so multi-currency is a migration, not a rewrite. ⚠️ revisit if NRI members demand it.
@@ -142,7 +142,7 @@ Guided setup per book, re-runnable until first lock: for each money account and 
 
 ---
 
-## 6. Inter-book movement 🔒 ⟦tests: A-02-78, A-02-79, A-02-80, A-02-82, A-ref-6, A-05e-10⟧
+## 6. Inter-book movement 🔒 ⟦tests: A-02-78, A-02-79, A-02-80, A-02-82, A-ref-6, A-05e-10, F1-02-19, F1-02-20, F1-02-21, F1-02-22, F1-02-27, F1-02-28, F1-07-119, F1-02-47⟧
 
 Books connect through **paired system accounts** auto-created on first use: in book A, `Due to/from B`; in book B, `Due to/from A` (class `equity_system`, placement by sign).
 
@@ -155,12 +155,12 @@ Family book:     Dr Bank 50,000 · Cr Due to/from Business 50,000
 
 - Both halves post immediately (the money moved). If the actor lacks posting rights in one of the books, that half carries the *needs review* flag (§3) for that book's approver; position screens label the pair *in transit* while the flag is open. Reconciliation nets to zero from the moment of entry.
 - The one-sided everyday case — a member pays a family expense from his own pocket — is the same mechanism: personal book `Dr Due to/from Family · Cr Cash`; family book `Dr Expense · Cr Due to/from Personal(member)` (flagged for review if over limit). Nothing is ever lost in someone's pocket.
-- **Family Reconciliation report 🔒:** for every pair, balance(A→B) + balance(B→A) must equal 0. Any non-zero pair is listed with the entries composing it. This is the only cross-book integrity check that exists or is needed. **A pair is reconcilable only when the reader holds both books' keys; a side inside a personal or sub-family book the reader cannot open (04 §5.2) is shown as *one-sided · unconfirmed*, never as a mismatch (ADR 2026-09-05e §7).** ⟦tests: A-02-79, A-02-81, A-ref-6, A-05e-10⟧
+- **Family Reconciliation report 🔒:** for every pair, balance(A→B) + balance(B→A) must equal 0. Any non-zero pair is listed with the entries composing it. This is the only cross-book integrity check that exists or is needed. **A pair is reconcilable only when the reader holds both books' keys; a side inside a personal or sub-family book the reader cannot open (04 §5.2) is shown as *one-sided · unconfirmed*, never as a mismatch (ADR 2026-09-05e §7).** ⟦tests: A-02-79, A-02-81, A-ref-6, A-05e-10, F1-02-23, F1-02-24, F1-02-25, F1-02-26, F1-07-100, F1-07-101, F1-07-102⟧
 - Business↔business movement is the same mechanism. **Profit distribution is *not* an inter-book operation** — it is a single multi-line entry inside the business book against Partner Current A/cs (§7.1). Remitting business surplus to a family pool *is* an inter-book transfer, and the two must not be conflated.
 
 ---
 
-## 7. Advances — the advance (ਐਡਵਾਂਸ / एडवांस) flow 🔒 ⟦tests: A-02-72, A-02-73, A-02-74, A-02-75, A-02-76, A-02-77⟧
+## 7. Advances — the advance (ਐਡਵਾਂਸ / एडवांस) flow 🔒 ⟦tests: A-02-72, A-02-73, A-02-74, A-02-75, A-02-76, A-02-77, F1-02-13, F1-02-14, F1-02-15, F1-02-16, F1-02-17, F1-02-18⟧
 
 - Advances are the deliberate exception to §3's post-then-review: **here the approval itself moves the money** — cash leaves the drawer upon approval, so nothing exists to mismatch. Requesting ₹X posts, on approval: `Dr Advance – {member} · Cr money`. Purpose text required; approval always required regardless of limit.
 - Spending against it: `Dr expense-category · Cr Advance – {member}` (entered by the member, approved per limits, bill photo encouraged).
@@ -172,14 +172,14 @@ Family book:     Dr Bank 50,000 · Cr Due to/from Business 50,000
 
 ---
 
-## 7.1 Jointly-owned businesses — partner accounts 🔒 (owner-approved, 30 Aug 2026) ⟦tests: A-02-62⟧
+## 7.1 Jointly-owned businesses — partner accounts 🔒 (owner-approved, 30 Aug 2026) ⟦tests: A-02-62, E-02-1, E-02-2, E-02-3, E-02-4, E-02-5, E-02-6, E-02-7, E-02-8, E-02-9, E-02-10, F1-02-40⟧
 
 **Shared ownership is optional 🔒 (owner-approved).** Adding a business asks one question — *"Who owns this business?"* → **Just me** (default) or **Shared with others**. Choosing *Just me* creates a plain business book with a single Capital/Drawings pair and **never mentions partners, ratios or profit distribution anywhere in the app**. Only *Shared with others* asks for the owners and their ratio, and only then do partner accounts, the distribution wizard and the partner-position screen exist. Ownership can be changed later (a structural change: requires every current owner's approval and is recorded as a dated envelope).
 
 > **ADR 2026-09-09b** — `Drawings A/c` is seeded for a *Just me* business book and owner takeout posts
 > `Dr Drawings · Cr money`, never an expense. Capital is **not** a separate account: `Opening Balance / Capital`
 > already is it, as both worked examples name it. A shared business gets Partner Current accounts and **no**
-> Drawings account. ⟦tests: A-09b-1, A-09b-2, A-09b-3, A-09b-4⟧
+> Drawings account. ⟦tests: A-09b-1, A-09b-2, A-09b-3, A-09b-4, F1-07-114, F1-02-42⟧
 > **ADR 2026-09-09c §2** — a joint family that owns businesses is several books linked by Due-to/from pairs;
 > sub-family shares are books, never accounts inside one book. ⟦tests: A-09c-4 @M5⟧
 > **ADR 2026-09-13 §4** — **capital introduced is an ordinary Money in**: `Dr money · Cr Opening Balance/Capital`,
@@ -199,20 +199,20 @@ A business owned by several people or sub-families gets one **Partner Current A/
 
 🔒 **The payer never books an expense in their own book.** In their personal book it is `Dr {Business} · Cr Cash` — money owed to them, not an expense. The expense belongs to the business.
 
-**Profit distribution 🔒.** Net profit for the period — **the open FY's income minus expense, minus distributions already posted in that FY (ADR 2026-09-05e §8)** — × each owner's agreed ratio (fixed at business creation), posted as **one multi-line entry**: `Dr Profit Distributed (equity_system) · Cr each Partner Current`. It moves no cash — it converts undistributed surplus into debts the business owes its owners. Using a `Profit Distributed` account preserves §1.2's no-closing-entries rule: accumulated surplus stays computed, and this account records how much of it has been handed out. ⟦tests: A-02-63, A-02-64, A-05e-3, A-05e-6⟧
+**Profit distribution 🔒.** Net profit for the period — **the open FY's income minus expense, minus distributions already posted in that FY (ADR 2026-09-05e §8)** — × each owner's agreed ratio (agreed at business creation; changed only by the structural action of §7.2.1 — never by contribution, never by a routine amend; ADR 2026-09-14b §1), posted as **one multi-line entry**: `Dr Profit Distributed (equity_system) · Cr each Partner Current`. It moves no cash — it converts undistributed surplus into debts the business owes its owners. Using a `Profit Distributed` account preserves §1.2's no-closing-entries rule: accumulated surplus stays computed, and this account records how much of it has been handed out. ⟦tests: A-02-63, A-02-64, A-05e-3, A-05e-6⟧
 
 🔒 **Contribution never changes the sharing ratio.** Paying more costs does not earn more profit — it earns a larger claim for repayment. The two are separate rows of the same account. ⟦tests: A-02-64⟧
 
-**Settlement 🔒 — default is carry forward.** Three routes, offered at year close after distribution, with *carry forward* preselected:
+**Settlement 🔒 — default is carry forward.** Three routes, offered at year close after distribution, with *carry forward* preselected: ⟦tests: F1-02-43, F1-02-44⟧
 1. **Business pays out** a partner's balance (needs cash) — `Dr Partner Current · Cr bank`.
 2. **Partner-to-partner** settlement outside the business — `Dr {over-funded partner} · Cr {under-funded partner}`: the payer has bought part of the other's claim.
 3. **Carry forward** — the balance closes and re-opens under the year-close ceremony (§8.1) as a certified, dated opening balance. Never a remembered number.
 
-**Settlement capacity 🔒.** The partner-position screen states in words whether the business could pay everyone out today: *"The business can settle all partner balances today"* (money accounts ≥ total partner credit balances) or *"Short by ₹X to settle all balances"*. Figures are shown beneath, never left for the reader to subtract. ⟦tests: A-02-65⟧
+**Settlement capacity 🔒.** The partner-position screen states in words whether the business could pay everyone out today: *"The business can settle all partner balances today"* (money accounts ≥ total partner credit balances) or *"Short by ₹X to settle all balances"*. Figures are shown beneath, never left for the reader to subtract. ⟦tests: A-02-65, F1-07-112, F1-02-40, F1-02-46⟧
 
-**Debit balances are real and must be shown 🔒.** An owner who has taken out more than they put in plus their profit share carries a **Dr** balance: *they owe the business*. This is displayed as plainly as the credit case. ⟦tests: A-02-66⟧
+**Debit balances are real and must be shown 🔒.** An owner who has taken out more than they put in plus their profit share carries a **Dr** balance: *they owe the business*. This is displayed as plainly as the credit case. ⟦tests: A-02-66, F1-07-111, E-02-9⟧
 
-**Drift visibility 🔒.** Where one partner's balance exceeds the group average by a configurable margin, the business dashboard shows a quiet card ("Harjit has ₹2,40,000 more with the business than the others"). Informational, never a demand. ⟦tests: A-02-67⟧
+**Drift visibility 🔒.** Where one partner's balance exceeds the group average by a configurable margin, the business dashboard shows a quiet card ("Harjit has ₹2,40,000 more with the business than the others"). Informational, never a demand. ⟦tests: A-02-67, F1-07-37, F1-02-45⟧
 
 **Interest on capital 🔒 — optional, off by default (owner-approved, Phase 1).** The classical remedy for the partner who funds but rarely draws. A per-business setting; enabling, changing the rate, or disabling it requires **every partner's approval** and is recorded as a dated business-setting envelope, so the terms in force for any past period are always recoverable. ⟦tests: A-02-31, A-02-68, A-02-69, A-02-70, A-02-71, A-05e-7⟧
 
@@ -226,7 +226,7 @@ A business owned by several people or sub-families gets one **Partner Current A/
 
 **Rounding rule 🔒 (applies to every ratio split, including profit shares).** Divide in integer paise; assign each partner `floor(amount × weight ÷ Σweights)` in integer paise (never `amount × ratio` as a float); the remainder — always fewer paise than there are partners — goes to the partner with the **largest ratio**, ties broken by the earliest-created partner account. Deterministic on every device, so the split can never break §1.4's sum-to-zero invariant or diverge across the family's phones. ⟦tests: A-02-58, A-02-59, A-02-60, A-02-61, A-05e-5⟧
 
-**Where the ratio lives 🔒 (owner-confirmed, 13 Sep 2026; ADR 2026-09-13 §3).** The weights are recorded once, in the book's `book_config` envelope, as `partner_shares` — a map of **Partner Current A/c id → whole-number weight** (ADR 2026-09-09 §2; weights, never percentages). The key is the account id and nothing else: no member identity exists when a shared business is created — the owners are at that point only *invited* — and the account id is the one handle that survives renaming either the owner or the `{Name} — Partner Current A/c` seeded after them. It is also the identity the remainder rule above already ties to (*"ties broken by the earliest-created partner account"*), so the ratio and the split key on the same thing. ⚠️ SPEC (ADR 2026-09-14 ruling 2, **unresolved**): this sentence says the ratio is fixed and *not allowed to change*, while §7.2.1's 🔒 table lists **change the ownership ratio** as a structural action requiring quorum. Both are 🔒 lines in 02, so neither outranks the other and no lane may pick one — the placement of `structural_quorum`, and possibly of `partner_shares` itself, waits on it. Because the ratio is fixed at creation, the ids are minted **before** the config is authored and one envelope carries the whole ratio — an amend would be a second version of a number that is not allowed to change. **An absent or empty map means the ratio was never recorded — never that the shares are equal**: equal shares are held as real weights (1:1:1), so a reader that finds no map must say so rather than divide evenly. ⟦tests: E-03-30, F1-07-86⟧
+**Where the ratio lives 🔒 (owner-confirmed 13 Sep 2026, ADR 2026-09-13 §3; two layers, ADR 2026-09-14b).** The weights are recorded once, in the book's `book_config` envelope, as `partner_shares` — a map of **Partner Current A/c id → whole-number weight** (ADR 2026-09-09 §2; weights, never percentages). The key is the account id and nothing else: no member identity exists when a shared business is created — the owners are at that point only *invited* — and the account id is the one handle that survives renaming either the owner or the `{Name} — Partner Current A/c` seeded after them. It is also the identity the remainder rule above already ties to (*"ties broken by the earliest-created partner account"*), so the ratio and the split key on the same thing. The ids are minted **before** the config is authored, and this map is the ratio **agreed at creation** — the deed. It is never amended: a routine `book_config` amend carries it forward verbatim, and a later version whose `partner_shares` differs from the creation version is an invariant violation. A change of ratio is the structural action of §7.2.1 and, once quorum exists, is recorded as a dated `business_setting` envelope naming the approved request (ADR 2026-09-05e §11); the ratio **in force** at any order point is the creation ratio overridden by the applied `business_setting` records up to that point, in `(hlc, envelope_id)` order (ADR 2026-09-14b §2, §4). A distribution applies the ratio in force at its own date (ADR 2026-09-14b §6). **An absent or empty map means the ratio was never recorded — never that the shares are equal**: equal shares are held as real weights (1:1:1), so a reader that finds no map must say so rather than divide evenly. ⟦tests: E-03-30, E-03-34, E-03-35, F1-07-86, F1-07-114, F1-02-41⟧
 
 **Business surplus remitted to a family pool is not a drawing 🔒.** It is an ordinary inter-book transfer (§6) between the business book and the pool book. Money the family then takes "as needed" is tracked by the pool's own sub-family accounts. Two separate fairness ledgers — partner accounts for the business, sub-family accounts for the pool — and conflating them corrupts the partnership arithmetic.
 
@@ -250,7 +250,7 @@ Admin power then splits in two:
 | **Routine admin** | any one admin, alone | invite a member, set an auto-post limit, create or rename accounts, lock a period, run the close wizard |
 | **Structural** 🔒 | **quorum of owners required** | change the ownership ratio · distribute profit · enable/change/disable interest on capital · add or remove an owner · remove a member · re-open a **closed year** · change the book's financial-year start (**forbidden outright once any year has closed** — it would re-boundary every certificate, ADR 2026-09-05e §9) · delete or archive the book | ⟦tests: A-02-95⟧
 
-**How quorum works.** Each shared book carries a `structural_quorum` setting: **all owners** (default) or a **majority** (⌊n/2⌋ + 1 — *more than half*; corrected from ⌈n/2⌉ + 1, which equalled all-owners for n ≤ 3 and made the option meaningless for a three-owner business — ADR 2026-09-14 ruling 1 🔒), chosen at creation and itself a structural action to change. An admin *initiates* a structural action; it enters a **pending-structural** state and appears in every owner's Inbox as a distinct card stating exactly what will change ("Ownership ratio: Amrit 40% · Sukhdev 30% · Harjit 30% — currently equal thirds"). It takes effect only when the quorum of **signed approval envelopes** exists; each approval is authored on that owner's own device, so the server cannot manufacture one.
+**How quorum works.** Each shared book carries a `structural_quorum` setting (recorded at creation as `book_config.structural_quorum`, absent = all owners; each change as a dated `business_setting` naming its approved request — ADR 2026-09-14b §3): **all owners** (default) or a **majority** (⌊n/2⌋ + 1 — *more than half*; corrected from ⌈n/2⌉ + 1, which equalled all-owners for n ≤ 3 and made the option meaningless for a three-owner business — ADR 2026-09-14 ruling 1 🔒), chosen at creation and itself a structural action to change. An admin *initiates* a structural action; it enters a **pending-structural** state and appears in every owner's Inbox as a distinct card stating exactly what will change ("Ownership ratio: Amrit 40% · Sukhdev 30% · Harjit 30% — currently equal thirds"). It takes effect only when the quorum of **signed approval envelopes** exists; each approval is authored on that owner's own device, so the server cannot manufacture one. ⟦tests: A-02-94, E-03-37, E-03-38, E-03-39, E-03-40, E-03-41, E-03-42, E-03-43, E-03-44, E-03-45⟧
 
 - **Nothing is applied early.** A pending structural action changes no balance and no permission until quorum is reached.
 - **Any owner may veto**, which closes the request immediately with a recorded reason.
@@ -261,7 +261,7 @@ Admin power then splits in two:
 
 🔒 **The boundary this draws:** the admin's authority is over *structure and permission* — who is a member, what the limits are, when a period locks. It is **not** authority over the truth of the record. That is protected by the append-only journal (§1.4), per-entry author signatures (04 §8.3), independent close verification (§8), and the fact that personal books are cryptographically closed to them (04 §5.2). An admin can add themselves to a book; they cannot make an entry that never happened, alter one that did, or read a member's personal book. ⟦tests: A-02-96 @M7⟧
 
-## 8. Periods and locking 🔒 ⟦tests: A-02-48, A-02-49, A-02-50, A-02-51, A-02-52, A-05e-1, A-05c-2⟧
+## 8. Periods and locking 🔒 ⟦tests: A-02-48, A-02-49, A-02-50, A-02-51, A-02-52, A-05e-1, A-05c-2, F1-07-27, F1-07-131, F1-07-132, F1-07-134, F1-02-48, F1-02-49, F1-02-50, F1-02-51⟧
 
 - Periods are calendar months within the book's financial year. States: `open` → `locked` (re-openable by book admin, logged).
 - A **lock is itself a signed envelope** with an HLC; so is an unlock (`period_unlock`). **Both are all-time objects in the bootstrap hot set (05 §8, ADR 2026-09-05e §5)** — the validity rule below needs the complete history even for archived years. Deterministic rule every client applies: an entry whose `accounting_date` falls in period P is valid only if its HLC precedes the HLC of P's lock. Violations from a tampered client are quarantined by every honest reader.
@@ -291,7 +291,7 @@ The ledger is continuous, so money, party, and advance balances carry forward ac
 
 ---
 
-## 8.2 Cash counts and note denominations 🔒 (owner-approved, 30 Aug 2026) ⟦tests: A-02-83, A-02-84⟧
+## 8.2 Cash counts and note denominations 🔒 (owner-approved, 30 Aug 2026) ⟦tests: A-02-83, A-02-84, F1-02-29, F1-02-30, F1-02-34, F1-02-35, F1-02-36⟧
 
 Any `money` account of subtype **cash** supports a **cash count**: a dated record of how much was physically there and, optionally, **how many notes of each denomination**.
 
@@ -299,7 +299,7 @@ Any `money` account of subtype **cash** supports a **cash count**: a dated recor
 
 **Denominations (INR):** ₹500 · ₹200 · ₹100 · ₹50 · ₹20 · ₹10 · coins (₹20/10/5/2/1 entered as a value, not counted individually). ₹2000 is shown only if a previous count used it — still legal tender but rarely held.
 
-### Two kinds of count 🔒 (owner-directed, 30 Aug 2026) ⟦tests: A-02-89, A-02-90, A-02-91, A-02-92⟧
+### Two kinds of count 🔒 (owner-directed, 30 Aug 2026) ⟦tests: A-02-89, A-02-90, A-02-91, A-02-92, F1-02-29, F1-02-30, F1-02-32, F1-02-37, F1-02-38⟧
 Cash accounts carry a subtype that decides what a count *means*:
 
 | Subtype | Example | Balance before counting | What the count is | Posting |
@@ -309,7 +309,7 @@ Cash accounts carry a subtype that decides what a count *means*:
 
 This is the difference a shopkeeper and a granthi would both recognise instantly: the galla's balance is already known from the day's sales, so counting checks it; the gollak's contents are unknown until opened, so counting *creates* the record. Treating them the same would either invent phantom adjustments in a gurudwara or book a shop's daily takings twice.
 
-**A count never moves money 🔒.** Counted gollak cash that stays in the gollak stays on that account — the common real case where the committee counts, records, and leaves the money where it is. Depositing it later is an ordinary Transfer (§2 verb 5). **A count never silently changes a balance without an entry.** ⟦tests: A-02-93, A-02-89⟧
+**A count never moves money 🔒.** Counted gollak cash that stays in the gollak stays on that account — the common real case where the committee counts, records, and leaves the money where it is. Depositing it later is an ordinary Transfer (§2 verb 5). **A count never silently changes a balance without an entry.** ⟦tests: A-02-93, A-02-89, F1-02-29, F1-02-32⟧
 
 **The gollak empties only into Cash or bank 🔒 (owner-ruled 2–3 Sep 2026, ADRs).** A ⟦tests: A-02-19⟧
 `cash_collection` account is not a spending source: its only outward posting is a
@@ -325,12 +325,12 @@ destinations, and a collection account never appears in an expense entry's money
 chips. **Every organization book still seeds a plain Cash A/c alongside the gollak**
 (07 §3.1).
 
-**Denomination sheet: optional by default, mandatory where it matters 🔒.** ⟦tests: A-02-85, A-02-86, A-02-87, A-02-88⟧
+**Denomination sheet: optional by default, mandatory where it matters 🔒.** ⟦tests: A-02-85, A-02-86, A-02-87, A-02-88, F1-02-31, F1-02-33, F1-02-39⟧
 - **Organization (trust) books — always mandatory**, for every cash account including plain cash in hand, not only the gollak. A trust must be able to prove every rupee it holds.
 - **All other books** — optional; a single counted figure is always accepted.
 - **`cash_collection` accounts** additionally require **two names** (*counted by* and *witness*), because a collection count is the one case with no independent record to check against.
 
-**Where it appears:** the Cash A/c statement header shows *"Last counted 27 Aug · 20×500, 15×200, 25×100 …"* with a **Count again** button · month close step 1 (§8) · any time from the account screen · the trust gollak flow, which is this same sheet with two *counted by* name fields.
+**Where it appears:** the Cash A/c statement header shows *"Last counted 27 Aug · 20×500, 15×200, 25×100 …"* with a **Count again** button · month close step 1 (§8) · any time from the account screen · the trust gollak flow, which is this same sheet with two *counted by* name fields. ⟦tests: F1-07-124, F1-07-125, F1-07-126, F1-07-127⟧
 
 **Multiple cash accounts** each count separately (shop drawer, home vault, gollak) — this is why cash is an account, not a single global figure.
 
