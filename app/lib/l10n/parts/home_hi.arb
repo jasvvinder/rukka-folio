@@ -18,6 +18,8 @@
   "home.position.you_will_give": "आपको देने हैं",
   "home.position.advances_out": "दिए गए एडवांस",
   "home.position.in_transit": "रास्ते में",
+  "home.position.in_transit.action": "पारिवारिक मिलान देखें",
+  "@home.position.in_transit.action": {"description": "machine-draft — native review M12"},
   "home.position.drill": "सूची दिखाएँ",
   "home.month.label": "इस महीने",
   "home.month.in": "आए",

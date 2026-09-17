@@ -18,6 +18,8 @@
   "home.position.you_will_give": "ਤੁਸੀਂ ਦੇਣੇ ਹਨ",
   "home.position.advances_out": "ਦਿੱਤੇ ਐਡਵਾਂਸ",
   "home.position.in_transit": "ਰਾਹ ਵਿੱਚ",
+  "home.position.in_transit.action": "ਪਰਿਵਾਰਕ ਮੇਲ ਵੇਖੋ",
+  "@home.position.in_transit.action": {"description": "machine-draft — native review M12"},
   "home.position.drill": "ਸੂਚੀ ਵਿਖਾਓ",
   "home.month.label": "ਇਸ ਮਹੀਨੇ",
   "home.month.in": "ਆਏ",

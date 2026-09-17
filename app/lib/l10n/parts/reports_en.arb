@@ -183,5 +183,111 @@
         "example": "csv"
       }
     }
+  },
+  "reports.reconciliation.summary.ok": "Everything matches",
+  "@reports.reconciliation.summary.ok": {
+    "description": "S8.3 headline, the normal state (07 §10: “normally a single proud green ✓”). The tick is a colour, so the verdict is carried by these words beside it — never by the colour alone (07 §1 rule 3)."
+  },
+  "reports.reconciliation.summary.ok.detail": "Every pair of your books agrees, to the paisa.",
+  "@reports.reconciliation.summary.ok.detail": {
+    "description": "S8.3 — what the ✓ means (02 §6 🔒: balance(A→B) + balance(B→A) = 0 for every pair)."
+  },
+  "reports.reconciliation.summary.off": "{count, plural, =1{1 pair does not match} other{{count} pairs do not match}}",
+  "@reports.reconciliation.summary.off": {
+    "description": "S8.3 headline when a pair does not net to zero (02 §6 🔒). Consumer words: never “out of balance”, never Dr/Cr.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "reports.reconciliation.summary.unconfirmed": "{count, plural, =1{1 pair could not be checked} other{{count} pairs could not be checked}}",
+  "@reports.reconciliation.summary.unconfirmed": {
+    "description": "S8.3 headline when a side sits in a book this reader cannot open (ADR 2026-09-05e §7 🔒). Deliberately not a failure word — nothing is wrong, the check simply could not run.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      }
+    }
+  },
+  "reports.reconciliation.empty": "No money has moved between your books yet.",
+  "@reports.reconciliation.empty": {
+    "description": "S8.3 empty state (13 §4.3): there is no pair to check because no book has sent money to another."
+  },
+  "reports.reconciliation.empty.next": "Move money between books",
+  "@reports.reconciliation.empty.next": {
+    "description": "S8.3 empty state, the one next action (07 §1 rule 12). Shown only where the destination exists; the sentence above already keeps the screen from being a dead end."
+  },
+  "reports.reconciliation.pair.books": "{first} and {second}",
+  "@reports.reconciliation.pair.books": {
+    "description": "S8.3 — the heading of one pair, naming both books. Book names are user data and are inserted as typed.",
+    "placeholders": {
+      "first": {
+        "type": "String",
+        "example": "Me"
+      },
+      "second": {
+        "type": "String",
+        "example": "Sharma Family"
+      }
+    }
+  },
+  "reports.reconciliation.pair.sealed": "a book you cannot open",
+  "@reports.reconciliation.pair.sealed": {
+    "description": "S8.3 — stands in for the second book's name when this device holds no key for it (04 §5.2). A name it cannot read is not a name it may guess."
+  },
+  "reports.reconciliation.status.balanced": "Matched",
+  "@reports.reconciliation.status.balanced": {
+    "description": "S8.3 pair status, in words beside the tick (07 §1 rule 3)."
+  },
+  "reports.reconciliation.status.mismatch": "Does not match",
+  "@reports.reconciliation.status.mismatch": {
+    "description": "S8.3 pair status when the two sides do not net to zero (02 §6 🔒)."
+  },
+  "reports.reconciliation.status.unconfirmed": "One side only · not confirmed",
+  "@reports.reconciliation.status.unconfirmed": {
+    "description": "S8.3 pair status for a sealed side — 02 §6 🔒's exact phrase, and never the mismatch wording (ADR 2026-09-05e §7 🔒)."
+  },
+  "reports.reconciliation.balanced.detail": "What left one book arrived in the other.",
+  "@reports.reconciliation.balanced.detail": {
+    "description": "S8.3 — the matched pair explained in one line."
+  },
+  "reports.reconciliation.mismatch.detail": "These entries make up the difference.",
+  "@reports.reconciliation.mismatch.detail": {
+    "description": "S8.3 — introduces the composing entries 02 §6 🔒 requires a non-zero pair to be listed with."
+  },
+  "reports.reconciliation.unconfirmed.detail": "You do not hold the other book, so this side cannot be checked. It is not a mismatch.",
+  "@reports.reconciliation.unconfirmed.detail": {
+    "description": "S8.3 — says plainly what ADR 2026-09-05e §7 🔒 rules: a side the reader cannot open is shown one-sided and unconfirmed, never as a mismatch."
+  },
+  "reports.reconciliation.difference.label": "Difference",
+  "@reports.reconciliation.difference.label": {
+    "description": "S8.3 — label of the figure a non-zero pair is off by."
+  },
+  "reports.reconciliation.side.label": "This side",
+  "@reports.reconciliation.side.label": {
+    "description": "S8.3 — label of the figure this book's own Due to/from account carries. Consumer vocabulary: a signed amount with Money in / Money out, never Dr/Cr (02 §10 🔒)."
+  },
+  "reports.reconciliation.in_transit": "In transit",
+  "@reports.reconciliation.in_transit": {
+    "description": "S8.3 / S1 — 07 §10 🔒's label while a half of the pair still carries an open review flag. Words beside the pending icon, never colour alone."
+  },
+  "reports.reconciliation.in_transit.detail": "Waiting for the other book's approval.",
+  "@reports.reconciliation.in_transit.detail": {
+    "description": "S8.3 — why a pair reads In transit (02 §6: the half whose actor lacks posting rights waits for that book's approver)."
+  },
+  "reports.reconciliation.entries.title": "Entries behind this",
+  "@reports.reconciliation.entries.title": {
+    "description": "S8.3 — heading of the composing-entries list under a pair."
+  },
+  "reports.reconciliation.error": "The check could not be run.",
+  "@reports.reconciliation.error": {
+    "description": "S8.3 error state (13 §4.3), with Try again. Never a raw code (07 §1 rule 12)."
+  },
+  "reports.reconciliation.skeleton": "Checking your books",
+  "@reports.reconciliation.skeleton": {
+    "description": "S8.3 loading state — semantic label on the ruled skeleton (11 §4.5)."
   }
 }

@@ -12,7 +12,7 @@ import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../home_data.dart';
 import '../home_paths.dart';
-import 'home_states.dart';
+import '../../../shared/widgets/rk_ruled_card.dart';
 
 /// **Total money you have** 🔒 (owner-approved, 07 §4): the one hero figure —
 /// every `money` account in scope summed, overdrafts subtracted — with the
@@ -235,6 +235,7 @@ class HomePositionCard extends StatelessWidget {
     required this.snapshot,
     this.onOpenPosition,
     this.onOpenAccount,
+    this.onOpenReconciliation,
   });
 
   /// The live snapshot.
@@ -245,6 +246,13 @@ class HomePositionCard extends StatelessWidget {
 
   /// Opens one money account's statement (S4).
   final void Function(String accountId)? onOpenAccount;
+
+  /// Opens S8.3 Family reconciliation — the door 07 §10 🔒 gives the
+  /// *In transit* pair ("the Family Reconciliation screen lists any non-zero
+  /// pair with its composing entries"). Null in a host that has no route for
+  /// it: the chip is then still drawn and still says what is happening, it
+  /// simply does not travel (07 §1 rule 6 — an explanation is not a dead end).
+  final VoidCallback? onOpenReconciliation;
 
   @override
   Widget build(BuildContext context) {
@@ -339,6 +347,10 @@ class HomePositionCard extends StatelessWidget {
                 ? null
                 : () => onOpenPosition!(PositionLine.advancesOut),
           ),
+          // 07 §4's *In transit* line: the figure is [Position.inTransitPaise]
+          // and the row drills into its own list like every other line. The
+          // 07 §10 🔒 label is a second thing and appears only while a pair is
+          // actually in transit.
           row(
             l10n.homePositionInTransit,
             p.inTransitPaise,
@@ -346,9 +358,83 @@ class HomePositionCard extends StatelessWidget {
                 ? null
                 : () => onOpenPosition!(PositionLine.inTransit),
           ),
+          // ⚠️ SPEC: 07 §4 gives every position line its S1.1 drill-down and
+          // 07 §10 gives the pair the Family Reconciliation screen, and no doc
+          // says which one a tap on this row means. The conservative reading
+          // is taken: the row keeps the 07 §4 drill it shares with every other
+          // line, and the 07 §10 door is the chip's own — one row, two
+          // destinations, each labelled.
+          if (snapshot.hasInTransitPair)
+            HomeInTransitChip(
+              key: HomeCardKeys.inTransitChip,
+              onOpen: onOpenReconciliation,
+            ),
           const SizedBox(height: RkSpace.s2),
         ],
       ),
+    );
+  }
+}
+
+/// Widget keys the Home cards' own tests drive them by.
+abstract final class HomeCardKeys {
+  /// The 07 §10 *In transit* chip under the position card's In transit line.
+  static const inTransitChip = Key('home.position.in_transit.chip');
+}
+
+/// The 07 §10 🔒 **In transit** marker: drawn under the position card's
+/// *In transit* line while a reconciliation pair touching this book still has
+/// a half carrying an open review flag (02 §6 🔒).
+///
+/// ⚠️ SPEC: 07 §4 gives the position card a permanent *In transit* row and
+/// 07 §10 says "the position lines show **In transit** until both halves
+/// post" — the same two words for the row's name and for the pending state.
+/// Printing them twice says nothing, so the row keeps the word and this
+/// marker carries what the word cannot: the ⏳, the sentence and the door.
+/// The conservative reading — a figure never loses its label, and the pending
+/// state is only ever claimed when a pair really is in transit.
+///
+/// Colour is never alone (07 §1 rule 3 🔒): the ⏳ icon and the sentence both
+/// carry the state and `pending` only tints them. The sentence is the one the
+/// S8.3 report uses, so a member meets one vocabulary on both screens.
+class HomeInTransitChip extends StatelessWidget {
+  /// Creates the chip.
+  const HomeInTransitChip({super.key, this.onOpen});
+
+  /// Opens S8.3 Family reconciliation (07 §10 🔒). Null = no route here.
+  final VoidCallback? onOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final status = RkStatusColors.of(context);
+    // A Wrap, not a Row: ⏳ plus *In transit* plus the sentence in Gurmukhi at
+    // 200 % does not fit one line on a 360 px phone (07 §1 rule 11).
+    final body = Padding(
+      padding: const EdgeInsets.fromLTRB(
+        RkSpace.cardPadding,
+        RkSpace.s1,
+        RkSpace.cardPadding,
+        RkSpace.s1,
+      ),
+      child: Wrap(
+        spacing: RkSpace.s2,
+        runSpacing: RkSpace.s1,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Icon(Icons.hourglass_empty, size: 16, color: status.pending),
+          Text(
+            l10n.reportsReconciliationInTransitDetail,
+            style: Theme.of(context).textTheme.bodyMedium
+                ?.copyWith(color: status.pending),
+          ),
+        ],
+      ),
+    );
+    return Semantics(
+      button: onOpen != null,
+      hint: onOpen == null ? null : l10n.homePositionInTransitAction,
+      child: onOpen == null ? body : InkWell(onTap: onOpen, child: body),
     );
   }
 }

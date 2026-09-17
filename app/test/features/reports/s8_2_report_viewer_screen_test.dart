@@ -571,7 +571,10 @@ void main() {
         );
 
         expect(find.byType(ReportsActionRow), findsOneWidget);
-        expect(find.byType(ReportsDisabledRow), findsNWidgets(10));
+        // Nine, not ten: Partner positions is not on a book that is not a
+        // shared business at all (07 §14 🔒 "shared-ownership businesses
+        // only", ADR 2026-09-09b 🔒), and this screen is pumped without one.
+        expect(find.byType(ReportsDisabledRow), findsNWidgets(9));
         await tester.tap(find.text('Day Book'));
         await tester.pumpAndSettle();
         expect(opened, 1);

@@ -22,7 +22,8 @@ import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../../ledger/ledger_book.dart';
 import '../home_paths.dart';
-import '../widgets/home_states.dart';
+import '../../../shared/widgets/rk_ruled_card.dart';
+import '../../../shared/widgets/rk_states.dart';
 
 /// The accounts behind [line], in the order the position card reads them
 /// (creation order — 02 §9). [accountId], when given, narrows the list to
@@ -156,13 +157,13 @@ class _PositionDrilldownScreenState extends State<PositionDrilldownScreen> {
       ),
       body: SafeArea(
         child: _resolveError != null
-            ? HomeErrorState(
+            ? RkErrorState(
                 text: l10n.homeDrilldownError,
                 retryLabel: l10n.homeRetry,
                 onRetry: _retry,
               )
             : _bookId == null
-            ? HomeSkeleton(label: l10n.homeDrilldownSkeleton)
+            ? RkSkeleton(label: l10n.homeDrilldownSkeleton)
             : _body(context, _bookId!),
       ),
     );
@@ -175,7 +176,7 @@ class _PositionDrilldownScreenState extends State<PositionDrilldownScreen> {
       stream: ledger.watchAccounts(bookId),
       builder: (context, snap) {
         if (snap.hasError) {
-          return HomeErrorState(
+          return RkErrorState(
             text: l10n.homeDrilldownError,
             retryLabel: l10n.homeRetry,
             onRetry: () => setState(() {}),
@@ -183,7 +184,7 @@ class _PositionDrilldownScreenState extends State<PositionDrilldownScreen> {
         }
         final all = snap.data;
         if (all == null) {
-          return HomeSkeleton(label: l10n.homeDrilldownSkeleton);
+          return RkSkeleton(label: l10n.homeDrilldownSkeleton);
         }
         final rows = rowsFor(all, widget.line, accountId: widget.accountId);
         if (rows.isEmpty) return _empty(context);

@@ -26,6 +26,7 @@ import '../../../shared/ledger/local_ledger.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../ledger_book.dart';
+import '../widgets/cash_count_header.dart';
 import '../../../shared/seams/closed_years.dart';
 import '../widgets/fy_switcher.dart';
 
@@ -35,6 +36,7 @@ class AccountStatementScreen extends StatefulWidget {
     required this.accountId,
     this.bookId,
     this.onOpenEntry,
+    this.onCountCash,
     this.closedYears = noClosedYears,
   });
 
@@ -45,6 +47,12 @@ class AccountStatementScreen extends StatefulWidget {
   final String? bookId;
 
   final void Function(String entryId)? onOpenEntry;
+
+  /// Opens S5.5 for this A/C — the *Count again* / *Open and count* door
+  /// 02 §8.2 🔒 puts in the statement header of a `cash` or `cash_collection`
+  /// account. Null draws no button (no dead door, 07 §1 rule 6); every other
+  /// account draws none either way.
+  final void Function(String accountId)? onCountCash;
 
   /// The certified-years seam (ADR 2026-09-09 §4, [ClosedYearsSource]). The
   /// default reports none, which is every build before Year Close (M9) — so
@@ -184,6 +192,11 @@ class _AccountStatementScreenState extends State<AccountStatementScreen> {
     if (statement.isEmpty && statement.openingPaise == 0) {
       return ListView(
         children: [
+          // 02 §8.2 🔒: the count block sits in the header, above the year —
+          // an account with no entries this year is exactly the one you may
+          // want to count.
+          if (chart.maybeAccount(widget.accountId) case final account?)
+            CashCountHeader(account: account, onCount: widget.onCountCash),
           // The switcher stays: an empty year must not be a dead end you
           // cannot switch out of (07 §1 rule 2).
           FySwitcher(
@@ -216,6 +229,10 @@ class _AccountStatementScreenState extends State<AccountStatementScreen> {
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: RkSpace.s2),
       children: [
+        // The statement header of a cash / cash_collection A/C carries the
+        // last count and the door to S5.5 (02 §8.2 🔒 *Where it appears*).
+        if (chart.maybeAccount(widget.accountId) case final account?)
+          CashCountHeader(account: account, onCount: widget.onCountCash),
         FySwitcher(
           selected: fy,
           closedYears: _closed,

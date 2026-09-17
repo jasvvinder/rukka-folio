@@ -36,6 +36,8 @@
   "@home.position.advances_out": {"description": "S1 position row: open advances given out (02 §7, 02 §9)."},
   "home.position.in_transit": "In transit",
   "@home.position.in_transit": {"description": "S1 position row: money moving between your own books (02 §6, 02 §9)."},
+  "home.position.in_transit.action": "Check family reconciliation",
+  "@home.position.in_transit.action": {"description": "S1 accessibility hint on the 07 §10 🔒 In transit label under the position card: tapping it opens S8.3 Family reconciliation."},
   "home.position.drill": "Show the list",
   "@home.position.drill": {"description": "Screen-reader hint on a position row: every line drills into its list (S1.1, 07 §4)."},
   "home.month.label": "This month",

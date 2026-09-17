@@ -28,6 +28,21 @@ abstract final class RkPaths {
   static const menu = '/menu';
 
   // Root-navigator screens owned by features (features/README "Routes").
+  /// S5 Advances (features/advances); reached from S1 / S6 (13 §3.2).
+  static const advances = '/advances';
+
+  /// S5.5 Cash count sheet (features/cash_count); reached from a cash A/c's
+  /// statement, month close step 1 or the account screen (07 §5.5).
+  static const cashCount = '/cash-count/:accountId';
+
+  /// S14 Partner positions (features/partners); reached from S8.1 for a
+  /// shared business only (ADR 2026-09-09b).
+  static const partners = '/books/:bookId/partners';
+
+  /// S10 Month close wizard (features/close); reached from the Home close
+  /// card and S8 (07 §13).
+  static const close = '/close/:bookId/:period';
+
   /// S0.2 Phone + OTP (features/auth).
   static const authPhone = '/auth/phone';
 

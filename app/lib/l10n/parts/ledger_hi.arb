@@ -96,5 +96,9 @@
   "ledger.entry.reverse.confirm": "उलटी एंट्री डालें",
   "ledger.entry.reverse.cancel": "रद्द करें",
   "ledger.entry.reverse.error": "यह एंट्री उलटी नहीं जा सकी",
-  "ledger.entry.kind.adjustment": "सुधार"
+  "ledger.entry.kind.adjustment": "सुधार",
+  "ledger.statement.count.again": "फिर से गिनें",
+  "ledger.statement.count.last": "आख़िरी गिनती {date} · {breakdown}",
+  "ledger.statement.count.note": "{count}×{value}",
+  "ledger.statement.count.coins": "{amount} सिक्कों में"
 }

@@ -16,7 +16,7 @@ import '../../../shared/ledger/local_ledger.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../home_scope.dart';
-import 'home_states.dart';
+import '../../../shared/widgets/rk_ruled_card.dart';
 
 /// The *Everything* body: one read-only card per book, in switcher order.
 class HomeEverythingList extends StatelessWidget {

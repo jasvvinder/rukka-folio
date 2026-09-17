@@ -35,8 +35,31 @@
   "reports.export.xlsx": "XLSX",
   "reports.export.xlsx.description": "ਸਪਰੈੱਡਸ਼ੀਟ ਫ਼ਾਈਲ",
   "reports.export.page": "ਸਫ਼ਾ {page} / {pages}",
-  "@reports.export.page": {"description": "machine-draft — native review M12"},
+  "@reports.export.page": {
+    "description": "machine-draft — native review M12"
+  },
   "reports.export.saved": "ਸੰਭਾਲੀ ਗਈ: {where}",
   "reports.export.failed": "ਰਿਪੋਰਟ ਸੰਭਾਲੀ ਨਹੀਂ ਜਾ ਸਕੀ।",
-  "reports.export.file_name": "day-book-{year}.{extension}"
+  "reports.export.file_name": "day-book-{year}.{extension}",
+  "reports.reconciliation.summary.ok": "ਸਭ ਕੁਝ ਮਿਲਦਾ ਹੈ",
+  "reports.reconciliation.summary.ok.detail": "ਤੁਹਾਡੀਆਂ ਕਿਤਾਬਾਂ ਦਾ ਹਰ ਜੋੜਾ ਪੈਸੇ-ਪੈਸੇ ਤੱਕ ਮਿਲਦਾ ਹੈ।",
+  "reports.reconciliation.summary.off": "{count, plural, =1{1 ਜੋੜਾ ਨਹੀਂ ਮਿਲਦਾ} other{{count} ਜੋੜੇ ਨਹੀਂ ਮਿਲਦੇ}}",
+  "reports.reconciliation.summary.unconfirmed": "{count, plural, =1{1 ਜੋੜੇ ਦੀ ਜਾਂਚ ਨਹੀਂ ਹੋ ਸਕੀ} other{{count} ਜੋੜਿਆਂ ਦੀ ਜਾਂਚ ਨਹੀਂ ਹੋ ਸਕੀ}}",
+  "reports.reconciliation.empty": "ਤੁਹਾਡੀਆਂ ਕਿਤਾਬਾਂ ਵਿਚਕਾਰ ਅਜੇ ਕੋਈ ਪੈਸਾ ਨਹੀਂ ਗਿਆ।",
+  "reports.reconciliation.empty.next": "ਕਿਤਾਬਾਂ ਵਿਚਕਾਰ ਪੈਸਾ ਭੇਜੋ",
+  "reports.reconciliation.pair.books": "{first} ਅਤੇ {second}",
+  "reports.reconciliation.pair.sealed": "ਇੱਕ ਕਿਤਾਬ ਜੋ ਤੁਸੀਂ ਖੋਲ੍ਹ ਨਹੀਂ ਸਕਦੇ",
+  "reports.reconciliation.status.balanced": "ਮਿਲਦਾ ਹੈ",
+  "reports.reconciliation.status.mismatch": "ਨਹੀਂ ਮਿਲਦਾ",
+  "reports.reconciliation.status.unconfirmed": "ਸਿਰਫ਼ ਇੱਕ ਪਾਸਾ · ਪੁਸ਼ਟੀ ਨਹੀਂ",
+  "reports.reconciliation.balanced.detail": "ਜੋ ਇੱਕ ਕਿਤਾਬ ਵਿੱਚੋਂ ਗਿਆ, ਉਹ ਦੂਜੀ ਵਿੱਚ ਪਹੁੰਚ ਗਿਆ।",
+  "reports.reconciliation.mismatch.detail": "ਇਹ ਐਂਟਰੀਆਂ ਇਸ ਫ਼ਰਕ ਨੂੰ ਬਣਾਉਂਦੀਆਂ ਹਨ।",
+  "reports.reconciliation.unconfirmed.detail": "ਦੂਜੀ ਕਿਤਾਬ ਤੁਹਾਡੇ ਕੋਲ ਨਹੀਂ ਹੈ, ਇਸ ਲਈ ਇਸ ਪਾਸੇ ਦੀ ਜਾਂਚ ਨਹੀਂ ਹੋ ਸਕਦੀ। ਇਹ ਗ਼ਲਤੀ ਨਹੀਂ ਹੈ।",
+  "reports.reconciliation.difference.label": "ਫ਼ਰਕ",
+  "reports.reconciliation.side.label": "ਇਹ ਪਾਸਾ",
+  "reports.reconciliation.in_transit": "ਰਾਹ ਵਿੱਚ",
+  "reports.reconciliation.in_transit.detail": "ਦੂਜੀ ਕਿਤਾਬ ਦੀ ਮਨਜ਼ੂਰੀ ਦੀ ਉਡੀਕ।",
+  "reports.reconciliation.entries.title": "ਇਸ ਪਿੱਛੇ ਦੀਆਂ ਐਂਟਰੀਆਂ",
+  "reports.reconciliation.error": "ਜਾਂਚ ਨਹੀਂ ਹੋ ਸਕੀ।",
+  "reports.reconciliation.skeleton": "ਤੁਹਾਡੀਆਂ ਕਿਤਾਬਾਂ ਦੀ ਜਾਂਚ ਹੋ ਰਹੀ ਹੈ"
 }

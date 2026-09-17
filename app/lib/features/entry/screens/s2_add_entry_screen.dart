@@ -27,6 +27,16 @@
 // amount-in-words (01 §1 rule 10 🔒, it costs a line on a screen that must
 // not scroll).
 //
+// S2.3 (13 §3.2 *within/between books*): on the *Move money* position the
+// **To** chooser offers the other books this device holds beside this book's
+// money accounts. Choosing one keeps the amount and switches the flow to
+// 07 §10 🔒 — From (book + money A/C) → To (book + money A/C) → Save — and
+// both halves post through `LocalLedger.transferBetweenBooks` (02 §6 🔒: one
+// action, two envelopes sharing `refs.transfer_group`). It costs exactly one
+// tap more than the within-book transfer, which keeps its old path untouched.
+// A refusal is shown in words ([interBookRefusalMessage]) and the draft
+// survives it.
+//
 // After Save: an instant local write, the snackbar `Saved ✓ (on phone)` with
 // **Undo (10 s)**, and the keypad stays open, zeroed, for the next entry
 // (07 §5 steps 6–7). Undo posts an append-only **reversal** (02 §5) — the
@@ -44,8 +54,11 @@ import '../../../shared/tokens.dart';
 import '../../ledger/ledger_book.dart';
 import '../../../shared/format/date_format.dart';
 import '../entry_amount.dart';
+import '../entry_books.dart';
 import '../entry_data.dart';
+import '../entry_refusal.dart';
 import '../entry_slots.dart';
+import '../entry_sync.dart';
 import '../widgets/entry_account_picker.dart';
 import '../widgets/entry_chip_row.dart';
 import '../widgets/entry_date_picker.dart';
@@ -99,6 +112,12 @@ abstract final class AddEntryKeys {
 
   /// One slot field.
   static Key slot(EntrySlot slot) => Key('entry.slot.${slot.name}');
+
+  /// One book row in the S2.3 *To* chooser (07 §10 🔒).
+  static Key book(String bookId) => EntryPickerKeys.book(bookId);
+
+  /// The header that leaves another book's list.
+  static const bookBack = EntryPickerKeys.bookBack;
 }
 
 /// S2 Add entry.
@@ -123,6 +142,12 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
   String? _moneyId;
   String? _ledgerId;
 
+  /// S2.3 between books (07 §10 🔒): the destination book, when it is not
+  /// this entry's own. Null = the ordinary within-book transfer, whose path
+  /// is unchanged. When it is set, [_ledgerId] names an account **in that
+  /// book**, never in [_bookId].
+  String? _toBookId;
+
   /// Which slot's list holds the lower region; null = the keypad does.
   EntrySlot? _openSlot;
 
@@ -143,6 +168,14 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
 
   Stream<List<AccountBalance>>? _accounts;
   Stream<Map<String, int>>? _counts;
+
+  /// The books this device holds — the *To* chooser's book rows. Always on:
+  /// on a solo install it answers with one book, [otherBooks] empties it, and
+  /// no book row is drawn at all.
+  Stream<List<EntryBook>>? _books;
+
+  /// The destination book's accounts, opened only once a book is chosen.
+  Stream<List<AccountBalance>>? _toAccounts;
 
   /// The shell's lock seam (07 §5.6 🔒, ADR 2026-09-05 §7): reported into on
   /// every keypad change so the idle lock is suppressed while digits sit in
@@ -203,6 +236,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
     // re-query the projection on every keystroke.
     _accounts = ledger.watchAccounts(bookId);
     _counts = watchMoneyUseCounts(ledger, bookId);
+    _books = watchEntryBooks(ledger);
     if (notify) setState(() {});
   }
 
@@ -227,6 +261,28 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
     });
   }
 
+  /// A book was chosen in the *To* list (07 §10 🔒). The amount and the
+  /// From side stay exactly as they are — only the destination changes, and
+  /// the list stays open on that book's money accounts, so the whole
+  /// between-books flow costs one tap more than the within-book one.
+  void _chooseBook(LocalLedger ledger, String bookId) => setState(() {
+    _toBookId = bookId;
+    _ledgerId = null;
+    _toAccounts = ledger.watchAccounts(bookId);
+  });
+
+  /// Back out of the destination book (07 §1 rule 6 — never a dead end).
+  void _leaveBook() => setState(() {
+    _toBookId = null;
+    _ledgerId = null;
+    _toAccounts = null;
+  });
+
+  /// True while this entry is 07 §10's inter-book movement rather than the
+  /// within-book transfer.
+  bool get _betweenBooks =>
+      _kind == EntryKind.transfer && _toBookId != null && _toBookId != _bookId;
+
   /// Switching position keeps the amount (07 §5) but drops both slots: the
   /// same account rarely answers a different verb's slot, and a carried-over
   /// choice would be exactly the wrong default 🔒.
@@ -234,6 +290,8 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
     _kind = kind;
     _moneyId = null;
     _ledgerId = null;
+    _toBookId = null;
+    _toAccounts = null;
     _openSlot = null;
     _dateOpen = false;
   });
@@ -311,7 +369,15 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
     EntrySlot slot,
     List<AccountBalance> accounts,
     Map<String, int> counts,
+    List<AccountBalance> toAccounts,
   ) {
+    // 07 §10's *To (book + money A/C)*: inside the destination book only its
+    // money accounts can answer, and nothing of this book's is excluded —
+    // two books may each hold a *Cash in hand* and they are different
+    // accounts.
+    if (_betweenBooks && slot == EntrySlot.ledger) {
+      return slotCandidates(toAccounts, _plan.spec(slot));
+    }
     final rows = slotCandidates(
       accounts,
       _plan.spec(slot),
@@ -331,10 +397,18 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
     return rows;
   }
 
-  Future<void> _save(LocalLedger ledger, String bookId) async {
+  Future<void> _save(
+    LocalLedger ledger,
+    String bookId,
+    List<EntryBook> books,
+  ) async {
     if (!_complete || _saving) return;
+    if (_betweenBooks) return _saveBetweenBooks(ledger, bookId, books);
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
+    // Read before the first await, so the nudge still happens if this screen
+    // is gone by the time the envelope lands (05 §7).
+    final sync = syncClientOf(context);
     final money = _moneyId!;
     final other = _ledgerId!;
     final paise = _amount.paise;
@@ -352,6 +426,18 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
           paise: paise,
           date: date,
         ),
+        // ⚠️ SPEC: this is where the **pocket expense** would branch —
+        // 02 §6 🔒's one-sided everyday case, "a member pays a family expense
+        // from his own pocket": personal book `Dr Due to/from Family · Cr
+        // Cash`, family book `Dr Expense · Cr Due to/from Personal`. The
+        // engine has it ([LocalLedger.pocketExpense]) and it is the same
+        // mechanism as the movement above, but **07 §5 gives it no screen**:
+        // no verb, no slot row, no chooser, and nothing says how a member
+        // would tell this Money out from an ordinary one — picking a category
+        // in another book's chart is not the same question as picking a book
+        // to move money to. A branch invented here would post into a second
+        // book on a guess, so the conservative reading is taken and Money out
+        // stays one book's entry. Named in the lane report for the owner.
         EntryKind.moneyOut => ledger.moneyOut(
           bookId: bookId,
           from: money,
@@ -373,8 +459,9 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
           paise: paise,
           date: date,
         ),
-        // S2.3 within one book. Inter-book movement switches the flow to
-        // 02 §6 / 07 §10 and is not this lane's screen.
+        // S2.3 within one book — unchanged. The between-books destination
+        // never reaches here: [_save] hands it to [_saveBetweenBooks] and
+        // 02 §6's paired verb before this switch is read.
         EntryKind.transfer => ledger.transfer(
           bookId: bookId,
           from: money,
@@ -384,6 +471,10 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
         ),
         EntryKind.adjustment => throw ArgumentError('S2.4 is guided-only'),
       };
+      // 05 §7 🔒: the save trigger. Fire-and-forget, before any UI work —
+      // 07 §1.7 🔒 forbids a spinner or a wait on the save path, and the
+      // outbox has the row whether or not this cycle runs.
+      notifyEntrySaved(sync);
       if (!mounted) return;
       // 07 §5 step 7: stay on the keypad, zeroed, for the next entry. Both
       // sides are kept so a repeat is one amount away (design canvas 2, S2-B
@@ -430,6 +521,110 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
     }
   }
 
+  /// 07 §10 🔒 — From (book + money A/C) → To (book + money A/C) → Save.
+  /// Both halves post through [LocalLedger.transferBetweenBooks], which is
+  /// 02 §6's one action / two envelopes / one `refs.transfer_group`. This
+  /// screen still never builds a line and never decides a posting.
+  ///
+  /// A refusal is the engine's typed [InterBookRefused]; it is shown as the
+  /// sentence [interBookRefusalMessage] gives, never as the enum, and the
+  /// draft is left untouched — nothing was appended, so the amount and both
+  /// sides are still there to correct (07 §1 rule 6 🔒).
+  Future<void> _saveBetweenBooks(
+    LocalLedger ledger,
+    String bookId,
+    List<EntryBook> books,
+  ) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final sync = syncClientOf(context);
+    final toBookId = _toBookId!;
+    final fromAccountId = _moneyId!;
+    final toAccountId = _ledgerId!;
+    final paise = _amount.paise;
+    final date = _selectedDate ?? ledger.today();
+    // The `Due to/from` pair is auto-created on first use (02 §6) and its
+    // name is **user data**, not an ARB label — so the localised default is
+    // built here from the *other* book's name and handed in, exactly as
+    // `createBook` takes `openingBalanceName`.
+    final fromName = bookOf(books, bookId)?.name;
+    final toName = bookOf(books, toBookId)?.name;
+    final dueNames = (fromName == null || toName == null)
+        ? null
+        : (
+            from: l10n.entryMoveDueName(toName),
+            to: l10n.entryMoveDueName(fromName),
+          );
+    setState(() => _saving = true);
+    try {
+      final move = await ledger.transferBetweenBooks(
+        fromBookId: bookId,
+        fromAccountId: fromAccountId,
+        toBookId: toBookId,
+        toAccountId: toAccountId,
+        paise: paise,
+        date: date,
+        dueNames: dueNames,
+      );
+      notifyEntrySaved(sync);
+      if (!mounted) return;
+      setState(() {
+        _setAmount(_amount.cleared);
+        _saving = false;
+        _openSlot = null;
+      });
+      messenger.hideCurrentSnackBar();
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(l10n.entrySaved),
+          duration: const Duration(seconds: 10),
+          action: SnackBarAction(
+            label: l10n.entryUndo,
+            // ⚠️ SPEC: 02 §5 defines the reversal of *an entry*; neither it
+            // nor 02 §6 says what undoing a **pair** is. Both halves are
+            // reversed together here, because reversing one would leave the
+            // pair non-zero — the single cross-book integrity check 02 §6 🔒
+            // exists to catch. That is the conservative reading; a paired
+            // reversal sharing one `transfer_group` is the engine's to
+            // define, not this screen's to invent.
+            onPressed: () => _undoPair(ledger, move.from.id, move.to.id),
+          ),
+        ),
+      );
+    } on InterBookRefused catch (e) {
+      if (!mounted) return;
+      // The draft survives: no slot, no amount and no date is cleared.
+      setState(() => _saving = false);
+      messenger.hideCurrentSnackBar();
+      messenger.showSnackBar(
+        SnackBar(content: Text(interBookRefusalMessage(l10n, e.refusal))),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      setState(() => _saving = false);
+      messenger.showSnackBar(SnackBar(content: Text(l10n.entrySaveError)));
+    }
+  }
+
+  /// Undo of an inter-book movement: **both** halves reversed, never one.
+  Future<void> _undoPair(LocalLedger ledger, String fromId, String toId) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final sync = syncClientOf(context);
+    try {
+      final date = ledger.today();
+      await ledger.reverse(fromId, date: date);
+      await ledger.reverse(toId, date: date);
+      notifyEntrySaved(sync);
+      if (!mounted) return;
+      messenger.hideCurrentSnackBar();
+      messenger.showSnackBar(SnackBar(content: Text(l10n.entryUndone)));
+    } catch (e) {
+      if (!mounted) return;
+      messenger.showSnackBar(SnackBar(content: Text(l10n.entrySaveError)));
+    }
+  }
+
   /// Undo — an **append-only reversal** (02 §5): the auto-built mirror, dated
   /// in the open period, `refs.reverses = original`. Both stay in history;
   /// the original shows as `void`. 02 §5 allows an amendment in an open
@@ -438,8 +633,12 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
   Future<void> _undo(LocalLedger ledger, String entryId) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
+    final sync = syncClientOf(context);
     try {
       await ledger.reverse(entryId, date: ledger.today());
+      // A reversal is an appended envelope like any other (02 §5), so it is
+      // the same 05 §7 save trigger.
+      notifyEntrySaved(sync);
       if (!mounted) return;
       messenger.hideCurrentSnackBar();
       messenger.showSnackBar(SnackBar(content: Text(l10n.entryUndone)));
@@ -486,8 +685,24 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
         if (accounts == null) return _Loading(label: l10n.entryLoading);
         return StreamBuilder<Map<String, int>>(
           stream: _counts,
-          builder: (context, cntSnap) =>
-              _form(context, bookId, accounts, cntSnap.data ?? const {}),
+          builder: (context, cntSnap) => StreamBuilder<List<EntryBook>>(
+            stream: _books,
+            builder: (context, bookSnap) =>
+                // Always mounted, `_toAccounts` or not: a StreamBuilder that
+                // appears and disappears would rebuild the whole form under
+                // the open picker. A null stream simply never has data.
+                StreamBuilder<List<AccountBalance>>(
+                  stream: _toAccounts,
+                  builder: (context, toSnap) => _form(
+                    context,
+                    bookId,
+                    accounts,
+                    cntSnap.data ?? const {},
+                    bookSnap.data ?? const [],
+                    toSnap.data ?? const [],
+                  ),
+                ),
+          ),
         );
       },
     );
@@ -498,13 +713,31 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
     String bookId,
     List<AccountBalance> accounts,
     Map<String, int> counts,
+    List<EntryBook> books,
+    List<AccountBalance> toAccounts,
   ) {
     final l10n = AppLocalizations.of(context);
     final ledger = LedgerScope.of(context);
     final status = RkStatusColors.of(context);
     final plan = _plan;
-    final creditName = _accountOf(accounts, _idOf(plan.creditSlot))?.name;
-    final debitName = _accountOf(accounts, _idOf(plan.debitSlot))?.name;
+    // 07 §10 names both sides by **book + money A/C**, so once the movement
+    // crosses books each slot carries its book with it — otherwise two
+    // identically-named Cash A/Cs would read as one.
+    String? shown(EntrySlot slot) {
+      if (!_betweenBooks) return _accountOf(accounts, _idOf(slot))?.name;
+      final book = bookOf(books, slot == EntrySlot.ledger ? _toBookId : bookId);
+      final account = _accountOf(
+        slot == EntrySlot.ledger ? toAccounts : accounts,
+        _idOf(slot),
+      );
+      if (account == null) return null;
+      return book == null
+          ? account.name
+          : l10n.entryMovePair(book.name, account.name);
+    }
+
+    final creditName = shown(plan.creditSlot);
+    final debitName = shown(plan.debitSlot);
     final scale = MediaQuery.textScalerOf(context).scale(1);
     // At 200 % every fixed row grows, and *Move money* carries two chip rows
     // rather than one: on 375×667 the natural stack is 35 px taller than the
@@ -575,12 +808,17 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
           EntrySlotField(
             key: AddEntryKeys.slot(slot),
             label: slotLabel(l10n, plan.spec(slot).label),
-            value: _accountOf(accounts, _idOf(slot))?.name,
+            value: shown(slot),
             placeholder: l10n.entrySlotChoose,
             open: _openSlot == slot,
             onTap: () => _openSlotTap(slot),
           ),
-          if (_chipsVisible(slot, accounts))
+          // The chip row is this book's three most-used money accounts, and
+          // none of them can answer a slot that now lives in another book —
+          // so it goes, exactly as 07 §5 step 2 🔒 takes it away whenever no
+          // money account of this book is involved.
+          if (_chipsVisible(slot, accounts) &&
+              !(_betweenBooks && slot == EntrySlot.ledger))
             Padding(
               padding: const EdgeInsets.only(top: RkSpace.s1),
               child: EntryChipRow(
@@ -707,10 +945,28 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                   searchKey: AddEntryKeys.search,
                   createKey: AddEntryKeys.create,
                   spec: plan.spec(_openSlot!),
-                  rows: _candidatesFor(_openSlot!, accounts, counts),
+                  rows: _candidatesFor(
+                    _openSlot!,
+                    accounts,
+                    counts,
+                    toAccounts,
+                  ),
                   onPick: (id) => _choose(_openSlot!, id),
                   onCreate: (name, accountClass) =>
                       _create(ledger, bookId, name, accountClass),
+                  // 13 §3.2 row S2.3: one chooser, two destinations. The
+                  // other books appear only on *Move money*'s TO slot — no
+                  // other slot of any other verb can be answered by a book.
+                  books:
+                      _kind == EntryKind.transfer &&
+                          _openSlot == EntrySlot.ledger
+                      ? otherBooks(books, bookId)
+                      : const [],
+                  onPickBook: (id) => _chooseBook(ledger, id),
+                  inBook: _betweenBooks && _openSlot == EntrySlot.ledger
+                      ? bookOf(books, _toBookId)?.name
+                      : null,
+                  onLeaveBook: _leaveBook,
                 ),
         ),
         // ── Save: solid the instant the entry is complete ─────────────────
@@ -721,7 +977,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
             child: ElevatedButton(
               key: AddEntryKeys.save,
               onPressed: _complete && !_saving
-                  ? () => _save(ledger, bookId)
+                  ? () => _save(ledger, bookId, books)
                   : null,
               child: Text(l10n.entrySave),
             ),

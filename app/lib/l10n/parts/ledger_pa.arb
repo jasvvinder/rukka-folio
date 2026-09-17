@@ -96,5 +96,9 @@
   "ledger.entry.reverse.confirm": "ਉਲਟੀ ਐਂਟਰੀ ਪਾਓ",
   "ledger.entry.reverse.cancel": "ਰੱਦ ਕਰੋ",
   "ledger.entry.reverse.error": "ਇਹ ਐਂਟਰੀ ਉਲਟਾਈ ਨਹੀਂ ਜਾ ਸਕੀ",
-  "ledger.entry.kind.adjustment": "ਸੁਧਾਈ"
+  "ledger.entry.kind.adjustment": "ਸੁਧਾਈ",
+  "ledger.statement.count.again": "ਦੁਬਾਰਾ ਗਿਣੋ",
+  "ledger.statement.count.last": "ਆਖ਼ਰੀ ਗਿਣਤੀ {date} · {breakdown}",
+  "ledger.statement.count.note": "{count}×{value}",
+  "ledger.statement.count.coins": "{amount} ਸਿੱਕਿਆਂ ਵਿੱਚ"
 }

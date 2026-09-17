@@ -24,11 +24,20 @@ void main() {
     'Business comparison',
   ];
 
+  // 07 §14 🔒 lists Partner positions as *"shared-ownership businesses
+  // only"*, and ADR 2026-09-09b 🔒 keeps the word off a Just-me book
+  // altogether, so the row only exists when the screen is told the book is a
+  // shared business. The order cases therefore pump the shared-business
+  // screen — the one book whose list is the full eleven.
+  // (`s8_1_partner_positions_row_test.dart` owns the other half: that a
+  // Just-me book says no partner word anywhere.)
+  const shared = ReportsListScreen(showPartnerPositions: true);
+
   group('S8.1 Reports list (07 §14 report order)', () {
     testWidgets('F1-07-28 S8.1 Reports list screen renders (07 §14)', (
       tester,
     ) async {
-      await pumpRk(tester, const ReportsListScreen());
+      await pumpRk(tester, shared);
 
       expect(find.text('Reports'), findsOneWidget);
     });
@@ -36,7 +45,7 @@ void main() {
     testWidgets(
       'F1-07-28 renders every report from 07 §14 in order, Day Book first, Business comparison last',
       (tester) async {
-        await pumpRk(tester, const ReportsListScreen());
+        await pumpRk(tester, shared);
 
         final titles = tester
             .widgetList<Text>(find.byType(Text))
@@ -56,7 +65,7 @@ void main() {
     testWidgets(
       'F1-07-28 with no destination wired, every report is disabled-with-reason — never a silently inert tap (07 §1 rule 6)',
       (tester) async {
-        await pumpRk(tester, const ReportsListScreen());
+        await pumpRk(tester, shared);
 
         expect(
           find.byIcon(Icons.schedule),
@@ -82,7 +91,7 @@ void main() {
           (tester) async {
             await pumpRk(
               tester,
-              const ReportsListScreen(),
+              shared,
               locale: locale,
               textScale: 2,
               viewport: phone,

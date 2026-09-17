@@ -81,6 +81,7 @@ final class HomeSnapshot {
     required this.entryCount,
     required this.differencePaise,
     required this.health,
+    this.inTransitPairs = const [],
   });
 
   /// The position card (02 §9), straight from the facade.
@@ -107,6 +108,18 @@ final class HomeSnapshot {
 
   /// Projection health, or null before the book has been projected.
   final BookHealth? health;
+
+  /// The reconciliation pairs touching this book whose halves are still
+  /// *in transit* (02 §6 🔒: a half carries the review flag until its
+  /// approver clears it; 07 §10 🔒 labels the pair **In transit** until then).
+  ///
+  /// The list is the label's only source — [Position.inTransitPaise] is the
+  /// figure and says nothing about whether a half is still flagged. Empty
+  /// means no pair: 07 §4's line then carries the figure alone.
+  final List<ReconciliationPair> inTransitPairs;
+
+  /// True while any pair touching this book is in transit (07 §10 🔒).
+  bool get hasInTransitPair => inTransitPairs.isNotEmpty;
 
   /// Whether the opening-balances wizard has been run (07 §3.1 step 7, S0.7
   /// checklist step 1). Every opening posts against `Opening Balance /
@@ -155,6 +168,20 @@ Stream<HomeSnapshot> watchHome(
       _watchMonth(ledger, bookId, month),
       _watchEntryCount(ledger, bookId),
       _nullFirst(ledger.watchHealth(bookId)),
+      // Never inside the `_combine` gate as a bare stream: `watchReconciliation`
+      // re-reconciles every book on each balances change, so holding the first
+      // Home frame on it would trade the position card for a report nobody
+      // asked for. It starts empty and the label appears when it answers.
+      _emptyFirst(
+        ledger.watchReconciliation().map(
+          (pairs) => [
+            for (final p in pairs)
+              if (p.inTransit &&
+                  (p.bookId == bookId || p.counterpartBookId == bookId))
+                p,
+          ],
+        ),
+      ),
     ]).map((v) {
       final accounts = v[1]! as List<AccountBalance>;
       final totals = v[3]! as _MonthTotals;
@@ -167,6 +194,7 @@ Stream<HomeSnapshot> watchHome(
         entryCount: v[4]! as int,
         differencePaise: accounts.fold(0, (s, a) => s + a.balancePaise),
         health: v[5] as BookHealth?,
+        inTransitPairs: v[6]! as List<ReconciliationPair>,
       );
     });
 
@@ -284,6 +312,13 @@ Stream<int> _watchEntryCount(LocalLedger ledger, String bookId) {
 /// projected ([LocalLedger.watchHealth]) never holds the whole snapshot back.
 Stream<T?> _nullFirst<T extends Object>(Stream<T> s) async* {
   yield null;
+  yield* s;
+}
+
+/// [s] with a leading empty list, so a stream whose first value costs a full
+/// cross-book reconciliation never holds the whole snapshot back.
+Stream<List<T>> _emptyFirst<T extends Object>(Stream<List<T>> s) async* {
+  yield <T>[];
   yield* s;
 }
 

@@ -45,6 +45,7 @@ import '../widgets/home_cards.dart';
 import '../widgets/home_everything.dart';
 import '../widgets/home_rebuild_gate.dart';
 import '../widgets/home_scope_switcher.dart';
+import '../../../shared/widgets/rk_states.dart';
 import '../widgets/home_states.dart';
 
 /// S1 Home — the Home tab's root screen (07 §4).
@@ -59,6 +60,7 @@ class HomeScreen extends StatefulWidget {
     this.onOpenEntry,
     this.onOpenDayBook,
     this.onOpenTrialBalance,
+    this.onOpenReconciliation,
     this.onSetupStep,
     this.rebuildingSlot,
     this.scopeController,
@@ -86,6 +88,10 @@ class HomeScreen extends StatefulWidget {
 
   /// Opens the S8.2 trial balance from the verification card.
   final VoidCallback? onOpenTrialBalance;
+
+  /// Opens S8.3 Family reconciliation from the position card's *In transit*
+  /// label (07 §10 🔒).
+  final VoidCallback? onOpenReconciliation;
 
   /// Opens setup checklist step `index` (S0.7).
   final void Function(int index)? onSetupStep;
@@ -207,13 +213,13 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _content(BuildContext context, HomeScope? scope) {
     final l10n = AppLocalizations.of(context);
     if (_resolveError != null && (scope == null || scope.bookId == null)) {
-      return HomeErrorState(
+      return RkErrorState(
         text: l10n.homeError,
         retryLabel: l10n.homeRetry,
         onRetry: _retry,
       );
     }
-    if (scope == null) return HomeSkeleton(label: l10n.homeSkeleton);
+    if (scope == null) return RkSkeleton(label: l10n.homeSkeleton);
     if (scope.isEverything) {
       return HomeEverythingList(
         ledger: LedgerScope.of(context),
@@ -269,14 +275,14 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       builder: (context, snap) {
         if (snap.hasError) {
-          return HomeErrorState(
+          return RkErrorState(
             text: l10n.homeError,
             retryLabel: l10n.homeRetry,
             onRetry: () => setState(() {}),
           );
         }
         final data = snap.data;
-        if (data == null) return HomeSkeleton(label: l10n.homeSkeleton);
+        if (data == null) return RkSkeleton(label: l10n.homeSkeleton);
         return _HomeBody(
           snapshot: data,
           onOpenPosition: widget.onOpenPosition,
@@ -285,6 +291,7 @@ class _HomeScreenState extends State<HomeScreen> {
           onOpenEntry: widget.onOpenEntry,
           onOpenDayBook: widget.onOpenDayBook,
           onOpenTrialBalance: widget.onOpenTrialBalance,
+          onOpenReconciliation: widget.onOpenReconciliation,
           onSetupStep: widget.onSetupStep,
           rebuildingSlot: widget.rebuildingSlot,
         );
@@ -304,6 +311,7 @@ class _HomeBody extends StatelessWidget {
     this.onOpenEntry,
     this.onOpenDayBook,
     this.onOpenTrialBalance,
+    this.onOpenReconciliation,
     this.onSetupStep,
     this.rebuildingSlot,
   });
@@ -315,6 +323,7 @@ class _HomeBody extends StatelessWidget {
   final void Function(String entryId)? onOpenEntry;
   final VoidCallback? onOpenDayBook;
   final VoidCallback? onOpenTrialBalance;
+  final VoidCallback? onOpenReconciliation;
   final void Function(int index)? onSetupStep;
   final Widget? rebuildingSlot;
 
@@ -377,6 +386,7 @@ class _HomeBody extends StatelessWidget {
             snapshot: snapshot,
             onOpenPosition: onOpenPosition,
             onOpenAccount: onOpenAccount,
+            onOpenReconciliation: onOpenReconciliation,
           ),
         HomeMonthLine(
           inPaise: snapshot.monthInPaise,

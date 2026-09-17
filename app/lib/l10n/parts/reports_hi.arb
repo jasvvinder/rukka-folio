@@ -35,8 +35,31 @@
   "reports.export.xlsx": "XLSX",
   "reports.export.xlsx.description": "स्प्रेडशीट फ़ाइल",
   "reports.export.page": "पृष्ठ {page} / {pages}",
-  "@reports.export.page": {"description": "machine-draft — native review M12"},
+  "@reports.export.page": {
+    "description": "machine-draft — native review M12"
+  },
   "reports.export.saved": "सहेजी गई: {where}",
   "reports.export.failed": "रिपोर्ट सहेजी नहीं जा सकी।",
-  "reports.export.file_name": "day-book-{year}.{extension}"
+  "reports.export.file_name": "day-book-{year}.{extension}",
+  "reports.reconciliation.summary.ok": "सब कुछ मिलता है",
+  "reports.reconciliation.summary.ok.detail": "आपकी किताबों का हर जोड़ा पैसे-पैसे तक मिलता है।",
+  "reports.reconciliation.summary.off": "{count, plural, =1{1 जोड़ा नहीं मिलता} other{{count} जोड़े नहीं मिलते}}",
+  "reports.reconciliation.summary.unconfirmed": "{count, plural, =1{1 जोड़े की जाँच नहीं हो सकी} other{{count} जोड़ों की जाँच नहीं हो सकी}}",
+  "reports.reconciliation.empty": "आपकी किताबों के बीच अभी कोई पैसा नहीं गया।",
+  "reports.reconciliation.empty.next": "किताबों के बीच पैसा भेजें",
+  "reports.reconciliation.pair.books": "{first} और {second}",
+  "reports.reconciliation.pair.sealed": "एक किताब जो आप खोल नहीं सकते",
+  "reports.reconciliation.status.balanced": "मिलता है",
+  "reports.reconciliation.status.mismatch": "नहीं मिलता",
+  "reports.reconciliation.status.unconfirmed": "केवल एक तरफ़ · पुष्टि नहीं",
+  "reports.reconciliation.balanced.detail": "जो एक किताब से गया, वह दूसरी में पहुँच गया।",
+  "reports.reconciliation.mismatch.detail": "ये एंट्रियाँ इस अंतर को बनाती हैं।",
+  "reports.reconciliation.unconfirmed.detail": "दूसरी किताब आपके पास नहीं है, इसलिए इस तरफ़ की जाँच नहीं हो सकती। यह गलती नहीं है।",
+  "reports.reconciliation.difference.label": "अंतर",
+  "reports.reconciliation.side.label": "यह तरफ़",
+  "reports.reconciliation.in_transit": "रास्ते में",
+  "reports.reconciliation.in_transit.detail": "दूसरी किताब की मंज़ूरी का इंतज़ार।",
+  "reports.reconciliation.entries.title": "इसके पीछे की एंट्रियाँ",
+  "reports.reconciliation.error": "जाँच नहीं हो सकी।",
+  "reports.reconciliation.skeleton": "आपकी किताबों की जाँच हो रही है"
 }

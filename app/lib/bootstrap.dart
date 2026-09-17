@@ -22,9 +22,14 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sodium_libs/sodium_libs.dart';
 import 'package:sync_engine/sync_engine.dart' as eng;
 
+import 'features/advances/advances_routes.dart';
 import 'features/auth/auth_routes.dart';
 import 'features/auth/http_auth_client.dart';
 import 'features/books/books_routes.dart';
+import 'features/cash_count/cash_count_routes.dart';
+import 'features/cash_count/ledger_cash_count_source.dart';
+import 'features/close/close_routes.dart';
+import 'features/close/ledger_close_source.dart';
 import 'features/ceremony/ceremony_routes.dart';
 import 'features/devices/at_rest.dart';
 import 'features/devices/devices_routes.dart';
@@ -42,12 +47,15 @@ import 'features/members/members_routes.dart';
 import 'features/members/server_members_repository.dart';
 import 'features/menu/menu_routes.dart';
 import 'features/onboarding/onboarding_routes.dart';
+import 'features/partners/ledger_partners_port.dart';
+import 'features/partners/partners_routes.dart';
 import 'features/settings/settings_routes.dart';
 import 'l10n/gen/app_localizations.dart';
 import 'main.dart';
 import 'shared/app_settings.dart';
 import 'shared/ledger/local_ledger.dart';
 import 'shared/prefs.dart';
+import 'shared/records/device_added_record.dart';
 import 'shared/records/device_record_author.dart';
 import 'shared/router.dart';
 import 'shared/seams/http_transport.dart';
@@ -265,19 +273,20 @@ Future<void> bootstrap() async {
       final l10n = await AppLocalizations.delegate.load(
         settings.locale ?? const Locale('en'),
       );
+      final membersApi = HttpMembersApi(
+        transport: MembersTransportOverRkHttp(httpDoor),
+        functionsRoot: Uri.parse(apiBase),
+        accessToken: () async {
+          try {
+            return await auth.accessToken();
+          } on Object {
+            return null; // no live session ⇒ `unauthorized`
+          }
+        },
+        clientVersion: clientVersion,
+      );
       final members = ServerMembersRepository(
-        api: HttpMembersApi(
-          transport: MembersTransportOverRkHttp(httpDoor),
-          functionsRoot: Uri.parse(apiBase),
-          accessToken: () async {
-            try {
-              return await auth.accessToken();
-            } on Object {
-              return null; // no live session ⇒ `unauthorized`
-            }
-          },
-          clientVersion: clientVersion,
-        ),
+        api: membersApi,
         tenantId: identity.tenantId,
         userId: identity.userId,
         believes: believeNothing,
@@ -332,6 +341,18 @@ Future<void> bootstrap() async {
       // it stands: reconciling the two is an identity decision, not a wiring
       // one (lane report M7-U7 `open`).
       auth.certifier = ledger;
+      // 06 §5 🔒 / ADR 2026-09-05d §6 — a newly certified device announces
+      // itself as a `device_added` signed record, over the same author and
+      // the same record route the members feature already uses (lane R1).
+      // With no author (no Ed25519 key yet) the device certifies exactly as
+      // before and files nothing; a failed post never un-certifies it.
+      if (recordAuthor != null) {
+        auth.announcer = DeviceAddedRecorder(
+          author: recordAuthor,
+          tenantId: identity.tenantId,
+          post: membersApi.postRecords,
+        );
+      }
       final ownCert = ledger.ownDeviceCert;
       if (ownCert != null) trust.certs[ownCert.deviceId] = ownCert;
       ledger.onOwnCert = (cert) => trust.certs[cert.deviceId] = cert;
@@ -358,6 +379,13 @@ Future<void> bootstrap() async {
         // uses — one Recompute, one set of keys (03 §3.3: a pure function of
         // the ordered envelopes).
         recompute: ledger.recompute,
+        // A key accepted on the meta channel is unwrapped into the store
+        // above — which lives only as long as this process. The ledger writes
+        // the sealed blob to `key_cache` (03 §3.1) so the next launch reads it
+        // back; without this seam a device that joined someone else's book
+        // holds the key once and then sits in `key_wait` for ever, because the
+        // meta cursor has passed the `wrapped_keys` row (05 §4, §5).
+        keySink: ledger,
       );
       final sync = EngineSyncClient(
         engine: engine,
@@ -429,10 +457,14 @@ Future<void> bootstrap() async {
         menuTabRoot: menuRoot,
         entryRoot: entryScreen,
         featureRoutes: [
+          ...advancesRoutes,
           ...onboardingRoutes,
+          ...partnersRoutes,
           ...authRoutes,
           ...booksRoutes,
+          ...cashCountRoutes,
           ...ceremonyRoutes,
+          ...closeRoutes,
           ...devicesRoutes,
           ...homeRoutes,
           ...inboxRoutes,
@@ -460,7 +492,19 @@ Future<void> bootstrap() async {
               pending: () async =>
                   members.current?.pendingBooks ?? const <PendingBook>[],
             ),
-            child: app,
+            // S5.5, S10 and S14 read their ledger-backed sources off the tree
+            // (features/cash_count, features/close, features/partners); each
+            // takes only the live ledger — no clock, no config, no other seam.
+            child: CashCountScope(
+              source: LedgerCashCountSource(ledger),
+              child: CloseScope(
+                source: LedgerCloseSource(ledger),
+                child: PartnersScope(
+                  port: LedgerPartnersPort(ledger),
+                  child: app,
+                ),
+              ),
+            ),
           ),
         ),
       );

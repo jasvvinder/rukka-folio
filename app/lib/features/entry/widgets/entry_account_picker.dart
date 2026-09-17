@@ -16,7 +16,17 @@ import '../../../shared/format/money_format.dart';
 import '../../../shared/ledger/local_ledger.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../entry_books.dart';
 import '../entry_slots.dart';
+
+/// Widget keys S2.1's own tests drive the picker by.
+abstract final class EntryPickerKeys {
+  /// One book row in the S2.3 *To* chooser.
+  static Key book(String bookId) => Key('entry.picker.book.$bookId');
+
+  /// The header that leaves another book's list.
+  static const bookBack = Key('entry.picker.book_back');
+}
 
 /// The word for a creatable class — consumer vocabulary (02 §10 🔒).
 String createChipLabel(AppLocalizations l10n, AccountClass c) => switch (c) {
@@ -36,6 +46,10 @@ class EntryAccountPicker extends StatefulWidget {
     required this.onCreate,
     this.searchKey,
     this.createKey,
+    this.books = const [],
+    this.onPickBook,
+    this.inBook,
+    this.onLeaveBook,
   });
 
   /// The slot being answered — its classes and what it may mint.
@@ -55,6 +69,24 @@ class EntryAccountPicker extends StatefulWidget {
 
   /// Key for the create row.
   final Key? createKey;
+
+  /// S2.3 only (13 §3.2 *within/between books*): the other books this device
+  /// holds, offered **beside** this book's money accounts. Empty everywhere
+  /// else, and on a solo install — which is why an ordinary transfer is
+  /// unchanged by this list existing.
+  final List<EntryBook> books;
+
+  /// A book was chosen: the list stays open and swaps to that book's money
+  /// accounts (07 §10's *To (book + money A/C)*), keeping the amount.
+  final void Function(String bookId)? onPickBook;
+
+  /// The name of the book being listed, when it is not this entry's own —
+  /// the header that says where these accounts live.
+  final String? inBook;
+
+  /// Back out of [inBook] to this book's own list. Never a dead end (07 §1
+  /// rule 6): a wrong book is one tap to undo.
+  final VoidCallback? onLeaveBook;
 
   @override
   State<EntryAccountPicker> createState() => _EntryAccountPickerState();
@@ -94,17 +126,47 @@ class _EntryAccountPickerState extends State<EntryAccountPicker> {
     final status = RkStatusColors.of(context);
     final name = _query.text.trim();
     final rows = _visible;
-    final canCreate = widget.spec.creatable.isNotEmpty && name.isNotEmpty;
+    final q = _query.text.trim().toLowerCase();
+    final books = widget.inBook != null
+        ? const <EntryBook>[]
+        : [
+            for (final b in widget.books)
+              if (q.isEmpty || b.name.toLowerCase().contains(q)) b,
+          ];
+    // Nothing may be created inside another book from here: an account is
+    // minted into the book that owns it (02 §1.2), and the create row's
+    // class is inferred from *this* entry's slot. Refused rather than
+    // guessed.
+    final canCreate =
+        widget.spec.creatable.isNotEmpty &&
+        name.isNotEmpty &&
+        widget.inBook == null;
 
     return Column(
       children: [
+        // 07 §10's *To (book + money A/C)*: once a book is chosen the list is
+        // that book's, and it says so.
+        if (widget.inBook != null)
+          ListTile(
+            key: EntryPickerKeys.bookBack,
+            dense: true,
+            visualDensity: VisualDensity.compact,
+            leading: const Icon(Icons.arrow_back),
+            title: Text(
+              widget.inBook!,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: RkType.body,
+            ),
+            onTap: widget.onLeaveBook,
+          ),
         Expanded(
           child: _asking
               ? _ClassQuestion(
                   classes: widget.spec.creatable,
                   onChoose: (c) => widget.onCreate(name, c),
                 )
-              : rows.isEmpty
+              : rows.isEmpty && books.isEmpty
               ? Center(
                   child: Padding(
                     padding: const EdgeInsets.all(RkSpace.s4),
@@ -115,12 +177,50 @@ class _EntryAccountPickerState extends State<EntryAccountPicker> {
                     ),
                   ),
                 )
-              : ListView.builder(
-                  itemCount: rows.length,
-                  itemBuilder: (context, i) => _AccountRow(
-                    row: rows[i],
-                    onTap: () => widget.onPick(rows[i].account.id),
-                  ),
+              : ListView(
+                  children: [
+                    // The other books sit *beside* the accounts in one
+                    // chooser — 13 §3.2 row S2.3 is both destinations, not
+                    // two doors — and above them, because 07 §10 🔒 asks for
+                    // the **book** before the money A/C and because a row a
+                    // member must scroll a short lower region to reach is a
+                    // row they will not find. A solo install has none, so an
+                    // ordinary transfer never pays for this.
+                    if (books.isNotEmpty) ...[
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          RkSpace.s4,
+                          RkSpace.s2,
+                          RkSpace.s4,
+                          0,
+                        ),
+                        child: Text(
+                          l10n.entryMoveBooksHeader,
+                          style: RkType.caption.copyWith(color: status.muted),
+                        ),
+                      ),
+                      for (final b in books)
+                        ListTile(
+                          key: EntryPickerKeys.book(b.id),
+                          dense: true,
+                          leading: const Icon(Icons.menu_book_outlined),
+                          title: Text(
+                            b.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          trailing: const Icon(Icons.chevron_right, size: 18),
+                          onTap: widget.onPickBook == null
+                              ? null
+                              : () => widget.onPickBook!(b.id),
+                        ),
+                    ],
+                    for (final r in rows)
+                      _AccountRow(
+                        row: r,
+                        onTap: () => widget.onPick(r.account.id),
+                      ),
+                  ],
                 ),
         ),
         // The create row is chrome, not content: it stays one line however

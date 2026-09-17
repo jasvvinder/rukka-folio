@@ -8,6 +8,7 @@
 import 'package:go_router/go_router.dart';
 
 import '../../shared/router.dart';
+import '../cash_count/cash_count_paths.dart';
 import 'ledger_paths.dart';
 import 'screens/s3_ledger_index_screen.dart';
 import 'screens/s4_1_entry_detail_screen.dart';
@@ -36,6 +37,12 @@ final List<RouteBase> ledgerRoutes = [
     builder: (context, state) => AccountStatementScreen(
       accountId: state.pathParameters['id']!,
       onOpenEntry: (entryId) => context.push(LedgerPaths.entryOf(entryId)),
+      // 02 §8.2 🔒 *Where it appears*: the cash statement's header carries the
+      // door to S5.5 (*Count again* / *Open and count*). S5.5 is a
+      // root-navigator route of `features/cash_count`, which publishes the
+      // path for exactly this.
+      onCountCash: (accountId) =>
+          context.push(CashCountPaths.forAccount(accountId)),
     ),
   ),
   GoRoute(

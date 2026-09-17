@@ -18,6 +18,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../shared/router.dart';
 import '../ledger/ledger_paths.dart';
+import '../reports/reports_paths.dart';
 import 'home_paths.dart';
 import 'home_rebuild.dart';
 import 'screens/s1_1_position_drilldown_screen.dart';
@@ -35,6 +36,11 @@ final RkTabRoot homeRoot = RkTabRoot(
     onOpenAccount: (accountId) =>
         context.push(LedgerPaths.statementOf(accountId)),
     onVerb: (kind) => context.push('${RkPaths.entry}?verb=${kind.wire}'),
+    // 07 §10 🔒 names the destination ("the Family Reconciliation screen
+    // (Menu → Reports)") — the path constant is read from the feature that
+    // owns S8.3, never re-spelled here.
+    onOpenReconciliation: () =>
+        context.push(ReportsPaths.reconciliationLocation),
   ),
 );
 

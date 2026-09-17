@@ -9,7 +9,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/features/home/home_paths.dart';
 import 'package:rukka_folio/features/home/screens/s1_home_screen.dart';
 import 'package:rukka_folio/features/home/widgets/home_cards.dart';
-import 'package:rukka_folio/features/home/widgets/home_states.dart';
+import 'package:rukka_folio/shared/widgets/rk_states.dart';
 import 'package:rukka_folio/l10n/gen/app_localizations.dart';
 import 'package:rukka_folio/l10n/l10n.dart';
 import 'package:rukka_folio/shared/app_scope.dart';
@@ -247,14 +247,14 @@ void main() {
       final ledger = await openTestLedger();
       await pumpRk(tester, const HomeScreen(), ledger: ledger);
 
-      expect(find.byType(HomeErrorState), findsOneWidget);
+      expect(find.byType(RkErrorState), findsOneWidget);
       expect(find.text("Couldn't load your position"), findsOneWidget);
       expect(find.text('Try again'), findsOneWidget);
 
       await tester.tap(find.text('Try again'));
       await tester.pumpAndSettle();
       // Still broken, so the state holds — and it is still not a dead end.
-      expect(find.byType(HomeErrorState), findsOneWidget);
+      expect(find.byType(RkErrorState), findsOneWidget);
       await unmount(tester);
     });
 
@@ -265,10 +265,10 @@ void main() {
       final seed = await seedSoloLedger();
       await pumpFirstFrame(tester, const HomeScreen(), ledger: seed.ledger);
 
-      expect(find.byType(HomeSkeleton), findsOneWidget);
+      expect(find.byType(RkSkeleton), findsOneWidget);
       expect(find.byType(CircularProgressIndicator), findsNothing);
       await tester.pumpAndSettle();
-      expect(find.byType(HomeSkeleton), findsNothing);
+      expect(find.byType(RkSkeleton), findsNothing);
       await unmount(tester);
     });
 

@@ -403,5 +403,32 @@
   "ledger.entry.kind.adjustment": "Adjustment",
   "@ledger.entry.kind.adjustment": {
     "description": "S4.1 — headline verb label for a guided adjustment; the other five reuse entry.verb.* (01 §2 verb table)."
+  },
+  "ledger.statement.count.again": "Count again",
+  "@ledger.statement.count.again": {
+    "description": "S4 A/C statement header — the door to S5.5 for a `cash` account (02 §8.2 🔒 *Where it appears*: \"the Cash A/c statement header shows … with a **Count again** button\"). A `cash_collection` account reuses count.title.collect (*Open and count*) instead, so the two doors never drift apart in wording."
+  },
+  "ledger.statement.count.last": "Last counted {date} · {breakdown}",
+  "@ledger.statement.count.last": {
+    "description": "S4 A/C statement header line when the last count recorded a denomination sheet — 02 §8.2 🔒 form: *Last counted 27 Aug · 20×500, 15×200, 25×100 …*. Without a sheet the header shows count.last_counted alone. Date pre-formatted (07 §1 rule 5); breakdown is the joined ledger.statement.count.note items.",
+    "placeholders": {
+      "date": {"type": "String"},
+      "breakdown": {"type": "String"}
+    }
+  },
+  "ledger.statement.count.note": "{count}×{value}",
+  "@ledger.statement.count.note": {
+    "description": "S4 A/C statement header — one denomination group of the last count, e.g. 20×500 (02 §8.2 🔒). Both parts are Latin numerals in every locale (11 §4.4).",
+    "placeholders": {
+      "count": {"type": "String"},
+      "value": {"type": "String"}
+    }
+  },
+  "ledger.statement.count.coins": "{amount} in coins",
+  "@ledger.statement.count.coins": {
+    "description": "S4 A/C statement header — the coins part of the last count's sheet, appended to the note groups so the breakdown adds up to the counted total. Amount pre-formatted.",
+    "placeholders": {
+      "amount": {"type": "String"}
+    }
   }
 }

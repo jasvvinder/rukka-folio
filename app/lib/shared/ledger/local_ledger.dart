@@ -21,13 +21,15 @@
 // *verified* UMK only (04 §8.2 — the type system insists).
 import 'dart:async';
 import 'dart:collection';
+import 'dart:convert';
 
 import 'package:core_crypto/core_crypto.dart';
 import 'package:core_ledger/core_ledger.dart';
+import 'package:core_ledger/core_ledger.dart' as engine show openAdvances;
 import 'package:data/data.dart';
 import 'package:drift/drift.dart';
 import 'package:sync_engine/sync_engine.dart'
-    show BookKeyStore, VerifiedUmkSource;
+    show AcceptedBookKey, AcceptedKeySink, BookKeyStore, VerifiedUmkSource;
 
 import '../seams/key_store.dart';
 import 'device_certification.dart';
@@ -90,6 +92,85 @@ final class PostRejected implements Exception {
 
   @override
   String toString() => 'PostRejected($entryId: ${violations.join('; ')})';
+}
+
+/// A count the engine refused (`validateCount`, 02 §8.2 🔒). Nothing was
+/// authored: no count envelope, no entry.
+///
+/// Typed like [PostRejected] and for the same reason — the caller shows the
+/// sentence the rule asks for (07 §1 rule 6), rather than reading a string.
+final class CountRejected implements Exception {
+  /// Creates the refusal.
+  const CountRejected(this.accountId, this.violations);
+
+  /// The account being counted.
+  final String accountId;
+
+  /// What the engine objected to — a missing denomination sheet in a trust
+  /// book, a collection count without two names, a sheet that does not add up.
+  final List<Violation> violations;
+
+  /// True when [kind] is among them.
+  bool has(ViolationKind kind) => violations.any((v) => v.kind == kind);
+
+  @override
+  String toString() => 'CountRejected($accountId: ${violations.join('; ')})';
+}
+
+/// One recorded cash count and what it meant for the books (02 §8.2 🔒).
+final class RecordedCashCount {
+  /// Creates the record.
+  const RecordedCashCount({
+    required this.count,
+    required this.outcome,
+    this.entry,
+  });
+
+  /// The count as authored — a memo envelope that moves no money.
+  final CashCount count;
+
+  /// The engine's decision, carried back unchanged: `CountVerified`,
+  /// `CountAdjustment` or `CountRecognition`.
+  final CountOutcome outcome;
+
+  /// The adjustment or recognition entry, when one was posted. Null for a
+  /// verification: an equal count posts nothing.
+  final Entry? entry;
+}
+
+/// What the S5.5 count sheet and the S4 statement header read about one
+/// countable account (02 §8.2).
+final class CashCountReading {
+  /// Creates the reading.
+  const CashCountReading({
+    required this.bookId,
+    required this.bookType,
+    required this.account,
+    required this.bookBalance,
+    required this.incomeAccounts,
+    this.lastCount,
+  });
+
+  /// The book the account belongs to.
+  final String bookId;
+
+  /// Its type — `organization` makes the denomination sheet mandatory for
+  /// every cash account (02 §8.2 🔒). Read by `countPolicy`, not by a widget.
+  final BookType bookType;
+
+  /// The account, whose subtype chooses the mode: `cash` → verify,
+  /// `cash_collection` → collect.
+  final Account account;
+
+  /// What the entries say is there (engine sign). In collect mode this is
+  /// *what is still in the box*, never something to check a count against.
+  final Paise bookBalance;
+
+  /// The book's income categories — collect mode's *Record it as* picker.
+  final List<Account> incomeAccounts;
+
+  /// The previous count, if any.
+  final CashCount? lastCount;
 }
 
 /// The facade was used before [LocalLedger.bootstrapSolo] (or `open`).
@@ -238,6 +319,82 @@ final class HeldObject {
   final String? waitingForId;
 }
 
+/// A month locked (02 §8 step 4 🔒): the signed envelope, and this device's
+/// own verdict on the vector it just published.
+final class LockedMonth {
+  /// Creates the result.
+  const LockedMonth({required this.lock, this.verification});
+
+  /// The `period_lock` envelope as authored — declared balances, the
+  /// projector's canonical vector, and the `projector_version` that computed
+  /// it.
+  final PeriodLock lock;
+
+  /// This reader's replay of that vector, read back out of the rebuilt
+  /// projection. [CloseVerification.readerOutdated] is a state, not an error
+  /// (ADR 2026-09-05c §3); null when the projection published no verdict.
+  final CloseVerification? verification;
+}
+
+/// The lock was refused: `monthLockPreconditions` was not empty (02 §8 step 3
+/// 🔒). Nothing was appended.
+///
+/// It carries the **engine's own** [CloseBlockerItem]s rather than a sentence,
+/// so no layer above can quietly demote a blocker to a warning or invent one.
+final class MonthLockRefused implements Exception {
+  /// Creates the refusal.
+  const MonthLockRefused(this.bookId, this.period, this.blockers);
+
+  /// The book whose month stayed open.
+  final String bookId;
+
+  /// The month.
+  final YearMonth period;
+
+  /// What the engine objected to, in its own terms.
+  final List<CloseBlockerItem> blockers;
+
+  @override
+  String toString() =>
+      'MonthLockRefused($bookId $period: '
+      '${blockers.map((b) => b.kind.name).join(', ')})';
+}
+
+/// Where a closer had got to, as this **phone** saved it (07 §13 *Resumable*
+/// 🔒).
+///
+/// Deliberately not the wizard's own `CloseProgress`: the step is carried as
+/// the plain name the UI gave it, so `shared/ledger` stores the wizard's
+/// place without knowing the wizard's shape — and an unknown name read back
+/// from an older or newer build is the caller's to resolve, not a crash here.
+final class SavedCloseProgress {
+  /// Creates the record.
+  const SavedCloseProgress({
+    required this.step,
+    this.confirmedAccountIds = const {},
+  });
+
+  /// The wizard step reached, by name.
+  final String step;
+
+  /// The money A/Cs already confirmed at step 2.
+  final Set<String> confirmedAccountIds;
+
+  @override
+  bool operator ==(Object other) =>
+      other is SavedCloseProgress &&
+      other.step == step &&
+      other.confirmedAccountIds.length == confirmedAccountIds.length &&
+      other.confirmedAccountIds.containsAll(confirmedAccountIds);
+
+  @override
+  int get hashCode =>
+      Object.hash(step, Object.hashAllUnordered(confirmedAccountIds));
+
+  @override
+  String toString() => 'SavedCloseProgress($step, $confirmedAccountIds)';
+}
+
 final class StatementRow {
   /// Creates the row.
   const StatementRow({
@@ -375,6 +532,99 @@ final class EntryView {
 
 /// What S1.4 / the sync chip need about a book's projection (07 §1 rule 7,
 /// ADR 2026-09-05b §3–4, 05c §6).
+/// Why [LocalLedger.approveAdvance] refused (02 §7, §7.2 item 1 🔒). Nothing
+/// is authored on any of these — a refused decision writes no envelope.
+enum AdvanceRefusal {
+  /// No such entry on this phone.
+  unknownEntry,
+
+  /// The entry is not an advance request awaiting approval (02 §1.3: `pending`
+  /// is only that).
+  notAPendingRequest,
+
+  /// Already approved or rejected — the approval moves the money exactly once.
+  alreadyDecided,
+
+  /// The approver is the requester. 02 §7.2 item 1 🔒: nobody decides on their
+  /// own entry, and the projector quarantines a self-approval, so authoring
+  /// one would write an envelope no reader on any device would ever count.
+  selfApproval,
+}
+
+/// [LocalLedger.approveAdvance] declined to author a decision.
+final class AdvanceRefused implements Exception {
+  /// Creates the refusal.
+  const AdvanceRefused(this.entryId, this.refusal);
+
+  /// The request that was not decided.
+  final String entryId;
+
+  /// Why.
+  final AdvanceRefusal refusal;
+
+  @override
+  String toString() => 'AdvanceRefused($entryId: ${refusal.name})';
+}
+
+/// One **open** advance for S5 (07 §8) — an `advance` account with a debit
+/// balance, its ageing, and the spent/returned split behind the bar.
+///
+/// Derived purely from `advance` account balances and the counted entries that
+/// moved them (02 §7 last bullet 🔒): both dashboards — *money you are
+/// holding* and *money out with people* — read this, and there is no separate
+/// advance state anywhere to drift from the ledger.
+final class AdvanceView {
+  /// Creates the view.
+  const AdvanceView({
+    required this.bookId,
+    required this.accountId,
+    required this.accountName,
+    required this.memberId,
+    required this.givenPaise,
+    required this.spentPaise,
+    required this.returnedPaise,
+    required this.remainingPaise,
+    required this.takenDate,
+    required this.ageDays,
+    required this.purpose,
+  });
+
+  /// The book the advance came out of.
+  final String bookId;
+
+  /// The `Advance – {member}` account.
+  final String accountId;
+
+  /// Its name, as the chart holds it.
+  final String accountName;
+
+  /// The holder, when the account names one.
+  final String? memberId;
+
+  /// Σ debits to the account — everything handed out, ever.
+  final int givenPaise;
+
+  /// Σ credits that went to an expense category (`Dr expense · Cr Advance`).
+  final int spentPaise;
+
+  /// Σ credits that went back to money (`Dr money · Cr Advance`).
+  final int returnedPaise;
+
+  /// The debit balance still out with the holder — [givenPaise] less
+  /// [spentPaise] and [returnedPaise]. Open while this is > 0 (02 §7).
+  final int remainingPaise;
+
+  /// The date of the oldest unsettled debit — *taken on* (02 §7 ageing).
+  final LocalDate takenDate;
+
+  /// Days from [takenDate] to the as-of date.
+  final int ageDays;
+
+  /// The purpose text of the request still open, when one was given
+  /// (02 §7 requires it on every request).
+  final String? purpose;
+}
+
 final class BookHealth {
   /// Creates the report.
   const BookHealth({
@@ -485,8 +735,176 @@ final class _SharedKeySource implements KeySource {
       tenants[bookId] ?? store?.tenantIdOf(bookId);
 }
 
+// ── inter-book movement (02 §6 🔒) ─────────────────────────────────────────
+
+/// Why an inter-book action was refused (02 §6 🔒). Typed like
+/// [AdvanceRefusal] and for the same reason: a refusal authors **nothing**,
+/// so the caller is told which sentence to show (07 §1 rule 6) rather than
+/// left to read an error string.
+enum InterBookRefusal {
+  /// Both sides named the same book — an inter-book movement needs two.
+  sameBook,
+
+  /// A book this install holds no key for. Half a pair cannot be authored
+  /// into a book the device cannot open (04 §5.2).
+  bookNotHeld,
+
+  /// The account named on a money side is not a money account.
+  notAMoneyAccount,
+
+  /// The payee side of a pocket expense is not an expense category (02 §6).
+  notAnExpenseCategory,
+
+  /// Zero or negative paise. Money is integer paise and a movement moves some.
+  amountNotPositive,
+}
+
+/// An inter-book action [LocalLedger] declined. Nothing was appended.
+final class InterBookRefused implements Exception {
+  /// Creates the refusal.
+  const InterBookRefused(this.refusal, this.detail);
+
+  /// Which rule refused it.
+  final InterBookRefusal refusal;
+
+  /// What was wrong, for the log — never a figure (CLAUDE.md rule 4).
+  final String detail;
+
+  @override
+  String toString() => 'InterBookRefused(${refusal.name}: $detail)';
+}
+
+/// The two posted halves of one inter-book action (02 §6): one envelope per
+/// book, sharing [transferGroup].
+final class InterBookMovement {
+  /// Creates the movement.
+  const InterBookMovement({
+    required this.from,
+    required this.to,
+    required this.transferGroup,
+  });
+
+  /// The half in the paying / spending-on-behalf book.
+  final Entry from;
+
+  /// The half in the receiving / expense-carrying book.
+  final Entry to;
+
+  /// `refs.transfer_group`, shared by both halves.
+  final String transferGroup;
+}
+
+/// One entry composing a reconciliation pair — the rows S8.3 lists under a
+/// pair that does not net to zero (02 §6 🔒).
+final class ReconciliationEntry {
+  /// Creates the row.
+  const ReconciliationEntry({
+    required this.entryId,
+    required this.bookId,
+    required this.bookName,
+    required this.date,
+    required this.amountPaise,
+    required this.inTransit,
+    this.note,
+  });
+
+  /// The entry, so a reader can open it (07 §1 rule 8).
+  final String entryId;
+
+  /// The book this half sits in.
+  final String bookId;
+
+  /// That book's name.
+  final String bookName;
+
+  /// Accounting date.
+  final LocalDate date;
+
+  /// This half's `Due to/from` line, signed integer paise in the engine's
+  /// convention (+ = Dr, − = Cr).
+  final int amountPaise;
+
+  /// True while this half's review flag is open — the engine's own predicate
+  /// ([InterBook.isInTransit]), never a second derivation.
+  final bool inTransit;
+
+  /// The entry's note, if it carries one.
+  final String? note;
+}
+
+/// One row of the Family Reconciliation report (S8.3; 02 §6 🔒, ADR
+/// 2026-09-05e §7 🔒): the paired `Due to/from` accounts of two books, what
+/// they net to, and the entries composing them.
+///
+/// [status] is the engine's ([PairStatus]) and only ever one of three things:
+/// *balanced*, *mismatch* (non-zero, listed with its entries), or
+/// **unconfirmed** — a side inside a book this reader cannot open, which is
+/// never reported as a mismatch.
+final class ReconciliationPair {
+  /// Creates the row.
+  const ReconciliationPair({
+    required this.bookId,
+    required this.bookName,
+    required this.accountId,
+    required this.status,
+    required this.netPaise,
+    required this.sidePaise,
+    required this.inTransit,
+    required this.entries,
+    this.counterpartBookId,
+    this.counterpartBookName,
+    this.counterpartAccountId,
+  });
+
+  /// The side the reader holds and the report is written from.
+  final String bookId;
+
+  /// [bookId]'s name.
+  final String bookName;
+
+  /// [bookId]'s `Due to/from {counterpart}` account.
+  final String accountId;
+
+  /// The other book, when the account names one.
+  final String? counterpartBookId;
+
+  /// The other book's name — **null when this reader does not hold it**,
+  /// which is exactly the case 02 §6 calls *one-sided · unconfirmed*.
+  final String? counterpartBookName;
+
+  /// The other book's `Due to/from` account, when it is readable.
+  final String? counterpartAccountId;
+
+  /// Balanced · mismatch · unconfirmed (the engine's).
+  final PairStatus status;
+
+  /// `balance(A→B) + balance(B→A)` when both sides are readable; the readable
+  /// side's balance alone when one is sealed. Signed integer paise.
+  final int netPaise;
+
+  /// [bookId]'s own side of the pair, signed integer paise — what this book
+  /// says it owes to (−) or is owed by (+) the other.
+  final int sidePaise;
+
+  /// True while any half of this pair carries an open review flag: 07 §10's
+  /// *In transit*.
+  final bool inTransit;
+
+  /// The entries composing both sides, oldest first (02 §6 🔒: a non-zero
+  /// pair is listed *with the entries composing it*).
+  final List<ReconciliationEntry> entries;
+
+  /// True when both sides are readable and they net to zero — the single
+  /// green ✓ the report normally is (07 §10).
+  bool get isBalanced => status == PairStatus.balanced;
+
+  /// True when a side is sealed, so the check could not run (ADR
+  /// 2026-09-05e §7 🔒).
+  bool get isUnconfirmed => status == PairStatus.unconfirmed;
+}
+
 /// The local ledger.
-final class LocalLedger implements DeviceCertifier {
+final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
   /// Creates the facade. [suite] is the app's libsodium binding wrapped in a
   /// [CryptoSuite]; [now] is the injected wall clock the HLC ticks against.
   LocalLedger({
@@ -871,6 +1289,61 @@ final class LocalLedger implements DeviceCertifier {
   static Uint8List _encodeWrappedBookKey(WrappedBookKey w) =>
       Bytes.concat([Bytes.u8(w.suiteVersion), w.recipient.bytes, w.blob]);
 
+  /// Persists a book key the sync engine's guard accepted on the meta channel
+  /// (05 §5) — the app's half of `sync_engine`'s `AcceptedKeySink`.
+  ///
+  /// Why it exists: the guard unwraps a `wrapped_keys` row into the in-memory
+  /// [BookKeyStore], and the meta cursor then moves past that row for good. A
+  /// device that joined somebody else's book would hold the key for one
+  /// process and sit in `key_wait` for ever afterwards (05 §4) — a key it was
+  /// given and can no longer use. So the blob rests in `key_cache`, which is
+  /// what `_reopen` reads at the next launch.
+  ///
+  /// What is written is the sealed box **exactly as it arrived**: already
+  /// wrapped to this user's UMK, so nothing here re-wraps to a fingerprint
+  /// nobody verified (04 §8.2 🔒) and no unwrapped key touches the disk
+  /// (03 §3.1). The fingerprint check below is belt and braces — the guard
+  /// unsealed the blob with this UMK, so a foreign recipient cannot reach
+  /// here — but it is the last gate before a row that `_reopen` could only
+  /// throw on, and a ledger that will not open is worse than a key refused.
+  ///
+  /// Idempotent: the same `(book, version)` is the same key, and the copy
+  /// already at rest is the one that has been opening envelopes.
+  @override
+  Future<void> keyAccepted(AcceptedBookKey key) async {
+    _requireOpen();
+    final mine = Fingerprint.of(suite, _umk!.public);
+    if (key.recipient != mine) {
+      throw ArgumentError.value(
+        key.ref.bookId,
+        'key',
+        'wrapped to another fingerprint — not this install\'s (04 §8.2)',
+      );
+    }
+    await db
+        .into(db.keyCache)
+        .insert(
+          KeyCacheCompanion.insert(
+            bookId: key.ref.bookId,
+            keyVersion: key.ref.keyVersion,
+            wrappedBlob: _encodeWrappedBookKey(
+              WrappedBookKey(
+                ref: key.ref,
+                sealed: SealedBlob(
+                  suiteVersion: key.suiteVersion,
+                  recipient: key.recipient,
+                  bytes: key.sealed,
+                ),
+              ),
+            ),
+          ),
+          mode: InsertMode.insertOrIgnore,
+        );
+    // The book's tenant, for the projector's [KeySource]: a book learned
+    // through sync has no `books_p` row until its config envelope opens.
+    _keySource.tenants.putIfAbsent(key.ref.bookId, () => _identity!.tenantId);
+  }
+
   static WrappedBookKey _decodeWrappedBookKey(BookKeyRef ref, Uint8List blob) =>
       WrappedBookKey(
         ref: ref,
@@ -1196,15 +1669,32 @@ final class LocalLedger implements DeviceCertifier {
   /// nothing.
   Future<Entry> post(Entry draft) async {
     _requireOpen();
-    final id = _identity!;
-    final chart = await chartOf(draft.bookId);
-    final state = await _stateOf(draft.bookId);
-    final hlc = _tick();
-    var entry = draft.copyWith(
-      id: Uuid16.isCanonical(draft.id) ? draft.id : newId(),
-      hlc: hlc,
-      createdByDevice: id.deviceId,
-    );
+    final entry = _stamp(draft);
+    final violations = await _violationsOf(entry);
+    if (violations.isNotEmpty) throw PostRejected(entry.id, violations);
+    return _append(entry);
+  }
+
+  /// The draft with its id and authoring device settled — everything a
+  /// validation needs, and nothing that touches the clock.
+  ///
+  /// The HLC is deliberately *not* stamped here: it is taken at the moment of
+  /// append ([_append]), so validating a draft costs no tick and a refused
+  /// draft leaves no hole in this device's clock sequence.
+  Entry _stamp(Entry draft) => draft.copyWith(
+    id: Uuid16.isCanonical(draft.id) ? draft.id : newId(),
+    createdByDevice: _identity!.deviceId,
+  );
+
+  /// Everything wrong with [entry] against its own book's projected state:
+  /// the 02 §1.4 invariants, the §2 shape, the authoring rules (no future
+  /// date), the §8 period lock and the ADR 2026-09-09d §4 start-date guard.
+  ///
+  /// Pure with respect to the ledger — it appends nothing — so a caller with
+  /// **two** halves to place can ask about both before placing either.
+  Future<List<Violation>> _violationsOf(Entry entry) async {
+    final chart = await chartOf(entry.bookId);
+    final state = await _stateOf(entry.bookId);
     final violations = <Violation>[
       ...checkUniversalInvariants(entry, chart),
       ...checkAuthoringRules(entry, today: today()),
@@ -1230,8 +1720,14 @@ final class LocalLedger implements DeviceCertifier {
         ),
       );
     }
-    if (violations.isNotEmpty) throw PostRejected(entry.id, violations);
+    return violations;
+  }
 
+  /// Appends a validated, stamped entry: takes the HLC, authors the envelope
+  /// and rebuilds. Validation has already happened — this never refuses.
+  Future<Entry> _append(Entry stamped) async {
+    final hlc = _tick();
+    var entry = stamped.copyWith(hlc: hlc);
     await _author(
       bookId: entry.bookId,
       objectId: entry.id,
@@ -1246,6 +1742,43 @@ final class LocalLedger implements DeviceCertifier {
     return entry;
   }
 
+  /// Places the two halves of one inter-book action **atomically** (02 §6 🔒:
+  /// one action, two envelopes sharing `refs.transfer_group`).
+  ///
+  /// Both halves are validated against **both** books' states before either is
+  /// appended. The ledger is append-only (CLAUDE.md rule 2), so a half that
+  /// has landed can never be taken back: if the receiving book would refuse
+  /// its half — a locked period (02 §8), the ADR 2026-09-09d §4 start-date
+  /// guard, any shape violation — the paying half must never have been
+  /// written. There is no compensating entry here and there must not be one;
+  /// a reversal would be a second, visible movement of money that never
+  /// happened.
+  ///
+  /// A refusal throws one [PostRejected] carrying **every** violation of both
+  /// halves, so the caller can say what is wrong with the action rather than
+  /// with one side of it. The id it names is the refused half's — the paying
+  /// half when that is the one at fault, otherwise the receiving half.
+  Future<InterBookMovement> _postPair(
+    TransferPair pair,
+    String transferGroup,
+  ) async {
+    final from = _stamp(pair.from);
+    final to = _stamp(pair.to);
+    final fromViolations = await _violationsOf(from);
+    final toViolations = await _violationsOf(to);
+    if (fromViolations.isNotEmpty || toViolations.isNotEmpty) {
+      throw PostRejected(fromViolations.isNotEmpty ? from.id : to.id, [
+        ...fromViolations,
+        ...toViolations,
+      ]);
+    }
+    return InterBookMovement(
+      from: await _append(from),
+      to: await _append(to),
+      transferGroup: transferGroup,
+    );
+  }
+
   Entry _draft({
     required String bookId,
     required EntryKind kind,
@@ -1255,17 +1788,20 @@ final class LocalLedger implements DeviceCertifier {
     String? channel,
     String? partyId,
     String? advanceId,
+    EntryStatus status = EntryStatus.posted,
+    String? reviewApprover,
   }) => Entry(
     id: newId(),
     bookId: bookId,
     kind: kind,
-    status: EntryStatus.posted,
+    status: status,
     reviewRequired: false,
     accountingDate: date,
     lines: lines,
     note: note,
     partyId: partyId,
     advanceId: advanceId,
+    reviewApprover: reviewApprover,
     createdByUser: identity.userId,
     createdByDevice: identity.deviceId,
     hlc: _clock,
@@ -1417,6 +1953,170 @@ final class LocalLedger implements DeviceCertifier {
     );
   }
 
+  // ── advances (02 §7 🔒) ────────────────────────────────────────────────────
+  // The deliberate exception to §3's post-then-review: here the approval
+  // itself moves the money, so the request is authored `pending` and counts
+  // nothing until an approver decides. Kinds follow the engine's reading
+  // (verbs.dart ⚠️ SPEC): request and spend are `money_out`, a return is
+  // `money_in`; balances never depend on kind.
+
+  /// The advance request (02 §7): authored `pending` with the lines it will
+  /// post — `Dr Advance – {member} · Cr money` — and **counted by nobody**
+  /// until [approveAdvance]. Nothing leaves the drawer here.
+  ///
+  /// [purpose] is required by 02 §7 and is stored as the entry's note;
+  /// [approver] is recorded as `review_approver` — who must act.
+  Future<Entry> requestAdvance({
+    required String bookId,
+    required String advance,
+    required String from,
+    required int paise,
+    required String purpose,
+    required LocalDate date,
+    String? approver,
+  }) async {
+    final text = purpose.trim();
+    if (text.isEmpty) {
+      throw ArgumentError.value(
+        purpose,
+        'purpose',
+        'an advance request needs a purpose (02 §7)',
+      );
+    }
+    final c = await chartOf(bookId);
+    final adv = c.account(advance);
+    return post(
+      _draft(
+        bookId: bookId,
+        kind: EntryKind.moneyOut,
+        lines: Verbs.advanceRequest(
+          advance: adv,
+          from: c.account(from),
+          amount: Paise(paise),
+        ),
+        date: date,
+        note: text,
+        advanceId: adv.id,
+        status: EntryStatus.pending,
+        reviewApprover: approver,
+      ),
+    );
+  }
+
+  /// The approval — the one place in this app where approving moves money
+  /// (02 §7 🔒). Authors an `approval_decision` the projector folds onto the
+  /// pending request, which counts it: cash leaves the drawer now, and
+  /// `Advance – {member}` opens.
+  ///
+  /// Refused, authoring nothing, per [AdvanceRefusal]: an unknown entry, an
+  /// entry that is not a pending request, one already decided (the approval
+  /// moves the money exactly once), and a self-approval.
+  ///
+  /// ⚠️ SPEC: there is deliberately **no** auto-approval — not even for a
+  /// requester who is the only member of the book. 02 §7 requires approval
+  /// "always … regardless of limit", and 02 §7.2 item 1 🔒 (enforced by the
+  /// projector, `ViolationKind.selfApproval`) means the requester may not be
+  /// the approver, so a single-member book has no way to release its own
+  /// request. Refusing is the conservative reading — it never writes an
+  /// envelope every reader would quarantine — but it leaves that case without
+  /// a path; reported to the owner in the lane report rather than invented
+  /// here.
+  Future<ApprovalDecision> approveAdvance(String entryId) async {
+    _requireOpen();
+    final row = await (db.select(
+      db.entriesP,
+    )..where((t) => t.id.equals(entryId))).getSingleOrNull();
+    if (row == null) {
+      throw AdvanceRefused(entryId, AdvanceRefusal.unknownEntry);
+    }
+    final state = await _stateOf(row.bookId);
+    final p = state.entries[entryId];
+    if (p == null || p.entry.status != EntryStatus.pending) {
+      throw AdvanceRefused(entryId, AdvanceRefusal.notAPendingRequest);
+    }
+    if (p.status != EffectiveStatus.pending) {
+      throw AdvanceRefused(entryId, AdvanceRefusal.alreadyDecided);
+    }
+    if (p.entry.createdByUser == identity.userId) {
+      throw AdvanceRefused(entryId, AdvanceRefusal.selfApproval);
+    }
+    final hlc = _tick();
+    final decision = ApprovalDecision(
+      id: newId(),
+      bookId: row.bookId,
+      entryId: entryId,
+      decision: Decision.approve,
+      byUser: identity.userId,
+      hlc: hlc,
+    );
+    await _author(
+      bookId: row.bookId,
+      objectId: decision.id,
+      objectType: 'approval_decision',
+      hlc: hlc,
+      object: (_) => encodeEvent(decision),
+    );
+    await _rebuild(row.bookId);
+    return decision;
+  }
+
+  /// Spending against an open advance (02 §7): `Dr expense-category ·
+  /// Cr Advance – {member}`. Ordinary post-then-review — the money already
+  /// left when the advance was approved.
+  Future<Entry> spendAgainstAdvance({
+    required String bookId,
+    required String advance,
+    required String forWhat,
+    required int paise,
+    required LocalDate date,
+    String? note,
+  }) async {
+    final c = await chartOf(bookId);
+    final adv = c.account(advance);
+    return post(
+      _draft(
+        bookId: bookId,
+        kind: EntryKind.moneyOut,
+        lines: Verbs.advanceSpend(
+          advance: adv,
+          forWhat: c.account(forWhat),
+          amount: Paise(paise),
+        ),
+        date: date,
+        note: note,
+        advanceId: adv.id,
+      ),
+    );
+  }
+
+  /// Returning the remainder (02 §7): `Dr money · Cr Advance – {member}`.
+  /// The advance closes when the balance reaches zero — nothing else to do.
+  Future<Entry> returnAdvance({
+    required String bookId,
+    required String advance,
+    required String into,
+    required int paise,
+    required LocalDate date,
+    String? note,
+  }) async {
+    final c = await chartOf(bookId);
+    final adv = c.account(advance);
+    return post(
+      _draft(
+        bookId: bookId,
+        kind: EntryKind.moneyIn,
+        lines: Verbs.advanceReturn(
+          advance: adv,
+          into: c.account(into),
+          amount: Paise(paise),
+        ),
+        date: date,
+        note: note,
+        advanceId: adv.id,
+      ),
+    );
+  }
+
   /// Verb 6, guided — *Opening balances* (02 §4): one `adjustment` per
   /// account against *Opening Balance*. [balances] maps account id → signed
   /// paise as the user answered by class: money = *balance today* (negative
@@ -1560,6 +2260,318 @@ final class LocalLedger implements DeviceCertifier {
     return (p, state);
   }
 
+  // ── partner settlement (02 §7.1 🔒) ───────────────────────────────────────
+
+  /// Settlement route 1 (02 §7.1 🔒): the business pays a partner out —
+  /// `Dr Partner Current · Cr {money account}`.
+  ///
+  /// The same posting as an owner's takeout (`Verbs.partnerDrawing`), because
+  /// it *is* the same movement: the business owes them less and holds less
+  /// money. What differs is the reason, which the screen says and the ledger
+  /// does not bend to (02 §10).
+  Future<Entry> partnerPayOut({
+    required String bookId,
+    required String partnerAccountId,
+    required String fromAccountId,
+    required int paise,
+    LocalDate? date,
+  }) async {
+    _requireOpen();
+    final chart = await chartOf(bookId);
+    return post(
+      _draft(
+        bookId: bookId,
+        kind: EntryKind.moneyOut,
+        lines: Verbs.partnerDrawing(
+          partner: chart.account(partnerAccountId),
+          from: chart.account(fromAccountId),
+          amount: Paise(paise),
+        ),
+        date: date ?? today(),
+      ),
+    );
+  }
+
+  /// Settlement route 2 (02 §7.1 🔒): partner-to-partner, settled outside the
+  /// business — `Dr {over-funded partner} · Cr {under-funded partner}`. The
+  /// under-funded partner pays cash outside the books and buys part of the
+  /// other's claim; no money account of the business moves.
+  ///
+  /// ⚠️ SPEC (🔒, for the owner): the engine has **no verb and no admitting
+  /// kind** for this posting. `Verbs` builds the other two partner events and
+  /// not this one, and `checkShape` (02 §1.4 rule 7, ADR 2026-09-05e §6)
+  /// admits `Dr partner · Cr partner` under no `EntryKind`: `money_out` wants
+  /// money on the credit side, `gave_credit` wants money or income there, and
+  /// `adjustment` wants exactly one `equity_system` account, of which this has
+  /// none. So this posts the 🔒 lines 02 §7.1 names, as `adjustment` — the
+  /// kind its sibling, profit distribution, already uses — and today `post`
+  /// refuses it with a `shapeViolation` **before authoring anything**. The
+  /// caller sees the engine's own typed refusal rather than a sentence this
+  /// layer invented. Fixing it is an engine ruling (a `Verbs.partnerSettlement`
+  /// builder plus a shape rule, or 02 naming the kind), not a change this lane
+  /// may make; reported in the lane report.
+  Future<Entry> settleBetweenPartners({
+    required String bookId,
+    required String fromPartnerAccountId,
+    required String toPartnerAccountId,
+    required int paise,
+    LocalDate? date,
+  }) async {
+    _requireOpen();
+    if (paise <= 0) {
+      throw ArgumentError.value(paise, 'paise', 'must be positive');
+    }
+    if (fromPartnerAccountId == toPartnerAccountId) {
+      throw ArgumentError.value(
+        toPartnerAccountId,
+        'toPartnerAccountId',
+        'a settlement needs two different partners',
+      );
+    }
+    final chart = await chartOf(bookId);
+    final from = chart.account(fromPartnerAccountId);
+    final to = chart.account(toPartnerAccountId);
+    for (final a in [from, to]) {
+      if (a.accountClass != AccountClass.partner) {
+        throw ArgumentError.value(
+          a.id,
+          'partnerAccountId',
+          'not a Partner Current A/c of $bookId',
+        );
+      }
+    }
+    return post(
+      _draft(
+        bookId: bookId,
+        kind: EntryKind.adjustment,
+        lines: [
+          Line(accountId: from.id, amount: Paise(paise)),
+          Line(accountId: to.id, amount: Paise(-paise)),
+        ],
+        date: date ?? today(),
+      ),
+    );
+  }
+
+  // ── cash counts (02 §8.2) ─────────────────────────────────────────────────
+
+  /// Everything the S5.5 sheet and the S4 statement header draw about one
+  /// countable account (02 §8.2 🔒). One read, one object: the figures on
+  /// screen cannot drift apart while the user is counting.
+  Future<CashCountReading> cashCountReading(String accountId) async {
+    _requireOpen();
+    final bookId = await _bookOfAccount(accountId);
+    final chart = await chartOf(bookId);
+    final account = chart.account(accountId);
+    if (!account.isMoney ||
+        (account.subtype != MoneySubtype.cash &&
+            account.subtype != MoneySubtype.cashCollection)) {
+      throw ArgumentError.value(
+        accountId,
+        'accountId',
+        'only cash and collection accounts are counted (02 §8.2)',
+      );
+    }
+    final state = await _stateOf(bookId);
+    return CashCountReading(
+      bookId: bookId,
+      bookType: await _bookType(bookId),
+      account: account,
+      bookBalance: state.balances[accountId],
+      lastCount: state.lastCount[accountId],
+      incomeAccounts: chart.byClass(AccountClass.categoryIncome),
+    );
+  }
+
+  /// The latest count of [accountId] — the *Last counted 27 Aug · 20×500 …*
+  /// line of the A/C statement header (02 §8.2), or null when it has never
+  /// been counted.
+  Future<CashCount?> lastCashCount(String accountId) async {
+    _requireOpen();
+    final bookId = await _bookOfAccount(accountId);
+    return (await _stateOf(bookId)).lastCount[accountId];
+  }
+
+  /// Records one cash count and posts **exactly** what the engine says it
+  /// means (02 §8.2 🔒).
+  ///
+  /// The count is its own `cash_count` envelope — a memo that never moves
+  /// money. What it *leads to* is [resolveCount]'s decision, carried back
+  /// unchanged: nothing at all (`cash`, counted equals the book: the account
+  /// is *verified on {date}*), one guided adjustment (`Dr/Cr Cash · Cr/Dr
+  /// Adjustments`, the count attached as evidence), or one recognition of
+  /// income (`cash_collection`: `Dr {collection a/c} · Cr {chosen income
+  /// a/c}` for the full counted amount). Counted collection cash **stays on
+  /// the collection account** — depositing it later is an ordinary Transfer,
+  /// and a collection account is never a spending source (02 §8.2 🔒).
+  ///
+  /// [validateCount] runs first: a refusal throws [CountRejected] and appends
+  /// nothing. The entry is posted before the count is authored, so a posting
+  /// the ledger refuses ([PostRejected] — a locked month, §8) leaves **no**
+  /// count either: a recorded count whose adjustment never landed would be a
+  /// balance silently changed without an entry, which 02 §8.2 🔒 forbids.
+  ///
+  /// The book's `Adjustments A/c` is created on first use, like the §6 Due
+  /// to/from pair; [adjustmentsName] names it then and is ignored afterwards.
+  Future<RecordedCashCount> recordCashCount({
+    required String accountId,
+    required Paise counted,
+    required LocalDate date,
+    DenominationSheet? sheet,
+    String? countedBy,
+    String? witness,
+    String? incomeAccountId,
+    String adjustmentsName = 'Adjustments',
+  }) async {
+    _requireOpen();
+    final bookId = await _bookOfAccount(accountId);
+    final chart = await chartOf(bookId);
+    final account = chart.account(accountId);
+    final draft = CashCount(
+      id: newId(),
+      bookId: bookId,
+      accountId: accountId,
+      date: date,
+      counted: counted,
+      // Stamped when the envelope is authored, below; the outcome does not
+      // depend on it, so validating and resolving may use the draft.
+      hlc: const Hlc(0),
+      sheet: sheet,
+      countedBy: (countedBy ?? '').isEmpty ? null : countedBy,
+      witness: (witness ?? '').isEmpty ? null : witness,
+    );
+    final violations = validateCount(
+      draft,
+      bookType: await _bookType(bookId),
+      account: account,
+    );
+    if (violations.isNotEmpty) throw CountRejected(accountId, violations);
+
+    final state = await _stateOf(bookId);
+    final income = incomeAccountId == null
+        ? null
+        : chart.account(incomeAccountId);
+    var adjustments = _systemAccount(chart, SystemRole.adjustments);
+    final needsAdjustmentsAccount =
+        adjustments == null && !account.isCollection;
+    if (needsAdjustmentsAccount) {
+      // Minted, not yet authored: `resolveCount`'s lines must already name the
+      // account, but a count that *agrees* with the books posts nothing and
+      // must not leave a new account behind either. The envelope is authored
+      // below, only when the engine actually returns an adjustment — which
+      // keeps the decision the engine's and this method's hands clean of it.
+      adjustments = Account(
+        id: newId(),
+        bookId: bookId,
+        name: adjustmentsName,
+        accountClass: AccountClass.equitySystem,
+        systemRole: SystemRole.adjustments,
+        createdOrder: chart.accounts.length,
+      );
+    }
+    final outcome = resolveCount(
+      draft,
+      account: account,
+      bookBalance: state.balances[accountId],
+      // In collect mode the engine posts `Dr collection · Cr income` and never
+      // reads this slot — the Adjustments A/c is created on the first
+      // *verification* count, so there is nothing truthful to put here. The
+      // account being counted stands in it: unreachable, and a reachable use
+      // would be refused loudly by `Verbs.cashCountDifference`, which insists
+      // on the adjustments role, rather than posting to the wrong account.
+      adjustmentsAccount: adjustments ?? account,
+      incomeAccount: income,
+    );
+
+    Entry? entry;
+    if (outcome.lines.isNotEmpty) {
+      if (needsAdjustmentsAccount && outcome is CountAdjustment) {
+        await addAccount(
+          bookId,
+          id: adjustments!.id,
+          name: adjustmentsName,
+          accountClass: AccountClass.equitySystem,
+          systemRole: SystemRole.adjustments,
+        );
+      }
+      entry = await post(
+        _draft(
+          bookId: bookId,
+          // A difference is a guided adjustment (02 §2 verb 6); a recognition
+          // is an ordinary Money in whose counterpart is the chosen income
+          // category (02 §8.2 🔒).
+          kind: outcome is CountRecognition
+              ? EntryKind.moneyIn
+              : EntryKind.adjustment,
+          lines: outcome.lines,
+          date: date,
+        ).copyWith(refs: EntryRefs(extra: {'cash_count': draft.id})),
+      );
+    }
+
+    final hlc = _tick();
+    final count = CashCount(
+      id: draft.id,
+      bookId: bookId,
+      accountId: accountId,
+      date: date,
+      counted: counted,
+      hlc: hlc,
+      sheet: draft.sheet,
+      countedBy: draft.countedBy,
+      witness: draft.witness,
+    );
+    await _author(
+      bookId: bookId,
+      objectId: count.id,
+      objectType: 'cash_count',
+      hlc: hlc,
+      // `posted_entry_id` is the link Recompute projects into `cash_counts_p`;
+      // the payload codec does not read it back into [CashCount], so it rides
+      // as an unknown field and round-trips (03 §3.3.4 🔒).
+      object: (_) => {
+        ...encodeEvent(count),
+        if (entry != null) 'posted_entry_id': entry.id,
+      },
+    );
+    await _rebuild(bookId);
+    return RecordedCashCount(count: count, outcome: outcome, entry: entry);
+  }
+
+  /// The `equity_system` account of [role], or null when the book has none.
+  static Account? _systemAccount(Chart chart, SystemRole role) {
+    for (final a in chart.byClass(AccountClass.equitySystem)) {
+      if (a.systemRole == role) return a;
+    }
+    return null;
+  }
+
+  /// The book an account belongs to, from the projected chart rows.
+  Future<String> _bookOfAccount(String accountId) async {
+    final row = await (db.select(
+      db.accountsP,
+    )..where((a) => a.id.equals(accountId))).getSingleOrNull();
+    if (row == null) {
+      throw ArgumentError.value(accountId, 'accountId', 'unknown account');
+    }
+    return row.bookId;
+  }
+
+  /// A book's type — from its `book_config` (the read path for the fields
+  /// `books_p` does not project), falling back to the projected row for a
+  /// book whose config envelope has not arrived yet.
+  Future<BookType> _bookType(String bookId) async {
+    final config = await configOf(bookId);
+    if (config != null) return config.type;
+    final row = await (db.select(
+      db.booksP,
+    )..where((b) => b.id.equals(bookId))).getSingleOrNull();
+    if (row == null) {
+      throw ArgumentError.value(bookId, 'bookId', 'unknown book');
+    }
+    return BookType.values.firstWhere((t) => t.name == row.type);
+  }
+
   // ── the write path proper ─────────────────────────────────────────────────
 
   /// Seals [object] (built once the `author_seq` is known) under the book's
@@ -1626,6 +2638,173 @@ final class LocalLedger implements DeviceCertifier {
 
   /// Full rebuild of one book (settings → *Recompute*; 02 §9).
   Future<BookRecompute> rebuild(String bookId) => _rebuild(bookId);
+
+  // ── the month lock (02 §8 🔒) ─────────────────────────────────────────────
+
+  /// Everything standing between [bookId] and a lock of [period] — the
+  /// engine's own verdict, in the engine's own terms (02 §8 step 3 🔒, ADR
+  /// 2026-09-05b §3–4, ADR 2026-09-05e §4; A-02-48…52).
+  ///
+  /// This facade decides **nothing**. It calls `monthLockPreconditions` over
+  /// the book's projected state and hands back what it says. What it adds is
+  /// only what the projector cannot see from one book's envelope stream: the
+  /// mirror-level facts — an open author-sequence hole or a `held` envelope
+  /// recorded against this install ([watchHealth], [heldFor]) — that a stale
+  /// projection would miss. Those are **unioned in**, never substituted, and
+  /// deduplicated by (kind, ref), so a blocker can be added here but never
+  /// dropped.
+  ///
+  /// An empty list is the only condition under which [lockMonth] proceeds.
+  Future<List<CloseBlockerItem>> monthClosePreconditions(
+    String bookId,
+    YearMonth period,
+  ) async {
+    _requireOpen();
+    final state = await _stateOf(bookId);
+    final out = <CloseBlockerItem>[...monthLockPreconditions(state, period)];
+    final seen = {for (final b in out) '${b.kind.name}/${b.ref}'};
+
+    void add(CloseBlocker kind, String ref) {
+      if (seen.add('${kind.name}/$ref')) out.add(CloseBlockerItem(kind, ref));
+    }
+
+    // The mirror's own view. `author_gaps` and `envelopes_local.held` are what
+    // sync writes; the projection is rebuilt from them, so in a healthy
+    // install the two agree and this adds nothing. When they disagree the
+    // safe direction is the one that refuses the lock: nobody certifies a
+    // balance with entries known to be missing (ADR 2026-09-05b §3).
+    for (final g in await (db.select(
+      db.authorGaps,
+    )..where((t) => t.bookId.equals(bookId))).get()) {
+      add(CloseBlocker.authorGapOpen, g.authorDevice);
+    }
+    for (final h in await (db.select(
+      db.envelopesLocal,
+    )..where((t) => t.bookId.equals(bookId) & t.held.equals(1))).get()) {
+      add(CloseBlocker.heldEnvelope, h.objectId);
+    }
+    return out;
+  }
+
+  /// Locks [period] of [bookId] (02 §8 step 4 🔒).
+  ///
+  /// Refuses with [MonthLockRefused] carrying the engine's own blockers when
+  /// [monthClosePreconditions] is not empty — a refusal is an exception, never
+  /// a silent no-op, and it appends nothing.
+  ///
+  /// Otherwise it authors **one signed `period_lock` envelope** recording
+  ///
+  ///   * [declaredBalances] — what the closer confirmed at steps 1–2, integer
+  ///     paise (CLAUDE.md rule 1);
+  ///   * `vector_canonical` — the balance vector **the projector computed**,
+  ///     taken as `state.balances.canonical()`. This facade never recomputes
+  ///     a hash of its own: the whole point of 02 §8 step 4 is that every
+  ///     other member's device replays the same pure projector and must get
+  ///     the same bytes, so the figure certified has to be the projector's
+  ///     (03 §3.3 rule 2);
+  ///   * `projector_version` — `core_ledger`'s own [projectorVersion], so a
+  ///     reader on an older projector shows *update to verify* rather than a
+  ///     false mismatch (ADR 2026-09-05c §3).
+  ///
+  /// The returned [LockedMonth] carries this device's own verification of the
+  /// vector it just published, read back out of the rebuilt projection — so
+  /// the caller shows a state the projector agrees with rather than assuming
+  /// success.
+  Future<LockedMonth> lockMonth(
+    String bookId,
+    YearMonth period, {
+    required Map<String, Paise> declaredBalances,
+  }) async {
+    _requireOpen();
+    final blockers = await monthClosePreconditions(bookId, period);
+    if (blockers.isNotEmpty) throw MonthLockRefused(bookId, period, blockers);
+
+    final state = await _stateOf(bookId);
+    final hlc = _tick();
+    final lock = PeriodLock(
+      id: newId(),
+      bookId: bookId,
+      period: period,
+      byUser: identity.userId,
+      hlc: hlc,
+      declaredBalances: Map.unmodifiable(declaredBalances),
+      vectorCanonical: state.balances.canonical(),
+      projectorVersion: projectorVersion,
+    );
+    await _author(
+      bookId: bookId,
+      objectId: lock.id,
+      objectType: 'period_lock',
+      hlc: hlc,
+      object: (_) => encodeEvent(lock),
+    );
+    final report = await _rebuild(bookId);
+    return LockedMonth(
+      lock: lock,
+      verification: report.state.lockVerification[lock.id],
+    );
+  }
+
+  /// Where the closer had got to in [bookId]'s close of [period], or null when
+  /// this phone has no saved progress (07 §13 *Resumable* 🔒).
+  Future<SavedCloseProgress?> closeProgress(
+    String bookId,
+    YearMonth period,
+  ) async {
+    final row =
+        await (db.select(db.closeProgressLocal)..where(
+              (t) =>
+                  t.bookId.equals(bookId) &
+                  t.year.equals(period.year) &
+                  t.month.equals(period.month),
+            ))
+            .getSingleOrNull();
+    if (row == null) return null;
+    return SavedCloseProgress(
+      step: row.step,
+      confirmedAccountIds: {
+        for (final id in jsonDecode(row.confirmedBanksJson) as List)
+          id as String,
+      },
+    );
+  }
+
+  /// Records [progress] for [bookId]'s close of [period] (07 §13 🔒).
+  ///
+  /// Device-local: no envelope, no signature, nothing pushed. A close
+  /// half-done on one phone is that phone's business, and writing it into the
+  /// ledger would make an abandoned wizard part of the family's history.
+  Future<void> saveCloseProgress(
+    String bookId,
+    YearMonth period,
+    SavedCloseProgress progress,
+  ) async {
+    await db
+        .into(db.closeProgressLocal)
+        .insertOnConflictUpdate(
+          CloseProgressLocalCompanion.insert(
+            bookId: bookId,
+            year: period.year,
+            month: period.month,
+            step: progress.step,
+            confirmedBanksJson: Value(
+              jsonEncode(progress.confirmedAccountIds.toList()..sort()),
+            ),
+          ),
+        );
+  }
+
+  /// Forgets the saved progress for [bookId]'s close of [period] — called once
+  /// the month is locked, so returning to a closed month does not resume a
+  /// wizard that has nothing left to do.
+  Future<void> clearCloseProgress(String bookId, YearMonth period) =>
+      (db.delete(db.closeProgressLocal)..where(
+            (t) =>
+                t.bookId.equals(bookId) &
+                t.year.equals(period.year) &
+                t.month.equals(period.month),
+          ))
+          .go();
 
   // ── read side (03 §3.2 streams) ───────────────────────────────────────────
 
@@ -1717,6 +2896,111 @@ final class LocalLedger implements DeviceCertifier {
           inTransitPaise: transit,
         );
       });
+
+  /// Every **open** advance in [bookId] as of [asOf] (default today), oldest
+  /// unsettled first — the *Given out* list of 07 §8, aged per 02 §7.
+  ///
+  /// The balance and the ageing come straight from the engine's own
+  /// derivation (`openAdvances`, A-02-72…77); this adds only what the card
+  /// draws — the spent/returned split and the purpose — and reads it from the
+  /// same counted entries. No parallel state (02 §7 🔒).
+  Future<List<AdvanceView>> openAdvances(
+    String bookId, {
+    LocalDate? asOf,
+  }) async {
+    final chart = await chartOf(bookId);
+    final state = await _stateOf(bookId);
+    return _advanceViews(bookId, chart, state, asOf ?? today());
+  }
+
+  /// [openAdvances], live.
+  Stream<List<AdvanceView>> watchOpenAdvances(
+    String bookId, {
+    LocalDate? asOf,
+  }) =>
+      _watchAccountRows(bookId)
+          .asyncMap((_) => openAdvances(bookId, asOf: asOf));
+
+  /// *Money you are holding* (02 §7, 07 §8 **My advances**): every open
+  /// advance across this device's books whose account names **this** user as
+  /// the holder.
+  Future<List<AdvanceView>> myAdvances({LocalDate? asOf}) async {
+    _requireOpen();
+    final me = identity.userId;
+    final out = <AdvanceView>[];
+    for (final bookId in await mirror.bookIds()) {
+      out.addAll(
+        (await openAdvances(bookId, asOf: asOf)).where((a) => a.memberId == me),
+      );
+    }
+    out.sort((a, b) => b.ageDays.compareTo(a.ageDays));
+    return out;
+  }
+
+  /// [myAdvances], live.
+  Stream<List<AdvanceView>> watchMyAdvances({LocalDate? asOf}) =>
+      db.select(db.balances).watch().asyncMap((_) => myAdvances(asOf: asOf));
+
+  List<AdvanceView> _advanceViews(
+    String bookId,
+    Chart chart,
+    LedgerState state,
+    LocalDate asOf,
+  ) {
+    final views = <AdvanceView>[];
+    for (final open in engine.openAdvances(state, chart, asOf: asOf)) {
+      final account = chart.account(open.accountId);
+      var given = 0, spent = 0, returned = 0;
+      String? purpose;
+      // `state.counted` is the locked statement order (02 §9), so the first
+      // debit on or after the oldest unsettled date is the request still open
+      // — its note is the purpose the card shows.
+      for (final p in state.counted) {
+        for (final line in p.entry.lines) {
+          if (line.accountId != open.accountId) continue;
+          if (line.amount.isDebit) {
+            given += line.amount.raw;
+            if (purpose == null &&
+                p.entry.accountingDate.compareTo(open.oldestUnsettled) >= 0) {
+              purpose = p.entry.note;
+            }
+          } else if (_creditWentToMoney(p.entry, open.accountId, chart)) {
+            returned += -line.amount.raw;
+          } else {
+            spent += -line.amount.raw;
+          }
+        }
+      }
+      views.add(
+        AdvanceView(
+          bookId: bookId,
+          accountId: open.accountId,
+          accountName: account.name,
+          memberId: open.memberId,
+          givenPaise: given,
+          spentPaise: spent,
+          returnedPaise: returned,
+          remainingPaise: open.balance.raw,
+          takenDate: open.oldestUnsettled,
+          ageDays: open.ageDays,
+          purpose: purpose,
+        ),
+      );
+    }
+    views.sort((a, b) => b.ageDays.compareTo(a.ageDays));
+    return views;
+  }
+
+  /// True when the debit side of an entry that credits [advanceId] is money —
+  /// a *return* (`Dr money · Cr Advance`) rather than a *spend*
+  /// (`Dr expense · Cr Advance`).
+  static bool _creditWentToMoney(Entry entry, String advanceId, Chart chart) {
+    final debits = entry.lines
+        .where((l) => l.amount.isDebit && l.accountId != advanceId)
+        .toList();
+    return debits.isNotEmpty &&
+        debits.every((l) => chart.maybeAccount(l.accountId)?.isMoney ?? false);
+  }
 
   /// The A/C statement of [accountId] (07 §6; design-system §5): heads of
   /// accepted amend chains only, advance requests still pending excluded,
@@ -1906,6 +3190,335 @@ final class LocalLedger implements DeviceCertifier {
           ..where(db.outbox.pushState.isNotValue(PushState.observed.name)))
         .map((r) => r.read(c) ?? 0)
         .watchSingle();
+  }
+
+  // ── inter-book movement (02 §6 🔒) ───────────────────────────────────────
+  // Books connect only through paired `Due to/from` system accounts, and one
+  // user action appends **two** envelopes sharing `refs.transfer_group`, one
+  // per book. Every posting below is the engine's (`InterBook.transfer`,
+  // `InterBook.pocketExpense`; A-02-78…82, A-ref-6) — this facade finds or
+  // creates the pair of accounts, mints the group, and posts each half through
+  // the ordinary [post] path so the 02 §1.4 invariants, the §2 shape and the
+  // §8 period lock all still apply to both.
+
+  /// The seeded name of a `Due to/from {other book}` account. Account names
+  /// are **user data**, not ARB labels (the [SeedCategory] rule), so a screen
+  /// passes the localised spelling in and this English default exists for
+  /// fixtures and for a caller that has none — exactly like [createBook]'s
+  /// `openingBalanceName`.
+  static String defaultDueToFromName(String otherBookName) =>
+      'Due to/from $otherBookName';
+
+  /// The `Due to/from [counterpartBookId]` account of [bookId], created on
+  /// **first use** (02 §6). [name] is used only when it is created.
+  Future<Account> dueToFromAccount(
+    String bookId, {
+    required String counterpartBookId,
+    String? name,
+  }) async {
+    _requireOpen();
+    final existing = _dueFacing(await chartOf(bookId), counterpartBookId);
+    if (existing != null) return existing;
+    final otherName = await _bookName(counterpartBookId);
+    return addAccount(
+      bookId,
+      name: name ?? defaultDueToFromName(otherName ?? counterpartBookId),
+      accountClass: AccountClass.equitySystem,
+      systemRole: SystemRole.dueToFrom,
+      counterpartBookId: counterpartBookId,
+    );
+  }
+
+  /// "Move ₹X from {book A} to {book B}" (02 §6 🔒) — one user action, two
+  /// envelopes sharing `refs.transfer_group`:
+  /// `A: Dr Due to/from B · Cr money` and `B: Dr money · Cr Due to/from A`.
+  /// The paired accounts are auto-created on first use. Both halves post
+  /// immediately — the money moved — so reconciliation nets to zero from the
+  /// moment of entry.
+  ///
+  /// ⚠️ SPEC: 02 §6 says the half where *the actor lacks posting rights*
+  /// carries the review flag for that book's approver, and 07 §10 labels the
+  /// pair *In transit* while it is open. This app has **no book-role source
+  /// yet** — 13 §2.3's "who am I, here?" is not wired to a membership record —
+  /// so no rights can be evaluated here and both halves post unflagged by
+  /// default. [reviewRequiredIn] is the seam the rights lane fills; inventing
+  /// a role to decide it would be inventing behaviour. Consequently *in
+  /// transit* is only ever what the engine's [InterBook.isInTransit] reports
+  /// over the projected halves, never a state this facade keeps.
+  Future<InterBookMovement> transferBetweenBooks({
+    required String fromBookId,
+    required String fromAccountId,
+    required String toBookId,
+    required String toAccountId,
+    required int paise,
+    required LocalDate date,
+    ({String from, String to})? dueNames,
+    ({bool from, bool to}) reviewRequiredIn = (from: false, to: false),
+    String? note,
+  }) async {
+    _requireOpen();
+    await _checkMovement(fromBookId, toBookId, paise);
+    final fromMoney = _money(await chartOf(fromBookId), fromAccountId);
+    final toMoney = _money(await chartOf(toBookId), toAccountId);
+    final fromDue = await dueToFromAccount(
+      fromBookId,
+      counterpartBookId: toBookId,
+      name: dueNames?.from,
+    );
+    final toDue = await dueToFromAccount(
+      toBookId,
+      counterpartBookId: fromBookId,
+      name: dueNames?.to,
+    );
+    final group = newId();
+    final pair = InterBook.transfer(
+      amount: Paise(paise),
+      accountingDate: date,
+      from: (money: fromMoney, dueToFrom: fromDue),
+      to: (money: toMoney, dueToFrom: toDue),
+      transferGroup: group,
+      ids: (from: newId(), to: newId()),
+      hlcs: (from: _clock, to: _clock),
+      createdByUser: identity.userId,
+      createdByDevice: identity.deviceId,
+      reviewRequiredIn: reviewRequiredIn,
+      reviewLimitPaise: (from: null, to: null),
+      note: note,
+    );
+    return _postPair(pair, group);
+  }
+
+  /// The one-sided everyday case (02 §6 🔒): a member pays another book's
+  /// expense out of his own pocket. Payer's book `Dr Due to/from {payee} · Cr
+  /// Cash` — money owed to him, never an expense of his; payee's book
+  /// `Dr Expense · Cr Due to/from {payer}`. Nothing is ever lost in someone's
+  /// pocket.
+  ///
+  /// Same mechanism, same `refs.transfer_group`, same ⚠️ SPEC note on rights
+  /// as [transferBetweenBooks].
+  Future<InterBookMovement> pocketExpense({
+    required String payerBookId,
+    required String payerMoneyId,
+    required String payeeBookId,
+    required String payeeExpenseId,
+    required int paise,
+    required LocalDate date,
+    ({String from, String to})? dueNames,
+    ({bool from, bool to}) reviewRequiredIn = (from: false, to: false),
+    String? note,
+  }) async {
+    _requireOpen();
+    await _checkMovement(payerBookId, payeeBookId, paise);
+    final money = _money(await chartOf(payerBookId), payerMoneyId);
+    final expense = _expense(await chartOf(payeeBookId), payeeExpenseId);
+    final payerDue = await dueToFromAccount(
+      payerBookId,
+      counterpartBookId: payeeBookId,
+      name: dueNames?.from,
+    );
+    final payeeDue = await dueToFromAccount(
+      payeeBookId,
+      counterpartBookId: payerBookId,
+      name: dueNames?.to,
+    );
+    final group = newId();
+    final pair = InterBook.pocketExpense(
+      amount: Paise(paise),
+      accountingDate: date,
+      payer: (money: money, dueToFrom: payerDue),
+      payee: (expense: expense, dueToFrom: payeeDue),
+      transferGroup: group,
+      ids: (from: newId(), to: newId()),
+      hlcs: (from: _clock, to: _clock),
+      createdByUser: identity.userId,
+      createdByDevice: identity.deviceId,
+      reviewRequiredIn: reviewRequiredIn,
+      reviewLimitPaise: (from: null, to: null),
+      note: note,
+    );
+    return _postPair(pair, group);
+  }
+
+  /// The **Family Reconciliation** report (S8.3; 02 §6 🔒): every pair of
+  /// `Due to/from` accounts this reader can see, once each, with the engine's
+  /// verdict on it and the entries composing both sides.
+  ///
+  /// The verdict is [InterBook.reconcile]'s, not this method's — balanced,
+  /// non-zero, or **one-sided · unconfirmed** when the other side sits in a
+  /// book whose key this device does not hold (04 §5.2, ADR 2026-09-05e §7
+  /// 🔒). A sealed side is never reported as a mismatch.
+  ///
+  /// ⚠️ SPEC: a counterpart book this reader *does* hold, but which carries no
+  /// matching `Due to/from` account yet — the other half has not arrived — is
+  /// therefore reported as a non-zero pair *with its composing entries*, not
+  /// as *unconfirmed*: ADR 2026-09-05e §7 reserves *unconfirmed* for a side
+  /// the reader cannot open, and 02 §6 says every non-zero pair is listed.
+  /// That is the conservative reading; 07 §10's *In transit* label is carried
+  /// separately, by [ReconciliationPair.inTransit], and only from the engine.
+  Future<List<ReconciliationPair>> reconciliation() async {
+    _requireOpen();
+    final bookIds = await mirror.bookIds();
+    final held = bookIds.toSet();
+    final names = {
+      for (final b in await db.select(db.booksP).get()) b.id: b.name,
+    };
+    final charts = <String, Chart>{};
+    final states = <String, LedgerState>{};
+    for (final id in bookIds) {
+      charts[id] = await chartOf(id);
+      states[id] = await _stateOf(id);
+    }
+
+    final seen = <String>{};
+    final out = <ReconciliationPair>[];
+    for (final bookId in bookIds) {
+      for (final due
+          in charts[bookId]!
+              .byClass(AccountClass.equitySystem)
+              .where((a) => a.systemRole == SystemRole.dueToFrom)) {
+        final other = due.counterpartBookId;
+        // A `Due to/from` naming no counterpart names no pair: there is
+        // nothing to reconcile it against, and that is not a mismatch either.
+        if (other == null) continue;
+        // One row per pair, whichever side it was met from.
+        if (!seen.add(([bookId, other]..sort()).join('/'))) continue;
+        final otherHeld = held.contains(other);
+        final otherDue = otherHeld ? _dueFacing(charts[other]!, bookId) : null;
+        final r = InterBook.reconcile([
+          InterBookPair(
+            a: states[bookId],
+            accountA: due.id,
+            b: otherHeld ? states[other] : null,
+            accountB: otherDue?.id ?? '',
+          ),
+        ]).single;
+        final entries = [
+          ..._composing(states[bookId]!, names, bookId, r.entryIdsA, due.id),
+          if (otherHeld && otherDue != null)
+            ..._composing(
+              states[other]!,
+              names,
+              other,
+              r.entryIdsB,
+              otherDue.id,
+            ),
+        ]..sort((x, y) => x.date.compareTo(y.date));
+        out.add(
+          ReconciliationPair(
+            bookId: bookId,
+            bookName: names[bookId] ?? '',
+            accountId: due.id,
+            counterpartBookId: other,
+            counterpartBookName: otherHeld ? names[other] : null,
+            counterpartAccountId: otherDue?.id,
+            status: r.status,
+            netPaise: r.net.raw,
+            sidePaise: states[bookId]!.balances[due.id].raw,
+            inTransit: entries.any((e) => e.inTransit),
+            entries: entries,
+          ),
+        );
+      }
+    }
+    return out;
+  }
+
+  /// [reconciliation], live — the stream S8.3 renders and S1 reads its
+  /// *In transit* line from.
+  Stream<List<ReconciliationPair>> watchReconciliation() =>
+      db.select(db.balances).watch().asyncMap((_) => reconciliation());
+
+  /// The entries of [state] composing one side of a pair, oldest first.
+  ///
+  /// The ids are the engine's ([PairReconciliation.entryIdsA] / `B`); this
+  /// only dresses them with what a reader needs on screen. *In transit* is the
+  /// engine's own predicate, given the half it has: [InterBook.isInTransit] is
+  /// "either of these halves still carries an open review flag", so asking it
+  /// about one half asks exactly whether *that* half is still awaiting its
+  /// approver. A pair is in transit when any of its halves is.
+  List<ReconciliationEntry> _composing(
+    LedgerState state,
+    Map<String, String> names,
+    String bookId,
+    List<String> ids,
+    String accountId,
+  ) {
+    final wanted = ids.toSet();
+    return [
+      for (final p in state.counted)
+        if (wanted.contains(p.entry.id))
+          ReconciliationEntry(
+            entryId: p.entry.id,
+            bookId: bookId,
+            bookName: names[bookId] ?? '',
+            date: p.entry.accountingDate,
+            amountPaise: p.entry.lines
+                .where((l) => l.accountId == accountId)
+                .fold(0, (sum, l) => sum + l.amount.raw),
+            inTransit: InterBook.isInTransit(p, p),
+            note: p.entry.note,
+          ),
+    ];
+  }
+
+  Account? _dueFacing(Chart chart, String counterpartBookId) {
+    for (final a in chart.byClass(AccountClass.equitySystem)) {
+      if (a.systemRole == SystemRole.dueToFrom &&
+          a.counterpartBookId == counterpartBookId) {
+        return a;
+      }
+    }
+    return null;
+  }
+
+  Future<String?> _bookName(String bookId) async => (await (db.select(
+    db.booksP,
+  )..where((b) => b.id.equals(bookId))).getSingleOrNull())?.name;
+
+  Future<void> _checkMovement(String a, String b, int paise) async {
+    if (paise <= 0) {
+      throw const InterBookRefused(
+        InterBookRefusal.amountNotPositive,
+        'an inter-book movement moves a positive number of paise',
+      );
+    }
+    if (a == b) {
+      throw const InterBookRefused(
+        InterBookRefusal.sameBook,
+        'inter-book movement needs two different books (02 §6)',
+      );
+    }
+    final held = (await mirror.bookIds()).toSet();
+    for (final id in [a, b]) {
+      if (!held.contains(id)) {
+        throw InterBookRefused(
+          InterBookRefusal.bookNotHeld,
+          'this device holds no key for book $id (04 §5.2)',
+        );
+      }
+    }
+  }
+
+  Account _money(Chart chart, String accountId) {
+    final a = chart.maybeAccount(accountId);
+    if (a == null || !a.isMoney) {
+      throw InterBookRefused(
+        InterBookRefusal.notAMoneyAccount,
+        '$accountId is not a money account of ${chart.bookId}',
+      );
+    }
+    return a;
+  }
+
+  Account _expense(Chart chart, String accountId) {
+    final a = chart.maybeAccount(accountId);
+    if (a == null || a.accountClass != AccountClass.categoryExpense) {
+      throw InterBookRefused(
+        InterBookRefusal.notAnExpenseCategory,
+        '$accountId is not an expense category of ${chart.bookId}',
+      );
+    }
+    return a;
   }
 
   /// Zeroises in-memory key material. The database is the caller's to close.
