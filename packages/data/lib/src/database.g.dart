@@ -9935,6 +9935,384 @@ class DailySnapshotsCompanion extends UpdateCompanion<DailySnapshot> {
   }
 }
 
+class $CloseProgressLocalTable extends CloseProgressLocal
+    with TableInfo<$CloseProgressLocalTable, CloseProgressLocalData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CloseProgressLocalTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _bookIdMeta = const VerificationMeta('bookId');
+  @override
+  late final GeneratedColumn<String> bookId = GeneratedColumn<String>(
+    'book_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _yearMeta = const VerificationMeta('year');
+  @override
+  late final GeneratedColumn<int> year = GeneratedColumn<int>(
+    'year',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _monthMeta = const VerificationMeta('month');
+  @override
+  late final GeneratedColumn<int> month = GeneratedColumn<int>(
+    'month',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _stepMeta = const VerificationMeta('step');
+  @override
+  late final GeneratedColumn<String> step = GeneratedColumn<String>(
+    'step',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _confirmedBanksJsonMeta =
+      const VerificationMeta('confirmedBanksJson');
+  @override
+  late final GeneratedColumn<String> confirmedBanksJson =
+      GeneratedColumn<String>(
+        'confirmed_banks_json',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('[]'),
+      );
+  @override
+  List<GeneratedColumn> get $columns => [
+    bookId,
+    year,
+    month,
+    step,
+    confirmedBanksJson,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'close_progress_local';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CloseProgressLocalData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('book_id')) {
+      context.handle(
+        _bookIdMeta,
+        bookId.isAcceptableOrUnknown(data['book_id']!, _bookIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_bookIdMeta);
+    }
+    if (data.containsKey('year')) {
+      context.handle(
+        _yearMeta,
+        year.isAcceptableOrUnknown(data['year']!, _yearMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_yearMeta);
+    }
+    if (data.containsKey('month')) {
+      context.handle(
+        _monthMeta,
+        month.isAcceptableOrUnknown(data['month']!, _monthMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_monthMeta);
+    }
+    if (data.containsKey('step')) {
+      context.handle(
+        _stepMeta,
+        step.isAcceptableOrUnknown(data['step']!, _stepMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_stepMeta);
+    }
+    if (data.containsKey('confirmed_banks_json')) {
+      context.handle(
+        _confirmedBanksJsonMeta,
+        confirmedBanksJson.isAcceptableOrUnknown(
+          data['confirmed_banks_json']!,
+          _confirmedBanksJsonMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {bookId, year, month};
+  @override
+  CloseProgressLocalData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CloseProgressLocalData(
+      bookId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}book_id'],
+      )!,
+      year: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}year'],
+      )!,
+      month: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}month'],
+      )!,
+      step: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}step'],
+      )!,
+      confirmedBanksJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}confirmed_banks_json'],
+      )!,
+    );
+  }
+
+  @override
+  $CloseProgressLocalTable createAlias(String alias) {
+    return $CloseProgressLocalTable(attachedDatabase, alias);
+  }
+}
+
+class CloseProgressLocalData extends DataClass
+    implements Insertable<CloseProgressLocalData> {
+  /// Book being closed.
+  final String bookId;
+
+  /// Calendar year of the period.
+  final int year;
+
+  /// Month 1–12 of the period.
+  final int month;
+
+  /// The wizard step reached, by name (`countCash` … `confirmAndLock`).
+  final String step;
+
+  /// The bank A/Cs already confirmed, as a JSON array of account ids. A list
+  /// rather than a table: it is read and written whole, always.
+  final String confirmedBanksJson;
+  const CloseProgressLocalData({
+    required this.bookId,
+    required this.year,
+    required this.month,
+    required this.step,
+    required this.confirmedBanksJson,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['book_id'] = Variable<String>(bookId);
+    map['year'] = Variable<int>(year);
+    map['month'] = Variable<int>(month);
+    map['step'] = Variable<String>(step);
+    map['confirmed_banks_json'] = Variable<String>(confirmedBanksJson);
+    return map;
+  }
+
+  CloseProgressLocalCompanion toCompanion(bool nullToAbsent) {
+    return CloseProgressLocalCompanion(
+      bookId: Value(bookId),
+      year: Value(year),
+      month: Value(month),
+      step: Value(step),
+      confirmedBanksJson: Value(confirmedBanksJson),
+    );
+  }
+
+  factory CloseProgressLocalData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CloseProgressLocalData(
+      bookId: serializer.fromJson<String>(json['bookId']),
+      year: serializer.fromJson<int>(json['year']),
+      month: serializer.fromJson<int>(json['month']),
+      step: serializer.fromJson<String>(json['step']),
+      confirmedBanksJson: serializer.fromJson<String>(
+        json['confirmedBanksJson'],
+      ),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'bookId': serializer.toJson<String>(bookId),
+      'year': serializer.toJson<int>(year),
+      'month': serializer.toJson<int>(month),
+      'step': serializer.toJson<String>(step),
+      'confirmedBanksJson': serializer.toJson<String>(confirmedBanksJson),
+    };
+  }
+
+  CloseProgressLocalData copyWith({
+    String? bookId,
+    int? year,
+    int? month,
+    String? step,
+    String? confirmedBanksJson,
+  }) => CloseProgressLocalData(
+    bookId: bookId ?? this.bookId,
+    year: year ?? this.year,
+    month: month ?? this.month,
+    step: step ?? this.step,
+    confirmedBanksJson: confirmedBanksJson ?? this.confirmedBanksJson,
+  );
+  CloseProgressLocalData copyWithCompanion(CloseProgressLocalCompanion data) {
+    return CloseProgressLocalData(
+      bookId: data.bookId.present ? data.bookId.value : this.bookId,
+      year: data.year.present ? data.year.value : this.year,
+      month: data.month.present ? data.month.value : this.month,
+      step: data.step.present ? data.step.value : this.step,
+      confirmedBanksJson: data.confirmedBanksJson.present
+          ? data.confirmedBanksJson.value
+          : this.confirmedBanksJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CloseProgressLocalData(')
+          ..write('bookId: $bookId, ')
+          ..write('year: $year, ')
+          ..write('month: $month, ')
+          ..write('step: $step, ')
+          ..write('confirmedBanksJson: $confirmedBanksJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(bookId, year, month, step, confirmedBanksJson);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CloseProgressLocalData &&
+          other.bookId == this.bookId &&
+          other.year == this.year &&
+          other.month == this.month &&
+          other.step == this.step &&
+          other.confirmedBanksJson == this.confirmedBanksJson);
+}
+
+class CloseProgressLocalCompanion
+    extends UpdateCompanion<CloseProgressLocalData> {
+  final Value<String> bookId;
+  final Value<int> year;
+  final Value<int> month;
+  final Value<String> step;
+  final Value<String> confirmedBanksJson;
+  final Value<int> rowid;
+  const CloseProgressLocalCompanion({
+    this.bookId = const Value.absent(),
+    this.year = const Value.absent(),
+    this.month = const Value.absent(),
+    this.step = const Value.absent(),
+    this.confirmedBanksJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CloseProgressLocalCompanion.insert({
+    required String bookId,
+    required int year,
+    required int month,
+    required String step,
+    this.confirmedBanksJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : bookId = Value(bookId),
+       year = Value(year),
+       month = Value(month),
+       step = Value(step);
+  static Insertable<CloseProgressLocalData> custom({
+    Expression<String>? bookId,
+    Expression<int>? year,
+    Expression<int>? month,
+    Expression<String>? step,
+    Expression<String>? confirmedBanksJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (bookId != null) 'book_id': bookId,
+      if (year != null) 'year': year,
+      if (month != null) 'month': month,
+      if (step != null) 'step': step,
+      if (confirmedBanksJson != null)
+        'confirmed_banks_json': confirmedBanksJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CloseProgressLocalCompanion copyWith({
+    Value<String>? bookId,
+    Value<int>? year,
+    Value<int>? month,
+    Value<String>? step,
+    Value<String>? confirmedBanksJson,
+    Value<int>? rowid,
+  }) {
+    return CloseProgressLocalCompanion(
+      bookId: bookId ?? this.bookId,
+      year: year ?? this.year,
+      month: month ?? this.month,
+      step: step ?? this.step,
+      confirmedBanksJson: confirmedBanksJson ?? this.confirmedBanksJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (bookId.present) {
+      map['book_id'] = Variable<String>(bookId.value);
+    }
+    if (year.present) {
+      map['year'] = Variable<int>(year.value);
+    }
+    if (month.present) {
+      map['month'] = Variable<int>(month.value);
+    }
+    if (step.present) {
+      map['step'] = Variable<String>(step.value);
+    }
+    if (confirmedBanksJson.present) {
+      map['confirmed_banks_json'] = Variable<String>(confirmedBanksJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CloseProgressLocalCompanion(')
+          ..write('bookId: $bookId, ')
+          ..write('year: $year, ')
+          ..write('month: $month, ')
+          ..write('step: $step, ')
+          ..write('confirmedBanksJson: $confirmedBanksJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$LedgerDatabase extends GeneratedDatabase {
   _$LedgerDatabase(QueryExecutor e) : super(e);
   $LedgerDatabaseManager get managers => $LedgerDatabaseManager(this);
@@ -9964,6 +10342,8 @@ abstract class _$LedgerDatabase extends GeneratedDatabase {
   late final $RulesPTable rulesP = $RulesPTable(this);
   late final $BalancesTable balances = $BalancesTable(this);
   late final $DailySnapshotsTable dailySnapshots = $DailySnapshotsTable(this);
+  late final $CloseProgressLocalTable closeProgressLocal =
+      $CloseProgressLocalTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -9990,6 +10370,7 @@ abstract class _$LedgerDatabase extends GeneratedDatabase {
     rulesP,
     balances,
     dailySnapshots,
+    closeProgressLocal,
   ];
 }
 
@@ -15217,6 +15598,232 @@ typedef $$DailySnapshotsTableProcessedTableManager =
       DailySnapshot,
       PrefetchHooks Function()
     >;
+typedef $$CloseProgressLocalTableCreateCompanionBuilder =
+    CloseProgressLocalCompanion Function({
+      required String bookId,
+      required int year,
+      required int month,
+      required String step,
+      Value<String> confirmedBanksJson,
+      Value<int> rowid,
+    });
+typedef $$CloseProgressLocalTableUpdateCompanionBuilder =
+    CloseProgressLocalCompanion Function({
+      Value<String> bookId,
+      Value<int> year,
+      Value<int> month,
+      Value<String> step,
+      Value<String> confirmedBanksJson,
+      Value<int> rowid,
+    });
+
+class $$CloseProgressLocalTableFilterComposer
+    extends Composer<_$LedgerDatabase, $CloseProgressLocalTable> {
+  $$CloseProgressLocalTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get bookId => $composableBuilder(
+    column: $table.bookId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get year => $composableBuilder(
+    column: $table.year,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get month => $composableBuilder(
+    column: $table.month,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get step => $composableBuilder(
+    column: $table.step,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get confirmedBanksJson => $composableBuilder(
+    column: $table.confirmedBanksJson,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CloseProgressLocalTableOrderingComposer
+    extends Composer<_$LedgerDatabase, $CloseProgressLocalTable> {
+  $$CloseProgressLocalTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get bookId => $composableBuilder(
+    column: $table.bookId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get year => $composableBuilder(
+    column: $table.year,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get month => $composableBuilder(
+    column: $table.month,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get step => $composableBuilder(
+    column: $table.step,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get confirmedBanksJson => $composableBuilder(
+    column: $table.confirmedBanksJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CloseProgressLocalTableAnnotationComposer
+    extends Composer<_$LedgerDatabase, $CloseProgressLocalTable> {
+  $$CloseProgressLocalTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get bookId =>
+      $composableBuilder(column: $table.bookId, builder: (column) => column);
+
+  GeneratedColumn<int> get year =>
+      $composableBuilder(column: $table.year, builder: (column) => column);
+
+  GeneratedColumn<int> get month =>
+      $composableBuilder(column: $table.month, builder: (column) => column);
+
+  GeneratedColumn<String> get step =>
+      $composableBuilder(column: $table.step, builder: (column) => column);
+
+  GeneratedColumn<String> get confirmedBanksJson => $composableBuilder(
+    column: $table.confirmedBanksJson,
+    builder: (column) => column,
+  );
+}
+
+class $$CloseProgressLocalTableTableManager
+    extends
+        RootTableManager<
+          _$LedgerDatabase,
+          $CloseProgressLocalTable,
+          CloseProgressLocalData,
+          $$CloseProgressLocalTableFilterComposer,
+          $$CloseProgressLocalTableOrderingComposer,
+          $$CloseProgressLocalTableAnnotationComposer,
+          $$CloseProgressLocalTableCreateCompanionBuilder,
+          $$CloseProgressLocalTableUpdateCompanionBuilder,
+          (
+            CloseProgressLocalData,
+            BaseReferences<
+              _$LedgerDatabase,
+              $CloseProgressLocalTable,
+              CloseProgressLocalData
+            >,
+          ),
+          CloseProgressLocalData,
+          PrefetchHooks Function()
+        > {
+  $$CloseProgressLocalTableTableManager(
+    _$LedgerDatabase db,
+    $CloseProgressLocalTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CloseProgressLocalTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CloseProgressLocalTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CloseProgressLocalTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> bookId = const Value.absent(),
+                Value<int> year = const Value.absent(),
+                Value<int> month = const Value.absent(),
+                Value<String> step = const Value.absent(),
+                Value<String> confirmedBanksJson = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CloseProgressLocalCompanion(
+                bookId: bookId,
+                year: year,
+                month: month,
+                step: step,
+                confirmedBanksJson: confirmedBanksJson,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String bookId,
+                required int year,
+                required int month,
+                required String step,
+                Value<String> confirmedBanksJson = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CloseProgressLocalCompanion.insert(
+                bookId: bookId,
+                year: year,
+                month: month,
+                step: step,
+                confirmedBanksJson: confirmedBanksJson,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$CloseProgressLocalTable, CloseProgressLocalData>(
+                    table,
+                  ),
+                  BaseReferences<
+                    _$LedgerDatabase,
+                    $CloseProgressLocalTable,
+                    CloseProgressLocalData
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CloseProgressLocalTableProcessedTableManager =
+    ProcessedTableManager<
+      _$LedgerDatabase,
+      $CloseProgressLocalTable,
+      CloseProgressLocalData,
+      $$CloseProgressLocalTableFilterComposer,
+      $$CloseProgressLocalTableOrderingComposer,
+      $$CloseProgressLocalTableAnnotationComposer,
+      $$CloseProgressLocalTableCreateCompanionBuilder,
+      $$CloseProgressLocalTableUpdateCompanionBuilder,
+      (
+        CloseProgressLocalData,
+        BaseReferences<
+          _$LedgerDatabase,
+          $CloseProgressLocalTable,
+          CloseProgressLocalData
+        >,
+      ),
+      CloseProgressLocalData,
+      PrefetchHooks Function()
+    >;
 
 class $LedgerDatabaseManager {
   final _$LedgerDatabase _db;
@@ -15263,4 +15870,6 @@ class $LedgerDatabaseManager {
       $$BalancesTableTableManager(_db, _db.balances);
   $$DailySnapshotsTableTableManager get dailySnapshots =>
       $$DailySnapshotsTableTableManager(_db, _db.dailySnapshots);
+  $$CloseProgressLocalTableTableManager get closeProgressLocal =>
+      $$CloseProgressLocalTableTableManager(_db, _db.closeProgressLocal);
 }

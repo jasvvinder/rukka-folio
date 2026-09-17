@@ -115,32 +115,71 @@ void main() {
   });
 
   group('schema v2 (ADR 2026-09-09d §4)', () {
-    test(
-      'E-09d-1 books_p carries start_date, nullable, and user_version is 2',
-      () async {
-        final db = await openMemory();
-        final cols = await db.customSelect('PRAGMA table_info(books_p)').get();
-        final byName = {
-          for (final c in cols) c.read<String>('name'): c.read<int>('notnull'),
-        };
-        expect(byName, contains('start_date'));
-        expect(
-          byName['start_date'],
-          0,
-          reason: 'nullable: older books carry none',
-        );
-        final version = await db
-            .customSelect('PRAGMA user_version')
-            .getSingle();
-        expect(version.data.values.first, 2);
-        await db.close();
-      },
-    );
+    test('E-09d-1 books_p carries start_date, nullable, and the schema is at '
+        'least v2', () async {
+      final db = await openMemory();
+      final cols = await db.customSelect('PRAGMA table_info(books_p)').get();
+      final byName = {
+        for (final c in cols) c.read<String>('name'): c.read<int>('notnull'),
+      };
+      expect(byName, contains('start_date'));
+      expect(
+        byName['start_date'],
+        0,
+        reason: 'nullable: older books carry none',
+      );
+      final version = await db.customSelect('PRAGMA user_version').getSingle();
+      expect(version.data.values.first, ledgerSchemaVersion);
+      await db.close();
+    });
 
     // ⚠️ E-09d-2 (v1 → v2 in-place upgrade) needs a full v1 schema fixture —
     // drift's schema-dump tooling, not a hand-rolled table — and is tracked in
     // ADR 2026-09-09d Open. The forward step itself is a single
     // `m.addColumn(booksP, booksP.startDate)` guarded by `from < 2`.
+  });
+
+  // Schema v3 — 07 §13 *Resumable* 🔒. `close_progress_local` is the one
+  // device-local table that is neither Layer 1 nor Layer 2: no envelope, no
+  // push, and **not** dropped by Recompute, because nothing in the envelope
+  // stream could put it back.
+  group('schema v3 (07 §13 Resumable 🔒)', () {
+    test('E-03-46 close_progress_local exists, is keyed by (book, year, month) '
+        'and the schema version is 3', () async {
+      final db = await openMemory();
+      final cols = await db
+          .customSelect('PRAGMA table_info(close_progress_local)')
+          .get();
+      final names = {for (final c in cols) c.read<String>('name')};
+      expect(
+        names,
+        containsAll(<String>{
+          'book_id',
+          'year',
+          'month',
+          'step',
+          'confirmed_banks_json',
+        }),
+      );
+      final pk = {
+        for (final c in cols)
+          if (c.read<int>('pk') > 0) c.read<String>('name'),
+      };
+      expect(pk, {'book_id', 'year', 'month'});
+      final version = await db.customSelect('PRAGMA user_version').getSingle();
+      expect(version.data.values.first, 3);
+      expect(ledgerSchemaVersion, 3);
+      await db.close();
+    });
+
+    test(
+      'E-03-46 it is neither layer: Recompute never drops it, and it carries '
+      'no envelope, no signature and no push state',
+      () async {
+        expect(layer1Tables, isNot(contains('close_progress_local')));
+        expect(layer2Tables, isNot(contains('close_progress_local')));
+      },
+    );
   });
 
   group('open (03 §5, ADR 05c §6)', () {

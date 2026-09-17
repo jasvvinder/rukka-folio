@@ -655,6 +655,44 @@ class DailySnapshots extends Table {
   Set<Column<Object>> get primaryKey => {accountId, date};
 }
 
+/// Where a closer had got to in the month-close wizard (07 §13 *Resumable*
+/// 🔒, 02 §8).
+///
+/// **Device-local, and neither layer.** It is not Layer 1 — it is no
+/// envelope, it is never signed, never pushed and never seen by another
+/// device; a close half-done on one phone is that phone's business. It is not
+/// Layer 2 either — nothing derives it from the envelope stream, so Recompute
+/// must *not* drop it: a rebuild that made the shopkeeper re-count eight
+/// accounts would defeat the rule this table exists for. Like the rest of the
+/// client store below Layer 1 it is excluded from device backup (03 §3.2):
+/// losing it costs a few taps, never a figure.
+///
+/// One row per (book, month); the row is the whole of [CloseProgress].
+class CloseProgressLocal extends Table {
+  @override
+  String get tableName => 'close_progress_local';
+
+  /// Book being closed.
+  TextColumn get bookId => text()();
+
+  /// Calendar year of the period.
+  IntColumn get year => integer()();
+
+  /// Month 1–12 of the period.
+  IntColumn get month => integer()();
+
+  /// The wizard step reached, by name (`countCash` … `confirmAndLock`).
+  TextColumn get step => text()();
+
+  /// The bank A/Cs already confirmed, as a JSON array of account ids. A list
+  /// rather than a table: it is read and written whole, always.
+  TextColumn get confirmedBanksJson =>
+      text().withDefault(const Constant('[]'))();
+
+  @override
+  Set<Column<Object>> get primaryKey => {bookId, year, month};
+}
+
 /// Every table, Layer 1 then Layer 2 — the order Recompute and dumps use.
 const layer1Tables = [
   'envelopes_local',

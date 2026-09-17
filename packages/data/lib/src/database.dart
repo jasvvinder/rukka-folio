@@ -10,7 +10,7 @@ part 'database.g.dart';
 /// Current client schema version (03 §5: tested upgrade paths from every
 /// shipped version; a failed migration fails closed).
 /// v2 (ADR 2026-09-09d §4): `books_p.start_date`.
-const int ledgerSchemaVersion = 2;
+const int ledgerSchemaVersion = 3;
 
 /// The client database: Layer 1 mirror + outbox and Layer 2 projections.
 @DriftDatabase(
@@ -36,6 +36,7 @@ const int ledgerSchemaVersion = 2;
     RulesP,
     Balances,
     DailySnapshots,
+    CloseProgressLocal,
   ],
 )
 class LedgerDatabase extends _$LedgerDatabase {
@@ -69,6 +70,13 @@ class LedgerDatabase extends _$LedgerDatabase {
         // book_config. Nullable, so existing rows need no backfill; the next
         // Recompute fills it for books whose config carries one.
         await m.addColumn(booksP, booksP.startDate);
+      }
+      if (from < 3) {
+        // v3 — 07 §13 *Resumable* 🔒: where the closer had got to in the
+        // month-close wizard. Device-local, neither Layer 1 nor Layer 2, so a
+        // fresh empty table is the whole migration — there is nothing to
+        // backfill and nothing to recompute it from.
+        await m.createTable(closeProgressLocal);
       }
       for (final sql in schemaStatements) {
         await customStatement(sql);
