@@ -76,6 +76,91 @@ final class RecordRejected extends RecordVerdict {
   final String reason;
 }
 
+/// The at-rest form of a `wrapped_keys` row this device just accepted
+/// (03 §3.1 `key_cache`): the sealed box **exactly as it came off the wire**,
+/// already wrapped to this user's own UMK.
+///
+/// Two rules are carried by construction rather than by a check downstream:
+/// the blob is never re-wrapped, so nothing here can address a key to an
+/// unverified fingerprint (04 §8.2 🔒), and the unwrapped key is not in this
+/// object at all, so what rests is wrapped (03 §3.1). [recipient] is this
+/// install's own UMK fingerprint — the guard unsealed the blob with that UMK,
+/// which is what proves it.
+@immutable
+final class AcceptedBookKey {
+  /// Creates the material.
+  const AcceptedBookKey({
+    required this.ref,
+    required this.suiteVersion,
+    required this.recipient,
+    required this.sealed,
+  });
+
+  /// `(book_id, key_version)`.
+  final BookKeyRef ref;
+
+  /// `suite_version` of the seal.
+  final int suiteVersion;
+
+  /// The fingerprint the blob is sealed to — this user's own.
+  final Fingerprint recipient;
+
+  /// The `crypto_box_seal` ciphertext, unchanged.
+  final Uint8List sealed;
+}
+
+/// What [EnvelopeGuard.acceptWrappedKey] did with a `wrapped_keys` row.
+@immutable
+sealed class KeyAcceptance {
+  const KeyAcceptance();
+}
+
+/// Unwrapped and stored for the first time: [key] must reach `key_cache`
+/// (03 §3.1) or it is lost at the next launch, because the meta cursor has
+/// already passed the row.
+final class KeyAccepted extends KeyAcceptance {
+  /// Creates the acceptance.
+  const KeyAccepted(this.key);
+
+  /// What to persist.
+  final AcceptedBookKey key;
+
+  /// The key's reference.
+  BookKeyRef get ref => key.ref;
+}
+
+/// This `(book, version)` was already held — `key_wait` still drains, and
+/// nothing is written: the copy at rest is the one that opened.
+final class KeyAlreadyHeld extends KeyAcceptance {
+  /// Creates the acceptance.
+  const KeyAlreadyHeld(this.ref);
+
+  /// The key's reference.
+  final BookKeyRef ref;
+}
+
+/// Not this device's key, or not a key at all: nothing stored, nothing
+/// persisted, nothing drained. [reason] is a constant, never wire content.
+final class KeyNotAccepted extends KeyAcceptance {
+  /// Creates the outcome.
+  const KeyNotAccepted(this.reason);
+
+  /// `not_for_us`, `unsealable`, `incomplete_row`, `no_umk` or `wrong_kind`.
+  final String reason;
+}
+
+/// Where an accepted key is written so it survives the process (03 §3.1).
+///
+/// The engine holds this as a seam rather than writing `key_cache` itself:
+/// the at-rest layout of the blob belongs to the app's ledger, which is what
+/// reads it back at open — `sync_engine` learns no storage layout, and the
+/// two halves cannot drift apart into a row the reader cannot decode.
+abstract interface class AcceptedKeySink {
+  /// Persists [key]. Called once per newly accepted `(book, version)`, before
+  /// `key_wait` drains, so a crash mid-drain still leaves the key on disk.
+  Future<void> keyAccepted(AcceptedBookKey key);
+}
+
 /// The cryptographic seam the engine speaks through. One instance per tenant.
 abstract interface class EnvelopeGuard {
   /// `blob_hash` function (BLAKE2b-256 in production).
@@ -101,9 +186,10 @@ abstract interface class EnvelopeGuard {
   WireEnvelope? reseal(WireEnvelope envelope, {required int toVersion});
 
   /// Unwraps a `wrapped_keys` row addressed to this device's user and stores
-  /// the key. Returns the key reference on success, null when the row is not
-  /// for us or fails to open.
-  BookKeyRef? acceptWrappedKey(WireWrappedKey key);
+  /// the key. The result says whether anything changed: only [KeyAccepted]
+  /// carries material to persist, and it is returned exactly once per
+  /// `(book, version)` — a row seen again is [KeyAlreadyHeld].
+  KeyAcceptance acceptWrappedKey(WireWrappedKey key);
 
   /// Builds the certificate a `device_certs` row carries (with the public keys
   /// from its `devices` row), or null when the row cannot be parsed.
@@ -268,39 +354,47 @@ final class CryptoGuard implements EnvelopeGuard {
   }
 
   @override
-  BookKeyRef? acceptWrappedKey(WireWrappedKey key) {
+  KeyAcceptance acceptWrappedKey(WireWrappedKey key) {
     final me = umk;
-    if (me == null) return null;
-    if (key.kind != WireWrappedKey.kindBkForUser) return null;
+    if (me == null) return const KeyNotAccepted('no_umk');
+    if (key.kind != WireWrappedKey.kindBkForUser) {
+      return const KeyNotAccepted('wrong_kind');
+    }
     final bookId = key.bookId;
     final version = key.keyVersion;
-    if (bookId == null || version == null) return null;
+    if (bookId == null || version == null) {
+      return const KeyNotAccepted('incomplete_row');
+    }
     // 03 §2.2 has no recipient column: the row is ours by `user_id` (the
     // engine filters) and the unseal proves it. A fingerprint, when a sender
     // does include one, must be ours too.
     final mine = Fingerprint.of(suite, me.public);
     final fp = key.recipientFingerprint;
     if (fp != null && (fp.length != 32 || Fingerprint(fp) != mine)) {
-      return null;
+      return const KeyNotAccepted('not_for_us');
     }
     final recipient = mine;
     final ref = BookKeyRef(bookId: bookId, keyVersion: version);
-    if (keys.has(bookId, version)) return ref;
+    if (keys.has(bookId, version)) return KeyAlreadyHeld(ref);
+    final sealed = SealedBlob(recipient: recipient, bytes: key.blob);
     try {
       keys.put(
-        unwrapBookKey(
-          suite,
-          WrappedBookKey(
-            ref: ref,
-            sealed: SealedBlob(recipient: recipient, bytes: key.blob),
-          ),
-          me,
-        ),
+        unwrapBookKey(suite, WrappedBookKey(ref: ref, sealed: sealed), me),
       );
     } on UnsealFailed {
-      return null;
+      return const KeyNotAccepted('unsealable');
     }
-    return ref;
+    // The wire blob unchanged: it is already sealed to this user's own UMK,
+    // and re-wrapping it anywhere would be wrapping to a fingerprint nothing
+    // verified (04 §8.2 🔒).
+    return KeyAccepted(
+      AcceptedBookKey(
+        ref: ref,
+        suiteVersion: sealed.suiteVersion,
+        recipient: recipient,
+        sealed: key.blob,
+      ),
+    );
   }
 
   @override

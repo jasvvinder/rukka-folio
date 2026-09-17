@@ -18,6 +18,12 @@ abstract final class SignedRecordKind {
   /// Membership status change (05b §1).
   static const String membershipStatus = 'membership_status';
 
+  /// An admin device authorising an invite (06 §7; server migration 0008 lists
+  /// it in `RECORD_KINDS`). Payload `{roles, nonce}` — the invite is believed
+  /// only when this record backs it, exactly as a verification is (ADR
+  /// 2026-05d §7).
+  static const String invite = 'invite';
+
   /// Per-book role or limit (05b §1).
   static const String bookRole = 'book_role';
 
@@ -43,6 +49,7 @@ abstract final class SignedRecordKind {
   /// Every kind this build knows.
   static const Set<String> all = {
     membershipStatus,
+    invite,
     bookRole,
     memberRemoval,
     deviceRevocation,

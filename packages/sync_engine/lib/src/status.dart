@@ -131,4 +131,11 @@ enum AttentionReason {
 
   /// The server demands a newer app (426).
   updateRequired,
+
+  /// The TLS pin did not match (05 §1 🔒, ADR 2026-09-15 §7 🔒): the app could
+  /// not confirm it was talking to the real server and stopped rather than
+  /// risk it. A cause inside this state, not a sixth state — and the Inbox row
+  /// offers no retry that bypasses anything, because there is nothing to
+  /// bypass.
+  pinFailed,
 }

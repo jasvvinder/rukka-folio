@@ -79,7 +79,7 @@ Each device generates an Ed25519 signing pair **inside hardware keystore** (Stro
 
 **Platform nuance:** Android Keystore entries are destroyed on uninstall → reinstall on the same Android phone is a **new device**. iOS Keychain items survive reinstall → attempt Keychain restore first; only fall back to recovery if absent.
 
-### 3.4 Device certificates — the trust chain 🔒 ⟦tests: B-04-34, B-04-35, B-04-36, B-04-37, B-04-39, B-04-40, B-04-41⟧
+### 3.4 Device certificates — the trust chain 🔒 ⟦tests: B-04-34, B-04-35, B-04-36, B-04-37, B-04-39, B-04-40, B-04-41, F1-05-51, F1-05-52, F1-05-53, F1-05-54, F1-05-55, F1-05-56⟧
 The server's word about which devices belong to a user is never trusted. Instead:
 
 - At signup, the first device holds the UMK and **self-certifies**: `cert = Sign_UMK_ed(device_id ‖ device_pub_ed ‖ device_pub_x ‖ issued_at)`.

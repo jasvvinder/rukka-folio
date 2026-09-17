@@ -1,29 +1,27 @@
-// The app's one HTTP door (05 §1, 06 §2–§4). `features/auth`'s [AuthTransport]
-// (POST only) and `features/members`' [MembersTransport] (GET + POST) were the
-// same seam written twice, with two response types and two "the request never
-// answered" exceptions. This file owns the seam; each feature's interface is
-// satisfied by a one-line adapter over it, so there is exactly one place in the
-// app that calls `package:http` for a JSON route.
+// The app's one HTTP door (05 §1, 06 §2–§4).
 //
-// The two feature interfaces could not simply be merged by one class: both
-// declare `post(Uri, {headers, body})` with *different* return types
-// ([AuthHttpResponse] vs [MembersHttpResponse]), which Dart cannot implement
-// together. Deleting the two declarations and pointing both features at
-// [RkHttpTransport] is a three-file edit inside `features/auth` and
-// `features/members` — directories this lane does not own, and a lane running
-// beside it might. The adapters below remove the duplicated *behaviour* today;
-// the duplicated *declarations* are one deletion away and are named in the lane
-// report.
+// `features/auth` and `features/members` each declared their own seam — two
+// interfaces, two response classes and two "the request never answered"
+// exceptions, differing in nothing but their names and the fact that auth
+// never GETs. This file now owns all of it: one [RkHttpResponse], one
+// [RkHttpFailure], and one interface in two widths — [RkHttpPoster] (POST
+// only, what the auth client needs) and [RkHttpTransport] (GET + POST, what
+// the members client needs), the second a subtype of the first. Each
+// feature's names survive as aliases of these (`auth_transport.dart`,
+// `members_api.dart`), so callers and the tests that fake the seam read the
+// same as before while there is exactly one declaration behind them.
+//
+// The two adapters below are therefore pass-throughs, kept because the
+// composition root names them (`bootstrap.dart`, which this lane does not
+// own) and because a narrowing adapter is the honest way to hand a GET+POST
+// transport to something that may only POST. There is nothing left for them
+// to convert.
 //
 // Nothing here logs: bodies carry phone numbers, OTP codes and bearer tokens
 // (CLAUDE.md rule 4).
 import 'dart:convert';
 
 import 'package:http/http.dart' as http;
-
-import '../../features/auth/auth_transport.dart';
-import '../../features/members/members_api.dart'
-    show MembersHttpResponse, MembersTransport, MembersTransportException;
 
 /// A minimal response: status and UTF-8 body.
 final class RkHttpResponse {
@@ -51,18 +49,23 @@ final class RkHttpFailure implements Exception {
   String toString() => 'RkHttpFailure';
 }
 
-/// GET/POST JSON. Implementations throw [RkHttpFailure] on transport failure
-/// and never log a URL's body.
-abstract interface class RkHttpTransport {
-  /// GET [url].
-  Future<RkHttpResponse> get(Uri url, {required Map<String, String> headers});
-
-  /// POST [body] (already encoded) to [url].
+/// POST JSON. The narrow half of the door: `features/auth` speaks only this,
+/// because none of 06 §2–§4's routes is a GET.
+abstract interface class RkHttpPoster {
+  /// POST [body] (already encoded) to [url]. Throws [RkHttpFailure] when the
+  /// request never reached a response.
   Future<RkHttpResponse> post(
     Uri url, {
     required Map<String, String> headers,
     required String body,
   });
+}
+
+/// GET + POST JSON. Implementations throw [RkHttpFailure] on transport
+/// failure and never log a body.
+abstract interface class RkHttpTransport implements RkHttpPoster {
+  /// GET [url].
+  Future<RkHttpResponse> get(Uri url, {required Map<String, String> headers});
 }
 
 /// The production transport: `package:http` over an injected [http.Client].
@@ -102,8 +105,10 @@ final class HttpClientRkTransport implements RkHttpTransport {
   }
 }
 
-/// `features/auth`'s seam over [RkHttpTransport].
-final class AuthTransportOverRkHttp implements AuthTransport {
+/// Hands a full [RkHttpTransport] to `features/auth` as the POST-only seam it
+/// declares. Narrowing only — no response is rewrapped and no exception is
+/// translated, because there is one of each.
+final class AuthTransportOverRkHttp implements RkHttpPoster {
   /// Adapts [transport].
   const AuthTransportOverRkHttp(this.transport);
 
@@ -111,23 +116,17 @@ final class AuthTransportOverRkHttp implements AuthTransport {
   final RkHttpTransport transport;
 
   @override
-  Future<AuthHttpResponse> post(
+  Future<RkHttpResponse> post(
     Uri url, {
     required Map<String, String> headers,
     required String body,
-  }) async {
-    final RkHttpResponse r;
-    try {
-      r = await transport.post(url, headers: headers, body: body);
-    } on RkHttpFailure catch (e) {
-      throw AuthTransportException(e.cause);
-    }
-    return AuthHttpResponse(r.statusCode, r.body);
-  }
+  }) => transport.post(url, headers: headers, body: body);
 }
 
-/// `features/members`' seam over [RkHttpTransport].
-final class MembersTransportOverRkHttp implements MembersTransport {
+/// `features/members`' seam **is** [RkHttpTransport] (its `MembersTransport`
+/// is an alias of it), so this is a pass-through kept only because
+/// `bootstrap.dart` names it. Passing the door itself is equivalent.
+final class MembersTransportOverRkHttp implements RkHttpTransport {
   /// Adapts [transport].
   const MembersTransportOverRkHttp(this.transport);
 
@@ -135,29 +134,15 @@ final class MembersTransportOverRkHttp implements MembersTransport {
   final RkHttpTransport transport;
 
   @override
-  Future<MembersHttpResponse> get(
-    Uri url, {
-    required Map<String, String> headers,
-  }) => _run(() => transport.get(url, headers: headers));
+  Future<RkHttpResponse> get(Uri url, {required Map<String, String> headers}) =>
+      transport.get(url, headers: headers);
 
   @override
-  Future<MembersHttpResponse> post(
+  Future<RkHttpResponse> post(
     Uri url, {
     required Map<String, String> headers,
     required String body,
-  }) => _run(() => transport.post(url, headers: headers, body: body));
-
-  Future<MembersHttpResponse> _run(
-    Future<RkHttpResponse> Function() call,
-  ) async {
-    final RkHttpResponse r;
-    try {
-      r = await call();
-    } on RkHttpFailure catch (e) {
-      throw MembersTransportException(e.cause);
-    }
-    return MembersHttpResponse(r.statusCode, r.body);
-  }
+  }) => transport.post(url, headers: headers, body: body);
 }
 
 /// In-memory transport for tests: scripted answers, recorded requests.

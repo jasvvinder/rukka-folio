@@ -153,6 +153,7 @@ final class SyncEngine {
     required this.userId,
     required this.tenantId,
     this.recompute,
+    this.keySink,
     this.jitter,
     Backoff backoff = const Backoff(),
     this.authorGapInboxMs = 24 * 60 * 60 * 1000,
@@ -190,6 +191,15 @@ final class SyncEngine {
 
   /// Projection rebuilder, if any.
   final Recompute? recompute;
+
+  /// Where a newly accepted book key is persisted (03 §3.1 `key_cache`).
+  ///
+  /// Null means the keys this engine accepts live only as long as the
+  /// process: the meta cursor moves past a `wrapped_keys` row once, so on the
+  /// next launch the device would sit in `key_wait` for a book it can never
+  /// open again (05 §4). Every app wiring passes one; the two-client harness,
+  /// whose devices author plaintext and hold no wrapped keys, does not.
+  final AcceptedKeySink? keySink;
 
   /// Backoff jitter source (null = none).
   final Jitter? jitter;
@@ -520,6 +530,17 @@ final class SyncEngine {
     _refusal = null;
     try {
       return await call();
+    } on PinFailed catch (e) {
+      // Not `_offline`: the network may be perfectly healthy and something on
+      // it impersonating the server. The route stops with nothing sent, the
+      // Inbox says so, and no retry bypasses the check (ADR 2026-09-15 §7 🔒).
+      // One event per raising, not per route: all three routes of a round
+      // fail the same check, and the Inbox carries one reason until it is
+      // handled (`dismiss`), after which a fresh failure is a fresh event.
+      if (_open.add(AttentionReason.pinFailed)) {
+        _emit(PinCheckFailed(_now, e.detail));
+      }
+      return null;
     } on TransportOffline {
       _offline = true;
       return null;
@@ -615,10 +636,21 @@ final class SyncEngine {
       await _applyRecord(r);
       if (_mode == EngineMode.wiped) return;
     }
-    // Keys → drain key_wait.
+    // Keys → persist, then drain key_wait. The order is the point: this page
+    // is seen once (the cursor moves past it), so a key that only reached
+    // memory is gone at the next launch and the book is in `key_wait`
+    // forever. Persisting first also means a crash mid-drain re-pulls the
+    // envelopes — which is idempotent — rather than losing the key.
     for (final k in m.wrappedKeys) {
-      final ref = guard.acceptWrappedKey(k);
-      if (ref != null) await _keyArrived(ref);
+      switch (guard.acceptWrappedKey(k)) {
+        case KeyAccepted(:final key):
+          await keySink?.keyAccepted(key);
+          await _keyArrived(key.ref);
+        case KeyAlreadyHeld(:final ref):
+          await _keyArrived(ref);
+        case KeyNotAccepted():
+          break; // not ours, or not a key: nothing happened
+      }
     }
     // Rows are the server's projection: check them against the records.
     for (final d in m.devices) {

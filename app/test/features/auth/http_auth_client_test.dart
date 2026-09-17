@@ -10,6 +10,8 @@ import 'package:rukka_folio/features/auth/auth_transport.dart';
 import 'package:rukka_folio/features/auth/http_auth_client.dart';
 import 'package:rukka_folio/shared/ledger/device_certification.dart';
 import 'package:rukka_folio/shared/ledger/ledger_identity.dart';
+import 'package:rukka_folio/shared/records/device_added_record.dart';
+import 'package:rukka_folio/shared/records/device_record_author.dart';
 import 'package:rukka_folio/shared/seams/auth_client.dart';
 import 'package:rukka_folio/shared/seams/key_store.dart';
 
@@ -145,6 +147,69 @@ final class FakeCertifier implements DeviceCertifier {
   @override
   DeviceCert? get ownDeviceCert => filed.isEmpty ? null : filed.last;
 }
+
+/// Captures the `device_added` records the client files (06 §5 🔒), and can
+/// fail the way the record route can. [filedWhenPosted] is how the ordering
+/// rule is checked: the certificate must already be installed when the record
+/// goes out, or no reader could verify the record's own author (04 §3.4).
+final class CapturingPost {
+  CapturingPost(this.certifier, {this.throws = false});
+
+  final FakeCertifier certifier;
+  final bool throws;
+  final posted = <Map<String, Object?>>[];
+  final filedWhenPosted = <int>[];
+
+  Future<List<String>> call(List<Map<String, Object?>> records) async {
+    filedWhenPosted.add(certifier.filed.length);
+    if (throws) throw Exception('no network');
+    posted.addAll(records);
+    return List.filled(records.length, 'no projection');
+  }
+}
+
+/// The device key pair the client generated and stored, rebuilt from its
+/// seeds — the same replay `DeviceRecordAuthor` does, so a test can verify a
+/// record's signature under the key that actually signed it.
+Future<DevicePublic> storedDevicePublic(
+  CryptoSuite suite,
+  FakeKeyStore keys,
+) async {
+  final queue = <Uint8List>[
+    Uint8List.fromList((await keys.read(KeyIds.deviceSigningKey))!),
+    Uint8List.fromList((await keys.read(KeyIds.deviceAgreementKey))!),
+  ];
+  return DeviceKeyPair.generate(
+    CryptoSuite(suite.sodium, random: (_) => queue.removeAt(0)),
+    deviceId: deviceId,
+  ).public;
+}
+
+/// An announcer that breaks its own contract, to prove the client does not
+/// depend on it keeping it.
+final class ThrowingAnnouncer implements DeviceAddedAnnouncer {
+  @override
+  Future<void> deviceAdded(
+    DeviceCert cert, {
+    required int umkKeyVersion,
+    String? issuedByDevice,
+  }) async => throw Exception('announcer is broken');
+}
+
+/// The payload bytes exactly as they travel — never re-encoded, so a test
+/// checks the bytes that were signed.
+Uint8List payloadBytesOf(Map<String, Object?> row) => Uint8List.fromList(
+  base64.decode(
+    base64.normalize(
+      (row['payload_json']! as String)
+          .replaceAll('-', '+')
+          .replaceAll('_', '/'),
+    ),
+  ),
+);
+
+Map<String, Object?> payloadOf(Map<String, Object?> row) =>
+    jsonDecode(utf8.decode(payloadBytesOf(row))) as Map<String, Object?>;
 
 void main() {
   late ScriptedTransport t;
@@ -1076,6 +1141,163 @@ void main() {
       await activate(again);
       expect(certifier.issued, before);
       expect(t.count('/devices/certify'), 1);
+    });
+  });
+  group('06 §5 🔒 — device_added (ADR 2026-09-05d §6)', () {
+    /// A live recorder over the key store the client itself writes its device
+    /// seeds into: the record is signed by the device that was certified, not
+    /// by a stand-in.
+    Future<CapturingPost> announce(
+      HttpAuthClient c,
+      FakeCertifier certifier, {
+      bool throws = false,
+    }) async {
+      final post = CapturingPost(certifier, throws: throws);
+      c.announcer = DeviceAddedRecorder(
+        author: DeviceRecordAuthor(
+          suite: await liveSuite(),
+          keys: keys,
+          deviceIdOf: () async => deviceId,
+          clock: RecordHlcClock(clock.call),
+        ),
+        tenantId: ledgerTenantId,
+        post: post.call,
+        log: log.add,
+      );
+      return post;
+    }
+
+    test('C-06-32 a certified device announces itself exactly once: one device_added record on the record route, its payload the certificate that was just filed, signed under this device key — and filed before it is posted', () async {
+      scriptHappyPath();
+      t.on(
+        '/devices/certify',
+        ScriptedTransport.ok({'device_id': deviceId, 'status': 'certified'}),
+      );
+      final suite = await liveSuite();
+      final certifier = FakeCertifier(suite);
+      final c = await client(certifier: certifier);
+      final post = await announce(c, certifier);
+
+      await activate(c);
+
+      expect((c.current as Active).deviceCertified, isTrue);
+      expect(post.posted, hasLength(1));
+      final row = post.posted.single;
+      expect(row['kind'], SignedRecordKind.deviceAdded);
+      expect(row['tenant_id'], ledgerTenantId);
+      expect(row['author_device_id'], deviceId);
+
+      // The record IS the certificate the ledger filed (ADR 05d §6).
+      final filed = certifier.filed.single;
+      expect(payloadOf(row), {
+        'device_id': deviceId,
+        'signature': Bytes.base64Url(filed.signature),
+        'issued_at_ms': filed.issuedAtMs,
+        'issued_by_device': deviceId,
+        'umk_key_version': umkKeyVersionFirst,
+      });
+
+      // Install first, post second — the chain must be able to verify the
+      // record's own author.
+      expect(post.filedWhenPosted, [1]);
+
+      // Signed by the device this client registered.
+      final record = SignedRecord(
+        suiteVersion: row['suite_version']! as int,
+        tenantId: row['tenant_id']! as String,
+        kind: row['kind']! as String,
+        payloadJson: payloadBytesOf(row),
+        authorDeviceId: row['author_device_id']! as String,
+        authorSig: Bytes.fromBase64Url(row['author_sig']! as String),
+        hlc: row['hlc']! as int,
+      );
+      expect(
+        record.verifySignature(
+          await liveSuite(),
+          await storedDevicePublic(suite, keys),
+        ),
+        isTrue,
+      );
+      expect(log, contains('device_certified'));
+      expect(log, isNot(contains(DeviceAddedRecorder.unfiledEvent)));
+    });
+
+    test('C-06-33 a device that was not certified announces nothing: a server refusal and a certificate over another device id each leave the record unauthored and unposted', () async {
+      // The server refuses the certificate.
+      scriptHappyPath();
+      t.on(
+        '/devices/certify',
+        ScriptedTransport.ok({'error': 'cert_invalid'}, 400),
+      );
+      final certifier = FakeCertifier(await liveSuite());
+      final c = await client(certifier: certifier);
+      final post = await announce(c, certifier);
+      await activate(c);
+      expect((c.current as Active).deviceCertified, isFalse);
+      expect(certifier.filed, isEmpty);
+      expect(post.posted, isEmpty);
+      expect(post.filedWhenPosted, isEmpty);
+      expect(log, isNot(contains(DeviceAddedRecorder.unfiledEvent)));
+
+      // Refused before a byte was sent (ADR 2026-09-16 §1): still nothing.
+      t = ScriptedTransport();
+      keys = FakeKeyStore();
+      await seedLedgerIdentity(keys);
+      log = [];
+      scriptHappyPath();
+      t.on(
+        '/devices/certify',
+        ScriptedTransport.ok({'device_id': deviceId, 'status': 'certified'}),
+      );
+      final wrong = FakeCertifier(
+        await liveSuite(),
+        certDeviceId: otherDeviceId,
+      );
+      final c2 = await client(certifier: wrong);
+      final post2 = await announce(c2, wrong);
+      await activate(c2);
+      expect(post2.posted, isEmpty);
+      expect(log, contains('device_cert_id_mismatch'));
+    });
+
+    test('C-06-34 an announcement that fails costs nothing: the device stays certified, certifyDevice returns, the log holds one fixed event name and no id — and a device that already holds a certificate never files a second record', () async {
+      scriptHappyPath();
+      t.on(
+        '/devices/certify',
+        ScriptedTransport.ok({'device_id': deviceId, 'status': 'certified'}),
+      );
+      final certifier = FakeCertifier(await liveSuite());
+      final c = await client(certifier: certifier);
+      final post = await announce(c, certifier, throws: true);
+
+      // Activation completes normally: the post threw, and it was the
+      // recorder's to swallow.
+      await activate(c);
+      expect((c.current as Active).deviceCertified, isTrue);
+      expect(certifier.filed, hasLength(1));
+      expect(post.posted, isEmpty);
+      expect(log, contains('device_certified'));
+      expect(log, contains(DeviceAddedRecorder.unfiledEvent));
+      expect(log, isNot(contains('device_uncertified')));
+      expect(log.any((e) => e.contains(deviceId)), isFalse);
+      expect(log.any((e) => e.contains(ledgerTenantId)), isFalse);
+
+      // An announcer that throws out of the seam itself is caught too — no
+      // implementation of it may un-certify a certified device.
+      t.on('/refresh', ScriptedTransport.ok(sessionBody('acc-2', 'ref-2')));
+      final rude = await client(certifier: FakeCertifier(await liveSuite()));
+      rude.announcer = ThrowingAnnouncer();
+      await rude.restore();
+      await rude.certifyDevice();
+      expect((rude.current as Active).deviceCertified, isTrue);
+
+      // 06 §5 says *newly* certified: this install already held a
+      // certificate, so an S0.9 retry after a success announces nothing.
+      final before = post.filedWhenPosted.length;
+      await c.certifyDevice();
+      expect(certifier.filed, hasLength(2), reason: 'it did re-certify');
+      expect(post.filedWhenPosted, hasLength(before));
+      expect(post.posted, isEmpty);
     });
   });
 }

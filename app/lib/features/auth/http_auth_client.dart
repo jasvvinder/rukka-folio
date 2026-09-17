@@ -52,6 +52,7 @@ import 'package:sodium_libs/sodium_libs.dart' show KeyPair;
 
 import '../../shared/ledger/device_certification.dart';
 import '../../shared/ledger/ledger_identity.dart';
+import '../../shared/records/device_added_record.dart';
 import '../../shared/seams/auth_client.dart';
 import '../../shared/seams/key_store.dart';
 import 'auth_transport.dart';
@@ -276,6 +277,18 @@ final class HttpAuthClient
   /// [CertRefusal.noKeyMaterial] and activation never reaches for it.
   DeviceCertifier? certifier;
 
+  /// Files the `device_added` signed record once this device has been
+  /// certified (06 §5 🔒 final paragraph; ADR 2026-09-05d §6 — *the record is
+  /// the certificate itself*). `shared/records` owns the payload and the
+  /// route; this client owns only the moment.
+  ///
+  /// Settable for the same reason [certifier] is: the composition root builds
+  /// the record author and the members client after this one
+  /// (`bootstrap.dart`). Null ⇒ nothing is announced and certification is
+  /// unaffected — which is also what happens when the post fails, so the two
+  /// cases behave alike rather than one of them being special.
+  DeviceAddedAnnouncer? announcer;
+
   /// Where this device's id comes from: the ledger identity in the same key
   /// store by default (ADR 2026-09-16 §1). Injected only so a test can pin
   /// one; production never passes it.
@@ -427,6 +440,11 @@ final class HttpAuthClient
       _log('device_cert_unissuable');
       throw const CertificationRefused(CertRefusal.noKeyMaterial);
     }
+    // 06 §5 🔒 says *newly* certified. Read before anything is filed: a
+    // device that already holds a certificate has already announced itself,
+    // and re-certifying it (an S0.9 retry after a success) must not file a
+    // second `device_added` record.
+    final wasCertified = ledger.ownDeviceCert != null;
     final cert = offer.cert;
     if (cert.deviceId != s.session.deviceId) {
       // One device, one id: a certificate over any other id would certify a
@@ -459,6 +477,26 @@ final class HttpAuthClient
       await ledger.installOwnCert(cert);
       markCertified();
       _log('device_certified');
+      // Only now: the record is authored by *this* device, and a reader can
+      // only verify it once this install's own chain is rooted in the
+      // certificate it just filed (04 §3.4). Announcing first would post a
+      // record whose author the device itself could not yet vouch for.
+      //
+      // Deliberately after [markCertified] and after the log line, and
+      // deliberately total: [DeviceAddedAnnouncer.deviceAdded] swallows its
+      // own failures, and this `try` is the second belt — the seam is another
+      // lane's to implement, and no implementation of it may un-certify a
+      // device that the server has certified (06 §3 step 3).
+      if (!wasCertified) {
+        try {
+          await announcer?.deviceAdded(
+            cert,
+            umkKeyVersion: offer.umkKeyVersion,
+          );
+        } on Object {
+          _log(DeviceAddedRecorder.unfiledEvent);
+        }
+      }
       return;
     }
     final reason = switch (body['error']) {

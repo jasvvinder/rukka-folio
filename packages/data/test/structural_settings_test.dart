@@ -15,6 +15,8 @@ import 'package:core_ledger/core_ledger.dart';
 import 'package:data/data.dart';
 import 'package:test/test.dart';
 
+import 'helpers.dart';
+
 const _thirds = {'farm:amrit': 1, 'farm:sukhdev': 1, 'farm:harjit': 1};
 
 BookConfig _deed({
@@ -502,4 +504,551 @@ void main() {
       expect(deed.structuralQuorum, isNull, reason: 'the deed never changes');
     });
   });
+
+  group('E-03-35 the deed is frozen (ADR 2026-09-14b §2)', () {
+    test('E-03-35 a later book_config version whose partner_shares differ is '
+        'quarantined, and the fold keeps the deed\'s ratio', () {
+      final creation = _version(
+        'env-cfg-1',
+        1,
+        _deed(quorum: StructuralQuorum.majority),
+      );
+      // The grab: one owner writes a second version giving himself 8/10.
+      final grab = _version(
+        'env-cfg-2',
+        10,
+        _deed(
+          quorum: StructuralQuorum.majority,
+          shares: const {'farm:amrit': 8, 'farm:sukhdev': 1, 'farm:harjit': 1},
+        ),
+      );
+      final reading = readBookConfigVersions([creation, grab]);
+
+      expect(reading.deed!.partnerShares, _thirds);
+      expect(
+        reading.inForce!.partnerShares,
+        _thirds,
+        reason: 'the deed stands',
+      );
+      final refused = reading.quarantined.single;
+      expect(refused.objectId, 'env-cfg-2');
+      expect(refused.reason, StructuralQuarantineReason.deedFrozen);
+      expect(refused.detail, contains('partner_shares'));
+      expect(refused.detail, isNotEmpty);
+
+      // And the one API a distributing caller may read through agrees.
+      final inForce = structuralSettingsInForce(
+        deed: reading.inForce!,
+        applied: const [],
+      );
+      expect(partnerSharesInForce(inForce), _thirds);
+      expect(quorumInForce(inForce), StructuralQuorum.majority);
+    });
+
+    test('E-03-35 changing, dropping or adding a structural key is all one '
+        'violation — and a value this build cannot interpret is compared '
+        'verbatim, never normalised', () {
+      final deed = _deed(quorum: StructuralQuorum.majority);
+      final creation = _version('env-cfg-1', 1, deed);
+
+      // Changed: majority → all owners, written out.
+      final changed = _version(
+        'env-cfg-2',
+        5,
+        _deed(quorum: StructuralQuorum.allOwners),
+      );
+      // Dropped: the key is simply absent, which would silently fall back to
+      // the default — the quietest of the three, and the same violation.
+      final dropped = _version('env-cfg-3', 6, _deed());
+      // Dropped the other one: no ratio recorded is not the same deed either.
+      final noShares = _version(
+        'env-cfg-4',
+        7,
+        _deed(quorum: StructuralQuorum.majority, shares: const {}),
+      );
+      final reading = readBookConfigVersions([
+        creation,
+        changed,
+        dropped,
+        noShares,
+      ]);
+      expect(reading.quarantined.map((q) => q.objectId), [
+        'env-cfg-2',
+        'env-cfg-3',
+        'env-cfg-4',
+      ]);
+      expect(reading.quarantined.map((q) => q.reason).toSet(), {
+        StructuralQuarantineReason.deedFrozen,
+      });
+      expect(reading.quarantined[0].detail, contains(structuralQuorumKey));
+      expect(reading.quarantined[2].detail, contains('partner_shares'));
+      expect(reading.inForce, same(deed));
+
+      // A deed written by a newer build: the quorum value is one we cannot
+      // interpret and rides in `extra`. An older build that "tidies" it to a
+      // value it does know has changed the deed — refused.
+      final newer = BookConfig.fromJson({
+        'id': 'farm',
+        'tenant_id': 't1',
+        'type': 'business',
+        'name': 'Kaur Farm',
+        'ownership': 'shared',
+        'partner_shares': _thirds,
+        structuralQuorumKey: 'two_thirds',
+      });
+      expect(newer.structuralQuorum, isNull, reason: 'held in extra');
+      final tidied = readBookConfigVersions([
+        _version('env-cfg-1', 1, newer),
+        _version('env-cfg-2', 9, _deed(quorum: StructuralQuorum.majority)),
+      ]);
+      expect(tidied.quarantined.single.objectId, 'env-cfg-2');
+      expect(tidied.inForce, same(newer));
+      // Carried forward verbatim, it is a routine amend like any other.
+      final carried = BookConfig.fromJson({
+        ..._wire(newer.toJson()),
+        'name': 'Kaur Farm & Sons',
+      });
+      final ok = readBookConfigVersions([
+        _version('env-cfg-1', 1, newer),
+        _version('env-cfg-2', 9, carried),
+      ]);
+      expect(ok.quarantined, isEmpty);
+      expect(ok.inForce!.name, 'Kaur Farm & Sons');
+    });
+
+    test('E-03-35 a routine amend that carries the structural keys forward '
+        'verbatim is accepted, and unknown fields round-trip untouched '
+        '(ADR 2026-09-05e §9; 03 §3.3.4 🔒)', () {
+      final deedWire = <String, Object?>{
+        'id': 'farm',
+        'tenant_id': 't1',
+        'type': 'business',
+        'name': 'Kaur Farm',
+        'fy_start_month': 4,
+        'ownership': 'shared',
+        'partner_shares': _thirds,
+        structuralQuorumKey: 'majority',
+        'default_reviewer': 'amrit',
+      };
+      // Rename + a peer reviewer, the two routine amends 05e §9 allows, with a
+      // field only a newer build understands riding along.
+      final amendWire = <String, Object?>{
+        ...deedWire,
+        'name': 'Kaur Farm & Sons',
+        'peer_reviewer': {'user': 'sukhdev', 'over_paise': 500000},
+      };
+      final reading = readBookConfigVersions([
+        _version('env-cfg-1', 1, BookConfig.fromJson(_wire(deedWire))),
+        _version('env-cfg-2', 30, BookConfig.fromJson(_wire(amendWire))),
+      ]);
+
+      expect(reading.quarantined, isEmpty);
+      expect(reading.inForce!.name, 'Kaur Farm & Sons');
+      expect(reading.deed!.name, 'Kaur Farm');
+      expect(
+        _wire(reading.inForce!.toJson()),
+        amendWire,
+        reason:
+            'byte-for-byte: an amend this build did not fully understand '
+            'is still written back whole',
+      );
+      // The terms in force are the deed's — the amend touched nothing.
+      final inForce = structuralSettingsInForce(
+        deed: reading.inForce!,
+        applied: const [],
+      );
+      expect(partnerSharesInForce(inForce), _thirds);
+      expect(quorumInForce(inForce), StructuralQuorum.majority);
+    });
+
+    test('E-03-35 the creation version is the earliest in (hlc, envelope_id) '
+        'order whatever order the versions arrive, and every version is '
+        'accounted for', () {
+      final deed = _deed(quorum: StructuralQuorum.majority);
+      final versions = [
+        _version('env-cfg-1', 1, deed),
+        _version(
+          'env-cfg-2',
+          30,
+          BookConfig.fromJson({
+            ..._wire(deed.toJson()),
+            'name': 'Kaur Farm & Sons',
+          }),
+        ),
+        _version('env-cfg-3', 40, _deed(shares: const {'farm:amrit': 1})),
+      ];
+      final forwards = readBookConfigVersions(versions);
+      final backwards = readBookConfigVersions(versions.reversed);
+      for (final r in [forwards, backwards]) {
+        expect(r.deed!.name, 'Kaur Farm');
+        expect(r.inForce!.name, 'Kaur Farm & Sons');
+        expect(r.quarantined.map((q) => q.objectId), ['env-cfg-3']);
+        // accepted (2) + refused (1) = every version; none is dropped.
+        expect(r.quarantined.length + 2, versions.length);
+      }
+      expect(readBookConfigVersions(const []).deed, isNull);
+      expect(readBookConfigVersions(const []).quarantined, isEmpty);
+    });
+
+    test(
+      'E-03-35 Recompute is the reader: the grabbing version is quarantined '
+      'in the mirror with its reason and the book row keeps the deed',
+      () async {
+        final db = await openMemory();
+        final (mirror, recompute) = rig(db);
+        final deed = _deed(quorum: StructuralQuorum.majority);
+        await storeAll(mirror, [
+          _configEnvelope('env-cfg-1', 1, 1, deed),
+          _configEnvelope(
+            'env-cfg-2',
+            2,
+            10,
+            BookConfig.fromJson({
+              ..._wire(deed.toJson()),
+              'name': 'Amrit Farm',
+              'partner_shares': const {'farm:amrit': 8},
+            }),
+          ),
+        ]);
+        await recompute.run();
+
+        final rows = {
+          for (final r in await mirror.envelopesOf('farm')) r.envelopeId: r,
+        };
+        expect(rows['env-cfg-1']!.quarantined, 0);
+        expect(rows['env-cfg-2']!.quarantined, 1);
+        expect(rows['env-cfg-2']!.quarantineReason, contains('partner_shares'));
+        expect(rows['env-cfg-2']!.quarantineReason, contains('book_config'));
+        final book = await bookRow(db, 'farm');
+        expect(
+          book.name,
+          'Kaur Farm',
+          reason: 'the refused version is not applied',
+        );
+        await db.close();
+      },
+    );
+  });
+
+  group('E-03-36 a business_setting counts only when it is authorised '
+      '(ADR 2026-09-14b §5)', () {
+    // The Kaur farm's three partners; every structural action needs all three.
+    const ownersV1 = OwnerSetVersion(
+      version: 1,
+      ownerIds: {'amrit', 'sukhdev', 'harjit'},
+      quorum: StructuralQuorum.allOwners,
+    );
+    const newRatio = {'farm:amrit': 2, 'farm:sukhdev': 1, 'farm:harjit': 1};
+
+    /// req-ratio: approved by all three. req-half: one approval only.
+    /// req-remove: an approved action that changes no settings.
+    List<StructuralEvent> events() => [
+      _request(
+        id: 'req-ratio',
+        day: 10,
+        action: StructuralAction.ownershipRatio,
+        payload: const {'partner_shares': newRatio},
+      ),
+      _approval('ap-1', 'req-ratio', 'amrit', 11),
+      _approval('ap-2', 'req-ratio', 'sukhdev', 12),
+      _approval('ap-3', 'req-ratio', 'harjit', 13),
+      _request(
+        id: 'req-half',
+        day: 14,
+        action: StructuralAction.quorumSetting,
+        payload: const {structuralQuorumKey: 'majority'},
+      ),
+      _approval('ap-4', 'req-half', 'amrit', 15),
+      _request(
+        id: 'req-remove',
+        day: 16,
+        action: StructuralAction.memberRemoval,
+        payload: const {'partner_shares': newRatio},
+      ),
+      _approval('ap-5', 'req-remove', 'amrit', 17),
+      _approval('ap-6', 'req-remove', 'sukhdev', 17),
+      _approval('ap-7', 'req-remove', 'harjit', 17),
+    ];
+
+    BusinessSettingReading read(List<BusinessSetting> records) =>
+        verifyBusinessSettings(
+          bookId: 'farm',
+          records: records,
+          structuralEvents: events(),
+          owners: const [ownersV1],
+          asOfMs: _day(20),
+        );
+
+    test('E-03-36 a record whose request is approved and whose settings equal '
+        'its payload counts, and the fold applies it', () {
+      final record = _record(
+        id: 'bs-1',
+        day: 18,
+        requestId: 'req-ratio',
+        // A different map instance, and the keys in another order: the claim
+        // is what must match, not the bytes.
+        settings: const {
+          'partner_shares': {
+            'farm:harjit': 1,
+            'farm:amrit': 2,
+            'farm:sukhdev': 1,
+          },
+        },
+      );
+      final reading = read([record]);
+      expect(reading.quarantined, isEmpty);
+      expect(reading.applied.single.id, 'bs-1');
+
+      final inForce = structuralSettingsInForce(
+        deed: _deed(),
+        applied: reading.applied,
+      );
+      expect(partnerSharesInForce(inForce), newRatio);
+    });
+
+    test('E-03-36 no request_id, an unapproved request, an unknown request, a '
+        'differing payload, an action that sets nothing, another book — each '
+        'is quarantined with its reason, and nothing is silently skipped', () {
+      final records = [
+        _record(
+          id: 'bs-none',
+          day: 18,
+          requestId: null,
+          settings: const {'partner_shares': newRatio},
+        ),
+        _record(
+          id: 'bs-pending',
+          day: 18,
+          requestId: 'req-half',
+          settings: const {structuralQuorumKey: 'majority'},
+        ),
+        _record(
+          id: 'bs-unknown',
+          day: 18,
+          requestId: 'req-ghost',
+          settings: const {'partner_shares': newRatio},
+        ),
+        _record(
+          id: 'bs-differs',
+          day: 18,
+          requestId: 'req-ratio',
+          settings: const {
+            'partner_shares': {
+              'farm:amrit': 9,
+              'farm:sukhdev': 1,
+              'farm:harjit': 1,
+            },
+          },
+        ),
+        // The payload matches, but the approved action applies no settings —
+        // `applyStructural` refuses it, so the fold must too.
+        _record(
+          id: 'bs-sneak',
+          day: 18,
+          requestId: 'req-remove',
+          settings: const {'partner_shares': newRatio},
+        ),
+        _record(
+          id: 'bs-foreign',
+          day: 18,
+          bookId: 'shop',
+          requestId: 'req-ratio',
+          settings: const {'partner_shares': newRatio},
+        ),
+      ];
+      final reading = read(records);
+
+      expect(reading.applied, isEmpty);
+      expect(
+        reading.quarantined.length,
+        records.length,
+        reason: 'never silently skipped',
+      );
+      final byId = {for (final q in reading.quarantined) q.objectId: q};
+      expect(byId['bs-none']!.reason, StructuralQuarantineReason.noRequest);
+      expect(
+        byId['bs-pending']!.reason,
+        StructuralQuarantineReason.requestNotApplied,
+      );
+      expect(byId['bs-pending']!.detail, contains('pending'));
+      expect(
+        byId['bs-unknown']!.reason,
+        StructuralQuarantineReason.unknownRequest,
+      );
+      expect(
+        byId['bs-differs']!.reason,
+        StructuralQuarantineReason.payloadMismatch,
+      );
+      expect(
+        byId['bs-sneak']!.reason,
+        StructuralQuarantineReason.requestSetsNothing,
+      );
+      expect(byId['bs-foreign']!.reason, StructuralQuarantineReason.otherBook);
+      for (final q in reading.quarantined) {
+        expect(q.detail, startsWith('business_setting: '));
+        expect(q.detail.length, greaterThan('business_setting: '.length));
+      }
+      // Nothing entered the fold, so the deed's terms still govern.
+      final inForce = structuralSettingsInForce(
+        deed: _deed(),
+        applied: reading.applied,
+      );
+      expect(partnerSharesInForce(inForce), _thirds);
+    });
+
+    test('E-03-36 a vetoed request authorises nothing, and a record already '
+        'accepted is refused once the veto arrives', () {
+      final record = _record(
+        id: 'bs-1',
+        day: 18,
+        requestId: 'req-ratio',
+        settings: const {'partner_shares': newRatio},
+      );
+      expect(read([record]).applied, isNotEmpty);
+
+      final vetoed = verifyBusinessSettings(
+        bookId: 'farm',
+        records: [record],
+        structuralEvents: [
+          ...events(),
+          StructuralVeto(
+            id: 'veto-1',
+            bookId: 'farm',
+            hlc: Hlc.compose(physicalMs: _day(11), counter: 5),
+            requestId: 'req-ratio',
+            byUser: 'harjit',
+            ownerSetVersion: 1,
+            reason: 'not the deed we signed',
+          ),
+        ],
+        owners: const [ownersV1],
+        asOfMs: _day(20),
+      );
+      expect(vetoed.applied, isEmpty);
+      expect(
+        vetoed.quarantined.single.reason,
+        StructuralQuarantineReason.requestNotApplied,
+      );
+      expect(vetoed.quarantined.single.detail, contains('vetoed'));
+    });
+
+    test('E-03-36 the codec stays non-judging: an unauthorised record still '
+        'reads, round-trips and throws on nothing', () {
+      final wire = <String, Object?>{
+        'id': 'bs-none',
+        'book_id': 'farm',
+        'hlc': 42,
+        'by_user': 'amrit',
+        'settings': {'partner_shares': newRatio},
+        'effective_from': '2027-04-01',
+      };
+      final record = BusinessSetting.fromJson(_wire(wire));
+      expect(record.requestId, isNull, reason: 'nullable at the codec');
+      expect(_wire(record.toJson()), wire);
+      // The policy question is answered in one place, and it is not here.
+      expect(
+        read([record]).quarantined.single.reason,
+        StructuralQuarantineReason.noRequest,
+      );
+    });
+
+    test('E-03-36 it is not a projector event: decodeEvent returns null and '
+        'project()\'s input is unchanged by it (03 §3.3 rule 2), so the '
+        'content_hash cannot move', () {
+      final f = Fixture();
+      final record = _record(
+        id: 'bs-1',
+        day: 18,
+        requestId: 'req-ratio',
+        settings: const {'partner_shares': newRatio},
+      );
+      expect(decodeEvent('business_setting', record.toJson()), isNull);
+      expect(projectedObjectTypes.contains('business_setting'), isFalse);
+
+      // The decode loop Recompute runs, with and without the record in the
+      // stream: the projector's input is the same list either way.
+      List<LedgerEvent> decode(List<(String, Map<String, Object?>)> stream) => [
+        for (final (type, json) in stream)
+          if (decodeEvent(type, json) case final LedgerEvent e) e,
+      ];
+      final ledger = [
+        for (final e in f.ordinaryMonth()) (objectTypeOf(e), encodeEvent(e)),
+      ];
+      final without = decode(ledger);
+      final with_ = decode([...ledger, ('business_setting', record.toJson())]);
+      expect(with_.map((e) => e.id), without.map((e) => e.id));
+
+      final a = project(without, f.chart);
+      final b = project(with_, f.chart);
+      expect(b.balances.nonZero, a.balances.nonZero);
+      expect(b.entries.keys, a.entries.keys);
+      expect(b.quarantined, isEmpty);
+      expect(a.quarantined, isEmpty);
+    });
+  });
 }
+
+/// One `book_config` version as the mirror holds it.
+BookConfigVersion _version(String envelopeId, int day, BookConfig config) =>
+    BookConfigVersion(
+      envelopeId: envelopeId,
+      hlc: Hlc.compose(physicalMs: _day(day), counter: 0),
+      config: config,
+    );
+
+/// The routing envelope around a `book_config` payload — built here rather
+/// than with [Fixture.envelope] because a book has several versions of the one
+/// object and each needs its own envelope id.
+EnvelopeRecord _configEnvelope(
+  String envelopeId,
+  int seq,
+  int hlc,
+  BookConfig config,
+) {
+  final blob = encodeJsonPayload(config.toJson());
+  return EnvelopeRecord(
+    envelopeId: envelopeId,
+    bookId: config.id,
+    objectId: config.id,
+    objectType: 'book_config',
+    keyVersion: 1,
+    hlc: hlc,
+    authorDevice: 'dev-a',
+    authorSeq: seq,
+    blob: blob,
+    blobHash: toyHash(blob),
+    verified: true,
+  );
+}
+
+StructuralRequest _request({
+  required String id,
+  required int day,
+  required StructuralAction action,
+  required Map<String, Object?> payload,
+  String bookId = 'farm',
+  String byUser = 'amrit',
+  int ownerSetVersion = 1,
+}) => StructuralRequest(
+  id: id,
+  bookId: bookId,
+  hlc: Hlc.compose(physicalMs: _day(day), counter: 0),
+  action: action,
+  byUser: byUser,
+  ownerSetVersion: ownerSetVersion,
+  payload: payload,
+);
+
+StructuralApproval _approval(
+  String id,
+  String requestId,
+  String byUser,
+  int day,
+) => StructuralApproval(
+  id: id,
+  bookId: 'farm',
+  hlc: Hlc.compose(physicalMs: _day(day), counter: 0),
+  requestId: requestId,
+  byUser: byUser,
+  ownerSetVersion: 1,
+);

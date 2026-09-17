@@ -548,4 +548,66 @@ void main() {
       {'role-1': 1, 'role-forged': 0},
     );
   });
+
+  // ADR 2026-09-15 §7 🔒 — `Offline` tells the user to wait for a network.
+  // A pin failure may be an attacker on the network right now, and waiting is
+  // the one thing that does not help; so it is *Needs attention* → Inbox.
+  test('D-05-38 a pin failure on the request socket is Needs attention with '
+      'reason pinFailed, never Offline: the round stops and nothing is sent '
+      '(ADR 2026-09-15 §7 🔒, 05 §9)', () async {
+    final a = await dev('phone-a');
+    await a.author(physicalMs: clock.nowMs());
+    a.transport.beforeCall = (route) => throw const PinFailed('pin');
+
+    final r = await a.engine.sync();
+    expect(
+      await a.engine.status(),
+      const NeedsAttention([AttentionReason.pinFailed]),
+    );
+    expect(r.offline, isFalse, reason: 'this is not a connectivity fact');
+    expect(server.stored, isEmpty, reason: 'nothing left the device');
+    expect((await a.outboxStates()).values, ['queued'], reason: 'nothing lost');
+    expect(eventsOf<PinCheckFailed>(a.engine), hasLength(1));
+
+    // No retry that bypasses anything: every later round fails the same way
+    // and the Inbox keeps the reason until it is handled.
+    await a.engine.sync();
+    expect(server.stored, isEmpty);
+    expect(
+      await a.engine.status(),
+      const NeedsAttention([AttentionReason.pinFailed]),
+    );
+  });
+
+  test('D-05-39 pin_failed is a reason, not a sixth state: 05 §9\'s five '
+      'states are undisturbed and an ordinary connection refusal is still '
+      'Offline on the same device', () async {
+    final a = await dev('phone-a');
+    await a.author(physicalMs: clock.nowMs());
+
+    // An ordinary drop: Offline, as it has always been.
+    a.transport.beforeCall = (route) =>
+        throw const TransportOffline('no network');
+    await a.engine.sync();
+    expect(await a.engine.status(), const Offline());
+    expect(eventsOf<PinCheckFailed>(a.engine), isEmpty);
+
+    // The pin fails: the same five states, one of them now carrying one more
+    // cause. It is not `Offline`, and it is not a new state.
+    a.transport.beforeCall = (route) => throw const PinFailed('pin');
+    await a.engine.sync();
+    final attention = await a.engine.status();
+    expect(attention, isA<NeedsAttention>());
+    expect((attention as NeedsAttention).reasons, const [
+      AttentionReason.pinFailed,
+    ]);
+
+    // Handled in the Inbox and the network healthy again: the device syncs,
+    // with no state left over and nothing bypassed.
+    a.engine.dismiss(AttentionReason.pinFailed);
+    a.transport.beforeCall = null;
+    final r = await a.engine.sync();
+    expect(r.acked, 1);
+    expect(await a.engine.status(), const Synced());
+  });
 }

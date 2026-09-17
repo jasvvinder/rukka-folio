@@ -36,6 +36,9 @@ dart format --output=none --set-exit-if-changed packages scripts test app/lib ap
 step "package purity"
 scripts/check_purity.sh
 
+step "release-build hardening flags (09 §4)"
+scripts/check_release_flags.sh
+
 step "strings (EN / PA / HI)"
 dart run scripts/check_strings.dart
 

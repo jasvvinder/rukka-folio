@@ -266,10 +266,13 @@ void main() {
       await expectLater(
         wrongPins.meta(const eng.MetaRequest()),
         throwsA(
-          isA<eng.TransportOffline>().having(
-            (e) => e.toString(),
+          // ADR 2026-09-15 §7 🔒: a pin failure is its own cause, mapped to
+          // *Needs attention* — never `Offline`, which would tell the user to
+          // wait for a network they may already have.
+          isA<eng.PinFailed>().having(
+            (e) => e.detail,
             'detail',
-            contains(eng.ClientFailureCode.pinFailed),
+            eng.ClientFailureCode.pinFailed,
           ),
         ),
       );
@@ -286,7 +289,7 @@ void main() {
           der: null,
           sent: unknown,
         ).meta(const eng.MetaRequest()),
-        throwsA(isA<eng.TransportOffline>()),
+        throwsA(isA<eng.PinFailed>()),
       );
       expect(unknown, isEmpty);
     });

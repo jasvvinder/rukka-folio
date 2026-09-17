@@ -164,6 +164,17 @@ final class Person {
   });
 }
 
+/// Where the app persists a key accepted on the meta channel (03 §3.1
+/// `key_cache`; in the app it is `LocalLedger`). Here it only records, so a
+/// test can say exactly what the seam was handed and how often.
+final class RecordingKeySink implements AcceptedKeySink {
+  /// What reached the seam, in order.
+  final List<AcceptedBookKey> accepted = [];
+
+  @override
+  Future<void> keyAccepted(AcceptedBookKey key) async => accepted.add(key);
+}
+
 /// A device running the real engine over [CryptoGuard].
 final class CryptoDevice {
   CryptoDevice._(
@@ -173,6 +184,7 @@ final class CryptoDevice {
     this.keys,
     this.trust,
     this.engine,
+    this.sink,
   );
 
   static Future<CryptoDevice> open(
@@ -199,6 +211,7 @@ final class CryptoDevice {
       me: me.device,
       umk: me.umk,
     );
+    final sink = RecordingKeySink();
     final engine = SyncEngine(
       db: db,
       mirror: mirror,
@@ -209,8 +222,9 @@ final class CryptoDevice {
       deviceId: me.deviceId,
       userId: me.userId,
       tenantId: tenant,
+      keySink: sink,
     )..subscribedBooks.add(book);
-    return CryptoDevice._(me, db, mirror, store, trust, engine);
+    return CryptoDevice._(me, db, mirror, store, trust, engine, sink);
   }
 
   final Person me;
@@ -219,6 +233,9 @@ final class CryptoDevice {
   final BookKeyStore keys;
   final RecordTrustStore trust;
   final SyncEngine engine;
+
+  /// The persistence seam this device's engine hands accepted keys to.
+  final RecordingKeySink sink;
 
   Future<EnvelopesLocalData?> row(String id) => (db.select(
     db.envelopesLocal,
@@ -602,4 +619,88 @@ void main() {
       expect(await author.mirror.outboxRows(), isEmpty);
     },
   );
+
+  // 05 §5 + 03 §3.1: a key accepted on the meta channel must reach
+  // `key_cache`, or the device holds it only until the process dies and the
+  // meta cursor has already passed the row — permanent `key_wait` on the
+  // second launch (16 Sep finding). The engine writes no key itself: it hands
+  // the at-rest material to the sink, which is the ledger in the app.
+  test('D-05-40 a wrapped key accepted on the meta channel reaches the '
+      'persistence seam exactly once, as the wire blob and its own recipient '
+      "— wrapped to this user's UMK, never re-wrapped (04 §8.2 🔒), never "
+      'unwrapped at rest (03 §3.1)', () async {
+    final bk2 = BookKey.generate(suite, bookId: book, keyVersion: 2);
+    final wire = wrapFor(suite, bk2, reader, 'wk-r-2');
+    server.wrappedKeys.add(wire);
+    final c = await readerDevice(reader); // holds v1 only
+    await c.engine.sync();
+
+    final handed = c.sink.accepted.single;
+    expect(handed.ref, BookKeyRef(bookId: book, keyVersion: 2));
+    expect(handed.sealed, wire.blob, reason: 'the wire blob, byte for byte');
+    expect(handed.recipient, Fingerprint.of(suite, reader.umk.public));
+    expect(handed.suiteVersion, suiteVersion);
+    expect(c.keys.has(book, 2), isTrue, reason: 'and in memory this round');
+
+    // What rests is the key: it unwraps under this user's UMK alone.
+    final sealed = SealedBlob(
+      suiteVersion: handed.suiteVersion,
+      recipient: handed.recipient,
+      bytes: handed.sealed,
+    );
+    final back = unwrapBookKey(
+      suite,
+      WrappedBookKey(ref: handed.ref, sealed: sealed),
+      reader.umk,
+    );
+    expect(back.ref, handed.ref);
+    expect(
+      () => unwrapBookKey(
+        suite,
+        WrappedBookKey(ref: handed.ref, sealed: sealed),
+        reader2.umk,
+      ),
+      throwsA(isA<UnsealFailed>()),
+    );
+
+    // The same row on the next meta page is not a second write.
+    server.touchMeta();
+    await c.engine.sync();
+    expect(c.sink.accepted, hasLength(1));
+  });
+
+  test('D-05-41 nothing reaches the persistence seam that this device did not '
+      'newly unwrap: a key it already holds, one sealed to another member, '
+      'and one torn in flight (05 §5)', () async {
+    final bk2 = BookKey.generate(suite, bookId: book, keyVersion: 2);
+    final bk3 = BookKey.generate(suite, bookId: book, keyVersion: 3);
+    final c = await readerDevice(reader); // holds v1
+    // (a) the v1 it already holds.
+    server.wrappedKeys.add(wrapFor(suite, bk1, reader, 'wk-r-1'));
+    // (b) v2, sealed to somebody else — not ours to keep, by fingerprint and
+    //     by the seal.
+    server.wrappedKeys.add(wrapFor(suite, bk2, reader2, 'wk-r2-2'));
+    // (c) v3, addressed to us but corrupt: it does not open, so it is not a
+    //     key and nothing may rest under its name.
+    final good = wrapFor(suite, bk3, reader, 'wk-r-3');
+    final torn = Uint8List.fromList(good.blob);
+    torn[0] ^= 0xff;
+    server.wrappedKeys.add(
+      WireWrappedKey(
+        id: good.id,
+        kind: good.kind,
+        userId: good.userId,
+        bookId: book,
+        keyVersion: 3,
+        blob: torn,
+        recipientFingerprint: good.recipientFingerprint,
+      ),
+    );
+
+    await c.engine.sync();
+    expect(c.sink.accepted, isEmpty);
+    expect(c.keys.has(book, 1), isTrue, reason: 'what it held it still holds');
+    expect(c.keys.has(book, 2), isFalse);
+    expect(c.keys.has(book, 3), isFalse);
+  });
 }

@@ -11,8 +11,10 @@ library;
 export 'src/crypto_opener.dart';
 export 'src/database.dart';
 export 'src/mirror.dart';
+export 'src/partner_positions.dart';
 export 'src/payload_codec.dart';
 export 'src/recompute.dart';
+export 'src/structural_reader.dart';
 export 'src/tables.dart' show layer1Tables, layer2Tables;
 
 /// Package identity used by the M0 hello-world gate.

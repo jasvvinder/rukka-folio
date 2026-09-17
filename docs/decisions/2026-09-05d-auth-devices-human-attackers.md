@@ -50,7 +50,7 @@ key in the hardware-backed keychain (this-device-only) and `HMAC(key, pin)` comp
 time; the attempt counter and lockout-until timestamp live in the same protected item so they
 survive reinstall on iOS and cannot be reset by clearing app data. Never a KDF input (04 §2).
 
-### 6. Every new certified device announces itself
+### 6. Every new certified device announces itself ⟦tests: C-06-32, C-06-33, C-06-34, C-06-35, C-06-36⟧
 On **every** path — signup, link, guardian recovery, paper sheet, platform key sync, iOS Keychain
 remnant — the newly certified device causes a notice to **all of the user's other devices and every
 tenant** ("{name} added a device: {model}"), and a `device_added` **signed record** (the certificate

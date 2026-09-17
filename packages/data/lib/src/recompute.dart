@@ -12,6 +12,7 @@ import 'package:drift/drift.dart';
 import 'database.dart';
 import 'mirror.dart';
 import 'payload_codec.dart';
+import 'structural_reader.dart';
 
 /// What Recompute found and did for one book.
 final class BookRecompute {
@@ -358,7 +359,7 @@ final class Recompute {
     }
 
     // 1c. Decode.
-    BookConfig? config;
+    final configVersions = <BookConfigVersion>[];
     final accountsByObject = <String, AccountPayload>{};
     final events = <String, LedgerEvent>{}; // envelope id → event
     final rawByEnvelope = <String, Map<String, Object?>>{};
@@ -366,7 +367,15 @@ final class Recompute {
       try {
         switch (r.objectType) {
           case 'book_config':
-            config = BookConfig.fromJson(json);
+            // Every version is kept; which of them is in force is the frozen
+            // deed rule below, not "the last one wins".
+            configVersions.add(
+              BookConfigVersion(
+                envelopeId: r.envelopeId,
+                hlc: Hlc(r.hlc),
+                config: BookConfig.fromJson(json),
+              ),
+            );
           case 'account':
             // Latest version of each account object wins (rows are in (hlc, id) order).
             accountsByObject[r.objectId] = AccountPayload.fromJson(json);
@@ -398,6 +407,19 @@ final class Recompute {
         quarantined.add(r.envelopeId);
       }
     }
+
+    // 2b. The deed is frozen (ADR 2026-09-14b §2): the creation version's
+    //     structural keys (`partner_shares`, `structural_quorum`) are the deed,
+    //     and a later version that changes, drops or adds one is an invariant
+    //     violation — refused whole, like any other envelope a reader re-checks
+    //     (02 preamble), so its routine fields do not land either. `config` is
+    //     the latest **accepted** version: the deed as routinely amended.
+    final configReading = readBookConfigVersions(configVersions);
+    for (final refusal in configReading.quarantined) {
+      await mirror.quarantine(refusal.objectId, refusal.detail);
+      quarantined.add(refusal.objectId);
+    }
+    final config = configReading.inForce;
 
     // 3. Chart and book row.
     final chart = Chart(

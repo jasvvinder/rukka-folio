@@ -47,7 +47,10 @@ void main() {
       isTrue,
     );
     expect(SignedRecordKind.all, contains(SignedRecordKind.deviceRevocation));
-    expect(SignedRecordKind.all.length, 8);
+    // `invite` is a signed record too (06 §7, server migration 0008): the set
+    // drifted one kind behind the server's RECORD_KINDS until 16 Sep 2026.
+    expect(SignedRecordKind.all, contains(SignedRecordKind.invite));
+    expect(SignedRecordKind.all.length, 9);
   });
 
   test('B-05b-2 header binding: kind, tenant, hlc and author device are signed — changing any one invalidates the record; payload tamper too', () async {

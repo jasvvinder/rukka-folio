@@ -206,6 +206,28 @@ final class TransportOffline extends TransportFailure {
   String toString() => 'TransportOffline(${detail ?? ''})';
 }
 
+/// The presented certificate chain matched no pin, or the transport could not
+/// see what was presented (05 §1 🔒, ADR 2026-09-15 §2, §3). The request never
+/// left the device.
+///
+/// Deliberately **not** a [TransportOffline]: `Offline` tells the user to wait
+/// for a network, and waiting is the one thing that does not help when
+/// something may be impersonating the server right now (ADR 2026-09-15 §7 🔒).
+/// It is a new failure *cause*, not a new status — the engine maps it to
+/// `NeedsAttention` with `AttentionReason.pinFailed`, and 05 §9's five states
+/// are undisturbed. There is no retry that bypasses it, because there is
+/// nothing to bypass.
+final class PinFailed extends TransportFailure {
+  /// Creates the failure.
+  const PinFailed([this.detail]);
+
+  /// Trace detail — a client-side constant, never anything off the wire.
+  final String? detail;
+
+  @override
+  String toString() => 'PinFailed(${detail ?? ''})';
+}
+
 /// `426` min-version gate (05 §1, 06 §4.5): stop syncing, show the update screen.
 final class UpdateRequired extends TransportFailure {
   /// Creates the failure.

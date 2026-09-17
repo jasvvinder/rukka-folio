@@ -9,7 +9,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
-import 'package:core_crypto/core_crypto.dart' show BookKeyRef, DeviceCert;
+import 'package:core_crypto/core_crypto.dart' show DeviceCert;
 
 import 'guard.dart';
 import 'transport.dart';
@@ -842,7 +842,8 @@ final class PlainGuard implements EnvelopeGuard {
   WireEnvelope? reseal(WireEnvelope envelope, {required int toVersion}) => null;
 
   @override
-  BookKeyRef? acceptWrappedKey(WireWrappedKey key) => null;
+  KeyAcceptance acceptWrappedKey(WireWrappedKey key) =>
+      const KeyNotAccepted('plaintext harness holds no wrapped keys');
 
   @override
   DeviceCert? buildCert(WireDeviceCert cert, WireDevice device) => null;

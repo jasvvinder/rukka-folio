@@ -3,4 +3,5 @@
 /// only the device-side wiring — keys out of the key store, an HLC, an id.
 library;
 
+export 'device_added_record.dart';
 export 'device_record_author.dart';

@@ -224,3 +224,15 @@ final class CutoffChanged extends SyncEvent {
   /// New cut-off.
   final int seq;
 }
+
+/// The TLS pin check failed and the round stopped before anything was sent
+/// (05 §1 🔒, ADR 2026-09-15 §7 🔒). A security event: the app could not
+/// confirm the server it was about to talk to. [detail] is a client-side
+/// constant — nothing off the wire is trusted enough to record.
+final class PinCheckFailed extends SyncEvent {
+  /// Creates the event.
+  const PinCheckFailed(super.atMs, [this.detail]);
+
+  /// Which check failed, as a constant (`spki_pin_failed`).
+  final String? detail;
+}

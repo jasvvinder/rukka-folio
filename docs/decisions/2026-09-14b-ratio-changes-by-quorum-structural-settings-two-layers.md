@@ -1,6 +1,8 @@
 # ADR 2026-09-14b — The ratio changes only by quorum; structural settings live in two layers (the deed in `book_config`, every change as a dated `business_setting`)
 
-**Status: proposed — awaiting owner ratification.** Written by lane M7-K5 (escalation tier, owner-authorised
+**RATIFIED 16 Sep 2026 — all six rulings, as written.** The owner delegated the decision (*"Do the best as much as possible for our application"*, 16 Sep) after the alternative to ruling 4 was costed in § *If the owner chooses the alternative*. Ratified as written because ruling 4 is the **no-change** option — it keeps `partner_shares` where 13 Sep put it — and because `fy_start_month`, a structural key the projector reads, must stay in `book_config` regardless, so the "one home" the alternative buys is unreachable either way. The `02` and `03` edits named in § Consequences are applied in the same commit. **Revisit ruling 6's open question** — whether a ratio change *inside* an FY pro-rates that FY's undistributed surplus — if a real business ever changes its ratio mid-year; it is a bookkeeper question, not an engine one.
+
+**Originally proposed.** Written by lane M7-K5 (escalation tier, owner-authorised
 14 Sep 2026, `effort: max` overriding `lane-core`'s `high` — stated per ADR 2026-09-13e §3). A lane never ratifies a
 🔒 line: **no numbered spec is edited here**; the exact `02` edits are named in § Consequences for the owner to apply
 on ratification, and the ratification checklist at the end takes a yes/no per ruling.
@@ -61,7 +63,7 @@ older statements — three of them owner-approved on 30 Aug in the same section 
   already carry the shared reading; `F1-07-45` asserts *"never a bigger share"*, not immutability. **No green test
   flips, so nothing needs `@Skip`** (ADR 2026-09-05i §4). ⟦tests: F1-07-45⟧
 
-### 2. Structural settings live in two layers: the deed and its dated amendments ⟦tests: E-03-32, E-03-33, E-03-34, E-03-35 @M7⟧
+### 2. Structural settings live in two layers: the deed and its dated amendments ⟦tests: E-03-32, E-03-33, E-03-34, E-03-35⟧
 The candidate homes differ on *history* (ADR 2026-09-14). The honest answer is that both are right about
 different moments, and the partnership-deed analogy states the rule exactly: the deed is signed once; every later
 change is a dated supplementary deed that names the deed it amends.
@@ -74,7 +76,7 @@ change is a dated supplementary deed that names the deed it amends.
   version** is an invariant violation and readers quarantine that version, as they quarantine any other
   (02 preamble: readers re-check). This is what makes a structural key inside a routinely-amendable object safe:
   it can be *read* from there and cannot be *moved* there. Cheap today: the app authors `book_config` exactly once
-  (`app/lib/shared/ledger/local_ledger.dart:820`) and has no amend path. ⟦tests: E-03-35 @M7⟧
+  (`app/lib/shared/ledger/local_ledger.dart:820`) and has no amend path. ⟦tests: E-03-35⟧
 - **Every change is a dated `business_setting` envelope** (ADR 2026-09-05e §11, `03 §2.3` registry) — a **new
   object per change, never amended** — written once quorum exists and naming the `structural_approval` request
   that authorised it. This is the *"recorded as a dated envelope"* of `02 §7.1` line 177, the *"dated
@@ -92,7 +94,7 @@ change is a dated supplementary deed that names the deed it amends.
   envelopes are fetched with their FY — a device bootstrapping in 2028 must recover the 2026 terms without the
   2026 approvals in hand. ⟦tests: n/a — rationale⟧
 
-### 3. `structural_quorum` lives where the ratio lives ⟦tests: E-03-32, E-03-33, E-03-34⟧
+### 3. `structural_quorum` lives where the ratio lives ⟦tests: E-03-32, E-03-33, E-03-34, E-03-37, E-03-38, E-03-39, E-03-40, E-03-41, E-03-42, E-03-43, E-03-44, E-03-45⟧
 - **At creation:** `book_config.structural_quorum`, wire values `all_owners` | `majority`
   (`core_ledger`'s `structuralQuorumKey` / `StructuralQuorum.wire`). **Absent means the default, all owners**
   (`02 §7.2.1`); a value this build cannot interpret is read as **all owners** — the strictest rule — and stays in
@@ -122,7 +124,7 @@ change is a dated supplementary deed that names the deed it amends.
   regardless. No production data exists (the app is not yet on a device, `PLAN.md` §1), so the cost is code and
   tests, not migration; it is still cost without benefit. ⟦tests: n/a — rationale⟧
 
-### 5. The `business_setting` wire shape, and the reader rule ⟦tests: E-03-33, E-03-36 @M7⟧
+### 5. The `business_setting` wire shape, and the reader rule ⟦tests: E-03-33, E-03-36⟧
 - Wire (snake_case, ids as strings, the M2 conventions of `payload_codec.dart`):
   `{ "id", "book_id", "hlc", "by_user", "request_id", "settings": { <structural key>: <value>, … } }`.
   `settings` is the flat map the engine already speaks — `structuralQuorumOf(record.settings)` reads it directly
@@ -134,7 +136,7 @@ change is a dated supplementary deed that names the deed it amends.
   `settings` equals that request's payload. A record with no `request_id`, an unapproved one, or a differing
   payload is quarantined with its reason, never silently skipped. The codec does not judge this — `requestId` is
   nullable at the codec so that reading never throws on a policy question and the policy lives in one verifier.
-  ⟦tests: E-03-36 @M7⟧
+  ⟦tests: E-03-36⟧
 - The record is **not** a projector event: Recompute neither sums nor quarantines it on shape, `decodeEvent`
   returns null for it, and `project()` is untouched — so the golden `content_hash` is unaffected by construction.
   ⟦tests: n/a — restates 03 §3.3 rule 2; the goldens assert the hash⟧
@@ -176,7 +178,7 @@ flip and take `@Skip('superseded by ADR 2026-09-14b ratification; re-lands at M7
     order point is the creation ratio overridden by the applied `business_setting` records up to that point, in
     `(hlc, envelope_id)` order (ADR 2026-09-14b §2, §4). A distribution applies the ratio in force at its own date
     (§6)."* The heading keeps its lock glyph and reads *"Where the ratio lives (owner-confirmed 13 Sep 2026, ADR
-    2026-09-13 §3; two layers, ADR 2026-09-14b)"*; marker becomes `⟦tests: E-03-30, E-03-34, E-03-35 @M7, F1-07-86⟧`.
+    2026-09-13 §3; two layers, ADR 2026-09-14b)"*; marker becomes `⟦tests: E-03-30, E-03-34, E-03-35, F1-07-86⟧`.
   - `02 §7.2.1` line 253: after *"chosen at creation and itself a structural action to change"* insert *"(recorded
     at creation as `book_config.structural_quorum`, absent = all owners; each change as a dated `business_setting`
     naming its approved request — ADR 2026-09-14b §3)"*; marker gains `E-03-32, E-03-33`.
@@ -184,7 +186,7 @@ flip and take `@Skip('superseded by ADR 2026-09-14b ratification; re-lands at M7
   - `03 §2.3` under the registry line 108, house-style cross-reference:
     `> **ADR 2026-09-14b §5** — the business_setting wire shape (`id · book_id · hlc · by_user · request_id ·
     settings{…}`), one object per change, never amended; readers verify request_id against the approved request.
-    ⟦tests: E-03-33, E-03-36 @M7⟧`
+    ⟦tests: E-03-33, E-03-36⟧`
   - ADR 2026-09-14 ruling 2 and ADR 2026-09-13 §3: cross-reference notes added by this lane (`docs/decisions` is
     its directory).
 - **`CHANGELOG.md` Decided line** (orchestrator, at `/close`): `- \`2026-09-14b-ratio-changes-by-quorum-structural-settings-two-layers.md\` — 🔒 proposed: the ratio changes only by quorum (13 Sep "not allowed to change" struck); structural settings in two layers — deed in book_config (frozen), every change a dated business_setting; structural_quorum placed; partner_shares stays.`
@@ -192,12 +194,12 @@ flip and take `@Skip('superseded by ADR 2026-09-14b ratification; re-lands at M7
   reader rule `E-03-35`/`E-03-36`).
 
 ## Ratification checklist — owner's answers 🔒 ⟦tests: n/a — heading; each answer below carries its own marker⟧
-1. **Ruling 1** — the ratio is changeable by quorum only; the 13 Sep sentence is struck: ☐ ⟦tests: A-02-64, A-02-94⟧
-2. **Ruling 2** — two layers; the deed in `book_config` is frozen; every change a dated `business_setting`: ☐ ⟦tests: E-03-32, E-03-33, E-03-34, E-03-35 @M7⟧
-3. **Ruling 3** — `structural_quorum` in `book_config` at creation (absent = all owners), `business_setting` on change: ☐ ⟦tests: E-03-32, E-03-33⟧
-4. **Ruling 4** — `partner_shares` stays: ☐ ⟦tests: E-03-30⟧
-5. **Ruling 5** — the wire shape and the reader rule: ☐ ⟦tests: E-03-33, E-03-36 @M7⟧
-6. **Ruling 6** — one ratio per distribution, the one in force at its date: ☐ ⟦tests: A-02-58⟧
+1. **Ruling 1** — the ratio is changeable by quorum only; the 13 Sep sentence is struck: ☑ ⟦tests: A-02-64, A-02-94⟧
+2. **Ruling 2** — two layers; the deed in `book_config` is frozen; every change a dated `business_setting`: ☑ ⟦tests: E-03-32, E-03-33, E-03-34, E-03-35⟧
+3. **Ruling 3** — `structural_quorum` in `book_config` at creation (absent = all owners), `business_setting` on change: ☑ ⟦tests: E-03-32, E-03-33⟧
+4. **Ruling 4** — `partner_shares` stays: ☑ ⟦tests: E-03-30⟧
+5. **Ruling 5** — the wire shape and the reader rule: ☑ ⟦tests: E-03-33, E-03-36⟧
+6. **Ruling 6** — one ratio per distribution, the one in force at its date: ☑ ⟦tests: A-02-58⟧
 
 ## Open ⚠️
 - **Pro-rating across a mid-FY ratio change** (ruling 6) — a bookkeeper question, not an engine one; the default

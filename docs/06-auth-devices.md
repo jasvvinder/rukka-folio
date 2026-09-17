@@ -68,7 +68,7 @@ A gurudwara committee will not recognise "Operator"; it will recognise ਸੇਵ
 
 ---
 
-## 3. Device registration 🔒 ⟦tests: E-06-3, E-06-6, E-06-7, E-03-24, C-06-9, C-06-12, C-06-13, C-05d-6, C-06-19⟧
+## 3. Device registration 🔒 ⟦tests: E-06-3, E-06-6, E-06-7, E-03-24, C-06-9, C-06-12, C-06-13, C-05d-6, C-06-19, C-06-28, C-06-29, C-06-30, C-06-31⟧
 
 On first run after OTP:
 
@@ -101,7 +101,7 @@ Challenge–response; no bearer secrets that outlive minutes.
 
 ---
 
-## 5. Activation flows by scenario 🔒 ⟦tests: C-06-17, F1-06-6⟧
+## 5. Activation flows by scenario 🔒 ⟦tests: C-06-17, F1-06-6, C-06-32, C-06-33, C-06-34, C-06-35, C-06-36⟧
 
 | Scenario | Flow |
 |---|---|

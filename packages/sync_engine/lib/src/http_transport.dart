@@ -146,20 +146,18 @@ abstract final class ClientFailureCode {
   /// Route-level: cursors and outbox rows stay exactly where they were.
   static const String malformedResponse = 'malformed_response';
 
-  /// [TransportOffline] detail — the presented chain matched no pin, or no
-  /// chain was reported at all.
+  /// [PinFailed] detail — the presented chain matched no pin, or no chain was
+  /// reported at all.
   static const String pinFailed = 'spki_pin_failed';
 }
 
 /// `SyncTransport` over HTTPS (05 §1). See the file comment for the contract.
 ///
-/// ⚠️ SPEC 05 §1: a pin failure is specified as "a hard fail with no fallback
-/// and no override", but the status surface of §9 has no state for it and
-/// [TransportFailure] no subclass. This build raises [TransportOffline] with
-/// detail [ClientFailureCode.pinFailed]: the round stops, nothing is sent,
-/// nothing is believed, no cursor moves and the user sees *Offline*. Whether a
-/// pinned-connection failure deserves its own `Needs attention` reason is the
-/// owner's call (lane report, M7-Y2).
+/// A pin failure is 05 §1's "hard fail with no fallback and no override":
+/// this build raises [PinFailed] with detail [ClientFailureCode.pinFailed],
+/// the round stops, nothing is sent, nothing is believed and no cursor moves.
+/// The user sees *Needs attention* → Inbox, never *Offline* — settled by
+/// ADR 2026-09-15 §7 🔒, which the M7-Y2 lane report had left to the owner.
 ///
 /// ⚠️ SPEC 05 §1 also asks for gzip on the request body. `package:http` and the
 /// platform client negotiate gzip on responses; compressing a request body
@@ -385,16 +383,20 @@ final class HttpSyncTransport implements FullSyncTransport {
   /// 05 §1 🔒: the presented chain must match a pin, or the request never
   /// leaves. No fallback, no override — a source that cannot say what was
   /// presented fails exactly like a mismatch.
+  ///
+  /// [PinFailed], never [TransportOffline]: the engine turns it into *Needs
+  /// attention* with `pin_failed` rather than telling the user to wait for a
+  /// network they may already have (ADR 2026-09-15 §7 🔒).
   Future<void> _checkPin(Uri url) async {
     if (pins.localDevDisabled) return;
     final List<Uint8List>? chain;
     try {
       chain = await tlsChainSource!.spkiSha256(url);
     } on Object {
-      throw const TransportOffline(ClientFailureCode.pinFailed);
+      throw const PinFailed(ClientFailureCode.pinFailed);
     }
     if (chain == null || pins.check(chain) != PinVerdict.matched) {
-      throw const TransportOffline(ClientFailureCode.pinFailed);
+      throw const PinFailed(ClientFailureCode.pinFailed);
     }
   }
 

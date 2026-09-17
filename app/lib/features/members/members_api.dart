@@ -32,53 +32,31 @@ import 'dart:convert';
 
 import 'package:sync_engine/sync_engine.dart' show MetaResponse;
 
+import '../../shared/seams/http_transport.dart';
 import 'members_repository.dart';
 
-/// A minimal response: status and UTF-8 body — the same two-field shape
-/// `features/auth`'s [AuthHttpResponse] uses, for the same reason (the HTTP
-/// package is wired at integration, not here).
-final class MembersHttpResponse {
-  /// Creates a response.
-  const MembersHttpResponse(this.statusCode, this.body);
+export '../../shared/seams/http_transport.dart'
+    show
+        MembersTransportOverRkHttp,
+        RkHttpFailure,
+        RkHttpResponse,
+        RkHttpTransport;
 
-  /// HTTP status.
-  final int statusCode;
-
-  /// UTF-8 body, possibly empty.
-  final String body;
-}
+/// A minimal response: status and UTF-8 body. An alias of the app's one HTTP
+/// door (`shared/seams/http_transport.dart`) — this feature declared its own
+/// copy until M7; the name stays, the second declaration does not.
+typedef MembersHttpResponse = RkHttpResponse;
 
 /// Thrown by a [MembersTransport] when the request never reached a response
 /// (no network, DNS, TLS, timeout). The API maps it to
 /// [MembersRefusal.offline] — never to a refusal that would claim the server
 /// said something.
-final class MembersTransportException implements Exception {
-  /// Creates the exception.
-  const MembersTransportException([this.cause]);
+typedef MembersTransportException = RkHttpFailure;
 
-  /// What went wrong, for the caller's own handling. Never logged.
-  final Object? cause;
-
-  @override
-  String toString() => 'MembersTransportException';
-}
-
-/// GET/POST JSON with a bearer token. Implementations must throw
-/// [MembersTransportException] on transport failure and never log a body.
-abstract class MembersTransport {
-  /// GET [url].
-  Future<MembersHttpResponse> get(
-    Uri url, {
-    required Map<String, String> headers,
-  });
-
-  /// POST [body] (already JSON) to [url].
-  Future<MembersHttpResponse> post(
-    Uri url, {
-    required Map<String, String> headers,
-    required String body,
-  });
-}
+/// GET/POST JSON with a bearer token: the door itself ([RkHttpTransport]).
+/// Implementations must throw [MembersTransportException] on transport
+/// failure and never log a body.
+typedef MembersTransport = RkHttpTransport;
 
 /// Route table under the edge-functions root (⚠️ WIRE sync-meta/index.ts).
 final class MembersEndpoints {

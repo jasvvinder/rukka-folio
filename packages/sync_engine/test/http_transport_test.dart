@@ -736,7 +736,9 @@ void main() {
       );
       await expectLater(
         rig.transport.pull(const PullRequest(bookId: _book, afterSeq: 0)),
-        throwsA(isA<TransportOffline>()),
+        // Its own cause since ADR 2026-09-15 §7 🔒 — *Needs attention*, not
+        // *Offline*: the network may be fine and the server impersonated.
+        throwsA(isA<PinFailed>()),
       );
       expect(rig.requests, isEmpty, reason: 'no fallback, no override');
     });
@@ -749,7 +751,7 @@ void main() {
       );
       await expectLater(
         rig.transport.push(const PushRequest(envelopes: [])),
-        throwsA(isA<TransportOffline>()),
+        throwsA(isA<PinFailed>()),
       );
       expect(rig.requests, isEmpty);
     });
