@@ -6,7 +6,17 @@
   "menu.reports.row.subtitle": "डे बुक, कैश बुक, स्टेटमेंट, ट्रायल बैलेंस और अन्य।",
 
   "menu.close_month.row.title": "महीना बंद करें",
-  "menu.close_month.row.reason": "महीना बंद करने का विज़ार्ड अभी नहीं बना।",
+  "menu.close_month.row.subtitle": "{month} खुला · {count, plural, =0{बंद करने के लिए तैयार} =1{1 चीज़ बाकी} other{{count} चीज़ें बाकी}}",
+  "menu.close_month.row.subtitle.book": "{book} · {month} खुला · {count, plural, =0{बंद करने के लिए तैयार} =1{1 चीज़ बाकी} other{{count} चीज़ें बाकी}}",
+  "menu.close_month.row.loading": "देख रहे हैं कि हर बही कहाँ खड़ी है…",
+  "menu.close_month.row.reason.closed": "{month} तक हर बही बंद हो चुकी है।",
+  "menu.close_month.row.reason.none": "अभी बंद करने के लिए कोई महीना नहीं है।",
+  "menu.close_month.row.error": "बंदी की जाँच नहीं हो सकी · दोबारा कोशिश के लिए दबाएँ",
+
+  "menu.year_close.row.title": "वर्ष-बंदी",
+  "menu.year_close.row.subtitle": "वित्त वर्ष {fy} प्रमाणित करें",
+  "menu.year_close.row.subtitle.book": "{book} · वित्त वर्ष {fy} प्रमाणित करें",
+  "menu.year_close.row.reason": "वित्त वर्ष समाप्त होने के बाद ही उसे प्रमाणित किया जा सकता है।",
 
   "menu.books_members.row.title": "बहियाँ और सदस्य",
   "menu.books_members.row.subtitle": "आपकी बहियाँ, और नया कारोबार जोड़ना।",

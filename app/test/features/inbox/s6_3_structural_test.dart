@@ -825,7 +825,7 @@ void main() {
             viewport: rkPhone360,
           );
           expect(tester.takeException(), isNull);
-          expectTextFits(tester, reason: '${locale.languageCode} at ${scale}×');
+          expectTextFits(tester, reason: '${locale.languageCode} at $scale×');
         }
       }
     });
@@ -850,10 +850,7 @@ void main() {
               viewport: rkPhone360,
             );
             expect(tester.takeException(), isNull);
-            expectTextFits(
-              tester,
-              reason: '${locale.languageCode} at ${scale}×',
-            );
+            expectTextFits(tester, reason: '${locale.languageCode} at $scale×');
           }
         }
       },
@@ -891,7 +888,7 @@ void main() {
             expect(tester.takeException(), isNull);
             expectTextFits(
               tester,
-              reason: 'veto sheet ${locale.languageCode} at ${scale}×',
+              reason: 'veto sheet ${locale.languageCode} at $scale×',
             );
           }
         }

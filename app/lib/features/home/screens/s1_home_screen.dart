@@ -36,12 +36,15 @@ import '../../../shared/format/money_format.dart';
 import '../../../shared/ledger/ledger_scope.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../close/close_paths.dart';
+import '../../close/close_source.dart';
 import '../../ledger/ledger_book.dart';
 import '../home_data.dart';
 import '../home_paths.dart';
 import '../home_rebuild.dart';
 import '../home_scope.dart';
 import '../widgets/home_cards.dart';
+import '../widgets/home_close_card.dart';
 import '../widgets/home_everything.dart';
 import '../widgets/home_rebuild_gate.dart';
 import '../widgets/home_scope_switcher.dart';
@@ -65,6 +68,8 @@ class HomeScreen extends StatefulWidget {
     this.rebuildingSlot,
     this.scopeController,
     this.rebuildProgress,
+    this.closeSource,
+    this.onOpenClose,
   });
 
   /// Explicit book; when null the solo book is resolved ([soloBookId]) and
@@ -110,6 +115,17 @@ class HomeScreen extends StatefulWidget {
   /// rebuild can be reported and the normal body always shows.
   final RebuildProgressSource? rebuildProgress;
 
+  /// The close seam behind the *Close card* (07 §13 🔒 bullet 1). When null it
+  /// is read from [CloseScope]; with neither, no card is drawn and Home is
+  /// otherwise untouched — a close card is an invitation, never a dependency.
+  final CloseSource? closeSource;
+
+  /// Opens a close path — S10 for a month still open, S10.2 for one that has
+  /// closed. The future completes when the closer comes back, which is when
+  /// the card re-reads its state: a month closed in the wizard must not still
+  /// read *Close Aug 2026* on return.
+  final Future<void> Function(String path)? onOpenClose;
+
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -126,6 +142,10 @@ class _HomeScreenState extends State<HomeScreen> {
   String? _gateBook;
   Stream<RebuildProgress?>? _progressStream;
   Stream<bool>? _integrityStream;
+  // The Close card's input (07 §13 🔒). Empty until the seam answers, and
+  // empty for ever when there is no seam — Home draws no card and loses
+  // nothing else.
+  List<BookCloseStatus> _closeStatuses = const [];
 
   @override
   void didChangeDependencies() {
@@ -143,6 +163,30 @@ class _HomeScreenState extends State<HomeScreen> {
       onError: (Object _) {},
     );
     _resolveBook();
+    unawaited(_loadClose());
+  }
+
+  /// Reads every book's close state for the month that has just ended.
+  ///
+  /// 07 §13 🔒: the card appears **from the 1st**, so the month it offers is
+  /// the one before today's — never the month in progress, which has nothing
+  /// to close. The clock is the ledger's injected one (CLAUDE.md rule 3), the
+  /// same reading the rest of Home takes.
+  Future<void> _loadClose() async {
+    final source = widget.closeSource ?? CloseScope.maybeOf(context);
+    if (source == null) return;
+    final today = LedgerScope.of(context).today();
+    final ended = today.month == 1
+        ? YearMonth(today.year - 1, 12)
+        : YearMonth(today.year, today.month - 1);
+    try {
+      final statuses = await source.closeStatuses(ended);
+      if (mounted) setState(() => _closeStatuses = statuses);
+    } on Object {
+      // A close card that cannot be read is not a reason to lose Home
+      // (07 §1 rule 12): the section simply stays unbuilt.
+      if (mounted) setState(() => _closeStatuses = const []);
+    }
   }
 
   void _onScope() {
@@ -285,6 +329,14 @@ class _HomeScreenState extends State<HomeScreen> {
         if (data == null) return RkSkeleton(label: l10n.homeSkeleton);
         return _HomeBody(
           snapshot: data,
+          // One card per book the user closes (07 §13 🔒). This body is one
+          // book's, so it carries that book's card; the *Everything* body is
+          // where the full set belongs once it adopts the section.
+          closeStatuses: [
+            for (final s in _closeStatuses)
+              if (s.bookId == bookId) s,
+          ],
+          onOpenClose: _openClose,
           onOpenPosition: widget.onOpenPosition,
           onOpenAccount: widget.onOpenAccount,
           onVerb: widget.onVerb,
@@ -298,6 +350,20 @@ class _HomeScreenState extends State<HomeScreen> {
       },
     );
   }
+
+  /// Opens S10, or S10.2 for a month that has already closed (07 §13 🔒),
+  /// then re-reads the card: the closer comes back to the state he left.
+  Future<void> _openClose(BookCloseStatus status) async {
+    final open = widget.onOpenClose;
+    if (open == null) return;
+    final period = status.period.toString();
+    await open(
+      status.state == BookCloseState.closed
+          ? ClosePaths.summaryFor(status.bookId, period)
+          : ClosePaths.forBook(status.bookId, period),
+    );
+    if (mounted) await _loadClose();
+  }
 }
 
 /// The loaded surface — a pure function of the snapshot, so a test (and the
@@ -305,6 +371,8 @@ class _HomeScreenState extends State<HomeScreen> {
 class _HomeBody extends StatelessWidget {
   const _HomeBody({
     required this.snapshot,
+    this.closeStatuses = const [],
+    this.onOpenClose,
     this.onOpenPosition,
     this.onOpenAccount,
     this.onVerb,
@@ -317,6 +385,8 @@ class _HomeBody extends StatelessWidget {
   });
 
   final HomeSnapshot snapshot;
+  final List<BookCloseStatus> closeStatuses;
+  final void Function(BookCloseStatus status)? onOpenClose;
   final void Function(PositionLine line)? onOpenPosition;
   final void Function(String accountId)? onOpenAccount;
   final void Function(EntryKind kind)? onVerb;
@@ -393,6 +463,21 @@ class _HomeBody extends StatelessWidget {
           outPaise: snapshot.monthOutPaise,
         ),
         HomeVerbButtons(onVerb: onVerb),
+        // The *Close card* (07 §13 🔒 bullet 1) sits **below** the four verb
+        // buttons, not above them.
+        //
+        // ⚠️ SPEC: 07 §4 🔒 draws Home card by card and never places this one
+        // — the only instruction is 07 §13's *"appears on Home from the 1st"*.
+        // The conservative reading is the one that cannot cost the product its
+        // first rule: 07 §1 rule 1 🔒 says every design decision loses to the
+        // 8-second entry, so a monthly invitation may not push the verb
+        // buttons out of thumb reach (rule 2). It sits directly under them,
+        // above Today, where it is still the first thing after the actions.
+        HomeCloseCards(
+          statuses: closeStatuses,
+          onOpenClose: onOpenClose,
+          onOpenSummary: onOpenClose,
+        ),
         Padding(
           padding: const EdgeInsets.fromLTRB(
             RkSpace.gutter,

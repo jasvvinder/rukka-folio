@@ -115,5 +115,20 @@
   "home.rebuild.progress": "{done} of {total} entries restored",
   "@home.rebuild.progress": {"description": "S1.4 determinate loader count 🔒 (07 §28, 11 §4.5): counts, never percentages, never a spinner.", "placeholders": {"done": {"type": "int"}, "total": {"type": "int"}}},
   "home.rebuild.note": "Your figures will be right as soon as this finishes.",
-  "@home.rebuild.note": {"description": "S1.4 note: the book is not shown as whole while it rebuilds (13 §3.2 row S1.4)."}
+  "@home.rebuild.note": {"description": "S1.4 note: the book is not shown as whole while it rebuilds (13 §3.2 row S1.4)."},
+
+  "home.close.title": "Close {month}",
+  "@home.close.title": {"description": "S1 Home *Close card* (07 §13 🔒 bullet 1: `Close August ▸ 4 steps`), one per book the user closes, from the 1st. ⚠️ SPEC: 07 §13 writes a full English month while 07 §1 rule 5 🔒 abbreviates; the global rule is taken and S10 uses the same form. {month} pre-formatted.", "placeholders": {"month": {"type": "String"}}},
+  "home.close.steps": "{total} steps",
+  "@home.close.steps": {"description": "S1 Home close card — the size of the job, so it is never opened blind (07 §13 🔒 `▸ 4 steps`).", "placeholders": {"total": {"type": "int"}}},
+  "home.close.resume": "Picks up at step {n} of {total}",
+  "@home.close.resume": {"description": "S1 Home close card, in-progress state — progress is saved and the wizard resumes (07 §13 *Resumable* 🔒).", "placeholders": {"n": {"type": "int"}, "total": {"type": "int"}}},
+  "home.close.waiting": "Waiting on {name}",
+  "@home.close.waiting": {"description": "S1 Home close card — an author gap or a held envelope keeps the lock off (ADR 2026-09-05b §3–4, S10.5). {name} is the phone, or *another phone* when it has no name.", "placeholders": {"name": {"type": "String"}}},
+  "home.close.book": "{book}",
+  "@home.close.book": {"description": "S1 Home close card — which book the card is for, shown when the user has more than one. Pass-through so the book's own name is never translated.", "placeholders": {"book": {"type": "String"}}},
+  "home.close.done.title": "{month} is closed",
+  "@home.close.done.title": {"description": "S1 Home close card, closed state — the card gives way to the S10.2 door for that month (07 §13 🔒). {month} pre-formatted.", "placeholders": {"month": {"type": "String"}}},
+  "home.close.done.action": "See the month",
+  "@home.close.done.action": {"description": "S1 Home close card, closed state — opens S10.2, the month summary card (13 §3.2 row S10.2)."}
 }

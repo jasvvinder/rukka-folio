@@ -109,5 +109,7 @@
   "entry.retry": "Try again",
   "@entry.retry": {"description": "Retry action on the S2 error state."},
   "entry.loading": "Loading",
-  "@entry.loading": {"description": "S2 loading skeleton announcement (11 §4.5)."}
+  "@entry.loading": {"description": "S2 loading skeleton announcement (11 §4.5)."},
+  "entry.import.action": "Import a statement",
+  "@entry.import.action": {"description": "S2 header action, top right, opposite the close ✕ (ADR 2026-09-03 🔒 ruling 2: importing is a way of entering many lines at once, so the door is here and not a Menu row). Opens S7."}
 }

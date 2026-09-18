@@ -44,5 +44,231 @@
   "partners.sheet.save": "दर्ज करें",
   "partners.sheet.cancel": "अभी नहीं",
   "partners.sheet.error": "दर्ज नहीं हो सका। बही में कुछ नहीं गया।",
-  "partners.saved": "दर्ज हो गया ✓"
+  "partners.saved": "दर्ज हो गया ✓",
+  "distribute.title": "मुनाफ़ा बाँटें",
+  "@distribute.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.skeleton": "हर साझेदार का हिस्सा निकाला जा रहा है",
+  "@distribute.skeleton": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.error": "हिस्से नहीं निकाले जा सके।",
+  "@distribute.error": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.retry": "फिर कोशिश करें",
+  "@distribute.retry": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.step": "{total} में से चरण {n}",
+  "@distribute.step": {
+    "description": "machine-draft — native review M12",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "distribute.step1.title": "साल का कौन-सा हिस्सा?",
+  "@distribute.step1.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.step1.help": "मुनाफ़ा पूरे साल का होता है। ये तारीख़ें सिर्फ़ यह तय करती हैं कि ब्याज कितने दिनों का निकालना है।",
+  "@distribute.step1.help": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.period.from": "से",
+  "@distribute.period.from": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.period.to": "तक",
+  "@distribute.period.to": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.period.year": "वित्त वर्ष {label}",
+  "@distribute.period.year": {
+    "description": "machine-draft — native review M12",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "distribute.step2.title": "हर साझेदार को क्या मिलेगा",
+  "@distribute.step2.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.step2.help": "अभी कुछ दर्ज नहीं हुआ है। एंट्री यही कहेगी।",
+  "@distribute.step2.help": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.profit": "{label} का मुनाफ़ा",
+  "@distribute.profit": {
+    "description": "machine-draft — native review M12",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "distribute.loss": "{label} का नुकसान",
+  "@distribute.loss": {
+    "description": "machine-draft — native review M12",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "distribute.loss.note": "इस साल नुकसान हुआ है, इसलिए हर साझेदार का हिस्सा उस रकम में से घटेगा जो कारोबार को उसे देनी है।",
+  "@distribute.loss.note": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.owner.interest": "ब्याज",
+  "@distribute.owner.interest": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.owner.share": "हिस्सा",
+  "@distribute.owner.share": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.owner.total": "{name} को कुल",
+  "@distribute.owner.total": {
+    "description": "machine-draft — native review M12",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "distribute.ratio": "{total} में से {weight}",
+  "@distribute.ratio": {
+    "description": "machine-draft — native review M12",
+    "placeholders": {
+      "weight": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "distribute.totals.interest": "कुल ब्याज",
+  "@distribute.totals.interest": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.totals.share": "तय हिस्सों के हिसाब से बँटवारा",
+  "@distribute.totals.share": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.totals.entry": "पूरी एंट्री",
+  "@distribute.totals.entry": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.interest.off": "इस कारोबार के लिए पूँजी पर ब्याज बंद है, इसलिए हर किसी की एक ही पंक्ति है।",
+  "@distribute.interest.off": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.interest.above": "देय ब्याज मुनाफ़े से ज़्यादा है। ब्याज पूरा दिया जाता है, और जो बचता है वह नुकसान की तरह बाँटा जाता है।",
+  "@distribute.interest.above": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.step3.title": "दर्ज करने के लिए तैयार",
+  "@distribute.step3.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.confirm.solo": "बाँटें",
+  "@distribute.confirm.solo": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.confirm.solo.note": "यह एक एंट्री दर्ज करता है। पैसा कहीं नहीं जाता: सिर्फ़ यह लिखा जाता है कि कारोबार अब हर साझेदार को कितना देना है।",
+  "@distribute.confirm.solo.note": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.confirm.shared": "साझेदारों को भेजें",
+  "@distribute.confirm.shared": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.confirm.shared.note": "हर साझेदार की मंज़ूरी चाहिए। यह उनके इनबॉक्स में इंतज़ार करता है, और उससे पहले कुछ नहीं बदलता।",
+  "@distribute.confirm.shared.note": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.back": "पीछे",
+  "@distribute.back": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.next": "आगे",
+  "@distribute.next": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.posted": "दर्ज हो गया ✓",
+  "@distribute.posted": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.proposed": "साझेदारों को भेज दिया ✓",
+  "@distribute.proposed": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.failed": "दर्ज नहीं हो सका। बही में कुछ नहीं गया।",
+  "@distribute.failed": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.block.ceiling": "यह उस रकम से {amount} ज़्यादा है जो कारोबार के पास देने को बची है।",
+  "@distribute.block.ceiling": {
+    "description": "machine-draft — native review M12",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "distribute.block.ceiling.help": "पिछले सालों की कमाई भी इसी में गिनी जाती है। उससे ज़्यादा कुछ बाहर नहीं जा सकता।",
+  "@distribute.block.ceiling.help": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.block.ratio.unrecorded": "इस कारोबार के लिए तय हिस्से कभी लिखे ही नहीं गए, इसलिए कुछ बाँटा नहीं जा सकता।",
+  "@distribute.block.ratio.unrecorded": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.block.ratio.incomplete": "तय हिस्से हर साझेदार को नहीं ढकते, इसलिए कुछ बाँटा नहीं जा सकता।",
+  "@distribute.block.ratio.incomplete": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.block.terms": "इस कारोबार की तय शर्तें इस फ़ोन पर पढ़ी नहीं जा सकीं, इसलिए अभी कुछ बाँटा नहीं जा सकता।",
+  "@distribute.block.terms": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.block.nothing": "{label} के लिए बाँटने को कुछ नहीं है।",
+  "@distribute.block.nothing": {
+    "description": "machine-draft — native review M12",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "distribute.block.partners": "इस कारोबार के अभी साझेदारों के खाते नहीं हैं।",
+  "@distribute.block.partners": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.block.account": "इस कारोबार के पास बँटवारा दर्ज करने के लिए अभी कोई जगह नहीं है।",
+  "@distribute.block.account": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.block.notshared": "यहाँ दिखाने को कुछ नहीं है।",
+  "@distribute.block.notshared": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.readonly": "इस समय आपका प्लान सिर्फ़ पढ़ने के लिए है, इसलिए कुछ दर्ज नहीं हो सकता।",
+  "@distribute.readonly": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.door": "मुनाफ़ा बाँटें",
+  "@distribute.door": {
+    "description": "machine-draft — native review M12"
+  }
 }

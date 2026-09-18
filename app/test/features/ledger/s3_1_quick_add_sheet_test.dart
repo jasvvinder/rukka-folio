@@ -37,6 +37,8 @@ Future<void> openSheet(
   WidgetTester tester,
   SeededLedger seed, {
   Locale? locale,
+  double textScale = 1,
+  Size? viewport,
 }) async {
   await pumpRk(
     tester,
@@ -55,6 +57,8 @@ Future<void> openSheet(
     ),
     ledger: seed.ledger,
     locale: locale,
+    textScale: textScale,
+    viewport: viewport,
   );
   await tester.tap(find.text('open'));
   await tester.pumpAndSettle();
@@ -188,33 +192,45 @@ void main() {
       expect(parseRupeesToPaise('abc'), isNull);
     });
 
-    testWidgets(
-      'F1-07-43 strings resolve in EN/PA/HI with no overflow at 200%',
-      (tester) async {
-        // A real 360x800 phone, at the 200% scale of 07 §1 rule 9 — the scale
-        // has to go through the platform dispatcher, because the sheet lives in
-        // the Navigator overlay, above any MediaQuery a test wraps `home` in.
-        tester.view.physicalSize = const Size(360, 800);
-        tester.view.devicePixelRatio = 1;
-        tester.platformDispatcher.textScaleFactorTestValue = 2;
-        addTearDown(tester.view.reset);
-        addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
-        for (final locale in const [Locale('en'), Locale('pa'), Locale('hi')]) {
-          final seed = await seedSoloLedger();
-          await openSheet(tester, seed, locale: locale);
-          // Step 1 renders, scrolls rather than overflows...
-          expect(find.byType(GridView), findsOneWidget);
-          expect(tester.takeException(), isNull);
-          // ...and so does step 2, whose actions are the tall ones.
-          final bank = find.byIcon(QuickAddTile.bank.icon);
-          await tester.ensureVisible(bank);
-          await tester.pumpAndSettle();
-          await tester.tap(bank);
-          await tester.pumpAndSettle();
-          expect(tester.takeException(), isNull);
-          await unmount(tester);
+    // Both phones, both scales of 09 F1, all three scripts — and the words
+    // are *measured*, not merely asked whether they threw: a paragraph given
+    // less room than one of its words draws that word past the edge in
+    // silence (`expectTextFits`). The sheet is scaled through `pumpRk`, whose
+    // MediaQuery sits above the Navigator, so the overlay this sheet lives in
+    // is scaled with it.
+    for (final phone in rkPhones) {
+      for (final scale in rkTextScales) {
+        for (final locale in rkLocales) {
+          testWidgets(
+            'F1-07-43 strings resolve in ${locale.languageCode} with no cut '
+            'word at ${scale}x on ${phone.width.toInt()}x'
+            '${phone.height.toInt()}',
+            (tester) async {
+              final seed = await seedSoloLedger();
+              await openSheet(
+                tester,
+                seed,
+                locale: locale,
+                textScale: scale,
+                viewport: phone,
+              );
+              // Step 1 renders, and scrolls rather than overflows...
+              expect(find.byType(GridView), findsOneWidget);
+              expect(tester.takeException(), isNull);
+              expectTextFits(tester, reason: 'S3.1 step 1 @ ${scale}x $phone');
+              // ...and so does step 2, whose actions are the tall ones.
+              final bank = find.byIcon(QuickAddTile.bank.icon);
+              await tester.ensureVisible(bank);
+              await tester.pumpAndSettle();
+              await tester.tap(bank);
+              await tester.pumpAndSettle();
+              expect(tester.takeException(), isNull);
+              expectTextFits(tester, reason: 'S3.1 step 2 @ ${scale}x $phone');
+              await unmount(tester);
+            },
+          );
         }
-      },
-    );
+      }
+    }
   });
 }

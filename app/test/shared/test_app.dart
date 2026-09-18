@@ -313,12 +313,11 @@ void expectTextFits(WidgetTester tester, {String? reason}) {
   }
 }
 
-/// Flip to make an unconverted zero-sized screen fatal everywhere, not only
-/// where [pumpRk] was given a `textScale:`/`viewport:`. It stays `false` only
-/// while the 24 test files listed in the M5-T1 lane report still wrap their
-/// own bare `MediaQueryData`; the lane that converts the last of them sets
-/// this to `true` and deletes this comment.
-const rkStrictViewport = false;
+/// Whether a zero-sized screen is fatal everywhere, and not only where
+/// [pumpRk] was given a `textScale:`/`viewport:`. It is: every test file now
+/// takes its viewport from [pumpRk] itself, so a tree laid out against
+/// `Size.zero` is a broken test rather than a caller waiting its turn.
+const rkStrictViewport = true;
 
 /// Rejects — or, for a not-yet-converted caller, denounces — a tree laying
 /// itself out against an empty screen.

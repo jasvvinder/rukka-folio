@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../../shared/widgets/rk_fit_text.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key, this.onDone});
@@ -140,13 +141,17 @@ class _WelcomeSlide extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Text(
+              RkFitText(
                 title,
                 style: text.headlineMedium,
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: RkSpace.s3),
-              Text(body, style: text.bodyLarge, textAlign: TextAlign.center),
+              RkFitText(
+                body,
+                style: text.bodyLarge,
+                textAlign: TextAlign.center,
+              ),
             ],
           ),
         ),

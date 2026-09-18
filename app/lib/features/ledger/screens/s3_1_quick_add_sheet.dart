@@ -35,6 +35,7 @@ import 'package:flutter/services.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/ledger/ledger_scope.dart';
 import '../../../shared/tokens.dart';
+import '../../../shared/widgets/rk_fit_text.dart';
 
 /// One tile of step 1 (07 §6). Carries the engine shape the tile creates and
 /// how the opening-balance question is asked for it.
@@ -346,11 +347,19 @@ class _TypeCard extends StatelessWidget {
             horizontal: RkSpace.s3,
             vertical: RkSpace.s2,
           ),
+          // `RkFitText`, not `Text`: two tiles share a 360 px line, so a tile
+          // label has about 104 px beside its icon, and *category* — one
+          // unbreakable word — asks more than that once the reader scales the
+          // type. Flutter breaks between words only, so the plain `Text` drew
+          // the tail of the word over the card's edge without throwing
+          // (F1-07-43 at 1.3x and 200 %). The label steps down as far as its
+          // widest word needs and no further; where it already fits, it is
+          // drawn at exactly the size the reader asked for.
           child: Row(
             children: [
               Icon(tile.icon),
               const SizedBox(width: RkSpace.s2),
-              Expanded(child: Text(label)),
+              Expanded(child: RkFitText(label)),
             ],
           ),
         ),

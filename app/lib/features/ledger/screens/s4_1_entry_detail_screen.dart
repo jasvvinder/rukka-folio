@@ -29,6 +29,7 @@ import '../../../shared/ledger/ledger_scope.dart';
 import '../../../shared/ledger/local_ledger.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../../shared/widgets/rk_fit_text.dart';
 import '../entry_detail.dart';
 
 /// S4.1 — one entry, its audit trail and its two corrections.
@@ -232,13 +233,57 @@ class _Headline extends StatelessWidget {
           label: direction == null
               ? null
               : '${formatPaise(paise, locale: Localizations.localeOf(context), signed: false)} $direction',
+          // Figure and word as two widgets, exactly as [_SideRow] does it:
+          // [MoneyText] draws its run with `softWrap: false`, so
+          // `−₹2,400 Money out` at the hero size is one 344.7 px word where a
+          // 360 px phone has 328 px of line — cut, silently, at 1.3x. Split,
+          // the hero figure keeps the size the reader asked for (07 §1 rule 4
+          // — a tabular figure is never shrunk to fit) and the direction word
+          // takes the next line when it has to. The announcement above is
+          // unchanged, and still carries both.
           child: ExcludeSemantics(
-            child: MoneyText(
-              paise,
-              style: RkType.amountHero.copyWith(
-                decoration: struck ? TextDecoration.lineThrough : null,
-              ),
-              showDirection: true,
+            child: Wrap(
+              spacing: RkSpace.s2,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: [
+                // Scale-to-fit, the same answer Home's hero already gives
+                // (`features/home/widgets/home_cards.dart`): at the hero size
+                // `−₹2,400` is one unbreakable word needing 344.7 px of the
+                // 328 px a 360 px phone leaves at 1.3x, and a plain Text drew
+                // its last digits off the screen without throwing — which is
+                // how a ledger comes to show a wrong number.
+                //
+                // ⚠️ SPEC: 07 §6 fixes the hero's type and says nothing about
+                // a figure that outgrows the phone. Shrinking loses no digit
+                // and creates no dead end (07 §1 rules 2 and 6), so it is the
+                // conservative reading — but a 200 % reader does get less
+                // than the full hero size on a long figure. A shorter format
+                // (lakh / crore) or a smaller hero token would be the other
+                // answers, and both are design calls: owner to rule. Same
+                // open item as Home's.
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: AlignmentDirectional.centerStart,
+                  child: MoneyText(
+                    paise,
+                    style: RkType.amountHero.copyWith(
+                      decoration: struck ? TextDecoration.lineThrough : null,
+                    ),
+                  ),
+                ),
+                // The word is a word, so it fits itself rather than being
+                // scaled with the figure: *Money* at the hero size is 440 px
+                // of unbreakable letters at 200 %, where the line is 328 px
+                // (13 §4, 07 §1 rule 11). The figure beside it keeps the
+                // reader's own size.
+                if (direction != null)
+                  RkFitText(
+                    direction,
+                    style: RkType.amountHero.copyWith(
+                      decoration: struck ? TextDecoration.lineThrough : null,
+                    ),
+                  ),
+              ],
             ),
           ),
         ),
@@ -287,7 +332,27 @@ class _SideRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final text = Text(name, style: Theme.of(context).textTheme.bodyMedium);
-    final amount = MoneyText(paise, showDirection: true, showPaise: true);
+    // The figure and its word are two widgets, not one string, because
+    // [MoneyText] never wraps: `−₹2,400 Money out` is one unbreakable run
+    // 344.7 px wide at 1.3x, and a 360 px phone has 328 px of line, so drawn
+    // as one string it is cut with nothing thrown. Split, the figure keeps
+    // its tabular size (07 §1 — never shrunk) and the word moves to the next
+    // line on its own. `MoneyText` labels itself for the screen reader and
+    // excludes its children, so the word is announced after it.
+    final direction = directionLabel(
+      AppLocalizations.of(context),
+      Vocabulary.consumer,
+      paise,
+    );
+    final amount = Wrap(
+      spacing: RkSpace.s1,
+      crossAxisAlignment: WrapCrossAlignment.center,
+      children: [
+        MoneyText(paise, showPaise: true),
+        if (direction != null)
+          Text(direction, style: Theme.of(context).textTheme.labelLarge),
+      ],
+    );
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: RkSpace.s2),
       child: _Fold(start: text, end: amount),
@@ -295,8 +360,15 @@ class _SideRow extends StatelessWidget {
   }
 }
 
-/// A label/value pair that becomes two stacked lines once the text is large
-/// enough that one row would overflow a 360 px phone (07 §1 rule 11).
+/// A label/value pair on one line — label left, value right — that becomes
+/// two stacked lines as soon as the two of them no longer fit (07 §1 rule 11).
+///
+/// The fold is decided by the **layout**, not by a text-scale threshold: a
+/// `Wrap` puts the pair in one run while the run holds them and in two runs
+/// when it does not, which is the same question asked of the real words in
+/// the real font. The threshold this replaced (`scale(1) > 1.3`) was green at
+/// 200 % and overflowed by 81 px at exactly 1.3, where the words are still
+/// drawn and are widest — U3g's finding on S8.2, over again.
 class _Fold extends StatelessWidget {
   const _Fold({required this.start, required this.end});
 
@@ -304,27 +376,13 @@ class _Fold extends StatelessWidget {
   final Widget end;
 
   @override
-  Widget build(BuildContext context) {
-    if (MediaQuery.textScalerOf(context).scale(1) > 1.3) {
-      return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          start,
-          const SizedBox(height: RkSpace.s1),
-          end,
-        ],
-      );
-    }
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Expanded(child: start),
-        const SizedBox(width: RkSpace.s3),
-        end,
-      ],
-    );
-  }
+  Widget build(BuildContext context) => Wrap(
+    alignment: WrapAlignment.spaceBetween,
+    crossAxisAlignment: WrapCrossAlignment.start,
+    spacing: RkSpace.s3,
+    runSpacing: RkSpace.s1,
+    children: [start, end],
+  );
 }
 
 class _FactRow extends StatelessWidget {
@@ -495,12 +553,16 @@ class _TrailRow extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: RkSpace.s2),
       child: _Fold(
+        // `min` + `Flexible`, not `Expanded`: inside [_Fold]'s `Wrap` a
+        // full-width row would push the button onto its own line even when
+        // both fit.
         start: Row(
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(icon, size: RkSpace.s4, color: status.muted),
             const SizedBox(width: RkSpace.s2),
-            Expanded(
+            Flexible(
               child: Text(text, style: Theme.of(context).textTheme.bodyMedium),
             ),
           ],

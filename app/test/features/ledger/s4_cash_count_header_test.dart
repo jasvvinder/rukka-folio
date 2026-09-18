@@ -195,10 +195,14 @@ void main() {
     );
 
     testWidgets(
-      'F1-07-127 the header holds in EN, PA and HI at 200% on 360×800 '
-      '(07 §1 rule 11)',
+      'F1-07-127 the header holds in EN, PA and HI at both scales on both '
+      'phones, cutting no word (07 §1 rule 11, 09 F1 viewports)',
       (tester) async {
-        for (final locale in const [Locale('en'), Locale('pa'), Locale('hi')]) {
+        for (final (locale, phone, scale) in [
+          for (final locale in rkLocales)
+            for (final phone in rkPhones)
+              for (final scale in rkTextScales) (locale, phone, scale),
+        ]) {
           final seed = await seedSoloLedger();
           final fake = FakeCashCountSource(
             target: targetFor(
@@ -227,16 +231,20 @@ void main() {
             ),
             ledger: seed.ledger,
             locale: locale,
-            textScale: 2,
-            viewport: rkPhone360,
+            textScale: scale,
+            viewport: phone,
           );
           await tester.pumpAndSettle();
 
+          final where = '${locale.languageCode} at ${scale}x on $phone';
           expect(
             tester.takeException(),
             isNull,
-            reason: 'S4 cash-count header overflowed in ${locale.languageCode}',
+            reason: 'S4 cash-count header overflowed — $where',
           );
+          // Measured, not merely un-thrown: a squeezed word is drawn past the
+          // edge in silence, so the header's own words are checked too.
+          expectTextFits(tester, reason: 'S4 cash-count header — $where');
           // The breakdown is Latin numerals in every locale (11 §4.4).
           expect(find.textContaining('20×500'), findsOneWidget);
           await unmount(tester);

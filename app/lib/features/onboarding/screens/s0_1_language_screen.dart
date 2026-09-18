@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../../shared/widgets/rk_fit_text.dart';
 
 class LanguagePickerScreen extends StatefulWidget {
   const LanguagePickerScreen({super.key, this.onSelected});
@@ -48,12 +49,12 @@ class _LanguagePickerScreenState extends State<LanguagePickerScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text(
+                      RkFitText(
                         l10n.onboardingLanguageTitle,
                         style: text.headlineMedium,
                       ),
                       const SizedBox(height: RkSpace.s2),
-                      Text(
+                      RkFitText(
                         l10n.onboardingLanguageSubtitle,
                         style: text.bodyLarge,
                       ),
@@ -127,10 +128,9 @@ class _LanguageOption extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                child: Text(
-                  label,
-                  style: text.bodyLarge,
+                child: Directionality(
                   textDirection: TextDirection.ltr,
+                  child: RkFitText(label, style: text.bodyLarge),
                 ),
               ),
               if (selected)

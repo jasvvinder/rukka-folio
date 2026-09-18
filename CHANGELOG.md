@@ -12,6 +12,193 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-18 — M9/M10: close, approvals and the review flag go live, the tray for real, strict viewport, import opens (rounds 4–7)
+
+Orchestrator session, continuing the 17 Sep phase. The overnight round (`wf_769488ce-4aa`, 03:04, three
+`lane-ui-hard`, ~1.85M tokens, 287 min) returned **`ok: false`** — CL4, CL5 and T4 all hit their caps
+part-way and were **not gated**. This session re-runs them and adds one `lane-sync` lane
+(`wf_26fec2f3-7dc`, three `lane-ui-hard` + one `lane-sync`, ~714k tokens, 19 min): **`ok: true`, 4/4 complete**,
+49 new test ids · **gate green** (`wf_17b56a2e-729`, 15 files formatted, nothing behavioural). Round 5
+(`wf_b63fc7e9-8eb`, two `lane-ui-hard`, ~535k tokens, 34 min): **`ok: true`, 2/2 complete**, 43 new ids · **gate green**
+(`wf_f9b52208-e32`, 8 files formatted). Round 6 (`wf_187f2211-127`, `lane-sync` + `lane-ui-hard` + `lane-ui`, ~746k, 35 min):
+**`ok: true`, 3/3 complete**, 47 new ids · **gate green** (`wf_70c8f3e3-510`, after a format-only red
+`wf_9bb8d135-856` — seven files, applied). Round 7 (`wf_761fe11f-916`, one `lane-sync`, ~212k, 20 min): **`ok: true`**,
+12 new ids · **gate green** (`wf_b95ffa14-da0`, two test files formatted). **1494 tests** repo-wide;
+`check_coverage --strict` 0 unmarked · 0 orphans · 932 ids. Session closed with `/close`; `PLAN.md` §0 refreshed to 18 Sep.
+
+### Added
+
+- **CL6 (`lane-sync`, `packages/data`, E-03-47…56) — the Late Arrivals tray can now exist in production.** CL4's report said the projector never receives the tray set; the orchestrator verified it
+  before spending a lane: `project()` takes `heldInTray` (`projection.dart:442`) and `recompute.dart:463`
+  never passes it, so `entries_p.status` could never read `'in_tray'` and S10.3 would have been empty on
+  every phone. CL6 records a device-local arrival ordinal at `Mirror.append` (schema v3 → v4), builds the
+  arrival-after-lock set with the engine's own `isLateArrival` in a second pure `project()` pass (skipped when the
+  tray is empty), and passes it in — `core_ledger` untouched. The ordinal is global to the table, backfilled in
+  `(hlc, envelope_id)` order on upgrade so history never conjures a tray item. `sync_engine` (56) and the harness (14)
+  re-run green on v4.
+- **S10.3 Late Arrivals tray, end to end over the seam (`CL4`, F1-07-180…189; facade F1-02-60…67).** Routed at
+  `/inbox/late`, pushed from a new S6 section drawn only while something is waiting and saying the money already
+  counts. Re-date is the one-tap default; re-open is scary-styled behind a required reason; a closed-FY month is a
+  plain sentence pointing at the year-close ceremony, never a tappable refusal. The month reads *Aug 2026* by the
+  07 §1 rule 5 house rule.
+- **S10.4 Year close tested (`CL5`, F1-07-190…199; 26 cases).** The tests found three real layout defects at 200 %
+  on 360 — a pinned header starving a scrolling body, `_VectorRow` cutting grouped figures, four labels past their
+  box — all fixed. The `LocalLedger` signatures for a `LedgerYearCloseSource` are recorded verbatim in the report.
+- **`rkStrictViewport = true` (`T4`, F1-07-172, F1-07-173; 169/170/171 widened or unskipped).** The whole app suite
+  (1157 tests) passes strict. The sweep found five more real defects, all fixed: S8.2 drew `.00` on round figures
+  against 07 §1 rule 4 🔒; PA/HI headings and counts past their edges on S8.2; S8.3's `> 1.3` scale threshold starving
+  a label at exactly 1.3; S3.1 tile labels cut in a two-column grid; S4.1's hero figure and word cut at scale.
+
+- **The close family and the tray are live in the shipped app (`CL7`, F1-02-68…79, F1-07-220…229).** `LocalLedger`
+  grew `yearClosePreconditions` (engine ∪ mirror facts, deduplicated, never substituted), `yearClosingVector` (the
+  engine's, never recomputed), `closeYear` (validate → refuse typed → author ONE signed `year_close` with the
+  projector's vector and `projectorVersion` → read this device's `CloseVerification` back) and `certifiedYears`.
+  `LedgerYearCloseSource`, `LedgerClosedYearsSource` and `LedgerLateArrivals` (every book the device holds, merged,
+  each item naming its book) are mounted in `bootstrap.dart`; S4 and S8.2 read `ClosedYearsScope`, so the FY switcher
+  appears after the first close (ADR 2026-09-09 §4). S8 gains a per-book *Year close* row over
+  `ClosePaths.forYear(bookId, fyStartOf(fy))`, offering the earliest ended, uncertified year (⚠️ SPEC, F1-07-229).
+- **M10 opens — statement import (`IM1`, F1-07-25 landed, F1-07-200…219).** `features/import` from scratch: a pure
+  CSV parser (bytes in, value out; integer paise on an int path, `bank_text` byte-for-byte, three column shapes,
+  Dr/Cr marker columns read in *bank* vocabulary, a typed failure never a crash, the 10 MB rule, duplicate identity =
+  date + magnitude + direction + normalised text + **per-file ordinal**, account-scoped), the `ImportSource` seam +
+  fake + scope, a `StatementFilePort` seam (no new dependency), **S7** pick account & file with the 07 §11 item 4
+  failure state, and **S7.0a–c** mapping → duplicates summary → a capability-stating placeholder for S7.1. XLS/OFX/PDF
+  are typed *not yet supported*. `importRoutes` wired into the shell; the S2 header door and the scope mount wait.
+
+- **S6 approvals run on the real ledger (`IN1`, `lane-sync`; F1-02-80…91, F1-07-230…239; 02 §3 🔒, 03 §3.3 rule 5 🔒).**
+  `LocalLedger` grew `watchOpenReviews`, `approveEntry`, `rejectEntry(reason:)` and ONE authoring primitive
+  `authorApprovalDecision` that `approveAdvance` now also routes through, so the codec and signature are never
+  duplicated. Reject authors the decision and 02 §5's mirror, and **validates the mirror before authoring anything** —
+  a decision beside a reversal that then refused would clear a flag over money that never came back. Two decisions on
+  one entry fold last-wins, asserted from the projection. `LedgerReviewQueue` (device-wide, one card per author + book
+  + day, own flags filtered per 02 §7.2 item 1) is mounted; *Approve all* never stops early and reports one typed
+  failure naming refusal kinds only (rule 4). **Defect found and fixed in both Inbox adapters:** an async compose for
+  projection N could finish after N+1 and publish a stale snapshot — a cleared card still offering a decision (07 §1
+  rule 6); publishing is now token-guarded and `watch()` subscribes before replaying `current`.
+- **Import inbox, balance check and the S2 door (`IM2`, F1-07-240…259).** S7.1 with its six chip states over a seam
+  that owns every transition, the S7.3 transfer-pair card, S7.2's three verdicts in words, the *Always? Yes/No* toast,
+  and the S2 header Import action (ADR 2026-09-03 ruling 2). `LedgerImportSource` implements the reads; `submit`
+  answers a typed *posting unavailable* for every line and S7.1 shows a disabled-with-reason action beside *Keep for
+  later* — nothing posts, nothing is ever posted stripped of its `bank_text`. Three 200 %/130 % defects fixed, one of
+  them a 48 px header action that pushed S2's last book row out of hit-test reach.
+- **S8's *Close the month* row is live (`M1`, F1-07-260…264; ADR 2026-09-03 ruling 1 🔒).** One row per book with a
+  closable month, subtitle *Aug 2026 open · 3 items waiting* (blocks + warns folded into one count, 0 reads *ready to
+  close*), closed / nothing / loading / failed states in one sentence each; the *not built yet* key is deleted.
+
+- **The review flag is raised for real (`R1`, `lane-sync`; F1-02-92…99, F1-06-17…20; 02 §1.3 🔒, 02 §3 🔒, 03 §3.3
+  rule 5 🔒).** A `ReviewPolicy` seam (`shared/seams/review_policy.dart`, async so a verb never changes shape) is
+  read ONCE per post; every drafted entry now carries `review_required = totalDebits > limit` — the engine's own
+  reader check, `invariants.dart:139` — and `review_limit_paise`, so a hostile `false` is catchable. Every verb is
+  measured (the six verbs, the inter-book pair against each book's own limit, advances, opening balances, cash-count
+  differences, distributions); a `pending` advance request and a 02 §5 reversal are the two spec-given exceptions.
+  **Hole found and closed:** `amend` copied `review_required` from the original, so ₹100 → ₹10,00,000 kept `false`;
+  it now re-measures at the amendment's own HLC (F1-02-99). `MembersReviewPolicy` answers from the members snapshot,
+  never awaits the network (02 §3: a threshold, not a gate), and a one-member book raises no flag (02 §7.2 item 1).
+
+### Changed
+
+- Doc markers placed for rounds 3 and 4 (CL3, U5h, U3k, CL4, CL5, T4, CL6): `07 §6/§13/§14`, `07 §1` rule 4,
+  `02 §7.1` five sub-bullets, `§7.2.1`, `§8`, `§8.1`, `03 §3.1/§3.2`, `13 §4.2`, ADRs 05e §8, 09 §4, 12e §2, 14b §6.
+  `03 §3.1` gains the `arrival_ordinal` column and `03 §3.2` names `status='in_tray'` — doc follows code, owner to eye.
+  `check_coverage --strict`: **0 orphans, 0 unmarked**.
+
+### Decided
+
+- No ADR this session. Four 🔒 rulings are **requested** (Open, below): `bank_text` on `Entry`; tray entries in live
+  balances (two accumulators); archived certified years surviving the recompute; the peer-reviewer wire key in
+  `book_config`. Doc-follows-code edits placed and flagged: `03 §3.1` `arrival_ordinal`, `03 §3.2` `in_tray`.
+
+### Open
+
+- 🔒 **`review_approver` is null on every flagged entry** (R1, pinned by F1-02-98 — the author is never written in).
+  ADR 2026-09-05e §9 and 02 §7.2 item 1 put the peer reviewer in `book_config`; `BookConfig`
+  (`payload_codec.dart:130`) has no such field and **no doc names the wire key**. Needs the key ruled, the codec
+  extended (`packages/data`) and the S9 setting that writes it. Until then a flag is shown to every member but the
+  author, and the rule-5 reader re-check has nothing to check.
+- ⚠️ SPEC (R1): a null `auto_post_limit_paise` reads *no review required* (F1-02-94, 06 §1.1 quoted) — offline-first,
+  *no grant known here* is indistinguishable from *meta not pulled yet*, and a flag raised on absent metadata blocks
+  month close and cannot be cleared by its author. Settling it needs the seam to distinguish *no grant* from *no
+  limit*. Also: a book whose only other active member is a viewer/operator still deadlocks the same way (06 §1.0
+  gives approvals to admin · head); amending **below** the limit clears the flag without a decision — left as it
+  falls, owner to rule.
+- ⚠️ `bootstrap.dart:22` imports deprecated `sodium_libs` — the two lanes that touched the file both flagged it; the
+  fix is the sodium_libs → sodium migration, not a lane edit (the gate has passed with it present).
+- ⚠️ SPEC (IN1): *ask for a better photo* (07 §9 🔒) has no object type in 03 §3 and no notification in 07 §17, so it
+  authors nothing and reaches the author never; S6.2 shows *asked* for something nobody was asked. Owner to choose a
+  content-free notification type (cheapest) or an object type.
+- ⚠️ `ReviewEntry.hasPhoto` is always false: `entries_p` does not project `attachment_ids` (03 / `packages/data`).
+- ⚠️ A reversed-but-still-flagged entry keeps its card (*nothing escapes review*, F1-02-90) but *Reject* can only
+  refuse `alreadyReversed` — S6.2 offers one action that can only fail until `ReviewEntry` carries the flag.
+- ⚠️ Cards group by the author's HLC day in this phone's zone, like `lockedOn`; grouping by accounting date is one
+  line and a different reading of 07 §9.
+- ⚠️ The review flag itself is still never raised: `_draft` hard-codes `reviewRequired: false`
+  (`local_ledger.dart:≈2658`) and nothing sets `Entry.reviewLimitPaise`; the read exists —
+  `MembersRepository` → `Member.grantFor(bookId)` → `BookGrant.autoPostLimitPaise`. The rights lane is a one-liner
+  with a 🔒 tail (02 §1.3 also wants `review_limit_paise` on the payload for the 03 §3.3 rule 5 hostile-client check).
+- ⚠️ SPEC (IM2): 02 §10 wants the bank's text in *muted monospace*; `tokens.json` has no monospace family, so it is
+  muted italic. `ImportPaths.inbox` is pushed, never routed — the parsed statement lives in memory only.
+  `rememberMapping` is in-memory (no store the feature may reach); `alreadyImported` returns the empty set;
+  `classify` returns every line *New* — all downstream of the `bank_text` blocker. S7.4 preview is unbuilt for the
+  same reason. `RkFitText` did not shrink an amount at 200 % inside a card (322.5 px in 294) — worth a look.
+- ⚠️ (M1) the Menu row reads once per tab build; after closing a month it can be stale until restart — a listenable on
+  `CloseSource` or a route-aware refresh in the shell, both outside `features/menu`.
+- ⚠️ The stale-snapshot shape IN1 fixed (`async* { yield current; yield* stream }` + un-guarded async compose) also
+  exists in `ledger_close_source.dart`, `ledger_year_close_source.dart` and the cash-count and partners adapters —
+  worth one sweep.
+- 🔒 **BLOCKER for S7.1 (owner's call, ADR + `lane-core`): the engine has nowhere to put `bank_text`.** 02 §10 🔒 stores
+  it on the envelope verbatim and separate from `note`, but `Entry` carries only `note` (`entry.dart:348`) and
+  `EntryRefs.importLine`; `moneyIn`/`moneyOut`/`transfer` accept only `note:`; grep for `bank_text`/`bankText` across
+  `core_ledger` and `shared/ledger` returns nothing (IM1). The parser preserves it; it has nowhere to land.
+- 🔒 **A certified FY disappears from `certifiedYears` — and the switcher — once archived** (CL7, reproduced while
+  writing F1-07-229): `recompute.dart:431` seeds an entry-less FY from its vector instead of replaying it, so it leaves
+  `state.years`, and `year_close_p` is rewritten from `state.years` (`:635-655`), losing both sources at once. 07 §13 🔒
+  wants every certified year listed; archived years need a durable row the recompute does not rewrite — `03`/`data`.
+- ⚠️ **S6 approvals never happen in production** (orchestrator, verified by grep; CL7 confirmed on the facade):
+  `ReviewQueueScope(` is constructed nowhere in `app/lib` outside its definition, so S6 runs on the empty fake; the
+  reads exist (`review_state` at `local_ledger.dart:4594/4645/4713`) but **no approve / reject / ask-for-photo write
+  exists** — `approveAdvance` is 02 §7's advance flow, not the review flag — and `reviewRequiredIn` is hard-coded
+  `(false, false)` at `:4826/:4877`, so no entry is ever flagged either. Two reasons an empty queue looks right.
+- ⚠️ SPEC (CL7): `YearCloseView.voidedBy` is always null — `projection.dart:726-742` rewrites the `YearState` on a
+  re-open and keeps no reference to the unlock, so the banner cannot name the month (07 §13 🔒) and falls back to its
+  month-less sentence. Needs `voidedBy` on `YearState` (core_ledger) or a `period_unlock` scan in the facade.
+- ⚠️ SPEC (CL7): `LateArrivalItem.lockedOn` is the lock HLC's physical day in **this** phone's zone — a `period_lock`
+  carries no accounting date of its own.
+- ⚠️ S8's *Close the month* row still reads *not built yet* although S10 shipped (07 §1 rule 6) — needs the per-book
+  first open month and ADR 2026-09-03's live subtitle; the loader in `features/menu/year_close_books.dart` is the hook.
+- ⚠️ `closeYear` on a sealed year refuses `YearAlreadyClosed`, rendered by S10.4 as `close.year.certify.refused` with
+  a count of 0 — one ARB key and one branch short of a proper *already certified* sentence.
+- Doors for the next lane: S2 header Import action → `ImportPaths.root` (`features/entry`, ADR 2026-09-03 🔒);
+  `ImportScope` mount over a `LedgerImportSource` (facade members named in `M9-IM1.json`); `file_picker` binding for
+  `StatementFilePort`; `RkPaths.import` / `.importInbox` when the shell adopts the route.
+- TIER (CL7): facade + adapter + shell wiring was not `lane-ui-hard`-shaped; route that shape to a seam/`lane-sync`
+  lane next time. IM1's from-scratch feature folder **was** the right tier and found a real 200 % defect (shared
+  scroll position across two phases).
+- 🔒 **ESCALATION (owner's call, `lane-core` scope): a tray entry is counted in NO live balance.** CL6 verified it
+  rather than assumed it: `projection.dart:645-652` sets `inTray` without `apply()`, `isCounted` is `posted || voided`
+  (`:81-82`), the advance path repeats it at `:694-700`. ADR 2026-09-05e §3 🔒 rules the opposite. Pinned as `E-03-52`,
+  landed `@skip` with the failing figure (50,00,000 where the ADR wants 49,88,000 paise). A naive fix breaks every
+  certified month: lock verification compares the *running* balances at the lock's HLC (`:716-723`) and a late
+  arrival sorts before the lock. The fix is two accumulators — live vs certified-at-lock — in `core_ledger`.
+- ⚠️ **Shell wiring for S10.3 is a decision, not a mount.** `LateArrivalsScope` renders against an empty fake until
+  `bootstrap.dart` mounts a `LedgerLateArrivals` adapter; the seam is book-less while `watchLateArrivals` takes a
+  `bookId`, and the only live current-book source is Home's `HomeScopeController`. Next lane, with the
+  `LedgerYearCloseSource` and the Menu door to S10.4 (`ClosePaths.forYear(bookId, ClosePaths.fyStartOf(fy))`).
+- ⚠️ SPEC (CL4): nothing ranks the Inbox's typed cards; S6 orders structural → late arrivals → review.
+- ⚠️ SPEC (CL5, unchanged): `02 §7.1` *Settlement* names three routes but only carry-forward is what the ceremony
+  posts; S10.4 states all three and doors routes 1–2 to S14.
+- ⚠️ SPEC (T4): no rule says how a report table gives way when a paise-carrying figure outgrows 360 px at 200 %;
+  S4.1's hero scales to fit like Home's. `MoneyText` (`shared/format`) draws figure and word as one unbreakable
+  run — a shared fix belongs to its owner.
+- ⚠️ Two devices that saw the same envelopes in different orders around a lock now legitimately hold different
+  trays; a future harness case with a lock must exclude the status column or assert the divergence (CL6).
+- COPY (M12): `close.year.voided.title` EN shortened to fit the banner at 200 %; PA/HI unchanged.
+- ⚠️ The whole 17–18 Sep tree (112 paths) is uncommitted; the 17 Sep lanes were gated green at 22:08, the
+  18 Sep lanes not yet.
+
+### Commits
+
+- _(filled next session)_
+
 ## 2026-09-17 — M8/M9: family money lands, close opens (three rounds, three green gates — second session)
 
 Orchestrator session (`/lane` → `/gate` × 3, then `/close`). Round 1 (`wf_0912c84d-d90`, three `lane-ui-hard`,

@@ -61,21 +61,28 @@ void main() {
     );
 
     testWidgets(
-      'F1-07-39 strings resolve in EN/PA/HI with no overflow at 200%',
+      'F1-07-39 strings resolve in EN/PA/HI with no overflow at 1.3x and 200% on both F1 phones',
       (tester) async {
-        for (final locale in const [Locale('en'), Locale('pa'), Locale('hi')]) {
-          await pumpRk(
-            tester,
-            MediaQuery(
-              data: const MediaQueryData(textScaler: TextScaler.linear(2)),
-              child: SplashScreen(
-                session: RkSplashSession.locked,
-                reducedMotion: true,
-              ),
-            ),
-            locale: locale,
-          );
-          expect(tester.takeException(), isNull);
+        for (final locale in rkLocales) {
+          for (final vp in rkPhones) {
+            for (final scale in rkTextScales) {
+              await pumpRk(
+                tester,
+                SplashScreen(
+                  session: RkSplashSession.locked,
+                  reducedMotion: true,
+                ),
+                locale: locale,
+                textScale: scale,
+                viewport: vp,
+              );
+              expect(tester.takeException(), isNull);
+              expectTextFits(
+                tester,
+                reason: '${locale.languageCode} @ $scale on $vp',
+              );
+            }
+          }
         }
       },
     );
@@ -115,18 +122,25 @@ void main() {
     );
 
     testWidgets(
-      'F1-07-40 strings resolve in EN/PA/HI with no overflow at 200%',
+      'F1-07-40 strings resolve in EN/PA/HI with no overflow at 1.3x and 200% on both F1 phones',
       (tester) async {
-        for (final locale in const [Locale('en'), Locale('pa'), Locale('hi')]) {
-          await pumpRk(
-            tester,
-            MediaQuery(
-              data: const MediaQueryData(textScaler: TextScaler.linear(2)),
-              child: const LanguagePickerScreen(),
-            ),
-            locale: locale,
-          );
-          expect(tester.takeException(), isNull);
+        for (final locale in rkLocales) {
+          for (final vp in rkPhones) {
+            for (final scale in rkTextScales) {
+              await pumpRk(
+                tester,
+                const LanguagePickerScreen(),
+                locale: locale,
+                textScale: scale,
+                viewport: vp,
+              );
+              expect(tester.takeException(), isNull);
+              expectTextFits(
+                tester,
+                reason: '${locale.languageCode} @ $scale on $vp',
+              );
+            }
+          }
         }
       },
     );
@@ -178,18 +192,25 @@ void main() {
     );
 
     testWidgets(
-      'F1-07-41 strings resolve in EN/PA/HI with no overflow at 200%',
+      'F1-07-41 strings resolve in EN/PA/HI with no overflow at 1.3x and 200% on both F1 phones',
       (tester) async {
-        for (final locale in const [Locale('en'), Locale('pa'), Locale('hi')]) {
-          await pumpRk(
-            tester,
-            MediaQuery(
-              data: const MediaQueryData(textScaler: TextScaler.linear(2)),
-              child: const WelcomeScreen(),
-            ),
-            locale: locale,
-          );
-          expect(tester.takeException(), isNull);
+        for (final locale in rkLocales) {
+          for (final vp in rkPhones) {
+            for (final scale in rkTextScales) {
+              await pumpRk(
+                tester,
+                const WelcomeScreen(),
+                locale: locale,
+                textScale: scale,
+                viewport: vp,
+              );
+              expect(tester.takeException(), isNull);
+              expectTextFits(
+                tester,
+                reason: '${locale.languageCode} @ $scale on $vp',
+              );
+            }
+          }
         }
       },
     );

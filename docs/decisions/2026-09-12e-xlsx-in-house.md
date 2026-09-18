@@ -33,7 +33,7 @@ about. Owner ruled 12 Sep 2026: **write it ourselves.**
 - The output is frozen by the F3 byte-goldens when they land (`F3-07-1/2 @M12`), which is what makes
   an in-house format safe to maintain. ⟦tests: F3-07-1 @M12, F3-07-2 @M12⟧
 
-### 2. Every report surface offers the same trio ⟦tests: F1-07-79⟧ — **confirmed by the owner 13 Sep 2026**
+### 2. Every report surface offers the same trio ⟦tests: F1-07-79, F1-07-160, F1-07-161, F1-07-162, F1-07-167, F1-07-168, F1-07-169⟧ — **confirmed by the owner 13 Sep 2026**
 - **View · Download/Share · Export** is the shape on **both** the statement (S4) and the report
   viewer (S8.2), and Export offers the ruled three — **PDF, CSV, XLSX** (ADR 2026-09-12 §1). ⟦tests: F1-07-79⟧
 - `07 §6` 🔒 is amended from *export this A/C (PDF/XLSX)* to **PDF/CSV/XLSX**. ⟦tests: F1-07-79⟧

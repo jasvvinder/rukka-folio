@@ -13,6 +13,7 @@ import 'package:flutter/material.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../../shared/widgets/rk_fit_text.dart';
 
 /// Invokes whatever photo-picker exists on the host platform and returns an
 /// opaque handle to the picked photo, or `null` if the user cancelled.
@@ -91,12 +92,12 @@ class _NamePhotoScreenState extends State<NamePhotoScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text(
+                      RkFitText(
                         l10n.onboardingNamePhotoTitle,
                         style: text.headlineMedium,
                       ),
                       const SizedBox(height: RkSpace.s2),
-                      Text(
+                      RkFitText(
                         l10n.onboardingNamePhotoSubtitle,
                         style: text.bodyLarge,
                       ),
@@ -128,7 +129,7 @@ class _NamePhotoScreenState extends State<NamePhotoScreen> {
                       ),
                       const SizedBox(height: RkSpace.s2),
                       Center(
-                        child: Text(
+                        child: RkFitText(
                           hasPhoto
                               ? l10n.onboardingNamePhotoPhotoAdded
                               : l10n.onboardingNamePhotoPhotoLabel,

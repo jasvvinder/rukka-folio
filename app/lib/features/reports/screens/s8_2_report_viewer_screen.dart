@@ -36,6 +36,7 @@ import '../../../shared/ledger/ledger_scope.dart';
 import '../../../shared/ledger/local_ledger.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../../shared/widgets/rk_fit_text.dart';
 import '../../ledger/ledger_book.dart';
 import '../../../shared/seams/closed_years.dart';
 import '../../ledger/widgets/fy_switcher.dart';
@@ -45,6 +46,7 @@ import '../export/file_report_sink.dart';
 import '../export/pdf_report.dart';
 import '../export/report_export.dart';
 import '../export/xlsx_report.dart';
+import '../widgets/export_actions.dart';
 import '../widgets/export_sheet.dart';
 
 /// S8.2 — the report viewer, showing the Day Book of one book for one
@@ -127,6 +129,11 @@ class _ReportViewerScreenState extends State<ReportViewerScreen> {
 
   Future<void> _resolveBook() async {
     final ledger = LedgerScope.of(context);
+    // The FY switcher's source is the shell's when the shell has one (ADR
+    // 2026-09-09 §4 🔒) and the constructor's otherwise. Read here, beside the
+    // ledger and **before** the first await: an InheritedWidget may not be
+    // reached for across an async gap.
+    final years = ClosedYearsScope.maybeOf(context) ?? widget.closedYears;
     try {
       final id = widget.bookId ?? await soloBookId(ledger);
       // A plain future, never `watchBooks().first`: a drift query stream's
@@ -134,7 +141,9 @@ class _ReportViewerScreenState extends State<ReportViewerScreen> {
       // inside a widget test's fake-async zone never lets fire — the screen
       // would sit on its skeleton forever under test and only work in the app.
       final heading = await reportHeading(ledger, id);
-      final closed = await widget.closedYears(id, '');
+      // The empty account id is deliberate: a report is a whole book, so the
+      // figure beside each year is the book's carried-forward total.
+      final closed = await years(id, '');
       if (!mounted) return;
       setState(() {
         _bookId = id;
@@ -232,11 +241,12 @@ class _ReportViewerScreenState extends State<ReportViewerScreen> {
       appBar: AppBar(
         title: Text(l10n.reportsDayBookRowTitle),
         // Two affordances, never one (ADR 2026-09-12c §1 🔒): the default
-        // that writes, and the door to the choice. See [_ExportAction] for
-        // how the pair survives 200% text scale on a 360 px phone.
+        // that writes, and the door to the choice. See [ReportExportAction] for
+        // how the pair survives 200% text scale on a 360 px phone (they moved to
+        // `widgets/export_actions.dart` when S4 gained the same bar).
         actions: [
-          _ExportAction(onPressed: _exportDefault),
-          _ChooseFormatAction(onPressed: _openExportSheet),
+          ReportExportAction(onPressed: _exportDefault),
+          ReportChooseFormatAction(onPressed: _openExportSheet),
         ],
       ),
       body: SafeArea(
@@ -383,110 +393,6 @@ class _ReportViewerScreenState extends State<ReportViewerScreen> {
   }
 }
 
-/// Share of the bar the labelled primary action may occupy before its words
-/// are clipped. The pair is this plus one 48 px icon button, so the title
-/// keeps a little over a third of the line at every width and in every
-/// language. A fraction, not a token: this is the report bar's own budget,
-/// and the two actions only have to agree with each other.
-const double _labelledActionShare = 0.5;
-
-/// The primary action (ADR 2026-09-12 §1 🔒, default restored by 12d §2 🔒) —
-/// it writes the PDF, it does not open a sheet. Labelled in words at normal scale;
-/// past 1.3x the words would push the title off the bar, so it becomes an
-/// icon that still carries the same label to a screen reader and a tooltip
-/// (07 §1 rules 3 and 11).
-///
-/// 12c puts a **second** affordance beside it ([_ChooseFormatAction]), and the
-/// bar has to hold both at 200% on a 360 px phone in all three languages. Two
-/// things make that true, and the second was a live defect before 12c:
-///
-///  1. **Only this action is ever labelled.** Above 1.3x the pair is two
-///     [IconButton]s, 48 logical px each and independent of text scale, and
-///     the [AppBar] title ellipsises rather than fighting them for the line.
-///     Giving the chooser a label too would break that, which is why it has
-///     none.
-///  2. **The labelled form is capped and clips.** A scale threshold alone was
-///     never enough: at 1.3x the Punjabi label alone overflowed a 360 px bar,
-///     and no test caught it because only 200% — where the label is already
-///     gone — was being asserted. A threshold cannot know how wide a word is
-///     in a font it has not measured, so the words are held to
-///     [_labelledActionShare] of the bar and clipped past it. The cap never
-///     bites at the real label widths; it is the guarantee that a longer
-///     translation, or a wider fallback font, cannot spill the bar.
-class _ExportAction extends StatelessWidget {
-  const _ExportAction({required this.onPressed});
-
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    if (MediaQuery.textScalerOf(context).scale(1) > 1.3) {
-      return IconButton(
-        onPressed: onPressed,
-        icon: const Icon(Icons.ios_share),
-        tooltip: l10n.reportsViewerExport,
-      );
-    }
-    return Padding(
-      padding: const EdgeInsets.only(right: RkSpace.s2),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          maxWidth: MediaQuery.sizeOf(context).width * _labelledActionShare,
-        ),
-        // Hand-built rather than `TextButton.icon`, so the label is the piece
-        // that gives when the cap bites — and it keeps the tooltip, so the
-        // full words reach a screen reader and a long-press even clipped.
-        child: Tooltip(
-          message: l10n.reportsViewerExport,
-          child: TextButton(
-            onPressed: onPressed,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.ios_share),
-                const SizedBox(width: RkSpace.s1),
-                Flexible(
-                  child: Text(
-                    l10n.reportsViewerExport,
-                    softWrap: false,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// The door to the format sheet (ADR 2026-09-12c §1 🔒: *"the format sheet
-/// stays reachable from the viewer so a person can still choose a format
-/// rather than accept the default"*). Without it the CSV default would be the
-/// only path and PDF would vanish from the product — the enumeration is 🔒,
-/// and a format you cannot even see named is a dead end (07 §1 rules 2 and 6).
-///
-/// Icon-only at every text scale, deliberately: see [_ExportAction]. The
-/// string rides as tooltip and screen-reader label, so the affordance is never
-/// carried by the glyph alone (07 §1 rule 3).
-class _ChooseFormatAction extends StatelessWidget {
-  const _ChooseFormatAction({required this.onPressed});
-
-  final VoidCallback onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context);
-    return IconButton(
-      onPressed: onPressed,
-      icon: const Icon(Icons.more_horiz),
-      tooltip: l10n.reportsViewerExportFormats,
-    );
-  }
-}
-
 /// 07 §14's *one-line takeaway header*, in professional words: how many
 /// entries, and the two column totals.
 class _Takeaway extends StatelessWidget {
@@ -511,7 +417,11 @@ class _Takeaway extends StatelessWidget {
         runSpacing: RkSpace.s1,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
-          Text(
+          // *7 प्रविष्टियाँ* is one 339 px word at 200 % where the takeaway
+          // has 328 px, and a Wrap only breaks **between** its children — so
+          // the count fits its own word rather than spilling over the gutter
+          // (13 §4, 07 §1 rule 11; F1-07-173).
+          RkFitText(
             l10n.reportsViewerEntriesCount(book.rows.length),
             style: Theme.of(context).textTheme.bodyMedium
                 ?.copyWith(color: status.muted),
@@ -597,9 +507,15 @@ class _ColumnHeader extends StatelessWidget {
     final scaler = MediaQuery.textScalerOf(context);
     final width = scaler.scale(_amountColumn);
 
+    // `RkFitText`, not `Text`: the figure columns are 88 pt wide *scaled*,
+    // which is room for `Dr` and `Cr` and for the English words — but not for
+    // Punjabi's *ਜਮ੍ਹਾਂ*, which asks 125.4 px of the 114.4 px the column has
+    // at 1.3x and, having no break opportunity, is drawn straight past its
+    // edge without throwing (F1-07-173). These are the column's **words**;
+    // the figures under them keep the size the reader asked for.
     Widget figure(String label, TextAlign align) => Semantics(
       header: true,
-      child: Text(label, textAlign: align, style: style),
+      child: RkFitText(label, textAlign: align, style: style),
     );
 
     // The heading folds on the same rule its rows do, and for a stronger
@@ -720,6 +636,19 @@ class _EntryBlock extends StatelessWidget {
   }
 }
 
+/// Whether [paise] has a paise part to show (07 §1 rule 4 🔒: *paise shown
+/// only when non-zero*).
+///
+/// ⚠️ SPEC: this is the whole of what 07 §1 rule 4 settles. A figure that
+/// *does* carry paise — `₹1,00,000.50`, twelve glyphs — still needs more than
+/// the 360 px phone leaves it at 200 %, and a tabular figure may not be
+/// re-sized to fit (07 §1 rule 4, design-system §1). Nothing in 07 §14 or
+/// 13 §3.2 says which way a report table should give way there — fold the
+/// figure onto a line of its own (it already has one), pan the table
+/// sideways, or something else — so this lane took the conservative half and
+/// reported the rest rather than inventing a policy for professional figures.
+bool _hasPaise(int paise) => paise % 100 != 0;
+
 class _LineRow extends StatelessWidget {
   const _LineRow({required this.name, required this.line});
 
@@ -742,7 +671,14 @@ class _LineRow extends StatelessWidget {
       // here, from the same sign.
       line.amountPaise,
       vocabulary: Vocabulary.professional,
-      showPaise: true,
+      // 07 §1 rule 4 🔒: **paise shown only when non-zero**. A round figure
+      // drawn as `₹1,00,000.00` is three glyphs longer than the rule allows,
+      // and those three are what pushed it past the line at 200 % on a 360 px
+      // phone — the report kept the decimals of an export on a screen that
+      // has no room for them (F1-07-172). The exports are unchanged: the CSV,
+      // XLSX and PDF writers still put two decimals on every figure, which is
+      // what a spreadsheet and an accountant expect of a file.
+      showPaise: _hasPaise(line.amountPaise),
       textAlign: TextAlign.right,
     );
     final particulars = Text(
@@ -806,16 +742,18 @@ class _TotalsRow extends StatelessWidget {
       l10n.reportsViewerTotal,
       style: Theme.of(context).textTheme.labelLarge,
     );
+    // 07 §1 rule 4 🔒 again: the totals are figures on a screen, so they drop
+    // paise they do not have.
     final debit = MoneyText(
       book.debitTotalPaise,
       vocabulary: Vocabulary.professional,
-      showPaise: true,
+      showPaise: _hasPaise(book.debitTotalPaise),
       textAlign: TextAlign.right,
     );
     final credit = MoneyText(
       -book.creditTotalPaise,
       vocabulary: Vocabulary.professional,
-      showPaise: true,
+      showPaise: _hasPaise(book.creditTotalPaise),
       textAlign: TextAlign.right,
     );
     return Padding(

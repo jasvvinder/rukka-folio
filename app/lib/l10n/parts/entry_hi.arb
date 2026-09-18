@@ -65,5 +65,6 @@
   "@entry.drawings.confirmation": {"description": "machine-draft — native review M12"},
   "entry.error": "आपकी बहियाँ खुल नहीं सकीं",
   "entry.retry": "फिर कोशिश करें",
-  "entry.loading": "लोड हो रहा है"
+  "entry.loading": "लोड हो रहा है",
+  "entry.import.action": "स्टेटमेंट लाएँ"
 }

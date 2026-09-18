@@ -22,4 +22,10 @@ abstract final class InboxPaths {
   /// The location to push for [requestId].
   static String structuralFor(String requestId) =>
       '${RkPaths.inbox}/structural/$requestId';
+
+  /// S10.3 Late Arrivals tray — a root-navigator route for the same reason
+  /// S6.2 and S6.3 are: it is a closer's decision surface, and the actions on
+  /// it (re-date, re-open) deserve the thumb without the tab bar competing.
+  /// One level below the tab root, inside the 13 §3.1 depth rule.
+  static const lateArrivals = '${RkPaths.inbox}/late';
 }

@@ -23,6 +23,14 @@ Future<void> _enterPhoneAndSend(WidgetTester tester) async {
   await tester.pumpAndSettle();
 }
 
+/// The S0.2 title in each shipped language — the anchor the layout sweep
+/// looks for once the screen is drawn at 1.3× and 2×.
+const _title = {
+  'en': 'Your phone number',
+  'pa': 'ਤੁਹਾਡਾ ਫ਼ੋਨ ਨੰਬਰ',
+  'hi': 'आपका फ़ोन नंबर',
+};
+
 void main() {
   group('S0.2 Phone + OTP (13 §3.2, 07 §3.1, 06 §2)', () {
     testWidgets(
@@ -199,29 +207,25 @@ void main() {
         expect(find.text('Enter the 10-digit mobile number.'), findsOneWidget);
         expect(auth.requestedPhones, isEmpty);
 
-        tester.view.physicalSize = const Size(375, 667);
-        tester.view.devicePixelRatio = 1;
-        addTearDown(tester.view.reset);
-        await pumpRk(
-          tester,
-          MediaQuery(
-            data: const MediaQueryData(textScaler: TextScaler.linear(2)),
-            child: const PhoneOtpScreen(),
-          ),
-          locale: const Locale('pa'),
-        );
-        expect(find.text('ਤੁਹਾਡਾ ਫ਼ੋਨ ਨੰਬਰ'), findsOneWidget);
-        expect(tester.takeException(), isNull);
-        await pumpRk(
-          tester,
-          MediaQuery(
-            data: const MediaQueryData(textScaler: TextScaler.linear(2)),
-            child: const PhoneOtpScreen(),
-          ),
-          locale: const Locale('hi'),
-        );
-        expect(find.text('आपका फ़ोन नंबर'), findsOneWidget);
-        expect(tester.takeException(), isNull);
+        for (final locale in rkLocales) {
+          for (final vp in rkPhones) {
+            for (final scale in rkTextScales) {
+              await pumpRk(
+                tester,
+                const PhoneOtpScreen(),
+                locale: locale,
+                textScale: scale,
+                viewport: vp,
+              );
+              expect(find.text(_title[locale.languageCode]!), findsOneWidget);
+              expect(tester.takeException(), isNull);
+              expectTextFits(
+                tester,
+                reason: '${locale.languageCode} @ $scale on $vp',
+              );
+            }
+          }
+        }
       },
     );
   });

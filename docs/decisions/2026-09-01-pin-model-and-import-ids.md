@@ -26,7 +26,7 @@ S11, S13 briefs. Design side: Canvas 3 screens *S15 "PIN instead"* (drop "Use th
 phone's passcode") and both *S15.2 "Personal book PIN"* screens redrawn as the single
 re-prompt; stale strings removed from the PA/HI dictionaries.
 
-## 2. Import screen IDs — S7.2 is the balance check 🔒 ⟦tests: F1-07-25 @M10⟧
+## 2. Import screen IDs — S7.2 is the balance check 🔒 ⟦tests: F1-07-25, F1-07-200, F1-07-201, F1-07-202, F1-07-203, F1-07-204, F1-07-205, F1-07-206, F1-07-207, F1-07-208, F1-07-209, F1-07-210, F1-07-211, F1-07-212, F1-07-213, F1-07-214, F1-07-215, F1-07-216, F1-07-217, F1-07-218, F1-07-219, F1-07-240, F1-07-241, F1-07-242, F1-07-243, F1-07-244, F1-07-245, F1-07-246, F1-07-247, F1-07-248, F1-07-249, F1-07-250, F1-07-251, F1-07-252, F1-07-253, F1-07-254, F1-07-255, F1-07-256, F1-07-257, F1-07-258, F1-07-259⟧
 
 **Conflict.** 13 §3.2 used **S7.2** for the transfer-pair confirm, while the design pack
 and Canvas 8 use **S7.2** for the **balance check** (passing · matched · failing) and

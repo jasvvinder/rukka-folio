@@ -14,9 +14,10 @@ abstract final class PartnersPaths {
   /// The concrete path for [bookId].
   static String of(String bookId) => '/books/$bookId/partners';
 
-  /// S14.1 Profit distribution wizard. **Not built here** — the next lane
-  /// owns it (it needs the structural reader and a ratio preview). Reserved so
-  /// nothing else takes the path; no route declares it and no screen links to
-  /// it, because 07 §1 rule 6 forbids a door that leads nowhere.
+  /// S14.1 Profit distribution wizard, reached from S14 (13 §3.2).
   static const distributePattern = '/books/:bookId/partners/distribute';
+
+  /// The concrete S14.1 path for [bookId].
+  static String distributeOf(String bookId) =>
+      '/books/$bookId/partners/distribute';
 }

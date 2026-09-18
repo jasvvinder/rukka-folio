@@ -7,6 +7,7 @@ import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/app_scope.dart';
 import '../../../shared/seams/sync_client.dart';
 import '../../../shared/tokens.dart';
+import '../../../shared/widgets/rk_fit_text.dart';
 import '../http_auth_client.dart';
 
 class UpdateRequiredScreen extends StatefulWidget {
@@ -56,7 +57,7 @@ class _UpdateRequiredScreenState extends State<UpdateRequiredScreen> {
                   color: scheme.primary,
                 ),
                 const SizedBox(height: RkSpace.s4),
-                Text(l10n.updateTitle, style: text.headlineMedium),
+                RkFitText(l10n.updateTitle, style: text.headlineMedium),
                 const SizedBox(height: RkSpace.s3),
                 Text(l10n.updateBody, style: text.bodyLarge),
                 const SizedBox(height: RkSpace.s3),

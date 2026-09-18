@@ -150,7 +150,7 @@ RLS on, `FORCE`, for every table above; the API connects as a non-superuser role
 
 ## 3. Client schema (SQLite via Drift, SQLCipher at rest)
 
-### 3.1 Layer 1 — envelope mirror & outbox 🔒 ⟦tests: E-03-1, E-03-4, E-03-5, E-03-6, E-03-7, E-05c-1, E-05b-1, F1-03-1, F1-03-3, F1-03-5⟧
+### 3.1 Layer 1 — envelope mirror & outbox 🔒 ⟦tests: E-03-1, E-03-4, E-03-5, E-03-6, E-03-7, E-05c-1, E-05b-1, F1-03-1, F1-03-3, F1-03-5, E-03-55, E-03-53, E-03-54, E-03-56⟧
 
 ```sql
 envelopes_local(envelope_id pk, book_id, object_id, object_type, key_version,
@@ -159,7 +159,8 @@ envelopes_local(envelope_id pk, book_id, object_id, object_type, key_version,
         blob, blob_hash,                             -- hash verified on read; mismatch = corruption → re-bootstrap (ADR 2026-09-05c §2, §6)
         verified int,                                -- 1 after sig-chain check
         quarantined int default 0, quarantine_reason text,
-        held int default 0, held_for uuid null)      -- dangling ref, waiting for target (§4); the tray state is `inTray`, never `held` (ADR 2026-09-05e §10)
+        held int default 0, held_for uuid null,      -- dangling ref, waiting for target (§4); the tray state is `inTray`, never `held` (ADR 2026-09-05e §10)
+        arrival_ordinal int)                         -- device-local receipt order, stamped at append (v4); never synced, never in a payload. Feeds the Late Arrivals tray: an entry whose envelope arrived after its month's lock envelope is `in_tray` (02 §8). Two devices may legitimately hold different trays.
 outbox(envelope_id pk, book_id, blob, created_at, push_state text
         check (push_state in ('queued','inflight','acked','observed','rejected')),
         acked_seq bigint null, reject_reason text)   -- prune only at 'observed' (§6)
@@ -173,7 +174,7 @@ key_cache(book_id, key_version, wrapped_blob, primary key (book_id, key_version)
 attachment_cache(id pk, book_id, local_path, state)
 ```
 
-### 3.2 Layer 2 — projections (rebuildable, indexed for the UI) 🔒 ⟦tests: E-03-1, E-03-2, E-03-3, E-03-9, F1-02-9, F1-02-10, F1-02-11, E-03-46⟧
+### 3.2 Layer 2 — projections (rebuildable, indexed for the UI) 🔒 ⟦tests: E-03-1, E-03-2, E-03-3, E-03-9, F1-02-9, F1-02-10, F1-02-11, E-03-46, E-03-47, E-03-52⟧
 
 > ⚠️ SPEC (CL2, 17 Sep 2026 — owner to ratify a third category): `close_progress_local(book_id, year, month, step, confirmed_banks_json)` is **device-local wizard state** for the resumable month close (07 §13) — never an envelope, never pushed, and in *neither* layer: Recompute does not drop it, because nothing in the envelope stream could put it back. Schema v3 adds it (§5). ⟦tests: E-03-46, F1-02-51⟧
 
@@ -194,6 +195,8 @@ entries_p(id pk, book_id, kind, status, accounting_date, note, channel,
         -- 🔒 status and review_state are INDEPENDENT. `status='pending'` means only
         -- "advance request awaiting approval" (02 §7). An ordinary over-limit entry
         -- is status='posted' + review_state='open' and IS in balances (02 §9).
+        -- `status='in_tray'` = a late arrival (02 §8; ADR 2026-09-05e §3, §10): valid, awaiting the closer's re-date or
+        -- re-open. Derived from `envelopes_local.arrival_ordinal` (§3.1) — device-local, so two devices' `entries_p` may differ here.
 entry_lines_p(entry_id, account_id, amount_paise, book_id, accounting_date)
         -- denormalized book_id+date: this table answers every ledger query
 periods_p(book_id, year, month, state, lock_hlc)
@@ -217,7 +220,7 @@ Key indexes: `entry_lines_p(account_id, accounting_date)` (A/C statement, runnin
 2. The projector is a **pure, deterministic function** of the ordered envelope stream + certified opening vectors — this is what makes the close-hash verification (02 §8) and *Recompute* possible. No projector step may read the clock, the network, or local settings.
 3. `balances` and `daily_snapshots` update transactionally with each applied entry; a full rebuild seeds from the latest `year_close_p` vector (02 §8.1) then replays the open FY.
 4. **Unknown-field round-trip 🔒:** payloads are JSON; clients must preserve fields they don't understand when amending an object (older app editing an entry created by a newer app must not strip new fields). `payload_schema` gates *interpretation*, never storage. ⟦tests: A-03-1, E-03-8, E-03-30, E-03-31⟧
-5. **`review_state` folds from envelopes only 🔒 (the peer reviewer lives in the `book_config` envelope, ADR 2026-09-05e §9):** `auto_post_limit_paise` lives in `book_roles` — **plaintext server metadata, not an envelope** — so the projector may never read it (rule 2). The *authoring* client evaluates the limit at save time and writes the boolean `review_required` into the entry payload (02 §1.3); the projector then sets `review_state = 'open'` iff `review_required` and no decision has arrived, and folds any `approval_decision` envelopes for that entry in `(hlc, envelope_id)` order, last one winning, to `approved` or `rejected`. This keeps the projection a pure function of the envelope stream, so two devices with different cached role metadata still compute an identical close-hash (02 §8). A hostile client that sets `review_required=false` on an over-limit entry is caught by readers the same way any invariant violation is (02 preamble) — the limit is *also* carried in the payload for that check.
+5. **`review_state` folds from envelopes only 🔒 (the peer reviewer lives in the `book_config` envelope, ADR 2026-09-05e §9):** `auto_post_limit_paise` lives in `book_roles` — **plaintext server metadata, not an envelope** — so the projector may never read it (rule 2). The *authoring* client evaluates the limit at save time and writes the boolean `review_required` into the entry payload (02 §1.3); the projector then sets `review_state = 'open'` iff `review_required` and no decision has arrived, and folds any `approval_decision` envelopes for that entry in `(hlc, envelope_id)` order, last one winning, to `approved` or `rejected`. This keeps the projection a pure function of the envelope stream, so two devices with different cached role metadata still compute an identical close-hash (02 §8). A hostile client that sets `review_required=false` on an over-limit entry is caught by readers the same way any invariant violation is (02 preamble) — the limit is *also* carried in the payload for that check. ⟦tests: F1-02-87, F1-02-91, F1-02-92, F1-02-95, F1-02-96⟧
 
 ---
 

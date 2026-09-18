@@ -65,5 +65,6 @@
   "@entry.drawings.confirmation": {"description": "machine-draft — native review M12"},
   "entry.error": "ਤੁਹਾਡੀਆਂ ਬਹੀਆਂ ਖੁੱਲ੍ਹ ਨਹੀਂ ਸਕੀਆਂ",
   "entry.retry": "ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
-  "entry.loading": "ਲੋਡ ਹੋ ਰਿਹਾ ਹੈ"
+  "entry.loading": "ਲੋਡ ਹੋ ਰਿਹਾ ਹੈ",
+  "entry.import.action": "ਸਟੇਟਮੈਂਟ ਲਿਆਓ"
 }

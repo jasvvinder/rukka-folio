@@ -58,5 +58,13 @@
   "home.everything.empty": "ਹਾਲੇ ਕੋਈ ਬਹੀ ਨਹੀਂ",
   "home.rebuild.title": "ਇਹ ਬਹੀ ਦੁਬਾਰਾ ਜੋੜੀ ਜਾ ਰਹੀ ਹੈ",
   "home.rebuild.progress": "{total} ਵਿੱਚੋਂ {done} ਇੰਦਰਾਜ ਵਾਪਸ ਆਏ",
-  "home.rebuild.note": "ਇਹ ਪੂਰਾ ਹੁੰਦੇ ਹੀ ਤੁਹਾਡੇ ਅੰਕੜੇ ਸਹੀ ਹੋ ਜਾਣਗੇ।"
+  "home.rebuild.note": "ਇਹ ਪੂਰਾ ਹੁੰਦੇ ਹੀ ਤੁਹਾਡੇ ਅੰਕੜੇ ਸਹੀ ਹੋ ਜਾਣਗੇ।",
+
+  "home.close.title": "{month} ਬੰਦ ਕਰੋ",
+  "home.close.steps": "{total} ਕਦਮ",
+  "home.close.resume": "ਕਦਮ {n} / {total} ਤੋਂ ਅੱਗੇ",
+  "home.close.waiting": "{name} ਦੀ ਉਡੀਕ",
+  "home.close.book": "{book}",
+  "home.close.done.title": "{month} ਬੰਦ ਹੋ ਗਿਆ",
+  "home.close.done.action": "ਮਹੀਨਾ ਵੇਖੋ"
 }

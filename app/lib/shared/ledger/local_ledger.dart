@@ -25,16 +25,20 @@ import 'dart:convert';
 
 import 'package:core_crypto/core_crypto.dart';
 import 'package:core_ledger/core_ledger.dart';
-import 'package:core_ledger/core_ledger.dart' as engine show openAdvances;
+import 'package:core_ledger/core_ledger.dart'
+    as engine
+    show openAdvances, yearClosePreconditions;
 import 'package:data/data.dart';
 import 'package:drift/drift.dart';
 import 'package:sync_engine/sync_engine.dart'
     show AcceptedBookKey, AcceptedKeySink, BookKeyStore, VerifiedUmkSource;
 
 import '../seams/key_store.dart';
+import '../seams/review_policy.dart';
 import 'device_certification.dart';
 import 'ledger_identity.dart';
 
+export '../seams/review_policy.dart' show ReviewPolicy, noReviewPolicy;
 export 'device_certification.dart'
     show DeviceCertOffer, DeviceCertifier, umkKeyVersionFirst;
 export 'ledger_identity.dart'
@@ -246,6 +250,180 @@ final class AccountBalance {
   final String? usualCategoryId;
 }
 
+// ── the review queue (02 §3 🔒 post-then-review) ─────────────────────────────
+// The money is already in the book. A flag is a threshold, not a gate: approval
+// clears it and moves nothing; rejection posts the mirror reversal of 02 §5
+// with the reason, and both entries stay in history. `review_state` itself is
+// never stored on an envelope — it folds from `approval_decision` envelopes in
+// `(hlc, envelope_id)` order, last one winning (03 §3.3 rule 5 🔒), which is
+// why nothing here writes it and everything here reads it back.
+
+/// One line of a flagged entry, with the account's own name resolved — what
+/// S6.1's expandable list and S6.2's stepper show beside the amount.
+final class FlaggedLine {
+  /// Creates the line.
+  const FlaggedLine({
+    required this.accountId,
+    required this.accountName,
+    required this.amount,
+  });
+
+  /// The account moved.
+  final String accountId;
+
+  /// Its display name, or the id when the chart has no row for it.
+  final String accountName;
+
+  /// Signed paise: + debit, − credit (02 §1.3).
+  final Paise amount;
+}
+
+/// One entry still carrying an **open** review flag (02 §3, 03 §3.3 rule 5).
+///
+/// It is posted and counted — every balance already includes it — so nothing
+/// above this may draw it as pending, held or waiting.
+final class FlaggedEntry {
+  /// Creates the row.
+  const FlaggedEntry({
+    required this.entryId,
+    required this.bookId,
+    required this.kind,
+    required this.accountingDate,
+    required this.lines,
+    required this.hlc,
+    this.note,
+    this.createdByUser,
+    this.approver,
+  });
+
+  /// The entry's envelope id.
+  final String entryId;
+
+  /// The book it landed in.
+  final String bookId;
+
+  /// The verb (02 §2).
+  final EntryKind kind;
+
+  /// The user-visible date (03 §1: a calendar day, not an instant).
+  final LocalDate accountingDate;
+
+  /// Its lines, in authored order.
+  final List<FlaggedLine> lines;
+
+  /// The author's HLC — when they saved it, as 03 §1 records it.
+  final int hlc;
+
+  /// The author's own narration, when they wrote one.
+  final String? note;
+
+  /// Who authored it. Never the reader on a well-formed queue: nobody decides
+  /// on their own entry (02 §7.2 item 1 🔒).
+  final String? createdByUser;
+
+  /// Who must act, as the authoring client wrote it (02 §1.3 `review_approver`).
+  final String? approver;
+
+  /// The credit side — where the money came from.
+  List<FlaggedLine> get from => [
+    for (final l in lines)
+      if (l.amount.raw < 0) l,
+  ];
+
+  /// The debit side — where it went.
+  List<FlaggedLine> get to => [
+    for (final l in lines)
+      if (l.amount.raw > 0) l,
+  ];
+
+  /// Total of the debit side, in paise — the entry's magnitude.
+  int get amountPaise => to.fold(0, (sum, l) => sum + l.amount.raw);
+}
+
+/// Why a review decision was refused, authoring nothing.
+enum ReviewRefusal {
+  /// No such entry on this device.
+  unknownEntry,
+
+  /// `status = pending`: an advance request (02 §7), whose approval *moves
+  /// money* and whose path is [LocalLedger.approveAdvance] — never this one.
+  pendingAdvance,
+
+  /// The entry never carried a flag (`review_state = 'none'`).
+  notFlagged,
+
+  /// A decision has already folded onto it (`approved` or `rejected`).
+  alreadyDecided,
+
+  /// It was amended away, or is not the head of its chain — decide on the head.
+  notHead,
+
+  /// The reader authored it. Nobody clears their own flag (02 §7.2 item 1 🔒,
+  /// enforced again by the projector as `ViolationKind.selfApproval`).
+  selfApproval,
+
+  /// Rejection only: the entry already has its mirror reversal (02 §5).
+  alreadyReversed,
+
+  /// Rejection only: the auto-reversal of 02 §5 could not be posted, so the
+  /// decision was not authored either — a rejection without its reversal
+  /// would be a flag cleared over money that never came back.
+  reversalRefused,
+}
+
+/// A review decision this device would not author (02 §3). Carries no
+/// plaintext financial data (CLAUDE.md rule 4).
+final class ReviewRefused implements Exception {
+  /// Creates the refusal.
+  const ReviewRefused(
+    this.entryId,
+    this.refusal, [
+    this.violations = const <Violation>[],
+  ]);
+
+  /// The entry that was not decided on.
+  final String entryId;
+
+  /// Why.
+  final ReviewRefusal refusal;
+
+  /// The engine's own reasons, for [ReviewRefusal.reversalRefused] only.
+  final List<Violation> violations;
+
+  @override
+  String toString() => 'ReviewRefused($entryId: ${refusal.name})';
+}
+
+/// One decided flag, **read back out of the rebuilt projection** — so the
+/// caller shows a state the projector agrees with rather than assuming the
+/// write landed.
+final class ReviewDecided {
+  /// Creates the result.
+  const ReviewDecided({
+    required this.decision,
+    required this.reviewState,
+    this.decidedHlc,
+    this.reason,
+    this.reversal,
+  });
+
+  /// The `approval_decision` envelope this device authored — exactly one.
+  final ApprovalDecision decision;
+
+  /// The head's `review_state` as re-projected: `approved` or `rejected`
+  /// unless a later decision from another device already folded over it.
+  final String reviewState;
+
+  /// The HLC of the decision that won the fold (03 §3.3 rule 5).
+  final int? decidedHlc;
+
+  /// The winning decision's reason — required on `rejected` (03 §3.2).
+  final String? reason;
+
+  /// The auto-reversal 02 §3 posts on a rejection; null on an approval.
+  final Entry? reversal;
+}
+
 /// One row of an A/C statement (07 §6, design-system §5): the account's own
 /// line of an entry, the other side(s), and the running balance after it.
 /// Both vocabularies read from the same figures: consumer surfaces take
@@ -360,6 +538,122 @@ final class MonthLockRefused implements Exception {
       '${blockers.map((b) => b.kind.name).join(', ')})';
 }
 
+/// A financial year certified (02 §8.1 🔒): the signed `year_close` envelope,
+/// and this device's own verdict on the closing vector it just published.
+///
+/// The twin of [LockedMonth], and deliberately the same shape — a close is a
+/// lock's big brother, not a different kind of thing.
+final class ClosedYearResult {
+  /// Creates the result.
+  const ClosedYearResult({required this.close, this.verification});
+
+  /// The `year_close` envelope as authored — the closing balance vector the
+  /// **projector** computed, and the `projectorVersion` that computed it
+  /// (02 §8.1 🔒, ADR 2026-09-05c §3).
+  final YearClose close;
+
+  /// This reader's replay of that vector, read back out of the rebuilt
+  /// projection. [CloseVerification.readerOutdated] is a state, not an error
+  /// (ADR 2026-09-05c §3); null when the projection published no verdict.
+  final CloseVerification? verification;
+}
+
+/// The Year Close ceremony was refused: [LocalLedger.yearClosePreconditions]
+/// was not empty (02 §8.1 🔒). Nothing was appended.
+///
+/// It carries the **engine's own** [CloseBlockerItem]s rather than a sentence,
+/// so no layer above can quietly demote a blocker to a warning or invent one.
+///
+/// Named for the *certify* step rather than `YearCloseRefused` on purpose:
+/// `features/close`'s seam already owns that name for the screen-facing
+/// refusal, and an adapter has to hold both at once.
+final class YearCertifyRefused implements Exception {
+  /// Creates the refusal.
+  const YearCertifyRefused(this.bookId, this.financialYear, this.blockers);
+
+  /// The book whose year stayed open.
+  final String bookId;
+
+  /// The year.
+  final FinancialYear financialYear;
+
+  /// What the engine objected to, in its own terms.
+  final List<CloseBlockerItem> blockers;
+
+  @override
+  String toString() =>
+      'YearCertifyRefused($bookId ${financialYear.label}: '
+      '${blockers.map((b) => b.kind.name).join(', ')})';
+}
+
+/// The year is already sealed, so [LocalLedger.closeYear] appended nothing.
+///
+/// 02 §8.1 🔒 gives a certified year exactly one way back — re-opening a month
+/// inside it, which voids the certificate — so certifying twice is never a
+/// silent second envelope. This is the backstop under the screen, which shows
+/// the certificate rather than the action once a year is closed.
+final class YearAlreadyClosed implements Exception {
+  /// Creates the refusal.
+  const YearAlreadyClosed(this.bookId, this.financialYear, this.status);
+
+  /// The book.
+  final String bookId;
+
+  /// The year that is already sealed.
+  final FinancialYear financialYear;
+
+  /// [YearStatus.closed] — or [YearStatus.uncertified], which is a *voided*
+  /// certificate and is re-certified by closing the months again in order, not
+  /// by a second close of the same state.
+  final YearStatus status;
+
+  @override
+  String toString() =>
+      'YearAlreadyClosed($bookId ${financialYear.label}: ${status.name})';
+}
+
+/// One financial year this book has closed, as the FY switcher and S10.4 need
+/// it (ADR 2026-09-09 §4 🔒).
+///
+/// It carries the **whole certified vector** rather than one figure from it,
+/// because its two readers want different lines out of it: S10.4 shows the
+/// book's carried-forward total, and S4's switcher shows the b/f of the one
+/// A/C on screen. Taking either here would make the other recompute a figure
+/// the projector already published (02 §9: balances are derived once).
+final class CertifiedYearRow {
+  /// Creates the row.
+  const CertifiedYearRow({
+    required this.year,
+    required this.status,
+    this.vector,
+    this.verification,
+  });
+
+  /// The year.
+  final FinancialYear year;
+
+  /// [YearStatus.closed], or [YearStatus.uncertified] once a month inside it
+  /// (or an earlier year) was re-opened (02 §8.1 🔒).
+  final YearStatus status;
+
+  /// The certified closing vector — the b/f the next year opens on. Null for a
+  /// row whose vector this device has not got (a `year_close_p` row written by
+  /// a build that recorded none).
+  final BalanceVector? vector;
+
+  /// This device's verification of that vector (ADR 2026-09-05c §3 🔒).
+  final CloseVerification? verification;
+
+  /// The book's balance-sheet total carried forward — debits and credits are
+  /// equal in a balanced vector, so one figure states it.
+  Paise get carriedForward => vector?.totalDebits ?? Paise.zero;
+
+  /// The b/f of one A/C, signed engine paise (+ = Dr) — what S4's switcher
+  /// puts against the year it offers.
+  Paise carriedForwardFor(String accountId) =>
+      vector == null ? Paise.zero : vector![accountId];
+}
+
 /// Where a closer had got to, as this **phone** saved it (07 §13 *Resumable*
 /// 🔒).
 ///
@@ -393,6 +687,137 @@ final class SavedCloseProgress {
 
   @override
   String toString() => 'SavedCloseProgress($step, $confirmedAccountIds)';
+}
+
+// ── late arrivals (02 §8 🔒, ADR 2026-09-05e §3, §10) ────────────────────────
+
+/// One line of a late arrival, with the A/C's name already resolved so the
+/// tray can name both sides without a second read.
+final class LateArrivalLine {
+  /// Creates the line.
+  const LateArrivalLine({
+    required this.accountId,
+    required this.accountName,
+    required this.amount,
+  });
+
+  /// The A/C.
+  final String accountId;
+
+  /// Its name, as the user wrote it.
+  final String accountName;
+
+  /// Engine sign, integer paise (CLAUDE.md rule 1): + is Dr, − is Cr. The
+  /// words beside it on a consumer surface are *Money in / Money out*
+  /// (02 §10 🔒) — that translation is the screen's, never this file's.
+  final Paise amount;
+}
+
+/// One entry sitting in the closer's **Late Arrivals tray** (02 §8 🔒).
+///
+/// It is *valid*, it **counts in every live balance already** (02 §3 🔒), and
+/// it leaves the certified month untouched. Nothing here may be drawn as
+/// money that has not moved — the tray is a closer's decision, not a gate.
+///
+/// [lockedPeriod] and [lockedAtHlc] are the *why it is here* 07 §13 🔒 asks
+/// each item to state: the month this entry is dated into, and the lock that
+/// was already in force when it landed.
+final class LateArrival {
+  /// Creates the tray item.
+  const LateArrival({
+    required this.entryId,
+    required this.bookId,
+    required this.kind,
+    required this.accountingDate,
+    required this.lockedPeriod,
+    required this.lines,
+    this.lockedAtHlc,
+    this.note,
+    this.createdByUser,
+    this.hlc = 0,
+  });
+
+  /// The entry — the head of its amend chain.
+  final String entryId;
+
+  /// The book it belongs to.
+  final String bookId;
+
+  /// The verb (02 §2).
+  final EntryKind kind;
+
+  /// The date it carries — inside [lockedPeriod], which is what puts it here.
+  final LocalDate accountingDate;
+
+  /// The locked month it is dated into.
+  final YearMonth lockedPeriod;
+
+  /// Its lines, in entry order, each with the A/C's name.
+  final List<LateArrivalLine> lines;
+
+  /// The HLC of the lock in force over [lockedPeriod] — *when it locked*.
+  /// Null when the projection has no lock row for the month (a re-opened
+  /// month still holding a tray item, ADR 2026-09-05e §5).
+  final int? lockedAtHlc;
+
+  /// The author's own narration, when they wrote one.
+  final String? note;
+
+  /// Who saved it.
+  final String? createdByUser;
+
+  /// The entry's own HLC — earlier than [lockedAtHlc] by 02 §8's rule, which
+  /// is exactly what makes it a *valid* late arrival rather than a violation.
+  final int hlc;
+
+  /// What moved, as a positive figure: the sum of the debit side. An entry
+  /// balances (02 §1.4), so this is the magnitude of the movement whichever
+  /// side you read it from.
+  Paise get amount => lines
+      .where((l) => l.amount.raw > 0)
+      .fold(Paise.zero, (sum, l) => sum + l.amount);
+
+  /// The A/Cs money left, in line order — the *from* side.
+  List<LateArrivalLine> get from => [
+    for (final l in lines)
+      if (l.amount.raw < 0) l,
+  ];
+
+  /// The A/Cs money reached — the *to* side.
+  List<LateArrivalLine> get to => [
+    for (final l in lines)
+      if (l.amount.raw > 0) l,
+  ];
+}
+
+/// Why [LocalLedger.unlockMonth] authored nothing.
+enum MonthUnlockRefusal {
+  /// The month is not locked, so there is nothing to re-open.
+  notLocked,
+
+  /// The month sits inside a **closed** financial year. Unlocking it would
+  /// void that year's certificate and every later one (02 §8.1 🔒), which is
+  /// the **structural** `year_reopen` of 02 §7.2.1 🔒 — a quorum act, not this
+  /// routine one. The caller sends the closer to the year-close ceremony.
+  closedYear,
+}
+
+/// The typed refusal of a re-open, thrown **before** anything is authored.
+final class MonthUnlockRefused implements Exception {
+  /// Creates the refusal.
+  const MonthUnlockRefused(this.bookId, this.period, this.reason);
+
+  /// The book whose month stayed locked.
+  final String bookId;
+
+  /// The month.
+  final YearMonth period;
+
+  /// Why.
+  final MonthUnlockRefusal reason;
+
+  @override
+  String toString() => 'MonthUnlockRefused($bookId $period: ${reason.name})';
 }
 
 final class StatementRow {
@@ -903,6 +1328,428 @@ final class ReconciliationPair {
   bool get isUnconfirmed => status == PairStatus.unconfirmed;
 }
 
+// ── profit distribution (02 §7.1 🔒, 13 §3.2 row S14.1) ─────────────────────
+
+/// The `business_setting` key that turns **interest on capital** on (02 §7.1
+/// 🔒 — *optional, off by default*).
+///
+/// ⚠️ SPEC (🔒, for the 02 / 03 owner): 02 §7.1 makes interest on capital *a
+/// per-business setting … recorded as a dated business-setting envelope*, and
+/// ADR 2026-09-05e §11 lists *interest terms* among what `business_setting`
+/// carries — but **no doc names the wire key**, and `structuralSettingKeys`
+/// (`packages/data`) holds only `partner_shares` and `structural_quorum`, so
+/// the deed cannot carry it either. These two names are this lane's reading,
+/// and [interestOnCapitalInForce] reads them conservatively in one direction
+/// only: absent, of the wrong type, or uninterpretable means **off**, which is
+/// the documented default. A later ruling that renames the key can therefore
+/// only ever switch a book *on* that reads as off today — never the reverse.
+/// Nothing in the app writes them: enabling is the structural action of
+/// 02 §7.2.1 and no screen owns it yet. Reported in the lane report.
+const String interestOnCapitalKey = 'interest_on_capital';
+
+/// The rate in **basis points** that goes with [interestOnCapitalKey] (8 % =
+/// 800). Basis points, not a float: a rate is money arithmetic (CLAUDE.md
+/// rule 1) and `interestOnCapital` takes `rateBasisPoints`.
+const String interestOnCapitalRateKey = 'interest_on_capital_rate_bp';
+
+/// The interest-on-capital terms in force, read off the structural settings
+/// fold (ADR 2026-09-14b §2). Off unless the book says otherwise, in the
+/// shapes [interestOnCapitalKey] documents.
+({bool enabled, int rateBasisPoints}) interestOnCapitalInForce(
+  Map<String, Object?> inForce,
+) {
+  final on = inForce[interestOnCapitalKey];
+  final rate = inForce[interestOnCapitalRateKey];
+  if (on is! bool || !on || rate is! int || rate <= 0) {
+    return (enabled: false, rateBasisPoints: 0);
+  }
+  return (enabled: true, rateBasisPoints: rate);
+}
+
+/// Why a distribution cannot be made (02 §7.1 🔒, ADR 2026-09-05e §8).
+///
+/// Every value is a **state the wizard shows**, never a thrown string: S14.1
+/// explains it and offers the way on (07 §1 rule 6). The app decides none of
+/// the arithmetic behind them — the ceiling is `distributionHeadroom`'s
+/// verdict and the ratio is the structural reader's.
+enum DistributionRefusal {
+  /// The book is not a shared business — a *Just me* business or a personal
+  /// book never mentions partners, ratios or distribution (ADR 2026-09-09b 🔒).
+  notShared,
+
+  /// A shared business whose Partner Current A/cs are not seeded yet.
+  noPartnerAccounts,
+
+  /// No `Profit Distributed` account: the appropriation has nowhere to post
+  /// and 02 §7.1's no-closing-entries rule forbids inventing one here.
+  noProfitDistributedAccount,
+
+  /// `partner_shares` is absent or empty. 02 §7.1 🔒: that means the ratio was
+  /// **never recorded** — never that the shares are equal.
+  ratioNotRecorded,
+
+  /// The ratio in force does not name every Partner Current A/c of the book
+  /// (or names one that is not a partner account). Distributing would silently
+  /// leave an owner out, so nothing is divided.
+  ratioIncomplete,
+
+  /// A `book_config` version or a `business_setting` record was quarantined,
+  /// so the terms in force cannot be trusted (ADR 2026-09-14b §2, §5). The
+  /// deed alone is the wrong answer once a change exists that cannot be read.
+  termsUnverified,
+
+  /// Net profit for the year is exactly zero: there is nothing to appropriate
+  /// and `Verbs.profitDistribution` refuses a zero entry.
+  nothingToDistribute,
+
+  /// Cumulative distributions would exceed accumulated surplus (ADR
+  /// 2026-09-05e §8) — [DistributionRefused.excess] says by how much.
+  ceiling,
+
+  /// `checkStructuralRequest` refused the request itself; the engine's own
+  /// reason rides in [DistributionRefused.structural].
+  structural,
+}
+
+/// A distribution the facade declined. **Nothing was authored** — no entry, no
+/// request envelope.
+final class DistributionRefused implements Exception {
+  /// Creates the refusal.
+  const DistributionRefused(
+    this.bookId,
+    this.refusal, {
+    this.excess = Paise.zero,
+    this.structural,
+  });
+
+  /// The book.
+  final String bookId;
+
+  /// Which rule refused.
+  final DistributionRefusal refusal;
+
+  /// For [DistributionRefusal.ceiling]: how far over the ceiling the proposal
+  /// is — 02 §7.1 🔒 *the wizard refuses and says by how much*.
+  final Paise excess;
+
+  /// For [DistributionRefusal.structural]: the engine's own reason.
+  final StructuralRefusal? structural;
+
+  @override
+  String toString() => 'DistributionRefused($bookId: ${refusal.name})';
+}
+
+/// One owner's two lines in the preview (02 §7.1 🔒 *The distribution preview
+/// shows both lines per partner — interest and share*).
+///
+/// Both figures are read **off the engine's own lines**; nothing here divides
+/// anything. [interest] is `interestOnCapital`'s result and [share] is what
+/// `Verbs.profitDistribution` assigned after the remainder rule, both signed
+/// as *what is credited to this owner* (negative = charged / a loss shared).
+final class DistributionShare {
+  /// Creates the row.
+  const DistributionShare({
+    required this.accountId,
+    required this.name,
+    required this.ratioWeight,
+    required this.interest,
+    required this.share,
+  });
+
+  /// The Partner Current A/c — the identity the ratio and the remainder rule
+  /// both key on (02 §7.1 🔒).
+  final String accountId;
+
+  /// The account's name as the chart carries it.
+  final String name;
+
+  /// This owner's whole-number weight in the ratio **in force** (ADR
+  /// 2026-09-14b §6), never a percentage.
+  final int ratioWeight;
+
+  /// Interest on capital credited (negative = charged on a debit balance).
+  /// Zero when the setting is off, which is the default.
+  final Paise interest;
+
+  /// The ratio share of what remains after interest (negative = a loss share).
+  final Paise share;
+
+  /// What this entry credits them in total.
+  Paise get total => interest + share;
+}
+
+/// Everything S14.1 draws before anything is posted (13 §3.2 row S14.1:
+/// *period profit → ratio preview (incl. interest lines) → one multi-line
+/// entry*).
+///
+/// Every figure on it came out of `core_ledger` or `packages/data`: net profit
+/// from `netProfit`, the ceiling from `distributionHeadroom`, the ratio from
+/// `partnerSharesInForce(structuralSettingsInForce(…))`, interest from
+/// `interestOnCapital`, and the split from `Verbs.profitDistribution`'s lines.
+/// The facade adds names and nothing else.
+final class DistributionPreview {
+  /// Creates the preview.
+  const DistributionPreview({
+    required this.bookId,
+    required this.financialYear,
+    required this.from,
+    required this.to,
+    required this.netProfit,
+    required this.shares,
+    required this.interest,
+    required this.lines,
+    required this.headroom,
+    required this.excess,
+    required this.interestEnabled,
+    required this.rateBasisPoints,
+    required this.ownerSetVersion,
+    required this.approvalsRequired,
+    this.refusal,
+  });
+
+  /// The book.
+  final String bookId;
+
+  /// The open financial year the profit figure is scoped to (ADR
+  /// 2026-09-05e §8: net profit is **FY-scoped**, whatever period the interest
+  /// covers).
+  final FinancialYear financialYear;
+
+  /// First day of the interest period (default: the FY's first day).
+  final LocalDate from;
+
+  /// Last day of the interest period (default: today).
+  final LocalDate to;
+
+  /// The FY's income − expense − distributions already posted in it. Positive
+  /// = profit, negative = a loss to be shared by the mirror posting.
+  final Paise netProfit;
+
+  /// One row per owner, in Partner Current A/c creation order — the order
+  /// 02 §7.1 🔒's tie-break and `Verbs.profitDistribution` both require.
+  final List<DistributionShare> shares;
+
+  /// `interestOnCapital`'s raw result, by partner account id; empty when the
+  /// setting is off.
+  final Map<String, Paise> interest;
+
+  /// The one multi-line entry's lines, exactly as the engine built them —
+  /// `Dr Profit Distributed · Cr each Partner Current`, `interest` lines
+  /// before `share` lines. Empty when [refusal] is set.
+  final List<Line> lines;
+
+  /// What may still be distributed today (ADR 2026-09-05e §8).
+  final Paise headroom;
+
+  /// How far [netProfit] overshoots [headroom]; zero when it fits.
+  final Paise excess;
+
+  /// Whether interest on capital is on for this book (02 §7.1 🔒 — off by
+  /// default).
+  final bool interestEnabled;
+
+  /// The rate in basis points when [interestEnabled]; zero otherwise.
+  final int rateBasisPoints;
+
+  /// The owner-set version a request would be counted under (ADR
+  /// 2026-09-14b §3). 1 — the founding set — when no later version is
+  /// derivable.
+  final int ownerSetVersion;
+
+  /// Signed approvals a request needs (02 §7.2.1 🔒). 1 is the single-owner
+  /// book's quorum of one, where the concept is invisible.
+  final int approvalsRequired;
+
+  /// Why nothing can be distributed, or null when it can.
+  final DistributionRefusal? refusal;
+
+  /// True when this book posts the entry now rather than proposing it
+  /// (02 §7.2.1 🔒 *Single-owner books … have a quorum of one*).
+  bool get quorumOfOne => approvalsRequired <= 1;
+
+  /// Total interest credited across the owners.
+  Paise get interestTotal => Paise.sum([for (final s in shares) s.interest]);
+
+  /// Total shared by the ratio after interest.
+  Paise get shareTotal => Paise.sum([for (final s in shares) s.share]);
+
+  /// The period is a loss: the mirror posting of ADR 2026-09-05e §8.
+  bool get isLoss => netProfit.isCredit;
+
+  /// Interest is owed even though it is more than the profit (02 §7.1 🔒 —
+  /// *interest is credited in full … the remaining negative figure is then
+  /// shared as a loss*).
+  bool get interestExceedsProfit =>
+      interestTotal.raw > 0 && interestTotal.raw > netProfit.raw;
+
+  /// Nothing stands in the way.
+  bool get canDistribute => refusal == null;
+}
+
+/// What [LocalLedger.proposeDistribution] did.
+sealed class DistributionOutcome {
+  const DistributionOutcome();
+}
+
+/// A quorum-of-one book: the one multi-line entry is posted (02 §7.1 🔒).
+final class DistributionPosted extends DistributionOutcome {
+  /// Creates the outcome.
+  const DistributionPosted(this.entry);
+
+  /// The posted entry.
+  final Entry entry;
+}
+
+/// A shared book: one signed `structural_request` envelope is authored and
+/// **nothing is applied** (02 §7.2.1 🔒 *Nothing is applied early*). Approval
+/// counting and application belong to the Inbox side.
+final class DistributionProposed extends DistributionOutcome {
+  /// Creates the outcome.
+  const DistributionProposed(this.request);
+
+  /// The request as authored.
+  final StructuralRequest request;
+}
+
+/// The `structural_approval` wire form of a request (03 §2.3 registry; ADR
+/// 2026-09-05e §11 — *one type, a `phase` field*).
+///
+/// ⚠️ SPEC (🔒, for the 03 / ADR owner): ADR 2026-09-14b §5 fixed the
+/// `business_setting` wire shape and **no doc fixes this one**;
+/// `packages/data`'s `payload_codec.dart` has neither an encoder nor a decoder
+/// for `structural_approval`, so `readStructuralState` has no way to be fed
+/// from the mirror. This is that codec, written to the same M2 conventions the
+/// ADR used for its sibling (snake_case, ids as strings, `hlc` as the raw
+/// int), carrying exactly the fields `StructuralRequest` declares plus the
+/// `phase` discriminator. It belongs in `packages/data` beside
+/// `BusinessSetting`; it lives here only because that package is another
+/// lane's. Reported in the lane report.
+Map<String, Object?> encodeStructuralEvent(StructuralEvent event) =>
+    switch (event) {
+      StructuralRequest() => {
+        'id': event.id,
+        'book_id': event.bookId,
+        'hlc': event.hlc.raw,
+        'phase': 'initiation',
+        'action': event.action.wire,
+        'by_user': event.byUser,
+        'owner_set_version': event.ownerSetVersion,
+        'payload': event.payload,
+      },
+      StructuralApproval() => {
+        'id': event.id,
+        'book_id': event.bookId,
+        'hlc': event.hlc.raw,
+        'phase': 'approval',
+        'request_id': event.requestId,
+        'by_user': event.byUser,
+        'owner_set_version': event.ownerSetVersion,
+      },
+      StructuralVeto() => {
+        'id': event.id,
+        'book_id': event.bookId,
+        'hlc': event.hlc.raw,
+        'phase': 'veto',
+        'request_id': event.requestId,
+        'by_user': event.byUser,
+        'owner_set_version': event.ownerSetVersion,
+        'reason': event.reason,
+      },
+      StructuralLapse() => {
+        'id': event.id,
+        'book_id': event.bookId,
+        'hlc': event.hlc.raw,
+        'phase': 'lapse',
+        'request_id': event.requestId,
+        'by_user': event.byUser,
+      },
+    };
+
+/// Reads a `structural_approval` payload back, or null when this build cannot
+/// interpret it — an unknown `phase`, or an action outside 02 §7.2.1's 🔒 set.
+///
+/// Null is never silence with consequences: an unreadable structural envelope
+/// leaves the owner fold exactly where it was, which is the strictest reading
+/// (nothing is approved by something nobody can read).
+StructuralEvent? decodeStructuralEvent(
+  Map<String, Object?> json, {
+  String? authorDevice,
+  int? authorSeq,
+}) {
+  final id = json['id'];
+  final bookId = json['book_id'];
+  final hlc = json['hlc'];
+  final byUser = json['by_user'];
+  if (id is! String || bookId is! String || hlc is! int || byUser is! String) {
+    return null;
+  }
+  final requestId = json['request_id'];
+  final version = json['owner_set_version'];
+  switch (json['phase']) {
+    case 'initiation':
+      final action = StructuralAction.fromWire(json['action']);
+      if (action == null || version is! int) return null;
+      final payload = json['payload'];
+      return StructuralRequest(
+        id: id,
+        bookId: bookId,
+        hlc: Hlc(hlc),
+        action: action,
+        byUser: byUser,
+        ownerSetVersion: version,
+        payload: payload is Map<String, Object?>
+            ? Map<String, Object?>.unmodifiable(payload)
+            : const {},
+        authorDevice: authorDevice,
+        authorSeq: authorSeq,
+      );
+    case 'approval':
+      if (requestId is! String || version is! int) return null;
+      return StructuralApproval(
+        id: id,
+        bookId: bookId,
+        hlc: Hlc(hlc),
+        requestId: requestId,
+        byUser: byUser,
+        ownerSetVersion: version,
+        authorDevice: authorDevice,
+        authorSeq: authorSeq,
+      );
+    case 'veto':
+      final reason = json['reason'];
+      if (requestId is! String ||
+          version is! int ||
+          reason is! String ||
+          reason.trim().isEmpty) {
+        return null;
+      }
+      return StructuralVeto(
+        id: id,
+        bookId: bookId,
+        hlc: Hlc(hlc),
+        requestId: requestId,
+        byUser: byUser,
+        ownerSetVersion: version,
+        reason: reason,
+        authorDevice: authorDevice,
+        authorSeq: authorSeq,
+      );
+    case 'lapse':
+      if (requestId is! String) return null;
+      return StructuralLapse(
+        id: id,
+        bookId: bookId,
+        hlc: Hlc(hlc),
+        requestId: requestId,
+        byUser: byUser,
+        authorDevice: authorDevice,
+        authorSeq: authorSeq,
+      );
+    default:
+      return null;
+  }
+}
+
 /// The local ledger.
 final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
   /// Creates the facade. [suite] is the app's libsodium binding wrapped in a
@@ -912,6 +1759,7 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
     required this.keys,
     required this.suite,
     required this.now,
+    this.reviewPolicy = noReviewPolicy,
   }) : mirror = Mirror(db, hasher: blake2bHasher(suite)) {
     recompute = Recompute(
       db,
@@ -931,6 +1779,18 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
 
   /// Injected clock (09 §1).
   final DateTime Function() now;
+
+  /// The auto-post limit this client measures its own entries against
+  /// (02 §3 🔒, 03 §3.3 rule 5 🔒). Defaults to [noReviewPolicy] — *no limit
+  /// anywhere*, which is what the app did before the seam existed, so every
+  /// existing caller and test is unchanged.
+  ///
+  /// Mutable, like [onOwnCert], because the composition root builds this
+  /// ledger *before* the members repository that answers it: the repository
+  /// needs `identity.tenantId` / `identity.userId`, which only exist once this
+  /// ledger has bootstrapped. `bootstrap.dart` installs the real policy a few
+  /// lines later, in the same synchronous stretch, before `runApp`.
+  ReviewPolicy reviewPolicy;
 
   /// Envelope mirror + outbox (03 §3.1).
   final Mirror mirror;
@@ -1376,6 +2236,7 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
     List<SeedCategory>? categories,
     List<String> ownerNames = const [],
     List<int> ownerShares = const [],
+    List<String> ownerMemberIds = const [],
     OrganizationSubtype? organizationSubtype,
     LocalDate? startDate,
   }) async {
@@ -1385,6 +2246,14 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
         ownerShares,
         'ownerShares',
         'must be empty or one weight per owner name',
+      );
+    }
+    if (ownerMemberIds.isNotEmpty &&
+        ownerMemberIds.length != ownerNames.length) {
+      throw ArgumentError.value(
+        ownerMemberIds,
+        'ownerMemberIds',
+        'must be empty or one member id per owner name',
       );
     }
     if (ownerShares.any((w) => w <= 0)) {
@@ -1522,6 +2391,12 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
           id: partnerAccountIds[i],
           name: partnerCurrentAccountName(owner),
           accountClass: AccountClass.partner,
+          // The chart's mapping from Partner Current A/c id to the member who
+          // signs (02 §7.1 🔒; ADR 2026-09-14b §3 derives the founding owner
+          // set from exactly this). Empty until the owners step collects real
+          // member ids — an owner set that is *not derivable* is read as such
+          // rather than guessed, which is the strict reading.
+          memberId: ownerMemberIds.isEmpty ? null : ownerMemberIds[i],
         );
       }
     }
@@ -1779,6 +2654,84 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
     );
   }
 
+  /// Posts a draft this facade built, having first **authored its review
+  /// flag** (02 §1.3 🔒, 02 §3 🔒, 03 §3.3 rule 5 🔒).
+  ///
+  /// This, and not [post], is the door every verb goes through: `post` is the
+  /// raw primitive — a caller handing it a complete entry (the harness, a
+  /// test, a future importer replaying someone else's payload) has already
+  /// decided what the payload says, and this client must not overwrite a flag
+  /// another author wrote.
+  ///
+  /// Exactly one policy read per post, so the limit recorded is *the limit in
+  /// force at this entry's HLC*. A later change to the grant never re-flags
+  /// what is already in the book.
+  Future<Entry> _postDrafted(Entry draft) async => post(await _measured(draft));
+
+  /// [draft] with `review_required` and `review_limit_paise` authored from the
+  /// limit in force for its author in its book.
+  ///
+  /// Two entries are never measured:
+  ///   * a `pending` one — 02 §1.3 🔒 makes `pending` *only* an advance
+  ///     request awaiting approval, §7's deliberate exception where approval
+  ///     itself moves the money, so a second flag on it would ask twice;
+  ///   * a reversal — `Entry.reversal` (02 §5) fixes `review_required = false`
+  ///     in the engine: a mirror restores a figure the book already carries,
+  ///     and flagging it would mean a rejected entry's own reversal needs
+  ///     reviewing before the month could close.
+  Future<Entry> _measured(Entry draft) async {
+    if (draft.status != EntryStatus.posted) return draft;
+    if (draft.refs.reverses != null) return draft;
+    final limit = await reviewPolicy.autoPostLimitPaise(
+      bookId: draft.bookId,
+      userId: draft.createdByUser,
+    );
+    if (limit == null) return draft;
+    final paise = Paise(limit);
+    return draft.copyWith(
+      reviewRequired: draft.totalDebits > paise,
+      reviewLimitPaise: paise,
+    );
+  }
+
+  /// The review verdict for one inter-book pair (02 §6 🔒): each half
+  /// measured against **its own book's** limit for this author, read once per
+  /// book. [override] — the caller's `reviewRequiredIn` — may *add* a flag and
+  /// never remove one, so an explicit request to review can only ever ask for
+  /// more checking than the limit does.
+  ///
+  /// Both halves of a pair carry exactly one debit line of [paise]
+  /// (`InterBook.transfer` / `InterBook.pocketExpense`), so the amount is the
+  /// `totalDebits` every reader will re-check against the recorded limit.
+  Future<({({bool from, bool to}) required, ({Paise? from, Paise? to}) limits})>
+  _pairReview({
+    required String fromBookId,
+    required String toBookId,
+    required int paise,
+    required ({bool from, bool to}) override,
+  }) async {
+    final user = identity.userId;
+    final from = await reviewPolicy.autoPostLimitPaise(
+      bookId: fromBookId,
+      userId: user,
+    );
+    final to = await reviewPolicy.autoPostLimitPaise(
+      bookId: toBookId,
+      userId: user,
+    );
+    final amount = Paise(paise);
+    return (
+      required: (
+        from: override.from || (from != null && amount > Paise(from)),
+        to: override.to || (to != null && amount > Paise(to)),
+      ),
+      limits: (
+        from: from == null ? null : Paise(from),
+        to: to == null ? null : Paise(to),
+      ),
+    );
+  }
+
   Entry _draft({
     required String bookId,
     required EntryKind kind,
@@ -1824,7 +2777,7 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
   }) async {
     final c = await chartOf(bookId);
     final fromA = c.account(from);
-    return post(
+    return _postDrafted(
       _draft(
         bookId: bookId,
         kind: EntryKind.moneyIn,
@@ -1854,7 +2807,7 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
   }) async {
     final c = await chartOf(bookId);
     final forA = c.account(forWhat);
-    return post(
+    return _postDrafted(
       _draft(
         bookId: bookId,
         kind: EntryKind.moneyOut,
@@ -1882,7 +2835,7 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
     String? note,
   }) async {
     final c = await chartOf(bookId);
-    return post(
+    return _postDrafted(
       _draft(
         bookId: bookId,
         kind: EntryKind.gaveCredit,
@@ -1909,7 +2862,7 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
     String? note,
   }) async {
     final c = await chartOf(bookId);
-    return post(
+    return _postDrafted(
       _draft(
         bookId: bookId,
         kind: EntryKind.tookCredit,
@@ -1937,7 +2890,7 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
     String? channel,
   }) async {
     final c = await chartOf(bookId);
-    return post(
+    return _postDrafted(
       _draft(
         bookId: bookId,
         kind: EntryKind.transfer,
@@ -1985,7 +2938,7 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
     }
     final c = await chartOf(bookId);
     final adv = c.account(advance);
-    return post(
+    return _postDrafted(
       _draft(
         bookId: bookId,
         kind: EntryKind.moneyOut,
@@ -2040,21 +2993,15 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
     if (p.entry.createdByUser == identity.userId) {
       throw AdvanceRefused(entryId, AdvanceRefusal.selfApproval);
     }
-    final hlc = _tick();
-    final decision = ApprovalDecision(
-      id: newId(),
-      bookId: row.bookId,
-      entryId: entryId,
-      decision: Decision.approve,
-      byUser: identity.userId,
-      hlc: hlc,
-    );
-    await _author(
-      bookId: row.bookId,
-      objectId: decision.id,
-      objectType: 'approval_decision',
-      hlc: hlc,
-      object: (_) => encodeEvent(decision),
+    final decision = await authorApprovalDecision(
+      (hlc, id) => ApprovalDecision(
+        id: id,
+        bookId: row.bookId,
+        entryId: entryId,
+        decision: Decision.approve,
+        byUser: identity.userId,
+        hlc: hlc,
+      ),
     );
     await _rebuild(row.bookId);
     return decision;
@@ -2073,7 +3020,7 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
   }) async {
     final c = await chartOf(bookId);
     final adv = c.account(advance);
-    return post(
+    return _postDrafted(
       _draft(
         bookId: bookId,
         kind: EntryKind.moneyOut,
@@ -2101,7 +3048,7 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
   }) async {
     final c = await chartOf(bookId);
     final adv = c.account(advance);
-    return post(
+    return _postDrafted(
       _draft(
         bookId: bookId,
         kind: EntryKind.moneyIn,
@@ -2147,7 +3094,7 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
       if (paise == 0) continue;
       final account = c.account(accountId);
       out.add(
-        await post(
+        await _postDrafted(
           _draft(
             bookId: bookId,
             kind: EntryKind.adjustment,
@@ -2163,6 +3110,250 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
       );
     }
     return out;
+  }
+
+  // ── the review queue (02 §3 🔒) ────────────────────────────────────────────
+  // The opposite of §7's advances: here the money already moved, so approval
+  // clears a flag and moves nothing, and rejection posts the §5 mirror with
+  // the reason. Both write exactly one `approval_decision` envelope through
+  // [authorApprovalDecision] — the same path [approveAdvance] uses, so the
+  // codec and the signature live in one place.
+
+  /// Every entry of [bookId] still carrying an **open** review flag — the
+  /// Inbox queue's one read (02 §3, 03 §3.3 rule 5 🔒, 07 §9 🔒).
+  ///
+  /// `review_state` is the projector's, folded from `approval_decision`
+  /// envelopes; this reads it and decides nothing. Heads only (an amended-away
+  /// entry is not what a reviewer should be deciding on), ordered by
+  /// `(accounting_date, hlc, id)`.
+  ///
+  /// It does **not** filter the reader's own entries: that is 02 §7.2 item 1's
+  /// rule and belongs to the queue above it, which is also where a book with
+  /// one member raises nothing. [approveEntry] and [rejectEntry] refuse a
+  /// self-decision in any case.
+  Stream<List<FlaggedEntry>> watchOpenReviews(String bookId) {
+    final q = db.customSelect(
+      'SELECT e.id, e.kind, e.accounting_date, e.note, e.created_by_user, '
+      'e.review_approver, e.hlc, l.account_id, l.amount_paise, l.line_index, '
+      'a.name AS account_name '
+      'FROM entries_p e '
+      'JOIN entry_lines_p l ON l.entry_id = e.id '
+      'LEFT JOIN accounts_p a ON a.id = l.account_id '
+      "WHERE e.book_id = ? AND e.review_state = 'open' "
+      'AND e.superseded_by IS NULL '
+      'ORDER BY e.accounting_date, e.hlc, e.id, l.line_index',
+      variables: [Variable.withString(bookId)],
+      readsFrom: {db.entriesP, db.entryLinesP, db.accountsP},
+    );
+    return q.watch().map((rows) {
+      final lines = <String, List<FlaggedLine>>{};
+      final head = <String, QueryRow>{};
+      final order = <String>[];
+      for (final r in rows) {
+        final id = r.read<String>('id');
+        if (lines.putIfAbsent(id, () => []).isEmpty) {
+          head[id] = r;
+          order.add(id);
+        }
+        lines[id]!.add(
+          FlaggedLine(
+            accountId: r.read<String>('account_id'),
+            accountName:
+                r.readNullable<String>('account_name') ??
+                r.read<String>('account_id'),
+            amount: Paise(r.read<int>('amount_paise')),
+          ),
+        );
+      }
+      return [
+        for (final id in order)
+          () {
+            final r = head[id]!;
+            return FlaggedEntry(
+              entryId: id,
+              bookId: bookId,
+              kind: EntryKind.parse(r.read<String>('kind')),
+              accountingDate: LocalDate.parse(
+                r.read<String>('accounting_date'),
+              ),
+              lines: List.unmodifiable(lines[id]!),
+              hlc: r.read<int>('hlc'),
+              note: r.readNullable<String>('note'),
+              createdByUser: r.readNullable<String>('created_by_user'),
+              approver: r.readNullable<String>('review_approver'),
+            );
+          }(),
+      ];
+    });
+  }
+
+  /// Authors one `approval_decision` envelope (03 §3.3.5) and nothing else.
+  ///
+  /// [build] is handed this device's next HLC and a fresh id, so the decision
+  /// is stamped in the same tick the envelope is sealed in. Authoring applies
+  /// nothing: the fold is the projector's, in `(hlc, envelope_id)` order with
+  /// the last one winning, so the caller rebuilds and reads the answer back.
+  ///
+  /// The one write path for every decision this app makes — [approveAdvance]
+  /// (02 §7, where the approval moves the money), [approveEntry] and
+  /// [rejectEntry] (02 §3, where it never does).
+  Future<ApprovalDecision> authorApprovalDecision(
+    ApprovalDecision Function(Hlc hlc, String id) build,
+  ) async {
+    _requireOpen();
+    final hlc = _tick();
+    final decision = build(hlc, newId());
+    await _author(
+      bookId: decision.bookId,
+      objectId: decision.id,
+      objectType: 'approval_decision',
+      hlc: hlc,
+      object: (_) => encodeEvent(decision),
+    );
+    return decision;
+  }
+
+  /// **Approve** — clears the flag (02 §3 🔒). Moves no money: the entry
+  /// posted and counted the moment it was saved, and every balance already
+  /// includes it.
+  ///
+  /// Validate → refuse typed → author exactly one decision → read the head
+  /// back out of the rebuilt projection. Refused per [ReviewRefusal],
+  /// authoring nothing.
+  Future<ReviewDecided> approveEntry(String entryId) async {
+    final (row, _) = await _openFlag(entryId);
+    final decision = await authorApprovalDecision(
+      (hlc, id) => ApprovalDecision(
+        id: id,
+        bookId: row.bookId,
+        entryId: entryId,
+        decision: Decision.approve,
+        byUser: identity.userId,
+        hlc: hlc,
+      ),
+    );
+    await _rebuild(row.bookId);
+    return _decidedFrom(entryId, decision);
+  }
+
+  /// **Reject** — one signed decision carrying [reason], plus the auto-posted
+  /// mirror reversal of 02 §5 (02 §3 🔒). The original and the reversal both
+  /// stay in history; the balance returns to where it was before the entry.
+  ///
+  /// A blank [reason] is a programming error, not a user-facing state: the
+  /// rejection envelope carries it and `entries_p.review_reason` requires it
+  /// (03 §3.2), so the screens collect it before calling.
+  ///
+  /// The mirror is validated **before** anything is authored. The ledger is
+  /// append-only (CLAUDE.md rule 2): a decision authored beside a reversal
+  /// that then refused would leave a flag cleared over money that never came
+  /// back, and no envelope can be taken back. Nothing between the two writes
+  /// can invalidate the mirror either — a decision changes a flag, never a
+  /// balance, a period or a head.
+  Future<ReviewDecided> rejectEntry(
+    String entryId, {
+    required String reason,
+  }) async {
+    final text = reason.trim();
+    if (text.isEmpty) {
+      throw ArgumentError.value(
+        reason,
+        'reason',
+        'a rejection records why (02 §3)',
+      );
+    }
+    final (row, projected) = await _openFlag(entryId);
+    if (projected.reversedBy != null) {
+      throw ReviewRefused(entryId, ReviewRefusal.alreadyReversed);
+    }
+    final mirror = _stamp(
+      projected.entry.reversal(
+        newId: newId(),
+        hlc: _clock,
+        accountingDate: today(),
+        createdByUser: identity.userId,
+        createdByDevice: identity.deviceId,
+        note: text,
+      ),
+    );
+    final violations = await _violationsOf(mirror);
+    if (violations.isNotEmpty) {
+      throw ReviewRefused(entryId, ReviewRefusal.reversalRefused, violations);
+    }
+    final decision = await authorApprovalDecision(
+      (hlc, id) => ApprovalDecision(
+        id: id,
+        bookId: row.bookId,
+        entryId: entryId,
+        decision: Decision.reject,
+        byUser: identity.userId,
+        hlc: hlc,
+        reason: text,
+      ),
+    );
+    // Appends and rebuilds — the projection the result is read from already
+    // holds both envelopes.
+    final reversal = await _append(mirror);
+    return _decidedFrom(entryId, decision, reversal: reversal);
+  }
+
+  /// The entry behind an **open** flag, or a typed refusal that authors
+  /// nothing. The order of the checks is the order the refusals should be
+  /// read in: an advance request is never this queue's business, and a
+  /// self-decision is refused before anything else is judged about the flag.
+  Future<(EntriesPData, ProjectedEntry)> _openFlag(String entryId) async {
+    _requireOpen();
+    final row = await (db.select(
+      db.entriesP,
+    )..where((t) => t.id.equals(entryId))).getSingleOrNull();
+    if (row == null) throw ReviewRefused(entryId, ReviewRefusal.unknownEntry);
+    final state = await _stateOf(row.bookId);
+    final projected = state.entries[entryId];
+    if (projected == null) {
+      throw ReviewRefused(entryId, ReviewRefusal.unknownEntry);
+    }
+    if (projected.entry.status == EntryStatus.pending) {
+      // 02 §7's queue, where approving *moves* the money — [approveAdvance]'s
+      // path and never this one (02 §1.3 🔒: `pending` is only an advance).
+      throw ReviewRefused(entryId, ReviewRefusal.pendingAdvance);
+    }
+    if (projected.entry.createdByUser == identity.userId) {
+      throw ReviewRefused(entryId, ReviewRefusal.selfApproval);
+    }
+    switch (projected.reviewState) {
+      case ReviewState.none:
+        throw ReviewRefused(entryId, ReviewRefusal.notFlagged);
+      case ReviewState.approved:
+      case ReviewState.rejected:
+        throw ReviewRefused(entryId, ReviewRefusal.alreadyDecided);
+      case ReviewState.open:
+        break;
+    }
+    if (projected.supersededBy != null || state.headOf(entryId) != entryId) {
+      throw ReviewRefused(entryId, ReviewRefusal.notHead);
+    }
+    return (row, projected);
+  }
+
+  /// The head as the **rebuilt** projection now reads it (03 §3.2
+  /// `review_state` / `review_decided_hlc` / `review_reason`) — never what
+  /// this device assumed it wrote. A decision from another device with a
+  /// later `(hlc, id)` wins the fold, and this is where that shows.
+  Future<ReviewDecided> _decidedFrom(
+    String entryId,
+    ApprovalDecision decision, {
+    Entry? reversal,
+  }) async {
+    final row = await (db.select(
+      db.entriesP,
+    )..where((t) => t.id.equals(entryId))).getSingleOrNull();
+    return ReviewDecided(
+      decision: decision,
+      reviewState: row?.reviewState ?? 'none',
+      decidedHlc: row?.reviewDecidedHlc,
+      reason: row?.reviewReason,
+      reversal: reversal,
+    );
   }
 
   // ── corrections (02 §5) ───────────────────────────────────────────────────
@@ -2188,7 +3379,14 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
       );
     }
     final period = original.entry.accountingDate.yearMonth;
-    if (state.periods.currentStatus(period) == PeriodStatus.locked) {
+    if (state.periods.currentStatus(period) == PeriodStatus.locked &&
+        !await _isTrayRedate(
+          entryId,
+          state,
+          accountingDate: accountingDate,
+          lines: lines,
+          from: original.entry.accountingDate,
+        )) {
       violations.add(
         Violation(
           ViolationKind.amendInLockedPeriod,
@@ -2197,7 +3395,12 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
       );
     }
     if (violations.isNotEmpty) throw PostRejected(entryId, violations);
-    return post(
+    // Re-measured against the limit in force at the amendment's own HLC, not
+    // the flag the original carried (02 §1.3 🔒, 03 §3.3 rule 5 🔒). An
+    // amendment is a complete replacement payload, so copying the old boolean
+    // would let a small approved entry be raised over the limit by amending
+    // it — the one way the flag could be skipped while the money still moved.
+    return _postDrafted(
       original.entry.amendWith(
         newId: newId(),
         hlc: _clock,
@@ -2209,6 +3412,40 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
         createdByDevice: identity.deviceId,
       ),
     );
+  }
+
+  /// The **one** amendment 02 §5 allows against a locked period: the closer
+  /// re-dating a late arrival into the open period (02 §8 🔒, *default, one
+  /// tap*). Everything else in a locked month is still `amendInLockedPeriod`
+  /// and must go through [reverse].
+  ///
+  /// The four conditions are the projector's own, restated here so the facade
+  /// never authors an amendment `core_ledger` would then quarantine (see
+  /// `_isRedate` in `core_ledger/lib/src/projection.dart`):
+  ///
+  ///  1. the head's projected status is `in_tray` — the closer's tray, the
+  ///     state ADR 2026-09-05e §10 named. This is the half the projector
+  ///     cannot see (arrival order is client-local), and the half that keeps
+  ///     the carve-out from becoming a hole in the lock;
+  ///  2. the date actually moves;
+  ///  3. it moves into a period that is **open**;
+  ///  4. the lines are untouched — a re-date changes when, never what. An
+  ///     amendment that also edits the amount is a rewrite of a certified
+  ///     month and stays refused.
+  Future<bool> _isTrayRedate(
+    String entryId,
+    LedgerState state, {
+    required LocalDate? accountingDate,
+    required List<Line>? lines,
+    required LocalDate from,
+  }) async {
+    if (accountingDate == null || accountingDate == from) return false;
+    if (lines != null) return false;
+    if (state.periods.currentStatus(accountingDate.yearMonth) ==
+        PeriodStatus.locked) {
+      return false;
+    }
+    return _isInTray(entryId);
   }
 
   /// Reverses an entry (02 §5): the auto-built mirror — every line negated —
@@ -2278,7 +3515,7 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
   }) async {
     _requireOpen();
     final chart = await chartOf(bookId);
-    return post(
+    return _postDrafted(
       _draft(
         bookId: bookId,
         kind: EntryKind.moneyOut,
@@ -2340,7 +3577,7 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
         );
       }
     }
-    return post(
+    return _postDrafted(
       _draft(
         bookId: bookId,
         kind: EntryKind.adjustment,
@@ -2352,6 +3589,434 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
       ),
     );
   }
+
+  // ── profit distribution (02 §7.1 🔒, 13 §3.2 row S14.1) ───────────────────
+
+  /// The book's structural terms read end to end (ADR 2026-09-14b §2, §5):
+  /// the deed, the owner-set versions, the authorised `business_setting`
+  /// records, and the settings **in force**.
+  ///
+  /// This is the only path a distributing caller may read a ratio through —
+  /// `BookConfig.partnerShares` is the *deed's* value and is wrong the moment
+  /// a ratio change has quorum (ADR 2026-09-14b §2, §6). Recompute does not
+  /// hand these envelopes out (`business_setting` and `structural_approval`
+  /// are not projector events, ADR 2026-09-14b §5), so they are opened here
+  /// from the mirror, in `(hlc, envelope_id)` order, and handed to
+  /// `readStructuralState` unjudged: quarantined, unverified and corrupt rows
+  /// are skipped exactly as Recompute skips them, and every policy question is
+  /// the reader's.
+  Future<StructuralReading> structuralStateOf(String bookId) async {
+    _requireOpen();
+    final rows =
+        await (db.select(db.envelopesLocal)
+              ..where(
+                (t) =>
+                    t.bookId.equals(bookId) &
+                    t.objectType.isIn(const [
+                      'book_config',
+                      'structural_approval',
+                      'business_setting',
+                    ]),
+              )
+              ..orderBy([
+                (t) => OrderingTerm.asc(t.hlc),
+                (t) => OrderingTerm.asc(t.envelopeId),
+              ]))
+            .get();
+    final configVersions = <BookConfigVersion>[];
+    final events = <StructuralEvent>[];
+    final settings = <BusinessSetting>[];
+    for (final r in rows) {
+      if (r.quarantined == 1 || r.verified != 1) continue;
+      final read = mirror.readBlobOfRow(r);
+      if (read is! BlobOk) continue;
+      final Map<String, Object?> json;
+      try {
+        json = recompute.opener.open(
+          read.bytes,
+          BlobHeader(
+            envelopeId: r.envelopeId,
+            bookId: r.bookId,
+            objectId: r.objectId,
+            objectType: r.objectType,
+            keyVersion: r.keyVersion,
+            authorDevice: r.authorDevice,
+            hlc: r.hlc,
+          ),
+        );
+      } on Object {
+        // Recompute quarantines a payload it cannot open; this read never
+        // writes, so it leaves that to the rebuild and simply cannot see it.
+        continue;
+      }
+      try {
+        switch (r.objectType) {
+          case 'book_config':
+            configVersions.add(
+              BookConfigVersion(
+                envelopeId: r.envelopeId,
+                hlc: Hlc(r.hlc),
+                config: BookConfig.fromJson(json),
+              ),
+            );
+          case 'business_setting':
+            settings.add(BusinessSetting.fromJson(json));
+          case 'structural_approval':
+            final ev = decodeStructuralEvent(
+              json,
+              authorDevice: r.authorDevice,
+              authorSeq: r.authorSeq,
+            );
+            if (ev != null) events.add(ev);
+        }
+      } on FormatException {
+        continue;
+      }
+    }
+    return readStructuralState(
+      bookId: bookId,
+      configVersions: configVersions,
+      accounts: (await chartOf(bookId)).accounts,
+      structuralEvents: events,
+      businessSettings: settings,
+      asOfMs: now().millisecondsSinceEpoch,
+    );
+  }
+
+  /// Authors one `structural_approval` envelope — the initiation, approval,
+  /// veto or lapse of 02 §7.2.1 🔒 (ADR 2026-09-05e §11: one object type, a
+  /// `phase` field).
+  ///
+  /// [build] is handed this device's next HLC and a fresh id so the event is
+  /// stamped once, in the same tick the envelope is sealed in. Authoring an
+  /// envelope **applies nothing**: quorum is counted by `evaluateStructural`
+  /// over the records, every time, and never cached (02 §7.2.1 🔒 *Nothing is
+  /// applied early*).
+  ///
+  /// This is the authoring primitive only. Deciding *when* an approval may be
+  /// signed, and writing the `business_setting` record that a reached quorum
+  /// authorises, is the Inbox side's — see [authorBusinessSetting].
+  Future<T> authorStructural<T extends StructuralEvent>(
+    T Function(Hlc hlc, String id) build,
+  ) async {
+    _requireOpen();
+    final hlc = _tick();
+    final event = build(hlc, newId());
+    await _author(
+      bookId: event.bookId,
+      objectId: event.id,
+      objectType: 'structural_approval',
+      hlc: hlc,
+      object: (_) => encodeStructuralEvent(event),
+    );
+    return event;
+  }
+
+  /// Authors the dated `business_setting` record of **one applied structural
+  /// change** (ADR 2026-09-14b §2, §5) — a new object per change, never
+  /// amended, naming the `structural_approval` request whose quorum
+  /// authorised it.
+  ///
+  /// It does not judge the quorum: `verifyBusinessSettings` re-checks on every
+  /// read that [requestId] names an approved request whose payload equals
+  /// [settings], and quarantines the record when it does not (ADR
+  /// 2026-09-14b §5). Callers that reach a quorum write the record; readers
+  /// decide whether it counts.
+  Future<BusinessSetting> authorBusinessSetting({
+    required String bookId,
+    required String requestId,
+    required Map<String, Object?> settings,
+  }) async {
+    _requireOpen();
+    final hlc = _tick();
+    final record = BusinessSetting(
+      id: newId(),
+      bookId: bookId,
+      hlc: hlc,
+      byUser: identity.userId,
+      requestId: requestId,
+      settings: Map<String, Object?>.unmodifiable(settings),
+    );
+    await _author(
+      bookId: bookId,
+      objectId: record.id,
+      objectType: 'business_setting',
+      hlc: hlc,
+      object: (_) => record.toJson(),
+    );
+    return record;
+  }
+
+  /// Everything S14.1 shows before anything is posted (02 §7.1 🔒, 13 §3.2
+  /// row S14.1).
+  ///
+  /// [from] / [to] bound the **interest** period — the 122-day season of
+  /// 02 §7.1's worked illustration — and default to the open FY's first day
+  /// and today. Net profit is **not** period-scoped: ADR 2026-09-05e §8 makes
+  /// it the open FY's income − expense − distributions already posted in that
+  /// FY, whatever window the interest covers, and `netProfit` computes it.
+  ///
+  /// This method divides nothing. The ratio is the one in force at this order
+  /// point (ADR 2026-09-14b §6), interest is `interestOnCapital`'s, and each
+  /// owner's share is read back off the lines `Verbs.profitDistribution`
+  /// built — so the 02 §7.1 🔒 rounding rule and its remainder stay the
+  /// engine's, on every device.
+  Future<DistributionPreview> distributionPreview(
+    String bookId, {
+    LocalDate? from,
+    LocalDate? to,
+  }) async {
+    _requireOpen();
+    final report = _last[bookId] ?? await _rebuild(bookId);
+    final chart = report.chart;
+    final state = report.state;
+    final config = report.config;
+    final end = to ?? today();
+    final fy = FinancialYear.of(end, startMonth: config?.fyStartMonth ?? 4);
+    final start = from ?? fy.firstDay;
+    if (end.isBefore(start)) {
+      throw ArgumentError.value(to, 'to', 'the period ends before it begins');
+    }
+    if (!fy.contains(start) || !fy.contains(end)) {
+      throw ArgumentError.value(
+        from,
+        'from',
+        'the period must lie inside the financial year it distributes',
+      );
+    }
+
+    final reading = await structuralStateOf(bookId);
+    final inForce = reading.inForce;
+    final ratio = reading.partnerShares;
+    final interestTerms = interestOnCapitalInForce(inForce);
+    final ownerSetVersion = reading.owners.inForce?.version ?? 1;
+    final partnerAccounts = chart.byClass(AccountClass.partner)
+      ..sort((a, b) => a.createdOrder.compareTo(b.createdOrder));
+    // 02 §7.2.1 🔒: a book whose owner set cannot be derived is read at the
+    // strictest quorum there is — every owner signs. A quorum of one is
+    // claimed only when the book positively has one owner.
+    final approvalsRequired =
+        reading.owners.inForce?.required ??
+        (partnerAccounts.isEmpty ? 1 : partnerAccounts.length);
+
+    DistributionPreview refuse(DistributionRefusal refusal) =>
+        DistributionPreview(
+          bookId: bookId,
+          financialYear: fy,
+          from: start,
+          to: end,
+          netProfit: netProfit(state, chart, fy),
+          shares: const [],
+          interest: const {},
+          lines: const [],
+          headroom: distributionHeadroom(
+            state,
+            chart,
+            fy: fy,
+            proposed: Paise.zero,
+          ).headroom,
+          excess: Paise.zero,
+          interestEnabled: interestTerms.enabled,
+          rateBasisPoints: interestTerms.rateBasisPoints,
+          ownerSetVersion: ownerSetVersion,
+          approvalsRequired: approvalsRequired,
+          refusal: refusal,
+        );
+
+    if (config?.ownership != BookOwnership.shared) {
+      return refuse(DistributionRefusal.notShared);
+    }
+    if (reading.quarantined.isNotEmpty) {
+      return refuse(DistributionRefusal.termsUnverified);
+    }
+    if (partnerAccounts.isEmpty) {
+      return refuse(DistributionRefusal.noPartnerAccounts);
+    }
+    if (ratio.isEmpty) return refuse(DistributionRefusal.ratioNotRecorded);
+    // Every owner is in the ratio and the ratio names nobody else: 02 §7.1 🔒
+    // divides among *the* owners, and quietly dropping one would be a split
+    // nobody agreed to.
+    final named = partnerAccounts.map((a) => a.id).toSet();
+    if (named.length != ratio.length || !named.containsAll(ratio.keys)) {
+      return refuse(DistributionRefusal.ratioIncomplete);
+    }
+    final profitDistributed = _systemAccount(
+      chart,
+      SystemRole.profitDistributed,
+    );
+    if (profitDistributed == null) {
+      return refuse(DistributionRefusal.noProfitDistributedAccount);
+    }
+
+    final partners = [
+      for (final a in partnerAccounts)
+        PartnerShare(account: a, ratio: ratio[a.id]!),
+    ];
+    final interest = interestTerms.enabled
+        ? interestOnCapital(
+            state,
+            chart,
+            partners: partners,
+            from: start,
+            to: end,
+            rateBasisPoints: interestTerms.rateBasisPoints,
+          )
+        : const <String, Paise>{};
+    final net = netProfit(state, chart, fy);
+    // ⚠️ SPEC (02 §7.1, for the 02 owner): `Verbs.profitDistribution` refuses a
+    // zero [netProfit] outright, so a year that broke exactly even cannot be
+    // distributed even when interest on capital is owed on it — the interest
+    // would have to post as a pure loss share. 02 §7.1 covers *interest above
+    // profit* but not *profit exactly zero*, so the conservative reading is
+    // taken: refuse, and say there is nothing to distribute. Lane report.
+    if (net.isZero) return refuse(DistributionRefusal.nothingToDistribute);
+
+    final lines = Verbs.profitDistribution(
+      profitDistributed: profitDistributed,
+      partners: partners,
+      netProfit: net,
+      interest: interest,
+    );
+    // Read back, never recomputed: whatever the engine put on the line is what
+    // the owner sees and what will post (02 §7.1 🔒 rounding rule).
+    Paise tagged(String accountId, String tag) {
+      for (final l in lines) {
+        if (l.accountId == accountId && l.tag == tag) return -l.amount;
+      }
+      return Paise.zero;
+    }
+
+    final ceiling = distributionHeadroom(state, chart, fy: fy, proposed: net);
+    return DistributionPreview(
+      bookId: bookId,
+      financialYear: fy,
+      from: start,
+      to: end,
+      netProfit: net,
+      shares: [
+        for (final a in partnerAccounts)
+          DistributionShare(
+            accountId: a.id,
+            name: a.name,
+            ratioWeight: ratio[a.id]!,
+            interest: tagged(a.id, 'interest'),
+            share: tagged(a.id, 'share'),
+          ),
+      ],
+      interest: interest,
+      lines: lines,
+      headroom: ceiling.headroom,
+      excess: ceiling.excess,
+      interestEnabled: interestTerms.enabled,
+      rateBasisPoints: interestTerms.rateBasisPoints,
+      ownerSetVersion: ownerSetVersion,
+      approvalsRequired: approvalsRequired,
+      refusal: ceiling.excess.isZero ? null : DistributionRefusal.ceiling,
+    );
+  }
+
+  /// Distributes, or proposes to (02 §7.1 🔒, §7.2.1 🔒).
+  ///
+  /// **Quorum of one** — a single-owner book, where 02 §7.2.1 says the concept
+  /// is invisible — posts the one multi-line entry now. **Anything else**
+  /// authors one signed `structural_request` envelope for
+  /// [StructuralAction.profitDistribution] carrying the lines, and applies
+  /// **nothing**: 02 §7.2.1 🔒 *Nothing is applied early*, and counting the
+  /// signed approvals is the Inbox side's job, not this facade's.
+  ///
+  /// A refusal throws [DistributionRefused] with nothing authored — including
+  /// the ceiling of ADR 2026-09-05e §8, which carries how far over it is.
+  Future<DistributionOutcome> proposeDistribution(
+    String bookId, {
+    LocalDate? from,
+    LocalDate? to,
+    LocalDate? date,
+  }) async {
+    final preview = await distributionPreview(bookId, from: from, to: to);
+    final refusal = preview.refusal;
+    if (refusal != null) {
+      throw DistributionRefused(bookId, refusal, excess: preview.excess);
+    }
+    final when = date ?? preview.to;
+    if (preview.quorumOfOne) {
+      return DistributionPosted(
+        await _postDrafted(
+          _draft(
+            bookId: bookId,
+            // 02 §2 verb 6: an appropriation is a guided adjustment — exactly
+            // one `equity_system` account, which is Profit Distributed.
+            kind: EntryKind.adjustment,
+            lines: preview.lines,
+            date: when,
+          ),
+        ),
+      );
+    }
+    // Checked before a single byte is authored (02 §7.2.1 🔒): the engine
+    // rules on the request, this facade only carries the verdict.
+    final closedYears = (_last[bookId] ?? await _rebuild(bookId))
+        .state
+        .years
+        .keys
+        .toList();
+    final engineRefusal = checkStructuralRequest(
+      StructuralRequest(
+        id: '',
+        bookId: bookId,
+        hlc: const Hlc(0),
+        action: StructuralAction.profitDistribution,
+        byUser: identity.userId,
+        ownerSetVersion: preview.ownerSetVersion,
+      ),
+      closedYears: closedYears,
+    );
+    if (engineRefusal != null) {
+      throw DistributionRefused(
+        bookId,
+        DistributionRefusal.structural,
+        structural: engineRefusal,
+      );
+    }
+    // Authored, not applied — 02 §7.2.1 🔒. A `structural_approval` is not a
+    // projector event (ADR 2026-09-14b §5), so no projected row changes and
+    // the golden content hash is untouched by construction.
+    return DistributionProposed(
+      await authorStructural(
+        (hlc, id) => StructuralRequest(
+          id: id,
+          bookId: bookId,
+          hlc: hlc,
+          action: StructuralAction.profitDistribution,
+          byUser: identity.userId,
+          ownerSetVersion: preview.ownerSetVersion,
+          payload: distributionPayload(preview, accountingDate: when),
+        ),
+      ),
+    );
+  }
+
+  /// The payload a [StructuralAction.profitDistribution] request carries: the
+  /// period, the FY, the figure and **the lines themselves**, so every owner's
+  /// device can re-derive the same entry from its own copy of the ledger and
+  /// compare it to what they are being asked to approve, rather than trusting
+  /// the initiator's arithmetic (02 §7.2.1 🔒 *a distinct card stating exactly
+  /// what will change*).
+  static Map<String, Object?> distributionPayload(
+    DistributionPreview preview, {
+    required LocalDate accountingDate,
+  }) => {
+    'from': preview.from.toIso(),
+    'to': preview.to.toIso(),
+    'accounting_date': accountingDate.toIso(),
+    'fy_start_year': preview.financialYear.startYear,
+    'fy_start_month': preview.financialYear.startMonth,
+    'net_profit_paise': preview.netProfit.raw,
+    if (preview.interest.isNotEmpty)
+      'interest_paise': {
+        for (final e in preview.interest.entries) e.key: e.value.raw,
+      },
+    'lines': [for (final l in preview.lines) l.toJson()],
+  };
 
   // ── cash counts (02 §8.2) ─────────────────────────────────────────────────
 
@@ -2494,7 +4159,7 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
           systemRole: SystemRole.adjustments,
         );
       }
-      entry = await post(
+      entry = await _postDrafted(
         _draft(
           bookId: bookId,
           // A difference is a guided adjustment (02 §2 verb 6); a recognition
@@ -2805,6 +4470,422 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
                 t.month.equals(period.month),
           ))
           .go();
+
+  // ── late arrivals (02 §8 🔒) ──────────────────────────────────────────────
+
+  /// The **Late Arrivals tray** of [bookId] (02 §8 🔒, ADR 2026-09-05e §3,
+  /// §10): every head whose projected status is `in_tray`, oldest date first,
+  /// each carrying *why it is here* — the locked month it is dated into and
+  /// the HLC of the lock that was already in force when it landed.
+  ///
+  /// The tray is a **closer's decision queue, not a hold**: every item here
+  /// already counts in the live balances (02 §3 🔒). Only the *certified*
+  /// month figures leave it out. Nothing in this stream may be drawn as money
+  /// that has not moved.
+  ///
+  /// The status is the projector's (`entries_p.status`, written by Recompute
+  /// from `EffectiveStatus.inTray`) — this facade classifies nothing. Rows
+  /// superseded by a later amendment are excluded: the head is the only thing
+  /// a closer can act on (02 §5).
+  Stream<List<LateArrival>> watchLateArrivals(String bookId) {
+    final q = db.customSelect(
+      'SELECT e.id, e.kind, e.accounting_date, e.note, e.created_by_user, '
+      'e.hlc, l.account_id, l.amount_paise, l.line_index, '
+      'a.name AS account_name, p.lock_hlc '
+      'FROM entries_p e '
+      'JOIN entry_lines_p l ON l.entry_id = e.id '
+      'LEFT JOIN accounts_p a ON a.id = l.account_id '
+      'LEFT JOIN periods_p p ON p.book_id = e.book_id '
+      "  AND p.year = CAST(substr(e.accounting_date, 1, 4) AS INTEGER) "
+      "  AND p.month = CAST(substr(e.accounting_date, 6, 2) AS INTEGER) "
+      "WHERE e.book_id = ? AND e.status = 'in_tray' "
+      'AND e.superseded_by IS NULL '
+      'ORDER BY e.accounting_date, e.hlc, e.id, l.line_index',
+      variables: [Variable.withString(bookId)],
+      readsFrom: {db.entriesP, db.entryLinesP, db.accountsP, db.periodsP},
+    );
+    return q.watch().map((rows) {
+      final lines = <String, List<LateArrivalLine>>{};
+      final head = <String, QueryRow>{};
+      final order = <String>[];
+      for (final r in rows) {
+        final id = r.read<String>('id');
+        if (lines.putIfAbsent(id, () => []).isEmpty) {
+          head[id] = r;
+          order.add(id);
+        }
+        lines[id]!.add(
+          LateArrivalLine(
+            accountId: r.read<String>('account_id'),
+            accountName:
+                r.readNullable<String>('account_name') ??
+                r.read<String>('account_id'),
+            amount: Paise(r.read<int>('amount_paise')),
+          ),
+        );
+      }
+      return [
+        for (final id in order)
+          () {
+            final r = head[id]!;
+            final date = LocalDate.parse(r.read<String>('accounting_date'));
+            return LateArrival(
+              entryId: id,
+              bookId: bookId,
+              kind: EntryKind.parse(r.read<String>('kind')),
+              accountingDate: date,
+              lockedPeriod: date.yearMonth,
+              lockedAtHlc: r.readNullable<int>('lock_hlc'),
+              lines: List.unmodifiable(lines[id]!),
+              note: r.readNullable<String>('note'),
+              createdByUser: r.readNullable<String>('created_by_user'),
+              hlc: r.read<int>('hlc'),
+            );
+          }(),
+      ];
+    });
+  }
+
+  /// *Re-date to today* — the closer's one-tap default on a late arrival
+  /// (02 §8 🔒, 07 §13 🔒).
+  ///
+  /// An **amend**, never a reversal: 02 §8 moves the entry into the open
+  /// period, it does not undo and re-post it. The lines are untouched, so the
+  /// projector reads it as the one amendment 02 §5 allows against a locked
+  /// period (`_isRedate` in `core_ledger/lib/src/projection.dart`: identical
+  /// lines, only the date moves, into a period open at the amendment's HLC).
+  /// Passing [to] re-dates into a chosen open day instead of today.
+  ///
+  /// Refuses exactly as [amend] does when the entry is **not** in the tray —
+  /// an ordinary posted entry in a locked month is still `amendInLockedPeriod`
+  /// and must be corrected by reversal (02 §5).
+  Future<Entry> redateLateArrival(String entryId, {LocalDate? to}) =>
+      amend(entryId, accountingDate: to ?? today());
+
+  /// *Re-open {month}* — the admin's second choice on a late arrival (02 §8 🔒,
+  /// 07 §13 🔒: scary-styled, logged).
+  ///
+  /// Authors **one** signed `period_unlock` envelope and nothing else: the
+  /// envelope *is* the log (02 §7.2 item 3), and re-closing the month is a
+  /// separate, deliberate act (02 §8 step 4). Locking and unlocking a month of
+  /// an **open** year is routine admin (02 §7.2.1 🔒) — there is no quorum
+  /// here and no book-role read on this facade to invent one from.
+  ///
+  /// Refuses with [MonthUnlockRefused], **authoring nothing**, when the month
+  /// is not locked, or when it lies inside a closed financial year: that
+  /// re-open voids the certificate and every later one (02 §8.1 🔒) and is the
+  /// structural `year_reopen` of 02 §7.2.1 🔒, which this method is not.
+  ///
+  /// ⚠️ SPEC: 02 §8.1 names a **closed** year. A year already made
+  /// `uncertified` by an earlier re-open has no certificate left to void, so
+  /// it is not refused here; only `YearStatus.closed` is. If the owner means
+  /// *any year that has ever been closed*, that is a one-line widening.
+  ///
+  /// A blank [reason] is a programming error, never a user state — the sheet
+  /// above this call requires one before it can be tapped.
+  Future<PeriodUnlock> unlockMonth(
+    String bookId,
+    YearMonth period, {
+    required String reason,
+  }) async {
+    _requireOpen();
+    final why = reason.trim();
+    if (why.isEmpty) {
+      throw ArgumentError.value(
+        reason,
+        'reason',
+        'a re-open records why (02 §7.2 item 3 🔒)',
+      );
+    }
+    final state = await _stateOf(bookId);
+    if (state.periods.currentStatus(period) != PeriodStatus.locked) {
+      throw MonthUnlockRefused(bookId, period, MonthUnlockRefusal.notLocked);
+    }
+    final fyStart = await fyStartMonthOf(bookId);
+    final fy = FinancialYear.of(period.firstDay, startMonth: fyStart);
+    if (await _touchesClosedYear(bookId, state, fy)) {
+      throw MonthUnlockRefused(bookId, period, MonthUnlockRefusal.closedYear);
+    }
+
+    final hlc = _tick();
+    final unlock = PeriodUnlock(
+      id: newId(),
+      bookId: bookId,
+      period: period,
+      byUser: identity.userId,
+      reason: why,
+      hlc: hlc,
+    );
+    await _author(
+      bookId: bookId,
+      objectId: unlock.id,
+      objectType: 'period_unlock',
+      hlc: hlc,
+      object: (_) => encodeEvent(unlock),
+    );
+    await _rebuild(bookId);
+    return unlock;
+  }
+
+  /// True when re-opening a month of [fy] would void a certificate: [fy]
+  /// itself, or any **later** financial year, is closed (02 §8.1 🔒 — a
+  /// re-open voids "that year's certificate *and every later year's*").
+  ///
+  /// The live projection and the projected `year_close_p` row are **unioned**,
+  /// never substituted — the same direction [monthClosePreconditions] takes:
+  /// a closed year seen by either source is enough to refuse, so a stale read
+  /// can add a refusal but can never drop one.
+  Future<bool> _touchesClosedYear(
+    String bookId,
+    LedgerState state,
+    FinancialYear fy,
+  ) async {
+    for (final e in state.years.entries) {
+      if (e.value.status == YearStatus.closed &&
+          !e.key.lastDay.isBefore(fy.firstDay)) {
+        return true;
+      }
+    }
+    final rows = await (db.select(
+      db.yearCloseP,
+    )..where((t) => t.bookId.equals(bookId) & t.state.equals('closed'))).get();
+    for (final r in rows) {
+      final closed = _fyOfLabel(r.fyLabel, startMonth: fy.startMonth);
+      if (closed != null && !closed.lastDay.isBefore(fy.firstDay)) return true;
+    }
+    return false;
+  }
+
+  /// `2026-27` / `2026` → the FY it labels (the inverse of
+  /// `FinancialYear.label`), or null when the row carries something this
+  /// build does not understand — unreadable is never silently "open", so the
+  /// caller treats null as "not this year" and the projection's own answer
+  /// still stands.
+  static FinancialYear? _fyOfLabel(String label, {required int startMonth}) {
+    final head = label.split('-').first;
+    final year = int.tryParse(head);
+    return year == null ? null : FinancialYear(year, startMonth: startMonth);
+  }
+
+  /// True when [entryId]'s projected status is `in_tray` — the one carve-out
+  /// [amend] makes against a locked period (02 §8 🔒). Read from the
+  /// projector's own row, so this facade never decides what a tray item is.
+  Future<bool> _isInTray(String entryId) async {
+    final row = await (db.select(
+      db.entriesP,
+    )..where((t) => t.id.equals(entryId))).getSingleOrNull();
+    return row?.status == 'in_tray';
+  }
+
+  // ── the Year Close ceremony (02 §8.1 🔒) ──────────────────────────────────
+
+  /// Everything standing between [bookId] and a certified close of [fy] — the
+  /// engine's own verdict, in the engine's own terms (02 §8.1 🔒, ADR
+  /// 2026-09-05e §4).
+  ///
+  /// Exactly the arrangement [monthClosePreconditions] takes, and deliberately
+  /// so. This facade decides **nothing**: it calls the engine's own
+  /// `yearClosePreconditions` over the book's projected state and hands back
+  /// what it says — every month locked, Suspense zero, no open review flag, no
+  /// pending advance request, no author gap, no held envelope. What it adds is
+  /// only what the projector cannot see from one book's envelope stream: the
+  /// mirror-level facts — an open author-sequence hole or a `held` envelope
+  /// recorded against this install — that a stale projection would miss. Those
+  /// are **unioned in**, never substituted, and deduplicated by (kind, ref), so
+  /// a blocker can be added here but never dropped.
+  ///
+  /// An empty list is the only condition under which [closeYear] proceeds.
+  Future<List<CloseBlockerItem>> yearClosePreconditions(
+    String bookId,
+    FinancialYear fy,
+  ) async {
+    _requireOpen();
+    final chart = await chartOf(bookId);
+    final state = await _stateOf(bookId);
+    final out = <CloseBlockerItem>[
+      ...engine.yearClosePreconditions(state, chart, fy),
+    ];
+    final seen = {for (final b in out) '${b.kind.name}/${b.ref}'};
+
+    void add(CloseBlocker kind, String ref) {
+      if (seen.add('${kind.name}/$ref')) out.add(CloseBlockerItem(kind, ref));
+    }
+
+    // The mirror's own view — the same two tables, read the same way, as the
+    // month lock. When mirror and projection disagree the safe direction is
+    // the one that refuses: nobody certifies a year with entries known to be
+    // missing (ADR 2026-09-05b §3).
+    for (final g in await (db.select(
+      db.authorGaps,
+    )..where((t) => t.bookId.equals(bookId))).get()) {
+      add(CloseBlocker.authorGapOpen, g.authorDevice);
+    }
+    for (final h in await (db.select(
+      db.envelopesLocal,
+    )..where((t) => t.bookId.equals(bookId) & t.held.equals(1))).get()) {
+      add(CloseBlocker.heldEnvelope, h.objectId);
+    }
+    return out;
+  }
+
+  /// The closing balance vector of [fy] — **the projector's**, shown before
+  /// anything is published (02 §8.1 🔒, ADR 2026-09-05e §2).
+  ///
+  /// It is `closingVector(state, chart, fy)` and nothing else. What belongs in
+  /// the vector — money, party, advance, partner and equity_system accounts as
+  /// of the FY's last day, categories not carried, the year's net result as
+  /// one `netResultKey` line — is the engine's rule, and re-stating it here
+  /// would be a second projector in the app layer (03 §3.3 rule 2: two pure
+  /// functions are two answers).
+  Future<BalanceVector> yearClosingVector(
+    String bookId,
+    FinancialYear fy,
+  ) async {
+    _requireOpen();
+    final chart = await chartOf(bookId);
+    final state = await _stateOf(bookId);
+    return closingVector(state, chart, fy);
+  }
+
+  /// Runs the Year Close ceremony for [bookId]'s [fy] (02 §8.1 🔒).
+  ///
+  /// Refuses with [YearCertifyRefused] carrying the engine's own blockers when
+  /// [yearClosePreconditions] is not empty, and with [YearAlreadyClosed] when
+  /// the year is already sealed — a refusal is an exception, never a silent
+  /// no-op, and it appends nothing.
+  ///
+  /// Otherwise it authors **one signed `year_close` envelope** recording
+  ///
+  ///   * `vector` — the vector **the projector computed**, taken straight from
+  ///     [yearClosingVector]. This facade never derives a closing balance of
+  ///     its own: every other member's device replays the same pure projector
+  ///     and must reach the same bytes, so the figure certified has to be the
+  ///     projector's (03 §3.3 rule 2);
+  ///   * `projector_version` — `core_ledger`'s own [projectorVersion], so a
+  ///     reader on an older projector shows *update to verify this close*
+  ///     rather than a false mismatch (ADR 2026-09-05c §3 🔒).
+  ///
+  /// The returned [ClosedYearResult] carries this device's own verification of
+  /// the vector it just published, **read back out of the rebuilt projection**
+  /// — so the caller shows a state the projector agrees with rather than
+  /// assuming success.
+  Future<ClosedYearResult> closeYear(String bookId, FinancialYear fy) async {
+    _requireOpen();
+    final blockers = await yearClosePreconditions(bookId, fy);
+    if (blockers.isNotEmpty) throw YearCertifyRefused(bookId, fy, blockers);
+
+    final chart = await chartOf(bookId);
+    final state = await _stateOf(bookId);
+    final already = state.years[fy];
+    if (already != null && already.status != YearStatus.open) {
+      throw YearAlreadyClosed(bookId, fy, already.status);
+    }
+
+    final hlc = _tick();
+    final close = YearClose(
+      id: newId(),
+      bookId: bookId,
+      financialYear: fy,
+      vector: closingVector(state, chart, fy),
+      byUser: identity.userId,
+      hlc: hlc,
+      projectorVersion: projectorVersion,
+    );
+    await _author(
+      bookId: bookId,
+      objectId: close.id,
+      objectType: 'year_close',
+      hlc: hlc,
+      object: (_) => encodeEvent(close),
+    );
+    final report = await _rebuild(bookId);
+    return ClosedYearResult(
+      close: close,
+      verification: report.state.years[fy]?.verification,
+    );
+  }
+
+  /// Every financial year [bookId] has closed, **oldest first** (ADR
+  /// 2026-09-09 §4 🔒).
+  ///
+  /// Empty until the first close — which is what makes *no FY switcher at all
+  /// until the first year close* true by construction rather than by a flag a
+  /// screen has to remember.
+  ///
+  /// The live projection and the projected `year_close_p` rows are **unioned**,
+  /// never substituted — the same direction [monthClosePreconditions] and
+  /// [_touchesClosedYear] take. The projection wins where both speak, because
+  /// it is the one that has just replayed the envelopes; a `year_close_p` row
+  /// the live state has not got still counts, because a year that has closed
+  /// cannot be made to disappear by a stale read.
+  Future<List<CertifiedYearRow>> certifiedYears(String bookId) async {
+    _requireOpen();
+    final startMonth = await fyStartMonthOf(bookId);
+    final state = await _stateOf(bookId);
+    final rows = <FinancialYear, CertifiedYearRow>{};
+
+    for (final r in await (db.select(
+      db.yearCloseP,
+    )..where((t) => t.bookId.equals(bookId))).get()) {
+      final fy = _fyOfLabel(r.fyLabel, startMonth: startMonth);
+      final status = _yearStatusOf(r.state);
+      if (fy == null || status == null || status == YearStatus.open) continue;
+      rows[fy] = CertifiedYearRow(
+        year: fy,
+        status: status,
+        vector: _vectorOfJson(r.vector),
+        verification: _verificationOfWire(r.verification),
+      );
+    }
+    for (final e in state.years.entries) {
+      if (e.value.status == YearStatus.open) continue;
+      rows[e.key] = CertifiedYearRow(
+        year: e.key,
+        status: e.value.status,
+        vector: e.value.certifiedVector,
+        verification: e.value.verification,
+      );
+    }
+
+    final out = rows.values.toList()
+      ..sort((a, b) => a.year.firstDay.compareTo(b.year.firstDay));
+    return List.unmodifiable(out);
+  }
+
+  /// `{account_id: paise}` → the vector it encodes, or null when the column is
+  /// null or carries something this build cannot read. Unreadable is never
+  /// silently *zero*: a null vector says *this device has no figures for that
+  /// year*, which is a different claim from *the year carried nothing*.
+  static BalanceVector? _vectorOfJson(String? raw) {
+    if (raw == null) return null;
+    try {
+      final map = jsonDecode(raw) as Map<String, dynamic>;
+      return BalanceVector({
+        for (final e in map.entries) e.key: Paise(e.value as int),
+      });
+    } on Object {
+      return null;
+    }
+  }
+
+  /// The `year_close_p.state` column's word, or null when this build does not
+  /// know it.
+  static YearStatus? _yearStatusOf(String raw) {
+    for (final s in YearStatus.values) {
+      if (s.name == raw) return s;
+    }
+    return null;
+  }
+
+  /// The `verification` column's wire form (`reader_outdated`, …), or null.
+  /// The inverse of `packages/data`'s own writer (recompute.dart).
+  static CloseVerification? _verificationOfWire(String? raw) => switch (raw) {
+    'verified' => CloseVerification.verified,
+    'mismatch' => CloseVerification.mismatch,
+    'reader_outdated' => CloseVerification.readerOutdated,
+    'certifier_outdated' => CloseVerification.certifierOutdated,
+    _ => null,
+  };
 
   // ── read side (03 §3.2 streams) ───────────────────────────────────────────
 
@@ -3236,15 +5317,25 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
   /// immediately — the money moved — so reconciliation nets to zero from the
   /// moment of entry.
   ///
+  /// Each half is measured against **its own book's** auto-post limit for
+  /// this author ([reviewPolicy], 02 §3 🔒) — two reads, one per book, each
+  /// written into that half's payload with the limit it was measured against.
+  /// One movement can therefore be flagged in the book it left and unflagged
+  /// in the book it reached, which is what 02 §6 describes.
+  ///
   /// ⚠️ SPEC: 02 §6 says the half where *the actor lacks posting rights*
-  /// carries the review flag for that book's approver, and 07 §10 labels the
-  /// pair *In transit* while it is open. This app has **no book-role source
-  /// yet** — 13 §2.3's "who am I, here?" is not wired to a membership record —
-  /// so no rights can be evaluated here and both halves post unflagged by
-  /// default. [reviewRequiredIn] is the seam the rights lane fills; inventing
-  /// a role to decide it would be inventing behaviour. Consequently *in
-  /// transit* is only ever what the engine's [InterBook.isInTransit] reports
-  /// over the projected halves, never a state this facade keeps.
+  /// carries the review flag for that book's approver. Rights are still not
+  /// evaluated here: the seam answers *the limit*, and a member with **no
+  /// grant at all** in the receiving book is indistinguishable from a member
+  /// whose grant simply carries no limit, and from metadata this offline-first
+  /// device has not pulled yet. Flagging on that absence would raise a flag
+  /// nobody can clear (02 §7.2 item 1 🔒) and block that book's month close
+  /// (02 §8 step 3 🔒), so the conservative reading stands: flag what the
+  /// limit demands, invent nothing from missing metadata. [reviewRequiredIn]
+  /// remains as an explicit override a caller may **add** to the computed
+  /// flag, never subtract from it. 07 §10's *In transit* is still only what
+  /// the engine's [InterBook.isInTransit] reports over the projected halves,
+  /// never a state this facade keeps.
   Future<InterBookMovement> transferBetweenBooks({
     required String fromBookId,
     required String fromAccountId,
@@ -3271,6 +5362,12 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
       name: dueNames?.to,
     );
     final group = newId();
+    final review = await _pairReview(
+      fromBookId: fromBookId,
+      toBookId: toBookId,
+      paise: paise,
+      override: reviewRequiredIn,
+    );
     final pair = InterBook.transfer(
       amount: Paise(paise),
       accountingDate: date,
@@ -3281,8 +5378,8 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
       hlcs: (from: _clock, to: _clock),
       createdByUser: identity.userId,
       createdByDevice: identity.deviceId,
-      reviewRequiredIn: reviewRequiredIn,
-      reviewLimitPaise: (from: null, to: null),
+      reviewRequiredIn: review.required,
+      reviewLimitPaise: review.limits,
       note: note,
     );
     return _postPair(pair, group);
@@ -3322,6 +5419,12 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
       name: dueNames?.to,
     );
     final group = newId();
+    final review = await _pairReview(
+      fromBookId: payerBookId,
+      toBookId: payeeBookId,
+      paise: paise,
+      override: reviewRequiredIn,
+    );
     final pair = InterBook.pocketExpense(
       amount: Paise(paise),
       accountingDate: date,
@@ -3332,8 +5435,8 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
       hlcs: (from: _clock, to: _clock),
       createdByUser: identity.userId,
       createdByDevice: identity.deviceId,
-      reviewRequiredIn: reviewRequiredIn,
-      reviewLimitPaise: (from: null, to: null),
+      reviewRequiredIn: review.required,
+      reviewLimitPaise: review.limits,
       note: note,
     );
     return _postPair(pair, group);

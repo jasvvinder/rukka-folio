@@ -24,6 +24,7 @@ import 'package:flutter/material.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../../shared/widgets/rk_fit_text.dart';
 
 /// The four committee roles 07 §3.1.1 / 06 §1.0 name for an organization
 /// book. A *designation* (06 §1.0) — display only; the capability an admin
@@ -193,7 +194,7 @@ class _TrustMembersScreenState extends State<TrustMembersScreen> {
               Expanded(
                 child: ListView(
                   children: [
-                    Text(
+                    RkFitText(
                       l10n.onboardingTrustMembersTitle,
                       style: text.headlineMedium,
                     ),

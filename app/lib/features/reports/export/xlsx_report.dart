@@ -59,7 +59,9 @@ import 'package:xml/xml.dart';
 
 import '../day_book.dart';
 import 'csv_report.dart' show paiseToDecimal;
+import 'day_book_table.dart';
 import 'report_export.dart';
+import 'report_table.dart';
 
 // ---------------------------------------------------------------------------
 // Package shape. Every name below appears in more than one part; naming each
@@ -586,85 +588,64 @@ void _writeCell(XmlBuilder b, String ref, XlsxCell cell) {
 // The report
 // ---------------------------------------------------------------------------
 
-/// The day book's sheet rows — the classical layout, shared with the CSV.
+/// Any [ReportTable] as sheet rows — the one spreadsheet layout, shared by
+/// the day book and the A/C statement (ADR 2026-09-12e §2 🔒).
 ///
-/// [accountName] resolves an account id to its display name; the caller holds
-/// the chart, this file does not reach for one.
-List<List<XlsxCell?>> dayBookSheetRows(
-  DayBook book, {
-  required String Function(String accountId) accountName,
-  required ReportLabels labels,
-  required String bookName,
-  required String period,
-}) {
+/// A short head so the file says what it is once it has left the app, then the
+/// column headings, then the body. Money lands as a **number** and a date as a
+/// **date**, whichever report it came from — that is the whole point of this
+/// format over the CSV.
+List<List<XlsxCell?>> reportTableSheetRows(ReportTable table) {
   final rows = <List<XlsxCell?>>[
-    // A short head, so the file says what it is once it has left the app. No
-    // figures here — the head is metadata, the body is the report.
-    [XlsxText(labels.reportName, style: xlsxStyleBold)],
-    [XlsxText(labels.bookLabel), XlsxText(bookName)],
-    [XlsxText(labels.periodLabel), XlsxText(period)],
+    [XlsxText(table.name, style: xlsxStyleBold)],
+    for (final line in table.meta) [XlsxText(line.label), XlsxText(line.value)],
     const [null],
     [
-      XlsxText(labels.columnDate, style: xlsxStyleBold),
-      XlsxText(labels.columnParticulars, style: xlsxStyleBold),
-      // Professional vocabulary (02 §10 🔒): Dr and Cr, never Money in/out.
-      XlsxText(labels.columnDebit, style: xlsxStyleBold),
-      XlsxText(labels.columnCredit, style: xlsxStyleBold),
-      XlsxText(labels.columnNote, style: xlsxStyleBold),
+      // Professional vocabulary (02 §10 🔒) where the report chose it: the
+      // headings are the report's own words, not this writer's.
+      for (final column in table.columns)
+        XlsxText(column.title, style: xlsxStyleBold),
     ],
   ];
-
-  for (final row in book.rows) {
-    // The date and the note sit on the entry's first line; every further line
-    // of the same entry continues under it.
-    var first = true;
-    for (final line in [...row.debits, ...row.credits]) {
-      rows.add([
-        first ? XlsxDate(row.date) : null,
-        XlsxText(accountName(line.accountId)),
-        line.isDebit ? XlsxMoney(line.figurePaise) : null,
-        line.isCredit ? XlsxMoney(line.figurePaise) : null,
-        first && row.note != null ? XlsxText(row.note!) : null,
-      ]);
-      first = false;
-    }
+  for (final row in table.rows) {
+    rows.add([for (final cell in row.cells) _xlsxCell(cell, row.kind)]);
   }
-
-  // The cross-check footer (13 §5, flow F3): the two columns must agree,
-  // because every entry balances (02 §1.4).
-  rows.add([
-    null,
-    XlsxText(labels.totalLabel, style: xlsxStyleBold),
-    XlsxMoney(book.debitTotalPaise, style: xlsxStyleMoneyTotal),
-    XlsxMoney(book.creditTotalPaise, style: xlsxStyleMoneyTotal),
-  ]);
   return rows;
 }
 
-/// The day book as the bytes of an `.xlsx` — a zip of the five parts.
-Uint8List dayBookXlsx(
-  DayBook book, {
-  required String Function(String accountId) accountName,
-  required ReportLabels labels,
-  required String bookName,
-  required String period,
-}) {
-  final sheet = xlsxSheet(
-    dayBookSheetRows(
-      book,
-      accountName: accountName,
-      labels: labels,
-      bookName: bookName,
-      period: period,
+/// One cell, with the emphasis its row kind asks for. A blank cell is written
+/// by not writing it, which is what a spreadsheet means by blank.
+XlsxCell? _xlsxCell(ReportCell? cell, ReportRowKind kind) {
+  final emphasised =
+      kind == ReportRowKind.total || kind == ReportRowKind.boundary;
+  return switch (cell) {
+    null => null,
+    ReportTextCell(:final text) => XlsxText(
+      text,
+      style: emphasised ? xlsxStyleBold : xlsxStyleDefault,
     ),
-  );
+    ReportMoneyCell(:final paise) => XlsxMoney(
+      paise,
+      style: emphasised ? xlsxStyleMoneyTotal : xlsxStyleMoney,
+    ),
+    ReportDateCell(:final date) => XlsxDate(date),
+  };
+}
+
+/// Any [ReportTable] as the bytes of an `.xlsx` — a zip of the six parts.
+///
+/// Byte-reproducible: every zip entry is stamped [xlsxZipTimestamp] and
+/// nothing in the parts reads a clock, so the same report exported twice is
+/// the same file (which the F3 goldens of M12 will depend on).
+Uint8List reportTableXlsx(ReportTable table) {
+  final sheet = xlsxSheet(reportTableSheetRows(table));
 
   final archive = Archive();
   for (final part in <String, String>{
     _contentTypesPart: xlsxContentTypes(),
     _packageRelsPart: xlsxPackageRels(),
     _workbookRelsPart: xlsxWorkbookRels(),
-    xlsxWorkbookPart: xlsxWorkbook(labels.reportName),
+    xlsxWorkbookPart: xlsxWorkbook(table.name),
     xlsxStylesPart: xlsxStyles(),
     xlsxSheetPart: sheet,
   }.entries) {
@@ -675,6 +656,55 @@ Uint8List dayBookXlsx(
 
   return ZipEncoder().encodeBytes(archive, modified: xlsxZipTimestamp);
 }
+
+/// Any [ReportTable] as a [ReportFile] ready for a [ReportSink].
+ReportFile reportTableXlsxFile(ReportTable table, {required String fileName}) =>
+    ReportFile(
+      name: fileName,
+      format: ReportFormat.xlsx,
+      bytes: reportTableXlsx(table),
+    );
+
+/// The day book's sheet rows — the classical layout, shared with the CSV.
+///
+/// [accountName] resolves an account id to its display name; the caller holds
+/// the chart, this file does not reach for one.
+List<List<XlsxCell?>> dayBookSheetRows(
+  DayBook book, {
+  required String Function(String accountId) accountName,
+  required ReportLabels labels,
+  required String bookName,
+  required String period,
+}) => reportTableSheetRows(
+  dayBookTable(
+    book,
+    accountName: accountName,
+    labels: labels,
+    bookName: bookName,
+    period: period,
+    // The spreadsheet takes the date as a real date, so the formatted form is
+    // never read here; it still has to be supplied for the other two formats.
+    formatDate: (date) => date.toIso(),
+  ),
+);
+
+/// The day book as the bytes of an `.xlsx`.
+Uint8List dayBookXlsx(
+  DayBook book, {
+  required String Function(String accountId) accountName,
+  required ReportLabels labels,
+  required String bookName,
+  required String period,
+}) => reportTableXlsx(
+  dayBookTable(
+    book,
+    accountName: accountName,
+    labels: labels,
+    bookName: bookName,
+    period: period,
+    formatDate: (date) => date.toIso(),
+  ),
+);
 
 /// The day book as a [ReportFile] ready for a [ReportSink].
 ReportFile dayBookXlsxFile(

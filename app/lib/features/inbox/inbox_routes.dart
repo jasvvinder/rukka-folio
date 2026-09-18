@@ -9,6 +9,7 @@ import 'package:flutter/widgets.dart';
 
 import '../../shared/router.dart';
 import 'inbox_paths.dart';
+import 'screens/s10_3_late_arrivals_screen.dart';
 import 'screens/s6_2_review_stepper_screen.dart';
 import 'screens/s6_3_structural_review_screen.dart';
 import 'screens/s6_inbox_screen.dart';
@@ -24,16 +25,24 @@ RkTabRoot inboxRoot({VoidCallback? onOpenLedger}) => RkTabRoot(
         GoRouter.of(context).push(InboxPaths.stepperFor(groupId)),
     onOpenStructural: (requestId) =>
         GoRouter.of(context).push(InboxPaths.structuralFor(requestId)),
+    onOpenLateArrivals: () =>
+        GoRouter.of(context).push(InboxPaths.lateArrivals),
   ),
 );
 
-/// Root-navigator routes: S6.2 (07 §9) and S6.3 (07 §26), each full-screen
-/// over the tab bar.
+/// Root-navigator routes: S6.2 (07 §9), S6.3 (07 §26) and S10.3 (07 §13 🔒),
+/// each full-screen over the tab bar.
 final List<RouteBase> inboxRoutes = [
   GoRoute(
     path: InboxPaths.stepper,
     builder: (context, state) =>
         ReviewStepperScreen(groupId: state.pathParameters['groupId'] ?? ''),
+  ),
+  GoRoute(
+    path: InboxPaths.lateArrivals,
+    builder: (context, state) => LateArrivalsScreen(
+      onDone: () => GoRouter.of(context).go(RkPaths.inbox),
+    ),
   ),
   GoRoute(
     path: InboxPaths.structural,

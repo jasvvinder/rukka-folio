@@ -53,9 +53,13 @@ import '../../../shared/format/money_format.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../../cash_count/cash_count_paths.dart';
+import '../close_paths.dart';
 import '../close_source.dart';
 import '../widgets/close_blocked_panel.dart';
 import '../widgets/close_parts.dart';
+import '../widgets/family_close_status.dart';
+import '../widgets/month_summary_card.dart';
+import '../widgets/year_close_prompt.dart';
 
 /// Keys the wizard's parts answer to, so a test names a thing rather than a
 /// string (the strings are asserted separately, in all three languages).
@@ -89,6 +93,17 @@ abstract final class CloseKeys {
 
   /// Move to the previous step.
   static const back = Key('close.back');
+
+  /// S10.1 — the family's close status, inside step 4 (07 §13 🔒).
+  static const family = Key('close.family.section');
+
+  /// S10.2 — the month summary, in place of step 4 once the lock lands.
+  static const summary = Key('close.summary.section');
+
+  /// The Year Close door, on the reward screen when the month just locked was
+  /// the last of the financial year (07 §13 🔒: *the prompt after March
+  /// locks*).
+  static const yearPrompt = Key('close.year.prompt');
 }
 
 /// How locking is going (13 §4.3: default · loading · error, and the refusal
@@ -104,6 +119,8 @@ class MonthCloseScreen extends StatefulWidget {
     required this.period,
     this.source,
     this.onOpenCount,
+    this.onOpenYear,
+    this.onDone,
     this.offline = false,
   });
 
@@ -121,10 +138,21 @@ class MonthCloseScreen extends StatefulWidget {
   /// passes a recorder, so the *path* is what is asserted, not a callback.
   final void Function(String path)? onOpenCount;
 
+  /// Leaves the wizard once the month is locked — the one action on S10.2, so
+  /// the reward screen is not a dead end (07 §1 rule 6). `closeRoutes` passes
+  /// `context.pop`; null renders no action.
+  final VoidCallback? onDone;
+
   /// True while this device cannot reach the server. A chip, never a blocking
   /// banner (07 §1 rule 7 🔒) — a close is computed locally and offline does
   /// not stop it.
   final bool offline;
+
+  /// Opens S10.4, at the path this screen builds from [ClosePaths.forYear].
+  /// Offered on the reward screen only, and only when the month just locked
+  /// was the financial year's last (07 §13 🔒). `closeRoutes` passes
+  /// `context.push`; a test passes a recorder, so the **path** is asserted.
+  final void Function(String path)? onOpenYear;
 
   @override
   State<MonthCloseScreen> createState() => _MonthCloseScreenState();
@@ -143,6 +171,15 @@ class _MonthCloseScreenState extends State<MonthCloseScreen> {
 
   _LockPhase _phase = _LockPhase.idle;
   List<CloseBlockerItem> _refusedBy = const [];
+
+  /// S10.1's input — every book's state. Empty until it answers, and a
+  /// one-entry list in a single-book tenant, which draws no section at all
+  /// (07 §13 🔒: *the family's state* is a multi-book affordance).
+  List<BookCloseStatus> _statuses = const [];
+
+  /// S10.2, loaded the moment the lock lands.
+  MonthSummary? _summary;
+  Object? _summaryError;
 
   @override
   void didChangeDependencies() {
@@ -181,6 +218,38 @@ class _MonthCloseScreenState extends State<MonthCloseScreen> {
     } on Object catch (e) {
       if (!mounted) return;
       setState(() => _loadError = e);
+      return;
+    }
+    // S10.1 rides **beside** the wizard, never in front of it: a family
+    // status that cannot be read must not cost the closer his close, so it
+    // is loaded separately and its failure leaves the section unbuilt.
+    try {
+      final statuses = await source.closeStatuses(widget.period);
+      if (!mounted) return;
+      setState(() => _statuses = statuses);
+    } on Object {
+      if (!mounted) return;
+      setState(() => _statuses = const []);
+    }
+  }
+
+  /// Loads S10.2 (07 §13 🔒). The month is already locked when this runs, so
+  /// a failure here is a card that could not be drawn — never a close that
+  /// did not happen, and the error state says so.
+  Future<void> _loadSummary() async {
+    final source = _source;
+    if (source == null) return;
+    setState(() {
+      _summary = null;
+      _summaryError = null;
+    });
+    try {
+      final summary = await source.monthSummary(widget.bookId, widget.period);
+      if (!mounted) return;
+      setState(() => _summary = summary);
+    } on Object catch (e) {
+      if (!mounted) return;
+      setState(() => _summaryError = e);
     }
   }
 
@@ -240,6 +309,8 @@ class _MonthCloseScreenState extends State<MonthCloseScreen> {
       );
       if (!mounted) return;
       setState(() => _phase = _LockPhase.done);
+      // The reward, immediately (07 §13 🔒) — not on a later tap.
+      unawaited(_loadSummary());
     } on CloseRefused catch (e) {
       if (!mounted) return;
       setState(() {
@@ -325,16 +396,22 @@ class _MonthCloseScreenState extends State<MonthCloseScreen> {
             ),
           ),
         Expanded(
-          child: SingleChildScrollView(
-            key: CloseKeys.step,
-            padding: const EdgeInsets.only(bottom: RkSpace.s8),
-            child: switch (_step) {
-              CloseStep.countCash => _stepCash(l, view),
-              CloseStep.confirmBanks => _stepBanks(l, view),
-              CloseStep.clearTray => _stepTray(l, view),
-              CloseStep.confirmAndLock => _stepLock(l, view),
-            },
-          ),
+          // S10.2 takes the step's whole region once the lock lands, and it
+          // takes it **outside** the scroll view: the skeleton and the error
+          // state are themselves scrollables, and a viewport nested in a
+          // viewport has no bounded height to lay itself out in.
+          child: _phase == _LockPhase.done
+              ? _summaryRegion(l)
+              : SingleChildScrollView(
+                  key: CloseKeys.step,
+                  padding: const EdgeInsets.only(bottom: RkSpace.s8),
+                  child: switch (_step) {
+                    CloseStep.countCash => _stepCash(l, view),
+                    CloseStep.confirmBanks => _stepBanks(l, view),
+                    CloseStep.clearTray => _stepTray(l, view),
+                    CloseStep.confirmAndLock => _stepLock(l, view),
+                  },
+                ),
         ),
         _footer(l),
       ],
@@ -641,6 +718,13 @@ class _MonthCloseScreenState extends State<MonthCloseScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         CloseStepHeader(title: l.closeStep4Title, help: l.closeStep4Help),
+        // S10.1 — *the family's state, not just yours* 🔒. Multi-book only:
+        // a solo shopkeeper has no family close to read (07 §13 🔒).
+        if (_statuses.length > 1)
+          KeyedSubtree(
+            key: CloseKeys.family,
+            child: FamilyCloseStatus(statuses: _statuses, period: view.period),
+          ),
         CloseCard(
           key: CloseKeys.declared,
           child: Column(
@@ -676,6 +760,91 @@ class _MonthCloseScreenState extends State<MonthCloseScreen> {
         ),
         _lockAction(l, view, tray, status),
       ],
+    );
+  }
+
+  /// S10.2 — the month summary card (07 §13 🔒, 13 §3.2 row S10.2).
+  ///
+  /// The screen after a close is a **reward, not a receipt**, so this takes
+  /// the step's whole region: the declared balances the closer has just
+  /// confirmed are not restated under it.
+  ///
+  /// Three states, the 13 §4.3 set: the ruled skeleton while it adds up, the
+  /// error **with the lock's own reassurance beside it** — the month is locked
+  /// whatever this card managed — and the card itself.
+  Widget _summaryRegion(AppLocalizations l) {
+    final summary = _summary;
+    final status = RkStatusColors.of(context);
+    final locked = CloseCard(
+      rule: status.success,
+      child: CloseStateRow(
+        icon: Icons.lock_outline,
+        tint: status.success,
+        text: l.closeLockDone(_month(l)),
+        meta: _summaryError == null ? null : l.closeSummaryLockedAnyway,
+      ),
+    );
+    if (_summaryError != null) {
+      return Column(
+        key: CloseKeys.summary,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          locked,
+          Expanded(
+            child: RkErrorState(
+              text: l.closeSummaryError,
+              retryLabel: l.closeRetry,
+              onRetry: _loadSummary,
+            ),
+          ),
+        ],
+      );
+    }
+    if (summary == null) {
+      return RkSkeleton(label: l.closeSummarySkeleton, rows: 4);
+    }
+    return SingleChildScrollView(
+      key: CloseKeys.summary,
+      padding: const EdgeInsets.only(bottom: RkSpace.s8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          locked,
+          MonthSummaryCard(
+            summary: summary,
+            monthLabel: _month(l),
+            onDone: widget.onDone,
+          ),
+          // *The prompt after March locks* (07 §13 🔒) — the second door into
+          // S10.4, drawn only when the month that has just locked was the
+          // financial year's last, and offered **under** the reward rather
+          // than over it: the close is the achievement, the year is the next
+          // thing. It is never a gate; *Done* above it is untouched.
+          ?_yearPrompt(summary.fyStartMonth),
+        ],
+      ),
+    );
+  }
+
+  /// The Year Close door, or nothing. [fyStartMonth] is the book's own FY
+  /// start, so a calendar-year trust is prompted in December and an
+  /// April-start shop in March (02 §8.1 🔒 speaks of 31 March because that is
+  /// the common case, not the only one).
+  Widget? _yearPrompt(int fyStartMonth) {
+    if (!isLastMonthOfFy(widget.period, fyStartMonth: fyStartMonth)) {
+      return null;
+    }
+    final fy = financialYearOf(widget.period, fyStartMonth: fyStartMonth);
+    return KeyedSubtree(
+      key: CloseKeys.yearPrompt,
+      child: YearClosePrompt(
+        financialYear: fy,
+        onOpen: widget.onOpenYear == null
+            ? null
+            : () => widget.onOpenYear!(
+                ClosePaths.forYear(widget.bookId, ClosePaths.fyStartOf(fy)),
+              ),
+      ),
     );
   }
 
@@ -775,6 +944,9 @@ class _MonthCloseScreenState extends State<MonthCloseScreen> {
   // ── chrome ─────────────────────────────────────────────────────────────────
 
   Widget _footer(AppLocalizations l) {
+    // The wizard is over once the month is locked: *Back* would walk the
+    // closer into steps that can no longer change anything.
+    if (_phase == _LockPhase.done) return const SizedBox.shrink();
     final previous = _step.previous;
     final next = _step.next;
     if (previous == null && next == null) return const SizedBox.shrink();

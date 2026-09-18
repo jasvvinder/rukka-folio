@@ -184,6 +184,32 @@
       }
     }
   },
+  "reports.statement.report.title": "A/C statement",
+  "@reports.statement.report.title": {
+    "description": "The exported A/C statement's own name — the document title, the CSV head and the XLSX sheet tab (07 §14 🔒 row 3, ADR 2026-09-12e §2 🔒: the export trio binds S4). Professional surface: the report is a ledger, so it says A/C statement, never \"money in/out summary\"."
+  },
+  "reports.statement.account.label": "Account",
+  "@reports.statement.account.label": {
+    "description": "Head line of the exported A/C statement, naming the account the statement is of — the label only; the value is the account's own name."
+  },
+  "reports.statement.file_name": "statement-{year}.{extension}",
+  "@reports.statement.file_name": {
+    "description": "S4 — the exported statement's file name. Latin and ASCII in every locale on purpose, and it carries no account name, party name or figure: a file name is metadata that travels with the file (CLAUDE.md rule 4).",
+    "placeholders": {
+      "year": {
+        "type": "String",
+        "example": "2026-27"
+      },
+      "extension": {
+        "type": "String",
+        "example": "pdf"
+      }
+    }
+  },
+  "reports.export.generating": "Preparing your file",
+  "@reports.export.generating": {
+    "description": "Shown beside the 2 px loader rule while a report is being written (13 §4.3 loading state; 11 §4.5 🔒 — the loader is a rule, never a spinner). A live region, so the wait is announced."
+  },
   "reports.reconciliation.summary.ok": "Everything matches",
   "@reports.reconciliation.summary.ok": {
     "description": "S8.3 headline, the normal state (07 §10: “normally a single proud green ✓”). The tick is a colour, so the verdict is carried by these words beside it — never by the colour alone (07 §1 rule 3)."

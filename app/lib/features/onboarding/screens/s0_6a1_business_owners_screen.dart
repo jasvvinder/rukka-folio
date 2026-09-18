@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../../shared/widgets/rk_fit_text.dart';
 
 /// How the weights are being set (ADR 2026-09-09 §2).
 enum ShareMode {
@@ -207,7 +208,7 @@ class _BusinessOwnersScreenState extends State<BusinessOwnersScreen> {
               Expanded(
                 child: ListView(
                   children: [
-                    Text(
+                    RkFitText(
                       l10n.onboardingBusinessOwnersTitle,
                       style: text.headlineMedium,
                     ),

@@ -248,12 +248,31 @@ void main() {
 
     for (final locale in rkLocales) {
       testWidgets(
-        'F1-07-104 S8.3 resolves in ${locale.languageCode} at 200% on '
-        '360x800 with no overflow, in consumer words (02 §10 🔒)',
+        'F1-07-104 S8.3 resolves in ${locale.languageCode} at both scales on '
+        'both phones with no cut word, in consumer words (02 §10 🔒)',
         (tester) async {
           await seedSecondBook();
           final m = await move();
           await s.ledger.reverse(m.to.id, date: s.ledger.today());
+
+          for (final phone in rkPhones) {
+            for (final scale in rkTextScales) {
+              await pumpRk(
+                tester,
+                const FamilyReconciliationScreen(),
+                ledger: s.ledger,
+                locale: locale,
+                textScale: scale,
+                viewport: phone,
+              );
+              expect(
+                tester.takeException(),
+                isNull,
+                reason: 'S8.3 at ${scale}x on $phone',
+              );
+              expectTextFits(tester, reason: 'S8.3 at ${scale}x on $phone');
+            }
+          }
 
           await pumpRk(
             tester,
@@ -265,7 +284,6 @@ void main() {
           );
 
           expect(tester.takeException(), isNull);
-          expectTextFits(tester, reason: 'S8.3 at 200% on $rkPhone360');
           // Consumer vocabulary only — the ledger's Dr/Cr stays on the
           // professional surfaces (02 §10 🔒, CLAUDE.md rule 9).
           final rendered = texts(tester).join(' ');

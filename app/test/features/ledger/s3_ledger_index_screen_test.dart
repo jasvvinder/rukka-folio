@@ -205,21 +205,33 @@ void main() {
     });
 
     testWidgets(
-      'F1-07-42 strings resolve in EN/PA/HI with no overflow at 200%',
+      'F1-07-42 strings resolve in EN/PA/HI with no overflow at 1.3x and '
+      '200% on both phones',
       (tester) async {
-        for (final locale in const [Locale('en'), Locale('pa'), Locale('hi')]) {
-          final seed = await seedSoloLedger();
-          await pumpRk(
-            tester,
-            MediaQuery(
-              data: const MediaQueryData(textScaler: TextScaler.linear(2)),
-              child: const LedgerIndexScreen(),
-            ),
-            ledger: seed.ledger,
-            locale: locale,
-          );
-          expect(tester.takeException(), isNull);
-          await unmount(tester);
+        // `pumpRk`'s own `textScale:`/`viewport:` (M5-T1). The bare
+        // `MediaQueryData(textScaler: …)` this case used to wrap carries
+        // `size: Size.zero`, so the index was measured against a screen with
+        // no area — where nothing can overflow anything. 1.3 matters as much
+        // as 200 %: that is where a word is still drawn and is widest.
+        for (final locale in rkLocales) {
+          for (final phone in rkPhones) {
+            for (final scale in rkTextScales) {
+              final seed = await seedSoloLedger();
+              await pumpRk(
+                tester,
+                const LedgerIndexScreen(),
+                ledger: seed.ledger,
+                locale: locale,
+                textScale: scale,
+                viewport: phone,
+              );
+              final where =
+                  'S3 at ${scale}x on $phone in ${locale.languageCode}';
+              expect(tester.takeException(), isNull, reason: where);
+              expectTextFits(tester, reason: where);
+              await unmount(tester);
+            }
+          }
         }
       },
     );

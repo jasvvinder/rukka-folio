@@ -20,3 +20,18 @@ YearMonth? parseClosePeriod(String? raw) {
   if (month < 1 || month > 12) return null;
   return YearMonth(year, month);
 }
+
+/// `YYYY-MM` (the financial year's **first month**) → [FinancialYear], or null
+/// when [raw] is missing or malformed.
+///
+/// A book's FY does not have to start in April — `FinancialYear.startMonth` is
+/// 1–12 and a trust may run the calendar year — so the route names the first
+/// month and this reads both halves of the answer out of it. Like
+/// [parseClosePeriod] it **guesses nothing**: the current financial year is not
+/// a safe default, because certifying the wrong year is exactly the mistake
+/// 02 §8.1 🔒 makes permanent.
+FinancialYear? parseFinancialYear(String? raw) {
+  final start = parseClosePeriod(raw);
+  if (start == null) return null;
+  return FinancialYear(start.year, startMonth: start.month);
+}

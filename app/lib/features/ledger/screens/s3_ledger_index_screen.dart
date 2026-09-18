@@ -7,6 +7,8 @@
 // ⚠️ SPEC: the design calls for a *sticky* alphabet rail; this build groups
 // rows under a plain (non-pinned) letter header instead — logged as an open
 // item, not a silent simplification.
+import 'dart:math' as math;
+
 import 'package:core_ledger/core_ledger.dart';
 import 'package:flutter/material.dart';
 
@@ -17,6 +19,7 @@ import '../../../shared/ledger/local_ledger.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../ledger_book.dart';
+import '../widgets/text_metrics.dart';
 import 's3_1_quick_add_sheet.dart';
 
 /// Filter chips over the index (07 §6).
@@ -234,6 +237,47 @@ class _LedgerIndexScreenState extends State<LedgerIndexScreen> {
       groups[letter]!.add(row);
     }
 
+    // Name beside figure, or name above it — measured, never a text-scale
+    // threshold (07 §1; see `widgets/text_metrics.dart`). An account name is
+    // the user's own word and may not be shortened, and a balance may not be
+    // shrunk to fit, so where the two cannot share a line the figure takes
+    // the line below. One decision for the whole list, so the column does not
+    // come and go row by row.
+    final nameStyle = text.bodyLarge;
+    final classStyle = text.bodySmall;
+    final figureStyle = (text.labelLarge ?? RkType.amountRow).copyWith(
+      fontFeatures: RkType.tabular,
+    );
+    var words = 0.0;
+    var figures = 0.0;
+    for (final row in filtered) {
+      words = math.max(
+        words,
+        longestWordWidth(context, row.account.name, nameStyle),
+      );
+      words = math.max(
+        words,
+        longestWordWidth(
+          context,
+          _classLabel(l10n, row.account.accountClass),
+          classStyle,
+        ),
+      );
+      figures = math.max(
+        figures,
+        textRunWidth(
+          context,
+          professionalFigure(context, row.balancePaise),
+          figureStyle,
+        ),
+      );
+    }
+    // The line a `ListTile` has inside its own padding, less the gap the tile
+    // keeps between its text and its trailing widget.
+    final line =
+        MediaQuery.sizeOf(context).width - RkSpace.gutter * 2 - RkSpace.s4;
+    final beside = words + figures <= line;
+
     return CustomScrollView(
       slivers: [
         for (final letter in letters)
@@ -247,6 +291,17 @@ class _LedgerIndexScreenState extends State<LedgerIndexScreen> {
                 itemCount: groups[letter]!.length,
                 itemBuilder: (context, i) {
                   final row = groups[letter]![i];
+                  final money = MoneyText(
+                    row.balancePaise,
+                    vocabulary: Vocabulary.professional,
+                    favour: row.balancePaise >= 0
+                        ? Favour.favourable
+                        : Favour.unfavourable,
+                  );
+                  final classLabel = Text(
+                    _classLabel(l10n, row.account.accountClass),
+                    style: text.bodySmall,
+                  );
                   return ListTile(
                     minTileHeight: RkSpace.rowMinHeight,
                     title: Text(
@@ -258,17 +313,21 @@ class _LedgerIndexScreenState extends State<LedgerIndexScreen> {
                       // script, so this leaves the ambient locale — logged in
                       // the lane report.
                     ),
-                    subtitle: Text(
-                      _classLabel(l10n, row.account.accountClass),
-                      style: text.bodySmall,
-                    ),
-                    trailing: MoneyText(
-                      row.balancePaise,
-                      vocabulary: Vocabulary.professional,
-                      favour: row.balancePaise >= 0
-                          ? Favour.favourable
-                          : Favour.unfavourable,
-                    ),
+                    subtitle: beside
+                        ? classLabel
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              classLabel,
+                              const SizedBox(height: RkSpace.s1),
+                              Align(
+                                alignment: AlignmentDirectional.centerEnd,
+                                child: money,
+                              ),
+                            ],
+                          ),
+                    trailing: beside ? money : null,
                     onTap: () => widget.onOpenAccount?.call(row.account.id),
                   );
                 },

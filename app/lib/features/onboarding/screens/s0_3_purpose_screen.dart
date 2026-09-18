@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../../shared/widgets/rk_fit_text.dart';
 
 /// The five signup purposes (07 §3.1 step 3). The underlying tenant type
 /// stays the generic `organization` for [trust] — this enum is UI-facing
@@ -72,6 +73,46 @@ class PurposeScreen extends StatelessWidget {
     OnboardingPurpose.family,
   ];
 
+  /// True when two cards fit side by side at the scale actually in force.
+  ///
+  /// The grid is 2x2 by design, but a card is barely a third of a phone
+  /// wide, and at 130 % *businesses* alone needs 209 px of the 116 px a card
+  /// has to give — Flutter draws such a word straight past the card edge
+  /// without throwing (F1-07-16). So the choice between the grid and a
+  /// single stacked column is **measured**, in this font at this scale,
+  /// never taken from a text-scale threshold: a threshold cannot know how
+  /// wide a word is in a font it has not measured (13 §4, U3g).
+  static bool _gridFits(BuildContext context, double width) {
+    if (!width.isFinite) return true;
+    final l10n = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final scaler = MediaQuery.textScalerOf(context);
+    final direction = Directionality.of(context);
+    final locale = Localizations.maybeLocaleOf(context);
+    // Two cards and the gap between them, less each card's own padding.
+    final room = (width - RkSpace.s3) / 2 - RkSpace.s4 * 2;
+    if (room <= 1) return false;
+    double widest(String value, TextStyle? style) {
+      final painter = TextPainter(
+        text: TextSpan(text: value, style: style),
+        textScaler: scaler,
+        textDirection: direction,
+        locale: locale,
+      )..layout();
+      final w = painter.minIntrinsicWidth;
+      painter.dispose();
+      return w;
+    }
+
+    for (final purpose in _grid) {
+      if (widest(purpose.label(l10n), text.titleMedium) > room) return false;
+      if (widest(purpose.description(l10n), text.bodySmall) > room) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -84,56 +125,48 @@ class PurposeScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(l10n.onboardingPurposeTitle, style: text.headlineMedium),
+                RkFitText(
+                  l10n.onboardingPurposeTitle,
+                  style: text.headlineMedium,
+                ),
                 const SizedBox(height: RkSpace.s6),
-                IntrinsicHeight(
-                  child: Row(
+                LayoutBuilder(
+                  builder: (context, constraints) => Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Expanded(
-                        child: _PurposeCard(
-                          purpose: _grid[0],
-                          onTap: onSelected,
-                        ),
-                      ),
-                      const SizedBox(width: RkSpace.s3),
-                      Expanded(
-                        child: _PurposeCard(
-                          purpose: _grid[1],
-                          onTap: onSelected,
-                        ),
+                      if (_gridFits(context, constraints.maxWidth)) ...[
+                        // Cards inside an [IntrinsicHeight] cannot use
+                        // [RkFitText]: a [LayoutBuilder] refuses to report
+                        // intrinsic dimensions. They do not need it — this
+                        // branch runs only where the words were measured to
+                        // fit.
+                        _gridRow(_grid[0], _grid[1]),
+                        const SizedBox(height: RkSpace.s3),
+                        _gridRow(_grid[2], _grid[3]),
+                      ] else
+                        // One per row: a card now has the whole width, and
+                        // [RkFitText] closes whatever a compound word still
+                        // overruns.
+                        for (final purpose in _grid) ...[
+                          _PurposeCard(
+                            purpose: purpose,
+                            onTap: onSelected,
+                            fit: true,
+                          ),
+                          const SizedBox(height: RkSpace.s3),
+                        ],
+                      const SizedBox(height: RkSpace.s3),
+                      // Full width beneath (07 §3.1 step 3): five does not
+                      // divide into a grid, and the trust label is the
+                      // longest of the five.
+                      _PurposeCard(
+                        purpose: OnboardingPurpose.trust,
+                        onTap: onSelected,
+                        fullWidth: true,
+                        fit: true,
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(height: RkSpace.s3),
-                IntrinsicHeight(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Expanded(
-                        child: _PurposeCard(
-                          purpose: _grid[2],
-                          onTap: onSelected,
-                        ),
-                      ),
-                      const SizedBox(width: RkSpace.s3),
-                      Expanded(
-                        child: _PurposeCard(
-                          purpose: _grid[3],
-                          onTap: onSelected,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: RkSpace.s3),
-                // Full width beneath (07 §3.1 step 3): five does not divide
-                // into a grid, and the trust label is the longest of the five.
-                _PurposeCard(
-                  purpose: OnboardingPurpose.trust,
-                  onTap: onSelected,
-                  fullWidth: true,
                 ),
               ],
             ),
@@ -142,6 +175,22 @@ class PurposeScreen extends StatelessWidget {
       ),
     );
   }
+
+  Widget _gridRow(OnboardingPurpose left, OnboardingPurpose right) =>
+      IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Expanded(
+              child: _PurposeCard(purpose: left, onTap: onSelected),
+            ),
+            const SizedBox(width: RkSpace.s3),
+            Expanded(
+              child: _PurposeCard(purpose: right, onTap: onSelected),
+            ),
+          ],
+        ),
+      );
 }
 
 class _PurposeCard extends StatelessWidget {
@@ -149,11 +198,16 @@ class _PurposeCard extends StatelessWidget {
     required this.purpose,
     required this.onTap,
     this.fullWidth = false,
+    this.fit = false,
   });
 
   final OnboardingPurpose purpose;
   final void Function(OnboardingPurpose purpose)? onTap;
   final bool fullWidth;
+
+  /// Draw the words through [RkFitText]. Off inside an [IntrinsicHeight],
+  /// which cannot ask a [LayoutBuilder] for an intrinsic dimension.
+  final bool fit;
 
   @override
   Widget build(BuildContext context) {
@@ -183,12 +237,21 @@ class _PurposeCard extends StatelessWidget {
             children: [
               Icon(purpose.icon, size: RkIcon.grid),
               const SizedBox(height: RkSpace.s2),
-              Text(label, style: text.titleMedium),
+              if (fit)
+                RkFitText(label, style: text.titleMedium)
+              else
+                Text(label, style: text.titleMedium),
               const SizedBox(height: RkSpace.s1),
-              Text(
-                description,
-                style: text.bodySmall?.copyWith(color: status.muted),
-              ),
+              if (fit)
+                RkFitText(
+                  description,
+                  style: text.bodySmall?.copyWith(color: status.muted),
+                )
+              else
+                Text(
+                  description,
+                  style: text.bodySmall?.copyWith(color: status.muted),
+                ),
             ],
           ),
         ),

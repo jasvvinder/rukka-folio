@@ -1,10 +1,11 @@
 // S6 Inbox (13 §3.2, 07 §9) — the one tray for everything awaiting a human.
 //
-// This slice draws two of 13 §4.1 P3's typed cards: the **review** card (S6.1)
-// and the **structural approval** card (S6.3, 07 §26 🔒 — quorum, Approve and
-// Veto with reason). The rest (imports, invites, recoveries, reminders, late
-// arrivals, quota, security) each need a source this build does not have yet;
-// a state that cannot be sourced is not drawn.
+// This slice draws three of 13 §4.1 P3's typed cards: the **review** card
+// (S6.1), the **structural approval** card (S6.3, 07 §26 🔒 — quorum, Approve
+// and Veto with reason) and the **late arrivals** section, which counts what
+// is waiting and opens S10.3 (07 §13 🔒, 02 §8 🔒). The rest (imports,
+// invites, recoveries, reminders, quota, security) each need a source this
+// build does not have yet; a state that cannot be sourced is not drawn.
 //
 // States (13 §4.3): loading (ruled skeleton) · populated · empty with its one
 // next action · error-with-retry · offline chip (never a blocking banner,
@@ -20,6 +21,7 @@ import '../../../shared/app_scope.dart';
 import '../../../shared/seams/sync_client.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../late_arrivals.dart';
 import '../review_queue.dart';
 import '../structural_requests.dart';
 import '../widgets/reject_sheet.dart';
@@ -35,6 +37,7 @@ class InboxScreen extends StatefulWidget {
     this.onOpenLedger,
     this.onReviewGroup,
     this.onOpenStructural,
+    this.onOpenLateArrivals,
   });
 
   /// The empty state's one next action (07 §1 rule 6 — no dead ends).
@@ -45,6 +48,11 @@ class InboxScreen extends StatefulWidget {
 
   /// *See the full request* → S6.3's review surface for that request.
   final void Function(String requestId)? onOpenStructural;
+
+  /// The late-arrivals section's one action → S10.3 (13 §3.2: its parent is
+  /// this screen). Null leaves the section a statement of what is waiting,
+  /// never a tap that goes nowhere (07 §1 rule 6).
+  final VoidCallback? onOpenLateArrivals;
 
   @override
   State<InboxScreen> createState() => _InboxScreenState();
@@ -64,13 +72,18 @@ class _InboxScreenState extends State<InboxScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && ReviewQueueScope.of(context).current == null) _refresh();
+      if (!mounted) return;
+      final cold =
+          ReviewQueueScope.of(context).current == null ||
+          LateArrivalsScope.of(context).current == null;
+      if (cold) _refresh();
     });
   }
 
   Future<void> _refresh() async {
     final queue = ReviewQueueScope.of(context);
     final structural = StructuralRequestsScope.of(context);
+    final lateTray = LateArrivalsScope.of(context);
     setState(() {
       _loading = true;
       _error = false;
@@ -78,9 +91,12 @@ class _InboxScreenState extends State<InboxScreen> {
     try {
       await queue.refresh();
       await structural.refresh();
+      await lateTray.refresh();
     } on ReviewQueueFailure {
       if (mounted) setState(() => _error = true);
     } on StructuralRequestFailure {
+      if (mounted) setState(() => _error = true);
+    } on LateArrivalsFailure {
       if (mounted) setState(() => _error = true);
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -197,18 +213,24 @@ class _InboxScreenState extends State<InboxScreen> {
               return const _Skeleton();
             }
             final structural = StructuralRequestsScope.of(context);
+            final lateTray = LateArrivalsScope.of(context);
             return StreamBuilder<StructuralInbox>(
               stream: structural.watch(),
               initialData: structural.current,
-              builder: (context, st) => StreamBuilder<SyncStatus>(
-                stream: scope.sync.status,
-                initialData: scope.sync.current,
-                builder: (context, ss) => _body(
-                  context,
-                  s,
-                  structural: st.data ?? const StructuralInbox(),
-                  offline: ss.data is Offline,
-                  now: scope.now(),
+              builder: (context, st) => StreamBuilder<LateArrivalsTray>(
+                stream: lateTray.watch(),
+                initialData: lateTray.current,
+                builder: (context, lt) => StreamBuilder<SyncStatus>(
+                  stream: scope.sync.status,
+                  initialData: scope.sync.current,
+                  builder: (context, ss) => _body(
+                    context,
+                    s,
+                    structural: st.data ?? const StructuralInbox(),
+                    lateTray: lt.data ?? const LateArrivalsTray(),
+                    offline: ss.data is Offline,
+                    now: scope.now(),
+                  ),
                 ),
               ),
             );
@@ -222,6 +244,7 @@ class _InboxScreenState extends State<InboxScreen> {
     BuildContext context,
     InboxSnapshot s, {
     required StructuralInbox structural,
+    required LateArrivalsTray lateTray,
     required bool offline,
     required DateTime now,
   }) {
@@ -253,7 +276,7 @@ class _InboxScreenState extends State<InboxScreen> {
                 ],
               ),
             ),
-          if (s.isEmpty && structural.isEmpty)
+          if (s.isEmpty && structural.isEmpty && lateTray.isEmpty)
             _EmptyState(readOnly: s.readOnly, onAction: widget.onOpenLedger),
           // S6.3 first: a structural change is the only card that can alter
           // who may do what (02 §7.2.1), so it outranks a review flag.
@@ -281,6 +304,25 @@ class _InboxScreenState extends State<InboxScreen> {
                 ),
               ),
           ],
+          // Then the tray: a late arrival is the only card here holding a
+          // *month close* open (02 §8 🔒), which is time-bound in a way a
+          // review flag is not, and 13 §4.1 P3 lists it ahead of the
+          // structural card.
+          //
+          // ⚠️ SPEC: nothing in 07 §9, 07 §13 or 13 §4.1 ranks the P3 card
+          // types against each other. The conservative reading is the one
+          // this screen already took for S6.3 — the card that can change what
+          // a person may do comes first — with the time-bound tray next and
+          // the everyday review work last. If the owner wants a different
+          // order, it is three blocks moving in this list.
+          if (!lateTray.isEmpty)
+            Padding(
+              padding: const EdgeInsets.only(bottom: RkSpace.s4),
+              child: _LateArrivalsSection(
+                count: lateTray.items.length,
+                onOpen: widget.onOpenLateArrivals,
+              ),
+            ),
           if (!s.isEmpty) ...[
             Padding(
               padding: const EdgeInsets.only(bottom: RkSpace.s3),
@@ -307,6 +349,85 @@ class _InboxScreenState extends State<InboxScreen> {
           ],
         ],
       ),
+    );
+  }
+}
+
+/// The S6 **late arrivals** section (07 §13 🔒, 02 §8 🔒): how many entries
+/// arrived after their month had closed, and the one tap into S10.3.
+///
+/// It is drawn only when something is waiting. That is not a hidden
+/// capability (13 §2.3 🔒): the *capability* — deciding where a late arrival
+/// sits — lives on S10.3 and on the close tray, and S6's own empty state
+/// already states what this reader may do here, including the viewer variant.
+/// A section that said "nothing arrived late" on every quiet day would be the
+/// bare tray 13 §2.3 warns against.
+///
+/// Post-then-review (02 §3 🔒, 02 §8 🔒): the line under the count says the
+/// money is already in the balances. Nothing here may read as a hold.
+class _LateArrivalsSection extends StatelessWidget {
+  const _LateArrivalsSection({required this.count, this.onOpen});
+
+  /// How many entries are in the tray.
+  final int count;
+
+  /// Opens S10.3. Null leaves the section a statement (07 §1 rule 6).
+  final VoidCallback? onOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final status = RkStatusColors.of(context);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(bottom: RkSpace.s3),
+          child: Text(l10n.inboxSectionLate, style: text.titleLarge),
+        ),
+        Card(
+          margin: EdgeInsets.zero,
+          child: Padding(
+            padding: const EdgeInsets.all(RkSpace.s4),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Colour is never alone (07 §1 rule 3): the lock icon and the
+                // sentence carry it, the token colour only reinforces.
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.lock_clock, size: 20, color: status.locked),
+                    const SizedBox(width: RkSpace.s2),
+                    Expanded(
+                      child: Text(
+                        l10n.inboxSectionLateCount(count),
+                        style: text.bodyLarge,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: RkSpace.s2),
+                Text(
+                  l10n.inboxSectionLateCounted,
+                  style: text.bodyMedium?.copyWith(color: status.muted),
+                ),
+                if (onOpen != null) ...[
+                  const SizedBox(height: RkSpace.s4),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton(
+                      onPressed: onOpen,
+                      child: Text(l10n.inboxSectionLateAction),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

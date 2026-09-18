@@ -24,6 +24,7 @@ import '../../../shared/format/date_format.dart';
 import '../../../shared/format/money_format.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../../shared/widgets/rk_fit_text.dart';
 import 's0_6b_business_opening_balances_screen.dart'
     show OpeningGroup, OpeningRow, parseRupeesToPaise, signOf;
 
@@ -113,7 +114,7 @@ class _FamilySharedAccountsScreenState
               Expanded(
                 child: ListView(
                   children: [
-                    Text(
+                    RkFitText(
                       l10n.onboardingFamilyAccountsTitle,
                       style: text.headlineMedium,
                     ),

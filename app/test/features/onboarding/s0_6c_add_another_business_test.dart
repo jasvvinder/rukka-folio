@@ -156,27 +156,35 @@ void main() {
     );
 
     testWidgets(
-      'F1-07-83 strings resolve in EN/PA/HI with no overflow at 200% on 360x800',
+      'F1-07-83 strings resolve in EN/PA/HI with no overflow at 1.3x and '
+      '200% on both F1 phones',
       (tester) async {
-        tester.view.physicalSize = const Size(360, 800);
-        tester.view.devicePixelRatio = 1.0;
-        addTearDown(tester.view.resetPhysicalSize);
-        addTearDown(tester.view.resetDevicePixelRatio);
         for (final locale in _locales) {
-          await pumpRk(
-            tester,
-            const MediaQuery(
-              data: MediaQueryData(textScaler: TextScaler.linear(2)),
-              child: AddAnotherBusinessScreen(
-                businesses: [
-                  AddedBusiness(name: 'Sharma Traders', fyStartMonth: 4),
-                  AddedBusiness(name: 'Sharma Agri', fyStartMonth: 4),
-                ],
-              ),
-            ),
-            locale: locale,
-          );
-          expect(tester.takeException(), isNull, reason: 'overflow in $locale');
+          for (final vp in rkPhones) {
+            for (final scale in rkTextScales) {
+              await pumpRk(
+                tester,
+                const AddAnotherBusinessScreen(
+                  businesses: [
+                    AddedBusiness(name: 'Sharma Traders', fyStartMonth: 4),
+                    AddedBusiness(name: 'Sharma Agri', fyStartMonth: 4),
+                  ],
+                ),
+                locale: locale,
+                textScale: scale,
+                viewport: vp,
+              );
+              expect(
+                tester.takeException(),
+                isNull,
+                reason: 'overflow in $locale @ $scale on $vp',
+              );
+              expectTextFits(
+                tester,
+                reason: '${locale.languageCode} @ $scale on $vp',
+              );
+            }
+          }
         }
       },
     );

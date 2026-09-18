@@ -283,7 +283,7 @@ class CloseDisabledAction extends StatelessWidget {
         if (wayOut != null && onWayOut != null)
           Align(
             alignment: AlignmentDirectional.centerStart,
-            child: TextButton(onPressed: onWayOut, child: Text(wayOut)),
+            child: TextButton(onPressed: onWayOut, child: RkFitText(wayOut)),
           ),
       ],
     );

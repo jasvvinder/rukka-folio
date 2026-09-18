@@ -48,7 +48,7 @@ Entry {
                 // `pending`, and it counts in balances from the first moment (§9).
                 // The open/approved/rejected *state* is not stored on the envelope:
                 // it is projected by folding approval_decision envelopes (03 §3.3.5).
-  review_required : bool           // 🔒 authored at save time by the client that ⟦tests: A-02-38, A-02-7⟧
+  review_required : bool           // 🔒 authored at save time by the client that ⟦tests: A-02-38, A-02-7, F1-02-92, F1-02-94, F1-02-99⟧
                                    // knows the limit; the projector may NOT read
                                    // book_roles (03 §3.3.5). Readers re-check it
                                    // against review_limit_paise below.
@@ -97,7 +97,7 @@ The user answers plain questions; the app builds the lines. Party-facing verbs a
 
 ---
 
-## 3. Status lifecycle — post-then-review 🔒 (revised by owner decision) ⟦tests: A-02-38, A-02-39, A-02-40, A-02-41⟧
+## 3. Status lifecycle — post-then-review 🔒 (revised by owner decision) ⟦tests: A-02-38, A-02-39, A-02-40, A-02-41, F1-02-80, F1-02-81, F1-02-82, F1-02-83, F1-02-84, F1-02-85, F1-02-86, F1-02-87, F1-02-88, F1-02-89, F1-02-90, F1-02-91, F1-02-92, F1-02-93, F1-02-94, F1-02-95, F1-02-96, F1-02-97, F1-02-98, F1-02-99⟧
 
 **Principle: if the money already moved in the world, the book says so immediately. Approval-before exists only where the approval itself moves the money (advances §7).**
 
@@ -142,7 +142,7 @@ Guided setup per book, re-runnable until first lock: for each money account and 
 
 ---
 
-## 6. Inter-book movement 🔒 ⟦tests: A-02-78, A-02-79, A-02-80, A-02-82, A-ref-6, A-05e-10, F1-02-19, F1-02-20, F1-02-21, F1-02-22, F1-02-27, F1-02-28, F1-07-119, F1-02-47⟧
+## 6. Inter-book movement 🔒 ⟦tests: A-02-78, A-02-79, A-02-80, A-02-82, A-ref-6, A-05e-10, F1-02-19, F1-02-20, F1-02-21, F1-02-22, F1-02-27, F1-02-28, F1-07-119, F1-02-47, F1-02-96⟧
 
 Books connect through **paired system accounts** auto-created on first use: in book A, `Due to/from B`; in book B, `Due to/from A` (class `equity_system`, placement by sign).
 
@@ -199,7 +199,7 @@ A business owned by several people or sub-families gets one **Partner Current A/
 
 🔒 **The payer never books an expense in their own book.** In their personal book it is `Dr {Business} · Cr Cash` — money owed to them, not an expense. The expense belongs to the business.
 
-**Profit distribution 🔒.** Net profit for the period — **the open FY's income minus expense, minus distributions already posted in that FY (ADR 2026-09-05e §8)** — × each owner's agreed ratio (agreed at business creation; changed only by the structural action of §7.2.1 — never by contribution, never by a routine amend; ADR 2026-09-14b §1), posted as **one multi-line entry**: `Dr Profit Distributed (equity_system) · Cr each Partner Current`. It moves no cash — it converts undistributed surplus into debts the business owes its owners. Using a `Profit Distributed` account preserves §1.2's no-closing-entries rule: accumulated surplus stays computed, and this account records how much of it has been handed out. ⟦tests: A-02-63, A-02-64, A-05e-3, A-05e-6⟧
+**Profit distribution 🔒.** Net profit for the period — **the open FY's income minus expense, minus distributions already posted in that FY (ADR 2026-09-05e §8)** — × each owner's agreed ratio (agreed at business creation; changed only by the structural action of §7.2.1 — never by contribution, never by a routine amend; ADR 2026-09-14b §1), posted as **one multi-line entry**: `Dr Profit Distributed (equity_system) · Cr each Partner Current`. It moves no cash — it converts undistributed surplus into debts the business owes its owners. Using a `Profit Distributed` account preserves §1.2's no-closing-entries rule: accumulated surplus stays computed, and this account records how much of it has been handed out. ⟦tests: A-02-63, A-02-64, A-05e-3, A-05e-6, F1-02-52, F1-07-150, F1-07-151, F1-07-154⟧
 
 🔒 **Contribution never changes the sharing ratio.** Paying more costs does not earn more profit — it earns a larger claim for repayment. The two are separate rows of the same account. ⟦tests: A-02-64⟧
 
@@ -214,7 +214,7 @@ A business owned by several people or sub-families gets one **Partner Current A/
 
 **Drift visibility 🔒.** Where one partner's balance exceeds the group average by a configurable margin, the business dashboard shows a quiet card ("Harjit has ₹2,40,000 more with the business than the others"). Informational, never a demand. ⟦tests: A-02-67, F1-07-37, F1-02-45⟧
 
-**Interest on capital 🔒 — optional, off by default (owner-approved, Phase 1).** The classical remedy for the partner who funds but rarely draws. A per-business setting; enabling, changing the rate, or disabling it requires **every partner's approval** and is recorded as a dated business-setting envelope, so the terms in force for any past period are always recoverable. ⟦tests: A-02-31, A-02-68, A-02-69, A-02-70, A-02-71, A-05e-7⟧
+**Interest on capital 🔒 — optional, off by default (owner-approved, Phase 1).** The classical remedy for the partner who funds but rarely draws. A per-business setting; enabling, changing the rate, or disabling it requires **every partner's approval** and is recorded as a dated business-setting envelope, so the terms in force for any past period are always recoverable. ⟦tests: A-02-31, A-02-68, A-02-69, A-02-70, A-02-71, A-05e-7, F1-02-55, F1-07-151, F1-07-152, F1-07-153⟧
 
 - **Computation:** `interest = average daily balance × rate × days in period ÷ 365` (**Actual/365** — a 366-day year still divides by 365, ADR 2026-09-05e §8), per partner, computed by the app from the ledger itself — never typed. Only **credit** balances earn interest; a partner in debit balance is charged at the same rate unless the setting says otherwise ⚠️.
 - **Posting:** it is an **appropriation of profit, not a business expense** — `Dr Profit Distributed · Cr Partner Current`, tagged `interest`, exactly like a profit share but for a different reason. Keeping it out of the expense accounts means the farm's true operating cost is never distorted by how the partners chose to fund it.
@@ -222,15 +222,15 @@ A business owned by several people or sub-families gets one **Partner Current A/
 - **Rounding:** each partner's interest is computed independently and rounded **half-up to the nearest paisa**; interest is not a ratio split, so the §7.1 remainder rule does not apply to it. The residual profit that is then split *does* use the remainder rule.
 - **The distribution preview shows both lines per partner** — interest and share — before anything posts, so the family sees the effect of the setting rather than discovering it.
 
-**Losses, ceiling, interest above profit 🔒 (ADR 2026-09-05e §8).** A loss is shared by the **mirror posting** `Dr each Partner Current · Cr Profit Distributed`, same ratio, same remainder rule, so sum-to-zero holds identically. Cumulative distributions may never exceed accumulated surplus (§1.2's computed line) — the wizard refuses and says by how much. Interest is credited in full even when it exceeds profit; the remaining negative figure is then shared as a loss. The preview shows both lines. ⟦tests: A-05e-4, A-05e-5, A-05e-6⟧
+**Losses, ceiling, interest above profit 🔒 (ADR 2026-09-05e §8).** A loss is shared by the **mirror posting** `Dr each Partner Current · Cr Profit Distributed`, same ratio, same remainder rule, so sum-to-zero holds identically. Cumulative distributions may never exceed accumulated surplus (§1.2's computed line) — the wizard refuses and says by how much. Interest is credited in full even when it exceeds profit; the remaining negative figure is then shared as a loss. The preview shows both lines. ⟦tests: A-05e-4, A-05e-5, A-05e-6, F1-02-54, F1-02-59, F1-07-153, F1-07-155⟧
 
-**Rounding rule 🔒 (applies to every ratio split, including profit shares).** Divide in integer paise; assign each partner `floor(amount × weight ÷ Σweights)` in integer paise (never `amount × ratio` as a float); the remainder — always fewer paise than there are partners — goes to the partner with the **largest ratio**, ties broken by the earliest-created partner account. Deterministic on every device, so the split can never break §1.4's sum-to-zero invariant or diverge across the family's phones. ⟦tests: A-02-58, A-02-59, A-02-60, A-02-61, A-05e-5⟧
+**Rounding rule 🔒 (applies to every ratio split, including profit shares).** Divide in integer paise; assign each partner `floor(amount × weight ÷ Σweights)` in integer paise (never `amount × ratio` as a float); the remainder — always fewer paise than there are partners — goes to the partner with the **largest ratio**, ties broken by the earliest-created partner account. Deterministic on every device, so the split can never break §1.4's sum-to-zero invariant or diverge across the family's phones. ⟦tests: A-02-58, A-02-59, A-02-60, A-02-61, A-05e-5, F1-02-53, F1-07-151⟧
 
-**Where the ratio lives 🔒 (owner-confirmed 13 Sep 2026, ADR 2026-09-13 §3; two layers, ADR 2026-09-14b).** The weights are recorded once, in the book's `book_config` envelope, as `partner_shares` — a map of **Partner Current A/c id → whole-number weight** (ADR 2026-09-09 §2; weights, never percentages). The key is the account id and nothing else: no member identity exists when a shared business is created — the owners are at that point only *invited* — and the account id is the one handle that survives renaming either the owner or the `{Name} — Partner Current A/c` seeded after them. It is also the identity the remainder rule above already ties to (*"ties broken by the earliest-created partner account"*), so the ratio and the split key on the same thing. The ids are minted **before** the config is authored, and this map is the ratio **agreed at creation** — the deed. It is never amended: a routine `book_config` amend carries it forward verbatim, and a later version whose `partner_shares` differs from the creation version is an invariant violation. A change of ratio is the structural action of §7.2.1 and, once quorum exists, is recorded as a dated `business_setting` envelope naming the approved request (ADR 2026-09-05e §11); the ratio **in force** at any order point is the creation ratio overridden by the applied `business_setting` records up to that point, in `(hlc, envelope_id)` order (ADR 2026-09-14b §2, §4). A distribution applies the ratio in force at its own date (ADR 2026-09-14b §6). **An absent or empty map means the ratio was never recorded — never that the shares are equal**: equal shares are held as real weights (1:1:1), so a reader that finds no map must say so rather than divide evenly. ⟦tests: E-03-30, E-03-34, E-03-35, F1-07-86, F1-07-114, F1-02-41⟧
+**Where the ratio lives 🔒 (owner-confirmed 13 Sep 2026, ADR 2026-09-13 §3; two layers, ADR 2026-09-14b).** The weights are recorded once, in the book's `book_config` envelope, as `partner_shares` — a map of **Partner Current A/c id → whole-number weight** (ADR 2026-09-09 §2; weights, never percentages). The key is the account id and nothing else: no member identity exists when a shared business is created — the owners are at that point only *invited* — and the account id is the one handle that survives renaming either the owner or the `{Name} — Partner Current A/c` seeded after them. It is also the identity the remainder rule above already ties to (*"ties broken by the earliest-created partner account"*), so the ratio and the split key on the same thing. The ids are minted **before** the config is authored, and this map is the ratio **agreed at creation** — the deed. It is never amended: a routine `book_config` amend carries it forward verbatim, and a later version whose `partner_shares` differs from the creation version is an invariant violation. A change of ratio is the structural action of §7.2.1 and, once quorum exists, is recorded as a dated `business_setting` envelope naming the approved request (ADR 2026-09-05e §11); the ratio **in force** at any order point is the creation ratio overridden by the applied `business_setting` records up to that point, in `(hlc, envelope_id)` order (ADR 2026-09-14b §2, §4). A distribution applies the ratio in force at its own date (ADR 2026-09-14b §6). **An absent or empty map means the ratio was never recorded — never that the shares are equal**: equal shares are held as real weights (1:1:1), so a reader that finds no map must say so rather than divide evenly. ⟦tests: E-03-30, E-03-34, E-03-35, F1-07-86, F1-07-114, F1-02-41, F1-02-56, F1-02-57, F1-02-58, F1-07-156⟧
 
 **Business surplus remitted to a family pool is not a drawing 🔒.** It is an ordinary inter-book transfer (§6) between the business book and the pool book. Money the family then takes "as needed" is tracked by the pool's own sub-family accounts. Two separate fairness ledgers — partner accounts for the business, sub-family accounts for the pool — and conflating them corrupts the partnership arithmetic.
 
-## 7.2 Who checks the admin 🔒 (owner-approved, 30 Aug 2026) ⟦tests: A-02-40⟧
+## 7.2 Who checks the admin 🔒 (owner-approved, 30 Aug 2026) ⟦tests: A-02-40, F1-06-19, F1-02-98⟧
 
 The admin holds every permission, so review cannot rely on someone senior to them. Four mechanisms, none of which depends on hierarchy:
 
@@ -239,7 +239,7 @@ The admin holds every permission, so review cannot rely on someone senior to the
 3. **A permanent, member-visible admin-actions feed.** Role changes, limit changes, period re-opens, business-setting and ownership changes, member removals and profit distributions are written as signed envelopes and shown to every member of the tenant, forever. The admin can perform these; they cannot perform them quietly.
 4. **Closing is a joint act, verified by arithmetic.** The admin cannot close a period alone — each book owner confirms their own book (§8), and every member's device independently recomputes the balance-vector hash. A tampered book fails on other people's phones, not on the admin's.
 
-### 7.2.1 Multiple admins and the quorum rule 🔒 (owner-approved, 30 Aug 2026) ⟦tests: A-02-94⟧
+### 7.2.1 Multiple admins and the quorum rule 🔒 (owner-approved, 30 Aug 2026) ⟦tests: A-02-94, F1-02-59, F1-07-154, F1-07-157, F1-07-158, F1-07-159⟧
 
 **A book may have any number of admins.** Roles are per-book (06 §1.1), so all three sub-family heads can be admins of the joint business while holding different roles elsewhere. Recommended for any shared book, for one reason beyond convenience: **succession** — with a single admin, a lost phone or a death leaves the book with nobody who can invite, close or manage it.
 
@@ -261,7 +261,7 @@ Admin power then splits in two:
 
 🔒 **The boundary this draws:** the admin's authority is over *structure and permission* — who is a member, what the limits are, when a period locks. It is **not** authority over the truth of the record. That is protected by the append-only journal (§1.4), per-entry author signatures (04 §8.3), independent close verification (§8), and the fact that personal books are cryptographically closed to them (04 §5.2). An admin can add themselves to a book; they cannot make an entry that never happened, alter one that did, or read a member's personal book. ⟦tests: A-02-96 @M7⟧
 
-## 8. Periods and locking 🔒 ⟦tests: A-02-48, A-02-49, A-02-50, A-02-51, A-02-52, A-05e-1, A-05c-2, F1-07-27, F1-07-131, F1-07-132, F1-07-134, F1-02-48, F1-02-49, F1-02-50, F1-02-51⟧
+## 8. Periods and locking 🔒 ⟦tests: A-02-48, A-02-49, A-02-50, A-02-51, A-02-52, A-05e-1, A-05c-2, F1-07-27, F1-07-131, F1-07-132, F1-07-134, F1-02-48, F1-02-49, F1-02-50, F1-02-51, E-03-47, E-03-48, E-03-49, E-03-50, E-03-51, F1-02-60, F1-02-61, F1-02-62, F1-02-63, F1-02-64, F1-02-65, F1-02-66, F1-02-67⟧
 
 - Periods are calendar months within the book's financial year. States: `open` → `locked` (re-openable by book admin, logged).
 - A **lock is itself a signed envelope** with an HLC; so is an unlock (`period_unlock`). **Both are all-time objects in the bootstrap hot set (05 §8, ADR 2026-09-05e §5)** — the validity rule below needs the complete history even for archived years. Deterministic rule every client applies: an entry whose `accounting_date` falls in period P is valid only if its HLC precedes the HLC of P's lock. Violations from a tampered client are quarantined by every honest reader.
@@ -273,7 +273,7 @@ Admin power then splits in two:
   4. *Confirm & lock* — the close envelope records the declared balances **and the client-computed balance vector hash; every other member's device recomputes and verifies it**, flagging any mismatch. It also records the **`projector_version`** that computed the hash (03 §1, ADR 2026-09-05c §3): a reader on an older projector shows *update to verify* rather than a false mismatch. Books close only when their own arithmetic agrees everywhere.
 - **Two distinct surfaces 🔒 (conflict resolved 30 Aug 2026):** (a) the **integrity check** is the always-visible books-balanced card on Home (07 §4) — status, total Dr, total Cr, difference — verifying stored state and catching sync or storage corruption; (b) the **Trial Balance report** exists under Reports (07 §14) and in exports, because the accounting reference is built on it and any accountant will ask for one. The earlier rule that a trial balance "never appears as a report" is superseded: it was written before the verification card was approved.
 
-### 8.1 Financial year close and carry-forward 🔒 ⟦tests: A-02-53, A-02-54, A-02-55, A-05e-2, A-05e-1, A-05c-2⟧
+### 8.1 Financial year close and carry-forward 🔒 ⟦tests: A-02-53, A-02-54, A-02-55, A-05e-2, A-05e-1, A-05c-2, F1-07-163, F1-07-164, F1-07-166, F1-07-190, F1-07-191, F1-07-192, F1-07-193, F1-07-194, F1-07-195, F1-07-196, F1-07-197, F1-07-198, F1-07-199, F1-02-68, F1-02-69, F1-02-70, F1-02-71, F1-02-72, F1-02-73, F1-02-74, F1-02-75, F1-02-76, F1-02-77, F1-02-78, F1-02-79, F1-07-224, F1-07-225⟧
 
 The ledger is continuous, so money, party, and advance balances carry forward across 31 March automatically — no amounts are ever re-posted. The **Year Close ceremony** makes that carry-forward official, verified, and displayable, exactly like *"To Balance b/d"* in a paper khata:
 
@@ -283,7 +283,7 @@ The ledger is continuous, so money, party, and advance balances carry forward ac
 > **ADR 2026-09-09 §4** — the switcher is one control on three surfaces (S4 · S8.2 · S10.4): the year
 > becomes a chip, a closed year shows the b/f it hands on with the badge copy *Certified*, and there is no
 > switcher at all until the first year close. Until S10.4 exists (M9) b/f is computed from entries before
-> the FY start; the certified vector replaces it then. ⟦tests: F1-07-46⟧
+> the FY start; the certified vector replaces it then. ⟦tests: F1-07-46, F1-07-192⟧
 
 - **Prior-year corrections:** after a year closes, corrections post as reversals dated in the current FY (§5 already enforces this via month locks). The certified opening of a closed year **never changes** — the fix appears in the year it is made, which is standard practice and keeps every past-year report permanently true once printed.
 - **Reopening:** unlocking any month of a closed year voids that year's certificate *and every later year's*, admin-only, loudly warned, logged; re-closing is required in order.

@@ -13,8 +13,22 @@
 // opening vector of 02 §8.1 to replace it. The c/f falls on the year's last
 // day, or on today while the year is still open (07 §6 🔒, owner rule).
 //
-// Export (S8.1/S8.2) and entry detail (S4.1) are separate lanes; a row here
-// only reports its entry id through [onOpenEntry].
+// **Export** is the trio of ADR 2026-09-12e §2 🔒 — *View · Download/Share ·
+// Export (PDF/CSV/XLSX)* — binding on S4 since the owner confirmed it on
+// 13 Sep, and the same bar S8.2 wears: **View** is this screen, **Download /
+// Share** writes a PDF and hands it straight to the platform share sheet (the
+// format a person hands to someone else — ADR 2026-09-12d §2–§3 🔒), and
+// **Export** opens the three-format sheet. The report itself is built in
+// `features/reports/statement_report.dart` from the rows already on screen,
+// so paper and screen are the same statement by construction. A successful
+// share gets no sentence from us; a share that could not be raised names the
+// file it wrote instead (ADR 2026-09-13 §1 🔒), so the path is never a dead end.
+//
+// Entry detail (S4.1) is a separate lane; a row here only reports its entry id
+// through [onOpenEntry].
+import 'dart:async';
+import 'dart:math' as math;
+
 import 'package:core_ledger/core_ledger.dart' hide StatementRow;
 import 'package:flutter/material.dart';
 
@@ -25,8 +39,18 @@ import '../../../shared/ledger/ledger_scope.dart';
 import '../../../shared/ledger/local_ledger.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../reports/day_book.dart' show reportHeading;
+import '../../reports/export/file_report_sink.dart';
+import '../../reports/export/csv_report.dart';
+import '../../reports/export/pdf_report.dart';
+import '../../reports/export/report_export.dart';
+import '../../reports/export/xlsx_report.dart';
+import '../../reports/statement_report.dart';
+import '../../reports/widgets/export_actions.dart';
+import '../../reports/widgets/export_sheet.dart';
 import '../ledger_book.dart';
 import '../widgets/cash_count_header.dart';
+import '../widgets/text_metrics.dart';
 import '../../../shared/seams/closed_years.dart';
 import '../widgets/fy_switcher.dart';
 
@@ -38,6 +62,7 @@ class AccountStatementScreen extends StatefulWidget {
     this.onOpenEntry,
     this.onCountCash,
     this.closedYears = noClosedYears,
+    this.sink = shareReportFile,
   });
 
   /// The account whose statement this is.
@@ -59,6 +84,11 @@ class AccountStatementScreen extends StatefulWidget {
   /// the year ships as plain text and no switcher is drawn.
   final ClosedYearsSource closedYears;
 
+  /// Where a generated report goes ([ReportSink]). The app raises the platform
+  /// share sheet and names a file only if it cannot (ADR 2026-09-13 §1 🔒); a
+  /// test injects a fake and reads the bytes.
+  final ReportSink sink;
+
   @override
   State<AccountStatementScreen> createState() => _AccountStatementScreenState();
 }
@@ -74,6 +104,18 @@ class _AccountStatementScreenState extends State<AccountStatementScreen> {
   int _fyStartMonth = 4;
   List<ClosedYear> _closed = const [];
   FinancialYear? _fy;
+
+  /// The book's name, for the head of an exported statement.
+  String _bookName = '';
+
+  /// The latest statement and chart, kept so an export can run without
+  /// re-reading the ledger — the file is then the very rows on screen.
+  Statement? _latest;
+  Chart? _chart;
+
+  /// True while a file is being written. Shown as the 2 px loader **rule**,
+  /// never a spinner (11 §4.5 🔒, 13 §4.3 loading state).
+  bool _generating = false;
 
   /// Memoised so a rebuild does not resubscribe the drift stream every frame.
   Stream<Statement>? _rows;
@@ -105,13 +147,24 @@ class _AccountStatementScreenState extends State<AccountStatementScreen> {
 
   Future<void> _resolveBook() async {
     final ledger = LedgerScope.of(context);
+    // The FY switcher's source is the shell's when the shell has one (ADR
+    // 2026-09-09 §4 🔒) and the constructor's otherwise — a missing scope is
+    // never an error and never a red screen (07 §1 rule 6). Read here, beside
+    // the ledger and **before** the first await: an InheritedWidget may not be
+    // reached for across an async gap.
+    final years = ClosedYearsScope.maybeOf(context) ?? widget.closedYears;
     try {
       final id = widget.bookId ?? await soloBookId(ledger);
       final startMonth = await ledger.fyStartMonthOf(id);
-      final closed = await widget.closedYears(id, widget.accountId);
+      // A plain future, never a stream's `.first`: a drift query stream's first
+      // event arrives on a zero-duration timer that a widget test's fake-async
+      // zone never lets fire.
+      final heading = await reportHeading(ledger, id);
+      final closed = await years(id, widget.accountId);
       if (!mounted) return;
       setState(() {
         _bookId = id;
+        _bookName = heading.bookName;
         _fyStartMonth = startMonth;
         _closed = closed;
         _fy = FinancialYear.of(ledger.today(), startMonth: startMonth);
@@ -126,7 +179,115 @@ class _AccountStatementScreenState extends State<AccountStatementScreen> {
     _resolveBook();
   }
 
-  void _selectYear(FinancialYear fy) => setState(() => _fy = fy);
+  void _selectYear(FinancialYear fy) => setState(() {
+    _fy = fy;
+    _latest = null;
+  });
+
+  /// Builds the statement in [format] from the rows already on screen.
+  ///
+  /// Everything that needs the tree — strings, locale, the chart — is read
+  /// **before** the first await: loading the PDF's fonts is asynchronous, and a
+  /// context read after an await is a disposed context away from a crash.
+  Future<ReportFile> _buildFile(ReportFormat format) async {
+    final l10n = AppLocalizations.of(context);
+    final locale = Localizations.localeOf(context);
+    final ledger = LedgerScope.of(context);
+    final chart = _chart;
+    final fy = _fy!;
+    final statement =
+        _latest ??
+        Statement(
+          accountId: widget.accountId,
+          rows: const [],
+          openingPaise: 0,
+          from: fy.firstDay,
+          to: fy.lastDay,
+        );
+    final today = ledger.today();
+    final accountName =
+        chart?.maybeAccount(widget.accountId)?.name ?? widget.accountId;
+    final table = statementTable(
+      statement,
+      accountName: accountName,
+      bookName: _bookName,
+      period: l10n.ledgerStatementFy(fy.label),
+      labels: StatementReportLabels.of(l10n),
+      counterNames: (row) => [
+        for (final id in row.counterAccountIds)
+          chart?.maybeAccount(id)?.name ?? id,
+      ],
+      formatDate: (date) => formatLedgerDate(date, strings: l10n),
+      openingDate: fy.firstDay,
+      // 07 §6 🔒 (owner rule): the c/f is dated the period's last day, or
+      // today's date while the period is still open — the same date the
+      // screen's c/f row carries.
+      closingDate: fy.contains(today) ? today : fy.lastDay,
+    );
+    final fileName = l10n.reportsStatementFileName(fy.label, format.extension);
+
+    switch (format) {
+      case ReportFormat.pdf:
+        // The faces are loaded per export, not held: package:pdf embeds the
+        // glyphs it draws, and Helvetica — its default — has no Gurmukhi and
+        // no Devanagari (see `reports/export/pdf_report.dart`).
+        final fonts = await ReportFonts.load();
+        return reportTablePdfFile(
+          table,
+          pageNumber: (page, pages) => l10n.reportsExportPage(page, pages),
+          fonts: fonts,
+          locale: locale,
+          fileName: fileName,
+        );
+      case ReportFormat.csv:
+        return reportTableCsvFile(table, fileName: fileName);
+      case ReportFormat.xlsx:
+        return reportTableXlsxFile(table, fileName: fileName);
+    }
+  }
+
+  /// Generates, delivers, and says only what the delivery leaves unsaid — a
+  /// share sheet is its own confirmation, a written file must be named
+  /// (ADR 2026-09-13 §1 🔒). The loader rule runs for as long as it takes.
+  Future<void> _export(ReportFormat format) async {
+    if (_generating) return;
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    setState(() => _generating = true);
+    try {
+      await runReportExport(
+        l10n: l10n,
+        messenger: messenger,
+        format: format,
+        buildFile: _buildFile,
+        sink: widget.sink,
+      );
+    } finally {
+      if (mounted) setState(() => _generating = false);
+    }
+  }
+
+  /// The primary action: **PDF**, with no sheet in between (ADR 2026-09-12d
+  /// §2 🔒).
+  void _exportDefault() => unawaited(_export(ReportFormat.pdf));
+
+  void _openExportSheet() {
+    showReportExportSheet(
+      context,
+      // The sheet closes itself before the file is written, so the loader
+      // belongs to this screen: it runs around the generating, which is the
+      // part that takes time (the PDF loads five font faces).
+      buildFile: (format) async {
+        setState(() => _generating = true);
+        try {
+          return await _buildFile(format);
+        } finally {
+          if (mounted) setState(() => _generating = false);
+        }
+      },
+      sink: widget.sink,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -159,21 +320,45 @@ class _AccountStatementScreenState extends State<AccountStatementScreen> {
             label: AppLocalizations.of(context).ledgerStatementSkeleton,
           );
         }
+        _chart = chart;
         final account = chart.maybeAccount(widget.accountId);
         return StreamBuilder<Statement>(
           stream: _statementStream(ledger, _fy!),
           builder: (context, snap) {
             final l10n = AppLocalizations.of(context);
+            final statement = snap.data;
+            if (statement != null) _latest = statement;
             return Scaffold(
-              appBar: AppBar(title: Text(account?.name ?? l10n.ledgerTitle)),
-              body: snap.hasError
-                  ? _ErrorState(
-                      text: l10n.ledgerStatementError,
-                      onRetry: () => setState(() {}),
-                    )
-                  : snap.data == null
-                  ? _Skeleton(label: l10n.ledgerStatementSkeleton)
-                  : _statement(context, chart, snap.data!),
+              appBar: AppBar(
+                title: Text(account?.name ?? l10n.ledgerTitle),
+                // The export trio of ADR 2026-09-12e §2 🔒: this screen is
+                // *View*, and these are *Download / Share* and *Export*. They
+                // are the same two widgets S8.2 wears, so neither bar can
+                // drift from the other (see `reports/widgets/
+                // export_actions.dart` for how the pair survives 200 % text
+                // scale on a 360 px phone).
+                actions: [
+                  ReportExportAction(onPressed: _exportDefault),
+                  ReportChooseFormatAction(onPressed: _openExportSheet),
+                ],
+              ),
+              body: Column(
+                children: [
+                  // The wait is a 2 px rule with words beside it, never a
+                  // spinner (11 §4.5 🔒, 13 §4.3).
+                  if (_generating) const _GeneratingRule(),
+                  Expanded(
+                    child: snap.hasError
+                        ? _ErrorState(
+                            text: l10n.ledgerStatementError,
+                            onRetry: () => setState(() {}),
+                          )
+                        : statement == null
+                        ? _Skeleton(label: l10n.ledgerStatementSkeleton)
+                        : _statement(context, chart, statement),
+                  ),
+                ],
+              ),
             );
           },
         );
@@ -226,6 +411,23 @@ class _AccountStatementScreenState extends State<AccountStatementScreen> {
     // today's date while the period is still open.
     final closingDate = fy.contains(today) ? today : fy.lastDay;
 
+    String particularsOf(StatementRow row) {
+      final names = [
+        for (final id in row.counterAccountIds)
+          chart.maybeAccount(id)?.name ?? id,
+      ];
+      return names.isEmpty ? '\u2014' : names.join(', ');
+    }
+
+    // Measured once for the whole page, so every row and the heading agree on
+    // where a column starts (see [_StatementGrid]).
+    final grid = _StatementGrid.measure(
+      context,
+      rows: statement,
+      particularsOf: particularsOf,
+      width: MediaQuery.sizeOf(context).width,
+    );
+
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: RkSpace.s2),
       children: [
@@ -239,7 +441,7 @@ class _AccountStatementScreenState extends State<AccountStatementScreen> {
           openYear: FinancialYear.of(today, startMonth: _fyStartMonth),
           onSelected: _selectYear,
         ),
-        _ColumnHeader(l10n: l10n),
+        _ColumnHeader(l10n: l10n, grid: grid),
         _OpeningClosingRow(
           label: l10n.ledgerStatementOpening,
           date: formatLedgerDate(fy.firstDay, strings: l10n),
@@ -262,10 +464,8 @@ class _AccountStatementScreenState extends State<AccountStatementScreen> {
           for (final row in groups[date]!)
             _StatementLine(
               row: row,
-              counterNames: [
-                for (final id in row.counterAccountIds)
-                  chart.maybeAccount(id)?.name ?? id,
-              ],
+              grid: grid,
+              particulars: particularsOf(row),
               onTap: widget.onOpenEntry == null
                   ? null
                   : () => widget.onOpenEntry!(row.entryId),
@@ -281,15 +481,181 @@ class _AccountStatementScreenState extends State<AccountStatementScreen> {
   }
 }
 
-class _ColumnHeader extends StatelessWidget {
-  const _ColumnHeader({required this.l10n});
-
-  final AppLocalizations l10n;
+/// The wait while a report is written: the 2 px loader **rule** of 11 §4.5 🔒
+/// with the words beside it, announced as a live region. Never a spinner, and
+/// never colour alone (07 §1 rule 3) — the sentence is what says what is
+/// happening, the rule only says it is still happening.
+class _GeneratingRule extends StatelessWidget {
+  const _GeneratingRule();
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final status = RkStatusColors.of(context);
-    Widget cell(String label) => Expanded(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        LinearProgressIndicator(
+          minHeight: RkMotion.loaderTrackHeight,
+          backgroundColor: status.loaderTrack,
+          color: status.loaderSegment,
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: RkSpace.gutter,
+            vertical: RkSpace.s2,
+          ),
+          child: Semantics(
+            liveRegion: true,
+            child: Text(
+              l10n.reportsExportGenerating,
+              style: Theme.of(context).textTheme.bodyMedium
+                  ?.copyWith(color: status.muted),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Which of the three statement layouts the page can afford.
+///
+/// A paper ledger's columns are only worth having while every figure fits in
+/// one. A figure given less room than it needs is not abbreviated, it is
+/// **cut** — `₹1,14,600` drawn as `₹1,14,6` — and a cut figure is a wrong
+/// figure, which is why 07 §1 forbids re-sizing a tabular figure by hand. So
+/// the grid never assumes a column width: it measures the widest thing each
+/// column must hold, at the reader's own text scale and in the reader's own
+/// script, and then takes the richest layout that holds all of them.
+enum _GridMode {
+  /// The paper ledger: particulars on the left, the three figures beside
+  /// them, headed by [_ColumnHeader].
+  columns,
+
+  /// The figures keep their columns — and their alignment with the heading —
+  /// but take a line of their own beneath the particulars.
+  rows,
+
+  /// Three columns will not fit at all (200 % text on a 360 px phone is
+  /// here). Every figure takes its own line, named by the word the heading
+  /// would have carried, and the heading itself is dropped rather than drawn
+  /// over its own edge.
+  stacked,
+}
+
+/// The statement's own grid: the measured width of each figure column, and
+/// the layout those widths allow. Not a design token — the three columns only
+/// have to agree with each other and with [_ColumnHeader].
+@immutable
+class _StatementGrid {
+  const _StatementGrid({
+    required this.mode,
+    required this.debit,
+    required this.credit,
+    required this.balance,
+  });
+
+  /// The layout the page can afford.
+  final _GridMode mode;
+
+  /// Dr column width, gutter included.
+  final double debit;
+
+  /// Cr column width, gutter included.
+  final double credit;
+
+  /// Running-balance column width — wider, because it also carries Dr/Cr.
+  final double balance;
+
+  /// Measures the grid for [rows] on a line [width] wide.
+  static _StatementGrid measure(
+    BuildContext context, {
+    required Iterable<StatementRow> rows,
+    required String Function(StatementRow) particularsOf,
+    required double width,
+  }) {
+    final l10n = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final figureStyle = (text.labelLarge ?? RkType.amountRow).copyWith(
+      fontFeatures: RkType.tabular,
+    );
+    final headingStyle = text.labelLarge;
+    final particularsStyle = text.bodyMedium;
+
+    double run(String s, TextStyle? style) => textRunWidth(context, s, style);
+    // Particulars wrap, so what they need is their longest *unbreakable*
+    // word — the same thing a squeezed paragraph draws past its edge.
+    double word(String s, TextStyle? style) =>
+        longestWordWidth(context, s, style);
+    String figure(int paise, {required bool withSide}) =>
+        professionalFigure(context, paise, withSide: withSide);
+
+    var debit = run(l10n.moneySideDr, headingStyle);
+    var credit = run(l10n.moneySideCr, headingStyle);
+    var balance = run(l10n.ledgerStatementColumnBalance, headingStyle);
+    var particulars = 0.0;
+    for (final row in rows) {
+      if (row.debitPaise != 0) {
+        debit = math.max(
+          debit,
+          run(figure(row.debitPaise, withSide: false), figureStyle),
+        );
+      }
+      if (row.creditPaise != 0) {
+        credit = math.max(
+          credit,
+          run(figure(row.creditPaise, withSide: false), figureStyle),
+        );
+      }
+      balance = math.max(
+        balance,
+        run(figure(row.runningBalancePaise, withSide: true), figureStyle),
+      );
+      particulars = math.max(
+        particulars,
+        word(particularsOf(row), particularsStyle),
+      );
+      if (row.note case final note?) {
+        particulars = math.max(particulars, word(note, particularsStyle));
+      }
+    }
+    // Each column is its widest content plus the gutter that keeps two
+    // figures from touching.
+    debit += RkSpace.s2;
+    credit += RkSpace.s2;
+    balance += RkSpace.s2;
+    // The line a row actually has, inside the tile's own padding.
+    final line = width - RkSpace.gutter * 2;
+    final figures = debit + credit + balance;
+    return _StatementGrid(
+      mode: figures + particulars <= line
+          ? _GridMode.columns
+          : figures <= line
+          ? _GridMode.rows
+          : _GridMode.stacked,
+      debit: debit,
+      credit: credit,
+      balance: balance,
+    );
+  }
+}
+
+class _ColumnHeader extends StatelessWidget {
+  const _ColumnHeader({required this.l10n, required this.grid});
+
+  final AppLocalizations l10n;
+  final _StatementGrid grid;
+
+  @override
+  Widget build(BuildContext context) {
+    // Stacked: there are no columns to head, and each row names its own
+    // figures instead.
+    if (grid.mode == _GridMode.stacked) return const SizedBox.shrink();
+    final status = RkStatusColors.of(context);
+    Widget cell(String label, double width) => SizedBox(
+      width: width,
       child: Semantics(
         header: true,
         child: Text(
@@ -307,10 +673,10 @@ class _ColumnHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Expanded(flex: 2, child: const SizedBox.shrink()),
-          cell(l10n.moneySideDr),
-          cell(l10n.moneySideCr),
-          cell(l10n.ledgerStatementColumnBalance),
+          const Spacer(),
+          cell(l10n.moneySideDr, grid.debit),
+          cell(l10n.moneySideCr, grid.credit),
+          cell(l10n.ledgerStatementColumnBalance, grid.balance),
         ],
       ),
     );
@@ -379,27 +745,26 @@ class _OpeningClosingRow extends StatelessWidget {
   }
 }
 
-/// Width of a Dr or Cr figure column at 100% text scale — the statement's own
-/// grid, not a design token: the three columns only have to agree with each
-/// other and with [_ColumnHeader].
-const double _amountColumn = 72;
-
-/// Width of the running-balance column, wider because it also carries Dr/Cr.
-const double _balanceColumn = 84;
-
 class _StatementLine extends StatelessWidget {
   const _StatementLine({
     required this.row,
-    required this.counterNames,
+    required this.grid,
+    required this.particulars,
     this.onTap,
   });
 
   final StatementRow row;
-  final List<String> counterNames;
+  final _StatementGrid grid;
+
+  /// The counter accounts, already joined — the *other* side of this entry.
+  final String particulars;
+
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final status = RkStatusColors.of(context);
     final favour = row.amountPaise >= 0
         ? Favour.favourable
         : Favour.unfavourable;
@@ -408,15 +773,6 @@ class _StatementLine extends StatelessWidget {
         : row.runningBalancePaise > 0
         ? Favour.favourable
         : Favour.unfavourable;
-
-    // The three figure columns are sized in text, not pixels: at 200% the
-    // fixed 72/72/84 of a paper ledger cannot fit beside the particulars on a
-    // 360 px phone (07 §1 rule 11). Scaled, they either still fit — and the
-    // columns stay aligned down the page, which is the whole point of a
-    // statement — or the line folds and the figures take a row of their own.
-    final scaler = MediaQuery.textScalerOf(context);
-    final amountWidth = scaler.scale(_amountColumn);
-    final balanceWidth = scaler.scale(_balanceColumn);
 
     Widget figure(int paise, {required bool blankWhenZero}) => MoneyText(
       paise,
@@ -436,57 +792,80 @@ class _StatementLine extends StatelessWidget {
         : figure(row.creditPaise, blankWhenZero: true);
     final balance = figure(row.runningBalancePaise, blankWhenZero: false);
 
-    final particulars = Text(
-      counterNames.isEmpty ? '—' : counterNames.join(', '),
+    final title = Text(
+      particulars,
       style: Theme.of(context).textTheme.bodyMedium,
     );
     final note = row.note == null ? null : Text(row.note!);
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final figuresWidth = amountWidth * 2 + balanceWidth;
-        // Leave the particulars at least a third of the line before folding.
-        final fits = figuresWidth <= constraints.maxWidth * 2 / 3;
-        if (fits) {
-          return ListTile(
-            minTileHeight: RkSpace.rowMinHeight,
-            onTap: onTap,
-            title: particulars,
-            subtitle: note,
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                SizedBox(width: amountWidth, child: debit),
-                SizedBox(width: amountWidth, child: credit),
-                SizedBox(width: balanceWidth, child: balance),
-              ],
-            ),
-          );
-        }
-        // Folded: the figures take a row of their own and share the width,
-        // so nothing is forced to a size the line cannot give it.
+    final figures = [
+      SizedBox(width: grid.debit, child: debit),
+      SizedBox(width: grid.credit, child: credit),
+      SizedBox(width: grid.balance, child: balance),
+    ];
+
+    switch (grid.mode) {
+      case _GridMode.columns:
         return ListTile(
           minTileHeight: RkSpace.rowMinHeight,
           onTap: onTap,
-          title: particulars,
+          title: title,
+          subtitle: note,
+          trailing: Row(mainAxisSize: MainAxisSize.min, children: figures),
+        );
+      case _GridMode.rows:
+        // The figures still line up with the heading — they have simply been
+        // given the line below the particulars to do it on.
+        return ListTile(
+          minTileHeight: RkSpace.rowMinHeight,
+          onTap: onTap,
+          title: title,
           subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               ?note,
               const SizedBox(height: RkSpace.s1),
-              Row(
-                children: [
-                  Expanded(child: debit ?? const SizedBox.shrink()),
-                  Expanded(child: credit ?? const SizedBox.shrink()),
-                  Expanded(child: balance),
-                ],
-              ),
+              Row(children: [const Spacer(), ...figures]),
             ],
           ),
         );
-      },
-    );
+      case _GridMode.stacked:
+        // No columns, so the heading's words come down into the row: each
+        // figure is named beside itself, and wraps under itself where even
+        // that will not fit on one line.
+        Widget named(String label, Widget value) => Padding(
+          padding: const EdgeInsets.only(top: RkSpace.s1),
+          child: Wrap(
+            spacing: RkSpace.s2,
+            runSpacing: RkSpace.s1,
+            crossAxisAlignment: WrapCrossAlignment.center,
+            children: [
+              Text(
+                label,
+                style: Theme.of(context).textTheme.labelLarge
+                    ?.copyWith(color: status.muted),
+              ),
+              value,
+            ],
+          ),
+        );
+        return ListTile(
+          minTileHeight: RkSpace.rowMinHeight,
+          onTap: onTap,
+          title: title,
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ?note,
+              if (debit != null) named(l10n.moneySideDr, debit),
+              if (credit != null) named(l10n.moneySideCr, credit),
+              named(l10n.ledgerStatementColumnBalance, balance),
+            ],
+          ),
+        );
+    }
   }
 }
 

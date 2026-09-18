@@ -30,6 +30,11 @@ Future<PinVault> makeVault(TestClock clock, [FakeKeyStore? keys]) async =>
     );
 
 /// Pumps [child] under the app theme, l10n and a [LockScope].
+///
+/// [textScale] and [viewport] go straight to [pumpRk], which scales the
+/// **live** MediaQuery instead of replacing it — a bare `MediaQueryData`
+/// wrapper here would hand the lock screen a zero-sized display and every
+/// layout assertion under it would be vacuous (M5-T1 → M9-T3).
 Future<void> pumpLock(
   WidgetTester tester,
   Widget child, {
@@ -37,11 +42,15 @@ Future<void> pumpLock(
   required BiometricGate biometrics,
   required TestClock clock,
   Locale? locale,
+  double textScale = 1,
+  Size? viewport,
 }) => pumpRk(
   tester,
   LockScope(vault: vault, biometrics: biometrics, child: child),
   locale: locale,
   now: clock.call,
+  textScale: textScale,
+  viewport: viewport,
 );
 
 /// Types [pin] on the pad, scrolling each key into view first when the pad

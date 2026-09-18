@@ -29,14 +29,22 @@
 import 'package:core_ledger/core_ledger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:rukka_folio/features/entry/entry_amount.dart';
 import 'package:rukka_folio/features/entry/entry_slots.dart';
 import 'package:rukka_folio/features/entry/screens/s2_add_entry_screen.dart';
 import 'package:rukka_folio/features/entry/widgets/entry_chip_row.dart';
 import 'package:rukka_folio/features/entry/widgets/entry_drawings_banner.dart';
 import 'package:rukka_folio/features/entry/widgets/entry_preview_line.dart';
+import 'package:rukka_folio/features/import/import_paths.dart';
 import 'package:rukka_folio/l10n/gen/app_localizations.dart';
+import 'package:rukka_folio/l10n/l10n.dart';
+import 'package:rukka_folio/shared/app_scope.dart';
+import 'package:rukka_folio/shared/ledger/ledger_scope.dart';
 import 'package:rukka_folio/shared/ledger/local_ledger.dart';
+import 'package:rukka_folio/shared/seams/auth_client.dart';
+import 'package:rukka_folio/shared/seams/key_store.dart';
+import 'package:rukka_folio/shared/seams/sync_client.dart';
 import 'package:rukka_folio/shared/theme.dart';
 
 import '../../shared/test_app.dart';
@@ -991,6 +999,96 @@ void main() {
               '$taps taps for the shortest complete Money in entry — the '
               'ui-screen S2 contract caps this at 8',
         );
+        await _unmount(tester);
+      },
+    );
+    testWidgets(
+      'F1-07-259 the Import action sits in the S2 header, top right and '
+      'opposite the close ✕, and pushes ImportPaths.root — not a Menu row '
+      '(07 §11 *Entry point* 🔒, ADR 2026-09-03 ruling 2)',
+      (tester) async {
+        // 1 — the slot. Top right of the header row, on the far side of the
+        // verb pill from the ✕.
+        var tapped = 0;
+        final s = await seedSoloLedger();
+        await pumpRk(
+          tester,
+          AddEntryScreen(
+            key: ValueKey('entry-${_pumpSeq++}'),
+            bookId: s.bookId,
+            onImport: () => tapped++,
+          ),
+          ledger: s.ledger,
+          viewport: rkPhone375,
+        );
+        final l10n = _l10n(tester);
+        final action = find.byKey(AddEntryKeys.importAction);
+        expect(action, findsOneWidget);
+        expect(
+          tester.widget<IconButton>(action).tooltip,
+          l10n.entryImportAction,
+        );
+        final pill = tester.getRect(find.byKey(AddEntryKeys.verbPill));
+        final slot = tester.getRect(action);
+        expect(
+          slot.left,
+          greaterThan(pill.right - 1),
+          reason: 'the Import action must sit right of the verb pill',
+        );
+        expect(
+          slot.top,
+          lessThan(tester.getRect(find.byKey(AddEntryKeys.amount)).top),
+          reason: 'the Import action belongs to the header, above the amount',
+        );
+        await tester.tap(action);
+        await tester.pumpAndSettle();
+        expect(tapped, 1);
+        await _unmount(tester);
+
+        // 2 — the destination. Under a real router, the default handler
+        // pushes ImportPaths.root and nothing else.
+        final routed = await seedSoloLedger();
+        final router = GoRouter(
+          initialLocation: '/entry',
+          routes: [
+            GoRoute(
+              path: '/entry',
+              builder: (_, _) => AddEntryScreen(bookId: routed.bookId),
+            ),
+            GoRoute(
+              path: ImportPaths.root,
+              builder: (_, _) =>
+                  const Scaffold(body: Center(child: Text('import-landed'))),
+            ),
+          ],
+        );
+        rkViewport(tester, rkPhone375);
+        await tester.pumpWidget(
+          RkScope(
+            db: routed.ledger.db,
+            sync: FakeSyncClient(),
+            auth: FakeAuthClient(),
+            keys: routed.ledger.keys as FakeKeyStore,
+            now: routed.ledger.now,
+            child: LedgerScope(
+              ledger: routed.ledger,
+              child: MaterialApp.router(
+                routerConfig: router,
+                supportedLocales: AppLocalizations.supportedLocales,
+                localizationsDelegates: rkLocalizationsDelegates,
+                theme: rkTheme(Brightness.light),
+              ),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(AddEntryKeys.importAction));
+        await tester.pumpAndSettle();
+        // Only the route registered at [ImportPaths.root] builds this, so
+        // finding it *is* the assertion that the header pushed that path —
+        // and S2 is behind it, pushed over rather than replaced.
+        expect(find.text('import-landed'), findsOneWidget);
+        expect(find.byType(AddEntryScreen), findsNothing);
         await _unmount(tester);
       },
     );

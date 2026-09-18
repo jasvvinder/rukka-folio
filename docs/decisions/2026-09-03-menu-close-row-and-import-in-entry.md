@@ -11,11 +11,11 @@ children 13's screen table listed but the drawn Menu (S8) lacked:
 1. **Close the month is a Menu row** — in *The books* group, directly after Reports, with a
    live subtitle (e.g. *August open · 3 items waiting*). It opens the month-close wizard
    (S10); year close (S10.4) is reached through it after March. 13's parent for S10 stays
-   **S1 / S8** (the Home prompt on the 1st remains).
+   **S1 / S8** (the Home prompt on the 1st remains). ⟦tests: F1-07-229, F1-07-140, F1-07-260, F1-07-261, F1-07-262, F1-07-263, F1-07-264⟧
 2. **Import a bank statement is part of entry.** Its entry point is the **entry screen (S2)
    header — the action slot top right, opposite the close ✕** — because importing is a way of
    *entering* many lines at once. It is **not** a Menu row. 13's parent for S7 changes from
-   S8 to **S2**; flow F4 starts `S2 → S7`. Import lines still surface in the Inbox (S6).
+   S8 to **S2**; flow F4 starts `S2 → S7`. Import lines still surface in the Inbox (S6). ⟦tests: F1-07-25, F1-07-200⟧
 3. (Same day, earlier) **Legal is the last Menu row** under *This app* (S18).
 
 ## What changed where

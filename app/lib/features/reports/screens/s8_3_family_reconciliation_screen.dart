@@ -44,8 +44,6 @@ Stream<List<ReconciliationPair>> ledgerReconciliation(LocalLedger ledger) =>
 /// 360 px phone, and the figure drops under the label. A fraction of the
 /// screen's own budget, not a design token — the pair only has to agree with
 /// itself (the S8.2 precedent).
-const double _stackFiguresAbove = 1.3;
-
 /// S8.3 — the Family Reconciliation report.
 class FamilyReconciliationScreen extends StatefulWidget {
   /// Creates the screen.
@@ -349,9 +347,19 @@ class _PairCard extends StatelessWidget {
   }
 }
 
-/// A labelled figure. Side by side while both fit, stacked past
-/// [_stackFiguresAbove] — an amount is never allowed to lose room to its own
-/// label (07 §1 rule 11).
+/// A labelled figure: side by side while both fit on the line, and the amount
+/// on a line of its own when they do not — an amount is never allowed to lose
+/// room to its own label, and a label never to its amount (07 §1 rule 11).
+///
+/// The fold is **laid out**, never thresholded. A `Row` with the label in an
+/// `Expanded` gives the amount its natural width first and hands the label
+/// whatever is left — at 1.3x that was 14.4 px, and *Difference*, one
+/// unbreakable word needing 184.5 px, was drawn straight across the card
+/// without throwing. A scale threshold cannot fix that: it was set at
+/// `> 1.3`, so the one scale that broke was the one it let through. A `Wrap`
+/// asks each child what it needs and puts the amount on the next line when
+/// the two will not share one, in every script and at every scale
+/// (F1-07-104).
 class _FigureLine extends StatelessWidget {
   const _FigureLine({required this.label, required this.paise});
 
@@ -365,24 +373,18 @@ class _FigureLine extends StatelessWidget {
       label: label,
       child: MoneyText(paise, showDirection: true, style: style),
     );
-    final stacked =
-        MediaQuery.textScalerOf(context).scale(1) > _stackFiguresAbove;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: RkSpace.s1),
-      child: stacked
-          ? Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(label, style: style),
-                amount,
-              ],
-            )
-          : Row(
-              children: [
-                Expanded(child: Text(label, style: style)),
-                amount,
-              ],
-            ),
+      child: Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: RkSpace.s2,
+        runSpacing: RkSpace.s1,
+        children: [
+          Text(label, style: style),
+          amount,
+        ],
+      ),
     );
   }
 }

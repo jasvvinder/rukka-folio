@@ -141,7 +141,7 @@ change is a dated supplementary deed that names the deed it amends.
   returns null for it, and `project()` is untouched — so the golden `content_hash` is unaffected by construction.
   ⟦tests: n/a — restates 03 §3.3 rule 2; the goldens assert the hash⟧
 
-### 6. A distribution applies the ratio in force at its own order point ⟦tests: A-02-58, A-02-59, A-02-60, A-02-61⟧
+### 6. A distribution applies the ratio in force at its own order point ⟦tests: A-02-58, A-02-59, A-02-60, A-02-61, F1-02-56⟧
 - The wizard reads `partnerSharesInForce(structuralSettingsInForce(…))` as of the distribution and hands **one**
   ratio to `splitByRatio`, which is all the engine has ever taken; the resulting paise are in the entry lines, so
   a past distribution's ratio is a historical fact of the ledger whatever changes later. ⟦tests: A-02-58, A-02-59, A-02-60, A-02-61⟧

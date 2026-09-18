@@ -52,7 +52,7 @@ person who actually keeps the books — is *called* Treasurer while *holding* `h
 
 A gurudwara committee will not recognise "Operator"; it will recognise ਸੇਵਾਦਾਰ. 🔒 `head` defaults to President (ਪ੍ਰਧਾਨ), ADR 2026-09-01; Secretary is not a default label. ⚠️ Chairman's Gurmukhi sub-label (ਚੇਅਰਮੈਨ) awaits the native-speaker pass. ⚠️ Canvas 4/14's trust capability table describes Trustee as "approves" while 13 §7 gives review to admin/head only — owner to confirm whether trust `member`s (Trustees) also review.
 
-### 1.1 Multi-tenancy 🔒 ⟦tests: C-06-16⟧
+### 1.1 Multi-tenancy 🔒 ⟦tests: C-06-16, F1-06-17, F1-06-18, F1-06-19, F1-06-20⟧
 - `tenants(id, type ∈ {family, business_group, organization}, name_ciphertext, plan, …)`
 - `memberships(tenant_id, user_id, status, verified_by, verified_method, designation_label, …)` and `book_roles(book_id, user_id, role ∈ {admin, head, member, operator, viewer}, auto_post_limit_paise, …)` — one role **per book**, never global; `designation_label` is display-only (§1.0), admin-editable, never consulted by any permission check.
 - Access tokens carry `user_id` + `device_id` only — never a tenant. Every request is tenant-scoped by path and checked against memberships in Postgres **row-level security**. New tenant types (the trust case) are rows, not code.

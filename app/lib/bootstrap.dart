@@ -30,6 +30,7 @@ import 'features/cash_count/cash_count_routes.dart';
 import 'features/cash_count/ledger_cash_count_source.dart';
 import 'features/close/close_routes.dart';
 import 'features/close/ledger_close_source.dart';
+import 'features/close/ledger_year_close_source.dart';
 import 'features/ceremony/ceremony_routes.dart';
 import 'features/devices/at_rest.dart';
 import 'features/devices/devices_routes.dart';
@@ -41,8 +42,14 @@ import 'features/home/home_routes.dart';
 import 'features/home/home_scope.dart';
 import 'features/home/screens/s1_home_screen.dart';
 import 'features/inbox/inbox_routes.dart';
+import 'features/inbox/late_arrivals.dart';
+import 'features/inbox/ledger_late_arrivals.dart';
+import 'features/inbox/ledger_review_queue.dart';
+import 'features/inbox/review_queue.dart';
+import 'features/import/import_routes.dart';
 import 'features/ledger/ledger_routes.dart';
 import 'features/members/members_api.dart';
+import 'features/members/members_review_policy.dart';
 import 'features/members/members_routes.dart';
 import 'features/members/server_members_repository.dart';
 import 'features/menu/menu_routes.dart';
@@ -58,8 +65,10 @@ import 'shared/prefs.dart';
 import 'shared/records/device_added_record.dart';
 import 'shared/records/device_record_author.dart';
 import 'shared/router.dart';
+import 'shared/seams/closed_years.dart';
 import 'shared/seams/http_transport.dart';
 import 'shared/seams/key_store.dart';
+import 'shared/seams/review_policy.dart';
 import 'shared/sync/sync.dart';
 import 'shared/widgets/blocked_screen.dart';
 
@@ -230,11 +239,22 @@ Future<void> bootstrap() async {
       // user and tenant ids and the keys; every later run reopens them. No
       // book is named, so nothing is invented — onboarding still creates the
       // first book (features/onboarding).
+      // The auto-post limit this client measures its own entries against
+      // (02 §3 🔒, 03 §3.3 rule 5 🔒). It is answered from `book_roles`, which
+      // reaches this app through `ServerMembersRepository` — and that
+      // repository is built from `identity.tenantId` / `identity.userId`,
+      // which exist only once this ledger has bootstrapped. The order cannot
+      // be swapped, so the ledger takes the holder now and the real policy is
+      // set into it a few lines below, before `runApp`: no screen exists yet
+      // to post through the window, and the holder answers *no limit* — never
+      // *reviewed* — while it is empty.
+      final reviewPolicy = LateReviewPolicy();
       final ledger = LocalLedger(
         db: db,
         keys: keys,
         suite: suite,
         now: DateTime.now,
+        reviewPolicy: reviewPolicy,
       );
       final LedgerIdentity identity;
       try {
@@ -294,6 +314,10 @@ Future<void> bootstrap() async {
         someoneToMeetName: l10n.membersPendingBooksSomeone,
         author: recordAuthor,
       );
+      // The limit's one real source, closed over the repository built above
+      // (02 §1.3 🔒: the authoring client is the only one that may read
+      // `book_roles`; the projector never does — 03 §3.3 rule 5 🔒).
+      reviewPolicy.policy = MembersReviewPolicy(members);
 
       // ── the socket (05 §1) ──────────────────────────────────────────────
       //
@@ -468,6 +492,7 @@ Future<void> bootstrap() async {
           ...devicesRoutes,
           ...homeRoutes,
           ...inboxRoutes,
+          ...importRoutes,
           ...ledgerRoutes,
           ...membersRoutes,
           ...settingsRoutes,
@@ -492,16 +517,58 @@ Future<void> bootstrap() async {
               pending: () async =>
                   members.current?.pendingBooks ?? const <PendingBook>[],
             ),
-            // S5.5, S10 and S14 read their ledger-backed sources off the tree
-            // (features/cash_count, features/close, features/partners); each
-            // takes only the live ledger — no clock, no config, no other seam.
+            // S5.5, S10, S10.3, S10.4 and S14 read their ledger-backed
+            // sources off the tree (features/cash_count, features/close,
+            // features/inbox, features/partners); each takes only the live
+            // ledger — no clock, no config, no other seam.
+            //
+            // `ClosedYearsScope` is the FY switcher's one source (ADR
+            // 2026-09-09 §4 🔒): S4 and S8.2 read it here and fall back to
+            // what they were constructed with when it is absent, so *no
+            // switcher until the first year close* stays true by construction
+            // — `certifiedYears` is empty until then.
+            //
+            // `LateArrivalsScope` is device-wide on purpose: the Inbox is one
+            // surface (07 §9 🔒), so the tray merges every book this device
+            // holds rather than following Home's selected book. So is
+            // `ReviewQueueScope`, for the same reason: S6's approvals now run
+            // on the real ledger (02 §3 🔒) instead of `FakeReviewQueue`. The
+            // author's name is the members repository's — the ledger holds no
+            // contact book — and falls back to the *someone in this book*
+            // string when this phone does not hold the contact (ADR
+            // 2026-09-05c §4), never to a raw user id.
             child: CashCountScope(
               source: LedgerCashCountSource(ledger),
               child: CloseScope(
                 source: LedgerCloseSource(ledger),
-                child: PartnersScope(
-                  port: LedgerPartnersPort(ledger),
-                  child: app,
+                child: YearCloseScope(
+                  source: LedgerYearCloseSource(ledger),
+                  child: ClosedYearsScope(
+                    source: LedgerClosedYearsSource(ledger).call,
+                    child: LateArrivalsScope(
+                      tray: LedgerLateArrivals(ledger),
+                      child: ReviewQueueScope(
+                        queue: LedgerReviewQueue(
+                          ledger,
+                          authorNameOf: (userId) {
+                            for (final m
+                                in members.current?.members ??
+                                    const <Member>[]) {
+                              if (m.id == userId) {
+                                return m.displayName ??
+                                    l10n.inboxReviewAuthorUnknown;
+                              }
+                            }
+                            return l10n.inboxReviewAuthorUnknown;
+                          },
+                        ),
+                        child: PartnersScope(
+                          port: LedgerPartnersPort(ledger),
+                          child: app,
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),

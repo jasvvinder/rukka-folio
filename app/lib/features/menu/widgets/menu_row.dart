@@ -6,10 +6,16 @@
 // sits inert with no explanation, it just cannot be entered yet, with a
 // clock icon paired to the reason text so the state never rides on colour
 // alone (07 §1 rule 3).
+//
+// Both shapes draw their strings through [RkFitText]: at 200 % on a 360 px
+// phone a single row word — *Subscription*, *सब्सक्रिप्शन*, *ਸਬਸਕ੍ਰਿਪਸ਼ਨ* —
+// needs more width than the row has, and Flutter draws it past the edge
+// without throwing (F1-07-14).
 import 'package:flutter/material.dart';
 
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../../shared/widgets/rk_fit_text.dart';
 
 class MenuRow extends StatelessWidget {
   const MenuRow({super.key, required this.title, this.subtitle, this.onTap});
@@ -40,11 +46,11 @@ class MenuRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(title, style: text.bodyLarge),
+                    RkFitText(title, style: text.bodyLarge),
                     if (subtitle != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 2),
-                        child: Text(
+                        child: RkFitText(
                           subtitle!,
                           style: text.bodySmall?.copyWith(color: status.muted),
                         ),
@@ -94,7 +100,7 @@ class MenuDisabledRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
+                    RkFitText(
                       title,
                       style: text.bodyLarge?.copyWith(color: status.muted),
                     ),
@@ -106,7 +112,7 @@ class MenuDisabledRow extends StatelessWidget {
                           Icon(Icons.schedule, size: 14, color: status.muted),
                           const SizedBox(width: RkSpace.s1),
                           Expanded(
-                            child: Text(
+                            child: RkFitText(
                               reason,
                               style: text.bodySmall?.copyWith(
                                 color: status.muted,

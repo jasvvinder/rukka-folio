@@ -21,6 +21,7 @@ import 'package:flutter/material.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../../shared/widgets/rk_fit_text.dart';
 
 /// Generates the recovery sheet (04 §7.4). Throws on failure; returns nothing
 /// the screen may display — the sheet is a document, not a screen.
@@ -175,7 +176,7 @@ class _RecoverySheetScreenState extends State<RecoverySheetScreen> {
               Expanded(
                 child: ListView(
                   children: [
-                    Text(
+                    RkFitText(
                       l10n.onboardingRecoverySheetTitle,
                       style: text.headlineMedium,
                     ),

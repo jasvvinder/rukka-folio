@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../../shared/widgets/rk_fit_text.dart';
 
 /// One member of the family: a name, the phone the invitation goes to, and
 /// whether this is the creating user (already here, no invitation needed).
@@ -149,7 +150,7 @@ class _FamilyMembersScreenState extends State<FamilyMembersScreen> {
               Expanded(
                 child: ListView(
                   children: [
-                    Text(
+                    RkFitText(
                       l10n.onboardingFamilyMembersTitle,
                       style: text.headlineMedium,
                     ),

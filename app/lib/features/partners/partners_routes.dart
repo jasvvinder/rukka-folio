@@ -10,6 +10,7 @@
 import 'package:go_router/go_router.dart';
 
 import 'partners_paths.dart';
+import 'screens/s14_1_distribute_screen.dart';
 import 'screens/s14_partner_positions_screen.dart';
 
 export 'partners_paths.dart';
@@ -23,5 +24,13 @@ final List<RouteBase> partnersRoutes = [
     path: PartnersPaths.pattern,
     builder: (context, state) =>
         PartnerPositionsScreen(bookId: state.pathParameters['bookId']!),
+  ),
+  // S14.1, reached from S14 (13 §3.2). A sibling route rather than a child:
+  // the wizard covers S14 rather than nesting inside it, as the entry flow
+  // covers Home.
+  GoRoute(
+    path: PartnersPaths.distributePattern,
+    builder: (context, state) =>
+        DistributeProfitScreen(bookId: state.pathParameters['bookId']!),
   ),
 ];

@@ -14,6 +14,7 @@ import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/format/date_format.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../../shared/widgets/rk_fit_text.dart';
 
 /// Who owns the business (07 §5.7); maps to `BookOwnership` when the book is
 /// created. [shared] is the only value that reaches S0.6a1.
@@ -114,7 +115,7 @@ class _BusinessNameScreenState extends State<BusinessNameScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text(
+                      RkFitText(
                         l10n.onboardingBusinessTitle,
                         style: text.headlineMedium,
                       ),
@@ -282,7 +283,7 @@ class _OwnershipOption extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    RkFitText(
                       label,
                       style: text.titleMedium?.copyWith(
                         fontWeight: selected
@@ -291,7 +292,7 @@ class _OwnershipOption extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: RkSpace.s1),
-                    Text(
+                    RkFitText(
                       note,
                       style: text.bodySmall?.copyWith(color: status.muted),
                     ),

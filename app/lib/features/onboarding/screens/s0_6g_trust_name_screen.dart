@@ -25,6 +25,7 @@ import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/format/date_format.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../../shared/widgets/rk_fit_text.dart';
 
 /// Which of the four illustrative types (07 §3.1 step 3) the trust is. The
 /// list is examples, not exhaustive — every value maps to the same
@@ -124,12 +125,15 @@ class _TrustNameScreenState extends State<TrustNameScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text(
+                      RkFitText(
                         l10n.onboardingTrustTitle,
                         style: text.headlineMedium,
                       ),
                       const SizedBox(height: RkSpace.s2),
-                      Text(l10n.onboardingTrustSubtitle, style: text.bodyLarge),
+                      RkFitText(
+                        l10n.onboardingTrustSubtitle,
+                        style: text.bodyLarge,
+                      ),
                       const SizedBox(height: RkSpace.s6),
                       TextField(
                         controller: _name,
@@ -142,7 +146,7 @@ class _TrustNameScreenState extends State<TrustNameScreen> {
                         onChanged: (_) => setState(() {}),
                       ),
                       const SizedBox(height: RkSpace.s6),
-                      Text(
+                      RkFitText(
                         l10n.onboardingTrustTypeQuestion,
                         style: text.titleMedium,
                       ),
@@ -250,7 +254,7 @@ class _TrustTypeOption extends StatelessWidget {
               ),
               const SizedBox(width: RkSpace.s3),
               Expanded(
-                child: Text(
+                child: RkFitText(
                   label,
                   style: text.titleMedium?.copyWith(
                     fontWeight: selected ? FontWeight.w600 : FontWeight.w400,

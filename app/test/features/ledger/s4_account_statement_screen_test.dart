@@ -232,19 +232,24 @@ void main() {
     testWidgets(
       'F1-07-44 strings resolve in EN/PA/HI with no overflow at 200%',
       (tester) async {
-        for (final locale in const [Locale('en'), Locale('pa'), Locale('hi')]) {
-          tallViewport(tester, width: 360);
+        for (final locale in rkLocales) {
           final seed = await seedSoloLedger();
+          // `pumpRk`'s own `textScale:`/`viewport:` (M5-T1): the bare
+          // `MediaQueryData(textScaler: …)` this case used to wrap carries
+          // `size: Size.zero`, so the screen it measured had no area at all.
           await pumpRk(
             tester,
-            MediaQuery(
-              data: const MediaQueryData(textScaler: TextScaler.linear(2)),
-              child: AccountStatementScreen(accountId: seed.partyId),
-            ),
+            AccountStatementScreen(accountId: seed.partyId),
             ledger: seed.ledger,
             locale: locale,
+            textScale: 2,
+            viewport: rkPhone360,
           );
           expect(tester.takeException(), isNull);
+          expectTextFits(
+            tester,
+            reason: 'S4 at 200% in ${locale.languageCode}',
+          );
           await unmount(tester);
         }
       },
@@ -371,30 +376,32 @@ void main() {
       'F1-07-46 the chip and its sheet survive 200% on a 360x800 phone in '
       'EN, PA and HI (07 §1 rule 11)',
       (tester) async {
-        for (final locale in const [Locale('en'), Locale('pa'), Locale('hi')]) {
-          tallViewport(tester, width: 360);
+        for (final locale in rkLocales) {
           final seed = await seedSoloLedger(clock: aprilClock);
+          // A real 360x800 screen, not the zero-sized one a bare
+          // `MediaQueryData(textScaler: …)` used to put under this tree.
           await pumpRk(
             tester,
-            MediaQuery(
-              data: const MediaQueryData(textScaler: TextScaler.linear(2)),
-              child: AccountStatementScreen(
-                accountId: seed.cashId,
-                closedYears: fakeClosedYears([
-                  ClosedYear(
-                    year: FinancialYear(2025),
-                    carriedForwardPaise: 2_500_000,
-                  ),
-                ]),
-              ),
+            AccountStatementScreen(
+              accountId: seed.cashId,
+              closedYears: fakeClosedYears([
+                ClosedYear(
+                  year: FinancialYear(2025),
+                  carriedForwardPaise: 2_500_000,
+                ),
+              ]),
             ),
             ledger: seed.ledger,
             locale: locale,
+            textScale: 2,
+            viewport: rkPhone360,
           );
           expect(tester.takeException(), isNull);
+          expectTextFits(tester, reason: 'the year chip at 200%');
           await tester.tap(find.byType(ActionChip));
           await tester.pumpAndSettle();
           expect(tester.takeException(), isNull);
+          expectTextFits(tester, reason: 'the year sheet at 200%');
           await unmount(tester);
         }
       },
@@ -436,5 +443,47 @@ void main() {
         await unmount(tester);
       },
     );
+  });
+
+  group('S4 grid at scale (07 §1 rule 11, 09 F1 viewports)', () {
+    // U3k left this red: with a real 360x800 viewport under it — instead of
+    // the bare `MediaQueryData(textScaler: …)` the 200 % cases used to wrap,
+    // which carries `size: Size.zero` and lets every column collapse to
+    // nothing — the statement's three figure columns are narrower than the
+    // figures in them. Nothing throws: a paragraph given less width than one
+    // of its words draws that word past the edge, so `takeException` stayed
+    // green over `Balance` in 65.6 px and `₹10,000 Dr` in 106.7 px.
+    //
+    // The figures may never be shrunk to fit (07 §1: a tabular figure is not
+    // re-sized by hand), so the grid folds instead — which is what this case
+    // measures, in every language, at both scales, on both phones.
+    for (final size in rkPhones) {
+      for (final scale in rkTextScales) {
+        for (final locale in rkLocales) {
+          testWidgets(
+            'F1-07-171 the statement grid cuts no heading and no figure at '
+            '${scale}x on ${size.width.toInt()}x${size.height.toInt()} in '
+            '${locale.languageCode}',
+            (tester) async {
+              final seed = await seedSoloLedger();
+              await pumpRk(
+                tester,
+                AccountStatementScreen(accountId: seed.partyId),
+                ledger: seed.ledger,
+                locale: locale,
+                viewport: size,
+                textScale: scale,
+              );
+              expect(tester.takeException(), isNull);
+              expectTextFits(
+                tester,
+                reason: 'S4 at ${scale}x on $size in ${locale.languageCode}',
+              );
+              await unmount(tester);
+            },
+          );
+        }
+      }
+    }
   });
 }

@@ -318,30 +318,37 @@ void main() {
     );
 
     testWidgets(
-      'F1-07-63 strings resolve in EN/PA/HI and hold at 200% on a 360x800 phone',
+      'F1-07-63 strings resolve in EN/PA/HI and hold at 1.3x and 200% on '
+      'both F1 phones',
       (tester) async {
-        sizeView(tester, width: 360, height: 800);
         for (final locale in lockLocales) {
-          final clock = TestClock();
-          final vault = await makeVault(clock);
-          await vault.setPin('135790');
-          await missPin(vault, clock, 5);
-          await pumpLock(
-            tester,
-            MediaQuery(
-              data: const MediaQueryData(textScaler: TextScaler.linear(2)),
-              child: LockScreen(onUnlocked: () {}, onForgotPin: () {}),
-            ),
-            vault: vault,
-            biometrics: FakeBiometricGate([BiometricOutcome.cancelled]),
-            clock: clock,
-            locale: locale,
-          );
-          expect(tester.takeException(), isNull);
-          expect(find.byType(PinKeypad), findsOneWidget);
-          await typePin(tester, '111111');
-          expect(tester.takeException(), isNull);
-          await unmount(tester);
+          for (final vp in rkPhones) {
+            for (final scale in rkTextScales) {
+              final clock = TestClock();
+              final vault = await makeVault(clock);
+              await vault.setPin('135790');
+              await missPin(vault, clock, 5);
+              await pumpLock(
+                tester,
+                LockScreen(onUnlocked: () {}, onForgotPin: () {}),
+                vault: vault,
+                biometrics: FakeBiometricGate([BiometricOutcome.cancelled]),
+                clock: clock,
+                locale: locale,
+                textScale: scale,
+                viewport: vp,
+              );
+              expect(tester.takeException(), isNull);
+              expect(find.byType(PinKeypad), findsOneWidget);
+              expectTextFits(
+                tester,
+                reason: '${locale.languageCode} @ $scale on $vp',
+              );
+              await typePin(tester, '111111');
+              expect(tester.takeException(), isNull);
+              await unmount(tester);
+            }
+          }
         }
       },
     );

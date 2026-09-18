@@ -19,6 +19,7 @@ import '../../../shared/seams/auth_client.dart';
 import '../../../shared/seams/sync_client.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../../shared/widgets/rk_fit_text.dart';
 import '../http_auth_client.dart';
 import 's19_1_update_required_screen.dart';
 
@@ -267,7 +268,7 @@ class _PhoneOtpScreenState extends State<PhoneOtpScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(l10n.authPhoneTitle, style: text.headlineMedium),
+        RkFitText(l10n.authPhoneTitle, style: text.headlineMedium),
         const SizedBox(height: RkSpace.s2),
         Text(l10n.authPhoneHint, style: text.bodyLarge),
         const SizedBox(height: RkSpace.s6),
@@ -306,7 +307,7 @@ class _PhoneOtpScreenState extends State<PhoneOtpScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(l10n.authOtpTitle, style: text.headlineMedium),
+        RkFitText(l10n.authOtpTitle, style: text.headlineMedium),
         const SizedBox(height: RkSpace.s2),
         Text(l10n.authOtpSentTo(_e164), style: text.bodyLarge),
         if (channel != null)
@@ -395,7 +396,7 @@ class _PhoneOtpScreenState extends State<PhoneOtpScreen> {
           color: scheme.primary,
         ),
         const SizedBox(height: RkSpace.s4),
-        Text(l10n.authDeviceDoneTitle, style: text.headlineMedium),
+        RkFitText(l10n.authDeviceDoneTitle, style: text.headlineMedium),
         const SizedBox(height: RkSpace.s8),
         FilledButton(
           onPressed: () {

@@ -144,9 +144,15 @@ void main() {
       },
     );
 
-    testWidgets('F1-07-128 the row holds in EN, PA and HI at 200% on 360×800 '
-        '(07 §1 rule 11)', (tester) async {
-      for (final locale in const [Locale('en'), Locale('pa'), Locale('hi')]) {
+    testWidgets('F1-07-128 the row holds in EN, PA and HI at both scales on '
+        'both phones, cutting no word (07 §1 rule 11, 09 F1 viewports)', (
+      tester,
+    ) async {
+      for (final (locale, phone, scale) in [
+        for (final locale in rkLocales)
+          for (final phone in rkPhones)
+            for (final scale in rkTextScales) (locale, phone, scale),
+      ]) {
         await pumpRk(
           tester,
           ReportsListScreen(
@@ -154,14 +160,18 @@ void main() {
             onOpenPartnerPositions: () {},
           ),
           locale: locale,
-          textScale: 2,
-          viewport: rkPhone360,
+          textScale: scale,
+          viewport: phone,
         );
+        final where = '${locale.languageCode} at ${scale}x on $phone';
         expect(
           tester.takeException(),
           isNull,
-          reason: 'S8.1 overflowed in ${locale.languageCode}',
+          reason: 'S8.1 overflowed — $where',
         );
+        // A row that throws nothing can still be drawing a word past its
+        // edge; the partner row's label is the long one in PA and HI.
+        expectTextFits(tester, reason: 'S8.1 partner row — $where');
       }
     });
   });

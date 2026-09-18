@@ -13,7 +13,6 @@ import 'package:core_ledger/core_ledger.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/features/auth/auth_transport.dart';
 import 'package:rukka_folio/features/auth/http_auth_client.dart';
-import 'package:rukka_folio/shared/ledger/ledger_identity.dart';
 import 'package:rukka_folio/shared/ledger/local_ledger.dart';
 import 'package:rukka_folio/shared/seams/key_store.dart';
 

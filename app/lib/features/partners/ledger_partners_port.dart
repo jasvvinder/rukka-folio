@@ -15,7 +15,7 @@ import '../../shared/ledger/local_ledger.dart';
 import 'partners_port.dart';
 
 /// The [PartnersPort] the app mounts above S14.
-final class LedgerPartnersPort implements PartnersPort {
+final class LedgerPartnersPort implements PartnersPort, DistributionPort {
   /// Reads and posts through [ledger].
   const LedgerPartnersPort(this.ledger);
 
@@ -114,4 +114,85 @@ final class LedgerPartnersPort implements PartnersPort {
     toPartnerAccountId: toPartnerAccountId,
     paise: amount.raw,
   );
+
+  @override
+  Future<DistributionView> distributionPreview(
+    String bookId, {
+    LocalDate? from,
+    LocalDate? to,
+  }) async => _distributionView(
+    await ledger.distributionPreview(bookId, from: from, to: to),
+  );
+
+  @override
+  Future<DistributionResult> distribute(
+    String bookId, {
+    LocalDate? from,
+    LocalDate? to,
+  }) async {
+    try {
+      final outcome = await ledger.proposeDistribution(
+        bookId,
+        from: from,
+        to: to,
+      );
+      return switch (outcome) {
+        DistributionPosted() => DistributionResult.posted,
+        DistributionProposed() => DistributionResult.proposed,
+      };
+    } on DistributionRefused catch (e) {
+      throw DistributionBlocked(_block(e.refusal)!, excess: e.excess);
+    }
+  }
+
+  /// The facade's preview, renamed for the screen. Not one figure is
+  /// recomputed: every amount is carried across as the engine produced it.
+  static DistributionView _distributionView(DistributionPreview p) =>
+      DistributionView(
+        bookId: p.bookId,
+        financialYearLabel: p.financialYear.label,
+        from: p.from,
+        to: p.to,
+        netProfit: p.netProfit,
+        owners: [
+          for (final s in p.shares)
+            DistributionOwnerView(
+              accountId: s.accountId,
+              name: s.name,
+              ratioWeight: s.ratioWeight,
+              interest: s.interest,
+              share: s.share,
+            ),
+        ],
+        headroom: p.headroom,
+        excess: p.excess,
+        interestEnabled: p.interestEnabled,
+        quorumOfOne: p.quorumOfOne,
+        block: _block(p.refusal),
+      );
+
+  /// The facade's typed refusal in the seam's own vocabulary. A one-for-one
+  /// map, so a refusal the engine grows cannot be quietly dropped: the switch
+  /// is exhaustive and a new value breaks the build here rather than showing
+  /// the user a blank screen.
+  static DistributionBlock? _block(
+    DistributionRefusal? refusal,
+  ) => switch (refusal) {
+    null => null,
+    DistributionRefusal.notShared => DistributionBlock.notShared,
+    DistributionRefusal.noPartnerAccounts => DistributionBlock.noPartners,
+    DistributionRefusal.noProfitDistributedAccount =>
+      DistributionBlock.noProfitDistributed,
+    DistributionRefusal.ratioNotRecorded => DistributionBlock.ratioNotRecorded,
+    DistributionRefusal.ratioIncomplete => DistributionBlock.ratioIncomplete,
+    DistributionRefusal.termsUnverified => DistributionBlock.termsUnverified,
+    DistributionRefusal.nothingToDistribute =>
+      DistributionBlock.nothingToDistribute,
+    DistributionRefusal.ceiling => DistributionBlock.ceiling,
+    // `checkStructuralRequest` refuses only the FY-start change today
+    // (ADR 2026-09-05e §9), which this action can never be; a future
+    // engine rule lands here and is shown as *terms cannot be read*
+    // rather than as nothing at all.
+    DistributionRefusal.structural => DistributionBlock.termsUnverified,
+  };
 }

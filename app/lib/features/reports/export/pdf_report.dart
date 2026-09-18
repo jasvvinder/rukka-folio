@@ -45,7 +45,9 @@ import 'package:pdf/widgets.dart' as pw;
 import '../../../shared/format/money_format.dart';
 import '../../../shared/tokens.dart';
 import '../day_book.dart';
+import 'day_book_table.dart';
 import 'report_export.dart';
+import 'report_table.dart';
 
 /// The app's faces as `package:pdf` needs them — embedded in the document,
 /// never assumed to exist on the reader's machine (11 §4.4).
@@ -165,12 +167,80 @@ PdfColor get _ink => PdfColor.fromInt(RkColorsLight.text.toARGB32());
 PdfColor get _muted => PdfColor.fromInt(RkColorsLight.textMuted.toARGB32());
 PdfColor get _hairline => PdfColor.fromInt(RkColorsLight.hairline.toARGB32());
 
+/// Any [ReportTable] as an A4 PDF document — the one paper layout, shared by
+/// the day book and the A/C statement (ADR 2026-09-12e §2 🔒).
+///
+/// [locale] only reaches [formatPaise]; digits are Latin in every locale by
+/// rule (11 §4.4). [pageNumber] renders the page footer, e.g. *Page 1 of 3*.
+Future<Uint8List> reportTablePdf(
+  ReportTable table, {
+  required String Function(int page, int pages) pageNumber,
+  required ReportFonts fonts,
+  required Locale locale,
+}) async {
+  final doc = pw.Document(
+    // Metadata that travels with the file: the report's own name and nothing
+    // else — no account name, no party name, no figure (CLAUDE.md rule 4).
+    title: table.name,
+  );
+
+  String money(int paise) =>
+      formatPaise(paise, locale: locale, showPaise: true);
+
+  final rows = <pw.TableRow>[
+    _headerRow(table),
+    for (final row in table.rows) _bodyRow(table, row, money),
+  ];
+
+  doc.addPage(
+    pw.MultiPage(
+      pageFormat: _a4,
+      margin: const pw.EdgeInsets.all(_margin),
+      theme: fonts.theme,
+      // The default cap is 20 pages; a year of a busy book is more than that,
+      // and a truncated report would be a wrong report, not a short one.
+      maxPages: 1000,
+      header: (context) => _head(table),
+      footer: (context) => _foot(pageNumber, context),
+      build: (context) => [
+        pw.Table(
+          columnWidths: {
+            for (var i = 0; i < table.columns.length; i++)
+              i: switch (table.columns[i].width) {
+                ReportFixedWidth(:final points) => pw.FixedColumnWidth(points),
+                ReportFlexWidth(:final factor) => pw.FlexColumnWidth(factor),
+              },
+          },
+          children: rows,
+        ),
+      ],
+    ),
+  );
+  return doc.save();
+}
+
+/// Any [ReportTable] as a [ReportFile] ready for a [ReportSink].
+Future<ReportFile> reportTablePdfFile(
+  ReportTable table, {
+  required String Function(int page, int pages) pageNumber,
+  required ReportFonts fonts,
+  required Locale locale,
+  required String fileName,
+}) async => ReportFile(
+  name: fileName,
+  format: ReportFormat.pdf,
+  bytes: await reportTablePdf(
+    table,
+    pageNumber: pageNumber,
+    fonts: fonts,
+    locale: locale,
+  ),
+);
+
 /// The day book as an A4 PDF document.
 ///
 /// [accountName] resolves an account id to its display name — the caller holds
-/// the [Chart], this file does not reach for one. [locale] only reaches
-/// [formatPaise]; digits are Latin in every locale by rule (11 §4.4).
-/// [pageNumber] renders the page footer, e.g. *Page 1 of 3*.
+/// the [Chart], this file does not reach for one.
 Future<Uint8List> dayBookPdf(
   DayBook book, {
   required String Function(String accountId) accountName,
@@ -181,49 +251,19 @@ Future<Uint8List> dayBookPdf(
   required String Function(int page, int pages) pageNumber,
   required ReportFonts fonts,
   required Locale locale,
-}) async {
-  final doc = pw.Document(
-    // Metadata that travels with the file: the report's own name and nothing
-    // else — no account name, no party name, no figure (CLAUDE.md rule 4).
-    title: labels.reportName,
-  );
-
-  String money(int paise) =>
-      formatPaise(paise, locale: locale, showPaise: true);
-
-  final rows = <pw.TableRow>[
-    _headerRow(labels),
-    for (final row in book.rows)
-      ..._entryRows(row, accountName, formatDate, money),
-    _totalsRow(labels, book, money),
-  ];
-
-  doc.addPage(
-    pw.MultiPage(
-      pageFormat: _a4,
-      margin: const pw.EdgeInsets.all(_margin),
-      theme: fonts.theme,
-      // The default cap is 20 pages; a year of a busy book is more than that,
-      // and a truncated day book would be a wrong report, not a short one.
-      maxPages: 1000,
-      header: (context) => _head(labels, bookName, period),
-      footer: (context) => _foot(pageNumber, context),
-      build: (context) => [
-        pw.Table(
-          columnWidths: const {
-            0: pw.FixedColumnWidth(58),
-            1: pw.FlexColumnWidth(3),
-            2: pw.FixedColumnWidth(74),
-            3: pw.FixedColumnWidth(74),
-            4: pw.FlexColumnWidth(2),
-          },
-          children: rows,
-        ),
-      ],
-    ),
-  );
-  return doc.save();
-}
+}) => reportTablePdf(
+  dayBookTable(
+    book,
+    accountName: accountName,
+    labels: labels,
+    bookName: bookName,
+    period: period,
+    formatDate: formatDate,
+  ),
+  pageNumber: pageNumber,
+  fonts: fonts,
+  locale: locale,
+);
 
 /// The day book as a [ReportFile] ready for a [ReportSink].
 Future<ReportFile> dayBookPdfFile(
@@ -253,34 +293,33 @@ Future<ReportFile> dayBookPdfFile(
 }
 
 /// The masthead, repeated on every page so a loose sheet still says what it is
-/// and which book and period it covers.
-pw.Widget _head(ReportLabels labels, String bookName, String period) =>
-    pw.Container(
-      margin: const pw.EdgeInsets.only(bottom: RkSpace.s3),
-      padding: const pw.EdgeInsets.only(bottom: RkSpace.s2),
-      decoration: const pw.BoxDecoration(
-        border: pw.Border(bottom: pw.BorderSide(width: 0.7)),
+/// and which book, account and period it covers.
+pw.Widget _head(ReportTable table) => pw.Container(
+  margin: const pw.EdgeInsets.only(bottom: RkSpace.s3),
+  padding: const pw.EdgeInsets.only(bottom: RkSpace.s2),
+  decoration: const pw.BoxDecoration(
+    border: pw.Border(bottom: pw.BorderSide(width: 0.7)),
+  ),
+  child: pw.Column(
+    crossAxisAlignment: pw.CrossAxisAlignment.start,
+    children: [
+      pw.Text(
+        table.name,
+        style: pw.TextStyle(
+          fontSize: _titleSize,
+          fontWeight: pw.FontWeight.bold,
+          color: _ink,
+        ),
       ),
-      child: pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
-        children: [
-          pw.Text(
-            labels.reportName,
-            style: pw.TextStyle(
-              fontSize: _titleSize,
-              fontWeight: pw.FontWeight.bold,
-              color: _ink,
-            ),
-          ),
-          pw.SizedBox(height: RkSpace.s1),
-          pw.Text(
-            '${labels.bookLabel}: $bookName    '
-            '${labels.periodLabel}: $period',
-            style: pw.TextStyle(fontSize: _metaSize, color: _muted),
-          ),
-        ],
+      pw.SizedBox(height: RkSpace.s1),
+      pw.Text(
+        [for (final line in table.meta) '${line.label}: ${line.value}']
+            .join('    '),
+        style: pw.TextStyle(fontSize: _metaSize, color: _muted),
       ),
-    );
+    ],
+  ),
+);
 
 /// *Page 1 of 3*, right-aligned under the body.
 pw.Widget _foot(
@@ -298,72 +337,82 @@ pw.Widget _foot(
 /// The column headings — repeated at the top of every page, because a table
 /// whose Dr and Cr columns are named only on page one is unreadable on page
 /// two (07 §1 rule 2: never a dead end, and a nameless column is one).
-pw.TableRow _headerRow(ReportLabels labels) => pw.TableRow(
+pw.TableRow _headerRow(ReportTable table) => pw.TableRow(
   repeat: true,
   decoration: pw.BoxDecoration(
     border: pw.Border(bottom: pw.BorderSide(color: _ink, width: 0.7)),
   ),
   children: [
-    _cell(labels.columnDate, bold: true),
-    _cell(labels.columnParticulars, bold: true),
-    _cell(labels.columnDebit, bold: true, align: pw.TextAlign.right),
-    _cell(labels.columnCredit, bold: true, align: pw.TextAlign.right),
-    _cell(labels.columnNote, bold: true),
+    for (final column in table.columns)
+      _cell(column.title, bold: true, align: _align(column.align)),
   ],
 );
 
-/// One row per posting **line**, classical layout: the date and the note sit
-/// on the entry's first line, every further line continues under it.
-List<pw.TableRow> _entryRows(
-  DayBookRow row,
-  String Function(String accountId) accountName,
-  String Function(LocalDate date) formatDate,
+pw.TextAlign _align(ReportAlign align) =>
+    align == ReportAlign.end ? pw.TextAlign.right : pw.TextAlign.left;
+
+/// One body row, with the rule its kind asks for: a hairline under the last
+/// line of a group, a heavier rule above and below a b/f or c/f boundary
+/// (02 §8.1 *Presentation*) and above the cross-check total (13 §5, flow F3).
+pw.TableRow _bodyRow(
+  ReportTable table,
+  ReportRow row,
   String Function(int paise) money,
 ) {
-  final lines = [...row.debits, ...row.credits];
-  return [
-    for (var i = 0; i < lines.length; i++)
-      pw.TableRow(
-        decoration: i == lines.length - 1
-            ? pw.BoxDecoration(
-                border: pw.Border(bottom: pw.BorderSide(color: _hairline)),
-              )
-            : null,
-        children: [
-          _cell(i == 0 ? formatDate(row.date) : ''),
-          _cell(accountName(lines[i].accountId)),
-          _cell(
-            lines[i].isDebit ? money(lines[i].figurePaise) : '',
-            align: pw.TextAlign.right,
-          ),
-          _cell(
-            lines[i].isCredit ? money(lines[i].figurePaise) : '',
-            align: pw.TextAlign.right,
-          ),
-          _cell(i == 0 ? (row.note ?? '') : '', muted: true),
-        ],
+  final emphasised =
+      row.kind == ReportRowKind.total || row.kind == ReportRowKind.boundary;
+  return pw.TableRow(
+    decoration: switch (row.kind) {
+      ReportRowKind.body => null,
+      ReportRowKind.groupEnd => pw.BoxDecoration(
+        border: pw.Border(bottom: pw.BorderSide(color: _hairline)),
       ),
-  ];
+      ReportRowKind.boundary || ReportRowKind.total => pw.BoxDecoration(
+        border: pw.Border(top: pw.BorderSide(color: _ink, width: 0.7)),
+      ),
+    },
+    children: [
+      for (var i = 0; i < table.columns.length; i++)
+        _pdfCell(
+          i < row.cells.length ? row.cells[i] : null,
+          column: table.columns[i],
+          bold: emphasised,
+          money: money,
+        ),
+    ],
+  );
 }
 
-/// The cross-check footer (13 §5, flow F3): the two columns totalled, which
-/// agree because every entry balances (02 §1.4).
-pw.TableRow _totalsRow(
-  ReportLabels labels,
-  DayBook book,
-  String Function(int paise) money,
-) => pw.TableRow(
-  decoration: pw.BoxDecoration(
-    border: pw.Border(top: pw.BorderSide(color: _ink, width: 0.7)),
-  ),
-  children: [
-    _cell(''),
-    _cell(labels.totalLabel, bold: true),
-    _cell(money(book.debitTotalPaise), bold: true, align: pw.TextAlign.right),
-    _cell(money(book.creditTotalPaise), bold: true, align: pw.TextAlign.right),
-    _cell(''),
-  ],
-);
+/// One cell of the body. A blank cell is drawn as empty, never as a zero — an
+/// empty Dr box on a credit line is how a paper ledger reads (07 §6).
+pw.Widget _pdfCell(
+  ReportCell? cell, {
+  required ReportColumn column,
+  required bool bold,
+  required String Function(int paise) money,
+}) {
+  final align = _align(column.align);
+  return switch (cell) {
+    null => _cell('', align: align),
+    ReportTextCell(:final text, :final muted) => _cell(
+      text,
+      bold: bold,
+      muted: muted,
+      align: align,
+    ),
+    ReportDateCell(:final text) => _cell(text, bold: bold, align: align),
+    // A signed figure is a balance: professional surfaces print the magnitude
+    // and tag the side in words, never a `+` (02 §10 🔒, design-system §1
+    // rule 0b 🔒).
+    ReportMoneyCell(:final paise, :final signed, :final side) => _cell(
+      signed
+          ? '${money(paise.abs())}${side == null ? '' : ' $side'}'
+          : money(paise),
+      bold: bold,
+      align: align,
+    ),
+  };
+}
 
 /// One table cell.
 pw.Widget _cell(

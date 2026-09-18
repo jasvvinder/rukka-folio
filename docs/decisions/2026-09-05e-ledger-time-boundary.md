@@ -75,7 +75,7 @@ side is a personal or sub-family book the reader cannot open (04 §5.2), the rep
 book's side as **one-sided · unconfirmed**, never as a mismatch. The check remains the only
 cross-book integrity check; it now says when it cannot run.
 
-### 8. Profit distribution: losses, period, ceiling (02 §7.1) ⟦tests: A-05e-3, A-05e-4, A-05e-5, A-05e-6, A-05e-7⟧
+### 8. Profit distribution: losses, period, ceiling (02 §7.1) ⟦tests: A-05e-3, A-05e-4, A-05e-5, A-05e-6, A-05e-7, F1-02-54, F1-02-59⟧
 - **Loss sharing mirrors the profit posting:** `Dr each Partner Current · Cr Profit Distributed`,
   split by the same ratio with the same remainder rule (remainder to the largest ratio), so
   sum-to-zero holds identically. `splitByRatio` accepts a negative total at M2.

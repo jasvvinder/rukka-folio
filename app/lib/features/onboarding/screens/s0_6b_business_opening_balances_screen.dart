@@ -31,6 +31,7 @@ import '../../../shared/format/date_format.dart';
 import '../../../shared/format/money_format.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../../shared/widgets/rk_fit_text.dart';
 
 /// The groups of ADR 2026-09-09c §3, in screen order.
 enum OpeningGroup {
@@ -207,7 +208,7 @@ class _BusinessOpeningBalancesScreenState
               Expanded(
                 child: ListView(
                   children: [
-                    Text(
+                    RkFitText(
                       l10n.onboardingBusinessOpeningTitle,
                       style: text.headlineMedium,
                     ),

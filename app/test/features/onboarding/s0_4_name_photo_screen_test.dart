@@ -89,23 +89,25 @@ void main() {
     );
 
     testWidgets(
-      'F1-07-48 strings resolve in EN/PA/HI with no overflow at 200% on a 360x800 surface',
+      'F1-07-48 strings resolve in EN/PA/HI with no overflow at 1.3x and 200% on both F1 phones',
       (tester) async {
-        tester.view.physicalSize = const Size(360, 800);
-        tester.view.devicePixelRatio = 1.0;
-        addTearDown(tester.view.resetPhysicalSize);
-        addTearDown(tester.view.resetDevicePixelRatio);
-
-        for (final locale in const [Locale('en'), Locale('pa'), Locale('hi')]) {
-          await pumpRk(
-            tester,
-            MediaQuery(
-              data: const MediaQueryData(textScaler: TextScaler.linear(2)),
-              child: const NamePhotoScreen(),
-            ),
-            locale: locale,
-          );
-          expect(tester.takeException(), isNull);
+        for (final locale in rkLocales) {
+          for (final vp in rkPhones) {
+            for (final scale in rkTextScales) {
+              await pumpRk(
+                tester,
+                const NamePhotoScreen(),
+                locale: locale,
+                textScale: scale,
+                viewport: vp,
+              );
+              expect(tester.takeException(), isNull);
+              expectTextFits(
+                tester,
+                reason: '${locale.languageCode} @ $scale on $vp',
+              );
+            }
+          }
         }
       },
     );

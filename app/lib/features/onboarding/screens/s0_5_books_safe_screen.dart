@@ -38,6 +38,7 @@ import 'package:flutter/material.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../../shared/widgets/rk_fit_text.dart';
 import '../../devices/devices_repository.dart';
 
 /// Asks the host whether the platform's key sync (iOS iCloud Keychain,
@@ -145,7 +146,7 @@ class _BooksSafeScreenState extends State<BooksSafeScreen> {
                         snap.data?.backup ?? const DevicesSnapshot().backup;
                     return ListView(
                       children: [
-                        Text(
+                        RkFitText(
                           l10n.onboardingBooksSafeTitle,
                           style: text.headlineMedium,
                         ),

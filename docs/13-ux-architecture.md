@@ -276,7 +276,7 @@ Label · value with side/colour · optional meta ("1 · Ramesh") · chevron to d
 **P3 — Attention card** (Inbox). Typed cards, each designed (ADR 2026-09-05f §D): reviews · imports · invites · recoveries · reminders · late arrivals · structural approval with quorum + veto (S6.3) · **book full** → S12.1 · **write lost** · **key wait > 24 h** · **author gap > 24 h** · **quarantine / security event** · **device added** · **integrity / rebuild** · **cancel-window banner with countdown** (recovery, support action, deletion).
 Avatar/icon · who + where + count + total · expandable list · primary action + secondary action. One card per (author, book, day) — never one per item.
 
-### 4.2 Atoms
+### 4.2 Atoms ⟦tests: F1-07-170⟧
 Amount text (3 sizes × in/out/pending/neutral) · account chip · scope chip (avatar + role) · date chip · status chip (review/locked/in-transit/offline/**provisional**) · keypad · books-balanced verification card · search field · picker row with "+ Create" · stepper progress · loud-warning panel · **banner** (persistent: suspended, read-only, book full) · **toast** (the 10 s Undo depends on it) · **countdown** (cancel windows, PIN cooldown) · **progress meter** (the determinate loader rule) · **skeleton row** (ADR 2026-09-05f §D, §H).
 
 ### 4.3 Component states ⟦tests: F1-13-23, F1-13-24, F1-13-25⟧

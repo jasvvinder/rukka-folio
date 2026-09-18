@@ -178,3 +178,103 @@ PartnersView kaurView({
     offline: offline,
   );
 }
+
+/// The in-memory [DistributionPort] S14.1's tests run against. It serves a
+/// fixed [DistributionView] and records what was asked of it; the figures are
+/// the engine's, copied from the facade tests that pin them
+/// (`local_ledger_distribution_test.dart`, F1-02-52…59).
+final class FakeDistributionPort extends FakePartnersPort
+    implements DistributionPort {
+  /// Creates the fake. With [view] null and [previewFails] false the preview
+  /// never completes — the loading state (13 §4.3).
+  FakeDistributionPort({
+    this.preview,
+    this.previewFails = false,
+    this.distributeThrows,
+  });
+
+  /// What [distributionPreview] serves; null means it never completes.
+  DistributionView? preview;
+
+  /// Make the preview fail — the error-with-retry state.
+  bool previewFails;
+
+  /// Thrown by [distribute] when set.
+  Object? distributeThrows;
+
+  /// What [distribute] returns when it does not throw.
+  DistributionResult result = DistributionResult.posted;
+
+  /// Every preview asked for, in order.
+  final previews = <({String bookId, LocalDate? from, LocalDate? to})>[];
+
+  /// Every distribution asked for, in order.
+  final distributions = <({String bookId, LocalDate? from, LocalDate? to})>[];
+
+  @override
+  Future<DistributionView> distributionPreview(
+    String bookId, {
+    LocalDate? from,
+    LocalDate? to,
+  }) {
+    previews.add((bookId: bookId, from: from, to: to));
+    if (previewFails) return Future.error(StateError('no book'));
+    final view = preview;
+    if (view == null) return Completer<DistributionView>().future;
+    return Future.value(view);
+  }
+
+  @override
+  Future<DistributionResult> distribute(
+    String bookId, {
+    LocalDate? from,
+    LocalDate? to,
+  }) async {
+    distributions.add((bookId: bookId, from: from, to: to));
+    final thrown = distributeThrows;
+    if (thrown != null) throw thrown;
+    return result;
+  }
+}
+
+/// The Kaur farm's year as the engine splits it: ₹5,94,000 three equal ways,
+/// exactly the figures `F1-02-52` pins on the real facade.
+DistributionView kaurDistribution({
+  bool interest = false,
+  bool quorumOfOne = false,
+  DistributionBlock? block,
+  Paise excess = Paise.zero,
+  Paise netProfit = const Paise(5_94_000_00),
+  List<Paise>? shares,
+  List<Paise>? interestPaise,
+  bool readOnly = false,
+  bool offline = false,
+}) {
+  const names = ['Amrit Kaur', 'Sukhdev Singh', 'Harjit Kaur'];
+  const ids = ['amrit', 'sukhdev', 'harjit'];
+  final owners = <DistributionOwnerView>[
+    for (var i = 0; i < (quorumOfOne ? 1 : 3); i++)
+      DistributionOwnerView(
+        accountId: ids[i],
+        name: names[i],
+        ratioWeight: 1,
+        interest: interestPaise?[i] ?? Paise.zero,
+        share: shares?[i] ?? const Paise(1_98_000_00),
+      ),
+  ];
+  return DistributionView(
+    bookId: 'kaur-farm',
+    financialYearLabel: '2026-27',
+    from: LocalDate(2026, 4, 1),
+    to: LocalDate(2026, 9, 7),
+    netProfit: netProfit,
+    owners: block == null ? owners : const [],
+    headroom: const Paise(5_94_000_00),
+    excess: excess,
+    interestEnabled: interest,
+    quorumOfOne: quorumOfOne,
+    block: block,
+    readOnly: readOnly,
+    offline: offline,
+  );
+}

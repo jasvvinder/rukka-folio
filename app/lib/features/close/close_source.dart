@@ -260,6 +260,7 @@ final class CloseView {
     required this.tray,
     this.progress = const CloseProgress(),
     this.readOnly = false,
+    this.fyStartMonth = 4,
   });
 
   /// The book being closed.
@@ -286,6 +287,15 @@ final class CloseView {
   /// True when this member may read the book but not close it (13 §2.3.1).
   /// The wizard stays legible; the lock says why it is off.
   final bool readOnly;
+
+  /// The month this book's financial year starts in, 1–12 (April for most,
+  /// but a trust may run the calendar year — `FinancialYear.startMonth`).
+  ///
+  /// The wizard uses it for exactly one thing: deciding whether the month it
+  /// has just locked was the **last of the financial year**, which is when
+  /// 07 §13 🔒 says to offer the Year Close ceremony. Hard-coding March would
+  /// prompt a calendar-year book three months early.
+  final int fyStartMonth;
 
   /// The declared balances the lock envelope records (02 §8 step 4 🔒): every
   /// money A/C of the book, cash and bank alike, at the figure the closer has
@@ -363,6 +373,23 @@ abstract interface class CloseSource {
     required YearMonth period,
     required Map<String, Paise> declaredBalances,
   });
+
+  /// Where **every** book the user closes stands, for the month at [upTo] —
+  /// S10.1, and the source of the Home *Close card* (07 §13 🔒).
+  ///
+  /// One entry per book, whatever its state; a single-book tenant therefore
+  /// gets a one-entry list and the wizard draws no S10.1 at all (07 §13 🔒:
+  /// the family's state is a *multi-book* affordance). A book whose earlier
+  /// month is still open reports that earlier month, because months lock in
+  /// order (02 §8.1 🔒) and offering a month the engine would refuse is a
+  /// dead end (07 §1 rule 6).
+  Future<List<BookCloseStatus>> closeStatuses(YearMonth upTo);
+
+  /// The S10.2 reward for [bookId]'s [period] (07 §13 🔒).
+  ///
+  /// Read-only and derived: nothing here is stored at the lock, so the card
+  /// reads the same a month later as it did the second the book closed.
+  Future<MonthSummary> monthSummary(String bookId, YearMonth period);
 }
 
 /// The [CloseSource] for the tree below — installed by the shell above the
@@ -382,4 +409,166 @@ class CloseScope extends InheritedWidget {
 
   @override
   bool updateShouldNotify(CloseScope old) => source != old.source;
+}
+
+// ── S10.1 · the family's close (07 §13 🔒, 13 §3.2 row S10.1) ────────────────
+
+/// Where one book stands in the close of a month.
+///
+/// The four states 07 §13 🔒 writes out — *"Kirana closed ✓ · Agriculture
+/// waiting on Pankaj · Joint pool not started"* — plus the in-progress one the
+/// *Resumable* rule implies. They are ordered by how far the book has got, so
+/// a list can be sorted on the enum alone.
+enum BookCloseState {
+  /// No progress saved, nothing blocking: the close has not been opened.
+  notStarted,
+
+  /// Progress is saved for this month — the wizard *resumes* (07 §13 🔒).
+  inProgress,
+
+  /// Entries from another phone have not arrived, so the lock is off
+  /// (ADR 2026-09-05b §3–4). This wins over [inProgress] as the headline: the
+  /// karta needs to know who he is waiting for.
+  waiting,
+
+  /// The month is locked.
+  closed,
+}
+
+/// One book's line on S10.1 — and the state of one Home *Close card*.
+final class BookCloseStatus {
+  /// Creates the status.
+  const BookCloseStatus({
+    required this.bookId,
+    required this.bookName,
+    required this.period,
+    required this.state,
+    this.waitingOn,
+    this.step,
+  });
+
+  /// The book.
+  final String bookId;
+
+  /// Its name, as the user wrote it.
+  final String bookName;
+
+  /// The month this book would close **next** — not necessarily the month
+  /// asked for: months lock in order (02 §8.1 🔒), so a book with July still
+  /// open offers July even when August is over. For [BookCloseState.closed]
+  /// it is the month that *is* locked.
+  final YearMonth period;
+
+  /// The headline state.
+  final BookCloseState state;
+
+  /// The **name of the phone** whose entries have not arrived, when
+  /// [state] is [BookCloseState.waiting] and a name exists. Null means the
+  /// screen says *another phone* — a device id is never printed at a
+  /// shopkeeper (07 §28 🔒; see [CloseBlockingItem.deviceName]).
+  final String? waitingOn;
+
+  /// The step the closer had reached, when progress is saved. Non-null is
+  /// what makes the Home card say *resumes* rather than *4 steps*.
+  final CloseStep? step;
+
+  /// True when there is saved progress to go back to.
+  bool get resumable => step != null && state != BookCloseState.closed;
+}
+
+// ── S10.2 · the month summary card (07 §13 🔒, 13 §3.2 row S10.2) ────────────
+
+/// One of the three largest expenses of the month.
+final class MonthSummaryExpense {
+  /// Creates the line.
+  const MonthSummaryExpense({
+    required this.accountId,
+    required this.name,
+    required this.amount,
+  });
+
+  /// The expense A/C.
+  final String accountId;
+
+  /// Its name, as the user wrote it.
+  final String name;
+
+  /// What went out on it, as a **positive** figure (integer paise).
+  final Paise amount;
+}
+
+/// One sub-family's month, in a joint family (07 §13 🔒).
+final class SubFamilyTotal {
+  /// Creates the total.
+  const SubFamilyTotal({
+    required this.bookId,
+    required this.name,
+    required this.moneyIn,
+    required this.moneyOut,
+  });
+
+  /// The sub-family's own book.
+  final String bookId;
+
+  /// Its name.
+  final String name;
+
+  /// Money in over the month, positive paise.
+  final Paise moneyIn;
+
+  /// Money out over the month, positive paise.
+  final Paise moneyOut;
+}
+
+/// The reward screen shown the moment a book locks (07 §13 🔒).
+///
+/// Consumer vocabulary throughout — *Money in / Money out*, never Dr/Cr
+/// (02 §10 🔒, CLAUDE.md rule 9). Every figure is positive integer paise; the
+/// engine's sign convention is read once, here, and never shown.
+final class MonthSummary {
+  /// Creates the summary.
+  const MonthSummary({
+    required this.bookId,
+    required this.bookName,
+    required this.period,
+    required this.moneyIn,
+    required this.moneyOut,
+    this.topExpenses = const [],
+    this.subFamilies = const [],
+    this.fyStartMonth = 4,
+  });
+
+  /// The book that just locked.
+  final String bookId;
+
+  /// Its name.
+  final String bookName;
+
+  /// The month that locked.
+  final YearMonth period;
+
+  /// Everything that came in over the month, positive paise.
+  final Paise moneyIn;
+
+  /// Everything that went out, positive paise.
+  final Paise moneyOut;
+
+  /// The three largest expenses, largest first. Fewer when the book has
+  /// fewer; empty is the honest empty state, not a blank card.
+  final List<MonthSummaryExpense> topExpenses;
+
+  /// Each sub-family's total, in a joint family; empty otherwise.
+  final List<SubFamilyTotal> subFamilies;
+
+  /// The month this book's financial year starts in, 1–12 — see
+  /// [CloseView.fyStartMonth]. It rides on the summary because S10.2 is a
+  /// screen in its own right: reached from the Home close card a week later,
+  /// it must still be able to tell whether the month it is showing was the
+  /// last of the year, and so whether to offer the Year Close door
+  /// (07 §13 🔒).
+  final int fyStartMonth;
+
+  /// What was kept: in − out. May be negative — a month that spent more than
+  /// it earned says so rather than showing a nil (07 §1 rule 12).
+  Paise get saved => moneyIn - moneyOut;
 }

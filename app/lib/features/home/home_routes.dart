@@ -8,6 +8,10 @@
 // the moment a second book exists (13 §2.2 🔒) and nothing is routed. The
 // shell will pass a controller in when scope persists per tab.
 //
+// The Close card reads [CloseScope], which `bootstrap.dart` installs above the
+// router; with no scope (a preview, a test) no card is drawn and Home is
+// otherwise unchanged.
+//
 // S1.4's producer is `Recompute.watchProgress` (packages/data, E-03-29),
 // adapted by [rebuildProgressOf] — null when no ledger is in scope, so a
 // preview or a test pumped without data still shows the book. `main()` builds
@@ -41,6 +45,13 @@ final RkTabRoot homeRoot = RkTabRoot(
     // owns S8.3, never re-spelled here.
     onOpenReconciliation: () =>
         context.push(ReportsPaths.reconciliationLocation),
+    // The Home *Close card* (07 §13 🔒 bullet 1). The path is S10's or
+    // S10.2's, built by the card from `ClosePaths` — the feature that owns
+    // the route spells it, never this file. The push is awaited so the card
+    // re-reads its state when the closer comes back.
+    onOpenClose: (path) async {
+      await context.push<void>(path);
+    },
   ),
 );
 

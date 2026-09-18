@@ -15,6 +15,7 @@
 // book; if the route is reached anyway, [_SoloState] answers in words that
 // contain none of those three ideas.
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/format/money_format.dart';
@@ -22,6 +23,7 @@ import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../../../shared/widgets/rk_connection_notice.dart';
 import '../../../shared/widgets/rk_connection_notice_copy.dart';
+import '../partners_paths.dart';
 import '../partners_port.dart';
 import '../partners_scope.dart';
 import '../widgets/drift_settlement_card.dart';
@@ -124,6 +126,7 @@ class _PartnerPositionsScreenState extends State<PartnerPositionsScreen> {
                 const _SoloState(),
               (false, final v!) when v.positions.isEmpty => const _EmptyState(),
               (false, final v!) => _Positions(
+                bookId: widget.bookId,
                 view: v,
                 onSettle: (mode, drift) => _settle(mode, drift, v),
               ),
@@ -136,7 +139,14 @@ class _PartnerPositionsScreenState extends State<PartnerPositionsScreen> {
 }
 
 class _Positions extends StatelessWidget {
-  const _Positions({required this.view, required this.onSettle});
+  const _Positions({
+    required this.bookId,
+    required this.view,
+    required this.onSettle,
+  });
+
+  /// The book whose owners these are — the S14.1 door carries it.
+  final String bookId;
 
   final PartnersView view;
   final void Function(SettlementMode, PartnerDriftView) onSettle;
@@ -175,6 +185,29 @@ class _Positions extends StatelessWidget {
             ),
         for (final p in view.positions)
           PartnerPositionCard(position: p, ratioTotal: ratioTotal),
+        // The door to S14.1 (13 §3.2: S14.1's parent is S14). It is inside
+        // `_Positions`, so it exists only on a shared business whose owner
+        // accounts are seeded — ADR 2026-09-09b 🔒 keeps a *Just me* book from
+        // ever seeing the word, and 07 §1 rule 6 keeps it from being a door to
+        // an empty room.
+        Padding(
+          padding: const EdgeInsets.fromLTRB(
+            RkSpace.gutter,
+            RkSpace.s4,
+            RkSpace.gutter,
+            0,
+          ),
+          child: SizedBox(
+            width: double.infinity,
+            child: OutlinedButton(
+              key: const Key('partners.distribute'),
+              onPressed: () =>
+                  GoRouter.maybeOf(context)
+                      ?.push(PartnersPaths.distributeOf(bookId)),
+              child: Text(l10n.distributeDoor),
+            ),
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.fromLTRB(
             RkSpace.gutter,

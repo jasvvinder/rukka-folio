@@ -283,42 +283,77 @@ void main() {
 
     // 07 §18: 200 % OS font scale on the smallest supported screens, in every
     // script (ADR 2026-09-05f §G, §H15).
-    for (final size in const [Size(375, 667), Size(360, 800)]) {
-      for (final locale in const [Locale('en'), Locale('pa'), Locale('hi')]) {
-        testWidgets(
-          'F1-07-78 banner and sheet survive 200% text scale at ${size.width.toInt()}x${size.height.toInt()} in ${locale.languageCode}',
-          (tester) async {
-            tester.view.physicalSize = size;
-            tester.view.devicePixelRatio = 1.0;
-            addTearDown(tester.view.resetPhysicalSize);
-            addTearDown(tester.view.resetDevicePixelRatio);
+    // The banner's own words are measured by F1-07-170 below, which is red
+    // against a shared widget this lane does not own.
+    for (final size in rkPhones) {
+      for (final locale in rkLocales) {
+        for (final scale in rkTextScales) {
+          testWidgets(
+            'F1-07-78 banner and sheet survive ${scale}x text scale at '
+            '${size.width.toInt()}x${size.height.toInt()} in '
+            '${locale.languageCode}',
+            (tester) async {
+              for (final kind in RkRestrictionKind.values) {
+                await pumpRk(
+                  tester,
+                  _banner(kind, onExport: () {}),
+                  locale: locale,
+                  textScale: scale,
+                  viewport: size,
+                );
+                expect(tester.takeException(), isNull, reason: 'banner $kind');
+              }
 
+              await pumpRk(
+                tester,
+                const _DraftHost(kind: RkRestrictionKind.bookFull),
+                locale: locale,
+                textScale: scale,
+                viewport: size,
+              );
+              await tester.tap(find.text('Save'));
+              await tester.pumpAndSettle();
+              expect(find.byType(RkBlockedEntrySheet), findsOneWidget);
+              expect(tester.takeException(), isNull, reason: 'sheet');
+              expectTextFits(tester, reason: 'sheet @ $scale');
+              // The banner itself is NOT measured here — see F1-07-170.
+            },
+          );
+        }
+      }
+    }
+    // The defect the conversion to `pumpRk` uncovered, now fixed and this
+    // case unskipped (M9-T4): with a real viewport under it, the banner drew
+    // its action labels past the edge at 200 %. `RkBannerSurface` already
+    // wraps the actions so they cannot overflow *horizontally as a row*, but
+    // each label was a plain `Text` inside a `TextButton`, and one word of it
+    // is wider than the button: *Export everything* needs 321 px of the
+    // 275.3 px the banner has on a 360 px phone, and Hindi's *एक्सपोर्ट*
+    // needs 288.9 px of the same 275.3 px. Nothing throws — a paragraph given
+    // less width than one of its words just draws it over the edge — which is
+    // exactly why F1-07-78 was green over it for four milestones.
+    //
+    // Both labels are `RkFitText` now (`shared/widgets/rk_restriction.dart`),
+    // which steps the label's own scale down to its widest word and leaves
+    // anything that already fits at the size the reader asked for. The figure
+    // rule of 07 §1 is untouched: these are words, not tabular figures.
+    for (final size in rkPhones) {
+      for (final locale in rkLocales) {
+        testWidgets(
+          'F1-07-170 the restriction banner draws no word past its edge at '
+          '200% — ${size.width.toInt()}x${size.height.toInt()}, '
+          '${locale.languageCode}',
+          (tester) async {
             for (final kind in RkRestrictionKind.values) {
               await pumpRk(
                 tester,
-                MediaQuery(
-                  data: const MediaQueryData(
-                    textScaler: TextScaler.linear(2.0),
-                  ),
-                  child: _banner(kind, onExport: () {}),
-                ),
+                _banner(kind, onExport: () {}),
                 locale: locale,
+                textScale: 2,
+                viewport: size,
               );
-              expect(tester.takeException(), isNull, reason: 'banner $kind');
+              expectTextFits(tester, reason: 'banner $kind');
             }
-
-            await pumpRk(
-              tester,
-              MediaQuery(
-                data: const MediaQueryData(textScaler: TextScaler.linear(2.0)),
-                child: const _DraftHost(kind: RkRestrictionKind.bookFull),
-              ),
-              locale: locale,
-            );
-            await tester.tap(find.text('Save'));
-            await tester.pumpAndSettle();
-            expect(find.byType(RkBlockedEntrySheet), findsOneWidget);
-            expect(tester.takeException(), isNull, reason: 'sheet');
           },
         );
       }

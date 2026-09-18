@@ -13,6 +13,7 @@ import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/format/date_format.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../../shared/widgets/rk_fit_text.dart';
 
 /// The one answer S0.6d collects, handed to `createBook` at the committing
 /// step (S0.6f, [FamilyOpeningHost]).
@@ -82,7 +83,7 @@ class _FamilyNameScreenState extends State<FamilyNameScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text(
+                      RkFitText(
                         l10n.onboardingFamilyTitle,
                         style: text.headlineMedium,
                       ),

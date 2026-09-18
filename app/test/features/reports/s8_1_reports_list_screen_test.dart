@@ -85,22 +85,25 @@ void main() {
     // reason.
     for (final locale in rkLocales) {
       for (final phone in rkPhones) {
-        testWidgets(
-          'F1-07-28 Reports list resolves in ${locale.languageCode} without '
-          'overflow at 200% on ${phone.width.toInt()}x${phone.height.toInt()}',
-          (tester) async {
-            await pumpRk(
-              tester,
-              shared,
-              locale: locale,
-              textScale: 2,
-              viewport: phone,
-            );
+        for (final scale in rkTextScales) {
+          testWidgets(
+            'F1-07-28 Reports list resolves in ${locale.languageCode} without '
+            'a cut word at ${scale}x on ${phone.width.toInt()}x'
+            '${phone.height.toInt()}',
+            (tester) async {
+              await pumpRk(
+                tester,
+                shared,
+                locale: locale,
+                textScale: scale,
+                viewport: phone,
+              );
 
-            expect(tester.takeException(), isNull);
-            expectTextFits(tester, reason: 'S8.1 at 200% on $phone');
-          },
-        );
+              expect(tester.takeException(), isNull);
+              expectTextFits(tester, reason: 'S8.1 at ${scale}x on $phone');
+            },
+          );
+        }
       }
     }
   });

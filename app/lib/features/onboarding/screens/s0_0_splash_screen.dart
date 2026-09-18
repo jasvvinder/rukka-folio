@@ -15,6 +15,7 @@ import 'package:flutter/scheduler.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../../shared/widgets/rk_fit_text.dart';
 import '../widgets/sealed_mark.dart';
 
 /// The session state the splash animates for (ADR 2026-09-03d rule 3).
@@ -172,18 +173,30 @@ class _SplashScreenState extends State<SplashScreen>
                 child: SealedMark(sealOpacity: _sealOpacity),
               ),
               const SizedBox(height: RkSpace.s6),
-              Text.rich(
-                TextSpan(
-                  style: text.displayLarge,
-                  children: [
-                    TextSpan(text: first),
+              // The wordmark carries two weights in one run (11 §4.4), so it
+              // cannot go through [RkFitText], which takes a plain string.
+              // At 200 % *Rukka* alone is wider than a 360 px phone, and a
+              // paragraph draws a too-wide word straight past the edge
+              // without throwing — [FittedBox] scales the run down only when
+              // it does not fit, and leaves it untouched when it does.
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: RkSpace.gutter),
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text.rich(
                     TextSpan(
-                      text: rest,
-                      style: const TextStyle(fontWeight: FontWeight.w300),
+                      style: text.displayLarge,
+                      children: [
+                        TextSpan(text: first),
+                        TextSpan(
+                          text: rest,
+                          style: const TextStyle(fontWeight: FontWeight.w300),
+                        ),
+                      ],
                     ),
-                  ],
+                    textAlign: TextAlign.center,
+                  ),
                 ),
-                textAlign: TextAlign.center,
               ),
               AnimatedOpacity(
                 opacity: _slow ? 1 : 0,
@@ -209,7 +222,7 @@ class _SplashScreenState extends State<SplashScreen>
                             ),
                           ),
                           const SizedBox(height: RkSpace.s3),
-                          Text(l10n.splashOpening, style: text.bodySmall),
+                          RkFitText(l10n.splashOpening, style: text.bodySmall),
                         ],
                       ),
                     ),

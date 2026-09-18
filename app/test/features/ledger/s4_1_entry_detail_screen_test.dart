@@ -160,24 +160,30 @@ void main() {
     );
 
     testWidgets(
-      'F1-07-60 renders in EN, PA and HI at 200% on a 360x800 phone',
+      'F1-07-60 renders in EN, PA and HI at 1.3x and 200% on both phones',
       (tester) async {
-        for (final locale in const [Locale('en'), Locale('pa'), Locale('hi')]) {
-          tester.view.physicalSize = const Size(360, 800);
-          tester.view.devicePixelRatio = 1;
-          addTearDown(tester.view.reset);
-          final seed = await seedSoloLedger();
-          await pumpRk(
-            tester,
-            MediaQuery(
-              data: const MediaQueryData(textScaler: TextScaler.linear(2)),
-              child: EntryDetailScreen(entryId: moneyOutOf(seed).id),
-            ),
-            ledger: seed.ledger,
-            locale: locale,
-          );
-          expect(tester.takeException(), isNull);
-          await unmount(tester);
+        // `pumpRk`'s own `textScale:`/`viewport:` (M5-T1): the bare
+        // `MediaQueryData(textScaler: …)` this case used to wrap carries
+        // `size: Size.zero`, so it hid the viewport it had just set.
+        for (final locale in rkLocales) {
+          for (final phone in rkPhones) {
+            for (final scale in rkTextScales) {
+              final seed = await seedSoloLedger();
+              await pumpRk(
+                tester,
+                EntryDetailScreen(entryId: moneyOutOf(seed).id),
+                ledger: seed.ledger,
+                locale: locale,
+                textScale: scale,
+                viewport: phone,
+              );
+              final where =
+                  'S4.1 at ${scale}x on $phone in ${locale.languageCode}';
+              expect(tester.takeException(), isNull, reason: where);
+              expectTextFits(tester, reason: where);
+              await unmount(tester);
+            }
+          }
         }
       },
     );

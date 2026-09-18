@@ -1,93 +1,466 @@
 {
   "@@locale": "en",
   "partners.title": "Partners",
-  "@partners.title": {"description": "S14 app bar (02 §7.1 🔒, 13 §3.2 row S14). *Partner* is the glossary's own business term (01 §2 — ਹਿੱਸੇਦਾਰ / साझेदार). This is a consumer surface: the four figures are put in / took out / share / net, never Dr/Cr (02 §10 🔒, CLAUDE.md rule 9)."},
+  "@partners.title": {
+    "description": "S14 app bar (02 §7.1 🔒, 13 §3.2 row S14). *Partner* is the glossary's own business term (01 §2 — ਹਿੱਸੇਦਾਰ / साझेदार). This is a consumer surface: the four figures are put in / took out / share / net, never Dr/Cr (02 §10 🔒, CLAUDE.md rule 9)."
+  },
   "partners.skeleton": "Loading the partner positions",
-  "@partners.skeleton": {"description": "S14 loading state — announced with the ruled skeleton (11 §4.5, 13 §4.3)."},
+  "@partners.skeleton": {
+    "description": "S14 loading state — announced with the ruled skeleton (11 §4.5, 13 §4.3)."
+  },
   "partners.error": "Couldn’t load the partner positions.",
-  "@partners.error": {"description": "S14 error state; always shown with the retry action (13 §4.3 error-with-retry)."},
+  "@partners.error": {
+    "description": "S14 error state; always shown with the retry action (13 §4.3 error-with-retry)."
+  },
   "partners.retry": "Try again",
-  "@partners.retry": {"description": "S14 retry action beside the error line."},
+  "@partners.retry": {
+    "description": "S14 retry action beside the error line."
+  },
   "partners.empty.title": "No partner accounts yet.",
-  "@partners.empty.title": {"description": "S14 empty state — a shared business whose Partner Current A/cs have not been seeded yet (02 §7.1). No call to action: seeding happens with the owners step of S0.6/S8.1, which this screen does not own, and 07 §1 rule 6 forbids a door that leads nowhere."},
+  "@partners.empty.title": {
+    "description": "S14 empty state — a shared business whose Partner Current A/cs have not been seeded yet (02 §7.1). No call to action: seeding happens with the owners step of S0.6/S8.1, which this screen does not own, and 07 §1 rule 6 forbids a door that leads nowhere."
+  },
   "partners.empty.body": "Each owner gets one account here. It shows what they have put into the business, what they have taken out, and what the business owes them.",
-  "@partners.empty.body": {"description": "S14 empty state, second line: what this screen is for, in the user’s own words (02 §7.1)."},
+  "@partners.empty.body": {
+    "description": "S14 empty state, second line: what this screen is for, in the user’s own words (02 §7.1)."
+  },
   "partners.solo.title": "Nothing to show here.",
-  "@partners.solo.title": {"description": "S14 when the book turns out to have a single owner. ADR 2026-09-09b 🔒: a *Just me* business never mentions partners, ratios or profit distribution anywhere in the app — so this state says none of those words. It exists only because a stale link or an ownership change can land on the route; the shell never offers it (07 §1 rule 6 still wants a way back, which the app bar gives)."},
+  "@partners.solo.title": {
+    "description": "S14 when the book turns out to have a single owner. ADR 2026-09-09b 🔒: a *Just me* business never mentions partners, ratios or profit distribution anywhere in the app — so this state says none of those words. It exists only because a stale link or an ownership change can land on the route; the shell never offers it (07 §1 rule 6 still wants a way back, which the app bar gives)."
+  },
   "partners.solo.body": "This book has one owner, so there is nothing to divide up.",
-  "@partners.solo.body": {"description": "S14 single-owner state, second line. Deliberately free of *partner*, *ratio* and *distribution* (ADR 2026-09-09b 🔒)."},
+  "@partners.solo.body": {
+    "description": "S14 single-owner state, second line. Deliberately free of *partner*, *ratio* and *distribution* (ADR 2026-09-09b 🔒)."
+  },
   "partners.position.putin": "Put in",
-  "@partners.position.putin": {"description": "S14 per-owner figure (13 §3.2 row S14): business costs the owner paid from their own pocket — `Dr Expense · Cr Partner Current` (02 §7.1)."},
+  "@partners.position.putin": {
+    "description": "S14 per-owner figure (13 §3.2 row S14): business costs the owner paid from their own pocket — `Dr Expense · Cr Partner Current` (02 §7.1)."
+  },
   "partners.position.tookout": "Took out",
-  "@partners.position.tookout": {"description": "S14 per-owner figure: money the owner took out of the business — `Dr Partner Current · Cr money a/c` (02 §7.1)."},
+  "@partners.position.tookout": {
+    "description": "S14 per-owner figure: money the owner took out of the business — `Dr Partner Current · Cr money a/c` (02 §7.1)."
+  },
   "partners.position.share": "Profit share",
-  "@partners.position.share": {"description": "S14 per-owner figure: profit (and any interest on capital) credited to them — `Dr Profit Distributed · Cr Partner Current` (02 §7.1)."},
+  "@partners.position.share": {
+    "description": "S14 per-owner figure: profit (and any interest on capital) credited to them — `Dr Profit Distributed · Cr Partner Current` (02 §7.1)."
+  },
   "partners.position.net.owed": "The business owes {name}",
-  "@partners.position.net.owed": {"description": "S14 net line, credit balance. The word carries the meaning so colour is never alone (07 §1 rule 3). Amount pre-formatted beside it.", "placeholders": {"name": {"type": "String"}}},
+  "@partners.position.net.owed": {
+    "description": "S14 net line, credit balance. The word carries the meaning so colour is never alone (07 §1 rule 3). Amount pre-formatted beside it.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "partners.position.net.owes": "{name} owes the business",
-  "@partners.position.net.owes": {"description": "S14 net line, debit balance — 02 §7.1 🔒 *Debit balances are real and must be shown*: displayed as plainly as the credit case.", "placeholders": {"name": {"type": "String"}}},
+  "@partners.position.net.owes": {
+    "description": "S14 net line, debit balance — 02 §7.1 🔒 *Debit balances are real and must be shown*: displayed as plainly as the credit case.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "partners.position.net.settled": "Settled up with the business",
-  "@partners.position.net.settled": {"description": "S14 net line when the balance is zero."},
+  "@partners.position.net.settled": {
+    "description": "S14 net line when the balance is zero."
+  },
   "partners.note.payer": "A business cost an owner pays from their own pocket belongs to the business. It is money the business owes them — never an expense in their own book.",
-  "@partners.note.payer": {"description": "S14 footnote stating 02 §7.1 🔒 *The payer never books an expense in their own book* in the user’s words, so the screen teaches the rule the engine enforces."},
+  "@partners.note.payer": {
+    "description": "S14 footnote stating 02 §7.1 🔒 *The payer never books an expense in their own book* in the user’s words, so the screen teaches the rule the engine enforces."
+  },
   "partners.ratio.label": "Agreed share",
-  "@partners.ratio.label": {"description": "S14 per-owner ratio line. The weights are whole numbers from the book’s `partner_shares`, keyed by Partner Current A/c id (02 §7.1 🔒, ADR 2026-09-13 §3)."},
+  "@partners.ratio.label": {
+    "description": "S14 per-owner ratio line. The weights are whole numbers from the book’s `partner_shares`, keyed by Partner Current A/c id (02 §7.1 🔒, ADR 2026-09-13 §3)."
+  },
   "partners.ratio.weight": "{weight} of {total}",
-  "@partners.ratio.weight": {"description": "S14 ratio value as whole-number weights, never a percentage (02 §7.1 🔒).", "placeholders": {"weight": {"type": "int"}, "total": {"type": "int"}}},
+  "@partners.ratio.weight": {
+    "description": "S14 ratio value as whole-number weights, never a percentage (02 §7.1 🔒).",
+    "placeholders": {
+      "weight": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
   "partners.ratio.unrecorded": "Not recorded",
-  "@partners.ratio.unrecorded": {"description": "S14 ratio value when the book records no `partner_shares`. 02 §7.1 🔒: an absent map means the ratio was never recorded — **never** that the shares are equal, so no number is shown and nothing is divided evenly."},
+  "@partners.ratio.unrecorded": {
+    "description": "S14 ratio value when the book records no `partner_shares`. 02 §7.1 🔒: an absent map means the ratio was never recorded — **never** that the shares are equal, so no number is shown and nothing is divided evenly."
+  },
   "partners.ratio.unrecorded.help": "The agreed shares were never written down for this business, so the app does not assume any.",
-  "@partners.ratio.unrecorded.help": {"description": "S14 caption under an unrecorded ratio, saying why no figure is shown (02 §7.1 🔒)."},
+  "@partners.ratio.unrecorded.help": {
+    "description": "S14 caption under an unrecorded ratio, saying why no figure is shown (02 §7.1 🔒)."
+  },
   "partners.capacity.can": "The business can settle all partner balances today.",
-  "@partners.capacity.can": {"description": "S14 settlement capacity, in words (02 §7.1 🔒 — the wording is the spec’s own). Shown with the figures beneath it."},
+  "@partners.capacity.can": {
+    "description": "S14 settlement capacity, in words (02 §7.1 🔒 — the wording is the spec’s own). Shown with the figures beneath it."
+  },
   "partners.capacity.short": "Short by {amount} to settle all balances.",
-  "@partners.capacity.short": {"description": "S14 settlement capacity when money accounts fall short (02 §7.1 🔒 — the spec’s own wording). Amount pre-formatted.", "placeholders": {"amount": {"type": "String"}}},
+  "@partners.capacity.short": {
+    "description": "S14 settlement capacity when money accounts fall short (02 §7.1 🔒 — the spec’s own wording). Amount pre-formatted.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "partners.capacity.figures": "Money in the business {money} · owed to owners {owed}",
-  "@partners.capacity.figures": {"description": "S14 figures beneath the capacity sentence — 02 §7.1 🔒 *Figures are shown beneath, never left for the reader to subtract*. Amounts pre-formatted.", "placeholders": {"money": {"type": "String"}, "owed": {"type": "String"}}},
+  "@partners.capacity.figures": {
+    "description": "S14 figures beneath the capacity sentence — 02 §7.1 🔒 *Figures are shown beneath, never left for the reader to subtract*. Amounts pre-formatted.",
+    "placeholders": {
+      "money": {
+        "type": "String"
+      },
+      "owed": {
+        "type": "String"
+      }
+    }
+  },
   "partners.drift.title": "{name} has {amount} more with the business than the others",
-  "@partners.drift.title": {"description": "S14.2 quiet card (07 §27 🔒, 02 §7.1 🔒 *Drift visibility*): informational, never a demand. Amount pre-formatted.", "placeholders": {"name": {"type": "String"}, "amount": {"type": "String"}}},
+  "@partners.drift.title": {
+    "description": "S14.2 quiet card (07 §27 🔒, 02 §7.1 🔒 *Drift visibility*): informational, never a demand. Amount pre-formatted.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "partners.drift.body": "Nothing has to be done about it. It is here so everybody can see the same picture.",
-  "@partners.drift.body": {"description": "S14.2 second line — the *informational, never a demand* rule said out loud (02 §7.1 🔒)."},
+  "@partners.drift.body": {
+    "description": "S14.2 second line — the *informational, never a demand* rule said out loud (02 §7.1 🔒)."
+  },
   "partners.drift.doors": "If you do want to even it out",
-  "@partners.drift.doors": {"description": "S14.2 heading above the three doors (07 §27 🔒: pay out · partner-to-partner · carry forward)."},
+  "@partners.drift.doors": {
+    "description": "S14.2 heading above the three doors (07 §27 🔒: pay out · partner-to-partner · carry forward)."
+  },
   "partners.drift.door.payout": "Business pays out",
-  "@partners.drift.door.payout": {"description": "S14.2 door 1 (02 §7.1 settlement route 1): the business pays the balance from one of its own money accounts — `Dr Partner Current · Cr bank`."},
+  "@partners.drift.door.payout": {
+    "description": "S14.2 door 1 (02 §7.1 settlement route 1): the business pays the balance from one of its own money accounts — `Dr Partner Current · Cr bank`."
+  },
   "partners.drift.door.payout.disabled": "The business has no money account with anything in it to pay from.",
-  "@partners.drift.door.payout.disabled": {"description": "S14.2 door 1 disabled-with-reason (13 §4.3, 07 §1 rule 6): route 1 needs cash, and the book has none."},
+  "@partners.drift.door.payout.disabled": {
+    "description": "S14.2 door 1 disabled-with-reason (13 §4.3, 07 §1 rule 6): route 1 needs cash, and the book has none."
+  },
   "partners.drift.door.p2p": "One owner pays another",
-  "@partners.drift.door.p2p": {"description": "S14.2 door 2 (02 §7.1 settlement route 2): settled outside the business — `Dr {over-funded} · Cr {under-funded}`; the payer has bought part of the other’s claim."},
+  "@partners.drift.door.p2p": {
+    "description": "S14.2 door 2 (02 §7.1 settlement route 2): settled outside the business — `Dr {over-funded} · Cr {under-funded}`; the payer has bought part of the other’s claim."
+  },
   "partners.drift.door.p2p.disabled": "This needs a second owner to settle with.",
-  "@partners.drift.door.p2p.disabled": {"description": "S14.2 door 2 disabled-with-reason when the book has only one other partner account — or none."},
+  "@partners.drift.door.p2p.disabled": {
+    "description": "S14.2 door 2 disabled-with-reason when the book has only one other partner account — or none."
+  },
   "partners.drift.door.carry": "Carry forward",
-  "@partners.drift.door.carry": {"description": "S14.2 door 3 (02 §7.1 settlement route 3), the default."},
+  "@partners.drift.door.carry": {
+    "description": "S14.2 door 3 (02 §7.1 settlement route 3), the default."
+  },
   "partners.drift.door.carry.disabled": "This already happens: at year close the balance is closed and re-opened, dated and checked. Nothing to do here.",
-  "@partners.drift.door.carry.disabled": {"description": "S14.2 door 3 disabled-with-reason (13 §4.3). Carry forward is the preselected default of 02 §7.1 and is performed by the year-close ceremony (§8.1) — never a remembered number — so the door states that instead of dead-ending (07 §1 rule 6)."},
+  "@partners.drift.door.carry.disabled": {
+    "description": "S14.2 door 3 disabled-with-reason (13 §4.3). Carry forward is the preselected default of 02 §7.1 and is performed by the year-close ceremony (§8.1) — never a remembered number — so the door states that instead of dead-ending (07 §1 rule 6)."
+  },
   "partners.doors.readonly": "Your plan is read-only just now, so nothing can be recorded.",
-  "@partners.doors.readonly": {"description": "S14.2 disabled-with-reason for every door while the tenant is read-only (13 §5, S12.5 pattern). The figures stay visible; only writing stops."},
+  "@partners.doors.readonly": {
+    "description": "S14.2 disabled-with-reason for every door while the tenant is read-only (13 §5, S12.5 pattern). The figures stay visible; only writing stops."
+  },
   "partners.sheet.payout.title": "Business pays out",
-  "@partners.sheet.payout.title": {"description": "S14.2 pay-out sheet title. The sheet posts through the partners port (`Dr Partner Current · Cr money a/c`) and never routes into the entry flow."},
+  "@partners.sheet.payout.title": {
+    "description": "S14.2 pay-out sheet title. The sheet posts through the partners port (`Dr Partner Current · Cr money a/c`) and never routes into the entry flow."
+  },
   "partners.sheet.payout.body": "The business pays {name} from one of its own accounts.",
-  "@partners.sheet.payout.body": {"description": "S14.2 pay-out sheet, what it will do (02 §7.1 route 1).", "placeholders": {"name": {"type": "String"}}},
+  "@partners.sheet.payout.body": {
+    "description": "S14.2 pay-out sheet, what it will do (02 §7.1 route 1).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
   "partners.sheet.payout.from": "Pay from",
-  "@partners.sheet.payout.from": {"description": "S14.2 pay-out sheet — which money A/C the cash leaves."},
+  "@partners.sheet.payout.from": {
+    "description": "S14.2 pay-out sheet — which money A/C the cash leaves."
+  },
   "partners.sheet.p2p.title": "One owner pays another",
-  "@partners.sheet.p2p.title": {"description": "S14.2 partner-to-partner sheet title (02 §7.1 route 2)."},
+  "@partners.sheet.p2p.title": {
+    "description": "S14.2 partner-to-partner sheet title (02 §7.1 route 2)."
+  },
   "partners.sheet.p2p.body": "{payer} is paid by another owner outside the business, and that much of the claim on the business moves across.",
-  "@partners.sheet.p2p.body": {"description": "S14.2 partner-to-partner sheet, what it will do — 02 §7.1: the payer has bought part of the other’s claim; no money account of the business moves.", "placeholders": {"payer": {"type": "String"}}},
+  "@partners.sheet.p2p.body": {
+    "description": "S14.2 partner-to-partner sheet, what it will do — 02 §7.1: the payer has bought part of the other’s claim; no money account of the business moves.",
+    "placeholders": {
+      "payer": {
+        "type": "String"
+      }
+    }
+  },
   "partners.sheet.p2p.to": "Paid by",
-  "@partners.sheet.p2p.to": {"description": "S14.2 partner-to-partner sheet — the owner who pays, and whose claim on the business therefore grows."},
+  "@partners.sheet.p2p.to": {
+    "description": "S14.2 partner-to-partner sheet — the owner who pays, and whose claim on the business therefore grows."
+  },
   "partners.sheet.amount": "Amount",
-  "@partners.sheet.amount": {"description": "S14.2 sheet amount field; rupees, tabular figures (07 §1 rule 4). Stored as integer paise (CLAUDE.md rule 1)."},
+  "@partners.sheet.amount": {
+    "description": "S14.2 sheet amount field; rupees, tabular figures (07 §1 rule 4). Stored as integer paise (CLAUDE.md rule 1)."
+  },
   "partners.sheet.amount.invalid": "Enter an amount above zero.",
-  "@partners.sheet.amount.invalid": {"description": "S14.2 sheet validation."},
+  "@partners.sheet.amount.invalid": {
+    "description": "S14.2 sheet validation."
+  },
   "partners.sheet.amount.max": "That is more than the business owes {name} ({amount}).",
-  "@partners.sheet.amount.max": {"description": "S14.2 sheet validation against the partner’s own balance. Amount pre-formatted.", "placeholders": {"name": {"type": "String"}, "amount": {"type": "String"}}},
+  "@partners.sheet.amount.max": {
+    "description": "S14.2 sheet validation against the partner’s own balance. Amount pre-formatted.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
   "partners.sheet.save": "Record it",
-  "@partners.sheet.save": {"description": "S14.2 sheet primary action — posts the settlement."},
+  "@partners.sheet.save": {
+    "description": "S14.2 sheet primary action — posts the settlement."
+  },
   "partners.sheet.cancel": "Not now",
-  "@partners.sheet.cancel": {"description": "S14.2 sheet dismiss action."},
+  "@partners.sheet.cancel": {
+    "description": "S14.2 sheet dismiss action."
+  },
   "partners.sheet.error": "Couldn’t record that. Nothing was posted.",
-  "@partners.sheet.error": {"description": "S14.2 sheet failure line — says plainly that the ledger is untouched (02 §5: nothing is ever half-posted)."},
+  "@partners.sheet.error": {
+    "description": "S14.2 sheet failure line — says plainly that the ledger is untouched (02 §5: nothing is ever half-posted)."
+  },
   "partners.saved": "Recorded ✓",
-  "@partners.saved": {"description": "S14.2 confirmation toast after a settlement posts."}
+  "@partners.saved": {
+    "description": "S14.2 confirmation toast after a settlement posts."
+  },
+  "distribute.title": "Distribute profit",
+  "@distribute.title": {
+    "description": "S14.1 app bar (02 §7.1 🔒, 13 §3.2 row S14.1). Business surface: *share*, *interest*, *put in* — never Dr/Cr (02 §10 🔒)."
+  },
+  "distribute.skeleton": "Working out each owner’s share",
+  "@distribute.skeleton": {
+    "description": "S14.1 loading state, announced with the ruled skeleton (11 §4.5, 13 §4.3)."
+  },
+  "distribute.error": "Couldn’t work out the shares.",
+  "@distribute.error": {
+    "description": "S14.1 error state, always shown with retry (13 §4.3)."
+  },
+  "distribute.retry": "Try again",
+  "@distribute.retry": {
+    "description": "S14.1 retry action."
+  },
+  "distribute.step": "Step {n} of {total}",
+  "@distribute.step": {
+    "description": "S14.1 stepper label — the count is in words, never left to the tint (13 §4.2, 07 §1 rule 3).",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "distribute.step1.title": "Which stretch of the year?",
+  "@distribute.step1.title": {
+    "description": "S14.1 step 1 (13 §3.2 row S14.1: period first). Defaults to the open financial year up to today."
+  },
+  "distribute.step1.help": "The profit is the whole year’s. These dates only set the stretch that interest is worked out over.",
+  "@distribute.step1.help": {
+    "description": "S14.1 step 1 help — ADR 2026-09-05e §8 makes net profit FY-scoped whatever period the interest covers, and the screen says so rather than letting the user assume."
+  },
+  "distribute.period.from": "From",
+  "@distribute.period.from": {
+    "description": "S14.1 step 1 — first day of the interest period."
+  },
+  "distribute.period.to": "To",
+  "@distribute.period.to": {
+    "description": "S14.1 step 1 — last day of the interest period."
+  },
+  "distribute.period.year": "Financial year {label}",
+  "@distribute.period.year": {
+    "description": "S14.1 step 1 — which year the profit figure belongs to (02 §8.1).",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "distribute.step2.title": "What each owner gets",
+  "@distribute.step2.title": {
+    "description": "S14.1 step 2 — the ratio preview, both lines per owner (02 §7.1 🔒)."
+  },
+  "distribute.step2.help": "Nothing is recorded yet. This is what the entry would say.",
+  "@distribute.step2.help": {
+    "description": "S14.1 step 2 help — 02 §7.1 🔒: the preview shows the effect *before anything posts*."
+  },
+  "distribute.profit": "Profit for {label}",
+  "@distribute.profit": {
+    "description": "S14.1 step 2 — the year’s figure, stated as profit. Amount shown beside it.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "distribute.loss": "Loss for {label}",
+  "@distribute.loss": {
+    "description": "S14.1 step 2 — the year’s figure when it is negative. 02 §7.1 🔒 shares a loss by the mirror posting, same shares.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "distribute.loss.note": "This year is a loss, so each owner’s share comes off what the business owes them.",
+  "@distribute.loss.note": {
+    "description": "S14.1 plain sentence for a loss period (ADR 2026-09-05e §8) — the words carry it, not a colour (07 §1 rule 3)."
+  },
+  "distribute.owner.interest": "Interest",
+  "@distribute.owner.interest": {
+    "description": "S14.1 per-owner line 1 — interest on capital, an appropriation of profit and never a business cost (02 §7.1 🔒)."
+  },
+  "distribute.owner.share": "Share",
+  "@distribute.owner.share": {
+    "description": "S14.1 per-owner line 2 — the agreed share of what is left after interest (02 §7.1 🔒)."
+  },
+  "distribute.owner.total": "{name} altogether",
+  "@distribute.owner.total": {
+    "description": "S14.1 per-owner total line.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "distribute.ratio": "{weight} of {total}",
+  "@distribute.ratio": {
+    "description": "S14.1 per-owner weight — whole numbers, never a percentage (02 §7.1 🔒).",
+    "placeholders": {
+      "weight": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "distribute.totals.interest": "Interest altogether",
+  "@distribute.totals.interest": {
+    "description": "S14.1 totals row."
+  },
+  "distribute.totals.share": "Shared by the agreed shares",
+  "@distribute.totals.share": {
+    "description": "S14.1 totals row — what is left after interest, divided by the weights."
+  },
+  "distribute.totals.entry": "The whole entry",
+  "@distribute.totals.entry": {
+    "description": "S14.1 totals row — the two totals add up to the year’s figure exactly, so the odd paise left over by the division are visible inside the owners’ own numbers (02 §7.1 🔒 rounding rule)."
+  },
+  "distribute.interest.off": "Interest on capital is off for this business, so there is one line each.",
+  "@distribute.interest.off": {
+    "description": "S14.1 caption when the setting is off — 02 §7.1 🔒 makes it optional and off by default, and the screen says which it is rather than leaving a missing line unexplained."
+  },
+  "distribute.interest.above": "The interest owed comes to more than the profit. It is still credited in full, and what is left over is shared as a loss.",
+  "@distribute.interest.above": {
+    "description": "S14.1 plain sentence for 02 §7.1 🔒 *interest above profit*."
+  },
+  "distribute.step3.title": "Ready to record",
+  "@distribute.step3.title": {
+    "description": "S14.1 step 3."
+  },
+  "distribute.confirm.solo": "Distribute",
+  "@distribute.confirm.solo": {
+    "description": "S14.1 step 3 primary action for a book with one owner — a quorum of one, where 02 §7.2.1 🔒 keeps the idea invisible."
+  },
+  "distribute.confirm.solo.note": "This records one entry. It moves no money: it writes down what the business now owes each owner.",
+  "@distribute.confirm.solo.note": {
+    "description": "S14.1 step 3 note for the quorum-of-one book (02 §7.1 🔒 — *it moves no cash*)."
+  },
+  "distribute.confirm.shared": "Propose to the owners",
+  "@distribute.confirm.shared": {
+    "description": "S14.1 step 3 primary action for a shared book — distributing profit is a structural action needing a quorum (02 §7.2.1 🔒)."
+  },
+  "distribute.confirm.shared.note": "Every owner has to approve this. It waits in their Inbox until they do, and nothing changes before then.",
+  "@distribute.confirm.shared.note": {
+    "description": "S14.1 step 3 note for a shared book — 02 §7.2.1 🔒 *Nothing is applied early*."
+  },
+  "distribute.back": "Back",
+  "@distribute.back": {
+    "description": "S14.1 wizard bar."
+  },
+  "distribute.next": "Next",
+  "@distribute.next": {
+    "description": "S14.1 wizard bar."
+  },
+  "distribute.posted": "Recorded ✓",
+  "@distribute.posted": {
+    "description": "S14.1 confirmation after a quorum-of-one book posts."
+  },
+  "distribute.proposed": "Sent to the owners ✓",
+  "@distribute.proposed": {
+    "description": "S14.1 confirmation after a shared book’s request is signed and waiting."
+  },
+  "distribute.failed": "Couldn’t record that. Nothing was posted.",
+  "@distribute.failed": {
+    "description": "S14.1 failure line — says plainly that the ledger is untouched (02 §5: nothing is ever half-posted)."
+  },
+  "distribute.block.ceiling": "This is {amount} more than the business has left to give.",
+  "@distribute.block.ceiling": {
+    "description": "S14.1 ceiling refusal — 02 §7.1 🔒 and ADR 2026-09-05e §8: cumulative distributions may never exceed accumulated surplus, and *the wizard refuses and says by how much*. Amount pre-formatted.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "distribute.block.ceiling.help": "What the business has made in earlier years is part of this. Nothing can go out beyond it.",
+  "@distribute.block.ceiling.help": {
+    "description": "S14.1 ceiling refusal, second line."
+  },
+  "distribute.block.ratio.unrecorded": "The agreed shares were never written down for this business, so nothing can be divided.",
+  "@distribute.block.ratio.unrecorded": {
+    "description": "S14.1 refusal — 02 §7.1 🔒: an absent map means the shares were never recorded, **never** that they are equal, so the app divides nothing."
+  },
+  "distribute.block.ratio.incomplete": "The agreed shares do not cover every owner, so nothing can be divided.",
+  "@distribute.block.ratio.incomplete": {
+    "description": "S14.1 refusal when the ratio in force names fewer (or other) accounts than the book’s owners — dividing would silently leave somebody out."
+  },
+  "distribute.block.terms": "This business’s agreed terms could not be read on this phone, so nothing can be divided yet.",
+  "@distribute.block.terms": {
+    "description": "S14.1 refusal when a `book_config` version or a dated settings record was quarantined (ADR 2026-09-14b §2, §5) — falling back to the terms agreed at creation would be the wrong answer."
+  },
+  "distribute.block.nothing": "There is nothing to hand out for {label}.",
+  "@distribute.block.nothing": {
+    "description": "S14.1 refusal when the year’s figure is exactly zero.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "distribute.block.partners": "This business has no owner accounts yet.",
+  "@distribute.block.partners": {
+    "description": "S14.1 refusal for a shared business whose Partner Current A/cs are not seeded."
+  },
+  "distribute.block.account": "This business has nowhere to record a distribution yet.",
+  "@distribute.block.account": {
+    "description": "S14.1 refusal when the book has no `Profit Distributed` account — 02 §7.1 🔒 keeps the no-closing-entries rule, so one is never invented here."
+  },
+  "distribute.block.notshared": "Nothing to show here.",
+  "@distribute.block.notshared": {
+    "description": "S14.1 on a single-owner business. ADR 2026-09-09b 🔒: a *Just me* business never mentions partners, ratios or profit distribution anywhere in the app, so this line says none of those words."
+  },
+  "distribute.readonly": "Your plan is read-only just now, so nothing can be recorded.",
+  "@distribute.readonly": {
+    "description": "S14.1 disabled-with-reason while the tenant is read-only (13 §5, S12.5 pattern). The figures stay visible; only writing stops."
+  },
+  "distribute.door": "Distribute profit",
+  "@distribute.door": {
+    "description": "S14 door to S14.1 (13 §3.2: S14.1’s parent is S14). Shown only on a shared business, so the ADR 2026-09-09b 🔒 silence holds."
+  }
 }

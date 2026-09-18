@@ -10,7 +10,7 @@
 1. **The 8-second entry.** From app icon to saved cash entry in ≤ 8 s. Every design decision loses to this.
 2. **One-hand, bottom-heavy** (respect the iOS home-indicator inset; nothing critical under it). Primary actions in thumb reach; nothing critical only at the top.
 3. **Color is meaning, never alone — and lives in the numerals.** Credit `--credit` / debit `--debit` tokens color **amounts only**, always paired with sign (`+`/`−`), column position, and a word; the app is near-monochrome otherwise, per brand (11 §4.3). Pending = `pending`, locked = `locked` (design-system §2, approved ADR 2026-09-05f §H11); status words and icons may use the `success`/`warning`/`info`/`danger` family — never amounts (ADR 2026-09-05f §H1).
-4. **Money format:** ₹ + Indian grouping (`₹12,34,567`), paise shown only when non-zero; **tabular figures always** (`font-variant-numeric: tabular-nums` on every amount — 11 §4.4). Amount-in-words on receipts/exports in the user's language.
+4. **Money format:** ₹ + Indian grouping (`₹12,34,567`), paise shown only when non-zero; **tabular figures always** (`font-variant-numeric: tabular-nums` on every amount — 11 §4.4). Amount-in-words on receipts/exports in the user's language. ⟦tests: F1-07-172⟧
 5. **Dates:** English uses abbreviated months (`DD Aug YYYY`); ਪੰਜਾਬੀ and हिन्दी use **full month names** (ਅਗਸਤ, अगस्त) — abbreviations don't exist naturally in these scripts. Relative labels *Today / Yesterday* in lists.
 6. **No dead ends.** Every blocked action explains why and offers the path: locked date → *Fix an old entry*; unverified member → *Meet Sunita to activate*; empty vault → recovery ladder.
 7. **Offline is normal, not an error.** A quiet chip (`Saved on phone · will sync`) — never a blocking banner. Sync failures surface in Inbox, not as popups. **The status surface has exactly the six states 05 §9 owns** (ADR 2026-09-05f §B): `Synced ✓` · `Saved on phone · will sync (N)` · `Offline` · `Waiting for entries from {name}'s phone` (author gap — the projection is **provisional** and month-close is blocked, S10.5) · `Needs attention → Inbox` · and, only while a book is rebuilding, the determinate loader (S1.4). Nothing else.
@@ -184,7 +184,7 @@ Reached from Menu → Books, or immediately after the purpose card "My shop" / "
 
 🔒 **The scope switcher has two forms, and they are different controls:** with **one business** it is a two-chip inline toggle in the top bar (S1.2); from **three or more books** it becomes the grouped bottom sheet (S1.3). Never show the grouped sheet to someone who owns two books. ⟦tests: F1-07-52, F1-07-53, F1-07-87⟧
 
-## 6. Ledger — the A/C index 🔒 ⟦tests: F1-02-9, F1-02-10, F1-07-42, F1-07-43, F1-07-44, F1-07-60, F1-07-61⟧
+## 6. Ledger — the A/C index 🔒 ⟦tests: F1-02-9, F1-02-10, F1-07-42, F1-07-43, F1-07-44, F1-07-60, F1-07-61, F1-07-171⟧
 
 - A–Z list of every A/C in scope with live balance, colored by sign; sticky alphabet rail; **search is the header** (the fastest path to any khata); filter chips: All · Parties · Categories · Money · System.
 - Row tap → **A/C statement**: professional paper-ledger layout in the traditional three columns — **ਨਾਮੇ | ਜਮ੍ਹਾਂ | ਬਾਕੀ** (नामे | जमा | बाकी / Dr | Cr | Balance), cells colored directionally per the approved option A (design-system §5) — with *Opening balance b/f* carrying its as-on date (the period's first day, e.g. `as on 01 ਅਗਸਤ 2026`) and *Closing balance c/f* carrying the date it is forwarded — the period's last day, or today's date while the period is still open 🔒 (owner rule), dated entries with running balance between them; FY switcher (02 §8.1); export this A/C (**PDF/CSV/XLSX**, ADR 2026-09-12e §2 ⟦tests: F1-07-79⟧) top-right; for parties: WhatsApp-share a statement image (the Khatabook habit — it drives adoption).
@@ -199,7 +199,7 @@ Drill-downs from Home: party list sorted by balance, ageing chips (`> 30 days` a
 - **Given out** (book view): aged list per 02 §7; approver sees `Remind` and `Write off (reason)` actions.
 - Request flow: amount → purpose (required) → from which book → submits to approver; tracked in Inbox both sides.
 
-## 9. Approvals (in Inbox) 🔒 ⟦tests: F1-07-23⟧
+## 9. Approvals (in Inbox) 🔒 ⟦tests: F1-07-23, F1-07-230, F1-07-231, F1-07-232, F1-07-233, F1-07-234, F1-07-235, F1-07-236, F1-07-237, F1-07-238, F1-07-239⟧
 Flags group into **one card per author + book + day**: avatar, "Ramesh · Kirana Store · 7 entries · ₹23,400", expandable list with photo thumbnails and a per-row ✕ quick-reject. Two actions 🔒 (owner-approved):
 - **Approve all** — clears every flag in the card in one tap (entries were already posted and counted, 02 §3).
 - **One by one** — a guided stepper: each entry full-screen (photo, amount, A/Cs, date/time, author, note) with **Approve / Reject (reason required → auto-reversal posts) / Skip (stays flagged)** and a quiet *ask for a better photo* link; every decision advances, progress shown ("3 of 7"). Nothing is approved unseen; rejecting one never blocks the rest.
@@ -209,7 +209,7 @@ One flow: From (book + money A/C) → To (book + money A/C) → amount → save.
 
 ---
 
-## 11. Statement import 🔒 (Phase 1: file upload) ⟦tests: F1-07-25 @M10⟧
+## 11. Statement import 🔒 (Phase 1: file upload) ⟦tests: F1-07-25, F1-07-200, F1-07-201, F1-07-202, F1-07-203, F1-07-204, F1-07-205, F1-07-206, F1-07-207, F1-07-208, F1-07-209, F1-07-210, F1-07-211, F1-07-212, F1-07-213, F1-07-214, F1-07-215, F1-07-216, F1-07-217, F1-07-218, F1-07-219, F1-07-240, F1-07-241, F1-07-242, F1-07-243, F1-07-244, F1-07-245, F1-07-246, F1-07-247, F1-07-248, F1-07-249, F1-07-250, F1-07-251, F1-07-252, F1-07-253, F1-07-254, F1-07-255, F1-07-256, F1-07-257, F1-07-258, F1-07-259⟧
 
 **Entry point 🔒 (owner-ruled 3 Sep 2026, ADR 2026-09-03):** the Import action lives on the **entry screen (S2) header, top right** — importing is a way of entering many lines at once — and is *not* a Menu row. Import lines also surface in the Inbox.
 
@@ -245,7 +245,7 @@ One flow: From (book + money A/C) → To (book + money A/C) → amount → save.
 
 ---
 
-## 13. Month close, Late Arrivals, Year close 🔒 ⟦tests: F1-07-27, F1-07-129, F1-07-130, F1-07-131, F1-07-132, F1-07-133, F1-07-134, F1-07-135, F1-07-136, F1-07-137, F1-07-138, F1-07-139⟧
+## 13. Month close, Late Arrivals, Year close 🔒 ⟦tests: F1-07-27, F1-07-129, F1-07-130, F1-07-131, F1-07-132, F1-07-133, F1-07-134, F1-07-135, F1-07-136, F1-07-137, F1-07-138, F1-07-139, F1-07-180, F1-07-181, F1-07-182, F1-07-183, F1-07-184, F1-07-185, F1-07-186, F1-07-187, F1-07-188, F1-07-189, F1-07-190, F1-07-191, F1-07-192, F1-07-193, F1-07-194, F1-07-195, F1-07-196, F1-07-197, F1-07-198, F1-07-199, F1-07-140, F1-07-141, F1-07-142, F1-07-143, F1-07-144, F1-07-145, F1-07-146, F1-07-147, F1-07-148, F1-07-149, F1-07-220, F1-07-221, F1-07-222, F1-07-223, F1-07-224, F1-07-225, F1-07-226, F1-07-227, F1-07-228, F1-07-229, F1-07-260, F1-07-261, F1-07-262, F1-07-263, F1-07-264⟧
 
 - **Close card** appears on Home from the 1st for each book the user closes: `Close August ▸ 4 steps`.
 - **Resumable 🔒:** progress saves at every step; leaving and returning resumes where the user stopped. A shopkeeper will not finish this in one sitting.
@@ -259,7 +259,7 @@ One flow: From (book + money A/C) → To (book + money A/C) → amount → save.
 
 ---
 
-## 14. Reports & Export 🔒 ⟦tests: F1-07-28, F1-07-79, F1-07-128⟧
+## 14. Reports & Export 🔒 ⟦tests: F1-07-28, F1-07-79, F1-07-128, F1-07-160, F1-07-161, F1-07-162, F1-07-163, F1-07-164, F1-07-165, F1-07-166, F1-07-167, F1-07-168, F1-07-169, F1-07-172, F1-07-173⟧
 
 > **ADR 2026-09-12 §1** — S8.2's export sheet offers exactly **PDF, CSV and XLSX**; View report opens in-app. ⟦tests: F1-07-79⟧
 > **ADR 2026-09-12e §1–§2** — XLSX is generated in-house over `archive` + `xml` (no package: the free writers need archive 3.x, sodium needs 4.x), so all three formats work; and View · Download/Share · Export is the same trio on the statement (S4) and the report viewer. ⟦tests: F1-07-79⟧

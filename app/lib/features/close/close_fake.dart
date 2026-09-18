@@ -55,6 +55,25 @@ final class FakeCloseSource implements CloseSource {
   /// The `projectorVersion` the minted lock records (02 §8 step 4 🔒).
   int projectorVersion = 1;
 
+  /// What [closeStatuses] answers — S10.1's whole input. Null means *only
+  /// this book*, derived from [view], which is the single-book tenant that
+  /// must never see S10.1 at all.
+  List<BookCloseStatus>? statuses;
+
+  /// What [monthSummary] answers (S10.2). Null means a summary derived from
+  /// nothing — zero in, zero out — which is the honest empty card.
+  MonthSummary? summary;
+
+  /// Makes [monthSummary] throw, for the S10.2 error state.
+  bool failSummary = false;
+
+  /// Holds [monthSummary] open for ever — the S10.2 loading state without a
+  /// pending timer, which a widget test would otherwise flag at tear-down.
+  bool holdSummary = false;
+
+  /// Every `(bookId, period)` [monthSummary] was asked for, in order.
+  final List<String> summariesAsked = [];
+
   @override
   Future<CloseView> loadClose(String bookId, YearMonth period) async {
     if (holdLoad) return Completer<CloseView>().future;
@@ -80,6 +99,7 @@ final class FakeCloseSource implements CloseSource {
       tray: view.tray,
       progress: progress,
       readOnly: view.readOnly,
+      fyStartMonth: view.fyStartMonth,
     );
   }
 
@@ -108,5 +128,38 @@ final class FakeCloseSource implements CloseSource {
       ),
       verification: CloseVerification.verified,
     );
+  }
+
+  @override
+  Future<List<BookCloseStatus>> closeStatuses(YearMonth upTo) async =>
+      statuses ??
+      [
+        BookCloseStatus(
+          bookId: view.bookId,
+          bookName: view.bookName,
+          period: view.period,
+          state: view.progress.step == CloseStep.countCash
+              ? BookCloseState.notStarted
+              : BookCloseState.inProgress,
+          step: view.progress.step == CloseStep.countCash
+              ? null
+              : view.progress.step,
+        ),
+      ];
+
+  @override
+  Future<MonthSummary> monthSummary(String bookId, YearMonth period) async {
+    summariesAsked.add('$bookId/$period');
+    if (holdSummary) return Completer<MonthSummary>().future;
+    if (failSummary) throw StateError('no summary for $bookId $period');
+    return summary ??
+        MonthSummary(
+          bookId: bookId,
+          bookName: view.bookName,
+          period: period,
+          moneyIn: Paise.zero,
+          moneyOut: Paise.zero,
+          fyStartMonth: view.fyStartMonth,
+        );
   }
 }

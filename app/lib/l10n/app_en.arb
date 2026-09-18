@@ -846,6 +846,56 @@
   "@close.error": {
     "description": "S10 error state; always shown with the retry action (13 §4.3 error-with-retry)."
   },
+  "close.family.help": "Closing is a joint act, so here is where every book stands.",
+  "@close.family.help": {
+    "description": "S10.1 help line — why the section is here (07 §13 🔒, 02 §8)."
+  },
+  "close.family.month": "for {month}",
+  "@close.family.month": {
+    "description": "S10.1 — the month this book is on, shown only when it differs from the month being closed here. Months lock in order (02 §8.1 🔒), so two books of one family are often on different months.",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "close.family.row": "{book}: {state}",
+  "@close.family.row": {
+    "description": "S10.1 row, as a screen reader hears it — the book and its state in one phrase, so the state is never carried by the tick alone (07 §1 rule 3).",
+    "placeholders": {
+      "book": {
+        "type": "String"
+      },
+      "state": {
+        "type": "String"
+      }
+    }
+  },
+  "close.family.state.closed": "Closed",
+  "@close.family.state.closed": {
+    "description": "S10.1 state — the book's month is locked (02 §8). Paired with a tick icon and this word; colour is never alone (07 §1 rule 3)."
+  },
+  "close.family.state.in_progress": "Part-way through",
+  "@close.family.state.in_progress": {
+    "description": "S10.1 state — progress is saved for this book's month, so the wizard resumes (07 §13 *Resumable* 🔒)."
+  },
+  "close.family.state.not_started": "Not started",
+  "@close.family.state.not_started": {
+    "description": "S10.1 state — nothing saved and nothing blocking (07 §13 🔒 writes *Joint pool not started*)."
+  },
+  "close.family.state.waiting": "Waiting on {name}",
+  "@close.family.state.waiting": {
+    "description": "S10.1 state — an author gap or a held envelope keeps the lock off (ADR 2026-09-05b §3–4). {name} is the phone, or *another phone* when it has no name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "close.family.title": "The family’s close",
+  "@close.family.title": {
+    "description": "S10.1 heading (07 §13 🔒 *The family's state, not just yours*, 13 §3.2 row S10.1). Shown inside S10 only in a multi-book tenant."
+  },
   "close.lock.action": "Lock {month}",
   "@close.lock.action": {
     "description": "S10 step 4 — the one lock action. {month} pre-formatted.",
@@ -962,6 +1012,67 @@
       }
     }
   },
+  "close.summary.done": "Done",
+  "@close.summary.done": {
+    "description": "S10.2 — the way off the reward screen. No dead ends (07 §1 rule 6)."
+  },
+  "close.summary.error": "Couldn’t add up the month.",
+  "@close.summary.error": {
+    "description": "S10.2 error state — the read failed. The month is still locked; only the card could not be drawn. Shown with a retry (13 §4.3)."
+  },
+  "close.summary.families": "Each family’s month",
+  "@close.summary.families": {
+    "description": "S10.2 — heading over the per-sub-family totals shown in a joint family (07 §13 🔒)."
+  },
+  "close.summary.in": "Money in",
+  "@close.summary.in": {
+    "description": "S10.2 — the month's income. Consumer vocabulary, never Dr/Cr (02 §10 🔒, CLAUDE.md rule 9)."
+  },
+  "close.summary.locked_anyway": "The month is locked either way.",
+  "@close.summary.locked_anyway": {
+    "description": "S10.2 error state second line — the lock succeeded, so the failure must not read as a failed close (07 §1 rule 12)."
+  },
+  "close.summary.out": "Money out",
+  "@close.summary.out": {
+    "description": "S10.2 — the month's expense. Consumer vocabulary (02 §10 🔒)."
+  },
+  "close.summary.overspent": "More went out than came in this month.",
+  "@close.summary.overspent": {
+    "description": "S10.2 — stated in words when *Saved* is negative, so the fact never rides on the minus sign or the colour alone (07 §1 rule 3)."
+  },
+  "close.summary.saved": "Saved",
+  "@close.summary.saved": {
+    "description": "S10.2 — what was kept: money in less money out (07 §13 🔒 *saved ₹36,800*)."
+  },
+  "close.summary.share": "Share as a picture",
+  "@close.summary.share": {
+    "description": "S10.2 share action (07 §13 🔒: *Shareable to WhatsApp as an image*)."
+  },
+  "close.summary.share.unavailable": "This phone can’t make a picture of this card yet. The month’s figures are in Reports.",
+  "@close.summary.share.unavailable": {
+    "description": "S10.2 — why *Share as a picture* is off: the app's share sink takes only PDF, CSV and XLSX (`ReportFormat`), so no image can leave yet. Disabled-with-reason, carrying the thing the reader can actually do (13 §4.3, 07 §1 rule 6)."
+  },
+  "close.summary.skeleton": "Adding up your month",
+  "@close.summary.skeleton": {
+    "description": "S10.2 loading state announcement for the ruled skeleton (11 §4.5, 13 §4.3)."
+  },
+  "close.summary.title": "{month} is closed",
+  "@close.summary.title": {
+    "description": "S10.2 heading (07 §13 🔒, adopted 30 Aug 2026) — the reward shown the moment a book locks. {month} pre-formatted.",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "close.summary.top": "The three biggest this month",
+  "@close.summary.top": {
+    "description": "S10.2 — heading over the three largest expenses (07 §13 🔒)."
+  },
+  "close.summary.top.empty": "Nothing went out this month.",
+  "@close.summary.top.empty": {
+    "description": "S10.2 empty state for the three-largest list (13 §4.3), rather than a blank heading."
+  },
   "close.title": "Close {month}",
   "@close.title": {
     "description": "S10 app bar — the month-close wizard (07 §13 🔒, wording follows the Home close card *Close August*). {month} is a pre-formatted month name and year (07 §1 rule 5: full month names in PA/HI). PA/HI on this screen are a faithful draft for native review at M12.",
@@ -998,6 +1109,324 @@
   "close.warning.unverified_count": "This cash wasn’t counted this month",
   "@close.warning.unverified_count": {
     "description": "S10 step 3 warning item — a cash A/C with no count inside the period (02 §8.2). Warns, never blocks (07 §13 🔒)."
+  },
+  "close.year.blocked.body": "Entries from {name} haven’t arrived. Until they do, this year’s figures aren’t complete, so it can’t be certified.",
+  "@close.year.blocked.body": {
+    "description": "S10.4 blocked panel body.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "close.year.blocked.off": "Certifying stays off until the missing entries arrive.",
+  "@close.year.blocked.off": {
+    "description": "S10.4 blocked panel — why the action is absent rather than merely greyed."
+  },
+  "close.year.blocked.title": "Year close blocked — waiting on a device",
+  "@close.year.blocked.title": {
+    "description": "S10.4 — the S10.5 shape at the year boundary (07 §28 🔒, ADR 2026-09-05b §3–4). It names the phone, never a device id."
+  },
+  "close.year.blocker.advance_pending": "An advance is waiting for approval",
+  "@close.year.blocker.advance_pending": {
+    "description": "S10.4 blocker — a pending advance request (02 §7). The second of 02 §8.1 🔒's two distinct queues."
+  },
+  "close.year.blocker.advance_pending.queue": "In the advances queue",
+  "@close.year.blocker.advance_pending.queue": {
+    "description": "S10.4 — which queue the pending-advance blocker sits in (02 §8.1 🔒, two distinct queues)."
+  },
+  "close.year.blocker.author_gap": "Entries from {name} haven’t arrived",
+  "@close.year.blocker.author_gap": {
+    "description": "S10.4 blocker — an open author-sequence gap (ADR 2026-09-05b §3, ADR 2026-09-05e §4). Nobody certifies a balance with entries known to be missing. {name} is a phone's name, never a device id (07 §28 🔒).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "close.year.blocker.held": "An entry is waiting on one from {name} that hasn’t arrived",
+  "@close.year.blocker.held": {
+    "description": "S10.4 blocker — a held envelope (ADR 2026-09-05b §4, ADR 2026-09-05e §4).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "close.year.blocker.month_open": "{month} is still open",
+  "@close.year.blocker.month_open": {
+    "description": "S10.4 blocker — 02 §8.1 🔒 *every month locked*. Named by month rather than 'a month is open', so the closer knows where to go (07 §1 rule 6). {month} is a pre-formatted month name and year (07 §1 rule 5).",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "close.year.blocker.month_open.help": "Lock it from the month close, then come back.",
+  "@close.year.blocker.month_open.help": {
+    "description": "S10.4 — the way out of an open month; the close wizard is the only place a month locks (02 §8)."
+  },
+  "close.year.blocker.review_flag": "An entry is still waiting to be looked at",
+  "@close.year.blocker.review_flag": {
+    "description": "S10.4 blocker — an open review flag (02 §3). 02 §8.1 🔒 names this and the advance queue as *two distinct queues, both of which must be empty*, so the two are stated separately and never merged."
+  },
+  "close.year.blocker.review_flag.queue": "In the checks queue",
+  "@close.year.blocker.review_flag.queue": {
+    "description": "S10.4 — which queue the review-flag blocker sits in (02 §8.1 🔒, two distinct queues)."
+  },
+  "close.year.blocker.suspense": "A bank line hasn’t been explained yet",
+  "@close.year.blocker.suspense": {
+    "description": "S10.4 blocker — 02 §8.1 🔒 requires Suspense to be zero before a year closes."
+  },
+  "close.year.blocks.help": "The year can’t be certified until each one is settled.",
+  "@close.year.blocks.help": {
+    "description": "S10.4 blocking list help."
+  },
+  "close.year.blocks.title": "These stop the year close",
+  "@close.year.blocks.title": {
+    "description": "S10.4 — the blocking list heading. Each item carries `core_ledger`'s own CloseBlocker, so this list can never hold a warning (02 §8.1 🔒)."
+  },
+  "close.year.certify.action": "Certify FY {fy}",
+  "@close.year.certify.action": {
+    "description": "S10.4 — the one ceremony action (02 §8.1 🔒, 07 §13 *certify → year seals*).",
+    "placeholders": {
+      "fy": {
+        "type": "String"
+      }
+    }
+  },
+  "close.year.certify.blocked": "{count, plural, =1{One thing still stops the year close.} other{{count} things still stop the year close.}}",
+  "@close.year.certify.blocked": {
+    "description": "S10.4 — why the certify action is off, with the count. Never a control that does nothing without saying why (07 §1 rule 6, 13 §4.3).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "close.year.certify.blocked.action": "Back to the checklist",
+  "@close.year.certify.blocked.action": {
+    "description": "S10.4 — the way out of the blocked action."
+  },
+  "close.year.certify.error": "The year close couldn’t be published.",
+  "@close.year.certify.error": {
+    "description": "S10.4 — the write failed. Shown with a retry (13 §4.3); nothing has been certified."
+  },
+  "close.year.certify.refused": "{count, plural, =1{The books refused the close: one thing is still open.} other{The books refused the close: {count} things are still open.}}",
+  "@close.year.certify.refused": {
+    "description": "S10.4 — the engine's own refusal (`yearClosePreconditions` was not empty, 02 §8.1 🔒). The backstop behind the disabled action, carrying the engine's items rather than a message the screen invented.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "close.year.certify.working": "Certifying the year",
+  "@close.year.certify.working": {
+    "description": "S10.4 — the ceremony in flight. Waiting is shown by words, never a spinner (11 §4.5, ADR 2026-09-03d)."
+  },
+  "close.year.checklist.help": "What stops the close and what only warns are two separate lists below.",
+  "@close.year.checklist.help": {
+    "description": "S10.4 checklist help — 07 §13 🔒 *Blocking vs warning, stated plainly*: the screen says which is which rather than presenting one undifferentiated list."
+  },
+  "close.year.checklist.ready": "Everything is settled. FY {fy} is ready to close.",
+  "@close.year.checklist.ready": {
+    "description": "S10.4 — the checklist's empty state, which still says so rather than showing two blank headings (13 §4.3).",
+    "placeholders": {
+      "fy": {
+        "type": "String"
+      }
+    }
+  },
+  "close.year.checklist.title": "Before this year can close",
+  "@close.year.checklist.title": {
+    "description": "S10.4 — the preconditions checklist heading (02 §8.1 🔒: every month locked, Suspense zero, no open review flag, no pending advance request, no author gap, no held envelope)."
+  },
+  "close.year.distribute.action": "Share the profit",
+  "@close.year.distribute.action": {
+    "description": "S10.4 — the door to S14.1, the profit distribution wizard. Consumer wording; 'distribute' is the engine's word, not the shopkeeper's."
+  },
+  "close.year.distribute.body": "This is optional. Sharing the profit before the year seals means each owner’s balance is right from the first day of the new year.",
+  "@close.year.distribute.body": {
+    "description": "S10.4 — why the distribute door is offered, and that it is optional (02 §8.1 🔒: *businesses are prompted (optional) to run profit distribution first*)."
+  },
+  "close.year.distribute.done": "This year’s profit has already been shared.",
+  "@close.year.distribute.done": {
+    "description": "S10.4 — the door's settled state: nothing is pending, so nothing is asked."
+  },
+  "close.year.distribute.title": "Share this year’s profit first?",
+  "@close.year.distribute.title": {
+    "description": "S10.4 — the optional *Distribute profit first* door for a business book (02 §8.1 🔒, 07 §13 last bullet). It is a door to S14.1, which already owns the wizard (02 §7.2.1). A *Just me* business never sees it (02 §7.1 🔒)."
+  },
+  "close.year.error": "Couldn’t open the year close.",
+  "@close.year.error": {
+    "description": "S10.4 error state; always shown with the retry action (13 §4.3 error-with-retry)."
+  },
+  "close.year.fy": "FY {fy}",
+  "@close.year.fy": {
+    "description": "S10.4 — the financial year being closed, as a label. {fy} is the FY's own label (`2026-27`, or `2026` for a calendar-year book).",
+    "placeholders": {
+      "fy": {
+        "type": "String"
+      }
+    }
+  },
+  "close.year.prompt.action": "Close the year",
+  "@close.year.prompt.action": {
+    "description": "S10.2 → S10.4 door action — 07 §13 🔒's own name for the ceremony."
+  },
+  "close.year.prompt.body": "Every month of this financial year is now locked. Closing the year carries every balance into the new one, certified.",
+  "@close.year.prompt.body": {
+    "description": "S10.2 → S10.4 door body — why a year close is worth doing now (02 §8.1 🔒: the ceremony makes the carry-forward official, verified and displayable)."
+  },
+  "close.year.prompt.title": "FY {fy} has finished",
+  "@close.year.prompt.title": {
+    "description": "S10.2 → S10.4 door: *the prompt after March locks* (07 §13 last bullet 🔒). Shown on the month-summary screen when the month just locked was the last of the financial year.",
+    "placeholders": {
+      "fy": {
+        "type": "String"
+      }
+    }
+  },
+  "close.year.readonly": "You can read this book but not certify its year.",
+  "@close.year.readonly": {
+    "description": "S10.4 read-only variant (13 §2.3.1, S12.5 pattern; 02 §7.2.1 🔒 makes re-opening a closed year structural). The screen stays legible and the action states its reason rather than vanishing."
+  },
+  "close.year.sealed.badge": "Certified ✓ FY {fy}",
+  "@close.year.sealed.badge": {
+    "description": "S10.4 — the sealed state's badge, 07 §13 🔒's copy verbatim. 'Certified' is badge copy, not a state (13 §6 🔒). The word rides beside the tick so the meaning never depends on colour (07 §1 rule 3).",
+    "placeholders": {
+      "fy": {
+        "type": "String"
+      }
+    }
+  },
+  "close.year.sealed.body": "The year is sealed. Its closing balances are the opening balances of FY {next}.",
+  "@close.year.sealed.body": {
+    "description": "S10.4 sealed state — 02 §8.1 🔒: on success the year flips to closed and the vector becomes the certified opening balances (b/f) of the new FY.",
+    "placeholders": {
+      "next": {
+        "type": "String"
+      }
+    }
+  },
+  "close.year.sealed.done": "Done",
+  "@close.year.sealed.done": {
+    "description": "S10.4 — the one action on the sealed state, so a certified year is not a dead end (07 §1 rule 6)."
+  },
+  "close.year.sealed.mismatch": "Certified · this phone gets a different figure",
+  "@close.year.sealed.mismatch": {
+    "description": "S10.4 — `CloseVerification.mismatch`: same projector version, different vector. A real discrepancy (02 §8 step 4 🔒), and the only one of the three outcomes that is."
+  },
+  "close.year.sealed.mismatch.body": "This phone’s own working doesn’t match what was certified. Speak to whoever closed the year before you rely on these figures.",
+  "@close.year.sealed.mismatch.body": {
+    "description": "S10.4 — what a mismatch means and the one thing the reader can do about it. ⚠️ SPEC: 07 §13 🔒 names a *Recompute* action for the month close only; the year close has no such action specified, so none is invented here."
+  },
+  "close.year.sealed.stale": "Certified on an older version",
+  "@close.year.sealed.stale": {
+    "description": "S10.4 — `CloseVerification.certifierOutdated`: the certifier used an older projector and this phone's newer one does not reproduce the vector. The close needs re-certifying on a current app (ADR 2026-09-05c §3)."
+  },
+  "close.year.sealed.stale.body": "The year was certified by an app older than this one, and this phone works it out differently. It needs certifying again from an up-to-date app.",
+  "@close.year.sealed.stale.body": {
+    "description": "S10.4 — the fourth verification outcome, stated without alarm and with what has to happen."
+  },
+  "close.year.sealed.unverified": "Certified · update to verify",
+  "@close.year.sealed.unverified": {
+    "description": "S10.4 — the *unverified-by-you* variant, 07 §13 🔒's copy verbatim. `CloseVerification.readerOutdated`: the certifier used a newer projector than this phone (ADR 2026-09-05c §3 🔒). It is a state, never a mismatch alarm."
+  },
+  "close.year.sealed.unverified.body": "Update the app to verify this close. It was certified by a newer version than this phone has, so this phone can’t check the figures yet — nothing is wrong with the close itself.",
+  "@close.year.sealed.unverified.body": {
+    "description": "S10.4 — ADR 2026-09-05c §3 🔒's own sentence, with the reassurance that follows from it. Never worded as a discrepancy."
+  },
+  "close.year.settlement.carry": "Carry forward — chosen",
+  "@close.year.settlement.carry": {
+    "description": "S10.4 — the preselected route (02 §7.1 🔒, route 3). The word 'chosen' carries the meaning without colour (07 §1 rule 3)."
+  },
+  "close.year.settlement.carry.help": "Each owner’s balance closes here and re-opens in the new year as a certified opening figure — never a remembered number.",
+  "@close.year.settlement.carry.help": {
+    "description": "S10.4 — 02 §7.1 🔒 route 3, in the spec's own words."
+  },
+  "close.year.settlement.open": "Open partner positions",
+  "@close.year.settlement.open": {
+    "description": "S10.4 — the door to S14, where routes 1 and 2 are made (02 §7.1, 13 §3.2 row S14)."
+  },
+  "close.year.settlement.others": "If instead the business is paying an owner out, or one owner is settling with another, make those entries before you certify.",
+  "@close.year.settlement.others": {
+    "description": "S10.4 — 02 §7.1 🔒 routes 1 and 2. They are ordinary entries, not a choice this ceremony posts, so the screen names them and points at the partner positions rather than offering a control that would post nothing."
+  },
+  "close.year.settlement.title": "What happens to each owner’s balance",
+  "@close.year.settlement.title": {
+    "description": "S10.4 — 02 §7.1 *Settlement* 🔒: three routes offered at year close after distribution, with carry forward preselected."
+  },
+  "close.year.skeleton": "Opening the year close",
+  "@close.year.skeleton": {
+    "description": "S10.4 loading state, announced with the ruled skeleton (11 §4.5, 13 §4.3)."
+  },
+  "close.year.title": "Year close",
+  "@close.year.title": {
+    "description": "S10.4 app bar — the Year Close ceremony (02 §8.1 🔒, 07 §13 last bullet, 13 §3.2 row S10.4). PA/HI on this screen are a faithful draft for native review at M12."
+  },
+  "close.year.vector.empty": "There is nothing to carry forward yet.",
+  "@close.year.vector.empty": {
+    "description": "S10.4 — the honest empty state of the vector, never a blank card (07 §1 rule 12)."
+  },
+  "close.year.vector.help": "These closing balances become the opening balances of FY {next}. Income and expense accounts start again at zero, and this year’s result is the single line below them.",
+  "@close.year.vector.help": {
+    "description": "S10.4 — ADR 2026-09-05e §2 🔒 in the user's words: category accounts are not carried, each FY's P&L is that FY's own, and the year's net result is recorded as one line.",
+    "placeholders": {
+      "next": {
+        "type": "String"
+      }
+    }
+  },
+  "close.year.vector.net_result": "This year’s result",
+  "@close.year.vector.net_result": {
+    "description": "S10.4 — the one net surplus/deficit line of the closing vector (ADR 2026-09-05e §2 🔒). Never a category account."
+  },
+  "close.year.vector.title": "What this year hands to the next",
+  "@close.year.vector.title": {
+    "description": "S10.4 — the closing balance vector shown **before** anything is published (02 §8.1 🔒: the closer's device computes it and publishes it as a signed year-close envelope)."
+  },
+  "close.year.vector.total": "Carried forward",
+  "@close.year.vector.total": {
+    "description": "S10.4 — the balance-sheet total this year hands on, stated beneath the lines rather than left for the reader to add up."
+  },
+  "close.year.vector.unbalanced": "These balances don’t add up, so the year can’t be certified. The books-balanced card on Home says more.",
+  "@close.year.vector.unbalanced": {
+    "description": "S10.4 — a vector whose debits and credits differ is not certifiable (02 §8, the always-visible integrity card). The screen offers the surface that explains it rather than a dead end (07 §1 rule 6)."
+  },
+  "close.year.voided.body": "{month} was re-opened, so FY {fy} is no longer certified — and neither is any later year. Lock {month} again, then close the years in order.",
+  "@close.year.voided.body": {
+    "description": "S10.4 voided banner — names the month, says the blast radius, and gives the order re-closing has to happen in (02 §8.1 🔒).",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "fy": {
+        "type": "String"
+      }
+    }
+  },
+  "close.year.voided.body.unknown": "A month inside FY {fy} was re-opened, so it is no longer certified — and neither is any later year. Lock that month again, then close the years in order.",
+  "@close.year.voided.body.unknown": {
+    "description": "S10.4 voided banner where this reader cannot name the month. It still states the fact and the order rather than going quiet (07 §1 rule 6).",
+    "placeholders": {
+      "fy": {
+        "type": "String"
+      }
+    }
+  },
+  "close.year.voided.title": "This year is no longer certified",
+  "@close.year.voided.title": {
+    "description": "S10.4 — the loud banner of 02 §8.1 🔒 *Reopening*: unlocking any month of a closed year voids that year's certificate and every later year's, admin-only, loudly warned, logged. 13 §6 🔒: `closed/certified → (voided by re-open, loudly)`."
+  },
+  "close.year.warns.help": "Worth a look before you certify, but the year closes either way.",
+  "@close.year.warns.help": {
+    "description": "S10.4 warn-only list help."
+  },
+  "close.year.warns.title": "These don’t stop the year close",
+  "@close.year.warns.title": {
+    "description": "S10.4 — the warn-only list heading. 02 §8.1 🔒: aged advances warn but don't block."
   },
   "connection.notice.body": "The app works offline. Everything you enter is saved on this phone and syncs by itself when the connection comes back.",
   "@connection.notice.body": {
@@ -1669,6 +2098,232 @@
   "@devices.window.support.title": {
     "description": "S11.10 card title (ADR 2026-09-05d §3)."
   },
+  "distribute.back": "Back",
+  "@distribute.back": {
+    "description": "S14.1 wizard bar."
+  },
+  "distribute.block.account": "This business has nowhere to record a distribution yet.",
+  "@distribute.block.account": {
+    "description": "S14.1 refusal when the book has no `Profit Distributed` account — 02 §7.1 🔒 keeps the no-closing-entries rule, so one is never invented here."
+  },
+  "distribute.block.ceiling": "This is {amount} more than the business has left to give.",
+  "@distribute.block.ceiling": {
+    "description": "S14.1 ceiling refusal — 02 §7.1 🔒 and ADR 2026-09-05e §8: cumulative distributions may never exceed accumulated surplus, and *the wizard refuses and says by how much*. Amount pre-formatted.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "distribute.block.ceiling.help": "What the business has made in earlier years is part of this. Nothing can go out beyond it.",
+  "@distribute.block.ceiling.help": {
+    "description": "S14.1 ceiling refusal, second line."
+  },
+  "distribute.block.nothing": "There is nothing to hand out for {label}.",
+  "@distribute.block.nothing": {
+    "description": "S14.1 refusal when the year’s figure is exactly zero.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "distribute.block.notshared": "Nothing to show here.",
+  "@distribute.block.notshared": {
+    "description": "S14.1 on a single-owner business. ADR 2026-09-09b 🔒: a *Just me* business never mentions partners, ratios or profit distribution anywhere in the app, so this line says none of those words."
+  },
+  "distribute.block.partners": "This business has no owner accounts yet.",
+  "@distribute.block.partners": {
+    "description": "S14.1 refusal for a shared business whose Partner Current A/cs are not seeded."
+  },
+  "distribute.block.ratio.incomplete": "The agreed shares do not cover every owner, so nothing can be divided.",
+  "@distribute.block.ratio.incomplete": {
+    "description": "S14.1 refusal when the ratio in force names fewer (or other) accounts than the book’s owners — dividing would silently leave somebody out."
+  },
+  "distribute.block.ratio.unrecorded": "The agreed shares were never written down for this business, so nothing can be divided.",
+  "@distribute.block.ratio.unrecorded": {
+    "description": "S14.1 refusal — 02 §7.1 🔒: an absent map means the shares were never recorded, **never** that they are equal, so the app divides nothing."
+  },
+  "distribute.block.terms": "This business’s agreed terms could not be read on this phone, so nothing can be divided yet.",
+  "@distribute.block.terms": {
+    "description": "S14.1 refusal when a `book_config` version or a dated settings record was quarantined (ADR 2026-09-14b §2, §5) — falling back to the terms agreed at creation would be the wrong answer."
+  },
+  "distribute.confirm.shared": "Propose to the owners",
+  "@distribute.confirm.shared": {
+    "description": "S14.1 step 3 primary action for a shared book — distributing profit is a structural action needing a quorum (02 §7.2.1 🔒)."
+  },
+  "distribute.confirm.shared.note": "Every owner has to approve this. It waits in their Inbox until they do, and nothing changes before then.",
+  "@distribute.confirm.shared.note": {
+    "description": "S14.1 step 3 note for a shared book — 02 §7.2.1 🔒 *Nothing is applied early*."
+  },
+  "distribute.confirm.solo": "Distribute",
+  "@distribute.confirm.solo": {
+    "description": "S14.1 step 3 primary action for a book with one owner — a quorum of one, where 02 §7.2.1 🔒 keeps the idea invisible."
+  },
+  "distribute.confirm.solo.note": "This records one entry. It moves no money: it writes down what the business now owes each owner.",
+  "@distribute.confirm.solo.note": {
+    "description": "S14.1 step 3 note for the quorum-of-one book (02 §7.1 🔒 — *it moves no cash*)."
+  },
+  "distribute.door": "Distribute profit",
+  "@distribute.door": {
+    "description": "S14 door to S14.1 (13 §3.2: S14.1’s parent is S14). Shown only on a shared business, so the ADR 2026-09-09b 🔒 silence holds."
+  },
+  "distribute.error": "Couldn’t work out the shares.",
+  "@distribute.error": {
+    "description": "S14.1 error state, always shown with retry (13 §4.3)."
+  },
+  "distribute.failed": "Couldn’t record that. Nothing was posted.",
+  "@distribute.failed": {
+    "description": "S14.1 failure line — says plainly that the ledger is untouched (02 §5: nothing is ever half-posted)."
+  },
+  "distribute.interest.above": "The interest owed comes to more than the profit. It is still credited in full, and what is left over is shared as a loss.",
+  "@distribute.interest.above": {
+    "description": "S14.1 plain sentence for 02 §7.1 🔒 *interest above profit*."
+  },
+  "distribute.interest.off": "Interest on capital is off for this business, so there is one line each.",
+  "@distribute.interest.off": {
+    "description": "S14.1 caption when the setting is off — 02 §7.1 🔒 makes it optional and off by default, and the screen says which it is rather than leaving a missing line unexplained."
+  },
+  "distribute.loss": "Loss for {label}",
+  "@distribute.loss": {
+    "description": "S14.1 step 2 — the year’s figure when it is negative. 02 §7.1 🔒 shares a loss by the mirror posting, same shares.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "distribute.loss.note": "This year is a loss, so each owner’s share comes off what the business owes them.",
+  "@distribute.loss.note": {
+    "description": "S14.1 plain sentence for a loss period (ADR 2026-09-05e §8) — the words carry it, not a colour (07 §1 rule 3)."
+  },
+  "distribute.next": "Next",
+  "@distribute.next": {
+    "description": "S14.1 wizard bar."
+  },
+  "distribute.owner.interest": "Interest",
+  "@distribute.owner.interest": {
+    "description": "S14.1 per-owner line 1 — interest on capital, an appropriation of profit and never a business cost (02 §7.1 🔒)."
+  },
+  "distribute.owner.share": "Share",
+  "@distribute.owner.share": {
+    "description": "S14.1 per-owner line 2 — the agreed share of what is left after interest (02 §7.1 🔒)."
+  },
+  "distribute.owner.total": "{name} altogether",
+  "@distribute.owner.total": {
+    "description": "S14.1 per-owner total line.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "distribute.period.from": "From",
+  "@distribute.period.from": {
+    "description": "S14.1 step 1 — first day of the interest period."
+  },
+  "distribute.period.to": "To",
+  "@distribute.period.to": {
+    "description": "S14.1 step 1 — last day of the interest period."
+  },
+  "distribute.period.year": "Financial year {label}",
+  "@distribute.period.year": {
+    "description": "S14.1 step 1 — which year the profit figure belongs to (02 §8.1).",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "distribute.posted": "Recorded ✓",
+  "@distribute.posted": {
+    "description": "S14.1 confirmation after a quorum-of-one book posts."
+  },
+  "distribute.profit": "Profit for {label}",
+  "@distribute.profit": {
+    "description": "S14.1 step 2 — the year’s figure, stated as profit. Amount shown beside it.",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "distribute.proposed": "Sent to the owners ✓",
+  "@distribute.proposed": {
+    "description": "S14.1 confirmation after a shared book’s request is signed and waiting."
+  },
+  "distribute.ratio": "{weight} of {total}",
+  "@distribute.ratio": {
+    "description": "S14.1 per-owner weight — whole numbers, never a percentage (02 §7.1 🔒).",
+    "placeholders": {
+      "weight": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "distribute.readonly": "Your plan is read-only just now, so nothing can be recorded.",
+  "@distribute.readonly": {
+    "description": "S14.1 disabled-with-reason while the tenant is read-only (13 §5, S12.5 pattern). The figures stay visible; only writing stops."
+  },
+  "distribute.retry": "Try again",
+  "@distribute.retry": {
+    "description": "S14.1 retry action."
+  },
+  "distribute.skeleton": "Working out each owner’s share",
+  "@distribute.skeleton": {
+    "description": "S14.1 loading state, announced with the ruled skeleton (11 §4.5, 13 §4.3)."
+  },
+  "distribute.step": "Step {n} of {total}",
+  "@distribute.step": {
+    "description": "S14.1 stepper label — the count is in words, never left to the tint (13 §4.2, 07 §1 rule 3).",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "distribute.step1.help": "The profit is the whole year’s. These dates only set the stretch that interest is worked out over.",
+  "@distribute.step1.help": {
+    "description": "S14.1 step 1 help — ADR 2026-09-05e §8 makes net profit FY-scoped whatever period the interest covers, and the screen says so rather than letting the user assume."
+  },
+  "distribute.step1.title": "Which stretch of the year?",
+  "@distribute.step1.title": {
+    "description": "S14.1 step 1 (13 §3.2 row S14.1: period first). Defaults to the open financial year up to today."
+  },
+  "distribute.step2.help": "Nothing is recorded yet. This is what the entry would say.",
+  "@distribute.step2.help": {
+    "description": "S14.1 step 2 help — 02 §7.1 🔒: the preview shows the effect *before anything posts*."
+  },
+  "distribute.step2.title": "What each owner gets",
+  "@distribute.step2.title": {
+    "description": "S14.1 step 2 — the ratio preview, both lines per owner (02 §7.1 🔒)."
+  },
+  "distribute.step3.title": "Ready to record",
+  "@distribute.step3.title": {
+    "description": "S14.1 step 3."
+  },
+  "distribute.title": "Distribute profit",
+  "@distribute.title": {
+    "description": "S14.1 app bar (02 §7.1 🔒, 13 §3.2 row S14.1). Business surface: *share*, *interest*, *put in* — never Dr/Cr (02 §10 🔒)."
+  },
+  "distribute.totals.entry": "The whole entry",
+  "@distribute.totals.entry": {
+    "description": "S14.1 totals row — the two totals add up to the year’s figure exactly, so the odd paise left over by the division are visible inside the owners’ own numbers (02 §7.1 🔒 rounding rule)."
+  },
+  "distribute.totals.interest": "Interest altogether",
+  "@distribute.totals.interest": {
+    "description": "S14.1 totals row."
+  },
+  "distribute.totals.share": "Shared by the agreed shares",
+  "@distribute.totals.share": {
+    "description": "S14.1 totals row — what is left after interest, divided by the weights."
+  },
   "entry.amount.a11y": "{amount} · {verb}",
   "@entry.amount.a11y": {
     "description": "S2 screen-reader label for the amount: the figure with its direction (07 §1).",
@@ -1772,6 +2427,10 @@
   "entry.error": "Couldn't open your books",
   "@entry.error": {
     "description": "S2 book-resolve error state (13 §4.3)."
+  },
+  "entry.import.action": "Import a statement",
+  "@entry.import.action": {
+    "description": "S2 header action, top right, opposite the close ✕ (ADR 2026-09-03 🔒 ruling 2: importing is a way of entering many lines at once, so the door is here and not a Menu row). Opens S7."
   },
   "entry.keypad.add": "Add another amount",
   "@entry.keypad.add": {
@@ -1938,6 +2597,67 @@
   "entry.verb.took_credit": "Took on credit",
   "@entry.verb.took_credit": {
     "description": "S2 verb pill, position 4."
+  },
+  "home.close.book": "{book}",
+  "@home.close.book": {
+    "description": "S1 Home close card — which book the card is for, shown when the user has more than one. Pass-through so the book's own name is never translated.",
+    "placeholders": {
+      "book": {
+        "type": "String"
+      }
+    }
+  },
+  "home.close.done.action": "See the month",
+  "@home.close.done.action": {
+    "description": "S1 Home close card, closed state — opens S10.2, the month summary card (13 §3.2 row S10.2)."
+  },
+  "home.close.done.title": "{month} is closed",
+  "@home.close.done.title": {
+    "description": "S1 Home close card, closed state — the card gives way to the S10.2 door for that month (07 §13 🔒). {month} pre-formatted.",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "home.close.resume": "Picks up at step {n} of {total}",
+  "@home.close.resume": {
+    "description": "S1 Home close card, in-progress state — progress is saved and the wizard resumes (07 §13 *Resumable* 🔒).",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "home.close.steps": "{total} steps",
+  "@home.close.steps": {
+    "description": "S1 Home close card — the size of the job, so it is never opened blind (07 §13 🔒 `▸ 4 steps`).",
+    "placeholders": {
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "home.close.title": "Close {month}",
+  "@home.close.title": {
+    "description": "S1 Home *Close card* (07 §13 🔒 bullet 1: `Close August ▸ 4 steps`), one per book the user closes, from the 1st. ⚠️ SPEC: 07 §13 writes a full English month while 07 §1 rule 5 🔒 abbreviates; the global rule is taken and S10 uses the same form. {month} pre-formatted.",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "home.close.waiting": "Waiting on {name}",
+  "@home.close.waiting": {
+    "description": "S1 Home close card — an author gap or a held envelope keeps the lock off (ADR 2026-09-05b §3–4, S10.5). {name} is the phone, or *another phone* when it has no name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   },
   "home.drilldown.empty": "Nothing behind this line yet",
   "@home.drilldown.empty": {
@@ -2201,6 +2921,611 @@
   "@home.verify.provisional": {
     "description": "S1 provisional badge on the position card when the book has an author gap (13 §4.1 P2, 07 §1 rule 7)."
   },
+  "import.account.empty": "There’s no bank A/C in this book yet.",
+  "@import.account.empty": {
+    "description": "S7 empty state, first line (07 §1 rule 12: every list defines its empty state)."
+  },
+  "import.account.empty.next": "Add one from the Ledger tab, then come back here.",
+  "@import.account.empty.next": {
+    "description": "S7 empty state, the one next action in words (07 §1 rule 6: no dead ends)."
+  },
+  "import.account.help": "Only bank A/Cs: a statement is the bank’s own record of one A/C.",
+  "@import.account.help": {
+    "description": "S7 — one muted line under step 1, saying why cash A/Cs are not in the list (02 §8.2 counts them instead)."
+  },
+  "import.balance.back": "Back to the lines",
+  "@import.balance.back": {
+    "description": "S7.2 — returns to S7.1; the check never blocks the import."
+  },
+  "import.balance.closing.figures": "Statement closes at {statement} · your book will read {book}",
+  "@import.balance.closing.figures": {
+    "description": "S7.2 — the numbers behind the closing line. Both are amounts, data.",
+    "placeholders": {
+      "statement": {
+        "type": "String"
+      },
+      "book": {
+        "type": "String"
+      }
+    }
+  },
+  "import.balance.closing.will": "{count, plural, =1{Closing will match once this line is recorded} other{Closing will match once these {count} lines are recorded}}",
+  "@import.balance.closing.will": {
+    "description": "S7.2 passing, second line — verbatim shape from 07 §11 item 1 🔒.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "import.balance.closing.wont": "Closing still won’t match after these lines are recorded.",
+  "@import.balance.closing.wont": {
+    "description": "S7.2 — the opening agrees but the arithmetic does not; a line is missing from the file."
+  },
+  "import.balance.failing": "An earlier statement is missing.",
+  "@import.balance.failing": {
+    "description": "S7.2 failing — a mismatched opening means an earlier gap, and says so (07 §11 item 1 🔒)."
+  },
+  "import.balance.failing.gap": "Your book is {amount} away from the statement on {date}.",
+  "@import.balance.failing.gap": {
+    "description": "S7.2 failing — the size of the gap. Both are data.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "import.balance.failing.next": "Import the statement before this one, then come back. You can still sort these lines now.",
+  "@import.balance.failing.next": {
+    "description": "S7.2 failing — the path out (07 §1 rule 6: no dead ends; the check never blocks the import)."
+  },
+  "import.balance.matched": "Your book already agrees, at both ends ✓",
+  "@import.balance.matched": {
+    "description": "S7.2 matched — nothing left to record for these dates."
+  },
+  "import.balance.opening.figures": "Statement opens at {statement} · your book says {book}",
+  "@import.balance.opening.figures": {
+    "description": "S7.2 — the numbers behind the opening line. Both are amounts, data.",
+    "placeholders": {
+      "statement": {
+        "type": "String"
+      },
+      "book": {
+        "type": "String"
+      }
+    }
+  },
+  "import.balance.opening.match": "Opening matches your book ✓",
+  "@import.balance.opening.match": {
+    "description": "S7.2 passing/matched, first line — verbatim from 07 §11 item 1 🔒."
+  },
+  "import.balance.opening.mismatch": "Opening doesn’t match your book.",
+  "@import.balance.opening.mismatch": {
+    "description": "S7.2 failing, first line (07 §11 item 1 🔒)."
+  },
+  "import.balance.period": "{from} to {to}",
+  "@import.balance.period": {
+    "description": "S7.2 — the days the statement covers. Both are dates, data.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "import.balance.title": "Balance check",
+  "@import.balance.title": {
+    "description": "S7.2 app bar (13 §3.2 row S7.2, ADR 2026-09-01 §2)."
+  },
+  "import.balance.unavailable": "This file has no balance column, so there’s nothing to check against.",
+  "@import.balance.unavailable": {
+    "description": "S7.2 — the check cannot run; said plainly rather than shown as a pass (07 §1 rule 12)."
+  },
+  "import.balance.unavailable.next": "You can still sort the lines.",
+  "@import.balance.unavailable.next": {
+    "description": "S7.2 — the path out when the check cannot run."
+  },
+  "import.dupes.continue": "Sort these lines",
+  "@import.dupes.continue": {
+    "description": "S7.0c primary action — on to the import inbox (S7.1)."
+  },
+  "import.dupes.ignored": "{count, plural, =1{1 row wasn’t a transaction and was left out} other{{count} rows weren’t transactions and were left out}}",
+  "@import.dupes.ignored": {
+    "description": "S7.0c — the bank’s own totals and footers, stated rather than silently dropped.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "import.dupes.none": "Nothing in this file was imported before.",
+  "@import.dupes.none": {
+    "description": "S7.0c — the zero-duplicate case, said rather than left blank."
+  },
+  "import.dupes.nothing": "Every line in this file is already in your book.",
+  "@import.dupes.nothing": {
+    "description": "S7.0c — nothing left to sort. Not a failure; the path out is import.fail.another."
+  },
+  "import.dupes.notposted": "Nothing is in your books yet. Each line asks one question first.",
+  "@import.dupes.notposted": {
+    "description": "S7.0c — parsed lines land in an inbox, never the ledger (02 §10 🔒), said to the user in their own words."
+  },
+  "import.dupes.ready": "{count, plural, =1{1 line to sort} other{{count} lines to sort}}",
+  "@import.dupes.ready": {
+    "description": "S7.0c — what is left after duplicates are removed.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "import.dupes.skipped": "{count, plural, =1{1 line already imported — skipped} other{{count} lines already imported — skipped}}",
+  "@import.dupes.skipped": {
+    "description": "S7.0c — duplicates are removed before anything is shown and the count is stated up front, verbatim shape from 07 §11 item 1 🔒.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "import.dupes.title": "Ready to sort",
+  "@import.dupes.title": {
+    "description": "S7.0c app bar — the duplicates summary (design S7.0c)."
+  },
+  "import.error": "Couldn’t open your bank A/Cs.",
+  "@import.error": {
+    "description": "S7 error state; always shown with the retry action (13 §4.3 error-with-retry)."
+  },
+  "import.fail.another": "Pick another file",
+  "@import.fail.another": {
+    "description": "S7 parse failure — the path out (07 §1 rule 6)."
+  },
+  "import.fail.formats": "Statements can be read as CSV. Most banks offer CSV beside PDF in their app or net banking.",
+  "@import.fail.formats": {
+    "description": "S7 parse failure — the supported-format list with the one next action (07 §11 item 4 🔒)."
+  },
+  "import.fail.nocolumns": "This file has no date or amount column.",
+  "@import.fail.nocolumns": {
+    "description": "S7 parse failure — a header row, but not the columns a statement needs."
+  },
+  "import.fail.nolines": "This file has no transactions in it.",
+  "@import.fail.nolines": {
+    "description": "S7 parse failure — a readable shape with no lines under the header."
+  },
+  "import.fail.notyet": "{format} files aren’t readable yet.",
+  "@import.fail.notyet": {
+    "description": "S7 parse failure, format branch. {format} is a file-format name (CSV, XLS, OFX, PDF) — data, never translated.",
+    "placeholders": {
+      "format": {
+        "type": "String"
+      }
+    }
+  },
+  "import.fail.support": "Tell us this bank’s format",
+  "@import.fail.support": {
+    "description": "S7 parse failure — the *send file format to support* action of 07 §11 item 4 🔒."
+  },
+  "import.fail.support.help": "Your file stays on this phone. You choose what to share.",
+  "@import.fail.support.help": {
+    "description": "S7 parse failure — one line under the support action: the file itself never leaves the device (07 §11 item 4 🔒, 04)."
+  },
+  "import.fail.title": "Couldn’t read this file",
+  "@import.fail.title": {
+    "description": "S7 parse-failure state, verbatim from 07 §11 item 4 🔒."
+  },
+  "import.fail.toobig": "This file is larger than 10 MB.",
+  "@import.fail.toobig": {
+    "description": "S7 parse failure, size branch — the drop zone stated the limit, so the refusal names it back."
+  },
+  "import.fail.unreadable": "Nothing in this file reads like a statement.",
+  "@import.fail.unreadable": {
+    "description": "S7 parse failure — no header row, or the file is not text at all."
+  },
+  "import.file.accepts": "CSV, XLS, OFX or PDF · up to 10 MB",
+  "@import.file.accepts": {
+    "description": "S7 drop zone — states exactly what it accepts, verbatim from 07 §11 item 1 🔒."
+  },
+  "import.file.choose": "Choose a file",
+  "@import.file.choose": {
+    "description": "S7 drop zone action (design S7.0a)."
+  },
+  "import.file.ondevice": "Read on this phone. Nothing readable leaves it.",
+  "@import.file.ondevice": {
+    "description": "S7 — all parsing is on-device (07 §11 item 1 🔒, 04). Said on the screen, not only in the privacy page."
+  },
+  "import.file.reading": "Reading {file}",
+  "@import.file.reading": {
+    "description": "S7 — the file is being parsed; announced while the loader rule shows. {file} is the file’s own name, user data.",
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
+  "import.file.today": "Today this app reads CSV. XLS, OFX and PDF are coming.",
+  "@import.file.today": {
+    "description": "S7 — honest about the round’s limit, beside the accepts line, so a PDF pick is not a surprise (07 §11 item 4 🔒 supported-format list)."
+  },
+  "import.inbox.always.no": "No",
+  "@import.inbox.always.no": {
+    "description": "S7.1 — this line only; nothing is learned."
+  },
+  "import.inbox.always.q": "Always send lines like this to {account}?",
+  "@import.inbox.always.q": {
+    "description": "S7.1 — the Always? toast after a correction (07 §11 item 3 🔒). {account} is an A/C name, user data.",
+    "placeholders": {
+      "account": {
+        "type": "String"
+      }
+    }
+  },
+  "import.inbox.always.yes": "Yes",
+  "@import.inbox.always.yes": {
+    "description": "S7.1 — teaches the rule (07 §11 item 3 🔒)."
+  },
+  "import.inbox.answer.in": "From {account}",
+  "@import.inbox.answer.in": {
+    "description": "S7.1 — the answered money-in row. {account} is an A/C name, user data.",
+    "placeholders": {
+      "account": {
+        "type": "String"
+      }
+    }
+  },
+  "import.inbox.answer.out": "To {account}",
+  "@import.inbox.answer.out": {
+    "description": "S7.1 — the answered money-out row. {account} is an A/C name, user data.",
+    "placeholders": {
+      "account": {
+        "type": "String"
+      }
+    }
+  },
+  "import.inbox.approve": "Approve",
+  "@import.inbox.approve": {
+    "description": "S7.1 — the one-tap confirm on a suggested row (07 §11 item 2 🔒)."
+  },
+  "import.inbox.balance.action": "Balance check",
+  "@import.inbox.balance.action": {
+    "description": "S7.1 header action → S7.2 (ADR 2026-09-01 §2)."
+  },
+  "import.inbox.banktext.label": "The bank’s own words",
+  "@import.inbox.banktext.label": {
+    "description": "S7.1 — screen-reader label for the muted evidence line, so it is never mistaken for the user’s words (02 §10 🔒)."
+  },
+  "import.inbox.banktext.more": "Show the whole line",
+  "@import.inbox.banktext.more": {
+    "description": "S7.1 — the truncated bank text expands on tap; truncation is display-only and the stored value is always complete (02 §10 🔒)."
+  },
+  "import.inbox.blocked.banktext": "These lines can’t be recorded yet. Your book has nowhere to keep the bank’s own words, and a line must never be recorded without them.",
+  "@import.inbox.blocked.banktext": {
+    "description": "S7.1 — the primary action disabled with its reason in one plain sentence (07 §1 rule 6, 13 §4.3). 02 §10 🔒 requires bank_text stored verbatim and separate from the note; the engine has no such field yet."
+  },
+  "import.inbox.blocked.keep": "Keep for later",
+  "@import.inbox.blocked.keep": {
+    "description": "S7.1 — the path out of a blocked submit (07 §1 rule 6: no dead ends)."
+  },
+  "import.inbox.blocked.kept": "Your lines stay on this phone, in this inbox. Nothing was posted.",
+  "@import.inbox.blocked.kept": {
+    "description": "S7.1 — what Keep for later did, said plainly."
+  },
+  "import.inbox.blocked.locked": "These lines fall in a month that is already closed.",
+  "@import.inbox.blocked.locked": {
+    "description": "S7.1 — the period-locked reason for a disabled primary action (02 §8)."
+  },
+  "import.inbox.blocked.noledger": "This book isn’t open on this phone yet.",
+  "@import.inbox.blocked.noledger": {
+    "description": "S7.1 — the no-ledger reason for a disabled primary action."
+  },
+  "import.inbox.change": "Change",
+  "@import.inbox.change": {
+    "description": "S7.1 — re-answer a line that already has an answer; correcting re-teaches the rule (07 §11 item 3 🔒)."
+  },
+  "import.inbox.chip.answered": "Answered",
+  "@import.inbox.chip.answered": {
+    "description": "S7.1 state chip once the one question has an answer."
+  },
+  "import.inbox.chip.matched": "Matched ✓",
+  "@import.inbox.chip.matched": {
+    "description": "S7.1 state chip: auto-linked to an entry the book already holds (07 §11 item 2 🔒). A word and a tick, never a colour alone (07 §1 rule 3)."
+  },
+  "import.inbox.chip.new": "New",
+  "@import.inbox.chip.new": {
+    "description": "S7.1 state chip: nothing is known but the one question (07 §11 item 2 🔒)."
+  },
+  "import.inbox.chip.suggested": "Suggested",
+  "@import.inbox.chip.suggested": {
+    "description": "S7.1 state chip: a learned rule or fuzzy match waiting on one tap (07 §11 item 2 🔒)."
+  },
+  "import.inbox.chip.suspense": "Suspense",
+  "@import.inbox.chip.suspense": {
+    "description": "S7.1 state chip: recorded now, explained later (02 §10 🔒). Must reach zero before the month closes (07 §13)."
+  },
+  "import.inbox.chip.transfer": "Transfer?",
+  "@import.inbox.chip.transfer": {
+    "description": "S7.1 state chip: an opposite line in another of your A/Cs matches (02 §10 🔒)."
+  },
+  "import.inbox.choose": "Choose an A/C",
+  "@import.inbox.choose": {
+    "description": "S7.1 — opens the full picker to answer the one question."
+  },
+  "import.inbox.create": "Create “{name}”",
+  "@import.inbox.create": {
+    "description": "S7.1 picker — inline-create an A/C without leaving the row (07 §11 item 2 🔒). {name} is what the user typed.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "import.inbox.empty": "Nothing is waiting here.",
+  "@import.inbox.empty": {
+    "description": "S7.1 empty state, first line (07 §1 rule 12)."
+  },
+  "import.inbox.empty.next": "Import a statement and its lines arrive here.",
+  "@import.inbox.empty.next": {
+    "description": "S7.1 empty state — the one next action (07 §1 rule 6)."
+  },
+  "import.inbox.error": "Couldn’t sort these lines.",
+  "@import.inbox.error": {
+    "description": "S7.1 error state; always shown with the retry action (13 §4.3)."
+  },
+  "import.inbox.left": "{count, plural, =1{1 line stays in this inbox} other{{count} lines stay in this inbox}}",
+  "@import.inbox.left": {
+    "description": "S7.1 — the rest of a partial submit stay here (07 §11 item 1 🔒).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "import.inbox.matched.nothing": "Nothing will be posted for this line.",
+  "@import.inbox.matched.nothing": {
+    "description": "S7.1 — a matched line links, it does not post (02 §10 🔒)."
+  },
+  "import.inbox.matched.unlink": "Not the same — unlink",
+  "@import.inbox.matched.unlink": {
+    "description": "S7.1 — tap to unlink (07 §11 item 2 🔒); the row falls back to the one question."
+  },
+  "import.inbox.matched.what": "Already in your book as {entry}",
+  "@import.inbox.matched.what": {
+    "description": "S7.1 — what the Matched ✓ row linked to. {entry} is the user’s own entry, data.",
+    "placeholders": {
+      "entry": {
+        "type": "String"
+      }
+    }
+  },
+  "import.inbox.money.in": "Money in",
+  "@import.inbox.money.in": {
+    "description": "S7.1 direction word beside the amount — bank vocabulary, never Cr (02 §10 🔒)."
+  },
+  "import.inbox.money.out": "Money out",
+  "@import.inbox.money.out": {
+    "description": "S7.1 direction word beside the amount — bank vocabulary, never Dr (02 §10 🔒)."
+  },
+  "import.inbox.note.add": "+ note",
+  "@import.inbox.note.add": {
+    "description": "S7.1 — the optional note link on every classified row, verbatim from 07 §11 item 2 🔒."
+  },
+  "import.inbox.note.hint": "Your own words (optional)",
+  "@import.inbox.note.hint": {
+    "description": "S7.1 — the inline note field. The bank’s text is never editable (02 §10 🔒)."
+  },
+  "import.inbox.note.save": "Save note",
+  "@import.inbox.note.save": {
+    "description": "S7.1 — commits the inline note."
+  },
+  "import.inbox.notposted": "Nothing is in your books yet. Each line asks one question first.",
+  "@import.inbox.notposted": {
+    "description": "S7.1 standing line at the top: parsed lines land in an inbox, never the ledger (02 §10 🔒)."
+  },
+  "import.inbox.question.in": "Where did it come from?",
+  "@import.inbox.question.in": {
+    "description": "S7.1 the one question for a money-in line, verbatim from 02 §10 🔒. The user never sees or chooses a side."
+  },
+  "import.inbox.question.out": "Where did it go?",
+  "@import.inbox.question.out": {
+    "description": "S7.1 the one question for a money-out line, verbatim from 02 §10 🔒."
+  },
+  "import.inbox.recorded": "{count, plural, =1{1 line recorded} other{{count} lines recorded}}",
+  "@import.inbox.recorded": {
+    "description": "S7.1 — the result of a submit.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "import.inbox.retry": "Try again",
+  "@import.inbox.retry": {
+    "description": "S7.1 retry action beside the error line."
+  },
+  "import.inbox.search": "Search your A/Cs",
+  "@import.inbox.search": {
+    "description": "S7.1 picker search field."
+  },
+  "import.inbox.skeleton": "Sorting your lines",
+  "@import.inbox.skeleton": {
+    "description": "S7.1 loading state, the ruled skeleton (11 §4.5, 13 §4.3)."
+  },
+  "import.inbox.submit": "{count, plural, =1{Record 1 line} other{Record {count} lines}}",
+  "@import.inbox.submit": {
+    "description": "S7.1 primary action, with the count in the button. Partial submit is always allowed (07 §11 item 1 🔒).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "import.inbox.submit.none": "Answer a line to record it",
+  "@import.inbox.submit.none": {
+    "description": "S7.1 primary action when nothing is answered yet — disabled with its reason (13 §4.3)."
+  },
+  "import.inbox.suggested.chip": "{account} — suggested",
+  "@import.inbox.suggested.chip": {
+    "description": "S7.1 — the green chip names the guess (07 §11 item 2 🔒). {account} is an A/C name, user data.",
+    "placeholders": {
+      "account": {
+        "type": "String"
+      }
+    }
+  },
+  "import.inbox.suspense.action": "Record now, explain later",
+  "@import.inbox.suspense.action": {
+    "description": "S7.1 — the Suspense action, verbatim from 07 §11 item 2 🔒."
+  },
+  "import.inbox.suspense.what": "Recorded, not yet explained. Explain it before the month closes.",
+  "@import.inbox.suspense.what": {
+    "description": "S7.1 — what a Suspense row means (02 §10 🔒, 07 §13 step 3)."
+  },
+  "import.inbox.title": "Import inbox",
+  "@import.inbox.title": {
+    "description": "S7.1 app bar (13 §3.2 row S7.1; 07 §11 item 2 🔒). Parsed lines wait here; nothing is in the books until they are recorded (02 §10 🔒). PA/HI on this feature are a faithful machine draft for native review at M12."
+  },
+  "import.inbox.transfer.done": "One movement between your A/Cs",
+  "@import.inbox.transfer.done": {
+    "description": "S7.1 — the surviving row after a pair is confirmed; the other half is gone."
+  },
+  "import.inbox.transfer.help": "Counted once, not twice. Money leaving one A/C and arriving in another is one event.",
+  "@import.inbox.transfer.help": {
+    "description": "S7.3 — why pairing matters (02 §10 🔒: the classic notebook error of counting the same rupees twice)."
+  },
+  "import.inbox.transfer.no": "No — two different things",
+  "@import.inbox.transfer.no": {
+    "description": "S7.3 — the pair is not a transfer; both rows go back to their one question."
+  },
+  "import.inbox.transfer.other": "Matches {amount} on {date} in {account}",
+  "@import.inbox.transfer.other": {
+    "description": "S7.3 — the opposite line this one pairs with. All three are user data.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      },
+      "account": {
+        "type": "String"
+      }
+    }
+  },
+  "import.inbox.transfer.question": "Is this the same money moving between your accounts?",
+  "@import.inbox.transfer.question": {
+    "description": "S7.3 — the transfer-pair question, verbatim from 02 §10 🔒."
+  },
+  "import.inbox.transfer.yes": "Yes — one movement",
+  "@import.inbox.transfer.yes": {
+    "description": "S7.3 — one tap records a single Transfer instead of two entries (02 §10 🔒)."
+  },
+  "import.inbox.waiting": "{count, plural, =0{Every line is answered} =1{1 line still waiting} other{{count} lines still waiting}}",
+  "@import.inbox.waiting": {
+    "description": "S7.1 — what is left; partial submit leaves these here (07 §11 item 1 🔒).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "import.map.col.amount": "Amount",
+  "@import.map.col.amount": {
+    "description": "S7.0b role label — one amount column, direction carried by a sign or a marker."
+  },
+  "import.map.col.balance": "Balance",
+  "@import.map.col.balance": {
+    "description": "S7.0b role label — the bank’s running balance."
+  },
+  "import.map.col.date": "Date",
+  "@import.map.col.date": {
+    "description": "S7.0b role label — which column holds the date."
+  },
+  "import.map.col.direction": "In or out",
+  "@import.map.col.direction": {
+    "description": "S7.0b role label — the marker column beside a single amount column. The bank prints Dr/Cr there; the user is asked in plain words."
+  },
+  "import.map.col.money_in": "Money in",
+  "@import.map.col.money_in": {
+    "description": "S7.0b role label for the bank’s deposit/credit column — named in consumer words, never Cr (02 §10 🔒)."
+  },
+  "import.map.col.money_out": "Money out",
+  "@import.map.col.money_out": {
+    "description": "S7.0b role label for the bank’s withdrawal/debit column — named in consumer words, never Dr (02 §10 🔒)."
+  },
+  "import.map.col.none": "Not in this file",
+  "@import.map.col.none": {
+    "description": "S7.0b — the choice that clears a role."
+  },
+  "import.map.col.text": "Bank’s own words",
+  "@import.map.col.text": {
+    "description": "S7.0b role label — the column that becomes the immutable bank text (02 §10 🔒). The user’s own words are a separate, optional field."
+  },
+  "import.map.confirm": "That’s right",
+  "@import.map.confirm": {
+    "description": "S7.0b primary action — confirms the mapping and goes on to the duplicates step."
+  },
+  "import.map.guessed": "One column had to be guessed. Please check it.",
+  "@import.map.guessed": {
+    "description": "S7.0b — low-confidence mapping. A word, not a colour (07 §1 rule 3)."
+  },
+  "import.map.help": "This is how the file was read. Correct anything that’s wrong.",
+  "@import.map.help": {
+    "description": "S7.0b — one line under the title: auto-detected, and confirmed by the user."
+  },
+  "import.map.remember": "We’ll remember this for {bank}, so the next statement needs no checking.",
+  "@import.map.remember": {
+    "description": "S7.0b — corrections are remembered per bank (07 §11 item 1 🔒). {bank} is the A/C’s bank, user data.",
+    "placeholders": {
+      "bank": {
+        "type": "String"
+      }
+    }
+  },
+  "import.map.remembered": "Read the way you set it for {bank} last time.",
+  "@import.map.remembered": {
+    "description": "S7.0b — shown instead of import.map.remember when a remembered mapping was used, so the user knows why nothing needed doing. {bank} is user data.",
+    "placeholders": {
+      "bank": {
+        "type": "String"
+      }
+    }
+  },
+  "import.map.sample": "First line, read this way",
+  "@import.map.sample": {
+    "description": "S7.0b — the sample row shown for confirmation (07 §11 item 1 🔒: the user confirms)."
+  },
+  "import.map.sample.none": "No line reads this way. Check the columns above.",
+  "@import.map.sample.none": {
+    "description": "S7.0b — a correction that leaves nothing readable says so instead of showing an empty card (07 §1 rule 6)."
+  },
+  "import.map.title": "Check the columns",
+  "@import.map.title": {
+    "description": "S7.0b app bar — the column-mapping step (07 §11 item 1 🔒, 13 §3.3 design S7.0b)."
+  },
+  "import.retry": "Try again",
+  "@import.retry": {
+    "description": "S7 retry action beside the error line."
+  },
+  "import.skeleton": "Opening your bank A/Cs",
+  "@import.skeleton": {
+    "description": "S7 loading state, announced with the ruled skeleton (11 §4.5, 13 §4.3)."
+  },
+  "import.step.account": "1 · Which A/C is this statement for?",
+  "@import.step.account": {
+    "description": "S7 first step (07 §11 item 1 🔒: pick account → pick file). Stated as a step so the order is visible."
+  },
+  "import.step.file": "2 · Which file?",
+  "@import.step.file": {
+    "description": "S7 second step — the drop zone (design S7.0a)."
+  },
+  "import.title": "Import a statement",
+  "@import.title": {
+    "description": "S7 app bar (13 §3.2 row S7; 07 §11 🔒). Reached from the S2 header, top right (ADR 2026-09-03) — never a Menu row. Consumer vocabulary throughout this feature: Money in / Money out, never Dr/Cr (02 §10 🔒). PA/HI on this feature are a faithful machine draft for native review at M12."
+  },
   "inbox.card.approve.all": "Approve all",
   "@inbox.card.approve.all": {
     "description": "S6.1 primary action 🔒 (07 §9, owner-approved): clears every flag on the card in one tap."
@@ -2301,6 +3626,200 @@
   "@inbox.error": {
     "description": "S6 list error state — named cause, with the retry beside it (13 §8)."
   },
+  "inbox.late.card.closed.year": "{year} is already certified, so {month} cannot be re-opened from here — it would void that year’s certificate and every later one. That belongs to the year-close ceremony. You can still re-date this entry into the open month.",
+  "@inbox.late.card.closed.year": {
+    "description": "S10.3 refusal sentence when the month sits inside a closed FY (02 §8.1 🔒; structural per 02 §7.2.1 🔒). It points at the ceremony and leaves the one-tap default available — no dead end (07 §1 rule 6).",
+    "placeholders": {
+      "year": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.late.card.counted": "It is already counted in your balances. Only {month}’s closed figures leave it out.",
+  "@inbox.late.card.counted": {
+    "description": "S10.3 card: 02 §3 🔒 and 02 §8 🔒 — a late arrival counts the moment it lands. Nothing on this screen may draw it as waiting.",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.late.card.error": "Couldn’t do that. Nothing has changed.",
+  "@inbox.late.card.error": {
+    "description": "S10.3 per-card failure: the ledger is append-only, so a failed write left the book exactly as it was."
+  },
+  "inbox.late.card.in": "Money in {amount}",
+  "@inbox.late.card.in": {
+    "description": "S10.3 card amount line, money coming in. Consumer vocabulary — never Dr/Cr (02 §10 🔒). Amount pre-formatted.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.late.card.moved": "Moved to today. It stays in the book either way — only its date changed.",
+  "@inbox.late.card.moved": {
+    "description": "S10.3 confirmation after a re-date (07 §5 save conventions). No Undo is offered: undoing would mean amending back into a closed month, which 02 §5 refuses."
+  },
+  "inbox.late.card.notlocked": "{month} is open again — somebody re-opened it before you. Nothing was changed.",
+  "@inbox.late.card.notlocked": {
+    "description": "S10.3 refusal when the month was already re-opened by another admin.",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.late.card.out": "Money out {amount}",
+  "@inbox.late.card.out": {
+    "description": "S10.3 card amount line, money going out (02 §10 🔒). Amount pre-formatted.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.late.card.redate": "Re-date to today",
+  "@inbox.late.card.redate": {
+    "description": "S10.3 primary action — the one-tap default (02 §8 🔒, 07 §13 🔒)."
+  },
+  "inbox.late.card.reopen": "Re-open {month}",
+  "@inbox.late.card.reopen": {
+    "description": "S10.3 secondary action, scary-styled: admin, logged (02 §8 🔒, 07 §13 🔒).",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.late.card.route": "{from} → {to}",
+  "@inbox.late.card.route": {
+    "description": "S10.3 card: the two A/Cs the money moved between, in the user's own words.",
+    "placeholders": {
+      "from": {
+        "type": "String"
+      },
+      "to": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.late.card.why": "Dated {date}, but {book}’s {month} had already been closed on {lockedOn}.",
+  "@inbox.late.card.why": {
+    "description": "S10.3 card: *why it is here* (07 §13 🔒). Dates pre-formatted per 07 §1 rule 5.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "book": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      },
+      "lockedOn": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.late.card.why.nodate": "Dated {date}, but {book}’s {month} had already been closed.",
+  "@inbox.late.card.why.nodate": {
+    "description": "S10.3 card *why* when this phone has no lock date to show (07 §13 🔒).",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "book": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.late.card.working": "Sending…",
+  "@inbox.late.card.working": {
+    "description": "S10.3 per-card busy state (13 §4.3)."
+  },
+  "inbox.late.empty.action": "Back to your inbox",
+  "@inbox.late.empty.action": {
+    "description": "S10.3 empty state's one next action — no dead ends (07 §1 rule 6)."
+  },
+  "inbox.late.empty.body": "An entry made before a month closed, but reaching this phone afterwards, waits here. You choose: move it into the open month, or re-open the closed one.",
+  "@inbox.late.empty.body": {
+    "description": "S10.3 empty state: states the capability rather than showing a bare tray (13 §2.3 🔒). No jargon — 02 §8 in plain words."
+  },
+  "inbox.late.empty.title": "Nothing arrived late.",
+  "@inbox.late.empty.title": {
+    "description": "S10.3 empty state headline (13 §4.3)."
+  },
+  "inbox.late.empty.viewer.body": "Closing a month is not part of your access here, so nothing arrives in this tray for you.",
+  "@inbox.late.empty.viewer.body": {
+    "description": "S10.3 viewer variant body — the reason is stated, never silently hidden (13 §2.3 🔒)."
+  },
+  "inbox.late.empty.viewer.title": "You can view this book.",
+  "@inbox.late.empty.viewer.title": {
+    "description": "S10.3 viewer variant headline (13 §2.3.1)."
+  },
+  "inbox.late.error": "Couldn’t load late arrivals.",
+  "@inbox.late.error": {
+    "description": "S10.3 error state — named cause, retry beside it (13 §8)."
+  },
+  "inbox.late.reopen.body": "{month} will need closing again, and every member’s phone re-checks the figures when it is. Your name and reason are recorded in the book for everyone to see.",
+  "@inbox.late.reopen.body": {
+    "description": "S10.3 re-open sheet: the consequence before the confirm (07 §1 rule 6, 13 §8) — 02 §8 requires a re-close, 02 §7.2 item 3 makes it member-visible.",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.late.reopen.confirm": "Re-open {month}",
+  "@inbox.late.reopen.confirm": {
+    "description": "S10.3 re-open sheet confirm button, danger-styled (07 §13 🔒).",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.late.reopen.hint": "Why are you re-opening it?",
+  "@inbox.late.reopen.hint": {
+    "description": "S10.3 re-open sheet: the required reason field (02 §8 🔒 — logged)."
+  },
+  "inbox.late.reopen.required": "Write a reason first — it is recorded in the book for everyone.",
+  "@inbox.late.reopen.required": {
+    "description": "S10.3 re-open sheet: a blank reason can never leave the sheet (02 §7.2 item 3)."
+  },
+  "inbox.late.reopen.title": "Re-open {month}?",
+  "@inbox.late.reopen.title": {
+    "description": "S10.3 re-open confirm sheet title (07 §13 🔒: scary-styled, confirm before it happens).",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.late.reopened": "{month} is open again. Close it once more when you are ready.",
+  "@inbox.late.reopened": {
+    "description": "S10.3 confirmation after a re-open — 02 §8 🔒 requires a re-close, so the next step is stated, never left implicit (07 §1 rule 6).",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.late.skeleton": "Loading late arrivals",
+  "@inbox.late.skeleton": {
+    "description": "S10.3 loading state, announced with the ruled skeleton (11 §4.5, 13 §4.3)."
+  },
+  "inbox.late.title": "Late arrivals",
+  "@inbox.late.title": {
+    "description": "S10.3 screen title (13 §3.2, parent S6)."
+  },
   "inbox.offline": "Offline — showing what this phone last saw.",
   "@inbox.offline": {
     "description": "S6 quiet offline chip, never a blocking banner (07 §1 rule 7)."
@@ -2312,6 +3831,10 @@
   "inbox.retry": "Try again",
   "@inbox.retry": {
     "description": "Retry action on the S6 / S6.2 error states."
+  },
+  "inbox.review.author.unknown": "Someone in this book",
+  "@inbox.review.author.unknown": {
+    "description": "S6.1 / S6.2 author slot when this phone does not hold the contact for the member who entered the flagged entries (ADR 2026-09-05c §4 — names are not the server's to hold). Never a raw user id on a card."
   },
   "inbox.row.note.none": "No note",
   "@inbox.row.note.none": {
@@ -2340,6 +3863,27 @@
         "type": "String"
       }
     }
+  },
+  "inbox.section.late": "Arrived after the month closed",
+  "@inbox.section.late": {
+    "description": "S6 section header over the S10.3 late-arrival cards (07 §13 🔒, 13 §3.2 row S10.3)."
+  },
+  "inbox.section.late.action": "Open late arrivals",
+  "@inbox.section.late.action": {
+    "description": "S6 late-arrivals section: opens S10.3."
+  },
+  "inbox.section.late.count": "{count, plural, =1{1 entry arrived after its month had closed} other{{count} entries arrived after their month had closed}}",
+  "@inbox.section.late.count": {
+    "description": "S6 late-arrivals section: how many entries are waiting in the S10.3 tray (07 §13 🔒).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "inbox.section.late.counted": "They are already counted in your balances. You decide where they sit.",
+  "@inbox.section.late.counted": {
+    "description": "S6 late-arrivals section: post-then-review (02 §3 🔒, 02 §8 🔒) — the money already counts, the tray is a closer’s decision, never a hold."
   },
   "inbox.section.review": "Needs your review",
   "@inbox.section.review": {
@@ -3907,13 +5451,57 @@
   "@menu.books_members.row.title": {
     "description": "S8 third row (07 §2 🔒 Menu bullet order) — S9 roles, limits, verification log."
   },
-  "menu.close_month.row.reason": "The month close wizard has not been built yet.",
-  "@menu.close_month.row.reason": {
-    "description": "S8 disabled-with-reason line (13 §4.3, 07 §1 rule 6): S10 (07 §13 @M9) has not landed."
+  "menu.close_month.row.error": "Could not check the close · tap to try again",
+  "@menu.close_month.row.error": {
+    "description": "S8 Close the month row when the close could not be read (13 §4.3 error state). The row stays tappable and the tap retries — an error is never an inert row (07 §1 rule 6)."
+  },
+  "menu.close_month.row.loading": "Checking where each book stands…",
+  "@menu.close_month.row.loading": {
+    "description": "S8 Close the month row while the close is being read (13 §4.3 loading state): the row states what it is doing rather than showing a stale or blank subtitle."
+  },
+  "menu.close_month.row.reason.closed": "Every book is closed up to {month}.",
+  "@menu.close_month.row.reason.closed": {
+    "description": "S8 disabled-with-reason line (13 §4.3, 07 §1 rule 6) when every book this device holds is already locked through the month asked for: the row stays and says so in one sentence rather than disappearing. {month} is the month label, abbreviated in EN.",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "menu.close_month.row.reason.none": "There is no month to close yet.",
+  "@menu.close_month.row.reason.none": {
+    "description": "S8 disabled-with-reason line when this device holds no book with a month to close at all — a fresh install, before the first month has ended."
+  },
+  "menu.close_month.row.subtitle": "{month} open · {count, plural, =0{ready to close} =1{1 item waiting} other{{count} items waiting}}",
+  "@menu.close_month.row.subtitle": {
+    "description": "S8 Close the month row on a device holding one closable book — the live subtitle ADR 2026-09-03 ruling 1 🔒 asks for (*August open · 3 items waiting*). {month} is the month abbreviated in EN and written in full in PA/HI (07 §1 rule 5 🔒). {count} is everything waiting on that month's tray, blocks and warns alike — the tray itself says which is which (07 §13 🔒). Nothing waiting reads as *ready to close*, never *0 items waiting*.",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "menu.close_month.row.subtitle.book": "{book} · {month} open · {count, plural, =0{ready to close} =1{1 item waiting} other{{count} items waiting}}",
+  "@menu.close_month.row.subtitle.book": {
+    "description": "S8 Close the month row when more than one book has a month to close: the row is per book, so the book is named. {book} is the book's name as the user wrote it; {month} and {count} as in menu.close_month.row.subtitle.",
+    "placeholders": {
+      "book": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "menu.close_month.row.title": "Close the month",
   "@menu.close_month.row.title": {
-    "description": "S8 second row (07 §2 🔒 Menu bullet order, ADR 2026-09-03) — S10 month close wizard."
+    "description": "S8 second row (07 §2 🔒 Menu bullet order, ADR 2026-09-03 ruling 1 🔒) — opens the S10 month-close wizard at the book's first open month."
   },
   "menu.devices.row.subtitle": "Linked devices, guardians, recovery sheet, auto-lock.",
   "@menu.devices.row.subtitle": {
@@ -3970,6 +5558,35 @@
   "menu.title": "Menu",
   "@menu.title": {
     "description": "S8 Menu app bar title (13 §3.2 row S8, 07 §2 bottom bar 🔒)."
+  },
+  "menu.year_close.row.reason": "A financial year can be certified once it has ended.",
+  "@menu.year_close.row.reason": {
+    "description": "S8 disabled-with-reason line (13 §4.3, 07 §1 rule 6) when no book has an ended, uncertified year: the row never disappears, it says why it cannot be entered yet. 02 §8.1 🔒 requires every month of the year to be locked first."
+  },
+  "menu.year_close.row.subtitle": "Certify FY {fy}",
+  "@menu.year_close.row.subtitle": {
+    "description": "S8 Year close row on a device holding one book — {fy} is the financial year's own label (`2026-27`, or `2026` for a calendar-year book). *Certify* is 02 §8.1's own word for what the ceremony does.",
+    "placeholders": {
+      "fy": {
+        "type": "String"
+      }
+    }
+  },
+  "menu.year_close.row.subtitle.book": "{book} · certify FY {fy}",
+  "@menu.year_close.row.subtitle.book": {
+    "description": "S8 Year close row when the device holds more than one book: the row is per book (07 §13 🔒), so the book is named. {book} is the book's name as the user wrote it; {fy} is the financial year's label.",
+    "placeholders": {
+      "book": {
+        "type": "String"
+      },
+      "fy": {
+        "type": "String"
+      }
+    }
+  },
+  "menu.year_close.row.title": "Year close",
+  "@menu.year_close.row.title": {
+    "description": "S8 — the *Menu → per book* door to S10.4, the Year Close ceremony (07 §13 last bullet 🔒, ADR 2026-09-03 ruling 1, 13 §3.2 row S10.4). Same words as the ceremony's own app bar (close.year.title) so the row and its destination read as one thing."
   },
   "modified.action": "Devices & security",
   "@modified.action": {
@@ -5457,6 +7074,10 @@
       }
     }
   },
+  "reports.export.generating": "Preparing your file",
+  "@reports.export.generating": {
+    "description": "Shown beside the 2 px loader rule while a report is being written (13 §4.3 loading state; 11 §4.5 🔒 — the loader is a rule, never a spinner). A live region, so the wait is announced."
+  },
   "reports.export.page": "Page {page} of {pages}",
   "@reports.export.page": {
     "description": "S8.2 PDF export — the page footer of the printed day book (07 §14 🔒 'A4 print-clean'). A multi-page report that does not number its pages cannot be checked once it is off the printer. Digits are Latin in every locale (11 §4.4).",
@@ -5630,6 +7251,28 @@
   "reports.row.reason": "This report has not been built yet.",
   "@reports.row.reason": {
     "description": "S8.1 disabled-with-reason line (13 §4.3, 07 §1 rule 6). S8.2 the report viewer has landed, but only against the Day Book (10's M5 row: \"basic day-book export\"; ADR 2026-09-12 Consequences — \"the remaining ten reports … are M12\"). Every other report name is present but not yet enterable — never a dead end."
+  },
+  "reports.statement.account.label": "Account",
+  "@reports.statement.account.label": {
+    "description": "Head line of the exported A/C statement, naming the account the statement is of — the label only; the value is the account's own name."
+  },
+  "reports.statement.file_name": "statement-{year}.{extension}",
+  "@reports.statement.file_name": {
+    "description": "S4 — the exported statement's file name. Latin and ASCII in every locale on purpose, and it carries no account name, party name or figure: a file name is metadata that travels with the file (CLAUDE.md rule 4).",
+    "placeholders": {
+      "year": {
+        "type": "String",
+        "example": "2026-27"
+      },
+      "extension": {
+        "type": "String",
+        "example": "pdf"
+      }
+    }
+  },
+  "reports.statement.report.title": "A/C statement",
+  "@reports.statement.report.title": {
+    "description": "The exported A/C statement's own name — the document title, the CSV head and the XLSX sheet tab (07 §14 🔒 row 3, ADR 2026-09-12e §2 🔒: the export trio binds S4). Professional surface: the report is a ledger, so it says A/C statement, never \"money in/out summary\"."
   },
   "reports.title": "Reports",
   "@reports.title": {

@@ -763,6 +763,14 @@ void main() {
               );
 
               expect(tester.takeException(), isNull);
+              // Overflow is not the only way a screen loses a word: given
+              // less room than one of its words, a paragraph draws that word
+              // past its edge and throws nothing, so the whole tree is
+              // measured here as well as asked whether it threw.
+              expectTextFits(
+                tester,
+                reason: 'S8.2 in ${locale.languageCode} at ${scale}x on $size',
+              );
 
               // The primary action is words up to 1.3x and an icon past it;
               // the chooser is an icon at every scale, which is what lets the
@@ -856,6 +864,79 @@ void main() {
           expect(find.text('Cr'), findsOneWidget);
           await unmount(tester);
         });
+      }
+    }
+  });
+
+  group('S8.2 figures and words at scale (07 §1 rules 4 and 11, M9-T4)', () {
+    testWidgets(
+      'F1-07-172 the viewer shows paise only where there are paise (07 §1 '
+      'rule 4 🔒) — the exports still carry two decimals',
+      (tester) async {
+        final seeded = await seedSoloLedger();
+        // A figure that *does* have paise, beside the round ones the seed
+        // already posts: ₹1,200.75 out of cash.
+        await seeded.ledger.moneyOut(
+          bookId: seeded.bookId,
+          from: seeded.cashId,
+          forWhat: seeded.fuelId,
+          paise: 120_075,
+          date: seeded.ledger.today(),
+          note: 'Diesel A/C',
+        );
+        await pumpRk(
+          tester,
+          const ReportViewerScreen(),
+          ledger: seeded.ledger,
+          viewport: rkTallViewport,
+        );
+
+        final rendered = _texts(tester).join(' ');
+        // The round figure loses its `.00` — three glyphs that bought nothing
+        // and, at 200 % on a 360 px phone, pushed the figure past the line.
+        expect(rendered, contains('₹2,400'));
+        expect(rendered, isNot(contains('₹2,400.00')));
+        // The one that has paise keeps every one of them: this is a rule
+        // about what is *there*, never a rounding.
+        expect(rendered, contains('₹1,200.75'));
+        // The **files** are unchanged — a spreadsheet column wants its two
+        // decimals on every row, and the writers still give them
+        // (F1-07-79's `paiseToDecimal` cases below assert the bytes).
+        expect(paiseToDecimal(240_000), '2400.00');
+        await unmount(tester);
+      },
+    );
+
+    // The two words the measured sweep caught once the viewport was real:
+    // Punjabi's *ਜਮ੍ਹਾਂ* asks 125.4 px of the 114.4 px the Cr column has at
+    // 1.3x, and Hindi's *7 प्रविष्टियाँ* 339 px of the takeaway's 328 px at
+    // 200 %. Neither throws — a paragraph given less room than one of its
+    // words draws it past the edge in silence — so both are measured.
+    for (final size in rkPhones) {
+      for (final scale in rkTextScales) {
+        for (final locale in rkLocales) {
+          testWidgets(
+            'F1-07-173 the takeaway and the column headings cut no word at '
+            '${scale}x on ${size.width.toInt()}x${size.height.toInt()} in '
+            '${locale.languageCode}',
+            (tester) async {
+              final seeded = await seedSoloLedger();
+              await pumpRk(
+                tester,
+                const ReportViewerScreen(),
+                ledger: seeded.ledger,
+                locale: locale,
+                textScale: scale,
+                viewport: size,
+              );
+              expectTextFits(
+                tester,
+                reason: 'S8.2 in ${locale.languageCode} at ${scale}x on $size',
+              );
+              await unmount(tester);
+            },
+          );
+        }
       }
     }
   });

@@ -43,6 +43,7 @@
 // entry and its mirror both stay in history; nothing is ever deleted.
 import 'package:core_ledger/core_ledger.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/format/money_format.dart';
@@ -51,6 +52,7 @@ import '../../../shared/ledger/local_ledger.dart';
 import '../../../shared/lock/draft_activity.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../import/import_paths.dart';
 import '../../ledger/ledger_book.dart';
 import '../../../shared/format/date_format.dart';
 import '../entry_amount.dart';
@@ -72,6 +74,10 @@ import '../widgets/entry_verb_pill.dart';
 abstract final class AddEntryKeys {
   /// The five-position verb pill.
   static const verbPill = Key('entry.verb_pill');
+
+  /// The header's Import action, top right, opposite the close ✕
+  /// (ADR 2026-09-03 🔒 ruling 2).
+  static const importAction = Key('entry.import');
 
   /// The big amount at top.
   static const amount = Key('entry.amount');
@@ -123,7 +129,12 @@ abstract final class AddEntryKeys {
 /// S2 Add entry.
 class AddEntryScreen extends StatefulWidget {
   /// Creates the screen.
-  const AddEntryScreen({super.key, this.bookId, this.kind = EntryKind.moneyIn});
+  const AddEntryScreen({
+    super.key,
+    this.bookId,
+    this.kind = EntryKind.moneyIn,
+    this.onImport,
+  });
 
   /// Explicit book; when null the solo book is resolved ([soloBookId]).
   final String? bookId;
@@ -131,6 +142,16 @@ class AddEntryScreen extends StatefulWidget {
   /// The pill position to open on — Home passes the verb it was tapped with
   /// (07 §4). Default *Money in*.
   final EntryKind kind;
+
+  /// Where the header's Import action goes — S7 (07 §11 *Entry point* 🔒,
+  /// ADR 2026-09-03 ruling 2: the Import action lives on the **entry screen
+  /// header, top right**, because importing is a way of entering many lines
+  /// at once, and is *not* a Menu row).
+  ///
+  /// Null takes the default, which pushes [ImportPaths.root] on the router
+  /// this screen is running under. A caller passes its own only to intercept
+  /// the hop (a test, or a host that owns its navigation).
+  final VoidCallback? onImport;
 
   @override
   State<AddEntryScreen> createState() => _AddEntryScreenState();
@@ -708,6 +729,19 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
     );
   }
 
+  /// Opens S7 — the statement import (07 §11 *Entry point* 🔒). The default
+  /// pushes [ImportPaths.root] on the router this screen runs under; without
+  /// a router (a bare pump, a host that owns navigation) nothing happens
+  /// rather than a thrown red screen.
+  void _openImport() {
+    final onImport = widget.onImport;
+    if (onImport != null) {
+      onImport();
+      return;
+    }
+    GoRouter.maybeOf(context)?.push(ImportPaths.root);
+  }
+
   Widget _form(
     BuildContext context,
     String bookId,
@@ -773,6 +807,29 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                   kind: _kind,
                   onKind: _switchVerb,
                 ),
+              ),
+              // The **import door** (07 §11 *Entry point* 🔒, ADR 2026-09-03
+              // ruling 2): the action slot top right, opposite the close ✕.
+              // An icon and a tooltip rather than a word, because 07 §5 🔒
+              // forbids this screen a second row and the amount must stay
+              // first — the label is in the tooltip and in Semantics, so it
+              // is read aloud and long-pressed, never lost.
+              //
+              // It is sized to the pill, not to Material's default 48 px
+              // box: this screen never scrolls (07 §5 🔒), so twelve extra
+              // pixels of header come straight off the account list at the
+              // bottom — enough, measured, to push its last row out of
+              // reach. The width keeps a 44 px target; only the height is
+              // held to the row.
+              IconButton(
+                key: AddEntryKeys.importAction,
+                icon: const Icon(Icons.file_upload_outlined),
+                tooltip: l10n.entryImportAction,
+                iconSize: RkIcon.grid,
+                padding: const EdgeInsets.all(RkSpace.s1),
+                visualDensity: VisualDensity.compact,
+                constraints: const BoxConstraints(minWidth: 44),
+                onPressed: _openImport,
               ),
             ],
           ),

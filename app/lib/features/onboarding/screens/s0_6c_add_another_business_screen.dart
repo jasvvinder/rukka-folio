@@ -25,6 +25,7 @@ import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/format/date_format.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../../shared/widgets/rk_fit_text.dart';
 
 /// One business already set up, as S0.6c recaps it: the name from S0.6a and
 /// the financial year it keeps.
@@ -96,12 +97,12 @@ class AddAnotherBusinessScreen extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
+                          RkFitText(
                             l10n.onboardingBusinessAnotherTitle,
                             style: text.headlineMedium,
                           ),
                           const SizedBox(height: RkSpace.s2),
-                          Text(
+                          RkFitText(
                             l10n.onboardingBusinessAnotherSubtitle,
                             style: text.bodyMedium?.copyWith(
                               color: status.muted,
@@ -186,7 +187,7 @@ class _BusinessRow extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(business.name, style: text.bodyLarge),
+                RkFitText(business.name, style: text.bodyLarge),
                 if (month != null)
                   Text(
                     l10n.onboardingBusinessAnotherRowMeta(

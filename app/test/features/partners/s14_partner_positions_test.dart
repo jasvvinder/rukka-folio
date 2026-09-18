@@ -261,7 +261,12 @@ void main() {
 
     testWidgets('F1-07-110 the route carries the book id', (tester) async {
       expect(PartnersPaths.of(_book), '/books/$_book/partners');
-      expect(partnersRoutes, hasLength(1));
+      expect(
+        PartnersPaths.distributeOf(_book),
+        '/books/$_book/partners/distribute',
+      );
+      // Two now: S14 and the S14.1 wizard it opens (13 §3.2).
+      expect(partnersRoutes, hasLength(2));
     });
   });
 

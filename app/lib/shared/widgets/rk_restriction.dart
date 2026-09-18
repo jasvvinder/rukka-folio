@@ -27,6 +27,7 @@ import 'package:flutter/material.dart';
 import '../theme.dart';
 import '../tokens.dart';
 import 'rk_banner.dart';
+import 'rk_fit_text.dart';
 
 /// Which restriction the surfaces are narrating.
 ///
@@ -205,11 +206,20 @@ class RkRestrictionBanner extends StatelessWidget {
       icon: look.icon,
       title: copy.bannerTitle,
       body: copy.bannerBody,
+      // `RkFitText`, not `Text`: the banner's `Wrap` stacks the two actions
+      // so neither *row* can overflow, but a label is one string and Flutter
+      // only breaks **between** words. At 200 % the widest word is wider than
+      // the button it sits in — *Export everything* asks 321 px of the
+      // 275.3 px a 360 px phone leaves inside the banner, Hindi's
+      // *एक्सपोर्ट* 288.9 px of the same — and a paragraph given less width
+      // than one of its words draws that word straight past the edge without
+      // throwing. So the label steps its own scale down as far as its widest
+      // word needs and no further (07 §1 rule 11; F1-07-170).
       actions: [
         if (actionLabel != null && onAction != null)
-          TextButton(onPressed: onAction, child: Text(actionLabel)),
+          TextButton(onPressed: onAction, child: RkFitText(actionLabel)),
         if (onExport != null)
-          TextButton(onPressed: onExport, child: Text(copy.exportLabel)),
+          TextButton(onPressed: onExport, child: RkFitText(copy.exportLabel)),
       ],
     );
   }

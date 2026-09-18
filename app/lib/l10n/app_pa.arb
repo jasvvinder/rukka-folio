@@ -176,6 +176,14 @@
   "close.cash.not_counted": "ਇਸ ਮਹੀਨੇ ਨਹੀਂ ਗਿਣੀ ਗਈ",
   "close.cash.open": "{account} ਗਿਣੋ",
   "close.error": "ਮਹੀਨਾ-ਬੰਦੀ ਨਹੀਂ ਖੁੱਲ੍ਹ ਸਕੀ।",
+  "close.family.help": "ਬੰਦੀ ਸਾਂਝਾ ਕੰਮ ਹੈ, ਇਸ ਲਈ ਹਰ ਬਹੀ ਕਿੱਥੇ ਖੜ੍ਹੀ ਹੈ ਉਹ ਇੱਥੇ ਹੈ।",
+  "close.family.month": "{month} ਲਈ",
+  "close.family.row": "{book}: {state}",
+  "close.family.state.closed": "ਬੰਦ ਹੋ ਗਈ",
+  "close.family.state.in_progress": "ਅੱਧ-ਵਿਚਾਲੇ",
+  "close.family.state.not_started": "ਸ਼ੁਰੂ ਨਹੀਂ ਹੋਈ",
+  "close.family.state.waiting": "{name} ਦੀ ਉਡੀਕ",
+  "close.family.title": "ਪਰਿਵਾਰ ਦੀ ਬੰਦੀ",
   "close.lock.action": "{month} ਨੂੰ ਜਿੰਦਰਾ ਲਾਓ",
   "close.lock.blocked": "{count, plural, =1{ਇੱਕ ਗੱਲ ਹਾਲੇ ਬੰਦੀ ਰੋਕ ਰਹੀ ਹੈ।} other{{count} ਗੱਲਾਂ ਹਾਲੇ ਬੰਦੀ ਰੋਕ ਰਹੀਆਂ ਹਨ।}}",
   "close.lock.blocked.action": "ਟ੍ਰੇ ’ਤੇ ਵਾਪਸ",
@@ -198,6 +206,20 @@
   "close.step4.help": "ਇਹ ਉਹ ਬਾਕੀਆਂ ਹਨ ਜੋ ਇਹ ਬੰਦੀ ਦਰਜ ਕਰੇਗੀ।",
   "close.step4.title": "ਪੱਕਾ ਕਰੋ ਤੇ ਜਿੰਦਰਾ ਲਾਓ",
   "close.step_of": "ਕਦਮ {n} / {total}",
+  "close.summary.done": "ਹੋ ਗਿਆ",
+  "close.summary.error": "ਮਹੀਨਾ ਜੋੜਿਆ ਨਹੀਂ ਜਾ ਸਕਿਆ।",
+  "close.summary.families": "ਹਰ ਪਰਿਵਾਰ ਦਾ ਮਹੀਨਾ",
+  "close.summary.in": "ਆਇਆ ਪੈਸਾ",
+  "close.summary.locked_anyway": "ਮਹੀਨਾ ਫਿਰ ਵੀ ਬੰਦ ਹੋ ਚੁੱਕਾ ਹੈ।",
+  "close.summary.out": "ਗਿਆ ਪੈਸਾ",
+  "close.summary.overspent": "ਇਸ ਮਹੀਨੇ ਆਏ ਨਾਲੋਂ ਵੱਧ ਪੈਸਾ ਗਿਆ।",
+  "close.summary.saved": "ਬਚਿਆ",
+  "close.summary.share": "ਤਸਵੀਰ ਵਜੋਂ ਸਾਂਝਾ ਕਰੋ",
+  "close.summary.share.unavailable": "ਇਹ ਫ਼ੋਨ ਹਾਲੇ ਇਸ ਕਾਰਡ ਦੀ ਤਸਵੀਰ ਨਹੀਂ ਬਣਾ ਸਕਦਾ। ਮਹੀਨੇ ਦੇ ਅੰਕੜੇ ਰਿਪੋਰਟਾਂ ਵਿੱਚ ਹਨ।",
+  "close.summary.skeleton": "ਤੁਹਾਡਾ ਮਹੀਨਾ ਜੋੜਿਆ ਜਾ ਰਿਹਾ ਹੈ",
+  "close.summary.title": "{month} ਬੰਦ ਹੋ ਗਿਆ",
+  "close.summary.top": "ਇਸ ਮਹੀਨੇ ਦੇ ਤਿੰਨ ਸਭ ਤੋਂ ਵੱਡੇ ਖ਼ਰਚੇ",
+  "close.summary.top.empty": "ਇਸ ਮਹੀਨੇ ਕੁਝ ਵੀ ਬਾਹਰ ਨਹੀਂ ਗਿਆ।",
   "close.title": "{month} ਬੰਦ ਕਰੋ",
   "close.tray.blocks.help": "ਜਦ ਤੱਕ ਹਰ ਇੱਕ ਨਿੱਬੜ ਨਹੀਂ ਜਾਂਦੀ, ਮਹੀਨੇ ਨੂੰ ਜਿੰਦਰਾ ਨਹੀਂ ਲੱਗ ਸਕਦਾ।",
   "close.tray.blocks.title": "ਇਹ ਬੰਦੀ ਰੋਕਦੀਆਂ ਹਨ",
@@ -206,6 +228,66 @@
   "close.tray.warns.title": "ਇਹ ਬੰਦੀ ਨਹੀਂ ਰੋਕਦੀਆਂ",
   "close.warning.aged_advance": "ਇੱਕ ਐਡਵਾਂਸ ਬਹੁਤ ਚਿਰ ਤੋਂ ਖੁੱਲ੍ਹਾ ਹੈ",
   "close.warning.unverified_count": "ਇਹ ਰੋਕੜ ਇਸ ਮਹੀਨੇ ਨਹੀਂ ਗਿਣੀ ਗਈ",
+  "close.year.blocked.body": "{name} ਤੋਂ ਐਂਟਰੀਆਂ ਨਹੀਂ ਪਹੁੰਚੀਆਂ। ਜਦ ਤੱਕ ਨਹੀਂ ਪਹੁੰਚਦੀਆਂ, ਇਸ ਸਾਲ ਦੇ ਅੰਕੜੇ ਪੂਰੇ ਨਹੀਂ ਹਨ, ਇਸ ਲਈ ਇਹ ਪ੍ਰਮਾਣਿਤ ਨਹੀਂ ਹੋ ਸਕਦਾ।",
+  "close.year.blocked.off": "ਜਦ ਤੱਕ ਰਹਿੰਦੀਆਂ ਐਂਟਰੀਆਂ ਨਹੀਂ ਪਹੁੰਚਦੀਆਂ, ਪ੍ਰਮਾਣਿਤ ਕਰਨਾ ਬੰਦ ਰਹੇਗਾ।",
+  "close.year.blocked.title": "ਸਾਲ-ਬੰਦੀ ਰੁਕੀ ਹੋਈ ਹੈ — ਇੱਕ ਫ਼ੋਨ ਦੀ ਉਡੀਕ",
+  "close.year.blocker.advance_pending": "ਇੱਕ ਐਡਵਾਂਸ ਮਨਜ਼ੂਰੀ ਦੀ ਉਡੀਕ ਵਿੱਚ ਹੈ",
+  "close.year.blocker.advance_pending.queue": "ਐਡਵਾਂਸ ਦੀ ਕਤਾਰ ਵਿੱਚ",
+  "close.year.blocker.author_gap": "{name} ਤੋਂ ਐਂਟਰੀਆਂ ਨਹੀਂ ਪਹੁੰਚੀਆਂ",
+  "close.year.blocker.held": "ਇੱਕ ਐਂਟਰੀ {name} ਤੋਂ ਆਉਣ ਵਾਲੀ ਉਸ ਐਂਟਰੀ ਦੀ ਉਡੀਕ ਕਰ ਰਹੀ ਹੈ ਜੋ ਹਾਲੇ ਨਹੀਂ ਪਹੁੰਚੀ",
+  "close.year.blocker.month_open": "{month} ਹਾਲੇ ਖੁੱਲ੍ਹਾ ਹੈ",
+  "close.year.blocker.month_open.help": "ਮਹੀਨਾ-ਬੰਦੀ ਵਿੱਚੋਂ ਇਸ ਨੂੰ ਬੰਦ ਕਰੋ, ਫਿਰ ਵਾਪਸ ਆਓ।",
+  "close.year.blocker.review_flag": "ਇੱਕ ਐਂਟਰੀ ਹਾਲੇ ਵੇਖੇ ਜਾਣ ਦੀ ਉਡੀਕ ਵਿੱਚ ਹੈ",
+  "close.year.blocker.review_flag.queue": "ਜਾਂਚ ਦੀ ਕਤਾਰ ਵਿੱਚ",
+  "close.year.blocker.suspense": "ਇੱਕ ਬੈਂਕ ਲਾਈਨ ਦੀ ਹਾਲੇ ਵਿਆਖਿਆ ਨਹੀਂ ਹੋਈ",
+  "close.year.blocks.help": "ਹਰ ਇੱਕ ਨਿਬੜਨ ਤੱਕ ਸਾਲ ਪ੍ਰਮਾਣਿਤ ਨਹੀਂ ਹੋ ਸਕਦਾ।",
+  "close.year.blocks.title": "ਇਹ ਸਾਲ-ਬੰਦੀ ਰੋਕਦੀਆਂ ਹਨ",
+  "close.year.certify.action": "ਵਿੱਤੀ ਸਾਲ {fy} ਪ੍ਰਮਾਣਿਤ ਕਰੋ",
+  "close.year.certify.blocked": "{count, plural, =1{ਇੱਕ ਗੱਲ ਹਾਲੇ ਵੀ ਸਾਲ-ਬੰਦੀ ਰੋਕਦੀ ਹੈ।} other{{count} ਗੱਲਾਂ ਹਾਲੇ ਵੀ ਸਾਲ-ਬੰਦੀ ਰੋਕਦੀਆਂ ਹਨ।}}",
+  "close.year.certify.blocked.action": "ਸੂਚੀ ਉੱਤੇ ਵਾਪਸ",
+  "close.year.certify.error": "ਸਾਲ-ਬੰਦੀ ਪ੍ਰਕਾਸ਼ਿਤ ਨਹੀਂ ਹੋ ਸਕੀ।",
+  "close.year.certify.refused": "{count, plural, =1{ਬਹੀਆਂ ਨੇ ਬੰਦੀ ਤੋਂ ਇਨਕਾਰ ਕੀਤਾ: ਇੱਕ ਗੱਲ ਹਾਲੇ ਖੁੱਲ੍ਹੀ ਹੈ।} other{ਬਹੀਆਂ ਨੇ ਬੰਦੀ ਤੋਂ ਇਨਕਾਰ ਕੀਤਾ: {count} ਗੱਲਾਂ ਹਾਲੇ ਖੁੱਲ੍ਹੀਆਂ ਹਨ।}}",
+  "close.year.certify.working": "ਸਾਲ ਪ੍ਰਮਾਣਿਤ ਹੋ ਰਿਹਾ ਹੈ",
+  "close.year.checklist.help": "ਕਿਹੜੀਆਂ ਗੱਲਾਂ ਬੰਦੀ ਰੋਕਦੀਆਂ ਹਨ ਤੇ ਕਿਹੜੀਆਂ ਸਿਰਫ਼ ਜਾਣਨ ਵਾਲੀਆਂ ਹਨ — ਹੇਠਾਂ ਦੋ ਵੱਖ-ਵੱਖ ਸੂਚੀਆਂ ਹਨ।",
+  "close.year.checklist.ready": "ਸਭ ਕੁਝ ਨਿਬੜ ਗਿਆ ਹੈ। ਵਿੱਤੀ ਸਾਲ {fy} ਬੰਦ ਕਰਨ ਲਈ ਤਿਆਰ ਹੈ।",
+  "close.year.checklist.title": "ਸਾਲ ਬੰਦ ਹੋਣ ਤੋਂ ਪਹਿਲਾਂ",
+  "close.year.distribute.action": "ਮੁਨਾਫ਼ਾ ਵੰਡੋ",
+  "close.year.distribute.body": "ਇਹ ਮਰਜ਼ੀ ਦੀ ਗੱਲ ਹੈ। ਸਾਲ ਸੀਲ ਹੋਣ ਤੋਂ ਪਹਿਲਾਂ ਮੁਨਾਫ਼ਾ ਵੰਡਣ ਨਾਲ ਹਰ ਮਾਲਕ ਦਾ ਹਿਸਾਬ ਨਵੇਂ ਸਾਲ ਦੇ ਪਹਿਲੇ ਦਿਨ ਤੋਂ ਹੀ ਠੀਕ ਰਹਿੰਦਾ ਹੈ।",
+  "close.year.distribute.done": "ਇਸ ਸਾਲ ਦਾ ਮੁਨਾਫ਼ਾ ਪਹਿਲਾਂ ਹੀ ਵੰਡਿਆ ਜਾ ਚੁੱਕਾ ਹੈ।",
+  "close.year.distribute.title": "ਪਹਿਲਾਂ ਇਸ ਸਾਲ ਦਾ ਮੁਨਾਫ਼ਾ ਵੰਡਣਾ ਹੈ?",
+  "close.year.error": "ਸਾਲ-ਬੰਦੀ ਨਹੀਂ ਖੁੱਲ੍ਹ ਸਕੀ।",
+  "close.year.fy": "ਵਿੱਤੀ ਸਾਲ {fy}",
+  "close.year.prompt.action": "ਸਾਲ ਬੰਦ ਕਰੋ",
+  "close.year.prompt.body": "ਇਸ ਵਿੱਤੀ ਸਾਲ ਦਾ ਹਰ ਮਹੀਨਾ ਹੁਣ ਬੰਦ ਹੈ। ਸਾਲ ਬੰਦ ਕਰਨ ਨਾਲ ਹਰ ਬਕਾਇਆ ਪ੍ਰਮਾਣਿਤ ਹੋ ਕੇ ਨਵੇਂ ਸਾਲ ਵਿੱਚ ਚਲਾ ਜਾਂਦਾ ਹੈ।",
+  "close.year.prompt.title": "ਵਿੱਤੀ ਸਾਲ {fy} ਪੂਰਾ ਹੋ ਗਿਆ",
+  "close.year.readonly": "ਤੁਸੀਂ ਇਹ ਬਹੀ ਪੜ੍ਹ ਸਕਦੇ ਹੋ, ਪਰ ਇਸ ਦਾ ਸਾਲ ਪ੍ਰਮਾਣਿਤ ਨਹੀਂ ਕਰ ਸਕਦੇ।",
+  "close.year.sealed.badge": "ਪ੍ਰਮਾਣਿਤ ✓ ਵਿੱਤੀ ਸਾਲ {fy}",
+  "close.year.sealed.body": "ਸਾਲ ਸੀਲ ਹੋ ਗਿਆ ਹੈ। ਇਸ ਦੇ ਆਖ਼ਰੀ ਬਕਾਇਆ ਹੀ ਵਿੱਤੀ ਸਾਲ {next} ਦੇ ਸ਼ੁਰੂਆਤੀ ਬਕਾਇਆ ਹਨ।",
+  "close.year.sealed.done": "ਹੋ ਗਿਆ",
+  "close.year.sealed.mismatch": "ਪ੍ਰਮਾਣਿਤ · ਇਸ ਫ਼ੋਨ ਦਾ ਅੰਕੜਾ ਵੱਖਰਾ ਹੈ",
+  "close.year.sealed.mismatch.body": "ਇਸ ਫ਼ੋਨ ਦਾ ਆਪਣਾ ਹਿਸਾਬ ਪ੍ਰਮਾਣਿਤ ਕੀਤੇ ਹੋਏ ਨਾਲ ਮੇਲ ਨਹੀਂ ਖਾਂਦਾ। ਇਹਨਾਂ ਅੰਕੜਿਆਂ ਉੱਤੇ ਭਰੋਸਾ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ ਜਿਸ ਨੇ ਸਾਲ ਬੰਦ ਕੀਤਾ ਸੀ, ਉਸ ਨਾਲ ਗੱਲ ਕਰੋ।",
+  "close.year.sealed.stale": "ਪੁਰਾਣੇ ਵਰਜ਼ਨ ਤੋਂ ਪ੍ਰਮਾਣਿਤ",
+  "close.year.sealed.stale.body": "ਸਾਲ ਇਸ ਐਪ ਤੋਂ ਪੁਰਾਣੀ ਐਪ ਨੇ ਪ੍ਰਮਾਣਿਤ ਕੀਤਾ ਸੀ, ਤੇ ਇਹ ਫ਼ੋਨ ਹਿਸਾਬ ਵੱਖਰਾ ਕੱਢਦਾ ਹੈ। ਇਸ ਨੂੰ ਨਵੀਂ ਐਪ ਤੋਂ ਦੁਬਾਰਾ ਪ੍ਰਮਾਣਿਤ ਕਰਨਾ ਪਵੇਗਾ।",
+  "close.year.sealed.unverified": "ਪ੍ਰਮਾਣਿਤ · ਜਾਂਚਣ ਲਈ ਅੱਪਡੇਟ ਕਰੋ",
+  "close.year.sealed.unverified.body": "ਇਹ ਬੰਦੀ ਜਾਂਚਣ ਲਈ ਐਪ ਅੱਪਡੇਟ ਕਰੋ। ਇਹ ਇਸ ਫ਼ੋਨ ਨਾਲੋਂ ਨਵੇਂ ਵਰਜ਼ਨ ਨੇ ਪ੍ਰਮਾਣਿਤ ਕੀਤੀ ਹੈ, ਇਸ ਲਈ ਇਹ ਫ਼ੋਨ ਹਾਲੇ ਅੰਕੜੇ ਨਹੀਂ ਜਾਂਚ ਸਕਦਾ — ਬੰਦੀ ਵਿੱਚ ਕੋਈ ਖ਼ਰਾਬੀ ਨਹੀਂ ਹੈ।",
+  "close.year.settlement.carry": "ਅੱਗੇ ਲਿਜਾਣਾ — ਚੁਣਿਆ ਹੋਇਆ",
+  "close.year.settlement.carry.help": "ਹਰ ਮਾਲਕ ਦਾ ਹਿਸਾਬ ਇੱਥੇ ਬੰਦ ਹੋ ਕੇ ਨਵੇਂ ਸਾਲ ਵਿੱਚ ਪ੍ਰਮਾਣਿਤ ਸ਼ੁਰੂਆਤੀ ਰਕਮ ਵਜੋਂ ਮੁੜ ਖੁੱਲ੍ਹਦਾ ਹੈ — ਕਦੇ ਵੀ ਯਾਦ ਰੱਖਿਆ ਹੋਇਆ ਅੰਕੜਾ ਨਹੀਂ।",
+  "close.year.settlement.open": "ਭਾਈਵਾਲਾਂ ਦਾ ਹਿਸਾਬ ਖੋਲ੍ਹੋ",
+  "close.year.settlement.others": "ਜੇ ਇਸ ਦੀ ਥਾਂ ਕਾਰੋਬਾਰ ਕਿਸੇ ਮਾਲਕ ਨੂੰ ਪੈਸੇ ਦੇ ਰਿਹਾ ਹੈ, ਜਾਂ ਇੱਕ ਮਾਲਕ ਦੂਜੇ ਨਾਲ ਹਿਸਾਬ ਕਰ ਰਿਹਾ ਹੈ, ਤਾਂ ਉਹ ਐਂਟਰੀਆਂ ਪ੍ਰਮਾਣਿਤ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ ਕਰੋ।",
+  "close.year.settlement.title": "ਹਰ ਮਾਲਕ ਦੇ ਹਿਸਾਬ ਦਾ ਕੀ ਬਣੇਗਾ",
+  "close.year.skeleton": "ਸਾਲ-ਬੰਦੀ ਖੁੱਲ੍ਹ ਰਹੀ ਹੈ",
+  "close.year.title": "ਸਾਲ-ਬੰਦੀ",
+  "close.year.vector.empty": "ਹਾਲੇ ਅੱਗੇ ਲਿਜਾਣ ਲਈ ਕੁਝ ਨਹੀਂ ਹੈ।",
+  "close.year.vector.help": "ਇਹ ਆਖ਼ਰੀ ਬਕਾਇਆ ਵਿੱਤੀ ਸਾਲ {next} ਦੇ ਸ਼ੁਰੂਆਤੀ ਬਕਾਇਆ ਬਣ ਜਾਂਦੇ ਹਨ। ਆਮਦਨ ਤੇ ਖ਼ਰਚ ਦੇ ਖਾਤੇ ਫਿਰ ਸਿਫ਼ਰ ਤੋਂ ਸ਼ੁਰੂ ਹੁੰਦੇ ਹਨ, ਤੇ ਇਸ ਸਾਲ ਦਾ ਨਤੀਜਾ ਹੇਠਾਂ ਇੱਕੋ ਲਾਈਨ ਵਿੱਚ ਹੈ।",
+  "close.year.vector.net_result": "ਇਸ ਸਾਲ ਦਾ ਨਤੀਜਾ",
+  "close.year.vector.title": "ਇਹ ਸਾਲ ਅਗਲੇ ਨੂੰ ਕੀ ਦਿੰਦਾ ਹੈ",
+  "close.year.vector.total": "ਅੱਗੇ ਲਿਜਾਇਆ",
+  "close.year.vector.unbalanced": "ਇਹ ਬਕਾਇਆ ਮੇਲ ਨਹੀਂ ਖਾਂਦੇ, ਇਸ ਲਈ ਸਾਲ ਪ੍ਰਮਾਣਿਤ ਨਹੀਂ ਹੋ ਸਕਦਾ। ਹੋਮ ਉੱਤੇ ਬਹੀ-ਮੇਲ ਕਾਰਡ ਹੋਰ ਦੱਸਦਾ ਹੈ।",
+  "close.year.voided.body": "{month} ਮੁੜ ਖੋਲ੍ਹਿਆ ਗਿਆ, ਇਸ ਲਈ ਵਿੱਤੀ ਸਾਲ {fy} ਹੁਣ ਪ੍ਰਮਾਣਿਤ ਨਹੀਂ ਰਿਹਾ — ਤੇ ਨਾ ਹੀ ਇਸ ਤੋਂ ਬਾਅਦ ਦਾ ਕੋਈ ਸਾਲ। {month} ਦੁਬਾਰਾ ਬੰਦ ਕਰੋ, ਫਿਰ ਸਾਲ ਤਰਤੀਬ ਨਾਲ ਬੰਦ ਕਰੋ।",
+  "close.year.voided.body.unknown": "ਵਿੱਤੀ ਸਾਲ {fy} ਦਾ ਇੱਕ ਮਹੀਨਾ ਮੁੜ ਖੋਲ੍ਹਿਆ ਗਿਆ, ਇਸ ਲਈ ਇਹ ਹੁਣ ਪ੍ਰਮਾਣਿਤ ਨਹੀਂ ਰਿਹਾ — ਤੇ ਨਾ ਹੀ ਇਸ ਤੋਂ ਬਾਅਦ ਦਾ ਕੋਈ ਸਾਲ। ਉਹ ਮਹੀਨਾ ਦੁਬਾਰਾ ਬੰਦ ਕਰੋ, ਫਿਰ ਸਾਲ ਤਰਤੀਬ ਨਾਲ ਬੰਦ ਕਰੋ।",
+  "close.year.voided.title": "ਇਸ ਸਾਲ ਦਾ ਪ੍ਰਮਾਣ-ਪੱਤਰ ਰੱਦ ਹੋ ਗਿਆ ਹੈ",
+  "close.year.warns.help": "ਪ੍ਰਮਾਣਿਤ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ ਵੇਖਣ ਯੋਗ ਹਨ, ਪਰ ਸਾਲ ਫਿਰ ਵੀ ਬੰਦ ਹੋ ਜਾਵੇਗਾ।",
+  "close.year.warns.title": "ਇਹ ਸਾਲ-ਬੰਦੀ ਨਹੀਂ ਰੋਕਦੀਆਂ",
   "connection.notice.body": "ਐਪ ਬਿਨਾਂ ਇੰਟਰਨੈੱਟ ਚੱਲਦੀ ਹੈ। ਤੁਸੀਂ ਜੋ ਵੀ ਦਰਜ ਕਰਦੇ ਹੋ, ਉਹ ਇਸ ਫ਼ੋਨ ’ਤੇ ਸੰਭਾਲਿਆ ਜਾਂਦਾ ਹੈ ਅਤੇ ਕਨੈਕਸ਼ਨ ਵਾਪਸ ਆਉਣ ’ਤੇ ਆਪੇ ਸਿੰਕ ਹੋ ਜਾਂਦਾ ਹੈ।",
   "connection.notice.retry": "ਹੁਣੇ ਜਾਂਚੋ",
   "connection.notice.title": "ਕੋਈ ਕਨੈਕਸ਼ਨ ਨਹੀਂ",
@@ -336,6 +418,232 @@
   "devices.window.section": "ਤੁਹਾਡੇ ਧਿਆਨ ਦੀ ਲੋੜ",
   "devices.window.support.body": "ਸਪੋਰਟ ਨੇ ਤੁਹਾਡੇ ਕਹਿਣ ’ਤੇ {device} ਹਟਾਇਆ। ਤੁਸੀਂ ਨਹੀਂ ਕਿਹਾ? ਰੱਦ ਕਰੋ।",
   "devices.window.support.title": "ਸਪੋਰਟ ਦੀ ਕਾਰਵਾਈ ਬਾਕੀ",
+  "distribute.back": "ਪਿੱਛੇ",
+  "@distribute.back": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.block.account": "ਇਸ ਕਾਰੋਬਾਰ ਕੋਲ ਵੰਡ ਦਰਜ ਕਰਨ ਲਈ ਹਾਲੇ ਕੋਈ ਥਾਂ ਨਹੀਂ ਹੈ।",
+  "@distribute.block.account": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.block.ceiling": "ਇਹ ਉਸ ਰਕਮ ਤੋਂ {amount} ਵੱਧ ਹੈ ਜੋ ਕਾਰੋਬਾਰ ਕੋਲ ਦੇਣ ਲਈ ਬਚੀ ਹੈ।",
+  "@distribute.block.ceiling": {
+    "description": "machine-draft — native review M12",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "distribute.block.ceiling.help": "ਪਿਛਲੇ ਸਾਲਾਂ ਦੀ ਕਮਾਈ ਵੀ ਇਸ ਵਿੱਚ ਗਿਣੀ ਜਾਂਦੀ ਹੈ। ਉਸ ਤੋਂ ਵੱਧ ਕੁਝ ਬਾਹਰ ਨਹੀਂ ਜਾ ਸਕਦਾ।",
+  "@distribute.block.ceiling.help": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.block.nothing": "{label} ਲਈ ਵੰਡਣ ਨੂੰ ਕੁਝ ਨਹੀਂ ਹੈ।",
+  "@distribute.block.nothing": {
+    "description": "machine-draft — native review M12",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "distribute.block.notshared": "ਇੱਥੇ ਦਿਖਾਉਣ ਨੂੰ ਕੁਝ ਨਹੀਂ ਹੈ।",
+  "@distribute.block.notshared": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.block.partners": "ਇਸ ਕਾਰੋਬਾਰ ਦੇ ਹਾਲੇ ਹਿੱਸੇਦਾਰਾਂ ਦੇ ਖਾਤੇ ਨਹੀਂ ਹਨ।",
+  "@distribute.block.partners": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.block.ratio.incomplete": "ਤੈਅ ਹਿੱਸੇ ਹਰ ਹਿੱਸੇਦਾਰ ਨੂੰ ਨਹੀਂ ਢੱਕਦੇ, ਇਸ ਲਈ ਕੁਝ ਵੰਡਿਆ ਨਹੀਂ ਜਾ ਸਕਦਾ।",
+  "@distribute.block.ratio.incomplete": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.block.ratio.unrecorded": "ਇਸ ਕਾਰੋਬਾਰ ਲਈ ਤੈਅ ਹਿੱਸੇ ਕਦੇ ਲਿਖੇ ਹੀ ਨਹੀਂ ਗਏ, ਇਸ ਲਈ ਕੁਝ ਵੰਡਿਆ ਨਹੀਂ ਜਾ ਸਕਦਾ।",
+  "@distribute.block.ratio.unrecorded": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.block.terms": "ਇਸ ਕਾਰੋਬਾਰ ਦੀਆਂ ਤੈਅ ਸ਼ਰਤਾਂ ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਪੜ੍ਹੀਆਂ ਨਹੀਂ ਜਾ ਸਕੀਆਂ, ਇਸ ਲਈ ਹਾਲੇ ਕੁਝ ਵੰਡਿਆ ਨਹੀਂ ਜਾ ਸਕਦਾ।",
+  "@distribute.block.terms": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.confirm.shared": "ਹਿੱਸੇਦਾਰਾਂ ਨੂੰ ਭੇਜੋ",
+  "@distribute.confirm.shared": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.confirm.shared.note": "ਹਰ ਹਿੱਸੇਦਾਰ ਦੀ ਮਨਜ਼ੂਰੀ ਚਾਹੀਦੀ ਹੈ। ਇਹ ਉਹਨਾਂ ਦੇ ਇਨਬਾਕਸ ਵਿੱਚ ਉਡੀਕਦਾ ਹੈ, ਅਤੇ ਉਸ ਤੋਂ ਪਹਿਲਾਂ ਕੁਝ ਨਹੀਂ ਬਦਲਦਾ।",
+  "@distribute.confirm.shared.note": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.confirm.solo": "ਵੰਡੋ",
+  "@distribute.confirm.solo": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.confirm.solo.note": "ਇਹ ਇੱਕ ਐਂਟਰੀ ਦਰਜ ਕਰਦਾ ਹੈ। ਪੈਸਾ ਕਿਤੇ ਨਹੀਂ ਜਾਂਦਾ: ਸਿਰਫ਼ ਇਹ ਲਿਖਿਆ ਜਾਂਦਾ ਹੈ ਕਿ ਕਾਰੋਬਾਰ ਹੁਣ ਹਰ ਹਿੱਸੇਦਾਰ ਨੂੰ ਕਿੰਨਾ ਦੇਣਾ ਹੈ।",
+  "@distribute.confirm.solo.note": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.door": "ਮੁਨਾਫ਼ਾ ਵੰਡੋ",
+  "@distribute.door": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.error": "ਹਿੱਸੇ ਨਹੀਂ ਕੱਢੇ ਜਾ ਸਕੇ।",
+  "@distribute.error": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.failed": "ਦਰਜ ਨਹੀਂ ਹੋ ਸਕਿਆ। ਵਹੀ ਵਿੱਚ ਕੁਝ ਨਹੀਂ ਗਿਆ।",
+  "@distribute.failed": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.interest.above": "ਦੇਣ ਵਾਲਾ ਵਿਆਜ ਮੁਨਾਫ਼ੇ ਤੋਂ ਵੱਧ ਹੈ। ਵਿਆਜ ਪੂਰਾ ਦਿੱਤਾ ਜਾਂਦਾ ਹੈ, ਅਤੇ ਜੋ ਬਚਦਾ ਹੈ ਉਹ ਨੁਕਸਾਨ ਵਾਂਗ ਵੰਡਿਆ ਜਾਂਦਾ ਹੈ।",
+  "@distribute.interest.above": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.interest.off": "ਇਸ ਕਾਰੋਬਾਰ ਲਈ ਪੂੰਜੀ ਉੱਤੇ ਵਿਆਜ ਬੰਦ ਹੈ, ਇਸ ਲਈ ਹਰ ਕਿਸੇ ਦੀ ਇੱਕ ਹੀ ਸਤਰ ਹੈ।",
+  "@distribute.interest.off": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.loss": "{label} ਦਾ ਨੁਕਸਾਨ",
+  "@distribute.loss": {
+    "description": "machine-draft — native review M12",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "distribute.loss.note": "ਇਸ ਸਾਲ ਨੁਕਸਾਨ ਹੋਇਆ ਹੈ, ਇਸ ਲਈ ਹਰ ਹਿੱਸੇਦਾਰ ਦਾ ਹਿੱਸਾ ਉਸ ਰਕਮ ਵਿੱਚੋਂ ਘਟੇਗਾ ਜੋ ਕਾਰੋਬਾਰ ਉਸਨੂੰ ਦੇਣਾ ਹੈ।",
+  "@distribute.loss.note": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.next": "ਅੱਗੇ",
+  "@distribute.next": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.owner.interest": "ਵਿਆਜ",
+  "@distribute.owner.interest": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.owner.share": "ਹਿੱਸਾ",
+  "@distribute.owner.share": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.owner.total": "{name} ਨੂੰ ਕੁੱਲ",
+  "@distribute.owner.total": {
+    "description": "machine-draft — native review M12",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "distribute.period.from": "ਤੋਂ",
+  "@distribute.period.from": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.period.to": "ਤੱਕ",
+  "@distribute.period.to": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.period.year": "ਵਿੱਤੀ ਸਾਲ {label}",
+  "@distribute.period.year": {
+    "description": "machine-draft — native review M12",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "distribute.posted": "ਦਰਜ ਹੋ ਗਿਆ ✓",
+  "@distribute.posted": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.profit": "{label} ਦਾ ਮੁਨਾਫ਼ਾ",
+  "@distribute.profit": {
+    "description": "machine-draft — native review M12",
+    "placeholders": {
+      "label": {
+        "type": "String"
+      }
+    }
+  },
+  "distribute.proposed": "ਹਿੱਸੇਦਾਰਾਂ ਨੂੰ ਭੇਜ ਦਿੱਤਾ ✓",
+  "@distribute.proposed": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.ratio": "{total} ਵਿੱਚੋਂ {weight}",
+  "@distribute.ratio": {
+    "description": "machine-draft — native review M12",
+    "placeholders": {
+      "weight": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "distribute.readonly": "ਇਸ ਵੇਲੇ ਤੁਹਾਡਾ ਪਲਾਨ ਸਿਰਫ਼ ਪੜ੍ਹਨ ਲਈ ਹੈ, ਇਸ ਲਈ ਕੁਝ ਦਰਜ ਨਹੀਂ ਹੋ ਸਕਦਾ।",
+  "@distribute.readonly": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.retry": "ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
+  "@distribute.retry": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.skeleton": "ਹਰ ਹਿੱਸੇਦਾਰ ਦਾ ਹਿੱਸਾ ਕੱਢਿਆ ਜਾ ਰਿਹਾ ਹੈ",
+  "@distribute.skeleton": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.step": "{total} ਵਿੱਚੋਂ ਕਦਮ {n}",
+  "@distribute.step": {
+    "description": "machine-draft — native review M12",
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "distribute.step1.help": "ਮੁਨਾਫ਼ਾ ਪੂਰੇ ਸਾਲ ਦਾ ਹੁੰਦਾ ਹੈ। ਇਹ ਤਰੀਕਾਂ ਸਿਰਫ਼ ਇਹ ਦੱਸਦੀਆਂ ਹਨ ਕਿ ਵਿਆਜ ਕਿੰਨੇ ਦਿਨਾਂ ਦਾ ਕੱਢਣਾ ਹੈ।",
+  "@distribute.step1.help": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.step1.title": "ਸਾਲ ਦਾ ਕਿਹੜਾ ਹਿੱਸਾ?",
+  "@distribute.step1.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.step2.help": "ਹਾਲੇ ਕੁਝ ਦਰਜ ਨਹੀਂ ਹੋਇਆ। ਐਂਟਰੀ ਇਹ ਕਹੇਗੀ।",
+  "@distribute.step2.help": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.step2.title": "ਹਰ ਹਿੱਸੇਦਾਰ ਨੂੰ ਕੀ ਮਿਲੇਗਾ",
+  "@distribute.step2.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.step3.title": "ਦਰਜ ਕਰਨ ਲਈ ਤਿਆਰ",
+  "@distribute.step3.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.title": "ਮੁਨਾਫ਼ਾ ਵੰਡੋ",
+  "@distribute.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.totals.entry": "ਪੂਰੀ ਐਂਟਰੀ",
+  "@distribute.totals.entry": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.totals.interest": "ਕੁੱਲ ਵਿਆਜ",
+  "@distribute.totals.interest": {
+    "description": "machine-draft — native review M12"
+  },
+  "distribute.totals.share": "ਤੈਅ ਹਿੱਸਿਆਂ ਮੁਤਾਬਕ ਵੰਡ",
+  "@distribute.totals.share": {
+    "description": "machine-draft — native review M12"
+  },
   "entry.amount.a11y": "{amount} · {verb}",
   "entry.amount.label": "ਕਿੰਨੇ ਪੈਸੇ",
   "entry.chips.more": "+ ਹੋਰ",
@@ -367,6 +675,7 @@
     "description": "machine-draft — native review M12"
   },
   "entry.error": "ਤੁਹਾਡੀਆਂ ਬਹੀਆਂ ਖੁੱਲ੍ਹ ਨਹੀਂ ਸਕੀਆਂ",
+  "entry.import.action": "ਸਟੇਟਮੈਂਟ ਲਿਆਓ",
   "entry.keypad.add": "ਹੋਰ ਰਕਮ ਜੋੜੋ",
   "entry.keypad.backspace": "ਪਿਛਲਾ ਅੰਕ ਮਿਟਾਓ",
   "entry.keypad.label": "ਰਕਮ ਕੀਪੈਡ",
@@ -425,6 +734,13 @@
   "entry.verb.money_out": "ਪੈਸੇ ਗਏ",
   "entry.verb.move_money": "ਪੈਸੇ ਟ੍ਰਾਂਸਫਰ",
   "entry.verb.took_credit": "ਉਧਾਰ ਲਿਆ",
+  "home.close.book": "{book}",
+  "home.close.done.action": "ਮਹੀਨਾ ਵੇਖੋ",
+  "home.close.done.title": "{month} ਬੰਦ ਹੋ ਗਿਆ",
+  "home.close.resume": "ਕਦਮ {n} / {total} ਤੋਂ ਅੱਗੇ",
+  "home.close.steps": "{total} ਕਦਮ",
+  "home.close.title": "{month} ਬੰਦ ਕਰੋ",
+  "home.close.waiting": "{name} ਦੀ ਉਡੀਕ",
   "home.drilldown.empty": "ਇਸ ਲਾਈਨ ਪਿੱਛੇ ਹਾਲੇ ਕੁਝ ਨਹੀਂ",
   "home.drilldown.empty_action": "ਇੰਦਰਾਜ ਦਰਜ ਕਰੋ",
   "home.drilldown.error": "ਇਹ ਸੂਚੀ ਲੋਡ ਨਹੀਂ ਹੋ ਸਕੀ",
@@ -487,6 +803,124 @@
   "home.verify.pill_balanced": "ਬਰਾਬਰ",
   "home.verify.pill_check": "ਜਾਂਚ ਦੀ ਲੋੜ ਹੈ",
   "home.verify.provisional": "ਕਿਸੇ ਹੋਰ ਫ਼ੋਨ ਤੋਂ ਇੰਦਰਾਜਾਂ ਦੀ ਉਡੀਕ",
+  "import.account.empty": "ਇਸ ਵਹੀ ਵਿੱਚ ਹਾਲੇ ਕੋਈ ਬੈਂਕ ਖਾਤਾ ਨਹੀਂ ਹੈ।",
+  "import.account.empty.next": "ਖਾਤੇ ਟੈਬ ਤੋਂ ਇੱਕ ਜੋੜੋ, ਫਿਰ ਇੱਥੇ ਵਾਪਸ ਆਓ।",
+  "import.account.help": "ਸਿਰਫ਼ ਬੈਂਕ ਖਾਤੇ: ਸਟੇਟਮੈਂਟ ਬੈਂਕ ਦਾ ਆਪਣਾ ਰਿਕਾਰਡ ਹੁੰਦਾ ਹੈ।",
+  "import.balance.back": "ਲਾਈਨਾਂ ਉੱਤੇ ਵਾਪਸ",
+  "import.balance.closing.figures": "ਸਟੇਟਮੈਂਟ {statement} ਉੱਤੇ ਬੰਦ ਹੁੰਦੀ ਹੈ · ਤੁਹਾਡੀ ਵਹੀ {book} ਪੜ੍ਹੇਗੀ",
+  "import.balance.closing.will": "{count, plural, =1{ਇਹ ਲਾਈਨ ਲਿਖਣ ਤੋਂ ਬਾਅਦ ਅੰਤ ਦਾ ਬਕਾਇਆ ਮਿਲ ਜਾਵੇਗਾ} other{ਇਹ {count} ਲਾਈਨਾਂ ਲਿਖਣ ਤੋਂ ਬਾਅਦ ਅੰਤ ਦਾ ਬਕਾਇਆ ਮਿਲ ਜਾਵੇਗਾ}}",
+  "import.balance.closing.wont": "ਇਹ ਲਾਈਨਾਂ ਲਿਖਣ ਤੋਂ ਬਾਅਦ ਵੀ ਅੰਤ ਦਾ ਬਕਾਇਆ ਨਹੀਂ ਮਿਲੇਗਾ।",
+  "import.balance.failing": "ਇਸ ਤੋਂ ਪਹਿਲਾਂ ਦੀ ਕੋਈ ਸਟੇਟਮੈਂਟ ਰਹਿ ਗਈ ਹੈ।",
+  "import.balance.failing.gap": "{date} ਨੂੰ ਤੁਹਾਡੀ ਵਹੀ ਸਟੇਟਮੈਂਟ ਤੋਂ {amount} ਦੂਰ ਹੈ।",
+  "import.balance.failing.next": "ਇਸ ਤੋਂ ਪਹਿਲਾਂ ਵਾਲੀ ਸਟੇਟਮੈਂਟ ਲਿਆਓ, ਫਿਰ ਵਾਪਸ ਆਓ। ਇਹ ਲਾਈਨਾਂ ਤੁਸੀਂ ਹੁਣ ਵੀ ਛਾਂਟ ਸਕਦੇ ਹੋ।",
+  "import.balance.matched": "ਤੁਹਾਡੀ ਵਹੀ ਦੋਹਾਂ ਸਿਰਿਆਂ ਉੱਤੇ ਪਹਿਲਾਂ ਹੀ ਮਿਲਦੀ ਹੈ ✓",
+  "import.balance.opening.figures": "ਸਟੇਟਮੈਂਟ {statement} ਤੋਂ ਸ਼ੁਰੂ ਹੁੰਦੀ ਹੈ · ਤੁਹਾਡੀ ਵਹੀ ਕਹਿੰਦੀ ਹੈ {book}",
+  "import.balance.opening.match": "ਸ਼ੁਰੂ ਦਾ ਬਕਾਇਆ ਤੁਹਾਡੀ ਵਹੀ ਨਾਲ ਮਿਲਦਾ ਹੈ ✓",
+  "import.balance.opening.mismatch": "ਸ਼ੁਰੂ ਦਾ ਬਕਾਇਆ ਤੁਹਾਡੀ ਵਹੀ ਨਾਲ ਨਹੀਂ ਮਿਲਦਾ।",
+  "import.balance.period": "{from} ਤੋਂ {to}",
+  "import.balance.title": "ਬਕਾਇਆ ਮਿਲਾਓ",
+  "import.balance.unavailable": "ਇਸ ਫ਼ਾਈਲ ਵਿੱਚ ਬਕਾਏ ਦਾ ਕਾਲਮ ਨਹੀਂ ਹੈ, ਇਸ ਲਈ ਮਿਲਾਉਣ ਲਈ ਕੁਝ ਨਹੀਂ।",
+  "import.balance.unavailable.next": "ਲਾਈਨਾਂ ਤੁਸੀਂ ਫਿਰ ਵੀ ਛਾਂਟ ਸਕਦੇ ਹੋ।",
+  "import.dupes.continue": "ਇਹ ਲਾਈਨਾਂ ਛਾਂਟੋ",
+  "import.dupes.ignored": "{count, plural, =1{1 ਕਤਾਰ ਲੈਣ-ਦੇਣ ਨਹੀਂ ਸੀ, ਛੱਡ ਦਿੱਤੀ} other{{count} ਕਤਾਰਾਂ ਲੈਣ-ਦੇਣ ਨਹੀਂ ਸਨ, ਛੱਡ ਦਿੱਤੀਆਂ}}",
+  "import.dupes.none": "ਇਸ ਫ਼ਾਈਲ ਵਿੱਚੋਂ ਪਹਿਲਾਂ ਕੁਝ ਨਹੀਂ ਆਇਆ ਸੀ।",
+  "import.dupes.nothing": "ਇਸ ਫ਼ਾਈਲ ਦੀ ਹਰ ਲਾਈਨ ਪਹਿਲਾਂ ਹੀ ਤੁਹਾਡੀ ਵਹੀ ਵਿੱਚ ਹੈ।",
+  "import.dupes.notposted": "ਹਾਲੇ ਵਹੀ ਵਿੱਚ ਕੁਝ ਨਹੀਂ ਚੜ੍ਹਿਆ। ਹਰ ਲਾਈਨ ਪਹਿਲਾਂ ਇੱਕ ਸਵਾਲ ਪੁੱਛਦੀ ਹੈ।",
+  "import.dupes.ready": "{count, plural, =1{1 ਲਾਈਨ ਛਾਂਟਣੀ ਹੈ} other{{count} ਲਾਈਨਾਂ ਛਾਂਟਣੀਆਂ ਹਨ}}",
+  "import.dupes.skipped": "{count, plural, =1{1 ਲਾਈਨ ਪਹਿਲਾਂ ਹੀ ਆ ਚੁੱਕੀ ਹੈ — ਛੱਡ ਦਿੱਤੀ} other{{count} ਲਾਈਨਾਂ ਪਹਿਲਾਂ ਹੀ ਆ ਚੁੱਕੀਆਂ ਹਨ — ਛੱਡ ਦਿੱਤੀਆਂ}}",
+  "import.dupes.title": "ਛਾਂਟਣ ਲਈ ਤਿਆਰ",
+  "import.error": "ਤੁਹਾਡੇ ਬੈਂਕ ਖਾਤੇ ਨਹੀਂ ਖੁੱਲ੍ਹ ਸਕੇ।",
+  "import.fail.another": "ਹੋਰ ਫ਼ਾਈਲ ਚੁਣੋ",
+  "import.fail.formats": "ਸਟੇਟਮੈਂਟ CSV ਵਿੱਚ ਪੜ੍ਹੀ ਜਾ ਸਕਦੀ ਹੈ। ਬਹੁਤੇ ਬੈਂਕ ਆਪਣੀ ਐਪ ਜਾਂ ਨੈੱਟ ਬੈਂਕਿੰਗ ਵਿੱਚ PDF ਦੇ ਨਾਲ CSV ਵੀ ਦਿੰਦੇ ਹਨ।",
+  "import.fail.nocolumns": "ਇਸ ਫ਼ਾਈਲ ਵਿੱਚ ਤਾਰੀਖ਼ ਜਾਂ ਰਕਮ ਵਾਲਾ ਕਾਲਮ ਨਹੀਂ ਹੈ।",
+  "import.fail.nolines": "ਇਸ ਫ਼ਾਈਲ ਵਿੱਚ ਕੋਈ ਲੈਣ-ਦੇਣ ਨਹੀਂ ਹੈ।",
+  "import.fail.notyet": "{format} ਫ਼ਾਈਲਾਂ ਹਾਲੇ ਪੜ੍ਹੀਆਂ ਨਹੀਂ ਜਾਂਦੀਆਂ।",
+  "import.fail.support": "ਸਾਨੂੰ ਇਸ ਬੈਂਕ ਦਾ ਰੂਪ ਦੱਸੋ",
+  "import.fail.support.help": "ਤੁਹਾਡੀ ਫ਼ਾਈਲ ਇਸੇ ਫ਼ੋਨ ਉੱਤੇ ਰਹਿੰਦੀ ਹੈ। ਕੀ ਸਾਂਝਾ ਕਰਨਾ ਹੈ, ਇਹ ਤੁਸੀਂ ਚੁਣਦੇ ਹੋ।",
+  "import.fail.title": "ਇਹ ਫ਼ਾਈਲ ਪੜ੍ਹੀ ਨਹੀਂ ਜਾ ਸਕੀ",
+  "import.fail.toobig": "ਇਹ ਫ਼ਾਈਲ 10 MB ਤੋਂ ਵੱਡੀ ਹੈ।",
+  "import.fail.unreadable": "ਇਸ ਫ਼ਾਈਲ ਵਿੱਚ ਕੁਝ ਵੀ ਸਟੇਟਮੈਂਟ ਵਰਗਾ ਨਹੀਂ ਹੈ।",
+  "import.file.accepts": "CSV, XLS, OFX ਜਾਂ PDF · 10 MB ਤੱਕ",
+  "import.file.choose": "ਫ਼ਾਈਲ ਚੁਣੋ",
+  "import.file.ondevice": "ਇਸੇ ਫ਼ੋਨ ਉੱਤੇ ਪੜ੍ਹੀ ਜਾਂਦੀ ਹੈ। ਪੜ੍ਹਨਯੋਗ ਕੁਝ ਵੀ ਬਾਹਰ ਨਹੀਂ ਜਾਂਦਾ।",
+  "import.file.reading": "{file} ਪੜ੍ਹੀ ਜਾ ਰਹੀ ਹੈ",
+  "import.file.today": "ਅੱਜ ਇਹ ਐਪ CSV ਪੜ੍ਹਦੀ ਹੈ। XLS, OFX ਅਤੇ PDF ਆ ਰਹੇ ਹਨ।",
+  "import.inbox.always.no": "ਨਹੀਂ",
+  "import.inbox.always.q": "ਕੀ ਅਜਿਹੀਆਂ ਲਾਈਨਾਂ ਹਮੇਸ਼ਾ {account} ਵਿੱਚ ਪਾਈਏ?",
+  "import.inbox.always.yes": "ਹਾਂ",
+  "import.inbox.answer.in": "{account} ਤੋਂ",
+  "import.inbox.answer.out": "{account} ਨੂੰ",
+  "import.inbox.approve": "ਠੀਕ ਹੈ",
+  "import.inbox.balance.action": "ਬਕਾਇਆ ਮਿਲਾਓ",
+  "import.inbox.banktext.label": "ਬੈਂਕ ਦੇ ਆਪਣੇ ਸ਼ਬਦ",
+  "import.inbox.banktext.more": "ਪੂਰੀ ਲਾਈਨ ਵੇਖੋ",
+  "import.inbox.blocked.banktext": "ਇਹ ਲਾਈਨਾਂ ਹਾਲੇ ਨਹੀਂ ਲਿਖੀਆਂ ਜਾ ਸਕਦੀਆਂ। ਤੁਹਾਡੀ ਵਹੀ ਵਿੱਚ ਬੈਂਕ ਦੇ ਆਪਣੇ ਸ਼ਬਦ ਰੱਖਣ ਦੀ ਥਾਂ ਨਹੀਂ ਹੈ, ਅਤੇ ਉਹਨਾਂ ਤੋਂ ਬਿਨਾਂ ਲਾਈਨ ਕਦੇ ਨਹੀਂ ਲਿਖਣੀ ਚਾਹੀਦੀ।",
+  "import.inbox.blocked.keep": "ਬਾਅਦ ਲਈ ਰੱਖੋ",
+  "import.inbox.blocked.kept": "ਤੁਹਾਡੀਆਂ ਲਾਈਨਾਂ ਇਸੇ ਫ਼ੋਨ ਉੱਤੇ, ਇਸੇ ਇਨਬਾਕਸ ਵਿੱਚ ਰਹਿਣਗੀਆਂ। ਕੁਝ ਵੀ ਨਹੀਂ ਚੜ੍ਹਿਆ।",
+  "import.inbox.blocked.locked": "ਇਹ ਲਾਈਨਾਂ ਉਸ ਮਹੀਨੇ ਦੀਆਂ ਹਨ ਜੋ ਬੰਦ ਹੋ ਚੁੱਕਾ ਹੈ।",
+  "import.inbox.blocked.noledger": "ਇਹ ਵਹੀ ਹਾਲੇ ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਖੁੱਲ੍ਹੀ ਨਹੀਂ ਹੈ।",
+  "import.inbox.change": "ਬਦਲੋ",
+  "import.inbox.chip.answered": "ਜਵਾਬ ਹੋ ਗਿਆ",
+  "import.inbox.chip.matched": "ਮਿਲ ਗਈ ✓",
+  "import.inbox.chip.new": "ਨਵੀਂ",
+  "import.inbox.chip.suggested": "ਸੁਝਾਅ",
+  "import.inbox.chip.suspense": "ਬਾਅਦ ਵਿੱਚ",
+  "import.inbox.chip.transfer": "ਅਦਲਾ-ਬਦਲੀ?",
+  "import.inbox.choose": "ਖਾਤਾ ਚੁਣੋ",
+  "import.inbox.create": "“{name}” ਬਣਾਓ",
+  "import.inbox.empty": "ਇੱਥੇ ਕੁਝ ਵੀ ਉਡੀਕ ਵਿੱਚ ਨਹੀਂ ਹੈ।",
+  "import.inbox.empty.next": "ਸਟੇਟਮੈਂਟ ਲਿਆਓ, ਉਸ ਦੀਆਂ ਲਾਈਨਾਂ ਇੱਥੇ ਆ ਜਾਣਗੀਆਂ।",
+  "import.inbox.error": "ਇਹ ਲਾਈਨਾਂ ਖੋਲ੍ਹੀਆਂ ਨਹੀਂ ਜਾ ਸਕੀਆਂ।",
+  "import.inbox.left": "{count, plural, =1{1 ਲਾਈਨ ਇਸੇ ਇਨਬਾਕਸ ਵਿੱਚ ਰਹੇਗੀ} other{{count} ਲਾਈਨਾਂ ਇਸੇ ਇਨਬਾਕਸ ਵਿੱਚ ਰਹਿਣਗੀਆਂ}}",
+  "import.inbox.matched.nothing": "ਇਸ ਲਾਈਨ ਲਈ ਕੁਝ ਨਹੀਂ ਚੜ੍ਹੇਗਾ।",
+  "import.inbox.matched.unlink": "ਇਹ ਉਹ ਨਹੀਂ — ਵੱਖ ਕਰੋ",
+  "import.inbox.matched.what": "ਤੁਹਾਡੀ ਵਹੀ ਵਿੱਚ ਪਹਿਲਾਂ ਹੀ ਹੈ: {entry}",
+  "import.inbox.money.in": "ਪੈਸੇ ਆਏ",
+  "import.inbox.money.out": "ਪੈਸੇ ਗਏ",
+  "import.inbox.note.add": "+ ਆਪਣੀ ਗੱਲ",
+  "import.inbox.note.hint": "ਤੁਹਾਡੇ ਆਪਣੇ ਸ਼ਬਦ (ਮਰਜ਼ੀ ਨਾਲ)",
+  "import.inbox.note.save": "ਸਾਂਭੋ",
+  "import.inbox.notposted": "ਤੁਹਾਡੀ ਵਹੀ ਵਿੱਚ ਹਾਲੇ ਕੁਝ ਨਹੀਂ ਚੜ੍ਹਿਆ। ਹਰ ਲਾਈਨ ਪਹਿਲਾਂ ਇੱਕ ਸਵਾਲ ਪੁੱਛਦੀ ਹੈ।",
+  "import.inbox.question.in": "ਇਹ ਪੈਸਾ ਕਿੱਥੋਂ ਆਇਆ?",
+  "import.inbox.question.out": "ਇਹ ਪੈਸਾ ਕਿੱਥੇ ਗਿਆ?",
+  "import.inbox.recorded": "{count, plural, =1{1 ਲਾਈਨ ਲਿਖੀ ਗਈ} other{{count} ਲਾਈਨਾਂ ਲਿਖੀਆਂ ਗਈਆਂ}}",
+  "import.inbox.retry": "ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
+  "import.inbox.search": "ਆਪਣੇ ਖਾਤੇ ਲੱਭੋ",
+  "import.inbox.skeleton": "ਤੁਹਾਡੀਆਂ ਲਾਈਨਾਂ ਤਿਆਰ ਹੋ ਰਹੀਆਂ ਹਨ",
+  "import.inbox.submit": "{count, plural, =1{1 ਲਾਈਨ ਲਿਖੋ} other{{count} ਲਾਈਨਾਂ ਲਿਖੋ}}",
+  "import.inbox.submit.none": "ਕਿਸੇ ਲਾਈਨ ਦਾ ਜਵਾਬ ਦਿਓ, ਫਿਰ ਲਿਖੀ ਜਾਵੇਗੀ",
+  "import.inbox.suggested.chip": "{account} — ਸੁਝਾਅ",
+  "import.inbox.suspense.action": "ਹੁਣ ਲਿਖੋ, ਬਾਅਦ ਵਿੱਚ ਦੱਸੋ",
+  "import.inbox.suspense.what": "ਲਿਖ ਲਿਆ, ਪਰ ਦੱਸਿਆ ਨਹੀਂ। ਮਹੀਨਾ ਬੰਦ ਹੋਣ ਤੋਂ ਪਹਿਲਾਂ ਦੱਸ ਦਿਓ।",
+  "import.inbox.title": "ਇੰਪੋਰਟ ਇਨਬਾਕਸ",
+  "import.inbox.transfer.done": "ਤੁਹਾਡੇ ਖਾਤਿਆਂ ਵਿਚਕਾਰ ਇੱਕ ਹਰਕਤ",
+  "import.inbox.transfer.help": "ਇੱਕ ਵਾਰ ਗਿਣਿਆ ਜਾਵੇਗਾ, ਦੋ ਵਾਰ ਨਹੀਂ। ਇੱਕ ਖਾਤੇ ਵਿੱਚੋਂ ਨਿਕਲ ਕੇ ਦੂਜੇ ਵਿੱਚ ਪਹੁੰਚਿਆ ਪੈਸਾ ਇੱਕੋ ਗੱਲ ਹੈ।",
+  "import.inbox.transfer.no": "ਨਹੀਂ — ਦੋ ਵੱਖਰੀਆਂ ਗੱਲਾਂ",
+  "import.inbox.transfer.other": "{account} ਵਿੱਚ {date} ਨੂੰ {amount} ਨਾਲ ਮਿਲਦੀ ਹੈ",
+  "import.inbox.transfer.question": "ਕੀ ਇਹ ਉਹੀ ਪੈਸਾ ਹੈ ਜੋ ਤੁਹਾਡੇ ਆਪਣੇ ਖਾਤਿਆਂ ਵਿਚਕਾਰ ਗਿਆ?",
+  "import.inbox.transfer.yes": "ਹਾਂ — ਇੱਕੋ ਹਰਕਤ",
+  "import.inbox.waiting": "{count, plural, =0{ਹਰ ਲਾਈਨ ਦਾ ਜਵਾਬ ਹੋ ਗਿਆ} =1{1 ਲਾਈਨ ਹਾਲੇ ਬਾਕੀ} other{{count} ਲਾਈਨਾਂ ਹਾਲੇ ਬਾਕੀ}}",
+  "import.map.col.amount": "ਰਕਮ",
+  "import.map.col.balance": "ਬਾਕੀ",
+  "import.map.col.date": "ਤਾਰੀਖ਼",
+  "import.map.col.direction": "ਆਏ ਜਾਂ ਗਏ",
+  "import.map.col.money_in": "ਪੈਸੇ ਆਏ",
+  "import.map.col.money_out": "ਪੈਸੇ ਗਏ",
+  "import.map.col.none": "ਇਸ ਫ਼ਾਈਲ ਵਿੱਚ ਨਹੀਂ",
+  "import.map.col.text": "ਬੈਂਕ ਦੇ ਆਪਣੇ ਸ਼ਬਦ",
+  "import.map.confirm": "ਇਹ ਠੀਕ ਹੈ",
+  "import.map.guessed": "ਇੱਕ ਕਾਲਮ ਦਾ ਅੰਦਾਜ਼ਾ ਲਾਉਣਾ ਪਿਆ। ਕਿਰਪਾ ਕਰਕੇ ਵੇਖ ਲਵੋ।",
+  "import.map.help": "ਫ਼ਾਈਲ ਇਸ ਤਰ੍ਹਾਂ ਪੜ੍ਹੀ ਗਈ ਹੈ। ਜੋ ਗ਼ਲਤ ਹੈ, ਠੀਕ ਕਰੋ।",
+  "import.map.remember": "ਅਸੀਂ ਇਹ {bank} ਲਈ ਯਾਦ ਰੱਖ ਲਵਾਂਗੇ, ਤਾਂ ਅਗਲੀ ਸਟੇਟਮੈਂਟ ਵੇਖਣੀ ਨਹੀਂ ਪਵੇਗੀ।",
+  "import.map.remembered": "ਪਿਛਲੀ ਵਾਰ {bank} ਲਈ ਜੋ ਤੁਸੀਂ ਸੈੱਟ ਕੀਤਾ ਸੀ, ਉਸੇ ਤਰ੍ਹਾਂ ਪੜ੍ਹਿਆ ਗਿਆ ਹੈ।",
+  "import.map.sample": "ਪਹਿਲੀ ਲਾਈਨ, ਇਸੇ ਤਰ੍ਹਾਂ ਪੜ੍ਹੀ ਗਈ",
+  "import.map.sample.none": "ਕੋਈ ਵੀ ਲਾਈਨ ਇਸ ਤਰ੍ਹਾਂ ਨਹੀਂ ਪੜ੍ਹੀ ਜਾਂਦੀ। ਉੱਪਰ ਦੇ ਕਾਲਮ ਵੇਖੋ।",
+  "import.map.title": "ਕਾਲਮ ਵੇਖੋ",
+  "import.retry": "ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
+  "import.skeleton": "ਤੁਹਾਡੇ ਬੈਂਕ ਖਾਤੇ ਖੁੱਲ੍ਹ ਰਹੇ ਹਨ",
+  "import.step.account": "1 · ਇਹ ਸਟੇਟਮੈਂਟ ਕਿਹੜੇ ਖਾਤੇ ਦੀ ਹੈ?",
+  "import.step.file": "2 · ਕਿਹੜੀ ਫ਼ਾਈਲ?",
+  "import.title": "ਸਟੇਟਮੈਂਟ ਲਿਆਓ",
   "inbox.card.approve.all": "ਸਾਰੀਆਂ ਮਨਜ਼ੂਰ ਕਰੋ",
   "inbox.card.approved": "{count, plural, =1{1 ਐਂਟਰੀ ਮਨਜ਼ੂਰ ਹੋਈ।} other{{count} ਐਂਟਰੀਆਂ ਮਨਜ਼ੂਰ ਹੋਈਆਂ।}}",
   "inbox.card.collapse": "ਐਂਟਰੀਆਂ ਲੁਕਾਓ",
@@ -505,14 +939,46 @@
   "inbox.empty.viewer.body": "ਐਂਟਰੀਆਂ ਦੀ ਜਾਂਚ ਕਰਨਾ ਇੱਥੇ ਤੁਹਾਡੀ ਪਹੁੰਚ ਵਿੱਚ ਨਹੀਂ ਹੈ, ਇਸ ਲਈ ਇਸ ਥਾਂ ਕੁਝ ਨਹੀਂ ਆਉਂਦਾ।",
   "inbox.empty.viewer.title": "ਤੁਸੀਂ ਇਹ ਵਹੀ ਵੇਖ ਸਕਦੇ ਹੋ।",
   "inbox.error": "ਤੁਹਾਡਾ ਇਨਬਾਕਸ ਨਹੀਂ ਖੁੱਲ੍ਹ ਸਕਿਆ।",
+  "inbox.late.card.closed.year": "{year} ਪਹਿਲਾਂ ਹੀ ਤਸਦੀਕਸ਼ੁਦਾ ਹੈ, ਇਸ ਲਈ {month} ਇੱਥੋਂ ਮੁੜ ਨਹੀਂ ਖੁੱਲ੍ਹ ਸਕਦਾ — ਇਹ ਉਸ ਸਾਲ ਦਾ ਤੇ ਹਰ ਅਗਲੇ ਸਾਲ ਦਾ ਸਰਟੀਫ਼ਿਕੇਟ ਰੱਦ ਕਰ ਦੇਵੇਗਾ। ਉਹ ਕੰਮ ਸਾਲ-ਬੰਦੀ ਦੀ ਰਸਮ ਦਾ ਹੈ। ਤੁਸੀਂ ਇਸ ਐਂਟਰੀ ਨੂੰ ਖੁੱਲ੍ਹੇ ਮਹੀਨੇ ਵਿੱਚ ਫਿਰ ਵੀ ਲੈ ਆ ਸਕਦੇ ਹੋ।",
+  "inbox.late.card.counted": "ਇਹ ਤੁਹਾਡੇ ਬਕਾਇਆਂ ਵਿੱਚ ਪਹਿਲਾਂ ਹੀ ਗਿਣੀ ਹੋਈ ਹੈ। ਸਿਰਫ਼ {month} ਦੇ ਬੰਦ ਹੋਏ ਅੰਕੜੇ ਇਸ ਨੂੰ ਛੱਡਦੇ ਹਨ।",
+  "inbox.late.card.error": "ਇਹ ਨਹੀਂ ਹੋ ਸਕਿਆ। ਕੁਝ ਵੀ ਨਹੀਂ ਬਦਲਿਆ।",
+  "inbox.late.card.in": "ਪੈਸੇ ਆਏ {amount}",
+  "inbox.late.card.moved": "ਅੱਜ ਦੀ ਤਾਰੀਖ਼ ’ਤੇ ਲੈ ਆਂਦੀ। ਇਹ ਬਹੀ ਵਿੱਚ ਦੋਵੇਂ ਹਾਲਤਾਂ ਵਿੱਚ ਰਹਿੰਦੀ ਹੈ — ਸਿਰਫ਼ ਤਾਰੀਖ਼ ਬਦਲੀ ਹੈ।",
+  "inbox.late.card.notlocked": "{month} ਮੁੜ ਖੁੱਲ੍ਹ ਚੁੱਕਾ ਹੈ — ਤੁਹਾਡੇ ਤੋਂ ਪਹਿਲਾਂ ਕਿਸੇ ਨੇ ਖੋਲ੍ਹ ਦਿੱਤਾ। ਕੁਝ ਵੀ ਨਹੀਂ ਬਦਲਿਆ।",
+  "inbox.late.card.out": "ਪੈਸੇ ਗਏ {amount}",
+  "inbox.late.card.redate": "ਅੱਜ ਦੀ ਤਾਰੀਖ਼ ਦਿਓ",
+  "inbox.late.card.reopen": "{month} ਮੁੜ ਖੋਲ੍ਹੋ",
+  "inbox.late.card.route": "{from} → {to}",
+  "inbox.late.card.why": "ਤਾਰੀਖ਼ {date}, ਪਰ {book} ਦਾ {month} {lockedOn} ਨੂੰ ਪਹਿਲਾਂ ਹੀ ਬੰਦ ਹੋ ਚੁੱਕਾ ਸੀ।",
+  "inbox.late.card.why.nodate": "ਤਾਰੀਖ਼ {date}, ਪਰ {book} ਦਾ {month} ਪਹਿਲਾਂ ਹੀ ਬੰਦ ਹੋ ਚੁੱਕਾ ਸੀ।",
+  "inbox.late.card.working": "ਭੇਜਿਆ ਜਾ ਰਿਹਾ ਹੈ…",
+  "inbox.late.empty.action": "ਆਪਣੇ ਇਨਬਾਕਸ ’ਤੇ ਵਾਪਸ",
+  "inbox.late.empty.body": "ਜਿਹੜੀ ਐਂਟਰੀ ਮਹੀਨਾ ਬੰਦ ਹੋਣ ਤੋਂ ਪਹਿਲਾਂ ਬਣੀ ਪਰ ਇਸ ਫ਼ੋਨ ’ਤੇ ਬਾਅਦ ਵਿੱਚ ਪਹੁੰਚੀ, ਉਹ ਇੱਥੇ ਉਡੀਕਦੀ ਹੈ। ਚੋਣ ਤੁਹਾਡੀ ਹੈ: ਉਸ ਨੂੰ ਖੁੱਲ੍ਹੇ ਮਹੀਨੇ ਵਿੱਚ ਲੈ ਆਓ, ਜਾਂ ਬੰਦ ਮਹੀਨਾ ਮੁੜ ਖੋਲ੍ਹੋ।",
+  "inbox.late.empty.title": "ਕੋਈ ਵੀ ਐਂਟਰੀ ਦੇਰ ਨਾਲ ਨਹੀਂ ਆਈ।",
+  "inbox.late.empty.viewer.body": "ਮਹੀਨਾ ਬੰਦ ਕਰਨਾ ਇੱਥੇ ਤੁਹਾਡੀ ਪਹੁੰਚ ਵਿੱਚ ਨਹੀਂ ਹੈ, ਇਸ ਲਈ ਇਸ ਟ੍ਰੇ ਵਿੱਚ ਤੁਹਾਡੇ ਲਈ ਕੁਝ ਨਹੀਂ ਆਉਂਦਾ।",
+  "inbox.late.empty.viewer.title": "ਤੁਸੀਂ ਇਹ ਬਹੀ ਵੇਖ ਸਕਦੇ ਹੋ।",
+  "inbox.late.error": "ਦੇਰ ਨਾਲ ਆਈਆਂ ਐਂਟਰੀਆਂ ਨਹੀਂ ਖੁੱਲ੍ਹ ਸਕੀਆਂ।",
+  "inbox.late.reopen.body": "{month} ਨੂੰ ਦੁਬਾਰਾ ਬੰਦ ਕਰਨਾ ਪਵੇਗਾ, ਅਤੇ ਉਦੋਂ ਹਰ ਮੈਂਬਰ ਦਾ ਫ਼ੋਨ ਅੰਕੜੇ ਦੁਬਾਰਾ ਜਾਂਚਦਾ ਹੈ। ਤੁਹਾਡਾ ਨਾਂ ਤੇ ਕਾਰਨ ਬਹੀ ਵਿੱਚ ਸਭ ਲਈ ਦਰਜ ਹੋ ਜਾਂਦੇ ਹਨ।",
+  "inbox.late.reopen.confirm": "{month} ਮੁੜ ਖੋਲ੍ਹੋ",
+  "inbox.late.reopen.hint": "ਤੁਸੀਂ ਇਸ ਨੂੰ ਮੁੜ ਕਿਉਂ ਖੋਲ੍ਹ ਰਹੇ ਹੋ?",
+  "inbox.late.reopen.required": "ਪਹਿਲਾਂ ਕਾਰਨ ਲਿਖੋ — ਇਹ ਬਹੀ ਵਿੱਚ ਸਭ ਲਈ ਦਰਜ ਹੁੰਦਾ ਹੈ।",
+  "inbox.late.reopen.title": "{month} ਮੁੜ ਖੋਲ੍ਹਣਾ ਹੈ?",
+  "inbox.late.reopened": "{month} ਮੁੜ ਖੁੱਲ੍ਹ ਗਿਆ। ਤਿਆਰ ਹੋਣ ’ਤੇ ਇਸ ਨੂੰ ਦੁਬਾਰਾ ਬੰਦ ਕਰੋ।",
+  "inbox.late.skeleton": "ਦੇਰ ਨਾਲ ਆਈਆਂ ਐਂਟਰੀਆਂ ਖੁੱਲ੍ਹ ਰਹੀਆਂ ਹਨ",
+  "inbox.late.title": "ਦੇਰ ਨਾਲ ਆਈਆਂ ਐਂਟਰੀਆਂ",
   "inbox.offline": "ਆਫ਼ਲਾਈਨ — ਜੋ ਇਸ ਫ਼ੋਨ ਨੇ ਆਖ਼ਰੀ ਵਾਰ ਵੇਖਿਆ, ਉਹੀ ਦਿਖ ਰਿਹਾ ਹੈ।",
   "inbox.placeholder.body": "ਜੋ ਕੁਝ ਤੁਹਾਡੀ ਉਡੀਕ ਵਿੱਚ ਹੈ, ਇੱਥੇ ਦਿਖੇਗਾ।",
   "inbox.retry": "ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
+  "inbox.review.author.unknown": "ਇਸ ਬਹੀ ਵਿਚਲਾ ਕੋਈ ਜੀਅ",
   "inbox.row.note.none": "ਕੋਈ ਲਿਖਤ ਨਹੀਂ",
   "inbox.row.photo": "ਬਿੱਲ ਦੀ ਫ਼ੋਟੋ",
   "inbox.row.photo.none": "ਫ਼ੋਟੋ ਨਹੀਂ",
   "inbox.row.reject": "ਇਹ ਐਂਟਰੀ ਨਾਮਨਜ਼ੂਰ ਕਰੋ",
   "inbox.row.route": "{from} → {to}",
+  "inbox.section.late": "ਮਹੀਨਾ ਬੰਦ ਹੋਣ ਤੋਂ ਬਾਅਦ ਆਈਆਂ",
+  "inbox.section.late.action": "ਦੇਰ ਨਾਲ ਆਈਆਂ ਖੋਲ੍ਹੋ",
+  "inbox.section.late.count": "{count, plural, =1{1 ਐਂਟਰੀ ਮਹੀਨਾ ਬੰਦ ਹੋਣ ਤੋਂ ਬਾਅਦ ਆਈ} other{{count} ਐਂਟਰੀਆਂ ਮਹੀਨਾ ਬੰਦ ਹੋਣ ਤੋਂ ਬਾਅਦ ਆਈਆਂ}}",
+  "inbox.section.late.counted": "ਇਹ ਤੁਹਾਡੇ ਬਕਾਇਆਂ ਵਿੱਚ ਪਹਿਲਾਂ ਹੀ ਗਿਣੀਆਂ ਹੋਈਆਂ ਹਨ। ਇਹ ਕਿੱਥੇ ਬੈਠਣ, ਇਹ ਤੁਸੀਂ ਤੈਅ ਕਰਦੇ ਹੋ।",
   "inbox.section.review": "ਤੁਹਾਡੀ ਜਾਂਚ ਦੀ ਲੋੜ ਹੈ",
   "inbox.section.structural": "ਮਾਲਕਾਂ ਦੇ ਫ਼ੈਸਲੇ ਦੀ ਲੋੜ ਹੈ",
   "inbox.skeleton": "ਤੁਹਾਡਾ ਇਨਬਾਕਸ ਖੁੱਲ੍ਹ ਰਿਹਾ ਹੈ",
@@ -840,7 +1306,12 @@
   "menu.backup.row.title": "ਬੈਕਅੱਪ",
   "menu.books_members.row.subtitle": "ਤੁਹਾਡੀਆਂ ਬਹੀਆਂ, ਅਤੇ ਨਵਾਂ ਕਾਰੋਬਾਰ ਜੋੜਨਾ।",
   "menu.books_members.row.title": "ਬਹੀਆਂ ਅਤੇ ਮੈਂਬਰ",
-  "menu.close_month.row.reason": "ਮਹੀਨਾ ਬੰਦ ਕਰਨ ਦਾ ਵਿਜ਼ਾਰਡ ਅਜੇ ਬਣਿਆ ਨਹੀਂ।",
+  "menu.close_month.row.error": "ਬੰਦੀ ਦੀ ਜਾਂਚ ਨਹੀਂ ਹੋ ਸਕੀ · ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਲਈ ਦਬਾਓ",
+  "menu.close_month.row.loading": "ਦੇਖ ਰਹੇ ਹਾਂ ਕਿ ਹਰ ਬਹੀ ਕਿੱਥੇ ਖੜ੍ਹੀ ਹੈ…",
+  "menu.close_month.row.reason.closed": "{month} ਤੱਕ ਹਰ ਬਹੀ ਬੰਦ ਹੋ ਚੁੱਕੀ ਹੈ।",
+  "menu.close_month.row.reason.none": "ਅਜੇ ਬੰਦ ਕਰਨ ਲਈ ਕੋਈ ਮਹੀਨਾ ਨਹੀਂ ਹੈ।",
+  "menu.close_month.row.subtitle": "{month} ਖੁੱਲ੍ਹਾ · {count, plural, =0{ਬੰਦ ਕਰਨ ਲਈ ਤਿਆਰ} =1{1 ਚੀਜ਼ ਬਾਕੀ} other{{count} ਚੀਜ਼ਾਂ ਬਾਕੀ}}",
+  "menu.close_month.row.subtitle.book": "{book} · {month} ਖੁੱਲ੍ਹਾ · {count, plural, =0{ਬੰਦ ਕਰਨ ਲਈ ਤਿਆਰ} =1{1 ਚੀਜ਼ ਬਾਕੀ} other{{count} ਚੀਜ਼ਾਂ ਬਾਕੀ}}",
   "menu.close_month.row.title": "ਮਹੀਨਾ ਬੰਦ ਕਰੋ",
   "menu.devices.row.subtitle": "ਜੁੜੀਆਂ ਡਿਵਾਈਸਾਂ, ਗਾਰਡੀਅਨ, ਰਿਕਵਰੀ ਸ਼ੀਟ, ਆਟੋ-ਲਾਕ।",
   "menu.devices.row.title": "ਡਿਵਾਈਸਾਂ ਅਤੇ ਸੁਰੱਖਿਆ",
@@ -856,6 +1327,10 @@
   "menu.subscription.row.reason": "ਸਬਸਕ੍ਰਿਪਸ਼ਨ ਅਜੇ ਨਹੀਂ ਬਣੀ।",
   "menu.subscription.row.title": "ਸਬਸਕ੍ਰਿਪਸ਼ਨ",
   "menu.title": "ਮੀਨੂ",
+  "menu.year_close.row.reason": "ਵਿੱਤੀ ਸਾਲ ਖ਼ਤਮ ਹੋਣ ਤੋਂ ਬਾਅਦ ਹੀ ਪ੍ਰਮਾਣਿਤ ਕੀਤਾ ਜਾ ਸਕਦਾ ਹੈ।",
+  "menu.year_close.row.subtitle": "ਵਿੱਤੀ ਸਾਲ {fy} ਪ੍ਰਮਾਣਿਤ ਕਰੋ",
+  "menu.year_close.row.subtitle.book": "{book} · ਵਿੱਤੀ ਸਾਲ {fy} ਪ੍ਰਮਾਣਿਤ ਕਰੋ",
+  "menu.year_close.row.title": "ਸਾਲ-ਬੰਦੀ",
   "modified.action": "ਡਿਵਾਈਸ ਤੇ ਸੁਰੱਖਿਆ",
   "modified.body": "ਤੁਹਾਡੀਆਂ ਕਿਤਾਬਾਂ ਹਾਲੇ ਵੀ ਇਨਕ੍ਰਿਪਟ ਹਨ, ਪਰ ਜੋ ਕੋਈ ਇਸ ਫ਼ੋਨ ਨੂੰ ਕੰਟਰੋਲ ਕਰਦਾ ਹੈ, ਉਹ ਉਹੀ ਦੇਖ ਸਕਦਾ ਹੈ ਜੋ ਤੁਸੀਂ ਦੇਖਦੇ ਹੋ। ਯਕੀਨੀ ਬਣਾਓ ਕਿ ਤੁਹਾਡਾ ਬੈਕਅੱਪ ਸੈੱਟ ਹੈ।",
   "modified.dismiss": "ਸਮਝ ਗਿਆ",
@@ -1181,6 +1656,7 @@
   "reports.export.csv.description": "ਕਿਸੇ ਵੀ ਸਪਰੈੱਡਸ਼ੀਟ ਵਿੱਚ ਖੁੱਲ੍ਹਦੀ ਹੈ",
   "reports.export.failed": "ਰਿਪੋਰਟ ਸੰਭਾਲੀ ਨਹੀਂ ਜਾ ਸਕੀ।",
   "reports.export.file_name": "day-book-{year}.{extension}",
+  "reports.export.generating": "ਤੁਹਾਡੀ ਫ਼ਾਈਲ ਤਿਆਰ ਹੋ ਰਹੀ ਹੈ",
   "reports.export.page": "ਸਫ਼ਾ {page} / {pages}",
   "@reports.export.page": {
     "description": "machine-draft — native review M12"
@@ -1218,6 +1694,9 @@
   "reports.reconciliation.summary.unconfirmed": "{count, plural, =1{1 ਜੋੜੇ ਦੀ ਜਾਂਚ ਨਹੀਂ ਹੋ ਸਕੀ} other{{count} ਜੋੜਿਆਂ ਦੀ ਜਾਂਚ ਨਹੀਂ ਹੋ ਸਕੀ}}",
   "reports.reconciliation.unconfirmed.detail": "ਦੂਜੀ ਕਿਤਾਬ ਤੁਹਾਡੇ ਕੋਲ ਨਹੀਂ ਹੈ, ਇਸ ਲਈ ਇਸ ਪਾਸੇ ਦੀ ਜਾਂਚ ਨਹੀਂ ਹੋ ਸਕਦੀ। ਇਹ ਗ਼ਲਤੀ ਨਹੀਂ ਹੈ।",
   "reports.row.reason": "ਇਹ ਰਿਪੋਰਟ ਅਜੇ ਬਣੀ ਨਹੀਂ।",
+  "reports.statement.account.label": "ਖਾਤਾ",
+  "reports.statement.file_name": "statement-{year}.{extension}",
+  "reports.statement.report.title": "ਖਾਤਾ ਸਟੇਟਮੈਂਟ",
   "reports.title": "ਰਿਪੋਰਟਾਂ",
   "reports.trial_balance.row.title": "ਟ੍ਰਾਇਲ ਬੈਲੰਸ",
   "reports.viewer.book.label": "ਕਿਤਾਬ",

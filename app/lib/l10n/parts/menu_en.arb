@@ -16,11 +16,53 @@
 
   "menu.close_month.row.title": "Close the month",
   "@menu.close_month.row.title": {
-    "description": "S8 second row (07 §2 🔒 Menu bullet order, ADR 2026-09-03) — S10 month close wizard."
+    "description": "S8 second row (07 §2 🔒 Menu bullet order, ADR 2026-09-03 ruling 1 🔒) — opens the S10 month-close wizard at the book's first open month."
   },
-  "menu.close_month.row.reason": "The month close wizard has not been built yet.",
-  "@menu.close_month.row.reason": {
-    "description": "S8 disabled-with-reason line (13 §4.3, 07 §1 rule 6): S10 (07 §13 @M9) has not landed."
+  "menu.close_month.row.subtitle": "{month} open · {count, plural, =0{ready to close} =1{1 item waiting} other{{count} items waiting}}",
+  "@menu.close_month.row.subtitle": {
+    "description": "S8 Close the month row on a device holding one closable book — the live subtitle ADR 2026-09-03 ruling 1 🔒 asks for (*August open · 3 items waiting*). {month} is the month abbreviated in EN and written in full in PA/HI (07 §1 rule 5 🔒). {count} is everything waiting on that month's tray, blocks and warns alike — the tray itself says which is which (07 §13 🔒). Nothing waiting reads as *ready to close*, never *0 items waiting*.",
+    "placeholders": {"month": {"type": "String"}, "count": {"type": "int"}}
+  },
+  "menu.close_month.row.subtitle.book": "{book} · {month} open · {count, plural, =0{ready to close} =1{1 item waiting} other{{count} items waiting}}",
+  "@menu.close_month.row.subtitle.book": {
+    "description": "S8 Close the month row when more than one book has a month to close: the row is per book, so the book is named. {book} is the book's name as the user wrote it; {month} and {count} as in menu.close_month.row.subtitle.",
+    "placeholders": {"book": {"type": "String"}, "month": {"type": "String"}, "count": {"type": "int"}}
+  },
+  "menu.close_month.row.loading": "Checking where each book stands…",
+  "@menu.close_month.row.loading": {
+    "description": "S8 Close the month row while the close is being read (13 §4.3 loading state): the row states what it is doing rather than showing a stale or blank subtitle."
+  },
+  "menu.close_month.row.reason.closed": "Every book is closed up to {month}.",
+  "@menu.close_month.row.reason.closed": {
+    "description": "S8 disabled-with-reason line (13 §4.3, 07 §1 rule 6) when every book this device holds is already locked through the month asked for: the row stays and says so in one sentence rather than disappearing. {month} is the month label, abbreviated in EN.",
+    "placeholders": {"month": {"type": "String"}}
+  },
+  "menu.close_month.row.reason.none": "There is no month to close yet.",
+  "@menu.close_month.row.reason.none": {
+    "description": "S8 disabled-with-reason line when this device holds no book with a month to close at all — a fresh install, before the first month has ended."
+  },
+  "menu.close_month.row.error": "Could not check the close · tap to try again",
+  "@menu.close_month.row.error": {
+    "description": "S8 Close the month row when the close could not be read (13 §4.3 error state). The row stays tappable and the tap retries — an error is never an inert row (07 §1 rule 6)."
+  },
+
+  "menu.year_close.row.title": "Year close",
+  "@menu.year_close.row.title": {
+    "description": "S8 — the *Menu → per book* door to S10.4, the Year Close ceremony (07 §13 last bullet 🔒, ADR 2026-09-03 ruling 1, 13 §3.2 row S10.4). Same words as the ceremony's own app bar (close.year.title) so the row and its destination read as one thing."
+  },
+  "menu.year_close.row.subtitle": "Certify FY {fy}",
+  "@menu.year_close.row.subtitle": {
+    "description": "S8 Year close row on a device holding one book — {fy} is the financial year's own label (`2026-27`, or `2026` for a calendar-year book). *Certify* is 02 §8.1's own word for what the ceremony does.",
+    "placeholders": {"fy": {"type": "String"}}
+  },
+  "menu.year_close.row.subtitle.book": "{book} · certify FY {fy}",
+  "@menu.year_close.row.subtitle.book": {
+    "description": "S8 Year close row when the device holds more than one book: the row is per book (07 §13 🔒), so the book is named. {book} is the book's name as the user wrote it; {fy} is the financial year's label.",
+    "placeholders": {"book": {"type": "String"}, "fy": {"type": "String"}}
+  },
+  "menu.year_close.row.reason": "A financial year can be certified once it has ended.",
+  "@menu.year_close.row.reason": {
+    "description": "S8 disabled-with-reason line (13 §4.3, 07 §1 rule 6) when no book has an ended, uncertified year: the row never disappears, it says why it cannot be entered yet. 02 §8.1 🔒 requires every month of the year to be locked first."
   },
 
   "menu.books_members.row.title": "Books & members",

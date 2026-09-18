@@ -4,10 +4,16 @@
 // disappears and never sits inert with no explanation, it just cannot be
 // entered yet, with a clock icon paired to the reason text so the state
 // never rides on colour alone (07 §1 rule 3).
+//
+// Every string here draws through [RkFitText]. At 200 % on a 360 px phone
+// *Notifications* alone needs 422 px of the 328 px a row has to give, and
+// Flutter draws the overflow past the edge without throwing — green test,
+// unreadable row (F1-07-67).
 import 'package:flutter/material.dart';
 
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../../shared/widgets/rk_fit_text.dart';
 
 /// A section header ("Your books", …) above a group of rows.
 class SettingsSectionHeader extends StatelessWidget {
@@ -23,7 +29,7 @@ class SettingsSectionHeader extends StatelessWidget {
       RkSpace.gutter,
       RkSpace.s2,
     ),
-    child: Text(
+    child: RkFitText(
       label,
       style: Theme.of(context).textTheme.titleLarge
           ?.copyWith(fontSize: 14, fontWeight: FontWeight.w600),
@@ -69,11 +75,11 @@ class SettingsRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(title, style: text.bodyLarge),
+                    RkFitText(title, style: text.bodyLarge),
                     if (subtitle != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 2),
-                        child: Text(
+                        child: RkFitText(
                           subtitle!,
                           style: text.bodySmall?.copyWith(color: status.muted),
                         ),
@@ -131,14 +137,14 @@ class SettingsDisabledRow extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
+                    RkFitText(
                       title,
                       style: text.bodyLarge?.copyWith(color: status.muted),
                     ),
                     if (subtitle != null)
                       Padding(
                         padding: const EdgeInsets.only(top: 2),
-                        child: Text(
+                        child: RkFitText(
                           subtitle!,
                           style: text.bodySmall?.copyWith(color: status.muted),
                         ),
@@ -151,7 +157,7 @@ class SettingsDisabledRow extends StatelessWidget {
                           Icon(Icons.schedule, size: 14, color: status.muted),
                           const SizedBox(width: RkSpace.s1),
                           Expanded(
-                            child: Text(
+                            child: RkFitText(
                               reason,
                               style: text.bodySmall?.copyWith(
                                 color: status.muted,

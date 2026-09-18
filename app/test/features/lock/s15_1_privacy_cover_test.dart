@@ -114,22 +114,29 @@ void main() {
     );
 
     testWidgets(
-      'F1-07-64 the cover renders in EN/PA/HI on a 360x800 phone at 200%',
+      'F1-07-64 the cover renders in EN/PA/HI on both F1 phones at 1.3x '
+      'and 200%',
       (tester) async {
-        sizeView(tester, width: 360, height: 800);
         for (final locale in lockLocales) {
-          await pumpRk(
-            tester,
-            const MediaQuery(
-              data: MediaQueryData(textScaler: TextScaler.linear(2)),
-              child: PrivacyCover(child: _balance),
-            ),
-            locale: locale,
-          );
-          await _lifecycle(tester, AppLifecycleState.inactive);
-          expect(find.byType(PrivacyCoverSheet), findsOneWidget);
-          expect(tester.takeException(), isNull);
-          await unmount(tester);
+          for (final vp in rkPhones) {
+            for (final scale in rkTextScales) {
+              await pumpRk(
+                tester,
+                const PrivacyCover(child: _balance),
+                locale: locale,
+                textScale: scale,
+                viewport: vp,
+              );
+              await _lifecycle(tester, AppLifecycleState.inactive);
+              expect(find.byType(PrivacyCoverSheet), findsOneWidget);
+              expect(tester.takeException(), isNull);
+              expectTextFits(
+                tester,
+                reason: '${locale.languageCode} @ $scale on $vp',
+              );
+              await unmount(tester);
+            }
+          }
         }
       },
     );

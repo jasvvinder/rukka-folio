@@ -288,3 +288,208 @@ abstract interface class PartnersPort {
     required Paise amount,
   });
 }
+
+/// Why S14.1 cannot hand anything out (02 §7.1 🔒, ADR 2026-09-05e §8), as a
+/// **state the wizard shows** rather than a thrown string (13 §4.3, 07 §1
+/// rule 6).
+///
+/// It mirrors the facade's own typed refusal one for one, deliberately: the
+/// screen imports neither `LocalLedger` nor `packages/data`, so the seam
+/// restates the vocabulary and the implementation maps it across. Nothing here
+/// is a judgement the UI makes.
+enum DistributionBlock {
+  /// Not a shared business. ADR 2026-09-09b 🔒: the screen then says nothing
+  /// about partners, ratios or distribution.
+  notShared,
+
+  /// A shared business whose owner accounts are not seeded yet.
+  noPartners,
+
+  /// Nowhere to record the appropriation yet.
+  noProfitDistributed,
+
+  /// `partner_shares` was never recorded. 02 §7.1 🔒 — **never** equal shares.
+  ratioNotRecorded,
+
+  /// The recorded shares do not cover every owner.
+  ratioIncomplete,
+
+  /// The business's agreed terms could not be read (ADR 2026-09-14b §5).
+  termsUnverified,
+
+  /// The year's figure is exactly zero.
+  nothingToDistribute,
+
+  /// Over the ceiling of ADR 2026-09-05e §8 —
+  /// [DistributionView.excess] says by how much.
+  ceiling,
+}
+
+/// One owner's two lines in the preview (02 §7.1 🔒 *The distribution preview
+/// shows both lines per partner — interest and share*).
+///
+/// Both figures come off the engine's own entry lines. Positive = credited to
+/// this owner; negative = charged to them (a debit balance's interest, or a
+/// loss share).
+final class DistributionOwnerView {
+  /// Creates the row.
+  const DistributionOwnerView({
+    required this.accountId,
+    required this.name,
+    required this.ratioWeight,
+    required this.interest,
+    required this.share,
+  });
+
+  /// The owner's Partner Current A/c.
+  final String accountId;
+
+  /// Their name as the account carries it.
+  final String name;
+
+  /// Their whole-number weight in the ratio **in force** (ADR 2026-09-14b §6),
+  /// never a percentage.
+  final int ratioWeight;
+
+  /// Interest on capital; zero when the setting is off, which is the default.
+  final Paise interest;
+
+  /// Their share of what is left after interest.
+  final Paise share;
+
+  /// What this one entry credits them altogether.
+  Paise get total => interest + share;
+}
+
+/// Everything S14.1 draws (13 §3.2 row S14.1). Every figure was computed by
+/// `core_ledger`; this carries them and adds names.
+final class DistributionView {
+  /// Creates the view.
+  const DistributionView({
+    required this.bookId,
+    required this.financialYearLabel,
+    required this.from,
+    required this.to,
+    required this.netProfit,
+    required this.owners,
+    required this.headroom,
+    required this.excess,
+    required this.interestEnabled,
+    required this.quorumOfOne,
+    this.block,
+    this.readOnly = false,
+    this.offline = false,
+  });
+
+  /// The book being distributed.
+  final String bookId;
+
+  /// The open financial year, as `2026-27` (the profit figure is the year's,
+  /// whatever period the interest covers — ADR 2026-09-05e §8).
+  final String financialYearLabel;
+
+  /// First day of the interest period.
+  final LocalDate from;
+
+  /// Last day of the interest period.
+  final LocalDate to;
+
+  /// The year's figure: positive = profit, negative = a loss to share.
+  final Paise netProfit;
+
+  /// One row per owner, in Partner Current A/c creation order.
+  final List<DistributionOwnerView> owners;
+
+  /// What may still be handed out (ADR 2026-09-05e §8).
+  final Paise headroom;
+
+  /// How far over the ceiling this would be; zero when it fits.
+  final Paise excess;
+
+  /// Whether interest on capital is on for this business (off by default).
+  final bool interestEnabled;
+
+  /// True when this book records the entry itself, false when it must be
+  /// proposed to the owners (02 §7.2.1 🔒 *Single-owner books … quorum of
+  /// one; the concept is invisible there*).
+  final bool quorumOfOne;
+
+  /// Why nothing can be handed out, or null when it can.
+  final DistributionBlock? block;
+
+  /// Tenant read-only (S12.5 pattern; 13 §5): the figures still show, the
+  /// action explains why it is closed.
+  final bool readOnly;
+
+  /// This phone is off-network (07 §1 rule 7): never blocking, always said.
+  final bool offline;
+
+  /// Total interest across the owners.
+  Paise get interestTotal => Paise.sum([for (final o in owners) o.interest]);
+
+  /// Total shared by the agreed shares after interest.
+  Paise get shareTotal => Paise.sum([for (final o in owners) o.share]);
+
+  /// The sum of the owners' weights — the denominator the screen prints.
+  int get ratioTotal => owners.fold<int>(0, (sum, o) => sum + o.ratioWeight);
+
+  /// The period is a loss (ADR 2026-09-05e §8 mirror posting).
+  bool get isLoss => netProfit.isCredit;
+
+  /// Interest is owed even though it is more than the profit (02 §7.1 🔒).
+  bool get interestExceedsProfit =>
+      interestTotal.raw > 0 && interestTotal.raw > netProfit.raw;
+
+  /// Nothing stands in the way and the plan allows writing.
+  bool get canDistribute => block == null && !readOnly;
+}
+
+/// What a distribution did.
+enum DistributionResult {
+  /// A quorum-of-one book: the one multi-line entry is posted.
+  posted,
+
+  /// A shared book: one signed request is waiting in every owner's Inbox and
+  /// **nothing has been applied** (02 §7.2.1 🔒).
+  proposed,
+}
+
+/// The port refused; **nothing was authored**. Carries no plaintext financial
+/// data beyond the overshoot the spec requires the wizard to state
+/// (02 §7.1 🔒 *the wizard refuses and says by how much*).
+final class DistributionBlocked implements Exception {
+  /// Creates the refusal.
+  const DistributionBlocked(this.block, {this.excess = Paise.zero});
+
+  /// Which rule refused.
+  final DistributionBlock block;
+
+  /// How far over the ceiling, for [DistributionBlock.ceiling].
+  final Paise excess;
+
+  @override
+  String toString() => 'DistributionBlocked(${block.name})';
+}
+
+/// What S14.1 needs of the ledger, on top of [PartnersPort].
+///
+/// It is a separate interface so S14's own tests and the S14.2 sheet do not
+/// have to know the wizard exists; the real port implements both.
+abstract interface class DistributionPort {
+  /// The preview for [bookId] — 13 §3.2 row S14.1 step 2. [from] / [to] bound
+  /// the **interest** period and default to the open FY's first day and today;
+  /// the profit figure is the year's either way.
+  Future<DistributionView> distributionPreview(
+    String bookId, {
+    LocalDate? from,
+    LocalDate? to,
+  });
+
+  /// Records it, or proposes it (02 §7.1 🔒, §7.2.1 🔒). Throws
+  /// [DistributionBlocked] with nothing authored when a rule refuses.
+  Future<DistributionResult> distribute(
+    String bookId, {
+    LocalDate? from,
+    LocalDate? to,
+  });
+}

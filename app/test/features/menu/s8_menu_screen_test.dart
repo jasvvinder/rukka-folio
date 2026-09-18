@@ -31,6 +31,7 @@ void main() {
   const expectedOrder = [
     'Reports',
     'Close the month',
+    'Year close',
     'Books & members',
     'Backup',
     'Devices & security',
@@ -81,27 +82,30 @@ void main() {
       },
     );
 
-    for (final locale in const [Locale('en'), Locale('pa'), Locale('hi')]) {
-      testWidgets(
-        'F1-07-14 Menu title and rows resolve in ${locale.languageCode} without overflow at 200%',
-        (tester) async {
-          tester.view.physicalSize = const Size(360, 800);
-          tester.view.devicePixelRatio = 1.0;
-          addTearDown(tester.view.resetPhysicalSize);
-          addTearDown(tester.view.resetDevicePixelRatio);
-
-          await pumpRk(
-            tester,
-            MediaQuery(
-              data: const MediaQueryData(textScaler: TextScaler.linear(2.0)),
-              child: buildScreen(),
-            ),
-            locale: locale,
+    for (final locale in rkLocales) {
+      for (final vp in rkPhones) {
+        for (final scale in rkTextScales) {
+          testWidgets(
+            'F1-07-14 Menu title and rows resolve in ${locale.languageCode} '
+            'without overflow at ${scale}x on ${vp.width.toInt()}x'
+            '${vp.height.toInt()}',
+            (tester) async {
+              await pumpRk(
+                tester,
+                buildScreen(),
+                locale: locale,
+                textScale: scale,
+                viewport: vp,
+              );
+              expect(tester.takeException(), isNull);
+              expectTextFits(
+                tester,
+                reason: '${locale.languageCode} @ $scale on $vp',
+              );
+            },
           );
-
-          expect(tester.takeException(), isNull);
-        },
-      );
+        }
+      }
     }
 
     testWidgets(
@@ -109,11 +113,13 @@ void main() {
       (tester) async {
         await pumpRk(tester, buildScreen());
 
-        // 4 disabled rows: Close the month, Subscription, Help, Legal
-        // (07 §2) — each pairs the clock icon with a reason. Books & members
-        // left this list when S9 landed: it now opens `features/books`, the
-        // Menu → Books entry point 07 §5.7 🔒 gives S9.5.
-        expect(find.byIcon(Icons.schedule), findsNWidgets(4));
+        // 5 disabled rows: Close the month, Year close (with no book
+        // holding an ended, uncertified year — the default this helper
+        // builds), Subscription, Help, Legal (07 §2) — each pairs the clock
+        // icon with a reason. Books & members left this list when S9 landed:
+        // it now opens `features/books`, the Menu → Books entry point
+        // 07 §5.7 🔒 gives S9.5.
+        expect(find.byIcon(Icons.schedule), findsNWidgets(5));
       },
     );
 

@@ -8,7 +8,6 @@
 // file (or in bootstrap) unwraps a UMK or a book key — that stays inside
 // `LocalLedger`, and the material is a borrowed view of what it already holds.
 import 'package:core_crypto/core_crypto.dart';
-import 'package:core_ledger/core_ledger.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/shared/ledger/local_ledger.dart';
 import 'package:sync_engine/sync_engine.dart' as eng;

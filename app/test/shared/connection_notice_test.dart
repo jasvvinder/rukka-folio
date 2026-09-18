@@ -186,25 +186,20 @@ void main() {
 
     // 07 §18: 200 % OS font scale on the smallest supported screens, in every
     // script (ADR 2026-09-05f §G, §H15).
-    for (final size in const [Size(375, 667), Size(360, 800)]) {
-      for (final locale in const [Locale('en'), Locale('pa'), Locale('hi')]) {
-        testWidgets(
-          'F1-07-85 the notice survives 200% text scale at ${size.width.toInt()}x${size.height.toInt()} in ${locale.languageCode}',
-          (tester) async {
-            tester.view.physicalSize = size;
-            tester.view.devicePixelRatio = 1.0;
-            addTearDown(tester.view.resetPhysicalSize);
-            addTearDown(tester.view.resetDevicePixelRatio);
-
+    for (final size in rkPhones) {
+      for (final locale in rkLocales) {
+        for (final scale in rkTextScales) {
+          testWidgets('F1-07-85 the notice survives ${scale}x text scale at '
+              '${size.width.toInt()}x${size.height.toInt()} in '
+              '${locale.languageCode}', (tester) async {
             final offline = ValueNotifier(true);
             addTearDown(offline.dispose);
             await pumpRk(
               tester,
-              MediaQuery(
-                data: const MediaQueryData(textScaler: TextScaler.linear(2.0)),
-                child: _host(offline),
-              ),
+              _host(offline),
               locale: locale,
+              textScale: scale,
+              viewport: size,
             );
             expect(tester.takeException(), isNull);
             final copy = rkConnectionNoticeCopy(
@@ -213,8 +208,12 @@ void main() {
             // The words resolve in this script — nothing falls back to EN.
             expect(find.text(copy.title), findsOneWidget);
             expect(find.text(copy.body), findsOneWidget);
-          },
-        );
+            expectTextFits(
+              tester,
+              reason: '${locale.languageCode} @ $scale on $size',
+            );
+          });
+        }
       }
     }
   });
