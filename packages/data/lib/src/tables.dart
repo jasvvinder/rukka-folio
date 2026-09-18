@@ -63,6 +63,17 @@ class EnvelopesLocal extends Table {
   /// The missing target's id.
   TextColumn get heldFor => text().nullable()();
 
+  /// Device-local arrival order: 1, 2, 3 … in the order this device first
+  /// stored the envelope (`Mirror.append`). **Never synced, never in a
+  /// payload** — two devices may legitimately hold different orders, which is
+  /// exactly the fact the Late Arrivals tray is built on (02 §8: an entry
+  /// created before a lock but *synced* after it). An explicit column, not
+  /// SQLite's implicit `rowid`: this table is TEXT-keyed, so its rowid is not
+  /// stable under `VACUUM`. Written once on append and never rewritten (which
+  /// is why the append-only trigger does not need to guard it, and the v3→v4
+  /// backfill can set it).
+  IntColumn get arrivalOrdinal => integer().withDefault(const Constant(0))();
+
   @override
   Set<Column<Object>> get primaryKey => {envelopeId};
 }

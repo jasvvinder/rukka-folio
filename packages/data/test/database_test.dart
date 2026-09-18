@@ -3,8 +3,10 @@
 @Tags(['E'])
 library;
 
+import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:core_ledger/core_ledger.dart';
 import 'package:data/data.dart';
 import 'package:drift/drift.dart' show Value;
 import 'package:drift/native.dart';
@@ -145,7 +147,7 @@ void main() {
   // stream could put it back.
   group('schema v3 (07 §13 Resumable 🔒)', () {
     test('E-03-46 close_progress_local exists, is keyed by (book, year, month) '
-        'and the schema version is 3', () async {
+        'and the schema is at least v3', () async {
       final db = await openMemory();
       final cols = await db
           .customSelect('PRAGMA table_info(close_progress_local)')
@@ -167,8 +169,9 @@ void main() {
       };
       expect(pk, {'book_id', 'year', 'month'});
       final version = await db.customSelect('PRAGMA user_version').getSingle();
-      expect(version.data.values.first, 3);
-      expect(ledgerSchemaVersion, 3);
+      expect(version.data.values.first, ledgerSchemaVersion);
+      // v3 added this table; later versions keep it (v4 = arrival ordinals).
+      expect(ledgerSchemaVersion, greaterThanOrEqualTo(3));
       await db.close();
     });
 
@@ -178,6 +181,85 @@ void main() {
       () async {
         expect(layer1Tables, isNot(contains('close_progress_local')));
         expect(layer2Tables, isNot(contains('close_progress_local')));
+      },
+    );
+  });
+
+  // Schema v4 — 02 §8 *late arrivals*; ADR 2026-09-05e §3, §10.
+  // `envelopes_local.arrival_ordinal` is the device-local arrival fact the Late
+  // Arrivals tray is computed from: never synced, never in a payload.
+  group('schema v4 (02 §8 late arrivals 🔒)', () {
+    test(
+      'E-03-55 v3 → v4 carries every existing row and backfills its arrival '
+      'ordinal in (hlc, envelope_id) order, so an upgrade conjures no tray '
+      'item; appends after the upgrade continue above the highest ordinal',
+      () async {
+        final dir = Directory.systemTemp.createTempSync('rf-v4-');
+        addTearDown(() => dir.deleteSync(recursive: true));
+        final file = File('${dir.path}/ledger.sqlite');
+
+        // A v4 database with a book in it, stored deliberately out of HLC
+        // order so the backfill's ordering rule is observable.
+        final f = Fixture();
+        final envelopes = f.setupEnvelopes();
+        final opened = await openLedgerDatabase(NativeDatabase(file));
+        final db = (opened as Opened).db;
+        await storeAll(Mirror(db, hasher: toyHash), envelopes.reversed);
+        await db.close();
+
+        // Wind it back to v3: the column did not exist then.
+        final raw = LedgerDatabase(NativeDatabase(file));
+        await raw.customStatement(
+          'ALTER TABLE envelopes_local DROP COLUMN arrival_ordinal',
+        );
+        await raw.customStatement('PRAGMA user_version = 3');
+        await raw.close();
+
+        // Reopen: the forward step runs.
+        final up = await openLedgerDatabase(NativeDatabase(file));
+        expect(up, isA<Opened>(), reason: '03 §5: migrations fail closed');
+        final db2 = (up as Opened).db;
+        final m2 = Mirror(db2, hasher: toyHash);
+        expect(
+          (await db2.customSelect('PRAGMA user_version').getSingle())
+              .data
+              .values
+              .first,
+          4,
+        );
+        expect(ledgerSchemaVersion, 4);
+
+        final rows = await m2.envelopesOf(f.bookId);
+        expect(
+          rows.length,
+          envelopes.length,
+          reason: 'every row carried across',
+        );
+        // `envelopesOf` reads in (hlc, envelope_id) order — the backfill rule —
+        // so the ordinals come back as 1, 2, 3 … in exactly that order.
+        expect(
+          [for (final r in rows) r.arrivalOrdinal],
+          [for (var i = 1; i <= rows.length; i++) i],
+        );
+
+        // A genuinely new arrival still lands above every backfilled row.
+        final e = f.entry(
+          'fresh',
+          Verbs.moneyIn(
+            into: f.cash,
+            from: f.salary,
+            amount: const Paise.rupees(100),
+          ),
+          date: LocalDate(2026, 4, 1),
+          kind: EntryKind.moneyIn,
+        );
+        await m2.append(f.eventEnvelope(e));
+        final fresh = (await m2.envelopesOf(f.bookId))
+            .singleWhere((r) => r.envelopeId == 'env-fresh');
+        expect(fresh.arrivalOrdinal, rows.length + 1);
+        // Idempotent re-append takes no number.
+        expect(await m2.append(f.eventEnvelope(e)), isFalse);
+        await db2.close();
       },
     );
   });

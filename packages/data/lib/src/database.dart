@@ -10,7 +10,10 @@ part 'database.g.dart';
 /// Current client schema version (03 §5: tested upgrade paths from every
 /// shipped version; a failed migration fails closed).
 /// v2 (ADR 2026-09-09d §4): `books_p.start_date`.
-const int ledgerSchemaVersion = 3;
+/// v3 (07 §13 *Resumable* 🔒): `close_progress_local`.
+/// v4 (02 §8, ADR 2026-09-05e §3, §10): `envelopes_local.arrival_ordinal` —
+/// the device-local arrival fact the Late Arrivals tray is computed from.
+const int ledgerSchemaVersion = 4;
 
 /// The client database: Layer 1 mirror + outbox and Layer 2 projections.
 @DriftDatabase(
@@ -77,6 +80,27 @@ class LedgerDatabase extends _$LedgerDatabase {
         // fresh empty table is the whole migration — there is nothing to
         // backfill and nothing to recompute it from.
         await m.createTable(closeProgressLocal);
+      }
+      if (from < 4) {
+        // v4 — 02 §8 *late arrivals*: the order in which THIS device first
+        // stored each envelope. Device-local, never synced (03 §3.1), and the
+        // only input the tray needs that the envelope stream cannot carry.
+        //
+        // Backfill rule 🔒 for rows already in the mirror: ordinals are handed
+        // out in `(hlc, envelope_id)` order — the mirror's own read order (03
+        // §3.3 rule 1). That is the conservative reading: an entry whose HLC
+        // precedes a lock's then also *arrived* before it, so an upgrade
+        // never conjures a tray item out of history it cannot observe. New
+        // arrivals continue above the highest ordinal, so a genuinely late
+        // envelope arriving after the upgrade is still seen as late.
+        await m.addColumn(envelopesLocal, envelopesLocal.arrivalOrdinal);
+        await customStatement(
+          'UPDATE envelopes_local SET arrival_ordinal = ('
+          'SELECT COUNT(*) FROM envelopes_local AS e2 '
+          'WHERE e2.hlc < envelopes_local.hlc '
+          'OR (e2.hlc = envelopes_local.hlc '
+          'AND e2.envelope_id <= envelopes_local.envelope_id))',
+        );
       }
       for (final sql in schemaStatements) {
         await customStatement(sql);

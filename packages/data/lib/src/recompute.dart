@@ -460,7 +460,30 @@ final class Recompute {
     final envelopeByEventId = <String, String>{
       for (final e in events.entries) e.value.id: e.key,
     };
-    final state = project(toProject, chart, opening: seed?.vector);
+
+    // 4b. The Late Arrivals tray (02 §8; ADR 2026-09-05e §3, §10). `project()`
+    //     is a pure function of (ordered envelopes, certified vectors) and
+    //     cannot see when this device *stored* an envelope, so the arrival
+    //     fact is supplied from here: `envelopes_local.arrival_ordinal`, the
+    //     device-local counter `Mirror.append` stamps (03 §3.1).
+    //
+    //     Two passes, deliberately: the first tells us which months are locked
+    //     and by which lock envelope — facts the tray is defined against — and
+    //     the second re-projects with the tray in hand. Both passes are the
+    //     same pure call over the same events, so nothing here reads a clock,
+    //     the network or settings (03 §3.3 rule 2), and the second is skipped
+    //     when the tray is empty, which is every ordinary book.
+    //
+    //     `inTray` is a presentation and certification state; `held` is a
+    //     projection state (ADR 05e §10). Nothing below conflates them: a held
+    //     event never reaches `state.entries`, so it can never carry `in_tray`.
+    final firstPass = project(toProject, chart, opening: seed?.vector);
+    final inTray = _lateArrivals(firstPass, toProject, envelopeByEventId, {
+      for (final r in rows) r.envelopeId: r.arrivalOrdinal,
+    });
+    final state = inTray.isEmpty
+        ? firstPass
+        : project(toProject, chart, opening: seed?.vector, heldInTray: inTray);
     for (final q in state.quarantined) {
       final envId = envelopeByEventId[q.eventId]!;
       await mirror.quarantine(envId, q.violations.join('; '));
@@ -921,3 +944,50 @@ const _statusWire = {
   EffectiveStatus.voided: 'void',
   EffectiveStatus.inTray: 'in_tray',
 };
+
+/// The ids of the entry events that are **late arrivals** on this device
+/// (02 §8): dated inside a month that is locked, created (HLC) before that
+/// month's lock, and stored here *after* the lock envelope.
+///
+/// The id returned for each is the entry event's own id — the id `project()`
+/// tests, both on the plain posting path and when an advance's approval
+/// arrives (`projection.dart` ≈645 and ≈694). An amendment is itself an entry
+/// event with its own id and its own `accounting_date`, so re-dating a tray
+/// item into the open period simply leaves the new head out of this set and
+/// the next Recompute writes it `posted`.
+///
+/// Pure: [state] is a projection, [ordinalByEnvelope] is persisted data. Two
+/// runs over the same mirror return the same set.
+Set<String> _lateArrivals(
+  LedgerState state,
+  Iterable<LedgerEvent> events,
+  Map<String, String> envelopeByEventId,
+  Map<String, int> ordinalByEnvelope,
+) {
+  final locks = <(PeriodLock, int)>[];
+  for (final ym in state.periods.periods) {
+    // `lockFor` is null for a month whose last event is an unlock (02 §8):
+    // re-opening the month empties its tray, because there is no lock left for
+    // an entry to be late against.
+    final lock = state.periods.lockFor(ym);
+    if (lock == null) continue;
+    final ordinal = ordinalByEnvelope[envelopeByEventId[lock.id]];
+    if (ordinal == null) continue;
+    locks.add((lock, ordinal));
+  }
+  if (locks.isEmpty) return const {};
+
+  final tray = <String>{};
+  for (final ev in events) {
+    if (ev is! Entry) continue;
+    final ordinal = ordinalByEnvelope[envelopeByEventId[ev.id]];
+    if (ordinal == null) continue;
+    for (final (lock, lockOrdinal) in locks) {
+      if (isLateArrival(ev, lock, arrivedAfterLock: ordinal > lockOrdinal)) {
+        tray.add(ev.id);
+        break;
+      }
+    }
+  }
+  return tray;
+}

@@ -181,6 +181,18 @@ class $EnvelopesLocalTable extends EnvelopesLocal
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _arrivalOrdinalMeta = const VerificationMeta(
+    'arrivalOrdinal',
+  );
+  @override
+  late final GeneratedColumn<int> arrivalOrdinal = GeneratedColumn<int>(
+    'arrival_ordinal',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     envelopeId,
@@ -199,6 +211,7 @@ class $EnvelopesLocalTable extends EnvelopesLocal
     quarantineReason,
     held,
     heldFor,
+    arrivalOrdinal,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -337,6 +350,15 @@ class $EnvelopesLocalTable extends EnvelopesLocal
         heldFor.isAcceptableOrUnknown(data['held_for']!, _heldForMeta),
       );
     }
+    if (data.containsKey('arrival_ordinal')) {
+      context.handle(
+        _arrivalOrdinalMeta,
+        arrivalOrdinal.isAcceptableOrUnknown(
+          data['arrival_ordinal']!,
+          _arrivalOrdinalMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -410,6 +432,10 @@ class $EnvelopesLocalTable extends EnvelopesLocal
         DriftSqlType.string,
         data['${effectivePrefix}held_for'],
       ),
+      arrivalOrdinal: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}arrival_ordinal'],
+      )!,
     );
   }
 
@@ -468,6 +494,17 @@ class EnvelopesLocalData extends DataClass
 
   /// The missing target's id.
   final String? heldFor;
+
+  /// Device-local arrival order: 1, 2, 3 … in the order this device first
+  /// stored the envelope (`Mirror.append`). **Never synced, never in a
+  /// payload** — two devices may legitimately hold different orders, which is
+  /// exactly the fact the Late Arrivals tray is built on (02 §8: an entry
+  /// created before a lock but *synced* after it). An explicit column, not
+  /// SQLite's implicit `rowid`: this table is TEXT-keyed, so its rowid is not
+  /// stable under `VACUUM`. Written once on append and never rewritten (which
+  /// is why the append-only trigger does not need to guard it, and the v3→v4
+  /// backfill can set it).
+  final int arrivalOrdinal;
   const EnvelopesLocalData({
     required this.envelopeId,
     required this.bookId,
@@ -485,6 +522,7 @@ class EnvelopesLocalData extends DataClass
     this.quarantineReason,
     required this.held,
     this.heldFor,
+    required this.arrivalOrdinal,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -511,6 +549,7 @@ class EnvelopesLocalData extends DataClass
     if (!nullToAbsent || heldFor != null) {
       map['held_for'] = Variable<String>(heldFor);
     }
+    map['arrival_ordinal'] = Variable<int>(arrivalOrdinal);
     return map;
   }
 
@@ -536,6 +575,7 @@ class EnvelopesLocalData extends DataClass
       heldFor: heldFor == null && nullToAbsent
           ? const Value.absent()
           : Value(heldFor),
+      arrivalOrdinal: Value(arrivalOrdinal),
     );
   }
 
@@ -561,6 +601,7 @@ class EnvelopesLocalData extends DataClass
       quarantineReason: serializer.fromJson<String?>(json['quarantineReason']),
       held: serializer.fromJson<int>(json['held']),
       heldFor: serializer.fromJson<String?>(json['heldFor']),
+      arrivalOrdinal: serializer.fromJson<int>(json['arrivalOrdinal']),
     );
   }
   @override
@@ -583,6 +624,7 @@ class EnvelopesLocalData extends DataClass
       'quarantineReason': serializer.toJson<String?>(quarantineReason),
       'held': serializer.toJson<int>(held),
       'heldFor': serializer.toJson<String?>(heldFor),
+      'arrivalOrdinal': serializer.toJson<int>(arrivalOrdinal),
     };
   }
 
@@ -603,6 +645,7 @@ class EnvelopesLocalData extends DataClass
     Value<String?> quarantineReason = const Value.absent(),
     int? held,
     Value<String?> heldFor = const Value.absent(),
+    int? arrivalOrdinal,
   }) => EnvelopesLocalData(
     envelopeId: envelopeId ?? this.envelopeId,
     bookId: bookId ?? this.bookId,
@@ -622,6 +665,7 @@ class EnvelopesLocalData extends DataClass
         : this.quarantineReason,
     held: held ?? this.held,
     heldFor: heldFor.present ? heldFor.value : this.heldFor,
+    arrivalOrdinal: arrivalOrdinal ?? this.arrivalOrdinal,
   );
   EnvelopesLocalData copyWithCompanion(EnvelopesLocalCompanion data) {
     return EnvelopesLocalData(
@@ -655,6 +699,9 @@ class EnvelopesLocalData extends DataClass
           : this.quarantineReason,
       held: data.held.present ? data.held.value : this.held,
       heldFor: data.heldFor.present ? data.heldFor.value : this.heldFor,
+      arrivalOrdinal: data.arrivalOrdinal.present
+          ? data.arrivalOrdinal.value
+          : this.arrivalOrdinal,
     );
   }
 
@@ -676,7 +723,8 @@ class EnvelopesLocalData extends DataClass
           ..write('quarantined: $quarantined, ')
           ..write('quarantineReason: $quarantineReason, ')
           ..write('held: $held, ')
-          ..write('heldFor: $heldFor')
+          ..write('heldFor: $heldFor, ')
+          ..write('arrivalOrdinal: $arrivalOrdinal')
           ..write(')'))
         .toString();
   }
@@ -699,6 +747,7 @@ class EnvelopesLocalData extends DataClass
     quarantineReason,
     held,
     heldFor,
+    arrivalOrdinal,
   );
   @override
   bool operator ==(Object other) =>
@@ -719,7 +768,8 @@ class EnvelopesLocalData extends DataClass
           other.quarantined == this.quarantined &&
           other.quarantineReason == this.quarantineReason &&
           other.held == this.held &&
-          other.heldFor == this.heldFor);
+          other.heldFor == this.heldFor &&
+          other.arrivalOrdinal == this.arrivalOrdinal);
 }
 
 class EnvelopesLocalCompanion extends UpdateCompanion<EnvelopesLocalData> {
@@ -739,6 +789,7 @@ class EnvelopesLocalCompanion extends UpdateCompanion<EnvelopesLocalData> {
   final Value<String?> quarantineReason;
   final Value<int> held;
   final Value<String?> heldFor;
+  final Value<int> arrivalOrdinal;
   final Value<int> rowid;
   const EnvelopesLocalCompanion({
     this.envelopeId = const Value.absent(),
@@ -757,6 +808,7 @@ class EnvelopesLocalCompanion extends UpdateCompanion<EnvelopesLocalData> {
     this.quarantineReason = const Value.absent(),
     this.held = const Value.absent(),
     this.heldFor = const Value.absent(),
+    this.arrivalOrdinal = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   EnvelopesLocalCompanion.insert({
@@ -776,6 +828,7 @@ class EnvelopesLocalCompanion extends UpdateCompanion<EnvelopesLocalData> {
     this.quarantineReason = const Value.absent(),
     this.held = const Value.absent(),
     this.heldFor = const Value.absent(),
+    this.arrivalOrdinal = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : envelopeId = Value(envelopeId),
        bookId = Value(bookId),
@@ -804,6 +857,7 @@ class EnvelopesLocalCompanion extends UpdateCompanion<EnvelopesLocalData> {
     Expression<String>? quarantineReason,
     Expression<int>? held,
     Expression<String>? heldFor,
+    Expression<int>? arrivalOrdinal,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -823,6 +877,7 @@ class EnvelopesLocalCompanion extends UpdateCompanion<EnvelopesLocalData> {
       if (quarantineReason != null) 'quarantine_reason': quarantineReason,
       if (held != null) 'held': held,
       if (heldFor != null) 'held_for': heldFor,
+      if (arrivalOrdinal != null) 'arrival_ordinal': arrivalOrdinal,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -844,6 +899,7 @@ class EnvelopesLocalCompanion extends UpdateCompanion<EnvelopesLocalData> {
     Value<String?>? quarantineReason,
     Value<int>? held,
     Value<String?>? heldFor,
+    Value<int>? arrivalOrdinal,
     Value<int>? rowid,
   }) {
     return EnvelopesLocalCompanion(
@@ -863,6 +919,7 @@ class EnvelopesLocalCompanion extends UpdateCompanion<EnvelopesLocalData> {
       quarantineReason: quarantineReason ?? this.quarantineReason,
       held: held ?? this.held,
       heldFor: heldFor ?? this.heldFor,
+      arrivalOrdinal: arrivalOrdinal ?? this.arrivalOrdinal,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -918,6 +975,9 @@ class EnvelopesLocalCompanion extends UpdateCompanion<EnvelopesLocalData> {
     if (heldFor.present) {
       map['held_for'] = Variable<String>(heldFor.value);
     }
+    if (arrivalOrdinal.present) {
+      map['arrival_ordinal'] = Variable<int>(arrivalOrdinal.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -943,6 +1003,7 @@ class EnvelopesLocalCompanion extends UpdateCompanion<EnvelopesLocalData> {
           ..write('quarantineReason: $quarantineReason, ')
           ..write('held: $held, ')
           ..write('heldFor: $heldFor, ')
+          ..write('arrivalOrdinal: $arrivalOrdinal, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -10392,6 +10453,7 @@ typedef $$EnvelopesLocalTableCreateCompanionBuilder =
       Value<String?> quarantineReason,
       Value<int> held,
       Value<String?> heldFor,
+      Value<int> arrivalOrdinal,
       Value<int> rowid,
     });
 typedef $$EnvelopesLocalTableUpdateCompanionBuilder =
@@ -10412,6 +10474,7 @@ typedef $$EnvelopesLocalTableUpdateCompanionBuilder =
       Value<String?> quarantineReason,
       Value<int> held,
       Value<String?> heldFor,
+      Value<int> arrivalOrdinal,
       Value<int> rowid,
     });
 
@@ -10501,6 +10564,11 @@ class $$EnvelopesLocalTableFilterComposer
 
   ColumnFilters<String> get heldFor => $composableBuilder(
     column: $table.heldFor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get arrivalOrdinal => $composableBuilder(
+    column: $table.arrivalOrdinal,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -10593,6 +10661,11 @@ class $$EnvelopesLocalTableOrderingComposer
     column: $table.heldFor,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get arrivalOrdinal => $composableBuilder(
+    column: $table.arrivalOrdinal,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$EnvelopesLocalTableAnnotationComposer
@@ -10665,6 +10738,11 @@ class $$EnvelopesLocalTableAnnotationComposer
 
   GeneratedColumn<String> get heldFor =>
       $composableBuilder(column: $table.heldFor, builder: (column) => column);
+
+  GeneratedColumn<int> get arrivalOrdinal => $composableBuilder(
+    column: $table.arrivalOrdinal,
+    builder: (column) => column,
+  );
 }
 
 class $$EnvelopesLocalTableTableManager
@@ -10720,6 +10798,7 @@ class $$EnvelopesLocalTableTableManager
                 Value<String?> quarantineReason = const Value.absent(),
                 Value<int> held = const Value.absent(),
                 Value<String?> heldFor = const Value.absent(),
+                Value<int> arrivalOrdinal = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => EnvelopesLocalCompanion(
                 envelopeId: envelopeId,
@@ -10738,6 +10817,7 @@ class $$EnvelopesLocalTableTableManager
                 quarantineReason: quarantineReason,
                 held: held,
                 heldFor: heldFor,
+                arrivalOrdinal: arrivalOrdinal,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -10758,6 +10838,7 @@ class $$EnvelopesLocalTableTableManager
                 Value<String?> quarantineReason = const Value.absent(),
                 Value<int> held = const Value.absent(),
                 Value<String?> heldFor = const Value.absent(),
+                Value<int> arrivalOrdinal = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => EnvelopesLocalCompanion.insert(
                 envelopeId: envelopeId,
@@ -10776,6 +10857,7 @@ class $$EnvelopesLocalTableTableManager
                 quarantineReason: quarantineReason,
                 held: held,
                 heldFor: heldFor,
+                arrivalOrdinal: arrivalOrdinal,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

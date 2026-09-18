@@ -127,6 +127,17 @@ final class Mirror {
 
   /// Appends an envelope. Idempotent: a second append of the same id is a no-op
   /// (sync retries, 05 §4). Returns true when a row was inserted.
+  ///
+  /// Stamps the row's **arrival ordinal** (03 §3.1): a device-local, monotonic
+  /// counter recording the order in which *this* device first saw the
+  /// envelope. It is the one fact the envelope stream cannot carry and the
+  /// Late Arrivals tray needs (02 §8): an entry created before a month's lock
+  /// but stored after it is a late arrival *on this device* — the author's own
+  /// phone, which held both before the lock, is right to show no tray item.
+  /// Never synced, never in a payload. Idempotent re-appends do not consume a
+  /// number, so two devices that receive the same stream in the same order
+  /// compute the same tray twice running (03 §3.3 rule 2 — persisted data, no
+  /// clock).
   Future<bool> append(EnvelopeRecord e) => db.transaction(() async {
     final exists =
         await (db.selectOnly(db.envelopesLocal)
@@ -150,10 +161,27 @@ final class Mirror {
             envelopeBlob: e.blob,
             blobHash: e.blobHash,
             verified: Value(e.verified ? 1 : 0),
+            arrivalOrdinal: Value(await _nextArrivalOrdinal()),
           ),
         );
     return true;
   });
+
+  /// One past the highest ordinal the mirror holds. Taken inside [append]'s
+  /// transaction, so two concurrent appends cannot take the same number.
+  /// Global, not per book: a lock in one book is never compared with an
+  /// envelope of another, and one counter survives `rebootstrapBook` dropping
+  /// a book's rows without ever handing a re-pulled envelope a number that
+  /// makes it look *earlier* than something already stored.
+  Future<int> _nextArrivalOrdinal() async {
+    final row = await db
+        .customSelect(
+          'SELECT COALESCE(MAX(arrival_ordinal), 0) + 1 AS n '
+          'FROM envelopes_local',
+        )
+        .getSingle();
+    return row.read<int>('n');
+  }
 
   /// Reads a blob, re-hashing it (ADR 05c §2).
   Future<BlobRead> readBlob(String envelopeId) async {
