@@ -148,6 +148,62 @@ export interface CeremonySession {
   opened_at: Date | null;
 }
 
+/** 04 §7.3 Setup — one publication of a guardian set: the set, its members and one sealed share
+ *  per guardian. The server stores what the client sealed and computes nothing (04 §8.6). */
+export interface GuardianSetDraft {
+  share_set_version: number;
+  k: number;
+  n: number;
+  guardians: { guardian_user_id: string; umk_pub_ed: Uint8Array; blob: Uint8Array }[];
+}
+
+/** 04 §7.3 step 1 — the fresh phone's ask. `candidate_pub_x` is the *candidate* X25519 public key
+ *  every guardian re-seals to and compares against the scanned QR (ADR 2026-09-13c §3). */
+export interface RecoveryRequest {
+  id: string;
+  user_id: string;
+  candidate_device: string;
+  candidate_pub_x: Uint8Array;
+  share_set_version: number;
+  /** The LADDER the attempt opened on, not the live state — read `RecoveryProgress.state` for that. */
+  state: string;
+  created_at: Date;
+  expires_at: Date;
+}
+
+/** The derived state (0010 `rf.recovery_progress`): counts come from the append-only decision rows,
+ *  never from `recovery_requests.approvals`, which is vestigial. */
+export interface RecoveryProgress {
+  request_id: string;
+  user_id: string;
+  candidate_device: string;
+  share_set_version: number;
+  k: number;
+  n: number;
+  approvals: number;
+  denials: number;
+  opened_state: string;
+  state: string;
+  kth_approval_at: Date | null;
+  wait_until: Date | null;
+  expires_at: Date;
+  cancelled_at: Date | null;
+}
+
+/** 04 §7.3 step 2 — what a guardian is pushed: who, which new device, and its candidate key.
+ *  Nothing financial; there is no book, tenant or amount anywhere in this shape. */
+export interface RecoveryAsk {
+  request_id: string;
+  subject_user_id: string;
+  candidate_device: string;
+  candidate_pub_x: Uint8Array;
+  share_set_version: number;
+  created_at: Date;
+  expires_at: Date;
+  /** This guardian's own decision, or null while the ask is open. Never another guardian's. */
+  my_decision: string | null;
+}
+
 /** 06 §7: what a joining device may learn about an invite addressed to its OWN number. */
 export interface InviteOffer {
   invite_id: string;
@@ -212,6 +268,28 @@ export interface Tx {
   myInvites(): Promise<InviteOffer[]>;
   /** Phone-bound acceptance (ADR 2026-09-05d §9); returns the membership status it landed on. */
   acceptInvite(invite: string): Promise<string>;
+  // ---- 04 §7.3 the guardian recovery ladder, write side (0010). Every rule is the database's;
+  // these are the calls. No method here updates a row: a decision, a cancellation and a request are
+  // each their own append-only row, and the state a client acts on is derived (CLAUDE.md rule 2).
+  /** 04 §7.3 Setup: publish a set at a NEW share_set_version with one sealed share per guardian. */
+  publishGuardianSet(draft: GuardianSetDraft): Promise<number>;
+  /** 04 §7.3 step 1: the caller's own device asks, carrying its candidate X25519 public key. */
+  openRecovery(candidatePubX: Uint8Array): Promise<RecoveryRequest>;
+  /** 04 §7.3 steps 3 and 7: one guardian, one decision, written once. Returns the sealed share's id. */
+  recoveryDecide(
+    request: string,
+    decision: "approved" | "denied",
+    blob: Uint8Array | null,
+    sealedTo: Uint8Array | null,
+  ): Promise<string | null>;
+  /** k-of-n for the requester (and for its candidate device); null when it is not theirs to read. */
+  recoveryProgress(request: string): Promise<RecoveryProgress | null>;
+  /** The pending asks addressed to the CALLER as a guardian. Never anyone else's. */
+  recoveryAsks(): Promise<RecoveryAsk[]>;
+  /** ADR 2026-09-05d §1: the one-tap Cancel, from an existing certified device of the user. */
+  recoveryCancel(request: string): Promise<void>;
+  /** The caller's own attempts — what the candidate device polls. */
+  myRecoveryRequests(): Promise<RecoveryRequest[]>;
   projectMembership(record: string, tenant: string, user: string, status: string): Promise<void>;
   projectBookRole(
     record: string,

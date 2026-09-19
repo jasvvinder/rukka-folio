@@ -1,6 +1,7 @@
 @Tags(['B'])
 library;
 
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:core_crypto/core_crypto.dart';
@@ -8,45 +9,157 @@ import 'package:test/test.dart';
 
 import 'helpers.dart';
 
+/// A fixed, synthetic server timestamp for the commitment (injected — no
+/// clock in lib/).
+const int _issued = 1_800_000_000_000;
+
+/// One honest SAS session (04 §6.1, ADR 2026-09-13d §1) run to the point
+/// where the verifier's device holds a ready [SasChallenge]: the invitee
+/// commits, the verifier draws `r_V` against the commitment and the relayed
+/// key, the invitee opens once, the verifier checks the opening.
+({
+  SasShower shower,
+  SasVerifier verifier,
+  SasResponse response,
+  SasChallenge challenge,
+})
+_sasSession(CryptoSuite s, UmkKeyPair invitee, {String userId = userA}) {
+  final shower = SasShower.open(s, userId: userId, umk: invitee.public);
+  final verifier = SasVerifier.begin(
+    s,
+    relayed: invitee.public,
+    relayedUserId: userId,
+    commitment: shower.commitment,
+    issuedAtMs: _issued,
+  );
+  final response = shower.respond(s, verifier.verifierRandom);
+  final opened = verifier.open(s, response.opening) as SasOpened;
+  return (
+    shower: shower,
+    verifier: verifier,
+    response: response,
+    challenge: opened.challenge,
+  );
+}
+
+/// A code that differs from [code] in its first digit.
+String _wrongDigit(String code) =>
+    code[0] == '9' ? '0${code.substring(1)}' : '9${code.substring(1)}';
+
 void main() {
-  test('B-04-4 verification code = decimal(first4(BLAKE2b-256(FP ‖ nonce ‖ "verify-v1"))) mod 10⁸, 8 digits zero-padded, deterministic', () async {
-    // 04 §6.1: "8-digit code: decimal( first4bytes( BLAKE2b-256( FP ‖ nonce ‖
-    // "verify-v1" ) ) ) mod 10⁸, zero-padded."
+  // B-04-4, B-04-7, B-04-9 and B-04-10 asserted the 04 §6.1 derivation over a
+  // server-issued nonce and its `CodeChallenge`. ADR 2026-09-13d §1 retired
+  // that derivation (a substituting relay pre-computes it — B-04-87) and the
+  // app switched at U4c; the tests were @Skip'd per ADR 2026-09-05i §4 and
+  // re-land here at M11 against the rule 04 §6.1 / §6.3 state today: the
+  // same eight zero-padded digits, `code_remote`, three attempts, ten minutes
+  // and *Regenerate*, now over the commitment-based SAS. What each one lost
+  // is only the retired formula and the nonce that scoped it.
+  test('B-04-4 the 8-digit code (04 §6.1, ADR 2026-09-13d §1) = decimal(first4(BLAKE2b-256("rf-sas-code-v1" ‖ FP ‖ user_id ‖ r_S ‖ r_V))) mod 10⁸, zero-padded to 8 digits, deterministic in exactly those inputs — the invite nonce stays in the QR payload and no longer derives any code; contributions of the wrong length are refused', () async {
+    // 04 §6.1: "The code is decimal( first4bytes( BLAKE2b-256( FP ‖ user_id ‖
+    // r_S ‖ r_V ‖ tag ) ) ) mod 10⁸, zero-padded. The invite nonce stays in
+    // the QR payload only and no longer derives any code." (Re-landed at M11:
+    // the superseded assertion was the `FP ‖ nonce ‖ "verify-v1"` formula.)
     final s = await testSuite(seed: 11);
     final u = UmkKeyPair.generate(s);
     addTearDown(u.dispose);
     final fp = Fingerprint.of(s, u.public);
-    final nonce = s.randomBytes(16);
 
-    final code = verificationCode(s, fp, nonce);
+    final x = _sasSession(s, u);
+    final code = x.response.code;
     expect(code, matches(RegExp(r'^\d{8}$')));
-    expect(verificationCode(s, fp, nonce), code, reason: 'deterministic');
 
+    // Deterministic in (FP, user_id, r_S, r_V) — and a function of nothing
+    // else: `sasCode` has no nonce input, so the QR payload's nonce cannot
+    // reach it. Two payloads with different nonces show one and the same code.
+    final again = sasCode(
+      s,
+      fp: fp,
+      userId: userA,
+      showerRandom: x.response.opening,
+      verifierRandom: x.verifier.verifierRandom,
+    );
+    expect(again, code, reason: 'deterministic');
+    final qr1 = QrPayload(
+      userId: userA,
+      umk: u.public,
+      nonce: s.randomBytes(16),
+    );
+    final qr2 = QrPayload(
+      userId: userA,
+      umk: u.public,
+      nonce: s.randomBytes(16),
+    );
+    expect(qr1.nonce, isNot(qr2.nonce));
+    expect(Fingerprint.of(s, qr1.umk), fp);
+    expect(
+      Fingerprint.of(s, qr2.umk),
+      fp,
+      reason: 'same key, same FP, same code',
+    );
+
+    // The formula, by hand.
     final h = s.blake2b256(
       Bytes.concat([
+        Uint8List.fromList(utf8.encode('rf-sas-code-v1')),
         fp.bytes,
-        nonce,
-        Uint8List.fromList('verify-v1'.codeUnits),
+        Uuid16.toBytes(userA),
+        x.response.opening,
+        x.verifier.verifierRandom,
       ]),
     );
     final first4 = ByteData.sublistView(h, 0, 4).getUint32(0);
     expect(code, (first4 % 100000000).toString().padLeft(8, '0'));
 
-    // Find a nonce whose code needs zero-padding (leading zero) and check
-    // the padding actually happens — the search is deterministic under the
-    // seeded suite.
+    // Find a verifier contribution whose code needs zero-padding and check the
+    // padding happens — the search is deterministic under the seeded suite.
     String padded;
     do {
-      padded = verificationCode(s, fp, s.randomBytes(16));
+      padded = sasCode(
+        s,
+        fp: fp,
+        userId: userA,
+        showerRandom: x.response.opening,
+        verifierRandom: s.randomBytes(sasContributionBytes),
+      );
     } while (!padded.startsWith('0'));
     expect(padded.length, 8);
 
+    // Another person's id or another key gives another code (the code binds
+    // both, as the commitment does — B-04-89).
     expect(
-      () => verificationCode(s, fp, Uint8List(15)),
-      throwsArgumentError,
-      reason: 'nonce is 128-bit',
+      sasCode(
+        s,
+        fp: fp,
+        userId: userB,
+        showerRandom: x.response.opening,
+        verifierRandom: x.verifier.verifierRandom,
+      ),
+      isNot(code),
     );
-  }, skip: 'superseded by ADR 2026-09-13d §1; re-lands at M11');
+
+    // 128-bit contributions, refused otherwise — never guessed.
+    expect(
+      () => sasCode(
+        s,
+        fp: fp,
+        userId: userA,
+        showerRandom: Uint8List(15),
+        verifierRandom: x.verifier.verifierRandom,
+      ),
+      throwsArgumentError,
+    );
+    expect(
+      () => sasCode(
+        s,
+        fp: fp,
+        userId: userA,
+        showerRandom: x.response.opening,
+        verifierRandom: Uint8List(17),
+      ),
+      throwsArgumentError,
+    );
+  });
 
   test('B-04-5 QR payload = base64url(suite ‖ user_id ‖ UMK_pub_ed ‖ UMK_pub_x ‖ nonce) in that order; round-trips; wrong length / unknown suite refused', () async {
     // 04 §6.1: "QR payload: base64url( suite_version ‖ user_id ‖ UMK_pub_ed ‖
@@ -156,38 +269,31 @@ void main() {
     );
   });
 
-  test('B-04-7 code path: the correct 8 digits verify (code_remote); a wrong try costs one attempt and the right code still verifies afterwards', () async {
-    // 04 §6.3: "verifier's device computes the expected code from the
-    // server-relayed keys + nonce and compares to the typed digits. 3 attempts
-    // per nonce". 04 §6.4: method `code_remote`.
+  test('B-04-7 code path (04 §6.3, ADR 2026-09-13d §1): the correct 8 digits verify the relayed key as code_remote; whitespace read in pairs is tolerated; a wrong try costs one attempt, the earlier state is unchanged, and the right code still verifies afterwards; garbage is a wrong attempt', () async {
+    // 04 §6.3 code path: the verifier's device "compares the typed digits …
+    // 3 attempts per session". 04 §6.4: method `code_remote`. (Re-landed at
+    // M11 over `SasChallenge`; the retired `CodeChallenge` assertions were
+    // the same, over a server-issued nonce.)
     final s = await testSuite(seed: 14);
     final invitee = UmkKeyPair.generate(s);
     addTearDown(invitee.dispose);
-    final nonce = s.randomBytes(16);
-    final code = verificationCode(s, Fingerprint.of(s, invitee.public), nonce);
-    const issued = 1_800_000_000_000;
-
-    final c0 = CodeChallenge(
-      relayed: invitee.public,
-      nonce: nonce,
-      issuedAtMs: issued,
-    );
+    final x = _sasSession(s, invitee);
+    final code = x.response.code;
+    final c0 = x.challenge;
     expect(c0.attemptsLeft, 3);
 
     // Whitespace the invitee read aloud in pairs is tolerated.
     final spaced = '${code.substring(0, 4)} ${code.substring(4)}';
-    final r1 = c0.attempt(s, typed: spaced, nowMs: issued + 1000);
+    final r1 = c0.attempt(s, typed: spaced, nowMs: _issued + 1000);
     expect(r1.result, isA<CeremonyVerified>());
     final v = (r1.result as CeremonyVerified).verified;
     expect(v.method, VerificationMethod.codeRemote);
     expect(v.public, invitee.public);
-    expect(r1.next.dead, isTrue, reason: 'one verification per nonce');
+    expect(v.fingerprint, Fingerprint.of(s, invitee.public));
+    expect(r1.next.dead, isTrue, reason: 'one verification per session');
 
     // Wrong once, then right.
-    final wrong = code[0] == '9'
-        ? '0${code.substring(1)}'
-        : '9${code.substring(1)}';
-    final r2 = c0.attempt(s, typed: wrong, nowMs: issued + 1000);
+    final r2 = c0.attempt(s, typed: _wrongDigit(code), nowMs: _issued + 1000);
     expect(r2.result, isA<CodeWrong>());
     expect((r2.result as CodeWrong).attemptsLeft, 2);
     expect(r2.next.attemptsLeft, 2);
@@ -196,102 +302,99 @@ void main() {
       3,
       reason: 'immutable — the old state is unchanged',
     );
-    final r3 = r2.next.attempt(s, typed: code, nowMs: issued + 2000);
+    final r3 = r2.next.attempt(s, typed: code, nowMs: _issued + 2000);
     expect(r3.result, isA<CeremonyVerified>());
 
     // Garbage counts as a wrong attempt, never as a match.
-    final r4 = c0.attempt(s, typed: 'abcdefgh', nowMs: issued);
+    final r4 = c0.attempt(s, typed: 'abcdefgh', nowMs: _issued);
     expect(r4.result, isA<CodeWrong>());
-  }, skip: 'superseded by ADR 2026-09-13d §1; re-lands at M11');
+    // The shower's device answers once per session (ADR 2026-09-13d §2).
+    expect(x.shower.isSpent, isTrue);
+    expect(
+      () => x.shower.respond(s, x.verifier.verifierRandom),
+      throwsStateError,
+    );
+  });
 
-  test('B-04-9 wrong 8-digit code entered 3× → nonce dead (CodeExhausted); the correct code no longer verifies on that nonce', () async {
+  test('B-04-9 wrong 8-digit code entered 3× → session dead (CodeExhausted); the correct code no longer verifies on that session; Regenerate — a fresh commitment — yields a different code that verifies the same person', () async {
     // 04 §10: "Given a wrong 8-digit code entered 3×, then the nonce is dead
-    // and a new Regenerate is required." 04 §6.3: "3 attempts per nonce".
+    // and a new Regenerate is required." 04 §6.3: "3 attempts per session …
+    // Regenerate opens a fresh session." (Re-landed at M11: the session
+    // replaces the nonce as the unit that dies.)
     final s = await testSuite(seed: 15);
     final invitee = UmkKeyPair.generate(s);
     addTearDown(invitee.dispose);
-    final nonce = s.randomBytes(16);
-    final code = verificationCode(s, Fingerprint.of(s, invitee.public), nonce);
-    const issued = 1_800_000_000_000;
-    final wrong = code[0] == '9'
-        ? '0${code.substring(1)}'
-        : '9${code.substring(1)}';
+    final x = _sasSession(s, invitee);
+    final code = x.response.code;
+    final wrong = _wrongDigit(code);
 
-    var c = CodeChallenge(
-      relayed: invitee.public,
-      nonce: nonce,
-      issuedAtMs: issued,
-    );
-    final r1 = c.attempt(s, typed: wrong, nowMs: issued);
+    var c = x.challenge;
+    final r1 = c.attempt(s, typed: wrong, nowMs: _issued);
     expect((r1.result as CodeWrong).attemptsLeft, 2);
     c = r1.next;
-    final r2 = c.attempt(s, typed: wrong, nowMs: issued);
+    final r2 = c.attempt(s, typed: wrong, nowMs: _issued);
     expect((r2.result as CodeWrong).attemptsLeft, 1);
     c = r2.next;
-    final r3 = c.attempt(s, typed: wrong, nowMs: issued);
+    final r3 = c.attempt(s, typed: wrong, nowMs: _issued);
     expect(r3.result, isA<CodeExhausted>());
     c = r3.next;
     expect(c.dead, isTrue);
     expect(c.attemptsLeft, 0);
 
-    // The right code on the dead nonce fails — Regenerate is the only way on.
-    final r4 = c.attempt(s, typed: code, nowMs: issued);
+    // The right code on the dead session fails — Regenerate is the only way on.
+    final r4 = c.attempt(s, typed: code, nowMs: _issued);
     expect(r4.result, isA<CodeExhausted>());
     expect(identical(r4.next, c), isTrue);
 
-    // A fresh nonce (Regenerate) verifies the same person.
-    final nonce2 = s.randomBytes(16);
-    final code2 = verificationCode(
-      s,
-      Fingerprint.of(s, invitee.public),
-      nonce2,
-    );
-    expect(code2, isNot(code), reason: 'nonce scopes the code');
-    final fresh = CodeChallenge(
-      relayed: invitee.public,
-      nonce: nonce2,
-      issuedAtMs: issued,
-    );
+    // Regenerate: a new session is a new r_S, a new commitment, a new code.
+    final y = _sasSession(s, invitee);
+    expect(y.shower.commitment, isNot(x.shower.commitment));
+    expect(y.response.opening, isNot(x.response.opening));
+    expect(y.response.code, isNot(code), reason: 'the session scopes the code');
     expect(
-      fresh.attempt(s, typed: code2, nowMs: issued).result,
+      y.challenge.attempt(s, typed: y.response.code, nowMs: _issued).result,
       isA<CeremonyVerified>(),
     );
-  }, skip: 'superseded by ADR 2026-09-13d §1; re-lands at M11');
+    // …and the old code is useless on the new session.
+    expect(
+      y.challenge.attempt(s, typed: code, nowMs: _issued).result,
+      isA<CodeWrong>(),
+    );
+  });
 
-  test('B-04-10 nonce lifetime 10 minutes: expired at 10 min + 1 ms, not at 9 min 59 s (nor at exactly 10 min)', () async {
-    // 04 §6.3: "nonce lifetime 10 minutes; Regenerate issues a fresh nonce."
-    // 09 §2 clock-jump convention: fires at N + 1, not at N − 1.
+  test('B-04-10 session lifetime 10 minutes from the commitment\'s server timestamp: expired at 10 min + 1 ms, not at 9 min 59 s (nor at exactly 10 min); expiry spends no attempt', () async {
+    // 04 §6.3: "lifetime 10 minutes from the commitment's server timestamp;
+    // Regenerate opens a fresh session." 09 §2 clock-jump convention: fires
+    // at N + 1, not at N − 1. (Re-landed at M11: the clock runs from the
+    // commitment's server timestamp, not from a nonce's issue time.)
     final s = await testSuite(seed: 16);
     final invitee = UmkKeyPair.generate(s);
     addTearDown(invitee.dispose);
-    final nonce = s.randomBytes(16);
-    final code = verificationCode(s, Fingerprint.of(s, invitee.public), nonce);
-    const issued = 1_800_000_000_000;
+    final x = _sasSession(s, invitee);
+    final code = x.response.code;
+    final c = x.challenge;
     const tenMin = 10 * 60 * 1000;
     expect(codeNonceLifetimeMs, tenMin);
-    final c = CodeChallenge(
-      relayed: invitee.public,
-      nonce: nonce,
-      issuedAtMs: issued,
-    );
+    expect(c.issuedAtMs, _issued, reason: 'the commitment\'s server timestamp');
 
-    expect(c.isExpiredAt(issued + 9 * 60 * 1000 + 59 * 1000), isFalse);
+    expect(c.isExpiredAt(_issued + 9 * 60 * 1000 + 59 * 1000), isFalse);
     expect(
       c
-          .attempt(s, typed: code, nowMs: issued + 9 * 60 * 1000 + 59 * 1000)
+          .attempt(s, typed: code, nowMs: _issued + 9 * 60 * 1000 + 59 * 1000)
           .result,
       isA<CeremonyVerified>(),
     );
-    expect(c.isExpiredAt(issued + tenMin), isFalse);
-    expect(c.isExpiredAt(issued + tenMin + 1), isTrue);
-    final late = c.attempt(s, typed: code, nowMs: issued + tenMin + 1);
+    expect(c.isExpiredAt(_issued + tenMin), isFalse);
+    expect(c.isExpiredAt(_issued + tenMin + 1), isTrue);
+    final late = c.attempt(s, typed: code, nowMs: _issued + tenMin + 1);
     expect(late.result, isA<CodeExpired>());
     expect(
       late.next.attemptsLeft,
       3,
       reason: 'expiry does not consume attempts',
     );
-  }, skip: 'superseded by ADR 2026-09-13d §1; re-lands at M11');
+    expect(identical(late.next, c), isTrue);
+  });
 
   test('B-04-11 device linking: new device\'s QR (suite ‖ device_id ‖ ed ‖ x ‖ nonce) round-trips; matching relayed record → VerifiedDevicePublic; a flipped byte or other id → mismatch; UMK wrapped to the verified device round-trips and no other device opens it', () async {
     // 04 §9.1: "Old device runs Verify member against the new device's Show my

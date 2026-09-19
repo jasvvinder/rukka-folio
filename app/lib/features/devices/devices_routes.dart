@@ -3,8 +3,11 @@
 import 'package:go_router/go_router.dart';
 
 import '../../l10n/gen/app_localizations.dart';
+import '../../shared/router.dart';
 import '../../shared/widgets/placeholder_screen.dart';
+import '../ceremony/ceremony_paths.dart';
 import 'devices_paths.dart';
+import 'screens/s11_1_guardian_setup_screen.dart';
 import 'screens/s11_4_backup_screen.dart';
 import 'screens/s11_9_10_cancel_window_screen.dart';
 import 'screens/s11_devices_screen.dart';
@@ -12,6 +15,7 @@ import 'screens/s15_4_suspended_screen.dart';
 import 'screens/s19_5_modified_device_screen.dart';
 
 export 'devices_paths.dart';
+export 'screens/s11_1_guardian_setup_screen.dart';
 export 'devices_repository.dart'
     show DevicesRepository, DevicesRepositoryScope, FakeDevicesRepository;
 
@@ -27,6 +31,20 @@ final List<RouteBase> devicesRoutes = [
       GoRoute(
         path: 'backup',
         builder: (context, state) => const BackupScreen(),
+      ),
+      // Declared before ':row' so the literal wins the match: the S11 row
+      // pushes `/devices/guardians`, and only the rows still unbuilt fall
+      // through to the placeholder.
+      GoRoute(
+        path: 'guardians',
+        builder: (context, state) => GuardianSetupScreen(
+          onMeet: (c) =>
+              context.push(CeremonyPaths.verifyMemberFor(c.inviteId ?? '')),
+          onAddMember: () => context.push(RkPaths.members),
+          onDone: () {
+            if (context.canPop()) context.pop();
+          },
+        ),
       ),
       GoRoute(
         path: 'window/:id',

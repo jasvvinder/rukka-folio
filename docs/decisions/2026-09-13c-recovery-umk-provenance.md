@@ -129,7 +129,7 @@ the one moment the UMK itself is at stake.
 
 ## Rulings 🔒 (proposed) ⟦tests: n/a — container heading; each ruling below carries its own marker⟧
 
-### 1. `expected` is a `VerifiedUmkPublic`, produced by the recovery ceremony ⟦tests: B-04-82, B-04-83, B-04-84, F1-13c-1 @M11⟧
+### 1. `expected` is a `VerifiedUmkPublic`, produced by the recovery ceremony ⟦tests: B-04-82, B-04-83, B-04-84, F1-13c-1⟧
 - `GuardianShareSet.reconstructVerified` accepts only `VerifiedUmkPublic` for `expected`; the server's
   registered copy (`UmkPublic`) cannot be passed. This is the type-level half, **landed 13 Sep 2026**:
   stricter API, no production caller existed, no existing assertion weakened. ⟦tests: B-04-82⟧
@@ -138,7 +138,7 @@ the one moment the UMK itself is at stake.
   renders it as the 04 §6.1 `QrPayload` from its ceremony-verified copy. The fresh device compares the
   scanned keys and `user_id` byte-for-byte against the server-relayed registered key (04 §6.3 QR path).
   Equal → `VerifiedUmkPublic`, and only then may shares be reconstructed. Unequal → hard fail, log
-  `verification_mismatch`, no override, recovery attempt closed. ⟦tests: B-04-82, B-04-83, F1-13c-1 @M11⟧
+  `verification_mismatch`, no override, recovery attempt closed. ⟦tests: B-04-82, B-04-83, F1-13c-1⟧
 - A server that substitutes both the registered key and the sealed boxes never obtains a reconstruction:
   the ceremony fails before it; a server that relays the true key to pass the ceremony but substitutes the
   boxes fails at `GuardianShareMismatch`. ⟦tests: B-04-83⟧
@@ -147,23 +147,23 @@ the one moment the UMK itself is at stake.
 - Option (b) — guardian-signed shares — is not adopted: on a fresh device its chain roots in the key
   being recovered (§ 3), so the signature adds nothing the relay did not already assert. ⟦tests: B-04-84⟧
 
-### 2. QR path only, in person or over video; no code path at recovery ⟦tests: F1-13c-2 @M11⟧
+### 2. QR path only, in person or over video; no code path at recovery ⟦tests: F1-13c-2⟧
 - S11.2 offers *Scan your guardian's screen* and nothing else for this step; *Enter code instead* is
-  absent. 04 §6.4's remote mode (scan off a video call) applies. Reason: § 4, *Why QR only*. ⟦tests: F1-13c-2 @M11⟧
+  absent. 04 §6.4's remote mode (scan off a video call) applies. Reason: § 4, *Why QR only*. ⟦tests: F1-13c-2⟧
 
-### 3. The mirror direction: a guardian re-seals only to a ceremony-verified candidate ⟦tests: B-04-85 @M11, F1-13c-3 @M11⟧
+### 3. The mirror direction: a guardian re-seals only to a ceremony-verified candidate ⟦tests: B-04-85, F1-13c-3, E-06-45, E-06-49, E-06-54, B-04-93, F1-06-36, F1-06-37⟧
 - The same substitution run the other way is worse: a server that swaps the candidate public key in
   04 §7.3 step 2 has k guardians re-seal the **real** shares to a server key and reconstructs the real UMK.
   04 §7.3 step 2 already carries the defence — "new device fingerprint + *Call them before approving*" —
   as **advice**. It becomes a **check**: the fresh device shows its candidate key as the 04 §9.1
   `DeviceQrPayload`; the guardian's device scans it and compares against the relayed recovery request
   (`Ceremony.verifyDeviceQr`); the re-seal accepts only the verified type. Together with ruling 1 this is
-  one mutual ceremony on one call — the shape guardian setup already has (04 §6.4). ⟦tests: B-04-85 @M11, F1-13c-3 @M11⟧
+  one mutual ceremony on one call — the shape guardian setup already has (04 §6.4). ⟦tests: B-04-85, F1-13c-3, B-04-93⟧
 - `core_crypto` will expose no function that seals share bytes to a bare `UmkPublic` or X25519 key; the
   M11 re-seal function's recipient parameter is `VerifiedDevicePublic` (or a verified candidate type built
   the same way, by `ceremony.dart` alone). Not landed now: no caller exists and nothing today can be
   misused for it (`sealToVerified` takes a UMK-shaped verified type; `wrapUmkToDevice` seals a
-  `UmkKeyPair`, which a guardian does not hold). ⟦tests: B-04-85 @M11⟧
+  `UmkKeyPair`, which a guardian does not hold). ⟦tests: B-04-85⟧
 
 ## Consequences
 - **Code (landed, `packages/core_crypto`):** `shamir.dart` — `reconstructVerified(…, {required
@@ -184,7 +184,7 @@ the one moment the UMK itself is at stake.
     server's registered copy and never taken from it** (ADR 2026-09-13c §1)"; marker gains
     `B-04-82, B-04-83`.
   - 04 §7.3 step 2: "prominent advice: *Call them before approving*" → the mutual check of ruling 3;
-    marker gains `B-04-85 @M11`.
+    marker gains `B-04-85`.
   - 04 §7.3 **Recovery** list: a new step between 2 and 3 — the recovery ceremony (ruling 1) — and the
     QR-only sentence (ruling 2).
   - 04 §6 first paragraph: "One component, four uses" → five (recovery: the fresh device verifies its own
@@ -203,17 +203,17 @@ the one moment the UMK itself is at stake.
 | B-04-82 (landed) | 1 | signature scan: only `VerifiedUmkPublic expected`; guardian shows the user's verified key as `QrPayload`, fresh device verifies against the honest relay, k re-sealed shares reconstruct |
 | B-04-83 (landed) | 1 | server substitutes registered key + boxes → `CeremonyMismatch`, nothing to reconstruct against; true key + forged boxes → `GuardianShareMismatch`, caller's shares intact; mixed sets fail; the collusion bound (scanned device shows UMK′) is documented as the residual |
 | B-04-84 (landed) | 3 (reasoning) | empty `TrustStore` → every guardian-signed record `certMissing`/`authorUnverified`; relay-seeded store → a server-fabricated guardian chain verifies end to end; human-verified guardian root → real record verifies, forged one `certInvalid` |
-| B-04-85 @M11 | 3 | the share re-seal function's recipient parameter is a `Verified*` type; no seal of share bytes to `UmkPublic`/raw X25519 exists in `lib/` |
-| F1-13c-1 @M11 | 1 | S11.2: *Ask your guardians* cannot reach the reconstruction state without a `CeremonyVerified`; a `CeremonyMismatch` renders the hard-fail screen and closes the attempt |
-| F1-13c-2 @M11 | 2 | S11.2 recovery ceremony offers scan only — no *Enter code instead* control exists in the tree |
-| F1-13c-3 @M11 | 3 | S11.7: *Approve* is disabled until the guardian has scanned the requester's `DeviceQrPayload` and it matched the relayed request |
+| B-04-85 | 3 | the share re-seal function's recipient parameter is a `Verified*` type; no seal of share bytes to `UmkPublic`/raw X25519 exists in `lib/` |
+| F1-13c-1 | 1 | S11.2: *Ask your guardians* cannot reach the reconstruction state without a `CeremonyVerified`; a `CeremonyMismatch` renders the hard-fail screen and closes the attempt |
+| F1-13c-2 | 2 | S11.2 recovery ceremony offers scan only — no *Enter code instead* control exists in the tree |
+| F1-13c-3 | 3 | S11.7: *Approve* is disabled until the guardian has scanned the requester's `DeviceQrPayload` and it matched the relayed request |
 
 ## Ratification checklist — five answers for the owner 🔒 ⟦tests: n/a — heading; each answer below carries its own marker⟧
 1. **Ruling 1** — `expected` is a `VerifiedUmkPublic` from a recovery ceremony against a member's screen;
    the type half is already landed: **yes / no.** ⟦tests: B-04-82, B-04-83⟧
-2. **Ruling 2** — QR path only at recovery, video call permitted, no code path: **yes / no.** ⟦tests: F1-13c-2 @M11⟧
+2. **Ruling 2** — QR path only at recovery, video call permitted, no code path: **yes / no.** ⟦tests: F1-13c-2⟧
 3. **Ruling 3** — the guardian's re-seal goes only to a ceremony-verified candidate (advice → check):
-   **yes / no.** ⟦tests: B-04-85 @M11, F1-13c-3 @M11⟧
+   **yes / no.** ⟦tests: B-04-85, F1-13c-3⟧
 4. **One scan or two** — recommended **one** (matches every other ceremony; residual = server + the
    scanned device). Two tightens to server + two devices at the cost of a second call. ⟦tests: B-04-83⟧
 5. **§ Open 1** (the code path against a nonce-choosing server) — a separate ADR on 04 §6.3, or fold into

@@ -315,6 +315,70 @@ final class DeviceKeyPair {
   String toString() => 'DeviceKeyPair($deviceId)';
 }
 
+/// The *candidate* X25519 pair a fresh device generates at recovery rung 2
+/// (04 §7.3 step 1: "fresh device keys + a *candidate* X25519 pair"). Its
+/// public half travels to the server as `candidate_pub_x` and to the
+/// guardian's camera inside a `DeviceQrPayload` (ADR 2026-09-13c §3); the
+/// guardians' re-sealed shares come back sealed to it and are opened here.
+/// Lives only on the fresh device for the life of one attempt; [dispose] when
+/// the UMK is reconstructed or the attempt closes.
+final class RecoveryCandidateKeyPair {
+  RecoveryCandidateKeyPair._(this.x25519, this._pair);
+
+  /// Generates a fresh candidate pair from the suite's random source.
+  factory RecoveryCandidateKeyPair.generate(CryptoSuite suite) {
+    final s = suite.sodium;
+    final seed = suite.randomSecureKey(s.crypto.box.seedBytes);
+    try {
+      final pair = s.crypto.box.seedKeyPair(seed);
+      return RecoveryCandidateKeyPair._(
+        Uint8List.fromList(pair.publicKey),
+        pair,
+      );
+    } finally {
+      seed.dispose();
+    }
+  }
+
+  /// The candidate X25519 public key — `candidate_pub_x`.
+  final Uint8List x25519;
+
+  final KeyPair _pair;
+  bool _disposed = false;
+
+  /// True once [dispose] ran; the secret accessor then throws [StateError].
+  bool get isDisposed => _disposed;
+
+  /// X25519 secret key (opens the re-sealed shares).
+  SecureKey get x25519Secret {
+    if (_disposed) {
+      throw StateError('RecoveryCandidateKeyPair used after dispose()');
+    }
+    return _pair.secretKey;
+  }
+
+  /// What the fresh device's *Show my code* renders for a guardian to scan
+  /// (ADR 2026-09-13c §3): the 04 §9.1 payload with **this candidate key in
+  /// the X25519 slot**, beside the device's own id and Ed25519 key from
+  /// [device]. The guardian compares the id and the X25519 half against the
+  /// relayed request; the Ed25519 half rides along uncompared.
+  DevicePublic asCandidateOf(DevicePublic device) => DevicePublic(
+    deviceId: device.deviceId,
+    ed25519: device.ed25519,
+    x25519: x25519,
+  );
+
+  /// Zeroises and frees the secret. Idempotent.
+  void dispose() {
+    if (_disposed) return;
+    _disposed = true;
+    _pair.dispose();
+  }
+
+  @override
+  String toString() => 'RecoveryCandidateKeyPair(secret)';
+}
+
 /// Identity of a book key: `(book_id, key_version)` (04 §3.2).
 @immutable
 final class BookKeyRef {

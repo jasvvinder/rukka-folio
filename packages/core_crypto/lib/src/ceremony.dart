@@ -118,9 +118,14 @@ final class QrPayload {
   String encode() => Bytes.base64Url(toBytes());
 }
 
-/// The 8-digit code printed beneath the QR (04 §6.1):
-/// `decimal( first4bytes( BLAKE2b-256( FP ‖ nonce ‖ "verify-v1" ) ) ) mod 10⁸`,
-/// zero-padded to 8 digits. The first four bytes are read big-endian.
+/// **Retired derivation** (ADR 2026-09-13d §1 🔒, ratified 13 Sep 2026; the
+/// app switched at U4c): `decimal( first4bytes( BLAKE2b-256( FP ‖ nonce ‖
+/// "verify-v1" ) ) ) mod 10⁸`, zero-padded, first four bytes big-endian. A
+/// relay that holds the registered key and issues the nonces pre-computes it
+/// (B-04-87), so **no production path derives a code from it** — 04 §6.1 now
+/// says the invite nonce "no longer derives any code". Kept only so B-04-87
+/// can demonstrate the break against the real function; the live code is
+/// [sasCode]. Do not call this from `app/`.
 String verificationCode(CryptoSuite suite, Fingerprint fp, Uint8List nonce) {
   final n = _checkedNonce(nonce);
   final h = suite.blake2b256(Bytes.concat([fp.bytes, n, _verifyV1]));
@@ -172,9 +177,11 @@ final class CodeExhausted extends CeremonyResult {
   const CodeExhausted();
 }
 
-/// State of a code-path verification for one nonce (04 §6.3). Immutable: each
-/// [attempt] returns the successor state beside its result, so the UI keeps
-/// the latest challenge and nothing here touches a clock.
+/// **Retired** with [verificationCode] (ADR 2026-09-13d §1): the code-path
+/// state over a server-issued nonce. The live verifier-side state is
+/// [SasChallenge], reached through [SasVerifier]; this class stays only as
+/// B-04-87's target. Immutable: each [attempt] returns the successor state
+/// beside its result; nothing here touches a clock.
 @immutable
 final class CodeChallenge {
   /// Opens a challenge for the server-relayed keys and the invite nonce
@@ -364,9 +371,109 @@ final class DeviceMismatch extends DeviceCeremonyResult {
   const DeviceMismatch();
 }
 
-/// The QR-path checks (04 §6.3) for members and for devices.
+/// A recovery **candidate** — the X25519 key a fresh phone asked its guardians
+/// to re-seal their shares to (04 §7.3 step 1) — **confirmed by ceremony on
+/// the guardian's device** (ADR 2026-09-13c §3 🔒). The only type a guardian
+/// share may be re-sealed to. Constructed solely by
+/// [Ceremony.verifyRecoveryCandidateQr]; there is no other constructor, so a
+/// server-relayed `candidate_pub_x` or a bare X25519 key is a compile error at
+/// the re-seal, not a runtime check (CLAUDE.md rule 5, 04 §8.2).
+///
+/// Why not [VerifiedDevicePublic]: the recovery request relays the candidate
+/// as `candidate_device` + `candidate_pub_x` (migration 0010; `GET
+/// /sync-meta/recovery/asks`) and nothing else — the guardian holds no relayed
+/// Ed25519 half to compare the payload's against, so a [DevicePublic] for
+/// [Ceremony.verifyDeviceQr] could only be fabricated from the scan itself.
+/// This type carries exactly what was compared: the device id and the 32
+/// X25519 bytes. The fresh device's Ed25519 key is bound later, by the
+/// certificate it self-issues under the recovered UMK (04 §7.3 step 6), and
+/// verified by the members then — never by the guardian.
+@immutable
+final class VerifiedRecoveryCandidate {
+  const VerifiedRecoveryCandidate._(this.deviceId, this.x25519, this.method);
+
+  /// The candidate device's id, as scanned and as the request named it.
+  final String deviceId;
+
+  /// The candidate X25519 public key — the 32 bytes the guardian's screen
+  /// compared and the re-seal goes to (`sealed_to_pub_x` on the wire).
+  final Uint8List x25519;
+
+  /// How it was verified — always [VerificationMethod.qrInPerson]: ruling 2
+  /// of ADR 2026-09-13c admits no code path at recovery.
+  final VerificationMethod method;
+}
+
+/// Outcome of the guardian's candidate ceremony (ADR 2026-09-13c §3).
+sealed class RecoveryCandidateResult {
+  const RecoveryCandidateResult();
+}
+
+/// The scanned candidate matches the relayed request: *Approve* may proceed.
+final class RecoveryCandidateVerified extends RecoveryCandidateResult {
+  /// Wraps the verified candidate.
+  const RecoveryCandidateVerified(this.verified);
+
+  /// The candidate a share may now be re-sealed to.
+  final VerifiedRecoveryCandidate verified;
+}
+
+/// The scanned candidate key or device id differs from the relayed request —
+/// the phone in front of the guardian is not the one the request names, or
+/// the relay substituted the key (ADR 2026-09-13c §3: "a server that swaps
+/// the candidate public key … has k guardians re-seal the real shares to a
+/// server key"). Hard fail as 04 §6.3: *"Do not proceed. Contact support."*,
+/// log `verification_mismatch`, no override, *Approve* stays disabled.
+final class RecoveryCandidateMismatch extends RecoveryCandidateResult {
+  /// Creates the mismatch outcome.
+  const RecoveryCandidateMismatch();
+}
+
+/// The QR-path checks (04 §6.3) for members, for devices and for recovery
+/// candidates.
 final class Ceremony {
   Ceremony._();
+
+  /// The guardian's half of the recovery ceremony (ADR 2026-09-13c §3 🔒,
+  /// 04 §7.3 step 2 — *"Call them before approving"* made a check): the
+  /// fresh device shows its candidate key as a [DeviceQrPayload]; the
+  /// guardian's device scans it and compares the payload's device id and
+  /// X25519 half **byte-for-byte** (constant time) against the request the
+  /// server relayed — [relayedDeviceId] (`candidate_device`) and
+  /// [relayedCandidateX25519] (`candidate_pub_x`). Equal →
+  /// [RecoveryCandidateVerified]; otherwise [RecoveryCandidateMismatch].
+  ///
+  /// The payload's Ed25519 half has no relayed counterpart in a recovery
+  /// request and is neither compared nor carried into the result (see
+  /// [VerifiedRecoveryCandidate]). QR only — the remote mode is a scan off a
+  /// video call (04 §6.4); no code path exists here (ADR 2026-09-13c §2).
+  static RecoveryCandidateResult verifyRecoveryCandidateQr(
+    CryptoSuite suite, {
+    required DeviceQrPayload scanned,
+    required String relayedDeviceId,
+    required Uint8List relayedCandidateX25519,
+  }) {
+    if (relayedCandidateX25519.length != 32) {
+      throw ArgumentError.value(
+        relayedCandidateX25519.length,
+        'relayedCandidateX25519',
+        'candidate X25519 public key is 32 bytes',
+      );
+    }
+    final keyMatch = suite.constantTimeEquals(
+      scanned.device.x25519,
+      relayedCandidateX25519,
+    );
+    final idMatch = scanned.device.deviceId == relayedDeviceId;
+    if (!keyMatch || !idMatch) return const RecoveryCandidateMismatch();
+    return RecoveryCandidateVerified(
+      VerifiedRecoveryCandidate._(
+        relayedDeviceId,
+        Uint8List.fromList(relayedCandidateX25519),
+        VerificationMethod.qrInPerson,
+      ),
+    );
+  }
 
   /// Compares the [scanned] payload against the [relayed] keys and
   /// [relayedUserId] the server supplied for that user. Every public key byte
@@ -437,10 +544,12 @@ final class Ceremony {
 // guess in 10⁸ per attempt (B-04-88) — which is what "3 attempts per nonce"
 // was always sized for.
 //
-// Landed alongside `verificationCode` / `CodeChallenge`, which S9.2 / S9.3
-// keep using until the ADR is ratified and the server relays the three values
-// (commitment → r_V → opening; S2). No production caller yet. Purity as above:
-// randomness from the injected suite, the clock from `nowMs`, no I/O.
+// Ratified 13 Sep 2026; S9.2 / S9.3 run on this path since U4c
+// (`app/lib/features/ceremony/ceremony_repository.dart`), and the server
+// relays the three values (commitment → r_V → opening; `ceremony_sessions`,
+// 0007). `verificationCode` / `CodeChallenge` above are retired and remain
+// only as B-04-87's target. Purity as above: randomness from the injected
+// suite, the clock from `nowMs`, no I/O.
 // ---------------------------------------------------------------------------
 
 /// Bytes in each side's random contribution (`r_S`, `r_V`): 128-bit.

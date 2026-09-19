@@ -112,7 +112,7 @@ Follows the scenario table in 06 §5 verbatim. Key screens: **Link with old phon
 
 ---
 
-## 5. Add Entry — the 8-second flow 🔒 ⟦tests: F1-07-17, F1-07-55, F1-07-58, F1-07-59, F1-07-118, F1-07-119, F1-07-120, F1-07-121⟧
+## 5. Add Entry — the 8-second flow 🔒 ⟦tests: F1-07-17, F1-07-54, F1-07-55, F1-07-58, F1-07-59, F1-07-118, F1-07-119, F1-07-120, F1-07-121⟧
 
 **Screen order: amount first.** Full-screen numeric keypad with the amount huge at top; verb shown as a colored header chip (switchable by swipe or tap without losing the amount). **The pill has five positions 🔒 (owner-ruled 3 Sep 2026, ADR 2026-09-03b): Money in · Money out · Gave on credit · Took on credit · Move money** — the transfer (S2.3) is the fifth swipe, not a separate door.
 
@@ -275,7 +275,7 @@ Report screens are tables with a one-line takeaway header (*"August: In ₹1,21,
 
 ---
 
-## 15. Devices & security screens 🔒 ⟦tests: F1-06-8, F1-06-9, F1-06-12⟧
+## 15. Devices & security screens 🔒 ⟦tests: F1-06-8, F1-06-9, F1-06-12, F1-06-21, F1-06-22, F1-06a-1, F1-06-24, F1-06-25, F1-06-26, F1-06-27, F1-06-28, F1-06-29⟧
 Menu → Devices & security: **Backup** section first (04 §7.6 — platform key sync toggle on by default, save-recovery-sheet share action, optional monthly readable copy; each row states its own risk in one muted line, amber where the artefact is readable or restorable by anyone holding it) · linked devices list (06 §6) with revoke + **"This phone was stolen"** path (04 §9.2 consequences spelled out before confirm); guardians; recovery sheet (view status, re-verify, regenerate = old sheet invalid warning); escrow; **Auto-lock** showing both values — background (2 min) and idle (5 min) — (ADR 2026-09-05 §7); **Personal Book lock** toggle (re-prompts the same MPIN/biometric, 06 §4.4); security events log; a permanent **phone integrity** row when a modified device was detected (S19.5, ADR 2026-09-05 §6); **S11.9 Recovery in progress — Cancel** and **S11.10 Support action pending — Cancel** cards while a 24 h window is open (ADR 2026-09-05d §1, §3); every newly certified device of yours is listed with its added-on date (ADR 2026-09-05f §B). The Backup section states that a phone backup does not carry the books (ADR 2026-09-05f §G).
 
 ## 16. Settings 🔒 ⟦tests: F1-07-29, F1-07-70⟧

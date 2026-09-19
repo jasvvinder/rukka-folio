@@ -12,6 +12,182 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-19 — M11: the ladder is complete, and honestly inert (rounds 2–4)
+
+Orchestrator session, opened on `/gate`. Round 1's three lanes were already `complete` on disk, so the session
+gated them and then kept filling (ADR 2026-09-12b §6): **three more rounds, three more green gates**, four lanes.
+`wf_65a861e4-336` (RV4, `lane-ui-hard`, 267k) · `wf_573ac52d-ad2` (RV6 `lane-core` + RV5 `lane-sync` + PK1
+`lane-ui-hard`, 586k, 25 min). The `lane-core` run was put to the owner first and authorised, per ADR 2026-09-13e.
+
+Two things were checked rather than assumed at the start, and both changed what got commissioned. The round-1
+integration list (paths, mount, doc markers) was **already applied** — re-doing it would have been the session's
+first wasted lane. And the push gate's green hid a gap: `RF_TEST_DB_URL` was unset, so `E-06-50…56` — the seven
+hostile-query tests on the new recovery write side, the security half — had **skipped**, not passed. Rebuilt the
+database and ran them: **92 passed / 0 failed**, all 14 of RV1's ids green.
+
+### Added
+
+- **S11.2, S11.3, S11.7 (`RV4`, `F1-07-290…311`, `F1-13c-1…3`, `C-06-39…41`).** The ladder's last three screens,
+  tests-first on the seam's fakes. Two staleness bugs its own tests caught: S11.3 resets its step when a new seam is
+  installed, and S11.7 resets the caution tick **and** the scan on every load — an acknowledgement made for one ask
+  must never authorise another (ADR 2026-09-13c ruling 3). That is enforced in the seam *contract*, not the widget:
+  `approve` throws `RecoveryCandidateUnverified` without a prior verified scan for that request id.
+- **`B-04-85` — the guardian's re-seal (`RV6`, `lane-core`).** Recipient is a new `VerifiedRecoveryCandidate` whose
+  constructor is private to `ceremony.dart`. It was chosen over `VerifiedDevicePublic` for a checkable reason: the
+  relayed ask carries no Ed25519 half, so a guardian *cannot honestly build* the latter. `B-04-80` extended from two
+  `crypto.box.seal(` sites to three — every seal site still sits behind a `Verified*` parameter (rule 5 by type, not
+  by assertion).
+- **The live producer (`RV5`, `lane-sync`, `F1-06-30…44`).** `recovery_api.dart` + `recovery_seams.dart` over
+  migration `0010`, the three scopes installed in `bootstrap.dart`, and the three path literals hoisted to `RkPaths`.
+  `recovery_ladder.dart` was **not** touched, so RV4's 53 tests still run against the fakes they were written for.
+
+### Changed
+
+- **`core_crypto` is 94 passed / 0 skipped**, from 88/4. All four `ceremony_test.dart` skips marked *re-lands at M11*
+  were **re-landed, none retired**, each with its reason against the live 04 §6 lines. Retiring any of them would also
+  have left its id dangling in 04 §6's heading marker — a `check_coverage` failure only a same-commit docs edit cures.
+- **Doc markers applied** (orchestrator; lanes report, they do not edit `docs/`): `B-04-85` dropped its `@M11` across
+  ADR 2026-09-13c now that it has landed, `F1-13c-1/2/3` likewise, and `F1-06-30…44` were split across the 🔒 lines
+  they actually assert — 05d ruling 1, ADR 2026-09-06 ruling 2, ADR 2026-09-13c ruling 3, 04 §7.3 and §7.4 — rather
+  than dumped on one heading. `F1-06-43/44` are wiring and went nowhere.
+
+### Decided
+
+- **ADR 2026-09-19 — scanner and dialer** (`PK1`, Proposed, nothing added to the build). `mobile_scanner` 7.4.2
+  (BSD-3) resolves under the `archive >=4.0.9 <4.1.0` pin adding exactly one package, zero transitive; on iOS it links
+  Apple's own Vision/AVFoundation, verified by `otool -L`, with no URLSession in the Swift. `url_launcher` 6.3.2 for
+  `tel:` only — and one thing read rather than assumed changed the ruling: `launchUrl` calls `UIApplication.open`
+  directly with no `canOpenURL` gate, so the app needs **no** `LSApplicationQueriesSchemes` and **no** `<queries>`
+  block. The ADR rules that explicitly so nobody later "fixes" it by adding the config back. Rejections carry
+  evidence, including `qr_code_scanner` 1.0.1, which resolves and analyzes clean and then dies at `flutter build apk`
+  under AGP 8 — ADR 2026-09-12e's silent-resolution trap in a different package.
+- The scanner question was commissioned as an **evaluation lane that adds nothing**, on the owner's instruction and
+  the 12e precedent: rule first, wire after ratification.
+
+### Open
+
+- ⛔ **Ratify ADR 2026-09-19.** Until then the ladder is inert: ruling 3 🔒 makes the scan a *condition* of approving
+  and ruling 2 🔒 forbids a typed fallback, so **S11.7 cannot approve at all** and S11.2 cannot be walked. Only
+  S11.3's typed path works. This is held as posture, never a bypass — `approve` refuses, `decline` still works.
+  Checklist 2 is the judgement call: ML Kit's closed-source AAR on Android, or +13 packages for `qr_code_dart_scan`.
+- ⛔ **🔒 — the candidate X25519 pair.** 04 §7.3 step 1 says *fresh device keys **+** a candidate X25519 pair*;
+  nothing mints or persists the second. Reusing the device's own `pub_x` is the convenient reading and was refused by
+  RV5 and RV6 independently, from the wire and from the crypto.
+- ⚠️ **S11.2 reads 0 approvals.** `progressToWire` sends `approvals`/`denials` as bare integers and names nobody,
+  while `0010`'s append-only rows exist precisely so the screen can say *which* member acted. The adapter attributes
+  nothing when unattributed rather than ticking "the first N" — that would mark a person who did not act. One
+  non-breaking field fixes it; the client already parses it.
+- ⚠️ **Rung 3 has no server surface.** 04 §7.4's `sealed_RK_blob` is uploaded by no migration and fetched by no
+  route. `HttpRecoverySheet` refuses with `RecoveryFailure`, never `RecoverySheetRejected` — telling someone their
+  correctly-copied sheet is wrong would be a falsehood.
+- ⚠️ **Design gaps:** R2.2 draws no *refusal* row, so RV4 built a fourth state (*Said no*) and marked it; no canvas
+  draws S11.2's scan step or S11.7's show/scan pair; no photo pipeline, so avatars are initials; S11.7's
+  `newDeviceName` is unproducible (a guardian cannot read the subject's `devices` rows) and is passed empty.
+- ⚠️ **03 §2.2** has no `denied` state, so three refusals and a 72 h expiry are the same value. S11.2's closed copy
+  claims neither, pinned by `F1-07-294`.
+- **`RV6`'s own tier verdict, worth keeping:** *partly warranted* — the two decisions were `lane-core` work, the
+  implementation and the four re-lands were not. Next time the escalation writes the decision and the static
+  assertions only.
+
+### Commits
+
+- _(hash to be filled next session)_
+
+---
+
+## 2026-09-19 — M11: the recovery ladder opens — guardian setup, the fork, and the server's write side (round 1)
+
+Orchestrator session. `/lane` was invoked with no keys and every lane report on disk was `complete`, so the
+round was chosen from `PLAN.md` §0 and put to the owner: **M11 recovery**, the "U7 recovery screens"
+remainder the Phase B row names. One round (`wf_c9bcd401-565`, `lane-server` + two `lane-ui-hard`, ~721k
+tokens, 23 min): **`ok: true`, 3/3 complete**, 50 new test ids, nothing incomplete. Verified before
+commissioning: the **read** side of the guardian ladder already existed (`0002` tables, `0005` grants,
+`sync-meta/index.ts:92` returning guardian-set history) and only the write side was missing — so the lane was
+scoped to that rather than to the whole feature. Fable untouched (1,185,412 tokens over 5 runs this week).
+**Not gated** — `/gate` is the next step and a separate run.
+
+### Added
+
+- **The write side of the guardian ladder (`RV1`, `lane-server`, E-06-43…56).** Migration `0010` plus
+  `POST /recovery/guardians`, `POST /recovery`, `POST /recovery/approve|deny|cancel`,
+  `GET /recovery[?request_id=]` and `GET /recovery/asks` on `sync-meta`. No route returns a share blob — the
+  sealed share travels only on the `wrapped_keys` meta pull, addressed to the candidate device. **92 passed /
+  0 failed** under `RLS_REQUIRE=1`, including a new hostile-query suite (`tests/rls/recovery.test.ts`).
+- **S11.1 Guardian setup (`RV2`, `lane-ui-hard`, F1-06-21/22/24…29, F1-06a-1, C-06-37/38).** Live behind the
+  S11 *Trusted members* row, which had been a placeholder. The threshold reaches the screen only as a
+  sentence — "Any 2 of the 3 you choose can help you get back in" — never a formula. 2-of-2 sits behind an
+  inline typed confirmation that is deliberately not a dialog: `F1-06a-1` (the id ADR 2026-09-06 reserved)
+  taps every other control and asserts Save never enables, and that no `AlertDialog`/`Dismissible`/close
+  affordance exists. `features/ceremony` consumed read-only.
+- **The activation ladder (`RV3`, `lane-ui-hard`, F1-07-265…289) — a new `features/recovery`.** S11.6 the fork
+  (R2.1), S11.5 silent restore (R2.0) and S11.8 nothing worked yet (R2.5 🔒, built around the word *yet*).
+  S11.2 and S11.3 are not built: their rungs render disabled-with-reason, never hidden, so the fork has no
+  dead end (07 §1 rule 6).
+- **Two new seams**, `shared/seams/guardians.dart` and `shared/seams/recovery_ladder.dart`, each an interface
+  plus a Fake. No key material crosses either — the richest thing on the ladder seam is an int and an enum.
+
+### Changed
+
+- **Integration (orchestrator).** `RkPaths` gained `devicesGuardians`, `recovery`, `recoveryFork` and
+  `recoveryNothingYet`; both features' path files are aliases again; `recoveryRoutes` is mounted in
+  `bootstrap.dart` and its `onRestored` now takes the builder's `BuildContext`, the way every other feature
+  navigates. ARB merged (24 features, 1628 keys × 3). `flutter analyze` clean; recovery + devices + shared
+  **339 green**.
+- **17 traceability markers applied** across 04 §7.3, 03 §2.2/§2.5, 05 §5, 06 §5, 07 §5/§15, 13 §5 F11, ADRs
+  05d/06/13c and `DESIGN-PACK` R2.0/R2.1/R2.5 — orphans **49 → 0**. Markers only: no 🔒 wording changed
+  anywhere this session, so no ADR is owed. `F1-06a-1` dropped its `@M11` now that it has landed.
+- **A double-booked test id, fixed at the root.** `F1-07-54` was S2.1's in-place picker *and* the marker on
+  `DESIGN-PACK.md:349/354/357`. Re-pointing those three left S2.1 with no marker at all — the wrong markers
+  had been masking a genuinely unmarked 🔒 behaviour. It now sits at 07 §5, which its own test cites.
+
+### Decided
+
+- **Recovery approvals are counted from append-only rows, not accumulated in a column** (`RV1`, within the
+  existing rulings — no 🔒 change, so no ADR). `rf_api` was given no `UPDATE` grant anywhere; new
+  `recovery_approvals` and `recovery_cancellations` tables carry one row per decision and the live state is
+  derived. Reasons recorded by the lane: a counter cannot name *which* guardians approved (needed by "2 of 3
+  approved" and to tell a denial from silence); an `UPDATE` grant on `recovery_requests` is also an `UPDATE`
+  grant on `state`, which is the whole of ADR 2026-09-05d §1; and one row per guardian makes a decision
+  idempotent by primary key.
+
+### Open
+
+- ⚠️ **The gate does not run the server suites.** `scripts/ci.sh` still lists them as *scheduled — M4*, so
+  `RV1`'s 92 green tests — including the new RLS suite — pass only when run by hand. A gate blind spot that
+  predates M11 and now hides more.
+- ⚠️ **Precedence question on `k`.** `RV1` enforced `k = ⌈(n+1)/2⌉` as a database CHECK, reading 04 §7.3 as the
+  owner of recovery. ADR 2026-09-06 §2 says that formula holds *"by default"*, and ADRs outrank numbered
+  specs — under which reading `k` may be the client's and a CHECK is too strict. Client and server agree
+  either way; the owner rules whether a non-default `k` is ever legal.
+- ⚠️ **03 §2.2's recovery state enum has no `denied`**, so 04 §7.3 step 7's "3 denials → closed" surfaces as
+  `expired`. Adding the state is a 🔒 change — reported by the lane, not made.
+- ⚠️ **The typed-confirmation phrase is the lane's copy** (EN "I need both", localised per language rather
+  than Latin text a Gurmukhi/Devanagari keyboard makes hard to type). ADR 2026-09-06 checklist 4 🔒 names no
+  words. Owner and native review wanted.
+- ⚠️ **S11.6 gained a "None of these work for me" action** shown only when all three rungs are blocked —
+  DESIGN-PACK R2.1 draws no such control, but a fork with every rung blocked is a dead end (07 §1 rule 6 🔒)
+  and 13 §5 F11 already routes `none → S11.8`. Conservative reading; owner keeps it or has the pack draw it.
+- ⚠️ **S11.8 says "the Apple or Google account"** where the pack's 🔒 line says "the Apple account" — 04 §7.0 🔒
+  names iCloud Keychain **and** Android Block Store. Pack wording unchanged; the ARB reverts if the owner
+  wants Apple-only on Android. Its 🔒 heading also carries a typographic apostrophe where the pack has a
+  straight one; words verbatim, one glyph differs.
+- ⚠️ **A `BEFORE` trigger runs as the calling role**, so the request guard's lookups were subject to the
+  uncertified candidate device's own RLS and silently saw nothing — it passed a half-published guardian set.
+  Fixed with four `SECURITY DEFINER` helpers, each returning only a boolean or a count. Worth the owner's eye
+  as a pattern, not just a fix.
+- ⬜ **No live producer yet** — `FakeRecoveryLadder` and the guardians Fake are the only implementations; no
+  app code names a recovery route. The adapter over `RV1`'s routes is round 2's, with S11.2, S11.7 and S11.3.
+  S11.2 still wants the "2 of 3 approved" state ADR 2026-09-06 left Open.
+- ⬜ `rf.sweep_recovery()` is written and granted but not yet called from a scheduled sweep
+  (`rf.purge_ephemeral_auth` in `0004` is the precedent).
+- ⬜ PA/HI on every new key is a machine draft, marked as such — native review at M12.
+
+### Commits
+
+- _(to be filled after the owner commits)_
+
+---
+
 ## 2026-09-18 — M9/M10: close, approvals and the review flag go live, the tray for real, strict viewport, import opens (rounds 4–7)
 
 Orchestrator session, continuing the 17 Sep phase. The overnight round (`wf_769488ce-4aa`, 03:04, three

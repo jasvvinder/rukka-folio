@@ -14,11 +14,15 @@ import {
   DeviceIdTakenError,
   type EnvelopeRow,
   type GuardianSet,
+  type GuardianSetDraft,
   type InviteOffer,
   META_TABLES,
   type MetaCursor,
   type MetaTable,
   type OtpChallenge,
+  type RecoveryAsk,
+  type RecoveryProgress,
+  type RecoveryRequest,
   type RefreshToken,
   type SignedRecordRow,
   type Store,
@@ -347,6 +351,83 @@ class PgTx implements Tx {
       return r.status as string;
     });
   }
+  // ---- 04 §7.3 the guardian recovery ladder (0010). Every rule — n, k, the version order, who may
+  // open, who may decide, the 72 h window, the 24 h wait, append-only — lives in the migration's
+  // guards and SECURITY DEFINER functions. This block is the call, not the rule.
+  publishGuardianSet(d: GuardianSetDraft): Promise<number> {
+    return this.guarded(async () => {
+      await this.sql`insert into guardian_sets (subject_user_id, share_set_version, n, k)
+        values (rf.user_id(), ${d.share_set_version}, ${d.n}, ${d.k})`;
+      for (const g of d.guardians) {
+        // The id is minted here, not by RETURNING: a share is addressed to the GUARDIAN, so the
+        // subject who uploads it cannot read it back (0005 wrapped_keys select), and an
+        // INSERT … RETURNING has to satisfy the select policy too.
+        const wk = crypto.randomUUID();
+        await this.sql`insert into wrapped_keys (id, kind, user_id, share_set_version, blob)
+          values (${wk}, 'guardian_share', ${g.guardian_user_id}, ${d.share_set_version}, ${g.blob})`;
+        await this.sql`insert into guardian_set_members
+            (subject_user_id, share_set_version, guardian_user_id, umk_pub_ed, wrapped_key_id)
+          values (rf.user_id(), ${d.share_set_version}, ${g.guardian_user_id}, ${g.umk_pub_ed}, ${wk})`;
+      }
+      return d.share_set_version;
+    });
+  }
+  openRecovery(candidatePubX: Uint8Array): Promise<RecoveryRequest> {
+    return this.guarded(async () => {
+      // `expires_at` is NOT NULL on the table and is overwritten by the guard with the server's own
+      // 72 h (04 §7.3 step 7); what is sent here is a placeholder the database discards.
+      const [r] = await this.sql`insert into recovery_requests
+          (user_id, candidate_device, candidate_pub_x, expires_at)
+        values (rf.user_id(), rf.device_id(), ${candidatePubX}, now()) returning *`;
+      return recoveryRow(r);
+    });
+  }
+  recoveryDecide(
+    request: string,
+    decision: "approved" | "denied",
+    blob: Uint8Array | null,
+    sealedTo: Uint8Array | null,
+  ): Promise<string | null> {
+    return this.guarded(async () => {
+      const [r] = await this.sql`select rf.recovery_decide(${request}::uuid, ${decision},
+        ${blob}::bytea, ${sealedTo}::bytea) as id`;
+      return (r?.id as string) ?? null;
+    });
+  }
+  async recoveryProgress(request: string): Promise<RecoveryProgress | null> {
+    const [r] = await this.sql`select * from rf.recovery_progress(${request}::uuid)`;
+    return r ? (progressRow(r)) : null;
+  }
+  async recoveryAsks(): Promise<RecoveryAsk[]> {
+    // The guardian's own read: 0010's second SELECT policy shows a guardian the attempts of the set
+    // it belongs to, and the left join adds only THIS guardian's decision.
+    const rows = await this.sql`select r.*, a.decision as my_decision from recovery_requests r
+      left join recovery_approvals a
+        on a.request_id = r.id and a.guardian_user_id = rf.user_id()
+      where r.user_id <> rf.user_id() and r.expires_at > now() order by r.created_at`;
+    return rows.map((r) => ({
+      request_id: r.id as string,
+      subject_user_id: r.user_id as string,
+      candidate_device: r.candidate_device as string,
+      candidate_pub_x: bytes(r.candidate_pub_x),
+      share_set_version: r.share_set_version as number,
+      created_at: r.created_at as Date,
+      expires_at: r.expires_at as Date,
+      my_decision: (r.my_decision as string) ?? null,
+    }));
+  }
+  recoveryCancel(request: string): Promise<void> {
+    return this.guarded(async () => {
+      await this.sql`insert into recovery_cancellations
+          (request_id, cancelled_by_user, cancelled_by_device)
+        values (${request}::uuid, rf.user_id(), rf.device_id())`;
+    });
+  }
+  async myRecoveryRequests(): Promise<RecoveryRequest[]> {
+    const rows = await this.sql`select * from recovery_requests
+      where user_id = rf.user_id() order by created_at desc limit 20`;
+    return rows.map(recoveryRow);
+  }
   private async readCeremony(session: string): Promise<CeremonySession | null> {
     const [r] = await this.sql`select * from ceremony_sessions where id = ${session}`;
     return (r as unknown as CeremonySession) ?? null;
@@ -544,3 +625,35 @@ function recordRow(r: Row): SignedRecordRow {
   };
 }
 export { StoreDenied };
+
+function recoveryRow(r: Row): RecoveryRequest {
+  return {
+    id: r.id as string,
+    user_id: r.user_id as string,
+    candidate_device: r.candidate_device as string,
+    candidate_pub_x: bytes(r.candidate_pub_x),
+    share_set_version: r.share_set_version as number,
+    state: r.state as string,
+    created_at: r.created_at as Date,
+    expires_at: r.expires_at as Date,
+  };
+}
+
+function progressRow(r: Row): RecoveryProgress {
+  return {
+    request_id: r.request_id as string,
+    user_id: r.user_id as string,
+    candidate_device: r.candidate_device as string,
+    share_set_version: r.share_set_version as number,
+    k: r.k as number,
+    n: r.n as number,
+    approvals: r.approvals as number,
+    denials: r.denials as number,
+    opened_state: r.opened_state as string,
+    state: r.state as string,
+    kth_approval_at: (r.kth_approval_at as Date) ?? null,
+    wait_until: (r.wait_until as Date) ?? null,
+    expires_at: r.expires_at as Date,
+    cancelled_at: (r.cancelled_at as Date) ?? null,
+  };
+}

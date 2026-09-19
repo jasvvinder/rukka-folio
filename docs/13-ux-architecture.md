@@ -332,7 +332,7 @@ Remote mode: verifier instructed to *call and have the code read aloud* — neve
 `March locked → S10.4 preconditions checklist → ◆ distribute business profit first (optional) → certify → year seals → FY switcher appears; new FY opens with certified b/f`
 
 **F11 · New device / recovery**
-`OTP → (device certified? no → sees nothing of the family, S0.9 variant) → ◆ own device available → link via ceremony (instant) | guardians → S11.2 k-of-n live progress → ◆ user still has an active device → 24 h wait, S11.9 Cancel on every existing device | none → immediate | paper sheet → S11.3 scan/type | none → S11.8 honest empty-vault screen + path`
+`OTP → (device certified? no → sees nothing of the family, S0.9 variant) → ◆ own device available → link via ceremony (instant) | guardians → S11.2 k-of-n live progress → ◆ user still has an active device → 24 h wait, S11.9 Cancel on every existing device | none → immediate | paper sheet → S11.3 scan/type | none → S11.8 honest empty-vault screen + path` ⟦tests: F1-07-265, F1-07-266, F1-07-267, F1-07-268, F1-07-269, F1-07-270, F1-07-271⟧
 Recovery completion revokes all prior sessions and notifies every tenant; **every newly certified device, on every path, notifies all the user's devices and every tenant** (ADR 2026-09-05d §1, §2, §6).
 
 **F12 · Everything scope (joint family overview)**

@@ -35,7 +35,7 @@ ratification checklist for the owner at the end.
   requested before M14**; a third-party vector (libgfshare, Vault) pasted in beforehand would
   shorten it.
 
-### 2. Guardian shares carry `share_set_version`; a set is n ∈ 2..5 with k = ⌈(n+1)/2⌉ by default ⟦tests: B-04-62, B-04-63, B-04-64, B-04-65, B-04-66, B-04-67, B-04-68, B-04-72⟧
+### 2. Guardian shares carry `share_set_version`; a set is n ∈ 2..5 with k = ⌈(n+1)/2⌉ by default ⟦tests: B-04-62, B-04-63, B-04-64, B-04-65, B-04-66, B-04-67, B-04-68, B-04-72, E-06-43, F1-06-32, F1-06-33⟧
 - Wire form of one share (before sealing to the guardian's verified UMK, 04 §7.3 step "seal share_i"):
   `u8(suite_version) ‖ u32be(share_set_version) ‖ u8(k) ‖ u8(n) ‖ u8(index) ‖ share bytes`.
 - Reconstruction refuses shares of mixed `share_set_version` (a re-split after a guardian change
@@ -115,7 +115,7 @@ ratification checklist for the owner at the end.
    confirmation, not a dismissible warning.** 2-of-2 has no loss tolerance *and* needs both
    guardians to act — the worst of both shapes — but forbidding it excludes a couple with no third
    person they would trust with this, which is a real Rukka household. The typed confirmation is a
-   UI rule for S11.1 (07/13 owner). ⟦tests: B-04-63, F1-06a-1 @M11⟧
+   UI rule for S11.1 (07/13 owner). ⟦tests: B-04-63, F1-06a-1⟧
 
 ## Open ⚠️
 - External review of `shamir.dart` before M14 (ruling 1); a third-party known-answer vector first.

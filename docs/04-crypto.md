@@ -173,7 +173,7 @@ Reinstall on the same iPhone may find device keys intact → normal certified de
 ### 7.2 Rung 1 — another of your own devices
 Standard device linking (§9.1).
 
-### 7.3 Rung 2 — guardians (flagship) 🔒 ⟦tests: B-04-53, B-04-54, B-04-55, B-04-62, B-04-64, B-04-65, B-04-67, B-04-72, B-04-75, B-04-76, B-04-77, B-04-78, B-04-80, B-04-81⟧
+### 7.3 Rung 2 — guardians (flagship) 🔒 ⟦tests: B-04-53, B-04-54, B-04-55, B-04-62, B-04-64, B-04-65, B-04-67, B-04-72, B-04-75, B-04-76, B-04-77, B-04-78, B-04-80, B-04-81, E-06-43, E-06-44, E-06-45, E-06-46, E-06-47, E-06-48, E-06-49, E-06-50, E-06-51, E-06-52, E-06-53, E-06-54, E-06-55, E-06-56, F1-06-21, F1-06-22, F1-06-28, C-06-37, C-06-38, B-04-85, B-04-93, F1-06-35, F1-06-38, F1-06-39, F1-06-41, F1-06-42⟧
 **Setup:** choose guardians (default **2-of-3**; allowed n=2..5 with k=⌈(n+1)/2⌉; 2-of-2 permitted only behind a **typed confirmation**, never a dismissible warning — ADR 2026-09-06 checklist 4). Mutual ceremony per guardian. Split `UMK_priv` via Shamir; seal `share_i` to guardian *i*'s UMK public key; upload. Re-split and re-upload on any guardian change or UMK rotation; shares carry `share_set_version`.
 
 **Recovery:**
@@ -185,7 +185,7 @@ Standard device linking (§9.1).
 6. The device **self-issues its certificate** under the recovered UMK and 🔒 notifies all members and revokes all *previous* device sessions of this user (a recovery event is exactly when old devices should die). **If the user still has an active certified device, steps 4–6 wait 24 h behind a one-tap Cancel on every existing device (ADR 2026-09-05d §1); immediate only when none exists.**
 7. Guardian denial → requester notified; 3 denials or 72 h → recovery attempt closed and logged.
 
-### 7.4 Rung 3 — paper sheet 🔒 ⟦tests: B-04-15, B-04-16, B-04-17, B-04-18⟧
+### 7.4 Rung 3 — paper sheet 🔒 ⟦tests: B-04-15, B-04-16, B-04-17, B-04-18, F1-06-40⟧
 - `RK` = random 256-bit, generated at signup. Server stores `sealed_RK_blob = XChaCha20(RK, UMK_priv)`.
 - Sheet = one-page PDF: QR `base64url(version ‖ user_id ‖ RK)` + typed fallback (Crockford Base32, groups of 4, 2-char checksum) + instructions in English + the user's language (ਪੰਜਾਬੀ/हिन्दी). Framed as a document to keep with the Aadhaar and LIC papers.
 - **Verified-storage nag:** persistent badge until the user scans their *printed* sheet back. Re-verify prompt annually. Regenerating a sheet rotates RK and invalidates the old sheet.

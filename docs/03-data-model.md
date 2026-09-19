@@ -47,7 +47,7 @@ book_roles(book_id, user_id, role text check (role in
         auto_post_limit_paise bigint, primary key (book_id, user_id))
 ```
 
-### 2.2 Devices, keys, ceremonies (plaintext rows, opaque blobs) 🔒 ⟦tests: E-03-18, E-03-24, E-03-27, E-13d-1⟧
+### 2.2 Devices, keys, ceremonies (plaintext rows, opaque blobs) 🔒 ⟦tests: E-03-18, E-03-24, E-03-27, E-13d-1, E-06-50, E-06-53, E-06-55⟧
 
 ```sql
 devices(id uuid pk, user_id fk, pub_ed bytea, pub_x bytea, model, os,
@@ -132,7 +132,7 @@ app_config(key pk, value)               -- min_client_version per route group, e
 otp_challenges / activation_tickets     -- ephemeral, TTL-purged (06 §2–3)
 ```
 
-### 2.5 Row-level security 🔒 ⟦tests: E-03-15, E-03-18, E-03-19, E-03-23, E-03-24, E-03-27, E-05-8, E-05-9, E-06-6, E-06-29⟧
+### 2.5 Row-level security 🔒 ⟦tests: E-03-15, E-03-18, E-03-19, E-03-23, E-03-24, E-03-27, E-05-8, E-05-9, E-06-6, E-06-29, E-06-51, E-06-52, E-06-54⟧
 
 RLS on, `FORCE`, for every table above; the API connects as a non-superuser role with **our** `request.user_id` / `request.device_id` claims (06 §4 JWT, not platform auth) set with `SET LOCAL` per transaction so a pooled connection never carries them across (ADR 2026-09-05c §7).
 

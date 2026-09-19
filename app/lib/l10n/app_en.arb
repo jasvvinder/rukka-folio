@@ -2598,6 +2598,165 @@
   "@entry.verb.took_credit": {
     "description": "S2 verb pill, position 4."
   },
+  "guardians.ceremony.done": "Met and verified",
+  "@guardians.ceremony.done": {
+    "description": "S11.1 per-member ceremony state — done (04 §6, mutual)."
+  },
+  "guardians.ceremony.not_started": "Not met yet",
+  "@guardians.ceremony.not_started": {
+    "description": "S11.1 per-member ceremony state — nothing done."
+  },
+  "guardians.ceremony.started": "Meeting started",
+  "@guardians.ceremony.started": {
+    "description": "S11.1 per-member ceremony state — one direction done."
+  },
+  "guardians.chosen": "Chosen",
+  "@guardians.chosen": {
+    "description": "S11.1 checkbox semantic label for a chosen member."
+  },
+  "guardians.current": "In force now: any {k} of {n}.",
+  "@guardians.current": {
+    "description": "S11.1 shows the set already saved.",
+    "placeholders": {
+      "k": {
+        "type": "int"
+      },
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "guardians.empty.action": "Add a member",
+  "@guardians.empty.action": {
+    "description": "S11.1 empty state — the one next action (no dead ends, 07 §1 rule 6)."
+  },
+  "guardians.empty.body": "Trusted members are people who are already in your book.",
+  "@guardians.empty.body": {
+    "description": "S11.1 empty state line."
+  },
+  "guardians.empty.title": "No one to choose yet",
+  "@guardians.empty.title": {
+    "description": "S11.1 empty state (07 §1 rule 12)."
+  },
+  "guardians.error": "Could not load your members.",
+  "@guardians.error": {
+    "description": "S11.1 error state."
+  },
+  "guardians.intro": "Choose the people who can help you open your books again if you lose this phone.",
+  "@guardians.intro": {
+    "description": "S11.1 opening line (04 §7.3 setup)."
+  },
+  "guardians.loading": "Loading members",
+  "@guardians.loading": {
+    "description": "S11.1 skeleton label (11 §4.5)."
+  },
+  "guardians.meet": "Meet them",
+  "@guardians.meet": {
+    "description": "S11.1 action opening the mutual ceremony (S9.3)."
+  },
+  "guardians.meet.unavailable": "You can do this once {name} has finished joining the book.",
+  "@guardians.meet.unavailable": {
+    "description": "S11.1 disabled-with-reason (13 §4.3): no ceremony invite exists yet.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "guardians.meet.why": "You and {name} check each other’s code in person, both ways. Until that is done, they cannot help you get back in.",
+  "@guardians.meet.why": {
+    "description": "S11.1 explains the mutual ceremony (04 §7.3, 04 §8.2 🔒).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "guardians.nokey": "Nothing secret is shown here. Your key never appears on this screen, and they never see your entries.",
+  "@guardians.nokey": {
+    "description": "04 §7.4 / 07 §5.6 precedent from S0.5b: S11.1 renders no key material and says so."
+  },
+  "guardians.offline": "You are offline. Your choice is saved on this phone and goes out when you are back.",
+  "@guardians.offline": {
+    "description": "S11.1 offline chip — never blocking (07 §1 rule 7)."
+  },
+  "guardians.readonly": "Read-only right now. You can see your trusted members but not change them.",
+  "@guardians.readonly": {
+    "description": "S11.1 read-only variant (S12.5 pattern, 13 §4.3)."
+  },
+  "guardians.retry": "Try again",
+  "@guardians.retry": {
+    "description": "S11.1 error-state retry."
+  },
+  "guardians.rule": "Any {k} of the {n} you choose can help you get back in.",
+  "@guardians.rule": {
+    "description": "S11.1 threshold stated in plain words, never as a formula (04 §7.3 🔒 k = ⌈(n+1)/2⌉).",
+    "placeholders": {
+      "k": {
+        "type": "int"
+      },
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "guardians.rule.max": "Five is the most you can choose.",
+  "@guardians.rule.max": {
+    "description": "S11.1 upper bound n = 5 (04 §7.3)."
+  },
+  "guardians.rule.pick": "Choose at least 2 people. Three is the usual choice.",
+  "@guardians.rule.pick": {
+    "description": "S11.1 rule line before enough people are chosen (default 2-of-3)."
+  },
+  "guardians.save": "Save trusted members",
+  "@guardians.save": {
+    "description": "S11.1 primary action."
+  },
+  "guardians.save.blocked.few": "Choose at least 2 people before saving.",
+  "@guardians.save.blocked.few": {
+    "description": "S11.1 disabled-with-reason: n below 2."
+  },
+  "guardians.save.blocked.meet": "Meet everyone you have chosen before saving.",
+  "@guardians.save.blocked.meet": {
+    "description": "S11.1 disabled-with-reason: a chosen member is unverified (04 §8.2 🔒)."
+  },
+  "guardians.save.error": "That did not save. Try again.",
+  "@guardians.save.error": {
+    "description": "S11.1 save error — plain words, never a server code (07 §1 rule 12)."
+  },
+  "guardians.saved": "Trusted members saved.",
+  "@guardians.saved": {
+    "description": "S11.1 success line."
+  },
+  "guardians.title": "Trusted members",
+  "@guardians.title": {
+    "description": "S11.1 title (13 §3.2). 01 §2: Guardian = Trusted member; the word ‘guardian’ never reaches the UI."
+  },
+  "guardians.two.body": "With two, both of them must help you. If one of them cannot be reached, nobody can let you back in. Three is safer.",
+  "@guardians.two.body": {
+    "description": "S11.1: why 2-of-2 is the worst shape. Stated, never dismissed."
+  },
+  "guardians.two.field": "Type the words above",
+  "@guardians.two.field": {
+    "description": "S11.1 typed-confirmation field label."
+  },
+  "guardians.two.phrase": "I need both",
+  "@guardians.two.phrase": {
+    "description": "The phrase the user types to allow 2-of-2. Short, plain, and in their own language."
+  },
+  "guardians.two.prompt": "To go ahead with two, type these words: {phrase}",
+  "@guardians.two.prompt": {
+    "description": "ADR 2026-09-06 checklist 4 🔒: a typed confirmation, never a dismissible warning.",
+    "placeholders": {
+      "phrase": {
+        "type": "String"
+      }
+    }
+  },
+  "guardians.two.title": "Only two people",
+  "@guardians.two.title": {
+    "description": "S11.1 typed-confirmation panel heading (ADR 2026-09-06 checklist 4 🔒)."
+  },
   "home.close.book": "{book}",
   "@home.close.book": {
     "description": "S1 Home close card — which book the card is for, shown when the user has more than one. Pass-through so the book's own name is never translated.",
@@ -7027,6 +7186,543 @@
   "partners.title": "Partners",
   "@partners.title": {
     "description": "S14 app bar (02 §7.1 🔒, 13 §3.2 row S14). *Partner* is the glossary's own business term (01 §2 — ਹਿੱਸੇਦਾਰ / साझेदार). This is a consumer surface: the four figures are put in / took out / share / net, never Dr/Cr (02 §10 🔒, CLAUDE.md rule 9)."
+  },
+  "recovery.approve.approve": "Approve",
+  "@recovery.approve.approve": {
+    "description": "S11.7 primary action (design R2.3, verbatim)."
+  },
+  "recovery.approve.approved.body": "Your part is done. {name} gets their books back once enough of the people they chose have approved.",
+  "@recovery.approve.approved.body": {
+    "description": "S11.7 done body — says what happens next without naming how many others there are, which is not this member's business (ADR 2026-09-05d §2: a guardian reads the ask, not the tally).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "recovery.approve.approved.title": "Approved",
+  "@recovery.approve.approved.title": {
+    "description": "S11.7 done state."
+  },
+  "recovery.approve.blocked": "Call them and scan their new phone first.",
+  "@recovery.approve.blocked": {
+    "description": "S11.7 disabled-with-reason on Approve (13 §4.3), stated on the control so a screen reader hears why and not merely ‘dimmed’."
+  },
+  "recovery.approve.call": "Call {name}",
+  "@recovery.approve.call": {
+    "description": "S11.7 call action beside the caution.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "recovery.approve.caution.ack": "I have spoken to {name} and the fingerprint matched",
+  "@recovery.approve.caution.ack": {
+    "description": "S11.7 the caution's acknowledgement. Untouched, Approve stays disabled with its reason — the caution cannot be scrolled past (design R2.3 🔒).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "recovery.approve.caution.body": "If somebody else has their phone number, this is the moment they would use it. Read the fingerprint above out loud and ask them to read theirs back.",
+  "@recovery.approve.caution.body": {
+    "description": "S11.7 caution body — makes the call a concrete check rather than a warning (04 §7.3 step 2 🔒)."
+  },
+  "recovery.approve.caution.title": "Call them first to be sure it is really them.",
+  "@recovery.approve.caution.title": {
+    "description": "S11.7 prominent caution (design R2.3, verbatim) 🔒. This is a security decision taken by a relative, so the caution must be impossible to skip past."
+  },
+  "recovery.approve.decline": "Not now",
+  "@recovery.approve.decline": {
+    "description": "S11.7 secondary action (design R2.3, verbatim). Plain, never alarming — refusing is always safe and needs no checks."
+  },
+  "recovery.approve.declined.body": "Nothing was sent. If it really was {name}, they can ask again.",
+  "@recovery.approve.declined.body": {
+    "description": "S11.7 declined body (04 §7.3 step 7: the requester is told). No blame, and the door stays open.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "recovery.approve.declined.title": "Not approved",
+  "@recovery.approve.declined.title": {
+    "description": "S11.7 declined state."
+  },
+  "recovery.approve.device": "New phone: {device}",
+  "@recovery.approve.device": {
+    "description": "S11.7 the new device's name (design R2.3; 04 §7.3 step 2 🔒).",
+    "placeholders": {
+      "device": {
+        "type": "String"
+      }
+    }
+  },
+  "recovery.approve.error": "We could not open this request.",
+  "@recovery.approve.error": {
+    "description": "S11.7 error-with-retry (13 §4.3, 07 §1 rule 12)."
+  },
+  "recovery.approve.fingerprint": "Its fingerprint",
+  "@recovery.approve.fingerprint": {
+    "description": "S11.7 label above the new device's fingerprint, drawn small and monospaced so it can be read aloud over the call (design R2.3, 04 §7.3 step 2 🔒)."
+  },
+  "recovery.approve.loading": "Opening the request",
+  "@recovery.approve.loading": {
+    "description": "S11.7 loading state (13 §4.3)."
+  },
+  "recovery.approve.retry": "Try again",
+  "@recovery.approve.retry": {
+    "description": "S11.7 retry action."
+  },
+  "recovery.approve.scan.action": "Scan their new phone",
+  "@recovery.approve.scan.action": {
+    "description": "S11.7 the second check. ADR 2026-09-13c ruling 3 🔒 turns 04 §7.3 step 2's advice into a check: this phone scans the new phone's code and approves only what it matched."
+  },
+  "recovery.approve.scan.done": "Their phone matched this request",
+  "@recovery.approve.scan.done": {
+    "description": "S11.7 scan success — stated in words beside a tick, so the state is never only a colour (07 §1 rule 3)."
+  },
+  "recovery.approve.scan.mismatch": "That code does not match this request. Do not approve. Tell them to start again on their phone.",
+  "@recovery.approve.scan.mismatch": {
+    "description": "S11.7 scan mismatch (ADR 2026-09-13c ruling 3 🔒): this is the substitution attack being caught, so the copy names the one safe action and offers no way past."
+  },
+  "recovery.approve.scan.unavailable": "This phone cannot scan a code yet, so it cannot approve. Tell them to get their books back another way.",
+  "@recovery.approve.scan.unavailable": {
+    "description": "S11.7 disabled-with-reason when the device has no scanner (13 §4.3). Approving without the scan is not offered — ADR 2026-09-13c ruling 3 🔒 makes the scan a condition, not a step."
+  },
+  "recovery.approve.scan.why": "Hold their new phone up and scan the code on its screen. This makes sure your approval reaches their phone and nobody else's.",
+  "@recovery.approve.scan.why": {
+    "description": "S11.7 explanation of the scan (ADR 2026-09-13c ruling 3 🔒), in the user's words."
+  },
+  "recovery.approve.title": "{name} wants to restore their books on a new phone",
+  "@recovery.approve.title": {
+    "description": "S11.7 heading (design R2.3, verbatim). The request that arrives on a trusted member's phone.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "recovery.ask.back": "Try another way back in",
+  "@recovery.ask.back": {
+    "description": "S11.2 way back to the fork (S11.6) from any state that cannot go forward. No dead ends (07 §1 rule 6)."
+  },
+  "recovery.ask.call": "Call",
+  "@recovery.ask.call": {
+    "description": "S11.2 per-row call link (design R2.2, verbatim). The pack's own advice is ‘phone them, they are expecting this’."
+  },
+  "recovery.ask.call_advice": "Phone them — they are expecting this.",
+  "@recovery.ask.call_advice": {
+    "description": "S11.2 advice line above the members (design R2.2, the pack's own words)."
+  },
+  "recovery.ask.cancelled.body": "Somebody tapped Cancel on a phone that is already signed in to this account. If that was you, nothing more is needed. If it was not, call the people you trust before asking again.",
+  "@recovery.ask.cancelled.body": {
+    "description": "S11.2 cancelled-state body. The honest reading of a cancel: it may have been the owner, and it may have been the attack being stopped."
+  },
+  "recovery.ask.cancelled.title": "Stopped from another phone",
+  "@recovery.ask.cancelled.title": {
+    "description": "S11.2 cancelled state (ADR 2026-09-05d §1 🔒): a phone already signed in tapped Cancel."
+  },
+  "recovery.ask.closed.body": "A request stays open for three days. You can start a new one whenever the people you chose are free, or use your recovery sheet instead.",
+  "@recovery.ask.closed.body": {
+    "description": "S11.2 closed-state body (04 §7.3 step 7 🔒: 72 hours). Two live paths, no blame, no retry loop."
+  },
+  "recovery.ask.closed.title": "This request has closed",
+  "@recovery.ask.closed.title": {
+    "description": "S11.2 closed state. ⚠️ 03 §2.2's state has no ‘denied’, so a request closed by three refusals is indistinguishable from one that ran out of time — this screen therefore never claims either. The member rows below say what each person did."
+  },
+  "recovery.ask.done.title": "Everyone needed has approved",
+  "@recovery.ask.done.title": {
+    "description": "S11.2 completed state (design R2.2: all ticks). The restore count follows, over the determinate loader rule."
+  },
+  "recovery.ask.error": "We could not check this request.",
+  "@recovery.ask.error": {
+    "description": "S11.2 error-with-retry (13 §4.3, 07 §1 rule 12): what failed, in the user's words, never a server code."
+  },
+  "recovery.ask.loading": "Checking who has approved",
+  "@recovery.ask.loading": {
+    "description": "S11.2 loading state (13 §4.3), announced in words above the ruled skeleton (11 §4.5)."
+  },
+  "recovery.ask.offline": "Offline — approvals will show up as soon as you are connected.",
+  "@recovery.ask.offline": {
+    "description": "S11.2 quiet offline chip (07 §1 rule 7): never a blocking banner, and true — the approvals are on the server, not lost."
+  },
+  "recovery.ask.progress": "{done} of {needed} approvals",
+  "@recovery.ask.progress": {
+    "description": "S11.2 progress line (design R2.2, verbatim). Counted from one row per member, never from a counter (migration 0010).",
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "needed": {
+        "type": "String"
+      }
+    }
+  },
+  "recovery.ask.restore.loader": "Restoring your entries",
+  "@recovery.ask.restore.loader": {
+    "description": "S11.2 screen-reader label for the restore loader rule (live region, 11 §4.5)."
+  },
+  "recovery.ask.restoring": "{done} of {total} entries restored",
+  "@recovery.ask.restoring": {
+    "description": "S11.2 completed-state count over the determinate loader rule (design R2.2, verbatim; 11 §4.5 🔒 — a count, never a percentage).",
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "recovery.ask.retry": "Try again",
+  "@recovery.ask.retry": {
+    "description": "S11.2 retry action."
+  },
+  "recovery.ask.scan.action": "Scan their screen",
+  "@recovery.ask.scan.action": {
+    "description": "S11.2 step 1 action. ADR 2026-09-13c ruling 2 🔒: the QR path only — there is deliberately no ‘enter code instead’ at recovery."
+  },
+  "recovery.ask.scan.body": "Ask one of them to open this app and show you the square code on their screen. Scanning it is how this phone makes sure the books it opens are really yours.",
+  "@recovery.ask.scan.body": {
+    "description": "S11.2 step 1 explanation — the recovery ceremony in the user's words, never as cryptography (ADR 2026-09-13c §4)."
+  },
+  "recovery.ask.scan.mismatch": "That code does not match this account. Stop here and call the person whose screen you scanned — do not carry on.",
+  "@recovery.ask.scan.mismatch": {
+    "description": "S11.2 step 1 hard failure (ADR 2026-09-13c ruling 1 🔒: mismatch fails closed, no override). Names the one safe next action; never offers a way past it."
+  },
+  "recovery.ask.scan.title": "First, scan your trusted member’s screen",
+  "@recovery.ask.scan.title": {
+    "description": "S11.2 step 1 heading. ADR 2026-09-13c ruling 1 🔒 — before any key is put back together this phone must see the user's own key off a member's already-verified phone, so the server cannot hand it a key of its own."
+  },
+  "recovery.ask.scan.unavailable": "This phone cannot scan a code yet.",
+  "@recovery.ask.scan.unavailable": {
+    "description": "S11.2 step 1 disabled-with-reason (13 §4.3) when the device has no scanner. Stated plainly and followed by a way that still works — 07 §1 rule 6."
+  },
+  "recovery.ask.state.approved": "Approved",
+  "@recovery.ask.state.approved": {
+    "description": "S11.2 row state (design R2.2). The word beside the tick — colour is never alone (07 §1 rule 3)."
+  },
+  "recovery.ask.state.declined": "Said no",
+  "@recovery.ask.state.declined": {
+    "description": "S11.2 row state. ⚠️ SPEC: DESIGN-PACK R2.2 draws only approved / waiting / not asked, but 04 §7.3 step 7 🔒 requires the requester be told of a denial and migration 0010 stores it per member. Drawing a member who refused as ‘waiting’ would be false on a security screen. Plain and unblaming — never ‘refused’, never ‘rejected’."
+  },
+  "recovery.ask.state.not_asked": "Not asked",
+  "@recovery.ask.state.not_asked": {
+    "description": "S11.2 row state (design R2.2, verbatim)."
+  },
+  "recovery.ask.state.waiting": "Waiting…",
+  "@recovery.ask.state.waiting": {
+    "description": "S11.2 row state (design R2.2, verbatim). Carries the short inline loader rule — never a spinner (11 §4.5 🔒)."
+  },
+  "recovery.ask.title": "Ask any {k} of {n} to approve",
+  "@recovery.ask.title": {
+    "description": "S11.2 heading (design R2.2, verbatim shape). k = ⌈(n+1)/2⌉ and is enforced by the server (04 §7.3 🔒, migration 0010) — the screen states it as a sentence, never as a formula.",
+    "placeholders": {
+      "k": {
+        "type": "String"
+      },
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "recovery.ask.wait24.body": "Enough people have approved. Because another phone is still signed in to this account, we wait a day before opening your books here — and that phone can stop this with one tap. That wait is what protects you if somebody else is asking.",
+  "@recovery.ask.wait24.body": {
+    "description": "S11.2 waiting_24h explanation (ADR 2026-09-05d §1 🔒). States the delay as protection, never as a fault."
+  },
+  "recovery.ask.wait24.remaining": "{hours, plural, =0{Less than an hour left} =1{About 1 hour left} other{About {hours} hours left}}",
+  "@recovery.ask.wait24.remaining": {
+    "description": "S11.2 waiting_24h countdown. Hours only — a ticking minute counter on a day-long wait reads as a deadline the user could miss, and they cannot.",
+    "placeholders": {
+      "hours": {
+        "type": "int"
+      }
+    }
+  },
+  "recovery.ask.wait24.title": "Your books open here tomorrow",
+  "@recovery.ask.wait24.title": {
+    "description": "S11.2 state waiting_24h (ADR 2026-09-05d §1 🔒): enough people approved, but the account still has another phone signed in, so completion waits 24 hours."
+  },
+  "recovery.ask.waiting_label": "Waiting for {name} to approve",
+  "@recovery.ask.waiting_label": {
+    "description": "S11.2 screen-reader label for a waiting row's loader rule, so the moving hairline is never the only carrier (07 §1 rule 3).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "recovery.fork.blocked.no_other_phone": "No other phone of yours is signed in right now.",
+  "@recovery.fork.blocked.no_other_phone": {
+    "description": "S11.6 disabled-with-reason for rung 1 (13 §4.3). The row stays visible — a row that vanishes teaches the user their books are gone, which is false."
+  },
+  "recovery.fork.blocked.no_sheet": "No recovery sheet was made for this account.",
+  "@recovery.fork.blocked.no_sheet": {
+    "description": "S11.6 disabled-with-reason for rung 3 (04 §7.4; a regenerated sheet also invalidates the old one)."
+  },
+  "recovery.fork.blocked.no_trusted_members": "You haven’t chosen trusted members yet.",
+  "@recovery.fork.blocked.no_trusted_members": {
+    "description": "S11.6 disabled-with-reason for rung 2 (04 §7.3 setup never happened)."
+  },
+  "recovery.fork.blocked.not_yet": "Not ready on this phone yet. Use one of the other ways for now.",
+  "@recovery.fork.blocked.not_yet": {
+    "description": "S11.6 disabled-with-reason for a rung this build cannot walk (S11.2, S11.3 are not built at M11). Names a way that works rather than apologising — 07 §1 rule 6."
+  },
+  "recovery.fork.error": "We couldn’t check your ways back in.",
+  "@recovery.fork.error": {
+    "description": "S11.6 error-with-retry (13 §4.3, 07 §1 rule 12): what failed, in the user's words."
+  },
+  "recovery.fork.footer": "Your family books can also be restored by your family — your own private book cannot.",
+  "@recovery.fork.footer": {
+    "description": "S11.6 closing muted line (design R2.1, verbatim). True: shared book keys can be re-wrapped after a fresh ceremony, the personal book needs the user's own key (06 §5, 04 §7.6 🔒)."
+  },
+  "recovery.fork.loading": "Checking what this phone can do",
+  "@recovery.fork.loading": {
+    "description": "S11.6 loading state (13 §4.3), announced in words above the ruled skeleton."
+  },
+  "recovery.fork.none.action": "None of these work for me",
+  "@recovery.fork.none.action": {
+    "description": "S11.6 → S11.8. ⚠️ SPEC: the pack does not draw this control, but 07 §1 rule 6 🔒 forbids a dead end and 13 §5 F11 routes 'none → S11.8', so the fork always offers the honest way onward."
+  },
+  "recovery.fork.offline": "Offline — connect once so we can check your ways back in.",
+  "@recovery.fork.offline": {
+    "description": "S11.6 quiet offline chip (07 §1 rule 7): never a blocking banner."
+  },
+  "recovery.fork.other_phone.body": "Hold the two phones together for a minute. Nobody else has to do anything.",
+  "@recovery.fork.other_phone.body": {
+    "description": "S11.6 row 1 one-line explanation — the link ceremony (04 §9.1), stated as what the user does, not what the protocol does."
+  },
+  "recovery.fork.other_phone.title": "Use another phone you’re signed in on",
+  "@recovery.fork.other_phone.title": {
+    "description": "S11.6 row 1 of the 🔒 order (design R2.1). Rung 1, 04 §7.2 — standard device linking."
+  },
+  "recovery.fork.retry": "Try again",
+  "@recovery.fork.retry": {
+    "description": "S11.6 retry action."
+  },
+  "recovery.fork.sheet.body": "Scan the code on it, or type the code in by hand.",
+  "@recovery.fork.sheet.body": {
+    "description": "S11.6 row 3 one-line explanation (design R2.4: scan, or type the code instead)."
+  },
+  "recovery.fork.sheet.sub": "paper or the file you saved",
+  "@recovery.fork.sheet.sub": {
+    "description": "S11.6 row 3 sub-line (design R2.1, verbatim). Both artefacts hold the same key (04 §7.6)."
+  },
+  "recovery.fork.sheet.title": "Use your recovery sheet",
+  "@recovery.fork.sheet.title": {
+    "description": "S11.6 row 3 (design R2.1). Rung 3, 04 §7.4."
+  },
+  "recovery.fork.title": "Let’s get your books back on this phone",
+  "@recovery.fork.title": {
+    "description": "S11.6 heading (design R2.1, verbatim). The quiet screen after OTP on a new phone."
+  },
+  "recovery.fork.trusted.body": "The people you chose approve on their own phones. Phone them first — they are expecting this.",
+  "@recovery.fork.trusted.body": {
+    "description": "S11.6 row 2 one-line explanation; the call-them advice is the pack's own (design R2.2/R2.3)."
+  },
+  "recovery.fork.trusted.link_instead": "You still have another phone signed in — use that instead. It is instant, and asking takes a day.",
+  "@recovery.fork.trusted.link_instead": {
+    "description": "S11.6 row 2 extra line, shown only while rung 1 is available: 06 §5 🔒 — 'a user who still has a phone should link instead, and the screen says so'. The day is ADR 2026-09-05d §1's 24 h window."
+  },
+  "recovery.fork.trusted.title": "Ask your trusted members",
+  "@recovery.fork.trusted.title": {
+    "description": "S11.6 row 2 (design R2.1). Rung 2, 04 §7.3. User-facing vocabulary is Trusted member — never guardian, never share (01 §1.3)."
+  },
+  "recovery.nothing.family.action": "Continue and set up this phone",
+  "@recovery.nothing.family.action": {
+    "description": "S11.8's one primary button 🔒 (design R2.5, verbatim). It sits in the green row, which the pack says carries it. There is no retry and no second button."
+  },
+  "recovery.nothing.family.body": "Your family verifies you again on this phone, and these books open.",
+  "@recovery.nothing.family.body": {
+    "description": "S11.8 row 1 body (design R2.5, 06 §5: a fresh verification ceremony re-wraps the shared keys)."
+  },
+  "recovery.nothing.family.status": "Ready to restore",
+  "@recovery.nothing.family.status": {
+    "description": "S11.8 row 1 status word. Colour is never alone (07 §1 rule 3): the green rule is paired with this word and a tick."
+  },
+  "recovery.nothing.family.title": "Your family and business books",
+  "@recovery.nothing.family.title": {
+    "description": "S11.8 row 1 (green): restorable now (design R2.5, 06 §5 — shared book keys are re-wrappable to the user's new master key after a fresh ceremony)."
+  },
+  "recovery.nothing.private.body": "It is still sealed on our server, exactly as you left it.",
+  "@recovery.nothing.private.body": {
+    "description": "S11.8 row 2 body (design R2.5, verbatim clause)."
+  },
+  "recovery.nothing.private.key_platform": "Signing in to the Apple or Google account that held your key.",
+  "@recovery.nothing.private.key_platform": {
+    "description": "S11.8 row 2 key 1 — platform key sync (04 §7.0 names iCloud Keychain and Block Store, so both platforms are stated; the pack's line says Apple because it was drawn for iOS)."
+  },
+  "recovery.nothing.private.key_sheet": "Finding your recovery sheet — the paper one, or the file you saved.",
+  "@recovery.nothing.private.key_sheet": {
+    "description": "S11.8 row 2 key 2 — 04 §7.4 / §7.6: the paper sheet and the saved file hold the same key."
+  },
+  "recovery.nothing.private.keys": "Two things will open it — today, next week or next year:",
+  "@recovery.nothing.private.keys": {
+    "description": "S11.8 row 2: both keys are stated as things that still work later, never as lost causes (design R2.5 🔒)."
+  },
+  "recovery.nothing.private.status": "Still sealed",
+  "@recovery.nothing.private.status": {
+    "description": "S11.8 row 2 status word, paired with a lock icon so the amber is never alone (07 §1 rule 3). Never 'lost', never 'destroyed' — the ciphertext is on the server (04 §7.6 🔒)."
+  },
+  "recovery.nothing.private.title": "Your private book",
+  "@recovery.nothing.private.title": {
+    "description": "S11.8 row 2 (amber): still sealed — not lost (design R2.5 🔒, 04 §7.6 🔒)."
+  },
+  "recovery.nothing.readable.body": "Your books are in that file, and you can start fresh books from those closing balances.",
+  "@recovery.nothing.readable.body": {
+    "description": "S11.8 row 3 body (design R2.5, verbatim)."
+  },
+  "recovery.nothing.readable.status": "If you kept one",
+  "@recovery.nothing.readable.status": {
+    "description": "S11.8 row 3 status word, paired with a document icon — the grey rule never carries the state on its own (07 §1 rule 3)."
+  },
+  "recovery.nothing.readable.title": "A readable copy of your books",
+  "@recovery.nothing.readable.title": {
+    "description": "S11.8 row 3 (grey): the readable export, if one was kept (04 §7.6 last line)."
+  },
+  "recovery.nothing.title": "We can’t open your private book on this phone yet.",
+  "@recovery.nothing.title": {
+    "description": "S11.8 heading 🔒 — fixed word for word by DESIGN-PACK R2.5. The whole screen is built around 'yet'. Only the apostrophe follows house typography (’, as every other string here does)."
+  },
+  "recovery.sheet.done.action": "Go to my books",
+  "@recovery.sheet.done.action": {
+    "description": "S11.3 done action → Home."
+  },
+  "recovery.sheet.done.title": "Your books are back",
+  "@recovery.sheet.done.title": {
+    "description": "S11.3 done state — the same words as the silent restore (design R2.0), because it is the same outcome."
+  },
+  "recovery.sheet.error": "We could not check that code just now.",
+  "@recovery.sheet.error": {
+    "description": "S11.3 error-with-retry: the attempt could not be made at all, which is not the same as a code that did not work (13 §4.3)."
+  },
+  "recovery.sheet.failed.action": "Try the code again",
+  "@recovery.sheet.failed.action": {
+    "description": "S11.3 failure action — back to the field with what was typed still there (13 §8 interruption rule)."
+  },
+  "recovery.sheet.failed.cause_new": "A newer sheet may have been printed. Making a new sheet stops the old one working, so use the most recent one.",
+  "@recovery.sheet.failed.cause_new": {
+    "description": "S11.3 failure cause 1 (design R2.4; 04 §7.4 🔒 — regenerating a sheet rotates RK and invalidates the old one)."
+  },
+  "recovery.sheet.failed.cause_typo": "Or a character may have been mistyped. Check it against the page, group by group.",
+  "@recovery.sheet.failed.cause_typo": {
+    "description": "S11.3 failure cause 2 (design R2.4). Both causes are always stated: the server cannot tell them apart, and the pack asks for both in plain words."
+  },
+  "recovery.sheet.failed.title": "That code did not work",
+  "@recovery.sheet.failed.title": {
+    "description": "S11.3 failure heading (design R2.4, verbatim). Never a blank error."
+  },
+  "recovery.sheet.offline": "Offline — connect once so we can check the code.",
+  "@recovery.sheet.offline": {
+    "description": "S11.3 quiet offline chip (07 §1 rule 7). The check needs the server, and the screen says so instead of failing oddly."
+  },
+  "recovery.sheet.restore.loader": "Restoring your entries",
+  "@recovery.sheet.restore.loader": {
+    "description": "S11.3 screen-reader label for the loader rule (live region, 11 §4.5)."
+  },
+  "recovery.sheet.restoring": "{done} of {total} entries restored",
+  "@recovery.sheet.restoring": {
+    "description": "S11.3 determinate loader-rule copy after the sheet opened the key (11 §4.5 🔒 — a count, never a percentage).",
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "recovery.sheet.retry": "Try again",
+  "@recovery.sheet.retry": {
+    "description": "S11.3 retry action."
+  },
+  "recovery.sheet.scan.action": "Scan the square code",
+  "@recovery.sheet.scan.action": {
+    "description": "S11.3 camera path (design R2.4)."
+  },
+  "recovery.sheet.scan.mismatch": "That was not a recovery-sheet code. Check you are scanning the square on your own sheet.",
+  "@recovery.sheet.scan.mismatch": {
+    "description": "S11.3 scan failure: the code scanned was not this account's sheet."
+  },
+  "recovery.sheet.scan.unavailable": "This phone cannot scan a code yet — type the code in instead.",
+  "@recovery.sheet.scan.unavailable": {
+    "description": "S11.3 disabled-with-reason for the camera path (13 §4.3), naming the path that works (07 §1 rule 6)."
+  },
+  "recovery.sheet.submit": "Open my books",
+  "@recovery.sheet.submit": {
+    "description": "S11.3 primary action."
+  },
+  "recovery.sheet.title": "Use your recovery sheet",
+  "@recovery.sheet.title": {
+    "description": "S11.3 heading (design R2.4 / R2.1, verbatim)."
+  },
+  "recovery.sheet.type.action": "Type the code instead",
+  "@recovery.sheet.type.action": {
+    "description": "S11.3 typed path (design R2.4, verbatim)."
+  },
+  "recovery.sheet.type.hint": "Letters and numbers, in groups of four",
+  "@recovery.sheet.type.hint": {
+    "description": "S11.3 field hint — 04 §7.4 🔒: Crockford Base32 in groups of 4. Described by what the user sees on the page, never by the encoding's name."
+  },
+  "recovery.sheet.type.invalid": "That is not a code from a recovery sheet. Check for a letter that is not on your page.",
+  "@recovery.sheet.type.invalid": {
+    "description": "S11.3 disabled-with-reason on the submit button while the typed code contains a character the sheet's alphabet does not have — the one failure this phone can name by itself, before the server is asked."
+  },
+  "recovery.sheet.type.label": "The code on your sheet",
+  "@recovery.sheet.type.label": {
+    "description": "S11.3 field label for the grouped character field (design R2.4)."
+  },
+  "recovery.sheet.what": "One printed page, with a square code and the same code in letters underneath. You may have saved it as a file instead.",
+  "@recovery.sheet.what": {
+    "description": "S11.3 reminder of what the sheet looks like (design R2.4: a small illustration reminding them what the sheet looks like). 04 §7.6: paper and saved file hold the same key."
+  },
+  "recovery.silent.continue": "Go to my books",
+  "@recovery.silent.continue": {
+    "description": "S11.5 done action → Home. R2.0 says 'then straight to Home'; the button is the one tap that gets there and is never a choice between paths."
+  },
+  "recovery.silent.failed": "This phone’s key store had nothing for us.",
+  "@recovery.silent.failed": {
+    "description": "S11.5 failure: rung 0 found no key (04 §7.0 limits — different Apple/Google account, or the user turned key sync off). Plain, never alarming; the next line offers the ladder."
+  },
+  "recovery.silent.failed.action": "Get your books back another way",
+  "@recovery.silent.failed.action": {
+    "description": "S11.5 failure action → S11.6, the fork. No dead ends (07 §1 rule 6)."
+  },
+  "recovery.silent.loader": "Restoring your books",
+  "@recovery.silent.loader": {
+    "description": "S11.5 screen-reader label for the loader rule, so the wait is stated in words and the grey rule is never the only carrier (07 §1 rule 3)."
+  },
+  "recovery.silent.progress": "{done} of {total} books restored",
+  "@recovery.silent.progress": {
+    "description": "S11.5 determinate loader-rule copy — a count, never a percentage (11 §4.5 🔒, DESIGN-PACK loader-rule paragraph).",
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "recovery.silent.restored": "{count, plural, =1{1 book restored} other{{count} books restored}}",
+  "@recovery.silent.restored": {
+    "description": "S11.5 done state: the number of books restored (design R2.0).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "recovery.silent.restoring": "Getting your books back",
+  "@recovery.silent.restoring": {
+    "description": "S11.5 (design R2.0) heading while rung 0 runs. The key came back from the platform key store, so there is nothing for the user to decide — the screen only narrates (04 §7.0)."
+  },
+  "recovery.silent.title": "Your books are back",
+  "@recovery.silent.title": {
+    "description": "S11.5 done state (design R2.0, verbatim). A tick, this line, the count, then Home."
   },
   "reports.account_statement.row.title": "A/C statement (any)",
   "@reports.account_statement.row.title": {

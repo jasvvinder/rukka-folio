@@ -13,6 +13,13 @@ abstract final class DevicesPaths {
   static const window = RkPaths.devicesWindow;
   static String windowFor(String id) => '${RkPaths.devices}/window/$id';
 
+  /// S11.1 Guardian setup — the screen behind the S11 *Trusted members* row.
+  ///
+  /// ⚠️ WIRE — `RkPaths` gains `devicesGuardians` at integration (router.dart
+  /// is the shell's file, not this lane's); until then the literal lives here,
+  /// built from [devices] so the two can never drift.
+  static const guardians = RkPaths.devicesGuardians;
+
   /// S15.4 Device suspended (global).
   static const suspended = RkPaths.suspended;
 

@@ -13,11 +13,15 @@ import {
   DeviceIdTakenError,
   type EnvelopeRow,
   type GuardianSet,
+  type GuardianSetDraft,
   type InviteOffer,
   META_TABLES,
   type MetaCursor,
   type MetaTable,
   type OtpChallenge,
+  type RecoveryAsk,
+  type RecoveryProgress,
+  type RecoveryRequest,
   type RefreshToken,
   rowId,
   type SignedRecordRow,
@@ -76,6 +80,8 @@ export class MemDb {
   verification_events: Row[] = [];
   ceremony_sessions: CeremonySession[] = [];
   recovery_requests: Row[] = [];
+  recovery_approvals: Row[] = [];
+  recovery_cancellations: Row[] = [];
   escrow_policies: Row[] = [];
   subscriptions: Row[] = [];
   entitlement_tokens: Row[] = [];
@@ -675,6 +681,256 @@ class MemTx implements Tx {
       return Promise.resolve(null);
     }
     return Promise.resolve(row);
+  }
+  // ---- 04 §7.3 the guardian recovery ladder (0010 in the database; mirrored here, because a fake
+  // that is laxer than the guards is a test that proves nothing). The shape that matters most is
+  // the one this block keeps: NOTHING below updates a request row. A decision and a cancellation
+  // are their own rows and the state is derived, exactly as rf.recovery_derive derives it.
+  private currentGuardianSet(subject: string): Row | null {
+    const sets = this.db.guardian_sets.filter((g) =>
+      g.subject_user_id === subject && g.superseded_at == null
+    ).sort((a, b) => (a.share_set_version as number) - (b.share_set_version as number));
+    return sets.at(-1) ?? null;
+  }
+  publishGuardianSet(d: GuardianSetDraft): Promise<number> {
+    if (!this.isCertified() || !this.me) throw new StoreDenied("rls");
+    if (d.n < 2 || d.n > 5) throw new StoreDenied("guardian_set_size");
+    if (d.k !== Math.ceil((d.n + 1) / 2)) throw new StoreDenied("guardian_quorum"); // 04 §7.3
+    if (d.guardians.length !== d.n) throw new StoreDenied("guardian_set_size");
+    if (d.guardians.some((g) => g.guardian_user_id === this.me)) {
+      throw new StoreDenied("guardian_is_subject");
+    }
+    const hi = this.db.guardian_sets.filter((g) => g.subject_user_id === this.me)
+      .reduce((m, g) => Math.max(m, g.share_set_version as number), 0);
+    if (d.share_set_version !== hi + 1) throw new StoreDenied("share_set_version_out_of_order");
+    for (const g of d.guardians) {
+      // 0005: a guardian_share for somebody else needs a shared tenant.
+      if (!this.sharesTenant(g.guardian_user_id)) throw new StoreDenied("rls");
+    }
+    this.db.guardian_sets.push({
+      subject_user_id: this.me,
+      share_set_version: d.share_set_version,
+      n: d.n,
+      k: d.k,
+      created_at: this.now,
+      superseded_at: null,
+      source_record_id: null,
+      updated_at: this.now,
+    });
+    for (const g of d.guardians) {
+      const wk = this.db.addWrappedKey({
+        kind: "guardian_share",
+        user_id: g.guardian_user_id,
+        share_set_version: d.share_set_version,
+        blob: g.blob,
+      });
+      this.db.guardian_set_members.push({
+        subject_user_id: this.me,
+        share_set_version: d.share_set_version,
+        guardian_user_id: g.guardian_user_id,
+        umk_pub_ed: g.umk_pub_ed,
+        wrapped_key_id: wk,
+        updated_at: this.now,
+      });
+    }
+    return Promise.resolve(d.share_set_version);
+  }
+  openRecovery(candidatePubX: Uint8Array): Promise<RecoveryRequest> {
+    if (!this.me || !this.dev) throw new StoreDenied("no_claims");
+    if (candidatePubX.length !== 32) throw new StoreDenied("recovery_shape");
+    const d = this.db.devices.get(this.dev);
+    // 0005's INSERT policy is the one that does NOT require a certified device — 04 §7.3 step 1 is
+    // a fresh phone (ADR 2026-09-05d §2). It still has to be the caller's own live device.
+    if (!d || d.user_id !== this.me || d.status === "revoked") {
+      throw new StoreDenied("unknown_candidate_device");
+    }
+    const set = this.currentGuardianSet(this.me);
+    if (!set) throw new StoreDenied("no_guardian_set");
+    const members = this.db.guardian_set_members.filter((m) =>
+      m.subject_user_id === this.me && m.share_set_version === set.share_set_version
+    );
+    if (members.length !== set.n) throw new StoreDenied("guardian_set_incomplete");
+    if (
+      this.db.recovery_requests.filter((r) =>
+        r.user_id === this.me && (r.expires_at as Date) > this.now
+      ).length >= 5
+    ) throw new StoreDenied("recovery_flood");
+    // ADR 2026-09-05d §1 — the ladder is the SERVER's to choose, from one fact.
+    const alarms = [...this.db.devices.values()].some((x) =>
+      x.user_id === this.me && x.id !== this.dev && x.status === "certified" && !x.revoked_at
+    );
+    const row: Row = {
+      id: uuid(),
+      user_id: this.me,
+      candidate_device: this.dev,
+      candidate_pub_x: candidatePubX,
+      share_set_version: set.share_set_version,
+      state: alarms ? "waiting_24h" : "pending",
+      approvals: 0,
+      created_at: this.now,
+      expires_at: new Date(this.now.getTime() + 72 * 3600_000),
+      updated_at: this.now,
+    };
+    this.db.recovery_requests.push(row);
+    return Promise.resolve(this.recoveryRow(row));
+  }
+  recoveryDecide(
+    request: string,
+    decision: "approved" | "denied",
+    blob: Uint8Array | null,
+    sealedTo: Uint8Array | null,
+  ): Promise<string | null> {
+    const r = this.db.recovery_requests.find((x) => x.id === request);
+    const guardian = r &&
+      this.db.guardian_set_members.some((m) =>
+        m.subject_user_id === r.user_id && m.share_set_version === r.share_set_version &&
+        m.guardian_user_id === this.me
+      );
+    // An unknown attempt and a caller who is not its guardian refuse identically: no oracle.
+    if (!r || !this.isCertified() || !guardian) throw new StoreDenied("unknown_request");
+    const p = this.derive(r);
+    if (p.state !== "pending" && p.state !== "waiting_24h") {
+      throw new StoreDenied("recovery_closed");
+    }
+    if (
+      this.db.recovery_approvals.some((a) =>
+        a.request_id === request && a.guardian_user_id === this.me
+      )
+    ) throw new StoreDenied("already_decided");
+    let wk: string | null = null;
+    if (decision === "approved") {
+      if (!sealedTo || sealedTo.length !== 32) throw new StoreDenied("recovery_shape");
+      // ADR 2026-09-13c §3: the re-seal goes to THIS attempt's candidate key, and only to it.
+      if (!bytesEqual(sealedTo, r.candidate_pub_x as Uint8Array)) {
+        throw new StoreDenied("candidate_key_mismatch");
+      }
+      if (!blob || blob.length === 0 || blob.length > 4096) throw new StoreDenied("recovery_shape");
+      wk = this.db.addWrappedKey({
+        kind: "recovery_blob",
+        user_id: r.user_id as string,
+        device_id: r.candidate_device as string,
+        blob,
+      });
+    }
+    this.db.recovery_approvals.push({
+      request_id: request,
+      guardian_user_id: this.me,
+      guardian_device: this.dev,
+      share_set_version: r.share_set_version,
+      decision,
+      wrapped_key_id: wk,
+      sealed_to_pub_x: decision === "approved" ? sealedTo : null,
+      created_at: this.now,
+      updated_at: this.now,
+    });
+    return Promise.resolve(wk);
+  }
+  /** rf.recovery_derive, in TypeScript. Counts come from rows; nothing is read from `approvals`. */
+  private derive(r: Row): RecoveryProgress {
+    const set = this.db.guardian_sets.find((g) =>
+      g.subject_user_id === r.user_id && g.share_set_version === r.share_set_version
+    )!;
+    const decisions = this.db.recovery_approvals.filter((a) => a.request_id === r.id);
+    const approved = decisions.filter((a) => a.decision === "approved")
+      .sort((a, b) => (a.created_at as Date).getTime() - (b.created_at as Date).getTime());
+    const denials = decisions.filter((a) => a.decision === "denied").length;
+    const cancelled = this.db.recovery_cancellations.find((c) => c.request_id === r.id);
+    const k = set.k as number;
+    const kth = approved.length >= k ? (approved[k - 1].created_at as Date) : null;
+    const wait = r.state === "waiting_24h" && kth ? new Date(kth.getTime() + 24 * 3600_000) : null;
+    let state: string;
+    if (cancelled) state = "cancelled";
+    else if (denials >= 3) state = "expired"; // 04 §7.3 step 7
+    else if (approved.length >= k) {
+      state = !wait || this.now >= wait ? "approved" : "waiting_24h";
+    } else if (this.now >= (r.expires_at as Date)) state = "expired";
+    else state = r.state as string;
+    return {
+      request_id: r.id as string,
+      user_id: r.user_id as string,
+      candidate_device: r.candidate_device as string,
+      share_set_version: r.share_set_version as number,
+      k,
+      n: set.n as number,
+      approvals: approved.length,
+      denials,
+      opened_state: r.state as string,
+      state,
+      kth_approval_at: kth,
+      wait_until: wait,
+      expires_at: r.expires_at as Date,
+      cancelled_at: (cancelled?.created_at as Date) ?? null,
+    };
+  }
+  recoveryProgress(request: string): Promise<RecoveryProgress | null> {
+    const r = this.db.recovery_requests.find((x) => x.id === request);
+    if (!r) return Promise.resolve(null);
+    if (
+      r.candidate_device !== this.dev && !(this.isCertified() && r.user_id === this.me)
+    ) return Promise.resolve(null);
+    return Promise.resolve(this.derive(r));
+  }
+  recoveryAsks(): Promise<RecoveryAsk[]> {
+    if (!this.isCertified()) return Promise.resolve([]);
+    const rows = this.db.recovery_requests.filter((r) =>
+      r.user_id !== this.me && (r.expires_at as Date) > this.now &&
+      this.db.guardian_set_members.some((m) =>
+        m.subject_user_id === r.user_id && m.share_set_version === r.share_set_version &&
+        m.guardian_user_id === this.me
+      )
+    );
+    return Promise.resolve(rows.map((r) => ({
+      request_id: r.id as string,
+      subject_user_id: r.user_id as string,
+      candidate_device: r.candidate_device as string,
+      candidate_pub_x: r.candidate_pub_x as Uint8Array,
+      share_set_version: r.share_set_version as number,
+      created_at: r.created_at as Date,
+      expires_at: r.expires_at as Date,
+      my_decision: (this.db.recovery_approvals.find((a) =>
+        a.request_id === r.id && a.guardian_user_id === this.me
+      )?.decision as string) ?? null,
+    })));
+  }
+  recoveryCancel(request: string): Promise<void> {
+    const r = this.db.recovery_requests.find((x) => x.id === request);
+    // ADR 2026-09-05d §1: the Cancel is on the devices that ALARM — an existing certified device of
+    // the user. The candidate device cannot cancel the alarm raised against it.
+    if (
+      !r || !this.isCertified() || r.user_id !== this.me || r.candidate_device === this.dev
+    ) throw new StoreDenied("rls");
+    if (this.db.recovery_cancellations.some((c) => c.request_id === request)) {
+      return Promise.resolve(); // first cancel wins; a second is the same outcome
+    }
+    this.db.recovery_cancellations.push({
+      request_id: request,
+      cancelled_by_user: this.me,
+      cancelled_by_device: this.dev,
+      created_at: this.now,
+      updated_at: this.now,
+    });
+    return Promise.resolve();
+  }
+  myRecoveryRequests(): Promise<RecoveryRequest[]> {
+    return Promise.resolve(
+      this.db.recovery_requests
+        .filter((r) =>
+          r.candidate_device === this.dev || (this.isCertified() && r.user_id === this.me)
+        )
+        .map((r) => this.recoveryRow(r)),
+    );
+  }
+  private recoveryRow(r: Row): RecoveryRequest {
+    return {
+      id: r.id as string,
+      user_id: r.user_id as string,
+      candidate_device: r.candidate_device as string,
+      candidate_pub_x: r.candidate_pub_x as Uint8Array,
+      share_set_version: r.share_set_version as number,
+      state: r.state as string,
+      created_at: r.created_at as Date,
+      expires_at: r.expires_at as Date,
+    };
   }
   // ---- 06 §7 invites (0006/0008 in the database; mirrored here so the fake refuses what Postgres
   // refuses — a fake that is laxer than the row policies is a test that proves nothing).

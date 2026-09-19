@@ -9,7 +9,7 @@ are a waiting period and a notification. Owner confirmed 5 Sep 2026 ("do whateve
 
 ## Rulings 🔒 ⟦tests: n/a — container heading; each ruling below carries its own marker⟧
 
-### 1. Recovery waits when the owner still has a working device ⟦tests: C-05d-10, F1-06-11, F1-06-14⟧
+### 1. Recovery waits when the owner still has a working device ⟦tests: C-05d-10, F1-06-11, F1-06-14, E-06-47, E-06-56, F1-06-30, F1-06-31, F1-06-34⟧
 Guardian recovery (04 §7.3) and guardian-approved phone-number change (06 §9.4) complete
 **immediately only when the user has no active certified device** — the genuine lost-phone case.
 If any active device exists, completion is **delayed 24 h**; every existing device alarms with the
@@ -19,7 +19,7 @@ guardians plus a borrowed phone can no longer take a member's identity — and t
 before the member sees it. A user who still has a device and wants a new one should **link**
 (rung 1), which is instant; the app says so on the recovery screen.
 
-### 2. Uncertified devices see nothing but themselves ⟦tests: E-03-18, E-03-24, E-05-8, E-05-9, E-06-6, E-06-7, C-05d-6, C-06-19, F1-06-1⟧
+### 2. Uncertified devices see nothing but themselves ⟦tests: E-03-18, E-03-24, E-05-8, E-05-9, E-06-6, E-06-7, C-05d-6, C-06-19, F1-06-1, E-06-52, E-06-53⟧
 An OTP proves the doorbell, not the person. Until a device holds a certificate the **server has
 verified** under the user's registered UMK public key (one more Ed25519 verify — within 04 §8.6's
 minimal surface), RLS returns only: the device's own `users` row, its own `devices` row, wrapped

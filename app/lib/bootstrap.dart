@@ -52,6 +52,7 @@ import 'features/members/members_api.dart';
 import 'features/members/members_review_policy.dart';
 import 'features/members/members_routes.dart';
 import 'features/members/server_members_repository.dart';
+import 'features/recovery/recovery_routes.dart';
 import 'features/menu/menu_routes.dart';
 import 'features/onboarding/onboarding_routes.dart';
 import 'features/partners/ledger_partners_port.dart';
@@ -68,6 +69,7 @@ import 'shared/router.dart';
 import 'shared/seams/closed_years.dart';
 import 'shared/seams/http_transport.dart';
 import 'shared/seams/key_store.dart';
+import 'shared/seams/recovery_ladder.dart';
 import 'shared/seams/review_policy.dart';
 import 'shared/sync/sync.dart';
 import 'shared/widgets/blocked_screen.dart';
@@ -319,6 +321,115 @@ Future<void> bootstrap() async {
       // `book_roles`; the projector never does — 03 §3.3 rule 5 🔒).
       reviewPolicy.policy = MembersReviewPolicy(members);
 
+      // The name this device holds for a member, or the *someone in this
+      // book* string — never a raw user id (ADR 2026-09-05c §4: a contact is
+      // this phone's, never the server's, so an id is all the wire can carry
+      // and an id is not a name).
+      String memberName(String userId) {
+        for (final m in members.current?.members ?? const <Member>[]) {
+          if (m.id == userId) {
+            return m.displayName ?? l10n.inboxReviewAuthorUnknown;
+          }
+        }
+        return l10n.inboxReviewAuthorUnknown;
+      }
+
+      // ── the recovery ladder (04 §7.3 🔒, 06 §5, 13 §5 F11) ───────────────
+      //
+      // S11.2 / S11.3 / S11.7 ran on `recovery_ladder.dart`'s fakes until
+      // now. These are their live producers over migration 0010's routes, and
+      // they are installed as **scopes** below rather than through
+      // `recoveryRoutes()`, whose signature is unchanged — a screen never
+      // learns which producer it got.
+      //
+      // Installing them is strictly better than leaving the scopes empty even
+      // where a producer cannot finish the job: with no scope each screen
+      // falls back to the seam's own fake, and `FakeRecoverySheet` **accepts
+      // any well-formed code and reports a restore that did not happen**. A
+      // producer that refuses plainly is the truth; a fake that succeeds is
+      // not.
+      final recoveryApi = HttpRecoveryApi(
+        transport: MembersTransportOverRkHttp(httpDoor),
+        functionsRoot: Uri.parse(apiBase),
+        accessToken: () async {
+          try {
+            return await auth.accessToken();
+          } on Object {
+            return null; // no live session ⇒ `unauthorized`
+          }
+        },
+        clientVersion: clientVersion,
+      );
+
+      // 04 §7.3 step 2 🔒 — the new phone's fingerprint, drawn small and
+      // monospaced so a guardian can read it aloud on the call.
+      //
+      // ⚠️ SPEC: no doc fixes the *rendering* of a device fingerprint. 04
+      // §3.1 defines the UMK fingerprint as BLAKE2b-256 and 04 §7.3 step 2
+      // names "new device fingerprint" without a format, so the same digest
+      // is taken over the candidate key and its first eight bytes are shown
+      // as four groups of four hex characters. Nothing security-bearing rests
+      // on the string: the check that matters is ADR 2026-09-13c §3's
+      // byte-for-byte comparison of the scanned `DeviceQrPayload` against the
+      // relayed candidate key, which is the scanner's, not this line's.
+      // Reported to the owner.
+      String candidateFingerprint(Uint8List candidatePubX) {
+        final d = suite.blake2b256(candidatePubX);
+        final hex = [
+          for (var i = 0; i < 8; i++)
+            d[i].toRadixString(16).padLeft(2, '0').toUpperCase(),
+        ].join();
+        return [for (var i = 0; i < hex.length; i += 4) hex.substring(i, i + 4)]
+            .join(' ');
+      }
+
+      final guardianRecovery = HttpGuardianRecovery(
+        api: recoveryApi,
+        // ⚠️ SPEC: the trusted-member roster has no live producer —
+        // `GuardiansRepository` is still `FakeGuardians` only, and the
+        // guardian set arrives on the meta pull without ever being surfaced
+        // to the app. S11.2 therefore draws the server's own k, n and state
+        // and names nobody, rather than ticking a member who may not have
+        // acted. Reported as an open item.
+        roster: () async => const <TrustedApprover>[],
+        // ⚠️ SPEC: minting and persisting the *candidate* X25519 pair of
+        // 04 §7.3 step 1 is `core_crypto`/`features/devices` behaviour and
+        // has no producer, so this build re-reads an attempt that is already
+        // open and refuses plainly when there is none. Reusing this device's
+        // own `pub_x` is the convenient reading of "fresh device keys **+** a
+        // candidate X25519 pair" and is not taken here. Reported.
+        candidateKey: null,
+        // No camera package is in the app (cf. ADR 2026-09-12e), so the
+        // recovery ceremony of ADR 2026-09-13c ruling 1 🔒 reports
+        // `unavailable` rather than a screen pretending the control works.
+        scanner: null,
+      );
+
+      final guardianApprovals = HttpGuardianApprovals(
+        api: recoveryApi,
+        requesterNameOf: memberName,
+        // ⚠️ SPEC: a guardian cannot learn the *model* of the requester's new
+        // phone — the subject's `devices` rows are not a guardian's to read,
+        // and 04 §7.3 step 2 🔒 asks for the requester's name and the device
+        // **fingerprint**, not a device name. R2.3 draws a name anyway. The
+        // empty string is passed rather than an invented one; S11.7 should
+        // drop that line when it is empty. Reported as an open item against
+        // DESIGN-PACK R2.3 and `features/recovery`.
+        deviceNameOf: (_) => '',
+        fingerprintOf: candidateFingerprint,
+        // ADR 2026-09-05c §4 🔒 — a number is never the server's, and this
+        // device holds none for another member, so R2.2/R2.3's *Call* link is
+        // correctly absent rather than dialling something guessed.
+        phoneOf: (_) => null,
+        // With no scanner the check of ADR 2026-09-13c ruling 3 🔒 cannot
+        // pass, so `approve` refuses with `RecoveryCandidateUnverified` and
+        // no share is ever sealed to an unverified candidate. That is the
+        // posture the ruling asks for when the check cannot be performed —
+        // never a bypass. `decline` still works, because refusing is safe.
+        scanner: null,
+        resealer: null,
+      );
+
       // ── the socket (05 §1) ──────────────────────────────────────────────
       //
       // The engine over the real transport. Its key material comes from the
@@ -495,6 +606,10 @@ Future<void> bootstrap() async {
           ...importRoutes,
           ...ledgerRoutes,
           ...membersRoutes,
+          // S11.5/S11.6/S11.8 — the activation ladder, root navigator
+          // (13 §5 F11). A finished restore lands on Home, which
+          // features/recovery does not own.
+          ...recoveryRoutes(onRestored: (context) => context.go(RkPaths.home)),
           ...settingsRoutes,
         ],
       );
@@ -550,21 +665,27 @@ Future<void> bootstrap() async {
                       child: ReviewQueueScope(
                         queue: LedgerReviewQueue(
                           ledger,
-                          authorNameOf: (userId) {
-                            for (final m
-                                in members.current?.members ??
-                                    const <Member>[]) {
-                              if (m.id == userId) {
-                                return m.displayName ??
-                                    l10n.inboxReviewAuthorUnknown;
-                              }
-                            }
-                            return l10n.inboxReviewAuthorUnknown;
-                          },
+                          authorNameOf: memberName,
                         ),
                         child: PartnersScope(
                           port: LedgerPartnersPort(ledger),
-                          child: app,
+                          // The activation ladder's three producers. They sit
+                          // innermost because they are the newest and own no
+                          // other screen; nothing below reads them but S11.2,
+                          // S11.3 and S11.7, each of which still falls back to
+                          // what it was constructed with when a scope is
+                          // absent (07 §1 rule 6 — a missing scope is never a
+                          // red screen).
+                          child: GuardianRecoveryScope(
+                            recovery: guardianRecovery,
+                            child: RecoverySheetScope(
+                              sheet: const HttpRecoverySheet(),
+                              child: GuardianApprovalsScope(
+                                approvals: guardianApprovals,
+                                child: app,
+                              ),
+                            ),
+                          ),
                         ),
                       ),
                     ),

@@ -663,12 +663,23 @@ void main() {
       // parameter is a Verified* type (04 §8.2 — UMK to a verified guardian or
       // member, UMK to a verified device); opening is not the guarded direction.
       final sealSites = RegExp(r'crypto\.box\.seal\(').allMatches(wrapping);
-      expect(sealSites.length, 2, reason: 'sealToVerified and wrapUmkToDevice');
+      // Three since M11: the guardian's re-seal of ADR 2026-09-13c §3 takes
+      // `VerifiedRecoveryCandidate`, the candidate type that ruling reserved
+      // ("or a verified candidate type built the same way, by ceremony.dart
+      // alone"); B-04-85 pins the same rule over every file in lib/src.
+      expect(
+        sealSites.length,
+        3,
+        reason:
+            'sealToVerified, wrapUmkToDevice and resealShareToCandidate '
+            '(ADR 2026-09-13c §3)',
+      );
       for (final m in sealSites) {
         final declStart = wrapping.lastIndexOf('\n\n', m.start);
         final decl = wrapping.substring(declStart, m.start);
         expect(
-          RegExp(r'Verified(Umk|Device)Public \w+,').hasMatch(decl),
+          RegExp(r'Verified(UmkPublic|DevicePublic|RecoveryCandidate) \w+,')
+              .hasMatch(decl),
           isTrue,
           reason:
               'seal site at offset ${m.start} not behind a Verified* parameter:\n$decl',

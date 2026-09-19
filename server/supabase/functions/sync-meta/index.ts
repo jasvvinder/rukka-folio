@@ -5,6 +5,7 @@
 //      (ADR 2026-09-05b §1). The server never invents a record.
 // POST /sync-meta/invites {record, phone} → {invite_id}  · GET /sync-meta/invites → my invites
 // POST /sync-meta/invites/accept {invite_id} → {status}  (06 §7, ADR 2026-09-05d §9)
+// /sync-meta/recovery… → the guardian ladder's WRITE side (04 §7.3; see the block above `recovery`)
 // Cursor: `after` is opaque — base64url JSON {tables: {table: {updated_at, id}}, records_seq}; each
 // table's own cursor is (updated_at, id) as 05 §5 says. `next` is ALWAYS present (the resume point);
 // `has_more` is true when any table or the records stream had more than a page (engine contract: wire.dart).
@@ -23,9 +24,12 @@ import { PULL_LIMIT_MAX } from "../_shared/registry.ts";
 import { authenticate, gate, jsonBigResponse, recordToWire } from "../_shared/route.ts";
 import {
   type CeremonySession,
+  type GuardianSetDraft,
   META_TABLES,
   type MetaCursors,
   type MetaTable,
+  type RecoveryProgress,
+  type RecoveryRequest,
   rowId,
   type SignedRecordRow,
   StoreDenied,
@@ -49,6 +53,7 @@ export async function handler(req: Request, deps: Deps): Promise<Response> {
   if (req.method === "POST" && path === "/records") return postRecords(req, deps, claims);
   if (path.startsWith("/ceremony")) return ceremony(req, deps, claims, path);
   if (path.startsWith("/invites")) return invites(req, deps, claims, path);
+  if (path.startsWith("/recovery")) return recovery(req, deps, claims, path);
   return error(404, "not_found");
 }
 
@@ -172,6 +177,197 @@ async function ceremony(
     const status = forbidden.includes(e.reason) ? 403 : e.reason === "ceremony_flood" ? 429 : 409;
     return error(status, e.reason);
   }
+}
+
+// ---------------------------------------------------------------- 04 §7.3 the guardian ladder
+// The write side of rung 2. 0002 declared the tables, 0005 granted SELECT + INSERT, and this GET
+// route already returned the guardian-set history — but nothing could ever be written. These are
+// the five writes and the two reads 04 §7.3 needs, and every rule behind them is 0010's, in the
+// database, so this handler cannot loosen one:
+//
+//   POST /sync-meta/recovery/guardians {share_set_version, k, n, guardians:[{guardian_user_id,
+//                                       umk_pub_ed, blob}]} → {share_set_version}   (Setup)
+//   POST /sync-meta/recovery           {candidate_pub_x}    → the request           (step 1)
+//   POST /sync-meta/recovery/approve   {request_id, sealed_to_pub_x, blob}          (step 3)
+//   POST /sync-meta/recovery/deny      {request_id}                                 (step 7)
+//   POST /sync-meta/recovery/cancel    {request_id}         (ADR 2026-09-05d §1, one tap)
+//   GET  /sync-meta/recovery[?request_id=…]                 → k-of-n for the requester
+//   GET  /sync-meta/recovery/asks                           → the pending ask, for a guardian
+//
+// Three things this handler deliberately does NOT do. It never computes k (0010 enforces
+// 04 §7.3's ⌈(n+1)/2⌉). It never chooses a state: the 24 h ladder of ADR 2026-09-05d §1 is set by
+// the database from one fact — whether the user still holds an active certified device — so a body
+// that says `"state": "approved"` is not an attack, it is an ignored field. And it never opens,
+// hashes or re-seals a share: `blob` arrives base64url and reaches the store as bytes (04 §8.6).
+//
+// The route for step 1 is the ONE sync route a caller reaches without a certified device, because
+// 04 §7.3 step 1 is a fresh phone holding nothing but its own keys and ADR 2026-09-05d §2 names
+// "its own recovery_requests" among the four things such a device may see.
+async function recovery(
+  req: Request,
+  deps: Deps,
+  claims: { user_id: string; device_id: string },
+  path: string,
+): Promise<Response> {
+  if (req.method === "GET") {
+    if (path === "/recovery/asks") {
+      const asks = await deps.store.withClaims(claims, (tx) => tx.recoveryAsks());
+      return jsonBigResponse(200, {
+        asks: asks.map((a) => ({
+          request_id: a.request_id,
+          subject_user_id: a.subject_user_id,
+          candidate_device: a.candidate_device,
+          // ADR 2026-09-13c §3: the guardian's device compares this against the DeviceQrPayload it
+          // scans from the requester before it re-seals anything.
+          candidate_pub_x: b64url.enc(a.candidate_pub_x),
+          share_set_version: a.share_set_version,
+          created_at: a.created_at.getTime(),
+          expires_at: a.expires_at.getTime(),
+          my_decision: a.my_decision,
+        })),
+      });
+    }
+    if (path !== "/recovery") return error(404, "not_found");
+    const id = new URL(req.url).searchParams.get("request_id");
+    if (id === null) {
+      const rows = await deps.store.withClaims(claims, (tx) => tx.myRecoveryRequests());
+      return jsonBigResponse(200, { requests: rows.map(requestToWire) });
+    }
+    if (!isUuid(id)) return error(400, "bad_request");
+    const p = await deps.store.withClaims(claims, (tx) => tx.recoveryProgress(id));
+    // An attempt that is not the caller's and one that does not exist answer identically.
+    return p ? jsonBigResponse(200, progressToWire(p)) : error(404, "not_found");
+  }
+  if (req.method !== "POST") return error(404, "not_found");
+  const body = await readJson(req, 1 << 16) as Record<string, unknown> | null;
+  if (!body) return error(400, "bad_request");
+
+  try {
+    if (path === "/recovery/guardians") {
+      const draft = parseGuardianDraft(body);
+      if (!draft) return error(400, "bad_request");
+      const v = await deps.store.withClaims(claims, (tx) => tx.publishGuardianSet(draft));
+      return jsonBigResponse(200, { share_set_version: v });
+    }
+    if (path === "/recovery") {
+      const pub = b64any(body.candidate_pub_x);
+      if (!pub || pub.length !== 32) return error(400, "bad_request");
+      const r = await deps.store.withClaims(claims, (tx) => tx.openRecovery(pub));
+      return jsonBigResponse(200, requestToWire(r));
+    }
+    if (path === "/recovery/approve" || path === "/recovery/deny") {
+      if (!isUuid(body.request_id)) return error(400, "bad_request");
+      const approve = path === "/recovery/approve";
+      const blob = approve ? b64any(body.blob) : null;
+      const sealed = approve ? b64any(body.sealed_to_pub_x) : null;
+      if (approve && (!blob || !sealed || sealed.length !== 32)) return error(400, "bad_request");
+      const wk = await deps.store.withClaims(claims, (tx) =>
+        tx.recoveryDecide(
+          body.request_id as string,
+          approve ? "approved" : "denied",
+          blob,
+          sealed,
+        ));
+      return jsonBigResponse(200, {
+        request_id: body.request_id,
+        decision: approve ? "approved" : "denied",
+        // The id of the sealed row, never the blob: the share leaves this server only to the
+        // candidate device it was addressed to, through the wrapped_keys meta pull.
+        wrapped_key_id: wk,
+      });
+    }
+    if (path === "/recovery/cancel") {
+      if (!isUuid(body.request_id)) return error(400, "bad_request");
+      await deps.store.withClaims(claims, (tx) => tx.recoveryCancel(body.request_id as string));
+      return jsonBigResponse(200, { request_id: body.request_id, state: "cancelled" });
+    }
+    return error(404, "not_found");
+  } catch (e) {
+    if (!(e instanceof StoreDenied)) throw e;
+    return recoveryError(e.reason);
+  }
+}
+
+/** The database named the refusal; the wire name is the client's, and never an oracle. */
+function recoveryError(reason: string): Response {
+  switch (reason) {
+    // ADR 2026-09-05d §2 / 0010: an unknown attempt and a caller who is not its guardian are the
+    // same answer, so nobody learns whose recovery is in flight by asking.
+    case "unknown_request":
+    case "unknown_candidate_device":
+      return error(403, "unknown_request");
+    case "no_guardian_set":
+    case "guardian_set_incomplete":
+      return error(409, reason); // fall through the ladder to 04 §7.4's paper sheet
+    case "recovery_closed":
+      return error(409, "recovery_closed");
+    case "already_decided":
+      return error(409, "already_decided");
+    case "candidate_key_mismatch":
+      return error(409, "candidate_key_mismatch");
+    case "guardian_quorum":
+    case "guardian_set_size":
+    case "guardian_is_subject":
+    case "share_set_version_out_of_order":
+    case "recovery_shape":
+    case "check":
+      return error(400, reason);
+    case "recovery_flood":
+      return error(429, "recovery_flood");
+    case "fk":
+      return error(404, "not_found");
+    default:
+      return error(403, reason === "rls" ? "forbidden" : reason);
+  }
+}
+
+/** 04 §7.3 Setup, as it arrives on the wire. Shape only — k and n are checked in the database. */
+function parseGuardianDraft(body: Record<string, unknown>): GuardianSetDraft | null {
+  const v = body.share_set_version, k = body.k, n = body.n;
+  if (!Number.isInteger(v) || (v as number) < 1) return null;
+  if (!Number.isInteger(k) || !Number.isInteger(n)) return null;
+  if (!Array.isArray(body.guardians) || body.guardians.length === 0) return null;
+  const guardians = [];
+  for (const raw of body.guardians) {
+    const g = raw as Record<string, unknown>;
+    const pub = b64any(g.umk_pub_ed), blob = b64any(g.blob);
+    if (!isUuid(g.guardian_user_id) || !pub || pub.length !== 32 || !blob || !blob.length) {
+      return null;
+    }
+    guardians.push({ guardian_user_id: g.guardian_user_id as string, umk_pub_ed: pub, blob });
+  }
+  return { share_set_version: v as number, k: k as number, n: n as number, guardians };
+}
+
+function requestToWire(r: RecoveryRequest): Record<string, unknown> {
+  return {
+    request_id: r.id,
+    user_id: r.user_id,
+    candidate_device: r.candidate_device,
+    candidate_pub_x: b64url.enc(r.candidate_pub_x),
+    share_set_version: r.share_set_version,
+    // The ladder it opened on. `GET /sync-meta/recovery?request_id=` carries the live one.
+    opened_state: r.state,
+    created_at: r.created_at.getTime(),
+    expires_at: r.expires_at.getTime(),
+  };
+}
+
+function progressToWire(p: RecoveryProgress): Record<string, unknown> {
+  return {
+    request_id: p.request_id,
+    share_set_version: p.share_set_version,
+    k: p.k,
+    n: p.n,
+    approvals: p.approvals,
+    denials: p.denials,
+    opened_state: p.opened_state,
+    state: p.state,
+    kth_approval_at: p.kth_approval_at?.getTime() ?? null,
+    wait_until: p.wait_until?.getTime() ?? null,
+    expires_at: p.expires_at.getTime(),
+    cancelled_at: p.cancelled_at?.getTime() ?? null,
+  };
 }
 
 /** Opaque bytes out, base64url, exactly as they went in. */

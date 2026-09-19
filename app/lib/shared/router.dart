@@ -58,6 +58,29 @@ abstract final class RkPaths {
   /// S11.9 / S11.10 cancel window; `:id` is the window id.
   static const devicesWindow = '/devices/window/:id';
 
+  /// S11.1 Trusted members — guardian setup (04 §7.3 🔒).
+  static const devicesGuardians = '/devices/guardians';
+
+  /// S11.5 silent restore — where the activation ladder starts (13 §5 F11).
+  static const recovery = '/recovery';
+
+  /// S11.6 the fork, after OTP on a new phone.
+  static const recoveryFork = '/recovery/fork';
+
+  /// S11.8 nothing worked yet — the end of the ladder.
+  static const recoveryNothingYet = '/recovery/nothing-yet';
+
+  /// S11.2 ask your trusted members — rung 2 of the ladder (04 §7.3 🔒).
+  static const recoveryAskMembers = '/recovery/trusted-members';
+
+  /// S11.3 the recovery sheet — rung 3 (04 §7.4 🔒).
+  static const recoverySheet = '/recovery/sheet';
+
+  /// S11.7 the guardian's side; `:requestId` is the attempt being decided.
+  /// It arrives on a *different* person's phone from the loud notification of
+  /// 13 §3.4, and is a root route for the same reason the rest are.
+  static const recoveryApprove = '/recovery/approve/:requestId';
+
   /// S15.4 Device suspended (global).
   static const suspended = '/suspended';
 

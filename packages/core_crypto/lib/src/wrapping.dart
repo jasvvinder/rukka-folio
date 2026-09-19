@@ -5,6 +5,7 @@ import 'package:sodium/sodium.dart';
 
 import 'ceremony.dart';
 import 'keys.dart';
+import 'shamir.dart';
 import 'suite.dart';
 
 // Key wrapping (04 §3, §5.1–§5.3, §8.2, §9.1): X25519 sealed boxes
@@ -221,6 +222,132 @@ UmkKeyPair unwrapUmk(
     return UmkKeyPair.fromSecretBytes(suite, secret);
   } finally {
     suite.zeroize(secret);
+  }
+}
+
+/// A guardian's share **re-sealed to a recovery candidate** (04 §7.3 step 3):
+/// what `POST /sync-meta/recovery/approve` carries as `{sealed_to_pub_x,
+/// blob}` and what the server files as a `wrapped_keys` row of kind
+/// `recovery_blob` addressed to the candidate device (migration 0010,
+/// `rf.recovery_decide`). Opaque to the server: it compares [sealedTo]
+/// against the request's `candidate_pub_x` and never opens [bytes].
+@immutable
+final class ResealedShare {
+  /// Wraps the parts.
+  ResealedShare({
+    required this.deviceId,
+    required Uint8List sealedTo,
+    required this.shareSetVersion,
+    required Uint8List bytes,
+    this.suiteVersion = _currentSuite,
+  }) : sealedTo = Uint8List.fromList(sealedTo),
+       bytes = Uint8List.fromList(bytes) {
+    if (this.sealedTo.length != 32) {
+      throw ArgumentError.value(
+        this.sealedTo.length,
+        'sealedTo',
+        'candidate X25519 public key is 32 bytes',
+      );
+    }
+  }
+
+  /// `suite_version` byte (04 §2).
+  final int suiteVersion;
+
+  /// The candidate device the box is addressed to (`wrapped_keys.device_id`).
+  final String deviceId;
+
+  /// The candidate X25519 public key the share was sealed to —
+  /// `sealed_to_pub_x`, the 32 bytes the server compares (ADR 2026-09-13c §3).
+  final Uint8List sealedTo;
+
+  /// The share's generation, read from its own header (04 §7.3
+  /// `share_set_version`) — fills `recovery_approvals.share_set_version`.
+  final int shareSetVersion;
+
+  /// `crypto_box_seal` output — the opaque `blob`.
+  final Uint8List bytes;
+}
+
+/// 04 §7.3 step 3 on the guardian's device, ADR 2026-09-13c §3 🔒: opens this
+/// guardian's [stored] share (sealed to [guardian]'s UMK at setup) and
+/// re-seals it to the [candidate] the guardian's device **verified by
+/// ceremony**. The recipient is [VerifiedRecoveryCandidate] — a type only
+/// [Ceremony.verifyRecoveryCandidateQr] produces — so the server-relayed
+/// `candidate_pub_x`, a scanned-but-unchecked key or any bare X25519 key
+/// cannot be passed: the substitution that would hand k real shares to a
+/// server key (ADR 2026-09-13c §3) has no call to make (CLAUDE.md rule 5).
+///
+/// The plaintext share is decoded only to check it is a guardian share of
+/// this suite and to read its generation, then re-sealed **unchanged** and
+/// zeroised in `finally`; [stored] is not modified. Throws [UnsealFailed]
+/// when [stored] does not open for [guardian] (`recipient`, `box`, `suite`)
+/// or does not hold a guardian share (`share`).
+ResealedShare resealShareToCandidate(
+  CryptoSuite suite, {
+  required UmkKeyPair guardian,
+  required SealedBlob stored,
+  required VerifiedRecoveryCandidate candidate,
+}) {
+  final plain = openSealed(suite, guardian, stored);
+  GuardianShare? share;
+  try {
+    try {
+      share = GuardianShare.decode(plain);
+    } on FormatException {
+      throw const UnsealFailed('share');
+    } on ArgumentError {
+      throw const UnsealFailed('share');
+    }
+    return ResealedShare(
+      deviceId: candidate.deviceId,
+      sealedTo: candidate.x25519,
+      shareSetVersion: share.shareSetVersion,
+      bytes: suite.sodium.crypto.box.seal(
+        message: plain,
+        publicKey: candidate.x25519,
+      ),
+    );
+  } finally {
+    share?.dispose();
+    suite.zeroize(plain);
+  }
+}
+
+/// 04 §7.3 step 4 on the fresh device: opens a [ResealedShare] addressed to
+/// its [candidate] pair. Throws [UnsealFailed] when the suite is unknown, the
+/// box names another candidate key (`recipient`), the box does not open
+/// (`box`) or the plaintext is not a guardian share (`share`). The returned
+/// share is the caller's to [GuardianShare.dispose] after reconstruction.
+GuardianShare openResealedShare(
+  CryptoSuite suite,
+  ResealedShare resealed,
+  RecoveryCandidateKeyPair candidate,
+) {
+  if (resealed.suiteVersion != _currentSuite) {
+    throw const UnsealFailed('suite');
+  }
+  if (!suite.constantTimeEquals(resealed.sealedTo, candidate.x25519)) {
+    throw const UnsealFailed('recipient');
+  }
+  final Uint8List plain;
+  try {
+    plain = suite.sodium.crypto.box.sealOpen(
+      cipherText: resealed.bytes,
+      publicKey: candidate.x25519,
+      secretKey: candidate.x25519Secret,
+    );
+  } on SodiumException {
+    throw const UnsealFailed('box');
+  }
+  try {
+    return GuardianShare.decode(plain);
+  } on FormatException {
+    throw const UnsealFailed('share');
+  } on ArgumentError {
+    throw const UnsealFailed('share');
+  } finally {
+    suite.zeroize(plain);
   }
 }
 
