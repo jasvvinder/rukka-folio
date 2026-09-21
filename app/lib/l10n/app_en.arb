@@ -8765,6 +8765,10 @@
   "@recovery.fork.trusted.title": {
     "description": "S11.6 row 2 (design R2.1). Rung 2, 04 §7.3. User-facing vocabulary is Trusted member — never guardian, never share (01 §1.3)."
   },
+  "recovery.fork.unchecked": "We couldn’t check this one from this phone. It may still work — tap to try it.",
+  "@recovery.fork.unchecked": {
+    "description": "S11.6 third state (seams/recovery_ladder.dart 🔒 RecoveryRungOffer.unknown): no source answered for this rung. The row stays takeable — it may well work — and this line, beside a question-mark icon, is what keeps it from reading as a confirmed way in. Never a refusal: a refusal is recovery.fork.blocked.*."
+  },
   "recovery.nothing.family.action": "Continue and set up this phone",
   "@recovery.nothing.family.action": {
     "description": "S11.8's one primary button 🔒 (design R2.5, verbatim). It sits in the green row, which the pack says carries it. There is no retry and no second button."

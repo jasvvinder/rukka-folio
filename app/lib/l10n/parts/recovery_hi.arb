@@ -22,6 +22,7 @@
   "recovery.fork.blocked.no_trusted_members": "आपने अभी भरोसेमंद सदस्य नहीं चुने हैं।",
   "recovery.fork.blocked.no_sheet": "इस खाते के लिए कोई रिकवरी शीट नहीं बनाई गई थी।",
   "recovery.fork.blocked.not_yet": "इस फ़ोन पर अभी तैयार नहीं। फ़िलहाल कोई दूसरा तरीका इस्तेमाल करें।",
+  "recovery.fork.unchecked": "हम यह रास्ता इस फ़ोन से देख नहीं सके। यह फिर भी काम कर सकता है — आज़माकर देखें।",
   "recovery.fork.none.action": "इनमें से कोई भी मेरे लिए काम नहीं करता",
   "recovery.fork.loading": "देख रहे हैं कि यह फ़ोन क्या कर सकता है",
   "recovery.fork.error": "हम आपके वापस आने के रास्ते देख नहीं सके।",

@@ -81,10 +81,28 @@ class RecoveryLoaderRule extends StatelessWidget {
 
 /// One full-width way back in, on S11.6 (design R2.1).
 ///
-/// Two states and no third: live, or **disabled-with-reason** (13 §4.3). A
-/// rung is never hidden — a row that vanishes teaches the reader that their
-/// books are unreachable, which is false, and 07 §1 rule 6 forbids the dead
-/// end that would follow.
+/// **Three states, not two.** A rung is never hidden — a row that vanishes
+/// teaches the reader that their books are unreachable, which is false, and
+/// 07 §1 rule 6 forbids the dead end that would follow. The three are:
+///
+///  * **live** — a real source said the rung can be taken: full-ink title,
+///    chevron, nothing else;
+///  * **disabled-with-reason** (13 §4.3) — a real source refused it: lock
+///    icon, the refusal as a sentence, `locked` tint, no chevron, inert;
+///  * **live-but-unchecked** — nothing this phone could reach answered
+///    ([RecoveryRungOffer.unknown], and the 🔒 on that constructor: *"A
+///    screen must not draw it as denied, and must not draw it as confirmed
+///    either"*). The row stays **takeable**, because it may well work and
+///    spending the row is cheaper than telling a person holding a recovery
+///    sheet that they have none — and it carries [unknownNote], a
+///    question-mark icon and the `warning` tint, so it is not the confirmed
+///    row either.
+///
+/// The third differs from the first by an **icon and a sentence** before it
+/// differs by a tint, which is what 07 §1 rule 3 🔒 asks: strip the colour
+/// and the row still reads *we could not check this*. It differs from the
+/// second by the chevron, by staying live, and by saying nothing about why —
+/// because there is nothing true to say.
 class RecoveryRungRow extends StatelessWidget {
   /// Creates the row.
   const RecoveryRungRow({
@@ -95,8 +113,14 @@ class RecoveryRungRow extends StatelessWidget {
     this.subLine,
     this.note,
     this.reason,
+    this.unknownNote,
     this.onTap,
-  });
+  }) : assert(
+         reason == null || unknownNote == null,
+         'a rung is refused or unchecked, never both: a refusal names a '
+         'source that said no, and an unchecked rung is the admission that '
+         'none answered (recovery_ladder.dart 🔒)',
+       );
 
   /// Which rung this row offers — the screen's order is asserted off this.
   final RecoveryRung rung;
@@ -113,8 +137,15 @@ class RecoveryRungRow extends StatelessWidget {
   /// An extra true line, e.g. 06 §5's *link instead*.
   final String? note;
 
-  /// Why this row cannot be taken; null when it can.
+  /// Why this row cannot be taken; null when it can **and** null when nothing
+  /// found out — an unchecked rung was never refused, so it has no reason.
   final String? reason;
+
+  /// What to say when no source could establish this rung: *we could not
+  /// check this from this phone, it may still work*.
+  ///
+  /// Mutually exclusive with [reason]. The row stays live while it is set.
+  final String? unknownNote;
 
   /// Taken when the row is live.
   final VoidCallback? onTap;
@@ -125,14 +156,17 @@ class RecoveryRungRow extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final status = RkStatusColors.of(context);
     final blocked = reason != null;
+    final unchecked = unknownNote != null;
     final titleColor = blocked ? status.locked : scheme.onSurface;
 
     return Semantics(
       button: !blocked,
       enabled: !blocked,
       // The reason travels with the control, so a screen reader hears *why*
-      // and not merely "dimmed".
-      hint: reason,
+      // and not merely "dimmed" — and an unchecked rung carries its own
+      // admission the same way, so the third state is never silent to a
+      // screen reader that cannot see the icon at all.
+      hint: reason ?? unknownNote,
       child: InkWell(
         // A blocked row is inert rather than absent: no callback, no ripple.
         onTap: blocked ? null : onTap,
@@ -188,6 +222,20 @@ class RecoveryRungRow extends StatelessWidget {
                         icon: Icons.lock_outline,
                         text: reason!,
                         color: status.locked,
+                      ),
+                    ],
+                    if (unchecked) ...[
+                      const SizedBox(height: RkSpace.s2),
+                      // A question mark, never a lock: the shape itself has
+                      // to separate *we could not find out* from *no*, since
+                      // 07 §1 rule 3 🔒 means the tint may carry neither on
+                      // its own. `warning` and not `locked` for the same
+                      // reason — the row is still live, and `locked` is the
+                      // refusal's tint (design-system §2).
+                      _IconLine(
+                        icon: Icons.help_outline,
+                        text: unknownNote!,
+                        color: status.warning,
                       ),
                     ],
                   ],

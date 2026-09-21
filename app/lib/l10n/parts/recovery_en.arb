@@ -44,6 +44,8 @@
   "@recovery.fork.blocked.no_sheet": {"description": "S11.6 disabled-with-reason for rung 3 (04 §7.4; a regenerated sheet also invalidates the old one)."},
   "recovery.fork.blocked.not_yet": "Not ready on this phone yet. Use one of the other ways for now.",
   "@recovery.fork.blocked.not_yet": {"description": "S11.6 disabled-with-reason for a rung this build cannot walk (S11.2, S11.3 are not built at M11). Names a way that works rather than apologising — 07 §1 rule 6."},
+  "recovery.fork.unchecked": "We couldn’t check this one from this phone. It may still work — tap to try it.",
+  "@recovery.fork.unchecked": {"description": "S11.6 third state (seams/recovery_ladder.dart 🔒 RecoveryRungOffer.unknown): no source answered for this rung. The row stays takeable — it may well work — and this line, beside a question-mark icon, is what keeps it from reading as a confirmed way in. Never a refusal: a refusal is recovery.fork.blocked.*."},
   "recovery.fork.none.action": "None of these work for me",
   "@recovery.fork.none.action": {"description": "S11.6 → S11.8. ⚠️ SPEC: the pack does not draw this control, but 07 §1 rule 6 🔒 forbids a dead end and 13 §5 F11 routes 'none → S11.8', so the fork always offers the honest way onward."},
   "recovery.fork.loading": "Checking what this phone can do",

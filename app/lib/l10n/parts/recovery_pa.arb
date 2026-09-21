@@ -22,6 +22,7 @@
   "recovery.fork.blocked.no_trusted_members": "ਤੁਸੀਂ ਹਾਲੇ ਭਰੋਸੇਯੋਗ ਮੈਂਬਰ ਨਹੀਂ ਚੁਣੇ।",
   "recovery.fork.blocked.no_sheet": "ਇਸ ਖਾਤੇ ਲਈ ਕੋਈ ਰਿਕਵਰੀ ਸ਼ੀਟ ਨਹੀਂ ਬਣਾਈ ਗਈ ਸੀ।",
   "recovery.fork.blocked.not_yet": "ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਹਾਲੇ ਤਿਆਰ ਨਹੀਂ। ਫ਼ਿਲਹਾਲ ਕੋਈ ਹੋਰ ਤਰੀਕਾ ਵਰਤੋ।",
+  "recovery.fork.unchecked": "ਅਸੀਂ ਇਹ ਰਾਹ ਇਸ ਫ਼ੋਨ ਤੋਂ ਵੇਖ ਨਹੀਂ ਸਕੇ। ਇਹ ਫਿਰ ਵੀ ਕੰਮ ਕਰ ਸਕਦਾ ਹੈ — ਅਜ਼ਮਾ ਕੇ ਵੇਖੋ।",
   "recovery.fork.none.action": "ਇਨ੍ਹਾਂ ਵਿੱਚੋਂ ਕੋਈ ਵੀ ਮੇਰੇ ਲਈ ਕੰਮ ਨਹੀਂ ਕਰਦਾ",
   "recovery.fork.loading": "ਵੇਖ ਰਹੇ ਹਾਂ ਕਿ ਇਹ ਫ਼ੋਨ ਕੀ ਕਰ ਸਕਦਾ ਹੈ",
   "recovery.fork.error": "ਅਸੀਂ ਤੁਹਾਡੇ ਵਾਪਸ ਆਉਣ ਦੇ ਰਾਹ ਵੇਖ ਨਹੀਂ ਸਕੇ।",

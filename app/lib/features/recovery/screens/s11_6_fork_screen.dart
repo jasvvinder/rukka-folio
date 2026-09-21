@@ -15,6 +15,19 @@
 // blocked row still states its reason and still names a way that works, which
 // is what 07 §1 rule 6 asks of a blocked action. A row that disappeared would
 // quietly teach the reader that the way is gone; it is not.
+//
+// **The ladder answers three things, so this screen draws three.** The 🔒 on
+// `RecoveryRungOffer.unknown` (`shared/seams/recovery_ladder.dart`) is
+// explicit that an unchecked rung "must not be drawn as denied, and must not
+// be drawn as confirmed either". Until 22 Sep this screen read `blocked ==
+// null` as *available* and drew the two identically — which since 21 Sep,
+// when rung 1 became permanently unknown, meant every locked-out person was
+// offered *Use another phone* as a door somebody had confirmed for them. The
+// third rendering is `RecoveryRungRow.unknownNote`: the row stays takeable,
+// because an unchecked rung may well work and the cost of the tap is one tap,
+// and it says plainly that this phone could not check. Neither the ladder nor
+// the seam was bent to compensate — the shape of the answer was always right,
+// only the drawing of it was wrong.
 import 'package:flutter/material.dart';
 
 import '../../../l10n/gen/app_localizations.dart';
@@ -187,8 +200,17 @@ class _Fork extends StatelessWidget {
     // trusted-member row and shown only while that is true — said when it is
     // not, it would be a lie about a phone they do not have.
     final canLink = _offerFor(RecoveryRung.anotherDevice).isAvailable;
+
+    // `isBlocked`, **not** `!isAvailable`. 13 §5 F11 routes `none → S11.8`,
+    // and "none" means every way was *refused* — an unchecked rung is not a
+    // refusal, and counting it as one puts *None of these work for me* under
+    // rows the person can still take. That reads as an invitation to give up
+    // while a door may be open, which is the one thing the control's own
+    // ⚠️ SPEC note below says it must never do. A wholly unchecked ladder
+    // therefore shows no such control and is still no dead end: every row is
+    // live, and the rung the person takes reports its own outcome.
     final allBlocked = RecoveryRung.forkOrder.every(
-      (r) => !_offerFor(r).isAvailable,
+      (r) => _offerFor(r).isBlocked,
     );
 
     Widget row(RecoveryRung rung) {
@@ -215,6 +237,10 @@ class _Fork extends StatelessWidget {
             ? l10n.recoveryForkTrustedLinkInstead
             : null,
         reason: blocked == null ? null : _reason(l10n, blocked),
+        // The third state, read off `isUnknown` and never off `blocked ==
+        // null` — the two offers that carry no reason are not the same
+        // answer (recovery_ladder.dart 🔒).
+        unknownNote: offer.isUnknown ? l10n.recoveryForkUnchecked : null,
         onTap: onRung == null ? null : () => onRung!(rung),
       );
     }

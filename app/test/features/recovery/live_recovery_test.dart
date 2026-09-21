@@ -484,14 +484,9 @@ void main() {
               'confirmed one on screen',
         );
       },
-      // The defect is real and confirmed; the fix is in
-      // `app/lib/features/recovery/screens/s11_6_fork_screen.dart`, which the
-      // `shared/sync` lane does not own. Landing this red would break the
-      // build for the lane that does, so it is pinned and skipped rather than
-      // dropped — the alternative is that nothing in the repo records it.
-      // SKIPPED, not deleted: an `unknown` rung renders as `available`
-      // (review finding 2 of 21 Sep). Un-skip with the fork-screen fix.
-      skip: true,
+      // UN-SKIPPED 22 Sep by the lane that owns the screen: the fork now
+      // passes `unknownNote` off `offer.isUnknown`, so the two signatures
+      // differ by a sentence and an icon rather than by nothing at all.
     );
 
     testWidgets(

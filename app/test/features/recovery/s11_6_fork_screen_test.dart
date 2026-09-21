@@ -237,6 +237,243 @@ void main() {
     );
 
     testWidgets(
+      'F1-07-418 a rung nothing could check is drawn as neither of the two '
+      'easy answers: it is not greyed out as refused — it stays takeable and '
+      'reaches the caller — and it is not the confirmed row either, because '
+      'it carries the plain admission that this phone could not check '
+      '(recovery_ladder.dart RecoveryRungOffer.unknown 🔒)',
+      (tester) async {
+        final taken = <RecoveryRung>[];
+        await pumpRk(
+          tester,
+          RecoveryForkScreen(
+            ladder: FakeRecoveryLadder.allUnknown(),
+            onRung: taken.add,
+          ),
+          viewport: rkTallViewport,
+        );
+
+        // Not denied: the row fires, and nothing refuses it.
+        await tester.tap(find.text('Use your recovery sheet'));
+        await tester.pump();
+        expect(taken, [RecoveryRung.recoverySheet]);
+        expect(
+          find.byIcon(Icons.lock_outline),
+          findsNothing,
+          reason: 'the lock is the refusal’s own shape; nothing refused here',
+        );
+        for (final row in tester.widgetList<RecoveryRungRow>(
+          find.byType(RecoveryRungRow),
+        )) {
+          expect(row.reason, isNull, reason: row.rung.name);
+        }
+
+        // Not confirmed either: every row says so, in words, beside an icon
+        // that is not the lock.
+        expect(
+          find.text(
+            'We couldn’t check this one from this phone. '
+            'It may still work — tap to try it.',
+          ),
+          findsNWidgets(3),
+        );
+        expect(find.byIcon(Icons.help_outline), findsNWidgets(3));
+
+        // And a screen reader that never sees either icon still hears it.
+        final sem = tester
+            .widgetList<Semantics>(
+              find.descendant(
+                of: find.byWidgetPredicate(
+                  (w) =>
+                      w is RecoveryRungRow &&
+                      w.rung == RecoveryRung.recoverySheet,
+                ),
+                matching: find.byType(Semantics),
+              ),
+            )
+            .first
+            .properties;
+        expect(sem.enabled, isTrue);
+        expect(sem.hint, contains('could'));
+      },
+    );
+
+    testWidgets(
+      'F1-07-419 the difference survives with colour removed (07 §1 rule 3 '
+      '🔒): reading only the words, the liveness and the icons, an unchecked '
+      'rung matches neither the available one nor the refused one',
+      (tester) async {
+        // Everything about the sheet row a reader gets **without** colour.
+        Future<String> signature(RecoveryRungOffer sheet) async {
+          await pumpRk(
+            tester,
+            RecoveryForkScreen(
+              ladder: FakeRecoveryLadder(
+                offers: [
+                  const RecoveryRungOffer.available(RecoveryRung.anotherDevice),
+                  const RecoveryRungOffer.available(
+                    RecoveryRung.trustedMembers,
+                  ),
+                  sheet,
+                ],
+              ),
+              onRung: (_) {},
+            ),
+            viewport: rkTallViewport,
+          );
+          final finder = find.byWidgetPredicate(
+            (w) => w is RecoveryRungRow && w.rung == RecoveryRung.recoverySheet,
+          );
+          final row = tester.widget<RecoveryRungRow>(finder);
+          final words = [
+            for (final t in tester.widgetList<Text>(
+              find.descendant(of: finder, matching: find.byType(Text)),
+            ))
+              t.data,
+          ];
+          final icons = [
+            for (final i in tester.widgetList<Icon>(
+              find.descendant(of: finder, matching: find.byType(Icon)),
+            ))
+              i.icon?.codePoint,
+          ];
+          return 'live=${row.onTap != null} words=$words icons=$icons';
+        }
+
+        final unchecked = await signature(
+          const RecoveryRungOffer.unknown(RecoveryRung.recoverySheet),
+        );
+        final available = await signature(
+          const RecoveryRungOffer.available(RecoveryRung.recoverySheet),
+        );
+        final refused = await signature(
+          const RecoveryRungOffer.blocked(
+            RecoveryRung.recoverySheet,
+            RecoveryRungBlocked.noRecoverySheet,
+          ),
+        );
+
+        expect(
+          unchecked,
+          isNot(available),
+          reason: 'an unchecked rung was never confirmed by anyone',
+        );
+        expect(
+          unchecked,
+          isNot(refused),
+          reason: 'an unchecked rung was never refused by anyone',
+        );
+        // Guards the guard: the two ends really do differ too, so the
+        // signature is reading something rather than returning a constant.
+        expect(available, isNot(refused));
+      },
+    );
+
+    testWidgets(
+      'F1-07-420 "None of these work for me" counts refusals and never '
+      'unchecked rungs: an all-unchecked ladder offers no such control, '
+      'because every row is still takeable and the control would invite '
+      'giving up while a door may be open (13 §5 F11 "none → S11.8")',
+      (tester) async {
+        var onward = 0;
+        await pumpRk(
+          tester,
+          RecoveryForkScreen(
+            ladder: FakeRecoveryLadder.allUnknown(),
+            onRung: (_) {},
+            onNothingWorked: () => onward++,
+          ),
+          viewport: rkTallViewport,
+        );
+        expect(find.text('None of these work for me'), findsNothing);
+        expect(onward, 0);
+
+        // The refused ladder is unchanged — the control is still there, which
+        // is what stops the assertion above from passing by deletion.
+        await pumpRk(
+          tester,
+          RecoveryForkScreen(
+            ladder: FakeRecoveryLadder.nothingWorked(),
+            onNothingWorked: () => onward++,
+          ),
+          viewport: rkTallViewport,
+        );
+        expect(find.text('None of these work for me'), findsOneWidget);
+
+        // A ladder that is part refused, part unchecked offers it neither:
+        // one rung may still work.
+        await pumpRk(
+          tester,
+          RecoveryForkScreen(
+            ladder: FakeRecoveryLadder(
+              offers: const [
+                RecoveryRungOffer.unknown(RecoveryRung.anotherDevice),
+                RecoveryRungOffer.blocked(
+                  RecoveryRung.trustedMembers,
+                  RecoveryRungBlocked.noTrustedMembers,
+                ),
+                RecoveryRungOffer.blocked(
+                  RecoveryRung.recoverySheet,
+                  RecoveryRungBlocked.noRecoverySheet,
+                ),
+              ],
+            ),
+            onNothingWorked: () => onward++,
+          ),
+          viewport: rkTallViewport,
+        );
+        expect(find.text('None of these work for me'), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'F1-07-421 an unchecked rung 1 promises nothing: 06 §5’s "use that '
+      'instead" line is attached to a phone a real source confirmed, so a '
+      'ladder that could not check says it to nobody',
+      (tester) async {
+        await pumpRk(
+          tester,
+          RecoveryForkScreen(ladder: FakeRecoveryLadder.allUnknown()),
+          viewport: rkTallViewport,
+        );
+        expect(
+          find.textContaining('use that instead. It is instant'),
+          findsNothing,
+        );
+      },
+    );
+
+    testWidgets(
+      'F1-07-422 the unchecked rendering holds at 200 % text on 360×800 and '
+      '375×667 in all three languages — the third state adds a sentence to '
+      'every row, which is exactly where a fork overflows',
+      (tester) async {
+        for (final locale in rkLocales) {
+          for (final size in rkPhones) {
+            for (final scale in rkTextScales) {
+              await pumpRk(
+                tester,
+                RecoveryForkScreen(
+                  ladder: FakeRecoveryLadder.allUnknown(),
+                  onRung: (_) {},
+                ),
+                locale: locale,
+                textScale: scale,
+                viewport: size,
+              );
+              expect(
+                tester.takeException(),
+                isNull,
+                reason: '$locale $size ×$scale',
+              );
+              expectTextFits(tester, reason: '$locale $size ×$scale');
+            }
+          }
+        }
+      },
+    );
+
+    testWidgets(
       'F1-07-278 the fork holds at 200 % text on 360×800 and 375×667 in all '
       'three languages, with no overflow and no silently cut word',
       (tester) async {
