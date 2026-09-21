@@ -67,7 +67,7 @@ A device that cannot unwrap the new `BK` is not a member any more; it will recei
 - **Dangling references are held 🔒 (ADR 2026-09-05b §4):** an amend, reverse or decision whose target has not arrived sits in `held` — not projected, not quarantined. When every author's `author_seq` is contiguous and the target is still absent, quarantine `target_missing`. ⟦tests: D-05-2⟧
 - Undecryptable envelopes (key not yet arrived) queue in `key_wait`; retried whenever §5 delivers keys. Not an error state for 24 h; after that, surface in Inbox.
 
-## 5. Metadata & key sync 🔒 ⟦tests: E-05-9, D-05-11, D-05-12, D-05b-1, D-05-24, D-05-25, D-05-26, D-05-27, D-05-28, D-05-29, D-05-30, D-05-31, D-05-32, D-05-33, D-05-34, D-05-35, D-05-40, D-05-41, F1-05-43, F1-05-44, F1-05-45, F1-05-46, F1-05-57, F1-05-58, E-06-43, E-06-45, E-06-46⟧
+## 5. Metadata & key sync 🔒 ⟦tests: E-05-9, D-05-11, D-05-12, D-05b-1, D-05-24, D-05-25, D-05-26, D-05-27, D-05-28, D-05-29, D-05-30, D-05-31, D-05-32, D-05-33, D-05-34, D-05-35, D-05-40, D-05-41, F1-05-43, F1-05-44, F1-05-45, F1-05-46, F1-05-57, F1-05-58, E-06-43, E-06-45, E-06-46, E-06-57, E-06-58, C-06-42⟧
 
 Separate channel from envelopes, `GET /sync/meta?after=cursor` (cursor = `updated_at,id` on each table): memberships, book_roles, devices+certs, wrapped_keys, invites, verification_events, subscriptions (which therefore carries `updated_at`, 03 §2.4), **entitlement tokens** (Ed25519 by the server's `entitlement_key`, verified against the pinned public key; a tenant with no valid token is *Free*, never *locked* — ADR 2026-09-05g §1, §4), escrow/recovery states, tombstones.
 

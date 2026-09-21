@@ -168,7 +168,7 @@ User-initiated (in-app) or via support: 15-day cooling period, every device + gu
 
 Phone erasure = drop `phone_ct`/`phone_hmac` (ADR 2026-09-05c §4); the KMS key never needs rotation for a single user's erasure.
 
-### 9.4 Phone-number change 🔒 ⟦tests: C-06-23 @M14⟧
+### 9.4 Phone-number change 🔒 ⟦tests: C-06-23 @M14, F1-07-360, F1-07-361, F1-07-362, F1-07-363, F1-07-364, F1-07-365, F1-07-366, F1-07-367, F1-07-368, F1-07-369, F1-07-370, F1-07-371, F1-07-372, F1-07-373⟧
 OTP on old number (or, if lost, guardian approval k-of-n) + OTP on new number → identity record updates; UMK, keys, memberships untouched. The number was only ever the doorbell. **The guardian path carries the same 24 h cancellable window as recovery when any active device exists (ADR 2026-09-05d §1), and the old number receives a plain notice that a change was requested.**
 
 ---

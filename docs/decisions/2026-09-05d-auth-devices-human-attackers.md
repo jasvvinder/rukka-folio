@@ -19,7 +19,7 @@ guardians plus a borrowed phone can no longer take a member's identity — and t
 before the member sees it. A user who still has a device and wants a new one should **link**
 (rung 1), which is instant; the app says so on the recovery screen.
 
-### 2. Uncertified devices see nothing but themselves ⟦tests: E-03-18, E-03-24, E-05-8, E-05-9, E-06-6, E-06-7, C-05d-6, C-06-19, F1-06-1, E-06-52, E-06-53⟧
+### 2. Uncertified devices see nothing but themselves ⟦tests: E-03-18, E-03-24, E-05-8, E-05-9, E-06-6, E-06-7, C-05d-6, C-06-19, F1-06-1, E-06-52, E-06-53, E-06-59, E-06-61⟧
 An OTP proves the doorbell, not the person. Until a device holds a certificate the **server has
 verified** under the user's registered UMK public key (one more Ed25519 verify — within 04 §8.6's
 minimal surface), RLS returns only: the device's own `users` row, its own `devices` row, wrapped
@@ -57,7 +57,7 @@ tenant** ("{name} added a device: {model}"), and a `device_added` **signed recor
 itself, ADR 2026-09-05b §1). Today only guardian recovery notified. This is the sole signal a user
 has that their Apple or Google account was just used against them.
 
-### 7. Verification and device events are signed records ⟦tests: C-05d-7, E-06-36, E-06-37, E-06-38, E-06-39⟧
+### 7. Verification and device events are signed records ⟦tests: C-05d-7, E-06-36, E-06-37, E-06-38, E-06-39, C-06-59, C-06-60⟧
 `verification_events` (who verified whom, method) and device add/revoke are authored on the acting
 device as signed records; the server's rows are its copy (ADR 2026-09-05b §1). The tenant's trust
 history is no longer the server's word.

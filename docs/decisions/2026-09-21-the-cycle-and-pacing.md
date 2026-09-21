@@ -36,10 +36,10 @@ will take more time."*
 1. **A day has a ceiling.** `.claude/rf.config.json` carries `budget.daily_tokens` (**1.2 M**,
    ≈ weekly/6) and `budget.weekly_tokens` (**owner-set, null until filled in**). `/cycle` reads
    today's spend off the board and refuses to start a round that would cross the day's ceiling.
-   🔒 **The quota is not machine-readable** — `wf-spend.sh` says so in its own comment and
-   ADR 2026-09-13e already ruled it: report the spend, do not rule on it. The owner reads `/usage`
-   and writes the number in. On a Team plan it may be pooled across seats.
-   ⟦tests: n/a — process rule, not behaviour⟧
+   🔒 **The quota is not machine-readable** ⟦tests: n/a — process rule, not behaviour⟧
+   `wf-spend.sh` says so in its own comment and ADR 2026-09-13e already ruled it: report the
+   spend, do not rule on it. The owner reads `/usage` and writes the number in. On a Team plan
+   it may be pooled across seats.
 2. **Effort up.** `lane-ui` **medium → high** — the last build lane below high. `lane-mech` stays
    **haiku · low**: it transcribes against `check_strings` and `gen_tokens --check`, which are
    deterministic, and paying a reasoning model for that is the purest waste on the ladder.

@@ -47,7 +47,7 @@ book_roles(book_id, user_id, role text check (role in
         auto_post_limit_paise bigint, primary key (book_id, user_id))
 ```
 
-### 2.2 Devices, keys, ceremonies (plaintext rows, opaque blobs) 🔒 ⟦tests: E-03-18, E-03-24, E-03-27, E-13d-1, E-06-50, E-06-53, E-06-55⟧
+### 2.2 Devices, keys, ceremonies (plaintext rows, opaque blobs) 🔒 ⟦tests: E-03-18, E-03-24, E-03-27, E-13d-1, E-06-50, E-06-53, E-06-55, E-06-60, E-06-61⟧
 
 ```sql
 devices(id uuid pk, user_id fk, pub_ed bytea, pub_x bytea, model, os,
@@ -132,7 +132,7 @@ app_config(key pk, value)               -- min_client_version per route group, e
 otp_challenges / activation_tickets     -- ephemeral, TTL-purged (06 §2–3)
 ```
 
-### 2.5 Row-level security 🔒 ⟦tests: E-03-15, E-03-18, E-03-19, E-03-23, E-03-24, E-03-27, E-05-8, E-05-9, E-06-6, E-06-29, E-06-51, E-06-52, E-06-54⟧
+### 2.5 Row-level security 🔒 ⟦tests: E-03-15, E-03-18, E-03-19, E-03-23, E-03-24, E-03-27, E-05-8, E-05-9, E-06-6, E-06-29, E-06-51, E-06-52, E-06-54, E-06-59, E-06-61⟧
 
 RLS on, `FORCE`, for every table above; the API connects as a non-superuser role with **our** `request.user_id` / `request.device_id` claims (06 §4 JWT, not platform auth) set with `SET LOCAL` per transaction so a pooled connection never carries them across (ADR 2026-09-05c §7).
 
@@ -150,7 +150,7 @@ RLS on, `FORCE`, for every table above; the API connects as a non-superuser role
 
 ## 3. Client schema (SQLite via Drift, SQLCipher at rest)
 
-### 3.1 Layer 1 — envelope mirror & outbox 🔒 ⟦tests: E-03-1, E-03-4, E-03-5, E-03-6, E-03-7, E-05c-1, E-05b-1, F1-03-1, F1-03-3, F1-03-5, E-03-55, E-03-53, E-03-54, E-03-56⟧
+### 3.1 Layer 1 — envelope mirror & outbox 🔒 ⟦tests: E-03-1, E-03-4, E-03-5, E-03-6, E-03-7, E-05c-1, E-05b-1, F1-03-1, F1-03-3, F1-03-5, E-03-55, E-03-53, E-03-54, E-03-56, E-03-57, E-03-58, E-03-59, E-03-60, E-03-61, E-03-62, E-03-63, E-03-64⟧
 
 ```sql
 envelopes_local(envelope_id pk, book_id, object_id, object_type, key_version,

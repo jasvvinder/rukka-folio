@@ -168,20 +168,20 @@ Roles (admin · head · member · operator · viewer) change *what actions appea
 | **S11.4** | Backup settings | S11 | platform key sync toggle · save recovery sheet · readable monthly copy, each with its risk line (04 §7.6) |
 | **S11** | Devices & security | S8 | devices, guardians, recovery sheet, escrow, PIN |
 | **S11.1** | Guardian setup (mutual ceremony) | S11 | 2-of-3 |
-| **S11.2** | Recovery — ask guardians | activation | live k-of-n progress (design R2.2/R2.2b) |
-| **S11.3** | Recovery — paper sheet | activation | scan/type (design R2.4/R2.4b) |
+| **S11.2** | Recovery — ask guardians | activation | live k-of-n progress (design R2.2/R2.2b) ⟦tests: F1-07-290, F1-07-291, F1-07-292, F1-07-293, F1-07-294, F1-07-295, F1-07-296, F1-07-297, F1-07-340, F1-07-341⟧ |
+| **S11.3** | Recovery — paper sheet | activation | scan/type (design R2.4/R2.4b) ⟦tests: F1-07-298, F1-07-299, F1-07-300, F1-07-301, F1-07-302, F1-07-303, F1-07-304, F1-07-342, F1-07-343, F1-07-344⟧ |
 | **S11.5** | Recovery — silent restore (design R2.0) | activation | key returns from the platform keychain; the books open by themselves |
 | **S11.6** | Recovery — the fork (design R2.1) | activation | choose the path: old phone · guardians · paper sheet |
-| **S11.7** | Recovery — the guardian's side (design R2.3) | notification | approve a member's restore from your own phone |
+| **S11.7** | Recovery — the guardian's side (design R2.3) | notification | approve a member's restore from your own phone ⟦tests: F1-07-305, F1-07-306, F1-07-307, F1-07-308, F1-07-309, F1-07-310, F1-07-311⟧ |
 | **S11.8** | Recovery — nothing worked yet (design R2.5) | activation | the honest empty-vault screen + path forward (F11) |
 | **S11.9** | Recovery in progress — Cancel | notification / S11 | on every existing device while a guardian recovery or guardian phone-change waits its 24 h; one-tap Cancel (ADR 2026-09-05d §1) |
 | **S11.10** | Support action pending — Cancel | notification / S11 | support-initiated revocation, 24 h window; the target device suspends, never wipes (ADR 2026-09-05d §3, 05b §2) |
 | **S12** | Subscription | S8 | tiers, renewal, read-only banner |
 | **S9.1** | Invite member | S9 | phone + per-book roles + limits + designation label (06 §1.0 Option B — a name, not a permission); a second admin sees *"Invited by Amrit · awaiting join"*, never the number (ADR 2026-09-05c §4) |
-| **S16** | My account | S8 | name, photo, phone, language |
-| **S16.1** | Edit profile | S16 | name and photo only |
-| **S16.2** | Change phone number | S16 | OTP old + new, or guardian approval if the old number is lost (06 §9.4) |
-| **S16.3** | Delete account | S16 | 15-day cooling, what is erased vs retained (06 §9.3) |
+| **S16** | My account | S8 | name, photo, phone, language ⟦tests: F1-07-316, F1-07-317, F1-07-318, F1-07-319, F1-07-320⟧ |
+| **S16.1** | Edit profile | S16 | name and photo only ⟦tests: F1-07-321, F1-07-322, F1-07-323, F1-07-324⟧ |
+| **S16.2** | Change phone number | S16 | OTP old + new, or guardian approval if the old number is lost (06 §9.4) ⟦tests: F1-07-360, F1-07-361, F1-07-362, F1-07-363, F1-07-364, F1-07-365, F1-07-366, F1-07-367, F1-07-368, F1-07-369, F1-07-370, F1-07-371, F1-07-372, F1-07-373⟧ |
+| **S16.3** | Delete account | S16 | 15-day cooling, what is erased vs retained (06 §9.3) ⟦tests: F1-07-325, F1-07-326, F1-07-327, F1-07-328, F1-07-329⟧ |
 | **S12.1** | Plans | S12 | comparison, annual saving, current plan marked |
 | **S12.2** | Checkout | S12.1 | **iOS = In-App Purchase** (08 §3.2); coupon and GSTIN on non-iOS only |
 | **S12.3** | Manage subscription | S12 | plan, renewal date, change, cancel |
@@ -192,11 +192,11 @@ Roles (admin · head · member · operator · viewer) change *what actions appea
 | **S17.2** | FAQ article | S17 | one answer, plain language |
 | **S17.3** | Contact support | S17 | WhatsApp primary; states what support cannot do |
 | **S17.4** | Send diagnostics | S17.3 | user-triggered, financial values scrubbed, shown before sending |
-| **S18** | Legal | S8 | terms, privacy, licences |
-| **S18.1** | Terms of service | S18 | document page, shared template patterned on S18.3; the designed surface is its summary card on the S18 hub (ADR 2026-09-02) |
-| **S18.2** | Privacy policy | S18 | document page, shared template; summary card "Privacy, in four lines" on the hub |
-| **S18.3** | What we can and cannot see | S18/onboarding | the impossibility table (12 §2) as a user-facing page — a trust asset, not boilerplate; one line on where the data lives (India — ADR 2026-09-05c §1) |
-| **S18.4** | Open-source licences | S18 | document page, shared template |
+| **S18** | Legal | S8 | terms, privacy, licences ⟦tests: F1-07-330, F1-07-331, F1-07-332⟧ |
+| **S18.1** | Terms of service | S18 | document page, shared template patterned on S18.3; the designed surface is its summary card on the S18 hub (ADR 2026-09-02) ⟦tests: F1-07-336, F1-07-337⟧ |
+| **S18.2** | Privacy policy | S18 | document page, shared template; summary card "Privacy, in four lines" on the hub ⟦tests: F1-07-336, F1-07-337⟧ |
+| **S18.3** | What we can and cannot see | S18/onboarding | the impossibility table (12 §2) as a user-facing page — a trust asset, not boilerplate; one line on where the data lives (India — ADR 2026-09-05c §1) ⟦tests: F1-07-333, F1-07-334, F1-07-335⟧ |
+| **S18.4** | Open-source licences | S18 | document page, shared template ⟦tests: F1-07-338, F1-07-339⟧ |
 | **S19.1** | Update required | global | 426 from the API (06 §4.5) |
 | **S19.2** | Maintenance | global | |
 | **S19.3** | No connection | global | non-blocking; the app works offline |

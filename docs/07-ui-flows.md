@@ -22,7 +22,7 @@
 
 ---
 
-## 2. Navigation map 🔒 ⟦tests: F1-07-14⟧
+## 2. Navigation map 🔒 ⟦tests: F1-07-14, F1-07-380, F1-07-381⟧
 
 Bottom bar 🔒 (ADR 2026-09-05f §A): **four tabs — Home · Ledger · Inbox · Menu — plus a docked centre [ + ] action** that is not a tab (no active state, no label). Glyphs and sizes per design-system §4.1; 13 §3.1 and DESIGN-PACK S1 say the same.
 
@@ -302,13 +302,13 @@ Review requested — **digest per author+book**: the first flag notifies, later 
 ## 20. Subscription screens (S12.x) 🔒 (ADR 2026-09-05f §F; rules in 08 and ADR 2026-09-05g) ⟦tests: F1-07-31 @M13, F1-07-78⟧
 **S12 Subscription** (plan, renewal, entitlement state) · **S12.1 Plans** (comparison, annual saving, current plan marked, quota rows) · **S12.2 Checkout** (iOS = In-App Purchase; coupon and GSTIN on the web path) · **S12.3 Manage** · **S12.4 Payment problem** — the **dunning** grace, tenant-wide, with countdown and retry · **S12.5 Read-only mode** — banner + blocked-entry sheet; export always works; also the **book full** sheet (quota) pointing to S12.1 · **S12.6 Invoices**. Two graces, two copies: dunning (payment failed) is tenant-wide; **offline grace** is device-local and reads *"Connect once to keep entering"* — never "your plan lapsed" before the server has said so.
 
-## 21. Account screens (S16.x) 🔒 (ADR 2026-09-05f §F) ⟦tests: F1-07-32 @M6⟧
+## 21. Account screens (S16.x) 🔒 (ADR 2026-09-05f §F) ⟦tests: F1-07-32 @M6, F1-07-316, F1-07-317, F1-07-318, F1-07-319, F1-07-320, F1-07-321, F1-07-322, F1-07-323, F1-07-324, F1-07-325, F1-07-326, F1-07-327, F1-07-328, F1-07-329, F1-07-360, F1-07-361, F1-07-362, F1-07-363, F1-07-364, F1-07-365, F1-07-366, F1-07-367, F1-07-368, F1-07-369, F1-07-370, F1-07-371, F1-07-372, F1-07-373⟧
 **S16 My account** · **S16.1 Edit profile** (name, photo) · **S16.2 Change phone number** — OTP old + new; if the old number is lost, guardian approval with the **24 h Cancel window** on every existing device (ADR 2026-09-05d §1) · **S16.3 Delete account** — 15-day cooling, what is erased vs retained (06 §9.3), cancel anytime; a support-initiated request lands here as a card to accept, never as a started clock (ADR 2026-09-05h).
 
 ## 22. Help & diagnostics (S17.x) 🔒 (ADR 2026-09-05f §F) ⟦tests: F1-07-33 @M14⟧
 **S17 Help** (searchable FAQ hub) · **S17.2 FAQ article** · **S17.3 Contact support** — WhatsApp primary; **states what support cannot do** (read a book, recover a key, add a member, bypass a ceremony — 06 §8) · **S17.4 Send diagnostics** — user-triggered, financial values scrubbed, the payload shown before sending.
 
-## 23. Legal & trust (S18.x) 🔒 (ADR 2026-09-05f §F) ⟦tests: F1-07-34 @M14⟧
+## 23. Legal & trust (S18.x) 🔒 (ADR 2026-09-05f §F) ⟦tests: F1-07-34 @M14, F1-07-330, F1-07-331, F1-07-332, F1-07-333, F1-07-334, F1-07-335, F1-07-336, F1-07-337, F1-07-338, F1-07-339, F1-07-380⟧
 **S18.3 What we can and cannot see** — the impossibility table (12 §2) as a page, with one line on **where the data lives: India** (ADR 2026-09-05c §1) and one on what a rooted phone changes (nothing about the server; everything about that phone).
 
 ## 24. System screens (S19.x) 🔒 (ADR 2026-09-05f §B, §F) ⟦tests: F1-06-7, F1-06-16, F1-07-85⟧

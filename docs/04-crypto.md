@@ -136,7 +136,7 @@ BK wrapped only to the owner's UMK (+ optional escrow §7.5). No admin path exis
 
 ---
 
-## 6. Verification ceremony 🔒 ⟦tests: B-04-4, B-04-5, B-04-6, B-04-7, B-04-9, B-04-10, B-04-11, B-04-86, B-04-87, B-04-88, B-04-89, B-04-90, E-13d-1, F1-13d-1, F1-13d-2⟧
+## 6. Verification ceremony 🔒 ⟦tests: B-04-4, B-04-5, B-04-6, B-04-7, B-04-9, B-04-10, B-04-11, B-04-86, B-04-87, B-04-88, B-04-89, B-04-90, E-13d-1, F1-13d-1, F1-13d-2, C-06-66, C-06-67, C-06-68, C-06-69, C-06-70⟧
 
 **Purpose:** bind a UMK fingerprint to a human. **Mandatory** before any shared-book key is wrapped to a new member, before guardian activation, before device linking, and before trustee handover. One component, four uses.
 
@@ -153,7 +153,7 @@ BK wrapped only to the owner's UMK (+ optional escrow §7.5). No admin path exis
 - **QR path:** verifier's device compares scanned public keys **byte-for-byte** against the server-relayed keys for that user. Equal → verified. Unequal → hard-fail red screen: *"Do not proceed. Contact support."* Log a `verification_mismatch` security event. There is no override.
 - **Code path 🔒 (ADR 2026-09-13d §1, §5):** the verifier's device holds the server-relayed keys **and the relayed commitment before drawing `r_V`**; it checks the relayed opening against that commitment (mismatch → hard-fail, as for QR) and only then compares the typed digits. The verifier's device **never displays its expected code**. 3 attempts per session; lifetime 10 minutes from the commitment's server timestamp; *Regenerate* opens a fresh session. **Rate limits bound a guesser; the commitment is what makes 8 digits sufficient against the relay.** ⟦tests: B-04-88, B-04-90, F1-13d-2⟧
 
-### 6.4 Modes & policy 🔒 ⟦tests: B-04-40, B-04-41⟧
+### 6.4 Modes & policy 🔒 ⟦tests: B-04-40, B-04-41, C-06-66, C-06-67, C-06-68, C-06-69, C-06-70⟧
 - **Default: QR, in person.**
 - **Remote:** admin toggles *Verify remotely* per invite → verifier scans the QR off a **video call**, or the code is read aloud on a **voice call** and typed. Direction is irrelevant (the code originates on the invitee's device; either side may read it) — the UI never mentions direction.
 - **Channel rule:** the code must travel over a channel where the verifier recognizes the *person* (voice/video/in person). Therefore **no share/copy button** on the code — the remote screen says *"Call them and ask them to read the code aloud."* SMS/WhatsApp-text delivery would hand the code to precisely the attacker this ceremony exists to stop.
@@ -173,7 +173,7 @@ Reinstall on the same iPhone may find device keys intact → normal certified de
 ### 7.2 Rung 1 — another of your own devices
 Standard device linking (§9.1).
 
-### 7.3 Rung 2 — guardians (flagship) 🔒 ⟦tests: B-04-53, B-04-54, B-04-55, B-04-62, B-04-64, B-04-65, B-04-67, B-04-72, B-04-75, B-04-76, B-04-77, B-04-78, B-04-80, B-04-81, E-06-43, E-06-44, E-06-45, E-06-46, E-06-47, E-06-48, E-06-49, E-06-50, E-06-51, E-06-52, E-06-53, E-06-54, E-06-55, E-06-56, F1-06-21, F1-06-22, F1-06-28, C-06-37, C-06-38, B-04-85, B-04-93, F1-06-35, F1-06-38, F1-06-39, F1-06-41, F1-06-42⟧
+### 7.3 Rung 2 — guardians (flagship) 🔒 ⟦tests: B-04-53, B-04-54, B-04-55, B-04-62, B-04-64, B-04-65, B-04-67, B-04-72, B-04-75, B-04-76, B-04-77, B-04-78, B-04-80, B-04-81, E-06-43, E-06-44, E-06-45, E-06-46, E-06-47, E-06-48, E-06-49, E-06-50, E-06-51, E-06-52, E-06-53, E-06-54, E-06-55, E-06-56, F1-06-21, F1-06-22, F1-06-28, C-06-37, C-06-38, B-04-85, B-04-93, F1-06-35, F1-06-38, F1-06-39, F1-06-41, F1-06-42, E-06-57, C-06-42, C-06-43, C-06-44, C-06-45, C-06-46, C-06-47, C-06-48, C-06-49, C-06-50, C-06-51, C-06-52, C-06-53, C-06-54, C-06-55, C-06-56, F1-06-45, F1-06-46, C-06-40, C-06-57, C-06-58, F1-06-53, F1-06-54, F1-06-55, F1-07-340, F1-07-341⟧
 **Setup:** choose guardians (default **2-of-3**; allowed n=2..5 with k=⌈(n+1)/2⌉; 2-of-2 permitted only behind a **typed confirmation**, never a dismissible warning — ADR 2026-09-06 checklist 4). Mutual ceremony per guardian. Split `UMK_priv` via Shamir; seal `share_i` to guardian *i*'s UMK public key; upload. Re-split and re-upload on any guardian change or UMK rotation; shares carry `share_set_version`.
 
 **Recovery:**
@@ -185,7 +185,7 @@ Standard device linking (§9.1).
 6. The device **self-issues its certificate** under the recovered UMK and 🔒 notifies all members and revokes all *previous* device sessions of this user (a recovery event is exactly when old devices should die). **If the user still has an active certified device, steps 4–6 wait 24 h behind a one-tap Cancel on every existing device (ADR 2026-09-05d §1); immediate only when none exists.**
 7. Guardian denial → requester notified; 3 denials or 72 h → recovery attempt closed and logged.
 
-### 7.4 Rung 3 — paper sheet 🔒 ⟦tests: B-04-15, B-04-16, B-04-17, B-04-18, F1-06-40⟧
+### 7.4 Rung 3 — paper sheet 🔒 ⟦tests: B-04-15, B-04-16, B-04-17, B-04-18, F1-06-40, E-06-58, E-06-60, E-06-61, C-06-39, F1-06-47, F1-06-48, F1-06-49, F1-06-50, F1-06-51, F1-06-52, F1-06-56, F1-07-342, F1-07-343, F1-07-344⟧
 - `RK` = random 256-bit, generated at signup. Server stores `sealed_RK_blob = XChaCha20(RK, UMK_priv)`.
 - Sheet = one-page PDF: QR `base64url(version ‖ user_id ‖ RK)` + typed fallback (Crockford Base32, groups of 4, 2-char checksum) + instructions in English + the user's language (ਪੰਜਾਬੀ/हिन्दी). Framed as a document to keep with the Aadhaar and LIC papers.
 - **Verified-storage nag:** persistent badge until the user scans their *printed* sheet back. Re-verify prompt annually. Regenerating a sheet rotates RK and invalidates the old sheet.
@@ -241,7 +241,7 @@ Standard device linking (§9.1).
 ## 8. Rules the implementation must enforce
 
 1. Private keys, shares, and RK never leave a device unencrypted. No plaintext key in logs, crash reports, analytics, or memory dumps (zeroize after use where the platform allows).
-2. No book key is wrapped to an unverified fingerprint. Ever.
+2. No book key is wrapped to an unverified fingerprint. Ever. ⟦tests: C-06-57, C-06-58, C-06-59, C-06-60, C-06-61, C-06-62, C-06-63, C-06-64, C-06-65, C-06-66, C-06-67, C-06-68, C-06-69, C-06-70⟧
 3. Every envelope's signature chain (§3.4) is verified on read; failures quarantine the envelope and raise a security event — never display unverified content as trusted.
 4. All random values from libsodium CSPRNG.
 5. Any schema/suite change bumps `suite_version`; old suites remain readable (decrypt-only) for ≥ 2 years.

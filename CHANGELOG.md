@@ -12,6 +12,112 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-21 — M11/M12: the UMK x half reaches the wire, S17 help, and the ladder goes live
+
+The first real `/cycle`: three slices built, each reviewed read-only, every finding put to verifiers
+prompted to refute it, survivors sent back to the lane that wrote the code. **15 findings → 14 confirmed,
+1 refuted, one repair round.** The tree opened the session **red** — 8 app test files would not load — and
+closes it green: **1534 app tests, 105 server tests, push lane green**.
+
+Two of the three part-way reports on the board were **stale**, and the tree contradicted both. HELP1's said
+it was "building" three screens; there was no `features/help` directory and no Hindi ARB part. LAD1's said
+"implementation not started"; 285 lines of implementation, a 677-line test that had never run, and a live
+`RecoveryLadderScope` were already in the tree. Reading the files before routing the work is what turned
+this from three blind re-runs into three finishes — and is why desk item 13 exists rather than hiding.
+
+**Added**
+
+- **`server/supabase/migrations/0012_umk_public_x.sql`** — `umk_public_keys.pub_x`, the UMK's X25519 public
+  half. Until now the server stored and relayed `pub_ed` **only**, which made the byte-for-byte comparison
+  `04 §6.3` 🔒 demands *impossible*: the x half comes from its own seed (`core_crypto/keys.dart:13`) and is not
+  derivable from the ed half, so the verification ceremony `04 §6` calls **mandatory** could only ever have
+  compared half of what it names. Write-once by trigger — a substituted x half is precisely the attack the
+  ceremony exists to stop. Relayed by `sync-meta`, accepted by `auth-challenge` with two named refusals
+  (`umk_pub_malformed`, `umk_pub_conflict`). `E-06-62…66`.
+- **`GET /sync-meta/ceremony?subject_user_id=&tenant_id=`** — a verifier who has just scanned a QR holds a
+  user id, and `04 §6.1`'s payload carries no session id, so there was no way to find the live session at all.
+  Uses `0007`'s existing `(tenant_id, subject_user, committed_at desc)` index and adds **no** authority:
+  everything it returns was already selectable under `0007:295`. Non-member, other-tenant and uncertified
+  callers all get the same 404, so it is never an oracle. `E-06-67…69`.
+- **`app/lib/features/help`** — the S17 family: the hub with the searchable, grouped FAQ (S17.1 folded in per
+  ADR 2026-09-02), S17.2 one answer, S17.3 contact, S17.4 send-diagnostics over a **pure allow-list payload
+  builder** with all eight of its 13 §4.3 states drawn. The scrub test asserts amounts, account names and
+  party names are *absent*, so it fails if the scrubber ever returns its input unchanged — CLAUDE.md rule 4
+  made testable rather than trusted. `help_hi.arb` completes EN/PA/HI at 110 keys each. `F1-07-382…415`.
+- **The S8 Help door is live** — the row was a `MenuDisabledRow` stating a reason that stopped being true;
+  `F1-07-415` taps it through a real router and was mutation-verified both ways.
+- **`app/lib/shared/sync/recovery_ladder_source.dart`** — the **live** `RecoveryLadder`. S11.6 had been
+  answering on `FakeRecoveryLadder` **in production**: three rungs, all cheerfully available, none of them
+  asked. Each probe now reports from a real source or reports `unknown`; none defaults to available, which is
+  the seam's own 🔒 — a rung that fails after being offered spends the one attempt a locked-out person steeled
+  themselves for. Rung 0 asks the key store for *presence* only, so no key material is touched and no
+  biometric prompt is raised to answer a question about existence. `F1-06-85…94`, `F1-07-416/417`.
+
+**Changed**
+
+- `app/lib/features/ceremony/ceremony_routes.dart` — added the missing `import 'ceremony_sessions.dart';`.
+  The file **exported** that library but never imported it, so `const NoCeremonySessions()` was unresolvable
+  and every test importing `bootstrap.dart` failed to *load* — `app_test.dart`, `bootstrap_wiring_test.dart`
+  and 6 more. `dart analyze` passed the whole time; only the CFE caught it. Two lanes reported it
+  independently as not-theirs.
+- `app/lib/bootstrap.dart` — `helpRoutes` mounted, so the Help door reaches a matched route.
+- `app/test/features/recovery/live_recovery_test.dart` — `F1-07-415` → `F1-07-417`. Two lanes minted the same
+  id: the orchestrator reserved an `F1-06` range for a slice that then needed `F1-07` ids for screen tests.
+  A brief's gap, not a lane's error; the next brief reserves per family, not per slice.
+- `docs/decisions/2026-09-21-the-cycle-and-pacing.md` — reflowed so the 🔒 line itself ends with its
+  `⟦tests: n/a⟧` marker. `check_coverage` is per **line**, so a marker on the following line does not count;
+  this was the one hard traceability failure in the repo. Now **0 unmarked 🔒 lines across 373**.
+- `rf.umk_pub_for` → `rf.umk_pubs_for`, **narrowed**: the old `SECURITY DEFINER` selector took an arbitrary
+  `p_user`, so any authenticated device could read any uuid's UMK key, bypassing `umk_select`. The successor
+  raises `not_owner` unless the caller asks for itself — which is all its only caller ever passed. This
+  *removes* authority; flagged in case the old oracle was load-bearing somewhere grep did not reach.
+
+**Decided**
+
+- **No ADR needed for `pub_x`.** `04 §6.1`/`§6.3` 🔒 already require both halves; the server was simply
+  non-conformant, and docs win. What *would* need an ADR — making an ed-only registration illegal outright —
+  was **not** taken: `pub_x` stays nullable, an ed-only certify still succeeds, and the ceremony fails
+  **closed** on the device. Left as ⚠️ SPEC on `rf.set_umk_pubs` for the owner (desk 14).
+- **The ed half keeps its pre-0012 behaviour**, deliberately: an offered `umk_pub_ed` that differs from the
+  stored one is ignored and the certificate is verified under the stored key, so the swap fails as
+  `cert_invalid`. `E-06-7` asserts exactly that and was not flipped. Only the x half gets a named conflict —
+  one name for both would need the supersession treatment of ADR 2026-09-05i §4.
+- **S17.4 mounted flat at `/help/diagnostics`** — ⚠️ SPEC: 13 §3.2 names S17.3 as its parent, while 13 §3.1
+  caps a screen at two levels from a bottom-bar root, and `/help/contact/diagnostics` would be three. The
+  conservative reading stands and is commented in `help_paths.dart`.
+- **Nothing launches a URL.** PLAN-11 is unratified, so `url_launcher` stayed out of `pubspec.yaml`:
+  `DiagnosticsSender` and `onOpenChannel` are declared seams with no producer, and both screens render
+  disabled-with-reason — the `RecoveryScanner` precedent. `F1-07-397`/`F1-07-404` pin the absent *and* the
+  supplied case, so routing them later needs no test rewrite.
+
+**Open**
+
+- ⛔ **A confirmed 🔒 breach is landed and skipped** (desk 13, `⟦blocks: REC1⟧`): `s11_6_fork_screen.dart:216`
+  draws an `unknown` rung identically to an `available` one — no reason line, live tap, same semantics. The
+  21 Sep change made production rung 1 permanently `unknown`, so every locked-out person is now offered *Use
+  another phone* as though it worked. `F1-07-417` proves it and is landed with `skip: true` because the fix is
+  in `features/recovery`, which that lane did not own. **The ladder was not bent to compensate.**
+- ⛔ `pub_x` **cannot be backfilled by the server** (desk 14) — only the device holding the UMK has the x half.
+  Every installed device must re-offer it on its next `/devices/certify` or that user's ceremony stays
+  correctly, silently unpassable.
+- ⛔ No support WhatsApp handle exists in the repo (desk 15); the lane refused to invent one (rule 11).
+- ⛔ 🔒 escalation: rung 2 can no longer say a true *"you set nobody up"* (desk 16) — an uncertified device may
+  not read `guardian_sets` at all, so empty and filtered-out are indistinguishable.
+- ⛔ **84 orphan test ids** (desk 17) — warn-only, and now deferred twice. The full id→line mapping is already
+  worked out in the three lane reports; one `lane-mech` round of transcription.
+- ⛔ **`/cycle` cost 4.17 M against a 1.2 M ceiling** (desk 18) — 46 agents, 57 minutes, 3 slices of which 2
+  were high-risk. ADR 2026-09-21's "one cycle is about one day at the pacing ceiling" is false at this shape:
+  cost scales with *slices × verify lenses*, not slices. The gate, invoked separately, cost **28 k** — that
+  separation remains cheap and correct.
+- 84 orphans aside, `check_coverage --strict` is green, `check_strings` is green at 1990 keys × 3 languages,
+  and `dart format` is clean across 598 files.
+
+**Commits**
+
+- _(pending — fill in next session)_
+
+---
+
 ## 2026-09-21 — env: the cycle — a review loop, adversarial verification, and a day's ceiling
 
 Advisory session that became a build one. No milestone code changed; the *build system* did. The owner's

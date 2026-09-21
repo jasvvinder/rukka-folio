@@ -151,7 +151,7 @@ the one moment the UMK itself is at stake.
 - S11.2 offers *Scan your guardian's screen* and nothing else for this step; *Enter code instead* is
   absent. 04 §6.4's remote mode (scan off a video call) applies. Reason: § 4, *Why QR only*. ⟦tests: F1-13c-2⟧
 
-### 3. The mirror direction: a guardian re-seals only to a ceremony-verified candidate ⟦tests: B-04-85, F1-13c-3, E-06-45, E-06-49, E-06-54, B-04-93, F1-06-36, F1-06-37⟧
+### 3. The mirror direction: a guardian re-seals only to a ceremony-verified candidate ⟦tests: B-04-85, F1-13c-3, E-06-45, E-06-49, E-06-54, B-04-93, F1-06-36, F1-06-37, C-06-41⟧
 - The same substitution run the other way is worse: a server that swaps the candidate public key in
   04 §7.3 step 2 has k guardians re-seal the **real** shares to a server key and reconstructs the real UMK.
   04 §7.3 step 2 already carries the defence — "new device fingerprint + *Call them before approving*" —
