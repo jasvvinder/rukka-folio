@@ -18,7 +18,11 @@
 //   • POST `sync-meta/recovery/approve` `{request_id, blob, sealed_to_pub_x}`
 //     → `{request_id, decision, wrapped_key_id}`;
 //   • POST `sync-meta/recovery/deny` `{request_id}`;
-//   • POST `sync-meta/recovery/cancel` `{request_id}` (ADR 2026-09-05d §1).
+//   • POST `sync-meta/recovery/cancel` `{request_id}` (ADR 2026-09-05d §1);
+//   • GET  `sync-meta/recovery/sheet`               → `{user_id,
+//     sheet_version, sealed_rk_blob, created_at}`, or 404 `no_sheet`
+//     (04 §7.4 🔒 rung 3, migration 0011, E-06-58/60/61);
+//   • POST `sync-meta/recovery/sheet` `{blob}`      → `{sheet_version}`.
 //
 // **Three things this client must never do**, because they are the server's
 // and doing them here would be a client that can shorten the ladder:
@@ -75,6 +79,14 @@ final class RecoveryEndpoints {
 
   /// ADR 2026-09-05d §1 — the one-tap Cancel.
   Uri get cancel => _sub('recovery/cancel');
+
+  /// 04 §7.4 🔒 rung 3 — `GET` the caller's **own current** sealed sheet
+  /// blob, `POST` the next one (migration 0011).
+  ///
+  /// The route takes no parameter in either direction that could name a
+  /// *code*: the server holds one blob per user and hands over that one. RK
+  /// never reaches this file, this package or the wire.
+  Uri get sheet => _sub('recovery/sheet');
 }
 
 /// Why a recovery call was refused, named exactly as the route names it
@@ -122,6 +134,22 @@ enum RecoveryRefusal {
   /// 404 — no such attempt for this caller.
   notFound,
 
+  /// 404 `no_sheet` — this user never published a recovery sheet, or this
+  /// caller may not read one.
+  ///
+  /// **It is not a rejected code.** 04 §7.4 🔒's rung 3 fails here before any
+  /// decryption is attempted, so nothing about the code the human typed has
+  /// been learned — and a screen that said *"that code didn't work"* on this
+  /// refusal would be telling somebody their correctly copied sheet is wrong.
+  /// The verdict on a code is the client's AEAD open and only that.
+  noSheet,
+
+  /// 409 `sheet_version_out_of_order` / `append_only` — a sheet at that
+  /// version is already filed. 0011 is write-once and versioned (04 §7.4 🔒:
+  /// regenerating rotates RK), so this is the refusal a second publisher
+  /// meets, never a licence to overwrite.
+  sheetConflict,
+
   /// 426 — this build is below the floor (06 §4.5).
   upgradeRequired,
 
@@ -153,7 +181,10 @@ RecoveryRefusal recoveryRefusalOf(String? error, int status) => switch (error) {
   'recovery_closed' => RecoveryRefusal.recoveryClosed,
   'already_decided' => RecoveryRefusal.alreadyDecided,
   'candidate_key_mismatch' => RecoveryRefusal.candidateKeyMismatch,
-  'recovery_flood' => RecoveryRefusal.flood,
+  'recovery_flood' || 'sheet_flood' => RecoveryRefusal.flood,
+  'no_sheet' => RecoveryRefusal.noSheet,
+  'sheet_version_out_of_order' ||
+  'append_only' => RecoveryRefusal.sheetConflict,
   'upgrade_required' => RecoveryRefusal.upgradeRequired,
   'unauthorized' || 'forbidden' => RecoveryRefusal.unauthorized,
   'not_found' => RecoveryRefusal.notFound,
@@ -226,15 +257,21 @@ final class RecoveryRequestWire {
 
 /// One guardian's decision, as it would arrive from the append-only rows.
 ///
-/// ⚠️ SPEC: **`sync-meta` does not send this yet.** `progressToWire` carries
-/// `approvals` and `denials` as integers and names nobody, while 0010's whole
-/// decision 🔒 is that the rows exist precisely so the requester's screen can
-/// say *which* trusted members approved (ADR 2026-09-06 § Consequences;
-/// ADR 2026-09-05d §1's cancel "notifies the guardians who approved"). This
-/// client reads the array when the route grows it and **attributes nothing
-/// when it is absent** — naming a member who did not act would be a falsehood
-/// on a security screen, and picking "the first two" is exactly the invention
-/// CLAUDE.md forbids. Reported as an open item against the server lane.
+/// `progressToWire` sends these (M11 RV7, ⚠️ WIRE sync-meta/index.ts):
+/// `decisions: [{guardian_user_id, decision, created_at}]`, beside the
+/// `approvals` / `denials` integers it always sent. The rows are why 0010
+/// stores one append-only decision per guardian (ADR 2026-09-06 §
+/// Consequences; ADR 2026-09-05d §1's cancel "notifies the guardians who
+/// approved") — they are what lets the requester's screen say *which* member
+/// acted.
+///
+/// **A missing array still attributes nothing.** The integers never stand in
+/// for names: ticking "the first `approvals` members" would mark somebody who
+/// did not act, on the one screen whose job is to say who did, and a denial
+/// is a row while silence is the absence of one. So an older server, a body
+/// this build cannot parse and a genuinely undecided attempt all read the
+/// same way — every roster row *waiting*, which under-reports and never
+/// misattributes.
 final class RecoveryDecisionWire {
   /// Creates the row.
   const RecoveryDecisionWire({
@@ -346,9 +383,53 @@ final class RecoveryProgressWire {
   /// When it was cancelled, or null.
   final int? cancelledAtMs;
 
-  /// Who decided, when the route names them. Empty today — see
-  /// [RecoveryDecisionWire]'s ⚠️ SPEC.
+  /// Who decided, as the route names them. Empty when the body carried no
+  /// rows — which is *nobody named*, never "the first [approvals] of them".
   final List<RecoveryDecisionWire> decisions;
+}
+
+/// The caller's own current sealed recovery sheet (⚠️ WIRE the
+/// `GET /recovery/sheet` block of sync-meta/index.ts; migration 0011).
+///
+/// 04 §7.4 🔒: the server holds `sealed_RK_blob = XChaCha20(RK, UMK_priv)`
+/// and **cannot open it** — RK exists on a sheet of paper and nowhere else.
+/// So every field here is either public (a user id, a version, a timestamp)
+/// or opaque ciphertext. Nothing in this class is a secret, and nothing in it
+/// is evidence about a code: the server hands over the same bytes whatever
+/// the human typed.
+final class RecoverySheetWire {
+  /// Creates the row.
+  const RecoverySheetWire({
+    required this.userId,
+    required this.sheetVersion,
+    required this.blob,
+    this.createdAtMs = 0,
+  });
+
+  /// Decodes the body.
+  factory RecoverySheetWire.fromJson(Map<String, Object?> j) =>
+      RecoverySheetWire(
+        userId: j['user_id'] as String? ?? '',
+        sheetVersion: (j['sheet_version'] as num?)?.toInt() ?? 0,
+        blob: decodeB64Url(j['sealed_rk_blob'] as String?),
+        createdAtMs: (j['created_at'] as num?)?.toInt() ?? 0,
+      );
+
+  /// Whose sheet it is — the caller's own; 0011 serves no other user's.
+  final String userId;
+
+  /// Its generation. A regenerated sheet rotates RK and invalidates the old
+  /// one (04 §7.4 🔒), so an old paper sheet legitimately fails to open the
+  /// current blob — and that failure is still an AEAD failure, not a
+  /// server verdict.
+  final int sheetVersion;
+
+  /// The sealed bytes, exactly as the server stored them. Opaque here: this
+  /// file does not frame, parse, hash or compare them.
+  final Uint8List blob;
+
+  /// Epoch milliseconds the sheet was filed. Display only.
+  final int createdAtMs;
 }
 
 /// What a guardian is asked (⚠️ WIRE the `/recovery/asks` block).
@@ -452,6 +533,20 @@ abstract interface class RecoveryApi {
   /// ADR 2026-09-05d §1: the one-tap Cancel, from an existing certified
   /// device of the user.
   Future<void> cancel(String requestId);
+
+  /// 04 §7.4 🔒 rung 3: the caller's own current sealed sheet blob, or
+  /// **null** when the server says `no_sheet`.
+  ///
+  /// Null is *"this user has no sheet"*. It is deliberately not an exception
+  /// and deliberately not a rejection: the caller has learned nothing about
+  /// any code, because no code was sent. Every other refusal still throws.
+  Future<RecoverySheetWire?> sheet();
+
+  /// 04 §7.4 🔒: files the next sealed sheet, returning the version the
+  /// server filed. [blob] is `XChaCha20(RK, UMK_priv)` as the caller sealed
+  /// it — opaque bytes in, an integer out. **RK itself is never sent**: it
+  /// belongs on paper, and a server that held it could open every book.
+  Future<int> publishSheet(Uint8List blob);
 }
 
 /// [RecoveryApi] over the edge functions.
@@ -577,6 +672,36 @@ final class HttpRecoveryApi implements RecoveryApi {
         body: jsonEncode({'request_id': requestId}),
       ),
     );
+  }
+
+  @override
+  Future<RecoverySheetWire?> sheet() async {
+    try {
+      final body = await _send(
+        () async => _http.get(_endpoints.sheet, headers: await _headers()),
+      );
+      return RecoverySheetWire.fromJson(body);
+    } on RecoveryApiFailure catch (e) {
+      // `no_sheet` is an answer, not a fault — and it is the *only* refusal
+      // that becomes null. A 401, a 429 or a dead socket must never read as
+      // "no sheet exists", because that is a different sentence on S11.3.
+      if (e.refusal == RecoveryRefusal.noSheet) return null;
+      rethrow;
+    }
+  }
+
+  @override
+  Future<int> publishSheet(Uint8List blob) async {
+    final body = await _send(
+      () async => _http.post(
+        _endpoints.sheet,
+        headers: await _headers(json: true),
+        // The sealed blob and nothing else. There is no field on this route
+        // for RK, for the sheet's text or for a checksum, by construction.
+        body: jsonEncode({'blob': encodeB64Url(blob)}),
+      ),
+    );
+    return (body['sheet_version'] as num?)?.toInt() ?? 0;
   }
 
   /// Runs one request and turns anything but 2xx into a named failure. A

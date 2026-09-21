@@ -6,7 +6,8 @@
 //
 // Reports (S8.1), Books (S9 — `features/books`, whose list carries the S9.5
 // *Add a business* entry point 07 §5.7 🔒 names this row as), Backup (S11.4),
-// Devices & security (S11) and Settings (S13) already have a real destination — S11.4/S11/S13
+// Devices & security (S11), Settings (S13) and Legal (S18 —
+// `features/legal`) already have a real destination — S11.4/S11/S13/S18
 // were built by earlier lanes and are wired into the app's featureRoutes
 // (main.dart), so this screen only needs their path to push. Every other
 // row's screen has not landed in this milestone, so it renders
@@ -43,6 +44,8 @@ class MenuScreen extends StatelessWidget {
     required this.onOpenBackup,
     required this.onOpenDevices,
     required this.onOpenSettings,
+    required this.onOpenHelp,
+    required this.onOpenLegal,
     this.yearCloseBooks = const [],
     this.onOpenYearClose,
     this.closeMonth = const MenuCloseMonthLoad(MenuCloseMonthState.loading),
@@ -65,6 +68,14 @@ class MenuScreen extends StatelessWidget {
 
   /// Pushes S13 Settings (features/settings).
   final VoidCallback onOpenSettings;
+
+  /// Pushes S17 Help (features/help) — the eighth Menu row under *This app*
+  /// (07 §2 🔒, 07 §22).
+  final VoidCallback onOpenHelp;
+
+  /// Pushes S18 Legal & trust (features/legal) — the last Menu row under
+  /// *This app* (07 §2 🔒, 07 §23).
+  final VoidCallback onOpenLegal;
 
   /// One row per book with a financial year waiting to be certified — the
   /// *Menu → per book* door to S10.4 (07 §13 last bullet 🔒). Empty is an
@@ -221,13 +232,31 @@ class MenuScreen extends StatelessWidget {
                 subtitle: l10n.menuSettingsRowSubtitle,
                 onTap: onOpenSettings,
               ),
-              MenuDisabledRow(
+              // Help is live: `features/help` landed S17 and all three pages
+              // (21 Sep) and `helpRoutes` is mounted, so the row opens the
+              // hub instead of stating a reason that stopped being true —
+              // the same turn Legal took on 19 Sep.
+              MenuRow(
                 title: l10n.menuHelpRowTitle,
-                reason: l10n.menuHelpRowReason,
+                subtitle: l10n.menuHelpRowSubtitle,
+                onTap: onOpenHelp,
               ),
-              MenuDisabledRow(
+              // ⚠️ SPEC — S16 HAS NO DOOR AT ALL. 13 §3.2 row S16 names S8 as
+              // its parent, but 07 §2 🔒 enumerates the Menu rows and *My
+              // account* is not among them — and `F1-07-14` pins that list,
+              // Reports first, Legal last. Two normative sources, same level;
+              // 07 owns screens, so the conservative reading (no row) is what
+              // stands here, and `features/account` is routed but unreachable
+              // until the owner rules. Adding the row is a 🔒 change to 07 §2,
+              // not a lane's call.
+              //
+              // Legal is live: `features/legal` landed S18 and all four pages
+              // (19 Sep) and `legalRoutes` is mounted, so the row opens the
+              // hub instead of stating a reason that stopped being true.
+              MenuRow(
                 title: l10n.menuLegalRowTitle,
-                reason: l10n.menuLegalRowReason,
+                subtitle: l10n.menuLegalRowSubtitle,
+                onTap: onOpenLegal,
               ),
             ],
           ),

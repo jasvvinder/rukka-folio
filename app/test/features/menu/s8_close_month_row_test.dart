@@ -116,6 +116,8 @@ void main() {
     onOpenBackup: () {},
     onOpenDevices: () {},
     onOpenSettings: () {},
+    onOpenHelp: () {},
+    onOpenLegal: () {},
     closeMonth: close,
     onOpenCloseMonth: onOpenCloseMonth,
     onRetryCloseMonth: onRetryCloseMonth,

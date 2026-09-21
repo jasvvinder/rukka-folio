@@ -47,12 +47,16 @@ void main() {
     VoidCallback? onOpenBackup,
     VoidCallback? onOpenDevices,
     VoidCallback? onOpenSettings,
+    VoidCallback? onOpenHelp,
+    VoidCallback? onOpenLegal,
   }) => MenuScreen(
     onOpenReports: onOpenReports ?? () {},
     onOpenBooks: onOpenBooks ?? () {},
     onOpenBackup: onOpenBackup ?? () {},
     onOpenDevices: onOpenDevices ?? () {},
     onOpenSettings: onOpenSettings ?? () {},
+    onOpenHelp: onOpenHelp ?? () {},
+    onOpenLegal: onOpenLegal ?? () {},
   );
 
   group('S8 Menu (07 §2 row order)', () {
@@ -113,20 +117,24 @@ void main() {
       (tester) async {
         await pumpRk(tester, buildScreen());
 
-        // 5 disabled rows: Close the month, Year close (with no book
+        // 3 disabled rows: Close the month, Year close (with no book
         // holding an ended, uncertified year — the default this helper
-        // builds), Subscription, Help, Legal (07 §2) — each pairs the clock
-        // icon with a reason. Books & members left this list when S9 landed:
-        // it now opens `features/books`, the Menu → Books entry point
-        // 07 §5.7 🔒 gives S9.5.
-        expect(find.byIcon(Icons.schedule), findsNWidgets(5));
+        // builds) and Subscription — each pairs the clock icon with a
+        // reason. Books & members left this list when S9 landed (it opens
+        // `features/books`, the Menu → Books entry point 07 §5.7 🔒 gives
+        // S9.5), Legal left it when `features/legal` landed S18 and its four
+        // pages, and **Help** left it when `features/help` landed S17 and
+        // its three pages: a reason that has stopped being true is a
+        // sentence the screen states falsely, so the row became live.
+        expect(find.byIcon(Icons.schedule), findsNWidgets(3));
       },
     );
 
     testWidgets(
-      'F1-07-77 the 5 rows with a destination today (Reports, Books & members, Backup, Devices & security, Settings) each reach their own callback, never the wrong one',
+      'F1-07-77 the 7 rows with a destination today (Reports, Books & members, Backup, Devices & security, Settings, Help, Legal) each reach their own callback, never the wrong one',
       (tester) async {
         var reports = 0, books = 0, backup = 0, devices = 0, settings = 0;
+        var legal = 0, help = 0;
         await pumpRk(
           tester,
           buildScreen(
@@ -135,6 +143,8 @@ void main() {
             onOpenBackup: () => backup++,
             onOpenDevices: () => devices++,
             onOpenSettings: () => settings++,
+            onOpenHelp: () => help++,
+            onOpenLegal: () => legal++,
           ),
         );
 
@@ -143,6 +153,18 @@ void main() {
         await tester.tap(find.text('Backup'));
         await tester.tap(find.text('Devices & security'));
         await tester.tap(find.text('Settings'));
+        // Help and Legal are the last two rows of a scrolling list and both
+        // carry a subtitle, so they sit below the test surface.
+        await tester.ensureVisible(find.text('Help'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Help'));
+        await tester.pumpAndSettle();
+        // Legal is the last row of a scrolling list and now carries a
+        // subtitle, so it sits below the test surface — scroll to it the way
+        // a hand would rather than tapping a point off-screen.
+        await tester.ensureVisible(find.text('Legal'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Legal'));
         await tester.pumpAndSettle();
 
         expect(reports, 1);
@@ -150,6 +172,103 @@ void main() {
         expect(backup, 1);
         expect(devices, 1);
         expect(settings, 1);
+        expect(help, 1);
+        expect(legal, 1);
+      },
+    );
+
+    testWidgets(
+      'F1-07-380 the Legal row is live, with a subtitle and no reason line — S18 is built, so the screen no longer says it is not (07 §1 rule 6, 07 §23)',
+      (tester) async {
+        var legal = 0;
+        await pumpRk(tester, buildScreen(onOpenLegal: () => legal++));
+
+        // The row that used to carry the stale reason now carries the four
+        // S18 pages as its description, like every other live row.
+        expect(
+          find.text(
+            'Terms, privacy, licences, and what we can and cannot see.',
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.textContaining('have not been built yet'),
+          findsNothing,
+          reason: 'no Menu row may state a reason that has stopped being true',
+        );
+
+        await tester.ensureVisible(find.text('Legal'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Legal'));
+        await tester.pumpAndSettle();
+        expect(legal, 1);
+      },
+    );
+
+    testWidgets(
+      'F1-07-381 the Legal row keeps its 07 §2 🔒 place — last, directly after Help — now that it is live',
+      (tester) async {
+        await pumpRk(tester, buildScreen());
+
+        final titles = tester
+            .widgetList<Text>(find.byType(Text))
+            .map((t) => t.data)
+            .whereType<String>()
+            .toList();
+        expect(titles.indexOf('Legal'), greaterThan(titles.indexOf('Help')));
+        expect(
+          titles.lastIndexOf('Legal'),
+          titles.indexOf('Legal'),
+          reason: 'one Legal row, not two',
+        );
+      },
+    );
+
+    testWidgets(
+      'F1-07-382 the Help row is live, with a subtitle and no reason line — S17 is built, so the screen no longer says it is not (07 §1 rule 6, 07 §22)',
+      (tester) async {
+        var help = 0;
+        await pumpRk(tester, buildScreen(onOpenHelp: () => help++));
+
+        // The row that used to carry the stale reason now carries the S17
+        // family as its description, like every other live row.
+        expect(
+          find.text(
+            'Questions and answers, contact, and a report you can send.',
+          ),
+          findsOneWidget,
+        );
+        expect(
+          find.textContaining('Help has not been built'),
+          findsNothing,
+          reason: 'no Menu row may state a reason that has stopped being true',
+        );
+
+        await tester.ensureVisible(find.text('Help'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Help'));
+        await tester.pumpAndSettle();
+        expect(help, 1);
+      },
+    );
+
+    testWidgets(
+      'F1-07-412 Help keeps its 07 §2 🔒 place — eighth, directly before Legal — now that it is live',
+      (tester) async {
+        await pumpRk(tester, buildScreen());
+
+        final titles = tester
+            .widgetList<Text>(find.byType(Text))
+            .map((t) => t.data)
+            .whereType<String>()
+            .toList();
+        expect(titles.indexOf('Help'), greaterThan(titles.indexOf('Settings')));
+        expect(titles.indexOf('Help'), lessThan(titles.indexOf('Legal')));
+        expect(
+          titles.lastIndexOf('Help'),
+          titles.indexOf('Help'),
+          reason: 'one Help row, not two',
+        );
       },
     );
 

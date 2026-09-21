@@ -1,5 +1,6 @@
 // The live producers behind the recovery-ladder seams (04 §7.3 🔒, 06 §5,
-// 13 §5 flow F11) — S11.2, S11.3 and S11.7 against the real 0010 routes.
+// 13 §5 flow F11) — S11.2, S11.3 and S11.7 against the real 0010 (rung 2)
+// and 0011 (rung 3) routes.
 //
 // `shared/seams/recovery_ladder.dart` declares what the screens consume and
 // is **settled**: 53 widget tests run on its fakes and nothing here changes a
@@ -8,7 +9,7 @@
 // server's answers are *carried*, not re-decided.
 //
 // ============================================================================
-// THE TWO RULES THIS FILE EXISTS TO HOLD
+// THE THREE RULES THIS FILE EXISTS TO HOLD
 // ============================================================================
 //
 // **1. The ladder is the server's, not this phone's.** ADR 2026-09-05d §1 🔒
@@ -24,14 +25,21 @@
 //
 // **2. Progress is derived from rows, and a row names a person.** 0010's
 // decision 🔒 makes every guardian decision its own append-only row so the
-// requester's screen can say *which* trusted members approved. This adapter
-// therefore attributes an approval **only** to the guardian a decision row
-// names. `progressToWire` does not send those rows yet (see
-// [RecoveryDecisionWire]'s ⚠️ SPEC), and the answer to that is not to guess:
-// marking "the first `approvals` members" would put a tick beside somebody
-// who has not acted, on a screen whose entire job is to say who has. Until
-// the route names them every roster row reads *waiting*, which under-reports
-// and never misattributes.
+// requester's screen can say *which* trusted members approved, and
+// `progressToWire` now sends those rows. This adapter attributes a decision
+// **only** to the guardian the row names. Marking "the first `approvals`
+// members" would put a tick beside somebody who has not acted, on a screen
+// whose entire job is to say who has — so a member no row names reads
+// *waiting*, which under-reports and never misattributes. A denial is a row
+// and silence is the absence of one, which is why the two are drawn
+// differently and why neither may be inferred from a count.
+//
+// **3. The roster is the set the attempt PINNED.** 0010 pins
+// `share_set_version` when an attempt opens, so a re-split in the middle
+// moves neither the quorum nor the membership. [RecoveryRosterSource] is
+// asked for *that* generation and never for "the current set": drawing
+// today's members beside a pinned attempt's decisions would hide a member who
+// did answer and show a row for one who was never asked.
 //
 // Nothing here holds key material. Reconstructing `UMK_priv` from k shares,
 // opening this guardian's own sealed share and re-sealing it to a candidate
@@ -99,6 +107,74 @@ typedef RecoveryResealer = Future<Uint8List> Function(
 /// inventing a key. Reported as an open item.
 typedef RecoveryCandidateKeySource = Future<Uint8List> Function();
 
+/// The trusted members of one **generation** of the guardian set, in the
+/// order S11.2 draws them, each in its resting state.
+///
+/// The parameter is the attempt's pinned `share_set_version` (0010), never
+/// "the latest": see rule 3 at the top of this file. A source that does not
+/// hold that generation answers with an empty list — nobody named — rather
+/// than substituting another generation's people.
+typedef RecoveryRosterSource = Future<List<TrustedApprover>> Function(
+  int shareSetVersion,
+);
+
+/// Opens the user's own sealed sheet blob with the recovery key printed on
+/// paper, and puts the recovered `UMK_priv` back (04 §7.4 🔒 rung 3).
+///
+/// **The bool is the whole security of the rung.** `true` means the key is
+/// back. `false` means *this code did not open this blob* — and that verdict
+/// is reached **on this phone**, from one of the two local checks:
+/// `recoverySheetFromTyped` refusing the payload (a foreign symbol, the wrong
+/// length, or the 2-char checksum of 04 §7.4 🔒 not matching — a mistype), or
+/// `openUmkWithRecoveryKey` refusing the ciphertext (`RecoveryUnsealFailed`,
+/// which is a sheet reprinted since: regenerating rotates RK). Those are
+/// exactly R2.4's two stated causes, and they are indistinguishable to
+/// everyone including this device, which is why the copy states both.
+///
+/// Anything else — no sheet on the server, no session, a dead socket, a blob
+/// this build cannot frame, a key that could not be installed — is a
+/// **throw**, because none of those learned anything about the code.
+///
+/// It is injected for the same reason [RecoveryResealer] is: the decryption
+/// is `core_crypto`'s (`recoverySheetFromTyped` → `openUmkWithRecoveryKey`)
+/// and installing a key is the ledger's, so no RK, no UMK and no sealed blob
+/// framing is ever a field of this file (04 §7.6, 07 §5.6 🔒).
+typedef RecoverySheetOpener = Future<bool> Function(
+  RecoverySheetCode code,
+  RecoverySheetWire sheet,
+);
+
+/// Decides, **without the blob and without the network**, whether a typed
+/// code is a sheet code at all: the right number of Crockford symbols, a
+/// known sheet version, and the 2-char checksum of 04 §7.4 🔒 matching.
+///
+/// `true` means *worth trying*; `false` means *this is a mistype*.
+///
+/// It exists because the checksum is real. `core_crypto`'s `_sheetChecksum`
+/// (`packages/core_crypto/lib/src/recovery.dart:318`) is the first two
+/// Crockford symbols of `BLAKE2b-256(version ‖ user_id ‖ RK)`, and
+/// `recoverySheetFromTyped` (`:360`) throws `RecoverySheetChecksumFailed`
+/// when the typed group does not match — so a typo is caught here with
+/// probability 1 − 2⁻¹⁰ on top of the alphabet's own rejection of I/L/O/U,
+/// on this phone, before anything is spent. Two things follow, and both are
+/// the point:
+///
+///   1. **No fetch.** `recovery/sheet` is rate limited (`sheet_flood`, ADR
+///      2026-09-05b §7) and a person who has just mistyped 81 characters is
+///      about to type them again. Spending a request to be told what the
+///      checksum already said would be spending the one resource that runs
+///      out on the attempt that needs it.
+///   2. **No oracle.** The check is arithmetic over what the person typed. It
+///      reaches the server for nothing, so it cannot leak that a code was
+///      tried, and it learns nothing about whether a sheet exists.
+///
+/// It is injected, not called directly, for the reason the opener is: running
+/// it materialises `RK` (the checksum covers the payload, and the payload
+/// *is* the key), so it belongs where `core_crypto` and a `CryptoSuite` are
+/// and where the result can be disposed — never in this file and never in a
+/// widget (04 §7.4, 07 §5.6 🔒).
+typedef RecoverySheetPrecheck = bool Function(RecoverySheetCode code);
+
 /// Maps the server's derived `state` onto the seam's enum.
 ///
 /// The server's word, taken verbatim — never recomputed from `wait_until` or
@@ -134,7 +210,7 @@ final class HttpGuardianRecovery implements GuardianRecovery {
   /// only re-read one that already exists.
   HttpGuardianRecovery({
     required RecoveryApi api,
-    required Future<List<TrustedApprover>> Function() roster,
+    required RecoveryRosterSource roster,
     RecoveryCandidateKeySource? candidateKey,
     RecoveryScanner? scanner,
     Stream<void> Function(Duration)? ticker,
@@ -149,7 +225,7 @@ final class HttpGuardianRecovery implements GuardianRecovery {
       Stream<void>.periodic(every, (_) {});
 
   final RecoveryApi _api;
-  final Future<List<TrustedApprover>> Function() _roster;
+  final RecoveryRosterSource _roster;
   final RecoveryCandidateKeySource? _candidateKey;
   final RecoveryScanner? _scanner;
   final Stream<void> Function(Duration) _ticker;
@@ -236,7 +312,10 @@ final class HttpGuardianRecovery implements GuardianRecovery {
     RecoveryRequestWire r,
     RecoveryProgressWire p,
   ) async {
-    final members = await _roster();
+    // The set the ATTEMPT is pinned to (0010 pins it at open), taken from the
+    // request rather than from the progress body so that the two can never
+    // disagree about which generation is being drawn. Rule 3 at the top.
+    final members = await _roster(r.shareSetVersion);
     return GuardianRecoveryAttempt(
       requestId: r.requestId,
       k: p.k,
@@ -313,38 +392,140 @@ final class HttpGuardianRecovery implements GuardianRecovery {
       ms == null ? null : DateTime.fromMillisecondsSinceEpoch(ms);
 }
 
-/// [RecoverySheetEntry] over what the server offers today — which is nothing.
+/// [RecoverySheetEntry] over rung 3's own routes (04 §7.4 🔒, migration
+/// 0011) — S11.3's live producer.
 ///
-/// ⚠️ SPEC: **rung 3 has no server surface.** 04 §7.4 🔒 has the server hold
-/// `sealed_RK_blob = XChaCha20(RK, UMK_priv)`; `wrapped_keys` has the
-/// `recovery_blob` kind for it, but no migration uploads one and no route
-/// fetches one by RK. Migration 0010 is rung 2 only. So this producer can do
-/// exactly one honest thing and does it: it reports that the attempt could
-/// not be made.
+/// The server holds `sealed_RK_blob = XChaCha20(RK, UMK_priv)` and cannot
+/// open it: RK is a 256-bit key that exists on a sheet of paper. So the whole
+/// of this producer is *fetch the user's own current blob and hand it, with
+/// the code, to something that can try the AEAD* — and the one rule it exists
+/// to hold is where the verdict comes from.
 ///
-/// It matters *which* failure. [RecoverySheetRejected] means **the code did
-/// not open the blob** and R2.4 renders it as "this sheet is not the current
-/// one, or it was mistyped" — telling a user their correctly copied code is
-/// wrong. This producer therefore throws [RecoveryFailure] and never
-/// [RecoverySheetRejected]. Installing it is still strictly better than
-/// leaving the scope empty: with no scope S11.3 falls back to
-/// [FakeRecoverySheet], which **accepts any well-formed code and reports a
-/// restore that did not happen**.
+/// ============================================================================
+/// THE VERDICT IS THE AEAD OPEN, NEVER THE FETCH
+/// ============================================================================
+///
+/// [RecoverySheetRejected] is R2.4's *"that code didn't work"*. It may be
+/// thrown only when a check **on this phone** refused the code, and there are
+/// exactly two such checks, in this order:
+///
+///   1. [RecoverySheetPrecheck] — 04 §7.4 🔒's 2-char checksum, run before
+///      any fetch. A failure is a mistype, decided from what the person
+///      typed, with the rate-limited route never touched.
+///   2. [RecoverySheetOpener] — the AEAD open, for a code that is well formed
+///      but opens nothing: a sheet reprinted since (regenerating rotates RK).
+///
+/// Those are the two causes R2.4 states, they are indistinguishable to the
+/// person, and nothing else may produce this exception. In particular the
+/// server never does: it is never asked about a code.
+///
+/// Everything else is [RecoveryFailure], because nothing about the code was
+/// learned:
+///
+///   * `no_sheet` — this user never published one. **The server was asked for
+///     a user's blob, not for a code**: it has never seen RK, holds nothing it
+///     could compare one against, and answers `no_sheet` identically for a
+///     user who printed nothing. Rendering that as a rejected code would tell
+///     somebody holding a correctly copied sheet that they mistyped it.
+///   * offline, no session, rate-limited, a body this build cannot read.
+///   * no opener installed — this build cannot try the AEAD at all, so it
+///     reports that the attempt could not be made rather than a verdict it
+///     never reached.
 final class HttpRecoverySheet implements RecoverySheetEntry {
   /// Creates the producer.
-  const HttpRecoverySheet();
+  ///
+  /// [opener] is what actually opens the blob and puts the key back; with
+  /// none, [submit] refuses plainly and no code is ever called wrong.
+  /// [restoreProgress] is the count of what comes back afterwards — a count,
+  /// never a percentage (11 §4.5 🔒) — and is empty until a restore can
+  /// report one.
+  /// [precheck] is the local verdict of 04 §7.4 🔒's 2-char checksum; with
+  /// none, no code is refused before the fetch and the AEAD open stays the
+  /// only verdict, exactly as before.
+  const HttpRecoverySheet({
+    required RecoveryApi api,
+    RecoverySheetOpener? opener,
+    RecoverySheetPrecheck? precheck,
+    Stream<RecoveryProgress> Function()? restoreProgress,
+  }) : _api = api,
+       _open = opener,
+       _precheck = precheck,
+       _restore = restoreProgress;
+
+  final RecoveryApi _api;
+  final RecoverySheetOpener? _open;
+  final RecoverySheetPrecheck? _precheck;
+  final Stream<RecoveryProgress> Function()? _restore;
+
+  /// Whether [code] is worth spending a fetch on — R2.4's *Restore* may be
+  /// drawn **disabled-with-reason** (13 §4.3) off this, rather than enabled
+  /// into a round trip that is already known to fail. With no precheck
+  /// installed it answers `true`, because an unknown verdict is not a
+  /// refusal.
+  ///
+  /// It is not on [RecoverySheetEntry]: adding it there would oblige every
+  /// implementation, including the seam's fake, to own a `CryptoSuite`. A
+  /// screen that wants it reads it off the concrete producer, or the verdict
+  /// still arrives as [RecoverySheetRejected] from [submit].
+  bool isWorthTrying(RecoverySheetCode code) {
+    final check = _precheck;
+    if (check == null) return true;
+    try {
+      return check(code);
+    } on Object {
+      // A precheck that failed to run is not a verdict on the code. The
+      // fetch is the fallback, not a refusal.
+      return true;
+    }
+  }
 
   @override
   Future<RecoveryScanOutcome> scanSheet() async =>
-      // No camera package is in the app, and 04 §7.4's QR path needs one.
+      // No camera package is in the app, and 04 §7.4's QR path needs one
+      // (the ADR 2026-09-12e precedent: the choice is an owner ruling).
       RecoveryScanOutcome.unavailable;
 
   @override
-  Future<void> submit(RecoverySheetCode code) async =>
-      throw const RecoveryFailure('no sheet route');
+  Future<void> submit(RecoverySheetCode code) async {
+    final open = _open;
+    // Checked before the fetch: with nothing that can try the AEAD there is
+    // no verdict to reach, and the route ADR 2026-09-05b §7 rate-limits is
+    // not worth spending to learn that.
+    if (open == null) throw const RecoveryFailure('no opener');
+
+    // 04 §7.4 🔒's checksum, before the fetch. A code that fails it is a
+    // mistype and nothing else — the verdict is arithmetic over what the
+    // person typed, not something the server was asked — so it is R2.4's
+    // rejection, reached without spending the rate-limited route.
+    if (!isWorthTrying(code)) throw const RecoverySheetRejected();
+
+    final RecoverySheetWire? sheet;
+    try {
+      sheet = await _api.sheet();
+    } on RecoveryApiFailure catch (e) {
+      // A named refusal, never a status code and never the server's string
+      // (07 §1 rule 12) — and never a rejection.
+      throw RecoveryFailure(e.refusal.name);
+    }
+    if (sheet == null) throw const RecoveryFailure('no_sheet');
+
+    final bool opened;
+    try {
+      opened = await open(code, sheet);
+    } on RecoverySheetRejected {
+      // An opener that prefers to throw the verdict rather than return it
+      // says the same thing: the AEAD refused.
+      rethrow;
+    } on Object {
+      // Any other throw is this device failing, not the code being wrong.
+      throw const RecoveryFailure('open');
+    }
+    if (!opened) throw const RecoverySheetRejected();
+  }
 
   @override
-  Stream<RecoveryProgress> restore() => const Stream.empty();
+  Stream<RecoveryProgress> restore() =>
+      _restore?.call() ?? const Stream.empty();
 }
 
 /// [GuardianApprovals] over the 0010 routes — S11.7's live producer.

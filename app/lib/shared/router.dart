@@ -102,6 +102,37 @@ abstract final class RkPaths {
   /// S9.4 Verification mismatch — hard fail, no override (04 §6.3 🔒).
   static const ceremonyMismatch = '/ceremony/mismatch';
 
+  /// S16 My account (features/account); reached from Menu (07 §21).
+  static const account = '/account';
+
+  /// S16.1 Edit profile — name and photo only (13 §3.2 row S16.1).
+  static const accountEditProfile = '/account/edit';
+
+  /// S16.3 Delete account — the 15-day cooling window (06 §9.3 🔒).
+  static const accountDelete = '/account/delete';
+
+  /// S16.2 Change phone number (06 §9.4 🔒). Declared here so S16's row and
+  /// the lane that builds the screen agree on one spelling; until that route
+  /// exists the row is drawn disabled-with-reason, never pushed at nothing.
+  static const accountChangePhone = '/account/phone';
+
+  /// S18 Legal & trust (features/legal); the last Menu row under *This app*
+  /// (07 §23, ADR 2026-09-03 ruling 3).
+  static const legal = '/legal';
+
+  /// S18.1 Terms of service.
+  static const legalTerms = '/legal/terms';
+
+  /// S18.2 Privacy policy.
+  static const legalPrivacy = '/legal/privacy';
+
+  /// S18.3 What we can and cannot see — 12 §2's impossibility table as a
+  /// user-facing page (07 §23 🔒).
+  static const legalWhatWeSee = '/legal/what-we-see';
+
+  /// S18.4 Open-source licences.
+  static const legalLicences = '/legal/licences';
+
   /// Path of a tab's root.
   static String of(RkTab tab) => switch (tab) {
     RkTab.home => home,

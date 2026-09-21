@@ -46,6 +46,8 @@ import 'dart:typed_data';
 import 'package:core_crypto/core_crypto.dart';
 import 'package:flutter/widgets.dart';
 
+import '../../shared/ledger/verified_members.dart';
+
 export 'package:core_crypto/core_crypto.dart'
     show
         CeremonyMismatch,
@@ -424,6 +426,7 @@ final class CryptoVerifyMemberRepository implements VerifyMemberRepository {
     required this.memberName,
     required this.now,
     required this.log,
+    required this.keys,
     this.mode = CeremonyMode.inPerson,
     this.canVerify = true,
   });
@@ -445,6 +448,13 @@ final class CryptoVerifyMemberRepository implements VerifyMemberRepository {
 
   /// Where the security event and the permanent entry go (04 §6.3, §6.4).
   final CeremonyEventLog log;
+
+  /// Where the proved key is **kept** (04 §8.2 🔒). Required, not nullable:
+  /// a ceremony whose key is dropped leaves a member permanently unverifiable
+  /// and 04 §7.3 *Setup* unable to complete — which is precisely the defect
+  /// this seam exists to make impossible to reintroduce by omission. The sink
+  /// takes a [VerifiedUmkPublic], so nothing but a real match can reach it.
+  final VerifiedMemberSink keys;
 
   Future<CodePathArming>? _arming;
   SasChallenge? _challenge;
@@ -538,7 +548,17 @@ final class CryptoVerifyMemberRepository implements VerifyMemberRepository {
       case CeremonyMismatch():
         mismatchesLogged++;
         await log.mismatch(memberName: memberName);
-      case CeremonyVerified():
+      case CeremonyVerified(:final verified):
+        // Store first, then log. If the key cannot be kept the ceremony is
+        // not reported as done: a screen that says *verified* over a key
+        // nothing persisted is the bug this lane closes, and an exception
+        // here reaches the screen's own error state (04 §6.3 has no silent
+        // path).
+        await keys.storeVerified(
+          userId: relayedUserId,
+          verified: verified,
+          method: method,
+        );
         await log.verified(memberName: memberName, method: method);
       case CodeWrong() || CodeExpired() || CodeExhausted():
         break;
@@ -748,6 +768,42 @@ final class RecordingCeremonyEventLog implements CeremonyEventLog {
     required String memberName,
     required VerificationMethod method,
   }) async => verifications.add((memberName, method));
+}
+
+/// Collects what a completed ceremony would have persisted (04 §8.2 🔒).
+///
+/// Note what it *cannot* do: it can only record a [VerifiedUmkPublic] handed
+/// to it, because that is the parameter type — a test cannot use this fake to
+/// put a key into the directory that no ceremony produced.
+final class RecordingVerifiedMemberSink implements VerifiedMemberSink {
+  /// Creates an empty sink.
+  RecordingVerifiedMemberSink({this.failure});
+
+  /// Non-null makes every call throw — the "the key could not be kept" path.
+  Object? failure;
+
+  /// What was stored, in order.
+  final List<VerifiedMember> stored = [];
+
+  @override
+  Future<VerifiedMember> storeVerified({
+    required String userId,
+    required VerifiedUmkPublic verified,
+    required VerificationMethod method,
+  }) async {
+    final f = failure;
+    if (f != null) throw f;
+    final member = VerifiedMember(
+      userId: userId,
+      umk: verified,
+      method: method,
+      recordId: 'rec-${stored.length + 1}',
+      hlc: stored.length + 1,
+      verifiedByDevice: 'dev-test',
+    );
+    stored.add(member);
+    return member;
+  }
 }
 
 /// A scripted [ShowerSessionRelay] — the invitee's half of the wire, with the

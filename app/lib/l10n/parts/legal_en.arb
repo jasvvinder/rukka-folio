@@ -1,0 +1,236 @@
+{
+  "@@locale": "en",
+
+  "legal.title": "Legal & trust",
+  "@legal.title": {
+    "description": "S18 hub app-bar title, reached from the Menu's last row under 'This app' (07 §2, ADR 2026-09-03 ruling 3)."
+  },
+  "legal.hub.intro": "What we can see, what we cannot, and the documents that say so.",
+  "@legal.hub.intro": {
+    "description": "S18 hub lead line above the summary cards (ADR 2026-09-02: the hub carries the designed surface)."
+  },
+
+  "legal.see.card.title": "What we can and cannot see",
+  "@legal.see.card.title": {
+    "description": "S18 summary card for S18.3 — the trust asset, listed first (07 §23 🔒)."
+  },
+  "legal.see.card.summary": "Your entries are locked before they leave your phone, and we do not hold the key. This page says exactly what that means.",
+  "@legal.see.card.summary": {
+    "description": "S18 summary card body for S18.3."
+  },
+  "legal.see.card.action": "Read what we can and cannot see",
+  "@legal.see.card.action": {
+    "description": "S18 summary card action opening S18.3."
+  },
+
+  "legal.privacy.card.title": "Privacy, in four lines",
+  "@legal.privacy.card.title": {
+    "description": "S18 summary card for S18.2 — the designed surface named in 13 §3.2 row S18.2."
+  },
+  "legal.privacy.card.line1": "Your books are locked on your phone before anything is sent.",
+  "@legal.privacy.card.line1": {
+    "description": "Privacy summary line 1 of 4 (04: client-side encryption)."
+  },
+  "legal.privacy.card.line2": "The key stays on your phones. We never receive it.",
+  "@legal.privacy.card.line2": {
+    "description": "Privacy summary line 2 of 4 (04 §5.1, 12 §2)."
+  },
+  "legal.privacy.card.line3": "Your books are stored in India, and the backups never leave.",
+  "@legal.privacy.card.line3": {
+    "description": "Privacy summary line 3 of 4 (ADR 2026-09-05c §1 residency)."
+  },
+  "legal.privacy.card.line4": "We cannot read your entries — not for anyone, not for any reason.",
+  "@legal.privacy.card.line4": {
+    "description": "Privacy summary line 4 of 4 (12 §2: impossible by construction, not by policy)."
+  },
+  "legal.privacy.card.action": "Read the privacy policy",
+  "@legal.privacy.card.action": {
+    "description": "S18 summary card action opening S18.2."
+  },
+
+  "legal.terms.card.title": "Terms of service",
+  "@legal.terms.card.title": {
+    "description": "S18 summary card for S18.1."
+  },
+  "legal.terms.card.summary": "What you agree to when you keep your books here, and what we promise in return.",
+  "@legal.terms.card.summary": {
+    "description": "S18 summary card body for S18.1."
+  },
+  "legal.terms.card.action": "Read the terms of service",
+  "@legal.terms.card.action": {
+    "description": "S18 summary card action opening S18.1."
+  },
+
+  "legal.licences.card.title": "Open-source licences",
+  "@legal.licences.card.title": {
+    "description": "S18 summary card for S18.4."
+  },
+  "legal.licences.card.summary": "This app is built on work other people shared. Their licences are listed here in full.",
+  "@legal.licences.card.summary": {
+    "description": "S18 summary card body for S18.4."
+  },
+  "legal.licences.card.action": "Read the open-source licences",
+  "@legal.licences.card.action": {
+    "description": "S18 summary card action opening S18.4."
+  },
+
+  "legal.document.pending.badge": "Not published yet",
+  "@legal.document.pending.badge": {
+    "description": "Shared document template (13 §3.2 rows S18.1/S18.2): the honest missing-content state. Paired with an icon, never colour alone (07 §1 rule 3)."
+  },
+  "legal.document.pending.body": "This document has not been published in the app yet. Nothing is shown here rather than a draft, because a draft is not what you agreed to. Write to us and we will send the current wording.",
+  "@legal.document.pending.body": {
+    "description": "Shared document template missing-content body. The owner's and counsel's prose is the blocker (see the lane report)."
+  },
+  "legal.document.pending.action": "Meanwhile: what we can and cannot see",
+  "@legal.document.pending.action": {
+    "description": "The way out of the missing-content state (07 §1 rule 6, no dead ends) — S18.3, which is published."
+  },
+
+  "legal.terms.title": "Terms of service",
+  "@legal.terms.title": {
+    "description": "S18.1 app-bar title."
+  },
+  "legal.privacy.title": "Privacy policy",
+  "@legal.privacy.title": {
+    "description": "S18.2 app-bar title."
+  },
+  "legal.see.title": "What we can and cannot see",
+  "@legal.see.title": {
+    "description": "S18.3 app-bar title (07 §23 🔒)."
+  },
+  "legal.licences.title": "Open-source licences",
+  "@legal.licences.title": {
+    "description": "S18.4 app-bar title."
+  },
+
+  "legal.see.intro": "This app is built so that we cannot read your books. Not \"we promise not to\" — we have no way to. Here is what that means, item by item.",
+  "@legal.see.intro": {
+    "description": "S18.3 lead paragraph (12 §2: publish this table)."
+  },
+  "legal.see.cannot.heading": "What we cannot do",
+  "@legal.see.cannot.heading": {
+    "description": "S18.3 heading over the impossibility table (12 §2)."
+  },
+  "legal.see.cannot.lead": "These are not rules we set for ourselves and could quietly drop. They are things the system does not allow — not for our staff, not on a bad day, not if someone asks us nicely.",
+  "@legal.see.cannot.lead": {
+    "description": "S18.3 lead for the impossibility table: structural, not policy (12 §2)."
+  },
+  "legal.see.cannot.entries.claim": "See your entries, your balances or your account names",
+  "@legal.see.cannot.entries.claim": {
+    "description": "Impossibility row 1 claim (12 §2 row 1; 03 §4 — everything but the plaintext boundary is encrypted)."
+  },
+  "legal.see.cannot.entries.why": "Everything reaches our server already locked. The key that opens it lives on your phones, and it is never sent to us.",
+  "@legal.see.cannot.entries.why": {
+    "description": "Impossibility row 1 reason (04)."
+  },
+  "legal.see.cannot.password.claim": "Reset a password for you",
+  "@legal.see.cannot.password.claim": {
+    "description": "Impossibility row 2 claim (12 §2 row 2)."
+  },
+  "legal.see.cannot.password.why": "There are no passwords anywhere in this app. Your phone itself is what signs you in.",
+  "@legal.see.cannot.password.why": {
+    "description": "Impossibility row 2 reason (06 §1)."
+  },
+  "legal.see.cannot.recover.claim": "Bring your books back if every phone is lost",
+  "@legal.see.cannot.recover.claim": {
+    "description": "Impossibility row 3 claim (12 §2 row 3)."
+  },
+  "legal.see.cannot.recover.why": "The key exists only on member phones. Getting back in runs through your guardians or your paper sheet — there is no button on our side, because there is no key on our side.",
+  "@legal.see.cannot.recover.why": {
+    "description": "Impossibility row 3 reason (04 §7; no endpoint exists)."
+  },
+  "legal.see.cannot.member.claim": "Add a member, or change what someone is allowed to do",
+  "@legal.see.cannot.member.claim": {
+    "description": "Impossibility row 4 claim (12 §2 row 4)."
+  },
+  "legal.see.cannot.member.why": "Being a member takes two things: a row in our database, and a copy of the book's key wrapped for that person's verified phone. We can only touch the first, so a row we added by hand opens an empty book — and every phone in the book notices the change and flags it.",
+  "@legal.see.cannot.member.why": {
+    "description": "Impossibility row 4 reason (04 §5.1 + ADR 2026-09-05b §1 meta_mismatch)."
+  },
+  "legal.see.cannot.refund.claim": "Send a refund somewhere else",
+  "@legal.see.cannot.refund.claim": {
+    "description": "Impossibility row 5 claim (12 §2 row 5)."
+  },
+  "legal.see.cannot.refund.why": "A refund can only go back to the card or account it came from. No other way out of the money exists.",
+  "@legal.see.cannot.refund.why": {
+    "description": "Impossibility row 5 reason (08 §4 — gateway holds the instrument)."
+  },
+  "legal.see.cannot.phone.claim": "Read your phone number",
+  "@legal.see.cannot.phone.claim": {
+    "description": "Impossibility row 6 claim (12 §2 row 6)."
+  },
+  "legal.see.cannot.phone.why": "It is stored locked, under a key our staff cannot use. All we can do is check whether a number someone gives us matches one we already hold.",
+  "@legal.see.cannot.phone.why": {
+    "description": "Impossibility row 6 reason (ADR 2026-09-05c §4 — phone_ct plus phone_hmac lookup)."
+  },
+  "legal.see.cannot.impersonate.claim": "Sign in as you",
+  "@legal.see.cannot.impersonate.claim": {
+    "description": "Impossibility row 7 claim (12 §2 row 7)."
+  },
+  "legal.see.cannot.impersonate.why": "Signing in is a question your phone answers with a key that never leaves it. We never hold that key.",
+  "@legal.see.cannot.impersonate.why": {
+    "description": "Impossibility row 7 reason (06 §4 — hardware-key challenge–response)."
+  },
+  "legal.see.cannot.reset_all.claim": "Reset everyone's sign-in at once",
+  "@legal.see.cannot.reset_all.claim": {
+    "description": "Impossibility row 8 claim (12 §2 row 8)."
+  },
+  "legal.see.cannot.reset_all.why": "Same reason as above — and it would get nobody into your books, because signing in is not what opens them.",
+  "@legal.see.cannot.reset_all.why": {
+    "description": "Impossibility row 8 reason (12 §2 row 8: credentials are not what unlocks the data)."
+  },
+
+  "legal.see.can.heading": "What we can see",
+  "@legal.see.can.heading": {
+    "description": "S18.3 heading over the honest other half (12 §1)."
+  },
+  "legal.see.can.body": "Your name, your language, and when you last used the app. Your plan and your payments. Counts — how many books, how many phones, how many members. Never a book name, never an account name, never a figure.",
+  "@legal.see.can.body": {
+    "description": "S18.3 body for 12 §1: directory, billing, counts — never plaintext financial data (03 §4)."
+  },
+
+  "legal.see.india.heading": "Where your books live",
+  "@legal.see.india.heading": {
+    "description": "S18.3 residency heading — the one line 07 §23 🔒 requires."
+  },
+  "legal.see.india.body": "In India. The server, the backups and the logs all sit here, and the backups never leave the country.",
+  "@legal.see.india.body": {
+    "description": "S18.3 residency line (ADR 2026-09-05c §1: ap-south-1, backups never leave the region)."
+  },
+
+  "legal.see.rooted.heading": "If a phone has been modified",
+  "@legal.see.rooted.heading": {
+    "description": "S18.3 rooted-phone heading — the second line 07 §23 🔒 requires."
+  },
+  "legal.see.rooted.body": "A rooted or jailbroken phone changes nothing about the server: it still cannot read anything of yours. It changes everything about that phone — whoever controls it can see what you see, while you are looking at it. Keep your backups set and your other phones trusted.",
+  "@legal.see.rooted.body": {
+    "description": "S18.3 rooted-phone line (07 §23 🔒; matches S19.5's wording in 07 §24, ADR 2026-09-05 §6)."
+  },
+
+  "legal.see.footer": "If any line on this page stopped being true, it would take a change to how the app is built — not a change to a policy.",
+  "@legal.see.footer": {
+    "description": "S18.3 closing line (12 §2: structural, and worth publishing as such)."
+  },
+
+  "legal.licences.loading": "Reading the licences",
+  "@legal.licences.loading": {
+    "description": "S18.4 loading state announcement over the ruled skeleton (13 §4.3, 11 §4.5)."
+  },
+  "legal.licences.error": "The licences could not be read.",
+  "@legal.licences.error": {
+    "description": "S18.4 error-with-retry text (13 §4.3)."
+  },
+  "legal.licences.retry": "Try again",
+  "@legal.licences.retry": {
+    "description": "S18.4 retry control label."
+  },
+  "legal.licences.empty": "No licences were found to show.",
+  "@legal.licences.empty": {
+    "description": "S18.4 empty state (13 §4.3)."
+  },
+  "legal.licences.empty.action": "Back to legal & trust",
+  "@legal.licences.empty.action": {
+    "description": "The one next action out of S18.4's empty state (07 §1 rule 12)."
+  }
+}

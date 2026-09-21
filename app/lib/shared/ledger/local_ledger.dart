@@ -37,12 +37,19 @@ import '../seams/key_store.dart';
 import '../seams/review_policy.dart';
 import 'device_certification.dart';
 import 'ledger_identity.dart';
+import 'verified_members.dart';
 
 export '../seams/review_policy.dart' show ReviewPolicy, noReviewPolicy;
 export 'device_certification.dart'
     show DeviceCertOffer, DeviceCertifier, umkKeyVersionFirst;
 export 'ledger_identity.dart'
     show LedgerIdentity, LocalLedgerKeys, readStoredIdentity;
+export 'verified_members.dart'
+    show
+        VerificationPayload,
+        VerifiedMember,
+        VerifiedMemberDirectory,
+        VerifiedMemberSink;
 
 /// One seeded income or expense category (ADR 2026-09-09c §1's third column).
 ///
@@ -1097,11 +1104,16 @@ final class BookHealth {
 /// envelopes; unwrapping `wrapped_keys` rows addressed to this user (05 §5);
 /// and believing this user's own signature chain (04 §3.4).
 ///
-/// What it does not permit: believing anybody else — [verifiedUmkOf] answers
-/// only for this install's own user and returns null for every other user id,
-/// so no book key can be wrapped to an unverified fingerprint through this
-/// seam (04 §8.2 🔒, rule 5). It carries no ledger write path either: posting,
-/// book creation and key minting stay behind [LocalLedger]'s own methods.
+/// What it does not permit: believing anybody a **ceremony** has not bound.
+/// [verifiedUmkOf] answers for this install's own user, whose fingerprint the
+/// ledger checked byte-for-byte at bootstrap, and for the members a
+/// `verification_event` signed record proves (04 §6.4; ADR 2026-09-05d §7) —
+/// and for nobody else. It answers with [VerifiedUmkPublic], never with bytes
+/// and a flag, so no book key and no guardian share can be sealed to an
+/// unverified fingerprint through this seam (04 §8.2 🔒, rule 5). It carries
+/// no ledger write path either: posting, book creation and key minting stay
+/// behind [LocalLedger]'s own methods, and a key gets *in* only through
+/// [LocalLedger.verifiedMembers].
 final class LedgerKeyMaterial implements VerifiedUmkSource {
   const LedgerKeyMaterial._({
     required this.userId,
@@ -1109,7 +1121,10 @@ final class LedgerKeyMaterial implements VerifiedUmkSource {
     required this.umk,
     required this.bookKeys,
     required VerifiedUmkPublic ownUmk,
-  }) : _ownUmk = ownUmk; // ignore: prefer_initializing_formals
+    required VerifiedUmkSource others,
+  }) : _ownUmk = ownUmk, // ignore: prefer_initializing_formals
+       // ignore: prefer_initializing_formals
+       _others = others;
 
   /// The user every key here belongs to (`created_by_user`, 04 §4).
   final String userId;
@@ -1129,13 +1144,22 @@ final class LedgerKeyMaterial implements VerifiedUmkSource {
 
   final VerifiedUmkPublic _ownUmk;
 
-  /// The ceremony-verified UMK of [userId] — this install's own user, whose
-  /// fingerprint it checked byte-for-byte at bootstrap (04 §3.4). Null for
-  /// every other user: another member is believed only after a ceremony, never
-  /// because this device happens to know their id.
+  /// The other members, from the ledger's [VerifiedMemberDirectory] — read
+  /// live, so a ceremony that completes mid-session is believed at once.
+  final VerifiedUmkSource _others;
+
+  /// The ceremony-verified UMK of [userId]: this install's own user, whose
+  /// fingerprint it checked byte-for-byte at bootstrap (04 §3.4), or a member
+  /// a ceremony on this device bound to a human and a signed record proves
+  /// (04 §6.4, §8.2 🔒). Null for everybody else — a member is never believed
+  /// because this device happens to know their id, or because the server said
+  /// so (C-05d-7).
+  ///
+  /// The install's own key wins over any record naming it: this device's own
+  /// UMK is the one it holds, not one it was told about.
   @override
   VerifiedUmkPublic? verifiedUmkOf(String userId) =>
-      userId == this.userId ? _ownUmk : null;
+      userId == this.userId ? _ownUmk : _others.verifiedUmkOf(userId);
 }
 
 /// The ledger's [KeySource] over the one [BookKeyStore] the sync engine's
@@ -1805,6 +1829,7 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
   DeviceKeyPair? _device;
   UmkKeyPair? _umk;
   VerifiedUmkPublic? _umkVerified;
+  VerifiedMemberDirectory? _verifiedMembers;
   DeviceCert? _ownCert;
   Hlc _clock = const Hlc(0);
 
@@ -1843,8 +1868,20 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
       umk: _umk!,
       bookKeys: _keySource.required,
       ownUmk: _umkVerified!,
+      others: _verifiedMembers!,
     );
   }
+
+  /// The members a ceremony on this device confirmed (04 §6.4), and the one
+  /// door a completed ceremony persists a key through — `features/ceremony`
+  /// takes this as its [VerifiedMemberSink]. Throws [LedgerNotOpen] before
+  /// bootstrap.
+  ///
+  /// Read through [keyMaterial] by everything that seals: a guardian share
+  /// (04 §7.3) and a book key (04 §5.1) reach a member only as the
+  /// [VerifiedUmkPublic] a record here proves.
+  VerifiedMemberDirectory get verifiedMembers =>
+      _verifiedMembers ?? (throw const LedgerNotOpen());
 
   // ── device certificate (04 §3.4 🔒 · 06 §3 step 3) ────────────────────────
 
@@ -1999,6 +2036,7 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
     _umk = umk;
     _umkVerified = _selfVerifyUmk(umk, userId);
     _keySource.store = BookKeyStore(tenantId: tenantId);
+    await _openVerifiedMembers(identity);
     _identity = identity;
   }
 
@@ -2029,6 +2067,7 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
     _umk = umk;
     _umkVerified = _selfVerifyUmk(umk, id.userId);
     _keySource.store = BookKeyStore(tenantId: id.tenantId);
+    await _openVerifiedMembers(id);
     _identity = id;
     await _loadOwnCert();
 
@@ -2105,6 +2144,26 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
       CeremonyVerified(:final verified) => verified,
       _ => throw StateError('UMK self-verification failed'),
     };
+  }
+
+  /// Builds the verification directory over `signed_records_local` and folds
+  /// what is already stored (04 §6.4, §8.2 🔒). Called at bootstrap and at
+  /// every re-open, before [identity] is set, so no caller can read
+  /// [keyMaterial] against a half-built directory.
+  Future<void> _openVerifiedMembers(LedgerIdentity id) async {
+    final directory = VerifiedMemberDirectory(
+      suite: suite,
+      records: SignedRecordMirror(db),
+      tenantId: id.tenantId,
+      selfUserId: id.userId,
+      // Borrowed, never held: after [dispose] the callback throws rather than
+      // hand out a zeroised key.
+      author: () => _device ?? (throw const LedgerNotOpen()),
+      tick: _tick,
+      newRecordId: newId,
+    );
+    await directory.load();
+    _verifiedMembers = directory;
   }
 
   Future<void> _seedClock() async {
@@ -5637,6 +5696,7 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
     _umk = null;
     _device = null;
     _umkVerified = null;
+    _verifiedMembers = null;
     _ownCert = null;
     _identity = null;
   }

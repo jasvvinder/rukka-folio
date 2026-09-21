@@ -22,6 +22,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:sodium_libs/sodium_libs.dart';
 import 'package:sync_engine/sync_engine.dart' as eng;
 
+import 'features/account/account_routes.dart';
 import 'features/advances/advances_routes.dart';
 import 'features/auth/auth_routes.dart';
 import 'features/auth/http_auth_client.dart';
@@ -37,6 +38,7 @@ import 'features/devices/devices_routes.dart';
 import 'features/devices/keychain_key_store.dart';
 import 'features/devices/pin_vault.dart';
 import 'features/entry/entry_routes.dart';
+import 'features/help/help_routes.dart';
 import 'features/home/home_rebuild.dart';
 import 'features/home/home_routes.dart';
 import 'features/home/home_scope.dart';
@@ -48,6 +50,7 @@ import 'features/inbox/ledger_review_queue.dart';
 import 'features/inbox/review_queue.dart';
 import 'features/import/import_routes.dart';
 import 'features/ledger/ledger_routes.dart';
+import 'features/legal/legal_routes.dart';
 import 'features/members/members_api.dart';
 import 'features/members/members_review_policy.dart';
 import 'features/members/members_routes.dart';
@@ -67,6 +70,7 @@ import 'shared/records/device_added_record.dart';
 import 'shared/records/device_record_author.dart';
 import 'shared/router.dart';
 import 'shared/seams/closed_years.dart';
+import 'shared/seams/guardians.dart';
 import 'shared/seams/http_transport.dart';
 import 'shared/seams/key_store.dart';
 import 'shared/seams/recovery_ladder.dart';
@@ -383,15 +387,41 @@ Future<void> bootstrap() async {
             .join(' ');
       }
 
+      // The read side of the guardian set (04 §7.3 Setup, the meta pull's
+      // `guardian_sets`). Declared here because S11.2's roster needs it: a
+      // recovery attempt is pinned to a **generation** of the set, and the
+      // only place this device can learn who was in that generation is the
+      // published history.
+      final guardiansApi = HttpGuardiansApi(
+        transport: MembersTransportOverRkHttp(httpDoor),
+        functionsRoot: Uri.parse(apiBase),
+        accessToken: () async {
+          try {
+            return await auth.accessToken();
+          } on Object {
+            return null; // no live session ⇒ `unauthorized`
+          }
+        },
+        clientVersion: clientVersion,
+      );
+
       final guardianRecovery = HttpGuardianRecovery(
         api: recoveryApi,
-        // ⚠️ SPEC: the trusted-member roster has no live producer —
-        // `GuardiansRepository` is still `FakeGuardians` only, and the
-        // guardian set arrives on the meta pull without ever being surfaced
-        // to the app. S11.2 therefore draws the server's own k, n and state
-        // and names nobody, rather than ticking a member who may not have
-        // acted. Reported as an open item.
-        roster: () async => const <TrustedApprover>[],
+        // The real people, at last: the members of the generation the attempt
+        // is **pinned** to (0010 pins `share_set_version` at open), each named
+        // from this device's own member list — names are never the server's
+        // (ADR 2026-09-05c §4 🔒). `progressToWire` now carries the decision
+        // rows, so a tick lands on the member a row names and on nobody else;
+        // a generation this device cannot read names nobody at all, which
+        // under-reports rather than misattributing (`recovery_roster.dart`).
+        roster: PinnedGuardianRoster(
+          api: guardiansApi,
+          nameOf: memberName,
+          // ADR 2026-09-05c §4 🔒 — this device holds no number for another
+          // member, so R2.2's *Call* link is correctly absent rather than
+          // dialling something guessed.
+          phoneOf: (_) => null,
+        ).call,
         // ⚠️ SPEC: minting and persisting the *candidate* X25519 pair of
         // 04 §7.3 step 1 is `core_crypto`/`features/devices` behaviour and
         // has no producer, so this build re-reads an attempt that is already
@@ -428,6 +458,77 @@ Future<void> bootstrap() async {
         // never a bypass. `decline` still works, because refusing is safe.
         scanner: null,
         resealer: null,
+      );
+
+      // Rung 3 — the paper sheet (04 §7.4 🔒, migration 0011). The routes
+      // exist now, so this producer **fetches** the user's own current
+      // `sealed_RK_blob` instead of refusing before it starts.
+      //
+      // ⚠️ SPEC: it is still installed with **no opener**, and that is the
+      // conservative reading rather than an omission. Two things are missing
+      // and neither is this file's to invent:
+      //
+      //   1. a **framing** for `SealedRecoveryBlob`. `core_crypto`'s
+      //      `sealUmkUnderRecoveryKey` returns `suite_version`, a 24-byte
+      //      nonce and the ciphertext as three fields and serialises none of
+      //      them; 0011 stores one opaque byte string. Choosing the byte
+      //      layout is `core_crypto` behaviour (the `GuardianShare.encode`
+      //      precedent), not an app-layer guess — and a wrong guess would
+      //      read as a wrong *code* to whoever typed one.
+      //   2. a way to **put the recovered key back**. `LedgerKeyMaterial`
+      //      holds `umk` and offers no adoption path, so a build that opened
+      //      the blob could verify the code and then drop the key it found —
+      //      and S11.3 would draw a restore that did not happen, which is
+      //      exactly what installing `FakeRecoverySheet` would do.
+      //
+      // So `submit` fetches nothing and refuses plainly (`no opener`), and no
+      // correctly copied sheet is ever told it is wrong. Both items are
+      // reported for the lane that owns `core_crypto` and the ledger.
+      //
+      // The **precheck** is installed, though, and it is a correction rather
+      // than an addition. The seam used to carry a ⚠️ SPEC claiming 04 §7.4's
+      // 2-char checksum was unspecified "so nothing here verifies one". It is
+      // specified: `core_crypto`'s `_sheetChecksum`
+      // (`packages/core_crypto/lib/src/recovery.dart:318`) is the first two
+      // Crockford symbols of `BLAKE2b-256(version ‖ user_id ‖ RK)`, and
+      // `recoverySheetFromTyped` (`:360`) throws
+      // `RecoverySheetChecksumFailed` on a mismatch. So a mistype is caught
+      // on this phone, for nothing, before the rate-limited `recovery/sheet`
+      // route is spent on a code already known to be wrong.
+      //
+      // It runs here and not behind the seam because verifying the checksum
+      // means decoding the payload, and the payload **is** `RK`. The sheet is
+      // disposed in the same statement that made it, so the key exists for
+      // the length of one comparison and is zeroised whichever way the check
+      // goes (04 §7.4, 07 §5.6 🔒). Nothing is returned but the bool.
+      bool sheetCodeIsWorthTrying(RecoverySheetCode code) {
+        RecoverySheet? sheet;
+        try {
+          sheet = recoverySheetFromTyped(suite, code.value);
+          return true;
+        } on RecoverySheetChecksumFailed {
+          return false; // a mistype — R2.4's first stated cause
+        } on FormatException {
+          return false; // wrong length, foreign symbol, unknown version
+        } finally {
+          sheet?.dispose();
+        }
+      }
+
+      final recoverySheet = HttpRecoverySheet(
+        api: recoveryApi,
+        precheck: sheetCodeIsWorthTrying,
+      );
+
+      // ── the ladder itself (04 §7.0 🔒, §7.1, §7.2, §7.4 🔒; 13 §5 F11) ───
+      //
+      // One call, because the probe map is the fact worth pinning and a map
+      // built inline inside `bootstrap()` cannot be: see
+      // [buildRecoveryLadder], and F1-06-89 / F1-06-90 over it.
+      final recoveryLadder = buildRecoveryLadder(
+        keys: keys,
+        guardians: guardiansApi,
+        recovery: recoveryApi,
       );
 
       // ── the socket (05 §1) ──────────────────────────────────────────────
@@ -592,6 +693,7 @@ Future<void> bootstrap() async {
         menuTabRoot: menuRoot,
         entryRoot: entryScreen,
         featureRoutes: [
+          ...accountRoutes,
           ...advancesRoutes,
           ...onboardingRoutes,
           ...partnersRoutes,
@@ -601,10 +703,12 @@ Future<void> bootstrap() async {
           ...ceremonyRoutes,
           ...closeRoutes,
           ...devicesRoutes,
+          ...helpRoutes,
           ...homeRoutes,
           ...inboxRoutes,
           ...importRoutes,
           ...ledgerRoutes,
+          ...legalRoutes,
           ...membersRoutes,
           // S11.5/S11.6/S11.8 — the activation ladder, root navigator
           // (13 §5 F11). A finished restore lands on Home, which
@@ -612,6 +716,70 @@ Future<void> bootstrap() async {
           ...recoveryRoutes(onRestored: (context) => context.go(RkPaths.home)),
           ...settingsRoutes,
         ],
+      );
+
+      // ── 04 §7.3 🔒 Setup: the trusted-member set behind S11.1 ───────────
+      //
+      // S11.1 ran on `FakeGuardians` until now — a fake that accepts a set and
+      // reports a split that never happened. This is its live producer over
+      // the same 0010 routes: the meta pull's `guardian_sets` history on the
+      // read side, `POST sync-meta/recovery/guardians` on the write side.
+      //
+      // The two facts it needs come from the two places that hold them, and
+      // from nowhere else:
+      //
+      //   • the roster is `features/members`' — names and where the mutual
+      //     ceremony stands — and reaches the repository through the
+      //     `GuardianRosterSource` port, so nothing in `shared/sync` imports
+      //     a feature;
+      //   • the **key** is `material`'s. `LedgerKeyMaterial.verifiedUmkOf`
+      //     answers for this install's own user and null for everybody else
+      //     (04 §8.2 🔒), and a share is sealed only to a `VerifiedUmkPublic`
+      //     — `VerifiedGuardian` takes nothing else. So until a ceremony's
+      //     verified key is *persisted* for another member, this repository
+      //     refuses to publish rather than sealing a piece of `UMK_priv` to a
+      //     key nobody confirmed. Refusing is the posture rule 5 asks for when
+      //     the check cannot be made; reported as an open item.
+      final guardians = ServerGuardians(
+        // The same client S11.2's roster reads the set history through — one
+        // door to `guardian_sets`, so the set a screen shows and the set a
+        // recovery attempts against can never come from two readings.
+        api: guardiansApi,
+        roster: () async => GuardianRoster(
+          candidates: [
+            for (final m in members.current?.members ?? const <Member>[])
+              GuardianCandidateRow(
+                userId: m.id,
+                name: memberName(m.id),
+                // 04 §7.3 asks for a *mutual ceremony per guardian*. This
+                // device holds a 04 §6.4 log entry only for one that finished,
+                // and the membership reads `active` only once keys were
+                // wrapped; anything less is *not started* rather than
+                // *started*, which would have S11.1 imply a half-done ceremony
+                // this device knows nothing about.
+                ceremony:
+                    m.verification != null && m.state == MembershipState.active
+                    ? GuardianCeremony.done
+                    : GuardianCeremony.notStarted,
+                // ⚠️ SPEC: S11.1's *Meet them* opens a ceremony invite, and
+                // `MembersSnapshot` carries no invite id per member — only
+                // this user's own invitations (`myInvites`). Null disables the
+                // control **with its reason** (13 §4.3) instead of opening a
+                // ceremony against an id this build guessed. Reported.
+                inviteId: null,
+                isYou: m.isYou,
+              ),
+          ],
+          // The set protects this user's own key. It is not a book object and
+          // no book role gates it (06 §1.0 🔒: a role is per book), so there is
+          // no read-only case to derive here.
+          readOnly: false,
+        ),
+        verified: material,
+        sealer: CryptoGuardianSealer(
+          suite: suite,
+          umk: () => material.umk,
+        ).call,
       );
 
       // S9/S9.1 read the repository off the tree; with no tenant yet there is
@@ -676,13 +844,33 @@ Future<void> bootstrap() async {
                           // what it was constructed with when a scope is
                           // absent (07 §1 rule 6 — a missing scope is never a
                           // red screen).
-                          child: GuardianRecoveryScope(
-                            recovery: guardianRecovery,
-                            child: RecoverySheetScope(
-                              sheet: const HttpRecoverySheet(),
-                              child: GuardianApprovalsScope(
-                                approvals: guardianApprovals,
-                                child: app,
+                          // S11.5 and S11.6's one source. Outermost of the
+                          // activation producers because it is the one the
+                          // fork asks before any other screen exists — and
+                          // because installing it is what stops S11.6 running
+                          // on `FakeRecoveryLadder` in production, where every
+                          // rung reads as available whether it is or not.
+                          child: RecoveryLadderScope(
+                            ladder: recoveryLadder,
+                            child: GuardianRecoveryScope(
+                              recovery: guardianRecovery,
+                              child: RecoverySheetScope(
+                                sheet: recoverySheet,
+                                child: GuardianApprovalsScope(
+                                  approvals: guardianApprovals,
+                                  // S11.1's live producer, innermost with the
+                                  // other activation producers. The screen
+                                  // still falls back to the seam's own fake
+                                  // when the scope is absent (07 §1 rule 6 —
+                                  // a missing scope is never a red screen),
+                                  // which is why installing it here is what
+                                  // stops S11.1 running on `FakeGuardians` in
+                                  // production.
+                                  child: GuardiansScope(
+                                    repository: guardians,
+                                    child: app,
+                                  ),
+                                ),
                               ),
                             ),
                           ),

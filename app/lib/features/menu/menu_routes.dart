@@ -10,12 +10,12 @@
 // orchestrator mounts them on the root navigator; Menu only pushes the path,
 // which is the entry point 07 §5.7 🔒 requires for S9.5.
 //
-// Devices & security (S11), Backup (S11.4) and Settings (S13) are
-// root-navigator routes already wired into the app's `featureRoutes`
-// (`devicesRoutes`/`settingsRoutes` in main.dart, built by earlier lanes) —
-// Menu just pushes their absolute path, exactly as Home pushes
-// `LedgerPaths.statementOf`.
-import 'package:core_ledger/core_ledger.dart';
+// Devices & security (S11), Backup (S11.4), Settings (S13), Help (S17) and
+// Legal & trust (S18) are root-navigator routes already wired into the app's `featureRoutes`
+// (`devicesRoutes`/`settingsRoutes`/`helpRoutes`/`legalRoutes` in
+// bootstrap.dart, built by
+// earlier lanes) — Menu just pushes their absolute path, exactly as Home
+// pushes `LedgerPaths.statementOf`.
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
@@ -26,6 +26,8 @@ import '../books/books_paths.dart';
 import '../close/close_paths.dart';
 import '../close/close_source.dart';
 import '../devices/devices_paths.dart';
+import '../help/help_paths.dart';
+import '../legal/legal_paths.dart';
 import '../reports/reports_routes.dart';
 import '../settings/settings_paths.dart';
 import 'close_month_books.dart';
@@ -39,7 +41,7 @@ export 'year_close_books.dart';
 
 /// S8 Menu — the Menu tab's root screen. Row taps push a nested route
 /// (Reports) or an existing feature's root-navigator screen (Books, Backup,
-/// Devices & security, Settings).
+/// Devices & security, Settings, Legal & trust).
 final RkTabRoot menuRoot = RkTabRoot(
   builder: (context) => const MenuTab(),
   routes: reportsRoutes,
@@ -125,6 +127,8 @@ class _MenuTabState extends State<MenuTab> {
     onOpenBackup: () => context.push(DevicesPaths.backup),
     onOpenDevices: () => context.push(DevicesPaths.devices),
     onOpenSettings: () => context.push(SettingsPaths.root),
+    onOpenHelp: () => context.push(HelpPaths.root),
+    onOpenLegal: () => context.push(LegalPaths.root),
     yearCloseBooks: _years,
     closeMonth: _close,
     // S10 for the book's **first open** month — `closeStatuses` already

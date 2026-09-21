@@ -1,0 +1,463 @@
+{
+  "@@locale": "en",
+
+  "help.title": "Help",
+  "@help.title": {
+    "description": "S17 Help hub app-bar title (07 §22 🔒; 13 §3.2 row S17)."
+  },
+  "help.intro": "Find an answer here, or send us the little that we are allowed to see.",
+  "@help.intro": {
+    "description": "S17 hub lead line above the search field."
+  },
+  "help.search.hint": "Search help",
+  "@help.search.hint": {
+    "description": "S17 hub search field hint (ADR 2026-09-02: the searchable FAQ list lives on the hub)."
+  },
+  "help.search.label": "Search the questions and answers",
+  "@help.search.label": {
+    "description": "S17 hub search field screen-reader label."
+  },
+  "help.search.clear": "Clear the search",
+  "@help.search.clear": {
+    "description": "S17 hub button that empties the search field."
+  },
+  "help.search.count": "{count, plural, =1{1 answer} other{{count} answers}}",
+  "@help.search.count": {
+    "description": "S17 hub count of matching questions while a search is running.",
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "help.search.empty.title": "Nothing here matches that.",
+  "@help.search.empty.title": {
+    "description": "S17 hub empty state when a search matches no question (07 §1 rule 12)."
+  },
+  "help.search.empty.body": "Try a shorter word, or read all the questions.",
+  "@help.search.empty.body": {
+    "description": "S17 hub empty-state body: the one next action (13 §8)."
+  },
+  "help.search.empty.action": "Show all questions",
+  "@help.search.empty.action": {
+    "description": "S17 hub empty-state action clearing the search."
+  },
+  "help.section.faq": "Questions people ask",
+  "@help.section.faq": {
+    "description": "S17 hub heading over the grouped FAQ list."
+  },
+  "help.section.reach": "Still stuck?",
+  "@help.section.reach": {
+    "description": "S17 hub heading over the contact and diagnostics rows."
+  },
+
+  "help.contact.title": "Contact support",
+  "@help.contact.title": {
+    "description": "S17 hub row for S17.3 — WhatsApp is its primary door (13 §3.2 row S17.3)."
+  },
+  "help.contact.value": "WhatsApp",
+  "@help.contact.value": {
+    "description": "S17 hub contact row value: the channel S17.3 opens."
+  },
+  "help.contact.reason": "The WhatsApp door is not open yet. Until it is, the answers here and the report below are what Help can offer.",
+  "@help.contact.reason": {
+    "description": "S17 hub contact row disabled-with-reason (07 §1 rule 6; S17.3 is not built)."
+  },
+  "help.cannot.title": "What support cannot do",
+  "@help.cannot.title": {
+    "description": "S17 hub panel stating support's limits (07 §22 🔒 via 06 §8 🔒)."
+  },
+  "help.cannot.read": "Read a book, or any entry in one.",
+  "@help.cannot.read": {
+    "description": "S17 support limit, 06 §8 🔒 'support CANNOT read any content'."
+  },
+  "help.cannot.key": "Recover a key, or open your books for you.",
+  "@help.cannot.key": {
+    "description": "S17 support limit, 06 §8 🔒 'recover any key'."
+  },
+  "help.cannot.member": "Add a member to your book.",
+  "@help.cannot.member": {
+    "description": "S17 support limit, 06 §8 🔒 'add a member'."
+  },
+  "help.cannot.ceremony": "Skip the meeting that activates a member.",
+  "@help.cannot.ceremony": {
+    "description": "S17 support limit, 06 §8 🔒 'bypass a ceremony'."
+  },
+  "help.cannot.footnote": "None of these exist in the app, so nobody can be talked into one.",
+  "@help.cannot.footnote": {
+    "description": "S17 support-limits footnote (06 §8 🔒 'No such endpoints exist')."
+  },
+
+  "help.diagnostics.title": "Send diagnostics",
+  "@help.diagnostics.title": {
+    "description": "S17 hub row opening S17.4."
+  },
+  "help.diagnostics.subtitle": "A short report about the app itself. You read all of it before it goes.",
+  "@help.diagnostics.subtitle": {
+    "description": "S17 hub row subtitle for S17.4 (07 §22 🔒: the payload is shown before sending)."
+  },
+
+  "help.article.appbar": "Answer",
+  "@help.article.appbar": {
+    "description": "S17.2 FAQ article app-bar title; the question is the page heading."
+  },
+  "help.article.stuck": "Did this not answer it?",
+  "@help.article.stuck": {
+    "description": "S17.2 heading over the article's ways on (07 §1 rule 6: no dead ends)."
+  },
+  "help.article.more": "Read the other questions",
+  "@help.article.more": {
+    "description": "S17.2 action returning to the S17 hub."
+  },
+  "help.article.missing.title": "That answer is not here.",
+  "@help.article.missing.title": {
+    "description": "S17.2 error state when the article id is unknown (13 §4.3)."
+  },
+  "help.article.missing.body": "It may have been renamed. The list on Help has every question in it.",
+  "@help.article.missing.body": {
+    "description": "S17.2 error-state body."
+  },
+  "help.article.missing.action": "Back to Help",
+  "@help.article.missing.action": {
+    "description": "S17.2 error-state action."
+  },
+
+  "faq.group.start": "Getting started",
+  "@faq.group.start": {
+    "description": "S17 FAQ group heading."
+  },
+  "faq.group.entries": "Writing entries",
+  "@faq.group.entries": {
+    "description": "S17 FAQ group heading."
+  },
+  "faq.group.people": "Family, staff and partners",
+  "@faq.group.people": {
+    "description": "S17 FAQ group heading."
+  },
+  "faq.group.safety": "Safety and privacy",
+  "@faq.group.safety": {
+    "description": "S17 FAQ group heading."
+  },
+  "faq.group.trouble": "When something looks wrong",
+  "@faq.group.trouble": {
+    "description": "S17 FAQ group heading."
+  },
+
+  "faq.no_password.q": "Why is there no password to reset?",
+  "@faq.no_password.q": {
+    "description": "S17 FAQ question (04 §1–§7: there is no server-side secret to reset)."
+  },
+  "faq.no_password.a1": "Because there is nothing on our side to unlock. Your books are locked on your phone before anything is sent, and the key stays on your phones.",
+  "@faq.no_password.a1": {
+    "description": "S17.2 answer paragraph (04 §7 preamble 🔒: login without key recovery yields an empty vault — never a fake reset)."
+  },
+  "faq.no_password.a2": "That is also why a new phone works the way it does — see “I have a new phone”.",
+  "@faq.no_password.a2": {
+    "description": "S17.2 answer paragraph pointing at the new-phone question."
+  },
+
+  "faq.paper_sheet.q": "What is the paper sheet for?",
+  "@faq.paper_sheet.q": {
+    "description": "S17 FAQ question (04 §7.4 🔒 rung 3)."
+  },
+  "faq.paper_sheet.a1": "It is your key, printed. If every phone you own is lost at once, the sheet is what brings your books back.",
+  "@faq.paper_sheet.a1": {
+    "description": "S17.2 answer paragraph (04 §7.4 🔒)."
+  },
+  "faq.paper_sheet.a2": "Keep it where you keep your Aadhaar and LIC papers. Print it, then scan the printed copy back once — that is how the app knows the paper in your hand really works.",
+  "@faq.paper_sheet.a2": {
+    "description": "S17.2 answer paragraph (04 §7.4 🔒: framed as a document; verified-storage nag until the printed sheet is scanned back)."
+  },
+
+  "faq.new_phone.q": "I have a new phone. How do I get my books back?",
+  "@faq.new_phone.q": {
+    "description": "S17 FAQ question (04 §7 🔒 the recovery ladder, 06 §5)."
+  },
+  "faq.new_phone.a1": "Sign in with your number. The app then tries, in this order: the key backup the phone itself keeps, another phone of yours, your guardians, and last your paper sheet.",
+  "@faq.new_phone.a1": {
+    "description": "S17.2 answer paragraph — the ladder order of 04 §7.0, §7.1, §7.2, §7.3, §7.4 🔒."
+  },
+  "faq.new_phone.a2": "If none of those is left, the honest answer is that nobody can open that book — not us, not support. That is the privacy you were promised, working.",
+  "@faq.new_phone.a2": {
+    "description": "S17.2 answer paragraph quoting 06 §8 🔒's support script for 'I lost everything'."
+  },
+
+  "faq.fix_entry.q": "Can I change an entry after saving it?",
+  "@faq.fix_entry.q": {
+    "description": "S17 FAQ question (02 §5 🔒 corrections)."
+  },
+  "faq.fix_entry.a1": "Yes, while its month is still open. The change is recorded as a correction: the newest version is what you see, and the earlier one stays in the entry's history, so the book always shows how it got here.",
+  "@faq.fix_entry.a1": {
+    "description": "S17.2 answer paragraph (02 §5 🔒 open period: amend; history preserved and inspectable)."
+  },
+  "faq.fix_entry.a2": "Right after saving there is a simpler way: the Undo on the message at the bottom removes the entry outright for ten seconds.",
+  "@faq.fix_entry.a2": {
+    "description": "S17.2 answer paragraph (13 §5 flow F2: toast + 10 s Undo)."
+  },
+
+  "faq.locked_date.q": "Why can I not edit an old entry?",
+  "@faq.locked_date.q": {
+    "description": "S17 FAQ question (02 §5 🔒 locked period)."
+  },
+  "faq.locked_date.a1": "Its month has been closed, and a closed month is never rewritten.",
+  "@faq.locked_date.a1": {
+    "description": "S17.2 answer paragraph (02 §5 🔒: amendment is forbidden by rule in a locked period)."
+  },
+  "faq.locked_date.a2": "Use “Fix an old entry”. The app writes a matching entry in the open month that cancels the mistake, and the corrected entry beside it. Both stay visible, and the old one is shown struck through.",
+  "@faq.locked_date.a2": {
+    "description": "S17.2 answer paragraph (02 §5 🔒: reversal, one guided flow, both posted; reversed entries remain visible struck through)."
+  },
+
+  "faq.money_in_out.q": "What do Money in and Money out mean?",
+  "@faq.money_in_out.q": {
+    "description": "S17 FAQ question (02 §10 🔒 two vocabularies; 01 §1.3 forbids the professional words on consumer screens)."
+  },
+  "faq.money_in_out.a1": "Money in is what came to you. Money out is what went from you. That is the whole of it — you never have to pick a side of the book.",
+  "@faq.money_in_out.a1": {
+    "description": "S17.2 answer paragraph (02 §10 🔒 consumer vocabulary; 07 §5: the entry screen stays verb-based)."
+  },
+  "faq.money_in_out.a2": "An A/C statement, a report and an export show the very same entries in the two columns an accountant expects. One set of entries, two ways of reading them.",
+  "@faq.money_in_out.a2": {
+    "description": "S17.2 answer paragraph (02 §10 🔒: professional surfaces; the words themselves stay off this consumer screen per 01 §1.3)."
+  },
+
+  "faq.offline.q": "Does the app work without internet?",
+  "@faq.offline.q": {
+    "description": "S17 FAQ question (07 §1 rule 7 🔒, 13 §8)."
+  },
+  "faq.offline.a1": "Yes. Writing entries, statements, reports and exports all work from what is already on the phone.",
+  "@faq.offline.a1": {
+    "description": "S17.2 answer paragraph (13 §8 offline: the default assumption, not an error state)."
+  },
+  "faq.offline.a2": "Anything not yet sent shows as “Saved on phone · will sync”, and goes on its own once you are back on a connection.",
+  "@faq.offline.a2": {
+    "description": "S17.2 answer paragraph quoting the 05 §9 status wording 07 §1 rule 7 🔒 fixes."
+  },
+
+  "faq.meet_in_person.q": "Why must I meet someone in person to add them?",
+  "@faq.meet_in_person.q": {
+    "description": "S17 FAQ question (07 §12 🔒 the ceremony; 06 §8 🔒)."
+  },
+  "faq.meet_in_person.a1": "Because that meeting is the proof. The two phones show each other a code in the same room, and that is what makes the other phone truly theirs and not someone else's.",
+  "@faq.meet_in_person.a1": {
+    "description": "S17.2 answer paragraph (07 §12 🔒 members, invitations & the ceremony)."
+  },
+  "faq.meet_in_person.a2": "Nobody can do that step on your behalf. Support cannot, and there is no setting that skips it.",
+  "@faq.meet_in_person.a2": {
+    "description": "S17.2 answer paragraph (06 §8 🔒: support cannot bypass a ceremony; no such endpoints exist)."
+  },
+
+  "faq.review_flag.q": "My entry says someone will review it. Is it saved?",
+  "@faq.review_flag.q": {
+    "description": "S17 FAQ question (13 §5 flow F2: over a member's limit posts anyway)."
+  },
+  "faq.review_flag.a1": "It is saved, and it already counts in the book. The note only means the amount was above the limit set for you, so it also lands in the owner's Inbox for a look.",
+  "@faq.review_flag.a1": {
+    "description": "S17.2 answer paragraph (13 §5 F2 🔒: 'Saved ✓ · Sunita will review' — post-then-review)."
+  },
+  "faq.review_flag.a2": "Nothing is held back while it waits, and nothing is deleted if it is questioned — a correction is written instead.",
+  "@faq.review_flag.a2": {
+    "description": "S17.2 answer paragraph (02 §5 🔒: corrections, never deletion)."
+  },
+
+  "faq.support_powers.q": "What can support see, and what can it do?",
+  "@faq.support_powers.q": {
+    "description": "S17 FAQ question (06 §8 🔒, restated by 07 §22 🔒)."
+  },
+  "faq.support_powers.a1": "Support cannot read a book or any entry in it, cannot recover a key, cannot add a member, and cannot skip the meeting that activates one. None of those abilities exist in the system.",
+  "@faq.support_powers.a1": {
+    "description": "S17.2 answer paragraph — 06 §8 🔒 'Support CANNOT' list verbatim in plain words."
+  },
+  "faq.support_powers.a2": "Support can sort out your plan and payments, revoke a phone, resend an invitation, and send you a request to delete your account — which only your own phone can start.",
+  "@faq.support_powers.a2": {
+    "description": "S17.2 answer paragraph — 06 §8 🔒 'Support CAN' list, with ADR 2026-09-05h §2's request-only deletion."
+  },
+  "faq.support_powers.a3": "If anyone calls claiming otherwise, it is not us. Support will call your registered number back, and will never ask you to read out a code.",
+  "@faq.support_powers.a3": {
+    "description": "S17.2 answer paragraph — 06 §8 🔒 caller verification: callback plus one account fact, never OTP-read-back."
+  },
+
+  "faq.diagnostics.q": "What is in a diagnostics report?",
+  "@faq.diagnostics.q": {
+    "description": "S17 FAQ question (07 §22 🔒 S17.4; CLAUDE.md rule 4)."
+  },
+  "faq.diagnostics.a1": "A short list of facts about the app itself: its version, what kind of phone this is, your language, the sync state, and how many entries are still waiting to go.",
+  "@faq.diagnostics.a1": {
+    "description": "S17.2 answer paragraph naming the S17.4 payload's fields."
+  },
+  "faq.diagnostics.a2": "No amounts, no account or party names, no notes, no phone numbers, nothing you typed. The report is built only from that list, so there is nowhere for any of it to appear.",
+  "@faq.diagnostics.a2": {
+    "description": "S17.2 answer paragraph — CLAUDE.md rule 4 stated as the build rule, not as a filter."
+  },
+  "faq.diagnostics.a3": "You see the whole report before it goes, and what you see is exactly what is sent.",
+  "@faq.diagnostics.a3": {
+    "description": "S17.2 answer paragraph — 07 §22 🔒 'the payload shown before sending'."
+  },
+
+  "faq.waiting_for.q": "It says it is waiting for entries from another phone.",
+  "@faq.waiting_for.q": {
+    "description": "S17 FAQ question (07 §1 rule 7 🔒 author-gap state; 07 §28 S10.5)."
+  },
+  "faq.waiting_for.a1": "Some entries written on that phone have not reached yours yet. Until they do, what you are looking at is not the full picture, so the month cannot be closed.",
+  "@faq.waiting_for.a1": {
+    "description": "S17.2 answer paragraph (ADR 2026-09-05b §3: provisional projection, close blocked)."
+  },
+  "faq.waiting_for.a2": "Opening the app on that phone, with a connection, is usually all it takes.",
+  "@faq.waiting_for.a2": {
+    "description": "S17.2 answer paragraph (05 §7: foreground is a sync trigger)."
+  },
+
+  "faq.needs_attention.q": "It says “Needs attention”. What now?",
+  "@faq.needs_attention.q": {
+    "description": "S17 FAQ question (07 §1 rule 7 🔒 status surface; 07 §2 🔒 Inbox)."
+  },
+  "faq.needs_attention.a1": "Something is waiting for a person: an entry to approve, a line from a statement to match, a request to accept.",
+  "@faq.needs_attention.a1": {
+    "description": "S17.2 answer paragraph (07 §2 🔒: one tray for everything awaiting a human)."
+  },
+  "faq.needs_attention.a2": "It is all in the Inbox, and the number on that tab is the count. Nothing there is urgent enough to interrupt you, which is why it never arrives as a pop-up.",
+  "@faq.needs_attention.a2": {
+    "description": "S17.2 answer paragraph (07 §1 rule 7 🔒: sync failures surface in Inbox, not as popups)."
+  },
+
+  "diag.title": "Send diagnostics",
+  "@diag.title": {
+    "description": "S17.4 app-bar title (07 §22 🔒)."
+  },
+  "diag.intro": "This is the report, whole. What you read here is what is sent — the app has no second version of it.",
+  "@diag.intro": {
+    "description": "S17.4 lead line (07 §22 🔒: the payload shown before sending; the preview IS the payload)."
+  },
+  "diag.included.heading": "What the report says",
+  "@diag.included.heading": {
+    "description": "S17.4 heading over the list of facts in the payload."
+  },
+  "diag.excluded.heading": "What can never be in it",
+  "@diag.excluded.heading": {
+    "description": "S17.4 heading over the exclusion list (CLAUDE.md rule 4)."
+  },
+  "diag.excluded.amounts": "Amounts, balances and totals",
+  "@diag.excluded.amounts": {
+    "description": "S17.4 exclusion line (CLAUDE.md rule 4: no plaintext financial data)."
+  },
+  "diag.excluded.names": "Account, party and book names",
+  "@diag.excluded.names": {
+    "description": "S17.4 exclusion line."
+  },
+  "diag.excluded.notes": "Notes, and anything else you typed",
+  "@diag.excluded.notes": {
+    "description": "S17.4 exclusion line."
+  },
+  "diag.excluded.people": "Names and phone numbers of people",
+  "@diag.excluded.people": {
+    "description": "S17.4 exclusion line — includes the member name the waiting-for state carries."
+  },
+  "diag.excluded.footnote": "The report is built from the list above and nothing else, so none of these has a way in.",
+  "@diag.excluded.footnote": {
+    "description": "S17.4 exclusion footnote — safe by construction, not by redaction."
+  },
+  "diag.payload.heading": "The report, exactly as it will be sent",
+  "@diag.payload.heading": {
+    "description": "S17.4 heading over the raw payload block."
+  },
+  "diag.payload.label": "The report text",
+  "@diag.payload.label": {
+    "description": "S17.4 screen-reader label for the raw payload block."
+  },
+  "diag.action.send": "Send this report",
+  "@diag.action.send": {
+    "description": "S17.4 primary action."
+  },
+  "diag.action.copy": "Copy the report",
+  "@diag.action.copy": {
+    "description": "S17.4 second action — the way on while no support channel is open (07 §1 rule 6)."
+  },
+  "diag.copied": "Report copied.",
+  "@diag.copied": {
+    "description": "S17.4 confirmation after copying."
+  },
+  "diag.send.reason.channel": "There is nowhere to send it yet — support's WhatsApp door is not open. Copy the report and keep it for when it is.",
+  "@diag.send.reason.channel": {
+    "description": "S17.4 send disabled-with-reason while S17.3 has no route (07 §1 rule 6)."
+  },
+  "diag.send.reason.offline": "You are offline, so it cannot go now. Copy it, or come back when you have a connection.",
+  "@diag.send.reason.offline": {
+    "description": "S17.4 send disabled-with-reason while offline (07 §1 rule 7: quiet, never blocking)."
+  },
+  "diag.offline": "Offline",
+  "@diag.offline": {
+    "description": "S17.4 offline chip."
+  },
+  "diag.sending": "Sending the report…",
+  "@diag.sending": {
+    "description": "S17.4 loading state while the report is going."
+  },
+  "diag.sent.title": "Report sent.",
+  "@diag.sent.title": {
+    "description": "S17.4 success state."
+  },
+  "diag.sent.body": "It stays below, so you can always see what went.",
+  "@diag.sent.body": {
+    "description": "S17.4 success-state body — the payload is not hidden after sending."
+  },
+  "diag.error.title": "The report did not go.",
+  "@diag.error.title": {
+    "description": "S17.4 error state (13 §4.3 error-with-retry)."
+  },
+  "diag.error.body": "Nothing was sent. The report below is unchanged.",
+  "@diag.error.body": {
+    "description": "S17.4 error-state body."
+  },
+  "diag.error.retry": "Try again",
+  "@diag.error.retry": {
+    "description": "S17.4 error-state retry action."
+  },
+  "diag.skeleton.label": "Putting the report together",
+  "@diag.skeleton.label": {
+    "description": "S17.4 loading state while the facts are read (11 §4.5 ruled skeleton)."
+  },
+  "diag.collect.error": "The report could not be put together.",
+  "@diag.collect.error": {
+    "description": "S17.4 error state when collecting the facts fails."
+  },
+  "diag.field.app_version": "App version",
+  "@diag.field.app_version": {
+    "description": "S17.4 field label; the value is shown as the report itself spells it."
+  },
+  "diag.field.platform": "Kind of phone",
+  "@diag.field.platform": {
+    "description": "S17.4 field label (android · ios)."
+  },
+  "diag.field.os_version": "Phone software version",
+  "@diag.field.os_version": {
+    "description": "S17.4 field label; omitted from the report when the app cannot read it."
+  },
+  "diag.field.language": "Language",
+  "@diag.field.language": {
+    "description": "S17.4 field label (en · pa · hi)."
+  },
+  "diag.field.text_scale": "Text size setting",
+  "@diag.field.text_scale": {
+    "description": "S17.4 field label — the OS font scale, which most layout reports turn on."
+  },
+  "diag.field.theme": "Light or dark",
+  "@diag.field.theme": {
+    "description": "S17.4 field label."
+  },
+  "diag.field.sync_state": "Sync state",
+  "@diag.field.sync_state": {
+    "description": "S17.4 field label — the state only; the member name the waiting state carries is never in the report."
+  },
+  "diag.field.outbox_depth": "Entries waiting to sync",
+  "@diag.field.outbox_depth": {
+    "description": "S17.4 field label — a count of entries, never an amount."
+  },
+  "diag.field.schema_version": "Storage version",
+  "@diag.field.schema_version": {
+    "description": "S17.4 field label — the local database's schema number (03)."
+  },
+  "diag.field.generated_at": "Made at",
+  "@diag.field.generated_at": {
+    "description": "S17.4 field label — when the report was built, to the minute, in UTC."
+  },
+  "diag.field.codes": "Recent problem codes",
+  "@diag.field.codes": {
+    "description": "S17.4 field label — codes the app recorded for itself; never a message, never text a person wrote."
+  }
+}

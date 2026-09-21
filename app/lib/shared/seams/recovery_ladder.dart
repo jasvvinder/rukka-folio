@@ -16,11 +16,21 @@
 // an integer count and an enum. A screen cannot render a secret it was never
 // handed.
 //
-// ⚠️ SPEC: the real producer is the recovery server routes, which are another
-// lane's files in this same round (M11). Nothing here calls a route or names
-// one; [FakeRecoveryLadder] is what the screens are built and tested against,
-// and the adapter lands when those routes exist. Guessing a wire shape here
-// would be exactly the invention CLAUDE.md forbids.
+// **The adapter has landed, and this note is corrected rather than softened.**
+// An earlier ⚠️ SPEC here said the real producer was "another lane's files in
+// this same round" and that "the adapter lands when those routes exist". The
+// routes exist: migration `0011_recovery_sheet.sql`, served as `GET
+// /sync-meta/recovery/sheet` (`server/supabase/functions/sync-meta/index.ts`
+// :254, with `no_sheet` at :260), beside 0010's `guardian_sets`. The adapter
+// is `shared/sync/recovery_ladder_source.dart` — `LiveRecoveryLadder` over
+// one probe per rung — and `buildRecoveryLadder` there is what the
+// composition root installs (F1-06-89, F1-06-91).
+//
+// Nothing in *this* file calls a route or names one, and that part still
+// holds: the seam is the question, the adapter is the answer, and
+// [FakeRecoveryLadder] below stays the double every widget test runs against.
+// What changed is only that production no longer runs on it — which is the
+// difference between a fork that reports and one that reassures.
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
@@ -86,37 +96,90 @@ enum RecoveryRungBlocked {
   notOnThisPhoneYet,
 }
 
+/// Whether a rung can be taken — **three** answers, not two.
+///
+/// The third is the one that matters on this screen. A person reaching S11.6
+/// is already locked out, so the two ways to be wrong are not symmetrical:
+/// offering a rung that then fails wastes the one attempt they had the nerve
+/// to make, and denying a rung they actually have ("you have no recovery
+/// sheet" to somebody holding one) can make them stop trying altogether.
+/// Neither is an acceptable rendering of *we could not find out*, so
+/// [unknown] is its own state and no source is permitted to default into
+/// [available].
+enum RecoveryRungAvailability {
+  /// A real source said yes.
+  available,
+
+  /// A real source said no — the reason is on the offer.
+  unavailable,
+
+  /// Nothing this phone can reach answered: offline, no session, or no
+  /// producer for this rung in this build. Never a synonym for either of the
+  /// other two.
+  unknown,
+}
+
 /// What the ladder offers for one rung: the rung itself, and either nothing
-/// (it is available) or the reason it is not.
+/// (it is available), the reason it is not, or the admission that this phone
+/// could not find out.
 @immutable
 final class RecoveryRungOffer {
-  /// An available rung.
-  const RecoveryRungOffer.available(this.rung) : blocked = null;
+  /// An available rung — a real source said so.
+  const RecoveryRungOffer.available(this.rung)
+    : blocked = null,
+      isUnknown = false;
 
   /// A rung that cannot be taken, with the reason a screen must render.
-  const RecoveryRungOffer.blocked(this.rung, RecoveryRungBlocked this.blocked);
+  const RecoveryRungOffer.blocked(this.rung, RecoveryRungBlocked this.blocked)
+    : isUnknown = false;
+
+  /// A rung whose availability could not be established.
+  ///
+  /// It carries **no** [blocked] reason, because there is nothing true to
+  /// say about why it cannot be taken — it may well be takeable. A screen
+  /// must not draw it as denied, and must not draw it as confirmed either.
+  const RecoveryRungOffer.unknown(this.rung) : blocked = null, isUnknown = true;
 
   /// Which rung.
   final RecoveryRung rung;
 
-  /// Null when the rung can be taken.
+  /// The reason the rung is refused; null when it is available **or**
+  /// unknown. Read it with [isBlocked], never as "not available".
   final RecoveryRungBlocked? blocked;
 
-  /// Whether the row is live.
-  bool get isAvailable => blocked == null;
+  /// Whether this phone failed to find out. See [RecoveryRungAvailability].
+  final bool isUnknown;
+
+  /// Whether the row is live — **a real source said yes**. False for an
+  /// unknown rung, which is the whole point of the third state: a caller
+  /// that treated `!isBlocked` as available would have re-introduced the
+  /// default this type exists to remove.
+  bool get isAvailable => blocked == null && !isUnknown;
+
+  /// Whether a real source refused the rung.
+  bool get isBlocked => blocked != null;
+
+  /// The three-way answer.
+  RecoveryRungAvailability get availability => switch (this) {
+    _ when isBlocked => RecoveryRungAvailability.unavailable,
+    _ when isUnknown => RecoveryRungAvailability.unknown,
+    _ => RecoveryRungAvailability.available,
+  };
 
   @override
   bool operator ==(Object other) =>
       other is RecoveryRungOffer &&
       other.rung == rung &&
-      other.blocked == blocked;
+      other.blocked == blocked &&
+      other.isUnknown == isUnknown;
 
   @override
-  int get hashCode => Object.hash(rung, blocked);
+  int get hashCode => Object.hash(rung, blocked, isUnknown);
 
   @override
   String toString() =>
-      'RecoveryRungOffer(${rung.name}, ${blocked?.name ?? 'available'})';
+      'RecoveryRungOffer(${rung.name}, ${availability.name}'
+      '${blocked == null ? '' : ': ${blocked!.name}'})';
 }
 
 /// What a running rung is counting.
@@ -184,6 +247,13 @@ abstract interface class RecoveryLadder {
   /// an absent rung would be a hidden row, and 13 §4.3 has no such state. A
   /// rung the caller does not draw (rung 0) may also appear; the fork filters
   /// by [RecoveryRung.forkOrder] rather than by what the list happens to hold.
+  ///
+  /// 🔒 of this contract: **every offer is backed by a real source, or it is
+  /// [RecoveryRungOffer.unknown]**. An implementation may not answer
+  /// `available` because it has no producer, because a probe threw, or
+  /// because the other rungs looked worse — the person reading the answer is
+  /// locked out, and a rung that fails after being offered spends the one
+  /// attempt they steeled themselves for.
   Future<List<RecoveryRungOffer>> rungs();
 
   /// Live progress for [rung]: readings until the rung finishes or the stream
@@ -193,8 +263,17 @@ abstract interface class RecoveryLadder {
   Stream<RecoveryProgress> progressOf(RecoveryRung rung);
 }
 
-/// The in-memory ladder every widget test runs against, and the only
-/// implementation in the app until the recovery routes land.
+/// The in-memory ladder every widget test runs against.
+///
+/// **It is no longer the only implementation, and this line is corrected
+/// rather than softened.** It said "the only implementation in the app until
+/// the recovery routes land"; the routes landed (migration
+/// `0011_recovery_sheet.sql`, served at `sync-meta/index.ts:254`) and
+/// `LiveRecoveryLadder` (`shared/sync/recovery_ladder_source.dart:66`) is
+/// what the composition root installs — the same facts this file's own header
+/// records twelve lines up. What stays true is the half that names its job:
+/// it is the double the S11.5 / S11.6 / S11.8 widget tests drive, and
+/// production does not run on it.
 ///
 /// It is a plain scripted double: the offers it was given, and, per rung, the
 /// readings it was given, replayed in order. No timers, no clock, no network —
@@ -218,6 +297,17 @@ final class FakeRecoveryLadder implements RecoveryLadder {
   /// A fake whose rungs() throws — the error-with-retry case of 13 §4.3.
   factory FakeRecoveryLadder.failing() =>
       FakeRecoveryLadder(failsWith: Exception('ladder unreachable'));
+
+  /// A fake that found nothing out: every fork rung [RecoveryRungOffer
+  /// .unknown]. This is a wholly offline phone, and it is **not** the same
+  /// fake as [nothingWorked] — nothing here says a rung is missing.
+  factory FakeRecoveryLadder.allUnknown() => FakeRecoveryLadder(
+    offers: const [
+      RecoveryRungOffer.unknown(RecoveryRung.anotherDevice),
+      RecoveryRungOffer.unknown(RecoveryRung.trustedMembers),
+      RecoveryRungOffer.unknown(RecoveryRung.recoverySheet),
+    ],
+  );
 
   /// A fake where no rung can be taken: every fork row is disabled with its
   /// own reason, which is exactly the state that reaches S11.8.
@@ -322,11 +412,17 @@ class RecoveryLadderScope extends InheritedWidget {
 //     indistinguishable from a timed-out one at the **attempt** level and
 //     reads as [RecoveryAttemptState.expired].
 //
-// ⚠️ SPEC: this seam still has **no HTTP adapter** — by instruction. The live
-// producer over the 0010 routes is the next slice; every screen here is built
-// and tested against [FakeGuardianRecovery], and [GuardianRecoveryScope] is
-// how the shell will install the real one without a screen changing its
-// constructor.
+// **This seam has an HTTP adapter, and that note is corrected rather than
+// softened.** An earlier ⚠️ SPEC said it had none "by instruction" and that
+// the live producer over the 0010 routes was "the next slice". That slice
+// landed: `HttpGuardianRecovery` (`shared/sync/recovery_seams.dart:204`) is
+// built and installed by the composition root (`bootstrap.dart:407`), and
+// F1-06-44 pins that [GuardianRecoveryScope] hands it down rather than
+// [FakeGuardianRecovery].
+//
+// The fake stays, because it is what the S11.2 widget tests drive, and the
+// scope is still how the shell swaps one for the other without a screen
+// changing its constructor — that half of the note was right and is kept.
 
 /// Where one trusted member stands on a recovery attempt.
 ///
@@ -684,11 +780,35 @@ class GuardianRecoveryScope extends InheritedWidget {
 /// applies — case-insensitive, `I`/`L` read as `1`, `O` as `0`, hyphens
 /// ignored — because they are part of the named encoding and not an invention.
 ///
-/// ⚠️ SPEC: the **checksum algorithm** is not specified anywhere (04 §7.4 says
-/// only "2-char checksum"), so nothing here verifies one. A code whose
-/// characters are all legal is handed to the seam and the server has the last
-/// word; R2.4's failure state therefore states both of the pack's causes
-/// rather than picking one. Reported as an open item.
+/// **The checksum is specified, and it is checked — just not here.** An
+/// earlier ⚠️ SPEC on this class said the algorithm was undefined "so nothing
+/// here verifies one". That was wrong, and it is corrected rather than
+/// softened: `packages/core_crypto/lib/src/recovery.dart:318` defines
+/// `_sheetChecksum` as the first two Crockford symbols of
+/// `BLAKE2b-256(version ‖ user_id ‖ RK)`, and `recoverySheetFromTyped`
+/// (`:344`, `:360`) throws `RecoverySheetChecksumFailed` when the typed final
+/// group does not match. 04 §7.4 🔒 says only "2-char checksum"; core_crypto
+/// resolved it with the suite's own hash and no new primitive, and that
+/// resolution is the one in force.
+///
+/// This class stays **lexical on purpose**. Verifying the checksum means
+/// decoding the payload, and the payload *is* `RK` — so the check can only
+/// live where `core_crypto` and a `CryptoSuite` are, never in a value type a
+/// widget holds (04 §7.4, 07 §5.6 🔒). What this class can decide alone is
+/// the alphabet, and that is all [parse] claims to decide.
+///
+/// The verdict a well-formed-but-wrong code gets is therefore reached in two
+/// places, in this order, and neither of them is the server:
+///
+///   1. **before any fetch** — `HttpRecoverySheet`'s injected precheck runs
+///      `recoverySheetFromTyped`; a length, a foreign symbol or a failed
+///      checksum is a mistype, so it is [RecoverySheetRejected] on the spot
+///      and the rate-limited `recovery/sheet` route is never spent on it;
+///   2. the AEAD open, for a code that is well formed but opens nothing — a
+///      sheet reprinted since (regenerating rotates RK, 04 §7.4 🔒).
+///
+/// Both are R2.4's two stated causes and both are indistinguishable to this
+/// device, which is why the copy states both and neither path names one.
 @immutable
 final class RecoverySheetCode {
   const RecoverySheetCode._(this.value);
@@ -953,8 +1073,9 @@ final class FakeGuardianApprovals implements GuardianApprovals {
 
   @override
   Future<void> approve(String requestId) async {
-    if (!verified.contains(requestId))
+    if (!verified.contains(requestId)) {
       throw const RecoveryCandidateUnverified();
+    }
     approved.add(requestId);
   }
 

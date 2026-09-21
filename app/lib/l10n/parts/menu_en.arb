@@ -112,19 +112,19 @@
 
   "menu.help.row.title": "Help",
   "@menu.help.row.title": {
-    "description": "S8 eighth row (07 §2 🔒 Menu bullet order) — S17 (07 §22, @M14)."
+    "description": "S8 eighth row (07 §2 🔒 Menu bullet order) — S17 (07 §22) — live, opens the Help hub."
   },
-  "menu.help.row.reason": "Help has not been built yet.",
-  "@menu.help.row.reason": {
-    "description": "S8 disabled-with-reason line: 07 §22 S17.x is marked @M14."
+  "menu.help.row.subtitle": "Questions and answers, contact, and a report you can send.",
+  "@menu.help.row.subtitle": {
+    "description": "S8 Help row description — the four S17 screens (07 §2 🔒, 07 §22): the searchable FAQ hub, an answer page, contact support and Send diagnostics."
   },
 
   "menu.legal.row.title": "Legal",
   "@menu.legal.row.title": {
-    "description": "S8 ninth and last row (07 §2 🔒 Menu bullet order, owner-added 3 Sep 2026) — S18 terms, privacy, licences, and \"what we can and cannot see\" (07 §23, @M14)."
+    "description": "S8 ninth and last row (07 §2 🔒 Menu bullet order, owner-added 3 Sep 2026) — S18 terms, privacy, licences, and \"what we can and cannot see\" (07 §23) — live, opens the S18 hub."
   },
-  "menu.legal.row.reason": "Legal & trust pages have not been built yet.",
-  "@menu.legal.row.reason": {
-    "description": "S8 disabled-with-reason line: 07 §23 S18.x is marked @M14."
+  "menu.legal.row.subtitle": "Terms, privacy, licences, and what we can and cannot see.",
+  "@menu.legal.row.subtitle": {
+    "description": "S8 Legal row description — the four S18 pages (07 §2 🔒, 07 §23)."
   }
 }

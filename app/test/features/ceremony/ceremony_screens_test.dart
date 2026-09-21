@@ -513,7 +513,9 @@ void main() {
         final suite = await testSuite();
         final umk = _umk(1);
         final log = RecordingCeremonyEventLog();
+        final sink = RecordingVerifiedMemberSink();
         final repository = CryptoVerifyMemberRepository(
+          keys: sink,
           suite: suite,
           relayedUmk: umk,
           relayedUserId: _memberId,
@@ -563,7 +565,9 @@ void main() {
       (tester) async {
         final suite = await testSuite();
         final log = RecordingCeremonyEventLog();
+        final sink = RecordingVerifiedMemberSink();
         final repository = CryptoVerifyMemberRepository(
+          keys: sink,
           suite: suite,
           relayedUmk: _umk(1),
           relayedUserId: _memberId,
@@ -761,7 +765,9 @@ void main() {
         final umk = _umk(1);
         final relay = _verifierRelay(suite, umk: umk);
         final log = RecordingCeremonyEventLog();
+        final sink = RecordingVerifiedMemberSink();
         final repository = CryptoVerifyMemberRepository(
+          keys: sink,
           suite: suite,
           relayedUmk: umk,
           relayedUserId: _memberId,
@@ -845,7 +851,9 @@ void main() {
       (tester) async {
         final suite = await testSuite();
         final log = RecordingCeremonyEventLog();
+        final sink = RecordingVerifiedMemberSink();
         final repository = CryptoVerifyMemberRepository(
+          keys: sink,
           suite: suite,
           relayedUmk: _umk(1),
           relayedUserId: _memberId,

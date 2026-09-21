@@ -13,6 +13,8 @@ import 'dart:typed_data';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/shared/seams/http_transport.dart';
 import 'package:rukka_folio/shared/seams/recovery_ladder.dart';
+import 'package:rukka_folio/shared/sync/guardians_api.dart';
+import 'package:rukka_folio/shared/sync/recovery_roster.dart';
 import 'package:rukka_folio/shared/sync/recovery_seams.dart';
 
 final _root = Uri.parse('https://api.example.test/functions/v1/');
@@ -120,7 +122,7 @@ void main() {
       );
       final seam = HttpGuardianRecovery(
         api: _api(w.transport),
-        roster: () async => _roster,
+        roster: (_) async => _roster,
         ticker: (_) => const Stream.empty(),
       );
       addTearDown(seam.dispose);
@@ -162,7 +164,7 @@ void main() {
         );
         final seam = HttpGuardianRecovery(
           api: _api(w.transport),
-          roster: () async => _roster,
+          roster: (_) async => _roster,
           ticker: (_) => const Stream.empty(),
         );
         addTearDown(seam.dispose);
@@ -201,7 +203,7 @@ void main() {
       );
       final seam = HttpGuardianRecovery(
         api: _api(w.transport),
-        roster: () async => _roster,
+        roster: (_) async => _roster,
         ticker: (_) => const Stream.empty(),
       );
       addTearDown(seam.dispose);
@@ -240,7 +242,7 @@ void main() {
         addTearDown(tick.close);
         final seam = HttpGuardianRecovery(
           api: _api(w.transport),
-          roster: () async => _roster,
+          roster: (_) async => _roster,
           ticker: (_) => tick.stream,
         );
         addTearDown(seam.dispose);
@@ -273,7 +275,7 @@ void main() {
       final w = _wire((method, url) => const {'requests': <Object?>[]});
       final seam = HttpGuardianRecovery(
         api: _api(w.transport),
-        roster: () async => _roster,
+        roster: (_) async => _roster,
         ticker: (_) => const Stream.empty(),
       );
       addTearDown(seam.dispose);
@@ -428,20 +430,390 @@ void main() {
     );
   });
 
-  group('rung 3 — the recovery sheet', () {
-    test('F1-06-40 the sheet producer refuses with RecoveryFailure and NEVER '
-        'RecoverySheetRejected: 04 §7.4 has no route yet, and "your code is '
-        'wrong" would be a falsehood about a correctly copied sheet', () async {
-      const sheet = HttpRecoverySheet();
-      expect(await sheet.scanSheet(), RecoveryScanOutcome.unavailable);
-      final code = RecoverySheetCode.parse('ABCD-EFGH')!;
+  group('rung 3 — the recovery sheet (04 §7.4 🔒, migration 0011)', () {
+    // The sheet as `GET /recovery/sheet` writes it.
+    Map<String, Object?> sheetBody({int version = 2, List<int>? blob}) => {
+      'user_id': 'u-subject',
+      'sheet_version': version,
+      'sealed_rk_blob': _b64(Uint8List.fromList(blob ?? const [1, 2, 3, 4])),
+      'created_at': 1000,
+    };
+
+    const sheetPath = '/functions/v1/sync-meta/recovery/sheet';
+
+    test(
+      'F1-06-40 a wrong code is the CLIENT\'s AEAD verdict and nothing else: '
+      'the server is asked for the user\'s own blob, is told no code, and the '
+      'rejection comes from the opener (04 §7.4 🔒; supersedes the pre-0011 '
+      'form of this id, ADR 2026-09-05i §4)',
+      () async {
+        final w = _wire((method, url) => sheetBody());
+        RecoverySheetCode? sawCode;
+        RecoverySheetWire? sawSheet;
+        final sheet = HttpRecoverySheet(
+          api: _api(w.transport),
+          opener: (code, s) async {
+            sawCode = code;
+            sawSheet = s;
+            return false; // XChaCha20-Poly1305 refused these bytes.
+          },
+        );
+
+        final code = RecoverySheetCode.parse('ABCD-EFGH')!;
+        await expectLater(
+          sheet.submit(code),
+          throwsA(isA<RecoverySheetRejected>()),
+        );
+
+        // The opener saw the code, and the SERVER did not: the fetch carries
+        // no query and no body, so `no_sheet` can never be a verdict on a
+        // code the route was never shown.
+        expect(sawCode, code);
+        expect(sawSheet!.blob, Uint8List.fromList(const [1, 2, 3, 4]));
+        expect(sawSheet!.sheetVersion, 2);
+        final call = w.transport.calls.single;
+        expect(call.method, 'GET');
+        expect(call.url.path, sheetPath);
+        expect(call.url.queryParameters, isEmpty);
+        expect(w.posts, isEmpty);
+      },
+    );
+
+    test('F1-06-47 `no_sheet` is NOT a rejected code: a user who never printed '
+        'one gets RecoveryFailure, so a correctly copied sheet is never called '
+        'wrong (04 §7.4 🔒)', () async {
+      var opened = 0;
+      final w = _wire(
+        (method, url) => {'error': 'no_sheet'},
+        status: {sheetPath: 404},
+      );
+      final sheet = HttpRecoverySheet(
+        api: _api(w.transport),
+        opener: (code, s) async {
+          opened++;
+          return true;
+        },
+      );
+
       await expectLater(
-        sheet.submit(code),
+        sheet.submit(RecoverySheetCode.parse('ABCD-EFGH')!),
         throwsA(
-          allOf(isA<RecoveryFailure>(), isNot(isA<RecoverySheetRejected>())),
+          allOf(
+            isA<RecoveryFailure>(),
+            isNot(isA<RecoverySheetRejected>()),
+            isA<RecoveryFailure>().having(
+              (e) => e.reason,
+              'reason',
+              'no_sheet',
+            ),
+          ),
         ),
       );
-      expect(await sheet.restore().toList(), isEmpty);
+      expect(opened, 0, reason: 'nothing was decrypted, so nothing failed');
+    });
+
+    test(
+      'F1-06-48 a refusal that is not the AEAD is never a rejection: offline, '
+      'unauthorized and rate-limited all read as RecoveryFailure',
+      () async {
+        for (final answer in <({int status, String error})>[
+          (status: 401, error: 'unauthorized'),
+          (status: 429, error: 'sheet_flood'),
+          (status: 500, error: 'boom'),
+        ]) {
+          final w = _wire(
+            (method, url) => {'error': answer.error},
+            status: {sheetPath: answer.status},
+          );
+          final sheet = HttpRecoverySheet(
+            api: _api(w.transport),
+            opener: (code, s) async => true,
+          );
+          await expectLater(
+            sheet.submit(RecoverySheetCode.parse('ABCD-EFGH')!),
+            throwsA(
+              allOf(
+                isA<RecoveryFailure>(),
+                isNot(isA<RecoverySheetRejected>()),
+              ),
+            ),
+            reason: '${answer.error} says nothing about the code',
+          );
+        }
+
+        // A transport that never answered is the same: the one refusal that
+        // does not claim the server spoke.
+        final dead = FakeRkHttpTransport((method, url, headers, body) {
+          throw const RkHttpFailure();
+        });
+        final offline = HttpRecoverySheet(
+          api: _api(dead),
+          opener: (code, s) async => true,
+        );
+        await expectLater(
+          offline.submit(RecoverySheetCode.parse('ABCD-EFGH')!),
+          throwsA(
+            allOf(isA<RecoveryFailure>(), isNot(isA<RecoverySheetRejected>())),
+          ),
+        );
+      },
+    );
+
+    test(
+      'F1-06-49 with no opener this build reaches no verdict, so it asks for '
+      'nothing and claims nothing — and an opener that THROWS is this device '
+      'failing, not the code being wrong',
+      () async {
+        final w = _wire((method, url) => sheetBody());
+        final blind = HttpRecoverySheet(api: _api(w.transport));
+        await expectLater(
+          blind.submit(RecoverySheetCode.parse('ABCD-EFGH')!),
+          throwsA(
+            allOf(isA<RecoveryFailure>(), isNot(isA<RecoverySheetRejected>())),
+          ),
+        );
+        expect(
+          w.transport.calls,
+          isEmpty,
+          reason:
+              'no verdict is reachable, so the rate-limited route is not '
+              'spent learning that',
+        );
+        expect(await blind.restore().toList(), isEmpty);
+        expect(await blind.scanSheet(), RecoveryScanOutcome.unavailable);
+
+        final w2 = _wire((method, url) => sheetBody());
+        final broken = HttpRecoverySheet(
+          api: _api(w2.transport),
+          opener: (code, s) async => throw StateError('no key store'),
+        );
+        await expectLater(
+          broken.submit(RecoverySheetCode.parse('ABCD-EFGH')!),
+          throwsA(
+            allOf(isA<RecoveryFailure>(), isNot(isA<RecoverySheetRejected>())),
+          ),
+        );
+      },
+    );
+
+    test('F1-06-50 the code that opens the blob restores: submit returns, and '
+        'the restore count is the one the producer was given (11 §4.5 🔒 — a '
+        'count, never a percentage)', () async {
+      final w = _wire((method, url) => sheetBody(version: 7));
+      final sheet = HttpRecoverySheet(
+        api: _api(w.transport),
+        opener: (code, s) async => s.sheetVersion == 7,
+        restoreProgress: () => Stream.fromIterable(const [
+          RecoveryProgress(done: 1, total: 2, unit: RecoveryUnit.entries),
+          RecoveryProgress(
+            done: 2,
+            total: 2,
+            unit: RecoveryUnit.entries,
+            finished: true,
+          ),
+        ]),
+      );
+
+      await sheet.submit(RecoverySheetCode.parse('ABCD-EFGH')!);
+      final readings = await sheet.restore().toList();
+      expect(readings.last.finished, isTrue);
+      expect(readings.last.done, 2);
+    });
+
+    test('F1-06-51 publishing a sheet sends the sealed blob and NOTHING else — '
+        'RK is on paper and never on the wire (04 §7.4 🔒)', () async {
+      final w = _wire((method, url) => {'sheet_version': 3});
+      final api = _api(w.transport);
+      final version = await api.publishSheet(
+        Uint8List.fromList(const [9, 8, 7]),
+      );
+      expect(version, 3);
+      expect(w.posts.single, startsWith('$sheetPath|'));
+      final body =
+          jsonDecode(w.posts.single.split('|').last) as Map<String, Object?>;
+      expect(body.keys, ['blob'], reason: 'no code, no RK, no checksum');
+      expect(
+        base64Url.decode(base64.normalize(body['blob']! as String)),
+        const [9, 8, 7],
+      );
+    });
+
+    test('F1-06-52 `no_sheet` is the only refusal that becomes null — a 401 '
+        'must never read as "this user has no sheet"', () async {
+      final missing = _wire(
+        (method, url) => {'error': 'no_sheet'},
+        status: {sheetPath: 404},
+      );
+      expect(await _api(missing.transport).sheet(), isNull);
+
+      final denied = _wire(
+        (method, url) => {'error': 'unauthorized'},
+        status: {sheetPath: 401},
+      );
+      await expectLater(
+        _api(denied.transport).sheet(),
+        throwsA(isA<RecoveryApiFailure>()),
+      );
+    });
+  });
+
+  group('the roster is the set the attempt PINNED', () {
+    /// One generation as the `guardian_sets` history carries it.
+    Map<String, Object?> set(int version, List<String> ids) => {
+      'subject_user_id': 'u-subject',
+      'share_set_version': version,
+      'k': 2,
+      'n': ids.length,
+      'guardians': [
+        for (final id in ids) {'guardian_user_id': id, 'umk_pub_ed': ''},
+      ],
+    };
+
+    HttpGuardiansApi guardians(FakeRkHttpTransport t) => HttpGuardiansApi(
+      transport: t,
+      functionsRoot: _root,
+      accessToken: () async => 'tok',
+      clientVersion: '0.1.0',
+    );
+
+    test(
+      'F1-06-53 a re-split mid-attempt does not move the rows: the roster is '
+      'the pinned generation\'s people, and the decision lands on the member '
+      'it names (0010 pins share_set_version at open)',
+      () async {
+        final w = _wire(
+          (method, url) => switch (url.path) {
+            '/functions/v1/sync-meta' => {
+              'guardian_sets': [
+                set(1, ['g1', 'g2', 'g3']),
+                // The user re-split after opening this attempt.
+                set(2, ['g7', 'g8', 'g9']),
+              ],
+            },
+            _ =>
+              url.queryParameters.containsKey('request_id')
+                  ? _progress(
+                      decisions: [
+                        {'guardian_user_id': 'g2', 'decision': 'approved'},
+                      ],
+                    )
+                  : {
+                      'requests': [_request()],
+                    },
+          },
+        );
+        final seam = HttpGuardianRecovery(
+          api: _api(w.transport),
+          roster: PinnedGuardianRoster(
+            api: guardians(w.transport),
+            nameOf: (id) => 'Name $id',
+          ).call,
+          ticker: (_) => const Stream.empty(),
+        );
+        addTearDown(seam.dispose);
+
+        await seam.refresh();
+        final rows = seam.current!.approvers;
+        expect(rows.map((r) => r.memberId), ['g1', 'g2', 'g3']);
+        expect(
+          rows.map((r) => r.memberId),
+          isNot(contains('g7')),
+          reason: 'a member of the NEW set was never asked on this attempt',
+        );
+        expect(rows[1].state, TrustedApproverState.approved);
+        expect(rows[0].state, TrustedApproverState.waiting);
+        expect(rows[2].state, TrustedApproverState.waiting);
+        expect(seam.current!.approvals, 1);
+      },
+    );
+
+    test(
+      'F1-06-54 a decision naming somebody outside the pinned set ticks '
+      'nobody: an unrecognised row is dropped, never slid onto a neighbour',
+      () async {
+        final w = _wire(
+          (method, url) => switch (url.path) {
+            '/functions/v1/sync-meta' => {
+              'guardian_sets': [
+                set(1, ['g1', 'g2', 'g3']),
+              ],
+            },
+            _ =>
+              url.queryParameters.containsKey('request_id')
+                  ? _progress(
+                      approvals: 1,
+                      denials: 1,
+                      decisions: [
+                        {'guardian_user_id': 'ghost', 'decision': 'approved'},
+                        {'guardian_user_id': 'g3', 'decision': 'denied'},
+                      ],
+                    )
+                  : {
+                      'requests': [_request()],
+                    },
+          },
+        );
+        final seam = HttpGuardianRecovery(
+          api: _api(w.transport),
+          roster: PinnedGuardianRoster(
+            api: guardians(w.transport),
+            nameOf: (id) => 'Name $id',
+            phoneOf: (id) => id == 'g1' ? '98765 43210' : null,
+          ).call,
+          ticker: (_) => const Stream.empty(),
+        );
+        addTearDown(seam.dispose);
+
+        await seam.refresh();
+        final rows = seam.current!.approvers;
+        expect(rows.length, 3);
+        expect(
+          rows.where((r) => r.state == TrustedApproverState.approved),
+          isEmpty,
+          reason: 'the approval belongs to nobody on this screen',
+        );
+        // A denial is a row; silence is the absence of one, and the two are
+        // drawn differently (04 §7.3 step 7 🔒).
+        expect(rows[2].state, TrustedApproverState.declined);
+        expect(rows[0].state, TrustedApproverState.waiting);
+        expect(seam.current!.declines, 1);
+        // A number is never the server's — only where this device holds one.
+        expect(rows[0].phone, '98765 43210');
+        expect(rows[1].phone, isNull);
+      },
+    );
+
+    test('F1-06-55 a generation this device does not hold names NOBODY rather '
+        'than substituting another one, and a roster that cannot be read is the '
+        'same answer', () async {
+      final other = _wire(
+        (method, url) => switch (url.path) {
+          '/functions/v1/sync-meta' => {
+            'guardian_sets': [
+              set(4, ['g1', 'g2', 'g3']),
+            ],
+          },
+          _ => const {},
+        },
+      );
+      expect(
+        await PinnedGuardianRoster(
+          api: guardians(other.transport),
+          nameOf: (id) => id,
+        ).call(1),
+        isEmpty,
+      );
+
+      final dead = FakeRkHttpTransport((method, url, headers, body) {
+        throw const RkHttpFailure();
+      });
+      expect(
+        await PinnedGuardianRoster(
+          api: guardians(dead),
+          nameOf: (id) => id,
+        ).call(1),
+        isEmpty,
+      );
     });
   });
 
@@ -504,6 +876,26 @@ void main() {
         );
       },
     );
+
+    test('F1-06-56 rung 3\'s own refusals keep the names 0011 gave them, and '
+        '`no_sheet` is its own reason — never folded into `not_found`', () {
+      expect(recoveryRefusalOf('no_sheet', 404), RecoveryRefusal.noSheet);
+      expect(
+        recoveryRefusalOf('not_found', 404),
+        RecoveryRefusal.notFound,
+        reason: 'a missing attempt is not a missing sheet',
+      );
+      expect(recoveryRefusalOf('sheet_flood', 429), RecoveryRefusal.flood);
+      expect(
+        recoveryRefusalOf('sheet_version_out_of_order', 409),
+        RecoveryRefusal.sheetConflict,
+      );
+      expect(
+        recoveryRefusalOf('append_only', 409),
+        RecoveryRefusal.sheetConflict,
+        reason: '0011 is write-once: a conflict is never an overwrite',
+      );
+    });
 
     test('F1-06-42 a transport that never answered is `offline` — the one '
         'refusal that does not claim the server spoke', () async {

@@ -34,8 +34,8 @@
   "menu.settings.row.subtitle": "भाषा, दिखावट, ऑटो-लॉक, शुरुआती बकाया, एक्सपोर्ट।",
 
   "menu.help.row.title": "मदद",
-  "menu.help.row.reason": "मदद अभी नहीं बनी।",
+  "menu.help.row.subtitle": "सवाल-जवाब, संपर्क, और वह रिपोर्ट जो आप भेज सकते हैं।",
 
   "menu.legal.row.title": "कानूनी",
-  "menu.legal.row.reason": "कानूनी और भरोसे के पन्ने अभी नहीं बने।"
+  "menu.legal.row.subtitle": "शर्तें, निजता, लाइसेंस, और हम क्या देख सकते हैं और क्या नहीं।"
 }

@@ -53,7 +53,7 @@ void main() {
       );
       final recovery = HttpGuardianRecovery(
         api: api,
-        roster: () async => const [],
+        roster: (_) async => const [],
         ticker: (_) => const Stream.empty(),
       );
       addTearDown(recovery.dispose);
@@ -71,7 +71,7 @@ void main() {
         GuardianRecoveryScope(
           recovery: recovery,
           child: RecoverySheetScope(
-            sheet: const HttpRecoverySheet(),
+            sheet: HttpRecoverySheet(api: api),
             child: GuardianApprovalsScope(
               approvals: approvals,
               child: Builder(
