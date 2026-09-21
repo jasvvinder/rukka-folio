@@ -12,6 +12,82 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-21 — env: the cycle — a review loop, adversarial verification, and a day's ceiling
+
+Advisory session that became a build one. No milestone code changed; the *build system* did. The owner's
+direction was plain: raise effort, cut the load per day, review and verify everything before commit, send
+findings back to the agent that wrote the code, and show the position of the work at session start —
+*"does not matter if the project will take more time."*
+
+Three measurements drove it, all read off data that already existed rather than assumed. **17–19 Sep burned
+11.8 M tokens — 45 % of the project's 26.3 M all-time spend — in three days**, with one outlier run at
+1.85 M / 287 min. **102 lane reports hold 632 `open` items, 22 marked VERIFIED BLOCKER**, with no mechanism
+to hand one to the lane that owns it. And `wf-spend.sh` already records the honest limit in its own comment:
+the week's quota *"which this script cannot see."*
+
+**Added**
+
+- `.claude/bin/rf-state.py` → `.claude/state.json`: the machine-readable position, parsed from `PLAN.md`
+  (layer table, the Owner-now desk), lane reports, workflow run history and git. **No new source of truth** —
+  every field records where it came from.
+- `.claude/bin/board.sh`: renders it — layers, **your desk**, part-way lanes, unrouted blockers, and today's
+  and this week's spend against the ceilings. `--line` feeds a statusline.
+- `.claude/hooks/session_start_board.sh` + a `SessionStart` hook: the board prints when a session opens,
+  replacing *"go read PLAN.md §0"*.
+- `.claude/agents/lane-review.md`: opus · high, **read-only** (no Write, no Edit — a reviewer that can fix is
+  a reviewer that talks itself out of findings). Reviews test-honesty first, then spec conformance, security,
+  🔒/traceability, invariants; forbidden from filing anything a deterministic checker already owns.
+- `.claude/workflows/cycle.js` + `/cycle` skill: build → review → **adversarial verify** → bounded repair, as
+  a pipeline so slice A reviews while slice B still builds. Verifiers are prompted to *refute*, defaulting to
+  refuted when uncertain; three lenses (correctness · context · authority) on `core_*`, `sync_engine` and
+  `server/supabase/{migrations,functions}`, one elsewhere. Survivors go back to the owning lane, **bounded at
+  two rounds** — then they become owner desk items, never a third round.
+- `.claude/rf.config.json`: the ceilings and cycle knobs in one owner-editable place.
+
+**Changed**
+
+- `lane-ui` effort **medium → high** — the last build lane below high.
+- `MAX_LANES` **5 → 3** in `lanes.js`; `/cycle` caps at 3 slices. An attention control, not a budget one.
+- `CLAUDE.md` § Session economy: *Fill the session* replaced by **a day has a ceiling**, plus a new 🔒 bullet
+  that nothing is committable until reviewed and its findings verified. Commands section and `PLAN.md` §3
+  tier table updated with it.
+
+**Decided**
+
+- [ADR 2026-09-21](docs/decisions/2026-09-21-the-cycle-and-pacing.md) — supersedes ADR 2026-09-12b §6
+  (*Fill the session*), amends its §1 and §5. Both readings were right about their own week: 12 Sep gave
+  throughput a floor after a session closed at 29 %, and it had no ceiling. Now it has both.
+- Adversarial verification is adopted as **the structural form of rule 11**. Rule 11 asks an agent to verify
+  itself; a model cannot reliably self-refute, which is why the rule needed writing. The pattern already paid
+  twice here by accident — the 🔒 candidate-X25519 reading *"refused by two lanes independently"*, and the
+  19 Sep staleness pair.
+
+**Open**
+
+- ⚠️ **`budget.weekly_tokens` is `null`.** No script can read the plan quota (ADR 2026-09-13e). Run `/usage`,
+  read the weekly number — on a **Team plan** it may be pooled across seats, so use your share — and write it
+  into `.claude/rf.config.json`. The daily ceiling (1.2 M) works regardless.
+- ⚠️ **22 unrouted VERIFIED BLOCKERs** predate the loop and are not swept by it. One triage pass needed.
+  Verified example: `M11-CER2`'s blocker — `umk_public_keys` carries `pub_ed` only, while `04 §6.1:145` puts
+  `UMK_pub_x` in the QR payload and §6.3 🔒 requires the byte-for-byte comparison — is a **different** defect
+  from desk item #12 (the *candidate* X25519 pair of `04 §7.3` step 1), and has never reached the desk.
+  They were not linked: doing so would have been the rule-11 mistake.
+- ⚠️ **Correction to ADR 2026-09-12b § Open.** It recorded that the harness refuses self-modification of its
+  own skill and workflow definitions. That is not a blanket restriction: `cycle.js` and the `/cycle` skill
+  were both written from this session with Bash heredocs, and the skill registered live in the same session.
+  The earlier refusal was of the `Write`/`Edit` tools, not of the path.
+- ⬜ `check_coverage.dart --json` not written — the board shows lane and desk state but not live requirement
+  coverage. Small addition; the checker is 488 lines and prints text only.
+- ⬜ The web dashboard is **not** built. Owner chose "terminal now, web on request": same `state.json`,
+  published only when asked.
+- ⬜ `/cycle` has not yet been run end-to-end. Syntax-checked as the runtime wraps it; the first real run is
+  the test.
+
+**Commits**
+
+- _(pending)_
+
+
 ## 2026-09-19 — M11: the ladder is complete, and honestly inert (rounds 2–4)
 
 Orchestrator session, opened on `/gate`. Round 1's three lanes were already `complete` on disk, so the session

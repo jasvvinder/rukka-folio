@@ -24,7 +24,7 @@ const LANE_SCHEMA = {
   required: ['complete', 'files', 'tests', 'open'],
 }
 
-const MAX_LANES = 5
+const MAX_LANES = 3
 
 if (!args || !Array.isArray(args.lanes) || args.lanes.length === 0) {
   throw new Error('args.lanes must be a non-empty array of { key, agent, dirs, prompt }')

@@ -273,7 +273,7 @@ that failure cheap instead of preventing nothing.
    | Agent | Model · effort · turns | For |
    |---|---|---|
    | `lane-mech` | haiku · low · 60 | ARB drafts, l10n parts, fixtures, codegen, token regen |
-   | `lane-ui` | opus · medium · 180 | **repeat** screens by S-id (13 §3.2) on a settled pattern, F1 widget tests |
+   | `lane-ui` | opus · high · 180 | **repeat** screens by S-id (13 §3.2) on a settled pattern, F1 widget tests |
    | `lane-ui-hard` | opus · high · 180 | new components, foundation (theme/shell/nav), 200 % · 360×800 defects, state-machine screens |
    | `lane-server` | opus · high · 180 | migrations + RLS, edge functions, hostile-query tests |
    | `lane-sync` | opus · high · 220 | `sync_engine`, ordering/conflict/trust logic, projector |

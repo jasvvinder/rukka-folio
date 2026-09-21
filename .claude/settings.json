@@ -46,6 +46,18 @@
           }
         ]
       }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/session_start_board.sh",
+            "timeout": 20,
+            "statusMessage": "where the build stands"
+          }
+        ]
+      }
     ]
   },
   "enabledPlugins": {

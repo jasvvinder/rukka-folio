@@ -2,7 +2,7 @@
 name: lane-ui
 description: Rukka Folio Flutter screen lane — builds screens by S-id (13 §3.2) inside a feature folder, tokens only, ARB parts for EN/PA/HI, states from 13 §4.3, one F1 widget test per screen. Use for any app/ lane.
 model: opus
-effort: medium
+effort: high
 maxTurns: 180
 skills: ["ui-screen"]
 permissionMode: acceptEdits

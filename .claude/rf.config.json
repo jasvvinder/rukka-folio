@@ -1,0 +1,24 @@
+{
+  "_": "Rukka Folio build-loop config. Owner-set. Read by .claude/bin/rf-state.py.",
+
+  "budget": {
+    "weekly_tokens": null,
+    "daily_tokens": 1200000,
+    "_note": "weekly_tokens: no script can read your plan's quota (ADR 2026-09-13e; wf-spend.sh says so in its own comment). Run /usage in-session, read the weekly number, put it here. On a Team plan it may be pooled across seats — use YOUR share. Until it is set, the board shows spend with no ceiling. daily_tokens is the pacing ceiling: roughly weekly/6, so the week spreads over six build days instead of two (17-19 Sep burned 11.8M = 45% of all-time spend in three days)."
+  },
+
+  "cycle": {
+    "max_lanes_per_round": 3,
+    "max_repair_rounds": 2,
+    "verify_votes_high": 3,
+    "verify_votes_default": 1,
+    "high_risk_paths": [
+      "packages/core_crypto",
+      "packages/core_ledger",
+      "packages/sync_engine",
+      "server/supabase/migrations",
+      "server/supabase/functions"
+    ],
+    "_note": "max_repair_rounds bounds the loop: a finding still unfixed after 2 repair rounds, or one the repair lane disputes, becomes an owner desk item instead of a third round. high_risk_paths get the 3-vote adversarial panel; everything else gets 1 vote; deterministic-checker territory (ARB, tokens, generated) gets none."
+  }
+}
