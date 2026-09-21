@@ -5,11 +5,11 @@
 // supabase/tests/rls/ceremony_sessions.test.ts (E-13d-1, E-06-20…26). This file proves the WIRE:
 // that the three values reach the row byte-for-byte, that the edge function computes nothing with
 // them, and that it cannot loosen the order or the write-once rule on the way past.
-// Ids E-06-27, E-06-28.
-import { assert, assertEquals } from "@std/assert";
+// Ids E-06-27, E-06-28, E-06-69.
+import { assert, assertEquals, assertNotEquals } from "@std/assert";
 import { b64url } from "../_shared/bytes.ts";
 import { handler as meta } from "../sync-meta/index.ts";
-import { body, get, member, post, rig } from "./harness.ts";
+import { advance, body, get, member, post, rig } from "./harness.ts";
 
 const B = (n: number, fill: number) => new Uint8Array(n).fill(fill);
 const enc = (b: Uint8Array) => b64url.enc(b);
@@ -210,5 +210,123 @@ Deno.test("E-06-28 relay refusals: another tenant, an uncertified device, the su
       r.deps,
     )).status,
     404,
+  );
+});
+
+Deno.test("E-06-69 discovery: GET /sync-meta/ceremony?subject_user_id=&tenant_id= hands a verifier the newest UNEXPIRED session for a scanned subject, in the SAME shape as the by-id GET, and adds no authority — another tenant's certified device and an uncertified device of this tenant get 404 no_live_session, an expired session is never returned, and the subject reads its own (04 §6.1/§6.4, 0007's select policy unchanged)", async () => {
+  const r = rig();
+  const tenant = r.db.addTenant();
+  const bookId = r.db.addBook(tenant);
+  const verifier = await member(r, tenant, bookId, "admin");
+  const invitee = await member(r, tenant, null, null, {
+    membership: "joined_pending_verification",
+  });
+  const raw = await member(r, tenant, null, null, {
+    membership: "joined_pending_verification",
+    status: "registered",
+  });
+  const outsider = await member(r, r.db.addTenant(), null, null);
+
+  // Why this route exists: 04 §6.1's QR payload is
+  // base64url( suite_version ‖ user_id ‖ UMK_pub_ed ‖ UMK_pub_x ‖ nonce ) — no session id, and the
+  // session id is minted HERE at commit. A verifier that has just scanned therefore holds a
+  // user_id and has no way to reach the row it must write r_V into, which makes 04 §6.4's
+  // *delegated* ceremony unimplementable. Discovery is the missing step and nothing more.
+  const find = (token: string, subject = invitee.user, t = tenant) =>
+    meta(
+      get(`/sync-meta/ceremony?subject_user_id=${subject}&tenant_id=${t}`, { token }),
+      r.deps,
+    );
+
+  assertEquals((await find(verifier.token)).status, 404, "no session yet, and no oracle about it");
+  assertEquals((await body(await find(verifier.token))).error, "no_live_session");
+
+  const older = await body(
+    await meta(
+      post("/sync-meta/ceremony", { tenant_id: tenant, commitment: enc(B(32, 0xa1)) }, {
+        token: invitee.token,
+      }),
+      r.deps,
+    ),
+  );
+  advance(r, 30_000); // *Regenerate* (04 §6.3) opens a fresh session; nothing mutates the old one
+  const newest = await body(
+    await meta(
+      post("/sync-meta/ceremony", { tenant_id: tenant, commitment: enc(B(32, 0xa2)) }, {
+        token: invitee.token,
+      }),
+      r.deps,
+    ),
+  );
+
+  // ---- the answer is the newest live session, and byte-identical to the by-id GET, so the app
+  // decodes ONE shape (the app lane consumes this next cycle and must not have to guess).
+  const discovered = await body(await find(verifier.token));
+  assertEquals(discovered.session_id, newest.session_id, "newest first, by committed_at");
+  const byId = await body(
+    await meta(
+      get(`/sync-meta/ceremony?session_id=${newest.session_id}`, { token: verifier.token }),
+      r.deps,
+    ),
+  );
+  assertEquals(discovered, byId, "the same JSON shape as ?session_id= — one decoder, not two");
+  assertEquals(discovered.commitment, enc(B(32, 0xa2)));
+  assertNotEquals(discovered.session_id, older.session_id);
+
+  // and it is a route to a row the caller could already read: r_V goes straight in
+  const contributed = await meta(
+    post("/sync-meta/ceremony/verifier", {
+      session_id: discovered.session_id,
+      verifier_random: enc(B(16, 0x52)),
+    }, { token: verifier.token }),
+    r.deps,
+  );
+  assertEquals(contributed.status, 200, "the scan reaches the ceremony it was meant to reach");
+
+  // ---- the subject polls its own the same way
+  assertEquals(
+    (await body(await find(invitee.token))).session_id,
+    newest.session_id,
+    "the subject reads its own live session",
+  );
+
+  // ---- no new authority. These three already saw nothing asking by id (E-06-28); they see
+  // nothing asking by subject, and get the SAME named 404, never a distinguishable refusal that
+  // would say whose ceremony is in flight.
+  for (
+    const [who, token] of [
+      ["a certified device of ANOTHER tenant", outsider.token],
+      ["an UNCERTIFIED device of this tenant", raw.token],
+    ] as const
+  ) {
+    const res = await find(token);
+    assertEquals(res.status, 404, `${who} discovers nothing`);
+    assertEquals((await body(res)).error, "no_live_session");
+  }
+  // the uncertified device is refused for its own user, too
+  assertEquals((await find(raw.token, raw.user)).status, 404);
+  // and a subject in another tenant is not found through this tenant
+  assertEquals((await find(verifier.token, outsider.user)).status, 404);
+
+  // ---- malformed parameters are a 400, not a scan of the table
+  for (const q of ["", "?subject_user_id=nope&tenant_id=nope", `?tenant_id=${tenant}`]) {
+    const res = await meta(get(`/sync-meta/ceremony${q}`, { token: verifier.token }), r.deps);
+    assertEquals(res.status, 400, `"${q}" is bad_request`);
+    assertEquals((await body(res)).error, "bad_request");
+  }
+
+  // ---- an EXPIRED session is never handed back: a device that polled it would wait forever, and
+  // 0007's guard would refuse every write to it anyway (04 §6.3, ten minutes from the commitment).
+  advance(r, 11 * 60_000);
+  const dead = await find(verifier.token);
+  assertEquals(dead.status, 404);
+  assertEquals((await body(dead)).error, "no_live_session");
+  assertEquals(
+    (await meta(
+      get(`/sync-meta/ceremony?session_id=${newest.session_id}`, { token: verifier.token }),
+      r.deps,
+    )).status,
+    200,
+    "…while the by-id GET still returns it, so an open screen can see it has expired",
   );
 });

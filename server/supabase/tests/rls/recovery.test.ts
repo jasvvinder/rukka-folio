@@ -14,7 +14,7 @@
 //
 // Needs RF_TEST_DB_URL (`eval "$(scripts/rls_db.sh)"`). Without it every test is SKIPPED and says
 // why; the nightly/RC lanes set RLS_REQUIRE=1 so a missing database fails loudly.
-// Ids E-06-50 … E-06-56.
+// Ids E-06-50 … E-06-56, E-06-59.
 import { assert, assertEquals, assertStringIncludes } from "@std/assert";
 import postgres from "postgres";
 
@@ -818,6 +818,80 @@ Deno.test({
     const done = await progress(fx.subject, fx.dev.candidate, req3);
     assertEquals(done!.state, "approved", "straight through, no wait");
     assertEquals(done!.wait_until, null);
+    await sql.end();
+  },
+});
+
+// ---------------------------------------------------------------------------------------------
+// M11 RV7 — the row half of "2 of 3 approved". A count is not an attribution, and this is the
+// policy that decides who may read the attribution. Id E-06-59.
+// ---------------------------------------------------------------------------------------------
+Deno.test({
+  name:
+    "E-06-59 who may read a guardian's DECISION: the requester and its candidate device read every decision of their own attempt — name, word and time, so a denial is distinguishable from silence — a guardian reads its own and no other guardian's, a bystander and a stranger read none, and nobody reads a row through a request that is not theirs (0010 THE DECISION 🔒; 04 §7.3 steps 3 and 7; ADR 2026-09-05d §2; 03 §2.5)",
+  ignore,
+  async fn() {
+    sql = postgres(url!, { max: 1, onnotice: () => {} });
+    fx = await seed();
+    await publishSet(1, [fx.g1, fx.g2, fx.g3]);
+    const req = await openRequest();
+    await decide("g1", req, "denied");
+    await decide("g2", req, "approved");
+
+    const rows = (who: string, device: string) =>
+      asApi(
+        (fx as unknown as Record<string, string>)[who] ?? who,
+        fx.dev[device],
+        (s) =>
+          s`select guardian_user_id, decision from recovery_approvals
+            where request_id = ${req} order by created_at`,
+      );
+
+    // ---- the requester's own certified device: both rows, each naming its guardian
+    const mine = await rows("subject", "subjectOld");
+    assertEquals(mine.length, 2);
+    assertEquals(
+      mine.map((r: Record<string, unknown>) => [r.guardian_user_id, r.decision]),
+      [[fx.g1, "denied"], [fx.g2, "approved"]],
+      "a denial is a ROW; silence is the absence of one (04 §7.3 step 7)",
+    );
+
+    // ---- the candidate device, uncertified by construction, reads the same two rows: this is the
+    //      phone that renders S11.2, and ADR 2026-09-05d §2 lets it see its own attempt.
+    assertEquals((await rows("subject", "candidate")).length, 2);
+
+    // ---- a guardian reads its OWN decision and nothing about the others
+    const g1sees = await rows("g1", "g1");
+    assertEquals(g1sees.length, 1);
+    assertEquals(g1sees[0].guardian_user_id, fx.g1);
+    const g3sees = await rows("g3", "g3");
+    assertEquals(g3sees.length, 0, "a guardian who has not answered learns nothing about who did");
+
+    // ---- an UNCERTIFIED device of a guardian reads nothing at all (ADR 2026-09-05d §2)
+    assertEquals((await rows("g1", "g1raw")).length, 0);
+
+    // ---- a fellow member who is not in the set, and another tenant entirely: nothing
+    assertEquals((await rows("bystander", "bystander")).length, 0);
+    assertEquals((await rows("stranger", "stranger")).length, 0);
+
+    // ---- and the whole table is no more reachable than one request's slice of it
+    const all = await asApi(
+      fx.stranger,
+      fx.dev.stranger,
+      (s) => s`select count(*)::int as n from recovery_approvals`,
+    );
+    assertEquals(all[0].n, 0, "a stranger cannot even count the decisions on this server");
+
+    // ---- the decision rows carry no share: the sealed blob is addressed to the candidate DEVICE
+    //      through wrapped_keys, and reading it is a different policy on a different table.
+    const blobs = await asApi(
+      fx.g3,
+      fx.dev.g3,
+      (s) =>
+        s`select count(*)::int as n from wrapped_keys w
+          join recovery_approvals a on a.wrapped_key_id = w.id where a.request_id = ${req}`,
+    );
+    assertEquals(blobs[0].n, 0, "no guardian reads a share another guardian re-sealed");
     await sql.end();
   },
 });

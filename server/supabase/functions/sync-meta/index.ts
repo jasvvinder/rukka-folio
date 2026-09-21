@@ -128,6 +128,9 @@ async function pull(
 //   POST /sync-meta/ceremony/verifier   {session_id, verifier_random}→ the session (active member)
 //   POST /sync-meta/ceremony/opening    {session_id, opening}        → the session (invitee)
 //   GET  /sync-meta/ceremony?session_id=…                            → the session (either side)
+//   GET  /sync-meta/ceremony?subject_user_id=…&tenant_id=…           → newest UNEXPIRED session for
+//        that subject, else 404 no_live_session — the verifier scanned a QR (04 §6.1) and holds a
+//        user_id, never a session id (04 §6.4 *delegated*). Same shape, same policy, no new power.
 //
 // Every rule is enforced by 0007's guard and its policies, in the database. This handler shapes
 // JSON; it cannot loosen anything, which is the point.
@@ -138,10 +141,25 @@ async function ceremony(
   path: string,
 ): Promise<Response> {
   if (req.method === "GET" && path === "/ceremony") {
-    const id = new URL(req.url).searchParams.get("session_id");
-    if (!isUuid(id)) return error(400, "bad_request");
-    const row = await deps.store.withClaims(claims, (tx) => tx.ceremonySession(id));
-    return row ? jsonBigResponse(200, sessionToWire(row)) : error(404, "not_found");
+    const q = new URL(req.url).searchParams;
+    const id = q.get("session_id");
+    if (isUuid(id)) {
+      const row = await deps.store.withClaims(claims, (tx) => tx.ceremonySession(id));
+      return row ? jsonBigResponse(200, sessionToWire(row)) : error(404, "not_found");
+    }
+    // 04 §6.4 *delegated* — discovery by subject. A verifier that has just scanned a QR holds the
+    // subject's user_id and the invite nonce (04 §6.1 payload); the session id is minted here at
+    // commit and appears in no QR, so without this there is no route from a scan to the row r_V
+    // must be written into. It adds NO authority: same `store.withClaims`, an ordinary SELECT under
+    // 0007's select policy, so a non-member and a member of another tenant see nothing — exactly
+    // what they already saw asking by id. The answer is the SAME shape as the by-id GET, so the
+    // app decodes one thing.
+    const subject = q.get("subject_user_id"), tenant = q.get("tenant_id");
+    if (!isUuid(subject) || !isUuid(tenant)) return error(400, "bad_request");
+    const row = await deps.store.withClaims(claims, (tx) => tx.liveCeremonyFor(tenant, subject));
+    // One named refusal for "no live session" and for "not yours to see" (the 0010 precedent in
+    // recoveryError): a distinct 403 would turn this into an oracle for whose ceremony is in flight.
+    return row ? jsonBigResponse(200, sessionToWire(row)) : error(404, "no_live_session");
   }
   if (req.method !== "POST") return error(404, "not_found");
   const body = await readJson(req, 4096) as Record<string, unknown> | null;
@@ -191,8 +209,14 @@ async function ceremony(
 //   POST /sync-meta/recovery/approve   {request_id, sealed_to_pub_x, blob}          (step 3)
 //   POST /sync-meta/recovery/deny      {request_id}                                 (step 7)
 //   POST /sync-meta/recovery/cancel    {request_id}         (ADR 2026-09-05d §1, one tap)
-//   GET  /sync-meta/recovery[?request_id=…]                 → k-of-n for the requester
+//   GET  /sync-meta/recovery[?request_id=…]                 → k-of-n for the requester, and
+//                                                             WHICH guardians decided (0010 rows)
 //   GET  /sync-meta/recovery/asks                           → the pending ask, for a guardian
+//
+// and rung 3 (04 §7.4 🔒, migration 0011) — the paper sheet, which had no server surface at all:
+//
+//   POST /sync-meta/recovery/sheet     {blob}  → {sheet_version}   (signup / regenerate)
+//   GET  /sync-meta/recovery/sheet             → the CURRENT sealed_RK_blob of the caller
 //
 // Three things this handler deliberately does NOT do. It never computes k (0010 enforces
 // 04 §7.3's ⌈(n+1)/2⌉). It never chooses a state: the 24 h ladder of ADR 2026-09-05d §1 is set by
@@ -225,6 +249,20 @@ async function recovery(
           expires_at: a.expires_at.getTime(),
           my_decision: a.my_decision,
         })),
+      });
+    }
+    if (path === "/recovery/sheet") {
+      // 04 §7.4 🔒 — fetch blob → decrypt UMK with the RK read off paper. The caller gets its OWN
+      // current blob and nothing else; the server cannot open it and never learns RK. A user who
+      // never printed a sheet is `no_sheet`, which is the honest answer and the one thing
+      // `HttpRecoverySheet` could not be told before (F1-06-40).
+      const sheet = await deps.store.withClaims(claims, (tx) => tx.recoverySheet());
+      if (!sheet) return error(404, "no_sheet");
+      return jsonBigResponse(200, {
+        user_id: sheet.user_id,
+        sheet_version: sheet.sheet_version,
+        sealed_rk_blob: b64url.enc(sheet.blob),
+        created_at: sheet.created_at.getTime(),
       });
     }
     if (path !== "/recovery") return error(404, "not_found");
@@ -276,6 +314,15 @@ async function recovery(
         wrapped_key_id: wk,
       });
     }
+    if (path === "/recovery/sheet") {
+      // 04 §7.4: "regenerating a sheet rotates RK and invalidates the old sheet" — so this is an
+      // INSERT of the next version, never a rewrite, and 0011 is what enforces that. The blob is
+      // XChaCha20(RK, UMK_priv) as the client sealed it: bytes in, bytes out, nothing parsed.
+      const blob = b64any(body.blob);
+      if (!blob || blob.length === 0 || blob.length > 4096) return error(400, "bad_request");
+      const v = await deps.store.withClaims(claims, (tx) => tx.publishRecoverySheet(blob));
+      return jsonBigResponse(200, { sheet_version: v });
+    }
     if (path === "/recovery/cancel") {
       if (!isUuid(body.request_id)) return error(400, "bad_request");
       await deps.store.withClaims(claims, (tx) => tx.recoveryCancel(body.request_id as string));
@@ -305,6 +352,13 @@ function recoveryError(reason: string): Response {
       return error(409, "already_decided");
     case "candidate_key_mismatch":
       return error(409, "candidate_key_mismatch");
+    // 04 §7.4 rung 3 (0011): a sheet is written once, at the next version, at a bounded rate.
+    case "sheet_version_out_of_order":
+      return error(409, "sheet_version_out_of_order");
+    case "append_only":
+      return error(409, "append_only");
+    case "sheet_flood":
+      return error(429, "sheet_flood");
     case "guardian_quorum":
     case "guardian_set_size":
     case "guardian_is_subject":
@@ -367,6 +421,16 @@ function progressToWire(p: RecoveryProgress): Record<string, unknown> {
     wait_until: p.wait_until?.getTime() ?? null,
     expires_at: p.expires_at.getTime(),
     cancelled_at: p.cancelled_at?.getTime() ?? null,
+    // Non-breaking addition (M11 RV7): `approvals` and `denials` stay exactly where they were, and
+    // this names the rows they were counted from. A count cannot say WHICH guardian acted, so a
+    // screen that has only the count must under-report rather than guess (F1-06-32); with these
+    // rows each decision lands on the member it names (F1-06-33). A denial is a row and silence is
+    // no row — the distinction 04 §7.3 step 7 rests on. Never a share, never anything financial.
+    decisions: p.decisions.map((d) => ({
+      guardian_user_id: d.guardian_user_id,
+      decision: d.decision,
+      created_at: d.created_at.getTime(),
+    })),
   };
 }
 
@@ -699,10 +763,19 @@ export function shapeRow(table: MetaTable, r: Record<string, unknown>): Record<s
         updated_at: ms(r.updated_at),
       };
     case "umk_public_keys":
+      // 04 §6.3 🔒 says the verifier compares the scanned public KEYS byte-for-byte against the
+      // server-relayed keys — plural, and core_crypto's verifyQr (ceremony.dart:490-492) compares
+      // both halves, so relaying `pub_ed` alone made the mandatory ceremony impossible to pass.
+      // `pub_x` is null on any row for which no x half has been offered — which today is EVERY
+      // row, because no shipped client sends `umk_pub_x` yet, not just the rows predating 0012.
+      // The device then hard-fails (04 §6.3 "There is no override"), which is the correct closed
+      // failure and not a fallback — but it also means the ceremony 04 §6 MANDATES cannot yet be
+      // passed by anyone. Closing that needs the client to offer the half (lane report, CLIENT GAP).
       return {
         user_id: r.user_id,
         key_version: r.key_version,
         pub_ed: bin(r.pub_ed),
+        pub_x: bin(r.pub_x),
         superseded_at: ms(r.superseded_at),
         updated_at: ms(r.updated_at),
       };

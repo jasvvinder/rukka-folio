@@ -2,16 +2,24 @@
 //   POST /otp/request   {phone, purpose, channel?, language?}      → {ok, resend_after_s}   (generic: no oracle)
 //   POST /otp/verify    {phone, purpose, code}                     → {ticket, user_id, expires_in_s}
 //   POST /devices       {device_id, ticket, pub_ed, pub_x, model?, os?, attestation?, umk?} → {device_id, user_id, status}
+//                       `umk` is the /devices/certify body below (incl. umk_pub_ed + umk_pub_x), so
+//                       the first device self-certifies in the same call (04 §3.4, 06 §3 step 4).
 //                       device_id is the ledger's own id (ADR 2026-09-16 §2 🔒) — recorded, echoed,
 //                       never issued here; already held → 409 device_id_taken (409 device_cap keeps its string)
-//   POST /devices/certify  (Bearer) {cert:{signature, issued_at_ms, issued_by_device?}, umk_key_version?, umk_pub_ed?}
+//   POST /devices/certify  (Bearer) {cert:{signature, issued_at_ms, issued_by_device?}, umk_key_version?,
+//                                     umk_pub_ed?, umk_pub_x?}
+//                       BOTH UMK public halves are recorded (04 §6.1/§6.3 🔒, migration 0012): the
+//                       ed half verifies the certificate, the x half is what a verifier's device
+//                       compares byte-for-byte in the ceremony. Either half offered a second time
+//                       with different bytes → 400 `{error: umk_pub_conflict}`, never an overwrite;
+//                       an x half that is not 32 bytes → 400 `{error: umk_pub_malformed}`.
 //   POST /challenge     {device_id}                                → {nonce, expires_in_s}
 //   POST /token         {device_id, nonce, unix_ts, signature}     → {access_token, expires_in, refresh_token, …}
 //   POST /refresh       {device_id, refresh_token, nonce, unix_ts, signature} → same, rotated family
 // Signed challenge bytes: nonce(32) ‖ uuid16(device_id) ‖ i64be(unix_ts seconds) — ⚠️ WIRE (06 §4 fixes the
 // order, not the encoding). Certificates verify under the user's UMK exactly as core_crypto/device_cert.dart.
 // Nothing here logs a body, a phone or a code (CLAUDE.md rule 4).
-import { b64any, b64url, concat, i64be, isUuid, uuid16 } from "../_shared/bytes.ts";
+import { b64any, b64url, bytesEqual, concat, i64be, isUuid, uuid16 } from "../_shared/bytes.ts";
 import { ACCESS_TTL_S, type Claims, mintAccessToken } from "../_shared/claims.ts";
 import { type Deps, serve } from "../_shared/deps.ts";
 import { clientIp, error, json, readJson, subPath } from "../_shared/http.ts";
@@ -265,18 +273,50 @@ async function certifyWith(
   const version = typeof b.umk_key_version === "number" && b.umk_key_version >= 1
     ? b.umk_key_version
     : 1;
-  const offered = b64any(b.umk_pub_ed);
+  const offeredEd = b64any(b.umk_pub_ed);
+  const offeredX = b64any(b.umk_pub_x);
   if (!sig || sig.length !== 64 || issuedAt === null) return "cert_malformed";
+  // Nothing may accept an x half that is not 32 bytes (04 §3.1): a short or long value would be
+  // stored, relayed, and then compared byte-for-byte against a real scanned key (04 §6.3) — a
+  // guaranteed hard-fail for the user with no way to correct it. Refuse it at the door. 0012's
+  // CHECK and rf.set_umk_pubs refuse it again; this is the named wire refusal.
+  if (b.umk_pub_x !== undefined && (!offeredX || offeredX.length !== 32)) {
+    return "umk_pub_malformed";
+  }
+  if (b.umk_pub_ed !== undefined && (!offeredEd || offeredEd.length !== 32)) {
+    return "umk_pub_malformed";
+  }
   return await deps.store.withClaims(c, async (tx) => {
-    let umk = await tx.umkPubFor(c.user_id, version);
+    let stored;
+    try {
+      stored = await tx.umkPubs(c.user_id, version);
+    } catch (e) {
+      if (e instanceof StoreDenied) return e.reason; // rf.umk_pubs_for is bounded to the caller
+      throw e;
+    }
+    let umk = stored?.pub_ed;
     if (!umk) {
-      if (!offered || offered.length !== 32) return "umk_unknown";
-      umk = offered; // first device: the UMK public key it registers is the one it self-certifies under
+      if (!offeredEd) return "umk_unknown";
+      umk = offeredEd; // first device: the UMK public key it registers is the one it self-certifies under
+    }
+    // The ED half keeps its pre-0012 answer on purpose: an offered key that differs from the
+    // stored one is IGNORED and the certificate is then verified under the stored key, so the swap
+    // fails as `cert_invalid` — what E-06-7 asserts, and the better refusal, because it says
+    // nothing about what the server holds. The X half has no such history and gets a named
+    // refusal: it is write-once (0012), and an honest client holding different bytes has a real
+    // integrity problem it should be told about rather than have quietly dropped (05c).
+    if (offeredX && stored?.pub_x && !bytesEqual(offeredX, stored.pub_x)) {
+      return "umk_pub_conflict";
     }
     const msg = concat([uuid16(c.device_id), pubEd, pubX, i64be(issuedAt)]);
     if (!(await ed25519Verify(msg, sig, umk))) return "cert_invalid";
     try {
-      if (offered && offered.length === 32) await tx.setUmkPub(c.user_id, version, umk);
+      // A row holding no x half — a pre-0012 row, or any row written by a client that did not
+      // offer one, which today is all of them — is filled exactly once by the first offer. Nothing
+      // is written when the caller offers neither half: the certificate alone certifies the device.
+      if (offeredEd || (offeredX && !stored?.pub_x)) {
+        await tx.setUmkPubs(c.user_id, version, umk, offeredX ?? stored?.pub_x ?? null);
+      }
       await tx.certifyDevice(c.device_id, sig, new Date(issuedAt), issuedBy, version);
     } catch (e) {
       if (e instanceof StoreDenied) return e.reason;

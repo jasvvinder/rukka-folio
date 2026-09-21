@@ -23,11 +23,13 @@ import {
   type RecoveryAsk,
   type RecoveryProgress,
   type RecoveryRequest,
+  type RecoverySheet,
   type RefreshToken,
   type SignedRecordRow,
   type Store,
   StoreDenied,
   type Tx,
+  type UmkPublicRow,
 } from "./store.ts";
 
 type Sql = postgres.Sql | postgres.TransactionSql;
@@ -317,6 +319,15 @@ class PgTx implements Tx {
   ceremonySession(session: string): Promise<CeremonySession | null> {
     return this.readCeremony(session);
   }
+  // 04 §6.4 *delegated*: the verifier scanned a QR, so it holds a user_id and no session id
+  // (04 §6.1's payload carries none). rf.live_ceremony_for is SECURITY INVOKER, so 0007's select
+  // policy filters this exactly as it filters `readCeremony` — no row reachable here was
+  // unreachable by id, and an expired session is never handed back.
+  async liveCeremonyFor(tenant: string, subject: string): Promise<CeremonySession | null> {
+    const [r] = await this
+      .sql`select * from rf.live_ceremony_for(${tenant}::uuid, ${subject}::uuid)`;
+    return (r as unknown as CeremonySession) ?? null;
+  }
   // ---- 06 §7 invites. Every rule (admin-only, the record, the 7-day window, the phone binding,
   // the state machine) lives in 0006/0008's functions and triggers; this is the call, not the rule.
   createInvite(
@@ -396,7 +407,41 @@ class PgTx implements Tx {
   }
   async recoveryProgress(request: string): Promise<RecoveryProgress | null> {
     const [r] = await this.sql`select * from rf.recovery_progress(${request}::uuid)`;
-    return r ? (progressRow(r)) : null;
+    if (!r) return null;
+    // Who decided, from the append-only rows the counts above were derived from. No new grant and
+    // no new function: 0010's `recovery_approvals_select` policy already shows these rows to the
+    // requester and to the candidate device, and `rf.recovery_progress` has just returned nothing
+    // to anybody else — so a caller who may not read the attempt reads no decision either.
+    // `wrapped_key_id` and `sealed_to_pub_x` are NOT selected: a share is addressed to the
+    // candidate device through wrapped_keys and travels nowhere else.
+    const d = await this.sql`select guardian_user_id, decision, created_at from recovery_approvals
+      where request_id = ${request}::uuid order by created_at, guardian_user_id`;
+    return progressRow(r, d);
+  }
+  publishRecoverySheet(blob: Uint8Array): Promise<number> {
+    // 04 §7.4: the version is the next one, and the guard (0011) is what says so — this reads the
+    // caller's own rows under the select policy and lets the database refuse a race by name.
+    return this.guarded(async () => {
+      const [hi] = await this.sql`select coalesce(max(sheet_version), 0) as v from recovery_sheets
+        where user_id = rf.user_id()`;
+      const next = (hi?.v as number ?? 0) + 1;
+      await this.sql`insert into recovery_sheets (user_id, sheet_version, blob)
+        values (rf.user_id(), ${next}, ${blob})`;
+      return next;
+    });
+  }
+  async recoverySheet(): Promise<RecoverySheet | null> {
+    // The CURRENT sheet only: an older version is a rotated-away RK (04 §7.4) and is never served.
+    const [r] = await this.sql`select user_id, sheet_version, blob, created_at from recovery_sheets
+      where user_id = rf.user_id() order by sheet_version desc limit 1`;
+    return r
+      ? {
+        user_id: r.user_id as string,
+        sheet_version: r.sheet_version as number,
+        blob: bytes(r.blob),
+        created_at: r.created_at as Date,
+      }
+      : null;
   }
   async recoveryAsks(): Promise<RecoveryAsk[]> {
     // The guardian's own read: 0010's second SELECT policy shows a guardian the attempts of the set
@@ -576,13 +621,27 @@ class PgTx implements Tx {
     await this
       .sql`update refresh_tokens set revoked_at = now() where family_id = ${family} and revoked_at is null`;
   }
-  async umkPubFor(user: string, version: number): Promise<Uint8Array | null> {
-    const [r] = await this.sql`select rf.umk_pub_for(${user}::uuid, ${version}) as pub`;
-    return r?.pub ? bytes(r.pub) : null;
+  // ---- 04 §3.1 / §6.3 🔒 both halves of the UMK public key (migration 0012). 0005's helpers
+  // carried `pub_ed` alone, which left the byte-for-byte comparison of §6.3 with nothing to compare
+  // its second key against. Write-once and the 32-byte lengths are 0012's, in the database.
+  async umkPubs(user: string, version: number): Promise<UmkPublicRow | null> {
+    return await this.guarded(async () => {
+      const [r] = await this.sql`select * from rf.umk_pubs_for(${user}::uuid, ${version})`;
+      if (!r?.pub_ed) return null;
+      return { pub_ed: bytes(r.pub_ed), pub_x: r.pub_x ? bytes(r.pub_x) : null };
+    });
   }
-  setUmkPub(user: string, version: number, pub: Uint8Array): Promise<void> {
+  setUmkPubs(
+    user: string,
+    version: number,
+    pubEd: Uint8Array,
+    pubX: Uint8Array | null,
+  ): Promise<void> {
     return this.guarded(async () => {
-      await this.sql`select rf.set_umk_pub(${user}::uuid, ${version}, ${pub})`;
+      await this
+        .sql`select rf.set_umk_pubs(${user}::uuid, ${version}, ${pubEd}::bytea, ${
+        pubX ?? null
+      }::bytea)`;
     });
   }
   certifyDevice(
@@ -639,7 +698,7 @@ function recoveryRow(r: Row): RecoveryRequest {
   };
 }
 
-function progressRow(r: Row): RecoveryProgress {
+function progressRow(r: Row, decisions: readonly Row[] = []): RecoveryProgress {
   return {
     request_id: r.request_id as string,
     user_id: r.user_id as string,
@@ -655,5 +714,10 @@ function progressRow(r: Row): RecoveryProgress {
     wait_until: (r.wait_until as Date) ?? null,
     expires_at: r.expires_at as Date,
     cancelled_at: (r.cancelled_at as Date) ?? null,
+    decisions: decisions.map((d) => ({
+      guardian_user_id: d.guardian_user_id as string,
+      decision: d.decision as "approved" | "denied",
+      created_at: d.created_at as Date,
+    })),
   };
 }

@@ -1,5 +1,5 @@
 // auth-challenge (06 §2–§4 🔒; ADR 2026-09-05d §2, ADR 2026-09-16 §2). Ids E-06-1 … E-06-8,
-// E-06-40, E-06-41.
+// E-06-40, E-06-41, E-06-68.
 import { assert, assertEquals, assertNotEquals, assertStringIncludes } from "@std/assert";
 import { b64url } from "../_shared/bytes.ts";
 import { verifyAccessToken } from "../_shared/claims.ts";
@@ -589,4 +589,94 @@ Deno.test("E-06-8 rule 4: no request body, phone or code ever reaches console ou
   assertEquals(joined.includes("9876543210"), false);
   for (const s of r.otp.sent) assertEquals(joined.includes(s.code), false);
   assertStringIncludes("", ""); // keep assert import shape stable
+});
+
+Deno.test("E-06-68 both UMK public halves: /devices/certify records umk_pub_ed AND umk_pub_x and the meta channel relays both (04 §6.1/§6.3 🔒, migration 0012); a wrong-length x half is refused umk_pub_malformed with nothing stored; a second, different x half is umk_pub_conflict and moves no byte; a row with no x half (today: every row — no client sends umk_pub_x) still relays with pub_x null", async () => {
+  const r = rig();
+  const tenant = r.db.addTenant();
+  const book = r.db.addBook(tenant);
+
+  // 04 §6.3 🔒 compares the scanned public KEYS byte-for-byte against the server-relayed keys, and
+  // core_crypto's verifyQr (ceremony.dart:490-492) compares BOTH halves of an UmkPublic that
+  // cannot exist without both (keys.dart:57-65). The x half is its own seed (keys.dart:13), so the
+  // server cannot derive it — it has to be carried, which is what this test is about.
+  const dev = await registered(r);
+  const umkX = await random(32);
+  const tok = await session(r, dev.device_id, dev.dev.priv);
+  const issued = r.clock.now.getTime();
+  const sig = await sign(certBytes(dev.device_id, dev.dev.pub, dev.xpub, issued), dev.umk.priv);
+  const certBody = (over: Record<string, unknown> = {}) => ({
+    umk_pub_ed: b64url.enc(dev.umk.pub),
+    umk_pub_x: b64url.enc(umkX),
+    umk_key_version: 1,
+    cert: { signature: b64url.enc(sig), issued_at_ms: issued },
+    ...over,
+  });
+
+  // ---- nothing may accept an x half that is not 32 bytes: it would be stored, relayed, and then
+  // compared byte-for-byte against a real scanned key — a hard-fail the user cannot correct.
+  for (const n of [31, 33, 0, 64]) {
+    const bad = await call(
+      r,
+      "/devices/certify",
+      certBody({ umk_pub_x: b64url.enc(await random(n)) }),
+      tok.access_token,
+    );
+    assertEquals(bad.status, 400);
+    assertEquals((await body(bad)).error, "umk_pub_malformed", `${n} bytes is refused`);
+  }
+  assertEquals(r.db.umk_public_keys.length, 0, "a refused length stores nothing at all");
+  assertEquals(r.db.devices.get(dev.device_id)!.status, "registered", "…and certifies nothing");
+
+  // ---- the honest call: both halves land, and the device is certified under the ed half
+  const ok = await call(r, "/devices/certify", certBody(), tok.access_token);
+  assertEquals(ok.status, 200);
+  assertEquals(r.db.devices.get(dev.device_id)!.status, "certified");
+  assertEquals(r.db.umk_public_keys.length, 1);
+  assertEquals(r.db.umk_public_keys[0].pub_ed, dev.umk.pub);
+  assertEquals(r.db.umk_public_keys[0].pub_x, umkX, "the X25519 half is stored, not dropped");
+
+  // ---- write-once: a DIFFERENT x half is a named refusal, and the stored bytes do not move.
+  // A substituted x half is precisely the attack 04 §6.3 exists to stop, and the server is the
+  // untrusted relay, so this is refused on the wire as well as by 0012's guard in the database.
+  const swapped = await call(
+    r,
+    "/devices/certify",
+    certBody({ umk_pub_x: b64url.enc(await random(32)) }),
+    tok.access_token,
+  );
+  assertEquals(swapped.status, 400);
+  assertEquals((await body(swapped)).error, "umk_pub_conflict");
+  assertEquals(r.db.umk_public_keys[0].pub_x, umkX, "not one byte moved");
+  // replaying exactly what is stored stays idempotent — every certify call re-offers its keys
+  assertEquals((await call(r, "/devices/certify", certBody(), tok.access_token)).status, 200);
+  assertEquals(r.db.umk_public_keys.length, 1);
+
+  // ---- the relay: a fellow member of the tenant is handed BOTH halves, which is the only way
+  // 04 §6.3's comparison can run at all.
+  r.db.addMembership(tenant, dev.user_id);
+  r.db.addRole(book, dev.user_id, "admin");
+  const verifier = await member(r, tenant, book, "member");
+  const relayed = await body(await meta(get("/sync-meta", { token: verifier.token }), r.deps));
+  const mine = relayed.umk_public_keys.find((k: any) => k.user_id === dev.user_id);
+  assert(mine, "the verifier is relayed the subject's UMK row");
+  assertEquals(mine.pub_ed, b64url.enc(dev.umk.pub));
+  assertEquals(mine.pub_x, b64url.enc(umkX), "both halves reach the verifier's device");
+
+  // ---- a row written before migration 0012 has no x half. It still relays — `pub_x: null`, never
+  // a substitute — and the device then hard-fails the ceremony (04 §6.3 "There is no override"),
+  // which is the correct closed failure.
+  const legacyEd = await random(32);
+  r.db.umk_public_keys.push({
+    user_id: verifier.user,
+    key_version: 1,
+    pub_ed: legacyEd,
+    created_at: r.clock.now,
+    superseded_at: null,
+    updated_at: r.clock.now,
+  });
+  const again = await body(await meta(get("/sync-meta", { token: verifier.token }), r.deps));
+  const legacy = again.umk_public_keys.find((k: any) => k.user_id === verifier.user);
+  assertEquals(legacy.pub_ed, b64url.enc(legacyEd));
+  assertEquals(legacy.pub_x, null, "no x half, and nothing invented in its place");
 });

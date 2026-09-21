@@ -22,12 +22,14 @@ import {
   type RecoveryAsk,
   type RecoveryProgress,
   type RecoveryRequest,
+  type RecoverySheet,
   type RefreshToken,
   rowId,
   type SignedRecordRow,
   type Store,
   StoreDenied,
   type Tx,
+  type UmkPublicRow,
 } from "./store.ts";
 
 type Row = Record<string, unknown>;
@@ -82,6 +84,7 @@ export class MemDb {
   recovery_requests: Row[] = [];
   recovery_approvals: Row[] = [];
   recovery_cancellations: Row[] = [];
+  recovery_sheets: Row[] = [];
   escrow_policies: Row[] = [];
   subscriptions: Row[] = [];
   entitlement_tokens: Row[] = [];
@@ -676,11 +679,25 @@ class MemTx implements Tx {
   }
   ceremonySession(session: string): Promise<CeremonySession | null> {
     const row = this.db.ceremony_sessions.find((x) => x.id === session);
-    if (!row || !this.isCertified()) return Promise.resolve(null);
-    if (row.subject_user !== this.me && !this.activeInTenant(row.tenant_id)) {
-      return Promise.resolve(null);
-    }
+    if (!row || !this.visibleSession(row)) return Promise.resolve(null);
     return Promise.resolve(row);
+  }
+  // 04 §6.4 *delegated*: the newest UNEXPIRED session for a subject, found by user_id because a
+  // scanned QR (04 §6.1) carries no session id. The SAME visibility test as a lookup by id — this
+  // seam may not see one row more than `ceremonySession` would.
+  liveCeremonyFor(tenant: string, subject: string): Promise<CeremonySession | null> {
+    const live = this.db.ceremony_sessions
+      .filter((x) =>
+        x.tenant_id === tenant && x.subject_user === subject && x.expires_at > this.now &&
+        this.visibleSession(x)
+      )
+      .sort((a, b) => b.committed_at.getTime() - a.committed_at.getTime());
+    return Promise.resolve(live[0] ?? null);
+  }
+  /** 0007:295 restated: a certified device, and either the subject itself or an active member. */
+  private visibleSession(row: CeremonySession): boolean {
+    if (!this.isCertified()) return false;
+    return row.subject_user === this.me || this.activeInTenant(row.tenant_id);
   }
   // ---- 04 §7.3 the guardian recovery ladder (0010 in the database; mirrored here, because a fake
   // that is laxer than the guards is a test that proves nothing). The shape that matters most is
@@ -830,7 +847,11 @@ class MemTx implements Tx {
     const set = this.db.guardian_sets.find((g) =>
       g.subject_user_id === r.user_id && g.share_set_version === r.share_set_version
     )!;
-    const decisions = this.db.recovery_approvals.filter((a) => a.request_id === r.id);
+    const decisions = this.db.recovery_approvals.filter((a) => a.request_id === r.id)
+      .sort((a, b) =>
+        (a.created_at as Date).getTime() - (b.created_at as Date).getTime() ||
+        String(a.guardian_user_id).localeCompare(String(b.guardian_user_id))
+      );
     const approved = decisions.filter((a) => a.decision === "approved")
       .sort((a, b) => (a.created_at as Date).getTime() - (b.created_at as Date).getTime());
     const denials = decisions.filter((a) => a.decision === "denied").length;
@@ -860,6 +881,14 @@ class MemTx implements Tx {
       wait_until: wait,
       expires_at: r.expires_at as Date,
       cancelled_at: (cancelled?.created_at as Date) ?? null,
+      // 0010's recovery_approvals SELECT policy shows these rows to the requester and to the
+      // candidate device, and `recoveryProgress` below has already refused everybody else. A
+      // denial is a ROW here, which is what makes it distinguishable from silence.
+      decisions: decisions.map((a) => ({
+        guardian_user_id: a.guardian_user_id as string,
+        decision: a.decision as "approved" | "denied",
+        created_at: a.created_at as Date,
+      })),
     };
   }
   recoveryProgress(request: string): Promise<RecoveryProgress | null> {
@@ -918,6 +947,42 @@ class MemTx implements Tx {
           r.candidate_device === this.dev || (this.isCertified() && r.user_id === this.me)
         )
         .map((r) => this.recoveryRow(r)),
+    );
+  }
+  // ---- 04 §7.4 🔒 rung 3, the paper sheet (0011 in the database; mirrored here).
+  publishRecoverySheet(blob: Uint8Array): Promise<number> {
+    if (!this.isCertified()) throw new StoreDenied("rls"); // 0011 recovery_sheets_insert
+    if (blob.length === 0 || blob.length > 4096) throw new StoreDenied("recovery_shape");
+    const mine = this.db.recovery_sheets.filter((s) => s.user_id === this.me);
+    const last = mine.at(-1);
+    if (last && (last.created_at as Date).getTime() > this.now.getTime() - 60_000) {
+      throw new StoreDenied("sheet_flood"); // ADR 2026-09-05b §7
+    }
+    const version = mine.reduce((m, s) => Math.max(m, s.sheet_version as number), 0) + 1;
+    this.db.recovery_sheets.push({
+      user_id: this.me,
+      sheet_version: version,
+      blob,
+      created_at: this.now,
+      updated_at: this.now,
+    });
+    return Promise.resolve(version);
+  }
+  recoverySheet(): Promise<RecoverySheet | null> {
+    // The caller's OWN current sheet — certified or not, because the fresh phone of 06 §5 is the
+    // one caller rung 3 exists for (0011 ⚠️ SPEC on ADR 2026-09-05d §2).
+    const mine = this.db.recovery_sheets.filter((s) => s.user_id === this.me)
+      .sort((a, b) => (a.sheet_version as number) - (b.sheet_version as number));
+    const cur = mine.at(-1);
+    return Promise.resolve(
+      cur
+        ? {
+          user_id: cur.user_id as string,
+          sheet_version: cur.sheet_version as number,
+          blob: cur.blob as Uint8Array,
+          created_at: cur.created_at as Date,
+        }
+        : null,
     );
   }
   private recoveryRow(r: Row): RecoveryRequest {
@@ -1193,24 +1258,46 @@ class MemTx implements Tx {
     }
     return Promise.resolve();
   }
-  umkPubFor(user: string, version: number): Promise<Uint8Array | null> {
+  // ---- 04 §3.1 / §6.3 🔒 both halves of the UMK public key. 0012's guards are re-stated here,
+  // because a fake that is laxer than the database is a test that proves nothing: bounded to the
+  // caller's own user, 32 bytes or nothing, and write-once with a one-time NULL → x backfill.
+  umkPubs(user: string, version: number): Promise<UmkPublicRow | null> {
+    if (user !== this.me) throw new StoreDenied("not_owner");
+    const k = this.db.umk_public_keys.find((k) => k.user_id === user && k.key_version === version);
     return Promise.resolve(
-      (this.db.umk_public_keys.find((k) => k.user_id === user && k.key_version === version)
-        ?.pub_ed as Uint8Array) ?? null,
+      k ? { pub_ed: k.pub_ed as Uint8Array, pub_x: (k.pub_x as Uint8Array) ?? null } : null,
     );
   }
-  setUmkPub(user: string, version: number, pub: Uint8Array): Promise<void> {
+  setUmkPubs(
+    user: string,
+    version: number,
+    pubEd: Uint8Array,
+    pubX: Uint8Array | null,
+  ): Promise<void> {
     if (user !== this.me) throw new StoreDenied("not_owner");
-    if (!this.db.umk_public_keys.some((k) => k.user_id === user && k.key_version === version)) {
+    if (pubEd.length !== 32) throw new StoreDenied("umk_pub_malformed");
+    if (pubX && pubX.length !== 32) throw new StoreDenied("umk_pub_malformed");
+    const k = this.db.umk_public_keys.find((k) => k.user_id === user && k.key_version === version);
+    if (!k) {
       this.db.umk_public_keys.push({
         user_id: user,
         key_version: version,
-        pub_ed: pub,
+        pub_ed: pubEd,
+        pub_x: pubX,
         created_at: this.now,
         superseded_at: null,
         updated_at: this.now,
       });
+      return Promise.resolve();
     }
+    if (!bytesEqual(k.pub_ed as Uint8Array, pubEd)) throw new StoreDenied("umk_pub_conflict");
+    if (!pubX) return Promise.resolve();
+    if (!k.pub_x) { // a row written before 0012: fill it, once
+      k.pub_x = pubX;
+      k.updated_at = this.now;
+      return Promise.resolve();
+    }
+    if (!bytesEqual(k.pub_x as Uint8Array, pubX)) throw new StoreDenied("umk_pub_conflict");
     return Promise.resolve();
   }
   certifyDevice(

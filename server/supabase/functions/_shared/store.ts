@@ -133,6 +133,17 @@ export interface RefreshToken {
   revoked_at: Date | null;
 }
 
+/** 04 §3.1 — the UMK's two public halves. 04 §6.3 🔒 compares BOTH byte-for-byte, so both travel.
+ *  `pub_x` is NULL on any row whose writer offered no x half. That is not only the rows written
+ *  before migration 0012: as of this milestone NO client sends `umk_pub_x` at all (the app's
+ *  /devices/certify body carries `umk_key_version` + `umk_pub_ed` only), so every row is ed-only
+ *  and 04 §6's MANDATORY ceremony stays unpassable until the client offers the half. The server
+ *  side is ready; the wire is not yet driven. See the lane report's CLIENT GAP item. */
+export interface UmkPublicRow {
+  pub_ed: Uint8Array;
+  pub_x: Uint8Array | null;
+}
+
 /** ADR 2026-09-13d ruling 4: commitment 32 B, verifier_random 16 B, opening 16 B + server times. */
 export interface CeremonySession {
   id: string;
@@ -171,6 +182,20 @@ export interface RecoveryRequest {
   expires_at: Date;
 }
 
+/** One guardian's decision, as the append-only row records it (0010 `recovery_approvals`).
+ *
+ *  A count is not an attribution: `approvals: 2` cannot say *which* two, and S11.2 has to tick the
+ *  members it names (ADR 2026-09-06 § Consequences), a cancel has to notify "the guardians who
+ *  approved" (ADR 2026-09-05d §1), and a DENIAL has to be distinguishable from SILENCE (04 §7.3
+ *  step 7: three denials close the attempt). The rows answer all three; the counter answers none.
+ *
+ *  Nothing here is a share and nothing here is financial: a user id, a word, and a time. */
+export interface RecoveryDecision {
+  guardian_user_id: string;
+  decision: "approved" | "denied";
+  created_at: Date;
+}
+
 /** The derived state (0010 `rf.recovery_progress`): counts come from the append-only decision rows,
  *  never from `recovery_requests.approvals`, which is vestigial. */
 export interface RecoveryProgress {
@@ -188,6 +213,20 @@ export interface RecoveryProgress {
   wait_until: Date | null;
   expires_at: Date;
   cancelled_at: Date | null;
+  /** Who decided, and which way — the rows the counts above were derived from. Readable by the
+   *  requester and by its candidate device, under the SELECT policy 0010 already wrote; a caller
+   *  who cannot read the progress reads no decision either (ADR 2026-09-05d §2). */
+  decisions: RecoveryDecision[];
+}
+
+/** 04 §7.4 🔒 rung 3 — the paper sheet's server half. `sealed_rk_blob = XChaCha20(RK, UMK_priv)`:
+ *  opaque bytes the server stores and returns and can never open, because RK lives on paper and
+ *  never on this server. A new sheet is a NEW VERSION, never a rewrite (0011, CLAUDE.md rule 2). */
+export interface RecoverySheet {
+  user_id: string;
+  sheet_version: number;
+  blob: Uint8Array;
+  created_at: Date;
 }
 
 /** 04 §7.3 step 2 — what a guardian is pushed: who, which new device, and its candidate key.
@@ -255,6 +294,10 @@ export interface Tx {
   ceremonyContribute(session: string, verifierRandom: Uint8Array): Promise<CeremonySession>;
   ceremonyOpen(session: string, opening: Uint8Array): Promise<CeremonySession>;
   ceremonySession(session: string): Promise<CeremonySession | null>;
+  /** 04 §6.4 *delegated* — the newest UNEXPIRED session for a subject in a tenant, for a verifier
+   *  that has just scanned a QR and holds a user_id but no session id (04 §6.1 carries none).
+   *  Adds no authority: 0007's select policy filters it exactly as it filters a lookup by id. */
+  liveCeremonyFor(tenant: string, subject: string): Promise<CeremonySession | null>;
   // 06 §7 invites. `inviteeHmac` is computed at the edge from a number that is never stored
   // (ADR 2026-09-05c §4); the record is the admin's signed `invite` (0008 ⚠️ SPEC).
   createInvite(
@@ -290,6 +333,12 @@ export interface Tx {
   recoveryCancel(request: string): Promise<void>;
   /** The caller's own attempts — what the candidate device polls. */
   myRecoveryRequests(): Promise<RecoveryRequest[]>;
+  // ---- 04 §7.4 🔒 rung 3, the paper sheet (0011). Write-once and versioned: regenerating a sheet
+  // rotates RK, so it publishes the NEXT version and the old blob stops being served.
+  /** 04 §7.4: upload `sealed_RK_blob` for the caller's own user. Returns the version it landed on. */
+  publishRecoverySheet(blob: Uint8Array): Promise<number>;
+  /** 04 §7.4 Recovery: the caller's OWN current sealed blob, or null when no sheet was ever made. */
+  recoverySheet(): Promise<RecoverySheet | null>;
   projectMembership(record: string, tenant: string, user: string, status: string): Promise<void>;
   projectBookRole(
     record: string,
@@ -342,8 +391,20 @@ export interface Tx {
   findRefreshToken(hash: Uint8Array): Promise<RefreshToken | null>;
   rotateRefreshToken(oldHash: Uint8Array, next: RefreshToken): Promise<void>;
   revokeRefreshFamily(familyId: string): Promise<void>;
-  umkPubFor(user: string, version: number): Promise<Uint8Array | null>;
-  setUmkPub(user: string, version: number, pub: Uint8Array): Promise<void>;
+  /** Both halves of the caller's own UMK public key (04 §3.1, §6.3 🔒) — `pub_x` is NULL whenever
+   *  no writer has yet offered an x half for this (user, version), which today is EVERY row (no
+   *  client sends `umk_pub_x`; see UmkPublicRow). Bounded to the caller's own user by
+   *  rf.umk_pubs_for. */
+  umkPubs(user: string, version: number): Promise<UmkPublicRow | null>;
+  /** Write-once, per 0012: same material → no-op, different material → StoreDenied('umk_pub_conflict'),
+   *  a NULL x half → backfilled exactly once, whenever that row was written. Nothing but 32 bytes
+   *  is accepted. */
+  setUmkPubs(
+    user: string,
+    version: number,
+    pubEd: Uint8Array,
+    pubX: Uint8Array | null,
+  ): Promise<void>;
   certifyDevice(
     device: string,
     cert: Uint8Array,

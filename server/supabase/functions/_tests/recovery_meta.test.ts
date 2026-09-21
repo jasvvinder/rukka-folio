@@ -557,3 +557,165 @@ Deno.test("E-06-49 a share sealed for one attempt cannot be filed against anothe
   // and neither phone can read the other's attempt
   assertEquals((await progress(r, a, reqB)).status, 404);
 });
+
+// ---------------------------------------------------------------------------------------------
+// M11 RV7 — the two gaps the wire itself showed: a tally that names nobody, and a rung with no
+// surface at all. Ids E-06-57, E-06-58.
+// ---------------------------------------------------------------------------------------------
+
+Deno.test("E-06-57 the progress route NAMES the guardians who decided: `decisions` carries one row per guardian from the append-only table, an approval and a denial are told apart from silence, the tally still matches, and no caller but the requester and its candidate device sees a decision at all (0010 THE DECISION 🔒; 04 §7.3 steps 3 and 7; ADR 2026-09-05d §2)", async (t) => {
+  const r = rig();
+  const tenant = r.db.addTenant();
+  const book = r.db.addBook(tenant);
+  const subject = await member(r, tenant, book, "admin");
+  const g1 = await member(r, tenant, null, null);
+  const g2 = await member(r, tenant, null, null);
+  const g3 = await member(r, tenant, null, null);
+  const bystander = await member(r, tenant, null, null); // certified, not a guardian
+  await publish(r, subject, [g1, g2, g3]);
+  const fresh = await candidate(r, subject.user);
+  const req = (await body(
+    await meta(
+      post("/sync-meta/recovery", { candidate_pub_x: b64url.enc(fresh.pub) }, {
+        token: await tok(r, fresh),
+      }),
+      r.deps,
+    ),
+  )).request_id as string;
+
+  await t.step("nobody has answered: the array is empty, not absent", async () => {
+    const p = await body(await progress(r, fresh, req));
+    assertEquals(p.approvals, 0);
+    assertEquals(p.denials, 0);
+    assertEquals(p.decisions, []);
+  });
+
+  await t.step("one denial is a ROW — silence is the absence of one", async () => {
+    await deny(r, g1, req);
+    const p = await body(await progress(r, fresh, req));
+    assertEquals(p.approvals, 0);
+    assertEquals(p.denials, 1);
+    assertEquals(p.decisions.length, 1);
+    assertEquals(p.decisions[0].guardian_user_id, g1.user);
+    assertEquals(p.decisions[0].decision, "denied");
+    assert(typeof p.decisions[0].created_at === "number", "a time the screen can order by");
+    // g2 and g3 have said nothing, and nothing in the payload claims otherwise.
+    assertEquals(
+      p.decisions.filter((d: { guardian_user_id: string }) =>
+        d.guardian_user_id === g2.user || d.guardian_user_id === g3.user
+      ).length,
+      0,
+    );
+  });
+
+  await t.step("an approval names its guardian and carries no share", async () => {
+    await approve(r, g2, req, fresh.pub, await random(96));
+    const p = await body(await progress(r, fresh, req));
+    assertEquals(p.approvals, 1);
+    assertEquals(p.denials, 1);
+    assertEquals(p.decisions.length, 2);
+    const by = Object.fromEntries(
+      p.decisions.map((d: { guardian_user_id: string; decision: string }) => [
+        d.guardian_user_id,
+        d.decision,
+      ]),
+    );
+    assertEquals(by[g1.user], "denied");
+    assertEquals(by[g2.user], "approved");
+    for (const d of p.decisions) {
+      assertEquals(Object.keys(d).sort(), ["created_at", "decision", "guardian_user_id"]);
+      assert(!("wrapped_key_id" in d), "the sealed share travels on the meta pull, never here");
+      assert(!("sealed_to_pub_x" in d), "and neither does the key it was sealed to");
+    }
+  });
+
+  await t.step("the requester's own certified device reads the same rows", async () => {
+    const p = await body(await progress(r, subject, req));
+    assertEquals(p.decisions.length, 2);
+  });
+
+  await t.step("a guardian, a bystander and a stranger read no decision at all", async () => {
+    const other = r.db.addTenant();
+    const stranger = await member(r, other, null, null);
+    for (const w of [g1, g2, bystander, stranger]) {
+      const res = await progress(r, w, req);
+      assertEquals(
+        res.status,
+        404,
+        "an attempt not yours and one that does not exist are one answer",
+      );
+      assertEquals((await body(res)).error, "not_found");
+    }
+    // What a guardian DOES get is its own ask and its own decision — never another guardian's.
+    const asks = (await body(
+      await meta(get("/sync-meta/recovery/asks", { token: await tok(r, g1) }), r.deps),
+    )).asks;
+    assertEquals(asks.length, 1);
+    assertEquals(asks[0].my_decision, "denied");
+    assert(!("decisions" in asks[0]), "an ask is not a tally");
+  });
+});
+
+Deno.test("E-06-58 rung 3 has a surface at last: a certified device uploads `sealed_RK_blob` and gets a version, the caller fetches its OWN current blob byte-for-byte, regenerating rotates to the next version and the old blob stops being served, a user with no sheet is told `no_sheet` rather than given a falsehood, and nobody else's blob is reachable (04 §7.4 🔒; 0011)", async (t) => {
+  const r = rig();
+  const tenant = r.db.addTenant();
+  const subject = await member(r, tenant, null, null);
+  const other = await member(r, tenant, null, null);
+  const sheet1 = await random(72);
+
+  const put = async (w: Who, blob: Uint8Array) =>
+    await meta(
+      post("/sync-meta/recovery/sheet", { blob: b64url.enc(blob) }, { token: await tok(r, w) }),
+      r.deps,
+    );
+  const fetchSheet = async (w: Who) =>
+    await meta(get("/sync-meta/recovery/sheet", { token: await tok(r, w) }), r.deps);
+
+  await t.step("a user who never printed a sheet is told exactly that", async () => {
+    const res = await fetchSheet(subject);
+    assertEquals(res.status, 404);
+    assertEquals((await body(res)).error, "no_sheet");
+  });
+
+  await t.step("signup uploads the blob and it comes back unchanged", async () => {
+    assertEquals((await body(await put(subject, sheet1))).sheet_version, 1);
+    const got = await body(await fetchSheet(subject));
+    assertEquals(got.sheet_version, 1);
+    assertEquals(got.user_id, subject.user);
+    assertEquals(b64url.enc(sheet1), got.sealed_rk_blob, "bytes in, bytes out (04 §8.6)");
+  });
+
+  await t.step("the fresh phone of 06 §5 — uncertified — may fetch its own blob", async () => {
+    // Rung 3 exists for exactly this caller: OTP passed, nothing else held, an RK on paper.
+    const fresh = await candidate(r, subject.user);
+    const got = await body(await fetchSheet(fresh));
+    assertEquals(got.sheet_version, 1);
+    assertEquals(b64url.enc(sheet1), got.sealed_rk_blob);
+    // …and it may not publish one: burying the real sheet is a certified device's act only.
+    assertEquals((await put(fresh, await random(72))).status, 403);
+  });
+
+  await t.step("regenerating rotates RK: the next version, and only it, is served", async () => {
+    advance(r, 61_000); // one publication per minute (ADR 2026-09-05b §7)
+    const sheet2 = await random(72);
+    assertEquals((await body(await put(subject, sheet2))).sheet_version, 2);
+    const got = await body(await fetchSheet(subject));
+    assertEquals(got.sheet_version, 2);
+    assertEquals(b64url.enc(sheet2), got.sealed_rk_blob, "the old sheet is invalidated (04 §7.4)");
+  });
+
+  await t.step("the rate bound refuses by name, never silently", async () => {
+    const res = await put(subject, await random(72));
+    assertEquals(res.status, 429);
+    assertEquals((await body(res)).error, "sheet_flood");
+  });
+
+  await t.step("another member of the same tenant reaches none of it", async () => {
+    const res = await fetchSheet(other);
+    assertEquals(res.status, 404);
+    assertEquals((await body(res)).error, "no_sheet", "no oracle: the same answer as having none");
+    // and a blob is never in anybody's meta pull
+    const pull = await metaPull(r, other);
+    assert(!("recovery_sheets" in pull), "the sheet is fetched deliberately, never broadcast");
+  });
+});
