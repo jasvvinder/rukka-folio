@@ -47,12 +47,17 @@ book_roles(book_id, user_id, role text check (role in
         auto_post_limit_paise bigint, primary key (book_id, user_id))
 ```
 
-### 2.2 Devices, keys, ceremonies (plaintext rows, opaque blobs) 🔒 ⟦tests: E-03-18, E-03-24, E-03-27, E-13d-1, E-06-50, E-06-53, E-06-55, E-06-60, E-06-61⟧
+### 2.2 Devices, keys, ceremonies (plaintext rows, opaque blobs) 🔒 ⟦tests: E-03-18, E-03-24, E-03-27, E-13d-1, E-06-50, E-06-53, E-06-55, E-06-60, E-06-61, E-06-62, E-06-63, E-06-64, E-06-65, E-06-66⟧
 
 ```sql
 devices(id uuid pk, user_id fk, pub_ed bytea, pub_x bytea, model, os,
         attestation jsonb null, status text, created_at, revoked_at)
 device_certs(device_id pk, cert bytea, issued_by_device uuid, issued_at)
+umk_public_keys(user_id, key_version int, pub_ed bytea not null check (octet_length(pub_ed)=32),
+        pub_x bytea check (pub_x is null or octet_length(pub_x)=32), created_at, superseded_at,
+        primary key (user_id, key_version))  -- both halves: 04 §6.3 compares BOTH byte-for-byte;
+                                              -- pub_x null only when no x half has been offered yet;
+                                              -- write-once by trigger (0010, 0012)
 
 wrapped_keys(id uuid pk, kind text check (kind in
         ('umk_for_device','bk_for_user','guardian_share','recovery_blob','escrow_blob')),

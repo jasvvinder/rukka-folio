@@ -12,6 +12,67 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-22 — M11: an *unchecked* rung stops looking like a confirmed one
+
+One `/lane` round, two lanes on disjoint directories, one separate `/gate` — **green on `push`**, nothing
+mechanical to fix. Both lanes cleared a desk item rather than opening new ground: the round was chosen from
+the desk, not the roadmap. **1540 app tests**; the gate cost 19 k, the lanes 188 k.
+
+The slice is small and the bug was not. Since 21 Sep made the live ladder's rung 1 permanently `unknown` —
+it has no producer and honestly says so — every locked-out person opening S11.6 was being offered *Use
+another phone* with the exact perceivable signature of a rung a real source had confirmed.
+
+**Changed**
+
+- **`features/recovery` S11.6 draws a third rendering** — the seam 🔒 at `recovery_ladder.dart:136-141`
+  forbids drawing an `unknown` rung as denied **and** forbids drawing it as confirmed. The screen had been
+  doing the second: `reason: null` with an unconditional live `onTap` made `.unknown` byte-identical to
+  `.available`. The row now stays takeable — chevron, live tap, `Semantics(button: true, enabled: true)` —
+  and says plainly that this phone could not find out, via `Icons.help_outline` and a sentence. The
+  difference is carried by words and shape, tint only reinforcing, so `F1-07-419` asserts it survives with
+  colour removed (07 §1 rule 3) by comparing a signature built from words, liveness and icon codepoints
+  alone. A constructor assert makes `reason` and `unknownNote` mutually exclusive, which keeps `reason` null
+  for an unknown rung and the landed `F1-07-416` honest. `F1-07-417` is **un-skipped** — landed `skip: true`
+  by LAD1 on 21 Sep because the fix lay in a directory that lane did not own.
+- **A second live defect in the same block** — `allBlocked` tested `!isAvailable`, not `isBlocked`. With rung
+  1 permanently `unknown`, S11.6 was showing *None of these work for me* above rows the person could still
+  take: an invitation to give up with a door open. It now counts refusals. `F1-07-420`.
+- **Doc markers (`docs/07-ui-flows.md`, `03-data-model.md`, `05-sync-protocol.md`)** — 07 §22 carries
+  `F1-07-382…415` and its stale `@M14` becomes M11; `umk_public_keys` is documented into 03 §2.2 and named in
+  05 §5's meta-table list, transcribed column-for-column from `0001` and `0012`. Orphan ids **84 → 48**.
+
+**Decided**
+
+- No `RecoveryRungBlocked` value was added for the unchecked case, and the ladder was not bent to compensate.
+  An unknown is not a blocked; the whole fix is in the screen and its row widget. Adding the enum value still
+  breaks the exhaustive switch and remains a tracked ⬜.
+
+**Open**
+
+- ⚠️ **13 §4.3 names five component states and no *unchecked* one**, and DESIGN-PACK R2.1 draws no unchecked
+  row — so the rendering shipped here is derived from 07 §1 rule 3 rather than drawn by the pack. It needs a
+  sixth state named (or S11.6 named as its exception) and a canvas row, so it is a design decision rather
+  than a lane's. PLAN desk 19.
+- ⚠️ **13 §5 F11 does not say whether *none* means refused or merely not-confirmed.** The conservative
+  reading is now pinned by `F1-07-420`; a ruling either ratifies it or flips one boolean. PLAN desk 20.
+- **Lane reports are never swept, so part of the owner's desk is already done.** Three `open` blockers proved
+  stale within minutes: `M11-CER2.json`'s two (WIRE1 closed both server-side in `87906c0`) and
+  `M11-LAD1.json`'s ⛔ *"STILL RED, RE-VERIFIED THIS SESSION"* on `ceremony_routes.dart:70/:95` — the class
+  has a `const` constructor at `ceremony_sessions.dart:103` and `bootstrap_wiring_test.dart` runs green. A
+  report's `open` is a snapshot at write time and nothing re-checks it. The board counts 22 unrouted
+  blockers. PLAN desk 21.
+- **Desk 17's premise no longer holds for the remainder.** DOC1 refused HELP1's suggested 13 §3.2 split and
+  was right to — checked against the test tree it is wrong in three places (`F1-07-396` is S17.3 not S17.2,
+  `399/400` are S17.4 not S17.3, `413/414` are route-table tests). The 48 surviving orphans are one family
+  (42 `F1-06` in `shared/sync`, 7 `F1-07` in `features/recovery`, 1 `E-06-67` on the server) for which
+  `M11-LAD1.json` worked out **no** mapping — fresh judgement, not transcription.
+
+**Commits**
+
+- _(pending — fill in next session)_
+
+---
+
 ## 2026-09-21 — M11/M12: the UMK x half reaches the wire, S17 help, and the ladder goes live
 
 The first real `/cycle`: three slices built, each reviewed read-only, every finding put to verifiers
@@ -114,7 +175,10 @@ this from three blind re-runs into three finishes — and is why desk item 13 ex
 
 **Commits**
 
-- _(pending — fill in next session)_
+- `87906c0` M11: the UMK x half reaches the wire — 0012 pub_x, ceremony discovery, the recovery-sheet routes
+- `2257eff` M11: the signed-record mirror in data (03 §3.1) — opaque payload and sig, dumb about meaning
+- `a5b6cf1` M11/M12: S17 help and the Help door, the live recovery ladder, guardians and the ceremony scope
+- `eb7f062` docs: M11/M12 rows, six new desk items and the changelog for 21 Sep
 
 ---
 
@@ -191,7 +255,7 @@ the week's quota *"which this script cannot see."*
 
 **Commits**
 
-- _(pending)_
+- `d4025df` env: the cycle — review, adversarial verification, a bounded repair loop and a day's ceiling (ADR 2026-09-21)
 
 
 ## 2026-09-19 — M11: the ladder is complete, and honestly inert (rounds 2–4)
