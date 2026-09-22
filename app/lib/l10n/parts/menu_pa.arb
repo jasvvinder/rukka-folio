@@ -1,10 +1,8 @@
 {
   "@@locale": "pa",
   "menu.title": "ਮੀਨੂ",
-
   "menu.reports.row.title": "ਰਿਪੋਰਟਾਂ",
   "menu.reports.row.subtitle": "ਦਿਨ ਦੀ ਕਿਤਾਬ, ਨਕਦ ਕਿਤਾਬ, ਸਟੇਟਮੈਂਟਾਂ, ਟ੍ਰਾਇਲ ਬੈਲੰਸ ਅਤੇ ਹੋਰ।",
-
   "menu.close_month.row.title": "ਮਹੀਨਾ ਬੰਦ ਕਰੋ",
   "menu.close_month.row.subtitle": "{month} ਖੁੱਲ੍ਹਾ · {count, plural, =0{ਬੰਦ ਕਰਨ ਲਈ ਤਿਆਰ} =1{1 ਚੀਜ਼ ਬਾਕੀ} other{{count} ਚੀਜ਼ਾਂ ਬਾਕੀ}}",
   "menu.close_month.row.subtitle.book": "{book} · {month} ਖੁੱਲ੍ਹਾ · {count, plural, =0{ਬੰਦ ਕਰਨ ਲਈ ਤਿਆਰ} =1{1 ਚੀਜ਼ ਬਾਕੀ} other{{count} ਚੀਜ਼ਾਂ ਬਾਕੀ}}",
@@ -12,30 +10,22 @@
   "menu.close_month.row.reason.closed": "{month} ਤੱਕ ਹਰ ਬਹੀ ਬੰਦ ਹੋ ਚੁੱਕੀ ਹੈ।",
   "menu.close_month.row.reason.none": "ਅਜੇ ਬੰਦ ਕਰਨ ਲਈ ਕੋਈ ਮਹੀਨਾ ਨਹੀਂ ਹੈ।",
   "menu.close_month.row.error": "ਬੰਦੀ ਦੀ ਜਾਂਚ ਨਹੀਂ ਹੋ ਸਕੀ · ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਲਈ ਦਬਾਓ",
-
   "menu.year_close.row.title": "ਸਾਲ-ਬੰਦੀ",
   "menu.year_close.row.subtitle": "ਵਿੱਤੀ ਸਾਲ {fy} ਪ੍ਰਮਾਣਿਤ ਕਰੋ",
   "menu.year_close.row.subtitle.book": "{book} · ਵਿੱਤੀ ਸਾਲ {fy} ਪ੍ਰਮਾਣਿਤ ਕਰੋ",
   "menu.year_close.row.reason": "ਵਿੱਤੀ ਸਾਲ ਖ਼ਤਮ ਹੋਣ ਤੋਂ ਬਾਅਦ ਹੀ ਪ੍ਰਮਾਣਿਤ ਕੀਤਾ ਜਾ ਸਕਦਾ ਹੈ।",
-
   "menu.books_members.row.title": "ਬਹੀਆਂ ਅਤੇ ਮੈਂਬਰ",
   "menu.books_members.row.subtitle": "ਤੁਹਾਡੀਆਂ ਬਹੀਆਂ, ਅਤੇ ਨਵਾਂ ਕਾਰੋਬਾਰ ਜੋੜਨਾ।",
-
   "menu.backup.row.title": "ਬੈਕਅੱਪ",
   "menu.backup.row.subtitle": "ਪਲੇਟਫਾਰਮ ਕੁੰਜੀ ਸਿੰਕ, ਆਪਣੀ ਰਿਕਵਰੀ ਸ਼ੀਟ ਸੰਭਾਲੋ, ਅਤੇ ਮਹੀਨਾਵਾਰ ਪੜ੍ਹਨਯੋਗ ਕਾਪੀ।",
-
   "menu.devices.row.title": "ਡਿਵਾਈਸਾਂ ਅਤੇ ਸੁਰੱਖਿਆ",
   "menu.devices.row.subtitle": "ਜੁੜੀਆਂ ਡਿਵਾਈਸਾਂ, ਗਾਰਡੀਅਨ, ਰਿਕਵਰੀ ਸ਼ੀਟ, ਆਟੋ-ਲਾਕ।",
-
   "menu.subscription.row.title": "ਸਬਸਕ੍ਰਿਪਸ਼ਨ",
-  "menu.subscription.row.reason": "ਸਬਸਕ੍ਰਿਪਸ਼ਨ ਅਜੇ ਨਹੀਂ ਬਣੀ।",
-
+  "menu.subscription.row.subtitle": "ਤੁਹਾਡਾ ਪਲਾਨ, ਨਵਿਆਉਣ ਦੀ ਤਾਰੀਖ਼, ਅਤੇ ਹਰ ਪਲਾਨ ਵਿੱਚ ਕੀ ਹੈ।",
   "menu.settings.row.title": "ਸੈਟਿੰਗਾਂ",
   "menu.settings.row.subtitle": "ਭਾਸ਼ਾ, ਦਿੱਖ, ਆਟੋ-ਲਾਕ, ਸ਼ੁਰੂਆਤੀ ਬਕਾਏ, ਐਕਸਪੋਰਟ।",
-
   "menu.help.row.title": "ਮਦਦ",
   "menu.help.row.subtitle": "ਸਵਾਲ-ਜਵਾਬ, ਸੰਪਰਕ, ਅਤੇ ਇੱਕ ਰਿਪੋਰਟ ਜੋ ਤੁਸੀਂ ਭੇਜ ਸਕਦੇ ਹੋ।",
-
   "menu.legal.row.title": "ਕਾਨੂੰਨੀ",
   "menu.legal.row.subtitle": "ਸ਼ਰਤਾਂ, ਪਰਦੇਦਾਰੀ, ਲਾਇਸੰਸ, ਅਤੇ ਅਸੀਂ ਕੀ ਦੇਖ ਸਕਦੇ ਹਾਂ ਤੇ ਕੀ ਨਹੀਂ।"
 }

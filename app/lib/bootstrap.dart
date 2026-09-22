@@ -61,6 +61,7 @@ import 'features/onboarding/onboarding_routes.dart';
 import 'features/partners/ledger_partners_port.dart';
 import 'features/partners/partners_routes.dart';
 import 'features/settings/settings_routes.dart';
+import 'features/subscription/subscription_routes.dart';
 import 'l10n/gen/app_localizations.dart';
 import 'main.dart';
 import 'shared/app_settings.dart';
@@ -715,6 +716,9 @@ Future<void> bootstrap() async {
           // features/recovery does not own.
           ...recoveryRoutes(onRestored: (context) => context.go(RkPaths.home)),
           ...settingsRoutes,
+          // S12/S12.1 — Menu → Subscription and Settings → Subscription
+          // (07 §20); the doors live in features/menu and features/settings.
+          ...subscriptionRoutes,
         ],
       );
 

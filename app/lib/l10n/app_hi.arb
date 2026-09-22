@@ -1971,6 +1971,66 @@
   "invite.step.phone": "उनका फ़ोन नंबर",
   "invite.step.roles": "वे क्या कर सकेंगे",
   "invite.title": "किसी को बुलाएँ",
+  "invoices.empty.body": "भुगतान के बाद बिल यहाँ आ जाता है। हर बिल आपको ईमेल और WhatsApp पर भी भेजा जाता है।",
+  "@invoices.empty.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "invoices.empty.title": "अभी कोई बिल नहीं",
+  "@invoices.empty.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "invoices.error": "आपके बिल इस फ़ोन पर पढ़े नहीं जा सके।",
+  "@invoices.error": {
+    "description": "machine-draft — native review M12"
+  },
+  "invoices.gst": "GST 18%",
+  "@invoices.gst": {
+    "description": "machine-draft — native review M12"
+  },
+  "invoices.kind.credit_note": "क्रेडिट नोट",
+  "@invoices.kind.credit_note": {
+    "description": "machine-draft — native review M12"
+  },
+  "invoices.kind.credit_note.body": "पैसे उसी खाते में वापस भेजे गए जिससे भुगतान हुआ था।",
+  "@invoices.kind.credit_note.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "invoices.kind.invoice": "बिल",
+  "@invoices.kind.invoice": {
+    "description": "machine-draft — native review M12"
+  },
+  "invoices.loading": "आपके बिल पढ़ रहे हैं",
+  "@invoices.loading": {
+    "description": "machine-draft — native review M12"
+  },
+  "invoices.pdf": "PDF",
+  "@invoices.pdf": {
+    "description": "machine-draft — native review M12"
+  },
+  "invoices.pdf.reason": "यह बिल आपको ईमेल और WhatsApp पर भेजा गया था। यहाँ कॉपी खोलना अभी नहीं बना।",
+  "@invoices.pdf.reason": {
+    "description": "machine-draft — native review M12"
+  },
+  "invoices.round_off": "राउंड ऑफ़",
+  "@invoices.round_off": {
+    "description": "machine-draft — native review M12"
+  },
+  "invoices.serial": "नं. {serial}",
+  "@invoices.serial": {
+    "description": "machine-draft — native review M12"
+  },
+  "invoices.taxable": "टैक्स से पहले की रक़म",
+  "@invoices.taxable": {
+    "description": "machine-draft — native review M12"
+  },
+  "invoices.title": "बिल",
+  "@invoices.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "invoices.total": "कुल",
+  "@invoices.total": {
+    "description": "machine-draft — native review M12"
+  },
   "ledger.entry.amend": "इसे सुधारें",
   "ledger.entry.amend.cancel": "रद्द करें",
   "ledger.entry.amend.date_note": "तारीख़ या नोट बदलें",
@@ -2317,6 +2377,66 @@
   "lock.pin.use_instead": "इसके बदले पिन भरें",
   "lock.pin.wrong": "यह पिन सही नहीं है",
   "lock.title": "अपनी बहियाँ खोलने के लिए अनलॉक करें",
+  "manage.cancel": "सब्सक्रिप्शन बंद करें",
+  "@manage.cancel": {
+    "description": "machine-draft — native review M12"
+  },
+  "manage.cancel.confirm.action": "हाँ, नवीनीकरण की तारीख़ पर बंद करें",
+  "@manage.cancel.confirm.action": {
+    "description": "machine-draft — native review M12"
+  },
+  "manage.cancel.confirm.body": "तब तक कुछ नहीं बदलता, और कुछ भी कभी मिटाया नहीं जाता। बाद में भी आप बहियाँ पढ़, एक्सपोर्ट और बंद कर सकते हैं।",
+  "@manage.cancel.confirm.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "manage.cancel.confirm.keep": "मेरा प्लान रहने दें",
+  "@manage.cancel.confirm.keep": {
+    "description": "machine-draft — native review M12"
+  },
+  "manage.cancel.confirm.title": "नवीनीकरण की तारीख़ पर बंद करें?",
+  "@manage.cancel.confirm.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "manage.cancel.failed": "यह पूरा नहीं हुआ। कुछ नहीं बदला — दोबारा कोशिश करें।",
+  "@manage.cancel.failed": {
+    "description": "machine-draft — native review M12"
+  },
+  "manage.cancel.ios.reason": "इस डिवाइस पर सब्सक्रिप्शन Apple संभालता है। इसे Settings में, अपने Apple Account के नीचे, Subscriptions से बंद करें। किसी भी हाल में आपकी बहियाँ पढ़ने और एक्सपोर्ट के लिए खुली रहती हैं।",
+  "@manage.cancel.ios.reason": {
+    "description": "machine-draft — native review M12"
+  },
+  "manage.cancel.unavailable": "ऐप से बंद करना अभी नहीं हो सकता — कोई भुगतान चैनल तय नहीं हुआ। प्लान के साथ जो भी हो, आपकी बहियाँ पढ़ने और एक्सपोर्ट के लिए खुली रहती हैं।",
+  "@manage.cancel.unavailable": {
+    "description": "machine-draft — native review M12"
+  },
+  "manage.cancel.what_continues": "बंद करेंगे तो प्लान नवीनीकरण की तारीख़ तक चलेगा। उसके बाद भी आप बहियाँ पढ़ सकते हैं, एक्सपोर्ट कर सकते हैं और बंद कर सकते हैं — सिर्फ़ नई एंट्री रुकती हैं।",
+  "@manage.cancel.what_continues": {
+    "description": "machine-draft — native review M12"
+  },
+  "manage.cancelled.body": "तब तक कुछ नहीं बदलता। बाद में भी आप बहियाँ पढ़, एक्सपोर्ट और बंद कर सकते हैं।",
+  "@manage.cancelled.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "manage.cancelled.title": "{date} को बंद होगा",
+  "@manage.cancelled.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "manage.change_plan": "प्लान बदलें",
+  "@manage.change_plan": {
+    "description": "machine-draft — native review M12"
+  },
+  "manage.change_plan.subtitle": "प्लान की तुलना करें और ऊपर या नीचे जाएँ।",
+  "@manage.change_plan.subtitle": {
+    "description": "machine-draft — native review M12"
+  },
+  "manage.included.label": "क्या-क्या शामिल है",
+  "@manage.included.label": {
+    "description": "machine-draft — native review M12"
+  },
+  "manage.title": "सब्सक्रिप्शन संभालें",
+  "@manage.title": {
+    "description": "machine-draft — native review M12"
+  },
   "members.cancel": "रद्द करें",
   "members.invite.action": "बुलाएँ",
   "members.invite.blocked": "सिर्फ़ एडमिन ही किसी को बुला सकता है, भूमिका बदल सकता है या हद तय कर सकता है।",
@@ -2395,7 +2515,7 @@
   "menu.reports.row.title": "रिपोर्टें",
   "menu.settings.row.subtitle": "भाषा, दिखावट, ऑटो-लॉक, शुरुआती बकाया, एक्सपोर्ट।",
   "menu.settings.row.title": "सेटिंग्स",
-  "menu.subscription.row.reason": "सब्सक्रिप्शन अभी नहीं बना।",
+  "menu.subscription.row.subtitle": "आपका प्लान, नवीनीकरण, और हर प्लान में क्या है।",
   "menu.subscription.row.title": "सब्सक्रिप्शन",
   "menu.title": "मेन्यू",
   "menu.year_close.row.reason": "वित्त वर्ष समाप्त होने के बाद ही उसे प्रमाणित किया जा सकता है।",
@@ -2718,6 +2838,162 @@
   "partners.solo.body": "इस बही का एक ही मालिक है, इसलिए बाँटने के लिए कुछ नहीं।",
   "partners.solo.title": "यहाँ दिखाने के लिए कुछ नहीं है।",
   "partners.title": "साझेदार",
+  "payment.change_method": "भुगतान का तरीक़ा बदलें",
+  "@payment.change_method": {
+    "description": "machine-draft — native review M12"
+  },
+  "payment.change_method.reason": "अभी दूसरा तरीक़ा नहीं चुना जा सकता — भुगतान चैनल तय नहीं हुआ।",
+  "@payment.change_method.reason": {
+    "description": "machine-draft — native review M12"
+  },
+  "payment.days_left": "{days, plural, =0{ठीक करने के लिए आज आख़िरी दिन है} =1{ठीक करने के लिए 1 दिन बाक़ी है} other{ठीक करने के लिए {days} दिन बाक़ी हैं}}",
+  "@payment.days_left": {
+    "description": "machine-draft — native review M12"
+  },
+  "payment.ends.body": "नई एंट्री रुक जाएँगी। पढ़ना, एक्सपोर्ट और बहियाँ बंद करना चलता रहेगा, और कुछ भी मिटाया नहीं जाता।",
+  "@payment.ends.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "payment.ends.label": "समय पूरा होने पर",
+  "@payment.ends.label": {
+    "description": "machine-draft — native review M12"
+  },
+  "payment.headline": "आपका नवीनीकरण का भुगतान पूरा नहीं हुआ।",
+  "@payment.headline": {
+    "description": "machine-draft — native review M12"
+  },
+  "payment.none.body": "यहाँ ठीक करने के लिए कुछ नहीं है। यह स्क्रीन तब दिखती है जब नवीनीकरण का भुगतान पूरा न हो।",
+  "@payment.none.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "payment.none.title": "भुगतान में कोई दिक्कत नहीं",
+  "@payment.none.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "payment.retry": "भुगतान दोबारा करें",
+  "@payment.retry": {
+    "description": "machine-draft — native review M12"
+  },
+  "payment.retry.done": "भुगतान भेज दिया। यहाँ दिखने में कुछ मिनट लग सकते हैं।",
+  "@payment.retry.done": {
+    "description": "machine-draft — native review M12"
+  },
+  "payment.retry.failed": "यह पूरा नहीं हुआ। कोई पैसा नहीं कटा — दोबारा कोशिश करें।",
+  "@payment.retry.failed": {
+    "description": "machine-draft — native review M12"
+  },
+  "payment.retry.unavailable": "ऐप से दोबारा कोशिश अभी नहीं हो सकती — कोई भुगतान चैनल तय नहीं हुआ।",
+  "@payment.retry.unavailable": {
+    "description": "machine-draft — native review M12"
+  },
+  "payment.title": "भुगतान में दिक्कत",
+  "@payment.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.addon_seats.reason": "अतिरिक्त सीटें चेकआउट पर ली जाती हैं, जो अभी नहीं बना है।",
+  "@plans.addon_seats.reason": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.addon_seats.title": "अतिरिक्त सदस्य",
+  "@plans.addon_seats.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.choose": "यह प्लान चुनें",
+  "@plans.choose": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.choose.reason": "चेकआउट अभी नहीं बना है।",
+  "@plans.choose.reason": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.current": "आपका प्लान",
+  "@plans.current": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.cycle.annual": "सालाना",
+  "@plans.cycle.annual": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.cycle.label": "भुगतान कैसे",
+  "@plans.cycle.label": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.cycle.monthly": "मासिक",
+  "@plans.cycle.monthly": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.cycle.saving": "सालाना — {percent}% बचत",
+  "@plans.cycle.saving": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.gst.gateway": "कारोबार के लिए ले रहे हैं? चेकआउट पर कूपन और GSTIN दिए जा सकते हैं।",
+  "@plans.gst.gateway": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.gst.ios": "कारोबार के लिए ले रहे हैं? GST बिल rukka.in से लें।",
+  "@plans.gst.ios": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.large_org": "15 से ज़्यादा सदस्य? अभी कोई प्लान इतना बड़ा नहीं — बड़ी संस्थाओं के लिए अलग बैंड असली कमेटियों के साथ तय हो रहा है। आपको क़ीमत बताई जाएगी, मना कभी नहीं किया जाएगा।",
+  "@plans.large_org": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.limit.books": "{count, plural, =1{1 कारोबारी बही} other{{count} कारोबारी बहियों तक}}",
+  "@plans.limit.books": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.limit.books.unlimited": "जितनी बहियाँ चाहिए",
+  "@plans.limit.books.unlimited": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.limit.devices": "{count, plural, =1{1 फ़ोन} other{{count} फ़ोन तक}}",
+  "@plans.limit.devices": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.limit.exports.clean": "हर रूप में साफ़ एक्सपोर्ट",
+  "@plans.limit.exports.clean": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.limit.exports.watermarked": "PDF रिपोर्ट पर वॉटरमार्क होता है; CSV और Excel पर कभी नहीं।",
+  "@plans.limit.exports.watermarked": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.limit.members": "{count, plural, =1{1 सदस्य} other{{count} सदस्यों तक}}",
+  "@plans.limit.members": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.limit.storage.gb": "{count} GB जगह",
+  "@plans.limit.storage.gb": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.limit.storage.mb": "{count} MB जगह",
+  "@plans.limit.storage.mb": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.never_locked": "आपकी बहियाँ कभी बंद नहीं होतीं। भुगतान रुक जाए तो भी सब कुछ पढ़ा और एक्सपोर्ट किया जा सकता है।",
+  "@plans.never_locked": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.popular": "लोकप्रिय",
+  "@plans.popular": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.price.free": "हमेशा मुफ़्त",
+  "@plans.price.free": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.price.month": "{price} प्रति माह",
+  "@plans.price.month": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.price.year": "{price} प्रति वर्ष",
+  "@plans.price.year": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.title": "प्लान",
+  "@plans.title": {
+    "description": "machine-draft — native review M12"
+  },
   "recovery.approve.approve": "मंज़ूरी दें",
   "@recovery.approve.approve": {
     "description": "machine-draft — native review M12"
@@ -3050,6 +3326,115 @@
   "recovery.silent.title": "आपके बही-खाते वापस आ गए",
   "reports.account_statement.row.title": "खाता स्टेटमेंट (कोई भी)",
   "reports.advances_ageing.row.title": "एडवांस की आयु",
+  "reports.amount_words.crore": "करोड़",
+  "reports.amount_words.hundred": "सौ",
+  "reports.amount_words.lakh": "लाख",
+  "reports.amount_words.n0": "शून्य",
+  "@reports.amount_words.n0": {
+    "description": "machine-draft — native review M12"
+  },
+  "reports.amount_words.n1": "एक",
+  "reports.amount_words.n10": "दस",
+  "reports.amount_words.n11": "ग्यारह",
+  "reports.amount_words.n12": "बारह",
+  "reports.amount_words.n13": "तेरह",
+  "reports.amount_words.n14": "चौदह",
+  "reports.amount_words.n15": "पंद्रह",
+  "reports.amount_words.n16": "सोलह",
+  "reports.amount_words.n17": "सत्रह",
+  "reports.amount_words.n18": "अठारह",
+  "reports.amount_words.n19": "उन्नीस",
+  "reports.amount_words.n2": "दो",
+  "reports.amount_words.n20": "बीस",
+  "reports.amount_words.n21": "इक्कीस",
+  "reports.amount_words.n22": "बाईस",
+  "reports.amount_words.n23": "तेईस",
+  "reports.amount_words.n24": "चौबीस",
+  "reports.amount_words.n25": "पच्चीस",
+  "reports.amount_words.n26": "छब्बीस",
+  "reports.amount_words.n27": "सत्ताईस",
+  "reports.amount_words.n28": "अट्ठाईस",
+  "reports.amount_words.n29": "उनतीस",
+  "reports.amount_words.n3": "तीन",
+  "reports.amount_words.n30": "तीस",
+  "reports.amount_words.n31": "इकतीस",
+  "reports.amount_words.n32": "बत्तीस",
+  "reports.amount_words.n33": "तैंतीस",
+  "reports.amount_words.n34": "चौंतीस",
+  "reports.amount_words.n35": "पैंतीस",
+  "reports.amount_words.n36": "छत्तीस",
+  "reports.amount_words.n37": "सैंतीस",
+  "reports.amount_words.n38": "अड़तीस",
+  "reports.amount_words.n39": "उनतालीस",
+  "reports.amount_words.n4": "चार",
+  "reports.amount_words.n40": "चालीस",
+  "reports.amount_words.n41": "इकतालीस",
+  "reports.amount_words.n42": "बयालीस",
+  "reports.amount_words.n43": "तैंतालीस",
+  "reports.amount_words.n44": "चवालीस",
+  "reports.amount_words.n45": "पैंतालीस",
+  "reports.amount_words.n46": "छियालीस",
+  "reports.amount_words.n47": "सैंतालीस",
+  "reports.amount_words.n48": "अड़तालीस",
+  "reports.amount_words.n49": "उनचास",
+  "reports.amount_words.n5": "पाँच",
+  "reports.amount_words.n50": "पचास",
+  "reports.amount_words.n51": "इक्यावन",
+  "reports.amount_words.n52": "बावन",
+  "reports.amount_words.n53": "तिरपन",
+  "reports.amount_words.n54": "चौवन",
+  "reports.amount_words.n55": "पचपन",
+  "reports.amount_words.n56": "छप्पन",
+  "reports.amount_words.n57": "सत्तावन",
+  "reports.amount_words.n58": "अट्ठावन",
+  "reports.amount_words.n59": "उनसठ",
+  "reports.amount_words.n6": "छह",
+  "reports.amount_words.n60": "साठ",
+  "reports.amount_words.n61": "इकसठ",
+  "reports.amount_words.n62": "बासठ",
+  "reports.amount_words.n63": "तिरसठ",
+  "reports.amount_words.n64": "चौंसठ",
+  "reports.amount_words.n65": "पैंसठ",
+  "reports.amount_words.n66": "छियासठ",
+  "reports.amount_words.n67": "सड़सठ",
+  "reports.amount_words.n68": "अड़सठ",
+  "reports.amount_words.n69": "उनहत्तर",
+  "reports.amount_words.n7": "सात",
+  "reports.amount_words.n70": "सत्तर",
+  "reports.amount_words.n71": "इकहत्तर",
+  "reports.amount_words.n72": "बहत्तर",
+  "reports.amount_words.n73": "तिहत्तर",
+  "reports.amount_words.n74": "चौहत्तर",
+  "reports.amount_words.n75": "पचहत्तर",
+  "reports.amount_words.n76": "छिहत्तर",
+  "reports.amount_words.n77": "सतहत्तर",
+  "reports.amount_words.n78": "अठहत्तर",
+  "reports.amount_words.n79": "उन्यासी",
+  "reports.amount_words.n8": "आठ",
+  "reports.amount_words.n80": "अस्सी",
+  "reports.amount_words.n81": "इक्यासी",
+  "reports.amount_words.n82": "बयासी",
+  "reports.amount_words.n83": "तिरासी",
+  "reports.amount_words.n84": "चौरासी",
+  "reports.amount_words.n85": "पचासी",
+  "reports.amount_words.n86": "छियासी",
+  "reports.amount_words.n87": "सतासी",
+  "reports.amount_words.n88": "अठासी",
+  "reports.amount_words.n89": "नवासी",
+  "reports.amount_words.n9": "नौ",
+  "reports.amount_words.n90": "नब्बे",
+  "reports.amount_words.n91": "इक्यानवे",
+  "reports.amount_words.n92": "बानवे",
+  "reports.amount_words.n93": "तिरानवे",
+  "reports.amount_words.n94": "चौरानवे",
+  "reports.amount_words.n95": "पचानवे",
+  "reports.amount_words.n96": "छियानवे",
+  "reports.amount_words.n97": "सत्तानवे",
+  "reports.amount_words.n98": "अट्ठानवे",
+  "reports.amount_words.n99": "निन्यानवे",
+  "reports.amount_words.rupees_only": "रुपये {amount} पूरे",
+  "reports.amount_words.rupees_paise_only": "रुपये {rupees} और पैसे {paise} पूरे",
+  "reports.amount_words.thousand": "हज़ार",
   "reports.business_comparison.row.title": "व्यवसायों की तुलना",
   "reports.cash_book.row.title": "कैश बुक",
   "reports.day_book.row.title": "डे बुक",
@@ -3096,7 +3481,10 @@
   "reports.reconciliation.unconfirmed.detail": "दूसरी किताब आपके पास नहीं है, इसलिए इस तरफ़ की जाँच नहीं हो सकती। यह गलती नहीं है।",
   "reports.row.reason": "यह रिपोर्ट अभी बनी नहीं है।",
   "reports.statement.account.label": "खाता",
+  "reports.statement.closing_cd": "अंतिम बाकी c/d",
+  "reports.statement.closing_words.label": "अंतिम बाकी शब्दों में",
   "reports.statement.file_name": "statement-{year}.{extension}",
+  "reports.statement.opening_bd": "शुरुआती बाकी b/d",
   "reports.statement.report.title": "खाता स्टेटमेंट",
   "reports.title": "रिपोर्टें",
   "reports.trial_balance.row.title": "ट्रायल बैलेंस",
@@ -3144,7 +3532,7 @@
   "settings.opening_balances.row.title": "शुरुआती बकाया",
   "settings.section.books": "आपकी बहियाँ",
   "settings.section.general": "सामान्य",
-  "settings.subscription.row.reason": "सब्सक्रिप्शन प्रबंधन अभी नहीं बना।",
+  "settings.subscription.row.subtitle": "आपका प्लान, नवीनीकरण, और हर प्लान में क्या है।",
   "settings.subscription.row.title": "सब्सक्रिप्शन",
   "settings.title": "सेटिंग्स",
   "splash.opening": "आपके बही-खाते खोल रहे हैं।",
@@ -3158,6 +3546,94 @@
   "subscription.banner.offline_grace.title": "एंट्री जारी रखने के लिए एक बार कनेक्ट करें",
   "subscription.banner.read_only.body": "आपका प्लान समाप्त हो गया है। आप अब भी बहियाँ पढ़ सकते हैं, एक्सपोर्ट कर सकते हैं और बंद कर सकते हैं।",
   "subscription.banner.read_only.title": "आपकी बहियाँ अभी सिर्फ़ पढ़ने के लिए हैं",
+  "subscription.error": "इस फ़ोन पर आपका प्लान नहीं पढ़ा जा सका।",
+  "@subscription.error": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.loading": "आपका प्लान पढ़ा जा रहा है",
+  "@subscription.loading": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.members.label": "सदस्य",
+  "@subscription.members.label": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.members.value": "{total} में से {used}",
+  "@subscription.members.value": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.members.value_unlimited": "{used}, कोई सीमा नहीं",
+  "@subscription.members.value_unlimited": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.plan.family": "फैमिली",
+  "@subscription.plan.family": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.plan.family_plus": "फैमिली+",
+  "@subscription.plan.family_plus": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.plan.free": "मुफ़्त",
+  "@subscription.plan.free": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.plan.label": "आपका प्लान",
+  "@subscription.plan.label": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.plan.personal": "पर्सनल",
+  "@subscription.plan.personal": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.renewal.label": "नवीनीकरण की तारीख़",
+  "@subscription.renewal.label": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.renewal.none": "मुफ़्त प्लान ख़त्म नहीं होता, इसलिए नवीनीकरण के लिए कुछ नहीं है।",
+  "@subscription.renewal.none": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.row.invoices.subtitle": "आपके बिल और क्रेडिट नोट",
+  "@subscription.row.invoices.subtitle": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.row.invoices.title": "बिल",
+  "@subscription.row.invoices.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.row.manage.subtitle": "नवीनीकरण की तारीख़, क्या-क्या शामिल है, बदलें या बंद करें",
+  "@subscription.row.manage.subtitle": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.row.manage.title": "सब्सक्रिप्शन संभालें",
+  "@subscription.row.manage.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.row.payment.subtitle": "नवीनीकरण का भुगतान जो पूरा नहीं हुआ",
+  "@subscription.row.payment.subtitle": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.row.payment.title": "भुगतान में दिक्कत",
+  "@subscription.row.payment.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.row.plans.subtitle": "प्लान की तुलना करें और देखें कि हर एक में क्या है।",
+  "@subscription.row.plans.subtitle": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.row.plans.title": "प्लान देखें",
+  "@subscription.row.plans.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.row.read_only.reason": "यह स्क्रीन अभी नहीं बनी। पढ़ना और एक्सपोर्ट कभी नहीं रुकते।",
+  "@subscription.row.read_only.reason": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.row.read_only.title": "सिर्फ़ पढ़ने वाला तरीक़ा",
+  "@subscription.row.read_only.title": {
+    "description": "machine-draft — native review M12"
+  },
   "subscription.sheet.book_full.blocked": "यह बही प्लान की सीमा तक पहुँच गई है, इसलिए यह एंट्री अभी सहेजी नहीं जा सकती।",
   "subscription.sheet.book_full.still_works": "आपने जो लिखा है वह सुरक्षित है। पढ़ना और एक्सपोर्ट चलते रहेंगे।",
   "subscription.sheet.book_full.title": "यह बही भर गई है",
@@ -3165,6 +3641,42 @@
   "subscription.sheet.read_only.blocked": "आपका प्लान समाप्त हो गया है, इसलिए यह एंट्री अभी सहेजी नहीं जा सकती।",
   "subscription.sheet.read_only.still_works": "आपने जो लिखा है वह सुरक्षित है। आप अब भी बहियाँ पढ़ सकते हैं, एक्सपोर्ट कर सकते हैं और बंद कर सकते हैं।",
   "subscription.sheet.read_only.title": "नई एंट्री रुकी हुई हैं",
+  "subscription.state.active": "चालू",
+  "@subscription.state.active": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.state.active.body": "सब कुछ चल रहा है — एंट्री, सिंक, रिपोर्ट और एक्सपोर्ट।",
+  "@subscription.state.active.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.state.dunning": "भुगतान नहीं हुआ",
+  "@subscription.state.dunning": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.state.dunning.body": "नवीनीकरण का भुगतान नहीं हो सका। दोबारा कोशिश होते समय एंट्री चलती रहती है।",
+  "@subscription.state.dunning.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.state.offline_grace": "हाल में जाँच नहीं हुई",
+  "@subscription.state.offline_grace": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.state.read_only": "सिर्फ़ पढ़ने के लिए",
+  "@subscription.state.read_only": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.state.trial": "मुफ़्त ट्रायल",
+  "@subscription.state.trial": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.state.trial.body": "आप 30 दिन के फैमिली ट्रायल पर हैं। प्लान चुनने तक कोई पैसा नहीं लगता।",
+  "@subscription.state.trial.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.title": "सब्सक्रिप्शन",
+  "@subscription.title": {
+    "description": "machine-draft — native review M12"
+  },
   "suspended.banner": "यह फ़ोन रोका गया है — सिर्फ़ पढ़ने के लिए। सिंक रुक गया है।",
   "suspended.body": "हमें बताया गया कि यह फ़ोन हटाया गया है, पर हम अभी इसकी पुष्टि नहीं कर सके। तब तक आप अपने बही-खाते पढ़ सकते हैं पर कुछ जोड़ नहीं सकते। इस फ़ोन से कुछ भी मिटाया नहीं गया है।",
   "suspended.devices_link": "डिवाइस और सुरक्षा",

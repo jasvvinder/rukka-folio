@@ -37,6 +37,7 @@ class SettingsScreen extends StatelessWidget {
     this.onAppearanceChanged,
     required this.autoLockIdle,
     required this.autoLockBackground,
+    this.onOpenSubscription,
   });
 
   /// The app's current locale (en/pa/hi) — shown as the Language row's value.
@@ -59,6 +60,12 @@ class SettingsScreen extends StatelessWidget {
 
   /// Background timeout value (default 2 min, 06 §4.5).
   final Duration autoLockBackground;
+
+  /// Pushes S12 Subscription (features/subscription, 07 §20). Nullable on
+  /// this screen's own convention — every callback here is, and a null one
+  /// leaves the row showing what it is without the ability to open it from
+  /// this pump. The route always supplies it, so the shipped row is live.
+  final VoidCallback? onOpenSubscription;
 
   @override
   Widget build(BuildContext context) {
@@ -132,9 +139,14 @@ class SettingsScreen extends StatelessWidget {
                 subtitle: l10n.settingsExportRowSubtitle,
                 reason: l10n.settingsExportRowReason,
               ),
-              SettingsDisabledRow(
+              // Subscription is live: `features/subscription` landed S12 and
+              // S12.1 (22 Sep) and `subscriptionRoutes` is mounted, so the row
+              // opens the hub rather than stating a reason that stopped being
+              // true.
+              SettingsRow(
                 title: l10n.settingsSubscriptionRowTitle,
-                reason: l10n.settingsSubscriptionRowReason,
+                subtitle: l10n.settingsSubscriptionRowSubtitle,
+                onTap: onOpenSubscription,
               ),
               SettingsDisabledRow(
                 title: l10n.settingsAboutRowTitle,

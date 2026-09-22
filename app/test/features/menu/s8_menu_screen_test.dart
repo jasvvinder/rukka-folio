@@ -46,6 +46,7 @@ void main() {
     VoidCallback? onOpenBooks,
     VoidCallback? onOpenBackup,
     VoidCallback? onOpenDevices,
+    VoidCallback? onOpenSubscription,
     VoidCallback? onOpenSettings,
     VoidCallback? onOpenHelp,
     VoidCallback? onOpenLegal,
@@ -54,6 +55,7 @@ void main() {
     onOpenBooks: onOpenBooks ?? () {},
     onOpenBackup: onOpenBackup ?? () {},
     onOpenDevices: onOpenDevices ?? () {},
+    onOpenSubscription: onOpenSubscription ?? () {},
     onOpenSettings: onOpenSettings ?? () {},
     onOpenHelp: onOpenHelp ?? () {},
     onOpenLegal: onOpenLegal ?? () {},
@@ -117,24 +119,25 @@ void main() {
       (tester) async {
         await pumpRk(tester, buildScreen());
 
-        // 3 disabled rows: Close the month, Year close (with no book
+        // 2 disabled rows: Close the month and Year close (with no book
         // holding an ended, uncertified year — the default this helper
-        // builds) and Subscription — each pairs the clock icon with a
-        // reason. Books & members left this list when S9 landed (it opens
-        // `features/books`, the Menu → Books entry point 07 §5.7 🔒 gives
-        // S9.5), Legal left it when `features/legal` landed S18 and its four
-        // pages, and **Help** left it when `features/help` landed S17 and
-        // its three pages: a reason that has stopped being true is a
-        // sentence the screen states falsely, so the row became live.
-        expect(find.byIcon(Icons.schedule), findsNWidgets(3));
+        // builds), each pairing the clock icon with a reason. Books &
+        // members left this list when S9 landed (it opens `features/books`,
+        // the Menu → Books entry point 07 §5.7 🔒 gives S9.5), Legal left it
+        // when `features/legal` landed S18 and its four pages, **Help** left
+        // it when `features/help` landed S17 and its three pages, and
+        // **Subscription** left it when `features/subscription` landed S12
+        // and S12.1: a reason that has stopped being true is a sentence the
+        // screen states falsely, so each row became live in turn.
+        expect(find.byIcon(Icons.schedule), findsNWidgets(2));
       },
     );
 
     testWidgets(
-      'F1-07-77 the 7 rows with a destination today (Reports, Books & members, Backup, Devices & security, Settings, Help, Legal) each reach their own callback, never the wrong one',
+      'F1-07-77 the 8 rows with a destination today (Reports, Books & members, Backup, Devices & security, Subscription, Settings, Help, Legal) each reach their own callback, never the wrong one',
       (tester) async {
         var reports = 0, books = 0, backup = 0, devices = 0, settings = 0;
-        var legal = 0, help = 0;
+        var legal = 0, help = 0, subscription = 0;
         await pumpRk(
           tester,
           buildScreen(
@@ -142,6 +145,7 @@ void main() {
             onOpenBooks: () => books++,
             onOpenBackup: () => backup++,
             onOpenDevices: () => devices++,
+            onOpenSubscription: () => subscription++,
             onOpenSettings: () => settings++,
             onOpenHelp: () => help++,
             onOpenLegal: () => legal++,
@@ -152,6 +156,10 @@ void main() {
         await tester.tap(find.text('Books & members'));
         await tester.tap(find.text('Backup'));
         await tester.tap(find.text('Devices & security'));
+        await tester.ensureVisible(find.text('Subscription'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Subscription'));
+        await tester.pumpAndSettle();
         await tester.tap(find.text('Settings'));
         // Help and Legal are the last two rows of a scrolling list and both
         // carry a subtitle, so they sit below the test surface.
@@ -174,6 +182,7 @@ void main() {
         expect(settings, 1);
         expect(help, 1);
         expect(legal, 1);
+        expect(subscription, 1);
       },
     );
 

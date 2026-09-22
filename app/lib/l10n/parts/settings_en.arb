@@ -4,7 +4,6 @@
   "@settings.title": {
     "description": "S13 Settings app bar title (07 §16)."
   },
-
   "settings.section.general": "General",
   "@settings.section.general": {
     "description": "S13 section header over Language and Appearance (07 §16 row order)."
@@ -45,7 +44,6 @@
   "@settings.appearance.option.dark": {
     "description": "Appearance three-way control (ADR 2026-09-05f §H12)."
   },
-
   "settings.section.books": "Your books",
   "@settings.section.books": {
     "description": "S13 section header (07 §16, ADR 2026-09-03b ruling 2 names this exact path: Settings → Your books → Opening balances)."
@@ -74,7 +72,6 @@
   "@settings.opening_balances.row.reason": {
     "description": "S13 disabled-with-reason line: the S2.4 adjustment wizard behind this door has not landed. ⚠️ SPEC: not a plan/paywall reason — this door is the correction wizard for an existing book, distinct from S0.6b's onboarding opening-balances screen."
   },
-
   "settings.categories.row.title": "Categories",
   "@settings.categories.row.title": {
     "description": "S13 row (07 §16) — the category tree editor."
@@ -83,7 +80,6 @@
   "@settings.categories.row.reason": {
     "description": "S13 disabled-with-reason line: no category tree editor screen exists yet."
   },
-
   "settings.notifications.row.title": "Notifications",
   "@settings.notifications.row.title": {
     "description": "S13 row (07 §16) — notification preferences."
@@ -92,7 +88,6 @@
   "@settings.notifications.row.reason": {
     "description": "S13 disabled-with-reason line: 07 §17 notification catalog is marked @M7, not built yet."
   },
-
   "settings.autolock.row.title": "Auto-lock",
   "@settings.autolock.row.title": {
     "description": "S13 row (07 §16) — shows both auto-lock values (ADR 2026-09-05 §7). Read-only display in this lane; the lock feature (concurrent lane) owns changing it."
@@ -101,21 +96,24 @@
   "@settings.autolock.row.idle": {
     "description": "S13 auto-lock idle value (ADR 2026-09-05 §7, default 5 min foreground inactivity).",
     "placeholders": {
-      "minutes": {"type": "int"}
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "settings.autolock.row.background": "{minutes, plural, =1{Locks after 1 minute in the background} other{Locks after {minutes} minutes in the background}}",
   "@settings.autolock.row.background": {
     "description": "S13 auto-lock background value (06 §4.5, default 2 min).",
     "placeholders": {
-      "minutes": {"type": "int"}
+      "minutes": {
+        "type": "int"
+      }
     }
   },
   "settings.autolock.row.reason": "Adjusted from Devices & security once that screen is wired in.",
   "@settings.autolock.row.reason": {
     "description": "S13 disabled-with-reason line: this row is read-only display here — the lock feature (a concurrent lane) owns the control that changes these values."
   },
-
   "settings.export.row.title": "Export everything",
   "@settings.export.row.title": {
     "description": "S13 row (07 §16, 06 §9.2) — full decrypted export, generated on device."
@@ -128,16 +126,14 @@
   "@settings.export.row.reason": {
     "description": "S13 disabled-with-reason line: 06 §9.2 makes export always available in policy, but no export screen exists in the app yet. ⚠️ SPEC: the reason names the missing screen, never a plan or payment gate — the row must never read as paywalled."
   },
-
   "settings.subscription.row.title": "Subscription",
   "@settings.subscription.row.title": {
     "description": "S13 row (07 §16, 07 §20 S12.x, @M13)."
   },
-  "settings.subscription.row.reason": "Subscription management has not been built yet.",
-  "@settings.subscription.row.reason": {
-    "description": "S13 disabled-with-reason line: 07 §20 S12.x is marked @M13."
+  "settings.subscription.row.subtitle": "Your plan, renewal, and what each plan includes.",
+  "@settings.subscription.row.subtitle": {
+    "description": "S13 Subscription row description (07 §16, 07 §20). Live since M13: the row opens S12."
   },
-
   "settings.about.row.title": "About & support",
   "@settings.about.row.title": {
     "description": "S13 last row (07 §16) — about/support (WhatsApp)."

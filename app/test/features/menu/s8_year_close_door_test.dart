@@ -37,6 +37,7 @@ void main() {
     onOpenDevices: () {},
     onOpenSettings: () {},
     onOpenHelp: () {},
+    onOpenSubscription: () {},
     onOpenLegal: () {},
     yearCloseBooks: books,
     onOpenYearClose: onOpenYearClose,

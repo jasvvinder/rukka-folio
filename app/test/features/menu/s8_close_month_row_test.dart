@@ -117,6 +117,7 @@ void main() {
     onOpenDevices: () {},
     onOpenSettings: () {},
     onOpenHelp: () {},
+    onOpenSubscription: () {},
     onOpenLegal: () {},
     closeMonth: close,
     onOpenCloseMonth: onOpenCloseMonth,

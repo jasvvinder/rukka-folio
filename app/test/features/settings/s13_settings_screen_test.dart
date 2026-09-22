@@ -139,7 +139,10 @@ void main() {
 
         // Every disabled row pairs its dimmed state with an icon AND a
         // written reason (07 §1 rule 3: colour never alone).
-        expect(find.byIcon(Icons.schedule), findsNWidgets(8));
+        // 7, not 8: **Subscription** left this list when
+        // `features/subscription` landed S12 and S12.1 — a reason that has
+        // stopped being true is a sentence the screen states falsely.
+        expect(find.byIcon(Icons.schedule), findsNWidgets(7));
         expect(
           find.text('Not built yet — coming in a later update.'),
           findsOneWidget,
@@ -207,7 +210,14 @@ void main() {
           find.textContaining('Always available, on every plan'),
           findsOneWidget,
         );
-        expect(find.textContaining('plan'), findsNWidgets(1));
+        // Export's own reason names the missing screen, never a plan.
+        expect(
+          find.text('The export screen has not been built yet.'),
+          findsOneWidget,
+        );
+        // Two rows mention a plan now: Export's subtitle, saying it is NOT
+        // plan-gated, and the Subscription row — the one row that should.
+        expect(find.textContaining('plan'), findsNWidgets(2));
       },
     );
 

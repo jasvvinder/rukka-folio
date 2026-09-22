@@ -5763,6 +5763,66 @@
   "@invite.title": {
     "description": "S9.1 title (13 §3.2 row S9.1)."
   },
+  "invoices.empty.body": "An invoice appears here after a payment. Every one is also sent to you by email and on WhatsApp.",
+  "@invoices.empty.body": {
+    "description": "S12.6 empty body 🔒 — 08 §3.1: the invoice is delivered by email AND WhatsApp."
+  },
+  "invoices.empty.title": "No invoices yet",
+  "@invoices.empty.title": {
+    "description": "S12.6 empty state (13 §4.3). Also the honest state today: nothing in the app issues an invoice, because the gateway does and on IAP Apple or Google are merchant of record (ADR 2026-09-05g §8 🔒)."
+  },
+  "invoices.error": "Your invoices could not be read on this phone.",
+  "@invoices.error": {
+    "description": "S12.6 error. Says the READ failed, never that there are none."
+  },
+  "invoices.gst": "GST at 18%",
+  "@invoices.gst": {
+    "description": "S12.6 tax split line 🔒 — 08 §3.1 and ADR 2026-09-05g §10 fix the rate at 18 %. Whether this is one IGST line or two half lines depends on the recipient state, captured for GSTIN buyers only (06 §9.1); the list carries no state, so the combined figure is shown."
+  },
+  "invoices.kind.credit_note": "Credit note",
+  "@invoices.kind.credit_note": {
+    "description": "S12.6 row kind 🔒 — ADR 2026-09-05g §10: a refund is a CREDIT NOTE, shown as such and never as a negative invoice."
+  },
+  "invoices.kind.credit_note.body": "Money returned to the account you paid from.",
+  "@invoices.kind.credit_note.body": {
+    "description": "S12.6 credit-note line 🔒 — ADR 2026-09-05g §11: refunds go only to the original instrument."
+  },
+  "invoices.kind.invoice": "Invoice",
+  "@invoices.kind.invoice": {
+    "description": "S12.6 row kind, in words beside its icon — never colour alone (07 §1 rule 3)."
+  },
+  "invoices.loading": "Reading your invoices",
+  "@invoices.loading": {
+    "description": "S12.6 skeleton label, announced (11 §4.5 — never a spinner)."
+  },
+  "invoices.pdf": "PDF",
+  "@invoices.pdf": {
+    "description": "S12.6 per-row PDF door (13 §3.2: list + PDF)."
+  },
+  "invoices.pdf.reason": "This invoice was sent to you by email and on WhatsApp. Opening a copy here is not built yet.",
+  "@invoices.pdf.reason": {
+    "description": "S12.6 disabled-with-reason (07 §1 rule 6) 🔒 — 08 §3.1 delivers the invoice by email AND WhatsApp, and nothing in the app produces a PDF invoice, so the row names the two channels that do have it instead of a door that does not exist."
+  },
+  "invoices.round_off": "Round off",
+  "@invoices.round_off": {
+    "description": "S12.6 tax split line 🔒 — ADR 2026-09-05g §10: round_off to the rupee, SHOWN AS A LINE."
+  },
+  "invoices.serial": "No. {serial}",
+  "@invoices.serial": {
+    "description": "S12.6 🔒 — ADR 2026-09-05g §10: a continuous per-FY serial, printed exactly as the issuer wrote it."
+  },
+  "invoices.taxable": "Taxable value",
+  "@invoices.taxable": {
+    "description": "S12.6 tax split line — the total less GST (ADR 2026-09-05g §10 🔒: prices are integer paise, GST-inclusive at 18 %, split half-up to the paisa)."
+  },
+  "invoices.title": "Invoices",
+  "@invoices.title": {
+    "description": "S12.6 app-bar title (13 §3.2 row S12.6)."
+  },
+  "invoices.total": "Total",
+  "@invoices.total": {
+    "description": "S12.6 tax split line — the rupee-rounded document total."
+  },
   "ledger.entry.amend": "Correct this",
   "@ledger.entry.amend": {
     "description": "S4.1 primary correction action — amend (02 §5); plain words, never 'amend' as jargon."
@@ -6544,6 +6604,66 @@
   "@lock.title": {
     "description": "S15 app lock heading under the mark (07 §5.6)."
   },
+  "manage.cancel": "Cancel subscription",
+  "@manage.cancel": {
+    "description": "S12.3 — the quiet Cancel of DESIGN-PACK §11 (S12.3) 🔒. Quiet: a text button, never the page's primary action."
+  },
+  "manage.cancel.confirm.action": "Yes, cancel at the renewal date",
+  "@manage.cancel.confirm.action": {
+    "description": "S12.3 confirm button — the destructive-sounding word carries its own limit."
+  },
+  "manage.cancel.confirm.body": "Nothing changes until then, and nothing is ever deleted. Afterwards you can still read, export and close your books.",
+  "@manage.cancel.confirm.body": {
+    "description": "S12.3 confirmation body 🔒 — 08 §1 principle 4, 08 §3 (downgrade deletes nothing)."
+  },
+  "manage.cancel.confirm.keep": "Keep my plan",
+  "@manage.cancel.confirm.keep": {
+    "description": "S12.3 — the way out of the confirmation (07 §1 rule 6: no dead ends)."
+  },
+  "manage.cancel.confirm.title": "Cancel at the renewal date?",
+  "@manage.cancel.confirm.title": {
+    "description": "S12.3 confirmation. Names when it takes effect, so nobody reads Cancel as ending access today."
+  },
+  "manage.cancel.failed": "That did not go through. Nothing has changed — try again.",
+  "@manage.cancel.failed": {
+    "description": "S12.3 inline error 🔒 — 08 §3.1: failure → inline error + retry, never a dead end. Says what did NOT happen, so nobody is left guessing whether the plan was cancelled."
+  },
+  "manage.cancel.ios.reason": "On this device Apple handles the subscription. Cancel it in Settings, under your Apple Account, then Subscriptions. Your books stay readable and exportable either way.",
+  "@manage.cancel.ios.reason": {
+    "description": "S12.3 on an Apple platform 🔒 — ADR 2026-09-05g §8 and DESIGN-PACK §11 (S12.3): Apple is merchant of record, so cancellation lives in the device's subscription settings. The confirm is disabled-with-reason and NAMES that place; there is no URL launcher in this app (PLAN desk item 11), so the path is written out in words rather than deep-linked."
+  },
+  "manage.cancel.unavailable": "Cancelling from the app is not available yet — no payment channel has been set up. Your books stay readable and exportable whatever happens to the plan.",
+  "@manage.cancel.unavailable": {
+    "description": "S12.3 disabled-with-reason (07 §1 rule 6) when SubscriptionCommands is the unwired implementation: no gateway and no IAP package has been chosen (PLAN desk item 11)."
+  },
+  "manage.cancel.what_continues": "If you cancel, the plan runs to the renewal date. After that you can still read, export and close your books — only new entries stop.",
+  "@manage.cancel.what_continues": {
+    "description": "S12.3 🔒 — DESIGN-PACK §11 (S12.3): Cancel STATES WHAT CONTINUES TO WORK AFTERWARDS, and 08 §1 principle 4 (lapsed ≠ locked) / 08 §3: entry of new data is the only thing a lapse ever blocks. Shown BEFORE the command is issued, never only after."
+  },
+  "manage.cancelled.body": "Nothing changes until then. Afterwards you can still read, export and close your books.",
+  "@manage.cancelled.body": {
+    "description": "S12.3 scheduled-cancellation body — the same promise as manage.cancel.what_continues, in the past-the-decision voice."
+  },
+  "manage.cancelled.title": "Cancels on {date}",
+  "@manage.cancelled.title": {
+    "description": "S12.3 after cancel_at_period_end is accepted. The plan, the renewal date and every other figure stay on screen beside it (08 §1 🔒 — nothing is hidden)."
+  },
+  "manage.change_plan": "Change plan",
+  "@manage.change_plan": {
+    "description": "S12.3 → S12.1 Plans (13 §3.2, DESIGN-PACK §11 S12.3 🔒)."
+  },
+  "manage.change_plan.subtitle": "Compare the plans and move up or down.",
+  "@manage.change_plan.subtitle": {
+    "description": "S12.3 subtitle under Change plan."
+  },
+  "manage.included.label": "What is included",
+  "@manage.included.label": {
+    "description": "S12.3 section heading over this plan's quota lines — DESIGN-PACK §11 (S12.3) 🔒: current plan, renewal date, WHAT IS INCLUDED, change, cancel. The lines themselves are the plans.limit.* strings, read from the tier catalogue."
+  },
+  "manage.title": "Manage subscription",
+  "@manage.title": {
+    "description": "S12.3 app-bar title (13 §3.2 row S12.3)."
+  },
   "members.cancel": "Cancel",
   "@members.cancel": {
     "description": "Dismiss a sheet without acting."
@@ -6940,9 +7060,9 @@
   "@menu.settings.row.title": {
     "description": "S8 seventh row (07 §2 🔒 Menu bullet order, 07 §16) — opens S13, already built and live here."
   },
-  "menu.subscription.row.reason": "Subscription has not been built yet.",
-  "@menu.subscription.row.reason": {
-    "description": "S8 disabled-with-reason line: 07 §20 S12.x is marked @M13."
+  "menu.subscription.row.subtitle": "Your plan, renewal, and what each plan includes.",
+  "@menu.subscription.row.subtitle": {
+    "description": "S8 Subscription row description (07 §20). Live since M13: the row opens S12."
   },
   "menu.subscription.row.title": "Subscription",
   "@menu.subscription.row.title": {
@@ -8421,6 +8541,202 @@
   "@partners.title": {
     "description": "S14 app bar (02 §7.1 🔒, 13 §3.2 row S14). *Partner* is the glossary's own business term (01 §2 — ਹਿੱਸੇਦਾਰ / साझेदार). This is a consumer surface: the four figures are put in / took out / share / net, never Dr/Cr (02 §10 🔒, CLAUDE.md rule 9)."
   },
+  "payment.change_method": "Change payment method",
+  "@payment.change_method": {
+    "description": "S12.4 second action — DESIGN-PACK §11 (S12.4) 🔒."
+  },
+  "payment.change_method.reason": "Another payment method cannot be chosen yet — the payment channel has not been decided.",
+  "@payment.change_method.reason": {
+    "description": "S12.4 disabled-with-reason (07 §1 rule 6): ADR 2026-09-05g §8 rules WHICH channel per platform, but no gateway SDK and no IAP package is in the app (PLAN desk item 11)."
+  },
+  "payment.days_left": "{days, plural, =0{Today is the last day to fix this} =1{1 day left to fix this} other{{days} days left to fix this}}",
+  "@payment.days_left": {
+    "description": "S12.4 countdown 🔒 — 08 §3: the dunning grace is 7 days from period_end. Whole days, truncated so the screen can only understate the time left. The clock is injected; no screen reads it."
+  },
+  "payment.ends.body": "New entries stop. Reading, exporting and closing your books carry on, and nothing is deleted.",
+  "@payment.ends.body": {
+    "description": "S12.4 🔒 — 08 §1 principle 4 and 08 §3: entry of new data is the only thing a lapse ever blocks; downgrade deletes nothing."
+  },
+  "payment.ends.label": "When the time is up",
+  "@payment.ends.label": {
+    "description": "S12.4 section heading — DESIGN-PACK §11 (S12.4) 🔒: say what changes when the grace ends."
+  },
+  "payment.headline": "Your renewal payment did not go through.",
+  "@payment.headline": {
+    "description": "S12.4 headline. The DUNNING grace only (tenant-wide, server-declared, ADR 2026-09-05g §4 🔒) — never shown for offline grace, which is device-local and says only subscription.banner.offline_grace.title."
+  },
+  "payment.none.body": "There is nothing to fix here. This screen appears when a renewal payment fails.",
+  "@payment.none.body": {
+    "description": "S12.4 not-dunning body. Deliberately free of lapse words: the same screen is reached in offline grace, where the plan has NOT ended (ADR 2026-09-05g §4 🔒 — two graces, two copies)."
+  },
+  "payment.none.title": "No payment problem",
+  "@payment.none.title": {
+    "description": "S12.4 for every state that is not the dunning grace. The screen is reachable from S12 at all times, so it must say something true rather than show a countdown that does not exist (07 §1 rule 6: no dead ends)."
+  },
+  "payment.retry": "Retry payment",
+  "@payment.retry": {
+    "description": "S12.4 primary action — DESIGN-PACK §11 (S12.4) 🔒."
+  },
+  "payment.retry.done": "Payment sent. It can take a few minutes to show here.",
+  "@payment.retry.done": {
+    "description": "S12.4 after the channel accepted the retry. Does not claim the plan is renewed — only the server's next token can say that (ADR 2026-09-05g §1)."
+  },
+  "payment.retry.failed": "That did not go through. Nothing has been charged — try again.",
+  "@payment.retry.failed": {
+    "description": "S12.4 inline error 🔒 — 08 §3.1: inline error + retry, never a dead end."
+  },
+  "payment.retry.unavailable": "Retrying from the app is not available yet — no payment channel has been set up.",
+  "@payment.retry.unavailable": {
+    "description": "S12.4 disabled-with-reason when SubscriptionCommands is the unwired implementation (PLAN desk item 11)."
+  },
+  "payment.title": "Payment problem",
+  "@payment.title": {
+    "description": "S12.4 app-bar title (13 §3.2 row S12.4)."
+  },
+  "plans.addon_seats.reason": "Add-on seats are arranged at checkout, which has not been built yet.",
+  "@plans.addon_seats.reason": {
+    "description": "S12.1 disabled-with-reason: S12.2 needs the IAP package, an owner decision."
+  },
+  "plans.addon_seats.title": "Extra members",
+  "@plans.addon_seats.title": {
+    "description": "S12.1 add-on seats row (08 §3.1 🔒 'optional add-on seats')."
+  },
+  "plans.choose": "Choose this plan",
+  "@plans.choose": {
+    "description": "S12.1 → S12.2 Checkout (13 §3.2)."
+  },
+  "plans.choose.reason": "Checkout has not been built yet.",
+  "@plans.choose.reason": {
+    "description": "S12.1 disabled-with-reason: S12.2 is iOS In-App Purchase (08 §3.2 🔒) and the IAP package is an owner decision."
+  },
+  "plans.current": "Your plan",
+  "@plans.current": {
+    "description": "S12.1 🔒 badge marking the current plan (08 §3.1, DESIGN-PACK §11 S12.1)."
+  },
+  "plans.cycle.annual": "Annual",
+  "@plans.cycle.annual": {
+    "description": "S12.1 toggle — the default."
+  },
+  "plans.cycle.label": "How you pay",
+  "@plans.cycle.label": {
+    "description": "S12.1 Monthly/Annual toggle label (08 §3.1 🔒)."
+  },
+  "plans.cycle.monthly": "Monthly",
+  "@plans.cycle.monthly": {
+    "description": "S12.1 toggle — 08 §2 principle 2: monthly is the fallback."
+  },
+  "plans.cycle.saving": "Annual — save {percent}%",
+  "@plans.cycle.saving": {
+    "description": "S12.1 🔒 (08 §3.1): the toggle SHOWS THE SAVING. The percent is computed from integer-paise prices and truncated, so it never overstates.",
+    "placeholders": {
+      "percent": {
+        "type": "int"
+      }
+    }
+  },
+  "plans.gst.gateway": "Buying for a business? You can add a coupon and your GSTIN at checkout.",
+  "@plans.gst.gateway": {
+    "description": "S12.1 off iOS — coupon and GSTIN exist on the gateway/web checkout only (08 §3.1 🔒, ADR 2026-09-05g §8, §10)."
+  },
+  "plans.gst.ios": "Buying for a business? Get a GST invoice at rukka.in",
+  "@plans.gst.ios": {
+    "description": "S12.1 on iOS 🔒 — the sentence ADR 2026-09-05g §8 writes. Apple is merchant of record on IAP, so there is no input credit and no invoice from us there. No coupon field and no in-app payment link on this platform."
+  },
+  "plans.large_org": "More than 15 members? No plan covers that yet — a band for larger organisations is being set with real committees. You will be told the price, never turned away.",
+  "@plans.large_org": {
+    "description": "S12.1 🔒 — 08 §2 and ADR 2026-09-05g §14: organisations use the Family bands up to 15, and a 40-trustee committee is TOLD SO on the plan screen rather than refused."
+  },
+  "plans.limit.books": "{count, plural, =1{1 business book} other{Up to {count} business books}}",
+  "@plans.limit.books": {
+    "description": "S12.1 quota row — 08 §2 🔒 business-book band.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "plans.limit.books.unlimited": "As many books as you need",
+  "@plans.limit.books.unlimited": {
+    "description": "S12.1 quota row where 08 §2 says unlimited (Personal, Family+). Unlimited is not a large number."
+  },
+  "plans.limit.devices": "{count, plural, =1{1 phone} other{Up to {count} phones}}",
+  "@plans.limit.devices": {
+    "description": "S12.1 quota row — 08 §2 🔒 devices per user, the highest across the user's active tenants (06 §6).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "plans.limit.exports.clean": "Clean exports in every format",
+  "@plans.limit.exports.clean": {
+    "description": "S12.1 paid-tier line (08 §2)."
+  },
+  "plans.limit.exports.watermarked": "PDF reports carry a watermark; CSV and Excel never do.",
+  "@plans.limit.exports.watermarked": {
+    "description": "S12.1 Free-tier line. 08 §1 🔒 as made precise by ADR 2026-09-05g §5 and ADR 2026-09-12 §2: the watermark follows the FORMAT and never touches the data export."
+  },
+  "plans.limit.members": "{count, plural, =1{1 member} other{Up to {count} members}}",
+  "@plans.limit.members": {
+    "description": "S12.1 quota row — 08 §2 🔒 seat band, in plain words (DESIGN-PACK §11 S12.1).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "plans.limit.storage.gb": "{count} GB of space",
+  "@plans.limit.storage.gb": {
+    "description": "S12.1 quota row — 08 §2 🔒 tenant envelope bytes, shown in whole GB.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "plans.limit.storage.mb": "{count} MB of space",
+  "@plans.limit.storage.mb": {
+    "description": "S12.1 quota row — 08 §2 🔒 tenant envelope bytes where GB would not be whole.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "plans.never_locked": "Your books are never locked. If you stop paying, everything stays readable and exportable.",
+  "@plans.never_locked": {
+    "description": "S12.1 closing sentence 🔒 — DESIGN-PACK §11 (S12.1), 08 §1 principle 4 (lapsed ≠ locked)."
+  },
+  "plans.popular": "Popular",
+  "@plans.popular": {
+    "description": "S12.1 🔒 badge on the recommended tier (08 §3.1, DESIGN-PACK §11 S12.1). ⚠️ SPEC: neither doc names WHICH tier; Family is taken because the trial is 30 days of Family (08 §2)."
+  },
+  "plans.price.free": "Free, always",
+  "@plans.price.free": {
+    "description": "S12.1 price line for the Free tier — 08 §2: the free tier is the distribution channel, not a trial."
+  },
+  "plans.price.month": "{price} a month",
+  "@plans.price.month": {
+    "description": "S12.1 price line, monthly.",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "plans.price.year": "{price} a year",
+  "@plans.price.year": {
+    "description": "S12.1 price line, annual. The amount is pre-formatted from integer paise (CLAUDE.md rule 1).",
+    "placeholders": {
+      "price": {
+        "type": "String"
+      }
+    }
+  },
+  "plans.title": "Plans",
+  "@plans.title": {
+    "description": "S12.1 app-bar title (13 §3.2 row S12.1)."
+  },
   "recovery.approve.approve": "Approve",
   "@recovery.approve.approve": {
     "description": "S11.7 primary action (design R2.3, verbatim)."
@@ -8970,6 +9286,446 @@
   "@reports.advances_ageing.row.title": {
     "description": "S8.1 report row 8 of 11, in 07 §14 🔒 order."
   },
+  "reports.amount_words.crore": "crore",
+  "@reports.amount_words.crore": {
+    "description": "Indian-scale word for the crore place (07 §14 🔒 amount-in-words; 11 §4.4)."
+  },
+  "reports.amount_words.hundred": "hundred",
+  "@reports.amount_words.hundred": {
+    "description": "Indian-scale word for the hundred place (07 §14 🔒 amount-in-words; 11 §4.4)."
+  },
+  "reports.amount_words.lakh": "lakh",
+  "@reports.amount_words.lakh": {
+    "description": "Indian-scale word for the lakh place (07 §14 🔒 amount-in-words; 11 §4.4)."
+  },
+  "reports.amount_words.n0": "zero",
+  "@reports.amount_words.n0": {
+    "description": "Amount-in-words numeral 0 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n1": "one",
+  "@reports.amount_words.n1": {
+    "description": "Amount-in-words numeral 1 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n10": "ten",
+  "@reports.amount_words.n10": {
+    "description": "Amount-in-words numeral 10 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n11": "eleven",
+  "@reports.amount_words.n11": {
+    "description": "Amount-in-words numeral 11 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n12": "twelve",
+  "@reports.amount_words.n12": {
+    "description": "Amount-in-words numeral 12 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n13": "thirteen",
+  "@reports.amount_words.n13": {
+    "description": "Amount-in-words numeral 13 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n14": "fourteen",
+  "@reports.amount_words.n14": {
+    "description": "Amount-in-words numeral 14 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n15": "fifteen",
+  "@reports.amount_words.n15": {
+    "description": "Amount-in-words numeral 15 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n16": "sixteen",
+  "@reports.amount_words.n16": {
+    "description": "Amount-in-words numeral 16 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n17": "seventeen",
+  "@reports.amount_words.n17": {
+    "description": "Amount-in-words numeral 17 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n18": "eighteen",
+  "@reports.amount_words.n18": {
+    "description": "Amount-in-words numeral 18 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n19": "nineteen",
+  "@reports.amount_words.n19": {
+    "description": "Amount-in-words numeral 19 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n2": "two",
+  "@reports.amount_words.n2": {
+    "description": "Amount-in-words numeral 2 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n20": "twenty",
+  "@reports.amount_words.n20": {
+    "description": "Amount-in-words numeral 20 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n21": "twenty-one",
+  "@reports.amount_words.n21": {
+    "description": "Amount-in-words numeral 21 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n22": "twenty-two",
+  "@reports.amount_words.n22": {
+    "description": "Amount-in-words numeral 22 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n23": "twenty-three",
+  "@reports.amount_words.n23": {
+    "description": "Amount-in-words numeral 23 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n24": "twenty-four",
+  "@reports.amount_words.n24": {
+    "description": "Amount-in-words numeral 24 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n25": "twenty-five",
+  "@reports.amount_words.n25": {
+    "description": "Amount-in-words numeral 25 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n26": "twenty-six",
+  "@reports.amount_words.n26": {
+    "description": "Amount-in-words numeral 26 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n27": "twenty-seven",
+  "@reports.amount_words.n27": {
+    "description": "Amount-in-words numeral 27 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n28": "twenty-eight",
+  "@reports.amount_words.n28": {
+    "description": "Amount-in-words numeral 28 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n29": "twenty-nine",
+  "@reports.amount_words.n29": {
+    "description": "Amount-in-words numeral 29 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n3": "three",
+  "@reports.amount_words.n3": {
+    "description": "Amount-in-words numeral 3 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n30": "thirty",
+  "@reports.amount_words.n30": {
+    "description": "Amount-in-words numeral 30 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n31": "thirty-one",
+  "@reports.amount_words.n31": {
+    "description": "Amount-in-words numeral 31 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n32": "thirty-two",
+  "@reports.amount_words.n32": {
+    "description": "Amount-in-words numeral 32 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n33": "thirty-three",
+  "@reports.amount_words.n33": {
+    "description": "Amount-in-words numeral 33 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n34": "thirty-four",
+  "@reports.amount_words.n34": {
+    "description": "Amount-in-words numeral 34 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n35": "thirty-five",
+  "@reports.amount_words.n35": {
+    "description": "Amount-in-words numeral 35 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n36": "thirty-six",
+  "@reports.amount_words.n36": {
+    "description": "Amount-in-words numeral 36 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n37": "thirty-seven",
+  "@reports.amount_words.n37": {
+    "description": "Amount-in-words numeral 37 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n38": "thirty-eight",
+  "@reports.amount_words.n38": {
+    "description": "Amount-in-words numeral 38 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n39": "thirty-nine",
+  "@reports.amount_words.n39": {
+    "description": "Amount-in-words numeral 39 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n4": "four",
+  "@reports.amount_words.n4": {
+    "description": "Amount-in-words numeral 4 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n40": "forty",
+  "@reports.amount_words.n40": {
+    "description": "Amount-in-words numeral 40 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n41": "forty-one",
+  "@reports.amount_words.n41": {
+    "description": "Amount-in-words numeral 41 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n42": "forty-two",
+  "@reports.amount_words.n42": {
+    "description": "Amount-in-words numeral 42 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n43": "forty-three",
+  "@reports.amount_words.n43": {
+    "description": "Amount-in-words numeral 43 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n44": "forty-four",
+  "@reports.amount_words.n44": {
+    "description": "Amount-in-words numeral 44 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n45": "forty-five",
+  "@reports.amount_words.n45": {
+    "description": "Amount-in-words numeral 45 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n46": "forty-six",
+  "@reports.amount_words.n46": {
+    "description": "Amount-in-words numeral 46 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n47": "forty-seven",
+  "@reports.amount_words.n47": {
+    "description": "Amount-in-words numeral 47 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n48": "forty-eight",
+  "@reports.amount_words.n48": {
+    "description": "Amount-in-words numeral 48 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n49": "forty-nine",
+  "@reports.amount_words.n49": {
+    "description": "Amount-in-words numeral 49 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n5": "five",
+  "@reports.amount_words.n5": {
+    "description": "Amount-in-words numeral 5 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n50": "fifty",
+  "@reports.amount_words.n50": {
+    "description": "Amount-in-words numeral 50 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n51": "fifty-one",
+  "@reports.amount_words.n51": {
+    "description": "Amount-in-words numeral 51 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n52": "fifty-two",
+  "@reports.amount_words.n52": {
+    "description": "Amount-in-words numeral 52 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n53": "fifty-three",
+  "@reports.amount_words.n53": {
+    "description": "Amount-in-words numeral 53 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n54": "fifty-four",
+  "@reports.amount_words.n54": {
+    "description": "Amount-in-words numeral 54 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n55": "fifty-five",
+  "@reports.amount_words.n55": {
+    "description": "Amount-in-words numeral 55 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n56": "fifty-six",
+  "@reports.amount_words.n56": {
+    "description": "Amount-in-words numeral 56 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n57": "fifty-seven",
+  "@reports.amount_words.n57": {
+    "description": "Amount-in-words numeral 57 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n58": "fifty-eight",
+  "@reports.amount_words.n58": {
+    "description": "Amount-in-words numeral 58 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n59": "fifty-nine",
+  "@reports.amount_words.n59": {
+    "description": "Amount-in-words numeral 59 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n6": "six",
+  "@reports.amount_words.n6": {
+    "description": "Amount-in-words numeral 6 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n60": "sixty",
+  "@reports.amount_words.n60": {
+    "description": "Amount-in-words numeral 60 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n61": "sixty-one",
+  "@reports.amount_words.n61": {
+    "description": "Amount-in-words numeral 61 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n62": "sixty-two",
+  "@reports.amount_words.n62": {
+    "description": "Amount-in-words numeral 62 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n63": "sixty-three",
+  "@reports.amount_words.n63": {
+    "description": "Amount-in-words numeral 63 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n64": "sixty-four",
+  "@reports.amount_words.n64": {
+    "description": "Amount-in-words numeral 64 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n65": "sixty-five",
+  "@reports.amount_words.n65": {
+    "description": "Amount-in-words numeral 65 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n66": "sixty-six",
+  "@reports.amount_words.n66": {
+    "description": "Amount-in-words numeral 66 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n67": "sixty-seven",
+  "@reports.amount_words.n67": {
+    "description": "Amount-in-words numeral 67 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n68": "sixty-eight",
+  "@reports.amount_words.n68": {
+    "description": "Amount-in-words numeral 68 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n69": "sixty-nine",
+  "@reports.amount_words.n69": {
+    "description": "Amount-in-words numeral 69 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n7": "seven",
+  "@reports.amount_words.n7": {
+    "description": "Amount-in-words numeral 7 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n70": "seventy",
+  "@reports.amount_words.n70": {
+    "description": "Amount-in-words numeral 70 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n71": "seventy-one",
+  "@reports.amount_words.n71": {
+    "description": "Amount-in-words numeral 71 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n72": "seventy-two",
+  "@reports.amount_words.n72": {
+    "description": "Amount-in-words numeral 72 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n73": "seventy-three",
+  "@reports.amount_words.n73": {
+    "description": "Amount-in-words numeral 73 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n74": "seventy-four",
+  "@reports.amount_words.n74": {
+    "description": "Amount-in-words numeral 74 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n75": "seventy-five",
+  "@reports.amount_words.n75": {
+    "description": "Amount-in-words numeral 75 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n76": "seventy-six",
+  "@reports.amount_words.n76": {
+    "description": "Amount-in-words numeral 76 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n77": "seventy-seven",
+  "@reports.amount_words.n77": {
+    "description": "Amount-in-words numeral 77 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n78": "seventy-eight",
+  "@reports.amount_words.n78": {
+    "description": "Amount-in-words numeral 78 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n79": "seventy-nine",
+  "@reports.amount_words.n79": {
+    "description": "Amount-in-words numeral 79 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n8": "eight",
+  "@reports.amount_words.n8": {
+    "description": "Amount-in-words numeral 8 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n80": "eighty",
+  "@reports.amount_words.n80": {
+    "description": "Amount-in-words numeral 80 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n81": "eighty-one",
+  "@reports.amount_words.n81": {
+    "description": "Amount-in-words numeral 81 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n82": "eighty-two",
+  "@reports.amount_words.n82": {
+    "description": "Amount-in-words numeral 82 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n83": "eighty-three",
+  "@reports.amount_words.n83": {
+    "description": "Amount-in-words numeral 83 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n84": "eighty-four",
+  "@reports.amount_words.n84": {
+    "description": "Amount-in-words numeral 84 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n85": "eighty-five",
+  "@reports.amount_words.n85": {
+    "description": "Amount-in-words numeral 85 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n86": "eighty-six",
+  "@reports.amount_words.n86": {
+    "description": "Amount-in-words numeral 86 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n87": "eighty-seven",
+  "@reports.amount_words.n87": {
+    "description": "Amount-in-words numeral 87 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n88": "eighty-eight",
+  "@reports.amount_words.n88": {
+    "description": "Amount-in-words numeral 88 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n89": "eighty-nine",
+  "@reports.amount_words.n89": {
+    "description": "Amount-in-words numeral 89 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n9": "nine",
+  "@reports.amount_words.n9": {
+    "description": "Amount-in-words numeral 9 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n90": "ninety",
+  "@reports.amount_words.n90": {
+    "description": "Amount-in-words numeral 90 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n91": "ninety-one",
+  "@reports.amount_words.n91": {
+    "description": "Amount-in-words numeral 91 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n92": "ninety-two",
+  "@reports.amount_words.n92": {
+    "description": "Amount-in-words numeral 92 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n93": "ninety-three",
+  "@reports.amount_words.n93": {
+    "description": "Amount-in-words numeral 93 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n94": "ninety-four",
+  "@reports.amount_words.n94": {
+    "description": "Amount-in-words numeral 94 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n95": "ninety-five",
+  "@reports.amount_words.n95": {
+    "description": "Amount-in-words numeral 95 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n96": "ninety-six",
+  "@reports.amount_words.n96": {
+    "description": "Amount-in-words numeral 96 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n97": "ninety-seven",
+  "@reports.amount_words.n97": {
+    "description": "Amount-in-words numeral 97 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n98": "ninety-eight",
+  "@reports.amount_words.n98": {
+    "description": "Amount-in-words numeral 98 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n99": "ninety-nine",
+  "@reports.amount_words.n99": {
+    "description": "Amount-in-words numeral 99 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.rupees_only": "Rupees {amount} only",
+  "@reports.amount_words.rupees_only": {
+    "description": "Amount in words, the whole sentence (07 §14 🔒; donation receipt 07 §14 🔒 'the amount in figures and words'). The words are composed from the numeral keys; only this frame is a sentence.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "four thousand five hundred"
+      }
+    }
+  },
+  "reports.amount_words.rupees_paise_only": "Rupees {rupees} and paise {paise} only",
+  "@reports.amount_words.rupees_paise_only": {
+    "description": "Amount in words, the whole sentence (07 §14 🔒; donation receipt 07 §14 🔒 'the amount in figures and words'). The words are composed from the numeral keys; only this frame is a sentence.",
+    "placeholders": {
+      "rupees": {
+        "type": "String",
+        "example": "four thousand five hundred"
+      },
+      "paise": {
+        "type": "String",
+        "example": "fifty"
+      }
+    }
+  },
+  "reports.amount_words.thousand": "thousand",
+  "@reports.amount_words.thousand": {
+    "description": "Indian-scale word for the thousand place (07 §14 🔒 amount-in-words; 11 §4.4)."
+  },
   "reports.business_comparison.row.title": "Business comparison",
   "@reports.business_comparison.row.title": {
     "description": "S8.1 report row 11 of 11, in 07 §14 🔒 order (Everything scope only)."
@@ -9190,6 +9946,14 @@
   "@reports.statement.account.label": {
     "description": "Head line of the exported A/C statement, naming the account the statement is of — the label only; the value is the account's own name."
   },
+  "reports.statement.closing_cd": "Closing balance c/d",
+  "@reports.statement.closing_cd": {
+    "description": "The exported A/C statement's closing row (07 §14 🔒 b/d–c/d rows on ledgers; 02 §8.1 Presentation). The balancing figure goes in the column opposite the balance's side, so the Dr and Cr columns square — exactly as a paper khata closes an account. The screen keeps c/f (ledger.statement.closing)."
+  },
+  "reports.statement.closing_words.label": "Closing balance in words",
+  "@reports.statement.closing_words.label": {
+    "description": "Label of the amount-in-words line under an exported ledger (07 §14 🔒 amount-in-words). The figure is the closing balance's magnitude; its Dr/Cr side is already on the c/d row."
+  },
   "reports.statement.file_name": "statement-{year}.{extension}",
   "@reports.statement.file_name": {
     "description": "S4 — the exported statement's file name. Latin and ASCII in every locale on purpose, and it carries no account name, party name or figure: a file name is metadata that travels with the file (CLAUDE.md rule 4).",
@@ -9203,6 +9967,10 @@
         "example": "pdf"
       }
     }
+  },
+  "reports.statement.opening_bd": "Opening balance b/d",
+  "@reports.statement.opening_bd": {
+    "description": "The exported A/C statement's row after the totals: the closing balance brought down into the next period, on its own side (07 §14 🔒)."
   },
   "reports.statement.report.title": "A/C statement",
   "@reports.statement.report.title": {
@@ -9408,9 +10176,9 @@
   "@settings.section.general": {
     "description": "S13 section header over Language and Appearance (07 §16 row order)."
   },
-  "settings.subscription.row.reason": "Subscription management has not been built yet.",
-  "@settings.subscription.row.reason": {
-    "description": "S13 disabled-with-reason line: 07 §20 S12.x is marked @M13."
+  "settings.subscription.row.subtitle": "Your plan, renewal, and what each plan includes.",
+  "@settings.subscription.row.subtitle": {
+    "description": "S13 Subscription row description (07 §16, 07 §20). Live since M13: the row opens S12."
   },
   "settings.subscription.row.title": "Subscription",
   "@settings.subscription.row.title": {
@@ -9464,6 +10232,107 @@
   "@subscription.banner.read_only.title": {
     "description": "S12.5 persistent banner (13 §4.2 banner atom), read-only variant. Tenant-wide and SERVER-DECLARED: the plan lapsed or the dunning grace ran out (ADR 2026-09-05g §4). Never shown for a merely off-network phone — that is subscription.banner.offline_grace.*."
   },
+  "subscription.error": "Your plan could not be read on this phone.",
+  "@subscription.error": {
+    "description": "S12 error state (13 §4.3). Says the READ failed, never that the plan ended — a failed read is not a lapse."
+  },
+  "subscription.loading": "Reading your plan",
+  "@subscription.loading": {
+    "description": "S12/S12.1 skeleton label — the wait is stated in words, never a spinner (11 §4.5)."
+  },
+  "subscription.members.label": "Members",
+  "@subscription.members.label": {
+    "description": "S12 — active members against the plan's seat limit (06 §7, 08 §3 🔒 counts invited + joined_pending_verification + active)."
+  },
+  "subscription.members.value": "{used} of {total}",
+  "@subscription.members.value": {
+    "description": "S12 members figure. Plain counts, never hidden in read-only (07 §20).",
+    "placeholders": {
+      "used": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "subscription.members.value_unlimited": "{used}, with no limit",
+  "@subscription.members.value_unlimited": {
+    "description": "S12 members figure where the plan sets no seat cap.",
+    "placeholders": {
+      "used": {
+        "type": "int"
+      }
+    }
+  },
+  "subscription.plan.family": "Family",
+  "@subscription.plan.family": {
+    "description": "08 §2 tier name."
+  },
+  "subscription.plan.family_plus": "Family+",
+  "@subscription.plan.family_plus": {
+    "description": "08 §2 tier name."
+  },
+  "subscription.plan.free": "Free",
+  "@subscription.plan.free": {
+    "description": "08 §2 tier name."
+  },
+  "subscription.plan.label": "Your plan",
+  "@subscription.plan.label": {
+    "description": "S12 — the label above the tenant's current tier."
+  },
+  "subscription.plan.personal": "Personal",
+  "@subscription.plan.personal": {
+    "description": "08 §2 tier name."
+  },
+  "subscription.renewal.label": "Renews on",
+  "@subscription.renewal.label": {
+    "description": "S12 — the token's period_end (ADR 2026-09-05g §1)."
+  },
+  "subscription.renewal.none": "The free plan does not expire, so there is nothing to renew.",
+  "@subscription.renewal.none": {
+    "description": "S12 renewal line on Free / an untokened reading — never a nudge to buy."
+  },
+  "subscription.row.invoices.subtitle": "Your invoices and credit notes",
+  "@subscription.row.invoices.subtitle": {
+    "description": "S12 → S12.6 Invoices (07 §20). Credit notes sit in the same list (ADR 2026-09-05g §10, §11 🔒)."
+  },
+  "subscription.row.invoices.title": "Invoices",
+  "@subscription.row.invoices.title": {
+    "description": "S12 → S12.6 (07 §20)."
+  },
+  "subscription.row.manage.subtitle": "Renewal date, what is included, change or cancel",
+  "@subscription.row.manage.subtitle": {
+    "description": "S12 → S12.3 Manage subscription (07 §20, DESIGN-PACK §11)."
+  },
+  "subscription.row.manage.title": "Manage subscription",
+  "@subscription.row.manage.title": {
+    "description": "S12 → S12.3 (07 §20)."
+  },
+  "subscription.row.payment.subtitle": "A renewal payment that did not go through",
+  "@subscription.row.payment.subtitle": {
+    "description": "S12 → S12.4 Payment problem — the dunning grace, its countdown and retry (07 §20)."
+  },
+  "subscription.row.payment.title": "Payment problem",
+  "@subscription.row.payment.title": {
+    "description": "S12 → S12.4, the dunning grace with its countdown and retry (07 §20)."
+  },
+  "subscription.row.plans.subtitle": "Compare the plans, and what each one includes.",
+  "@subscription.row.plans.subtitle": {
+    "description": "S12 Plans row description."
+  },
+  "subscription.row.plans.title": "See plans",
+  "@subscription.row.plans.title": {
+    "description": "S12 → S12.1 (13 §3.2 row S12.1)."
+  },
+  "subscription.row.read_only.reason": "The read-only screen has not been built yet. Reading and exporting are never blocked.",
+  "@subscription.row.read_only.reason": {
+    "description": "S12 disabled-with-reason. The second sentence is the 08 §1 🔒 promise, said even where the door is shut."
+  },
+  "subscription.row.read_only.title": "Read-only mode",
+  "@subscription.row.read_only.title": {
+    "description": "S12 → S12.5 (07 §20). The banner and blocked-entry sheet already exist as shared widgets; the screen does not."
+  },
   "subscription.sheet.book_full.blocked": "This book has reached the plan's limit, so this entry cannot be saved yet.",
   "@subscription.sheet.book_full.blocked": {
     "description": "S12.5 sheet: what exactly is blocked when a book hits its quota. Posting only."
@@ -9491,6 +10360,42 @@
   "subscription.sheet.read_only.title": "New entries are paused",
   "@subscription.sheet.read_only.title": {
     "description": "S12.5 blocked-entry sheet heading, read-only variant — what Save raises (07 §20 🔒)."
+  },
+  "subscription.state.active": "Active",
+  "@subscription.state.active": {
+    "description": "13 §6 subscription state — paid and current, or an untokened Free tenant (ADR 2026-09-05g §1: no token = Free, never locked)."
+  },
+  "subscription.state.active.body": "Everything is working — entry, sync, reports and exports.",
+  "@subscription.state.active.body": {
+    "description": "S12 active line."
+  },
+  "subscription.state.dunning": "Payment failed",
+  "@subscription.state.dunning": {
+    "description": "13 §6 — the DUNNING grace: tenant-wide, server-declared, 7 days from period_end (ADR 2026-09-05g §4). Never used for a merely off-network phone."
+  },
+  "subscription.state.dunning.body": "A renewal payment did not go through. Entry carries on while it is retried.",
+  "@subscription.state.dunning.body": {
+    "description": "S12 dunning line: the grace exists SO THAT entry keeps working (ADR 2026-09-05g §4). Never says read-only."
+  },
+  "subscription.state.offline_grace": "Not checked lately",
+  "@subscription.state.offline_grace": {
+    "description": "13 §6 — OFFLINE grace, device-local. Deliberately says nothing about the plan: nothing has lapsed and nothing is blocked (ADR 2026-09-05g §4 🔒, 07 §20 🔒)."
+  },
+  "subscription.state.read_only": "Read-only",
+  "@subscription.state.read_only": {
+    "description": "13 §6 — the server has said the plan ended. 08 §1 🔒 lapsed ≠ locked: reading, exporting and closing carry on."
+  },
+  "subscription.state.trial": "Free trial",
+  "@subscription.state.trial": {
+    "description": "13 §6 subscription state — the 30-day Family trial, once per user (08 §2)."
+  },
+  "subscription.state.trial.body": "You are on the 30-day Family trial. Nothing is charged until you pick a plan.",
+  "@subscription.state.trial.body": {
+    "description": "S12 trial line (08 §2: 30 days of Family, once per user)."
+  },
+  "subscription.title": "Subscription",
+  "@subscription.title": {
+    "description": "S12 app-bar title (13 §3.2 row S12, 07 §20)."
   },
   "suspended.banner": "This phone is paused — read only. Sync has stopped.",
   "@suspended.banner": {

@@ -12,6 +12,99 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-22 — M12/M13: exports say the amount in words, billing and the entitlement token become real, S12 opens
+
+Two `/lane` rounds of three and two lanes on disjoint directories, each followed by its own `/gate` —
+**green on `push` both times**, the only gate-side edits `dart format` on eleven files. **Five lanes, every one
+Opus, none on Fable.** The round was chosen from Phase C (PLAN §1), not from the desk: CER2, which the board
+proposed, is gated on desk 14 and stays parked. **1607 app tests, 126 server tests on a real Postgres,
+`check_coverage --strict` green, orphans unchanged at 48.** Lanes 1.05 M, gates 58 k; the day closed at its
+ceiling.
+
+**Added**
+
+- **`features/reports` — 07 §14's content rules** (RPT1, `F1-07-423…434`): `amount_words.dart` is a pure
+  function, integer paise in and one sentence out, Indian scale to the crore and recursing on the crore part
+  so 2⁶³−1 paise spells out in full; not one number word is a Dart literal — 100 numerals, 4 scale words and 2
+  sentence frames per language come from `reports_{en,pa,hi}.arb`, because rule 8 binds the word tables too.
+  The A/C statement now emits b/f · body · c/f · **c/d · Total · b/d** · the words line in PDF, CSV and XLSX,
+  with the engine's figures and nothing recomputed. XLSX `numFmt 164` is the Indian `#,##,##0.00`; the stored
+  value is still the plain integer-derived decimal. The three ⚠️ SPEC comments that had deferred this since
+  12 Sep are rewritten to say what is true, none softened.
+- **`server/` — the billing webhook applies** (BIL1, `G-08-9…11`, `E-05-12`, `E-03-65…70`): `0013` +
+  SECURITY DEFINER `rf.apply_billing_event` run record → dedupe → action → tenant → ordering key → row lock →
+  out-of-order → one state change in one transaction. Dunning is 7 days from `period_end`; refund or
+  chargeback ends entitlement now and deletes nothing; `billing_events` is append-only by trigger for every
+  role including the owner. The response never names an outcome reason — `unknown_tenant` on the wire is a
+  tenant-existence oracle for anyone holding the webhook secret. Until today the route recorded and applied
+  nothing.
+- **`server/` — the entitlement token is minted** (TOK1, `G-08-4/5`, `E-05-14…18`, `E-03-71…74`): `0014` +
+  `rf.mint_entitlement_token`, `_shared/entitlement.ts` for the policy (no I/O), `registry.ts PLAN_LIMITS` as
+  the one table of 08 §2's numbers — the push path's `QUOTAS` now derive from it, so the cap the server
+  refuses on and the cap the token promises cannot drift. `signEntitlementToken` is the only signer in the
+  codebase and accepts only the typed payload: 04 §8 rule 6 enforced by a function signature. Wire format
+  (`<payload_b64url>.<sig_b64url>`, canonical JSON in ADR §1's field order) is documented once in
+  `sodium.ts`'s header, which the client lane will implement from. Minted on every meta pull, re-minted only
+  when absent, expired, or older than `subscriptions.updated_at`, one row per tenant so the meta cursor never
+  churns. Until today the relay path existed and nothing ever wrote a row: every tenant was tokenless.
+- **`features/subscription`** (SUBU1, SUB2, `F1-07-31`, `F1-07-450…490`): `EntitlementSource` mirrors the
+  token field for field and makes the 🔒 rules structural — a *stale* reading resolves to offline grace
+  whatever the token said, so the lapse copy is unreachable from an off-network phone; an *absent* reading
+  is a live Free tenant; `blocksExport` is false for every state — asserted by enumerating the enums, not by
+  pumping a widget. S12, S12.1 (toggle, saving by `~/`, *popular* badge, quota rows, the *never locked*
+  sentence, iOS points GST buyers to web checkout with no text field on the screen), S12.3, S12.4 (dunning
+  only; every other state gets copy free of lapse words), S12.6 (`rkGstSplit` pinned at the paisa, credit
+  notes labelled). `SubscriptionCommands` and `InvoiceSource` seams with fakes and honest unwired defaults.
+  The S8 and S13 Subscription rows are live doors. Two defects found while testing and fixed: screens
+  reloaded nothing when their seam changed (`didUpdateWidget`), and `ChoiceChip` cannot measure `RkFitText`.
+
+**Changed**
+
+- `app/lib/bootstrap.dart` mounts `subscriptionRoutes`; `F1-07-162` updated (not superseded) for the rows
+  that now follow c/f; `server/README.md` documents `RF_ENTITLEMENT_KEY`.
+- Doc markers: 07 §14 and §20, 02 §8.1, 03 §2.4 (plus the two new `billing_events` columns, ⚠️ SPEC inline),
+  05 §5, 08 §3 and §4, 13 §3.2 rows S12 · S12.1 · S12.3 · S12.4 · S12.6, ADR 2026-09-12 §3. `G-08-4/5/9/11`
+  and `F1-07-31` drop ` @M13`; `G-08-10` keeps it because the reconciliation poll on its line is unbuilt.
+
+**Decided**
+
+- **One `entitlement_tokens` row per tenant, replaced in place** (TOK1, reasoning in `0014`'s header): rule 2
+  binds envelopes and posted entries; a token is the server's own signed assertion about a plan it already
+  stores, superseded rather than amended, and the durable history is `billing_events`. A row per pull would
+  churn 05 §5's cursor forever and hand the client several tokens with no rule for choosing.
+- **A lapsed tenant's `period_end` is clamped to `iat`** when `status = 'expired'` (TOK1, `E-05-15`): the 🔒
+  field set has no `status`, and `0013`'s `end_now` leaves a future `current_period_end` untouched, which would
+  tell the client a refunded tenant is still paid. Plan is never rewritten to free (ADR 05g §5). Desk 23a.
+- **`billing_events` widened, not `subscriptions`** (BIL1): the out-of-order guard needs which subscription
+  and the gateway's time; `subscriptions` is on the meta cursor and every column there syncs to every device.
+  03 §2.4 is 🔒 — reported, marked inline, not ratified. Desk 25.
+- **No dependency added anywhere**: S12.2 checkout, the iOS cancel deep-link and the invoice PDF door render
+  disabled-with-reason. The IAP package, a launcher and the gateway are the owner's (desk 11, 27).
+
+**Open**
+
+- ⚠️ **ADR 2026-09-05g contradicts itself on `grace_until`** — §4 puts it in the token, §1 and 08 §3 fix a
+  field set without it. The exact 🔒 set was kept and the client derives `period_end + 7 d`. Desk 22.
+- ⚠️ Three token readings to ratify: the lapsed clamp, `-1` for `∞` business books, and no key id — so the
+  app must hold two pinned public keys through the 30-day rotation overlap. Desk 23.
+- ⚠️ **`RF_ENTITLEMENT_KEY` must exist before any deploy**: every edge function now refuses to start without
+  it, on purpose. Desk 24.
+- ⚠️ 08 §2 has no monthly prices; the toggle shows flagged placeholders rounded up so the saving never
+  overstates. *Popular* is on Family by inference. Desk 26.
+- ⚠️ Both c/f and c/d are printed because 02 §8.1 names both; the S8.2 fallback snackbar file name overflows
+  at 200 % on 360×800 (rule 6 vs rule 11) and was measured, not fixed. Desk 28.
+- **Unbuilt and named:** the client-side token verifier and `EntitlementSource` producer, the S12.5
+  blocked-entry sheet, the reconciliation poll, hard caps reading the token's `limits`, promo redemption,
+  the donation-receipt card. CER2 stays parked on desk 14.
+
+**Commits**
+
+- `_______` — M12: 07 §14 content rules — amount-in-words EN/PA/HI, c/d · Total · b/d rows, Indian XLSX format
+- `_______` — M13: billing webhook applies events; the entitlement token is minted on the meta pull
+- `_______` — M13: features/subscription S12, S12.1, S12.3, S12.4, S12.6 over feature-local seams; S8/S13 doors live
+
+---
+
 ## 2026-09-22 — M11: an *unchecked* rung stops looking like a confirmed one
 
 One `/lane` round, two lanes on disjoint directories, one separate `/gate` — **green on `push`**, nothing

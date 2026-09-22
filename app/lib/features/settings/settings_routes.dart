@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../shared/app_settings.dart';
+import '../subscription/subscription_paths.dart';
 import 'screens/s13_settings_screen.dart';
 import 'settings_paths.dart';
 
@@ -41,6 +42,9 @@ final List<RouteBase> settingsRoutes = [
         autoLockIdle: settings?.autoLockIdle ?? settingsDefaultAutoLockIdle,
         autoLockBackground:
             settings?.autoLockBackground ?? settingsDefaultAutoLockBackground,
+        // S12 is a root-navigator route (`subscriptionRoutes`), reached from
+        // here and from S8 Menu alike (07 §16, 07 §2 🔒).
+        onOpenSubscription: () => context.push(SubscriptionPaths.root),
       );
     },
   ),

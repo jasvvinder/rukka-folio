@@ -176,18 +176,18 @@ Roles (admin · head · member · operator · viewer) change *what actions appea
 | **S11.8** | Recovery — nothing worked yet (design R2.5) | activation | the honest empty-vault screen + path forward (F11) |
 | **S11.9** | Recovery in progress — Cancel | notification / S11 | on every existing device while a guardian recovery or guardian phone-change waits its 24 h; one-tap Cancel (ADR 2026-09-05d §1) |
 | **S11.10** | Support action pending — Cancel | notification / S11 | support-initiated revocation, 24 h window; the target device suspends, never wipes (ADR 2026-09-05d §3, 05b §2) |
-| **S12** | Subscription | S8 | tiers, renewal, read-only banner |
+| **S12** | Subscription | S8 | tiers, renewal, read-only banner ⟦tests: F1-07-31, F1-07-454, F1-07-455, F1-07-456, F1-07-457, F1-07-458, F1-07-466, F1-07-467⟧ |
 | **S9.1** | Invite member | S9 | phone + per-book roles + limits + designation label (06 §1.0 Option B — a name, not a permission); a second admin sees *"Invited by Amrit · awaiting join"*, never the number (ADR 2026-09-05c §4) |
 | **S16** | My account | S8 | name, photo, phone, language ⟦tests: F1-07-316, F1-07-317, F1-07-318, F1-07-319, F1-07-320⟧ |
 | **S16.1** | Edit profile | S16 | name and photo only ⟦tests: F1-07-321, F1-07-322, F1-07-323, F1-07-324⟧ |
 | **S16.2** | Change phone number | S16 | OTP old + new, or guardian approval if the old number is lost (06 §9.4) ⟦tests: F1-07-360, F1-07-361, F1-07-362, F1-07-363, F1-07-364, F1-07-365, F1-07-366, F1-07-367, F1-07-368, F1-07-369, F1-07-370, F1-07-371, F1-07-372, F1-07-373⟧ |
 | **S16.3** | Delete account | S16 | 15-day cooling, what is erased vs retained (06 §9.3) ⟦tests: F1-07-325, F1-07-326, F1-07-327, F1-07-328, F1-07-329⟧ |
-| **S12.1** | Plans | S12 | comparison, annual saving, current plan marked |
+| **S12.1** | Plans | S12 | comparison, annual saving, current plan marked ⟦tests: F1-07-459, F1-07-460, F1-07-461, F1-07-462, F1-07-463, F1-07-464, F1-07-465⟧ |
 | **S12.2** | Checkout | S12.1 | **iOS = In-App Purchase** (08 §3.2); coupon and GSTIN on non-iOS only |
-| **S12.3** | Manage subscription | S12 | plan, renewal date, change, cancel |
-| **S12.4** | Payment problem | S12 | grace countdown, retry, what happens at the end |
+| **S12.3** | Manage subscription | S12 | plan, renewal date, change, cancel ⟦tests: F1-07-472, F1-07-473, F1-07-474, F1-07-475, F1-07-476, F1-07-477⟧ |
+| **S12.4** | Payment problem | S12 | grace countdown, retry, what happens at the end ⟦tests: F1-07-478, F1-07-479, F1-07-480, F1-07-481, F1-07-482, F1-07-483⟧ |
 | **S12.5** | Read-only mode | global | banner + blocked-entry sheet; export always works; the same sheet pattern serves **book full** (`rejected:quota`) → S12.1, drafts preserved (ADR 2026-09-05b §7, ADR 2026-09-05f §B) ⟦tests: F1-07-78⟧ |
-| **S12.6** | Invoices | S12 | list + PDF |
+| **S12.6** | Invoices | S12 | list + PDF ⟦tests: F1-07-484, F1-07-485, F1-07-486, F1-07-487, F1-07-488, F1-07-489⟧ |
 | **S17** | Help | S8 | search, contact, diagnostics — the grouped, searchable FAQ list lives on this hub (S17.1 folded in, ADR 2026-09-02) |
 | **S17.2** | FAQ article | S17 | one answer, plain language |
 | **S17.3** | Contact support | S17 | WhatsApp primary; states what support cannot do |

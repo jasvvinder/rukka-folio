@@ -30,6 +30,7 @@ import '../help/help_paths.dart';
 import '../legal/legal_paths.dart';
 import '../reports/reports_routes.dart';
 import '../settings/settings_paths.dart';
+import '../subscription/subscription_paths.dart';
 import 'close_month_books.dart';
 import 'menu_paths.dart';
 import 'screens/s8_menu_screen.dart';
@@ -126,6 +127,7 @@ class _MenuTabState extends State<MenuTab> {
     onOpenBooks: () => context.push(BooksPaths.root),
     onOpenBackup: () => context.push(DevicesPaths.backup),
     onOpenDevices: () => context.push(DevicesPaths.devices),
+    onOpenSubscription: () => context.push(SubscriptionPaths.root),
     onOpenSettings: () => context.push(SettingsPaths.root),
     onOpenHelp: () => context.push(HelpPaths.root),
     onOpenLegal: () => context.push(LegalPaths.root),

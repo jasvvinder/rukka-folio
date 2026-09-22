@@ -259,7 +259,7 @@ One flow: From (book + money A/C) → To (book + money A/C) → amount → save.
 
 ---
 
-## 14. Reports & Export 🔒 ⟦tests: F1-07-28, F1-07-79, F1-07-128, F1-07-160, F1-07-161, F1-07-162, F1-07-163, F1-07-164, F1-07-165, F1-07-166, F1-07-167, F1-07-168, F1-07-169, F1-07-172, F1-07-173⟧
+## 14. Reports & Export 🔒 ⟦tests: F1-07-28, F1-07-79, F1-07-128, F1-07-160, F1-07-161, F1-07-162, F1-07-163, F1-07-164, F1-07-165, F1-07-166, F1-07-167, F1-07-168, F1-07-169, F1-07-172, F1-07-173, F1-07-423, F1-07-424, F1-07-425, F1-07-426, F1-07-427, F1-07-428, F1-07-429, F1-07-430, F1-07-431, F1-07-432, F1-07-433, F1-07-434⟧
 
 > **ADR 2026-09-12 §1** — S8.2's export sheet offers exactly **PDF, CSV and XLSX**; View report opens in-app. ⟦tests: F1-07-79⟧
 > **ADR 2026-09-12e §1–§2** — XLSX is generated in-house over `archive` + `xml` (no package: the free writers need archive 3.x, sodium needs 4.x), so all three formats work; and View · Download/Share · Export is the same trio on the statement (S4) and the report viewer. ⟦tests: F1-07-79⟧
@@ -299,7 +299,7 @@ Review requested — **digest per author+book**: the first flag notifies, later 
 - Reduced-motion pass and dark-mode pass on every screen; the stopwatch test includes the biometric unlock; smallest screens **375×667 and 360×800** at 200% font scale (ADR 2026-09-05f §G, §H15).
 - Every list screen has a drawn skeleton; the loader rule appears only after 200 ms and is announced (ADR 2026-09-05f §H6).
 
-## 20. Subscription screens (S12.x) 🔒 (ADR 2026-09-05f §F; rules in 08 and ADR 2026-09-05g) ⟦tests: F1-07-31 @M13, F1-07-78⟧
+## 20. Subscription screens (S12.x) 🔒 (ADR 2026-09-05f §F; rules in 08 and ADR 2026-09-05g) ⟦tests: F1-07-31, F1-07-78, F1-07-450, F1-07-451, F1-07-452, F1-07-453, F1-07-454, F1-07-455, F1-07-456, F1-07-457, F1-07-458, F1-07-459, F1-07-460, F1-07-461, F1-07-462, F1-07-463, F1-07-464, F1-07-465, F1-07-466, F1-07-467, F1-07-468, F1-07-469, F1-07-470, F1-07-471, F1-07-472, F1-07-473, F1-07-474, F1-07-475, F1-07-476, F1-07-477, F1-07-478, F1-07-479, F1-07-480, F1-07-481, F1-07-482, F1-07-483, F1-07-484, F1-07-485, F1-07-486, F1-07-487, F1-07-488, F1-07-489, F1-07-490⟧
 **S12 Subscription** (plan, renewal, entitlement state) · **S12.1 Plans** (comparison, annual saving, current plan marked, quota rows) · **S12.2 Checkout** (iOS = In-App Purchase; coupon and GSTIN on the web path) · **S12.3 Manage** · **S12.4 Payment problem** — the **dunning** grace, tenant-wide, with countdown and retry · **S12.5 Read-only mode** — banner + blocked-entry sheet; export always works; also the **book full** sheet (quota) pointing to S12.1 · **S12.6 Invoices**. Two graces, two copies: dunning (payment failed) is tenant-wide; **offline grace** is device-local and reads *"Connect once to keep entering"* — never "your plan lapsed" before the server has said so.
 
 ## 21. Account screens (S16.x) 🔒 (ADR 2026-09-05f §F) ⟦tests: F1-07-32 @M6, F1-07-316, F1-07-317, F1-07-318, F1-07-319, F1-07-320, F1-07-321, F1-07-322, F1-07-323, F1-07-324, F1-07-325, F1-07-326, F1-07-327, F1-07-328, F1-07-329, F1-07-360, F1-07-361, F1-07-362, F1-07-363, F1-07-364, F1-07-365, F1-07-366, F1-07-367, F1-07-368, F1-07-369, F1-07-370, F1-07-371, F1-07-372, F1-07-373⟧

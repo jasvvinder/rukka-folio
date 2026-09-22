@@ -43,6 +43,7 @@ class MenuScreen extends StatelessWidget {
     required this.onOpenBooks,
     required this.onOpenBackup,
     required this.onOpenDevices,
+    required this.onOpenSubscription,
     required this.onOpenSettings,
     required this.onOpenHelp,
     required this.onOpenLegal,
@@ -65,6 +66,11 @@ class MenuScreen extends StatelessWidget {
 
   /// Pushes S11 Devices & security (features/devices).
   final VoidCallback onOpenDevices;
+
+  /// Pushes S12 Subscription (features/subscription) — the sixth Menu row
+  /// (07 §2 🔒 order, 07 §20). Live since M13; it was a
+  /// disabled-with-reason row while S12 did not exist.
+  final VoidCallback onOpenSubscription;
 
   /// Pushes S13 Settings (features/settings).
   final VoidCallback onOpenSettings;
@@ -223,9 +229,14 @@ class MenuScreen extends StatelessWidget {
                 subtitle: l10n.menuDevicesRowSubtitle,
                 onTap: onOpenDevices,
               ),
-              MenuDisabledRow(
+              // Subscription is live: `features/subscription` landed S12 and
+              // S12.1 (22 Sep) and `subscriptionRoutes` is mounted, so the row
+              // opens the hub instead of stating a reason that stopped being
+              // true — the turn Help took on 21 Sep and Legal on 19 Sep.
+              MenuRow(
                 title: l10n.menuSubscriptionRowTitle,
-                reason: l10n.menuSubscriptionRowReason,
+                subtitle: l10n.menuSubscriptionRowSubtitle,
+                onTap: onOpenSubscription,
               ),
               MenuRow(
                 title: l10n.menuSettingsRowTitle,

@@ -1971,6 +1971,66 @@
   "invite.step.phone": "ਉਹਨਾਂ ਦਾ ਫ਼ੋਨ ਨੰਬਰ",
   "invite.step.roles": "ਉਹ ਕੀ ਕਰ ਸਕਣਗੇ",
   "invite.title": "ਕਿਸੇ ਨੂੰ ਸੱਦੋ",
+  "invoices.empty.body": "ਭੁਗਤਾਨ ਤੋਂ ਬਾਅਦ ਬਿੱਲ ਇੱਥੇ ਆ ਜਾਂਦਾ ਹੈ। ਹਰ ਬਿੱਲ ਤੁਹਾਨੂੰ ਈਮੇਲ ਅਤੇ WhatsApp ਉੱਤੇ ਵੀ ਭੇਜਿਆ ਜਾਂਦਾ ਹੈ।",
+  "@invoices.empty.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "invoices.empty.title": "ਹਾਲੇ ਕੋਈ ਬਿੱਲ ਨਹੀਂ",
+  "@invoices.empty.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "invoices.error": "ਤੁਹਾਡੇ ਬਿੱਲ ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਪੜ੍ਹੇ ਨਹੀਂ ਜਾ ਸਕੇ।",
+  "@invoices.error": {
+    "description": "machine-draft — native review M12"
+  },
+  "invoices.gst": "GST 18%",
+  "@invoices.gst": {
+    "description": "machine-draft — native review M12"
+  },
+  "invoices.kind.credit_note": "ਕ੍ਰੈਡਿਟ ਨੋਟ",
+  "@invoices.kind.credit_note": {
+    "description": "machine-draft — native review M12"
+  },
+  "invoices.kind.credit_note.body": "ਪੈਸੇ ਉਸੇ ਖਾਤੇ ਵਿੱਚ ਵਾਪਸ ਭੇਜੇ ਗਏ ਜਿਸ ਤੋਂ ਭੁਗਤਾਨ ਹੋਇਆ ਸੀ।",
+  "@invoices.kind.credit_note.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "invoices.kind.invoice": "ਬਿੱਲ",
+  "@invoices.kind.invoice": {
+    "description": "machine-draft — native review M12"
+  },
+  "invoices.loading": "ਤੁਹਾਡੇ ਬਿੱਲ ਪੜ੍ਹ ਰਹੇ ਹਾਂ",
+  "@invoices.loading": {
+    "description": "machine-draft — native review M12"
+  },
+  "invoices.pdf": "PDF",
+  "@invoices.pdf": {
+    "description": "machine-draft — native review M12"
+  },
+  "invoices.pdf.reason": "ਇਹ ਬਿੱਲ ਤੁਹਾਨੂੰ ਈਮੇਲ ਅਤੇ WhatsApp ਉੱਤੇ ਭੇਜਿਆ ਗਿਆ ਸੀ। ਇੱਥੇ ਕਾਪੀ ਖੋਲ੍ਹਣਾ ਹਾਲੇ ਨਹੀਂ ਬਣਿਆ।",
+  "@invoices.pdf.reason": {
+    "description": "machine-draft — native review M12"
+  },
+  "invoices.round_off": "ਰਾਊਂਡ ਆਫ਼",
+  "@invoices.round_off": {
+    "description": "machine-draft — native review M12"
+  },
+  "invoices.serial": "ਨੰ. {serial}",
+  "@invoices.serial": {
+    "description": "machine-draft — native review M12"
+  },
+  "invoices.taxable": "ਟੈਕਸ ਤੋਂ ਬਿਨਾਂ ਰਕਮ",
+  "@invoices.taxable": {
+    "description": "machine-draft — native review M12"
+  },
+  "invoices.title": "ਬਿੱਲ",
+  "@invoices.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "invoices.total": "ਕੁੱਲ",
+  "@invoices.total": {
+    "description": "machine-draft — native review M12"
+  },
   "ledger.entry.amend": "ਇਸ ਨੂੰ ਸੁਧਾਰੋ",
   "ledger.entry.amend.cancel": "ਰੱਦ ਕਰੋ",
   "ledger.entry.amend.date_note": "ਤਾਰੀਖ਼ ਜਾਂ ਨੋਟ ਬਦਲੋ",
@@ -2317,6 +2377,66 @@
   "lock.pin.use_instead": "ਇਸਦੀ ਥਾਂ ਪਿੰਨ ਵਰਤੋ",
   "lock.pin.wrong": "ਇਹ ਪਿੰਨ ਸਹੀ ਨਹੀਂ ਹੈ",
   "lock.title": "ਆਪਣੇ ਖਾਤੇ ਖੋਲ੍ਹਣ ਲਈ ਅਨਲਾਕ ਕਰੋ",
+  "manage.cancel": "ਸਬਸਕ੍ਰਿਪਸ਼ਨ ਬੰਦ ਕਰੋ",
+  "@manage.cancel": {
+    "description": "machine-draft — native review M12"
+  },
+  "manage.cancel.confirm.action": "ਹਾਂ, ਨਵਿਆਉਣ ਦੀ ਤਾਰੀਖ਼ ਉੱਤੇ ਬੰਦ ਕਰੋ",
+  "@manage.cancel.confirm.action": {
+    "description": "machine-draft — native review M12"
+  },
+  "manage.cancel.confirm.body": "ਉਦੋਂ ਤੱਕ ਕੁਝ ਨਹੀਂ ਬਦਲਦਾ, ਅਤੇ ਕੁਝ ਵੀ ਕਦੇ ਮਿਟਾਇਆ ਨਹੀਂ ਜਾਂਦਾ। ਬਾਅਦ ਵਿੱਚ ਵੀ ਤੁਸੀਂ ਬਹੀਆਂ ਪੜ੍ਹ, ਐਕਸਪੋਰਟ ਅਤੇ ਬੰਦ ਕਰ ਸਕਦੇ ਹੋ।",
+  "@manage.cancel.confirm.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "manage.cancel.confirm.keep": "ਮੇਰਾ ਪਲਾਨ ਰਹਿਣ ਦਿਓ",
+  "@manage.cancel.confirm.keep": {
+    "description": "machine-draft — native review M12"
+  },
+  "manage.cancel.confirm.title": "ਨਵਿਆਉਣ ਦੀ ਤਾਰੀਖ਼ ਉੱਤੇ ਬੰਦ ਕਰੀਏ?",
+  "@manage.cancel.confirm.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "manage.cancel.failed": "ਇਹ ਪੂਰਾ ਨਹੀਂ ਹੋਇਆ। ਕੁਝ ਨਹੀਂ ਬਦਲਿਆ — ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
+  "@manage.cancel.failed": {
+    "description": "machine-draft — native review M12"
+  },
+  "manage.cancel.ios.reason": "ਇਸ ਡਿਵਾਈਸ ਉੱਤੇ ਸਬਸਕ੍ਰਿਪਸ਼ਨ Apple ਸੰਭਾਲਦਾ ਹੈ। ਇਸਨੂੰ Settings ਵਿੱਚ, ਆਪਣੇ Apple Account ਹੇਠਾਂ, Subscriptions ਵਿੱਚੋਂ ਬੰਦ ਕਰੋ। ਕਿਸੇ ਵੀ ਹਾਲ ਵਿੱਚ ਤੁਹਾਡੀਆਂ ਬਹੀਆਂ ਪੜ੍ਹਨ ਅਤੇ ਐਕਸਪੋਰਟ ਲਈ ਖੁੱਲ੍ਹੀਆਂ ਰਹਿੰਦੀਆਂ ਹਨ।",
+  "@manage.cancel.ios.reason": {
+    "description": "machine-draft — native review M12"
+  },
+  "manage.cancel.unavailable": "ਐਪ ਵਿੱਚੋਂ ਬੰਦ ਕਰਨਾ ਹਾਲੇ ਨਹੀਂ ਹੋ ਸਕਦਾ — ਕੋਈ ਭੁਗਤਾਨ ਚੈਨਲ ਤੈਅ ਨਹੀਂ ਹੋਇਆ। ਪਲਾਨ ਨਾਲ ਜੋ ਵੀ ਹੋਵੇ, ਤੁਹਾਡੀਆਂ ਬਹੀਆਂ ਪੜ੍ਹਨ ਅਤੇ ਐਕਸਪੋਰਟ ਲਈ ਖੁੱਲ੍ਹੀਆਂ ਰਹਿੰਦੀਆਂ ਹਨ।",
+  "@manage.cancel.unavailable": {
+    "description": "machine-draft — native review M12"
+  },
+  "manage.cancel.what_continues": "ਬੰਦ ਕਰੋਗੇ ਤਾਂ ਪਲਾਨ ਨਵਿਆਉਣ ਦੀ ਤਾਰੀਖ਼ ਤੱਕ ਚਲੇਗਾ। ਉਸ ਤੋਂ ਬਾਅਦ ਵੀ ਤੁਸੀਂ ਬਹੀਆਂ ਪੜ੍ਹ ਸਕਦੇ ਹੋ, ਐਕਸਪੋਰਟ ਕਰ ਸਕਦੇ ਹੋ ਅਤੇ ਬੰਦ ਕਰ ਸਕਦੇ ਹੋ — ਸਿਰਫ਼ ਨਵੀਆਂ ਐਂਟਰੀਆਂ ਰੁਕਦੀਆਂ ਹਨ।",
+  "@manage.cancel.what_continues": {
+    "description": "machine-draft — native review M12"
+  },
+  "manage.cancelled.body": "ਉਦੋਂ ਤੱਕ ਕੁਝ ਨਹੀਂ ਬਦਲਦਾ। ਬਾਅਦ ਵਿੱਚ ਵੀ ਤੁਸੀਂ ਬਹੀਆਂ ਪੜ੍ਹ, ਐਕਸਪੋਰਟ ਅਤੇ ਬੰਦ ਕਰ ਸਕਦੇ ਹੋ।",
+  "@manage.cancelled.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "manage.cancelled.title": "{date} ਨੂੰ ਬੰਦ ਹੋਵੇਗਾ",
+  "@manage.cancelled.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "manage.change_plan": "ਪਲਾਨ ਬਦਲੋ",
+  "@manage.change_plan": {
+    "description": "machine-draft — native review M12"
+  },
+  "manage.change_plan.subtitle": "ਪਲਾਨਾਂ ਦੀ ਤੁਲਨਾ ਕਰੋ ਅਤੇ ਉੱਪਰ ਜਾਂ ਹੇਠਾਂ ਜਾਓ।",
+  "@manage.change_plan.subtitle": {
+    "description": "machine-draft — native review M12"
+  },
+  "manage.included.label": "ਕੀ-ਕੀ ਸ਼ਾਮਲ ਹੈ",
+  "@manage.included.label": {
+    "description": "machine-draft — native review M12"
+  },
+  "manage.title": "ਸਬਸਕ੍ਰਿਪਸ਼ਨ ਸੰਭਾਲੋ",
+  "@manage.title": {
+    "description": "machine-draft — native review M12"
+  },
   "members.cancel": "ਰੱਦ ਕਰੋ",
   "members.invite.action": "ਸੱਦਾ",
   "members.invite.blocked": "ਸਿਰਫ਼ ਐਡਮਿਨ ਹੀ ਕਿਸੇ ਨੂੰ ਸੱਦ ਸਕਦਾ ਹੈ, ਭੂਮਿਕਾ ਬਦਲ ਸਕਦਾ ਹੈ ਜਾਂ ਹੱਦ ਤੈਅ ਕਰ ਸਕਦਾ ਹੈ।",
@@ -2395,7 +2515,7 @@
   "menu.reports.row.title": "ਰਿਪੋਰਟਾਂ",
   "menu.settings.row.subtitle": "ਭਾਸ਼ਾ, ਦਿੱਖ, ਆਟੋ-ਲਾਕ, ਸ਼ੁਰੂਆਤੀ ਬਕਾਏ, ਐਕਸਪੋਰਟ।",
   "menu.settings.row.title": "ਸੈਟਿੰਗਾਂ",
-  "menu.subscription.row.reason": "ਸਬਸਕ੍ਰਿਪਸ਼ਨ ਅਜੇ ਨਹੀਂ ਬਣੀ।",
+  "menu.subscription.row.subtitle": "ਤੁਹਾਡਾ ਪਲਾਨ, ਨਵਿਆਉਣ ਦੀ ਤਾਰੀਖ਼, ਅਤੇ ਹਰ ਪਲਾਨ ਵਿੱਚ ਕੀ ਹੈ।",
   "menu.subscription.row.title": "ਸਬਸਕ੍ਰਿਪਸ਼ਨ",
   "menu.title": "ਮੀਨੂ",
   "menu.year_close.row.reason": "ਵਿੱਤੀ ਸਾਲ ਖ਼ਤਮ ਹੋਣ ਤੋਂ ਬਾਅਦ ਹੀ ਪ੍ਰਮਾਣਿਤ ਕੀਤਾ ਜਾ ਸਕਦਾ ਹੈ।",
@@ -2718,6 +2838,162 @@
   "partners.solo.body": "ਇਸ ਵਹੀ ਦਾ ਇੱਕੋ ਮਾਲਕ ਹੈ, ਇਸ ਲਈ ਵੰਡਣ ਵਾਲਾ ਕੁਝ ਨਹੀਂ।",
   "partners.solo.title": "ਇੱਥੇ ਦਿਖਾਉਣ ਲਈ ਕੁਝ ਨਹੀਂ ਹੈ।",
   "partners.title": "ਹਿੱਸੇਦਾਰ",
+  "payment.change_method": "ਭੁਗਤਾਨ ਦਾ ਤਰੀਕਾ ਬਦਲੋ",
+  "@payment.change_method": {
+    "description": "machine-draft — native review M12"
+  },
+  "payment.change_method.reason": "ਹਾਲੇ ਹੋਰ ਤਰੀਕਾ ਨਹੀਂ ਚੁਣਿਆ ਜਾ ਸਕਦਾ — ਭੁਗਤਾਨ ਚੈਨਲ ਤੈਅ ਨਹੀਂ ਹੋਇਆ।",
+  "@payment.change_method.reason": {
+    "description": "machine-draft — native review M12"
+  },
+  "payment.days_left": "{days, plural, =0{ਠੀਕ ਕਰਨ ਲਈ ਅੱਜ ਆਖ਼ਰੀ ਦਿਨ ਹੈ} =1{ਠੀਕ ਕਰਨ ਲਈ 1 ਦਿਨ ਬਾਕੀ ਹੈ} other{ਠੀਕ ਕਰਨ ਲਈ {days} ਦਿਨ ਬਾਕੀ ਹਨ}}",
+  "@payment.days_left": {
+    "description": "machine-draft — native review M12"
+  },
+  "payment.ends.body": "ਨਵੀਆਂ ਐਂਟਰੀਆਂ ਰੁਕ ਜਾਣਗੀਆਂ। ਪੜ੍ਹਨਾ, ਐਕਸਪੋਰਟ ਅਤੇ ਬਹੀਆਂ ਬੰਦ ਕਰਨਾ ਚਲਦਾ ਰਹੇਗਾ, ਅਤੇ ਕੁਝ ਵੀ ਮਿਟਾਇਆ ਨਹੀਂ ਜਾਂਦਾ।",
+  "@payment.ends.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "payment.ends.label": "ਸਮਾਂ ਪੂਰਾ ਹੋਣ ਉੱਤੇ",
+  "@payment.ends.label": {
+    "description": "machine-draft — native review M12"
+  },
+  "payment.headline": "ਤੁਹਾਡਾ ਨਵਿਆਉਣ ਦਾ ਭੁਗਤਾਨ ਪੂਰਾ ਨਹੀਂ ਹੋਇਆ।",
+  "@payment.headline": {
+    "description": "machine-draft — native review M12"
+  },
+  "payment.none.body": "ਇੱਥੇ ਠੀਕ ਕਰਨ ਲਈ ਕੁਝ ਨਹੀਂ ਹੈ। ਇਹ ਸਕ੍ਰੀਨ ਉਦੋਂ ਦਿਖਦੀ ਹੈ ਜਦੋਂ ਨਵਿਆਉਣ ਦਾ ਭੁਗਤਾਨ ਪੂਰਾ ਨਾ ਹੋਵੇ।",
+  "@payment.none.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "payment.none.title": "ਭੁਗਤਾਨ ਵਿੱਚ ਕੋਈ ਦਿੱਕਤ ਨਹੀਂ",
+  "@payment.none.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "payment.retry": "ਭੁਗਤਾਨ ਦੁਬਾਰਾ ਕਰੋ",
+  "@payment.retry": {
+    "description": "machine-draft — native review M12"
+  },
+  "payment.retry.done": "ਭੁਗਤਾਨ ਭੇਜ ਦਿੱਤਾ। ਇੱਥੇ ਦਿਖਣ ਵਿੱਚ ਕੁਝ ਮਿੰਟ ਲੱਗ ਸਕਦੇ ਹਨ।",
+  "@payment.retry.done": {
+    "description": "machine-draft — native review M12"
+  },
+  "payment.retry.failed": "ਇਹ ਪੂਰਾ ਨਹੀਂ ਹੋਇਆ। ਕੋਈ ਪੈਸਾ ਨਹੀਂ ਕੱਟਿਆ ਗਿਆ — ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
+  "@payment.retry.failed": {
+    "description": "machine-draft — native review M12"
+  },
+  "payment.retry.unavailable": "ਐਪ ਵਿੱਚੋਂ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਹਾਲੇ ਨਹੀਂ ਹੋ ਸਕਦੀ — ਕੋਈ ਭੁਗਤਾਨ ਚੈਨਲ ਤੈਅ ਨਹੀਂ ਹੋਇਆ।",
+  "@payment.retry.unavailable": {
+    "description": "machine-draft — native review M12"
+  },
+  "payment.title": "ਭੁਗਤਾਨ ਵਿੱਚ ਦਿੱਕਤ",
+  "@payment.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.addon_seats.reason": "ਵਾਧੂ ਸੀਟਾਂ ਚੈੱਕਆਊਟ ਉੱਤੇ ਲਈਆਂ ਜਾਂਦੀਆਂ ਹਨ, ਜੋ ਹਾਲੇ ਨਹੀਂ ਬਣਿਆ।",
+  "@plans.addon_seats.reason": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.addon_seats.title": "ਵਾਧੂ ਮੈਂਬਰ",
+  "@plans.addon_seats.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.choose": "ਇਹ ਪਲਾਨ ਚੁਣੋ",
+  "@plans.choose": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.choose.reason": "ਚੈੱਕਆਊਟ ਹਾਲੇ ਨਹੀਂ ਬਣਿਆ।",
+  "@plans.choose.reason": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.current": "ਤੁਹਾਡਾ ਪਲਾਨ",
+  "@plans.current": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.cycle.annual": "ਸਾਲਾਨਾ",
+  "@plans.cycle.annual": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.cycle.label": "ਭੁਗਤਾਨ ਕਿਵੇਂ",
+  "@plans.cycle.label": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.cycle.monthly": "ਮਹੀਨਾਵਾਰ",
+  "@plans.cycle.monthly": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.cycle.saving": "ਸਾਲਾਨਾ — {percent}% ਬਚਤ",
+  "@plans.cycle.saving": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.gst.gateway": "ਕਾਰੋਬਾਰ ਲਈ ਲੈ ਰਹੇ ਹੋ? ਚੈੱਕਆਊਟ ਉੱਤੇ ਕੂਪਨ ਅਤੇ GSTIN ਦਿੱਤੇ ਜਾ ਸਕਦੇ ਹਨ।",
+  "@plans.gst.gateway": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.gst.ios": "ਕਾਰੋਬਾਰ ਲਈ ਲੈ ਰਹੇ ਹੋ? GST ਬਿੱਲ rukka.in ਤੋਂ ਲਵੋ।",
+  "@plans.gst.ios": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.large_org": "15 ਤੋਂ ਵੱਧ ਮੈਂਬਰ? ਹਾਲੇ ਕੋਈ ਪਲਾਨ ਇੰਨਾ ਵੱਡਾ ਨਹੀਂ — ਵੱਡੀਆਂ ਸੰਸਥਾਵਾਂ ਲਈ ਵੱਖਰਾ ਬੈਂਡ ਅਸਲ ਕਮੇਟੀਆਂ ਨਾਲ ਤੈਅ ਹੋ ਰਿਹਾ ਹੈ। ਤੁਹਾਨੂੰ ਕੀਮਤ ਦੱਸੀ ਜਾਵੇਗੀ, ਮਨ੍ਹਾ ਕਦੇ ਨਹੀਂ ਕੀਤਾ ਜਾਵੇਗਾ।",
+  "@plans.large_org": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.limit.books": "{count, plural, =1{1 ਕਾਰੋਬਾਰੀ ਬਹੀ} other{{count} ਕਾਰੋਬਾਰੀ ਬਹੀਆਂ ਤੱਕ}}",
+  "@plans.limit.books": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.limit.books.unlimited": "ਜਿੰਨੀਆਂ ਬਹੀਆਂ ਚਾਹੀਦੀਆਂ ਹੋਣ",
+  "@plans.limit.books.unlimited": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.limit.devices": "{count, plural, =1{1 ਫ਼ੋਨ} other{{count} ਫ਼ੋਨਾਂ ਤੱਕ}}",
+  "@plans.limit.devices": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.limit.exports.clean": "ਹਰ ਰੂਪ ਵਿੱਚ ਸਾਫ਼ ਐਕਸਪੋਰਟ",
+  "@plans.limit.exports.clean": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.limit.exports.watermarked": "PDF ਰਿਪੋਰਟਾਂ ਉੱਤੇ ਵਾਟਰਮਾਰਕ ਹੁੰਦਾ ਹੈ; CSV ਅਤੇ Excel ਉੱਤੇ ਕਦੇ ਨਹੀਂ।",
+  "@plans.limit.exports.watermarked": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.limit.members": "{count, plural, =1{1 ਮੈਂਬਰ} other{{count} ਮੈਂਬਰਾਂ ਤੱਕ}}",
+  "@plans.limit.members": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.limit.storage.gb": "{count} GB ਥਾਂ",
+  "@plans.limit.storage.gb": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.limit.storage.mb": "{count} MB ਥਾਂ",
+  "@plans.limit.storage.mb": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.never_locked": "ਤੁਹਾਡੀਆਂ ਬਹੀਆਂ ਕਦੇ ਬੰਦ ਨਹੀਂ ਹੁੰਦੀਆਂ। ਭੁਗਤਾਨ ਰੁਕ ਜਾਵੇ ਤਾਂ ਵੀ ਸਭ ਕੁਝ ਪੜ੍ਹਿਆ ਅਤੇ ਐਕਸਪੋਰਟ ਕੀਤਾ ਜਾ ਸਕਦਾ ਹੈ।",
+  "@plans.never_locked": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.popular": "ਪ੍ਰਚਲਿਤ",
+  "@plans.popular": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.price.free": "ਹਮੇਸ਼ਾ ਮੁਫ਼ਤ",
+  "@plans.price.free": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.price.month": "{price} ਮਹੀਨੇ ਦਾ",
+  "@plans.price.month": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.price.year": "{price} ਸਾਲ ਦਾ",
+  "@plans.price.year": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.title": "ਪਲਾਨ",
+  "@plans.title": {
+    "description": "machine-draft — native review M12"
+  },
   "recovery.approve.approve": "ਮਨਜ਼ੂਰੀ ਦਿਓ",
   "@recovery.approve.approve": {
     "description": "machine-draft — native review M12"
@@ -3050,6 +3326,115 @@
   "recovery.silent.title": "ਤੁਹਾਡੇ ਵਹੀ-ਖਾਤੇ ਵਾਪਸ ਆ ਗਏ",
   "reports.account_statement.row.title": "ਖਾਤਾ ਸਟੇਟਮੈਂਟ (ਕੋਈ ਵੀ)",
   "reports.advances_ageing.row.title": "ਐਡਵਾਂਸਾਂ ਦੀ ਉਮਰ",
+  "reports.amount_words.crore": "ਕਰੋੜ",
+  "reports.amount_words.hundred": "ਸੌ",
+  "reports.amount_words.lakh": "ਲੱਖ",
+  "reports.amount_words.n0": "ਸਿਫ਼ਰ",
+  "@reports.amount_words.n0": {
+    "description": "machine-draft — native review M12"
+  },
+  "reports.amount_words.n1": "ਇੱਕ",
+  "reports.amount_words.n10": "ਦਸ",
+  "reports.amount_words.n11": "ਗਿਆਰਾਂ",
+  "reports.amount_words.n12": "ਬਾਰਾਂ",
+  "reports.amount_words.n13": "ਤੇਰਾਂ",
+  "reports.amount_words.n14": "ਚੌਦਾਂ",
+  "reports.amount_words.n15": "ਪੰਦਰਾਂ",
+  "reports.amount_words.n16": "ਸੋਲਾਂ",
+  "reports.amount_words.n17": "ਸਤਾਰਾਂ",
+  "reports.amount_words.n18": "ਅਠਾਰਾਂ",
+  "reports.amount_words.n19": "ਉੱਨੀ",
+  "reports.amount_words.n2": "ਦੋ",
+  "reports.amount_words.n20": "ਵੀਹ",
+  "reports.amount_words.n21": "ਇੱਕੀ",
+  "reports.amount_words.n22": "ਬਾਈ",
+  "reports.amount_words.n23": "ਤੇਈ",
+  "reports.amount_words.n24": "ਚੌਵੀ",
+  "reports.amount_words.n25": "ਪੰਝੀ",
+  "reports.amount_words.n26": "ਛੱਬੀ",
+  "reports.amount_words.n27": "ਸਤਾਈ",
+  "reports.amount_words.n28": "ਅਠਾਈ",
+  "reports.amount_words.n29": "ਉਨੱਤੀ",
+  "reports.amount_words.n3": "ਤਿੰਨ",
+  "reports.amount_words.n30": "ਤੀਹ",
+  "reports.amount_words.n31": "ਇਕੱਤੀ",
+  "reports.amount_words.n32": "ਬੱਤੀ",
+  "reports.amount_words.n33": "ਤੇਤੀ",
+  "reports.amount_words.n34": "ਚੌਂਤੀ",
+  "reports.amount_words.n35": "ਪੈਂਤੀ",
+  "reports.amount_words.n36": "ਛੱਤੀ",
+  "reports.amount_words.n37": "ਸੈਂਤੀ",
+  "reports.amount_words.n38": "ਅਠੱਤੀ",
+  "reports.amount_words.n39": "ਉਨਤਾਲੀ",
+  "reports.amount_words.n4": "ਚਾਰ",
+  "reports.amount_words.n40": "ਚਾਲੀ",
+  "reports.amount_words.n41": "ਇਕਤਾਲੀ",
+  "reports.amount_words.n42": "ਬਿਆਲੀ",
+  "reports.amount_words.n43": "ਤਰਤਾਲੀ",
+  "reports.amount_words.n44": "ਚੁਤਾਲੀ",
+  "reports.amount_words.n45": "ਪੰਜਤਾਲੀ",
+  "reports.amount_words.n46": "ਛਿਆਲੀ",
+  "reports.amount_words.n47": "ਸਨਤਾਲੀ",
+  "reports.amount_words.n48": "ਅਠਤਾਲੀ",
+  "reports.amount_words.n49": "ਉਨੰਜਾ",
+  "reports.amount_words.n5": "ਪੰਜ",
+  "reports.amount_words.n50": "ਪੰਜਾਹ",
+  "reports.amount_words.n51": "ਇਕਵੰਜਾ",
+  "reports.amount_words.n52": "ਬਵੰਜਾ",
+  "reports.amount_words.n53": "ਤਰਵੰਜਾ",
+  "reports.amount_words.n54": "ਚੁਰੰਜਾ",
+  "reports.amount_words.n55": "ਪਚਵੰਜਾ",
+  "reports.amount_words.n56": "ਛਪੰਜਾ",
+  "reports.amount_words.n57": "ਸਤਵੰਜਾ",
+  "reports.amount_words.n58": "ਅਠਵੰਜਾ",
+  "reports.amount_words.n59": "ਉਨਾਹਠ",
+  "reports.amount_words.n6": "ਛੇ",
+  "reports.amount_words.n60": "ਸੱਠ",
+  "reports.amount_words.n61": "ਇਕਾਹਠ",
+  "reports.amount_words.n62": "ਬਾਹਠ",
+  "reports.amount_words.n63": "ਤਰੇਹਠ",
+  "reports.amount_words.n64": "ਚੌਂਹਠ",
+  "reports.amount_words.n65": "ਪੈਂਹਠ",
+  "reports.amount_words.n66": "ਛਿਆਹਠ",
+  "reports.amount_words.n67": "ਸਤਾਹਠ",
+  "reports.amount_words.n68": "ਅਠਾਹਠ",
+  "reports.amount_words.n69": "ਉਣੱਤਰ",
+  "reports.amount_words.n7": "ਸੱਤ",
+  "reports.amount_words.n70": "ਸੱਤਰ",
+  "reports.amount_words.n71": "ਇਕੱਤਰ",
+  "reports.amount_words.n72": "ਬਹੱਤਰ",
+  "reports.amount_words.n73": "ਤਿਹੱਤਰ",
+  "reports.amount_words.n74": "ਚੁਹੱਤਰ",
+  "reports.amount_words.n75": "ਪਚੱਤਰ",
+  "reports.amount_words.n76": "ਛਿਹੱਤਰ",
+  "reports.amount_words.n77": "ਸਤੱਤਰ",
+  "reports.amount_words.n78": "ਅਠੱਤਰ",
+  "reports.amount_words.n79": "ਉਨਾਸੀ",
+  "reports.amount_words.n8": "ਅੱਠ",
+  "reports.amount_words.n80": "ਅੱਸੀ",
+  "reports.amount_words.n81": "ਇਕਾਸੀ",
+  "reports.amount_words.n82": "ਬਿਆਸੀ",
+  "reports.amount_words.n83": "ਤਰਾਸੀ",
+  "reports.amount_words.n84": "ਚੁਰਾਸੀ",
+  "reports.amount_words.n85": "ਪਚਾਸੀ",
+  "reports.amount_words.n86": "ਛਿਆਸੀ",
+  "reports.amount_words.n87": "ਸਤਾਸੀ",
+  "reports.amount_words.n88": "ਅਠਾਸੀ",
+  "reports.amount_words.n89": "ਉਨਾਨਵੇਂ",
+  "reports.amount_words.n9": "ਨੌਂ",
+  "reports.amount_words.n90": "ਨੱਬੇ",
+  "reports.amount_words.n91": "ਇਕਾਨਵੇਂ",
+  "reports.amount_words.n92": "ਬਿਆਨਵੇਂ",
+  "reports.amount_words.n93": "ਤਰਾਨਵੇਂ",
+  "reports.amount_words.n94": "ਚੁਰਾਨਵੇਂ",
+  "reports.amount_words.n95": "ਪਚਾਨਵੇਂ",
+  "reports.amount_words.n96": "ਛਿਆਨਵੇਂ",
+  "reports.amount_words.n97": "ਸਤਾਨਵੇਂ",
+  "reports.amount_words.n98": "ਅਠਾਨਵੇਂ",
+  "reports.amount_words.n99": "ਨੜਿੰਨਵੇਂ",
+  "reports.amount_words.rupees_only": "ਰੁਪਏ {amount} ਪੂਰੇ",
+  "reports.amount_words.rupees_paise_only": "ਰੁਪਏ {rupees} ਅਤੇ ਪੈਸੇ {paise} ਪੂਰੇ",
+  "reports.amount_words.thousand": "ਹਜ਼ਾਰ",
   "reports.business_comparison.row.title": "ਕਾਰੋਬਾਰਾਂ ਦੀ ਤੁਲਨਾ",
   "reports.cash_book.row.title": "ਨਕਦ ਕਿਤਾਬ",
   "reports.day_book.row.title": "ਦਿਨ ਦੀ ਕਿਤਾਬ",
@@ -3096,7 +3481,10 @@
   "reports.reconciliation.unconfirmed.detail": "ਦੂਜੀ ਕਿਤਾਬ ਤੁਹਾਡੇ ਕੋਲ ਨਹੀਂ ਹੈ, ਇਸ ਲਈ ਇਸ ਪਾਸੇ ਦੀ ਜਾਂਚ ਨਹੀਂ ਹੋ ਸਕਦੀ। ਇਹ ਗ਼ਲਤੀ ਨਹੀਂ ਹੈ।",
   "reports.row.reason": "ਇਹ ਰਿਪੋਰਟ ਅਜੇ ਬਣੀ ਨਹੀਂ।",
   "reports.statement.account.label": "ਖਾਤਾ",
+  "reports.statement.closing_cd": "ਅੰਤਿਮ ਬਾਕੀ c/d",
+  "reports.statement.closing_words.label": "ਅੰਤਿਮ ਬਾਕੀ ਸ਼ਬਦਾਂ ਵਿੱਚ",
   "reports.statement.file_name": "statement-{year}.{extension}",
+  "reports.statement.opening_bd": "ਸ਼ੁਰੂਆਤੀ ਬਾਕੀ b/d",
   "reports.statement.report.title": "ਖਾਤਾ ਸਟੇਟਮੈਂਟ",
   "reports.title": "ਰਿਪੋਰਟਾਂ",
   "reports.trial_balance.row.title": "ਟ੍ਰਾਇਲ ਬੈਲੰਸ",
@@ -3144,7 +3532,7 @@
   "settings.opening_balances.row.title": "ਸ਼ੁਰੂਆਤੀ ਬਕਾਏ",
   "settings.section.books": "ਤੁਹਾਡੇ ਵਹੀ-ਖਾਤੇ",
   "settings.section.general": "ਆਮ",
-  "settings.subscription.row.reason": "ਸਬਸਕ੍ਰਿਪਸ਼ਨ ਪ੍ਰਬੰਧ ਅਜੇ ਬਣਿਆ ਨਹੀਂ।",
+  "settings.subscription.row.subtitle": "ਤੁਹਾਡਾ ਪਲਾਨ, ਨਵਿਆਉਣ ਦੀ ਤਾਰੀਖ਼, ਅਤੇ ਹਰ ਪਲਾਨ ਵਿੱਚ ਕੀ ਹੈ।",
   "settings.subscription.row.title": "ਸਬਸਕ੍ਰਿਪਸ਼ਨ",
   "settings.title": "ਸੈਟਿੰਗਾਂ",
   "splash.opening": "ਤੁਹਾਡੇ ਵਹੀ-ਖਾਤੇ ਖੋਲ੍ਹ ਰਹੇ ਹਾਂ।",
@@ -3158,6 +3546,94 @@
   "subscription.banner.offline_grace.title": "ਐਂਟਰੀ ਜਾਰੀ ਰੱਖਣ ਲਈ ਇੱਕ ਵਾਰ ਜੁੜੋ",
   "subscription.banner.read_only.body": "ਤੁਹਾਡਾ ਪਲਾਨ ਖ਼ਤਮ ਹੋ ਗਿਆ ਹੈ। ਤੁਸੀਂ ਹੁਣ ਵੀ ਬਹੀਆਂ ਪੜ੍ਹ ਸਕਦੇ ਹੋ, ਐਕਸਪੋਰਟ ਕਰ ਸਕਦੇ ਹੋ ਅਤੇ ਬੰਦ ਕਰ ਸਕਦੇ ਹੋ।",
   "subscription.banner.read_only.title": "ਤੁਹਾਡੀਆਂ ਬਹੀਆਂ ਸਿਰਫ਼ ਪੜ੍ਹਨ ਲਈ ਹਨ",
+  "subscription.error": "ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਤੁਹਾਡਾ ਪਲਾਨ ਨਹੀਂ ਪੜ੍ਹਿਆ ਜਾ ਸਕਿਆ।",
+  "@subscription.error": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.loading": "ਤੁਹਾਡਾ ਪਲਾਨ ਪੜ੍ਹਿਆ ਜਾ ਰਿਹਾ ਹੈ",
+  "@subscription.loading": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.members.label": "ਮੈਂਬਰ",
+  "@subscription.members.label": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.members.value": "{total} ਵਿੱਚੋਂ {used}",
+  "@subscription.members.value": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.members.value_unlimited": "{used}, ਕੋਈ ਹੱਦ ਨਹੀਂ",
+  "@subscription.members.value_unlimited": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.plan.family": "ਫੈਮਲੀ",
+  "@subscription.plan.family": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.plan.family_plus": "ਫੈਮਲੀ+",
+  "@subscription.plan.family_plus": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.plan.free": "ਮੁਫ਼ਤ",
+  "@subscription.plan.free": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.plan.label": "ਤੁਹਾਡਾ ਪਲਾਨ",
+  "@subscription.plan.label": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.plan.personal": "ਪਰਸਨਲ",
+  "@subscription.plan.personal": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.renewal.label": "ਨਵਿਆਉਣ ਦੀ ਤਾਰੀਖ਼",
+  "@subscription.renewal.label": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.renewal.none": "ਮੁਫ਼ਤ ਪਲਾਨ ਖ਼ਤਮ ਨਹੀਂ ਹੁੰਦਾ, ਇਸ ਲਈ ਨਵਿਆਉਣ ਲਈ ਕੁਝ ਨਹੀਂ ਹੈ।",
+  "@subscription.renewal.none": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.row.invoices.subtitle": "ਤੁਹਾਡੇ ਬਿੱਲ ਅਤੇ ਕ੍ਰੈਡਿਟ ਨੋਟ",
+  "@subscription.row.invoices.subtitle": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.row.invoices.title": "ਬਿੱਲ",
+  "@subscription.row.invoices.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.row.manage.subtitle": "ਨਵਿਆਉਣ ਦੀ ਤਾਰੀਖ਼, ਕੀ-ਕੀ ਸ਼ਾਮਲ ਹੈ, ਬਦਲੋ ਜਾਂ ਬੰਦ ਕਰੋ",
+  "@subscription.row.manage.subtitle": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.row.manage.title": "ਸਬਸਕ੍ਰਿਪਸ਼ਨ ਸੰਭਾਲੋ",
+  "@subscription.row.manage.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.row.payment.subtitle": "ਨਵਿਆਉਣ ਦਾ ਭੁਗਤਾਨ ਜੋ ਪੂਰਾ ਨਹੀਂ ਹੋਇਆ",
+  "@subscription.row.payment.subtitle": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.row.payment.title": "ਭੁਗਤਾਨ ਵਿੱਚ ਦਿੱਕਤ",
+  "@subscription.row.payment.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.row.plans.subtitle": "ਪਲਾਨਾਂ ਦੀ ਤੁਲਨਾ ਕਰੋ ਅਤੇ ਵੇਖੋ ਕਿ ਹਰ ਇੱਕ ਵਿੱਚ ਕੀ ਹੈ।",
+  "@subscription.row.plans.subtitle": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.row.plans.title": "ਪਲਾਨ ਵੇਖੋ",
+  "@subscription.row.plans.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.row.read_only.reason": "ਇਹ ਸਕ੍ਰੀਨ ਹਾਲੇ ਨਹੀਂ ਬਣੀ। ਪੜ੍ਹਨਾ ਅਤੇ ਐਕਸਪੋਰਟ ਕਦੇ ਨਹੀਂ ਰੁਕਦੇ।",
+  "@subscription.row.read_only.reason": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.row.read_only.title": "ਸਿਰਫ਼ ਪੜ੍ਹਨ ਵਾਲਾ ਢੰਗ",
+  "@subscription.row.read_only.title": {
+    "description": "machine-draft — native review M12"
+  },
   "subscription.sheet.book_full.blocked": "ਇਹ ਬਹੀ ਪਲਾਨ ਦੀ ਹੱਦ ਤੱਕ ਪਹੁੰਚ ਗਈ ਹੈ, ਇਸ ਲਈ ਇਹ ਐਂਟਰੀ ਹਾਲੇ ਸੰਭਾਲੀ ਨਹੀਂ ਜਾ ਸਕਦੀ।",
   "subscription.sheet.book_full.still_works": "ਤੁਸੀਂ ਜੋ ਲਿਖਿਆ ਹੈ ਉਹ ਸੁਰੱਖਿਅਤ ਹੈ। ਪੜ੍ਹਨਾ ਅਤੇ ਐਕਸਪੋਰਟ ਚਲਦੇ ਰਹਿਣਗੇ।",
   "subscription.sheet.book_full.title": "ਇਹ ਬਹੀ ਭਰ ਗਈ ਹੈ",
@@ -3165,6 +3641,42 @@
   "subscription.sheet.read_only.blocked": "ਤੁਹਾਡਾ ਪਲਾਨ ਖ਼ਤਮ ਹੋ ਗਿਆ ਹੈ, ਇਸ ਲਈ ਇਹ ਐਂਟਰੀ ਹਾਲੇ ਸੰਭਾਲੀ ਨਹੀਂ ਜਾ ਸਕਦੀ।",
   "subscription.sheet.read_only.still_works": "ਤੁਸੀਂ ਜੋ ਲਿਖਿਆ ਹੈ ਉਹ ਸੁਰੱਖਿਅਤ ਹੈ। ਤੁਸੀਂ ਹੁਣ ਵੀ ਬਹੀਆਂ ਪੜ੍ਹ ਸਕਦੇ ਹੋ, ਐਕਸਪੋਰਟ ਕਰ ਸਕਦੇ ਹੋ ਅਤੇ ਬੰਦ ਕਰ ਸਕਦੇ ਹੋ।",
   "subscription.sheet.read_only.title": "ਨਵੀਆਂ ਐਂਟਰੀਆਂ ਰੁਕੀਆਂ ਹੋਈਆਂ ਹਨ",
+  "subscription.state.active": "ਚਾਲੂ",
+  "@subscription.state.active": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.state.active.body": "ਸਭ ਕੁਝ ਚੱਲ ਰਿਹਾ ਹੈ — ਐਂਟਰੀ, ਸਿੰਕ, ਰਿਪੋਰਟਾਂ ਅਤੇ ਐਕਸਪੋਰਟ।",
+  "@subscription.state.active.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.state.dunning": "ਭੁਗਤਾਨ ਨਹੀਂ ਹੋਇਆ",
+  "@subscription.state.dunning": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.state.dunning.body": "ਨਵਿਆਉਣ ਦਾ ਭੁਗਤਾਨ ਨਹੀਂ ਹੋ ਸਕਿਆ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਹੁੰਦੇ ਸਮੇਂ ਐਂਟਰੀ ਚੱਲਦੀ ਰਹਿੰਦੀ ਹੈ।",
+  "@subscription.state.dunning.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.state.offline_grace": "ਹਾਲ ਵਿੱਚ ਜਾਂਚ ਨਹੀਂ ਹੋਈ",
+  "@subscription.state.offline_grace": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.state.read_only": "ਸਿਰਫ਼ ਪੜ੍ਹਨ ਲਈ",
+  "@subscription.state.read_only": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.state.trial": "ਮੁਫ਼ਤ ਟ੍ਰਾਇਲ",
+  "@subscription.state.trial": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.state.trial.body": "ਤੁਸੀਂ 30 ਦਿਨਾਂ ਦੇ ਫੈਮਲੀ ਟ੍ਰਾਇਲ ਉੱਤੇ ਹੋ। ਪਲਾਨ ਚੁਣਨ ਤੱਕ ਕੋਈ ਪੈਸਾ ਨਹੀਂ ਲੱਗਦਾ।",
+  "@subscription.state.trial.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.title": "ਸਬਸਕ੍ਰਿਪਸ਼ਨ",
+  "@subscription.title": {
+    "description": "machine-draft — native review M12"
+  },
   "suspended.banner": "ਇਹ ਫ਼ੋਨ ਰੋਕਿਆ ਗਿਆ ਹੈ — ਸਿਰਫ਼ ਪੜ੍ਹਨ ਲਈ। ਸਿੰਕ ਰੁਕ ਗਿਆ ਹੈ।",
   "suspended.body": "ਸਾਨੂੰ ਦੱਸਿਆ ਗਿਆ ਕਿ ਇਹ ਫ਼ੋਨ ਹਟਾਇਆ ਗਿਆ ਹੈ, ਪਰ ਅਸੀਂ ਅਜੇ ਇਸ ਦੀ ਪੁਸ਼ਟੀ ਨਹੀਂ ਕਰ ਸਕੇ। ਉਦੋਂ ਤੱਕ ਤੁਸੀਂ ਆਪਣੇ ਵਹੀ-ਖਾਤੇ ਪੜ੍ਹ ਸਕਦੇ ਹੋ ਪਰ ਕੁਝ ਜੋੜ ਨਹੀਂ ਸਕਦੇ। ਇਸ ਫ਼ੋਨ ਤੋਂ ਕੁਝ ਵੀ ਮਿਟਾਇਆ ਨਹੀਂ ਗਿਆ।",
   "suspended.devices_link": "ਡਿਵਾਈਸ ਤੇ ਸੁਰੱਖਿਆ",
