@@ -7,11 +7,14 @@ import type { Claims } from "./claims.ts";
 import type { Plan } from "./registry.ts";
 import {
   type ActivationTicket,
+  type BillingApplyResult,
+  type BillingEventApply,
   type BookAccess,
   type CeremonySession,
   denialFromPg,
   DeviceCapError,
   DeviceIdTakenError,
+  type EntitlementState,
   type EnvelopeRow,
   type GuardianSet,
   type GuardianSetDraft,
@@ -205,6 +208,41 @@ class PgTx implements Tx {
     const rows = await this
       .sql`select * from signed_records where seq > ${afterSeq.toString()}::bigint order by seq limit ${limit}`;
     return rows.map(recordRow);
+  }
+  /** 08 §3 🔒. Everything here is plaintext plan metadata the server already holds; the join names
+   *  three tables and not one of them is `envelopes`, `attachments` or `wrapped_keys`. The
+   *  `rf.active_in_tenant` filter is what keeps an UNCERTIFIED device out: 0005's memberships
+   *  policy lets a device see its OWN membership rows before certification, and a token minted for
+   *  such a device would be an entitlement statement made to a device 05d 🔒 does not trust yet. */
+  async entitlementStates(): Promise<EntitlementState[]> {
+    const rows = await this.sql`
+      select m.tenant_id,
+             s.plan, s.status, s.current_period_end, s.trial_end, s.grace_kind,
+             s.updated_at as sub_updated_at,
+             e.created_at as token_created_at, e.expires_at as token_expires_at
+        from memberships m
+        left join subscriptions s on s.tenant_id = m.tenant_id
+        left join entitlement_tokens e on e.tenant_id = m.tenant_id
+       where m.user_id = rf.user_id() and m.status = 'active'
+         and rf.active_in_tenant(m.tenant_id)
+       order by m.tenant_id`;
+    return rows.map((r) => ({
+      tenant_id: r.tenant_id as string,
+      plan: (r.plan as string | null) ?? null,
+      status: (r.status as string | null) ?? null,
+      current_period_end: (r.current_period_end as Date | null) ?? null,
+      trial_end: (r.trial_end as Date | null) ?? null,
+      grace_kind: (r.grace_kind as string | null) ?? null,
+      sub_updated_at: (r.sub_updated_at as Date | null) ?? null,
+      token_created_at: (r.token_created_at as Date | null) ?? null,
+      token_expires_at: (r.token_expires_at as Date | null) ?? null,
+    }));
+  }
+  async putEntitlementToken(tenantId: string, token: Uint8Array, expiresAt: Date): Promise<void> {
+    await this.guarded(async () => {
+      await this
+        .sql`select rf.mint_entitlement_token(${tenantId}::uuid, ${token}, ${expiresAt}::timestamptz)`;
+    });
   }
   async guardianSetHistory(subject: string): Promise<GuardianSet[]> {
     const sets = await this
@@ -665,6 +703,21 @@ class PgTx implements Tx {
     const [r] = await this
       .sql`select rf.record_billing_event(${eventId}, ${gateway}, ${type}, ${hash}) as fresh`;
     return r.fresh as boolean;
+  }
+  /** One statement, therefore one transaction with the dedupe: rf.apply_billing_event does the
+   *  INSERT … ON CONFLICT DO NOTHING, the out-of-order comparison and the UPDATE together
+   *  (migration 0013). rf_api holds no write privilege on either table — only EXECUTE on this. */
+  async applyBillingEvent(e: BillingEventApply): Promise<BillingApplyResult> {
+    const [r] = await this.sql`select * from rf.apply_billing_event(
+      ${e.eventId}, ${e.gateway}, ${e.type}, ${e.hash}, ${e.action},
+      ${e.tenantId}::uuid, ${e.eventAt}::timestamptz, ${e.plan}::text,
+      ${e.periodEnd}::timestamptz, ${e.gatewayRef}::text, ${e.source}::text,
+      ${e.originalTransactionId}::text, ${e.disputeState}::text)`;
+    return {
+      fresh: r.fresh as boolean,
+      applied: r.applied as boolean,
+      outcome: r.outcome as BillingApplyResult["outcome"],
+    };
   }
 }
 

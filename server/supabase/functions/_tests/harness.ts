@@ -10,6 +10,9 @@ import type { SignedRecordRow } from "../_shared/store.ts";
 import { MemDb, type MemDevice, MemStore } from "../_shared/store_mem.ts";
 
 export const T0 = new Date("2026-09-07T09:00:00.000Z");
+/** The rig's `entitlement_key` seed (04 §8.6 🔒). Fixed so a test can derive the public half with
+ *  `entitlementPublicKey` and verify a token the way the app will, against a PINNED key. */
+export const ENTITLEMENT_SEED = new Uint8Array(32).fill(13);
 export const CLIENT_VERSION = "0.1.0";
 
 export interface Rig {
@@ -29,6 +32,7 @@ export function rig(): Rig {
     jwtKey: new Uint8Array(32).fill(7),
     phoneHmacKey: new Uint8Array(32).fill(9),
     phoneKek: new Uint8Array(32).fill(11),
+    entitlementSeed: ENTITLEMENT_SEED,
     otp,
     webhookSecret: new TextEncoder().encode("whsec_test"),
   };
@@ -83,6 +87,18 @@ export async function member(
     Math.floor(r.clock.now.getTime() / 1000),
   );
   return { user, device, keys, xpub, claims, token };
+}
+
+/** A fresh access token for an existing member at the rig's CURRENT clock. A test that advances
+ *  the clock past the JWT's lifetime (06 §4) otherwise starts failing on auth while it believes it
+ *  is testing something else. */
+export async function reissue(r: Rig, m: Member): Promise<string> {
+  m.token = await mintAccessToken(
+    r.deps.jwtKey,
+    m.claims,
+    Math.floor(r.clock.now.getTime() / 1000),
+  );
+  return m.token;
 }
 
 export function hlcAt(ms: number, counter = 0): bigint {

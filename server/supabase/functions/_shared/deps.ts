@@ -13,6 +13,9 @@ export interface Deps {
   jwtKey: Uint8Array;
   phoneHmacKey: Uint8Array;
   phoneKek: Uint8Array;
+  /** 32-byte Ed25519 seed of `entitlement_key` (04 §8.6 🔒). Only sodium.ts's
+   *  `signEntitlementToken` may take it, and it signs only an `EntitlementPayload`. */
+  entitlementSeed: Uint8Array;
   otp: OtpProvider;
   webhookSecret: Uint8Array;
 }
@@ -34,6 +37,7 @@ export function liveDeps(): Deps {
     jwtKey: b64.dec(requireEnv(ENV.JWT_KEY)),
     phoneHmacKey: b64.dec(requireEnv(ENV.PHONE_HMAC_KEY)),
     phoneKek: b64.dec(requireEnv(ENV.PHONE_KEK)),
+    entitlementSeed: b64.dec(requireEnv(ENV.ENTITLEMENT_KEY)),
     otp,
     webhookSecret: new TextEncoder().encode(env(ENV.WEBHOOK_SECRET) ?? ""),
   };

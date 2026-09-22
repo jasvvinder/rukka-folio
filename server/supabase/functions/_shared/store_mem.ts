@@ -7,10 +7,13 @@ import type { Plan } from "./registry.ts";
 import { WRITER_ROLES } from "./registry.ts";
 import {
   type ActivationTicket,
+  type BillingApplyResult,
+  type BillingEventApply,
   type BookAccess,
   type CeremonySession,
   DeviceCapError,
   DeviceIdTakenError,
+  type EntitlementState,
   type EnvelopeRow,
   type GuardianSet,
   type GuardianSetDraft,
@@ -102,7 +105,10 @@ export class MemDb {
     consumed_at: Date | null;
   }[] = [];
   refresh_tokens: RefreshToken[] = [];
-  billing_events = new Set<string>();
+  /** event_id → the recorded row. 0013 widened the table with `tenant_id` and `event_at`: the
+   *  out-of-order guard of ADR 2026-09-05g §9 needs to know which subscription an event belongs to
+   *  and when the GATEWAY raised it. `payload_hash` is all we keep of the body (rule 4). */
+  billing_events = new Map<string, Row>();
 
   // ---- seeding helpers (tests only)
   addUser(u: Partial<MemUser> = {}): MemUser {
@@ -229,6 +235,33 @@ export class MemDb {
   setPlan(tenant_id: string, plan: Plan): void {
     this.subscriptions = this.subscriptions.filter((s) => s.tenant_id !== tenant_id);
     this.subscriptions.push({ tenant_id, plan, status: "active", updated_at: this.now() });
+  }
+  /** A subscription row with every 03 §2.4 🔒 column present, the way 0004 creates it — so a
+   *  billing test can assert that a state change touched the columns it should and left the rest
+   *  alone, which `setPlan`'s three-column row cannot show. */
+  addSubscription(tenant_id: string, row: Row = {}): Row {
+    this.subscriptions = this.subscriptions.filter((s) => s.tenant_id !== tenant_id);
+    const r: Row = {
+      tenant_id,
+      plan: "free",
+      status: "active",
+      gateway: null,
+      gateway_ref: null,
+      current_period_end: null,
+      source: null,
+      original_transaction_id: null,
+      payer_user_id: null,
+      trial_end: null,
+      grace_until: null,
+      grace_kind: null,
+      cancel_at_period_end: false,
+      seats_addon: 0,
+      dispute_state: null,
+      ...row,
+      updated_at: this.now(),
+    };
+    this.subscriptions.push(r);
+    return r;
   }
   freeze(tenant_id: string, days = 7): void {
     const t = this.now();
@@ -467,6 +500,58 @@ class MemTx implements Tx {
       rows: rows.map((x) => x.row),
       next: rows.length === limit && last ? { updated_at: last.ts, id: last.id } : null,
     });
+  }
+  /** Mirrors store_pg's join, including the `activeInTenant` filter that keeps an uncertified
+   *  device out (0005's memberships policy alone would not). */
+  entitlementStates(): Promise<EntitlementState[]> {
+    const out: EntitlementState[] = [];
+    for (const m of this.db.memberships) {
+      if (m.user_id !== this.me || m.status !== "active") continue;
+      const t = m.tenant_id as string;
+      if (!this.activeInTenant(t)) continue;
+      const s = this.db.subscriptions.find((x) => x.tenant_id === t) ?? null;
+      const e = this.db.entitlement_tokens.find((x) => x.tenant_id === t) ?? null;
+      out.push({
+        tenant_id: t,
+        plan: (s?.plan as string | null) ?? null,
+        status: (s?.status as string | null) ?? null,
+        current_period_end: (s?.current_period_end as Date | null) ?? null,
+        trial_end: (s?.trial_end as Date | null) ?? null,
+        grace_kind: (s?.grace_kind as string | null) ?? null,
+        sub_updated_at: (s?.updated_at as Date | null) ?? null,
+        token_created_at: (e?.created_at as Date | null) ?? null,
+        token_expires_at: (e?.expires_at as Date | null) ?? null,
+      });
+    }
+    out.sort((a, b) => a.tenant_id < b.tenant_id ? -1 : a.tenant_id > b.tenant_id ? 1 : 0);
+    return Promise.resolve(out);
+  }
+  /** rf.mint_entitlement_token (0014) in TypeScript: one row per tenant, the membership re-checked
+   *  here rather than trusted from the caller, `created_at` moved because the row now holds a
+   *  NEWLY minted token, and `updated_at` moved because 05 §5's cursor must carry it to the
+   *  device. A row for a tenant the caller is not active in is refused, not silently skipped. */
+  putEntitlementToken(tenantId: string, token: Uint8Array, expiresAt: Date): Promise<void> {
+    if (!this.activeInTenant(tenantId)) {
+      return Promise.reject(new StoreDenied("not_entitled"));
+    }
+    const t = this.now;
+    const row = this.db.entitlement_tokens.find((x) => x.tenant_id === tenantId);
+    if (row) {
+      row.token = token;
+      row.expires_at = expiresAt;
+      row.created_at = t;
+      row.updated_at = t;
+    } else {
+      this.db.entitlement_tokens.push({
+        id: crypto.randomUUID(),
+        tenant_id: tenantId,
+        token,
+        expires_at: expiresAt,
+        created_at: t,
+        updated_at: t,
+      });
+    }
+    return Promise.resolve();
   }
   signedRecordsAfter(afterSeq: bigint, limit: number): Promise<SignedRecordRow[]> {
     return Promise.resolve(
@@ -1324,9 +1409,91 @@ class MemTx implements Tx {
     }
     return Promise.resolve();
   }
-  recordBillingEvent(eventId: string): Promise<boolean> {
+  recordBillingEvent(
+    eventId: string,
+    gateway: string,
+    type: string,
+    hash: Uint8Array,
+  ): Promise<boolean> {
     if (this.db.billing_events.has(eventId)) return Promise.resolve(false);
-    this.db.billing_events.add(eventId);
+    this.db.billing_events.set(eventId, {
+      event_id: eventId,
+      gateway,
+      type,
+      payload_hash: hash,
+      tenant_id: null,
+      event_at: null,
+      received_at: this.now,
+      applied_at: null,
+    });
     return Promise.resolve(true);
+  }
+  /** rf.apply_billing_event (migration 0013) restated in TypeScript, same order of decisions:
+   *  resolve the tenant, record, then dedupe → action → tenant → ordering key → row → out-of-order
+   *  → the one state change. Divergence between the two is a bug in whichever is not 0013. */
+  applyBillingEvent(e: BillingEventApply): Promise<BillingApplyResult> {
+    const byRef = e.gatewayRef == null
+      ? undefined
+      : this.db.subscriptions.find((s) =>
+        s.gateway_ref === e.gatewayRef && (s.gateway == null || s.gateway === e.gateway)
+      );
+    const tenant = (byRef?.tenant_id as string | undefined) ?? e.tenantId;
+
+    if (this.db.billing_events.has(e.eventId)) {
+      return Promise.resolve({ fresh: false, applied: false, outcome: "duplicate" });
+    }
+    const rec: Row = {
+      event_id: e.eventId,
+      gateway: e.gateway,
+      type: e.type,
+      payload_hash: e.hash,
+      tenant_id: tenant ?? null,
+      event_at: e.eventAt,
+      received_at: this.now,
+      applied_at: null,
+    };
+    this.db.billing_events.set(e.eventId, rec);
+
+    const done = (outcome: BillingApplyResult["outcome"]) =>
+      Promise.resolve({ fresh: true, applied: false, outcome });
+    if (e.action === "record_only") return done("not_applicable");
+    if (!tenant) return done("unknown_tenant");
+    if (!e.eventAt) return done("no_event_at");
+    const sub = this.db.subscriptions.find((s) => s.tenant_id === tenant);
+    if (!sub) return done("unknown_tenant");
+
+    let last: number | null = null;
+    for (const b of this.db.billing_events.values()) {
+      if (b.tenant_id !== tenant || b.applied_at == null || b.event_at == null) continue;
+      const t = (b.event_at as Date).getTime();
+      if (last === null || t > last) last = t;
+    }
+    if (last !== null && e.eventAt.getTime() <= last) return done("out_of_order");
+
+    if (e.action === "activate") {
+      sub.plan = e.plan ?? sub.plan;
+      sub.status = "active";
+      sub.current_period_end = e.periodEnd ?? sub.current_period_end;
+      sub.gateway = e.gateway ?? sub.gateway;
+      sub.gateway_ref = e.gatewayRef ?? sub.gateway_ref;
+      sub.source = e.source ?? sub.source;
+      sub.original_transaction_id = e.originalTransactionId ?? sub.original_transaction_id;
+      sub.grace_until = null;
+      sub.grace_kind = null;
+    } else if (e.action === "dunning") {
+      const base = (e.periodEnd ?? sub.current_period_end) as Date | null;
+      if (!base) return done("no_period_end");
+      sub.status = "past_due";
+      sub.grace_kind = "dunning";
+      sub.grace_until = new Date(base.getTime() + 7 * 86400e3);
+    } else {
+      sub.status = "expired";
+      sub.grace_until = null;
+      sub.grace_kind = null;
+      sub.dispute_state = e.disputeState ?? sub.dispute_state;
+    }
+    sub.updated_at = this.now; // the subscriptions_touch trigger, 0004:21 — 05 §5's meta cursor
+    rec.applied_at = this.now;
+    return Promise.resolve({ fresh: true, applied: true, outcome: e.action });
   }
 }

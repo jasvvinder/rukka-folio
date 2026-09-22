@@ -19,7 +19,9 @@ import {
   type RecordResult,
   verifyRecord,
 } from "../_shared/records.ts";
+import { entitlementFor, needsMint } from "../_shared/entitlement.ts";
 import { normaliseE164, phoneHmac } from "../_shared/phone.ts";
+import { signEntitlementToken } from "../_shared/sodium.ts";
 import { PULL_LIMIT_MAX } from "../_shared/registry.ts";
 import { authenticate, gate, jsonBigResponse, recordToWire } from "../_shared/route.ts";
 import {
@@ -69,6 +71,10 @@ async function pull(
   if (!isUuid(subject)) return error(400, "bad_request");
 
   const out = await deps.store.withClaims(claims, async (tx) => {
+    // 08 §3 🔒 / ADR 2026-09-05g §1 🔒: "Tokens travel on the meta channel and are refreshed on
+    // every meta pull." Before the tables are paged, so a token minted now is in THIS response
+    // rather than the next one — a device that just certified must not be told it is tokenless.
+    await refreshEntitlements(tx, deps);
     const body: Record<string, unknown> = { store_epoch: await tx.storeEpoch() };
     const next: Cursor = { tables: {}, records_seq: cursor?.records_seq ?? "0" };
     let more = false;
@@ -114,6 +120,27 @@ async function pull(
     return body;
   });
   return jsonBigResponse(200, out);
+}
+
+/** Mint an entitlement token for each of the caller's active tenants that needs one (08 §3 🔒).
+ *
+ *  A tenant with no `subscriptions` row still gets one, signed, saying Free — ADR 2026-09-05g §1 🔒
+ *  "A tenant with no valid token is *Free*, never *locked*", and the client can only act on that if
+ *  it can tell a signed Free from silence. A tenant whose stored token is still current is NOT
+ *  re-signed: the row is left exactly as it is, so a replayed pull returns the same bytes and does
+ *  not move 05 §5's `updated_at,id` cursor.
+ *
+ *  Nothing here logs, returns or otherwise reveals the token, the payload or the key (CLAUDE.md
+ *  rule 4, 04 §8 rule 1 🔒) — the token reaches the client through `entitlement_tokens` and the
+ *  ordinary meta page, like every other row. */
+async function refreshEntitlements(tx: Tx, deps: Deps): Promise<void> {
+  const now = deps.now();
+  for (const state of await tx.entitlementStates()) {
+    if (!needsMint(state, now)) continue;
+    const payload = entitlementFor(state, now);
+    const token = await signEntitlementToken(payload, deps.entitlementSeed);
+    await tx.putEntitlementToken(state.tenant_id, token, new Date(payload.exp));
+  }
 }
 
 // ---------------------------------------------------------------- ceremony session relay
@@ -815,6 +842,10 @@ export function shapeRow(table: MetaTable, r: Record<string, unknown>): Record<s
         updated_at: ms(r.updated_at),
       };
     case "entitlement_tokens":
+      // The signed bytes and when they stop being valid — nothing about the key that signed them.
+      // The public half is PINNED IN THE APP (08 §3 line 35 🔒, 04 §4), never served: a server that
+      // hands out the verification key it also signs with pins nothing. `token` is opaque here;
+      // its layout is documented once, in _shared/sodium.ts's entitlement header.
       return {
         id,
         tenant_id: r.tenant_id,

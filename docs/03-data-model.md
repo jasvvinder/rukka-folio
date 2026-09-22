@@ -116,7 +116,7 @@ create index on envelopes (tenant_id);
 
 `attachments(id, book_id, storage_key, size, created_at)` — ciphertext files in object storage; their per-file keys ride inside `attachment_meta` envelopes (04 §3).
 
-### 2.4 Billing, audit, ops 🔒 ⟦tests: E-03-21, E-05-12⟧
+### 2.4 Billing, audit, ops 🔒 ⟦tests: E-03-21, E-05-12, E-03-65, E-03-66, E-03-67, E-03-68, E-03-69, E-03-70, E-03-71, E-03-72, E-03-73, E-03-74⟧
 
 ```sql
 subscriptions(tenant_id pk, plan, status, gateway, gateway_ref, current_period_end,
@@ -124,7 +124,11 @@ subscriptions(tenant_id pk, plan, status, gateway, gateway_ref, current_period_e
         original_transaction_id, payer_user_id uuid,     -- only a tenant admin (ADR 2026-09-05g §7)
         trial_end, grace_until, grace_kind text null check (grace_kind in ('dunning')),
         cancel_at_period_end bool, seats_addon int, dispute_state, updated_at)  -- 05 §5 cursor
-billing_events(event_id pk, gateway, type, payload_hash, received_at, applied_at null)
+billing_events(event_id pk, gateway, type, payload_hash, received_at, applied_at null,
+        tenant_id uuid null, event_at timestamptz null)
+        -- ⚠️ SPEC (M13-BIL1, 22 Sep): tenant_id + event_at added by 0013 so ADR 2026-09-05g §9's
+        -- out-of-order guard has a subscription to key on and the GATEWAY's time to order by;
+        -- owner to ratify the two names (03 §2.4 is 🔒)
         -- signature-verified, deduped, out-of-order guarded (ADR 2026-09-05g §9)
 promo_codes(code pk, max_redemptions, per_user_limit, first_purchase_only bool, valid_from, valid_to)
 promo_redemptions(code, user_id, tenant_id, at)     -- server-validated, never stacked (§12)

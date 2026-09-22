@@ -85,6 +85,7 @@ an API surface here (0005).
 | phone HMAC key (32 B) | `RF_PHONE_HMAC_KEY` | `phone_hmac = HMAC-SHA256(key, e164)` lookup (ADR 05c §4) | rotating re-keys every `phone_hmac`, `invitee_hmac`, `otp_challenges.phone_hmac`; plan a dual-key window or accept a re-verify |
 | phone KEK (32 B) | `RF_PHONE_KEK` | `phone_ct = XChaCha20-Poly1305(kek, e164)` — decrypted only to send a code | **annual (proposed)**, re-encrypt in place under `rf_maintenance`; `phone_ct` carries the nonce, so a versioned prefix can be added without a schema change |
 | JWT HMAC key (≥32 B) | `RF_JWT_HMAC_KEY` | our HS256 access tokens (06 §4), 15 min | rotate with a 15-minute dual-verify window |
+| Entitlement key (32 B Ed25519 seed, base64) | `RF_ENTITLEMENT_KEY` | signs entitlement tokens (08 §3, ADR 2026-09-05g §1); public half pinned in the app beside the SPKI pins | annual, 30-day overlap — the app holds two pinned public keys meanwhile; Vault vs KMS is ADR 2026-09-05c open 2 |
 | webhook secret | `PAYMENT_GATEWAY_WEBHOOK_SECRET` | gateway signature | per gateway console |
 
 **Default: Supabase Vault** (CHANGELOG open item, 03 §11 item 6 — "lane S defaults to Vault unless the
@@ -105,7 +106,7 @@ has **no** decrypt right — only `auth-challenge` holds `RF_PHONE_KEK`.
 - [ ] **pg_cron** jobs under `rf_maintenance`: `rf.expire_invites()` hourly (06 §7's 7-day window; lazy expiry already binds at accept time, so a missed sweep is a stale row, never an admitted invite); `rf.purge_ephemeral_auth()` hourly (24 h auth rows, 90 d revoked keys); user erasure (06 §9.3) after the 15-day cooling; `audit_events` aggregation after 24 months (`verification_events` are permanent).
 - [ ] **Store epoch**: bump (`rf.bump_store_epoch(reason)`) after every restore or rebuild — clients reset cursors (05 §1). Never bump casually; every client re-pulls everything.
 - [ ] **SPKI pin rotation** (05 §1 🔒): clients pin ≥ 2 SPKI hashes (current + backup) of the API host's chain at the intermediate-CA level. Runbook: (1) publish the backup pin in a release *before* any rotation; (2) rotate the certificate; (3) verify the exact chain with `openssl s_client -showcerts` and recompute pins (`openssl x509 -pubkey | openssl pkey -pubin -outform der | openssl dgst -sha256 -binary | base64`); (4) ship the next backup. A pin failure is a hard fail with no override; only local-dev builds disable pinning, and the release lane asserts it.
-- [ ] **Edge Function secrets**: `RF_API_DB_URL`, `RF_MAINT_DB_URL`, `RF_JWT_HMAC_KEY`, `RF_PHONE_HMAC_KEY`, `RF_PHONE_KEK`, `OTP_PROVIDER` (+ key, DLT ids), `PAYMENT_GATEWAY_WEBHOOK_SECRET`. A hosted build with `OTP_PROVIDER=fake` sends nothing — deploy refuses it.
+- [ ] **Edge Function secrets**: `RF_API_DB_URL`, `RF_MAINT_DB_URL`, `RF_JWT_HMAC_KEY`, `RF_ENTITLEMENT_KEY`, `RF_PHONE_HMAC_KEY`, `RF_PHONE_KEK`, `OTP_PROVIDER` (+ key, DLT ids), `PAYMENT_GATEWAY_WEBHOOK_SECRET`. A hosted build with `OTP_PROVIDER=fake` sends nothing — deploy refuses it.
 - [ ] **Metrics are plaintext counters only** (ADR 05b §8): rejections by `result`/`check`, push/pull latency, cursor lag, `write_lost`/`meta_mismatch` counts. No log line joins an envelope id to a phone.
 - [ ] **Rate limits** (05 §3): 600 envelopes/min, 5,000/h, 50 MB/day per device via `rf.push_rate_check`; OTP 5/h + 10/day per number, 30/h per IP (⚠️ per-IP number is M6).
 

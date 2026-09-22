@@ -100,6 +100,22 @@ export function rowId(table: MetaTable, r: Record<string, unknown>): string {
   }
 }
 
+/** One tenant's entitlement facts, as the meta pull reads them: the caller's active tenant, the
+ *  subscription row it has (or no row at all), and the freshness markers of whatever token is
+ *  stored. Nothing here comes from an envelope, a blob, a wrapped key or an attachment — the mint
+ *  path is content-blind by construction (06 §10 🔒, 08 §5). */
+export interface EntitlementState {
+  tenant_id: string;
+  plan: string | null; // null when the tenant has no subscriptions row at all → Free
+  status: string | null;
+  current_period_end: Date | null;
+  trial_end: Date | null;
+  grace_kind: string | null;
+  sub_updated_at: Date | null;
+  token_created_at: Date | null; // null when nothing is stored yet
+  token_expires_at: Date | null;
+}
+
 export interface OtpChallenge {
   id: string;
   phone_hmac: Uint8Array;
@@ -272,6 +288,13 @@ export interface Tx {
     limit: number,
   ): Promise<{ rows: Record<string, unknown>[]; next: MetaCursor | null }>;
   signedRecordsAfter(afterSeq: bigint, limit: number): Promise<SignedRecordRow[]>;
+  // 08 §3 🔒 / ADR 2026-09-05g §1 🔒 — the entitlement token, refreshed on every meta pull.
+  /** The caller's OWN active tenants and their entitlement facts. Never another tenant's. */
+  entitlementStates(): Promise<EntitlementState[]>;
+  /** Store the freshly minted token for one of the caller's active tenants. rf_api holds no INSERT
+   *  or UPDATE grant on `entitlement_tokens`; this goes through rf.mint_entitlement_token (0014),
+   *  which re-checks the membership itself. */
+  putEntitlementToken(tenantId: string, token: Uint8Array, expiresAt: Date): Promise<void>;
   guardianSetHistory(subjectUserId: string): Promise<GuardianSet[]>;
   // signed records
   insertSignedRecord(row: SignedRecordRow): Promise<{ seq: bigint; duplicate: boolean }>;
@@ -419,6 +442,54 @@ export interface Tx {
     type: string,
     hash: Uint8Array,
   ): Promise<boolean>;
+  /** Record AND apply one gateway webhook in the same transaction (08 §4 🔒, ADR 2026-09-05g §9).
+   *  Dedupe, the out-of-order guard and the state change cannot come apart, because a handler that
+   *  recorded first and applied second would apply twice on a retry that crashed in between. */
+  applyBillingEvent(e: BillingEventApply): Promise<BillingApplyResult>;
+}
+
+/** What the handler decided a gateway event MEANS. The gateway's own vocabulary stays in
+ *  billing-webhook/index.ts; the store and the database see only these four (08 §3, ADR
+ *  2026-09-05g §4, §11). `record_only` is an event we understood well enough to log and not well
+ *  enough to act on — an unknown type, a malformed body — and is never a silent drop. */
+export type BillingAction = "activate" | "dunning" | "end_now" | "record_only";
+
+/** Why an event did not change anything, for the caller's own bookkeeping. Never returned on the
+ *  wire: the gateway learns `applied`, not our reasoning. */
+export type BillingOutcome =
+  | BillingAction
+  | "duplicate"
+  | "not_applicable"
+  | "unknown_tenant"
+  | "no_event_at"
+  | "no_period_end"
+  | "out_of_order";
+
+export interface BillingEventApply {
+  eventId: string;
+  gateway: string;
+  type: string;
+  /** BLAKE2b-256 of the raw body. The body itself is never stored and never logged (rule 4): it
+   *  carries payer name, instrument and amount. */
+  hash: Uint8Array;
+  action: BillingAction;
+  /** The tenant the signed body names, when it names one. Null is normal — the gateway ref is the
+   *  primary resolution (08 §4 🔒 "we hold reference IDs only"). */
+  tenantId: string | null;
+  /** The GATEWAY's timestamp for the event: the ordering key of ADR 2026-09-05g §9's guard. */
+  eventAt: Date | null;
+  plan: string | null;
+  periodEnd: Date | null;
+  gatewayRef: string | null;
+  source: string | null;
+  originalTransactionId: string | null;
+  disputeState: string | null;
+}
+export interface BillingApplyResult {
+  /** False on a replay: this event_id was already recorded (08 §5 "webhook replay is idempotent"). */
+  fresh: boolean;
+  applied: boolean;
+  outcome: BillingOutcome;
 }
 
 export interface Store {
