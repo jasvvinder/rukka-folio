@@ -12,17 +12,17 @@
 // Money never touches a float (CLAUDE.md rule 1): integer paise are split into
 // rupees and paise by integer division and printed as text.
 //
-// ⚠️ SPEC: ADR 2026-09-12 §3 says 07 §14's content rules — b/d–c/d rows,
-// amount-in-words, Indian digit grouping — bind all three formats, but the
-// same ADR's Open note puts report *content* rules at M12 with the F3 byte
-// goldens (`F3-07-1`, `F3-07-2`), not at M5. So the figures here are written
-// machine-readable (`1234.56`, two decimals, no ₹, no grouping): a grouped
-// `₹12,34,567.00` inside a CSV cell is a string to a spreadsheet, not a
-// number, and which of the two a golden freezes is the M12 lane's call, not
-// this one's. The PDF writer beside this one prints the same figures through
-// the app's own [formatPaise] (₹, Indian grouping) precisely because paper is
-// read by a person and a CSV cell by a spreadsheet. Nothing else about the
-// layout anticipates that decision.
+// 07 §14's content rules (ADR 2026-09-12 §3, deferred to M12 and landed here)
+// reach this format as far as a CSV can carry them: the **b/d–c/d rows** and
+// the amount-in-words line are rows of the [ReportTable], so they arrive with
+// the body. **Indian digit grouping does not**, and deliberately: the figures
+// here stay machine-readable (`1234.56`, two decimals, no ₹, no grouping),
+// because a grouped `₹12,34,567.00` inside a CSV cell is a *string* to a
+// spreadsheet, not a number, and a ledger that cannot be summed is no use to
+// the accountant the format is for. Grouping is a display rule, and the two
+// formats a person reads apply it: the PDF prints every figure through the
+// app's own [formatPaise], and the XLSX carries the Indian format code
+// `#,##,##0.00` over a numeric cell — display without touching the value.
 //
 // The column words live in `report_export.dart` as [ReportLabels], shared with
 // the PDF writer so the two formats of one report cannot disagree.
@@ -92,6 +92,15 @@ String reportTableCsv(ReportTable table) {
       for (var i = 0; i < table.columns.length; i++)
         csvCellText(i < row.cells.length ? row.cells[i] : null),
     ]);
+  }
+
+  // The amount in words under the table (07 §14 🔒), after a blank record so a
+  // spreadsheet does not read it as a body row. A sentence, not a figure: it
+  // is the one place in this file where a number is words.
+  final words = table.amountInWords;
+  if (words != null) {
+    write(const ['']);
+    write([words.label, words.value]);
   }
   return buffer.toString();
 }

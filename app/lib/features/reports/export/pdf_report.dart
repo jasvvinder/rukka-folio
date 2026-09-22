@@ -28,12 +28,15 @@
 // [ReportFonts.unsupportedRunes] is the proof — `F1-07-79` asserts that no rune
 // of a Gurmukhi or Devanagari day book falls through them.
 //
-// ⚠️ SPEC: 07 §14's report *content* rules — b/d–c/d rows on ledgers and
-// amount-in-words — are not built here: ADR 2026-09-12 §3's Open note puts them
-// at M12 with the F3 byte goldens (`F3-07-1`, `F3-07-2`), and 10's M5 row is
-// *"basic day-book export"*. The Free-tenant watermark is M12 too
-// (ADR 2026-09-12 §2, `F3-07-3`). Indian digit grouping is not deferred — it is
-// what [formatPaise] already does on every surface of the app.
+// 07 §14's report *content* rules are built here, which is what M12 added to
+// the M5 "basic day-book export" (ADR 2026-09-12 §3's Open note deferred them
+// to this milestone): the **b/d–c/d rows** of a ledger are rows of the
+// [ReportTable] and reach the page with the body, and the **amount in words**
+// is drawn under the table by [_amountInWords] — the one line of a report where
+// a figure is spelled out rather than set in numerals, so a reader can check
+// the numerals against it. Indian digit grouping was never deferred: it is what
+// [formatPaise] already does on every surface of the app. The Free-tenant
+// watermark remains M12 work of its own (ADR 2026-09-12 §2, `F3-07-3`).
 import 'dart:ui' show Locale;
 
 import 'package:core_ledger/core_ledger.dart';
@@ -213,6 +216,7 @@ Future<Uint8List> reportTablePdf(
           },
           children: rows,
         ),
+        if (table.amountInWords case final words?) _amountInWords(words),
       ],
     ),
   );
@@ -413,6 +417,21 @@ pw.Widget _pdfCell(
     ),
   };
 }
+
+/// The amount in words under the table (07 §14 🔒) — *Closing balance in
+/// words: Rupees four thousand five hundred only*.
+///
+/// Set in the body face, not the muted meta ink: on a printed ledger this line
+/// is what the figures are checked against, which is the whole reason a paper
+/// ledger carries it. It wraps rather than clipping, because a crore amount in
+/// Gurmukhi is a long line and a truncated amount in words is worse than none.
+pw.Widget _amountInWords(ReportMetaLine words) => pw.Container(
+  margin: const pw.EdgeInsets.only(top: RkSpace.s2),
+  child: pw.Text(
+    '${words.label}: ${words.value}',
+    style: pw.TextStyle(fontSize: _bodySize, color: _ink),
+  ),
+);
 
 /// One table cell.
 pw.Widget _cell(

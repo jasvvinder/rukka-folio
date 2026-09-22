@@ -35,7 +35,7 @@ unchanged rather than reopening it. `06 §9.2`'s *"full export forever"* claim i
   (09 §preamble; `scripts/ci.sh` `LANE=rc`), never the push lane. ⟦tests: F3-07-1 @M12, F3-07-2 @M12⟧
 - `07 §14`'s content rules bind all three formats where the format can carry them: b/d–c/d rows on
   ledgers, amount-in-words, Indian digit grouping. **A4 print-clean binds PDF only** — it is a page
-  rule, and CSV and XLSX have no pages. ⟦tests: F3-07-1 @M12, F3-07-2 @M12⟧
+  rule, and CSV and XLSX have no pages. Row content landed 22 Sep (M13-RPT1); the byte-goldens stay RC. ⟦tests: F1-07-423, F1-07-424, F1-07-425, F1-07-426, F1-07-427, F1-07-428, F1-07-429, F1-07-430, F1-07-431, F1-07-432, F1-07-433, F1-07-434, F3-07-1 @M12, F3-07-2 @M12⟧
 
 ### 4. Temp files from every format purge on the existing rule ⟦tests: F2-05a-11 @M12⟧
 - A generated report is plaintext financial data (CLAUDE.md rule 4). All three formats purge under the

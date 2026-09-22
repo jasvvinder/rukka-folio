@@ -177,13 +177,18 @@ void main() {
         expect(text, contains('Dr,Cr,Balance'));
         expect(text, isNot(contains('Money in')));
         expect(text, isNot(contains('Money out')));
-        // b/f first, c/f last (02 §8.1 *Presentation*).
+        // b/f first, c/f once; 07 §14's c/d · Total · b/d rows and the
+        // amount-in-words line follow it (landed M12, RPT1).
         final lines = text.split('\r\n')..removeWhere((l) => l.isEmpty);
         expect(lines.where((l) => l.contains('Opening balance b/f')).length, 1);
-        expect(lines.last, contains('Closing balance c/f'));
+        expect(lines.where((l) => l.contains('Closing balance c/f')).length, 1);
+        expect(lines.last, contains('Closing balance in words'));
         // Ramesh owes ₹5,000 after the seeded part repayment — integer paise
         // all the way to the file (CLAUDE.md rule 1).
-        expect(lines.last, contains('5000.00'));
+        expect(
+          lines.firstWhere((l) => l.contains('Closing balance c/f')),
+          contains('5000.00'),
+        );
         await unmount(tester);
       },
     );

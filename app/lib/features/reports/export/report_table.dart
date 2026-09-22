@@ -15,9 +15,10 @@
 // double is constructed anywhere on the path.
 //
 // Generalised **only as far as the statement needed** (ADR 2026-09-12e §2):
-// column widths, alignment, a running-balance column and the b/f–c/d boundary
-// rows of 02 §8.1 *Presentation*. Anything the day book and the statement do
-// not both need is still the report's own business.
+// column widths, alignment, a running-balance column, the boundary and total
+// rows a ledger closes with (02 §8.1 *Presentation*, 07 §14 🔒 b/d–c/d) and the
+// amount-in-words line under them (07 §14 🔒). Anything the day book and the
+// statement do not both need is still the report's own business.
 import 'package:core_ledger/core_ledger.dart';
 import 'package:flutter/foundation.dart';
 
@@ -182,6 +183,7 @@ final class ReportTable {
     required this.meta,
     required this.columns,
     required this.rows,
+    this.amountInWords,
   });
 
   /// The report's own name — the document title, the sheet tab and the first
@@ -198,6 +200,16 @@ final class ReportTable {
 
   /// The body.
   final List<ReportRow> rows;
+
+  /// The amount-in-words line under the table (07 §14 🔒), or null where the
+  /// report has no single figure to say in words — a day book has none, a
+  /// ledger's closing balance is one.
+  ///
+  /// A `(label, value)` pair rather than a bare sentence so the three writers
+  /// need no wording of their own, and **not** a [meta] line: the head is
+  /// metadata and carries no figure (see [meta]), while this is the figure
+  /// itself and belongs at the foot, where a paper ledger puts it.
+  final ReportMetaLine? amountInWords;
 }
 
 /// One `(label, value)` line of a report's head.

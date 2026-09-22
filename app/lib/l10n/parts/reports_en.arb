@@ -315,5 +315,457 @@
   "reports.reconciliation.skeleton": "Checking your books",
   "@reports.reconciliation.skeleton": {
     "description": "S8.3 loading state — semantic label on the ruled skeleton (11 §4.5)."
+  },
+  "reports.amount_words.n0": "zero",
+  "@reports.amount_words.n0": {
+    "description": "Amount-in-words numeral 0 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n1": "one",
+  "@reports.amount_words.n1": {
+    "description": "Amount-in-words numeral 1 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n2": "two",
+  "@reports.amount_words.n2": {
+    "description": "Amount-in-words numeral 2 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n3": "three",
+  "@reports.amount_words.n3": {
+    "description": "Amount-in-words numeral 3 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n4": "four",
+  "@reports.amount_words.n4": {
+    "description": "Amount-in-words numeral 4 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n5": "five",
+  "@reports.amount_words.n5": {
+    "description": "Amount-in-words numeral 5 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n6": "six",
+  "@reports.amount_words.n6": {
+    "description": "Amount-in-words numeral 6 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n7": "seven",
+  "@reports.amount_words.n7": {
+    "description": "Amount-in-words numeral 7 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n8": "eight",
+  "@reports.amount_words.n8": {
+    "description": "Amount-in-words numeral 8 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n9": "nine",
+  "@reports.amount_words.n9": {
+    "description": "Amount-in-words numeral 9 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n10": "ten",
+  "@reports.amount_words.n10": {
+    "description": "Amount-in-words numeral 10 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n11": "eleven",
+  "@reports.amount_words.n11": {
+    "description": "Amount-in-words numeral 11 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n12": "twelve",
+  "@reports.amount_words.n12": {
+    "description": "Amount-in-words numeral 12 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n13": "thirteen",
+  "@reports.amount_words.n13": {
+    "description": "Amount-in-words numeral 13 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n14": "fourteen",
+  "@reports.amount_words.n14": {
+    "description": "Amount-in-words numeral 14 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n15": "fifteen",
+  "@reports.amount_words.n15": {
+    "description": "Amount-in-words numeral 15 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n16": "sixteen",
+  "@reports.amount_words.n16": {
+    "description": "Amount-in-words numeral 16 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n17": "seventeen",
+  "@reports.amount_words.n17": {
+    "description": "Amount-in-words numeral 17 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n18": "eighteen",
+  "@reports.amount_words.n18": {
+    "description": "Amount-in-words numeral 18 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n19": "nineteen",
+  "@reports.amount_words.n19": {
+    "description": "Amount-in-words numeral 19 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n20": "twenty",
+  "@reports.amount_words.n20": {
+    "description": "Amount-in-words numeral 20 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n21": "twenty-one",
+  "@reports.amount_words.n21": {
+    "description": "Amount-in-words numeral 21 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n22": "twenty-two",
+  "@reports.amount_words.n22": {
+    "description": "Amount-in-words numeral 22 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n23": "twenty-three",
+  "@reports.amount_words.n23": {
+    "description": "Amount-in-words numeral 23 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n24": "twenty-four",
+  "@reports.amount_words.n24": {
+    "description": "Amount-in-words numeral 24 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n25": "twenty-five",
+  "@reports.amount_words.n25": {
+    "description": "Amount-in-words numeral 25 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n26": "twenty-six",
+  "@reports.amount_words.n26": {
+    "description": "Amount-in-words numeral 26 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n27": "twenty-seven",
+  "@reports.amount_words.n27": {
+    "description": "Amount-in-words numeral 27 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n28": "twenty-eight",
+  "@reports.amount_words.n28": {
+    "description": "Amount-in-words numeral 28 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n29": "twenty-nine",
+  "@reports.amount_words.n29": {
+    "description": "Amount-in-words numeral 29 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n30": "thirty",
+  "@reports.amount_words.n30": {
+    "description": "Amount-in-words numeral 30 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n31": "thirty-one",
+  "@reports.amount_words.n31": {
+    "description": "Amount-in-words numeral 31 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n32": "thirty-two",
+  "@reports.amount_words.n32": {
+    "description": "Amount-in-words numeral 32 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n33": "thirty-three",
+  "@reports.amount_words.n33": {
+    "description": "Amount-in-words numeral 33 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n34": "thirty-four",
+  "@reports.amount_words.n34": {
+    "description": "Amount-in-words numeral 34 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n35": "thirty-five",
+  "@reports.amount_words.n35": {
+    "description": "Amount-in-words numeral 35 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n36": "thirty-six",
+  "@reports.amount_words.n36": {
+    "description": "Amount-in-words numeral 36 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n37": "thirty-seven",
+  "@reports.amount_words.n37": {
+    "description": "Amount-in-words numeral 37 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n38": "thirty-eight",
+  "@reports.amount_words.n38": {
+    "description": "Amount-in-words numeral 38 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n39": "thirty-nine",
+  "@reports.amount_words.n39": {
+    "description": "Amount-in-words numeral 39 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n40": "forty",
+  "@reports.amount_words.n40": {
+    "description": "Amount-in-words numeral 40 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n41": "forty-one",
+  "@reports.amount_words.n41": {
+    "description": "Amount-in-words numeral 41 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n42": "forty-two",
+  "@reports.amount_words.n42": {
+    "description": "Amount-in-words numeral 42 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n43": "forty-three",
+  "@reports.amount_words.n43": {
+    "description": "Amount-in-words numeral 43 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n44": "forty-four",
+  "@reports.amount_words.n44": {
+    "description": "Amount-in-words numeral 44 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n45": "forty-five",
+  "@reports.amount_words.n45": {
+    "description": "Amount-in-words numeral 45 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n46": "forty-six",
+  "@reports.amount_words.n46": {
+    "description": "Amount-in-words numeral 46 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n47": "forty-seven",
+  "@reports.amount_words.n47": {
+    "description": "Amount-in-words numeral 47 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n48": "forty-eight",
+  "@reports.amount_words.n48": {
+    "description": "Amount-in-words numeral 48 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n49": "forty-nine",
+  "@reports.amount_words.n49": {
+    "description": "Amount-in-words numeral 49 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n50": "fifty",
+  "@reports.amount_words.n50": {
+    "description": "Amount-in-words numeral 50 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n51": "fifty-one",
+  "@reports.amount_words.n51": {
+    "description": "Amount-in-words numeral 51 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n52": "fifty-two",
+  "@reports.amount_words.n52": {
+    "description": "Amount-in-words numeral 52 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n53": "fifty-three",
+  "@reports.amount_words.n53": {
+    "description": "Amount-in-words numeral 53 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n54": "fifty-four",
+  "@reports.amount_words.n54": {
+    "description": "Amount-in-words numeral 54 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n55": "fifty-five",
+  "@reports.amount_words.n55": {
+    "description": "Amount-in-words numeral 55 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n56": "fifty-six",
+  "@reports.amount_words.n56": {
+    "description": "Amount-in-words numeral 56 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n57": "fifty-seven",
+  "@reports.amount_words.n57": {
+    "description": "Amount-in-words numeral 57 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n58": "fifty-eight",
+  "@reports.amount_words.n58": {
+    "description": "Amount-in-words numeral 58 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n59": "fifty-nine",
+  "@reports.amount_words.n59": {
+    "description": "Amount-in-words numeral 59 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n60": "sixty",
+  "@reports.amount_words.n60": {
+    "description": "Amount-in-words numeral 60 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n61": "sixty-one",
+  "@reports.amount_words.n61": {
+    "description": "Amount-in-words numeral 61 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n62": "sixty-two",
+  "@reports.amount_words.n62": {
+    "description": "Amount-in-words numeral 62 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n63": "sixty-three",
+  "@reports.amount_words.n63": {
+    "description": "Amount-in-words numeral 63 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n64": "sixty-four",
+  "@reports.amount_words.n64": {
+    "description": "Amount-in-words numeral 64 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n65": "sixty-five",
+  "@reports.amount_words.n65": {
+    "description": "Amount-in-words numeral 65 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n66": "sixty-six",
+  "@reports.amount_words.n66": {
+    "description": "Amount-in-words numeral 66 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n67": "sixty-seven",
+  "@reports.amount_words.n67": {
+    "description": "Amount-in-words numeral 67 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n68": "sixty-eight",
+  "@reports.amount_words.n68": {
+    "description": "Amount-in-words numeral 68 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n69": "sixty-nine",
+  "@reports.amount_words.n69": {
+    "description": "Amount-in-words numeral 69 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n70": "seventy",
+  "@reports.amount_words.n70": {
+    "description": "Amount-in-words numeral 70 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n71": "seventy-one",
+  "@reports.amount_words.n71": {
+    "description": "Amount-in-words numeral 71 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n72": "seventy-two",
+  "@reports.amount_words.n72": {
+    "description": "Amount-in-words numeral 72 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n73": "seventy-three",
+  "@reports.amount_words.n73": {
+    "description": "Amount-in-words numeral 73 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n74": "seventy-four",
+  "@reports.amount_words.n74": {
+    "description": "Amount-in-words numeral 74 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n75": "seventy-five",
+  "@reports.amount_words.n75": {
+    "description": "Amount-in-words numeral 75 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n76": "seventy-six",
+  "@reports.amount_words.n76": {
+    "description": "Amount-in-words numeral 76 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n77": "seventy-seven",
+  "@reports.amount_words.n77": {
+    "description": "Amount-in-words numeral 77 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n78": "seventy-eight",
+  "@reports.amount_words.n78": {
+    "description": "Amount-in-words numeral 78 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n79": "seventy-nine",
+  "@reports.amount_words.n79": {
+    "description": "Amount-in-words numeral 79 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n80": "eighty",
+  "@reports.amount_words.n80": {
+    "description": "Amount-in-words numeral 80 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n81": "eighty-one",
+  "@reports.amount_words.n81": {
+    "description": "Amount-in-words numeral 81 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n82": "eighty-two",
+  "@reports.amount_words.n82": {
+    "description": "Amount-in-words numeral 82 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n83": "eighty-three",
+  "@reports.amount_words.n83": {
+    "description": "Amount-in-words numeral 83 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n84": "eighty-four",
+  "@reports.amount_words.n84": {
+    "description": "Amount-in-words numeral 84 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n85": "eighty-five",
+  "@reports.amount_words.n85": {
+    "description": "Amount-in-words numeral 85 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n86": "eighty-six",
+  "@reports.amount_words.n86": {
+    "description": "Amount-in-words numeral 86 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n87": "eighty-seven",
+  "@reports.amount_words.n87": {
+    "description": "Amount-in-words numeral 87 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n88": "eighty-eight",
+  "@reports.amount_words.n88": {
+    "description": "Amount-in-words numeral 88 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n89": "eighty-nine",
+  "@reports.amount_words.n89": {
+    "description": "Amount-in-words numeral 89 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n90": "ninety",
+  "@reports.amount_words.n90": {
+    "description": "Amount-in-words numeral 90 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n91": "ninety-one",
+  "@reports.amount_words.n91": {
+    "description": "Amount-in-words numeral 91 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n92": "ninety-two",
+  "@reports.amount_words.n92": {
+    "description": "Amount-in-words numeral 92 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n93": "ninety-three",
+  "@reports.amount_words.n93": {
+    "description": "Amount-in-words numeral 93 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n94": "ninety-four",
+  "@reports.amount_words.n94": {
+    "description": "Amount-in-words numeral 94 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n95": "ninety-five",
+  "@reports.amount_words.n95": {
+    "description": "Amount-in-words numeral 95 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n96": "ninety-six",
+  "@reports.amount_words.n96": {
+    "description": "Amount-in-words numeral 96 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n97": "ninety-seven",
+  "@reports.amount_words.n97": {
+    "description": "Amount-in-words numeral 97 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n98": "ninety-eight",
+  "@reports.amount_words.n98": {
+    "description": "Amount-in-words numeral 98 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.n99": "ninety-nine",
+  "@reports.amount_words.n99": {
+    "description": "Amount-in-words numeral 99 (07 §14 🔒). Every number word comes from ARB in all three languages and the Indian-scale composition is code (CLAUDE.md rule 8) — no number word is ever a literal in Dart."
+  },
+  "reports.amount_words.hundred": "hundred",
+  "@reports.amount_words.hundred": {
+    "description": "Indian-scale word for the hundred place (07 §14 🔒 amount-in-words; 11 §4.4)."
+  },
+  "reports.amount_words.thousand": "thousand",
+  "@reports.amount_words.thousand": {
+    "description": "Indian-scale word for the thousand place (07 §14 🔒 amount-in-words; 11 §4.4)."
+  },
+  "reports.amount_words.lakh": "lakh",
+  "@reports.amount_words.lakh": {
+    "description": "Indian-scale word for the lakh place (07 §14 🔒 amount-in-words; 11 §4.4)."
+  },
+  "reports.amount_words.crore": "crore",
+  "@reports.amount_words.crore": {
+    "description": "Indian-scale word for the crore place (07 §14 🔒 amount-in-words; 11 §4.4)."
+  },
+  "reports.amount_words.rupees_only": "Rupees {amount} only",
+  "@reports.amount_words.rupees_only": {
+    "description": "Amount in words, the whole sentence (07 §14 🔒; donation receipt 07 §14 🔒 'the amount in figures and words'). The words are composed from the numeral keys; only this frame is a sentence.",
+    "placeholders": {
+      "amount": {
+        "type": "String",
+        "example": "four thousand five hundred"
+      }
+    }
+  },
+  "reports.amount_words.rupees_paise_only": "Rupees {rupees} and paise {paise} only",
+  "@reports.amount_words.rupees_paise_only": {
+    "description": "Amount in words, the whole sentence (07 §14 🔒; donation receipt 07 §14 🔒 'the amount in figures and words'). The words are composed from the numeral keys; only this frame is a sentence.",
+    "placeholders": {
+      "rupees": {
+        "type": "String",
+        "example": "four thousand five hundred"
+      },
+      "paise": {
+        "type": "String",
+        "example": "fifty"
+      }
+    }
+  },
+  "reports.statement.closing_cd": "Closing balance c/d",
+  "@reports.statement.closing_cd": {
+    "description": "The exported A/C statement's closing row (07 §14 🔒 b/d–c/d rows on ledgers; 02 §8.1 Presentation). The balancing figure goes in the column opposite the balance's side, so the Dr and Cr columns square — exactly as a paper khata closes an account. The screen keeps c/f (ledger.statement.closing)."
+  },
+  "reports.statement.opening_bd": "Opening balance b/d",
+  "@reports.statement.opening_bd": {
+    "description": "The exported A/C statement's row after the totals: the closing balance brought down into the next period, on its own side (07 §14 🔒)."
+  },
+  "reports.statement.closing_words.label": "Closing balance in words",
+  "@reports.statement.closing_words.label": {
+    "description": "Label of the amount-in-words line under an exported ledger (07 §14 🔒 amount-in-words). The figure is the closing balance's magnitude; its Dr/Cr side is already on the c/d row."
   }
 }

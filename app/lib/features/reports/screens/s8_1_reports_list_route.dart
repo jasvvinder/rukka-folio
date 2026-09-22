@@ -26,7 +26,6 @@ import 'package:data/data.dart' show BookOwnership;
 import 'package:flutter/material.dart';
 
 import '../../../shared/ledger/ledger_scope.dart';
-import '../../../shared/ledger/local_ledger.dart';
 import '../../ledger/ledger_book.dart';
 import 's8_1_reports_list_screen.dart';
 

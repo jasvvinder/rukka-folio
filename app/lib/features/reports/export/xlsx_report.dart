@@ -39,14 +39,15 @@
 // table is a second index to keep consistent with the sheet, and a day book
 // has no repetition worth the risk.
 //
-// ⚠️ SPEC: 07 §14's content rules — b/d–c/d rows, amount-in-words, Indian
-// digit grouping — are M12 with the F3 byte-goldens (ADR 2026-09-12 §3 and
-// its Open note), not M5. So the money format code here is the neutral
-// `#,##0.00` rather than the Indian `#,##,##0.00`, and which of the two a
-// golden freezes is the M12 lane's call. It changes only the *display* of a
-// cell, never its value: the number in the file is the same either way, which
-// is why this is a safe conservative reading rather than a guess. The same
-// note stands over `csv_report.dart`.
+// **Indian digit grouping is the cell's number format, never its value**
+// (07 §14 🔒, 11 §4.4; ADR 2026-09-12 §3 deferred this to M12 and it lands
+// here). The money format code is `#,##,##0.00` — three digits, then twos, the
+// grouping every other surface of the app already uses — and it changes only
+// how a spreadsheet *draws* the cell. The number written into `<v>` is
+// unchanged: still the decimal [paiseToDecimal] builds out of integer paise, so
+// the column still sums and no double is constructed (CLAUDE.md rule 1). The
+// b/d–c/d rows and the amount-in-words line arrive as rows of the
+// [ReportTable], so this writer needs no rule of its own for them.
 //
 // Not this milestone: the Free-tenant watermark (`F3-07-3 @M12`) and the
 // byte-goldens (`F3-07-1/2 @M12`) that will freeze these bytes.
@@ -378,7 +379,9 @@ String xlsxStyles() => _document((b) {
               'numFmtId': '$_numFmtMoney',
               // See the ⚠️ SPEC note at the head: display only, M12 may swap
               // this for the Indian grouping. The value never changes.
-              'formatCode': '#,##0.00',
+              // Indian grouping — three digits, then twos (07 §14 🔒,
+              // 11 §4.4). Display only; the stored number is untouched.
+              'formatCode': '#,##,##0.00',
             },
           );
           b.element(
@@ -609,6 +612,16 @@ List<List<XlsxCell?>> reportTableSheetRows(ReportTable table) {
   ];
   for (final row in table.rows) {
     rows.add([for (final cell in row.cells) _xlsxCell(cell, row.kind)]);
+  }
+
+  // The amount in words under the table (07 §14 🔒), after a blank row so it
+  // reads as a foot and not as a body line. Text, not a number: these are the
+  // words for the figure above, and a spreadsheet must not try to sum them.
+  final words = table.amountInWords;
+  if (words != null) {
+    rows
+      ..add(const [null])
+      ..add([XlsxText(words.label), XlsxText(words.value)]);
   }
   return rows;
 }
