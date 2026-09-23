@@ -1,7 +1,7 @@
 ---
 name: lane-sync
 description: Rukka Folio sync_engine lane — outbox/push, pull cursors, key sync, signed-record application, revocation counting, tests-first on the two-client harness (suite D). Use for any packages/sync_engine lane, and for ordering/conflict/cursor logic elsewhere.
-model: opus
+model: claude-opus-5-5
 effort: high
 maxTurns: 220
 skills: ["sync-slice"]

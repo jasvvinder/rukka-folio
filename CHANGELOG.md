@@ -12,6 +12,22 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-23 — env: Opus lanes pinned to Opus 5.5
+
+**Changed**
+
+- `.claude/agents/{lane-ui,lane-ui-hard,lane-server,lane-sync,lane-review}.md`: `model: opus` →
+  `model: claude-opus-5-5` (owner-directed). The alias already resolved to `claude-opus-5-5` in Claude Code
+  2.1.280 (checked in the CLI binary: `opus:"claude-opus-5-5"`). The full ID pins it, so a future alias change
+  can't silently move the build tier. Tier, effort and turn caps are unchanged; `gate` (sonnet), `lane-mech`
+  (haiku) and `lane-core` (fable) are untouched.
+
+**Commits**
+
+- _(pending)_
+
+---
+
 ## 2026-09-22 — M12/M13: exports say the amount in words, billing and the entitlement token become real, S12 opens
 
 Two `/lane` rounds of three and two lanes on disjoint directories, each followed by its own `/gate` —
