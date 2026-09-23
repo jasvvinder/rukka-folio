@@ -54,6 +54,17 @@ abstract class SyncClient {
 
   /// Runs one push/pull cycle now (05 §7 triggers: foreground, save, pull-down).
   Future<void> syncNow();
+
+  /// Whether the server refused [bookId]'s pushes with `rejected:quota` —
+  /// **book full** (ADR 2026-09-05b §7). The entry Save path asks this before
+  /// posting and raises the S12.5 sheet instead (07 §5, ADR 2026-09-05f §B).
+  ///
+  /// A per-book question, not a sixth [SyncStatus]: the status surface stays
+  /// the five states 05 §9 owns, and the quota row itself reaches the user as
+  /// an Inbox card through `NeedsAttention`. A predicate rather than a set
+  /// getter so no caller can hold (or mutate) a snapshot that goes stale when
+  /// the plan is upgraded and the book resumes. Reads are never blocked by it.
+  bool isBookFull(String bookId);
 }
 
 /// In-memory fake for UI lanes and tests: set [current], count [syncNowCalls].
@@ -68,6 +79,12 @@ class FakeSyncClient implements SyncClient {
 
   /// What [syncNow] moves the status to, if anything.
   SyncStatus? afterSync;
+
+  /// Books [isBookFull] answers true for — empty until a test says so.
+  final Set<String> fullBooks = {};
+
+  @override
+  bool isBookFull(String bookId) => fullBooks.contains(bookId);
 
   @override
   SyncStatus get current => _current;

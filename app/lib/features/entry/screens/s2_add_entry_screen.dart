@@ -52,13 +52,17 @@ import '../../../shared/ledger/local_ledger.dart';
 import '../../../shared/lock/draft_activity.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../../shared/widgets/rk_restriction.dart';
+import '../../../shared/widgets/rk_restriction_copy.dart';
 import '../../import/import_paths.dart';
+import '../../subscription/subscription_paths.dart';
 import '../../ledger/ledger_book.dart';
 import '../../../shared/format/date_format.dart';
 import '../entry_amount.dart';
 import '../entry_books.dart';
 import '../entry_data.dart';
 import '../entry_refusal.dart';
+import '../entry_restriction.dart';
 import '../entry_slots.dart';
 import '../entry_sync.dart';
 import '../widgets/entry_account_picker.dart';
@@ -134,6 +138,7 @@ class AddEntryScreen extends StatefulWidget {
     this.bookId,
     this.kind = EntryKind.moneyIn,
     this.onImport,
+    this.onPlans,
   });
 
   /// Explicit book; when null the solo book is resolved ([soloBookId]).
@@ -152,6 +157,12 @@ class AddEntryScreen extends StatefulWidget {
   /// this screen is running under. A caller passes its own only to intercept
   /// the hop (a test, or a host that owns its navigation).
   final VoidCallback? onImport;
+
+  /// Where the S12.5 sheet's way forward goes — S12.1 Plans (13 §3.2 row
+  /// S12.5, 07 §5 *Book full*). Null takes the default, which pushes
+  /// [SubscriptionPaths.plans] on the router this screen runs under; a caller
+  /// passes its own only to intercept the hop, exactly as with [onImport].
+  final VoidCallback? onPlans;
 
   @override
   State<AddEntryScreen> createState() => _AddEntryScreenState();
@@ -424,6 +435,16 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
     List<EntryBook> books,
   ) async {
     if (!_complete || _saving) return;
+    // S12.5 (13 §3.2; 07 §5 *Book full*; 07 §20 🔒): read-only first, then
+    // book full for **every** book this posting appends to, before the
+    // ledger is touched. Both seams are captured before the first await.
+    final sources = entryRestrictionSourcesOf(context);
+    final toBookId = _betweenBooks ? _toBookId : null;
+    setState(() => _saving = true);
+    final blocked = await entryRestrictionFor(sources, [bookId, ?toBookId]);
+    if (!mounted) return;
+    setState(() => _saving = false);
+    if (blocked != null) return _showBlocked(blocked);
     if (_betweenBooks) return _saveBetweenBooks(ledger, bookId, books);
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
@@ -519,17 +540,14 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
       // Out of scope (M7 member limits): over the limit the snackbar reads
       // `Saved ✓ · Sunita will review` — saved and counted either way
       // (07 §5 step 6, 02 §3). The limit itself does not exist yet.
-      // Out of scope (S12.5, book full / `rejected:quota`): Save is blocked
-      // with the S12.5 sheet pointing at S12.1 and the draft is preserved
-      // (ADR 2026-09-05b §7). The surfaces now exist as shared components —
-      // `showRkBlockedEntrySheet(context, kind: RkRestrictionKind.bookFull,
-      // copy: kind.copy(context))` in `shared/widgets/rk_restriction.dart`,
-      // with `RkRestrictionBanner` for the persistent half. What still blocks
-      // the wiring is the signal, not the surface: no entitlement or quota
-      // source exists in the app yet — it lands with sync, when push can
-      // answer `rejected:quota` and the entitlement token is read off meta
-      // (ADR 2026-09-05g §3, §4). Until then nothing may drive the sheet, and
-      // this save path stays as it is.
+      // S12.5 (read-only and book full) is decided in [_save] before this
+      // point is reached — see [entryRestrictionFor]. Read-only comes from
+      // `EntitlementScope` (none is mounted in production yet, so the
+      // untokened reading — Free, never locked — is what runs, ADR
+      // 2026-09-05g §1 🔒); book full comes from `SyncClient.isBookFull`,
+      // which the engine client reads off the engine's own `rejected:quota`
+      // stop. Blocked, the sheet is raised and this branch is never reached,
+      // so no entry is appended and the draft is untouched.
       // S2.5 (ADR 2026-09-02): a *business* book's Drawings account is a
       // real account of the chart (SystemRole.drawings) — choosing it as
       // Money out's ledger slot posts through this same `ledger.moneyOut`
@@ -540,6 +558,44 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
       setState(() => _saving = false);
       messenger.showSnackBar(SnackBar(content: Text(l10n.entrySaveError)));
     }
+  }
+
+  /// S12.5's blocked-entry sheet over this screen. The draft is never touched
+  /// here — the sheet returns an outcome, and the only outcome acted on is the
+  /// way forward to S12.1 Plans (07 §5 *Book full*: *draft preserved*).
+  ///
+  /// ⚠️ SPEC: DESIGN-PACK §11 S12.5 names a second button, **Export
+  /// everything**, and ADR 2026-09-05g §5 says export always works. No export
+  /// route exists in the app yet (`subscriptionRoutes` wires no `onExport`
+  /// either), so the sheet is raised without it rather than with a button
+  /// that goes nowhere (07 §1 rule 6). Reported for the lane that lands
+  /// export.
+  ///
+  /// No persistent banner is drawn on this screen: 13 §3.2 gives S12.5 the
+  /// scope *global* (the shell's banner), and 07 §5 🔒 holds S2 to a single
+  /// screen that never scrolls — the sheet at Save is S2's half of the pair.
+  /// Offline grace likewise shows nothing here: 07 §5 *States* — "offline =
+  /// identical (that's the point)".
+  Future<void> _showBlocked(RkRestrictionKind kind) async {
+    final outcome = await showRkBlockedEntrySheet(
+      context,
+      kind: kind,
+      copy: kind.copy(context),
+    );
+    if (!mounted || outcome != RkBlockedEntryOutcome.action) return;
+    _openPlans();
+  }
+
+  /// Opens S12.1 Plans — the default pushes [SubscriptionPaths.plans] on the
+  /// router this screen runs under; without one nothing happens rather than
+  /// a thrown red screen (the [_openImport] rule).
+  void _openPlans() {
+    final onPlans = widget.onPlans;
+    if (onPlans != null) {
+      onPlans();
+      return;
+    }
+    GoRouter.maybeOf(context)?.push(SubscriptionPaths.plans);
   }
 
   /// 07 §10 🔒 — From (book + money A/C) → To (book + money A/C) → Save.
@@ -651,6 +707,15 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
   /// the original shows as `void`. 02 §5 allows an amendment in an open
   /// period too, but an amendment of a just-saved entry would have nothing to
   /// replace it with — a reversal says plainly that it did not happen.
+  ///
+  /// ⚠️ SPEC: Undo is not put through the S12.5 check. 13 §6 blocks *new
+  /// entry* (lapse) and *posting* (book full); a reversal is an appended
+  /// envelope, but it withdraws an entry this screen posted seconds ago under
+  /// the same signals, and neither 07 §5 nor ADR 2026-09-05f §B says whether
+  /// Undo counts. Left unblocked so the user is never stuck with a wrong entry
+  /// (07 §1 rule 6); the server stays the hard quota cap (ADR 2026-09-05g §2).
+  /// Inline account create ([_create]) is likewise not a posting and is not
+  /// checked. Named in the lane report for the owner.
   Future<void> _undo(LocalLedger ledger, String entryId) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);

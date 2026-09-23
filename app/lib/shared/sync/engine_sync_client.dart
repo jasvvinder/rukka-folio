@@ -102,6 +102,13 @@ class EngineSyncClient implements SyncClient {
   @override
   SyncStatus get current => _current;
 
+  /// Book full, read straight off the engine's own quota stop
+  /// ([eng.SyncEngine.quotaStoppedBooks]: added on `rejected:quota`, removed
+  /// by [eng.SyncEngine.resumeBook]). [engine] is held by reference and the
+  /// set is read on every call, so the answer can never lag the engine.
+  @override
+  bool isBookFull(String bookId) => engine.quotaStoppedBooks.contains(bookId);
+
   @override
   Stream<SyncStatus> get status => Stream<SyncStatus>.multi((out) {
     out.add(_current);

@@ -12,6 +12,56 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-23 — M13: S12.5 read-only and book full block Save on S2
+
+One-slice `/cycle` (ENT1, lane-ui). The owner chose ENT1 of four candidates after desk 18's cost finding
+(a three-slice cycle measured at ~4.2 M against the 1.2 M daily ceiling). The S12.5 sheet and banner already
+existed in `shared/widgets/rk_restriction.dart`; what was missing was a signal to show them and the check in
+Save. Build → review (2 minor findings) → one refuting verifier (1 confirmed, 1 refuted) → one repair round
+→ push lane **green**. About 0.43 M tokens in all (5 cycle agents 0.40 M, gate 27 k).
+
+**Added**
+
+- `app/lib/features/entry/entry_restriction.dart`: one check run before every posting Save in features/entry.
+  It checks read-only first (`EntitlementScope`, falling back to untokened when none is mounted), then book full
+  for every book the entry touches (for move money between books, either one blocks). When blocked it raises
+  `showRkBlockedEntrySheet`; the draft is untouched and S12.1 is offered through `SubscriptionPaths.plans`.
+  Export is never blocked, and offline grace never blocks (13 §5 🔒, ADR 2026-09-05g §3–§5).
+- `SyncClient.isBookFull(bookId)`: `EngineSyncClient` reads the engine's own `quotaStoppedBooks`, not a copy
+  (`engine_sync_client.dart:110`); `FakeSyncClient.fullBooks` is settable. No sixth `SyncStatus`.
+- Tests: `F1-07-491…496` (`s12_5_entry_block_test.dart`) check the real in-memory ledger to show that nothing
+  posted and the draft is still filled after dismiss. Each is paired with a case that does post (untokened,
+  another book full, offline grace). `F1-05-59` drives the real engine into `rejected:quota` and back out when
+  the engine resumes the book; `F1-05-60` covers the fake. **1618 tests** in the app package.
+
+**Changed**
+
+- `s2_add_entry_screen.dart`: the *Out of scope (S12.5)* comment on the save path is replaced by the wiring.
+  The review's confirmed finding (the gate covers S2 only) is recorded in the header of
+  `entry_restriction.dart` as a ⚠️ SPEC scope note, with every posting call left without the check.
+- `PLAN.md`: §0, the M13 row (S12.5 → 🟡) and desk items 29–31.
+
+**Open** ⚠️
+
+- Desk 29: markers for the eight ids go on 🔒 lines (13:189, 07 §20, ADR 05b §7). Only `F1-05-59` should be
+  traced to 05b §7; `F1-05-60` tests the fake alone. Orphan ids stand at 56 (48 → 56) until then.
+- Desk 30: ⚠️ SPEC 13 §6 — does read-only block Undo, amend and opening balances? None is gated today. The
+  answer decides the follow-up slice (advances, partners, cash count, S4.1, S3.1 and the onboarding opening
+  balances all post without the check).
+- Desk 31: ⚠️ SPEC — DESIGN-PACK's *Export everything* button has no route to point at, so the sheet ships
+  without it. A failed entitlement read is treated as untokened and never blocks a save.
+- Not placed: the global S12.5 banner and Home's verb buttons (`features/home`/shell). In sync_engine,
+  `quotaStoppedBooks` lives in memory only (after a restart, one save can post locally before the sheet
+  returns), and nothing calls `resumeBook` on a plan upgrade.
+- Read-only cannot trigger in production until a token producer mounts `EntitlementScope`. That is the honest
+  default.
+
+**Commits**
+
+- _(pending)_
+
+---
+
 ## 2026-09-23 — env: Opus lanes pinned to Opus 5.5
 
 **Changed**
@@ -24,7 +74,7 @@ Running record of what changed in this repository and in the development environ
 
 **Commits**
 
-- _(pending)_
+- `530efbd` — env: pin Opus lanes to claude-opus-5-5
 
 ---
 
@@ -115,9 +165,9 @@ ceiling.
 
 **Commits**
 
-- `_______` — M12: 07 §14 content rules — amount-in-words EN/PA/HI, c/d · Total · b/d rows, Indian XLSX format
-- `_______` — M13: billing webhook applies events; the entitlement token is minted on the meta pull
-- `_______` — M13: features/subscription S12, S12.1, S12.3, S12.4, S12.6 over feature-local seams; S8/S13 doors live
+- `e3d9894` — M12: 07 §14 content rules — amount-in-words EN/PA/HI, c/d · Total · b/d rows, Indian XLSX format
+- `0d5a181` — M13: billing webhook applies events; the entitlement token is minted on the meta pull
+- `56994cd` — M13: features/subscription S12, S12.1, S12.3, S12.4, S12.6 over feature-local seams; S8/S13 doors live
 
 ---
 

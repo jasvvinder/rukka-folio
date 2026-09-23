@@ -397,4 +397,40 @@ void main() {
       expect(c.cycles, 0);
     });
   });
+
+  // S12.5 book full (ADR 2026-09-05b §7, ADR 2026-09-05f §B row *Book full*):
+  // the per-book `rejected:quota` answer the entry Save path reads.
+  group('book full (rejected:quota) through the seam', () {
+    test('F1-05-59 isBookFull reads the engine\'s own quota stop — false '
+        'before any push, true for exactly the refused book once the server '
+        'answers rejected:quota, and false again the moment the engine '
+        'resumes it (the live set, never a copy)', () async {
+      final c = client();
+      await c.start();
+      expect(c.isBookFull(_book), isFalse, reason: 'nothing refused yet');
+
+      // The server's envelope cap for this book is reached, so the next push
+      // is answered `rejected:quota` (the real engine, the real fake server).
+      server.quotaPerBook[_book] = 0;
+      await device.author(clock.nowMs());
+      await c.syncNow();
+      expect(device.engine.quotaStoppedBooks, contains(_book));
+      expect(c.isBookFull(_book), isTrue);
+      expect(c.isBookFull('b-other'), isFalse, reason: 'per book, not tenant');
+
+      // An upgrade resumes the book in the engine; the seam follows at once,
+      // with no refresh or cycle in between — it holds no copy to go stale.
+      device.engine.resumeBook(_book);
+      expect(c.isBookFull(_book), isFalse);
+    });
+
+    test('F1-05-60 the fake seam is settable per book and reports no book '
+        'full until told', () {
+      final fake = FakeSyncClient();
+      expect(fake.isBookFull(_book), isFalse);
+      fake.fullBooks.add(_book);
+      expect(fake.isBookFull(_book), isTrue);
+      expect(fake.isBookFull('b-other'), isFalse);
+    });
+  });
 }
