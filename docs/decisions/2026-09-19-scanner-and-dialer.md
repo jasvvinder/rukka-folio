@@ -220,9 +220,14 @@ disabling the button."* That is 07 §1 rule 6 stated by the plugin's own authors
   `⚠️ WIRE` banner is deleted in that commit — it is the marker that says this is still open.
 - **Platform config:** `NSCameraUsageDescription` (EN/PA/HI) in `app/ios/Runner/Info.plist`. No
   `LSApplicationQueriesSchemes`, no `<queries>` (ruling 2).
-- **Docs (owner applies on ratification — this ADR edits no numbered spec):** 07 §5.6 / 13 §3.2's
-  S11.2, S11.3 and S11.7 rows stop saying the scan is unavailable; design-system §3.1 rule 7's
-  camera-free path is unchanged and now has a real camera to be the alternative to.
+- **Docs: none needed.** *Corrected 24 Sep 2026, on ratification:* the sentence here as first written
+  said 07 §5.6 / 13 §3.2's S11.2, S11.3 and S11.7 rows would *stop saying the scan is unavailable*. They
+  never said it. 07 §5.6 is App lock; the recovery flow is 07 line 72, which already describes the
+  camera (*Link with old phone*, *Scan your paper sheet*); 13 §3.2 rows S11.2/S11.3/S11.7
+  (`13-ux-architecture.md:171, :172, :175`) and DESIGN-PACK R2.4 (`:347`) already assume a working
+  scanner. The *unavailable* state exists only in code (`camera_scanner.dart:5`'s `⚠️ WIRE` banner and the
+  seams), which the build lane closes. Design-system §3.1 rule 7's camera-free path is unchanged and now
+  has a real camera to be the alternative to.
 - **Milestone:** M11.
 
 ## Ids reserved (`check_coverage` reports these as planned until the tests land)

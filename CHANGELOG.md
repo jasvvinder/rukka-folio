@@ -36,11 +36,13 @@ on the checklist in ADR 2026-09-19: *"yes to all four, record them in the ADR."*
 - Its seam references had drifted and are corrected to `recovery_ladder.dart:673, :1015, :880`; the numbers
   as written (`:577, :895, :760`) are kept alongside. `check_coverage` output is identical to before and
   `--strict` is green.
+- Its § Consequences *Docs* bullet is corrected to **none needed**. It had said 07 §5.6 and 13 §3.2's
+  S11.2/S11.3/S11.7 rows claim the scan is unavailable, but checked against the files they never did:
+  07 §5.6 is App lock, and 07 line 72, the three 13 §3.2 rows and DESIGN-PACK R2.4 already assume a working
+  camera. The *unavailable* state lives only in code.
 
 **Open**
 
-- The docs the ADR says the owner applies are **not** edited yet: the S11.2, S11.3 and S11.7 rows in 07 §5.6
-  and 13 §3.2 still say the scan is unavailable.
 - The build lane is next: two pubspec lines, a `MobileScannerCeremonyScanner`, a `Dialer` seam and its
   `url_launcher` implementation, `NSCameraUsageDescription` in EN/PA/HI, the three recovery scan seams, the
   *Call* controls, and tests `F1-07-312…315`. It removes the `⚠️ WIRE` banner at `camera_scanner.dart:5`
