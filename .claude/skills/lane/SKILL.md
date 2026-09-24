@@ -5,7 +5,7 @@ description: Run up to five Rukka Folio build lanes as tiered subagents (disjoin
 
 # /lane $ARGUMENTS
 
-`$ARGUMENTS` = the lane keys to run — at most **five** per run (ADR 2026-09-12b §5). A session
+`$ARGUMENTS` = the lane keys to run — at most **five** per run (ADR 2026-09-24 §1). A session
 runs round after round (`/lane` → `/gate` → `/lane` → …) and closes with `/close`, not `/clear`
 after every round (ADR 2026-09-12b §6). You are the orchestrator: you hold PLAN rows and lane reports, **nothing else**.
 You do not implement, and you do not gate.

@@ -1,11 +1,11 @@
 ---
 name: cycle
-description: Run one full Rukka Folio build cycle — build the slices, review each one read-only, adversarially verify every finding, send the survivors back to the lane that owns them, and stop ready-to-commit. One cycle is about one day at the pacing ceiling. The gate stays a separate run.
+description: Run one full Rukka Folio build cycle — build the slices, review each one read-only, adversarially verify every finding, send the survivors back to the lane that owns them, and stop ready-to-commit. Up to five slices; a full cycle is ~7–10 M tokens (ADR 2026-09-24). The gate stays a separate run.
 ---
 
 # /cycle $ARGUMENTS
 
-`$ARGUMENTS` = the slice keys for this cycle — at most **three**. You are the orchestrator: you
+`$ARGUMENTS` = the slice keys for this cycle — at most **five** (ADR 2026-09-24 §1). You are the orchestrator: you
 hold the board, the slice rows and the cycle result, **nothing else**. You do not implement, you
 do not review, and you do not gate.
 
@@ -23,7 +23,9 @@ Two stopping rules, both read off that board:
 
 - **Desk first.** If an open desk item `⟦blocks:⟧` a slice in this cycle, that slice does not run.
   Say which item holds it and what answer would release it.
-- **Budget.** If today's spend is already at or over `budget.daily_tokens`, do not start a cycle.
+- **Budget.** If today's spend is already at or over today's ceiling (`budget.daily_tokens`, or that
+  date's `budget.daily_overrides` entry — the board applies it), do not start a cycle. A 5-slice
+  cycle is ~7–10 M (PLAN-18, ADR 2026-09-24): if what is left of today cannot hold one, run fewer slices.
   Say so and stop — the ceiling exists because 17–19 Sep burned 11.8 M, 45 % of all-time spend,
   in three days. `budget.weekly_tokens` is owner-set: no script can read the plan quota
   (ADR 2026-09-13e; `wf-spend.sh` says so in its own comment).
@@ -38,8 +40,8 @@ Two stopping rules, both read off that board:
    is a backstop: two slices sharing a path is a design error in the split, not a runtime one.
 4. **Pick the tier per slice** — `lane-mech` (haiku·low) transcription only, never a test ·
    `lane-ui` (opus·high) repeat screens · `lane-ui-hard` (opus·high) new components, foundation,
-   200 %/360×800, state machines · `lane-server` (opus·high) migrations, RLS, edge functions ·
-   `lane-sync` (opus·high) ordering, cursors, trust · `lane-core` (fable·high) **escalation only,
+   200 %/360×800, state machines · `lane-server` (opus·xhigh) migrations, RLS, edge functions ·
+   `lane-sync` (opus·xhigh) ordering, cursors, trust · `lane-core` (fable·high) **escalation only,
    owner's say-so**. Model and effort live in `.claude/agents/*.md` — never pass them as args.
 
 ## 2. Run

@@ -70,7 +70,7 @@ for k in s["lanes_partial"][:6]:
     row(f"  {Y}◐{D} {k}")
 line()
 row(f"{B}BUDGET{D}   {DIM}measured spend; quota is owner-set (no script can read it){D}")
-row(f"  today  {bar(sp['today'], bu.get('daily_tokens'))}")
+row(f"  today  {bar(sp['today'], bu.get('daily_tokens'))}" + (f"  {Y}override{D}" if bu.get("daily_override") else ""))
 row(f"  week   {bar(sp['week'], bu.get('weekly_tokens'))}   {DIM}since {sp['week_start']}{D}")
 if not bu.get("weekly_tokens"):
     row(f"  {Y}set budget.weekly_tokens in .claude/rf.config.json ( /usage shows it ){D}")

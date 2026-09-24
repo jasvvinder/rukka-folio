@@ -12,6 +12,46 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-24 — env: five-slice cycles, xhigh on the trust lanes, weekend ceiling
+
+An environment session with no lanes and no product code. The owner asked for Opus 5.5 at extra-high
+effort where it is needed, and for a higher cycle cap to fit as many milestones as possible into
+26–27 Sep. They then chose each value from the options offered.
+
+**Decided**
+
+- [ADR 2026-09-24](docs/decisions/2026-09-24-weekend-throughput.md) — 🔒 amends ADR 2026-09-21 §1–§3:
+  1. The cap is **5** per `/cycle` and **5** per `/lane` (was 3).
+  2. **xhigh** effort for `lane-server`, `lane-sync`, `lane-review` and the high-risk verify panel.
+     `lane-ui`/`lane-ui-hard` stay high, `gate` stays sonnet·low, `lane-mech` stays haiku·low, and
+     `lane-core` stays escalation only.
+  3. **Dated daily overrides:** `budget.daily_overrides` sets **20 M** for 26 and 27 Sep. Every other
+     date falls back to the 1.2 M `daily_tokens`, so pacing resumes on Mon 28 Sep with no edit.
+
+**Changed**
+
+- `.claude/agents/{lane-server,lane-sync,lane-review}.md`: effort changed from high to xhigh.
+- `.claude/workflows/cycle.js`: `MAX = 5`, and high-risk verifiers run at `xhigh`.
+  `.claude/workflows/lanes.js`: `MAX_LANES = 5`.
+- `.claude/rf.config.json`: added `daily_overrides`, and `max_lanes_per_round` is now 5.
+- `.claude/bin/rf-state.py`: applies today's override and records `daily_base`/`daily_override`.
+  Checked by temporarily adding today's date, which rendered `0.00M/20.00M`; the entry was then removed.
+- `.claude/bin/board.sh`: marks an override day.
+- `CLAUDE.md` § Session economy, `PLAN.md` §3 tier table, and the `cycle`/`lane` skills now carry the
+  new caps and effort levels.
+- `PLAN.md` desk 18 is marked answered. The owner raised the cap instead of lowering it, and the
+  slices × lenses cost observation still stands.
+
+**Open**
+
+- ⚠️ `budget.weekly_tokens` is still `null`. Two 20 M days cannot be checked against the weekly quota
+  until it is read from `/usage` and written in.
+- ⚠️ After the weekend, decide whether 5 slices and xhigh stay.
+
+**Commits**
+
+- _(owner to fill)_
+
 ## 2026-09-24 — docs (M11): ADR 2026-09-19 ratified — scanner + dialer
 
 A desk session with no lanes and no code. The owner walked through desk PLAN-11 and answered all four items

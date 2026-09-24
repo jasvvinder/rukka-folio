@@ -2,7 +2,7 @@
 name: lane-review
 description: Rukka Folio review lane — reads a slice's diff against the spec sections that own it and reports findings. READ-ONLY: it never edits. Use as the Review stage of /cycle, never as a build lane.
 model: claude-opus-5-5
-effort: high
+effort: xhigh
 maxTurns: 90
 tools: ["Read", "Grep", "Glob", "Bash"]
 disallowedTools: ["WebSearch", "WebFetch"]

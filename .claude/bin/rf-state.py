@@ -196,7 +196,13 @@ def main():
     desk_open = [d for d in plan["desk"] if not d["done"]]
     held = sorted({k for d in desk_open for k in d["blocks"]})
 
-    budget = cfg.get("budget", {})
+    budget = dict(cfg.get("budget", {}))
+    # ADR 2026-09-24 §3: a dated override replaces daily_tokens for that local day only
+    today_key = datetime.now().astimezone().strftime("%Y-%m-%d")
+    override = (budget.get("daily_overrides") or {}).get(today_key)
+    budget["daily_base"] = budget.get("daily_tokens")
+    if override:
+        budget["daily_tokens"] = override
     state = {
         "generated_by": ".claude/bin/rf-state.py",
         "asof": plan.get("asof"),
@@ -214,6 +220,8 @@ def main():
         "spend": spend,
         "budget": {
             "daily_tokens": budget.get("daily_tokens"),
+            "daily_base": budget.get("daily_base"),
+            "daily_override": bool(override),
             "weekly_tokens": budget.get("weekly_tokens"),
             "day_used_pct": (round(100 * spend["today"] / budget["daily_tokens"])
                              if budget.get("daily_tokens") else None),

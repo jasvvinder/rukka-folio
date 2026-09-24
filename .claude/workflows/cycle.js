@@ -80,11 +80,11 @@ const LENSES = [
 if (!args || !Array.isArray(args.slices) || args.slices.length === 0) {
   throw new Error('args.slices must be a non-empty array of { key, agent, dirs, prompt }')
 }
-const MAX = 3
+const MAX = 5 // ADR 2026-09-24 §1 (was 3, ADR 2026-09-21 §3)
 if (args.slices.length > MAX) {
   throw new Error(
     `${args.slices.length} slices requested; the cap is ${MAX} per cycle. ` +
-      `Split into separate cycles — one cycle is about one day at the pacing ceiling.`,
+      `Split into separate cycles — a 5-slice cycle is ~7–10 M tokens (PLAN-18), so check today's ceiling first.`,
   )
 }
 const bad = args.slices.filter((s) => !s.key || !s.agent || !s.dirs?.length || !s.prompt)
@@ -165,7 +165,7 @@ const built = await pipeline(
               label: `verify:${r.slice.key}:${(f.file || '?').split('/').pop()}:${i}`,
               phase: 'Verify',
               schema: VERDICT_SCHEMA,
-              effort: isHigh(r.slice) ? 'high' : 'medium',
+              effort: isHigh(r.slice) ? 'xhigh' : 'medium', // ADR 2026-09-24 §2
             }),
           ),
         ).then((vs) => {
