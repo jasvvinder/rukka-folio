@@ -203,6 +203,7 @@ void main() {
         // never grouped, never a float.
         expect(text, isNot(contains('₹')));
       },
+      skip: 'superseded by ADR 2026-09-24b §9; re-lands at M12',
     );
 
     test('F1-07-164 the XLSX carries money as numbers and dates as dates, the '
@@ -285,7 +286,7 @@ void main() {
       expect(cells['A15']!.value, 'ਬਾਕੀ ਸ਼ਬਦਾਂ ਵਿੱਚ');
       expect(cells['B15']!.type, 'inlineStr');
       expect(cells['B15']!.value, 'ਰੁਪਏ ਚਾਰ ਹਜ਼ਾਰ ਪੰਜ ਸੌ ਪੂਰੇ');
-    });
+    }, skip: 'superseded by ADR 2026-09-24b §9; re-lands at M12');
 
     testWidgets(
       'F1-07-165 the PDF is A4 with the app\'s own faces embedded, so a '
@@ -381,6 +382,7 @@ void main() {
         );
         expect(String.fromCharCodes(bytes.take(5)), '%PDF-');
       },
+      skip: true, // superseded by ADR 2026-09-24b §9; re-lands at M12
     );
   });
 

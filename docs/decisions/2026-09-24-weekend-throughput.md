@@ -24,7 +24,7 @@ Three facts shaped the answers the owner then chose:
 - **`budget.weekly_tokens` is still `null`.** No script can read the quota (ADR 2026-09-13e), so
   nothing here can check the weekend against it. The owner reads `/usage`.
 
-## Rulings 🔒
+## Rulings 🔒 ⟦tests: n/a — container heading; each ruling below carries its own marker⟧
 
 ### 1. The cap is 5 slices per `/cycle` and 5 lanes per `/lane`  ⟦tests: n/a — process rule, not behaviour⟧
 - `cycle.js` `MAX = 5` and `lanes.js` `MAX_LANES = 5`; `rf.config.json`

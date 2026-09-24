@@ -9,12 +9,14 @@
 4. **Lapsed ≠ locked 🔒:** expiry → read-only + full export forever. Data is never held hostage; this is a trust feature and a marketing claim. **Made precise (ADR 2026-09-05g §5):** the watermark applies to **reports (PDF) only, never to the CSV/XLSX data export** (06 §9.2 stays literally true); 04 §7.6's monthly readable export is not plan-gated. **Extended, not reopened (ADR 2026-09-12 §2):** CSV joined the *report* export surface at S8.2, and the watermark still follows the **format** — a Free tenant's PDF report carries it, its CSV and XLSX never do, on either surface. ⟦tests: F3-07-3 @M12⟧ **Long-lapsed:** 24 months with no login → three notices over 90 days → envelopes move to cold storage (03 §6), still pullable on next login. **Never deletion.** ⟦tests: G-08-2 @M13⟧
 
 ## 2. Tiers (INR/year, placeholder)
-| Tier | Limits (plaintext metadata) | Price |
-|---|---|---|
-| **Free** | 1 member, personal + 1 business book, exports watermarked | ₹0 |
-| **Personal** | 1 member, unlimited books, clean exports, statement import | ₹599 |
-| **Family** | ≤ 5 active members, ≤ 3 business books | ₹1,999 |
-| **Family+** | ≤ 15 active members, unlimited business books | ₹3,999 |
+| Tier | Limits (plaintext metadata) | Price | Monthly (placeholder) |
+|---|---|---|---|
+| **Free** | 1 member, personal + 1 business book, exports watermarked | ₹0 | ₹0 |
+| **Personal** | 1 member, unlimited books, clean exports, statement import | ₹599 | ₹63 |
+| **Family** *(popular)* | ≤ 5 active members, ≤ 3 business books | ₹1,999 | ₹209 |
+| **Family+** | ≤ 15 active members, unlimited business books | ₹3,999 | ₹417 |
+
+> **ADR 2026-09-24b §11** — monthly prices are flagged placeholders (≈ 20 % over annual across 12 months, rounded up so the saving is never overstated); *popular* sits on Family. Real prices before M13 exit.
 
 **Quotas 🔒 (ADR 2026-09-05g §3 — the numbers ADR 2026-09-05b §7 assigned here):** ⟦tests: G-08-3 @M13⟧
 
@@ -32,7 +34,7 @@ Organizations (trusts): Family tiers apply by member count up to 15; **a dedicat
 
 ## 3. Enforcement 🔒 ⟦tests: G-08-4⟧
 - Enforced **only** on plaintext metadata: active-membership count, business-book count, device count (06 §6), export watermark flag. Enforcement points: invite creation, book creation, device registration, export generation (client-side flag, server-attested plan state).
-- **The entitlement token 🔒 (ADR 2026-09-05g §1):** "server-attested" means an Ed25519 token `{tenant_id, plan, limits, period_end, grace_kind, iat, exp ≤ 30 d}` signed by the **one server signing key** (`entitlement_key`, 04 §8.6), public key pinned in the app beside the SPKI pins (05 §1), delivered on the meta channel (05 §5). **Hard** caps (seats, business books, devices, quota) are enforced server-side at invite, book-create, device-register and push; **soft** enforcement (watermark, nudges, banners) is client-side from the token and a rooted phone can defeat it — that is the whole defence and it is enough (ADR 2026-09-05g §2). ⟦tests: G-08-5⟧
+- **The entitlement token 🔒 (ADR 2026-09-05g §1):** "server-attested" means an Ed25519 token `{tenant_id, plan, limits, period_end, grace_kind, grace_until, iat, exp ≤ 30 d}` (`grace_until` null unless dunning; lapsed ⇒ `period_end = iat`; unlimited = `-1`; no key id — both pinned keys are tried during rotation, ADR 2026-09-24b §6–§7) signed by the **one server signing key** (`entitlement_key`, 04 §8.6), public key pinned in the app beside the SPKI pins (05 §1), delivered on the meta channel (05 §5). **Hard** caps (seats, business books, devices, quota) are enforced server-side at invite, book-create, device-register and push; **soft** enforcement (watermark, nudges, banners) is client-side from the token and a rooted phone can defeat it — that is the whole defence and it is enough (ADR 2026-09-05g §2). ⟦tests: G-08-5, E-24b-2 @M13⟧
 - **Seats count `invited` + `joined_pending_verification` + `active`** (06 §7); removal frees the seat at once; re-inviting the same `user_id` within 30 days is free; rolling cap of 2 × seats distinct members per year (ADR 2026-09-05g §6). **Payer:** `subscriptions.payer_user_id`, only a tenant admin may purchase; the personal book is covered by its owning tenant's plan (ADR 2026-09-05g §7).
 - **Two graces, named apart 🔒 (ADR 2026-09-05g §4).** *Dunning grace* (tenant-wide, failed renewal): 7 days from `period_end`, server-declared in the token, then read-only. *Offline grace* (device-local): runs from the **last entitlement token seen**, and read-only engages only after the device has reached the server **and been told lapsed** — a renewed tenant on a phone off-network for three weeks never goes read-only. Clock floor = `max(local, highest server timestamp seen)`: a rolled-back clock cannot extend, a rolled-forward one cannot lapse. ⟦tests: G-08-6 @M13⟧
 - Downgrade with excess members/books: nothing is deleted; excess books go read-only, excess members keep read access; owner chooses what stays active.

@@ -27,6 +27,8 @@ sign. Tokens travel on the meta channel (05 §5) and are refreshed on every meta
 no valid token is *Free*, never *locked*. Nothing about a token is content: the server signs what
 it already knows.
 
+> **Amended by ADR 2026-09-24b §6, §7** — the field set gains `grace_until` (null unless `grace_kind = dunning`); a lapsed tenant's `period_end` is clamped to `iat`; unlimited is `-1`; no key id — the app tries both pinned keys during the overlap. ⟦tests: E-24b-2 @M13, E-05-15, G-08-5⟧
+
 ### 2. Enforcement — hard server-side, soft client-side, never on content
 **Hard caps** are enforced by the server at the three plaintext choke points: invite creation
 (seats), book creation (business books), device registration (devices) — plus envelope push
@@ -103,6 +105,7 @@ subscriptions(tenant_id pk, plan, status, gateway, gateway_ref, current_period_e
         original_transaction_id, payer_user_id, trial_end, grace_until, grace_kind,
         cancel_at_period_end bool, seats_addon int, dispute_state, updated_at)
 ```
+> **ADR 2026-09-24b §8** — `billing_events` also carries `tenant_id uuid null, event_at timestamptz null` (`0013`), and `dispute_state ∈ {null, refunded, disputed, chargeback}`. ⟦tests: E-03-65, E-03-66, E-03-67, E-03-68, G-08-11⟧
 Every webhook: **signature verified**, **deduped on `event_id`** (05 §5's replay test now has
 something to test), **out-of-order guard** (apply only if the event's sequence/timestamp is newer
 than the last applied for that subscription), **daily reconciliation poll** against the gateway.

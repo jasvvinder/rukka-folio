@@ -173,7 +173,7 @@ Reinstall on the same iPhone may find device keys intact → normal certified de
 ### 7.2 Rung 1 — another of your own devices
 Standard device linking (§9.1).
 
-### 7.3 Rung 2 — guardians (flagship) 🔒 ⟦tests: B-04-53, B-04-54, B-04-55, B-04-62, B-04-64, B-04-65, B-04-67, B-04-72, B-04-75, B-04-76, B-04-77, B-04-78, B-04-80, B-04-81, E-06-43, E-06-44, E-06-45, E-06-46, E-06-47, E-06-48, E-06-49, E-06-50, E-06-51, E-06-52, E-06-53, E-06-54, E-06-55, E-06-56, F1-06-21, F1-06-22, F1-06-28, C-06-37, C-06-38, B-04-85, B-04-93, F1-06-35, F1-06-38, F1-06-39, F1-06-41, F1-06-42, E-06-57, C-06-42, C-06-43, C-06-44, C-06-45, C-06-46, C-06-47, C-06-48, C-06-49, C-06-50, C-06-51, C-06-52, C-06-53, C-06-54, C-06-55, C-06-56, F1-06-45, F1-06-46, C-06-40, C-06-57, C-06-58, F1-06-53, F1-06-54, F1-06-55, F1-07-340, F1-07-341⟧
+### 7.3 Rung 2 — guardians (flagship) 🔒 ⟦tests: B-04-53, B-04-54, B-04-55, B-04-62, B-04-64, B-04-65, B-04-67, B-04-72, B-04-75, B-04-76, B-04-77, B-04-78, B-04-80, B-04-81, E-06-43, E-06-44, E-06-45, E-06-46, E-06-47, E-06-48, E-06-49, E-06-50, E-06-51, E-06-52, E-06-53, E-06-54, E-06-55, E-06-56, F1-06-21, F1-06-22, F1-06-28, C-06-37, C-06-38, B-04-85, B-04-93, F1-06-35, F1-06-38, F1-06-39, F1-06-41, F1-06-42, E-06-57, C-06-42, C-06-43, C-06-44, C-06-45, C-06-46, C-06-47, C-06-48, C-06-49, C-06-50, C-06-51, C-06-52, C-06-53, C-06-54, C-06-55, C-06-56, F1-06-45, F1-06-46, C-06-40, C-06-57, C-06-58, F1-06-53, F1-06-54, F1-06-55, F1-07-340, F1-07-341, F1-06-70, F1-06-71, F1-06-72, F1-06-73, F1-06-84, F1-06-85, F1-06-86, F1-06-92⟧
 **Setup:** choose guardians (default **2-of-3**; allowed n=2..5 with k=⌈(n+1)/2⌉; 2-of-2 permitted only behind a **typed confirmation**, never a dismissible warning — ADR 2026-09-06 checklist 4). Mutual ceremony per guardian. Split `UMK_priv` via Shamir; seal `share_i` to guardian *i*'s UMK public key; upload. Re-split and re-upload on any guardian change or UMK rotation; shares carry `share_set_version`.
 
 **Recovery:**
@@ -184,15 +184,16 @@ Standard device linking (§9.1).
 5. Its possession of UMK lets it decrypt all wrapped BKs → full restore.
 6. The device **self-issues its certificate** under the recovered UMK and 🔒 notifies all members and revokes all *previous* device sessions of this user (a recovery event is exactly when old devices should die). **If the user still has an active certified device, steps 4–6 wait 24 h behind a one-tap Cancel on every existing device (ADR 2026-09-05d §1); immediate only when none exists.**
 7. Guardian denial → requester notified; 3 denials or 72 h → recovery attempt closed and logged.
+> **ADR 2026-09-24b §1** — the *candidate X25519 pair* is its own pair, minted per attempt and held in the key store until the attempt closes; it is never this device's `pub_x`, never wraps a BK, and is zeroised after reconstruct and on every close. ⟦tests: B-24b-1 @M11, F1-24b-1 @M11⟧
 
-### 7.4 Rung 3 — paper sheet 🔒 ⟦tests: B-04-15, B-04-16, B-04-17, B-04-18, F1-06-40, E-06-58, E-06-60, E-06-61, C-06-39, F1-06-47, F1-06-48, F1-06-49, F1-06-50, F1-06-51, F1-06-52, F1-06-56, F1-07-342, F1-07-343, F1-07-344⟧
+### 7.4 Rung 3 — paper sheet 🔒 ⟦tests: B-04-15, B-04-16, B-04-17, B-04-18, F1-06-40, E-06-58, E-06-60, E-06-61, C-06-39, F1-06-47, F1-06-48, F1-06-49, F1-06-50, F1-06-51, F1-06-52, F1-06-56, F1-06-63, F1-06-64, F1-06-65, F1-06-79, F1-06-80, F1-06-81, F1-06-82, F1-06-83, F1-06-93, F1-07-342, F1-07-343, F1-07-344⟧
 - `RK` = random 256-bit, generated at signup. Server stores `sealed_RK_blob = XChaCha20(RK, UMK_priv)`.
 - Sheet = one-page PDF: QR `base64url(version ‖ user_id ‖ RK)` + typed fallback (Crockford Base32, groups of 4, 2-char checksum) + instructions in English + the user's language (ਪੰਜਾਬੀ/हिन्दी). Framed as a document to keep with the Aadhaar and LIC papers.
 - **Verified-storage nag:** persistent badge until the user scans their *printed* sheet back. Re-verify prompt annually. Regenerating a sheet rotates RK and invalidates the old sheet.
 - Recovery: scan/type RK → fetch blob → decrypt UMK → same completion as §7.3 step 6.
 - Mandatory for solo users (no guardians possible); strongly nudged for everyone.
 
-### 7.0 Rung 0 — platform key sync 🔒 (owner-directed, 31 Aug 2026; tried before every other rung) ⟦tests: B-04-52, C-06-2, C-06-3, C-06-1, C-06-4, C-06-5, C-06-6⟧
+### 7.0 Rung 0 — platform key sync 🔒 (owner-directed, 31 Aug 2026; tried before every other rung) ⟦tests: B-04-52, C-06-2, C-06-3, C-06-1, C-06-4, C-06-5, C-06-6, F1-06-66, F1-06-67, F1-06-68, F1-06-69, F1-06-87⟧
 **iOS: iCloud Keychain. Android: Block Store.** Both are end-to-end encrypted by the platform — Apple and Google cannot read them — so storing the wrapped UMK there does **not** weaken zero-knowledge; it adds a second device-class custodian the vendor still cannot open.
 
 - Default **on**, with a plain explanation at signup and a switch in Devices & security.

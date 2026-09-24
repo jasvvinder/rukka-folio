@@ -196,6 +196,8 @@ disabling the button."* That is 07 §1 rule 6 stated by the plugin's own authors
 - A number is never parsed, normalised or reformatted by the app: the bytes the book holds are the
   bytes handed to the dialer. ⟦tests: F1-07-314 @M11⟧
 
+> **Amended by ADR 2026-09-24b §12** — one more named target, and only one: `https://apps.apple.com/account/subscriptions` for S12.3's iOS cancel, through its own one-method seam, never `canLaunchUrl`; a failed launch names the path in words. ⟦tests: F1-24b-6 @M13⟧
+
 ### 3. A *Call* control is a control, and its failure is not silence ⟦tests: F1-07-314 @M11, F1-07-315 @M11⟧
 - With the dialer wired, R2.2's per-row **Call** link (S11.2) and R2.3's **Call {name}** button (S11.7)
   are real controls wherever the book holds a number. The plain-text render RV4 shipped stays as the

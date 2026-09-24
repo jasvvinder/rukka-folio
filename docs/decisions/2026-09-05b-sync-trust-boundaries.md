@@ -71,7 +71,7 @@ entries are already refused at push (`membership_not_active`); this rule closes 
   `seq` returned in the ack and the envelope was not seen, the client **re-pushes** and logs
   `write_lost` as a security event. Cap: 30 days un-observed → Inbox.
 
-### 7. Rate limits and quotas — the server's only new powers ⟦tests: D-05-6, E-05-4, E-05-5, E-06-58, E-06-60⟧
+### 7. Rate limits and quotas — the server's only new powers ⟦tests: D-05-6, E-05-4, E-05-5, E-06-58, E-06-60, F1-05-59⟧
 `rejected:rate_limited` (per-device push: ⚠️ proposal 600 envelopes / min and 50 MB / day) →
 backoff and retry, never Inbox. `rejected:quota` (per-book envelope count and bytes by plan — 08
 owns the numbers ⚠️) → Inbox *"This book is full — upgrade the plan"*, book still readable and

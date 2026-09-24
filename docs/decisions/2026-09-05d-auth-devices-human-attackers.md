@@ -28,6 +28,8 @@ names, no roles, no device lists, no verification log. A SIM-swapper learns noth
 family. `devices.status` gains `certified` set by the server on cert verification; the RLS
 predicate for every tenant table requires it.
 
+> **Amended by ADR 2026-09-24b §3** — one more read: an uncertified device may learn *whether its own user has a current guardian set* — a boolean, bounded to `user_id = rf.user_id()`, never k, n, a member or a share. Everything else above stands. ⟦tests: E-24b-1 @M11, F1-24b-4 @M11⟧
+
 ### 3. Support actions are delayed and cancellable ⟦tests: C-05d-8, F1-06-13, F1-06-15⟧
 Support-initiated **device revocation** follows the deletion pattern: a 24 h window, a notice on
 every certified device of the user — *"Support revoked {device} at your request. Not you? Cancel."*

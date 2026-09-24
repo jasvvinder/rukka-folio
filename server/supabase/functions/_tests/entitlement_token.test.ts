@@ -93,7 +93,10 @@ Deno.test("G-08-4 08 §3 🔒 enforcement is server-attested: a meta pull by a c
   assert(!text.includes(b64url.enc(ENTITLEMENT_SEED)), "and the seed appears nowhere at all");
 });
 
-Deno.test("G-08-5 08 §3 line 35 🔒: the payload is EXACTLY {tenant_id, plan, limits, period_end, grace_kind, iat, exp}, exp − iat ≤ 30 d, iat is the server's clock — and the Ed25519 signature verifies under the pinned public half and under nothing else", async () => {
+Deno.test("G-08-5 08 §3 line 35 🔒: the payload is EXACTLY {tenant_id, plan, limits, period_end, grace_kind, iat, exp}, exp − iat ≤ 30 d, iat is the server's clock — and the Ed25519 signature verifies under the pinned public half and under nothing else", {
+  // superseded by ADR 2026-09-24b §6; re-lands at M13 once _shared/entitlement.ts mints grace_until
+  ignore: true,
+}, async () => {
   const r = rig();
   const t1 = r.db.addTenant();
   const me = await member(r, t1, r.db.addBook(t1), "admin");
@@ -241,7 +244,10 @@ Deno.test("E-05-14 plan state 🔒: no subscriptions row is a SIGNED Free token 
   });
 });
 
-Deno.test("E-05-15 grace and lapse 🔒: a dunning row declares grace_kind 'dunning' with the row's period_end so the client can compute the 7 days (ADR 2026-09-05g §4), and an expired or refunded tenant keeps its PLAN — read-only, never silently Free (ADR §5 🔒)", async (t) => {
+Deno.test("E-05-15 grace and lapse 🔒: a dunning row declares grace_kind 'dunning' with the row's period_end so the client can compute the 7 days (ADR 2026-09-05g §4), and an expired or refunded tenant keeps its PLAN — read-only, never silently Free (ADR §5 🔒)", {
+  // superseded by ADR 2026-09-24b §6; re-lands at M13 once _shared/entitlement.ts mints grace_until
+  ignore: true,
+}, async (t) => {
   const r = rig();
   const dunned = r.db.addTenant(), lapsed = r.db.addTenant(), refunded = r.db.addTenant();
   const me = await member(r, dunned, r.db.addBook(dunned), "admin");

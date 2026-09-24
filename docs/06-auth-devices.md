@@ -101,7 +101,7 @@ Challenge–response; no bearer secrets that outlive minutes.
 
 ---
 
-## 5. Activation flows by scenario 🔒 ⟦tests: C-06-17, F1-06-6, C-06-32, C-06-33, C-06-34, C-06-35, C-06-36, E-06-44, E-06-53⟧
+## 5. Activation flows by scenario 🔒 ⟦tests: C-06-17, F1-06-6, C-06-32, C-06-33, C-06-34, C-06-35, C-06-36, E-06-44, E-06-53, F1-06-74, F1-06-75, F1-06-76, F1-06-77, F1-06-88⟧
 
 | Scenario | Flow |
 |---|---|

@@ -12,6 +12,62 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-24 — docs: the desk cleared (ADR 2026-09-24b)
+
+The owner asked for the desk to be finished before any more building. This was a rulings session
+with no lanes and no product code. Two background agents did the mechanical sweeps. The owner then
+ruled every open 🔒 or ⚠️ SPEC item from a recommendation with its evidence. The desk went from
+**19 open to 2**, and both remaining items need something only the owner has.
+
+**Decided**
+
+- [ADR 2026-09-24b](docs/decisions/2026-09-24b-desk-rulings.md) — 🔒 fourteen rulings:
+  - **Recovery:** the candidate X25519 pair is its own pair, one per attempt (§1). `umk_pub_x` is
+    backfilled automatically, and a missing one is said aloud (§2). An uncertified device may ask one
+    yes/no question about its own guardian set, amending 05d §2 (§3). *None* means every rung refused
+    (§4). S11.6 is 13 §4.3's one named *unchecked* exception (§5).
+  - **Entitlement:** the token gains `grace_until`, amending 05g §1 and 08 §3 (§6). Three TOK1
+    readings are ratified: lapsed ⇒ `period_end = iat`, unlimited = `-1`, no key id so both pinned
+    keys are tried (§7). `billing_events.tenant_id`/`event_at` and three `dispute_state` values are
+    ratified (§8). Monthly prices ship as flagged placeholders with *popular* on Family (§11). iOS
+    cancel may open Apple's subscription settings, amending ADR 2026-09-19 ruling 2 by one URL (§12).
+  - **Read-only:** it blocks every write that creates an envelope except the 10 s Undo (§13), which
+    unblocks ENT2. The S12.5 sheet's two conservative readings stand (§14).
+  - **Exports:** the printed/exported ledger closes with c/d · Total · b/d and no c/f row (§9). A file
+    name wraps at any character (§10).
+
+**Changed**
+
+- Cross-reference lines in 02 §8.1, 03 §2.4 (the ⚠️ SPEC note is now the ratified text), 04 §7.3,
+  08 §2 (monthly column) and §3 (token field set), 13 §4.3 / §5 F11 / §6, ADR 05d §2, ADR 05g §1 and
+  §9, and ADR 2026-09-19 ruling 2.
+- **Superseded skips (ADR 05i §4):** `F1-07-162/163/164/166` (export c/f) re-land at M12. `G-08-5`
+  and `E-05-15` (no `grace_until`) re-land at M13. The touched files run 8 passed / 4 skipped (Flutter)
+  and 5 passed / 2 ignored (Deno).
+- **Traceability:** desk 29's markers landed (`F1-07-491…496` on 13 S12.5 and 07 §20; `F1-05-59` on
+  05b §7). Desk 17: 34 orphan ids were appended to existing 🔒 markers, taking orphans from 49 to 13.
+  The 13 that remain pin the ladder's adapter contract, which no doc line states. ADR 2026-09-24's
+  `## Rulings 🔒` heading gained its missing marker, so `check_coverage --strict` is **green** again
+  (it was red at `576bbb3`).
+- **Lane reports swept (desk 21):** 15 stale blockers moved to `resolved` with evidence, taking
+  unrouted blockers from 22 to 7. Three became PLAN rows: U5h owner set, W2 interface, RV6 retired code.
+- **PLAN.md:** desk items ✅ with their ADR section. New ⬜ build rows sit under M7, M9, M11, M12 and
+  M13.
+- `.env.example` names `RF_ENTITLEMENT_KEY`. A **development** key was generated with libsodium into
+  the local, git-ignored `.env` (desk 24). The production key waits for its custody home.
+
+**Open**
+
+- Desk 2: the external lead-times. Desk 15: the support WhatsApp handle.
+- Owner: real prices before M13 exit (§11), and the R2.1 canvas's unchecked row (§5).
+- The build rows are queued for `/cycle` on 26–27 Sep under the 20 M ceiling.
+
+**Commits**
+
+- _(owner to fill)_
+
+---
+
 ## 2026-09-24 — env: five-slice cycles, xhigh on the trust lanes, weekend ceiling
 
 An environment session with no lanes and no product code. The owner asked for Opus 5.5 at extra-high
@@ -50,7 +106,7 @@ effort where it is needed, and for a higher cycle cap to fit as many milestones 
 
 **Commits**
 
-- _(owner to fill)_
+- `576bbb3` env: ADR 2026-09-24 — 5-slice cycles, xhigh on trust lanes, dated weekend ceiling
 
 ## 2026-09-24 — docs (M11): ADR 2026-09-19 ratified — scanner + dialer
 

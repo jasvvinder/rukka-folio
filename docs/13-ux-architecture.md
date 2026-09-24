@@ -186,7 +186,7 @@ Roles (admin · head · member · operator · viewer) change *what actions appea
 | **S12.2** | Checkout | S12.1 | **iOS = In-App Purchase** (08 §3.2); coupon and GSTIN on non-iOS only |
 | **S12.3** | Manage subscription | S12 | plan, renewal date, change, cancel ⟦tests: F1-07-472, F1-07-473, F1-07-474, F1-07-475, F1-07-476, F1-07-477⟧ |
 | **S12.4** | Payment problem | S12 | grace countdown, retry, what happens at the end ⟦tests: F1-07-478, F1-07-479, F1-07-480, F1-07-481, F1-07-482, F1-07-483⟧ |
-| **S12.5** | Read-only mode | global | banner + blocked-entry sheet; export always works; the same sheet pattern serves **book full** (`rejected:quota`) → S12.1, drafts preserved (ADR 2026-09-05b §7, ADR 2026-09-05f §B) ⟦tests: F1-07-78⟧ |
+| **S12.5** | Read-only mode | global | banner + blocked-entry sheet; export always works; the same sheet pattern serves **book full** (`rejected:quota`) → S12.1, drafts preserved (ADR 2026-09-05b §7, ADR 2026-09-05f §B) ⟦tests: F1-07-78, F1-07-491, F1-07-492, F1-07-493, F1-07-494, F1-07-495, F1-07-496⟧ |
 | **S12.6** | Invoices | S12 | list + PDF ⟦tests: F1-07-484, F1-07-485, F1-07-486, F1-07-487, F1-07-488, F1-07-489⟧ |
 | **S17** | Help | S8 | search, contact, diagnostics — the grouped, searchable FAQ list lives on this hub (S17.1 folded in, ADR 2026-09-02) |
 | **S17.2** | FAQ article | S17 | one answer, plain language |
@@ -281,6 +281,7 @@ Amount text (3 sizes × in/out/pending/neutral) · account chip · scope chip (a
 
 ### 4.3 Component states ⟦tests: F1-13-23, F1-13-24, F1-13-25⟧
 Every interactive component ships: default · pressed · disabled-with-reason · loading · error. Every list ships: populated · empty (with the one next action) · error-with-retry · offline.
+> **ADR 2026-09-24b §5** — one named exception: S11.6 (R2.1) draws a third row state for an `unknown` rung — takeable, help icon plus a sentence, colour-independent. No other screen uses it without its own ruling. ⟦tests: F1-07-418, F1-07-419, F1-07-421, F1-07-422⟧
 
 ---
 
@@ -334,6 +335,7 @@ Remote mode: verifier instructed to *call and have the code read aloud* — neve
 **F11 · New device / recovery**
 `OTP → (device certified? no → sees nothing of the family, S0.9 variant) → ◆ own device available → link via ceremony (instant) | guardians → S11.2 k-of-n live progress → ◆ user still has an active device → 24 h wait, S11.9 Cancel on every existing device | none → immediate | paper sheet → S11.3 scan/type | none → S11.8 honest empty-vault screen + path` ⟦tests: F1-07-265, F1-07-266, F1-07-267, F1-07-268, F1-07-269, F1-07-270, F1-07-271⟧
 Recovery completion revokes all prior sessions and notifies every tenant; **every newly certified device, on every path, notifies all the user's devices and every tenant** (ADR 2026-09-05d §1, §2, §6).
+> **ADR 2026-09-24b §4** — F11's *none* means every rung **refused**; an `unknown` rung never counts toward *None of these work for me*. ⟦tests: F1-07-420⟧
 
 **F12 · Everything scope (joint family overview)**
 `S1 scope chip → "Everything" → aggregate position with a card per book, subtotals, open advances across the family, inter-book reconciliation status. Read-only; tapping any card switches scope to that book.`
@@ -355,6 +357,7 @@ Recovery completion revokes all prior sessions and notifies every tenant; **ever
 **Sync** (owner: 05 §9): `synced ✓` · `saved on phone (n)` · `offline` · `waiting for entries from {name}'s phone` (author gap < 24 h — projection **provisional**, close blocked) · `needs attention → Inbox` (rejections, quarantines, key wait > 24 h, gap > 24 h, write lost, clock warning) · `rebuilding` (S1.4, determinate loader). `rate_limited` has **no UI** by ruling. Never a spinner on save — or anywhere: waiting is shown by the 2px loader rule with a count, or by state words (11 §4.5, ADR 2026-09-03d).
 
 **Subscription:** `trial → active → dunning grace (payment failed, tenant-wide, S12.4) → read-only (export always works, S12.5)`; separately **offline grace** (device-local, from the last entitlement token seen — never read-only before the server has said lapsed) — two graces, two copies (ADR 2026-09-05g). `book full` (quota) blocks posting only, drafts kept. Lapse blocks new entry only.
+> **ADR 2026-09-24b §13** — read-only blocks **every** write that creates an envelope (post, amend, reverse, opening balances, cash count, advances, partner entries), each raising S12.5; the one exception is the 10-second Undo of an entry this phone just saved. Book full stays per-book (ADR 2026-09-05b §7). **§14:** a failed entitlement read is untokened — Free, never locked. ⟦tests: F1-07-491, F1-07-492, F1-24b-7 @M13⟧
 
 ---
 

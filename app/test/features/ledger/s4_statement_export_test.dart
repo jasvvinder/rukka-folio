@@ -191,6 +191,7 @@ void main() {
         );
         await unmount(tester);
       },
+      skip: true, // superseded by ADR 2026-09-24b §9; re-lands at M12
     );
 
     testWidgets(

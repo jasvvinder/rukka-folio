@@ -47,7 +47,7 @@ book_roles(book_id, user_id, role text check (role in
         auto_post_limit_paise bigint, primary key (book_id, user_id))
 ```
 
-### 2.2 Devices, keys, ceremonies (plaintext rows, opaque blobs) 🔒 ⟦tests: E-03-18, E-03-24, E-03-27, E-13d-1, E-06-50, E-06-53, E-06-55, E-06-60, E-06-61, E-06-62, E-06-63, E-06-64, E-06-65, E-06-66⟧
+### 2.2 Devices, keys, ceremonies (plaintext rows, opaque blobs) 🔒 ⟦tests: E-03-18, E-03-24, E-03-27, E-13d-1, E-06-50, E-06-53, E-06-55, E-06-60, E-06-61, E-06-62, E-06-63, E-06-64, E-06-65, E-06-66, E-06-67⟧
 
 ```sql
 devices(id uuid pk, user_id fk, pub_ed bytea, pub_x bytea, model, os,
@@ -126,9 +126,9 @@ subscriptions(tenant_id pk, plan, status, gateway, gateway_ref, current_period_e
         cancel_at_period_end bool, seats_addon int, dispute_state, updated_at)  -- 05 §5 cursor
 billing_events(event_id pk, gateway, type, payload_hash, received_at, applied_at null,
         tenant_id uuid null, event_at timestamptz null)
-        -- ⚠️ SPEC (M13-BIL1, 22 Sep): tenant_id + event_at added by 0013 so ADR 2026-09-05g §9's
-        -- out-of-order guard has a subscription to key on and the GATEWAY's time to order by;
-        -- owner to ratify the two names (03 §2.4 is 🔒)
+        -- tenant_id + event_at (0013): the subscription the event is for and the GATEWAY's
+        -- own time, which ADR 2026-09-05g §9's out-of-order guard orders by — ratified ADR 2026-09-24b §8
+        -- subscriptions.dispute_state ∈ {null, 'refunded', 'disputed', 'chargeback'} (ADR 2026-09-24b §8)
         -- signature-verified, deduped, out-of-order guarded (ADR 2026-09-05g §9)
 promo_codes(code pk, max_redemptions, per_user_limit, first_purchase_only bool, valid_from, valid_to)
 promo_redemptions(code, user_id, tenant_id, at)     -- server-validated, never stacked (§12)
