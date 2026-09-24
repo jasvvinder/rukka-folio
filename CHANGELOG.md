@@ -40,18 +40,20 @@ on the checklist in ADR 2026-09-19: *"yes to all four, record them in the ADR."*
   S11.2/S11.3/S11.7 rows claim the scan is unavailable, but checked against the files they never did:
   07 §5.6 is App lock, and 07 line 72, the three 13 §3.2 rows and DESIGN-PACK R2.4 already assume a working
   camera. The *unavailable* state lives only in code.
+- `PLAN.md`: desk 11 ✅ (the desk is now 20 open). M11's heading and row now say the ADR is ratified and name the
+  build slice (one `lane-ui-hard` slice). Desk 27 notes the `tel:`-only bound. §0 is dated 24 Sep.
 
 **Open**
 
 - The build lane is next: two pubspec lines, a `MobileScannerCeremonyScanner`, a `Dialer` seam and its
   `url_launcher` implementation, `NSCameraUsageDescription` in EN/PA/HI, the three recovery scan seams, the
   *Call* controls, and tests `F1-07-312…315`. It removes the `⚠️ WIRE` banner at `camera_scanner.dart:5`
-  and unblocks PLAN-27.
-- PLAN-11 is still ⛔ in `PLAN.md` until `/plan` runs.
+  It does **not** by itself unblock PLAN-27: ruling 2 🔒 bounds `url_launcher` to `tel:` only, so S12.3's
+  iOS deep-link to Apple's subscription settings needs that ruling widened by name.
 
 **Commits**
 
-- _pending_
+- `681a1d6` ratification · `74fc578` Consequences correction · _pending_: PLAN.md refresh
 
 ## 2026-09-23 — M13: S12.5 read-only and book full block Save on S2
 
