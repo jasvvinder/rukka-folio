@@ -12,6 +12,45 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-24 — docs (M11): ADR 2026-09-19 ratified — scanner + dialer
+
+A desk session with no lanes and no code. The owner walked through desk PLAN-11 and answered all four items
+on the checklist in ADR 2026-09-19: *"yes to all four, record them in the ADR."*
+
+**Decided**
+
+- [ADR 2026-09-19](docs/decisions/2026-09-19-scanner-and-dialer.md) **ratified 24 Sep 2026**:
+  1. Adopt `mobile_scanner` 7.4.2 behind the `CeremonyScanner` seam.
+  2. **Accept** the Android ML Kit residual. A network capture is required before the first Android
+     release, and `qr_code_dart_scan` stays the costed exit.
+  3. Adopt `url_launcher` 6.3.2 for `tel:` only, behind a `Dialer` seam. `canLaunchUrl` is never called
+     and no query config is added.
+  4. A failed `dial` shows the number with *copy the number* and a one-line explanation.
+
+  The two pubspec lines in its § Consequences may now land.
+
+**Changed**
+
+- The ADR's status is now a ratification banner (house pattern from 13c), with the original *Proposed* line
+  kept below. The Rulings heading says *(ratified 24 Sep 2026)* and each checklist item carries its answer.
+- Its seam references had drifted and are corrected to `recovery_ladder.dart:673, :1015, :880`; the numbers
+  as written (`:577, :895, :760`) are kept alongside. `check_coverage` output is identical to before and
+  `--strict` is green.
+
+**Open**
+
+- The docs the ADR says the owner applies are **not** edited yet: the S11.2, S11.3 and S11.7 rows in 07 §5.6
+  and 13 §3.2 still say the scan is unavailable.
+- The build lane is next: two pubspec lines, a `MobileScannerCeremonyScanner`, a `Dialer` seam and its
+  `url_launcher` implementation, `NSCameraUsageDescription` in EN/PA/HI, the three recovery scan seams, the
+  *Call* controls, and tests `F1-07-312…315`. It removes the `⚠️ WIRE` banner at `camera_scanner.dart:5`
+  and unblocks PLAN-27.
+- PLAN-11 is still ⛔ in `PLAN.md` until `/plan` runs.
+
+**Commits**
+
+- _pending_
+
 ## 2026-09-23 — M13: S12.5 read-only and book full block Save on S2
 
 One-slice `/cycle` (ENT1, lane-ui). The owner chose ENT1 of four candidates after desk 18's cost finding

@@ -1,6 +1,15 @@
 # ADR 2026-09-19 — Two app dependencies for the recovery ladder: `mobile_scanner` for the camera, `url_launcher` for `tel:`
 
-**Status: Proposed — awaiting owner ratification.** Prepared by lane M11-PK1 (19 Sep 2026), which was
+**RATIFIED by the owner, 24 Sep 2026** — *"yes to all four, record them in the ADR."* Answers recorded
+from that instruction; the reasoning for each is in the ruling it belongs to.
+**1 — yes** (`mobile_scanner` 7.4.2 behind the `CeremonyScanner` seam). **2 — accept** (the Android ML
+Kit residual, with the network capture of Open 1 before the first Android release and
+`qr_code_dart_scan` as the costed exit). **3 — yes** (`url_launcher` 6.3.2, `tel:` only, behind a
+`Dialer` seam, `canLaunchUrl` never called, no query config added). **4 — yes** (a failed `dial` shows
+the number with *copy the number* and a one-line explanation). The rulings below are now owner-locked,
+and the two pubspec lines in § Consequences may land.
+
+**Originally: proposed — awaiting owner ratification.** Prepared by lane M11-PK1 (19 Sep 2026), which was
 asked to *evaluate, rule and write the ADR, and add nothing to the build* — the shape ADR 2026-09-12e
 took for XLSX: evaluate against this workspace's real constraints, **compile-verify** the failures
 rather than assume them, rule, and only then let a later lane write code. Nothing in `app/` or
@@ -13,7 +22,8 @@ camera plugin: `app/lib/features/ceremony/camera_scanner.dart:6` says so in its 
 camera plugin is in `app/pubspec.yaml` yet … [NoCameraScanner] reports `unavailable`"*. So today
 **S11.7 cannot approve at all and S11.2 cannot be walked**, and the seams
 `GuardianRecovery.verifyOwnKeyByScan`, `GuardianApprovals.verifyCandidateByScan` and
-`RecoverySheetEntry.scanSheet` (`app/lib/shared/seams/recovery_ladder.dart:577, :895, :760`) can only
+`RecoverySheetEntry.scanSheet` (`app/lib/shared/seams/recovery_ladder.dart:673, :1015, :880` as of
+24 Sep; `:577, :895, :760` when written) can only
 answer `RecoveryScanOutcome.unavailable`. The dialer is not blocking; it is a 07 §1 rule 6 defect —
 R2.2's per-row **Call** link and R2.3's **Call {name}** button render the number as inert text today
 (`app/lib/features/recovery/widgets/recovery_parts.dart:462–478`), because RV4 correctly declined to
@@ -150,7 +160,7 @@ The package's own README reaches the same conclusion for the same reason: *"in c
 provide fallback behavior it is better to use `launchUrl` directly and handle failure, rather than
 disabling the button."* That is 07 §1 rule 6 stated by the plugin's own authors.
 
-## Rulings 🔒 (proposed) ⟦tests: n/a — container heading; each ruling below carries its own marker⟧
+## Rulings 🔒 (ratified 24 Sep 2026) ⟦tests: n/a — container heading; each ruling below carries its own marker⟧
 
 ### 1. `mobile_scanner` is adopted as the app's only camera/QR dependency ⟦tests: F1-07-312 @M11, F1-07-313 @M11⟧
 - `app/pubspec.yaml` gains `mobile_scanner: ^7.4.2` and nothing else — the resolution adds **one**
@@ -225,17 +235,20 @@ disabling the button."* That is 07 §1 rule 6 stated by the plugin's own authors
 
 ## Ratification checklist — four answers for the owner 🔒 ⟦tests: n/a — heading; each answer below carries its own marker⟧
 1. **Ruling 1** — adopt `mobile_scanner` 7.4.2 (BSD-3; Apple Vision on iOS, CameraX + bundled ML Kit on
-   Android) behind the `CeremonyScanner` seam: **yes / no.** ⟦tests: F1-07-312 @M11, F1-07-313 @M11⟧
+   Android) behind the `CeremonyScanner` seam: **yes / no.** → **YES** (owner, 24 Sep 2026).
+   ⟦tests: F1-07-312 @M11, F1-07-313 @M11⟧
 2. **The Android residual** (§3) — accept a closed-source Google barcode AAR on Android only, shown
    nothing but a QR this app rendered, with a network capture before the Android release and
    `qr_code_dart_scan` as the costed exit: **accept / reject.** If rejected, the answer is
    `qr_code_dart_scan` on both platforms from the start, at +13 packages and a slower decode.
+   → **ACCEPT** (owner, 24 Sep 2026); Open 1's capture stays a gate on the first Android release.
    ⟦tests: n/a — residual acceptance⟧
 3. **Ruling 2** — adopt `url_launcher` 6.3.2 for `tel:` only, behind a `Dialer` seam, never calling
    `canLaunchUrl` and therefore adding no `Info.plist`/manifest query config: **yes / no.**
-   ⟦tests: F1-07-314 @M11⟧
+   → **YES** (owner, 24 Sep 2026). ⟦tests: F1-07-314 @M11⟧
 4. **Ruling 3** — a failed `dial` shows the number with *copy the number*, rather than the control
-   being disabled or absent: **yes / no.** ⟦tests: F1-07-314 @M11, F1-07-315 @M11⟧
+   being disabled or absent: **yes / no.** → **YES** (owner, 24 Sep 2026).
+   ⟦tests: F1-07-314 @M11, F1-07-315 @M11⟧
 
 ## Open ⚠️ — including what this lane could **not** verify
 1. **What `com.google.mlkit:barcode-scanning:17.3.0` transmits, if anything.** Not checked: it is a
