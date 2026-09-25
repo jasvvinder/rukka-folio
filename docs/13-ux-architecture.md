@@ -132,7 +132,7 @@ Roles (admin · head · member · operator · viewer) change *what actions appea
 | **S3.1** | Quick add sheet | S3 | bottom-sheet A/C create from the Ledger tab (07 §6); the entry flow's picker is a full screen instead (design S2-C) — same component, two presentations, deliberately |
 | **S4** | A/C statement | S3 | grouped listing; professional columns in export |
 | **S4.1** | Entry detail | any P1 row | audit trail, photo, who entered, amend/reverse — the target of every tap in every list; a **held** entry (dangling amend/reverse/decision) shows *"waiting for the entry this changes"* (ADR 2026-09-05b §4) ⟦tests: F1-07-60, F1-07-61⟧ |
-| **S4.2** | Donation receipt (design C5) | S4.1 | trust books: shareable receipt card from a donation entry; no tax language (07 §14) |
+| **S4.2** | Donation receipt (design C5) | S4.1 | trust books: shareable receipt card from a donation entry; no tax language (07 §14) — ⏸ **next phase** (ADR 2026-09-25 §7) |
 | **S5** | Advances (ਐਡਵਾਂਸ) | S1/S6 | mine held · given out, aged |
 | **S5.1** | Advance request | S5 | amount + purpose → approver |
 | **S6** | Inbox | root | grouped cards, all attention types |
@@ -190,7 +190,7 @@ Roles (admin · head · member · operator · viewer) change *what actions appea
 | **S12.6** | Invoices | S12 | list + PDF ⟦tests: F1-07-484, F1-07-485, F1-07-486, F1-07-487, F1-07-488, F1-07-489⟧ |
 | **S17** | Help | S8 | search, contact, diagnostics — the grouped, searchable FAQ list lives on this hub (S17.1 folded in, ADR 2026-09-02) |
 | **S17.2** | FAQ article | S17 | one answer, plain language |
-| **S17.3** | Contact support | S17 | WhatsApp primary; states what support cannot do |
+| **S17.3** | Contact support | S17 | email primary for the pilot, in-app AI chat before launch (ADR 2026-09-25 §4); states what support cannot do |
 | **S17.4** | Send diagnostics | S17.3 | user-triggered, financial values scrubbed, shown before sending |
 | **S18** | Legal | S8 | terms, privacy, licences ⟦tests: F1-07-330, F1-07-331, F1-07-332⟧ |
 | **S18.1** | Terms of service | S18 | document page, shared template patterned on S18.3; the designed surface is its summary card on the S18 hub (ADR 2026-09-02) ⟦tests: F1-07-336, F1-07-337⟧ |
@@ -428,6 +428,6 @@ All resolved from existing locked rules rather than fresh preference; the govern
 | 8 | A/C merge | **Phase 2 (v1).** Long-press → *Merge into…*; same class only; re-points references, posts no entries; admin-only; logged and reversible | 02 §1.4 append-only — a merge must not fabricate postings |
 | 9 | Minimum device | **iOS 16, iPhone SE 3rd gen (375×667)**; design canvas **390×844**; app size < 40 MB. Android follows from the same codebase (Android 9, 2 GB, 360×800). This is also the **perf-gate device** — p95 of 20 runs, nightly (ADR 2026-09-05i §6) | Owner ruling: iOS first |
 | 10 | Reports in bottom nav | **No — stays in Menu**, reached also by tapping the books-balanced card on Home | §3.1: five slots, and Inbox carries the collaboration model that differentiates the product |
-| 11 | Business tier price | **Raise to ₹2,999/yr** (Family stays ₹1,999) ⚠️ owner-adjustable | 08 §1: price the family, not the seat — but a shop avoiding a bookkeeper's fee has different price sensitivity than a household |
+| 11 | Business tier price | ~~Raise to ₹2,999/yr (Family stays ₹1,999)~~ — **superseded by ADR 2026-09-25 §5**: plans per entity type, prices in the server-side catalogue (§6) | 08 §1: price the family, not the seat — but a shop avoiding a bookkeeper's fee has different price sensitivity than a household |
 
 **Consequence for handoff:** the screen-shaping decisions the 5 Sep ADRs raised are settled in ADR 2026-09-05f (tab bar, suspended device, book full, depth rule, recovery window, modified-device cadence, paise, status colours, PIN lockout). Beyond those, everything a designer would otherwise guess is specified.

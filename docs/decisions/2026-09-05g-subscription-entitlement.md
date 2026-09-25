@@ -1,5 +1,7 @@
 # ADR 2026-09-05g — Subscription & entitlement: the one server key, quotas, two graces, and what a lapse may never do
 
+> **Amended by ADR 2026-09-25 §5–§6** — the §3 quota table and the token's `plan` values are replaced by a server-side plan catalogue (plans per entity type); the token gains `features`; Free is Individual-only with no PDF output. Until the M13 catalogue lane lands, §3's table is the interim catalogue.
+
 Part of the seven-spec fan-out review of 5 Sep 2026 (after ADRs 2026-09-05 → 05d on the security
 core). 08 got the two hardest things right — *lapsed ≠ locked* and *never per transaction* — and it
 is honest about the iOS problem. But it is the thinnest spec relative to its blast radius: it owed

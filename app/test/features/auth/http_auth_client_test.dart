@@ -278,7 +278,7 @@ void main() {
   });
 
   group('HttpAuthClient — 06 §2 OTP', () {
-    test('C-06-7 requestOtp posts the phone once, surfaces WhatsApp then SMS fallback as state, moves to OtpSent, and no phone or code ever reaches the log', () async {
+    test('C-06-7 requestOtp posts the phone once, surfaces the channel as state, moves to OtpSent, and no phone or code ever reaches the log', () async {
       final c = await client();
       t.on(
         '/otp/request',
@@ -286,13 +286,12 @@ void main() {
       );
       await c.requestOtp(phone);
       expect(t.count('/otp/request'), 1);
-      expect(t.last('/otp/request'), {
-        'phone': phone,
-        'purpose': 'signup',
-        'channel': 'whatsapp',
-      });
+      // The WhatsApp-first default channel (`'channel': 'whatsapp'`, and
+      // `otpChannel == whatsapp`): superseded by ADR 2026-09-25 §1 (SMS only);
+      // re-lands at M6 (C-25-1).
+      expect(t.last('/otp/request')['phone'], phone);
+      expect(t.last('/otp/request')['purpose'], 'signup');
       expect(t.requests.single.headers['x-rukka-client-version'], '1.2.0');
-      expect(c.otpChannel.value, OtpChannel.whatsapp);
       expect(c.resendAfter.value, const Duration(seconds: 30));
       expect(c.current, isA<OtpSent>().having((s) => s.phone, 'phone', phone));
 

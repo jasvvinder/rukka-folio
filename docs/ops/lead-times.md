@@ -26,15 +26,15 @@ PITR on (7 d proposed); daily encrypted snapshots 35 d; monthly 12 mo; KMS key f
 4. Hand back: Team ID (public) → PLAN/CI; signing certificate stays in the owner's Keychain. CI signing (`match` or manual) is a Phase B lane item.
 
 ## 3. OTP / SMS provider — needed by Phase B ⛔
-Spec: 06 §2 — **WhatsApp Business API first**, SMS fallback, auto-failover; provider behind an interface; candidates MSG91 / Kaleyra / Gupshup (pick by current pricing).
-1. Register the sender on **TRAI DLT** (principal entity + one OTP template). This is the long pole: 1–2 weeks.
-2. Open an account with one provider that offers both WhatsApp Business and SMS in one API; request WhatsApp Business verification (Meta business verification, ≈ 1 week).
+Spec: 06 §2 as amended by **ADR 2026-09-25 §1** — **SMS only**, on the owner's own DLT registration; provider behind an interface (`Msg91Provider` unless another is picked). Invitations are sent by the inviter from their own phone (§2), so no invite template is needed.
+1. Register on **TRAI DLT**: principal entity, a 6-character sender ID, and **one OTP template** (e.g. *"{#var#} is your Rukka Folio code. It expires in 5 minutes. Never share it."*). This is the long pole: 1–2 weeks. Have the business PAN/GST ready (whether an individual can register was not checked).
+2. Open an account with the provider and bind it to the DLT entity. Until DLT clears, the dev project runs on fixed test codes (`FakeOtpProvider`).
 3. Hand back: provider name, DLT entity id, template id → `.env`; API key → Supabase secrets.
 
-## 4. Pilot banks (2) + synthetic statements — needed by Phase C ⛔
-Spec: 10 M10 (⚠️ pick pilot banks); 02 §10 Suspense; `testing/fixtures/` is **synthetic only** (CLAUDE.md).
-1. Choose two banks the pilot families actually use (SBI and HDFC appear in the 07 mock-ups; confirm).
-2. From a **test or own** account export one CSV/XLS and one PDF statement per bank, then replace every name, number and amount — the repo gets only the synthesised file; the real one never leaves the owner's machine.
+## 4. Sample banks (4) + synthetic statements — needed by Phase C ⛔
+Spec: 07 §11 + **ADR 2026-09-25 §3** (one importer, column confirmation per bank — these are test samples, not per-bank parsers); 02 §10 Suspense; `testing/fixtures/` is **synthetic only** (CLAUDE.md).
+1. Banks: **SBI, Axis, HDFC, ICICI** (owner, 24 Sep 2026).
+2. From a **test or own** account export one CSV/XLS and one PDF statement per bank (most are password-protected — keep one locked PDF as a sample, with a made-up password), then replace every name, number and amount — the repo gets only the synthesised file; the real one never leaves the owner's machine.
 3. Hand back: `testing/fixtures/statements/<bank>/*.{csv,pdf}` (synthetic) + a note on the column layout.
 
 ## 5. Native Punjabi / Hindi reviewers — needed by Phase C (week of 21 Sep) ⛔

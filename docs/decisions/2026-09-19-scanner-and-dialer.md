@@ -1,5 +1,7 @@
 # ADR 2026-09-19 — Two app dependencies for the recovery ladder: `mobile_scanner` for the camera, `url_launcher` for `tel:`
 
+> **Amended by ADR 2026-09-25 §4** — `url_launcher` may also open `mailto:` to the one support address, behind a seam like `Dialer`. No other URL.
+
 **RATIFIED by the owner, 24 Sep 2026** — *"yes to all four, record them in the ADR."* Answers recorded
 from that instruction; the reasoning for each is in the ruling it belongs to.
 **1 — yes** (`mobile_scanner` 7.4.2 behind the `CeremonyScanner` seam). **2 — accept** (the Android ML

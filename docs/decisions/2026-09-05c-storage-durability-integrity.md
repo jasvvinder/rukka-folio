@@ -54,6 +54,8 @@ then a month close certified on the newer app fails verification on the older, o
   gone once sent. Invitees consented to nothing; we hold nothing recoverable about them. Display of
   *whom* an admin invited comes from the admin's own device (the contact card it picked), never
   from the server.
+  > **ADR 2026-09-25 §2** — there is no outbound invite job: the inviter sends the link from their own
+  > phone, so the invitee's number reaches the server only to be hashed into `invitee_hmac`.
 - Display names and photos remain plaintext as 03 §4 says — they are shown in approvals and
   ceremonies and the user chose them for that purpose.
 

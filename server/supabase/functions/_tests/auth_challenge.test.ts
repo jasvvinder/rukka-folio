@@ -69,7 +69,7 @@ async function session(r: Rig, deviceId: string, priv: Uint8Array) {
   );
 }
 
-Deno.test("E-06-1 otp/request: generic answers (no registration oracle), WhatsApp→SMS failover, per-number 5/h 10/day, resend backoff", async (t) => {
+Deno.test("E-06-1 otp/request: generic answers (no registration oracle), nothing stored on total failure, per-number 5/h 10/day, resend backoff", async (t) => {
   const r = rig();
   await t.step(
     "unknown and known numbers answer identically; the code never appears in the response",
@@ -80,7 +80,7 @@ Deno.test("E-06-1 otp/request: generic answers (no registration oracle), WhatsAp
       assertEquals(JSON.parse(text).ok, true);
       assert(!text.includes(r.otp.sent[0].code));
       assert(!text.includes(PHONE));
-      assertEquals(r.otp.sent[0].channel, "whatsapp");
+      // WhatsApp-first default: superseded by ADR 2026-09-25 §1 (SMS only); re-lands at M6 (E-25-1).
       assertEquals(r.db.otp_challenges[0].code_hash.length, 32, "hash stored, never the code");
       assertEquals(r.db.otp_challenges[0].phone_hmac.length, 32, "phone only as HMAC");
     },
@@ -91,20 +91,16 @@ Deno.test("E-06-1 otp/request: generic answers (no registration oracle), WhatsAp
     assert((await body(res)).resend_after_s > 0);
   });
   await t.step(
-    "failover to SMS when WhatsApp fails; nothing stored when every channel fails",
+    "nothing stored when every channel fails",
     async () => {
+      // The WhatsApp→SMS failover half: superseded by ADR 2026-09-25 §1 (SMS only); re-lands at M6 (E-25-1).
       advance(r, 31_000);
-      r.otp.failWhatsapp = true;
-      await call(r, "/otp/request", { phone: PHONE, purpose: "signup" });
-      assertEquals(r.otp.sent.at(-1)!.channel, "sms");
-      advance(r, 61_000);
       r.otp.failAll = true;
       const n = r.db.otp_challenges.length;
       const res = await call(r, "/otp/request", { phone: PHONE, purpose: "signup" });
       assertEquals(res.status, 200, "still generic");
       assertEquals(r.db.otp_challenges.length, n);
       r.otp.failAll = false;
-      r.otp.failWhatsapp = false;
     },
   );
   await t.step("5 per hour per number, then 429; 10 per day", async () => {

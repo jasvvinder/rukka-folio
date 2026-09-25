@@ -164,22 +164,14 @@ void main() {
     );
 
     testWidgets(
-      'F1-06-5 min-version gate: when the 426 listenable fires, S19.1 replaces S0.2 with no way back; the SMS-fallback line shows when the channel says sms',
+      'F1-06-5 min-version gate: when the 426 listenable fires, S19.1 replaces S0.2 with no way back',
       (tester) async {
         final gate = ValueNotifier<UpdateRequired?>(null);
         final channel = ValueNotifier<OtpChannel?>(null);
         await pumpRk(tester, PhoneOtpScreen(gate: gate, channel: channel));
         await _enterPhoneAndSend(tester);
-        expect(
-          find.text('WhatsApp didn’t go through, so the code went by SMS.'),
-          findsNothing,
-        );
-        channel.value = OtpChannel.sms;
-        await tester.pump();
-        expect(
-          find.text('WhatsApp didn’t go through, so the code went by SMS.'),
-          findsOneWidget,
-        );
+        // The WhatsApp→SMS fallback line: superseded by ADR 2026-09-25 §1
+        // (SMS only); re-lands at M6 (C-25-1).
         gate.value = const UpdateRequired(
           currentVersion: '1.2.0',
           requiredVersion: '1.3.0',

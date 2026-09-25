@@ -85,6 +85,7 @@ void main() {
         expect(articles, ['support_powers']);
         expect(diagnostics, 1);
       },
+      skip: true, // superseded by ADR 2026-09-25 §4; re-lands at M12
     );
 
     testWidgets(

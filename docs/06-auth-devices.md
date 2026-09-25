@@ -61,10 +61,12 @@ A gurudwara committee will not recognise "Operator"; it will recognise ਸੇਵ
 
 ## 2. OTP subsystem 🔒 ⟦tests: E-06-1, E-06-2, C-06-7, C-06-8, F1-06-1, F1-06-2, F1-06-3, F1-06-4⟧
 
-- Channels: WhatsApp Business API first (cheaper, higher delivery in India), SMS fallback, auto-failover. Provider behind an interface (MSG91 / Kaleyra / Gupshup — ⚠️ pick by current pricing at build).
+- Channels: **SMS**, sent by an Indian provider on the owner's own TRAI DLT registration (one OTP template). Provider behind an interface (`Msg91Provider` by default; WhatsApp can be added later as provider configuration). *(Was: WhatsApp first, SMS fallback — amended by ADR 2026-09-25 §1.)*
 - Fires **only** at: signup, device activation, phone-number change, account deletion confirmation. Never at routine login.
 - Code: 6 digits, 5-minute expiry, 3 attempts, then new code required. Resend backoff 30 s → 60 s → 5 min. Rate limits per number (5/hour, 10/day) and per IP. Generic error messages (no "number not registered" oracle).
 - OTP verification yields a short-lived **activation ticket**, consumable exactly once by §3.
+
+> **ADR 2026-09-25 §1** — OTP is SMS-only through the owner's DLT registration; every other line of this section stands. Firebase, carrier SIM checks and passkeys were considered and not taken. ⟦tests: E-25-1 @M6, C-25-1 @M6⟧
 
 ---
 
@@ -137,7 +139,7 @@ expired (one-tap re-invite)      blocked + security event (admin unblock only
 ```
 
 - **Seats (ADR 2026-09-05g §6):** the plan's member cap counts `invited` + `joined_pending_verification` + `active`; removal frees the seat at once; re-inviting the same `user_id` within 30 days is free; rolling cap 2 × seats distinct members per year.
-- **invited:** admin picks phone + per-book roles (+ auto-post limit); server stores the invite with its 128-bit ceremony nonce **and only an HMAC of the number** — the plaintext goes into the outbound message job and is gone once sent (ADR 2026-09-05c §4); delivery via WhatsApp/SMS link. The admin's device shows whom it invited from its own contact card. **The invite is accepted only by a device whose OTP-verified number matches `invitee_hmac` — the link alone admits nobody (ADR 2026-09-05d §9).**
+- **invited:** admin picks phone + per-book roles (+ auto-post limit); server stores the invite with its 128-bit ceremony nonce **and only an HMAC of the number** — the number reaches the server once, only to be hashed, and **the inviter sends the link from their own phone** through the share sheet — the server sends nothing (ADR 2026-09-25 §2, amending ADR 2026-09-05c §4). The admin's device shows whom it invited from its own contact card. **The invite is accepted only by a device whose OTP-verified number matches `invitee_hmac` — the link alone admits nobody (ADR 2026-09-05d §9).**
 - **joined_pending_verification:** invitee has an account, device, UMK — their **Personal Book works immediately** (it needs nobody's keys). Shared books are visible as named placeholders: *"Meet Sunita to activate."* Clients structurally cannot wrap BKs to this state (04 §5.1).
 - **active:** on ceremony success (any mode: in-person QR default / logged remote code / delegated by any active member — 04 §6.4), the verifier's device wraps the BKs per the role grants and publishes the **verification event as a signed record** (ADR 2026-09-05d §7); membership flips.
 - **Every transition and every role/limit/designation change is a signed record authored on a certified admin device (ADR 2026-09-05b §1); the server's rows are its copy of them, and a client acts only on the verified record.** Role changes later are database-only if within already-held books; granting a *new* book wraps that BK (no new ceremony — the human is already verified); removal follows 04 §5.3 with the ledger's advance-settlement precondition.
@@ -194,7 +196,7 @@ OTP on old number (or, if lost, guardian approval k-of-n) + OTP on new number �
 
 ## 11. Open items ⚠️
 
-1. OTP provider selection by current WhatsApp/SMS pricing; verify current TRAI DLT registration requirements for SMS.
+1. ~~OTP provider selection by current WhatsApp/SMS pricing~~ — ruled by ADR 2026-09-25 §1: SMS only, owner's DLT registration (one OTP template), `Msg91Provider` unless the owner picks another.
 2. Play Integrity / DeviceCheck enforcement timing (field now, enforce v2).
 3. DPDP rules status → consent text, grievance officer, retention windows (§9.3).
 4. Device cap + guardian-minimum defaults to revisit after the family pilot.

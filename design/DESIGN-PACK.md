@@ -486,7 +486,7 @@ Each entity pack must be delivered in **light and dark**, in **all three languag
 
 **S4.1 · Entry detail.** The target of **every tap in every list** — day book, statement, drill-downs, review. Header: the amount, large and tabular in its direction colour, with the arrow preview line beneath (`₹2,400 · ਰੋਕੜ ਖਾਤਾ → ਡੀਜ਼ਲ ਖਰਚ ਖਾਤਾ`). Then: date and time · **who entered it**, with avatar · the user's note, and the bank's original text in muted monospace where the entry came from an import · the bill photo as a tappable thumbnail. Then an **audit trail** as a compact vertical list — "Entered by Ramesh, 27 Aug 2:02 pm" · "Reviewed by Sunita, 27 Aug 6:40 pm" · "Edited twice — see changes". Actions at the bottom: **Edit** (open period) or **Fix this entry** (locked period — posts a reversal). Design the amended variant showing struck-through history, and the reversed variant.
 
-**S9.1 · Invite member.** Phone number field with +91 fixed · a per-book role grid, one row per book with a role selector and an auto-post limit field · a plain summary sentence of what the person will be able to do · **Send invite**, offering WhatsApp or SMS. Design the pending state: "Invited 12 Apr · expires in 5 days · Resend".
+**S9.1 · Invite member.** Phone number field with +91 fixed · a per-book role grid, one row per book with a role selector and an auto-post limit field · a plain summary sentence of what the person will be able to do · **Send invite**, which creates the invite and opens the phone's share sheet so the inviter sends the link from their own WhatsApp or SMS — the server sends nothing (ADR 2026-09-25 §2). Design the pending state: "Invited 12 Apr · expires in 5 days · Resend".
 
 ## Account
 
@@ -500,7 +500,7 @@ Each entity pack must be delivered in **light and dark**, in **all three languag
 
 ## Subscription
 
-**S12.1 · Plans.** Monthly/Annual toggle showing the annual saving. Plan cards with the current plan marked and a *popular* badge on the recommended one. Each card lists members, businesses and features in plain words, not a spec table. Bottom: "Your books are never locked. If you stop paying, everything stays readable and exportable."
+**S12.1 · Plans.** Monthly/Annual toggle showing the annual saving. Plan cards with the current plan marked and a *popular* badge on the recommended one. Each card lists members, businesses and features in plain words, not a spec table. Bottom: "Your books are never locked. If you stop paying, everything stays readable and exportable." **ADR 2026-09-25 §5–§6:** cards list **books and people** (not members and businesses); S12.1 shows only the user's entity type's 2–3 plans, the popular one emphasised and pre-selected, every card selectable; figures come from the server-side catalogue.
 
 **S12.2 · Checkout.** ⚠️ **On iOS this is Apple's In-App Purchase sheet** (08 §3.2) — design the app-side screen that precedes it, not a payment form, and **no coupon field, no external payment link**, which Apple rejects. Design the **non-iOS variant separately**: coupon code, GSTIN capture for the buyer's own input credit, UPI/card/netbanking.
 
@@ -518,7 +518,7 @@ Each entity pack must be delivered in **light and dark**, in **all three languag
 
 **S17.1 / S17.2 · FAQ list and article.** Grouped by task, not by feature: *Getting started · Entering money · Bank statements · Family and sharing · Closing the month · If you lose your phone · Plans and payment*. Articles are one screen, plain sentences, no walls of text.
 
-**S17.3 · Contact support.** WhatsApp as the primary action, because these users will never email. 🔒 **State plainly what support cannot do** — "We cannot see your entries or recover your keys, so we cannot restore your books. For that, use your trusted members or your recovery sheet." That sentence prevents the most painful support conversation this product can have. ⟦tests: F1-07-33 @M14⟧
+**S17.3 · Contact support.** **Email** (`support@rukkafolio.com`) as the primary action for the pilot, and an **in-app AI chat** before launch with email as the hand-off (ADR 2026-09-25 §4; was *WhatsApp as the primary action*). 🔒 **State plainly what support cannot do** — "We cannot see your entries or recover your keys, so we cannot restore your books. For that, use your trusted members or your recovery sheet." That sentence prevents the most painful support conversation this product can have. ⟦tests: F1-07-33 @M14⟧
 
 **S17.4 · Send diagnostics.** User-triggered only. **Show exactly what will be sent** in a scrollable box — app version, device, sync errors, with all financial values scrubbed — before the Send button. Never automatic.
 

@@ -12,6 +12,91 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-25 — docs: desk 2, desk 15, plans and the R2.1 row (ADR 2026-09-25)
+
+A discussion session with no lanes and no product code. The owner went through the remaining desk
+items one at a time, and the rulings are recorded in one ADR. No product code changed. Four tests lost
+only the WhatsApp assertions the ADR supersedes (ADR 05i §4).
+
+**Added**
+
+- **Canvas 1 → R2.1b *"The fork · a way we couldn't check"*** was pushed to the Claude Design project.
+  It follows ADR 2026-09-24b §5 and closes desk 19's owner half. Rung 1 shows the unchecked
+  rendering the app ships: a help icon and `recovery.fork.unchecked` in EN/PA/HI, in light and dark.
+  Before the edit, the remote Canvas 1 parts and `build-canvas.js` were checked byte-equal to the
+  mirror; after the push, part3 was read back and matched. `build-canvas.js` gained `--warning` from
+  `tokens.json`. The record is in the mirror's `CHANGES.md`.
+- A market pricing survey of Indian ledger and billing apps and personal-finance apps. It sits in
+  the session scratchpad; whether to keep it in `docs/ops/` is still open.
+
+**Changed**
+
+- `PLAN.md`: desk 19 (the R2.1 canvas row) is done. Desk 15 is ruled. Desk 2 has a note. The §4 OTP and
+  bank rows and the M10 PDF row are rewritten.
+- Cross-references to ADR 2026-09-25 were added in:
+  - 06 §2, whose channel line is amended, and 06 §7 and §11;
+  - ADR 05c §4, ADR 05g and ADR 2026-09-19;
+  - 07 §11, §12, §14, §18 and §22;
+  - 08 §2 (the interim-catalogue note);
+  - 10 M10;
+  - 13 S4.2, S17.3 and §10 item 11;
+  - DESIGN-PACK S9.1, S12.1 and S17.3;
+  - `docs/ops/lead-times.md` §3–§4.
+- Superseded (ADR 05i §4):
+  - `F1-07-397` (the S17.3 WhatsApp row) is skipped, and re-lands at M12.
+  - The WhatsApp assertions were removed from `E-06-1`, `C-06-7` and `F1-06-5`. Their rate-limit,
+    no-log and 426 checks still run.
+  - Tests run: server auth-challenge 11/11; the three app files have 32 passing and 1 skipped.
+- `docs/ops/pricing-research-2026-09-24.md` was added as a non-normative market reference.
+
+**Decided** — [ADR 2026-09-25](docs/decisions/2026-09-25-otp-invites-import-support-plans.md) 🔒
+(§1–§8; its *Not taken* list records Firebase, SIM checks, passkeys, cloud AI and human chat):
+
+- **OTP:** SMS only, through an Indian provider on the owner's own TRAI DLT registration (one OTP
+  template), using the existing `Msg91Provider` unless another provider is picked. Fixed test codes
+  apply until DLT clears. This amends 06 §2 🔒 (*WhatsApp first*). Firebase, carrier SIM checks and
+  passkeys were considered and dropped. Passkeys are already covered, because routine login is a
+  device signature plus biometric or PIN.
+- **Invitations:** the inviter shares the link or code from their own phone, and the server sends
+  nothing. *The link alone admits nobody* (05d §9) stands. Amends 06 §7 🔒 and ADR 05c §4.
+- **Statement import:** PDF (the password is asked every time and never stored), CSV, XLS and
+  photo or screenshot through on-device text recognition. There are no per-bank parsers: one-time
+  column confirmation per bank, which 07 §11 🔒 already rules. AI and any server involvement move to
+  the next phase. Amends 07 §11 (*Phase 1: file upload*) and corrects the stale `10-roadmap.md:17`
+  and PLAN §4 lines. Sample statements come from SBI, Axis, HDFC and ICICI, synthesised by the owner.
+- **Support:** the pilot runs on FAQs plus email at `support@rukkafolio.com`. Before launch, in-app
+  AI chat becomes the primary channel, with a hand-off to email. Amends 07 §22 🔒 and DESIGN-PACK
+  S17.3 🔒. Desk 15 closes, with no WhatsApp handle needed.
+- **Plans:** 2–3 plans per entity type (Individual, Business, Family, Trust). Family, Business and
+  Trust get a 30-day trial on the popular plan; Individual gets a permanent Free plan (personal book
+  only, no statement import, no PDF). Features needed to keep a book correct are never restricted;
+  plans differ only by scale, statement import and PDF output. *Export everything* stays on every
+  plan. Working prices: Family Lite ₹1,999 / **Family ₹2,499** / Family+ ₹5,999; Shop ₹2,499 /
+  **Business ₹2,999** / Business+ ₹6,999; Personal ₹990; Trust ₹1,999 / ₹3,999. Monthly prices are
+  *ten months' price for twelve*. Amends 08 §1–§2, ADR 05g §3–§5 and 13 §10 item 11. Canvas 10 S12.1
+  is already book-based (One book ₹990 · Family 8 books ₹2,499 · Trust ₹1,999), but no doc recorded
+  it and the code follows 08 §2.
+
+**Open**
+
+- **Server-side plan catalogue** (ADR §6): the owner edits plans in the admin console, so a price or
+  feature change needs no app release, and the token gains `features`. It is built in CAT1 (M13); until
+  then 08 §2 is the interim catalogue.
+- **Donation receipts (S4.2)** move to the next phase, in the Income Tax format (ADR §7).
+- **Trust earmarked funds** are a candidate after the pilot (ADR §8).
+- **Build rows:** OTP1 (M6) · INV1 (M7) · IMP3 (M10) · SUP1 (M12) · CAT1 (M13).
+- **Design:** Canvas 10 S12.1 must be redrawn per entity type, and the S17.3 canvas must show email.
+- The design canvases' `--muted` and light `--in` values predate ADR 2026-09-13 §2. This is drift in
+  the canvases only.
+- Desk 2 owner actions: DLT registration, Apple enrolment (Individual today), the Supabase project,
+  payment gateway KYC, PA/HI reviewers, bookkeeper, crypto reviewer, pilot families.
+
+**Commits**
+
+- (to fill)
+
+---
+
 ## 2026-09-24 — docs: the desk cleared (ADR 2026-09-24b)
 
 The owner asked for the desk to be finished before any more building. This was a rulings session
