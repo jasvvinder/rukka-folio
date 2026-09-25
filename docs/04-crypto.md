@@ -141,9 +141,11 @@ BK wrapped only to the owner's UMK (+ optional escrow §7.5). No admin path exis
 **Purpose:** bind a UMK fingerprint to a human. **Mandatory** before any shared-book key is wrapped to a new member, before guardian activation, before device linking, and before trustee handover. One component, four uses.
 
 ### 6.1 Material
-- Per-invite `nonce` (128-bit, server-generated at invite creation; not secret — it scopes and expires codes).
+- Per-invite `nonce` (128-bit, drawn by the **inviter's device** at invite creation and carried in its signed `invite` record; the server stores and relays it and never chooses it; not secret — it scopes and expires codes). *(Was: server-generated — amended by ADR 2026-09-25b §1.)*
 - **QR payload:** `base64url( suite_version ‖ user_id ‖ UMK_pub_ed ‖ UMK_pub_x ‖ nonce )`.
 - **8-digit code 🔒 (ADR 2026-09-13d §1, ratified 13 Sep 2026):** a **commitment-based SAS**, not a function of server-held values. The invitee (shower) draws `r_S`, publishes `commitment = BLAKE2b-256(FP_S ‖ user_id ‖ r_S ‖ tag)`; the verifier draws `r_V` **only after** holding that commitment and the relayed key; the invitee then opens `r_S` once. The code is `decimal( first4bytes( BLAKE2b-256( FP ‖ user_id ‖ r_S ‖ r_V ‖ tag ) ) ) mod 10⁸`, zero-padded. The **invite nonce stays in the QR payload only** and no longer derives any code. The superseded derivation was `BLAKE2b-256( FP ‖ nonce ‖ "verify-v1" )` over a **server-generated** nonce, which a substituting relay could pre-compute — see §10. ⟦tests: B-04-86, B-04-87, B-04-88, B-04-89⟧
+
+> **ADR 2026-09-25b §1–§4** — the inviter's device draws the nonce; the invitee is handed its own invite's nonce on `GET /sync-meta/invites` and on accept, and never draws one; *Regenerate* opens a fresh session and keeps the nonce. ⟦tests: E-25b-1 @M11, E-25b-2 @M11, F1-25b-1 @M11, F1-25b-2 @M11⟧
 
 ### 6.2 Screens
 - Invitee → **Show my code**: large QR, the 8 digits printed beneath **once the verifier has begun** (ADR 2026-09-13d §5 🔒 — the digits cannot exist before `r_V` arrives, so the screen waits). One screen for every mode. ⟦tests: F1-13d-1⟧
@@ -270,7 +272,7 @@ Any certified device (or k guardians) revokes a device: server deletes its wrapp
 - **Given** an invite in `joined_pending_verification`, **when** any client attempts to wrap a BK to it, **then** the client refuses (unit test) and no wrapped-key upload exists (integration test).
 - **Given** a server that swaps the invitee's public key, **when** the inviter scans the true QR, **then** hard-fail mismatch + `verification_mismatch` event.
 - **Given** a server that substitutes the invitee's key **and** relays commitments, contributions or nonces of its choosing, **when** the inviter types the code the invitee reads aloud, **then** the result is a mismatch or a wrong code — **never verified**. ⟦tests: B-04-87, B-04-88⟧
-- **Given** a wrong 8-digit code entered 3×, **then** the nonce is dead and a new *Regenerate* is required.
+- **Given** a wrong 8-digit code entered 3×, **then** the nonce is dead and a new *Regenerate* is required. *(Read per ADR 2026-09-25b §4: the **session** is dead; Regenerate opens a new one and the invite nonce is kept.)*
 - **Given** 2 of 3 guardian approvals, **then** the new device decrypts all books and every prior session of that user is revoked.
 - **Given** a removed member's device, **when** it pulls post-rotation envelopes, **then** decryption fails for all of them.
 - **Given** an envelope re-uploaded under a different `book_id`, **then** AEAD verification fails and the envelope is quarantined.

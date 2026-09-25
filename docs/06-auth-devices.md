@@ -79,6 +79,8 @@ On first run after OTP:
 3. The device is **registered but uncertified** until it holds a certificate under the user's UMK (issued at signup for the first device, or via linking/recovery — 04 §3.4, §9.1, §7). Uncertified devices can authenticate (§4) but other clients will not trust content they author, and they hold no keys. **Uncertified devices see nothing but themselves 🔒 (ADR 2026-09-05d §2):** the server verifies the uploaded certificate under the user's registered UMK public key and sets `devices.status='certified'`; until then RLS returns only the device's own user row, its own device row, wrapped keys/shares addressed to it and its own recovery request — no memberships, names, roles, device lists or verification log. `/auth/challenge` and `/devices` carry per-IP and per-device rate limits (numbers ⚠️ M6).
 4. First device only: generate UMK, self-certify, then immediately walk the user through **recovery-sheet generation + verified-storage nag**, and **guardian selection** if the tenant has other members (04 §7.3–7.4).
 
+> **ADR 2026-09-24b §2** — every installed device re-offers `umk_pub_x` on its next `/devices/certify` after launch, and stops after one accepted offer (PLAN desk 33). Certification itself still happens once, at activation (`C-06-31` covers `restore()` alone). ⟦tests: C-06-31, F1-24b-2, F1-24b-3⟧
+
 ---
 
 ## 4. Sessions 🔒 ⟦tests: E-06-4, E-06-5, E-05-6, E-06-6, C-06-9, C-06-10, C-06-11, F1-06-5, F1-06-7⟧
@@ -144,6 +146,8 @@ expired (one-tap re-invite)      blocked + security event (admin unblock only
 - **active:** on ceremony success (any mode: in-person QR default / logged remote code / delegated by any active member — 04 §6.4), the verifier's device wraps the BKs per the role grants and publishes the **verification event as a signed record** (ADR 2026-09-05d §7); membership flips.
 - **Every transition and every role/limit/designation change is a signed record authored on a certified admin device (ADR 2026-09-05b §1); the server's rows are its copy of them, and a client acts only on the verified record.** Role changes later are database-only if within already-held books; granting a *new* book wraps that BK (no new ceremony — the human is already verified); removal follows 04 §5.3 with the ledger's advance-settlement precondition.
 - Trustee/treasurer handover (organizations) = invite-with-ceremony for the incoming + removal for the outgoing, in one guided flow.
+
+> **ADR 2026-09-25b §2** — the invitee's own invite rows (at `sent`, or accepted by the caller, within the 7-day window) and the accept response carry the invite's `nonce`; scope is unchanged. ⟦tests: E-25b-1 @M11, E-25b-2 @M11⟧
 
 ---
 

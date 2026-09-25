@@ -26,7 +26,7 @@ commit (ADR 2026-09-05i §4) and re-lands with the build row named under *Conseq
   key with the device's identity.
 - A seam with no candidate producer still refuses plainly and sends nothing (`F1-06-35` stands).
 
-### 2. `umk_pub_x` is backfilled automatically, and a missing one is said, not swallowed (desk 14) ⟦tests: F1-24b-2 @M11, F1-24b-3 @M11⟧
+### 2. `umk_pub_x` is backfilled automatically, and a missing one is said, not swallowed (desk 14) ⟦tests: F1-24b-2, F1-24b-3⟧
 - Every installed device re-offers `umk_pub_x` on its next `/devices/certify` after launch, with no
   prompt. `rf.set_umk_pubs` fills a NULL once, so the re-offer is idempotent.
 - While the other person's row still has `pub_ed` only, the ceremony fails closed **and says so**:

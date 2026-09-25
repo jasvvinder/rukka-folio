@@ -1133,7 +1133,7 @@ void main() {
       expect(log.any((e) => e.contains(otherDeviceId)), isFalse);
     });
 
-    test('C-06-31 certification runs once, at activation: a device that already holds its certificate signs no second one, a server that merely says certified does not stop it from holding one, and a later launch posts nothing', () async {
+    test('C-06-31 certification runs once, at activation: a device that already holds its certificate signs no second one, a server that merely says certified does not stop it from holding one, and restore() alone posts nothing (the per-launch umk_pub_x re-offer is F1-24b-2, ADR 2026-09-24b §2)', () async {
       // A server that calls this device certified while the device has filed
       // no certificate: it certifies anyway, because the chain is rooted in
       // what this install holds, not in a status string.

@@ -2,7 +2,8 @@
   "_": "Rukka Folio build-loop config. Owner-set. Read by .claude/bin/rf-state.py.",
 
   "budget": {
-    "weekly_tokens": null,
+    "weekly_tokens": 125000000,
+    "_weekly_note": "Derived, owner-approved 25 Sep 2026: /usage read 5% used (resets 27 Sep 9:30pm) against 6.86M measured by wf-spend.sh; 6.86M / 0.055 (5% rounded up) = 125M floor. wf-spend excludes orchestrator sessions and /usage may not be raw tokens, so the true quota is likely higher. Replace with the exact figure when known.",
     "daily_tokens": 1200000,
     "daily_overrides": {
       "2026-09-26": 20000000,

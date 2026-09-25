@@ -12,6 +12,53 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-25 — docs: desk cleared (PLAN-2, 32, 34), ADR 2026-09-25b, weekly quota set
+
+A desk session with no lanes and no gate. The owner ruled all three open desk items from
+recommendations, each with its evidence. Cost: well under the day's remaining 0.24 M.
+
+**Added**
+
+- `docs/decisions/2026-09-25b-invite-nonce-relay.md` (desk 32), with two M11 build rows in PLAN.md:
+  `lane-server` first (`E-25b-1/2`), then `lane-ui-hard` (`F1-25b-1/2`).
+- `budget.weekly_tokens = 125 000 000` in `.claude/rf.config.json`, with a `_weekly_note`. This is a
+  derived floor, not a read quota. `/usage` showed 5 % used (resets 27 Sep 9:30 pm) against the
+  6.86 M that `wf-spend.sh` measured, and 6.86 M / 0.055 = 125 M. The true figure is likely higher,
+  because `wf-spend` does not count orchestrator sessions.
+
+**Changed**
+
+- 04 §6.1: the invite nonce is drawn by the inviter's device and carried in its signed `invite`
+  record (it was *server-generated*). The code already did this (`sync-meta/index.ts:563`,
+  `0006:192`). Cross-references are added in 04 §6.1, 04 §10 and 06 §7.
+- 06 §3 gains the ADR 2026-09-24b §2 cross-reference (desk 34). `C-06-31` is retitled to
+  *…restore() alone posts nothing (the per-launch re-offer is F1-24b-2)*, with the same id and
+  assertions, and it is green. 06 §3's own text never said *a later launch posts nothing*; only the
+  test title did.
+- ADR 2026-09-24b §2's heading drops a stale `@M11` (both `F1-24b-2` and `F1-24b-3` have landed, as
+  `check_coverage` flagged).
+- PLAN desk 2 comes off the desk. The lead-times are owner real-world actions that block no lane,
+  and §4 stays the tracker.
+
+**Decided**
+
+- [ADR 2026-09-25b](docs/decisions/2026-09-25b-invite-nonce-relay.md) makes four rulings. The
+  inviter's device draws the nonce. The invitee's own invite rows (at `sent`, or accepted by the
+  caller, within 7 d) and the accept response carry `nonce`. S9.2 binds the relayed nonce and never
+  draws one. *Regenerate* keeps the nonce and opens a fresh session, which is the conservative
+  reading of 04 §6.3 after ADR 13d; 04 §10's *the nonce is dead* now reads *the session is dead*.
+
+**Open**
+
+- ADR 2026-09-25b Open: nothing yet rules what a ceremony that was not started by an invite (device
+  linking, delegated verification, annual re-verification) carries in the QR's nonce slot. The next
+  ceremony slice asks rather than invents.
+- `weekly_tokens` should be replaced with the exact quota once it is known.
+
+**Commits**
+
+- _(fill next session)_
+
 ## 2026-09-25 — M11: CER2, the ceremony scope installed and the UMK x half re-offered (ADR 2026-09-24b §2)
 
 A one-slice `/cycle` (`lane-ui-hard`: build → read-only review → adversarial verify → one repair
