@@ -93,93 +93,97 @@ Deno.test("G-08-4 08 §3 🔒 enforcement is server-attested: a meta pull by a c
   assert(!text.includes(b64url.enc(ENTITLEMENT_SEED)), "and the seed appears nowhere at all");
 });
 
-Deno.test("G-08-5 08 §3 line 35 🔒: the payload is EXACTLY {tenant_id, plan, limits, period_end, grace_kind, iat, exp}, exp − iat ≤ 30 d, iat is the server's clock — and the Ed25519 signature verifies under the pinned public half and under nothing else", {
-  // superseded by ADR 2026-09-24b §6; re-lands at M13 once _shared/entitlement.ts mints grace_until
-  ignore: true,
-}, async () => {
-  const r = rig();
-  const t1 = r.db.addTenant();
-  const me = await member(r, t1, r.db.addBook(t1), "admin");
-  r.db.addSubscription(t1, {
-    plan: "family",
-    status: "active",
-    current_period_end: new Date(r.clock.now.getTime() + 40 * DAY),
-  });
+Deno.test(
+  "G-08-5 08 §3 line 35 🔒: the payload is EXACTLY {tenant_id, plan, limits, period_end, grace_kind, iat, exp}, exp − iat ≤ 30 d, iat is the server's clock — and the Ed25519 signature verifies under the pinned public half and under nothing else",
+  {
+    // superseded by ADR 2026-09-24b §6; re-lands at M13 once _shared/entitlement.ts mints grace_until
+    ignore: true,
+  },
+  async () => {
+    const r = rig();
+    const t1 = r.db.addTenant();
+    const me = await member(r, t1, r.db.addBook(t1), "admin");
+    r.db.addSubscription(t1, {
+      plan: "family",
+      status: "active",
+      current_period_end: new Date(r.clock.now.getTime() + 40 * DAY),
+    });
 
-  const [w] = wireTokens(await pull(r, me.token));
-  const { payloadBytes, sig, payload } = parseEntitlementToken(tokenBytes(w));
+    const [w] = wireTokens(await pull(r, me.token));
+    const { payloadBytes, sig, payload } = parseEntitlementToken(tokenBytes(w));
 
-  assertEquals(
-    Object.keys(payload).sort(),
-    ["exp", "grace_kind", "iat", "limits", "period_end", "plan", "tenant_id"],
-    "exactly the 🔒 field set — no status, no grace_until, no key id, no issuer",
-  );
-  assertEquals(
-    Object.keys(payload.limits).sort(),
-    [
-      "attachment_bytes",
-      "business_books",
-      "devices",
-      "envelopes_per_book",
-      "members",
-      "tenant_bytes",
-    ],
-    "exactly ADR 2026-09-05g §1 🔒's six limits — 08 §2's per-file cap is not one of them",
-  );
-  assertEquals(payload.tenant_id, t1);
-  assertEquals(payload.iat, r.clock.now.getTime(), "iat is the SERVER's clock, not the device's");
-  assert(payload.exp > payload.iat, "a token that expires when it is minted is no token");
-  assert(payload.exp - payload.iat <= 30 * DAY, "exp − iat ≤ 30 d (ADR 2026-09-05g §1 🔒)");
-  assertEquals(payload.exp - payload.iat, TOKEN_TTL_MS);
-  for (
-    const v of [payload.iat, payload.exp, payload.period_end, ...Object.values(payload.limits)]
-  ) {
-    assert(v === null || Number.isSafeInteger(v), `integer everywhere, got ${v}`);
-  }
+    assertEquals(
+      Object.keys(payload).sort(),
+      ["exp", "grace_kind", "iat", "limits", "period_end", "plan", "tenant_id"],
+      "exactly the 🔒 field set — no status, no grace_until, no key id, no issuer",
+    );
+    assertEquals(
+      Object.keys(payload.limits).sort(),
+      [
+        "attachment_bytes",
+        "business_books",
+        "devices",
+        "envelopes_per_book",
+        "members",
+        "tenant_bytes",
+      ],
+      "exactly ADR 2026-09-05g §1 🔒's six limits — 08 §2's per-file cap is not one of them",
+    );
+    assertEquals(payload.tenant_id, t1);
+    assertEquals(payload.iat, r.clock.now.getTime(), "iat is the SERVER's clock, not the device's");
+    assert(payload.exp > payload.iat, "a token that expires when it is minted is no token");
+    assert(payload.exp - payload.iat <= 30 * DAY, "exp − iat ≤ 30 d (ADR 2026-09-05g §1 🔒)");
+    assertEquals(payload.exp - payload.iat, TOKEN_TTL_MS);
+    for (
+      const v of [payload.iat, payload.exp, payload.period_end, ...Object.values(payload.limits)]
+    ) {
+      assert(v === null || Number.isSafeInteger(v), `integer everywhere, got ${v}`);
+    }
 
-  // The signature, checked the way the app will check it: detached, over the payload bytes as
-  // received, under the PINNED public key.
-  const pub = await entitlementPublicKey(ENTITLEMENT_SEED);
-  assertEquals(pub.length, 32);
-  assertEquals(sig.length, 64, "a 64-byte detached Ed25519 signature");
-  assert(await ed25519Verify(payloadBytes, sig, pub), "verifies under the pinned public half");
+    // The signature, checked the way the app will check it: detached, over the payload bytes as
+    // received, under the PINNED public key.
+    const pub = await entitlementPublicKey(ENTITLEMENT_SEED);
+    assertEquals(pub.length, 32);
+    assertEquals(sig.length, 64, "a 64-byte detached Ed25519 signature");
+    assert(await ed25519Verify(payloadBytes, sig, pub), "verifies under the pinned public half");
 
-  // …and fails everywhere else. Without these three the test above would pass on an unsigned blob.
-  const other = (await sodium()).crypto_sign_seed_keypair(new Uint8Array(32).fill(99)).publicKey;
-  assertEquals(
-    await ed25519Verify(payloadBytes, sig, other),
-    false,
-    "another Ed25519 key must not verify this token",
-  );
-  const flippedPayload = new Uint8Array(payloadBytes);
-  flippedPayload[flippedPayload.length - 3] ^= 0x01; // inside "exp": the number a forger would move
-  assertEquals(
-    await ed25519Verify(flippedPayload, sig, pub),
-    false,
-    "one flipped payload byte breaks the signature",
-  );
-  const flippedSig = new Uint8Array(sig);
-  flippedSig[0] ^= 0x01;
-  assertEquals(
-    await ed25519Verify(payloadBytes, flippedSig, pub),
-    false,
-    "one flipped signature byte breaks the signature",
-  );
+    // …and fails everywhere else. Without these three the test above would pass on an unsigned blob.
+    const other = (await sodium()).crypto_sign_seed_keypair(new Uint8Array(32).fill(99)).publicKey;
+    assertEquals(
+      await ed25519Verify(payloadBytes, sig, other),
+      false,
+      "another Ed25519 key must not verify this token",
+    );
+    const flippedPayload = new Uint8Array(payloadBytes);
+    flippedPayload[flippedPayload.length - 3] ^= 0x01; // inside "exp": the number a forger would move
+    assertEquals(
+      await ed25519Verify(flippedPayload, sig, pub),
+      false,
+      "one flipped payload byte breaks the signature",
+    );
+    const flippedSig = new Uint8Array(sig);
+    flippedSig[0] ^= 0x01;
+    assertEquals(
+      await ed25519Verify(payloadBytes, flippedSig, pub),
+      false,
+      "one flipped signature byte breaks the signature",
+    );
 
-  // The bytes on the wire are the canonical encoding sodium.ts's header documents, because the
-  // client's verifier is written from that header alone.
-  const wire = new TextDecoder().decode(tokenBytes(w));
-  assertEquals(wire.split(".").length, 2, "<payload_b64url>.<sig_b64url>");
-  assert(!wire.includes("="), "base64url, UNPADDED");
-  assert(!/[+/]/.test(wire), "base64url alphabet, not standard base64");
-  const json = new TextDecoder().decode(payloadBytes);
-  assert(!/\s/.test(json), "canonical JSON: no whitespace");
-  assert(
-    json.startsWith('{"tenant_id":') &&
-      json.endsWith(`,"iat":${payload.iat},"exp":${payload.exp}}`),
-    `fixed key order, ADR 2026-09-05g §1's field order: ${json}`,
-  );
-});
+    // The bytes on the wire are the canonical encoding sodium.ts's header documents, because the
+    // client's verifier is written from that header alone.
+    const wire = new TextDecoder().decode(tokenBytes(w));
+    assertEquals(wire.split(".").length, 2, "<payload_b64url>.<sig_b64url>");
+    assert(!wire.includes("="), "base64url, UNPADDED");
+    assert(!/[+/]/.test(wire), "base64url alphabet, not standard base64");
+    const json = new TextDecoder().decode(payloadBytes);
+    assert(!/\s/.test(json), "canonical JSON: no whitespace");
+    assert(
+      json.startsWith('{"tenant_id":') &&
+        json.endsWith(`,"iat":${payload.iat},"exp":${payload.exp}}`),
+      `fixed key order, ADR 2026-09-05g §1's field order: ${json}`,
+    );
+  },
+);
 
 Deno.test("E-05-14 plan state 🔒: no subscriptions row is a SIGNED Free token (never a lock, ADR 2026-09-05g §1), trial is 30 days of Family ending at trial_end (08 §2), and every plan carries 08 §2's own numbers", async (t) => {
   const r = rig();
@@ -244,89 +248,93 @@ Deno.test("E-05-14 plan state 🔒: no subscriptions row is a SIGNED Free token 
   });
 });
 
-Deno.test("E-05-15 grace and lapse 🔒: a dunning row declares grace_kind 'dunning' with the row's period_end so the client can compute the 7 days (ADR 2026-09-05g §4), and an expired or refunded tenant keeps its PLAN — read-only, never silently Free (ADR §5 🔒)", {
-  // superseded by ADR 2026-09-24b §6; re-lands at M13 once _shared/entitlement.ts mints grace_until
-  ignore: true,
-}, async (t) => {
-  const r = rig();
-  const dunned = r.db.addTenant(), lapsed = r.db.addTenant(), refunded = r.db.addTenant();
-  const me = await member(r, dunned, r.db.addBook(dunned), "admin");
-  r.db.addMembership(lapsed, me.user, "active");
-  r.db.addMembership(refunded, me.user, "active");
+Deno.test(
+  "E-05-15 grace and lapse 🔒: a dunning row declares grace_kind 'dunning' with the row's period_end so the client can compute the 7 days (ADR 2026-09-05g §4), and an expired or refunded tenant keeps its PLAN — read-only, never silently Free (ADR §5 🔒)",
+  {
+    // superseded by ADR 2026-09-24b §6; re-lands at M13 once _shared/entitlement.ts mints grace_until
+    ignore: true,
+  },
+  async (t) => {
+    const r = rig();
+    const dunned = r.db.addTenant(), lapsed = r.db.addTenant(), refunded = r.db.addTenant();
+    const me = await member(r, dunned, r.db.addBook(dunned), "admin");
+    r.db.addMembership(lapsed, me.user, "active");
+    r.db.addMembership(refunded, me.user, "active");
 
-  const periodEnd = new Date(r.clock.now.getTime() - 2 * DAY); // renewal failed two days ago
-  r.db.addSubscription(dunned, {
-    plan: "family",
-    status: "past_due",
-    current_period_end: periodEnd,
-    grace_kind: "dunning",
-    grace_until: new Date(periodEnd.getTime() + 7 * DAY),
-  });
-  const lapsedEnd = new Date(r.clock.now.getTime() - 90 * DAY);
-  r.db.addSubscription(lapsed, {
-    plan: "personal",
-    status: "expired",
-    current_period_end: lapsedEnd,
-  });
-  // A refund inside a paid period: 0013's `end_now` leaves current_period_end in the FUTURE.
-  const futureEnd = new Date(r.clock.now.getTime() + 25 * DAY);
-  r.db.addSubscription(refunded, {
-    plan: "family_plus",
-    status: "expired",
-    current_period_end: futureEnd,
-    dispute_state: "refunded",
-  });
+    const periodEnd = new Date(r.clock.now.getTime() - 2 * DAY); // renewal failed two days ago
+    r.db.addSubscription(dunned, {
+      plan: "family",
+      status: "past_due",
+      current_period_end: periodEnd,
+      grace_kind: "dunning",
+      grace_until: new Date(periodEnd.getTime() + 7 * DAY),
+    });
+    const lapsedEnd = new Date(r.clock.now.getTime() - 90 * DAY);
+    r.db.addSubscription(lapsed, {
+      plan: "personal",
+      status: "expired",
+      current_period_end: lapsedEnd,
+    });
+    // A refund inside a paid period: 0013's `end_now` leaves current_period_end in the FUTURE.
+    const futureEnd = new Date(r.clock.now.getTime() + 25 * DAY);
+    r.db.addSubscription(refunded, {
+      plan: "family_plus",
+      status: "expired",
+      current_period_end: futureEnd,
+      dispute_state: "refunded",
+    });
 
-  const by = new Map(
-    wireTokens(await pull(r, me.token)).map((w) => [
-      w.tenant_id,
-      parseEntitlementToken(tokenBytes(w)).payload,
-    ]),
-  );
+    const by = new Map(
+      wireTokens(await pull(r, me.token)).map((w) => [
+        w.tenant_id,
+        parseEntitlementToken(tokenBytes(w)).payload,
+      ]),
+    );
 
-  await t.step(
-    "dunning: grace_kind + the row's period_end, and the plan it is being dunned for",
-    () => {
-      const p = by.get(dunned)!;
-      assertEquals(p.grace_kind, "dunning");
-      assertEquals(p.plan, "family", "a dunned tenant keeps the plan it is being dunned for");
-      assertEquals(p.limits, PLAN_LIMITS.family);
-      assertEquals(
-        p.period_end,
-        periodEnd.getTime(),
-        "the client computes period_end + 7 d itself — ADR §4 🔒 fixes the window, not the server",
-      );
-      assert(
-        !JSON.stringify(p).includes("grace_until"),
-        "grace_until is NOT in the 🔒 field set (08 §3 line 35); reported as an ADR §1 vs §4 conflict",
-      );
-    },
-  );
+    await t.step(
+      "dunning: grace_kind + the row's period_end, and the plan it is being dunned for",
+      () => {
+        const p = by.get(dunned)!;
+        assertEquals(p.grace_kind, "dunning");
+        assertEquals(p.plan, "family", "a dunned tenant keeps the plan it is being dunned for");
+        assertEquals(p.limits, PLAN_LIMITS.family);
+        assertEquals(
+          p.period_end,
+          periodEnd.getTime(),
+          "the client computes period_end + 7 d itself — ADR §4 🔒 fixes the window, not the server",
+        );
+        assert(
+          !JSON.stringify(p).includes("grace_until"),
+          "grace_until is NOT in the 🔒 field set (08 §3 line 35); reported as an ADR §1 vs §4 conflict",
+        );
+      },
+    );
 
-  await t.step("lapsed: the row's plan and its past period_end, never 'free'", () => {
-    const p = by.get(lapsed)!;
-    assertEquals(p.plan, "personal", "ADR §5 🔒 lapsed = read-only + export forever, not Free");
-    assertNotEquals(p.plan, "free");
-    assertEquals(p.limits, PLAN_LIMITS.personal);
-    assertEquals(p.period_end, lapsedEnd.getTime());
-    assert(p.period_end! < p.iat, "the period is over: that is how the client sees read-only");
-    assertEquals(p.grace_kind, null, "a lapse is not a grace");
-  });
+    await t.step("lapsed: the row's plan and its past period_end, never 'free'", () => {
+      const p = by.get(lapsed)!;
+      assertEquals(p.plan, "personal", "ADR §5 🔒 lapsed = read-only + export forever, not Free");
+      assertNotEquals(p.plan, "free");
+      assertEquals(p.limits, PLAN_LIMITS.personal);
+      assertEquals(p.period_end, lapsedEnd.getTime());
+      assert(p.period_end! < p.iat, "the period is over: that is how the client sees read-only");
+      assertEquals(p.grace_kind, null, "a lapse is not a grace");
+    });
 
-  await t.step(
-    "a refund inside a paid period ends entitlement NOW (ADR §11 🔒), keeping the plan",
-    () => {
-      const p = by.get(refunded)!;
-      assertEquals(p.plan, "family_plus", "what the tenant bought stays on the record");
-      assertEquals(
-        p.period_end,
-        p.iat,
-        "clamped to iat: emitting the untouched future period_end would tell the client a refunded tenant is still inside its paid period",
-      );
-      assert(p.period_end! <= p.iat);
-    },
-  );
-});
+    await t.step(
+      "a refund inside a paid period ends entitlement NOW (ADR §11 🔒), keeping the plan",
+      () => {
+        const p = by.get(refunded)!;
+        assertEquals(p.plan, "family_plus", "what the tenant bought stays on the record");
+        assertEquals(
+          p.period_end,
+          p.iat,
+          "clamped to iat: emitting the untouched future period_end would tell the client a refunded tenant is still inside its paid period",
+        );
+        assert(p.period_end! <= p.iat);
+      },
+    );
+  },
+);
 
 Deno.test("E-05-16 refresh 🔒 (ADR 2026-09-05g §1): a token is minted when none is stored, when the stored one has expired, and when the subscription moved after it was signed — and is otherwise served UNCHANGED, so a replayed pull is byte-stable and 05 §5's cursor does not churn", async (t) => {
   const r = rig();
