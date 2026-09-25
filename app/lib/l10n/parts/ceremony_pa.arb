@@ -50,5 +50,17 @@
   "ceremony.mismatch.logged": "ਇਹ ਤੁਹਾਡੇ ਸੁਰੱਖਿਆ ਰਿਕਾਰਡ ਵਿੱਚ, ਤਾਰੀਖ਼ ਅਤੇ ਕਿਸ ਦੀ ਤਸਦੀਕ ਹੋ ਰਹੀ ਸੀ ਸਮੇਤ, ਲਿਖ ਦਿੱਤਾ ਗਿਆ ਹੈ।",
   "ceremony.mismatch.support": "ਸਹਾਇਤਾ ਨਾਲ ਸੰਪਰਕ ਕਰੋ",
   "ceremony.mismatch.close": "ਬੰਦ ਕਰੋ",
-  "ceremony.mismatch.semantics": "ਚੇਤਾਵਨੀ। ਤਸਦੀਕ ਨਾਕਾਮ ਰਹੀ।"
+  "ceremony.mismatch.semantics": "ਚੇਤਾਵਨੀ। ਤਸਦੀਕ ਨਾਕਾਮ ਰਹੀ।",
+  "ceremony.verify.key_incomplete.title": "ਹਾਲੇ ਪਰਖ ਨਹੀਂ ਹੋ ਸਕਦੀ",
+  "@ceremony.verify.key_incomplete.title": {"description": "machine-draft — native review M12"},
+  "ceremony.verify.key_incomplete.body": "{name} ਨੂੰ ਕਹੋ ਕਿ ਆਪਣੇ ਫ਼ੋਨ ਉੱਤੇ ਐਪ ਇੱਕ ਵਾਰ ਖੋਲ੍ਹਣ। ਫਿਰ ਇੱਥੇ ਦੁਬਾਰਾ ਪਰਖੋ।",
+  "@ceremony.verify.key_incomplete.body": {"description": "machine-draft — native review M12"},
+  "ceremony.verify.key_incomplete.why": "ਉਹਨਾਂ ਦੇ ਫ਼ੋਨ ਨੇ ਹਾਲੇ ਉਹ ਸਭ ਨਹੀਂ ਭੇਜਿਆ ਜੋ ਇਹ ਪਰਖ ਮਿਲਾਉਂਦੀ ਹੈ। ਕੁਝ ਵੀ ਪਰਖਿਆ ਜਾਂ ਸਾਂਝਾ ਨਹੀਂ ਹੋਇਆ।",
+  "@ceremony.verify.key_incomplete.why": {"description": "machine-draft — native review M12"},
+  "ceremony.verify.key_incomplete.retry": "ਦੁਬਾਰਾ ਪਰਖੋ",
+  "@ceremony.verify.key_incomplete.retry": {"description": "machine-draft — native review M12"},
+  "ceremony.verify.key_incomplete.close": "ਬੰਦ ਕਰੋ",
+  "@ceremony.verify.key_incomplete.close": {"description": "machine-draft — native review M12"},
+  "ceremony.verify.key_incomplete.semantics": "ਉਹਨਾਂ ਦੇ ਫ਼ੋਨ ਦੀ ਉਡੀਕ ਹੈ।",
+  "@ceremony.verify.key_incomplete.semantics": {"description": "machine-draft — native review M12"}
 }

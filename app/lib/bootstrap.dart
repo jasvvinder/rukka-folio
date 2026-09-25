@@ -593,6 +593,19 @@ Future<void> bootstrap() async {
       final ownCert = ledger.ownDeviceCert;
       if (ownCert != null) trust.certs[ownCert.deviceId] = ownCert;
       ledger.onOwnCert = (cert) => trust.certs[cert.deviceId] = cert;
+      // ADR 2026-09-24b §2 — every installed device re-offers its UMK's X25519
+      // half once per launch, with no prompt. Before 0012 no client sent it,
+      // so an installed device's `umk_public_keys` row holds `pub_ed` alone
+      // and nobody can verify its user (04 §6.3 🔒 compares both halves).
+      // It re-sends the certificate already on file, so the server re-stores
+      // the same row and `rf.set_umk_pubs` fills the NULL once; whatever the
+      // answer, the device's certification is untouched. Not awaited: 07 §1.7
+      // 🔒, a round trip never stands in front of the user. It is the launch's
+      // first token refresh; `accessToken()` is single-flight, so a sync cycle
+      // that asks in the same instant joins it instead of presenting the
+      // rotated refresh token a second time (06 §4 step 2 🔒 — a reuse
+      // revokes the family). Pinned by F1-24b-2 (launch_reoffer_wiring_test).
+      unawaited(auth.reofferUmkPublic());
       final engine = eng.SyncEngine(
         db: db,
         mirror: ledger.mirror,
@@ -786,6 +799,67 @@ Future<void> bootstrap() async {
         ).call,
       );
 
+      // ── 04 §6 the ceremony: S9.2 / S9.3 (ADR 2026-09-24b §2) ────────────
+      //
+      // `CeremonyScope` was declared at M7 and installed nowhere, so S9.3
+      // rendered its *Checking.* placeholder in production for ever. Both of
+      // the verifier's seams exist on the wire now and are bound here:
+      //
+      //   • the relayed keys — BOTH halves — from the meta pull's
+      //     `umk_public_keys` rows (sync-meta relays `pub_ed` and `pub_x`). A
+      //     row with `pub_ed` alone is named, not compared: S9.3 tells the
+      //     user to ask the person to open the app once (the re-offer above
+      //     is what fills it);
+      //   • the live session, by subject and tenant, over
+      //     `GET sync-meta/ceremony?subject_user_id=&tenant_id=`.
+      //
+      // S9.2's side is NOT bound: its per-invite nonce is server-generated
+      // (04 §6.1 🔒) and no route yet returns one the invitee can attribute
+      // to itself. `nonces` is left null, so S9.2 keeps its placeholder rather
+      // than draw a nonce on this device. ⚠️ SPEC — reported.
+      //
+      // No camera package is in the app, so the scope carries no scanner:
+      // S9.3 opens on *Enter code instead*, its equal path (design-system
+      // §3.1 rule 7), and never on a dead camera.
+      final ceremonyApi = HttpCeremonyApi(
+        transport: httpDoor,
+        functionsRoot: Uri.parse(apiBase),
+        accessToken: () async {
+          try {
+            return await auth.accessToken();
+          } on Object {
+            return null; // no live session ⇒ `unauthorized`
+          }
+        },
+        clientVersion: clientVersion,
+      );
+      // One call, so the two bindings below are pinned by F1-24b-3 rather
+      // than written inline where a default could silently stand in for them
+      // (see [buildLiveCeremonySessions]).
+      final ceremonySessions = buildLiveCeremonySessions(
+        suite: suite,
+        api: ceremonyApi,
+        pullMeta: membersApi.pullMeta,
+        tenantId: identity.tenantId,
+        selfUserId: identity.userId,
+        ownUmk: () {
+          try {
+            return ledger.keyMaterial.umk.public;
+          } on Object {
+            return null; // a closed ledger opens nothing
+          }
+        },
+        verifierName: () => l10n.membersVerifiedSomeone,
+        memberName: memberName,
+        now: DateTime.now,
+        // ⚠️ SPEC 04 §6.3 — no durable security-event store exists yet (see
+        // `DelegatedCeremonyEventLog`); the permanent entry is the signed
+        // `verification_event` the sink below writes.
+        log: const DelegatedCeremonyEventLog(),
+        // 04 §8.2 🔒 — a proved key is kept, through the ledger's one door.
+        keys: ledger.verifiedMembers,
+      );
+
       // S9/S9.1 read the repository off the tree; with no tenant yet there is
       // nothing to read and the scope's own empty fake is the right answer.
       // S0.9 (13 §3.2) reads its invitations off the tree the same way. Bound
@@ -872,7 +946,13 @@ Future<void> bootstrap() async {
                                   // production.
                                   child: GuardiansScope(
                                     repository: guardians,
-                                    child: app,
+                                    // S9.2 / S9.3 open through this factory;
+                                    // without it both routes fall back to
+                                    // `NoCeremonySessions` and wait for ever.
+                                    child: CeremonyScope(
+                                      sessions: ceremonySessions,
+                                      child: app,
+                                    ),
                                   ),
                                 ),
                               ),

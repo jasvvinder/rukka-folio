@@ -50,5 +50,17 @@
   "ceremony.mismatch.logged": "यह आपके सुरक्षा रिकॉर्ड में, तारीख़ और किसकी जाँच हो रही थी सहित, लिख दिया गया है।",
   "ceremony.mismatch.support": "सहायता से संपर्क करें",
   "ceremony.mismatch.close": "बंद करें",
-  "ceremony.mismatch.semantics": "चेतावनी। जाँच नाकाम रही।"
+  "ceremony.mismatch.semantics": "चेतावनी। जाँच नाकाम रही।",
+  "ceremony.verify.key_incomplete.title": "अभी जाँच नहीं हो सकती",
+  "@ceremony.verify.key_incomplete.title": {"description": "machine-draft — native review M12"},
+  "ceremony.verify.key_incomplete.body": "{name} से कहें कि अपने फ़ोन पर ऐप एक बार खोलें। फिर यहाँ दोबारा जाँचें।",
+  "@ceremony.verify.key_incomplete.body": {"description": "machine-draft — native review M12"},
+  "ceremony.verify.key_incomplete.why": "उनके फ़ोन ने अभी वह सब नहीं भेजा जो यह जाँच मिलाती है। कुछ भी जाँचा या साझा नहीं हुआ।",
+  "@ceremony.verify.key_incomplete.why": {"description": "machine-draft — native review M12"},
+  "ceremony.verify.key_incomplete.retry": "दोबारा जाँचें",
+  "@ceremony.verify.key_incomplete.retry": {"description": "machine-draft — native review M12"},
+  "ceremony.verify.key_incomplete.close": "बंद करें",
+  "@ceremony.verify.key_incomplete.close": {"description": "machine-draft — native review M12"},
+  "ceremony.verify.key_incomplete.semantics": "उनके फ़ोन का इंतज़ार है।",
+  "@ceremony.verify.key_incomplete.semantics": {"description": "machine-draft — native review M12"}
 }

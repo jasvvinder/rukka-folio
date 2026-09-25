@@ -135,12 +135,15 @@ enum CertRefusal {
   /// The certificate names a device the session does not (ADR 2026-09-16 §1).
   deviceIdMismatch,
 
-  /// 400 `cert_malformed` — the server could not read the certificate.
+  /// 400 `cert_malformed` or `umk_pub_malformed` — the server could not
+  /// read the certificate, or the UMK public half offered beside it.
   certMalformed,
 
   /// 400 `cert_invalid` — it does not verify under the UMK the server holds
-  /// for this user. A different UMK signs this device's certificate than the
-  /// one this account is registered with (04 §7 recovery, not a retry).
+  /// for this user — or 400 `umk_pub_conflict`, the server holding a
+  /// different X25519 half for it. Either way a different UMK is on this
+  /// device than the one this account is registered with (04 §7 recovery,
+  /// not a retry).
   certInvalid,
 
   /// 400 `umk_unknown` — the server holds no UMK public key for this version
@@ -351,9 +354,21 @@ final class HttpAuthClient
     yield* ctrl.stream;
   }
 
+  /// The refresh in flight, shared by every caller that needs a token while
+  /// it runs (see [accessToken]).
+  Future<String>? _refreshing;
+
   /// The current access token, refreshing it first when it is within
   /// [accessRefreshMargin] of expiry (06 §4 step 2: every refresh carries a
   /// fresh signature). Throws [SessionEnded] when the server refuses.
+  ///
+  /// **One refresh at a time.** The refresh token rotates, and 06 §4 step 2
+  /// 🔒 has the server treat a rotated token's reuse as theft: it revokes the
+  /// whole family and this client signs out. So two callers that both find
+  /// the token stale — at cold start the launch re-offer
+  /// ([reofferUmkPublic]) and a sync cycle, say — must not each post their
+  /// own `/refresh` with the same stored token. The second joins the first's
+  /// refresh and gets the same answer, token or [SessionEnded].
   Future<String> accessToken() async {
     final s = current;
     if (s is! Active) throw const SessionEnded();
@@ -364,7 +379,15 @@ final class HttpAuthClient
         _now().isBefore(exp.subtract(accessRefreshMargin))) {
       return tok;
     }
-    return _refresh(s.session.deviceId);
+    final inFlight = _refreshing;
+    if (inFlight != null) return inFlight;
+    final started = _refresh(s.session.deviceId);
+    _refreshing = started;
+    try {
+      return await started;
+    } finally {
+      if (identical(_refreshing, started)) _refreshing = null;
+    }
   }
 
   /// Restores an [Active] session from the store on cold start (device id +
@@ -402,17 +425,18 @@ final class HttpAuthClient
   /// `POST devices/certify` (Bearer) — uploads this device's certificate
   /// under the user's UMK (04 §3.4; 06 §3 step 3). Body per ⚠️ WIRE
   /// index.ts `certify`: `{cert: {signature, issued_at_ms,
-  /// issued_by_device?}, umk_key_version?, umk_pub_ed?}` → 200
+  /// issued_by_device?}, umk_key_version?, umk_pub_ed?, umk_pub_x?}` → 200
   /// `{device_id, status: "certified"}` | 400 `cert_malformed` /
-  /// `cert_invalid` / `umk_unknown`.
+  /// `cert_invalid` / `umk_unknown` / `umk_pub_malformed` /
+  /// `umk_pub_conflict`.
   ///
   /// **When this runs.** Once, at the end of [activateDevice], on every path
-  /// that registers a device — and nowhere else. Not on launch: a certified
-  /// device already holds its certificate (the ledger filed it) and the
-  /// server already said `device_status: "certified"` when the session
-  /// opened, so a launch-time call would be a signature and a round trip
-  /// asking a question both sides have answered. A screen that wants to
-  /// retry after a refusal (S0.9 *Devices & security*) calls this directly.
+  /// that registers a device, and when a screen retries after a refusal
+  /// (S0.9 *Devices & security*). A certified device does not *certify*
+  /// again on launch — it already holds its certificate and nothing here
+  /// signs a second one — but it does *re-offer* the filed one once per
+  /// launch, for the UMK's X25519 half: see [reofferUmkPublic]
+  /// (ADR 2026-09-24b §2).
   ///
   /// ⚠️ SPEC: 04 §3.4 has the first device self-certify *at signup*, and
   /// index.ts will do it inline inside `POST /devices` when that call carries
@@ -466,6 +490,10 @@ final class HttpAuthClient
       // The first device's UMK is new to the server; a later one's is already
       // on file and this field is ignored (⚠️ WIRE certifyWith).
       'umk_pub_ed': Bytes.base64Url(offer.umkPubEd),
+      // 04 §6.3 🔒 compares both halves, and the server cannot derive this one
+      // from `pub_ed`. Write-once on the server (0012, `rf.set_umk_pubs`), so
+      // sending it every time is idempotent (ADR 2026-09-24b §2).
+      'umk_pub_x': Bytes.base64Url(offer.umkPubX),
     }, bearer: token);
     final body = _json(r);
     if (r.statusCode == 200 &&
@@ -501,12 +529,99 @@ final class HttpAuthClient
     }
     final reason = switch (body['error']) {
       'cert_malformed' => CertRefusal.certMalformed,
+      // The offered UMK half is not 32 bytes: like `cert_malformed`, the
+      // server could not read what this client built — known, not a retry.
+      'umk_pub_malformed' => CertRefusal.certMalformed,
       'cert_invalid' => CertRefusal.certInvalid,
+      // The server holds a different x half for this account's UMK. Since
+      // activation sends `umk_pub_x` this check runs *before* the signature
+      // one (index.ts `certify`), so a phone holding a different UMK than the
+      // account's now hears this where it used to hear `cert_invalid` — the
+      // same fact, and the same answer: 04 §7 recovery, not a retry.
+      'umk_pub_conflict' => CertRefusal.certInvalid,
       'umk_unknown' => CertRefusal.umkUnknown,
       _ => CertRefusal.unavailable,
     };
     _log('device_certify_refused_${reason.name}');
     throw CertificationRefused(reason);
+  }
+
+  bool _reoffered = false;
+
+  /// Re-offers this device's **filed** certificate with both UMK public
+  /// halves, once per launch and with no prompt (ADR 2026-09-24b §2).
+  ///
+  /// Why it exists: before 0012 no client sent `umk_pub_x`, so every
+  /// installed device's `umk_public_keys` row holds `pub_ed` alone, and a
+  /// verifier comparing both halves (04 §6.3 🔒) can never pass against it.
+  /// `rf.set_umk_pubs` fills a NULL once, so the first launch after this
+  /// build backfills the row and every later one is a no-op on the server.
+  ///
+  /// **Harmless by construction.** It sends the certificate already on file,
+  /// byte for byte — nothing is issued or signed — and whatever the answer,
+  /// it changes nothing here: it never files a certificate, never flips
+  /// [markCertified] either way, never announces `device_added`, never throws
+  /// and never logs a `device_certify_refused_*` event, because it is not a
+  /// certification attempt. A device the server has certified stays
+  /// certified. The outcome is returned for the caller that wants it
+  /// (a test); the composition root fires and forgets.
+  ///
+  /// It is the first network call of a cold start, and after [restore] no
+  /// access token is cached, so it refreshes. That refresh is the one every
+  /// other caller in the same window joins ([accessToken] is single-flight):
+  /// a second `/refresh` with the same rotated token would read as theft to
+  /// the server (06 §4 step 2 🔒) and sign this device out.
+  ///
+  /// Skipped — nothing posted — when there is no session, no ledger, or no
+  /// filed certificate: an uncertified device's own [certifyDevice] carries
+  /// both halves already.
+  Future<UmkReoffer> reofferUmkPublic() async {
+    if (_reoffered) return UmkReoffer.skipped;
+    final s = current;
+    if (s is! Active) return UmkReoffer.skipped;
+    final DeviceCertOffer? offer;
+    try {
+      offer = certifier?.reofferOwnCert();
+    } on Object {
+      return UmkReoffer.skipped;
+    }
+    if (offer == null || offer.cert.deviceId != s.session.deviceId) {
+      return UmkReoffer.skipped;
+    }
+    _reoffered = true;
+    final cert = offer.cert;
+    try {
+      final token = await accessToken();
+      final r = await _post(endpoints.devicesCertify, {
+        'cert': {
+          'signature': Bytes.base64Url(cert.signature),
+          'issued_at_ms': cert.issuedAtMs,
+          'issued_by_device': cert.deviceId,
+        },
+        'umk_key_version': offer.umkKeyVersion,
+        'umk_pub_ed': Bytes.base64Url(offer.umkPubEd),
+        'umk_pub_x': Bytes.base64Url(offer.umkPubX),
+      }, bearer: token);
+      final body = _json(r);
+      if (r.statusCode == 200 &&
+          body['status'] == 'certified' &&
+          body['device_id'] == cert.deviceId) {
+        _log('umk_pub_reoffered');
+        return UmkReoffer.accepted;
+      }
+      // `umk_pub_conflict` is the one refusal worth its own name: the server
+      // holds a *different* x half for this UMK, which is a real integrity
+      // problem (05c) — surfaced as an event, never acted on here.
+      _log(
+        body['error'] == 'umk_pub_conflict'
+            ? 'umk_pub_conflict'
+            : 'umk_reoffer_refused_${r.statusCode}',
+      );
+      return UmkReoffer.refused;
+    } on Object {
+      _log('umk_reoffer_unreachable');
+      return UmkReoffer.unreachable;
+    }
   }
 
   // --- 06 §2 OTP ----------------------------------------------------------
@@ -979,4 +1094,22 @@ final class _DeviceKeys {
     ed.dispose();
     x.dispose();
   }
+}
+
+/// What [HttpAuthClient.reofferUmkPublic] did (ADR 2026-09-24b §2). None of
+/// these changes the device's certification — each is only a report.
+enum UmkReoffer {
+  /// Nothing was posted: already offered this launch, no session, no ledger,
+  /// or no filed certificate.
+  skipped,
+
+  /// The server re-verified the filed certificate and kept both halves.
+  accepted,
+
+  /// The server answered with a refusal. The device is unchanged.
+  refused,
+
+  /// The request never got an answer (offline, no token). Unchanged, and not
+  /// retried this launch — the next launch offers again.
+  unreachable,
 }

@@ -12,6 +12,62 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-25 — M11: CER2, the ceremony scope installed and the UMK x half re-offered (ADR 2026-09-24b §2)
+
+A one-slice `/cycle` (`lane-ui-hard`: build → read-only review → adversarial verify → one repair
+round), then a separate push-lane gate: **green**. Cost 0.94 M tokens against the 1.2 M ceiling. The
+owner held ADR 24b §1 for 26 Sep, because it needs a `core_crypto` change.
+
+**Added**
+
+- `HttpAuthClient.reofferUmkPublic`: every launch re-offers `umk_pub_x` beside `umk_pub_ed` on
+  `/devices/certify`, with no prompt. It is fired once and unawaited from `bootstrap.dart`, and it
+  never un-certifies the device or files a false refusal (`F1-24b-2`). The offer in
+  `device_certification.dart` carries `umkPubX`, filled from the ledger's UMK.
+- **`CeremonyScope` is installed.** It was declared at M7 and installed nowhere. It now runs over
+  `buildLiveCeremonySessions`, which requires `pullMeta` and binds `MetaRelayedUmkSource`
+  (`relayed_umk.dart`, both halves) and the `subject_user_id + tenant_id` session lookup. There are
+  no defaults to fall back on.
+- `s9_3_key_incomplete_screen.dart`: a relayed row with `pub_ed` but no `pub_x` fails closed and
+  tells the user to ask them to open the app once. No comparison runs and nothing is stored
+  (`F1-24b-3`, paired with a both-halves-match case). The new ARB key is in EN/PA/HI.
+- Source-pin tests `launch_reoffer_wiring_test.dart` and the `F1-24b-3` bootstrap pin, so deleting
+  the production wiring now fails a test. That is the S6 failure class the review caught.
+
+**Changed**
+
+- `HttpAuthClient.accessToken()` is **single-flight**. A cold-start re-offer racing another refresh
+  presented the rotated token twice, the server answered `refresh_reused` (the theft signal), and
+  the user was signed out at launch. Two `C-06-10` race tests fail with the single-flight line
+  removed.
+- `certifyDevice` maps `umk_pub_conflict` → `certInvalid` and `umk_pub_malformed` →
+  `certMalformed`. Both used to fold into `unavailable`, which told the caller to retry (`C-06-29`).
+- The `ceremony_sessions.dart` header was corrected outright: the relayed x half and the session
+  lookup exist on the server since `87906c0`.
+- The gate made formatting-only fixes: `dart format` on two test files, and `deno fmt` on
+  `_tests/entitlement_token.test.ts`, which was already unformatted and is unrelated.
+
+**Open**
+
+- Desk 32 ⛔: S9.2 has no invite-nonce route the invitee can attribute to itself (04 §6.1 🔒), so
+  *Show my code* keeps its placeholder.
+- Desk 33 ⛔: the re-offer runs on every launch and bumps `device_certs.updated_at` each time. The
+  owner decides whether it should stop after the first 200.
+- Desk 34 ⛔ 🔒: the 06 §3 narrative and `C-06-31`'s title predate the per-launch re-offer.
+- M11 row ⬜: S9.3 is unreachable from S11.1. `devices_routes.dart:42` passes the always-null
+  `inviteId` where a user id belongs.
+- M11 row ⬜: ADR 24b §1, the candidate pair (restore-from-secret on `RecoveryCandidateKeyPair`,
+  `B-24b-1`, `F1-24b-1`), runs 26 Sep.
+- Stale server comments at `store.ts:153-156` and `sync-meta/index.ts:796-800`.
+- Not wired yet: production S9.3 runs on the code path only until the scanner slice lands, and
+  `canVerify` is not derived from membership (the server's 0007 guard enforces it).
+
+**Commits**
+
+- _(fill next session)_
+
+---
+
 ## 2026-09-25 — docs: desk 2, desk 15, plans and the R2.1 row (ADR 2026-09-25)
 
 A discussion session with no lanes and no product code. The owner went through the remaining desk

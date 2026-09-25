@@ -11,6 +11,10 @@
 //   POST `sync-meta/ceremony/verifier`  `{session_id, verifier_random}` → session
 //   POST `sync-meta/ceremony/opening`   `{session_id, opening}`         → session
 //   GET  `sync-meta/ceremony?session_id=…`                              → session
+//   GET  `sync-meta/ceremony?subject_user_id=…&tenant_id=…`             → session
+//        — the newest UNEXPIRED session for that subject, else 404
+//        `no_live_session` (04 §6.4 *delegated*: a verifier holds a user id,
+//        never a session id).
 //
 // A session on the wire is
 // `{session_id, tenant_id, subject_user_id, commitment, committed_at,
@@ -74,6 +78,16 @@ final class CeremonyEndpoints {
   /// `GET sync-meta/ceremony?session_id=…` — either side polls.
   Uri session(String sessionId) =>
       commit.replace(queryParameters: {'session_id': sessionId});
+
+  /// `GET sync-meta/ceremony?subject_user_id=…&tenant_id=…` — the verifier
+  /// finds the subject's live session.
+  Uri liveSession({required String tenantId, required String subjectUserId}) =>
+      commit.replace(
+        queryParameters: {
+          'subject_user_id': subjectUserId,
+          'tenant_id': tenantId,
+        },
+      );
 }
 
 /// One `ceremony_sessions` row as the server shapes it (⚠️ WIRE
@@ -195,6 +209,14 @@ abstract class CeremonyApi {
 
   /// `GET sync-meta/ceremony?session_id=…`; null when the server says 404.
   Future<CeremonySessionWire?> session(String sessionId);
+
+  /// `GET sync-meta/ceremony?subject_user_id=…&tenant_id=…`; null when the
+  /// server says `no_live_session` — which it also says for a session this
+  /// caller may not see, so null never tells anyone whose ceremony is live.
+  Future<CeremonySessionWire?> liveSessionFor({
+    required String tenantId,
+    required String subjectUserId,
+  });
 }
 
 /// The production client.
@@ -294,6 +316,29 @@ final class HttpCeremonyApi implements CeremonyApi {
       );
     } on CeremonyFailure catch (e) {
       if (e.message == 'not_found') return null;
+      rethrow;
+    }
+  }
+
+  @override
+  Future<CeremonySessionWire?> liveSessionFor({
+    required String tenantId,
+    required String subjectUserId,
+  }) async {
+    try {
+      return CeremonySessionWire.fromJson(
+        await _send(
+          () async => _http.get(
+            _endpoints.liveSession(
+              tenantId: tenantId,
+              subjectUserId: subjectUserId,
+            ),
+            headers: await _headers(),
+          ),
+        ),
+      );
+    } on CeremonyFailure catch (e) {
+      if (e.message == 'no_live_session') return null;
       rethrow;
     }
   }

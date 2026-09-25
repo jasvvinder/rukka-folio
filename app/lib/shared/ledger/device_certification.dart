@@ -27,16 +27,25 @@ import 'package:core_crypto/core_crypto.dart';
 /// The only UMK version this build mints or signs under (see the file note).
 const int umkKeyVersionFirst = 1;
 
-/// What `POST devices/certify` needs: the certificate, plus the public half of
-/// the UMK that signed it so a server that has never seen this user's UMK can
-/// record it (⚠️ WIRE `umk_pub_ed`, auth-challenge `certifyWith`).
+/// What `POST devices/certify` needs: the certificate, plus **both** public
+/// halves of the UMK that signed it, so a server that has never seen this
+/// user's UMK can record it (⚠️ WIRE `umk_pub_ed` / `umk_pub_x`,
+/// auth-challenge `certifyWith`).
 ///
-/// Nothing secret: a 64-byte signature and a 32-byte public key.
+/// Both halves, because 04 §6.3 🔒 compares the scanned keys byte-for-byte
+/// against the keys the server relays and `Ceremony.verifyQr` compares the
+/// X25519 half as well as the Ed25519 one. The X25519 half comes from its own
+/// seed (`core_crypto/lib/src/keys.dart`), so the server cannot derive it from
+/// `pub_ed`: a device that never offers it leaves its user unverifiable by
+/// anyone (ADR 2026-09-24b §2).
+///
+/// Nothing secret: a 64-byte signature and two 32-byte public keys.
 final class DeviceCertOffer {
   /// Creates the offer.
   const DeviceCertOffer({
     required this.cert,
     required this.umkPubEd,
+    required this.umkPubX,
     this.umkKeyVersion = umkKeyVersionFirst,
   });
 
@@ -45,6 +54,12 @@ final class DeviceCertOffer {
 
   /// The UMK's Ed25519 public half (32 bytes) — what verifies [cert].
   final Uint8List umkPubEd;
+
+  /// The UMK's X25519 public half (32 bytes) — what a verifier's device
+  /// compares against the scanned QR (04 §6.3 🔒). `rf.set_umk_pubs` fills a
+  /// NULL once and refuses a different value (`umk_pub_conflict`), so offering
+  /// it on every certify is idempotent.
+  final Uint8List umkPubX;
 
   /// Which UMK version signed (03 §2.2; see the file note).
   final int umkKeyVersion;
@@ -75,6 +90,17 @@ abstract interface class DeviceCertifier {
 
   /// The filed certificate, or null while this device is uncertified.
   DeviceCert? get ownDeviceCert;
+
+  /// The **filed** certificate, offered again with both UMK public halves —
+  /// the launch-time re-offer of ADR 2026-09-24b §2. Null while this device
+  /// is uncertified (activation carries both halves itself) or the ledger is
+  /// closed.
+  ///
+  /// It issues nothing and signs nothing: the certificate is the one already
+  /// on file, byte for byte, so a server that re-verifies it re-stores the
+  /// same row. That is what makes the re-offer harmless to a device the
+  /// server has already certified.
+  DeviceCertOffer? reofferOwnCert();
 }
 
 /// The stored form of [DeviceCert]: UTF-8 JSON in the [KeyStore], beside the

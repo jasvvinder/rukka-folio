@@ -1913,6 +1913,22 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
         issuedAtMs: now().millisecondsSinceEpoch,
       ),
       umkPubEd: umk.public.ed25519,
+      umkPubX: umk.public.x25519,
+    );
+  }
+
+  /// The filed certificate with both UMK public halves (see
+  /// [DeviceCertifier.reofferOwnCert], ADR 2026-09-24b §2). Null while this
+  /// device is uncertified or the ledger is closed — never a throw, because
+  /// the caller is a launch-time step that must not stand in anyone's way.
+  @override
+  DeviceCertOffer? reofferOwnCert() {
+    final cert = _ownCert, umk = _umk;
+    if (cert == null || umk == null || _identity == null) return null;
+    return DeviceCertOffer(
+      cert: cert,
+      umkPubEd: umk.public.ed25519,
+      umkPubX: umk.public.x25519,
     );
   }
 

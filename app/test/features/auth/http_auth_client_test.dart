@@ -138,6 +138,7 @@ final class FakeCertifier implements DeviceCertifier {
         issuedAtMs: 1789000000000,
       ),
       umkPubEd: umk.public.ed25519,
+      umkPubX: umk.public.x25519,
     );
   }
 
@@ -146,6 +147,21 @@ final class FakeCertifier implements DeviceCertifier {
 
   @override
   DeviceCert? get ownDeviceCert => filed.isEmpty ? null : filed.last;
+
+  /// How many times the launch-time re-offer asked for the filed certificate.
+  int reoffered = 0;
+
+  @override
+  DeviceCertOffer? reofferOwnCert() {
+    final cert = ownDeviceCert;
+    if (unopenable || cert == null) return null;
+    reoffered++;
+    return DeviceCertOffer(
+      cert: cert,
+      umkPubEd: umk.public.ed25519,
+      umkPubX: umk.public.x25519,
+    );
+  }
 }
 
 /// Captures the `device_added` records the client files (06 §5 🔒), and can
@@ -984,11 +1000,19 @@ void main() {
       expect(log.any((e) => e.contains(deviceId)), isFalse);
     });
 
-    test('C-06-29 every refusal fails closed: cert_malformed, cert_invalid, umk_unknown, 401 and 500 each leave the device registered-but-uncertified with nothing filed, and surface a typed reason on a retry', () async {
+    test('C-06-29 every refusal fails closed: cert_malformed, cert_invalid, umk_unknown, umk_pub_conflict, umk_pub_malformed, 401 and 500 each leave the device registered-but-uncertified with nothing filed, and surface a typed reason on a retry', () async {
       const cases = <(int, String, CertRefusal)>[
         (400, 'cert_malformed', CertRefusal.certMalformed),
         (400, 'cert_invalid', CertRefusal.certInvalid),
         (400, 'umk_unknown', CertRefusal.umkUnknown),
+        // Since activation carries `umk_pub_x` (ADR 2026-09-24b §2) the
+        // server's x-half check runs before the signature check, so a phone
+        // holding a different UMK than the account's hears `umk_pub_conflict`
+        // where it used to hear `cert_invalid`: the same fact, the same
+        // answer — recovery, not a retry. A malformed half is a known
+        // refusal too, never "nothing is known".
+        (400, 'umk_pub_conflict', CertRefusal.certInvalid),
+        (400, 'umk_pub_malformed', CertRefusal.certMalformed),
         (401, 'unauthenticated', CertRefusal.unavailable),
         (500, '', CertRefusal.unavailable),
       ];
@@ -1140,6 +1164,260 @@ void main() {
       await activate(again);
       expect(certifier.issued, before);
       expect(t.count('/devices/certify'), 1);
+    });
+  });
+  group('ADR 2026-09-24b §2 — every device offers umk_pub_x', () {
+    // The halves as the request body carried them, decoded.
+    (Uint8List, Uint8List) halves(Map<String, Object?> body) => (
+      Bytes.fromBase64Url(body['umk_pub_ed']! as String),
+      Bytes.fromBase64Url(body['umk_pub_x']! as String),
+    );
+
+    test('F1-24b-2 activation sends BOTH UMK public halves on devices/certify: umk_pub_ed and umk_pub_x are the certifier\'s own, 32 bytes each, and distinct', () async {
+      scriptHappyPath();
+      t.on(
+        '/devices/certify',
+        ScriptedTransport.ok({'device_id': deviceId, 'status': 'certified'}),
+      );
+      final certifier = FakeCertifier(await liveSuite());
+      final c = await client(certifier: certifier);
+      await activate(c);
+
+      final sent = t.last('/devices/certify');
+      expect(sent.containsKey('umk_pub_x'), isTrue, reason: '04 §6.3 🔒');
+      final (ed, x) = halves(sent);
+      expect(ed, certifier.umk.public.ed25519);
+      expect(x, certifier.umk.public.x25519);
+      expect(x, hasLength(32));
+      expect(x, isNot(ed), reason: 'the x half is its own seed, not pub_ed');
+    });
+
+    test('F1-24b-2 a later launch re-offers once, with no prompt: the FILED certificate (same signature, same issue time) and both halves, one Bearer call — nothing issued, nothing filed, nothing announced, and a second call in the same launch posts nothing', () async {
+      scriptHappyPath();
+      t.on(
+        '/devices/certify',
+        ScriptedTransport.ok({'device_id': deviceId, 'status': 'certified'}),
+      );
+      final certifier = FakeCertifier(await liveSuite());
+      final first = await client(certifier: certifier);
+      await activate(first);
+      expect(t.count('/devices/certify'), 1);
+      final filed = certifier.filed.single;
+      final issued = certifier.issued;
+
+      // A later launch: restore, exactly as C-06-31 — which still posts
+      // nothing on its own — then the composition root's one re-offer.
+      clock.advance(const Duration(minutes: 20));
+      t.on('/refresh', ScriptedTransport.ok(sessionBody('acc-2', 'ref-2')));
+      final posted = CapturingPost(certifier);
+      final later = await client(certifier: certifier)
+        ..announcer = DeviceAddedRecorder(
+          author: DeviceRecordAuthor(
+            suite: await liveSuite(),
+            keys: keys,
+            deviceIdOf: () async => deviceId,
+            clock: RecordHlcClock(clock.call),
+          ),
+          tenantId: ledgerTenantId,
+          post: posted.call,
+        );
+      await later.restore();
+      expect(t.count('/devices/certify'), 1, reason: 'restore alone is quiet');
+
+      expect(await later.reofferUmkPublic(), UmkReoffer.accepted);
+      expect(t.count('/devices/certify'), 2);
+      final sent = t.last('/devices/certify');
+      final cert = sent['cert']! as Map<String, Object?>;
+      expect(
+        Bytes.fromBase64Url(cert['signature']! as String),
+        filed.signature,
+      );
+      expect(cert['issued_at_ms'], filed.issuedAtMs);
+      expect(cert['issued_by_device'], deviceId);
+      expect(sent['umk_key_version'], umkKeyVersionFirst);
+      final (ed, x) = halves(sent);
+      expect(ed, certifier.umk.public.ed25519);
+      expect(x, certifier.umk.public.x25519);
+      final req = t.requests.lastWhere(
+        (r) => r.url.path.endsWith('/devices/certify'),
+      );
+      expect(req.headers['Authorization'], 'Bearer acc-2');
+
+      // Harmless: no new certificate, no second filing, no device_added.
+      expect(certifier.issued, issued);
+      expect(certifier.filed, hasLength(1));
+      expect(posted.posted, isEmpty);
+      expect(log, contains('umk_pub_reoffered'));
+      expect(log.where((e) => e.startsWith('device_certify_refused')), isEmpty);
+
+      // Once per launch.
+      expect(await later.reofferUmkPublic(), UmkReoffer.skipped);
+      expect(t.count('/devices/certify'), 2);
+    });
+
+    test('F1-24b-2 a re-offer the server refuses, or cannot hear, is harmless: it never throws, never un-certifies, files and announces nothing, and files no certification refusal', () async {
+      final cases = <(String, AuthHttpResponse?, UmkReoffer)>[
+        (
+          'umk_pub_conflict',
+          ScriptedTransport.ok({'error': 'umk_pub_conflict'}, 400),
+          UmkReoffer.refused,
+        ),
+        (
+          'cert_invalid',
+          ScriptedTransport.ok({'error': 'cert_invalid'}, 400),
+          UmkReoffer.refused,
+        ),
+        ('500', const AuthHttpResponse(500, ''), UmkReoffer.refused),
+        ('offline', null, UmkReoffer.unreachable),
+      ];
+      for (final (name, answer, outcome) in cases) {
+        t = ScriptedTransport();
+        keys = FakeKeyStore();
+        await seedLedgerIdentity(keys);
+        log = [];
+        scriptHappyPath();
+        t.on(
+          '/devices/certify',
+          ScriptedTransport.ok({'device_id': deviceId, 'status': 'certified'}),
+        );
+        final certifier = FakeCertifier(await liveSuite());
+        final c = await client(certifier: certifier);
+        await activate(c);
+        expect((c.current as Active).deviceCertified, isTrue, reason: name);
+
+        t.script['/devices/certify'] = [?answer];
+        if (answer == null) t.offline = true;
+        final before = t.count('/devices/certify');
+        expect(await c.reofferUmkPublic(), outcome, reason: name);
+        expect(
+          t.count('/devices/certify'),
+          answer == null ? before : before + 1,
+          reason: name,
+        );
+        expect((c.current as Active).deviceCertified, isTrue, reason: name);
+        expect(certifier.filed, hasLength(1), reason: name);
+        expect(
+          log.where((e) => e.startsWith('device_certify_refused')),
+          isEmpty,
+          reason: '$name: a re-offer is not a certification attempt',
+        );
+        expect(log, isNot(contains('device_uncertified')), reason: name);
+        expect(log.any((e) => e.contains(deviceId)), isFalse, reason: name);
+        if (name == 'umk_pub_conflict') {
+          expect(log, contains('umk_pub_conflict'));
+        }
+      }
+    });
+
+    test('C-06-10 the launch re-offer and another caller that both need a token share ONE refresh: the rotated refresh token is never presented twice, so the server never sees a reuse, never revokes the family, and the device stays signed in', () async {
+      scriptHappyPath();
+      t.on(
+        '/devices/certify',
+        ScriptedTransport.ok({'device_id': deviceId, 'status': 'certified'}),
+      );
+      final certifier = FakeCertifier(await liveSuite());
+      await activate(await client(certifier: certifier));
+
+      // A rotating server: the first presentation of `ref-1` rotates it, a
+      // second is a reuse and ends the family (06 §4 step 2 🔒; index.ts
+      // `refresh_reused`). A client that let two callers refresh at once
+      // would sign itself out here.
+      clock.advance(const Duration(minutes: 20));
+      t.script['/refresh'] = [
+        ScriptedTransport.ok(sessionBody('acc-2', 'ref-2')),
+        ScriptedTransport.ok({'error': 'refresh_reused'}, 401),
+      ];
+      final later = await client(certifier: certifier);
+      await later.restore();
+
+      // Cold start: the composition root's unawaited re-offer, and in the
+      // same instant a sync cycle asking for its bearer.
+      final reoffer = later.reofferUmkPublic();
+      final token = later.accessToken();
+      expect(await token, 'acc-2');
+      expect(await reoffer, UmkReoffer.accepted);
+
+      expect(t.count('/refresh'), 1, reason: 'one refresh, shared');
+      expect(t.last('/refresh')['refresh_token'], 'ref-1');
+      expect(later.current, isA<Active>());
+      expect(log, isNot(contains('signed_out')));
+      expect(log, isNot(contains('session_ended')));
+      expect(await keys.contains(SessionItems.refreshToken), isTrue);
+      final certify = t.requests.lastWhere(
+        (r) => r.url.path.endsWith('/devices/certify'),
+      );
+      expect(certify.headers['Authorization'], 'Bearer acc-2');
+
+      // Once it has landed the next caller reads the cached token and posts
+      // nothing; a later expiry refreshes again, with the ROTATED token.
+      expect(await later.accessToken(), 'acc-2');
+      expect(t.count('/refresh'), 1);
+      clock.advance(const Duration(minutes: 20));
+      t.script['/refresh'] = [
+        ScriptedTransport.ok(sessionBody('acc-3', 'ref-3')),
+      ];
+      expect(await later.accessToken(), 'acc-3');
+      expect(t.last('/refresh')['refresh_token'], 'ref-2');
+    });
+
+    test('C-06-10 a shared refresh the server refuses ends the session once: every waiting caller hears SessionEnded, one /refresh was posted, and the re-offer still never throws', () async {
+      scriptHappyPath();
+      t.on(
+        '/devices/certify',
+        ScriptedTransport.ok({'device_id': deviceId, 'status': 'certified'}),
+      );
+      final certifier = FakeCertifier(await liveSuite());
+      await activate(await client(certifier: certifier));
+
+      clock.advance(const Duration(minutes: 20));
+      t.script['/refresh'] = [
+        ScriptedTransport.ok({'error': 'refresh_invalid'}, 401),
+      ];
+      final later = await client(certifier: certifier);
+      await later.restore();
+
+      final reoffer = later.reofferUmkPublic();
+      final a = later.accessToken();
+      final b = later.accessToken();
+      await expectLater(a, throwsA(isA<SessionEnded>()));
+      await expectLater(b, throwsA(isA<SessionEnded>()));
+      expect(await reoffer, UmkReoffer.unreachable);
+      expect(t.count('/refresh'), 1);
+      expect(log.where((e) => e == 'signed_out'), hasLength(1));
+      expect(later.current, isA<SignedOut>());
+    });
+
+    test('F1-24b-2 nothing to re-offer posts nothing: signed out, no ledger bound, a closed ledger, and a device that holds no certificate yet (its activation carries both halves)', () async {
+      scriptHappyPath();
+      t.on(
+        '/devices/certify',
+        ScriptedTransport.ok({'device_id': deviceId, 'status': 'certified'}),
+      );
+      final signedOut = await client(
+        certifier: FakeCertifier(await liveSuite()),
+      );
+      expect(await signedOut.reofferUmkPublic(), UmkReoffer.skipped);
+
+      final unbound = await client();
+      await activate(unbound);
+      expect(await unbound.reofferUmkPublic(), UmkReoffer.skipped);
+
+      final shut = FakeCertifier(await liveSuite())..unopenable = true;
+      final c2 = await client(certifier: shut);
+      await activate(c2);
+      expect(await c2.reofferUmkPublic(), UmkReoffer.skipped);
+
+      t.script['/devices/certify'] = [
+        ScriptedTransport.ok({'error': 'cert_invalid'}, 400),
+      ];
+      final uncertified = FakeCertifier(await liveSuite());
+      final c3 = await client(certifier: uncertified);
+      await activate(c3);
+      final after = t.count('/devices/certify');
+      expect(uncertified.ownDeviceCert, isNull);
+      expect(await c3.reofferUmkPublic(), UmkReoffer.skipped);
+      expect(t.count('/devices/certify'), after);
+      expect(uncertified.reoffered, 0);
     });
   });
   group('06 §5 🔒 — device_added (ADR 2026-09-05d §6)', () {

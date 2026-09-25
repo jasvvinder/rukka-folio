@@ -104,5 +104,17 @@
   "ceremony.mismatch.close": "Close",
   "@ceremony.mismatch.close": {"description": "S9.4 way off the screen — back to Members, with the person still unverified. Not an override: nothing is verified and nothing is retried."},
   "ceremony.mismatch.semantics": "Warning. Verification failed.",
-  "@ceremony.mismatch.semantics": {"description": "S9.4 icon semantics — the red ground is never the only signal (07 §1 rule 3, design-system §3.1)."}
+  "@ceremony.mismatch.semantics": {"description": "S9.4 icon semantics — the red ground is never the only signal (07 §1 rule 3, design-system §3.1)."},
+  "ceremony.verify.key_incomplete.title": "Not ready to check yet",
+  "@ceremony.verify.key_incomplete.title": {"description": "S9.3 fail-closed state, ADR 2026-09-24b §2: the other person's row on the server has only one of the two public keys the check compares (pub_ed, no pub_x), so NOTHING is compared (04 §6.3 🔒 compares both). Never a generic error, never a silent placeholder. Plain words: no 'key', no 'sync', no jargon (01 §1.3)."},
+  "ceremony.verify.key_incomplete.body": "Ask {name} to open the app on their phone once. Then check again here.",
+  "@ceremony.verify.key_incomplete.body": {"description": "S9.3 fail-closed state — the one next step (07 §1 rule 6). Opening the app once makes their phone send what is missing (ADR 2026-09-24b §2). {name} is user-typed (this phone's contact name, or the 'someone in this book' string).", "placeholders": {"name": {"type": "String"}}},
+  "ceremony.verify.key_incomplete.why": "Their phone hasn’t sent everything this check compares. Nothing has been checked and nothing has been shared.",
+  "@ceremony.verify.key_incomplete.why": {"description": "S9.3 fail-closed state — why, and that nothing happened. Never soften into offering to check anyway: there is no override (04 §6.3 🔒)."},
+  "ceremony.verify.key_incomplete.retry": "Check again",
+  "@ceremony.verify.key_incomplete.retry": {"description": "S9.3 fail-closed state primary action — re-reads what the server holds for them. Compares nothing by itself."},
+  "ceremony.verify.key_incomplete.close": "Close",
+  "@ceremony.verify.key_incomplete.close": {"description": "S9.3 fail-closed state way off the screen — the person stays unverified."},
+  "ceremony.verify.key_incomplete.semantics": "Waiting for their phone.",
+  "@ceremony.verify.key_incomplete.semantics": {"description": "S9.3 fail-closed state icon semantics — the icon colour is never the only signal (07 §1 rule 3)."}
 }

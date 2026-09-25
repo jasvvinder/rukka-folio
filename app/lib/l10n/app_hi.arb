@@ -415,6 +415,30 @@
   "ceremony.verify.error": "अभी जाँच नहीं हो सकी।",
   "ceremony.verify.exhausted": "वह कोड इस्तेमाल हो चुका है। उनसे कहें कि अपने फ़ोन पर नया लें।",
   "ceremony.verify.expired": "वह कोड खत्म हो चुका है। उनसे कहें कि अपने फ़ोन पर नया लें।",
+  "ceremony.verify.key_incomplete.body": "{name} से कहें कि अपने फ़ोन पर ऐप एक बार खोलें। फिर यहाँ दोबारा जाँचें।",
+  "@ceremony.verify.key_incomplete.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "ceremony.verify.key_incomplete.close": "बंद करें",
+  "@ceremony.verify.key_incomplete.close": {
+    "description": "machine-draft — native review M12"
+  },
+  "ceremony.verify.key_incomplete.retry": "दोबारा जाँचें",
+  "@ceremony.verify.key_incomplete.retry": {
+    "description": "machine-draft — native review M12"
+  },
+  "ceremony.verify.key_incomplete.semantics": "उनके फ़ोन का इंतज़ार है।",
+  "@ceremony.verify.key_incomplete.semantics": {
+    "description": "machine-draft — native review M12"
+  },
+  "ceremony.verify.key_incomplete.title": "अभी जाँच नहीं हो सकती",
+  "@ceremony.verify.key_incomplete.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "ceremony.verify.key_incomplete.why": "उनके फ़ोन ने अभी वह सब नहीं भेजा जो यह जाँच मिलाती है। कुछ भी जाँचा या साझा नहीं हुआ।",
+  "@ceremony.verify.key_incomplete.why": {
+    "description": "machine-draft — native review M12"
+  },
   "ceremony.verify.offline": "ऑफ़लाइन — जाँच के लिए कनेक्शन चाहिए। वापस आने पर फिर कोशिश करें।",
   "ceremony.verify.read_only": "जाँच सिर्फ़ कोई सक्रिय, जाँचा-परखा सदस्य ही कर सकता है। उनमें से किसी से कहें।",
   "ceremony.verify.remote.instruction": "उन्हें कॉल करें और कोड बोलकर सुनाने को कहें।",
