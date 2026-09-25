@@ -29,6 +29,11 @@ abstract final class LocalLedgerKeys {
   /// (06 §3 step 3); its presence is what lets the trust store root this
   /// device's own chain on a cold start, without a meta round trip.
   static const deviceCert = 'rk.ledger.device_cert';
+
+  /// The server holds this UMK's x half (ADR 2026-09-24b §2), JSON — see
+  /// `encodeUmkPubsAccepted`. Its presence stops the launch-time re-offer
+  /// (owner ruling 25 Sep, PLAN desk 33).
+  static const umkPubsAccepted = 'rk.ledger.umk_pubs_accepted';
 }
 
 /// Who this install is: the ids every envelope is stamped with (04 §4).

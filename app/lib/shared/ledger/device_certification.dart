@@ -100,7 +100,71 @@ abstract interface class DeviceCertifier {
   /// on file, byte for byte, so a server that re-verifies it re-stores the
   /// same row. That is what makes the re-offer harmless to a device the
   /// server has already certified.
+  ///
+  /// Also null once [recordUmkPubsAccepted] has recorded that the server holds
+  /// this UMK's x half: the re-offer stops after one success, across restarts
+  /// (owner ruling 25 Sep, PLAN desk 33 — each re-offer bumps the
+  /// `device_certs` row and every co-member re-pulls it).
   DeviceCertOffer? reofferOwnCert();
+
+  /// Records that the server answered `certified` to [offer] — which, because
+  /// the offer carried `umk_pub_x` and `rf.set_umk_pubs` refuses a different
+  /// value (`umk_pub_conflict`), means the server now holds exactly
+  /// [DeviceCertOffer.umkPubX] (auth-challenge `certifyWith`, 0012). Persisted,
+  /// so a later launch has nothing to re-offer.
+  ///
+  /// An offer that is not this install's own — another device, or an x half
+  /// that is not this UMK's — is ignored: a marker is only ever written for
+  /// the bytes it vouches for.
+  Future<void> recordUmkPubsAccepted(DeviceCertOffer offer);
+}
+
+/// The stored form of the re-offer's stop marker ([DeviceCertifier.
+/// recordUmkPubsAccepted]): UTF-8 JSON naming the device, the UMK version and
+/// the x half the server accepted. Public keys and an id — nothing secret.
+Uint8List encodeUmkPubsAccepted({
+  required String deviceId,
+  required int umkKeyVersion,
+  required Uint8List umkPubX,
+}) => Uint8List.fromList(
+  utf8.encode(
+    jsonEncode({
+      'device_id': deviceId,
+      'umk_key_version': umkKeyVersion,
+      'umk_pub_x': Bytes.base64Url(umkPubX),
+    }),
+  ),
+);
+
+/// Whether [bytes] is a marker for exactly this device, UMK version and x
+/// half. Anything that will not parse, or names other bytes, is no marker —
+/// the device re-offers, which is harmless; a false match would leave the
+/// user unverifiable, which is not.
+bool umkPubsAcceptedMatches(
+  Uint8List bytes, {
+  required String deviceId,
+  required int umkKeyVersion,
+  required Uint8List umkPubX,
+}) {
+  final Object? j;
+  try {
+    j = jsonDecode(utf8.decode(bytes));
+  } on FormatException {
+    return false;
+  }
+  if (j is! Map) return false;
+  final x = j['umk_pub_x'];
+  if (j['device_id'] != deviceId || j['umk_key_version'] != umkKeyVersion) {
+    return false;
+  }
+  if (x is! String) return false;
+  final Uint8List stored;
+  try {
+    stored = Bytes.fromBase64Url(x);
+  } on FormatException {
+    return false;
+  }
+  return Bytes.equal(stored, umkPubX);
 }
 
 /// The stored form of [DeviceCert]: UTF-8 JSON in the [KeyStore], beside the

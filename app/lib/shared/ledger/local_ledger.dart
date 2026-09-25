@@ -1831,6 +1831,7 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
   VerifiedUmkPublic? _umkVerified;
   VerifiedMemberDirectory? _verifiedMembers;
   DeviceCert? _ownCert;
+  bool _umkPubsAccepted = false;
   Hlc _clock = const Hlc(0);
 
   /// Called with this device's own certificate the moment it is filed —
@@ -1925,6 +1926,7 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
   DeviceCertOffer? reofferOwnCert() {
     final cert = _ownCert, umk = _umk;
     if (cert == null || umk == null || _identity == null) return null;
+    if (_umkPubsAccepted) return null;
     return DeviceCertOffer(
       cert: cert,
       umkPubEd: umk.public.ed25519,
@@ -1960,6 +1962,43 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
     await keys.write(LocalLedgerKeys.deviceCert, encodeDeviceCert(cert));
     _ownCert = cert;
     onOwnCert?.call(cert);
+  }
+
+  /// Records the server's acceptance of this install's x half (see
+  /// [DeviceCertifier.recordUmkPubsAccepted]). Only for this device and this
+  /// UMK's own bytes; anything else is ignored, never thrown — the caller is
+  /// a certify step that must not stand in anyone's way.
+  @override
+  Future<void> recordUmkPubsAccepted(DeviceCertOffer offer) async {
+    final umk = _umk, device = _device;
+    if (umk == null || device == null || _identity == null) return;
+    if (offer.cert.deviceId != device.public.deviceId ||
+        offer.umkKeyVersion != umkKeyVersionFirst ||
+        !Bytes.equal(offer.umkPubX, umk.public.x25519)) {
+      return;
+    }
+    await keys.write(
+      LocalLedgerKeys.umkPubsAccepted,
+      encodeUmkPubsAccepted(
+        deviceId: device.public.deviceId,
+        umkKeyVersion: umkKeyVersionFirst,
+        umkPubX: umk.public.x25519,
+      ),
+    );
+    _umkPubsAccepted = true;
+  }
+
+  /// Reads the re-offer's stop marker back at open. A marker for another
+  /// device or another x half (a re-keyed install) is not this one's.
+  Future<void> _loadUmkPubsAccepted() async {
+    final raw = await keys.read(LocalLedgerKeys.umkPubsAccepted);
+    if (raw == null) return;
+    _umkPubsAccepted = umkPubsAcceptedMatches(
+      raw,
+      deviceId: _device!.public.deviceId,
+      umkKeyVersion: umkKeyVersionFirst,
+      umkPubX: _umk!.public.x25519,
+    );
   }
 
   /// Reads a filed certificate back at open. A record that will not parse, or
@@ -2086,6 +2125,7 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
     await _openVerifiedMembers(id);
     _identity = id;
     await _loadOwnCert();
+    await _loadUmkPubsAccepted();
 
     // Tenants and wrapped book keys back into memory (03 §3.1 key_cache).
     for (final b in await db.select(db.booksP).get()) {
@@ -5714,6 +5754,7 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
     _umkVerified = null;
     _verifiedMembers = null;
     _ownCert = null;
+    _umkPubsAccepted = false;
     _identity = null;
   }
 }

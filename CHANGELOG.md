@@ -47,12 +47,18 @@ owner held ADR 24b §1 for 26 Sep, because it needs a `core_crypto` change.
 - The gate made formatting-only fixes: `dart format` on two test files, and `deno fmt` on
   `_tests/entitlement_token.test.ts`, which was already unformatted and is unrelated.
 
+- **The re-offer stops after one success** (owner ruling 25 Sep, desk 33), built after the cycle
+  and outside it (small, direct). A persisted marker `rk.ledger.umk_pubs_accepted` (device id, UMK
+  version, the accepted x half) is written on an accepted re-offer and on a certified activation.
+  `reofferOwnCert()` answers null once the marker matches, and it survives a restart. Refused or
+  unheard answers write nothing, and a marker for other bytes suppresses nothing. There are 7
+  `F1-24b-2` tests, and each of the three production lines was checked by removing it: its test
+  failed. The marker work is not in `c097b18`.
+
 **Open**
 
 - Desk 32 ⛔: S9.2 has no invite-nonce route the invitee can attribute to itself (04 §6.1 🔒), so
   *Show my code* keeps its placeholder.
-- Desk 33 ⛔: the re-offer runs on every launch and bumps `device_certs.updated_at` each time. The
-  owner decides whether it should stop after the first 200.
 - Desk 34 ⛔ 🔒: the 06 §3 narrative and `C-06-31`'s title predate the per-launch re-offer.
 - M11 row ⬜: S9.3 is unreachable from S11.1. `devices_routes.dart:42` passes the always-null
   `inviteId` where a user id belongs.
@@ -64,7 +70,9 @@ owner held ADR 24b §1 for 26 Sep, because it needs a `core_crypto` change.
 
 **Commits**
 
-- _(fill next session)_
+- `c097b18` M11: ceremony scope installed, umk_pub_x re-offered per launch, half-published key fails closed
+- `653fb2b` env: deno fmt entitlement_token.test.ts
+- _(the re-offer marker: fill next session)_
 
 ---
 

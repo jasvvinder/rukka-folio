@@ -505,6 +505,9 @@ final class HttpAuthClient
       await ledger.installOwnCert(cert);
       markCertified();
       _log('device_certified');
+      // The offer carried `umk_pub_x`, so a 200 means the server holds it:
+      // this device has nothing to re-offer at a later launch.
+      await _recordUmkPubsAccepted(ledger, offer);
       // Only now: the record is authored by *this* device, and a reader can
       // only verify it once this install's own chain is rooted in the
       // certificate it just filed (04 §3.4). Announcing first would post a
@@ -548,8 +551,26 @@ final class HttpAuthClient
 
   bool _reoffered = false;
 
+  /// Records the server's acceptance of [offer]'s x half, so the re-offer
+  /// stops (owner ruling 25 Sep, PLAN desk 33). Total: a marker that could not
+  /// be written only means the next launch re-offers once more, which is
+  /// harmless — it must never un-certify or fail a certification.
+  Future<void> _recordUmkPubsAccepted(
+    DeviceCertifier? ledger,
+    DeviceCertOffer offer,
+  ) async {
+    try {
+      await ledger?.recordUmkPubsAccepted(offer);
+    } on Object {
+      _log('umk_pubs_marker_unwritten');
+    }
+  }
+
   /// Re-offers this device's **filed** certificate with both UMK public
-  /// halves, once per launch and with no prompt (ADR 2026-09-24b §2).
+  /// halves, once per launch and with no prompt (ADR 2026-09-24b §2), until
+  /// the server has accepted it once: an accepted answer (or a certified
+  /// activation, which carries both halves) is recorded in the ledger and
+  /// every later launch skips (owner ruling 25 Sep, PLAN desk 33).
   ///
   /// Why it exists: before 0012 no client sent `umk_pub_x`, so every
   /// installed device's `umk_public_keys` row holds `pub_ed` alone, and a
@@ -559,7 +580,8 @@ final class HttpAuthClient
   ///
   /// **Harmless by construction.** It sends the certificate already on file,
   /// byte for byte — nothing is issued or signed — and whatever the answer,
-  /// it changes nothing here: it never files a certificate, never flips
+  /// the only thing it writes is the stop marker on an accepted answer: it
+  /// never files a certificate, never flips
   /// [markCertified] either way, never announces `device_added`, never throws
   /// and never logs a `device_certify_refused_*` event, because it is not a
   /// certification attempt. A device the server has certified stays
@@ -607,6 +629,7 @@ final class HttpAuthClient
           body['status'] == 'certified' &&
           body['device_id'] == cert.deviceId) {
         _log('umk_pub_reoffered');
+        await _recordUmkPubsAccepted(certifier, offer);
         return UmkReoffer.accepted;
       }
       // `umk_pub_conflict` is the one refusal worth its own name: the server

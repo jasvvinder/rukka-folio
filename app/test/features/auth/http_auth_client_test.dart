@@ -151,10 +151,23 @@ final class FakeCertifier implements DeviceCertifier {
   /// How many times the launch-time re-offer asked for the filed certificate.
   int reoffered = 0;
 
+  /// The offers the client recorded as accepted by the server (owner ruling
+  /// 25 Sep, PLAN desk 33). The real ledger persists this and checks the x
+  /// half; `umk_reoffer_ledger_test.dart` covers that.
+  final accepted = <DeviceCertOffer>[];
+
+  /// Models a device certified by a build before ADR 2026-09-24b §2: it holds
+  /// a certificate, but the server never got its x half.
+  void forgetAcceptance() => accepted.clear();
+
+  @override
+  Future<void> recordUmkPubsAccepted(DeviceCertOffer offer) async =>
+      accepted.add(offer);
+
   @override
   DeviceCertOffer? reofferOwnCert() {
     final cert = ownDeviceCert;
-    if (unopenable || cert == null) return null;
+    if (unopenable || cert == null || accepted.isNotEmpty) return null;
     reoffered++;
     return DeviceCertOffer(
       cert: cert,
@@ -1201,6 +1214,7 @@ void main() {
       final certifier = FakeCertifier(await liveSuite());
       final first = await client(certifier: certifier);
       await activate(first);
+      certifier.forgetAcceptance(); // certified by a build before ADR 24b §2
       expect(t.count('/devices/certify'), 1);
       final filed = certifier.filed.single;
       final issued = certifier.issued;
@@ -1283,6 +1297,7 @@ void main() {
         final certifier = FakeCertifier(await liveSuite());
         final c = await client(certifier: certifier);
         await activate(c);
+        certifier.forgetAcceptance(); // certified by a build before ADR 24b §2
         expect((c.current as Active).deviceCertified, isTrue, reason: name);
 
         t.script['/devices/certify'] = [?answer];
@@ -1317,6 +1332,7 @@ void main() {
       );
       final certifier = FakeCertifier(await liveSuite());
       await activate(await client(certifier: certifier));
+      certifier.forgetAcceptance(); // certified by a build before ADR 24b §2
 
       // A rotating server: the first presentation of `ref-1` rotates it, a
       // second is a reuse and ends the family (06 §4 step 2 🔒; index.ts
@@ -1368,6 +1384,7 @@ void main() {
       );
       final certifier = FakeCertifier(await liveSuite());
       await activate(await client(certifier: certifier));
+      certifier.forgetAcceptance(); // certified by a build before ADR 24b §2
 
       clock.advance(const Duration(minutes: 20));
       t.script['/refresh'] = [
@@ -1385,6 +1402,104 @@ void main() {
       expect(t.count('/refresh'), 1);
       expect(log.where((e) => e == 'signed_out'), hasLength(1));
       expect(later.current, isA<SignedOut>());
+    });
+
+    test('F1-24b-2 an accepted re-offer is recorded, so the next launch posts nothing — the re-offer stops after one success (owner ruling 25 Sep)', () async {
+      scriptHappyPath();
+      t.on(
+        '/devices/certify',
+        ScriptedTransport.ok({'device_id': deviceId, 'status': 'certified'}),
+      );
+      final certifier = FakeCertifier(await liveSuite());
+      await activate(await client(certifier: certifier));
+      certifier.forgetAcceptance(); // certified by a build before ADR 24b §2
+
+      clock.advance(const Duration(minutes: 20));
+      t.on('/refresh', ScriptedTransport.ok(sessionBody('acc-2', 'ref-2')));
+      final second = await client(certifier: certifier);
+      await second.restore();
+      expect(await second.reofferUmkPublic(), UmkReoffer.accepted);
+      expect(certifier.accepted, hasLength(1));
+      final (_, x) = halves(t.last('/devices/certify'));
+      expect(certifier.accepted.single.umkPubX, x);
+      final posts = t.count('/devices/certify');
+
+      t.on('/refresh', ScriptedTransport.ok(sessionBody('acc-3', 'ref-3')));
+      final third = await client(certifier: certifier);
+      await third.restore();
+      expect(await third.reofferUmkPublic(), UmkReoffer.skipped);
+      expect(t.count('/devices/certify'), posts);
+    });
+
+    test('F1-24b-2 a refused or unheard re-offer records nothing, so the next launch tries again', () async {
+      for (final answer in [
+        ScriptedTransport.ok({'error': 'cert_invalid'}, 400),
+        const AuthHttpResponse(500, ''),
+        null,
+      ]) {
+        t = ScriptedTransport();
+        keys = FakeKeyStore();
+        await seedLedgerIdentity(keys);
+        log = [];
+        scriptHappyPath();
+        t.on(
+          '/devices/certify',
+          ScriptedTransport.ok({'device_id': deviceId, 'status': 'certified'}),
+        );
+        final certifier = FakeCertifier(await liveSuite());
+        final c = await client(certifier: certifier);
+        await activate(c);
+        certifier.forgetAcceptance(); // certified by a build before ADR 24b §2
+
+        t.script['/devices/certify'] = [?answer];
+        if (answer == null) t.offline = true;
+        expect(await c.reofferUmkPublic(), isNot(UmkReoffer.accepted));
+        expect(certifier.accepted, isEmpty, reason: '$answer');
+        t.offline = false;
+
+        t.script['/devices/certify'] = [
+          ScriptedTransport.ok({'device_id': deviceId, 'status': 'certified'}),
+        ];
+        t.on('/refresh', ScriptedTransport.ok(sessionBody('acc-2', 'ref-2')));
+        final next = await client(certifier: certifier);
+        await next.restore();
+        final before = t.count('/devices/certify');
+        expect(await next.reofferUmkPublic(), UmkReoffer.accepted);
+        expect(t.count('/devices/certify'), before + 1);
+      }
+    });
+
+    test('F1-24b-2 an activation the server certified carried both halves, so it is recorded too: a device activated on this build never re-offers', () async {
+      scriptHappyPath();
+      t.on(
+        '/devices/certify',
+        ScriptedTransport.ok({'device_id': deviceId, 'status': 'certified'}),
+      );
+      final certifier = FakeCertifier(await liveSuite());
+      await activate(await client(certifier: certifier));
+      expect(certifier.accepted, hasLength(1));
+      final (_, x) = halves(t.last('/devices/certify'));
+      expect(certifier.accepted.single.umkPubX, x);
+      final posts = t.count('/devices/certify');
+
+      clock.advance(const Duration(minutes: 20));
+      t.on('/refresh', ScriptedTransport.ok(sessionBody('acc-2', 'ref-2')));
+      final later = await client(certifier: certifier);
+      await later.restore();
+      expect(await later.reofferUmkPublic(), UmkReoffer.skipped);
+      expect(t.count('/devices/certify'), posts);
+    });
+
+    test('F1-24b-2 a refused activation records nothing', () async {
+      scriptHappyPath();
+      t.on(
+        '/devices/certify',
+        ScriptedTransport.ok({'error': 'cert_invalid'}, 400),
+      );
+      final certifier = FakeCertifier(await liveSuite());
+      await activate(await client(certifier: certifier));
+      expect(certifier.ownDeviceCert, isNull);
+      expect(certifier.accepted, isEmpty);
     });
 
     test('F1-24b-2 nothing to re-offer posts nothing: signed out, no ledger bound, a closed ledger, and a device that holds no certificate yet (its activation carries both halves)', () async {
