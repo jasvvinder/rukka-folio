@@ -148,6 +148,7 @@ Roles (admin · head · member · operator · viewer) change *what actions appea
 | **S8.1** | Reports list | S8 | day book, cash book, P&L, position, ageing, reconciliation |
 | **S8.2** | Report viewer + export | S8.1 | PDF/CSV/XLSX all generating (ADR 2026-09-12 §1, 12e §1); Download/Share defaults to PDF, sheet always reachable (ADR 2026-09-12d §2), FY switcher ⟦tests: F1-07-79⟧ |
 | **S8.3** | Family reconciliation (design D5) | S8.1 | non-zero inter-book pairs with their composing entries; normally a single green ✓ (07 §10) |
+| **S8.4** | PDF preview & options (Canvas 17) | S4 · S8.2 export | the real page at 40 %, then an options sheet: language, period, page size stated not chosen; share opens the system sheet; unreachable while an entry in the report awaits approval (ADR 2026-09-27 §1, §5) |
 | **S9** | Books & members | S8 | roles, limits, verification log |
 | **S9.5** | Add a business | S9/Menu | name · type (just me / shared) · FY start · opening balances — creates the book (02 §7.1) |
 | **S1.2** | Scope switcher — two books | S1 | the small control when only Me + one business exist; **not** the grouped joint-family sheet (S1.3) |
@@ -164,7 +165,7 @@ Roles (admin · head · member · operator · viewer) change *what actions appea
 | **S10.2** | Month summary card | S10 | shareable close reward |
 | **S10.3** | Late arrivals tray | S6 | re-date or re-open |
 | **S10.4** | Year close + carry-forward | S8 | certify, FY switcher appears; *unverified-by-you* variant "Update the app to verify this close" when this device's projector is older (ADR 2026-09-05c §3) |
-| **S10.5** | Close blocked — waiting on a device | S10 | names the phone whose entries have not arrived (author gap) or the held envelope; lock disabled until it closes (ADR 2026-09-05b §3–4, ADR 2026-09-05f §B) |
+| **S10.5** | Close blocked — waiting on a device | S10 | names the phone whose entries have not arrived (author gap) or the held envelope; lock disabled until it closes (ADR 2026-09-05b §3–4, ADR 2026-09-05f §B). **Also lists every writing phone as ✓ all in / ⏳ last heard from, with Nudge; the lock waits for all ✓ or a logged Close anyway, which never bypasses a gap or held envelope (ADR 2026-09-27b §1–§2)** |
 | **S11.4** | Backup settings | S11 | platform key sync toggle · save recovery sheet · readable monthly copy, each with its risk line (04 §7.6) |
 | **S11** | Devices & security | S8 | devices, guardians, recovery sheet, escrow, PIN |
 | **S11.1** | Guardian setup (mutual ceremony) | S11 | 2-of-3 |

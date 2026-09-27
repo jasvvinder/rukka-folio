@@ -19,9 +19,14 @@ changed files/screens/strings; the on-disk mirror itself is the diff baseline.
   `.dc.html` files are *generated* from these; never pull the generated canvases)
 - `i18n-*.json` — master and per-canvas ਪੰਜਾਬੀ/हिन्दी dictionaries
 - `DUPLICATES.md` · `TRANSLATION-PENDING.md` · `FLOW-RESTRUCTURE-REPORT.md`
+- **Canvas 17 (owner, 27 Sep 2026):** `Canvas 17 - Reports and statements.dc.html` · `reports-data.js` ·
+  `Report Page.dc.html`. Canvas 17 has no partials: it is data-driven, so these three files *are* its source,
+  and they are the one exception to the `*.dc.html` rule below. If `reports-data.js` ever exceeds 256 KiB,
+  ask the app's agent to split it, as was done for canvas 1.
 
 **Never pull:** `uploads/` (copies of repo docs — the repo is the source of truth),
-`screenshots/`, `_ds/`, `*.dc.html`, `doc-page.js`, `support.js`, `.thumbnail`.
+`screenshots/`, `_ds/`, `*.dc.html` (except Canvas 17's two above), `doc-page.js`, `support.js`, `.thumbnail`,
+and the marketing pages (`Landing Page`, `Coming Soon*`). Those are the website's, not the app's (brand 11).
 
 ## Procedure
 
@@ -84,6 +89,7 @@ path — writing `canvas5.dc.html` creates a *duplicate* canvas in the app (happ
 | 14 | `Canvas 14 - Journey trust.dc.html` |
 | 15 | `Canvas 15 - Menu and reports.dc.html` |
 | 16 | `Canvas 16 - Reading by entity.dc.html` |
+| 17 | `Canvas 17 - Reports and statements.dc.html` |
 
 (plus `Core Patterns.dc.html`, not canvas-numbered). Canvas 7's *title* became "Reading the books" on 3 Sep 2026 when its Menu/report and per-entity rows split off into 15 and 16; its project path keeps the old name until the owner renames it. If unsure, `list_files` first and
 match the existing name; a canvas rename is the owner's call only.

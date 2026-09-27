@@ -29,6 +29,9 @@ MIRROR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))
 def in_mirror_set(p):
     if p in ("DUPLICATES.md", "TRANSLATION-PENDING.md", "FLOW-RESTRUCTURE-REPORT.md"):
         return True
+    # Canvas 17 has no partials; these three files are its source (owner, 27 Sep 2026).
+    if p in ("Canvas 17 - Reports and statements.dc.html", "reports-data.js", "Report Page.dc.html"):
+        return True
     return p.startswith("partials/") or (p.startswith("i18n-") and p.endswith(".json"))
 
 envelopes, truncated = {}, set()

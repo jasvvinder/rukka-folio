@@ -249,6 +249,8 @@ One flow: From (book + money A/C) → To (book + money A/C) → amount → save.
 
 ## 13. Month close, Late Arrivals, Year close 🔒 ⟦tests: F1-07-27, F1-07-129, F1-07-130, F1-07-131, F1-07-132, F1-07-133, F1-07-134, F1-07-135, F1-07-136, F1-07-137, F1-07-138, F1-07-139, F1-07-180, F1-07-181, F1-07-182, F1-07-183, F1-07-184, F1-07-185, F1-07-186, F1-07-187, F1-07-188, F1-07-189, F1-07-190, F1-07-191, F1-07-192, F1-07-193, F1-07-194, F1-07-195, F1-07-196, F1-07-197, F1-07-198, F1-07-199, F1-07-140, F1-07-141, F1-07-142, F1-07-143, F1-07-144, F1-07-145, F1-07-146, F1-07-147, F1-07-148, F1-07-149, F1-07-220, F1-07-221, F1-07-222, F1-07-223, F1-07-224, F1-07-225, F1-07-226, F1-07-227, F1-07-228, F1-07-229, F1-07-260, F1-07-261, F1-07-262, F1-07-263, F1-07-264⟧
 
+> **ADR 2026-09-27b §2–§3** — S10.5 lists every writing phone as ✓ all in or ⏳ last heard from, with **Nudge**. The lock waits for all ✓ or a logged **Close anyway**. A late arrival still in the tray blocks exports of its period. ⟦tests: F1-27b-1 @M12, F1-27b-2 @M12, F1-27b-3 @M12, F1-27b-4 @M12, F1-27b-5 @M12⟧
+
 - **Close card** appears on Home from the 1st for each book the user closes: `Close August ▸ 4 steps`.
 - **Resumable 🔒:** progress saves at every step; leaving and returning resumes where the user stopped. A shopkeeper will not finish this in one sitting.
 - **Blocking vs warning 🔒 — stated plainly on the tray step:** unexplained bank lines (Suspense) and unposted pending items and **open review flags** **block** the lock (02 §8 step 3), as do an open author-sequence gap or a `held` envelope (ADR 2026-09-05e §4); aged advances and unverified cash counts **warn** but do not. The screen says which is which rather than presenting one undifferentiated list. A gap shows as **S10.5 Close blocked — waiting on a device**, naming the phone whose entries have not arrived (ADR 2026-09-05f §B).
@@ -266,6 +268,7 @@ One flow: From (book + money A/C) → To (book + money A/C) → amount → save.
 > **ADR 2026-09-12 §1** — S8.2's export sheet offers exactly **PDF, CSV and XLSX**; View report opens in-app. ⟦tests: F1-07-79⟧
 > **ADR 2026-09-12e §1–§2** — XLSX is generated in-house over `archive` + `xml` (no package: the free writers need archive 3.x, sodium needs 4.x), so all three formats work; and View · Download/Share · Export is the same trio on the statement (S4) and the report viewer. ⟦tests: F1-07-79⟧
 > **ADR 2026-09-12d §2–§3** — Download/Share defaults to **PDF** again and the PDF row generates: the workspace pins `archive` into `pdf`'s window rather than downgrading sodium, so `constantTimeEquals` stays libsodium-backed. The format sheet stays reachable from the viewer (ADR 2026-09-12c §1, the half that survives); XLSX remains disabled-with-reason. ⟦tests: F1-07-79⟧
+> **ADR 2026-09-27 §1–§3, §5** — a report or statement (PDF, CSV, XLSX, print) is generated only when no entry in its own books and period awaits approval (open review flag or in-transit half). Otherwise the export row is disabled-with-reason, with a door to the Inbox. Live balances are unchanged (02 §3). *Export everything* is exempt (08 §4). The PDF preview and options screen is **S8.4**. ⟦tests: F1-27-1 @M12, F1-27-2 @M12, F1-27-3 @M12, F1-27-4 @M12, F1-27-5 @M12, F1-27-6 @M12⟧
 
 Menu → Reports, per scope, each with FY + date-range control and share/export (PDF, CSV & XLSX — ADR 2026-09-12 §1; on-device generation; b/d–c/d rows on ledgers; amount-in-words; A4 print-clean):
 
@@ -287,6 +290,7 @@ Language (per member) · **Appearance** (system · light · dark — ADR 2026-09
 
 ## 17. Notification catalog 🔒 (all content-free per 04 §4) ⟦tests: F1-07-30 @M7⟧
 Review requested — **digest per author+book**: the first flag notifies, later flags fold into the same notification, never N pings 🔒 · review decided · advance reminder (holder, then approver) · verification needed/completed · recovery requested (guardian) — **loud** · **recovery in progress on your account — loud, with Cancel** (S11.9, ADR 2026-09-05d §1) · **support action pending — loud, with Cancel** (S11.10, ADR 2026-09-05d §3) · **new certified device on your account, every path incl. platform key sync — loud** (ADR 2026-09-05d §6; corrected from "uncertified", ADR 2026-09-05f §B) · book full · write lost · close blocked (waiting on a device) · close reminders (1st) · late arrival waiting · import lines waiting · escrow release countdown — **daily, loud**. Each deep-links to its Inbox card per the destination map in 13 §3.4 (ADR 2026-09-05f §E). Per-type mute except the security ones (recovery, support action, new device). The modified-device notice (S19.5) is local, never a push. A blocked screenshot shows the one-line consequence with Share as PDF / Help (ADR 2026-09-05f §G).
+> **ADR 2026-09-27b §2** — adds **finish syncing** (content-free, *"Open Rukka Folio to finish syncing"*), sent only when a closer taps Nudge on S10.5. ⟦tests: F1-27b-2 @M12⟧
 
 ---
 

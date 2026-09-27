@@ -12,6 +12,105 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-27 — design-sync: Canvas 17 pulled; report exports wait for approval; month close waits for every phone
+
+A `/design-pull` with no lanes. Of the mirrored screen sources, only one file differed, and the remote copy was
+older than ours. The new **Canvas 17 · Reports and statements** is the owner's A4 print design for every
+export. It raised three conflicts, and the owner ruled on all three the same day.
+
+**Added**
+
+- `docs/decisions/2026-09-27-report-export-waits-for-approval.md`.
+- `.claude/commands/design-pull.md` and `scripts/design_mirror_extract.py`: Canvas 17's three files join the
+  mirror set. The canvas has no partials; `reports-data.js` and the two `.dc.html` files are its source. The
+  marketing pages are named as never pulled.
+
+**Changed**
+
+- 07 §14 and 13 §3.2: cross-references to the ADR. 13 gains the **S8.4** row.
+- **Design project (pushed):** Canvas 17 brought in line with the ADR (6a withdrawn, pending option removed,
+  S8.3 → S8.4, 5a next phase). The master map's Canvas 17 card was relabelled to match, with its links moved to
+  `#s8-4`. The S0.6b footer fix owed since 10 Sep reached `new-screens-d.json`, canvas 1's partials and a rebuilt
+  Canvas 1. See `design/canvas-mirror/CHANGES.md`.
+
+**Decided**
+
+- `2026-09-27-report-export-waits-for-approval.md`: 🔒 a report or statement (PDF, CSV, XLSX, print) is
+  generated only when no entry in its own books and period awaits approval (open review flag, or an in-transit
+  half). Otherwise the export row is disabled-with-reason, with an Inbox door. Live balances are unchanged
+  (02 §3). *Export everything* is exempt (08 §4). Canvas 17's *Show, not counted* option and edge case 6a are
+  withdrawn, and receipt 5a stays in the next phase. The PDF preview and options screen is **S8.4**; S8.3
+  stays Family reconciliation.
+- `2026-09-27b-month-close-waits-for-every-phone.md`: 🔒 each writing phone reports *clear* for a period on its
+  own (an unbroken run of envelopes ending in one dated after the period, or a new non-financial `sync_mark`).
+  The month lock waits until every writing phone is clear; S10.5 lists each phone with **Nudge**. A logged
+  **Close anyway** records `unconfirmed_devices` and never bypasses a gap or a `held` envelope. An unresolved
+  late arrival blocks exports of its period. Cross-references at 02 §8, 03 registry, 05 §7, 07 §13/§17 and
+  13 S10.5.
+
+**Open**
+
+- ⚠️ ADR 2026-09-27 Open: the on-screen S4/S8.2 are read as not gated. Owner to confirm.
+- ⚠️ ADR 2026-09-27b Open: is *Close anyway* available at once, or only after a wait? (Written as at once.)
+- Build ADR 2026-09-27b: core_ledger clearance + lock precondition, `sync_mark` in `payload_codec`, sync_engine
+  emission, server migration + registry + nudge route, S10/S10.5 UI, and the export gate for late arrivals
+  (`A-27b-1…3`, `D-27b-1…2`, `E-27b-1`, `F1-27b-1…5`). Existing multi-device close tests were not checked
+  against the new precondition.
+- Build the export gate and S8.4 at the M12 reports lane (`F1-27-1…6`).
+
+**Commits**
+
+- _(owner to fill)_
+
+---
+
+## 2026-09-25 — docs: lead-times audit (Supabase on Free, API origin, domain)
+
+An ops session with no lanes. `/cycle` did not start, because today's ceiling was 80 % spent. The owner set
+up hosting under a very low monthly budget: the registrar is Cloudflare, and Supabase runs on Free.
+
+**Changed**
+
+- `docs/ops/lead-times.md` §1 now describes two projects and says why: dev builds are unpinned, the keys
+  differ, migrations are one-way, the backup 🔒 applies only to real data, and the restore drill needs a
+  second project. Dev runs on **Free**. The steps point to `server/README.md` §3–§5 instead of repeating
+  them. The anon-key hand-back is dropped, because nothing in `app/lib` sends the anon key.
+- `lead-times.md` §3: removed the false *fixed test codes* claim (see Open). §9: the WhatsApp number
+  became an SMS number (ADR 2026-09-25 §1–§2). The local-machine line was re-checked (Xcode 27.0,
+  supabase 2.116.0, neither CLI logged in).
+- `PLAN.md` §4: the Supabase and OTP rows changed, and rows for the API origin and for domain and mail
+  were added. PLAN M6 gains **OTP2** (fixed dev codes) and **OTP3** (2Factor adapter).
+- `lead-times.md` §3 step 4: the one OTP template (150 characters, GSM-7, one SMS segment) and sender
+  ID `RUKKAF` (fallback `RUKKFO`). *Even Rukka Folio staff* rests on 06 §8.
+
+**Added**
+
+- `lead-times.md` §10: the `api.rukkafolio.com` origin (ADR 2026-09-15), on Lightsail Mumbai at
+  $5/mo with IPv4 (pricing fetched 25 Sep). §11: domain, DNS and support mail. `rukkafolio.com` is at
+  Cloudflare, `api.` is grey-cloud, and `support@` uses Email Routing.
+
+**Open**
+
+- ⬜ **No one can sign in to a hosted project yet.** ADR 2026-09-25 §1 rules that dev uses fixed
+  test codes, and none are built. `FakeOtpProvider` sends nothing (`_shared/otp/provider.ts:10-20`),
+  the code is random (`auth-challenge/index.ts:119,448`), and only its hash is stored. This needs a
+  `lane-server` row (`E-25-1`, `C-25-1`) with review, and the fixed code must be impossible on the pilot.
+- ⬜ **The OTP provider is 2Factor** (owner, 25 Sep). The server has only `Msg91Provider`, so a 2Factor
+  adapter is a `lane-server` row. The template is recorded in `lead-times.md` §3 step 4.
+- ⛔ **Pilot plan:** Free has no backups and no PITR, which the 🔒 in 03 §Residency requires. The owner
+  chooses between Pro with PITR (about $125/mo) and an ADR that amends 05c §1. Even Pro keeps daily
+  backups for only 7 days against the 35 days the 🔒 asks for, and ADR 05c Open 1 was never checked
+  against a plan.
+- `server/README.md` §5 still describes intermediate-CA pinning, which ADR 2026-09-15 replaced. Its
+  README still says a deploy with a fake OTP provider is refused, and no such guard exists
+  (`deps.ts:26`). Its migration list stops at 0005. Fold these into the next server slice.
+- `lead-times.md` §2 and §5 still carry their past target dates (14 Sep, week of 21 Sep). Their status
+  was not checked.
+
+**Commits**
+
+- _(owner to fill)_
+
 ## 2026-09-25 — docs: desk cleared (PLAN-2, 32, 34), ADR 2026-09-25b, weekly quota set
 
 A desk session with no lanes and no gate. The owner ruled all three open desk items from

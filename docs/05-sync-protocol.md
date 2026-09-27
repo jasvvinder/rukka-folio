@@ -89,6 +89,8 @@ Separate channel from envelopes, `GET /sync/meta?after=cursor` (cursor = `update
 
 Content-free FCM (*"book X has news"*) → pull that book; foreground pull on app open and scope switch; backstop poll every 6 h on unmetered networks. FCM is a hint, never a dependency — correctness comes from cursors alone.
 
+> **ADR 2026-09-27b §1–§2** — after a drained push, a device that has written nothing in a book since the last period ended emits one `sync_mark` for it. S10.5's **Nudge** sends a content-free push to a named phone, prompting pull and push. ⟦tests: D-27b-1 @M12, D-27b-2 @M12, F1-27b-2 @M12⟧
+
 ## 8. Bootstrap (fresh install / post-recovery) 🔒 ⟦tests: D-05-11⟧
 
 Also the path for **local corruption** (ADR 2026-09-05c §6): a book whose mirror fails `blob_hash` on open is re-bootstrapped here, with the determinate loader; verify `blob_hash` on every pulled envelope before storing.
