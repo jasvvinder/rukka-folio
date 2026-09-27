@@ -1,6 +1,6 @@
 # ADR 2026-09-27b — a month closes only when every writing phone has reported in
 
-**Status:** accepted (owner-ruled, 27 Sep 2026)
+**Status:** accepted (owner-ruled, 27 Sep 2026; §2 tightened the same day: *"close only once confirmed every one has closed"*, so there is no Close anyway)
 **Amends:** 02 §8 step 3 (close preconditions) · 03 `object_type` registry (adds `sync_mark`) · 05 §7 (a nudge)
 · 07 §13 and §17 · 13 S10.5 · ADR 2026-09-27 §1 (late arrivals now block exports). **Extends, does not replace:**
 ADR 2026-09-05b §3 and ADR 2026-09-05e §4. A gap or a `held` envelope still blocks the lock outright.
@@ -14,8 +14,8 @@ on 2 Sep as a late arrival (02 §8). It counts live but not in the certified mon
 disagrees with the August close. On 27 Sep 2026 the owner asked that a month not close until every
 collaborator's entries are in. Two alternatives were weighed: showing the closer each phone's last sync, which
 cannot tell whether entries are pending, and a manual close by every collaborator, which is a monthly chore and
-blocks forever on an absent phone. The owner ruled for automatic per-phone reports, a lock that waits for them
-with a logged override, and exports held back while a late arrival is unresolved.
+blocks forever on an absent phone. The owner ruled for automatic per-phone reports and a lock that waits for all of them,
+with no override. Exports are held back while a late arrival is unresolved.
 
 ## Rulings 🔒 ⟦tests: n/a — container heading; each ruling below carries its own marker⟧
 
@@ -32,18 +32,18 @@ with a logged override, and exports held back while a late arrival is unresolved
   role in the book can write (Admin, Head, Member, Operator). Viewers, removed members, revoked phones and members
   not yet verified in person are not listed, because none of them can write to the book.
 
-### 2. The lock waits for every writing phone, with a logged *Close anyway* ⟦tests: A-27b-2 @M12, A-27b-3 @M12, F1-27b-1 @M12, F1-27b-2 @M12, F1-27b-3 @M12⟧
-- **New precondition in 02 §8 step 3.** P cannot lock until every device listed under §1 is clear for P.
+### 2. The lock waits for every writing phone, with no override ⟦tests: A-27b-2 @M12, A-27b-3 @M12, F1-27b-1 @M12, F1-27b-2 @M12, F1-27b-3 @M12⟧
+- **New precondition in 02 §8 step 3.** P cannot lock until every device listed under §1 is clear for P. There
+  is **no Close anyway**, and no role, including Admin, can lock past an unconfirmed phone.
 - **S10.5 lists each writing phone:** ✓ *Sunita's phone — all in*, or ⏳ *Ramesh's phone — last heard from
   29 Aug*. Each ⏳ row has **Nudge**, which sends that phone a content-free push (04 §4 generic text: *"Open Rukka
   Folio to finish syncing"*) that prompts a pull and a push (05 §7). A push is a hint and never a dependency.
-- **Close anyway** stays available, so a phone that never returns cannot hold the book hostage. The closer
-  confirms a sheet that names each unconfirmed phone and when it was last heard from, and says *"Entries from these
-  phones may arrive after closing."* The lock envelope records **`unconfirmed_devices`**, so every reader and the
-  S10 history show *"Closed with Ramesh's phone unconfirmed"*. Anything arriving later takes the existing
-  Late arrivals path (02 §8).
-- **Close anyway never bypasses a gap or a `held` envelope** (ADR 2026-09-05e §4). Those are entries known to
-  be missing, and they still block the lock outright.
+- **A phone that will never report back** (lost, broken, a member who has left) is resolved through membership,
+  never through the close. The admin **revokes the device** (06 §6, *"This phone was stolen"*) or removes the
+  member. Once revoked, the phone is no longer listed under §1, and the lock can proceed. S10.5 offers that
+  route on every ⏳ row, after Nudge, so the screen is never a dead end (07 §1). Its consequence is stated before
+  confirming: *"Entries still on this phone will never reach the book."*
+- A gap or a `held` envelope still blocks the lock outright (ADR 2026-09-05e §4).
 - The year close inherits this through its precondition that every month is locked (02 §8.1). No separate rule.
 
 ### 3. An unresolved late arrival blocks exports of its period ⟦tests: F1-27b-4 @M12, F1-27b-5 @M12⟧
@@ -61,7 +61,7 @@ with a logged override, and exports held back while a late arrival is unresolved
   - `packages/sync_engine`: emits `sync_mark` after a drained push, and on the first sync of a new period.
   - `server/supabase`: a migration extends the `object_type` check (`0003_envelope_store.sql:21`), plus
     `_shared/registry.ts` and a rate-limited, membership-checked nudge route.
-  - `app`: S10/S10.5 phone list, the Close-anyway sheet, `unconfirmed_devices` in history, and the ADR 2026-09-27
+  - `app`: S10/S10.5 phone list with Nudge and the revoke route, and the ADR 2026-09-27
     export gate extended to late arrivals.
 - **Tests:** not checked here. Any green test that locks a month while another writing device has sent nothing
   dated after the month ended will fail under §2. The lane owning it adds a `sync_mark` to the fixture, or marks
@@ -70,8 +70,6 @@ with a logged override, and exports held back while a late arrival is unresolved
 - **Milestone:** PLAN places it. It spans lane-sync, lane-server (both xhigh), core_ledger and lane-ui.
 
 ## Open ⚠️
-- **Close anyway timing:** is it available at once, or only after a wait such as 3 days past month end? Written
-  here as available at once. Owner to confirm.
 - **"The first day after P"** uses each device's HLC, which the clock clamp bounds (05 §1). A phone whose clock
-  runs days slow could look clear late or never. This is accepted as a Nudge / Close-anyway case, not a new
-  mechanism.
+  runs days slow could look clear late or never. It is handled like any unconfirmed phone: Nudge, and fix the clock, or revoke
+  it. No new mechanism.

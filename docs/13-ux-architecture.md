@@ -165,7 +165,7 @@ Roles (admin · head · member · operator · viewer) change *what actions appea
 | **S10.2** | Month summary card | S10 | shareable close reward |
 | **S10.3** | Late arrivals tray | S6 | re-date or re-open |
 | **S10.4** | Year close + carry-forward | S8 | certify, FY switcher appears; *unverified-by-you* variant "Update the app to verify this close" when this device's projector is older (ADR 2026-09-05c §3) |
-| **S10.5** | Close blocked — waiting on a device | S10 | names the phone whose entries have not arrived (author gap) or the held envelope; lock disabled until it closes (ADR 2026-09-05b §3–4, ADR 2026-09-05f §B). **Also lists every writing phone as ✓ all in / ⏳ last heard from, with Nudge; the lock waits for all ✓ or a logged Close anyway, which never bypasses a gap or held envelope (ADR 2026-09-27b §1–§2)** |
+| **S10.5** | Close blocked — waiting on a device | S10 | names the phone whose entries have not arrived (author gap) or the held envelope; lock disabled until it closes (ADR 2026-09-05b §3–4, ADR 2026-09-05f §B). **Also lists every writing phone as ✓ all in / ⏳ last heard from, with Nudge; the lock waits for all ✓ with no override; a phone that will never return is revoked from its row (06 §6) (ADR 2026-09-27b §1–§2)** |
 | **S11.4** | Backup settings | S11 | platform key sync toggle · save recovery sheet · readable monthly copy, each with its risk line (04 §7.6) |
 | **S11** | Devices & security | S8 | devices, guardians, recovery sheet, escrow, PIN |
 | **S11.1** | Guardian setup (mutual ceremony) | S11 | 2-of-3 |

@@ -249,7 +249,7 @@ One flow: From (book + money A/C) → To (book + money A/C) → amount → save.
 
 ## 13. Month close, Late Arrivals, Year close 🔒 ⟦tests: F1-07-27, F1-07-129, F1-07-130, F1-07-131, F1-07-132, F1-07-133, F1-07-134, F1-07-135, F1-07-136, F1-07-137, F1-07-138, F1-07-139, F1-07-180, F1-07-181, F1-07-182, F1-07-183, F1-07-184, F1-07-185, F1-07-186, F1-07-187, F1-07-188, F1-07-189, F1-07-190, F1-07-191, F1-07-192, F1-07-193, F1-07-194, F1-07-195, F1-07-196, F1-07-197, F1-07-198, F1-07-199, F1-07-140, F1-07-141, F1-07-142, F1-07-143, F1-07-144, F1-07-145, F1-07-146, F1-07-147, F1-07-148, F1-07-149, F1-07-220, F1-07-221, F1-07-222, F1-07-223, F1-07-224, F1-07-225, F1-07-226, F1-07-227, F1-07-228, F1-07-229, F1-07-260, F1-07-261, F1-07-262, F1-07-263, F1-07-264⟧
 
-> **ADR 2026-09-27b §2–§3** — S10.5 lists every writing phone as ✓ all in or ⏳ last heard from, with **Nudge**. The lock waits for all ✓ or a logged **Close anyway**. A late arrival still in the tray blocks exports of its period. ⟦tests: F1-27b-1 @M12, F1-27b-2 @M12, F1-27b-3 @M12, F1-27b-4 @M12, F1-27b-5 @M12⟧
+> **ADR 2026-09-27b §2–§3** — S10.5 lists every writing phone as ✓ all in or ⏳ last heard from, with **Nudge**. The lock waits for all ✓, with no override. A phone that will never return is revoked from the ⏳ row, and its consequence is stated first. A late arrival still in the tray blocks exports of its period. ⟦tests: F1-27b-1 @M12, F1-27b-2 @M12, F1-27b-3 @M12, F1-27b-4 @M12, F1-27b-5 @M12⟧
 
 - **Close card** appears on Home from the 1st for each book the user closes: `Close August ▸ 4 steps`.
 - **Resumable 🔒:** progress saves at every step; leaving and returning resumes where the user stopped. A shopkeeper will not finish this in one sitting.

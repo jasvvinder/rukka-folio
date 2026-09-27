@@ -32,6 +32,9 @@ export. It raised three conflicts, and the owner ruled on all three the same day
   S8.3 → S8.4, 5a next phase). The master map's Canvas 17 card was relabelled to match, with its links moved to
   `#s8-4`. The S0.6b footer fix owed since 10 Sep reached `new-screens-d.json`, canvas 1's partials and a rebuilt
   Canvas 1. See `design/canvas-mirror/CHANGES.md`.
+- **Design project (pushed, owner-reviewed):** Canvas 5 close screens follow ADR 2026-09-27b. Step 3 gains the
+  phone row, and a new S10.5 pair covers *waiting for every phone* and the *revoke sheet*. Step 4 says *All 3 phones
+  are in*, and S10.3 shows one late arrival and the export note. +22 PA/HI machine-draft keys.
 
 **Decided**
 
@@ -43,17 +46,17 @@ export. It raised three conflicts, and the owner ruled on all three the same day
   stays Family reconciliation.
 - `2026-09-27b-month-close-waits-for-every-phone.md`: 🔒 each writing phone reports *clear* for a period on its
   own (an unbroken run of envelopes ending in one dated after the period, or a new non-financial `sync_mark`).
-  The month lock waits until every writing phone is clear; S10.5 lists each phone with **Nudge**. A logged
-  **Close anyway** records `unconfirmed_devices` and never bypasses a gap or a `held` envelope. An unresolved
+  The month lock waits until every writing phone is clear, with **no override** (owner, same day); S10.5 lists
+  each phone with **Nudge**. A phone that will never return is revoked (06 §6), which unlists it. An unresolved
   late arrival blocks exports of its period. Cross-references at 02 §8, 03 registry, 05 §7, 07 §13/§17 and
   13 S10.5.
 
 **Open**
 
 - ⚠️ ADR 2026-09-27 Open: the on-screen S4/S8.2 are read as not gated. Owner to confirm.
-- ⚠️ ADR 2026-09-27b Open: is *Close anyway* available at once, or only after a wait? (Written as at once.)
+- Canvas 5 arrow labels read one screen late (pre-existing; found on the 27 Sep push). The fix is the owner's call.
 - Build ADR 2026-09-27b: core_ledger clearance + lock precondition, `sync_mark` in `payload_codec`, sync_engine
-  emission, server migration + registry + nudge route, S10/S10.5 UI, and the export gate for late arrivals
+  emission, server migration + registry + nudge route, S10/S10.5 UI (phone list, Nudge, revoke route), and the export gate for late arrivals
   (`A-27b-1…3`, `D-27b-1…2`, `E-27b-1`, `F1-27b-1…5`). Existing multi-device close tests were not checked
   against the new precondition.
 - Build the export gate and S8.4 at the M12 reports lane (`F1-27-1…6`).
