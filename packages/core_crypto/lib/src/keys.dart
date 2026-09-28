@@ -322,39 +322,95 @@ final class DeviceKeyPair {
 /// guardians' re-sealed shares come back sealed to it and are opened here.
 /// Lives only on the fresh device for the life of one attempt; [dispose] when
 /// the UMK is reconstructed or the attempt closes.
+///
+/// **Its own pair, one per attempt** (ADR 2026-09-24b §1 🔒): never the
+/// device's `pub_x`, never a recipient of a book key (the wrapping functions
+/// take a [VerifiedUmkPublic], which this is not and cannot become), and
+/// never registered as a device key. The one function that takes it is
+/// `openResealedShare` (04 §7.3 step 4). Between launches the device holds it
+/// in the platform key store as the 32 bytes [exportSecretBytes] returns and
+/// rebuilds it with [RecoveryCandidateKeyPair.fromSecretBytes]; the app
+/// deletes that item after `reconstructVerified` and on every close.
 final class RecoveryCandidateKeyPair {
-  RecoveryCandidateKeyPair._(this.x25519, this._pair);
+  RecoveryCandidateKeyPair._(this.x25519, this._seed, this._pair);
 
-  /// Generates a fresh candidate pair from the suite's random source.
+  /// Length of the secret [exportSecretBytes] returns: the X25519 seed
+  /// `crypto_box_seed_keypair` derives the pair from.
+  static const int secretBytes = 32;
+
+  /// Generates a fresh candidate pair from the suite's random source. The
+  /// seed is drawn into a buffer that is zeroised before this returns; the
+  /// only copy left is the pair's own, in guarded memory.
   factory RecoveryCandidateKeyPair.generate(CryptoSuite suite) {
+    final seed = suite.randomBytes(secretBytes);
+    try {
+      return RecoveryCandidateKeyPair.fromSecretBytes(suite, seed);
+    } finally {
+      suite.zeroize(seed);
+    }
+  }
+
+  /// Rebuilds the pair from its 32 secret bytes — what [exportSecretBytes]
+  /// returned when the attempt was opened and the key store has held since.
+  /// The rebuilt pair is the same key: same [x25519], and it opens what was
+  /// sealed to the minted one. [secret] is copied into guarded memory; the
+  /// caller zeroises its own buffer. Any other length is refused
+  /// ([ArgumentError]) rather than padded or truncated into a key.
+  factory RecoveryCandidateKeyPair.fromSecretBytes(
+    CryptoSuite suite,
+    Uint8List secret,
+  ) {
+    if (secret.length != secretBytes) {
+      throw ArgumentError.value(
+        secret.length,
+        'secret',
+        'recovery candidate secret is $secretBytes bytes',
+      );
+    }
     final s = suite.sodium;
-    final seed = suite.randomSecureKey(s.crypto.box.seedBytes);
+    final seed = s.secureCopy(secret);
     try {
       final pair = s.crypto.box.seedKeyPair(seed);
       return RecoveryCandidateKeyPair._(
         Uint8List.fromList(pair.publicKey),
+        seed,
         pair,
       );
-    } finally {
+    } on Object {
       seed.dispose();
+      rethrow;
     }
   }
 
   /// The candidate X25519 public key — `candidate_pub_x`.
   final Uint8List x25519;
 
+  final SecureKey _seed;
   final KeyPair _pair;
   bool _disposed = false;
 
-  /// True once [dispose] ran; the secret accessor then throws [StateError].
+  /// True once [dispose] ran; the secret accessors then throw [StateError].
   bool get isDisposed => _disposed;
 
-  /// X25519 secret key (opens the re-sealed shares).
-  SecureKey get x25519Secret {
+  void _live() {
     if (_disposed) {
       throw StateError('RecoveryCandidateKeyPair used after dispose()');
     }
+  }
+
+  /// X25519 secret key (opens the re-sealed shares).
+  SecureKey get x25519Secret {
+    _live();
     return _pair.secretKey;
+  }
+
+  /// Copies the 32 secret bytes out, for the platform key store only. The
+  /// returned buffer is a fresh copy and the caller's to zeroise.
+  Uint8List exportSecretBytes() {
+    _live();
+    final out = Uint8List(secretBytes);
+    _seed.runUnlockedSync((b) => out.setRange(0, secretBytes, b));
+    return out;
   }
 
   /// What the fresh device's *Show my code* renders for a guardian to scan
@@ -368,10 +424,11 @@ final class RecoveryCandidateKeyPair {
     x25519: x25519,
   );
 
-  /// Zeroises and frees the secret. Idempotent.
+  /// Zeroises and frees the secret and its seed. Idempotent.
   void dispose() {
     if (_disposed) return;
     _disposed = true;
+    _seed.dispose();
     _pair.dispose();
   }
 

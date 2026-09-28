@@ -190,12 +190,15 @@ class OnboardingFlow extends ChangeNotifier {
   /// dropped row must drop its weight too, or every later owner would be
   /// seeded with the share of the one before them (ADR 2026-09-09 §2 — the
   /// ratio is fixed at creation and never re-asked).
-  List<({String name, int shares})> get ownerSeeds => [
+  ///
+  /// [isYou] marks the creating user's row — the one owner whose member id
+  /// exists at creation (02 §7.1: every other owner is only *invited*).
+  List<({String name, int shares, bool isYou})> get ownerSeeds => [
     for (final (i, o) in owners.indexed)
       if (o.name.trim().isNotEmpty)
-        (name: o.name.trim(), shares: o.shares)
+        (name: o.name.trim(), shares: o.shares, isYou: o.isYou)
       else if (i == 0 && yourName.isNotEmpty)
-        (name: yourName, shares: o.shares),
+        (name: yourName, shares: o.shares, isYou: o.isYou),
   ];
 
   /// The seeded partner account names, in S0.6a1 order.
@@ -206,6 +209,33 @@ class OnboardingFlow extends ChangeNotifier {
   /// that never reached S0.6a1 — so nothing is recorded rather than a ratio
   /// being invented.
   List<int> get ownerShares => [for (final o in ownerSeeds) o.shares];
+
+  /// The member ids of [ownerNames], index for index, for `createBook`'s
+  /// `ownerMemberIds` — or empty when any owner has none.
+  ///
+  /// The creating user's row resolves to [yourMemberId] (their own user id,
+  /// which is the member id: `server_members_repository.dart` sends a member
+  /// id as `user_id`). An invited owner has **no** member id yet — 02 §7.1 🔒
+  /// says so in as many words — and none is ever guessed (CLAUDE.md rule 11).
+  ///
+  /// ⚠️ SPEC: `createBook(ownerMemberIds:)` takes all or none, and the owner
+  /// set reader (`structural_reader.dart` `_ownersNamed`) refuses a set with
+  /// any unidentified partner, so a book with an invited co-owner gets no ids
+  /// here — not even the creator's. S0.6a1 never emits fewer than two owners,
+  /// so this returns [] on **every** UI-reachable shared business today; the
+  /// creator-only set is programmatic only (F1-07-544, skipped, is the
+  /// reachable case). Binding the creator now and each invitee
+  /// on acceptance needs a facade change outside onboarding (lane report
+  /// M11-OWN1, `open`).
+  List<String> ownerMemberIds(String yourMemberId) {
+    // Only the creating user can be identified, and there is one of them —
+    // so the set is known exactly when they are the only owner.
+    final seeds = ownerSeeds;
+    if (yourMemberId.isEmpty || seeds.length != 1 || !seeds.single.isYou) {
+      return const [];
+    }
+    return [yourMemberId];
+  }
 }
 
 /// One business collected by the branch: its S0.6a answers, its S0.6a1 owners

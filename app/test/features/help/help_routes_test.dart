@@ -1,4 +1,4 @@
-// F1-07-406, F1-07-411, F1-07-413, F1-07-414 — the Help feature's route table
+// F1-07-406, F1-07-411, F1-07-413, F1-07-414, F1-25-4 — the Help feature's route table
 // (13 §3.2 rows S17, S17.2, S17.3, S17.4; features/README "Routes").
 //
 // F1-07-413 and F1-07-414 read the page *stack*, not the uri: `push`,
@@ -20,6 +20,7 @@ library;
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:rukka_folio/features/help/help_routes.dart';
@@ -97,9 +98,9 @@ void main() {
         expect(find.text(l10n.diagIntro), findsOneWidget);
         expect(router.state.uri.toString(), HelpPaths.diagnostics);
 
-        // ⛔ Production wiring: no channel and no device producer, so the
-        // send states its reason and the person is never stuck
-        // (PLAN-11 / ADR 2026-09-19, 07 §1 rule 6 🔒).
+        // Production wiring: S17.4 has no sender and no device producer, so
+        // the send states its reason and the person is never stuck
+        // (07 §1 rule 6 🔒).
         expect(find.text(l10n.diagSendReasonChannel), findsOneWidget);
         expect(find.text(l10n.diagActionCopy), findsOneWidget);
       },
@@ -193,6 +194,62 @@ void main() {
               'questions are what must be on screen',
         );
         expect(router.canPop(), isFalse);
+      },
+    );
+
+    testWidgets(
+      'F1-25-4 the production S17.3 route opens support email through '
+      'url_launcher itself: one `launch` of exactly '
+      'mailto:support@rukkafolio.com, and `canLaunch` is never called '
+      '(ADR 2026-09-19 ruling 2 as amended by ADR 2026-09-25 §4)',
+      (tester) async {
+        rkViewport(tester, rkTallViewport);
+        final l10n = await AppLocalizations.delegate.load(const Locale('en'));
+        // In `flutter test` no platform plugin is registered, so
+        // url_launcher's default platform instance speaks this channel —
+        // the real launchUrl → platform path, observed at its edge.
+        final calls = <MethodCall>[];
+        const channel = MethodChannel('plugins.flutter.io/url_launcher');
+        tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          channel,
+          (call) async {
+            calls.add(call);
+            return true;
+          },
+        );
+        addTearDown(
+          () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+            channel,
+            null,
+          ),
+        );
+        final router = await _pumpHelp(tester);
+
+        await tester.tap(find.text(l10n.helpContactTitle));
+        await tester.pumpAndSettle();
+        expect(router.state.uri.toString(), HelpPaths.contact);
+        expect(
+          tester
+              .widget<ContactSupportScreen>(find.byType(ContactSupportScreen))
+              .mailer,
+          isA<UrlLauncherSupportMailer>(),
+        );
+        expect(calls, isEmpty, reason: 'nothing launches on arrival');
+
+        await tester.tap(
+          find.widgetWithText(FilledButton, l10n.helpContactEmailAction),
+        );
+        await tester.pumpAndSettle();
+        expect(calls.map((c) => c.method), ['launch']);
+        expect(
+          (calls.single.arguments as Map)['url'],
+          'mailto:support@rukkafolio.com',
+        );
+        // The launch succeeded, so no failure line is drawn.
+        expect(
+          find.text(l10n.helpContactEmailFailed(supportEmailAddress)),
+          findsNothing,
+        );
       },
     );
   });

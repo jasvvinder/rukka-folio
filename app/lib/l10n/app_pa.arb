@@ -391,6 +391,30 @@
   "ceremony.show.expired": "ਇਹ ਕੋਡ ਖ਼ਤਮ ਹੋ ਗਿਆ ਹੈ।",
   "ceremony.show.expires_in": "{time} ਵਿੱਚ ਖ਼ਤਮ",
   "ceremony.show.loading": "ਤੁਹਾਡਾ ਕੋਡ ਲਿਆ ਜਾ ਰਿਹਾ ਹੈ।",
+  "ceremony.show.no_invite.body": "ਇਸ ਫ਼ੋਨ ਨੂੰ ਉਹ ਸੱਦਾ ਨਹੀਂ ਲੱਭ ਰਿਹਾ ਜਿਸ ਨਾਲ ਤੁਸੀਂ ਜੁੜੇ ਸੀ, ਇਸ ਲਈ ਤੁਹਾਡੇ ਦਿਖਾਉਣ ਲਈ ਕੋਈ ਕੋਡ ਨਹੀਂ ਹੈ।",
+  "@ceremony.show.no_invite.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "ceremony.show.no_invite.close": "ਬੰਦ ਕਰੋ",
+  "@ceremony.show.no_invite.close": {
+    "description": "machine-draft — native review M12"
+  },
+  "ceremony.show.no_invite.retry": "ਦੁਬਾਰਾ ਦੇਖੋ",
+  "@ceremony.show.no_invite.retry": {
+    "description": "machine-draft — native review M12"
+  },
+  "ceremony.show.no_invite.semantics": "ਹਾਲੇ ਕੋਈ ਕੋਡ ਨਹੀਂ।",
+  "@ceremony.show.no_invite.semantics": {
+    "description": "machine-draft — native review M12"
+  },
+  "ceremony.show.no_invite.title": "ਹਾਲੇ ਦਿਖਾਉਣ ਲਈ ਕੋਈ ਕੋਡ ਨਹੀਂ",
+  "@ceremony.show.no_invite.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "ceremony.show.no_invite.why": "ਕੁਝ ਵੀ ਪਰਖਿਆ ਜਾਂ ਸਾਂਝਾ ਨਹੀਂ ਹੋਇਆ। ਜੇ ਇਹ ਵਾਰ-ਵਾਰ ਹੋਵੇ, ਤਾਂ ਜਿਨ੍ਹਾਂ ਨੇ ਤੁਹਾਨੂੰ ਸੱਦਾ ਭੇਜਿਆ ਸੀ ਉਹਨਾਂ ਨੂੰ ਦੱਸੋ।",
+  "@ceremony.show.no_invite.why": {
+    "description": "machine-draft — native review M12"
+  },
   "ceremony.show.offline": "ਆਫ਼ਲਾਈਨ — ਇਹ ਕੋਡ ਆਹਮੋ-ਸਾਹਮਣੇ ਫਿਰ ਵੀ ਚੱਲਦਾ ਹੈ।",
   "ceremony.show.qr.semantics": "ਤੁਹਾਡਾ ਤਸਦੀਕ ਵਾਲਾ ਚੌਰਸ। ਉਹੀ ਕੋਡ ਹੇਠਾਂ ਅੱਠ ਅੰਕਾਂ ਵਿੱਚ ਲਿਖਿਆ ਹੈ।",
   "ceremony.show.regenerate": "ਨਵਾਂ ਕੋਡ ਲਓ",
@@ -836,7 +860,7 @@
   "@diag.payload.label": {
     "description": "machine-draft — native review M12"
   },
-  "diag.send.reason.channel": "ਇਸ ਨੂੰ ਭੇਜਣ ਲਈ ਅਜੇ ਕੋਈ ਥਾਂ ਨਹੀਂ — ਸਹਾਇਤਾ ਦਾ ਵਟਸਐਪ ਵਾਲਾ ਰਾਹ ਖੁੱਲ੍ਹਿਆ ਨਹੀਂ। ਰਿਪੋਰਟ ਕਾਪੀ ਕਰ ਕੇ ਰੱਖ ਲਵੋ।",
+  "diag.send.reason.channel": "ਰਿਪੋਰਟ ਅਜੇ ਐਪ ਤੋਂ ਨਹੀਂ ਭੇਜੀ ਜਾ ਸਕਦੀ। ਇਸ ਨੂੰ ਕਾਪੀ ਕਰ ਕੇ ਸਹਾਇਤਾ ਨੂੰ ਈਮੇਲ ਵਿੱਚ ਚਿਪਕਾਓ।",
   "@diag.send.reason.channel": {
     "description": "machine-draft — native review M12"
   },
@@ -1540,15 +1564,35 @@
   "@help.cannot.title": {
     "description": "machine-draft — native review M12"
   },
-  "help.contact.reason": "ਵਟਸਐਪ ਵਾਲਾ ਰਾਹ ਅਜੇ ਖੁੱਲ੍ਹਿਆ ਨਹੀਂ। ਉਦੋਂ ਤੱਕ ਇੱਥੋਂ ਦੇ ਜਵਾਬ ਅਤੇ ਹੇਠਲੀ ਰਿਪੋਰਟ ਹੀ ਮਦਦ ਕੋਲ ਹਨ।",
-  "@help.contact.reason": {
+  "help.contact.email.action": "ਸਹਾਇਤਾ ਨੂੰ ਈਮੇਲ ਕਰੋ",
+  "@help.contact.email.action": {
+    "description": "machine-draft — native review M12"
+  },
+  "help.contact.email.body": "ਆਪਣੀ ਈਮੇਲ ਐਪ ਤੋਂ ਸਹਾਇਤਾ ਨੂੰ ਲਿਖੋ।",
+  "@help.contact.email.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "help.contact.email.copied": "ਪਤਾ ਕਾਪੀ ਹੋ ਗਿਆ।",
+  "@help.contact.email.copied": {
+    "description": "machine-draft — native review M12"
+  },
+  "help.contact.email.copy": "ਪਤਾ ਕਾਪੀ ਕਰੋ",
+  "@help.contact.email.copy": {
+    "description": "machine-draft — native review M12"
+  },
+  "help.contact.email.failed": "ਇਹ ਫ਼ੋਨ ਈਮੇਲ ਐਪ ਨਹੀਂ ਖੋਲ੍ਹ ਸਕਿਆ। ਕਿਸੇ ਵੀ ਈਮੇਲ ਐਪ ਤੋਂ {address} ਨੂੰ ਲਿਖੋ, ਜਾਂ ਹੇਠਾਂ ਤੋਂ ਪਤਾ ਕਾਪੀ ਕਰੋ।",
+  "@help.contact.email.failed": {
+    "description": "machine-draft — native review M12"
+  },
+  "help.contact.email.label": "ਸਹਾਇਤਾ ਦਾ ਪਤਾ",
+  "@help.contact.email.label": {
     "description": "machine-draft — native review M12"
   },
   "help.contact.title": "ਸਹਾਇਤਾ ਨਾਲ ਸੰਪਰਕ",
   "@help.contact.title": {
     "description": "machine-draft — native review M12"
   },
-  "help.contact.value": "ਵਟਸਐਪ",
+  "help.contact.value": "ਈਮੇਲ",
   "@help.contact.value": {
     "description": "machine-draft — native review M12"
   },

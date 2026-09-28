@@ -506,7 +506,11 @@ String encodeB64Url(Uint8List b) => base64Url.encode(b).replaceAll('=', '');
 
 /// The server's side of the guardian-recovery ladder.
 abstract interface class RecoveryApi {
-  /// The caller's own attempts, newest last as the route returns them.
+  /// The caller's own attempts. ⚠️ WIRE `store_pg.ts myRecoveryRequests`:
+  /// the newest 20 by `created_at`, newest first — callers order by
+  /// [RecoveryRequestWire.createdAtMs] themselves and never by position. A
+  /// live attempt is always among them: 0010 caps a user at five attempts
+  /// opened inside any 72 h window (`recovery_flood`), and one is live for 72 h.
   Future<List<RecoveryRequestWire>> myRequests();
 
   /// The derived state of one attempt.

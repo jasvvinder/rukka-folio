@@ -25,7 +25,7 @@
 //
 // **Three seams.** Each is a constructor parameter with a documented "answers
 // null" default, so a caller that cannot back one does not have to invent it.
-// Two are now bound in `bootstrap.dart`; the third still cannot be:
+// All three are bound in `bootstrap.dart`:
 //
 //   1. [RelayedUmkSource] — 04 §6.3 🔒 compares the scanned keys byte-for-byte
 //      against **the keys the server relayed**, and `Ceremony.verifyQr`
@@ -43,17 +43,23 @@
 //      session through `GET sync-meta/ceremony?subject_user_id=&tenant_id=`,
 //      the newest unexpired session for that subject (04 §6.4 *delegated*).
 //      Bound to [liveCeremonySessionOver] over [CeremonyApi.liveSessionFor].
-//   3. [InviteNonceSource] — 04 §6.1 🔒 says the per-invite nonce is
-//      **server-generated**. It reaches the server inside the admin's signed
-//      `invite` record (migration 0008) and comes back on no route the
-//      invitee can attribute to itself: the `invites` meta row carries no
-//      nonce and no `source_record_id`, and the `invite` record deliberately
-//      carries no identifier of the invitee. Drawing one on the device would
-//      contradict a 🔒 line, so this seam is nullable, is **not** bound in
-//      production, and S9.2 answers null until a real one exists.
-//      ⚠️ SPEC 04 §6.1 — the route is the server's to add; reported.
+//   3. [InviteNonceLookup] — the per-invite nonce S9.2's QR carries. ADR
+//      2026-09-25b §1 amends 04 §6.1: the **inviter's** device draws it and
+//      signs it into the `invite` record (0008); the server stores it and
+//      relays it to the invitee on `GET sync-meta/invites` and the accept
+//      answer (§2). Bound in production to [relayedInviteNonceOver] over the
+//      members feature's `InviteNonceRelay`, which pairs the nonce to the
+//      invite this device accepted **by `invite_id`** (§3). This device
+//      never draws one: no relayed nonce is [ShowMyCodeNoInviteNonce], which
+//      S9.2 renders as its says-why state, and never a local value. The
+//      Regenerate path keeps that same nonce ([fixedInviteNonceSource], §4).
+//      ⚠️ SPEC ADR 2026-09-25b Open — ceremonies not born of an invite
+//      (device linking, delegated verification, re-verification) have no
+//      invite nonce; not ruled, so they get the same fail-closed state.
 //
 // Nothing here logs: a session names two people (CLAUDE.md rule 4).
+import 'dart:typed_data';
+
 import 'package:core_crypto/core_crypto.dart'
     show CryptoSuite, UmkPublic, VerificationMethod;
 import 'package:flutter/foundation.dart' show immutable;
@@ -82,6 +88,40 @@ typedef CeremonySessionLookup = Future<String?> Function(String subjectUserId);
 /// A member's display name, for the screens (04 §6.2, 07 §12). User-typed.
 typedef CeremonyMemberName = String Function(String userId);
 
+/// The relayed nonce of the invite that brought this user into the tenant
+/// (ADR 2026-09-25b §3), or null when this device has none. Null is final for
+/// this opening: the only honest answer to it is S9.2's says-why state.
+typedef InviteNonceLookup = Future<InviteNonce?> Function();
+
+/// An [InviteNonceLookup] over the relay's raw bytes (the members feature's
+/// `InviteNonceRelay.nonce`). A relay that throws, answers nothing, or answers
+/// anything but 16 bytes is **no nonce** — never padded, cut or replaced with
+/// a value drawn here. The relay carries no issue time, so none is invented.
+InviteNonceLookup relayedInviteNonceOver(
+  Future<Uint8List?> Function() relayed,
+) => () async {
+  final Uint8List? bytes;
+  try {
+    bytes = await relayed();
+  } on Object {
+    return null;
+  }
+  if (bytes == null) return null;
+  try {
+    return InviteNonce(bytes: bytes);
+  } on ArgumentError {
+    return null;
+  }
+};
+
+/// The [InviteNonceSource] S9.2's repository is given once a relayed nonce is
+/// in hand: it answers [nonce] for a first session **and** for *Regenerate*
+/// (ADR 2026-09-25b §4). The nonce is fixed at issue; *Regenerate* opens a
+/// fresh session — a new `r_S` and commitment — and keeps it. `fresh` is
+/// accepted and ignored, as §4 says, until the seam is next reshaped.
+InviteNonceSource fixedInviteNonceSource(InviteNonce nonce) =>
+    ({bool fresh = false}) async => nonce;
+
 /// Opens the two sides of the ceremony (04 §6.2) for a **real** subject.
 ///
 /// Both answers are nullable on purpose: a null is the honest state of a
@@ -90,8 +130,10 @@ typedef CeremonyMemberName = String Function(String userId);
 /// invented nonce, an invented session or a key this device chose.
 abstract class CeremonySessions {
   /// This install's own side (S9.2 Show my code) — the invitee proving their
-  /// own UMK. Null when this device holds no key material or no invite.
-  Future<ShowMyCodeRepository?> showMyCode();
+  /// own UMK. Null when this device holds no key material (or no nonce seam
+  /// is installed at all); [ShowMyCodeNoInviteNonce] when there is no relayed
+  /// invite nonce to put in the QR (ADR 2026-09-25b §3).
+  Future<ShowMyCodeOpening?> showMyCode();
 
   /// The verifier's side (S9.3) against [subjectUserId] — the **user id** of
   /// the person being verified, which is what a ceremony session is keyed by
@@ -99,6 +141,44 @@ abstract class CeremonySessions {
   /// opened against a real subject; [VerifyMemberKeyIncomplete] when it
   /// cannot be opened *yet*, for a reason the user can act on.
   Future<VerifyMemberOpening?> verifyMember(String subjectUserId);
+}
+
+/// What opening S9.2 produced.
+@immutable
+sealed class ShowMyCodeOpening {
+  const ShowMyCodeOpening();
+}
+
+/// The invitee's side is open, over a relayed invite nonce.
+final class ShowMyCodeReady extends ShowMyCodeOpening {
+  /// Wraps [repository].
+  const ShowMyCodeReady(this.repository);
+
+  /// The side to render.
+  final ShowMyCodeRepository repository;
+
+  // Equal by the repository it carries, so a route rebuilt around the same
+  // repository does not re-open (and mint a second session).
+  @override
+  bool operator ==(Object other) =>
+      other is ShowMyCodeReady && identical(other.repository, repository);
+
+  @override
+  int get hashCode => identityHashCode(repository);
+}
+
+/// No relayed nonce for this device's invite (ADR 2026-09-25b §3): S9.2
+/// fails closed **and says so**. No repository exists, so no session is opened
+/// and no QR is drawn — and no nonce is drawn on this device in its place.
+final class ShowMyCodeNoInviteNonce extends ShowMyCodeOpening {
+  /// The one instance-shaped value; every no-nonce answer is equal.
+  const ShowMyCodeNoInviteNonce();
+
+  @override
+  bool operator ==(Object other) => other is ShowMyCodeNoInviteNonce;
+
+  @override
+  int get hashCode => (ShowMyCodeNoInviteNonce).hashCode;
 }
 
 /// What opening S9.3 produced.
@@ -153,7 +233,7 @@ final class NoCeremonySessions implements CeremonySessions {
   const NoCeremonySessions();
 
   @override
-  Future<ShowMyCodeRepository?> showMyCode() async => null;
+  Future<ShowMyCodeOpening?> showMyCode() async => null;
 
   @override
   Future<VerifyMemberOpening?> verifyMember(String subjectUserId) async => null;
@@ -202,10 +282,11 @@ final class LiveCeremonySessions implements CeremonySessions {
   /// A callback, not a field, so a closed ledger is never held here.
   final UmkPublic? Function() ownUmk;
 
-  /// The **server-generated** per-invite nonce (04 §6.1 🔒). Null — S9.2
-  /// cannot open — until a route delivers one the invitee can attribute to
-  /// itself (this file's header, item 3). Never drawn on the device.
-  final InviteNonceSource? nonces;
+  /// The relayed nonce of this user's own invite (ADR 2026-09-25b §3; this
+  /// file's header, item 3). Null — no seam — keeps S9.2 on its placeholder;
+  /// a seam that answers null is [ShowMyCodeNoInviteNonce]. Never drawn on
+  /// the device.
+  final InviteNonceLookup? nonces;
 
   /// Who is verifying this install's user — S9.2's waiting state names them
   /// rather than saying "someone" (07 §12).
@@ -239,22 +320,35 @@ final class LiveCeremonySessions implements CeremonySessions {
   final bool canVerify;
 
   @override
-  Future<ShowMyCodeRepository?> showMyCode() async {
+  Future<ShowMyCodeOpening?> showMyCode() async {
     final umk = ownUmk();
     final nonces = this.nonces;
     if (umk == null || nonces == null) return null;
-    return CryptoShowMyCodeRepository(
-      suite: suite,
-      userId: selfUserId,
-      umk: umk,
-      nonces: nonces,
-      relay: ServerShowerSessionRelay(
-        api: api,
-        tenantId: tenantId,
-        now: now,
-        polling: polling,
+    // ADR 2026-09-25b §3: the relayed nonce, or the says-why state. Read once
+    // per opening, before any session exists, so a device without one never
+    // opens a 0007 session it could not put in a QR.
+    final InviteNonce? nonce;
+    try {
+      nonce = await nonces();
+    } on Object {
+      return const ShowMyCodeNoInviteNonce();
+    }
+    if (nonce == null) return const ShowMyCodeNoInviteNonce();
+    return ShowMyCodeReady(
+      CryptoShowMyCodeRepository(
+        suite: suite,
+        userId: selfUserId,
+        umk: umk,
+        // §4: Regenerate keeps this nonce and opens a fresh session.
+        nonces: fixedInviteNonceSource(nonce),
+        relay: ServerShowerSessionRelay(
+          api: api,
+          tenantId: tenantId,
+          now: now,
+          polling: polling,
+        ),
+        verifierName: verifierName(),
       ),
-      verifierName: verifierName(),
     );
   }
 
@@ -350,8 +444,10 @@ CeremonySessionLookup liveCeremonySessionOver(
 ///   • the live session is looked up by subject and tenant over [api]
 ///     ([liveCeremonySessionOver]).
 ///
-/// [nonces] stays unbound in production (04 §6.1 🔒 — no route yet returns a
-/// server nonce the invitee can attribute to itself; this file's header).
+///   • the invite nonce is [nonces] — in production
+///     [relayedInviteNonceOver] the members feature's `InviteNonceRelay`
+///     (ADR 2026-09-25b §3, pinned by F1-25b-1). Left null it keeps S9.2 on
+///     its placeholder; it is never a nonce drawn on this device.
 LiveCeremonySessions buildLiveCeremonySessions({
   required CryptoSuite suite,
   required CeremonyApi api,
@@ -364,7 +460,7 @@ LiveCeremonySessions buildLiveCeremonySessions({
   required DateTime Function() now,
   required CeremonyEventLog log,
   required VerifiedMemberSink keys,
-  InviteNonceSource? nonces,
+  InviteNonceLookup? nonces,
   CeremonyPolling polling = const CeremonyPolling(),
 }) => LiveCeremonySessions(
   suite: suite,

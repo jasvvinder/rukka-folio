@@ -116,5 +116,18 @@
   "ceremony.verify.key_incomplete.close": "Close",
   "@ceremony.verify.key_incomplete.close": {"description": "S9.3 fail-closed state way off the screen — the person stays unverified."},
   "ceremony.verify.key_incomplete.semantics": "Waiting for their phone.",
-  "@ceremony.verify.key_incomplete.semantics": {"description": "S9.3 fail-closed state icon semantics — the icon colour is never the only signal (07 §1 rule 3)."}
+  "@ceremony.verify.key_incomplete.semantics": {"description": "S9.3 fail-closed state icon semantics — the icon colour is never the only signal (07 §1 rule 3)."},
+
+  "ceremony.show.no_invite.title": "No code to show yet",
+  "@ceremony.show.no_invite.title": {"description": "S9.2 fail-closed state, ADR 2026-09-25b §3: no relayed invite nonce for this device's own invite, so NO session is opened and NO QR drawn — the device never draws a nonce itself. 'Keeps its placeholder and says why.' ⚠️ SPEC copy draft for the 07/13 design owner. Plain words: no 'nonce', no 'key', no 'sync' (01 §1.3)."},
+  "ceremony.show.no_invite.body": "This phone can’t find the invitation you joined with, so it has no code for you to show.",
+  "@ceremony.show.no_invite.body": {"description": "S9.2 fail-closed state — why there is no code: the phone cannot pair a relayed invite nonce to the invite it joined with (by invite_id)."},
+  "ceremony.show.no_invite.why": "Nothing has been checked and nothing has been shared. If this keeps happening, tell the person who invited you.",
+  "@ceremony.show.no_invite.why": {"description": "S9.2 fail-closed state — that nothing happened, and a person to turn to (07 §1 rule 6). Never offer a code anyway: there is nothing honest to put in the square."},
+  "ceremony.show.no_invite.retry": "Check again",
+  "@ceremony.show.no_invite.retry": {"description": "S9.2 fail-closed state primary action — re-reads the invite relay. Draws nothing by itself."},
+  "ceremony.show.no_invite.close": "Close",
+  "@ceremony.show.no_invite.close": {"description": "S9.2 fail-closed state way off the screen."},
+  "ceremony.show.no_invite.semantics": "No code yet.",
+  "@ceremony.show.no_invite.semantics": {"description": "S9.2 fail-closed state icon semantics — the icon colour is never the only signal (07 §1 rule 3)."}
 }

@@ -51,6 +51,7 @@ import 'features/inbox/review_queue.dart';
 import 'features/import/import_routes.dart';
 import 'features/ledger/ledger_routes.dart';
 import 'features/legal/legal_routes.dart';
+import 'features/members/invite_nonce_relay.dart';
 import 'features/members/members_api.dart';
 import 'features/members/members_review_policy.dart';
 import 'features/members/members_routes.dart';
@@ -423,13 +424,13 @@ Future<void> bootstrap() async {
           // dialling something guessed.
           phoneOf: (_) => null,
         ).call,
-        // ⚠️ SPEC: minting and persisting the *candidate* X25519 pair of
-        // 04 §7.3 step 1 is `core_crypto`/`features/devices` behaviour and
-        // has no producer, so this build re-reads an attempt that is already
-        // open and refuses plainly when there is none. Reusing this device's
-        // own `pub_x` is the convenient reading of "fresh device keys **+** a
-        // candidate X25519 pair" and is not taken here. Reported.
-        candidateKey: null,
+        // 04 §7.3 step 1 — the *candidate* X25519 pair, its own pair and one
+        // per attempt (ADR 2026-09-24b §1 🔒): minted from libsodium when this
+        // phone opens an attempt, held in the platform key store under
+        // `KeyIds.recoveryCandidate` until the attempt closes, zeroised on
+        // every close and after reconstruct. Never this device's `pub_x`,
+        // never a device key, never a recipient of a book key.
+        candidateKeys: KeyStoreRecoveryCandidate(keys: keys, suite: suite),
         // No camera package is in the app (cf. ADR 2026-09-12e), so the
         // recovery ceremony of ADR 2026-09-13c ruling 1 🔒 reports
         // `unavailable` rather than a screen pretending the control works.
@@ -813,10 +814,18 @@ Future<void> bootstrap() async {
       //   • the live session, by subject and tenant, over
       //     `GET sync-meta/ceremony?subject_user_id=&tenant_id=`.
       //
-      // S9.2's side is NOT bound: its per-invite nonce is server-generated
-      // (04 §6.1 🔒) and no route yet returns one the invitee can attribute
-      // to itself. `nonces` is left null, so S9.2 keeps its placeholder rather
-      // than draw a nonce on this device. ⚠️ SPEC — reported.
+      // S9.2's side is bound to the RELAYED invite nonce (ADR 2026-09-25b
+      // §3): the inviter's device drew it and signed it into the `invite`
+      // record, and sync-meta hands it back on `GET invites` and on the accept
+      // answer (§2). `InviteNonceRelay` pairs it to the invite THIS device
+      // accepted, by `invite_id` — which is why the joiner's accept (S0.9,
+      // the gateway below) goes through the same relay. This device never
+      // draws an invite nonce: none relayed is S9.2's says-why state.
+      // *Regenerate* keeps the nonce and opens a fresh session (§4).
+      // After a restart the relay still knows which invite is this device's
+      // own: the accepted id — the id only, never the nonce — is kept in the
+      // protected item store, and the nonce is read back from `GET invites`
+      // (25b §2). ⚠️ SPEC reading in `invite_nonce_relay.dart`.
       //
       // No camera package is in the app, so the scope carries no scanner:
       // S9.3 opens on *Enter code instead*, its equal path (design-system
@@ -836,10 +845,16 @@ Future<void> bootstrap() async {
       // One call, so the two bindings below are pinned by F1-24b-3 rather
       // than written inline where a default could silently stand in for them
       // (see [buildLiveCeremonySessions]).
+      final inviteNonces = InviteNonceRelay(
+        offers: membersApi.myInvites,
+        accept: membersApi.acceptInviteRelayed,
+        store: KeyStorePrefs(keys),
+      );
       final ceremonySessions = buildLiveCeremonySessions(
         suite: suite,
         api: ceremonyApi,
         pullMeta: membersApi.pullMeta,
+        nonces: relayedInviteNonceOver(inviteNonces.nonce),
         tenantId: identity.tenantId,
         selfUserId: identity.userId,
         ownUmk: () {
@@ -874,7 +889,9 @@ Future<void> bootstrap() async {
           child: InvitationGatewayScope(
             gateway: DelegatedInvitationGateway(
               offers: members.myInvites,
-              accept: members.acceptInvite,
+              // Through the nonce relay, so the invite accepted here is the
+              // one S9.2 pairs its nonce to (ADR 2026-09-25b §3).
+              accept: inviteNonces.acceptInvite,
               pending: () async =>
                   members.current?.pendingBooks ?? const <PendingBook>[],
             ),

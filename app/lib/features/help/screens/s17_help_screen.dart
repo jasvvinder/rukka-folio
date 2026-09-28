@@ -153,11 +153,10 @@ class _HelpScreenState extends State<HelpScreen> {
                 ],
             ],
             HelpSectionHeading(l10n.helpSectionReach),
-            // Both doors are live. S17.3 states for itself why its WhatsApp
-            // channel will not open yet (`help.contact.reason`); saying so
-            // here as well would disable a row whose destination exists.
+            // Both doors are live: S17.3 is email support (ADR 2026-09-25
+            // §4) and S17.4 is built.
             HelpDoorRow(
-              icon: Icons.chat_outlined,
+              icon: Icons.mail_outline,
               title: l10n.helpContactTitle,
               subtitle: l10n.helpContactValue,
               onTap: widget.onOpenContact,

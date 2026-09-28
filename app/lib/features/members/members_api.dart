@@ -13,9 +13,16 @@
 //     seq}`; the plaintext number travels **once** and is stored nowhere
 //     (ADR 2026-09-05c §4);
 //   • GET  `sync-meta/invites`          → `{invites:[{invite_id, tenant_id,
-//     roles, expires_at, created_by}]}` — only those addressed to *my*
-//     OTP-verified number;
-//   • POST `sync-meta/invites/accept` `{invite_id}` → `{invite_id, status}`;
+//     roles, expires_at, created_by, status, nonce}]}` — the caller's own
+//     invites: at `sent` and addressed to *my* OTP-verified number, or
+//     accepted by me, inside the 7-day window (ADR 2026-09-25b §2, 0015);
+//   • POST `sync-meta/invites/accept` `{invite_id}` → `{invite_id, status,
+//     nonce}` — `status` here is the MEMBERSHIP's
+//     (`joined_pending_verification`), not the invite's;
+//   • `nonce` on both is base64url **unpadded**, 16 bytes: the one the
+//     inviter's device drew and signed (ADR 2026-09-25b §1). It is decoded with
+//     `Bytes.fromBase64Url`, never `base64Url.decode`, which refuses unpadded
+//     input (D-05-14);
 //   • POST `sync-meta/records` `{records:[…]}` → `{results:[{id, result}]}`;
 //   • refusals by name: 403 `invite_not_for_you` · 403 `not_admin` · 403
 //     `unauthorized` · 409 `invite_not_live` · 409 `record_replayed` · 409
@@ -29,7 +36,9 @@
 //
 // Nothing here logs: bodies carry phone numbers and access tokens (rule 4).
 import 'dart:convert';
+import 'dart:typed_data';
 
+import 'package:core_crypto/core_crypto.dart' show Bytes, ceremonyNonceBytes;
 import 'package:sync_engine/sync_engine.dart' show MetaResponse;
 
 import '../../shared/seams/http_transport.dart';
@@ -89,8 +98,10 @@ final class MembersEndpoints {
   Uri get records => _sub('records');
 }
 
-/// An invite offered to *this* phone (06 §7). Carries no `invitee_hmac`, no
-/// nonce and no number — the server hands the joiner only what it must.
+/// An invite offered to *this* phone (06 §7), or the one this phone accepted
+/// (ADR 2026-09-25b §2). Carries no `invitee_hmac` and no number — the server
+/// hands the joiner only what it must. It does carry the invite's **nonce**
+/// since 25b: not secret (04 §6.1), and S9.2's QR needs it.
 final class InviteOffer {
   /// Creates an offer.
   const InviteOffer({
@@ -99,6 +110,9 @@ final class InviteOffer {
     required this.roles,
     required this.expiresAt,
     required this.createdBy,
+    this.status,
+    this.nonce,
+    this.extra = const {},
   });
 
   /// Decodes one wire row (⚠️ WIRE sync-meta `invites` GET).
@@ -113,9 +127,30 @@ final class InviteOffer {
       (j['expires_at']! as num).toInt(),
     ),
     createdBy: j['created_by'] as String?,
+    // ⚠️ SPEC (PLAN desk 36, unanswered): whether `status` is part of ADR
+    // 2026-09-25b §2 is not ruled — the server added it in the M11-INV1
+    // repair. It is decoded and carried, and NOTHING here or in the relay
+    // pairs a nonce by it: the pairing is by `invite_id` alone.
+    status: j['status'] is String ? j['status']! as String : null,
+    nonce: inviteNonceFromWire(j['nonce']),
+    extra: {
+      for (final e in j.entries)
+        if (!_offerFields.contains(e.key)) e.key: e.value,
+    },
   );
 
-  /// The invite's id — what [MembersApi.acceptInvite] takes.
+  static const _offerFields = {
+    'invite_id',
+    'tenant_id',
+    'roles',
+    'expires_at',
+    'created_by',
+    'status',
+    'nonce',
+  };
+
+  /// The invite's id — what [MembersApi.acceptInvite] takes, and the one key
+  /// a relayed nonce is paired by (ADR 2026-09-25b §3).
   final String inviteId;
 
   /// Which tenant is offering.
@@ -130,6 +165,68 @@ final class InviteOffer {
   /// The admin who sent it, by user id. Their *name* is not the server's to
   /// know (ADR 2026-09-05c §4).
   final String? createdBy;
+
+  /// The invite's own status on the wire — `sent` or `accepted` — or null
+  /// from a server that predates it. Informational only (⚠️ SPEC desk 36).
+  final String? status;
+
+  /// The invite's 16-byte nonce as the inviter signed it, or null when the row
+  /// carries none this build can read. Never drawn here.
+  final Uint8List? nonce;
+
+  /// Fields this build does not know, kept as they came (CLAUDE.md rule 6).
+  final Map<String, Object?> extra;
+}
+
+/// What `POST sync-meta/invites/accept` answered (⚠️ WIRE).
+final class AcceptedInvite {
+  /// Creates the answer.
+  const AcceptedInvite({
+    required this.inviteId,
+    required this.status,
+    this.nonce,
+    this.extra = const {},
+  });
+
+  /// Decodes the accept body.
+  factory AcceptedInvite.fromJson(Map<String, Object?> j) => AcceptedInvite(
+    inviteId: j['invite_id']! as String,
+    status: j['status']! as String,
+    nonce: inviteNonceFromWire(j['nonce']),
+    extra: {
+      for (final e in j.entries)
+        if (e.key != 'invite_id' && e.key != 'status' && e.key != 'nonce')
+          e.key: e.value,
+    },
+  );
+
+  /// The invite the server says it accepted.
+  final String inviteId;
+
+  /// The **membership** status the server moved to —
+  /// `joined_pending_verification`, never `active`.
+  final String status;
+
+  /// That invite's nonce (ADR 2026-09-25b §2), or null when absent/unreadable.
+  final Uint8List? nonce;
+
+  /// Fields this build does not know (CLAUDE.md rule 6).
+  final Map<String, Object?> extra;
+}
+
+/// A wire nonce → its 16 bytes, or null. Unpadded base64url (the server's
+/// `b64url.enc`), decoded with `Bytes.fromBase64Url` (D-05-14). A value that
+/// is missing, malformed or not 16 bytes is **no nonce** — never a throw that
+/// would take the whole offer list down with it, and never a value padded or
+/// cut to fit.
+Uint8List? inviteNonceFromWire(Object? v) {
+  if (v is! String || v.isEmpty) return null;
+  try {
+    final b = Bytes.fromBase64Url(v);
+    return b.length == ceremonyNonceBytes ? b : null;
+  } on FormatException {
+    return null;
+  }
 }
 
 /// What issuing an invite returns.
@@ -243,7 +340,13 @@ final class HttpMembersApi implements MembersApi {
   }
 
   @override
-  Future<String> acceptInvite(String inviteId) async {
+  Future<String> acceptInvite(String inviteId) async =>
+      (await acceptInviteRelayed(inviteId)).status;
+
+  /// [acceptInvite] with the whole answer: the invite id the server accepted
+  /// and its relayed nonce (ADR 2026-09-25b §2). Not on [MembersApi], so the
+  /// interface every fake implements is unchanged.
+  Future<AcceptedInvite> acceptInviteRelayed(String inviteId) async {
     final body = await _send(
       () async => _http.post(
         _endpoints.acceptInvite,
@@ -251,7 +354,7 @@ final class HttpMembersApi implements MembersApi {
         body: jsonEncode({'invite_id': inviteId}),
       ),
     );
-    return body['status']! as String;
+    return AcceptedInvite.fromJson(body);
   }
 
   @override

@@ -1077,6 +1077,30 @@
   "@ceremony.show.loading": {
     "description": "S9.2 loading state (13 §4.3). A verb, never a percentage (11 §4.5)."
   },
+  "ceremony.show.no_invite.body": "This phone can’t find the invitation you joined with, so it has no code for you to show.",
+  "@ceremony.show.no_invite.body": {
+    "description": "S9.2 fail-closed state — why there is no code: the phone cannot pair a relayed invite nonce to the invite it joined with (by invite_id)."
+  },
+  "ceremony.show.no_invite.close": "Close",
+  "@ceremony.show.no_invite.close": {
+    "description": "S9.2 fail-closed state way off the screen."
+  },
+  "ceremony.show.no_invite.retry": "Check again",
+  "@ceremony.show.no_invite.retry": {
+    "description": "S9.2 fail-closed state primary action — re-reads the invite relay. Draws nothing by itself."
+  },
+  "ceremony.show.no_invite.semantics": "No code yet.",
+  "@ceremony.show.no_invite.semantics": {
+    "description": "S9.2 fail-closed state icon semantics — the icon colour is never the only signal (07 §1 rule 3)."
+  },
+  "ceremony.show.no_invite.title": "No code to show yet",
+  "@ceremony.show.no_invite.title": {
+    "description": "S9.2 fail-closed state, ADR 2026-09-25b §3: no relayed invite nonce for this device's own invite, so NO session is opened and NO QR drawn — the device never draws a nonce itself. 'Keeps its placeholder and says why.' ⚠️ SPEC copy draft for the 07/13 design owner. Plain words: no 'nonce', no 'key', no 'sync' (01 §1.3)."
+  },
+  "ceremony.show.no_invite.why": "Nothing has been checked and nothing has been shared. If this keeps happening, tell the person who invited you.",
+  "@ceremony.show.no_invite.why": {
+    "description": "S9.2 fail-closed state — that nothing happened, and a person to turn to (07 §1 rule 6). Never offer a code anyway: there is nothing honest to put in the square."
+  },
   "ceremony.show.offline": "Offline — this code still works face to face.",
   "@ceremony.show.offline": {
     "description": "S9.2 quiet offline chip (07 §1 rule 7). The code is derived on this phone, so it keeps working."
@@ -2812,9 +2836,9 @@
   "@diag.payload.label": {
     "description": "S17.4 screen-reader label for the raw payload block."
   },
-  "diag.send.reason.channel": "There is nowhere to send it yet — support's WhatsApp door is not open. Copy the report and keep it for when it is.",
+  "diag.send.reason.channel": "The report cannot be sent from the app yet. Copy it and paste it into an email to support.",
   "@diag.send.reason.channel": {
-    "description": "S17.4 send disabled-with-reason while S17.3 has no route (07 §1 rule 6)."
+    "description": "S17.4 send disabled-with-reason while no sender is wired; the way on is copy + email (ADR 2026-09-25 §4, 07 §1 rule 6)."
   },
   "diag.send.reason.offline": "You are offline, so it cannot go now. Copy it, or come back when you have a connection.",
   "@diag.send.reason.offline": {
@@ -3731,17 +3755,42 @@
   "@help.cannot.title": {
     "description": "S17 hub panel stating support's limits (07 §22 🔒 via 06 §8 🔒)."
   },
-  "help.contact.reason": "The WhatsApp door is not open yet. Until it is, the answers here and the report below are what Help can offer.",
-  "@help.contact.reason": {
-    "description": "S17 hub contact row disabled-with-reason (07 §1 rule 6; S17.3 is not built)."
+  "help.contact.email.action": "Email support",
+  "@help.contact.email.action": {
+    "description": "S17.3 primary action: opens the phone's email app addressed to support (ADR 2026-09-25 §4)."
+  },
+  "help.contact.email.body": "Write to support from your email app.",
+  "@help.contact.email.body": {
+    "description": "S17.3 lead line over the Email support action (ADR 2026-09-25 §4)."
+  },
+  "help.contact.email.copied": "Address copied.",
+  "@help.contact.email.copied": {
+    "description": "S17.3 confirmation after copying the support address."
+  },
+  "help.contact.email.copy": "Copy the address",
+  "@help.contact.email.copy": {
+    "description": "S17.3 action copying the support email address (07 §1 rule 6: the way on when no email app opens)."
+  },
+  "help.contact.email.failed": "This phone could not open an email app. Write to {address} from any email app, or copy the address below.",
+  "@help.contact.email.failed": {
+    "description": "S17.3 failed-launch line: names the address and points at the copy action (07 §1 rule 6 🔒; ADR 2026-09-19 ruling 3's shape). {address} is the support email address, never translated.",
+    "placeholders": {
+      "address": {
+        "type": "String"
+      }
+    }
+  },
+  "help.contact.email.label": "Support address",
+  "@help.contact.email.label": {
+    "description": "S17.3 label over the always-visible, selectable support email address."
   },
   "help.contact.title": "Contact support",
   "@help.contact.title": {
-    "description": "S17 hub row for S17.3 — WhatsApp is its primary door (13 §3.2 row S17.3)."
+    "description": "S17 hub row for S17.3 — email is its primary door for the pilot (ADR 2026-09-25 §4; 13 §3.2 row S17.3)."
   },
-  "help.contact.value": "WhatsApp",
+  "help.contact.value": "Email",
   "@help.contact.value": {
-    "description": "S17 hub contact row value: the channel S17.3 opens."
+    "description": "S17 hub contact row value: the channel S17.3 opens (email, ADR 2026-09-25 §4)."
   },
   "help.diagnostics.subtitle": "A short report about the app itself. You read all of it before it goes.",
   "@help.diagnostics.subtitle": {

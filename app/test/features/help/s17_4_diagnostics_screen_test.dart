@@ -281,7 +281,8 @@ void main() {
     ) async {
       final l10n = await AppLocalizations.delegate.load(const Locale('en'));
 
-      // No sender: the standing case while ADR 2026-09-19 is unratified.
+      // No sender: the standing case until an ADR rules whether a mailto:
+      // body is within ADR 2026-09-25 §4 (⚠️ SPEC in diagnostics_seams.dart).
       await pumpRk(
         tester,
         SendDiagnosticsScreen(device: _FakeDevice()),

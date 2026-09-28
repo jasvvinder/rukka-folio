@@ -11,6 +11,7 @@ export 'guardian_sealing.dart';
 export 'guardians_api.dart';
 export 'guardians_seams.dart';
 export 'recovery_api.dart';
+export 'recovery_candidate.dart';
 export 'recovery_ladder_source.dart';
 export 'recovery_roster.dart';
 export 'recovery_seams.dart';

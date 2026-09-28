@@ -103,6 +103,12 @@ class _BusinessOpeningHostState extends State<BusinessOpeningHost> {
             // the one moment it can be recorded. `createBook` keys it to the
             // partner account ids it mints (02 §7.1 🔒).
             ownerShares: flow.ownerShares,
+            // The chart's Partner Current A/c → member mapping the owner set
+            // is derived from (ADR 2026-09-14b; structural_reader
+            // `_ownersNamed`). The creating user's id comes from the open
+            // ledger, never a guess; an invited owner has none yet (02 §7.1),
+            // and then nothing is passed — see [OnboardingFlow.ownerMemberIds].
+            ownerMemberIds: flow.ownerMemberIds(ledger.identity.userId),
             startDate: widget.startDate,
           );
       flow.businessBookId = bookId;

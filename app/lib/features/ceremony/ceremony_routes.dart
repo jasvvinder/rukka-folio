@@ -16,6 +16,11 @@
 // ([VerifyMemberKeyIncomplete], ADR 2026-09-24b §2) and the route shows
 // [VerifyMemberKeyIncompleteScreen] — never the silent placeholder, never the
 // generic error — with *Check again* re-opening the side.
+//
+// S9.2 has the same shape (ADR 2026-09-25b §3): with no relayed invite nonce
+// the factory answers [ShowMyCodeNoInviteNonce] and the route shows
+// [ShowMyCodeNoInviteScreen] — the placeholder that says why, with *Check
+// again* and *Close* — and never a QR over a nonce this device drew.
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
@@ -24,9 +29,9 @@ import '../../shared/app_scope.dart';
 import '../../shared/widgets/placeholder_screen.dart';
 import 'camera_scanner.dart';
 import 'ceremony_paths.dart';
-import 'ceremony_repository.dart';
 import 'ceremony_scope.dart';
 import 'ceremony_sessions.dart';
+import 'screens/s9_2_no_invite_screen.dart';
 import 'screens/s9_2_show_my_code_screen.dart';
 import 'screens/s9_3_key_incomplete_screen.dart';
 import 'screens/s9_3_verify_member_screen.dart';
@@ -38,6 +43,7 @@ export 'ceremony_paths.dart';
 export 'ceremony_repository.dart';
 export 'ceremony_scope.dart';
 export 'ceremony_sessions.dart';
+export 'screens/s9_2_no_invite_screen.dart';
 export 'screens/s9_2_show_my_code_screen.dart';
 export 'screens/s9_3_key_incomplete_screen.dart';
 export 'screens/s9_3_verify_member_screen.dart';
@@ -75,17 +81,26 @@ class ShowMyCodeRoute extends StatelessWidget {
   Widget build(BuildContext context) {
     final scope = CeremonyScope.maybeOf(context);
     final l10n = AppLocalizations.of(context);
-    return _CeremonyGate<ShowMyCodeRepository>(
-      ready: scope?.showMyCode,
+    final direct = scope?.showMyCode;
+    return _CeremonyGate<ShowMyCodeOpening>(
+      ready: direct == null ? null : ShowMyCodeReady(direct),
       open: () => (scope?.openings ?? const NoCeremonySessions()).showMyCode(),
       waiting: RkPlaceholderScreen(
         title: l10n.ceremonyShowTitle,
         body: l10n.ceremonyShowLoading,
       ),
-      builder: (context, repository, _) => ShowMyCodeScreen(
-        repository: repository,
-        now: RkScope.of(context).now,
-      ),
+      builder: (context, opening, reopen) => switch (opening) {
+        ShowMyCodeReady(:final repository) => ShowMyCodeScreen(
+          repository: repository,
+          now: RkScope.of(context).now,
+        ),
+        // ADR 2026-09-25b §3: no relayed nonce — the placeholder that says
+        // why, with a way on (07 §1 rule 6), never a nonce drawn here.
+        ShowMyCodeNoInviteNonce() => ShowMyCodeNoInviteScreen(
+          onCheckAgain: reopen,
+          onClose: () => Navigator.of(context).maybePop(),
+        ),
+      },
     );
   }
 }

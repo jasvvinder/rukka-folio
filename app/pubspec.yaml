@@ -46,6 +46,11 @@ dependencies:
   # app does not control. The QR is a *rendering* of a code core_crypto derives — never a
   # generator of one.
   qr: ^3.0.2
+  # S17.3 *Email support* (ADR 2026-09-19 ruling 2, amended by ADR 2026-09-25 §4): `mailto:` to the
+  # ONE support address, through `features/help/support_mailer.dart` only. `launchUrl` is called and
+  # `canLaunchUrl` never is, so no LSApplicationQueriesSchemes / <queries> config is added. Flutter
+  # team, BSD-3-Clause; url_launcher_ios links only Foundation/UIKit/SafariServices (ADR 2026-09-19 §4).
+  url_launcher: ^6.3.2
   # pure engine packages — the app never reimplements what they own
   core_ledger:
     path: ../packages/core_ledger

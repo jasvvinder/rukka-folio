@@ -49,15 +49,36 @@
 
   "help.contact.title": "Contact support",
   "@help.contact.title": {
-    "description": "S17 hub row for S17.3 — WhatsApp is its primary door (13 §3.2 row S17.3)."
+    "description": "S17 hub row for S17.3 — email is its primary door for the pilot (ADR 2026-09-25 §4; 13 §3.2 row S17.3)."
   },
-  "help.contact.value": "WhatsApp",
+  "help.contact.value": "Email",
   "@help.contact.value": {
-    "description": "S17 hub contact row value: the channel S17.3 opens."
+    "description": "S17 hub contact row value: the channel S17.3 opens (email, ADR 2026-09-25 §4)."
   },
-  "help.contact.reason": "The WhatsApp door is not open yet. Until it is, the answers here and the report below are what Help can offer.",
-  "@help.contact.reason": {
-    "description": "S17 hub contact row disabled-with-reason (07 §1 rule 6; S17.3 is not built)."
+  "help.contact.email.body": "Write to support from your email app.",
+  "@help.contact.email.body": {
+    "description": "S17.3 lead line over the Email support action (ADR 2026-09-25 §4)."
+  },
+  "help.contact.email.action": "Email support",
+  "@help.contact.email.action": {
+    "description": "S17.3 primary action: opens the phone's email app addressed to support (ADR 2026-09-25 §4)."
+  },
+  "help.contact.email.label": "Support address",
+  "@help.contact.email.label": {
+    "description": "S17.3 label over the always-visible, selectable support email address."
+  },
+  "help.contact.email.copy": "Copy the address",
+  "@help.contact.email.copy": {
+    "description": "S17.3 action copying the support email address (07 §1 rule 6: the way on when no email app opens)."
+  },
+  "help.contact.email.copied": "Address copied.",
+  "@help.contact.email.copied": {
+    "description": "S17.3 confirmation after copying the support address."
+  },
+  "help.contact.email.failed": "This phone could not open an email app. Write to {address} from any email app, or copy the address below.",
+  "@help.contact.email.failed": {
+    "description": "S17.3 failed-launch line: names the address and points at the copy action (07 §1 rule 6 🔒; ADR 2026-09-19 ruling 3's shape). {address} is the support email address, never translated.",
+    "placeholders": {"address": {"type": "String"}}
   },
   "help.cannot.title": "What support cannot do",
   "@help.cannot.title": {
@@ -372,9 +393,9 @@
   "@diag.copied": {
     "description": "S17.4 confirmation after copying."
   },
-  "diag.send.reason.channel": "There is nowhere to send it yet — support's WhatsApp door is not open. Copy the report and keep it for when it is.",
+  "diag.send.reason.channel": "The report cannot be sent from the app yet. Copy it and paste it into an email to support.",
   "@diag.send.reason.channel": {
-    "description": "S17.4 send disabled-with-reason while S17.3 has no route (07 §1 rule 6)."
+    "description": "S17.4 send disabled-with-reason while no sender is wired; the way on is copy + email (ADR 2026-09-25 §4, 07 §1 rule 6)."
   },
   "diag.send.reason.offline": "You are offline, so it cannot go now. Copy it, or come back when you have a connection.",
   "@diag.send.reason.offline": {

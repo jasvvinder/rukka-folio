@@ -17,6 +17,7 @@
 library;
 
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:core_crypto/core_crypto.dart';
@@ -35,6 +36,14 @@ String _eightDigits(Uint8List h) =>
     (ByteData.sublistView(h, 0, 4).getUint32(0) % 100000000).toString().padLeft(
       8,
       '0',
+    );
+
+/// The **retired** 04 §6.1 derivation, recomputed here because lib/ no
+/// longer carries it (PLAN RV6, deleted 27 Sep 2026; ADR 2026-09-13d §1):
+/// `decimal(first4bytes(BLAKE2b-256(FP ‖ nonce ‖ "verify-v1"))) mod 10⁸`.
+String _retiredCode(CryptoSuite s, Fingerprint fp, Uint8List nonce) =>
+    _eightDigits(
+      s.blake2b256(Bytes.concat([fp.bytes, nonce, _tag('verify-v1')])),
     );
 
 void main() {
@@ -183,7 +192,7 @@ void main() {
     );
   });
 
-  test('B-04-87 old code path (04 §6.3): a relay that substitutes the invitee\'s key and chooses both nonces makes the honest 8 digits verify its own key — a birthday search of ~2·10⁴ hashes, accepted on the first attempt, rate limits never engaged; the QR path under the same relay hard-fails', () async {
+  test('B-04-87 retired code path (04 §6.3 as shipped to 13 Sep; ADR 2026-09-13d §1): a relay that substitutes the invitee\'s key and chooses both nonces makes the honest 8 digits equal the code of its own key — a birthday search of ~2·10⁴ hashes, found offline, no attempt spent; the derivation is gone from lib/ (RV6) so nothing can verify on it; the QR path under the same relay hard-fails', () async {
     // The finding of ADR 2026-09-13c Open 1, verified (CLAUDE.md rule 11).
     // 04 §6.3: the verifier "computes the expected code from the *server-
     // relayed* keys + nonce". 04 §6.1: the nonce is "server-generated". 06 §3
@@ -220,9 +229,9 @@ void main() {
       if (i > 200000) fail('no collision in 4·10⁵ hashes — expected ~2·10⁴');
       probe.buffer.asByteData().setUint32(0, i);
       probe[15] = 0;
-      byCode[verificationCode(s, fpS, probe)] = Uint8List.fromList(probe);
+      byCode[_retiredCode(s, fpS, probe)] = Uint8List.fromList(probe);
       probe[15] = 1;
-      final cV = verificationCode(s, fpGhost, probe);
+      final cV = _retiredCode(s, fpGhost, probe);
       hashes += 2;
       final hit = byCode[cV];
       if (hit != null) {
@@ -239,34 +248,45 @@ void main() {
     // The invitee's phone was issued n_S (04 §6.1) and derives its digits from
     // its own true key — exactly what S9.2 does (ceremony_repository.dart
     // _derive). The human reads them aloud.
-    final shown = verificationCode(s, fpS, nS);
+    final shown = _retiredCode(s, fpS, nS);
 
-    // The verifier's phone was relayed (UMK′, n_V) — what S9.3 hands
-    // CodeChallenge. The honest digits verify the ghost, first try.
-    final c = CodeChallenge(
-      relayed: ghost.public,
-      nonce: nV!,
-      issuedAtMs: _issued,
-    );
-    final r = c.attempt(s, typed: shown, nowMs: _issued + 1000);
-    expect(r.result, isA<CeremonyVerified>());
+    // The verifier's phone was relayed (UMK′, n_V) and would have expected
+    // the retired code of the ghost key. The honest digits equal it: under
+    // the retired `CodeChallenge` this verified the ghost as a
+    // VerifiedUmkPublic on the first try, `attemptsUsed == 0` (as landed
+    // 13 Sep). The class is deleted now, so what stays pinned is the
+    // collision itself — found offline, before any attempt exists.
     expect(
-      (r.result as CeremonyVerified).verified.public,
-      ghost.public,
-      reason: 'the ghost member is now a VerifiedUmkPublic — book keys would be wrapped to it (04 §5.1)',
+      _retiredCode(s, fpGhost, nV!),
+      shown,
+      reason: 'the honest digits are the ghost key\'s code under n_V',
     );
-    expect(
-      c.attemptsUsed,
-      0,
-      reason:
-          'no wrong attempt was ever spent: 3-per-nonce never saw the attack',
-    );
+    expect(fpGhost, isNot(fpS));
+
+    // …and no production path can verify on it any more (RV6): lib/ declares
+    // neither the derivation nor its challenge, and nothing there hashes the
+    // retired suffix. The live code path is `SasChallenge` (B-04-88).
+    final offenders = <String>[];
+    for (final f in Directory('lib').listSync(recursive: true)) {
+      if (f is! File || !f.path.endsWith('.dart')) continue;
+      final lines = f.readAsLinesSync();
+      for (var i = 0; i < lines.length; i++) {
+        final line = lines[i];
+        if (line.trimLeft().startsWith('//')) continue;
+        if (line.contains('verificationCode(') ||
+            line.contains('class CodeChallenge') ||
+            line.contains("'verify-v1'")) {
+          offenders.add('${f.path}:${i + 1}: $line');
+        }
+      }
+    }
+    expect(offenders, isEmpty, reason: offenders.join('\n'));
 
     // One-sided variant (the invitee's nonce honest, the verifier's ground):
     // shown at four digits so the push lane stays fast — expected 10⁴ tries
     // here, 10⁸ for all eight, the same search either way.
     final honestNonce = s.randomBytes(16);
-    final honestCode = verificationCode(s, fpS, honestNonce);
+    final honestCode = _retiredCode(s, fpS, honestNonce);
     var tries = 0;
     final grind = Uint8List(16);
     String candidate;
@@ -274,7 +294,7 @@ void main() {
       tries++;
       if (tries > 200000) fail('no 4-digit prefix collision in 2·10⁵ tries');
       grind.buffer.asByteData().setUint32(0, tries);
-      candidate = verificationCode(s, fpGhost, grind);
+      candidate = _retiredCode(s, fpGhost, grind);
     } while (candidate.substring(0, 4) != honestCode.substring(0, 4));
     expect(candidate.substring(0, 4), honestCode.substring(0, 4));
 

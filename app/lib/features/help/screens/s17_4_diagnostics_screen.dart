@@ -21,8 +21,10 @@
 //                  (07 §1 rule 7 🔒)
 //   no channel   → send disabled with `diag.send.reason.channel`, which is
 //                  the standing case: [DiagnosticsSender] has no production
-//                  producer while ADR 2026-09-19 is unratified, so *Copy the
-//                  report* is the way on (07 §1 rule 6 🔒).
+//                  producer until an ADR rules whether a `mailto:` body is
+//                  within ADR 2026-09-25 §4 (⚠️ SPEC in
+//                  diagnostics_seams.dart), so *Copy the report* and the
+//                  person's own email app are the way on (07 §1 rule 6 🔒).
 //
 // The report is rebuilt from the live `MediaQuery`, `Theme`, `Localizations`
 // and sync status on every build, so what is on screen can never drift from
@@ -81,8 +83,9 @@ class SendDiagnosticsScreen extends StatefulWidget {
   /// cannot read is omitted from the report rather than guessed.
   final DiagnosticsDevice? device;
 
-  /// Sends the payload. **Null in production** while ADR 2026-09-19 is
-  /// unratified; the send action then states why it cannot go.
+  /// Sends the payload. **Null in production** until an ADR rules whether a
+  /// `mailto:` body is within ADR 2026-09-25 §4 (⚠️ SPEC in
+  /// diagnostics_seams.dart); the send action then states why it cannot go.
   final DiagnosticsSender? sender;
 
   @override

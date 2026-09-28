@@ -65,7 +65,7 @@ class FaqArticleScreen extends StatelessWidget {
                     onTap: onBackToHub,
                   ),
                   HelpDoorRow(
-                    icon: Icons.chat_outlined,
+                    icon: Icons.mail_outline,
                     title: l10n.helpContactTitle,
                     subtitle: l10n.helpContactValue,
                     onTap: onOpenContact,

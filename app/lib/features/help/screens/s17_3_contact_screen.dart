@@ -1,53 +1,88 @@
-// S17.3 Contact support (13 §3.2 row S17.3: "WhatsApp primary; states what
-// support cannot do"; 07 §22 🔒, which names the four limits of 06 §8 🔒).
+// S17.3 Contact support (13 §3.2 row S17.3: "email primary for the pilot …
+// states what support cannot do"; 07 §22 🔒, which names the four limits of
+// 06 §8 🔒; ADR 2026-09-25 §4, which makes *Email support* the primary
+// action).
 //
-// ⛔ Nothing on this screen launches anything. PLAN-11 is open:
-// ADR 2026-09-19 (mobile_scanner + url_launcher) is unratified, so
-// `url_launcher` is not in `app/pubspec.yaml` and no `tel:`, `wa.me` or
-// `https:` target may be opened from here. [onOpenChannel] is the seam for
-// the day it is ratified and production passes **null**, exactly as
-// `features/recovery` passes a null `RecoveryScanner` under the same ADR.
+// The page, top to bottom:
 //
-// That is why the honest shape of this screen is not "a button that opens
-// WhatsApp". It is:
+//   1. **Email support** — the primary action, through [SupportMailer], which
+//      can open `mailto:support@rukkafolio.com` and nothing else (ADR
+//      2026-09-19 ruling 2 as amended by ADR 2026-09-25 §4). The address is
+//      always on the page, selectable, beside *Copy the address*, so a phone
+//      with no email app still has a way on. A failed launch names the
+//      address in words beside an icon (07 §1 rules 3, 6 🔒).
+//   2. **What support cannot do** — the 🔒 statement of 06 §8, word for word
+//      (ADR 2026-09-25 §4 keeps it). A reader who learns that no endpoint
+//      exists to read their book cannot be talked into asking for one.
+//   3. the other ways on: the answer that spells support's powers out, and
+//      S17.4.
 //
-//   1. the channel, named, with the disabled-with-reason state of 13 §4.3
-//      saying in words why it will not open yet;
-//   2. **what support cannot do** — the part of S17.3 that 07 §22 🔒 makes
-//      normative, and the part that is useful whether or not the door opens:
-//      a reader who learns that no endpoint exists to read their book cannot
-//      be talked into asking for one (06 §8 🔒);
-//   3. the ways on, so the page is never a dead end (07 §1 rule 6 🔒) — the
-//      answer that spells support's powers out, and S17.4, which is the one
-//      thing a person *can* send today.
+// There is no chat door: the in-app AI chat of ADR 2026-09-25 §4 needs its
+// own ADR before it is built.
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../l10n/gen/app_localizations.dart';
+import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../../../shared/widgets/rk_fit_text.dart';
+import '../../../shared/widgets/rk_ruled_card.dart';
 import '../faq_catalog.dart';
+import '../support_mailer.dart';
 import '../widgets/help_widgets.dart';
 
 /// S17.3 — Contact support.
-class ContactSupportScreen extends StatelessWidget {
+class ContactSupportScreen extends StatefulWidget {
   /// Creates the page.
   const ContactSupportScreen({
     super.key,
-    this.onOpenChannel,
+    required this.mailer,
     required this.onOpenDiagnostics,
     required this.onOpenArticle,
   });
 
-  /// Opens the WhatsApp conversation. **Null in production** while
-  /// ADR 2026-09-19 is unratified; the row then states the reason.
-  final VoidCallback? onOpenChannel;
+  /// Opens the email app addressed to support. Required: email is the
+  /// primary channel (ADR 2026-09-25 §4), so production always supplies
+  /// [UrlLauncherSupportMailer].
+  final SupportMailer mailer;
 
-  /// Opens S17.4. Required: S17.4 is built, and it is the one thing a person
-  /// *can* send today, so this door never has nowhere to go.
+  /// Opens S17.4.
   final VoidCallback onOpenDiagnostics;
 
   /// Opens S17.2 for an answer id.
   final void Function(String id) onOpenArticle;
+
+  @override
+  State<ContactSupportScreen> createState() => _ContactSupportScreenState();
+}
+
+class _ContactSupportScreenState extends State<ContactSupportScreen> {
+  bool _opening = false;
+  bool _failed = false;
+
+  Future<void> _email() async {
+    setState(() => _opening = true);
+    var opened = false;
+    try {
+      opened = await widget.mailer.openSupportEmail();
+    } on Object {
+      // The seam promises not to throw; a fake or a future one that does is
+      // still a failed launch, never a crash.
+      opened = false;
+    }
+    if (!mounted) return;
+    setState(() {
+      _opening = false;
+      _failed = !opened;
+    });
+  }
+
+  Future<void> _copy(String confirmation) async {
+    await Clipboard.setData(const ClipboardData(text: supportEmailAddress));
+    if (!mounted) return;
+    ScaffoldMessenger.of(context)
+        .showSnackBar(SnackBar(content: RkFitText(confirmation)));
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,11 +94,11 @@ class ContactSupportScreen extends StatelessWidget {
         child: ListView(
           padding: const EdgeInsets.only(bottom: RkSpace.s10),
           children: [
-            HelpDoorRow(
-              icon: Icons.chat_outlined,
-              title: l10n.helpContactValue,
-              onTap: onOpenChannel,
-              reason: l10n.helpContactReason,
+            _EmailCard(
+              opening: _opening,
+              failed: _failed,
+              onEmail: _email,
+              onCopy: () => _copy(l10n.helpContactEmailCopied),
             ),
             HelpLimitsCard(
               title: l10n.helpCannotTitle,
@@ -80,13 +115,99 @@ class ContactSupportScreen extends StatelessWidget {
               HelpDoorRow(
                 icon: Icons.verified_user_outlined,
                 title: powers.question,
-                onTap: () => onOpenArticle('support_powers'),
+                onTap: () => widget.onOpenArticle('support_powers'),
               ),
             HelpDoorRow(
               icon: Icons.assignment_outlined,
               title: l10n.helpDiagnosticsTitle,
               subtitle: l10n.helpDiagnosticsSubtitle,
-              onTap: onOpenDiagnostics,
+              onTap: widget.onOpenDiagnostics,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The email channel: the primary action, the address, and — after a failed
+/// launch — the line that says what to do instead.
+class _EmailCard extends StatelessWidget {
+  const _EmailCard({
+    required this.opening,
+    required this.failed,
+    required this.onEmail,
+    required this.onCopy,
+  });
+
+  final bool opening;
+  final bool failed;
+  final VoidCallback onEmail;
+  final VoidCallback onCopy;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final t = Theme.of(context).textTheme;
+    final status = RkStatusColors.of(context);
+    return RkRuledCard(
+      child: Padding(
+        padding: const EdgeInsets.all(RkSpace.cardPadding),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            RkFitText(l10n.helpContactEmailBody, style: t.bodyLarge),
+            const SizedBox(height: RkSpace.s3),
+            FilledButton.icon(
+              // Disabled only for the instant a launch is in flight, so one
+              // tap is one launch.
+              onPressed: opening ? null : onEmail,
+              icon: const Icon(Icons.mail_outline),
+              label: RkFitText(l10n.helpContactEmailAction),
+            ),
+            if (failed) ...[
+              const SizedBox(height: RkSpace.s3),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // The failure is an icon and words; no meaning rests on the
+                  // tint (07 §1 rule 3 🔒).
+                  Icon(
+                    Icons.error_outline,
+                    size: RkIcon.grid,
+                    color: status.muted,
+                  ),
+                  const SizedBox(width: RkSpace.s2),
+                  Expanded(
+                    child: Semantics(
+                      liveRegion: true,
+                      child: RkFitText(
+                        l10n.helpContactEmailFailed(supportEmailAddress),
+                        style: t.bodyMedium,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+            const SizedBox(height: RkSpace.s4),
+            RkFitText(
+              l10n.helpContactEmailLabel,
+              style: t.labelLarge?.copyWith(color: status.muted),
+            ),
+            const SizedBox(height: RkSpace.s1),
+            // Selectable, so the address can be long-pressed and copied by
+            // hand as well as by the button below.
+            SelectionArea(
+              child: RkFitText(supportEmailAddress, style: t.titleMedium),
+            ),
+            Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: TextButton.icon(
+                onPressed: onCopy,
+                icon: const Icon(Icons.copy),
+                label: RkFitText(l10n.helpContactEmailCopy),
+              ),
             ),
           ],
         ),

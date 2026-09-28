@@ -391,6 +391,30 @@
   "ceremony.show.expired": "यह कोड खत्म हो चुका है।",
   "ceremony.show.expires_in": "{time} में खत्म",
   "ceremony.show.loading": "आपका कोड लिया जा रहा है।",
+  "ceremony.show.no_invite.body": "इस फ़ोन को वह न्योता नहीं मिल रहा जिससे आप जुड़े थे, इसलिए आपके दिखाने के लिए कोई कोड नहीं है।",
+  "@ceremony.show.no_invite.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "ceremony.show.no_invite.close": "बंद करें",
+  "@ceremony.show.no_invite.close": {
+    "description": "machine-draft — native review M12"
+  },
+  "ceremony.show.no_invite.retry": "दोबारा देखें",
+  "@ceremony.show.no_invite.retry": {
+    "description": "machine-draft — native review M12"
+  },
+  "ceremony.show.no_invite.semantics": "अभी कोई कोड नहीं।",
+  "@ceremony.show.no_invite.semantics": {
+    "description": "machine-draft — native review M12"
+  },
+  "ceremony.show.no_invite.title": "अभी दिखाने के लिए कोई कोड नहीं",
+  "@ceremony.show.no_invite.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "ceremony.show.no_invite.why": "कुछ भी जाँचा या साझा नहीं हुआ। अगर ऐसा बार-बार हो, तो जिन्होंने आपको न्योता भेजा था उन्हें बताएँ।",
+  "@ceremony.show.no_invite.why": {
+    "description": "machine-draft — native review M12"
+  },
   "ceremony.show.offline": "ऑफ़लाइन — यह कोड आमने-सामने फिर भी चलता है।",
   "ceremony.show.qr.semantics": "आपका सत्यापन वाला चौकोर। वही कोड नीचे आठ अंकों में लिखा है।",
   "ceremony.show.regenerate": "नया कोड लें",
@@ -836,7 +860,7 @@
   "@diag.payload.label": {
     "description": "machine-draft — native review M12"
   },
-  "diag.send.reason.channel": "इसे भेजने की जगह अभी नहीं है — सहायता का व्हाट्सएप दरवाज़ा खुला नहीं है। रिपोर्ट कॉपी कर लें और जब वह खुले तब के लिए रख लें।",
+  "diag.send.reason.channel": "रिपोर्ट अभी ऐप से नहीं भेजी जा सकती। इसे कॉपी करके सहायता को ईमेल में चिपकाएँ।",
   "@diag.send.reason.channel": {
     "description": "machine-draft — native review M12"
   },
@@ -1540,15 +1564,35 @@
   "@help.cannot.title": {
     "description": "machine-draft — native review M12"
   },
-  "help.contact.reason": "व्हाट्सएप का दरवाज़ा अभी खुला नहीं है। जब तक नहीं खुलता, यहाँ के जवाब और नीचे की रिपोर्ट ही मदद दे सकती है।",
-  "@help.contact.reason": {
+  "help.contact.email.action": "सहायता को ईमेल करें",
+  "@help.contact.email.action": {
+    "description": "machine-draft — native review M12"
+  },
+  "help.contact.email.body": "अपने ईमेल ऐप से सहायता को लिखें।",
+  "@help.contact.email.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "help.contact.email.copied": "पता कॉपी हो गया।",
+  "@help.contact.email.copied": {
+    "description": "machine-draft — native review M12"
+  },
+  "help.contact.email.copy": "पता कॉपी करें",
+  "@help.contact.email.copy": {
+    "description": "machine-draft — native review M12"
+  },
+  "help.contact.email.failed": "यह फ़ोन ईमेल ऐप नहीं खोल सका। किसी भी ईमेल ऐप से {address} को लिखें, या नीचे से पता कॉपी करें।",
+  "@help.contact.email.failed": {
+    "description": "machine-draft — native review M12"
+  },
+  "help.contact.email.label": "सहायता का पता",
+  "@help.contact.email.label": {
     "description": "machine-draft — native review M12"
   },
   "help.contact.title": "सहायता से संपर्क",
   "@help.contact.title": {
     "description": "machine-draft — native review M12"
   },
-  "help.contact.value": "व्हाट्सएप",
+  "help.contact.value": "ईमेल",
   "@help.contact.value": {
     "description": "machine-draft — native review M12"
   },

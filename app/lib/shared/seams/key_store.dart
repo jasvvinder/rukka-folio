@@ -22,6 +22,12 @@ abstract final class KeyIds {
 
   /// The user's master key, wrapped to this device (04 §3.1, §3.4).
   static const wrappedUmk = 'rk.umk.wrapped';
+
+  /// The **recovery candidate**'s 32 secret bytes (04 §7.3 step 1, ADR
+  /// 2026-09-24b §1 🔒): its own X25519 pair, one per attempt, held from the
+  /// open until the attempt closes and deleted after reconstruct. Never the
+  /// device's agreement key, never beside it under the same id.
+  static const recoveryCandidate = 'rk.recovery.candidate';
 }
 
 /// Secrets at rest. Implementations must be hardware-backed where the

@@ -143,10 +143,8 @@ void main() {
         // No row on this hub is ever disabled-with-reason: all three
         // destinations are built, so a reason line here could only be one
         // that is not true (07 §1 rule 6 🔒 — the mistake the Menu's own
-        // Help row made until S17 landed). The reason belongs on S17.3,
-        // whose WhatsApp channel really has not opened.
+        // Help row made until S17 landed).
         expect(find.byIcon(Icons.schedule), findsNothing);
-        expect(find.text(l10n.helpContactReason), findsNothing);
       },
     );
 

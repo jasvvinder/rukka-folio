@@ -31,6 +31,7 @@ import 'package:flutter/material.dart';
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/tokens.dart';
 import '../export/report_export.dart';
+import 'file_name_message.dart';
 import 'reports_row.dart';
 
 /// Builds the report in [format], hands it to [sink] and tells the reader what
@@ -62,8 +63,16 @@ Future<void> runReportExport({
       case ReportShared():
         break;
       case ReportSaved(:final where):
+        // The name wraps — at `-`, `/`, `.`, then any character — and is
+        // never cut, so rule 6 and rule 11 of 07 §1 both hold at 200 % on
+        // 360×800 (ADR 2026-09-24b §10).
         messenger.showSnackBar(
-          SnackBar(content: Text(l10n.reportsExportSaved(where))),
+          SnackBar(
+            content: FileNameMessage(
+              fileName: where,
+              sentence: l10n.reportsExportSaved,
+            ),
+          ),
         );
     }
   } catch (_) {

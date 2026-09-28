@@ -35,9 +35,6 @@ const int _deviceQrPayloadBytes = 1 + 16 + 32 + 32 + ceremonyNonceBytes;
 /// `suiteVersion` field that would otherwise shadow it.
 const int _currentSuite = suiteVersion;
 
-/// The suffix hashed into the 8-digit code (04 §6.1).
-final Uint8List _verifyV1 = Uint8List.fromList(utf8.encode('verify-v1'));
-
 Uint8List _checkedNonce(Uint8List nonce) {
   if (nonce.length != ceremonyNonceBytes) {
     throw ArgumentError.value(
@@ -118,21 +115,6 @@ final class QrPayload {
   String encode() => Bytes.base64Url(toBytes());
 }
 
-/// **Retired derivation** (ADR 2026-09-13d §1 🔒, ratified 13 Sep 2026; the
-/// app switched at U4c): `decimal( first4bytes( BLAKE2b-256( FP ‖ nonce ‖
-/// "verify-v1" ) ) ) mod 10⁸`, zero-padded, first four bytes big-endian. A
-/// relay that holds the registered key and issues the nonces pre-computes it
-/// (B-04-87), so **no production path derives a code from it** — 04 §6.1 now
-/// says the invite nonce "no longer derives any code". Kept only so B-04-87
-/// can demonstrate the break against the real function; the live code is
-/// [sasCode]. Do not call this from `app/`.
-String verificationCode(CryptoSuite suite, Fingerprint fp, Uint8List nonce) {
-  final n = _checkedNonce(nonce);
-  final h = suite.blake2b256(Bytes.concat([fp.bytes, n, _verifyV1]));
-  final first4 = ByteData.sublistView(h, 0, 4).getUint32(0);
-  return (first4 % 100000000).toString().padLeft(8, '0');
-}
-
 /// Outcome of a ceremony step. Sealed so the UI must handle every case.
 sealed class CeremonyResult {
   const CeremonyResult();
@@ -175,104 +157,6 @@ final class CodeExpired extends CeremonyResult {
 final class CodeExhausted extends CeremonyResult {
   /// Creates the exhausted outcome.
   const CodeExhausted();
-}
-
-/// **Retired** with [verificationCode] (ADR 2026-09-13d §1): the code-path
-/// state over a server-issued nonce. The live verifier-side state is
-/// [SasChallenge], reached through [SasVerifier]; this class stays only as
-/// B-04-87's target. Immutable: each [attempt] returns the successor state
-/// beside its result; nothing here touches a clock.
-@immutable
-final class CodeChallenge {
-  /// Opens a challenge for the server-relayed keys and the invite nonce
-  /// issued at [issuedAtMs] (server time of invite creation, ms since epoch).
-  CodeChallenge({
-    required this.relayed,
-    required Uint8List nonce,
-    required this.issuedAtMs,
-  }) : nonce = _checkedNonce(nonce),
-       attemptsUsed = 0,
-       dead = false;
-
-  const CodeChallenge._(
-    this.relayed,
-    this.nonce,
-    this.issuedAtMs,
-    this.attemptsUsed,
-    this.dead,
-  );
-
-  /// Server-relayed UMK public halves of the person being verified.
-  final UmkPublic relayed;
-
-  /// The invite nonce.
-  final Uint8List nonce;
-
-  /// When the nonce was issued (ms since epoch).
-  final int issuedAtMs;
-
-  /// Wrong attempts consumed so far.
-  final int attemptsUsed;
-
-  /// True once the nonce can never verify again (exhausted or consumed).
-  final bool dead;
-
-  /// Attempts still available on this nonce.
-  int get attemptsLeft => dead ? 0 : codeMaxAttempts - attemptsUsed;
-
-  /// True when [nowMs] is past the nonce's lifetime.
-  // ⚠️ SPEC: 04 §6.3 gives the lifetime ("10 minutes") but not the boundary;
-  // exactly 10:00.000 is accepted, 10:00.001 is expired (09 §2 clock-jump
-  // convention: "at N + 1, not at N − 1").
-  bool isExpiredAt(int nowMs) => nowMs - issuedAtMs > codeNonceLifetimeMs;
-
-  /// Checks [typed] against the expected code derived from the *relayed* keys
-  /// and the nonce (04 §6.3). Order of checks: dead → expired → compare. A
-  /// malformed entry counts as a wrong attempt. The third wrong attempt kills
-  /// the nonce and reports [CodeExhausted]; success also retires the nonce
-  /// (one verification per nonce).
-  ({CodeChallenge next, CeremonyResult result}) attempt(
-    CryptoSuite suite, {
-    required String typed,
-    required int nowMs,
-  }) {
-    if (dead) return (next: this, result: const CodeExhausted());
-    if (isExpiredAt(nowMs)) return (next: this, result: const CodeExpired());
-
-    final expected = verificationCode(
-      suite,
-      Fingerprint.of(suite, relayed),
-      nonce,
-    );
-    final cleaned = typed.replaceAll(RegExp(r'\s'), '');
-    final ok = suite.constantTimeEquals(
-      Uint8List.fromList(utf8.encode(expected)),
-      Uint8List.fromList(utf8.encode(cleaned)),
-    );
-    if (ok) {
-      return (
-        next: CodeChallenge._(relayed, nonce, issuedAtMs, attemptsUsed, true),
-        result: CeremonyVerified(
-          VerifiedUmkPublic.internal(
-            relayed,
-            Fingerprint.of(suite, relayed),
-            VerificationMethod.codeRemote,
-          ),
-        ),
-      );
-    }
-    final used = attemptsUsed + 1;
-    if (used >= codeMaxAttempts) {
-      return (
-        next: CodeChallenge._(relayed, nonce, issuedAtMs, used, true),
-        result: const CodeExhausted(),
-      );
-    }
-    return (
-      next: CodeChallenge._(relayed, nonce, issuedAtMs, used, false),
-      result: CodeWrong(attemptsLeft: codeMaxAttempts - used),
-    );
-  }
 }
 
 /// A device's public keys **confirmed by ceremony** on an existing certified
@@ -522,12 +406,13 @@ final class Ceremony {
 // ---------------------------------------------------------------------------
 // Commitment-based short authentication string (SAS) — the code path against
 // a substituting relay. ADR 2026-09-13d (proposed 13 Sep 2026, escalation lane
-// M7-K4; owner to ratify). Nothing above this line changed.
+// M7-K4; ratified 13 Sep 2026).
 //
-// Why it exists. `verificationCode` is a function of two values the server
-// holds or chooses — the registered fingerprint (06 §3 item 3) and the invite
-// nonce (04 §6.1) — so a relay that substitutes UMK′ can *predict* the honest
-// eight digits and search its own inputs until the codes collide: ~10⁸
+// Why it exists. The retired 04 §6.1 derivation, `BLAKE2b-256(FP ‖ nonce ‖
+// "verify-v1")`, was a function of two values the server holds or chooses —
+// the registered fingerprint (06 §3 item 3) and the invite nonce (04 §6.1) —
+// so a relay that substitutes UMK′ could *predict* the honest eight digits
+// and search its own inputs until the codes collided: ~10⁸
 // BLAKE2b evaluations when it controls one nonce, ~2·10⁴ (a birthday search)
 // when it relays independent nonces to the two sides. First attempt, no
 // mismatch shown, rate limits never engaged (B-04-87). The 3-attempt and
@@ -547,9 +432,11 @@ final class Ceremony {
 // Ratified 13 Sep 2026; S9.2 / S9.3 run on this path since U4c
 // (`app/lib/features/ceremony/ceremony_repository.dart`), and the server
 // relays the three values (commitment → r_V → opening; `ceremony_sessions`,
-// 0007). `verificationCode` / `CodeChallenge` above are retired and remain
-// only as B-04-87's target. Purity as above: randomness from the injected
-// suite, the clock from `nowMs`, no I/O.
+// 0007). The retired `verificationCode` / `CodeChallenge` were deleted on
+// 27 Sep 2026 (PLAN RV6, owner-approved 24 Sep): B-04-87 now recomputes the
+// retired formula inside the test and pins that nothing in lib/ derives it.
+// Purity as above: randomness from the injected suite, the clock from
+// `nowMs`, no I/O.
 // ---------------------------------------------------------------------------
 
 /// Bytes in each side's random contribution (`r_S`, `r_V`): 128-bit.
@@ -609,9 +496,9 @@ Uint8List sasCommitment(
 
 /// The eight-digit SAS:
 /// `decimal( first4bytes( BLAKE2b-256( "rf-sas-code-v1" ‖ FP ‖ user_id ‖ r_S ‖ r_V ) ) ) mod 10⁸`,
-/// zero-padded, first four bytes big-endian — the same shape as
-/// [verificationCode], so 07 §12's eight boxes and S9.3's entry field need no
-/// change when the switch is made.
+/// zero-padded, first four bytes big-endian — the same shape as the retired
+/// 04 §6.1 code, so 07 §12's eight boxes and S9.3's entry field did not
+/// change at the switch.
 String sasCode(
   CryptoSuite suite, {
   required Fingerprint fp,
@@ -848,8 +735,8 @@ final class SasVerifier {
 /// Attempt state of one SAS session on the verifier's device. 04 §6.3's
 /// rules are unchanged — [codeMaxAttempts] wrong tries kill the session, it
 /// expires [codeNonceLifetimeMs] after the commitment's server timestamp,
-/// success retires it — and the shape mirrors [CodeChallenge]: immutable,
-/// each [attempt] returns its successor beside the result, no clock inside.
+/// success retires it — immutable: each [attempt] returns its successor
+/// beside the result, no clock inside.
 @immutable
 final class SasChallenge {
   const SasChallenge._(
@@ -886,8 +773,11 @@ final class SasChallenge {
   /// Attempts still available.
   int get attemptsLeft => dead ? 0 : codeMaxAttempts - attemptsUsed;
 
-  /// True when [nowMs] is past the session's lifetime — same boundary as
-  /// [CodeChallenge.isExpiredAt].
+  /// True when [nowMs] is past the session's lifetime.
+  // ⚠️ SPEC: 04 §6.3 gives the lifetime ("10 minutes") but not the boundary;
+  // exactly 10:00.000 is accepted, 10:00.001 is expired (09 §2 clock-jump
+  // convention: "at N + 1, not at N − 1"). Carried over from the retired
+  // `CodeChallenge` (deleted 27 Sep 2026, PLAN RV6); B-04-90 pins it.
   bool isExpiredAt(int nowMs) => nowMs - issuedAtMs > codeNonceLifetimeMs;
 
   SasChallenge _next(int used, bool isDead) =>

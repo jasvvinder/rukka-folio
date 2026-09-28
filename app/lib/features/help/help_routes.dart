@@ -8,13 +8,14 @@
 // route fills in (the `legalRoutes` convention). That keeps each page
 // pumpable in a widget test with no router, and keeps the paths in one place.
 //
-// ⛔ No route here launches a URL. S17.3's `onOpenChannel` and S17.4's
-// `sender` are both left **null**: `url_launcher` is not in the app's
-// pubspec while ADR 2026-09-19 is unratified, so the WhatsApp door states
-// why it will not open and *Copy the report* carries the person forward
-// (07 §1 rule 6 🔒). `device` is null for the same reason — the app version
-// and the phone's software version need a platform plugin, and a field the
-// app cannot read is omitted from the report rather than invented.
+// One route here launches a URL, and only one URL: S17.3's `mailer` is
+// [UrlLauncherSupportMailer], which opens `mailto:support@rukkafolio.com` and
+// nothing else (ADR 2026-09-19 ruling 2, amended by ADR 2026-09-25 §4).
+// S17.4's `sender` stays **null** — no ADR yet says how the scrubbed report
+// travels from inside the app — so *Copy the report* carries the person
+// forward (07 §1 rule 6 🔒). `device` is null because the app version and
+// the phone's software version need a platform plugin, and a field the app
+// cannot read is omitted from the report rather than invented.
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
@@ -23,6 +24,7 @@ import 'screens/s17_2_faq_article_screen.dart';
 import 'screens/s17_3_contact_screen.dart';
 import 'screens/s17_4_diagnostics_screen.dart';
 import 'screens/s17_help_screen.dart';
+import 'support_mailer.dart';
 
 export 'diagnostics_report.dart';
 export 'diagnostics_seams.dart';
@@ -32,6 +34,7 @@ export 'screens/s17_2_faq_article_screen.dart';
 export 'screens/s17_3_contact_screen.dart';
 export 'screens/s17_4_diagnostics_screen.dart';
 export 'screens/s17_help_screen.dart';
+export 'support_mailer.dart';
 
 /// The Help & diagnostics feature's routes.
 final List<RouteBase> helpRoutes = [
@@ -58,6 +61,7 @@ final List<RouteBase> helpRoutes = [
       GoRoute(
         path: 'contact',
         builder: (context, state) => ContactSupportScreen(
+          mailer: const UrlLauncherSupportMailer(),
           onOpenDiagnostics: () => context.push(HelpPaths.diagnostics),
           // Two pages then stand between the answer and the hub, and
           // *Read the other questions* must clear both of them.

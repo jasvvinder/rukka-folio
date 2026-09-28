@@ -8,7 +8,8 @@
 // scope that existed nowhere and two screens that rendered a placeholder for
 // three milestones. It now carries a [CeremonySessions] instead: a factory
 // installs once, fabricates nothing, and mints a repository only when a real
-// subject, a real server-generated nonce and a real 0007 session are in hand.
+// subject, a real relayed invite nonce (ADR 2026-09-25b §3) and a real 0007
+// session are in hand.
 // The old rule survives intact — "a ceremony with a made-up nonce would be
 // worse than no screen" — but as a type rather than a warning.
 //

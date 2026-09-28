@@ -94,18 +94,31 @@ typedef RecoveryResealer = Future<Uint8List> Function(
   RecoveryCandidate candidate,
 );
 
-/// Mints and persists the candidate X25519 pair of 04 §7.3 step 1, returning
-/// its public half.
+/// The per-attempt candidate X25519 pair of 04 §7.3 step 1, seen from the
+/// seam — **public halves only**.
 ///
-/// ⚠️ SPEC: 04 §7.3 step 1 reads "generates fresh device keys **+** a
-/// *candidate* X25519 pair", which is two pairs, not one. Reusing this
-/// device's own `pub_x` would be the convenient reading and it is not taken
-/// here: minting and persisting a second pair is `core_crypto`/`features/
-/// devices` behaviour, so this is an injected producer and the composition
-/// root passes null until one exists. With none, [HttpGuardianRecovery]
-/// re-reads an attempt that is already open and refuses plainly rather than
-/// inventing a key. Reported as an open item.
-typedef RecoveryCandidateKeySource = Future<Uint8List> Function();
+/// ADR 2026-09-24b §1 🔒 settled the reading the ⚠️ SPEC here used to flag:
+/// the candidate is **its own pair**, never this device's `pub_x`. It is
+/// minted when this device opens an attempt, held in the platform key store
+/// until the attempt closes (approved, cancelled, denied or expired), and
+/// zeroised after `reconstructVerified` and on every close. It never wraps a
+/// book key and is never registered as a device key. The secret half lives
+/// behind this interface (`recovery_candidate.dart`); nothing in this file
+/// ever holds it, which keeps rule *nothing here holds key material* true.
+abstract interface class RecoveryCandidateKeys {
+  /// Mints a fresh pair for a **new** attempt, holds its secret in the key
+  /// store — replacing, and so zeroising, any pair held before — and returns
+  /// its 32-byte public half. Called once per attempt opened, never to
+  /// re-read one.
+  Future<Uint8List> mint();
+
+  /// The public half of the pair held now, or null when none is.
+  Future<Uint8List?> held();
+
+  /// Zeroises and removes the held secret **if** it is the pair whose public
+  /// half is [publicHalf]; anything else held is left alone. Idempotent.
+  Future<void> discard(Uint8List publicHalf);
+}
 
 /// The trusted members of one **generation** of the guardian set, in the
 /// order S11.2 draws them, each in its resting state.
@@ -205,19 +218,22 @@ final class HttpGuardianRecovery implements GuardianRecovery {
   /// Creates the producer.
   ///
   /// [roster] answers with the trusted members of the pinned share set, in
-  /// the order S11.2 draws them, each in its resting state; [candidateKey]
-  /// opens a *new* attempt when none is live, and null means this build can
-  /// only re-read one that already exists.
+  /// the order S11.2 draws them, each in its resting state; [candidateKeys]
+  /// holds the per-attempt candidate pair (ADR 2026-09-24b §1 🔒) and lets the
+  /// screen's refresh open a *new* attempt — when this user has none listed,
+  /// or when the one it would show is not this phone's and is over (see
+  /// `_mayAskAgain`) — and null means this build can only re-read one that
+  /// already exists.
   HttpGuardianRecovery({
     required RecoveryApi api,
     required RecoveryRosterSource roster,
-    RecoveryCandidateKeySource? candidateKey,
+    RecoveryCandidateKeys? candidateKeys,
     RecoveryScanner? scanner,
     Stream<void> Function(Duration)? ticker,
     this.pollEvery = const Duration(seconds: 20),
   }) : _api = api,
        _roster = roster,
-       _candidateKey = candidateKey,
+       _candidateKeys = candidateKeys,
        _scanner = scanner,
        _ticker = ticker ?? _realTicker;
 
@@ -226,7 +242,7 @@ final class HttpGuardianRecovery implements GuardianRecovery {
 
   final RecoveryApi _api;
   final RecoveryRosterSource _roster;
-  final RecoveryCandidateKeySource? _candidateKey;
+  final RecoveryCandidateKeys? _candidateKeys;
   final RecoveryScanner? _scanner;
   final Stream<void> Function(Duration) _ticker;
 
@@ -236,6 +252,15 @@ final class HttpGuardianRecovery implements GuardianRecovery {
   GuardianRecoveryAttempt? _current;
   RecoveryCandidate? _candidate;
   StreamSubscription<void>? _tick;
+
+  // Reads are serialised. Two overlapping refreshes — the screen's and a
+  // poll's — could otherwise both find no attempt and both mint, or one could
+  // read the listing between another's mint and its open and take the fresh
+  // key for an orphan. Either leaves a held key that belongs to no attempt,
+  // or an attempt whose key is gone. One read at a time makes the order of
+  // list → mint → open → pin a property of this object, not of timing.
+  Future<void> _last = Future<void>.value();
+  bool _running = false;
   late final StreamController<GuardianRecoveryAttempt> _out =
       StreamController<GuardianRecoveryAttempt>.broadcast(
         onListen: _startPolling,
@@ -253,15 +278,64 @@ final class HttpGuardianRecovery implements GuardianRecovery {
   RecoveryCandidate? get candidate => _candidate;
 
   @override
-  Future<void> refresh() async {
+  Future<void> refresh() => _serialised(mayOpen: true);
+
+  /// Runs one read after every earlier one has finished. Only the screen's
+  /// own [refresh] may open an attempt ([mayOpen]); a poll re-reads and never
+  /// mints, so a timer can never be the thing that asks the guardians.
+  Future<void> _serialised({required bool mayOpen}) {
+    final run = _last.then((_) async {
+      _running = true;
+      try {
+        await _read(mayOpen: mayOpen);
+      } finally {
+        _running = false;
+      }
+    });
+    _last = run.then<void>((_) {}, onError: (Object _) {});
+    return run;
+  }
+
+  Future<void> _read({required bool mayOpen}) async {
     try {
-      final request = await _liveRequest();
-      final p = await _api.progress(request.requestId);
+      var live = await _liveRequest();
+      var p = live == null ? null : await _api.progress(live.request.requestId);
+      final keys = _candidateKeys;
+      var opened = false;
+      if (keys != null && mayOpen && _mayAskAgain(live, p)) {
+        // 04 §7.3 step 1, from the screen's own refresh and nothing else.
+        live = (request: await _open(keys), owned: true);
+        p = await _api.progress(live.request.requestId);
+        opened = true;
+      }
+      if (live == null || p == null) {
+        // No attempt and no way to open one honestly (or a poll, which never
+        // opens). S11.2 shows its error-with-retry state, which is true,
+        // rather than a made-up attempt.
+        throw const RecoveryFailure('no attempt');
+      }
+      final request = live.request;
       final attempt = await _attemptOf(request, p);
+      if (attempt.isClosed) {
+        // ADR 2026-09-24b §1 🔒 — every close zeroises. Cancelled, and
+        // expired (which is also three denials: 03 §2.2 has no `denied`),
+        // are final on the server's word, so the candidate secret goes
+        // before the screen hears the attempt is over. Only the pair whose
+        // public half THIS attempt carries is touched — a close of somebody
+        // else's attempt deletes nothing. `approved` is not handled here: the
+        // pair is still needed to open the shares (04 §7.3 step 4), and it is
+        // deleted after reconstruct instead.
+        await _discard(request.candidatePubX);
+      }
       _current = attempt;
       if (!_out.isClosed) _out.add(attempt);
       if (attempt.isClosed || attempt.state == RecoveryAttemptState.approved) {
         _stopPolling();
+      } else if (opened && _out.hasListener) {
+        // A fresh attempt after a close: the close stopped polling, and the
+        // screen that is still listening must hear the new one move without
+        // re-entering. Idempotent while a ticker already runs.
+        _startPolling();
       }
     } on RecoveryApiFailure catch (e) {
       // A named refusal, never a status code and never the server's string
@@ -272,38 +346,158 @@ final class HttpGuardianRecovery implements GuardianRecovery {
     }
   }
 
-  /// The attempt this phone is watching: the one already pinned, else the
-  /// newest of its own, else a fresh one when this build can mint a candidate
-  /// key.
-  Future<RecoveryRequestWire> _liveRequest() async {
+  /// The listed attempt this phone is watching — the one its held candidate
+  /// key belongs to ([owned]), else the one already pinned, else the newest
+  /// of the user's — or null when nothing is listed. It never opens one:
+  /// that is [_read]'s decision, on the screen's refresh alone.
+  Future<({RecoveryRequestWire request, bool owned})?> _liveRequest() async {
     final mine = await _api.myRequests();
-    if (mine.isNotEmpty) {
-      final pinned = _candidate?.requestId;
-      for (final r in mine) {
-        if (r.requestId == pinned) return _pin(r);
+    final keys = _candidateKeys;
+    if (keys != null) {
+      final held = await _held(keys);
+      if (held != null) {
+        // The attempt THIS phone can finish is the one sealed shares will
+        // come back to this key for — matched on the key bytes, never on a
+        // request id or on which attempt is newest. Another of the user's
+        // phones may have an attempt of its own in the same listing.
+        for (final r in mine) {
+          if (_sameBytes(r.candidatePubX, held)) {
+            return (request: _pin(r, held: held), owned: true);
+          }
+        }
+        // Held, but no attempt carries it: the open never landed, or the
+        // attempt has aged out of the listing. Either way no attempt will
+        // ever seal a share to it, so it is not kept "until the attempt
+        // closes" — there is no attempt.
+        await _discard(held);
       }
-      // Newest by the server's own `created_at`, which is the database's
-      // clock — this phone's is not consulted, only compared against itself.
-      var newest = mine.first;
-      for (final r in mine) {
-        if (r.createdAtMs > newest.createdAtMs) newest = r;
-      }
-      return _pin(newest);
     }
-    final mint = _candidateKey;
-    if (mint == null) {
-      // No attempt and no way to open one honestly. S11.2 shows its
-      // error-with-retry state, which is true, rather than a made-up attempt.
-      throw const RecoveryFailure('no attempt');
+    if (mine.isEmpty) return null;
+    final pinned = _candidate?.requestId;
+    for (final r in mine) {
+      if (r.requestId == pinned) return (request: _pin(r), owned: false);
     }
-    return _pin(await _api.open(await mint()));
+    // Newest by the server's own `created_at`, which is the database's
+    // clock — this phone's is not consulted, only compared against itself.
+    var newest = mine.first;
+    for (final r in mine) {
+      if (r.createdAtMs > newest.createdAtMs) newest = r;
+    }
+    return (request: _pin(newest), owned: false);
   }
 
-  RecoveryRequestWire _pin(RecoveryRequestWire r) {
+  /// Whether the screen's refresh opens a fresh attempt (only ever asked when
+  /// this build holds candidate pairs): the user has none listed, or the one
+  /// this phone would show is **not its own** and the server says it is
+  /// **over**.
+  ///
+  /// The server lists closed attempts for 30 days after they expire (0010's
+  /// retention guard, `rf.sweep_recovery`), so "open only when the listing is
+  /// empty" would pin a closed attempt for about 33 days while its card says
+  /// *you can start a new one* (`recovery.ask.closed.body`,
+  /// `recovery.ask.cancelled.body`) — a dead end (07 §1 rule 6).
+  ///
+  /// What it may never do is re-ask the guardians over a close this phone has
+  /// not yet shown. An attempt whose key this phone holds is [owned]: the
+  /// refresh that finds it closed zeroises and **shows** the close — for a
+  /// cancel, the warning to call the people you trust before asking again —
+  /// and opens nothing; only the next screen refresh, by which the key is
+  /// gone, asks again. At most one attempt per refresh, and a poll never.
+  ///
+  /// "Over" is the server's word mapped by [recoveryStateOf] — never a clock
+  /// here, and an unknown word reads `pending`, which asks nobody. Only
+  /// `cancelled` and `expired` (which is also three denials) count.
+  /// ⚠️ SPEC: an `approved` attempt this phone cannot finish, and a live one
+  /// of another phone, are shown and not re-asked: neither close's copy
+  /// promises a new request, and asking twice is visible to other people.
+  /// Reported for a features/recovery ruling.
+  static bool _mayAskAgain(
+    ({RecoveryRequestWire request, bool owned})? live,
+    RecoveryProgressWire? p,
+  ) {
+    if (live == null) return true;
+    if (live.owned || p == null) return false;
+    final s = recoveryStateOf(p.state);
+    return s == RecoveryAttemptState.cancelled ||
+        s == RecoveryAttemptState.expired;
+  }
+
+  /// 04 §7.3 step 1: a fresh pair for this attempt and no other (ADR
+  /// 2026-09-24b §1 🔒), and the attempt opened on its public half.
+  Future<RecoveryRequestWire> _open(RecoveryCandidateKeys keys) async {
+    final Uint8List pub;
+    try {
+      pub = await keys.mint();
+    } on Object {
+      // The key store would not take the secret. Nothing was sent, and
+      // nothing may be: an attempt whose key this phone does not hold is one
+      // whose shares nobody can open.
+      throw const RecoveryFailure('key_store');
+    }
+    final RecoveryRequestWire r;
+    try {
+      r = await _api.open(pub);
+    } on RecoveryApiFailure catch (e) {
+      // A refusal the server stated means no attempt was opened, so the pair
+      // belongs to nothing and goes now. `offline` and `server` claim nothing
+      // about whether the insert landed: the pair is kept, and the next read
+      // either finds the attempt carrying it or discards it.
+      if (e.refusal != RecoveryRefusal.offline &&
+          e.refusal != RecoveryRefusal.server) {
+        await _discard(pub);
+      }
+      rethrow;
+    }
+    if (!_sameBytes(r.candidatePubX, pub)) {
+      // The server says it opened an attempt on a key this phone did not
+      // send. Guardians would be asked to seal to a key nobody here holds —
+      // or to the relay's own (ADR 2026-09-13c §3). Nothing is pinned, and
+      // the pair goes: it is not that attempt's, and no attempt carries it.
+      await _discard(pub);
+      throw RecoveryFailure(RecoveryRefusal.candidateKeyMismatch.name);
+    }
+    return _pin(r, held: pub);
+  }
+
+  Future<Uint8List?> _held(RecoveryCandidateKeys keys) async {
+    try {
+      return await keys.held();
+    } on Object {
+      throw const RecoveryFailure('key_store');
+    }
+  }
+
+  Future<void> _discard(Uint8List publicHalf) async {
+    final keys = _candidateKeys;
+    if (keys == null) return;
+    try {
+      await keys.discard(publicHalf);
+    } on Object {
+      // Loud, not swallowed: a close that could not zeroise is retried by the
+      // next read (the attempt is still listed, still carries the key), and
+      // the screen says something went wrong rather than that all is well.
+      throw const RecoveryFailure('key_store');
+    }
+  }
+
+  RecoveryRequestWire _pin(RecoveryRequestWire r, {Uint8List? held}) {
+    if (held == null && _candidateKeys != null) {
+      // Shown, not owned. This build holds candidate pairs, and this attempt
+      // carries a key it does not hold — another phone's, one from before a
+      // reinstall, or one the server substituted on open. Its shares can never
+      // be opened here, so no candidate is exposed for it: nothing downstream
+      // can render the server's bytes as *this phone's* code for a guardian
+      // to match (ADR 2026-09-13c §3), and the ceremony reads `unavailable`.
+      _candidate = null;
+      return r;
+    }
     _candidate = RecoveryCandidate(
       requestId: r.requestId,
       deviceId: r.candidateDevice,
-      candidatePubX: r.candidatePubX,
+      // The phone's own copy when it holds the pair (byte-equal to the
+      // relayed one — that is how the attempt was matched), so what this
+      // phone would show a guardian is never merely what the server said.
+      candidatePubX: held != null ? Uint8List.fromList(held) : r.candidatePubX,
     );
     return r;
   }
@@ -367,8 +561,11 @@ final class HttpGuardianRecovery implements GuardianRecovery {
 
   void _startPolling() {
     _tick ??= _ticker(pollEvery).listen((_) async {
+      // A read already under way is not queued behind: a hung socket must not
+      // grow a line of polls that all land at once.
+      if (_running) return;
       try {
-        await refresh();
+        await _serialised(mayOpen: false);
       } on Object {
         // A poll that failed is not a screen change: the last good snapshot
         // stands and the next tick tries again. Only the explicit refresh()
@@ -656,15 +853,16 @@ final class HttpGuardianApprovals implements GuardianApprovals {
     deviceId: a.candidateDevice,
     candidatePubX: a.candidatePubX,
   );
+}
 
-  /// Plain byte equality: both operands are **public** keys the attacker
-  /// already holds, so there is no secret for a timing difference to leak,
-  /// and rule 7 keeps a hand-rolled primitive out of the app layer.
-  static bool _sameBytes(Uint8List a, Uint8List b) {
-    if (a.length != b.length || a.isEmpty) return false;
-    for (var i = 0; i < a.length; i++) {
-      if (a[i] != b[i]) return false;
-    }
-    return true;
+/// Plain byte equality: both operands are **public** keys the attacker
+/// already holds, so there is no secret for a timing difference to leak,
+/// and rule 7 keeps a hand-rolled primitive out of the app layer. Empty never
+/// equals anything — a key the wire failed to carry matches no key.
+bool _sameBytes(Uint8List a, Uint8List b) {
+  if (a.length != b.length || a.isEmpty) return false;
+  for (var i = 0; i < a.length; i++) {
+    if (a[i] != b[i]) return false;
   }
+  return true;
 }

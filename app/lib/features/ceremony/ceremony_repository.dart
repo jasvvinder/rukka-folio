@@ -59,17 +59,20 @@ export 'package:core_crypto/core_crypto.dart'
         codeMaxAttempts,
         codeNonceLifetimeMs;
 
-/// A per-invite nonce as the server issued it (04 §6.1) — 16 bytes and not
-/// secret.
+/// A per-invite nonce (04 §6.1) — 16 bytes and not secret. Since ADR
+/// 2026-09-25b §1 the **inviter's device** draws it and signs it into the
+/// `invite` record; the server stores and relays it (§2). The invitee's device
+/// never draws one (§3).
 ///
 /// Since ADR 2026-09-13d it **scopes the QR payload only**: no code is derived
 /// from it any more, and the ten minutes of 04 §6.3 run from the server's
-/// timestamp on the *commitment*, not from this. [issuedAt] is kept because
-/// the invite row carries it, not because anything on screen counts from it.
+/// timestamp on the *commitment*, not from this. Nothing on screen counts from
+/// [issuedAt], and the relay routes carry no issue time, so a relayed nonce
+/// has none (null) rather than one this device made up.
 @immutable
 final class InviteNonce {
-  /// Wraps [bytes] issued at [issuedAt].
-  InviteNonce({required Uint8List bytes, required this.issuedAt})
+  /// Wraps [bytes], issued at [issuedAt] when that is known.
+  InviteNonce({required Uint8List bytes, this.issuedAt})
     : bytes = Uint8List.fromList(bytes) {
     if (bytes.length != ceremonyNonceBytes) {
       throw ArgumentError.value(
@@ -83,11 +86,15 @@ final class InviteNonce {
   /// The nonce bytes, as they go into the QR payload.
   final Uint8List bytes;
 
-  /// When the server issued it.
-  final DateTime issuedAt;
+  /// When it was issued, or null when the source does not say (the relay).
+  final DateTime? issuedAt;
 }
 
-/// Where a nonce comes from. `fresh: true` is *Regenerate* (04 §6.3).
+/// Where a nonce comes from. `fresh: true` is *Regenerate* (04 §6.3) — and,
+/// since ADR 2026-09-25b §4, a relayed source answers it with the **same**
+/// nonce: the nonce is fixed at issue, and *Regenerate* opens a fresh session
+/// (a new `r_S` and commitment), not a fresh nonce. The flag is dropped when
+/// this seam is next touched (25b §4).
 typedef InviteNonceSource = Future<InviteNonce> Function({bool fresh});
 
 /// What S9.2 renders — one ceremony session.

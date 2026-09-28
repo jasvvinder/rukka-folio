@@ -16,27 +16,24 @@
 // display language never bends the posting.
 //
 // **The exported statement closes like a paper khata** (07 §14 🔒 *b/d–c/d rows
-// on ledgers*, 02 §8.1 *Presentation*). It opens with *Opening balance b/f* —
-// the certified carry-forward the engine hands over in [Statement.openingPaise],
-// never recomputed here — and closes with the classical block: *Closing balance
-// c/d* as the balancing figure in the column **opposite** the balance's own
-// side, a *Total* line where the Dr and Cr columns are equal by construction,
-// and *Opening balance b/d* restating the balance on its own side for the next
-// period. The totals square exactly when closing = opening + Dr − Cr, which is
-// the engine's own arithmetic, so the line is a real cross-check (13 §5, flow
-// F3) and not decoration. All four are ordinary rows, so they reach all three
-// formats identically.
+// on ledgers*, 02 §8.1 *Presentation*, ADR 2026-09-24b §9). It opens with
+// *Opening balance b/f* — the certified carry-forward the engine hands over in
+// [Statement.openingPaise], never recomputed here — and closes with the
+// classical block: *Closing balance c/d* as the balancing figure in the column
+// **opposite** the balance's own side, a *Total* line where the Dr and Cr
+// columns are equal by construction, and *Opening balance b/d* restating the
+// balance on its own side for the next period. The totals square exactly when
+// closing = opening + Dr − Cr, which is the engine's own arithmetic, so the
+// line is a real cross-check (13 §5, flow F3) and not decoration. All four are
+// ordinary rows, so they reach all three formats identically.
 //
-// ⚠️ SPEC: 02 §8.1 *Presentation* says each FY view "ends with *Closing balance
-// c/f*" and, in the same sentence, that "printed/exported ledgers carry the b/d
-// and c/d rows so they read exactly like the traditional book". A traditional
-// book closes an account **once**, so on paper c/f and c/d are one row under
-// two names — but the two readings differ and this file takes the conservative
-// one: the export carries **both**, c/f then c/d, adding the block 07 §14 🔒
-// asks for without dropping a row 02 §8.1 names and `F1-07-162` already asserts
-// (dropping it would supersede a green test, which needs an ADR, not a lane).
-// Owner call: if the export should read as one closing row, delete the c/f row
-// here and amend `F1-07-162`; nothing else moves.
+// **No c/f row on paper** (ADR 2026-09-24b §9, desk 28b): the *on-screen* FY
+// view ends *Closing balance c/f* (S4 draws that row itself, from
+// `ledger.statement.closing`); a printed or exported ledger closes the account
+// once, with c/d, and carries no c/f above it — two closing rows for one
+// figure is the defect the ruling names. This table is the export's alone
+// (S4's screen never renders it), so dropping the row here leaves the screen
+// untouched.
 //
 // Under the table sits the **amount in words** (07 §14 🔒): the closing
 // balance's magnitude spelled out on the Indian scale by `amount_words.dart`,
@@ -68,7 +65,6 @@ final class StatementReportLabels {
     required this.columnBalance,
     required this.columnNote,
     required this.opening,
-    required this.closing,
     required this.closingCarriedDown,
     required this.openingBroughtDown,
     required this.total,
@@ -92,7 +88,6 @@ final class StatementReportLabels {
         columnBalance: strings.ledgerStatementColumnBalance,
         columnNote: strings.reportsViewerColumnNote,
         opening: strings.ledgerStatementOpening,
-        closing: strings.ledgerStatementClosing,
         closingCarriedDown: strings.reportsStatementClosingCd,
         openingBroughtDown: strings.reportsStatementOpeningBd,
         total: strings.reportsViewerTotal,
@@ -133,11 +128,9 @@ final class StatementReportLabels {
   /// *Opening balance b/f* (02 §8.1) — the period's certified carry-forward.
   final String opening;
 
-  /// *Closing balance c/f* — the row 02 §8.1 ends an FY view with.
-  final String closing;
-
   /// *Closing balance c/d* — the balancing row that closes the account on
-  /// paper (07 §14 🔒), under the c/f line (see the ⚠️ SPEC above).
+  /// paper (07 §14 🔒). The only closing row an export carries — no c/f
+  /// above it (ADR 2026-09-24b §9).
   final String closingCarriedDown;
 
   /// *Opening balance b/d* — the same figure brought down into the next
@@ -165,9 +158,9 @@ const ReportColumnWidth _balanceWidth = ReportFixedWidth(78);
 /// report and never appears in the particulars column, exactly as on screen.
 /// [counterNames] resolves the counter account ids of a row; the caller holds
 /// the [Chart]. [openingDate] is the first day of the period and [closingDate]
-/// the day the c/f falls on — the period's last day, or today while the period
-/// is still open (07 §6 🔒, owner rule), decided by the caller because this
-/// file reads no clock.
+/// the day the c/d falls on — the period's last day, or today while the period
+/// is still open (07 §6 🔒, owner rule; the same date the screen's c/f row
+/// carries), decided by the caller because this file reads no clock.
 ReportTable statementTable(
   Statement statement, {
   required String accountName,
@@ -237,16 +230,6 @@ ReportTable statementTable(
         ),
         row.note == null ? null : ReportTextCell(row.note!, muted: true),
       ], kind: ReportRowKind.groupEnd),
-    // c/f — where the FY view ends (02 §8.1 *Presentation*): the balance the
-    // period closes at, signed as the engine signs it.
-    ReportRow([
-      ReportDateCell(closingDate, formatDate(closingDate)),
-      ReportTextCell(labels.closing),
-      null,
-      null,
-      ReportMoneyCell(closing, signed: true, side: side(closing)),
-      null,
-    ], kind: ReportRowKind.boundary),
     // c/d — the balancing row that closes the account (07 §14 🔒). No running
     // balance on it: after the account is squared there is nothing left to
     // run, which is exactly what the blank cell says on paper.

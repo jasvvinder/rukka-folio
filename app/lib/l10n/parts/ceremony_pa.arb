@@ -62,5 +62,18 @@
   "ceremony.verify.key_incomplete.close": "ਬੰਦ ਕਰੋ",
   "@ceremony.verify.key_incomplete.close": {"description": "machine-draft — native review M12"},
   "ceremony.verify.key_incomplete.semantics": "ਉਹਨਾਂ ਦੇ ਫ਼ੋਨ ਦੀ ਉਡੀਕ ਹੈ।",
-  "@ceremony.verify.key_incomplete.semantics": {"description": "machine-draft — native review M12"}
+  "@ceremony.verify.key_incomplete.semantics": {"description": "machine-draft — native review M12"},
+
+  "ceremony.show.no_invite.title": "ਹਾਲੇ ਦਿਖਾਉਣ ਲਈ ਕੋਈ ਕੋਡ ਨਹੀਂ",
+  "@ceremony.show.no_invite.title": {"description": "machine-draft — native review M12"},
+  "ceremony.show.no_invite.body": "ਇਸ ਫ਼ੋਨ ਨੂੰ ਉਹ ਸੱਦਾ ਨਹੀਂ ਲੱਭ ਰਿਹਾ ਜਿਸ ਨਾਲ ਤੁਸੀਂ ਜੁੜੇ ਸੀ, ਇਸ ਲਈ ਤੁਹਾਡੇ ਦਿਖਾਉਣ ਲਈ ਕੋਈ ਕੋਡ ਨਹੀਂ ਹੈ।",
+  "@ceremony.show.no_invite.body": {"description": "machine-draft — native review M12"},
+  "ceremony.show.no_invite.why": "ਕੁਝ ਵੀ ਪਰਖਿਆ ਜਾਂ ਸਾਂਝਾ ਨਹੀਂ ਹੋਇਆ। ਜੇ ਇਹ ਵਾਰ-ਵਾਰ ਹੋਵੇ, ਤਾਂ ਜਿਨ੍ਹਾਂ ਨੇ ਤੁਹਾਨੂੰ ਸੱਦਾ ਭੇਜਿਆ ਸੀ ਉਹਨਾਂ ਨੂੰ ਦੱਸੋ।",
+  "@ceremony.show.no_invite.why": {"description": "machine-draft — native review M12"},
+  "ceremony.show.no_invite.retry": "ਦੁਬਾਰਾ ਦੇਖੋ",
+  "@ceremony.show.no_invite.retry": {"description": "machine-draft — native review M12"},
+  "ceremony.show.no_invite.close": "ਬੰਦ ਕਰੋ",
+  "@ceremony.show.no_invite.close": {"description": "machine-draft — native review M12"},
+  "ceremony.show.no_invite.semantics": "ਹਾਲੇ ਕੋਈ ਕੋਡ ਨਹੀਂ।",
+  "@ceremony.show.no_invite.semantics": {"description": "machine-draft — native review M12"}
 }

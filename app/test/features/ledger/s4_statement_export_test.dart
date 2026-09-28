@@ -136,7 +136,8 @@ void main() {
 
     testWidgets(
       'F1-07-162 Export offers exactly PDF · CSV · XLSX, and the CSV it '
-      'writes is this account\'s statement in professional Dr/Cr',
+      'writes is this account\'s statement in professional Dr/Cr, closing '
+      'c/d · Total · b/d with no c/f row (ADR 2026-09-24b §9)',
       (tester) async {
         final seed = await seedSoloLedger();
         final sink = _CapturingSink();
@@ -177,21 +178,24 @@ void main() {
         expect(text, contains('Dr,Cr,Balance'));
         expect(text, isNot(contains('Money in')));
         expect(text, isNot(contains('Money out')));
-        // b/f first, c/f once; 07 §14's c/d · Total · b/d rows and the
-        // amount-in-words line follow it (landed M12, RPT1).
+        // b/f first; then 07 §14's c/d · Total · b/d block and the
+        // amount-in-words line — and **no c/f row**: an exported ledger closes
+        // once, with c/d (ADR 2026-09-24b §9). The screen keeps its c/f.
         final lines = text.split('\r\n')..removeWhere((l) => l.isEmpty);
         expect(lines.where((l) => l.contains('Opening balance b/f')).length, 1);
-        expect(lines.where((l) => l.contains('Closing balance c/f')).length, 1);
+        expect(lines.where((l) => l.contains('c/f')), isEmpty);
+        final cd = lines.indexWhere((l) => l.contains('Closing balance c/d'));
+        expect(cd, greaterThan(-1));
+        expect(lines[cd + 1], contains('Total'));
+        expect(lines[cd + 2], contains('Opening balance b/d'));
         expect(lines.last, contains('Closing balance in words'));
-        // Ramesh owes ₹5,000 after the seeded part repayment — integer paise
-        // all the way to the file (CLAUDE.md rule 1).
-        expect(
-          lines.firstWhere((l) => l.contains('Closing balance c/f')),
-          contains('5000.00'),
-        );
+        // Ramesh owes ₹5,000 after the seeded part repayment — a Dr balance,
+        // so c/d carries it on the Cr side and b/d brings it down on the Dr
+        // side; integer paise all the way to the file (CLAUDE.md rule 1).
+        expect(lines[cd], endsWith(',,5000.00,,'));
+        expect(lines[cd + 2], contains(',5000.00,,5000.00,'));
         await unmount(tester);
       },
-      skip: true, // superseded by ADR 2026-09-24b §9; re-lands at M12
     );
 
     testWidgets(
