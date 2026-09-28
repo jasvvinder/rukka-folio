@@ -21,7 +21,7 @@
 import { assert, assertEquals, assertNotEquals } from "@std/assert";
 import { b64url } from "../_shared/bytes.ts";
 import { TOKEN_TTL_MS } from "../_shared/entitlement.ts";
-import { PLAN_LIMITS } from "../_shared/registry.ts";
+import { CATALOGUE_SEED } from "../_shared/store_mem.ts";
 import {
   ed25519Verify,
   type EntitlementPayload,
@@ -33,6 +33,10 @@ import { handler as meta } from "../sync-meta/index.ts";
 import { advance, body, ENTITLEMENT_SEED, get, member, reissue, type Rig, rig } from "./harness.ts";
 
 const DAY = 86_400_000;
+/** A plan's limits as the catalogue holds them (0018; ADR 2026-09-25 §6 — `PLAN_LIMITS` is gone).
+ *  The fake's seed is pinned to the migration's by E-25-3's PgStore test, and each test below also
+ *  spells out the ADR's own numbers, so this is never the only witness. */
+const LIMITS = (id: string) => ({ ...CATALOGUE_SEED.find((p) => p.id === id)!.limits });
 
 interface WireToken {
   id: string;
@@ -95,7 +99,7 @@ Deno.test("G-08-4 08 §3 🔒 enforcement is server-attested: a meta pull by a c
 });
 
 Deno.test(
-  "G-08-5 08 §3 🔒 (ADR 2026-09-05g §1 as amended by ADR 2026-09-24b §6): the payload is EXACTLY {tenant_id, plan, limits, period_end, grace_kind, grace_until, iat, exp}, exp − iat ≤ 30 d, iat is the server's clock — and the Ed25519 signature verifies under the pinned public half and under nothing else",
+  "G-08-5 08 §3 🔒 (ADR 2026-09-05g §1 as amended by ADR 2026-09-24b §6 and ADR 2026-09-25 §6): the payload is EXACTLY {tenant_id, plan, limits, features, period_end, grace_kind, grace_until, iat, exp}, exp − iat ≤ 30 d, iat is the server's clock — and the Ed25519 signature verifies under the pinned public half and under nothing else",
   async () => {
     const r = rig();
     const t1 = r.db.addTenant();
@@ -111,8 +115,23 @@ Deno.test(
 
     assertEquals(
       Object.keys(payload).sort(),
-      ["exp", "grace_kind", "grace_until", "iat", "limits", "period_end", "plan", "tenant_id"],
-      "exactly the 🔒 field set, grace_until included (ADR 2026-09-24b §6) — no status, no key id (§7 (c)), no issuer",
+      [
+        "exp",
+        "features",
+        "grace_kind",
+        "grace_until",
+        "iat",
+        "limits",
+        "period_end",
+        "plan",
+        "tenant_id",
+      ],
+      "exactly the 🔒 field set, grace_until (ADR 2026-09-24b §6) and features (ADR 2026-09-25 §6) included — no status, no key id (§7 (c)), no issuer",
+    );
+    assertEquals(
+      payload.features,
+      ["pdf_output", "statement_import"],
+      "Family's included extras, sorted (ADR 2026-09-25 §5–§6)",
     );
     assertEquals(payload.grace_kind, null, "an active tenant is in no grace");
     assertEquals(payload.grace_until, null, "and so declares no grace end (ADR 2026-09-24b §6)");
@@ -195,18 +214,25 @@ Deno.test(
         "tenant_id",
         "plan",
         "limits",
+        "features",
         "period_end",
         "grace_kind",
         "grace_until",
         "iat",
         "exp",
       ],
-      "grace_until sits between grace_kind and iat, exactly where ADR 2026-09-24b §6 lists it",
+      "grace_until sits between grace_kind and iat, exactly where ADR 2026-09-24b §6 lists it; features follows limits (ADR 2026-09-25 §6 — ⚠️ SPEC placement, sodium.ts)",
     );
   },
 );
 
-Deno.test("E-05-14 plan state 🔒: no subscriptions row is a SIGNED Free token (never a lock, ADR 2026-09-05g §1), trial is 30 days of Family ending at trial_end (08 §2), and every plan carries 08 §2's own numbers", async (t) => {
+// Re-landed against the catalogue (ADR 2026-09-25 §5–§6). Two assertions this test used to make are
+// superseded and now assert the ruling that replaced them: the trial's plan is the ROW's plan —
+// which rf.start_trial (0018) writes as the entity type's popular plan — not "30 days of Family
+// whatever the row says" (08 §2, superseded by ADR 25 §5); and the numbers are ADR 25 §5's
+// books · people (Free = the personal book only, Family+ = 20 · 30), not 08 §2's (Free 1 book,
+// Family+ ∞ · 15). The ∞ sentinel itself is exercised by G-25-4 on a catalogue row that holds it.
+Deno.test("E-05-14 plan state 🔒: no subscriptions row is a SIGNED Free token (never a lock, ADR 2026-09-05g §1), a trial signs its row's plan ending at trial_end (ADR 2026-09-25 §5), and every plan carries its catalogue row's numbers (ADR 2026-09-25 §6)", async (t) => {
   const r = rig();
   const free = r.db.addTenant(), trial = r.db.addTenant(), paid = r.db.addTenant();
   const me = await member(r, free, r.db.addBook(free), "admin");
@@ -214,7 +240,7 @@ Deno.test("E-05-14 plan state 🔒: no subscriptions row is a SIGNED Free token 
   r.db.addMembership(paid, me.user, "active");
   // `free` deliberately gets NO subscriptions row at all.
   const trialEnd = new Date(r.clock.now.getTime() + 21 * DAY);
-  r.db.addSubscription(trial, { plan: "free", status: "trial", trial_end: trialEnd });
+  r.db.addSubscription(trial, { plan: "family", status: "trial", trial_end: trialEnd });
   r.db.addSubscription(paid, {
     plan: "family_plus",
     status: "active",
@@ -232,41 +258,49 @@ Deno.test("E-05-14 plan state 🔒: no subscriptions row is a SIGNED Free token 
     assertEquals(p.plan, "free");
     assertEquals(p.period_end, null, "no period was ever bought, so there is none to state");
     assertEquals(p.grace_kind, null);
-    assertEquals(p.limits, PLAN_LIMITS.free);
+    assertEquals(p.limits, LIMITS("free"));
     assertEquals(p.limits.envelopes_per_book, 10_000, "08 §2 🔒 Free");
     assertEquals(p.limits.tenant_bytes, 250 * 1024 * 1024);
     assertEquals(p.limits.attachment_bytes, 100 * 1024 * 1024);
     assertEquals(p.limits.devices, 5);
     assertEquals(p.limits.members, 1);
-    assertEquals(p.limits.business_books, 1);
+    assertEquals(p.limits.business_books, 0, "ADR 2026-09-25 §5: the personal book only");
+    assertEquals(p.features, [], "ADR 2026-09-25 §5: no statement import, no PDF output");
   });
 
-  await t.step("trial = 30 days of Family, period_end = trial_end (08 §2 🔒)", () => {
-    const p = by.get(trial)!;
-    assertEquals(p.plan, "family", "the trial's LIMITS are Family's, whatever the row's plan says");
-    assertEquals(p.limits, PLAN_LIMITS.family);
-    assertEquals(p.limits.members, 5);
-    assertEquals(p.limits.business_books, 3);
-    assertEquals(p.limits.devices, 8);
-    assertEquals(
-      p.period_end,
-      trialEnd.getTime(),
-      "the trial IS the period: current_period_end is null on a trialling row",
-    );
-    assertEquals(p.grace_kind, null);
-  });
+  await t.step(
+    "a trial signs the popular plan its row carries, period_end = trial_end (ADR 2026-09-25 §5)",
+    () => {
+      const p = by.get(trial)!;
+      assertEquals(p.plan, "family", "Family is the family entity type's popular plan");
+      assertEquals(p.limits, LIMITS("family"));
+      assertEquals(p.limits.members, 12, "ADR 25 §5 Family · 12 people");
+      assertEquals(p.limits.business_books, 8, "ADR 25 §5 Family · 8 books");
+      assertEquals(p.limits.devices, 8, "08 §2's Family devices, kept as catalogue data");
+      assertEquals(p.features, ["pdf_output", "statement_import"]);
+      assertEquals(
+        p.period_end,
+        trialEnd.getTime(),
+        "the trial IS the period: current_period_end is null on a trialling row",
+      );
+      assertEquals(p.grace_kind, null);
+    },
+  );
 
-  await t.step("Family+ carries Family+'s numbers, and ∞ is a sentinel, not a count", () => {
-    const p = by.get(paid)!;
-    assertEquals(p.plan, "family_plus");
-    assertEquals(p.limits, PLAN_LIMITS.family_plus);
-    assertEquals(p.limits.members, 15);
-    assertEquals(p.limits.devices, 15);
-    assertEquals(p.limits.envelopes_per_book, 1_000_000);
-    assertEquals(p.limits.tenant_bytes, 15 * 1024 ** 3);
-    assertEquals(p.limits.attachment_bytes, 20 * 1024 ** 3);
-    assertEquals(p.limits.business_books, -1, "ADR §3 🔒 writes ∞; -1 is this codebase's sentinel");
-  });
+  await t.step(
+    "Family+ carries its catalogue row's numbers (ADR 2026-09-25 §5: 20 books · 30 people)",
+    () => {
+      const p = by.get(paid)!;
+      assertEquals(p.plan, "family_plus");
+      assertEquals(p.limits, LIMITS("family_plus"));
+      assertEquals(p.limits.members, 30);
+      assertEquals(p.limits.business_books, 20, "ADR 25 §5 replaced 08 §2's ∞ with 20");
+      assertEquals(p.limits.devices, 15);
+      assertEquals(p.limits.envelopes_per_book, 1_000_000);
+      assertEquals(p.limits.tenant_bytes, 15 * 1024 ** 3);
+      assertEquals(p.limits.attachment_bytes, 20 * 1024 ** 3);
+    },
+  );
 });
 
 Deno.test(
@@ -325,7 +359,7 @@ Deno.test(
         const p = by.get(dunned)!;
         assertEquals(p.grace_kind, "dunning");
         assertEquals(p.plan, "family", "a dunned tenant keeps the plan it is being dunned for");
-        assertEquals(p.limits, PLAN_LIMITS.family);
+        assertEquals(p.limits, LIMITS("family"));
         assertEquals(p.period_end, periodEnd.getTime(), "period_end is the row's, unchanged");
         assertEquals(
           p.grace_until,
@@ -339,7 +373,7 @@ Deno.test(
       const p = by.get(lapsed)!;
       assertEquals(p.plan, "personal", "ADR §5 🔒 lapsed = read-only + export forever, not Free");
       assertNotEquals(p.plan, "free");
-      assertEquals(p.limits, PLAN_LIMITS.personal);
+      assertEquals(p.limits, LIMITS("personal"));
       assertEquals(p.period_end, lapsedEnd.getTime());
       assert(p.period_end! < p.iat, "the period is over: that is how the client sees read-only");
       assertEquals(p.grace_kind, null, "a lapse is not a grace");
@@ -424,7 +458,7 @@ Deno.test("E-05-16 refresh 🔒 (ADR 2026-09-05g §1): a token is minted when no
     assertNotEquals(fresh.token, first.token);
     const p = parseEntitlementToken(tokenBytes(fresh)).payload;
     assertEquals(p.plan, "family");
-    assertEquals(p.limits, PLAN_LIMITS.family);
+    assertEquals(p.limits, LIMITS("family"));
     assertEquals(p.iat, r.clock.now.getTime());
     assert(fresh.updated_at > first.updated_at, "the cursor moved, so the device will pull it");
     assertEquals(r.db.entitlement_tokens.length, 1, "replaced, not appended");
@@ -492,7 +526,8 @@ Deno.test("E-05-18 the signer is the 04 §8 rule-6 🔒 guard: it refuses a payl
   const base: EntitlementPayload = {
     tenant_id: "3fa85f64-5717-4562-b3fc-2c963f66afa6",
     plan: "family",
-    limits: { ...PLAN_LIMITS.family },
+    limits: LIMITS("family"),
+    features: ["pdf_output", "statement_import"],
     period_end: 1_760_000_000_000,
     grace_kind: null,
     grace_until: null,

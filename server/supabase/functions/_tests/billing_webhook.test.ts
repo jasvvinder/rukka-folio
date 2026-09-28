@@ -1,6 +1,6 @@
 // billing-webhook: signature, dedupe, out-of-order guard and the three state changes of 08 §3 🔒 /
 // ADR 2026-09-05g §4, §11 (migration 0013, restated in MemStore). Ids E-05-12, G-08-9, G-08-10,
-// G-08-11.
+// G-08-11, and E-03-79's edge half (the webhook's plan field, ADR 2026-09-25 §6 / 0018 §7).
 //
 // Fixtures are SYNTHETIC (rule 4). No body here carries a real payer, instrument or amount, and
 // nothing financial exists on this route at all — a webhook moves plan and status, never money.
@@ -8,7 +8,7 @@ import { assert, assertEquals, assertNotEquals } from "@std/assert";
 import { hex } from "../_shared/bytes.ts";
 import type { Deps } from "../_shared/deps.ts";
 import { hmacSha256AnyKey } from "../_shared/sodium.ts";
-import type { Store, Tx } from "../_shared/store.ts";
+import type { BillingApplyResult, BillingEventApply, Store, Tx } from "../_shared/store.ts";
 import { handler } from "../billing-webhook/index.ts";
 import { type Rig, rig, T0 } from "./harness.ts";
 
@@ -44,14 +44,15 @@ function subBody(o: {
   event: string;
   at: Date;
   tenant?: string | null;
-  plan?: string | null;
+  /** Written into `notes.plan` AS GIVEN — any JSON value, '' included — unless undefined/null. */
+  plan?: unknown;
   ref?: string | null;
   periodEnd?: Date | null;
   paymentStatus?: string;
 }): string {
-  const notes: Record<string, string> = {};
+  const notes: Record<string, unknown> = {};
   if (o.tenant) notes.tenant_id = o.tenant;
-  if (o.plan) notes.plan = o.plan;
+  if (o.plan !== undefined && o.plan !== null) notes.plan = o.plan;
   const entity: Record<string, unknown> = { id: o.ref ?? "sub_syn_1", notes };
   if (o.periodEnd) entity.current_end = secs(o.periodEnd);
   const payload: Record<string, unknown> = { subscription: { entity } };
@@ -96,6 +97,34 @@ function spied(r: Rig): { deps: Deps; calls: string[] } {
     },
   };
   return { deps: { ...r.deps, store }, calls };
+}
+
+/** Deps whose Tx records what the handler hands the apply path and what it answers, so a test can
+ *  assert the OUTCOME (`unknown_plan`, not merely `applied: false`, which an out-of-order or an
+ *  unknown-tenant refusal would also give). */
+function recorded(r: Rig): {
+  deps: Deps;
+  seen: { ev: BillingEventApply; res: BillingApplyResult }[];
+} {
+  const seen: { ev: BillingEventApply; res: BillingApplyResult }[] = [];
+  const store: Store = {
+    withClaims<T>(claims: Parameters<Store["withClaims"]>[0], fn: (tx: Tx) => Promise<T>) {
+      return r.deps.store.withClaims(claims, (tx) =>
+        fn(
+          new Proxy(tx, {
+            get(t, k) {
+              if (k !== "applyBillingEvent") return Reflect.get(t, k);
+              return async (ev: BillingEventApply) => {
+                const res = await t.applyBillingEvent(ev);
+                seen.push({ ev, res });
+                return res;
+              };
+            },
+          }),
+        ));
+    },
+  };
+  return { deps: { ...r.deps, store }, seen };
 }
 
 /** A tenant with a subscription row carrying every 03 §2.4 column. */
@@ -410,4 +439,122 @@ Deno.test("G-08-9 the apply path is content-blind: it reads no envelope, no blob
   // A webhook for one tenant never reaches another tenant's subscription.
   assertEquals(sub(r, tenantB).plan, "family");
   assertEquals(sub(r, tenantB).status, "active");
+});
+
+Deno.test("E-03-79 (edge half) the webhook hands the apply path ANY catalogue id — Shop, Business, Trust and the rest, not only 08 §2's four names — and a notes.plan that is PRESENT but malformed is recorded `unknown_plan` and applied nowhere, never activated on the tenant's old plan; only an event that names no plan keeps it (ADR 2026-09-25 §6 🔒, 0018 §7)", async (t) => {
+  const r = rig();
+  const year = new Date(T0.getTime() + 365 * DAY);
+
+  await t.step("each catalogue id outside 08 §2's four activates through read()", async () => {
+    // A revert to the four-name PLANS set nulls every one of these, and the activation then lands
+    // on the seeded 'free' — this step fails on the plan column.
+    for (
+      const plan of ["shop", "business", "business_plus", "family_lite", "trust", "trust_plus"]
+    ) {
+      const { tenant } = seed(r);
+      const { deps, seen } = recorded(r);
+      const res = await handler(
+        await post(
+          r,
+          subBody({
+            event: "subscription.activated",
+            at: T0,
+            tenant,
+            plan,
+            ref: `sub_new_${plan}`,
+            periodEnd: year,
+          }),
+          `evt_new_${plan}`,
+          false,
+          deps,
+        ),
+        deps,
+      );
+      assertEquals(await res.json(), { ok: true, duplicate: false, applied: true }, plan);
+      assertEquals(seen.map((x) => [x.ev.plan, x.res.outcome]), [[plan, "activate"]], plan);
+      const s = sub(r, tenant);
+      assertEquals([s.plan, s.status], [plan, "active"], plan);
+      assertEquals((s.current_period_end as Date).getTime(), year.getTime(), plan);
+    }
+  });
+
+  // A tenant in dunning on Family: an activation that WRONGLY applied would move plan-adjacent
+  // state even when it kept the plan — status to active, a new period, both grace columns cleared.
+  const dunned = (ref: string) =>
+    seed(r, {
+      plan: "family",
+      status: "past_due",
+      gateway: "razorpay",
+      gateway_ref: ref,
+      source: "razorpay",
+      current_period_end: new Date(T0.getTime() - DAY),
+      grace_kind: "dunning",
+      grace_until: new Date(T0.getTime() + 6 * DAY),
+    }).tenant;
+
+  await t.step(
+    "a present but malformed plan is recorded `unknown_plan`: not one column moves",
+    async () => {
+      const bad: unknown[] = ["Business+", "family-plus", "Business", "", " family", 5, true, {
+        id: "family",
+      }];
+      for (const [i, plan] of bad.entries()) {
+        const ref = `sub_bad_${i}`;
+        const tenant = dunned(ref);
+        const before = { ...sub(r, tenant) };
+        const { deps, seen } = recorded(r);
+        const res = await handler(
+          await post(
+            r,
+            subBody({
+              event: "subscription.activated",
+              at: T0,
+              tenant,
+              plan,
+              ref,
+              periodEnd: year,
+            }),
+            `evt_bad_${i}`,
+            false,
+            deps,
+          ),
+          deps,
+        );
+        const what = JSON.stringify(plan);
+        assertEquals(await res.json(), { ok: true, duplicate: false, applied: false }, what);
+        assertEquals(seen.map((x) => x.res.outcome), ["unknown_plan"], what);
+        assertEquals(
+          sub(r, tenant),
+          before,
+          `${what}: not the plan, the status, the period or grace`,
+        );
+        const ev = r.db.billing_events.get(`evt_bad_${i}`);
+        assertEquals(ev?.tenant_id, tenant, `${what}: recorded against its tenant — never dropped`);
+        assertEquals(ev?.applied_at, null, what);
+      }
+    },
+  );
+
+  await t.step(
+    "the control: an event that names NO plan is a renewal and keeps the old one",
+    async () => {
+      const ref = "sub_renewal";
+      const tenant = dunned(ref);
+      const { deps, seen } = recorded(r);
+      const res = await handler(
+        await post(
+          r,
+          subBody({ event: "subscription.charged", at: T0, tenant, ref, periodEnd: year }),
+          "evt_renewal",
+          false,
+          deps,
+        ),
+        deps,
+      );
+      assertEquals(await res.json(), { ok: true, duplicate: false, applied: true });
+      assertEquals(seen.map((x) => [x.ev.plan, x.res.outcome]), [[null, "activate"]]);
+      const s = sub(r, tenant);
+      assertEquals([s.plan, s.status, s.grace_kind], ["family", "active", null]);
+    },
+  );
 });

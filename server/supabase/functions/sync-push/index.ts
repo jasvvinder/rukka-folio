@@ -4,7 +4,14 @@
 import { b64any } from "../_shared/bytes.ts";
 import { type Deps, serve } from "../_shared/deps.ts";
 import { error, readJson } from "../_shared/http.ts";
-import { PUSH_BATCH_BYTES, PUSH_BATCH_MAX, QUOTAS, WRITER_ROLES } from "../_shared/registry.ts";
+import {
+  PlanCatalogue,
+  PUSH_BATCH_BYTES,
+  PUSH_BATCH_MAX,
+  quotaOf,
+  withinCap,
+  WRITER_ROLES,
+} from "../_shared/registry.ts";
 import { authenticate, gate, jsonBigResponse } from "../_shared/route.ts";
 import { checkShape, isRefusal, parseEnvelope } from "../_shared/shape.ts";
 import { type BookAccess, StoreDenied, type Tx } from "../_shared/store.ts";
@@ -61,6 +68,7 @@ export async function handler(req: Request, deps: Deps): Promise<Response> {
       return { store_epoch, results };
     }
     const access = new Map<string, BookAccess | null>();
+    let catalogue: PlanCatalogue | undefined;
     const highest = new Map<string, Awaited<ReturnType<Tx["highestKeyVersion"]>>>();
     for (const [i, p] of parsed.entries()) {
       const envelope_id = idOf(body.envelopes![i], p);
@@ -87,8 +95,15 @@ export async function handler(req: Request, deps: Deps): Promise<Response> {
         results.push({ envelope_id, result: "rejected:tenant_frozen" });
         continue;
       }
-      const q = QUOTAS[a.plan];
-      if (a.envelope_count >= q.envelopesPerBook || a.tenant_bytes + p.size > q.tenantBytes) {
+      // 08 §2's two push quotas, read from the tenant's plan-catalogue row (ADR 2026-09-25 §6 🔒:
+      // "The server's enforced limits are read from it") — loaded once per request, only when an
+      // envelope gets this far. NO_CAP (-1) is no cap (ADR 2026-09-24b §7 (b)).
+      catalogue ??= new PlanCatalogue(await tx.planCatalogue());
+      const q = quotaOf(catalogue.resolve(a.plan));
+      if (
+        !withinCap(a.envelope_count + 1, q.envelopesPerBook) ||
+        !withinCap(a.tenant_bytes + p.size, q.tenantBytes)
+      ) {
         results.push({ envelope_id, result: "rejected:quota" });
         continue;
       }

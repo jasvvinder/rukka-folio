@@ -606,8 +606,8 @@ Deno.test({
       .filter((t) => !["query", "v_last", "v_sub", "v_tenant", "v_base"].includes(t));
     assertEquals(
       [...new Set(tables)].sort(),
-      ["billing_events", "subscriptions"],
-      "two tables, both billing's own",
+      ["billing_events", "plan_catalogue", "subscriptions"],
+      "three tables, all billing's own — 0018 added the catalogue lookup that refuses an activation to an unknown plan (ADR 2026-09-25 §6)",
     );
 
     await sql.end();

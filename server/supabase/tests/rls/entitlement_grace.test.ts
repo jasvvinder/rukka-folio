@@ -14,6 +14,7 @@
 import { assert, assertEquals } from "@std/assert";
 import postgres from "postgres";
 import { entitlementFor } from "../../functions/_shared/entitlement.ts";
+import { PlanCatalogue } from "../../functions/_shared/registry.ts";
 import { PgStore } from "../../functions/_shared/store_pg.ts";
 
 const url = Deno.env.get("RF_TEST_DB_URL");
@@ -68,13 +69,17 @@ Deno.test({
         });
       const states = (user: string, device: string) =>
         store.withClaims({ user_id: user, device_id: device }, (tx) => tx.entitlementStates());
+      // The REAL catalogue (0018), read through rf_api exactly as sync-meta reads it.
+      const catalogue = new PlanCatalogue(
+        await store.withClaims({ user_id: owner, device_id: ownerDev }, (tx) => tx.planCatalogue()),
+      );
 
       // Before any dunning: the column is null and so is the token's field.
       let [s] = await states(owner, ownerDev);
       assertEquals(s.tenant_id, t1.id);
       assertEquals(s.grace_kind, null);
       assertEquals(s.grace_until, null, "the state carries the column even when it is null");
-      assertEquals(entitlementFor(s, new Date()).grace_until, null);
+      assertEquals(entitlementFor(s, catalogue, new Date()).grace_until, null);
 
       // A failed renewal, through the real apply path.
       const [dun] = await apply("dunning", new Date(Date.UTC(2026, 8, 21)), periodEnd);
@@ -89,7 +94,7 @@ Deno.test({
         "0013 writes the gateway default, period_end + 7 d",
       );
       const now = new Date(Date.UTC(2026, 8, 22));
-      const p = entitlementFor(s, now);
+      const p = entitlementFor(s, catalogue, now);
       assertEquals(p.grace_kind, "dunning");
       assertEquals(
         p.grace_until,
@@ -113,7 +118,7 @@ Deno.test({
       [s] = await states(owner, ownerDev);
       assertEquals(s.grace_kind, null);
       assertEquals(s.grace_until, null, "an activate clears the grace date");
-      assertEquals(entitlementFor(s, now).grace_until, null);
+      assertEquals(entitlementFor(s, catalogue, now).grace_until, null);
     } finally {
       await store.end();
       await sql.end();
@@ -163,7 +168,10 @@ Deno.test({
       assertEquals(st.current_period_end, null, "…and never sets a period the row did not have");
 
       const now = new Date();
-      const p = entitlementFor(st, now);
+      const catalogue = new PlanCatalogue(
+        await store.withClaims({ user_id: u.id, device_id: d.id }, (tx) => tx.planCatalogue()),
+      );
+      const p = entitlementFor(st, catalogue, now);
       assertEquals(p.plan, "family", "lapsed keeps its plan (ADR 2026-09-05g §5 🔒)");
       assertEquals(
         p.period_end,

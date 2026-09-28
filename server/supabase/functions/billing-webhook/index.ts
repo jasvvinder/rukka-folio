@@ -23,6 +23,7 @@
 import { hex } from "../_shared/bytes.ts";
 import { type Deps, serve } from "../_shared/deps.ts";
 import { error, json } from "../_shared/http.ts";
+import { PLAN_ID } from "../_shared/registry.ts";
 import type { BillingAction, BillingEventApply } from "../_shared/store.ts";
 import { blake2b256, constantTimeEqual, hmacSha256AnyKey } from "../_shared/sodium.ts";
 
@@ -46,6 +47,12 @@ const NOTES_TENANT = "tenant_id";
 const NOTES_PLAN = "plan";
 /** Razorpay's end of the current cycle, seconds. */
 const PERIOD_END_FIELD = "current_end";
+/** What a PRESENT but unreadable `notes.plan` reaches the apply path as. The empty string is the one
+ *  value 0018's `plan_catalogue.id` CHECK (`^[a-z][a-z0-9_]{0,31}$`) guarantees no catalogue row
+ *  can ever hold, so rf.apply_billing_event records the activation as `unknown_plan` and applies
+ *  nothing. The raw value is not forwarded: a signed body may still carry a NUL or a lone
+ *  surrogate, which Postgres `text` refuses — the event would then fail to record at all. */
+const MALFORMED_PLAN = "";
 const PAYMENT_OK = "captured";
 
 /** Event type → what it means to us. Anything absent is `record_only`: recorded, never applied,
@@ -74,7 +81,6 @@ const DISPUTE_STATE: Record<string, string> = {
   "payment.dispute.lost": "chargeback",
 };
 
-const PLANS = new Set(["free", "personal", "family", "family_plus"]);
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 type Obj = Record<string, unknown>;
@@ -90,6 +96,22 @@ function epochSeconds(v: unknown): Date | null {
 }
 /** `payload.<name>.entity`, the shape every Razorpay webhook uses. */
 const entity = (body: Obj, name: string): Obj | null => obj(obj(obj(body.payload)?.[name])?.entity);
+
+/** `notes.plan` as the apply path must see it — a catalogue id (ADR 2026-09-25 §6 🔒 "not one of
+ *  four fixed names"), never one of 08 §2's four only:
+ *    - ABSENT (no notes, no key, or JSON null) → null: the event names no plan, and 0013's
+ *      activation keeps the tenant's plan (`coalesce(p_plan, plan)`) — a renewal;
+ *    - a well-formed id → passed through as sent. Whether the catalogue holds it is decided by
+ *      rf.apply_billing_event (0018), the one place that knows which ids exist;
+ *    - PRESENT but malformed ('Business+', 'family-plus', 'Business', '', a number) →
+ *      MALFORMED_PLAN, so the apply path records it `unknown_plan` and applies nothing. Nulling it
+ *      here, as this file once did, turned it into "absent" and activated a new paid period on the
+ *      tenant's OLD plan — the guess 0018 §7 forbids ("never silently kept at the old plan"). */
+function planOf(notes: Obj | null): string | null {
+  const v = notes?.[NOTES_PLAN];
+  if (v === undefined || v === null) return null;
+  return typeof v === "string" && PLAN_ID.test(v) ? v : MALFORMED_PLAN;
+}
 
 /** Everything the apply path needs, read from a body that has ALREADY been signature-verified.
  *  A field we cannot read becomes null; null narrows what the apply path will do (it refuses to
@@ -111,7 +133,6 @@ function read(body: Obj, eventId: string, type: string, hash: Uint8Array): Billi
   }
 
   const tenant = str(notes?.[NOTES_TENANT]);
-  const plan = str(notes?.[NOTES_PLAN]);
   return {
     eventId,
     gateway: GATEWAY,
@@ -120,7 +141,7 @@ function read(body: Obj, eventId: string, type: string, hash: Uint8Array): Billi
     action,
     tenantId: tenant && UUID.test(tenant) ? tenant : null,
     eventAt: epochSeconds(body[EVENT_AT_FIELD]),
-    plan: plan && PLANS.has(plan) ? plan : null,
+    plan: planOf(notes),
     periodEnd: epochSeconds(sub?.[PERIOD_END_FIELD]),
     gatewayRef: str(sub?.id),
     source: SOURCE,

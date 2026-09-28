@@ -4,7 +4,7 @@
 // file only shapes rows. It never reads a blob's content and never logs a row.
 import postgres from "postgres";
 import type { Claims } from "./claims.ts";
-import type { Plan } from "./registry.ts";
+import type { CataloguePlan, EntityType, Feature, PlanId } from "./registry.ts";
 import {
   type ActivationTicket,
   type BillingApplyResult,
@@ -129,7 +129,7 @@ class PgTx implements Tx {
       role: (r.role as string) ?? null,
       membership_status: (r.membership_status as string) ?? null,
       frozen: r.frozen as boolean,
-      plan: r.plan as Plan,
+      plan: r.plan as PlanId,
       envelope_count: Number(r.envelope_count),
       tenant_bytes: Number(r.tenant_bytes),
     };
@@ -220,7 +220,8 @@ class PgTx implements Tx {
       select m.tenant_id,
              s.plan, s.status, s.current_period_end, s.trial_end, s.grace_kind, s.grace_until,
              s.updated_at as sub_updated_at,
-             e.created_at as token_created_at, e.expires_at as token_expires_at
+             e.created_at as token_created_at, e.expires_at as token_expires_at,
+             e.token
         from memberships m
         left join subscriptions s on s.tenant_id = m.tenant_id
         left join entitlement_tokens e on e.tenant_id = m.tenant_id
@@ -238,12 +239,58 @@ class PgTx implements Tx {
       sub_updated_at: (r.sub_updated_at as Date | null) ?? null,
       token_created_at: (r.token_created_at as Date | null) ?? null,
       token_expires_at: (r.token_expires_at as Date | null) ?? null,
+      token: r.token ? bytes(r.token) : null,
     }));
   }
   async putEntitlementToken(tenantId: string, token: Uint8Array, expiresAt: Date): Promise<void> {
     await this.guarded(async () => {
       await this
         .sql`select rf.mint_entitlement_token(${tenantId}::uuid, ${token}, ${expiresAt}::timestamptz)`;
+    });
+  }
+  /** 0018's `plan_catalogue`, as rf_api reads it under `plan_catalogue_select`. int8 columns come
+   *  back from the driver as BigInt; each is converted and checked safe, which 0018's CHECKs
+   *  (≤ 2^53 − 1) guarantee — a limit or a price that would round is refused, never rounded. */
+  async planCatalogue(): Promise<CataloguePlan[]> {
+    const rows = await this.sql`
+      select id, entity_type, name, sort_order, members, business_books, devices,
+             envelopes_per_book, tenant_bytes, attachment_bytes, features,
+             price_yearly_paise, price_monthly_paise, popular, placeholder, updated_at
+        from plan_catalogue order by entity_type, sort_order, id`;
+    const n = (v: unknown, what: string): number => {
+      const x = typeof v === "bigint" || typeof v === "string" ? Number(v) : v as number;
+      if (!Number.isSafeInteger(x)) throw new Error(`plan_catalogue.${what} is not a safe integer`);
+      return x;
+    };
+    return rows.map((r) => ({
+      id: r.id as PlanId,
+      entity_type: r.entity_type as EntityType,
+      name: r.name as string,
+      sort_order: n(r.sort_order, "sort_order"),
+      limits: {
+        members: n(r.members, "members"),
+        business_books: n(r.business_books, "business_books"),
+        devices: n(r.devices, "devices"),
+        envelopes_per_book: n(r.envelopes_per_book, "envelopes_per_book"),
+        tenant_bytes: n(r.tenant_bytes, "tenant_bytes"),
+        attachment_bytes: n(r.attachment_bytes, "attachment_bytes"),
+      },
+      features: [...(r.features as string[])] as Feature[],
+      price_yearly_paise: n(r.price_yearly_paise, "price_yearly_paise"),
+      price_monthly_paise: n(r.price_monthly_paise, "price_monthly_paise"),
+      popular: r.popular as boolean,
+      placeholder: r.placeholder as boolean,
+      updated_at: r.updated_at as Date,
+    }));
+  }
+  async startTrial(
+    tenantId: string,
+    entity: EntityType,
+  ): Promise<{ plan: PlanId; trial_end: Date }> {
+    return await this.guarded(async () => {
+      const [r] = await this
+        .sql`select * from rf.start_trial(${tenantId}::uuid, ${entity}::text)`;
+      return { plan: r.trial_plan as PlanId, trial_end: r.trial_ends_at as Date };
     });
   }
   async guardianSetHistory(subject: string): Promise<GuardianSet[]> {

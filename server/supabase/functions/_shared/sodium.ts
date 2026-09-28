@@ -2,7 +2,7 @@
 // Ed25519 detached verify for certs, records and challenges, HMAC-SHA256 for our JWT and phone_hmac.
 import _sodium from "sodium";
 import { b64url } from "./bytes.ts";
-import { NO_CAP, type Plan } from "./registry.ts";
+import { FEATURES, NO_CAP, PLAN_ID, type PlanId } from "./registry.ts";
 
 export type Sodium = typeof _sodium;
 let ready: Promise<Sodium> | null = null;
@@ -76,12 +76,21 @@ export async function constantTimeEqual(a: Uint8Array, b: Uint8Array): Promise<b
 //
 // Canonical JSON payload bytes: UTF-8, no whitespace, keys in THIS fixed order (not sorted — the
 // order below is the order of the 🔒 field list, ADR 2026-09-05g §1 as amended by ADR 2026-09-24b
-// §6: `{tenant_id, plan, limits, period_end, grace_kind, grace_until, iat, exp}`), every number a
-// JSON integer literal, `period_end`, `grace_kind` and `grace_until` null when absent:
+// §6 and ADR 2026-09-25 §6: `{tenant_id, plan, limits, features, period_end, grace_kind,
+// grace_until, iat, exp}`), every number a JSON integer literal, `period_end`, `grace_kind` and
+// `grace_until` null when absent:
 //
 //   {"tenant_id":"…","plan":"…","limits":{"members":N,"business_books":N,"devices":N,
-//    "envelopes_per_book":N,"tenant_bytes":N,"attachment_bytes":N},
+//    "envelopes_per_book":N,"tenant_bytes":N,"attachment_bytes":N},"features":["…",…],
 //    "period_end":N|null,"grace_kind":"dunning"|null,"grace_until":N|null,"iat":N,"exp":N}
+//
+// `plan` is a plan-catalogue id (ADR 2026-09-25 §6 🔒: "not one of four fixed names"). `features`
+// is ADR 2026-09-25 §6 🔒's "the included extras, for example statement import and PDF output":
+// always present (an empty array on a plan with none, e.g. Free — ADR 25 §5), each name one of
+// registry.ts's FEATURES, sorted ascending and without repeats, so one set has one encoding. The
+// app's gates read it (ADR 25 §6); it can never name a never-restricted book-flow feature because
+// the signer refuses any name outside FEATURES (G-25-1). ⚠️ SPEC: ADR 25 §6 adds the field without
+// placing it; it sits after `limits`, the other plan-derived field — reported for 08 §3's line.
 //
 // `iat`/`exp`/`period_end`/`grace_until` are epoch MILLISECONDS (the unit every other value on the
 // meta wire uses — sync-meta's shapeRow renders every timestamp with Date.getTime()). exp − iat ≤
@@ -104,12 +113,13 @@ export interface EntitlementLimits {
   tenant_bytes: number;
   attachment_bytes: number;
 }
-/** The 🔒 field set of 08 §3 / ADR 2026-09-05g §1 as amended by ADR 2026-09-24b §6, and nothing
- *  else. */
+/** The 🔒 field set of 08 §3 / ADR 2026-09-05g §1 as amended by ADR 2026-09-24b §6 and ADR
+ *  2026-09-25 §6, and nothing else. */
 export interface EntitlementPayload {
   tenant_id: string;
-  plan: Plan;
+  plan: PlanId;
   limits: EntitlementLimits;
+  features: string[]; // sorted, unique, each in FEATURES (ADR 2026-09-25 §6)
   period_end: number | null; // epoch ms; null when the tenant has never had a period
   grace_kind: "dunning" | null;
   grace_until: number | null; // epoch ms; null unless grace_kind = "dunning" (ADR 2026-09-24b §6)
@@ -148,6 +158,27 @@ export function entitlementPayloadBytes(p: EntitlementPayload): Uint8Array {
       "entitlement grace_until is null unless grace_kind = 'dunning' (ADR 2026-09-24b §6 🔒)",
     );
   }
+  if (typeof p.plan !== "string" || !PLAN_ID.test(p.plan)) {
+    throw new TypeError("entitlement plan must be a plan-catalogue id (ADR 2026-09-25 §6)");
+  }
+  if (!Array.isArray(p.features)) {
+    throw new TypeError(
+      "entitlement features is an array — the field set is exact (ADR 2026-09-25 §6)",
+    );
+  }
+  const known: readonly string[] = FEATURES;
+  for (const [i, f] of p.features.entries()) {
+    if (typeof f !== "string" || !known.includes(f)) {
+      throw new TypeError(
+        `entitlement feature ${
+          JSON.stringify(f)
+        } is not an extra a plan may gate (ADR 2026-09-25 §5)`,
+      );
+    }
+    if (i > 0 && !(p.features[i - 1] < f)) {
+      throw new TypeError("entitlement features must be sorted and unique (one set, one encoding)");
+    }
+  }
   const iat = int(p.iat, "iat"), exp = int(p.exp, "exp");
   if (exp <= iat || exp - iat > TOKEN_MAX_TTL_MS) {
     throw new RangeError("entitlement exp − iat must be > 0 and ≤ 30 d (ADR 2026-09-05g §1 🔒)");
@@ -166,6 +197,7 @@ export function entitlementPayloadBytes(p: EntitlementPayload): Uint8Array {
     `"tenant_id":${JSON.stringify(p.tenant_id)},` +
     `"plan":${JSON.stringify(p.plan)},` +
     `"limits":{${limits.join(",")}},` +
+    `"features":[${p.features.map((f) => JSON.stringify(f)).join(",")}],` +
     `"period_end":${periodEnd},` +
     `"grace_kind":${p.grace_kind === null ? "null" : JSON.stringify(p.grace_kind)},` +
     `"grace_until":${graceUntil},` +

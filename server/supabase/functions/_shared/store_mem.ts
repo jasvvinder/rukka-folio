@@ -3,8 +3,14 @@
 // append-only). Tests seed `MemDb` directly; functions only ever see `Tx`. Clock is injected.
 import type { Claims } from "./claims.ts";
 import { bytesEqual } from "./bytes.ts";
-import type { Plan } from "./registry.ts";
-import { WRITER_ROLES } from "./registry.ts";
+import {
+  type CataloguePlan,
+  type EntityType,
+  NO_CAP,
+  PlanCatalogue,
+  type PlanId,
+  WRITER_ROLES,
+} from "./registry.ts";
 import {
   type ActivationTicket,
   type BillingApplyResult,
@@ -46,6 +52,7 @@ export interface MemUser {
   language: string | null;
   display_name: string | null;
   erased_at: Date | null;
+  trial_consumed_at?: Date | null; // 0001; set once by rf.start_trial (0018)
   created_at: Date;
   updated_at: Date;
 }
@@ -63,8 +70,76 @@ export interface MemDevice {
   updated_at: Date;
 }
 
+/** 0018's seed, restated for the fake — ADR 2026-09-25 §5's working-price table. The REAL catalogue
+ *  is the database's; E-25-3's PgStore test asserts that `PgStore.planCatalogue()` returns exactly
+ *  these rows, so the fake cannot drift from the migration unnoticed. `updated_at` is the epoch:
+ *  the seed predates every token a test mints. */
+const GiB = 1024 ** 3, MiB = 1024 ** 2;
+const BOTH: CataloguePlan["features"] = ["statement_import", "pdf_output"];
+function seedPlan(
+  id: string,
+  entity_type: EntityType,
+  name: string,
+  sort_order: number,
+  [members, business_books, devices, envelopes_per_book, tenant_bytes, attachment_bytes]: number[],
+  features: CataloguePlan["features"],
+  price_yearly_paise: number,
+  popular = false,
+): CataloguePlan {
+  return {
+    id,
+    entity_type,
+    name,
+    sort_order,
+    limits: {
+      members,
+      business_books,
+      devices,
+      envelopes_per_book,
+      tenant_bytes,
+      attachment_bytes,
+    },
+    features,
+    price_yearly_paise,
+    price_monthly_paise: price_yearly_paise / 10,
+    popular,
+    placeholder: true,
+    updated_at: new Date(0),
+  };
+}
+const FAMILY_Q = [8, 250_000, 5 * GiB, 5 * GiB], TOP_Q = [15, 1_000_000, 15 * GiB, 20 * GiB];
+export const CATALOGUE_SEED: readonly CataloguePlan[] = [
+  seedPlan("shop", "business", "Shop", 1, [2, 1, ...FAMILY_Q], [], 249_900),
+  seedPlan("business", "business", "Business", 2, [10, 5, ...FAMILY_Q], BOTH, 299_900, true),
+  seedPlan("business_plus", "business", "Business+", 3, [30, 15, ...TOP_Q], BOTH, 699_900),
+  seedPlan("family_lite", "family", "Family Lite", 1, [4, 2, ...FAMILY_Q], [], 199_900),
+  seedPlan("family", "family", "Family", 2, [12, 8, ...FAMILY_Q], BOTH, 249_900, true),
+  seedPlan("family_plus", "family", "Family+", 3, [30, 20, ...TOP_Q], BOTH, 599_900),
+  seedPlan("free", "individual", "Free", 1, [1, 0, 5, 10_000, 250 * MiB, 100 * MiB], [], 0),
+  seedPlan(
+    "personal",
+    "individual",
+    "Personal",
+    2,
+    [1, 3, 5, 100_000, 2 * GiB, 2 * GiB],
+    BOTH,
+    99_000,
+  ),
+  seedPlan("trust", "trust", "Trust", 1, [15, 3, ...FAMILY_Q], BOTH, 199_900, true),
+  seedPlan("trust_plus", "trust", "Trust+", 2, [40, 10, ...TOP_Q], BOTH, 399_900),
+];
+const clonePlan = (p: CataloguePlan): CataloguePlan => ({
+  ...p,
+  limits: { ...p.limits },
+  features: [...p.features],
+  updated_at: new Date(p.updated_at),
+});
+
 export class MemDb {
   now: () => Date = () => new Date();
+  /** 0018 `plan_catalogue`. Tests change it only through `setCataloguePlan`, which moves
+   *  `updated_at` the way 0018's touch trigger does. */
+  plan_catalogue: CataloguePlan[] = CATALOGUE_SEED.map(clonePlan);
   epoch = uuid();
   config = new Map<string, unknown>([
     ["min_client_version.sync", "0.1.0"],
@@ -233,7 +308,24 @@ export class MemDb {
       });
     }
   }
-  setPlan(tenant_id: string, plan: Plan): void {
+  /** A catalogue DATA change (ADR 2026-09-25 §6: "a catalogue change is a data change plus a server
+   *  deploy, still with no app release"): patch one row and move its `updated_at` as 0018's
+   *  plan_catalogue_touch trigger would. */
+  setCataloguePlan(
+    id: string,
+    patch: Partial<Omit<CataloguePlan, "id" | "limits">> & {
+      limits?: Partial<CataloguePlan["limits"]>;
+    },
+  ): CataloguePlan {
+    const row = this.plan_catalogue.find((p) => p.id === id);
+    if (!row) throw new Error(`no catalogue plan ${id}`);
+    const { limits, ...rest } = patch;
+    Object.assign(row, rest);
+    if (limits) Object.assign(row.limits, limits);
+    row.updated_at = this.now();
+    return row;
+  }
+  setPlan(tenant_id: string, plan: PlanId): void {
     this.subscriptions = this.subscriptions.filter((s) => s.tenant_id !== tenant_id);
     this.subscriptions.push({ tenant_id, plan, status: "active", updated_at: this.now() });
   }
@@ -349,7 +441,7 @@ class MemTx implements Tx {
     const b = this.db.books.get(bookId);
     if (!b || !this.isCertified()) return Promise.resolve(null);
     const t = b.tenant_id as string, now = this.now;
-    const plan = (this.db.subscriptions.find((s) => s.tenant_id === t)?.plan as Plan) ?? "free";
+    const plan = (this.db.subscriptions.find((s) => s.tenant_id === t)?.plan as PlanId) ?? "free";
     const count = this.db.envelopes.filter((e) => e.book_id === bookId).length;
     const bytes = this.db.envelopes.filter((e) => e.tenant_id === t).reduce(
       (n, e) => n + e.size,
@@ -523,10 +615,50 @@ class MemTx implements Tx {
         sub_updated_at: (s?.updated_at as Date | null) ?? null,
         token_created_at: (e?.created_at as Date | null) ?? null,
         token_expires_at: (e?.expires_at as Date | null) ?? null,
+        token: (e?.token as Uint8Array | null) ?? null,
       });
     }
     out.sort((a, b) => a.tenant_id < b.tenant_id ? -1 : a.tenant_id > b.tenant_id ? 1 : 0);
     return Promise.resolve(out);
+  }
+  /** 0018 `plan_catalogue_select`: any authenticated caller, never a claims-less transaction. */
+  planCatalogue(): Promise<CataloguePlan[]> {
+    if (!this.me) return Promise.resolve([]);
+    const order = (p: CataloguePlan) =>
+      `${p.entity_type}\u0000${String(p.sort_order).padStart(6, "0")}\u0000${p.id}`;
+    return Promise.resolve(
+      this.db.plan_catalogue.map(clonePlan).sort((a, b) => order(a) < order(b) ? -1 : 1),
+    );
+  }
+  /** rf.start_trial (0018) in TypeScript, same order of refusals. Divergence is a bug in whichever
+   *  is not 0018. */
+  startTrial(tenantId: string, entity: EntityType): Promise<{ plan: PlanId; trial_end: Date }> {
+    const refuse = (why: string) => Promise.reject(new StoreDenied(why));
+    if (!this.tenantAdmin(tenantId)) return refuse("not_admin");
+    if (!["individual", "family", "business", "trust"].includes(entity)) {
+      return refuse("bad_entity_type");
+    }
+    if (entity === "individual") return refuse("no_trial");
+    const type = this.db.tenants.get(tenantId)?.type;
+    if ((entity === "trust") !== (type === "organization")) return refuse("entity_mismatch");
+    const me = this.db.users.get(this.me!);
+    if (!me || me.trial_consumed_at) return refuse("trial_consumed");
+    const plan = new PlanCatalogue(this.db.plan_catalogue).popular(entity);
+    if (!plan) return refuse("no_popular_plan");
+    const t = this.now;
+    const trial_end = new Date(t.getTime() + 30 * 86400e3);
+    const sub = this.db.subscriptions.find((s) => s.tenant_id === tenantId);
+    if (sub) {
+      if (
+        sub.trial_end != null || sub.current_period_end != null || sub.gateway_ref != null ||
+        sub.status !== "active"
+      ) return refuse("trial_unavailable");
+      Object.assign(sub, { plan: plan.id, status: "trial", trial_end, updated_at: t });
+    } else {
+      this.db.addSubscription(tenantId, { plan: plan.id, status: "trial", trial_end });
+    }
+    me.trial_consumed_at = t;
+    return Promise.resolve({ plan: plan.id, trial_end });
   }
   /** rf.mint_entitlement_token (0014) in TypeScript: one row per tenant, the membership re-checked
    *  here rather than trusted from the caller, `created_at` moved because the row now holds a
@@ -1331,11 +1463,20 @@ class MemTx implements Tx {
     const active =
       [...this.db.devices.values()].filter((d) => d.user_id === user && d.status !== "revoked")
         .length;
-    const plans = this.db.memberships.filter((m) => m.user_id === user && m.status === "active")
+    // rf.device_cap (0018): the highest `devices` among the user's active tenants' catalogue rows,
+    // the floor's with none; NO_CAP sorts above every count (06 §6, ADR 2026-09-05g §7).
+    const catalogue = new PlanCatalogue(this.db.plan_catalogue);
+    const capOf = (plan: string | null) => {
+      const d = catalogue.resolve(plan).limits.devices;
+      return d === NO_CAP ? Infinity : d;
+    };
+    const caps = this.db.memberships.filter((m) => m.user_id === user && m.status === "active")
       .map((m) =>
-        (this.db.subscriptions.find((s) => s.tenant_id === m.tenant_id)?.plan as string) ?? "free"
+        capOf(
+          (this.db.subscriptions.find((s) => s.tenant_id === m.tenant_id)?.plan as string) ?? null,
+        )
       );
-    const cap = Math.max(5, ...plans.map((p) => p === "family_plus" ? 15 : p === "family" ? 8 : 5));
+    const cap = caps.length ? Math.max(...caps) : capOf(null);
     if (active >= cap) throw new DeviceCapError();
     const d = this.db.addDevice(user, pubEd, pubX, "registered", device);
     d.model = model;
@@ -1490,6 +1631,10 @@ class MemTx implements Tx {
     if (e.action === "record_only") return done("not_applicable");
     if (!tenant) return done("unknown_tenant");
     if (!e.eventAt) return done("no_event_at");
+    if (
+      e.action === "activate" && e.plan != null &&
+      !this.db.plan_catalogue.some((p) => p.id === e.plan)
+    ) return done("unknown_plan"); // 0018: recorded, not applied
     const sub = this.db.subscriptions.find((s) => s.tenant_id === tenant);
     if (!sub) return done("unknown_tenant");
 

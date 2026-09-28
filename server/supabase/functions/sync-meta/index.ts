@@ -7,6 +7,7 @@
 // POST /sync-meta/invites/accept {invite_id} → {status, nonce}  (06 §7, ADR 2026-09-05d §9, 25b §2)
 // /sync-meta/recovery… → the guardian ladder's WRITE side (04 §7.3; see the block above `recovery`),
 //      plus GET /sync-meta/recovery/has-guardian-set → {has_guardian_set} (ADR 2026-09-24b §3)
+// GET /sync-meta/plans → the plan catalogue · POST /sync-meta/plans/trial → start a trial (ADR 2026-09-25 §5–§6)
 // Cursor: `after` is opaque — base64url JSON {tables: {table: {updated_at, id}}, records_seq}; each
 // table's own cursor is (updated_at, id) as 05 §5 says. `next` is ALWAYS present (the resume point);
 // `has_more` is true when any table or the records stream had more than a page (engine contract: wire.dart).
@@ -23,7 +24,13 @@ import {
 import { entitlementFor, needsMint } from "../_shared/entitlement.ts";
 import { normaliseE164, phoneHmac } from "../_shared/phone.ts";
 import { signEntitlementToken } from "../_shared/sodium.ts";
-import { PULL_LIMIT_MAX } from "../_shared/registry.ts";
+import {
+  type CataloguePlan,
+  ENTITY_TYPES,
+  type EntityType,
+  PlanCatalogue,
+  PULL_LIMIT_MAX,
+} from "../_shared/registry.ts";
 import { authenticate, gate, jsonBigResponse, recordToWire } from "../_shared/route.ts";
 import {
   type CeremonySession,
@@ -57,7 +64,78 @@ export async function handler(req: Request, deps: Deps): Promise<Response> {
   if (path.startsWith("/ceremony")) return ceremony(req, deps, claims, path);
   if (path.startsWith("/invites")) return invites(req, deps, claims, path);
   if (path.startsWith("/recovery")) return recovery(req, deps, claims, path);
+  if (path === "/plans" || path.startsWith("/plans/")) return plans(req, deps, claims, path);
   return error(404, "not_found");
+}
+
+// ---------------------------------------------------------------- the plan catalogue (ADR 2026-09-25 §5–§6)
+//   GET  /sync-meta/plans        → {plans: [...], catalogue_updated_at} — "The app downloads the
+//        catalogue on the meta channel (05 §5) and renders S12.1 from it" (ADR 25 §6 🔒).
+//   POST /sync-meta/plans/trial {tenant_id, entity_type} → {tenant_id, plan, trial_end} — the
+//        entity type's 30-day trial on its popular plan, once per person (ADR 25 §5 🔒).
+//
+// The catalogue is product configuration, not tenant data: every plan is the same for every
+// caller, and the route renders exactly the catalogue's own columns — never a subscription, a
+// tenant, a member or a device. Display only: the app's GATES read the signed token's `features`
+// and `limits` (ADR 25 §6), never this response, which is unsigned. On iOS the price shown is
+// Apple's live StoreKit price (ADR 25 §6); these paise are the Android/web figures.
+async function plans(
+  req: Request,
+  deps: Deps,
+  claims: { user_id: string; device_id: string },
+  path: string,
+): Promise<Response> {
+  if (req.method === "GET" && path === "/plans") {
+    const rows = await deps.store.withClaims(claims, (tx) => tx.planCatalogue());
+    return jsonBigResponse(200, {
+      plans: rows.map(planToWire),
+      catalogue_updated_at: rows.reduce((m, p) => Math.max(m, p.updated_at.getTime()), 0),
+    });
+  }
+  if (req.method === "POST" && path === "/plans/trial") {
+    const b = await readJson(req, 4096) as Record<string, unknown> | null;
+    const tenant = b?.tenant_id, entity = b?.entity_type;
+    if (
+      typeof tenant !== "string" || !isUuid(tenant) || typeof entity !== "string" ||
+      !(ENTITY_TYPES as readonly string[]).includes(entity)
+    ) return error(400, "bad_request");
+    try {
+      const t = await deps.store.withClaims(
+        claims,
+        (tx) => tx.startTrial(tenant, entity as EntityType),
+      );
+      return jsonBigResponse(200, {
+        tenant_id: tenant,
+        plan: t.plan,
+        trial_end: t.trial_end.getTime(),
+      });
+    } catch (e) {
+      if (!(e instanceof StoreDenied)) throw e;
+      // Not an admin of that tenant — including a tenant that is not the caller's at all — answers
+      // one way, so the route is no oracle over other tenants. Everything else is a named 409.
+      if (e.reason === "not_admin" || e.reason === "rls") return error(403, "not_admin");
+      return error(409, e.reason);
+    }
+  }
+  return error(404, "not_found");
+}
+
+/** One catalogue row on the wire — the catalogue's own fields and nothing else. Integers stay
+ *  integers: prices are paise (CLAUDE.md rule 1), bytes are bytes, `updated_at` is epoch ms. */
+function planToWire(p: CataloguePlan): Record<string, unknown> {
+  return {
+    id: p.id,
+    entity_type: p.entity_type,
+    name: p.name,
+    sort_order: p.sort_order,
+    limits: { ...p.limits },
+    features: [...p.features],
+    price_yearly_paise: p.price_yearly_paise,
+    price_monthly_paise: p.price_monthly_paise,
+    popular: p.popular,
+    placeholder: p.placeholder,
+    updated_at: p.updated_at.getTime(),
+  };
 }
 
 async function pull(
@@ -136,9 +214,14 @@ async function pull(
  *  ordinary meta page, like every other row. */
 async function refreshEntitlements(tx: Tx, deps: Deps): Promise<void> {
   const now = deps.now();
-  for (const state of await tx.entitlementStates()) {
-    if (!needsMint(state, now)) continue;
-    const payload = entitlementFor(state, now);
+  const states = await tx.entitlementStates();
+  if (!states.length) return;
+  // ADR 2026-09-25 §6 🔒: the token's plan, limits and extras are read from the catalogue — one
+  // read per pull, so every tenant in this response is signed against the same catalogue.
+  const catalogue = new PlanCatalogue(await tx.planCatalogue());
+  for (const state of states) {
+    if (!needsMint(state, catalogue, now)) continue;
+    const payload = entitlementFor(state, catalogue, now);
     const token = await signEntitlementToken(payload, deps.entitlementSeed);
     await tx.putEntitlementToken(state.tenant_id, token, new Date(payload.exp));
   }

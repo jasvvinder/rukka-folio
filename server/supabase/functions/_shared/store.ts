@@ -3,7 +3,7 @@
 // The server never parses a payload: blobs are opaque bytes, payload_json of signed records is
 // plaintext by design (03 §4).
 import type { Claims } from "./claims.ts";
-import type { Plan } from "./registry.ts";
+import type { CataloguePlan, EntityType, PlanId } from "./registry.ts";
 
 export interface BookAccess {
   tenant_id: string;
@@ -11,7 +11,7 @@ export interface BookAccess {
   role: string | null;
   membership_status: string | null;
   frozen: boolean;
-  plan: Plan;
+  plan: PlanId; // the subscription row's catalogue id, or the floor (0005 rf.book_access)
   envelope_count: number;
   tenant_bytes: number;
 }
@@ -118,6 +118,11 @@ export interface EntitlementState {
   sub_updated_at: Date | null;
   token_created_at: Date | null; // null when nothing is stored yet
   token_expires_at: Date | null;
+  /** The stored token's bytes (`entitlement_tokens.token`), null when nothing is stored. rf_api
+   *  already reads them under 0005's `entitlement_select` (the meta relay serves them); the re-mint
+   *  rule compares what they sign with what the server would sign now (entitlement.ts rule 4),
+   *  and nothing logs or returns them from here. */
+  token: Uint8Array | null;
 }
 
 export interface OtpChallenge {
@@ -316,6 +321,15 @@ export interface Tx {
    *  or UPDATE grant on `entitlement_tokens`; this goes through rf.mint_entitlement_token (0014),
    *  which re-checks the membership itself. */
   putEntitlementToken(tenantId: string, token: Uint8Array, expiresAt: Date): Promise<void>;
+  /** ADR 2026-09-25 §6 🔒 — the plan catalogue (0018), every row. It names no tenant, user or
+   *  device, so it is the same for every caller; 0018's policy serves it to any authenticated
+   *  caller and to no claims-less transaction. The server's enforced limits are read from it. */
+  planCatalogue(): Promise<CataloguePlan[]>;
+  /** ADR 2026-09-25 §5 🔒 — rf.start_trial (0018): the entity type's 30-day trial on its popular
+   *  plan, once per person. Refusals are StoreDenied with 0018's names (`not_admin`, `no_trial`,
+   *  `entity_mismatch`, `trial_consumed`, `trial_unavailable`, `no_popular_plan`,
+   *  `bad_entity_type`). */
+  startTrial(tenantId: string, entity: EntityType): Promise<{ plan: PlanId; trial_end: Date }>;
   guardianSetHistory(subjectUserId: string): Promise<GuardianSet[]>;
   // signed records
   insertSignedRecord(row: SignedRecordRow): Promise<{ seq: bigint; duplicate: boolean }>;
@@ -492,6 +506,7 @@ export type BillingOutcome =
   | "unknown_tenant"
   | "no_event_at"
   | "no_period_end"
+  | "unknown_plan" // 0018: an activation naming a plan the catalogue does not hold — recorded only
   | "out_of_order";
 
 export interface BillingEventApply {
@@ -507,6 +522,9 @@ export interface BillingEventApply {
   tenantId: string | null;
   /** The GATEWAY's timestamp for the event: the ordering key of ADR 2026-09-05g §9's guard. */
   eventAt: Date | null;
+  /** Null = the event names no plan (an activation keeps the tenant's). Otherwise a catalogue id to
+   *  look up — or '' for a plan that was present but malformed, which no catalogue row can hold, so
+   *  the apply path records it `unknown_plan` (billing-webhook/index.ts `planOf`, 0018 §7). */
   plan: string | null;
   periodEnd: Date | null;
   gatewayRef: string | null;
