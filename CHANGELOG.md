@@ -12,6 +12,73 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-28 — M11/M13 cycles 3–4: scanner + dialer (SCAN1), S9.3 by member id (DEV1), plan catalogue server half (CAT1), read-only on every posting path (ENT2), guardian bit client (RL1), `grace_until` client (DUN1)
+
+Two more `/cycle` runs today. The first had four slices, cut from six by the cap and the budget; RL1 and DUN1 then ran as a second, two-slice cycle.
+Cycle 3: 44 agents, about 4.56 M tokens. 20 findings: 17 confirmed and 3 refuted; all 17 were repaired in round 1, and none was disputed.
+Cycle 4: 8 agents, about 0.65 M. 3 findings: 2 confirmed, both repaired in round 1, and 1 refuted.
+**Push gate green twice.** It made whitespace-only `dart format` fixes to 11 files and then to 4. The app package has **1810 tests**. RLS was run separately with `RLS_REQUIRE=1` against a fresh local Postgres (0001–0018): **173 passed, 0 failed**.
+The owner raised today's ceiling to 10 M (`budget.daily_overrides["2026-09-28"]`). Spend at close was about 7.3 M.
+
+**Added**
+
+- **SCAN1 (ADR 2026-09-19 rulings 1–3):**
+  - `mobile_scanner` ^7.4.2 enters only through `CeremonyScanner` (`features/ceremony/mobile_scanner_adapter.dart`, `qr_scan_screen.dart`, `widgets/viewfinder.dart`).
+  - `shared/seams/dialer.dart` is `tel:` only, never calls `canLaunchUrl`, and passes the bytes unaltered.
+  - `verifyOwnKeyByScan`, `verifyCandidateByScan` and `scanSheet` are implemented in `shared/sync/recovery_seams.dart` and bound in `bootstrap.dart`.
+  - R2.2/R2.3 *Call* controls, with a failure line (icon, words, *copy the number*).
+  - `NSCameraUsageDescription` in EN, PA and HI (`{en,pa,hi}.lproj/InfoPlist.strings`, `CFBundleLocalizations`).
+  - An own-key mismatch closes the attempt.
+  - Tests: `F1-07-312…315`, `F1-13c-1`.
+- **DEV1:** S11.1's *Meet them* pushes `verifyMemberFor(memberId)`. It is disabled with a reason for `invited`, `expired` and `blocked` members (`F1-07-545`).
+- **CAT1 (ADR 2026-09-25 §5–§6), server half:**
+  - `0018_plan_catalogue.sql` holds the ADR §5 placeholder plans. Prices are integer paise, and a CHECK enforces monthly × 10 = yearly.
+  - `registry.ts` reads its limits from the catalogue.
+  - The token gains `features`.
+  - `GET /sync-meta/plans` and `POST /sync-meta/plans/trial`.
+  - The billing webhook refuses a malformed plan as `unknown_plan`.
+  - Tests: `E-25-3`, `G-25-1…4`, `E-03-75…79`, and hostile-query `plan_catalogue.test.ts`.
+- **ENT2 (ADR 2026-09-24b §13):**
+  - Read-only raises the S12.5 sheet before appending on: advances, partners (pay-out, partner-to-partner, distribute), cash count, S4.1 amend and reverse, S3.1, onboarding opening balances and book creation, and S2's inline new A/C.
+  - The 10 s Undo stays open, including between books.
+  - Tests: `F1-24b-7` across six test files, with `test/features/entry/restriction_support.dart`.
+- **RL1 (ADR 2026-09-24b §3), client half:**
+  - `GuardiansApi.hasGuardianSet()`.
+  - Rung 2 answers `noTrustedMembers` only when the sets are empty and the bit is `false`; any other answer or an error reads `unknown`.
+  - Tests: `F1-24b-4`.
+- **DUN1 (ADR 2026-09-24b §6), client half:**
+  - `Entitlement.graceUntil`, `EntitlementTokenTimes.fromPayload` and `Entitlement.fromToken`.
+  - S12.4 counts down from `grace_until` and never adds 7 days.
+  - Tests: `F1-24b-5` (a–f).
+
+**Changed**
+
+- `F1-06-92` re-landed under ADR 24b §3. `F1-07-471` and `F1-07-478` re-landed under ADR 24b §6. `G-08-5` and `E-05-14…18` re-landed against the catalogue.
+- These ⚠️ SPEC comments were rewritten as citations: `_shared/entitlement.ts`, `registry.ts` (`NO_CAP`), and `entry_restriction.dart`'s scope note.
+- `PLAN.md`:
+  - §0 rows updated.
+  - M11 rows ✅: ADR 19 build, S9.3 reachability, the §3 client half.
+  - M13 rows: CAT1 🟡 (server ✅); S12.5 posting paths ✅; §6 client ✅; §12–14 🟡.
+  - New ⬜ rows: `EntitlementScope` must mount above the router; Inbox redate and import `addAccount` gates; re-seal must carry `VerifiedRecoveryCandidate`; stale comments; server hard caps on seats and business books.
+- `.claude/rf.config.json`: `daily_overrides["2026-09-28"] = 10000000`, owner-directed.
+
+**Open** ⚠️
+
+- **Desk 48:** a Family, Business or Trust tenant with no subscription row is signed as Free. ADR 05g §1 🔒 and ADR 25 §5 🔒 meet here, and neither names the case. `G-25-3` pins today's reading.
+- **Desk 49:** catalogue readings: Trust popular, no popular Individual plan, quotas for the six new plans, trial binding, entity-type checks.
+- **Desk 50:** the doc edits after CAT1, including the 08 §3 🔒 token field set with `features`.
+- **Desk 51:** does read-only block month close, year close and Inbox decisions? 08 §1 🔒 says *closing carries on*.
+- **Desk 52:** recovery scan gaps: no `denied` state, S11.2's own-key scanner not installed, no mismatch log, app-wide iOS localizations.
+- **Desk 53:** can invited or expired members be chosen as guardians, and should `inviteId` be retired?
+- **Desk 45 (b)** is now a user-visible **false denial**: a revoked device is told *noTrustedMembers*. The fix would be a server refusal; the client needs no change.
+- **Desk 46:** DUN1 built the conservative reading for dunning with a null date.
+- `PLAN.md` is 408 lines against the ~200 target, so history should move to this file in a docs pass.
+- PA/HI strings from SCAN1 are machine drafts for M12 native review.
+
+**Commits** — pending.
+
+---
+
 ## 2026-09-28 — M11 cycle 2: S9.2 binds the relayed nonce (NONCE2), S17.3 email support (SUP1), guardian bit + `grace_until` (SRV1)
 
 A second `/cycle` today, with three slices in disjoint directories: build → read-only review → adversarial verify → one repair round.
@@ -60,7 +127,7 @@ The two server slices were merged into SRV1 because both edit `_shared/store{,_m
 
 **Commits**
 
--
+- `8b96625`, `1d97256`, `812b937`. These three commits cover both earlier 28 Sep entries together; they were not split per entry.
 
 ---
 
@@ -108,7 +175,7 @@ All four reports are filed as `M11-*`, including RPT2 (an M12 row) and OWN1 (an 
 
 **Commits**
 
-- (pending: owner commits)
+- `8b96625`, `1d97256`, `812b937`. These three commits cover both earlier 28 Sep entries together; they were not split per entry.
 
 ---
 
