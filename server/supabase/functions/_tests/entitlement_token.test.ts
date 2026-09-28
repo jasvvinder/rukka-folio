@@ -16,7 +16,8 @@
 //     *locked*") and no lapsed tenant is silently demoted to Free (ADR §5 🔒 "lapsed = read-only").
 //   * A replayed pull is byte-stable, so 05 §5's `updated_at,id` cursor does not churn.
 //
-// Ids G-08-4, G-08-5, E-05-14 … E-05-18.
+// Ids G-08-4, G-08-5, E-05-14 … E-05-18, E-24b-2 (ADR 2026-09-24b §6: the token declares
+// `grace_until`; §7: lapsed ⇒ period_end = iat, unlimited = -1, no key id).
 import { assert, assertEquals, assertNotEquals } from "@std/assert";
 import { b64url } from "../_shared/bytes.ts";
 import { TOKEN_TTL_MS } from "../_shared/entitlement.ts";
@@ -94,11 +95,7 @@ Deno.test("G-08-4 08 §3 🔒 enforcement is server-attested: a meta pull by a c
 });
 
 Deno.test(
-  "G-08-5 08 §3 line 35 🔒: the payload is EXACTLY {tenant_id, plan, limits, period_end, grace_kind, iat, exp}, exp − iat ≤ 30 d, iat is the server's clock — and the Ed25519 signature verifies under the pinned public half and under nothing else",
-  {
-    // superseded by ADR 2026-09-24b §6; re-lands at M13 once _shared/entitlement.ts mints grace_until
-    ignore: true,
-  },
+  "G-08-5 08 §3 🔒 (ADR 2026-09-05g §1 as amended by ADR 2026-09-24b §6): the payload is EXACTLY {tenant_id, plan, limits, period_end, grace_kind, grace_until, iat, exp}, exp − iat ≤ 30 d, iat is the server's clock — and the Ed25519 signature verifies under the pinned public half and under nothing else",
   async () => {
     const r = rig();
     const t1 = r.db.addTenant();
@@ -114,9 +111,11 @@ Deno.test(
 
     assertEquals(
       Object.keys(payload).sort(),
-      ["exp", "grace_kind", "iat", "limits", "period_end", "plan", "tenant_id"],
-      "exactly the 🔒 field set — no status, no grace_until, no key id, no issuer",
+      ["exp", "grace_kind", "grace_until", "iat", "limits", "period_end", "plan", "tenant_id"],
+      "exactly the 🔒 field set, grace_until included (ADR 2026-09-24b §6) — no status, no key id (§7 (c)), no issuer",
     );
+    assertEquals(payload.grace_kind, null, "an active tenant is in no grace");
+    assertEquals(payload.grace_until, null, "and so declares no grace end (ADR 2026-09-24b §6)");
     assertEquals(
       Object.keys(payload.limits).sort(),
       [
@@ -135,7 +134,13 @@ Deno.test(
     assert(payload.exp - payload.iat <= 30 * DAY, "exp − iat ≤ 30 d (ADR 2026-09-05g §1 🔒)");
     assertEquals(payload.exp - payload.iat, TOKEN_TTL_MS);
     for (
-      const v of [payload.iat, payload.exp, payload.period_end, ...Object.values(payload.limits)]
+      const v of [
+        payload.iat,
+        payload.exp,
+        payload.period_end,
+        payload.grace_until,
+        ...Object.values(payload.limits),
+      ]
     ) {
       assert(v === null || Number.isSafeInteger(v), `integer everywhere, got ${v}`);
     }
@@ -179,8 +184,24 @@ Deno.test(
     assert(!/\s/.test(json), "canonical JSON: no whitespace");
     assert(
       json.startsWith('{"tenant_id":') &&
-        json.endsWith(`,"iat":${payload.iat},"exp":${payload.exp}}`),
-      `fixed key order, ADR 2026-09-05g §1's field order: ${json}`,
+        json.endsWith(
+          `,"grace_kind":null,"grace_until":null,"iat":${payload.iat},"exp":${payload.exp}}`,
+        ),
+      `fixed key order, the field order of ADR 2026-09-05g §1 as amended by ADR 2026-09-24b §6: ${json}`,
+    );
+    assertEquals(
+      Object.keys(JSON.parse(json)),
+      [
+        "tenant_id",
+        "plan",
+        "limits",
+        "period_end",
+        "grace_kind",
+        "grace_until",
+        "iat",
+        "exp",
+      ],
+      "grace_until sits between grace_kind and iat, exactly where ADR 2026-09-24b §6 lists it",
     );
   },
 );
@@ -249,17 +270,15 @@ Deno.test("E-05-14 plan state 🔒: no subscriptions row is a SIGNED Free token 
 });
 
 Deno.test(
-  "E-05-15 grace and lapse 🔒: a dunning row declares grace_kind 'dunning' with the row's period_end so the client can compute the 7 days (ADR 2026-09-05g §4), and an expired or refunded tenant keeps its PLAN — read-only, never silently Free (ADR §5 🔒)",
-  {
-    // superseded by ADR 2026-09-24b §6; re-lands at M13 once _shared/entitlement.ts mints grace_until
-    ignore: true,
-  },
+  "E-05-15 grace and lapse 🔒: a dunning row declares grace_kind 'dunning' AND the server's grace_until (ADR 2026-09-05g §4, ADR 2026-09-24b §6), and an expired or refunded tenant keeps its PLAN with period_end clamped to iat — read-only, never silently Free and never still paid (ADR 05g §5, ADR 24b §7 (a) 🔒)",
   async (t) => {
     const r = rig();
     const dunned = r.db.addTenant(), lapsed = r.db.addTenant(), refunded = r.db.addTenant();
+    const neverPaid = r.db.addTenant();
     const me = await member(r, dunned, r.db.addBook(dunned), "admin");
     r.db.addMembership(lapsed, me.user, "active");
     r.db.addMembership(refunded, me.user, "active");
+    r.db.addMembership(neverPaid, me.user, "active");
 
     const periodEnd = new Date(r.clock.now.getTime() - 2 * DAY); // renewal failed two days ago
     r.db.addSubscription(dunned, {
@@ -283,6 +302,15 @@ Deno.test(
       current_period_end: futureEnd,
       dispute_state: "refunded",
     });
+    // A row that never had a period: a trial ended by 0013's `end_now`, which sets status and
+    // never touches current_period_end (ADR 2026-09-05g §11 🔒 "data untouched"), so it is null.
+    r.db.addSubscription(neverPaid, {
+      plan: "family",
+      status: "expired",
+      current_period_end: null,
+      trial_end: new Date(r.clock.now.getTime() + 20 * DAY),
+      dispute_state: "chargeback",
+    });
 
     const by = new Map(
       wireTokens(await pull(r, me.token)).map((w) => [
@@ -292,20 +320,17 @@ Deno.test(
     );
 
     await t.step(
-      "dunning: grace_kind + the row's period_end, and the plan it is being dunned for",
+      "dunning: grace_kind + the row's grace_until + its period_end, and the plan it is being dunned for",
       () => {
         const p = by.get(dunned)!;
         assertEquals(p.grace_kind, "dunning");
         assertEquals(p.plan, "family", "a dunned tenant keeps the plan it is being dunned for");
         assertEquals(p.limits, PLAN_LIMITS.family);
+        assertEquals(p.period_end, periodEnd.getTime(), "period_end is the row's, unchanged");
         assertEquals(
-          p.period_end,
-          periodEnd.getTime(),
-          "the client computes period_end + 7 d itself — ADR §4 🔒 fixes the window, not the server",
-        );
-        assert(
-          !JSON.stringify(p).includes("grace_until"),
-          "grace_until is NOT in the 🔒 field set (08 §3 line 35); reported as an ADR §1 vs §4 conflict",
+          p.grace_until,
+          periodEnd.getTime() + 7 * DAY,
+          "the SERVER declares when the grace ends — subscriptions.grace_until (ADR 2026-09-24b §6 🔒)",
         );
       },
     );
@@ -318,6 +343,7 @@ Deno.test(
       assertEquals(p.period_end, lapsedEnd.getTime());
       assert(p.period_end! < p.iat, "the period is over: that is how the client sees read-only");
       assertEquals(p.grace_kind, null, "a lapse is not a grace");
+      assertEquals(p.grace_until, null, "and declares no grace end");
     });
 
     await t.step(
@@ -331,6 +357,28 @@ Deno.test(
           "clamped to iat: emitting the untouched future period_end would tell the client a refunded tenant is still inside its paid period",
         );
         assert(p.period_end! <= p.iat);
+        assertEquals(p.grace_kind, null);
+        assertEquals(p.grace_until, null, "a refund ends entitlement now — there is no grace");
+      },
+    );
+
+    await t.step(
+      "lapsed with NO current_period_end still mints period_end = iat, never null (08 §3 🔒 'lapsed ⇒ period_end = iat')",
+      () => {
+        const p = by.get(neverPaid)!;
+        assertEquals(p.plan, "family", "the row's plan, not Free (ADR 05g §5 🔒)");
+        assertNotEquals(
+          p.period_end,
+          null,
+          "a null end would leave a lapsed plan with nothing saying its period is over",
+        );
+        assertEquals(p.period_end, p.iat, "clamped to iat, as every other lapse is");
+        assert(
+          p.period_end !== r.clock.now.getTime() + 20 * DAY,
+          "not the trial's end: an expired row is not on trial",
+        );
+        assertEquals(p.grace_kind, null);
+        assertEquals(p.grace_until, null);
       },
     );
   },
@@ -447,6 +495,7 @@ Deno.test("E-05-18 the signer is the 04 §8 rule-6 🔒 guard: it refuses a payl
     limits: { ...PLAN_LIMITS.family },
     period_end: 1_760_000_000_000,
     grace_kind: null,
+    grace_until: null,
     iat: 1_759_000_000_000,
     exp: 1_759_000_000_000 + TOKEN_TTL_MS,
   };
@@ -473,6 +522,25 @@ Deno.test("E-05-18 the signer is the 04 §8 rule-6 🔒 guard: it refuses a payl
     { ...base, grace_kind: "offline" as unknown as "dunning" },
     "a grace_kind 03 §2.4 🔒 does not allow",
   );
+  await rejects(
+    { ...base, grace_until: base.iat + 7 * DAY },
+    "a grace_until without grace_kind = dunning (ADR 2026-09-24b §6 🔒: null unless dunning)",
+  );
+  await rejects(
+    { ...base, grace_kind: "dunning", grace_until: base.iat + 0.5 },
+    "a float grace_until (CLAUDE.md rule 1)",
+  );
+  await rejects(
+    { ...base, grace_until: undefined as unknown as null },
+    "a payload that omits grace_until — the field set is exact",
+  );
+  assert(
+    (await signEntitlementToken(
+      { ...base, grace_kind: "dunning", grace_until: base.iat + 7 * DAY },
+      ENTITLEMENT_SEED,
+    )).length > 0,
+    "a dunning payload with its declared grace end signs",
+  );
 
   let threw = false;
   try {
@@ -481,4 +549,166 @@ Deno.test("E-05-18 the signer is the 04 §8 rule-6 🔒 guard: it refuses a payl
     threw = true;
   }
   assert(threw, "a seed that is not 32 bytes is not entitlement_key");
+});
+
+Deno.test("E-24b-2 the token DECLARES grace_until (ADR 2026-09-24b §6 🔒): it is subscriptions.grace_until copied, never period_end + 7 d recomputed — a channel with its own grace length is carried exactly — and it is null whenever grace_kind is not dunning, whatever the column holds", async (t) => {
+  const r = rig();
+  const iap = r.db.addTenant(), short = r.db.addTenant(), stale = r.db.addTenant();
+  const trial = r.db.addTenant(), holed = r.db.addTenant();
+  const me = await member(r, iap, r.db.addBook(iap), "admin");
+  for (const x of [short, stale, trial, holed]) r.db.addMembership(x, me.user, "active");
+
+  const periodEnd = new Date(r.clock.now.getTime() - 1 * DAY);
+  // A store-run channel with its own grace length (§6: "that is why the server declares the date").
+  const iapUntil = new Date(periodEnd.getTime() + 16 * DAY);
+  r.db.addSubscription(iap, {
+    plan: "family",
+    status: "past_due",
+    source: "apple",
+    current_period_end: periodEnd,
+    grace_kind: "dunning",
+    grace_until: iapUntil,
+  });
+  const shortUntil = new Date(periodEnd.getTime() + 3 * DAY);
+  r.db.addSubscription(short, {
+    plan: "personal",
+    status: "past_due",
+    current_period_end: periodEnd,
+    grace_kind: "dunning",
+    grace_until: shortUntil,
+  });
+  // A stale date on a row that is no longer in dunning: the column alone never declares a grace.
+  r.db.addSubscription(stale, {
+    plan: "family",
+    status: "active",
+    current_period_end: new Date(r.clock.now.getTime() + 20 * DAY),
+    grace_kind: null,
+    grace_until: new Date(r.clock.now.getTime() + 5 * DAY),
+  });
+  r.db.addSubscription(trial, {
+    plan: "free",
+    status: "trial",
+    trial_end: new Date(r.clock.now.getTime() + 10 * DAY),
+    grace_until: new Date(r.clock.now.getTime() + 12 * DAY),
+  });
+  // dunning with no date (0013 always writes both; only a hand edit makes this row).
+  r.db.addSubscription(holed, {
+    plan: "family",
+    status: "past_due",
+    current_period_end: periodEnd,
+    grace_kind: "dunning",
+    grace_until: null,
+  });
+
+  const rows = wireTokens(await pull(r, me.token));
+  const tok = new Map(rows.map((w) => [w.tenant_id, parseEntitlementToken(tokenBytes(w))]));
+  const by = (x: string) => tok.get(x)!.payload;
+
+  await t.step("a 16-day channel grace is carried to the millisecond, not replaced by 7 d", () => {
+    const p = by(iap);
+    assertEquals(p.grace_kind, "dunning");
+    assertEquals(p.grace_until, iapUntil.getTime(), "the column's date, exactly");
+    assertNotEquals(p.grace_until, periodEnd.getTime() + 7 * DAY, "never period_end + 7 d");
+    assertEquals(p.period_end, periodEnd.getTime());
+  });
+
+  await t.step("a 3-day grace likewise — shorter than the default is not rounded up", () => {
+    assertEquals(by(short).grace_until, shortUntil.getTime());
+  });
+
+  await t.step("not dunning ⇒ null, even when the column holds a date", () => {
+    assertEquals(by(stale).grace_kind, null);
+    assertEquals(by(stale).grace_until, null, "a stale column is not a grace");
+    assertEquals(by(trial).grace_kind, null);
+    assertEquals(by(trial).grace_until, null, "a trial is not a grace");
+  });
+
+  await t.step(
+    "dunning with no stored date says null — the server invents no date (⚠️ SPEC)",
+    () => {
+      assertEquals(by(holed).grace_kind, "dunning");
+      assertEquals(by(holed).grace_until, null);
+    },
+  );
+
+  await t.step(
+    "grace_until is inside the signature: a forger who moves it breaks the token",
+    async () => {
+      const { payloadBytes, sig } = tok.get(iap)!;
+      const pub = await entitlementPublicKey(ENTITLEMENT_SEED);
+      assert(await ed25519Verify(payloadBytes, sig, pub), "the dunning token verifies as minted");
+      const json = new TextDecoder().decode(payloadBytes);
+      const at = json.indexOf(`"grace_until":${iapUntil.getTime()}`);
+      assert(at > 0, `the signed bytes carry the declared date: ${json}`);
+      const moved = new Uint8Array(payloadBytes);
+      const digit = at + '"grace_until":'.length + 2; // a digit of the date itself
+      moved[digit] = moved[digit] === 0x39 ? 0x38 : moved[digit] + 1;
+      assertEquals(
+        await ed25519Verify(moved, sig, pub),
+        false,
+        "an extended grace does not verify",
+      );
+    },
+  );
+});
+
+Deno.test("E-24b-2 grace_until follows the billing path to the device: a dunning event re-mints with 0013's gateway default (period_end + 7 d), and the renewal that ends the dunning re-mints with null", async () => {
+  const r = rig();
+  const tenant = r.db.addTenant();
+  const me = await member(r, tenant, r.db.addBook(tenant), "admin");
+  const periodEnd = new Date(r.clock.now.getTime() - 1 * DAY);
+  r.db.addSubscription(tenant, {
+    plan: "family",
+    status: "active",
+    gateway: "razorpay",
+    gateway_ref: "sub_grace",
+    current_period_end: periodEnd,
+  });
+  const apply = (action: "dunning" | "activate", periodEndAt: Date | null) =>
+    r.deps.store.withClaims(null, (tx) =>
+      tx.applyBillingEvent({
+        eventId: crypto.randomUUID(),
+        gateway: "razorpay",
+        type: "subscription.test",
+        hash: new Uint8Array(32).fill(1),
+        action,
+        tenantId: null,
+        eventAt: r.clock.now,
+        plan: null,
+        periodEnd: periodEndAt,
+        gatewayRef: "sub_grace",
+        source: null,
+        originalTransactionId: null,
+        disputeState: null,
+      }));
+
+  const first = parseEntitlementToken(tokenBytes(wireTokens(await pull(r, me.token))[0])).payload;
+  assertEquals(first.grace_kind, null);
+  assertEquals(first.grace_until, null);
+
+  advance(r, 1000);
+  assertEquals((await apply("dunning", periodEnd)).outcome, "dunning");
+  advance(r, 1000);
+  const dunned = parseEntitlementToken(
+    tokenBytes(wireTokens(await pull(r, await reissue(r, me)))[0]),
+  ).payload;
+  assertEquals(dunned.grace_kind, "dunning", "re-minted: the subscription moved after signing");
+  assertEquals(dunned.grace_until, periodEnd.getTime() + 7 * DAY, "0013's default, as stored");
+  assertEquals(
+    dunned.grace_until,
+    (r.db.subscriptions[0].grace_until as Date).getTime(),
+    "and it is the stored column the token carries",
+  );
+
+  advance(r, 1000);
+  assertEquals(
+    (await apply("activate", new Date(periodEnd.getTime() + 365 * DAY))).outcome,
+    "activate",
+  );
+  advance(r, 1000);
+  const renewed = parseEntitlementToken(
+    tokenBytes(wireTokens(await pull(r, await reissue(r, me)))[0]),
+  ).payload;
+  assertEquals(renewed.grace_kind, null);
+  assertEquals(renewed.grace_until, null, "a renewal ends the grace, and the token says so");
 });

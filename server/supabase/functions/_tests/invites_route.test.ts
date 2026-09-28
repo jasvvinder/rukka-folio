@@ -153,9 +153,13 @@ Deno.test("E-06-32 a joiner is offered only the invites addressed to its OWN OTP
   assertEquals(mine.invites[0].tenant_id, f.tenant);
   assertEquals(mine.invites[0].created_by, f.admin.user);
   assert(mine.invites[0].expires_at > 0);
-  for (const leak of ["invitee_hmac", "nonce", "phone"]) {
+  for (const leak of ["invitee_hmac", "phone"]) {
     assert(!(leak in mine.invites[0]), `the offer leaks ${leak}`);
   }
+  // Superseded 25 Sep: this line asserted the offer carried NO nonce. ADR 2026-09-25b §2 🔒 hands
+  // the invitee its own invite's nonce (the inviter's, 16 B), pinned in E-25b-1
+  // (invite_nonce_relay.test.ts) — the number and its HMAC still never travel.
+  assert("nonce" in mine.invites[0], "ADR 2026-09-25b §2: the invitee's offer carries its nonce");
 
   const theirs = await body(
     await meta(get("/sync-meta/invites", { token: other.token }), f.r.deps),

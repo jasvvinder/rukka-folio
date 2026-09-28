@@ -18,6 +18,7 @@ import {
   type EnvelopeRow,
   type GuardianSet,
   type GuardianSetDraft,
+  type InviteAccepted,
   type InviteOffer,
   META_TABLES,
   type MetaCursor,
@@ -217,7 +218,7 @@ class PgTx implements Tx {
   async entitlementStates(): Promise<EntitlementState[]> {
     const rows = await this.sql`
       select m.tenant_id,
-             s.plan, s.status, s.current_period_end, s.trial_end, s.grace_kind,
+             s.plan, s.status, s.current_period_end, s.trial_end, s.grace_kind, s.grace_until,
              s.updated_at as sub_updated_at,
              e.created_at as token_created_at, e.expires_at as token_expires_at
         from memberships m
@@ -233,6 +234,7 @@ class PgTx implements Tx {
       current_period_end: (r.current_period_end as Date | null) ?? null,
       trial_end: (r.trial_end as Date | null) ?? null,
       grace_kind: (r.grace_kind as string | null) ?? null,
+      grace_until: (r.grace_until as Date | null) ?? null,
       sub_updated_at: (r.sub_updated_at as Date | null) ?? null,
       token_created_at: (r.token_created_at as Date | null) ?? null,
       token_expires_at: (r.token_expires_at as Date | null) ?? null,
@@ -382,6 +384,9 @@ class PgTx implements Tx {
       return r.id as string;
     });
   }
+  // rf.my_invites (0015, ADR 2026-09-25b §2) is the ONLY read of `invites.nonce` rf_api has: the
+  // column is outside its grant (0006), and the function keys on the caller's own number or its
+  // own acceptance. Accept reads the nonce back through it too, so there is no second door.
   myInvites(): Promise<InviteOffer[]> {
     return this.guarded(async () => {
       const rows = await this.sql`select * from rf.my_invites()`;
@@ -391,13 +396,20 @@ class PgTx implements Tx {
         roles: r.roles,
         expires_at: r.expires_at as Date,
         created_by: r.created_by as string,
+        status: r.status as "sent" | "accepted",
+        nonce: bytes(r.nonce),
       }));
     });
   }
-  acceptInvite(invite: string): Promise<string> {
+  acceptInvite(invite: string): Promise<InviteAccepted> {
     return this.guarded(async () => {
       const [r] = await this.sql`select rf.accept_invite(${invite}::uuid) as status`;
-      return r.status as string;
+      // Same transaction, same now(): the row accept_invite just stamped `accepted_by = caller`
+      // on is inside its window, so rf.my_invites returns it. If it somehow does not, fail the
+      // whole acceptance rather than answer 200 without the nonce the ADR promises.
+      const [n] = await this.sql`select nonce from rf.my_invites() where id = ${invite}::uuid`;
+      if (!n) throw new Error("accept_invite: the accepted invite is not visible to its accepter");
+      return { status: r.status as string, nonce: bytes(n.nonce) };
     });
   }
   // ---- 04 §7.3 the guardian recovery ladder (0010). Every rule — n, k, the version order, who may
@@ -510,6 +522,14 @@ class PgTx implements Tx {
     const rows = await this.sql`select * from recovery_requests
       where user_id = rf.user_id() order by created_at desc limit 20`;
     return rows.map(recoveryRow);
+  }
+  async hasGuardianSet(): Promise<boolean> {
+    // ADR 2026-09-24b §3 🔒 — the one read not gated on rf.is_certified(), and it is a function,
+    // not a table: 0005's guardian_sets / guardian_set_members policies stay certified-only, so no
+    // row of either table reaches this caller. No argument is passed because the function takes
+    // none — it answers for the claims this transaction carries and for nobody else (0016).
+    const [r] = await this.sql`select rf.has_guardian_set() as v`;
+    return r?.v === true;
   }
   private async readCeremony(session: string): Promise<CeremonySession | null> {
     const [r] = await this.sql`select * from ceremony_sessions where id = ${session}`;

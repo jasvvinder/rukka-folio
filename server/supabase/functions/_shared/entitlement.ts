@@ -4,10 +4,11 @@
 // reads an envelope, a blob or a wrapped key: the server signs plan metadata it already holds
 // (04 §8 rule 6 🔒, ADR 2026-09-05g §1 🔒).
 //
-// 🔒 sources, and the one rule each: 08 §3 line 35 + ADR 2026-09-05g §1 (the field set, exp − iat
-// ≤ 30 d, "a tenant with no valid token is *Free*, never *locked*"), §3 (the numbers), §4 (dunning
-// grace is server-declared: 7 days from period_end), §5 (lapsed = read-only, never Free), 08 §2
-// (trial = 30 days of Family).
+// 🔒 sources, and the one rule each: 08 §3 + ADR 2026-09-05g §1 as amended by ADR 2026-09-24b §6
+// (the field set, now with `grace_until`; exp − iat ≤ 30 d; "a tenant with no valid token is
+// *Free*, never *locked*"), ADR 05g §3 (the numbers), §4 (dunning grace is server-declared), §5
+// (lapsed = read-only, never Free), ADR 2026-09-24b §7 (lapsed ⇒ period_end = iat; unlimited =
+// -1; no key id), 08 §2 (trial = 30 days of Family).
 import { type Plan, PLAN_LIMITS } from "./registry.ts";
 import { type EntitlementPayload, TOKEN_MAX_TTL_MS } from "./sodium.ts";
 import type { EntitlementState } from "./store.ts";
@@ -35,32 +36,46 @@ function planOf(state: EntitlementState): Plan {
 /** The `period_end` the token carries, in epoch ms, or null.
  *
  *  - trial            → `trial_end` (the trial IS the period; 08 §2 🔒)
- *  - dunning/past_due → `current_period_end`, unchanged. ADR 2026-09-05g §4 🔒 measures the 7-day
- *    dunning grace "from `period_end`", and the token says `grace_kind = 'dunning'`, so the client
- *    computes period_end + 7 d itself. (See the ⚠️ SPEC below on `grace_until`.)
- *  - expired/refunded → `current_period_end`, CLAMPED to `iat`. ADR 2026-09-05g §11 🔒 is explicit
- *    that a refund or chargeback means "entitlement ends now", and 0013's `end_now` deliberately
- *    leaves `current_period_end` where it was so 08 §1.4's read-only + export forever still knows
- *    what the tenant bought. Emitting that untouched future date would tell the client the tenant
- *    is still inside its paid period — the one reading that grants MORE entitlement than the docs
- *    do. The plan itself is never rewritten to `free` (ADR §5 🔒: lapsed is read-only, not Free).
- *    ⚠️ SPEC (M13-TOK1, 22 Sep): the 🔒 field set carries no `status`, so "lapsed" reaches the
- *    client only as a `period_end` in the past. Reported. */
+ *  - dunning/past_due → `current_period_end`, unchanged. The grace's END is not derived from it:
+ *    the token declares it in `grace_until` (ADR 2026-09-24b §6 🔒; see graceUntilOf).
+ *  - expired/refunded → `current_period_end`, CLAMPED to `iat` — ADR 2026-09-24b §7 (a) 🔒: "a
+ *    lapsed tenant (`subscriptions.status = 'expired'`, refund or chargeback included) is minted
+ *    with `period_end` clamped to `iat`, so a refunded tenant can never read as paid". 0013's
+ *    `end_now` leaves `current_period_end` where it was (ADR 2026-09-05g §11 🔒 "data untouched"),
+ *    which can be in the FUTURE. The plan itself is never rewritten to `free` (ADR 05g §5 🔒:
+ *    lapsed is read-only, not Free).
+ *  - expired with NO `current_period_end` → `iat`, never null. 08 §3 🔒 reads "lapsed ⇒
+ *    `period_end = iat`" with no exception, and 0013's `end_now` neither requires nor sets the
+ *    column, so a row that never had a period (a trial ended by `end_now`) lapses with it null.
+ *    Passing that null through would mint the lapsed tenant's plan with no end at all, so nothing
+ *    in the token would say the period is over (period_end ≤ iat is how the client reads
+ *    read-only); §7 (a) exists to rule that out. */
 function periodEndOf(state: EntitlementState, iat: number): number | null {
   if (state.status === "trial") return state.trial_end?.getTime() ?? null;
   const end = state.current_period_end?.getTime() ?? null;
-  if (state.status === "expired" && end !== null) return Math.min(end, iat);
+  if (state.status === "expired") return end === null ? iat : Math.min(end, iat);
   return end;
 }
 
-/** ⚠️ SPEC (M13-TOK1, 22 Sep): ADR 2026-09-05g §4 🔒 says the dunning grace is "server-declared in
- *  the token (`grace_kind = dunning`, `grace_until`)", but the 🔒 field set in the SAME ADR §1 and
- *  in 08 §3 line 35 — the normative field list — has no `grace_until`. Conservative reading
- *  (CLAUDE.md § Workflow): emit the field set exactly as 🔒 specified, and let the client derive
- *  period_end + 7 d, which §4 🔒 fixes as the window. Reported to the owner; adding a field to a
- *  signed 🔒 payload is not a lane's call. */
+/** ADR 2026-09-05g §4 🔒: the dunning grace is "server-declared in the token (`grace_kind =
+ *  dunning`, `grace_until`)" — which ADR 2026-09-24b §6 🔒 made literal by adding `grace_until` to
+ *  the field set. Any other value in the column reads as no grace (03 §2.4 🔒 names one kind). */
 function graceKindOf(state: EntitlementState): "dunning" | null {
   return state.grace_kind === "dunning" ? "dunning" : null;
+}
+
+/** ADR 2026-09-24b §6 🔒: "`grace_until` is null unless `grace_kind = dunning`, in which case it
+ *  is `subscriptions.grace_until`." The server DECLARES the date and the client never derives
+ *  `period_end + 7 d`: the 7 days are only the gateway default 0013 writes, and a store-run
+ *  channel (IAP) may carry its own grace length. So the column is copied, never recomputed here.
+ *
+ *  A dunning row whose `grace_until` is null (0013 always writes both together, so only a hand
+ *  edit produces one) is minted with `grace_until: null` — the server states what it holds and
+ *  invents no date. ⚠️ SPEC (M11-SRV1): ADR 24b §6 does not say what the client does with dunning
+ *  + null; reported rather than filled with period_end + 7 d, which is the derivation §6 forbids. */
+function graceUntilOf(state: EntitlementState): number | null {
+  if (graceKindOf(state) !== "dunning") return null;
+  return state.grace_until?.getTime() ?? null;
 }
 
 /** The token payload for one tenant, at one server instant. Pure: same state + same `now` → the
@@ -74,6 +89,7 @@ export function entitlementFor(state: EntitlementState, now: Date): EntitlementP
     limits: { ...PLAN_LIMITS[plan] },
     period_end: periodEndOf(state, iat),
     grace_kind: graceKindOf(state),
+    grace_until: graceUntilOf(state),
     iat,
     exp: iat + TOKEN_TTL_MS,
   };

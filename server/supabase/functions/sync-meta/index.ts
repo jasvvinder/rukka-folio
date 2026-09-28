@@ -3,9 +3,10 @@
 // POST /sync-meta/records {records[]} → per-record {id, result, seq} — signed records authored on the
 //      caller's certified device are verified under its Ed25519 key, stored, then projected onto rows
 //      (ADR 2026-09-05b §1). The server never invents a record.
-// POST /sync-meta/invites {record, phone} → {invite_id}  · GET /sync-meta/invites → my invites
-// POST /sync-meta/invites/accept {invite_id} → {status}  (06 §7, ADR 2026-09-05d §9)
-// /sync-meta/recovery… → the guardian ladder's WRITE side (04 §7.3; see the block above `recovery`)
+// POST /sync-meta/invites {record, phone} → {invite_id}  · GET /sync-meta/invites → my invites (+nonce)
+// POST /sync-meta/invites/accept {invite_id} → {status, nonce}  (06 §7, ADR 2026-09-05d §9, 25b §2)
+// /sync-meta/recovery… → the guardian ladder's WRITE side (04 §7.3; see the block above `recovery`),
+//      plus GET /sync-meta/recovery/has-guardian-set → {has_guardian_set} (ADR 2026-09-24b §3)
 // Cursor: `after` is opaque — base64url JSON {tables: {table: {updated_at, id}}, records_seq}; each
 // table's own cursor is (updated_at, id) as 05 §5 says. `next` is ALWAYS present (the resume point);
 // `has_more` is true when any table or the records stream had more than a page (engine contract: wire.dart).
@@ -239,6 +240,8 @@ async function ceremony(
 //   GET  /sync-meta/recovery[?request_id=…]                 → k-of-n for the requester, and
 //                                                             WHICH guardians decided (0010 rows)
 //   GET  /sync-meta/recovery/asks                           → the pending ask, for a guardian
+//   GET  /sync-meta/recovery/has-guardian-set               → {has_guardian_set: bool} — the
+//        caller's OWN user only, not gated on certification (ADR 2026-09-24b §3, migration 0016)
 //
 // and rung 3 (04 §7.4 🔒, migration 0011) — the paper sheet, which had no server surface at all:
 //
@@ -291,6 +294,18 @@ async function recovery(
         sealed_rk_blob: b64url.enc(sheet.blob),
         created_at: sheet.created_at.getTime(),
       });
+    }
+    if (path === "/recovery/has-guardian-set") {
+      // ADR 2026-09-24b §3 🔒 (amends ADR 2026-09-05d §2 by exactly this read): the uncertified
+      // phone on S11.6 may ask ONE yes/no question — does its own user have a current guardian
+      // set — so rung 2 can say `noTrustedMembers` truthfully instead of `unknown`. There is no
+      // route-level certification gate to carve around (every sync-meta route authenticates the
+      // JWT alone; 05d §2 is enforced by RLS), so the carve-out is rf.has_guardian_set (0016): a
+      // SECURITY DEFINER boolean keyed on the claims, with no argument. Query parameters are NOT
+      // read — a `subject_user_id` here would be the enumeration oracle the ADR forbids. The body
+      // is exactly one boolean: no k, no n, no version, no member, no share.
+      const has = await deps.store.withClaims(claims, (tx) => tx.hasGuardianSet());
+      return jsonBigResponse(200, { has_guardian_set: has === true });
     }
     if (path !== "/recovery") return error(404, "not_found");
     const id = new URL(req.url).searchParams.get("request_id");
@@ -490,7 +505,17 @@ function sessionToWire(s: CeremonySession): Record<string, unknown> {
 //
 //   POST /sync-meta/invites         {record, phone}   → {invite_id, seq}     (tenant admin)
 //   GET  /sync-meta/invites                           → {invites: [...]}     (the joiner, own number)
-//   POST /sync-meta/invites/accept  {invite_id}       → {invite_id, status}  (the joiner)
+//   POST /sync-meta/invites/accept  {invite_id}       → {invite_id, status, nonce}  (the joiner)
+//
+// ADR 2026-09-25b §2 🔒: each offered row and the accept response carry `nonce` (base64url, 16 B)
+// — the one the INVITER's device drew and signed (§1); this route relays it and never chooses one.
+// The offers are the caller's own invites at `sent`, or accepted by the caller, inside the 7-day
+// window (rf.my_invites, 0015), so S9.2 finds its nonce again after a restart. No route looks an
+// invite up by nonce, and the meta pull's `invites` rows still carry none (rf_api has no grant).
+// ⚠️ SPEC (M11-INV1 repair, 0015 (c)): each GET row also carries the invite's `status` — "sent"
+// (a live offer) or "accepted" (the caller's own, spent: a nonce for S9.2, never an offer) — and
+// the live rows come first, so a reader that takes the first row with no invite id (S0.9) lands
+// on a live offer rather than on the invite it already accepted.
 //
 // Refusals are the database's, passed through by name. A wrong number and an unknown id both come
 // back `invite_not_for_you` (C-05d-9) — identical, so the route is not an oracle for who was
@@ -510,6 +535,8 @@ async function invites(
         roles: i.roles,
         expires_at: i.expires_at.getTime(),
         created_by: i.created_by,
+        status: i.status,
+        nonce: b64url.enc(i.nonce),
       })),
     });
   }
@@ -520,11 +547,11 @@ async function invites(
   if (path === "/invites/accept") {
     if (!isUuid(body.invite_id)) return error(400, "bad_request");
     try {
-      const status = await deps.store.withClaims(
+      const { status, nonce } = await deps.store.withClaims(
         claims,
         (tx) => tx.acceptInvite(body.invite_id as string),
       );
-      return jsonBigResponse(200, { invite_id: body.invite_id, status });
+      return jsonBigResponse(200, { invite_id: body.invite_id, status, nonce: b64url.enc(nonce) });
     } catch (e) {
       if (!(e instanceof StoreDenied)) throw e;
       return inviteError(e.reason);
@@ -793,11 +820,12 @@ export function shapeRow(table: MetaTable, r: Record<string, unknown>): Record<s
       // 04 §6.3 🔒 says the verifier compares the scanned public KEYS byte-for-byte against the
       // server-relayed keys — plural, and core_crypto's verifyQr (ceremony.dart:490-492) compares
       // both halves, so relaying `pub_ed` alone made the mandatory ceremony impossible to pass.
-      // `pub_x` is null on any row for which no x half has been offered — which today is EVERY
-      // row, because no shipped client sends `umk_pub_x` yet, not just the rows predating 0012.
-      // The device then hard-fails (04 §6.3 "There is no override"), which is the correct closed
-      // failure and not a fallback — but it also means the ceremony 04 §6 MANDATES cannot yet be
-      // passed by anyone. Closing that needs the client to offer the half (lane report, CLIENT GAP).
+      // `pub_x` is null on any row for which no x half has been offered yet: rows predating 0012
+      // and users whose devices have not launched since. The app offers `umk_pub_x` on
+      // /devices/certify since M11-CER2, and ADR 2026-09-24b §2 🔒 has every installed device
+      // re-offer it on its next certify after launch (rf.set_umk_pubs fills a NULL once). Until
+      // then the verifier hard-fails (04 §6.3 "There is no override") and says why — a closed
+      // failure, never a fallback and never a silent one.
       return {
         user_id: r.user_id,
         key_version: r.key_version,

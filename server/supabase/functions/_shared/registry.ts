@@ -40,11 +40,11 @@ export const KEY_STALE_GRACE_MS = 48 * 3600 * 1000; // 04 §5.3
 export type Plan = "free" | "personal" | "family" | "family_plus";
 export const PLANS: readonly Plan[] = ["free", "personal", "family", "family_plus"] as const;
 
-/** No cap on this limit. ⚠️ SPEC: ADR 2026-09-05g §3 🔒 writes "∞" for business books on Personal
- *  and Family+ and fixes no wire form for it, and the entitlement token's field set (08 §3 line 35
- *  🔒) is exact, so a separate "unlimited" flag cannot be added. -1 is the sentinel this codebase
- *  uses; it is not a count, so a client that compares a count against it can never read it as a
- *  cap that is already exceeded. Reported for the owner. */
+/** No cap on this limit — ADR 2026-09-24b §7 (b) 🔒: "An unlimited limit (Personal/Family+
+ *  business books, 08 §2 *∞*) is **`-1`** on the wire." It is not a count, so a client that
+ *  compares a count against it can never read it as a cap that is already exceeded; the token's
+ *  field set is exact (ADR 2026-09-05g §1 as amended by ADR 24b §6), so there is no separate
+ *  "unlimited" flag. */
 export const NO_CAP = -1;
 
 /** The ONE table of 08 §2 / ADR 2026-09-05g §3 🔒 numbers, in the entitlement token's field names

@@ -111,6 +111,10 @@ export interface EntitlementState {
   current_period_end: Date | null;
   trial_end: Date | null;
   grace_kind: string | null;
+  /** `subscriptions.grace_until` — written by 0013's `rf.apply_billing_event` on a dunning event
+   *  (the gateway default, period_end + 7 d) and cleared on activate / end_now. The token carries
+   *  it only when `grace_kind = 'dunning'` (ADR 2026-09-24b §6 🔒). */
+  grace_until: Date | null;
   sub_updated_at: Date | null;
   token_created_at: Date | null; // null when nothing is stored yet
   token_expires_at: Date | null;
@@ -150,11 +154,12 @@ export interface RefreshToken {
 }
 
 /** 04 §3.1 — the UMK's two public halves. 04 §6.3 🔒 compares BOTH byte-for-byte, so both travel.
- *  `pub_x` is NULL on any row whose writer offered no x half. That is not only the rows written
- *  before migration 0012: as of this milestone NO client sends `umk_pub_x` at all (the app's
- *  /devices/certify body carries `umk_key_version` + `umk_pub_ed` only), so every row is ed-only
- *  and 04 §6's MANDATORY ceremony stays unpassable until the client offers the half. The server
- *  side is ready; the wire is not yet driven. See the lane report's CLIENT GAP item. */
+ *  `pub_x` is NULL on any row whose writer has not yet offered an x half: rows written before
+ *  migration 0012, and rows of users whose devices have not launched since. Since M11-CER2 the app
+ *  offers `umk_pub_x` on `/devices/certify`, and ADR 2026-09-24b §2 🔒 has every installed device
+ *  re-offer it on its next certify after launch; rf.set_umk_pubs backfills a NULL exactly once, so
+ *  the re-offer is idempotent. While a row is still ed-only the ceremony fails closed and the
+ *  client says so (ask them to open the app once) — never silently. */
 export interface UmkPublicRow {
   pub_ed: Uint8Array;
   pub_x: Uint8Array | null;
@@ -259,13 +264,29 @@ export interface RecoveryAsk {
   my_decision: string | null;
 }
 
-/** 06 §7: what a joining device may learn about an invite addressed to its OWN number. */
+/** 06 §7: what a joining device may learn about an invite addressed to its OWN number — at `sent`,
+ *  or accepted by the caller, inside the invite's 7-day window (ADR 2026-09-25b §2, 0015). */
 export interface InviteOffer {
   invite_id: string;
   tenant_id: string;
   roles: unknown;
   expires_at: Date;
   created_by: string;
+  /** The invite's own status, which on this list is only ever `sent` (a live offer) or `accepted`
+   *  (the caller's own, spent — kept for S9.2's nonce, never an offer). Live rows come first.
+   *  ⚠️ SPEC: ADR 2026-09-25b §2 names only `nonce`; added in the M11-INV1 repair (0015 (c)). */
+  status: "sent" | "accepted";
+  /** 16 bytes the INVITER's device drew and signed into its `invite` record (ADR 2026-09-25b §1,
+   *  04 §6.1 as amended). Stored and relayed, never chosen or altered here; not secret, but only
+   *  ever handed to the invitee (rf.my_invites keys on its own number or its own acceptance). */
+  nonce: Uint8Array;
+}
+
+/** POST /invites/accept: the membership status the acceptance landed on, and the invite's nonce
+ *  (ADR 2026-09-25b §2) — read back through rf.my_invites, so accept adds no second read path. */
+export interface InviteAccepted {
+  status: string;
+  nonce: Uint8Array;
 }
 
 export interface Tx {
@@ -330,10 +351,12 @@ export interface Tx {
     roles: unknown,
     nonce: Uint8Array,
   ): Promise<string>;
-  /** Invites addressed to the CALLER's OTP-verified number. Never a list of anyone else's. */
+  /** Invites addressed to the CALLER's OTP-verified number and still at `sent`, or accepted by the
+   *  caller — either way inside the 7-day window (ADR 2026-09-25b §2). Never anyone else's. */
   myInvites(): Promise<InviteOffer[]>;
-  /** Phone-bound acceptance (ADR 2026-09-05d §9); returns the membership status it landed on. */
-  acceptInvite(invite: string): Promise<string>;
+  /** Phone-bound acceptance (ADR 2026-09-05d §9); returns the membership status it landed on and
+   *  the invite's nonce (ADR 2026-09-25b §2). */
+  acceptInvite(invite: string): Promise<InviteAccepted>;
   // ---- 04 §7.3 the guardian recovery ladder, write side (0010). Every rule is the database's;
   // these are the calls. No method here updates a row: a decision, a cancellation and a request are
   // each their own append-only row, and the state a client acts on is derived (CLAUDE.md rule 2).
@@ -356,6 +379,12 @@ export interface Tx {
   recoveryCancel(request: string): Promise<void>;
   /** The caller's own attempts — what the candidate device polls. */
   myRecoveryRequests(): Promise<RecoveryRequest[]>;
+  /** ADR 2026-09-24b §3 🔒 (amends ADR 2026-09-05d §2 by one read): does the CALLER's own user
+   *  have a current guardian set — one boolean, deliberately NOT gated on certification, so the
+   *  uncertified phone on S11.6 can tell rung 2's `noTrustedMembers` from `unknown`. Takes no
+   *  subject: it can only ever answer for `rf.user_id()`. False for a caller whose device claim is
+   *  not a live device of that user, or whose user is erased (rf.has_guardian_set, 0016). */
+  hasGuardianSet(): Promise<boolean>;
   // ---- 04 §7.4 🔒 rung 3, the paper sheet (0011). Write-once and versioned: regenerating a sheet
   // rotates RK, so it publishes the NEXT version and the old blob stops being served.
   /** 04 §7.4: upload `sealed_RK_blob` for the caller's own user. Returns the version it landed on. */
@@ -414,10 +443,10 @@ export interface Tx {
   findRefreshToken(hash: Uint8Array): Promise<RefreshToken | null>;
   rotateRefreshToken(oldHash: Uint8Array, next: RefreshToken): Promise<void>;
   revokeRefreshFamily(familyId: string): Promise<void>;
-  /** Both halves of the caller's own UMK public key (04 §3.1, §6.3 🔒) — `pub_x` is NULL whenever
-   *  no writer has yet offered an x half for this (user, version), which today is EVERY row (no
-   *  client sends `umk_pub_x`; see UmkPublicRow). Bounded to the caller's own user by
-   *  rf.umk_pubs_for. */
+  /** Both halves of the caller's own UMK public key (04 §3.1, §6.3 🔒) — `pub_x` is NULL until a
+   *  device of this user has offered the x half for this (user, version); the client backfills it
+   *  on its next certify after launch (ADR 2026-09-24b §2; see UmkPublicRow). Bounded to the
+   *  caller's own user by rf.umk_pubs_for. */
   umkPubs(user: string, version: number): Promise<UmkPublicRow | null>;
   /** Write-once, per 0012: same material → no-op, different material → StoreDenied('umk_pub_conflict'),
    *  a NULL x half → backfilled exactly once, whenever that row was written. Nothing but 32 bytes

@@ -17,6 +17,7 @@ import {
   type EnvelopeRow,
   type GuardianSet,
   type GuardianSetDraft,
+  type InviteAccepted,
   type InviteOffer,
   META_TABLES,
   type MetaCursor,
@@ -518,6 +519,7 @@ class MemTx implements Tx {
         current_period_end: (s?.current_period_end as Date | null) ?? null,
         trial_end: (s?.trial_end as Date | null) ?? null,
         grace_kind: (s?.grace_kind as string | null) ?? null,
+        grace_until: (s?.grace_until as Date | null) ?? null,
         sub_updated_at: (s?.updated_at as Date | null) ?? null,
         token_created_at: (e?.created_at as Date | null) ?? null,
         token_expires_at: (e?.expires_at as Date | null) ?? null,
@@ -1034,6 +1036,18 @@ class MemTx implements Tx {
         .map((r) => this.recoveryRow(r)),
     );
   }
+  /** rf.has_guardian_set (0016) in TypeScript — ADR 2026-09-24b §3 🔒. Deliberately NOT gated on
+   *  isCertified(); bounded instead to the caller's own user, a LIVE device of that user (0010's
+   *  rf.device_live_for: not revoked, no revoked_at) and a user that is not erased. "Current" is
+   *  currentGuardianSet — the same set openRecovery pins — so the bit and the open never disagree. */
+  hasGuardianSet(): Promise<boolean> {
+    if (!this.me || !this.dev) return Promise.resolve(false);
+    const u = this.db.users.get(this.me);
+    const d = this.db.devices.get(this.dev);
+    if (!u || u.erased_at || !d || d.user_id !== this.me) return Promise.resolve(false);
+    if (d.status === "revoked" || d.revoked_at) return Promise.resolve(false);
+    return Promise.resolve(this.currentGuardianSet(this.me) !== null);
+  }
   // ---- 04 §7.4 🔒 rung 3, the paper sheet (0011 in the database; mirrored here).
   publishRecoverySheet(blob: Uint8Array): Promise<number> {
     if (!this.isCertified()) throw new StoreDenied("rls"); // 0011 recovery_sheets_insert
@@ -1121,23 +1135,36 @@ class MemTx implements Tx {
     });
     return Promise.resolve(id);
   }
+  // rf.my_invites as 0015 widened it (ADR 2026-09-25b §2): the caller's own number at `sent`, or
+  // accepted by the caller, inside the 7-day window. Keyed on the user claim only, as in Postgres.
+  // Each row carries its status and the live ones come first, in 0015's order (status <> 'sent',
+  // expires_at, id) — insertion order would put an older, spent invite ahead of a live offer.
   myInvites(): Promise<InviteOffer[]> {
-    const h = this.me ? this.db.users.get(this.me)?.phone_hmac ?? null : null;
-    if (!h) return Promise.resolve([]);
+    const u = this.me ? this.db.users.get(this.me) : undefined;
+    if (!u || u.erased_at) return Promise.resolve([]);
+    const h = u.phone_hmac ?? null;
+    const rank = (i: Row) => i.status === "sent" ? 0 : 1;
     return Promise.resolve(
       this.db.invites.filter((i) =>
-        i.status === "sent" && (i.expires_at as Date) > this.now &&
-        bytesEqual(i.invitee_hmac as Uint8Array, h)
+        (i.expires_at as Date) > this.now &&
+        ((i.status === "sent" && !!h && bytesEqual(i.invitee_hmac as Uint8Array, h)) ||
+          (i.status === "accepted" && i.accepted_by === this.me))
+      ).sort((x, y) =>
+        rank(x) - rank(y) ||
+        (x.expires_at as Date).getTime() - (y.expires_at as Date).getTime() ||
+        ((x.id as string) < (y.id as string) ? -1 : (x.id as string) > (y.id as string) ? 1 : 0)
       ).map((i) => ({
         invite_id: i.id as string,
         tenant_id: i.tenant_id as string,
         roles: i.roles,
         expires_at: i.expires_at as Date,
         created_by: i.created_by as string,
+        status: i.status as "sent" | "accepted",
+        nonce: new Uint8Array(i.nonce as Uint8Array),
       })),
     );
   }
-  acceptInvite(invite: string): Promise<string> {
+  acceptInvite(invite: string): Promise<InviteAccepted> {
     if (!this.me || !this.dev) throw new StoreDenied("no_claims");
     const u = this.db.users.get(this.me);
     const i = this.db.invites.find((x) => x.id === invite);
@@ -1169,7 +1196,11 @@ class MemTx implements Tx {
     i.accepted_by = this.me;
     i.accepted_at = this.now;
     i.updated_at = this.now;
-    return Promise.resolve("joined_pending_verification");
+    // ADR 2026-09-25b §2: the nonce comes back beside the status — the inviter's bytes, as stored.
+    return Promise.resolve({
+      status: "joined_pending_verification",
+      nonce: new Uint8Array(i.nonce as Uint8Array),
+    });
   }
   projectVerificationEvent(
     record: string,

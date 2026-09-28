@@ -75,23 +75,27 @@ export async function constantTimeEqual(a: Uint8Array, b: Uint8Array): Promise<b
 //                    those canonical payload bytes (crypto_sign_detached; no prehash, no context)
 //
 // Canonical JSON payload bytes: UTF-8, no whitespace, keys in THIS fixed order (not sorted — the
-// order below is the order of ADR 2026-09-05g §1's field list), every number a JSON integer
-// literal, `period_end` and `grace_kind` null when absent:
+// order below is the order of the 🔒 field list, ADR 2026-09-05g §1 as amended by ADR 2026-09-24b
+// §6: `{tenant_id, plan, limits, period_end, grace_kind, grace_until, iat, exp}`), every number a
+// JSON integer literal, `period_end`, `grace_kind` and `grace_until` null when absent:
 //
 //   {"tenant_id":"…","plan":"…","limits":{"members":N,"business_books":N,"devices":N,
 //    "envelopes_per_book":N,"tenant_bytes":N,"attachment_bytes":N},
-//    "period_end":N|null,"grace_kind":"dunning"|null,"iat":N,"exp":N}
+//    "period_end":N|null,"grace_kind":"dunning"|null,"grace_until":N|null,"iat":N,"exp":N}
 //
-// `iat`/`exp`/`period_end` are epoch MILLISECONDS (the unit every other value on the meta wire
-// uses — sync-meta's shapeRow renders every timestamp with Date.getTime()). exp − iat ≤ 30 d
-// (ADR §1 🔒). A verifier MUST re-encode nothing: it verifies the signature over the payload bytes
-// exactly as received, then parses them. Unknown fields do not exist by construction — the field
-// set is 🔒 and `entitlementPayloadBytes` refuses anything else.
+// `iat`/`exp`/`period_end`/`grace_until` are epoch MILLISECONDS (the unit every other value on the
+// meta wire uses — sync-meta's shapeRow renders every timestamp with Date.getTime()). exp − iat ≤
+// 30 d (ADR §1 🔒). `grace_until` is null unless `grace_kind = "dunning"`, and then it is the date
+// the SERVER declares the dunning grace ends (`subscriptions.grace_until`); the client reads it and
+// never derives `period_end + 7 d` (ADR 2026-09-24b §6 🔒). A lapsed tenant's `period_end` is
+// clamped to `iat`, and an unlimited limit is `NO_CAP` = -1 (ADR 2026-09-24b §7 (a), (b) 🔒). A
+// verifier MUST re-encode nothing: it verifies the signature over the payload bytes exactly as
+// received, then parses them. Unknown fields do not exist by construction — the field set is 🔒
+// and `entitlementPayloadBytes` refuses anything else.
 //
-// ⚠️ SPEC (M13-TOK1, 22 Sep): ADR 2026-09-05g §1 🔒 rotates `entitlement_key` annually "with a
-// 30-day overlap" but the token carries NO key id, and the field set is exact, so one cannot be
-// added. During an overlap the client therefore has to try BOTH pinned public keys and accept a
-// token that verifies under either. Reported to the owner rather than decided here.
+// No key id (ADR 2026-09-24b §7 (c) 🔒). `entitlement_key` rotates annually with a 30-day overlap
+// (ADR 2026-09-05g §1 🔒); during the overlap the client verifies against BOTH pinned public keys
+// and accepts a token that verifies under either.
 export interface EntitlementLimits {
   members: number;
   business_books: number;
@@ -100,13 +104,15 @@ export interface EntitlementLimits {
   tenant_bytes: number;
   attachment_bytes: number;
 }
-/** The 🔒 field set of 08 §3 line 35 / ADR 2026-09-05g §1, and nothing else. */
+/** The 🔒 field set of 08 §3 / ADR 2026-09-05g §1 as amended by ADR 2026-09-24b §6, and nothing
+ *  else. */
 export interface EntitlementPayload {
   tenant_id: string;
   plan: Plan;
   limits: EntitlementLimits;
   period_end: number | null; // epoch ms; null when the tenant has never had a period
   grace_kind: "dunning" | null;
+  grace_until: number | null; // epoch ms; null unless grace_kind = "dunning" (ADR 2026-09-24b §6)
   iat: number; // epoch ms, the SERVER's clock
   exp: number; // epoch ms; exp − iat ≤ 30 d
 }
@@ -137,6 +143,11 @@ export function entitlementPayloadBytes(p: EntitlementPayload): Uint8Array {
   if (p.grace_kind !== null && p.grace_kind !== "dunning") {
     throw new TypeError("entitlement grace_kind is 'dunning' or null (03 §2.4 🔒)");
   }
+  if (p.grace_until !== null && p.grace_kind !== "dunning") {
+    throw new TypeError(
+      "entitlement grace_until is null unless grace_kind = 'dunning' (ADR 2026-09-24b §6 🔒)",
+    );
+  }
   const iat = int(p.iat, "iat"), exp = int(p.exp, "exp");
   if (exp <= iat || exp - iat > TOKEN_MAX_TTL_MS) {
     throw new RangeError("entitlement exp − iat must be > 0 and ≤ 30 d (ADR 2026-09-05g §1 🔒)");
@@ -150,12 +161,14 @@ export function entitlementPayloadBytes(p: EntitlementPayload): Uint8Array {
     limits.push(`${JSON.stringify(k)}:${v}`);
   }
   const periodEnd = p.period_end === null ? "null" : String(int(p.period_end, "period_end"));
+  const graceUntil = p.grace_until === null ? "null" : String(int(p.grace_until, "grace_until"));
   const json = "{" +
     `"tenant_id":${JSON.stringify(p.tenant_id)},` +
     `"plan":${JSON.stringify(p.plan)},` +
     `"limits":{${limits.join(",")}},` +
     `"period_end":${periodEnd},` +
     `"grace_kind":${p.grace_kind === null ? "null" : JSON.stringify(p.grace_kind)},` +
+    `"grace_until":${graceUntil},` +
     `"iat":${iat},"exp":${exp}` +
     "}";
   return new TextEncoder().encode(json);
