@@ -131,6 +131,10 @@ export interface OtpChallenge {
   purpose: string;
   code_hash: Uint8Array;
   attempts: number;
+  /** 0004's column check, as it stands. Since ADR 2026-09-25 §1 (SMS is the one channel, amending
+   *  06 §2) only "sms" is written — `OtpChannel` in otp/provider.ts is "sms" alone; "whatsapp"
+   *  stays here only because the migration's check still admits it (an owner item, not this
+   *  file's to narrow). */
   channel: "whatsapp" | "sms";
   ip_hash: Uint8Array | null;
   created_at: Date;

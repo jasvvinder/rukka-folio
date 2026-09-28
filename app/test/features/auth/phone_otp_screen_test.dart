@@ -1,6 +1,7 @@
 @Tags(['F1'])
 library;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/features/auth/http_auth_client.dart';
@@ -15,6 +16,25 @@ import '../../shared/test_app.dart';
 final class _Clock {
   DateTime now = DateTime(2026, 9, 7, 10);
   DateTime call() => now;
+}
+
+/// A fake that is also an [OtpChannelSource] and reports SMS once a code
+/// is requested, the state in which the pre-ADR-2026-09-25 screen drew the
+/// WhatsApp→SMS fallback line (`channel.value == OtpChannel.sms`, F1-06-5 at
+/// ce5799f). C-25-1 pumps it so the "no fallback line" half can fail.
+final class _SmsChannelAuth extends FakeAuthClient implements OtpChannelSource {
+  _SmsChannelAuth({super.expectedCode});
+
+  final _channel = ValueNotifier<OtpChannel?>(null);
+
+  @override
+  ValueListenable<OtpChannel?> get otpChannel => _channel;
+
+  @override
+  Future<void> requestOtp(String phone) async {
+    await super.requestOtp(phone);
+    _channel.value = OtpChannel.sms;
+  }
 }
 
 Future<void> _enterPhoneAndSend(WidgetTester tester) async {
@@ -167,11 +187,9 @@ void main() {
       'F1-06-5 min-version gate: when the 426 listenable fires, S19.1 replaces S0.2 with no way back',
       (tester) async {
         final gate = ValueNotifier<UpdateRequired?>(null);
-        final channel = ValueNotifier<OtpChannel?>(null);
-        await pumpRk(tester, PhoneOtpScreen(gate: gate, channel: channel));
+        await pumpRk(tester, PhoneOtpScreen(gate: gate));
         await _enterPhoneAndSend(tester);
-        // The WhatsApp→SMS fallback line: superseded by ADR 2026-09-25 §1
-        // (SMS only); re-lands at M6 (C-25-1).
+        // No channel line on the code step (ADR 2026-09-25 §1) — C-25-1.
         gate.value = const UpdateRequired(
           currentVersion: '1.2.0',
           requiredVersion: '1.3.0',
@@ -217,6 +235,58 @@ void main() {
               );
             }
           }
+        }
+      },
+    );
+  });
+
+  group('S0.2 OTP by SMS only (ADR 2026-09-25 §1, amends 06 §2)', () {
+    testWidgets(
+      'C-25-1 S0.2 says SMS and never WhatsApp in EN, PA and HI: the phone step names SMS as the one channel, and the code step shows no WhatsApp line and no fallback line',
+      (tester) async {
+        // The helper line per locale: SMS is the only channel it names.
+        const hint = {
+          'en': 'We’ll send a 6-digit code by SMS.',
+          'pa': 'ਅਸੀਂ SMS ਰਾਹੀਂ 6 ਅੰਕਾਂ ਦਾ ਕੋਡ ਭੇਜਾਂਗੇ।',
+          'hi': 'हम SMS से 6 अंकों का कोड भेजेंगे।',
+        };
+        // The retired fallback line, in each language — it must never draw.
+        const fallback = {
+          'en': 'WhatsApp didn’t go through, so the code went by SMS.',
+          'pa': 'WhatsApp ’ਤੇ ਨਹੀਂ ਗਿਆ, ਇਸ ਲਈ ਕੋਡ SMS ਰਾਹੀਂ ਭੇਜਿਆ ਗਿਆ।',
+          'hi': 'WhatsApp पर नहीं गया, इसलिए कोड SMS से भेजा गया।',
+        };
+        for (final locale in rkLocales) {
+          final lang = locale.languageCode;
+          // A channel source, so the code step runs in the state that once
+          // drew the fallback line: channel reported as SMS.
+          final auth = _SmsChannelAuth(expectedCode: '482913');
+          // A fresh screen per locale (keyed), so each run starts on step 1.
+          await pumpRk(
+            tester,
+            PhoneOtpScreen(key: ValueKey(lang)),
+            locale: locale,
+            auth: auth,
+          );
+          // Phone step: the screen is drawn and names SMS, not WhatsApp.
+          expect(find.text(_title[lang]!), findsOneWidget, reason: lang);
+          expect(find.text(hint[lang]!), findsOneWidget, reason: lang);
+          expect(find.textContaining('WhatsApp'), findsNothing, reason: lang);
+
+          await tester.enterText(find.byType(TextField), '9876543210');
+          await tester.tap(find.byType(FilledButton));
+          await tester.pumpAndSettle();
+          // Code step reached through the seam, and no channel line at all.
+          expect(auth.requestedPhones, ['+919876543210'], reason: lang);
+          expect(auth.otpChannel.value, OtpChannel.sms, reason: lang);
+          expect(
+            find.textContaining('+919876543210'),
+            findsOneWidget,
+            reason: lang,
+          );
+          expect(find.textContaining('WhatsApp'), findsNothing, reason: lang);
+          expect(find.text(fallback[lang]!), findsNothing, reason: lang);
+          expect(tester.takeException(), isNull);
         }
       },
     );

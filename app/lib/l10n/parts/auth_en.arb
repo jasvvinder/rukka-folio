@@ -2,8 +2,8 @@
   "@@locale": "en",
   "auth.phone.title": "Your phone number",
   "@auth.phone.title": {"description": "S0.2 step 1 heading (06 §2). One number per person; OTP is the only sign-in event."},
-  "auth.phone.hint": "We’ll send a 6-digit code by WhatsApp or SMS.",
-  "@auth.phone.hint": {"description": "S0.2 step 1 helper line (06 §2 channels)."},
+  "auth.phone.hint": "We’ll send a 6-digit code by SMS.",
+  "@auth.phone.hint": {"description": "S0.2 step 1 helper line. SMS is the one OTP channel (ADR 2026-09-25 §1 amends 06 §2); never mention WhatsApp here. Platform noun SMS stays Latin."},
   "auth.phone.field.label": "Mobile number",
   "@auth.phone.field.label": {"description": "S0.2 phone field label; +91 prefix rendered beside it."},
   "auth.phone.send": "Send code",
@@ -59,7 +59,5 @@
   "auth.phone.country_code": "+91",
   "@auth.phone.country_code": {"description": "S0.2 fixed country prefix shown beside the phone field (India first; Latin)."},
   "auth.phone.sending": "Sending…",
-  "@auth.phone.sending": {"description": "S0.2 send button while the request runs (loading state)."},
-  "auth.otp.channel.sms": "WhatsApp didn’t go through, so the code went by SMS.",
-  "@auth.otp.channel.sms": {"description": "S0.2 step 2 line when the server fell back from WhatsApp to SMS (06 §2 auto-failover). Platform nouns stay Latin."}
+  "@auth.phone.sending": {"description": "S0.2 send button while the request runs (loading state)."}
 }

@@ -240,7 +240,9 @@ ServerMembersRepository repoFor(
   MembersRecordAuthor? author,
   MemberDirectory? directory,
   DateTime? now,
+  InviteLinkOf? linkOf,
 }) => ServerMembersRepository(
+  inviteLinkOf: linkOf,
   api: api,
   tenantId: tenantId,
   userId: user,
@@ -999,6 +1001,56 @@ void main() {
           reason: 'no identifier of the invitee is signed (ADR 2026-09-05c §4)',
         );
         expect(api.issued.single.phone, '+919876500011');
+      },
+    );
+
+    test(
+      'F1-25-1 invite() hands back the created invite — the id the server '
+      'issued, and a link only when a link format is bound (none is ruled, so '
+      'the default carries none: ADR 2026-09-25 §2, M11-INV2 ⚠️ SPEC)',
+      () async {
+        MetaResponse fresh() => meta(
+          memberships: [membership(amrit, 'active')],
+          books: [book(ghar)],
+          bookRoles: [bookRole(ghar, amrit, 'admin')],
+          devices: [device(amritPhone, amrit)],
+          records: [
+            record('rec-founding', 'membership_status', {
+              'user_id': amrit,
+              'status': 'active',
+            }),
+          ],
+        );
+        const request = InviteRequest(
+          phoneE164: '+919876500011',
+          grants: [BookGrant(bookId: ghar, role: BookRole.member)],
+        );
+
+        final unbound = repoFor(
+          FakeApi(fresh()),
+          believe: const {'rec-founding'},
+          author: FakeAuthor(),
+        );
+        await unbound.refresh();
+        final plain = await unbound.invite(request);
+        expect(plain.inviteId, 'invite-1');
+        expect(plain.link, isNull);
+
+        final bound = repoFor(
+          FakeApi(fresh()),
+          believe: const {'rec-founding'},
+          author: FakeAuthor(),
+          linkOf: (id) => Uri.parse('https://links.test/$id'),
+        );
+        await bound.refresh();
+        final linked = await bound.invite(request);
+        expect(linked.inviteId, 'invite-1');
+        expect(linked.link, Uri.parse('https://links.test/invite-1'));
+        expect(
+          linked.link.toString().contains('9876500011'),
+          isFalse,
+          reason: 'the link carries the invite id, never the number',
+        );
       },
     );
 

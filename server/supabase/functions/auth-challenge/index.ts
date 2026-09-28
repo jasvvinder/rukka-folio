@@ -1,5 +1,8 @@
 // Identity without platform auth (06 §2–§4 🔒; ADR 2026-09-05c §7, 05d §2). Sub-routes:
 //   POST /otp/request   {phone, purpose, channel?, language?}      → {ok, resend_after_s}   (generic: no oracle)
+//                       SMS is the one channel (ADR 2026-09-25 §1, amending 06 §2): `channel` is
+//                       accepted and ignored — never a 400, since an app build that still asks for
+//                       `whatsapp` must get its code — and the answer never names a channel (E-25-1).
 //   POST /otp/verify    {phone, purpose, code}                     → {ticket, user_id, expires_in_s}
 //   POST /devices       {device_id, ticket, pub_ed, pub_x, model?, os?, attestation?, umk?} → {device_id, user_id, status}
 //                       `umk` is the /devices/certify body below (incl. umk_pub_ed + umk_pub_x), so
@@ -24,7 +27,6 @@ import { ACCESS_TTL_S, type Claims, mintAccessToken } from "../_shared/claims.ts
 import { type Deps, serve } from "../_shared/deps.ts";
 import { clientIp, error, json, readJson, subPath } from "../_shared/http.ts";
 import { encryptPhone, normaliseE164, phoneHmac } from "../_shared/phone.ts";
-import type { OtpChannel } from "../_shared/otp/provider.ts";
 import { authenticate, gate } from "../_shared/route.ts";
 import {
   blake2b256,
@@ -83,7 +85,6 @@ async function otpRequest(req: Request, deps: Deps, b: Record<string, unknown>):
   const phone = normaliseE164(b.phone);
   const purpose = typeof b.purpose === "string" && PURPOSES.has(b.purpose) ? b.purpose : null;
   if (!phone || !purpose) return error(400, "bad_request");
-  const preferred: OtpChannel = b.channel === "sms" ? "sms" : "whatsapp";
   const now = deps.now();
   const hmac = await phoneHmac(deps.phoneHmacKey, phone);
   const ipHash = await hmacSha256(deps.phoneHmacKey, new TextEncoder().encode(clientIp(req)));
@@ -118,7 +119,8 @@ async function otpRequest(req: Request, deps: Deps, b: Record<string, unknown>):
 
   const code = await sixDigits();
   const codeHash = await blake2b256(new TextEncoder().encode(code)); // the code itself is never stored
-  const channel = await deps.otp.send(phone, code, preferred);
+  // One SMS, one attempt: no preference, no failover to another channel (ADR 2026-09-25 §1).
+  const channel = await deps.otp.send(phone, code);
   // Provider failure and unknown numbers both answer the same way: the response never says whether
   // the number exists or whether a message left (06 §2 "generic error messages").
   if (channel) {

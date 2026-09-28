@@ -230,9 +230,9 @@ final class MembersSnapshot {
 }
 
 /// What S9.1 sends. The phone number is plaintext **only** on the way out:
-/// the server keeps an HMAC of it and the plaintext goes into the outbound
-/// message job (ADR 2026-09-05c §4). Nothing here is ever logged (CLAUDE.md
-/// rule 4).
+/// the server keeps an HMAC of it and sends nothing (ADR 2026-09-25 §2,
+/// amending ADR 2026-09-05c §4) — the inviter's own phone sends the link.
+/// Nothing here is ever logged (CLAUDE.md rule 4).
 @immutable
 final class InviteRequest {
   const InviteRequest({
@@ -249,6 +249,35 @@ final class InviteRequest {
 
   /// Optional display label (06 §1.0 🔒 Option B) — never a permission.
   final String? designationLabel;
+}
+
+/// The link an invitee opens, for one invite id — or null while no format is
+/// ruled.
+///
+/// ⚠️ SPEC (M11-INV2): the client has **no invite-link format**. ADR 2026-09-15
+/// §4 puts invite deep links on `rukkafolio.com`, and the S0.9 route reads an
+/// `invite` query parameter (`onboarding_routes.dart`'s ⚠️ WIRE note sketches
+/// `https://…/join/<id>`), but no spec fixes the external path, so none is
+/// invented here. Production binds none until the owner rules it; the share
+/// panel then offers **nothing to send** and says why (`invite.nolink.*`) — it
+/// never names a join path the spec does not have (13 §3.2 S0.9 enters only by
+/// deep link). The link is not a secret and admits nobody on its own (ADR
+/// 2026-09-05d §9 🔒).
+typedef InviteLinkOf = Uri? Function(String inviteId);
+
+/// What *Send invite* (and *Invite again*) produced: the invite row, and the
+/// link to hand the inviter's share sheet (ADR 2026-09-25 §2). No number and
+/// no figure rides here.
+@immutable
+final class CreatedInvite {
+  const CreatedInvite({required this.inviteId, this.link});
+
+  /// The new invite row.
+  final String inviteId;
+
+  /// The link for [inviteId], or null while no link format is ruled
+  /// ([InviteLinkOf]).
+  final Uri? link;
 }
 
 /// Why a members call failed. Named, because 07 §1 rule 6 forbids a dead end
@@ -346,16 +375,36 @@ abstract class MembersRepository {
     required int? paise,
   });
 
-  /// Sends an invite (06 §7 `invited`).
-  Future<void> invite(InviteRequest request);
+  /// Creates an invite (06 §7 `invited`). The server sends nothing; the
+  /// caller hands [CreatedInvite.link] to the inviter's share sheet (ADR
+  /// 2026-09-25 §2).
+  Future<CreatedInvite> invite(InviteRequest request);
 
-  /// One-tap re-invite of an `expired` row (07 §12).
-  Future<void> reinvite(String memberId);
+  /// One-tap re-invite of an `expired` row (07 §12): a fresh invite, whose
+  /// link the inviter sends again.
+  Future<CreatedInvite> reinvite(String memberId);
+
+  /// The link of an invite that already exists — an `invited` row is keyed by
+  /// its invite id — so S9's *Resend* can reopen the share sheet for a live
+  /// invite after S9.1 is gone (ADR 2026-09-25 §2). Mints nothing, writes
+  /// nothing; null while no link format is ruled ([InviteLinkOf]).
+  Uri? inviteLink(String inviteId);
 }
 
 /// In-memory fake for tests and the Phase A shell.
 class FakeMembersRepository implements MembersRepository {
-  FakeMembersRepository({MembersSnapshot? initial}) : _current = initial;
+  FakeMembersRepository({MembersSnapshot? initial, this.linkOf})
+    : _current = initial;
+
+  /// The link each created invite carries; null → no link format.
+  final InviteLinkOf? linkOf;
+
+  var _issued = 0;
+
+  CreatedInvite _created() {
+    final id = 'invite-${++_issued}';
+    return CreatedInvite(inviteId: id, link: linkOf?.call(id));
+  }
 
   final _controller = StreamController<MembersSnapshot>.broadcast();
   MembersSnapshot? _current;
@@ -447,16 +496,21 @@ class FakeMembersRepository implements MembersRepository {
   }
 
   @override
-  Future<void> invite(InviteRequest request) async {
+  Future<CreatedInvite> invite(InviteRequest request) async {
     _maybeFail();
     invites.add(request);
+    return _created();
   }
 
   @override
-  Future<void> reinvite(String memberId) async {
+  Future<CreatedInvite> reinvite(String memberId) async {
     _maybeFail();
     reinvited.add(memberId);
+    return _created();
   }
+
+  @override
+  Uri? inviteLink(String inviteId) => linkOf?.call(inviteId);
 
   Future<void> dispose() => _controller.close();
 }

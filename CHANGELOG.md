@@ -12,6 +12,56 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-28 — M6/M7 round 5: SMS-only OTP (OTP1S + OTP1A), invite by share sheet (INV2)
+
+One `/lane` run with three lanes: about 0.40 M tokens. Push gate green. Then a review-only `/cycle` (`skipBuild`): 16 agents, about 1.30 M. 6 findings: all 6 confirmed, all 6 repaired in round 1, none disputed, no owner items from the cycle. **Push gate green again** after the repairs, with whitespace-only `dart format` fixes. The app package has **1832 passed, 3 skipped**. Spend at close was about 9.1 M of the 10 M ceiling.
+
+**Added**
+
+- **OTP1S (ADR 2026-09-25 §1–§2), `server/supabase/functions`:**
+  - `OtpChannel = 'sms'` and `send(e164, code)` no longer take a preference.
+  - The WhatsApp→SMS failover is gone.
+  - `auth-challenge` ignores the body's `channel` and answers exactly `{ok, resend_after_s}`.
+  - Stale *WhatsApp first* / *outbound message job* comments now cite ADR 2026-09-25.
+  - Tests: `E-25-1` re-lands the superseded assertions inside E-06-1; E-06-1's 🔒 checks stay green. New `invite_sends_nothing.test.ts` (`E-25-2`) spies the OTP provider, `fetch` and every Tx call, and was mutation-checked three ways.
+- **OTP1A (ADR 2026-09-25 §1), `features/auth`:**
+  - `OtpChannel.whatsapp` is removed; the client always sends `sms`.
+  - A foreign channel in a server answer decodes to unknown and logs a fixed event with no value.
+  - S0.2 loses its fallback line and the `auth.otp.channel.sms` key in EN/PA/HI.
+  - Tests: `C-25-1`; `C-06-7` and `F1-06-5` stay green.
+- **INV2 (ADR 2026-09-25 §2), `features/members` + `shared/seams/share_sheet.dart`:**
+  - *Send invite* creates the invite, then offers it through a `ShareSheet` seam that never throws.
+  - S9.1 shows `InviteSharePanel` (message, Resend, Copy, Done).
+  - S9's live `invited` rows gain Resend for admins.
+  - The message carries only the link and the app name.
+  - No link bound → a no-link state with no message.
+  - `bootstrap.dart` binds a clipboard fallback. The *Invite sent.* snackbar is gone (07 §1 rule 12).
+  - Tests: `F1-25-1`; `F1-07-26` updated.
+
+**Changed**
+
+- The review found:
+  - INV2 shipped a no-link message that promised a join path nobody built, and live invites had no Resend (both major).
+  - INV2's copy mentioned a link that does not exist.
+  - Two test steps could not fail: C-25-1's code step, and E-06-1's known-number half.
+  - A `FakeOtpProvider` docstring contradicted `liveDeps`.
+- All six were repaired in round 1.
+
+**Open**
+
+- Desk 54: a dependency ADR for a text share sheet.
+- Desk 55 (⚠️ SPEC): the invite link has no path, so production invites cannot be shared yet.
+- Desk 56: WhatsApp leftovers in `0004`/`0001`.
+- Desk 57: an unknown `OTP_PROVIDER` falls back to the fake.
+- Also:
+  - `server/README.md` §6 is stale.
+  - The `@M6`/`@M7` tags on the `E-25-*` markers can be dropped.
+  - PA/HI for the new `invite.*` keys are machine drafts (M12).
+
+**Commits**
+
+- _(to fill)_
+
 ## 2026-09-28 — M11/M13 cycles 3–4: scanner + dialer (SCAN1), S9.3 by member id (DEV1), plan catalogue server half (CAT1), read-only on every posting path (ENT2), guardian bit client (RL1), `grace_until` client (DUN1)
 
 Two more `/cycle` runs today. The first had four slices, cut from six by the cap and the budget; RL1 and DUN1 then ran as a second, two-slice cycle.

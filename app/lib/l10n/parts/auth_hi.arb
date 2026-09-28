@@ -1,7 +1,7 @@
 {
   "@@locale": "hi",
   "auth.phone.title": "आपका फ़ोन नंबर",
-  "auth.phone.hint": "हम WhatsApp या SMS से 6 अंकों का कोड भेजेंगे।",
+  "auth.phone.hint": "हम SMS से 6 अंकों का कोड भेजेंगे।",
   "auth.phone.field.label": "मोबाइल नंबर",
   "auth.phone.send": "कोड भेजें",
   "auth.phone.error.invalid": "10 अंकों का मोबाइल नंबर भरें।",
@@ -29,6 +29,5 @@
   "update.opening": "स्टोर खुल रहा है…",
   "update.offline": "अपडेट के लिए इंटरनेट चाहिए।",
   "auth.phone.country_code": "+91",
-  "auth.phone.sending": "भेज रहे हैं…",
-  "auth.otp.channel.sms": "WhatsApp पर नहीं गया, इसलिए कोड SMS से भेजा गया।"
+  "auth.phone.sending": "भेज रहे हैं…"
 }

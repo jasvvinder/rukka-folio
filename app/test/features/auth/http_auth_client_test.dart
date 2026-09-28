@@ -315,17 +315,15 @@ void main() {
       );
       await c.requestOtp(phone);
       expect(t.count('/otp/request'), 1);
-      // The WhatsApp-first default channel (`'channel': 'whatsapp'`, and
-      // `otpChannel == whatsapp`): superseded by ADR 2026-09-25 §1 (SMS only);
-      // re-lands at M6 (C-25-1).
+      // The default channel is SMS (ADR 2026-09-25 §1) — asserted in C-25-1.
       expect(t.last('/otp/request')['phone'], phone);
       expect(t.last('/otp/request')['purpose'], 'signup');
       expect(t.requests.single.headers['x-rukka-client-version'], '1.2.0');
       expect(c.resendAfter.value, const Duration(seconds: 30));
       expect(c.current, isA<OtpSent>().having((s) => s.phone, 'phone', phone));
 
-      // SMS asked for explicitly (or as the fallback the screen offers): the
-      // preference travels as `channel` and is what the screen reports.
+      // SMS asked for explicitly: the channel travels as `channel` and is
+      // the state the client holds (06 §2 as amended by ADR 2026-09-25 §1).
       // ⚠️ WIRE the 200 body never says which channel carried the code.
       await c.requestOtp(
         phone,
@@ -358,6 +356,60 @@ void main() {
       expect(joined, isNot(contains(code)));
       expect(joined, isNot(contains('tk')));
       expect(log, isNotEmpty);
+    });
+
+    test('C-25-1 OTP is SMS only (ADR 2026-09-25 §1): the client can name no other channel, requests `sms` by default, and a server answer naming any other channel never becomes a WhatsApp state', () async {
+      // The client's vocabulary is SMS alone — WhatsApp is not a state it can
+      // hold, so no screen can render one.
+      expect(OtpChannel.values, [OtpChannel.sms]);
+      expect(OtpChannel.sms.wire, 'sms');
+
+      final c = await client();
+      expect(c.otpChannel.value, isNull); // nothing sent yet
+      // One scripted answer per request: drop the previous one first (the
+      // transport queues answers and replays the last).
+      void answer(Map<String, Object?> body) {
+        t.script.remove('/otp/request');
+        t.on('/otp/request', ScriptedTransport.ok(body));
+      }
+
+      // Default request: `channel: sms` on the wire, and SMS is the state.
+      answer({'ok': true, 'resend_after_s': 30});
+      await c.requestOtp(phone);
+      expect(t.last('/otp/request'), {
+        'phone': phone,
+        'purpose': 'signup',
+        'channel': 'sms',
+      });
+      expect(c.otpChannel.value, OtpChannel.sms);
+
+      // A server that names SMS keeps SMS.
+      answer({'ok': true, 'resend_after_s': 60, 'channel': 'sms'});
+      await c.requestOtp(phone);
+      expect(t.last('/otp/request')['channel'], 'sms');
+      expect(c.otpChannel.value, OtpChannel.sms);
+
+      // A server that names any other channel — WhatsApp included — is not
+      // believed as SMS and is not a WhatsApp state: the channel is unknown.
+      // The code was still sent, so the flow moves on to OtpSent.
+      for (final other in ['whatsapp', 'WhatsApp', 'rcs', '', 7]) {
+        answer({'ok': true, 'resend_after_s': 30, 'channel': other});
+        log.clear();
+        await c.requestOtp(phone);
+        expect(t.last('/otp/request')['channel'], 'sms', reason: '$other');
+        expect(c.otpChannel.value, isNull, reason: '$other');
+        expect(c.current, isA<OtpSent>(), reason: '$other');
+        expect(log, contains('otp_channel_unrecognised'), reason: '$other');
+        final joined = log.join('\n');
+        expect(joined, isNot(contains('9876543210')));
+        expect(joined.toLowerCase(), isNot(contains('whatsapp')));
+      }
+
+      // And the answer after that, naming nothing, is SMS again — the unknown
+      // does not stick.
+      answer({'ok': true, 'resend_after_s': 30});
+      await c.requestOtp(phone);
+      expect(c.otpChannel.value, OtpChannel.sms);
     });
 
     test('C-06-8 verifyOtp maps wrong code (attempts left), expired, rate-limited and transport failure to generic AuthFailure kinds; no code pending is refused locally', () async {

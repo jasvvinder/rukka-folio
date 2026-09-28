@@ -73,6 +73,7 @@ import 'shared/records/device_record_author.dart';
 import 'shared/router.dart';
 import 'shared/seams/closed_years.dart';
 import 'shared/seams/dialer.dart';
+import 'shared/seams/share_sheet.dart';
 import 'shared/seams/guardians.dart';
 import 'shared/seams/http_transport.dart';
 import 'shared/seams/key_store.dart';
@@ -322,6 +323,11 @@ Future<void> bootstrap() async {
         unknownVerifierName: l10n.membersVerifiedSomeone,
         someoneToMeetName: l10n.membersPendingBooksSomeone,
         author: recordAuthor,
+        // ⚠️ SPEC (M11-INV2): no `inviteLinkOf` — the client has no ruled
+        // invite-link format (ADR 2026-09-15 §4 fixes the host, nothing fixes
+        // the path), so a created invite carries no link and the share panel
+        // offers nothing to send, saying why (it names no join path: S0.9 is
+        // entered only by deep link). Owner desk item; never invented here.
       );
       // The limit's one real source, closed over the repository built above
       // (02 §1.3 🔒: the authoring client is the only one that may read
@@ -422,6 +428,12 @@ Future<void> bootstrap() async {
       // `canLaunchUrl`, so no LSApplicationQueriesSchemes / <queries> entry
       // exists or is needed (ruling 2).
       const dialer = UrlLauncherDialer();
+      // S9.1's share sheet (ADR 2026-09-25 §2 — the inviter sends the invite
+      // from their own phone). ⚠️ No package in pubspec raises a text share
+      // sheet (`printing` shares PDFs only), so the live binding copies the
+      // message to the clipboard and S9.1 says to paste it — until a
+      // dependency ADR admits one (e.g. `share_plus`). M11-INV2 open item.
+      const shareSheet = ClipboardShareSheet();
 
       final guardianRecovery = HttpGuardianRecovery(
         api: recoveryApi,
@@ -723,65 +735,74 @@ Future<void> bootstrap() async {
         sync.onScopeSwitch();
       });
 
-      final app = RukkaFolioApp(
-        db: db,
-        sync: sync,
-        auth: auth,
-        keys: keys,
-        now: DateTime.now,
-        ledger: ledger,
-        updateRequired: auth.updateRequired,
-        settings: settings,
-        pinVault: vault,
-        // S1 with the shell's scope holder. `homeRoot` (features/home) is
-        // the same screen without it — kept there for tests and previews;
-        // the two wirings must be changed together.
-        homeTabRoot: RkTabRoot(
-          builder: (context) => HomeScreen(
-            scopeController: homeScope,
-            // S1.4's producer (07 §28 🔒) — the same source `homeRoot`
-            // passes; the two wirings change together.
-            rebuildProgress: rebuildProgressOf(context),
-            onOpenPosition: (line) => context.push(HomePaths.positionOf(line)),
-            onOpenAccount: (accountId) =>
-                context.push(LedgerPaths.statementOf(accountId)),
-            onVerb: (kind) =>
-                context.push('${RkPaths.entry}?verb=${kind.wire}'),
+      // S9.1 / S9 *Send invite*, *Invite again* and *Resend* (ADR
+      // 2026-09-25 §2) read the share sheet from here, above the navigator,
+      // so a modal sheet finds it too.
+      final app = ShareSheetScope(
+        sheet: shareSheet,
+        child: RukkaFolioApp(
+          db: db,
+          sync: sync,
+          auth: auth,
+          keys: keys,
+          now: DateTime.now,
+          ledger: ledger,
+          updateRequired: auth.updateRequired,
+          settings: settings,
+          pinVault: vault,
+          // S1 with the shell's scope holder. `homeRoot` (features/home) is
+          // the same screen without it — kept there for tests and previews;
+          // the two wirings must be changed together.
+          homeTabRoot: RkTabRoot(
+            builder: (context) => HomeScreen(
+              scopeController: homeScope,
+              // S1.4's producer (07 §28 🔒) — the same source `homeRoot`
+              // passes; the two wirings change together.
+              rebuildProgress: rebuildProgressOf(context),
+              onOpenPosition: (line) =>
+                  context.push(HomePaths.positionOf(line)),
+              onOpenAccount: (accountId) =>
+                  context.push(LedgerPaths.statementOf(accountId)),
+              onVerb: (kind) =>
+                  context.push('${RkPaths.entry}?verb=${kind.wire}'),
+            ),
           ),
+          ledgerTabRoot: ledgerRoot,
+          // S6 Inbox (07 §9). `inboxRoutes` carries S6.2's stepper on the root
+          // navigator, so the review flow covers the tab bar.
+          inboxTabRoot: inboxRoot(),
+          menuTabRoot: menuRoot,
+          entryRoot: entryScreen,
+          featureRoutes: [
+            ...accountRoutes,
+            ...advancesRoutes,
+            ...onboardingRoutes,
+            ...partnersRoutes,
+            ...authRoutes,
+            ...booksRoutes,
+            ...cashCountRoutes,
+            ...ceremonyRoutes,
+            ...closeRoutes,
+            ...devicesRoutes,
+            ...helpRoutes,
+            ...homeRoutes,
+            ...inboxRoutes,
+            ...importRoutes,
+            ...ledgerRoutes,
+            ...legalRoutes,
+            ...membersRoutes,
+            // S11.5/S11.6/S11.8 — the activation ladder, root navigator
+            // (13 §5 F11). A finished restore lands on Home, which
+            // features/recovery does not own.
+            ...recoveryRoutes(
+              onRestored: (context) => context.go(RkPaths.home),
+            ),
+            ...settingsRoutes,
+            // S12/S12.1 — Menu → Subscription and Settings → Subscription
+            // (07 §20); the doors live in features/menu and features/settings.
+            ...subscriptionRoutes,
+          ],
         ),
-        ledgerTabRoot: ledgerRoot,
-        // S6 Inbox (07 §9). `inboxRoutes` carries S6.2's stepper on the root
-        // navigator, so the review flow covers the tab bar.
-        inboxTabRoot: inboxRoot(),
-        menuTabRoot: menuRoot,
-        entryRoot: entryScreen,
-        featureRoutes: [
-          ...accountRoutes,
-          ...advancesRoutes,
-          ...onboardingRoutes,
-          ...partnersRoutes,
-          ...authRoutes,
-          ...booksRoutes,
-          ...cashCountRoutes,
-          ...ceremonyRoutes,
-          ...closeRoutes,
-          ...devicesRoutes,
-          ...helpRoutes,
-          ...homeRoutes,
-          ...inboxRoutes,
-          ...importRoutes,
-          ...ledgerRoutes,
-          ...legalRoutes,
-          ...membersRoutes,
-          // S11.5/S11.6/S11.8 — the activation ladder, root navigator
-          // (13 §5 F11). A finished restore lands on Home, which
-          // features/recovery does not own.
-          ...recoveryRoutes(onRestored: (context) => context.go(RkPaths.home)),
-          ...settingsRoutes,
-          // S12/S12.1 — Menu → Subscription and Settings → Subscription
-          // (07 §20); the doors live in features/menu and features/settings.
-          ...subscriptionRoutes,
-        ],
       );
 
       // ── 04 §7.3 🔒 Setup: the trusted-member set behind S11.1 ───────────

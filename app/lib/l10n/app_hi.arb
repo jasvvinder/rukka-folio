@@ -321,7 +321,6 @@
   "auth.device.done.title": "यह फ़ोन तैयार है",
   "auth.offline.chip": "ऑफ़लाइन — कोड के लिए इंटरनेट चाहिए।",
   "auth.otp.change_number": "नंबर बदलें",
-  "auth.otp.channel.sms": "WhatsApp पर नहीं गया, इसलिए कोड SMS से भेजा गया।",
   "auth.otp.error.expired": "इस कोड का समय खत्म हो गया। नया कोड माँगें।",
   "auth.otp.error.generic": "कुछ गड़बड़ हो गई। फिर कोशिश करें।",
   "auth.otp.error.invalid": "यह कोड मेल नहीं खाता। {left, plural, =1{1 कोशिश बाकी।} other{{left} कोशिशें बाकी।}}",
@@ -337,7 +336,7 @@
   "auth.phone.country_code": "+91",
   "auth.phone.error.invalid": "10 अंकों का मोबाइल नंबर भरें।",
   "auth.phone.field.label": "मोबाइल नंबर",
-  "auth.phone.hint": "हम WhatsApp या SMS से 6 अंकों का कोड भेजेंगे।",
+  "auth.phone.hint": "हम SMS से 6 अंकों का कोड भेजेंगे।",
   "auth.phone.send": "कोड भेजें",
   "auth.phone.sending": "भेज रहे हैं…",
   "auth.phone.title": "आपका फ़ोन नंबर",
@@ -2040,17 +2039,62 @@
   "invite.designation.trustee": "ट्रस्टी",
   "invite.designation.vice_president": "उपाध्यक्ष",
   "invite.error": "बुलावा नहीं भेजा जा सका। फिर कोशिश करें।",
-  "invite.expiry.note": "लिंक 7 दिन चलता है, और सिर्फ़ उसी नंबर वाले फ़ोन पर।",
+  "invite.expiry.note": "बुलावा 7 दिन चलता है, और सिर्फ़ उसी नंबर वाले फ़ोन पर।",
+  "@invite.expiry.note": {
+    "description": "machine-draft — native review M12"
+  },
   "invite.limit.hint": "हद रुपयों में (मर्ज़ी से)",
+  "invite.nolink.body": "ऐप का यह रूप अभी इसका लिंक नहीं बना सकता, इसलिए अभी उन्हें भेजने को कुछ नहीं है। सदस्यों में यह बुलाए गए के रूप में दिखता है।",
+  "@invite.nolink.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "invite.nolink.title": "बुलावा बन गया",
+  "@invite.nolink.title": {
+    "description": "machine-draft — native review M12"
+  },
   "invite.offline": "आप ऑफ़लाइन हैं। बुलावे के लिए एक बार जुड़ना होगा — वापस आने पर फिर कोशिश करें।",
-  "invite.phone.help": "एक नंबर, एक इंसान। उन्हें व्हाट्सएप या SMS पर लिंक मिलेगा।",
+  "invite.phone.help": "एक नंबर, एक इंसान। ऐप आपकी ओर से उन्हें कभी कोई संदेश नहीं भेजता।",
+  "@invite.phone.help": {
+    "description": "machine-draft — native review M12"
+  },
   "invite.phone.hint": "+91 98765 43210",
   "invite.phone.invalid": "देश का कोड भी लगाएँ, जैसे +91 98765 43210।",
+  "invite.ready.body": "बुलावा बन गया। आपकी ओर से कुछ नहीं भेजा जाता — यह संदेश व्हाट्सएप, SMS या किसी भी ऐप से भेजें।",
+  "@invite.ready.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "invite.ready.title": "अब इसे अपने फ़ोन से भेजें",
+  "@invite.ready.title": {
+    "description": "machine-draft — native review M12"
+  },
   "invite.roles.help": "हर बही के लिए एक भूमिका, और इसे आप बाद में बदल सकते हैं। भूमिका ही पूरी ताक़त है।",
   "invite.roles.required": "कम से कम एक बही में भूमिका दें।",
   "invite.send": "बुलावा भेजें",
   "invite.sending": "भेज रहे हैं…",
-  "invite.sent": "बुलावा भेज दिया।",
+  "invite.share.copied": "कॉपी हो गया। इसे व्हाट्सएप या SMS में चिपकाकर उन्हें भेजें।",
+  "@invite.share.copied": {
+    "description": "machine-draft — native review M12"
+  },
+  "invite.share.copy": "संदेश कॉपी करें",
+  "@invite.share.copy": {
+    "description": "machine-draft — native review M12"
+  },
+  "invite.share.done": "हो गया",
+  "@invite.share.done": {
+    "description": "machine-draft — native review M12"
+  },
+  "invite.share.message": "मैंने आपको {app} पर हमारे बही-खातों में बुलाया है। जुड़ने के लिए यह लिंक अपने फ़ोन पर खोलें: {link} — यह 7 दिन चलता है, और सिर्फ़ इसी नंबर वाले फ़ोन पर।",
+  "@invite.share.message": {
+    "description": "machine-draft — native review M12"
+  },
+  "invite.share.resend": "फिर से भेजें",
+  "@invite.share.resend": {
+    "description": "machine-draft — native review M12"
+  },
+  "invite.share.unavailable": "यह फ़ोन शेयर शीट नहीं खोल सका। संदेश कॉपी करें और ख़ुद भेजें।",
+  "@invite.share.unavailable": {
+    "description": "machine-draft — native review M12"
+  },
   "invite.step.designation": "उन्हें क्या कहते हैं",
   "invite.step.phone": "उनका फ़ोन नंबर",
   "invite.step.roles": "वे क्या कर सकेंगे",

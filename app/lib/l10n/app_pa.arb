@@ -321,7 +321,6 @@
   "auth.device.done.title": "ਇਹ ਫ਼ੋਨ ਤਿਆਰ ਹੈ",
   "auth.offline.chip": "ਆਫ਼ਲਾਈਨ — ਕੋਡ ਲਈ ਇੰਟਰਨੈੱਟ ਚਾਹੀਦਾ ਹੈ।",
   "auth.otp.change_number": "ਨੰਬਰ ਬਦਲੋ",
-  "auth.otp.channel.sms": "WhatsApp ’ਤੇ ਨਹੀਂ ਗਿਆ, ਇਸ ਲਈ ਕੋਡ SMS ਰਾਹੀਂ ਭੇਜਿਆ ਗਿਆ।",
   "auth.otp.error.expired": "ਇਸ ਕੋਡ ਦਾ ਸਮਾਂ ਖ਼ਤਮ ਹੋ ਗਿਆ। ਨਵਾਂ ਕੋਡ ਮੰਗੋ।",
   "auth.otp.error.generic": "ਕੁਝ ਗੜਬੜ ਹੋ ਗਈ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
   "auth.otp.error.invalid": "ਇਹ ਕੋਡ ਮੇਲ ਨਹੀਂ ਖਾਂਦਾ। {left, plural, =1{1 ਕੋਸ਼ਿਸ਼ ਬਾਕੀ।} other{{left} ਕੋਸ਼ਿਸ਼ਾਂ ਬਾਕੀ।}}",
@@ -337,7 +336,7 @@
   "auth.phone.country_code": "+91",
   "auth.phone.error.invalid": "10 ਅੰਕਾਂ ਦਾ ਮੋਬਾਈਲ ਨੰਬਰ ਭਰੋ।",
   "auth.phone.field.label": "ਮੋਬਾਈਲ ਨੰਬਰ",
-  "auth.phone.hint": "ਅਸੀਂ WhatsApp ਜਾਂ SMS ਰਾਹੀਂ 6 ਅੰਕਾਂ ਦਾ ਕੋਡ ਭੇਜਾਂਗੇ।",
+  "auth.phone.hint": "ਅਸੀਂ SMS ਰਾਹੀਂ 6 ਅੰਕਾਂ ਦਾ ਕੋਡ ਭੇਜਾਂਗੇ।",
   "auth.phone.send": "ਕੋਡ ਭੇਜੋ",
   "auth.phone.sending": "ਭੇਜ ਰਹੇ ਹਾਂ…",
   "auth.phone.title": "ਤੁਹਾਡਾ ਫ਼ੋਨ ਨੰਬਰ",
@@ -2040,17 +2039,62 @@
   "invite.designation.trustee": "ਟਰੱਸਟੀ",
   "invite.designation.vice_president": "ਉਪ-ਪ੍ਰਧਾਨ",
   "invite.error": "ਸੱਦਾ ਨਹੀਂ ਭੇਜਿਆ ਜਾ ਸਕਿਆ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
-  "invite.expiry.note": "ਲਿੰਕ 7 ਦਿਨ ਚੱਲਦਾ ਹੈ, ਅਤੇ ਸਿਰਫ਼ ਉਸੇ ਨੰਬਰ ਵਾਲੇ ਫ਼ੋਨ ’ਤੇ।",
+  "invite.expiry.note": "ਸੱਦਾ 7 ਦਿਨ ਚੱਲਦਾ ਹੈ, ਅਤੇ ਸਿਰਫ਼ ਉਸੇ ਨੰਬਰ ਵਾਲੇ ਫ਼ੋਨ ’ਤੇ।",
+  "@invite.expiry.note": {
+    "description": "machine-draft — native review M12"
+  },
   "invite.limit.hint": "ਹੱਦ ਰੁਪਏ ਵਿੱਚ (ਮਰਜ਼ੀ ਨਾਲ)",
+  "invite.nolink.body": "ਐਪ ਦਾ ਇਹ ਰੂਪ ਹਾਲੇ ਇਸਦਾ ਲਿੰਕ ਨਹੀਂ ਬਣਾ ਸਕਦਾ, ਇਸ ਲਈ ਹੁਣ ਉਹਨਾਂ ਨੂੰ ਭੇਜਣ ਲਈ ਕੁਝ ਨਹੀਂ ਹੈ। ਮੈਂਬਰਾਂ ਵਿੱਚ ਇਹ ਸੱਦੇ ਵਜੋਂ ਦਿਸਦਾ ਹੈ।",
+  "@invite.nolink.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "invite.nolink.title": "ਸੱਦਾ ਬਣ ਗਿਆ",
+  "@invite.nolink.title": {
+    "description": "machine-draft — native review M12"
+  },
   "invite.offline": "ਤੁਸੀਂ ਆਫ਼ਲਾਈਨ ਹੋ। ਸੱਦੇ ਲਈ ਇੱਕ ਵਾਰ ਜੁੜਨਾ ਪਵੇਗਾ — ਵਾਪਸ ਆਉਣ ’ਤੇ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
-  "invite.phone.help": "ਇੱਕ ਨੰਬਰ, ਇੱਕ ਜਣਾ। ਉਹਨਾਂ ਨੂੰ ਵਟਸਐਪ ਜਾਂ SMS ’ਤੇ ਲਿੰਕ ਮਿਲੇਗਾ।",
+  "invite.phone.help": "ਇੱਕ ਨੰਬਰ, ਇੱਕ ਜਣਾ। ਐਪ ਤੁਹਾਡੇ ਵੱਲੋਂ ਉਹਨਾਂ ਨੂੰ ਕਦੇ ਕੋਈ ਸੁਨੇਹਾ ਨਹੀਂ ਭੇਜਦੀ।",
+  "@invite.phone.help": {
+    "description": "machine-draft — native review M12"
+  },
   "invite.phone.hint": "+91 98765 43210",
   "invite.phone.invalid": "ਦੇਸ਼ ਦਾ ਕੋਡ ਵੀ ਲਾਓ, ਜਿਵੇਂ +91 98765 43210।",
+  "invite.ready.body": "ਸੱਦਾ ਬਣ ਗਿਆ। ਤੁਹਾਡੇ ਵੱਲੋਂ ਕੁਝ ਨਹੀਂ ਭੇਜਿਆ ਜਾਂਦਾ — ਇਹ ਸੁਨੇਹਾ ਵਟਸਐਪ, SMS ਜਾਂ ਕਿਸੇ ਵੀ ਐਪ ਰਾਹੀਂ ਭੇਜੋ।",
+  "@invite.ready.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "invite.ready.title": "ਹੁਣ ਇਸਨੂੰ ਆਪਣੇ ਫ਼ੋਨ ਤੋਂ ਭੇਜੋ",
+  "@invite.ready.title": {
+    "description": "machine-draft — native review M12"
+  },
   "invite.roles.help": "ਹਰ ਵਹੀ-ਖਾਤੇ ਲਈ ਇੱਕ ਭੂਮਿਕਾ, ਅਤੇ ਇਹ ਤੁਸੀਂ ਬਾਅਦ ਵਿੱਚ ਬਦਲ ਸਕਦੇ ਹੋ। ਭੂਮਿਕਾ ਹੀ ਪੂਰੀ ਤਾਕਤ ਹੈ।",
   "invite.roles.required": "ਘੱਟੋ-ਘੱਟ ਇੱਕ ਵਹੀ-ਖਾਤੇ ਵਿੱਚ ਭੂਮਿਕਾ ਦਿਓ।",
   "invite.send": "ਸੱਦਾ ਭੇਜੋ",
   "invite.sending": "ਭੇਜ ਰਹੇ ਹਾਂ…",
-  "invite.sent": "ਸੱਦਾ ਭੇਜ ਦਿੱਤਾ।",
+  "invite.share.copied": "ਕਾਪੀ ਹੋ ਗਿਆ। ਇਸਨੂੰ ਵਟਸਐਪ ਜਾਂ SMS ਵਿੱਚ ਚਿਪਕਾ ਕੇ ਉਹਨਾਂ ਨੂੰ ਭੇਜੋ।",
+  "@invite.share.copied": {
+    "description": "machine-draft — native review M12"
+  },
+  "invite.share.copy": "ਸੁਨੇਹਾ ਕਾਪੀ ਕਰੋ",
+  "@invite.share.copy": {
+    "description": "machine-draft — native review M12"
+  },
+  "invite.share.done": "ਹੋ ਗਿਆ",
+  "@invite.share.done": {
+    "description": "machine-draft — native review M12"
+  },
+  "invite.share.message": "ਮੈਂ ਤੁਹਾਨੂੰ {app} ’ਤੇ ਸਾਡੇ ਵਹੀ-ਖਾਤਿਆਂ ਵਿੱਚ ਸੱਦਿਆ ਹੈ। ਜੁੜਨ ਲਈ ਇਹ ਲਿੰਕ ਆਪਣੇ ਫ਼ੋਨ ’ਤੇ ਖੋਲ੍ਹੋ: {link} — ਇਹ 7 ਦਿਨ ਚੱਲਦਾ ਹੈ, ਅਤੇ ਸਿਰਫ਼ ਇਸੇ ਨੰਬਰ ਵਾਲੇ ਫ਼ੋਨ ’ਤੇ।",
+  "@invite.share.message": {
+    "description": "machine-draft — native review M12"
+  },
+  "invite.share.resend": "ਦੁਬਾਰਾ ਭੇਜੋ",
+  "@invite.share.resend": {
+    "description": "machine-draft — native review M12"
+  },
+  "invite.share.unavailable": "ਇਹ ਫ਼ੋਨ ਸਾਂਝਾ ਕਰਨ ਵਾਲੀ ਸ਼ੀਟ ਨਹੀਂ ਖੋਲ੍ਹ ਸਕਿਆ। ਸੁਨੇਹਾ ਕਾਪੀ ਕਰੋ ਅਤੇ ਆਪ ਭੇਜੋ।",
+  "@invite.share.unavailable": {
+    "description": "machine-draft — native review M12"
+  },
   "invite.step.designation": "ਉਹਨਾਂ ਨੂੰ ਕੀ ਕਹਿੰਦੇ ਹਨ",
   "invite.step.phone": "ਉਹਨਾਂ ਦਾ ਫ਼ੋਨ ਨੰਬਰ",
   "invite.step.roles": "ਉਹ ਕੀ ਕਰ ਸਕਣਗੇ",

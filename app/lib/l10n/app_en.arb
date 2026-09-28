@@ -772,10 +772,6 @@
   "@auth.otp.change_number": {
     "description": "S0.2 secondary action back to step 1."
   },
-  "auth.otp.channel.sms": "WhatsApp didn’t go through, so the code went by SMS.",
-  "@auth.otp.channel.sms": {
-    "description": "S0.2 step 2 line when the server fell back from WhatsApp to SMS (06 §2 auto-failover). Platform nouns stay Latin."
-  },
   "auth.otp.error.expired": "That code has expired. Ask for a new one.",
   "@auth.otp.error.expired": {
     "description": "S0.2 after 3 misses or 5 minutes (06 §2)."
@@ -851,9 +847,9 @@
   "@auth.phone.field.label": {
     "description": "S0.2 phone field label; +91 prefix rendered beside it."
   },
-  "auth.phone.hint": "We’ll send a 6-digit code by WhatsApp or SMS.",
+  "auth.phone.hint": "We’ll send a 6-digit code by SMS.",
   "@auth.phone.hint": {
-    "description": "S0.2 step 1 helper line (06 §2 channels)."
+    "description": "S0.2 step 1 helper line. SMS is the one OTP channel (ADR 2026-09-25 §1 amends 06 §2); never mention WhatsApp here. Platform noun SMS stays Latin."
   },
   "auth.phone.send": "Send code",
   "@auth.phone.send": {
@@ -5797,21 +5793,29 @@
   "@invite.error": {
     "description": "S9.1 failure — error with retry, the form still filled (13 §8 Interruption)."
   },
-  "invite.expiry.note": "The link works for 7 days, and only on a phone with that number.",
+  "invite.expiry.note": "The invite works for 7 days, and only on a phone with that number.",
   "@invite.expiry.note": {
-    "description": "06 §7 (7-day expiry) + ADR 2026-09-05d §9 🔒 (accepted only by a device whose OTP-verified number matches; the link alone admits nobody)."
+    "description": "06 §7 (7-day expiry of the invite) + ADR 2026-09-05d §9 🔒 (accepted only by a device whose OTP-verified number matches). Names the invite, not a link: production binds no link format yet (M11-INV2 ⚠️ SPEC)."
   },
   "invite.limit.hint": "Limit in rupees (optional)",
   "@invite.limit.hint": {
     "description": "S9.1 grid: the per-book auto-post limit, whole rupees, stored as integer paise."
   },
+  "invite.nolink.body": "This version of the app can’t make its link yet, so there is nothing to send them for now. It shows on Members as invited.",
+  "@invite.nolink.body": {
+    "description": "⚠️ SPEC M11-INV2: with no link format ruled there is nothing to send, so the panel says so and offers no share (13 §4.3 disabled-with-reason). It names no join path — the deep link is the only one the spec has (13 §3.2 S0.9, 07 §3.1 step 8)."
+  },
+  "invite.nolink.title": "The invite is made",
+  "@invite.nolink.title": {
+    "description": "S9.1 / S9 share panel when the invite has no link (⚠️ SPEC M11-INV2: no ruled invite-link format). Replaces the prefilled message; never says anything was sent."
+  },
   "invite.offline": "You’re offline. An invite needs one connection — try again when you’re back.",
   "@invite.offline": {
-    "description": "S9.1 disabled-with-reason (13 §4.3): the link is sent by the server (06 §7), so this one action cannot complete offline. It never claims the invite was queued."
+    "description": "S9.1 disabled-with-reason (13 §4.3): the invite is created on the server (ADR 2026-09-25 §2), so this one action cannot complete offline. It never claims the invite was queued."
   },
-  "invite.phone.help": "One number, one person. They get a link on WhatsApp or SMS.",
+  "invite.phone.help": "One number, one person. The app never messages them for you.",
   "@invite.phone.help": {
-    "description": "06 §1: one phone number = one human = one account. 06 §7: delivery by WhatsApp/SMS link."
+    "description": "06 §1: one phone number = one human = one account. ADR 2026-09-25 §2 (amends 06 §7): the server sends nothing. Says nothing about a link, because production has no ruled link format yet (M11-INV2 ⚠️ SPEC) — it must stay true in both states."
   },
   "invite.phone.hint": "+91 98765 43210",
   "@invite.phone.hint": {
@@ -5820,6 +5824,14 @@
   "invite.phone.invalid": "Add the country code too, like +91 98765 43210.",
   "@invite.phone.invalid": {
     "description": "S9.1 phone validation — named cause + the shape that works (13 §8 Errors)."
+  },
+  "invite.ready.body": "The invite is made. Nothing is sent for you — send this message on WhatsApp, SMS or any app.",
+  "@invite.ready.body": {
+    "description": "S9.1 after creation: states that nothing is sent for them (ADR 2026-09-25 §2 — the server sends nothing)."
+  },
+  "invite.ready.title": "Now send it from your phone",
+  "@invite.ready.title": {
+    "description": "S9.1 after the invite is created (ADR 2026-09-25 §2): the inviter still has to send it. Never says it was sent — the share sheet reports nothing back (07 §1 rule 12)."
   },
   "invite.roles.help": "One role per book, and you can change it later. A role is the whole of what they may do.",
   "@invite.roles.help": {
@@ -5837,9 +5849,29 @@
   "@invite.sending": {
     "description": "S9.1 primary action while the invite is being written."
   },
-  "invite.sent": "Invite sent.",
-  "@invite.sent": {
-    "description": "S9.1 success — returns to S9, where the new row carries its own state (06 §7)."
+  "invite.share.copied": "Copied. Paste it into WhatsApp or SMS and send it to them.",
+  "@invite.share.copied": {
+    "description": "Shown when the message is on the clipboard — a fact, so it may be said (07 §1 rule 12)."
+  },
+  "invite.share.copy": "Copy the message",
+  "@invite.share.copy": {
+    "description": "S9.1 after creation: copies the message — the fallback that keeps the invite from a dead end when no share sheet can be raised (07 §1 rule 6)."
+  },
+  "invite.share.done": "Done",
+  "@invite.share.done": {
+    "description": "S9.1 after creation: back to S9, where the new row carries its own state (06 §7)."
+  },
+  "invite.share.message": "I’ve invited you to our books on {app}. Open this link on your phone to join: {link} — it works for 7 days, and only on the phone with this number.",
+  "@invite.share.message": {
+    "description": "The prefilled share-sheet message (ADR 2026-09-25 §2). Carries the link only — no amount, no book name or figure, no phone number (CLAUDE.md rule 4). {app} is the product name; {link} the invite link, which admits nobody alone (ADR 2026-09-05d §9 🔒)."
+  },
+  "invite.share.resend": "Resend",
+  "@invite.share.resend": {
+    "description": "S9.1 after creation: reopens the share sheet with the same message (ADR 2026-09-25 §2 *Resend*)."
+  },
+  "invite.share.unavailable": "This phone couldn’t open the share sheet. Copy the message and send it yourself.",
+  "@invite.share.unavailable": {
+    "description": "Shown when no share sheet could be raised; the message and Copy stay on screen (07 §1 rules 2 and 6)."
   },
   "invite.step.designation": "What they’re called",
   "@invite.step.designation": {

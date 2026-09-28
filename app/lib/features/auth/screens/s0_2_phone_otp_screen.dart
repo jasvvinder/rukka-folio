@@ -1,5 +1,7 @@
 // S0.2 Phone + OTP (13 §3.2, 07 §3.1 step 2, 06 §2). One number per person;
-// the OTP is the only sign-in event. States (13 §4.3): default · sending ·
+// the OTP is the only sign-in event. The code goes by SMS only (ADR
+// 2026-09-25 §1 amends 06 §2): no WhatsApp copy and no fallback line
+// (C-25-1). States (13 §4.3): default · sending ·
 // wrong code (attempts left) · resend cooldown 30 s → 60 s → 5 min (06 §2) ·
 // offline (quiet chip, send disabled with reason — 07 §1 rule 7) · min-version
 // gate (426 → S19.1 inline, 06 §4.5) · activating · done. Errors are generic
@@ -37,13 +39,7 @@ Duration otpCooldownAfter(int sends) =>
 enum _Step { phone, otp, activating, done }
 
 class PhoneOtpScreen extends StatefulWidget {
-  const PhoneOtpScreen({
-    super.key,
-    this.onDone,
-    this.gate,
-    this.channel,
-    this.onUpdate,
-  });
+  const PhoneOtpScreen({super.key, this.onDone, this.gate, this.onUpdate});
 
   /// Called with the session once the device is registered (→ S0.3).
   final void Function(AuthSession session)? onDone;
@@ -51,10 +47,6 @@ class PhoneOtpScreen extends StatefulWidget {
   /// Min-version gate override; defaults to the scope's auth when it is a
   /// [MinVersionGate] (HttpAuthClient).
   final ValueListenable<UpdateRequired?>? gate;
-
-  /// OTP channel override; defaults to the scope's auth when it is an
-  /// [OtpChannelSource].
-  final ValueListenable<OtpChannel?>? channel;
 
   /// Passed through to S19.1.
   final Future<void> Function()? onUpdate;
@@ -86,7 +78,7 @@ class _PhoneOtpScreenState extends State<PhoneOtpScreen> {
 
   AuthClient get _auth => RkScope.of(context).auth;
 
-  /// The scope's auth may also implement the gate / channel interfaces
+  /// The scope's auth may also implement the gate interface
   /// (HttpAuthClient does); the fake does not.
   static T? _as<T>(Object o) => switch (o) {
     final T t => t,
@@ -301,8 +293,6 @@ class _PhoneOtpScreenState extends State<PhoneOtpScreen> {
   Widget _otpStep(BuildContext context, bool offline) {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
-    final auth = _auth;
-    final channel = widget.channel ?? _as<OtpChannelSource>(auth)?.otpChannel;
     final wait = _resendSeconds;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -310,16 +300,6 @@ class _PhoneOtpScreenState extends State<PhoneOtpScreen> {
         RkFitText(l10n.authOtpTitle, style: text.headlineMedium),
         const SizedBox(height: RkSpace.s2),
         Text(l10n.authOtpSentTo(_e164), style: text.bodyLarge),
-        if (channel != null)
-          ValueListenableBuilder<OtpChannel?>(
-            valueListenable: channel,
-            builder: (context, c, _) => c == OtpChannel.sms
-                ? Padding(
-                    padding: const EdgeInsets.only(top: RkSpace.s2),
-                    child: Text(l10n.authOtpChannelSms, style: text.bodySmall),
-                  )
-                : const SizedBox.shrink(),
-          ),
         const SizedBox(height: RkSpace.s6),
         TextField(
           controller: _code,

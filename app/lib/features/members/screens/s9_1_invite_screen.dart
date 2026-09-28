@@ -16,27 +16,38 @@
 //     for this tenant type, or the label is typed free.
 //
 // States (13 §4.3): default · sending · error-with-retry (the form stays
-// filled, 13 §8 Interruption) · disabled-with-reason when offline — the link
-// is sent by the server (06 §7), so this one action needs a connection.
+// filled, 13 §8 Interruption) · disabled-with-reason when offline — the invite
+// is created on the server, so this one action needs a connection · created,
+// where the inviter sends it (below).
 // ⚠️ SPEC: neither 06 §7 nor 05 says an invite may be queued in the outbox and
 // sent later, so the screen states the restriction rather than promising a
 // send it cannot guarantee.
+//
+// **The inviter sends it (ADR 2026-09-25 §2, amending 06 §7 and ADR
+// 2026-09-05c §4).** *Send invite* creates the invite through the repository
+// and **then** raises the share sheet (`shared/seams/share_sheet.dart`) with
+// the link and a prefilled message; the server sends nothing. A failed
+// creation opens no sheet. The form then gives way to [InviteSharePanel] —
+// *Resend*, *Copy the message*, *Done* — and never says the invite was sent,
+// because the sheet reports nothing back (07 §1 rule 12).
 import 'package:flutter/material.dart';
 
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/app_scope.dart';
 import '../../../shared/format/money_format.dart';
+import '../../../shared/seams/share_sheet.dart';
 import '../../../shared/seams/sync_client.dart';
 import '../../../shared/tokens.dart';
 import '../designations.dart';
 import '../members_repository.dart';
+import '../widgets/invite_share_panel.dart';
 import 's9_members_screen.dart' show parseRupeeLimitToPaise;
 
 class InviteScreen extends StatefulWidget {
   const InviteScreen({super.key, this.onSent});
 
-  /// Called once the invite is away; the host pops back to S9. Null → this
-  /// screen pops itself.
+  /// Called on *Done*, once the invite exists and was offered to the share
+  /// sheet; the host pops back to S9. Null → this screen pops itself.
   final VoidCallback? onSent;
 
   @override
@@ -51,6 +62,10 @@ class _InviteScreenState extends State<InviteScreen> {
 
   Designation? _designation;
   bool _sending = false;
+
+  /// The invite once the server has it, and what the first share did. Null
+  /// while the form is still the screen.
+  ({CreatedInvite invite, ShareOutcome? outcome})? _created;
 
   /// The last refusal, or null. Named rather than a bare bool so the form can
   /// offer the right way out of each one (07 §1 rule 6 — no dead ends).
@@ -106,7 +121,6 @@ class _InviteScreenState extends State<InviteScreen> {
     if (!phoneOk || grants.isEmpty || !limitOk) return;
 
     final l10n = AppLocalizations.of(context);
-    final messenger = ScaffoldMessenger.of(context);
     final repo = MembersRepositoryScope.of(context);
     final label = _designation == null
         ? (_freeLabel.text.trim().isEmpty ? null : _freeLabel.text.trim())
@@ -115,27 +129,51 @@ class _InviteScreenState extends State<InviteScreen> {
       _sending = true;
       _failure = null;
     });
+    final CreatedInvite created;
     try {
-      await repo.invite(
+      created = await repo.invite(
         InviteRequest(
           phoneE164: normalisePhone(_phone.text),
           grants: grants,
           designationLabel: label,
         ),
       );
-      if (!mounted) return;
-      messenger.showSnackBar(SnackBar(content: Text(l10n.inviteSent)));
-      if (widget.onSent != null) {
-        widget.onSent!();
-      } else {
-        Navigator.of(context).maybePop();
-      }
     } on MembersFailure catch (e) {
-      if (mounted) setState(() => _failure = e.reason);
+      // Nothing was created, so nothing is shared (ADR 2026-09-25 §2).
+      if (mounted) {
+        setState(() {
+          _failure = e.reason;
+          _sending = false;
+        });
+      }
+      return;
     } on Exception {
-      if (mounted) setState(() => _failure = MembersRefusal.server);
-    } finally {
-      if (mounted) setState(() => _sending = false);
+      if (mounted) {
+        setState(() {
+          _failure = MembersRefusal.server;
+          _sending = false;
+        });
+      }
+      return;
+    }
+    if (!mounted) return;
+    // Created first, then the sheet: the link exists before anyone sees it.
+    // No link (⚠️ SPEC M11-INV2) → nothing is offered and the panel says why.
+    final outcome = await offerCreatedInvite(context, created);
+    if (!mounted) return;
+    setState(() {
+      _sending = false;
+      _created = (invite: created, outcome: outcome);
+      // The number is not needed any more on this screen.
+      _phone.clear();
+    });
+  }
+
+  void _done() {
+    if (widget.onSent != null) {
+      widget.onSent!();
+    } else {
+      Navigator.of(context).maybePop();
     }
   }
 
@@ -165,6 +203,19 @@ class _InviteScreenState extends State<InviteScreen> {
           stream: repo.watch(),
           initialData: repo.current,
           builder: (context, snap) {
+            final created = _created;
+            if (created != null) {
+              return ListView(
+                padding: const EdgeInsets.all(RkSpace.gutter),
+                children: [
+                  InviteSharePanel(
+                    invite: created.invite,
+                    outcome: created.outcome,
+                    onDone: _done,
+                  ),
+                ],
+              );
+            }
             final s = snap.data ?? const MembersSnapshot();
             return StreamBuilder<SyncStatus>(
               stream: scope.sync.status,

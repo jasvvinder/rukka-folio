@@ -25,40 +25,35 @@ Widget _scoped(MembersRepository repo, Widget child) =>
 
 void main() {
   group('S9.1 Invite member (13 §3.2, 07 §12, 06 §1.0/§1.1/§7)', () {
-    testWidgets(
-      'F1-07-26 the three steps in order — phone, per-book role + limit grid, '
-      'designation — with the 06 §1.0 🔒 line word for word and the 7-day, '
-      'this-number-only expiry stated',
-      (tester) async {
-        final repo = FakeMembersRepository(
-          initial: _snapshot(TenantType.organization),
-        );
-        await pumpRk(
-          tester,
-          _scoped(repo, const InviteScreen()),
-          viewport: rkTallViewport,
-        );
-        expect(find.text('Invite someone'), findsOneWidget);
-        expect(find.text('Their phone number'), findsOneWidget);
-        expect(find.text('What they can do'), findsOneWidget);
-        expect(find.text('Role in Ghar'), findsOneWidget);
-        expect(find.text('Role in Shop'), findsOneWidget);
-        expect(find.text('What they’re called'), findsOneWidget);
-        expect(find.text('This one is optional.'), findsOneWidget);
-        expect(
-          find.text(
-            'A name, not a permission — what they can do is set above.',
-          ),
-          findsOneWidget,
-        );
-        expect(
-          find.text(
-            'The link works for 7 days, and only on a phone with that number.',
-          ),
-          findsOneWidget,
-        );
-      },
-    );
+    testWidgets('F1-07-26 the three steps in order — phone, per-book role + limit grid, '
+        'designation — with the 06 §1.0 🔒 line word for word and the 7-day, '
+        'this-number-only expiry stated', (tester) async {
+      final repo = FakeMembersRepository(
+        initial: _snapshot(TenantType.organization),
+      );
+      await pumpRk(
+        tester,
+        _scoped(repo, const InviteScreen()),
+        viewport: rkTallViewport,
+      );
+      expect(find.text('Invite someone'), findsOneWidget);
+      expect(find.text('Their phone number'), findsOneWidget);
+      expect(find.text('What they can do'), findsOneWidget);
+      expect(find.text('Role in Ghar'), findsOneWidget);
+      expect(find.text('Role in Shop'), findsOneWidget);
+      expect(find.text('What they’re called'), findsOneWidget);
+      expect(find.text('This one is optional.'), findsOneWidget);
+      expect(
+        find.text('A name, not a permission — what they can do is set above.'),
+        findsOneWidget,
+      );
+      expect(
+        find.text(
+          'The invite works for 7 days, and only on a phone with that number.',
+        ),
+        findsOneWidget,
+      );
+    });
 
     testWidgets(
       'F1-07-26 the designation suggestions are the 01 §2 table for the tenant '
@@ -172,6 +167,11 @@ void main() {
         expect(req.grants.single.role, BookRole.head);
         expect(req.grants.single.autoPostLimitPaise, 200000);
         expect(req.designationLabel, 'Treasurer');
+        // ADR 2026-09-25 §2: the inviter still has to send it, so S9.1 stays
+        // on the share panel and returns to S9 on *Done* — not on creation.
+        expect(sent, 0);
+        await tester.tap(find.text('Done'));
+        await tester.pumpAndSettle();
         expect(sent, 1);
       },
     );
@@ -273,8 +273,9 @@ void main() {
     );
 
     testWidgets(
-      'F1-07-26 offline: Send is disabled and the reason is stated — the link '
-      'is sent by the server (06 §7), so this one action needs a connection',
+      'F1-07-26 offline: Send is disabled and the reason is stated — the '
+      'invite is created on the server (ADR 2026-09-25 §2), so this one '
+      'action needs a connection',
       (tester) async {
         final repo = FakeMembersRepository(
           initial: _snapshot(TenantType.organization),

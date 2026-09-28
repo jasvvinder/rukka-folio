@@ -1,8 +1,9 @@
-// auth-challenge (06 §2–§4 🔒; ADR 2026-09-05d §2, ADR 2026-09-16 §2). Ids E-06-1 … E-06-8,
-// E-06-40, E-06-41, E-06-68.
+// auth-challenge (06 §2–§4 🔒; ADR 2026-09-05d §2, ADR 2026-09-16 §2, ADR 2026-09-25 §1). Ids
+// E-06-1 … E-06-8, E-06-40, E-06-41, E-06-68, E-25-1.
 import { assert, assertEquals, assertNotEquals, assertStringIncludes } from "@std/assert";
 import { b64url } from "../_shared/bytes.ts";
 import { verifyAccessToken } from "../_shared/claims.ts";
+import { Msg91Provider } from "../_shared/otp/provider.ts";
 import { handler as auth, NONCE_TTL_S, OTP_MAX_ATTEMPTS, SKEW_S } from "../auth-challenge/index.ts";
 import { handler as meta } from "../sync-meta/index.ts";
 import {
@@ -80,9 +81,34 @@ Deno.test("E-06-1 otp/request: generic answers (no registration oracle), nothing
       assertEquals(JSON.parse(text).ok, true);
       assert(!text.includes(r.otp.sent[0].code));
       assert(!text.includes(PHONE));
-      // WhatsApp-first default: superseded by ADR 2026-09-25 §1 (SMS only); re-lands at M6 (E-25-1).
+      // E-25-1 (ADR 2026-09-25 §1): SMS is the one channel — the default request goes by SMS,
+      // in exactly one attempt, and the challenge row says so.
+      assertEquals(r.otp.attempts, 1);
+      assertEquals(r.otp.sent[0].channel, "sms");
+      assertEquals(r.db.otp_challenges[0].channel, "sms");
       assertEquals(r.db.otp_challenges[0].code_hash.length, 32, "hash stored, never the code");
       assertEquals(r.db.otp_challenges[0].phone_hmac.length, 32, "phone only as HMAC");
+      // The oracle half (06 §2 "no 'number not registered' oracle"): a number with a user and a
+      // certified device and a number never seen before get byte-identical answers, for every
+      // purpose — including the three that only make sense for an existing account. Each side
+      // runs in its own rig so `r`'s history (the steps below) is untouched. resend_after_s
+      // follows the number's own last-hour requests, which an unknown number has too, so both
+      // sides are taken past the hour: registration is then the only thing that differs.
+      for (const purpose of ["signup", "device_activation", "phone_change", "account_deletion"]) {
+        const known = rig(), unknown = rig();
+        await registered(known, { umk: true });
+        assertEquals(known.db.users.size, 1, "precondition: the number is registered");
+        assertEquals(known.db.devices.size, 1, "precondition: it has a device");
+        assertEquals(unknown.db.users.size, 0, "precondition: the number was never seen");
+        advance(known, 61 * 60_000);
+        advance(unknown, 61 * 60_000);
+        const k = await call(known, "/otp/request", { phone: PHONE, purpose });
+        const u = await call(unknown, "/otp/request", { phone: PHONE, purpose });
+        assertEquals(k.status, 200, `known, ${purpose}`);
+        assertEquals(u.status, k.status, `status, ${purpose}`);
+        assertEquals(u.headers.get("content-type"), k.headers.get("content-type"), purpose);
+        assertEquals(await u.text(), await k.text(), `body, ${purpose}`);
+      }
     },
   );
   await t.step("resend inside the 30 s backoff → 429 with resend_after_s", async () => {
@@ -91,16 +117,20 @@ Deno.test("E-06-1 otp/request: generic answers (no registration oracle), nothing
     assert((await body(res)).resend_after_s > 0);
   });
   await t.step(
-    "nothing stored when every channel fails",
+    "nothing stored when the SMS fails — and no second attempt on another channel",
     async () => {
-      // The WhatsApp→SMS failover half: superseded by ADR 2026-09-25 §1 (SMS only); re-lands at M6 (E-25-1).
+      // E-25-1 (ADR 2026-09-25 §1): there is no failover path. One failed SMS is one attempt, not
+      // a retry by WhatsApp; the answer stays generic and nothing is stored (06 §2).
       advance(r, 31_000);
-      r.otp.failAll = true;
+      r.otp.fail = true;
       const n = r.db.otp_challenges.length;
+      const attempts = r.otp.attempts, sent = r.otp.sent.length;
       const res = await call(r, "/otp/request", { phone: PHONE, purpose: "signup" });
       assertEquals(res.status, 200, "still generic");
       assertEquals(r.db.otp_challenges.length, n);
-      r.otp.failAll = false;
+      assertEquals(r.otp.attempts - attempts, 1, "one attempt, no failover");
+      assertEquals(r.otp.sent.length, sent, "nothing went out");
+      r.otp.fail = false;
     },
   );
   await t.step("5 per hour per number, then 429; 10 per day", async () => {
@@ -141,6 +171,90 @@ Deno.test("E-06-1 otp/request: generic answers (no registration oracle), nothing
       "OTP never fires at routine login (06 §2)",
     );
   });
+});
+
+Deno.test("E-25-1 otp/request: SMS is the one channel (ADR 2026-09-25 §1) — a request that asks for whatsapp still goes out by SMS in one attempt, a failed SMS is never retried on another channel, the answer never names a channel, and the live provider makes one SMS call and no WhatsApp call", async (t) => {
+  const OTHER = "+919876543211";
+  await t.step("asking for whatsapp: one SMS, the row records sms", async () => {
+    const r = rig();
+    const res = await call(r, "/otp/request", {
+      phone: PHONE,
+      purpose: "signup",
+      channel: "whatsapp",
+    });
+    assertEquals(res.status, 200);
+    assertEquals(r.otp.attempts, 1, "one send, no preference branch");
+    assertEquals(r.otp.sent.length, 1);
+    assertEquals(r.otp.sent[0].channel, "sms");
+    assertEquals(r.otp.sent[0].e164, PHONE);
+    assertEquals(r.db.otp_challenges.length, 1);
+    assertEquals(r.db.otp_challenges[0].channel, "sms");
+    // The body says nothing about the channel, so no screen can claim a WhatsApp→SMS fallback that
+    // never happened; and it stays generic (06 §2).
+    assertEquals(Object.keys(await body(res)).sort(), ["ok", "resend_after_s"]);
+    // the SMS'd code verifies — the request did not just record "sms", it delivered by it
+    const v = await body(
+      await call(r, "/otp/verify", { phone: PHONE, purpose: "signup", code: r.otp.sent[0].code }),
+    );
+    assertEquals(typeof v.ticket, "string");
+  });
+  await t.step(
+    "sms, a channel the server has never heard of, or none: SMS, never a 400",
+    async () => {
+      // The field is ignored, not refused: today's app build still sends `whatsapp` by default
+      // (M6-OTP1's UI half), and refusing it would lock that build out of signup.
+      for (const channel of ["sms", "telegram", 42, null, undefined]) {
+        const r = rig();
+        const res = await call(r, "/otp/request", { phone: OTHER, purpose: "signup", channel });
+        assertEquals(res.status, 200, `channel ${String(channel)}`);
+        assertEquals(r.otp.attempts, 1);
+        assertEquals(r.otp.sent.map((s) => s.channel), ["sms"]);
+        assertEquals(r.db.otp_challenges.map((c) => c.channel), ["sms"]);
+      }
+    },
+  );
+  await t.step(
+    "asking for whatsapp while SMS fails: one attempt, nothing sent, nothing stored, generic 200",
+    async () => {
+      const r = rig();
+      r.otp.fail = true;
+      const res = await call(r, "/otp/request", {
+        phone: PHONE,
+        purpose: "signup",
+        channel: "whatsapp",
+      });
+      assertEquals(res.status, 200);
+      assertEquals(Object.keys(await body(res)).sort(), ["ok", "resend_after_s"]);
+      assertEquals(r.otp.attempts, 1, "no failover path");
+      assertEquals(r.otp.sent, []);
+      assertEquals(r.db.otp_challenges, []);
+    },
+  );
+  await t.step(
+    "the live provider: one SMS POST per send — never a WhatsApp endpoint, never a second call — whether it is accepted, refused or unreachable",
+    async () => {
+      const realFetch = globalThis.fetch;
+      const calls: string[] = [];
+      let answer: "ok" | "refused" | "throw" = "ok";
+      globalThis.fetch = ((input: RequestInfo | URL) => {
+        calls.push(input instanceof Request ? input.url : String(input));
+        if (answer === "throw") return Promise.reject(new TypeError("network"));
+        return Promise.resolve(new Response("{}", { status: answer === "ok" ? 200 : 500 }));
+      }) as typeof fetch;
+      try {
+        const p = new Msg91Provider("key", "entity", "template");
+        for (const [a, want] of [["ok", "sms"], ["refused", null], ["throw", null]] as const) {
+          answer = a;
+          calls.length = 0;
+          assertEquals(await p.send(PHONE, "123456"), want, a);
+          assertEquals(calls.length, 1, `${a}: one call, no failover`);
+          assert(!/whatsapp/i.test(calls[0]), `${a}: ${calls[0]} is not an SMS endpoint`);
+        }
+      } finally {
+        globalThis.fetch = realFetch;
+      }
+    },
+  );
 });
 
 Deno.test("E-06-2 otp/verify: 3 attempts then a new code; 5-min expiry; ticket single-use; user created with phone_ct + phone_hmac only", async () => {

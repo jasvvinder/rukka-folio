@@ -212,7 +212,9 @@ final class ServerMembersRepository implements MembersRepository {
     TenantType tenantType = TenantType.family,
     DateTime Function()? clock,
     int maxPages = 50,
+    InviteLinkOf? inviteLinkOf,
   }) : _server = api,
+       _linkOf = inviteLinkOf ?? ((_) => null),
        _belief = believes,
        _unknownVerifier = unknownVerifierName,
        _someoneToMeet = someoneToMeetName,
@@ -233,6 +235,10 @@ final class ServerMembersRepository implements MembersRepository {
   final TenantType _type;
   final DateTime Function() _clock;
   final int _pageCap;
+
+  /// ⚠️ SPEC: see [InviteLinkOf] — no link format is ruled, so production
+  /// binds none and a created invite carries no link.
+  final InviteLinkOf _linkOf;
 
   /// The tenant this instance shows.
   final String tenantId;
@@ -641,7 +647,7 @@ final class ServerMembersRepository implements MembersRepository {
   }
 
   @override
-  Future<void> invite(InviteRequest request) async {
+  Future<CreatedInvite> invite(InviteRequest request) async {
     final snapshot = _current;
     // 06 §1.0 🔒 verbs table: invite is admin-only. The client refuses before
     // the number leaves the phone; the server refuses again (`not_admin`).
@@ -688,10 +694,16 @@ final class ServerMembersRepository implements MembersRepository {
       phoneE164: request.phoneE164,
     );
     await refresh();
+    // The server sends nothing (ADR 2026-09-25 §2): the link goes back to the
+    // screen, which hands it to the inviter's own share sheet.
+    return CreatedInvite(
+      inviteId: issued.inviteId,
+      link: _linkOf(issued.inviteId),
+    );
   }
 
   @override
-  Future<void> reinvite(String memberId) async {
+  Future<CreatedInvite> reinvite(String memberId) async {
     final phone = _directory.inviteePhoneOf(memberId);
     if (phone == null) {
       // A second admin sees the invite but not the contact card — 06 §7 and
@@ -710,8 +722,11 @@ final class ServerMembersRepository implements MembersRepository {
         const <BookGrant>[];
     // Issuing again to the same number revokes the live invite and mints a
     // new one, so only the newest link can be accepted (06 §7, E-06-35).
-    await invite(InviteRequest(phoneE164: phone, grants: grants));
+    return invite(InviteRequest(phoneE164: phone, grants: grants));
   }
+
+  @override
+  Uri? inviteLink(String inviteId) => _linkOf(inviteId);
 
   /// Accepts an invite addressed to this phone. Returns the membership status
   /// the server moved to — `joined_pending_verification`, never `active`.

@@ -30,11 +30,13 @@ import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/app_scope.dart';
 import '../../../shared/format/date_format.dart';
 import '../../../shared/format/money_format.dart';
+import '../../../shared/seams/share_sheet.dart';
 import '../../../shared/seams/sync_client.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../designations.dart';
 import '../members_repository.dart';
+import '../widgets/invite_share_panel.dart';
 import '../widgets/membership_state_chip.dart';
 
 class MembersScreen extends StatefulWidget {
@@ -85,13 +87,58 @@ class _MembersScreenState extends State<MembersScreen> {
       _reinviting = m.id;
       _reinviteError = false;
     });
+    final CreatedInvite created;
     try {
-      await repo.reinvite(m.id);
+      created = await repo.reinvite(m.id);
     } on Exception {
-      if (mounted) setState(() => _reinviteError = true);
-    } finally {
-      if (mounted) setState(() => _reinviting = null);
+      // Nothing was created, so nothing is shared (ADR 2026-09-25 §2).
+      if (mounted) {
+        setState(() {
+          _reinviteError = true;
+          _reinviting = null;
+        });
+      }
+      return;
     }
+    if (!mounted) return;
+    setState(() => _reinviting = null);
+    // A re-invite is a fresh invite whose link the inviter sends again from
+    // their own phone — the server sends nothing (ADR 2026-09-25 §2). Created
+    // first, then the sheet; the panel keeps *Resend* and *Copy the message*.
+    await _share(created);
+  }
+
+  /// *Resend* on a live `invited` row (ADR 2026-09-25 §2: "*Resend* reopens
+  /// the share sheet"; DESIGN-PACK "Invited 12 Apr · expires in 5 days ·
+  /// Resend"). The invite already exists, so nothing is minted: the row is
+  /// keyed by its invite id and the link is a pure function of that id.
+  Future<void> _resend(Member m) {
+    final repo = MembersRepositoryScope.of(context);
+    return _share(CreatedInvite(inviteId: m.id, link: repo.inviteLink(m.id)));
+  }
+
+  /// Offers [created]'s message, then shows the share panel over S9. With no
+  /// link (⚠️ SPEC M11-INV2) nothing is offered and the panel says why.
+  Future<void> _share(CreatedInvite created) async {
+    final sheet = ShareSheetScope.maybeOf(context);
+    final outcome = await offerCreatedInvite(context, created, via: sheet);
+    if (!mounted) return;
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      isScrollControlled: true,
+      builder: (ctx) => SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(RkSpace.gutter),
+          child: InviteSharePanel(
+            invite: created,
+            outcome: outcome,
+            sheet: sheet,
+            onDone: () => Navigator.of(ctx).pop(),
+          ),
+        ),
+      ),
+    );
   }
 
   Future<void> _editLimit(Member m, TenantBook book, BookGrant grant) async {
@@ -217,6 +264,7 @@ class _MembersScreenState extends State<MembersScreen> {
               adminSomewhere: canInvite,
               busy: _reinviting == m.id,
               onReinvite: () => _reinvite(m),
+              onResend: () => _resend(m),
               onEditLimit: (book, grant) => _editLimit(m, book, grant),
             ),
           if (others.isEmpty)
@@ -234,6 +282,7 @@ class _MembersScreenState extends State<MembersScreen> {
                 adminSomewhere: canInvite,
                 busy: _reinviting == m.id,
                 onReinvite: () => _reinvite(m),
+                onResend: () => _resend(m),
                 onEditLimit: (book, grant) => _editLimit(m, book, grant),
               ),
           if (_reinviteError)
@@ -268,6 +317,7 @@ class _MemberRow extends StatelessWidget {
     required this.adminSomewhere,
     required this.busy,
     required this.onReinvite,
+    required this.onResend,
     required this.onEditLimit,
   });
 
@@ -277,6 +327,9 @@ class _MemberRow extends StatelessWidget {
   final bool adminSomewhere;
   final bool busy;
   final VoidCallback onReinvite;
+
+  /// Reopens the share sheet for a live invite (ADR 2026-09-25 §2).
+  final VoidCallback onResend;
   final void Function(TenantBook book, BookGrant grant) onEditLimit;
 
   @override
@@ -376,6 +429,17 @@ class _MemberRow extends StatelessWidget {
                       ? l10n.membersReinviteWorking
                       : l10n.membersReinviteAction,
                 ),
+              ),
+            ),
+          // 07 §12 Invite card, still pending: the inviter can send the same
+          // link again, from their own phone, any day until it expires.
+          if (member.state == MembershipState.invited && adminSomewhere)
+            Align(
+              alignment: Alignment.centerLeft,
+              child: OutlinedButton.icon(
+                onPressed: onResend,
+                icon: const Icon(Icons.ios_share),
+                label: Text(l10n.inviteShareResend),
               ),
             ),
           if (member.state == MembershipState.blocked)

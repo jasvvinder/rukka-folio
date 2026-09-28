@@ -1,6 +1,6 @@
 // The real [AuthClient] (06 §2–§4) over the auth-challenge function.
 //
-//   OTP request (WhatsApp first, SMS fallback surfaced as state)
+//   OTP request (SMS only — ADR 2026-09-25 §1 amends 06 §2; channel as state)
 //     → verify → activation ticket
 //     → POST devices with the LEDGER's device_id + the device's public keys
 //       → the server records that id or refuses (ADR 2026-09-16 §2); it is
@@ -57,9 +57,16 @@ import '../../shared/seams/auth_client.dart';
 import '../../shared/seams/key_store.dart';
 import 'auth_transport.dart';
 
-/// Which channel carries the code (06 §2: WhatsApp first, SMS fallback).
+/// Which channel carries the code. **SMS is the one channel** (ADR
+/// 2026-09-25 §1, amending 06 §2's *"WhatsApp first, SMS fallback"*).
+///
+/// There is deliberately no `whatsapp` value, not even for decoding: the ADR
+/// makes WhatsApp *"a provider configuration, not a redesign"* — it would
+/// live behind the server's `OtpProvider` (06 §2), not in this client — so a
+/// WhatsApp state is one this app never holds and no screen can render. A
+/// server answer naming any other channel decodes to *unknown* (`null`), see
+/// [HttpAuthClient.requestOtp]. ⟦tests: C-25-1⟧
 enum OtpChannel {
-  whatsapp('whatsapp'),
   sms('sms');
 
   const OtpChannel(this.wire);
@@ -186,7 +193,10 @@ abstract class MinVersionGate {
   ValueListenable<UpdateRequired?> get updateRequired;
 }
 
-/// Exposes the OTP channel to S0.2 without widening [AuthState].
+/// Exposes the OTP channel as state without widening [AuthState] (06 §2,
+/// C-06-7). `null` = nothing sent yet, or a server answer naming a channel
+/// other than SMS (C-25-1). S0.2 no longer draws a channel line (ADR
+/// 2026-09-25 §1 retired the WhatsApp→SMS fallback line).
 abstract class OtpChannelSource {
   ValueListenable<OtpChannel?> get otpChannel;
 }
@@ -650,15 +660,19 @@ final class HttpAuthClient
   // --- 06 §2 OTP ----------------------------------------------------------
 
   /// Sends a code to [phone]. [purpose] defaults to [defaultPurpose];
-  /// [channel] is the preference the server tries first (it falls back to
-  /// SMS on its own and does not report which carried the code — ⚠️ WIRE
-  /// the 200 body is `{ok, resend_after_s}`; a `channel` field, if the
-  /// server ever adds one, is honoured).
+  /// [channel] is sent explicitly as `sms` (ADR 2026-09-25 §1) — ⚠️ WIRE
+  /// the server's `otp/request` treats an absent `channel` as its own
+  /// default, so the client never leaves it out. The 200 body is
+  /// `{ok, resend_after_s}`; a `channel` field, if the server adds one, is
+  /// believed only when it says `sms`. Any other value — WhatsApp included —
+  /// leaves the channel *unknown* (`null`): it is neither claimed as SMS nor
+  /// held as a WhatsApp state (C-25-1). The code was still sent, so the flow
+  /// still moves on to [OtpSent].
   @override
   Future<void> requestOtp(
     String phone, {
     OtpPurpose? purpose,
-    OtpChannel channel = OtpChannel.whatsapp,
+    OtpChannel channel = OtpChannel.sms,
   }) async {
     final p = purpose ?? defaultPurpose;
     // A 429 here carries `resend_after_s` too; _post records it before it
@@ -672,11 +686,15 @@ final class HttpAuthClient
     _expectOk(r, 'otp_request');
     final body = _json(r);
     _noteResend(body);
-    _channel.value = switch (body['channel']) {
+    final named = body['channel'];
+    _channel.value = switch (named) {
+      null => channel,
       'sms' => OtpChannel.sms,
-      'whatsapp' => OtpChannel.whatsapp,
-      _ => channel,
+      _ => null,
     };
+    // Fixed event name only; the unrecognised value itself is never logged
+    // (rule 4 — a body field is server data).
+    if (named != null && named != 'sms') _log('otp_channel_unrecognised');
     _pendingPhone = phone;
     _pendingPurpose = p;
     _states.value = OtpSent(phone);

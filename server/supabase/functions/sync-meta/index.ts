@@ -582,9 +582,10 @@ function sessionToWire(s: CeremonySession): Record<string, unknown> {
 // signed `invite` record, the edge HMACs it under the server key, and the number is never written
 // anywhere — not the invites row, not signed_records, not a log line (deps.serve logs error NAMES
 // only). The admin's device cannot compute the HMAC itself, which is exactly why the number has to
-// travel; 06 §7 already allows that ("the plaintext goes into the outbound message job and is gone
-// once sent"). Delivery of the link is ⚠️ not wired: no invite-message provider exists yet (the
-// OtpProvider seam is code-shaped), so today the admin's own phone sends it.
+// travel: it reaches the server once, only to be hashed (ADR 2026-09-25 §2 🔒, amending 06 §7 and
+// ADR 2026-09-05c §4). **The server sends nothing** — no OTP, no link, no message job: the app
+// opens the share sheet with the link and the inviter sends it from their own phone, and *Resend*
+// reopens the sheet without a server call. Pinned by E-25-2 (invite_sends_nothing.test.ts).
 //
 //   POST /sync-meta/invites         {record, phone}   → {invite_id, seq}     (tenant admin)
 //   GET  /sync-meta/invites                           → {invites: [...]}     (the joiner, own number)

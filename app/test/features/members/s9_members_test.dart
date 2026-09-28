@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/features/members/members_repository.dart';
 import 'package:rukka_folio/features/members/screens/s9_members_screen.dart';
+import 'package:rukka_folio/shared/seams/share_sheet.dart';
 import 'package:rukka_folio/shared/seams/sync_client.dart';
 
 import '../../shared/test_app.dart';
@@ -278,6 +279,9 @@ void main() {
         await tester.tap(find.text('Invite again'));
         await tester.pumpAndSettle();
         expect(repo.reinvited, ['inv-2']);
+        // ADR 2026-09-25 §2: the inviter sends the fresh link themselves.
+        await tester.tap(find.text('Done'));
+        await tester.pumpAndSettle();
 
         repo.failNext = const MembersFailure('offline');
         await tester.tap(find.text('Invite again'));
@@ -287,6 +291,124 @@ void main() {
           findsOneWidget,
         );
         expect(find.text('Invite again'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'F1-25-1 Invite again creates the fresh invite and then opens the share '
+      'sheet with its link (ADR 2026-09-25 §2); a failed re-invite opens none',
+      (tester) async {
+        final repo = FakeMembersRepository(
+          initial: _adminSnapshot(members: [_you, _expired]),
+          linkOf: (id) => Uri.parse('https://links.test/join/$id'),
+        );
+        final sheet = FakeShareSheet();
+        await pumpRk(
+          tester,
+          _scoped(
+            repo,
+            ShareSheetScope(sheet: sheet, child: const MembersScreen()),
+          ),
+          viewport: rkTallViewport,
+        );
+        repo.failNext = const MembersFailure('offline');
+        await tester.tap(find.text('Invite again'));
+        await tester.pumpAndSettle();
+        expect(sheet.shared, isEmpty);
+        expect(find.text('Now send it from your phone'), findsNothing);
+
+        await tester.tap(find.text('Invite again'));
+        await tester.pumpAndSettle();
+        expect(repo.reinvited, ['inv-2']);
+        expect(sheet.shared, hasLength(1));
+        expect(sheet.shared.single, contains('https://links.test/join/'));
+        expect(find.text('Now send it from your phone'), findsOneWidget);
+
+        await tester.tap(find.text('Resend'));
+        await tester.pumpAndSettle();
+        expect(sheet.shared, hasLength(2));
+        expect(repo.reinvited, ['inv-2'], reason: 'Resend mints nothing');
+      },
+    );
+
+    testWidgets(
+      'F1-25-1 a live invited row carries Resend (ADR 2026-09-25 §2): it '
+      'reopens the share sheet with THAT invite’s link and mints nothing',
+      (tester) async {
+        final repo = FakeMembersRepository(
+          initial: _adminSnapshot(members: [_you, _anonymousInvite]),
+          linkOf: (id) => Uri.parse('https://links.test/join/$id'),
+        );
+        final sheet = FakeShareSheet();
+        await pumpRk(
+          tester,
+          _scoped(
+            repo,
+            ShareSheetScope(sheet: sheet, child: const MembersScreen()),
+          ),
+          viewport: rkTallViewport,
+        );
+        expect(find.text('Resend'), findsOneWidget);
+        await tester.tap(find.text('Resend'));
+        await tester.pumpAndSettle();
+        expect(sheet.shared, hasLength(1));
+        expect(sheet.shared.single, contains('https://links.test/join/inv-1'));
+        expect(repo.invites, isEmpty, reason: 'Resend creates no invite');
+        expect(repo.reinvited, isEmpty, reason: 'Resend mints nothing');
+        expect(find.text('Now send it from your phone'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'F1-25-1 a non-admin sees no Resend on an invited row (06 §1.0 verbs '
+      'table: inviting is an admin’s)',
+      (tester) async {
+        final repo = FakeMembersRepository(
+          initial: MembersSnapshot(
+            tenantType: TenantType.organization,
+            books: _books,
+            members: [_you, _anonymousInvite],
+            yourRoles: const {
+              'b-home': BookRole.member,
+              'b-shop': BookRole.member,
+            },
+          ),
+          linkOf: (id) => Uri.parse('https://links.test/join/$id'),
+        );
+        await pumpRk(
+          tester,
+          _scoped(repo, const MembersScreen()),
+          viewport: rkTallViewport,
+        );
+        expect(find.text('Resend'), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'F1-25-1 with no link format bound (⚠️ SPEC, M11-INV2) Resend raises no '
+      'share sheet and the panel says there is nothing to send yet',
+      (tester) async {
+        final repo = FakeMembersRepository(
+          initial: _adminSnapshot(members: [_you, _anonymousInvite]),
+        );
+        final sheet = FakeShareSheet();
+        await pumpRk(
+          tester,
+          _scoped(
+            repo,
+            ShareSheetScope(sheet: sheet, child: const MembersScreen()),
+          ),
+          viewport: rkTallViewport,
+        );
+        await tester.tap(find.text('Resend'));
+        await tester.pumpAndSettle();
+        expect(sheet.shared, isEmpty);
+        expect(find.text('The invite is made'), findsOneWidget);
+        expect(find.text('Now send it from your phone'), findsNothing);
+        expect(find.text('Copy the message'), findsNothing);
+        await tester.tap(find.text('Done'));
+        await tester.pumpAndSettle();
+        expect(find.text('The invite is made'), findsNothing);
       },
     );
 
