@@ -5,19 +5,50 @@ the steps, what each item hands back to the repo, and the spec it must satisfy. 
 disagrees with `docs/0x-*.md`, the spec wins. Nothing here is a secret; secrets go to `.env` (template:
 `.env.example`, git-ignored).
 
-**Local machine today:** Xcode 26.6 · `supabase`, `gh`, `deno`, `flutter`, `dart` CLIs installed ·
-`supabase` and `gh` **not logged in** · no iOS provisioning profiles installed.
+**Local machine (checked 25 Sep):** Xcode 27.0 · `supabase` 2.116.0, `gh`, `deno`, `flutter`, `dart` CLIs
+installed · `supabase` and `gh` **not logged in** · no iOS provisioning profiles installed (not re-checked).
 
 ---
 
-## 1. Supabase project — needed by Phase A (lane S) ⛔
+## 1. Supabase — two projects, both in India ⛔
 Spec: 03 §Residency & durability (ADR 2026-09-05c §1) — Postgres, storage, backups and logs **in India**;
-PITR on (7 d proposed); daily encrypted snapshots 35 d; monthly 12 mo; KMS key for `phone_ct` (ADR 05c §4).
-1. Create an organisation and a project on the **Pro** plan (PITR is a paid add-on), region **Mumbai `ap-south-1`**. Name: `rukka-folio-dev` (a second `rukka-folio-pilot` project comes before Phase D).
-2. Enable **PITR** (7 d) under Database → Backups. Confirm the backup region is the same.
-3. Generate a personal access token → `supabase login` locally (or `SUPABASE_ACCESS_TOKEN` in `.env`).
-4. Hand back: project ref, URL, anon key → `.env`; service-role key stays in Supabase → Edge Functions → Secrets, never in the app or repo.
-5. Decide the KMS for the phone-number key (Supabase Vault vs an external KMS) — 03 §11 item 6 is still ⚠️; lane S will default to **Vault** unless told otherwise.
+PITR on (7 d proposed); daily encrypted snapshots 35 d; monthly 12 mo; restore drill into an **isolated**
+project. Setup SQL, secrets and ops checklist: `server/README.md` §3–§5 (the one place they are kept).
+
+**Why two projects, not one.** Each reason is a property of this repo, not a convention:
+- **Dev builds are unpinned.** An empty `RF_SPKI_PINS` is the local-dev set, the only build allowed to
+  disable pinning (`app/lib/bootstrap.dart:97-105`). Pointed at a project holding real data, any dev build
+  would reach it without the 05 §1 🔒 pin.
+- **Different keys, different blast radius.** A leaked dev `RF_PHONE_KEK` or `RF_JWT_HMAC_KEY` exposes
+  synthetic numbers and dev sessions; the pilot's keys never leave its own secrets.
+- **Migrations are one-way.** `supabase db push` has no undo and the ledger is append-only, so every
+  migration lands on dev first. A mistake on dev is a reset; on the pilot it is a restore and an epoch bump.
+- **The backup 🔒 applies where real data lives.** Dev holds synthetic data only, so it can run on Free.
+- **The restore drill needs a second project** to restore into (ADR 05c §1). Free allows 2 active projects,
+  so on Free the drill means pausing dev for its duration.
+
+| | `rukka-folio-dev` | `rukka-folio-pilot` |
+|---|---|---|
+| Data | synthetic only | real families |
+| Plan | **Free** ($0, owner 25 Sep) | ⛔ **owner:** Pro + PITR (≈ $125/mo) **or** an ADR amending 05c §1 — Free has no daily backups and no PITR (supabase.com/pricing, fetched 25 Sep) |
+| When | now | before Phase D |
+| App reaches it via | `<ref>.supabase.co`, local-dev build (pinning off) | `api.rukkafolio.com` only (item 10) |
+| OTP | ⛔ item 3 — nobody can sign in until a real provider is set | MSG91 on the owner's DLT |
+| Keys | dev values | production; custody per ADR 05g Open 4 |
+| Free-plan caveat | paused after 1 week with no requests — unpause in the dashboard | — |
+
+Steps for `rukka-folio-dev`:
+1. Create an organisation on **Free** and the project `rukka-folio-dev`, region **South Asia (Mumbai)
+   `ap-south-1`**. If Mumbai is not offered on Free, stop: the residency 🔒 rules the plan out.
+2. `supabase login`; from `server/`: `supabase link --project-ref <ref>`, then `supabase db push`
+   (never `--include-seed` — `seed.sql` is local-only).
+3. Create the two login roles and set the function secrets — `server/README.md` §3 and §5.
+4. `supabase functions deploy sync-push sync-pull sync-meta auth-challenge billing-webhook --no-verify-jwt`;
+   private `attachments` bucket (10 MB); platform sign-ups and providers off.
+5. Hand back: project ref + URL → `.env`. The anon key is **not** needed (nothing in `app/lib` sends it), and
+   the functions never read the service-role key (`_shared/env.ts` lists every variable they read).
+6. Still open: Vault vs an external KMS for the phone keys and `RF_ENTITLEMENT_KEY` (03 §11 item 6, ADR 05g
+   Open 4). Vault is the default unless the owner says otherwise.
 
 ## 2. Apple developer account + TestFlight — needed by Phase B (14 Sep) ⛔
 1. Enrol at developer.apple.com. **Organization** enrolment needs a D-U-N-S number (1–2 weeks); **Individual** is same-day — start Individual now if the company entity is not ready, transfer later.
@@ -28,7 +59,25 @@ PITR on (7 d proposed); daily encrypted snapshots 35 d; monthly 12 mo; KMS key f
 ## 3. OTP / SMS provider — needed by Phase B ⛔
 Spec: 06 §2 as amended by **ADR 2026-09-25 §1** — **SMS only**, on the owner's own DLT registration; provider behind an interface (`Msg91Provider` unless another is picked). Invitations are sent by the inviter from their own phone (§2), so no invite template is needed.
 1. Register on **TRAI DLT**: principal entity, a 6-character sender ID, and **one OTP template** (e.g. *"{#var#} is your Rukka Folio code. It expires in 5 minutes. Never share it."*). This is the long pole: 1–2 weeks. Have the business PAN/GST ready (whether an individual can register was not checked).
-2. Open an account with the provider and bind it to the DLT entity. Until DLT clears, the dev project runs on fixed test codes (`FakeOtpProvider`).
+2. Open an account with the provider and bind it to the DLT entity.
+   **Provider: 2Factor** (owner, 25 Sep) — ADR 2026-09-25 §1 lets the owner pick another than MSG91; the
+   server has only `Msg91Provider` today, so a 2Factor adapter behind `OtpProvider` is a `lane-server` row.
+   ⚠️ **Fixed dev codes are ruled but not built.** ADR 2026-09-25 §1 says the dev project uses fixed test
+   codes until DLT clears, and never in pilot or production. Today `FakeOtpProvider` keeps the code in
+   memory and sends nothing (`_shared/otp/provider.ts:10-20`), the code is random
+   (`auth-challenge/index.ts:119,448`) and only its hash is stored — so **no one can sign in to a hosted
+   project yet.** Build row for `lane-server` (`E-25-1`, `C-25-1`), with review: the fixed code must be
+   impossible on the pilot project.
+4. The template — one for all four OTP moments (06 §2: signup, device activation, phone-number change,
+   account-deletion confirmation, each a proof of holding the number), English, GSM-7, 150 characters with
+   the code, so one SMS segment. Sender ID `RUKKAF` (fallback `RUKKFO`).
+   - DLT portal: `{#var#} is your Rukka Folio phone verification code. Valid for 5 minutes. Never share it with anyone, even Rukka Folio staff. Not you? Ignore this SMS.`
+   - 2Factor (same text, its own variable syntax): `#VAR1# is your Rukka Folio phone verification code. Valid for 5 minutes. Never share it with anyone, even Rukka Folio staff. Not you? Ignore this SMS.`
+   - One variable only: the server holds no name to greet with. 5 minutes is `OTP_TTL_S`
+     (`auth-challenge/index.ts:43`); change both together or neither. *Even Rukka Folio staff* is true by
+     06 §8 (owner-locked): support never has a code read back to it.
+   - Straight ASCII apostrophes and quotes only: one curly character makes the SMS Unicode (70 characters
+     per segment) and triples its cost.
 3. Hand back: provider name, DLT entity id, template id → `.env`; API key → Supabase secrets.
 
 ## 4. Sample banks (4) + synthetic statements — needed by Phase C ⛔
@@ -64,5 +113,28 @@ Spec: ADR 2026-09-06 §1 — a one-hour review of `packages/core_crypto/lib/src/
 ## 9. Pilot families (3–5) — October ⛔
 Spec: 10 M14 pilot month.
 1. Shortlist five households (mix of joint family + at least one with a shop/business book); ask three to commit to October.
-2. Each needs: iPhones for at least two members (TestFlight), a WhatsApp number, and willingness to enter real money for a month — the app is zero-knowledge, but say so plainly.
+2. Each needs: iPhones for at least two members (TestFlight), a mobile number that receives SMS (OTP is SMS-only, ADR 2026-09-25 §1; invitations travel by whatever app the inviter picks, §2), and willingness to enter real money for a month — the app is zero-knowledge, but say so plainly.
 3. Hand back: count and start date for PLAN §1 Phase D.
+
+## 10. API origin `api.rukkafolio.com` — needed by the first build that is not local-dev ⛔
+Spec: ADR 2026-09-15 rulings 1–3; runbook `docs/ops/tls-pinning-runbook.md`. Until it exists no hosted build
+can be configured — `spkiPins()` fails closed by design. Supabase's Custom Domains add-on is not used.
+1. A small server **in Mumbai**, same region as the project. Cheapest verified option: AWS Lightsail
+   Mumbai, $5/mo with public IPv4, 512 MB, 0.5 TB transfer (aws.amazon.com/lightsail/pricing, fetched
+   25 Sep). Not the $3.50 IPv6-only plan: phones on IPv4-only WiFi could not reach it.
+2. Generate the live key pair **and** an offline backup pair, once (runbook §1). Issue with the key reused
+   (runbook §2); pass the runbook §5 gate — force one renewal, refuse to ship if the pin moved.
+3. Reverse-proxy to `<ref>.supabase.co` (Caddy suggested in the runbook).
+4. Hand back: the two SPKI pins → `--dart-define=RF_SPKI_PINS=<live>,<backup>`; the base URL
+   `https://api.rukkafolio.com/functions/v1/` → `RF_API_BASE`.
+
+## 11. Domain, DNS and support mail — needed before the pilot ⛔
+Spec: ADR 2026-09-15 ruling 4; runbook §7–§8; ADR 2026-09-25 §4.
+1. ✅ `rukkafolio.com` is registered at **Cloudflare** (owner, 25 Sep), so Cloudflare is the DNS host.
+   Whether `rukkafolio.app` is registered too was not checked — ruling 4 holds it and 301s it to `.com`.
+2. `api.rukkafolio.com` → the item-10 server, **DNS only (grey cloud)**. A proxied record puts
+   Cloudflare's key in front of the pin and every installed app hard-fails.
+3. `support@rukkafolio.com` must exist before the pilot: Cloudflare Email Routing forwarding to the owner's
+   inbox; SPF and DKIM from a sending provider if replies go out from that address.
+4. Certificate Transparency monitoring for `rukkafolio.com` (runbook §8 — owner unassigned). HSTS preload only
+   once the site is live (runbook §7).

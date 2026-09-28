@@ -16,7 +16,7 @@ commit (ADR 2026-09-05i §4) and re-lands with the build row named under *Conseq
 
 ## Rulings 🔒 ⟦tests: n/a — container heading; each ruling below carries its own marker⟧
 
-### 1. The recovery candidate is its own X25519 pair, one per attempt (desk 12) ⟦tests: B-24b-1 @M11, F1-24b-1 @M11⟧
+### 1. The recovery candidate is its own X25519 pair, one per attempt (desk 12) ⟦tests: B-24b-1, F1-24b-1⟧
 - 04 §7.3 step 1's *candidate X25519 pair* is **not** the new device's `pub_x`. The device mints a
   dedicated pair when it opens a recovery attempt and stores it in the platform key store until the
   attempt closes (approved, cancelled, denied or expired). Guardians re-seal to that pair's public
@@ -32,7 +32,7 @@ commit (ADR 2026-09-05i §4) and re-lands with the build row named under *Conseq
 - While the other person's row still has `pub_ed` only, the ceremony fails closed **and says so**:
   it tells the user to ask them to open the app once. The ceremony never fails silently.
 
-### 3. An uncertified device may ask one yes/no question about its own guardians (desk 16) ⟦tests: E-24b-1 @M11, F1-24b-4 @M11⟧
+### 3. An uncertified device may ask one yes/no question about its own guardians (desk 16) ⟦tests: E-24b-1, F1-24b-4 @M11⟧
 - **Amends ADR 2026-09-05d §2** by one read. An uncertified device may learn whether **its own
   user** (`user_id = rf.user_id()`) has a current guardian set. The answer is a boolean: no k, no n,
   no member identity, no share, no generation. The read is deliberately **not** gated on
@@ -57,7 +57,7 @@ commit (ADR 2026-09-05i §4) and re-lands with the build row named under *Conseq
 - The R2.1 canvas gains an unchecked row (owner, in the design project), so the rendering becomes a
   design decision and stops being a lane's.
 
-### 6. The entitlement token carries `grace_until` (desk 22) ⟦tests: E-24b-2 @M13, F1-24b-5 @M13⟧
+### 6. The entitlement token carries `grace_until` (desk 22) ⟦tests: E-24b-2, F1-24b-5 @M13⟧
 - **Amends ADR 2026-09-05g §1 and 08 §3.** The field set is
   `{tenant_id, plan, limits, period_end, grace_kind, grace_until, iat, exp}`. `grace_until` is null
   unless `grace_kind = dunning`, in which case it is `subscriptions.grace_until`. §4's

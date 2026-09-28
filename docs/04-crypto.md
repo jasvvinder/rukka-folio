@@ -145,7 +145,7 @@ BK wrapped only to the owner's UMK (+ optional escrow §7.5). No admin path exis
 - **QR payload:** `base64url( suite_version ‖ user_id ‖ UMK_pub_ed ‖ UMK_pub_x ‖ nonce )`.
 - **8-digit code 🔒 (ADR 2026-09-13d §1, ratified 13 Sep 2026):** a **commitment-based SAS**, not a function of server-held values. The invitee (shower) draws `r_S`, publishes `commitment = BLAKE2b-256(FP_S ‖ user_id ‖ r_S ‖ tag)`; the verifier draws `r_V` **only after** holding that commitment and the relayed key; the invitee then opens `r_S` once. The code is `decimal( first4bytes( BLAKE2b-256( FP ‖ user_id ‖ r_S ‖ r_V ‖ tag ) ) ) mod 10⁸`, zero-padded. The **invite nonce stays in the QR payload only** and no longer derives any code. The superseded derivation was `BLAKE2b-256( FP ‖ nonce ‖ "verify-v1" )` over a **server-generated** nonce, which a substituting relay could pre-compute — see §10. ⟦tests: B-04-86, B-04-87, B-04-88, B-04-89⟧
 
-> **ADR 2026-09-25b §1–§4** — the inviter's device draws the nonce; the invitee is handed its own invite's nonce on `GET /sync-meta/invites` and on accept, and never draws one; *Regenerate* opens a fresh session and keeps the nonce. ⟦tests: E-25b-1 @M11, E-25b-2 @M11, F1-25b-1 @M11, F1-25b-2 @M11⟧
+> **ADR 2026-09-25b §1–§4** — the inviter's device draws the nonce; the invitee is handed its own invite's nonce on `GET /sync-meta/invites` and on accept, and never draws one; *Regenerate* opens a fresh session and keeps the nonce. ⟦tests: E-25b-1, E-25b-2, F1-25b-1, F1-25b-2⟧
 
 ### 6.2 Screens
 - Invitee → **Show my code**: large QR, the 8 digits printed beneath **once the verifier has begun** (ADR 2026-09-13d §5 🔒 — the digits cannot exist before `r_V` arrives, so the screen waits). One screen for every mode. ⟦tests: F1-13d-1⟧
@@ -186,7 +186,7 @@ Standard device linking (§9.1).
 5. Its possession of UMK lets it decrypt all wrapped BKs → full restore.
 6. The device **self-issues its certificate** under the recovered UMK and 🔒 notifies all members and revokes all *previous* device sessions of this user (a recovery event is exactly when old devices should die). **If the user still has an active certified device, steps 4–6 wait 24 h behind a one-tap Cancel on every existing device (ADR 2026-09-05d §1); immediate only when none exists.**
 7. Guardian denial → requester notified; 3 denials or 72 h → recovery attempt closed and logged.
-> **ADR 2026-09-24b §1** — the *candidate X25519 pair* is its own pair, minted per attempt and held in the key store until the attempt closes; it is never this device's `pub_x`, never wraps a BK, and is zeroised after reconstruct and on every close. ⟦tests: B-24b-1 @M11, F1-24b-1 @M11⟧
+> **ADR 2026-09-24b §1** — the *candidate X25519 pair* is its own pair, minted per attempt and held in the key store until the attempt closes; it is never this device's `pub_x`, never wraps a BK, and is zeroised after reconstruct and on every close. ⟦tests: B-24b-1, F1-24b-1⟧
 
 ### 7.4 Rung 3 — paper sheet 🔒 ⟦tests: B-04-15, B-04-16, B-04-17, B-04-18, F1-06-40, E-06-58, E-06-60, E-06-61, C-06-39, F1-06-47, F1-06-48, F1-06-49, F1-06-50, F1-06-51, F1-06-52, F1-06-56, F1-06-63, F1-06-64, F1-06-65, F1-06-79, F1-06-80, F1-06-81, F1-06-82, F1-06-83, F1-06-93, F1-07-342, F1-07-343, F1-07-344⟧
 - `RK` = random 256-bit, generated at signup. Server stores `sealed_RK_blob = XChaCha20(RK, UMK_priv)`.

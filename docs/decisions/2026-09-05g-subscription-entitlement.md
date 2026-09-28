@@ -29,7 +29,7 @@ sign. Tokens travel on the meta channel (05 §5) and are refreshed on every meta
 no valid token is *Free*, never *locked*. Nothing about a token is content: the server signs what
 it already knows.
 
-> **Amended by ADR 2026-09-24b §6, §7** — the field set gains `grace_until` (null unless `grace_kind = dunning`); a lapsed tenant's `period_end` is clamped to `iat`; unlimited is `-1`; no key id — the app tries both pinned keys during the overlap. ⟦tests: E-24b-2 @M13, E-05-15, G-08-5⟧
+> **Amended by ADR 2026-09-24b §6, §7** — the field set gains `grace_until` (null unless `grace_kind = dunning`); a lapsed tenant's `period_end` is clamped to `iat`; unlimited is `-1`; no key id — the app tries both pinned keys during the overlap. ⟦tests: E-24b-2, E-05-15, G-08-5⟧
 
 ### 2. Enforcement — hard server-side, soft client-side, never on content
 **Hard caps** are enforced by the server at the three plaintext choke points: invite creation

@@ -9,7 +9,7 @@ and 08 §4 (full export forever), ADR 2026-09-25 §7 (receipts next phase).
 Canvas 17 *Reports and statements* (design project, drawn 25 Sep; `design/canvas-mirror/CHANGES.md`, 27 Sep)
 draws every export as A4 pages. Its edge case **6a** and the PDF options sheet print an entry that is waiting
 for approval but leave it out of the balance and totals, with the option *Show, not counted / Leave out*.
-The canvas's example is an ordinary *Counter cash sales* entry (`reports-data.js:564`). That contradicts 02 §3 🔒,
+The canvas's example is an ordinary *Counter cash sales* entry (`reports-data.js:564`). That contradicts 02 §3 🔒 ⟦tests: n/a — citation, not behaviour⟧,
 under which every entry counts the moment it is saved. A printed page that silently differs from the book is
 the failure 13 §10 #5–#6 exist to prevent. The owner ruled on 27 Sep 2026 that a statement or report is not
 generated or exported until the entries in it are approved. On the same day the owner chose the scope (the
@@ -31,7 +31,7 @@ chose S8.4 for the new screen.
   Only the file waits.
 
 ### 2. The full backup is exempt ⟦tests: F1-27-5 @M12⟧
-- **Export everything** (06 §9.2) is never gated by approvals. 08 §4 🔒 (*data is never held hostage*) stands,
+- **Export everything** (06 §9.2) is never gated by approvals. 08 §4 🔒 ⟦tests: n/a — citation, not behaviour⟧ (*data is never held hostage*) stands,
   including when a plan has lapsed or when an approver is absent.
 
 ### 3. Nothing prints with a pending entry left out ⟦tests: F1-27-3 @M12⟧

@@ -12,6 +12,106 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-28 — M11 cycle 2: S9.2 binds the relayed nonce (NONCE2), S17.3 email support (SUP1), guardian bit + `grace_until` (SRV1)
+
+A second `/cycle` today, with three slices in disjoint directories: build → read-only review → adversarial verify → one repair round.
+The reviewer raised 5 findings; the verifiers refuted 1, and the 4 that survived were repaired in round 1.
+Cost: 18 agents and about 2.0 M tokens. Owner-directed past the 1.2 M daily ceiling; no `daily_overrides` entry was written.
+**Push gate green.** It made whitespace-only `dart format` fixes to three test files. RLS was run separately with `RLS_REQUIRE=1` against a fresh local Postgres (0001–0017): **156 passed, 0 failed**.
+Reports are filed as `M11-{NONCE2,SUP1,SRV1}{,.review}.json`; SUP1 is an M12 row and SRV1's §6 half is an M13 row.
+The two server slices were merged into SRV1 because both edit `_shared/store{,_mem,_pg}.ts`.
+
+**Added**
+
+- **NONCE2 (ADR 2026-09-25b §3+§4):**
+  - `app/lib/features/members/invite_nonce_relay.dart` pairs the relayed nonce to the ceremony's invite by `invite_id`. It is bound through `buildLiveCeremonySessions` in `bootstrap.dart`.
+  - `members_api.dart` decodes `nonce` and `status`.
+  - S9.2 never draws a nonce. With none relayed it opens `s9_2_no_invite_screen.dart`, which says why.
+  - *Regenerate* keeps the nonce and opens a fresh session.
+  - Tests: `F1-25b-1`, `F1-25b-2`; the `F1-24b-3` bootstrap pin is extended.
+- **SUP1 (ADR 2026-09-25 §4):**
+  - `app/lib/features/help/support_mailer.dart` is a seam over `url_launcher` 6.3.2. It opens a bare `mailto:support@rukkafolio.com` and never calls `canLaunchUrl`.
+  - S17.3 is an email card. A failed launch names the address and offers copy.
+  - Tests: `F1-07-397` re-landed as the email row, `F1-07-409` is now the failed-launch test, and `F1-25-4` is added.
+- **SRV1 (ADR 2026-09-24b §3, §6):**
+  - `0016_has_guardian_set.sql` and `GET /sync-meta/recovery/has-guardian-set` → `{has_guardian_set: bool}`, bounded to the caller's own user (`E-24b-1`, route and hostile-query suites).
+  - The entitlement token mints `grace_until` (`E-24b-2`). No migration was needed, because 0014 stores opaque signed bytes.
+
+**Changed**
+
+- SRV1 repair: `0017_recovery_guard_helpers_private.sql` makes 0010's `rf.recovery_request_guard` SECURITY DEFINER and revokes rf_api's EXECUTE on five helpers that each take an arbitrary subject. Until now any API session could read any user's guardian (version, k, n), readiness, device liveness and open-attempt count. It was not a wire leak, but it bypassed 0005's policies.
+- SRV1 repair: an expired tenant with a null period end now mints `period_end = iat` (ADR 24b §7a). `G-08-5` and `E-05-15` are re-landed, no longer ignored.
+- `entitlement.ts` and `registry.ts`: the ⚠️ SPEC comments are rewritten as citations of ADR 24b §6/§7.
+- SUP1: the WhatsApp door and its stale "waiting on a handle / ADR 19" comments are gone from `features/help`.
+- Docs markers: `@M11`/`@M12`/`@M13` dropped for the ids now green (`E-24b-1`, `E-24b-2`, `F1-25b-1/2`, `F1-25-4`) in 04 §6.1, 08 §3, ADR 05d, 05g, 24b, 25 and 25b. `F1-24b-4`/`F1-24b-5` keep theirs. `check_coverage --strict` ok.
+- PLAN.md: the four rows are updated, §0 is updated, and desk items 41–47 are added.
+
+**Open**
+
+- Desk 41: the accepted `invite_id` lasts one launch, so after a restart S9.2 can't pair its nonce.
+- Desk 42: an invitee's ceremony session is created in their own solo tenant rather than the inviter's.
+- Desk 43: may the S17.4 report ride in the support email?
+- Desk 44: should the email card warn against sharing amounts?
+- Desk 45: three readings in `0016`.
+- Desk 46: dunning with a null `grace_until`.
+- Desk 47: WhatsApp wording in DESIGN-PACK and `settings_en.arb`; the deferred `fresh` flag drop.
+- Next build: the client halves `F1-24b-4` (rung-2 probe) and `F1-24b-5` (client reads `grace_until`), and the S9.3 route fix.
+- Ops: apply `0016` and `0017` before the edge deploy that serves the new route.
+
+**Commits**
+
+-
+
+---
+
+## 2026-09-28 — M11 cycle: invite nonce relay (INV1), per-attempt recovery candidate (RC1), khata export close (RPT2), owner set (OWN1)
+
+One `/cycle` of four slices in disjoint directories (build → read-only review → adversarial verify → one repair round).
+The reviewer raised 12 findings; the verifiers refuted 4, and the 8 that survived were all repaired in round 1.
+Cost: 40 agents and about 4.0 M tokens. **Push gate green** on its second run (the first stopped at coverage, see Changed). The RLS suite was run separately with `RLS_REQUIRE=1` against local Postgres: 139 passed, 0 failed, 2 ignored. That covers `E-25b-2` and `0015`, which the push lane skips without `RF_TEST_DB_URL`.
+All four reports are filed as `M11-*`, including RPT2 (an M12 row) and OWN1 (an M9 row).
+
+**Added**
+
+- **INV1 (ADR 2026-09-25b §1+§2):**
+  - `server/supabase/migrations/0015_my_invites_nonce.sql`: `rf.my_invites()` now returns the invitee's own invites at `sent`, or accepted by the caller, within 7 d, with `nonce` and `status`.
+  - `store*.ts`, `GET /sync-meta/invites` and `POST /invites/accept` carry the nonce.
+  - Tests: `E-25b-1` (`_tests/invite_nonce_relay.test.ts`) and hostile-query `E-25b-2` (`tests/rls/invite_nonce.test.ts`).
+- **RC1 (ADR 2026-09-24b §1):**
+  - `RecoveryCandidateKeyPair` can be rebuilt from its secret (`keys.dart`, `B-24b-1`).
+  - `app/lib/shared/sync/recovery_candidate.dart` mints the pair per attempt, holds it in the key store and zeroises it on close and after reconstruct. It is wired at `bootstrap.dart:432` (`F1-24b-1`). `F1-06-35` stays green.
+- **RPT2:** `app/lib/features/reports/widgets/file_name_message.dart` wraps a file name at any character (`F1-07-434`, ADR 24b §10). It measures with the style the text is actually drawn in.
+- **OWN1:** `OnboardingFlow.ownerSeeds` carries `isYou`. Tests `F1-07-540…542`; `F1-07-544` is `@skip` and genuinely fails (see desk 35).
+
+**Changed**
+
+- RPT2 (ADR 24b §9): statement exports close with c/d · Total · b/d and no c/f row, in PDF, CSV and XLSX. The on-screen FY view keeps c/f. `F1-07-162/163/164/166` re-landed.
+- RC1 / RV6: the retired `verificationCode` and `CodeChallenge` are deleted from `core_crypto/ceremony.dart`. `B-04-87` now pins the birthday collision against a test-local copy of the retired formula, plus a scan of lib/.
+- INV1: the out-of-date `umk_pub_x` comments in `_shared/store.ts` and `sync-meta/index.ts` now cite ADR 24b §2. `E-06-32` was flipped to assert the nonce is present. `server/README.md` updated.
+- PLAN.md: desk items 35–40.
+- `docs/decisions/2026-09-27-report-export-waits-for-approval.md`: lines 12 and 34 gain `⟦tests: n/a — citation, not behaviour⟧`. Each cites another doc's 🔒 (02 §3, 08 §4) and rules nothing itself. `check_coverage --strict` had stopped the push gate at the coverage step. No wording changed.
+- Gate fixes (mechanical): `dart format` on four test files.
+- Landed `@M11` suffixes dropped (the checker named them): `E-25b-1/2` in ADR 25b §1/§2, 04 §148 and 06 §150; `B-24b-1`/`F1-24b-1` in ADR 24b §1 and 04 §189.
+- PLAN.md §0 moved to 28 Sep. ✅ ADR 24b §1, RV6, the candidate-pair ruling, the stale comments, ADR 25b §1+§2 and ADR 24b §9+§10. Owner set → ⛔ OWN2. New ⬜ rows: recovery step 4, and the *Show my code* QR.
+
+**Open**
+
+- Desk 35: ADR needed on the owner set of a shared business. Invited co-owners have no member id at creation, and `createBook` takes all ids or none. It blocks OWN2.
+- Desk 36: `status` on the invite rows is not named in ADR 25b §2.
+- Desk 37: a revoked phone with an unexpired token can still read its user's offers.
+- Desk 38: the recovery key is zeroised after any reconstruct; it is not biometric-bound.
+- Desk 39: no *start a new attempt* action after a recovery attempt closes.
+- Desk 40: `E-06-32` was flipped in place rather than `@Skip`ped.
+- Not reachable yet: the recovery step that uses the key (fetch the re-sealed shares, adopt the UMK). The *Show my code* QR must show the key the phone holds.
+- Docs: the `@M11` markers on ADR 25b §1/§2, ADR 24b:19 and `04-crypto.md:189` drop once the gate is green.
+- Next: ADR 25b §3+§4 (client nonce binding, now unblocked); the scanner build (ADR 2026-09-19); the S9.3 fix.
+
+**Commits**
+
+- (pending: owner commits)
+
+---
+
 ## 2026-09-27 — design-sync: Canvas 17 pulled; report exports wait for approval; month close waits for every phone
 
 A `/design-pull` with no lanes. Of the mirrored screen sources, only one file differed, and the remote copy was

@@ -54,7 +54,7 @@ business-book table (`tier_catalogue.dart:106–160`, `registry.ts:40–96`).
 - Test fixtures are synthetic statements, one per bank, from SBI, Axis, HDFC and ICICI. The owner synthesises them
   from real exports on their own machine, so no real statement enters the repo.
 
-### 4. Support: FAQs and email for the pilot, in-app AI chat before launch ⟦tests: F1-25-4 @M12⟧
+### 4. Support: FAQs and email for the pilot, in-app AI chat before launch ⟦tests: F1-25-4⟧
 - **Amends 07 §22, 13 §3.2 S17.3 and DESIGN-PACK S17.3** (*"WhatsApp primary … because these users will never
   email"*).
 - **Pilot:** S17 FAQs plus **email** to `support@rukkafolio.com`. S17.3's primary action is *Email support*; S17.4's

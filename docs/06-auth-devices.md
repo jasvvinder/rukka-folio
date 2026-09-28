@@ -147,7 +147,7 @@ expired (one-tap re-invite)      blocked + security event (admin unblock only
 - **Every transition and every role/limit/designation change is a signed record authored on a certified admin device (ADR 2026-09-05b §1); the server's rows are its copy of them, and a client acts only on the verified record.** Role changes later are database-only if within already-held books; granting a *new* book wraps that BK (no new ceremony — the human is already verified); removal follows 04 §5.3 with the ledger's advance-settlement precondition.
 - Trustee/treasurer handover (organizations) = invite-with-ceremony for the incoming + removal for the outgoing, in one guided flow.
 
-> **ADR 2026-09-25b §2** — the invitee's own invite rows (at `sent`, or accepted by the caller, within the 7-day window) and the accept response carry the invite's `nonce`; scope is unchanged. ⟦tests: E-25b-1 @M11, E-25b-2 @M11⟧
+> **ADR 2026-09-25b §2** — the invitee's own invite rows (at `sent`, or accepted by the caller, within the 7-day window) and the accept response carry the invite's `nonce`; scope is unchanged. ⟦tests: E-25b-1, E-25b-2⟧
 
 ---
 
