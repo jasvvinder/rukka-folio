@@ -5,8 +5,8 @@
 // `server/supabase/migrations/0010_recovery_guardian_write_side.sql` and the
 // `pull` + `recovery` blocks of
 // `server/supabase/functions/sync-meta/index.ts`, pinned by
-// `server/supabase/functions/_tests/recovery_meta.test.ts`. Two routes, one
-// read and one write:
+// `server/supabase/functions/_tests/recovery_meta.test.ts`. Three routes,
+// two reads and one write:
 //
 //   • GET  `sync-meta`  → the meta pull. Its `guardian_sets` array is the
 //     **whole history** of the caller's sets, one entry per
@@ -19,6 +19,12 @@
 //   • POST `sync-meta/recovery/guardians`
 //     `{share_set_version, k, n, guardians:[{guardian_user_id, umk_pub_ed,
 //     blob}]}` → `{share_set_version}`.
+//   • GET  `sync-meta/recovery/has-guardian-set` → `{has_guardian_set: bool}`
+//     (ADR 2026-09-24b §3 🔒, migration `0016_has_guardian_set.sql`). The one
+//     read an **uncertified** device may make about its guardians: whether
+//     its own user (`rf.user_id()`, from the claims) has a current set. No
+//     query parameter is sent — the server reads none, and a subject here
+//     would be the enumeration oracle the ADR forbids.
 //
 // **What the server does with the write** (`store_pg.publishGuardianSet`):
 // the set row is inserted for `rf.user_id()` — *the authenticated user*, not
@@ -82,6 +88,9 @@ final class GuardiansEndpoints {
 
   /// `POST sync-meta/recovery/guardians` — 04 §7.3 Setup.
   Uri get publish => base.resolve('$function/recovery/guardians');
+
+  /// `GET sync-meta/recovery/has-guardian-set` — ADR 2026-09-24b §3.
+  Uri get hasGuardianSet => base.resolve('$function/recovery/has-guardian-set');
 }
 
 /// One guardian as the **read** side names them (⚠️ WIRE `pull`'s
@@ -258,6 +267,16 @@ abstract interface class GuardiansApi {
   /// meta pull carries it. Empty when no set was ever published.
   Future<List<GuardianSetWire>> sets();
 
+  /// Whether this user has a **current** guardian set, as the server alone
+  /// can say to a device that may not read the set itself (ADR 2026-09-24b
+  /// §3 🔒). One bit: no k, no n, no member, no share.
+  ///
+  /// Throws [RecoveryApiFailure] for a refusal, a transport that never
+  /// answered, and a body whose `has_guardian_set` is not a JSON boolean. A
+  /// malformed answer is **never** `false`: `false` is the reading that tells
+  /// a locked-out person they set nobody up.
+  Future<bool> hasGuardianSet();
+
   /// Publishes the next generation. [shares] is one sealed share per
   /// guardian; `n` is its length and `k` is the caller's (the seam's
   /// `guardianThreshold`, 04 §7.3 🔒). Returns the version the server filed.
@@ -319,6 +338,27 @@ final class HttpGuardiansApi implements GuardiansApi {
       for (final s in (body['guardian_sets'] as List<Object?>? ?? const []))
         if (s is Map) GuardianSetWire.fromJson(s.cast<String, Object?>()),
     ];
+  }
+
+  @override
+  Future<bool> hasGuardianSet() async {
+    // Same transport, same Bearer, same refusal mapping as [sets]. No query:
+    // the subject is the claims' user and nothing else (⚠️ WIRE
+    // sync-meta/index.ts `recovery`, "Query parameters are NOT read").
+    final body = await _send(
+      () async =>
+          _http.get(_endpoints.hasGuardianSet, headers: await _headers()),
+    );
+    final bit = body['has_guardian_set'];
+    if (bit is! bool) {
+      // `_send` reads a non-JSON or non-object 200 as `{}`, so every
+      // unreadable shape lands here too.
+      throw const RecoveryApiFailure(
+        RecoveryRefusal.server,
+        'has_guardian_set is not a boolean',
+      );
+    }
+    return bit;
   }
 
   @override

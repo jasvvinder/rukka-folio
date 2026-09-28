@@ -690,9 +690,14 @@ void main() {
           .toList();
       expect(installed, hasLength(1), reason: 'one scope, naming a factory');
       expect(installed.single.group(1), built.single.group(1));
+      // ADR 2026-09-19 ruling 1 🔒 (F1-07-312): the same scope carries the
+      // real camera as a per-screen factory, and still wraps the app itself.
       expect(
-        RegExp(r'CeremonyScope\(\s*sessions:\s*\w+\s*,\s*child:\s*app\s*,')
-            .hasMatch(root),
+        RegExp(
+          r'CeremonyScope\(\s*sessions:\s*\w+\s*,\s*'
+          r'newScanner:\s*MobileScannerCeremonyScanner\.new\s*,\s*'
+          r'child:\s*app\s*,',
+        ).hasMatch(root),
         isTrue,
         reason: 'it wraps the app itself, so every route reads it',
       );

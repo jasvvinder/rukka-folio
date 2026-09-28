@@ -46,11 +46,19 @@ dependencies:
   # app does not control. The QR is a *rendering* of a code core_crypto derives — never a
   # generator of one.
   qr: ^3.0.2
-  # S17.3 *Email support* (ADR 2026-09-19 ruling 2, amended by ADR 2026-09-25 §4): `mailto:` to the
-  # ONE support address, through `features/help/support_mailer.dart` only. `launchUrl` is called and
-  # `canLaunchUrl` never is, so no LSApplicationQueriesSchemes / <queries> config is added. Flutter
-  # team, BSD-3-Clause; url_launcher_ios links only Foundation/UIKit/SafariServices (ADR 2026-09-19 §4).
+  # `tel:` for R2.2/R2.3's *Call* controls (ADR 2026-09-19 ruling 2 🔒), through
+  # `shared/seams/dialer.dart` only, and S17.3 *Email support* (amended by ADR 2026-09-25 §4):
+  # `mailto:` to the ONE support address, through `features/help/support_mailer.dart` only.
+  # `launchUrl` is called and `canLaunchUrl` never is, so no LSApplicationQueriesSchemes /
+  # <queries> config is added. Flutter team, BSD-3-Clause; url_launcher_ios links only
+  # Foundation/UIKit/SafariServices (ADR 2026-09-19 §4).
   url_launcher: ^6.3.2
+  # The camera, for QR only (ADR 2026-09-19 ruling 1 🔒): S9.3, and S11.2/S11.3/S11.7's recovery
+  # scans, through `features/ceremony/mobile_scanner_adapter.dart` only — no screen imports it.
+  # BSD-3-Clause; iOS links Apple Vision + AVFoundation, Android CameraX + the bundled ML Kit
+  # barcode model (closed source — the residual the ADR accepts, network capture before the first
+  # Android release). The web platform stays disabled: its path loads a decoder from a CDN.
+  mobile_scanner: ^7.4.2
   # pure engine packages — the app never reimplements what they own
   core_ledger:
     path: ../packages/core_ledger

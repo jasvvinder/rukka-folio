@@ -185,5 +185,14 @@
   "recovery.approve.error": "हम यह अनुरोध खोल नहीं सके।",
   "@recovery.approve.error": {"description": "machine-draft — native review M12"},
   "recovery.approve.retry": "दोबारा कोशिश करें",
-  "@recovery.approve.retry": {"description": "machine-draft — native review M12"}
+  "@recovery.approve.retry": {"description": "machine-draft — native review M12"},
+
+  "recovery.call.failed": "यह फ़ोन कॉल शुरू नहीं कर सका। नंबर ख़ुद मिलाएँ।",
+  "@recovery.call.failed": {"description": "machine-draft — native review M12"},
+  "recovery.call.copy": "नंबर कॉपी करें",
+  "@recovery.call.copy": {"description": "machine-draft — native review M12"},
+  "recovery.call.copied": "नंबर कॉपी हो गया",
+  "@recovery.call.copied": {"description": "machine-draft — native review M12"},
+  "recovery.ask.call_number": "फ़ोन करें · {phone}",
+  "@recovery.ask.call_number": {"description": "machine-draft — native review M12"}
 }

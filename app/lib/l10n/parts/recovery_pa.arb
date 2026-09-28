@@ -185,5 +185,14 @@
   "recovery.approve.error": "ਅਸੀਂ ਇਹ ਬੇਨਤੀ ਖੋਲ੍ਹ ਨਹੀਂ ਸਕੇ।",
   "@recovery.approve.error": {"description": "machine-draft — native review M12"},
   "recovery.approve.retry": "ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
-  "@recovery.approve.retry": {"description": "machine-draft — native review M12"}
+  "@recovery.approve.retry": {"description": "machine-draft — native review M12"},
+
+  "recovery.call.failed": "ਇਹ ਫ਼ੋਨ ਕਾਲ ਸ਼ੁਰੂ ਨਹੀਂ ਕਰ ਸਕਿਆ। ਨੰਬਰ ਆਪ ਮਿਲਾਓ।",
+  "@recovery.call.failed": {"description": "machine-draft — native review M12"},
+  "recovery.call.copy": "ਨੰਬਰ ਕਾਪੀ ਕਰੋ",
+  "@recovery.call.copy": {"description": "machine-draft — native review M12"},
+  "recovery.call.copied": "ਨੰਬਰ ਕਾਪੀ ਹੋ ਗਿਆ",
+  "@recovery.call.copied": {"description": "machine-draft — native review M12"},
+  "recovery.ask.call_number": "ਫ਼ੋਨ ਕਰੋ · {phone}",
+  "@recovery.ask.call_number": {"description": "machine-draft — native review M12"}
 }

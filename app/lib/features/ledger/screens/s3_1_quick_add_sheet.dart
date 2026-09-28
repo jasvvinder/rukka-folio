@@ -36,6 +36,7 @@ import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/ledger/ledger_scope.dart';
 import '../../../shared/tokens.dart';
 import '../../../shared/widgets/rk_fit_text.dart';
+import '../../entry/entry_restriction.dart';
 
 /// One tile of step 1 (07 §6). Carries the engine shape the tile creates and
 /// how the opening-balance question is asked for it.
@@ -148,10 +149,20 @@ class _QuickAddSheetState extends State<QuickAddSheet> {
       });
       return;
     }
+    // S12.5 (ADR 2026-09-24b §13): read-only blocks opening balances from
+    // S3.1. The account and its opening figure are one action here, so the
+    // gate stands in front of both — an account without the balance the
+    // person typed would be half a save. Name and amount stay under the sheet.
+    // Both seams are read before the first await.
+    final sources = entryRestrictionSourcesOf(context);
     setState(() {
       _saving = true;
       _saveError = false;
     });
+    final refused = await refuseIfEntryRestricted(context, sources, [
+      widget.bookId,
+    ], onBlocked: () => setState(() => _saving = false));
+    if (refused || !mounted) return;
     try {
       final ledger = LedgerScope.of(context);
       final account = await ledger.addAccount(

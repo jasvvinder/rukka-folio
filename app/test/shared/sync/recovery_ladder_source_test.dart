@@ -10,12 +10,14 @@
 // The mirror of it is tested just as hard: a source that could not be reached
 // may not be turned into a refusal either. "You have no recovery sheet" said
 // to somebody holding one is how a person stops trying.
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/features/devices/devices_repository.dart';
+import 'package:rukka_folio/shared/seams/http_transport.dart';
 import 'package:rukka_folio/shared/seams/key_store.dart';
 import 'package:rukka_folio/shared/seams/recovery_ladder.dart';
 import 'package:rukka_folio/shared/sync/guardians_api.dart';
@@ -53,11 +55,26 @@ final class _Keys implements KeyStore {
 }
 
 final class _Guardians implements GuardiansApi {
-  _Guardians({this.history = const [], this.throws});
+  _Guardians({
+    this.history = const [],
+    this.throws,
+    this.hasSet,
+    this.bitThrows,
+  });
 
   final List<GuardianSetWire> history;
   final Object? throws;
   int reads = 0;
+
+  /// The has-guardian-set bit (ADR 2026-09-24b §3). **Null is "the route did
+  /// not answer"** — the default, so every older rung-2 test runs against a
+  /// server that has not said yes or no, which is exactly what *empty ≠
+  /// denial* (F1-06-70…73) is about.
+  final bool? hasSet;
+
+  /// When set, [hasGuardianSet] throws it instead.
+  final Object? bitThrows;
+  int bitReads = 0;
 
   @override
   Future<List<GuardianSetWire>> sets() async {
@@ -65,6 +82,16 @@ final class _Guardians implements GuardiansApi {
     final t = throws;
     if (t != null) throw t;
     return history;
+  }
+
+  @override
+  Future<bool> hasGuardianSet() async {
+    bitReads++;
+    final t = bitThrows;
+    if (t != null) throw t;
+    final bit = hasSet;
+    if (bit == null) throw const RecoveryApiFailure(RecoveryRefusal.offline);
+    return bit;
   }
 
   @override
@@ -706,68 +733,250 @@ void main() {
       );
     });
 
-    test('F1-06-92 `noTrustedMembers` is UNREACHABLE from the live probe, and '
-        'that is the point: an uncertified phone cannot tell an empty '
-        'set-history from one RLS filtered it out of, so it never says "you '
-        'set nobody up" to somebody who has five', () async {
+    // F1-06-92 used to assert that `noTrustedMembers` was UNREACHABLE from the
+    // live probe. ADR 2026-09-24b §3 made it reachable — through the
+    // has-guardian-set bit and nothing else — so the test is re-landed as the
+    // part of it that still holds: the `guardian_sets` read ALONE never
+    // produces the denial. The new door is F1-24b-4, below.
+    test('F1-06-92 (re-landed under ADR 2026-09-24b §3) the `guardian_sets` '
+        'read ALONE never reaches `noTrustedMembers`: an uncertified phone '
+        'cannot tell an empty set-history from one RLS filtered it out of, so '
+        'while the has-guardian-set bit is unanswered or says yes, every empty '
+        'shape stays unknown', () async {
       // The three shapes a `200 {guardian_sets: …}` can take on the one
       // screen this probe is drawn on. `guardian_sets_select`
       // (0005_rls_and_grants.sql:357) is gated on `rf.is_certified()`, the
       // phone at S11.6 holds nothing but its own keys (0010:134, ADR
       // 2026-09-05d §2 🔒), and RLS filters rather than errors — so all
       // three reach this probe as a body with nothing in it for this user.
-      final bodies = <String, _Guardians>{
-        'the route answered with no rows at all': _Guardians(),
-        'rows, none of them this user\'s': _Guardians(
-          history: [
-            const GuardianSetWire(
-              subjectUserId: 'u-somebody-else',
-              shareSetVersion: 3,
-              k: 2,
-              n: 3,
-            ),
-          ],
-        ),
-        'a row whose subject this build could not match': _Guardians(
-          history: [
-            // `subject_user_id` absent decodes to '' (guardians_api:154),
-            // so the filter drops it — and a row that named nobody is not
-            // this user saying they set nobody up.
-            GuardianSetWire.fromJson(const {
-              'share_set_version': 2,
-              'k': 2,
-              'n': 3,
-            }),
-          ],
-        ),
+      final bodies = <String, List<GuardianSetWire>>{
+        'the route answered with no rows at all': const [],
+        'rows, none of them this user\'s': const [
+          GuardianSetWire(
+            subjectUserId: 'u-somebody-else',
+            shareSetVersion: 3,
+            k: 2,
+            n: 3,
+          ),
+        ],
+        'a row whose subject this build could not match': [
+          // `subject_user_id` absent decodes to '' (guardians_api:154),
+          // so the filter drops it — and a row that named nobody is not
+          // this user saying they set nobody up.
+          GuardianSetWire.fromJson(const {
+            'share_set_version': 2,
+            'k': 2,
+            'n': 3,
+          }),
+        ],
       };
 
       for (final entry in bodies.entries) {
-        final offer = await trustedMembersProbe(
-          entry.value,
-          subjectUserId: 'u-me',
-        )();
-        expect(
-          offer.blocked,
-          isNull,
-          reason: '${entry.key} is not the server refusing rung 2',
-        );
-        expect(
-          offer.availability,
-          RecoveryRungAvailability.unknown,
-          reason: entry.key,
-        );
-        expect(entry.value.reads, 1, reason: 'the source was consulted');
+        for (final bit in const [null, true]) {
+          final api = _Guardians(history: entry.value, hasSet: bit);
+          final offer = await trustedMembersProbe(api, subjectUserId: 'u-me')();
+          final why = '${entry.key}, bit ${bit ?? 'unanswered'}';
+          expect(offer.blocked, isNull, reason: why);
+          expect(
+            offer.availability,
+            RecoveryRungAvailability.unknown,
+            reason: why,
+          );
+          expect(api.reads, 1, reason: 'the source was consulted: $why');
+          expect(api.bitReads, 1, reason: 'and so was the bit: $why');
+        }
       }
 
-      // Stated as the property, not as three examples: no input this probe
-      // can be handed produces the false denial. The ONE thing it still
-      // says yes to is a readable set of this user's own.
+      // Stated as the property, not as three examples: the ONE thing the
+      // set-history still says yes to is a readable set of this user's own.
       final yes = await trustedMembersProbe(
         _Guardians(history: [_set(version: 7)]),
         subjectUserId: 'u-me',
       )();
       expect(yes.isAvailable, isTrue);
+    });
+  });
+
+  group('F1-24b-4 rung 2 — the has-guardian-set bit (ADR 2026-09-24b §3)', () {
+    const denied = RecoveryRungOffer.blocked(
+      RecoveryRung.trustedMembers,
+      RecoveryRungBlocked.noTrustedMembers,
+    );
+
+    test('F1-24b-4 (a) no set this user may read and the server says NO set '
+        'exists → `noTrustedMembers`: the one truthful denial rung 2 has, and '
+        'it comes from the bit, never from the empty read', () async {
+      final api = _Guardians(hasSet: false);
+      final offer = await trustedMembersProbe(api, subjectUserId: 'u-me')();
+      expect(offer.availability, RecoveryRungAvailability.unavailable);
+      expect(offer.blocked, RecoveryRungBlocked.noTrustedMembers);
+      expect(offer.isAvailable, isFalse);
+      expect(api.reads, 1);
+      expect(api.bitReads, 1, reason: 'the bit was actually asked');
+
+      // Through the ladder too, so the denial survives the composition the
+      // screen actually reads.
+      final ladder = LiveRecoveryLadder(
+        probes: {
+          RecoveryRung.trustedMembers: trustedMembersProbe(
+            _Guardians(hasSet: false),
+          ),
+        },
+      );
+      expect(
+        _offerFor(await ladder.rungs(), RecoveryRung.trustedMembers).blocked,
+        RecoveryRungBlocked.noTrustedMembers,
+      );
+    });
+
+    test('F1-24b-4 (a) a history holding only sets this user GUARDS is still '
+        'no set of their own: with the bit false it is the same denial — the '
+        'bit is about the caller\'s own user, and so is the filter', () async {
+      final api = _Guardians(
+        history: const [
+          GuardianSetWire(
+            subjectUserId: 'u-somebody-else',
+            shareSetVersion: 9,
+            k: 2,
+            n: 3,
+          ),
+        ],
+        hasSet: false,
+      );
+      final offer = await trustedMembersProbe(api, subjectUserId: 'u-me')();
+      expect(offer.blocked, RecoveryRungBlocked.noTrustedMembers);
+      expect(api.bitReads, 1);
+    });
+
+    test('F1-24b-4 (b) the server says a set EXISTS but this device may not '
+        'read it → unknown: the bit is never a yes, because it carries no k, '
+        'no n and no member to ask', () async {
+      final api = _Guardians(hasSet: true);
+      final offer = await trustedMembersProbe(api, subjectUserId: 'u-me')();
+      expect(offer.availability, RecoveryRungAvailability.unknown);
+      expect(offer.blocked, isNull);
+      expect(offer.isAvailable, isFalse, reason: 'never available from a bit');
+      expect(api.bitReads, 1);
+    });
+
+    test('F1-24b-4 (c) a bit that could not be had is unknown — offline, '
+        'refused, or a programming fault — never the denial', () async {
+      for (final failure in <Object>[
+        const RecoveryApiFailure(RecoveryRefusal.offline),
+        const RecoveryApiFailure(RecoveryRefusal.unauthorized),
+        const RecoveryApiFailure(RecoveryRefusal.server),
+        StateError('bit reader broke'),
+      ]) {
+        final api = _Guardians(hasSet: false, bitThrows: failure);
+        final offer = await trustedMembersProbe(api, subjectUserId: 'u-me')();
+        expect(
+          offer.availability,
+          RecoveryRungAvailability.unknown,
+          reason: '$failure',
+        );
+        expect(offer.blocked, isNull, reason: '$failure');
+        expect(api.bitReads, 1, reason: '$failure');
+      }
+    });
+
+    test(
+      'F1-24b-4 (c) over the REAL client: a body whose field is missing or '
+      'not a boolean is unknown, and only a JSON `false` is the denial',
+      () async {
+        const root = 'https://api.example.test/functions/v1/';
+        Future<RecoveryRungOffer> probeWith(int status, String bitBody) async {
+          final transport = FakeRkHttpTransport((method, url, headers, body) {
+            if (url.path.endsWith('/sync-meta')) {
+              return RkHttpResponse(200, jsonEncode({'guardian_sets': []}));
+            }
+            if (url.path.endsWith('/sync-meta/recovery/has-guardian-set')) {
+              return RkHttpResponse(status, bitBody);
+            }
+            return fail('unexpected route ${url.path}');
+          });
+          final api = HttpGuardiansApi(
+            transport: transport,
+            functionsRoot: Uri.parse(root),
+            accessToken: () async => 'tok',
+          );
+          return trustedMembersProbe(api)();
+        }
+
+        for (final bitBody in [
+          jsonEncode(<String, Object?>{}),
+          jsonEncode({'has_guardian_set': null}),
+          jsonEncode({'has_guardian_set': 'false'}),
+          jsonEncode({'has_guardian_set': 0}),
+          'false',
+          '',
+        ]) {
+          final offer = await probeWith(200, bitBody);
+          expect(
+            offer.availability,
+            RecoveryRungAvailability.unknown,
+            reason: bitBody,
+          );
+          expect(offer.blocked, isNull, reason: bitBody);
+        }
+        for (final status in const [401, 403, 500]) {
+          final offer = await probeWith(
+            status,
+            jsonEncode({'has_guardian_set': false}),
+          );
+          expect(
+            offer.blocked,
+            isNull,
+            reason:
+                'a $status carrying `false` is still a refusal, not an answer',
+          );
+        }
+
+        final no = await probeWith(
+          200,
+          jsonEncode({'has_guardian_set': false}),
+        );
+        expect(no.blocked, RecoveryRungBlocked.noTrustedMembers);
+        final yes = await probeWith(
+          200,
+          jsonEncode({'has_guardian_set': true}),
+        );
+        expect(yes.availability, RecoveryRungAvailability.unknown);
+      },
+    );
+
+    test('F1-24b-4 (d) a set this user CAN read never asks the bit: the '
+        'readable path is unchanged, and the unreadable one stays unknown '
+        'even with the bit primed to say no', () async {
+      final readable = _Guardians(history: [_set(version: 2)], hasSet: false);
+      final a = await trustedMembersProbe(readable, subjectUserId: 'u-me')();
+      expect(a.isAvailable, isTrue);
+      expect(readable.bitReads, 0);
+
+      final unreadable = _Guardians(
+        history: [_set(version: 3, n: 1, k: 1)],
+        hasSet: false,
+      );
+      final b = await trustedMembersProbe(unreadable, subjectUserId: 'u-me')();
+      expect(b.availability, RecoveryRungAvailability.unknown);
+      expect(b.blocked, isNull);
+      expect(unreadable.bitReads, 0);
+
+      expect(a, isNot(denied));
+    });
+
+    test('F1-24b-4 (d) a `guardian_sets` read that failed does not fall '
+        'through to the bit: nothing was learned, so the rung is unknown and '
+        'no second question is asked on its strength', () async {
+      final api = _Guardians(throws: StateError('meta pull'), hasSet: false);
+      final ladder = LiveRecoveryLadder(
+        probes: {RecoveryRung.trustedMembers: trustedMembersProbe(api)},
+      );
+      final offer = _offerFor(
+        await ladder.rungs(),
+        RecoveryRung.trustedMembers,
+      );
+      expect(offer.availability, RecoveryRungAvailability.unknown);
+      expect(api.bitReads, 0);
     });
   });
 

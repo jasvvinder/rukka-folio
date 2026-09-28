@@ -38,6 +38,7 @@ import '../../../shared/widgets/rk_connection_notice.dart';
 import '../../../shared/widgets/rk_connection_notice_copy.dart';
 import '../../../shared/widgets/rk_ruled_card.dart';
 import '../../../shared/widgets/rk_states.dart';
+import '../../entry/entry_restriction.dart';
 import '../partners_port.dart';
 import '../partners_scope.dart';
 import '../widgets/distribution_parts.dart';
@@ -192,10 +193,18 @@ class _DistributeProfitScreenState extends State<DistributeProfitScreen> {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
+    // S12.5 (ADR 2026-09-24b §13): a distribution is a partner entry, so
+    // read-only blocks it with the same sheet; book full blocks this book
+    // only. Both seams are read before the first await.
+    final sources = entryRestrictionSourcesOf(context);
     setState(() {
       _busy = true;
       _postFailed = false;
     });
+    final refused = await refuseIfEntryRestricted(context, sources, [
+      widget.bookId,
+    ], onBlocked: () => setState(() => _busy = false));
+    if (refused) return;
     try {
       final result = await _port!.distribute(
         widget.bookId,

@@ -252,4 +252,141 @@ void main() {
       );
     },
   );
+
+  group('F1-24b-4 GET sync-meta/recovery/has-guardian-set (ADR 2026-09-24b '
+      '§3, ⚠️ WIRE sync-meta/index.ts `recovery` + migration 0016)', () {
+    test('F1-24b-4 the bit is asked on its own route: GET, the session\'s '
+        'Bearer, no query at all — the server keys it on the claims, and a '
+        '`subject_user_id=` here would be the enumeration oracle the ADR '
+        'forbids', () async {
+      final transport = FakeRkHttpTransport(
+        (method, url, headers, body) =>
+            RkHttpResponse(200, jsonEncode({'has_guardian_set': true})),
+      );
+      final api = HttpGuardiansApi(
+        transport: transport,
+        functionsRoot: Uri.parse(_root),
+        accessToken: () async => 'tok',
+        clientVersion: '0.1.0',
+      );
+
+      expect(await api.hasGuardianSet(), isTrue);
+
+      final call = transport.calls.single;
+      expect(call.method, 'GET');
+      expect(
+        call.url.toString(),
+        '${_root}sync-meta/recovery/has-guardian-set',
+      );
+      expect(call.url.hasQuery, isFalse, reason: 'no subject, no cursor');
+      expect(call.headers['authorization'], 'Bearer tok');
+      expect(call.headers[HttpRecoveryApi.clientVersionHeader], '0.1.0');
+    });
+
+    test('F1-24b-4 `true` and `false` are read as themselves — the two '
+        'answers are not collapsed into one', () async {
+      Future<bool> read(bool wire) => _api(
+        FakeRkHttpTransport(
+          (method, url, headers, body) =>
+              RkHttpResponse(200, jsonEncode({'has_guardian_set': wire})),
+        ),
+      ).hasGuardianSet();
+
+      expect(await read(true), isTrue);
+      expect(await read(false), isFalse);
+    });
+
+    test('F1-24b-4 only a JSON boolean is an answer: a missing field, null, '
+        'a string, a number, an array body or a body that is not JSON is an '
+        'ERROR, never `false` — `false` is the one reading that tells a '
+        'locked-out person they set nobody up', () async {
+      final bodies = <String, String>{
+        'field missing': jsonEncode(<String, Object?>{}),
+        'field null': jsonEncode({'has_guardian_set': null}),
+        'string "false"': jsonEncode({'has_guardian_set': 'false'}),
+        'string "true"': jsonEncode({'has_guardian_set': 'true'}),
+        'number 0': jsonEncode({'has_guardian_set': 0}),
+        'number 1': jsonEncode({'has_guardian_set': 1}),
+        'misspelt field': jsonEncode({'hasGuardianSet': false}),
+        'array body': jsonEncode([false]),
+        'empty body': '',
+        'not JSON': 'false',
+      };
+      for (final MapEntry(key: name, value: text) in bodies.entries) {
+        final api = _api(
+          FakeRkHttpTransport(
+            (method, url, headers, body) => RkHttpResponse(200, text),
+          ),
+        );
+        await expectLater(
+          api.hasGuardianSet(),
+          throwsA(isA<RecoveryApiFailure>()),
+          reason: name,
+        );
+      }
+    });
+
+    test('F1-24b-4 a refusal or a silent transport is a named failure, never '
+        'an answer', () async {
+      for (final (status, error, refusal) in const [
+        (401, 'unauthorized', RecoveryRefusal.unauthorized),
+        (403, 'rls', RecoveryRefusal.unauthorized),
+        (500, null, RecoveryRefusal.server),
+      ]) {
+        final api = _api(
+          FakeRkHttpTransport(
+            (method, url, headers, body) => RkHttpResponse(
+              status,
+              error == null ? '' : jsonEncode({'error': error}),
+            ),
+          ),
+        );
+        await expectLater(
+          api.hasGuardianSet(),
+          throwsA(
+            isA<RecoveryApiFailure>().having(
+              (f) => f.refusal,
+              'refusal',
+              recoveryRefusalOf(error, status),
+            ),
+          ),
+        );
+        expect(recoveryRefusalOf(error, status), refusal);
+      }
+
+      final silent = _api(
+        FakeRkHttpTransport(
+          (method, url, headers, body) => throw const RkHttpFailure('down'),
+        ),
+      );
+      await expectLater(
+        silent.hasGuardianSet(),
+        throwsA(
+          isA<RecoveryApiFailure>().having(
+            (f) => f.refusal,
+            'refusal',
+            RecoveryRefusal.offline,
+          ),
+        ),
+      );
+
+      final signedOut = HttpGuardiansApi(
+        transport: FakeRkHttpTransport(
+          (method, url, headers, body) => fail('no session, no request'),
+        ),
+        functionsRoot: Uri.parse(_root),
+        accessToken: () async => null,
+      );
+      await expectLater(
+        signedOut.hasGuardianSet(),
+        throwsA(
+          isA<RecoveryApiFailure>().having(
+            (f) => f.refusal,
+            'refusal',
+            RecoveryRefusal.unauthorized,
+          ),
+        ),
+      );
+    });
+  });
 }

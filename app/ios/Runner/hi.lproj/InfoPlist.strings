@@ -1,0 +1,2 @@
+/* NSCameraUsageDescription — ADR 2026-09-19 ruling 1: the camera reads QR only (S9.3, S11.2, S11.3, S11.7). Hindi — machine-draft, native review M12. */
+"NSCameraUsageDescription" = "यह ऐप कैमरा सिर्फ़ अपने दिखाए चौकोर कोड पढ़ने के लिए इस्तेमाल करता है: परिवार के किसी सदस्य की चाबी जाँचने, फ़ोन जोड़ने, या आपकी रिकवरी शीट पढ़ने के लिए। कुछ भी रिकॉर्ड या भेजा नहीं जाता।";

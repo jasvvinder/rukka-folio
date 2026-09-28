@@ -223,7 +223,7 @@ RecoveryRungProbe anotherDeviceProbe(DevicesRepository devices) => () async {
 /// body that also carried a set this user is a *guardian of* would otherwise
 /// read as "you have trusted members" to somebody who set none up.
 ///
-/// **An empty history is [RecoveryRungOffer.unknown], not a refusal** — and
+/// **An empty history, on its own, is never a refusal** — and
 /// this is the correction of a real false denial, not caution. The read is
 /// RLS-gated on certification and the device that reaches S11.6 is
 /// uncertified *by construction*:
@@ -252,11 +252,33 @@ RecoveryRungProbe anotherDeviceProbe(DevicesRepository devices) => () async {
 /// (`0011_recovery_sheet.sql:117`) is "deliberately NOT gated on
 /// rf.is_certified()", so `no_sheet` really is the server answering.
 ///
-/// The honest consequence is that [RecoveryRungBlocked.noTrustedMembers] is
-/// unreachable from this probe: nothing an uncertified device can read
-/// distinguishes an empty set-history from one it was filtered out of.
-/// Settling it needs one bit the server does not expose yet — reported as an
-/// open item, never guessed here.
+/// **So the denial comes from a second source, and only from it** (ADR
+/// 2026-09-24b §3 🔒, amending ADR 2026-09-05d §2 by exactly one read). When
+/// no set of this user's own survives the read above, the probe asks
+/// [GuardiansApi.hasGuardianSet] — `GET sync-meta/recovery/has-guardian-set`,
+/// migration `0016`'s `rf.has_guardian_set()`, deliberately **not** gated on
+/// `rf.is_certified()` and keyed on the caller's own claims:
+///
+///   * `false` → [RecoveryRungBlocked.noTrustedMembers]. The server, which
+///     holds every set, says this user has no current one — a real source
+///     saying no, the way `no_sheet` is on rung 3;
+///   * `true` → still [RecoveryRungOffer.unknown]. A set exists, but this
+///     device may not read it, and one bit carries no k, no n and no member
+///     to ask — so it is never [RecoveryRungOffer.available];
+///   * any throw — offline, no session, a refusal, a body whose field is not
+///     a JSON boolean ([HttpGuardiansApi.hasGuardianSet] refuses those) →
+///     unknown. Absent the answer, rung 2 stays unknown (ADR §3).
+///
+/// The `guardian_sets` read itself is unchanged: *empty ≠ denial* still holds
+/// for it (F1-06-70…73), and a read that **failed** is not "empty" — it
+/// throws, and no second question is asked on its strength. When a readable
+/// set of this user's own is present the bit is never asked (F1-24b-4).
+///
+/// ⚠️ SPEC (desk 45): three readings of `0016` are unruled — a set with fewer
+/// than n members reads `true` (here: unknown, no change); a revoked or
+/// foreign device claim reads `false`, which this probe renders as
+/// *you set nobody up*; a suspended device is answered. Built to the server
+/// as it is.
 RecoveryRungProbe trustedMembersProbe(
   GuardiansApi guardians, {
   String? subjectUserId,
@@ -266,10 +288,23 @@ RecoveryRungProbe trustedMembersProbe(
       if (subjectUserId == null || s.subjectUserId == subjectUserId) s,
   ];
   if (sets.isEmpty) {
-    // Nothing was learned — see the RLS note above. Not a refusal, and not
-    // available either: this device asked a question it is not cleared to
-    // have answered.
-    return const RecoveryRungOffer.unknown(RecoveryRung.trustedMembers);
+    // Nothing was learned from the set-history — see the RLS note above. The
+    // one bit the server answers an uncertified device is the only thing that
+    // may turn this into a refusal (ADR 2026-09-24b §3).
+    final bool hasSet;
+    try {
+      hasSet = await guardians.hasGuardianSet();
+    } on Object {
+      // Deliberately swallowed: this phone failed to find out, which is
+      // unknown — never the denial.
+      return const RecoveryRungOffer.unknown(RecoveryRung.trustedMembers);
+    }
+    return hasSet
+        ? const RecoveryRungOffer.unknown(RecoveryRung.trustedMembers)
+        : const RecoveryRungOffer.blocked(
+            RecoveryRung.trustedMembers,
+            RecoveryRungBlocked.noTrustedMembers,
+          );
   }
   final inForce = sets.reduce(
     (a, b) => b.shareSetVersion > a.shareSetVersion ? b : a,

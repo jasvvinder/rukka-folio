@@ -9,6 +9,10 @@
 // screen read out of ARB and integers the seam counted, and the seam carries
 // no bytes (04 §7.4, 07 §5.6 🔒).
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
+import '../../../l10n/gen/app_localizations.dart';
+import '../../../shared/seams/dialer.dart';
 
 import '../../../shared/seams/recovery_ladder.dart';
 import '../../../shared/theme.dart';
@@ -421,8 +425,10 @@ class TrustedApproverRow extends StatelessWidget {
   /// What a screen reader hears for a waiting row's rule.
   final String waitingLabel;
 
-  /// The *Call* link's label.
-  final String callLabel;
+  /// The *Call* link's label for a number — one ARB message with the number
+  /// as a named placeholder (`recovery.ask.call_number`), never a label and a
+  /// number joined here (01 §1 rule 7 🔒: no string concatenation).
+  final String Function(String phone) callLabel;
 
   /// Taken with the member's number. Null when nothing on this build can
   /// dial — the number is then simply shown, so the advice still works.
@@ -507,7 +513,14 @@ class TrustedApproverRow extends StatelessWidget {
                   ),
                   if (waiting && phone != null) ...[
                     const SizedBox(height: RkSpace.s1),
-                    if (onCall == null)
+                    if (onCall == null && DialerScope.maybeOf(context) != null)
+                      // ADR 2026-09-19 ruling 3 🔒: with a dialer the link is
+                      // a real control, and its failure is not silence.
+                      RecoveryCallControl(
+                        label: callLabel(phone),
+                        number: phone,
+                      )
+                    else if (onCall == null)
                       // Nothing here can place a call, so the number itself is
                       // shown — the advice ("phone them") still works, and no
                       // control is drawn that would do nothing (07 §1 rule 6).
@@ -532,7 +545,7 @@ class TrustedApproverRow extends StatelessWidget {
                     else
                       TextButton(
                         onPressed: () => onCall!(approver),
-                        child: RkFitText('$callLabel · $phone'),
+                        child: RkFitText(callLabel(phone)),
                       ),
                   ],
                 ],
@@ -563,6 +576,7 @@ class RecoveryCautionCard extends StatelessWidget {
     required this.onAcknowledged,
     this.callLabel,
     this.onCall,
+    this.call,
   });
 
   /// The caution itself (design R2.3, verbatim).
@@ -586,6 +600,10 @@ class RecoveryCautionCard extends StatelessWidget {
   /// Places the call.
   final VoidCallback? onCall;
 
+  /// A ready-made call control ([RecoveryCallControl]) — wins over
+  /// [callLabel]/[onCall].
+  final Widget? call;
+
   @override
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
@@ -604,7 +622,10 @@ class RecoveryCautionCard extends StatelessWidget {
             ),
             const SizedBox(height: RkSpace.s2),
             RkFitText(body, style: text.bodyMedium),
-            if (callLabel != null && onCall != null) ...[
+            if (call case final call?) ...[
+              const SizedBox(height: RkSpace.s2),
+              call,
+            ] else if (callLabel != null && onCall != null) ...[
               const SizedBox(height: RkSpace.s2),
               Align(
                 alignment: Alignment.centerLeft,
@@ -687,6 +708,116 @@ class RecoveryFingerprint extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// A *Call* control that is a control (ADR 2026-09-19 ruling 3 🔒): R2.2's
+/// per-row link and R2.3's *Call {name}* button, over the [Dialer] the scope
+/// installs (or [dialer], for tests).
+///
+/// Tapping hands [number] to the dialer **as the book holds it**. When the
+/// dial fails — no SIM, a tablet, a simulator — the control is replaced by
+/// what still works, never by nothing: one line saying why beside an icon (07
+/// §1 rule 3 🔒 — never colour alone), the number itself, and *Copy the
+/// number* (07 §1 rule 6 🔒 — every blocked action explains why and offers
+/// the path).
+class RecoveryCallControl extends StatefulWidget {
+  /// Creates the control.
+  const RecoveryCallControl({
+    super.key,
+    required this.label,
+    required this.number,
+    this.dialer,
+  });
+
+  /// The control's words (*Call · 98…*, *Call Asha*).
+  final String label;
+
+  /// The stored number, unaltered.
+  final String number;
+
+  /// Wins over the scope's.
+  final Dialer? dialer;
+
+  @override
+  State<RecoveryCallControl> createState() => _RecoveryCallControlState();
+}
+
+class _RecoveryCallControlState extends State<RecoveryCallControl> {
+  bool _busy = false;
+  bool _failed = false;
+  bool _copied = false;
+
+  Future<void> _dial() async {
+    final dialer = widget.dialer ?? DialerScope.maybeOf(context);
+    if (_busy) return;
+    setState(() => _busy = true);
+    final ok = dialer == null ? false : await dialer.dial(widget.number);
+    if (!mounted) return;
+    setState(() {
+      _busy = false;
+      _failed = !ok;
+    });
+  }
+
+  Future<void> _copy() async {
+    await Clipboard.setData(ClipboardData(text: widget.number));
+    if (mounted) setState(() => _copied = true);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_failed) {
+      return Align(
+        alignment: AlignmentDirectional.centerStart,
+        child: TextButton.icon(
+          onPressed: _busy ? null : _dial,
+          icon: const Icon(Icons.phone_outlined),
+          label: RkFitText(widget.label),
+        ),
+      );
+    }
+    final l10n = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final status = RkStatusColors.of(context);
+    return Semantics(
+      container: true,
+      liveRegion: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(
+                Icons.phone_disabled_outlined,
+                size: RkIcon.grid - RkSpace.s2,
+                color: status.warning,
+              ),
+              const SizedBox(width: RkSpace.s2),
+              Expanded(
+                child: RkFitText(
+                  l10n.recoveryCallFailed,
+                  style: text.bodyMedium,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: RkSpace.s1),
+          RkFitText(widget.number, style: text.titleMedium),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: TextButton.icon(
+              onPressed: _copy,
+              icon: Icon(_copied ? Icons.check : Icons.copy_outlined),
+              label: RkFitText(
+                _copied ? l10n.recoveryCallCopied : l10n.recoveryCallCopy,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

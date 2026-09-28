@@ -5,7 +5,9 @@ import 'package:go_router/go_router.dart';
 import '../../l10n/gen/app_localizations.dart';
 import '../../shared/router.dart';
 import '../../shared/widgets/placeholder_screen.dart';
+import '../../shared/seams/guardians.dart';
 import '../ceremony/ceremony_paths.dart';
+import '../members/members_repository.dart';
 import 'devices_paths.dart';
 import 'screens/s11_1_guardian_setup_screen.dart';
 import 'screens/s11_4_backup_screen.dart';
@@ -38,8 +40,21 @@ final List<RouteBase> devicesRoutes = [
       GoRoute(
         path: 'guardians',
         builder: (context, state) => GuardianSetupScreen(
+          // S9.3 is keyed by the subject's **user id** (CeremonyPaths
+          // .verifyMemberFor; migration 0007 keys a ceremony session by
+          // `subject_user`) — `memberId` is that id (guardians_seams fills it
+          // from the roster's `userId`).
+          //
+          // ⚠️ SPEC: `TrustedMemberCandidate.inviteId` is no longer read here.
+          // 04 §6 says guardian activation runs the ceremony between two
+          // active members with no invite, so whether S11.1's candidate
+          // should carry an invite id at all is an open question for the
+          // owner of `shared/seams/guardians.dart` — reported, not changed.
           onMeet: (c) =>
-              context.push(CeremonyPaths.verifyMemberFor(c.inviteId ?? '')),
+              context.push(CeremonyPaths.verifyMemberFor(c.memberId)),
+          meetBlockOf: guardianMeetBlockFrom(
+            MembersRepositoryScope.of(context),
+          ),
           onAddMember: () => context.push(RkPaths.members),
           onDone: () {
             if (context.canPop()) context.pop();
@@ -74,3 +89,36 @@ final List<RouteBase> devicesRoutes = [
     ),
   ),
 ];
+
+/// *Meet them* is offered only to a member the server will open a ceremony
+/// for: `joined_pending_verification` or `active` (migration 0007
+/// `subject_not_in_tenant`; 06 §7 🔒). An `invited` or `expired` row is keyed
+/// by its **invite** id (no user exists yet), and pushing that into S9.3 would
+/// ask for a UMK nobody has; a `blocked` member needs an admin and a new
+/// invite first (06 §7 🔒, 06 §10).
+///
+/// Read lazily, per row: the guardian roster is built from the same members
+/// snapshot (`bootstrap`'s `GuardianRoster`), so the answer and the row come
+/// from one reading.
+///
+/// ⚠️ SPEC: `TrustedMemberCandidate` carries no membership state, so this
+/// joins it to the members snapshot by id. A candidate the snapshot does not
+/// hold is treated as *not joined* — the conservative reading, since this
+/// device cannot show that the person can be met. Carrying the state on the
+/// seam itself is for the owner of `shared/seams/guardians.dart`.
+GuardianMeetBlock? Function(TrustedMemberCandidate) guardianMeetBlockFrom(
+  MembersRepository members,
+) => (candidate) {
+  final list = members.current?.members ?? const <Member>[];
+  for (final m in list) {
+    if (m.id != candidate.memberId) continue;
+    return switch (m.state) {
+      MembershipState.active ||
+      MembershipState.joinedPendingVerification => null,
+      MembershipState.invited ||
+      MembershipState.expired => GuardianMeetBlock.notJoined,
+      MembershipState.blocked => GuardianMeetBlock.blocked,
+    };
+  }
+  return GuardianMeetBlock.notJoined;
+};

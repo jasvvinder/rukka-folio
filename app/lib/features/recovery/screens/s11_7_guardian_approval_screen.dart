@@ -28,6 +28,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../l10n/gen/app_localizations.dart';
+import '../../../shared/seams/dialer.dart';
 import '../../../shared/seams/recovery_ladder.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
@@ -264,6 +265,7 @@ class _Review extends StatelessWidget {
     final unavailable = scan == RecoveryScanOutcome.unavailable;
     final mismatch = scan == RecoveryScanOutcome.mismatch;
     final phone = ask.requesterPhone;
+    final dialable = DialerScope.maybeOf(context) != null;
     // Both checks, or no approval. The reason is picked for what is actually
     // missing, so a screen reader never hears a generic "dimmed".
     final blockedReason = unavailable
@@ -304,8 +306,16 @@ class _Review extends StatelessWidget {
               ? null
               : l10n.recoveryApproveCall(ask.requesterName),
           onCall: phone == null || onCall == null ? null : () => onCall!(phone),
+          // ADR 2026-09-19 ruling 3 🔒: with a dialer installed the button is
+          // a real control, and its failure shows the number and a way on.
+          call: phone == null || onCall != null || !dialable
+              ? null
+              : RecoveryCallControl(
+                  label: l10n.recoveryApproveCall(ask.requesterName),
+                  number: phone,
+                ),
         ),
-        if (phone != null && onCall == null) ...[
+        if (phone != null && onCall == null && !dialable) ...[
           const SizedBox(height: RkSpace.s2),
           // Nothing here can dial, so the number itself is on the screen and
           // the caution still works (07 §1 rule 6).

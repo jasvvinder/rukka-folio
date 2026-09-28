@@ -143,16 +143,25 @@ void main() {
     });
   });
 
-  group('Dunning countdown (08 §3 🔒)', () {
-    final periodEnd = DateTime(2026, 9, 1, 10);
+  // Re-landed for ADR 2026-09-24b §6 🔒: the countdown runs to the token's
+  // `grace_until`; the client holds no grace duration and never derives
+  // `period_end + 7 d` (that derivation, and `rkDunningGrace`, are gone).
+  group('Dunning countdown (ADR 2026-09-24b §6 🔒)', () {
+    final graceUntil = DateTime(2026, 9, 8, 10);
 
-    test('F1-07-471 the grace is 7 days from period_end and counts down in '
-        'whole days', () {
-      expect(rkDunningGrace, const Duration(days: 7));
-      expect(rkDunningEndsAt(periodEnd), DateTime(2026, 9, 8, 10));
-      expect(rkDunningDaysLeft(periodEnd: periodEnd, now: periodEnd), 7);
+    test('F1-07-471 the countdown runs to grace_until in whole days', () {
       expect(
-        rkDunningDaysLeft(periodEnd: periodEnd, now: DateTime(2026, 9, 5, 10)),
+        rkDunningDaysLeft(
+          graceUntil: graceUntil,
+          now: DateTime(2026, 9, 1, 10),
+        ),
+        7,
+      );
+      expect(
+        rkDunningDaysLeft(
+          graceUntil: graceUntil,
+          now: DateTime(2026, 9, 5, 10),
+        ),
         3,
       );
     });
@@ -164,20 +173,20 @@ void main() {
         // 2 days and 23 hours left reads as 2, never 3.
         expect(
           rkDunningDaysLeft(
-            periodEnd: periodEnd,
+            graceUntil: graceUntil,
             now: DateTime(2026, 9, 5, 11),
           ),
           2,
         );
         expect(
           rkDunningDaysLeft(
-            periodEnd: periodEnd,
+            graceUntil: graceUntil,
             now: DateTime(2026, 9, 8, 9, 59),
           ),
           0,
         );
         expect(
-          rkDunningDaysLeft(periodEnd: periodEnd, now: DateTime(2026, 10, 1)),
+          rkDunningDaysLeft(graceUntil: graceUntil, now: DateTime(2026, 10, 1)),
           0,
         );
       },

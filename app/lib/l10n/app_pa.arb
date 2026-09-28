@@ -383,6 +383,22 @@
   "ceremony.mismatch.semantics": "ਚੇਤਾਵਨੀ। ਤਸਦੀਕ ਨਾਕਾਮ ਰਹੀ।",
   "ceremony.mismatch.support": "ਸਹਾਇਤਾ ਨਾਲ ਸੰਪਰਕ ਕਰੋ",
   "ceremony.mismatch.title": "ਅੱਗੇ ਨਾ ਵਧੋ।",
+  "ceremony.scan.close": "ਬੰਦ ਕਰੋ",
+  "@ceremony.scan.close": {
+    "description": "machine-draft — native review M12"
+  },
+  "ceremony.scan.hint": "ਇਹ ਫ਼ੋਨ ਇਸ ਤਰ੍ਹਾਂ ਫੜੋ ਕਿ ਦੂਜੀ ਸਕਰੀਨ ਜਾਂ ਕਾਗ਼ਜ਼ ਵਾਲਾ ਚੌਰਸ ਕੋਡ ਫ਼ਰੇਮ ਦੇ ਅੰਦਰ ਆਵੇ।",
+  "@ceremony.scan.hint": {
+    "description": "machine-draft — native review M12"
+  },
+  "ceremony.scan.title": "ਚੌਰਸ ਕੋਡ ਸਕੈਨ ਕਰੋ",
+  "@ceremony.scan.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "ceremony.scan.wrong_code": "ਇਹ ਕੋਈ ਹੋਰ ਕੋਡ ਹੈ। ਕੈਮਰਾ ਉਸ ਚੌਰਸ ਕੋਡ ਵੱਲ ਕਰੋ ਜੋ ਇਹ ਕਦਮ ਮੰਗਦਾ ਹੈ।",
+  "@ceremony.scan.wrong_code": {
+    "description": "machine-draft — native review M12"
+  },
   "ceremony.show.body": "ਉਹਨਾਂ ਨੂੰ ਇਹ ਚੌਰਸ ਸਕੈਨ ਕਰਨ ਦਿਓ। ਜੇ ਨਾ ਹੋ ਸਕੇ, ਤਾਂ ਅੱਠ ਅੰਕ ਉਹਨਾਂ ਨੂੰ ਬੋਲ ਕੇ ਦੱਸੋ।",
   "ceremony.show.channel_rule": "ਇਹ ਕੋਡ ਕਦੇ ਵੀ ਸੁਨੇਹੇ ਵਿੱਚ ਨਾ ਭੇਜੋ। ਕਾਲ ਉੱਤੇ ਬੋਲ ਕੇ ਦੱਸੋ, ਜਾਂ ਉਹਨਾਂ ਨੂੰ ਚੌਰਸ ਸਕੈਨ ਕਰਨ ਦਿਓ।",
   "ceremony.show.code.label": "ਤੁਹਾਡਾ 8-ਅੰਕਾਂ ਵਾਲਾ ਕੋਡ",
@@ -3162,6 +3178,10 @@
   "@recovery.ask.call_advice": {
     "description": "machine-draft — native review M12"
   },
+  "recovery.ask.call_number": "ਫ਼ੋਨ ਕਰੋ · {phone}",
+  "@recovery.ask.call_number": {
+    "description": "machine-draft — native review M12"
+  },
   "recovery.ask.cancelled.body": "ਇਸ ਖਾਤੇ ਵਿੱਚ ਪਹਿਲਾਂ ਤੋਂ ਸਾਈਨ ਇਨ ਕਿਸੇ ਫ਼ੋਨ ਉੱਤੇ ਕਿਸੇ ਨੇ ਰੱਦ ਕਰੋ ਦਬਾਇਆ ਹੈ। ਜੇ ਉਹ ਤੁਸੀਂ ਸੀ ਤਾਂ ਹੋਰ ਕੁਝ ਕਰਨ ਦੀ ਲੋੜ ਨਹੀਂ। ਜੇ ਤੁਸੀਂ ਨਹੀਂ ਸੀ, ਤਾਂ ਦੁਬਾਰਾ ਮੰਗਣ ਤੋਂ ਪਹਿਲਾਂ ਆਪਣੇ ਭਰੋਸੇਯੋਗ ਜਣਿਆਂ ਨੂੰ ਫ਼ੋਨ ਕਰੋ।",
   "@recovery.ask.cancelled.body": {
     "description": "machine-draft — native review M12"
@@ -3264,6 +3284,18 @@
   },
   "recovery.ask.waiting_label": "{name} ਦੀ ਮਨਜ਼ੂਰੀ ਦੀ ਉਡੀਕ",
   "@recovery.ask.waiting_label": {
+    "description": "machine-draft — native review M12"
+  },
+  "recovery.call.copied": "ਨੰਬਰ ਕਾਪੀ ਹੋ ਗਿਆ",
+  "@recovery.call.copied": {
+    "description": "machine-draft — native review M12"
+  },
+  "recovery.call.copy": "ਨੰਬਰ ਕਾਪੀ ਕਰੋ",
+  "@recovery.call.copy": {
+    "description": "machine-draft — native review M12"
+  },
+  "recovery.call.failed": "ਇਹ ਫ਼ੋਨ ਕਾਲ ਸ਼ੁਰੂ ਨਹੀਂ ਕਰ ਸਕਿਆ। ਨੰਬਰ ਆਪ ਮਿਲਾਓ।",
+  "@recovery.call.failed": {
     "description": "machine-draft — native review M12"
   },
   "recovery.fork.blocked.no_other_phone": "ਇਸ ਵੇਲੇ ਤੁਹਾਡਾ ਕੋਈ ਹੋਰ ਫ਼ੋਨ ਸਾਈਨ ਇਨ ਨਹੀਂ ਹੈ।",

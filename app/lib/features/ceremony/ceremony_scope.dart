@@ -31,6 +31,7 @@ class CeremonyScope extends InheritedWidget {
     this.showMyCode,
     this.verifyMember,
     this.scanner,
+    this.newScanner,
     required super.child,
   });
 
@@ -45,8 +46,19 @@ class CeremonyScope extends InheritedWidget {
   /// S9.3's side, when a caller already built it. Wins over [sessions].
   final VerifyMemberRepository? verifyMember;
 
-  /// The camera seam; [NoCameraScanner] when nothing supplies one.
+  /// One camera for one screen, when a caller already built it (tests). Wins
+  /// over [newScanner].
   final CeremonyScanner? scanner;
+
+  /// Makes a camera per screen — what the composition root installs, because
+  /// each screen disposes the scanner it was handed (ADR 2026-09-19 §1). With
+  /// neither this nor [scanner], [NoCameraScanner] — S9.3 opens on the code
+  /// path, never on a dead preview.
+  final CeremonyScannerFactory? newScanner;
+
+  /// A scanner for one new screen, never null.
+  CeremonyScanner takeScanner() =>
+      scanner ?? newScanner?.call() ?? NoCameraScanner();
 
   /// The factory to use, never null: an absent one opens nothing.
   CeremonySessions get openings => sessions ?? const NoCeremonySessions();
@@ -60,5 +72,6 @@ class CeremonyScope extends InheritedWidget {
       sessions != old.sessions ||
       showMyCode != old.showMyCode ||
       verifyMember != old.verifyMember ||
-      scanner != old.scanner;
+      scanner != old.scanner ||
+      newScanner != old.newScanner;
 }

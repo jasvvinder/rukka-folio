@@ -209,7 +209,7 @@
   "guardians.meet.why": "You and {name} check each other’s code in person, both ways. Until that is done, they cannot help you get back in.",
   "@guardians.meet.why": {"description": "S11.1 explains the mutual ceremony (04 §7.3, 04 §8.2 🔒).", "placeholders": {"name": {"type": "String"}}},
   "guardians.meet.unavailable": "You can do this once {name} has finished joining the book.",
-  "@guardians.meet.unavailable": {"description": "S11.1 disabled-with-reason (13 §4.3): no ceremony invite exists yet.", "placeholders": {"name": {"type": "String"}}},
+  "@guardians.meet.unavailable": {"description": "S11.1 disabled-with-reason (13 §4.3): the member is still `invited` or their invite `expired` (06 §7), so there is nobody to meet yet.", "placeholders": {"name": {"type": "String"}}},
   "guardians.save": "Save trusted members",
   "@guardians.save": {"description": "S11.1 primary action."},
   "guardians.save.blocked.few": "Choose at least 2 people before saving.",

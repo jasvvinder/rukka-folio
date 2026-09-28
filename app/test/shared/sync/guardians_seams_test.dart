@@ -38,6 +38,12 @@ final class _Api implements GuardiansApi {
     return history;
   }
 
+  /// Setup reads the history it is allowed to read and never the
+  /// uncertified-device bit (ADR 2026-09-24b §3 is rung 2's, on S11.6).
+  @override
+  Future<bool> hasGuardianSet() async =>
+      fail('the setup seam never asks the has-guardian-set bit');
+
   @override
   Future<int> publish({
     required int shareSetVersion,

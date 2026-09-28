@@ -49,6 +49,17 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:core_crypto/core_crypto.dart'
+    show
+        Ceremony,
+        CeremonyVerified,
+        CryptoSuite,
+        DeviceQrPayload,
+        QrPayload,
+        RecoveryCandidateMismatch,
+        RecoveryCandidateVerified,
+        UmkPublic;
+
 import '../seams/recovery_ladder.dart';
 import 'recovery_api.dart';
 
@@ -86,6 +97,135 @@ final class RecoveryCandidate {
 typedef RecoveryScanner = Future<RecoveryScanOutcome> Function(
   RecoveryCandidate candidate,
 );
+
+// ============================================================================
+// THE CAMERA, BEHIND THE SEAM (ADR 2026-09-19 ruling 1 🔒)
+// ============================================================================
+//
+// The three scans — S11.2's own key, S11.7's candidate, S11.3's sheet — are
+// one shape: read **one** QR the person points the camera at, decode it, and
+// compare. The read is injected ([RecoveryQrReader]; production is the
+// ceremony scanner behind `features/recovery/recovery_camera.dart`), and the
+// comparisons are `core_crypto`'s, so nothing here chooses what "matches"
+// means. Only a [RecoveryScanOutcome] leaves: no payload, no key and no
+// fingerprint ever reaches a widget (04 §7.4, 07 §5.6 🔒).
+
+/// One QR read off the camera, decoded by the caller's own rule.
+sealed class RecoveryQrRead<T extends Object> {
+  const RecoveryQrRead();
+}
+
+/// A code was read and [RecoveryQrReader]'s `decode` accepted it.
+final class RecoveryQrValue<T extends Object> extends RecoveryQrRead<T> {
+  /// Wraps the decoded value.
+  const RecoveryQrValue(this.value);
+
+  /// What `decode` made of the text.
+  final T value;
+}
+
+/// The person backed out of the scanner.
+final class RecoveryQrCancelled<T extends Object> extends RecoveryQrRead<T> {
+  /// The one value.
+  const RecoveryQrCancelled();
+}
+
+/// This phone cannot scan now — no camera, a busy one, or permission refused.
+/// It is [RecoveryScanOutcome.unavailable]'s meaning, unchanged.
+final class RecoveryQrNoCamera<T extends Object> extends RecoveryQrRead<T> {
+  /// The one value.
+  const RecoveryQrNoCamera();
+}
+
+/// Opens the camera and reads until [decode] accepts a code, the person backs
+/// out, or it turns out there is no camera. A code [decode] answers null for
+/// — somebody else's QR, a shop's payment sticker — is not an answer: the
+/// reader keeps looking and says so, so a stray code can neither pass a check
+/// nor fail one. Never throws for a camera reason.
+typedef RecoveryQrReader = Future<RecoveryQrRead<T>> Function<T extends Object>(
+  T? Function(String text) decode,
+);
+
+T? _decodedOrNull<T extends Object>(T Function(String) decode, String text) {
+  try {
+    return decode(text);
+  } on Object {
+    return null; // not this kind of code — keep looking
+  }
+}
+
+/// S11.7's scan (ADR 2026-09-13c ruling 3 🔒): the fresh phone's
+/// `DeviceQrPayload`, compared by `Ceremony.verifyRecoveryCandidateQr` —
+/// device id and all 32 X25519 bytes, constant time — against the request
+/// the server relayed. Equal → [RecoveryScanOutcome.verified]; anything else
+/// is [RecoveryScanOutcome.mismatch], the hard fail with no override.
+RecoveryScanner candidateQrScanner({
+  required CryptoSuite suite,
+  required RecoveryQrReader read,
+}) => (candidate) async {
+  final got = await read<DeviceQrPayload>(
+    (t) => _decodedOrNull(DeviceQrPayload.decode, t),
+  );
+  return switch (got) {
+    RecoveryQrNoCamera() => RecoveryScanOutcome.unavailable,
+    RecoveryQrCancelled() => RecoveryScanOutcome.cancelled,
+    RecoveryQrValue(:final value) => switch (Ceremony.verifyRecoveryCandidateQr(
+      suite,
+      scanned: value,
+      relayedDeviceId: candidate.deviceId,
+      relayedCandidateX25519: candidate.candidatePubX,
+    )) {
+      RecoveryCandidateVerified() => RecoveryScanOutcome.verified,
+      RecoveryCandidateMismatch() => RecoveryScanOutcome.mismatch,
+    },
+  };
+};
+
+/// S11.2's scan — the recovery ceremony (ADR 2026-09-13c ruling 1 🔒): the
+/// user's own UMK as a member's phone renders it (04 §6.1 `QrPayload`),
+/// compared by `Ceremony.verifyQr` — both halves and the user id — against
+/// the key the server relayed for [userId].
+///
+/// The relayed key is fetched **before** the camera opens. With none —
+/// offline, no row, or a row with only one half (ADR 2026-09-24b §2) — there
+/// is nothing to compare against, so this throws [RecoveryFailure] (S11.2's
+/// retryable error) rather than opening a camera whose read could only be
+/// thrown away. It is never [RecoveryScanOutcome.mismatch]: nothing was
+/// compared, so nothing may be called wrong.
+///
+/// ⚠️ SPEC: the `VerifiedUmkPublic` the comparison makes is not kept — only
+/// the outcome leaves the seam, and 04 §7.3 step 4's reconstruction, which
+/// consumes it, is not built. Whoever builds step 4 takes it from here.
+RecoveryScanner ownKeyQrScanner({
+  required CryptoSuite suite,
+  required RecoveryQrReader read,
+  required String userId,
+  required Future<UmkPublic?> Function() relayedOwnUmk,
+}) => (_) async {
+  final UmkPublic? relayed;
+  try {
+    relayed = await relayedOwnUmk();
+  } on Object {
+    throw const RecoveryFailure('relayed key');
+  }
+  if (relayed == null) throw const RecoveryFailure('no relayed key');
+  final got = await read<QrPayload>((t) => _decodedOrNull(QrPayload.decode, t));
+  return switch (got) {
+    RecoveryQrNoCamera() => RecoveryScanOutcome.unavailable,
+    RecoveryQrCancelled() => RecoveryScanOutcome.cancelled,
+    RecoveryQrValue(:final value) => switch (Ceremony.verifyQr(
+      suite,
+      scanned: value,
+      relayed: relayed,
+      relayedUserId: userId,
+    )) {
+      CeremonyVerified() => RecoveryScanOutcome.verified,
+      // `verifyQr` answers only these two; the code path's other results
+      // cannot reach here, and anything that is not *verified* fails closed.
+      _ => RecoveryScanOutcome.mismatch,
+    },
+  };
+};
 
 /// Opens *this guardian's own* sealed share and re-seals it to the candidate
 /// key (04 §7.3 step 3). Returns the sealed bytes, which this file forwards
@@ -556,7 +696,50 @@ final class HttpGuardianRecovery implements GuardianRecovery {
     final scan = _scanner;
     final c = _candidate;
     if (scan == null || c == null) return RecoveryScanOutcome.unavailable;
-    return scan(c);
+    if (_ceremonyFailed.contains(c.requestId)) {
+      // Ruling 1 🔒 — *no override*. A ceremony that failed on this attempt
+      // stays failed: the camera is not opened again, and the close is
+      // retried in case the first one never reached the server.
+      await _closeAfterMismatch(c.requestId);
+      return RecoveryScanOutcome.mismatch;
+    }
+    final outcome = await scan(c);
+    if (outcome == RecoveryScanOutcome.mismatch) {
+      _ceremonyFailed.add(c.requestId);
+      await _closeAfterMismatch(c.requestId);
+    }
+    return outcome;
+  }
+
+  /// Attempts whose recovery ceremony answered *mismatch* on this phone. Held
+  /// by the producer, which lives as long as the app, so leaving S11.2 and
+  /// coming back cannot offer a second scan on the same attempt.
+  final Set<String> _ceremonyFailed = <String>{};
+
+  /// ADR 2026-09-13c ruling 1 🔒: *unequal → hard fail … recovery attempt
+  /// closed*. The close is the cancel route (ADR 2026-09-05d §1), then one
+  /// re-read, which finds the attempt cancelled and zeroises this phone's
+  /// candidate secret (ADR 2026-09-24b §1 🔒) exactly as any other close does.
+  ///
+  /// Neither step may change the verdict: the screen shows the hard fail
+  /// whatever the socket says. A cancel that fails (offline, or 409 because it
+  /// is already closed) is retried by the next [verifyOwnKeyByScan], which
+  /// answers *mismatch* again without opening the camera.
+  ///
+  /// ⚠️ SPEC: ruling 1 also says *log `verification_mismatch`*. There is no
+  /// security-event store on this build to log it in (the same gap
+  /// `ceremony_sessions.dart` records for S9.3), so nothing is logged here.
+  Future<void> _closeAfterMismatch(String requestId) async {
+    try {
+      await _api.cancel(requestId);
+    } on Object {
+      return;
+    }
+    try {
+      await _serialised(mayOpen: false);
+    } on Object {
+      // The close landed; a re-read that failed is the next poll's to redo.
+    }
   }
 
   void _startPolling() {
@@ -639,20 +822,31 @@ final class HttpRecoverySheet implements RecoverySheetEntry {
   /// [precheck] is the local verdict of 04 §7.4 🔒's 2-char checksum; with
   /// none, no code is refused before the fetch and the AEAD open stays the
   /// only verdict, exactly as before.
+  ///
+  /// [reader] is the camera and [codeOfQr] turns a scanned sheet QR
+  /// (`base64url(version ‖ user_id ‖ RK)`, 04 §7.4) into the same
+  /// [RecoverySheetCode] the typed path makes — null for any other QR. With
+  /// either missing, [scanSheet] is [RecoveryScanOutcome.unavailable].
   const HttpRecoverySheet({
     required RecoveryApi api,
     RecoverySheetOpener? opener,
     RecoverySheetPrecheck? precheck,
     Stream<RecoveryProgress> Function()? restoreProgress,
+    RecoveryQrReader? reader,
+    RecoverySheetCode? Function(String qrText)? codeOfQr,
   }) : _api = api,
        _open = opener,
        _precheck = precheck,
-       _restore = restoreProgress;
+       _restore = restoreProgress,
+       _read = reader,
+       _codeOfQr = codeOfQr;
 
   final RecoveryApi _api;
   final RecoverySheetOpener? _open;
   final RecoverySheetPrecheck? _precheck;
   final Stream<RecoveryProgress> Function()? _restore;
+  final RecoveryQrReader? _read;
+  final RecoverySheetCode? Function(String)? _codeOfQr;
 
   /// Whether [code] is worth spending a fetch on — R2.4's *Restore* may be
   /// drawn **disabled-with-reason** (13 §4.3) off this, rather than enabled
@@ -676,11 +870,41 @@ final class HttpRecoverySheet implements RecoverySheetEntry {
     }
   }
 
+  /// R2.4's camera path (ADR 2026-09-19 ruling 1 🔒). The QR is turned into
+  /// the code the typed path would have made and handed to [submit], so the
+  /// scan and the keyboard reach **one** verdict by one route: the checksum,
+  /// then the AEAD open. A rejected code is [RecoveryScanOutcome.mismatch]
+  /// (R2.4's *"that was not a recovery-sheet code"*); a failure that learned
+  /// nothing about the code stays a [RecoveryFailure] throw, as it does typed.
   @override
-  Future<RecoveryScanOutcome> scanSheet() async =>
-      // No camera package is in the app, and 04 §7.4's QR path needs one
-      // (the ADR 2026-09-12e precedent: the choice is an owner ruling).
-      RecoveryScanOutcome.unavailable;
+  Future<RecoveryScanOutcome> scanSheet() async {
+    final read = _read;
+    final toCode = _codeOfQr;
+    if (read == null || toCode == null) return RecoveryScanOutcome.unavailable;
+    // As [submit]: with nothing that can try the AEAD there is no verdict to
+    // reach, so the camera is not opened to read a code that must be dropped.
+    if (_open == null) throw const RecoveryFailure('no opener');
+    final got = await read<RecoverySheetCode>((t) {
+      try {
+        return toCode(t);
+      } on Object {
+        return null; // not a sheet QR — keep looking
+      }
+    });
+    switch (got) {
+      case RecoveryQrNoCamera():
+        return RecoveryScanOutcome.unavailable;
+      case RecoveryQrCancelled():
+        return RecoveryScanOutcome.cancelled;
+      case RecoveryQrValue(:final value):
+        try {
+          await submit(value);
+        } on RecoverySheetRejected {
+          return RecoveryScanOutcome.mismatch;
+        }
+        return RecoveryScanOutcome.verified;
+    }
+  }
 
   @override
   Future<void> submit(RecoverySheetCode code) async {
@@ -781,7 +1005,14 @@ final class HttpGuardianApprovals implements GuardianApprovals {
   @override
   Future<RecoveryScanOutcome> verifyCandidateByScan(String requestId) async {
     final scan = _scanner;
-    if (scan == null) return RecoveryScanOutcome.unavailable;
+    // The scan exists only to unlock [approve], and [approve] cannot seal
+    // anything without a resealer (04 §7.3 step 3). A camera opened now could
+    // only lead to an *Approve* that always fails, so the screen keeps its
+    // honest *cannot scan yet* state instead (07 §1 rule 6 🔒) and the camera
+    // is not opened for nothing.
+    if (scan == null || _resealer == null) {
+      return RecoveryScanOutcome.unavailable;
+    }
     final ask = await _ask(requestId);
     final outcome = await scan(_candidateOf(ask));
     if (outcome == RecoveryScanOutcome.verified) {

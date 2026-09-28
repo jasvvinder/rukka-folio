@@ -1,0 +1,2 @@
+/* NSCameraUsageDescription — ADR 2026-09-19 ruling 1: the camera reads QR only (S9.3, S11.2, S11.3, S11.7). Punjabi — machine-draft, native review M12. */
+"NSCameraUsageDescription" = "ਇਹ ਐਪ ਕੈਮਰਾ ਸਿਰਫ਼ ਆਪਣੇ ਦਿਖਾਏ ਚੌਰਸ ਕੋਡ ਪੜ੍ਹਨ ਲਈ ਵਰਤਦੀ ਹੈ: ਪਰਿਵਾਰ ਦੇ ਕਿਸੇ ਜੀਅ ਦੀ ਚਾਬੀ ਜਾਂਚਣ, ਫ਼ੋਨ ਜੋੜਨ, ਜਾਂ ਤੁਹਾਡੀ ਰਿਕਵਰੀ ਸ਼ੀਟ ਪੜ੍ਹਨ ਲਈ। ਕੁਝ ਵੀ ਰਿਕਾਰਡ ਜਾਂ ਭੇਜਿਆ ਨਹੀਂ ਜਾਂਦਾ।";

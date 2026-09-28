@@ -383,6 +383,22 @@
   "ceremony.mismatch.semantics": "चेतावनी। जाँच नाकाम रही।",
   "ceremony.mismatch.support": "सहायता से संपर्क करें",
   "ceremony.mismatch.title": "आगे न बढ़ें।",
+  "ceremony.scan.close": "बंद करें",
+  "@ceremony.scan.close": {
+    "description": "machine-draft — native review M12"
+  },
+  "ceremony.scan.hint": "यह फ़ोन ऐसे पकड़ें कि दूसरी स्क्रीन या काग़ज़ का चौकोर कोड फ़्रेम के अंदर आए।",
+  "@ceremony.scan.hint": {
+    "description": "machine-draft — native review M12"
+  },
+  "ceremony.scan.title": "चौकोर कोड स्कैन करें",
+  "@ceremony.scan.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "ceremony.scan.wrong_code": "यह कोई और कोड है। कैमरा उस चौकोर कोड की ओर करें जो यह क़दम माँगता है।",
+  "@ceremony.scan.wrong_code": {
+    "description": "machine-draft — native review M12"
+  },
   "ceremony.show.body": "उन्हें यह चौकोर स्कैन करने दें। अगर न हो सके, तो आठों अंक बोलकर बता दें।",
   "ceremony.show.channel_rule": "यह कोड कभी संदेश में न भेजें। कॉल पर बोलकर बताएँ, या उन्हें चौकोर स्कैन करने दें।",
   "ceremony.show.code.label": "आपका 8-अंकों का कोड",
@@ -3162,6 +3178,10 @@
   "@recovery.ask.call_advice": {
     "description": "machine-draft — native review M12"
   },
+  "recovery.ask.call_number": "फ़ोन करें · {phone}",
+  "@recovery.ask.call_number": {
+    "description": "machine-draft — native review M12"
+  },
   "recovery.ask.cancelled.body": "इस खाते में पहले से साइन इन किसी फ़ोन पर किसी ने रद्द करें दबाया है। अगर वह आप थे तो और कुछ करने की ज़रूरत नहीं। अगर आप नहीं थे, तो दोबारा माँगने से पहले अपने भरोसेमंद लोगों को फ़ोन करें।",
   "@recovery.ask.cancelled.body": {
     "description": "machine-draft — native review M12"
@@ -3264,6 +3284,18 @@
   },
   "recovery.ask.waiting_label": "{name} की मंज़ूरी का इंतज़ार",
   "@recovery.ask.waiting_label": {
+    "description": "machine-draft — native review M12"
+  },
+  "recovery.call.copied": "नंबर कॉपी हो गया",
+  "@recovery.call.copied": {
+    "description": "machine-draft — native review M12"
+  },
+  "recovery.call.copy": "नंबर कॉपी करें",
+  "@recovery.call.copy": {
+    "description": "machine-draft — native review M12"
+  },
+  "recovery.call.failed": "यह फ़ोन कॉल शुरू नहीं कर सका। नंबर ख़ुद मिलाएँ।",
+  "@recovery.call.failed": {
     "description": "machine-draft — native review M12"
   },
   "recovery.fork.blocked.no_other_phone": "इस समय आपका कोई दूसरा फ़ोन साइन इन नहीं है।",

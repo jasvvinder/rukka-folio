@@ -75,5 +75,14 @@
   "ceremony.show.no_invite.close": "बंद करें",
   "@ceremony.show.no_invite.close": {"description": "machine-draft — native review M12"},
   "ceremony.show.no_invite.semantics": "अभी कोई कोड नहीं।",
-  "@ceremony.show.no_invite.semantics": {"description": "machine-draft — native review M12"}
+  "@ceremony.show.no_invite.semantics": {"description": "machine-draft — native review M12"},
+
+  "ceremony.scan.title": "चौकोर कोड स्कैन करें",
+  "@ceremony.scan.title": {"description": "machine-draft — native review M12"},
+  "ceremony.scan.hint": "यह फ़ोन ऐसे पकड़ें कि दूसरी स्क्रीन या काग़ज़ का चौकोर कोड फ़्रेम के अंदर आए।",
+  "@ceremony.scan.hint": {"description": "machine-draft — native review M12"},
+  "ceremony.scan.wrong_code": "यह कोई और कोड है। कैमरा उस चौकोर कोड की ओर करें जो यह क़दम माँगता है।",
+  "@ceremony.scan.wrong_code": {"description": "machine-draft — native review M12"},
+  "ceremony.scan.close": "बंद करें",
+  "@ceremony.scan.close": {"description": "machine-draft — native review M12"}
 }

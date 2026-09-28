@@ -22,7 +22,8 @@
 //
 // The ceremony itself is `features/ceremony` (S9.2/S9.3/S9.4) and is consumed
 // read-only: this screen raises [GuardianSetupScreen.onMeet] and the route
-// pushes S9.3 for that member's invite. Nothing here verifies anything.
+// pushes S9.3 for that member's **user id** (CeremonyPaths.verifyMemberFor).
+// Nothing here verifies anything.
 //
 // States (13 §4.3): loading (ruled skeleton) · populated · empty with its one
 // next action · error-with-retry · offline (a line, never a block) · read-only
@@ -37,13 +38,29 @@ import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../../../shared/widgets/rk_states.dart';
 
+/// Why *Meet them* cannot run for one candidate (13 §4.3 disabled-with-reason).
+///
+/// The server opens a ceremony session only for a subject who is
+/// `joined_pending_verification` or `active` (migration 0007
+/// `subject_not_in_tenant`); every other member state is one of these.
+enum GuardianMeetBlock {
+  /// `invited` or `expired` (06 §7 🔒): no install and no UMK yet, so there is
+  /// nobody to meet. The row's id is an invite id, never a user id.
+  notJoined,
+
+  /// `blocked` (06 §7 🔒, 06 §10): an admin unblocks only after
+  /// investigation, and a new invite is required before any ceremony.
+  blocked,
+}
+
 /// S11.1.
 class GuardianSetupScreen extends StatefulWidget {
   /// Creates the screen. [repository] overrides the [GuardiansScope] one.
   const GuardianSetupScreen({
     super.key,
     this.repository,
-    this.onMeet,
+    required this.onMeet,
+    required this.meetBlockOf,
     this.onAddMember,
     this.onDone,
   });
@@ -51,9 +68,16 @@ class GuardianSetupScreen extends StatefulWidget {
   /// The seam, when not handed down by a [GuardiansScope].
   final GuardiansRepository? repository;
 
-  /// Opens the mutual ceremony (S9.3) for this member. Null → the action is
-  /// disabled with its reason, never silently absent.
-  final void Function(TrustedMemberCandidate candidate)? onMeet;
+  /// Opens the mutual ceremony (S9.3) for this member. Required: a host that
+  /// cannot open S9.3 has no honest reason to show, so it may not build this
+  /// screen at all.
+  final void Function(TrustedMemberCandidate candidate) onMeet;
+
+  /// Whether this candidate can be met, and if not, why. The candidate seam
+  /// carries no membership state (`shared/seams/guardians.dart`), so the host
+  /// answers from the roster that does. Null means the ceremony can run.
+  final GuardianMeetBlock? Function(TrustedMemberCandidate candidate)
+  meetBlockOf;
 
   /// The one next action of the empty state — S9 Members.
   final VoidCallback? onAddMember;
@@ -208,6 +232,7 @@ class _GuardianSetupScreenState extends State<GuardianSetupScreen> {
               saveError: _saveError,
               onToggle: (id) => _toggle(s, id),
               onMeet: widget.onMeet,
+              meetBlockOf: widget.meetBlockOf,
               onPhraseChanged: () => setState(() {}),
             );
           },
@@ -243,6 +268,7 @@ class _Body extends StatelessWidget {
     required this.saveError,
     required this.onToggle,
     required this.onMeet,
+    required this.meetBlockOf,
     required this.onPhraseChanged,
   });
 
@@ -252,7 +278,8 @@ class _Body extends StatelessWidget {
   final bool saved;
   final bool saveError;
   final void Function(String memberId) onToggle;
-  final void Function(TrustedMemberCandidate)? onMeet;
+  final void Function(TrustedMemberCandidate) onMeet;
+  final GuardianMeetBlock? Function(TrustedMemberCandidate) meetBlockOf;
   final VoidCallback onPhraseChanged;
 
   @override
@@ -335,9 +362,15 @@ class _Body extends StatelessWidget {
                 // reacts (to un-choose), so no tap is a dead end.
                 enabled: !setup.readOnly,
                 onToggle: () => onToggle(c.memberId),
-                onMeet: c.inviteId == null || onMeet == null
-                    ? null
-                    : () => onMeet!(c),
+                // The ceremony is keyed by the member (04 §6: one component,
+                // four uses — guardian activation runs it between two active
+                // members with no invite), so a missing invite id is not a
+                // reason to refuse. *You* are never a candidate and a
+                // finished ceremony shows no action; a member who has not
+                // joined, or is blocked, gets the button disabled with the
+                // reason that is true for them (13 §4.3; 06 §7 🔒).
+                block: meetBlockOf(c),
+                onMeet: () => onMeet(c),
               ),
             if (guardianNeedsTypedConfirmation(n)) ...[
               const SizedBox(height: RkSpace.s4),
@@ -363,6 +396,7 @@ class _MemberRow extends StatelessWidget {
     required this.chosen,
     required this.enabled,
     required this.onToggle,
+    required this.block,
     required this.onMeet,
   });
 
@@ -370,7 +404,8 @@ class _MemberRow extends StatelessWidget {
   final bool chosen;
   final bool enabled;
   final VoidCallback onToggle;
-  final VoidCallback? onMeet;
+  final GuardianMeetBlock? block;
+  final VoidCallback onMeet;
 
   @override
   Widget build(BuildContext context) {
@@ -448,13 +483,19 @@ class _MemberRow extends StatelessWidget {
                       const SizedBox(height: RkSpace.s2),
                       OutlinedButton(
                         key: Key('guardians.meet.${candidate.memberId}'),
-                        onPressed: enabled ? onMeet : null,
+                        onPressed: enabled && block == null ? onMeet : null,
                         child: Text(l10n.guardiansMeet),
                       ),
-                      if (onMeet == null) ...[
+                      if (block != null) ...[
                         const SizedBox(height: RkSpace.s1),
                         Text(
-                          l10n.guardiansMeetUnavailable(candidate.name),
+                          switch (block!) {
+                            GuardianMeetBlock.notJoined =>
+                              l10n.guardiansMeetUnavailable(candidate.name),
+                            GuardianMeetBlock.blocked =>
+                              l10n.membersStateBlockedHelp,
+                          },
+                          key: Key('guardians.meet.why.${candidate.memberId}'),
                           style: text.bodySmall?.copyWith(color: status.muted),
                         ),
                       ],

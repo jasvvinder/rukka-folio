@@ -17,6 +17,7 @@ import '../../../shared/ledger/local_ledger.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../../../shared/money/paise_input.dart';
+import '../../entry/entry_restriction.dart';
 
 /// Which movement the sheet posts (02 §7).
 enum AdvanceSheetMode {
@@ -100,8 +101,12 @@ class _AdvanceEntrySheetState extends State<AdvanceEntrySheet> {
       .toList();
 
   Future<void> _save() async {
+    if (_saving) return;
     final l10n = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context);
+    // S12.5 (ADR 2026-09-24b §13): read-only blocks advances too. Both seams
+    // are read before the first await (`entry_restriction.dart`).
+    final sources = entryRestrictionSourcesOf(context);
     final paise = paiseOf(_amount.text);
     if (paise == null) {
       setState(() => _amountError = l10n.advancesSheetAmountEmpty);
@@ -123,6 +128,12 @@ class _AdvanceEntrySheetState extends State<AdvanceEntrySheet> {
       _saving = true;
     });
     final ledger = LedgerScope.of(context);
+    // Refused → nothing is appended and the typed amount and category stay
+    // exactly as they were under the sheet (drafts kept, §13).
+    final refused = await refuseIfEntryRestricted(context, sources, [
+      widget.advance.bookId,
+    ], onBlocked: () => setState(() => _saving = false));
+    if (refused) return;
     try {
       if (_isSpend) {
         await ledger.spendAgainstAdvance(

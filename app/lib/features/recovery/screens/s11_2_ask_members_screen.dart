@@ -440,7 +440,7 @@ class _Waiting extends StatelessWidget {
                 approver: a,
                 stateText: _stateText(l10n, a.state),
                 waitingLabel: l10n.recoveryAskWaitingLabel(a.name),
-                callLabel: l10n.recoveryAskCall,
+                callLabel: l10n.recoveryAskCallNumber,
                 onCall: onCall,
               ),
             if (attempt.state == RecoveryAttemptState.waiting24h)

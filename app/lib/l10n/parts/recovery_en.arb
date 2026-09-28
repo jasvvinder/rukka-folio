@@ -227,5 +227,14 @@
   "recovery.approve.error": "We could not open this request.",
   "@recovery.approve.error": {"description": "S11.7 error-with-retry (13 §4.3, 07 §1 rule 12)."},
   "recovery.approve.retry": "Try again",
-  "@recovery.approve.retry": {"description": "S11.7 retry action."}
+  "@recovery.approve.retry": {"description": "S11.7 retry action."},
+
+  "recovery.call.failed": "This phone could not start a call. Dial the number yourself.",
+  "@recovery.call.failed": {"description": "R2.2/R2.3 failed dial (ADR 2026-09-19 ruling 3 🔒, 07 §1 rule 6 🔒): no SIM, a tablet, a simulator. Shown with an icon beside it (rule 3) above the number and Copy the number."},
+  "recovery.call.copy": "Copy the number",
+  "@recovery.call.copy": {"description": "R2.2/R2.3 failed dial: copies the stored number, unaltered, so it can be dialled another way."},
+  "recovery.call.copied": "Number copied",
+  "@recovery.call.copied": {"description": "R2.2/R2.3 failed dial: confirmation after Copy the number, in words beside a tick."},
+  "recovery.ask.call_number": "Call · {phone}",
+  "@recovery.ask.call_number": {"description": "S11.2 per-row call control: the pack's Call link with the member's stored number beside it (design R2.2). One message, never joined in code (01 §1 rule 7 🔒).", "placeholders": {"phone": {"type": "String", "example": "98765 43210"}}}
 }

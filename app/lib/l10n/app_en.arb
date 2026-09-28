@@ -1035,6 +1035,22 @@
   "@ceremony.mismatch.title": {
     "description": "S9.4 title, from 04 §6.3 🔒 (\"Do not proceed. Contact support.\"). Full red screen, no override."
   },
+  "ceremony.scan.close": "Close",
+  "@ceremony.scan.close": {
+    "description": "Full-screen QR scan close control — backs out with nothing read."
+  },
+  "ceremony.scan.hint": "Hold this phone so the square code on the other screen or sheet sits inside the frame.",
+  "@ceremony.scan.hint": {
+    "description": "Full-screen QR scan instruction under the viewfinder."
+  },
+  "ceremony.scan.title": "Scan the square code",
+  "@ceremony.scan.title": {
+    "description": "Full-screen QR scan opened by the recovery scans (S11.2, S11.3, S11.7) — ADR 2026-09-19 ruling 1."
+  },
+  "ceremony.scan.wrong_code": "That is a different code. Point the camera at the square code this step asks for.",
+  "@ceremony.scan.wrong_code": {
+    "description": "Full-screen QR scan: a QR was read that is not the kind this step needs (a shop sticker, another app). Scanning continues; nothing passed or failed."
+  },
   "ceremony.show.body": "Let them scan this square. If they can’t, read the eight digits out to them.",
   "@ceremony.show.body": {
     "description": "S9.2 lead line. Both paths are equal (design-system §3.1 rule 7 — camera-free path)."
@@ -3606,7 +3622,7 @@
   },
   "guardians.meet.unavailable": "You can do this once {name} has finished joining the book.",
   "@guardians.meet.unavailable": {
-    "description": "S11.1 disabled-with-reason (13 §4.3): no ceremony invite exists yet.",
+    "description": "S11.1 disabled-with-reason (13 §4.3): the member is still `invited` or their invite `expired` (06 §7), so there is nobody to meet yet.",
     "placeholders": {
       "name": {
         "type": "String"
@@ -8945,6 +8961,16 @@
   "@recovery.ask.call_advice": {
     "description": "S11.2 advice line above the members (design R2.2, the pack's own words)."
   },
+  "recovery.ask.call_number": "Call · {phone}",
+  "@recovery.ask.call_number": {
+    "description": "S11.2 per-row call control: the pack's Call link with the member's stored number beside it (design R2.2). One message, never joined in code (01 §1 rule 7 🔒).",
+    "placeholders": {
+      "phone": {
+        "type": "String",
+        "example": "98765 43210"
+      }
+    }
+  },
   "recovery.ask.cancelled.body": "Somebody tapped Cancel on a phone that is already signed in to this account. If that was you, nothing more is needed. If it was not, call the people you trust before asking again.",
   "@recovery.ask.cancelled.body": {
     "description": "S11.2 cancelled-state body. The honest reading of a cancel: it may have been the owner, and it may have been the attack being stopped."
@@ -9082,6 +9108,18 @@
         "type": "String"
       }
     }
+  },
+  "recovery.call.copied": "Number copied",
+  "@recovery.call.copied": {
+    "description": "R2.2/R2.3 failed dial: confirmation after Copy the number, in words beside a tick."
+  },
+  "recovery.call.copy": "Copy the number",
+  "@recovery.call.copy": {
+    "description": "R2.2/R2.3 failed dial: copies the stored number, unaltered, so it can be dialled another way."
+  },
+  "recovery.call.failed": "This phone could not start a call. Dial the number yourself.",
+  "@recovery.call.failed": {
+    "description": "R2.2/R2.3 failed dial (ADR 2026-09-19 ruling 3 🔒, 07 §1 rule 6 🔒): no SIM, a tablet, a simulator. Shown with an icon beside it (rule 3) above the number and Copy the number."
   },
   "recovery.fork.blocked.no_other_phone": "No other phone of yours is signed in right now.",
   "@recovery.fork.blocked.no_other_phone": {

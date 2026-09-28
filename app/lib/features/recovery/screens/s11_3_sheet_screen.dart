@@ -7,14 +7,16 @@
 // design: *"That code didn't work"* with the two likely causes stated plainly,
 // **never a blank error**.
 //
-// **No camera package is added.** The scan sits behind the seam like every
-// other device capability in this repo, and its fake answers
-// [RecoveryScanOutcome.unavailable] — which is this build's truth. Choosing a
-// scanner package is an owner ruling (the ADR 2026-09-12e precedent), so the
-// screen states the limitation and puts the whole weight on the typed path,
-// which is built for real: 04 §7.4's Crockford Base32 in groups of four, with
-// the one failure this phone can name by itself caught before the server is
-// asked ([RecoverySheetCode.parse]).
+// **The camera path is live** (ADR 2026-09-19 ruling 1 🔒). The scan sits
+// behind the seam like every other device capability in this repo: the
+// producer reads the sheet's QR through the ceremony scanner, turns it into
+// the code the typed path would make, and hands it to the same verdict — so
+// this screen only ever learns an outcome. [RecoveryScanOutcome.unavailable]
+// keeps its meaning (*this phone cannot scan*): the limitation is stated and
+// the whole weight goes on the typed path, which is built for real — 04
+// §7.4's Crockford Base32 in groups of four, with the one failure this phone
+// can name by itself caught before the server is asked
+// ([RecoverySheetCode.parse]).
 //
 // ⚠️ SPEC: 04 §7.4 🔒 says the typed fallback carries a "2-char checksum" but
 // nowhere says which checksum. Nothing here verifies one — inventing an

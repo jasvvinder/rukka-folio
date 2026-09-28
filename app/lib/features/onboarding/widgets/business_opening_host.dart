@@ -20,6 +20,7 @@ import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/ledger/ledger_scope.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../entry/entry_restriction.dart';
 import '../onboarding_flow.dart';
 import '../screens/s0_6a_business_name_screen.dart';
 import '../screens/s0_6b_business_opening_balances_screen.dart';
@@ -58,6 +59,14 @@ class _BusinessOpeningHostState extends State<BusinessOpeningHost> {
   Object? _error;
   bool _running = false;
 
+  /// Read-only refused the book's creation (ADR 2026-09-24b §13): the S12.5
+  /// sheet has risen, nothing was appended, and *Try again* asks once more.
+  bool _blocked = false;
+
+  /// A Save is in flight — not drawn, only a re-entry guard, so a double tap
+  /// never posts the opening balances twice or stacks two S12.5 sheets.
+  bool _saving = false;
+
   @override
   void initState() {
     super.initState();
@@ -83,12 +92,32 @@ class _BusinessOpeningHostState extends State<BusinessOpeningHost> {
     setState(() {
       _running = true;
       _error = null;
+      _blocked = false;
     });
     try {
       final ledger = LedgerScope.of(context);
       final flow = widget.flow;
       final draft = flow.business;
       if (draft == null) throw StateError('S0.6a has not been answered');
+      // S12.5 (ADR 2026-09-24b §13): creating the book appends envelopes (its
+      // book_config and the seeded chart), so read-only refuses it with the
+      // same sheet **before** `createBook` runs. A resumed step whose book
+      // already exists writes nothing here and is not asked. No book id is
+      // passed: book full is a per-book answer (ADR 2026-09-05b §7) and a book
+      // not yet created has none. The seams are read before the first await.
+      if (flow.businessBookId == null) {
+        final sources = entryRestrictionSourcesOf(context);
+        final refused = await refuseIfEntryRestricted(
+          context,
+          sources,
+          const <String>[],
+          onBlocked: () => setState(() {
+            _blocked = true;
+            _running = false;
+          }),
+        );
+        if (refused) return;
+      }
       final bookId =
           flow.businessBookId ??
           await ledger.createBook(
@@ -133,15 +162,27 @@ class _BusinessOpeningHostState extends State<BusinessOpeningHost> {
   }
 
   Future<void> _save(Map<String, int> balances) async {
-    final ledger = LedgerScope.of(context);
-    final bookId = widget.flow.businessBookId;
-    if (bookId == null) return;
+    if (_saving) return;
+    _saving = true;
     try {
-      await ledger.openingBalances(bookId, balances: balances);
-      widget.onDone?.call();
-    } on Object catch (e) {
-      if (!mounted) return;
-      setState(() => _error = e);
+      // S12.5 (ADR 2026-09-24b §13): read-only blocks onboarding's opening
+      // balances with the same sheet. The figures stay typed on the screen
+      // underneath (drafts kept); *Skip for now* still leads on, so the step is
+      // never a dead end. Both seams are read before the first await.
+      final sources = entryRestrictionSourcesOf(context);
+      final ledger = LedgerScope.of(context);
+      final bookId = widget.flow.businessBookId;
+      if (bookId == null) return;
+      if (await refuseIfEntryRestricted(context, sources, [bookId])) return;
+      try {
+        await ledger.openingBalances(bookId, balances: balances);
+        widget.onDone?.call();
+      } on Object catch (e) {
+        if (!mounted) return;
+        setState(() => _error = e);
+      }
+    } finally {
+      _saving = false;
     }
   }
 
@@ -152,6 +193,18 @@ class _BusinessOpeningHostState extends State<BusinessOpeningHost> {
       return _CommitState(
         icon: Icons.error_outline,
         message: l10n.onboardingBusinessOpeningCreateError,
+        action: l10n.onboardingBusinessOpeningRetry,
+        onAction: _commit,
+      );
+    }
+    if (_blocked) {
+      // Colour never alone (07 §1): the lock and the words carry it; the way
+      // on is *Try again*, which re-asks and re-raises the sheet whose action
+      // opens S12.1 Plans — never a dead end (07 §1 rule 2).
+      return _CommitState(
+        icon: Icons.lock_outline,
+        title: l10n.subscriptionBannerReadOnlyTitle,
+        message: l10n.subscriptionBannerReadOnlyBody,
         action: l10n.onboardingBusinessOpeningRetry,
         onAction: _commit,
       );
@@ -178,12 +231,14 @@ class _BusinessOpeningHostState extends State<BusinessOpeningHost> {
 class _CommitState extends StatelessWidget {
   const _CommitState({
     required this.icon,
+    this.title,
     required this.message,
     this.action,
     this.onAction,
   });
 
   final IconData icon;
+  final String? title;
   final String message;
   final String? action;
   final VoidCallback? onAction;
@@ -203,6 +258,14 @@ class _CommitState extends StatelessWidget {
                 // Colour never alone (07 §1): the icon and the words carry it.
                 Icon(icon, color: status.muted, size: RkIcon.grid),
                 const SizedBox(height: RkSpace.s3),
+                if (title case final title?) ...[
+                  Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    style: text.titleMedium,
+                  ),
+                  const SizedBox(height: RkSpace.s2),
+                ],
                 Semantics(
                   liveRegion: true,
                   child: Text(

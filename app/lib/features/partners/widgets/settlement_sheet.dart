@@ -20,6 +20,7 @@ import '../../../shared/format/money_format.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../../../shared/money/paise_input.dart';
+import '../../entry/entry_restriction.dart';
 import '../partners_port.dart';
 
 /// Which of the two posting routes the sheet is running.
@@ -112,8 +113,12 @@ class _SettlementSheetState extends State<_SettlementSheet> {
   }
 
   Future<void> _save() async {
+    if (_busy) return;
     final l10n = AppLocalizations.of(context);
     final locale = Localizations.localeOf(context);
+    // S12.5 (ADR 2026-09-24b §13): read-only blocks partner entries too. Both
+    // seams are read before the first await (`entry_restriction.dart`).
+    final sources = entryRestrictionSourcesOf(context);
     final paise = paiseOf(_amount.text);
     if (paise == null) {
       setState(() => _error = l10n.partnersSheetAmountInvalid);
@@ -136,6 +141,12 @@ class _SettlementSheetState extends State<_SettlementSheet> {
       _busy = true;
       _error = null;
     });
+    // Refused → nothing is posted and the amount and counterpart stay as
+    // typed under the sheet (drafts kept, §13).
+    final refused = await refuseIfEntryRestricted(context, sources, [
+      widget.bookId,
+    ], onBlocked: () => setState(() => _busy = false));
+    if (refused) return;
     try {
       switch (widget.mode) {
         case SettlementMode.payOut:

@@ -22,6 +22,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../shared/seams/recovery_ladder.dart';
+import 'recovery_camera.dart';
 import 'recovery_paths.dart';
 import 'screens/s11_2_ask_members_screen.dart';
 import 'screens/s11_3_sheet_screen.dart';
@@ -30,7 +31,9 @@ import 'screens/s11_6_fork_screen.dart';
 import 'screens/s11_7_guardian_approval_screen.dart';
 import 'screens/s11_8_nothing_yet_screen.dart';
 
+export 'recovery_camera.dart';
 export 'recovery_paths.dart';
+export 'sheet_qr.dart';
 export 'screens/s11_2_ask_members_screen.dart' show AskTrustedMembersScreen;
 export 'screens/s11_3_sheet_screen.dart' show RecoverySheetScreen;
 export 'screens/s11_5_silent_restore_screen.dart' show SilentRestoreScreen;
@@ -68,21 +71,29 @@ List<RouteBase> recoveryRoutes({
   ),
   GoRoute(
     path: RecoveryPaths.askMembers,
-    builder: (context, state) =>
-        AskTrustedMembersScreen(onBack: () => context.pop()),
+    // S11.2, S11.3 and S11.7 each lend their navigator to the recovery
+    // camera while shown, so a scan opens over the screen that asked for it
+    // (ADR 2026-09-19 ruling 1 🔒; `recovery_camera.dart`).
+    builder: (context, state) => RecoveryCameraHost(
+      child: AskTrustedMembersScreen(onBack: () => context.pop()),
+    ),
   ),
   GoRoute(
     path: RecoveryPaths.sheet,
-    builder: (context, state) => RecoverySheetScreen(
-      onBack: () => context.pop(),
-      onRestored: () => onRestored(context),
+    builder: (context, state) => RecoveryCameraHost(
+      child: RecoverySheetScreen(
+        onBack: () => context.pop(),
+        onRestored: () => onRestored(context),
+      ),
     ),
   ),
   GoRoute(
     path: RecoveryPaths.approve,
-    builder: (context, state) => GuardianApprovalScreen(
-      requestId: state.pathParameters['requestId'] ?? '',
-      onDone: () => context.pop(),
+    builder: (context, state) => RecoveryCameraHost(
+      child: GuardianApprovalScreen(
+        requestId: state.pathParameters['requestId'] ?? '',
+        onDone: () => context.pop(),
+      ),
     ),
   ),
   GoRoute(

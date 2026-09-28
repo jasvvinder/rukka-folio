@@ -270,7 +270,7 @@ class _Loaded extends StatelessWidget {
                   value: entitlement.periodEnd == null
                       ? l10n.subscriptionRenewalNone
                       : formatLedgerDate(
-                          localDateOf(entitlement.periodEnd!),
+                          localDateOf(entitlement.periodEnd!.toLocal()),
                           strings: l10n,
                         ),
                 ),

@@ -129,5 +129,14 @@
   "ceremony.show.no_invite.close": "Close",
   "@ceremony.show.no_invite.close": {"description": "S9.2 fail-closed state way off the screen."},
   "ceremony.show.no_invite.semantics": "No code yet.",
-  "@ceremony.show.no_invite.semantics": {"description": "S9.2 fail-closed state icon semantics — the icon colour is never the only signal (07 §1 rule 3)."}
+  "@ceremony.show.no_invite.semantics": {"description": "S9.2 fail-closed state icon semantics — the icon colour is never the only signal (07 §1 rule 3)."},
+
+  "ceremony.scan.title": "Scan the square code",
+  "@ceremony.scan.title": {"description": "Full-screen QR scan opened by the recovery scans (S11.2, S11.3, S11.7) — ADR 2026-09-19 ruling 1."},
+  "ceremony.scan.hint": "Hold this phone so the square code on the other screen or sheet sits inside the frame.",
+  "@ceremony.scan.hint": {"description": "Full-screen QR scan instruction under the viewfinder."},
+  "ceremony.scan.wrong_code": "That is a different code. Point the camera at the square code this step asks for.",
+  "@ceremony.scan.wrong_code": {"description": "Full-screen QR scan: a QR was read that is not the kind this step needs (a shop sticker, another app). Scanning continues; nothing passed or failed."},
+  "ceremony.scan.close": "Close",
+  "@ceremony.scan.close": {"description": "Full-screen QR scan close control — backs out with nothing read."}
 }

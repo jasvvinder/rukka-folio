@@ -2,10 +2,12 @@
 // camera-free path (design-system §3.1 rule 7 🔒) is not a fallback bolted on
 // afterwards but the same screen with a different source of digits.
 //
-// ⚠️ WIRE — no camera plugin is in `app/pubspec.yaml` yet (pubspec is the shell
-// lane's file). Until one lands, [NoCameraScanner] reports `unavailable` and
-// S9.3 opens on the code path, which is a complete way through: a phone with
-// no camera has always had to join this way.
+// ADR 2026-09-19 ruling 1 🔒: `mobile_scanner` enters the app **only** through
+// this seam (`mobile_scanner_adapter.dart`); no screen imports the package.
+// Its failures map onto this file's vocabulary — permission refused →
+// [CameraStatus.denied], no camera or a busy one → [CameraStatus.unavailable]
+// — and [NoCameraScanner] and [FakeCeremonyScanner] stay, so every widget test
+// keeps running without a camera.
 import 'dart:async';
 
 import 'package:flutter/widgets.dart';
@@ -23,6 +25,10 @@ enum CameraStatus {
 }
 
 /// A QR source. Implementations must be safe to [dispose] twice.
+///
+/// A screen draws [buildPreview] **while [start] is in flight** (S9.3 and the
+/// recovery scan both open on the viewfinder): the `mobile_scanner` adapter
+/// can only start a camera whose view is mounted, and waits a moment for it.
 abstract class CeremonyScanner {
   /// Starts the preview. Never throws — a problem is a [CameraStatus].
   Future<CameraStatus> start();
@@ -34,12 +40,24 @@ abstract class CeremonyScanner {
   /// the screen, so every implementation sits in the same box.
   Widget buildPreview(BuildContext context);
 
+  /// Stops the camera while the screen that holds it stays open — S9.3's
+  /// *Enter code instead* — so nothing is filmed or decoded behind a code
+  /// field that no longer shows a preview. After [stop], [codes] emits
+  /// nothing more until [start] runs again. Safe before [start] and after
+  /// [dispose].
+  Future<void> stop();
+
   /// Releases the camera.
   Future<void> dispose();
 }
 
-/// The scanner the app ships with until a camera plugin lands: honest about
-/// having no camera, so S9.3 shows the code path instead of a dead preview.
+/// Makes a fresh scanner for one screen. A scanner is owned by the screen it
+/// was handed to, which disposes it — so a scope that outlives screens carries
+/// a factory, never one instance (a second S9.3 would get a released camera).
+typedef CeremonyScannerFactory = CeremonyScanner Function();
+
+/// The scanner for a build with no camera: honest about it, so S9.3 shows the
+/// code path instead of a dead preview.
 final class NoCameraScanner implements CeremonyScanner {
   /// Creates the scanner.
   NoCameraScanner();
@@ -54,6 +72,9 @@ final class NoCameraScanner implements CeremonyScanner {
 
   @override
   Widget buildPreview(BuildContext context) => const SizedBox.expand();
+
+  @override
+  Future<void> stop() async {}
 
   @override
   Future<void> dispose() async {
@@ -73,18 +94,36 @@ final class FakeCeremonyScanner implements CeremonyScanner {
   /// How many times [start] was called.
   int starts = 0;
 
+  /// How many times [stop] was called.
+  int stops = 0;
+
+  /// True between a [stop] and the next [start]: a stopped camera films
+  /// nothing, so [emit] then delivers nothing — which is what lets a test see
+  /// that a screen stopped it rather than merely stopped listening.
+  bool stopped = false;
+
   /// True once [dispose] ran.
   bool disposed = false;
 
   final _codes = StreamController<String>.broadcast();
 
   /// Plays a scan of [text].
-  void emit(String text) => _codes.add(text);
+  void emit(String text) {
+    if (stopped || _codes.isClosed) return;
+    _codes.add(text);
+  }
 
   @override
   Future<CameraStatus> start() async {
     starts++;
+    stopped = false;
     return status;
+  }
+
+  @override
+  Future<void> stop() async {
+    stops++;
+    stopped = true;
   }
 
   @override
@@ -99,4 +138,35 @@ final class FakeCeremonyScanner implements CeremonyScanner {
     disposed = true;
     if (!_codes.isClosed) await _codes.close();
   }
+}
+
+/// Takes one scanner for the life of this element and hands it to [builder].
+///
+/// The scanner is **not** disposed here: the screen [builder] returns owns it
+/// (S9.3 and the recovery scan dispose theirs). What this adds is that a
+/// rebuild — a scope notifying, a route re-running its builder — never takes
+/// a second camera for a screen that already has one.
+class CeremonyScannerOwner extends StatefulWidget {
+  /// Takes with [take], builds with [builder].
+  const CeremonyScannerOwner({
+    super.key,
+    required this.take,
+    required this.builder,
+  });
+
+  /// Called once, in `initState`.
+  final CeremonyScanner Function() take;
+
+  /// Builds the screen that owns the scanner.
+  final Widget Function(BuildContext context, CeremonyScanner scanner) builder;
+
+  @override
+  State<CeremonyScannerOwner> createState() => _CeremonyScannerOwnerState();
+}
+
+class _CeremonyScannerOwnerState extends State<CeremonyScannerOwner> {
+  late final CeremonyScanner _scanner = widget.take();
+
+  @override
+  Widget build(BuildContext context) => widget.builder(context, _scanner);
 }

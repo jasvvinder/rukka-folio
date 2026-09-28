@@ -3,7 +3,9 @@
 // 07 §20 🔒, 08 §3 🔒, DESIGN-PACK §11 S12.4 🔒).
 //
 // 🔒 **Two graces, two copies.** This screen is the *dunning* grace only —
-// tenant-wide, server-declared, 7 days from `period_end` (ADR 2026-09-05g §4).
+// tenant-wide, server-declared (ADR 2026-09-05g §4), ending on the token's
+// `grace_until` — the server's date, never `period_end + 7 d` (ADR
+// 2026-09-24b §6 🔒).
 // Reached in any other state it says so plainly and shows **no countdown**.
 // Reached in **offline grace** it never uses the lapse words: an off-network
 // phone has not lapsed and the server has not said it has, so `payment.none.*`
@@ -14,6 +16,12 @@
 // in `dunning_grace.dart` calls `DateTime.now()`. ADR 2026-09-05g §4's clock
 // floor — `max(local, highest server timestamp seen)` — is the server's rule,
 // and the countdown here is a rendering of two dates it was handed.
+//
+// ⚠️ SPEC (PLAN desk 46, unruled) — **dunning with a null `grace_until`**.
+// Only a hand edit of `subscriptions` makes one, and ADR 2026-09-24b §6 does
+// not say what the client shows. Conservative reading: never invent a date.
+// The headline, what changes when the time is up, and both actions stay; the
+// countdown line and the date line are simply not drawn.
 //
 // 🔒 **The grace blocks nothing.** Entry carries on while a payment is
 // retried; that is what the grace *is* ([EntitlementState.blocksEntry] is
@@ -227,7 +235,7 @@ class _Dunning extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
     final status = RkStatusColors.of(context);
-    final periodEnd = entitlement.periodEnd;
+    final graceUntil = entitlement.dunningGraceUntil;
     final outcome = this.outcome;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -240,14 +248,15 @@ class _Dunning extends StatelessWidget {
                 text: l10n.paymentHeadline,
                 kind: SubscriptionNoticeKind.problem,
               ),
-              // The countdown. A reading with no `period_end` has no window
-              // to count, so the screen simply omits the line rather than
-              // invent a date (07 §1 rule 12 — never a made-up figure).
-              if (periodEnd != null) ...[
+              // The countdown, to the server's `grace_until` (ADR 2026-09-24b
+              // §6 🔒). A dunning reading with no date has no window to count,
+              // so the screen omits both lines rather than invent one (07 §1
+              // rule 12 — never a made-up figure; ⚠️ SPEC desk 46, header).
+              if (graceUntil != null) ...[
                 const SizedBox(height: RkSpace.s3),
                 Semantics(
                   label: l10n.paymentDaysLeft(
-                    rkDunningDaysLeft(periodEnd: periodEnd, now: now()),
+                    rkDunningDaysLeft(graceUntil: graceUntil, now: now()),
                   ),
                   child: ExcludeSemantics(
                     child: Row(
@@ -263,7 +272,7 @@ class _Dunning extends StatelessWidget {
                           child: RkFitText(
                             l10n.paymentDaysLeft(
                               rkDunningDaysLeft(
-                                periodEnd: periodEnd,
+                                graceUntil: graceUntil,
                                 now: now(),
                               ),
                             ),
@@ -277,7 +286,7 @@ class _Dunning extends StatelessWidget {
                 const SizedBox(height: RkSpace.s1),
                 RkFitText(
                   formatLedgerDate(
-                    localDateOf(rkDunningEndsAt(periodEnd)),
+                    localDateOf(graceUntil.toLocal()),
                     strings: l10n,
                   ),
                   style: text.bodySmall?.copyWith(color: status.muted),

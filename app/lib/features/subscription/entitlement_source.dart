@@ -7,10 +7,13 @@
 // fields, so the two subscription screens render a state rather than invent
 // one.
 //
-// **Faithful to the token, not to a screen** (ADR 2026-09-05g §1): the server
-// signs `{tenant_id, plan, limits{members, business_books, devices,
-// envelopes_per_book, tenant_bytes, attachment_bytes}, period_end, grace_kind,
-// iat, exp}`. Every one of those is a field below, under the same name. The
+// **Faithful to the token, not to a screen** (ADR 2026-09-05g §1, amended by
+// ADR 2026-09-24b §6): the server signs `{tenant_id, plan, limits{members,
+// business_books, devices, envelopes_per_book, tenant_bytes,
+// attachment_bytes}, period_end, grace_kind, grace_until, iat, exp}` — and,
+// since ADR 2026-09-25 §6, `features` after `limits` (M11-CAT1; mirrored by
+// its own client row, not here). Every field this app reads is below, under
+// the same name. The
 // one addition is [EntitlementSourceKind] — **where this reading came from** —
 // because the device-local half of ADR 2026-09-05g §4's *two graces* is not in
 // the token at all: it is the fact that this phone has not reached the server
@@ -68,8 +71,8 @@ enum EntitlementGraceKind {
   /// The 30-day Family trial — once per user, not per tenant (08 §2).
   trial,
 
-  /// Renewal failed: 7 days from `period_end`, tenant-wide, S12.4 (ADR
-  /// 2026-09-05g §4).
+  /// Renewal failed: tenant-wide, S12.4, ending on the date the server
+  /// declares in `grace_until` (ADR 2026-09-05g §4, ADR 2026-09-24b §6 🔒).
   dunning,
 
   /// The server has said the plan ended. Read-only: entry stops, reading,
@@ -173,6 +176,7 @@ class Entitlement {
     required this.limits,
     required this.periodEnd,
     required this.graceKind,
+    this.graceUntil,
     required this.source,
     required this.activeMembers,
   });
@@ -190,6 +194,45 @@ class Entitlement {
     activeMembers: activeMembers,
   );
 
+  /// A reading from a verified token. This is the one constructor a producer
+  /// uses (PLAN desk 23c). Both dates come from [times], the wire parse
+  /// ([EntitlementTokenTimes.fromPayload]), so the producer cannot fill
+  /// `period_end` and drop `grace_until` (ADR 2026-09-24b §6 🔒). [source] is
+  /// fresh or stale, never absent: an absent reading is
+  /// [Entitlement.untokened].
+  ///
+  /// ⚠️ SPEC (owner item): the plain constructor still leaves [graceUntil]
+  /// optional, because test files outside this feature build an
+  /// [Entitlement] without it. Making it `required` is the stronger guard,
+  /// and it needs those files changed at the same time.
+  factory Entitlement.fromToken({
+    required String tenantId,
+    required RkPlan plan,
+    required EntitlementLimits limits,
+    required EntitlementGraceKind graceKind,
+    required EntitlementTokenTimes times,
+    required EntitlementSourceKind source,
+    required int activeMembers,
+  }) {
+    if (source == EntitlementSourceKind.absent) {
+      throw ArgumentError.value(
+        source,
+        'source',
+        'a token reading is fresh or stale; absent is Entitlement.untokened',
+      );
+    }
+    return Entitlement(
+      tenantId: tenantId,
+      plan: plan,
+      limits: limits,
+      periodEnd: times.periodEnd,
+      graceKind: graceKind,
+      graceUntil: times.graceUntil,
+      source: source,
+      activeMembers: activeMembers,
+    );
+  }
+
   /// The token's `tenant_id`. Null when no token has been seen.
   final String? tenantId;
 
@@ -205,6 +248,31 @@ class Entitlement {
 
   /// The token's `grace_kind`.
   final EntitlementGraceKind graceKind;
+
+  /// The token's `grace_until` — the date the **server** declares the dunning
+  /// grace ends (ADR 2026-09-24b §6 🔒). Null unless `grace_kind = dunning`,
+  /// and null on an untokened reading. Mirrored as the token carries it; read
+  /// it through [dunningGraceUntil], which ignores it outside dunning.
+  ///
+  /// 🔒 The client never derives `period_end + 7 d` in its place.
+  final DateTime? graceUntil;
+
+  /// The dunning end date a screen may count down to, or null when there is
+  /// none to show.
+  ///
+  /// Null outside [EntitlementState.dunningGrace] whatever the token carried
+  /// — the token says `grace_until` is null unless dunning, and a stale
+  /// reading is offline grace, which has no countdown (07 §20). Null, too, in
+  /// dunning when the token carried no date.
+  ///
+  /// ⚠️ SPEC (PLAN desk 46, unruled): dunning with a null `grace_until` — only
+  /// a hand edit of `subscriptions` makes one, and ADR 2026-09-24b §6 does not
+  /// say what the client shows. Conservative reading: **never invent a date**.
+  /// S12.4 shows the payment problem and its fix path with no countdown and
+  /// no day count; entry keeps working, because dunning *is* the grace
+  /// ([EntitlementState.blocksEntry]).
+  DateTime? get dunningGraceUntil =>
+      state == EntitlementState.dunningGrace ? graceUntil : null;
 
   /// Active members counted against [EntitlementLimits.members] — plaintext
   /// metadata, the only thing 08 §3 🔒 enforces on.
@@ -236,6 +304,53 @@ class Entitlement {
   /// 2026-09-05g §14 🔒): above 15 members a band is **decided at the pilot**,
   /// and until then the plan screen says so rather than refusing.
   bool get aboveLargestBand => activeMembers > rkLargestMemberBand;
+}
+
+/// The token's two dates, read from its decoded payload (ADR 2026-09-24b §6
+/// 🔒; wire form in `server/supabase/functions/_shared/sodium.ts`: epoch
+/// **milliseconds** as JSON integers, or null).
+///
+/// This is **not** the token verifier (PLAN desk 23c) and not a whole-payload
+/// parse: signature, `exp`, `plan` ids, `limits` and `features` belong to the
+/// producer and to M11-CAT1's client row. It is the one place this feature
+/// turns the wire's dates into [DateTime]s. The producer, when it lands,
+/// passes the result to [Entitlement.fromToken], which fills
+/// [Entitlement.periodEnd] and [Entitlement.graceUntil] from it. Both dates
+/// are UTC, so a screen converts with `.toLocal()` before it takes the
+/// calendar day (`localDateOf`).
+///
+/// **Tolerant of what it does not read** (CLAUDE.md rule 6's spirit): every
+/// other key — `features`, or a field the server adds tomorrow — is ignored,
+/// never an error. An **absent** date reads as null, like an explicit null.
+/// A date of the wrong type is a malformed token and throws
+/// [FormatException] — reading it as null would quietly turn a broken token
+/// into desk 46's no-date case.
+class EntitlementTokenTimes {
+  /// Creates the pair.
+  const EntitlementTokenTimes({this.periodEnd, this.graceUntil});
+
+  /// Reads `period_end` and `grace_until` from a decoded token [payload].
+  factory EntitlementTokenTimes.fromPayload(Map<String, Object?> payload) =>
+      EntitlementTokenTimes(
+        periodEnd: _epochMs(payload, 'period_end'),
+        graceUntil: _epochMs(payload, 'grace_until'),
+      );
+
+  /// The token's `period_end`, in UTC.
+  final DateTime? periodEnd;
+
+  /// The token's `grace_until`, in UTC.
+  final DateTime? graceUntil;
+
+  static DateTime? _epochMs(Map<String, Object?> payload, String field) =>
+      switch (payload[field]) {
+        null => null,
+        final int ms => DateTime.fromMillisecondsSinceEpoch(ms, isUtc: true),
+        final other => throw FormatException(
+          'entitlement token: $field is not epoch milliseconds',
+          other.runtimeType.toString(),
+        ),
+      };
 }
 
 /// Reads the tenant's entitlement. One method, because a token is a whole

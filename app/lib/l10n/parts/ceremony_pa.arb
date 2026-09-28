@@ -75,5 +75,14 @@
   "ceremony.show.no_invite.close": "ਬੰਦ ਕਰੋ",
   "@ceremony.show.no_invite.close": {"description": "machine-draft — native review M12"},
   "ceremony.show.no_invite.semantics": "ਹਾਲੇ ਕੋਈ ਕੋਡ ਨਹੀਂ।",
-  "@ceremony.show.no_invite.semantics": {"description": "machine-draft — native review M12"}
+  "@ceremony.show.no_invite.semantics": {"description": "machine-draft — native review M12"},
+
+  "ceremony.scan.title": "ਚੌਰਸ ਕੋਡ ਸਕੈਨ ਕਰੋ",
+  "@ceremony.scan.title": {"description": "machine-draft — native review M12"},
+  "ceremony.scan.hint": "ਇਹ ਫ਼ੋਨ ਇਸ ਤਰ੍ਹਾਂ ਫੜੋ ਕਿ ਦੂਜੀ ਸਕਰੀਨ ਜਾਂ ਕਾਗ਼ਜ਼ ਵਾਲਾ ਚੌਰਸ ਕੋਡ ਫ਼ਰੇਮ ਦੇ ਅੰਦਰ ਆਵੇ।",
+  "@ceremony.scan.hint": {"description": "machine-draft — native review M12"},
+  "ceremony.scan.wrong_code": "ਇਹ ਕੋਈ ਹੋਰ ਕੋਡ ਹੈ। ਕੈਮਰਾ ਉਸ ਚੌਰਸ ਕੋਡ ਵੱਲ ਕਰੋ ਜੋ ਇਹ ਕਦਮ ਮੰਗਦਾ ਹੈ।",
+  "@ceremony.scan.wrong_code": {"description": "machine-draft — native review M12"},
+  "ceremony.scan.close": "ਬੰਦ ਕਰੋ",
+  "@ceremony.scan.close": {"description": "machine-draft — native review M12"}
 }

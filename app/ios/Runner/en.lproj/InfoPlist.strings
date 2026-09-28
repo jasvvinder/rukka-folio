@@ -1,0 +1,2 @@
+/* NSCameraUsageDescription — ADR 2026-09-19 ruling 1: the camera reads QR only (S9.3, S11.2, S11.3, S11.7). English. */
+"NSCameraUsageDescription" = "This app uses the camera only to read the square codes it shows: to check a family member’s key, to link a phone, or to read your recovery sheet. Nothing is recorded or sent.";

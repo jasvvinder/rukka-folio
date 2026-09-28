@@ -38,6 +38,7 @@ import '../../../shared/tokens.dart';
 import '../camera_scanner.dart';
 import '../ceremony_repository.dart';
 import '../widgets/code_boxes.dart';
+import '../widgets/viewfinder.dart';
 
 /// The states of S9.3 (13 §4.3).
 enum VerifyMemberState {
@@ -152,6 +153,13 @@ class _VerifyMemberScreenState extends State<VerifyMemberScreen> {
 
   /// Opens the code path, arming the session on first use.
   Future<void> _enterCodePath() async {
+    // The code path has no preview, so it has no camera either: nothing is
+    // filmed or decoded behind the code field (the plugin does not stop a
+    // controller it did not start itself — `mobile_scanner_adapter.dart`).
+    // There is no way back to the camera from here, so this is for good.
+    unawaited(_scans?.cancel());
+    _scans = null;
+    unawaited(widget.scanner.stop());
     if (_armed) {
       setState(() {
         _state = VerifyMemberState.enteringCode;
@@ -195,10 +203,9 @@ class _VerifyMemberScreenState extends State<VerifyMemberScreen> {
   }
 
   Future<void> _onScanned(String text) async {
-    if (_state == VerifyMemberState.checking ||
-        _state == VerifyMemberState.verified) {
-      return;
-    }
+    // Only the camera state reads the camera: a code already in flight when
+    // the person moved to typing is not checked behind their back.
+    if (_state != VerifyMemberState.scanning) return;
     await _run(() => widget.repository.verifyScanned(text));
   }
 
@@ -327,7 +334,7 @@ class _VerifyMemberScreenState extends State<VerifyMemberScreen> {
       ),
     ],
     VerifyMemberState.scanning => [
-      _Viewfinder(child: widget.scanner.buildPreview(context)),
+      CeremonyViewfinder(child: widget.scanner.buildPreview(context)),
       const SizedBox(height: RkSpace.s4),
       Text(
         l10n.ceremonyVerifyCameraHint,
@@ -508,41 +515,6 @@ class _OfflineNotice extends StatelessWidget {
       tone: _Tone.info,
     ),
   );
-}
-
-/// The camera frame — the screen owns it, so every scanner implementation
-/// sits in the same square.
-class _Viewfinder extends StatelessWidget {
-  const _Viewfinder({required this.child});
-
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final status = RkStatusColors.of(context);
-    // Capped: a square viewfinder the full width of the phone pushes
-    // *Enter code instead* — which 04 §6.2 🔒 requires on the screen — past the
-    // fold, and at 200 % text scale far past it. Two-fifths of the height is
-    // still a big target to aim a phone with.
-    final maxHeight = MediaQuery.sizeOf(context).height * 0.4;
-    return ConstrainedBox(
-      constraints: BoxConstraints(maxHeight: maxHeight),
-      child: AspectRatio(
-        aspectRatio: 1,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: status.sunk,
-            borderRadius: BorderRadius.circular(RkRadius.md),
-            border: Border.all(color: status.hairline, width: RkIcon.stroke),
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(RkRadius.md),
-            child: child,
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 /// Success: a tick, the word, the name. Restrained — no confetti (07 §12).

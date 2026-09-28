@@ -1,6 +1,7 @@
 // F1 widget tests for S12.4 Payment problem (13 §3.2 row S12.4, 07 §20 🔒,
-// 08 §3 🔒 — the dunning grace is 7 days from period_end, DESIGN-PACK §11
-// S12.4 🔒, ADR 2026-09-05g §4 🔒 — two graces, two copies).
+// 08 §3 🔒, DESIGN-PACK §11 S12.4 🔒, ADR 2026-09-05g §4 🔒 — two graces, two
+// copies; ADR 2026-09-24b §6 🔒 — the end date is the token's `grace_until`,
+// never `period_end + 7 d`, pinned on its own by F1-24b-5).
 @Tags(['F1'])
 library;
 
@@ -15,9 +16,11 @@ import 'package:rukka_folio/l10n/gen/app_localizations.dart';
 
 import '../../shared/test_app.dart';
 
-/// `period_end`, and the clock the screen is handed. 08 §3 🔒 gives 7 days of
-/// grace, so this pair is three days in.
+/// `period_end`, the server's `grace_until`, and the clock the screen is
+/// handed. The server wrote the gateway default of 7 days (ADR 2026-09-24b
+/// §6), so this is three days before the date it declared.
 final _periodEnd = DateTime(2026, 9, 1, 10);
+final _graceUntil = DateTime(2026, 9, 8, 10);
 final _threeDaysLeft = DateTime(2026, 9, 5, 10);
 
 Entitlement _reading({
@@ -30,6 +33,8 @@ Entitlement _reading({
   limits: rkTierFor(RkPlan.family).limits,
   periodEnd: periodEnd ?? _periodEnd,
   graceKind: grace,
+  // The token carries it only in dunning (ADR 2026-09-24b §6).
+  graceUntil: grace == EntitlementGraceKind.dunning ? _graceUntil : null,
   source: source,
   activeMembers: 3,
 );
@@ -72,8 +77,8 @@ List<String> _texts(WidgetTester tester) => tester
 void main() {
   group('S12.4 Payment problem', () {
     testWidgets(
-      'F1-07-478 the countdown is whole days from the injected clock, 7 days '
-      'from period_end (08 §3 🔒)',
+      'F1-07-478 the countdown is whole days from the injected clock to the '
+      'token\'s grace_until (re-landed for ADR 2026-09-24b §6 🔒)',
       (tester) async {
         final l10n = await AppLocalizations.delegate.load(const Locale('en'));
         await _pump(tester, commands: FakeSubscriptionCommands());
@@ -81,7 +86,7 @@ void main() {
         expect(find.text(l10n.paymentTitle), findsOneWidget);
         expect(find.text(l10n.paymentHeadline), findsOneWidget);
         expect(find.text(l10n.paymentDaysLeft(3)), findsOneWidget);
-        // The day the grace ends, written out: 01 Sep + 7 days.
+        // The day the grace ends, written out: the server's grace_until.
         expect(find.text('08 Sep 2026'), findsOneWidget);
 
         // Move the clock, and only the count moves.

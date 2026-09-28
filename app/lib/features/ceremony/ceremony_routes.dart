@@ -43,6 +43,8 @@ export 'ceremony_paths.dart';
 export 'ceremony_repository.dart';
 export 'ceremony_scope.dart';
 export 'ceremony_sessions.dart';
+export 'mobile_scanner_adapter.dart' show MobileScannerCeremonyScanner;
+export 'relayed_umk.dart';
 export 'screens/s9_2_no_invite_screen.dart';
 export 'screens/s9_2_show_my_code_screen.dart';
 export 'screens/s9_3_key_incomplete_screen.dart';
@@ -128,11 +130,16 @@ class VerifyMemberRoute extends StatelessWidget {
         body: l10n.ceremonyVerifyChecking,
       ),
       builder: (context, opening, reopen) => switch (opening) {
-        VerifyMemberReady(:final repository) => VerifyMemberScreen(
-          repository: repository,
-          scanner: scope?.scanner ?? NoCameraScanner(),
-          onMismatch: () => context.pushReplacement(CeremonyPaths.mismatch),
-          onVerified: () => context.pop(),
+        // One scanner per screen, taken once: S9.3 disposes the one it is
+        // handed, so a rebuild must never hand it a second (ADR 2026-09-19 §1).
+        VerifyMemberReady(:final repository) => CeremonyScannerOwner(
+          take: () => scope?.takeScanner() ?? NoCameraScanner(),
+          builder: (context, scanner) => VerifyMemberScreen(
+            repository: repository,
+            scanner: scanner,
+            onMismatch: () => context.pushReplacement(CeremonyPaths.mismatch),
+            onVerified: () => context.pop(),
+          ),
         ),
         VerifyMemberKeyIncomplete(:final memberName) =>
           VerifyMemberKeyIncompleteScreen(

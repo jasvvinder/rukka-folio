@@ -198,6 +198,10 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
   bool _resolveStarted = false;
   bool _saving = false;
 
+  /// An inline account create is in flight ([_create]) — not drawn, only a
+  /// re-entry guard.
+  bool _creating = false;
+
   Stream<List<AccountBalance>>? _accounts;
   Stream<Map<String, int>>? _counts;
 
@@ -708,14 +712,12 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
   /// period too, but an amendment of a just-saved entry would have nothing to
   /// replace it with — a reversal says plainly that it did not happen.
   ///
-  /// ⚠️ SPEC: Undo is not put through the S12.5 check. 13 §6 blocks *new
-  /// entry* (lapse) and *posting* (book full); a reversal is an appended
-  /// envelope, but it withdraws an entry this screen posted seconds ago under
-  /// the same signals, and neither 07 §5 nor ADR 2026-09-05f §B says whether
-  /// Undo counts. Left unblocked so the user is never stuck with a wrong entry
-  /// (07 §1 rule 6); the server stays the hard quota cap (ADR 2026-09-05g §2).
-  /// Inline account create ([_create]) is likewise not a posting and is not
-  /// checked. Named in the lane report for the owner.
+  /// The 10-second Undo — **the one write read-only never blocks** (ADR
+  /// 2026-09-24b §13): blocking it would trap a mistake made seconds ago
+  /// (07 §1 rule 2). So neither this nor [_undoPair] asks
+  /// [entryRestrictionFor]; the server stays the hard cap (ADR 2026-09-05g
+  /// §2). Inline account create ([_create]) is **not** the exception — it
+  /// appends an envelope, so §13 gates it like Save. Pinned by F1-24b-7.
   Future<void> _undo(LocalLedger ledger, String entryId) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
@@ -1118,10 +1120,21 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
     AccountClass accountClass,
   ) async {
     final slot = _openSlot;
-    if (slot == null || name.isEmpty) return;
+    if (slot == null || name.isEmpty || _creating) return;
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
+    // S12.5 (ADR 2026-09-24b §13): a new A/C appends an envelope, so read-only
+    // blocks it with the same sheet as Save — and as S3.1, which gates the
+    // same `addAccount` write. The Undo is §13's only exception. The picker,
+    // the slot and the typed name stay open under the sheet (drafts kept).
+    // Both seams are read before the first await; [_creating] keeps a double
+    // tap from stacking two sheets or two accounts.
+    final sources = entryRestrictionSourcesOf(context);
+    _creating = true;
     try {
+      final blocked = await entryRestrictionFor(sources, [bookId]);
+      if (!mounted) return;
+      if (blocked != null) return await _showBlocked(blocked);
       final account = await ledger.addAccount(
         bookId,
         name: name,
@@ -1132,6 +1145,8 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
     } catch (e) {
       if (!mounted) return;
       messenger.showSnackBar(SnackBar(content: Text(l10n.entrySaveError)));
+    } finally {
+      _creating = false;
     }
   }
 }

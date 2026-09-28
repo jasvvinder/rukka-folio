@@ -12,9 +12,19 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:rukka_folio/features/devices/screens/s11_1_guardian_setup_screen.dart';
+import 'package:go_router/go_router.dart';
+import 'package:rukka_folio/features/ceremony/ceremony_paths.dart';
+import 'package:rukka_folio/features/devices/devices_routes.dart';
+import 'package:rukka_folio/features/members/members_repository.dart';
+import 'package:rukka_folio/l10n/gen/app_localizations.dart';
+import 'package:rukka_folio/l10n/l10n.dart';
+import 'package:rukka_folio/shared/app_scope.dart';
+import 'package:rukka_folio/shared/router.dart';
+import 'package:rukka_folio/shared/seams/auth_client.dart';
 import 'package:rukka_folio/shared/seams/guardians.dart';
+import 'package:rukka_folio/shared/seams/key_store.dart';
 import 'package:rukka_folio/shared/seams/sync_client.dart';
+import 'package:rukka_folio/shared/theme.dart';
 import 'package:rukka_folio/shared/widgets/rk_states.dart';
 
 import '../../shared/test_app.dart';
@@ -41,6 +51,7 @@ List<TrustedMemberCandidate> _three() => [
 Widget _screen(
   GuardiansRepository repo, {
   void Function(TrustedMemberCandidate)? onMeet,
+  GuardianMeetBlock? Function(TrustedMemberCandidate)? meetBlockOf,
   VoidCallback? onAddMember,
   VoidCallback? onDone,
 }) => GuardiansScope(
@@ -49,7 +60,8 @@ Widget _screen(
   // same tester, and without it Flutter reuses the first screen's State.
   child: GuardianSetupScreen(
     key: UniqueKey(),
-    onMeet: onMeet,
+    onMeet: onMeet ?? (_) {},
+    meetBlockOf: meetBlockOf ?? (_) => null,
     onAddMember: onAddMember,
     onDone: onDone,
   ),
@@ -461,25 +473,35 @@ void main() {
 
     testWidgets(
       'F1-06-28 the bounds of 04 §7.3: a sixth person cannot be chosen and '
-      'the screen says why; “Meet them” is disabled with its reason when no '
-      'ceremony invite exists yet (13 §4.3 disabled-with-reason)',
+      'the screen says why; “Meet them” is disabled with its reason for a '
+      'member who has not finished joining (06 §7 🔒 `invited`; 13 §4.3 '
+      'disabled-with-reason)',
       (tester) async {
         final repo = FakeGuardians(
           initial: GuardianSetup(
             candidates: [
               for (var i = 1; i <= 5; i++) _c('m$i', 'Member $i'),
               _c('m6', 'Member 6'),
-              _c(
-                'm7',
-                'Balbir',
-                ceremony: GuardianCeremony.notStarted,
-                invite: null,
-              ),
+              _c('m7', 'Balbir', ceremony: GuardianCeremony.notStarted),
             ],
           ),
         );
         addTearDown(repo.dispose);
-        await pumpRk(tester, _screen(repo), viewport: rkPhone360);
+        // The production mapping, over a roster where m7 is still `invited`.
+        final members = FakeMembersRepository(
+          initial: MembersSnapshot(
+            members: [
+              for (var i = 1; i <= 6; i++)
+                Member(id: 'm$i', state: MembershipState.active),
+              const Member(id: 'm7', state: MembershipState.invited),
+            ],
+          ),
+        );
+        await pumpRk(
+          tester,
+          _screen(repo, meetBlockOf: guardianMeetBlockFrom(members)),
+          viewport: rkPhone360,
+        );
         for (var i = 1; i <= 5; i++) {
           await _choose(tester, 'm$i');
         }
@@ -508,6 +530,146 @@ void main() {
         );
       },
     );
+
+    testWidgets('F1-07-545 “Meet them” reaches S9.3 for the member’s **user id** through '
+        'the real devices route — a candidate with no invite id is still met '
+        '(04 §6 one component, four uses; 04 §7.3 🔒 mutual ceremony per '
+        'guardian; 07 §1 no dead ends), and an `invited`, `expired` or '
+        '`blocked` member is never pushed into S9.3 but disabled with the '
+        'reason true for them (06 §7 🔒; 13 §4.3)', (tester) async {
+      rkViewport(tester, rkPhone360);
+      final repo = FakeGuardians(
+        initial: GuardianSetup(
+          candidates: [
+            _c('m1', 'Sunita'),
+            _c(
+              'u-balbir',
+              'Balbir',
+              ceremony: GuardianCeremony.notStarted,
+              invite: null,
+            ),
+            // Keyed by the invite id, as the server roster keys them.
+            _c(
+              'inv-jaspal',
+              'Jaspal',
+              ceremony: GuardianCeremony.notStarted,
+              invite: null,
+            ),
+            _c(
+              'inv-kiran',
+              'Kiran',
+              ceremony: GuardianCeremony.notStarted,
+              invite: null,
+            ),
+            _c(
+              'u-manjit',
+              'Manjit',
+              ceremony: GuardianCeremony.notStarted,
+              invite: null,
+            ),
+          ],
+        ),
+      );
+      addTearDown(repo.dispose);
+      final members = FakeMembersRepository(
+        initial: const MembersSnapshot(
+          members: [
+            Member(id: 'm1', state: MembershipState.active),
+            Member(
+              id: 'u-balbir',
+              state: MembershipState.joinedPendingVerification,
+            ),
+            Member(id: 'inv-jaspal', state: MembershipState.invited),
+            Member(id: 'inv-kiran', state: MembershipState.expired),
+            Member(id: 'u-manjit', state: MembershipState.blocked),
+          ],
+        ),
+      );
+      final router = GoRouter(
+        initialLocation: '${DevicesPaths.devices}/guardians',
+        routes: [
+          ...devicesRoutes,
+          GoRoute(
+            path: RkPaths.ceremonyVerifyMember,
+            builder: (context, state) => Text(
+              'verify:${state.pathParameters[CeremonyPaths.subjectParameter]}',
+            ),
+          ),
+        ],
+      );
+      addTearDown(router.dispose);
+      await tester.pumpWidget(
+        RkScope(
+          db: await openTestDb(),
+          sync: FakeSyncClient(),
+          auth: FakeAuthClient(),
+          keys: FakeKeyStore(),
+          now: testNow,
+          child: DevicesRepositoryScope(
+            repository: FakeDevicesRepository(),
+            child: MembersRepositoryScope(
+              repository: members,
+              child: GuardiansScope(
+                repository: repo,
+                child: MaterialApp.router(
+                  routerConfig: router,
+                  supportedLocales: AppLocalizations.supportedLocales,
+                  localizationsDelegates: rkLocalizationsDelegates,
+                  theme: rkTheme(Brightness.light),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Not joined, or blocked: disabled, with the reason that is true.
+      for (final (id, why) in [
+        (
+          'inv-jaspal',
+          'You can do this once Jaspal has finished joining the book.',
+        ),
+        (
+          'inv-kiran',
+          'You can do this once Kiran has finished joining the book.',
+        ),
+        (
+          'u-manjit',
+          'An admin has to look into this before a new invite can go out.',
+        ),
+      ]) {
+        final b = find.byKey(Key('guardians.meet.$id'));
+        await _reveal(tester, b);
+        expect(tester.widget<OutlinedButton>(b).onPressed, isNull, reason: id);
+        expect(
+          tester.widget<Text>(find.byKey(Key('guardians.meet.why.$id'))).data,
+          why,
+        );
+      }
+
+      // Balbir sits above the rows just checked; reveal only scrolls down.
+      await _top(tester);
+      final meet = find.byKey(const Key('guardians.meet.u-balbir'));
+      await _reveal(tester, meet);
+      expect(
+        tester.widget<OutlinedButton>(meet).onPressed,
+        isNotNull,
+        reason: 'no invite id is not a reason: the ceremony is per member',
+      );
+      expect(
+        find.text('You can do this once Balbir has finished joining the book.'),
+        findsNothing,
+      );
+      await tester.tap(meet);
+      await tester.pumpAndSettle();
+      // A push leaves the base uri alone; the pushed match is the last one.
+      expect(
+        router.routerDelegate.currentConfiguration.last.matchedLocation,
+        CeremonyPaths.verifyMemberFor('u-balbir'),
+      );
+      expect(find.text('verify:u-balbir'), findsOneWidget);
+    });
 
     testWidgets(
       'F1-06-29 EN, ਪੰਜਾਬੀ and हिन्दी all fit at 200 % on 360×800 and '

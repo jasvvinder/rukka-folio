@@ -36,6 +36,7 @@ import '../../../shared/format/money_format.dart';
 import '../../../shared/seams/sync_client.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../entry/entry_restriction.dart';
 import '../cash_count_money.dart';
 import '../cash_count_source.dart';
 import '../../../shared/widgets/rk_fit_text.dart';
@@ -242,9 +243,22 @@ class _CashCountScreenState extends State<CashCountScreen> {
   // ---- saving --------------------------------------------------------------
 
   Future<void> _save() async {
+    if (_saving) return;
     final l10n = AppLocalizations.of(context);
     final target = _target!;
     final draft = _draft(context);
+    // S12.5 (ADR 2026-09-24b §13): read-only blocks a cash count — saving one
+    // always appends the count, and a difference appends the adjustment too.
+    // Asked **before** the difference wizard, so nobody confirms a figure only
+    // to be told it cannot post; book full blocks this count's book only.
+    // Every counted figure survives under the sheet (drafts kept).
+    final sources = entryRestrictionSourcesOf(context);
+    setState(() => _saving = true);
+    final refused = await refuseIfEntryRestricted(context, sources, [
+      target.bookId,
+    ], onBlocked: () => setState(() => _saving = false));
+    if (refused || !mounted) return;
+    setState(() => _saving = false);
     // The one door into the cash-count-difference wizard (S2.4; ADR
     // 2026-09-03b §2 🔒). Guided: the sheet states what will post, the user
     // confirms it, and the amount is never typed.

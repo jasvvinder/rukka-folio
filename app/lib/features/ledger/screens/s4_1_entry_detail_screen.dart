@@ -30,6 +30,7 @@ import '../../../shared/ledger/local_ledger.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../../../shared/widgets/rk_fit_text.dart';
+import '../../entry/entry_restriction.dart';
 import '../entry_detail.dart';
 
 /// S4.1 — one entry, its audit trail and its two corrections.
@@ -680,11 +681,21 @@ class _ReverseSheetState extends State<_ReverseSheet> {
   }
 
   Future<void> _post() async {
+    if (_busy) return;
+    // S12.5 (ADR 2026-09-24b §13): a reversal is a new envelope, so read-only
+    // blocks it with the same sheet; the typed reason stays under the sheet.
+    // Both seams are read before the first await. (The 10-second Undo on S2
+    // is the one exception and never comes through here.)
+    final sources = entryRestrictionSourcesOf(context);
     setState(() {
       _busy = true;
       _error = null;
     });
     final l10n = AppLocalizations.of(context);
+    final refused = await refuseIfEntryRestricted(context, sources, [
+      widget.detail.view.bookId,
+    ], onBlocked: () => setState(() => _busy = false));
+    if (refused) return;
     try {
       await widget.ledger.reverse(
         widget.detail.view.id,
@@ -809,12 +820,21 @@ class _AmendSheetState extends State<_AmendSheet> {
   }
 
   Future<void> _save() async {
+    if (_busy) return;
+    // S12.5 (ADR 2026-09-24b §13): an amendment is a new envelope, so
+    // read-only blocks it with the same sheet; the edited note and date stay
+    // under the sheet. Both seams are read before the first await.
+    final sources = entryRestrictionSourcesOf(context);
     setState(() {
       _busy = true;
       _error = null;
     });
     final l10n = AppLocalizations.of(context);
     final note = _note.text.trim();
+    final refused = await refuseIfEntryRestricted(context, sources, [
+      widget.detail.view.bookId,
+    ], onBlocked: () => setState(() => _busy = false));
+    if (refused) return;
     try {
       await widget.ledger.amend(
         widget.detail.view.id,

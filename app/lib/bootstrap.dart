@@ -72,6 +72,7 @@ import 'shared/records/device_added_record.dart';
 import 'shared/records/device_record_author.dart';
 import 'shared/router.dart';
 import 'shared/seams/closed_years.dart';
+import 'shared/seams/dialer.dart';
 import 'shared/seams/guardians.dart';
 import 'shared/seams/http_transport.dart';
 import 'shared/seams/key_store.dart';
@@ -407,6 +408,21 @@ Future<void> bootstrap() async {
         clientVersion: clientVersion,
       );
 
+      // ── the camera and the dialer (ADR 2026-09-19 🔒) ──────────────────
+      //
+      // `mobile_scanner` behind `CeremonyScanner`, one scanner per screen
+      // (each screen disposes the one it is handed). The recovery scans read
+      // through [RecoveryCamera], which opens the scan over whichever of
+      // S11.2 / S11.3 / S11.7 lent it a navigator; every comparison is
+      // `core_crypto`'s, and only an outcome reaches a screen.
+      final recoveryCamera = RecoveryCamera(
+        newScanner: MobileScannerCeremonyScanner.new,
+      );
+      // R2.2 / R2.3's *Call*: `tel:` through `launchUrl`, never
+      // `canLaunchUrl`, so no LSApplicationQueriesSchemes / <queries> entry
+      // exists or is needed (ruling 2).
+      const dialer = UrlLauncherDialer();
+
       final guardianRecovery = HttpGuardianRecovery(
         api: recoveryApi,
         // The real people, at last: the members of the generation the attempt
@@ -431,9 +447,30 @@ Future<void> bootstrap() async {
         // every close and after reconstruct. Never this device's `pub_x`,
         // never a device key, never a recipient of a book key.
         candidateKeys: KeyStoreRecoveryCandidate(keys: keys, suite: suite),
-        // No camera package is in the app (cf. ADR 2026-09-12e), so the
-        // recovery ceremony of ADR 2026-09-13c ruling 1 🔒 reports
-        // `unavailable` rather than a screen pretending the control works.
+        // The recovery ceremony of ADR 2026-09-13c ruling 1 🔒: a member's
+        // screen shows this user's key; `Ceremony.verifyQr` compares it with
+        // the relayed one. QR only (ruling 2) — there is no typed branch.
+        //
+        // ⚠️ SPEC: **not installed yet, deliberately.** The scan compares
+        // against a code that *another member's* phone draws for this user —
+        // ruling 1's "renders it as the 04 §6.1 `QrPayload` from its
+        // ceremony-verified copy", which the ADR places on S11.7 as *Show
+        // {name}'s key*. Nothing in the app draws that code yet: the only QR
+        // it renders is S9.2's, of the member's **own** user id and key, and
+        // `verifyQr` fails that on the user id every time. Installed now, the
+        // natural action — scanning the square on the member's screen — would
+        // end on the hard fail *does not match this account. Stop here*, and
+        // (ruling 1 🔒) close the attempt. Absent, S11.2 says honestly that
+        // this phone cannot scan yet (review SCAN1 #2). The builder is ready
+        // and tested (`ownKeyQrScanner`, F1-07-313 / F1-13c-1): once *Show
+        // {name}'s key* lands, pass
+        //   `ownKeyQrScanner(suite: suite, read: recoveryCamera.read,
+        //    userId: identity.userId, relayedOwnUmk: …)`
+        // here and flip F1-07-313's root pin, which holds this line. The
+        // relayed side is the user's own row with both halves only (04 §6.3
+        // 🔒, ADR 2026-09-24b §2): `MetaRelayedUmkSource(membersApi.pullMeta)`
+        // over `identity.userId`, `RelayedUmkComplete(:umk)` → umk, anything
+        // else → null, so the scan refuses before the camera opens.
         scanner: null,
       );
 
@@ -453,12 +490,19 @@ Future<void> bootstrap() async {
         // device holds none for another member, so R2.2/R2.3's *Call* link is
         // correctly absent rather than dialling something guessed.
         phoneOf: (_) => null,
-        // With no scanner the check of ADR 2026-09-13c ruling 3 🔒 cannot
-        // pass, so `approve` refuses with `RecoveryCandidateUnverified` and
-        // no share is ever sealed to an unverified candidate. That is the
-        // posture the ruling asks for when the check cannot be performed —
-        // never a bypass. `decline` still works, because refusing is safe.
-        scanner: null,
+        // ADR 2026-09-13c ruling 3 🔒: the new phone's `DeviceQrPayload`,
+        // compared by `Ceremony.verifyRecoveryCandidateQr` against the
+        // relayed request. Until it answers *verified*, `approve` refuses
+        // with `RecoveryCandidateUnverified`. `decline` needs no scan.
+        //
+        // ⚠️ SPEC: still no resealer — 04 §7.3 step 3's re-seal is not
+        // built — so a verified scan cannot yet become an approval. The seam
+        // therefore answers *unavailable* without opening the camera while
+        // `resealer` is null, and S11.7 keeps its honest cannot-approve state
+        // rather than enabling an *Approve* that always fails (07 §1 rule 6
+        // 🔒, review SCAN1 #4). The scanner is installed so that the re-seal
+        // lane has only one line to change.
+        scanner: candidateQrScanner(suite: suite, read: recoveryCamera.read),
         resealer: null,
       );
 
@@ -520,6 +564,10 @@ Future<void> bootstrap() async {
       final recoverySheet = HttpRecoverySheet(
         api: recoveryApi,
         precheck: sheetCodeIsWorthTrying,
+        reader: recoveryCamera.read,
+        // R2.4's camera path: the sheet's QR becomes the code the typed
+        // path would make (`features/recovery/sheet_qr.dart`).
+        codeOfQr: (qr) => recoverySheetCodeOfQr(suite, qr),
       );
 
       // ── the ladder itself (04 §7.0 🔒, §7.1, §7.2, §7.4 🔒; 13 §5 F11) ───
@@ -827,9 +875,9 @@ Future<void> bootstrap() async {
       // protected item store, and the nonce is read back from `GET invites`
       // (25b §2). ⚠️ SPEC reading in `invite_nonce_relay.dart`.
       //
-      // No camera package is in the app, so the scope carries no scanner:
-      // S9.3 opens on *Enter code instead*, its equal path (design-system
-      // §3.1 rule 7), and never on a dead camera.
+      // The scope carries a scanner *factory* (ADR 2026-09-19 ruling 1 🔒):
+      // S9.3 disposes the camera it is handed. Denied or absent, it opens on
+      // *Enter code instead*, its equal path (design-system §3.1 rule 7).
       final ceremonyApi = HttpCeremonyApi(
         transport: httpDoor,
         functionsRoot: Uri.parse(apiBase),
@@ -963,12 +1011,25 @@ Future<void> bootstrap() async {
                                   // production.
                                   child: GuardiansScope(
                                     repository: guardians,
-                                    // S9.2 / S9.3 open through this factory;
-                                    // without it both routes fall back to
-                                    // `NoCeremonySessions` and wait for ever.
-                                    child: CeremonyScope(
-                                      sessions: ceremonySessions,
-                                      child: app,
+                                    // The recovery scans' camera and the
+                                    // *Call* controls' dialer (ADR
+                                    // 2026-09-19 🔒), read by S11.2, S11.3
+                                    // and S11.7 only.
+                                    child: RecoveryCameraScope(
+                                      camera: recoveryCamera,
+                                      child: DialerScope(
+                                        dialer: dialer,
+                                        // S9.2 / S9.3 open through this
+                                        // factory; without it both routes
+                                        // fall back to `NoCeremonySessions`
+                                        // and wait for ever.
+                                        child: CeremonyScope(
+                                          sessions: ceremonySessions,
+                                          newScanner:
+                                              MobileScannerCeremonyScanner.new,
+                                          child: app,
+                                        ),
+                                      ),
                                     ),
                                   ),
                                 ),
