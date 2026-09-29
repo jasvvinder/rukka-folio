@@ -12,6 +12,44 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-09-29 — M13/M7: seat + business-book hard caps (CAP1), invites on the members seam (SEAM1)
+
+The day's ceiling was the default 1.2 M, too little for a `/cycle`, so this session ran one `/lane` round of two lanes (about 0.34 M) and the push gate (green). Both slices are **built, not reviewed**. The read-only review and verify pass must run before either is committed (CLAUDE.md § Session economy). The push gate skips the database-backed RLS suite, so the orchestrator ran it separately with `RLS_REQUIRE=1`: 192 passed, 0 failed.
+
+**Added**
+- `server/supabase/migrations/0019_seat_and_book_caps.sql` (M13-CAP1, `lane-server`), the hard caps of ADR 2026-09-05g §2 and §6:
+  - Seats are checked on invite insert and whenever a membership enters invited, pending verification or active. A person counts once, and a removal, revoke or expiry frees the seat at once.
+  - Business books are checked on book insert. The personal book is never counted, and -1 is never refused.
+  - The checks are AFTER-row SECURITY DEFINER triggers behind a per-tenant advisory lock, so RLS refuses a stranger before a cap can answer.
+  - Refusals are named: `seat_cap`, `seat_rotation_cap`, `book_cap`.
+  - The rolling yearly budget lives in `seat_grants`, append-only with no grants.
+  - One plan resolver, `rf.tenant_plan`; `rf.device_cap` now reads it, with the same behaviour.
+- Tests `E-05g-1…14`: `tests/rls/seat_book_caps.test.ts` and `functions/_tests/seat_caps_route.test.ts`.
+- `MembersRepository` gains `myInvites()`/`acceptInvite()`, implemented on `FakeMembersRepository` (M13-SEAM1, `lane-ui`). Tests `F1-07-546`, `F1-07-547`.
+
+**Changed**
+- `sync-meta`: the three cap refusals map to 409 on `/invites` and to `rejected:<name>` on `/records`.
+- RLS fixtures in `invites`, `invite_nonce` and `verification_records`: their tenants now take the catalogue's widest plan, because Free now refuses invites. `schema.test.ts` lists `seat_grants` as no-access.
+- WIRE comments in `features/members` and `features/onboarding` now name the interface, not `ServerMembersRepository`.
+- The `http_transport` move was already finished (only typedef aliases remain); PLAN M7 row updated.
+- `PLAN.md`: §0 dated 29 Sep; the M7 seam rows and the M13 hard-caps row go to 🟡 (built, unreviewed); desk 58–62 added. This commit also carries the owner's 28 Sep rulings on desk 56–57 (already in the working tree).
+
+**Open** ⚠️
+- **Desk 58 🔴 (security, pre-existing in 0005):** any certified device can insert a `signed_record` for any tenant.
+  - It can put itself at pending verification in another tenant (probed on the test DB, rolled back). From the code, it may also mark another tenant's member as removed.
+  - The edge blocks it, but RLS does not. Proposed: a `lane-server` xhigh slice with three-lens verify.
+- **Desk 59:** desk 48 now blocks onboarding. A paid-type tenant with no subscription row cannot invite anyone or create its first business book.
+- **Desk 60 (⚠️ SPEC):** CAP1's readings to confirm: the trailing year, what counts as a member, how the 30-day exemption works, and archived books still counting.
+- **Desk 61:** expired or refunded tenants keep their paid caps.
+- **Desk 62 (⚠️ SPEC):** `seats_addon` is not in the cap or the token.
+- **Before commit:** review + verify CAP1 (three lenses) and SEAM1 (one lens).
+- **⟦tests⟧ markers:** ADR 05g §2/§6 headings need their `E-05g` ids, and `F1-07-546/547` need a marker.
+- **Follow-ups:** `wire.dart` constants and S9 copy for the refusals; a future book-create route must map `book_cap` to 409; a retention sweep for `seat_grants`; optionally drop the transport typedef aliases (cross-lane).
+
+**Commits** — pending.
+
+---
+
 ## 2026-09-28 — M6/M7 round 5: SMS-only OTP (OTP1S + OTP1A), invite by share sheet (INV2)
 
 One `/lane` run with three lanes: about 0.40 M tokens. Push gate green. Then a review-only `/cycle` (`skipBuild`): 16 agents, about 1.30 M. 6 findings: all 6 confirmed, all 6 repaired in round 1, none disputed, no owner items from the cycle. **Push gate green again** after the repairs, with whitespace-only `dart format` fixes. The app package has **1832 passed, 3 skipped**. Spend at close was about 9.1 M of the 10 M ceiling.
@@ -51,16 +89,14 @@ One `/lane` run with three lanes: about 0.40 M tokens. Push gate green. Then a r
 
 - Desk 54: a dependency ADR for a text share sheet.
 - Desk 55 (⚠️ SPEC): the invite link has no path, so production invites cannot be shared yet.
-- Desk 56: WhatsApp leftovers in `0004`/`0001`.
-- Desk 57: an unknown `OTP_PROVIDER` falls back to the fake.
+- Desk 56 ruled by the owner the same day: keep `0004`'s channel check and `users.whatsapp_opt_in` for adding WhatsApp later; no migration.
+- Desk 57 ruled by the owner the same day (option 1): strict provider selection, where an unset or unknown `OTP_PROVIDER` refuses to start, plus a separate dev-project switch for the fixed code. Built inside OTP2.
 - Also:
   - `server/README.md` §6 is stale.
   - The `@M6`/`@M7` tags on the `E-25-*` markers can be dropped.
   - PA/HI for the new `invite.*` keys are machine drafts (M12).
 
-**Commits**
-
-- _(to fill)_
+**Commits** — `f88ffce` (code, desk 54–57); the 28 Sep owner rulings on desk 56–57 ride in the 29 Sep commit.
 
 ## 2026-09-28 — M11/M13 cycles 3–4: scanner + dialer (SCAN1), S9.3 by member id (DEV1), plan catalogue server half (CAT1), read-only on every posting path (ENT2), guardian bit client (RL1), `grace_until` client (DUN1)
 
@@ -125,7 +161,7 @@ The owner raised today's ceiling to 10 M (`budget.daily_overrides["2026-09-28"]`
 - `PLAN.md` is 408 lines against the ~200 target, so history should move to this file in a docs pass.
 - PA/HI strings from SCAN1 are machine drafts for M12 native review.
 
-**Commits** — pending.
+**Commits** — `53c69dd` (CAT1 server half), `907ecdd` (SCAN1, DEV1, ENT2, RL1, DUN1), `259852b` (PLAN rows, desk 48–53, this entry).
 
 ---
 
