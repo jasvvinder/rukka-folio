@@ -341,8 +341,8 @@ final List<RouteBase> onboardingRoutes = [
   //      custom-scheme) URL onto [OnboardingPaths.invitation] with the id in
   //      the `invite` query parameter;
   //   2. an **[InvitationGatewayScope]** above the router, bound with
-  //      [DelegatedInvitationGateway] to the concrete
-  //      `ServerMembersRepository`'s `myInvites` / `acceptInvite` and to
+  //      [DelegatedInvitationGateway] to the `MembersRepository`'s
+  //      `myInvites` / `acceptInvite` (interface methods since M13) and to
   //      `MembersSnapshot.pendingBooks` — without it S0.9 falls back to an
   //      empty fake, which is the safe state but never a real invitation;
   //   3. `onConfirmNumber` currently goes straight to S0.2, which **loses the

@@ -4,6 +4,7 @@
 //      caller's certified device are verified under its Ed25519 key, stored, then projected onto rows
 //      (ADR 2026-09-05b §1). The server never invents a record.
 // POST /sync-meta/invites {record, phone} → {invite_id}  · GET /sync-meta/invites → my invites (+nonce)
+//      A full plan answers 409 seat_cap, a spent rotation budget 409 seat_rotation_cap (0019).
 // POST /sync-meta/invites/accept {invite_id} → {status, nonce}  (06 §7, ADR 2026-09-05d §9, 25b §2)
 // /sync-meta/recovery… → the guardian ladder's WRITE side (04 §7.3; see the block above `recovery`),
 //      plus GET /sync-meta/recovery/has-guardian-set → {has_guardian_set} (ADR 2026-09-24b §3)
@@ -700,9 +701,21 @@ async function invites(
   }
 }
 
+/**
+ * The hard caps of ADR 2026-09-05g §2 / §6 🔒 as 0019 raises them (P0001 + the bare name, which
+ * denialFromPg passes through). Each is its own string so the client can tell "the plan is full"
+ * (seat_cap, book_cap) from "too many different people this year" (seat_rotation_cap). The database
+ * raises them only AFTER the caller was admitted (0019's AFTER-row triggers), so none is an oracle.
+ */
+const CAP_REFUSALS: ReadonlySet<string> = new Set(["seat_cap", "seat_rotation_cap", "book_cap"]);
+
 /** The database named the refusal; the wire name is the client's, and never an oracle. */
 function inviteError(reason: string): Response {
   switch (reason) {
+    // 409 like auth-challenge's device_cap: the request was valid, the plan has no room for it.
+    case "seat_cap":
+    case "seat_rotation_cap":
+      return error(409, reason);
     // ADR 2026-09-05d §9 🔒 — the link alone admits nobody. An unknown invite refuses identically:
     // a joiner with the wrong number learns nothing about whether that invite exists.
     case "unknown_invite":
@@ -795,7 +808,13 @@ async function postRecords(
         if (e instanceof StoreDenied) {
           results.push({
             id,
-            result: e.reason === "fk" ? "rejected:unknown_tenant" : "rejected:unauthorized",
+            // A cap is not an authorisation failure: a membership_status record that would walk a
+            // member into a counted state on a full plan says so by name (0019, ADR 05g §2/§6).
+            result: e.reason === "fk"
+              ? "rejected:unknown_tenant"
+              : CAP_REFUSALS.has(e.reason)
+              ? `rejected:${e.reason}`
+              : "rejected:unauthorized",
             check: e.reason,
           });
           continue;

@@ -129,7 +129,14 @@ const privsOf = (t: string, who: string) =>
   new Set(grantsOn(t, who).flatMap((g) => g.privileges.length ? g.privileges : ["ALL"]));
 
 // Tables that deliberately have NO rf_api/rf_maintenance path (console/M13 or function-only access).
-const NO_ACCESS = new Set(["billing_events", "promo_codes", "promo_redemptions", "push_rate"]);
+// seat_grants (0019): written and read only by the SECURITY DEFINER seat-cap triggers.
+const NO_ACCESS = new Set([
+  "billing_events",
+  "promo_codes",
+  "promo_redemptions",
+  "push_rate",
+  "seat_grants",
+]);
 // Tables whose rows are tenant data: every policy must be certified-gated (ADR 05d §2).
 const TENANT_TABLES = [
   "tenants",

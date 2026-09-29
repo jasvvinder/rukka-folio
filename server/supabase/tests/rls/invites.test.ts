@@ -87,6 +87,12 @@ async function record(tenant: string, device: string, kind = "membership_status"
 async function seed(): Promise<Fx> {
   const [t1] = await sql`insert into tenants (type) values ('family') returning id`;
   const [t2] = await sql`insert into tenants (type) values ('business_group') returning id`;
+  // 0019 (ADR 2026-09-05g §6): an API invite takes a seat. This suite pins the state machine, not
+  // the cap (seat_book_caps.test.ts does), so both tenants sit on the catalogue's widest plan — read
+  // from the catalogue, never a literal (desk PLAN-49).
+  await sql`insert into subscriptions (tenant_id, plan)
+    select v.t, (select c.id from plan_catalogue c order by (c.members = -1) desc, c.members desc limit 1)
+    from (values (${t1.id}::uuid), (${t2.id}::uuid)) v(t)`;
   const hmac: Record<string, Uint8Array> = {};
   const mk = async (name: string, fill: number) => {
     hmac[name] = bytes(32, fill);

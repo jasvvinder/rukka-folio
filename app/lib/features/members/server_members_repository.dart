@@ -735,10 +735,12 @@ final class ServerMembersRepository implements MembersRepository {
   /// and a joiner naming an invite that does not exist, get the **same**
   /// [MembersRefusal.inviteNotForYou]. The link alone admits nobody, and the
   /// refusal tells nobody whether the link was real.
+  @override
   Future<String> acceptInvite(String inviteId) =>
       _server.acceptInvite(inviteId);
 
   /// The invites addressed to this device's OTP-verified number (06 §7).
+  @override
   Future<List<InviteOffer>> myInvites() => _server.myInvites();
 
   MembersRecordAuthor _requireAuthor() {

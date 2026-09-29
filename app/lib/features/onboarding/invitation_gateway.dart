@@ -7,10 +7,12 @@
 // protocol; it is the seam that lets S0.9 be pumped in a widget test without a
 // server and without `features/members`' whole repository.
 //
-// ⚠️ WIRE — integration binds [DelegatedInvitationGateway] to the concrete
-// `ServerMembersRepository`, whose `myInvites()` and `acceptInvite()` are the
-// two routes this needs (`sync-meta/invites` GET and `sync-meta/invites/accept`
-// POST). `pendingBooks` reads `MembersSnapshot.pendingBooks`.
+// ⚠️ WIRE — integration binds [DelegatedInvitationGateway] to a
+// `MembersRepository` (in production `ServerMembersRepository`): its
+// `myInvites()` and `acceptInvite()` are interface methods since M13, the two
+// routes this needs (`sync-meta/invites` GET and `sync-meta/invites/accept`
+// POST), so `FakeMembersRepository` stands in for the server without a
+// downcast. `pendingBooks` reads `MembersSnapshot.pendingBooks`.
 //
 // **The one rule that shapes the whole seam** (ADR 2026-09-05d §9 🔒): a
 // number that was never invited and an invite id that does not exist are the
@@ -49,8 +51,9 @@ abstract class InvitationGateway {
   Future<List<PendingBook>> pendingBooks();
 }
 
-/// An [InvitationGateway] over three closures — how integration binds the
-/// concrete `ServerMembersRepository` without S0.9 importing it.
+/// An [InvitationGateway] over three closures — how integration binds a
+/// `MembersRepository`'s `myInvites` / `acceptInvite` without S0.9 importing
+/// it.
 final class DelegatedInvitationGateway implements InvitationGateway {
   /// Creates the adapter. [pending] defaults to none, so a host that has not
   /// pulled meta yet still wires cleanly.

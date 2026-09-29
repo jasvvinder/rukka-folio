@@ -23,6 +23,10 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 
+import 'members_api.dart' show InviteOffer;
+
+export 'members_api.dart' show InviteOffer;
+
 /// The five stored roles (06 §1.1). One per book, never global; this is the
 /// entire permission system (06 §1.0 🔒).
 enum BookRole { admin, head, member, operator, viewer }
@@ -389,6 +393,22 @@ abstract class MembersRepository {
   /// invite after S9.1 is gone (ADR 2026-09-25 §2). Mints nothing, writes
   /// nothing; null while no link format is ruled ([InviteLinkOf]).
   Uri? inviteLink(String inviteId);
+
+  /// The joiner's side (06 §7): the invites addressed to this device's
+  /// OTP-verified number, and those it accepted, inside the 7-day window —
+  /// each row with its `nonce` (ADR 2026-09-25b §2) and the invite's own
+  /// `status` (M11-INV1 repair; ⚠️ SPEC desk 36). Empty means *no invitation
+  /// this phone may accept*, never *no such invite* (ADR 2026-09-05d §9 🔒).
+  /// Throws [MembersFailure].
+  Future<List<InviteOffer>> myInvites();
+
+  /// Accepts an invite addressed to this phone. Returns the **membership**
+  /// status the server moved to — `joined_pending_verification`, never
+  /// `active`: the ceremony grants that (06 §7 🔒). A number the invite was
+  /// not for and an id that does not exist are the same
+  /// [MembersRefusal.inviteNotForYou] (ADR 2026-09-05d §9 🔒). Throws
+  /// [MembersFailure].
+  Future<String> acceptInvite(String inviteId);
 }
 
 /// In-memory fake for tests and the Phase A shell.
@@ -420,6 +440,20 @@ class FakeMembersRepository implements MembersRepository {
 
   /// Member ids passed to [reinvite].
   final reinvited = <String>[];
+
+  /// What [myInvites] returns — the joiner's rows, as the server would list
+  /// them.
+  List<InviteOffer> offered = const [];
+
+  /// What [acceptInvite] returns for an id in [offered]: the membership
+  /// status, never `active` (06 §7 🔒).
+  String acceptStatus = 'joined_pending_verification';
+
+  /// Invite ids [acceptInvite] accepted, in order.
+  final acceptedInvites = <String>[];
+
+  /// How many times [myInvites] ran.
+  int myInvitesCalls = 0;
 
   /// What [refresh] loads when it runs (null keeps the current snapshot).
   MembersSnapshot? onRefresh;
@@ -511,6 +545,30 @@ class FakeMembersRepository implements MembersRepository {
 
   @override
   Uri? inviteLink(String inviteId) => linkOf?.call(inviteId);
+
+  @override
+  Future<List<InviteOffer>> myInvites() async {
+    myInvitesCalls++;
+    _maybeFail();
+    return List.unmodifiable(offered);
+  }
+
+  /// An id not in [offered] is refused the way the server refuses it — one
+  /// [MembersRefusal.inviteNotForYou] for a wrong number and a missing id
+  /// alike (ADR 2026-09-05d §9 🔒), so a caller tested on the fake cannot
+  /// learn to tell them apart.
+  @override
+  Future<String> acceptInvite(String inviteId) async {
+    _maybeFail();
+    if (!offered.any((o) => o.inviteId == inviteId)) {
+      throw const MembersFailure(
+        'invite not for you',
+        MembersRefusal.inviteNotForYou,
+      );
+    }
+    acceptedInvites.add(inviteId);
+    return acceptStatus;
+  }
 
   Future<void> dispose() => _controller.close();
 }
