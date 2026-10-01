@@ -48,6 +48,7 @@ import '../widgets/home_close_card.dart';
 import '../widgets/home_everything.dart';
 import '../widgets/home_rebuild_gate.dart';
 import '../widgets/home_scope_switcher.dart';
+import '../widgets/home_verb_gate.dart';
 import '../../../shared/widgets/rk_states.dart';
 import '../widgets/home_states.dart';
 
@@ -462,7 +463,7 @@ class _HomeBody extends StatelessWidget {
           inPaise: snapshot.monthInPaise,
           outPaise: snapshot.monthOutPaise,
         ),
-        HomeVerbButtons(onVerb: onVerb),
+        HomeVerbGate(onVerb: onVerb),
         // The *Close card* (07 §13 🔒 bullet 1) sits **below** the four verb
         // buttons, not above them.
         //

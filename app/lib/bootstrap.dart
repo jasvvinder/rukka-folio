@@ -750,6 +750,29 @@ Future<void> bootstrap() async {
           updateRequired: auth.updateRequired,
           settings: settings,
           pinVault: vault,
+          // S12.x — the entitlement reading every route, sheet and the shell's
+          // S12.5 banner read, mounted by the app above its router (ADR
+          // 2026-09-24b §13). Untokened is the only honest production reading
+          // until the verified producer lands (PLAN desk 23c): Free, never
+          // locked (ADR 2026-09-05g §1 🔒). The producer replaces this one
+          // binding and nothing below changes.
+          entitlement: const UntokenedEntitlementSource(),
+          // S12.1's plan list from the server catalogue (ADR 2026-09-25 §6;
+          // `GET /sync-meta/plans`). It hands back the last catalogue it
+          // read when offline, and never the offline mirror: a phone that has
+          // never reached the server is told so, with a retry.
+          planCatalogue: HttpPlanCatalogueSource(
+            transport: httpDoor,
+            functionsRoot: Uri.parse(apiBase),
+            accessToken: () async {
+              try {
+                return await auth.accessToken();
+              } on Object {
+                return null;
+              }
+            },
+            clientVersion: clientVersion,
+          ),
           // S1 with the shell's scope holder. `homeRoot` (features/home) is
           // the same screen without it — kept there for tests and previews;
           // the two wirings must be changed together.
@@ -848,11 +871,11 @@ Future<void> bootstrap() async {
                     m.verification != null && m.state == MembershipState.active
                     ? GuardianCeremony.done
                     : GuardianCeremony.notStarted,
-                // ⚠️ SPEC: S11.1's *Meet them* opens a ceremony invite, and
-                // `MembersSnapshot` carries no invite id per member — only
-                // this user's own invitations (`myInvites`). Null disables the
-                // control **with its reason** (13 §4.3) instead of opening a
-                // ceremony against an id this build guessed. Reported.
+                // Nothing reads this any more: since M11-DEV1 (F1-07-545)
+                // S11.1's *Meet them* opens S9.3 by `memberId` and is gated on
+                // the member's state, not on an invite id. Left null because
+                // `MembersSnapshot` carries no invite id per member; whether
+                // the field is retired is PLAN desk 53 (owner).
                 inviteId: null,
                 isYou: m.isYou,
               ),

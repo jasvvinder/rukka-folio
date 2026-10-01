@@ -17,8 +17,11 @@
 //
 // States (13 §4.3): default · sending · error-with-retry (the form stays
 // filled, 13 §8 Interruption) · disabled-with-reason when offline — the invite
-// is created on the server, so this one action needs a connection · created,
-// where the inviter sends it (below).
+// is created on the server, so this one action needs a connection · plan full
+// (ADR 2026-09-05g §6 🔒: `seat_cap` / `seat_rotation_cap`), which is not an
+// error to retry but a plain line and the door to S12.1 Plans; the form stays
+// filled, and a later *Send invite* signs a new record · created, where the
+// inviter sends it (below).
 // ⚠️ SPEC: neither 06 §7 nor 05 says an invite may be queued in the outbox and
 // sent later, so the screen states the restriction rather than promising a
 // send it cannot guarantee.
@@ -41,14 +44,19 @@ import '../../../shared/tokens.dart';
 import '../designations.dart';
 import '../members_repository.dart';
 import '../widgets/invite_share_panel.dart';
+import '../widgets/plan_cap_notice.dart';
 import 's9_members_screen.dart' show parseRupeeLimitToPaise;
 
 class InviteScreen extends StatefulWidget {
-  const InviteScreen({super.key, this.onSent});
+  const InviteScreen({super.key, this.onSent, this.onOpenPlans});
 
   /// Called on *Done*, once the invite exists and was offered to the share
   /// sheet; the host pops back to S9. Null → this screen pops itself.
   final VoidCallback? onSent;
+
+  /// Opens S12.1 Plans from a plan-cap refusal (ADR 2026-09-05g §6 🔒). Null
+  /// → [PlanCapNotice]'s default, the ambient router.
+  final VoidCallback? onOpenPlans;
 
   @override
   State<InviteScreen> createState() => _InviteScreenState();
@@ -332,7 +340,9 @@ class _InviteScreenState extends State<InviteScreen> {
               Expanded(child: Text(l10n.inviteOffline, style: text.bodySmall)),
             ],
           ),
-        if (_failure != null)
+        if (_failure case final f? when f.isPlanCap)
+          PlanCapNotice(refusal: f, onOpenPlans: widget.onOpenPlans)
+        else if (_failure != null)
           Padding(
             padding: const EdgeInsets.only(bottom: RkSpace.s2),
             child: Text(

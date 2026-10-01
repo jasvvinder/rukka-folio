@@ -263,18 +263,26 @@ Deno.test("E-06-45 a guardian's approval is the share re-sealed to the candidate
   });
 
   await t.step("the re-sealed share is addressed to the candidate device", async () => {
-    const mine = (await metaPull(r, fresh)).wrapped_keys;
-    assertEquals(mine.length, 1);
-    assertEquals(mine[0].kind, "recovery_blob");
-    assertEquals(mine[0].device_id, fresh.device.id);
-    assertEquals(b64url.dec(mine[0].blob).length, 96);
-    // and to no OTHER person: not the guardian who sealed it, not a fellow member. (The subject's
-    // own certified device does see it — 0005 addresses wrapped keys to a USER and a device, and a
-    // share re-sealed for this user is this user's key material; what it is not is anyone else's.)
-    for (const who of [g1, g2]) {
+    // Filed for the candidate device, byte-for-byte what the guardian sent…
+    const filed = r.db.wrapped_keys.filter((w) => w.kind === "recovery_blob");
+    assertEquals(filed.length, 1);
+    assertEquals(filed[0].device_id, fresh.device.id);
+    assertEquals(filed[0].user_id, subject.user);
+    assertEquals((filed[0].blob as Uint8Array).length, 96);
+    // …and served to NOBODY on the meta channel. Until 0020 this step asserted that the candidate
+    // read the share here after ONE approval, i.e. before k and inside the 24 h wait of 04 §7.3
+    // step 6 / ADR 2026-09-05d §1 🔒, and that the subject's certified device read it too. The
+    // share now leaves only through GET /sync-meta/recovery/shares, once the attempt is approved
+    // (E-06-77…E-06-79).
+    for (const who of [fresh, subject, g1, g2]) {
       const theirs = (await metaPull(r, who)).wrapped_keys;
       assertEquals(theirs.filter((w: any) => w.kind === "recovery_blob").length, 0);
     }
+    const early = await meta(
+      get(`/sync-meta/recovery/shares?request_id=${req}`, { token: await tok(r, fresh) }),
+      r.deps,
+    );
+    assertEquals(early.status, 404, "1 of 2 approvals releases nothing");
   });
 
   await t.step("a share sealed to a different candidate key is refused", async () => {
@@ -543,16 +551,20 @@ Deno.test("E-06-49 a share sealed for one attempt cannot be filed against anothe
   assertEquals((await body(await progress(r, a, reqA))).approvals, 1);
   assertEquals((await body(await progress(r, b, reqB))).approvals, 1);
 
-  // each phone reads only the share addressed to it
-  const forA =
-    (await body(await meta(get("/sync-meta", { token: await tok(r, a) }), r.deps))).wrapped_keys;
-  const forB =
-    (await body(await meta(get("/sync-meta", { token: await tok(r, b) }), r.deps))).wrapped_keys;
+  // each attempt's share is its own row, addressed to its own phone. (Until 0020 each phone read
+  // it on the meta pull at 1 of 2 approvals; the meta channel now carries no recovery_blob, and
+  // the release is GET /sync-meta/recovery/shares once approved, E-06-74 / E-06-77.)
+  const filed = r.db.wrapped_keys.filter((w) => w.kind === "recovery_blob");
+  const forA = filed.filter((w) => w.device_id === a.device.id);
+  const forB = filed.filter((w) => w.device_id === b.device.id);
   assertEquals(forA.length, 1);
   assertEquals(forB.length, 1);
-  assertEquals(forA[0].device_id, a.device.id);
-  assertEquals(forB[0].device_id, b.device.id);
   assert(forA[0].id !== forB[0].id, "two attempts, two sealed rows");
+  for (const c of [a, b]) {
+    const pulled =
+      (await body(await meta(get("/sync-meta", { token: await tok(r, c) }), r.deps))).wrapped_keys;
+    assertEquals(pulled.filter((w: any) => w.kind === "recovery_blob").length, 0);
+  }
 
   // and neither phone can read the other's attempt
   assertEquals((await progress(r, a, reqB)).status, 404);

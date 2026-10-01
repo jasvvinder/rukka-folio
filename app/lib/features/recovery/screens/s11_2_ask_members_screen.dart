@@ -44,7 +44,9 @@ import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../../../shared/widgets/rk_fit_text.dart';
 import '../../../shared/widgets/rk_states.dart';
+import '../my_code.dart';
 import '../widgets/recovery_parts.dart';
+import 's11_2_show_my_code_screen.dart';
 
 /// The waiting screen for rung 2.
 class AskTrustedMembersScreen extends StatefulWidget {
@@ -54,6 +56,7 @@ class AskTrustedMembersScreen extends StatefulWidget {
     this.recovery,
     this.onBack,
     this.onCall,
+    this.myCode,
   });
 
   /// The seam to ask.
@@ -66,6 +69,11 @@ class AskTrustedMembersScreen extends StatefulWidget {
   /// Places a call to one member. Null when nothing on this build can dial;
   /// the row then shows the number instead of a control that would do nothing.
   final void Function(TrustedApprover approver)? onCall;
+
+  /// *Show my code*'s producer (ADR 2026-09-13c ruling 3 🔒). Defaults to
+  /// [RecoveryMyCodeScope]'s; with neither, *Show my code* says this phone
+  /// cannot show its code yet.
+  final RecoveryMyCode? myCode;
 
   @override
   State<AskTrustedMembersScreen> createState() =>
@@ -144,10 +152,31 @@ class _AskTrustedMembersScreenState extends State<AskTrustedMembersScreen> {
     }
   }
 
+  /// *Show my code* (ADR 2026-09-13c ruling 3 🔒): pushed over this screen,
+  /// so its back arrow returns here and nothing about the attempt is lost.
+  void _showMyCode() {
+    final myCode = widget.myCode ?? RecoveryMyCodeScope.maybeOf(context);
+    unawaited(
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => RecoveryShowMyCodeScreen(myCode: myCode),
+        ),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _sub?.cancel();
     super.dispose();
+  }
+
+  /// Whether a member can still need this phone's code: an attempt is in
+  /// hand and it is neither approved nor closed (ADR 2026-09-13c ruling 3 🔒;
+  /// 04 §7.3 step 3 — approvals are what the code is shown for).
+  bool get _codeWanted {
+    final a = _attempt;
+    return a != null && a.state != RecoveryAttemptState.approved && !a.isClosed;
   }
 
   @override
@@ -167,6 +196,10 @@ class _AskTrustedMembersScreenState extends State<AskTrustedMembersScreen> {
             outcome: _ceremony,
             busy: _scanning,
             onScan: _scan,
+            // Only while members can still approve — the same rule as the
+            // waiting list. On a closed attempt the held key is already
+            // discarded, so the screen would say this phone never asked.
+            onShowMyCode: _codeWanted ? _showMyCode : null,
             onBack: widget.onBack,
           ),
           RecoveryScanOutcome.mismatch => _Mismatch(onBack: widget.onBack),
@@ -176,6 +209,7 @@ class _AskTrustedMembersScreenState extends State<AskTrustedMembersScreen> {
                 : _Waiting(
                     attempt: _attempt!,
                     onCall: widget.onCall,
+                    onShowMyCode: _showMyCode,
                     onBack: widget.onBack,
                   ),
         },
@@ -208,12 +242,17 @@ class _CeremonyStep extends StatelessWidget {
     required this.outcome,
     required this.busy,
     required this.onScan,
+    required this.onShowMyCode,
     required this.onBack,
   });
 
   final RecoveryScanOutcome? outcome;
   final bool busy;
   final VoidCallback onScan;
+
+  /// Null when no member can still need this phone's code — the entry is
+  /// then not drawn at all.
+  final VoidCallback? onShowMyCode;
   final VoidCallback? onBack;
 
   @override
@@ -266,6 +305,16 @@ class _CeremonyStep extends StatelessWidget {
               ),
             ),
           ),
+        // The other half of the one mutual ceremony (ADR 2026-09-13c ruling
+        // 3 🔒): the member being called scans THIS phone before approving.
+        // ⚠️ SPEC: no canvas places it (ADR 13c Open 2). It sits under the
+        // scan because both happen on the same call, and a member may need it
+        // before this phone has scanned theirs — approvals (04 §7.3 step 3)
+        // come before the ceremony gate at step 4.
+        if (onShowMyCode case final show?) ...[
+          const SizedBox(height: RkSpace.s3),
+          _ShowMyCodeButton(onPressed: show),
+        ],
         if (onBack != null) ...[
           const SizedBox(height: RkSpace.s4),
           TextButton(
@@ -331,11 +380,13 @@ class _Waiting extends StatelessWidget {
   const _Waiting({
     required this.attempt,
     required this.onCall,
+    required this.onShowMyCode,
     required this.onBack,
   });
 
   final GuardianRecoveryAttempt attempt;
   final void Function(TrustedApprover approver)? onCall;
+  final VoidCallback onShowMyCode;
   final VoidCallback? onBack;
 
   String _stateText(AppLocalizations l10n, TrustedApproverState s) =>
@@ -389,6 +440,18 @@ class _Waiting extends StatelessWidget {
                   l10n.recoveryAskCallAdvice,
                   style: text.bodyMedium?.copyWith(color: status.muted),
                 ),
+              ),
+            // While members can still approve, each needs this phone's code
+            // (ADR 2026-09-13c ruling 3 🔒). Not once it is over or approved.
+            if (!done && !attempt.isClosed)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  RkSpace.gutter,
+                  0,
+                  RkSpace.gutter,
+                  RkSpace.s3,
+                ),
+                child: _ShowMyCodeButton(onPressed: onShowMyCode),
               ),
             if (offline)
               Padding(
@@ -512,4 +575,21 @@ int _hoursLeft(DateTime? until, DateTime now) {
   if (until == null) return 0;
   final left = until.difference(now);
   return left.isNegative ? 0 : left.inHours;
+}
+
+/// *Show my code* — secondary to the step it sits in, so outlined.
+class _ShowMyCodeButton extends StatelessWidget {
+  const _ShowMyCodeButton({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) => OutlinedButton.icon(
+    onPressed: onPressed,
+    icon: const Icon(Icons.qr_code_2),
+    label: RkFitText(
+      AppLocalizations.of(context).recoveryShowOpen,
+      textAlign: TextAlign.center,
+    ),
+  );
 }

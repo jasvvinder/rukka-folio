@@ -8,9 +8,10 @@
     "daily_overrides": {
       "2026-09-26": 20000000,
       "2026-09-27": 20000000,
-      "2026-09-28": 10000000
+      "2026-09-28": 10000000,
+      "2026-10-01": 8000000
     },
-    "_overrides_note": "ADR 2026-09-24 §3: dated, owner-set exceptions to daily_tokens. A date not listed falls back to daily_tokens; an expired entry is inert and may be deleted. Weekend of 26-27 Sep, owner-directed 24 Sep. 28 Sep = 10 M, owner-directed 28 Sep.",
+    "_overrides_note": "ADR 2026-09-24 §3: dated, owner-set exceptions to daily_tokens. A date not listed falls back to daily_tokens; an expired entry is inert and may be deleted. Weekend of 26-27 Sep, owner-directed 24 Sep. 28 Sep = 10 M, owner-directed 28 Sep. 1 Oct = 8 M, owner-directed 1 Oct (review cycle of the five 30 Sep slices).",
     "_note": "weekly_tokens: no script can read your plan's quota (ADR 2026-09-13e; wf-spend.sh says so in its own comment). Run /usage in-session, read the weekly number, put it here. On a Team plan it may be pooled across seats — use YOUR share. Until it is set, the board shows spend with no ceiling. daily_tokens is the pacing ceiling: roughly weekly/6, so the week spreads over six build days instead of two (17-19 Sep burned 11.8M = 45% of all-time spend in three days)."
   },
 

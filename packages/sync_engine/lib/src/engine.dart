@@ -550,6 +550,12 @@ final class SyncEngine {
     } on BatchTooLarge catch (e) {
       _refusal = e;
       return null;
+    } on PlanCapRefused catch (e) {
+      // ADR 2026-09-05g §2 / §6 🔒: the plan has no room. Terminal — never
+      // `_offline`, so nothing backs off and re-sends it; the caller stops
+      // the route as it does for a RouteRefused.
+      _refusal = e;
+      return null;
     } on UpdateRequired {
       _mode = EngineMode.updateRequired;
       _open.add(AttentionReason.updateRequired);
@@ -993,15 +999,18 @@ final class SyncEngine {
           }
           continue;
         }
-        if (_refusal is RouteRefused) {
-          // 404/403/400 on the push route as a whole — rows stay queued.
+        final refusal = _refusal;
+        if (refusal is RouteRefused || refusal is PlanCapRefused) {
+          // 404/403/400 on the push route as a whole — rows stay queued. A
+          // cap refusal (off-contract on push: the push route's quota is the
+          // per-envelope `rejected:quota`) stops the book the same way, so
+          // no later round re-sends it until a resume says otherwise.
           _emit(
-            PullRefused(
-              _now,
-              book,
-              (_refusal! as RouteRefused).code ?? '',
-              route: 'push',
-            ),
+            PullRefused(_now, book, switch (refusal) {
+              RouteRefused(:final code) => code ?? '',
+              PlanCapRefused(:final code) => code,
+              _ => '',
+            }, route: 'push'),
           );
           pushBlockedBooks.add(book);
           _open.add(AttentionReason.bookUnavailable);

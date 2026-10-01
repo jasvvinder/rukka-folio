@@ -66,5 +66,7 @@
   "home.close.waiting": "{name} ਦੀ ਉਡੀਕ",
   "home.close.book": "{book}",
   "home.close.done.title": "{month} ਬੰਦ ਹੋ ਗਿਆ",
-  "home.close.done.action": "ਮਹੀਨਾ ਵੇਖੋ"
+  "home.close.done.action": "ਮਹੀਨਾ ਵੇਖੋ",
+  "home.verb.read_only.reason": "ਤੁਹਾਡਾ ਪਲਾਨ ਖ਼ਤਮ ਹੋ ਗਿਆ ਹੈ, ਇਸ ਲਈ ਨਵੀਆਂ ਐਂਟਰੀਆਂ ਰੁਕੀਆਂ ਹੋਈਆਂ ਹਨ।",
+  "@home.verb.read_only.reason": {"description": "machine-draft — native review M12"}
 }

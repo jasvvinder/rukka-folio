@@ -5,6 +5,7 @@
 // are another lane's; nothing here links to them, so no dead route is minted.
 import 'package:go_router/go_router.dart';
 
+import '../subscription/subscription_paths.dart';
 import 'members_paths.dart';
 import 'screens/s9_1_invite_screen.dart';
 import 'screens/s9_members_screen.dart';
@@ -18,12 +19,18 @@ export 'screens/s9_members_screen.dart' show MembersScreen;
 final List<RouteBase> membersRoutes = [
   GoRoute(
     path: MembersPaths.members,
-    builder: (context, state) =>
-        MembersScreen(onInvite: () => context.push(MembersPaths.invite)),
+    builder: (context, state) => MembersScreen(
+      onInvite: () => context.push(MembersPaths.invite),
+      // A plan cap's way on (ADR 2026-09-05g §6 🔒) — S12.1 Plans.
+      onOpenPlans: () => context.push(SubscriptionPaths.plans),
+    ),
     routes: [
       GoRoute(
         path: 'invite',
-        builder: (context, state) => InviteScreen(onSent: () => context.pop()),
+        builder: (context, state) => InviteScreen(
+          onSent: () => context.pop(),
+          onOpenPlans: () => context.push(SubscriptionPaths.plans),
+        ),
       ),
     ],
   ),

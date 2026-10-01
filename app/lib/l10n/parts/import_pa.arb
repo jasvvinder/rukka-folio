@@ -117,5 +117,11 @@
   "import.balance.failing.next": "ਇਸ ਤੋਂ ਪਹਿਲਾਂ ਵਾਲੀ ਸਟੇਟਮੈਂਟ ਲਿਆਓ, ਫਿਰ ਵਾਪਸ ਆਓ। ਇਹ ਲਾਈਨਾਂ ਤੁਸੀਂ ਹੁਣ ਵੀ ਛਾਂਟ ਸਕਦੇ ਹੋ।",
   "import.balance.unavailable": "ਇਸ ਫ਼ਾਈਲ ਵਿੱਚ ਬਕਾਏ ਦਾ ਕਾਲਮ ਨਹੀਂ ਹੈ, ਇਸ ਲਈ ਮਿਲਾਉਣ ਲਈ ਕੁਝ ਨਹੀਂ।",
   "import.balance.unavailable.next": "ਲਾਈਨਾਂ ਤੁਸੀਂ ਫਿਰ ਵੀ ਛਾਂਟ ਸਕਦੇ ਹੋ।",
-  "import.balance.back": "ਲਾਈਨਾਂ ਉੱਤੇ ਵਾਪਸ"
+  "import.balance.back": "ਲਾਈਨਾਂ ਉੱਤੇ ਵਾਪਸ",
+  "import.gate.title": "ਸਟੇਟਮੈਂਟ ਇੰਪੋਰਟ ਤੁਹਾਡੇ ਪਲਾਨ ਵਿੱਚ ਨਹੀਂ ਹੈ",
+  "@import.gate.title": {"description": "machine-draft — native review M12"},
+  "import.gate.body": "ਤੁਸੀਂ ਹਰ ਐਂਟਰੀ ਹੱਥ ਨਾਲ ਹਾਲੇ ਵੀ ਪਾ ਸਕਦੇ ਹੋ, ਕਿਸੇ ਵੀ ਪਲਾਨ ਉੱਤੇ।",
+  "@import.gate.body": {"description": "machine-draft — native review M12"},
+  "import.gate.see_plans": "ਪਲਾਨ ਵੇਖੋ",
+  "@import.gate.see_plans": {"description": "machine-draft — native review M12"}
 }

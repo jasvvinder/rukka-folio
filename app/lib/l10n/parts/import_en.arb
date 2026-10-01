@@ -235,5 +235,11 @@
   "import.balance.unavailable.next": "You can still sort the lines.",
   "@import.balance.unavailable.next": {"description": "S7.2 — the path out when the check cannot run."},
   "import.balance.back": "Back to the lines",
-  "@import.balance.back": {"description": "S7.2 — returns to S7.1; the check never blocks the import."}
+  "@import.balance.back": {"description": "S7.2 — returns to S7.1; the check never blocks the import."},
+  "import.gate.title": "Statement import is not on your plan",
+  "@import.gate.title": {"description": "S7 gated state — the entitlement token's features lack statement_import (ADR 2026-09-25 §3, §5–§6). Read from the token's features, never the plan name."},
+  "import.gate.body": "You can still add every entry by hand, on any plan.",
+  "@import.gate.body": {"description": "S7 gated state body. ADR 2026-09-25 §5 🔒: every entry verb is never restricted, on any plan including Free."},
+  "import.gate.see_plans": "See plans",
+  "@import.gate.see_plans": {"description": "S7 gated state action: opens S12.1 Plans (07 §1 rule 6, no dead end)."}
 }

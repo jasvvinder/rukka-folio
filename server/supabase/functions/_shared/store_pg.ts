@@ -27,6 +27,7 @@ import {
   type RecoveryAsk,
   type RecoveryProgress,
   type RecoveryRequest,
+  type RecoveryShare,
   type RecoverySheet,
   type RefreshToken,
   type SignedRecordRow,
@@ -187,6 +188,10 @@ class PgTx implements Tx {
     }));
   }
   async metaPage(table: MetaTable, after: MetaCursor | null, limit: number) {
+    // ⚠️ SPEC (0020 header (d)): 05 §5 🔒 lists wrapped_keys on this channel with no exception, but
+    // 0020's restrictive policy keeps kind `recovery_blob` off every page. Those rows leave only
+    // through recoveryShares, after the attempt's 24 h wait (04 §7.3 step 6 🔒). The 05 §5 line
+    // naming the exception is the owner's to write.
     if (!META_TABLES.includes(table)) throw new Error(`unknown meta table ${table}`);
     const pk = PK[table];
     const idExpr = pk.map((c) => `${c}::text`).join(" || ':' || ");
@@ -510,7 +515,7 @@ class PgTx implements Tx {
     // requester and to the candidate device, and `rf.recovery_progress` has just returned nothing
     // to anybody else — so a caller who may not read the attempt reads no decision either.
     // `wrapped_key_id` and `sealed_to_pub_x` are NOT selected: a share is addressed to the
-    // candidate device through wrapped_keys and travels nowhere else.
+    // candidate device and leaves only through rf.recovery_shares, once approved (0020).
     const d = await this.sql`select guardian_user_id, decision, created_at from recovery_approvals
       where request_id = ${request}::uuid order by created_at, guardian_user_id`;
     return progressRow(r, d);
@@ -564,6 +569,21 @@ class PgTx implements Tx {
           (request_id, cancelled_by_user, cancelled_by_device)
         values (${request}::uuid, rf.user_id(), rf.device_id())`;
     });
+  }
+  async recoveryShares(request: string): Promise<RecoveryShare[]> {
+    // 0020: the release is the database's rule, in one SECURITY DEFINER function keyed on the
+    // claims this transaction carries. The table itself no longer shows a recovery_blob to rf_api,
+    // so this is the only read that can return one.
+    const rows = await this.sql`select * from rf.recovery_shares(${request}::uuid)`;
+    return rows.map((r) => ({
+      wrapped_key_id: r.wrapped_key_id as string,
+      guardian_user_id: r.guardian_user_id as string,
+      candidate_device: r.candidate_device as string,
+      sealed_to_pub_x: bytes(r.sealed_to_pub_x),
+      share_set_version: r.share_set_version as number,
+      blob: bytes(r.blob),
+      approved_at: r.approved_at as Date,
+    }));
   }
   async myRecoveryRequests(): Promise<RecoveryRequest[]> {
     const rows = await this.sql`select * from recovery_requests

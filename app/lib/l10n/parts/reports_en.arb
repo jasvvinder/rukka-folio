@@ -767,5 +767,9 @@
   "reports.statement.closing_words.label": "Closing balance in words",
   "@reports.statement.closing_words.label": {
     "description": "Label of the amount-in-words line under an exported ledger (07 §14 🔒 amount-in-words). The figure is the closing balance's magnitude; its Dr/Cr side is already on the c/d row."
-  }
+  },
+  "reports.export.pdf.not_on_plan": "PDF is not on your plan. CSV and XLSX work on every plan.",
+  "@reports.export.pdf.not_on_plan": {"description": "S8.2 export sheet — the PDF row's line when the entitlement token's features lack pdf_output (ADR 2026-09-25 §5 🔒: no PDF output on Free; CSV/XLSX never restricted). The row stays, so the 🔒 three-format enumeration (ADR 2026-09-12 §1) is intact."},
+  "reports.export.pdf.see_plans": "See plans",
+  "@reports.export.pdf.see_plans": {"description": "Action beside the not-on-plan sentence: opens S12.1 Plans (07 §1 rule 6, no dead end)."}
 }

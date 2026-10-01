@@ -11,41 +11,40 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/features/subscription/dunning_grace.dart';
-import 'package:rukka_folio/features/subscription/entitlement_source.dart';
 import 'package:rukka_folio/features/subscription/invoice_source.dart';
 import 'package:rukka_folio/features/subscription/subscription_commands.dart';
 import 'package:rukka_folio/features/subscription/tier_catalogue.dart';
 
 void main() {
   group('GST split (ADR 2026-09-05g §10 🔒)', () {
-    test(
-      'F1-07-468 the Family annual price splits to the paisa: 18 % inclusive, '
-      'half-up, and every part sums back exactly',
-      () {
-        // 08 §2 🔒 — ₹1,999 a year, GST-inclusive, as integer paise.
-        final total = rkTierFor(RkPlan.family).annualPaise;
-        expect(total, 199900);
+    test('F1-07-468 a ₹1,999 price splits to the paisa: 18 % inclusive, '
+        'half-up, and every part sums back exactly', () {
+      // A fixture price, GST-inclusive, as integer paise. It was 08 §2's
+      // Family price; ADR 2026-09-25 §6 moved prices into the catalogue,
+      // so the split is pinned on the figure itself (it is still 0018's
+      // Family Lite and Trust yearly price) — the next test sweeps the
+      // catalogue.
+      const total = 199900;
 
-        final split = rkGstSplit(total);
-        // 199900 × 10000 ÷ 11800 = 169406.78… → half-up → ₹1,694.07.
-        expect(split.taxablePaise, 169407);
-        expect(split.taxPaise, 30493);
-        // 30493 ÷ 2 = 15246.5 → half-up → 15247, the other half takes the
-        // remainder so the pair is exact.
-        expect(split.cgstPaise, 15247);
-        expect(split.sgstPaise, 15246);
-        expect(split.cgstPaise + split.sgstPaise, split.taxPaise);
-        // A whole-rupee price needs no round_off line.
-        expect(split.roundOffPaise, 0);
-        expect(
-          split.taxablePaise + split.taxPaise + split.roundOffPaise,
-          split.roundedTotalPaise,
-        );
-      },
-    );
+      final split = rkGstSplit(total);
+      // 199900 × 10000 ÷ 11800 = 169406.78… → half-up → ₹1,694.07.
+      expect(split.taxablePaise, 169407);
+      expect(split.taxPaise, 30493);
+      // 30493 ÷ 2 = 15246.5 → half-up → 15247, the other half takes the
+      // remainder so the pair is exact.
+      expect(split.cgstPaise, 15247);
+      expect(split.sgstPaise, 15246);
+      expect(split.cgstPaise + split.sgstPaise, split.taxPaise);
+      // A whole-rupee price needs no round_off line.
+      expect(split.roundOffPaise, 0);
+      expect(
+        split.taxablePaise + split.taxPaise + split.roundOffPaise,
+        split.roundedTotalPaise,
+      );
+    });
 
     test('F1-07-468 every catalogue price balances to the paisa', () {
-      for (final tier in rkTiers) {
+      for (final tier in rkOfflineCatalogue.plans) {
         for (final paise in [tier.annualPaise, tier.monthlyPaise]) {
           final split = rkGstSplit(paise);
           expect(

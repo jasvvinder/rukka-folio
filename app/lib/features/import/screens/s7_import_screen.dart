@@ -12,16 +12,29 @@
 //
 // States (13 §4.3): the ruled skeleton while the A/Cs load · error-with-retry
 // · empty (no bank A/C, with the one next action) · ready · reading a file ·
-// parse failure. None of them is a dead end (07 §1 rule 6).
+// parse failure · **not on this plan**. None of them is a dead end (07 §1
+// rule 6).
+//
+// **The plan gate** (ADR 2026-09-25 §3, §5–§6 🔒, M13-CAT2): statement import
+// is one of the two extras a plan may include. The screen asks the
+// entitlement token's `features` for `statement_import` — never the plan's
+// name, never the unsigned catalogue — and without it shows the reason, that
+// every entry by hand still works on any plan (ADR 25 §5), and *See plans*.
+// No token is Free (ADR 2026-09-05g §1 🔒), and Free has no import, so with
+// no `EntitlementScope` mounted the gate is shut. ⚠️ SPEC: until the client
+// token verifier lands (PLAN desk 23c) that is every build.
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../../../shared/widgets/rk_fit_text.dart';
 import '../../../shared/widgets/rk_states.dart';
+import '../../subscription/entitlement_source.dart';
+import '../../subscription/subscription_paths.dart';
 import '../import_source.dart';
 import '../parse/column_mapping.dart';
 import '../parse/parsed_statement.dart';
@@ -35,8 +48,18 @@ class ImportScreen extends StatefulWidget {
     this.bookId,
     this.source,
     this.filePort,
+    this.entitlement,
+    this.onOpenPlans,
     required this.onParsed,
   });
+
+  /// Whose `features` decide whether this plan imports; read from
+  /// `EntitlementScope` when absent, and untokened (Free) when neither is.
+  final EntitlementSource? entitlement;
+
+  /// Opens S12.1 from the gated state. Absent, a mounted `GoRouter` is asked;
+  /// with neither, the gated state still says what works instead.
+  final VoidCallback? onOpenPlans;
 
   /// The book to import into; read from [ImportScope] when absent.
   final String? bookId;
@@ -74,6 +97,11 @@ class _ImportScreenState extends State<ImportScreen> {
   String? _reading;
   StatementParseFailure? _failure;
 
+  EntitlementSource? _entitlement;
+
+  /// True when the token's `features` lack `statement_import`.
+  bool _notOnPlan = false;
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -89,7 +117,16 @@ class _ImportScreenState extends State<ImportScreen> {
       }
       return;
     }
-    if (identical(source, _source) && _started) return;
+    final entitlement =
+        widget.entitlement ??
+        EntitlementScope.maybeOf(context)?.source ??
+        const UntokenedEntitlementSource();
+    if (identical(source, _source) &&
+        identical(entitlement, _entitlement) &&
+        _started) {
+      return;
+    }
+    _entitlement = entitlement;
     _source = source;
     _filePort = port;
     _bookId = bookId;
@@ -105,8 +142,22 @@ class _ImportScreenState extends State<ImportScreen> {
       _error = null;
       _accounts = null;
       _failure = null;
+      _notOnPlan = false;
     });
     try {
+      // The gate first: a plan without import never lists A/Cs to import
+      // into. A reading that cannot be made is the error state, with retry —
+      // never a licence.
+      final reading = await (_entitlement ?? const UntokenedEntitlementSource())
+          .read();
+      if (!mounted) return;
+      if (!reading.has(RkFeature.statementImport)) {
+        setState(() {
+          _notOnPlan = true;
+          _accounts = const [];
+        });
+        return;
+      }
       final accounts = await source.pickAccount(bookId);
       if (!mounted) return;
       setState(() {
@@ -192,10 +243,18 @@ class _ImportScreenState extends State<ImportScreen> {
             onRetry: _load,
           ),
           (null, _) => RkSkeleton(label: l.importSkeleton, rows: 4),
+          _ when _notOnPlan => _NotOnPlan(l: l, onOpenPlans: _openPlans),
           (final List<ImportAccount> list, _) => _body(l, list),
         },
       ),
     );
+  }
+
+  VoidCallback? get _openPlans {
+    final explicit = widget.onOpenPlans;
+    if (explicit != null) return explicit;
+    final router = GoRouter.maybeOf(context);
+    return router == null ? null : () => router.push(SubscriptionPaths.plans);
   }
 
   Widget _body(AppLocalizations l, List<ImportAccount> accounts) {
@@ -233,6 +292,57 @@ class _ImportScreenState extends State<ImportScreen> {
             enabled: _selected != null,
           ),
           const SizedBox(height: RkSpace.s8),
+        ],
+      ],
+    );
+  }
+}
+
+/// The gated state: this plan's token does not include `statement_import`.
+///
+/// The lock is paired with the sentence (07 §1 rule 3), and the state says
+/// what still works — every entry by hand, on any plan (ADR 2026-09-25 §5 🔒)
+/// — so it is not a dead end even where no router can open S12.1.
+class _NotOnPlan extends StatelessWidget {
+  const _NotOnPlan({required this.l, required this.onOpenPlans});
+
+  final AppLocalizations l;
+  final VoidCallback? onOpenPlans;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final status = RkStatusColors.of(context);
+    return ListView(
+      padding: const EdgeInsets.all(RkSpace.gutter),
+      children: [
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Icon(Icons.lock_outline, size: RkIcon.grid, color: status.info),
+            const SizedBox(width: RkSpace.s2),
+            Expanded(
+              child: RkFitText(
+                l.importGateTitle,
+                style: theme.textTheme.titleMedium,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: RkSpace.s2),
+        RkFitText(
+          l.importGateBody,
+          style: theme.textTheme.bodyMedium?.copyWith(color: status.muted),
+        ),
+        if (onOpenPlans != null) ...[
+          const SizedBox(height: RkSpace.s4),
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: FilledButton(
+              onPressed: onOpenPlans,
+              child: RkFitText(l.importGateSeePlans),
+            ),
+          ),
         ],
       ],
     );

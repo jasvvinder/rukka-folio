@@ -180,6 +180,10 @@ final class FakeApi implements MembersApi {
   final accepted = <String>[];
   List<String> nextResults = const ['ok'];
 
+  /// Refusals [issueInvite] throws, oldest first, AFTER recording the request
+  /// — the server saw it and said no (a plan cap, say).
+  final issueFailures = <MembersFailure>[];
+
   @override
   Future<MetaResponse> pullMeta({String? after}) async {
     pulls++;
@@ -192,6 +196,7 @@ final class FakeApi implements MembersApi {
     required String phoneE164,
   }) async {
     issued.add((record: record, phone: phoneE164));
+    if (issueFailures.isNotEmpty) throw issueFailures.removeAt(0);
     return IssuedInvite(
       inviteId: 'invite-${issued.length}',
       recordId: record['id']! as String,
@@ -1158,6 +1163,224 @@ void main() {
         expect(s.readOnly, isTrue);
       },
     );
+  });
+
+  // ADR 2026-09-05g §2 / §6 🔒 — the server's three hard caps (migration 0019,
+  // M13-CAP1) as the members feature reads them. Contract lines:
+  // `sync-meta/index.ts` `inviteError` (409 seat_cap / seat_rotation_cap) and
+  // the `/records` catch arm (`rejected:<name>`, check = name, no seq).
+  group('F1-05g the plan\'s hard caps reach the members feature by name', () {
+    const root = 'https://edge.example/functions/v1/';
+    const synthetic = '+919999900011'; // check_purity: +91 99999 xxxxx
+
+    test(
+      'F1-05g-1 409 seat_cap and seat_rotation_cap on the invite route are '
+      'their own refusals, after exactly one request; the other 409s keep '
+      'their names, and a cap name off the 409 is not claimed as one',
+      () async {
+        Future<(MembersRefusal, int)> issue(MembersHttpResponse r) async {
+          final transport = ScriptedTransport()..on('invites', r);
+          final api = HttpMembersApi(
+            transport: transport,
+            functionsRoot: Uri.parse(root),
+            accessToken: () async => 'jwt',
+          );
+          try {
+            await api.issueInvite(
+              record: record('rec-1', 'invite', const {}),
+              phoneE164: synthetic,
+            );
+            fail('expected a refusal');
+          } on MembersFailure catch (e) {
+            return (e.reason, transport.bodies.length);
+          }
+        }
+
+        expect(
+          await issue(const MembersHttpResponse(409, '{"error":"seat_cap"}')),
+          (MembersRefusal.seatCap, 1),
+        );
+        expect(
+          await issue(
+            const MembersHttpResponse(409, '{"error":"seat_rotation_cap"}'),
+          ),
+          (MembersRefusal.seatRotationCap, 1),
+        );
+        // The book-create route CAP1 left to come answers the same way.
+        expect(
+          await issue(const MembersHttpResponse(409, '{"error":"book_cap"}')),
+          (MembersRefusal.bookCap, 1),
+        );
+        expect(
+          (await issue(
+            const MembersHttpResponse(409, '{"error":"record_replayed"}'),
+          )).$1,
+          MembersRefusal.recordReplayed,
+        );
+        expect(
+          (await issue(
+            const MembersHttpResponse(409, '{"error":"invite_not_live"}'),
+          )).$1,
+          MembersRefusal.inviteNotLive,
+        );
+        // `inviteError`'s default arm would answer a stray book_cap as 403 —
+        // off-contract, so it is not dressed up as "the plan is full".
+        expect(
+          (await issue(const MembersHttpResponse(403, '{"error":"book_cap"}')))
+              .$1,
+          MembersRefusal.server,
+        );
+        for (final r in MembersRefusal.values) {
+          expect(
+            r.isPlanCap,
+            {
+              MembersRefusal.seatCap,
+              MembersRefusal.seatRotationCap,
+              MembersRefusal.bookCap,
+            }.contains(r),
+            reason: r.name,
+          );
+        }
+      },
+    );
+
+    test(
+      'F1-05g-2 a record the cap refuses (E-05g-14\'s exact body) is a named '
+      'refusal on the repository\'s one record path, posted once and never '
+      're-sent — a re-send would be answered acked with nothing applied',
+      () async {
+        final transport = ScriptedTransport()
+          ..on(
+            'records',
+            const MembersHttpResponse(
+              200,
+              '{"store_epoch":"e1","results":['
+              '{"id":"r1","result":"rejected:seat_rotation_cap",'
+              '"check":"seat_rotation_cap"}]}',
+            ),
+          );
+        final http = HttpMembersApi(
+          transport: transport,
+          functionsRoot: Uri.parse(root),
+          accessToken: () async => 'jwt',
+        );
+        final results = await http.postRecords([
+          record('r1', 'membership_status', const {'user_id': harpreet}),
+        ]);
+        expect(results, ['rejected:seat_rotation_cap']);
+        expect(recordRefusalOf(results.single), MembersRefusal.seatRotationCap);
+        expect(recordRefusalOf('rejected:seat_cap'), MembersRefusal.seatCap);
+        expect(recordRefusalOf('rejected:book_cap'), MembersRefusal.bookCap);
+        expect(
+          recordRefusalOf('rejected:unauthorized'),
+          MembersRefusal.unauthorized,
+        );
+        expect(
+          recordRefusalOf('rejected:seat_capacity'),
+          MembersRefusal.server,
+        );
+
+        // The repository's record path (`_postOne`), end to end over the fake.
+        final api = FakeApi(
+          meta(
+            memberships: [
+              membership(amrit, 'active'),
+              membership(sunita, 'active'),
+            ],
+            books: [book(ghar)],
+            bookRoles: [
+              bookRole(ghar, amrit, 'admin'),
+              bookRole(ghar, sunita, 'head'),
+            ],
+            devices: [device(amritPhone, amrit)],
+            records: [
+              record('rec-founding', 'membership_status', {
+                'user_id': amrit,
+                'status': 'active',
+              }),
+            ],
+          ),
+        )..nextResults = const ['rejected:seat_cap'];
+        final repo = repoFor(
+          api,
+          believe: const {'rec-founding'},
+          author: FakeAuthor(),
+        );
+        await repo.refresh();
+        final pullsBefore = api.pulls;
+        await expectLater(
+          repo.setAutoPostLimit(memberId: sunita, bookId: ghar, paise: 100),
+          throwsA(
+            isA<MembersFailure>().having(
+              (e) => e.reason,
+              'reason',
+              MembersRefusal.seatCap,
+            ),
+          ),
+        );
+        expect(api.posted, hasLength(1), reason: 'terminal: posted once');
+        expect(api.pulls, pullsBefore, reason: 'nothing is claimed changed');
+      },
+    );
+
+    test('F1-05g-3 after a cap refusal the next invite is a NEW signed record '
+        '— the refused one is stored server-side, so re-sending it would be '
+        '"record_replayed", never a second ask', () async {
+      final api = FakeApi(
+        meta(
+          memberships: [membership(amrit, 'active')],
+          books: [book(ghar)],
+          bookRoles: [bookRole(ghar, amrit, 'admin')],
+          devices: [device(amritPhone, amrit)],
+          records: [
+            record('rec-founding', 'membership_status', {
+              'user_id': amrit,
+              'status': 'active',
+            }),
+          ],
+        ),
+      )..issueFailures.add(const MembersFailure('409', MembersRefusal.seatCap));
+      final author = FakeAuthor();
+      final directory = InMemoryMemberDirectory();
+      final repo = repoFor(
+        api,
+        believe: const {'rec-founding'},
+        author: author,
+        directory: directory,
+      );
+      await repo.refresh();
+      const request = InviteRequest(
+        phoneE164: synthetic,
+        grants: [BookGrant(bookId: ghar, role: BookRole.member)],
+      );
+
+      await expectLater(
+        repo.invite(request),
+        throwsA(
+          isA<MembersFailure>().having(
+            (e) => e.reason,
+            'reason',
+            MembersRefusal.seatCap,
+          ),
+        ),
+      );
+      expect(api.issued, hasLength(1), reason: 'no automatic retry');
+      expect(
+        directory.inviteePhoneOf('invite-1'),
+        isNull,
+        reason: 'a refused invite leaves no contact card behind',
+      );
+
+      final created = await repo.invite(request);
+      expect(api.issued, hasLength(2));
+      expect(
+        api.issued[1].record['id'],
+        isNot(api.issued[0].record['id']),
+        reason: 'a fresh record, so the server asks the cap again',
+      );
+      expect(author.signed, hasLength(2));
+      expect(created.inviteId, 'invite-2');
+    });
   });
 }
 

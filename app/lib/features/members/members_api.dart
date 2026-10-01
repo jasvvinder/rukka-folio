@@ -26,7 +26,12 @@
 //   • POST `sync-meta/records` `{records:[…]}` → `{results:[{id, result}]}`;
 //   • refusals by name: 403 `invite_not_for_you` · 403 `not_admin` · 403
 //     `unauthorized` · 409 `invite_not_live` · 409 `record_replayed` · 409
-//     `no_record` · 410 `invite_expired` · 400 `bad_phone` / `bad_record`.
+//     `no_record` · 410 `invite_expired` · 400 `bad_phone` / `bad_record`;
+//   • the plan's hard caps (ADR 2026-09-05g §2 / §6 🔒, migration 0019): 409
+//     `seat_cap` / `seat_rotation_cap` on `invites` (`inviteError`), and
+//     `rejected:seat_cap` / `rejected:seat_rotation_cap` / `rejected:book_cap`
+//     as a `records` result (`CAP_REFUSALS`). The names are `sync_engine`'s
+//     [PlanCap] — one spelling for both doors, pinned to the server by D-05g-1.
 //
 // **`invite_not_for_you` is the whole of C-05d-9:** the server answers a
 // wrong number and an invite id that does not exist with byte-identical
@@ -39,7 +44,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:core_crypto/core_crypto.dart' show Bytes, ceremonyNonceBytes;
-import 'package:sync_engine/sync_engine.dart' show MetaResponse;
+import 'package:sync_engine/sync_engine.dart' show MetaResponse, PlanCap;
 
 import '../../shared/seams/http_transport.dart';
 import 'members_repository.dart';
@@ -407,7 +412,37 @@ final class HttpMembersApi implements MembersApi {
 /// Maps a server `error` name onto the client's refusal (⚠️ WIRE
 /// `inviteError` in sync-meta/index.ts). An unknown name is
 /// [MembersRefusal.server] — never guessed into something friendlier.
-MembersRefusal refusalOf(String? error, int status) => switch (error) {
+///
+/// A hard cap is read on **409 only**, the status the contract gives it —
+/// the same rule as `sync_engine`'s `TransportFailure.fromHttp`, so the two
+/// doors cannot disagree about what is a cap. A cap name on another status is
+/// off-contract and stays [MembersRefusal.server].
+MembersRefusal refusalOf(String? error, int status) {
+  final cap = status == 409 ? planCapRefusal(PlanCap.fromWire(error)) : null;
+  return cap ?? _namedRefusal(error, status);
+}
+
+/// What one `records` result means for the caller, when it is a refusal:
+/// `rejected:<name>` → the named refusal, a cap by its own name
+/// (`CAP_REFUSALS`, check = the name, no seq). Anything else keeps the
+/// mapping [refusalOf] gives the bare name.
+MembersRefusal recordRefusalOf(String result) {
+  const prefix = 'rejected:';
+  final name = result.startsWith(prefix)
+      ? result.substring(prefix.length)
+      : result;
+  return planCapRefusal(PlanCap.fromWire(name)) ?? _namedRefusal(name, 400);
+}
+
+/// The members feature's name for [cap], or null when there is none.
+MembersRefusal? planCapRefusal(PlanCap? cap) => switch (cap) {
+  PlanCap.seats => MembersRefusal.seatCap,
+  PlanCap.seatRotation => MembersRefusal.seatRotationCap,
+  PlanCap.businessBooks => MembersRefusal.bookCap,
+  null => null,
+};
+
+MembersRefusal _namedRefusal(String? error, int status) => switch (error) {
   // ADR 2026-09-05d §9 🔒 — one refusal for "not your number" and "no such
   // invite", exactly as the server answers both identically.
   'invite_not_for_you' => MembersRefusal.inviteNotForYou,

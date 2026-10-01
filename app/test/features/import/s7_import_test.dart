@@ -14,6 +14,8 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/features/import/import_routes.dart';
+import 'package:rukka_folio/features/subscription/entitlement_source.dart';
+import 'package:rukka_folio/features/subscription/tier_catalogue.dart';
 import 'package:rukka_folio/l10n/gen/app_localizations.dart';
 
 import '../../shared/test_app.dart';
@@ -45,8 +47,25 @@ final class Handoff {
   final ImportAccount account;
 }
 
+/// A reading whose token includes `statement_import` — the plans on which S7
+/// imports at all (ADR 2026-09-25 §5–§6 🔒, M13-CAT2). The gate itself is
+/// F1-25-14 (`f1_25_import_gate_test.dart`).
+EntitlementSource importIncluded() => FakeEntitlementSource(
+  entitlement: Entitlement(
+    tenantId: 't-synthetic',
+    plan: RkPlan.family,
+    limits: rkTierFor(RkPlan.family).limits,
+    periodEnd: null,
+    graceKind: EntitlementGraceKind.none,
+    source: EntitlementSourceKind.fresh,
+    activeMembers: 1,
+    features: [RkFeature.statementImport.wire],
+  ),
+);
+
 Future<Handoff?> pumpS7(
   WidgetTester tester, {
+  EntitlementSource? entitlement,
   FakeImportSource? source,
   FakeStatementFilePort? port,
   List<Handoff>? handoffs,
@@ -62,6 +81,7 @@ Future<Handoff?> pumpS7(
       filePort: port ?? FakeStatementFilePort(),
       bookId: 'book-1',
       child: ImportScreen(
+        entitlement: entitlement ?? importIncluded(),
         onParsed: (statement, account, bytes) =>
             out.add(Handoff(statement, account)),
       ),

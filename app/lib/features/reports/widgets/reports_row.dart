@@ -138,11 +138,17 @@ class ReportsActionRow extends StatelessWidget {
   Widget build(BuildContext context) {
     // Past 1.3x a ListTile cannot hold an icon, the name and a chevron on one
     // line at 360 px, so the chevron drops and the text takes the width
-    // (07 §1 rule 11 — the same fold S4 and the FY sheet use).
-    final crowded = MediaQuery.textScalerOf(context).scale(1) > 1.3;
+    // (07 §1 rule 11 — the same fold S4 and the FY sheet use). Past 1.9x the
+    // leading icon drops as well: at 200 % on 360 px a one-word description
+    // such as *spreadsheet* is wider than a tile that keeps its icon, and a
+    // word can only be cut (M13-CAT2, found by F1-25-13). The words carry the
+    // row on their own — the icon was only ever paired with them.
+    final scale = MediaQuery.textScalerOf(context).scale(1);
+    final crowded = scale > 1.3;
+    final tight = scale > 1.9;
     return ListTile(
       minTileHeight: RkSpace.rowMinHeight,
-      leading: Icon(icon),
+      leading: tight ? null : Icon(icon),
       title: Text(
         title,
         style: Theme.of(context).textTheme.bodyLarge,

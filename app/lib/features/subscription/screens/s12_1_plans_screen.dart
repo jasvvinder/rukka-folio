@@ -1,10 +1,17 @@
 // S12.1 Plans — comparison, annual saving, current plan marked, quota rows
 // (13 §3.2 row S12.1, 08 §3.1 🔒, DESIGN-PACK §11 S12.1 🔒).
 //
-// 💰 **Not one number lives in this file.** Every price, quota and band comes
-// from `tier_catalogue.dart`, in integer paise, and the annual saving is
-// integer arithmetic there (CLAUDE.md rule 1: a float touching money is a
-// bug). This screen formats and lays out; it does not compute money.
+// 💰 **Not one number lives in this file.** Every price, quota, extra and the
+// popular flag comes from the **catalogue** the server serves (`GET
+// /sync-meta/plans`, ADR 2026-09-25 §6 🔒) through [PlanCatalogueSource], in
+// integer paise, and the annual saving is integer arithmetic in
+// `tier_catalogue.dart` (CLAUDE.md rule 1: a float touching money is a bug).
+// This screen formats and lays out; it does not compute money.
+//
+// ⚠️ Layout unchanged (M13-CAT2): S12.1 *per entity type* — the emphasised
+// popular card, pre-selection, trial-on-popular — is F1-25-5 and waits on
+// Canvas 10. What changed is only where the cards come from. Which cards: see
+// [RkPlanCatalogue.plansAlongside]'s ⚠️ SPEC.
 //
 // 🔒 **iOS says less, and says it in Apple's terms** (08 §3.2, ADR
 // 2026-09-05g §8): on [RkCheckoutChannel.inAppPurchase] there is no coupon
@@ -30,6 +37,7 @@ import '../../../shared/widgets/rk_fit_text.dart';
 import '../../../shared/widgets/rk_ruled_card.dart';
 import '../../../shared/widgets/rk_states.dart';
 import '../entitlement_source.dart';
+import '../plan_catalogue_source.dart';
 import '../subscription_copy.dart';
 import '../tier_catalogue.dart';
 
@@ -40,7 +48,7 @@ class PlansScreen extends StatefulWidget {
     super.key,
     required this.source,
     required this.channel,
-    this.tiers = rkTiers,
+    required this.catalogue,
   });
 
   /// Where the current-plan marking and the member count come from.
@@ -49,9 +57,8 @@ class PlansScreen extends StatefulWidget {
   /// iOS or gateway (08 §3.2 🔒).
   final RkCheckoutChannel channel;
 
-  /// The catalogue. Injected so a test can pump one tier; production always
-  /// takes 08 §2's whole table.
-  final List<RkTier> tiers;
+  /// Where the plans come from (ADR 2026-09-25 §6).
+  final PlanCatalogueSource catalogue;
 
   @override
   State<PlansScreen> createState() => _PlansScreenState();
@@ -61,6 +68,7 @@ class _PlansScreenState extends State<PlansScreen> {
   /// Annual is the default — 08 §2 principle 2: monthly is the fallback.
   RkBillingCycle _cycle = RkBillingCycle.annual;
   Entitlement? _entitlement;
+  RkPlanCatalogue? _catalogue;
   bool _loading = true;
   bool _failed = false;
 
@@ -78,7 +86,9 @@ class _PlansScreenState extends State<PlansScreen> {
     // screen would keep showing the last source's answer — which for a
     // subscription surface means showing one tenant's plan under another's
     // seam.
-    if (old.source != widget.source) _load();
+    if (old.source != widget.source || old.catalogue != widget.catalogue) {
+      _load();
+    }
   }
 
   Future<void> _load() async {
@@ -88,9 +98,11 @@ class _PlansScreenState extends State<PlansScreen> {
     });
     try {
       final read = await widget.source.read();
+      final catalogue = await widget.catalogue.read();
       if (!mounted) return;
       setState(() {
         _entitlement = read;
+        _catalogue = catalogue;
         _loading = false;
       });
     } on Object {
@@ -114,7 +126,8 @@ class _PlansScreenState extends State<PlansScreen> {
   Widget _body(AppLocalizations l10n) {
     if (_loading) return RkSkeleton(label: l10n.subscriptionLoading, rows: 6);
     final entitlement = _entitlement;
-    if (_failed || entitlement == null) {
+    final catalogue = _catalogue;
+    if (_failed || entitlement == null || catalogue == null) {
       return RkErrorState(
         text: l10n.subscriptionError,
         retryLabel: l10n.subscriptionActionRetry,
@@ -123,6 +136,7 @@ class _PlansScreenState extends State<PlansScreen> {
     }
     final status = RkStatusColors.of(context);
     final text = Theme.of(context).textTheme;
+    final tiers = catalogue.plansAlongside(entitlement.plan);
     return ListView(
       padding: const EdgeInsets.fromLTRB(
         RkSpace.gutter,
@@ -173,14 +187,14 @@ class _PlansScreenState extends State<PlansScreen> {
             const SizedBox(width: RkSpace.s1),
             Expanded(
               child: RkFitText(
-                l10n.plansCycleSaving(rkAnnualSavingPercent),
+                l10n.plansCycleSaving(rkAnnualSavingPercentOf(tiers)),
                 style: text.bodyMedium,
               ),
             ),
           ],
         ),
         const SizedBox(height: RkSpace.s4),
-        for (final tier in widget.tiers) ...[
+        for (final tier in tiers) ...[
           _PlanCard(
             tier: tier,
             cycle: _cycle,
@@ -248,15 +262,14 @@ class _PlanCard extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     final status = RkStatusColors.of(context);
     final locale = Localizations.localeOf(context);
-    final storage = rkStorageOf(tier.limits.tenantBytes ?? 0);
     final price = tier.isFree
         ? l10n.plansPriceFree
         : switch (cycle) {
             RkBillingCycle.monthly => l10n.plansPriceMonth(
-              formatPaise(tier.monthlyPaise, locale: locale),
+              rkPlanPrice(tier.monthlyPaise, locale),
             ),
             RkBillingCycle.annual => l10n.plansPriceYear(
-              formatPaise(tier.annualPaise, locale: locale),
+              rkPlanPrice(tier.annualPaise, locale),
             ),
           };
     return RkRuledCard(
@@ -289,23 +302,8 @@ class _PlanCard extends StatelessWidget {
           const SizedBox(height: RkSpace.s2),
           RkFitText(price, style: text.titleMedium),
           const SizedBox(height: RkSpace.s3),
-          _Included(l10n.plansLimitMembers(tier.limits.members ?? 0)),
-          _Included(
-            tier.limits.businessBooks == null
-                ? l10n.plansLimitBooksUnlimited
-                : l10n.plansLimitBooks(tier.limits.businessBooks!),
-          ),
-          _Included(l10n.plansLimitDevices(tier.limits.devices ?? 0)),
-          _Included(
-            storage.gigabytes
-                ? l10n.plansLimitStorageGb(storage.amount)
-                : l10n.plansLimitStorageMb(storage.amount),
-          ),
-          _Included(
-            tier.isFree
-                ? l10n.plansLimitExportsWatermarked
-                : l10n.plansLimitExportsClean,
-          ),
+          for (final line in rkIncludedLines(l10n, tier.limits, tier.features))
+            _Included(line),
           const SizedBox(height: RkSpace.s3),
           SizedBox(
             width: double.infinity,
@@ -323,6 +321,14 @@ class _PlanCard extends StatelessWidget {
     );
   }
 }
+
+/// A price as S12.1 shows it: whole rupees when it is whole, and **with its
+/// paise when it is not**. 0018's monthly prices are *ten months' price for
+/// twelve* (₹249.90 for a ₹2,499 year), and the app's default drops paise —
+/// which on a price would **understate** it. A price screen may round neither
+/// way (CLAUDE.md rule 1; 08 §3.1 🔒 honest saving).
+String rkPlanPrice(int paise, Locale locale) =>
+    formatPaise(paise, locale: locale, showPaise: paise % 100 != 0);
 
 /// One quota line, in plain words (DESIGN-PACK §11 S12.1 🔒: "not a spec
 /// table").

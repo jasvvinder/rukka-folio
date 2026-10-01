@@ -265,16 +265,12 @@ class _ReportViewerScreenState extends State<ReportViewerScreen> {
 
   /// The primary action: write the default format and say where it went, with
   /// no sheet in between. The default is **PDF** — the format a person hands
-  /// to someone else (ADR 2026-09-12 §1 🔒, ADR 2026-09-12d §2 🔒).
+  /// to someone else (ADR 2026-09-12 §1 🔒, ADR 2026-09-12d §2 🔒) — on a plan
+  /// whose token includes it; otherwise the format sheet opens, PDF row shut
+  /// with its reason (ADR 2026-09-25 §5 🔒; see [runReportDefaultExport]).
   void _exportDefault() {
     unawaited(
-      runReportExport(
-        l10n: AppLocalizations.of(context),
-        messenger: ScaffoldMessenger.of(context),
-        format: ReportFormat.pdf,
-        buildFile: _buildFile,
-        sink: widget.sink,
-      ),
+      runReportDefaultExport(context, buildFile: _buildFile, sink: widget.sink),
     );
   }
 

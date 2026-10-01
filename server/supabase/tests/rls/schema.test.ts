@@ -14,6 +14,8 @@ interface Policy {
   cmd: string;
   roles: string[];
   source: string;
+  /** false for `AS RESTRICTIVE`: such a policy can only narrow what the permissive ones grant. */
+  permissive: boolean;
 }
 interface Grant {
   is_grant: boolean;
@@ -85,6 +87,7 @@ for (const f of files) {
         cmd: p.cmd_name ?? "all",
         roles: (p.roles ?? []).map((r: any) => r.RoleSpec.rolename),
         source: src,
+        permissive: p.permissive === true, // libpg-query omits the flag for AS RESTRICTIVE
       });
     } else if (st.GrantStmt) {
       const g = st.GrantStmt;
@@ -292,11 +295,23 @@ Deno.test("E-03-18 certified-only: every policy on a tenant-scoped table is gate
       certified.has("rf.book_role") && certified.has("rf.device_visible"),
   );
   assert(!certified.has("rf.book_tenant"), "book_tenant is a plain lookup, not a gate");
+  // The exemption below is for RESTRICTIVE policies, and there are exactly the two 0020 adds —
+  // so the exemption can never swallow a permissive policy the parser misread.
+  assertEquals(
+    policies.filter((p) => !p.permissive).map((p) => `${p.table}.${p.name}`).sort(),
+    [
+      "wrapped_keys.wrapped_keys_recovery_blob_no_insert",
+      "wrapped_keys.wrapped_keys_recovery_blob_no_select",
+    ],
+  );
   for (const t of TENANT_TABLES) {
     const ps = policiesOn(t);
     assert(ps.length > 0, `${t} has policies`);
     for (const p of ps) {
       if (p.roles.includes("rf_maintenance")) continue;
+      // A RESTRICTIVE policy grants nothing; it is ANDed onto the permissive ones, which are the
+      // ones this gate is about (0020's recovery_blob policies on wrapped_keys narrow, never widen).
+      if (!p.permissive) continue;
       const gated = [...certified].some((h) => p.source.includes(`${h}(`));
       assert(gated, `${t}.${p.name} is not certified-gated: ${p.source}`);
     }
@@ -305,7 +320,7 @@ Deno.test("E-03-18 certified-only: every policy on a tenant-scoped table is gate
   assertStringIncludes(policiesOn("users")[0].source, "id = rf.user_id()");
   assertStringIncludes(fn("rf.device_visible"), "p_device = rf.device_id()");
   assertStringIncludes(
-    policiesOn("wrapped_keys").find((p) => p.cmd === "select")!.source,
+    policiesOn("wrapped_keys").find((p) => p.cmd === "select" && p.permissive)!.source,
     "device_id = rf.device_id()",
   );
   assertStringIncludes(

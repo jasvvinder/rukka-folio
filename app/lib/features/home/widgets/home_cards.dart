@@ -525,21 +525,37 @@ class HomeMonthLine extends StatelessWidget {
 /// fit one line on a 360 px phone (07 §1 rule 11).
 class HomeVerbButtons extends StatelessWidget {
   /// Creates the buttons.
-  const HomeVerbButtons({super.key, this.onVerb});
+  const HomeVerbButtons({super.key, this.onVerb, this.blockedReason});
+
+  /// The key of the disabled-with-reason line, for tests and for a screen
+  /// reader's traversal checks.
+  static const reasonKey = ValueKey('home.verb.blocked_reason');
 
   /// Opens S2 with [EntryKind] pre-chosen.
   final void Function(EntryKind kind)? onVerb;
+
+  /// Why the verbs cannot be used right now (13 §4.3 *disabled-with-reason*).
+  /// Non-null disables all four and draws the reason, with a lock icon, under
+  /// them — the verbs never disappear (07 §1 rule 6) and the state never
+  /// rides on colour alone (07 §1 rule 3). The way forward is the shell's
+  /// S12.5 banner, which is drawn whenever this is (ADR 2026-09-24b §13).
+  final String? blockedReason;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final status = RkStatusColors.of(context);
+    final reason = blockedReason;
+    final onVerb = reason == null ? this.onVerb : null;
     Widget button(EntryKind kind, String label, IconData icon, Color tint) =>
         ConstrainedBox(
           constraints: const BoxConstraints(minHeight: RkSpace.rowMinHeight),
           child: OutlinedButton.icon(
-            onPressed: onVerb == null ? null : () => onVerb!(kind),
-            icon: Icon(icon, size: 18, color: tint),
+            onPressed: onVerb == null ? null : () => onVerb(kind),
+            // Disabled, the icon takes the button's own disabled ink: a
+            // direction tint on a verb that cannot be used would still read
+            // as an invitation.
+            icon: Icon(icon, size: 18, color: reason == null ? tint : null),
             label: Text(label),
           ),
         );
@@ -548,34 +564,57 @@ class HomeVerbButtons extends StatelessWidget {
         horizontal: RkSpace.gutter,
         vertical: RkSpace.s2,
       ),
-      child: Wrap(
-        spacing: RkSpace.s2,
-        runSpacing: RkSpace.s2,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          button(
-            EntryKind.moneyIn,
-            l10n.homeVerbMoneyIn,
-            Icons.south_west,
-            status.credit,
+          Wrap(
+            spacing: RkSpace.s2,
+            runSpacing: RkSpace.s2,
+            children: [
+              button(
+                EntryKind.moneyIn,
+                l10n.homeVerbMoneyIn,
+                Icons.south_west,
+                status.credit,
+              ),
+              button(
+                EntryKind.moneyOut,
+                l10n.homeVerbMoneyOut,
+                Icons.north_east,
+                status.debit,
+              ),
+              button(
+                EntryKind.gaveCredit,
+                l10n.homeVerbGave,
+                Icons.call_made,
+                status.debit,
+              ),
+              button(
+                EntryKind.tookCredit,
+                l10n.homeVerbTook,
+                Icons.call_received,
+                status.credit,
+              ),
+            ],
           ),
-          button(
-            EntryKind.moneyOut,
-            l10n.homeVerbMoneyOut,
-            Icons.north_east,
-            status.debit,
-          ),
-          button(
-            EntryKind.gaveCredit,
-            l10n.homeVerbGave,
-            Icons.call_made,
-            status.debit,
-          ),
-          button(
-            EntryKind.tookCredit,
-            l10n.homeVerbTook,
-            Icons.call_received,
-            status.credit,
-          ),
+          if (reason != null) ...[
+            const SizedBox(height: RkSpace.s2),
+            Row(
+              key: reasonKey,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.lock_outline, size: 18, color: status.muted),
+                const SizedBox(width: RkSpace.s2),
+                Expanded(
+                  child: Text(
+                    reason,
+                    style: Theme.of(context).textTheme.bodySmall
+                        ?.copyWith(color: status.muted),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );

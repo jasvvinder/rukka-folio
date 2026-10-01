@@ -66,7 +66,9 @@ abstract interface class InviteTransport {
   /// `POST /sync-meta/invites` — the admin's signed `invite` record plus the
   /// invitee's number. Refusals: [RouteRefused.notAdmin],
   /// [RouteRefused.badPhone], [RouteRefused.badRecord],
-  /// [RouteRefused.recordReplayed], [RouteRefused.unknownTenant].
+  /// [RouteRefused.recordReplayed], [RouteRefused.unknownTenant]; and a full
+  /// plan is [PlanCapRefused] ([PlanCap.seats] / [PlanCap.seatRotation]),
+  /// terminal (ADR 2026-09-05g §6 🔒).
   Future<InviteIssued> createInvite(CreateInviteRequest request);
 
   /// `GET /sync-meta/invites` — the invites addressed to **this** device's own
@@ -105,6 +107,12 @@ sealed class TransportFailure implements Exception {
     // refused (`sync-meta/index.ts` invites). Losing it would leave the Inbox
     // with a refusal it cannot explain.
     final detail = (body?['detail'] ?? body?['check']) as String?;
+    // ADR 2026-09-05g §2 / §6 🔒: a hard cap is its own terminal failure, not
+    // a RouteRefused a caller might treat generically. ⚠️ WIRE: the contract
+    // is 409 (`inviteError`, `CAP_REFUSALS`); a cap name on any other status
+    // is off-contract and stays what the status says it is.
+    final cap = status == 409 ? PlanCap.fromWire(code) : null;
+    if (cap != null) return PlanCapRefused(cap);
     return switch (status) {
       401 => AuthFailed(code: code),
       426 => UpdateRequired(
@@ -116,7 +124,8 @@ sealed class TransportFailure implements Exception {
   }
 }
 
-/// `4xx` other than 401/413/426: the server refused the route as a whole
+/// `4xx` other than 401/413/426 (and a 409 plan cap, which is its own
+/// [PlanCapRefused]): the server refused the route as a whole
 /// with `{error: code}`. On pull: 404 `unknown_book` (also for a non-member's
 /// tenant and an uncertified device — no existence oracle), 403 `no_role`;
 /// 400 `bad_request` / `bad_cursor` are client bugs. Nothing is lost: outbox
@@ -178,6 +187,33 @@ final class RouteRefused extends TransportFailure {
 
   @override
   String toString() => 'RouteRefused($status ${code ?? ''})';
+}
+
+/// `409 {error: seat_cap | seat_rotation_cap | book_cap}` — the plan has no
+/// room (ADR 2026-09-05g §2 / §6 🔒; `0019`, `sync-meta/index.ts`
+/// `inviteError`). Switch on [cap]; the enum is exhaustive.
+///
+/// **Terminal.** Not a network condition, so the engine never backs off and
+/// re-sends it, and not a [RouteRefused], so no generic handler can swallow it
+/// as "something went wrong, try again". The signed record behind the request
+/// is already stored server-side (append-only), so re-sending it would be
+/// answered `record_replayed` — never a second ask. A retry after an upgrade
+/// is a new record. Carries no body and no request value (rule 4).
+final class PlanCapRefused extends TransportFailure {
+  /// Creates the failure.
+  const PlanCapRefused(this.cap, {this.status = 409});
+
+  /// Which cap refused.
+  final PlanCap cap;
+
+  /// HTTP status — 409 on every route that raises one today.
+  final int status;
+
+  /// The wire name ([PlanCap.wire]).
+  String get code => cap.wire;
+
+  @override
+  String toString() => 'PlanCapRefused($status ${cap.wire})';
 }
 
 /// `413 {error:"batch_too_large"}` — the whole push batch was refused (more

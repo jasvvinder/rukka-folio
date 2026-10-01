@@ -12,6 +12,8 @@ import 'bootstrap.dart';
 import 'features/auth/http_auth_client.dart';
 import 'features/devices/pin_vault.dart';
 import 'features/home/home_scope.dart';
+import 'features/subscription/entitlement_source.dart';
+import 'features/subscription/plan_catalogue_source.dart';
 import 'features/lock/lock_routes.dart';
 import 'l10n/gen/app_localizations.dart';
 import 'l10n/l10n.dart';
@@ -54,6 +56,8 @@ class RukkaFolioApp extends StatefulWidget {
     this.pinVault,
     this.biometrics,
     this.draftActivity,
+    this.entitlement,
+    this.planCatalogue,
   });
 
   final LedgerDatabase db;
@@ -121,6 +125,25 @@ class RukkaFolioApp extends StatefulWidget {
   /// The draft-activity registry the idle lock reads (07 §5.6 🔒); null
   /// builds one.
   final DraftActivity? draftActivity;
+
+  /// The tenant's entitlement reading (S12.x; ADR 2026-09-05g §1), handed to
+  /// the whole app through one [EntitlementScope] mounted **above**
+  /// `MaterialApp.router`.
+  ///
+  /// Above the router, not beside a screen: a modal sheet's route is a
+  /// sibling of the route that opened it, so a scope mounted inside Home is
+  /// invisible to every S12.5-raising sheet opened from Home (F1-24b-8).
+  ///
+  /// Null binds [UntokenedEntitlementSource] — not a placeholder but the
+  /// reading ADR 2026-09-05g §1 🔒 requires of an app holding no valid token:
+  /// Free, never locked. The verified producer replaces it here (PLAN desk
+  /// 23c) and nothing below changes.
+  final EntitlementSource? entitlement;
+
+  /// The plan catalogue S12.1 reads (ADR 2026-09-25 §6), mounted beside
+  /// [entitlement] above the router for the same reason. Null leaves S12.1 on
+  /// the labelled offline mirror of `0018` (`planCatalogueSourceOf`).
+  final PlanCatalogueSource? planCatalogue;
 
   @override
   State<RukkaFolioApp> createState() => _RukkaFolioAppState();
@@ -244,6 +267,16 @@ class _RukkaFolioAppState extends State<RukkaFolioApp> {
       child: app,
     );
     tree = DraftActivityScope(activity: _draft, child: tree);
+    // Above the router (see [RukkaFolioApp.entitlement]): every route, every
+    // sheet and the shell's S12.5 banner read the one source.
+    tree = EntitlementScope(
+      source: widget.entitlement ?? const UntokenedEntitlementSource(),
+      child: tree,
+    );
+    final catalogue = widget.planCatalogue;
+    if (catalogue != null) {
+      tree = PlanCatalogueScope(source: catalogue, child: tree);
+    }
     final vault = widget.pinVault;
     if (vault != null) {
       tree = LockScope(vault: vault, biometrics: _biometrics, child: tree);

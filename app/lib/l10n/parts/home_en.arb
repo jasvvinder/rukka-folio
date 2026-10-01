@@ -130,5 +130,7 @@
   "home.close.done.title": "{month} is closed",
   "@home.close.done.title": {"description": "S1 Home close card, closed state — the card gives way to the S10.2 door for that month (07 §13 🔒). {month} pre-formatted.", "placeholders": {"month": {"type": "String"}}},
   "home.close.done.action": "See the month",
-  "@home.close.done.action": {"description": "S1 Home close card, closed state — opens S10.2, the month summary card (13 §3.2 row S10.2)."}
+  "@home.close.done.action": {"description": "S1 Home close card, closed state — opens S10.2, the month summary card (13 §3.2 row S10.2)."},
+  "home.verb.read_only.reason": "New entries are paused because your plan has ended.",
+  "@home.verb.read_only.reason": {"description": "S1 disabled-with-reason line under the four verb buttons (13 §4.3), shown only while the tenant is READ-ONLY — server-declared lapse (ADR 2026-09-24b §13; S12.5). Never for offline grace, which blocks nothing (ADR 2026-09-05g §4). Paired with a lock icon; the way forward is the global S12.5 banner's Renew, so this line carries no action."}
 }

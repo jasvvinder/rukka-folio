@@ -25,6 +25,9 @@ import 'package:rukka_folio/features/reports/screens/s8_2_report_viewer_screen.d
 import 'package:rukka_folio/features/reports/widgets/file_name_message.dart';
 import 'package:rukka_folio/l10n/gen/app_localizations.dart';
 
+import 'package:rukka_folio/features/subscription/entitlement_source.dart';
+import 'package:rukka_folio/features/subscription/tier_catalogue.dart';
+
 import '../../shared/test_app.dart';
 
 /// A [ReportSink] that keeps what it was handed instead of writing a file.
@@ -75,6 +78,26 @@ void _expectNamedAndFits(
   expectTextFits(tester, reason: reason);
 }
 
+/// A reading whose token includes `pdf_output` — the plans on which the
+/// PDF paths below exist at all (ADR 2026-09-25 §5–§6 🔒, M13-CAT2). Without
+/// it the screen reads untokened, which is Free, which has no PDF.
+Entitlement _pdfReading() => Entitlement(
+  tenantId: 't-synthetic',
+  plan: RkPlan.family,
+  limits: rkTierFor(RkPlan.family).limits,
+  periodEnd: null,
+  graceKind: EntitlementGraceKind.none,
+  source: EntitlementSourceKind.fresh,
+  activeMembers: 1,
+  features: [RkFeature.pdfOutput.wire],
+);
+
+/// [screen] under a PDF-including entitlement.
+Widget _paid(Widget screen) => EntitlementScope(
+  source: FakeEntitlementSource(entitlement: _pdfReading()),
+  child: screen,
+);
+
 void main() {
   group('a report at 200 % on 360×800 (07 §1 rule 11)', () {
     for (final locale in rkLocales) {
@@ -85,7 +108,7 @@ void main() {
         final sink = _CapturingSink();
         await pumpRk(
           tester,
-          ReportViewerScreen(sink: sink.call),
+          _paid(ReportViewerScreen(sink: sink.call)),
           ledger: seeded.ledger,
           locale: locale,
           textScale: 2,

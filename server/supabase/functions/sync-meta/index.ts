@@ -326,6 +326,8 @@ async function ceremony(
 //   GET  /sync-meta/recovery/asks                           → the pending ask, for a guardian
 //   GET  /sync-meta/recovery/has-guardian-set               → {has_guardian_set: bool} — the
 //        caller's OWN user only, not gated on certification (ADR 2026-09-24b §3, migration 0016)
+//   GET  /sync-meta/recovery/shares?request_id=…            → {request_id, shares:[…]} — step 4:
+//        the re-sealed shares of THAT attempt, for the phone that opened it, once approved (0020)
 //
 // and rung 3 (04 §7.4 🔒, migration 0011) — the paper sheet, which had no server surface at all:
 //
@@ -391,6 +393,36 @@ async function recovery(
       const has = await deps.store.withClaims(claims, (tx) => tx.hasGuardianSet());
       return jsonBigResponse(200, { has_guardian_set: has === true });
     }
+    if (path === "/recovery/shares") {
+      // 04 §7.3 🔒 step 4, the server half (migration 0020). The fresh phone that opened an attempt
+      // fetches the shares its guardians re-sealed to its candidate key, and only once the attempt
+      // is `approved`: k approvals, and the 24 h wait of step 6 / ADR 2026-09-05d §1 🔒 run out.
+      // Until 0020 those shares left through the meta pull the moment each guardian approved, so
+      // the wait was reported and never enforced. Now rf.recovery_shares decides, on the claims
+      // alone: the caller must be the attempt's own (user, candidate device), live, not suspended.
+      // It is NOT gated on certification, because the caller is uncertified until step 6 (06 §5).
+      // Only `request_id` is read: no user, device or subject parameter could move the answer.
+      // An empty release is ONE answer for every caller and every state (not yours, no such
+      // attempt, not yet, cancelled, expired, revoked), the same 404 an unknown id gets, so this
+      // route cannot tell anyone that somebody's recovery exists. The opener learns WHY from
+      // `GET /sync-meta/recovery?request_id=`. The blobs are sealed bytes relayed unchanged.
+      const id = new URL(req.url).searchParams.get("request_id");
+      if (id === null || !isUuid(id)) return error(400, "bad_request");
+      const shares = await deps.store.withClaims(claims, (tx) => tx.recoveryShares(id));
+      if (!shares.length) return error(404, "not_found");
+      return jsonBigResponse(200, {
+        request_id: id,
+        shares: shares.map((s) => ({
+          wrapped_key_id: s.wrapped_key_id,
+          guardian_user_id: s.guardian_user_id,
+          candidate_device: s.candidate_device,
+          sealed_to_pub_x: b64url.enc(s.sealed_to_pub_x),
+          share_set_version: s.share_set_version,
+          blob: b64url.enc(s.blob),
+          approved_at: s.approved_at.getTime(),
+        })),
+      });
+    }
     if (path !== "/recovery") return error(404, "not_found");
     const id = new URL(req.url).searchParams.get("request_id");
     if (id === null) {
@@ -436,7 +468,8 @@ async function recovery(
         request_id: body.request_id,
         decision: approve ? "approved" : "denied",
         // The id of the sealed row, never the blob: the share leaves this server only to the
-        // candidate device it was addressed to, through the wrapped_keys meta pull.
+        // candidate device it was addressed to, through GET /recovery/shares once the attempt is
+        // approved (0020). The meta pull no longer carries recovery_blob rows.
         wrapped_key_id: wk,
       });
     }

@@ -149,56 +149,31 @@ void main() {
     },
   );
 
-  group('tier catalogue — 08 §2 🔒 and 08 §3.1 🔒', () {
-    test('F1-07-453 the quota table is 08 §2, row for row', () {
-      int q(RkPlan p, int? Function(EntitlementLimits l) f) =>
-          f(rkTierFor(p).limits)!;
-
-      // Members / business books (08 §2 tier table).
-      expect(rkTierFor(RkPlan.free).limits.members, 1);
-      expect(rkTierFor(RkPlan.personal).limits.members, 1);
-      expect(rkTierFor(RkPlan.family).limits.members, 5);
-      expect(rkTierFor(RkPlan.familyPlus).limits.members, 15);
-      expect(rkTierFor(RkPlan.free).limits.businessBooks, 1);
-      // Unlimited is null, never a large number.
-      expect(rkTierFor(RkPlan.personal).limits.businessBooks, isNull);
-      expect(rkTierFor(RkPlan.family).limits.businessBooks, 3);
-      expect(rkTierFor(RkPlan.familyPlus).limits.businessBooks, isNull);
-
-      // Devices per user (08 §2 🔒 quota table).
-      expect(
-        [for (final p in RkPlan.values) q(p, (l) => l.devices)],
-        [5, 5, 8, 15],
-      );
-      // Envelopes per book.
-      expect(
-        [for (final p in RkPlan.values) q(p, (l) => l.envelopesPerBook)],
-        [10000, 100000, 250000, 1000000],
-      );
-      // Tenant envelope bytes: 250 MB · 2 GB · 5 GB · 15 GB.
-      expect(
-        [for (final p in RkPlan.values) q(p, (l) => l.tenantBytes)],
-        [250 * 1024 * 1024, 2 << 30, 5 << 30, 15 << 30],
-      );
-      // Attachment bytes: 100 MB · 2 GB · 5 GB · 20 GB.
-      expect(
-        [for (final p in RkPlan.values) q(p, (l) => l.attachmentBytes)],
-        [100 * 1024 * 1024, 2 << 30, 5 << 30, 20 << 30],
-      );
-      // Per-file cap is 10 MB on every tier.
-      expect([
-        for (final p in RkPlan.values) q(p, (l) => l.perFileBytes),
-      ], List.filled(4, 10 * 1024 * 1024));
+  // F1-07-453 asserted 08 §2's four rows number for number. ADR 2026-09-25
+  // §5–§6 🔒 moved every number into the server's catalogue ("08 §2 keeps the
+  // rules; the numbers live in the catalogue"), so the rows are now asserted
+  // against the catalogue the app reads — 0018 itself, in F1-25-10 — and
+  // what stays here is the rules 08 keeps (M13-CAT2).
+  group('tier catalogue — the rules 08 §2 / §3.1 keep (ADR 2026-09-25 §6)', () {
+    test('F1-07-453 unlimited is null, never a large number, and every '
+        'number a row carries is the catalogue\'s', () {
+      for (final tier in rkOfflineCatalogue.plans) {
+        // The per-file cap is plan-independent (08 §2), in no catalogue row.
+        expect(tier.limits.perFileBytes, rkPerFileBytes);
+        final wire = tier.toJson();
+        final back = RkTier.fromJson(wire);
+        expect(back.limits.members, tier.limits.members);
+        expect(back.limits.businessBooks, tier.limits.businessBooks);
+      }
+      final row = rkTierFor(RkPlan.family).toJson();
+      (row['limits']! as Map<String, Object?>)['business_books'] = -1;
+      expect(RkTier.fromJson(row).limits.businessBooks, isNull);
     });
 
     test('F1-07-453 prices are integer paise and the saving is integer '
         'arithmetic that never overstates (CLAUDE.md rule 1, 08 §3.1 🔒)', () {
-      // 08 §2's annual prices, in paise. A float never touches money.
-      expect(rkTierFor(RkPlan.free).annualPaise, 0);
-      expect(rkTierFor(RkPlan.personal).annualPaise, 59900);
-      expect(rkTierFor(RkPlan.family).annualPaise, 199900);
-      expect(rkTierFor(RkPlan.familyPlus).annualPaise, 399900);
-      for (final tier in rkTiers) {
+      final tiers = rkOfflineCatalogue.plans;
+      for (final tier in tiers) {
         expect(tier.annualPaise, isA<int>());
         expect(tier.monthlyPaise, isA<int>());
         expect(tier.priceFor(RkBillingCycle.annual), tier.annualPaise);
@@ -206,9 +181,10 @@ void main() {
       }
 
       // Free saves nothing and claims nothing.
+      expect(rkTierFor(RkPlan.free).isFree, isTrue);
       expect(rkTierFor(RkPlan.free).annualSavingPercent, 0);
 
-      for (final tier in rkTiers.where((t) => !t.isFree)) {
+      for (final tier in tiers.where((t) => !t.isFree)) {
         expect(tier.twelveMonthsPaise, tier.monthlyPaise * 12);
         expect(
           tier.annualSavingPaise,
@@ -221,27 +197,37 @@ void main() {
         );
       }
 
-      // The one headline is true of every paid card under it.
+      // The one headline is the least saving of the paid cards shown.
       expect(
-        rkAnnualSavingPercent,
-        lessThanOrEqualTo(
-          rkTiers
-              .where((t) => !t.isFree)
-              .map((t) => t.annualSavingPercent)
-              .reduce((a, b) => a < b ? a : b),
-        ),
+        rkAnnualSavingPercentOf(tiers),
+        tiers
+            .where((t) => !t.isFree)
+            .map((t) => t.annualSavingPercent)
+            .reduce((a, b) => a < b ? a : b),
       );
-      expect(rkAnnualSavingPercent, 20);
     });
 
     test(
-      'F1-07-453 exactly one tier carries the popular badge (08 §3.1 🔒)',
+      'F1-07-453 the popular badge is the catalogue\'s flag: at most one per '
+      'entity type (ADR 2026-09-25 §5)',
       () {
-        expect(rkTiers.where((t) => t.popular).map((t) => t.plan), [
-          RkPlan.family,
-        ]);
-        // The catalogue runs cheapest first, Free at the head.
-        expect(rkTiers.map((t) => t.plan), RkPlan.values);
+        final byType = <String, int>{};
+        for (final t in rkOfflineCatalogue.plans.where((t) => t.popular)) {
+          byType[t.entityType] = (byType[t.entityType] ?? 0) + 1;
+        }
+        expect(byType.values.every((n) => n == 1), isTrue);
+        // Each entity type's plans run cheapest first.
+        for (final type in [
+          RkEntityType.individual,
+          RkEntityType.family,
+          RkEntityType.business,
+          RkEntityType.trust,
+        ]) {
+          final prices = [
+            for (final t in rkOfflineCatalogue.forEntity(type)) t.annualPaise,
+          ];
+          expect(prices, [...prices]..sort(), reason: type);
+        }
       },
     );
 

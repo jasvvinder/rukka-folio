@@ -1730,6 +1730,10 @@
   "home.verb.gave": "उधार दिया",
   "home.verb.money_in": "पैसे आए",
   "home.verb.money_out": "पैसे गए",
+  "home.verb.read_only.reason": "आपका प्लान समाप्त हो गया है, इसलिए नई एंट्री रुकी हुई हैं।",
+  "@home.verb.read_only.reason": {
+    "description": "machine-draft — native review M12"
+  },
   "home.verb.took": "उधार लिया",
   "home.verify.action": "पूरी जाँच देखें",
   "home.verify.balanced": "बहियाँ बराबर हैं · कोई अंतर नहीं",
@@ -1779,6 +1783,18 @@
   "import.file.ondevice": "इसी फ़ोन पर पढ़ी जाती है। पढ़ने लायक कुछ भी बाहर नहीं जाता।",
   "import.file.reading": "{file} पढ़ी जा रही है",
   "import.file.today": "आज यह ऐप CSV पढ़ता है। XLS, OFX और PDF आ रहे हैं।",
+  "import.gate.body": "आप हर एंट्री अब भी हाथ से डाल सकते हैं, किसी भी प्लान पर।",
+  "@import.gate.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "import.gate.see_plans": "प्लान देखें",
+  "@import.gate.see_plans": {
+    "description": "machine-draft — native review M12"
+  },
+  "import.gate.title": "स्टेटमेंट इंपोर्ट आपके प्लान में नहीं है",
+  "@import.gate.title": {
+    "description": "machine-draft — native review M12"
+  },
   "import.inbox.always.no": "नहीं",
   "import.inbox.always.q": "क्या ऐसी लाइनें हमेशा {account} में डालें?",
   "import.inbox.always.yes": "हाँ",
@@ -2008,6 +2024,22 @@
   "inbox.title": "इनबॉक्स",
   "invite.book.none": "कोई पहुँच नहीं",
   "invite.book.role": "{book} में भूमिका",
+  "invite.cap.books": "आपके प्लान में और कारोबारी बही के लिए जगह नहीं है। एक और जोड़ने के लिए, प्लान में से ज़्यादा कारोबारी बहियों वाला प्लान चुनें।",
+  "@invite.cap.books": {
+    "description": "machine-draft — native review M12"
+  },
+  "invite.cap.plans": "प्लान देखें",
+  "@invite.cap.plans": {
+    "description": "machine-draft — native review M12"
+  },
+  "invite.cap.rotation": "आपका प्लान एक साल में जितने अलग-अलग लोग जोड़ने देता है, आप उतने जोड़ चुके हैं। किसी नए को बुलाने के लिए, प्लान में से ज़्यादा सदस्यों वाला प्लान चुनें।",
+  "@invite.cap.rotation": {
+    "description": "machine-draft — native review M12"
+  },
+  "invite.cap.seats": "आपके प्लान में और सदस्य के लिए जगह नहीं है। किसी को बुलाने के लिए, प्लान में से ज़्यादा सदस्यों वाला प्लान चुनें।",
+  "@invite.cap.seats": {
+    "description": "machine-draft — native review M12"
+  },
   "invite.designation.accountant": "अकाउंटेंट",
   "invite.designation.advisor": "सलाहकार",
   "invite.designation.assistant_manager": "सहायक प्रबंधक",
@@ -3054,6 +3086,22 @@
   "@plans.cycle.saving": {
     "description": "machine-draft — native review M12"
   },
+  "plans.feature.import.included": "बैंक स्टेटमेंट इंपोर्ट",
+  "@plans.feature.import.included": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.feature.import.none": "स्टेटमेंट इंपोर्ट नहीं",
+  "@plans.feature.import.none": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.feature.pdf.included": "PDF स्टेटमेंट और रिपोर्ट, छापने या भेजने के लिए",
+  "@plans.feature.pdf.included": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.feature.pdf.none": "PDF नहीं। रिपोर्ट स्क्रीन पर रहती हैं, और CSV व Excel एक्सपोर्ट हमेशा चलता है।",
+  "@plans.feature.pdf.none": {
+    "description": "machine-draft — native review M12"
+  },
   "plans.gst.gateway": "कारोबार के लिए ले रहे हैं? चेकआउट पर कूपन और GSTIN दिए जा सकते हैं।",
   "@plans.gst.gateway": {
     "description": "machine-draft — native review M12"
@@ -3066,7 +3114,7 @@
   "@plans.large_org": {
     "description": "machine-draft — native review M12"
   },
-  "plans.limit.books": "{count, plural, =1{1 कारोबारी बही} other{{count} कारोबारी बहियों तक}}",
+  "plans.limit.books": "{count, plural, =0{सिर्फ़ आपकी निजी बही} =1{आपकी निजी बही + 1 और बही} other{आपकी निजी बही + {count} और बहियों तक}}",
   "@plans.limit.books": {
     "description": "machine-draft — native review M12"
   },
@@ -3078,16 +3126,16 @@
   "@plans.limit.devices": {
     "description": "machine-draft — native review M12"
   },
-  "plans.limit.exports.clean": "हर रूप में साफ़ एक्सपोर्ट",
-  "@plans.limit.exports.clean": {
-    "description": "machine-draft — native review M12"
-  },
-  "plans.limit.exports.watermarked": "PDF रिपोर्ट पर वॉटरमार्क होता है; CSV और Excel पर कभी नहीं।",
-  "@plans.limit.exports.watermarked": {
+  "plans.limit.devices.unlimited": "जितने फ़ोन चाहिए",
+  "@plans.limit.devices.unlimited": {
     "description": "machine-draft — native review M12"
   },
   "plans.limit.members": "{count, plural, =1{1 सदस्य} other{{count} सदस्यों तक}}",
   "@plans.limit.members": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.limit.members.unlimited": "जितने सदस्य चाहिए",
+  "@plans.limit.members.unlimited": {
     "description": "machine-draft — native review M12"
   },
   "plans.limit.storage.gb": "{count} GB जगह",
@@ -3096,6 +3144,10 @@
   },
   "plans.limit.storage.mb": "{count} MB जगह",
   "@plans.limit.storage.mb": {
+    "description": "machine-draft — native review M12"
+  },
+  "plans.limit.storage.unlimited": "जितनी जगह चाहिए",
+  "@plans.limit.storage.unlimited": {
     "description": "machine-draft — native review M12"
   },
   "plans.never_locked": "आपकी बहियाँ कभी बंद नहीं होतीं। भुगतान रुक जाए तो भी सब कुछ पढ़ा और एक्सपोर्ट किया जा सकता है।",
@@ -3212,10 +3264,6 @@
   },
   "recovery.ask.back": "किसी और तरीके से वापस आएँ",
   "@recovery.ask.back": {
-    "description": "machine-draft — native review M12"
-  },
-  "recovery.ask.call": "फ़ोन करें",
-  "@recovery.ask.call": {
     "description": "machine-draft — native review M12"
   },
   "recovery.ask.call_advice": "उन्हें फ़ोन करें — वे इसका इंतज़ार कर रहे हैं।",
@@ -3460,6 +3508,54 @@
   "@recovery.sheet.what": {
     "description": "machine-draft — native review M12"
   },
+  "recovery.show.back": "वापस",
+  "@recovery.show.back": {
+    "description": "machine-draft — native review M12"
+  },
+  "recovery.show.body": "इसे उस व्यक्ति के कैमरे के सामने रखें जिन्हें आप फ़ोन कर रहे हैं — आमने-सामने या वीडियो कॉल पर। मंज़ूरी देने से पहले उनका फ़ोन इसे जाँचता है।",
+  "@recovery.show.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "recovery.show.channel_rule": "इसे सिर्फ़ उसी व्यक्ति को दिखाएँ जिनसे आप बात कर रहे हैं। इसे कभी संदेश या फ़ोटो के रूप में न भेजें।",
+  "@recovery.show.channel_rule": {
+    "description": "machine-draft — native review M12"
+  },
+  "recovery.show.error": "हम इस फ़ोन का कोड नहीं ले सके।",
+  "@recovery.show.error": {
+    "description": "machine-draft — native review M12"
+  },
+  "recovery.show.loading": "आपका कोड तैयार हो रहा है",
+  "@recovery.show.loading": {
+    "description": "machine-draft — native review M12"
+  },
+  "recovery.show.not_held": "इस अनुरोध के लिए इस फ़ोन के पास कोई कोड नहीं है। सिर्फ़ वही फ़ोन कोड दिखा सकता है जिसने अनुरोध किया था।",
+  "@recovery.show.not_held": {
+    "description": "machine-draft — native review M12"
+  },
+  "recovery.show.offline": "ऑफ़लाइन — आपका कोड फिर भी चलता है, वे अभी स्कैन कर सकते हैं।",
+  "@recovery.show.offline": {
+    "description": "machine-draft — native review M12"
+  },
+  "recovery.show.open": "मेरा कोड दिखाएँ",
+  "@recovery.show.open": {
+    "description": "machine-draft — native review M12"
+  },
+  "recovery.show.qr_semantics": "इस फ़ोन का चौकोर कोड, जिसे आप फ़ोन कर रहे हैं वे स्कैन करें",
+  "@recovery.show.qr_semantics": {
+    "description": "machine-draft — native review M12"
+  },
+  "recovery.show.retry": "फिर से कोशिश करें",
+  "@recovery.show.retry": {
+    "description": "machine-draft — native review M12"
+  },
+  "recovery.show.title": "मेरा कोड दिखाएँ",
+  "@recovery.show.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "recovery.show.unavailable": "यह फ़ोन अभी अपना कोड नहीं दिखा सकता।",
+  "@recovery.show.unavailable": {
+    "description": "machine-draft — native review M12"
+  },
   "recovery.silent.continue": "मेरे बही-खाते खोलें",
   "recovery.silent.failed": "इस फ़ोन के चाबी-भंडार में हमें कुछ नहीं मिला।",
   "recovery.silent.failed.action": "किसी और तरीके से बही-खाते वापस लें",
@@ -3593,6 +3689,14 @@
   },
   "reports.export.pdf": "PDF",
   "reports.export.pdf.description": "किसी और को देने के लिए सबसे अच्छा",
+  "reports.export.pdf.not_on_plan": "PDF आपके प्लान में नहीं है। CSV और XLSX हर प्लान पर चलते हैं।",
+  "@reports.export.pdf.not_on_plan": {
+    "description": "machine-draft — native review M12"
+  },
+  "reports.export.pdf.see_plans": "प्लान देखें",
+  "@reports.export.pdf.see_plans": {
+    "description": "machine-draft — native review M12"
+  },
   "reports.export.saved": "सहेजी गई: {where}",
   "reports.export.title": "यह रिपोर्ट डाउनलोड या साझा करें",
   "reports.export.xlsx": "XLSX",
@@ -3710,8 +3814,20 @@
   "@subscription.members.value_unlimited": {
     "description": "machine-draft — native review M12"
   },
+  "subscription.plan.business": "बिज़नेस",
+  "@subscription.plan.business": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.plan.business_plus": "बिज़नेस+",
+  "@subscription.plan.business_plus": {
+    "description": "machine-draft — native review M12"
+  },
   "subscription.plan.family": "फैमिली",
   "@subscription.plan.family": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.plan.family_lite": "फैमिली लाइट",
+  "@subscription.plan.family_lite": {
     "description": "machine-draft — native review M12"
   },
   "subscription.plan.family_plus": "फैमिली+",
@@ -3726,8 +3842,24 @@
   "@subscription.plan.label": {
     "description": "machine-draft — native review M12"
   },
+  "subscription.plan.other": "दूसरा प्लान",
+  "@subscription.plan.other": {
+    "description": "machine-draft — native review M12"
+  },
   "subscription.plan.personal": "पर्सनल",
   "@subscription.plan.personal": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.plan.shop": "शॉप",
+  "@subscription.plan.shop": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.plan.trust": "ट्रस्ट",
+  "@subscription.plan.trust": {
+    "description": "machine-draft — native review M12"
+  },
+  "subscription.plan.trust_plus": "ट्रस्ट+",
+  "@subscription.plan.trust_plus": {
     "description": "machine-draft — native review M12"
   },
   "subscription.renewal.label": "नवीनीकरण की तारीख़",

@@ -53,6 +53,9 @@ import 'package:rukka_folio/features/reports/screens/s8_2_report_viewer_screen.d
 import 'package:rukka_folio/features/reports/widgets/reports_row.dart';
 import 'package:xml/xml.dart';
 
+import 'package:rukka_folio/features/subscription/entitlement_source.dart';
+import 'package:rukka_folio/features/subscription/tier_catalogue.dart';
+
 import '../../shared/test_app.dart';
 
 /// A [ReportSink] that keeps what it was handed instead of writing a file.
@@ -126,6 +129,26 @@ List<String> xlsxStrings(String sheetXml) => [
     if (cell.type == 'inlineStr') cell.value,
 ];
 
+/// A reading whose token includes `pdf_output` — the plans on which the
+/// PDF paths below exist at all (ADR 2026-09-25 §5–§6 🔒, M13-CAT2). Without
+/// it the screen reads untokened, which is Free, which has no PDF.
+Entitlement _pdfReading() => Entitlement(
+  tenantId: 't-synthetic',
+  plan: RkPlan.family,
+  limits: rkTierFor(RkPlan.family).limits,
+  periodEnd: null,
+  graceKind: EntitlementGraceKind.none,
+  source: EntitlementSourceKind.fresh,
+  activeMembers: 1,
+  features: [RkFeature.pdfOutput.wire],
+);
+
+/// [screen] under a PDF-including entitlement.
+Widget _paid(Widget screen) => EntitlementScope(
+  source: FakeEntitlementSource(entitlement: _pdfReading()),
+  child: screen,
+);
+
 void main() {
   group('S8.2 Report viewer + export (07 §14 🔒, ADR 2026-09-12 §1 🔒, ADR '
       '2026-09-12d §2–§3 🔒)', () {
@@ -135,7 +158,7 @@ void main() {
         final seeded = await seedSoloLedger();
         await pumpRk(
           tester,
-          const ReportViewerScreen(),
+          _paid(const ReportViewerScreen()),
           ledger: seeded.ledger,
           viewport: rkTallViewport,
         );
@@ -163,7 +186,7 @@ void main() {
         final seeded = await seedSoloLedger();
         await pumpRk(
           tester,
-          const ReportViewerScreen(),
+          _paid(const ReportViewerScreen()),
           ledger: seeded.ledger,
           viewport: rkTallViewport,
         );
@@ -190,7 +213,7 @@ void main() {
         final seeded = await seedSoloLedger();
         await pumpRk(
           tester,
-          const ReportViewerScreen(),
+          _paid(const ReportViewerScreen()),
           ledger: seeded.ledger,
           viewport: rkTallViewport,
         );
@@ -210,7 +233,7 @@ void main() {
         final seeded = await seedSoloLedger();
         await pumpRk(
           tester,
-          const ReportViewerScreen(),
+          _paid(const ReportViewerScreen()),
           ledger: seeded.ledger,
           viewport: rkTallViewport,
         );
@@ -252,7 +275,7 @@ void main() {
         final seeded = await seedSoloLedger();
         await pumpRk(
           tester,
-          const ReportViewerScreen(),
+          _paid(const ReportViewerScreen()),
           ledger: seeded.ledger,
           viewport: rkTallViewport,
         );
@@ -306,7 +329,7 @@ void main() {
         final sink = _CapturingSink();
         await pumpRk(
           tester,
-          ReportViewerScreen(sink: sink.call),
+          _paid(ReportViewerScreen(sink: sink.call)),
           ledger: seeded.ledger,
           viewport: rkTallViewport,
         );
@@ -360,7 +383,7 @@ void main() {
         final sink = _CapturingSink();
         await pumpRk(
           tester,
-          ReportViewerScreen(sink: sink.call),
+          _paid(ReportViewerScreen(sink: sink.call)),
           ledger: seeded.ledger,
           viewport: rkTallViewport,
         );
@@ -441,7 +464,7 @@ void main() {
         final sink = _CapturingSink();
         await pumpRk(
           tester,
-          ReportViewerScreen(sink: sink.call),
+          _paid(ReportViewerScreen(sink: sink.call)),
           ledger: seeded.ledger,
           viewport: rkTallViewport,
         );
@@ -527,7 +550,7 @@ void main() {
         await ledger.bootstrapSolo(firstBookName: 'Me');
         await pumpRk(
           tester,
-          const ReportViewerScreen(),
+          _paid(const ReportViewerScreen()),
           ledger: ledger,
           viewport: rkTallViewport,
         );
@@ -551,7 +574,7 @@ void main() {
       (tester) async {
         // No book was ever created, so resolving the solo book throws.
         final ledger = await openTestLedger();
-        await pumpRk(tester, const ReportViewerScreen(), ledger: ledger);
+        await pumpRk(tester, _paid(const ReportViewerScreen()), ledger: ledger);
 
         expect(find.text('The day book could not be read.'), findsOneWidget);
         expect(find.text('Try again'), findsOneWidget);
@@ -590,7 +613,7 @@ void main() {
         final sink = _CapturingSink();
         await pumpRk(
           tester,
-          ReportViewerScreen(sink: sink.call),
+          _paid(ReportViewerScreen(sink: sink.call)),
           ledger: seeded.ledger,
           viewport: rkTallViewport,
         );
@@ -628,7 +651,7 @@ void main() {
         final sink = _CapturingSink(delivery: const ReportShared());
         await pumpRk(
           tester,
-          ReportViewerScreen(sink: sink.call),
+          _paid(ReportViewerScreen(sink: sink.call)),
           ledger: seeded.ledger,
           viewport: rkTallViewport,
         );
@@ -658,7 +681,7 @@ void main() {
         final sink = _CapturingSink();
         await pumpRk(
           tester,
-          ReportViewerScreen(sink: sink.call),
+          _paid(ReportViewerScreen(sink: sink.call)),
           ledger: seeded.ledger,
           viewport: rkTallViewport,
         );
@@ -694,7 +717,7 @@ void main() {
         final seeded = await seedSoloLedger();
         await pumpRk(
           tester,
-          const ReportViewerScreen(),
+          _paid(const ReportViewerScreen()),
           ledger: seeded.ledger,
           viewport: rkTallViewport,
         );
@@ -852,7 +875,7 @@ void main() {
           final seeded = await seedSoloLedger();
           await pumpRk(
             tester,
-            const ReportViewerScreen(),
+            _paid(const ReportViewerScreen()),
             ledger: seeded.ledger,
             textScale: scale,
             viewport: size,
@@ -886,7 +909,7 @@ void main() {
         );
         await pumpRk(
           tester,
-          const ReportViewerScreen(),
+          _paid(const ReportViewerScreen()),
           ledger: seeded.ledger,
           viewport: rkTallViewport,
         );
@@ -923,7 +946,7 @@ void main() {
               final seeded = await seedSoloLedger();
               await pumpRk(
                 tester,
-                const ReportViewerScreen(),
+                _paid(const ReportViewerScreen()),
                 ledger: seeded.ledger,
                 locale: locale,
                 textScale: scale,

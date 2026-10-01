@@ -338,8 +338,35 @@ enum MembersRefusal {
   /// This build is below the server's floor (05 §7).
   upgradeRequired,
 
+  /// The plan's seats are full — `invited` + `joined_pending_verification` +
+  /// `active` already fill it (ADR 2026-09-05g §6 🔒; server `seat_cap`).
+  /// Terminal: asking again cannot make room; the way on is S12.1 Plans.
+  seatCap,
+
+  /// The plan's changes of member for the year are used up — the rolling
+  /// 2 × seats distinct members (ADR 2026-09-05g §6 🔒; `seat_rotation_cap`).
+  /// Terminal, like [seatCap].
+  seatRotationCap,
+
+  /// The plan's business books are full (ADR 2026-09-05g §2 🔒; `book_cap`).
+  /// Terminal, like [seatCap].
+  bookCap,
+
   /// Anything else the server said. Never guessed into a friendlier name.
   server,
+}
+
+/// The three hard caps of ADR 2026-09-05g §2 / §6 🔒, as the members feature
+/// names them. A cap refusal is **terminal**: the screen says what is full
+/// and offers S12.1 Plans, never a retry of the same request (the server
+/// already holds that signed record — a re-send of it would be answered
+/// `record_replayed` / `acked` without anything happening).
+extension MembersRefusalPlanCap on MembersRefusal {
+  /// Whether this refusal is one of the plan's hard caps.
+  bool get isPlanCap =>
+      this == MembersRefusal.seatCap ||
+      this == MembersRefusal.seatRotationCap ||
+      this == MembersRefusal.bookCap;
 }
 
 /// Thrown by repository calls that failed; screens show the error state and

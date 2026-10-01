@@ -117,5 +117,11 @@
   "import.balance.failing.next": "इससे पहले वाली स्टेटमेंट लाएँ, फिर वापस आएँ। ये लाइनें आप अभी भी छाँट सकते हैं।",
   "import.balance.unavailable": "इस फ़ाइल में बकाया कॉलम नहीं है, इसलिए मिलान के लिए कुछ नहीं।",
   "import.balance.unavailable.next": "लाइनें आप फिर भी छाँट सकते हैं।",
-  "import.balance.back": "लाइनों पर वापस"
+  "import.balance.back": "लाइनों पर वापस",
+  "import.gate.title": "स्टेटमेंट इंपोर्ट आपके प्लान में नहीं है",
+  "@import.gate.title": {"description": "machine-draft — native review M12"},
+  "import.gate.body": "आप हर एंट्री अब भी हाथ से डाल सकते हैं, किसी भी प्लान पर।",
+  "@import.gate.body": {"description": "machine-draft — native review M12"},
+  "import.gate.see_plans": "प्लान देखें",
+  "@import.gate.see_plans": {"description": "machine-draft — native review M12"}
 }

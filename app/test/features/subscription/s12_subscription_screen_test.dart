@@ -72,7 +72,15 @@ void main() {
       expect(find.text(l10n.subscriptionStateActive), findsOneWidget);
       expect(find.text(l10n.subscriptionRenewalLabel), findsOneWidget);
       expect(find.text('01 Oct 2026'), findsOneWidget);
-      expect(find.text(l10n.subscriptionMembersValue(3, 5)), findsOneWidget);
+      expect(
+        find.text(
+          l10n.subscriptionMembersValue(
+            3,
+            rkTierFor(RkPlan.family).limits.members!,
+          ),
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets(
@@ -189,7 +197,15 @@ void main() {
         // …and every figure still on screen.
         expect(find.text(l10n.subscriptionPlanFamily), findsOneWidget);
         expect(find.text('01 Oct 2026'), findsOneWidget);
-        expect(find.text(l10n.subscriptionMembersValue(3, 5)), findsOneWidget);
+        expect(
+          find.text(
+            l10n.subscriptionMembersValue(
+              3,
+              rkTierFor(RkPlan.family).limits.members!,
+            ),
+          ),
+          findsOneWidget,
+        );
 
         await tester.tap(find.text(l10n.subscriptionActionRenew));
         await tester.pumpAndSettle();

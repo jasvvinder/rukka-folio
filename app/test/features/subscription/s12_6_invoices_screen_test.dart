@@ -9,17 +9,17 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:rukka_folio/features/subscription/entitlement_source.dart';
 import 'package:rukka_folio/features/subscription/invoice_source.dart';
 import 'package:rukka_folio/features/subscription/screens/s12_6_invoices_screen.dart';
-import 'package:rukka_folio/features/subscription/tier_catalogue.dart';
 import 'package:rukka_folio/l10n/gen/app_localizations.dart';
 import 'package:rukka_folio/shared/widgets/rk_states.dart';
 
 import '../../shared/test_app.dart';
 
-/// 08 §2 🔒 — the Family annual price, integer paise, GST-inclusive.
-final _familyAnnual = rkTierFor(RkPlan.family).annualPaise;
+/// An invoice's total is a fact the document carries, integer paise,
+/// GST-inclusive — a fixture figure (it was 08 §2's Family price before ADR
+/// 2026-09-25 §6 moved prices into the catalogue), not a catalogue lookup.
+const _familyAnnual = 199900;
 
 final _invoices = [
   RkInvoice(

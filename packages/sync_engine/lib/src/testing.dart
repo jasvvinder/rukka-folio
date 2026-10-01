@@ -73,6 +73,22 @@ final class FakeSyncServer {
   /// Envelope ids removed from every pull (the "withheld envelope" case).
   final Set<String> withheld = {};
 
+  /// The hard cap `POST /sync-meta/invites` answers with — `409 <name>`,
+  /// thrown as [PlanCapRefused] (ADR 2026-09-05g §6 🔒; `0019`). A lever, not
+  /// a seat count: the fake does not count seats. It answers only **after**
+  /// admission (an admin, a well-formed, fresh record), as 0019's AFTER-row
+  /// trigger does, so a stranger hears `not_admin` and never learns the plan
+  /// is full. The signed record stays stored, as it does on the server.
+  PlanCap? inviteCap;
+
+  /// Hard caps `POST /sync-meta/records` answers with, by record kind —
+  /// `rejected:<name>`, `check` = the name, no `seq` (E-05g-14's shape). Also
+  /// after admission; the record is stored and nothing is projected. The
+  /// real server raises a seat cap only for a membership walked **into** a
+  /// counted state and `book_cap` only where a book is inserted; this lever
+  /// refuses every record of the kind, so a test states the case it means.
+  final Map<String, PlanCap> recordCaps = {};
+
   /// Signed-record ids hidden from `meta` (a record that arrives late).
   final Set<String> withheldRecords = {};
 
@@ -432,6 +448,13 @@ final class FakeSyncServer {
     if (!adminDevices.contains(deviceId)) {
       throw const RouteRefused(status: 403, code: RouteRefused.notAdmin);
     }
+    final cap = inviteCap;
+    if (cap != null) {
+      // Admitted, then refused by the plan: the record stays stored (it is a
+      // signed fact), no invite row exists, and a replay of this record is
+      // `record_replayed` above — never a second ask of the cap.
+      throw PlanCapRefused(cap);
+    }
     final invite = FakeInvite(
       id: 'invite-${invites.length + 1}',
       tenantId: record.tenantId,
@@ -572,6 +595,19 @@ final class FakeSyncServer {
   RecordAck _apply(String deviceId, WireSignedRecord r) {
     RecordAck ack(String result) =>
         RecordAck(id: r.id, result: result, seq: r.seq);
+    // `sync-meta/index.ts` `/records` catch arm: `rejected:<name>`, `check`
+    // the bare name, and no `seq` — the store denial carries none.
+    RecordAck? capped() {
+      final cap = recordCaps[r.kind];
+      return cap == null
+          ? null
+          : RecordAck(
+              id: r.id,
+              result: '${RecordAck.rejectedPrefix}${cap.wire}',
+              check: cap.wire,
+            );
+    }
+
     final p = _payloadOf(r) ?? const <String, Object?>{};
     switch (r.kind) {
       case 'invite':
@@ -587,6 +623,7 @@ final class FakeSyncServer {
         if (user is! String || status is! String) {
           return ack(RecordAck.rejectedShape);
         }
+        if (capped() case final refused?) return refused;
         memberships['${r.tenantId}:$user'] = WireMembership(
           id: '${r.tenantId}:$user',
           tenantId: r.tenantId,
@@ -602,6 +639,7 @@ final class FakeSyncServer {
         if (user is! String || book is! String) {
           return ack(RecordAck.rejectedShape);
         }
+        if (capped() case final refused?) return refused;
         bookRoles['$book:$user'] = WireBookRole(
           id: '$book:$user',
           bookId: book,
@@ -611,8 +649,9 @@ final class FakeSyncServer {
         );
       default:
         // Every other kind is kept and relayed; the clients judge it. A kind
-        // this fake does not project is NOT a refusal (rule 6).
-        break;
+        // this fake does not project is NOT a refusal (rule 6) — unless a
+        // test set a cap lever on it.
+        if (capped() case final refused?) return refused;
     }
     _metaVersion++;
     return ack(RecordAck.acked);

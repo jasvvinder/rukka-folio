@@ -11,9 +11,9 @@
 // ADR 2026-09-24b §6): the server signs `{tenant_id, plan, limits{members,
 // business_books, devices, envelopes_per_book, tenant_bytes,
 // attachment_bytes}, period_end, grace_kind, grace_until, iat, exp}` — and,
-// since ADR 2026-09-25 §6, `features` after `limits` (M11-CAT1; mirrored by
-// its own client row, not here). Every field this app reads is below, under
-// the same name. The
+// since ADR 2026-09-25 §6, `features` after `limits` (M11-CAT1; read here
+// since M13-CAT2 as [Entitlement.features], which every feature gate asks).
+// Every field this app reads is below, under the same name. The
 // one addition is [EntitlementSourceKind] — **where this reading came from** —
 // because the device-local half of ADR 2026-09-05g §4's *two graces* is not in
 // the token at all: it is the fact that this phone has not reached the server
@@ -40,23 +40,131 @@ import 'package:flutter/widgets.dart';
 
 import 'tier_catalogue.dart';
 
-/// Which of ADR 2026-09-05g §1's plans a tenant is on.
+/// A tenant's plan: a **catalogue id**, not one of four fixed names (ADR
+/// 2026-09-25 §6 🔒: *"The token's `plan` becomes a catalogue id"*).
 ///
-/// Names, quotas and prices are **not** here — they live in
-/// `tier_catalogue.dart` as data, so no widget carries a number.
-enum RkPlan {
-  /// 08 §2 — 1 member, personal + 1 business book, watermarked report exports.
-  free,
+/// The id is the whole identity. A plan this build has never heard of — the
+/// owner adds one to `plan_catalogue` tomorrow — is still a plan: it reads,
+/// compares and round-trips like any other, and a screen names it with the
+/// generic words (`subscription_copy.dart`), never a crash (CLAUDE.md rule 6).
+///
+/// Names, quotas and prices are **not** here. Quotas and features the tenant
+/// holds come from the signed token ([Entitlement]); prices and the popular
+/// flag come from the catalogue (`plan_catalogue_source.dart`).
+@immutable
+final class RkPlan {
+  /// A plan by its catalogue id.
+  const RkPlan(this.id);
 
-  /// 08 §2 — 1 member, unlimited books, clean exports, statement import.
-  personal,
+  /// Reads the token's or the catalogue's `plan`/`id`. Any non-empty string
+  /// is a plan; anything else is a malformed payload.
+  factory RkPlan.fromWire(Object? raw) => switch (raw) {
+    final String id when id.isNotEmpty => RkPlan(id),
+    _ => throw FormatException('plan is not a catalogue id', '$raw'),
+  };
 
-  /// 08 §2 — up to 5 active members, up to 3 business books.
-  family,
+  /// The catalogue id (`plan_catalogue.id`, 0018).
+  final String id;
 
-  /// 08 §2 — up to 15 active members, unlimited business books.
-  familyPlus,
+  /// Individual — the permanent Free plan (ADR 2026-09-25 §5), and the
+  /// reading of a tenant with no token (ADR 2026-09-05g §1 🔒).
+  static const RkPlan free = RkPlan('free');
+
+  /// Individual — Personal.
+  static const RkPlan personal = RkPlan('personal');
+
+  /// Business — Shop.
+  static const RkPlan shop = RkPlan('shop');
+
+  /// Business — Business.
+  static const RkPlan business = RkPlan('business');
+
+  /// Business — Business+.
+  static const RkPlan businessPlus = RkPlan('business_plus');
+
+  /// Family — Family Lite.
+  static const RkPlan familyLite = RkPlan('family_lite');
+
+  /// Family — Family.
+  static const RkPlan family = RkPlan('family');
+
+  /// Family — Family+.
+  static const RkPlan familyPlus = RkPlan('family_plus');
+
+  /// Trust — Trust.
+  static const RkPlan trust = RkPlan('trust');
+
+  /// Trust — Trust+.
+  static const RkPlan trustPlus = RkPlan('trust_plus');
+
+  /// The ids this build has **words** for (ARB, EN/PA/HI). Not a whitelist:
+  /// a plan outside it is read, compared and shown under generic words.
+  static const List<RkPlan> named = [
+    free,
+    personal,
+    shop,
+    business,
+    businessPlus,
+    familyLite,
+    family,
+    familyPlus,
+    trust,
+    trustPlus,
+  ];
+
+  @override
+  bool operator ==(Object other) => other is RkPlan && other.id == id;
+
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  String toString() => 'RkPlan($id)';
 }
+
+/// The extras a plan may include — the token's `features` (ADR 2026-09-25
+/// §5–§6 🔒). ADR 25 §5 names exactly two, and `registry.ts`'s `FEATURES` is
+/// the same list; everything else a book does is *never restricted*.
+///
+/// A gate asks [Entitlement.has] for one of these. It never infers a feature
+/// from the plan's name: moving a feature between plans is a catalogue edit
+/// that reaches the app at the next sync, with no release.
+enum RkFeature {
+  /// PDF statements and reports, and sharing them (ADR 25 §5).
+  pdfOutput('pdf_output'),
+
+  /// Bank statement import (ADR 25 §3, §5).
+  statementImport('statement_import');
+
+  const RkFeature(this.wire);
+
+  /// The name on the wire.
+  final String wire;
+}
+
+/// The token's `features` as the app holds them: **sorted, unique, and `[]`
+/// when the plan has none** (ADR 2026-09-25 §6; M11-CAT1's `featuresOf`).
+///
+/// A name this build does not know is **kept**, not dropped (CLAUDE.md rule
+/// 6): it gates nothing here, and it is still there for whatever reads the
+/// reading next. Absent or null reads as `[]`. Anything that is not a list of
+/// strings is a malformed token and throws [FormatException] — reading it as
+/// `[]` would quietly turn a broken token into a Free one.
+List<String> rkFeaturesFromWire(Object? raw) => switch (raw) {
+  null => const [],
+  final List<Object?> list => rkNormalisedFeatures([
+    for (final f in list)
+      if (f is String && f.isNotEmpty)
+        f
+      else
+        throw FormatException('features holds a non-name', '$f'),
+  ]),
+  _ => throw FormatException('features is not a list', '$raw'),
+};
+
+/// Sorted and de-duplicated, unmodifiable.
+List<String> rkNormalisedFeatures(Iterable<String> features) =>
+    List.unmodifiable(features.toSet().toList()..sort());
 
 /// The token's `grace_kind` — what the **server** has declared about this
 /// tenant (13 §6: `trial → active → dunning grace → read-only`).
@@ -127,11 +235,20 @@ enum EntitlementState {
   bool get blocksExport => false;
 }
 
+/// 08 §2's per-file cap — 10 MB on every plan. Plan-independent, so it is
+/// in neither the token's `limits{}` nor the catalogue (`registry.ts`
+/// `PlanLimits`: "08 §2's per-file cap … is deliberately absent").
+const int rkPerFileBytes = 10 * 1024 * 1024;
+
+/// "No cap" on the wire — ADR 2026-09-24b §7 (b) 🔒: *"An unlimited limit … is
+/// **`-1`** on the wire."* The app holds it as null, never as a number.
+const int rkNoCapOnWire = -1;
+
 /// The token's `limits{}` block, field for field (ADR 2026-09-05g §1), with
 /// the per-file cap 08 §2 lists in the same table.
 ///
-/// A null count means **unlimited** — 08 §2 gives Personal unlimited books and
-/// Family+ unlimited business books, and unlimited is not a large number.
+/// A null count means **unlimited** (`-1` on the wire) — unlimited is not a
+/// large number.
 class EntitlementLimits {
   /// Creates a limits block.
   const EntitlementLimits({
@@ -143,6 +260,51 @@ class EntitlementLimits {
     required this.attachmentBytes,
     required this.perFileBytes,
   });
+
+  /// The six wire names, in the token's order (`registry.ts` `PlanLimits`).
+  static const List<String> wireFields = [
+    'members',
+    'business_books',
+    'devices',
+    'envelopes_per_book',
+    'tenant_bytes',
+    'attachment_bytes',
+  ];
+
+  /// Reads a `limits{}` object — the token's, or a catalogue row's (the two
+  /// carry the same six names). `-1` is unlimited. A missing or non-integer
+  /// count is malformed and throws [FormatException]: guessing a cap would
+  /// either invent entitlement or take it away. Keys this build does not
+  /// know are ignored here; the catalogue keeps them for its round trip.
+  factory EntitlementLimits.fromWire(Map<String, Object?> wire) {
+    int? count(String field) => switch (wire[field]) {
+      rkNoCapOnWire => null,
+      final int n when n >= 0 => n,
+      final other => throw FormatException(
+        'limits.$field is not a count',
+        '$other',
+      ),
+    };
+    return EntitlementLimits(
+      members: count('members'),
+      businessBooks: count('business_books'),
+      devices: count('devices'),
+      envelopesPerBook: count('envelopes_per_book'),
+      tenantBytes: count('tenant_bytes'),
+      attachmentBytes: count('attachment_bytes'),
+      perFileBytes: rkPerFileBytes,
+    );
+  }
+
+  /// The six wire fields back, unlimited as `-1`.
+  Map<String, Object?> toWire() => {
+    'members': members ?? rkNoCapOnWire,
+    'business_books': businessBooks ?? rkNoCapOnWire,
+    'devices': devices ?? rkNoCapOnWire,
+    'envelopes_per_book': envelopesPerBook ?? rkNoCapOnWire,
+    'tenant_bytes': tenantBytes ?? rkNoCapOnWire,
+    'attachment_bytes': attachmentBytes ?? rkNoCapOnWire,
+  };
 
   /// Active members, counting `invited` + `joined_pending_verification` +
   /// `active` (06 §7, ADR 2026-09-05g §6). Null = unlimited.
@@ -169,8 +331,14 @@ class EntitlementLimits {
 
 /// One resolved reading of a tenant's entitlement.
 class Entitlement {
-  /// Creates a reading.
-  const Entitlement({
+  /// Creates a reading. [features] is normalised — sorted, unique — so two
+  /// readings of one token compare alike however the list arrived.
+  ///
+  /// [features] defaults to `[]`, which gates **closed**: a reading built
+  /// without it holds no PDF output and no statement import. Callers outside
+  /// this feature (the S12.5 test harnesses) build readings without it and
+  /// are, correctly, readings of a plan with no extras.
+  Entitlement({
     required this.tenantId,
     required this.plan,
     required this.limits,
@@ -179,11 +347,18 @@ class Entitlement {
     this.graceUntil,
     required this.source,
     required this.activeMembers,
-  });
+    Iterable<String> features = const [],
+  }) : features = rkNormalisedFeatures(features);
 
   /// The untokened reading — the only honest one until the meta channel
   /// delivers a token (05 §5). Free, live, blocking nothing (ADR
   /// 2026-09-05g §1 🔒).
+  ///
+  /// Its `features` are `[]`: Free includes neither PDF output nor statement
+  /// import (ADR 2026-09-25 §5 🔒). Its limits are the Free row of the
+  /// **offline fallback** catalogue (`rkOfflineCatalogue`, a mirror of 0018's
+  /// seed) — there is no token to read them from, and the server signs the
+  /// same Free floor for a tenant with no row (M11-CAT1 `planOf`).
   factory Entitlement.untokened({int activeMembers = 1}) => Entitlement(
     tenantId: null,
     plan: RkPlan.free,
@@ -205,6 +380,12 @@ class Entitlement {
   /// optional, because test files outside this feature build an
   /// [Entitlement] without it. Making it `required` is the stronger guard,
   /// and it needs those files changed at the same time.
+  ///
+  /// [features] is the token's `features` ([rkFeaturesFromWire] reads it).
+  /// ⚠️ SPEC (M13-CAT2, owner item): it is optional here only because a test
+  /// outside this feature (`test/shared/entitlement_shell_test.dart`) builds
+  /// a token reading without it; omitted, it gates closed. Making it
+  /// `required` is the stronger guard once that file passes it.
   factory Entitlement.fromToken({
     required String tenantId,
     required RkPlan plan,
@@ -213,6 +394,7 @@ class Entitlement {
     required EntitlementTokenTimes times,
     required EntitlementSourceKind source,
     required int activeMembers,
+    Iterable<String> features = const [],
   }) {
     if (source == EntitlementSourceKind.absent) {
       throw ArgumentError.value(
@@ -230,6 +412,7 @@ class Entitlement {
       graceUntil: times.graceUntil,
       source: source,
       activeMembers: activeMembers,
+      features: features,
     );
   }
 
@@ -241,6 +424,20 @@ class Entitlement {
 
   /// The token's `limits{}`.
   final EntitlementLimits limits;
+
+  /// The token's `features` — the extras this plan includes (ADR 2026-09-25
+  /// §6): sorted, unique, `[]` when the plan has none. Unknown names are
+  /// kept (see [rkFeaturesFromWire]).
+  final List<String> features;
+
+  /// Whether this reading includes [feature].
+  ///
+  /// 🔒 The **only** question a feature gate asks (ADR 2026-09-25 §6: *"The
+  /// app's gates read the token"*). Not the plan's name, not the catalogue
+  /// (unsigned, display-only), and not [state]: a lapsed or stale reading
+  /// still names the extras its plan carries, and the read-only rule is
+  /// [EntitlementState.blocksEntry]'s business, not a feature gate's.
+  bool has(RkFeature feature) => features.contains(feature.wire);
 
   /// The token's `period_end` — the renewal date S12 shows. Null on Free and
   /// on an untokened reading: there is nothing to renew.
@@ -311,8 +508,9 @@ class Entitlement {
 /// **milliseconds** as JSON integers, or null).
 ///
 /// This is **not** the token verifier (PLAN desk 23c) and not a whole-payload
-/// parse: signature, `exp`, `plan` ids, `limits` and `features` belong to the
-/// producer and to M11-CAT1's client row. It is the one place this feature
+/// parse: signature and `exp` belong to the producer, and the other fields
+/// have their own readers ([RkPlan.fromWire], [EntitlementLimits.fromWire],
+/// [rkFeaturesFromWire]). It is the one place this feature
 /// turns the wire's dates into [DateTime]s. The producer, when it lands,
 /// passes the result to [Entitlement.fromToken], which fills
 /// [Entitlement.periodEnd] and [Entitlement.graceUntil] from it. Both dates

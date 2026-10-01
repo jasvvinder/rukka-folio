@@ -225,5 +225,13 @@
   "invite.nolink.title": "The invite is made",
   "@invite.nolink.title": {"description": "S9.1 / S9 share panel when the invite has no link (⚠️ SPEC M11-INV2: no ruled invite-link format). Replaces the prefilled message; never says anything was sent."},
   "invite.nolink.body": "This version of the app can’t make its link yet, so there is nothing to send them for now. It shows on Members as invited.",
-  "@invite.nolink.body": {"description": "⚠️ SPEC M11-INV2: with no link format ruled there is nothing to send, so the panel says so and offers no share (13 §4.3 disabled-with-reason). It names no join path — the deep link is the only one the spec has (13 §3.2 S0.9, 07 §3.1 step 8)."}
+  "@invite.nolink.body": {"description": "⚠️ SPEC M11-INV2: with no link format ruled there is nothing to send, so the panel says so and offers no share (13 §4.3 disabled-with-reason). It names no join path — the deep link is the only one the spec has (13 §3.2 S0.9, 07 §3.1 step 8)."},
+  "invite.cap.seats": "Your plan has no room for another member. To invite someone, choose a plan with more members in Plans.",
+  "@invite.cap.seats": {"description": "S9.1 / S9 Invite again — the server's 409 seat_cap (ADR 2026-09-05g §6 🔒, migration 0019): invited + joined + active already fill the plan. States the reason and the path (01 §3, 07 §1.6); the way on is S12.1 Plans. Never offered as a retry: nothing about asking again makes room."},
+  "invite.cap.rotation": "You’ve added as many different people as your plan allows in a year. To invite someone new, choose a plan with more members in Plans.",
+  "@invite.cap.rotation": {"description": "S9.1 / S9 Invite again — the server's 409 seat_rotation_cap (ADR 2026-09-05g §6 🔒: a rolling cap of 2 × seats distinct members per year). ⚠️ SPEC: says 'in a year' and nothing narrower on purpose — whether that year is trailing, calendar or financial is on the owner's desk (PLAN 60a), and the copy must not rule it."},
+  "invite.cap.books": "Your plan has no room for another business book. To add one, choose a plan with more business books in Plans.",
+  "@invite.cap.books": {"description": "Members feature — the server's book_cap (ADR 2026-09-05g §2 🔒, migration 0019): every business book the plan allows exists. Reaches this feature only as a records result today; no book-create route exists yet (M13-CAP1)."},
+  "invite.cap.plans": "See plans",
+  "@invite.cap.plans": {"description": "The action under any plan-cap line: opens S12.1 Plans (13 §3.2) — 07 §1 rule 6, no dead end."}
 }

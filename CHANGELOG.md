@@ -12,6 +12,54 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-01 — M13/M11: review, verify and repair of the five 30 Sep slices; push gate green, RLS 204/0
+
+This session ran one `/cycle` with the build stage skipped for CAP2, CAT2, SH1, QR1 and RS1: a read-only review, adversarial verification (3 lenses on CAP2 and RS1, 1 elsewhere), and one repair round. 17 findings were filed, 13 survived and were fixed, and every repair lane reports complete. Then `/gate push` was green, and the RLS suite, which the push lane skips without a database, was run separately: 204 passed, 0 failed. Spend: about 2.46 M, under a dated 8 M override that the owner directed for 1 Oct.
+
+**Changed**
+- **RS1** (`lane-server`): E-06-54 now brings attempt A to approved before its WHO assertions, so deleting the WHO gate turns it red. This was checked by mutating the function on an isolated database. The 24 h wait is re-checked when the shares are released, not only when the attempt opens: `0020` restates `rf.recovery_derive` with the same signature, and `0010` is untouched. New tests `E-06-80/81`. The meta-channel exception for `recovery_blob` is recorded as a ⚠️ SPEC in the `0020` header, `store_pg.ts` and `store_mem.ts`.
+- **SH1** (`lane-ui-hard`): at 200% text, the capped banner had scrolled *Renew* out of view. Now only its words scroll, with a scrollbar that is always drawn, and Renew is pinned below them (`F1-24b-13`). The plan-catalogue wiring is pinned by `F1-24b-14` (the `PlanCatalogueScope` mount) and `F1-24b-15` (bootstrap binds `HttpPlanCatalogueSource`).
+- **CAT2** (`lane-ui`): a test now bites on the format sheet's own PDF gate (the `pdfIncluded ?? true` mutant fails). An unlimited limit now reads *unlimited* instead of "1 member" or "Up to 0 phones", via new `plans.limit.*.unlimited` keys in EN/PA/HI. The *See plans* way out of both gates is exercised through GoRouter (`F1-25-11/13/14`).
+- **QR1** (`lane-ui`): the fixture now relays a candidate device id different from this phone's, and `F1-13c-4` asserts the drawn id is the phone's own. The no-share check matches S9.2's helper and adds a text and tooltip scan. *Show my code* is offered only while the attempt is live.
+- **CAP2** (`lane-sync`): the PA `invite.cap.books` now uses ਵਹੀ, per 01 §2 🔒.
+- Gate: `dart format` was applied to 9 files.
+- `.claude/rf.config.json`: added `daily_overrides["2026-10-01"] = 8 M`, owner-directed.
+
+**Open**
+- Desk 63–69 (`PLAN.md`): the PA *Book* misspelling across 57 lines in 10 parts · RS1 readings, including 05 §5 🔒 needing a doc line and the restated `rf.recovery_derive`, which nobody has re-reviewed · untokened builds shutting PDF and import · SH1 banner readings · QR1 readings, including a refuted ADR 13c ruling 2 🔒 finding · CAP2 server and joiner gaps · ⟦tests⟧ markers for the new ids.
+- Still open from 30 Sep: CAP1 repairs 3–7; the S4 one-tap PDF export is ungated; no producer or own-`DevicePublic` loader for *Show my code*; the recovery shares route has no client consumer yet.
+
+**Commits**
+- (fill next session — 30 Sep's lanes and today's repairs land together)
+
+---
+
+## 2026-09-30 — M13/M11: five lanes (CAP2, CAT2, SH1, QR1, RS1) + the CAP1 review and verify — built, not gated
+
+The owner said "Do all" on 29 Sep. This session ran one `/lane` round of five lanes (about 1.23 M) and, in parallel, the read-only review of CAP1 plus three verifier lenses. All five lanes report complete. **Nothing is gated or reviewed yet.** `/close` finalises this entry.
+
+**Added**
+- **M13-CAP2** (`lane-sync`): the three cap refusals are typed and terminal. `PlanCapWire`, `PlanCap` and a sealed `PlanCapRefused` are never retried and never enter backoff. S9.1/S9 show a plain line plus *See plans* (`PlanCapNotice`). Tests `D-05g-1…8`, `F1-05g-1…7`.
+- **M13-CAT2** (`lane-ui`): the client plan catalogue comes from `GET /sync-meta/plans` (`PlanCatalogueSource`: HTTP, a labelled offline mirror, and a fake). `Entitlement.features` is new, and the PDF and statement-import gates read it. Tests pinned to 08 §2's numbers were rewritten over the catalogue; none were skipped. Tests `F1-25-6…14`.
+- **M13-SH1** (`lane-ui-hard`): one `EntitlementScope` above `MaterialApp.router`, a global read-only banner above the tab bar, and Home's verbs disabled with a reason when read-only. Tests `F1-24b-8…12`.
+- **M13-QR1** (`lane-ui`): S11.2 *Show my code* draws only the candidate key this phone holds, and never the relayed `candidate_pub_x`. The unused `recovery.ask.call` key is deleted. Tests `F1-13c-4…7`.
+- **M13-RS1** (`lane-server`): `0020_recovery_share_release.sql`. `recovery_blob` rows are no longer readable on `wrapped_keys`, and leave only through `rf.recovery_shares` / `GET /sync-meta/recovery/shares`: to the attempt's opener, once the attempt is approved. Any other caller gets 404. Tests `E-06-70…79`.
+- Integration: `PlanCatalogueScope` is mounted above the router (`main.dart`), and `bootstrap.dart` binds `HttpPlanCatalogueSource`. The ARB parts are merged.
+
+**Changed**
+- RS1 found that, before 0020, the uncertified candidate phone received each re-sealed share through `wrapped_keys_select` as soon as its guardian approved, which is before k approvals and inside the 24 h wait (04 §7.3 🔒, ADR 2026-09-05d §1 🔒). 0020 closes it.
+- On an untokened build (every build today), PDF output and statement import are shut, because Free has neither (ADR 2026-09-25 §5 🔒). This is the conservative reading and needs the owner's confirmation.
+
+**Open**
+- CAP1 review plus verify (`.claude/lane-reports/M13-CAP1.review.json`, `.verify.json`): all 7 findings survived.
+  - Owner desk: the SECURITY DEFINER helpers (0005, 0019, and now 0020 too) use `search_path = public` with no `pg_temp`, so `rf_api` can shadow tables with its own temp tables. Whether hosted Supabase lets `rf_api` create temp tables is unchecked.
+  - Repairs 3–7 wait for the next round.
+- Binding still missing: the `RecoveryMyCodeScope` producer needs a loader for this phone's own `DevicePublic`, and none exists.
+- S4's one-tap PDF export is still ungated (`s4_account_statement_screen.dart:272`).
+
+**Commits**
+- none yet — committed together with the 1 Oct entry above
+
 ## 2026-09-29 — M13/M7: seat + business-book hard caps (CAP1), invites on the members seam (SEAM1)
 
 The day's ceiling was the default 1.2 M, too little for a `/cycle`, so this session ran one `/lane` round of two lanes (about 0.34 M) and the push gate (green). Both slices are **built, not reviewed**. The read-only review and verify pass must run before either is committed (CLAUDE.md § Session economy). The push gate skips the database-backed RLS suite, so the orchestrator ran it separately with `RLS_REQUIRE=1`: 192 passed, 0 failed.

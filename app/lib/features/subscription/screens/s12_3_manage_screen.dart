@@ -206,8 +206,6 @@ class _Loaded extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     final restriction = entitlement.state.restriction;
     final done = outcome;
-    final tier = rkTierFor(entitlement.plan);
-    final storage = rkStorageOf(tier.limits.tenantBytes ?? 0);
     return ListView(
       padding: const EdgeInsets.only(bottom: RkSpace.s8),
       children: [
@@ -290,7 +288,8 @@ class _Loaded extends StatelessWidget {
             ),
           ),
         ),
-        // What is included — the tier catalogue's own quota lines, in plain
+        // What is included — read from the TOKEN (limits and features this
+        // tenant holds, ADR 2026-09-25 §6), not the catalogue, in plain
         // words. Not one number is written in this file.
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: RkSpace.gutter),
@@ -300,23 +299,12 @@ class _Loaded extends StatelessWidget {
               children: [
                 RkFitText(l10n.manageIncludedLabel, style: text.titleMedium),
                 const SizedBox(height: RkSpace.s2),
-                _Included(l10n.plansLimitMembers(tier.limits.members ?? 1)),
-                _Included(
-                  tier.limits.businessBooks == null
-                      ? l10n.plansLimitBooksUnlimited
-                      : l10n.plansLimitBooks(tier.limits.businessBooks!),
-                ),
-                _Included(l10n.plansLimitDevices(tier.limits.devices ?? 0)),
-                _Included(
-                  storage.gigabytes
-                      ? l10n.plansLimitStorageGb(storage.amount)
-                      : l10n.plansLimitStorageMb(storage.amount),
-                ),
-                _Included(
-                  tier.isFree
-                      ? l10n.plansLimitExportsWatermarked
-                      : l10n.plansLimitExportsClean,
-                ),
+                for (final line in rkIncludedLines(
+                  l10n,
+                  entitlement.limits,
+                  entitlement.features,
+                ))
+                  _Included(line),
               ],
             ),
           ),

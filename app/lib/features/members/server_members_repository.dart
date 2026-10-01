@@ -764,10 +764,10 @@ final class ServerMembersRepository implements MembersRepository {
     final results = await _server.postRecords([record]);
     final note = results.isEmpty ? 'rejected:empty' : results.first;
     if (note.startsWith('rejected:')) {
-      throw MembersFailure(
-        note,
-        refusalOf(note.substring('rejected:'.length), 400),
-      );
+      // A cap here (ADR 2026-09-05g §6 🔒) is terminal: this record is stored
+      // server-side and a re-send of it would come back `acked` without being
+      // applied, so nothing retries it — a later try signs a new record.
+      throw MembersFailure(note, recordRefusalOf(note));
     }
   }
 

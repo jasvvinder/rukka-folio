@@ -1126,6 +1126,61 @@ final class PostRecordsRequest {
   };
 }
 
+/// The bare wire names of ADR 2026-09-05g §2 / §6 🔒's hard caps, exactly as
+/// `0019_seat_and_book_caps.sql` raises them (P0001 + the name) and
+/// `sync-meta/index.ts` `CAP_REFUSALS` passes them through. One place, so the
+/// enum, [RecordAck]'s `rejected:` forms and the route mapping cannot drift
+/// apart (D-05g-1 reads the server's set to hold this to it).
+abstract final class PlanCapWire {
+  /// Every seat the plan has is counted (`invited` + `joined_pending_
+  /// verification` + `active`, ADR 05g §6).
+  static const String seatCap = 'seat_cap';
+
+  /// The rolling budget of 2 × seats distinct members per year is spent
+  /// (ADR 05g §6). ⚠️ SPEC: what "per year" means is 0019's reading, on the
+  /// owner's desk (PLAN 60) — nothing on this side depends on it.
+  static const String seatRotationCap = 'seat_rotation_cap';
+
+  /// Every business book the plan allows exists (ADR 05g §2).
+  static const String bookCap = 'book_cap';
+}
+
+/// Which hard cap refused (ADR 2026-09-05g §2 / §6 🔒) — the typed form a
+/// caller switches on, exhaustively. A cap refusal is **terminal**: the plan
+/// has no room, and asking again cannot make room. It is never a network
+/// condition, so nothing backs off and re-sends it.
+///
+/// Terminal matters twice over here: on both routes the signed record is
+/// stored before the cap answers (append-only), so re-sending the same record
+/// never re-asks the cap — `/invites` answers `409 record_replayed` and
+/// `/records` answers `acked` for the duplicate although nothing was applied.
+/// After an upgrade the honest retry is a **new** signed record.
+enum PlanCap {
+  /// `seat_cap` — the plan's seats are full.
+  seats(PlanCapWire.seatCap),
+
+  /// `seat_rotation_cap` — the plan's changes of member for the year are
+  /// used up.
+  seatRotation(PlanCapWire.seatRotationCap),
+
+  /// `book_cap` — the plan's business books are full.
+  businessBooks(PlanCapWire.bookCap);
+
+  const PlanCap(this.wire);
+
+  /// The name on the wire.
+  final String wire;
+
+  /// The cap [name] spells, or null — exact match only, never guessed from a
+  /// prefix or a near-miss.
+  static PlanCap? fromWire(String? name) {
+    for (final c in values) {
+      if (c.wire == name) return c;
+    }
+    return null;
+  }
+}
+
 /// What the server did with one posted record. `acked` means stored **and**
 /// applied; anything starting with `rejected:` means the record is stored
 /// (it is a signed fact, append-only) but was not projected onto a row.
@@ -1168,6 +1223,17 @@ final class RecordAck {
   static const String rejectedMembershipTransition =
       'rejected:membership_transition';
 
+  /// The seat cap refused the record (`0019`, ADR 05g §6) — `check` carries
+  /// the bare name and there is no `seq` (`sync-meta/index.ts` `/records`).
+  static const String rejectedSeatCap = '$rejectedPrefix${PlanCapWire.seatCap}';
+
+  /// The rolling seat budget refused the record (ADR 05g §6).
+  static const String rejectedSeatRotationCap =
+      '$rejectedPrefix${PlanCapWire.seatRotationCap}';
+
+  /// The business-book cap refused the record (ADR 05g §2).
+  static const String rejectedBookCap = '$rejectedPrefix${PlanCapWire.bookCap}';
+
   /// `id` — the record's uuid, echoed back.
   final String id;
 
@@ -1186,6 +1252,11 @@ final class RecordAck {
   /// The refusal without its prefix, or null when [isAcked].
   String? get rejection =>
       result.startsWith(rejectedPrefix) ? result.substring(9) : null;
+
+  /// The hard cap that refused this record, or null when it was not a cap.
+  /// Terminal ([PlanCap]): never re-send this record — the server would
+  /// answer the duplicate `acked` without applying it.
+  PlanCap? get planCap => PlanCap.fromWire(rejection);
 
   /// Encodes (`seq` as the decimal string the server writes).
   Map<String, Object?> toJson() => {

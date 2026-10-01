@@ -12,6 +12,7 @@ import 'package:go_router/go_router.dart';
 import '../l10n/gen/app_localizations.dart';
 import 'layout.dart';
 import 'widgets/placeholder_screen.dart';
+import 'widgets/rk_entitlement_banner.dart';
 import 'widgets/rk_nav_rail.dart';
 import 'widgets/rk_tab_bar.dart';
 
@@ -237,7 +238,24 @@ class RkShell extends StatelessWidget {
 
     // The content region. Never `shell` bare: the branch needs a pane with a
     // real height, which is what M5 through 13 Sep 2026 did not give it.
-    final content = RkReadablePane(child: shell);
+    //
+    // S12.5 is `global` (13 §3.2): the read-only banner sits under every tab's
+    // content, directly above the navigation, so no tab can be read without
+    // it and no tab has to draw it (ADR 2026-09-24b §13). It draws nothing
+    // unless the tenant is read-only. Placement: see the ⚠️ SPEC in
+    // `widgets/rk_entitlement_banner.dart`.
+    // A `Column` lays its fixed children out unbounded, so the banner's cap
+    // is measured here, where the height is known.
+    final content = LayoutBuilder(
+      builder: (context, box) => Column(
+        children: [
+          Expanded(child: RkReadablePane(child: shell)),
+          RkEntitlementBanner(
+            maxHeight: box.maxHeight * RkEntitlementBanner.maxShare,
+          ),
+        ],
+      ),
+    );
 
     if (RkLayout.railAt(RkLayout.of(context))) {
       return Scaffold(

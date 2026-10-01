@@ -4151,6 +4151,10 @@
   "@home.verb.money_out": {
     "description": "S1 verb button (02 §2 row 2)."
   },
+  "home.verb.read_only.reason": "New entries are paused because your plan has ended.",
+  "@home.verb.read_only.reason": {
+    "description": "S1 disabled-with-reason line under the four verb buttons (13 §4.3), shown only while the tenant is READ-ONLY — server-declared lapse (ADR 2026-09-24b §13; S12.5). Never for offline grace, which blocks nothing (ADR 2026-09-05g §4). Paired with a lock icon; the way forward is the global S12.5 banner's Renew, so this line carries no action."
+  },
   "home.verb.took": "Took on credit",
   "@home.verb.took": {
     "description": "S1 verb button (02 §2 row 4) — what you took against a promise to pay."
@@ -4413,6 +4417,18 @@
   "import.file.today": "Today this app reads CSV. XLS, OFX and PDF are coming.",
   "@import.file.today": {
     "description": "S7 — honest about the round’s limit, beside the accepts line, so a PDF pick is not a surprise (07 §11 item 4 🔒 supported-format list)."
+  },
+  "import.gate.body": "You can still add every entry by hand, on any plan.",
+  "@import.gate.body": {
+    "description": "S7 gated state body. ADR 2026-09-25 §5 🔒: every entry verb is never restricted, on any plan including Free."
+  },
+  "import.gate.see_plans": "See plans",
+  "@import.gate.see_plans": {
+    "description": "S7 gated state action: opens S12.1 Plans (07 §1 rule 6, no dead end)."
+  },
+  "import.gate.title": "Statement import is not on your plan",
+  "@import.gate.title": {
+    "description": "S7 gated state — the entitlement token's features lack statement_import (ADR 2026-09-25 §3, §5–§6). Read from the token's features, never the plan name."
   },
   "import.inbox.always.no": "No",
   "@import.inbox.always.no": {
@@ -5668,6 +5684,22 @@
         "type": "String"
       }
     }
+  },
+  "invite.cap.books": "Your plan has no room for another business book. To add one, choose a plan with more business books in Plans.",
+  "@invite.cap.books": {
+    "description": "Members feature — the server's book_cap (ADR 2026-09-05g §2 🔒, migration 0019): every business book the plan allows exists. Reaches this feature only as a records result today; no book-create route exists yet (M13-CAP1)."
+  },
+  "invite.cap.plans": "See plans",
+  "@invite.cap.plans": {
+    "description": "The action under any plan-cap line: opens S12.1 Plans (13 §3.2) — 07 §1 rule 6, no dead end."
+  },
+  "invite.cap.rotation": "You’ve added as many different people as your plan allows in a year. To invite someone new, choose a plan with more members in Plans.",
+  "@invite.cap.rotation": {
+    "description": "S9.1 / S9 Invite again — the server's 409 seat_rotation_cap (ADR 2026-09-05g §6 🔒: a rolling cap of 2 × seats distinct members per year). ⚠️ SPEC: says 'in a year' and nothing narrower on purpose — whether that year is trailing, calendar or financial is on the owner's desk (PLAN 60a), and the copy must not rule it."
+  },
+  "invite.cap.seats": "Your plan has no room for another member. To invite someone, choose a plan with more members in Plans.",
+  "@invite.cap.seats": {
+    "description": "S9.1 / S9 Invite again — the server's 409 seat_cap (ADR 2026-09-05g §6 🔒, migration 0019): invited + joined + active already fill the plan. States the reason and the path (01 §3, 07 §1.6); the way on is S12.1 Plans. Never offered as a retry: nothing about asking again makes room."
   },
   "invite.designation.accountant": "Accountant",
   "@invite.designation.accountant": {
@@ -8760,6 +8792,22 @@
       }
     }
   },
+  "plans.feature.import.included": "Import bank statements",
+  "@plans.feature.import.included": {
+    "description": "S12.1/S12.3 line for a plan whose features include statement_import (ADR 2026-09-25 §3, §5)."
+  },
+  "plans.feature.import.none": "No statement import",
+  "@plans.feature.import.none": {
+    "description": "S12.1/S12.3 line for a plan without statement_import. Entries by hand are never restricted (ADR 2026-09-25 §5)."
+  },
+  "plans.feature.pdf.included": "PDF statements and reports, to print or share",
+  "@plans.feature.pdf.included": {
+    "description": "S12.1/S12.3 line for a plan whose features include pdf_output (ADR 2026-09-25 §5–§6). Read from the catalogue row on S12.1 and from the TOKEN on S12.3."
+  },
+  "plans.feature.pdf.none": "No PDF. Reports stay on screen, and CSV and Excel export always works.",
+  "@plans.feature.pdf.none": {
+    "description": "S12.1/S12.3 line for a plan without pdf_output. ADR 2026-09-25 §5 🔒: every report stays readable on screen and the CSV/XLSX data export is never restricted. Replaces the Free watermark line (08 §1, amended by ADR 25 §5)."
+  },
   "plans.gst.gateway": "Buying for a business? You can add a coupon and your GSTIN at checkout.",
   "@plans.gst.gateway": {
     "description": "S12.1 off iOS — coupon and GSTIN exist on the gateway/web checkout only (08 §3.1 🔒, ADR 2026-09-05g §8, §10)."
@@ -8772,9 +8820,9 @@
   "@plans.large_org": {
     "description": "S12.1 🔒 — 08 §2 and ADR 2026-09-05g §14: organisations use the Family bands up to 15, and a 40-trustee committee is TOLD SO on the plan screen rather than refused."
   },
-  "plans.limit.books": "{count, plural, =1{1 business book} other{Up to {count} business books}}",
+  "plans.limit.books": "{count, plural, =0{Your personal book only} =1{Your personal book + 1 more book} other{Your personal book + up to {count} more books}}",
   "@plans.limit.books": {
-    "description": "S12.1 quota row — 08 §2 🔒 business-book band.",
+    "description": "S12.1/S12.3 quota row — the token's or catalogue row's business_books, the books BESIDE the personal one (ADR 2026-09-25 §5: each person's personal book is free and never counted). =0 is Free's \"personal only\".",
     "placeholders": {
       "count": {
         "type": "int"
@@ -8794,13 +8842,9 @@
       }
     }
   },
-  "plans.limit.exports.clean": "Clean exports in every format",
-  "@plans.limit.exports.clean": {
-    "description": "S12.1 paid-tier line (08 §2)."
-  },
-  "plans.limit.exports.watermarked": "PDF reports carry a watermark; CSV and Excel never do.",
-  "@plans.limit.exports.watermarked": {
-    "description": "S12.1 Free-tier line. 08 §1 🔒 as made precise by ADR 2026-09-05g §5 and ADR 2026-09-12 §2: the watermark follows the FORMAT and never touches the data export."
+  "plans.limit.devices.unlimited": "As many phones as you need",
+  "@plans.limit.devices.unlimited": {
+    "description": "S12.1/S12.3 quota row where the devices limit is -1 on the wire (ADR 2026-09-24b §7 (b)). Unlimited is not a large number."
   },
   "plans.limit.members": "{count, plural, =1{1 member} other{Up to {count} members}}",
   "@plans.limit.members": {
@@ -8810,6 +8854,10 @@
         "type": "int"
       }
     }
+  },
+  "plans.limit.members.unlimited": "As many members as you need",
+  "@plans.limit.members.unlimited": {
+    "description": "S12.1/S12.3 quota row where the members limit is -1 on the wire (ADR 2026-09-24b §7 (b)). Unlimited is not a large number."
   },
   "plans.limit.storage.gb": "{count} GB of space",
   "@plans.limit.storage.gb": {
@@ -8829,13 +8877,17 @@
       }
     }
   },
+  "plans.limit.storage.unlimited": "As much space as you need",
+  "@plans.limit.storage.unlimited": {
+    "description": "S12.1/S12.3 quota row where tenant_bytes is -1 on the wire (ADR 2026-09-24b §7 (b)). Unlimited is not a large number."
+  },
   "plans.never_locked": "Your books are never locked. If you stop paying, everything stays readable and exportable.",
   "@plans.never_locked": {
     "description": "S12.1 closing sentence 🔒 — DESIGN-PACK §11 (S12.1), 08 §1 principle 4 (lapsed ≠ locked)."
   },
   "plans.popular": "Popular",
   "@plans.popular": {
-    "description": "S12.1 🔒 badge on the recommended tier (08 §3.1, DESIGN-PACK §11 S12.1). ⚠️ SPEC: neither doc names WHICH tier; Family is taken because the trial is 30 days of Family (08 §2)."
+    "description": "S12.1 🔒 badge on the entity type's popular plan — read from the catalogue's popular flag (ADR 2026-09-25 §5–§6), never chosen by the app."
   },
   "plans.price.free": "Free, always",
   "@plans.price.free": {
@@ -8984,10 +9036,6 @@
   "recovery.ask.back": "Try another way back in",
   "@recovery.ask.back": {
     "description": "S11.2 way back to the fork (S11.6) from any state that cannot go forward. No dead ends (07 §1 rule 6)."
-  },
-  "recovery.ask.call": "Call",
-  "@recovery.ask.call": {
-    "description": "S11.2 per-row call link (design R2.2, verbatim). The pack's own advice is ‘phone them, they are expecting this’."
   },
   "recovery.ask.call_advice": "Phone them — they are expecting this.",
   "@recovery.ask.call_advice": {
@@ -9380,6 +9428,54 @@
   "recovery.sheet.what": "One printed page, with a square code and the same code in letters underneath. You may have saved it as a file instead.",
   "@recovery.sheet.what": {
     "description": "S11.3 reminder of what the sheet looks like (design R2.4: a small illustration reminding them what the sheet looks like). 04 §7.6: paper and saved file hold the same key."
+  },
+  "recovery.show.back": "Back",
+  "@recovery.show.back": {
+    "description": "S11.2 Show my code way back to the request (07 §1 rule 6 🔒 — no dead ends)."
+  },
+  "recovery.show.body": "Hold this up to the camera of the person you are calling — in person, or on a video call. Their phone checks it before they approve.",
+  "@recovery.show.body": {
+    "description": "S11.2 Show my code explanation — the mutual ceremony in the user's words, never as cryptography (ADR 2026-09-13c §3, 04 §6.4 remote mode)."
+  },
+  "recovery.show.channel_rule": "Show it only to the person you are talking to. Never send it as a message or a photo.",
+  "@recovery.show.channel_rule": {
+    "description": "S11.2 channel rule said out loud — why there is no share or copy button (04 §6.4 🔒)."
+  },
+  "recovery.show.error": "We could not get this phone’s code.",
+  "@recovery.show.error": {
+    "description": "S11.2 Show my code error-with-retry (13 §4.3, 07 §1 rule 12): the key store could not be read."
+  },
+  "recovery.show.loading": "Getting your code ready",
+  "@recovery.show.loading": {
+    "description": "S11.2 Show my code loading state, said in words over the ruled skeleton (11 §4.5)."
+  },
+  "recovery.show.not_held": "This phone has no code for this request. Only the phone that asked for it can show one.",
+  "@recovery.show.not_held": {
+    "description": "S11.2 Show my code when this phone does not hold the key for the request on screen (ADR 2026-09-24b §1 🔒). No square is drawn — never the server's copy (ADR 2026-09-13c §3). Claims no cause."
+  },
+  "recovery.show.offline": "Offline — your code still works, so they can scan it now.",
+  "@recovery.show.offline": {
+    "description": "S11.2 Show my code quiet offline chip (07 §1 rule 7). True: the code is drawn from what this phone holds."
+  },
+  "recovery.show.open": "Show my code",
+  "@recovery.show.open": {
+    "description": "S11.2 action that opens Show my code — the fresh phone's square code for a trusted member's phone to scan before they approve (ADR 2026-09-13c ruling 3 🔒)."
+  },
+  "recovery.show.qr_semantics": "This phone’s square code, for the person you are calling to scan",
+  "@recovery.show.qr_semantics": {
+    "description": "S11.2 screen-reader label for the square code. The square cannot be read aloud and, at recovery, there are deliberately no digits beneath it (ADR 2026-09-13c ruling 2 🔒)."
+  },
+  "recovery.show.retry": "Try again",
+  "@recovery.show.retry": {
+    "description": "S11.2 Show my code retry action."
+  },
+  "recovery.show.title": "Show my code",
+  "@recovery.show.title": {
+    "description": "S11.2 Show my code app-bar title. ⚠️ SPEC: no canvas draws this step (ADR 2026-09-13c Open 2); the words follow S9.2's."
+  },
+  "recovery.show.unavailable": "This phone cannot show its code yet.",
+  "@recovery.show.unavailable": {
+    "description": "S11.2 Show my code disabled-with-reason (13 §4.3): this build has no way to draw it. Followed by the way back (07 §1 rule 6)."
   },
   "recovery.silent.continue": "Go to my books",
   "@recovery.silent.continue": {
@@ -9938,6 +10034,14 @@
   "@reports.export.pdf.description": {
     "description": "S8.2 export sheet — what PDF is for (ADR 2026-09-12 §1: 'the format a person hands to someone else')."
   },
+  "reports.export.pdf.not_on_plan": "PDF is not on your plan. CSV and XLSX work on every plan.",
+  "@reports.export.pdf.not_on_plan": {
+    "description": "S8.2 export sheet — the PDF row's line when the entitlement token's features lack pdf_output (ADR 2026-09-25 §5 🔒: no PDF output on Free; CSV/XLSX never restricted). The row stays, so the 🔒 three-format enumeration (ADR 2026-09-12 §1) is intact."
+  },
+  "reports.export.pdf.see_plans": "See plans",
+  "@reports.export.pdf.see_plans": {
+    "description": "Action beside the not-on-plan sentence: opens S12.1 Plans (07 §1 rule 6, no dead end)."
+  },
   "reports.export.saved": "Saved: {where}",
   "@reports.export.saved": {
     "description": "S8.2 — confirmation after an export, naming where the file landed. The file name only, never a figure or an account name (CLAUDE.md rule 4).",
@@ -10413,9 +10517,21 @@
       }
     }
   },
+  "subscription.plan.business": "Business",
+  "@subscription.plan.business": {
+    "description": "ADR 2026-09-25 §5 plan name, keyed by catalogue id."
+  },
+  "subscription.plan.business_plus": "Business+",
+  "@subscription.plan.business_plus": {
+    "description": "ADR 2026-09-25 §5 plan name, keyed by catalogue id."
+  },
   "subscription.plan.family": "Family",
   "@subscription.plan.family": {
     "description": "08 §2 tier name."
+  },
+  "subscription.plan.family_lite": "Family Lite",
+  "@subscription.plan.family_lite": {
+    "description": "ADR 2026-09-25 §5 plan name, keyed by catalogue id."
   },
   "subscription.plan.family_plus": "Family+",
   "@subscription.plan.family_plus": {
@@ -10429,9 +10545,25 @@
   "@subscription.plan.label": {
     "description": "S12 — the label above the tenant's current tier."
   },
+  "subscription.plan.other": "Another plan",
+  "@subscription.plan.other": {
+    "description": "A catalogue plan id this build has no name for (ADR 2026-09-25 §6: plans are server data). Never the server's English name column (CLAUDE.md rule 8)."
+  },
   "subscription.plan.personal": "Personal",
   "@subscription.plan.personal": {
     "description": "08 §2 tier name."
+  },
+  "subscription.plan.shop": "Shop",
+  "@subscription.plan.shop": {
+    "description": "ADR 2026-09-25 §5 plan name, keyed by catalogue id."
+  },
+  "subscription.plan.trust": "Trust",
+  "@subscription.plan.trust": {
+    "description": "ADR 2026-09-25 §5 plan name, keyed by catalogue id."
+  },
+  "subscription.plan.trust_plus": "Trust+",
+  "@subscription.plan.trust_plus": {
+    "description": "ADR 2026-09-25 §5 plan name, keyed by catalogue id."
   },
   "subscription.renewal.label": "Renews on",
   "@subscription.renewal.label": {

@@ -38,12 +38,17 @@ import '../designations.dart';
 import '../members_repository.dart';
 import '../widgets/invite_share_panel.dart';
 import '../widgets/membership_state_chip.dart';
+import '../widgets/plan_cap_notice.dart';
 
 class MembersScreen extends StatefulWidget {
-  const MembersScreen({super.key, this.onInvite});
+  const MembersScreen({super.key, this.onInvite, this.onOpenPlans});
 
   /// Opens S9.1. Null where the host has not wired the route yet.
   final VoidCallback? onInvite;
+
+  /// Opens S12.1 Plans when *Invite again* meets a plan cap (ADR 2026-09-05g
+  /// §6 🔒). Null → [PlanCapNotice]'s default, the ambient router.
+  final VoidCallback? onOpenPlans;
 
   @override
   State<MembersScreen> createState() => _MembersScreenState();
@@ -54,6 +59,10 @@ class _MembersScreenState extends State<MembersScreen> {
   bool _error = false;
   String? _reinviting;
   bool _reinviteError = false;
+
+  /// Why the last *Invite again* was refused, when the plan refused it — a
+  /// plain line and the door to Plans instead of the generic retry line.
+  MembersRefusal? _reinviteCap;
   bool _limitError = false;
 
   @override
@@ -86,10 +95,22 @@ class _MembersScreenState extends State<MembersScreen> {
     setState(() {
       _reinviting = m.id;
       _reinviteError = false;
+      _reinviteCap = null;
     });
     final CreatedInvite created;
     try {
       created = await repo.reinvite(m.id);
+    } on MembersFailure catch (e) {
+      // Nothing was created, so nothing is shared (ADR 2026-09-25 §2). A plan
+      // cap is terminal: say what is full and where to go, not "try again".
+      if (mounted) {
+        setState(() {
+          _reinviteCap = e.reason.isPlanCap ? e.reason : null;
+          _reinviteError = !e.reason.isPlanCap;
+          _reinviting = null;
+        });
+      }
+      return;
     } on Exception {
       // Nothing was created, so nothing is shared (ADR 2026-09-25 §2).
       if (mounted) {
@@ -285,6 +306,14 @@ class _MembersScreenState extends State<MembersScreen> {
                 onResend: () => _resend(m),
                 onEditLimit: (book, grant) => _editLimit(m, book, grant),
               ),
+          if (_reinviteCap case final cap?)
+            Padding(
+              padding: const EdgeInsets.only(top: RkSpace.s2),
+              child: PlanCapNotice(
+                refusal: cap,
+                onOpenPlans: widget.onOpenPlans,
+              ),
+            ),
           if (_reinviteError)
             Padding(
               padding: const EdgeInsets.only(top: RkSpace.s2),

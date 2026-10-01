@@ -591,12 +591,50 @@ Deno.test({
       "a share sealed to attempt A's key cannot be filed against attempt B",
     );
     assertEquals((await decide("g2", reqB, "approved", pubB)).code, "ok");
+    // B's share is its own row, addressed to candidate2 alone…
+    const [bRow] = await sql`select w.device_id from recovery_approvals a
+      join wrapped_keys w on w.id = a.wrapped_key_id
+      where a.request_id = ${reqB} and a.guardian_user_id = ${fx.g2}`;
+    assertEquals(
+      bRow.device_id,
+      fx.dev.candidate2,
+      "the share filed for B is addressed to candidate2",
+    );
+    // …and it is not readable on the table by anyone, candidate2 included (0020 restrictive policy;
+    // until 0020 candidate2 read it here at 1 of 2 approvals).
     const seenByB = await asApi(
       fx.subject,
       fx.dev.candidate2,
       (s) => s`select id from wrapped_keys where kind = 'recovery_blob'`,
     );
-    assertEquals(seenByB.length, 1, "candidate2 reads only the share addressed to candidate2");
+    assertEquals(seenByB.length, 0, "no recovery_blob is readable on the table (0020)");
+    // The release is rf.recovery_shares, for the attempt's own opener once approved. A is brought
+    // to `approved` FIRST, so that the claim pair is the only thing between candidate2 and A's
+    // shares: at 1 of 2 the WHEN gate alone would answer empty and the WHO gate would go untested.
+    // g3 files the second share (k = 2), and the 24 h wait that the subject's certified phone puts
+    // on A is run out. The opener then gets both shares, which is the positive control.
+    assertEquals((await decide("g3", reqA, "approved", fx.candidatePub)).code, "ok");
+    await sql`alter table recovery_approvals disable trigger recovery_approvals_guard`;
+    await sql`update recovery_approvals set created_at = now() - interval '25 hours'
+      where request_id = ${reqA}`;
+    await sql`alter table recovery_approvals enable trigger recovery_approvals_guard`;
+    const sharesOf = (user: string, device: string) =>
+      asApi(user, device, (s) => s`select * from rf.recovery_shares(${reqA}::uuid)`);
+    assertEquals(
+      (await sharesOf(fx.subject, fx.dev.candidate)).length,
+      2,
+      "A is approved: its opener gets both shares (the control)",
+    );
+    assertEquals(
+      (await sharesOf(fx.subject, fx.dev.candidate2)).length,
+      0,
+      "candidate2 is not A's opener",
+    );
+    assertEquals(
+      (await sharesOf(fx.stranger, fx.dev.candidate)).length,
+      0,
+      "A's device id under another user's claim is not A's opener either",
+    );
 
     // ---- a non-guardian cannot decide at all, and learns nothing by trying
     for (const who of ["bystander", "stranger"] as const) {
@@ -641,18 +679,35 @@ Deno.test({
     await decide("g1", req, "approved");
     await decide("g2", req, "approved");
 
-    // ---- the candidate device, uncertified, reads the shares addressed to it and nothing else
-    const toMe = await asApi(
+    // ---- the candidate device, uncertified, reads the shares addressed to it and nothing else,
+    //      and only once the attempt is approved. The subject's certified phone is live, so this
+    //      attempt waits 24 h (04 §7.3 step 6; ADR 2026-09-05d §1). Until 0020 the candidate read
+    //      both shares straight off the table at this point, inside the wait. The table now shows
+    //      a recovery_blob to nobody, and rf.recovery_shares is the release (E-06-70…E-06-76).
+    const onTable = await asApi(
       fx.subject,
       fx.dev.candidate,
-      (s) => s`select id, kind, blob from wrapped_keys`,
+      (s) => s`select id from wrapped_keys where kind = 'recovery_blob'`,
     );
-    assertEquals(toMe.length, 2, "exactly the two re-sealed shares");
-    assertEquals([...new Set(toMe.map((r) => r.kind))], ["recovery_blob"]);
+    assertEquals(onTable.length, 0, "no recovery_blob is readable on the table (0020)");
+    const release = () =>
+      asApi(
+        fx.subject,
+        fx.dev.candidate,
+        (s) => s`select * from rf.recovery_shares(${req}::uuid)`,
+      );
+    assertEquals((await release()).length, 0, "waiting_24h: nothing leaves");
+    await sql`alter table recovery_approvals disable trigger recovery_approvals_guard`;
+    await sql`update recovery_approvals set created_at = now() - interval '25 hours'
+      where request_id = ${req}`;
+    await sql`alter table recovery_approvals enable trigger recovery_approvals_guard`;
+    const toMe = await release();
+    assertEquals(toMe.length, 2, "exactly the two re-sealed shares, once approved");
     assert(toMe.every((r) => (r.blob as Uint8Array).length === 96), "opaque bytes, unchanged");
 
     // ---- nobody else reads them: not the guardians who sealed them, not a fellow member,
-    //      not another tenant, not the subject's OTHER device (0005: device_id = rf.device_id()).
+    //      not another tenant, not the subject's OTHER fresh phone, and (since 0020) not the
+    //      subject's own CERTIFIED device, which 0005's `or rf.is_certified()` arm used to let in.
     for (
       const [u, d] of [
         [fx.g1, fx.dev.g1],
@@ -660,6 +715,7 @@ Deno.test({
         [fx.bystander, fx.dev.bystander],
         [fx.stranger, fx.dev.stranger],
         [fx.subject, fx.dev.candidate2],
+        [fx.subject, fx.dev.subjectOld],
       ] as const
     ) {
       const rows = await asApi(
@@ -668,6 +724,12 @@ Deno.test({
         (s) => s`select id from wrapped_keys where kind = 'recovery_blob'`,
       );
       assertEquals(rows.length, 0, "a re-sealed share reaches one device only");
+      const released = await asApi(
+        u,
+        d,
+        (s) => s`select * from rf.recovery_shares(${req}::uuid)`,
+      );
+      assertEquals(released.length, 0, "and it is released to its opener alone");
     }
 
     // ---- the progress read is a tally, never a payload: no column of it carries bytes

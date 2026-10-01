@@ -24,12 +24,23 @@
 // This sheet stays reachable from the viewer beside the default that writes —
 // the half of ADR 2026-09-12c §1 that survives 12d. Both paths exist; neither
 // may become the only one.
+//
+// **The PDF row reads the plan** (ADR 2026-09-25 §5–§6 🔒, M13-CAT2): when the
+// entitlement token's `features` lack `pdf_output` the row **stays** — the
+// three-format enumeration is untouched — but it carries a lock and the
+// sentence *"PDF is not on your plan. CSV and XLSX work on every plan."*, and
+// a tap writes nothing: it closes the sheet and offers S12.1 Plans. CSV and
+// XLSX are never gated (ADR 25 §5: *"Export everything"*). See
+// `export/pdf_gate.dart`.
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/tokens.dart';
+import '../../subscription/subscription_paths.dart';
+import '../export/pdf_gate.dart';
 import '../export/report_export.dart';
 import 'file_name_message.dart';
 import 'reports_row.dart';
@@ -83,30 +94,112 @@ Future<void> runReportExport({
   }
 }
 
+/// The primary action's path (ADR 2026-09-12d §2 🔒): write the **PDF** with
+/// no sheet in between — when the plan includes PDF output.
+///
+/// ⚠️ SPEC (M13-CAT2): ADR 2026-09-25 §5 🔒 takes PDF output away from Free
+/// but does not say what the one-tap default does there. Conservative
+/// reading: it writes nothing it may not, and is not a dead end either — it
+/// opens the format sheet, where the PDF row says why and CSV/XLSX are one
+/// tap away. S4's statement (`features/ledger`) should take the same path;
+/// until it does, its default still writes PDF (lane report, open item).
+Future<void> runReportDefaultExport(
+  BuildContext context, {
+  required Future<ReportFile> Function(ReportFormat format) buildFile,
+  required ReportSink sink,
+}) async {
+  final l10n = AppLocalizations.of(context);
+  final messenger = ScaffoldMessenger.of(context);
+  final included = await reportPdfIncluded(reportEntitlementOf(context));
+  if (!context.mounted) return;
+  if (!included) {
+    await showReportExportSheet(
+      context,
+      buildFile: buildFile,
+      sink: sink,
+      pdfIncluded: false,
+    );
+    return;
+  }
+  await runReportExport(
+    l10n: l10n,
+    messenger: messenger,
+    format: ReportFormat.pdf,
+    buildFile: buildFile,
+    sink: sink,
+  );
+}
+
 /// Opens the export sheet over [context].
 ///
 /// [buildFile] generates the report in the chosen format — every one of the
 /// three at M5 (ADR 2026-09-12e §1 🔒).
 /// [sink] takes the finished bytes and reports which [ReportDelivery]
 /// happened — shared, or saved and named (an export is never silent).
+/// [pdfIncluded] is read from the entitlement ([reportPdfIncluded]) when not
+/// given — **before** the sheet opens, from [context], because a modal
+/// sheet's own context sits beside the screen, not under it.
 Future<void> showReportExportSheet(
   BuildContext context, {
   required Future<ReportFile> Function(ReportFormat format) buildFile,
   required ReportSink sink,
-}) {
-  return showModalBottomSheet<void>(
+  bool? pdfIncluded,
+}) async {
+  final included =
+      pdfIncluded ?? await reportPdfIncluded(reportEntitlementOf(context));
+  if (!context.mounted) return;
+  final router = GoRouter.maybeOf(context);
+  await showModalBottomSheet<void>(
     context: context,
     showDragHandle: true,
     isScrollControlled: true,
-    builder: (sheetContext) => _ExportSheet(buildFile: buildFile, sink: sink),
+    builder: (sheetContext) => _ExportSheet(
+      buildFile: buildFile,
+      sink: sink,
+      pdfIncluded: included,
+      onSeePlans: router == null
+          ? null
+          : () => router.push(SubscriptionPaths.plans),
+    ),
   );
 }
 
 class _ExportSheet extends StatelessWidget {
-  const _ExportSheet({required this.buildFile, required this.sink});
+  const _ExportSheet({
+    required this.buildFile,
+    required this.sink,
+    required this.pdfIncluded,
+    required this.onSeePlans,
+  });
 
   final Future<ReportFile> Function(ReportFormat format) buildFile;
   final ReportSink sink;
+
+  /// Whether the token's `features` hold `pdf_output`.
+  final bool pdfIncluded;
+
+  /// Opens S12.1, when a router is there to open it.
+  final VoidCallback? onSeePlans;
+
+  /// The shut PDF row's tap: nothing is written. The sheet closes and the
+  /// reason stays on screen with the way to a plan that includes PDF.
+  void _pdfNotOnPlan(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final seePlans = onSeePlans;
+    Navigator.of(context).pop();
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(l10n.reportsExportPdfNotOnPlan),
+        action: seePlans == null
+            ? null
+            : SnackBarAction(
+                label: l10n.reportsExportPdfSeePlans,
+                onPressed: seePlans,
+              ),
+      ),
+    );
+  }
 
   void _export(BuildContext context, ReportFormat format) {
     // Everything that needs the tree is read before the sheet closes: its own
@@ -148,12 +241,22 @@ class _ExportSheet extends StatelessWidget {
             ),
             // 1 of 3 — PDF: first by the 🔒 order, and the format the primary
             // action writes without asking (ADR 2026-09-12d §2–§3 🔒).
-            ReportsActionRow(
-              title: l10n.reportsExportPdf,
-              description: l10n.reportsExportPdfDescription,
-              icon: Icons.picture_as_pdf_outlined,
-              onTap: () => _export(context, ReportFormat.pdf),
-            ),
+            // Shut by plan (ADR 2026-09-25 §5 🔒): still the first row, now
+            // with a lock and the reason in words (07 §1 rules 3 and 6).
+            if (pdfIncluded)
+              ReportsActionRow(
+                title: l10n.reportsExportPdf,
+                description: l10n.reportsExportPdfDescription,
+                icon: Icons.picture_as_pdf_outlined,
+                onTap: () => _export(context, ReportFormat.pdf),
+              )
+            else
+              ReportsActionRow(
+                title: l10n.reportsExportPdf,
+                description: l10n.reportsExportPdfNotOnPlan,
+                icon: Icons.lock_outline,
+                onTap: () => _pdfNotOnPlan(context),
+              ),
             // 2 of 3 — CSV, the machine-readable copy.
             ReportsActionRow(
               title: l10n.reportsExportCsv,

@@ -59,8 +59,13 @@ final class FakeImportSource implements ImportSource {
   /// Every `(bankKey, mapping)` [rememberMapping] was called with, in order.
   final List<(String, ColumnMapping)> rememberedCalls = [];
 
+  /// How many times [pickAccount] was asked — the first question S7 puts
+  /// once past its plan gate, so a shut gate is observable (F1-25-14).
+  int pickAccountCalls = 0;
+
   @override
   Future<List<ImportAccount>> pickAccount(String bookId) async {
+    pickAccountCalls++;
     if (loadDelay != null) await Future<void>.delayed(loadDelay!);
     if (failAccounts) throw StateError('no accounts');
     return accounts;

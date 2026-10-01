@@ -177,5 +177,9 @@
   "reports.amount_words.rupees_paise_only": "रुपये {rupees} और पैसे {paise} पूरे",
   "reports.statement.closing_cd": "अंतिम बाकी c/d",
   "reports.statement.opening_bd": "शुरुआती बाकी b/d",
-  "reports.statement.closing_words.label": "अंतिम बाकी शब्दों में"
+  "reports.statement.closing_words.label": "अंतिम बाकी शब्दों में",
+  "reports.export.pdf.not_on_plan": "PDF आपके प्लान में नहीं है। CSV और XLSX हर प्लान पर चलते हैं।",
+  "@reports.export.pdf.not_on_plan": {"description": "machine-draft — native review M12"},
+  "reports.export.pdf.see_plans": "प्लान देखें",
+  "@reports.export.pdf.see_plans": {"description": "machine-draft — native review M12"}
 }

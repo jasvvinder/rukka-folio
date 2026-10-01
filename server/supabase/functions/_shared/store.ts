@@ -273,6 +273,20 @@ export interface RecoveryAsk {
   my_decision: string | null;
 }
 
+/** 04 §7.3 step 4 (0020 `rf.recovery_shares`): one guardian's share, re-sealed to the attempt's
+ *  candidate key, as released to the phone that opened the attempt once it is approved. `blob` is
+ *  the `crypto_box_seal` output the guardian filed, byte-for-byte; the server never opens it. The
+ *  addressing fields are the ones core_crypto's `ResealedShare` is built from. */
+export interface RecoveryShare {
+  wrapped_key_id: string;
+  guardian_user_id: string;
+  candidate_device: string;
+  sealed_to_pub_x: Uint8Array;
+  share_set_version: number;
+  blob: Uint8Array;
+  approved_at: Date;
+}
+
 /** 06 §7: what a joining device may learn about an invite addressed to its OWN number — at `sent`,
  *  or accepted by the caller, inside the invite's 7-day window (ADR 2026-09-25b §2, 0015). */
 export interface InviteOffer {
@@ -397,6 +411,12 @@ export interface Tx {
   recoveryCancel(request: string): Promise<void>;
   /** The caller's own attempts — what the candidate device polls. */
   myRecoveryRequests(): Promise<RecoveryRequest[]>;
+  /** 04 §7.3 step 4 (0020): the re-sealed shares of ONE attempt, for the caller that OPENED it
+   *  (user AND candidate device, live, not suspended, user not erased), and only once the derived
+   *  state is `approved` (k approvals, the 24 h wait of ADR 2026-09-05d §1 run out, not cancelled,
+   *  not closed). Empty, identically, for every other caller and every other state: never an
+   *  error, so nothing distinguishes "not yours" from "does not exist". */
+  recoveryShares(request: string): Promise<RecoveryShare[]>;
   /** ADR 2026-09-24b §3 🔒 (amends ADR 2026-09-05d §2 by one read): does the CALLER's own user
    *  have a current guardian set — one boolean, deliberately NOT gated on certification, so the
    *  uncertified phone on S11.6 can tell rung 2's `noTrustedMembers` from `unknown`. Takes no

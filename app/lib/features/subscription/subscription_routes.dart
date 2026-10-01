@@ -26,6 +26,7 @@ import 'package:go_router/go_router.dart';
 import '../../shared/app_scope.dart';
 import 'entitlement_source.dart';
 import 'invoice_source.dart';
+import 'plan_catalogue_source.dart';
 import 'screens/s12_1_plans_screen.dart';
 import 'screens/s12_3_manage_screen.dart';
 import 'screens/s12_4_payment_problem_screen.dart';
@@ -39,6 +40,7 @@ import 'tier_catalogue.dart';
 export 'dunning_grace.dart';
 export 'entitlement_source.dart';
 export 'invoice_source.dart';
+export 'plan_catalogue_source.dart';
 export 'screens/s12_1_plans_screen.dart';
 export 'screens/s12_3_manage_screen.dart';
 export 'screens/s12_4_payment_problem_screen.dart';
@@ -67,6 +69,7 @@ final List<RouteBase> subscriptionRoutes = [
         builder: (context, state) => PlansScreen(
           source: entitlementSourceOf(context),
           channel: rkCheckoutChannelOf(context),
+          catalogue: planCatalogueSourceOf(context),
         ),
       ),
       GoRoute(

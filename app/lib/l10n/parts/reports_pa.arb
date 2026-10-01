@@ -177,5 +177,9 @@
   "reports.amount_words.rupees_paise_only": "ਰੁਪਏ {rupees} ਅਤੇ ਪੈਸੇ {paise} ਪੂਰੇ",
   "reports.statement.closing_cd": "ਅੰਤਿਮ ਬਾਕੀ c/d",
   "reports.statement.opening_bd": "ਸ਼ੁਰੂਆਤੀ ਬਾਕੀ b/d",
-  "reports.statement.closing_words.label": "ਅੰਤਿਮ ਬਾਕੀ ਸ਼ਬਦਾਂ ਵਿੱਚ"
+  "reports.statement.closing_words.label": "ਅੰਤਿਮ ਬਾਕੀ ਸ਼ਬਦਾਂ ਵਿੱਚ",
+  "reports.export.pdf.not_on_plan": "PDF ਤੁਹਾਡੇ ਪਲਾਨ ਵਿੱਚ ਨਹੀਂ ਹੈ। CSV ਅਤੇ XLSX ਹਰ ਪਲਾਨ ਉੱਤੇ ਚੱਲਦੇ ਹਨ।",
+  "@reports.export.pdf.not_on_plan": {"description": "machine-draft — native review M12"},
+  "reports.export.pdf.see_plans": "ਪਲਾਨ ਵੇਖੋ",
+  "@reports.export.pdf.see_plans": {"description": "machine-draft — native review M12"}
 }

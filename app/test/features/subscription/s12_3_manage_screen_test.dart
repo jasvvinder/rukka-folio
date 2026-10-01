@@ -19,10 +19,13 @@ Entitlement _reading({
   EntitlementSourceKind source = EntitlementSourceKind.fresh,
   int activeMembers = 3,
   DateTime? periodEnd,
+  EntitlementLimits? limits,
+  List<String>? features,
 }) => Entitlement(
   tenantId: 't1',
   plan: plan,
-  limits: rkTierFor(plan).limits,
+  limits: limits ?? rkTierFor(plan).limits,
+  features: features ?? rkTierFor(plan).features,
   periodEnd: periodEnd ?? DateTime(2026, 10, 1),
   graceKind: grace,
   source: source,
@@ -70,11 +73,14 @@ void main() {
         expect(find.text(l10n.subscriptionPlanFamily), findsOneWidget);
         expect(find.text(l10n.subscriptionRenewalLabel), findsOneWidget);
         expect(find.text('01 Oct 2026'), findsOneWidget);
-        expect(find.text(l10n.subscriptionMembersValue(3, 5)), findsOneWidget);
-
-        // "What is included" — the tier catalogue's quota lines, not numbers
-        // typed into the screen.
         final family = rkTierFor(RkPlan.family);
+        expect(
+          find.text(l10n.subscriptionMembersValue(3, family.limits.members!)),
+          findsOneWidget,
+        );
+
+        // "What is included" — the reading's quota lines, not numbers typed
+        // into the screen.
         expect(find.text(l10n.manageIncludedLabel), findsOneWidget);
         expect(
           find.text(l10n.plansLimitMembers(family.limits.members!)),
@@ -84,7 +90,42 @@ void main() {
           find.text(l10n.plansLimitBooks(family.limits.businessBooks!)),
           findsOneWidget,
         );
-        expect(find.text(l10n.plansLimitExportsClean), findsOneWidget);
+        expect(find.text(l10n.plansFeaturePdfIncluded), findsOneWidget);
+        expect(find.text(l10n.plansFeatureImportIncluded), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'F1-25-11 what is included is the TOKEN\'s limits and features, not the '
+      'catalogue row of the same name (ADR 2026-09-25 §6)',
+      (tester) async {
+        final l10n = await AppLocalizations.delegate.load(const Locale('en'));
+        // A Family token whose limits and extras differ from the catalogue's
+        // Family row — the server moved a feature, and the app follows the
+        // token at the next sync without a release.
+        await _pump(
+          tester,
+          commands: FakeSubscriptionCommands(),
+          entitlement: _reading(
+            limits: const EntitlementLimits(
+              members: 7,
+              businessBooks: 0,
+              devices: 3,
+              envelopesPerBook: 1,
+              tenantBytes: 3 << 30,
+              attachmentBytes: 1,
+              perFileBytes: rkPerFileBytes,
+            ),
+            features: const ['statement_import'],
+          ),
+        );
+        expect(find.text(l10n.plansLimitMembers(7)), findsOneWidget);
+        expect(find.text(l10n.plansLimitBooks(0)), findsOneWidget);
+        expect(find.text(l10n.plansLimitDevices(3)), findsOneWidget);
+        expect(find.text(l10n.plansLimitStorageGb(3)), findsOneWidget);
+        expect(find.text(l10n.plansFeaturePdfNone), findsOneWidget);
+        expect(find.text(l10n.plansFeatureImportIncluded), findsOneWidget);
+        expect(find.text(l10n.plansFeaturePdfIncluded), findsNothing);
       },
     );
 
@@ -137,7 +178,15 @@ void main() {
         // … without hiding a figure: plan, renewal date and members stay.
         expect(find.text(l10n.subscriptionPlanFamily), findsOneWidget);
         expect(find.text('01 Oct 2026'), findsWidgets);
-        expect(find.text(l10n.subscriptionMembersValue(3, 5)), findsOneWidget);
+        expect(
+          find.text(
+            l10n.subscriptionMembersValue(
+              3,
+              rkTierFor(RkPlan.family).limits.members!,
+            ),
+          ),
+          findsOneWidget,
+        );
       },
     );
 

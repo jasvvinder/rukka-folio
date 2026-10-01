@@ -124,5 +124,13 @@
   "invite.nolink.title": "ਸੱਦਾ ਬਣ ਗਿਆ",
   "@invite.nolink.title": {"description": "machine-draft — native review M12"},
   "invite.nolink.body": "ਐਪ ਦਾ ਇਹ ਰੂਪ ਹਾਲੇ ਇਸਦਾ ਲਿੰਕ ਨਹੀਂ ਬਣਾ ਸਕਦਾ, ਇਸ ਲਈ ਹੁਣ ਉਹਨਾਂ ਨੂੰ ਭੇਜਣ ਲਈ ਕੁਝ ਨਹੀਂ ਹੈ। ਮੈਂਬਰਾਂ ਵਿੱਚ ਇਹ ਸੱਦੇ ਵਜੋਂ ਦਿਸਦਾ ਹੈ।",
-  "@invite.nolink.body": {"description": "machine-draft — native review M12"}
+  "@invite.nolink.body": {"description": "machine-draft — native review M12"},
+  "invite.cap.seats": "ਤੁਹਾਡੇ ਪਲਾਨ ਵਿੱਚ ਹੋਰ ਮੈਂਬਰ ਲਈ ਥਾਂ ਨਹੀਂ ਹੈ। ਕਿਸੇ ਨੂੰ ਸੱਦਣ ਲਈ, ਪਲਾਨ ਵਿੱਚੋਂ ਵੱਧ ਮੈਂਬਰਾਂ ਵਾਲਾ ਪਲਾਨ ਚੁਣੋ।",
+  "@invite.cap.seats": {"description": "machine-draft — native review M12"},
+  "invite.cap.rotation": "ਤੁਹਾਡਾ ਪਲਾਨ ਇੱਕ ਸਾਲ ਵਿੱਚ ਜਿੰਨੇ ਵੱਖ-ਵੱਖ ਲੋਕ ਜੋੜਨ ਦਿੰਦਾ ਹੈ, ਤੁਸੀਂ ਓਨੇ ਜੋੜ ਚੁੱਕੇ ਹੋ। ਕਿਸੇ ਨਵੇਂ ਨੂੰ ਸੱਦਣ ਲਈ, ਪਲਾਨ ਵਿੱਚੋਂ ਵੱਧ ਮੈਂਬਰਾਂ ਵਾਲਾ ਪਲਾਨ ਚੁਣੋ।",
+  "@invite.cap.rotation": {"description": "machine-draft — native review M12"},
+  "invite.cap.books": "ਤੁਹਾਡੇ ਪਲਾਨ ਵਿੱਚ ਹੋਰ ਕਾਰੋਬਾਰੀ ਵਹੀ ਲਈ ਥਾਂ ਨਹੀਂ ਹੈ। ਇੱਕ ਹੋਰ ਜੋੜਨ ਲਈ, ਪਲਾਨ ਵਿੱਚੋਂ ਵੱਧ ਕਾਰੋਬਾਰੀ ਵਹੀਆਂ ਵਾਲਾ ਪਲਾਨ ਚੁਣੋ।",
+  "@invite.cap.books": {"description": "machine-draft — native review M12"},
+  "invite.cap.plans": "ਪਲਾਨ ਵੇਖੋ",
+  "@invite.cap.plans": {"description": "machine-draft — native review M12"}
 }

@@ -124,5 +124,13 @@
   "invite.nolink.title": "बुलावा बन गया",
   "@invite.nolink.title": {"description": "machine-draft — native review M12"},
   "invite.nolink.body": "ऐप का यह रूप अभी इसका लिंक नहीं बना सकता, इसलिए अभी उन्हें भेजने को कुछ नहीं है। सदस्यों में यह बुलाए गए के रूप में दिखता है।",
-  "@invite.nolink.body": {"description": "machine-draft — native review M12"}
+  "@invite.nolink.body": {"description": "machine-draft — native review M12"},
+  "invite.cap.seats": "आपके प्लान में और सदस्य के लिए जगह नहीं है। किसी को बुलाने के लिए, प्लान में से ज़्यादा सदस्यों वाला प्लान चुनें।",
+  "@invite.cap.seats": {"description": "machine-draft — native review M12"},
+  "invite.cap.rotation": "आपका प्लान एक साल में जितने अलग-अलग लोग जोड़ने देता है, आप उतने जोड़ चुके हैं। किसी नए को बुलाने के लिए, प्लान में से ज़्यादा सदस्यों वाला प्लान चुनें।",
+  "@invite.cap.rotation": {"description": "machine-draft — native review M12"},
+  "invite.cap.books": "आपके प्लान में और कारोबारी बही के लिए जगह नहीं है। एक और जोड़ने के लिए, प्लान में से ज़्यादा कारोबारी बहियों वाला प्लान चुनें।",
+  "@invite.cap.books": {"description": "machine-draft — native review M12"},
+  "invite.cap.plans": "प्लान देखें",
+  "@invite.cap.plans": {"description": "machine-draft — native review M12"}
 }

@@ -17,16 +17,71 @@ import '../../l10n/gen/app_localizations.dart';
 import '../../shared/theme.dart';
 import '../../shared/widgets/rk_restriction.dart';
 import 'entitlement_source.dart';
+import 'tier_catalogue.dart';
 
-/// Tier names (08 §2) in the ambient locale.
+/// Plan names in the ambient locale, keyed by **catalogue id** (ADR
+/// 2026-09-25 §6). Never the catalogue's `name` column, which is the owner's
+/// English console label (CLAUDE.md rule 8). An id this build has no words
+/// for reads as *Another plan* — shown, never a crash.
 extension RkPlanCopy on RkPlan {
   /// This plan's name.
-  String name(AppLocalizations l) => switch (this) {
-    RkPlan.free => l.subscriptionPlanFree,
-    RkPlan.personal => l.subscriptionPlanPersonal,
-    RkPlan.family => l.subscriptionPlanFamily,
-    RkPlan.familyPlus => l.subscriptionPlanFamilyPlus,
+  String name(AppLocalizations l) => switch (id) {
+    'free' => l.subscriptionPlanFree,
+    'personal' => l.subscriptionPlanPersonal,
+    'shop' => l.subscriptionPlanShop,
+    'business' => l.subscriptionPlanBusiness,
+    'business_plus' => l.subscriptionPlanBusinessPlus,
+    'family_lite' => l.subscriptionPlanFamilyLite,
+    'family' => l.subscriptionPlanFamily,
+    'family_plus' => l.subscriptionPlanFamilyPlus,
+    'trust' => l.subscriptionPlanTrust,
+    'trust_plus' => l.subscriptionPlanTrustPlus,
+    _ => l.subscriptionPlanOther,
   };
+}
+
+/// A plan's "what is included" lines, in plain words (DESIGN-PACK §11 S12.1
+/// 🔒: *"not a spec table"*): members, books, phones, space, then the two
+/// extras ADR 2026-09-25 §5 lets a plan differ by — each said **both ways**,
+/// so a plan without PDF says what still works rather than going quiet.
+///
+/// S12.1 passes a catalogue row's limits and features (describing a plan);
+/// S12.3 passes the token's (what this tenant holds). Not one number is
+/// written here.
+List<String> rkIncludedLines(
+  AppLocalizations l,
+  EntitlementLimits limits,
+  List<String> features,
+) {
+  // A null count is unlimited (`-1` on the wire, ADR 2026-09-24b §7 (b) 🔒)
+  // — said as such, never as a small number.
+  final members = limits.members;
+  final devices = limits.devices;
+  final bytes = limits.tenantBytes;
+  final storage = bytes == null ? null : rkStorageOf(bytes);
+  bool has(RkFeature f) => features.contains(f.wire);
+  return [
+    members == null
+        ? l.plansLimitMembersUnlimited
+        : l.plansLimitMembers(members),
+    limits.businessBooks == null
+        ? l.plansLimitBooksUnlimited
+        : l.plansLimitBooks(limits.businessBooks!),
+    devices == null
+        ? l.plansLimitDevicesUnlimited
+        : l.plansLimitDevices(devices),
+    switch (storage) {
+      null => l.plansLimitStorageUnlimited,
+      (gigabytes: true, :final amount) => l.plansLimitStorageGb(amount),
+      (gigabytes: false, :final amount) => l.plansLimitStorageMb(amount),
+    },
+    has(RkFeature.pdfOutput)
+        ? l.plansFeaturePdfIncluded
+        : l.plansFeaturePdfNone,
+    has(RkFeature.statementImport)
+        ? l.plansFeatureImportIncluded
+        : l.plansFeatureImportNone,
+  ];
 }
 
 /// State words, icon and tint (13 §6).

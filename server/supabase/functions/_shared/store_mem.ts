@@ -32,6 +32,7 @@ import {
   type RecoveryAsk,
   type RecoveryProgress,
   type RecoveryRequest,
+  type RecoveryShare,
   type RecoverySheet,
   type RefreshToken,
   rowId,
@@ -547,7 +548,12 @@ class MemTx implements Tx {
       case "device_certs":
         return this.deviceVisible(r.device_id as string);
       case "wrapped_keys":
-        return r.user_id === this.me && (r.device_id === this.dev || this.isCertified());
+        // 0020's restrictive policy: a recovery_blob is never visible on the table, to anyone. It
+        // leaves only through recoveryShares, once its attempt is approved.
+        // ⚠️ SPEC (0020 header (d)): 05 §5 🔒 lists wrapped_keys on the meta channel with no such
+        // exception. The doc line is the owner's to write.
+        return r.kind !== "recovery_blob" && r.user_id === this.me &&
+          (r.device_id === this.dev || this.isCertified());
       case "invites":
       case "verification_events":
       case "subscriptions":
@@ -1077,14 +1083,21 @@ class MemTx implements Tx {
     const cancelled = this.db.recovery_cancellations.find((c) => c.request_id === r.id);
     const k = set.k as number;
     const kth = approved.length >= k ? (approved[k - 1].created_at as Date) : null;
-    const wait = r.state === "waiting_24h" && kth ? new Date(kth.getTime() + 24 * 3600_000) : null;
+    // 0020 (ADR 2026-09-05d §1 🔒, 04 §7.3 step 6 🔒, asked at completion): the wait applies when
+    // the attempt opened behind a live certified device OR the user has one NOW. Only tightened.
+    const alarmsNow = [...this.db.devices.values()].some((x) =>
+      x.user_id === r.user_id && x.id !== r.candidate_device && x.status === "certified" &&
+      !x.revoked_at
+    );
+    const ladder = r.state === "waiting_24h" || alarmsNow ? "waiting_24h" : r.state as string;
+    const wait = ladder === "waiting_24h" && kth ? new Date(kth.getTime() + 24 * 3600_000) : null;
     let state: string;
     if (cancelled) state = "cancelled";
     else if (denials >= 3) state = "expired"; // 04 §7.3 step 7
     else if (approved.length >= k) {
       state = !wait || this.now >= wait ? "approved" : "waiting_24h";
     } else if (this.now >= (r.expires_at as Date)) state = "expired";
-    else state = r.state as string;
+    else state = ladder;
     return {
       request_id: r.id as string,
       user_id: r.user_id as string,
@@ -1167,6 +1180,50 @@ class MemTx implements Tx {
         )
         .map((r) => this.recoveryRow(r)),
     );
+  }
+  /** rf.recovery_shares (0020) in TypeScript — 04 §7.3 step 4. WHO: the caller that opened the
+   *  attempt (user AND candidate device), on a device that is live and not suspended, for a user who
+   *  is not erased. WHEN: the derived state is `approved`. WHAT: this attempt's own approvals,
+   *  declared sealed to its candidate key, joined to recovery_blob rows addressed to its candidate
+   *  device and not revoked. Everything else is the same empty array. */
+  recoveryShares(request: string): Promise<RecoveryShare[]> {
+    const none = Promise.resolve([] as RecoveryShare[]);
+    const r = this.db.recovery_requests.find((x) => x.id === request);
+    if (!r || !this.me || !this.dev) return none;
+    if (r.user_id !== this.me || r.candidate_device !== this.dev) return none;
+    const u = this.db.users.get(this.me);
+    const d = this.db.devices.get(this.dev);
+    if (!u || u.erased_at || !d || d.user_id !== this.me) return none;
+    if (d.status === "revoked" || d.status === "suspended" || d.revoked_at) return none;
+    if (this.derive(r).state !== "approved") return none;
+    const out: RecoveryShare[] = [];
+    const approvals = this.db.recovery_approvals
+      .filter((a) =>
+        a.request_id === r.id && a.decision === "approved" &&
+        a.share_set_version === r.share_set_version &&
+        bytesEqual(a.sealed_to_pub_x as Uint8Array, r.candidate_pub_x as Uint8Array)
+      )
+      .sort((a, b) =>
+        (a.created_at as Date).getTime() - (b.created_at as Date).getTime() ||
+        String(a.guardian_user_id).localeCompare(String(b.guardian_user_id))
+      );
+    for (const a of approvals) {
+      const w = this.db.wrapped_keys.find((k) => k.id === a.wrapped_key_id);
+      if (
+        !w || w.kind !== "recovery_blob" || w.user_id !== r.user_id ||
+        w.device_id !== r.candidate_device || w.revoked_at
+      ) continue;
+      out.push({
+        wrapped_key_id: w.id as string,
+        guardian_user_id: a.guardian_user_id as string,
+        candidate_device: w.device_id as string,
+        sealed_to_pub_x: a.sealed_to_pub_x as Uint8Array,
+        share_set_version: a.share_set_version as number,
+        blob: w.blob as Uint8Array,
+        approved_at: a.created_at as Date,
+      });
+    }
+    return Promise.resolve(out);
   }
   /** rf.has_guardian_set (0016) in TypeScript — ADR 2026-09-24b §3 🔒. Deliberately NOT gated on
    *  isCertified(); bounded instead to the caller's own user, a LIVE device of that user (0010's
