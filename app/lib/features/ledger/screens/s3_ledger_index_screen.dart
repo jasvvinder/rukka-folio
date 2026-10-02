@@ -109,7 +109,20 @@ class _LedgerIndexScreenState extends State<LedgerIndexScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.ledgerTitle)),
+      appBar: AppBar(
+        title: Text(l10n.ledgerTitle),
+        // S21 (07 §25, 13 §3.2: reached from S3). The header field above the
+        // list filters this index in place; the button opens the search that
+        // also reaches parties' and entries' notes.
+        actions: [
+          if (widget.onOpenSearch != null)
+            IconButton(
+              tooltip: l10n.ledgerSearchTitle,
+              icon: const Icon(Icons.search),
+              onPressed: widget.onOpenSearch,
+            ),
+        ],
+      ),
       body: SafeArea(
         child: _resolveError != null
             ? _ErrorState(text: l10n.ledgerListError, onRetry: _retry)

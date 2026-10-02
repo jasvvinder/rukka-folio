@@ -159,24 +159,29 @@
   },
   "ledger.statement.fy": "FY {year}",
   "@ledger.statement.fy": {
-    "description": "S4 statement \u2014 the financial year the statement covers, e.g. FY 2026-27 (02 \u00a78.1, ADR 2026-09-09 \u00a74). Plain text until the first year close; a chip after it.",
-    "placeholders": { "year": { "type": "String", "example": "2026-27" } }
+    "description": "S4 statement — the financial year the statement covers, e.g. FY 2026-27 (02 §8.1, ADR 2026-09-09 §4). Plain text until the first year close; a chip after it.",
+    "placeholders": {
+      "year": {
+        "type": "String",
+        "example": "2026-27"
+      }
+    }
   },
   "ledger.statement.fy_change": "Change financial year",
   "@ledger.statement.fy_change": {
-    "description": "S4 statement \u2014 semantic label and sheet title for the FY switcher chip (ADR 2026-09-09 \u00a74). Only ever shown once a year has closed."
+    "description": "S4 statement — semantic label and sheet title for the FY switcher chip (ADR 2026-09-09 §4). Only ever shown once a year has closed."
   },
   "ledger.statement.fy_certified": "Certified",
   "@ledger.statement.fy_certified": {
-    "description": "S4 statement \u2014 badge copy on a closed financial year (02 \u00a78.1: copy, not a state, 13 \u00a76). Always beside the tick, never colour alone (07 \u00a71)."
+    "description": "S4 statement — badge copy on a closed financial year (02 §8.1: copy, not a state, 13 §6). Always beside the tick, never colour alone (07 §1)."
   },
   "ledger.statement.fy_open": "Still open",
   "@ledger.statement.fy_open": {
-    "description": "S4 statement \u2014 the year that has not been closed yet, in the FY switcher sheet."
+    "description": "S4 statement — the year that has not been closed yet, in the FY switcher sheet."
   },
   "ledger.statement.fy_carried": "Carried forward to next year",
   "@ledger.statement.fy_carried": {
-    "description": "S4 statement \u2014 in the FY switcher sheet, labels the b/f a closed year hands to the next (ADR 2026-09-09 \u00a74)."
+    "description": "S4 statement — in the FY switcher sheet, labels the b/f a closed year hands to the next (ADR 2026-09-09 §4)."
   },
   "ledger.statement.empty": "No entries on this account yet",
   "@ledger.statement.empty": {
@@ -412,23 +417,94 @@
   "@ledger.statement.count.last": {
     "description": "S4 A/C statement header line when the last count recorded a denomination sheet — 02 §8.2 🔒 form: *Last counted 27 Aug · 20×500, 15×200, 25×100 …*. Without a sheet the header shows count.last_counted alone. Date pre-formatted (07 §1 rule 5); breakdown is the joined ledger.statement.count.note items.",
     "placeholders": {
-      "date": {"type": "String"},
-      "breakdown": {"type": "String"}
+      "date": {
+        "type": "String"
+      },
+      "breakdown": {
+        "type": "String"
+      }
     }
   },
   "ledger.statement.count.note": "{count}×{value}",
   "@ledger.statement.count.note": {
     "description": "S4 A/C statement header — one denomination group of the last count, e.g. 20×500 (02 §8.2 🔒). Both parts are Latin numerals in every locale (11 §4.4).",
     "placeholders": {
-      "count": {"type": "String"},
-      "value": {"type": "String"}
+      "count": {
+        "type": "String"
+      },
+      "value": {
+        "type": "String"
+      }
     }
   },
   "ledger.statement.count.coins": "{amount} in coins",
   "@ledger.statement.count.coins": {
     "description": "S4 A/C statement header — the coins part of the last count's sheet, appended to the note groups so the breakdown adds up to the counted total. Amount pre-formatted.",
     "placeholders": {
-      "amount": {"type": "String"}
+      "amount": {
+        "type": "String"
+      }
     }
+  },
+  "ledger.search.title": "Search",
+  "@ledger.search.title": {
+    "description": "S21 search screen title (07 §25); also the tooltip of the S3 app-bar search button that opens it."
+  },
+  "ledger.search.field_hint": "Search accounts, parties, notes",
+  "@ledger.search.field_hint": {
+    "description": "S21 search field hint (07 §25: across accounts, parties and notes)."
+  },
+  "ledger.search.clear": "Clear search",
+  "@ledger.search.clear": {
+    "description": "S21 tooltip/screen-reader label of the clear (x) button in the search field."
+  },
+  "ledger.search.empty_query": "Type a name, or a few words from a note.",
+  "@ledger.search.empty_query": {
+    "description": "S21 empty-query state (13 §4.3): what to do next before anything is typed."
+  },
+  "ledger.search.no_results": "Nothing matches \"{query}\"",
+  "@ledger.search.no_results": {
+    "description": "S21 no-results state; the create row below it is the way on (07 §6, 07 §1 no dead ends).",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.search.skeleton": "Loading accounts and notes",
+  "@ledger.search.skeleton": {
+    "description": "S21 loading skeleton, announced to screen readers (11 §4.5)."
+  },
+  "ledger.search.error": "Couldn't search your books",
+  "@ledger.search.error": {
+    "description": "S21 error state; a Try again button follows (13 §4.3)."
+  },
+  "ledger.search.section.parties": "Parties",
+  "@ledger.search.section.parties": {
+    "description": "S21 results group header: party accounts whose name matched."
+  },
+  "ledger.search.section.accounts": "Accounts",
+  "@ledger.search.section.accounts": {
+    "description": "S21 results group header: money, category and system accounts whose name matched."
+  },
+  "ledger.search.section.notes": "In notes",
+  "@ledger.search.section.notes": {
+    "description": "S21 results group header: entries whose note (the user's own words) matched."
+  },
+  "ledger.search.note_meta": "{date} · {note}",
+  "@ledger.search.note_meta": {
+    "description": "S21 note-hit row second line: the entry's date (pre-formatted) and its note as typed.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.search.under_review": "Under review",
+  "@ledger.search.under_review": {
+    "description": "S21 note-hit status beside the amber clock while the entry's review flag is open (02 §3)."
   }
 }

@@ -100,5 +100,17 @@
   "ledger.statement.count.again": "ਦੁਬਾਰਾ ਗਿਣੋ",
   "ledger.statement.count.last": "ਆਖ਼ਰੀ ਗਿਣਤੀ {date} · {breakdown}",
   "ledger.statement.count.note": "{count}×{value}",
-  "ledger.statement.count.coins": "{amount} ਸਿੱਕਿਆਂ ਵਿੱਚ"
+  "ledger.statement.count.coins": "{amount} ਸਿੱਕਿਆਂ ਵਿੱਚ",
+  "ledger.search.title": "ਖੋਜ",
+  "ledger.search.field_hint": "ਖਾਤੇ, ਪਾਰਟੀਆਂ, ਨੋਟ ਲੱਭੋ",
+  "ledger.search.clear": "ਖੋਜ ਸਾਫ਼ ਕਰੋ",
+  "ledger.search.empty_query": "ਕੋਈ ਨਾਂ ਲਿਖੋ, ਜਾਂ ਨੋਟ ਦੇ ਕੁਝ ਸ਼ਬਦ।",
+  "ledger.search.no_results": "\"{query}\" ਨਾਲ ਕੁਝ ਵੀ ਮੇਲ ਨਹੀਂ ਖਾਂਦਾ",
+  "ledger.search.skeleton": "ਖਾਤੇ ਅਤੇ ਨੋਟ ਲੋਡ ਹੋ ਰਹੇ ਹਨ",
+  "ledger.search.error": "ਤੁਹਾਡੀਆਂ ਬਹੀਆਂ ਵਿੱਚ ਖੋਜ ਨਹੀਂ ਹੋ ਸਕੀ",
+  "ledger.search.section.parties": "ਪਾਰਟੀਆਂ",
+  "ledger.search.section.accounts": "ਖਾਤੇ",
+  "ledger.search.section.notes": "ਨੋਟਾਂ ਵਿੱਚ",
+  "ledger.search.note_meta": "{date} · {note}",
+  "ledger.search.under_review": "ਜਾਂਚ ਅਧੀਨ"
 }

@@ -100,5 +100,17 @@
   "ledger.statement.count.again": "फिर से गिनें",
   "ledger.statement.count.last": "आख़िरी गिनती {date} · {breakdown}",
   "ledger.statement.count.note": "{count}×{value}",
-  "ledger.statement.count.coins": "{amount} सिक्कों में"
+  "ledger.statement.count.coins": "{amount} सिक्कों में",
+  "ledger.search.title": "खोज",
+  "ledger.search.field_hint": "खाते, पार्टी, नोट खोजें",
+  "ledger.search.clear": "खोज साफ़ करें",
+  "ledger.search.empty_query": "कोई नाम लिखें, या नोट के कुछ शब्द।",
+  "ledger.search.no_results": "\"{query}\" से कुछ भी मेल नहीं खाता",
+  "ledger.search.skeleton": "खाते और नोट लोड हो रहे हैं",
+  "ledger.search.error": "आपकी बहियों में खोज नहीं हो सकी",
+  "ledger.search.section.parties": "पार्टियाँ",
+  "ledger.search.section.accounts": "खाते",
+  "ledger.search.section.notes": "नोटों में",
+  "ledger.search.note_meta": "{date} · {note}",
+  "ledger.search.under_review": "जाँच में"
 }

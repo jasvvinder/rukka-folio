@@ -424,7 +424,15 @@ class _Tag extends StatelessWidget {
       children: [
         Icon(icon, size: RkIcon.grid, color: status.muted),
         const SizedBox(width: RkSpace.s1),
-        Text(label, style: text.bodySmall?.copyWith(color: status.muted)),
+        // Flexible: a label longer than the row wraps instead of pushing the
+        // row past the card edge (HARN2 review, finding 1 — 43 px at pa@2.0
+        // under the test font; fits in Mukta Mahee, but only by margin).
+        Flexible(
+          child: Text(
+            label,
+            style: text.bodySmall?.copyWith(color: status.muted),
+          ),
+        ),
       ],
     );
   }

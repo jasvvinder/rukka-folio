@@ -10,6 +10,7 @@ import 'package:go_router/go_router.dart';
 import '../../shared/router.dart';
 import '../cash_count/cash_count_paths.dart';
 import 'ledger_paths.dart';
+import 'screens/s21_search_screen.dart';
 import 'screens/s3_ledger_index_screen.dart';
 import 'screens/s4_1_entry_detail_screen.dart';
 import 'screens/s4_account_statement_screen.dart';
@@ -23,6 +24,7 @@ final RkTabRoot ledgerRoot = RkTabRoot(
   builder: (context) => LedgerIndexScreen(
     onOpenAccount: (accountId) =>
         context.push(LedgerPaths.statementOf(accountId)),
+    onOpenSearch: () => context.push(LedgerPaths.search),
   ),
 );
 
@@ -30,7 +32,8 @@ final RkTabRoot ledgerRoot = RkTabRoot(
 /// statement and S4.1 entry detail (07 §6 flow line `tap row → S4.1 entry
 /// detail → [Amend | Reverse]`). S4.1 is a *detail viewer*, exempt from the
 /// depth rule — it opens from a row, it is not a destination (13 §211). S21
-/// search follows at M12 (07 §25); ledger_paths.dart reserves its path.
+/// search (07 §25) opens from S3's app-bar button; an account or party hit
+/// pushes S4, a note hit pushes S4.1.
 final List<RouteBase> ledgerRoutes = [
   GoRoute(
     path: LedgerPaths.statement,
@@ -52,6 +55,14 @@ final List<RouteBase> ledgerRoutes = [
       // A version of the chain replaces this one rather than stacking, so
       // walking an amend chain never grows the back stack (13 §211).
       onOpenEntry: (entryId) => context.replace(LedgerPaths.entryOf(entryId)),
+    ),
+  ),
+  GoRoute(
+    path: LedgerPaths.search,
+    builder: (context, state) => LedgerSearchScreen(
+      onOpenAccount: (accountId) =>
+          context.push(LedgerPaths.statementOf(accountId)),
+      onOpenEntry: (entryId) => context.push(LedgerPaths.entryOf(entryId)),
     ),
   ),
 ];

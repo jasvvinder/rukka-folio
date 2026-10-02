@@ -23,10 +23,9 @@ import 'package:rukka_folio/features/onboarding/widgets/family_opening_host.dart
 import 'package:rukka_folio/shared/ledger/local_ledger.dart';
 
 import '../../shared/test_app.dart';
+import 'onboarding_sweep.dart';
 
 final _start = LocalDate(2026, 9, 7);
-
-const _locales = [Locale('en'), Locale('pa'), Locale('hi')];
 
 /// Pumps [child] on a tall surface so a long scrolling screen is entirely
 /// built (same rationale as the business-branch tests: a widget a
@@ -44,47 +43,14 @@ Future<void> pumpTall(
   await pumpRk(tester, child, locale: locale, ledger: ledger);
 }
 
-/// Pumps [build] on both F1 phones at 1.3x and 2x text scale in EN, PA and
-/// HI and fails on any overflow (07 §1, 09 F1, design-system accessibility
-/// rules).
-///
-/// The scale goes to [pumpRk], never to a `MediaQuery(data: MediaQueryData(
-/// textScaler: …))` wrapper: a fresh `MediaQueryData` carries `Size.zero`,
-/// so the screen under such a wrapper had no area at all and nothing it did
-/// could overflow. 1.3x matters as much as 2x — at 200 % a bar has usually
-/// dropped its words for icons, so 1.3x is where a label is still drawn and
-/// is widest.
-Future<void> expectNoOverflowInEveryLocale(
-  WidgetTester tester,
-  Widget Function() build,
-) async {
-  for (final locale in _locales) {
-    for (final vp in rkPhones) {
-      for (final scale in rkTextScales) {
-        await pumpRk(
-          tester,
-          build(),
-          locale: locale,
-          textScale: scale,
-          viewport: vp,
-        );
-        expect(
-          tester.takeException(),
-          isNull,
-          reason: 'overflow in $locale @ $scale on $vp',
-        );
-        expectTextFits(tester, reason: '${locale.languageCode} @ $scale');
-      }
-    }
-  }
-}
-
 Future<Map<String, int>> _balances(LocalLedger l) async => {
   for (final r in await l.db.select(l.db.balances).get())
     r.accountId: r.balancePaise,
 };
 
 void main() {
+  setUpAll(loadRkFonts);
+
   group('S0.6d Name the family (13 §3.2, 07 §3.1.1)', () {
     testWidgets('F1-07-74 Continue is disabled until the family is named '
         '(disabled-with-reason, 13 §4.3)', (tester) async {

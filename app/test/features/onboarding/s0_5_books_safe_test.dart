@@ -15,8 +15,7 @@ import 'package:rukka_folio/features/onboarding/screens/s0_5b_recovery_sheet_scr
 import 'package:rukka_folio/l10n/gen/app_localizations.dart';
 
 import '../../shared/test_app.dart';
-
-const _locales = [Locale('en'), Locale('pa'), Locale('hi')];
+import 'onboarding_sweep.dart';
 
 Widget _scoped(DevicesRepository repo, Widget child) =>
     DevicesRepositoryScope(repository: repo, child: child);
@@ -35,42 +34,9 @@ Future<void> pumpTall(
   await pumpRk(tester, child, locale: locale);
 }
 
-/// Pumps [build] on both F1 phones at 1.3x and 2x text scale in EN, PA and
-/// HI and fails on any overflow (07 §1, 09 F1, design-system accessibility
-/// rules).
-///
-/// The scale goes to [pumpRk], never to a `MediaQuery(data: MediaQueryData(
-/// textScaler: …))` wrapper: a fresh `MediaQueryData` carries `Size.zero`,
-/// so the screen under such a wrapper had no area at all and nothing it did
-/// could overflow. 1.3x matters as much as 2x — at 200 % a bar has usually
-/// dropped its words for icons, so 1.3x is where a label is still drawn and
-/// is widest.
-Future<void> expectNoOverflowInEveryLocale(
-  WidgetTester tester,
-  Widget Function() build,
-) async {
-  for (final locale in _locales) {
-    for (final vp in rkPhones) {
-      for (final scale in rkTextScales) {
-        await pumpRk(
-          tester,
-          build(),
-          locale: locale,
-          textScale: scale,
-          viewport: vp,
-        );
-        expect(
-          tester.takeException(),
-          isNull,
-          reason: 'overflow in $locale @ $scale on $vp',
-        );
-        expectTextFits(tester, reason: '${locale.languageCode} @ $scale');
-      }
-    }
-  }
-}
-
 void main() {
+  setUpAll(loadRkFonts);
+
   group('S0.5 Keeping your books safe (07 §3.1 step 5 🔒, 04 §7.6 🔒)', () {
     testWidgets(
       'F1-07-71 all three items are on the one screen: key sync stated (not '
@@ -183,6 +149,46 @@ void main() {
         () => _scoped(repo, const BooksSafeScreen()),
       );
     });
+
+    // HARN2 review, finding 3: production installs no DevicesRepositoryScope
+    // (bootstrap.dart, main.dart) and nothing produces a vault file or a
+    // monthly export, so the screen as onboarding_routes.dart builds it runs
+    // on DevicesRepositoryScope's process-static fake and still says
+    // *Automatic backup · On*. Every other F1-07-71 case injects its own fake
+    // and so passes whatever production is wired to. This case pumps the
+    // screen exactly as the route does, with no scope, and asks for the true
+    // position (04 §7.6 🔒: "state the true position in the UI"; "none is
+    // ever enabled silently").
+    //
+    // ⚠️ SPEC: skipped, not deleted — the honest state needs copy this lane
+    // cannot add (the onboarding ARB parts are not in its directories) and a
+    // real DevicesRepository plus vault/export producer installed at
+    // bootstrap (features/devices, app bootstrap). Lane report M13-HARN2.
+    testWidgets(
+      'F1-07-71 with no devices repository installed (production today) the '
+      'backup block never claims to be on and offers no switch that reaches '
+      'nothing (04 §7.6 🔒)',
+      (tester) async {
+        await pumpTall(tester, const BooksSafeScreen());
+        final l10n = AppLocalizations.of(
+          tester.element(find.byType(BooksSafeScreen)),
+        );
+        expect(
+          find.byType(Switch),
+          findsNothing,
+          reason: 'a switch with no repository behind it toggles nothing',
+        );
+        // Item (a) has its own "On" chip; item (b) must not add a second.
+        final sameWord =
+            l10n.onboardingBooksSafeBackupStateOn ==
+            l10n.onboardingBooksSafeKeysyncStateOn;
+        expect(
+          find.text(l10n.onboardingBooksSafeBackupStateOn).evaluate().length,
+          lessThanOrEqualTo(sameWord ? 1 : 0),
+        );
+      },
+      skip: true, // HARN2 finding 3 — owner item; see the ⚠️ SPEC above.
+    );
 
     testWidgets(
       'F1-07-72 iCloud Keychain unavailable: the screen says so plainly and '

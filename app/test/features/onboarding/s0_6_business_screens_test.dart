@@ -17,10 +17,9 @@ import 'package:rukka_folio/features/onboarding/screens/s0_6a_business_name_scre
 import 'package:rukka_folio/features/onboarding/screens/s0_6b_business_opening_balances_screen.dart';
 
 import '../../shared/test_app.dart';
+import 'onboarding_sweep.dart';
 
 final _start = LocalDate(2026, 9, 7);
-
-const _locales = [Locale('en'), Locale('pa'), Locale('hi')];
 
 /// Pumps [child] on a tall surface so a long scrolling screen is entirely
 /// built — a widget a [ListView] has not reached is not in the tree at all,
@@ -37,42 +36,9 @@ Future<void> pumpTall(
   await pumpRk(tester, child, locale: locale);
 }
 
-/// Pumps [build] on both F1 phones at 1.3x and 2x text scale in EN, PA and
-/// HI and fails on any overflow (07 §1, 09 F1, design-system accessibility
-/// rules).
-///
-/// The scale goes to [pumpRk], never to a `MediaQuery(data: MediaQueryData(
-/// textScaler: …))` wrapper: a fresh `MediaQueryData` carries `Size.zero`,
-/// so the screen under such a wrapper had no area at all and nothing it did
-/// could overflow. 1.3x matters as much as 2x — at 200 % a bar has usually
-/// dropped its words for icons, so 1.3x is where a label is still drawn and
-/// is widest.
-Future<void> expectNoOverflowInEveryLocale(
-  WidgetTester tester,
-  Widget Function() build,
-) async {
-  for (final locale in _locales) {
-    for (final vp in rkPhones) {
-      for (final scale in rkTextScales) {
-        await pumpRk(
-          tester,
-          build(),
-          locale: locale,
-          textScale: scale,
-          viewport: vp,
-        );
-        expect(
-          tester.takeException(),
-          isNull,
-          reason: 'overflow in $locale @ $scale on $vp',
-        );
-        expectTextFits(tester, reason: '${locale.languageCode} @ $scale');
-      }
-    }
-  }
-}
-
 void main() {
+  setUpAll(loadRkFonts);
+
   group('S0.6a Name the business (13 §3.2, 07 §5.7)', () {
     testWidgets('F1-07-51 Continue is disabled until the business is named '
         '(disabled-with-reason, 13 §4.3)', (tester) async {
