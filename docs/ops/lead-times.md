@@ -33,7 +33,7 @@ project. Setup SQL, secrets and ops checklist: `server/README.md` §3–§5 (the
 | Plan | **Free** ($0, owner 25 Sep) | ⛔ **owner:** Pro + PITR (≈ $125/mo) **or** an ADR amending 05c §1 — Free has no daily backups and no PITR (supabase.com/pricing, fetched 25 Sep) |
 | When | now | before Phase D |
 | App reaches it via | `<ref>.supabase.co`, local-dev build (pinning off) | `api.rukkafolio.com` only (item 10) |
-| OTP | ⛔ item 3 — nobody can sign in until a real provider is set | MSG91 on the owner's DLT |
+| OTP | OTP_PROVIDER=fake (fixed test codes with RF_DEV_PROJECT_REF, select.ts); or item 3 (real provider) | MSG91 on the owner's DLT |
 | Keys | dev values | production; custody per ADR 05g Open 4 |
 | Free-plan caveat | paused after 1 week with no requests — unpause in the dashboard | — |
 
@@ -62,12 +62,12 @@ Spec: 06 §2 as amended by **ADR 2026-09-25 §1** — **SMS only**, on the owner
 2. Open an account with the provider and bind it to the DLT entity.
    **Provider: 2Factor** (owner, 25 Sep) — ADR 2026-09-25 §1 lets the owner pick another than MSG91; the
    server has only `Msg91Provider` today, so a 2Factor adapter behind `OtpProvider` is a `lane-server` row.
-   ⚠️ **Fixed dev codes are ruled but not built.** ADR 2026-09-25 §1 says the dev project uses fixed test
-   codes until DLT clears, and never in pilot or production. Today `FakeOtpProvider` keeps the code in
-   memory and sends nothing (`_shared/otp/provider.ts:10-20`), the code is random
-   (`auth-challenge/index.ts:119,448`) and only its hash is stored — so **no one can sign in to a hosted
-   project yet.** Build row for `lane-server` (`E-25-1`, `C-25-1`), with review: the fixed code must be
-   impossible on the pilot project.
+   ⚠️ **Fixed dev codes:** ADR 2026-09-25 §1 rules the dev project uses fixed test codes until DLT clears,
+   never on pilot or production. Set `OTP_PROVIDER=fake` and `RF_DEV_PROJECT_REF=<project ref>` (the
+   20-char ref from `SUPABASE_URL`) to bind fixed test codes; omit the second variable to issue random codes
+   (select.ts). If the switch is set but does not match, the function refuses to start (otp_fixed_code_unbound).
+   While the switch binds, the same fixed code is issued on every request. The dev project cannot sign in without
+   either OTP setup (item 3, real provider) or `OTP_PROVIDER=fake` with both variables set.
 4. The template — one for all four OTP moments (06 §2: signup, device activation, phone-number change,
    account-deletion confirmation, each a proof of holding the number), English, GSM-7, 150 characters with
    the code, so one SMS segment. Sender ID `RUKKAF` (fallback `RUKKFO`).

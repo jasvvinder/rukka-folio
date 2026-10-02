@@ -117,12 +117,12 @@ has **no** decrypt right — only `auth-challenge` holds `RF_PHONE_KEK`.
 
 ## 6. Open (owner)
 
-**Invite delivery is not wired.** 06 §7 says the link travels by WhatsApp/SMS from an outbound
-message job; the only provider seam here is `OtpProvider`, which is code-shaped (template + OTP),
-and no invite-message job exists. Today `POST /sync-meta/invites` returns the `invite_id` to the
-admin's own device, which is where 06 §7 puts the contact card anyway — so the admin's phone can
-send the link itself. Owner call whether that stays (zero-knowledge friendly: the number then never
-leaves the admin's phone except to be HMAC'd) or an outbound job is added.
+**Invite delivery: ADR 2026-09-25 §2 settled.** The server does not send invitations. *Send invite*
+creates the invite and stores its nonce and `invitee_hmac` only. The app opens the platform share
+sheet with the link and a prefilled message; the inviter sends it by whatever app they choose
+(WhatsApp, SMS, email, …). *Resend* reopens the share sheet. The invitee's phone number reaches the
+server once, only to be hashed (06 §7 amended). `POST /sync-meta/invites` returns the `invite_id` to
+the inviter's device so their app can read it; no outbound message job is needed.
 
 See the lane's structured return and `CHANGELOG.md`: cold-storage `fy` tiering (05 §8) needs an
 ops story, not a wire change; `recipient_fingerprint` on `wrapped_keys` is not in 03 §2.2; the live

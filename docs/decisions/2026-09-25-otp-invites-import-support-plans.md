@@ -19,7 +19,7 @@ business-book table (`tier_catalogue.dart:106–160`, `registry.ts:40–96`).
 
 ## Rulings 🔒 ⟦tests: n/a — container heading; each ruling below carries its own marker⟧
 
-### 1. OTP is sent by SMS, through the owner's own DLT registration ⟦tests: E-25-1 @M6, C-25-1 @M6⟧
+### 1. OTP is sent by SMS, through the owner's own DLT registration ⟦tests: E-25-1 @M6, C-25-1 @M6, E-25-4, E-25-5, E-25-6, E-25-7, E-25-8, E-25-9⟧
 - **Amends 06 §2** *"WhatsApp Business API first, SMS fallback, auto-failover"*. The one channel is **SMS**, sent
   by an Indian provider on the owner's own TRAI DLT registration (principal entity, sender ID and **one** OTP
   template). The provider stays behind `OtpProvider` (06 §2). `Msg91Provider` is the default unless the owner
@@ -67,7 +67,7 @@ business-book table (`tier_catalogue.dart:106–160`, `registry.ts:40–96`).
 - **Amends ADR 2026-09-19 ruling 2** by one scheme: `url_launcher` may also open **`mailto:` to the one support
   address**, behind the same kind of seam as `tel:`. No other URL is opened.
 
-### 5. Plans follow the entity type chosen at signup; book-flow features are never restricted ⟦tests: G-25-1 @M13, G-25-2 @M13, G-25-3 @M13⟧
+### 5. Plans follow the entity type chosen at signup; book-flow features are never restricted ⟦tests: G-25-1 @M13, G-25-2 @M13, G-25-3 @M13, F1-25-6, F1-25-7, F1-25-8, F1-25-9, F1-25-10, F1-25-11, F1-25-12, F1-25-13, F1-25-14⟧
 - **Replaces 08 §2's tiers and amends ADR 2026-09-05g §3.** Each entity type from S0.3 (07 §3.1.1) has **2–3
   plans**. They differ **only** by scale (books, people, devices, storage), statement import, and PDF output
   (PDF statements and reports, and sharing them). Each person's personal book is free and never counted.

@@ -110,7 +110,7 @@ commit (ADR 2026-09-05i §4) and re-lands with the build row named under *Conseq
   so the path is never a dead end. Revisit when the IAP package lands: StoreKit has a native
   manage-subscriptions sheet.
 
-### 13. Read-only blocks every new envelope except the 10-second Undo (desk 30) ⟦tests: F1-07-491, F1-24b-7 @M13⟧
+### 13. Read-only blocks every new envelope except the 10-second Undo (desk 30) ⟦tests: F1-07-491, F1-24b-7, F1-24b-8, F1-24b-9, F1-24b-10, F1-24b-11, F1-24b-12, F1-24b-13, F1-24b-16, F1-24b-17⟧
 - 13 §6's read-only (lapsed, S12.5) blocks **every** write that creates an envelope: post, amend,
   reverse, opening balances (S3.1 and onboarding), cash count, advances and partner entries. Each
   path raises the same S12.5 sheet. Drafts are kept, and export always works.

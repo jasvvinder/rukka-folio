@@ -12,6 +12,32 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-02 — M13: SHAPE1, S21 Search, DOCS1, onboarding sweep: one five-slice cycle; push gate green
+
+A second session on 2 Oct. It ran one five-slice `/cycle`, run `wf_5d8ac204-9cf`, at 1.39 M. That replaced a two-slice run (`wf_50207eb5-a06`), stopped at the owner's request for the maximum number of slices. DOCS1 died before reporting, so it went through review and verify again with the build skipped (`wf_1e480ce3-5ec`, 0.61 M). Results: SHAPE1 had 0 findings; S21 4 and HARN2 3, all confirmed and repaired; DOCS1 9 filed, 7 confirmed and repaired, 2 refuted. HARN1 was a no-op, because its PLAN row was stale. The push gate is green: app 1968 passed / 0 failed, functions 105 passed / 0 failed, 116 RLS tests ignored (no `RF_TEST_DB_URL`). SHAPE1 ran the RLS suite on a fresh DB: 221 passed / 0 failed.
+
+**Added**
+- **S21 Search** (`lane-ui-hard`): `features/ledger/screens/s21_search_screen.dart` and `search_index.dart`, opened from S3's app bar through `LedgerPaths.search`. It searches accounts, parties and notes in scope; results are P1 rows, and a miss offers quick-add (07 §25, `F1-07-35`). Strings are in `ledger_{en,pa,hi}.arb`.
+- `E-05-19`: an envelope with `key_version` 0 gets `rejected:shape` with check `key_version`, and 1 still passes.
+
+**Changed**
+- `_shared/shape.ts`: the floor for `key_version` is now 1, matching the `check (key_version >= 1)` in migrations 0001, 0002 and 0003. Before, 0 got through shape and the database refused it as `rejected:no_role`, the wrong name. Desk 77.
+- `scripts/rls_db.sh`: applies `seed.sql` after the migrations, so a fresh RLS DB has its `store_epoch` row and a handler-level file passes on its own. The two inline seed fixtures (`guarded_savepoint.test.ts`, `seat_book_caps.test.ts`) were removed. It also now refuses a non-loopback host. Desk 75.
+- Onboarding (`lane-ui-hard`, HARN2): repairs in `s0_6a1_business_owners_screen.dart` and the four onboarding tests, plus a shared `onboarding_sweep.dart`.
+- Docs (DOCS1, desk 69/72): ⟦tests⟧ markers on 04 §7.3, 13 :190/:361, ADR 05b §7, 05d §1/§2, 13c, 24b §13 and ADR 25 §1/§5. The review moved or removed six misplaced ids. `docs/ops/lead-times.md` and `server/README.md` §6 now match `_shared/otp/select.ts` and ADR 25 §2.
+- `app/dart_test.yaml` (new): includes the workspace `dart_test.yaml`, like every package. The *tag … wasn't specified* warning is gone.
+- `PLAN.md`: desk 72, 75 and 77 closed; 69 is now 🟡 with its remainder; 79–82 added. Four stale §2 rows marked done: check_contrast was already in `ci.sh`, `RkFitText` was already shared, the bare-`MediaQueryData` row (`rkStrictViewport` was already true), and the tag declaration.
+
+**Open** ⚠️
+- Desk 79: `.env.example` is git-ignored (`.gitignore:39` `.env.*`). DOCS1's edit to it cannot be committed until `!.env.example` is added.
+- Desk 80–82: S21 needs a book-wide entries read (`LocalLedger.watchEntries`), an S1 entry point (home lane) and a design ruling on recent searches and an *Entries* group.
+- Desk 69 remainder: ADR 05g's 20 orphan ids, `E-05-19` on 03 §2.3, and 40 *planned test has landed* warnings.
+- Tiering: HARN1 and HARN2 were briefed from a stale PLAN row, and S21 was a repeat screen that belonged on `lane-ui`.
+
+**Commits** — pending.
+
+---
+
 ## 2026-10-02 — M13: CAPR-PG, `PgTx.guarded()` savepoint scope fixed (desk 70); reviewed, verified, 1 repair round; push gate green, RLS 220/0
 
 This session ran one `/cycle` for **CAPR-PG** (`lane-server`, opus·xhigh), run `wf_addaebcd-d5e`. Review filed 2 findings; the 3-lens verify confirmed both; one repair round fixed both. The lane reports complete. Then `/gate push` came back green. It ran with `RF_TEST_DB_URL` unset, so its 116 RLS tests were *ignored*. The RLS suite was therefore run separately on a fresh `rls_db.sh` database with `RLS_REQUIRE=1`: **220 passed, 0 failed, 0 ignored**. The gate also covers the uncommitted 1 Oct slices (CAPR, OTP2, ENT3). Spend: 0.87 M of today's 3 M.
@@ -33,7 +59,8 @@ This session ran one `/cycle` for **CAPR-PG** (`lane-server`, opus·xhigh), run 
 - The push gate does not build the RLS database itself, so a green push gate says nothing about `tests/rls`. Until `ci.sh` builds it, run `rls_db.sh` + `RLS_REQUIRE=1` beside it.
 
 **Commits**
-- none yet
+- `10a25fe` M13: cap repairs (0021) + PgTx.guarded() savepoint scope
+- `ecdaa23` M13: PLAN desk 70 closed + 75-78, changelog 2 Oct, 2 Oct ceiling 3 M
 
 ## 2026-10-01 — M13/M11: review, verify and repair of the five 30 Sep slices; push gate green, RLS 204/0
 
