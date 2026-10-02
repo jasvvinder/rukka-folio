@@ -127,7 +127,10 @@ export async function handler(req: Request, deps: Deps): Promise<Response> {
         results.push({ envelope_id, result: "acked", seq });
       } catch (e) {
         if (e instanceof StoreDenied) {
-          // The row policy disagreed with what we computed — refuse, never store half a batch.
+          // The row policy disagreed with what we computed: refuse THIS envelope by name and go on.
+          // insertEnvelope runs in its own savepoint (PgTx.guarded), so the refusal rolls back only
+          // its own row; the envelopes acked before and after it in this batch commit (E-05g-17).
+          // Every other store call in this loop is a read.
           results.push({
             envelope_id,
             result: e.reason === "fk" ? "rejected:unknown_book" : "rejected:no_role",

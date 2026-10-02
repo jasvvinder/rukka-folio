@@ -99,12 +99,35 @@ const bytes = (v: unknown): Uint8Array =>
   v instanceof Uint8Array ? new Uint8Array(v) : new Uint8Array();
 
 class PgTx implements Tx {
+  // Not readonly: guarded() points it at the open savepoint's scope for the duration of `fn`.
   constructor(private sql: Sql) {}
+  /** A refused write inside a batch must not poison the whole transaction: one savepoint per write.
+   *
+   *  The write has to be ISSUED on the savepoint's own `sql`, not the transaction's. postgres.js
+   *  3.4.5 (src/index.js) gives every scope — the `begin` and each savepoint — its own Sql (:250-251),
+   *  records a failed query as `uncaughtError` on the scope that issued it (:290-291) and re-throws
+   *  that error when the scope's function resolves (:264-265). Issued on the outer `sql`, a refused
+   *  write rolled back to the savepoint and then failed the whole `begin` at commit anyway — the
+   *  caller's caught StoreDenied became a 500 and every good row of the batch went with it (desk 70,
+   *  E-05g-17..20). Pointing `this.sql` at the savepoint makes every query of `fn` — including any
+   *  other PgTx method it calls — belong to the savepoint, so the refusal stays there.
+   *
+   *  Nesting stacks: an inner guarded() saves the scope it found (the outer savepoint), opens its
+   *  own savepoint on it, and restores it in `finally` (E-05g-19). This is sound only while Tx
+   *  methods run one at a time — a concurrent call would issue its queries on whichever scope is
+   *  current. Nothing in functions/ runs Tx methods concurrently (no Promise.all over a Tx outside
+   *  _tests, checked 2 Oct 2026); keep it that way, or give each call its own PgTx. */
   private async guarded<T>(fn: () => Promise<T>): Promise<T> {
-    // A refused write inside the batch must not poison the whole transaction: savepoint per write.
-    const tx = this.sql as postgres.TransactionSql;
+    const outer = this.sql as postgres.TransactionSql;
     try {
-      return await tx.savepoint(() => fn()) as T;
+      return await outer.savepoint(async (sp) => {
+        this.sql = sp;
+        try {
+          return await fn();
+        } finally {
+          this.sql = outer;
+        }
+      }) as T;
     } catch (e) {
       const d = denialFromPg(e);
       if (d) throw d;
@@ -703,17 +726,24 @@ class PgTx implements Tx {
     os: string | null,
     attestation: unknown,
   ): Promise<string> {
+    // Guarded like every other refusable write (desk 70). The handler CATCHES device_cap and
+    // device_id_taken inside withClaims and answers 409 with the ticket consumed (ADR 2026-09-16 §6
+    // 🔒, E-06-41); issued on the transaction's own scope, the refusal was re-thrown at commit
+    // instead, the ticket rolled back with it and the caller saw 500 internal.
     try {
-      const [r] = await this
-        .sql`select rf.register_device(${device}::uuid, ${user}::uuid, ${pubEd}, ${pubX}, ${model}, ${os},
-        ${
-        attestation === undefined || attestation === null
-          ? null
-          : this.sql.json(attestation as postgres.JSONValue)
-      }) as id`;
-      return r.id as string;
+      return await this.guarded(async () => {
+        const [r] = await this
+          .sql`select rf.register_device(${device}::uuid, ${user}::uuid, ${pubEd}, ${pubX}, ${model}, ${os},
+          ${
+          attestation === undefined || attestation === null
+            ? null
+            : this.sql.json(attestation as postgres.JSONValue)
+        }) as id`;
+        return r.id as string;
+      });
     } catch (e) {
-      const reason = denialFromPg(e)?.reason;
+      // guarded() has already mapped a Postgres refusal onto StoreDenied.
+      const reason = e instanceof StoreDenied ? e.reason : undefined;
       if (reason === "device_cap") throw new DeviceCapError();
       if (reason === "device_id_taken") throw new DeviceIdTakenError();
       throw e;

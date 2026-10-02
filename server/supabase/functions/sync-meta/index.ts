@@ -746,8 +746,12 @@ const CAP_REFUSALS: ReadonlySet<string> = new Set(["seat_cap", "seat_rotation_ca
 function inviteError(reason: string): Response {
   switch (reason) {
     // 409 like auth-challenge's device_cap: the request was valid, the plan has no room for it.
+    // Every name in CAP_REFUSALS, book_cap included (desk 68(b)): createInvite cannot raise it
+    // today, but a cap that fell to the default arm would reach the client as a 403, which it
+    // reads as "forbidden", not "the plan is full".
     case "seat_cap":
     case "seat_rotation_cap":
+    case "book_cap":
       return error(409, reason);
     // ADR 2026-09-05d §9 🔒 — the link alone admits nobody. An unknown invite refuses identically:
     // a joiner with the wrong number learns nothing about whether that invite exists.
@@ -824,18 +828,39 @@ async function postRecords(
           continue;
         }
         const { record: parsed, seq, duplicate } = taken;
+        let rec = parsed;
         if (duplicate) {
-          results.push({ id, result: "acked", seq: seq.toString() });
-          continue;
+          // A re-sent id (desk 68(a)). Answer what happened to the STORED record, never the copy
+          // just sent: it is the signed fact the server keeps and the meta pull serves.
+          const [stored] = await tx.signedRecordsAfter(seq - 1n, 1);
+          if (!stored || stored.id !== parsed.id || stored.author_device !== parsed.author_device) {
+            // Another device's record under this id: nothing of THIS record is stored or applied.
+            results.push({ id, result: "rejected:shape", check: "id" });
+            continue;
+          }
+          if (stored.applied_at) {
+            // Applied (or refused with a note) once, and never applied again — a replay of an old
+            // record must not undo a later one.
+            results.push({ id, result: "acked", seq: seq.toString() });
+            continue;
+          }
+          // Stored but never applied: only the StoreDenied arm below leaves a record so — the
+          // seat cap's refusal among them. Answering `acked` here told the client a member had
+          // moved when nothing had. It is asked again, exactly as on arrival, so a plan that is
+          // still full answers the same named refusal (rejected:seat_cap …) and projects nothing.
+          // ⚠️ SPEC (desk 68(a), reported): once the plan has room, the same record applies and
+          // is acked — truthfully. Answering the FIRST outcome verbatim instead (never re-asking)
+          // needs the stored apply_note on a duplicate, which the Tx does not expose (_shared).
+          rec = stored;
         }
-        const note = await applyRecord(tx, parsed, me!.user_id);
+        const note = await applyRecord(tx, rec, me!.user_id);
         if (note.startsWith("rejected:")) {
           // Stored (append-only, it is a signed fact) but not applied; the note says why.
-          await tx.markRecordApplied(parsed.id, note);
+          await tx.markRecordApplied(rec.id, note);
           results.push({ id, result: note, seq: seq.toString() });
           continue;
         }
-        await tx.markRecordApplied(parsed.id, note);
+        await tx.markRecordApplied(rec.id, note);
         results.push({ id, result: "acked", seq: seq.toString() });
       } catch (e) {
         if (e instanceof StoreDenied) {

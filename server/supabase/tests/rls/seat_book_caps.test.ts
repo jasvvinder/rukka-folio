@@ -24,11 +24,24 @@
 //
 // Needs RF_TEST_DB_URL (`eval "$(scripts/rls_db.sh)"`). Without it every test is SKIPPED and says
 // why; the nightly/RC lanes set RLS_REQUIRE=1 so a missing database fails loudly.
-// Ids E-05g-1 … E-05g-13 (the database halves); E-05g-14 is functions/_tests/seat_caps_route.test.ts.
+// Ids E-05g-1 … E-05g-13, E-05g-15 and E-05g-16's database half (E-05g-11, -12 and -15 also cover
+// the repairs migration 0021 makes); E-05g-14 and E-05g-16's MemStore half are
+// functions/_tests/seat_caps_route.test.ts. E-05g-16 here runs only because PgTx.guarded() binds
+// each refused write to its own savepoint (M13-CAPR-PG; tests/rls/guarded_savepoint.test.ts).
 import { assert, assertEquals, assertNotEquals } from "@std/assert";
 import postgres from "postgres";
 import { StoreDenied } from "../../functions/_shared/store.ts";
 import { PgStore } from "../../functions/_shared/store_pg.ts";
+import { handler as meta } from "../../functions/sync-meta/index.ts";
+import {
+  body,
+  edKeypair,
+  type Member,
+  post,
+  reissue,
+  rig,
+  signedRecord,
+} from "../../functions/_tests/harness.ts";
 
 const url = Deno.env.get("RF_TEST_DB_URL");
 const required = Deno.env.get("RLS_REQUIRE") === "1";
@@ -87,7 +100,7 @@ const PLAN = {
   five: "zz_cap_five", //  5 seats (ADR 05g §6's own example), 2 business books
   two: "zz_cap_two", //    2 seats → rotation budget 4, no business book
   none: "zz_cap_none", //  -1 everywhere: no cap
-  data: "zz_cap_data", //  the row E-05g-12 edits
+  data: "zz_cap_data", //  the row E-05g-12 edits; its `devices` (7) is NOT the Free floor's
 } as const;
 async function ensurePlans() {
   await sql`insert into plan_catalogue (id, entity_type, name, sort_order, members, business_books,
@@ -96,15 +109,19 @@ async function ensurePlans() {
     values (${PLAN.five}, 'family', 'Cap five', 90,  5,  2,  5, 1000, 1000, 1000, '{}', 0, 0),
            (${PLAN.two},  'family', 'Cap two',  91,  2,  0,  5, 1000, 1000, 1000, '{}', 0, 0),
            (${PLAN.none}, 'family', 'Cap none', 92, -1, -1, -1, 1000, 1000, 1000, '{}', 0, 0),
-           (${PLAN.data}, 'family', 'Cap data', 93,  2,  1,  5, 1000, 1000, 1000, '{}', 0, 0)
+           (${PLAN.data}, 'family', 'Cap data', 93,  2,  1,  7, 1000, 1000, 1000, '{}', 0, 0)
     on conflict (id) do nothing`;
 }
 
-/** One test: its own connection pool, the plans present, the pool closed whatever happens. */
-function test(name: string, fn: () => Promise<void>) {
+/** One test: its own connection pool, the plans present, the pool closed whatever happens.
+ *  `blockedBy` names a defect OUTSIDE this lane's directories that makes the test fail for a reason
+ *  that is not the behaviour under test; the test is the specification and is switched on when the
+ *  defect is fixed (reported in the lane's `open`), never rewritten to pass around it. */
+function test(name: string, fn: () => Promise<void>, blockedBy?: string) {
+  if (blockedBy && url) console.log(`IGNORED ${name.slice(0, 9)}: blocked by ${blockedBy}`);
   Deno.test({
     name,
-    ignore,
+    ignore: ignore || !!blockedBy,
     async fn() {
       sql = postgres(url!, { max: 4, onnotice: () => {} });
       try {
@@ -146,11 +163,11 @@ interface Tn {
 /** A tenant on `plan` (null = no subscription row = the Free floor, 0018 / desk PLAN-48), with its
  *  founder active and admin of the founder's PERSONAL book — so the fixture itself spends no
  *  business book. */
-async function tenant(plan: string | null): Promise<Tn> {
+async function tenant(plan: string | null, founder?: P): Promise<Tn> {
   const [row] = await sql`insert into tenants (type) values ('family') returning id`;
   const t = row.id as string;
   if (plan) await sql`insert into subscriptions (tenant_id, plan) values (${t}, ${plan})`;
-  const admin = await mkPerson();
+  const admin = founder ?? await mkPerson();
   await sql`insert into memberships (tenant_id, user_id, status) values (${t}, ${admin.user}, 'active')`;
   const personal = crypto.randomUUID();
   await sql`insert into books (id, tenant_id, type, owner_user_id)
@@ -574,7 +591,7 @@ test("E-05g-10 downgrade deletes nothing (ADR 05g §6, 08 §3): after a tenant d
   assertCap(await tryBook(tn, tn.admin), "book_cap", "a NEW business book is refused");
 });
 
-test("E-05g-11 no oracle and no bypass: a certified device of another tenant and an uncertified device of this one get the RLS / not_admin refusal on a FULL tenant — never a cap; a claims-less rf_api writes nothing; and no role can read or write the rotation ledger or ask the plan resolver about any tenant", async () => {
+test("E-05g-11 no oracle and no bypass: a certified device of another tenant and an uncertified device of this one get the RLS / not_admin refusal on a FULL tenant — never a cap; a claims-less rf_api writes nothing; a caller holding only a DEVICE claim is capped like any other (0021: the caps skip only when both claims are null); and no role can read or write the rotation ledger, or ask the plan resolver or the device cap about anyone (0021 revokes rf.device_cap from rf_api; rf.register_device still enforces it)", async () => {
   const tn = await tenant(PLAN.two);
   await activeMember(tn);
   const full = await tryInvite(tn, rand(32));
@@ -624,6 +641,34 @@ test("E-05g-11 no oracle and no bypass: a certified device of another tenant and
   }
   assertEquals(await liveInvites(tn.t), 0);
 
+  // CAP1 finding 3 (0021): rf.project_membership authorises on the DEVICE claim alone
+  // (rf.require_record), so a transaction that sets the founder's own device and no user must meet
+  // the seat cap too. Before 0021, rf.caps_apply() keyed on the user claim and this walked a third
+  // person into a 2-seat tenant.
+  const third = await mkPerson();
+  const recDev = await record(tn.t, tn.admin.dev, "membership_status");
+  const devOnly = await pgErr(
+    asApi(
+      null,
+      tn.admin.dev,
+      (s) =>
+        s`select rf.project_membership(${recDev}, ${tn.t}, ${third.user}, 'joined_pending_verification')`,
+    ),
+  );
+  assertCap(devOnly, "seat_cap", "device claim only: the full tenant still refuses the seat");
+  assertEquals(await statusOf(tn.t, third.user), null, "and no membership row was left behind");
+  assertEquals(await holders(tn.t), 2, "the seat count did not move");
+  const devOnlyBook = await pgErr(
+    asApi(
+      null,
+      tn.admin.dev,
+      (s) =>
+        s`insert into books (id, tenant_id, type) values (gen_random_uuid(), ${tn.t}, 'business')`,
+    ),
+  );
+  assertEquals(devOnlyBook.code, "42501", "device claim only: a book is the policy's refusal");
+  assert(!/cap/.test(devOnlyBook.message), devOnlyBook.message);
+
   // The ledger and the helpers: nobody but the definer.
   for (
     const [what, q] of [
@@ -652,11 +697,46 @@ test("E-05g-11 no oracle and no bypass: a certified device of another tenant and
         (s: postgres.TransactionSql) =>
           s`select rf.take_seat(${other.t}, ${tn.admin.user}, null, null)`,
       ],
+      [
+        // CAP1 finding 6 (0021): the device cap is the plan resolver one function away — any
+        // user's number (5 / 8 / 15 …) says which plan their tenants are on.
+        "ask a stranger's device cap",
+        (s: postgres.TransactionSql) => s`select rf.device_cap(${other.admin.user})`,
+      ],
     ] as const
   ) {
     const e = await pgErr(asApi(tn.admin.user, tn.admin.dev, q));
     assertEquals(e.code, "42501", `rf_api cannot ${what}`);
   }
+  const dcNoClaims = await pgErr(
+    asApi(null, null, (s) => s`select rf.device_cap(${other.admin.user})`),
+  );
+  assertEquals(dcNoClaims.code, "42501", "a claims-less rf_api cannot ask a device cap either");
+  const [dcAcl] = await sql`select
+      has_function_privilege('rf_api', 'rf.device_cap(uuid)', 'EXECUTE') as api,
+      has_function_privilege('rf_maintenance', 'rf.device_cap(uuid)', 'EXECUTE') as maint,
+      exists (select 1 from pg_proc p, aclexplode(coalesce(p.proacl, acldefault('f', p.proowner))) a
+              where p.oid = 'rf.device_cap(uuid)'::regprocedure and a.grantee = 0
+                and a.privilege_type = 'EXECUTE') as pub`;
+  assertEquals([dcAcl.api, dcAcl.maint, dcAcl.pub], [false, false, false]);
+  // …and the one caller that needs it, rf.register_device (SECURITY DEFINER, the pre-JWT path the
+  // edge runs with no claims), still reads it: a user registers up to the cap and not one more.
+  const [{ cap, held }] = await sql`select rf.device_cap(${tn.admin.user}) as cap,
+    (select count(*)::int from devices where user_id = ${tn.admin.user}
+       and status in ('registered', 'certified', 'suspended')) as held`;
+  assert(cap > held && cap < 100, `a finite cap above what is held (${held} of ${cap})`);
+  const reg = () =>
+    pgErr(
+      asApi(
+        null,
+        null,
+        (s) =>
+          s`select rf.register_device(gen_random_uuid(), ${tn.admin.user}::uuid, ${rand(32)},
+            ${rand(32)}, null, null, null)`,
+      ),
+    );
+  for (let i = held; i < cap; i++) assertEquals(await reg(), OK, `device ${i + 1} of ${cap}`);
+  assertEquals([(await reg()).message], ["device_cap"], "one more than the cap is refused by name");
   for (const q of ["select * from seat_grants", "delete from seat_grants"]) {
     const e = await pgErr(asRole("rf_maintenance", null, null, (s) => s.unsafe(q)));
     assertEquals(e.code, "42501", `rf_maintenance: ${q}`);
@@ -678,9 +758,12 @@ test("E-05g-12 one plan resolution for all three caps, and the caps read the COL
 
   const [dc] = await sql`select rf.device_cap(${tn.admin.user}) as cap,
     (select devices from plan_catalogue where id = ${PLAN.data}) as want`;
-  assertEquals(dc.cap, dc.want, "the device cap reads the same plan the seat cap does");
   const [df] = await sql`select rf.device_cap(${bare.admin.user}) as cap,
     (select devices from plan_catalogue where id = 'free') as want`;
+  // CAP1 finding 5: with zz_cap_data's devices equal to the Free floor's, a device cap that ignored
+  // the subscription would still have passed. The two numbers must differ for this to prove a thing.
+  assertNotEquals(dc.want, df.want, "the test row's devices differs from the Free floor's");
+  assertEquals(dc.cap, dc.want, "the device cap reads the same plan the seat cap does");
   assertEquals(df.cap, df.want);
 
   await invite(tn, rand(32));
@@ -732,6 +815,143 @@ test("E-05g-13 two admins racing for the last seat: exactly one wins — the cap
   assertCap(await second, "seat_cap", "…and, once the first commits, finds the seat gone");
   assertEquals(await holders(tn.t), 5);
 });
+
+test("E-05g-15 one personal book per person per tenant (0021; ADR 2026-09-25 §5 'Each person's personal book is free and never counted' — ⚠️ SPEC: implied, not stated): a second personal book for the same owner in the same tenant is refused by a unique partial index on every plan, Free and unlimited alike, archived or not — so `type = 'personal'` is no longer a way around the business-book cap; another member's first personal book is still free; the same person's personal book in another tenant stands (the per-(tenant, owner) reading); and a stranger still meets the RLS refusal, never the index", async () => {
+  const [ix] = await sql`select indexdef from pg_indexes
+    where schemaname = 'public' and indexname = 'books_one_personal_per_owner'`;
+  assert(ix, "the index exists");
+  assert(
+    /CREATE UNIQUE INDEX .* ON public\.books .*\(tenant_id, owner_user_id\) WHERE \(type = 'personal'::text\)/
+      .test(ix.indexdef as string),
+    `unique on (tenant_id, owner_user_id), partial on type = 'personal': ${ix.indexdef}`,
+  );
+  const dupe = (e: PgErr, why: string) =>
+    assertEquals([e.code, /books_one_personal_per_owner/.test(e.message)], ["23505", true], why);
+
+  for (const plan of [null, PLAN.none]) {
+    const tn = await tenant(plan); // the founder already holds one personal book here
+    for (let i = 0; i < 3; i++) {
+      dupe(
+        await tryBook(tn, tn.admin, "personal"),
+        `plan ${plan ?? "free"}: personal book ${i + 2}`,
+      );
+    }
+    await sql`update books set archived_at = now() where id = ${tn.personal}`;
+    dupe(
+      await tryBook(tn, tn.admin, "personal"),
+      "an archived personal book still holds the place",
+    );
+    const m = await activeMember(tn);
+    assertEquals(await tryBook(tn, m, "personal"), OK, "another member's first personal book");
+    dupe(await tryBook(tn, m, "personal"), "…and only one");
+    assertEquals(await bookCount(tn.t), 2, "two people, two personal books, nothing else");
+  }
+
+  // Free still refuses a business book, so the personal label was the only way past the cap.
+  const free = await tenant(null);
+  assertCap(await tryBook(free, free.admin), "book_cap", "Free: no business book");
+  // The same person founding a second tenant gets that tenant's personal book (the fixture writes
+  // it, and the index binds the owner's writes too — so this line is itself the per-tenant proof).
+  const second = await tenant(null, free.admin);
+  assertNotEquals(second.personal, free.personal);
+  const [{ n }] = await sql`select count(*)::int as n from books
+    where owner_user_id = ${free.admin.user} and type = 'personal'`;
+  assertEquals(n, 2, "one personal book in each of the person's two tenants");
+
+  // No oracle: a certified stranger naming this tenant's founder (who DOES hold a personal book
+  // here) is refused by books_insert before the index is ever consulted.
+  const stranger = await tenant(PLAN.none);
+  const e = await pgErr(
+    asApi(
+      stranger.admin.user,
+      stranger.admin.dev,
+      (s) =>
+        s`insert into books (id, tenant_id, type, owner_user_id)
+          values (gen_random_uuid(), ${free.t}, 'personal', ${free.admin.user})`,
+    ),
+  );
+  assertEquals(e.code, "42501", `the policy refuses the stranger, not the index: ${e.message}`);
+  assert(!/personal|duplicate/.test(e.message), e.message);
+});
+
+test(
+  "E-05g-16 (database half) desk 68(a) through the real handler over the real store: a re-sent membership_status record the seat cap refused answers rejected:seat_cap again — never acked — and leaves no row and no applied mark; once a seat is freed the same record applies and is acked, and its replay is acked with the same seq and changes nothing",
+  async () => {
+    // rls_db.sh applies the migrations and not seed.sql, so on a fresh database the one
+    // store_epoch row /records answers with is absent; seed.sql's own line, as a fixture.
+    await sql`insert into store_epoch (id, epoch) values (true, gen_random_uuid())
+      on conflict (id) do nothing`;
+    // A founder whose device key really signs, so sync-meta's own intake admits the record.
+    const keys = await edKeypair();
+    const hmac = rand(32);
+    const [u] = await sql`insert into users (phone_hmac, phone_ct) values (${hmac}, ${rand(40)})
+    returning id`;
+    const [d] = await sql`insert into devices (id, user_id, pub_ed, pub_x, status)
+    values (gen_random_uuid(), ${u.id}, ${keys.pub}, ${rand(32)}, 'certified') returning id`;
+    const founder: P = { user: u.id as string, dev: d.id as string, hmac };
+    const tn = await tenant(PLAN.two, founder);
+    const filler = await activeMember(tn);
+    assertEquals(await holders(tn.t), 2, "the 2-seat plan is full");
+
+    const r = rig();
+    const store = new PgStore(url!);
+    r.deps.store = store;
+    const signer = {
+      user: founder.user,
+      device: { id: founder.dev },
+      keys,
+      xpub: rand(32),
+      claims: { user_id: founder.user, device_id: founder.dev },
+      token: "",
+    } as unknown as Member;
+    await reissue(r, signer);
+    try {
+      const joiner = await mkPerson();
+      const rec = await signedRecord(signer, tn.t, "membership_status", {
+        user_id: joiner.user,
+        status: "joined_pending_verification",
+      });
+      const send = async () =>
+        (await body(
+          await meta(
+            post("/sync-meta/records", { records: [rec.wire] }, { token: signer.token }),
+            r.deps,
+          ),
+        )).results[0];
+      const applied = async () =>
+        (await sql`select applied_at, apply_note from signed_records where id = ${rec.row.id}`)[0];
+
+      const first = await send();
+      assertEquals([first.result, first.check], ["rejected:seat_cap", "seat_cap"]);
+      const again = await send();
+      assertEquals(
+        [again.id, again.result, again.check],
+        [rec.row.id, "rejected:seat_cap", "seat_cap"],
+        "the re-send is the same named refusal, not acked",
+      );
+      assertEquals(await statusOf(tn.t, joiner.user), null, "no membership row");
+      assertEquals((await applied()).applied_at, null, "the stored record is not marked applied");
+      assertEquals(await holders(tn.t), 2);
+
+      await project(tn, filler.user, "removed");
+      const later = await send();
+      assertEquals(later.result, "acked", "a seat is free: the same record applies now");
+      assertEquals(await statusOf(tn.t, joiner.user), "joined_pending_verification");
+      const mark = await applied();
+      assertNotEquals(mark.applied_at, null);
+      const replay = await send();
+      assertEquals([replay.result, replay.seq], ["acked", later.seq], "replay: the stored outcome");
+      assertEquals(await statusOf(tn.t, joiner.user), "joined_pending_verification");
+      assertEquals(
+        ((await applied()).applied_at as Date).getTime(),
+        (mark.applied_at as Date).getTime(),
+        "not applied a second time",
+      );
+    } finally {
+      await store.end();
+    }
+  },
+);
 
 test("E-05g-1 teardown: the test-only plan rows leave the catalogue as the seed wrote it", async () => {
   const ids = Object.values(PLAN) as string[];
