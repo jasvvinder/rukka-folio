@@ -37,3 +37,4 @@ app/android/key.properties
 # secrets — never committed (CLAUDE.md)
 .env
 .env.*
+!.env.example
