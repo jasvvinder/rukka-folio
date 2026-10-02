@@ -17,7 +17,10 @@
 //     nothing here may be drawn as money that has not moved: a late arrival
 //     already counts in every live balance (02 §3 🔒);
 //   * *Re-date to today* — `redateLateArrival`, an **amend** (02 §5, 02 §8):
-//     identical lines, only the date moves;
+//     identical lines, only the date moves. Being an amend, it is a write
+//     read-only (S12.5) refuses (ADR 2026-09-24b §13) — gated where the tap
+//     is, at S10.3's `_redate`, with ENT2's `refuseIfEntryRestricted`; this
+//     adapter has no context to raise the sheet from (F1-24b-16);
 //   * *Re-open {month}* — `unlockMonth`, one signed `period_unlock` envelope
 //     carrying the reason, refused outright inside a closed FY because that
 //     re-open is the structural act of 02 §7.2.1 🔒.

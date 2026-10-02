@@ -7,12 +7,18 @@
 // protocol; it is the seam that lets S0.9 be pumped in a widget test without a
 // server and without `features/members`' whole repository.
 //
-// ⚠️ WIRE — integration binds [DelegatedInvitationGateway] to a
-// `MembersRepository` (in production `ServerMembersRepository`): its
-// `myInvites()` and `acceptInvite()` are interface methods since M13, the two
-// routes this needs (`sync-meta/invites` GET and `sync-meta/invites/accept`
-// POST), so `FakeMembersRepository` stands in for the server without a
-// downcast. `pendingBooks` reads `MembersSnapshot.pendingBooks`.
+// Bound in `bootstrap.dart` (S0.9's [InvitationGatewayScope]):
+// [DelegatedInvitationGateway.offers] is `MembersRepository.myInvites`
+// (`sync-meta/invites` GET), and [DelegatedInvitationGateway.accept] is
+// **`InviteNonceRelay.acceptInvite`** (in `features/members/`) over
+// `HttpMembersApi.acceptInviteRelayed` (the `sync-meta/invites/accept` POST)
+// — never `MembersRepository.acceptInvite` directly. The relay
+// is what remembers *which* invite this device accepted and keeps that
+// invite's relayed nonce, which S9.2 pairs by `invite_id`; an accept that
+// bypassed it would return the same status and silently drop the nonce (ADR
+// 2026-09-25b §3). `pendingBooks` reads `MembersSnapshot.pendingBooks`.
+// `FakeMembersRepository` stands in for the server in widget tests
+// (F1-07-546/547 bind it the same way).
 //
 // **The one rule that shapes the whole seam** (ADR 2026-09-05d §9 🔒): a
 // number that was never invited and an invite id that does not exist are the
@@ -51,9 +57,11 @@ abstract class InvitationGateway {
   Future<List<PendingBook>> pendingBooks();
 }
 
-/// An [InvitationGateway] over three closures — how integration binds a
-/// `MembersRepository`'s `myInvites` / `acceptInvite` without S0.9 importing
-/// it.
+/// An [InvitationGateway] over three closures — how bootstrap binds the
+/// members feature without S0.9 importing it: [offers] to
+/// `MembersRepository.myInvites`, [accept] to `InviteNonceRelay.acceptInvite`
+/// (never `MembersRepository.acceptInvite`, which would drop the relayed
+/// nonce — ADR 2026-09-25b §3).
 final class DelegatedInvitationGateway implements InvitationGateway {
   /// Creates the adapter. [pending] defaults to none, so a host that has not
   /// pulled meta yet still wires cleanly.

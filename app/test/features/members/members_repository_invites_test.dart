@@ -6,9 +6,12 @@
 //            (S0.9, through the production `DelegatedInvitationGateway`
 //            binding) sees the fake's rows, nonce and status included
 //            (ADR 2026-09-25b §2)
-// F1-07-547  `acceptInvite` — the same caller's accept reaches the fake and
-//            returns the fake's membership status; an id the fake never
-//            offered is the one `inviteNotForYou` (ADR 2026-09-05d §9 🔒)
+// F1-07-547  `acceptInvite` — the same caller's accept, bound through
+//            `InviteNonceRelay.acceptInvite` as bootstrap binds it, reaches
+//            the fake, returns the fake's membership status and leaves the
+//            relay holding that invite's nonce (ADR 2026-09-25b §3); an id the
+//            fake never offered is the one `inviteNotForYou` (ADR 2026-09-05d
+//            §9 🔒)
 //
 // Test-honesty: each assertion is on a value only the fake could have
 // supplied — an empty `offered` renders S0.9's no-invitation state and an
@@ -22,10 +25,14 @@ import 'dart:typed_data';
 import 'package:core_crypto/core_crypto.dart' show ceremonyNonceBytes;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:rukka_folio/features/members/invite_nonce_relay.dart';
+import 'package:rukka_folio/features/members/members_api.dart'
+    show AcceptedInvite;
 import 'package:rukka_folio/features/members/members_repository.dart';
 import 'package:rukka_folio/features/onboarding/invitation_gateway.dart'
     show DelegatedInvitationGateway, InvitationGateway, InvitationGatewayScope;
 import 'package:rukka_folio/features/onboarding/screens/s0_9_invitation_screen.dart';
+import 'package:rukka_folio/shared/prefs.dart' show MemoryPrefs;
 import 'package:rukka_folio/shared/seams/auth_client.dart';
 
 import '../../shared/test_app.dart';
@@ -46,13 +53,45 @@ InviteOffer _offer({String id = 'inv-1', int books = 2}) => InviteOffer(
   nonce: _nonce,
 );
 
-/// Exactly the production binding (bootstrap's S0.9 gateway), but over the
-/// interface type: nothing here can reach a `ServerMembersRepository` member.
-InvitationGateway _gatewayOver(MembersRepository repo) =>
-    DelegatedInvitationGateway(
+/// The production binding (bootstrap's S0.9 gateway), over the interface
+/// type: `offers` is the repository's `myInvites`, and `accept` goes
+/// **through** [InviteNonceRelay.acceptInvite] — never straight to
+/// `MembersRepository.acceptInvite`, which answers the status alone and would
+/// drop the relayed nonce S9.2 pairs by `invite_id` (ADR 2026-09-25b §3).
+///
+/// Bootstrap's relay answers with `HttpMembersApi.acceptInviteRelayed`; over
+/// the fake, its stand-in is the repository's accept (the status) plus the
+/// offer's own nonce — the shape that route answers (25b §2). Nothing here
+/// can reach a `ServerMembersRepository` member.
+({InvitationGateway gateway, InviteNonceRelay relay}) _bindingOver(
+  MembersRepository repo,
+) {
+  final relay = InviteNonceRelay(
+    offers: repo.myInvites,
+    accept: (inviteId) async {
+      final status = await repo.acceptInvite(inviteId);
+      final offer = (await repo.myInvites()).where(
+        (o) => o.inviteId == inviteId,
+      );
+      return AcceptedInvite(
+        inviteId: inviteId,
+        status: status,
+        nonce: offer.firstOrNull?.nonce,
+      );
+    },
+    store: MemoryPrefs(),
+  );
+  return (
+    gateway: DelegatedInvitationGateway(
       offers: repo.myInvites,
-      accept: repo.acceptInvite,
-    );
+      accept: relay.acceptInvite,
+    ),
+    relay: relay,
+  );
+}
+
+InvitationGateway _gatewayOver(MembersRepository repo) =>
+    _bindingOver(repo).gateway;
 
 Future<void> _pumpS09(WidgetTester tester, InvitationGateway gateway) => pumpRk(
   tester,
@@ -129,10 +168,17 @@ void main() {
           ..acceptStatus = 'status-from-the-fake';
         final MembersRepository repo = fake;
 
-        final status = await _gatewayOver(repo).acceptInvite('inv-1');
+        final binding = _bindingOver(repo);
+        final status = await binding.gateway.acceptInvite('inv-1');
 
         expect(status, 'status-from-the-fake');
         expect(fake.acceptedInvites, ['inv-1']);
+        // Accepted through the relay, so the invite this device accepted is
+        // the one S9.2 pairs its relayed nonce to (ADR 2026-09-25b §3). Bound
+        // straight to `repo.acceptInvite`, the relay would know no invite and
+        // answer no nonce.
+        expect(binding.relay.ownInviteId, 'inv-1');
+        expect(await binding.relay.nonce(), _nonce);
       },
     );
 

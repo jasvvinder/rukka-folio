@@ -30,6 +30,7 @@ import '../../../shared/app_scope.dart';
 import '../../../shared/seams/sync_client.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../entry/entry_restriction.dart';
 import '../late_arrivals.dart';
 import '../widgets/late_arrival_card.dart';
 import '../widgets/reopen_sheet.dart';
@@ -160,15 +161,28 @@ class _LateArrivalTileState extends State<LateArrivalTile> {
   /// of one, so this surface confirms rather than offering an Undo it cannot
   /// honour. Re-dating is an amend of a posted entry: the entry stays in the
   /// book either way and only its date moved, which the confirmation says.
+  ///
+  /// S12.5 (ADR 2026-09-24b §13): a re-date is an **amend** — a new envelope
+  /// — so read-only blocks it with the same sheet as S4.1's amend, through the
+  /// same [refuseIfEntryRestricted] gate, for the book the amend appends to.
+  /// The card stays as it was under the sheet (nothing moved), and the sheet's
+  /// way forward is S12.1 Plans (07 §1 rule 6). Both seams are read before
+  /// the first await; [_busy] keeps a double tap from stacking two sheets.
   Future<void> _redate() async {
+    if (_busy) return;
     final tray = LateArrivalsScope.of(context);
     final l10n = AppLocalizations.of(context);
+    final sources = entryRestrictionSourcesOf(context);
     setState(() {
       _busy = true;
       _error = false;
       _refusal = null;
     });
     try {
+      final refused = await refuseIfEntryRestricted(context, sources, [
+        widget.item.bookId,
+      ], onBlocked: () => setState(() => _busy = false));
+      if (refused) return;
       await tray.redateToToday(widget.item.entryId);
       if (mounted) setState(() => _moved = true);
       _say(l10n.inboxLateCardMoved);

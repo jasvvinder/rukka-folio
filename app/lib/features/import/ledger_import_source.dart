@@ -163,7 +163,9 @@ final class LedgerImportSource implements ImportSource {
   }) async {
     // Creating an A/C is an ordinary write the engine already owns, and it
     // carries no `bank_text` — so inline-create works today even though the
-    // line it will answer cannot post yet.
+    // line it will answer cannot post yet. It does append an envelope, so
+    // read-only (S12.5) refuses it (ADR 2026-09-24b §13) — gated at the tap,
+    // S7.1's inline create, with ENT2's `refuseIfEntryRestricted` (F1-24b-17).
     final account = await ledger.addAccount(
       bookId,
       name: name,

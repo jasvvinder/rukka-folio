@@ -22,7 +22,9 @@
 // later* — never an error, never a dead end (07 §1 rule 6, 13 §4.3).
 //
 // States (13 §4.3): ruled skeleton · error-with-retry · empty · populated.
-// Offline says nothing: every step here is on-device (04).
+// Offline says nothing: every step here is on-device (04). Read-only (S12.5)
+// refuses the one write this screen makes today — inline create — with the
+// S12.5 sheet (ADR 2026-09-24b §13; see [_ImportInboxScreenState._create]).
 import 'package:flutter/material.dart';
 
 import '../../../l10n/gen/app_localizations.dart';
@@ -30,6 +32,7 @@ import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../../../shared/widgets/rk_fit_text.dart';
 import '../../../shared/widgets/rk_states.dart';
+import '../../entry/entry_restriction.dart';
 import '../balance_check.dart';
 import '../import_lines.dart';
 import '../import_source.dart';
@@ -77,6 +80,7 @@ class _ImportInboxScreenState extends State<ImportInboxScreen> {
 
   String? _picking;
   String? _noting;
+  bool _creating = false;
   final _expanded = <String>{};
 
   int _recorded = 0;
@@ -187,6 +191,33 @@ class _ImportInboxScreenState extends State<ImportInboxScreen> {
     // Rules learn from corrections (07 §11 item 3 🔒): the *Always? Yes/No*
     // toast, and only where something was actually corrected.
     if (next.correctedFrom != null) _askAlways(next);
+  }
+
+  /// Inline create from the picker — a new A/C, then the line answered with it.
+  ///
+  /// S12.5 (ADR 2026-09-24b §13): a new A/C appends an envelope (the same
+  /// `addAccount` write S2.1 and S3.1 gate), so read-only refuses it with the
+  /// same sheet, through ENT2's [refuseIfEntryRestricted], for this book. The
+  /// picker and the typed name stay open under the sheet (drafts kept), and
+  /// the sheet's way forward is S12.1 Plans (07 §1 rule 6). Both seams are
+  /// read before the first await; [_creating] keeps a double tap from
+  /// stacking two sheets or two A/Cs.
+  Future<void> _create(ImportLine line, String name) async {
+    final source = _source;
+    final bookId = _bookId;
+    if (source == null || bookId == null || _creating) return;
+    final sources = entryRestrictionSourcesOf(context);
+    _creating = true;
+    try {
+      if (await refuseIfEntryRestricted(context, sources, [bookId])) return;
+      final created = await source.createCounterpart(bookId, name: name);
+      if (!mounted) return;
+      _counterparts = await source.counterparts(bookId);
+      if (!mounted) return;
+      await _answer(line, created);
+    } finally {
+      _creating = false;
+    }
   }
 
   void _askAlways(ImportLine line) {
@@ -378,19 +409,7 @@ class _ImportInboxScreenState extends State<ImportInboxScreen> {
                 () => _picking = _picking == line.id ? null : line.id,
               ),
               onPick: (c) => _answer(line, c),
-              onCreate: (name) async {
-                final source = _source;
-                final bookId = _bookId;
-                if (source == null || bookId == null) return;
-                final created = await source.createCounterpart(
-                  bookId,
-                  name: name,
-                );
-                if (!mounted) return;
-                _counterparts = await source.counterparts(bookId);
-                if (!mounted) return;
-                await _answer(line, created);
-              },
+              onCreate: (name) => _create(line, name),
               onSuspense: () => _run((s) => s.toSuspense(line)),
               onConfirmTransfer: () => _confirmTransfer(line),
               onRejectTransfer: () => _rejectTransfer(line),

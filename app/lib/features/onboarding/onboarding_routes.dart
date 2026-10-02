@@ -340,11 +340,14 @@ final List<RouteBase> onboardingRoutes = [
   //   1. the **deep-link mapping**: the external `https://…/join/<id>` (or
   //      custom-scheme) URL onto [OnboardingPaths.invitation] with the id in
   //      the `invite` query parameter;
-  //   2. an **[InvitationGatewayScope]** above the router, bound with
-  //      [DelegatedInvitationGateway] to the `MembersRepository`'s
-  //      `myInvites` / `acceptInvite` (interface methods since M13) and to
-  //      `MembersSnapshot.pendingBooks` — without it S0.9 falls back to an
-  //      empty fake, which is the safe state but never a real invitation;
+  //   2. an **[InvitationGatewayScope]** above the router (bootstrap.dart
+  //      mounts it), bound with [DelegatedInvitationGateway]: `offers` to
+  //      `MembersRepository.myInvites`, `accept` to
+  //      `InviteNonceRelay.acceptInvite` — not `MembersRepository
+  //      .acceptInvite`, which would drop the relayed nonce S9.2 pairs by
+  //      `invite_id` (ADR 2026-09-25b §3) — and `pending` to
+  //      `MembersSnapshot.pendingBooks`. Without the scope S0.9 falls back to
+  //      an empty fake, which is the safe state but never a real invitation;
   //   3. `onConfirmNumber` currently goes straight to S0.2, which **loses the
   //      link**. The return hop (come back to this path with the same invite
   //      id after the OTP) needs a redirect in router.dart; ⚠️ SPEC: neither
