@@ -877,10 +877,8 @@ test("E-05g-15 one personal book per person per tenant (0021; ADR 2026-09-25 §5
 test(
   "E-05g-16 (database half) desk 68(a) through the real handler over the real store: a re-sent membership_status record the seat cap refused answers rejected:seat_cap again — never acked — and leaves no row and no applied mark; once a seat is freed the same record applies and is acked, and its replay is acked with the same seq and changes nothing",
   async () => {
-    // rls_db.sh applies the migrations and not seed.sql, so on a fresh database the one
-    // store_epoch row /records answers with is absent; seed.sql's own line, as a fixture.
-    await sql`insert into store_epoch (id, epoch) values (true, gen_random_uuid())
-      on conflict (id) do nothing`;
+    // The store_epoch row /records answers with comes from seed.sql, which rls_db.sh applies
+    // after the migrations (desk 75).
     // A founder whose device key really signs, so sync-meta's own intake admits the record.
     const keys = await edKeypair();
     const hmac = rand(32);

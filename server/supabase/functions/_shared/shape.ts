@@ -38,9 +38,12 @@ export function parseEnvelope(raw: unknown, blob: Uint8Array | null): EnvelopeRo
   if (typeof e.object_type !== "string" || !OBJECT_TYPES.has(e.object_type)) {
     return { result: "rejected:shape", check: "object_type" };
   }
-  const ints = ["key_version", "suite_version", "payload_schema", "size"] as const;
-  for (const f of ints) {
-    if (typeof e[f] !== "number" || !Number.isInteger(e[f]) || (e[f] as number) < 0) {
+  // Floors: key versions are issued from 1 (0001/0002/0003 `check (key_version >= 1)`), so 0 is
+  // never "≤ highest issued" (03 §2.3) and is refused here by name rather than reaching the
+  // store's CHECK (desk 77). suite_version / payload_schema 0 fall to the registry checks below.
+  const floors = { key_version: 1, suite_version: 0, payload_schema: 0, size: 0 } as const;
+  for (const [f, min] of Object.entries(floors)) {
+    if (typeof e[f] !== "number" || !Number.isInteger(e[f]) || (e[f] as number) < min) {
       return { result: "rejected:shape", check: f };
     }
   }

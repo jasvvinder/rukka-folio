@@ -21,6 +21,13 @@ USER="${PGUSER:-$(whoami)}"
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 command -v psql >/dev/null 2>&1 || { echo "psql not found (PGBIN=$PGBIN)" >&2; exit 1; }
+# seed.sql (applied below) is LOCAL DEV ONLY — it creates password login roles — so refuse a
+# non-loopback host before anything is dropped. A unix-socket directory (/…) is local too.
+case "$HOST" in
+  127.0.0.1|localhost|::1|/*) ;;
+  *) echo "refusing $HOST: rls_db.sh applies seed.sql, which is local-only (loopback or socket)" >&2
+     exit 1 ;;
+esac
 pg_isready -h "$HOST" -p "$PORT" >/dev/null 2>&1 || {
   echo "no Postgres at $HOST:$PORT — brew services start postgresql@16" >&2; exit 1; }
 
@@ -32,5 +39,13 @@ for f in "$ROOT"/server/supabase/migrations/*.sql; do
   echo "  apply $(basename "$f")" >&2
   psql -v ON_ERROR_STOP=1 -q -h "$HOST" -p "$PORT" -U "$USER" -d "$DB" -f "$f" >&2
 done
+
+# Then seed.sql, as `supabase db reset` does (config.toml [db.seed]): the store_epoch row every
+# handler reads, and the rf_local / rf_local_maint login roles. The roles are cluster-wide and
+# seed.sql creates them only if absent, so a re-run (fresh database, same cluster) stays
+# idempotent; the repeated GRANTs answer a NOTICE, not an error.
+echo "  apply seed.sql" >&2
+psql -v ON_ERROR_STOP=1 -q -h "$HOST" -p "$PORT" -U "$USER" -d "$DB" \
+  -f "$ROOT/server/supabase/seed.sql" >&2
 
 echo "export RF_TEST_DB_URL=postgresql://$USER@$HOST:$PORT/$DB"

@@ -85,9 +85,7 @@ function test(name: string, fn: () => Promise<void>) {
     async fn() {
       sql = postgres(url!, { max: 4, onnotice: () => {} });
       try {
-        // rls_db.sh applies the migrations, not seed.sql: seed.sql's store_epoch line, as a fixture.
-        await sql`insert into store_epoch (id, epoch) values (true, gen_random_uuid())
-          on conflict (id) do nothing`;
+        // store_epoch comes from seed.sql, which rls_db.sh applies after the migrations (desk 75).
         await sql`insert into plan_catalogue (id, entity_type, name, sort_order, members,
             business_books, devices, envelopes_per_book, tenant_bytes, attachment_bytes, features,
             price_yearly_paise, price_monthly_paise)

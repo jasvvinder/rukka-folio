@@ -116,6 +116,24 @@ Deno.test("E-05-13 push: key_version below highest is fine inside 48 h and rejec
   assertEquals(res.results[0].check, "key_version");
 });
 
+Deno.test("E-05-19 push: key_version 0 is refused at shape (rejected:shape, check key_version), never reaching 0003's CHECK (key_version >= 1); key_version 1 still acks", async () => {
+  const { r, tenant, book, m } = await scene();
+  // Highest issued is 1 and fresh, so 0 sits "below highest inside 48 h" — the window that let
+  // it through to the store before (desk 77).
+  for (const bad of [0, -1]) {
+    const e = await wireEnvelope(m, tenant, book, { key_version: bad });
+    const res = await body(await send(r, m.token, [e]));
+    assertEquals(res.results[0].result, "rejected:shape", `key_version ${bad}`);
+    assertEquals(res.results[0].check, "key_version", `key_version ${bad}`);
+    assertEquals(res.results[0].envelope_id, e.envelope_id);
+  }
+  assertEquals(r.db.envelopes.length, 0, "nothing stored");
+  const ok = await wireEnvelope(m, tenant, book, { key_version: 1 });
+  const res = await body(await send(r, m.token, [ok]));
+  assertEquals(res.results[0].result, "acked");
+  assertEquals(r.db.envelopes.length, 1);
+});
+
 Deno.test("E-05-2 push: idempotent by envelope_id — replay acks the same seq and stores nothing twice", async () => {
   const { r, tenant, book, m } = await scene();
   const e = await wireEnvelope(m, tenant, book);
