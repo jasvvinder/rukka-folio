@@ -117,7 +117,10 @@ async function otpRequest(req: Request, deps: Deps, b: Record<string, unknown>):
     return json(429, { error: "too_many_requests", resend_after_s: decision.resend_after_s });
   }
 
-  const code = await sixDigits();
+  // A fresh random code, unless the provider carries the fixed dev code. Only a FakeOtpProvider that
+  // otp/select.ts bound to the dev project has one (ADR 2026-09-25 §1, desk 57; E-25-8, E-25-9).
+  // Either way only the hash is stored, and nothing here logs the code or the phone (rule 4).
+  const code = deps.otp.fixedCode ?? await sixDigits();
   const codeHash = await blake2b256(new TextEncoder().encode(code)); // the code itself is never stored
   // One SMS, one attempt: no preference, no failover to another channel (ADR 2026-09-25 §1).
   const channel = await deps.otp.send(phone, code);

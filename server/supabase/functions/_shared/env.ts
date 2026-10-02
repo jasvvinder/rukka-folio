@@ -15,12 +15,29 @@ export const ENV = {
   // rotation with a 30-day overlap (04 §8 rule 6 🔒) is an ops procedure, not a code path: during
   // an overlap the app holds both pinned public keys (see sodium.ts's header).
   ENTITLEMENT_KEY: "RF_ENTITLEMENT_KEY",
-  OTP_PROVIDER: "OTP_PROVIDER", // msg91 | kaleyra | twilio | fake
+  // msg91 | fake — nothing else (PLAN desk 57). Unset or unknown refuses to start; `2factor` is
+  // named in otp/select.ts as row OTP3's extension point and refuses until it is built.
+  OTP_PROVIDER: "OTP_PROVIDER",
   OTP_API_KEY: "OTP_PROVIDER_API_KEY",
   OTP_DLT_ENTITY: "OTP_DLT_ENTITY_ID",
   OTP_DLT_TEMPLATE: "OTP_DLT_TEMPLATE_ID",
+  // The second switch for the fixed dev OTP code (ADR 2026-09-25 §1, desk 57): set ONLY on the dev
+  // project, to that project's own ref. It works only with OTP_PROVIDER=fake and only when it equals
+  // the ref in SUPABASE_URL (otp/select.ts). Never set it on a pilot or production project.
+  DEV_PROJECT_REF: "RF_DEV_PROJECT_REF",
+  // Platform-injected (`https://<ref>.supabase.co`); the operator cannot set a SUPABASE_-prefixed
+  // secret. Read only to name the project the fixed dev code is bound to.
+  SUPABASE_URL: "SUPABASE_URL",
   WEBHOOK_SECRET: "PAYMENT_GATEWAY_WEBHOOK_SECRET",
 } as const;
+
+/** A required variable is missing. It names the variable, never a value, so it is safe to log. */
+export class MissingEnvError extends Error {
+  constructor(readonly variable: string) {
+    super(`missing env ${variable}`);
+    this.name = "MissingEnvError";
+  }
+}
 
 export function env(name: string): string | undefined {
   try {
@@ -31,6 +48,6 @@ export function env(name: string): string | undefined {
 }
 export function requireEnv(name: string): string {
   const v = env(name);
-  if (!v) throw new Error(`missing env ${name}`);
+  if (!v) throw new MissingEnvError(name);
   return v;
 }

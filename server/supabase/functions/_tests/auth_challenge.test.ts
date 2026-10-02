@@ -1,9 +1,19 @@
 // auth-challenge (06 §2–§4 🔒; ADR 2026-09-05d §2, ADR 2026-09-16 §2, ADR 2026-09-25 §1). Ids
-// E-06-1 … E-06-8, E-06-40, E-06-41, E-06-68, E-25-1.
-import { assert, assertEquals, assertNotEquals, assertStringIncludes } from "@std/assert";
-import { b64url } from "../_shared/bytes.ts";
+// E-06-1 … E-06-8, E-06-40, E-06-41, E-06-68, E-25-1, E-25-4 … E-25-9.
+import {
+  assert,
+  assertEquals,
+  assertNotEquals,
+  assertStringIncludes,
+  assertThrows,
+} from "@std/assert";
+import { b64, b64url } from "../_shared/bytes.ts";
 import { verifyAccessToken } from "../_shared/claims.ts";
-import { Msg91Provider } from "../_shared/otp/provider.ts";
+import { type Deps, depsFromEnv, liveDeps, start } from "../_shared/deps.ts";
+import { ENV } from "../_shared/env.ts";
+import { FakeOtpProvider, Msg91Provider } from "../_shared/otp/provider.ts";
+import { DEV_FIXED_OTP_CODE, OtpConfigError, selectOtpProvider } from "../_shared/otp/select.ts";
+import { blake2b256 } from "../_shared/sodium.ts";
 import { handler as auth, NONCE_TTL_S, OTP_MAX_ATTEMPTS, SKEW_S } from "../auth-challenge/index.ts";
 import { handler as meta } from "../sync-meta/index.ts";
 import {
@@ -789,4 +799,462 @@ Deno.test("E-06-68 both UMK public halves: /devices/certify records umk_pub_ed A
   const legacy = again.umk_public_keys.find((k: any) => k.user_id === verifier.user);
   assertEquals(legacy.pub_ed, b64url.enc(legacyEd));
   assertEquals(legacy.pub_x, null, "no x half, and nothing invented in its place");
+});
+
+// ---------------------------------------------------------------- OTP2: provider selection + the fixed dev code
+// Desk 57 (owner, 28 Sep, option 1 strict) and ADR 2026-09-25 §1: OTP_PROVIDER takes only a
+// provider that exists (`msg91`) or an explicit `fake`; unset or unknown refuses to start and every
+// call errors — never a silent 200. The fixed dev code needs a SECOND switch, RF_DEV_PROJECT_REF,
+// whose value must equal the project ref in the platform-injected SUPABASE_URL, so the dev
+// project's secrets copied onto another project can never put a fixed code there. Refs, keys and
+// URLs below are SYNTHETIC.
+const DEV_REF = "devdevdevdevdevdevde"; // 20 chars, the shape of a Supabase project ref
+const PILOT_REF = "pilotpilotpilotpilot";
+const projectUrl = (ref: string) => `https://${ref}.supabase.co`;
+const MSG91_CREDS = {
+  OTP_PROVIDER_API_KEY: "synthetic-key",
+  OTP_DLT_ENTITY_ID: "synthetic-entity",
+  OTP_DLT_TEMPLATE_ID: "synthetic-template",
+};
+/** Every secret `depsFromEnv` needs except the OTP ones — so the OTP check is the only thing that
+ *  can refuse. Synthetic, in the standard base64 `depsFromEnv` decodes. The DB URL points nowhere
+ *  and is never dialled: a refusal throws before the store is built, and on the hosted path below
+ *  the handler is given the rig's MemStore (PgStore connects lazily, on its first query). */
+const OTHER_SECRETS = {
+  RF_API_DB_URL: "postgres://rf_api_login:x@127.0.0.1:1/none",
+  RF_JWT_HMAC_KEY: b64.enc(new Uint8Array(32).fill(1)),
+  RF_PHONE_HMAC_KEY: b64.enc(new Uint8Array(32).fill(2)),
+  RF_PHONE_KEK: b64.enc(new Uint8Array(32).fill(3)),
+  RF_ENTITLEMENT_KEY: b64.enc(new Uint8Array(32).fill(4)),
+};
+const envOf = (vars: Record<string, string>) => (name: string): string | undefined => vars[name];
+
+/** Captures every console line written while `fn` runs (rule 4: none may carry a phone or a code). */
+async function consoleLines<T>(fn: () => Promise<T>): Promise<{ out: T; lines: string[] }> {
+  const lines: string[] = [];
+  const keep = { error: console.error, warn: console.warn, log: console.log, info: console.info };
+  const sink = (...a: unknown[]) => void lines.push(a.map(String).join(" "));
+  Object.assign(console, { error: sink, warn: sink, log: sink, info: sink });
+  try {
+    return { out: await fn(), lines };
+  } finally {
+    Object.assign(console, keep);
+  }
+}
+
+/** The HOSTED path — what a deployed function runs (review OTP2, findings 1 and 2). `depsFn` is
+ *  `() => depsFromEnv(...)`'s result over synthetic secrets, or omitted, so that `start` falls back to
+ *  its default, `liveDeps`, which reads Deno.env exactly as `serve()` does. `start` checks it at boot
+ *  and `entry` hands its result to the real auth-challenge handler on every call. Only the store and
+ *  the clock are swapped for the rig's (there is no database here); the OTP provider, and every key
+ *  the handler signs or hashes with, are the ones the hosted builder made. `handed` is every Deps the
+ *  handler was given, so a test can prove which provider served it. */
+async function hosted(r: Rig, depsFn?: () => Deps) {
+  const handed: Deps[] = [];
+  const box: { serve?: (q: Request) => Promise<Response> } = {};
+  const { lines } = await consoleLines(() => {
+    start(
+      (q, d) => {
+        handed.push(d);
+        return auth(q, { ...d, store: r.deps.store, now: r.deps.now });
+      },
+      depsFn,
+      (h) => {
+        box.serve = h;
+      },
+    );
+    return Promise.resolve();
+  });
+  assertEquals(lines.filter((l) => l.includes("refused")), [], "a valid configuration starts");
+  const serveFn = box.serve!;
+  assert(serveFn, "the isolate listens");
+  return {
+    handed,
+    call: (path: string, b: unknown) => serveFn(post(`/auth-challenge${path}`, b)),
+  };
+}
+
+/** Runs `fn` with Deno.env holding exactly `vars` for every name the functions read (ENV): the
+ *  others, RF_DEV_PROJECT_REF included, are removed, so the developer's own shell cannot leak in. The
+ *  previous values come back afterwards. */
+async function withEnv<T>(vars: Record<string, string>, fn: () => Promise<T>): Promise<T> {
+  const names = new Set<string>([...Object.values(ENV), ...Object.keys(vars)]);
+  const saved = new Map([...names].map((n) => [n, Deno.env.get(n)] as const));
+  for (const n of names) Deno.env.delete(n);
+  for (const [k, v] of Object.entries(vars)) Deno.env.set(k, v);
+  try {
+    return await fn();
+  } finally {
+    for (const [n, v] of saved) v === undefined ? Deno.env.delete(n) : Deno.env.set(n, v);
+  }
+}
+
+/** Three sign-up requests through the hosted path with fetch stubbed (no network): each must be ONE
+ *  POST to MSG91 carrying the configured (synthetic) credentials and a fresh random code that is
+ *  never the fixed dev code, stored only as its hash — and every request must have been served by
+ *  `expected`, the Deps the hosted builder made. */
+async function assertMsg91Sends(label: string, depsFn: (() => Deps) | undefined, expected: Deps) {
+  const r = rig();
+  const h = await hosted(r, depsFn);
+  const realFetch = globalThis.fetch;
+  const posts: { url: string; authkey: string | null; body: Record<string, string> }[] = [];
+  globalThis.fetch = ((i: RequestInfo | URL, init?: RequestInit) => {
+    posts.push({
+      url: String(i),
+      authkey: new Headers(init?.headers).get("authkey"),
+      body: JSON.parse(String(init?.body)),
+    });
+    return Promise.resolve(new Response("{}", { status: 200 }));
+  }) as typeof fetch;
+  try {
+    for (const phone of ["+919876500001", "+919876500002", "+919876500003"]) {
+      const res = await h.call("/otp/request", { phone, purpose: "signup" });
+      assertEquals(res.status, 200, `${label}: the hosted entry serves a valid configuration`);
+      await res.body?.cancel();
+    }
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+  assertEquals(h.handed.length, 3, `${label}: every request reached the handler`);
+  assert(h.handed.every((d) => d === expected), `${label}: served by the hosted builder's Deps`);
+  assertEquals(posts.length, 3, `${label}: one MSG91 POST per request`);
+  for (const [i, p] of posts.entries()) {
+    assertEquals(new URL(p.url).host, "control.msg91.com", label);
+    assertEquals(p.authkey, MSG91_CREDS.OTP_PROVIDER_API_KEY, `${label}: the configured key`);
+    assertEquals(p.body.template_id, MSG91_CREDS.OTP_DLT_TEMPLATE_ID, label);
+    assertEquals(p.body.dlt_te_id, MSG91_CREDS.OTP_DLT_ENTITY_ID, label);
+    assert(/^\d{6}$/.test(p.body.otp), label);
+    assertNotEquals(p.body.otp, DEV_FIXED_OTP_CODE, `${label} send ${i}: never the fixed code`);
+    assertEquals(
+      r.db.otp_challenges[i].code_hash,
+      await blake2b256(new TextEncoder().encode(p.body.otp)),
+      `${label}: the code sent is the code whose hash is stored`,
+    );
+  }
+}
+
+/** Asserts that `vars` refuses to start: selection throws `reason`; the startup check logs it once,
+ *  before any request, without echoing a value; and every call — on every route — answers 503
+ *  `unconfigured` without reaching the handler. */
+async function assertRefuses(vars: Record<string, string>, reason: string, label: string) {
+  assertThrows(() => selectOtpProvider(envOf(vars)), OtpConfigError, reason, label);
+  let reached = 0;
+  const counted = (q: Request, d: Deps) => (reached++, auth(q, d));
+  const box: { serve?: (q: Request) => Promise<Response> } = {};
+  const { lines } = await consoleLines(() => {
+    start(counted, () => depsFromEnv(envOf({ ...OTHER_SECRETS, ...vars })), (h) => {
+      box.serve = h;
+    });
+    return Promise.resolve();
+  });
+  const serveFn = box.serve!;
+  assert(serveFn, `${label}: the isolate still answers, so a caller gets an error, not a hang`);
+  assert(lines.some((l) => l.includes(reason)), `${label}: the startup refusal is logged`);
+  for (const l of lines) {
+    for (const v of Object.values(vars)) {
+      // Short values ("1", "on", "dev") are substrings of ordinary words; the long ones — refs,
+      // URLs, a pasted key — are what an echo would leak.
+      if (v.length >= 5 && !["fake", "msg91"].includes(v)) {
+        assert(!l.includes(v), `${label}: the log never echoes a configured value`);
+      }
+    }
+  }
+  for (
+    const [path, b] of [
+      ["/otp/request", { phone: PHONE, purpose: "signup" }],
+      ["/otp/verify", { phone: PHONE, purpose: "signup", code: DEV_FIXED_OTP_CODE }],
+      ["/challenge", { device_id: crypto.randomUUID() }],
+    ] as const
+  ) {
+    const { out: res, lines: callLines } = await consoleLines(() =>
+      serveFn(post(`/auth-challenge${path}`, b))
+    );
+    const text = await res.text();
+    assertEquals(res.status, 503, `${label} ${path}: refused, never a silent 200`);
+    assertEquals(JSON.parse(text), { error: "unconfigured" }, `${label} ${path}`);
+    assert(!text.includes(PHONE) && !callLines.some((l) => l.includes(PHONE)), `${label}: rule 4`);
+  }
+  assertEquals(reached, 0, `${label}: no request reaches the handler`);
+}
+
+Deno.test("E-25-4 OTP_PROVIDER unset (or empty) refuses to start: the startup check logs it, and every call on every route answers 503 unconfigured, never a silent 200 (desk 57, ADR 2026-09-25 §1)", async () => {
+  await assertRefuses({}, "otp_provider_unset", "unset");
+  await assertRefuses({ OTP_PROVIDER: "" }, "otp_provider_unset", "empty");
+  // Unset with the dev switch on the dev project is still unset: the second switch is never a provider.
+  await assertRefuses(
+    { RF_DEV_PROJECT_REF: DEV_REF, SUPABASE_URL: projectUrl(DEV_REF) },
+    "otp_provider_unset",
+    "unset + dev switch",
+  );
+});
+
+Deno.test("E-25-5 an OTP_PROVIDER that names no built provider refuses to start — kaleyra and twilio do not exist, 2factor is OTP3, and matching is exact (no case-folding, no trimming, no prototype keys); the refusal never echoes the value", async () => {
+  for (
+    const v of [
+      "kaleyra",
+      "twilio",
+      "MSG91",
+      "Msg91",
+      " msg91",
+      "msg91 ",
+      "msg91\n",
+      "Fake",
+      "FAKE",
+      "fake ",
+      "none",
+      "sms",
+      "whatsapp",
+      "true",
+      "constructor",
+      "__proto__",
+      "toString",
+      "hasOwnProperty",
+      "sk_live_pasted_by_mistake_0123456789",
+    ]
+  ) {
+    await assertRefuses(
+      { OTP_PROVIDER: v, ...MSG91_CREDS },
+      "otp_provider_unknown",
+      JSON.stringify(v),
+    );
+  }
+  // The named extension point: 2factor is the owner's pick (docs/ops/lead-times.md §3) but its HTTP
+  // API is in no local doc, so no adapter exists. It refuses with its own reason until OTP3 builds it.
+  await assertRefuses(
+    { OTP_PROVIDER: "2factor", ...MSG91_CREDS },
+    "otp_provider_not_built",
+    "2factor",
+  );
+});
+
+Deno.test("E-25-6 OTP_PROVIDER=msg91 selects the MSG91 provider, which never carries a fixed code — not even with both dev switches set on the dev project — and the HOSTED path (depsFromEnv, liveDeps over Deno.env, start → entry) hands exactly that provider to the handler, so a pilot sends a fresh random code by MSG91; msg91 without its credentials refuses to start", async () => {
+  const p = selectOtpProvider(envOf({ OTP_PROVIDER: "msg91", ...MSG91_CREDS }));
+  assert(p instanceof Msg91Provider, "msg91 → Msg91Provider");
+  assertEquals(p.fixedCode ?? null, null);
+  const PILOT = { OTP_PROVIDER: "msg91", ...MSG91_CREDS, SUPABASE_URL: projectUrl(PILOT_REF) };
+  const cases = [
+    ["the pilot", PILOT],
+    ["msg91 with both dev switches on the dev project", {
+      OTP_PROVIDER: "msg91",
+      ...MSG91_CREDS,
+      RF_DEV_PROJECT_REF: DEV_REF,
+      SUPABASE_URL: projectUrl(DEV_REF),
+    }],
+  ] as const;
+  for (const [label, vars] of cases) {
+    // What a deployed function builds: depsFromEnv over the project's secrets.
+    const built = depsFromEnv(envOf({ ...OTHER_SECRETS, ...vars }));
+    assert(built.otp instanceof Msg91Provider, `${label}: depsFromEnv hands the handler MSG91`);
+    assertEquals(
+      built.otp.fixedCode ?? null,
+      null,
+      `${label}: a real provider, never a fixed code`,
+    );
+    await assertMsg91Sends(label, () => built, built);
+  }
+  // What `serve()` runs: start's default deps, liveDeps, reading Deno.env. (The one liveDeps call in
+  // this module that succeeds, since liveDeps caches per isolate.)
+  await withEnv({ ...OTHER_SECRETS, ...PILOT }, async () => {
+    const live = liveDeps();
+    assert(live.otp instanceof Msg91Provider, "liveDeps reads OTP_PROVIDER from Deno.env");
+    assertEquals(live.otp.fixedCode ?? null, null, "liveDeps on the pilot: no fixed code");
+    assertEquals(live.jwtKey, new Uint8Array(32).fill(1), "liveDeps reads the keys from Deno.env");
+    await assertMsg91Sends("liveDeps on the pilot", undefined, live);
+  });
+  for (const k of Object.keys(MSG91_CREDS)) {
+    const missing: Record<string, string> = { OTP_PROVIDER: "msg91", ...MSG91_CREDS };
+    delete missing[k];
+    await assertRefuses(missing, "otp_provider_credentials_missing", `msg91 without ${k}`);
+  }
+});
+
+Deno.test("E-25-7 OTP_PROVIDER=fake WITHOUT the second switch issues random codes on the hosted path (depsFromEnv → start → entry → handler): the fixed code is refused at verify, no stored hash is the fixed code's, and the hosted fake keeps no phone number in memory", async () => {
+  const fixedHash = await blake2b256(new TextEncoder().encode(DEV_FIXED_OTP_CODE));
+  for (
+    const [label, vars] of [
+      ["fake alone", { OTP_PROVIDER: "fake" }],
+      ["fake on the dev project, switch missing", {
+        OTP_PROVIDER: "fake",
+        SUPABASE_URL: projectUrl(DEV_REF),
+      }],
+      ["fake, switch empty", {
+        OTP_PROVIDER: "fake",
+        RF_DEV_PROJECT_REF: "",
+        SUPABASE_URL: projectUrl(DEV_REF),
+      }],
+    ] as const
+  ) {
+    const built = depsFromEnv(envOf({ ...OTHER_SECRETS, ...vars }));
+    const p = built.otp;
+    assert(p instanceof FakeOtpProvider, `${label}: depsFromEnv hands the handler the fake`);
+    assertEquals(p.fixedCode ?? null, null, `${label}: no fixed code`);
+    const r = rig();
+    const h = await hosted(r, () => built);
+    const phones = ["+919876500011", "+919876500012", "+919876500013", "+919876500014"];
+    for (const phone of phones) {
+      const res = await h.call("/otp/request", { phone, purpose: "signup" });
+      assertEquals(res.status, 200, `${label}: the hosted entry serves a valid configuration`);
+      await res.body?.cancel();
+    }
+    const hashes = r.db.otp_challenges.map((c) => b64url.enc(c.code_hash));
+    assertEquals(hashes.length, phones.length, `${label}: a challenge per request`);
+    assert(!hashes.includes(b64url.enc(fixedHash)), `${label}: no stored hash is the fixed code's`);
+    assert(new Set(hashes).size > 1, `${label}: codes differ between requests (random)`);
+    const res = await h.call("/otp/verify", {
+      phone: phones[0],
+      purpose: "signup",
+      code: DEV_FIXED_OTP_CODE,
+    });
+    assertEquals(res.status, 400, `${label}: the fixed code does not sign anyone in`);
+    assertEquals((await body(res)).error, "otp_invalid");
+    assertEquals(p.sent, [], `${label}: the hosted fake records no number and no code`);
+    assertEquals(
+      p.attempts,
+      phones.length,
+      `${label}: the hosted builder's provider did the sends`,
+    );
+    assertEquals(h.handed.length, phones.length + 1, `${label}: every request reached the handler`);
+    assert(h.handed.every((d) => d === built), `${label}: served by the hosted builder's Deps`);
+  }
+});
+
+Deno.test("E-25-8 OTP_PROVIDER=fake plus RF_DEV_PROJECT_REF equal to this project's ref issues the fixed dev code on the hosted path (depsFromEnv → start → entry → handler): any number signs in with it, only its hash is stored, it is never in a body or a log line, and 06 §2's attempt limit still binds", async () => {
+  const vars = {
+    OTP_PROVIDER: "fake",
+    RF_DEV_PROJECT_REF: DEV_REF,
+    SUPABASE_URL: projectUrl(DEV_REF),
+  };
+  const built = depsFromEnv(envOf({ ...OTHER_SECRETS, ...vars }));
+  const p = built.otp;
+  assert(p instanceof FakeOtpProvider, "depsFromEnv hands the handler the fake");
+  assertEquals(p.fixedCode, DEV_FIXED_OTP_CODE, "…bound to this project, with the fixed code");
+  assertEquals(
+    depsFromEnv(envOf({ ...OTHER_SECRETS, ...vars, SUPABASE_URL: `${projectUrl(DEV_REF)}/` }))
+      .otp.fixedCode,
+    DEV_FIXED_OTP_CODE,
+    "a trailing slash is the same URL",
+  );
+  const r = rig();
+  const h = await hosted(r, () => built);
+  const fixedHash = await blake2b256(new TextEncoder().encode(DEV_FIXED_OTP_CODE));
+  const { lines } = await consoleLines(async () => {
+    for (const [i, phone] of ["+919876500021", "+919876500022"].entries()) {
+      const req = await h.call("/otp/request", { phone, purpose: "signup" });
+      const text = await req.text();
+      assertEquals(req.status, 200);
+      assertEquals(Object.keys(JSON.parse(text)).sort(), ["ok", "resend_after_s"]);
+      assert(!text.includes(DEV_FIXED_OTP_CODE), "the code is never in the body");
+      const row = r.db.otp_challenges[i];
+      assertEquals(row.code_hash, fixedHash, "the fixed code is stored as its hash");
+      assertEquals(row.code_hash.length, 32);
+      assert(
+        !JSON.stringify(row, (_k, v) => v instanceof Uint8Array ? b64url.enc(v) : v)
+          .includes(DEV_FIXED_OTP_CODE),
+        "no stored field holds the code in clear",
+      );
+      const v = await body(
+        await h.call("/otp/verify", { phone, purpose: "signup", code: DEV_FIXED_OTP_CODE }),
+      );
+      assert(typeof v.ticket === "string" && typeof v.user_id === "string", `number ${i} signs in`);
+    }
+    // 3 attempts, then the challenge is spent even for the right code (06 §2 stands).
+    const phone = "+919876500023";
+    await h.call("/otp/request", { phone, purpose: "signup" });
+    for (let i = 0; i < OTP_MAX_ATTEMPTS; i++) {
+      await h.call("/otp/verify", { phone, purpose: "signup", code: "000001" });
+    }
+    assertEquals(
+      (await h.call("/otp/verify", { phone, purpose: "signup", code: DEV_FIXED_OTP_CODE })).status,
+      400,
+    );
+  });
+  assertEquals(p.sent, [], "the hosted fake keeps no number and no code in memory");
+  assertEquals(p.attempts, 3, "the hosted builder's provider did the sends");
+  assert(
+    h.handed.every((d) => d === built),
+    "every request was served by the hosted builder's Deps",
+  );
+  for (const l of lines) {
+    assert(!l.includes(DEV_FIXED_OTP_CODE) && !l.includes("98765000"), "rule 4: nothing logged");
+  }
+});
+
+Deno.test("E-25-9 the fixed code is impossible on any project the switch does not name, even with OTP_PROVIDER=fake and RF_DEV_PROJECT_REF both set: the dev secrets copied onto the pilot, a missing/local/custom-domain/look-alike SUPABASE_URL, or a boolean-shaped switch all refuse to start", async () => {
+  const fake = { OTP_PROVIDER: "fake" };
+  const cases: [string, Record<string, string>][] = [
+    ["dev secrets copied onto the pilot", {
+      ...fake,
+      RF_DEV_PROJECT_REF: DEV_REF,
+      SUPABASE_URL: projectUrl(PILOT_REF),
+    }],
+    ["SUPABASE_URL missing", { ...fake, RF_DEV_PROJECT_REF: DEV_REF }],
+    ["SUPABASE_URL empty", { ...fake, RF_DEV_PROJECT_REF: DEV_REF, SUPABASE_URL: "" }],
+    ["local serve (kong)", {
+      ...fake,
+      RF_DEV_PROJECT_REF: "kong",
+      SUPABASE_URL: "http://kong:8000",
+    }],
+    ["local serve (loopback)", {
+      ...fake,
+      RF_DEV_PROJECT_REF: "127.0.0.1",
+      SUPABASE_URL: "http://127.0.0.1:54321",
+    }],
+    ["custom domain", {
+      ...fake,
+      RF_DEV_PROJECT_REF: "api",
+      SUPABASE_URL: "https://api.rukkafolio.com",
+    }],
+    ["custom domain, dev ref", {
+      ...fake,
+      RF_DEV_PROJECT_REF: DEV_REF,
+      SUPABASE_URL: "https://api.rukkafolio.com",
+    }],
+    ["http, not https", {
+      ...fake,
+      RF_DEV_PROJECT_REF: DEV_REF,
+      SUPABASE_URL: `http://${DEV_REF}.supabase.co`,
+    }],
+    ["look-alike suffix", {
+      ...fake,
+      RF_DEV_PROJECT_REF: DEV_REF,
+      SUPABASE_URL: `https://${DEV_REF}.supabase.co.example.net`,
+    }],
+    ["sub-label", {
+      ...fake,
+      RF_DEV_PROJECT_REF: DEV_REF,
+      SUPABASE_URL: `https://x.${DEV_REF}.supabase.co`,
+    }],
+    ["with a port", {
+      ...fake,
+      RF_DEV_PROJECT_REF: DEV_REF,
+      SUPABASE_URL: `${projectUrl(DEV_REF)}:8443`,
+    }],
+    ["with a path", {
+      ...fake,
+      RF_DEV_PROJECT_REF: DEV_REF,
+      SUPABASE_URL: `${projectUrl(DEV_REF)}/x`,
+    }],
+    ["with credentials", {
+      ...fake,
+      RF_DEV_PROJECT_REF: DEV_REF,
+      SUPABASE_URL: `https://u@${DEV_REF}.supabase.co`,
+    }],
+    ["switch upper-cased", {
+      ...fake,
+      RF_DEV_PROJECT_REF: DEV_REF.toUpperCase(),
+      SUPABASE_URL: projectUrl(DEV_REF),
+    }],
+    ["switch padded", {
+      ...fake,
+      RF_DEV_PROJECT_REF: ` ${DEV_REF}`,
+      SUPABASE_URL: projectUrl(DEV_REF),
+    }],
+    ...["true", "1", "yes", "on", "dev"].map((v): [string, Record<string, string>] => [
+      `boolean-shaped switch ${v}`,
+      { ...fake, RF_DEV_PROJECT_REF: v, SUPABASE_URL: projectUrl(PILOT_REF) },
+    ]),
+  ];
+  for (const [label, vars] of cases) {
+    await assertRefuses(vars, "otp_fixed_code_unbound", label);
+  }
 });
