@@ -12,6 +12,29 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-02 — M13: CAPR-PG, `PgTx.guarded()` savepoint scope fixed (desk 70); reviewed, verified, 1 repair round; push gate green, RLS 220/0
+
+This session ran one `/cycle` for **CAPR-PG** (`lane-server`, opus·xhigh), run `wf_addaebcd-d5e`. Review filed 2 findings; the 3-lens verify confirmed both; one repair round fixed both. The lane reports complete. Then `/gate push` came back green. It ran with `RF_TEST_DB_URL` unset, so its 116 RLS tests were *ignored*. The RLS suite was therefore run separately on a fresh `rls_db.sh` database with `RLS_REQUIRE=1`: **220 passed, 0 failed, 0 ignored**. The gate also covers the uncommitted 1 Oct slices (CAPR, OTP2, ENT3). Spend: 0.87 M of today's 3 M.
+
+**Changed**
+- `_shared/store_pg.ts`: `PgTx.guarded()` now binds the savepoint's own `sql` for the length of its body and restores the outer scope in `finally`. Before, the body queried the outer `begin` scope, and postgres.js 3.4.5 re-threw the refused query at outer commit (`src/index.js:264-265, 290-291`). On the real store, that made a cap-refused `/records` record a 500 that rolled back the whole batch, and made `/invites` lose the signed record. This is safe while Tx methods run one at a time; grep confirms there is no `Promise.all` over a Tx outside `_tests`.
+- `_shared/store_pg.ts`: `registerDevice` now runs inside `guarded()` and maps the StoreDenied onto `DeviceCapError` / `DeviceIdTakenError` (repair finding 1). It had been mapping the raw PG error on the outer scope.
+- `sync-push/index.ts`: comment only. `insertEnvelope` was already guarded, so a refused envelope no longer takes its batch-mates with it. Wire answers unchanged.
+- `tests/rls/seat_book_caps.test.ts`: `BLOCKED_GUARDED` removed, so **E-05g-16** (database half) is on.
+- New `tests/rls/guarded_savepoint.test.ts`, on PgStore as `rf_api`: **E-05g-17…20** (mixed sync-push batch commits its good rows; `/records` with one cap-refused record; nested guarded scope restore, behavioural as well as identity, per repair finding 2) and the database halves of **E-06-3** (device cap → 409) and **E-06-41** (device id taken → 409). Each was shown failing on a scratch mutant before the fix. Full RLS suite on a fresh DB: **220 passed, 0 failed** (was 218).
+- `.claude/rf.config.json`: added `daily_overrides["2026-10-02"] = 3 M`, owner-directed.
+
+**Decided**
+- Desk 70: owner said **go** on the `lane-server` slice. It now reads 🟡 built, awaiting gate. Desk 68(a) and E-05g-14's `/records` arm now hold on the real store, not just MemStore.
+
+**Open**
+- Desk 69: added ADR 05g §6 → `E-05g-16…20` and ADR 05b §7 → `E-05g-17, 20`.
+- Desk 75–78 (new): `rls_db.sh` does not apply `seed.sql` · other `tests/rls` files run PgStore as superuser, so row policies are untested there · `shape.ts` lets `key_version` 0 through (from reading, not run) · whether sync-push should name StoreDenied reasons on the wire.
+- The push gate does not build the RLS database itself, so a green push gate says nothing about `tests/rls`. Until `ci.sh` builds it, run `rls_db.sh` + `RLS_REQUIRE=1` beside it.
+
+**Commits**
+- none yet
+
 ## 2026-10-01 — M13/M11: review, verify and repair of the five 30 Sep slices; push gate green, RLS 204/0
 
 This session ran one `/cycle` with the build stage skipped for CAP2, CAT2, SH1, QR1 and RS1: a read-only review, adversarial verification (3 lenses on CAP2 and RS1, 1 elsewhere), and one repair round. 17 findings were filed, 13 survived and were fixed, and every repair lane reports complete. Then `/gate push` was green, and the RLS suite, which the push lane skips without a database, was run separately: 204 passed, 0 failed. Spend: about 2.46 M, under a dated 8 M override that the owner directed for 1 Oct.
