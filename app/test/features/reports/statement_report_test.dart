@@ -50,7 +50,7 @@ import 'package:xml/xml.dart';
 final _labels = StatementReportLabels(
   reportName: 'ਖਾਤਾ ਸਟੇਟਮੈਂਟ',
   accountLabel: 'ਖਾਤਾ',
-  bookLabel: 'ਕਿਤਾਬ',
+  bookLabel: 'ਵਹੀ',
   periodLabel: 'ਮਿਆਦ',
   columnDate: 'ਤਾਰੀਖ਼',
   columnParticulars: 'ਵੇਰਵਾ',
@@ -112,7 +112,7 @@ Statement _ramesh() => Statement(
 ReportTable _table(Statement statement) => statementTable(
   statement,
   accountName: 'ਰਮੇਸ਼',
-  bookName: 'ਮੇਰੀ ਬਹੀ',
+  bookName: 'ਮੇਰੀ ਵਹੀ',
   period: 'FY 2026-27',
   labels: _labels,
   counterNames: (row) => [
@@ -171,7 +171,7 @@ void main() {
         [
           'ਖਾਤਾ ਸਟੇਟਮੈਂਟ',
           'ਖਾਤਾ,ਰਮੇਸ਼',
-          'ਕਿਤਾਬ,ਮੇਰੀ ਬਹੀ',
+          'ਵਹੀ,ਮੇਰੀ ਵਹੀ',
           'ਮਿਆਦ,FY 2026-27',
           '',
           'ਤਾਰੀਖ਼,ਵੇਰਵਾ,ਨਾਮੇ,ਜਮ੍ਹਾਂ,ਬਾਕੀ,ਨੋਟ',

@@ -226,9 +226,10 @@ final class RevocationCount {
 ///   records that pass those checks, so an invalid record never shadows a
 ///   valid one); approvals carry across versions, each judged by the tenant
 ///   of the version it names; the threshold is the k of the earliest version
-///   *any* valid record names (a guardian's later records included, as 0026
-///   `rf.revocation_tally` takes it); effective at the k-th smallest `seq`
-///   among the distinct authors.
+///   *any* valid record names (a guardian's later records included);
+///   effective at the k-th smallest `seq` among the distinct authors.
+///   ⚠️ SPEC: 0026 `rf.revocation_tally` takes k from each author's first
+///   counted record only, so the two differ (D-03b-6) — owner desk 102.
 /// - The cut-off is the minimum of the two paths — it only moves earlier.
 ///
 /// ⚠️ SPEC: ADR 2026-10-03b §2 counts an approval only if "the subject holds
@@ -238,10 +239,11 @@ final class RevocationCount {
 /// approval as `not_revoker`. A later removal therefore never un-counts an
 /// approval, keeping ADR 2026-09-06 §3's "only moves earlier", and an
 /// approval refused while the subject was removed never counts after a
-/// re-admission. 0026 `rf.revocation_approvals` instead reads the subject's
-/// *current* membership, so the server's tally differs from this one when
-/// the subject's membership changes between approvals. Reported to the owner
-/// (M13-REV89C). With no fact for the subject in that tenant the membership
+/// re-admission. ADR 2026-10-03b §6 ratified this reading, and 0027
+/// `rf.revocation_approvals` now judges the subject as of each approval too —
+/// but from the memberships row's history (`membership_facts`), not from
+/// membership records, so the two still differ (refused records; changes no
+/// record carries) — owner desk 101. With no fact for the subject in that tenant the membership
 /// is taken as held: the set's publisher was `active` there (0026 §1 guard).
 /// The owner path is not judged by membership here, though the server's
 /// owner arm is (0022 (e)); also reported.

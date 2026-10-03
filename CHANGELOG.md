@@ -12,6 +12,27 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-03 — M13/M12: desk sweep — Punjabi/Hindi book words (desk 63), test-name hygiene (desk 92), glossary Sale/Purchase Book
+
+**Changed**
+- PA/HI copy (desk 63, owner: fix all three): ਬਹੀ → ਵਹੀ in 10 PA parts (incl. ਖਾਤਾ-ਵਹੀ, ਵਹੀ-ਮੇਲ — owner-confirmed); the forbidden ਕਿਤਾਬ/किताब (01 §2 🔒 "Books" alignment) removed from 16 PA + 11 HI strings; Day Book = ਰੋਜ਼ਨਾਮਚਾ/रोज़नामचा and Cash Book = ਰੋਕੜ ਵਹੀ/रोकड़ बही per 01 §2 (replacing ਦਿਨ ਦੀ ਕਿਤਾਬ, ਨਕਦ ਕਿਤਾਬ, दिन की बही, डे बुक, कैश बुक); *Full day book* = ਪੂਰਾ ਰੋਜ਼ਨਾਮਚਾ/पूरा रोज़नामचा. Three app tests' expected strings follow. App 1983/0 (4 skipped).
+- `scripts/check_strings.dart` rule 5: fails on ਕਿਤਾਬ or ਬਹੀ in PA and किताब in HI — EN-only jargon checking is why desk 63 reached 57+ lines unnoticed. Negative-tested.
+- Desk 92: `E-05g-27…30` (`seat_grants_sweep.test.ts`) and `E-05g-14` (`seat_caps_route.test.ts`) no longer template literals, so `check_coverage` reads them; ADR 2026-10-03 §10's n/a marker now names `E-05g-27…30`. `check_coverage --strict` ok.
+- `sync_engine/lib/src/revocation.dart`: two stale comments (desk 104(c)) now point at 0027 and desks 101/102 — comments only.
+- `docs/01-glossary.md` §2 Books & ledger: Sale Book ਵਿਕਰੀ ਵਹੀ / बिक्री बही and Purchase Book ਖ਼ਰੀਦ ਵਹੀ / खरीद बही (owner-supplied HI, owner-chosen PA). No screen uses them yet.
+- PLAN: desk 63 ✅, 79 ✅ (already done in `98f35d6`, stale on the desk), 92 🟡, 104(c) ✅.
+
+**Open**
+- This sweep was not put through `lane-review` (copy from the glossary, test-string follow-ups, a checker, comments) — owner's call before commit.
+- `design/canvas-mirror/` still says ਬਹੀ — fix in Claude Design. PA ਵਿਕਰੀ/ਖ਼ਰੀਦ ਵਹੀ and the reworded PA/HI strings go to native review (M12).
+- Desk 92 still wants a desk 61 test with `subscriptions.status = 'expired'`.
+- Desk 103 (bootstrap wiring) remains the blocker before desks 89/97 can be committed and desk 100 deployed; ~30 desk items await owner rulings (recommendations given in session).
+
+**Commits**
+- 
+
+---
+
 ## 2026-10-03 — M13: 0027 judges membership at the approval's seq (desk 97) + S11.1 tenant / S11 guardians row (desk 89 app slice); push gate green, RLS 280/0
 
 **Added**

@@ -45,6 +45,8 @@
 | Ledger tab / index | — | Ledger | ਖਾਤੇ | खाते |
 | Day book | — | Day Book | ਰੋਜ਼ਨਾਮਚਾ | रोज़नामचा |
 | Cash book | — | Cash Book | ਰੋਕੜ ਵਹੀ | रोकड़ बही |
+| Sale book | — | Sale Book | ਵਿਕਰੀ ਵਹੀ | बिक्री बही |
+| Purchase book | — | Purchase Book | ਖ਼ਰੀਦ ਵਹੀ | खरीद बही |
 | Entry | entry | Entry | ਐਂਟਰੀ | एंट्री |
 | Books of account (collective) | — | the books / your books | ਵਹੀ-ਖਾਤੇ · *your* → ਤੁਹਾਡੇ ਵਹੀ-ਖਾਤੇ | बही-खाते · *your* → आपके बही-खाते |
 

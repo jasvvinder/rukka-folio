@@ -1103,7 +1103,7 @@ void main() {
       book,
       accountName: (id) => names[id] ?? id,
       labels: labels,
-      bookName: 'ਮੇਰੀ ਬਹੀ',
+      bookName: 'ਮੇਰੀ ਵਹੀ',
       period: 'FY 2026-27',
     );
 
@@ -1163,7 +1163,7 @@ void main() {
       expect(strings, contains('ਕੈਸ਼ ਇਨ ਹੈਂਡ'));
       expect(strings, contains('Sharma & Sons <Trading>'));
       expect(strings, contains('ਦੁਕਾਨ ਦੀ ਵਿਕਰੀ / दुकान की बिक्री'));
-      expect(strings, contains('ਮੇਰੀ ਬਹੀ'));
+      expect(strings, contains('ਮੇਰੀ ਵਹੀ'));
       // Escaped on the wire, not raw: `&` and `<` must not reach the part as
       // themselves, or the XML is malformed and Excel repairs the file away.
       // (`>` needs no escape inside content and the writer leaves it.)
@@ -1248,7 +1248,7 @@ void main() {
 
     const labels = ReportLabels(
       reportName: 'ਰੋਜ਼ਨਾਮਚਾ',
-      bookLabel: 'ਬਹੀ',
+      bookLabel: 'ਵਹੀ',
       periodLabel: 'ਮਿਆਦ',
       columnDate: 'ਤਾਰੀਖ਼',
       columnParticulars: 'ਵੇਰਵਾ',
@@ -1298,7 +1298,7 @@ void main() {
           book,
           accountName: (id) => names[id] ?? id,
           labels: labels,
-          bookName: 'ਮੇਰੀ ਬਹੀ',
+          bookName: 'ਮੇਰੀ ਵਹੀ',
           period: 'FY 2026-27',
           formatDate: (date) => date.toIso(),
           pageNumber: (page, pages) => 'ਸਫ਼ਾ $page / $pages',
@@ -1321,7 +1321,7 @@ void main() {
           labels.columnParticulars,
           labels.totalLabel,
           ...names.values,
-          'ਮੇਰੀ ਬਹੀ',
+          'ਮੇਰੀ ਵਹੀ',
           book.rows.single.note!,
         ];
         for (final text in drawn) {
@@ -1339,7 +1339,7 @@ void main() {
           const DayBook.empty('book-1'),
           accountName: (id) => id,
           labels: labels,
-          bookName: 'ਮੇਰੀ ਬਹੀ',
+          bookName: 'ਮੇਰੀ ਵਹੀ',
           period: 'FY 2026-27',
           formatDate: (date) => date.toIso(),
           pageNumber: (page, pages) => 'ਸਫ਼ਾ $page / $pages',

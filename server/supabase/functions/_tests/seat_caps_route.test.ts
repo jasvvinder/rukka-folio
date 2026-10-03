@@ -49,7 +49,7 @@ async function fixture() {
 }
 
 for (const reason of ["seat_cap", "seat_rotation_cap", "book_cap"]) {
-  Deno.test(`E-05g-14 POST /sync-meta/invites on a plan with no room answers 409 ${reason} by name — not 403, not a generic denial — and the admin's signed record stays stored, noted rejected:${reason}`, async () => {
+  Deno.test("E-05g-14 POST /sync-meta/invites on a plan with no room answers 409 by name — not 403, not a generic denial — and the admin's signed record stays stored, noted rejected: " + reason, async () => {
     const f = await fixture();
     refusing(f.r, "createInvite", reason);
     const rec = await signedRecord(f.admin, f.tenant, "invite", {

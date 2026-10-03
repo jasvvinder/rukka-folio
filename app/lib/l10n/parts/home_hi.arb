@@ -29,7 +29,7 @@
   "home.verb.gave": "उधार दिया",
   "home.verb.took": "उधार लिया",
   "home.today.title": "आज",
-  "home.today.full_day_book": "पूरी रोज़नामचा बही",
+  "home.today.full_day_book": "पूरा रोज़नामचा",
   "home.today.empty": "आज अभी कुछ दर्ज नहीं हुआ",
   "home.today.under_review": "जाँच में",
   "home.today.review_chip": "{count, plural, =1{1 जाँच में · {amount}} other{{count} जाँच में · {amount}}}",

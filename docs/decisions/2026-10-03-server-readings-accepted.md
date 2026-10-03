@@ -222,7 +222,7 @@ All are in the header of `0022_record_tenant_check.sql` (0022:65–103).
   plan. (2) 0006:123–124's comment, *"neither does an admin's bare assertion (ADR 2026-09-05d
   §9)"*, now says more than its code does (see *Open*).
 
-### 10. The SWEEP readings: `seat_grants` is kept 1 year + 30 days (desk 86) ⟦tests: n/a — pinned by E-05g-27…30 in tests/rls/seat_grants_sweep.test.ts, whose names are template literals check_coverage cannot read (a marker naming them fails --strict); name them once that file uses quotes⟧
+### 10. The SWEEP readings: `seat_grants` is kept 1 year + 30 days (desk 86) ⟦tests: E-05g-27, E-05g-28, E-05g-29, E-05g-30⟧
 - **(a) Retention.** `rf.sweep_seat_grants()` (`0023_seat_grants_sweep.sql`) deletes
   `granted_at < now() - interval '1 year 30 days'`. That is 30 days older than the longest window
   any reader uses: `rf.take_seat`'s trailing year, 0019:178–179. **03 §6 gains the line.** Before

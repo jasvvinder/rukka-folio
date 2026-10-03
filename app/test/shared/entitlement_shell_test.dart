@@ -370,7 +370,7 @@ void main() {
   group('F1-24b-10 the banner at 200 % in EN/PA/HI', () {
     const titles = {
       'en': 'Your books are read-only',
-      'pa': 'ਤੁਹਾਡੀਆਂ ਬਹੀਆਂ ਸਿਰਫ਼ ਪੜ੍ਹਨ ਲਈ ਹਨ',
+      'pa': 'ਤੁਹਾਡੀਆਂ ਵਹੀਆਂ ਸਿਰਫ਼ ਪੜ੍ਹਨ ਲਈ ਹਨ',
       'hi': 'आपकी बहियाँ अभी सिर्फ़ पढ़ने के लिए हैं',
     };
     for (final locale in rkLocales) {

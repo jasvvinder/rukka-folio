@@ -12,7 +12,10 @@
 //      Whitelisted keys (rule 4 carve-outs): app.name, app.name.short, about.*
 //      — the product name is exempt; bank column headers quoted on S7.0b are
 //      data, not UI labels, and never live in ARB.
-//   4. a key is not `screen.element.state`-shaped (lowercase, dot-separated).
+//   4. a key is not `screen.element.state`-shaped (lowercase, dot-separated);
+//   5. a PA/HI string names a book of account with a word 01 §2 🔒 rules out:
+//      ਕਿਤਾਬ / किताब never (01 §2 "Books" alignment), and ਬਹੀ is the Hindi
+//      spelling — Punjabi is ਵਹੀ (01 §2 Books & ledger). Desk 63, 3 Oct 2026.
 //
 //   dart run scripts/check_strings.dart
 import 'dart:convert';
@@ -30,6 +33,10 @@ final forbidden = RegExp(
 );
 bool whitelisted(String key) =>
     key == 'app.name' || key == 'app.name.short' || key.startsWith('about.');
+final wrongBookWord = {
+  'pa': RegExp('ਕਿਤਾਬ|ਬਹੀ'),
+  'hi': RegExp('किताब'),
+};
 final keyShape = RegExp(r'^[a-z][a-z0-9]*(\.[a-z][a-z0-9_]*)+$');
 // An ICU *argument* is `{name}` or `{name, ...}`. The trailing `[},]` keeps a plural
 // branch's own text (`=1{Locks after 1 minute}`) from being read as a placeholder —
@@ -99,6 +106,15 @@ void main() {
         errors.add(
           '${where(key, lang)}: placeholders differ in $lang '
           '(en: $want, $lang: $got)',
+        );
+      }
+    }
+    for (final MapEntry(key: lang, value: word) in wrongBookWord.entries) {
+      final hit = word.firstMatch(strings[lang]?[key] ?? '');
+      if (hit != null) {
+        errors.add(
+          '${where(key, lang)}: "${hit[0]}" for a book of account in $lang '
+          '(01 §2 🔒 — ਵਹੀ / बही)',
         );
       }
     }

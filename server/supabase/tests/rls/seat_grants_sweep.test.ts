@@ -299,7 +299,7 @@ async function rolledBack<T>(f: (s: postgres.TransactionSql) => Promise<T>): Pro
 
 // ================================================================ the tests
 
-test(`E-05g-27 rows older than the cutoff (1 year + 30 days) go and every newer row stays: a grant 3 years old, 1 year 31 days old and an hour past the cutoff is deleted; one an hour inside it, 1 year 29 days old, 1 year 1 day old (outside every reader's window, inside the margin), 1 year less a day (still counted) and a day old all survive; the sweep reports exactly the rows it removed, in every tenant`, async () => {
+test("E-05g-27 rows older than the cutoff (1 year + 30 days) go and every newer row stays: a grant 3 years old, 1 year 31 days old and an hour past the cutoff is deleted; one an hour inside it, 1 year 29 days old, 1 year 1 day old (outside every reader's window, inside the margin), 1 year less a day (still counted) and a day old all survive; the sweep reports exactly the rows it removed, in every tenant", async () => {
   const tn = await tenant(PLAN.none);
   const ps = await spendTo(tn, 8);
   assertEquals(ps.length, 8);
@@ -332,7 +332,7 @@ test(`E-05g-27 rows older than the cutoff (1 year + 30 days) go and every newer 
   assertEquals(await grants(tn.t), stays.length);
 });
 
-test(`E-05g-28 the rolling cap and the 30-day exemption answer the same before and after a sweep — a 2-seat tenant at the boundary (4 grants counted in the trailing year, the oldest a day inside it; a 29-day re-invite exempt, a 31-day one not; three older grants, two past the cutoff): a new member is refused seat_rotation_cap, the 29-day person is let back, the 31-day and a swept person are refused, identically on both sides of a sweep that really removed this tenant's old rows; and the ledger's readers are exactly rf.take_seat (windows 30 days and 1 year) — no view, policy or edge function reads it`, async () => {
+test("E-05g-28 the rolling cap and the 30-day exemption answer the same before and after a sweep — a 2-seat tenant at the boundary (4 grants counted in the trailing year, the oldest a day inside it; a 29-day re-invite exempt, a 31-day one not; three older grants, two past the cutoff): a new member is refused seat_rotation_cap, the 29-day person is let back, the 31-day and a swept person are refused, identically on both sides of a sweep that really removed this tenant's old rows; and the ledger's readers are exactly rf.take_seat (windows 30 days and 1 year) — no view, policy or edge function reads it", async () => {
   const tn = await tenant(PLAN.two);
   // Three grants that fall out of the year: one past the cutoff by years, one by a day, one inside
   // the margin (out of every window, kept by the sweep).
@@ -437,7 +437,7 @@ test(`E-05g-28 the rolling cap and the 30-day exemption answer the same before a
   assertEquals(hits, [], "no edge function names seat_grants");
 });
 
-test(`E-05g-29 rf_api cannot execute the sweep and rf_maintenance can — each connected as its own login role (rf_local, rf_local_maint) with current_user asserted; rf_api is refused with and without claims, PUBLIC and the platform roles hold no EXECUTE; the function takes no argument, so the maintenance role cannot choose its own cutoff, and it is still the only door: rf_maintenance holds no privilege on seat_grants and no policy names it`, async () => {
+test("E-05g-29 rf_api cannot execute the sweep and rf_maintenance can — each connected as its own login role (rf_local, rf_local_maint) with current_user asserted; rf_api is refused with and without claims, PUBLIC and the platform roles hold no EXECUTE; the function takes no argument, so the maintenance role cannot choose its own cutoff, and it is still the only door: rf_maintenance holds no privilege on seat_grants and no policy names it", async () => {
   const login = (role: string) => {
     const u = new URL(url!);
     u.username = role;
@@ -528,7 +528,7 @@ test(`E-05g-29 rf_api cannot execute the sweep and rf_maintenance can — each c
   }
 });
 
-test(`E-05g-30 the sweep is idempotent: run again at once it removes nothing, reports 0 and leaves every surviving row (id and granted_at) as it was; and two overlapping runs — a cron run that starts while the last still holds its rows — neither fail nor double-count: together they report exactly the rows that left`, async () => {
+test("E-05g-30 the sweep is idempotent: run again at once it removes nothing, reports 0 and leaves every surviving row (id and granted_at) as it was; and two overlapping runs — a cron run that starts while the last still holds its rows — neither fail nor double-count: together they report exactly the rows that left", async () => {
   const tn = await tenant(PLAN.none);
   const ps = await spendTo(tn, 4);
   await age(tn, ps[0], "2 years");
