@@ -6332,6 +6332,67 @@
   "@ledger.quick_add.type_section": {
     "description": "S3.1 step 1 — label above the type-tile grid."
   },
+  "ledger.search.clear": "Clear search",
+  "@ledger.search.clear": {
+    "description": "S21 tooltip/screen-reader label of the clear (x) button in the search field."
+  },
+  "ledger.search.empty_query": "Type a name, or a few words from a note.",
+  "@ledger.search.empty_query": {
+    "description": "S21 empty-query state (13 §4.3): what to do next before anything is typed."
+  },
+  "ledger.search.error": "Couldn't search your books",
+  "@ledger.search.error": {
+    "description": "S21 error state; a Try again button follows (13 §4.3)."
+  },
+  "ledger.search.field_hint": "Search accounts, parties, notes",
+  "@ledger.search.field_hint": {
+    "description": "S21 search field hint (07 §25: across accounts, parties and notes)."
+  },
+  "ledger.search.no_results": "Nothing matches \"{query}\"",
+  "@ledger.search.no_results": {
+    "description": "S21 no-results state; the create row below it is the way on (07 §6, 07 §1 no dead ends).",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.search.note_meta": "{date} · {note}",
+  "@ledger.search.note_meta": {
+    "description": "S21 note-hit row second line: the entry's date (pre-formatted) and its note as typed.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "note": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.search.section.accounts": "Accounts",
+  "@ledger.search.section.accounts": {
+    "description": "S21 results group header: money, category and system accounts whose name matched."
+  },
+  "ledger.search.section.notes": "In notes",
+  "@ledger.search.section.notes": {
+    "description": "S21 results group header: entries whose note (the user's own words) matched."
+  },
+  "ledger.search.section.parties": "Parties",
+  "@ledger.search.section.parties": {
+    "description": "S21 results group header: party accounts whose name matched."
+  },
+  "ledger.search.skeleton": "Loading accounts and notes",
+  "@ledger.search.skeleton": {
+    "description": "S21 loading skeleton, announced to screen readers (11 §4.5)."
+  },
+  "ledger.search.title": "Search",
+  "@ledger.search.title": {
+    "description": "S21 search screen title (07 §25); also the tooltip of the S3 app-bar search button that opens it."
+  },
+  "ledger.search.under_review": "Under review",
+  "@ledger.search.under_review": {
+    "description": "S21 note-hit status beside the amber clock while the entry's review flag is open (02 §3)."
+  },
   "ledger.search_hint": "Search accounts",
   "@ledger.search_hint": {
     "description": "S3 index — search-in-header field hint (07 §6)."

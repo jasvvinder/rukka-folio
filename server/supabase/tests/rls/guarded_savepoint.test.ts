@@ -22,9 +22,9 @@
 //     the handler caught it inside withClaims (E-06-3 and E-06-41, database half; the MemStore half
 //     is functions/_tests/auth_challenge.test.ts, which has no scopes to poison).
 //
-// The store runs as rf_api (`options=-c role=rf_api` on the test connection), as the edge does under
-// ADR 2026-09-05c §7, so 0005's row policies apply — the superuser URL the other files hand PgStore
-// would bypass them. Fixtures are written by the schema owner without claims. Blobs are random bytes;
+// The store runs as rf_api (`options=-c role=rf_api` on the test connection, via _pg_api.ts's
+// apiStore, which asserts current_user = rf_api on the store's own pool), as the edge does under
+// ADR 2026-09-05c §7, so 0005's row policies apply — the superuser URL would bypass them. Fixtures are written by the schema owner without claims. Blobs are random bytes;
 // no ledger content exists here. Needs RF_TEST_DB_URL (`eval "$(scripts/rls_db.sh)"`); without it
 // every test is SKIPPED and says why, and RLS_REQUIRE=1 makes that a failure.
 // Ids E-05g-17, E-05g-18, E-05g-19, E-05g-20, and the database half of E-06-3 and E-06-41.
@@ -39,7 +39,6 @@ import {
   StoreDenied,
   type Tx,
 } from "../../functions/_shared/store.ts";
-import { PgStore } from "../../functions/_shared/store_pg.ts";
 import { handler as auth } from "../../functions/auth-challenge/index.ts";
 import { handler as meta } from "../../functions/sync-meta/index.ts";
 import { handler as push } from "../../functions/sync-push/index.ts";
@@ -57,6 +56,7 @@ import {
   T0,
   wireEnvelope,
 } from "../../functions/_tests/harness.ts";
+import { apiStore } from "./_pg_api.ts";
 
 const url = Deno.env.get("RF_TEST_DB_URL");
 const required = Deno.env.get("RLS_REQUIRE") === "1";
@@ -70,10 +70,6 @@ const ignore = !url;
 
 let sql: postgres.Sql;
 const rand = (n: number) => crypto.getRandomValues(new Uint8Array(n));
-
-/** The connection the edge holds: rf_api, never the owner. */
-const apiUrl = () =>
-  `${url}${url!.includes("?") ? "&" : "?"}options=${encodeURIComponent("-c role=rf_api")}`;
 
 // A two-seat plan for the cap arms (E-05g-18, -20); removed after every test that made it.
 const TWO = "zz_gs_two";
@@ -237,18 +233,6 @@ const scopeOf = (tx: Tx): unknown => (tx as unknown as { sql: unknown }).sql;
 test(
   "E-05g-17 sync-push over the real store: a batch of three envelopes whose middle one the envelopes_insert row policy refuses (the writer's role on that book removed while the batch is in flight) answers 200 acked / rejected:no_role / acked — never a 500 — and the two acked envelopes are COMMITTED: read back in a fresh transaction under the seqs the response gave, the refused one absent, and a re-send acks the two with the same seqs",
   async () => {
-    const api = postgres(apiUrl(), { max: 1, onnotice: () => {} });
-    try {
-      const [who] = await api`select current_user as u`;
-      assertEquals(
-        who.u,
-        "rf_api",
-        "precondition: the store under test runs as rf_api, so RLS applies",
-      );
-    } finally {
-      await api.end();
-    }
-
     const tn = await tenant(null);
     const bookA = tn.personal;
     const bookB = await businessBook(tn);
@@ -258,7 +242,8 @@ test(
     const e2 = await wireEnvelope(w, tn.t, bookB);
     const e3 = await wireEnvelope(w, tn.t, bookA);
 
-    const real = new PgStore(apiUrl());
+    // apiStore asserts the precondition: the store under test runs as rf_api, so RLS applies.
+    const real = await apiStore(url!);
     // The real PgTx, with one side effect at the moment the middle envelope is written: the schema
     // owner, on its own connection, removes the writer's role on book B and commits. The handler
     // read book B's access before that (and caches it for the batch), so only the row policy — at
@@ -344,7 +329,7 @@ test(
       result: "verified",
     }, { hlc: hlcAt(T0.getTime(), 3) });
 
-    const store = new PgStore(apiUrl());
+    const store = await apiStore(url!);
     r.deps.store = store;
     try {
       const res = await meta(
@@ -391,7 +376,7 @@ test(
   async () => {
     const tn = await tenant(null);
     const other = await mkPerson(); // a real device that is not the caller's: the policy's author_device arm
-    const store = new PgStore(apiUrl());
+    const store = await apiStore(url!);
     const e1 = await envRow(tn, tn.personal);
     const bad1 = await envRow(tn, tn.personal, { author_device: other.dev });
     const e2 = await envRow(tn, tn.personal);
@@ -505,7 +490,7 @@ test(
     const r = rig();
     const s = await signer(r, tn.founder);
     const rec = await signedRecord(s, tn.t, "invite", { roles: [], nonce: b64url.enc(rand(16)) });
-    const store = new PgStore(apiUrl());
+    const store = await apiStore(url!);
     r.deps.store = store;
     try {
       const res = await meta(
@@ -540,7 +525,7 @@ test(
     const before = await devicesOf(claimant.user);
     const t = await ticketFor(claimant.user);
     const r = rig();
-    const store = new PgStore(apiUrl());
+    const store = await apiStore(url!);
     r.deps.store = store;
     const edge = entry(auth, () => r.deps);
     const req = {
@@ -585,7 +570,7 @@ test(
     assertEquals(full.length, cap, "precondition: the user holds exactly the cap");
     const t = await ticketFor(p.user);
     const r = rig();
-    const store = new PgStore(apiUrl());
+    const store = await apiStore(url!);
     r.deps.store = store;
     const edge = entry(auth, () => r.deps);
     const id = crypto.randomUUID();

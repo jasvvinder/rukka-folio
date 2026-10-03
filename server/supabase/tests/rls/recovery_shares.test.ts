@@ -29,7 +29,7 @@
 // Ids E-06-70 … E-06-76 and E-06-80 (the database half; the route half is functions/_tests/recovery_shares.test.ts).
 import { assert, assertEquals } from "@std/assert";
 import postgres from "postgres";
-import { PgStore } from "../../functions/_shared/store_pg.ts";
+import { apiStore } from "./_pg_api.ts";
 
 const url = Deno.env.get("RF_TEST_DB_URL");
 const required = Deno.env.get("RLS_REQUIRE") === "1";
@@ -247,7 +247,7 @@ Deno.test({
       assertEquals(f.prosecdef, true, "SECURITY DEFINER: the caller holds no row access to read");
       assertEquals(f.provolatile, "s", "stable: a read");
       assert(
-        (f.proconfig as string[] | null)?.includes("search_path=public"),
+        (f.proconfig as string[] | null)?.includes("search_path=public, pg_temp"),
         "search_path pinned (the 0010/0016 pattern)",
       );
       assertEquals(
@@ -365,8 +365,8 @@ Deno.test({
       const late = await pgErr(approve("g3", req, pub));
       assert(late.message.includes("recovery_closed"), late.message);
 
-      // …and through PgStore, the call sync-meta makes.
-      const store = new PgStore(url!);
+      // …and through PgStore, the call sync-meta makes, on the edge's rf_api login.
+      const store = await apiStore(url!);
       try {
         const viaStore = await store.withClaims(
           { user_id: fx.subject, device_id: fx.dev.candidate },

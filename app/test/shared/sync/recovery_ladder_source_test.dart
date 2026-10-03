@@ -980,6 +980,84 @@ void main() {
     });
   });
 
+  group('F1-24b-18 rung 2 — a REFUSED bit is unknown (desk 45, owner 3 Oct '
+      '2026; ADR 2026-10-03 § Desk 45)', () {
+    // Since migration 0025 the server REFUSES the bit — instead of answering
+    // `false` — for a caller that is not a live device of its own live user
+    // (a revoked phone, somebody else's device, an erased user): exactly
+    // `403 {"error":"unknown_request"}`, the answer the rung-2 open gives the
+    // same caller (server/supabase/functions/_tests/has_guardian_set.test.ts,
+    // E-24b-3/4). Before 0025 that phone got `200 false` and was told "you
+    // set nobody up". These pin the client half over the real HttpGuardiansApi
+    // and the real ladder: the refusal is `unknown`, and — so this is not a
+    // test a probe that never denies would pass — `false` is still the denial.
+    const root = 'https://api.example.test/functions/v1/';
+    final refusedWire = jsonEncode({'error': 'unknown_request'});
+
+    ({HttpGuardiansApi api, int Function() bitAsked}) client(
+      int status,
+      String bitBody,
+    ) {
+      var asked = 0;
+      final transport = FakeRkHttpTransport((method, url, headers, body) {
+        if (url.path.endsWith('/sync-meta')) {
+          // What an uncertified or revoked device reads: RLS filters, `[]`.
+          return RkHttpResponse(200, jsonEncode({'guardian_sets': []}));
+        }
+        if (url.path.endsWith('/sync-meta/recovery/has-guardian-set')) {
+          asked++;
+          return RkHttpResponse(status, bitBody);
+        }
+        return fail('unexpected route ${url.path}');
+      });
+      final api = HttpGuardiansApi(
+        transport: transport,
+        functionsRoot: Uri.parse(root),
+        accessToken: () async => 'tok',
+      );
+      return (api: api, bitAsked: () => asked);
+    }
+
+    Future<RecoveryRungOffer> rung2(HttpGuardiansApi api) async => _offerFor(
+      await LiveRecoveryLadder(
+        probes: {RecoveryRung.trustedMembers: trustedMembersProbe(api)},
+      ).rungs(),
+      RecoveryRung.trustedMembers,
+    );
+
+    test('F1-24b-18 the server\'s refusal, 403 `unknown_request`, is a named '
+        'failure of the bit and rung 2 `unknown` — never `noTrustedMembers`; '
+        'its twin, 200 `false`, is still the denial', () async {
+      final refused = client(403, refusedWire);
+      await expectLater(
+        refused.api.hasGuardianSet(),
+        throwsA(
+          isA<RecoveryApiFailure>().having(
+            (f) => f.refusal,
+            'refusal',
+            RecoveryRefusal.unknownRequest,
+          ),
+        ),
+      );
+      final offer = await rung2(refused.api);
+      expect(offer.availability, RecoveryRungAvailability.unknown);
+      expect(
+        offer.blocked,
+        isNull,
+        reason: 'a refusal is not "you set nobody up"',
+      );
+      expect(offer.isAvailable, isFalse);
+      expect(refused.bitAsked(), 2, reason: 'the bit was asked, then refused');
+
+      // The twin: the same route answering `false` is the one denial rung 2
+      // has. Without it, a probe that never denied would pass the arm above.
+      final no = client(200, jsonEncode({'has_guardian_set': false}));
+      final denied = await rung2(no.api);
+      expect(denied.blocked, RecoveryRungBlocked.noTrustedMembers);
+      expect(no.bitAsked(), 1);
+    });
+  });
+
   group('rung 1 — another of your own devices (04 §7.2)', () {
     test(
       'F1-06-74 only a certified device that is not this one counts: a '

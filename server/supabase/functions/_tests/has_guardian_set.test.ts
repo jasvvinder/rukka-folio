@@ -9,10 +9,17 @@
 //   * the body is EXACTLY `{has_guardian_set: <boolean>}` — no k, n, version, member or share;
 //   * nothing a caller sends (a `subject_user_id`, a request id) can move the answer to somebody
 //     else, and people close to the subject read only their own bit;
-//   * a revoked device reads false, and the bit agrees with what the open itself answers.
-// Id E-24b-1 (the route half).
-import { assert, assertEquals } from "@std/assert";
+//   * the bit agrees with what the open itself answers;
+//   * REFUSED, never a false denial (desk 45, owner 3 Oct 2026; ADR 2026-10-03 § Desk 45; 0025):
+//     a revoked device, a device that is not the caller user's and an erased user get ONE answer,
+//     403 `unknown_request` — the very answer the open gives the same caller — never `false`, which
+//     S11.6 renders as "you set nobody up" (04 §7.3 🔒). The client reads any non-2xx as `unknown`.
+//     This superseded 0016's reading (b), whose `false` arms E-24b-1 asserted until 0025.
+// Ids E-24b-1 (0016 readings (a) and (c), kept as built — live callers only), E-24b-3 (the
+// refusal), E-24b-4 (parity under it) — the route half, with MemStore held to PgStore's refusal.
+import { assert, assertEquals, assertRejects } from "@std/assert";
 import { b64url } from "../_shared/bytes.ts";
+import { StoreDenied } from "../_shared/store.ts";
 import { mintAccessToken } from "../_shared/claims.ts";
 import { handler as meta } from "../sync-meta/index.ts";
 import { body, get, member, post, random, type Rig, rig } from "./harness.ts";
@@ -116,26 +123,126 @@ Deno.test("E-24b-1 nobody else's answer leaks through the route: a `subject_user
   assertEquals(await bit(r, stranger), false, "and only the caller's");
 });
 
-Deno.test("E-24b-1 withheld: a REVOKED device of a user with a set reads false, an erased user reads false, a claim pair that does not belong together reads false, and an unauthenticated call is 401 with no body to read", async () => {
-  const { r, subject, stranger } = await world();
-  const revoked = r.db.addDevice(subject.user, await random(32), await random(32), "revoked");
-  revoked.revoked_at = r.clock.now;
-  assertEquals(await bit(r, { user: subject.user, device: revoked }), false, "revoked → false");
+/** The whole refused response — status and raw body — so two refusals compare byte for byte. */
+async function refusedRaw(r: Rig, w: Who): Promise<string> {
+  const res = await meta(get(PATH, { token: await tok(r, w) }), r.deps);
+  return `${res.status} ${await res.text()}`;
+}
+const ONE_REFUSAL = `403 ${JSON.stringify({ error: "unknown_request" })}`;
 
-  // A device row that is not the caller user's: the claims are the edge's own, but even a pair
-  // that disagreed would say nothing.
-  assertEquals(await bit(r, { user: subject.user, device: stranger.device }), false);
-  assertEquals(await bit(r, { user: stranger.user, device: subject.device }), false);
-
-  r.db.users.get(subject.user)!.erased_at = r.clock.now;
-  assertEquals(await bit(r, subject), false, "erased → false, set rows or not");
+Deno.test("E-24b-1 a SUSPENDED device is answered (0016 reading (c), kept as built by the desk-45 ruling), and an unauthenticated call is 401 with no body to read", async () => {
+  const { r, subject } = await world();
+  const suspended = r.db.addDevice(subject.user, await random(32), await random(32), "suspended");
+  assertEquals(await bit(r, { user: subject.user, device: suspended }), true, "(c) as built");
 
   const anon = await meta(get(PATH), r.deps);
   assertEquals(anon.status, 401);
   assertEquals((await body(anon)).error, "unauthenticated");
 });
 
-Deno.test("E-24b-1 the bit agrees with the open: false ⇔ POST /sync-meta/recovery refuses no_guardian_set (or the device is not the caller's live one), true for a set short of n members (⚠️ SPEC 0016 (a)), and only GET answers", async () => {
+Deno.test("E-24b-3 REFUSED, never a false denial (desk 45, 0025): a revoked device, a device that is not the caller user's and an erased user each get ONE response — 403 {error: unknown_request}, byte-identical whether or not the user holds a set — and MemStore refuses by PgStore's name, `unknown_candidate_device`; a live caller with no set still reads false", async () => {
+  const { r, subject, stranger } = await world();
+  const revoked = r.db.addDevice(subject.user, await random(32), await random(32), "revoked");
+  revoked.revoked_at = r.clock.now;
+  const strangerRevoked = r.db.addDevice(
+    stranger.user,
+    await random(32),
+    await random(32),
+    "revoked",
+  );
+  strangerRevoked.revoked_at = r.clock.now;
+  // A status row the projector has not caught up with yet still counts: revoked_at alone refuses,
+  // as rf.device_live_for reads `status <> 'revoked' and revoked_at is null`.
+  const stamped = r.db.addDevice(subject.user, await random(32), await random(32), "certified");
+  stamped.revoked_at = r.clock.now;
+
+  const erasedWithSet = await member(r, r.db.addTenant(), null, null);
+  r.db.addGuardianSet(erasedWithSet.user, 1, 2, [
+    { user_id: stranger.user, umk_pub_ed: await random(32) },
+    { user_id: subject.user, umk_pub_ed: await random(32) },
+  ]);
+  r.db.users.get(erasedWithSet.user)!.erased_at = r.clock.now;
+  const erasedBare = await member(r, r.db.addTenant(), null, null);
+  r.db.users.get(erasedBare.user)!.erased_at = r.clock.now;
+
+  const refusedCallers: [string, Who][] = [
+    ["a REVOKED device of a user WITH a set", { user: subject.user, device: revoked }],
+    ["a REVOKED device of a user with NO set", { user: stranger.user, device: strangerRevoked }],
+    ["revoked_at stamped, status not yet moved", { user: subject.user, device: stamped }],
+    ["my user, somebody else's device", { user: subject.user, device: stranger.device }],
+    ["the set-holder's device under a user with no set", {
+      user: stranger.user,
+      device: subject.device,
+    }],
+    ["an ERASED user WITH a set", erasedWithSet],
+    ["an ERASED user with NO set", erasedBare],
+  ];
+  for (const [why, w] of refusedCallers) {
+    assertEquals(await refusedRaw(r, w), ONE_REFUSAL, `${why}: one refusal, never a boolean`);
+
+    // MemStore mirrors PgStore: the store refuses by the database's name, it does not answer.
+    const e = await assertRejects(
+      () =>
+        r.deps.store.withClaims(
+          { user_id: w.user, device_id: w.device.id },
+          (tx) => tx.hasGuardianSet(),
+        ),
+      StoreDenied,
+    );
+    assertEquals(e.reason, "unknown_candidate_device", why);
+  }
+  // No claims at all never reach the route (401 above); the store refuses them by the same name.
+  const none = await assertRejects(
+    () => r.deps.store.withClaims(null, (tx) => tx.hasGuardianSet()),
+    StoreDenied,
+  );
+  assertEquals(none.reason, "unknown_candidate_device");
+
+  // The refusal is about the caller, not the set: live answers are unchanged, both ways.
+  assertEquals(await bit(r, stranger), false, "live, no set → still exactly {false}");
+  assertEquals(await bit(r, subject), true, "live, a set → still exactly {true}");
+});
+
+Deno.test("E-24b-4 parity under the refusal: for the same revoked (by status or by revoked_at alone) or foreign caller, GET has-guardian-set and the rung-2 open (POST /sync-meta/recovery) give the SAME response, 403 {error: unknown_request}; a live caller gets neither", async () => {
+  const { r, subject, stranger, candidate } = await world();
+  const open = async (w: Who) => {
+    const res = await meta(
+      post("/sync-meta/recovery", { candidate_pub_x: b64url.enc(await random(32)) }, {
+        token: await tok(r, w),
+      }),
+      r.deps,
+    );
+    return `${res.status} ${await res.text()}`;
+  };
+  const revoked = r.db.addDevice(subject.user, await random(32), await random(32), "revoked");
+  revoked.revoked_at = r.clock.now;
+  // revoked_at stamped, status not yet moved: rf.device_live_for (0010) reads BOTH fields, for the
+  // bit (0025) and the open (0010's guard) alike — so MemStore's open must refuse it too, or the
+  // parity above holds only because `revoked` sets both.
+  const stamped = r.db.addDevice(subject.user, await random(32), await random(32), "certified");
+  stamped.revoked_at = r.clock.now;
+  for (
+    const w of [
+      { user: subject.user, device: revoked },
+      { user: subject.user, device: stamped },
+      { user: subject.user, device: stranger.device },
+      { user: stranger.user, device: candidate.device },
+    ]
+  ) {
+    assertEquals(await refusedRaw(r, w), ONE_REFUSAL);
+    assertEquals(await open(w), ONE_REFUSAL, "the open refuses the same caller identically");
+  }
+  const strangerRaw = {
+    user: stranger.user,
+    device: r.db.addDevice(stranger.user, await random(32), await random(32), "registered"),
+  };
+  assertEquals(await bit(r, strangerRaw), false);
+  assert(!(await open(strangerRaw)).startsWith("403"), "a live caller is not refused by the open");
+  assertEquals(await bit(r, candidate), true);
+  assert((await open(candidate)).startsWith("200"), "…and a live caller with a set opens");
+});
+
+Deno.test("E-24b-1 for a LIVE caller the bit agrees with the open: false ⇔ POST /sync-meta/recovery refuses no_guardian_set, true for a set short of n members (⚠️ SPEC 0016 (a)), and only GET answers — a caller that is not a live device of its own live user is refused by both, never false (E-24b-3, E-24b-4)", async () => {
   const { r, candidate, stranger, g } = await world();
   const open = async (w: Who) =>
     await meta(

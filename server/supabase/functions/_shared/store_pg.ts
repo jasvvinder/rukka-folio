@@ -367,10 +367,15 @@ class PgTx implements Tx {
     const [r] = await this.sql`select rf.is_tenant_admin(${t}::uuid) as ok`;
     return r.ok as boolean;
   }
-  async membershipCount(t: string): Promise<number> {
-    // visible rows only — bootstrap is "no membership exists yet", which the caller can see when true
-    const [r] = await this.sql`select count(*)::int as n from memberships where tenant_id = ${t}`;
-    return r.n as number;
+  async mayFileRecord(t: string, kind: string): Promise<boolean> {
+    // 0022 §1, SECURITY DEFINER: it sees every membership row. Desk 83: this replaced a count of
+    // the VISIBLE memberships, which is zero for a stranger and made every stranger a founder.
+    const [r] = await this.sql`select rf.may_file_record(${t}::uuid, ${kind}::text) as ok`;
+    return r?.ok === true;
+  }
+  async storedRecordSeq(id: string): Promise<bigint | null> {
+    const [r] = await this.sql`select seq from signed_records where id = ${id}`;
+    return r ? big(r.seq) : null;
   }
   async membershipStatus(t: string, u: string): Promise<string | null> {
     const [r] = await this
@@ -617,7 +622,9 @@ class PgTx implements Tx {
     // ADR 2026-09-24b §3 🔒 — the one read not gated on rf.is_certified(), and it is a function,
     // not a table: 0005's guardian_sets / guardian_set_members policies stay certified-only, so no
     // row of either table reaches this caller. No argument is passed because the function takes
-    // none — it answers for the claims this transaction carries and for nobody else (0016).
+    // none — it answers for the claims this transaction carries and for nobody else (0016). A
+    // caller that is not a live device of its own live user is refused in the database (0025,
+    // 42501 `unknown_candidate_device`); withClaims maps that through denialFromPg to StoreDenied.
     const [r] = await this.sql`select rf.has_guardian_set() as v`;
     return r?.v === true;
   }

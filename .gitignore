@@ -38,3 +38,6 @@ app/android/key.properties
 .env
 .env.*
 !.env.example
+
+# supabase CLI link cache (project ref, versions) — machine-local
+server/supabase/.temp/

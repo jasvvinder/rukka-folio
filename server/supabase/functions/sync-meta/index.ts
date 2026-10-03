@@ -325,7 +325,8 @@ async function ceremony(
 //                                                             WHICH guardians decided (0010 rows)
 //   GET  /sync-meta/recovery/asks                           → the pending ask, for a guardian
 //   GET  /sync-meta/recovery/has-guardian-set               → {has_guardian_set: bool} — the
-//        caller's OWN user only, not gated on certification (ADR 2026-09-24b §3, migration 0016)
+//        caller's OWN user only, not gated on certification (ADR 2026-09-24b §3, migration 0016);
+//        403 `unknown_request` for a caller that is not a live device of a live user (0025)
 //   GET  /sync-meta/recovery/shares?request_id=…            → {request_id, shares:[…]} — step 4:
 //        the re-sealed shares of THAT attempt, for the phone that opened it, once approved (0020)
 //
@@ -390,8 +391,20 @@ async function recovery(
       // SECURITY DEFINER boolean keyed on the claims, with no argument. Query parameters are NOT
       // read — a `subject_user_id` here would be the enumeration oracle the ADR forbids. The body
       // is exactly one boolean: no k, no n, no version, no member, no share.
-      const has = await deps.store.withClaims(claims, (tx) => tx.hasGuardianSet());
-      return jsonBigResponse(200, { has_guardian_set: has === true });
+      //
+      // Desk 45 (owner, 3 Oct 2026; ADR 2026-10-03 § Desk 45; 0025): a caller whose device claim
+      // is not a live device of its own live user — revoked, somebody else's, erased — is REFUSED,
+      // never answered `false` (S11.6 would render that as "you set nobody up", the false denial
+      // 04 §7.3 🔒 forbids). The database names it `unknown_candidate_device`, as the rung-2 open
+      // does for the same caller, and recoveryError gives both routes ONE wire answer: 403
+      // `unknown_request`. Nothing on the wire tells revoked from foreign from erased.
+      try {
+        const has = await deps.store.withClaims(claims, (tx) => tx.hasGuardianSet());
+        return jsonBigResponse(200, { has_guardian_set: has === true });
+      } catch (e) {
+        if (!(e instanceof StoreDenied)) throw e;
+        return recoveryError(e.reason);
+      }
     }
     if (path === "/recovery/shares") {
       // 04 §7.3 🔒 step 4, the server half (migration 0020). The fresh phone that opened an attempt
@@ -801,6 +814,18 @@ async function intakeRecord(
   if (!(await verifyRecord(parsed, me.pub_ed))) {
     return { id, result: "rejected:shape", check: "author_sig" };
   }
+  // Desk 83 / 0022 §1: a record is filed only in a tenant its author is in — asked of the database
+  // (rf.may_file_record), never derived from rows the caller can see, and asked BEFORE anything is
+  // stored. The answer is the one signed_records_insert gives the same caller (`rls`), so it reads
+  // the same whether the tenant exists, has room or is full, and whichever layer refused (E-06-82,
+  // E-06-86, E-06-91). A record already stored under this id is not re-judged here: its replay is
+  // answered as stored (desk 68(a)) — the insert below writes nothing for it.
+  if (
+    (await tx.storedRecordSeq(parsed.id)) === null &&
+    !(await tx.mayFileRecord(parsed.tenant_id, parsed.kind))
+  ) {
+    return { id, result: "rejected:unauthorized", check: "rls" };
+  }
   const { seq, duplicate } = await tx.insertSignedRecord(parsed);
   return { record: { ...parsed, seq }, seq, duplicate };
 }
@@ -853,11 +878,12 @@ async function postRecords(
           // needs the stored apply_note on a duplicate, which the Tx does not expose (_shared).
           rec = stored;
         }
-        const note = await applyRecord(tx, rec, me!.user_id);
+        const { note, check } = await applyRecord(tx, rec, me!.user_id);
         if (note.startsWith("rejected:")) {
-          // Stored (append-only, it is a signed fact) but not applied; the note says why.
+          // Stored (append-only, it is a signed fact) but not applied; the note says why, and
+          // `check` names the rule (0022's name for it), as a store denial's does.
           await tx.markRecordApplied(rec.id, note);
-          results.push({ id, result: note, seq: seq.toString() });
+          results.push({ id, result: note, seq: seq.toString(), ...(check ? { check } : {}) });
           continue;
         }
         await tx.markRecordApplied(rec.id, note);

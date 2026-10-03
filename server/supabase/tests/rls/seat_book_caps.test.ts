@@ -14,7 +14,8 @@
 //   * ONE MORE BOOK than the plan holds, including by archiving and re-creating (E-05g-9).
 //   * AN ORACLE — a stranger learning another tenant's plan or head-count from a cap refusal, the
 //     plan resolver or the rotation ledger (E-05g-11).
-//   * A BYPASS — a claims-less rf_api write, or writing the ledger to buy back budget (E-05g-11).
+//   * A BYPASS — a claims-less rf_api write, a write carrying only a device claim (the caps bind
+//     either claim, 0021 §1), or writing the ledger to buy back budget (E-05g-11).
 //   * A LOSS — a downgrade that deletes, hides or strands anyone (E-05g-10).
 //
 // Every number comes from a catalogue row (test-only rows below, or the column read at run time),
@@ -31,7 +32,6 @@
 import { assert, assertEquals, assertNotEquals } from "@std/assert";
 import postgres from "postgres";
 import { StoreDenied } from "../../functions/_shared/store.ts";
-import { PgStore } from "../../functions/_shared/store_pg.ts";
 import { handler as meta } from "../../functions/sync-meta/index.ts";
 import {
   body,
@@ -42,6 +42,7 @@ import {
   rig,
   signedRecord,
 } from "../../functions/_tests/harness.ts";
+import { apiStore } from "./_pg_api.ts";
 
 const url = Deno.env.get("RF_TEST_DB_URL");
 const required = Deno.env.get("RLS_REQUIRE") === "1";
@@ -351,8 +352,9 @@ test("E-05g-2 at the cap an invite is refused, one under it is allowed — ADR 0
   assertNotEquals(fifth.code, "42501", "a cap is not a privilege denial");
   assertEquals(await liveInvites(tn.t), 4, "the refused invite left no row");
 
-  // The same refusal through the store the edge uses: denialFromPg passes the name through.
-  const store = new PgStore(url!);
+  // The same refusal through the store the edge uses (its rf_api login, so 0005's policies apply):
+  // denialFromPg passes the name through.
+  const store = await apiStore(url!);
   try {
     const rec = await record(tn.t, tn.admin.dev, "invite");
     let reason = "";
@@ -591,7 +593,7 @@ test("E-05g-10 downgrade deletes nothing (ADR 05g §6, 08 §3): after a tenant d
   assertCap(await tryBook(tn, tn.admin), "book_cap", "a NEW business book is refused");
 });
 
-test("E-05g-11 no oracle and no bypass: a certified device of another tenant and an uncertified device of this one get the RLS / not_admin refusal on a FULL tenant — never a cap; a claims-less rf_api writes nothing; a caller holding only a DEVICE claim is capped like any other (0021: the caps skip only when both claims are null); and no role can read or write the rotation ledger, or ask the plan resolver or the device cap about anyone (0021 revokes rf.device_cap from rf_api; rf.register_device still enforces it)", async () => {
+test("E-05g-11 no oracle and no bypass: a certified device of another tenant and an uncertified device of this one get the RLS / not_admin refusal on a FULL tenant — never a cap; a claims-less rf_api writes nothing; an rf_api caller holding only a DEVICE claim is refused not_admin before any cap (0022 §2); the caps themselves bind EITHER claim — a write carrying only a device claim reaches the seat and book caps and is capped, and only a write with both claims null is exempt (0021 §1); and no role can read or write the rotation ledger, or ask the plan resolver or the device cap about anyone (0021 revokes rf.device_cap from rf_api; rf.register_device still enforces it)", async () => {
   const tn = await tenant(PLAN.two);
   await activeMember(tn);
   const full = await tryInvite(tn, rand(32));
@@ -641,10 +643,11 @@ test("E-05g-11 no oracle and no bypass: a certified device of another tenant and
   }
   assertEquals(await liveInvites(tn.t), 0);
 
-  // CAP1 finding 3 (0021): rf.project_membership authorises on the DEVICE claim alone
-  // (rf.require_record), so a transaction that sets the founder's own device and no user must meet
-  // the seat cap too. Before 0021, rf.caps_apply() keyed on the user claim and this walked a third
-  // person into a 2-seat tenant.
+  // CAP1 finding 3 (0021): rf.project_membership authorised on the DEVICE claim alone
+  // (rf.require_record), so a transaction that set the founder's own device and no user walked a
+  // third person into a 2-seat tenant before 0021. Since 0022 §2 it never reaches the cap:
+  // rf.is_tenant_admin needs a certified device OF the claimed user, so a device-only caller is
+  // refused not_admin first — stricter, and still no cap name (no oracle), no row, no seat.
   const third = await mkPerson();
   const recDev = await record(tn.t, tn.admin.dev, "membership_status");
   const devOnly = await pgErr(
@@ -655,7 +658,11 @@ test("E-05g-11 no oracle and no bypass: a certified device of another tenant and
         s`select rf.project_membership(${recDev}, ${tn.t}, ${third.user}, 'joined_pending_verification')`,
     ),
   );
-  assertCap(devOnly, "seat_cap", "device claim only: the full tenant still refuses the seat");
+  assertEquals(
+    [devOnly.code, devOnly.message],
+    ["42501", "not_admin"],
+    "device claim only: 0022 refuses it before the cap",
+  );
   assertEquals(await statusOf(tn.t, third.user), null, "and no membership row was left behind");
   assertEquals(await holders(tn.t), 2, "the seat count did not move");
   const devOnlyBook = await pgErr(
@@ -668,6 +675,55 @@ test("E-05g-11 no oracle and no bypass: a certified device of another tenant and
   );
   assertEquals(devOnlyBook.code, "42501", "device claim only: a book is the policy's refusal");
   assert(!/cap/.test(devOnlyBook.message), devOnlyBook.message);
+
+  // 0021 §1 itself: rf.caps_apply() binds EITHER claim. After 0022 no rf_api writer lets a
+  // device-only caller reach a cap trigger (above), so the rule is defence in depth for the next
+  // writer that authorises on the device claim alone — and the only way to show it holds is to
+  // reach the triggers with the claims under test and nothing else in the way. The probe is the
+  // schema owner (no `set local role`: no policy, no projector authorisation) with exactly those
+  // claims set, always rolled back; the triggers fire for it as for anyone. With both claims null
+  // it is the owner's own write and is not capped (0019 §2 — the fixtures above rely on that);
+  // with ANY claim it is a caller's, and the full tenant refuses it by name. Under 0019's
+  // user-only caps_apply the device-only rows here are written instead (the mutation the review
+  // ran: 234 passed before this arm existed).
+  const probe = async (
+    u: string | null,
+    d: string | null,
+    q: (s: postgres.TransactionSql) => Promise<unknown>,
+  ): Promise<PgErr> => {
+    const ROLLBACK = "E-05g-11 probe: roll back";
+    try {
+      await sql.begin(async (s) => {
+        await s`select rf.set_claims(${u}::uuid, ${d}::uuid)`;
+        await q(s);
+        throw new Error(ROLLBACK);
+      });
+    } catch (e) {
+      const x = e as { code?: string; message?: string };
+      if (x.message === ROLLBACK) return OK;
+      return { code: x.code ?? "unknown", message: x.message ?? "" };
+    }
+    throw new Error("unreachable: the probe always rolls back");
+  };
+  const seat = (s: postgres.TransactionSql) =>
+    s`insert into memberships (tenant_id, user_id, status)
+      values (${tn.t}, ${third.user}, 'joined_pending_verification')`;
+  const bizBook = (s: postgres.TransactionSql) =>
+    s`insert into books (id, tenant_id, type) values (gen_random_uuid(), ${tn.t}, 'business')`;
+  for (
+    const [who, u, d] of [
+      ["device claim only", null, tn.admin.dev],
+      ["user claim only", tn.admin.user, null],
+      ["both claims", tn.admin.user, tn.admin.dev],
+    ] as const
+  ) {
+    assertCap(await probe(u, d, seat), "seat_cap", `${who}: the seat cap binds it (0021 §1)`);
+    assertCap(await probe(u, d, bizBook), "book_cap", `${who}: the book cap binds it (0021 §1)`);
+  }
+  assertEquals(await probe(null, null, seat), OK, "no claims: the owner's write, not capped");
+  assertEquals(await probe(null, null, bizBook), OK, "no claims: the owner's book, not capped");
+  assertEquals(await statusOf(tn.t, third.user), null, "every probe rolled back");
+  assertEquals(await holders(tn.t), 2, "the seat count still did not move");
 
   // The ledger and the helpers: nobody but the definer.
   for (
@@ -892,7 +948,7 @@ test(
     assertEquals(await holders(tn.t), 2, "the 2-seat plan is full");
 
     const r = rig();
-    const store = new PgStore(url!);
+    const store = await apiStore(url!); // the edge's rf_api login; fixtures above are the owner's
     r.deps.store = store;
     const signer = {
       user: founder.user,

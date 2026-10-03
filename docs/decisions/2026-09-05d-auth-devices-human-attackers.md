@@ -19,7 +19,7 @@ guardians plus a borrowed phone can no longer take a member's identity — and t
 before the member sees it. A user who still has a device and wants a new one should **link**
 (rung 1), which is instant; the app says so on the recovery screen.
 
-### 2. Uncertified devices see nothing but themselves ⟦tests: E-03-18, E-03-24, E-05-8, E-05-9, E-06-6, E-06-7, C-05d-6, C-06-19, F1-06-1, E-06-52, E-06-53, E-06-59, E-06-61, E-06-73, E-06-76, E-06-78⟧
+### 2. Uncertified devices see nothing but themselves ⟦tests: E-03-18, E-03-24, E-05-8, E-05-9, E-06-6, E-06-7, C-05d-6, C-06-19, F1-06-1, E-06-52, E-06-53, E-06-59, E-06-61, E-06-73, E-06-76, E-06-78, E-06-89, E-06-90⟧
 An OTP proves the doorbell, not the person. Until a device holds a certificate the **server has
 verified** under the user's registered UMK public key (one more Ed25519 verify — within 04 §8.6's
 minimal surface), RLS returns only: the device's own `users` row, its own `devices` row, wrapped
@@ -28,7 +28,8 @@ names, no roles, no device lists, no verification log. A SIM-swapper learns noth
 family. `devices.status` gains `certified` set by the server on cert verification; the RLS
 predicate for every tenant table requires it.
 
-> **Amended by ADR 2026-09-24b §3** — one more read: an uncertified device may learn *whether its own user has a current guardian set* — a boolean, bounded to `user_id = rf.user_id()`, never k, n, a member or a share. Everything else above stands. ⟦tests: E-24b-1, F1-24b-4 @M11⟧
+> **Amended by ADR 2026-09-24b §3** — one more read: an uncertified device may learn *whether its own user has a current guardian set* — a boolean, bounded to `user_id = rf.user_id()`, never k, n, a member or a share. Everything else above stands. ⟦tests: E-24b-1, F1-24b-4⟧
+> **Amended by ADR 2026-10-03 § Desk 45** — a non-live, foreign or erased caller is refused, never answered `false`. ⟦tests: E-24b-3, E-24b-4⟧
 
 ### 3. Support actions are delayed and cancellable ⟦tests: C-05d-8, F1-06-13, F1-06-15⟧
 Support-initiated **device revocation** follows the deletion pattern: a 24 h window, a notice on
@@ -72,6 +73,10 @@ common case; detection is ruling 6, mitigation is turning key sync off in Device
 ### 9. Smaller rulings ⟦tests: C-05d-9, E-06-30, E-06-31, E-06-32, E-06-33, E-06-34, E-06-35⟧
 - **Invites are phone-bound.** An invite is accepted only by a device whose OTP-verified number
   matches `invitee_hmac` (03 §2.1); the link alone admits nobody. Stated in 06 §7.
+  > **ADR 2026-10-03 §9** — exception, accepted as built: an admin's signed `membership_status`
+  > record can move a person into `joined_pending_verification` without any invite, inside the
+  > seat cap. This ruling binds invites. It does not bind that second edge (06 §7's cross-reference
+  > line). ⟦tests: E-05g-5⟧
 - **Revocation lag.** A revoked device can read metadata for up to one access-token lifetime
   (15 min); content it could already decrypt it already had. Stated, accepted.
 - **Rate limits** on `/auth/challenge` and `/devices`: per-IP and per-device, generic errors,

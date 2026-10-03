@@ -274,11 +274,11 @@ RecoveryRungProbe anotherDeviceProbe(DevicesRepository devices) => () async {
 /// throws, and no second question is asked on its strength. When a readable
 /// set of this user's own is present the bit is never asked (F1-24b-4).
 ///
-/// ⚠️ SPEC (desk 45): three readings of `0016` are unruled — a set with fewer
-/// than n members reads `true` (here: unknown, no change); a revoked or
-/// foreign device claim reads `false`, which this probe renders as
-/// *you set nobody up*; a suspended device is answered. Built to the server
-/// as it is.
+/// Desk 45, ruled by ADR 2026-10-03 § Desk 45: a set with fewer than n
+/// members reads `true` (here: unknown, no change); a suspended device is
+/// answered; a revoked, foreign or erased caller is **refused** (`0025`, a 403
+/// `unknown_request`), never answered `false`, so this probe renders it
+/// unknown rather than *you set nobody up* (F1-24b-18).
 RecoveryRungProbe trustedMembersProbe(
   GuardiansApi guardians, {
   String? subjectUserId,

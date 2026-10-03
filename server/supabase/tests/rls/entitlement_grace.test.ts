@@ -15,7 +15,7 @@ import { assert, assertEquals } from "@std/assert";
 import postgres from "postgres";
 import { entitlementFor } from "../../functions/_shared/entitlement.ts";
 import { PlanCatalogue } from "../../functions/_shared/registry.ts";
-import { PgStore } from "../../functions/_shared/store_pg.ts";
+import { apiStore } from "./_pg_api.ts";
 
 const url = Deno.env.get("RF_TEST_DB_URL");
 const required = Deno.env.get("RLS_REQUIRE") === "1";
@@ -35,8 +35,9 @@ Deno.test({
     "E-24b-2 PgStore reads subscriptions.grace_until as 0013's apply path wrote it: a dunning event puts period_end + 7 d into the state and the minted payload's grace_until, an activate clears it to null, and another tenant's certified device never receives the date",
   ignore,
   async fn() {
+    // The store under test is the edge's rf_api login; fixtures stay on the owner's connection.
+    const store = await apiStore(url!);
     const sql = postgres(url!, { max: 1, onnotice: () => {} });
-    const store = new PgStore(url!);
     try {
       const [t1] = await sql`insert into tenants (type) values ('family') returning id`;
       const [t2] = await sql`insert into tenants (type) values ('family') returning id`;
@@ -131,8 +132,9 @@ Deno.test({
     "E-05-15 PgStore: a trial row ended by 0013's end_now lapses with current_period_end still NULL, and the mint clamps period_end to iat anyway — the row keeps its plan and reads read-only, never unbounded (08 §3 🔒 'lapsed ⇒ period_end = iat', ADR 2026-09-24b §7 (a) 🔒)",
   ignore,
   async fn() {
+    // The store under test is the edge's rf_api login; fixtures stay on the owner's connection.
+    const store = await apiStore(url!);
     const sql = postgres(url!, { max: 1, onnotice: () => {} });
-    const store = new PgStore(url!);
     try {
       const [t] = await sql`insert into tenants (type) values ('family') returning id`;
       const [u] = await sql`insert into users (phone_hmac, phone_ct)

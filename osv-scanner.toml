@@ -1,0 +1,38 @@
+# osv-scanner.toml — dependency-audit policy for the gate (scripts/ci.sh, ADR 2026-09-05 ruling 10).
+#
+# ci.sh passes this file with --config to every osv-scanner run, so it governs pubspec.lock, any
+# lockfile osv-scanner discovers later, and the CycloneDX bridge of server/deno.lock's npm half.
+# Under --config osv-scanner reads no other osv-scanner.toml (a nested one is ignored; probed
+# 3 Oct 2026), so this file is the whole policy.
+#
+# Ignore policy (owner-directed, M13 hardening row) — ci.sh refuses the file otherwise:
+#   - an entry exists only for a real advisory that cannot be fixed today, and is listed for the
+#     owner (PLAN desk / lane report `open`) the day it is added;
+#   - every [[IgnoredVulns]] carries `id`, a non-empty `reason` AND an `ignoreUntil` date; every
+#     [[PackageOverrides]] carries `name`, a non-empty `reason` AND an `effectiveUntil` date
+#     (an override without a name matches every package in its ecosystem). When the date passes
+#     osv-scanner reports the advisory again and the gate goes red — an ignore cannot go stale.
+#   - the date is no more than 90 days out (ci.sh: osv_max_days). ⚠️ SPEC: docs/ give "one release
+#     cycle" no number; 90 mirrors the release lane's 90-day restore-drill freshness (ADR
+#     2026-09-05i §2) and is an owner item to confirm.
+#   - Upgrading the dependency is the fix; an ignore only buys the time to do it.
+#
+# Accepted spelling — ci.sh's guard is a whitelist, because TOML has other spellings osv-scanner
+# also honours (an inline `IgnoredVulns = [ { … } ]` array, `[[ignoredvulns]]`, `ID =`, quoted or
+# spaced headers, sub-table headers) and every one of those is REFUSED:
+#   - only comments, blank lines and the exact headers `[[IgnoredVulns]]` / `[[PackageOverrides]]`;
+#   - inside a block, one `key = value` per line with exactly these keys and one-line values:
+#       IgnoredVulns      id = "…" · ignoreUntil = YYYY-MM-DD · reason = "…"
+#       PackageOverrides  name = "…" · version / ecosystem / group = "…" · ignore = true|false ·
+#                         vulnerability.ignore = true|false · license.ignore = true|false ·
+#                         license.override = ["…", …] · effectiveUntil = YYYY-MM-DD · reason = "…"
+#     (sub-tables as dotted keys; double-quoted one-line strings; a plain date, no time part).
+#
+# Shape of an entry (do not uncomment without the owner):
+#   [[IgnoredVulns]]
+#   id = "GHSA-xxxx-xxxx-xxxx"
+#   ignoreUntil = 2026-11-01            # TOML date, ≤ 90 days out
+#   reason = "pkg x.y.z via <direct dep>; no fixed release yet; not reachable because …"
+#
+# As of 3 Oct 2026: pubspec.lock (144 packages) and server/deno.lock npm (5 packages) — no
+# advisories. No entries.

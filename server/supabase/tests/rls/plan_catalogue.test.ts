@@ -32,9 +32,9 @@ import { entitlementFor, needsMint } from "../../functions/_shared/entitlement.t
 import { FakeOtpProvider } from "../../functions/_shared/otp/provider.ts";
 import { PlanCatalogue } from "../../functions/_shared/registry.ts";
 import { hmacSha256AnyKey, signEntitlementToken } from "../../functions/_shared/sodium.ts";
-import { PgStore } from "../../functions/_shared/store_pg.ts";
 import { CATALOGUE_SEED } from "../../functions/_shared/store_mem.ts";
 import { handler as webhook } from "../../functions/billing-webhook/index.ts";
+import { apiStore } from "./_pg_api.ts";
 
 const url = Deno.env.get("RF_TEST_DB_URL");
 const required = Deno.env.get("RLS_REQUIRE") === "1";
@@ -584,8 +584,8 @@ Deno.test({
     "E-25-3 (database half) PgStore.planCatalogue() reads, as rf_api, exactly the rows the MemStore fakes — ADR 2026-09-25 §5's table — as safe integers, so the fake cannot drift from 0018 unnoticed",
   ignore,
   async fn() {
+    const store = await apiStore(url!); // the edge's rf_api login; fixtures stay on the owner's `sql`
     setup();
-    const store = new PgStore(url!);
     try {
       const t = await mkTenant("family");
       const p = await person(t, "admin");
@@ -618,8 +618,8 @@ Deno.test({
     "G-25-4 (database half) a catalogue data change moves the enforced device cap (rf.device_cap) and re-mints the token with the row's new limits and features at the next pull — no code change (ADR 2026-09-25 §6 🔒)",
   ignore,
   async fn() {
+    const store = await apiStore(url!); // the edge's rf_api login; fixtures stay on the owner's `sql`
     setup();
-    const store = new PgStore(url!);
     const plan = `zz_${crypto.randomUUID().slice(0, 8)}`;
     let tenant = "";
     try {
@@ -731,8 +731,8 @@ Deno.test({
     "E-03-79 (webhook through the database) the real route, read() and all, activates a catalogue id outside 08 §2's four names (business_plus) against Postgres, and records a present-but-malformed plan ('Business+') as `unknown_plan` with not one subscription column moved",
   ignore,
   async fn() {
+    const store = await apiStore(url!); // the edge's rf_api login; fixtures stay on the owner's `sql`
     setup();
-    const store = new PgStore(url!);
     const secret = rand(32);
     const deps: Deps = {
       store,

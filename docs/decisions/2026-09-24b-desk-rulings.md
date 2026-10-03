@@ -32,7 +32,9 @@ commit (ADR 2026-09-05i §4) and re-lands with the build row named under *Conseq
 - While the other person's row still has `pub_ed` only, the ceremony fails closed **and says so**:
   it tells the user to ask them to open the app once. The ceremony never fails silently.
 
-### 3. An uncertified device may ask one yes/no question about its own guardians (desk 16) ⟦tests: E-24b-1, F1-24b-4 @M11⟧
+### 3. An uncertified device may ask one yes/no question about its own guardians (desk 16) ⟦tests: E-24b-1, F1-24b-4⟧
+> **Amended by ADR 2026-10-03 § Desk 45** — a revoked, foreign or erased caller is refused (`0025`), never answered `false`; readings (a) and (c) stand. ⟦tests: E-24b-3, E-24b-4, F1-24b-18⟧
+
 - **Amends ADR 2026-09-05d §2** by one read. An uncertified device may learn whether **its own
   user** (`user_id = rf.user_id()`) has a current guardian set. The answer is a boolean: no k, no n,
   no member identity, no share, no generation. The read is deliberately **not** gated on

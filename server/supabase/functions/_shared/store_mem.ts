@@ -431,6 +431,19 @@ class MemTx implements Tx {
         this.db.books.get(r.book_id as string)?.tenant_id === t
       );
   }
+  /** 0022 §1 rf.may_file_record: a filing member (active or pending), or the founder's
+   *  membership_status into an existing tenant with no member at all. Reads every row, like the
+   *  SECURITY DEFINER function it mirrors. */
+  private mayFile(t: string, kind: string): boolean {
+    return this.isCertified() && (
+      this.db.memberships.some((m) =>
+        m.tenant_id === t && m.user_id === this.me &&
+        (m.status === "active" || m.status === "joined_pending_verification")
+      ) ||
+      (kind === "membership_status" && this.db.tenants.has(t) &&
+        !this.db.memberships.some((m) => m.tenant_id === t))
+    );
+  }
 
   storeEpoch(): Promise<string> {
     return Promise.resolve(this.db.epoch);
@@ -726,7 +739,12 @@ class MemTx implements Tx {
   insertSignedRecord(row: SignedRecordRow): Promise<{ seq: bigint; duplicate: boolean }> {
     const ex = this.db.signed_records.find((r) => r.id === row.id);
     if (ex) return Promise.resolve({ seq: ex.seq!, duplicate: true });
-    if (!this.isCertified() || row.author_device !== this.dev) throw new StoreDenied("rls");
+    // signed_records_insert as 0022 §1 wrote it. Postgres checks the policy before the foreign key,
+    // so a tenant that does not exist answers `rls` like one with members (E-06-82).
+    if (
+      !this.isCertified() || row.author_device !== this.dev ||
+      !this.mayFile(row.tenant_id, row.kind)
+    ) throw new StoreDenied("rls");
     if (!this.db.tenants.has(row.tenant_id)) throw new StoreDenied("fk");
     const seq = ++this.db.seq;
     this.db.signed_records.push({ ...row, seq, applied_at: null, apply_note: null });
@@ -747,21 +765,35 @@ class MemTx implements Tx {
   isTenantAdmin(t: string): Promise<boolean> {
     return Promise.resolve(this.tenantAdmin(t));
   }
-  membershipCount(t: string): Promise<number> {
-    return Promise.resolve(this.db.memberships.filter((m) => m.tenant_id === t).length);
+  mayFileRecord(t: string, kind: string): Promise<boolean> {
+    return Promise.resolve(this.mayFile(t, kind));
+  }
+  storedRecordSeq(id: string): Promise<bigint | null> {
+    // signed_records_select (0005): the caller's own device's records, and its active tenants'.
+    const r = this.db.signed_records.find((x) =>
+      x.id === id && (this.activeInTenant(x.tenant_id) || x.author_device === this.dev)
+    );
+    return Promise.resolve(r?.seq ?? null);
   }
   membershipStatus(t: string, u: string): Promise<string | null> {
-    const m = this.db.memberships.find((x) => x.tenant_id === t && x.user_id === u);
+    // memberships_select, as PgStore's read meets it: never a row the caller cannot see.
+    const m = this.db.memberships.find((x) =>
+      x.tenant_id === t && x.user_id === u && this.visible("memberships", x)
+    );
     return Promise.resolve((m?.status as string) ?? null);
   }
   bookInfo(bookId: string) {
+    // books_select and book_roles_select (0005): only an active member of the book's tenant sees
+    // the book, and then every role on it.
     const b = this.db.books.get(bookId);
-    if (!b) return Promise.resolve(null);
+    if (!b || !this.visible("books", b)) return Promise.resolve(null);
     return Promise.resolve({
       tenant_id: b.tenant_id as string,
       owner_user_id: b.owner_user_id as string | null,
       type: b.type as string,
-      role_count: this.db.book_roles.filter((r) => r.book_id === bookId).length,
+      role_count: this.db.book_roles.filter((r) =>
+        r.book_id === bookId && this.visible("book_roles", r)
+      ).length,
     });
   }
   private requireRecord(record: string, tenant: string, kind?: string): void {
@@ -776,6 +808,10 @@ class MemTx implements Tx {
   }
   projectMembership(record: string, tenant: string, user: string, status: string): Promise<void> {
     this.requireRecord(record, tenant);
+    // 0022 §2: a tenant admin, or the founder's own first membership at active (06 §5).
+    const founder = status === "active" && user === this.me && this.isCertified() &&
+      !this.db.memberships.some((x) => x.tenant_id === tenant);
+    if (!this.tenantAdmin(tenant) && !founder) throw new StoreDenied("not_admin");
     const m = this.db.memberships.find((x) => x.tenant_id === tenant && x.user_id === user);
     if (m) {
       m.status = status;
@@ -802,8 +838,27 @@ class MemTx implements Tx {
     role: string | null,
     limit: bigint | null,
   ): Promise<void> {
-    const t = this.db.books.get(book)?.tenant_id as string;
+    const b = this.db.books.get(book);
+    const t = b?.tenant_id as string;
     this.requireRecord(record, t);
+    // 0022 §3: an admin of THAT book; on a book with no role and no envelope, the caller's own
+    // admin role — its creator's (06 §1.0 🔒) — and on a personal book only its owner's.
+    let ok = false;
+    if (b && this.activeInTenant(t)) {
+      if (
+        this.db.book_roles.some((r) =>
+          r.book_id === book && r.user_id === this.me && r.role === "admin"
+        )
+      ) ok = true;
+      else if (
+        user === this.me && role === "admin" &&
+        (b.type !== "personal" || b.owner_user_id === this.me)
+      ) {
+        ok = !this.db.book_roles.some((r) => r.book_id === book) &&
+          !this.db.envelopes.some((e) => e.book_id === book);
+      }
+    }
+    if (!ok) throw new StoreDenied("not_admin");
     this.db.book_roles = this.db.book_roles.filter((r) =>
       !(r.book_id === book && r.user_id === user)
     );
@@ -826,7 +881,21 @@ class MemTx implements Tx {
     status: string,
   ): Promise<void> {
     this.requireRecord(record, tenant);
+    // 0022 §4: revoke only; by the device's user or a guardian of theirs, on a record of a tenant
+    // that user is in — one refusal for every miss.
+    if (status !== "revoked") throw new StoreDenied("revoke_only");
     const d = this.db.devices.get(device);
+    const owner = d?.user_id;
+    if (
+      !owner || !this.isCertified() ||
+      !this.db.memberships.some((m) =>
+        m.tenant_id === tenant && m.user_id === owner && m.status !== "removed"
+      ) ||
+      !(owner === this.me ||
+        this.db.guardian_set_members.some((g) =>
+          g.subject_user_id === owner && g.guardian_user_id === this.me
+        ))
+    ) throw new StoreDenied("not_revoker");
     if (d) {
       d.status = status as MemDevice["status"];
       d.updated_at = this.now;
@@ -982,8 +1051,10 @@ class MemTx implements Tx {
     if (candidatePubX.length !== 32) throw new StoreDenied("recovery_shape");
     const d = this.db.devices.get(this.dev);
     // 0005's INSERT policy is the one that does NOT require a certified device — 04 §7.3 step 1 is
-    // a fresh phone (ADR 2026-09-05d §2). It still has to be the caller's own live device.
-    if (!d || d.user_id !== this.me || d.status === "revoked") {
+    // a fresh phone (ADR 2026-09-05d §2). It still has to be the caller's own live device — live as
+    // rf.device_live_for (0010) reads it, `status <> 'revoked' and revoked_at is null`, the same
+    // predicate hasGuardianSet uses, so the bit and the open refuse the same callers (E-24b-4).
+    if (!d || d.user_id !== this.me || d.status === "revoked" || d.revoked_at) {
       throw new StoreDenied("unknown_candidate_device");
     }
     const set = this.currentGuardianSet(this.me);
@@ -1230,12 +1301,19 @@ class MemTx implements Tx {
    *  rf.device_live_for: not revoked, no revoked_at) and a user that is not erased. "Current" is
    *  currentGuardianSet — the same set openRecovery pins — so the bit and the open never disagree. */
   hasGuardianSet(): Promise<boolean> {
-    if (!this.me || !this.dev) return Promise.resolve(false);
-    const u = this.db.users.get(this.me);
-    const d = this.db.devices.get(this.dev);
-    if (!u || u.erased_at || !d || d.user_id !== this.me) return Promise.resolve(false);
-    if (d.status === "revoked" || d.revoked_at) return Promise.resolve(false);
-    return Promise.resolve(this.currentGuardianSet(this.me) !== null);
+    // 0016 + 0025 (desk 45): a caller whose device claim is not a live device of its own live
+    // user is REFUSED — one name for every such case, the open's own — never answered `false`,
+    // which rung 2 would render as "you set nobody up" (04 §7.3 🔒). Live = rf.device_live_for:
+    // not `revoked` and `revoked_at` null, so a SUSPENDED device is answered (reading (c)).
+    const u = this.me ? this.db.users.get(this.me) : undefined;
+    const d = this.dev ? this.db.devices.get(this.dev) : undefined;
+    if (
+      !u || u.erased_at || !d || d.user_id !== this.me || d.status === "revoked" || d.revoked_at
+    ) {
+      // A rejection, not a synchronous throw: PgStore's refusal arrives as a rejected promise.
+      return Promise.reject(new StoreDenied("unknown_candidate_device"));
+    }
+    return Promise.resolve(this.currentGuardianSet(this.me!) !== null);
   }
   // ---- 04 §7.4 🔒 rung 3, the paper sheet (0011 in the database; mirrored here).
   publishRecoverySheet(blob: Uint8Array): Promise<number> {

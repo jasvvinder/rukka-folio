@@ -14,7 +14,7 @@
 // why; the nightly/RC lanes set RLS_REQUIRE=1 so a missing database fails loudly.
 import { assert, assertEquals } from "@std/assert";
 import postgres from "postgres";
-import { PgStore } from "../../functions/_shared/store_pg.ts";
+import { apiStore } from "./_pg_api.ts";
 
 const url = Deno.env.get("RF_TEST_DB_URL");
 const required = Deno.env.get("RLS_REQUIRE") === "1";
@@ -375,7 +375,7 @@ Deno.test({
     const drawn = rnd(16);
     const id = await invite(h, drawn);
 
-    const store = new PgStore(url!);
+    const store = await apiStore(url!); // the edge's rf_api login; fixtures above are the owner's
     try {
       const claims = { user_id: u.id as string, device_id: d.id as string };
       const before = await store.withClaims(claims, (tx) => tx.myInvites());
@@ -427,7 +427,7 @@ Deno.test({
     const raw = await mine(me, dev);
     assertEquals(raw.map((r) => [r.id, r.status]), [[b, "sent"], [a, "accepted"]]);
 
-    const store = new PgStore(url!);
+    const store = await apiStore(url!); // the edge's rf_api login; fixtures above are the owner's
     try {
       const claims = { user_id: me, device_id: dev };
       const list = await store.withClaims(claims, (tx) => tx.myInvites());

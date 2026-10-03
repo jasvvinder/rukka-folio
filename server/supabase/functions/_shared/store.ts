@@ -355,10 +355,29 @@ export interface Tx {
   deviceAuthRow(
     deviceId: string,
   ): Promise<{ user_id: string; pub_ed: Uint8Array; status: string } | null>;
+  /** rf.is_tenant_admin (0005, SECURITY DEFINER): the CALLER is active in the tenant and admin of
+   *  some book in it. Reads only the caller's own rows, so it never depends on what is visible. */
   isTenantAdmin(tenantId: string): Promise<boolean>;
-  membershipCount(tenantId: string): Promise<number>;
-  /** Current membership status, or null when there is no row yet (06 §7's starting state). */
+  /** 0022 §1 rf.may_file_record (SECURITY DEFINER) — the database's own answer to "may the caller's
+   *  certified device file a record of `kind` in this tenant": it holds a membership there at
+   *  `active` or `joined_pending_verification`, or the tenant exists with no member at all and the
+   *  record is the founder's `membership_status`. It reads EVERY membership row, so it is the one
+   *  place "the tenant has no member yet" can be asked: a count of the rows the caller can see is
+   *  zero for a stranger (desk 83, E-06-86). Never an oracle: an unknown tenant answers false, as a
+   *  tenant with members does. The same predicate is signed_records_insert's WITH CHECK. */
+  mayFileRecord(tenantId: string, kind: string): Promise<boolean>;
+  /** The seq of a record already stored under `id`, among those the caller can see — its own
+   *  device's records always (signed_records_select, 0005) — or null. Duplicate detection only,
+   *  never authority: insertSignedRecord makes the same lookup before it writes. */
+  storedRecordSeq(id: string): Promise<bigint | null>;
+  /** Current membership status, or null when there is no row the CALLER can see (06 §7's starting
+   *  state). memberships_select (0005) shows a certified caller its OWN row in every status, and
+   *  every row of a tenant it is active in — so it is exact for the caller's own row and for an
+   *  active member's tenant, and is used for nothing else. */
   membershipStatus(tenantId: string, userId: string): Promise<string | null>;
+  /** The book's type, owner and role count as the CALLER sees them: books_select and
+   *  book_roles_select (0005) show them only to an active member of the book's tenant, and then
+   *  in full — so the edge reads it only after rf.book_access has said the caller is active there. */
   bookInfo(
     bookId: string,
   ): Promise<
@@ -420,8 +439,10 @@ export interface Tx {
   /** ADR 2026-09-24b §3 🔒 (amends ADR 2026-09-05d §2 by one read): does the CALLER's own user
    *  have a current guardian set — one boolean, deliberately NOT gated on certification, so the
    *  uncertified phone on S11.6 can tell rung 2's `noTrustedMembers` from `unknown`. Takes no
-   *  subject: it can only ever answer for `rf.user_id()`. False for a caller whose device claim is
-   *  not a live device of that user, or whose user is erased (rf.has_guardian_set, 0016). */
+   *  subject: it can only ever answer for `rf.user_id()`. A caller whose device claim is not a live
+   *  device of that user, or whose user is erased, is REFUSED — StoreDenied
+   *  `unknown_candidate_device`, the open's own name, one for every such case — never answered
+   *  `false` (desk 45, owner 3 Oct 2026; rf.has_guardian_set, 0016 as replaced by 0025). */
   hasGuardianSet(): Promise<boolean>;
   // ---- 04 §7.4 🔒 rung 3, the paper sheet (0011). Write-once and versioned: regenerating a sheet
   // rotates RK, so it publishes the NEXT version and the old blob stops being served.

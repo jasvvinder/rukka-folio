@@ -26,6 +26,75 @@ jobs:
       LANE: ${{ github.event_name == 'schedule' && 'nightly' || inputs.lane || 'push' }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # gitleaks scans every commit on every ref; ci.sh refuses a shallow clone
+      # Supply-chain scanners for ci.sh's secret scan + OSV audit (ADR 2026-09-05 ruling 10).
+      # Pinned to the versions the gate was proven on (3 Oct 2026) and sha256-checked against both
+      # the GitHub release-asset digest and the project's own checksums file. Bump all four together.
+      - name: Install gitleaks + osv-scanner (pinned, sha256-verified)
+        env:
+          GITLEAKS_VERSION: 8.30.1
+          GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+          OSV_SCANNER_VERSION: 2.6.0
+          OSV_SCANNER_SHA256: ca69b3d3cd08f889a49dc0a383122f71cc528b83803671df5fd874d97485b108
+        run: |
+          set -euo pipefail
+          bin="$RUNNER_TEMP/scanners"
+          mkdir -p "$bin"
+          curl -fsSL -o "$RUNNER_TEMP/gitleaks.tgz" \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          echo "${GITLEAKS_SHA256}  $RUNNER_TEMP/gitleaks.tgz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/gitleaks.tgz" -C "$bin" gitleaks
+          curl -fsSL -o "$bin/osv-scanner" \
+            "https://github.com/google/osv-scanner/releases/download/v${OSV_SCANNER_VERSION}/osv-scanner_linux_amd64"
+          echo "${OSV_SCANNER_SHA256}  $bin/osv-scanner" | sha256sum -c -
+          chmod +x "$bin/gitleaks" "$bin/osv-scanner"
+          echo "$bin" >> "$GITHUB_PATH"
+          "$bin/gitleaks" version
+          "$bin/osv-scanner" --version
+          jq --version # ci.sh bridges server/deno.lock to CycloneDX with jq (preinstalled on ubuntu runners)
+      # deno runs the server suite in ci.sh (lint + fmt, function tests, tests/rls). ci.sh `need`s it
+      # in every lane, so a runner without it is red, never a silent "scheduled". Pinned to the
+      # version server/deno.lock (v5) was written with, sha256 = the GitHub asset digest = the
+      # release's own .sha256sum (checked 3 Oct 2026).
+      - name: Install deno (pinned, sha256-verified)
+        env:
+          DENO_VERSION: 2.9.5
+          DENO_SHA256: 8b010a3b1a4a0188a67cdb8a7a27348b2a501af78aec7fc74f2ace167368d530
+        run: |
+          set -euo pipefail
+          bin="$RUNNER_TEMP/deno"
+          mkdir -p "$bin"
+          curl -fsSL -o "$RUNNER_TEMP/deno.zip" \
+            "https://github.com/denoland/deno/releases/download/v${DENO_VERSION}/deno-x86_64-unknown-linux-gnu.zip"
+          echo "${DENO_SHA256}  $RUNNER_TEMP/deno.zip" | sha256sum -c -
+          unzip -q -o "$RUNNER_TEMP/deno.zip" deno -d "$bin"
+          chmod +x "$bin/deno"
+          echo "$bin" >> "$GITHUB_PATH"
+          "$bin/deno" --version
+      # E-server lanes (nightly / rc / release, ADR 2026-09-05i §2): ci.sh sets RLS_REQUIRE=1 and
+      # refuses to run without RF_TEST_DB_URL, so these lanes get a real database. A disposable
+      # postgres:16.15 container (the major/minor the suite is proven on locally), digest-pinned,
+      # published on the runner's loopback only, trust auth because the job is its sole client and
+      # it dies with the job; scripts/rls_db.sh applies every migration + seed.sql, exactly as
+      # locally. The push lane skips it (E-server is not a push-lane suite) and its RLS files skip.
+      - name: Postgres for the E-server lanes (RLS hostile queries)
+        if: env.LANE != 'push'
+        env:
+          PG_IMAGE: postgres:16.15@sha256:1a6ab3f5345eb6dbe04a1349529caabdb0ab09293a09590fad07b2246bfa4b54
+          PGBIN: /usr/lib/postgresql/16/bin # the runner image's own psql 16 / pg_isready (client side)
+        run: |
+          set -euo pipefail
+          [ -d "$PGBIN" ] && PATH="$PGBIN:$PATH"
+          docker run -d --name rf-pg -p 127.0.0.1:5432:5432 -e POSTGRES_HOST_AUTH_METHOD=trust "$PG_IMAGE"
+          for _ in $(seq 1 60); do
+            pg_isready -q -h 127.0.0.1 -p 5432 -U postgres && break
+            sleep 1
+          done
+          pg_isready -h 127.0.0.1 -p 5432 -U postgres || { docker logs rf-pg; exit 1; }
+          eval "$(PGUSER=postgres PGHOST=127.0.0.1 PGPORT=5432 scripts/rls_db.sh)"
+          [ -n "${RF_TEST_DB_URL:-}" ]
+          echo "RF_TEST_DB_URL=$RF_TEST_DB_URL" >> "$GITHUB_ENV"
       - uses: subosito/flutter-action@v2
         with:
           channel: stable

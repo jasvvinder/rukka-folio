@@ -12,7 +12,7 @@
 - Plaintext profile: phone, display name, photo (optional, shown in approvals/verification), preferred language (per-user, not per-tenant), WhatsApp opt-in.
 - Phone-number change is supported (§9.4) — the number is the *claim*; the UMK is the identity.
 
-### 1.0 Designations are labels; capability is granted 🔒 (owner-ruled Option B, 2 Sep 2026 — ADR) ⟦tests: C-06-15⟧
+### 1.0 Designations are labels; capability is granted 🔒 (owner-ruled Option B, 2 Sep 2026 — ADR) ⟦tests: C-06-15, E-06-84, E-06-88⟧
 Two separate things, never conflated:
 
 - **Capability** — always one of the five stored roles (§1.1) plus the per-book entry
@@ -130,7 +130,7 @@ Recovery completion always revokes all prior sessions and devices of that user a
 
 ---
 
-## 7. Invitation & membership state machine 🔒 ⟦tests: C-06-18, E-06-9, E-06-10, E-06-11, E-06-12, E-06-13, E-06-14, E-06-15, E-06-16, E-06-17, E-06-18, E-06-19, E-06-20, E-06-21, E-06-22, E-06-23, E-06-24, E-06-25, E-06-26, E-06-27, E-06-28, E-06-30, E-06-31, E-06-32, E-06-33, E-06-34, E-06-35, E-06-36, E-06-37, E-06-38, E-06-39, D-05-24, D-05-25, D-05-26, D-05-27, D-05-28, D-05-29, D-05-30, D-05-31, D-05-32, D-05-33, D-05-34, D-05-35⟧
+## 7. Invitation & membership state machine 🔒 ⟦tests: C-06-18, E-06-9, E-06-10, E-06-11, E-06-12, E-06-13, E-06-14, E-06-15, E-06-16, E-06-17, E-06-18, E-06-19, E-06-20, E-06-21, E-06-22, E-06-23, E-06-24, E-06-25, E-06-26, E-06-27, E-06-28, E-06-30, E-06-31, E-06-32, E-06-33, E-06-34, E-06-35, E-06-36, E-06-37, E-06-38, E-06-39, D-05-24, D-05-25, D-05-26, D-05-27, D-05-28, D-05-29, D-05-30, D-05-31, D-05-32, D-05-33, D-05-34, D-05-35, E-06-82, E-06-83, E-06-84, E-06-85, E-06-86, E-06-87⟧
 
 ```
 invited ──install+OTP──▶ joined_pending_verification ──ceremony ✓──▶ active
@@ -148,6 +148,8 @@ expired (one-tap re-invite)      blocked + security event (admin unblock only
 - Trustee/treasurer handover (organizations) = invite-with-ceremony for the incoming + removal for the outgoing, in one guided flow.
 
 > **ADR 2026-09-25b §2** — the invitee's own invite rows (at `sent`, or accepted by the caller, within the 7-day window) and the accept response carry the invite's `nonce`; scope is unchanged. ⟦tests: E-25b-1, E-25b-2⟧
+
+> **ADR 2026-10-03 §9 (exception, accepted as built)** — besides `invited ──install+OTP──▶`, the server lets an admin's signed `membership_status` record move a person with no membership row, or a `removed` one, into `joined_pending_verification` without any invite, inside the seat cap. The phone-bound rule above still governs every **invite**, and the link alone still admits nobody. It does not govern this second edge. Requiring an accepted invite for it is declined for now. E-05g-5 applies the record to a `removed` member, and for a person with no row asserts only the full-plan refusal. ⟦tests: E-05g-5⟧
 
 ---
 

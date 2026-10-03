@@ -1,0 +1,116 @@
+# .gitleaks.toml — secret-scan policy for the gate (scripts/ci.sh, ADR 2026-09-05 ruling 10).
+#
+# ci.sh runs gitleaks twice with this file: `gitleaks git` over every commit on every ref —
+# merge commits included, each diffed against its first parent, and every change type including
+# a symlink→file type change (`--log-opts`, see ci.sh; gitleaks' default log options skip both) —
+# and `gitleaks dir` over the committable working tree (tracked + untracked-not-ignored files; the
+# git-ignored local `.env` and build caches are excluded by construction, not by an allowlist).
+# Both runs pass --ignore-gitleaks-allow, so an inline `gitleaks:allow` comment does nothing:
+# THIS FILE is the only allowlist, and it is reviewed like code.
+#
+# Allowlist rules (owner-directed, M13 hardening row):
+#   - only a specific, justified, known-safe match — a public test vector, the public dev OTP
+#     code, a fixture key, a local throwaway role — each with a comment naming why it is safe;
+#   - never a blanket path ignore of a source directory (app/, packages/, server/, scripts/, …);
+#   - prefer a rule-scoped allowlist with regexTarget = "secret" over a path.
+# As of 3 Oct 2026 the default ruleset finds nothing in the tree or the 168-commit history, so
+# the only allowlists below belong to the repo-specific rules this file adds.
+
+title = "Rukka Folio secret scan"
+
+[extend]
+# Keep gitleaks' full default ruleset (generic-api-key, jwt, private-key, cloud tokens, …);
+# the rules below only add the shapes it misses for this stack.
+useDefault = true
+
+# ── Repo-specific secrets ──────────────────────────────────────────────────────────────────
+# The server's own secret env vars (server/supabase/functions/_shared/env.ts, .env.example §2–§3)
+# assigned a literal value. The default generic-api-key rule misses RF_PHONE_KEK (no "key" /
+# "secret" keyword — and it is the key that encrypts every phone number, 03 §2) and
+# SUPABASE_DB_PASSWORD (the owner login that bypasses all RLS); probed 3 Oct 2026 with random
+# values. Placeholders (`RF_PHONE_KEK=`, `local-only`, `$(openssl …)`, `<base64>`) are too short,
+# contain characters outside the value class, or fall under the entropy floor; `[ \t]*` (not
+# `\s*`) keeps an empty `RF_PHONE_KEK=` from swallowing the next line's name as its value.
+#
+# Two separator shapes, one value class:
+#   1. `NAME = v` / `NAME: v` / `env["NAME"] = v` / `{ "NAME": v }` — the `=` / `:` forms (.env,
+#      shell, `supabase secrets set`, YAML, JSON, TS object keys, index assignment);
+#   2. `("NAME", "v"` / `["NAME", "v"` — an opening `(` or `[`, a QUOTED name, a comma, a QUOTED
+#      value: the env-API call shape (`Deno.env.set("RF_PHONE_KEK", "…")`, the way this repo's Deno
+#      tests inject these variables; `std::env::set_var(…)`, `new Map([["NAME", "…"]])`). Both
+#      quotes are required so `Deno.env.set("RF_PHONE_KEK", kekB64)` — a variable, not a literal —
+#      stays quiet; the `(`/`[` keeps prose lists of names (server/README.md's "`A`, `B`") quiet;
+#      `\s*` follows `deno fmt` when it wraps a long call onto one argument per line. A bracketed
+#      list of NAMES (`["RF_PHONE_KEK", "RF_PHONE_HMAC_KEY"]`) still looks like shape 2, so a value
+#      that is itself one of these names is allowlisted below — exactly those names, nothing
+#      broader. Probed 3 Oct 2026 (M13 CISCAN repair): 13 positive shapes found, 13 negative shapes
+#      (this file's keyword list, env.ts's name map, README prose, placeholders, variables) quiet.
+[[rules]]
+id = "rf-server-secret-assignment"
+description = "Rukka Folio server secret env var assigned a literal value"
+regex = '''(?i)(?:\b(?:RF_(?:JWT_HMAC_KEY|PHONE_HMAC_KEY|PHONE_KEK|ENTITLEMENT_KEY)|PAYMENT_GATEWAY_(?:WEBHOOK_SECRET|KEY_SECRET)|OTP_PROVIDER_API_KEY|SUPABASE_(?:DB_PASSWORD|SERVICE_ROLE_KEY|ACCESS_TOKEN|JWT_SECRET))\b["'`]?\]?[ \t]*[:=][ \t]*["'`]?|[(\[]\s*["'`](?:RF_(?:JWT_HMAC_KEY|PHONE_HMAC_KEY|PHONE_KEK|ENTITLEMENT_KEY)|PAYMENT_GATEWAY_(?:WEBHOOK_SECRET|KEY_SECRET)|OTP_PROVIDER_API_KEY|SUPABASE_(?:DB_PASSWORD|SERVICE_ROLE_KEY|ACCESS_TOKEN|JWT_SECRET))["'`]\s*,\s*["'`])([A-Za-z0-9+/=_.~-]{16,})'''
+secretGroup = 1
+entropy = 3.0
+keywords = [
+  "rf_jwt_hmac_key",
+  "rf_phone_hmac_key",
+  "rf_phone_kek",
+  "rf_entitlement_key",
+  "payment_gateway_",
+  "otp_provider_api_key",
+  "supabase_db_password",
+  "supabase_service_role_key",
+  "supabase_access_token",
+  "supabase_jwt_secret",
+]
+
+[[rules.allowlists]]
+description = "The value is itself one of the rule's variable NAMES (a list of names, not a secret)"
+regexTarget = "secret"
+regexes = [
+  '''(?i)^(?:RF_(?:JWT_HMAC_KEY|PHONE_HMAC_KEY|PHONE_KEK|ENTITLEMENT_KEY)|PAYMENT_GATEWAY_(?:WEBHOOK_SECRET|KEY_SECRET)|OTP_PROVIDER_API_KEY|SUPABASE_(?:DB_PASSWORD|SERVICE_ROLE_KEY|ACCESS_TOKEN|JWT_SECRET))$''',
+]
+
+# A Postgres connection string with an inline password (RF_API_DB_URL / RF_MAINT_DB_URL shape).
+# The default ruleset has no rule for this; a hosted pooler URL carries the API role's password.
+[[rules]]
+id = "postgres-url-password"
+description = "Postgres connection URL with an inline password"
+regex = '''postgres(?:ql)?://[^\s:@/'"`]+:([^\s@/'"`]+)@'''
+secretGroup = 1
+keywords = ["postgres://", "postgresql://"]
+
+[[rules.allowlists]]
+description = "Known-safe local throwaway passwords, never valid on a hosted project"
+regexTarget = "secret"
+regexes = [
+  # `postgres` — the Supabase CLI / Homebrew local superuser default (server/README.md,
+  #   tests/rls/rls.test.ts header, 127.0.0.1:54322).
+  # `rf_local`, `rf_local_maint` — the local-only login roles created by
+  #   server/supabase/seed.sql for `supabase functions serve` (.env.example §2).
+  # `x` — functions/_tests/auth_challenge.test.ts fixture pointing at 127.0.0.1:1/none, a port
+  #   nothing listens on.
+  '''^(?:postgres|rf_local|rf_local_maint|x)$''',
+]
+
+[[rules.allowlists]]
+description = "Documentation placeholders, not values: <password>, [YOUR-PASSWORD], $VAR, ${VAR}"
+regexTarget = "secret"
+regexes = ['''^(?:<[^>]*>|\[[^\]]*\]|\$\{?[A-Za-z_][A-Za-z0-9_]*\}?)$''']
+
+# Supabase credentials in bare form (a curl header, a shell export without a telling name).
+# The default ruleset caught neither shape bare when probed on 3 Oct 2026; the publishable key
+# (`sb_publishable_…`) is public by design and is deliberately not matched.
+[[rules]]
+id = "supabase-access-token"
+description = "Supabase personal access token (sbp_…)"
+regex = '''\b(sbp_[A-Za-z0-9]{32,})\b'''
+secretGroup = 1
+keywords = ["sbp_"]
+
+[[rules]]
+id = "supabase-secret-key"
+description = "Supabase secret API key (sb_secret_…)"
+regex = '''\b(sb_secret_[A-Za-z0-9_-]{20,})'''
+secretGroup = 1
+keywords = ["sb_secret_"]

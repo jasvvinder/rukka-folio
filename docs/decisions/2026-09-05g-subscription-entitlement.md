@@ -83,6 +83,8 @@ seat immediately. Re-inviting the **same `user_id` within 30 days** does not con
 **rolling cap of 2 × seats distinct members per year** stops seat rotation. Excess on downgrade:
 nothing deleted, excess members keep read access (08 §3 stands).
 
+> **ADR 2026-10-03 §3, §10** — the readings `0019` takes, accepted as built: *per year* is the trailing year from now; a member is a person (the `user_id`, or the invite's `invitee_hmac` before sign-up, counted once); the 30-day exemption spares only the rotation budget, is measured from the person's last counted grant and never lets entry exceed `members`. The ledger `seat_grants` is kept 1 year + 30 days (03 §6). ⟦tests: E-05g-2, E-05g-3, E-05g-4, E-05g-6, E-05g-7, E-05g-13⟧
+
 ### 7. Payer, tenants and the personal book
 `subscriptions.payer_user_id`: **only a tenant admin may purchase**; the personal book is covered
 by its **owning tenant's plan** (there is no personal-book plan). **Device cap per user = the

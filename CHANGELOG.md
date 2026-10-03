@@ -12,6 +12,73 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-03 — M13: server push — edge record authority (desk 83), has_guardian_set refuses (0025, desk 45), CI scanners, ADR 2026-10-03; two cycles, push gate green, RLS 255/0
+
+Owner-directed push to finish the server side today (budget raised to 12 M). Two `/cycle` runs (PGT1, EDGE83, CISCAN, DOCS2; then GS45): every slice reviewed read-only and adversarially verified (3 lenses on server paths), 13 confirmed findings repaired in one round each. Push gate green; RLS suite **255 passed / 0 failed / 2 ignored** on a fresh DB 0001–0025 (the 2 ignored are both arms of `E-06-94`, desk 89).
+
+**Added** — `0025_has_guardian_set_refuses.sql`: a revoked, foreign or erased caller is refused (403 `unknown_request`) instead of answered `false`, so S11.6 no longer tells a locked-out person *you set nobody up* (04 §7.3); `E-24b-3`, `E-24b-4`, `F1-24b-18`, `E-24b-1` restated for live callers · edge record authority from the database, not visible rows (`_shared/records.ts`, `store_*.ts`, `rf.may_file_record`); MemStore mirrors 0022 §1–§4 and `rf.device_live_for`; `E-06-91…95` · `ci.sh` steps: gitleaks (tree + history), osv-scanner (pubspec.lock; deno.lock npm via a count-guarded CycloneDX bridge), bare `print(` in lib code; `.gitleaks.toml`, `osv-scanner.toml` (no ignores); GitHub CI installs gitleaks, osv-scanner, deno 2.9.5 (sha-pinned) and a digest-pinned Postgres for nightly/rc RLS · `server/README.md` §5: sweep cadences (⚠️ SPEC), pre-0021 duplicate check, BYPASSRLS owner check.
+**Changed** — PGT1 (`0024`) reviewed + verified, 0 confirmed · `docs/05` §5 (`recovery_blob` leaves only via `rf.recovery_shares`), `docs/03` §6 (`seat_grants` 1 y + 30 d), `docs/06` cross-references; ADR 2026-09-05d and 2026-09-24b §3 carry *amended by ADR 2026-10-03 § Desk 45* · `recovery_ladder_source.dart` desk-45 comment now states the ruling (comment only) · PLAN §4: `rukka-folio-dev` exists (created 2 Oct, ap-south-1, Free; 0001–0021 applied) · `.gitignore` ignores `server/supabase/.temp/` · `app_{en,pa,hi}.arb` regenerated from the S21 parts already committed.
+**Decided** — `docs/decisions/2026-10-03-server-readings-accepted.md` — owner accepts as built the readings on desks 46, 49, 60, 61, 64, 71, 73, 78, 84, 86; § Desk 45 rules reading (b) a refusal, (a)/(c) as built.
+**Open** ⚠️ — desk 89: the edge is narrower than 0022 in three places, `E-06-94` ignored (cross-tenant k-of-n revocation) — needs your ruling + a definer-helper migration · desk 90: revocation device-ownership oracle, PK-collision 500, refused-record replay `acked` · desk 91: retention gaps (`recovery_blob` rows unswept, sheet sweep comment vs code, 03 §6 lines, cadences) · desk 92: backtick test names hide `E-05g-27…30`; no `expired`-status test for desk 61 · desk 93: scanner follow-ups (wider log check, JSR unaudited, docs/09 stale) · desk 94: erasure parity in the recovery open · desk 95: not checked whether the app verifies the entitlement token signature · deploy of 0022–0025, functions and secrets to `rukka-folio-dev` pending the DB owner password.
+**Commits** — pending.
+
+---
+
+## 2026-10-03 — M13: two 🔴 server holes closed (cross-tenant records 0022, pg_temp shadowing 0024), RLS tests as rf_api, seat_grants sweep; push gate green twice, RLS 241/0
+
+Runs: `/lane` (four lanes, `wf_504f4a34-f80`, 0.63 M), push gate (`wf_408d8467-5b3`), a review-only `/cycle` of SEC58/RLSH/SWEEP (`wf_eb868ecf-d2b`, 2.02 M, 6 findings, all confirmed and repaired in one round, no owner items), PGT1 (`wf_af2720eb-0a6`, 0.15 M), push gate (`wf_28aae8c6-321`). Spend was about 2.9 M against a 3 M override that the owner set for today. The full server suite ran on a fresh RLS DB with 0001–0024 + seed: **241 passed, 0 failed**. **PGT1 has had no review or verify yet.**
+
+**Added**
+- `0022_record_tenant_check.sql` (SEC58, desk 58 🔴). The hole dates from 0005: a certified device of tenant A could file signed records into tenant B, join B, remove B's members, take or probe B's seats, and revoke B's devices.
+  - `signed_records_insert` now requires `rf.may_file_record(tenant, kind)`.
+  - `rf.project_membership` requires an admin, or the founder's own first membership.
+  - `rf.project_book_role` requires an admin of that book (06 §1.0 🔒), or the creator's own first admin role on an envelope-less book.
+  - `rf.project_device_status` is revoke-only: the device's user or that user's guardian, inside a tenant the user belongs to.
+  - The review repair also put `pg_temp` last in the search path of those functions and of the four 0005 helpers they call (§5).
+  - Tests `E-06-82…90`. 82–89 failed on HEAD first; E-06-86 shows the edge answered `acked` on PgStore.
+- `0024_search_path_pg_temp_last.sql` (PGT1 🔴, dates from 0005). Every `rf` function pinned `search_path = public` without `pg_temp`, and `rf_api` holds TEMP through PUBLIC, so a temp table shadowed any table a function read.
+  - The orchestrator first proved it with `rf.book_tenant`. On HEAD, a stranger could then:
+    - become admin of another tenant's book, and read and push its envelopes;
+    - pass `invite_guard`;
+    - bypass the recovery-sheet flood limit;
+    - add a third guardian to a 2-of-2 set;
+    - zero the push-rate and quota counters.
+  - The fix is one DO loop that sets `public, pg_temp` on all 82 `rf` routines (62 definer, 20 invoker), then checks itself. Only `proconfig` changed: an md5 over every other property is identical before and after.
+  - Tests `E-03-81…86`, including a catalogue tripwire.
+  - This also clears the 20 Supabase advisor warnings (lint 0011) once deployed.
+- `0023_seat_grants_sweep.sql` (SWEEP). `rf.sweep_seat_grants()` is SECURITY DEFINER, EXECUTE for `rf_maintenance` only, and deletes rows with `granted_at < now() - 1 year 30 days`. That is beyond both windows `rf.take_seat` reads (0019:169, :178).
+  - Tests `E-05g-27…30`. The reader tripwire also catches `begin atomic` bodies and `pg_depend` readers (review repair).
+- `tests/rls/_pg_api.ts` (RLSH, desk 76): `apiUrl`, `apiSql` and `apiStore` connect as `rf_api` and assert `current_user` is not BYPASSRLS on the store's own pool. Test `E-03-80`.
+
+**Changed**
+- Every PgStore arm in `tests/rls` now runs as `rf_api`, not superuser. All still pass; none was weakened.
+- `seat_book_caps.test.ts` E-05g-11: the device-claim-only arm now expects `42501 not_admin`, because 0022 refuses it before the cap. The test name was reworded in the RLSH repair.
+- Four tests that checked the exact pin string (E-24b-1 ×2, E-06-70, E-05g-29) now expect `search_path=public, pg_temp` (supersession, ships with 0024).
+- `server/README.md` §5:
+  - added the pg_cron `rf.sweep_seat_grants()` line;
+  - added the ops item for the PostgREST `3F000` log noise. With the Data API off, Supabase points PostgREST at a schema that does not exist, so it logs an error every 32 s. The fix is Supabase's empty-schema workaround, which the owner applied on `rukka-folio-dev`. It is not a migration.
+- `.claude/rf.config.json`: added an owner-directed 3 M override for 3 Oct (review cycle).
+- `PLAN.md`:
+  - §0 server row updated;
+  - desk 58 and 76 closed;
+  - the CAP1 "repairs 3–7" row marked done (landed in CAPR on 1 Oct);
+  - the `seat_grants` sweep marked ✅;
+  - desk items 83–88 added.
+
+**Open** ⚠️
+- **Next session, first: review and 3-lens verify PGT1 (`0024`).** It is gated but not yet committable.
+- Desk 83: the edge founder bootstrap (`_shared/records.ts:147`, :178-181) still decides from rows the caller can see. That is the next `lane-server` slice.
+- Desk 84: SEC58's ⚠️ SPEC readings (a)–(e), and whether joining as pending should require an invite.
+- Desk 85: ADR needed for the book-create route (`book_cap` cannot fire).
+- Desk 86: SWEEP readings (03 §6 line, the "append-only" reading, pg_cron, BYPASSRLS, three sweeps missing from the README).
+- Desk 87: PGT1 follow-ups (TEMP from PUBLIC, the hosted CREATE-on-public check, re-running the advisor after deploy, `rf.user_id()` inlining).
+- Desk 88: ⟦tests⟧ markers for today's ids.
+- Deploy 0022–0024 to `rukka-folio-dev`. Until then the hosted dev project still has both holes (it holds no real data).
+
+**Commits** — pending.
+
+---
+
 ## 2026-10-02 — M13: SHAPE1, S21 Search, DOCS1, onboarding sweep: one five-slice cycle; push gate green
 
 A second session on 2 Oct. It ran one five-slice `/cycle`, run `wf_5d8ac204-9cf`, at 1.39 M. That replaced a two-slice run (`wf_50207eb5-a06`), stopped at the owner's request for the maximum number of slices. DOCS1 died before reporting, so it went through review and verify again with the build skipped (`wf_1e480ce3-5ec`, 0.61 M). Results: SHAPE1 had 0 findings; S21 4 and HARN2 3, all confirmed and repaired; DOCS1 9 filed, 7 confirmed and repaired, 2 refuted. HARN1 was a no-op, because its PLAN row was stale. The push gate is green: app 1968 passed / 0 failed, functions 105 passed / 0 failed, 116 RLS tests ignored (no `RF_TEST_DB_URL`). SHAPE1 ran the RLS suite on a fresh DB: 221 passed / 0 failed.

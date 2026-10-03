@@ -2,9 +2,12 @@
 // ADR 05d §2). Needs RF_TEST_DB_URL (a superuser/owner connection to a `supabase db reset` database,
 // e.g. postgresql://postgres:postgres@127.0.0.1:54322/postgres). Without it every test is SKIPPED and
 // says why — the push lane has no Docker; the nightly/RC lanes set RLS_REQUIRE=1 so a missing database
-// fails loudly instead. Ids E-03-22 … E-03-27, E-05c-7 (claims isolation).
-import { assert, assertEquals } from "@std/assert";
+// fails loudly instead. Ids E-03-22 … E-03-27, E-05c-7 (claims isolation), E-03-80 (the suite's
+// PgStore runs as rf_api — desk 76).
+import { assert, assertEquals, assertRejects } from "@std/assert";
 import postgres from "postgres";
+import { PgStore } from "../../functions/_shared/store_pg.ts";
+import { apiStore, assertApiRole } from "./_pg_api.ts";
 
 const url = Deno.env.get("RF_TEST_DB_URL");
 const required = Deno.env.get("RLS_REQUIRE") === "1";
@@ -365,6 +368,48 @@ Deno.test({
       "P0001",
       "no record → no row",
     );
+  },
+});
+
+Deno.test({
+  name:
+    "E-03-80 the suite's PgStore runs as the edge does (desk 76): apiStore()'s own pool is rf_api — not a superuser, not BYPASSRLS — and the precondition refuses the owner's connection; through it carol (tenant B) pulls NONE of book A's envelopes and alice pulls book A's, while the SAME pullEnvelopes on the owner's URL hands carol book A's envelope — that URL tests no row policy, so no PgStore arm in tests/rls is built on it (ADR 2026-09-05d §2; ADR 2026-09-05c §7; 03 §2)",
+  ignore,
+  async fn() {
+    await assertRejects(
+      () => assertApiRole(sql, "the owner's connection"),
+      Error,
+      "rf_api",
+      "the precondition is not a formality: it refuses the schema owner",
+    );
+    const api = await apiStore(url!); // asserts the precondition on the store's own pool
+    // The control: PgStore exactly as every tests/rls arm built it before desk 76.
+    const owner = new PgStore(url!);
+    try {
+      const pull = (s: PgStore, user: string, device: string) =>
+        s.withClaims(
+          { user_id: user, device_id: device },
+          (tx) => tx.pullEnvelopes(fx.bookA, 0n, 100, null),
+        );
+      // pullEnvelopes filters on book_id alone: envelopes_select (0005) is the only tenant boundary.
+      assertEquals(
+        await pull(api, fx.carol, fx.dev.carol),
+        [],
+        "rf_api: B's member reads none of A",
+      );
+      const own = await pull(api, fx.alice, fx.dev.alice);
+      assert(own.some((e) => e.envelope_id === fx.envA), "rf_api: A's admin reads book A");
+      assert(own.every((e) => e.book_id === fx.bookA && e.tenant_id === fx.tenantA));
+
+      const leaked = await pull(owner, fx.carol, fx.dev.carol);
+      assert(
+        leaked.some((e) => e.envelope_id === fx.envA),
+        "control: the owner's URL bypasses envelopes_select — the gap desk 76 closes",
+      );
+    } finally {
+      await api.end();
+      await owner.end();
+    }
   },
 });
 
