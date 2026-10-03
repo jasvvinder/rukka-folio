@@ -57,14 +57,19 @@ inspector_port = 8083
 
 [functions.sync-push]
 verify_jwt = false      # our JWT, verified in _shared/claims.ts, not the platform's
+import_map = "../deno.json"   # one import map for every function (sodium, postgres, @std/*)
 [functions.sync-pull]
 verify_jwt = false
+import_map = "../deno.json"   # one import map for every function (sodium, postgres, @std/*)
 [functions.sync-meta]
 verify_jwt = false
+import_map = "../deno.json"   # one import map for every function (sodium, postgres, @std/*)
 [functions.auth-challenge]
 verify_jwt = false
+import_map = "../deno.json"   # one import map for every function (sodium, postgres, @std/*)
 [functions.billing-webhook]
 verify_jwt = false
+import_map = "../deno.json"   # one import map for every function (sodium, postgres, @std/*)
 
 [analytics]
 enabled = false
