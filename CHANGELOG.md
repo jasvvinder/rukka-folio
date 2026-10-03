@@ -12,19 +12,70 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
-## 2026-10-03 — docs: desk 89 ruled (ADR 2026-10-03b), desk 95 answered
+## 2026-10-03 — M13: 0027 judges membership at the approval's seq (desk 97) + S11.1 tenant / S11 guardians row (desk 89 app slice); push gate green, RLS 280/0
 
-**Decided**
-- `docs/decisions/2026-10-03b-revocation-count-per-tenant.md` — 🔒 a guardian set belongs to the tenant it was set up in (`guardian_sets.tenant_id`). Guardians file revocation approvals there, and only approvals filed there count, so the server and the subject's own devices count the same set (amends ADR 2026-09-06 §3). A guardian still `joined_pending_verification` there may revoke. A book that ever held an envelope is never re-claimed. Devices & security says when a set can no longer revoke.
-- Revised the same day, before any build. Re-checked against 04 §3.4 (trust is rooted per tenant and per person: `verify_chain.dart:45-47`, `verified_members.dart:50-55, 199-201`), S11.1's one-tenant candidate list (`bootstrap.dart:858-861`), and the absence of any revocation filing path. The first draft's plain "count per tenant" had no filing rule and overclaimed that every client would agree.
+**Added**
+- `0027_revocation_judged_at_seq.sql` (M13-REV97S): `membership_facts` — the memberships row's history, one fact per status change, stamped with a fresh `store_seq` by `rf.membership_fact_log` (AFTER INSERT / UPDATE OF status / DELETE), append-only, RLS forced, no grants; `rf.subject_held_at`; `rf.revocation_approvals` judges the subject as of each approval's filing (ADR 2026-10-03b §6). Backfills one fact per existing row. MemStore mirrors it. Tests: `E-03b-7` extended in place as §6 directs, new `E-03b-9…13` (`tests/rls/revocation_at_seq.test.ts`), `schema.test.ts` NO_ACCESS gains the table. Reviewed, 3-lens verify, 3 findings confirmed (back-dating by late application, unlogged writers, per-user history) and repaired in 1 round; mutation-checked; **RLS 280/0** on a fresh DB 0001–0027 with `RLS_REQUIRE=1`.
+- App (M13-REV89U): S11.1 save publishes into the current tenant (`TenantGuardiansApi.publishInTenant`, `F1-03b-2`); S11's guardians row says when the set can no longer revoke, opens S11.1 (`guardian_standing.dart`, `F1-03b-1`, ADR 2026-10-03b §4); EN/PA/HI `devices.row.guardians.cannot_revoke` (PA/HI machine draft). Reviewed, 4 of 5 findings confirmed and 2 repaired; the other 2 sit in `bootstrap.dart` (desk 103). devices + shared/sync tests 184/0.
 
 **Changed**
-- 04 §7.3, 04 §9.2, 06 §6, 07 (Devices & security) and ADR 2026-09-06 §3 carry cross-reference lines.
-- PLAN desk 89 is now ⬜ build next: server `0026` + the edge + the publish route, the `sync_engine` set-tenant count, S11.1 passing the tenant, and the status row. Ids `D-03b-1…3`, `E-03b-1…5` and `F1-03b-1` are reserved and stay dangling until those tests land.
-- PLAN desk 95 ✅: the app reads no entitlement token, so a forged one unlocks nothing today; the verifier and the producer must land as one slice.
+- `.claude/rf.config.json`: 3 Oct override 12 M → 15.5 M (owner-directed, this cycle).
+- PLAN: desk 89 (app slice built), 97 (built), 100 (deploy 0026 + 0027 together); desks 101–106 new.
+
+**Fixed**
+- GitHub CI red on `bcc243c` (run 37107522605, `check_coverage --strict`: 24 marker ids no test declares). The ADR and doc markers were committed without the tests they name (`E-03b-*`, `D-03b-*`), which were still in the working tree. Committing this entry's files with the previous entry's closes it; the push gate is green on the full tree. Rule of thumb: a commit adding 🔒 markers carries their tests, or marks them `@M<n>`.
 
 **Open**
-- ⚠️ No app path yet authors any `device_revocation`, own-device or guardian (ADR 2026-10-03b Open).
+- ⛔ Desk 101 — ⚠️ SPEC: after 0027 the server judges from the memberships row's history, the client from membership records; they differ on refused records and on record-less changes (invite re-admission). Breaks ADR 2026-10-03b §2 🔒 until ruled.
+- ⛔ Desk 102 — client and server derive k differently (D-03b-6 vs E-03b-8).
+- ⬜ Desk 103 — `bootstrap.dart` wiring (roster `tenantId`, `GuardianStandingScope`); until it lands S11.1 save refuses `no_tenant` and the S11 warning never shows. Deploy (desk 100) waits for it.
+- ⬜ Desks 104–106 — sync event for guardian facts, seam shape, stale ⚠️ SPEC in `revocation.dart`, doc markers for `E-03b-9…13`/`F1-03b-2` and 03 §2's `membership_facts` line, two unruled observations.
+- Ops discussion (no repo change): API origin for pinning — Oracle Cloud Always Free in Mumbai (upgrade to Pay As You Go to avoid idle reclamation) proposed as first choice over Lightsail $5/mo; Cloudflare Universal certificates and Supabase Custom Domains cannot be pinned. A dev-only "testing grant" for paid plans was proposed (needs an ADR; not started).
+
+**Commits**
+- _(pending — owner)_
+
+---
+
+## 2026-10-03 — M13: guardian revocation counted in the set's tenant (ADR 2026-10-03b, desks 89/97); server + client built, app slice next; push gate green, RLS 272/0
+
+**Added**
+- `0026_guardian_set_tenant.sql`:
+  - `guardian_sets.tenant_id`, written once (publisher active, guardians not removed);
+  - the database counts guardian approvals filed in the set's tenant (`rf.revocation_approvals`, `rf.revocation_tally`) and `rf.project_device_status` projects only on that count;
+  - `rf.guardian_may_revoke` (a pending guardian may revoke);
+  - the book bootstrap reads `book_usage.envelope_count`.
+  Tests `E-03b-1…8` on MemStore and PgStore, plus `tests/rls/guardian_set_tenant.test.ts` (M13-REV89S).
+- `sync_engine`: approvals count only if filed in the set's tenant while the subject holds a non-removed membership, judged at the approval's `seq`. New ignore reasons, tenant on `RevocationRecord`/`GuardianSetVersion`, `tenant_id` parsed from meta; `D-03b-1…8` (M13-REV89C).
+
+**Changed**
+- `_shared/records.ts` takes revocation authority and the count from the database, never from the rows the caller can see; three ⚠️ SPEC notes closed. The guardian-set publish route requires `tenant_id`, and sync-meta relays it.
+- The ignored E-06-94 disjoint-guardians case is replaced by `E-03b-2` (no completion). E-06-89 was rewritten in place (desk 96).
+- Fixed a pre-existing bug: on PgStore, `GET /sync-meta` crashed on bytea pages (`ArrayBuffer is not detachable`). `bin` now copies the bytes first (desk 99).
+- Docs: 03 §2.2, 04 §7.3, 04 §9.2, 06 §6, 07 (Devices & security) and ADR 2026-09-06 §3 carry the ADR 2026-10-03b lines. `F1-03b-1 @M13` is planned for the app slice.
+- PLAN: desk 89 🟡, desk 95 ✅, desk 97 ruled (⬜ `0027`), desks 96, 98, 99, 100 new.
+
+**Decided**
+- `docs/decisions/2026-10-03b-revocation-count-per-tenant.md`, 🔒, amends ADR 2026-09-06 §3:
+  - a guardian set belongs to the tenant it was set up in; guardians file there, and only approvals filed there count, so the server and the subject's own devices count the same set;
+  - a pending guardian may revoke;
+  - a book that ever held an envelope is never re-claimed;
+  - Devices & security says when a set can no longer revoke.
+  The ADR was revised the same day, before any build, after a re-check against 04 §3.4's per-tenant, per-person trust. The first draft had no filing rule and claimed every client would agree.
+- ADR 2026-10-03b §6 (desk 97): the subject's membership is judged at the approval's own `seq`. The client is built this way; the server follows in `0027`.
+- Desk 95: the app reads no entitlement token, so a forged one unlocks nothing today; the verifier and the producer land as one slice.
+
+**Open**
+- ⬜ Next cycle: `lane-server` `0027` (membership judged at filing; rewrite E-03b-7) and `lane-ui` (S11.1 sends `tenant_id` — until then `POST /sync-meta/recovery/guardians` answers 400 — plus the `F1-03b-1` row). **Commit together with this session's work.**
+- ⛔ Owner:
+  - desk 96 (E-06-89 rewritten in place);
+  - desk 98 (client removal cut-off is tenant-blind);
+  - desk 100 (deploy `0026` + redeploy functions after the app slice), then desk 99 (check the dev meta pull).
+- ⚠️ No app path yet files any `device_revocation`. Payment gateway: owner leaning to a Razorpay individual account; test mode first; ask Razorpay about Subscriptions/UPI Autopay eligibility and limits; the GST-invoice promise (ADR 05g §8) needs a registration or a short ADR to defer it.
+
+**Commits**
+- `bcc243c` — ADR 2026-10-03b (first draft revision) + desk 95.
+- _(this session's remaining work: committed together with the next entry's — `bcc243c` alone turned CI red, see below)_
 
 ## 2026-10-03 — M13: server push — edge record authority (desk 83), has_guardian_set refuses (0025, desk 45), CI scanners, ADR 2026-10-03; two cycles, push gate green, RLS 255/0
 

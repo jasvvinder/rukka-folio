@@ -106,6 +106,18 @@ async function mkPerson(): Promise<P> {
     values (gen_random_uuid(), ${user}, ${rand(32)}, ${rand(32)}, 'certified') returning id`;
   return { user, dev: d.id as string };
 }
+/** ADR 2026-10-03b §1 (0026): a guardian set names a tenant its subject is active in and every
+ *  guardian is a member of — a fresh one, founded by the subject (06 §5), guardians pending. */
+async function home(subject: string, guardians: string[]): Promise<string> {
+  const [t] = await sql`insert into tenants (type) values ('family') returning id`;
+  await sql`insert into memberships (tenant_id, user_id, status)
+    values (${t.id}, ${subject}, 'active')`;
+  for (const g of guardians) {
+    await sql`insert into memberships (tenant_id, user_id, status)
+      values (${t.id}, ${g}, 'joined_pending_verification')`;
+  }
+  return t.id as string;
+}
 interface Tn {
   t: string;
   admin: P;
@@ -359,8 +371,8 @@ test(
     // guardian_set_member_guard: a real 2-of-2 set with both guardians in; the shadow says 5, empty
     const subj = await mkPerson();
     const g1 = await mkUser(), g2 = await mkUser(), g3 = await mkUser();
-    await sql`insert into guardian_sets (subject_user_id, share_set_version, n, k)
-      values (${subj.user}, 1, 2, 2)`;
+    await sql`insert into guardian_sets (subject_user_id, share_set_version, n, k, tenant_id)
+      values (${subj.user}, 1, 2, 2, ${await home(subj.user, [g1, g2, g3])})`;
     await sql`insert into guardian_set_members (subject_user_id, share_set_version, guardian_user_id, umk_pub_ed)
       values (${subj.user}, 1, ${g1}, ${rand(32)}), (${subj.user}, 1, ${g2}, ${rand(32)})`;
     const third = (s: postgres.TransactionSql) =>
@@ -492,9 +504,10 @@ test(
       await sql`select max(sheet_version)::int as v from recovery_sheets where user_id = ${me.user}`;
     assertEquals(sv.v, 1, "the first sheet is published");
     const g1 = await mkUser(), g2 = await mkUser();
+    const meHome = await home(me.user, [g1, g2]);
     await hostile(me, [], async (s) => {
-      await s`insert into public.guardian_sets (subject_user_id, share_set_version, n, k)
-        values (${me.user}, 1, 2, 2)`;
+      await s`insert into public.guardian_sets (subject_user_id, share_set_version, n, k, tenant_id)
+        values (${me.user}, 1, 2, 2, ${meHome})`;
       await s`insert into public.guardian_set_members
           (subject_user_id, share_set_version, guardian_user_id, umk_pub_ed)
         values (${me.user}, 1, ${g1}, ${rand(32)}), (${me.user}, 1, ${g2}, ${rand(32)})`;

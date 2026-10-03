@@ -730,6 +730,10 @@
   "devices.row.escrow": "परिवार के मुखिया के पास बैकअप",
   "devices.row.escrow.subtitle": "अपनी मर्ज़ी से। इंतज़ार की अवधि के बाद मुखिया आपके बही-खाते वापस ला सकते हैं।",
   "devices.row.guardians": "भरोसेमंद सदस्य",
+  "devices.row.guardians.cannot_revoke": "आपके भरोसेमंद सदस्य अब भी आपको वापस अंदर आने में मदद कर सकते हैं, लेकिन अब मिलकर खोए फ़ोन को बंद नहीं कर सकते — अपने भरोसेमंद सदस्य फिर से चुनें।",
+  "@devices.row.guardians.cannot_revoke": {
+    "description": "machine-draft — native review M12"
+  },
   "devices.row.guardians.subtitle": "वे लोग जो आपको वापस अंदर आने में मदद कर सकते हैं",
   "devices.row.pin": "ऐप पिन",
   "devices.row.pin.subtitle": "अपना 6 अंकों का पिन बदलें",

@@ -35,6 +35,7 @@ import {
   type RecoveryShare,
   type RecoverySheet,
   type RefreshToken,
+  type RevocationCount,
   rowId,
   type SignedRecordRow,
   type Store,
@@ -170,7 +171,23 @@ export class MemDb {
   entitlement_tokens: Row[] = [];
   tenant_freezes: Row[] = [];
   envelopes: EnvelopeRow[] = [];
+  /** 0003 `book_usage.envelope_count` — bumped on every envelope insert and never lowered, so a
+   *  book whose envelope rows are gone still reads as having held them (ADR 2026-10-03b §5). Tests
+   *  that push rows straight into `envelopes` bypass the bump, so the count read is never below the
+   *  rows — `envelopeCount`. */
+  book_usage = new Map<string, number>();
   signed_records: (SignedRecordRow & { apply_note?: string | null })[] = [];
+  /** 0027 `membership_facts` — the history of every membership row, stamped when the row changed
+   *  (ADR 2026-10-03b §6; desk 97 review, findings 1-2). Appended only by `logMembership`, the
+   *  mirror of the `memberships_facts_log` trigger, which every write of a row's status calls —
+   *  seeding included, as an owner's INSERT fires the trigger on PgStore. */
+  membership_facts: {
+    at_seq: bigint;
+    tenant_id: string;
+    user_id: string;
+    status: string;
+    source_record_id: string | null;
+  }[] = [];
   seq = 0n;
   push_rate = new Map<string, { m: Date; mc: number; h: Date; hc: number; d: Date; db: number }>();
   otp_challenges: OtpChallenge[] = [];
@@ -187,6 +204,13 @@ export class MemDb {
    *  and when the GATEWAY raised it. `payload_hash` is all we keep of the body (rule 4). */
   billing_events = new Map<string, Row>();
 
+  /** book_usage.envelope_count as the database keeps it: the counter, never below the live rows. */
+  envelopeCount(book: string): number {
+    return Math.max(
+      this.book_usage.get(book) ?? 0,
+      this.envelopes.filter((e) => e.book_id === book).length,
+    );
+  }
   // ---- seeding helpers (tests only)
   addUser(u: Partial<MemUser> = {}): MemUser {
     const t = this.now();
@@ -210,12 +234,53 @@ export class MemDb {
     return id;
   }
   addMembership(tenant_id: string, user_id: string, status = "active"): void {
-    this.memberships.push({
+    const row: Row = {
       tenant_id,
       user_id,
       status,
       source_record_id: null,
       updated_at: this.now(),
+    };
+    this.memberships.push(row);
+    this.logMembership(row);
+  }
+  /** A membership row written to `status` — inserted, or its status changed — past every policy,
+   *  as the schema owner's INSERT/UPDATE is on PgStore, and logged as the trigger logs it. An
+   *  unchanged status is no change and logs nothing. Returns the row. */
+  writeMembership(
+    tenant_id: string,
+    user_id: string,
+    status: string,
+    source_record_id: string | null = null,
+  ): Row {
+    const m = this.memberships.find((x) => x.tenant_id === tenant_id && x.user_id === user_id);
+    if (!m) {
+      const row: Row = { tenant_id, user_id, status, source_record_id, updated_at: this.now() };
+      this.memberships.push(row);
+      this.logMembership(row);
+      return row;
+    }
+    const was = m.status;
+    m.status = status;
+    m.source_record_id = source_record_id;
+    m.updated_at = this.now();
+    if (was !== status) this.logMembership(m);
+    return m;
+  }
+  /** 0027 `memberships_facts_log` (rf.membership_fact_log), the AFTER trigger, mirrored: called after
+   *  every write that inserts a membership row or changes its status. PgStore stamps the fact with a
+   *  FRESH store_seq value; here it takes the last seq handed out (`seq`) without consuming one, so
+   *  the record and envelope seqs other MemStore tests read stay as they were. Both order the fact
+   *  after every record already filed and before every later one, which is all subjectHeldAt reads
+   *  (`at_seq < seq`; equal stamps resolve to the later write). Never the applying record's seq: a
+   *  record applied late must not be dated under approvals already filed (finding 1). */
+  logMembership(row: Row): void {
+    this.membership_facts.push({
+      at_seq: this.seq,
+      tenant_id: String(row.tenant_id).toLowerCase(), // uuid columns: case-blind
+      user_id: String(row.user_id).toLowerCase(),
+      status: row.status as string,
+      source_record_id: (row.source_record_id as string | null) ?? null,
     });
   }
   addBook(tenant_id: string, type = "family", owner_user_id: string | null = null): string {
@@ -287,12 +352,15 @@ export class MemDb {
     version: number,
     k: number,
     guardians: { user_id: string; umk_pub_ed: Uint8Array }[],
+    /** ADR 2026-10-03b §1; null seeds a version published before 0026 (it counts no revocation). */
+    tenant_id: string | null = null,
   ): void {
     this.guardian_sets.push({
       subject_user_id: subject,
       share_set_version: version,
       n: guardians.length,
       k,
+      tenant_id,
       created_at: this.now(),
       superseded_at: null,
       source_record_id: null,
@@ -456,7 +524,7 @@ class MemTx implements Tx {
     if (!b || !this.isCertified()) return Promise.resolve(null);
     const t = b.tenant_id as string, now = this.now;
     const plan = (this.db.subscriptions.find((s) => s.tenant_id === t)?.plan as PlanId) ?? "free";
-    const count = this.db.envelopes.filter((e) => e.book_id === bookId).length;
+    const count = this.db.envelopeCount(bookId); // 0005 rf.book_access reads book_usage
     const bytes = this.db.envelopes.filter((e) => e.tenant_id === t).reduce(
       (n, e) => n + e.size,
       0,
@@ -529,6 +597,7 @@ class MemTx implements Tx {
     if ((row.blob === null) === (row.blob_ref === null)) throw new StoreDenied("check");
     const seq = ++this.db.seq;
     this.db.envelopes.push({ ...row, seq });
+    this.db.book_usage.set(row.book_id, (this.db.book_usage.get(row.book_id) ?? 0) + 1); // 0003 trigger
     return Promise.resolve({ seq, duplicate: false });
   }
   pullEnvelopes(
@@ -725,6 +794,7 @@ class MemTx implements Tx {
         share_set_version: s.share_set_version as number,
         n: s.n as number,
         k: s.k as number,
+        tenant_id: (s.tenant_id as string | null) ?? null,
         members: this.db.guardian_set_members
           .filter((m) =>
             m.subject_user_id === subjectUserId && m.share_set_version === s.share_set_version
@@ -750,12 +820,128 @@ class MemTx implements Tx {
     this.db.signed_records.push({ ...row, seq, applied_at: null, apply_note: null });
     return Promise.resolve({ seq, duplicate: false });
   }
-  revocationRecordsFor(dev: string): Promise<SignedRecordRow[]> {
+  /** 0027 rf.subject_held_at — `user`'s membership in `tenant` as of `seq`, from the history of the
+   *  membership row (ADR 2026-10-03b §6): held when the latest fact strictly before `seq` is anything
+   *  but removed, and NOT held with no fact (no membership row there yet — the log is complete).
+   *  Keyed by tenant AND user. A membership row as it stands now is never read, and neither is a
+   *  membership RECORD (a refused one is stored like any other). */
+  private subjectHeldAt(tenant: string, user: string, seq: bigint): boolean {
+    let latest: { at_seq: bigint; status: string } | undefined;
+    for (const f of this.db.membership_facts) {
+      if (
+        f.tenant_id !== tenant.toLowerCase() || f.user_id !== user.toLowerCase() ||
+        f.at_seq >= seq
+      ) continue;
+      if (latest === undefined || f.at_seq >= latest.at_seq) latest = f; // a tie: the later write
+    }
+    return latest !== undefined && latest.status !== "removed";
+  }
+  /** 0027 rf.revocation_approvals — every COUNTED approval of a device, read over every row as the
+   *  SECURITY DEFINER function reads it (ADR 2026-10-03b §2, §6): a device_revocation naming the
+   *  device and its owner, by a guardian at the version it names, filed in that version's tenant (a
+   *  version with no tenant counts nothing), while the owner held a membership there other than
+   *  removed AT THE APPROVAL'S OWN SEQ — a later removal never un-counts it, a re-admission never
+   *  counts one filed while removed. */
+  private revocationApprovals(dev: string) {
+    const d = this.db.devices.get(dev.toLowerCase()); // a uuid column: case-blind
+    if (!d) return [];
+    const out: { record: string; author: string; version: number; k: number; seq: bigint }[] = [];
+    for (const r of this.db.signed_records) {
+      const p = r.payload_json;
+      if (
+        r.kind !== "device_revocation" ||
+        String(p.revoked_device_id ?? "").toLowerCase() !== d.id ||
+        String(p.subject_user_id ?? "").toLowerCase() !== d.user_id ||
+        typeof p.share_set_version !== "number"
+      ) continue;
+      const author = this.db.devices.get(r.author_device)?.user_id;
+      const set = this.db.guardian_sets.find((g) =>
+        g.subject_user_id === d.user_id && g.share_set_version === p.share_set_version &&
+        g.tenant_id != null && g.tenant_id === r.tenant_id
+      );
+      if (
+        !author || !set ||
+        !this.db.guardian_set_members.some((m) =>
+          m.subject_user_id === d.user_id && m.share_set_version === set.share_set_version &&
+          m.guardian_user_id === author
+        ) ||
+        !this.subjectHeldAt(r.tenant_id, d.user_id, r.seq!)
+      ) continue;
+      out.push({
+        record: r.id,
+        author,
+        version: set.share_set_version as number,
+        k: set.k as number,
+        seq: r.seq!,
+      });
+    }
+    return out;
+  }
+  /** 0026 rf.revocation_tally — earliest-k (ADR 2026-09-06 §3) over the counted approvals: ONE record
+   *  per distinct author (its lowest-seq approval), and k of the earliest version among THOSE records
+   *  — never among an author's later ones (desk 89 review, finding 3; the client's countRevocation). */
+  private revocationTally(dev: string): RevocationCount {
+    const a = this.revocationApprovals(dev);
+    const per = new Map<string, (typeof a)[number]>();
+    for (const x of a) {
+      const prev = per.get(x.author);
+      if (prev === undefined || x.seq < prev.seq) per.set(x.author, x);
+    }
+    const counted = [...per.values()];
+    const first =
+      [...counted].sort((x, y) =>
+        x.version - y.version || (x.seq < y.seq ? -1 : x.seq > y.seq ? 1 : 0)
+      )[0];
+    const k = first?.k ?? null;
+    const seqs = counted.map((x) => x.seq).sort((x, y) => (x < y ? -1 : x > y ? 1 : 0));
+    return {
+      approvers: per.size,
+      k,
+      effective_seq: k !== null && per.size >= k ? seqs[k - 1] : null,
+    };
+  }
+  guardianMayRevoke(dev: string, tenant: string, version: number): Promise<boolean> {
+    // 0027 rf.guardian_may_revoke: reads every row, like the SECURITY DEFINER function it mirrors.
+    // The subject is judged at the seq of the caller device's latest approval of this device filed
+    // in `tenant` naming `version` — the record the edge has just filed — or as of now without one.
+    const d = this.db.devices.get(dev.toLowerCase()); // a uuid column: case-blind
+    let at: bigint | null = null;
+    if (d) {
+      for (const r of this.db.signed_records) {
+        const p = r.payload_json;
+        if (
+          r.kind === "device_revocation" && r.author_device === this.dev &&
+          r.tenant_id === tenant &&
+          String(p.revoked_device_id ?? "").toLowerCase() === d.id &&
+          String(p.subject_user_id ?? "").toLowerCase() === d.user_id &&
+          typeof p.share_set_version === "number" && p.share_set_version === version &&
+          (at === null || r.seq! > at)
+        ) at = r.seq!;
+      }
+    }
+    const ok = !!d && this.mayFile(tenant, "device_revocation") &&
+      this.db.guardian_sets.some((g) =>
+        g.subject_user_id === d.user_id && g.share_set_version === version &&
+        g.tenant_id != null && g.tenant_id === tenant
+      ) &&
+      this.db.guardian_set_members.some((m) =>
+        m.subject_user_id === d.user_id && m.share_set_version === version &&
+        m.guardian_user_id === this.me
+      ) &&
+      this.subjectHeldAt(tenant, d.user_id, at ?? BigInt("9223372036854775807"));
+    return Promise.resolve(ok);
+  }
+  revocationCount(dev: string): Promise<RevocationCount> {
+    // 0026 rf.revocation_count: the device's own user and that user's guardians; anyone else reads
+    // the empty count, as for a device with no approval.
+    const d = this.db.devices.get(dev.toLowerCase()); // a uuid column: case-blind
+    const gated = this.isCertified() && !!d &&
+      (d.user_id === this.me ||
+        this.db.guardian_set_members.some((m) =>
+          m.subject_user_id === d.user_id && m.guardian_user_id === this.me
+        ));
     return Promise.resolve(
-      this.db.signed_records.filter((r) =>
-        r.kind === "device_revocation" && r.payload_json.revoked_device_id === dev &&
-        (this.activeInTenant(r.tenant_id) || r.author_device === this.dev)
-      ),
+      gated ? this.revocationTally(dev) : { approvers: 0, k: null, effective_seq: null },
     );
   }
   deviceAuthRow(deviceId: string) {
@@ -812,18 +998,8 @@ class MemTx implements Tx {
     const founder = status === "active" && user === this.me && this.isCertified() &&
       !this.db.memberships.some((x) => x.tenant_id === tenant);
     if (!this.tenantAdmin(tenant) && !founder) throw new StoreDenied("not_admin");
-    const m = this.db.memberships.find((x) => x.tenant_id === tenant && x.user_id === user);
-    if (m) {
-      m.status = status;
-      m.source_record_id = record;
-      m.updated_at = this.now;
-    } else {this.db.memberships.push({
-        tenant_id: tenant,
-        user_id: user,
-        status,
-        source_record_id: record,
-        updated_at: this.now,
-      });}
+    // 0027: logged, as the trigger logs it, when the row changes — never at the record's seq.
+    this.db.writeMembership(tenant, user, status, record);
     if (status === "removed") {
       this.db.book_roles = this.db.book_roles.filter((r) =>
         !(r.user_id === user && this.db.books.get(r.book_id as string)?.tenant_id === tenant)
@@ -854,8 +1030,9 @@ class MemTx implements Tx {
         user === this.me && role === "admin" &&
         (b.type !== "personal" || b.owner_user_id === this.me)
       ) {
+        // ADR 2026-10-03b §5: never held an envelope — book_usage, which only counts up.
         ok = !this.db.book_roles.some((r) => r.book_id === book) &&
-          !this.db.envelopes.some((e) => e.book_id === book);
+          this.db.envelopeCount(book) === 0;
       }
     }
     if (!ok) throw new StoreDenied("not_admin");
@@ -881,21 +1058,24 @@ class MemTx implements Tx {
     status: string,
   ): Promise<void> {
     this.requireRecord(record, tenant);
-    // 0022 §4: revoke only; by the device's user or a guardian of theirs, on a record of a tenant
-    // that user is in — one refusal for every miss.
+    // 0026 (0022 §4 as amended by ADR 2026-10-03b §2): revoke only; by the device's own user on a
+    // record of a tenant that user is in, or — for a guardian — only when the caller's own record
+    // is a COUNTED approval, the caller may still file in that tenant, and the count over every
+    // approval has reached k. One refusal for every miss.
     if (status !== "revoked") throw new StoreDenied("revoke_only");
     const d = this.db.devices.get(device);
     const owner = d?.user_id;
-    if (
-      !owner || !this.isCertified() ||
-      !this.db.memberships.some((m) =>
-        m.tenant_id === tenant && m.user_id === owner && m.status !== "removed"
-      ) ||
-      !(owner === this.me ||
-        this.db.guardian_set_members.some((g) =>
-          g.subject_user_id === owner && g.guardian_user_id === this.me
-        ))
-    ) throw new StoreDenied("not_revoker");
+    let ok = false;
+    if (owner && this.isCertified()) {
+      ok = owner === this.me
+        ? this.db.memberships.some((m) =>
+          m.tenant_id === tenant && m.user_id === owner && m.status !== "removed"
+        )
+        : this.mayFile(tenant, "device_revocation") &&
+          this.revocationApprovals(device).some((a) => a.record === record) &&
+          this.revocationTally(device).effective_seq !== null;
+    }
+    if (!ok) throw new StoreDenied("not_revoker");
     if (d) {
       d.status = status as MemDevice["status"];
       d.updated_at = this.now;
@@ -1011,18 +1191,34 @@ class MemTx implements Tx {
     if (d.guardians.some((g) => g.guardian_user_id === this.me)) {
       throw new StoreDenied("guardian_is_subject");
     }
+    // 0026 rf.guardian_set_guard (ADR 2026-10-03b §1): the set names its tenant and the publisher
+    // is active there — one refusal whether the tenant is missing, unknown, or not theirs.
+    if (
+      !d.tenant_id ||
+      !this.db.memberships.some((m) =>
+        m.tenant_id === d.tenant_id && m.user_id === this.me && m.status === "active"
+      )
+    ) throw new StoreDenied("guardian_set_tenant");
     const hi = this.db.guardian_sets.filter((g) => g.subject_user_id === this.me)
       .reduce((m, g) => Math.max(m, g.share_set_version as number), 0);
     if (d.share_set_version !== hi + 1) throw new StoreDenied("share_set_version_out_of_order");
     for (const g of d.guardians) {
       // 0005: a guardian_share for somebody else needs a shared tenant.
       if (!this.sharesTenant(g.guardian_user_id)) throw new StoreDenied("rls");
+      // 0026 rf.guardian_set_member_guard: every guardian holds a membership other than removed in
+      // the set's tenant.
+      if (
+        !this.db.memberships.some((m) =>
+          m.tenant_id === d.tenant_id && m.user_id === g.guardian_user_id && m.status !== "removed"
+        )
+      ) throw new StoreDenied("guardian_not_in_tenant");
     }
     this.db.guardian_sets.push({
       subject_user_id: this.me,
       share_set_version: d.share_set_version,
       n: d.n,
       k: d.k,
+      tenant_id: d.tenant_id,
       created_at: this.now,
       superseded_at: null,
       source_record_id: null,
@@ -1445,20 +1641,13 @@ class MemTx implements Tx {
       throw new StoreDenied("invite_expired");
     }
     if (i.status !== "sent") throw new StoreDenied("invite_not_live");
-    const m = this.db.memberships.find((x) => x.tenant_id === i.tenant_id && x.user_id === this.me);
-    if (m) {
-      m.status = "joined_pending_verification";
-      m.source_record_id = i.source_record_id;
-      m.updated_at = this.now;
-    } else {
-      this.db.memberships.push({
-        tenant_id: i.tenant_id,
-        user_id: this.me,
-        status: "joined_pending_verification",
-        source_record_id: i.source_record_id,
-        updated_at: this.now,
-      });
-    }
+    // 0006's upsert; 0027's trigger logs it (06 §7's re-admission is a membership change).
+    this.db.writeMembership(
+      i.tenant_id as string,
+      this.me,
+      "joined_pending_verification",
+      (i.source_record_id as string | null) ?? null,
+    );
     i.status = "accepted";
     i.accepted_by = this.me;
     i.accepted_at = this.now;
@@ -1500,9 +1689,11 @@ class MemTx implements Tx {
         m.verified_method = method;
         m.verified_at = this.now;
         m.updated_at = this.now;
+        this.db.logMembership(m); // 0027's trigger: the ceremony's flip is a membership change
       } else if (result === "mismatch") {
         m.status = "blocked";
         m.updated_at = this.now;
+        this.db.logMembership(m);
       }
     }
     return Promise.resolve();

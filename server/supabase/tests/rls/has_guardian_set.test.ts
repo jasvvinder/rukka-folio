@@ -142,6 +142,21 @@ interface Fx {
 }
 let fx: Fx;
 
+/** ADR 2026-10-03b §1 (0026): a set names a tenant its subject is active in and every guardian is
+ *  a member of. A fresh home tenant per subject, founded by it (06 §5: the first member is active
+ *  without a ceremony), with its guardians at joined_pending_verification — written by the schema
+ *  owner, so no cap applies. Memberships play no part in the bit under test. */
+async function home(subject: string, guardians: string[]): Promise<string> {
+  const [t] = await sql`insert into tenants (type) values ('family') returning id`;
+  await sql`insert into memberships (tenant_id, user_id, status)
+    values (${t.id}, ${subject}, 'active')`;
+  for (const g of guardians) {
+    await sql`insert into memberships (tenant_id, user_id, status)
+      values (${t.id}, ${g}, 'joined_pending_verification')`;
+  }
+  return t.id as string;
+}
+
 async function seed(): Promise<Fx> {
   const [t1] = await sql`insert into tenants (type) values ('family') returning id`;
   const [t2] = await sql`insert into tenants (type) values ('family') returning id`;
@@ -215,11 +230,16 @@ async function seed(): Promise<Fx> {
         values (${subject}, ${version}, ${g}, ${rand(32)})`;
     }
   };
-  // 0010's guards still hold for a superuser insert: n, k, next version, never the subject itself.
+  // 0010's guards still hold for a superuser insert: n, k, next version, never the subject itself —
+  // and since 0026 the set's tenant (ADR 2026-10-03b §1): each subject's own home tenant.
+  const homes = new Map<string, string>();
   const set = async (subject: string, version: number, n: number, superseded = false) => {
-    await sql`insert into guardian_sets (subject_user_id, share_set_version, n, k, superseded_at)
+    const t = homes.get(subject) ?? await home(subject, [f.g1, f.g2, f.g3]);
+    homes.set(subject, t);
+    await sql`insert into guardian_sets (subject_user_id, share_set_version, n, k, superseded_at,
+        tenant_id)
       values (${subject}, ${version}, ${n}, ${Math.ceil((n + 1) / 2)},
-              ${superseded ? new Date() : null})`;
+              ${superseded ? new Date() : null}, ${t})`;
   };
   await set(f.subject, 1, 3);
   await members(f.subject, 1, [f.g1, f.g2, f.g3]);
@@ -322,8 +342,8 @@ Deno.test({
       values (gen_random_uuid(), ${late.id}, ${rand(32)}, ${rand(32)}, 'registered') returning id`;
     const before = await bit(fx.stranger, fx.dev.strangerRaw);
     assertEquals(await bit(late.id, lateDev.id), false, "no set yet");
-    await sql`insert into guardian_sets (subject_user_id, share_set_version, n, k)
-      values (${late.id}, 1, 2, 2)`;
+    await sql`insert into guardian_sets (subject_user_id, share_set_version, n, k, tenant_id)
+      values (${late.id}, 1, 2, 2, ${await home(late.id as string, [])})`;
     assertEquals(await bit(late.id, lateDev.id), true, "the bit follows the caller's own set");
     assertEquals(
       await bit(fx.stranger, fx.dev.strangerRaw),

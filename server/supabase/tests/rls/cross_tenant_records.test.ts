@@ -146,15 +146,27 @@ function assertRefused(e: PgErr, code: string, name: string, what: string) {
   assertStringIncludes(e.message, name, what);
 }
 /** A record filed by the CALLER through rf_api (signed_records_insert decides). */
-const fileRecord = (s: postgres.TransactionSql, tenant: string, device: string, kind: string) => {
+const fileRecord = (
+  s: postgres.TransactionSql,
+  tenant: string,
+  device: string,
+  kind: string,
+  payload: Record<string, unknown> = {},
+) => {
   const id = crypto.randomUUID();
   return s`insert into signed_records
       (id, suite_version, tenant_id, kind, payload_json, payload_bytes, author_device, author_sig, hlc)
-    values (${id}, 1, ${tenant}, ${kind}, '{}'::jsonb, ${rand(8)}, ${device}, ${rand(64)}, 1)
+    values (${id}, 1, ${tenant}, ${kind}, ${s.json(payload as postgres.JSONValue)}, ${rand(8)},
+            ${device}, ${rand(64)}, 1)
     returning id`.then((r) => r[0].id as string);
 };
-async function file(p: P, tenant: string, kind: string): Promise<string> {
-  return await asApi(p.user, p.dev, (s) => fileRecord(s, tenant, p.dev, kind));
+async function file(
+  p: P,
+  tenant: string,
+  kind: string,
+  payload: Record<string, unknown> = {},
+): Promise<string> {
+  return await asApi(p.user, p.dev, (s) => fileRecord(s, tenant, p.dev, kind, payload));
 }
 const tryFile = (p: P, tenant: string, kind: string) => pgErr(file(p, tenant, kind));
 
@@ -848,15 +860,19 @@ test(
 );
 
 test(
-  "E-06-89 a device is revoked only by its own user or that user's guardian, inside the record's tenant, and the projection only ever revokes: tenant A's admin, citing a record of its OWN tenant, cannot revoke a device of B's member nor mark any device certified (that is rf.certify_device's, ADR 2026-09-05d §2); B's non-guardian member cannot revoke a fellow member's device; a genuine guardian citing a record of a tenant the subject is not in, or was removed from, and the owner replaying a record of a tenant that removed it, are refused; the owner and a guardian, in the subject's tenant, can",
+  "E-06-89 a device is revoked only by its own user or that user's guardian, inside the record's tenant, and the projection only ever revokes: tenant A's admin, citing a record of its OWN tenant, cannot revoke a device of B's member nor mark any device certified (that is rf.certify_device's, ADR 2026-09-05d §2); B's non-guardian member cannot revoke a fellow member's device; a genuine guardian citing a record of a tenant the subject is not in, or was removed from, and the owner replaying a record of a tenant that removed it, are refused; the owner, in the subject's tenant, can; and since 0026 a guardian projects only on the database's own count — one approval of k = 2 is refused, the second (from a guardian still pending in the set's tenant) revokes (ADR 2026-10-03b §2, §3)",
   async () => {
     const a = await tenant(), b = await tenant();
     const victim = await activeMember(b);
     const guardian = await activeMember(b);
     const bystander = await activeMember(b);
     const g2 = await mkPerson();
-    await sql`insert into guardian_sets (subject_user_id, share_set_version, n, k)
-      values (${victim.user}, 1, 2, 2)`;
+    // ADR 2026-10-03b §1 (0026): the set is set up in B, where the victim is active and both
+    // guardians are members — g2 still at joined_pending_verification.
+    await sql`insert into memberships (tenant_id, user_id, status)
+      values (${b.t}, ${g2.user}, 'joined_pending_verification')`;
+    await sql`insert into guardian_sets (subject_user_id, share_set_version, n, k, tenant_id)
+      values (${victim.user}, 1, 2, 2, ${b.t})`;
     await sql`insert into guardian_set_members
         (subject_user_id, share_set_version, guardian_user_id, umk_pub_ed)
       values (${victim.user}, 1, ${guardian.user}, ${rand(32)}),
@@ -910,15 +926,27 @@ test(
     // WHERE (0022 §4, ⚠️ SPEC (e)): a GENUINE guardian, and the owner, act only on a record of a
     // tenant the subject holds a non-removed membership in. The guardian also belongs to A, where
     // the victim is not, and to C, which removed the victim; the victim replays the record its
-    // device filed in C before the removal.
+    // device filed in C before the removal. Since 0026 the guardian's two records are refused
+    // first because neither A nor C is the set's tenant (B, ADR 2026-10-03b §2), so for the
+    // guardian these rows no longer exercise the subject-membership clause; E-03b-7
+    // (edge_record_authority, both stores) removes the SUBJECT from the set's own tenant and holds
+    // that clause in rf.revocation_approvals and rf.guardian_may_revoke — judged at each approval's
+    // own seq since 0027 (ADR 2026-10-03b §6; E-03b-10 in revocation_at_seq.test.ts without the
+    // edge). The owner's row below still exercises it for the owner's arm, which reads the owner's
+    // membership as it stands when the record is applied (0022 (e), unchanged).
     await makeActive(a, guardian);
     const c = await tenant();
     await makeActive(c, guardian);
     await sql`insert into memberships (tenant_id, user_id, status)
       values (${c.t}, ${victim.user}, 'removed')`;
     const second = await mkDev(victim.user);
-    const ga = await file(guardian, a.t, "device_revocation");
-    const gc = await file(guardian, c.t, "device_revocation");
+    const approval = {
+      revoked_device_id: victim.dev,
+      subject_user_id: victim.user,
+      share_set_version: 1,
+    };
+    const ga = await file(guardian, a.t, "device_revocation", approval);
+    const gc = await file(guardian, c.t, "device_revocation", approval);
     const vc = await ownerRecord(c.t, victim.dev, "device_revocation");
     for (
       const [what, p, rec, t, dev] of [
@@ -938,13 +966,23 @@ test(
     assertEquals(await deviceState(victim.dev), { status: "certified", revoked: false });
     assertEquals(await deviceState(second), { status: "certified", revoked: false });
 
-    // The owner (06 §6 "any certified device of the same user") and a guardian (06 §6 "k guardians";
-    // the k-of-n count is the edge's and the client's, ADR 2026-09-06 §3), in B, where the victim is.
+    // The owner (06 §6 "any certified device of the same user"), in B, where the victim is.
     const vr = await file(victim, b.t, "device_revocation");
     assertEquals((await proj(victim, vr, b.t, second, "revoked")).code, "ok");
     assertEquals(await deviceState(second), { status: "revoked", revoked: true });
-    const gr = await file(guardian, b.t, "device_revocation");
-    assertEquals((await proj(guardian, gr, b.t, victim.dev, "revoked")).code, "ok");
+    // k guardians (06 §6): since 0026 the database counts — over every approval filed in the set's
+    // tenant (ADR 2026-10-03b §2) — and no longer takes one guardian's word for k. One of two is
+    // refused; the second, from a guardian still pending in B (§3), revokes.
+    const gr = await file(guardian, b.t, "device_revocation", approval);
+    assertRefused(
+      await proj(guardian, gr, b.t, victim.dev, "revoked"),
+      "42501",
+      "not_revoker",
+      "one counted approval of k = 2",
+    );
+    assertEquals(await deviceState(victim.dev), { status: "certified", revoked: false });
+    const g2r = await file(g2, b.t, "device_revocation", approval);
+    assertEquals((await proj(g2, g2r, b.t, victim.dev, "revoked")).code, "ok");
     assertEquals(await deviceState(victim.dev), { status: "revoked", revoked: true });
     assertNotEquals(victim.dev, second);
   },

@@ -186,4 +186,41 @@ void main() {
     expect(back.isEmpty, isFalse);
     expect(const MetaResponse(storeEpoch: 'x', next: null).isEmpty, isTrue);
   });
+  test('D-03b-1 a guardian_sets element carries tenant_id (ADR 2026-10-03b '
+      '§1): a uuid reads through, null and absent both read as null, and the '
+      'fields this build does not read (guardians[]) round-trip untouched '
+      '(rule 6)', () {
+    Map<String, Object?> set(int v, [Object? tenant = #absent]) => {
+      'subject_user_id': 'u1',
+      'share_set_version': v,
+      'k': 2,
+      'n': 3,
+      'guardian_user_ids': ['g1', 'g2', 'g3'],
+      'guardians': [
+        {'guardian_user_id': 'g1', 'umk_pub_ed': 'AAAA'},
+      ],
+      if (tenant != #absent) 'tenant_id': tenant,
+    };
+    final meta = MetaResponse.fromJson(
+      _viaJson({
+        'store_epoch': 'e',
+        'next': 'c',
+        'guardian_sets': [set(3, 't1'), set(4, null), set(5)],
+      }),
+    );
+    expect(meta.guardianSets.map((s) => s.tenantId), ['t1', null, null]);
+    final first = meta.guardianSets.first;
+    expect(first.extra['guardians'], [
+      {'guardian_user_id': 'g1', 'umk_pub_ed': 'AAAA'},
+    ]);
+    expect(first.toJson(), set(3, 't1'));
+    final back = MetaResponse.fromJson(_viaJson(meta.toJson()));
+    expect(back.toJson(), meta.toJson());
+    expect(back.guardianSets.map((s) => s.tenantId), ['t1', null, null]);
+    expect(
+      () => WireGuardianSet.fromJson({...set(6), 'tenant_id': 42}),
+      throwsA(isA<TypeError>()),
+      reason: 'a malformed tenant is refused, never read as "no tenant"',
+    );
+  });
 }

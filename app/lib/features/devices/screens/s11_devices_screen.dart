@@ -15,6 +15,7 @@ import '../../../shared/seams/sync_client.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../devices_repository.dart';
+import '../guardian_standing.dart';
 import '../widgets/window_card.dart';
 
 class DevicesScreen extends StatefulWidget {
@@ -191,6 +192,12 @@ class _DevicesScreenState extends State<DevicesScreen> {
         .toList();
     final others = s.devices.where((d) => !d.isThisDevice).toList();
     final thisDevice = s.devices.where((d) => d.isThisDevice).toList();
+    // ADR 2026-10-03b §4 🔒 (F1-03b-1). The row listens to the standing, so
+    // it flips in either direction the moment the reading moves — a removal
+    // the engine files, a set re-split in S11.1 — without this screen being
+    // rebuilt from outside. No standing installed → no reading → the
+    // ordinary line.
+    final standing = GuardianStandingScope.maybeOf(context);
 
     String date(DateTime d) =>
         formatListDate(localDateOf(d), strings: l10n, now: now);
@@ -271,12 +278,17 @@ class _DevicesScreenState extends State<DevicesScreen> {
               ),
             ),
           header(l10n.devicesMoreSection),
-          _Row(
-            icon: Icons.group_outlined,
-            title: l10n.devicesRowGuardians,
-            subtitle: l10n.devicesRowGuardiansSubtitle,
-            onTap: () => widget.onOpenRow?.call('guardians'),
-          ),
+          // When the set in force can no longer switch off a lost phone, the
+          // row says so in plain words — a different icon *and* a different
+          // line, never the colour alone (07 §1) — and opens S11.1 to choose
+          // again, as it always does.
+          if (standing == null)
+            _guardiansRow(context, null)
+          else
+            ListenableBuilder(
+              listenable: standing,
+              builder: (context, _) => _guardiansRow(context, standing.gap),
+            ),
           _Row(
             icon: Icons.description_outlined,
             title: l10n.devicesRowSheet,
@@ -306,6 +318,28 @@ class _DevicesScreenState extends State<DevicesScreen> {
             ),
         ],
       ),
+    );
+  }
+
+  Widget _guardiansRow(BuildContext context, GuardianRevokeGap? gap) {
+    final l10n = AppLocalizations.of(context);
+    void open() => widget.onOpenRow?.call('guardians');
+    if (gap == null) {
+      return _Row(
+        key: const Key('devices.row.guardians'),
+        icon: Icons.group_outlined,
+        title: l10n.devicesRowGuardians,
+        subtitle: l10n.devicesRowGuardiansSubtitle,
+        onTap: open,
+      );
+    }
+    return _Row(
+      key: const Key('devices.row.guardians'),
+      icon: Icons.warning_amber_rounded,
+      iconColor: RkStatusColors.of(context).pending,
+      title: l10n.devicesRowGuardians,
+      subtitle: l10n.devicesRowGuardiansCannotRevoke,
+      onTap: open,
     );
   }
 }
@@ -433,6 +467,7 @@ class _Badge extends StatelessWidget {
 
 class _Row extends StatelessWidget {
   const _Row({
+    super.key,
     required this.icon,
     required this.title,
     required this.subtitle,

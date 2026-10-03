@@ -185,6 +185,9 @@ async function pull(
       share_set_version: s.share_set_version,
       k: s.k,
       n: s.n,
+      // ADR 2026-10-03b §1: the tenant the version was set up in — a uuid, or null for a version
+      // published before it (which recovers but counts no revocation approval).
+      tenant_id: s.tenant_id,
       guardian_user_ids: s.members.map((m) => m.guardian_user_id),
       guardians: s.members.map((m) => ({
         guardian_user_id: m.guardian_user_id,
@@ -315,8 +318,10 @@ async function ceremony(
 // the five writes and the two reads 04 §7.3 needs, and every rule behind them is 0010's, in the
 // database, so this handler cannot loosen one:
 //
-//   POST /sync-meta/recovery/guardians {share_set_version, k, n, guardians:[{guardian_user_id,
-//                                       umk_pub_ed, blob}]} → {share_set_version}   (Setup)
+//   POST /sync-meta/recovery/guardians {share_set_version, tenant_id, k, n, guardians:[{
+//                                       guardian_user_id, umk_pub_ed, blob}]} → {share_set_version}
+//        (Setup; `tenant_id` required, ADR 2026-10-03b §1 / 0026 — 400 bad_request without it,
+//        403 guardian_set_tenant / guardian_not_in_tenant from the database)
 //   POST /sync-meta/recovery           {candidate_pub_x}    → the request           (step 1)
 //   POST /sync-meta/recovery/approve   {request_id, sealed_to_pub_x, blob}          (step 3)
 //   POST /sync-meta/recovery/deny      {request_id}                                 (step 7)
@@ -547,9 +552,13 @@ function recoveryError(reason: string): Response {
   }
 }
 
-/** 04 §7.3 Setup, as it arrives on the wire. Shape only — k and n are checked in the database. */
+/** 04 §7.3 Setup, as it arrives on the wire. Shape only — k and n are checked in the database, and
+ *  so is `tenant_id` (ADR 2026-10-03b §1: the publisher is active there, every guardian is not
+ *  removed there; 403 `guardian_set_tenant` / `guardian_not_in_tenant`). A draft without a tenant is
+ *  400 `bad_request`: a set published from today on always names one. */
 function parseGuardianDraft(body: Record<string, unknown>): GuardianSetDraft | null {
   const v = body.share_set_version, k = body.k, n = body.n;
+  if (!isUuid(body.tenant_id)) return null;
   if (!Number.isInteger(v) || (v as number) < 1) return null;
   if (!Number.isInteger(k) || !Number.isInteger(n)) return null;
   if (!Array.isArray(body.guardians) || body.guardians.length === 0) return null;
@@ -562,7 +571,13 @@ function parseGuardianDraft(body: Record<string, unknown>): GuardianSetDraft | n
     }
     guardians.push({ guardian_user_id: g.guardian_user_id as string, umk_pub_ed: pub, blob });
   }
-  return { share_set_version: v as number, k: k as number, n: n as number, guardians };
+  return {
+    share_set_version: v as number,
+    tenant_id: body.tenant_id as string,
+    k: k as number,
+    n: n as number,
+    guardians,
+  };
 }
 
 function requestToWire(r: RecoveryRequest): Record<string, unknown> {
@@ -930,7 +945,12 @@ function encodeCursor(c: Cursor): string {
 
 const ms = (v: unknown): number | null =>
   v instanceof Date ? v.getTime() : v == null ? null : new Date(String(v)).getTime();
-const bin = (v: unknown): string | null => v instanceof Uint8Array ? b64url.enc(v) : null;
+// Copied first: on PgStore a bytea column arrives as a node Buffer — a view at a non-zero offset
+// into a pooled, non-detachable ArrayBuffer — and @std/encoding's encoder transfers (detaches) its
+// input's buffer, so encoding the view itself throws "ArrayBuffer is not detachable" and failed
+// every GET /sync-meta page carrying bytes on the real store (found by E-03b-5's PgStore arm).
+const bin = (v: unknown): string | null =>
+  v instanceof Uint8Array ? b64url.enc(new Uint8Array(v)) : null;
 
 /** Column rows → 05 §5 / wire.dart names. Timestamps as epoch ms; bytes base64url; money as integer paise. */
 export function shapeRow(table: MetaTable, r: Record<string, unknown>): Record<string, unknown> {

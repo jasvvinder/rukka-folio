@@ -64,6 +64,8 @@
   "@devices.row.guardians": {"description": "S11 row → S11.1 (01 §2: Guardian = Trusted member)."},
   "devices.row.guardians.subtitle": "The people who can help you get back in",
   "@devices.row.guardians.subtitle": {"description": "S11 guardians row line."},
+  "devices.row.guardians.cannot_revoke": "Your trusted members can still help you get back in, but can no longer switch off a lost phone together — choose your trusted members again.",
+  "@devices.row.guardians.cannot_revoke": {"description": "S11 guardians row line when the set can no longer revoke (ADR 2026-10-03b §4, F1-03b-1): fewer than k guardians, or the user, still belong to the tenant the set was made in, or the set names none. Replaces the subtitle; the row opens S11.1."},
   "devices.row.sheet": "Recovery sheet",
   "@devices.row.sheet": {"description": "S11 row (04 §7.4)."},
   "devices.row.sheet.subtitle": "View, re-check, or print a new one",

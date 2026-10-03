@@ -730,6 +730,10 @@
   "devices.row.escrow": "ਪਰਿਵਾਰ ਦੇ ਮੁਖੀ ਕੋਲ ਬੈਕਅੱਪ",
   "devices.row.escrow.subtitle": "ਮਰਜ਼ੀ ਨਾਲ। ਉਡੀਕ ਦੇ ਸਮੇਂ ਬਾਅਦ ਮੁਖੀ ਤੁਹਾਡੇ ਵਹੀ-ਖਾਤੇ ਵਾਪਸ ਲਿਆ ਸਕਦਾ ਹੈ।",
   "devices.row.guardians": "ਭਰੋਸੇਮੰਦ ਮੈਂਬਰ",
+  "devices.row.guardians.cannot_revoke": "ਤੁਹਾਡੇ ਭਰੋਸੇਮੰਦ ਮੈਂਬਰ ਹਾਲੇ ਵੀ ਤੁਹਾਨੂੰ ਵਾਪਸ ਅੰਦਰ ਆਉਣ ਵਿੱਚ ਮਦਦ ਕਰ ਸਕਦੇ ਹਨ, ਪਰ ਹੁਣ ਮਿਲ ਕੇ ਗੁਆਚੇ ਫ਼ੋਨ ਨੂੰ ਬੰਦ ਨਹੀਂ ਕਰ ਸਕਦੇ — ਆਪਣੇ ਭਰੋਸੇਮੰਦ ਮੈਂਬਰ ਦੁਬਾਰਾ ਚੁਣੋ।",
+  "@devices.row.guardians.cannot_revoke": {
+    "description": "machine-draft — native review M12"
+  },
   "devices.row.guardians.subtitle": "ਉਹ ਲੋਕ ਜੋ ਤੁਹਾਨੂੰ ਵਾਪਸ ਅੰਦਰ ਆਉਣ ਵਿੱਚ ਮਦਦ ਕਰ ਸਕਦੇ ਹਨ",
   "devices.row.pin": "ਐਪ ਪਿੰਨ",
   "devices.row.pin.subtitle": "ਆਪਣਾ 6 ਅੰਕਾਂ ਦਾ ਪਿੰਨ ਬਦਲੋ",

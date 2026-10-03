@@ -23,15 +23,25 @@ import postgres from "postgres";
 import type { PgStore } from "../../functions/_shared/store_pg.ts";
 import { edKeypair, type Member, reissue, rig } from "../../functions/_tests/harness.ts";
 import {
+  authorsFirstRecord,
   bookRoles,
-  disjointGuardians,
+  concurrentK,
+  differentTenants,
+  filedElsewhere,
   founder,
   intake,
+  inviteReadmission,
+  lateApplication,
   type MemberStatus,
+  pendingGuardian,
+  publishTenant,
+  refusedRemoval,
   revocations,
   spy,
   storeHolds,
+  subjectRemoved,
   type Tn,
+  usedBook,
   type World,
 } from "../../functions/_tests/record_authority_world.ts";
 import { apiStore } from "./_pg_api.ts";
@@ -144,19 +154,34 @@ function pgWorld(sql: postgres.Sql, store: PgStore): World {
         values (gen_random_uuid(), ${tn.t}, ${b}, gen_random_uuid(), 'entry', 1, 1, 1,
                 ${tn.founder.device.id}, 1, ${rand(32)}, ${blob.length}, ${blob})`;
     },
-    async guardians(subject, version, k, gs) {
-      await sql`insert into guardian_sets (subject_user_id, share_set_version, n, k)
-        values (${subject}, ${version}, ${gs.length}, ${k})`;
-      for (const g of gs) {
-        await sql`insert into guardian_set_members
-            (subject_user_id, share_set_version, guardian_user_id, umk_pub_ed)
-          values (${subject}, ${version}, ${g.user}, ${g.keys.pub})`;
-      }
+    async usage(t, b, count) {
+      await sql`insert into book_usage (book_id, tenant_id, envelope_count, bytes)
+        values (${b}, ${t}, ${count}, 0)
+        on conflict (book_id) do update set envelope_count = excluded.envelope_count`;
+    },
+    async guardians(subject, version, k, gs, tenant) {
+      // A set with a tenant goes through 0010/0026's guards like any insert. A set WITHOUT one is
+      // a row published before 0026, which the guard now refuses to write: it is seeded with
+      // triggers off for this one transaction (session_replication_role, superuser), as it was.
+      await sql.begin(async (s) => {
+        if (tenant === null) await s`set local session_replication_role = replica`;
+        await s`insert into guardian_sets (subject_user_id, share_set_version, n, k, tenant_id)
+          values (${subject}, ${version}, ${gs.length}, ${k}, ${tenant})`;
+        for (const g of gs) {
+          await s`insert into guardian_set_members
+              (subject_user_id, share_set_version, guardian_user_id, umk_pub_ed)
+            values (${subject}, ${version}, ${g.user}, ${g.keys.pub})`;
+        }
+      });
     },
     async statusOf(t, user) {
       const [m] =
         await sql`select status from memberships where tenant_id = ${t} and user_id = ${user}`;
       return (m?.status as string) ?? null;
+    },
+    async phoneOf(user) {
+      const [u] = await sql`select phone_hmac from users where id = ${user}`;
+      return new Uint8Array(u.phone_hmac as Uint8Array);
     },
     async rolesOf(b) {
       const rows = await sql`select user_id, role from book_roles where book_id = ${b}`;
@@ -217,17 +242,57 @@ test(
   bookRoles,
 );
 test(
-  "E-06-94 [PgStore rf_api] a device is revoked by its user or that user's guardians inside a tenant the user is in: a non-guardian and a completing guardian on a record of a tenant the subject is not in are refused not_revoker by the edge (never acked, no projection asked for); k guardians in the subject's tenant revoke it; an owner revokes its own other device",
+  "E-06-94 [PgStore rf_api] a device is revoked by its user or that user's guardians inside a tenant the user is in: a non-guardian and a completing guardian on a record of a tenant the subject is not in are refused not_revoker by the edge (never acked, no projection asked for); k guardians in the set's tenant (the subject's) revoke it; an owner revokes its own other device",
   revocations,
-);
-// IGNORED, not green — see functions/_tests/edge_record_authority.test.ts: the edge's k-of-n count
-// reads only the approvals signed_records_select shows the caller (EDGE83 review finding 2).
-test(
-  "E-06-94 [PgStore rf_api] k guardians revoke even when they share no tenant with each other: the subject is in A and B, g1 only in A, g2 only in B, k = 2 — g2's approval in B completes the revocation g1 began in A (IGNORED until a SECURITY DEFINER approval count lands: EDGE83 finding 2, owner item)",
-  disjointGuardians,
-  true,
 );
 test(
   "E-06-95 [PgStore rf_api] the store's own answers match MemStore's: rf.may_file_record's table, a stranger's insert rls, a non-admin's membership not_admin, another book's admin's book role not_admin, a certifying device record revoke_only, a fellow member's revocation not_revoker",
   storeHolds,
+);
+
+// Desk 89 — ADR 2026-10-03b (0026) on the real store: the count is rf.revocation_count's, over every
+// row, so it holds where signed_records_select shows the caller only its own tenants' approvals.
+test(
+  "E-03b-1 [PgStore rf_api] an approval filed outside the guardian set's tenant never counts: g1's approval in A (a tenant the subject is in; the set was set up in B) is refused not_revoker; g2's in B is \"counted 1 of 2\" and rf.revocation_count agrees; rf.project_device_status refuses g1's A record and one counted approval alike (not_revoker); g1's approval in B completes the revocation",
+  filedElsewhere,
+);
+test(
+  "E-03b-2 [PgStore rf_api] guardians who file in different tenants do not complete (replaces the ignored E-06-94 disjoint-guardians case): set up in A, g1 files in A (counted 1 of 2), g2 — gone from A — files in B and is refused not_revoker; the device stays certified; a pre-0026 set with no tenant counts nothing",
+  differentTenants,
+);
+test(
+  "E-03b-3 [PgStore rf_api] a guardian at joined_pending_verification in the set's tenant — who cannot see the subject's membership row — revokes through rf.guardian_may_revoke and rf.project_device_status's definer count, and reads the count; a stranger and a removed guardian are refused at intake, a pending non-guardian and another subject's guardian not_revoker, and none of them reads the count",
+  pendingGuardian,
+);
+test(
+  'E-03b-6 [PgStore rf_api] two guardians filing the approvals that reach k at the same moment revoke the device: both requests are held at rf.revocation_count until both have filed in their own open transaction; 0026\'s per-device advisory lock makes the second counter wait for the first\'s commit and count both in a fresh snapshot, so one reads "counted 1 of 2" and the other projects "revoked by guardians 2 of 2" at the later seq — never two "1 of 2" and a device left certified',
+  concurrentK,
+);
+test(
+  "E-03b-7 [PgStore rf_api] the subject's membership in the set's tenant is judged at each approval's own seq (ADR 2026-10-03b §6, 0027 rf.subject_held_at over membership_facts): two of a k = 3 set's approvals filed while the subject is there count 2 of 3 and KEEP counting after its admin removes the subject (the memberships trigger logs the removal when it is applied); g3's approval filed while the subject is removed — a newcomer having joined since — is refused not_revoker by the edge (rf.guardian_may_revoke) and never counts — not after the re-admission either, and rf.project_device_status refuses it; a removal in another tenant, and the newcomer's removal in this one, change nothing (the history is the subject's); g3 files again after the re-admission and completes k at that approval's seq",
+  subjectRemoved,
+);
+test(
+  "E-03b-11 [PgStore rf_api] a membership change is a fact when it is applied, never at its record's seq (desk 97 review, finding 1; 0027 memberships_facts_log at a fresh store_seq): a re-admission stored unapplied and applied on its re-send (sync-meta's duplicate arm) counts neither approval refused not_revoker while the subject was removed — the count stays empty and the device certified; a removal stored unapplied and applied on its re-send, and the admin's own older designation record applied through rf.project_membership as a removal, never un-count the approval filed before them; the guardians then complete k",
+  lateApplication,
+);
+test(
+  "E-03b-12 [PgStore rf_api] 06 §7's own re-admission is a membership fact (desk 97 review, finding 2; 0027's trigger logs rf.accept_invite and rf.project_verification_event): a subject removed by record and re-admitted through rf.create_invite → rf.accept_invite (joined_pending_verification) → the ceremony's verification_event (active) is held again — g2's approval filed after the acceptance counts, and g1's after the ceremony completes k; g1's approval filed while the subject was removed never counts",
+  inviteReadmission,
+);
+test(
+  "E-03b-9 [PgStore rf_api] a membership record the server refused is not a membership fact (0027 §1 — rf_api writes signed_records and its apply_note itself, so only a write of the memberships row counts): a non-admin member's member_removal of the subject and the subject's own device's membership_status removed are refused not_admin and stored, the subject stays active, and the guardians' approvals filed after them count and revoke the device",
+  refusedRemoval,
+);
+test(
+  "E-03b-8 [PgStore rf_api] rf.revocation_tally applies the k the subject's own devices apply — one counted record per author (its lowest seq), k of the earliest version among those: g1 names v2 (k = 3), g1's stale device re-files naming v1 (k = 2) and is not counted again, g2 makes 2 of 3 — no revocation; g3 completes it",
+  authorsFirstRecord,
+);
+test(
+  "E-03b-4 [PgStore rf_api] a book whose book_usage.envelope_count is 1 with no envelope row is not bootstrapped: refused not_admin by the edge (rf.book_access) and by rf.project_book_role itself, which read `envelopes` before 0026; a book that never held one is claimed",
+  usedBook,
+);
+test(
+  "E-03b-5 [PgStore rf_api] POST /sync-meta/recovery/guardians requires tenant_id; rf.guardian_set_guard refuses a publisher not active there (guardian_set_tenant, one answer for pending, absent and unknown tenants) and rf.guardian_set_member_guard a guardian removed there (guardian_not_in_tenant, the whole publish rolled back); a pending guardian may be chosen; the tenant is written once with the version, relayed on GET /sync-meta, and a re-split may name another",
+  publishTenant,
 );

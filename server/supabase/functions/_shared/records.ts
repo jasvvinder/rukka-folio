@@ -2,8 +2,9 @@
 // BLAKE2b-256(payload ‖ header) with header = u8(suite) ‖ uuid16(tenant) ‖ lenPrefixedUtf8(kind)
 // ‖ uuid16(author_device) ‖ i64be(hlc) — byte-identical to core_crypto/signed_record.dart — then
 // authorise (06 §1.0) and project onto rows. Guardian k-of-n device revocation is k separate
-// records counted with the earliest-k rule (ADR 2026-09-06 §3); the server's row is a projection,
-// the client recomputes the cut-off itself.
+// records counted with the earliest-k rule (ADR 2026-09-06 §3), over the approvals filed in the
+// guardian set's tenant (ADR 2026-10-03b §2) — counted by the database (0026); the server's row is a
+// projection, the client recomputes the cut-off itself.
 import {
   b64any,
   concat,
@@ -16,7 +17,7 @@ import {
 } from "./bytes.ts";
 import { RECORD_KINDS } from "./registry.ts";
 import { blake2b256, ed25519Verify } from "./sodium.ts";
-import type { GuardianSet, SignedRecordRow, Tx } from "./store.ts";
+import type { SignedRecordRow, Tx } from "./store.ts";
 
 export function recordHeader(
   r: Pick<SignedRecordRow, "suite_version" | "tenant_id" | "kind" | "author_device" | "hlc">,
@@ -151,15 +152,10 @@ const refuse = (note: string, check?: string): Applied => check ? { note, check 
  * projection (0022 §2–§4); this is the same rule, asked first, so the refusal is named and the
  * record is kept with its note rather than surfacing as a store denial.
  *
- * ⚠️ SPEC (EDGE83 review, reported — needs a migration this directory does not own): the ONE
- * exception is device_revocation's k-of-n COUNT, which 0022 (e) leaves to the edge ("the database
- * cannot recount it and does not try"). It is still taken from the approvals the caller can see
- * (revocationRecordsFor under signed_records_select; guardianSetHistory under guardian_sets_select),
- * so k guardians who each file in a tenant the subject is in, but share no tenant with each other,
- * each see only their own approval and never complete the revocation 06 §6 🔒 gives them. That
- * errs narrower (a revocation withheld), never wider (no device is revoked by a count the database
- * would not bound: 0022 §4 still checks WHO and WHERE). Closing it needs a SECURITY DEFINER answer
- * over every approval of one device, gated to its owner and their guardians.
+ * device_revocation is the same: WHO may revoke and the k-of-n COUNT are the database's answers
+ * (ADR 2026-10-03b §2, §3; 0026) — rf.guardian_may_revoke and rf.revocation_count, SECURITY
+ * DEFINER over EVERY approval of the device — never a count of the approvals signed_records_select
+ * happens to show the caller.
  */
 export async function applyRecord(
   tx: Tx,
@@ -267,76 +263,34 @@ export async function applyRecord(
       if (!isUuid(dev) || !isUuid(subject)) return refuse("rejected:shape");
       const target = await tx.deviceAuthRow(dev);
       if (!target || target.user_id !== subject) return refuse("rejected:shape");
-      // 06 §6 🔒 "any certified device of the same user, k guardians", and 0022 (e): the revocation
-      // lands only on a record of a tenant that user is in (any membership but `removed`). The
-      // owner reads its own row; a guardian reads the subject's as an active member of the
-      // record's tenant. ⚠️ SPEC (desk 83, reported): a guardian who is only PENDING in the
-      // record's tenant cannot see the subject's row, so the edge refuses where 0022 §4 would
-      // project — narrower, never wider; closing it needs a SECURITY DEFINER answer the database
-      // does not offer yet.
-      const inTenant = async () => {
-        const st = await tx.membershipStatus(r.tenant_id, subject);
-        return st !== null && st !== "removed";
-      };
       if (authorUserId === subject) {
-        if (!(await inTenant())) return refuse("rejected:unauthorized", "not_revoker");
+        // 06 §6 🔒 "any certified device of the same user", and 0022 (e): on a record of a tenant
+        // that user is in (any membership but `removed`) — the owner reads its own row.
+        const st = await tx.membershipStatus(r.tenant_id, subject);
+        if (st === null || st === "removed") return refuse("rejected:unauthorized", "not_revoker");
         await tx.projectDeviceStatus(r.id, r.tenant_id, dev, "revoked");
         return { note: "revoked by owner" };
       }
-      const sets = await tx.guardianSetHistory(subject);
+      // 06 §6 🔒 "k guardians", ADR 2026-10-03b §2/§3: the approval counts only if it is filed in
+      // the tenant of the share_set_version it names, by a guardian of that version, while the
+      // subject is in that tenant. The database answers (rf.guardian_may_revoke) — a guardian still
+      // pending there is answered truthfully, though it cannot see the subject's membership row.
       const version = p.share_set_version;
-      if (typeof version !== "number" || !sets.some((s) => s.share_set_version === version)) {
-        return refuse("rejected:unauthorized", "not_revoker");
-      }
-      // ⚠️ SPEC (see the header): the approvals counted are the ones the CALLER can see — a
-      // guardian sharing no tenant with an earlier approver does not see that approval, so the
-      // count is short and the revocation waits (E-06-94's ignored disjoint-guardians case).
-      const records = [...(await tx.revocationRecordsFor(dev)), r];
-      const counted = await countGuardianApprovals(tx, records, sets);
-      if (!counted.authors.has(authorUserId)) {
-        return refuse("rejected:unauthorized", "not_revoker");
-      }
-      if (counted.effectiveSeq !== null) {
-        // The completing record (0022 (e)): the count is ADR 2026-09-06 §3's, unchanged; the
-        // projection it triggers must come from a tenant the subject is in.
-        if (!(await inTenant())) return refuse("rejected:unauthorized", "not_revoker");
+      if (
+        typeof version !== "number" || !Number.isInteger(version) || version < 1 ||
+        version > 2147483647 || !(await tx.guardianMayRevoke(dev, r.tenant_id, version))
+      ) return refuse("rejected:unauthorized", "not_revoker");
+      // Earliest-k over every approval of the device, this record included (it is stored, in this
+      // transaction): rf.revocation_count, never the rows the caller can see.
+      const c = await tx.revocationCount(dev);
+      if (c.effective_seq !== null) {
+        // The database recounts before it projects (0026 rf.project_device_status).
         await tx.projectDeviceStatus(r.id, r.tenant_id, dev, "revoked");
-        return {
-          note:
-            `revoked by guardians ${counted.authors.size} of ${counted.k} at seq ${counted.effectiveSeq}`,
-        };
+        return { note: `revoked by guardians ${c.approvers} of ${c.k} at seq ${c.effective_seq}` };
       }
-      return { note: `counted ${counted.authors.size} of ${counted.k}` };
+      return { note: `counted ${c.approvers} of ${c.k}` };
     }
     default:
       return refuse("rejected:shape");
   }
-}
-
-/** Earliest-k counting (ADR 2026-09-06 §3): distinct guardian authors valid at the version each record names. */
-export async function countGuardianApprovals(
-  tx: Tx,
-  records: SignedRecordRow[],
-  sets: GuardianSet[],
-) {
-  const byVersion = new Map(sets.map((s) => [s.share_set_version, s]));
-  const authors = new Map<string, bigint>(); // guardian user → lowest seq of their approval
-  let earliestVersion = Infinity;
-  for (const rec of records) {
-    const v = rec.payload_json.share_set_version;
-    const set = typeof v === "number" ? byVersion.get(v) : undefined;
-    if (!set) continue;
-    const author = await tx.deviceAuthRow(rec.author_device);
-    if (!author) continue;
-    const member = set.members.find((m) => m.guardian_user_id === author.user_id);
-    if (!member) continue;
-    const seq = rec.seq ?? (1n << 62n);
-    const prev = authors.get(author.user_id);
-    if (prev === undefined || seq < prev) authors.set(author.user_id, seq);
-    earliestVersion = Math.min(earliestVersion, set.share_set_version);
-  }
-  const k = earliestVersion === Infinity ? Infinity : byVersion.get(earliestVersion)!.k;
-  const seqs = [...authors.values()].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0));
-  const effectiveSeq = authors.size >= k ? seqs[k - 1] : null;
-  return { authors, k, effectiveSeq };
 }

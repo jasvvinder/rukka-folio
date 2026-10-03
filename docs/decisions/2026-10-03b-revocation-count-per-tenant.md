@@ -41,7 +41,7 @@ verified record (ADR 2026-09-05b §2).
 - A set published before this ADR has no tenant. It still recovers, but cannot revoke, until the next
   re-split (no pilot data exists; `rukka-folio-dev` only).
 
-### 2. Guardians file in the set's tenant, and only approvals filed there count ⟦tests: D-03b-1, D-03b-2, D-03b-3, E-03b-1, E-03b-2⟧
+### 2. Guardians file in the set's tenant, and only approvals filed there count ⟦tests: D-03b-1, D-03b-2, D-03b-3, D-03b-4, D-03b-5, D-03b-6, D-03b-7, D-03b-8, E-03b-1, E-03b-2, E-03b-6, E-03b-7, E-03b-8⟧
 - A guardian's `device_revocation` approval is filed in the `tenant_id` of the `share_set_version` it
   names. It counts toward k only if it is filed there and the subject holds a membership there other
   than `removed` (0022 §4's WHERE). Everything else in ADR 2026-09-06 §3 is unchanged:
@@ -67,7 +67,7 @@ verified record (ADR 2026-09-05b §2).
   edge asks this through a SECURITY DEFINER helper, because a pending member cannot see the subject's
   membership row. It stops refusing these approvals as `not_revoker`.
 
-### 4. Devices & security says when the set can no longer revoke ⟦tests: F1-03b-1⟧
+### 4. Devices & security says when the set can no longer revoke ⟦tests: F1-03b-1 @M13⟧
 - When fewer than k guardians of the current version still hold a membership in the set's tenant, the
   guardians row in Menu → Devices & security says so in plain words. The same applies when the
   subject no longer does, or when the set has no tenant (§1). Suggested EN copy: *"Your guardians can
@@ -81,6 +81,21 @@ verified record (ADR 2026-09-05b §2).
   the edge's reading. In practice the only envelopes ever deleted are an erased user's personal-book
   envelopes (03 §2), whose book only that user could claim. This ruling therefore also guards the
   cold-archive offload (03 open 4) before it exists.
+
+### 6. The subject's membership is judged at the approval's own `seq` ⟦tests: D-03b-5, D-03b-7, D-03b-8, E-03b-7⟧
+*Owner-ruled 3 Oct 2026, clearing desk 97. §2 said the subject must hold a membership there other
+than `removed`, but not when.* It is judged **at the moment the approval is filed**: at its own
+`seq`, which is the moment 0022 §4's WHERE is evaluated and the server answers `not_revoker`.
+- A later removal never un-counts an approval already filed. This keeps ADR 2026-09-06 §3's "the
+  cut-off only moves earlier".
+- An approval filed while the subject was removed never counts, not even after a re-admission.
+- The subject's own removal remains its own cut-off (ADR 2026-09-05b §5). Removing the subject
+  therefore still stops their devices without un-counting anything.
+- This is the client's reading as built (`revocation.dart` `countRevocation`, D-03b-5/7/8). The
+  server follows it: `0026`'s `rf.revocation_approvals` judges the subject's *current* membership,
+  so a `lane-server` repair (`0027`) must judge it as of each approval's filing (E-03b-7 is
+  rewritten to match). Until then the server and the subject's devices can disagree only when the
+  subject's membership changes between approvals.
 
 ## Consequences
 - **Server** (`lane-server`, one migration slice):

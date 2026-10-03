@@ -632,6 +632,9 @@ final class SyncEngine {
           shareSetVersion: g.shareSetVersion,
           k: g.k,
           guardianUserIds: g.guardianUserIds.toSet(),
+          // ADR 2026-10-03b §1: null (a set from before the ADR, or a server
+          // that does not send the column yet) counts no approval.
+          tenantId: g.tenantId,
         ),
       );
     }
@@ -660,7 +663,11 @@ final class SyncEngine {
     }
     // Rows are the server's projection: check them against the records.
     for (final d in m.devices) {
-      final revokedByRecord = trust.revocationSeqOf(d.id) != null;
+      final revokedByRecord =
+          (d.id == deviceId
+              ? trust.revocationSeqFor(d.id, ownerUserId: userId)
+              : trust.revocationSeqOf(d.id)) !=
+          null;
       if (d.id == deviceId) {
         _unsignedClaim = d.claimsRevoked && !revokedByRecord;
       } else if (d.claimsRevoked && !revokedByRecord) {
@@ -726,8 +733,18 @@ final class SyncEngine {
     if (r.kind == SignedRecordKind.deviceRevocation ||
         r.kind == SignedRecordKind.memberRemoval) {
       await _ownFate(r.id);
+    } else if (r.kind == SignedRecordKind.membershipStatus &&
+        _ownCount().effectiveSeq != null) {
+      // Approvals are judged by the subject's membership at their own seq
+      // (ADR 2026-10-03b §2), so a membership fact that arrives after them
+      // can complete a count: the approvals are verified records already.
+      await _wipe(r.id);
     }
   }
+
+  /// This device's revocation count, its owner bound to this engine's own
+  /// user — never to the server's `devices` row, which could name anyone.
+  RevocationCount _ownCount() => trust.countFor(deviceId, ownerUserId: userId);
 
   Map<String, Object?>? _payload(WireSignedRecord r) {
     try {
@@ -766,6 +783,9 @@ final class SyncEngine {
           RevocationRecord(
             recordId: r.id,
             seq: r.seq,
+            // Where the record was filed — signed by its author (04 §3.3);
+            // ADR 2026-10-03b §2 counts a guardian's approval only here.
+            tenantId: r.tenantId,
             authorDeviceId: r.authorDeviceId,
             authorUserId: authorUser,
             revokedDeviceId: revoked,
@@ -773,7 +793,10 @@ final class SyncEngine {
             shareSetVersion: p['share_set_version'] as int?,
           ),
         );
-        for (final ig in trust.countFor(revoked).ignored) {
+        final count = revoked == deviceId
+            ? _ownCount()
+            : trust.countFor(revoked);
+        for (final ig in count.ignored) {
           if (ig.recordId == r.id) {
             _emit(RecordIgnored(_now, r.id, ig.reason.name));
           }
@@ -784,6 +807,15 @@ final class SyncEngine {
         if (trust.removals.any((x) => x.recordId == r.id)) return;
         trust.removals.add(
           RemovalRecord(recordId: r.id, seq: r.seq, removedUserId: removed),
+        );
+        trust.memberships.add(
+          MembershipFact(
+            recordId: r.id,
+            tenantId: r.tenantId,
+            userId: removed,
+            status: MembershipFact.removed,
+            seq: r.seq,
+          ),
         );
         // The server projects a removal as membership `removed`.
         final cur = _membershipStatus[removed];
@@ -823,6 +855,18 @@ final class SyncEngine {
         final user = p['user_id'];
         final status = p['status'];
         if (user is! String || status is! String) return;
+        if (!trust.memberships.any((x) => x.recordId == r.id)) {
+          // Where it was filed is the tenant it changes (ADR 2026-10-03b §2).
+          trust.memberships.add(
+            MembershipFact(
+              recordId: r.id,
+              tenantId: r.tenantId,
+              userId: user,
+              status: status,
+              seq: r.seq,
+            ),
+          );
+        }
         final cur = _membershipStatus[user];
         if (cur == null || r.seq > cur.$2) {
           _membershipStatus[user] = (status, r.seq);
@@ -850,7 +894,7 @@ final class SyncEngine {
 
   /// A verified revocation/removal may be about us (05 §5).
   Future<void> _ownFate(String recordId) async {
-    if (trust.countFor(deviceId).effectiveSeq != null) {
+    if (_ownCount().effectiveSeq != null) {
       await _wipe(recordId);
       return;
     }

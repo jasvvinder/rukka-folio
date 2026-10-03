@@ -245,10 +245,11 @@ Deno.test("E-05-10 meta/records: signed records are verified under the device ke
       const subject = await member(r, tenant, book, "member");
       const gA = await member(r, tenant, book, "member");
       const gB = await member(r, tenant, book, "member");
+      // set up in this tenant (ADR 2026-10-03b §1): the approvals below are filed there.
       r.db.addGuardianSet(subject.user, 1, 2, [{ user_id: gA.user, umk_pub_ed: gA.keys.pub }, {
         user_id: gB.user,
         umk_pub_ed: gB.keys.pub,
-      }]);
+      }], tenant);
       const payload = {
         revoked_device_id: subject.device.id,
         subject_user_id: subject.user,

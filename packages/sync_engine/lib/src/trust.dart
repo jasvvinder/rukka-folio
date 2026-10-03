@@ -64,6 +64,10 @@ final class RecordTrustStore implements TrustStore {
   /// Guardian-set history.
   final List<GuardianSetVersion> guardianHistory = [];
 
+  /// Verified membership facts (`membership_status`, `member_removal`) of
+  /// every tenant, each with the tenant it was filed in (ADR 2026-10-03b §2).
+  final List<MembershipFact> memberships = [];
+
   /// device id → user id as the server's `devices` rows say. Only a
   /// fallback for [userOf] when no certificate is held (the two-client
   /// harness runs without certificates); a certificate always wins.
@@ -81,16 +85,25 @@ final class RecordTrustStore implements TrustStore {
       certs[deviceId]?.userId ?? deviceOwners[deviceId];
 
   /// Full counting result for [deviceId] (tests and the Inbox read this).
-  RevocationCount countFor(String deviceId) => countRevocation(
-    revokedDeviceId: deviceId,
-    records: revocations,
-    history: guardianHistory,
-  );
+  /// A record counts only if its subject is the device's owner: [ownerUserId]
+  /// when given — the engine passes its own user for its own device, which it
+  /// knows without asking the server — else [userOf].
+  RevocationCount countFor(String deviceId, {String? ownerUserId}) =>
+      countRevocation(
+        revokedDeviceId: deviceId,
+        revokedDeviceOwner: ownerUserId ?? userOf(deviceId),
+        records: revocations,
+        history: guardianHistory,
+        memberships: memberships,
+      );
 
   @override
-  int? revocationSeqOf(String deviceId) {
-    int? cutoff = countFor(deviceId).effectiveSeq;
-    final user = userOf(deviceId);
+  int? revocationSeqOf(String deviceId) => revocationSeqFor(deviceId);
+
+  /// [revocationSeqOf] with the device's owner given, as in [countFor].
+  int? revocationSeqFor(String deviceId, {String? ownerUserId}) {
+    final user = ownerUserId ?? userOf(deviceId);
+    int? cutoff = countFor(deviceId, ownerUserId: user).effectiveSeq;
     if (user != null) {
       for (final r in removals) {
         if (r.removedUserId == user && (cutoff == null || r.seq < cutoff)) {

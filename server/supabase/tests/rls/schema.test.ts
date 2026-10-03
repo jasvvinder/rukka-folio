@@ -133,8 +133,11 @@ const privsOf = (t: string, who: string) =>
 
 // Tables that deliberately have NO rf_api/rf_maintenance path (console/M13 or function-only access).
 // seat_grants (0019): written and read only by the SECURITY DEFINER seat-cap triggers.
+// membership_facts (0027): written only by the SECURITY DEFINER memberships_facts_log trigger, read
+// only by rf.subject_held_at (ADR 2026-10-03b §6); append-only by trigger (E-03b-10, E-03b-13).
 const NO_ACCESS = new Set([
   "billing_events",
+  "membership_facts",
   "promo_codes",
   "promo_redemptions",
   "push_rate",

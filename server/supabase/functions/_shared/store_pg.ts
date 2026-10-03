@@ -30,6 +30,7 @@ import {
   type RecoveryShare,
   type RecoverySheet,
   type RefreshToken,
+  type RevocationCount,
   type SignedRecordRow,
   type Store,
   StoreDenied,
@@ -331,6 +332,7 @@ class PgTx implements Tx {
       share_set_version: s.share_set_version as number,
       n: s.n as number,
       k: s.k as number,
+      tenant_id: (s.tenant_id as string | null) ?? null,
       members: members.filter((m) => m.share_set_version === s.share_set_version)
         .map((m) => ({
           guardian_user_id: m.guardian_user_id as string,
@@ -352,10 +354,22 @@ class PgTx implements Tx {
       return { seq: big(ins.seq), duplicate: false };
     });
   }
-  async revocationRecordsFor(dev: string): Promise<SignedRecordRow[]> {
-    const rows = await this.sql`select * from signed_records
-      where kind = 'device_revocation' and payload_json->>'revoked_device_id' = ${dev} order by seq`;
-    return rows.map(recordRow);
+  async guardianMayRevoke(dev: string, tenant: string, version: number): Promise<boolean> {
+    // 0026 §3, SECURITY DEFINER: a pending guardian cannot see the subject's membership row, so the
+    // database answers. The edge has already checked `version` is an int4.
+    const [r] = await this
+      .sql`select rf.guardian_may_revoke(${dev}::uuid, ${tenant}::uuid, ${version}::int) as ok`;
+    return r?.ok === true;
+  }
+  async revocationCount(dev: string): Promise<RevocationCount> {
+    // 0026 §2: the count over EVERY approval of the device — signed_records_select would show the
+    // caller only its own tenants' records (EDGE83 finding 2).
+    const [r] = await this.sql`select * from rf.revocation_count(${dev}::uuid)`;
+    return {
+      approvers: Number(r?.approvers ?? 0),
+      k: r?.k == null ? null : Number(r.k),
+      effective_seq: r?.effective_seq == null ? null : big(r.effective_seq),
+    };
   }
   async deviceAuthRow(deviceId: string) {
     const [r] = await this.sql`select * from rf.device_auth_row(${deviceId}::uuid)`;
@@ -497,8 +511,10 @@ class PgTx implements Tx {
   // guards and SECURITY DEFINER functions. This block is the call, not the rule.
   publishGuardianSet(d: GuardianSetDraft): Promise<number> {
     return this.guarded(async () => {
-      await this.sql`insert into guardian_sets (subject_user_id, share_set_version, n, k)
-        values (rf.user_id(), ${d.share_set_version}, ${d.n}, ${d.k})`;
+      // 0026: the tenant is written once with the version; rf.guardian_set_guard checks the
+      // publisher is active there, rf.guardian_set_member_guard that each guardian is not removed.
+      await this.sql`insert into guardian_sets (subject_user_id, share_set_version, n, k, tenant_id)
+        values (rf.user_id(), ${d.share_set_version}, ${d.n}, ${d.k}, ${d.tenant_id}::uuid)`;
       for (const g of d.guardians) {
         // The id is minted here, not by RETURNING: a share is addressed to the GUARDIAN, so the
         // subject who uploads it cannot read it back (0005 wrapped_keys select), and an

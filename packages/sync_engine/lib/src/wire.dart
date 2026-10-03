@@ -815,8 +815,11 @@ final class WireBookRole {
 /// Guardian-set history by `share_set_version` (PLAN M4 lane S; ADR
 /// 2026-09-06 §3 needs "who was a guardian at the version the record names").
 /// Shape: `subject_user_id`, `share_set_version`, `k`, `n`,
-/// `guardian_user_ids[]`; the server adds `guardians:[{guardian_user_id,
-/// umk_pub_ed}]`, not read here.
+/// `guardian_user_ids[]`, `tenant_id` (ADR 2026-10-03b §1: the tenant the set
+/// was set up in — a uuid, or null for a set published before that ADR; an
+/// absent field reads as null). The server also sends
+/// `guardians:[{guardian_user_id, umk_pub_ed}]`, not read here and kept in
+/// [extra] with anything else this build does not read (rule 6).
 @immutable
 final class WireGuardianSet {
   /// Creates a row.
@@ -825,15 +828,41 @@ final class WireGuardianSet {
     required this.shareSetVersion,
     required this.k,
     required this.guardianUserIds,
+    this.tenantId,
+    this.extra = const {},
   });
 
-  /// Decodes.
+  /// Decodes, keeping fields this build does not read (rule 6). A
+  /// `tenant_id` that is neither a string nor null throws like any other
+  /// malformed field — it is never read as "no tenant".
   factory WireGuardianSet.fromJson(Map<String, Object?> j) => WireGuardianSet(
     subjectUserId: j['subject_user_id']! as String,
     shareSetVersion: j['share_set_version']! as int,
     k: j['k']! as int,
     guardianUserIds: (j['guardian_user_ids']! as List<Object?>).cast<String>(),
+    tenantId: j['tenant_id'] as String?,
+    extra: {
+      for (final e in j.entries)
+        if (!_setKnown.contains(e.key)) e.key: e.value,
+    },
   );
+
+  static const _setKnown = {
+    'subject_user_id',
+    'share_set_version',
+    'k',
+    'n',
+    'guardian_user_ids',
+    'tenant_id',
+  };
+
+  /// `tenant_id` — the tenant the set was set up in, where its guardians file
+  /// and are counted (ADR 2026-10-03b §1, §2). Null: a set published before
+  /// that ADR, which recovers but cannot revoke.
+  final String? tenantId;
+
+  /// Fields this build does not read, preserved.
+  final Map<String, Object?> extra;
 
   /// `subject_user_id`.
   final String subjectUserId;
@@ -850,13 +879,16 @@ final class WireGuardianSet {
   /// `n`.
   int get n => guardianUserIds.length;
 
-  /// Encodes.
+  /// Encodes. `tenant_id` is always written, null included, as the server
+  /// sends it.
   Map<String, Object?> toJson() => {
+    ...extra,
     'subject_user_id': subjectUserId,
     'share_set_version': shareSetVersion,
     'k': k,
     'n': n,
     'guardian_user_ids': guardianUserIds,
+    'tenant_id': tenantId,
   };
 }
 

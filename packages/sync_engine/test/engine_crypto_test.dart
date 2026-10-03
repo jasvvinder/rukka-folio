@@ -22,6 +22,10 @@ String uuid(int n, [int group = 1]) =>
 final tenant = uuid(1, 0);
 final book = uuid(2, 0);
 
+/// A second tenant the subject and some guardians also belong to (ADR
+/// 2026-10-03b §2: approvals filed here never count for a set of [tenant]).
+final otherTenant = uuid(3, 0);
+
 RandomBytes _deterministic(Sodium s, int seed) {
   var counter = 0;
   return (int length) {
@@ -88,16 +92,21 @@ final class Person {
     issuedByDevice: deviceId,
   );
 
+  /// A record signed by this device and filed in [tenantId] (default: the
+  /// test's [tenant]). The tenant is inside the signed bytes (04 §3.3), so
+  /// where a record is filed is the author's claim, not the server's.
   WireSignedRecord record(
     String id,
     String kind,
     Map<String, Object?> payload, {
     int hlc = 1,
+    String? tenantId,
   }) {
+    final filedIn = tenantId ?? tenant;
     final bytes = Uint8List.fromList(utf8.encode(jsonEncode(payload)));
     final r = SignedRecord.sign(
       suite,
-      tenantId: tenant,
+      tenantId: filedIn,
       kind: kind,
       payloadJson: bytes,
       hlc: hlc,
@@ -106,7 +115,7 @@ final class Person {
     return WireSignedRecord(
       id: id,
       suiteVersion: r.suiteVersion,
-      tenantId: tenant,
+      tenantId: filedIn,
       kind: kind,
       payloadJson: r.payloadJson,
       authorDeviceId: deviceId,
@@ -157,11 +166,12 @@ final class Person {
     String revokedDevice,
     String subject, {
     int? version,
+    String? tenantId,
   }) => record(id, SignedRecordKind.deviceRevocation, {
     'revoked_device_id': revokedDevice,
     'subject_user_id': subject,
     'share_set_version': ?version,
-  });
+  }, tenantId: tenantId);
 }
 
 /// Where the app persists a key accepted on the meta channel (03 §3.1
@@ -344,20 +354,46 @@ void main() {
     return d;
   }
 
-  void guardianSet(int version, int k, List<Person> guardians) {
+  /// Publishes a guardian-set version. Every set belongs to the tenant it was
+  /// set up in (ADR 2026-10-03b §1) — [tenant] unless [inTenant] says
+  /// otherwise; [noTenant] is a set published before that ADR.
+  void guardianSet(
+    int version,
+    int k,
+    List<Person> guardians, {
+    String? inTenant,
+    bool noTenant = false,
+  }) {
     server.guardianSets.add(
       WireGuardianSet(
         subjectUserId: subject.userId,
         shareSetVersion: version,
         k: k,
         guardianUserIds: [for (final g in guardians) g.userId],
+        tenantId: noTenant ? null : (inTenant ?? tenant),
       ),
     );
   }
 
-  int pushAt(int seq, WireEnvelope e) {
+  /// Registers [id] as another device of [owner] — a `devices` row only,
+  /// which is what a reader binds a revocation's `subject_user_id` to
+  /// (`RecordTrustStore.userOf`).
+  void extraDevice(String id, Person owner) {
+    server.devices[id] = WireDevice(
+      id: id,
+      userId: owner.userId,
+      pubEd: owner.device.public.ed25519,
+      pubX: owner.device.public.x25519,
+      status: 'active',
+    );
+  }
+
+  int pushAt(int seq, WireEnvelope e, {Person? by}) {
     server.skipSeqTo(seq);
-    final r = server.push(subject.deviceId, PushRequest(envelopes: [e]));
+    final r = server.push(
+      (by ?? subject).deviceId,
+      PushRequest(envelopes: [e]),
+    );
     expect(r.results.single.result, PushOutcome.acked);
     expect(r.results.single.seq, seq);
     return seq;
@@ -511,6 +547,536 @@ void main() {
     expect(count.effectiveSeq, 14);
     expect(count.countedGuardians, 2);
     expect(await r.quarantined(), {e15.envelopeId});
+  });
+
+  // ── ADR 2026-10-03b §2: a set belongs to a tenant; only approvals filed
+  // there count. Everything else in ADR 2026-09-06 §3 is unchanged. ────────
+
+  test('D-03b-1 a guardian approval filed outside the set\'s tenant is '
+      'ignored as wrongTenant and does not complete; it does not shadow the '
+      'same guardian\'s later approval filed in the set\'s tenant, which '
+      'completes at its own seq; a set with no tenant counts nothing; the '
+      'owner\'s own-device record is unaffected', () async {
+    guardianSet(3, 2, [g1, g2, g3]);
+    // The owner's own-device record (04 §9.2) names no set: it is effective
+    // alone at its seq wherever the owner filed it — ADR 2026-10-03b leaves
+    // that path alone. (Seq 5: the authoring device is itself revoked at 16
+    // below, and a revoked device authors nothing after its cut-off.)
+    final other = uuid(119); // a second device of the subject
+    extraDevice(other, subject);
+    recordAt(
+      5,
+      subject.revoke('r-own', other, subject.userId, tenantId: otherTenant),
+    );
+    recordAt(
+      10,
+      g1.revoke('r-g1', subject.deviceId, subject.userId, version: 3),
+    );
+    recordAt(
+      13,
+      g2.revoke(
+        'r-g2-elsewhere',
+        subject.deviceId,
+        subject.userId,
+        version: 3,
+        tenantId: otherTenant,
+      ),
+    );
+    final e14 = subject.seal(bk1, n: 14, authorSeq: 1);
+    pushAt(14, e14);
+
+    final r = await readerDevice(reader);
+    await r.engine.sync();
+    var count = r.trust.countFor(subject.deviceId);
+    expect(count.countedGuardians, 1);
+    expect(count.effectiveSeq, isNull, reason: '1 of 2 counted — not done');
+    expect(r.trust.revocationSeqOf(subject.deviceId), isNull);
+    expect(count.ignored.map((i) => (i.recordId, i.reason)), [
+      ('r-g2-elsewhere', IgnoreReason.wrongTenant),
+    ]);
+    final ignored = r.engine.events.whereType<RecordIgnored>().single;
+    expect(
+      (ignored.recordId, ignored.reason),
+      ('r-g2-elsewhere', 'wrongTenant'),
+    );
+    expect((await r.row(e14.envelopeId))!.verified, 1);
+    expect(await r.quarantined(), isEmpty);
+    expect(r.trust.countFor(other).ownerSeq, 5);
+    expect(r.trust.revocationSeqOf(other), 5);
+
+    // The same guardian files again, in the set's tenant: it counts, and the
+    // cut-off is ITS seq (16), never the out-of-tenant one's (13).
+    recordAt(
+      16,
+      g2.revoke('r-g2', subject.deviceId, subject.userId, version: 3),
+    );
+    final e17 = subject.seal(bk1, n: 17, authorSeq: 2);
+    pushAt(17, e17);
+    server.touchMeta();
+    await r.engine.sync();
+    count = r.trust.countFor(subject.deviceId);
+    expect(count.countedGuardians, 2);
+    expect(count.effectiveSeq, 16);
+    expect(await r.quarantined(), {e17.envelopeId});
+
+    // A set published before the ADR (no tenant) recovers but cannot revoke:
+    // k approvals naming it, filed where the subject is, count nothing.
+    final third = uuid(120); // a third device of the subject
+    extraDevice(third, subject);
+    guardianSet(5, 2, [g4, g5], noTenant: true);
+    recordAt(20, g4.revoke('r-g4', third, subject.userId, version: 5));
+    recordAt(21, g5.revoke('r-g5', third, subject.userId, version: 5));
+    server.touchMeta();
+    await r.engine.sync();
+    final none = r.trust.countFor(third);
+    expect(none.countedGuardians, 0);
+    expect(none.effectiveSeq, isNull);
+    expect(none.threshold, isNull);
+    expect(none.ignored.map((i) => (i.recordId, i.reason)), [
+      ('r-g4', IgnoreReason.setHasNoTenant),
+      ('r-g5', IgnoreReason.setHasNoTenant),
+    ]);
+    expect(
+      r.engine.events
+          .whereType<RecordIgnored>()
+          .where((e) => e.reason == 'setHasNoTenant')
+          .map((e) => e.recordId),
+      ['r-g4', 'r-g5'],
+    );
+  });
+
+  test('D-03b-2 a reader active in two tenants reaches the same count as a '
+      'reader only in the set\'s tenant: guardians who share two tenants with '
+      'the subject and file one approval in each do not complete; k filed in '
+      'the set\'s tenant do', () async {
+    guardianSet(3, 2, [g1, g2, g3]);
+    recordAt(
+      10,
+      g1.revoke('r-g1', subject.deviceId, subject.userId, version: 3),
+    );
+    final split = recordAt(
+      12,
+      g2.revoke(
+        'r-g2-elsewhere',
+        subject.deviceId,
+        subject.userId,
+        version: 3,
+        tenantId: otherTenant,
+      ),
+    );
+    final e13 = subject.seal(bk1, n: 13, authorSeq: 1);
+    pushAt(13, e13);
+
+    // `both` is a member of both tenants and pulls both tenants' records;
+    // `one` is only in the set's tenant, so RLS never shows it the other.
+    final both = await readerDevice(reader);
+    await both.engine.sync();
+    server.withheldRecords.add(split.id);
+    server.touchMeta();
+    final one = await readerDevice(reader2);
+    await one.engine.sync();
+
+    for (final d in [both, one]) {
+      final c = d.trust.countFor(subject.deviceId);
+      expect(c.countedGuardians, 1, reason: d.me.userId);
+      expect(c.effectiveSeq, isNull, reason: d.me.userId);
+      expect(await d.quarantined(), isEmpty, reason: d.me.userId);
+    }
+    expect(
+      both.trust.countFor(subject.deviceId).ignored.single.reason,
+      IgnoreReason.wrongTenant,
+    );
+
+    // The second guardian files in the set's tenant: both readers complete,
+    // at the same seq, and quarantine the same envelopes.
+    recordAt(
+      15,
+      g2.revoke('r-g2', subject.deviceId, subject.userId, version: 3),
+    );
+    final e16 = subject.seal(bk1, n: 16, authorSeq: 2);
+    pushAt(16, e16);
+    server.touchMeta();
+    await both.engine.sync();
+    await one.engine.sync();
+    for (final d in [both, one]) {
+      expect(d.trust.revocationSeqOf(subject.deviceId), 15);
+      expect(d.trust.countFor(subject.deviceId).countedGuardians, 2);
+      expect(await d.quarantined(), {e16.envelopeId});
+    }
+  });
+
+  test('D-03b-3 a re-split that moves the set to another tenant: an approval '
+      'for the earlier version counts only if filed in that version\'s '
+      'tenant and carries across; earliest-k holds and the cut-off only '
+      'moves earlier', () async {
+    guardianSet(3, 2, [g1, g2, g3]); // set up in `tenant`
+    guardianSet(4, 3, [g2, g3, g4, g5], inTenant: otherTenant);
+    // g1 approves v3 in v4's tenant — wrong for v3 — and again in v3's.
+    recordAt(
+      9,
+      g1.revoke(
+        'r-g1-v3-other',
+        subject.deviceId,
+        subject.userId,
+        version: 3,
+        tenantId: otherTenant,
+      ),
+    );
+    final g1v3 = recordAt(
+      10,
+      g1.revoke('r-g1-v3', subject.deviceId, subject.userId, version: 3),
+    );
+    // g2 approves v4 in v4's tenant (late-arriving, low seq) and in v3's.
+    final g2v4 = recordAt(
+      11,
+      g2.revoke(
+        'r-g2-v4',
+        subject.deviceId,
+        subject.userId,
+        version: 4,
+        tenantId: otherTenant,
+      ),
+    );
+    final e12 = subject.seal(bk1, n: 12, authorSeq: 1);
+    pushAt(12, e12);
+    recordAt(
+      14,
+      g2.revoke('r-g2-v4-here', subject.deviceId, subject.userId, version: 4),
+    );
+    recordAt(
+      16,
+      g3.revoke(
+        'r-g3-v4',
+        subject.deviceId,
+        subject.userId,
+        version: 4,
+        tenantId: otherTenant,
+      ),
+    );
+    final e17 = subject.seal(bk1, n: 17, authorSeq: 2);
+    pushAt(17, e17);
+    server.withheldRecords.addAll([g1v3.id, g2v4.id]);
+
+    // Only g3's v4 approval counts: the threshold is v4's k (3), not done.
+    final a = await readerDevice(reader);
+    await a.engine.sync();
+    var c = a.trust.countFor(subject.deviceId);
+    expect(c.countedGuardians, 1);
+    expect(c.threshold, 3);
+    expect(c.effectiveSeq, isNull);
+    expect(c.ignored.map((i) => (i.recordId, i.reason)), [
+      ('r-g1-v3-other', IgnoreReason.wrongTenant),
+      ('r-g2-v4-here', IgnoreReason.wrongTenant),
+    ]);
+    expect(await a.quarantined(), isEmpty);
+
+    // g1's v3 approval filed in v3's tenant arrives: it carries across the
+    // re-split, earliest-k applies (v3's k = 2) → effective at 16.
+    server.withheldRecords.remove(g1v3.id);
+    server.touchMeta();
+    await a.engine.sync();
+    c = a.trust.countFor(subject.deviceId);
+    expect(c.countedGuardians, 2);
+    expect(c.threshold, 2, reason: 'k of the earliest counted version');
+    expect(c.effectiveSeq, 16);
+    expect(await a.quarantined(), {e17.envelopeId});
+
+    // g2's v4 approval in v4's tenant, seq 11, arrives late: the cut-off
+    // moves earlier to 11 and seq 12 is re-quarantined.
+    server.withheldRecords.clear();
+    server.touchMeta();
+    await a.engine.sync();
+    c = a.trust.countFor(subject.deviceId);
+    expect(c.countedGuardians, 3);
+    expect(c.threshold, 2);
+    expect(c.effectiveSeq, 11);
+    expect(await a.quarantined(), {e12.envelopeId, e17.envelopeId});
+    final cuts = a.engine.events.whereType<CutoffChanged>().toList();
+    expect(cuts.map((x) => (x.previousSeq, x.seq)), [(null, 16), (16, 11)]);
+
+    // A reader that sees everything at once agrees.
+    final b = await readerDevice(reader2);
+    await b.engine.sync();
+    expect(b.trust.revocationSeqOf(subject.deviceId), 11);
+    expect(await b.quarantined(), await a.quarantined());
+  });
+
+  test('D-03b-4 a device_revocation counts only when its subject owns the '
+      'revoked device: a co-member naming itself as subject (the owner '
+      'path), and k guardians of that co-member naming another user\'s '
+      'device, are ignored as notSubjectsDevice by every reader; the '
+      'device\'s own engine does not wipe, even when the server relabels the '
+      'device as the author\'s', () async {
+    // The server refuses this shape (records.ts rejected:shape; 0026
+    // rf.revocation_approvals joins on the device's owner) but stores and
+    // serves it to every active member of the tenant.
+    final victim = reader2;
+    server.guardianSets.add(
+      WireGuardianSet(
+        subjectUserId: nobody.userId,
+        shareSetVersion: 1,
+        k: 2,
+        guardianUserIds: [g1.userId, g2.userId],
+        tenantId: tenant,
+      ),
+    );
+    recordAt(5, nobody.revoke('r-self-claim', victim.deviceId, nobody.userId));
+    recordAt(
+      6,
+      g1.revoke('r-g1-wrong', victim.deviceId, nobody.userId, version: 1),
+    );
+    recordAt(
+      7,
+      g2.revoke('r-g2-wrong', victim.deviceId, nobody.userId, version: 1),
+    );
+    final e8 = victim.seal(bk1, n: 8, authorSeq: 1);
+    pushAt(8, e8, by: victim);
+
+    final r = await readerDevice(reader);
+    await r.engine.sync();
+    final count = r.trust.countFor(victim.deviceId);
+    expect(count.ownerSeq, isNull);
+    expect(count.countedGuardians, 0);
+    expect(count.threshold, isNull);
+    expect(count.effectiveSeq, isNull);
+    expect(count.ignored.map((i) => (i.recordId, i.reason)), [
+      ('r-self-claim', IgnoreReason.notSubjectsDevice),
+      ('r-g1-wrong', IgnoreReason.notSubjectsDevice),
+      ('r-g2-wrong', IgnoreReason.notSubjectsDevice),
+    ]);
+    expect(
+      r.engine.events.whereType<RecordIgnored>().map(
+        (e) => (e.recordId, e.reason),
+      ),
+      [
+        ('r-self-claim', 'notSubjectsDevice'),
+        ('r-g1-wrong', 'notSubjectsDevice'),
+        ('r-g2-wrong', 'notSubjectsDevice'),
+      ],
+    );
+    expect(r.trust.revocationSeqOf(victim.deviceId), isNull);
+    expect((await r.row(e8.envelopeId))!.verified, 1);
+    expect(await r.quarantined(), isEmpty);
+
+    // The victim's own engine: not about it, nothing wiped.
+    final own = await readerDevice(victim);
+    await own.engine.sync();
+    expect(own.engine.mode, EngineMode.active);
+    expect(own.engine.events.whereType<Wiped>(), isEmpty);
+
+    // A server that relabels the victim's device as the attacker's: a reader
+    // believes the row, but the device's own engine binds itself to its own
+    // user, never to the server's claim — still no wipe.
+    server.devices[victim.deviceId] = WireDevice(
+      id: victim.deviceId,
+      userId: nobody.userId,
+      pubEd: victim.device.public.ed25519,
+      pubX: victim.device.public.x25519,
+      status: 'active',
+    );
+    server.touchMeta();
+    final relabelled = await readerDevice(victim);
+    await relabelled.engine.sync();
+    expect(relabelled.trust.userOf(victim.deviceId), nobody.userId);
+    expect(relabelled.engine.mode, isNot(EngineMode.wiped));
+    expect(relabelled.engine.events.whereType<Wiped>(), isEmpty);
+  });
+
+  test('D-03b-5 an approval counts only while the subject holds a membership '
+      'other than removed in the tenant it was filed in, judged at the '
+      'approval\'s seq: approvals filed while the subject is removed never '
+      'count, not after re-admission either, so the subject\'s own device '
+      'does not wipe on them; a removal in another tenant changes nothing; '
+      'approvals filed after re-admission count; a later removal does not '
+      'move the cut-off later', () async {
+    guardianSet(3, 2, [g1, g2, g3]);
+    // Filed by g4 as the tenant's admin; the client does not judge admin
+    // authority (⚠️ SPEC in revocation.dart, MembershipFact).
+    WireSignedRecord status(String id, String to, {String? tenantId}) =>
+        g4.record(id, SignedRecordKind.membershipStatus, {
+          'user_id': subject.userId,
+          'status': to,
+        }, tenantId: tenantId);
+    recordAt(5, status('m-out', 'removed'));
+    recordAt(
+      10,
+      g1.revoke('r-g1-while-out', subject.deviceId, subject.userId, version: 3),
+    );
+    recordAt(
+      11,
+      g2.revoke('r-g2-while-out', subject.deviceId, subject.userId, version: 3),
+    );
+    recordAt(12, status('m-back', 'invited'));
+    recordAt(13, status('m-out-elsewhere', 'removed', tenantId: otherTenant));
+    final e14 = subject.seal(bk1, n: 14, authorSeq: 1);
+    pushAt(14, e14);
+
+    final r = await readerDevice(reader);
+    await r.engine.sync();
+    var c = r.trust.countFor(subject.deviceId);
+    expect(c.countedGuardians, 0);
+    expect(c.effectiveSeq, isNull);
+    expect(c.ignored.map((i) => (i.recordId, i.reason)), [
+      ('r-g1-while-out', IgnoreReason.subjectRemoved),
+      ('r-g2-while-out', IgnoreReason.subjectRemoved),
+    ]);
+    expect(await r.quarantined(), isEmpty);
+
+    // The subject's own device pulls the stored approvals past its
+    // re-admission: k of them, none counted, nothing wiped.
+    final own = await readerDevice(subject);
+    await own.engine.sync();
+    expect(own.trust.countFor(subject.deviceId).effectiveSeq, isNull);
+    expect(own.engine.mode, EngineMode.active);
+    expect(own.engine.events.whereType<Wiped>(), isEmpty);
+
+    // After re-admission (the removal at 13 is another tenant's): g3 and g1
+    // file again and both count — g1's earlier approval never counted, so it
+    // does not shadow its later one. A removal after them does not un-count
+    // them: the cut-off only moves earlier (ADR 2026-09-06 §3).
+    recordAt(
+      15,
+      g3.revoke('r-g3', subject.deviceId, subject.userId, version: 3),
+    );
+    recordAt(
+      16,
+      g1.revoke('r-g1', subject.deviceId, subject.userId, version: 3),
+    );
+    final e17 = subject.seal(bk1, n: 17, authorSeq: 2);
+    pushAt(17, e17);
+    recordAt(18, status('m-out-again', 'removed'));
+    server.touchMeta();
+    await r.engine.sync();
+    c = r.trust.countFor(subject.deviceId);
+    expect(c.countedGuardians, 2);
+    expect(c.threshold, 2);
+    expect(c.effectiveSeq, 16);
+    expect(r.trust.revocationSeqOf(subject.deviceId), 16);
+    expect(await r.quarantined(), {e17.envelopeId});
+
+    await own.engine.sync();
+    expect(own.engine.mode, EngineMode.wiped);
+    expect(own.engine.events.whereType<Wiped>().single.recordId, 'r-g1');
+  });
+
+  test('D-03b-6 the threshold is the k of the earliest version any valid '
+      'approval names, not only each guardian\'s first: g1 names v4 (k 3) at '
+      '10 and v3 (k 2) at 20, g2 names v4 at 30 → k 2, effective at 30, as '
+      'the server\'s tally counts; a reader without g1\'s v3 approval applies '
+      'k 3 and completes when it arrives', () async {
+    guardianSet(3, 2, [g1, g2, g3]);
+    guardianSet(4, 3, [g1, g2, g3, g4]);
+    recordAt(
+      10,
+      g1.revoke('r-g1-v4', subject.deviceId, subject.userId, version: 4),
+    );
+    final g1v3 = recordAt(
+      20,
+      g1.revoke('r-g1-v3', subject.deviceId, subject.userId, version: 3),
+    );
+    final e25 = subject.seal(bk1, n: 25, authorSeq: 1);
+    pushAt(25, e25);
+    recordAt(
+      30,
+      g2.revoke('r-g2-v4', subject.deviceId, subject.userId, version: 4),
+    );
+    final e35 = subject.seal(bk1, n: 35, authorSeq: 2);
+    pushAt(35, e35);
+    server.withheldRecords.add(g1v3.id);
+
+    final a = await readerDevice(reader);
+    await a.engine.sync();
+    var c = a.trust.countFor(subject.deviceId);
+    expect(c.countedGuardians, 2);
+    expect(c.threshold, 3);
+    expect(c.effectiveSeq, isNull);
+    expect(await a.quarantined(), isEmpty);
+
+    server.withheldRecords.clear();
+    server.touchMeta();
+    await a.engine.sync();
+    c = a.trust.countFor(subject.deviceId);
+    expect(c.countedGuardians, 2);
+    expect(c.threshold, 2, reason: 'v3 is the earliest version named');
+    expect(c.effectiveSeq, 30);
+    expect(c.ignored.map((i) => (i.recordId, i.reason)), [
+      ('r-g1-v3', IgnoreReason.duplicateAuthor),
+    ]);
+    expect(await a.quarantined(), {e35.envelopeId});
+
+    final b = await readerDevice(reader2);
+    await b.engine.sync();
+    expect(b.trust.revocationSeqOf(subject.deviceId), 30);
+    expect(await b.quarantined(), await a.quarantined());
+  });
+
+  test('D-03b-7 a membership fact that arrives after the approvals it bears '
+      'on is applied to them: the subject\'s re-admission, withheld while k '
+      'approvals filed after it arrive, completes the count when it lands, '
+      'and the subject\'s own device wipes on it', () async {
+    guardianSet(3, 2, [g1, g2, g3]);
+    WireSignedRecord status(String id, String to) => g4.record(
+      id,
+      SignedRecordKind.membershipStatus,
+      {'user_id': subject.userId, 'status': to},
+    );
+    recordAt(5, status('m-out', 'removed'));
+    final back = recordAt(8, status('m-back', 'joined_pending_verification'));
+    recordAt(
+      10,
+      g1.revoke('r-g1', subject.deviceId, subject.userId, version: 3),
+    );
+    recordAt(
+      11,
+      g2.revoke('r-g2', subject.deviceId, subject.userId, version: 3),
+    );
+    server.withheldRecords.add(back.id);
+
+    final own = await readerDevice(subject);
+    await own.engine.sync();
+    var c = own.trust.countFor(subject.deviceId);
+    expect(c.countedGuardians, 0, reason: 'removed as far as it knows');
+    expect(own.engine.mode, EngineMode.active);
+
+    server.withheldRecords.clear();
+    server.touchMeta();
+    await own.engine.sync();
+    c = own.trust.countFor(subject.deviceId);
+    expect(c.countedGuardians, 2);
+    expect(c.effectiveSeq, 11);
+    expect(own.engine.mode, EngineMode.wiped);
+    expect(own.engine.events.whereType<Wiped>().single.recordId, 'm-back');
+  });
+
+  test('D-03b-8 a member_removal is a membership fact too: an approval filed '
+      'before the subject\'s removal from the set\'s tenant counts, one filed '
+      'after it is ignored as subjectRemoved; the removal stays its own '
+      'cut-off (ADR 2026-09-05b §5)', () async {
+    guardianSet(3, 2, [g1, g2, g3]);
+    recordAt(
+      10,
+      g1.revoke('r-g1', subject.deviceId, subject.userId, version: 3),
+    );
+    recordAt(
+      12,
+      g4.record('rm', SignedRecordKind.memberRemoval, {
+        'user_id': subject.userId,
+      }),
+    );
+    recordAt(
+      14,
+      g2.revoke('r-g2', subject.deviceId, subject.userId, version: 3),
+    );
+
+    final r = await readerDevice(reader);
+    await r.engine.sync();
+    final c = r.trust.countFor(subject.deviceId);
+    expect(c.countedGuardians, 1);
+    expect(c.effectiveSeq, isNull);
+    expect(c.ignored.map((i) => (i.recordId, i.reason)), [
+      ('r-g2', IgnoreReason.subjectRemoved),
+    ]);
+    expect(r.trust.revocationSeqOf(subject.deviceId), 12);
   });
 
   test('D-05-11 rotation across the offline window: key sync completes first, '

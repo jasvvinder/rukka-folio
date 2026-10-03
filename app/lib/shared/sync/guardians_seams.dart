@@ -97,7 +97,22 @@ final class GuardianCandidateRow {
 /// The roster, with whether this user may change the set at all.
 final class GuardianRoster {
   /// Creates the roster.
-  const GuardianRoster({this.candidates = const [], this.readOnly = false});
+  const GuardianRoster({
+    this.candidates = const [],
+    this.readOnly = false,
+    this.tenantId,
+  });
+
+  /// The tenant these candidates are members of — the **current** tenant,
+  /// which is the tenant a set chosen from them is set up in (ADR 2026-10-03b
+  /// §1 🔒: `guardian_sets.tenant_id`, "the tenant whose members the set was
+  /// chosen from"). It rides with the roster rather than beside it so the
+  /// people chosen and the tenant they were chosen in come from one reading.
+  ///
+  /// Null when the source cannot name one; a save to a [TenantGuardiansApi]
+  /// then refuses (`no_tenant`) before anything is sealed, because the server
+  /// would refuse the draft (400) after the split had been made.
+  final String? tenantId;
 
   /// Everyone who could be chosen, the signed-in user included (they are
   /// filtered out here, not by the caller).
@@ -152,7 +167,8 @@ typedef GuardianShareSealer = Future<List<SealedGuardianShare>> Function(
 /// Refusal reasons ([GuardiansFailure.reason]) are for this device's own
 /// handling and logs, never for the screen to render raw (07 §1 rule 12):
 /// `read_only` · `size` · `duplicate` · `unknown` · `self` · `unverified` ·
-/// `no_sealer` · `seal` · `rejected` · `offline` · `unauthorized` ·
+/// `no_tenant` · `no_sealer` · `seal` · `rejected` · `offline` ·
+/// `unauthorized` ·
 /// `server` · `shape`.
 final class ServerGuardians implements GuardiansRepository {
   /// Creates the repository over [api].
@@ -185,6 +201,22 @@ final class ServerGuardians implements GuardiansRepository {
   /// Re-read every refresh, never carried forward on its own (header rule 4).
   int _version = 0;
 
+  /// The tenant the last roster was read in — the tenant [_rows] are members
+  /// of, and so the tenant a set chosen from them is published into.
+  String? _tenant;
+
+  /// Every generation the last refresh read, as the server returned it —
+  /// empty before the first refresh.
+  ///
+  /// The read side of this repository is the one door to `guardian_sets` an
+  /// S11 screen should see through (bootstrap: "never from two readings"):
+  /// S11's revoke-standing row (ADR 2026-10-03b §4, `guardian_standing.dart`)
+  /// reads it beside the sync engine's history, so a set re-split in S11.1
+  /// counts there the moment it is read back here rather than at the next
+  /// meta pull. [watch] emits after every refresh that replaced it.
+  List<GuardianSetWire> get history => _history;
+  List<GuardianSetWire> _history = const [];
+
   @override
   GuardianSetup? get current => _current;
 
@@ -200,6 +232,7 @@ final class ServerGuardians implements GuardiansRepository {
     // rather than *unknown* when a caller names them anyway (0010
     // `guardian_is_subject` — a guardian is somebody else).
     _rows = List.unmodifiable(roster.candidates);
+    _tenant = roster.tenantId;
 
     // The set in force is the highest version — a set is never rewritten, so
     // the history's top row is the whole answer (0010 `current_guardian_set`).
@@ -208,6 +241,7 @@ final class ServerGuardians implements GuardiansRepository {
       if (live == null || s.shareSetVersion > live.shareSetVersion) live = s;
     }
     _version = live?.shareSetVersion ?? 0;
+    _history = List.unmodifiable(sets);
 
     final next = GuardianSetup(
       candidates: [
@@ -262,6 +296,15 @@ final class ServerGuardians implements GuardiansRepository {
       guardians.add(VerifiedGuardian(userId: id, umk: key));
     }
 
+    // ADR 2026-10-03b §1 🔒 — the set is published into the tenant its
+    // guardians were chosen from. No tenant, no publish: refused here, before
+    // a share of `UMK_priv` is minted, rather than by the server after.
+    final api = _api;
+    final tenant = _tenant;
+    if (api is TenantGuardiansApi && (tenant == null || tenant.isEmpty)) {
+      throw const GuardiansFailure('no_tenant');
+    }
+
     final sealer = _sealer;
     if (sealer == null) throw const GuardiansFailure('no_sealer');
 
@@ -279,7 +322,19 @@ final class ServerGuardians implements GuardiansRepository {
     _checkCover(shares, guardians);
 
     try {
-      await _api.publish(shareSetVersion: version, k: k, shares: shares);
+      if (api is TenantGuardiansApi) {
+        await api.publishInTenant(
+          tenantId: tenant!,
+          shareSetVersion: version,
+          k: k,
+          shares: shares,
+        );
+      } else {
+        // ⚠️ SPEC (M13-REV89U): a plain [GuardiansApi] has no tenant door.
+        // Only the test doubles noted on [TenantGuardiansApi] land here; the
+        // live client is an [HttpGuardiansApi] and never does.
+        await api.publish(shareSetVersion: version, k: k, shares: shares);
+      }
     } on RecoveryApiFailure catch (e) {
       // A refused draft is never retried a version up: the version moves when
       // another of this user's devices published a set, and publishing over

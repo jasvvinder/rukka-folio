@@ -131,8 +131,9 @@ async function seed(): Promise<Fx> {
 async function publishSet(guardians: G[]): Promise<void> {
   const n = guardians.length;
   await asApi(fx.subject, fx.dev.subjectOld, async (s) => {
-    await s`insert into guardian_sets (subject_user_id, share_set_version, n, k)
-      values (${fx.subject}, 1, ${n}, ${Math.ceil((n + 1) / 2)})`;
+    // set up in t1 (ADR 2026-10-03b §1)
+    await s`insert into guardian_sets (subject_user_id, share_set_version, n, k, tenant_id)
+      values (${fx.subject}, 1, ${n}, ${Math.ceil((n + 1) / 2)}, ${fx.t1})`;
     for (const k of guardians) {
       const wk = crypto.randomUUID();
       await s`insert into wrapped_keys (id, kind, user_id, share_set_version, blob)

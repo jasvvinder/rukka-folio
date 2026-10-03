@@ -47,9 +47,15 @@ async function publish(
       blob: b64url.enc(await random(80)),
     });
   }
+  // ADR 2026-10-03b §1 (0026): a set names the tenant it is set up in — here, the subject's own
+  // (each test seeds one tenant, with the subject and every guardian in it). E-03b-5 holds the rule.
+  const tenant_id = r.db.memberships.find((m) =>
+    m.user_id === subject.user && m.status === "active"
+  )?.tenant_id;
   return await meta(
     post("/sync-meta/recovery/guardians", {
       share_set_version: 1,
+      tenant_id,
       n: guardians.length,
       k: Math.ceil((guardians.length + 1) / 2),
       guardians: g,

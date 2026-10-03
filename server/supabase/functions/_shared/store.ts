@@ -50,7 +50,19 @@ export interface GuardianSet {
   share_set_version: number;
   n: number;
   k: number;
+  /** ADR 2026-10-03b §1: the tenant the set was set up in; null only on a version published
+   *  before 0026 (it recovers, but counts no revocation approval). */
+  tenant_id: string | null;
   members: { guardian_user_id: string; umk_pub_ed: Uint8Array }[];
+}
+/** ADR 2026-10-03b §2 — rf.revocation_count (0026): the database's earliest-k count over EVERY
+ *  approval of one device (ADR 2026-09-06 §3), never the rows the caller can see. `k` is null and
+ *  `effective_seq` null until an approval is counted; `effective_seq` stays null until k distinct
+ *  guardians are. */
+export interface RevocationCount {
+  approvers: number;
+  k: number | null;
+  effective_seq: bigint | null;
 }
 export interface MetaCursor {
   updated_at: string; // ISO-8601
@@ -193,6 +205,9 @@ export interface CeremonySession {
  *  per guardian. The server stores what the client sealed and computes nothing (04 §8.6). */
 export interface GuardianSetDraft {
   share_set_version: number;
+  /** ADR 2026-10-03b §1: the tenant the set is set up in (the publisher is active there; every
+   *  guardian holds a membership there other than `removed`). Written once with the version. */
+  tenant_id: string;
   k: number;
   n: number;
   guardians: { guardian_user_id: string; umk_pub_ed: Uint8Array; blob: Uint8Array }[];
@@ -351,7 +366,17 @@ export interface Tx {
   guardianSetHistory(subjectUserId: string): Promise<GuardianSet[]>;
   // signed records
   insertSignedRecord(row: SignedRecordRow): Promise<{ seq: bigint; duplicate: boolean }>;
-  revocationRecordsFor(revokedDeviceId: string): Promise<SignedRecordRow[]>;
+  /** ADR 2026-10-03b §3 — rf.guardian_may_revoke (0026, SECURITY DEFINER): would the CALLER's
+   *  device_revocation approval of `deviceId`, filed in `tenantId` and naming `shareSetVersion`, be
+   *  counted? The caller may file in that tenant (active or pending), is a guardian of the device's
+   *  owner at that version, the version was set up in that tenant, and the owner holds a membership
+   *  there other than `removed`. A pending guardian is answered truthfully although it cannot see
+   *  the owner's membership row. False for every miss. */
+  guardianMayRevoke(deviceId: string, tenantId: string, shareSetVersion: number): Promise<boolean>;
+  /** ADR 2026-10-03b §2 — rf.revocation_count (0026, SECURITY DEFINER): the count over every
+   *  approval of the device, for its own user and that user's guardians; anyone else reads the
+   *  empty count (0, null, null), as for a device with no approval. */
+  revocationCount(deviceId: string): Promise<RevocationCount>;
   deviceAuthRow(
     deviceId: string,
   ): Promise<{ user_id: string; pub_ed: Uint8Array; status: string } | null>;

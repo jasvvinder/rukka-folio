@@ -156,8 +156,9 @@ async function seed(): Promise<Fx> {
 async function publishSet(version: number, guardians: string[], k?: number): Promise<void> {
   const n = guardians.length;
   await asApi(fx.subject, fx.dev.subjectOld, async (s) => {
-    await s`insert into guardian_sets (subject_user_id, share_set_version, n, k)
-      values (${fx.subject}, ${version}, ${n}, ${k ?? Math.ceil((n + 1) / 2)})`;
+    // set up in t1, where the subject is active and every guardian a member (ADR 2026-10-03b §1)
+    await s`insert into guardian_sets (subject_user_id, share_set_version, n, k, tenant_id)
+      values (${fx.subject}, ${version}, ${n}, ${k ?? Math.ceil((n + 1) / 2)}, ${fx.t1})`;
     for (const g of guardians) {
       // No RETURNING: a share sealed to a guardian is addressed to THEM, so 0005's wrapped_keys
       // SELECT policy refuses it even to the subject who uploaded it — and an INSERT … RETURNING
@@ -446,8 +447,8 @@ Deno.test({
       fx.subject,
       fx.dev.subjectOld,
       (s) =>
-        s`insert into guardian_sets (subject_user_id, share_set_version, n, k)
-        values (${fx.subject}, 1, 3, 2)`,
+        s`insert into guardian_sets (subject_user_id, share_set_version, n, k, tenant_id)
+        values (${fx.subject}, 1, 3, 2, ${fx.t1})`,
     );
     const half = await pgErr(openRequest());
     assertStringIncludes(half.message, "guardian_set_incomplete");

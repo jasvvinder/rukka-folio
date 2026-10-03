@@ -17,8 +17,15 @@
 //     it **without a cursor** and never advances one: cursors belong to the
 //     sync engine, and a second reader of the same route must not move them.
 //   • POST `sync-meta/recovery/guardians`
-//     `{share_set_version, k, n, guardians:[{guardian_user_id, umk_pub_ed,
-//     blob}]}` → `{share_set_version}`.
+//     `{share_set_version, tenant_id, k, n, guardians:[{guardian_user_id,
+//     umk_pub_ed, blob}]}` → `{share_set_version}`. `tenant_id` is
+//     **required** since ADR 2026-10-03b §1 🔒 (migration 0026,
+//     `parseGuardianDraft`): a draft without one is 400 `bad_request`, and
+//     the database answers 403 `guardian_set_tenant` /
+//     `guardian_not_in_tenant` when the publisher is not active there or a
+//     guardian is removed there. It is the tenant the set is **set up in** —
+//     the one whose members it was chosen from — and it is what makes a
+//     guardian's later revocation approval count (§2).
 //   • GET  `sync-meta/recovery/has-guardian-set` → `{has_guardian_set: bool}`
 //     (ADR 2026-09-24b §3 🔒, migration `0016_has_guardian_set.sql`). The one
 //     read an **uncertified** device may make about its guardians: whether
@@ -136,6 +143,7 @@ final class GuardianSetWire {
     required this.k,
     required this.n,
     this.members = const [],
+    this.tenantId,
   });
 
   /// Decodes one wire row. `guardians` is preferred; a body that carries only
@@ -166,8 +174,17 @@ final class GuardianSetWire {
       k: (j['k'] as num?)?.toInt() ?? 0,
       n: (j['n'] as num?)?.toInt() ?? members.length,
       members: List.unmodifiable(members),
+      tenantId: switch (j['tenant_id']) {
+        final String t when t.isNotEmpty => t,
+        _ => null,
+      },
     );
   }
+
+  /// The tenant the generation was set up in (ADR 2026-10-03b §1 🔒,
+  /// `guardian_sets.tenant_id`), or null for one published before the ADR —
+  /// the same reading the sync engine files as `GuardianSetVersion.tenantId`.
+  final String? tenantId;
 
   /// Whose set it is — `rf.user_id()` at the time it was published.
   final String subjectUserId;
@@ -287,11 +304,36 @@ abstract interface class GuardiansApi {
   });
 }
 
+/// A [GuardiansApi] that publishes a set **into a tenant** — the write ADR
+/// 2026-10-03b §1 🔒 requires (`tenant_id`, migration 0026).
+///
+/// ⚠️ SPEC (M13-REV89U): this is a sub-interface rather than a parameter on
+/// [GuardiansApi.publish] only because test doubles outside this lane's
+/// directories implement [GuardiansApi] and would stop compiling. The server
+/// refuses a draft with no tenant, so [GuardiansApi.publish] cannot succeed
+/// against it any more; folding [publishInTenant] into it (a required
+/// `tenantId`) is reported in the lane's `open` for the owners of those
+/// tests. `ServerGuardians` always takes this door when the api offers it.
+abstract interface class TenantGuardiansApi implements GuardiansApi {
+  /// Publishes the next generation, set up in [tenantId] (ADR 2026-10-03b
+  /// §1): the tenant the guardians were chosen from. Otherwise as
+  /// [GuardiansApi.publish].
+  ///
+  /// Throws [RecoveryApiFailure] ([RecoveryRefusal.badRequest]) for an empty
+  /// [tenantId] without sending anything — the server would refuse it.
+  Future<int> publishInTenant({
+    required String tenantId,
+    required int shareSetVersion,
+    required int k,
+    required List<SealedGuardianShare> shares,
+  });
+}
+
 /// [GuardiansApi] over the edge functions.
 ///
 /// Refusals are `recovery_api.dart`'s: both routes live in the same function
 /// and `recoveryError` names them, so one mapping serves both.
-final class HttpGuardiansApi implements GuardiansApi {
+final class HttpGuardiansApi implements TenantGuardiansApi {
   /// Creates the client. [accessToken] yields the 15-minute JWT of 06 §4;
   /// [clientVersion] rides `x-rukka-client-version` (06 §4.5).
   HttpGuardiansApi({
@@ -361,8 +403,42 @@ final class HttpGuardiansApi implements GuardiansApi {
     return bit;
   }
 
+  /// The pre-ADR-2026-10-03b body, with no `tenant_id`. The server answers
+  /// it 400 `bad_request` now; kept only so [GuardiansApi] stays implementable
+  /// by the doubles noted on [TenantGuardiansApi]. `ServerGuardians` never
+  /// calls it on this class — it takes [publishInTenant].
   @override
   Future<int> publish({
+    required int shareSetVersion,
+    required int k,
+    required List<SealedGuardianShare> shares,
+  }) => _publish(
+    tenantId: null,
+    shareSetVersion: shareSetVersion,
+    k: k,
+    shares: shares,
+  );
+
+  @override
+  Future<int> publishInTenant({
+    required String tenantId,
+    required int shareSetVersion,
+    required int k,
+    required List<SealedGuardianShare> shares,
+  }) async {
+    if (tenantId.isEmpty) {
+      throw const RecoveryApiFailure(RecoveryRefusal.badRequest, 'no tenant');
+    }
+    return _publish(
+      tenantId: tenantId,
+      shareSetVersion: shareSetVersion,
+      k: k,
+      shares: shares,
+    );
+  }
+
+  Future<int> _publish({
+    required String? tenantId,
     required int shareSetVersion,
     required int k,
     required List<SealedGuardianShare> shares,
@@ -373,6 +449,7 @@ final class HttpGuardiansApi implements GuardiansApi {
         headers: await _headers(json: true),
         body: jsonEncode({
           'share_set_version': shareSetVersion,
+          'tenant_id': ?tenantId,
           'k': k,
           'n': shares.length,
           'guardians': [for (final s in shares) s.toJson()],

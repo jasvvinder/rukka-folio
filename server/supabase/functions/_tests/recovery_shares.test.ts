@@ -68,9 +68,14 @@ async function world(opts: { immediate: boolean }) {
     });
   }
   const pub = await meta(
-    post("/sync-meta/recovery/guardians", { share_set_version: 1, n: 3, k: 2, guardians }, {
-      token: await tok(r, subject),
-    }),
+    // tenant_id: the tenant the set is set up in (ADR 2026-10-03b §1, 0026).
+    post("/sync-meta/recovery/guardians", {
+      share_set_version: 1,
+      tenant_id: t1,
+      n: 3,
+      k: 2,
+      guardians,
+    }, { token: await tok(r, subject) }),
     r.deps,
   );
   assertEquals(pub.status, 200);

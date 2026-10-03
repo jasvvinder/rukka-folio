@@ -88,6 +88,8 @@ escrow_policies(id, member_user, head_user, book_id, blob_ref uuid,
         state, release_requested_at)     -- veto window enforced from this row
 ```
 
+> **ADR 2026-10-03b §1** — `guardian_sets(subject_user_id, share_set_version, n, k, tenant_id …)` gains `tenant_id`: the tenant the set was set up in, written once with the version (publisher `active` there, every guardian not `removed` there); a pre-ADR row keeps null and recovers but cannot revoke (`0026`). ⟦tests: E-03b-5⟧
+
 ### 2.3 The envelope store 🔒 ⟦tests: E-03-16, E-03-25, E-03-26⟧
 
 ```sql
