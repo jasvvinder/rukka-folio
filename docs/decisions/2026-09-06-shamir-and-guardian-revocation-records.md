@@ -53,6 +53,7 @@ ratification checklist for the owner at the end.
   key cannot. Transit integrity is still the sealed box (04 §7.3 step 3).
 
 ### 3. Guardians' k-of-n device revocation = k separate signed records, counted by the client ⟦tests: D-06a-1, D-06a-2, D-06a-3, D-06a-4, E-05-10⟧
+> **Amended by ADR 2026-10-03b §1, §2** — a set belongs to the tenant it was set up in; only approvals filed there count, and the server and the subject's own devices count the same set. ⟦tests: D-03b-1, D-03b-2, D-03b-3, E-03b-1, E-03b-2⟧
 - Each approving guardian's device authors its own `device_revocation` `SignedRecord`
   (ADR 2026-09-05b §1) over the same body `{revoked_device_id, subject_user_id, share_set_version}`;
   readers count distinct verified guardian authors whose UMKs are in the subject's guardian set

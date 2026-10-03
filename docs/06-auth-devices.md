@@ -125,6 +125,7 @@ Recovery completion always revokes all prior sessions and devices of that user a
 
 - **Linked devices** screen (WhatsApp-style): name, model, last active, certified state.
 - Revoke: any certified device of the same user, k guardians, or support-on-request (§8). Effect per 04 §9.2; the **"stolen"** path additionally rotates BKs (+ recommended UMK rotation).
+  > **ADR 2026-10-03b §2, §3** — k guardians revoke by filing in their set's tenant (approvals filed elsewhere never count); a guardian still `joined_pending_verification` there may file one. ⟦tests: E-03b-1, E-03b-2, E-03b-3⟧
 - Device cap: **the highest cap among the user's active tenants** — 5 / 5 / 8 / 15 for Free / Personal / Family / Family+ (08 §2, ADR 2026-09-05g §7); enforced server-side at `POST /devices`.
 - Every add/certify/revoke lands in the tenant-visible audit log **as a signed record from the acting device (ADR 2026-09-05d §7) — the server's rows are its copy.** A revoked device can still read metadata for up to one access-token lifetime (15 min); accepted.
 

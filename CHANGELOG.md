@@ -12,6 +12,20 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-03 — docs: desk 89 ruled (ADR 2026-10-03b), desk 95 answered
+
+**Decided**
+- `docs/decisions/2026-10-03b-revocation-count-per-tenant.md` — 🔒 a guardian set belongs to the tenant it was set up in (`guardian_sets.tenant_id`). Guardians file revocation approvals there, and only approvals filed there count, so the server and the subject's own devices count the same set (amends ADR 2026-09-06 §3). A guardian still `joined_pending_verification` there may revoke. A book that ever held an envelope is never re-claimed. Devices & security says when a set can no longer revoke.
+- Revised the same day, before any build. Re-checked against 04 §3.4 (trust is rooted per tenant and per person: `verify_chain.dart:45-47`, `verified_members.dart:50-55, 199-201`), S11.1's one-tenant candidate list (`bootstrap.dart:858-861`), and the absence of any revocation filing path. The first draft's plain "count per tenant" had no filing rule and overclaimed that every client would agree.
+
+**Changed**
+- 04 §7.3, 04 §9.2, 06 §6, 07 (Devices & security) and ADR 2026-09-06 §3 carry cross-reference lines.
+- PLAN desk 89 is now ⬜ build next: server `0026` + the edge + the publish route, the `sync_engine` set-tenant count, S11.1 passing the tenant, and the status row. Ids `D-03b-1…3`, `E-03b-1…5` and `F1-03b-1` are reserved and stay dangling until those tests land.
+- PLAN desk 95 ✅: the app reads no entitlement token, so a forged one unlocks nothing today; the verifier and the producer must land as one slice.
+
+**Open**
+- ⚠️ No app path yet authors any `device_revocation`, own-device or guardian (ADR 2026-10-03b Open).
+
 ## 2026-10-03 — M13: server push — edge record authority (desk 83), has_guardian_set refuses (0025, desk 45), CI scanners, ADR 2026-10-03; two cycles, push gate green, RLS 255/0
 
 Owner-directed push to finish the server side today (budget raised to 12 M). Two `/cycle` runs (PGT1, EDGE83, CISCAN, DOCS2; then GS45): every slice reviewed read-only and adversarially verified (3 lenses on server paths), 13 confirmed findings repaired in one round each. Push gate green; RLS suite **255 passed / 0 failed / 2 ignored** on a fresh DB 0001–0025 (the 2 ignored are both arms of `E-06-94`, desk 89).
