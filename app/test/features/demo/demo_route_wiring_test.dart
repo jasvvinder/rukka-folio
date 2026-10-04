@@ -138,7 +138,7 @@ void main() {
 
       final card = find.text("Demo: build Rakesh Sharma's books");
       expect(card, findsOneWidget, reason: 'the route passes the card');
-      expect(find.text('Our trust'), findsOneWidget, reason: 'the five stay');
+      expect(find.text('Our trust'), findsOneWidget, reason: 'the four stay');
       final before = await _bookNames(tester, ledger);
 
       await tester.tap(card);
@@ -180,7 +180,7 @@ void main() {
     });
 
     testWidgets('F1-DEMO-17 the same chain with the demo off (a real signup): '
-        'welcome → S0.2 → S0.3 lands on the five purpose cards with no demo '
+        'welcome → S0.2 → S0.3 lands on the four purpose cards with no demo '
         'card, and a purpose choice goes on to S0.4 as before', (tester) async {
       final ledger = (await tester.runAsync(() async {
         final l = await openTestLedger();

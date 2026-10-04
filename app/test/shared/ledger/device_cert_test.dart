@@ -72,7 +72,12 @@ final class CertifyingAuthServer implements AuthTransport {
       case 'otp/request':
         return _ok({'ok': true, 'resend_after_s': 30});
       case 'otp/verify':
-        return _ok({'ticket': 'tk-1', 'user_id': 'u-1', 'expires_in_s': 600});
+        // ADR 2026-10-04b §1: the server records the proposed id and echoes it.
+        return _ok({
+          'ticket': 'tk-1',
+          'user_id': b['user_id'],
+          'expires_in_s': 600,
+        });
       case 'devices':
         deviceId = b['device_id'] as String;
         pubEd = Bytes.fromBase64Url(b['pub_ed'] as String);

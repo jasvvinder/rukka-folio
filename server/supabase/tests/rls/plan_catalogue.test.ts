@@ -23,7 +23,9 @@
 // why; the nightly/RC lanes set RLS_REQUIRE=1 so a missing database fails loudly. Every catalogue
 // edit below is either inside a transaction that is rolled back or on a test-only plan row that is
 // removed afterwards, so no other file ever sees an edited seed.
-// Ids E-03-75 … E-03-79, E-25-3, G-25-1, G-25-2, G-25-3, G-25-4 (the database halves).
+//   * A RENAME THAT MOVED MORE THAN THE NAME — 0029 renames `shop` to Business Lite (ADR 2026-10-04c
+//     §3); its id and every number stay 0018's (E-04c-1).
+// Ids E-03-75 … E-03-79, E-25-3, G-25-1, G-25-2, G-25-3, G-25-4, E-04c-1 (the database halves).
 import { assert, assertEquals } from "@std/assert";
 import postgres from "postgres";
 import { hex } from "../../functions/_shared/bytes.ts";
@@ -801,6 +803,78 @@ Deno.test({
       );
       const sub = await subOf(t);
       assertEquals([sub.plan, sub.status, sub.grace_kind], ["business_plus", "active", null]);
+    } finally {
+      await store.end();
+      await sql.end();
+    }
+  },
+});
+
+Deno.test({
+  name:
+    "E-04c-1 (database half) after every migration the catalogue row `shop` is named Business Lite (0029, ADR 2026-10-04c §3 🔒) and ONLY its name moved — entity type, step, limits, devices, quota, bytes, prices, extras and popular are 0018's — no plan is still called Shop, and rf_api reads the new name through PgStore exactly as the MemStore seed carries it",
+  ignore,
+  async fn() {
+    const store = await apiStore(url!);
+    setup();
+    try {
+      const [shop] = await sql`select * from plan_catalogue where id = 'shop'`;
+      assert(shop, "the id `shop` is kept: subscriptions, tokens and billing carry it");
+      assertEquals(shop.name, "Business Lite");
+      assertEquals(
+        {
+          entity_type: shop.entity_type,
+          sort_order: shop.sort_order,
+          members: shop.members,
+          business_books: shop.business_books,
+          devices: shop.devices,
+          envelopes_per_book: Number(shop.envelopes_per_book),
+          tenant_bytes: Number(shop.tenant_bytes),
+          attachment_bytes: Number(shop.attachment_bytes),
+          features: shop.features,
+          price_yearly_paise: Number(shop.price_yearly_paise),
+          price_monthly_paise: Number(shop.price_monthly_paise),
+          popular: shop.popular,
+        },
+        {
+          entity_type: "business",
+          sort_order: 1,
+          members: 2,
+          business_books: 1,
+          devices: 8,
+          envelopes_per_book: 250_000,
+          tenant_bytes: 5_368_709_120,
+          attachment_bytes: 5_368_709_120,
+          features: [],
+          price_yearly_paise: 249_900,
+          price_monthly_paise: 24_990,
+          popular: false,
+        },
+        "0018's numbers, untouched",
+      );
+      assertEquals(
+        (await sql`select id from plan_catalogue where name = 'Shop'`).length,
+        0,
+        "no plan is still called Shop",
+      );
+      const ladder = async (entity: string) =>
+        (await sql`select name from plan_catalogue where entity_type = ${entity}
+          and id not like 'zz_%' order by sort_order`).map((r) => r.name as string);
+      assertEquals(await ladder("business"), ["Business Lite", "Business", "Business+"]);
+      assertEquals(await ladder("family"), ["Family Lite", "Family", "Family+"]);
+
+      const t = await mkTenant("business_group");
+      const p = await person(t, "admin");
+      const rows = await store.withClaims(
+        { user_id: p.user, device_id: p.dev },
+        (tx) => tx.planCatalogue(),
+      );
+      assertEquals(rows.find((r) => r.id === "shop")?.name, "Business Lite", "rf_api reads it");
+      assertEquals(
+        CATALOGUE_SEED.find((r) => r.id === "shop")?.name,
+        "Business Lite",
+        "the MemStore seed says the same (E-25-3 holds the rest of the row)",
+      );
     } finally {
       await store.end();
       await sql.end();

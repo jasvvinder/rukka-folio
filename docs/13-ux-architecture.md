@@ -211,7 +211,7 @@ Roles (admin · head · member · operator · viewer) change *what actions appea
 | **S15.4** | Device suspended | global | server asserted a revocation without a signed record: read-only + persistent banner, sync stopped, nothing wiped, *Retry* (ADR 2026-09-05b §2, 05d §3) |
 | **S13** | Settings | S8 | language, **Appearance** (system/light/dark), notifications, **Auto-lock (background · idle)**, **Your books → Opening balances** (ADR 2026-09-03b ruling 2), export everything ⟦tests: F1-07-29, F1-07-65, F1-07-66, F1-07-67⟧ |
 
-> **ADR 2026-10-04c** — S0.3 has **four** cards (Myself · My business · My family · Our trust). ⟦tests: F1-04c-1 @M13⟧
+> **ADR 2026-10-04c** — S0.3 has **four** cards (Myself · My business · My family · Our trust). ⟦tests: F1-04c-1⟧
 
 **Depth rule** (ADR 2026-09-05f §H13): S1–S8 are roots; everything else is at most **two levels of navigation** below one of them. Detail viewers and sheets — S4.1, S4.2, S20, S7.3, S7.4, S2.4 — are exempt: they open *from* a row, they are not destinations.
 
@@ -293,7 +293,7 @@ Every interactive component ships: default · pressed · disabled-with-reason ·
 Notation: `→` step · `◆` decision · `⟳` loops until · `‖` parallel.
 
 **F1 · First run**
-`S0.0 splash → S0.1 language → S0.05 welcome (3 slides, skippable) → S0.2 phone+OTP → S0.3 purpose ◆(Myself | My shop | My businesses | My family | Our trust) → S0.4 name → S0.8 set PIN → S0.5 keeping your books safe (+ S0.5b sheet: print → verify by scanning it back) → branch steps S0.6a–i per card, each skippable (07 §3.1.1) → S0.6 own opening balances (skippable) → S1 with setup checklist`
+`S0.0 splash → S0.1 language → S0.05 welcome (3 slides, skippable) → S0.2 phone+OTP → S0.3 purpose ◆(Myself | My business | My family | Our trust) → S0.4 name → S0.8 set PIN → S0.5 keeping your books safe (+ S0.5b sheet: print → verify by scanning it back) → branch steps S0.6a–i per card, each skippable (07 §3.1.1) → S0.6 own opening balances (skippable) → S1 with setup checklist`
 Success: user reaches Home understanding that no password exists and the paper sheet matters. 🔒 Branch order ruled 2 Sep 2026 (ADR): **after the shared steps**, per 07 §3.1.1 — identity and safety finish before any entity setup, and every branch step lands on the checklist anyway. Canvas 0's map is aligned; Canvas 1's flow band is realigned when its partial is recovered (256 KiB cap). ⟦tests: F1-07-16⟧
 
 **F2 · Daily entry (the 8-second path)**

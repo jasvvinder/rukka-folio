@@ -29,5 +29,13 @@
   "update.opening": "स्टोर खुल रहा है…",
   "update.offline": "अपडेट के लिए इंटरनेट चाहिए।",
   "auth.phone.country_code": "+91",
-  "auth.phone.sending": "भेज रहे हैं…"
+  "auth.phone.sending": "भेज रहे हैं…",
+  "auth.existing.title": "यह नंबर पहले से साइन अप है",
+  "@auth.existing.title": {"description": "machine-draft — native review M12"},
+  "auth.existing.body": "इस नंबर के बही-खाते उस फ़ोन पर हैं जो आपने पहले इस्तेमाल किया था। उन्हें इस फ़ोन पर लाएँ, या कोई दूसरा नंबर इस्तेमाल करें।",
+  "@auth.existing.body": {"description": "machine-draft — native review M12"},
+  "auth.existing.restore": "मेरे बही-खाते वापस लाएँ",
+  "@auth.existing.restore": {"description": "machine-draft — native review M12"},
+  "auth.existing.other_number": "कोई दूसरा नंबर इस्तेमाल करें",
+  "@auth.existing.other_number": {"description": "machine-draft — native review M12"}
 }

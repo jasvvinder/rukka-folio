@@ -36,6 +36,7 @@ import {
   StoreDenied,
   type Tx,
   type UmkPublicRow,
+  UserIdTakenError,
 } from "./store.ts";
 
 type Sql = postgres.Sql | postgres.TransactionSql;
@@ -675,6 +676,13 @@ class PgTx implements Tx {
     await this.sql`select rf.mark_record_applied(${record}, ${note})`;
   }
   // ---- auth (security-definer functions: the only path to phone_hmac / phone_ct)
+  async lockPhoneForVerify(h: Uint8Array): Promise<void> {
+    // Transaction-scoped, so a transaction-mode pooler is safe and nothing outlives the request; the
+    // key is namespaced like 0019/0022/0026's ('rf.<topic>:' || key). A hash collision between two
+    // phones only serialises two verifies that need not be — never a wrong answer.
+    await this
+      .sql`select pg_advisory_xact_lock(hashtextextended('rf.otp_verify:' || encode(${h}::bytea, 'hex'), 0))`;
+  }
   async findUserByPhoneHmac(h: Uint8Array): Promise<string | null> {
     const [r] = await this.sql`select rf.find_user_by_phone_hmac(${h}) as id`;
     return (r?.id as string) ?? null;
@@ -683,9 +691,33 @@ class PgTx implements Tx {
     const [r] = await this.sql`select rf.phone_ct_for_otp(${userId}::uuid) as ct`;
     return r?.ct ? bytes(r.ct) : null;
   }
-  async signupUser(h: Uint8Array, ct: Uint8Array, language: string | null): Promise<string> {
-    const [r] = await this.sql`select rf.signup_user(${h}, ${ct}, ${language}) as id`;
-    return r.id as string;
+  async signupUser(
+    h: Uint8Array,
+    ct: Uint8Array,
+    language: string | null,
+    id: string | null,
+  ): Promise<string> {
+    if (id === null) {
+      // No proposal — a client older than ADR 2026-10-04b: 0005's function, users.id's default mints.
+      const [r] = await this.sql`select rf.signup_user(${h}, ${ct}, ${language}) as id`;
+      return r.id as string;
+    }
+    // ADR 2026-10-04b §1 🔒: 0030's overload records the client's id or raises `user_id_taken`.
+    // Guarded (desk 70): the handler catches the refusal INSIDE withClaims and answers 409 with the
+    // OTP challenge unconsumed, so the refused insert must roll back to its own savepoint and leave
+    // the transaction committable — issued on the transaction's scope it would poison the commit and
+    // the caller would see 500 (tests/rls/client_minted_user_id.test.ts, E-04b-3 database half).
+    try {
+      return await this.guarded(async () => {
+        const [r] = await this
+          .sql`select rf.signup_user(${h}, ${ct}, ${language}, ${id}::uuid) as id`;
+        return r.id as string;
+      });
+    } catch (e) {
+      // guarded() has already mapped a Postgres refusal onto StoreDenied.
+      if (e instanceof StoreDenied && e.reason === "user_id_taken") throw new UserIdTakenError();
+      throw e;
+    }
   }
   async otpChallengesSince(h: Uint8Array, since: Date): Promise<Date[]> {
     const rows = await this

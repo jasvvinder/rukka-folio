@@ -14,6 +14,10 @@ import 'package:rukka_folio/shared/seams/share_sheet.dart';
 
 import '../../shared/test_app.dart';
 
+/// Synthetic number only (check_purity): the ten digits typed behind
+/// S9.1's fixed +91 (desk 116).
+const _mobile = '9999900011'; // +91 99999 00011
+
 final _books = [
   const TenantBook(id: 'b-home', name: 'Ghar'),
   const TenantBook(id: 'b-shop', name: 'Shop'),
@@ -62,7 +66,7 @@ Widget _hosted(
 /// Fills the form the short way: a number, one role, a ₹2,000 limit and a
 /// designation — so the message can be checked for every one of them.
 Future<void> _fillAndSend(WidgetTester tester) async {
-  await tester.enterText(find.byType(TextField).first, '+91 98765 43210');
+  await tester.enterText(find.byType(TextField).first, _mobile);
   await tester.tap(find.widgetWithText(ChoiceChip, 'Head').first);
   await tester.pumpAndSettle();
   await tester.enterText(
@@ -121,8 +125,8 @@ void main() {
       expect(message, contains('Rukka Folio'));
       // CLAUDE.md rule 4 — nothing of the book and nothing of the invitee.
       for (final leak in [
-        '98765',
-        '43210',
+        '99999',
+        '00011',
         '2000',
         '2,000',
         '₹',
@@ -312,7 +316,7 @@ void main() {
           textScale: 2,
           viewport: const Size(360, 6000),
         );
-        await tester.enterText(find.byType(TextField).first, '+919876543210');
+        await tester.enterText(find.byType(TextField).first, _mobile);
         await tester.tap(find.byType(ChoiceChip).at(1));
         await tester.pumpAndSettle();
         await tester.tap(find.byType(FilledButton).last);
@@ -344,7 +348,7 @@ void main() {
           textScale: 2,
           viewport: const Size(360, 6000),
         );
-        await tester.enterText(find.byType(TextField).first, '+919876543210');
+        await tester.enterText(find.byType(TextField).first, _mobile);
         await tester.tap(find.byType(ChoiceChip).at(1));
         await tester.pumpAndSettle();
         await tester.tap(find.byType(FilledButton).last);

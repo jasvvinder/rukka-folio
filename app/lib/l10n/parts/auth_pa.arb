@@ -29,5 +29,13 @@
   "update.opening": "ਸਟੋਰ ਖੁੱਲ੍ਹ ਰਿਹਾ ਹੈ…",
   "update.offline": "ਅੱਪਡੇਟ ਲਈ ਇੰਟਰਨੈੱਟ ਚਾਹੀਦਾ ਹੈ।",
   "auth.phone.country_code": "+91",
-  "auth.phone.sending": "ਭੇਜ ਰਹੇ ਹਾਂ…"
+  "auth.phone.sending": "ਭੇਜ ਰਹੇ ਹਾਂ…",
+  "auth.existing.title": "ਇਹ ਨੰਬਰ ਪਹਿਲਾਂ ਹੀ ਸਾਈਨ ਅੱਪ ਹੈ",
+  "@auth.existing.title": {"description": "machine-draft — native review M12"},
+  "auth.existing.body": "ਇਸ ਨੰਬਰ ਦੇ ਵਹੀ-ਖਾਤੇ ਉਸ ਫ਼ੋਨ ਉੱਤੇ ਹਨ ਜੋ ਤੁਸੀਂ ਪਹਿਲਾਂ ਵਰਤਿਆ ਸੀ। ਉਹਨਾਂ ਨੂੰ ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਲਿਆਓ, ਜਾਂ ਕੋਈ ਹੋਰ ਨੰਬਰ ਵਰਤੋ।",
+  "@auth.existing.body": {"description": "machine-draft — native review M12"},
+  "auth.existing.restore": "ਮੇਰੇ ਵਹੀ-ਖਾਤੇ ਵਾਪਸ ਲਿਆਓ",
+  "@auth.existing.restore": {"description": "machine-draft — native review M12"},
+  "auth.existing.other_number": "ਕੋਈ ਹੋਰ ਨੰਬਰ ਵਰਤੋ",
+  "@auth.existing.other_number": {"description": "machine-draft — native review M12"}
 }

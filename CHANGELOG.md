@@ -12,10 +12,18 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
-## 2026-10-04 (evening) — docs/env: desk rulings 107, 116, 117, 121; ADRs 2026-10-04b, 2026-10-04c; run_dev.sh headless
+## 2026-10-04 (evening) — M13: desks 107, 116, 121 built (`/cycle`, push gate green); ADRs 2026-10-04b, 2026-10-04c; run_dev.sh opens DeviceHub
+
+**Added**
+- Server (M13-ID107S, `lane-server`, 3-lens verify): `otp/verify` takes an optional `user_id`. An unknown phone gets a user row with that id; a known phone gets its own id; an id already taken gets `409 user_id_taken` and the OTP challenge is left unconsumed. `0030_client_minted_user_id.sql` adds a 4-arg `rf.signup_user`, since `rf_api` has no INSERT on `users`; there is no schema change. `0029_business_lite_plan_name.sql` renames plan `shop` to *Business Lite*. Tests `E-04b-1…4` and `E-04c-1`; the lane reports the server suite at 310/0.
+- App (M13-ID107C, `lane-ui-hard`, 3-lens verify): `verifyOtp` proposes `identity.userId` and confirms the identity only when the echo matches. While the identity is provisional, every envelope, cert and key-writing path refuses; `bootstrap.dart` switches the guard on and the bootstrap wiring test asserts it. A collision re-mints once. A different echo gives S0.2 *already signed up*, which offers *Get my books back* → S11.6. New `auth.existing.*` ARB keys. Tests `C-04b-1…3`.
+- App (M13-INV116, `lane-ui`): S9.1 checks invites with `isNationalPhoneShape` behind a fixed `+91` (`F1-07-548…552`).
+- App (M13-CARD121, `lane-ui`): S0.3 has four cards, and *My business* goes on to S0.6c. One column below 600 px, two from 600. *Business Lite* in EN/PA/HI. Tests `F1-04c-1…5`; `F1-07-16` and `F1-07-83` re-landed.
 
 **Changed**
-- `scripts/run_dev.sh`: a missing Simulator.app no longer aborts the run (`open -a Simulator` under `set -e`). It warns and runs headless. Xcode 27 ships no `Simulator.app`; its bundled apps are under `Xcode.app/Contents/Applications/`, including a new `DeviceHub.app` (`com.apple.dt.Devices`). Whether DeviceHub shows the booted simulator is not yet confirmed.
+- 07 §3.1 step 3 and the §3.1.1 table (🔒 lines rewritten per ADR 2026-10-04c), 07 §5.7, 13 §5 F1 diagram, 01 §2 purpose-card rows, DESIGN-PACK S0.3/O3, demo ARB descriptions (*four*). ADR 04b now names `0030`. 06 §2 states the request shape and drops the stale *to confirm* note. Planned `@M13` suffixes are dropped from the landed ids.
+- `.claude/rf.config.json`: the owner raised the 4 Oct override from 6 M to 15 M for this cycle.
+- `scripts/run_dev.sh`: Xcode 27 ships no `Simulator.app`; its simulator window is `DeviceHub.app` (`Xcode.app/Contents/Applications/`). The script opens Simulator, then DeviceHub, and otherwise warns and runs headless; before, `open -a Simulator` under `set -e` aborted the run. The owner confirmed 4 Oct that DeviceHub shows the simulator.
 - `docs/06-auth-devices.md` §2, §3: cross-references to ADR 2026-10-04b. ADR 2026-09-16 § Open's first bullet is marked resolved.
 - PLAN: desk 107 → ruled (ADR 2026-10-04b, §2–§4 to confirm); 116, 117 and 121 ruled → build rows; 119(a) part-verified; new 122, business presets (separate feature, to discuss).
 - 01 §2, 07 §3.1/§3.1.1, 13 §3.2 S0.3 and DESIGN-PACK S0.3/O3: cross-references to ADR 2026-10-04c.
@@ -23,12 +31,13 @@ Running record of what changed in this repository and in the development environ
 
 **Decided**
 - `2026-10-04b-client-minted-user-and-tenant-ids.md`: 🔒 the first device mints `user_id`; `otp/verify` records it or answers `409 user_id_taken` (§1, owner-ruled). The first-run identity authors nothing until signup answers (§2); a known phone adopts its account's id (§3); `tenant_id` is recorded by desk 85's tenant-register route (§4). §2–§4 need the owner's confirmation.
-- `2026-10-04c-one-business-card.md`: 🔒 S0.3 has four cards. **My business** (*Shop, practice, freelance work — one or more*) replaces *My shop* and *My businesses* and takes the S0.6c branch (owner-ruled). The layout (single column vs 2×2) needs owner/design confirmation.
+- `2026-10-04c-one-business-card.md`: 🔒 S0.3 has four cards. **My business** (*Shop, practice, freelance work — one or more*) replaces *My shop* and *My businesses* and takes the S0.6c branch (owner-ruled). §2: one column on a phone, a two-column grid from the `medium` breakpoint (iPad). §3: the *Shop* plan is renamed **Business Lite** (id `shop` unchanged). ADR 2026-09-25 §5 is cross-referenced.
 - Owner, 4 Oct: desk 116 → S9.1 uses the shared `isNationalPhoneShape`; desk 117 → real product first (desk 85, then 107's build), seeder later.
 
 **Open**
-- ADR 2026-10-04c: the S0.3 layout; the *Shop* plan name; the Claude Design canvas. Business presets are desk 122.
-- Desk 119(a): the sign-up hop and a refused push are still unseen. Next: confirm DeviceHub shows the simulator, then let `run_dev.sh` open it.
+- Desk 123: deploy to dev (0029, 0030, then `auth-challenge`) **before** running a rebuilt app; dev's two-id installs then need a wipe (desk 118).
+- Desks 124 (409 costs no attempt), 125 (re-mint scope / legacy-confirmed rule), 128 (paste on S0.2/S16.2), 129 (sign-up on non-signup purposes), 130 (600 px at 200 % stacks) need owner rulings. 126, 127 and 131 are follow-ups.
+- ADR 2026-10-04c: the Claude Design canvas still shows five cards. Business presets are desk 122. PA/HI drafts go to desk 111.
 - Desk 115: the nightly runs 03:00 IST 5 Oct; check it next session.
 - ADR 2026-10-04b Open: the personal book's tenant has no `tenants.type`.
 

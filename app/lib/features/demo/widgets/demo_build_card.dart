@@ -6,8 +6,8 @@
 // m) → done (what was made, what was not, and why) → Continue; or → error →
 // Try again. A person who owns none of their books (only member / operator /
 // viewer, or a partner with a share and no role) gets a fourth, inert state:
-// the shared books are named, nothing is offered to build, and the five
-// purpose cards beneath are the way on. Every state has a way on (07 §1 rule 6): the five real purpose
+// the shared books are named, nothing is offered to build, and the four
+// purpose cards beneath are the way on. Every state has a way on (07 §1 rule 6): the four real purpose
 // cards stay beneath it throughout, and Continue carries on exactly where a
 // purpose choice would — to S0.4 name, then PIN.
 //

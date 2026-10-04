@@ -57,8 +57,9 @@ MembersSnapshot _snapshot() => MembersSnapshot(
 Widget _scoped(MembersRepository repo, Widget child) =>
     MembersRepositoryScope(repository: repo, child: child);
 
-/// Synthetic number (check_purity: +91 99999 xxxxx).
-const _phone = '+919999900011';
+/// Synthetic number (check_purity: +91 99999 xxxxx) — the ten national
+/// digits typed behind S9.1's fixed +91 (desk 116).
+const _phone = '9999900011'; // +91 99999 00011
 
 const _en = {
   MembersRefusal.seatCap:

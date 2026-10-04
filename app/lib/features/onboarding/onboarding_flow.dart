@@ -28,8 +28,8 @@ class OnboardingFlow extends ChangeNotifier {
   OnboardingPurpose? purpose;
 
   /// Every business this onboarding has collected, in the order they were
-  /// named. The *My businesses* card loops O6a → O6b → **O6c** → O6a
-  /// (07 §3.1.1), so one answer set is never enough: each pass appends an
+  /// named. The *My business* card loops O6a → O6b → **O6c** → O6a
+  /// (07 §3.1.1, ADR 2026-10-04c §1), so one answer set is never enough: each pass appends an
   /// entry and each entry becomes its own book.
   ///
   /// The single-business accessors below ([business], [owners],
@@ -239,7 +239,7 @@ class OnboardingFlow extends ChangeNotifier {
 }
 
 /// One business collected by the branch: its S0.6a answers, its S0.6a1 owners
-/// and the book it became. The *My businesses* card can produce several
+/// and the book it became. The *My business* card can produce several
 /// (07 §3.1.1 O6c), and each becomes its own book through the ordinary seed
 /// path (ADR 2026-09-09c §3, ADR 2026-09-09d §1) — nothing about `createBook`
 /// changes because there are now two of them.

@@ -253,7 +253,7 @@ void main() {
       },
     );
 
-    testWidgets('F1-DEMO-9 S0.3 shows the demo card above the five only when '
+    testWidgets('F1-DEMO-9 S0.3 shows the demo card above the four only when '
         'the switch is on AND the signed-in phone is on the roster', (
       tester,
     ) async {
@@ -284,8 +284,11 @@ void main() {
       await pumpPurpose();
       expect(title, findsOneWidget);
       expect(find.text('Debug'), findsOneWidget);
-      // The five are still there beneath it.
-      expect(find.text('Our trust'), findsOneWidget);
+      // The four are still there beneath it (ADR 2026-10-04c §1).
+      for (final label in ['Myself', 'My business', 'My family', 'Our trust']) {
+        expect(find.text(label), findsOneWidget, reason: label);
+      }
+      expect(find.text('My shop'), findsNothing);
     });
   });
 

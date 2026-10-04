@@ -7,6 +7,13 @@
 //     It leaves this device once, to be sent — the server keeps only an HMAC
 //     of it (ADR 2026-09-05c §4), so nothing here stores or logs the number
 //     (CLAUDE.md rule 4).
+//   * The number is typed the way S0.2 and S16.2 take one (desk 116,
+//     owner-ruled 4 Oct 2026): ten national digits behind a fixed +91, checked
+//     by the one shared predicate `isNationalPhoneShape`
+//     (features/auth/phone_shape.dart) — `[6-9]` then nine digits always, the
+//     `5…` dev demo range only in a debug build given RF_DEMO_PHONES. 06 §1 🔒
+//     says only "E.164"; the national shape is the app's own check, so a
+//     release build can never invite a demo number.
 //   * A role is granted **per book**, never globally (06 §1.1), and the role
 //     plus its auto-post limit is the whole of what the person may do
 //     (06 §1.0 🔒). Limits are integer paise — no float touches money.
@@ -33,7 +40,9 @@
 // creation opens no sheet. The form then gives way to [InviteSharePanel] —
 // *Resend*, *Copy the message*, *Done* — and never says the invite was sent,
 // because the sheet reports nothing back (07 §1 rule 12).
+import 'package:flutter/foundation.dart' show kReleaseMode, visibleForTesting;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/app_scope.dart';
@@ -41,6 +50,7 @@ import '../../../shared/format/money_format.dart';
 import '../../../shared/seams/share_sheet.dart';
 import '../../../shared/seams/sync_client.dart';
 import '../../../shared/tokens.dart';
+import '../../auth/phone_shape.dart';
 import '../designations.dart';
 import '../members_repository.dart';
 import '../widgets/invite_share_panel.dart';
@@ -48,7 +58,12 @@ import '../widgets/plan_cap_notice.dart';
 import 's9_members_screen.dart' show parseRupeeLimitToPaise;
 
 class InviteScreen extends StatefulWidget {
-  const InviteScreen({super.key, this.onSent, this.onOpenPlans});
+  const InviteScreen({
+    super.key,
+    this.onSent,
+    this.onOpenPlans,
+    @visibleForTesting this.releaseMode = kReleaseMode,
+  });
 
   /// Called on *Done*, once the invite exists and was offered to the share
   /// sheet; the host pops back to S9. Null → this screen pops itself.
@@ -57,6 +72,11 @@ class InviteScreen extends StatefulWidget {
   /// Opens S12.1 Plans from a plan-cap refusal (ADR 2026-09-05g §6 🔒). Null
   /// → [PlanCapNotice]'s default, the ambient router.
   final VoidCallback? onOpenPlans;
+
+  /// Test seam only: passed straight to [isNationalPhoneShape] so a widget
+  /// test can drive the screen as a release build would (the demo range is
+  /// refused there whatever the define says). Production never sets it.
+  final bool releaseMode;
 
   @override
   State<InviteScreen> createState() => _InviteScreenState();
@@ -95,17 +115,18 @@ class _InviteScreenState extends State<InviteScreen> {
   TextEditingController _limitFor(String bookId) =>
       _limits.putIfAbsent(bookId, TextEditingController.new);
 
-  /// E.164 as 06 §1 states it: a country code and 8–15 digits in all.
-  static bool isE164(String input) {
-    final s = input.replaceAll(' ', '').replaceAll('-', '');
-    return RegExp(r'^\+[1-9]\d{7,14}$').hasMatch(s);
+  /// The ten digits as typed, or null when they are not a number this build
+  /// will invite — the shared national shape, never a copy of it (desk 116).
+  String? get _phoneE164 {
+    final digits = _phone.text.trim();
+    return isNationalPhoneShape(digits, releaseMode: widget.releaseMode)
+        ? '+91$digits'
+        : null;
   }
 
-  static String normalisePhone(String input) =>
-      input.replaceAll(' ', '').replaceAll('-', '');
-
   Future<void> _send(MembersSnapshot s) async {
-    final phoneOk = isE164(_phone.text);
+    final phoneE164 = _phoneE164;
+    final phoneOk = phoneE164 != null;
     final grants = <BookGrant>[];
     var limitOk = true;
     for (final book in s.books) {
@@ -141,7 +162,7 @@ class _InviteScreenState extends State<InviteScreen> {
     try {
       created = await repo.invite(
         InviteRequest(
-          phoneE164: normalisePhone(_phone.text),
+          phoneE164: phoneE164,
           grants: grants,
           designationLabel: label,
         ),
@@ -252,12 +273,28 @@ class _InviteScreenState extends State<InviteScreen> {
       padding: const EdgeInsets.all(RkSpace.gutter),
       children: [
         _Step(l10n.inviteStepPhone),
+        // The S0.2 input pattern (desk 116): digits only, behind the fixed
+        // +91 the auth screens draw.
+        // ⚠️ SPEC: S0.2 also caps the field at ten digits, which cuts a pasted
+        // "+91 99999 00011" to the wrong number "9199999000". An invite goes
+        // to someone else's number, often pasted from contacts, so S9.1 does
+        // not truncate: twelve digits are refused with the invalid line and
+        // the inviter sees what to fix. No spec rules on paste; flagged to
+        // the owner (lane INV116).
         TextField(
           controller: _phone,
           keyboardType: TextInputType.phone,
-          autofillHints: const [AutofillHints.telephoneNumber],
+          autofillHints: const [AutofillHints.telephoneNumberNational],
+          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          style: text.bodyLarge?.copyWith(fontFeatures: RkType.tabular),
           decoration: InputDecoration(
             hintText: l10n.invitePhoneHint,
+            prefixText: '${l10n.authPhoneCountryCode} ',
+            // Without a label, Flutter draws the prefix at opacity 0 until the
+            // field is focused or filled; `always` keeps the +91 fixed and
+            // visible at rest (DESIGN-PACK: "Phone number field with +91
+            // fixed"). The hint still shows — there is no inline label.
+            floatingLabelBehavior: FloatingLabelBehavior.always,
             errorText: _phoneInvalid ? l10n.invitePhoneInvalid : null,
           ),
           onChanged: (_) {

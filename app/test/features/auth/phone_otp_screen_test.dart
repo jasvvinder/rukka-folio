@@ -372,4 +372,122 @@ void main() {
       },
     );
   });
+
+  group('S0.2 a number that already has an account (ADR 2026-10-04b §3)', () {
+    /// The title, per locale — the anchor for the layout sweep.
+    const existingTitle = {
+      'en': 'This number is already signed up',
+      'pa': 'ਇਹ ਨੰਬਰ ਪਹਿਲਾਂ ਹੀ ਸਾਈਨ ਅੱਪ ਹੈ',
+      'hi': 'यह नंबर पहले से साइन अप है',
+    };
+
+    Future<FakeAuthClient> reachExisting(
+      WidgetTester tester, {
+      VoidCallback? onExistingAccount,
+      void Function(AuthSession)? onDone,
+      Locale? locale,
+      double textScale = 1,
+      Size? viewport,
+    }) async {
+      final auth = FakeAuthClient();
+      await pumpRk(
+        tester,
+        // A fresh state per pump: the sweep re-pumps the same screen type.
+        PhoneOtpScreen(
+          key: UniqueKey(),
+          onDone: onDone,
+          onExistingAccount: onExistingAccount,
+        ),
+        auth: auth,
+        locale: locale,
+        textScale: textScale,
+        viewport: viewport,
+      );
+      await tester.enterText(find.byType(TextField), _typed);
+      await tester.tap(find.byType(FilledButton));
+      await tester.pumpAndSettle();
+      auth.failNext = const AuthFailure(AuthFailureKind.existingAccount);
+      await tester.enterText(find.byType(TextField), '482913');
+      await tester.tap(find.byType(FilledButton));
+      await tester.pumpAndSettle();
+      return auth;
+    }
+
+    testWidgets(
+      'C-04b-2 a verify that answers another account shows "already signed up" — never activating this phone — with two ways on: Get my books back (to the 06 §5 fork) and Use a different number (back to the phone step); icon plus words, not colour alone',
+      (tester) async {
+        var forked = 0;
+        AuthSession? done;
+        final auth = await reachExisting(
+          tester,
+          onExistingAccount: () => forked++,
+          onDone: (s) => done = s,
+        );
+        expect(find.text('This number is already signed up'), findsOneWidget);
+        expect(
+          find.text(
+            'Your books for this number are on the phone you used before. '
+            'Bring them to this phone, or use a different number.',
+          ),
+          findsOneWidget,
+        );
+        expect(find.byIcon(Icons.info_outline), findsOneWidget);
+        expect(auth.current, isNot(isA<Active>()));
+        expect(done, isNull);
+
+        await tester.tap(find.text('Get my books back'));
+        await tester.pumpAndSettle();
+        expect(forked, 1);
+
+        await tester.tap(find.text('Use a different number'));
+        await tester.pumpAndSettle();
+        expect(find.text('Your phone number'), findsOneWidget);
+        expect(find.text('This number is already signed up'), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'C-04b-2 with no callback the screen still draws both ways the body names — Get my books back (its own default, S11.6) and Use a different number — so the copy never promises a missing button',
+      (tester) async {
+        await reachExisting(tester);
+        expect(find.text('This number is already signed up'), findsOneWidget);
+        expect(
+          find.widgetWithText(FilledButton, 'Get my books back'),
+          findsOneWidget,
+        );
+        expect(
+          find.widgetWithText(TextButton, 'Use a different number'),
+          findsOneWidget,
+        );
+      },
+    );
+
+    testWidgets(
+      'C-04b-2 the existing-account state resolves in EN, PA and HI and fits at 1.3× and 2× on 360×800 and 375×667',
+      (tester) async {
+        for (final locale in rkLocales) {
+          for (final vp in rkPhones) {
+            for (final scale in rkTextScales) {
+              await reachExisting(
+                tester,
+                onExistingAccount: () {},
+                locale: locale,
+                textScale: scale,
+                viewport: vp,
+              );
+              expect(
+                find.text(existingTitle[locale.languageCode]!),
+                findsOneWidget,
+              );
+              expect(tester.takeException(), isNull);
+              expectTextFits(
+                tester,
+                reason: '${locale.languageCode} @ $scale on $vp',
+              );
+            }
+          }
+        }
+      },
+    );
+  });
 }

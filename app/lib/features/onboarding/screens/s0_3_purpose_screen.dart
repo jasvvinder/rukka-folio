@@ -1,39 +1,53 @@
 // S0.3 Purpose (13 §3.2 row S0.3, 07 §3.1 step 3, 07 §3.1.1 🔒 — the purpose
-// card branches the setup). Five illustrated cards, 2x2 with the trust card
-// full width beneath (the label is the longest and five does not divide into
-// a grid). Selecting a card records the branch and hands it straight to the
-// caller — this screen does not itself decide what O6* branch runs next
-// (07 §3.1.1's table), it only names which one was chosen.
+// card branches the setup), as amended by ADR 2026-10-04c: **four** illustrated
+// cards — Myself · My business · My family · Our trust — one per entity type
+// (Individual · Business · Family · Trust, ADR 2026-09-25 §5). *My business*
+// covers any trade, one or more: it is the former *My businesses* branch, and
+// S0.6c *Add another business?* asks the count. Selecting a card records the
+// branch and hands it straight to the caller — this screen does not itself
+// decide what O6* branch runs next (07 §3.1.1's table), it only names which
+// one was chosen.
+//
+// Layout (ADR 2026-10-04c §2, owner 4 Oct 2026): below the `medium` breakpoint
+// (`layout.breakpoint.medium`, 600 logical px — every phone) a single column of
+// four full-width cards; at `medium` and wider (an iPad, either way up) a
+// two-column grid, Myself · My business / My family · Our trust.
 //
 // 🔒 The trust card alone sets `tenant.type = organization` (07 §3.1,
-// 07 §3.1.1) — [OnboardingPurpose.setsOrganizationTenant] is the single flag
-// a caller reads to act on that; the actual tenant/book seeding is the O6*
-// branch wizard, a later lane (out of scope here per the U1b brief).
+// 07 §3.1.1). This screen only names the card; the seam that acts on it is
+// `afterSetPin` (onboarding_routes.dart), which sends each card to its O6*
+// branch, and that branch's opening host commits the book type — business
+// (BusinessOpeningHost), family (FamilyOpeningHost), organization
+// (TrustOpeningHost); *Myself* makes no further book. F1-04c-3 and F1-07-16
+// drive that whole path through the router and read the committed type back.
 //
 // Cards are distinguishable without colour: icon + label + description
 // together, never a fill or border colour alone (07 §1 rule 3).
 import 'package:flutter/material.dart';
 
 import '../../../l10n/gen/app_localizations.dart';
+import '../../../shared/layout.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../../../shared/widgets/rk_fit_text.dart';
 
-/// The five signup purposes (07 §3.1 step 3). The underlying tenant type
-/// stays the generic `organization` for [trust] — this enum is UI-facing
-/// branch selection, not the ledger's own type.
-enum OnboardingPurpose { myself, shop, businesses, family, trust }
+/// The four signup purposes (07 §3.1 step 3, ADR 2026-10-04c §1), in reading
+/// order. The underlying tenant type stays the generic `organization` for
+/// [trust] — this enum is UI-facing branch selection, not the ledger's own
+/// type.
+///
+/// [businesses] is the one **My business** card (any trade, one or more);
+/// the name is kept from the former *My businesses* card whose branch it
+/// takes. The *shop* purpose is retired (ADR 2026-10-04c §1).
+enum OnboardingPurpose { myself, businesses, family, trust }
+
+/// The key each card carries, so a test can find a card by purpose.
+Key purposeCardKey(OnboardingPurpose purpose) =>
+    ValueKey('onboarding.purpose.card.${purpose.name}');
 
 extension OnboardingPurposeCopy on OnboardingPurpose {
-  /// 🔒 07 §3.1 / 07 §3.1.1 — the trust card is the only one that sets
-  /// `tenant.type = organization` (trustee role labels, mandatory cash
-  /// denomination counting, gollak as `cash_collection`). Every other card
-  /// stays a personal/business book.
-  bool get setsOrganizationTenant => this == OnboardingPurpose.trust;
-
   String label(AppLocalizations l10n) => switch (this) {
     OnboardingPurpose.myself => l10n.onboardingPurposeCardMyselfLabel,
-    OnboardingPurpose.shop => l10n.onboardingPurposeCardShopLabel,
     OnboardingPurpose.businesses => l10n.onboardingPurposeCardBusinessesLabel,
     OnboardingPurpose.family => l10n.onboardingPurposeCardFamilyLabel,
     OnboardingPurpose.trust => l10n.onboardingPurposeCardTrustLabel,
@@ -41,7 +55,6 @@ extension OnboardingPurposeCopy on OnboardingPurpose {
 
   String description(AppLocalizations l10n) => switch (this) {
     OnboardingPurpose.myself => l10n.onboardingPurposeCardMyselfDescription,
-    OnboardingPurpose.shop => l10n.onboardingPurposeCardShopDescription,
     OnboardingPurpose.businesses =>
       l10n.onboardingPurposeCardBusinessesDescription,
     OnboardingPurpose.family => l10n.onboardingPurposeCardFamilyDescription,
@@ -50,7 +63,6 @@ extension OnboardingPurposeCopy on OnboardingPurpose {
 
   IconData get icon => switch (this) {
     OnboardingPurpose.myself => Icons.person_outline,
-    OnboardingPurpose.shop => Icons.storefront_outlined,
     OnboardingPurpose.businesses => Icons.business_center_outlined,
     OnboardingPurpose.family => Icons.family_restroom_outlined,
     OnboardingPurpose.trust => Icons.account_balance_outlined,
@@ -67,28 +79,29 @@ class PurposeScreen extends StatelessWidget {
   final void Function(OnboardingPurpose purpose)? onSelected;
 
   /// DEBUG ONLY (owner-directed, 4 Oct 2026): the demo builder's card, drawn
-  /// above the five. The route passes `demoPurposeCard(...)` from
+  /// above the four. The route passes `demoPurposeCard(...)` from
   /// features/demo, which is null in a release build, with the demo switch
   /// off, or for a phone not on the demo roster — so in every real build
-  /// this is null and the screen is exactly the five cards.
+  /// this is null and the screen is exactly the four cards.
   final Widget? debugDemoCard;
 
-  static const _grid = [
-    OnboardingPurpose.myself,
-    OnboardingPurpose.shop,
-    OnboardingPurpose.businesses,
-    OnboardingPurpose.family,
-  ];
-
-  /// True when two cards fit side by side at the scale actually in force.
+  /// Whether the grid's two cards each fit their longest word at the scale
+  /// actually in force.
   ///
-  /// The grid is 2x2 by design, but a card is barely a third of a phone
-  /// wide, and at 130 % *businesses* alone needs 209 px of the 116 px a card
-  /// has to give — Flutter draws such a word straight past the card edge
-  /// without throwing (F1-07-16). So the choice between the grid and a
-  /// single stacked column is **measured**, in this font at this scale,
-  /// never taken from a text-scale threshold: a threshold cannot know how
-  /// wide a word is in a font it has not measured (13 §4, U3g).
+  /// ADR 2026-10-04c §2 makes the grid the layout from `medium` up, and on
+  /// every iPad viewport (744 px and wider) at 1.0, 1.3x and 200 % in
+  /// EN/PA/HI it is (F1-04c-4). This is the floor under that rule, not a
+  /// second rule: a word wider than half the window is something Flutter
+  /// draws straight past the card edge without throwing, so where it would
+  /// do that the cards stack instead of cutting a word (07 §1, 13 §4).
+  /// Measured in this font at this scale, never taken from a text-scale
+  /// threshold.
+  ///
+  /// ⚠️ SPEC: the one place this engages inside the tested range is the
+  /// breakpoint's own edge — a 600 px window (a foldable or split-screen
+  /// pane, not an iPad) at 200 %, where a card has 238 px and *My business*
+  /// needs 257. The ADR did not consider that width at that scale; the
+  /// conservative reading keeps every word whole. Raised to the owner.
   static bool _gridFits(BuildContext context, double width) {
     if (!width.isFinite) return true;
     final l10n = AppLocalizations.of(context);
@@ -111,7 +124,7 @@ class PurposeScreen extends StatelessWidget {
       return w;
     }
 
-    for (final purpose in _grid) {
+    for (final purpose in OnboardingPurpose.values) {
       if (widest(purpose.label(l10n), text.titleMedium) > room) return false;
       if (widest(purpose.description(l10n), text.bodySmall) > room) {
         return false;
@@ -124,6 +137,13 @@ class PurposeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
+    // ADR 2026-10-04c §2 rules this screen's columns by the window's
+    // breakpoint (layout.dart's header keeps breakpoints for the shell; this
+    // is the one ruled exception — S0.3 sits outside the shell, before any
+    // book exists, so no shell decides it).
+    final wide =
+        RkLayout.forWidth(MediaQuery.sizeOf(context).width) !=
+        RkBreakpoint.compact;
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -142,42 +162,39 @@ class PurposeScreen extends StatelessWidget {
                   const SizedBox(height: RkSpace.s4),
                 ],
                 LayoutBuilder(
-                  builder: (context, constraints) => Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      if (_gridFits(context, constraints.maxWidth)) ...[
-                        // Cards inside an [IntrinsicHeight] cannot use
-                        // [RkFitText]: a [LayoutBuilder] refuses to report
-                        // intrinsic dimensions. They do not need it — this
-                        // branch runs only where the words were measured to
-                        // fit.
-                        _gridRow(_grid[0], _grid[1]),
-                        const SizedBox(height: RkSpace.s3),
-                        _gridRow(_grid[2], _grid[3]),
-                      ] else
-                        // One per row: a card now has the whole width, and
-                        // [RkFitText] closes whatever a compound word still
-                        // overruns.
-                        for (final purpose in _grid) ...[
+                  builder: (context, constraints) {
+                    const cards = OnboardingPurpose.values;
+                    if (wide && _gridFits(context, constraints.maxWidth)) {
+                      // Myself · My business / My family · Our trust. Cards
+                      // inside an [IntrinsicHeight] cannot use [RkFitText]
+                      // (a [LayoutBuilder] refuses to report intrinsic
+                      // dimensions); they do not need it — the words were
+                      // measured to fit.
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          _gridRow(cards[0], cards[1]),
+                          const SizedBox(height: RkSpace.s3),
+                          _gridRow(cards[2], cards[3]),
+                        ],
+                      );
+                    }
+                    // A phone: four full-width cards, one under another.
+                    // [RkFitText] closes whatever a compound word overruns.
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        for (final (i, purpose) in cards.indexed) ...[
+                          if (i > 0) const SizedBox(height: RkSpace.s3),
                           _PurposeCard(
                             purpose: purpose,
                             onTap: onSelected,
                             fit: true,
                           ),
-                          const SizedBox(height: RkSpace.s3),
                         ],
-                      const SizedBox(height: RkSpace.s3),
-                      // Full width beneath (07 §3.1 step 3): five does not
-                      // divide into a grid, and the trust label is the
-                      // longest of the five.
-                      _PurposeCard(
-                        purpose: OnboardingPurpose.trust,
-                        onTap: onSelected,
-                        fullWidth: true,
-                        fit: true,
-                      ),
-                    ],
-                  ),
+                      ],
+                    );
+                  },
                 ),
               ],
             ),
@@ -208,13 +225,11 @@ class _PurposeCard extends StatelessWidget {
   const _PurposeCard({
     required this.purpose,
     required this.onTap,
-    this.fullWidth = false,
     this.fit = false,
   });
 
   final OnboardingPurpose purpose;
   final void Function(OnboardingPurpose purpose)? onTap;
-  final bool fullWidth;
 
   /// Draw the words through [RkFitText]. Off inside an [IntrinsicHeight],
   /// which cannot ask a [LayoutBuilder] for an intrinsic dimension.
@@ -228,6 +243,7 @@ class _PurposeCard extends StatelessWidget {
     final label = purpose.label(l10n);
     final description = purpose.description(l10n);
     return Semantics(
+      key: purposeCardKey(purpose),
       button: true,
       label: '$label. $description',
       child: InkWell(
@@ -241,9 +257,7 @@ class _PurposeCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(RkRadius.md),
           ),
           child: Column(
-            crossAxisAlignment: fullWidth
-                ? CrossAxisAlignment.start
-                : CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(purpose.icon, size: RkIcon.grid),

@@ -20,7 +20,7 @@ abstract final class OnboardingPaths {
   /// a first-run signup on to S0.3, which nothing else reached.
   static const signIn = '/onboarding/sign-in';
 
-  /// S0.3 Purpose — five-card branch, after S0.2 phone+OTP (07 §3.1 step 3,
+  /// S0.3 Purpose — four-card branch (ADR 2026-10-04c §1), after S0.2 phone+OTP (07 §3.1 step 3,
   /// 13 §3.2). Owned here (not aliased off `RkPaths`, same posture as the
   /// three paths above) because S0.2 lives in features/auth and this lane
   /// does not touch router.dart.
@@ -54,7 +54,7 @@ abstract final class OnboardingPaths {
   static const businessOpening = '/onboarding/business/opening';
 
   /// S0.6c Add another business? — the O6c loop control, reached only from
-  /// the **My businesses** card (07 §3.1.1: the *My shop* row has no O6c).
+  /// the **My business** card, every time (07 §3.1.1, ADR 2026-10-04c §1).
   static const businessAnother = '/onboarding/business/another';
 
   /// S0.6d Name the family — the O6d branch step (07 §3.1.1, 13 §3.2).

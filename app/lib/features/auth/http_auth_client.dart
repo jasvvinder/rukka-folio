@@ -29,6 +29,9 @@
 //     `device_id_taken` when another key pair holds it — ADR 2026-09-16 §6
 //     names the server change; until it lands the server ignores the field
 //     and mints its own, which this client refuses (§3);
+//   • `otp/verify` carries `user_id` (the ledger's) and is believed only on
+//     an echo of it; `409 user_id_taken` re-mints once — ADR 2026-10-04b §1–§2
+//     (server lane ID107S);
 //   • `purpose` on both OTP calls (`PURPOSES` in index.ts) — [OtpPurpose];
 //   • error bodies `{ "error": "otp_invalid", "attempts_left"? }`,
 //     `ticket_invalid` (401), `device_cap` (409), `challenge_failed`,
@@ -268,12 +271,17 @@ final class HttpAuthClient
     this.language,
     void Function(String event)? log,
     Future<String?> Function()? deviceIdSource,
+    Future<String?> Function()? userIdSource,
     this.certifier,
+    this.signupIdentity,
   }) : endpoints = AuthEndpoints(baseUrl),
        _log = log ?? _noLog,
        _deviceIdSource =
            deviceIdSource ??
-           (() async => (await readStoredIdentity(_keys))?.deviceId);
+           (() async => (await readStoredIdentity(_keys))?.deviceId),
+       _userIdSource =
+           userIdSource ??
+           (() async => (await readStoredIdentity(_keys))?.userId);
 
   final AuthTransport _transport;
   final CryptoSuite _suite;
@@ -302,10 +310,25 @@ final class HttpAuthClient
   /// cases behave alike rather than one of them being special.
   DeviceAddedAnnouncer? announcer;
 
+  /// The ledger's provisional identity (ADR 2026-10-04b §2 🔒): confirmed
+  /// when `/otp/verify` echoes this install's user id, re-minted once on
+  /// `409 user_id_taken`.
+  ///
+  /// Settable for the same reason [certifier] is — the composition root
+  /// binds the ledger straight after building it (`bootstrap.dart`, pinned by
+  /// C-04b-2 in `bootstrap_wiring_test.dart`). Null ⇒ nothing is confirmed
+  /// (a guarded ledger then authors nothing, which fails closed) and a taken
+  /// id is not retried.
+  SignupIdentity? signupIdentity;
+
   /// Where this device's id comes from: the ledger identity in the same key
   /// store by default (ADR 2026-09-16 §1). Injected only so a test can pin
   /// one; production never passes it.
   final Future<String?> Function() _deviceIdSource;
+
+  /// The user id signup proposes (ADR 2026-10-04b §1): the ledger identity's,
+  /// read from the same store as the device id. Injected only by tests.
+  final Future<String?> Function() _userIdSource;
   final DateTime Function() _now;
   final String _clientVersion;
   final void Function(String) _log;
@@ -706,6 +729,21 @@ final class HttpAuthClient
     _resendAfter.value = s is num ? Duration(seconds: s.ceil()) : null;
   }
 
+  /// `POST otp/verify` (06 §2) carrying this install's own `user_id` (ADR
+  /// 2026-10-04b §1 🔒). The answer is believed only when it echoes that id:
+  ///
+  /// * echo of our id → the ledger's identity is confirmed (§2), **then** the
+  ///   id is stored under [SessionItems.userId];
+  /// * `409 user_id_taken` → the ledger re-mints its provisional identity and
+  ///   the same code is sent once more with the fresh id (§2; the server
+  ///   leaves the challenge unconsumed on a 409);
+  /// * another account's id → [AuthFailureKind.existingAccount] (§3): nothing
+  ///   is stored, nothing confirmed, and no device is registered under the
+  ///   provisional ids. Adopting that id is C-04b-4 (M8);
+  /// * no id, or not a uuid → [AuthFailureKind.unavailable].
+  ///
+  /// No identity in the store fails closed with [NoDeviceIdentity] before any
+  /// request, as [activateDevice] does (ADR 2026-09-16 §3).
   @override
   Future<ActivationTicket> verifyOtp(String code) async {
     final phone = _pendingPhone;
@@ -713,27 +751,83 @@ final class HttpAuthClient
     if (phone == null || purpose == null) {
       throw const AuthFailure(AuthFailureKind.noPendingCode);
     }
-    final r = await _post(endpoints.otpVerify, {
-      'phone': phone,
-      'purpose': purpose.wire,
-      'code': code,
-    });
-    if (r.statusCode == 200) {
+    final stored = await _userIdSource();
+    if (stored == null || !Uuid16.isCanonical(stored)) {
+      throw const NoDeviceIdentity();
+    }
+    var userId = stored;
+    var reminted = false;
+    while (true) {
+      final r = await _post(endpoints.otpVerify, {
+        'phone': phone,
+        'purpose': purpose.wire,
+        'code': code,
+        'user_id': userId,
+      });
+      if (r.statusCode == 200) {
+        return _verified(_json(r), userId);
+      }
       final body = _json(r);
-      final ticket = body['ticket'];
-      if (ticket is! String || ticket.isEmpty) {
-        throw const AuthFailure(AuthFailureKind.unavailable);
+      if (r.statusCode == 409 && body['error'] == 'user_id_taken') {
+        // §2: safe only while nothing was authored — the ledger decides, and
+        // refuses once confirmed or written under. Once, never a loop.
+        final identity = signupIdentity;
+        if (reminted || identity == null) {
+          _log('user_id_taken');
+          throw const AuthFailure(AuthFailureKind.unavailable);
+        }
+        final String fresh;
+        try {
+          fresh = await identity.remintProvisionalIdentity();
+        } on IdentityNotProvisional {
+          _log('user_id_taken');
+          throw const AuthFailure(AuthFailureKind.unavailable);
+        }
+        if (!Uuid16.isCanonical(fresh) || fresh == userId) {
+          throw const AuthFailure(AuthFailureKind.unavailable);
+        }
+        userId = fresh;
+        reminted = true;
+        _log('user_id_reminted');
+        continue;
       }
-      final userId = body['user_id'];
-      if (userId is String && userId.isNotEmpty) {
-        await _writeText(SessionItems.userId, userId);
-      }
+      _verifyRefused(r, body);
+    }
+  }
+
+  Future<ActivationTicket> _verified(
+    Map<String, Object?> body,
+    String userId,
+  ) async {
+    final ticket = body['ticket'];
+    if (ticket is! String || ticket.isEmpty) {
+      throw const AuthFailure(AuthFailureKind.unavailable);
+    }
+    final answered = body['user_id'];
+    if (answered != userId) {
+      // Nothing is stored under an id this install did not propose (§1), and
+      // the code is spent either way: a new one is needed for anything next.
+      // The ids themselves never reach the log (rule 4).
       _pendingPhone = null;
       _pendingPurpose = null;
-      _log('otp_verified');
-      return ActivationTicket(ticket);
+      if (answered is String && Uuid16.isCanonical(answered)) {
+        _log('otp_existing_account');
+        throw const AuthFailure(AuthFailureKind.existingAccount);
+      }
+      _log('otp_user_id_mismatch');
+      throw const AuthFailure(AuthFailureKind.unavailable);
     }
-    final body = _json(r);
+    // §2: confirmed before anything is stored, so a stored session user id
+    // always names a confirmed identity.
+    await signupIdentity?.confirmIdentity(userId);
+    await _writeText(SessionItems.userId, userId);
+    _pendingPhone = null;
+    _pendingPurpose = null;
+    _log('otp_verified');
+    return ActivationTicket(ticket);
+  }
+
+  Never _verifyRefused(AuthHttpResponse r, Map<String, Object?> body) {
     switch (body['error']) {
       case 'otp_invalid':
         final left = body['attempts_left'];

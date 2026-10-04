@@ -102,6 +102,7 @@ business-book table (`tier_catalogue.dart:106–160`, `registry.ts:40–96`).
   | Family | Family Lite ₹1,999 (2 · 4, no import or PDF) · **Family ₹2,499** (8 · 12) · Family+ ₹5,999 (20 · 30) |
   | Trust | Trust ₹1,999 (3 · 15) · Trust+ ₹3,999 (10 · 40) |
 - **13 §10 item 11** (*Business tier ₹2,999, Family stays ₹1,999*) is superseded by this table.
+- **ADR 2026-10-04c §3**: the *Shop* plan is now named **Business Lite**. The id `shop`, its limits and its price are unchanged. ⟦tests: F1-04c-5, E-04c-1⟧
 - **In force from the catalogue lane (M13).** Until it lands, 08 §2's table as written is the interim catalogue,
   so no shipped test asserts a superseded rule meanwhile.
 

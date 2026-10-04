@@ -68,6 +68,48 @@ enum AuthFailureKind {
 
   /// Transport failed; nothing changed.
   unavailable,
+
+  /// The code was right, but the number already belongs to an account and
+  /// this install's provisional identity is not that account's (ADR
+  /// 2026-10-04b §3 🔒 — a further device of an existing user, 06 §5). Nothing
+  /// was stored and no device was registered; adopting the account's id is
+  /// link or recovery work (C-04b-4, M8). Not an oracle: it is answered only
+  /// after a correct code (ADR 04b §3, 06 §2).
+  existingAccount,
+}
+
+/// The install's first-run identity as signup sees it (ADR 2026-10-04b §2 🔒).
+///
+/// `LocalLedger` implements it (`shared/ledger`); `features/auth` drives it
+/// from `POST /otp/verify`. The ids themselves are read from the ledger's
+/// identity record, exactly as the device id is (ADR 2026-09-16 §3).
+abstract interface class SignupIdentity {
+  /// Whether `/otp/verify` has answered with this install's own user id — or
+  /// the identity predates the guard (an install is never locked out of its
+  /// own books). While false, nothing is authored under the identity.
+  bool get identityConfirmed;
+
+  /// Records that `/otp/verify` answered with [userId], which must be this
+  /// install's own (an `ArgumentError` otherwise). Idempotent.
+  Future<void> confirmIdentity(String userId);
+
+  /// ADR 2026-10-04b §2 last bullet: the server answered `409
+  /// user_id_taken`. Discards the provisional user id — with the tenant id
+  /// and the UMK minted beside it — mints fresh ones and returns the new user
+  /// id. Throws [IdentityNotProvisional] when the identity is confirmed or
+  /// anything has been authored under it.
+  Future<String> remintProvisionalIdentity();
+}
+
+/// A re-mint was asked of an identity that is no longer provisional: it was
+/// confirmed by signup, it predates the guard, or something was authored
+/// under it (ADR 2026-10-04b §2 — a re-mint is safe only while nothing is).
+final class IdentityNotProvisional implements Exception {
+  /// Creates the refusal.
+  const IdentityNotProvisional();
+
+  @override
+  String toString() => 'IdentityNotProvisional';
 }
 
 /// Thrown by [AuthClient] calls.

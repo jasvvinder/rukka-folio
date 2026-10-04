@@ -42,6 +42,7 @@ import {
   StoreDenied,
   type Tx,
   type UmkPublicRow,
+  UserIdTakenError,
 } from "./store.ts";
 
 type Row = Record<string, unknown>;
@@ -111,7 +112,8 @@ function seedPlan(
 }
 const FAMILY_Q = [8, 250_000, 5 * GiB, 5 * GiB], TOP_Q = [15, 1_000_000, 15 * GiB, 20 * GiB];
 export const CATALOGUE_SEED: readonly CataloguePlan[] = [
-  seedPlan("shop", "business", "Shop", 1, [2, 1, ...FAMILY_Q], [], 249_900),
+  // Displayed as Business Lite since ADR 2026-10-04c §3 (0029); the id stays `shop`.
+  seedPlan("shop", "business", "Business Lite", 1, [2, 1, ...FAMILY_Q], [], 249_900),
   seedPlan("business", "business", "Business", 2, [10, 5, ...FAMILY_Q], BOTH, 299_900, true),
   seedPlan("business_plus", "business", "Business+", 3, [30, 15, ...TOP_Q], BOTH, 699_900),
   seedPlan("family_lite", "family", "Family Lite", 1, [4, 2, ...FAMILY_Q], [], 199_900),
@@ -1733,6 +1735,11 @@ class MemTx implements Tx {
     return Promise.resolve();
   }
   // ---- auth
+  lockPhoneForVerify(_h: Uint8Array): Promise<void> {
+    // The fake has no transactions to hold a lock across; the serialisation is Postgres's and is
+    // proven there (tests/rls/client_minted_user_id.test.ts, concurrent verifies).
+    return Promise.resolve();
+  }
   findUserByPhoneHmac(h: Uint8Array): Promise<string | null> {
     for (const u of this.db.users.values()) {
       if (u.phone_hmac && bytesEqual(u.phone_hmac, h) && !u.erased_at) return Promise.resolve(u.id);
@@ -1742,8 +1749,20 @@ class MemTx implements Tx {
   phoneCtForOtp(userId: string): Promise<Uint8Array | null> {
     return Promise.resolve(this.db.users.get(userId)?.phone_ct ?? null);
   }
-  signupUser(hmac: Uint8Array, ct: Uint8Array, language: string | null): Promise<string> {
-    return Promise.resolve(this.db.addUser({ phone_hmac: hmac, phone_ct: ct, language }).id);
+  signupUser(
+    hmac: Uint8Array,
+    ct: Uint8Array,
+    language: string | null,
+    id: string | null,
+  ): Promise<string> {
+    // 0030's rf.signup_user (ADR 2026-10-04b §1 🔒): the client's id is recorded as given, or
+    // refused while ANY row holds it — an erased one too: an id is never reused. Refused before
+    // anything is written, as the primary key refuses it on the real store.
+    if (id !== null && this.db.users.has(id)) throw new UserIdTakenError();
+    return Promise.resolve(
+      this.db.addUser({ phone_hmac: hmac, phone_ct: ct, language, ...(id === null ? {} : { id }) })
+        .id,
+    );
   }
   otpChallengesSince(h: Uint8Array, since: Date): Promise<Date[]> {
     return Promise.resolve(

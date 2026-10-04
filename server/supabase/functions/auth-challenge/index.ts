@@ -3,7 +3,16 @@
 //                       SMS is the one channel (ADR 2026-09-25 §1, amending 06 §2): `channel` is
 //                       accepted and ignored — never a 400, since an app build that still asks for
 //                       `whatsapp` must get its code — and the answer never names a channel (E-25-1).
-//   POST /otp/verify    {phone, purpose, code}                     → {ticket, user_id, expires_in_s}
+//   POST /otp/verify    {phone, purpose, code, user_id?, language?} → {ticket, user_id, expires_in_s}
+//                       `user_id` is the id the ledger minted at first run (ADR 2026-10-04b §1 🔒).
+//                       A phone with no account is signed up UNDER it, never under one minted here;
+//                       a phone that has one answers with ITS id and the proposal is ignored (§3), on
+//                       every purpose. Present but not a canonical lowercase uuid → 400 bad_request,
+//                       before the challenge is read. Held by any user (an erased one too) → 409
+//                       `{error: user_id_taken}`, nothing created, and the challenge NOT consumed and
+//                       its attempts not bumped, so the client re-mints and retries once with the
+//                       same code (§2). Absent → the id is minted here, so an older client still
+//                       signs up.
 //   POST /devices       {device_id, ticket, pub_ed, pub_x, model?, os?, attestation?, umk?} → {device_id, user_id, status}
 //                       `umk` is the /devices/certify body below (incl. umk_pub_ed + umk_pub_x), so
 //                       the first device self-certifies in the same call (04 §3.4, 06 §3 step 4).
@@ -40,6 +49,7 @@ import {
   DeviceIdTakenError,
   type RefreshToken,
   StoreDenied,
+  UserIdTakenError,
 } from "../_shared/store.ts";
 
 export const OTP_TTL_S = 5 * 60;
@@ -148,6 +158,12 @@ async function otpVerify(deps: Deps, b: Record<string, unknown>): Promise<Respon
   const purpose = typeof b.purpose === "string" && PURPOSES.has(b.purpose) ? b.purpose : null;
   const code = typeof b.code === "string" && /^\d{6}$/.test(b.code) ? b.code : null;
   if (!phone || !purpose || !code) return error(400, "bad_request");
+  // ADR 2026-10-04b §1 🔒: the client's proposed user id. Shape-checked here, BEFORE the challenge
+  // is read, so a malformed id costs no attempt and spends no code. Any value present — null
+  // included — must be a canonical lowercase uuid: a request that carried something is never
+  // quietly given a server-minted id.
+  const proposed = Object.hasOwn(b, "user_id") ? b.user_id : undefined;
+  if (proposed !== undefined && !isUuid(proposed)) return error(400, "bad_request");
   const now = deps.now();
   const hmac = await phoneHmac(deps.phoneHmacKey, phone);
   const codeHash = await blake2b256(new TextEncoder().encode(code));
@@ -156,6 +172,13 @@ async function otpVerify(deps: Deps, b: Record<string, unknown>): Promise<Respon
     : null;
 
   const out = await deps.store.withClaims(null, async (tx) => {
+    // One verify per phone at a time, held to commit. The account is resolved BEFORE the code is
+    // consumed (below), so the consume no longer serialises two verifies in flight together; this
+    // does, and for every purpose. The second one then reads what the first committed: the same
+    // challenge spent (400 otp_invalid, as a replay a moment later gets), or — on another purpose —
+    // the account just created, whose id it answers. It never races into a second signup for the
+    // phone, which answered 409 user_id_taken for the phone's own id, or 500 without one.
+    await tx.lockPhoneForVerify(hmac);
     const c = await tx.latestOtpChallenge(hmac, purpose);
     if (!c || c.consumed_at || c.expires_at <= now || c.attempts >= OTP_MAX_ATTEMPTS) {
       return { status: 400 as const };
@@ -164,9 +187,27 @@ async function otpVerify(deps: Deps, b: Record<string, unknown>): Promise<Respon
       const n = await tx.bumpOtpAttempts(c.id);
       return { status: 400 as const, attempts_left: OTP_MAX_ATTEMPTS - n };
     }
-    await tx.consumeOtpChallenge(c.id);
+    // The account is resolved BEFORE the code is consumed. A phone with an account answers with its
+    // id whatever was proposed and whatever the purpose — no purpose re-keys a user (§1, §3). Only
+    // a phone with none is signed up, under the proposal when there is one; a proposal some row
+    // already holds is refused with nothing written and the challenge untouched (ADR 04b §2: the
+    // client re-mints and retries ONCE with the same code). The code was proven first, so the 409
+    // is no oracle to anyone who does not hold the phone.
     let user = await tx.findUserByPhoneHmac(hmac);
-    if (!user) user = await tx.signupUser(hmac, await encryptPhone(deps.phoneKek, phone), language);
+    if (!user) {
+      try {
+        user = await tx.signupUser(
+          hmac,
+          await encryptPhone(deps.phoneKek, phone),
+          language,
+          proposed ?? null,
+        );
+      } catch (e) {
+        if (e instanceof UserIdTakenError) return { status: 409 as const };
+        throw e;
+      }
+    }
+    await tx.consumeOtpChallenge(c.id);
     const ticket = await randomBytes(32);
     await tx.createActivationTicket({
       ticket_hash: await blake2b256(ticket),
@@ -179,6 +220,7 @@ async function otpVerify(deps: Deps, b: Record<string, unknown>): Promise<Respon
     });
     return { status: 200 as const, ticket: b64url.enc(ticket), user_id: user };
   });
+  if (out.status === 409) return error(409, "user_id_taken");
   if (out.status !== 200) {
     return json(400, {
       error: "otp_invalid",

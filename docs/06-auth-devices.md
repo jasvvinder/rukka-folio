@@ -68,7 +68,7 @@ A gurudwara committee will not recognise "Operator"; it will recognise ਸੇਵ
 
 > **ADR 2026-09-25 §1** — OTP is SMS-only through the owner's DLT registration; every other line of this section stands. Firebase, carrier SIM checks and passkeys were considered and not taken. ⟦tests: E-25-1 @M6, C-25-1 @M6⟧
 
-> **ADR 2026-10-04b §1–§3** — `POST /otp/verify` carries the first device's own `user_id` and the server records it or answers `409 user_id_taken`; a phone that already has an account takes that account's id, and the install authors nothing until signup answers (§2–§3 ⚠️ owner to confirm). ⟦tests: E-04b-1 @M13, E-04b-2 @M13, E-04b-3 @M13, E-04b-4 @M13, C-04b-1 @M13, C-04b-2 @M13, C-04b-3 @M13, C-04b-4 @M8⟧
+> **ADR 2026-10-04b §1–§3** — `POST /otp/verify` carries the first device's own `user_id` and the server records it or answers `409 user_id_taken`; a phone that already has an account takes that account's id, and the install authors nothing until signup answers (owner-confirmed 4 Oct 2026). Wire: `POST /otp/verify {phone, purpose, code, user_id?}`; a `user_id` key that is present must be a canonical uuid (else `400 bad_request`). ⟦tests: E-04b-1, E-04b-2, E-04b-3, E-04b-4, C-04b-1, C-04b-2, C-04b-3, C-04b-4 @M8⟧
 
 ---
 

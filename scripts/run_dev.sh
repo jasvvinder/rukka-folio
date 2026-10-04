@@ -38,7 +38,10 @@ esac
 UDID="$(xcrun simctl list devices available 2>/dev/null | grep -F "    $DEVICE (" | head -1 | sed -E 's/.*\(([0-9A-F-]{36})\).*/\1/' || true)"
 if [ -n "$UDID" ]; then
   xcrun simctl boot "$UDID" 2>/dev/null || true   # already booted → harmless error
-  open -a Simulator 2>/dev/null || echo "no Simulator.app — running headless (xcrun simctl io booted screenshot <file>)" >&2
+  # Xcode 27 ships no Simulator.app; its simulator window is DeviceHub (Xcode.app/Contents/Applications).
+  open -a Simulator 2>/dev/null \
+    || open "$(xcode-select -p)/../Applications/DeviceHub.app" 2>/dev/null \
+    || echo "no Simulator.app or DeviceHub.app — running headless (xcrun simctl io booted screenshot <file>)" >&2
   DEVICE="$UDID"
 fi
 

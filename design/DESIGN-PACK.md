@@ -258,9 +258,9 @@ A compact list inside the wizard showing every book's state: "Kirana Store — c
 The screen shown immediately after a book locks — a shareable card, not a receipt. Large month name, three figures ("In ₹1,75,000 · Out ₹1,38,200 · Saved ₹36,800" with the saved figure emphasised), then the three largest expenses as small rows with icons, and in a joint family a per-sub-family line. Bottom: **Share on WhatsApp** (primary) and Done. Warm, celebratory but quiet — a tick, not confetti. Design it to look right as an exported square image.
 
 ## S0.3 / S0.5 — Onboarding
-**Purpose picker:** "What will you use this for?" with **five** large illustrated cards — a 2×2 grid of Myself · My shop · My businesses · My family, plus **Our trust** full-width beneath carrying the muted subtitle *gurudwara, temple, society or registered trust* — illustration style of paper, hands, shops and homes; never fintech gradients or 3D coins. **Recovery sheet:** a calm screen explaining plainly "Your books are locked so well that even we cannot open them", a preview of a printable A4 sheet with a QR, and two buttons — Print / Save · I've kept it safe.
+**Purpose picker:** "What will you use this for?" with **four** large illustrated cards — Myself · My business · My family · Our trust; a single column on a phone, a two-column grid on an iPad (ADR 2026-10-04c §2) — **Our trust** carrying the muted subtitle *gurudwara, temple, society or registered trust* — illustration style of paper, hands, shops and homes; never fintech gradients or 3D coins. **Recovery sheet:** a calm screen explaining plainly "Your books are locked so well that even we cannot open them", a preview of a printable A4 sheet with a QR, and two buttons — Print / Save · I've kept it safe.
 
-> **ADR 2026-10-04c** — four cards, *My business* replacing *My shop* and *My businesses*; grid vs single column ⚠️ owner/design to confirm (§2).
+> **ADR 2026-10-04c** — four cards, *My business* replacing *My shop* and *My businesses*; a single column on a phone, a two-column grid from the `medium` breakpoint (iPad) (§2).
 
 
 ---
@@ -286,7 +286,7 @@ The first screen ever shown. Three large tap targets — **English · ਪੰਜ�
 Phone entry with a fixed +91 prefix and a large numeric field; then the OTP screen with six separate character boxes, a resend countdown, and one muted line: "We only send this when you set up a new phone." No password field anywhere, ever.
 
 ## O3 · Purpose picker
-"What will you use this for?" — **five** large illustrated cards: a 2×2 grid of **Myself · My shop · My businesses · My family**, with **Our trust** as a **full-width card beneath** (five will not divide into a grid). This card alone carries a subtitle in smaller muted type — *gurudwara, temple, society or registered trust* — a deliberate asymmetry: the other four are self-explanatory, this one is not, and a mandir or sabha committee member must recognise themselves in it. Illustration style: paper, hands, shopfronts, homes — line-drawn, warm, never fintech gradients or 3D coins. A muted line beneath: "You can change this later."
+"What will you use this for?" — **four** large illustrated cards: **Myself · My business · My family · Our trust** — a single column on a phone, a two-column grid on an iPad (ADR 2026-10-04c §2). This card alone carries a subtitle in smaller muted type — *gurudwara, temple, society or registered trust* — a deliberate asymmetry: the other four are self-explanatory, this one is not, and a mandir or sabha committee member must recognise themselves in it. Illustration style: paper, hands, shopfronts, homes — line-drawn, warm, never fintech gradients or 3D coins. A muted line beneath: "You can change this later."
 
 > **ADR 2026-10-04c** — four cards; see the S0.3 note above.
 

@@ -2,7 +2,7 @@
 
 **Status: shape ruled by the owner, 4 Oct 2026** (*"Client mints"* — desk 107, ADR 2026-09-16 § Open
 first bullet). §1 is that ruling. §2–§4 are the consequences the ruling forces, read from the code on
-4 Oct; they are **⚠️ SPEC: owner to confirm** before the slice that builds them is committed. Resolves
+4 Oct; the owner **confirmed** them on 4 Oct 2026 (*"Confirm §2–§4"*). Resolves
 ADR 2026-09-16 § Open, first bullet.
 
 One install carries two user ids today. `LocalLedger._firstRun` mints `userId` and `tenantId` at first
@@ -29,42 +29,42 @@ records the ledger's `device_id` or answers `409 device_id_taken`, `auth-challen
 
 ## Rulings 🔒 ⟦tests: n/a — container heading; each ruling below carries its own marker⟧
 
-### 1. The first device of a new account mints `user_id`; signup records it or refuses ⟦tests: E-04b-1 @M13, E-04b-2 @M13, E-04b-3 @M13, E-04b-4 @M13, C-04b-1 @M13⟧
+### 1. The first device of a new account mints `user_id`; signup records it or refuses ⟦tests: E-04b-1, E-04b-2, E-04b-3, E-04b-4, C-04b-1⟧
 - `POST /otp/verify` takes an optional `user_id` (canonical uuid). When the phone has **no** user,
   the server creates the `users` row **with that id**; when the id is already held by another user it
   answers `409 {error: user_id_taken}` and creates nothing. A malformed id is `400 bad_request`.
 - The server never mints a user id for a request that carried one. A request without `user_id` keeps
-  today's behaviour, so an older client still signs up. ⟦tests: E-04b-1 @M13, E-04b-3 @M13, E-04b-4 @M13⟧
+  today's behaviour, so an older client still signs up. ⟦tests: E-04b-1, E-04b-3, E-04b-4⟧
 - The proposal is honoured **only** where the server would otherwise call `signupUser`. A phone that
   already has an account answers with **its** user id and ignores the proposal (§3). No other purpose
-  (device activation, phone change, deletion) ever changes a user's id. ⟦tests: E-04b-2 @M13⟧
+  (device activation, phone change, deletion) ever changes a user's id. ⟦tests: E-04b-2⟧
 - The client sends `identity.userId` and, on a 200, checks that the echoed `user_id` equals it before
-  it stores anything under `SessionItems.userId`. ⟦tests: C-04b-1 @M13⟧
+  it stores anything under `SessionItems.userId`. ⟦tests: C-04b-1⟧
 
-### 2. The first-run identity is provisional until signup answers ⟦tests: C-04b-2 @M13, C-04b-3 @M13⟧ — ⚠️ SPEC: owner to confirm
+### 2. The first-run identity is provisional until signup answers ⟦tests: C-04b-2, C-04b-3⟧ — owner-confirmed 4 Oct 2026
 - `_firstRun` mints the device id, user id, tenant id, device keys and a UMK before the network is
   reached (`local_ledger.dart:2059-2092`). Until `/otp/verify` has answered with that same `user_id`,
   the install **authors nothing** under them: no envelope, no signed record, no book key, no device
-  certificate, no UMK public key uploaded. ⟦tests: C-04b-2 @M13⟧
+  certificate, no UMK public key uploaded. ⟦tests: C-04b-2⟧
 - Verified for today: `bootstrap.dart:372` calls `bootstrapSolo()` with no `firstBookName`, so no
   book is created before onboarding, and onboarding reaches S0.2 (OTP) before any book step (13 §5
   F1). The rule makes that ordering a guard instead of a coincidence: `createBook` and every other
-  envelope-writing path refuse while the identity is provisional. ⟦tests: C-04b-2 @M13⟧
+  envelope-writing path refuse while the identity is provisional. ⟦tests: C-04b-2⟧
 - On `409 user_id_taken`, which happens only by collision or by a client choosing someone else's id,
   the install discards its provisional identity, mints a fresh one and retries once. That is safe only
-  because nothing has been authored under it. ⟦tests: C-04b-3 @M13⟧
+  because nothing has been authored under it. ⟦tests: C-04b-3⟧
 
-### 3. A phone that already has an account takes that account's id ⟦tests: E-04b-2 @M13, C-04b-4 @M13⟧ — ⚠️ SPEC: owner to confirm
+### 3. A phone that already has an account takes that account's id ⟦tests: E-04b-2, C-04b-4 @M8⟧ — owner-confirmed 4 Oct 2026
 - When `/otp/verify` answers with a `user_id` different from the install's proposal, the install is a
   **further device** of an existing user (06 §5: *new phone, has old device* / *no old device* /
   *platform key sync* / *Keychain remnant*). It discards its provisional `user_id`, `tenant_id` and
   UMK, adopts the answered `user_id`, and obtains the UMK only through link, recovery or key sync
   (04 §9.1, §7, §7.0). Its `device_id` and device keys stay, per ADR 2026-09-16 §1: nothing has been
-  signed under them yet either. ⟦tests: C-04b-4 @M13⟧
+  signed under them yet either. ⟦tests: C-04b-4 @M8⟧
 - No oracle opens up: the answer comes only after a correct OTP, which proves the person holds the
   phone (06 §2's generic-error rule governs `otp/request`, unchanged).
 
-### 4. `tenant_id` is minted by the client and recorded by the tenant-register route, not at OTP ⟦tests: E-04b-5 @M13⟧ — ⚠️ SPEC: owner to confirm
+### 4. `tenant_id` is minted by the client and recorded by the tenant-register route, not at OTP ⟦tests: E-04b-5 @M13⟧ — owner-confirmed 4 Oct 2026
 - `tenants.type` (`0001:61`: `family | business_group | organization`) is chosen at S0.3, **after**
   OTP, so a tenant cannot be recorded at signup. The client mints each tenant's id. The route that
   registers a tenant (desk 85's book-create route, which also ends `rejected:unknown_book`, desk 117
@@ -74,7 +74,7 @@ records the ledger's `device_id` or answers `409 device_id_taken`, `auth-challen
 
 ## Consequences
 - **Server** (`lane-server`, xhigh, three-lens verify): `auth-challenge` `otp/verify` takes `user_id`;
-  `Store.signupUser(…, id)` inserts with it; `409 user_id_taken`; no migration (the default stays for
+  `Store.signupUser(…, id)` inserts with it; `409 user_id_taken`; no schema change, one function overload — `0030_client_minted_user_id.sql` adds a 4-argument `rf.signup_user`, because the insert lives in that SECURITY DEFINER function (`0005:127`) and `rf_api` holds no INSERT on `users` (the default stays for
   old clients). `E-04b-1…4`. `E-04b-5` lands with desk 85.
 - **Client** (`lane-ui-hard`: auth + bootstrap are foundation): `HttpAuthClient` sends
   `identity.userId` on verify and checks the echo; the provisional-identity guard on `LocalLedger`'s

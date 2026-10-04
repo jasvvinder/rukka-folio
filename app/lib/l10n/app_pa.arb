@@ -319,6 +319,22 @@
   "auth.device.activating": "ਇਹ ਫ਼ੋਨ ਤਿਆਰ ਹੋ ਰਿਹਾ ਹੈ…",
   "auth.device.continue": "ਅੱਗੇ ਚੱਲੋ",
   "auth.device.done.title": "ਇਹ ਫ਼ੋਨ ਤਿਆਰ ਹੈ",
+  "auth.existing.body": "ਇਸ ਨੰਬਰ ਦੇ ਵਹੀ-ਖਾਤੇ ਉਸ ਫ਼ੋਨ ਉੱਤੇ ਹਨ ਜੋ ਤੁਸੀਂ ਪਹਿਲਾਂ ਵਰਤਿਆ ਸੀ। ਉਹਨਾਂ ਨੂੰ ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਲਿਆਓ, ਜਾਂ ਕੋਈ ਹੋਰ ਨੰਬਰ ਵਰਤੋ।",
+  "@auth.existing.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "auth.existing.other_number": "ਕੋਈ ਹੋਰ ਨੰਬਰ ਵਰਤੋ",
+  "@auth.existing.other_number": {
+    "description": "machine-draft — native review M12"
+  },
+  "auth.existing.restore": "ਮੇਰੇ ਵਹੀ-ਖਾਤੇ ਵਾਪਸ ਲਿਆਓ",
+  "@auth.existing.restore": {
+    "description": "machine-draft — native review M12"
+  },
+  "auth.existing.title": "ਇਹ ਨੰਬਰ ਪਹਿਲਾਂ ਹੀ ਸਾਈਨ ਅੱਪ ਹੈ",
+  "@auth.existing.title": {
+    "description": "machine-draft — native review M12"
+  },
   "auth.offline.chip": "ਆਫ਼ਲਾਈਨ — ਕੋਡ ਲਈ ਇੰਟਰਨੈੱਟ ਚਾਹੀਦਾ ਹੈ।",
   "auth.otp.change_number": "ਨੰਬਰ ਬਦਲੋ",
   "auth.otp.error.expired": "ਇਸ ਕੋਡ ਦਾ ਸਮਾਂ ਖ਼ਤਮ ਹੋ ਗਿਆ। ਨਵਾਂ ਕੋਡ ਮੰਗੋ।",
@@ -2215,8 +2231,11 @@
   "@invite.phone.help": {
     "description": "machine-draft — native review M12"
   },
-  "invite.phone.hint": "+91 98765 43210",
-  "invite.phone.invalid": "ਦੇਸ਼ ਦਾ ਕੋਡ ਵੀ ਲਾਓ, ਜਿਵੇਂ +91 98765 43210।",
+  "invite.phone.hint": "98765 43210",
+  "invite.phone.invalid": "ਉਹਨਾਂ ਦਾ 10 ਅੰਕਾਂ ਦਾ ਮੋਬਾਈਲ ਨੰਬਰ ਭਰੋ, ਜਿਵੇਂ 98765 43210।",
+  "@invite.phone.invalid": {
+    "description": "machine-draft — native review M12"
+  },
   "invite.ready.body": "ਸੱਦਾ ਬਣ ਗਿਆ। ਤੁਹਾਡੇ ਵੱਲੋਂ ਕੁਝ ਨਹੀਂ ਭੇਜਿਆ ਜਾਂਦਾ — ਇਹ ਸੁਨੇਹਾ ਵਟਸਐਪ, SMS ਜਾਂ ਕਿਸੇ ਵੀ ਐਪ ਰਾਹੀਂ ਭੇਜੋ।",
   "@invite.ready.body": {
     "description": "machine-draft — native review M12"
@@ -3008,14 +3027,15 @@
   "onboarding.name_photo.photo_label": "ਫੋਟੋ ਸ਼ਾਮਲ ਕਰੋ (ਚੋਣਵਾਂ)",
   "onboarding.name_photo.subtitle": "ਅਪਰੂਵਲ ਅਤੇ ਤਸਦੀਕ ਸਮਾਰੋਹ ਵਿੱਚ ਦਿਖਾਇਆ ਜਾਂਦਾ ਹੈ — ਤੁਹਾਡੇ ਖਾਤਿਆਂ ਤੋਂ ਬਾਹਰ ਸਾਂਝਾ ਨਹੀਂ ਕੀਤਾ ਜਾਂਦਾ",
   "onboarding.name_photo.title": "ਅਸੀਂ ਤੁਹਾਨੂੰ ਕੀ ਕਹਿ ਕੇ ਬੁਲਾਈਏ?",
-  "onboarding.purpose.card.businesses.description": "ਇੱਕ ਤੋਂ ਵੱਧ ਕਾਰੋਬਾਰ",
-  "onboarding.purpose.card.businesses.label": "ਮੇਰੇ ਕਾਰੋਬਾਰ",
+  "onboarding.purpose.card.businesses.description": "ਦੁਕਾਨ, ਪ੍ਰੈਕਟਿਸ, ਫ੍ਰੀਲਾਂਸ ਕੰਮ — ਇੱਕ ਜਾਂ ਵੱਧ",
+  "@onboarding.purpose.card.businesses.description": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-04c §1, desk 111)"
+  },
+  "onboarding.purpose.card.businesses.label": "ਮੇਰਾ ਕਾਰੋਬਾਰ",
   "onboarding.purpose.card.family.description": "ਘਰ ਦੇ ਸਭ ਨਾਲ ਸਾਂਝਾ",
   "onboarding.purpose.card.family.label": "ਮੇਰਾ ਪਰਿਵਾਰ",
   "onboarding.purpose.card.myself.description": "ਆਪਣੇ ਪੈਸਿਆਂ ਦਾ ਹਿਸਾਬ ਰੱਖੋ",
-  "onboarding.purpose.card.myself.label": "ਮੈਂ ਖੁਦ",
-  "onboarding.purpose.card.shop.description": "ਇੱਕ ਦੁਕਾਨ ਦਾ ਨਕਦ ਤੇ ਬੈਂਕ",
-  "onboarding.purpose.card.shop.label": "ਮੇਰੀ ਦੁਕਾਨ",
+  "onboarding.purpose.card.myself.label": "ਸਿਰਫ਼ ਮੈਂ",
   "onboarding.purpose.card.trust.description": "ਗੁਰਦੁਆਰਾ, ਮੰਦਰ, ਸਭਾ ਜਾਂ ਰਜਿਸਟਰਡ ਟਰੱਸਟ",
   "onboarding.purpose.card.trust.label": "ਸਾਡਾ ਟਰੱਸਟ",
   "onboarding.purpose.title": "ਤੁਸੀਂ ਇਸਦੀ ਵਰਤੋਂ ਕਿਸ ਲਈ ਕਰੋਗੇ?",
@@ -4000,7 +4020,7 @@
   "@subscription.plan.personal": {
     "description": "machine-draft — native review M12"
   },
-  "subscription.plan.shop": "ਸ਼ਾਪ",
+  "subscription.plan.shop": "ਬਿਜ਼ਨਸ ਲਾਈਟ",
   "@subscription.plan.shop": {
     "description": "machine-draft — native review M12"
   },

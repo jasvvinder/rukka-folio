@@ -36,7 +36,7 @@
   "@subscription.plan.family": {"description": "machine-draft — native review M12"},
   "subscription.plan.family_plus": "फैमिली+",
   "@subscription.plan.family_plus": {"description": "machine-draft — native review M12"},
-  "subscription.plan.shop": "शॉप",
+  "subscription.plan.shop": "बिज़नेस लाइट",
   "@subscription.plan.shop": {"description": "machine-draft — native review M12"},
   "subscription.plan.business": "बिज़नेस",
   "@subscription.plan.business": {"description": "machine-draft — native review M12"},

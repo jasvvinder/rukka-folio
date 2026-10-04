@@ -59,5 +59,13 @@
   "auth.phone.country_code": "+91",
   "@auth.phone.country_code": {"description": "S0.2 fixed country prefix shown beside the phone field (India first; Latin)."},
   "auth.phone.sending": "Sending…",
-  "@auth.phone.sending": {"description": "S0.2 send button while the request runs (loading state)."}
+  "@auth.phone.sending": {"description": "S0.2 send button while the request runs (loading state)."},
+  "auth.existing.title": "This number is already signed up",
+  "@auth.existing.title": {"description": "S0.2 after a correct code when the number already has an account and this phone is new to it (ADR 2026-10-04b §3). Only shown after a correct code, so it is not an oracle (06 §2)."},
+  "auth.existing.body": "Your books for this number are on the phone you used before. Bring them to this phone, or use a different number.",
+  "@auth.existing.body": {"description": "S0.2 existing-account body: names both ways forward (07 §1 no dead ends)."},
+  "auth.existing.restore": "Get my books back",
+  "@auth.existing.restore": {"description": "S0.2 existing-account primary action → S11.6 recovery fork (06 §5 returning device)."},
+  "auth.existing.other_number": "Use a different number",
+  "@auth.existing.other_number": {"description": "S0.2 existing-account secondary action → back to the phone step."}
 }

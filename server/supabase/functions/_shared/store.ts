@@ -499,9 +499,28 @@ export interface Tx {
   ): Promise<void>;
   markRecordApplied(record: string, note: string): Promise<void>;
   // auth (pre-JWT paths go through security-definer functions in Postgres)
+  /** Serialises every /otp/verify for one phone, whatever its purpose, until this transaction
+   *  ends (PgStore: a transaction-scoped advisory lock on the phone's HMAC, 0019's pattern). Taken
+   *  before the challenge is read, so a second verify that was in flight at the same time decides
+   *  on what the first COMMITTED — the spent challenge, the account it created — and never races it
+   *  into a second signup for the same phone. Without it, ADR 2026-10-04b's resolve-before-consume
+   *  order let two verifies both see "no account" and both insert: the loser answered 409
+   *  user_id_taken for its own phone's id, or 500 with no id (review finding, desk 107). */
+  lockPhoneForVerify(hmac: Uint8Array): Promise<void>;
   findUserByPhoneHmac(hmac: Uint8Array): Promise<string | null>;
   phoneCtForOtp(userId: string): Promise<Uint8Array | null>;
-  signupUser(hmac: Uint8Array, ct: Uint8Array, language: string | null): Promise<string>;
+  /** ADR 2026-10-04b §1 🔒: `id` is the user id the client's ledger minted at first run. It is
+   *  recorded exactly as given, or refused with UserIdTakenError when ANY users row holds it — an
+   *  erased one included, so an id is never reused (users rows are never deleted, 03 §2.5) — and
+   *  nothing is written. null means the request carried none (a client older than the ADR): the id
+   *  is minted here, as before. The caller decides that the phone has no account first; this never
+   *  re-keys an existing user (§3). */
+  signupUser(
+    hmac: Uint8Array,
+    ct: Uint8Array,
+    language: string | null,
+    id: string | null,
+  ): Promise<string>;
   otpChallengesSince(phoneHmac: Uint8Array, since: Date): Promise<Date[]>;
   otpChallengesByIpSince(ipHash: Uint8Array, since: Date): Promise<number>;
   createOtpChallenge(c: Omit<OtpChallenge, "id">): Promise<string>;
@@ -626,6 +645,15 @@ export class DeviceCapError extends Error {
 export class DeviceIdTakenError extends Error {
   constructor() {
     super("device_id_taken");
+  }
+}
+
+/** The client-minted user id is already held by some users row (ADR 2026-10-04b §1 🔒). 409
+ *  `user_id_taken`; the handler raises it BEFORE the OTP challenge is consumed, so the client's one
+ *  retry with a fresh id can reuse the same code (§2). */
+export class UserIdTakenError extends Error {
+  constructor() {
+    super("user_id_taken");
   }
 }
 

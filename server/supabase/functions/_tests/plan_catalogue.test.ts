@@ -19,7 +19,11 @@
 //   * G-25-2 — Free is the personal book only, with no import and no PDF, and signs `features: []`.
 //   * G-25-3 — the trial: popular plan, once per person, never Individual, only by an admin.
 //
-// Ids E-25-3, G-25-1, G-25-2, G-25-3, G-25-4. The PgStore halves are tests/rls/plan_catalogue.test.ts.
+//   * E-04c-1 — ADR 2026-10-04c §3: the `shop` plan's NAME is Business Lite; its id and numbers are
+//     not touched. The names are transcribed here from the ADRs, so a seed left at "Shop" fails.
+//
+// Ids E-25-3, G-25-1, G-25-2, G-25-3, G-25-4, E-04c-1. The PgStore halves are
+// tests/rls/plan_catalogue.test.ts.
 import { assert, assertEquals, assertNotEquals } from "@std/assert";
 import { b64url } from "../_shared/bytes.ts";
 import { NO_CAP, OBJECT_TYPES } from "../_shared/registry.ts";
@@ -30,6 +34,7 @@ import {
 } from "../_shared/sodium.ts";
 import { TOKEN_TTL_MS } from "../_shared/entitlement.ts";
 import { DeviceCapError } from "../_shared/store.ts";
+import { CATALOGUE_SEED } from "../_shared/store_mem.ts";
 import { handler as meta } from "../sync-meta/index.ts";
 import { handler as push } from "../sync-push/index.ts";
 import {
@@ -174,6 +179,49 @@ Deno.test("E-25-3 the catalogue read path (ADR 2026-09-25 §6 🔒): GET /sync-m
     assertEquals(p.limits.envelopes_per_book, 250_000, "08 §2's Family quota, kept as data");
     assertEquals(p.limits.tenant_bytes, 5 * GiB);
   });
+});
+
+/** ADR 2026-10-04c §3's display names, transcribed from the ADRs (ADR 25 §5 as amended by 04c §3),
+ *  not read back from the seed: id → name. The two ladders read Lite · base · plus. */
+const DISPLAY_NAMES: Record<string, string> = {
+  free: "Free",
+  personal: "Personal",
+  shop: "Business Lite",
+  business: "Business",
+  business_plus: "Business+",
+  family_lite: "Family Lite",
+  family: "Family",
+  family_plus: "Family+",
+};
+
+Deno.test("E-04c-1 the `shop` plan is named Business Lite (ADR 2026-10-04c §3 🔒): the MemStore seed and GET /sync-meta/plans both say so, and only the name moved — the id `shop`, its entity type, step, limits, price and extras are ADR 25 §5's — so the Business ladder reads Business Lite · Business · Business+ beside Family Lite · Family · Family+", async () => {
+  const seed = CATALOGUE_SEED.find((p) => p.id === "shop");
+  assert(seed, "the id `shop` is kept: tokens, subscriptions and billing carry it");
+  assertEquals(seed.name, "Business Lite", "the MemStore seed (store_mem.ts) is renamed");
+  assert(!CATALOGUE_SEED.some((p) => p.name === "Shop"), "no plan is still called Shop");
+
+  const r = rig();
+  const tenant = r.db.addTenant();
+  const me = await member(r, tenant, r.db.addBook(tenant), "admin");
+  const plans = (await catalogue(r, me.token)).plans as Record<string, any>[];
+  const shop = plans.find((p) => p.id === "shop")!;
+  assertEquals(shop.name, "Business Lite", "the read path serves the new name");
+  const [entity, books, people, rupees, extras, popular] = ADR_25_TABLE.shop;
+  assertEquals(shop.entity_type, entity);
+  assertEquals(shop.sort_order, 1, "the first step of the Business ladder");
+  assertEquals(shop.limits.business_books, books, "limits unchanged");
+  assertEquals(shop.limits.members, people);
+  assertEquals(shop.price_yearly_paise, rupees * 100, "price unchanged, integer paise");
+  assertEquals(shop.features, extras ? ["pdf_output", "statement_import"] : []);
+  assertEquals(shop.popular, popular);
+  for (const [id, name] of Object.entries(DISPLAY_NAMES)) {
+    assertEquals(plans.find((p) => p.id === id)?.name, name, id);
+  }
+  const ladder = (entity: string) =>
+    plans.filter((p) => p.entity_type === entity).sort((a, b) => a.sort_order - b.sort_order)
+      .map((p) => p.name);
+  assertEquals(ladder("business"), ["Business Lite", "Business", "Business+"]);
+  assertEquals(ladder("family"), ["Family Lite", "Family", "Family+"]);
 });
 
 Deno.test("G-25-4 a catalogue DATA change moves what the server enforces and signs, with no code change (ADR 2026-09-25 §6 🔒): the push quota, the device cap, and the token's limits and features all follow one edited row, and the next pull re-mints", async (t) => {

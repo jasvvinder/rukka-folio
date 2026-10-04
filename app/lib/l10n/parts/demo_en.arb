@@ -6,7 +6,7 @@
   },
   "demo.card.title": "Demo: build {name}'s books",
   "@demo.card.title": {
-    "description": "Demo builder card on S0.3, above the five purpose cards. {name} is the roster person's name (data, not translated).",
+    "description": "Demo builder card on S0.3, above the four purpose cards. {name} is the roster person's name (data, not translated).",
     "placeholders": {
       "name": {
         "type": "String"
@@ -82,7 +82,7 @@
   },
   "demo.card.none.body": "{name} keeps none of the books on the list, so none is made on this phone. To start a book of your own, choose one below.",
   "@demo.card.none.body": {
-    "description": "Demo builder card body when nothing can be made: the five purpose cards beneath are the way on.",
+    "description": "Demo builder card body when nothing can be made: the four purpose cards beneath are the way on.",
     "placeholders": {
       "name": {
         "type": "String"

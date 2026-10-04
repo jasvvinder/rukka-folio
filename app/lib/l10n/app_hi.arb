@@ -319,6 +319,22 @@
   "auth.device.activating": "यह फ़ोन तैयार हो रहा है…",
   "auth.device.continue": "आगे बढ़ें",
   "auth.device.done.title": "यह फ़ोन तैयार है",
+  "auth.existing.body": "इस नंबर के बही-खाते उस फ़ोन पर हैं जो आपने पहले इस्तेमाल किया था। उन्हें इस फ़ोन पर लाएँ, या कोई दूसरा नंबर इस्तेमाल करें।",
+  "@auth.existing.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "auth.existing.other_number": "कोई दूसरा नंबर इस्तेमाल करें",
+  "@auth.existing.other_number": {
+    "description": "machine-draft — native review M12"
+  },
+  "auth.existing.restore": "मेरे बही-खाते वापस लाएँ",
+  "@auth.existing.restore": {
+    "description": "machine-draft — native review M12"
+  },
+  "auth.existing.title": "यह नंबर पहले से साइन अप है",
+  "@auth.existing.title": {
+    "description": "machine-draft — native review M12"
+  },
   "auth.offline.chip": "ऑफ़लाइन — कोड के लिए इंटरनेट चाहिए।",
   "auth.otp.change_number": "नंबर बदलें",
   "auth.otp.error.expired": "इस कोड का समय खत्म हो गया। नया कोड माँगें।",
@@ -2215,8 +2231,11 @@
   "@invite.phone.help": {
     "description": "machine-draft — native review M12"
   },
-  "invite.phone.hint": "+91 98765 43210",
-  "invite.phone.invalid": "देश का कोड भी लगाएँ, जैसे +91 98765 43210।",
+  "invite.phone.hint": "98765 43210",
+  "invite.phone.invalid": "उनका 10 अंकों का मोबाइल नंबर भरें, जैसे 98765 43210।",
+  "@invite.phone.invalid": {
+    "description": "machine-draft — native review M12"
+  },
   "invite.ready.body": "बुलावा बन गया। आपकी ओर से कुछ नहीं भेजा जाता — यह संदेश व्हाट्सएप, SMS या किसी भी ऐप से भेजें।",
   "@invite.ready.body": {
     "description": "machine-draft — native review M12"
@@ -3008,14 +3027,15 @@
   "onboarding.name_photo.photo_label": "फ़ोटो जोड़ें (वैकल्पिक)",
   "onboarding.name_photo.subtitle": "अनुमोदन (approvals) और सत्यापन समारोह में दिखाया जाता है — आपके खातों से बाहर साझा नहीं किया जाता",
   "onboarding.name_photo.title": "हम आपको क्या कहकर बुलाएँ?",
-  "onboarding.purpose.card.businesses.description": "एक से ज़्यादा कारोबार",
-  "onboarding.purpose.card.businesses.label": "मेरे कारोबार",
+  "onboarding.purpose.card.businesses.description": "दुकान, प्रैक्टिस, फ्रीलांस काम — एक या ज़्यादा",
+  "@onboarding.purpose.card.businesses.description": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-04c §1, desk 111)"
+  },
+  "onboarding.purpose.card.businesses.label": "मेरा कारोबार",
   "onboarding.purpose.card.family.description": "घर के सभी लोगों के साथ साझा",
   "onboarding.purpose.card.family.label": "मेरा परिवार",
   "onboarding.purpose.card.myself.description": "अपने पैसों का हिसाब रखें",
-  "onboarding.purpose.card.myself.label": "मैं खुद",
-  "onboarding.purpose.card.shop.description": "एक दुकान का नकद और बैंक",
-  "onboarding.purpose.card.shop.label": "मेरी दुकान",
+  "onboarding.purpose.card.myself.label": "सिर्फ़ मैं",
   "onboarding.purpose.card.trust.description": "गुरुद्वारा, मंदिर, सभा या रजिस्टर्ड ट्रस्ट",
   "onboarding.purpose.card.trust.label": "हमारा ट्रस्ट",
   "onboarding.purpose.title": "आप इसका उपयोग किसके लिए करेंगे?",
@@ -4000,7 +4020,7 @@
   "@subscription.plan.personal": {
     "description": "machine-draft — native review M12"
   },
-  "subscription.plan.shop": "शॉप",
+  "subscription.plan.shop": "बिज़नेस लाइट",
   "@subscription.plan.shop": {
     "description": "machine-draft — native review M12"
   },

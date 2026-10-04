@@ -33,6 +33,7 @@ import 'package:drift/drift.dart';
 import 'package:sync_engine/sync_engine.dart'
     show AcceptedBookKey, AcceptedKeySink, BookKeyStore, VerifiedUmkSource;
 
+import '../seams/auth_client.dart' show IdentityNotProvisional, SignupIdentity;
 import '../seams/key_store.dart';
 import '../seams/review_policy.dart';
 import 'device_certification.dart';
@@ -43,7 +44,7 @@ export '../seams/review_policy.dart' show ReviewPolicy, noReviewPolicy;
 export 'device_certification.dart'
     show DeviceCertOffer, DeviceCertifier, umkKeyVersionFirst;
 export 'ledger_identity.dart'
-    show LedgerIdentity, LocalLedgerKeys, readStoredIdentity;
+    show IdentityState, LedgerIdentity, LocalLedgerKeys, readStoredIdentity;
 export 'verified_members.dart'
     show
         VerificationPayload,
@@ -191,6 +192,20 @@ final class LedgerNotOpen implements Exception {
 
   @override
   String toString() => 'LedgerNotOpen: call bootstrapSolo() first';
+}
+
+/// The install's identity is still provisional (ADR 2026-10-04b §2 🔒):
+/// `/otp/verify` has not yet answered with this install's own user id, so
+/// nothing may be authored under it — no envelope, no signed record, no book
+/// key, no device certificate. Thrown only by a ledger built with
+/// `requireConfirmedIdentity` (the composition root's), before any write.
+final class IdentityNotConfirmed implements Exception {
+  /// Creates the refusal.
+  const IdentityNotConfirmed();
+
+  @override
+  String toString() =>
+      'IdentityNotConfirmed: sign in (06 §2) before authoring anything';
 }
 
 /// One line of the Home position card (07 §4; 02 §9). Every figure is signed
@@ -1775,7 +1790,8 @@ StructuralEvent? decodeStructuralEvent(
 }
 
 /// The local ledger.
-final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
+final class LocalLedger
+    implements DeviceCertifier, AcceptedKeySink, SignupIdentity {
   /// Creates the facade. [suite] is the app's libsodium binding wrapped in a
   /// [CryptoSuite]; [now] is the injected wall clock the HLC ticks against.
   LocalLedger({
@@ -1784,6 +1800,7 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
     required this.suite,
     required this.now,
     this.reviewPolicy = noReviewPolicy,
+    this.requireConfirmedIdentity = false,
   }) : mirror = Mirror(db, hasher: blake2bHasher(suite)) {
     recompute = Recompute(
       db,
@@ -1816,6 +1833,18 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
   /// lines later, in the same synchronous stretch, before `runApp`.
   ReviewPolicy reviewPolicy;
 
+  /// The provisional-identity guard (ADR 2026-10-04b §2 🔒): when true,
+  /// every authoring door — [createBook], every envelope, a verification
+  /// record, a book key accepted from sync, the device certificate and the
+  /// UMK public halves it carries — refuses with [IdentityNotConfirmed] until
+  /// [confirmIdentity] has run (or the identity predates the guard).
+  ///
+  /// Off by default so the many suites that build a ledger to exercise the
+  /// engine keep doing so unchanged; **the composition root turns it on**
+  /// (`productionLedger` in `bootstrap.dart`, pinned by C-04b-2 in
+  /// `bootstrap_wiring_test.dart`). [identityConfirmed] is tracked either way.
+  final bool requireConfirmedIdentity;
+
   /// Envelope mirror + outbox (03 §3.1).
   final Mirror mirror;
 
@@ -1828,10 +1857,18 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
   LedgerIdentity? _identity;
   DeviceKeyPair? _device;
   UmkKeyPair? _umk;
+
+  /// UMKs a re-mint replaced while a borrowed [keyMaterial] may still point
+  /// at them (the sync engine's `CryptoGuard` holds the object, not a copy).
+  /// Zeroised by [dispose], which the composition root runs when it rebuilds
+  /// after a re-mint — never under a live holder, which would turn its next
+  /// use into `StateError` (review finding ID107C-3).
+  final List<UmkKeyPair> _retiredUmks = [];
   VerifiedUmkPublic? _umkVerified;
   VerifiedMemberDirectory? _verifiedMembers;
   DeviceCert? _ownCert;
   bool _umkPubsAccepted = false;
+  bool _identityConfirmed = false;
   Hlc _clock = const Hlc(0);
 
   /// Called with this device's own certificate the moment it is filed —
@@ -1841,8 +1878,142 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
   /// cannot be handed to this constructor (`bootstrap.dart`).
   void Function(DeviceCert cert)? onOwnCert;
 
+  /// Called after [remintProvisionalIdentity] has replaced the user id, the
+  /// tenant id and the UMK. Everything built from this ledger's identity or
+  /// [keyMaterial] before that moment — the sync engine, its guard, the
+  /// members repository — now names the discarded ids, so the composition
+  /// root rebuilds itself (`RootRelaunch` in `bootstrap.dart`).
+  void Function()? onIdentityReminted;
+
   /// True after [bootstrapSolo] (or a successful re-open).
   bool get isOpen => _identity != null;
+
+  // ── provisional identity (ADR 2026-10-04b §2 🔒) ──────────────────────────
+
+  /// Whether signup has answered with this install's own user id, or the
+  /// identity predates the guard. False before [bootstrapSolo].
+  @override
+  bool get identityConfirmed => _identity != null && _identityConfirmed;
+
+  /// The one gate every authoring door passes (see
+  /// [requireConfirmedIdentity]). Synchronous, so it runs before the first
+  /// write of whatever called it.
+  void _requireAuthoring() {
+    _requireOpen();
+    if (requireConfirmedIdentity && !_identityConfirmed) {
+      throw const IdentityNotConfirmed();
+    }
+  }
+
+  /// Records that `/otp/verify` echoed [userId] (ADR 2026-10-04b §1–§2). Only
+  /// this install's own id confirms it; any other is an `ArgumentError` and
+  /// changes nothing — adopting another user's id is §3's link-or-recovery
+  /// work (C-04b-4, M8), never a side effect here.
+  @override
+  Future<void> confirmIdentity(String userId) async {
+    _requireOpen();
+    final id = _identity!;
+    if (userId != id.userId) {
+      throw ArgumentError.value(
+        '<redacted>',
+        'userId',
+        'is not this install\'s user id (ADR 2026-10-04b §1)',
+      );
+    }
+    if (_identityConfirmed) return;
+    await keys.write(
+      LocalLedgerKeys.identityState,
+      IdentityState(userId: id.userId, confirmed: true).encode(),
+    );
+    _identityConfirmed = true;
+  }
+
+  /// ADR 2026-10-04b §2 last bullet — the server answered `409
+  /// user_id_taken`: discards the provisional user id, the tenant id and the
+  /// UMK minted with them, mints fresh ones and returns the new user id.
+  ///
+  /// The **device id and device keys stay** (⚠️ SPEC: §2 says *discards its
+  /// provisional identity* without naming parts; ADR 2026-09-16 §1 🔒 mints a
+  /// device id once, and ADR 04b §3 keeps the device id and keys on adoption
+  /// because nothing was signed under them — the same is true here, and the
+  /// taken id is the user id, not the device's).
+  ///
+  /// Refused with [IdentityNotProvisional] when the identity is confirmed, is
+  /// a legacy one, or anything has been authored under it: a book key, an
+  /// envelope, a signed record, a filed certificate. Order of writes: the
+  /// state record for the new id first, then the wrapped UMK, then the
+  /// identity record — so a re-mint that dies half-way never reads as
+  /// confirmed.
+  @override
+  Future<String> remintProvisionalIdentity() async {
+    _requireOpen();
+    final old = _identity!;
+    if (_identityConfirmed || await _anythingAuthored()) {
+      throw const IdentityNotProvisional();
+    }
+    final userId = newId();
+    final tenantId = newId();
+    final umk = UmkKeyPair.generate(suite);
+    final wrapped = wrapUmkToDevice(suite, umk, _selfVerifyDevice(_device!));
+    final identity = LedgerIdentity(
+      deviceId: old.deviceId,
+      userId: userId,
+      tenantId: tenantId,
+    );
+    await keys.write(
+      LocalLedgerKeys.identityState,
+      IdentityState(userId: userId, confirmed: false).encode(),
+    );
+    await keys.write(KeyIds.wrappedUmk, wrapped.bytes);
+    await keys.write(
+      LocalLedgerKeys.identity,
+      identity.encode(suiteVersion: suiteVersion),
+    );
+    final discarded = _umk;
+    _umk = umk;
+    _umkVerified = _selfVerifyUmk(umk, userId);
+    _keySource.store?.clear();
+    _keySource.store = BookKeyStore(tenantId: tenantId);
+    _keySource.tenants.clear();
+    await _openVerifiedMembers(identity);
+    _identity = identity;
+    // Retired, not zeroised: a guard built from [keyMaterial] still holds it
+    // until the root rebuilds; [dispose] zeroises it then.
+    if (discarded != null) _retiredUmks.add(discarded);
+    onIdentityReminted?.call();
+    return userId;
+  }
+
+  /// Whether anything has been written under the identity that a re-mint
+  /// would strand (CLAUDE.md rule 2): checked against the stores, not the
+  /// guard, so an unguarded ledger is refused too.
+  Future<bool> _anythingAuthored() async {
+    if (_ownCert != null || _umkPubsAccepted) return true;
+    if (await keys.contains(LocalLedgerKeys.deviceCert)) return true;
+    if (await keys.contains(LocalLedgerKeys.umkPubsAccepted)) return true;
+    if ((await mirror.bookIds()).isNotEmpty) return true;
+    if ((await (db.select(db.keyCache)..limit(1)).get()).isNotEmpty) {
+      return true;
+    }
+    if ((await (db.select(db.outbox)..limit(1)).get()).isNotEmpty) return true;
+    return (await (db.select(
+      db.signedRecordsLocal,
+    )..limit(1)).get()).isNotEmpty;
+  }
+
+  /// Reads where signup stands at open. Absent ⇒ the identity predates the
+  /// guard ⇒ confirmed (never lock an existing user out). Present ⇒ confirmed
+  /// only when it says so **for this user id**; an unreadable record is
+  /// provisional.
+  Future<void> _loadIdentityState(LedgerIdentity id) async {
+    final raw = await keys.read(LocalLedgerKeys.identityState);
+    if (raw == null) {
+      _identityConfirmed = true;
+      return;
+    }
+    final st = IdentityState.decode(raw);
+    _identityConfirmed = st != null && st.confirmed && st.userId == id.userId;
+  }
 
   /// This install's ids; throws [LedgerNotOpen] before bootstrap.
   LedgerIdentity get identity => _identity ?? (throw const LedgerNotOpen());
@@ -1903,7 +2074,7 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
   /// server has accepted it.
   @override
   DeviceCertOffer issueOwnCert() {
-    _requireOpen();
+    _requireAuthoring();
     final umk = _umk!;
     return DeviceCertOffer(
       cert: DeviceCert.issue(
@@ -1927,6 +2098,8 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
     final cert = _ownCert, umk = _umk;
     if (cert == null || umk == null || _identity == null) return null;
     if (_umkPubsAccepted) return null;
+    // ADR 2026-10-04b §2: no UMK public half leaves a provisional install.
+    if (requireConfirmedIdentity && !_identityConfirmed) return null;
     return DeviceCertOffer(
       cert: cert,
       umkPubEd: umk.public.ed25519,
@@ -1943,7 +2116,7 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
   /// (04 §8.2 🔒).
   @override
   Future<void> installOwnCert(DeviceCert cert) async {
-    _requireOpen();
+    _requireAuthoring();
     final device = _device!.public;
     if (cert.device != device) {
       throw ArgumentError.value(
@@ -1972,6 +2145,10 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
   Future<void> recordUmkPubsAccepted(DeviceCertOffer offer) async {
     final umk = _umk, device = _device;
     if (umk == null || device == null || _identity == null) return;
+    // ADR 2026-10-04b §2: a provisional install has uploaded no UMK half.
+    if (requireConfirmedIdentity && !_identityConfirmed) {
+      throw const IdentityNotConfirmed();
+    }
     if (offer.cert.deviceId != device.public.deviceId ||
         offer.umkKeyVersion != umkKeyVersionFirst ||
         !Bytes.equal(offer.umkPubX, umk.public.x25519)) {
@@ -2082,11 +2259,19 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
       userId: userId,
       tenantId: tenantId,
     );
+    // ADR 2026-10-04b §2 🔒: provisional until `/otp/verify` echoes [userId].
+    // Written before the identity record: an absent state record reads as a
+    // pre-guard (confirmed) identity, so it must never be the one missing.
+    await keys.write(
+      LocalLedgerKeys.identityState,
+      IdentityState(userId: userId, confirmed: false).encode(),
+    );
     await keys.write(
       LocalLedgerKeys.identity,
       identity.encode(suiteVersion: suiteVersion),
     );
 
+    _identityConfirmed = false;
     _device = device;
     _umk = umk;
     _umkVerified = _selfVerifyUmk(umk, userId);
@@ -2123,6 +2308,7 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
     _umkVerified = _selfVerifyUmk(umk, id.userId);
     _keySource.store = BookKeyStore(tenantId: id.tenantId);
     await _openVerifiedMembers(id);
+    await _loadIdentityState(id);
     _identity = id;
     await _loadOwnCert();
     await _loadUmkPubsAccepted();
@@ -2213,8 +2399,14 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
       tenantId: id.tenantId,
       selfUserId: id.userId,
       // Borrowed, never held: after [dispose] the callback throws rather than
-      // hand out a zeroised key.
-      author: () => _device ?? (throw const LedgerNotOpen()),
+      // hand out a zeroised key. A provisional identity signs no record
+      // (ADR 2026-10-04b §2 🔒); the check runs before the record is built.
+      author: () {
+        if (requireConfirmedIdentity && !_identityConfirmed) {
+          throw const IdentityNotConfirmed();
+        }
+        return _device ?? (throw const LedgerNotOpen());
+      },
       tick: _tick,
       newRecordId: newId,
     );
@@ -2286,7 +2478,7 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
   /// already at rest is the one that has been opening envelopes.
   @override
   Future<void> keyAccepted(AcceptedBookKey key) async {
-    _requireOpen();
+    _requireAuthoring();
     final mine = Fingerprint.of(suite, _umk!.public);
     if (key.recipient != mine) {
       throw ArgumentError.value(
@@ -2355,7 +2547,10 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
     OrganizationSubtype? organizationSubtype,
     LocalDate? startDate,
   }) async {
-    _requireOpen();
+    // ADR 2026-10-04b §2 🔒: the book key, the config envelope and every
+    // seeded account are authored under the identity — none while it is
+    // provisional.
+    _requireAuthoring();
     if (ownerShares.isNotEmpty && ownerShares.length != ownerNames.length) {
       throw ArgumentError.value(
         ownerShares,
@@ -4364,6 +4559,8 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
     required Hlc hlc,
     required Map<String, Object?> Function(int authorSeq) object,
   }) {
+    // Every envelope passes here (ADR 2026-10-04b §2 🔒).
+    _requireAuthoring();
     final id = _identity!;
     final device = _device!;
     final key = _currentKey(bookId);
@@ -5748,6 +5945,10 @@ final class LocalLedger implements DeviceCertifier, AcceptedKeySink {
     _keySource.store = null;
     _keySource.tenants.clear();
     _umk?.dispose();
+    for (final retired in _retiredUmks) {
+      retired.dispose();
+    }
+    _retiredUmks.clear();
     _device?.dispose();
     _umk = null;
     _device = null;

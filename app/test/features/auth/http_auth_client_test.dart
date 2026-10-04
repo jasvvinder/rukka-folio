@@ -73,16 +73,58 @@ const otherDeviceId = '5c3e1a7f-2b9d-4e6a-8f1c-0d2e4a6b8c1e';
 Future<void> seedLedgerIdentity(
   FakeKeyStore keys, {
   String device = deviceId,
+  String user = ledgerUserId,
 }) => keys.write(
   LocalLedgerKeys.identity,
   LedgerIdentity(
     deviceId: device,
-    userId: ledgerUserId,
+    userId: user,
     tenantId: ledgerTenantId,
   ).encode(suiteVersion: 1),
 );
 
 final nonce = Uint8List.fromList(List.generate(32, (i) => 255 - i));
+
+/// The id a re-mint hands back (ADR 2026-10-04b §2), and the id of an account
+/// the phone already has (§3). Synthetic.
+const remintedUserId = '3a4b5c6d-7e8f-4a1b-9c2d-3e4f5a6b7c8d';
+const existingUserId = '1f2e3d4c-5b6a-4978-8695-a4b3c2d1e0f9';
+
+/// The ledger as signup sees it (`SignupIdentity`, ADR 2026-10-04b §2). The
+/// real one is `LocalLedger` (`test/shared/ledger/provisional_identity_test`);
+/// this records what the client asked of it, and re-mints the way the ledger
+/// does — by rewriting the identity record the client reads.
+final class FakeSignupIdentity implements SignupIdentity {
+  FakeSignupIdentity(this.keys);
+
+  final FakeKeyStore keys;
+  bool confirmed = false;
+  bool refuseRemint = false;
+  final confirmedWith = <String>[];
+  int reminted = 0;
+
+  /// The SessionItems.userId value at the moment of confirmation: the
+  /// identity is confirmed before anything is stored.
+  final storedAtConfirm = <bool>[];
+
+  @override
+  bool get identityConfirmed => confirmed;
+
+  @override
+  Future<void> confirmIdentity(String userId) async {
+    storedAtConfirm.add(await keys.contains(SessionItems.userId));
+    confirmedWith.add(userId);
+    confirmed = true;
+  }
+
+  @override
+  Future<String> remintProvisionalIdentity() async {
+    if (refuseRemint || confirmed) throw const IdentityNotProvisional();
+    reminted++;
+    await seedLedgerIdentity(keys, user: remintedUserId);
+    return remintedUserId;
+  }
+}
 
 /// The `/token` and `/refresh` 200 body (index.ts issueTokens).
 Map<String, Object?> sessionBody(
@@ -269,7 +311,7 @@ void main() {
       '/otp/verify',
       ScriptedTransport.ok({
         'ticket': 'tk-1',
-        'user_id': 'u-1',
+        'user_id': ledgerUserId,
         'expires_in_s': 600,
       }),
     );
@@ -341,7 +383,7 @@ void main() {
         '/otp/verify',
         ScriptedTransport.ok({
           'ticket': 'tk',
-          'user_id': 'u-1',
+          'user_id': ledgerUserId,
           'expires_in_s': 600,
         }),
       );
@@ -350,6 +392,7 @@ void main() {
         'phone': phone,
         'purpose': 'device_activation',
         'code': code,
+        'user_id': ledgerUserId,
       });
       final joined = log.join('\n');
       expect(joined, isNot(contains(phone.substring(3))));
@@ -506,6 +549,7 @@ void main() {
         'phone': phone,
         'purpose': 'signup',
         'code': '000004',
+        'user_id': ledgerUserId,
       });
     });
   });
@@ -679,7 +723,7 @@ void main() {
         '/otp/verify',
         ScriptedTransport.ok({
           'ticket': 'tk-x',
-          'user_id': 'u',
+          'user_id': ledgerUserId,
           'expires_in_s': 600,
         }),
       );
@@ -782,7 +826,7 @@ void main() {
         '/otp/verify',
         ScriptedTransport.ok({
           'ticket': 'tk-1',
-          'user_id': 'u-1',
+          'user_id': ledgerUserId,
           'expires_in_s': 600,
           // Not in the contract; a server that leaks it must not be believed.
           'tenant_name': 'Sharma Family',
@@ -979,8 +1023,9 @@ void main() {
       await keys.delete(LocalLedgerKeys.identity);
       scriptHappyPath();
       final c = await client();
-      await c.requestOtp(phone);
-      final ticket = await c.verifyOtp(code);
+      // verifyOtp itself refuses with no identity since ADR 2026-10-04b §1
+      // (C-04b-1); a ticket from elsewhere still finds activation closed.
+      const ticket = ActivationTicket('tk-1');
       final writesBefore = keys.writes.length;
       await expectLater(
         c.activateDevice(ticket),
@@ -1742,6 +1787,222 @@ void main() {
       expect(certifier.filed, hasLength(2), reason: 'it did re-certify');
       expect(post.filedWhenPosted, hasLength(before));
       expect(post.posted, isEmpty);
+    });
+  });
+
+  group('ADR 2026-10-04b — the first device mints user_id', () {
+    late FakeSignupIdentity identity;
+
+    Future<HttpAuthClient> signupClient() async {
+      final c = await client();
+      identity = FakeSignupIdentity(keys);
+      c.signupIdentity = identity;
+      return c;
+    }
+
+    void scriptRequest() => t.on(
+      '/otp/request',
+      ScriptedTransport.ok({'ok': true, 'resend_after_s': 30}),
+    );
+
+    Map<String, Object?> verified(String userId) => {
+      'ticket': 'tk-1',
+      'user_id': userId,
+      'expires_in_s': 600,
+    };
+
+    List<Map<String, Object?>> verifyBodies() => [
+      for (final r in t.requests)
+        if (r.url.path.endsWith('/otp/verify')) r.body,
+    ];
+
+    test('C-04b-1 verifyOtp sends the ledger identity\'s user_id and, when the '
+        'server echoes it, confirms the identity and only then stores it under '
+        'SessionItems.userId — no id reaches the log', () async {
+      final c = await signupClient();
+      scriptRequest();
+      t.on('/otp/verify', ScriptedTransport.ok(verified(ledgerUserId)));
+      await c.requestOtp(phone);
+      final ticket = await c.verifyOtp(code);
+
+      expect(ticket.value, 'tk-1');
+      expect(verifyBodies().single, {
+        'phone': phone,
+        'purpose': 'signup',
+        'code': code,
+        'user_id': ledgerUserId,
+      });
+      expect(identity.confirmedWith, [ledgerUserId]);
+      expect(identity.storedAtConfirm, [false]);
+      expect(
+        utf8.decode((await keys.read(SessionItems.userId))!),
+        ledgerUserId,
+      );
+      expect(log.join('\n'), isNot(contains(ledgerUserId)));
+    });
+
+    test('C-04b-1 an echo that is missing or is not a uuid is refused as '
+        'unavailable: nothing confirmed, nothing stored', () async {
+      for (final echo in <Object?>[null, '', 'u-1', 42]) {
+        t = ScriptedTransport();
+        final c = await signupClient();
+        scriptRequest();
+        t.on(
+          '/otp/verify',
+          ScriptedTransport.ok({'ticket': 'tk-1', 'user_id': echo}),
+        );
+        await c.requestOtp(phone);
+        await expectLater(
+          c.verifyOtp(code),
+          throwsA(
+            isA<AuthFailure>().having(
+              (f) => f.kind,
+              'kind',
+              AuthFailureKind.unavailable,
+            ),
+          ),
+          reason: 'echo $echo',
+        );
+        expect(identity.confirmedWith, isEmpty);
+        expect(await keys.contains(SessionItems.userId), isFalse);
+      }
+    });
+
+    test(
+      'C-04b-1 with no ledger identity verifyOtp throws NoDeviceIdentity '
+      'before any request — it never sends a request without the id',
+      () async {
+        await keys.delete(LocalLedgerKeys.identity);
+        final c = await signupClient();
+        scriptRequest();
+        t.on('/otp/verify', ScriptedTransport.ok(verified(ledgerUserId)));
+        await c.requestOtp(phone);
+        await expectLater(c.verifyOtp(code), throwsA(isA<NoDeviceIdentity>()));
+        expect(t.count('/otp/verify'), 0);
+        expect(await keys.contains(SessionItems.userId), isFalse);
+      },
+    );
+
+    test('C-04b-3 409 user_id_taken re-mints the provisional identity and '
+        'retries ONCE with the same code and the fresh id; the fresh id is '
+        'what is confirmed and stored', () async {
+      final c = await signupClient();
+      scriptRequest();
+      t.on(
+        '/otp/verify',
+        ScriptedTransport.ok({'error': 'user_id_taken'}, 409),
+      );
+      t.on('/otp/verify', ScriptedTransport.ok(verified(remintedUserId)));
+      await c.requestOtp(phone);
+      await c.verifyOtp(code);
+
+      final bodies = verifyBodies();
+      expect(bodies, hasLength(2));
+      expect(bodies[0]['user_id'], ledgerUserId);
+      expect(bodies[1]['user_id'], remintedUserId);
+      expect(bodies[1]['code'], code);
+      expect(identity.reminted, 1);
+      expect(identity.confirmedWith, [remintedUserId]);
+      expect(
+        utf8.decode((await keys.read(SessionItems.userId))!),
+        remintedUserId,
+      );
+      expect(log.join('\n'), isNot(contains(remintedUserId)));
+    });
+
+    test('C-04b-3 the retry is once: a second 409, a re-mint the ledger '
+        'refuses (confirmed or authored) and a client with no ledger bound each '
+        'end unavailable with nothing stored', () async {
+      // A second 409.
+      var c = await signupClient();
+      scriptRequest();
+      t.on(
+        '/otp/verify',
+        ScriptedTransport.ok({'error': 'user_id_taken'}, 409),
+      );
+      await c.requestOtp(phone);
+      await expectLater(
+        c.verifyOtp(code),
+        throwsA(
+          isA<AuthFailure>().having(
+            (f) => f.kind,
+            'kind',
+            AuthFailureKind.unavailable,
+          ),
+        ),
+      );
+      expect(t.count('/otp/verify'), 2);
+      expect(identity.reminted, 1);
+      expect(identity.confirmedWith, isEmpty);
+      expect(await keys.contains(SessionItems.userId), isFalse);
+
+      // The ledger refuses the re-mint.
+      t = ScriptedTransport();
+      await seedLedgerIdentity(keys);
+      c = await signupClient();
+      identity.refuseRemint = true;
+      scriptRequest();
+      t.on(
+        '/otp/verify',
+        ScriptedTransport.ok({'error': 'user_id_taken'}, 409),
+      );
+      await c.requestOtp(phone);
+      await expectLater(c.verifyOtp(code), throwsA(isA<AuthFailure>()));
+      expect(t.count('/otp/verify'), 1);
+      expect(identity.reminted, 0);
+
+      // No ledger bound.
+      t = ScriptedTransport();
+      c = await client();
+      scriptRequest();
+      t.on(
+        '/otp/verify',
+        ScriptedTransport.ok({'error': 'user_id_taken'}, 409),
+      );
+      await c.requestOtp(phone);
+      await expectLater(c.verifyOtp(code), throwsA(isA<AuthFailure>()));
+      expect(t.count('/otp/verify'), 1);
+      expect(await keys.contains(SessionItems.userId), isFalse);
+    });
+
+    test('C-04b-2 ADR 04b §3: a verify that answers ANOTHER account\'s user_id '
+        'surfaces existingAccount — the foreign id is not stored, the identity '
+        'is not confirmed, no device is registered, and the spent code is '
+        'forgotten', () async {
+      final c = await signupClient();
+      scriptRequest();
+      t.on('/otp/verify', ScriptedTransport.ok(verified(existingUserId)));
+      await c.requestOtp(phone);
+      await expectLater(
+        c.verifyOtp(code),
+        throwsA(
+          isA<AuthFailure>().having(
+            (f) => f.kind,
+            'kind',
+            AuthFailureKind.existingAccount,
+          ),
+        ),
+      );
+      expect(identity.confirmedWith, isEmpty);
+      expect(identity.reminted, 0);
+      expect(await keys.contains(SessionItems.userId), isFalse);
+      expect(t.count('/devices'), 0);
+      expect(
+        (await readStoredIdentity(keys))!.userId,
+        ledgerUserId,
+        reason: 'the provisional identity is not adopted over (C-04b-4, M8)',
+      );
+      await expectLater(
+        c.verifyOtp(code),
+        throwsA(
+          isA<AuthFailure>().having(
+            (f) => f.kind,
+            'kind',
+            AuthFailureKind.noPendingCode,
+          ),
+        ),
+      );
+      expect(log.join('\n'), isNot(contains(existingUserId)));
     });
   });
 }

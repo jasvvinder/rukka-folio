@@ -1,11 +1,13 @@
 // F1 widget tests for S0.6c — *Add another business?*, the loop control of the
 // multi-business branch (13 §3.2 row S0.6c, 07 §3.1.1).
 //
-// 07 §3.1.1's table is what decides who ever sees this screen: the **My
-// businesses** row reads O6a → O6b → **O6c** looping back to O6a → O6 your own
-// → checklist, and the **My shop** row does not — a shop goes O6a → O6b → O6 →
-// checklist. So the purpose card, not the fact that a business was created, is
-// what opens the loop.
+// 07 §3.1.1's table, as amended by ADR 2026-10-04c §1, decides who sees this
+// screen: the one **My business** card reads O6a → O6b → **O6c** looping back
+// to O6a → O6 your own → checklist. Every *My business* user reaches S0.6c; a
+// one-business person answers *No, that's all* and goes on exactly as the
+// retired *My shop* card did. (The former `F1-07-83 only the My businesses
+// card reaches S0.6c — My shop falls through` was superseded by that ADR and
+// re-lands as F1-04c-2.)
 //
 // Sources: 13 §3.2 row S0.6c, 07 §3.1.1 (the branch table; every step
 // skippable and resumable), ADR 2026-09-09 §1–3 (owners and share weights are
@@ -20,16 +22,11 @@ import 'package:core_ledger/core_ledger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/features/home/home_paths.dart';
-import 'package:rukka_folio/features/onboarding/onboarding_flow.dart';
-import 'package:rukka_folio/features/onboarding/onboarding_paths.dart';
 import 'package:rukka_folio/features/onboarding/onboarding_routes.dart';
-import 'package:rukka_folio/features/onboarding/screens/s0_3_purpose_screen.dart';
-import 'package:rukka_folio/features/onboarding/screens/s0_6a_business_name_screen.dart';
-import 'package:rukka_folio/features/onboarding/screens/s0_6c_add_another_business_screen.dart';
-import 'package:rukka_folio/features/onboarding/widgets/business_opening_host.dart';
 import 'package:rukka_folio/shared/ledger/local_ledger.dart';
 
 import '../../shared/test_app.dart';
+import 'onboarding_router_harness.dart';
 
 final _start = LocalDate(2026, 9, 7);
 
@@ -215,15 +212,67 @@ void main() {
       },
     );
 
-    test('F1-07-83 only the My businesses card reaches S0.6c — My shop falls '
-        'through to the checklist (07 §3.1.1 branch table)', () {
-      final businesses = OnboardingFlow()
-        ..setPurpose(OnboardingPurpose.businesses);
-      expect(afterBusinessOpening(businesses), OnboardingPaths.businessAnother);
+    test('F1-04c-2 the My business card always reaches S0.6c after S0.6b — '
+        'one business or many (ADR 2026-10-04c §1)', () {
+      final flow = OnboardingFlow()..setPurpose(OnboardingPurpose.businesses);
+      // S0.8's Continue takes the business branch (S0.6a) …
+      expect(afterSetPin(flow), OnboardingPaths.business);
+      // … and S0.6b always hands on to S0.6c, before and after a first book.
+      expect(afterBusinessOpening(flow), OnboardingPaths.businessAnother);
+      flow.setBusiness(_draft('Sharma IT Services'));
+      flow.businessBookId = 'book-1';
+      expect(afterBusinessOpening(flow), OnboardingPaths.businessAnother);
+      // No other card is routed to S0.6c.
+      for (final p in OnboardingPurpose.values) {
+        if (p == OnboardingPurpose.businesses) continue;
+        expect(
+          afterBusinessOpening(OnboardingFlow()..setPurpose(p)),
+          isNot(OnboardingPaths.businessAnother),
+          reason: p.name,
+        );
+      }
+    });
 
-      final shop = OnboardingFlow()..setPurpose(OnboardingPurpose.shop);
-      expect(afterBusinessOpening(shop), HomePaths.home);
-    }, skip: 'superseded by ADR 2026-10-04c §1; re-lands at M13');
+    testWidgets(
+      'F1-04c-2 through the router, a one-business person goes S0.6a → S0.6b '
+      '→ S0.6c, sees their business there, answers No, that’s all and lands '
+      'on Home\'s checklist exactly as the old My shop path did',
+      (tester) async {
+        resetOnboardingFlow();
+        final ledger = await openTestLedger();
+        await ledger.bootstrapSolo();
+        onboardingFlow.setPurpose(OnboardingPurpose.businesses);
+        // S0.8's hand-off for this card is S0.6a (afterSetPin); start there.
+        final router = await pumpOnboardingRouter(
+          tester,
+          ledger,
+          initialLocation: afterSetPin(onboardingFlow),
+        );
+        expect(router.state.uri.path, OnboardingPaths.business);
+
+        // S0.6a — the name, *Just me* by default → S0.6b's host.
+        await tester.enterText(find.byType(TextField).first, 'Sharma Traders');
+        await tapContinue(tester);
+        expect(router.state.uri.path, OnboardingPaths.businessOpening);
+        expect(onboardingFlow.businessBookId, isNotNull);
+
+        // S0.6b — *Skip for now* is the host's onDone, the seam ADR
+        // 2026-10-04c §1 changed: it must reach S0.6c, not Home.
+        await tester.tap(find.text('Skip for now'));
+        await tester.pumpAndSettle();
+        expect(router.state.uri.path, OnboardingPaths.businessAnother);
+        expect(onboardingFlow.businesses, hasLength(1));
+        expect(find.text('Add another business?'), findsOneWidget);
+        expect(find.text('Sharma Traders'), findsOneWidget);
+
+        await tester.tap(find.text('No, that’s all'));
+        await tester.pumpAndSettle();
+
+        // The old *My shop* row: O6a → O6b → O6 your own → checklist, whose
+        // landing is Home (S0.7 brings O6 back, 07 §3.1 step 7).
+        expect(router.state.uri.path, HomePaths.home);
+      },
+    );
 
     test('F1-07-83 S0.6c is in the 13 §3.2 inventory after S0.6b', () {
       final doc = File('../docs/13-ux-architecture.md').readAsLinesSync();

@@ -14,6 +14,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/features/auth/auth_transport.dart';
 import 'package:rukka_folio/features/auth/http_auth_client.dart';
 import 'package:rukka_folio/shared/ledger/local_ledger.dart';
+import 'package:rukka_folio/shared/seams/auth_client.dart';
 import 'package:rukka_folio/shared/seams/key_store.dart';
 
 import '../test_app.dart';
@@ -22,6 +23,9 @@ import '../test_app.dart';
 /// client sends and echoes it. Everything else is the minimum happy path.
 final class EchoingAuthServer implements AuthTransport {
   final bodies = <String, Map<String, Object?>>{};
+
+  /// Set to answer `otp/verify` as a phone that already has this account.
+  String? existingUser;
 
   @override
   Future<AuthHttpResponse> post(
@@ -37,7 +41,13 @@ final class EchoingAuthServer implements AuthTransport {
       case 'otp/request':
         out = {'ok': true, 'resend_after_s': 30};
       case 'otp/verify':
-        out = {'ticket': 'tk-1', 'user_id': 'u-1', 'expires_in_s': 600};
+        // ADR 2026-10-04b §1: the proposed id is recorded and echoed — unless
+        // the phone already has an account (§3), modelled by [existingUser].
+        out = {
+          'ticket': 'tk-1',
+          'user_id': existingUser ?? b['user_id'],
+          'expires_in_s': 600,
+        };
       case 'devices':
         out = {
           'device_id': b['device_id'],
@@ -168,5 +178,71 @@ void main() {
     // remnant (06 §5) is the same device to the server too.
     final again = await openTestLedger(keys: keys, db: l.db);
     expect((await again.bootstrapSolo()).deviceId, id.deviceId);
+  });
+
+  group('ADR 2026-10-04b §1–§2 over the real ledger', () {
+    Future<LocalLedger> guardedOver(FakeKeyStore keys) async {
+      final l = LocalLedger(
+        db: await openTestDb(),
+        keys: keys,
+        suite: await testSuite(),
+        now: testNow,
+        requireConfirmedIdentity: true,
+      );
+      addTearDown(l.dispose);
+      return l;
+    }
+
+    test('C-04b-2 a guarded ledger authors nothing until verify echoes its '
+        'user id; the echo confirms it through the auth client and the first '
+        'book is then created under that same id', () async {
+      final l = await guardedOver(keys);
+      final id = await l.bootstrapSolo();
+      await expectLater(
+        l.createBook(name: 'Me', type: BookType.personal),
+        throwsA(isA<IdentityNotConfirmed>()),
+      );
+
+      final auth = await authOver(keys);
+      auth.signupIdentity = l;
+      auth.certifier = l;
+      await auth.requestOtp('+919999999999');
+      final ticket = await auth.verifyOtp('123456');
+      expect(server.bodies['otp/verify']!['user_id'], id.userId);
+      expect(l.identityConfirmed, isTrue);
+
+      final bookId = await l.createBook(name: 'Me', type: BookType.personal);
+      expect(await l.mirror.bookIds(), [bookId]);
+      await auth.activateDevice(ticket);
+      expect(server.bodies['devices']!['device_id'], id.deviceId);
+    });
+
+    test('C-04b-2 a phone that already has an account leaves the guarded '
+        'ledger provisional: existingAccount, no device registered, and still '
+        'nothing can be authored', () async {
+      final l = await guardedOver(keys);
+      await l.bootstrapSolo();
+      server.existingUser = '1f2e3d4c-5b6a-4978-8695-a4b3c2d1e0f9';
+      final auth = await authOver(keys);
+      auth.signupIdentity = l;
+      await auth.requestOtp('+919999999999');
+      await expectLater(
+        auth.verifyOtp('123456'),
+        throwsA(
+          isA<AuthFailure>().having(
+            (f) => f.kind,
+            'kind',
+            AuthFailureKind.existingAccount,
+          ),
+        ),
+      );
+      expect(l.identityConfirmed, isFalse);
+      expect(server.bodies.containsKey('devices'), isFalse);
+      expect(await keys.contains(SessionItems.userId), isFalse);
+      await expectLater(
+        l.createBook(name: 'Me', type: BookType.personal),
+        throwsA(isA<IdentityNotConfirmed>()),
+      );
+    });
   });
 }

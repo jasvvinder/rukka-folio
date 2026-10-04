@@ -8,6 +8,11 @@
 // Both were green in their own suites and wired to nothing (M13-REV89U review
 // findings 1–2), so each test here drives the production builder the root
 // calls and then pins that the root calls it.
+//
+// C-04b-2: the root's half of ADR 2026-10-04b §2 🔒 — the ledger the root
+// opens is built with the provisional-identity guard ON, and the auth client
+// is bound to it so `/otp/verify` can confirm (or re-mint) it. A guard every
+// test switches on and the root does not is the S6-on-a-fake failure.
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -23,10 +28,12 @@ import 'package:rukka_folio/features/members/members_repository.dart';
 import 'package:rukka_folio/shared/ledger/local_ledger.dart';
 import 'package:rukka_folio/shared/seams/http_transport.dart';
 import 'package:rukka_folio/shared/seams/key_store.dart';
+import 'package:core_ledger/core_ledger.dart' show BookType;
 import 'package:rukka_folio/shared/sync/guardian_sealing.dart';
 import 'package:rukka_folio/shared/sync/guardians_seams.dart';
 import 'package:sync_engine/sync_engine.dart' as eng;
 
+import '../test_app.dart' show openTestDb, testNow;
 import 'guardian_test_keys.dart';
 
 /// Synthetic tenant id (rule 4) — canonical, as `parseGuardianDraft` takes
@@ -517,4 +524,140 @@ void main() {
       });
     },
   );
+
+  group('C-04b-2 the root opens the ledger with the provisional-identity '
+      'guard on (ADR 2026-10-04b §2 🔒)', () {
+    test('the production builder refuses to author under a provisional '
+        'identity and authors once signup has confirmed it', () async {
+      final keys = FakeKeyStore();
+      final ledger = productionLedger(
+        db: await openTestDb(),
+        keys: keys,
+        suite: await liveSuite(),
+        now: testNow,
+      );
+      addTearDown(ledger.dispose);
+      expect(ledger.requireConfirmedIdentity, isTrue);
+
+      final id = await ledger.bootstrapSolo();
+      expect(ledger.identityConfirmed, isFalse);
+      await expectLater(
+        ledger.createBook(name: 'Me', type: BookType.personal),
+        throwsA(isA<IdentityNotConfirmed>()),
+      );
+      await ledger.confirmIdentity(id.userId);
+      await ledger.createBook(name: 'Me', type: BookType.personal);
+      expect(await ledger.mirror.bookIds(), hasLength(1));
+    });
+
+    test('the root builds its one ledger through that builder, and binds the '
+        'auth client to it before any screen or repository is built', () {
+      final root = _bootstrapCode();
+      expect(
+        RegExp(r'\bLocalLedger\(').allMatches(root),
+        hasLength(1),
+        reason: 'one construction — the builder’s',
+      );
+      expect(
+        RegExp(r'LocalLedger\([^;]*\brequireConfirmedIdentity:\s*true\b')
+            .hasMatch(root),
+        isTrue,
+      );
+      expect(
+        RegExp(r'final\s+ledger\s*=\s*productionLedger\(').hasMatch(root),
+        isTrue,
+      );
+      final bind = root.indexOf(RegExp(r'auth\.signupIdentity\s*=\s*ledger;'));
+      expect(bind, greaterThan(0));
+      expect(
+        bind,
+        lessThan(root.indexOf('ServerMembersRepository(')),
+        reason: 'bound straight after the ledger opens',
+      );
+      expect(bind, greaterThan(root.indexOf('ledger.bootstrapSolo()')));
+    });
+  });
+
+  group('C-04b-3 a re-mint rebuilds the composition root (review finding '
+      'ID107C-3)', () {
+    test('RootRelaunch fires once, on the first return to the foreground '
+        'after a re-mint, and only when the re-minted identity is confirmed '
+        'with a live session', () {
+      TestWidgetsFlutterBinding.ensureInitialized();
+      var ready = false;
+      var runs = 0;
+      final r = RootRelaunch(ready: () => ready, relaunch: () async => runs++);
+      WidgetsBinding.instance.addObserver(r);
+      addTearDown(() => WidgetsBinding.instance.removeObserver(r));
+
+      // No re-mint: coming back never rebuilds.
+      ready = true;
+      r.didChangeAppLifecycleState(AppLifecycleState.resumed);
+      expect(runs, 0);
+      expect(r.pending, isFalse);
+
+      // Re-minted but S0.2 not finished: wait.
+      ready = false;
+      r.arm();
+      expect(r.pending, isTrue);
+      r.didChangeAppLifecycleState(AppLifecycleState.resumed);
+      expect(runs, 0);
+
+      // Ready, but still in the foreground or going away: never under the
+      // user's hands.
+      ready = true;
+      for (final s in [
+        AppLifecycleState.inactive,
+        AppLifecycleState.hidden,
+        AppLifecycleState.paused,
+      ]) {
+        r.didChangeAppLifecycleState(s);
+      }
+      expect(runs, 0);
+
+      r.didChangeAppLifecycleState(AppLifecycleState.resumed);
+      expect(runs, 1);
+      expect(r.pending, isFalse);
+      r.arm();
+      r.didChangeAppLifecycleState(AppLifecycleState.resumed);
+      expect(runs, 1, reason: 'once per root — the next root has its own');
+    });
+
+    test('the root binds it to the ledger before runApp, and its rebuild '
+        'unmounts the screens, then disposes sync, the ledger (zeroising the '
+        'retired UMK) and the database before bootstrapping again', () {
+      final root = _bootstrapCode();
+      final bind = root.indexOf(
+        RegExp(r'ledger\.onIdentityReminted\s*=\s*relaunch\.arm;'),
+      );
+      expect(bind, greaterThan(0));
+      final mounted = root.indexOf(
+        RegExp(r'runApp\(\s*MembersRepositoryScope\('),
+      );
+      expect(mounted, greaterThan(0));
+      expect(bind, lessThan(mounted));
+      expect(RegExp(r'addObserver\(relaunch\)').hasMatch(root), isTrue);
+      expect(
+        RegExp(
+          r'ready:\s*\(\)\s*=>\s*ledger\.identityConfirmed\s*&&\s*'
+          r'auth\.current\s+is\s+Active',
+        ).hasMatch(root),
+        isTrue,
+      );
+      final body = root.substring(bind - 900 < 0 ? 0 : bind - 900, bind);
+      final order = [
+        'removeObserver(syncObserver)',
+        'runApp(const SizedBox.shrink())',
+        'endOfFrame',
+        'sync.dispose()',
+        'ledger.dispose()',
+        'db.close()',
+        'bootstrap()',
+      ].map(body.indexOf).toList();
+      expect(order.every((i) => i >= 0), isTrue, reason: '$order');
+      for (var i = 1; i < order.length; i++) {
+        expect(order[i], greaterThan(order[i - 1]), reason: '$order');
+      }
+    });
+  });
 }

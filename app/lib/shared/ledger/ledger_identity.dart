@@ -10,7 +10,9 @@
 //
 // The record is not secret (three uuids) but the seam is the only persistent
 // store the shell offers outside the ledger database. It is written once and
-// never rewritten: [LedgerIdentity.decode] ignores fields it does not know
+// never rewritten — with one exception, a provisional identity re-minted on
+// `409 user_id_taken` before anything was authored under it (ADR 2026-10-04b
+// §2): [LedgerIdentity.decode] ignores fields it does not know
 // rather than dropping them on a re-encode (rule 6).
 import 'dart:convert';
 import 'dart:typed_data';
@@ -34,6 +36,59 @@ abstract final class LocalLedgerKeys {
   /// `encodeUmkPubsAccepted`. Its presence stops the launch-time re-offer
   /// (owner ruling 25 Sep, PLAN desk 33).
   static const umkPubsAccepted = 'rk.ledger.umk_pubs_accepted';
+
+  /// Where signup stands for the identity (ADR 2026-10-04b §2 🔒), JSON
+  /// `{user_id, state}` — see [IdentityState]. Written by `_firstRun`
+  /// *before* the identity record, so a first run that dies half-way leaves
+  /// nothing that reads as confirmed. **Absent** means the identity was
+  /// stored before the guard existed: it reads as confirmed, because an
+  /// existing install is never locked out of its own books.
+  static const identityState = 'rk.ledger.identity_state';
+}
+
+/// Whether `/otp/verify` has answered with the identity's own user id (ADR
+/// 2026-10-04b §2 🔒). Bound to the user id it was written for: a record that
+/// names any other id — a re-mint that died before its identity record
+/// landed — never reads as confirmed.
+final class IdentityState {
+  /// Creates the record.
+  const IdentityState({required this.userId, required this.confirmed});
+
+  /// The user id the record speaks for.
+  final String userId;
+
+  /// True once signup echoed [userId].
+  final bool confirmed;
+
+  static const _provisional = 'provisional';
+  static const _confirmed = 'confirmed';
+
+  /// The stored form, UTF-8 JSON.
+  Uint8List encode() => Uint8List.fromList(
+    utf8.encode(
+      jsonEncode({
+        'user_id': userId,
+        'state': confirmed ? _confirmed : _provisional,
+      }),
+    ),
+  );
+
+  /// Parses a stored record; null when it is not one. A record that will
+  /// not parse is treated by the ledger as *provisional* — never as the
+  /// absent (legacy, confirmed) case.
+  static IdentityState? decode(Uint8List bytes) {
+    final Object? j;
+    try {
+      j = jsonDecode(utf8.decode(bytes));
+    } on FormatException {
+      return null;
+    }
+    if (j is! Map) return null;
+    final user = j['user_id'], state = j['state'];
+    if (user is! String || !Uuid16.isCanonical(user)) return null;
+    if (state != _provisional && state != _confirmed) return null;
+    return IdentityState(userId: user, confirmed: state == _confirmed);
+  }
 }
 
 /// Who this install is: the ids every envelope is stamped with (04 §4).

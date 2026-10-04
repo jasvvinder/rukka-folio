@@ -73,6 +73,7 @@ import 'shared/prefs.dart';
 import 'shared/records/device_added_record.dart';
 import 'shared/records/device_record_author.dart';
 import 'shared/router.dart';
+import 'shared/seams/auth_client.dart' show Active;
 import 'shared/seams/closed_years.dart';
 import 'shared/seams/dialer.dart';
 import 'shared/seams/share_sheet.dart';
@@ -183,6 +184,29 @@ final class SystemSyncClock implements eng.Clock {
 Future<LedgerIdentity?> storedIdentity(KeyStore keys) =>
     readStoredIdentity(keys);
 
+/// The ledger the composition root opens (02 · 03 · 04): the one
+/// construction in this file, with the provisional-identity guard **on**
+/// (ADR 2026-10-04b §2 🔒) — until `/otp/verify` echoes this install's own
+/// user id, `createBook` and every other authoring door refuse with
+/// `IdentityNotConfirmed`, and no certificate or UMK half leaves.
+///
+/// Separate from [bootstrap] so C-04b-2 (`bootstrap_wiring_test.dart`) can
+/// drive the production construction; [bootstrap] is its only caller.
+LocalLedger productionLedger({
+  required LedgerDatabase db,
+  required KeyStore keys,
+  required CryptoSuite suite,
+  required DateTime Function() now,
+  ReviewPolicy reviewPolicy = noReviewPolicy,
+}) => LocalLedger(
+  db: db,
+  keys: keys,
+  suite: suite,
+  now: now,
+  reviewPolicy: reviewPolicy,
+  requireConfirmedIdentity: true,
+);
+
 /// S11.1's roster (04 §7.3 Setup) from the members feature's [snapshot],
 /// read in [tenantId] — the install's tenant, whose members the snapshot
 /// holds, and so the tenant a set chosen from them is set up in (ADR
@@ -277,6 +301,53 @@ class _GuardianStandingHostState extends State<GuardianStandingHost> {
       GuardianStandingScope(standing: _standing, child: widget.child);
 }
 
+/// Rebuilds the composition root after a provisional re-mint (ADR
+/// 2026-10-04b §2 last bullet; review finding ID107C-3).
+///
+/// Everything [bootstrap] builds from the ledger's identity is stamped at
+/// launch: the sync engine's user and tenant ids, its `CryptoGuard`'s UMK and
+/// book-key store, the members repository, S11.1's tenant. A re-mint in the
+/// same process leaves all of them naming the discarded ids (the ledger
+/// retires rather than zeroises the old UMK, so nothing throws meanwhile, but
+/// nothing syncs either). The fix is the one a cold start already gives: the
+/// root is built again from what the ledger persisted.
+///
+/// When: the first time the app comes back to the foreground after the
+/// re-minted identity has been confirmed **and** the session is live
+/// ([ready]) — never in the middle of S0.2's verify or activation, and never
+/// under the user's hands. What the user then sees is exactly a cold start
+/// after the platform killed a backgrounded app, which every launch path
+/// already handles. ⚠️ SPEC: no doc names a moment for this; the one chosen
+/// adds no screen, no string and no state a cold start does not already have.
+class RootRelaunch with WidgetsBindingObserver {
+  /// [ready] says the re-minted identity is safe to rebuild around;
+  /// [relaunch] tears the root down and builds it again.
+  RootRelaunch({required this.ready, required this.relaunch});
+
+  /// True once nothing is in flight that a rebuild would cut short.
+  final bool Function() ready;
+
+  /// Tears this root down and runs [bootstrap] again.
+  final Future<void> Function() relaunch;
+
+  bool _armed = false;
+  bool _fired = false;
+
+  /// Whether a re-mint has happened and the rebuild has not yet run.
+  bool get pending => _armed && !_fired;
+
+  /// The ledger's `onIdentityReminted`.
+  void arm() => _armed = true;
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed || !pending || !ready()) return;
+    _fired = true;
+    WidgetsBinding.instance.removeObserver(this);
+    unawaited(relaunch());
+  }
+}
+
 /// Builds every dependency and starts the app (03 §5: fail closed).
 Future<void> bootstrap() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -360,7 +431,7 @@ Future<void> bootstrap() async {
       // to post through the window, and the holder answers *no limit* — never
       // *reviewed* — while it is empty.
       final reviewPolicy = LateReviewPolicy();
-      final ledger = LocalLedger(
+      final ledger = productionLedger(
         db: db,
         keys: keys,
         suite: suite,
@@ -379,15 +450,22 @@ Future<void> bootstrap() async {
         runApp(const RukkaFolioBlocked());
         return;
       }
+      // ADR 2026-10-04b §1–§2 🔒: `/otp/verify` proposes this ledger's user id
+      // and confirms the identity on the echo (or re-mints it once on
+      // `user_id_taken`). Bound here, before any screen can reach S0.2.
+      auth.signupIdentity = ledger;
 
       // Signing structural facts (ADR 2026-09-05b §1 🔒). Null when this
       // device holds no Ed25519 key or has never registered — and null is the
       // input `ServerMembersRepository` turns into `unauthorized`, which is
-      // the correct refusal and stays reachable.
+      // the correct refusal and stays reachable. A provisional identity signs
+      // no record either (ADR 2026-10-04b §2 🔒): no device id is offered
+      // until signup has confirmed it.
       final recordAuthor = await DeviceRecordAuthor.ifAvailable(
         suite: suite,
         keys: keys,
         deviceIdOf: () async {
+          if (!ledger.identityConfirmed) return null;
           final raw = await keys.read(SessionItems.deviceId);
           return raw == null ? null : utf8.decode(raw);
         },
@@ -826,7 +904,28 @@ Future<void> bootstrap() async {
       // through the observer. Fire-and-forget: 07 §1.7 🔒 says a sync cycle
       // never stands in front of the user, so nothing below awaits it.
       await sync.start();
-      WidgetsBinding.instance.addObserver(SyncLifecycleObserver(sync));
+      final syncObserver = SyncLifecycleObserver(sync);
+      WidgetsBinding.instance.addObserver(syncObserver);
+
+      // ADR 2026-10-04b §2: a `409 user_id_taken` re-mints the provisional
+      // identity in this process, after everything above was stamped with the
+      // old ids. Bound before `runApp`, so before any S0.2 can verify.
+      final relaunch = RootRelaunch(
+        ready: () => ledger.identityConfirmed && auth.current is Active,
+        relaunch: () async {
+          WidgetsBinding.instance.removeObserver(syncObserver);
+          // Unmount every screen first: they read the database closed below.
+          runApp(const SizedBox.shrink());
+          await WidgetsBinding.instance.endOfFrame;
+          await sync.dispose();
+          httpClient.close();
+          ledger.dispose(); // zeroises the live and the retired UMK
+          await db.close();
+          await bootstrap();
+        },
+      );
+      ledger.onIdentityReminted = relaunch.arm;
+      WidgetsBinding.instance.addObserver(relaunch);
 
       homeScope.addListener(() {
         unawaited(

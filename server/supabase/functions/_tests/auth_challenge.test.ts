@@ -1,5 +1,6 @@
-// auth-challenge (06 §2–§4 🔒; ADR 2026-09-05d §2, ADR 2026-09-16 §2, ADR 2026-09-25 §1). Ids
-// E-06-1 … E-06-8, E-06-40, E-06-41, E-06-68, E-25-1, E-25-4 … E-25-9.
+// auth-challenge (06 §2–§4 🔒; ADR 2026-09-05d §2, ADR 2026-09-16 §2, ADR 2026-09-25 §1,
+// ADR 2026-10-04b §1, §3). Ids E-06-1 … E-06-8, E-06-40, E-06-41, E-06-68, E-25-1, E-25-4 … E-25-9,
+// E-04b-1 … E-04b-4.
 import {
   assert,
   assertEquals,
@@ -29,6 +30,7 @@ import {
   type Rig,
   rig,
   sign,
+  T0,
 } from "./harness.ts";
 
 const PHONE = "+919876543210";
@@ -1257,4 +1259,254 @@ Deno.test("E-25-9 the fixed code is impossible on any project the switch does no
   for (const [label, vars] of cases) {
     await assertRefuses(vars, "otp_fixed_code_unbound", label);
   }
+});
+
+// ---------------------------------------------------------------- ADR 2026-10-04b §1, §3 (desk 107)
+// The first device mints `user_id`; /otp/verify records it or refuses. What each test denies:
+//   * a SERVER-MINTED SECOND IDENTITY for an install that proposed one (E-04b-1),
+//   * an EXISTING ACCOUNT'S ID MOVING because a request proposed another, on any purpose (E-04b-2),
+//   * a TAKEN ID being handed to a second person — and a refusal that SPENDS the user's code, which
+//     would leave the client's one retry (ADR §2, C-04b-3) with nothing to retry with (E-04b-3),
+//   * an OLDER CLIENT locked out, or a malformed id costing an attempt or minting anyway (E-04b-4).
+// The PgStore half — rf.signup_user's 4-argument overload (0030) and the savepoint that keeps the
+// 409's transaction committable — is tests/rls/client_minted_user_id.test.ts.
+
+/** Requests a fresh code for `phone`/`purpose`, past any backoff, and returns it. */
+async function freshCode(r: Rig, phone = PHONE, purpose = "signup"): Promise<string> {
+  advance(r, 61 * 60_000); // out of the last hour: no resend backoff, no hourly cap
+  const res = await call(r, "/otp/request", { phone, purpose });
+  assertEquals(res.status, 200, "precondition: a code was issued");
+  return r.otp.sent.at(-1)!.code;
+}
+const verify = (r: Rig, b: Record<string, unknown>) => call(r, "/otp/verify", b);
+/** The challenge /otp/verify reads for this phone + purpose: the newest one. */
+const lastChallenge = (r: Rig) => r.db.otp_challenges.at(-1)!;
+async function registerUnder(r: Rig, ticket: string) {
+  const dev = await edKeypair();
+  return await body(
+    await call(r, "/devices", {
+      device_id: crypto.randomUUID(),
+      ticket,
+      pub_ed: b64url.enc(dev.pub),
+      pub_x: b64url.enc(await random(32)),
+    }),
+  );
+}
+
+Deno.test("E-04b-1 otp/verify records the client's user_id (ADR 2026-10-04b §1 🔒): a phone with no account that proposes a canonical uuid gets ONE users row WITH that id — echoed, carried by the activation ticket, the user /devices registers under — and the server mints no second id; the proposal is honoured wherever signup would otherwise mint, whatever the purpose", async (t) => {
+  await t.step("signup: the row, the echo, the ticket, the device", async () => {
+    const r = rig();
+    const mine = crypto.randomUUID();
+    const code = await freshCode(r);
+    const res = await verify(r, { phone: PHONE, purpose: "signup", code, user_id: mine });
+    assertEquals(res.status, 200);
+    const ok = await body(res);
+    assertEquals(ok.user_id, mine, "echoed: the id the ledger minted at first run");
+    assertEquals([...r.db.users.keys()], [mine], "one row, under the proposed id — none minted");
+    const u = r.db.users.get(mine)!;
+    assert(u.phone_hmac?.length === 32, "phone only as HMAC");
+    assert(u.phone_ct && u.phone_ct.length > 24, "and as ciphertext");
+    assert(!new TextDecoder().decode(u.phone_ct).includes("9876543210"), "never in clear");
+    assertEquals(r.db.activation_tickets.length, 1);
+    assertEquals(r.db.activation_tickets[0].user_id, mine, "the ticket names the proposed user");
+    assert(lastChallenge(r).consumed_at, "the code is spent");
+    const reg = await registerUnder(r, ok.ticket);
+    assertEquals(reg.user_id, mine, "the device is registered under the proposed user");
+    assertEquals([...r.db.devices.values()].map((d) => d.user_id), [mine]);
+  });
+  await t.step("the language is still recorded alongside the proposed id", async () => {
+    const r = rig();
+    const mine = crypto.randomUUID();
+    const code = await freshCode(r);
+    const ok = await body(
+      await verify(r, { phone: PHONE, purpose: "signup", code, user_id: mine, language: "pa" }),
+    );
+    assertEquals(ok.user_id, mine);
+    assertEquals(r.db.users.get(mine)!.language, "pa");
+  });
+  await t.step(
+    "an unknown phone on another purpose: the server would sign it up, so the proposal is what it records",
+    async () => {
+      // ADR 04b §1: "honoured only where the server would otherwise call signupUser" — and
+      // "the server never mints a user id for a request that carried one". Today a phone with no
+      // account is signed up whatever the purpose, so both sentences say: record the proposal.
+      for (const purpose of ["device_activation", "phone_change", "account_deletion"]) {
+        const r = rig();
+        const mine = crypto.randomUUID();
+        const code = await freshCode(r, PHONE, purpose);
+        const ok = await body(await verify(r, { phone: PHONE, purpose, code, user_id: mine }));
+        assertEquals(ok.user_id, mine, purpose);
+        assertEquals([...r.db.users.keys()], [mine], purpose);
+      }
+    },
+  );
+});
+
+Deno.test("E-04b-2 a phone that already has an account answers with ITS user id and ignores the proposal (ADR 2026-10-04b §1, §3 🔒): on every purpose — signup, device activation, phone change, account deletion — and whether the proposal is fresh, another user's, or the account's own (a retry after a lost answer), no row is created, no id moves, and the ticket names the account", async () => {
+  for (const purpose of ["signup", "device_activation", "phone_change", "account_deletion"]) {
+    const r = rig();
+    const owner = crypto.randomUUID();
+    const first = await body(
+      await verify(r, {
+        phone: PHONE,
+        purpose: "signup",
+        code: await freshCode(r),
+        user_id: owner,
+      }),
+    );
+    assertEquals(first.user_id, owner, "precondition: the account exists under its own id");
+    const other = r.db.addUser({ phone_hmac: await random(32), phone_ct: await random(40) }).id;
+    const otherHmac = r.db.users.get(other)!.phone_hmac;
+    const before = [...r.db.users.keys()].sort();
+    for (
+      const [label, proposal] of [
+        ["fresh", crypto.randomUUID()],
+        ["another user's", other],
+        ["the account's own", owner],
+      ] as const
+    ) {
+      const code = await freshCode(r, PHONE, purpose);
+      const res = await verify(r, { phone: PHONE, purpose, code, user_id: proposal });
+      assertEquals(res.status, 200, `${purpose}, ${label}: never a 409 for a known phone`);
+      const ok = await body(res);
+      assertEquals(ok.user_id, owner, `${purpose}, ${label}: the account's id, not the proposal`);
+      assertEquals([...r.db.users.keys()].sort(), before, `${purpose}, ${label}: no row created`);
+      assertEquals(r.db.activation_tickets.at(-1)!.user_id, owner, `${purpose}, ${label}: ticket`);
+      assert(lastChallenge(r).consumed_at, `${purpose}, ${label}: the code is spent as usual`);
+    }
+    assertEquals(r.db.users.get(other)!.phone_hmac, otherHmac, "the other user is untouched");
+    assert(r.db.users.has(owner), "the account's id never moved");
+  }
+});
+
+Deno.test("E-04b-3 a proposed user_id another user holds → 409 {error: user_id_taken} and NOTHING moves: no users row, no ticket, the OTP challenge left unconsumed with its attempts unbumped — so the client's one retry with a freshly minted id and the SAME code answers 200 under the new id (ADR 2026-10-04b §1, §2 🔒; C-04b-3's contract); an erased user's id is taken too; a wrong code with a taken id is an ordinary otp_invalid, never a 409", async (t) => {
+  await t.step("held by a live user: 409, nothing created, the code still good", async () => {
+    const r = rig();
+    const holder = r.db.addUser({ phone_hmac: await random(32), phone_ct: await random(40) });
+    const holderHmac = holder.phone_hmac;
+    const code = await freshCode(r);
+    const res = await verify(r, { phone: PHONE, purpose: "signup", code, user_id: holder.id });
+    assertEquals(res.status, 409);
+    assertEquals(await body(res), { error: "user_id_taken" }, "named; says nothing of the holder");
+    assertEquals([...r.db.users.keys()], [holder.id], "no row created");
+    assertEquals(r.db.users.get(holder.id)!.phone_hmac, holderHmac, "the holder is untouched");
+    assertEquals(r.db.activation_tickets.length, 0, "no ticket");
+    assertEquals(lastChallenge(r).consumed_at, null, "the challenge is NOT consumed");
+    assertEquals(lastChallenge(r).attempts, 0, "and NO attempt is spent");
+
+    // The client discards its provisional identity, mints a fresh one and retries ONCE with the
+    // same code (ADR 04b §2) — no second OTP request, no new SMS.
+    const sent = r.otp.sent.length;
+    const fresh = crypto.randomUUID();
+    const again = await verify(r, { phone: PHONE, purpose: "signup", code, user_id: fresh });
+    assertEquals(again.status, 200, "the retry with the same code succeeds");
+    const ok = await body(again);
+    assertEquals(ok.user_id, fresh, "under the freshly minted id");
+    assertEquals([...r.db.users.keys()].sort(), [holder.id, fresh].sort());
+    assertEquals(r.db.activation_tickets.at(-1)!.user_id, fresh);
+    assertEquals(r.otp.sent.length, sent, "no new code was needed");
+    assert(lastChallenge(r).consumed_at, "now the code is spent");
+    const spent = await verify(r, {
+      phone: PHONE,
+      purpose: "signup",
+      code,
+      user_id: crypto.randomUUID(),
+    });
+    assertEquals(spent.status, 400, "and cannot be used a third time");
+    assertEquals((await body(spent)).error, "otp_invalid");
+  });
+  await t.step("held by an erased user: still taken — an id is never reused", async () => {
+    const r = rig();
+    const erased = r.db.addUser({ erased_at: new Date(T0), phone_hmac: null, phone_ct: null });
+    const code = await freshCode(r);
+    const res = await verify(r, { phone: PHONE, purpose: "signup", code, user_id: erased.id });
+    assertEquals(res.status, 409);
+    assertEquals((await body(res)).error, "user_id_taken");
+    assertEquals(r.db.users.size, 1);
+    assertEquals(r.db.users.get(erased.id)!.phone_hmac, null, "the erased row gains no phone");
+    assertEquals(lastChallenge(r).consumed_at, null);
+    assertEquals(lastChallenge(r).attempts, 0);
+  });
+  await t.step(
+    "no oracle before the code is proven: a wrong code with a taken id is otp_invalid and costs an attempt",
+    async () => {
+      const r = rig();
+      const holder = r.db.addUser({ phone_hmac: await random(32), phone_ct: await random(40) });
+      const code = await freshCode(r);
+      const wrong = code === "000000" ? "111111" : "000000";
+      const res = await verify(r, {
+        phone: PHONE,
+        purpose: "signup",
+        code: wrong,
+        user_id: holder.id,
+      });
+      assertEquals(res.status, 400, "the code is checked first");
+      assertEquals(await body(res), { error: "otp_invalid", attempts_left: OTP_MAX_ATTEMPTS - 1 });
+      assertEquals(r.db.users.size, 1);
+    },
+  );
+  await t.step(
+    "two refusals in a row spend nothing either: the retry rule holds however the collision repeats",
+    async () => {
+      const r = rig();
+      const a = r.db.addUser().id, b = r.db.addUser().id;
+      const code = await freshCode(r);
+      for (const held of [a, b]) {
+        const res = await verify(r, { phone: PHONE, purpose: "signup", code, user_id: held });
+        assertEquals(res.status, 409);
+      }
+      assertEquals(lastChallenge(r).attempts, 0);
+      assertEquals(lastChallenge(r).consumed_at, null);
+      assertEquals(r.db.users.size, 2);
+    },
+  );
+});
+
+Deno.test("E-04b-4 user_id is optional and shape-checked first (ADR 2026-10-04b §1 🔒): absent → today's behaviour, the server mints the id, so an older client still signs up; present but not a canonical lowercase uuid → 400 bad_request before the challenge is read — no attempt spent, nothing consumed, no user, no ticket — and the same code then still verifies", async (t) => {
+  await t.step("absent: the server mints, exactly as before ADR 04b", async () => {
+    const r = rig();
+    const code = await freshCode(r);
+    const res = await verify(r, { phone: PHONE, purpose: "signup", code });
+    assertEquals(res.status, 200);
+    const ok = await body(res);
+    assert(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(ok.user_id),
+      "a canonical uuid",
+    );
+    assertEquals([...r.db.users.keys()], [ok.user_id]);
+    assertEquals(r.db.activation_tickets[0].user_id, ok.user_id);
+    assertEquals((await registerUnder(r, ok.ticket)).user_id, ok.user_id);
+  });
+  await t.step("malformed: 400 bad_request, and the challenge is not touched", async () => {
+    const r = rig();
+    const code = await freshCode(r);
+    const good = crypto.randomUUID();
+    const malformed: [string, unknown][] = [
+      ["garbage", "not-a-uuid"],
+      ["upper case", good.toUpperCase()],
+      ["braces", `{${good}}`],
+      ["no hyphens", good.replaceAll("-", "")],
+      ["trailing space", `${good} `],
+      ["too short", good.slice(0, 35)],
+      ["empty", ""],
+      ["null", null],
+      ["a number", 42],
+      ["a boolean", true],
+      ["an object", { id: good }],
+      ["an array", [good]],
+    ];
+    for (const [label, user_id] of malformed) {
+      const res = await verify(r, { phone: PHONE, purpose: "signup", code, user_id });
+      assertEquals(res.status, 400, label);
+      assertEquals(await body(res), { error: "bad_request" }, label);
+      assertEquals(r.db.users.size, 0, `${label}: no user`);
+      assertEquals(r.db.activation_tickets.length, 0, `${label}: no ticket`);
+      assertEquals(lastChallenge(r).attempts, 0, `${label}: no attempt spent`);
+      assertEquals(lastChallenge(r).consumed_at, null, `${label}: not consumed`);
+    }
+    const ok = await body(
+      await verify(r, { phone: PHONE, purpose: "signup", code, user_id: good }),
+    );
+    assertEquals(ok.user_id, good, "the same code still verifies once the id is well formed");
+  });
 });

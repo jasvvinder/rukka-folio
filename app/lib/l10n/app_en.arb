@@ -764,6 +764,22 @@
   "@auth.device.done.title": {
     "description": "S0.2 completion heading. Deliberately names NOTHING about the family or books — an OTP-only device sees only itself (ADR 2026-09-05d §2)."
   },
+  "auth.existing.body": "Your books for this number are on the phone you used before. Bring them to this phone, or use a different number.",
+  "@auth.existing.body": {
+    "description": "S0.2 existing-account body: names both ways forward (07 §1 no dead ends)."
+  },
+  "auth.existing.other_number": "Use a different number",
+  "@auth.existing.other_number": {
+    "description": "S0.2 existing-account secondary action → back to the phone step."
+  },
+  "auth.existing.restore": "Get my books back",
+  "@auth.existing.restore": {
+    "description": "S0.2 existing-account primary action → S11.6 recovery fork (06 §5 returning device)."
+  },
+  "auth.existing.title": "This number is already signed up",
+  "@auth.existing.title": {
+    "description": "S0.2 after a correct code when the number already has an account and this phone is new to it (ADR 2026-10-04b §3). Only shown after a correct code, so it is not an oracle (06 §2)."
+  },
   "auth.offline.chip": "Offline — you need internet for the code.",
   "@auth.offline.chip": {
     "description": "S0.2 quiet chip when the sync seam reports Offline (07 §1 rule 7; S19.3 non-blocking)."
@@ -2469,7 +2485,7 @@
   },
   "demo.card.none.body": "{name} keeps none of the books on the list, so none is made on this phone. To start a book of your own, choose one below.",
   "@demo.card.none.body": {
-    "description": "Demo builder card body when nothing can be made: the five purpose cards beneath are the way on.",
+    "description": "Demo builder card body when nothing can be made: the four purpose cards beneath are the way on.",
     "placeholders": {
       "name": {
         "type": "String"
@@ -2503,7 +2519,7 @@
   },
   "demo.card.title": "Demo: build {name}'s books",
   "@demo.card.title": {
-    "description": "Demo builder card on S0.3, above the five purpose cards. {name} is the roster person's name (data, not translated).",
+    "description": "Demo builder card on S0.3, above the four purpose cards. {name} is the roster person's name (data, not translated).",
     "placeholders": {
       "name": {
         "type": "String"
@@ -6003,13 +6019,13 @@
   "@invite.phone.help": {
     "description": "06 §1: one phone number = one human = one account. ADR 2026-09-25 §2 (amends 06 §7): the server sends nothing. Says nothing about a link, because production has no ruled link format yet (M11-INV2 ⚠️ SPEC) — it must stay true in both states."
   },
-  "invite.phone.hint": "+91 98765 43210",
+  "invite.phone.hint": "98765 43210",
   "@invite.phone.hint": {
-    "description": "S9.1 phone field hint — E.164 with country code (06 §1)."
+    "description": "S9.1 phone field hint — the ten national digits; the +91 prefix is drawn beside the field as on S0.2 (desk 116)."
   },
-  "invite.phone.invalid": "Add the country code too, like +91 98765 43210.",
+  "invite.phone.invalid": "Enter their 10-digit mobile number, like 98765 43210.",
   "@invite.phone.invalid": {
-    "description": "S9.1 phone validation — named cause + the shape that works (13 §8 Errors)."
+    "description": "S9.1 phone validation — named cause + the shape that works (13 §8 Errors); the same national shape as S0.2/S16.2 (desk 116)."
   },
   "invite.ready.body": "The invite is made. Nothing is sent for you — send this message on WhatsApp, SMS or any app.",
   "@invite.ready.body": {
@@ -8281,13 +8297,13 @@
   "@onboarding.name_photo.title": {
     "description": "S0.4 name & photo (07 §3.1 step 4)."
   },
-  "onboarding.purpose.card.businesses.description": "More than one business",
+  "onboarding.purpose.card.businesses.description": "Shop, practice, freelance work — one or more",
   "@onboarding.purpose.card.businesses.description": {
-    "description": "S0.3 card 3 description."
+    "description": "S0.3 card 2 description (ADR 2026-10-04c §1) — names no single trade; S0.6c asks the count."
   },
-  "onboarding.purpose.card.businesses.label": "My businesses",
+  "onboarding.purpose.card.businesses.label": "My business",
   "@onboarding.purpose.card.businesses.label": {
-    "description": "S0.3 card 3 of 5."
+    "description": "S0.3 card 2 of 4 — the one My business card (ADR 2026-10-04c §1; 01 §2 purpose card 2): any trade, one or more. Key kept from the former My businesses card whose branch it takes."
   },
   "onboarding.purpose.card.family.description": "Shared with the people at home",
   "@onboarding.purpose.card.family.description": {
@@ -8295,7 +8311,7 @@
   },
   "onboarding.purpose.card.family.label": "My family",
   "@onboarding.purpose.card.family.label": {
-    "description": "S0.3 card 4 of 5."
+    "description": "S0.3 card 3 of 4."
   },
   "onboarding.purpose.card.myself.description": "Track your own money",
   "@onboarding.purpose.card.myself.description": {
@@ -8303,15 +8319,7 @@
   },
   "onboarding.purpose.card.myself.label": "Myself",
   "@onboarding.purpose.card.myself.label": {
-    "description": "S0.3 card 1 of 5."
-  },
-  "onboarding.purpose.card.shop.description": "One shop's cash and bank",
-  "@onboarding.purpose.card.shop.description": {
-    "description": "S0.3 card 2 description."
-  },
-  "onboarding.purpose.card.shop.label": "My shop",
-  "@onboarding.purpose.card.shop.label": {
-    "description": "S0.3 card 2 of 5."
+    "description": "S0.3 card 1 of 4."
   },
   "onboarding.purpose.card.trust.description": "gurudwara, temple, society or registered trust",
   "@onboarding.purpose.card.trust.description": {
@@ -8319,11 +8327,11 @@
   },
   "onboarding.purpose.card.trust.label": "Our trust",
   "@onboarding.purpose.card.trust.label": {
-    "description": "S0.3 card 5 of 5 — full width beneath the 2x2 grid (07 §3.1.1); the only card that sets tenant.type = organization."
+    "description": "S0.3 card 4 of 4 (ADR 2026-10-04c §2: one column on a phone, two on an iPad); the only card that sets tenant.type = organization (07 §3.1.1)."
   },
   "onboarding.purpose.title": "What will you use this for?",
   "@onboarding.purpose.title": {
-    "description": "S0.3 purpose (07 §3.1 step 3, 07 §3.1.1) — the five-card branch."
+    "description": "S0.3 purpose (07 §3.1 step 3, 07 §3.1.1, ADR 2026-10-04c §1) — the four-card branch."
   },
   "onboarding.recovery_sheet.done": "Done",
   "@onboarding.recovery_sheet.done": {
@@ -10780,9 +10788,9 @@
   "@subscription.plan.personal": {
     "description": "08 §2 tier name."
   },
-  "subscription.plan.shop": "Shop",
+  "subscription.plan.shop": "Business Lite",
   "@subscription.plan.shop": {
-    "description": "ADR 2026-09-25 §5 plan name, keyed by catalogue id."
+    "description": "ADR 2026-09-25 §5 plan name, keyed by catalogue id (still `shop`); renamed Business Lite by ADR 2026-10-04c §3."
   },
   "subscription.plan.trust": "Trust",
   "@subscription.plan.trust": {

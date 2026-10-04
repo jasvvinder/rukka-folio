@@ -248,8 +248,8 @@ final List<RouteBase> onboardingRoutes = [
     builder: (context, state) => BusinessOpeningHost(
       flow: onboardingFlow,
       startDate: bookStartDateOf(context),
-      // Skipped or saved, the *My businesses* card goes on to S0.6c and the
-      // *My shop* card does not (07 §3.1.1) — see [afterBusinessOpening].
+      // Skipped or saved, the *My business* card goes on to S0.6c (07 §3.1.1,
+      // ADR 2026-10-04c §1) — see [afterBusinessOpening].
       onDone: () => context.go(afterBusinessOpening(onboardingFlow)),
     ),
   ),
@@ -405,17 +405,18 @@ LocalDate bookStartDateOf(BuildContext context) {
 /// Every branch but *Myself* now has screens; *Myself* lands on Home, whose
 /// S0.7 checklist brings the skipped opening-balances step back (07 §3.1
 /// step 7 — that step is O6, not built by this lane).
-/// Where the business branch goes after S0.6b (07 §3.1.1 🔒 branch table).
-/// Only the **My businesses** row carries an O6c — *My shop* reads O6a → O6b →
-/// O6 your own → checklist and never sees the loop, so a shopkeeper is not
-/// asked whether he has a second shop.
+/// Where the business branch goes after S0.6b (07 §3.1.1 🔒 branch table, as
+/// amended by ADR 2026-10-04c §1): the one **My business** card reads O6a →
+/// O6b → **O6c** *Add another business?* every time — one business or many.
+/// A one-business person answers *No, that's all* there (one tap) and goes on
+/// exactly as the retired *My shop* card did. Any other purpose reaching here
+/// (none does today) falls through to Home's checklist.
 String afterBusinessOpening(OnboardingFlow flow) =>
     flow.purpose == OnboardingPurpose.businesses
     ? OnboardingPaths.businessAnother
     : HomePaths.home;
 
 String afterSetPin(OnboardingFlow flow) => switch (flow.purpose) {
-  OnboardingPurpose.shop ||
   OnboardingPurpose.businesses => OnboardingPaths.business,
   OnboardingPurpose.family => OnboardingPaths.family,
   OnboardingPurpose.trust => OnboardingPaths.trust,

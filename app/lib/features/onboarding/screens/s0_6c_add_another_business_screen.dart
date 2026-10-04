@@ -3,12 +3,13 @@
 // screen **S0.6c**).
 //
 // The only screen in onboarding whose job is a *branch*, not an answer: the
-// **My businesses** row of 07 §3.1.1 reads O6a → O6b → **O6c** looping back to
-// O6a → O6 your own → checklist. The **My shop** row does not pass through
-// here at all — the canvas caption says it exactly: "My shop arrives with one
-// book made and leaves; My businesses loops here until the person says that is
-// all" — so reaching this screen is decided by the purpose card, not by the
-// fact that a business exists (`afterBusinessOpening`, onboarding_routes.dart).
+// **My business** row of 07 §3.1.1 (ADR 2026-10-04c §1 — the former *My shop*
+// and *My businesses* cards are one) reads O6a → O6b → **O6c** looping back to
+// O6a → O6 your own → checklist. Every *My business* user reaches this screen;
+// a one-business person answers *No, that's all* — one tap — and goes on
+// exactly as *My shop* did (`afterBusinessOpening`, onboarding_routes.dart).
+// The canvas caption still describes the two old cards (ADR 2026-10-04c,
+// Open: the canvas is to be fixed, then /design-pull).
 //
 // Nothing is created here and nothing is posted: each business became its own
 // book at its own committing step (ADR 2026-09-09c §3), so this screen only

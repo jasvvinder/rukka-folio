@@ -4,7 +4,10 @@
 // (C-25-1). States (13 §4.3): default · sending ·
 // wrong code (attempts left) · resend cooldown 30 s → 60 s → 5 min (06 §2) ·
 // offline (quiet chip, send disabled with reason — 07 §1 rule 7) · min-version
-// gate (426 → S19.1 inline, 06 §4.5) · activating · done. Errors are generic
+// gate (426 → S19.1 inline, 06 §4.5) · activating · done · already signed
+// up (ADR 2026-10-04b §3: the code was right but the number has an account
+// this phone is new to — nothing is activated under the provisional ids, and
+// the person is offered the 06 §5 fork or another number). Errors are generic
 // by rule (06 §2: no "number not registered" oracle). The done step names
 // nothing about the family — an OTP-only device sees only itself (ADR
 // 2026-09-05d §2). The clock is `RkScope.now` (rule 3); this file never
@@ -14,9 +17,11 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/app_scope.dart';
+import '../../../shared/router.dart';
 import '../../../shared/seams/auth_client.dart';
 import '../../../shared/seams/sync_client.dart';
 import '../../../shared/theme.dart';
@@ -37,13 +42,26 @@ const List<Duration> otpResendBackoff = [
 Duration otpCooldownAfter(int sends) =>
     otpResendBackoff[(sends - 1).clamp(0, otpResendBackoff.length - 1)];
 
-enum _Step { phone, otp, activating, done }
+enum _Step { phone, otp, activating, done, existing }
 
 class PhoneOtpScreen extends StatefulWidget {
-  const PhoneOtpScreen({super.key, this.onDone, this.gate, this.onUpdate});
+  const PhoneOtpScreen({
+    super.key,
+    this.onDone,
+    this.gate,
+    this.onUpdate,
+    this.onExistingAccount,
+  });
 
   /// Called with the session once the device is registered (→ S0.3).
   final void Function(AuthSession session)? onDone;
+
+  /// *Get my books back* on the already-signed-up state (ADR 2026-10-04b §3,
+  /// 06 §5 returning device). Null ⇒ the screen opens S11.6, the fork
+  /// ([RkPaths.recoveryFork], 13 §5 F11), itself — so every route that mounts
+  /// S0.2 (auth's door and the F1 signup chain alike) offers the fork the
+  /// body copy promises, and no route can forget to wire it.
+  final VoidCallback? onExistingAccount;
 
   /// Min-version gate override; defaults to the scope's auth when it is a
   /// [MinVersionGate] (HttpAuthClient).
@@ -115,6 +133,8 @@ class _PhoneOtpScreenState extends State<PhoneOtpScreen> {
       l10n.authOtpErrorRateLimited,
     AuthFailure(kind: AuthFailureKind.unavailable) =>
       l10n.authOtpErrorUnavailable,
+    AuthFailure(kind: AuthFailureKind.existingAccount) =>
+      l10n.authExistingTitle,
     _ => l10n.authOtpErrorGeneric,
   };
 
@@ -157,7 +177,18 @@ class _PhoneOtpScreenState extends State<PhoneOtpScreen> {
   });
 
   Future<void> _verify() => _run(() async {
-    final ticket = await _auth.verifyOtp(_code.text.trim());
+    final ActivationTicket ticket;
+    try {
+      ticket = await _auth.verifyOtp(_code.text.trim());
+    } on AuthFailure catch (e) {
+      if (e.kind != AuthFailureKind.existingAccount) rethrow;
+      // ADR 2026-10-04b §3: not an error to retry — a state with its own
+      // ways on. Nothing is activated under the provisional ids.
+      _tick?.cancel();
+      _code.clear();
+      setState(() => _step = _Step.existing);
+      return;
+    }
     setState(() => _step = _Step.activating);
     try {
       final session = await _auth.activateDevice(ticket);
@@ -171,6 +202,7 @@ class _PhoneOtpScreenState extends State<PhoneOtpScreen> {
 
   void _changeNumber() {
     _tick?.cancel();
+    _code.clear();
     setState(() {
       _step = _Step.phone;
       _error = null;
@@ -213,6 +245,7 @@ class _PhoneOtpScreenState extends State<PhoneOtpScreen> {
                     _Step.otp => _otpStep(context, offline),
                     _Step.activating => _activating(context),
                     _Step.done => _done(context),
+                    _Step.existing => _existing(context),
                   },
                 ],
               ),
@@ -383,6 +416,42 @@ class _PhoneOtpScreenState extends State<PhoneOtpScreen> {
             if (s != null) widget.onDone?.call(s);
           },
           child: Text(l10n.authDeviceContinue),
+        ),
+      ],
+    );
+  }
+
+  /// ADR 2026-10-04b §3: the code was right; the number already has an
+  /// account this phone is new to. Icon plus words (07 §1: colour never
+  /// alone), and always a way on (07 §1: no dead ends).
+  Widget _existing(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final scheme = Theme.of(context).colorScheme;
+    // ADR 2026-10-04b §3: a number that already has an account is a
+    // returning device (06 §5) — S11.6, the fork, is where that starts.
+    // ⚠️ SPEC: its rungs run before this install adopts the account's id,
+    // which is C-04b-4 (M8); the fork draws unavailable rungs with reasons
+    // and S11.8, so the way on is honest, not complete.
+    final restore =
+        widget.onExistingAccount ?? () => context.go(RkPaths.recoveryFork);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Icon(Icons.info_outline, size: RkSpace.s12, color: scheme.primary),
+        const SizedBox(height: RkSpace.s4),
+        Semantics(
+          header: true,
+          child: RkFitText(l10n.authExistingTitle, style: text.headlineMedium),
+        ),
+        const SizedBox(height: RkSpace.s2),
+        Text(l10n.authExistingBody, style: text.bodyLarge),
+        const SizedBox(height: RkSpace.s8),
+        FilledButton(onPressed: restore, child: Text(l10n.authExistingRestore)),
+        const SizedBox(height: RkSpace.s3),
+        TextButton(
+          onPressed: _changeNumber,
+          child: Text(l10n.authExistingOtherNumber),
         ),
       ],
     );
