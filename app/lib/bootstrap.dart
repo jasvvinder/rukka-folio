@@ -35,6 +35,7 @@ import 'features/close/ledger_year_close_source.dart';
 import 'features/ceremony/ceremony_routes.dart';
 import 'features/devices/at_rest.dart';
 import 'features/devices/devices_routes.dart';
+import 'features/devices/guardian_standing.dart';
 import 'features/devices/keychain_key_store.dart';
 import 'features/devices/pin_vault.dart';
 import 'features/entry/entry_routes.dart';
@@ -180,6 +181,106 @@ final class SystemSyncClock implements eng.Clock {
 /// ADR 2026-09-16 gave the ledger sole authority over the device id.
 Future<LedgerIdentity?> storedIdentity(KeyStore keys) =>
     readStoredIdentity(keys);
+
+/// S11.1's roster (04 §7.3 Setup) from the members feature's [snapshot],
+/// read in [tenantId] — the install's tenant, whose members the snapshot
+/// holds, and so the tenant a set chosen from them is set up in (ADR
+/// 2026-10-03b §1 🔒: `guardian_sets.tenant_id`). Without it
+/// [ServerGuardians.save] refuses `no_tenant` before anything is sealed, so
+/// a roster with no tenant is an S11.1 that can never save (M13-REV89U
+/// finding 1).
+///
+/// Separate from [bootstrap] so F1-03b-3 can drive a real save through it;
+/// [bootstrap] is its only production caller.
+GuardianRoster guardianRosterOf(
+  MembersSnapshot? snapshot, {
+  required String tenantId,
+  required String Function(String userId) nameOf,
+}) => GuardianRoster(
+  candidates: [
+    for (final m in snapshot?.members ?? const <Member>[])
+      GuardianCandidateRow(
+        userId: m.id,
+        name: nameOf(m.id),
+        // 04 §7.3 asks for a *mutual ceremony per guardian*. This device holds
+        // a 04 §6.4 log entry only for one that finished, and the membership
+        // reads `active` only once keys were wrapped; anything less is *not
+        // started* rather than *started*, which would have S11.1 imply a
+        // half-done ceremony this device knows nothing about.
+        ceremony: m.verification != null && m.state == MembershipState.active
+            ? GuardianCeremony.done
+            : GuardianCeremony.notStarted,
+        // Nothing reads this any more: since M11-DEV1 (F1-07-545) S11.1's
+        // *Meet them* opens S9.3 by `memberId` and is gated on the member's
+        // state, not on an invite id. Left null because `MembersSnapshot`
+        // carries no invite id per member; whether the field is retired is
+        // PLAN desk 53 (owner).
+        inviteId: null,
+        isYou: m.isYou,
+      ),
+  ],
+  // The set protects this user's own key. It is not a book object and no book
+  // role gates it (06 §1.0 🔒: a role is per book), so there is no read-only
+  // case to derive here.
+  readOnly: false,
+  tenantId: tenantId,
+);
+
+/// Installs the S11 guardians row's live reading (ADR 2026-10-03b §4 🔒,
+/// `features/devices/guardian_standing.dart`) above [child], and owns it:
+/// the [GuardianStanding] is made once, from [trust] — the
+/// `RecordTrustStore` the sync engine files `guardian_sets` rows and
+/// membership facts into — with S11.1's [guardians] as its second reading
+/// and change signal, and is disposed when this leaves the tree (its
+/// backstop poll and stream subscriptions with it).
+///
+/// Without it S11 keeps the row's ordinary line: no reading, no claim
+/// (M13-REV89U finding 2). Pinned by F1-03b-4.
+class GuardianStandingHost extends StatefulWidget {
+  /// Creates the host.
+  const GuardianStandingHost({
+    super.key,
+    required this.trust,
+    required this.subjectUserId,
+    required this.guardians,
+    required this.child,
+  });
+
+  /// The engine's trust store — the facts its revocation count reads.
+  final eng.RecordTrustStore trust;
+
+  /// The user id the engine counts this device's own revocations under.
+  final String subjectUserId;
+
+  /// S11.1's repository, the one door to `guardian_sets` the screens read.
+  final ServerGuardians guardians;
+
+  /// The subtree S11 is routed in.
+  final Widget child;
+
+  @override
+  State<GuardianStandingHost> createState() => _GuardianStandingHostState();
+}
+
+class _GuardianStandingHostState extends State<GuardianStandingHost> {
+  // Made once: S11 listens to it, and the scope treats a new object as a new
+  // reading. The root builds this widget once per process.
+  late final GuardianStanding _standing = trustStoreGuardianStanding(
+    widget.trust,
+    subjectUserId: widget.subjectUserId,
+    guardians: widget.guardians,
+  );
+
+  @override
+  void dispose() {
+    _standing.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      GuardianStandingScope(standing: _standing, child: widget.child);
+}
 
 /// Builds every dependency and starts the app (03 §5: fail closed).
 Future<void> bootstrap() async {
@@ -738,7 +839,10 @@ Future<void> bootstrap() async {
       // S9.1 / S9 *Send invite*, *Invite again* and *Resend* (ADR
       // 2026-09-25 §2) read the share sheet from here, above the navigator,
       // so a modal sheet finds it too.
-      final app = ShareSheetScope(
+      // The app as the routes see it. It is wrapped once more below, after
+      // S11.1's repository exists, and that wrapping is what the scopes
+      // around it receive as `app`.
+      final shell = ShareSheetScope(
         sheet: shareSheet,
         child: RukkaFolioApp(
           db: db,
@@ -855,41 +959,42 @@ Future<void> bootstrap() async {
         // door to `guardian_sets`, so the set a screen shows and the set a
         // recovery attempts against can never come from two readings.
         api: guardiansApi,
-        roster: () async => GuardianRoster(
-          candidates: [
-            for (final m in members.current?.members ?? const <Member>[])
-              GuardianCandidateRow(
-                userId: m.id,
-                name: memberName(m.id),
-                // 04 §7.3 asks for a *mutual ceremony per guardian*. This
-                // device holds a 04 §6.4 log entry only for one that finished,
-                // and the membership reads `active` only once keys were
-                // wrapped; anything less is *not started* rather than
-                // *started*, which would have S11.1 imply a half-done ceremony
-                // this device knows nothing about.
-                ceremony:
-                    m.verification != null && m.state == MembershipState.active
-                    ? GuardianCeremony.done
-                    : GuardianCeremony.notStarted,
-                // Nothing reads this any more: since M11-DEV1 (F1-07-545)
-                // S11.1's *Meet them* opens S9.3 by `memberId` and is gated on
-                // the member's state, not on an invite id. Left null because
-                // `MembersSnapshot` carries no invite id per member; whether
-                // the field is retired is PLAN desk 53 (owner).
-                inviteId: null,
-                isYou: m.isYou,
-              ),
-          ],
-          // The set protects this user's own key. It is not a book object and
-          // no book role gates it (06 §1.0 🔒: a role is per book), so there is
-          // no read-only case to derive here.
-          readOnly: false,
+        // ADR 2026-10-03b §1 🔒 — read in this install's tenant, the one
+        // `members` is the repository of; the builder is F1-03b-3's.
+        roster: () async => guardianRosterOf(
+          members.current,
+          tenantId: identity.tenantId,
+          nameOf: memberName,
         ),
         verified: material,
         sealer: CryptoGuardianSealer(
           suite: suite,
           umk: () => material.umk,
         ).call,
+      );
+
+      // ── ADR 2026-10-03b §4 🔒 S11's guardians row ───────────────────────
+      //
+      // When the set can no longer switch off a lost phone. The reading is
+      // over `trust`, the store the engine files `guardian_sets` rows and
+      // membership facts into and counts revocations from, joined to S11.1's
+      // read-back through `guardians`; the host makes it once and disposes it
+      // with the tree. It wraps the shell directly, so every route — S11
+      // among them — sits under it.
+      final app = GuardianStandingHost(
+        trust: trust,
+        // ⚠️ SPEC (desk 107; ADR 2026-09-16 *Open*: the user id is unruled) —
+        // the id the engine counts this device's own revocations under
+        // (`SyncEngine.userId`), as `trustStoreGuardianStanding` asks. It is
+        // LEDGER-minted (`LocalLedger._firstRun`), while the `guardian_sets`
+        // rows and membership facts the engine files carry the SERVER-minted
+        // id (auth-challenge `signupUser`; `SessionItems.userId`). Until the
+        // two are reconciled the row finds no set for this id and never
+        // warns — the same blind spot as the engine's own count
+        // (`SyncEngine._ownCount`). No mapping is invented here.
+        subjectUserId: identity.userId,
+        guardians: guardians,
+        child: shell,
       );
 
       // ── 04 §6 the ceremony: S9.2 / S9.3 (ADR 2026-09-24b §2) ────────────

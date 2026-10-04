@@ -12,6 +12,29 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-04 — M13: desk rulings (ADR 2026-10-03c) + desk 103 bootstrap wiring (M13-BOOT103)
+
+**Decided**
+- [ADR 2026-10-03c](docs/decisions/2026-10-03c-desk-rulings.md) — owner ruled desks 36, 37, 38, 40/96/105, 43, 44, 53, 65 in one sitting: same-commit in-place test rewrites allowed (05i §4 amended); invite GET rows keep `status` (25b §2 amended); a revoked device cannot read/accept invites (`E-03c-1/2 @M13`); unverified members cannot be chosen as guardians and `TrustedMemberCandidate.inviteId` retires (`F1-03c-1 @M13`); the recovery candidate zeroises after any reconstruct and is not biometric-bound (24b §1 cross-ref); support `mailto:` carries no body (25 §4 cross-ref); email card warns not to send amounts/account numbers (`F1-03c-2 @M13`); untokened builds stay Free, no pilot exception.
+
+**Added**
+- `bootstrap.dart` (M13-BOOT103, `lane-ui-hard`): `guardianRosterOf(… tenantId: identity.tenantId)` so S11.1 save stops refusing `no_tenant`; `GuardianStandingHost` wraps the shell, builds the S11 guardians standing over the live trust store and disposes it on unmount. `F1-03b-3`, `F1-03b-4`, both mutation-checked; 331/0 in shared/sync + devices + bootstrap pins.
+
+**Changed**
+- ⚠️ SPEC comments retired where ADR 2026-10-03c rules them: `sync-meta/index.ts` (invite status), `recovery_candidate.dart`, `diagnostics_seams.dart`, `s17_4_diagnostics_screen.dart` — comments only.
+- Format drift left by `2b9e2a6` fixed by the gate: `scripts/check_strings.dart` (dart format), `seat_caps_route.test.ts` (deno fmt) — whitespace only.
+- PLAN: desks 36, 38, 40, 43, 65, 96 ✅; 37, 44, 53 → ⬜ build rows; 103 🟡; new desk 107.
+
+**Open**
+- **Desk 107 (owner, ADR needed):** the ledger mints its own `user_id`/`tenant_id`, the server mints others at signup (ADR 2026-09-16 *Open*, unruled since 16 Sep). The engine files guardian sets under the server's id while bootstrap passes the ledger's, so the S11 row cannot warn in production and S11.1 may publish under a tenant the server does not know. Blocks desks 89/100 end to end.
+- BOOT103 reviewed (`lane-review`) and verified: 1 minor test-honesty finding confirmed (F1-03b-4 never checked that the standing notifies), repaired in round 1 with two mutation-checked notify assertions; `bootstrap_wiring_test` 7/7, shared/sync + devices 189/0. Push gate green. Ship with desk 100's deploy.
+- ADR 2026-10-03c rulings §3/§4/§7 await build lanes (server, devices, help).
+
+**Commits**
+- _(pending — owner)_
+
+---
+
 ## 2026-10-03 — M13/M12: desk sweep — Punjabi/Hindi book words (desk 63), test-name hygiene (desk 92), glossary Sale/Purchase Book
 
 **Changed**
@@ -29,7 +52,7 @@ Running record of what changed in this repository and in the development environ
 - Desk 103 (bootstrap wiring) remains the blocker before desks 89/97 can be committed and desk 100 deployed; ~30 desk items await owner rulings (recommendations given in session).
 
 **Commits**
-- 
+- `2b9e2a6` — M12/M13: PA/HI book words + check_strings rule 5; desk 92 names; desk 104(c) comments.
 
 ---
 
@@ -54,7 +77,7 @@ Running record of what changed in this repository and in the development environ
 - Ops discussion (no repo change): API origin for pinning — Oracle Cloud Always Free in Mumbai (upgrade to Pay As You Go to avoid idle reclamation) proposed as first choice over Lightsail $5/mo; Cloudflare Universal certificates and Supabase Custom Domains cannot be pinned. A dev-only "testing grant" for paid plans was proposed (needs an ADR; not started).
 
 **Commits**
-- _(pending — owner)_
+- `fddfdfc` — M13: guardian revocation per tenant (0026 + 0027, sync_engine tenant filing, S11.1/S11); push gate green, RLS 280/0.
 
 ---
 
