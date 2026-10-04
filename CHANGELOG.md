@@ -12,6 +12,29 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-04 (evening) — docs/env: desk rulings 107, 116, 117, 121; ADRs 2026-10-04b, 2026-10-04c; run_dev.sh headless
+
+**Changed**
+- `scripts/run_dev.sh`: a missing Simulator.app no longer aborts the run (`open -a Simulator` under `set -e`). It warns and runs headless. Xcode 27 ships no `Simulator.app`; its bundled apps are under `Xcode.app/Contents/Applications/`, including a new `DeviceHub.app` (`com.apple.dt.Devices`). Whether DeviceHub shows the booted simulator is not yet confirmed.
+- `docs/06-auth-devices.md` §2, §3: cross-references to ADR 2026-10-04b. ADR 2026-09-16 § Open's first bullet is marked resolved.
+- PLAN: desk 107 → ruled (ADR 2026-10-04b, §2–§4 to confirm); 116, 117 and 121 ruled → build rows; 119(a) part-verified; new 122, business presets (separate feature, to discuss).
+- 01 §2, 07 §3.1/§3.1.1, 13 §3.2 S0.3 and DESIGN-PACK S0.3/O3: cross-references to ADR 2026-10-04c.
+- `F1-07-16 all five cards render…` and `F1-07-83 only the My businesses card reaches S0.6c…` are skipped as superseded by ADR 2026-10-04c §1 and re-land at M13 (ADR 2026-09-05i §4). Both files: 11 pass, 2 skipped.
+
+**Decided**
+- `2026-10-04b-client-minted-user-and-tenant-ids.md`: 🔒 the first device mints `user_id`; `otp/verify` records it or answers `409 user_id_taken` (§1, owner-ruled). The first-run identity authors nothing until signup answers (§2); a known phone adopts its account's id (§3); `tenant_id` is recorded by desk 85's tenant-register route (§4). §2–§4 need the owner's confirmation.
+- `2026-10-04c-one-business-card.md`: 🔒 S0.3 has four cards. **My business** (*Shop, practice, freelance work — one or more*) replaces *My shop* and *My businesses* and takes the S0.6c branch (owner-ruled). The layout (single column vs 2×2) needs owner/design confirmation.
+- Owner, 4 Oct: desk 116 → S9.1 uses the shared `isNationalPhoneShape`; desk 117 → real product first (desk 85, then 107's build), seeder later.
+
+**Open**
+- ADR 2026-10-04c: the S0.3 layout; the *Shop* plan name; the Claude Design canvas. Business presets are desk 122.
+- Desk 119(a): the sign-up hop and a refused push are still unseen. Next: confirm DeviceHub shows the simulator, then let `run_dev.sh` open it.
+- Desk 115: the nightly runs 03:00 IST 5 Oct; check it next session.
+- ADR 2026-10-04b Open: the personal book's tenant has no `tenants.type`.
+
+**Commits**
+- (owner to fill)
+
 ## 2026-10-04 — M13/env: dev demo — demo phone range, in-app demo builder, run_dev.sh; seeder plan blocked on product work
 
 **Added**

@@ -68,6 +68,8 @@ A gurudwara committee will not recognise "Operator"; it will recognise ਸੇਵ
 
 > **ADR 2026-09-25 §1** — OTP is SMS-only through the owner's DLT registration; every other line of this section stands. Firebase, carrier SIM checks and passkeys were considered and not taken. ⟦tests: E-25-1 @M6, C-25-1 @M6⟧
 
+> **ADR 2026-10-04b §1–§3** — `POST /otp/verify` carries the first device's own `user_id` and the server records it or answers `409 user_id_taken`; a phone that already has an account takes that account's id, and the install authors nothing until signup answers (§2–§3 ⚠️ owner to confirm). ⟦tests: E-04b-1 @M13, E-04b-2 @M13, E-04b-3 @M13, E-04b-4 @M13, C-04b-1 @M13, C-04b-2 @M13, C-04b-3 @M13, C-04b-4 @M8⟧
+
 ---
 
 ## 3. Device registration 🔒 ⟦tests: E-06-3, E-06-6, E-06-7, E-03-24, C-06-9, C-06-12, C-06-13, C-05d-6, C-06-19, C-06-28, C-06-29, C-06-30, C-06-31⟧
@@ -78,6 +80,8 @@ On first run after OTP:
 2. `POST /devices` with activation ticket + public keys + model/OS metadata → server issues `device_id` and stores the record. ⚠️ Play Integrity / DeviceCheck attestation: design the field now, enforce in v2.
 3. The device is **registered but uncertified** until it holds a certificate under the user's UMK (issued at signup for the first device, or via linking/recovery — 04 §3.4, §9.1, §7). Uncertified devices can authenticate (§4) but other clients will not trust content they author, and they hold no keys. **Uncertified devices see nothing but themselves 🔒 (ADR 2026-09-05d §2):** the server verifies the uploaded certificate under the user's registered UMK public key and sets `devices.status='certified'`; until then RLS returns only the device's own user row, its own device row, wrapped keys/shares addressed to it and its own recovery request — no memberships, names, roles, device lists or verification log. `/auth/challenge` and `/devices` carry per-IP and per-device rate limits (numbers ⚠️ M6).
 4. First device only: generate UMK, self-certify, then immediately walk the user through **recovery-sheet generation + verified-storage nag**, and **guardian selection** if the tenant has other members (04 §7.3–7.4).
+
+> **ADR 2026-10-04b §4** — `tenant_id` is minted by the client and recorded, with its type, by the tenant-register route (desk 85), not at OTP: the type is chosen at S0.3. ⟦tests: E-04b-5 @M13⟧
 
 > **ADR 2026-09-24b §2** — every installed device re-offers `umk_pub_x` on its next `/devices/certify` after launch, and stops after one accepted offer (PLAN desk 33). Certification itself still happens once, at activation (`C-06-31` covers `restore()` alone). ⟦tests: C-06-31, F1-24b-2, F1-24b-3⟧
 

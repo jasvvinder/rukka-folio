@@ -93,14 +93,16 @@
 | Show my code / Verify | Show my code / Verify | ਮੇਰਾ ਕੋਡ ਦਿਖਾਓ / ਤਸਦੀਕ ਕਰੋ | मेरा कोड दिखाएँ / तसदीक करें |
 | Family match check | Family match check | ਪਰਿਵਾਰ ਮਿਲਾਨ | परिवार मिलान |
 | Purpose card 1 | Myself | ਸਿਰਫ਼ ਮੈਂ | सिर्फ़ मैं |
-| Purpose card 2 | My shop | ਮੇਰੀ ਦੁਕਾਨ | मेरी दुकान |
-| Purpose card 3 | My businesses | ਮੇਰੇ ਕਾਰੋਬਾਰ | मेरे कारोबार |
+| Purpose card 2 — now *My business* (ADR 2026-10-04c) | My shop | ਮੇਰੀ ਦੁਕਾਨ | मेरी दुकान |
+| Purpose card 3 — retired (ADR 2026-10-04c) | My businesses | ਮੇਰੇ ਕਾਰੋਬਾਰ | मेरे कारोबार |
 | Purpose card 4 | My family | ਮੇਰਾ ਪਰਿਵਾਰ | मेरा परिवार |
 | Purpose card 5 — label | Our trust | ਸਾਡਾ ਟਰੱਸਟ | हमारा ट्रस्ट |
 | Purpose card 5 — subtitle | gurudwara, temple, society or registered trust | ਗੁਰਦੁਆਰਾ, ਮੰਦਰ, ਸਭਾ ਜਾਂ ਰਜਿਸਟਰਡ ਟਰੱਸਟ | गुरुद्वारा, मंदिर, सभा या रजिस्टर्ड ट्रस्ट |
 | Skip (welcome slides, review stepper) | Skip | ਛੱਡੋ | छोड़ें |
 | Skip for now (any resumable setup step) | Skip for now | ਹੁਣ ਲਈ ਛੱਡੋ | अभी के लिए छोड़ें |
 | Today / Save / Undo | Today / Save / Undo | ਅੱਜ / ਸੇਵ ਕਰੋ / ਵਾਪਸ ਲਓ | आज / सेव करें / वापस लें |
+
+> **ADR 2026-10-04c** — *Purpose card 2* is **My business · ਮੇਰਾ ਕਾਰੋਬਾਰ · मेरा कारोबार**; *Purpose card 3* is retired. ⟦tests: F1-04c-1 @M13⟧
 
 **ਬਕਾਇਆ for balance rows 🔒 (owner-directed, 31 Aug 2026).** The b/f and c/f rows use **ਸ਼ੁਰੂਆਤੀ ਬਕਾਇਆ / शुरुआती बकाया** and **ਅੰਤਿਮ ਬਕਾਇਆ / अंतिम बकाया** — *bakaya* is the standing-amount term a munim uses on those rows, where *baaki* reads as "the rest". **ਬਾਕੀ / बाकी** remains correct for the running Balance **column header** and for pending states (ਮਨਜ਼ੂਰੀ ਬਾਕੀ). **Fix / Adjust** is the imperative **ਠੀਕ ਕਰੋ / ठीक करें**, not the noun *sudhaar*. ⟦tests: F3-01-7 @M12⟧
 

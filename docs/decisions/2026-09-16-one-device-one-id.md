@@ -175,7 +175,7 @@ Edits for the owner to apply on ratification (this ADR edits no numbered spec):
   the ledger mints `device_id`, `POST /devices` carries it, the server records it or refuses."*
 
 ## Open ⚠️
-- **`user_id` and `tenant_id` have the same split, unruled here.** Verified: `local_ledger.dart:620-621`
+- **Resolved by ADR 2026-10-04b (owner, 4 Oct 2026: the client mints both).** Was: **`user_id` and `tenant_id` have the same split, unruled here.** Verified: `local_ledger.dart:620-621`
   mints both at first run; `http_auth_client.dart:370` and `:432` store the **server's** `user_id`
   under `SessionItems.userId`; `bootstrap.dart:329-331` hands the ledger's ids to the sync engine
   and to `ServerMembersRepository(userId: identity.userId)`. The device-id ruling does not settle

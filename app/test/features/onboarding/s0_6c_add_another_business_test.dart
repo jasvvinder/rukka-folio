@@ -223,7 +223,7 @@ void main() {
 
       final shop = OnboardingFlow()..setPurpose(OnboardingPurpose.shop);
       expect(afterBusinessOpening(shop), HomePaths.home);
-    });
+    }, skip: 'superseded by ADR 2026-10-04c §1; re-lands at M13');
 
     test('F1-07-83 S0.6c is in the 13 §3.2 inventory after S0.6b', () {
       final doc = File('../docs/13-ux-architecture.md').readAsLinesSync();

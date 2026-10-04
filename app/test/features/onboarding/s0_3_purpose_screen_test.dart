@@ -13,6 +13,9 @@ void main() {
   group('S0.3 Purpose (07 §3.1 step 3, 07 §3.1.1)', () {
     testWidgets(
       'F1-07-16 all five cards render, trust full width beneath a 2x2 grid',
+      // testWidgets takes a bool; the reason is for check_coverage:
+      // skip: 'superseded by ADR 2026-10-04c §1; re-lands at M13'
+      skip: true,
       (tester) async {
         await pumpRk(tester, const PurposeScreen());
 

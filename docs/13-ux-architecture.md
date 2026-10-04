@@ -102,7 +102,7 @@ Roles (admin · head · member · operator · viewer) change *what actions appea
 | **S15.3** | Enter PIN | app lock | 6 boxes; Face ID button; *Forgot PIN* → OTP + biometric; **cooldown** states (5 free · 30 s · 1 min · 5 min · 15 min · 1 h, countdown row) and **PIN disabled** after 10 → OTP + biometric — the canvas's "a code, not a lockout" tone stays as copy (ADR 2026-09-05d §5, ADR 2026-09-05f §B) ⟦tests: F1-07-63⟧ |
 | **S0.1** | Language picker | onboarding | first screen ever shown |
 | **S0.2** | Phone + OTP | onboarding | identity |
-| **S0.3** | "What will you use this for?" | onboarding | five cards; the trust card alone sets `tenant.type = organization` (07 §3.1) |
+| **S0.3** | "What will you use this for?" | onboarding | **four** cards (ADR 2026-10-04c; was five); the trust card alone sets `tenant.type = organization` (07 §3.1) |
 | **S0.4** | Name & photo | onboarding | for approvals/ceremony |
 | **S0.5** | Keeping your books safe | onboarding | key sync stated on · automatic backup on with its disclosure · sheet action (04 §7.6, 07 §3.1) ⟦tests: F1-07-71, F1-07-72⟧ |
 | **S0.5b** | Recovery sheet | S0.5 | generate, print/save, verify by scanning back ⟦tests: F1-07-73⟧ |
@@ -210,6 +210,8 @@ Roles (admin · head · member · operator · viewer) change *what actions appea
 | **S15.2** | Personal Book lock — re-prompt | S11 | opt-in extra gate; asks the **same MPIN or biometric** again — one PIN, never a second number (06 §4.4, ADR 2026-09-01) |
 | **S15.4** | Device suspended | global | server asserted a revocation without a signed record: read-only + persistent banner, sync stopped, nothing wiped, *Retry* (ADR 2026-09-05b §2, 05d §3) |
 | **S13** | Settings | S8 | language, **Appearance** (system/light/dark), notifications, **Auto-lock (background · idle)**, **Your books → Opening balances** (ADR 2026-09-03b ruling 2), export everything ⟦tests: F1-07-29, F1-07-65, F1-07-66, F1-07-67⟧ |
+
+> **ADR 2026-10-04c** — S0.3 has **four** cards (Myself · My business · My family · Our trust). ⟦tests: F1-04c-1 @M13⟧
 
 **Depth rule** (ADR 2026-09-05f §H13): S1–S8 are roots; everything else is at most **two levels of navigation** below one of them. Detail viewers and sheets — S4.1, S4.2, S20, S7.3, S7.4, S2.4 — are exempt: they open *from* a row, they are not destinations.
 
