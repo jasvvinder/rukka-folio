@@ -73,9 +73,10 @@ class GuardianSetupScreen extends StatefulWidget {
   /// screen at all.
   final void Function(TrustedMemberCandidate candidate) onMeet;
 
-  /// Whether this candidate can be met, and if not, why. The candidate seam
-  /// carries no membership state (`shared/seams/guardians.dart`), so the host
-  /// answers from the roster that does. Null means the ceremony can run.
+  /// Whether this candidate can be met — and so chosen (ADR 2026-10-03c §4) —
+  /// and if not, why. The candidate seam carries no membership state
+  /// (`shared/seams/guardians.dart`), so the host answers from the roster
+  /// that does. Null means the ceremony can run and the person can be chosen.
   final GuardianMeetBlock? Function(TrustedMemberCandidate candidate)
   meetBlockOf;
 
@@ -130,9 +131,21 @@ class _GuardianSetupScreenState extends State<GuardianSetupScreen> {
     }
   }
 
+  /// True when [id] stands at `invited`, `expired` or `blocked` — someone who
+  /// may not be **chosen** (ADR 2026-10-03c §4; 04 §7.3 verified keys only).
+  /// A candidate this screen holds no row for is never choosable either.
+  bool _unchoosable(GuardianSetup s, String id) {
+    for (final c in s.candidates) {
+      if (c.memberId == id) return widget.meetBlockOf(c) != null;
+    }
+    return true;
+  }
+
   void _toggle(GuardianSetup s, String id) {
     if (s.readOnly) return;
     final chosen = [...(_chosen ?? s.chosenIds)];
+    // Un-choosing is always allowed — a member who became unchoosable while
+    // in the set must be removable, or the page is a dead end (07 §1).
     if (chosen.remove(id)) {
       setState(() {
         _chosen = chosen;
@@ -143,6 +156,9 @@ class _GuardianSetupScreenState extends State<GuardianSetupScreen> {
     // The upper bound of 04 §7.3 is enforced here rather than announced after
     // the fact: a sixth tap does nothing and the max line is already on screen.
     if (chosen.length >= guardianMaxCount) return;
+    // The row disables this too; refusing here as well keeps the rule true
+    // even for a tap the row did not filter.
+    if (_unchoosable(s, id)) return;
     setState(() {
       _chosen = [...chosen, id];
       _saved = false;
@@ -177,6 +193,14 @@ class _GuardianSetupScreenState extends State<GuardianSetupScreen> {
     List<String> chosen,
   ) {
     if (chosen.length < guardianMinCount) return l10n.guardiansSaveBlockedFew;
+    // Ahead of *meet everyone*: for this person meeting is not on offer, so
+    // the true way on is to take them off (ADR 2026-10-03c §4). A set in
+    // force can hold someone who has since been blocked; it is never left
+    // chosen-and-savable without a word. `save` still refuses an unverified
+    // key behind this, as defence in depth.
+    if (chosen.any((id) => _unchoosable(s, id))) {
+      return l10n.guardiansSaveBlockedUnavailable;
+    }
     final byId = {for (final c in s.candidates) c.memberId: c};
     final unmet = chosen.any(
       (id) => byId[id]?.ceremony != GuardianCeremony.done,
@@ -372,6 +396,19 @@ class _Body extends StatelessWidget {
                 block: meetBlockOf(c),
                 onMeet: () => onMeet(c),
               ),
+            // The set in force can hold someone this device has no roster
+            // row for (`ServerGuardians` keeps the server's members
+            // verbatim). They are never choosable, and Save says *take them
+            // off* — so they get a row to take them off with, or that
+            // instruction is a dead end (07 §1 rule 6; M13-GSEL53 review 1).
+            // The row stays after un-choosing, disabled, so nothing jumps.
+            for (final id in _unlisted(setup, chosen))
+              _UnlistedRow(
+                memberId: id,
+                chosen: chosen.contains(id),
+                enabled: !setup.readOnly,
+                onToggle: () => onToggle(id),
+              ),
             if (guardianNeedsTypedConfirmation(n)) ...[
               const SizedBox(height: RkSpace.s4),
               _TwoOfTwoPanel(
@@ -384,6 +421,100 @@ class _Body extends StatelessWidget {
           ],
         );
       },
+    );
+  }
+}
+
+/// Ids in the set in force or the current choice that no candidate row holds,
+/// in the order they were chosen, each once.
+List<String> _unlisted(GuardianSetup setup, List<String> chosen) {
+  final listed = {for (final c in setup.candidates) c.memberId};
+  return {
+    ...setup.chosenIds,
+    ...chosen,
+  }.where((id) => !listed.contains(id)).toList();
+}
+
+/// A chosen id this device holds no roster row for: no name to show, so it
+/// says so in words (never a bare id), and the only thing it does is come off.
+/// Colour is never alone — the icon and the line under it carry the state.
+class _UnlistedRow extends StatelessWidget {
+  const _UnlistedRow({
+    required this.memberId,
+    required this.chosen,
+    required this.enabled,
+    required this.onToggle,
+  });
+
+  final String memberId;
+  final bool chosen;
+  final bool enabled;
+  final VoidCallback onToggle;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final status = RkStatusColors.of(context);
+    // Un-choosing only: someone with no row is never choosable (_toggle and
+    // _unchoosable refuse it too).
+    final canTap = enabled && chosen;
+    return Semantics(
+      checked: chosen,
+      enabled: canTap,
+      label: l10n.guardiansUnlistedName,
+      child: InkWell(
+        key: Key('guardians.unlisted.$memberId'),
+        onTap: canTap ? onToggle : null,
+        child: Container(
+          constraints: const BoxConstraints(minHeight: RkSpace.rowMinHeight),
+          padding: const EdgeInsets.symmetric(vertical: RkSpace.s3),
+          decoration: BoxDecoration(
+            border: Border(bottom: BorderSide(color: status.hairline)),
+          ),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ExcludeSemantics(
+                child: Checkbox(
+                  value: chosen,
+                  onChanged: canTap ? (_) => onToggle() : null,
+                ),
+              ),
+              const SizedBox(width: RkSpace.s2),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(l10n.guardiansUnlistedName, style: text.bodyLarge),
+                    const SizedBox(height: RkSpace.s1),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.person_off_outlined,
+                          size: RkIcon.grid - RkSpace.s2,
+                          color: status.muted,
+                        ),
+                        const SizedBox(width: RkSpace.s1),
+                        Expanded(
+                          child: Text(
+                            l10n.guardiansUnlistedWhy,
+                            key: Key('guardians.unlisted.why.$memberId'),
+                            style: text.bodySmall?.copyWith(
+                              color: status.muted,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -429,12 +560,26 @@ class _MemberRow extends StatelessWidget {
         status.muted,
       ),
     };
+    // ADR 2026-10-03c §4: someone the ceremony cannot reach (`invited`,
+    // `expired`, `blocked`) cannot be chosen either. A row already chosen
+    // still un-chooses, so a member blocked after being chosen is removable.
+    final canTap = enabled && (block == null || chosen);
+    final why = switch (block) {
+      null => null,
+      GuardianMeetBlock.notJoined => l10n.guardiansMeetUnavailable(
+        candidate.name,
+      ),
+      GuardianMeetBlock.blocked => l10n.membersStateBlockedHelp,
+    };
     return Semantics(
       checked: chosen,
+      // Announced as disabled, never only greyed (13 §4.3); the reason below
+      // is part of this row's label, so it is read with it.
+      enabled: canTap,
       label: candidate.name,
       child: InkWell(
         key: Key('guardians.member.${candidate.memberId}'),
-        onTap: enabled ? onToggle : null,
+        onTap: canTap ? onToggle : null,
         child: Container(
           constraints: const BoxConstraints(minHeight: RkSpace.rowMinHeight),
           padding: const EdgeInsets.symmetric(vertical: RkSpace.s3),
@@ -447,7 +592,7 @@ class _MemberRow extends StatelessWidget {
               ExcludeSemantics(
                 child: Checkbox(
                   value: chosen,
-                  onChanged: enabled ? (_) => onToggle() : null,
+                  onChanged: canTap ? (_) => onToggle() : null,
                 ),
               ),
               const SizedBox(width: RkSpace.s2),
@@ -486,19 +631,17 @@ class _MemberRow extends StatelessWidget {
                         onPressed: enabled && block == null ? onMeet : null,
                         child: Text(l10n.guardiansMeet),
                       ),
-                      if (block != null) ...[
-                        const SizedBox(height: RkSpace.s1),
-                        Text(
-                          switch (block!) {
-                            GuardianMeetBlock.notJoined =>
-                              l10n.guardiansMeetUnavailable(candidate.name),
-                            GuardianMeetBlock.blocked =>
-                              l10n.membersStateBlockedHelp,
-                          },
-                          key: Key('guardians.meet.why.${candidate.memberId}'),
-                          style: text.bodySmall?.copyWith(color: status.muted),
-                        ),
-                      ],
+                    ],
+                    // One reason for both disabled controls — the checkbox
+                    // and *Meet them* — shown even when the ceremony once
+                    // finished, since a blocked member is unchoosable too.
+                    if (why != null) ...[
+                      const SizedBox(height: RkSpace.s1),
+                      Text(
+                        why,
+                        key: Key('guardians.meet.why.${candidate.memberId}'),
+                        style: text.bodySmall?.copyWith(color: status.muted),
+                      ),
                     ],
                   ],
                 ),

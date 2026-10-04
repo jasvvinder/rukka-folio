@@ -1503,6 +1503,10 @@
   "@guardians.save.blocked.meet": {
     "description": "machine-draft — native review M12"
   },
+  "guardians.save.blocked.unavailable": "आपका चुना कोई व्यक्ति अभी भरोसेमंद सदस्य नहीं बन सकता। सहेजने के लिए उसे सूची से हटाएँ।",
+  "@guardians.save.blocked.unavailable": {
+    "description": "machine-draft — native review M12"
+  },
   "guardians.save.error": "यह सहेजा नहीं गया। दोबारा कोशिश करें।",
   "@guardians.save.error": {
     "description": "machine-draft — native review M12"
@@ -1533,6 +1537,14 @@
   },
   "guardians.two.title": "सिर्फ़ दो लोग",
   "@guardians.two.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "guardians.unlisted.name": "कोई व्यक्ति जो इस फ़ोन की सदस्य सूची में नहीं है",
+  "@guardians.unlisted.name": {
+    "description": "machine-draft — native review M12"
+  },
+  "guardians.unlisted.why": "इस फ़ोन की सदस्य सूची में आने के बाद उन्हें चुना जा सकता है।",
+  "@guardians.unlisted.why": {
     "description": "machine-draft — native review M12"
   },
   "help.article.appbar": "जवाब",
@@ -1605,6 +1617,10 @@
   },
   "help.contact.email.label": "सहायता का पता",
   "@help.contact.email.label": {
+    "description": "machine-draft — native review M12"
+  },
+  "help.contact.email.warning": "ईमेल में रक़में या खाता नंबर न भेजें।",
+  "@help.contact.email.warning": {
     "description": "machine-draft — native review M12"
   },
   "help.contact.title": "सहायता से संपर्क",

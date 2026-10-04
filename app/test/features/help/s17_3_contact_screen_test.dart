@@ -1,4 +1,4 @@
-// F1-07-396 … F1-07-398, F1-07-409, F1-25-4 — S17.3 Contact support
+// F1-03c-2, F1-07-396 … F1-07-398, F1-07-409, F1-25-4 — S17.3 Contact support
 // (13 §3.2 row S17.3 "email primary for the pilot … states what support
 // cannot do"; 07 §22 🔒, which makes the four limits of 06 §8 🔒 normative on
 // this screen; ADR 2026-09-25 §4, which makes *Email support* the primary
@@ -18,8 +18,17 @@ import 'package:rukka_folio/features/help/faq_catalog.dart';
 import 'package:rukka_folio/features/help/screens/s17_3_contact_screen.dart';
 import 'package:rukka_folio/features/help/support_mailer.dart';
 import 'package:rukka_folio/l10n/gen/app_localizations.dart';
+import 'package:rukka_folio/shared/widgets/rk_ruled_card.dart';
 
 import '../../shared/test_app.dart';
+
+/// What the S17.3 email-card warning must say in each language (ADR
+/// 2026-10-03c §7): the prohibition, *amounts*, *account numbers*.
+const Map<String, List<String>> _warningTerms = {
+  'en': ['Do not send', 'amounts', 'account numbers'],
+  'pa': ['ਨਾ ਭੇਜੋ', 'ਰਕਮ', 'ਖਾਤਾ ਨੰਬਰ'],
+  'hi': ['न भेजें', 'रक़म', 'खाता नंबर'],
+};
 
 /// A mailer that records each call and answers what it is told to.
 final class _FakeMailer implements SupportMailer {
@@ -252,6 +261,75 @@ void main() {
     });
 
     testWidgets(
+      'F1-03c-2 the email card warns, in EN, PA and HI, not to send amounts '
+      'or account numbers — on the same card as *Email support*, beside an '
+      'icon, and not only in colour (ADR 2026-10-03c §7; ADR 2026-09-25 §4)',
+      (tester) async {
+        for (final locale in rkLocales) {
+          final l10n = await AppLocalizations.delegate.load(locale);
+          final where = locale.languageCode;
+          await pumpRk(
+            tester,
+            screen(key: ValueKey('warning $where')),
+            locale: locale,
+            viewport: rkTallViewport,
+          );
+
+          // The copy is the requirement (ADR 2026-10-03c §7: *do not send
+          // amounts or account numbers*), so each language must carry the
+          // prohibition, the amounts and the account numbers — any other
+          // sentence under the key turns this red. Stems, not whole
+          // sentences, so the M12 native review may reword around them.
+          final copy = l10n.helpContactEmailWarning;
+          for (final term in _warningTerms[where]!) {
+            expect(
+              copy,
+              contains(term),
+              reason: '$where warning does not say "$term": $copy',
+            );
+          }
+
+          final warning = find.text(copy);
+          expect(warning, findsOneWidget, reason: '$where warning missing');
+
+          // On the email card itself: the warning and the primary action
+          // share one card, so the person reads it before writing.
+          final card = find.ancestor(
+            of: warning,
+            matching: find.byType(RkRuledCard),
+          );
+          expect(card, findsOneWidget, reason: '$where warning off the card');
+          expect(
+            find.descendant(
+              of: card,
+              matching: find.widgetWithText(
+                FilledButton,
+                l10n.helpContactEmailAction,
+              ),
+            ),
+            findsOneWidget,
+            reason: '$where warning not on the email card',
+          );
+
+          // Colour never alone (07 §1 rule 3 🔒): an icon travels with it, in
+          // the same row as the words.
+          final row = find.ancestor(of: warning, matching: find.byType(Row));
+          expect(
+            find.descendant(
+              of: row.first,
+              matching: find.byIcon(Icons.privacy_tip_outlined),
+            ),
+            findsOneWidget,
+            reason: '$where warning has no icon',
+          );
+        }
+        // The warning is page copy, not part of what leaves the phone: the
+        // mailto stays bare (ADR 2026-10-03c §6).
+        expect(supportMailtoUri.toString(), 'mailto:support@rukkafolio.com');
+      },
+    );
+
+    testWidgets(
       'F1-07-398 strings resolve in EN, PA and HI and nothing is cut at '
       '130 % or 200 % on either phone, scrolled to the end — with the '
       'failure line showing',
@@ -280,9 +358,16 @@ void main() {
               );
               expectTextFits(tester, reason: '$where, above the fold');
 
-              await tester.tap(
-                find.widgetWithText(FilledButton, l10n.helpContactEmailAction),
+              // At 200 % on the short phone the F1-03c-2 warning above the
+              // action can push *Email support* under the fold; the person
+              // scrolls to it, and so does the test.
+              final email = find.widgetWithText(
+                FilledButton,
+                l10n.helpContactEmailAction,
               );
+              await tester.ensureVisible(email);
+              await tester.pumpAndSettle();
+              await tester.tap(email);
               await tester.pumpAndSettle();
               expect(
                 find.text(l10n.helpContactEmailFailed(supportEmailAddress)),

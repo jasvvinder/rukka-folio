@@ -30,6 +30,8 @@
   "@help.contact.value": {"description": "machine-draft — native review M12"},
   "help.contact.email.body": "अपने ईमेल ऐप से सहायता को लिखें।",
   "@help.contact.email.body": {"description": "machine-draft — native review M12"},
+  "help.contact.email.warning": "ईमेल में रक़में या खाता नंबर न भेजें।",
+  "@help.contact.email.warning": {"description": "machine-draft — native review M12"},
   "help.contact.email.action": "सहायता को ईमेल करें",
   "@help.contact.email.action": {"description": "machine-draft — native review M12"},
   "help.contact.email.label": "सहायता का पता",

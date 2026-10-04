@@ -59,6 +59,10 @@
   "@help.contact.email.body": {
     "description": "S17.3 lead line over the Email support action (ADR 2026-09-25 §4)."
   },
+  "help.contact.email.warning": "Do not send amounts or account numbers by email.",
+  "@help.contact.email.warning": {
+    "description": "S17.3 email card warning, shown beside an icon above *Email support* (ADR 2026-10-03c §7, carrying ADR 2026-09-25 §4's AI-chat warning; CLAUDE.md rule 4). Page copy only — never put into the email itself (ADR 2026-10-03c §6). 'Account numbers' means bank or card account numbers."
+  },
   "help.contact.email.action": "Email support",
   "@help.contact.email.action": {
     "description": "S17.3 primary action: opens the phone's email app addressed to support (ADR 2026-09-25 §4)."

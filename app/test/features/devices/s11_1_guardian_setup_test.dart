@@ -33,13 +33,7 @@ TrustedMemberCandidate _c(
   String id,
   String name, {
   GuardianCeremony ceremony = GuardianCeremony.done,
-  String? invite = 'inv-1',
-}) => TrustedMemberCandidate(
-  memberId: id,
-  name: name,
-  ceremony: ceremony,
-  inviteId: invite,
-);
+}) => TrustedMemberCandidate(memberId: id, name: name, ceremony: ceremony);
 
 /// Three verified members — the default 2-of-3 shape of 04 §7.3.
 List<TrustedMemberCandidate> _three() => [
@@ -542,31 +536,11 @@ void main() {
         initial: GuardianSetup(
           candidates: [
             _c('m1', 'Sunita'),
-            _c(
-              'u-balbir',
-              'Balbir',
-              ceremony: GuardianCeremony.notStarted,
-              invite: null,
-            ),
+            _c('u-balbir', 'Balbir', ceremony: GuardianCeremony.notStarted),
             // Keyed by the invite id, as the server roster keys them.
-            _c(
-              'inv-jaspal',
-              'Jaspal',
-              ceremony: GuardianCeremony.notStarted,
-              invite: null,
-            ),
-            _c(
-              'inv-kiran',
-              'Kiran',
-              ceremony: GuardianCeremony.notStarted,
-              invite: null,
-            ),
-            _c(
-              'u-manjit',
-              'Manjit',
-              ceremony: GuardianCeremony.notStarted,
-              invite: null,
-            ),
+            _c('inv-jaspal', 'Jaspal', ceremony: GuardianCeremony.notStarted),
+            _c('inv-kiran', 'Kiran', ceremony: GuardianCeremony.notStarted),
+            _c('u-manjit', 'Manjit', ceremony: GuardianCeremony.notStarted),
           ],
         ),
       );
@@ -670,6 +644,246 @@ void main() {
       );
       expect(find.text('verify:u-balbir'), findsOneWidget);
     });
+
+    testWidgets(
+      'F1-03c-1 an `invited`, `expired` or `blocked` member cannot be CHOSEN '
+      'on S11.1 (ADR 2026-10-03c §4; 04 §7.3 verified keys only): the choice '
+      'is disabled with the same reason *Meet them* shows, announced as '
+      'disabled with the reason readable (13 §4.3), a tap does not choose '
+      'them, and a verified member stays choosable; one already in the set '
+      'in force blocks Save with its reason until taken off (no dead end)',
+      (tester) async {
+        final members = FakeMembersRepository(
+          initial: const MembersSnapshot(
+            members: [
+              Member(id: 'm1', state: MembershipState.active),
+              Member(id: 'm2', state: MembershipState.active),
+              Member(id: 'm3', state: MembershipState.active),
+              Member(id: 'inv-jaspal', state: MembershipState.invited),
+              Member(id: 'inv-kiran', state: MembershipState.expired),
+              Member(id: 'u-manjit', state: MembershipState.blocked),
+            ],
+          ),
+        );
+        List<TrustedMemberCandidate> candidates() => [
+          _c('m1', 'Sunita'),
+          _c('m2', 'Harpreet'),
+          _c('m3', 'Gurmeet'),
+          _c('inv-jaspal', 'Jaspal', ceremony: GuardianCeremony.notStarted),
+          _c('inv-kiran', 'Kiran', ceremony: GuardianCeremony.notStarted),
+          _c('u-manjit', 'Manjit', ceremony: GuardianCeremony.notStarted),
+        ];
+        const reasons = [
+          (
+            'inv-jaspal',
+            'You can do this once Jaspal has finished joining the book.',
+          ),
+          (
+            'inv-kiran',
+            'You can do this once Kiran has finished joining the book.',
+          ),
+          (
+            'u-manjit',
+            'An admin has to look into this before a new invite can go out.',
+          ),
+        ];
+        Checkbox box(String id) => tester.widget<Checkbox>(
+          find.descendant(of: _member(id), matching: find.byType(Checkbox)),
+        );
+        final semantics = tester.ensureSemantics();
+
+        final repo = FakeGuardians(
+          initial: GuardianSetup(candidates: candidates()),
+        );
+        addTearDown(repo.dispose);
+        await pumpRk(
+          tester,
+          _screen(repo, meetBlockOf: guardianMeetBlockFrom(members)),
+          viewport: rkPhone360,
+        );
+
+        // Verified members: choosable, announced enabled.
+        for (final id in const ['m1', 'm2', 'm3']) {
+          await _reveal(tester, _member(id));
+          expect(box(id).onChanged, isNotNull, reason: id);
+          expect(
+            tester.getSemantics(_member(id)),
+            containsSemantics(hasEnabledState: true, isEnabled: true),
+            reason: id,
+          );
+          await _choose(tester, id);
+          expect(box(id).value, isTrue, reason: id);
+        }
+
+        // Not joined, expired, blocked: disabled, with the reason that is
+        // true for them, and a tap on the row or the box chooses nobody.
+        for (final (id, why) in reasons) {
+          await _reveal(tester, _member(id));
+          expect(box(id).onChanged, isNull, reason: id);
+          expect(
+            tester.widget<Text>(find.byKey(Key('guardians.meet.why.$id'))).data,
+            why,
+            reason: 'the same reason *Meet them* shows',
+          );
+          expect(
+            tester.getSemantics(_member(id)),
+            containsSemantics(
+              hasEnabledState: true,
+              isEnabled: false,
+              hasCheckedState: true,
+              isChecked: false,
+            ),
+            reason: '$id: disabled is announced',
+          );
+          expect(
+            tester.getSemantics(_member(id)).label,
+            contains(why),
+            reason: '$id: the reason is read with the row, not only seen',
+          );
+          await tester.tap(_member(id), warnIfMissed: false);
+          await tester.pumpAndSettle();
+          await tester.tap(
+            find.descendant(of: _member(id), matching: find.byType(Checkbox)),
+            warnIfMissed: false,
+          );
+          await tester.pumpAndSettle();
+          expect(box(id).value, isFalse, reason: '$id was chosen by a tap');
+        }
+
+        // Only the three verified people reach the seam.
+        expect(_saveEnabled(tester), isTrue);
+        await tester.tap(_save);
+        await tester.pumpAndSettle();
+        expect(repo.saved, [
+          ['m1', 'm2', 'm3'],
+        ]);
+
+        // A set in force that holds someone now blocked is never silently
+        // savable: Save says why, and taking them off is the way on.
+        final held = FakeGuardians(
+          initial: GuardianSetup(
+            candidates: candidates(),
+            chosenIds: const ['m1', 'm2', 'm3', 'u-manjit'],
+          ),
+        );
+        addTearDown(held.dispose);
+        await pumpRk(
+          tester,
+          _screen(held, meetBlockOf: guardianMeetBlockFrom(members)),
+          viewport: rkPhone360,
+        );
+        expect(_saveEnabled(tester), isFalse);
+        expect(
+          find.text(
+            'Someone you chose cannot be a trusted member right now. Take '
+            'them off the list to save.',
+          ),
+          findsOneWidget,
+        );
+        await _reveal(tester, _member('u-manjit'));
+        expect(box('u-manjit').value, isTrue);
+        expect(
+          box('u-manjit').onChanged,
+          isNotNull,
+          reason: 'a chosen row always un-chooses — no dead end',
+        );
+        await _choose(tester, 'u-manjit');
+        expect(box('u-manjit').value, isFalse);
+        expect(box('u-manjit').onChanged, isNull, reason: 'and stays off');
+        expect(_saveEnabled(tester), isTrue);
+        semantics.dispose();
+      },
+    );
+
+    testWidgets(
+      'F1-03c-3 a set in force that holds someone this phone has no row for '
+      'shows them as a row that can be taken off, so Save’s *Take them off '
+      'the list* can be carried out (07 §1 rule 6, no dead ends; ADR '
+      '2026-10-03c §4) — and they cannot be chosen back',
+      (tester) async {
+        final members = FakeMembersRepository(
+          initial: const MembersSnapshot(
+            members: [
+              Member(id: 'm1', state: MembershipState.active),
+              Member(id: 'm2', state: MembershipState.active),
+              Member(id: 'm3', state: MembershipState.active),
+            ],
+          ),
+        );
+        final unlisted = find.byKey(const Key('guardians.unlisted.u-gone'));
+        Checkbox box() => tester.widget<Checkbox>(
+          find.descendant(of: unlisted, matching: find.byType(Checkbox)),
+        );
+        final semantics = tester.ensureSemantics();
+        // `u-gone` is in the server's set verbatim (guardians_seams.dart) but
+        // the roster this device holds lists no one by that id.
+        final held = FakeGuardians(
+          initial: GuardianSetup(
+            candidates: [
+              _c('m1', 'Sunita'),
+              _c('m2', 'Harpreet'),
+              _c('m3', 'Gurmeet'),
+            ],
+            chosenIds: const ['m1', 'm2', 'm3', 'u-gone'],
+          ),
+        );
+        addTearDown(held.dispose);
+        await pumpRk(
+          tester,
+          _screen(held, meetBlockOf: guardianMeetBlockFrom(members)),
+          viewport: rkPhone360,
+        );
+
+        expect(_saveEnabled(tester), isFalse);
+        expect(
+          find.text(
+            'Someone you chose cannot be a trusted member right now. Take '
+            'them off the list to save.',
+          ),
+          findsOneWidget,
+        );
+        await _reveal(tester, unlisted);
+        expect(
+          find.descendant(
+            of: unlisted,
+            matching: find.text('Someone not on this phone’s member list'),
+          ),
+          findsOneWidget,
+          reason: 'a row the user can find, with words, not a bare id',
+        );
+        expect(box().value, isTrue);
+        expect(box().onChanged, isNotNull, reason: 'it can be taken off');
+        expect(
+          tester.getSemantics(unlisted),
+          containsSemantics(
+            hasEnabledState: true,
+            isEnabled: true,
+            hasCheckedState: true,
+            isChecked: true,
+          ),
+        );
+
+        await tester.tap(unlisted);
+        await tester.pumpAndSettle();
+        expect(box().value, isFalse, reason: 'taken off');
+        expect(box().onChanged, isNull, reason: 'and cannot be chosen back');
+        expect(
+          tester.getSemantics(unlisted),
+          containsSemantics(hasEnabledState: true, isEnabled: false),
+        );
+        await tester.tap(unlisted, warnIfMissed: false);
+        await tester.pumpAndSettle();
+        expect(box().value, isFalse);
+
+        expect(_saveEnabled(tester), isTrue);
+        await tester.tap(_save);
+        await tester.pumpAndSettle();
+        expect(held.saved, [
+          ['m1', 'm2', 'm3'],
+        ]);
+        semantics.dispose();
+      },
+    );
 
     testWidgets(
       'F1-06-29 EN, ਪੰਜਾਬੀ and हिन्दी all fit at 200 % on 360×800 and '

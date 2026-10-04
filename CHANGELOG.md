@@ -12,6 +12,33 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-04 — M13: ADR 2026-10-03c §3/§4/§7 built — invite routes gated on a live device (desk 37), S17.3 email warning (desk 44), S11.1 guardian choice (desk 53)
+
+**Added**
+- `server/supabase/migrations/0028_invites_live_device.sql` (M13-INV37, `lane-server`): `rf.my_invites` and `rf.accept_invite` refuse a caller whose device is not live (`rf.device_live_for`) with `42501 unknown_candidate_device`, before any invite is read, locked or flipped to expired — so a revoked phone's still-valid token can neither read offers and nonces nor accept one (ADR 2026-10-03c §3). Signatures, SECURITY DEFINER, `search_path = public, pg_temp` and the rf_api-only grant kept. MemStore mirrors the gate; `sync-meta` GET `/invites` now catches the refusal (it used to 500) and both routes answer 403 `unknown_request`, byte-identical to `/recovery/has-guardian-set`. `E-03c-1`, `E-03c-2` in `tests/rls/invites_live_device.test.ts` and `functions/_tests/invites_live_device.test.ts`.
+- S17.3 email card (M13-HELP44, `lane-ui`): a visible warning not to send amounts or account numbers, one key `help.contact.email.warning` in EN/PA/HI; not added to the email body (ADR 2026-10-03c §6), 06 §8's wording untouched. `F1-03c-2` checks the wording per locale.
+- S11.1 (M13-GSEL53, `lane-ui`): an `invited`/`expired`/`blocked` member's choice is disabled with *Meet them*'s reason (`F1-03c-1`); a member of the set in force with no row on this phone is shown and can be taken off, so Save's *take them off* refusal is no longer a dead end (`F1-03c-3`); new key `guardians.save.blocked.unavailable`; the root's one `MembersRepositoryScope` is pinned as the roster's source (`F1-03c-4`).
+
+**Changed**
+- `TrustedMemberCandidate.inviteId` and `GuardianCandidateRow.inviteId` retired with their writers in `guardians_seams.dart` and `bootstrap.dart` (ADR 2026-10-03c §4); stale ⚠️ SPEC comments in `devices_routes.dart` removed.
+- `E-25b-2` (two rows, `tests/rls/invite_nonce.test.ts`): `rf.my_invites` with no claims now asserts the refusal rather than zero rows — rewritten in place under ADR 2026-10-03c §1.
+- GSEL53's repair test renumbered `F1-03c-2` → `F1-03c-3` and its wiring pin `F1-03c-3` → `F1-03c-4` (orchestrator): `F1-03c-2` is reserved for §7. ADR 2026-10-03c §4's marker now lists `F1-03c-1, 3, 4`.
+- `.claude/rf.config.json`: `daily_overrides["2026-10-04"] = 6 M`, owner-directed 4 Oct.
+- PLAN: desks 37, 44, 53 ✅; new desks 108–112; §0 server/app/traceability rows.
+
+**Open**
+- **Desk 108 (owner, ⚠️ SPEC):** `rf.device_live_for` counts a suspended device as live, so a suspended device still reads and accepts invites (as 0025 (c)); only 0020 refuses suspended. Confirm, or rule refused.
+- **Desk 109:** `members_api.dart` has no arm for 403 `unknown_request` — S0.9 and the nonce relay show a generic server error to a revoked phone.
+- **Desk 110 (ops):** apply `0028` to rukka-folio-dev.
+- **Desk 111:** PA/HI for `help.contact.email.warning` and `guardians.save.blocked.unavailable` are machine-draft, native review at M12.
+- **Desk 112:** drop the `@M13` pending markers on ADR 2026-10-03c §3/§4/§7 now the ids are green.
+- Cycle: 3 slices, review 3 findings (0 on INV37's 3-lens panel), all confirmed and repaired in 1 round. Push gate green (app 1992 passed, 4 skipped); the push lane skips RLS, so the suite was run separately on a fresh DB 0001–0028 with `RLS_REQUIRE=1`: **290 passed / 0 failed**. Spend ≈ 0.9 M of the 6 M override.
+
+**Commits**
+- _(pending — owner)_
+
+---
+
 ## 2026-10-04 — M13: desk rulings (ADR 2026-10-03c) + desk 103 bootstrap wiring (M13-BOOT103)
 
 **Decided**
@@ -31,7 +58,7 @@ Running record of what changed in this repository and in the development environ
 - ADR 2026-10-03c rulings §3/§4/§7 await build lanes (server, devices, help).
 
 **Commits**
-- _(pending — owner)_
+- `5facfae` M13: desk 103 bootstrap wiring; `90cc4d5` M13: ADR 2026-10-03c desk rulings
 
 ---
 

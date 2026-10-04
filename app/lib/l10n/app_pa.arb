@@ -1503,6 +1503,10 @@
   "@guardians.save.blocked.meet": {
     "description": "machine-draft — native review M12"
   },
+  "guardians.save.blocked.unavailable": "ਤੁਹਾਡਾ ਚੁਣਿਆ ਕੋਈ ਜਣਾ ਹੁਣ ਭਰੋਸੇਮੰਦ ਮੈਂਬਰ ਨਹੀਂ ਬਣ ਸਕਦਾ। ਸੰਭਾਲਣ ਲਈ ਉਸ ਨੂੰ ਸੂਚੀ ਵਿੱਚੋਂ ਹਟਾਓ।",
+  "@guardians.save.blocked.unavailable": {
+    "description": "machine-draft — native review M12"
+  },
   "guardians.save.error": "ਇਹ ਸੰਭਾਲਿਆ ਨਹੀਂ ਗਿਆ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
   "@guardians.save.error": {
     "description": "machine-draft — native review M12"
@@ -1533,6 +1537,14 @@
   },
   "guardians.two.title": "ਸਿਰਫ਼ ਦੋ ਜਣੇ",
   "@guardians.two.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "guardians.unlisted.name": "ਕੋਈ ਜਣਾ ਜੋ ਇਸ ਫ਼ੋਨ ਦੀ ਮੈਂਬਰ ਸੂਚੀ ਵਿੱਚ ਨਹੀਂ ਹੈ",
+  "@guardians.unlisted.name": {
+    "description": "machine-draft — native review M12"
+  },
+  "guardians.unlisted.why": "ਇਸ ਫ਼ੋਨ ਦੀ ਮੈਂਬਰ ਸੂਚੀ ਵਿੱਚ ਆਉਣ ਤੋਂ ਬਾਅਦ ਉਨ੍ਹਾਂ ਨੂੰ ਚੁਣਿਆ ਜਾ ਸਕਦਾ ਹੈ।",
+  "@guardians.unlisted.why": {
     "description": "machine-draft — native review M12"
   },
   "help.article.appbar": "ਜਵਾਬ",
@@ -1605,6 +1617,10 @@
   },
   "help.contact.email.label": "ਸਹਾਇਤਾ ਦਾ ਪਤਾ",
   "@help.contact.email.label": {
+    "description": "machine-draft — native review M12"
+  },
+  "help.contact.email.warning": "ਈਮੇਲ ਵਿੱਚ ਰਕਮਾਂ ਜਾਂ ਖਾਤਾ ਨੰਬਰ ਨਾ ਭੇਜੋ।",
+  "@help.contact.email.warning": {
     "description": "machine-draft — native review M12"
   },
   "help.contact.title": "ਸਹਾਇਤਾ ਨਾਲ ਸੰਪਰਕ",

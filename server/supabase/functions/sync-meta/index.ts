@@ -666,6 +666,13 @@ function sessionToWire(s: CeremonySession): Record<string, unknown> {
 // Refusals are the database's, passed through by name. A wrong number and an unknown id both come
 // back `invite_not_for_you` (C-05d-9) — identical, so the route is not an oracle for who was
 // invited.
+//
+// ADR 2026-10-03c §3 (desk 37, 0028): a caller whose device claim is not a live device of its user
+// (rf.device_live_for — revoked, or somebody else's) is refused on BOTH the read and the accept,
+// before any invite is looked at. The database names it `unknown_candidate_device`, as the rung-2
+// open and rf.has_guardian_set do (0010, 0025), and inviteError gives it recoveryError's wire
+// answer for that name, 403 `unknown_request` — one refusal on every device-gated route, never an
+// empty list, and the same bytes whether or not the user has an invite.
 async function invites(
   req: Request,
   deps: Deps,
@@ -673,7 +680,14 @@ async function invites(
   path: string,
 ): Promise<Response> {
   if (req.method === "GET" && path === "/invites") {
-    const rows = await deps.store.withClaims(claims, (tx) => tx.myInvites());
+    // ADR 2026-10-03c §3 (0028): a device that is not live is refused, never handed `[]`.
+    let rows;
+    try {
+      rows = await deps.store.withClaims(claims, (tx) => tx.myInvites());
+    } catch (e) {
+      if (!(e instanceof StoreDenied)) throw e;
+      return inviteError(e.reason);
+    }
     return jsonBigResponse(200, {
       invites: rows.map((i) => ({
         invite_id: i.invite_id,
@@ -786,6 +800,9 @@ function inviteError(reason: string): Response {
     case "unknown_invite":
     case "phone_mismatch":
       return error(403, "invite_not_for_you");
+    // ADR 2026-10-03c §3 (0028): the device-gated refusal, on recoveryError's wire name for it.
+    case "unknown_candidate_device":
+      return error(403, "unknown_request");
     case "invite_expired":
       return error(410, "invite_expired"); // 06 §7: 7 days, then one-tap re-invite
     case "invite_not_live":

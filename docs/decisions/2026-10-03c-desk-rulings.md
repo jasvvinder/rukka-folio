@@ -39,7 +39,7 @@ offers and their nonces, and accept one. The nonce is not secret (04 §6.1), but
 not act for its user. The refusal is the same named refusal the other device-gated routes give. A
 `lane-server` slice builds it: E-03c-1 covers the read, E-03c-2 the accept.
 
-### 4. S11.1 never offers an unverified member as a guardian (desk 53) ⟦tests: F1-03c-1 @M13⟧
+### 4. S11.1 never offers an unverified member as a guardian (desk 53) ⟦tests: F1-03c-1 @M13, F1-03c-3 @M13, F1-03c-4 @M13⟧
 A member whose ceremony stands at `invited`, `expired` or `blocked` cannot be **chosen** on S11.1. The
 checkbox is disabled with the same reason *Meet them* already shows (13 §4.3), consistent with 04 §7.3's
 verified-key rule. `save` still refuses to seal to an unverified key, as defence in depth.

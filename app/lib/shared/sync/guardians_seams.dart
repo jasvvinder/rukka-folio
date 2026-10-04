@@ -66,7 +66,6 @@ final class GuardianCandidateRow {
     required this.userId,
     required this.name,
     required this.ceremony,
-    this.inviteId,
     this.isYou = false,
   });
 
@@ -85,9 +84,6 @@ final class GuardianCandidateRow {
   /// guardian"). A roster's word, and on its own never enough to seal —
   /// see rule 1 in the header.
   final GuardianCeremony ceremony;
-
-  /// The ceremony invite S11.1 opens for this person, or null.
-  final String? inviteId;
 
   /// True for the signed-in user. A guardian is somebody else (0010
   /// `guardian_is_subject`), so this row is offered to nobody.
@@ -251,7 +247,6 @@ final class ServerGuardians implements GuardiansRepository {
               memberId: c.userId,
               name: c.name,
               ceremony: c.ceremony,
-              inviteId: c.inviteId,
             ),
       ],
       // The server's members verbatim, including anyone this device holds no

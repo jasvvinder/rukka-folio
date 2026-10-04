@@ -79,7 +79,6 @@ final class TrustedMemberCandidate {
     required this.memberId,
     required this.name,
     this.ceremony = GuardianCeremony.notStarted,
-    this.inviteId,
   });
 
   /// Stable member id — never displayed.
@@ -91,21 +90,19 @@ final class TrustedMemberCandidate {
   /// Where the mutual ceremony stands with this person.
   final GuardianCeremony ceremony;
 
-  /// The ceremony invite to open for this person (S9.3), or null when no
-  /// invite exists yet — then *Meet them* is disabled **with its reason**
-  /// (13 §4.3), never silently absent.
-  final String? inviteId;
+  // No invite id: retired by ADR 2026-10-03c §4 (desk 53). *Meet them* opens
+  // S9.3 by [memberId] (F1-07-545), and whether a member can be met — or
+  // chosen — is answered from their membership state by the S11.1 host.
 
   @override
   bool operator ==(Object other) =>
       other is TrustedMemberCandidate &&
       other.memberId == memberId &&
       other.name == name &&
-      other.ceremony == ceremony &&
-      other.inviteId == inviteId;
+      other.ceremony == ceremony;
 
   @override
-  int get hashCode => Object.hash(memberId, name, ceremony, inviteId);
+  int get hashCode => Object.hash(memberId, name, ceremony);
 }
 
 /// Everything S11.1 renders. Carries no key material by construction.

@@ -215,7 +215,7 @@ Deno.test({
 
 Deno.test({
   name:
-    "E-25b-2 the invitee's own live invite comes back with the nonce the inviter drew, byte for byte; a second user, another tenant's admin, a co-admin of the inviting tenant, an uncertified stranger and a caller with no claims get zero rows — and no caller at all can SELECT the nonce column or filter on it",
+    "E-25b-2 the invitee's own live invite comes back with the nonce the inviter drew, byte for byte; a second user, another tenant's admin, a co-admin of the inviting tenant, an uncertified stranger get zero rows, a caller with no claims is refused (ADR 2026-10-03c §3, 0028) — and no caller at all can SELECT the nonce column or filter on it",
   ignore,
   async fn() {
     const drawn = rnd(16);
@@ -233,11 +233,13 @@ Deno.test({
         ["co-admin of the inviting tenant", fx.coAdmin, fx.dev.coAdmin],
         ["the inviting admin", fx.admin1, fx.dev.admin1],
         ["uncertified stranger", fx.rawStranger, fx.dev.rawStranger],
-        ["no claims", null, null],
       ] as const
     ) {
       assertEquals((await mine(user, device)).length, 0, `${who} is offered nothing`);
     }
+    // ADR 2026-10-03c §3 (0028): no device claim is no live device — refused by name, stricter
+    // than the zero rows this row asserted before (E-03c-1 pins the refusal's name).
+    assertEquals(await pgCode(mine(null, null)), "42501", "no claims: refused");
 
     // the column itself: refused for everyone on rf_api, the invitee included, and not usable as a
     // filter either (Postgres demands SELECT on every column a query references) — no oracle.
@@ -286,11 +288,13 @@ Deno.test({
         ["another tenant's admin", fx.outsider, fx.dev.outsider],
         ["co-admin", fx.coAdmin, fx.dev.coAdmin],
         ["uncertified stranger", fx.rawStranger, fx.dev.rawStranger],
-        ["no claims", null, null],
       ] as const
     ) {
       assertEquals((await mine(user, device)).length, 0, `${who} is offered nothing`);
     }
+    // ADR 2026-10-03c §3 (0028): no device claim is no live device — refused by name, stricter
+    // than the zero rows this row asserted before (E-03c-1 pins the refusal's name).
+    assertEquals(await pgCode(mine(null, null)), "42501", "no claims: refused");
   },
 });
 

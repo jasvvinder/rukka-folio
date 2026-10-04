@@ -43,13 +43,9 @@ final List<RouteBase> devicesRoutes = [
           // S9.3 is keyed by the subject's **user id** (CeremonyPaths
           // .verifyMemberFor; migration 0007 keys a ceremony session by
           // `subject_user`) — `memberId` is that id (guardians_seams fills it
-          // from the roster's `userId`).
-          //
-          // ⚠️ SPEC: `TrustedMemberCandidate.inviteId` is no longer read here.
-          // 04 §6 says guardian activation runs the ceremony between two
-          // active members with no invite, so whether S11.1's candidate
-          // should carry an invite id at all is an open question for the
-          // owner of `shared/seams/guardians.dart` — reported, not changed.
+          // from the roster's `userId`). The candidate carries no invite id:
+          // retired by ADR 2026-10-03c §4 (04 §6 — guardian activation runs
+          // the ceremony between two members with no invite).
           onMeet: (c) =>
               context.push(CeremonyPaths.verifyMemberFor(c.memberId)),
           meetBlockOf: guardianMeetBlockFrom(
@@ -90,8 +86,9 @@ final List<RouteBase> devicesRoutes = [
   ),
 ];
 
-/// *Meet them* is offered only to a member the server will open a ceremony
-/// for: `joined_pending_verification` or `active` (migration 0007
+/// *Meet them* is offered — and the member may be **chosen** (ADR 2026-10-03c
+/// §4) — only for a member the server will open a ceremony for:
+/// `joined_pending_verification` or `active` (migration 0007
 /// `subject_not_in_tenant`; 06 §7 🔒). An `invited` or `expired` row is keyed
 /// by its **invite** id (no user exists yet), and pushing that into S9.3 would
 /// ask for a UMK nobody has; a `blocked` member needs an admin and a new

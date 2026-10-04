@@ -10,7 +10,9 @@
 //      2026-09-19 ruling 2 as amended by ADR 2026-09-25 §4). The address is
 //      always on the page, selectable, beside *Copy the address*, so a phone
 //      with no email app still has a way on. A failed launch names the
-//      address in words beside an icon (07 §1 rules 3, 6 🔒).
+//      address in words beside an icon (07 §1 rules 3, 6 🔒). Above the
+//      action, the card warns not to send amounts or account numbers (ADR
+//      2026-10-03c §7).
 //   2. **What support cannot do** — the 🔒 statement of 06 §8, word for word
 //      (ADR 2026-09-25 §4 keeps it). A reader who learns that no endpoint
 //      exists to read their book cannot be talked into asking for one.
@@ -157,6 +159,31 @@ class _EmailCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             RkFitText(l10n.helpContactEmailBody, style: t.bodyLarge),
+            const SizedBox(height: RkSpace.s3),
+            // ADR 2026-10-03c §7: the person writes this text themselves, so
+            // the card carries the AI chat's warning (ADR 2026-09-25 §4) —
+            // CLAUDE.md rule 4 reaching the one channel the app does not
+            // write. It sits above the action, so it is read before the
+            // email app opens. Page copy only: the `mailto:` stays bare
+            // (§6). An icon and words carry it; the tint is never the only
+            // signal (07 §1 rule 3 🔒).
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.privacy_tip_outlined,
+                  size: RkIcon.grid,
+                  color: status.warning,
+                ),
+                const SizedBox(width: RkSpace.s2),
+                Expanded(
+                  child: RkFitText(
+                    l10n.helpContactEmailWarning,
+                    style: t.bodyMedium,
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: RkSpace.s3),
             FilledButton.icon(
               // Disabled only for the instant a launch is in flight, so one

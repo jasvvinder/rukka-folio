@@ -30,6 +30,8 @@
   "@help.contact.value": {"description": "machine-draft — native review M12"},
   "help.contact.email.body": "ਆਪਣੀ ਈਮੇਲ ਐਪ ਤੋਂ ਸਹਾਇਤਾ ਨੂੰ ਲਿਖੋ।",
   "@help.contact.email.body": {"description": "machine-draft — native review M12"},
+  "help.contact.email.warning": "ਈਮੇਲ ਵਿੱਚ ਰਕਮਾਂ ਜਾਂ ਖਾਤਾ ਨੰਬਰ ਨਾ ਭੇਜੋ।",
+  "@help.contact.email.warning": {"description": "machine-draft — native review M12"},
   "help.contact.email.action": "ਸਹਾਇਤਾ ਨੂੰ ਈਮੇਲ ਕਰੋ",
   "@help.contact.email.action": {"description": "machine-draft — native review M12"},
   "help.contact.email.label": "ਸਹਾਇਤਾ ਦਾ ਪਤਾ",

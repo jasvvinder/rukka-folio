@@ -256,6 +256,41 @@ void main() {
             'roster without a tenant can stand in for it',
       );
     });
+
+    // M13-GSEL53 review finding 2: who S11.1 lets you *choose* is read off
+    // `MembersRepositoryScope` (devices_routes.dart, `guardianMeetBlockFrom`),
+    // while its rows come from `members.current` above. If the scope fell back
+    // to its empty fake, every row would still list and none could be chosen.
+    test('F1-03c-4 the root binds MembersRepositoryScope to the same '
+        '`members` the S11.1 roster reads, so who may be chosen is judged '
+        'against the members the rows list (ADR 2026-10-03c §4)', () {
+      final root = _bootstrapCode();
+      expect(root, contains('Future<void> bootstrap() async {'));
+      expect(
+        RegExp(r'\bfinal\s+members\s*=').allMatches(root),
+        hasLength(1),
+        reason: 'one `members` binding — the roster and the scope share it',
+      );
+      expect(
+        RegExp(
+          r'runApp\(\s*MembersRepositoryScope\(\s*repository:\s*members\s*,',
+        ).hasMatch(root),
+        isTrue,
+        reason:
+            'the scope over the whole app is that repository, not the '
+            'empty fake MembersRepositoryScope.of falls back to',
+      );
+      expect(
+        RegExp(r'\bMembersRepositoryScope\(').allMatches(root),
+        hasLength(1),
+        reason: 'no second scope deeper in the tree can shadow it',
+      );
+      expect(
+        RegExp(r'guardianRosterOf\(\s*members\.current\b').hasMatch(root),
+        isTrue,
+        reason: 'and the rows are read from that same repository',
+      );
+    });
   });
 
   group(

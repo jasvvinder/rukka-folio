@@ -3686,6 +3686,10 @@
   "@guardians.save.blocked.meet": {
     "description": "S11.1 disabled-with-reason: a chosen member is unverified (04 §8.2 🔒)."
   },
+  "guardians.save.blocked.unavailable": "Someone you chose cannot be a trusted member right now. Take them off the list to save.",
+  "@guardians.save.blocked.unavailable": {
+    "description": "S11.1 disabled-with-reason (13 §4.3): a member in the chosen set now stands at `invited`, `expired` or `blocked` and cannot be chosen (ADR 2026-10-03c §4). The note under their name says why; un-choosing them is the way on."
+  },
   "guardians.save.error": "That did not save. Try again.",
   "@guardians.save.error": {
     "description": "S11.1 save error — plain words, never a server code (07 §1 rule 12)."
@@ -3722,6 +3726,14 @@
   "guardians.two.title": "Only two people",
   "@guardians.two.title": {
     "description": "S11.1 typed-confirmation panel heading (ADR 2026-09-06 checklist 4 🔒)."
+  },
+  "guardians.unlisted.name": "Someone not on this phone’s member list",
+  "@guardians.unlisted.name": {
+    "description": "S11.1 row for a member in the set in force whom this device holds no roster row for (no name to show). The row can only be un-chosen (07 §1 rule 6, no dead ends; M13-GSEL53 review 1)."
+  },
+  "guardians.unlisted.why": "They can be chosen once they appear on this phone’s member list.",
+  "@guardians.unlisted.why": {
+    "description": "S11.1 line under guardians.unlisted.name: why the row cannot be chosen, stated as the way it becomes choosable (13 §4.3 disabled-with-reason)."
   },
   "help.article.appbar": "Answer",
   "@help.article.appbar": {
@@ -3799,6 +3811,10 @@
   "help.contact.email.label": "Support address",
   "@help.contact.email.label": {
     "description": "S17.3 label over the always-visible, selectable support email address."
+  },
+  "help.contact.email.warning": "Do not send amounts or account numbers by email.",
+  "@help.contact.email.warning": {
+    "description": "S17.3 email card warning, shown beside an icon above *Email support* (ADR 2026-10-03c §7, carrying ADR 2026-09-25 §4's AI-chat warning; CLAUDE.md rule 4). Page copy only — never put into the email itself (ADR 2026-10-03c §6). 'Account numbers' means bank or card account numbers."
   },
   "help.contact.title": "Contact support",
   "@help.contact.title": {

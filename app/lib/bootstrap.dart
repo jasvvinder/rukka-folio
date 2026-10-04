@@ -210,12 +210,6 @@ GuardianRoster guardianRosterOf(
         ceremony: m.verification != null && m.state == MembershipState.active
             ? GuardianCeremony.done
             : GuardianCeremony.notStarted,
-        // Nothing reads this any more: since M11-DEV1 (F1-07-545) S11.1's
-        // *Meet them* opens S9.3 by `memberId` and is gated on the member's
-        // state, not on an invite id. Left null because `MembersSnapshot`
-        // carries no invite id per member; whether the field is retired is
-        // PLAN desk 53 (owner).
-        inviteId: null,
         isYou: m.isYou,
       ),
   ],
