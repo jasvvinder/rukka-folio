@@ -59,6 +59,7 @@ import 'features/members/members_routes.dart';
 import 'features/members/server_members_repository.dart';
 import 'features/recovery/recovery_routes.dart';
 import 'features/menu/menu_routes.dart';
+import 'features/demo/demo_gate.dart' show watchDemoSignIn;
 import 'features/onboarding/onboarding_routes.dart';
 import 'features/partners/ledger_partners_port.dart';
 import 'features/partners/partners_routes.dart';
@@ -316,6 +317,11 @@ Future<void> bootstrap() async {
         deviceOs: Platform.operatingSystem,
       );
       await auth.restore();
+      // DEBUG ONLY (owner-directed, 4 Oct 2026): the S0.3 demo card needs the
+      // number that signs in during this launch, which `Active` does not
+      // carry. Listens to nothing — and holds no number — unless the demo
+      // gate is open; a release build never opens it (features/demo).
+      watchDemoSignIn(auth);
 
       // Shell state that outlives a screen and a launch (07 §16, 13 §2.2):
       // language, appearance, the two auto-lock values and the scope each tab

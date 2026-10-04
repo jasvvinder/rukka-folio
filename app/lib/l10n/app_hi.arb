@@ -697,6 +697,112 @@
   "date.month.sep": "सितंबर",
   "date.today": "आज",
   "date.yesterday": "कल",
+  "demo.account.bank": "बैंक खाता",
+  "@demo.account.bank": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.book.personal": "{name} — निजी",
+  "@demo.book.personal": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.card.already": "{name} — पहले से इस फ़ोन पर है",
+  "@demo.card.already": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.card.badge": "डीबग",
+  "@demo.card.badge": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.card.body": "{name} की बहियाँ इस फ़ोन पर बनाता है, गढ़ी हुई एंट्रियों के साथ, फिर सेटअप आगे चलता है।",
+  "@demo.card.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.card.building": "{total} में से बही {done} बन रही है…",
+  "@demo.card.building": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.card.built.heading": "इस फ़ोन पर बनीं",
+  "@demo.card.built.heading": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.card.continue": "आगे बढ़ें",
+  "@demo.card.continue": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.card.error": "सारी डेमो बहियाँ नहीं बन सकीं। जो बन गईं, वे इस फ़ोन पर रहती हैं।",
+  "@demo.card.error": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.card.none.body": "{name} सूची की कोई भी बही नहीं रखते, इसलिए इस फ़ोन पर कोई नहीं बनती। अपनी बही शुरू करने के लिए नीचे एक चुनें।",
+  "@demo.card.none.body": {
+    "description": "machine-draft — native review M12",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "demo.card.none.title": "डेमो: {name} के लिए बनाने को कोई बही नहीं",
+  "@demo.card.none.title": {
+    "description": "machine-draft — native review M12",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "demo.card.retry": "फिर कोशिश करें",
+  "@demo.card.retry": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.card.shared.heading": "आपके साथ साझा — कई-उपयोगकर्ता रिलीज़ चाहिए",
+  "@demo.card.shared.heading": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.card.shared.note": "ये बहियाँ कोई और रखता है। ये यहाँ तभी खुल सकती हैं जब उनका फ़ोन इन्हें इस फ़ोन के साथ साझा कर सके।",
+  "@demo.card.shared.note": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.card.sync.note": "ये डेमो बहियाँ इसी फ़ोन पर रहती हैं। टेस्ट सर्वर अभी इन्हें नहीं जानता, इसलिए ये सिंक नहीं होंगी।",
+  "@demo.card.sync.note": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.card.title": "डेमो: {name} की बहियाँ बनाएँ",
+  "@demo.card.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.category.electricity": "बिजली",
+  "@demo.category.electricity": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.category.fuel": "ईंधन",
+  "@demo.category.fuel": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.category.groceries": "राशन",
+  "@demo.category.groceries": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.category.income": "मिले पैसे",
+  "@demo.category.income": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.category.medical": "दवा-इलाज",
+  "@demo.category.medical": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.category.purchases": "ख़रीद",
+  "@demo.category.purchases": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.category.sales": "बिक्री",
+  "@demo.category.sales": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.category.wages": "मज़दूरी",
+  "@demo.category.wages": {
+    "description": "machine-draft — native review M12"
+  },
   "devices.backup.row.subtitle": "फ़ोन के बैकअप में आपके बही-खाते नहीं होते। आपकी एंट्रियाँ पहले से हमारे पास एन्क्रिप्ट होकर सुरक्षित हैं — बैकअप आपकी चाबी की रक्षा करता है।",
   "devices.backup.row.title": "बैकअप",
   "devices.cancel": "रद्द करें",

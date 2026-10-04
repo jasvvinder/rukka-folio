@@ -22,7 +22,7 @@ import '../../shared/test_app.dart';
 
 const _profile = AccountProfile(
   name: 'Amrit Kaur',
-  phone: '+91 98765 43210',
+  phone: '+91 99999 00001',
   languageCode: 'en',
 );
 

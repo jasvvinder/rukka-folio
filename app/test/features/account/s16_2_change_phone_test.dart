@@ -17,15 +17,25 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/features/account/phone_change.dart';
+import 'package:rukka_folio/features/auth/phone_shape.dart'
+    show debugDemoPhonesOverride;
 import 'package:rukka_folio/features/account/screens/s16_2_change_phone_screen.dart';
 import 'package:rukka_folio/shared/seams/sync_client.dart';
 
 import '../../shared/test_app.dart';
 
+// Numbers from the reserved test block only (ADR 2026-09-05i §7).
+const _oldTyped = '9999900001'; // +91 99999 00001, the current number
+const _newTyped = '9999900002'; // +91 99999 00002, the number changed to
+const _newE164 = '+91$_newTyped';
+
+/// The first synthetic demo number (dev project, owner-directed 4 Oct 2026).
+const _demo = '5000001001';
+
 PhoneChangeAttempt _start({
   int trustedMembers = 3,
   bool otherDevice = true,
-  String phone = '+91 98765 43210',
+  String phone = '+91 99999 00001',
 }) => PhoneChangeAttempt(
   currentNumber: phone,
   trustedMemberCount: trustedMembers,
@@ -78,7 +88,7 @@ void main() {
         await pumpRk(tester, _screen(seam), viewport: rkPhone360);
 
         expect(find.text('Change phone number'), findsOneWidget);
-        expect(find.text('+91 98765 43210'), findsOneWidget);
+        expect(find.text('+91 99999 00001'), findsOneWidget);
         expect(_otp, findsOneWidget);
         expect(_lost, findsOneWidget);
         expect(
@@ -111,7 +121,7 @@ void main() {
         await tester.pumpAndSettle();
         expect(seam.oldSends, 1);
         expect(
-          find.textContaining('Code sent to +91 98765 43210'),
+          find.textContaining('Code sent to +91 99999 00001'),
           findsOneWidget,
         );
 
@@ -147,16 +157,59 @@ void main() {
         expect(find.text('Enter a 10-digit mobile number.'), findsOneWidget);
         expect(seam.newNumbers, isEmpty);
 
-        await tester.enterText(_newNumber, '9876543210');
+        await tester.enterText(_newNumber, _oldTyped);
         await tester.tap(_send);
         await tester.pumpAndSettle();
         expect(find.text('That is already your number.'), findsOneWidget);
         expect(seam.newNumbers, isEmpty);
 
-        await tester.enterText(_newNumber, '9123456780');
+        await tester.enterText(_newNumber, _newTyped);
         await tester.tap(_send);
         await tester.pumpAndSettle();
-        expect(seam.newNumbers, ['+919123456780']);
+        expect(seam.newNumbers, [_newE164]);
+      },
+    );
+
+    testWidgets(
+      'F1-DEMO-4 without RF_DEMO_PHONES the dev-only demo range is off: a '
+      '5-number new number is refused with the bad-number reason before the '
+      'seam, and a 9-number (control) still reaches it as E.164',
+      (tester) async {
+        final seam = FakePhoneChange(initial: _start());
+        addTearDown(seam.dispose);
+        await pumpRk(tester, _screen(seam), viewport: rkPhone360);
+        await _proveOldNumber(tester);
+
+        await tester.enterText(_newNumber, _demo);
+        await tester.tap(_send);
+        await tester.pumpAndSettle();
+        expect(find.text('Enter a 10-digit mobile number.'), findsOneWidget);
+        expect(seam.newNumbers, isEmpty);
+
+        await tester.enterText(_newNumber, _newTyped);
+        await tester.tap(_send);
+        await tester.pumpAndSettle();
+        expect(seam.newNumbers, [_newE164]);
+      },
+    );
+
+    testWidgets(
+      'F1-DEMO-7 with the demo range ON (the RF_DEMO_PHONES=true path, via '
+      'the test seam) S16.2 sends a 5-number new number to the seam as E.164 '
+      '— the screen follows the shared predicate, not a copy of its own',
+      (tester) async {
+        debugDemoPhonesOverride = true;
+        addTearDown(() => debugDemoPhonesOverride = null);
+        final seam = FakePhoneChange(initial: _start());
+        addTearDown(seam.dispose);
+        await pumpRk(tester, _screen(seam), viewport: rkPhone360);
+        await _proveOldNumber(tester);
+
+        await tester.enterText(_newNumber, _demo);
+        await tester.tap(_send);
+        await tester.pumpAndSettle();
+        expect(find.text('Enter a 10-digit mobile number.'), findsNothing);
+        expect(seam.newNumbers, ['+91$_demo']);
       },
     );
 
@@ -174,7 +227,7 @@ void main() {
           viewport: rkPhone360,
         );
         await _proveOldNumber(tester);
-        await tester.enterText(_newNumber, '9123456780');
+        await tester.enterText(_newNumber, _newTyped);
         await tester.tap(_send);
         await tester.pumpAndSettle();
 
@@ -184,7 +237,7 @@ void main() {
 
         expect(seam.newCodes, ['654321']);
         expect(find.text('Your number is changed'), findsOneWidget);
-        expect(find.text('+919123456780'), findsOneWidget);
+        expect(find.text(_newE164), findsOneWidget);
         expect(find.textContaining('Sign in with this number'), findsOneWidget);
         expect(
           find.textContaining('the people you share with did not change'),
@@ -301,7 +354,7 @@ void main() {
         await tester.tap(_cancel);
         await tester.pumpAndSettle();
         expect(seam.cancels, 1);
-        expect(seam.current!.currentNumber, '+91 98765 43210');
+        expect(seam.current!.currentNumber, '+91 99999 00001');
         expect(find.text('Your number is changed'), findsNothing);
       },
     );
@@ -358,7 +411,7 @@ void main() {
         expect(find.text('Your new number'), findsOneWidget);
         expect(find.text('Your number is changed'), findsNothing);
 
-        await tester.enterText(_newNumber, '9123456780');
+        await tester.enterText(_newNumber, _newTyped);
         await tester.tap(_send);
         await tester.pumpAndSettle();
         expect(_code, findsOneWidget);
@@ -386,7 +439,7 @@ void main() {
           find.textContaining('You can start this the moment you are back'),
           findsOneWidget,
         );
-        expect(find.text('+91 98765 43210'), findsOneWidget);
+        expect(find.text('+91 99999 00001'), findsOneWidget);
         await tester.tap(_otp);
         await tester.pumpAndSettle();
         expect(seam.oldSends, 0);
@@ -429,7 +482,7 @@ void main() {
           _start().copyWith(stage: PhoneChangeStage.oldNumberProved),
           _start().copyWith(
             stage: PhoneChangeStage.done,
-            currentNumber: '+919123456780',
+            currentNumber: _newE164,
           ),
         ];
         for (final attempt in stages) {

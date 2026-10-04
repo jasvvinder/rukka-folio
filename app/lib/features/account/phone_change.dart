@@ -54,14 +54,14 @@ import '../../shared/seams/recovery_ladder.dart'
 export '../../shared/seams/recovery_ladder.dart'
     show RecoveryAttemptState, TrustedApprover, TrustedApproverState;
 
+/// A ten-digit Indian mobile number — S0.2's own predicate, shared rather than
+/// copied: a number this app could never have sent an OTP to is not a number
+/// it may change *to* (and the dev-only demo range follows the same rule).
+export '../auth/phone_shape.dart' show isNationalPhoneShape;
+
 /// India's country code — the only one the app registers numbers under
 /// (06 §2). Held once so the field's prefix and the seam agree.
 const phoneCountryCode = '+91';
-
-/// A ten-digit Indian mobile number: `[6-9]` then nine digits. The same shape
-/// S0.2 enforces at first run — a number this app could never have sent an
-/// OTP to is not a number it may change *to*.
-final phoneNationalShape = RegExp(r'^[6-9][0-9]{9}$');
 
 /// `+91XXXXXXXXXX` from ten typed digits.
 String phoneE164(String tenDigits) => '$phoneCountryCode${tenDigits.trim()}';
@@ -308,7 +308,7 @@ final class FakePhoneChange implements PhoneChange {
   /// Creates the fake over [initial].
   FakePhoneChange({PhoneChangeAttempt? initial, this.failRefresh = false})
     : _current =
-          initial ?? const PhoneChangeAttempt(currentNumber: '+91 98765 43210');
+          initial ?? const PhoneChangeAttempt(currentNumber: '+91 99999 00001');
 
   /// The pack's own example: three trusted members, 2 of them needed, one
   /// already said yes, and another phone of the user's is signed in — so the
@@ -316,7 +316,7 @@ final class FakePhoneChange implements PhoneChange {
   factory FakePhoneChange.asking({DateTime? waitUntil, DateTime? expiresAt}) =>
       FakePhoneChange(
         initial: PhoneChangeAttempt(
-          currentNumber: '+91 98765 43210',
+          currentNumber: '+91 99999 00001',
           stage: PhoneChangeStage.askingTrustedMembers,
           trustedMemberCount: 3,
           hasOtherActiveDevice: true,

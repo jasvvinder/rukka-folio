@@ -20,7 +20,7 @@ import '../../shared/test_app.dart';
 
 const _profile = AccountProfile(
   name: 'Amrit Kaur',
-  phone: '+91 98765 43210',
+  phone: '+91 99999 00001',
   languageCode: 'en',
 );
 
@@ -120,7 +120,7 @@ void main() {
 
         expect(find.text('My account'), findsOneWidget);
         expect(find.text('Amrit Kaur'), findsWidgets);
-        expect(find.text('+91 98765 43210'), findsOneWidget);
+        expect(find.text('+91 99999 00001'), findsOneWidget);
         expect(find.text('English'), findsOneWidget);
         // The avatar is the initials of the name, not a silhouette and not a
         // picture: `accountPhotoSupported` is false everywhere.

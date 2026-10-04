@@ -13,6 +13,13 @@ abstract final class OnboardingPaths {
   /// S0.05 Welcome — 3 skippable slides, after language (13 §3.2).
   static const welcome = '/onboarding/welcome';
 
+  /// S0.2 Phone + OTP **inside the onboarding chain** — 13 §5 flow F1
+  /// (`… → S0.05 welcome → S0.2 phone+OTP → S0.3 purpose → …`). The same
+  /// screen as auth's own `AuthPaths.phoneOtp` route, which stays as it is
+  /// for the forgot-PIN door (main.dart) and lands on Home; this one carries
+  /// a first-run signup on to S0.3, which nothing else reached.
+  static const signIn = '/onboarding/sign-in';
+
   /// S0.3 Purpose — five-card branch, after S0.2 phone+OTP (07 §3.1 step 3,
   /// 13 §3.2). Owned here (not aliased off `RkPaths`, same posture as the
   /// three paths above) because S0.2 lives in features/auth and this lane

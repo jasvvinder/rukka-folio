@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/features/auth/http_auth_client.dart';
+import 'package:rukka_folio/features/auth/phone_shape.dart';
 import 'package:rukka_folio/features/auth/screens/s0_2_phone_otp_screen.dart';
 import 'package:rukka_folio/features/auth/screens/s19_1_update_required_screen.dart';
 import 'package:rukka_folio/shared/seams/auth_client.dart';
@@ -37,8 +38,15 @@ final class _SmsChannelAuth extends FakeAuthClient implements OtpChannelSource {
   }
 }
 
+/// The typed number, from the reserved test block (ADR 2026-09-05i §7).
+const _typed = '9999900001'; // +91 99999 00001
+const _e164 = '+91$_typed';
+
+/// The first synthetic demo number (dev project, owner-directed 4 Oct 2026).
+const _demo = '5000001001';
+
 Future<void> _enterPhoneAndSend(WidgetTester tester) async {
-  await tester.enterText(find.byType(TextField), '9876543210');
+  await tester.enterText(find.byType(TextField), _typed);
   await tester.tap(find.text('Send code'));
   await tester.pumpAndSettle();
 }
@@ -69,9 +77,9 @@ void main() {
           findsOneWidget,
         ); // fixed country prefix beside the field
         await _enterPhoneAndSend(tester);
-        expect(auth.requestedPhones, ['+919876543210']);
+        expect(auth.requestedPhones, [_e164]);
         expect(find.text('Enter the code'), findsOneWidget);
-        expect(find.text('Sent to +919876543210'), findsOneWidget);
+        expect(find.text('Sent to $_e164'), findsOneWidget);
         await tester.enterText(find.byType(TextField), '482913');
         await tester.tap(find.text('Verify'));
         await tester.pumpAndSettle();
@@ -240,6 +248,48 @@ void main() {
     );
   });
 
+  group(
+    'S0.2 demo phone range is off by default (owner-directed 4 Oct 2026)',
+    () {
+      testWidgets(
+        'F1-DEMO-3 without RF_DEMO_PHONES a 5-number is refused before any request, exactly as any other bad number; a 9-number (control) reaches the seam as E.164',
+        (tester) async {
+          final auth = FakeAuthClient();
+          await pumpRk(tester, const PhoneOtpScreen(), auth: auth);
+          await tester.enterText(find.byType(TextField), _demo);
+          await tester.tap(find.text('Send code'));
+          await tester.pumpAndSettle();
+          expect(
+            find.text('Enter the 10-digit mobile number.'),
+            findsOneWidget,
+          );
+          expect(auth.requestedPhones, isEmpty);
+
+          await tester.enterText(find.byType(TextField), _typed);
+          await tester.tap(find.text('Send code'));
+          await tester.pumpAndSettle();
+          expect(auth.requestedPhones, [_e164]);
+        },
+      );
+
+      testWidgets(
+        'F1-DEMO-6 with the demo range ON (the RF_DEMO_PHONES=true path, via the test seam) S0.2 sends a 5-number to the seam as E.164 — the screen follows the shared predicate, not a copy of its own',
+        (tester) async {
+          debugDemoPhonesOverride = true;
+          addTearDown(() => debugDemoPhonesOverride = null);
+          final auth = FakeAuthClient();
+          await pumpRk(tester, const PhoneOtpScreen(), auth: auth);
+          await tester.enterText(find.byType(TextField), _demo);
+          await tester.tap(find.text('Send code'));
+          await tester.pumpAndSettle();
+          expect(find.text('Enter the 10-digit mobile number.'), findsNothing);
+          expect(auth.requestedPhones, ['+91$_demo']);
+          expect(find.text('Enter the code'), findsOneWidget);
+        },
+      );
+    },
+  );
+
   group('S0.2 OTP by SMS only (ADR 2026-09-25 §1, amends 06 §2)', () {
     testWidgets(
       'C-25-1 S0.2 says SMS and never WhatsApp in EN, PA and HI: the phone step names SMS as the one channel, and the code step shows no WhatsApp line and no fallback line',
@@ -273,17 +323,13 @@ void main() {
           expect(find.text(hint[lang]!), findsOneWidget, reason: lang);
           expect(find.textContaining('WhatsApp'), findsNothing, reason: lang);
 
-          await tester.enterText(find.byType(TextField), '9876543210');
+          await tester.enterText(find.byType(TextField), _typed);
           await tester.tap(find.byType(FilledButton));
           await tester.pumpAndSettle();
           // Code step reached through the seam, and no channel line at all.
-          expect(auth.requestedPhones, ['+919876543210'], reason: lang);
+          expect(auth.requestedPhones, [_e164], reason: lang);
           expect(auth.otpChannel.value, OtpChannel.sms, reason: lang);
-          expect(
-            find.textContaining('+919876543210'),
-            findsOneWidget,
-            reason: lang,
-          );
+          expect(find.textContaining(_e164), findsOneWidget, reason: lang);
           expect(find.textContaining('WhatsApp'), findsNothing, reason: lang);
           expect(find.text(fallback[lang]!), findsNothing, reason: lang);
           expect(tester.takeException(), isNull);

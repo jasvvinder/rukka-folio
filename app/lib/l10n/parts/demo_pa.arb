@@ -1,0 +1,109 @@
+{
+  "@@locale": "pa",
+  "demo.card.badge": "ਡੀਬੱਗ",
+  "@demo.card.badge": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.card.title": "ਡੈਮੋ: {name} ਦੀਆਂ ਵਹੀਆਂ ਬਣਾਓ",
+  "@demo.card.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.card.body": "{name} ਦੀਆਂ ਵਹੀਆਂ ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਬਣਾਉਂਦਾ ਹੈ, ਘੜੀਆਂ ਹੋਈਆਂ ਐਂਟਰੀਆਂ ਨਾਲ, ਫਿਰ ਸੈੱਟਅੱਪ ਅੱਗੇ ਚੱਲਦਾ ਹੈ।",
+  "@demo.card.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.card.building": "{total} ਵਿੱਚੋਂ ਵਹੀ {done} ਬਣ ਰਹੀ ਹੈ…",
+  "@demo.card.building": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.card.built.heading": "ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਬਣੀਆਂ",
+  "@demo.card.built.heading": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.card.already": "{name} — ਪਹਿਲਾਂ ਹੀ ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਹੈ",
+  "@demo.card.already": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.card.shared.heading": "ਤੁਹਾਡੇ ਨਾਲ ਸਾਂਝੀਆਂ — ਕਈ-ਵਰਤੋਂਕਾਰ ਰਿਲੀਜ਼ ਚਾਹੀਦੀ ਹੈ",
+  "@demo.card.shared.heading": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.card.shared.note": "ਇਹ ਵਹੀਆਂ ਕੋਈ ਹੋਰ ਰੱਖਦਾ ਹੈ। ਇਹ ਇੱਥੇ ਤਾਂ ਹੀ ਖੁੱਲ੍ਹ ਸਕਦੀਆਂ ਹਨ ਜਦੋਂ ਉਹਨਾਂ ਦਾ ਫ਼ੋਨ ਇਹਨਾਂ ਨੂੰ ਇਸ ਫ਼ੋਨ ਨਾਲ ਸਾਂਝਾ ਕਰ ਸਕੇ।",
+  "@demo.card.shared.note": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.card.sync.note": "ਇਹ ਡੈਮੋ ਵਹੀਆਂ ਇਸੇ ਫ਼ੋਨ ਉੱਤੇ ਰਹਿੰਦੀਆਂ ਹਨ। ਟੈਸਟ ਸਰਵਰ ਹਾਲੇ ਇਹਨਾਂ ਨੂੰ ਨਹੀਂ ਜਾਣਦਾ, ਇਸ ਲਈ ਇਹ ਸਿੰਕ ਨਹੀਂ ਹੋਣਗੀਆਂ।",
+  "@demo.card.sync.note": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.card.continue": "ਅੱਗੇ ਚੱਲੋ",
+  "@demo.card.continue": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.card.error": "ਸਾਰੀਆਂ ਡੈਮੋ ਵਹੀਆਂ ਨਹੀਂ ਬਣ ਸਕੀਆਂ। ਜੋ ਬਣ ਗਈਆਂ, ਉਹ ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਰਹਿੰਦੀਆਂ ਹਨ।",
+  "@demo.card.error": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.card.retry": "ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
+  "@demo.card.retry": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.card.none.title": "ਡੈਮੋ: {name} ਲਈ ਬਣਾਉਣ ਨੂੰ ਕੋਈ ਵਹੀ ਨਹੀਂ",
+  "@demo.card.none.title": {
+    "description": "machine-draft — native review M12",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "demo.card.none.body": "{name} ਸੂਚੀ ਦੀ ਕੋਈ ਵੀ ਵਹੀ ਨਹੀਂ ਰੱਖਦੇ, ਇਸ ਲਈ ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਕੋਈ ਨਹੀਂ ਬਣਦੀ। ਆਪਣੀ ਵਹੀ ਸ਼ੁਰੂ ਕਰਨ ਲਈ ਹੇਠਾਂ ਇੱਕ ਚੁਣੋ।",
+  "@demo.card.none.body": {
+    "description": "machine-draft — native review M12",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "demo.book.personal": "{name} — ਨਿੱਜੀ",
+  "@demo.book.personal": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.account.bank": "ਬੈਂਕ ਖਾਤਾ",
+  "@demo.account.bank": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.category.sales": "ਵਿਕਰੀ",
+  "@demo.category.sales": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.category.purchases": "ਖ਼ਰੀਦ",
+  "@demo.category.purchases": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.category.wages": "ਮਜ਼ਦੂਰੀ",
+  "@demo.category.wages": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.category.electricity": "ਬਿਜਲੀ",
+  "@demo.category.electricity": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.category.income": "ਮਿਲੇ ਪੈਸੇ",
+  "@demo.category.income": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.category.groceries": "ਰਾਸ਼ਨ",
+  "@demo.category.groceries": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.category.fuel": "ਤੇਲ",
+  "@demo.category.fuel": {
+    "description": "machine-draft — native review M12"
+  },
+  "demo.category.medical": "ਦਵਾਈ-ਇਲਾਜ",
+  "@demo.category.medical": {
+    "description": "machine-draft — native review M12"
+  }
+}

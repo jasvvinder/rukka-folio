@@ -61,7 +61,7 @@ final class ScriptedTransport implements AuthTransport {
   }
 }
 
-const phone = '+919876543210';
+const phone = '+919999900001'; // reserved test block (ADR 2026-09-05i §7)
 const code = '482913';
 const deviceId = '0b7a4c2e-9d41-4f3a-8e6b-2f1c9a7d5e30';
 // The ledger identity every install has before any screen (ADR 2026-09-16
@@ -352,7 +352,7 @@ void main() {
         'code': code,
       });
       final joined = log.join('\n');
-      expect(joined, isNot(contains('9876543210')));
+      expect(joined, isNot(contains(phone.substring(3))));
       expect(joined, isNot(contains(code)));
       expect(joined, isNot(contains('tk')));
       expect(log, isNotEmpty);
@@ -401,7 +401,7 @@ void main() {
         expect(c.current, isA<OtpSent>(), reason: '$other');
         expect(log, contains('otp_channel_unrecognised'), reason: '$other');
         final joined = log.join('\n');
-        expect(joined, isNot(contains('9876543210')));
+        expect(joined, isNot(contains(phone.substring(3))));
         expect(joined.toLowerCase(), isNot(contains('whatsapp')));
       }
 

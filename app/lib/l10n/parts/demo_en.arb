@@ -1,0 +1,137 @@
+{
+  "@@locale": "en",
+  "demo.card.badge": "Debug",
+  "@demo.card.badge": {
+    "description": "Demo builder (owner-directed 4 Oct 2026, debug builds only): tag on the S0.3 demo card so it is never mistaken for a real purpose card."
+  },
+  "demo.card.title": "Demo: build {name}'s books",
+  "@demo.card.title": {
+    "description": "Demo builder card on S0.3, above the five purpose cards. {name} is the roster person's name (data, not translated).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "demo.card.body": "Makes {name}'s books on this phone, filled with invented entries, then carries on with the setup.",
+  "@demo.card.body": {
+    "description": "Demo builder card body.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "demo.card.building": "Making book {done} of {total}…",
+  "@demo.card.building": {
+    "description": "Demo builder progress line while books are being made.",
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "demo.card.built.heading": "Made on this phone",
+  "@demo.card.built.heading": {
+    "description": "Demo builder summary: heading over the books just made."
+  },
+  "demo.card.already": "{name} — already on this phone",
+  "@demo.card.already": {
+    "description": "Demo builder summary row: a book of this name existed, so nothing was made twice.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "demo.card.shared.heading": "Shared with you — needs the multi-user release",
+  "@demo.card.shared.heading": {
+    "description": "Demo builder summary: heading over books where the person is only a member, operator or viewer — they are not made on this phone."
+  },
+  "demo.card.shared.note": "These books are kept by someone else. They can open here only once their keeper's phone can share them with this one.",
+  "@demo.card.shared.note": {
+    "description": "Demo builder summary: why the shared books were not made."
+  },
+  "demo.card.sync.note": "These demo books stay on this phone. The test server does not know them yet, so they will not sync.",
+  "@demo.card.sync.note": {
+    "description": "Demo builder summary: honest note that pushes of demo books are refused by the dev server."
+  },
+  "demo.card.continue": "Continue",
+  "@demo.card.continue": {
+    "description": "Demo builder summary: carries on to S0.4 name, as a purpose choice would."
+  },
+  "demo.card.error": "Not every demo book could be made. The ones that were made stay on this phone.",
+  "@demo.card.error": {
+    "description": "Demo builder error state."
+  },
+  "demo.card.retry": "Try again",
+  "@demo.card.retry": {
+    "description": "Demo builder error action; books already made are not made twice."
+  },
+  "demo.card.none.title": "Demo: no books to make for {name}",
+  "@demo.card.none.title": {
+    "description": "Demo builder card on S0.3 when the roster person keeps none of their books (only member / operator / viewer, or a partner with a share and no role): nothing can be made here. {name} is the roster person's name (data, not translated).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "demo.card.none.body": "{name} keeps none of the books on the list, so none is made on this phone. To start a book of your own, choose one below.",
+  "@demo.card.none.body": {
+    "description": "Demo builder card body when nothing can be made: the five purpose cards beneath are the way on.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "demo.book.personal": "{name} — personal",
+  "@demo.book.personal": {
+    "description": "Name of a demo person's personal book when the roster gives none. {name} is the person's name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "demo.account.bank": "Bank account",
+  "@demo.account.bank": {
+    "description": "Name of the bank account the demo builder adds to each book."
+  },
+  "demo.category.sales": "Sales",
+  "@demo.category.sales": {
+    "description": "Demo business income category."
+  },
+  "demo.category.purchases": "Purchases",
+  "@demo.category.purchases": {
+    "description": "Demo business expense category."
+  },
+  "demo.category.wages": "Wages",
+  "@demo.category.wages": {
+    "description": "Demo business expense category."
+  },
+  "demo.category.electricity": "Electricity",
+  "@demo.category.electricity": {
+    "description": "Demo expense category (business and household)."
+  },
+  "demo.category.income": "Money received",
+  "@demo.category.income": {
+    "description": "Demo household income category."
+  },
+  "demo.category.groceries": "Groceries",
+  "@demo.category.groceries": {
+    "description": "Demo household expense category."
+  },
+  "demo.category.fuel": "Fuel",
+  "@demo.category.fuel": {
+    "description": "Demo household expense category."
+  },
+  "demo.category.medical": "Medical",
+  "@demo.category.medical": {
+    "description": "Demo household expense category."
+  }
+}

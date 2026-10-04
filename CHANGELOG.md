@@ -12,6 +12,30 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-04 — M13/env: dev demo — demo phone range, in-app demo builder, run_dev.sh; seeder plan blocked on product work
+
+**Added**
+- `app/lib/features/auth/phone_shape.dart` (M13-DEMOPH, `lane-ui`): one `isNationalPhoneShape` for S0.2 and S16.2; also accepts `+91 5…` (never a real Indian mobile) only when `!kReleaseMode` **and** `RF_DEMO_PHONES` is set. Real-looking numbers in the auth/account tests moved to the demo range. `F1-DEMO-1…8`.
+- `app/lib/features/demo/` (M13-DEMO1, `lane-ui-hard`): debug-only S0.3 card *Demo: build <name>'s books* for a signed-in roster number; builds every book the person owns or heads (+ declared personal book) through the real `LocalLedger` with deterministic invented entries in integer paise — capital in share proportion (`partnerShares` [1,1,1] / [5,3,2] / [1,1,1,1]; an outside partner as an owner name), sales, expenses, drawings, trust collections. Member/operator/viewer books are listed *shared with you — needs the multi-user release*, never built as owned. Roster from the git-ignored `.demo/demo_roster.json` via `RF_DEMO_ROSTER` (base64); committed code carries a fictional roster only. Strings EN/PA/HI (`parts/demo_*.arb`). `F1-DEMO-9…18`.
+- `scripts/run_dev.sh` — debug run against rukka-folio-dev (`RF_API_BASE`, `RF_DEMO_PHONES`, roster when present; `ipad`; `DEMO=1` starts at the signup chain).
+- `.gitignore`: `.demo/` (real names for the dev demo, never committed — rule 4).
+
+**Changed**
+- Onboarding: welcome → new `/onboarding/sign-in` (reuses S0.2) → S0.3, per 13 §5 flow F1 — S0.3 was unreachable from a live launch (`router.dart:167`, `auth_routes.dart:18`). Owner-confirmed 4 Oct. Auth's own S0.2 route stays the forgot-PIN door.
+- `scripts/check_release_flags.sh` fails a release build carrying any `RF_DEMO_` define.
+- `server/README.md`: the first-dev-deploy check is done — on dev, `otp/request` 200, a wrong code `otp_invalid`, `123456` accepted; the injected `SUPABASE_URL` form is confirmed.
+- PLAN: desks 116–121; desk 111 gains the demo strings.
+
+**Decided**
+- Owner, 4 Oct: demo = in-app builder now, multi-user seeder later; demo numbers are the dev-only `+91 5…` range; no viewer in the roster; Akashdeep and Supreet are members; the spec's sign-in flow (13 §5 F1) is kept.
+
+**Open**
+- Desk 117: the multi-user seeder is blocked — no route registers a tenant or book (`sync-push` refuses `unknown_book`; nothing has ever synced to dev), desk 107, single-tenant client, no `organization` book type, device linking (M8), a new package (ADR).
+- Desk 118: wipe demo data from dev before launch. Desk 119: verify the demo on a simulator; no screen draws `NeedsAttention`. Desk 116: S9.1 phone check. Desk 121: S0.3 has no one-business-professional card.
+
+**Commits**
+- _(fill next session)_
+
 ## 2026-10-04 — M13: suspended device refused the invite routes (desk 108), S0.9 names the refusal (109), ADR markers (112), dev at 0028 (100/110), pre-push format check
 
 **Added**
@@ -35,7 +59,7 @@ Running record of what changed in this repository and in the development environ
 - Desk 111: PA/HI native review now covers five keys.
 
 **Commits**
-- _(fill next session)_
+- `6cd4f9d`
 
 ## 2026-10-04 — M13: ADR 2026-10-03c §3/§4/§7 built — invite routes gated on a live device (desk 37), S17.3 email warning (desk 44), S11.1 guardian choice (desk 53)
 

@@ -9,6 +9,8 @@ import 'package:go_router/go_router.dart';
 import '../../shared/app_scope.dart';
 
 import '../auth/auth_paths.dart';
+import '../auth/screens/s0_2_phone_otp_screen.dart' show PhoneOtpScreen;
+import '../demo/widgets/demo_build_card.dart' show demoPurposeCard;
 import '../devices/devices_paths.dart';
 import '../home/home_paths.dart';
 import 'onboarding_flow.dart';
@@ -75,7 +77,7 @@ export 'widgets/trust_opening_host.dart' show TrustOpeningHost;
 /// at [OnboardingPaths.welcome]; S0.3 at [OnboardingPaths.purpose]; S0.4 at
 /// [OnboardingPaths.namePhoto]. The splash's `onFinished`, the language
 /// screen's `onSelected` and S0.3's `onSelected` all push forward; welcome's
-/// `onDone` hands off to auth's S0.2 ([AuthPaths.phoneOtp], features/auth),
+/// `onDone` hands off to S0.2 at [OnboardingPaths.signIn] (auth's screen),
 /// wired by main.dart.
 ///
 /// The answers are carried between steps by [onboardingFlow] — S0.4's name is
@@ -111,11 +113,31 @@ final List<RouteBase> onboardingRoutes = [
   GoRoute(
     path: OnboardingPaths.welcome,
     builder: (context, state) =>
-        WelcomeScreen(onDone: () => context.go(AuthPaths.phoneOtp)),
+        WelcomeScreen(onDone: () => context.go(OnboardingPaths.signIn)),
+  ),
+  // 13 §5 flow F1: welcome → S0.2 → S0.3. Auth's own S0.2 route lands on Home
+  // (it is also the forgot-PIN door), so the signup chain mounts the same
+  // screen here and carries on to the purpose cards.
+  GoRoute(
+    path: OnboardingPaths.signIn,
+    builder: (context, state) =>
+        PhoneOtpScreen(onDone: (_) => context.go(OnboardingPaths.purpose)),
   ),
   GoRoute(
     path: OnboardingPaths.purpose,
     builder: (context, state) => PurposeScreen(
+      // DEBUG ONLY (owner-directed, 4 Oct 2026): null in every release build
+      // and whenever the signed-in phone is not on the demo roster. Continue
+      // carries on exactly as a purpose choice would — S0.4 name (prefilled
+      // with the roster name), S0.8 PIN, S0.5/S0.5b — and, with no purpose
+      // recorded, [afterSetPin] then lands on Home rather than a branch
+      // wizard that would make another book.
+      debugDemoCard: demoPurposeCard(
+        onContinue: (name) {
+          onboardingFlow.setYourName(name);
+          context.go(OnboardingPaths.namePhoto);
+        },
+      ),
       onSelected: (purpose) {
         onboardingFlow.setPurpose(purpose);
         context.go(OnboardingPaths.namePhoto);

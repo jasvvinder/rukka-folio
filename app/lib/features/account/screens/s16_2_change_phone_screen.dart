@@ -195,7 +195,7 @@ class _ChangePhoneScreenState extends State<ChangePhoneScreen> {
     _ => l10n.accountChangeErrorNetwork,
   };
 
-  /// Digits only, so `+91 98765 43210` and `+919876543210` are one number.
+  /// Digits only, so `+91 99999 00001` and `+919999900001` are one number.
   static String _digits(String s) => s.replaceAll(RegExp(r'[^0-9]'), '');
 
   @override
@@ -749,7 +749,7 @@ class _ChangePhoneScreenState extends State<ChangePhoneScreen> {
   /// in the same second rather than after a round trip.
   Future<void> _sendToNew(PhoneChangeAttempt a) {
     final typed = _newPhone.text.trim();
-    if (!phoneNationalShape.hasMatch(typed)) {
+    if (!isNationalPhoneShape(typed)) {
       setState(
         () => _error = AppLocalizations.of(context).accountChangeErrorBadnumber,
       );

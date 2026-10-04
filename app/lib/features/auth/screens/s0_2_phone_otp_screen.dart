@@ -23,6 +23,7 @@ import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../../../shared/widgets/rk_fit_text.dart';
 import '../http_auth_client.dart';
+import '../phone_shape.dart';
 import 's19_1_update_required_screen.dart';
 
 /// Resend backoff after the 1st, 2nd and later sends (06 §2).
@@ -65,8 +66,6 @@ class _PhoneOtpScreenState extends State<PhoneOtpScreen> {
   DateTime? _resendAt;
   Timer? _tick;
   AuthSession? _session;
-
-  static final _tenDigits = RegExp(r'^[6-9][0-9]{9}$');
 
   @override
   void dispose() {
@@ -139,7 +138,7 @@ class _PhoneOtpScreenState extends State<PhoneOtpScreen> {
 
   Future<void> _send() async {
     final l10n = AppLocalizations.of(context);
-    if (!_tenDigits.hasMatch(_phone.text.trim())) {
+    if (!isNationalPhoneShape(_phone.text.trim())) {
       setState(() => _error = l10n.authPhoneErrorInvalid);
       return;
     }

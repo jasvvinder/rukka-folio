@@ -38,6 +38,8 @@ app/android/key.properties
 .env
 .env.*
 !.env.example
+# Real demo roster (owner-directed 4 Oct 2026): real names for the dev demo, never committed (CLAUDE.md rule 4)
+.demo/
 
 # supabase CLI link cache (project ref, versions) — machine-local
 server/supabase/.temp/

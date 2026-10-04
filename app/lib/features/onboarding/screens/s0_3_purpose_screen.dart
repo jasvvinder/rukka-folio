@@ -61,10 +61,17 @@ extension OnboardingPurposeCopy on OnboardingPurpose {
 /// and immediately hands the branch to [onSelected] — the 8-second-entry
 /// ethos (07 §1 rule 1) means this screen asks nothing else before moving on.
 class PurposeScreen extends StatelessWidget {
-  const PurposeScreen({super.key, this.onSelected});
+  const PurposeScreen({super.key, this.onSelected, this.debugDemoCard});
 
   /// Called with the chosen purpose the instant a card is tapped.
   final void Function(OnboardingPurpose purpose)? onSelected;
+
+  /// DEBUG ONLY (owner-directed, 4 Oct 2026): the demo builder's card, drawn
+  /// above the five. The route passes `demoPurposeCard(...)` from
+  /// features/demo, which is null in a release build, with the demo switch
+  /// off, or for a phone not on the demo roster — so in every real build
+  /// this is null and the screen is exactly the five cards.
+  final Widget? debugDemoCard;
 
   static const _grid = [
     OnboardingPurpose.myself,
@@ -130,6 +137,10 @@ class PurposeScreen extends StatelessWidget {
                   style: text.headlineMedium,
                 ),
                 const SizedBox(height: RkSpace.s6),
+                if (debugDemoCard case final demo?) ...[
+                  demo,
+                  const SizedBox(height: RkSpace.s4),
+                ],
                 LayoutBuilder(
                   builder: (context, constraints) => Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
