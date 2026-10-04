@@ -21,7 +21,8 @@ commit (ADR 2026-09-05i §4) and re-lands with the build row named under *Conseq
   dedicated pair when it opens a recovery attempt and stores it in the platform key store until the
   attempt closes (approved, cancelled, denied or expired). Guardians re-seal to that pair's public
   half (step 3).
-- The private half is zeroised after `reconstructVerified` (step 4) and on every close. It never
+- The private half is zeroised after `reconstructVerified` (step 4) and on every close (*any* reconstruct,
+  successful or not, and the item is not biometric-bound — ADR 2026-10-03c §5). It never
   wraps a BK and is never registered as a device key. An abandoned attempt therefore never shares a
   key with the device's identity.
 - A seam with no candidate producer still refuses plainly and sends nothing (`F1-06-35` stands).

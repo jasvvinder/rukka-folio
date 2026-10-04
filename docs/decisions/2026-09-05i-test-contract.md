@@ -70,6 +70,9 @@ projection_test.dart` — the case *"amendment must keep the kind; amending a mi
 quarantined"* asserts immediate `amendTargetMissing` quarantine; 02 §5 + ADR 05b §4 require `held`.
 Skip with `superseded by ADR 2026-09-05b §4; re-lands at M2` and split the kind-check half out so it
 stays green.
+*Amended by ADR 2026-10-03c §1:* when the ruling and the code that implements it land in the **same
+commit**, the test may be rewritten in place under its id; `@Skip` stays mandatory whenever the new
+behaviour is not in the same commit.
 
 ### 5. Property tests shrink, or at least reproduce ⟦tests: A-05i-1, A-09-1, A-02-60, A-03-5⟧
 The three seeded loops (`Random(20260904)`, `Random(71)`, `Random(7)`) do not shrink and do not print

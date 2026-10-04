@@ -18,9 +18,8 @@
 //     [SupportMailer] — no body — so production passes null and S17.4's
 //     primary action is disabled with `diag.send.reason.channel`, while
 //     *Copy the report* carries the person to their email app.
-//     ⚠️ SPEC: whether a `mailto:` body (the report) is within ADR 2026-09-25
-//     §4's "mailto: to the one support address" is not ruled; conservative
-//     reading — not until an ADR says so.
+//     ADR 2026-10-03c §6: the support `mailto:` carries no subject and no
+//     body, so the report is pasted by the person and never pre-filled.
 library;
 
 import 'diagnostics_report.dart';

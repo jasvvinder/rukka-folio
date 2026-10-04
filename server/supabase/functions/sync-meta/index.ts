@@ -658,7 +658,7 @@ function sessionToWire(s: CeremonySession): Record<string, unknown> {
 // The offers are the caller's own invites at `sent`, or accepted by the caller, inside the 7-day
 // window (rf.my_invites, 0015), so S9.2 finds its nonce again after a restart. No route looks an
 // invite up by nonce, and the meta pull's `invites` rows still carry none (rf_api has no grant).
-// ⚠️ SPEC (M11-INV1 repair, 0015 (c)): each GET row also carries the invite's `status` — "sent"
+// Ruled by ADR 2026-10-03c §2 (was ⚠️ SPEC, M11-INV1 repair, 0015 (c)): each GET row also carries the invite's `status` — "sent"
 // (a live offer) or "accepted" (the caller's own, spent: a nonce for S9.2, never an offer) — and
 // the live rows come first, so a reader that takes the first row with no invite id (S0.9) lands
 // on a live offer rather than on the invite it already accepted.

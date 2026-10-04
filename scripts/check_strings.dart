@@ -33,10 +33,7 @@ final forbidden = RegExp(
 );
 bool whitelisted(String key) =>
     key == 'app.name' || key == 'app.name.short' || key.startsWith('about.');
-final wrongBookWord = {
-  'pa': RegExp('ਕਿਤਾਬ|ਬਹੀ'),
-  'hi': RegExp('किताब'),
-};
+final wrongBookWord = {'pa': RegExp('ਕਿਤਾਬ|ਬਹੀ'), 'hi': RegExp('किताब')};
 final keyShape = RegExp(r'^[a-z][a-z0-9]*(\.[a-z][a-z0-9_]*)+$');
 // An ICU *argument* is `{name}` or `{name, ...}`. The trailing `[},]` keeps a plural
 // branch's own text (`=1{Locks after 1 minute}`) from being read as a placeholder —

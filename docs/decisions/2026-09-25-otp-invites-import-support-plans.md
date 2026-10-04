@@ -64,6 +64,9 @@ business-book table (`tier_catalogue.dart:106–160`, `registry.ts:40–96`).
   person. The chat answers only from the FAQ and help articles and never improvises on key recovery. It tells the
   user not to share amounts or account numbers. Its build needs its own ADR, covering the provider, retention,
   where the provider processes the data (S18.3 promises *India*), and the S18.3 and 06 §9.1 wording.
+- *Amended by ADR 2026-10-03c §6–§7:* the `mailto:` carries no subject and no body (S17.4's report is
+  pasted by the person), and the email card carries the AI chat's *do not send amounts or account numbers*
+  warning.
 - **Amends ADR 2026-09-19 ruling 2** by one scheme: `url_launcher` may also open **`mailto:` to the one support
   address**, behind the same kind of seam as `tel:`. No other URL is opened.
 

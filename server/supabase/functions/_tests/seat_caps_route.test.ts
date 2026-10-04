@@ -49,25 +49,29 @@ async function fixture() {
 }
 
 for (const reason of ["seat_cap", "seat_rotation_cap", "book_cap"]) {
-  Deno.test("E-05g-14 POST /sync-meta/invites on a plan with no room answers 409 by name — not 403, not a generic denial — and the admin's signed record stays stored, noted rejected: " + reason, async () => {
-    const f = await fixture();
-    refusing(f.r, "createInvite", reason);
-    const rec = await signedRecord(f.admin, f.tenant, "invite", {
-      roles: [{ book_id: f.book, role: "member" }],
-      nonce: b64url.enc(await random(16)),
-    });
-    const res = await meta(
-      post("/sync-meta/invites", { record: rec.wire, phone: "+919876500011" }, {
-        token: f.admin.token,
-      }),
-      f.r.deps,
-    );
-    assertEquals(res.status, 409);
-    assertEquals(await body(res), { error: reason });
-    const stored = f.r.db.signed_records.find((x) => x.id === rec.row.id);
-    assertEquals(stored?.apply_note, `rejected:${reason}`, "a signed fact is kept, append-only");
-    assertEquals(f.r.db.invites.length, 0, "and no invite row exists");
-  });
+  Deno.test(
+    "E-05g-14 POST /sync-meta/invites on a plan with no room answers 409 by name — not 403, not a generic denial — and the admin's signed record stays stored, noted rejected: " +
+      reason,
+    async () => {
+      const f = await fixture();
+      refusing(f.r, "createInvite", reason);
+      const rec = await signedRecord(f.admin, f.tenant, "invite", {
+        roles: [{ book_id: f.book, role: "member" }],
+        nonce: b64url.enc(await random(16)),
+      });
+      const res = await meta(
+        post("/sync-meta/invites", { record: rec.wire, phone: "+919876500011" }, {
+          token: f.admin.token,
+        }),
+        f.r.deps,
+      );
+      assertEquals(res.status, 409);
+      assertEquals(await body(res), { error: reason });
+      const stored = f.r.db.signed_records.find((x) => x.id === rec.row.id);
+      assertEquals(stored?.apply_note, `rejected:${reason}`, "a signed fact is kept, append-only");
+      assertEquals(f.r.db.invites.length, 0, "and no invite row exists");
+    },
+  );
 }
 
 Deno.test("E-05g-14 POST /sync-meta/records: a membership_status record the seat cap refuses comes back rejected:seat_cap with check seat_cap, while any other store denial on the same path still reads rejected:unauthorized", async () => {

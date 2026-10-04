@@ -117,10 +117,9 @@ final class KeyStoreRecoveryCandidate implements RecoveryCandidateKeys {
   /// not re-derive the known key (`GuardianShareMismatch`), too few shares —
   /// because a mismatch is an attack and the ladder fails closed.
   ///
-  /// ⚠️ SPEC: the ADR says "zeroised after `reconstructVerified`" without
-  /// saying *only after a successful one*. The conservative reading is taken:
-  /// any reconstruct zeroises, so a failed one costs a fresh attempt rather
-  /// than leaving a key that shares have been tried against. Reported.
+  /// ADR 2026-10-03c §5 reads "zeroised after `reconstructVerified`" as
+  /// after *any* reconstruct: a failed one costs a fresh attempt rather
+  /// than leaving a key that shares have been tried against.
   ///
   /// With no pair held it throws [RecoveryFailure] and opens nothing.
   Future<UmkKeyPair> reconstruct({

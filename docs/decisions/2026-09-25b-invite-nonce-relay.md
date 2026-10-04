@@ -41,6 +41,8 @@ inviter drew and signed is attested by the inviter's own key, which is stronger 
 - Scope is unchanged. The caller sees only invites addressed to its own phone HMAC, or accepted by itself. A
   second user, another tenant's admin and an uncertified stranger see nothing (hostile-query tests, `E-25b-2`).
   No route gains a way to look an invite up by nonce.
+- *Amended by ADR 2026-10-03c §2:* each GET row also carries the invite's **`status`** (`sent` or
+  `accepted`), rows at `sent` first.
 
 ### 3. S9.2 shows the relayed nonce and never draws one ⟦tests: F1-25b-1⟧
 - `bootstrap.dart` binds `LiveCeremonySessions.nonces` to the relayed nonce of the invite that brought this
