@@ -9,16 +9,28 @@
 // F1-07-92  the S0.9 variant: an uncertified device names nothing and asks nothing
 // F1-07-93  every other state renders, and EN/PA/HI survive 200% on 360×800
 // F1-07-94  no session yet → the OTP step of 13 §3.2's `accept → OTP → …`
+// F1-03c-7  desk 109: a phone that is not live (removed or paused) is told so
+//           by name — over the production HttpMembersApi parsing, faked at the
+//           transport — on the list and on the accept, in EN/PA/HI at 200%
+// F1-03c-8  control: a generic server error on the same routes still reads as
+//           the generic error, never as "this phone is not live"
 @Tags(['F1'])
 library;
 
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import 'dart:convert';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:rukka_folio/features/members/members_api.dart'
+    show HttpMembersApi;
 import 'package:rukka_folio/features/onboarding/invitation_gateway.dart';
 import 'package:rukka_folio/features/onboarding/screens/s0_9_invitation_screen.dart';
 import 'package:rukka_folio/shared/seams/auth_client.dart';
+import 'package:rukka_folio/shared/seams/http_transport.dart';
+import 'package:rukka_folio/shared/theme.dart' show RkStatusColors;
 
 import '../../shared/test_app.dart';
 
@@ -68,6 +80,8 @@ Future<void> _pumpInvite(
   Locale? locale,
   double textScale = 1,
   Size viewport = const Size(390, 1400),
+  VoidCallback? onOpenMyBook,
+  VoidCallback? onOpenDevices,
 }) async {
   await pumpRk(
     tester,
@@ -76,9 +90,10 @@ Future<void> _pumpInvite(
       child: InvitationScreen(
         key: ValueKey('s0.9-${_pumpSeq++}'),
         inviteId: inviteId,
-        onOpenMyBook: () {},
+        onOpenMyBook: onOpenMyBook ?? () {},
         onConfirmNumber: () {},
         onSetUpPhone: () {},
+        onOpenDevices: onOpenDevices ?? () {},
       ),
     ),
     auth: auth ?? _certified(),
@@ -412,6 +427,176 @@ void main() {
         expect(tester.takeException(), isNull, reason: 'overflow in $locale');
         expect(find.text('Saanjha khaata'), findsOneWidget);
       }
+    });
+  });
+  group('S0.9 — a phone that is not live (desk 109; ADR 2026-10-03c §3)', () {
+    /// A synthetic wire row, shaped as sync-meta's invites GET emits it.
+    final row = {
+      'invite_id': 'inv-1',
+      'tenant_id': 'tenant-1',
+      'roles': [
+        {'book_id': 'book-0', 'role': 'member'},
+      ],
+      'expires_at': testNow()
+          .add(const Duration(days: 7))
+          .millisecondsSinceEpoch,
+      'created_by': 'user-admin',
+      'status': 'sent',
+    };
+
+    /// S0.9 bound the way bootstrap binds it, but over the production
+    /// [HttpMembersApi]: the refusal is parsed from the wire, never handed
+    /// in as an enum.
+    /// [listAfter], when given, answers every GET after the first — a pause
+    /// that has lifted between two asks.
+    InvitationGateway wired({
+      required RkHttpResponse list,
+      RkHttpResponse? listAfter,
+      RkHttpResponse? accept,
+    }) {
+      var gets = 0;
+      final api = HttpMembersApi(
+        transport: FakeRkHttpTransport(
+          (method, url, _, _) => method == 'GET'
+              ? (gets++ == 0 ? list : listAfter ?? list)
+              : accept ?? RkHttpResponse(404, '{"error":"not_found"}'),
+        ),
+        functionsRoot: Uri.parse('https://api.test/functions/v1/'),
+        accessToken: () async => 'acc-1',
+      );
+      return DelegatedInvitationGateway(
+        offers: api.myInvites,
+        accept: api.acceptInvite,
+      );
+    }
+
+    final notLive = RkHttpResponse(
+      403,
+      jsonEncode({'error': 'unknown_request'}),
+    );
+    const title = 'This phone can’t open invitations';
+    const generic = 'We could not check your invitation';
+
+    testWidgets('F1-03c-7 the invites GET refusal is named, with the next step '
+        'and a way out — not the generic error', (tester) async {
+      var ownBook = 0;
+      var devices = 0;
+      await _pumpInvite(
+        tester,
+        gateway: wired(list: notLive),
+        onOpenMyBook: () => ownBook++,
+        onOpenDevices: () => devices++,
+      );
+      expect(find.text(title), findsOneWidget);
+      expect(find.textContaining('removed or paused'), findsOneWidget);
+      expect(find.text(generic), findsNothing);
+      // Colour never alone (07 §1 rule 3): the state carries an icon too, and
+      // the tint is `danger` — tokens.json's role for a suspended device,
+      // the same tone as the app's suspended banner.
+      final icon = find.byIcon(Icons.phonelink_erase_outlined);
+      expect(icon, findsOneWidget);
+      final status = Theme.of(tester.element(icon))
+          .extension<RkStatusColors>()!;
+      expect(tester.widget<Icon>(icon).color, status.danger);
+
+      // No dead end (07 §1 rule 6): each exit is a live button that does
+      // what it says — not merely a label.
+      await tester.tap(find.widgetWithText(FilledButton, 'Use my own book'));
+      expect(ownBook, 1);
+      await tester.tap(find.widgetWithText(TextButton, 'Devices & security'));
+      expect(devices, 1);
+    });
+
+    testWidgets('F1-03c-7 Try again re-asks the server — a pause that has '
+        'since lifted lands on the invitation', (tester) async {
+      await _pumpInvite(
+        tester,
+        gateway: wired(
+          list: notLive,
+          listAfter: RkHttpResponse(
+            200,
+            jsonEncode({
+              'invites': [row],
+            }),
+          ),
+        ),
+      );
+      expect(find.text(title), findsOneWidget);
+      await tester.tap(find.widgetWithText(TextButton, 'Try again'));
+      await tester.pumpAndSettle();
+      expect(find.text(title), findsNothing);
+      expect(find.text('You have been invited'), findsOneWidget);
+    });
+
+    testWidgets('F1-03c-7 a refused accept is named the same way', (
+      tester,
+    ) async {
+      await _pumpInvite(
+        tester,
+        gateway: wired(
+          list: RkHttpResponse(
+            200,
+            jsonEncode({
+              'invites': [row],
+            }),
+          ),
+          accept: notLive,
+        ),
+        inviteId: 'inv-1',
+      );
+      expect(find.text('You have been invited'), findsOneWidget);
+      await tester.tap(find.text('Accept invitation'));
+      await tester.pumpAndSettle();
+      expect(find.text(title), findsOneWidget);
+      expect(find.text(generic), findsNothing);
+    });
+
+    testWidgets('F1-03c-7 EN, PA and HI each render their own words at 200% '
+        'on 360x800 with no overflow', (tester) async {
+      // The refusal's own title in each language — so a missing PA/HI key
+      // that fell back to EN, or to the generic error, fails here.
+      const titles = {
+        'en': title,
+        'pa': 'ਇਹ ਫ਼ੋਨ ਸੱਦਾ ਨਹੀਂ ਖੋਲ੍ਹ ਸਕਦਾ',
+        'hi': 'यह फ़ोन निमंत्रण नहीं खोल सकता',
+      };
+      for (final locale in _locales) {
+        await _pumpInvite(
+          tester,
+          gateway: wired(list: notLive),
+          locale: locale,
+          textScale: 2,
+          viewport: const Size(360, 800),
+        );
+        expect(tester.takeException(), isNull, reason: 'overflow in $locale');
+        expect(
+          find.text(titles[locale.languageCode]!),
+          findsOneWidget,
+          reason: 'title in $locale',
+        );
+      }
+    });
+
+    testWidgets('F1-03c-8 control: a generic server error still shows the '
+        'generic message', (tester) async {
+      await _pumpInvite(
+        tester,
+        gateway: wired(
+          list: RkHttpResponse(500, jsonEncode({'error': 'internal'})),
+        ),
+      );
+      expect(find.text(generic), findsOneWidget);
+      expect(find.text(title), findsNothing);
+
+      // The same name on a status the contract does not give it is generic too.
+      await _pumpInvite(
+        tester,
+        gateway: wired(
+          list: RkHttpResponse(409, jsonEncode({'error': 'unknown_request'})),
+        ),
+      );
+      expect(find.text(generic), findsOneWidget);
+      expect(find.text(title), findsNothing);
     });
   });
 }

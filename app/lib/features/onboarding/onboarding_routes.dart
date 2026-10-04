@@ -9,6 +9,7 @@ import 'package:go_router/go_router.dart';
 import '../../shared/app_scope.dart';
 
 import '../auth/auth_paths.dart';
+import '../devices/devices_paths.dart';
 import '../home/home_paths.dart';
 import 'onboarding_flow.dart';
 import 'onboarding_paths.dart';
@@ -364,6 +365,9 @@ final List<RouteBase> onboardingRoutes = [
       // rather than wrong — a disabled button with its reason on screen, not
       // a door to nowhere (07 §1 rule 6).
       onSetUpPhone: null,
+      // Desk 109: a phone the invite routes refuse as not live can still open
+      // S11 locally — the same push S15.4 and the menu make.
+      onOpenDevices: () => context.push(DevicesPaths.devices),
     ),
   ),
 ];

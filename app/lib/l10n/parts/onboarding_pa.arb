@@ -257,5 +257,11 @@
   "onboarding.invite.sign_in.action": "ਮੇਰਾ ਨੰਬਰ ਪੱਕਾ ਕਰੋ",
   "onboarding.invite.unset.title": "ਇਹ ਫ਼ੋਨ ਅਜੇ ਤਿਆਰ ਨਹੀਂ ਹੋਇਆ",
   "onboarding.invite.unset.body": "ਜਦ ਤੱਕ ਇਸ ਫ਼ੋਨ ਕੋਲ ਤੁਹਾਡੀਆਂ ਕੁੰਜੀਆਂ ਨਹੀਂ ਆਉਂਦੀਆਂ, ਇਹ ਆਪਣੇ ਤੋਂ ਬਿਨਾਂ ਕੁਝ ਨਹੀਂ ਵਿਖਾਉਂਦਾ — ਨਾ ਵਹੀ-ਖਾਤੇ, ਨਾ ਲੋਕ, ਨਾ ਕੋਈ ਸੱਦਾ। ਪਹਿਲਾਂ ਇਸਨੂੰ ਤਿਆਰ ਕਰੋ, ਫਿਰ ਲਿੰਕ ਦੁਬਾਰਾ ਖੋਲ੍ਹੋ।",
-  "onboarding.invite.unset.action": "ਇਹ ਫ਼ੋਨ ਤਿਆਰ ਕਰੋ"
+  "onboarding.invite.unset.action": "ਇਹ ਫ਼ੋਨ ਤਿਆਰ ਕਰੋ",
+  "onboarding.invite.device_not_live.title": "ਇਹ ਫ਼ੋਨ ਸੱਦਾ ਨਹੀਂ ਖੋਲ੍ਹ ਸਕਦਾ",
+  "@onboarding.invite.device_not_live.title": {"description": "machine-draft — native review M12"},
+  "onboarding.invite.device_not_live.body": "ਇਹ ਫ਼ੋਨ ਹਟਾਇਆ ਜਾਂ ਰੋਕਿਆ ਗਿਆ ਹੈ। ਇੱਥੇ ਜਾਂ ਆਪਣੇ ਕਿਸੇ ਹੋਰ ਫ਼ੋਨ 'ਤੇ ‘ਡਿਵਾਈਸ ਤੇ ਸੁਰੱਖਿਆ’ ਵੇਖੋ, ਫਿਰ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
+  "@onboarding.invite.device_not_live.body": {"description": "machine-draft — native review M12"},
+  "onboarding.invite.device_not_live.devices": "ਡਿਵਾਈਸ ਤੇ ਸੁਰੱਖਿਆ",
+  "@onboarding.invite.device_not_live.devices": {"description": "machine-draft — native review M12 (matches devices.title)"}
 }

@@ -1,5 +1,6 @@
 // Hostile-query suite for ADR 2026-10-03c §3 (desk 37): a revoked device cannot read or accept its
-// user's invites. Ids E-03c-1 (rf.my_invites) and E-03c-2 (rf.accept_invite).
+// user's invites — and, by ADR 2026-10-04 (desk 108), neither can a suspended one. Ids E-03c-1
+// (rf.my_invites), E-03c-2 (rf.accept_invite), E-03c-3 (both, for a SUSPENDED device).
 //
 // Before 0028 both functions keyed on the USER claim alone, so an unexpired access token on a
 // revoked phone could still list its user's offers and their nonces, and accept one. The nonce is
@@ -11,12 +12,13 @@
 //
 // Live = rf.device_live_for (0010): `status <> 'revoked' and revoked_at is null`. Each half is
 // tested on its own (a `revoked` status with no timestamp, a timestamp on a `certified` row), and a
-// device that is not the caller user's is not live for that user. A SUSPENDED device is live under
-// that predicate, so it is answered and may accept — 0025 (c) kept the same reading for
-// rf.has_guardian_set. ⚠️ SPEC: ADR 2026-10-03c §3 names rf.device_live_for and does not mention
-// suspended; the conservative-but-faithful reading builds exactly the named predicate rather than
-// invent a stricter one (rf.recovery_shares, 0020, is the one read that adds `status <>
-// 'suspended'`, and it releases vault keys). Owner to confirm — lane report M13-INV37 `open`.
+// device that is not the caller user's is not live for that user.
+//
+// SUSPENDED (E-03c-3; owner ruling 4 Oct 2026, ADR 2026-10-04 suspended-invites, desk 108): 0028
+// adds `status <> 'suspended'` beside rf.device_live_for, in rf.recovery_shares' shape (0020), so a
+// suspended device draws the revoked device's refusal byte for byte — the caller cannot tell the
+// two apart. rf.device_live_for itself is unchanged, so rf.has_guardian_set still ANSWERS a
+// suspended device (0025 (c)); E-03c-3 holds that control too, so the ruling cannot leak into it.
 //
 // Test honesty: every refusal is asserted by code AND name — never by "zero rows" — and every
 // refused case has a live twin on the same invite that IS answered, so removing the gate fails the
@@ -141,6 +143,59 @@ async function inviteRow(id: string) {
   const [r] = await sql`select status, accepted_by, accepted_at from invites where id = ${id}`;
   return { status: r.status, accepted_by: r.accepted_by, accepted_at: r.accepted_at };
 }
+/** An invite whose 7-day window has already closed, written as the table owner (invite_nonce.test.ts
+ *  agedInvite's shape). 0006's invite_guard holds immutability on UPDATE only and the 7-day CHECK
+ *  still binds (expires_at ≤ created_at + 7 d), so this is a real row shape, not a forged one. */
+async function agedInvite(to: Uint8Array): Promise<string> {
+  const rec = await record(fx.t1, fx.adminDev, "invite");
+  const [r] = await sql`insert into invites
+      (tenant_id, invitee_hmac, roles, nonce, created_by, source_record_id, created_at, expires_at)
+    values (${fx.t1}, ${to}, '[]'::jsonb, ${rnd(16)}, ${fx.admin}, ${rec},
+            now() - interval '8 days', now() - interval '1 day')
+    returning id`;
+  return r.id as string;
+}
+
+/** A LAPSED invite: a device that is not live draws the gate's refusal — never `invite_expired`, so
+ *  it cannot learn the invite lapsed — and the same user's live device draws `invite_expired`. The
+ *  row stays `sent` in BOTH cases: 0006's `update … set status = 'expired'` is followed by the raise
+ *  in the same statement with no EXCEPTION block, so Postgres rolls it back. Only the maintenance
+ *  sweep rf.expire_invites moves it (invites.test.ts). That is what the MemStore mirrors. */
+async function lapsedCase(status: "revoked" | "suspended"): Promise<void> {
+  const j = await joiner();
+  const id = await agedInvite(j.hmac);
+  const live = await device(j.id, "certified");
+  const bad = await device(j.id, status, status === "revoked");
+  const before = await inviteRow(id);
+  assertEquals(before, { status: "sent", accepted_by: null, accepted_at: null }, "precondition");
+
+  assertEquals(await outcome(accept(j.id, bad, id)), REFUSED, `${status}: the gate's refusal`);
+  assertEquals(await inviteRow(id), before, `${status}: the invite is untouched`);
+  assertEquals(await membershipOf(j.id), null, `${status}: no membership`);
+
+  // the live twin: the gate passes, the window refuses
+  assertEquals(await outcome(accept(j.id, live, id)), "23514 invite_expired");
+  assertEquals(await inviteRow(id), before, "0006's flip is rolled back by its own raise");
+  assertEquals(await membershipOf(j.id), null, "the lapsed invite admitted nobody");
+  // …and the edge's own call path, PgStore on rf_api, reads both the same way
+  const store = await apiStore(url!);
+  try {
+    const gated = await assertRejects(
+      () => store.withClaims({ user_id: j.id, device_id: bad }, (tx) => tx.acceptInvite(id)),
+      StoreDenied,
+    );
+    assertEquals(gated.reason, "unknown_candidate_device");
+    const lapsed = await assertRejects(
+      () => store.withClaims({ user_id: j.id, device_id: live }, (tx) => tx.acceptInvite(id)),
+      StoreDenied,
+    );
+    assertEquals(lapsed.reason, "invite_expired");
+    assertEquals(await inviteRow(id), before, "PgStore: still `sent`, nothing persisted");
+  } finally {
+    await store.end();
+  }
+}
+
 async function membershipOf(user: string): Promise<string | null> {
   const [m] =
     await sql`select status from memberships where tenant_id = ${fx.t1} and user_id = ${user}`;
@@ -184,14 +239,13 @@ Deno.test({
 
 Deno.test({
   name:
-    "E-03c-1 rf.my_invites REFUSES a caller whose device is not live — revoked (status and timestamp), status `revoked` alone, `revoked_at` alone, another user's device, no device claim, no claims — with ONE refusal, 42501 unknown_candidate_device, identical whether or not the user has an invite; the same user's live certified, fresh (registered) and suspended devices are answered with the offer",
+    "E-03c-1 rf.my_invites REFUSES a caller whose device is not live — revoked (status and timestamp), status `revoked` alone, `revoked_at` alone, another user's device, no device claim, no claims — with ONE refusal, 42501 unknown_candidate_device, identical whether or not the user has an invite; the same user's live certified and fresh (registered) devices are answered with the offer (suspended: E-03c-3)",
   ignore,
   async fn() {
     const j = await joiner();
     const id = await invite(j.hmac);
     const live = await device(j.id, "certified");
     const fresh = await device(j.id, "registered");
-    const suspended = await device(j.id, "suspended");
     const revoked = await device(j.id, "revoked", true);
     const statusOnly = await device(j.id, "revoked");
     const stampOnly = await device(j.id, "certified", true);
@@ -207,8 +261,6 @@ Deno.test({
       assertEquals(rows.map((r) => [r.id, r.status]), [[id, "sent"]], `${who} device: answered`);
       assertEquals(u8(rows[0].nonce).length, 16);
     }
-    // ⚠️ SPEC (header): rf.device_live_for counts suspended as live, so it is answered (0025 (c)).
-    assertEquals((await mine(j.id, suspended)).map((r) => r.id), [id], "suspended: answered");
 
     for (
       const [who, user, dev] of [
@@ -316,7 +368,7 @@ Deno.test({
 
 Deno.test({
   name:
-    "E-03c-2 a device revoked AFTER it read the offer cannot accept it on its still-valid token (refused, invite untouched), a SUSPENDED device accepts (rf.device_live_for counts it live — ⚠️ SPEC, owner to confirm), and through PgStore on rf_api acceptInvite() rejects StoreDenied('unknown_candidate_device') without spending the invite",
+    "E-03c-2 a device revoked AFTER it read the offer cannot accept it on its still-valid token (refused, invite untouched), and through PgStore on rf_api acceptInvite() rejects StoreDenied('unknown_candidate_device') without spending the invite",
   ignore,
   async fn() {
     // revoked between read and accept — desk 37's token-on-a-revoked-phone case
@@ -347,13 +399,146 @@ Deno.test({
     } finally {
       await store.end();
     }
+  },
+});
 
-    // ⚠️ SPEC (header): suspended is live under rf.device_live_for, so it may accept.
-    const b = await joiner();
-    const idB = await invite(b.hmac);
-    const susp = await device(b.id, "suspended");
-    assertEquals((await accept(b.id, susp, idB))[0].state, "joined_pending_verification");
-    assert((await inviteRow(idB)).accepted_by === b.id);
+Deno.test({
+  name:
+    "E-03c-3 rf.my_invites REFUSES a SUSPENDED device of the invited user (ADR 2026-10-04, desk 108) with 42501 unknown_candidate_device — the very refusal a revoked device draws, and the same for a suspended caller with no invite — while the same user's live, unsuspended device is answered with that offer, and the suspended device is answered again once its suspension is cancelled",
+  ignore,
+  async fn() {
+    const j = await joiner();
+    const id = await invite(j.hmac);
+    const live = await device(j.id, "certified");
+    const suspended = await device(j.id, "suspended");
+    const revoked = await device(j.id, "revoked", true);
+    const empty = await joiner();
+    const emptySuspended = await device(empty.id, "suspended");
+
+    // positive control first: the gate is not refusing everything
+    const rows = await mine(j.id, live);
+    assertEquals(rows.map((r) => [r.id, r.status]), [[id, "sent"]], "live, unsuspended: answered");
+    assertEquals(u8(rows[0].nonce).length, 16);
+
+    const susp = await outcome(mine(j.id, suspended));
+    assertEquals(susp, REFUSED, "suspended: refused, never zero rows");
+    assertEquals(susp, await outcome(mine(j.id, revoked)), "suspended and revoked: one refusal");
+    assertEquals(await outcome(mine(empty.id, emptySuspended)), REFUSED, "no invite: same refusal");
+
+    // the PgStore arm on rf_api: the edge's call path sees the same name for both
+    const store = await apiStore(url!);
+    try {
+      for (const dev of [suspended, revoked]) {
+        const err = await assertRejects(
+          () => store.withClaims({ user_id: j.id, device_id: dev }, (tx) => tx.myInvites()),
+          StoreDenied,
+        );
+        assertEquals(err.reason, "unknown_candidate_device");
+      }
+      const ok = await store.withClaims({ user_id: j.id, device_id: live }, (tx) => tx.myInvites());
+      assertEquals(ok.map((r) => r.invite_id), [id], "PgStore: the live device is answered");
+    } finally {
+      await store.end();
+    }
+
+    // a cancelled suspension (ADR 2026-09-05d §3) restores the device: answered again
+    await sql`update devices set status = 'certified' where id = ${suspended}`;
+    assertEquals((await mine(j.id, suspended)).map((r) => r.id), [id], "cancelled: answered");
+  },
+});
+
+Deno.test({
+  name:
+    "E-03c-3 rf.accept_invite REFUSES a SUSPENDED device (ADR 2026-10-04, desk 108) with the revoked device's refusal and changes NOTHING — the invite stays `sent`, no membership, no membership fact; an unknown id draws the same refusal; PgStore.acceptInvite rejects StoreDenied('unknown_candidate_device'); then the same user's live, unsuspended device accepts that very invite",
+  ignore,
+  async fn() {
+    const j = await joiner();
+    const id = await invite(j.hmac);
+    const live = await device(j.id, "certified");
+    const suspended = await device(j.id, "suspended");
+    const revoked = await device(j.id, "revoked", true);
+    const before = await inviteRow(id);
+    assertEquals(before, { status: "sent", accepted_by: null, accepted_at: null });
+
+    const susp = await outcome(accept(j.id, suspended, id));
+    assertEquals(susp, REFUSED, "suspended: refused");
+    assertEquals(
+      susp,
+      await outcome(accept(j.id, revoked, id)),
+      "suspended and revoked: one refusal",
+    );
+    assertEquals(await inviteRow(id), before, "the invite is untouched");
+    assertEquals(await membershipOf(j.id), null, "no membership");
+    assertEquals(
+      await outcome(accept(j.id, suspended, crypto.randomUUID())),
+      REFUSED,
+      "unknown id",
+    );
+    const [{ n: facts }] = await sql`select count(*)::int as n from membership_facts
+      where tenant_id = ${fx.t1} and user_id = ${j.id}`;
+    assertEquals(facts, 0, "no membership fact logged by a refused accept");
+
+    const store = await apiStore(url!);
+    try {
+      const err = await assertRejects(
+        () =>
+          store.withClaims({ user_id: j.id, device_id: suspended }, (tx) => tx.acceptInvite(id)),
+        StoreDenied,
+      );
+      assertEquals(err.reason, "unknown_candidate_device");
+      assertEquals(await inviteRow(id), before, "not spent by the refused PgStore call");
+    } finally {
+      await store.end();
+    }
+
+    // positive control: the live, unsuspended device of the same user accepts the same invite
+    assertEquals((await accept(j.id, live, id))[0].state, "joined_pending_verification");
+    const after = await inviteRow(id);
+    assertEquals([after.status, after.accepted_by], ["accepted", j.id]);
+    assertEquals(await membershipOf(j.id), "joined_pending_verification");
+    // (the lapsed-invite case is built here too, below: lapsedCase writes an aged row as the owner)
+  },
+});
+
+Deno.test({
+  name:
+    "E-03c-3 control: the ruling is the invite routes' alone — rf.has_guardian_set still ANSWERS a suspended device (0025 (c), ADR 2026-10-03 § Desk 45) and still refuses a revoked one, and a cancelled suspension accepts an invite",
+  ignore,
+  async fn() {
+    const j = await joiner();
+    const id = await invite(j.hmac);
+    const suspended = await device(j.id, "suspended");
+    const revoked = await device(j.id, "revoked", true);
+    const bit = (dev: string) => asApi(j.id, dev, (s) => s`select rf.has_guardian_set() as v`);
+
+    const [b] = await bit(suspended);
+    assertEquals(b.v, false, "suspended: answered (no set yet), not refused");
+    assertEquals(await outcome(bit(revoked)), REFUSED, "revoked: refused, as before");
+    // …while the invite routes refuse that same suspended device
+    assertEquals(await outcome(mine(j.id, suspended)), REFUSED);
+
+    // cancel (ADR 2026-09-05d §3): the device is certified again and may accept
+    await sql`update devices set status = 'certified' where id = ${suspended}`;
+    assertEquals((await accept(j.id, suspended, id))[0].state, "joined_pending_verification");
+    assert((await inviteRow(id)).accepted_by === j.id);
+  },
+});
+
+Deno.test({
+  name:
+    "E-03c-2 a REVOKED device on a LAPSED invite draws 42501 unknown_candidate_device, never 23514 invite_expired (the gate is ahead of the window check), and the invite stays `sent`; the live device draws invite_expired and the row STILL stays `sent` — 0006's flip is rolled back by its own raise — on rf_api and through PgStore",
+  ignore,
+  async fn() {
+    await lapsedCase("revoked");
+  },
+});
+
+Deno.test({
+  name:
+    "E-03c-3 a SUSPENDED device on a LAPSED invite (ADR 2026-10-04, desk 108) draws 42501 unknown_candidate_device, never 23514 invite_expired, and the invite stays `sent`; the live device draws invite_expired and the row STILL stays `sent` — 0006's flip is rolled back by its own raise — on rf_api and through PgStore",
+  ignore,
+  async fn() {
+    await lapsedCase("suspended");
   },
 });
 

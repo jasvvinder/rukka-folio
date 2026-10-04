@@ -2846,6 +2846,18 @@
   "onboarding.family.subtitle": "यह आप बाद में बदल सकते हैं।",
   "onboarding.family.title": "अपने परिवार का नाम रखें",
   "onboarding.invite.checking": "आपका निमंत्रण देख रहे हैं…",
+  "onboarding.invite.device_not_live.body": "यह फ़ोन हटाया गया है या रोका गया है। यहाँ या अपने किसी दूसरे फ़ोन पर ‘डिवाइस और सुरक्षा’ देखें, फिर दोबारा कोशिश करें।",
+  "@onboarding.invite.device_not_live.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "onboarding.invite.device_not_live.devices": "डिवाइस और सुरक्षा",
+  "@onboarding.invite.device_not_live.devices": {
+    "description": "machine-draft — native review M12 (matches devices.title)"
+  },
+  "onboarding.invite.device_not_live.title": "यह फ़ोन निमंत्रण नहीं खोल सकता",
+  "@onboarding.invite.device_not_live.title": {
+    "description": "machine-draft — native review M12"
+  },
   "onboarding.invite.error.body": "कुछ नहीं बदला। थोड़ी देर बाद फिर कोशिश करें।",
   "onboarding.invite.error.retry": "दोबारा कोशिश करें",
   "onboarding.invite.error.title": "आपका निमंत्रण देखा नहीं जा सका",

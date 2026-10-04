@@ -12,6 +12,31 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-04 — M13: suspended device refused the invite routes (desk 108), S0.9 names the refusal (109), ADR markers (112), dev at 0028 (100/110), pre-push format check
+
+**Added**
+- `docs/decisions/2026-10-04-suspended-invites.md` — owner ruling on desk 108: `rf.my_invites` and `rf.accept_invite` refuse a **suspended** device exactly as a revoked one (same name, same 403 `unknown_request`); `rf.device_live_for` itself unchanged, so `rf.has_guardian_set` keeps 0025 (c). Why: a token minted before suspension lives ≤15 min (`claims.ts:10`); `auth-challenge` already refuses a suspended device a new one (`index.ts:370`).
+- S0.9 (M13-INVR109, `lane-ui`): `MembersRefusal.deviceNotLive`, mapped from the invite routes' 403 `unknown_request` only; the screen says the phone was removed or paused and offers *Use my own book*, *Devices & security* and *Try again*. Keys `onboarding.invite.device_not_live.{title,body,devices}` EN/PA/HI (PA/HI machine draft). `F1-03c-5…8`, driven over a fake HTTP response through the real `members_api` parsing.
+- `scripts/git-hooks/pre-push` — refuses a push that `ci.sh`'s format step (dart format, same paths) or `deno fmt --check` would fail; enabled in this clone with `git config core.hooksPath scripts/git-hooks` (each clone needs it once). Proven: passes on the tree (~2.5 s), refuses an unformatted probe.
+
+**Changed**
+- `0028_invites_live_device.sql` edited in place before its first deploy (verified absent on dev): both gates add `status <> 'suspended'` (0020's shape); the ⚠️ SPEC block is replaced by the ruling. MemStore `claimDeviceLiveUnsuspended`; `acceptInvite` no longer flips a lapsed invite to `expired` before throwing — Postgres's raise rolls that flip back, so MemStore now matches. `E-03c-1/2`, `E-06-33` re-pinned; `E-03c-3` (RLS), `E-03c-4` (edge) new, each with a live-device control.
+- ADR 2026-10-03c: `@M13` dropped on §3, §4, §7 (desk 112); §3 lists `E-03c-3, E-03c-4` and points at the new ADR.
+- **rukka-folio-dev:** `supabase db push` applied 0026, 0027, 0028; all five edge functions redeployed; security advisor (`--linked`) no issues.
+- PLAN: desks 100, 108, 109, 110, 112 ✅; 111 gains three keys; new desks 113–115.
+
+**Decided**
+- ADR 2026-10-04-suspended-invites (owner, 4 Oct): suspended is refused by the invite routes.
+
+**Open**
+- Desk 113: S9.2's `InviteNonceRelay.nonce()` swallows `deviceNotLive` into *check again*.
+- Desk 114 (owner): `rf.accept_invite`'s `status = 'expired'` update never persists (rolled back by the raise, since 0006).
+- Desk 115: the 4 Oct nightly died at `format` on `2b9e2a6` (fixed by `90cc4d5`); the RLS suite has not yet run inside CI — check the 5 Oct 03:00 IST run.
+- Desk 111: PA/HI native review now covers five keys.
+
+**Commits**
+- _(fill next session)_
+
 ## 2026-10-04 — M13: ADR 2026-10-03c §3/§4/§7 built — invite routes gated on a live device (desk 37), S17.3 email warning (desk 44), S11.1 guardian choice (desk 53)
 
 **Added**

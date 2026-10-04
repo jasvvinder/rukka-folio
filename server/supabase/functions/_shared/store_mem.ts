@@ -1598,20 +1598,23 @@ class MemTx implements Tx {
     });
     return Promise.resolve(id);
   }
-  /** rf.device_live_for(rf.device_id(), rf.user_id()) (0010) — the device claim names a device of
-   *  the caller's user that is not `revoked` and has no `revoked_at`. A SUSPENDED device is live. */
-  private claimDeviceLive(): boolean {
+  /** 0028's invite gate: rf.device_live_for(rf.device_id(), rf.user_id()) (0010) — the device claim
+   *  names a device of the caller's user that is not `revoked` and has no `revoked_at` — AND the
+   *  device is not `suspended` (ADR 2026-10-04, desk 108; rf.recovery_shares' shape, 0020). Only the
+   *  two invite calls use it; rf.has_guardian_set keeps device_live_for's reading (0025 (c)). */
+  private claimDeviceLiveUnsuspended(): boolean {
     const d = this.dev ? this.db.devices.get(this.dev) : undefined;
-    return !!this.me && !!d && d.user_id === this.me && d.status !== "revoked" && !d.revoked_at;
+    return !!this.me && !!d && d.user_id === this.me && d.status !== "revoked" &&
+      d.status !== "suspended" && !d.revoked_at;
   }
   // rf.my_invites as 0015 widened it (ADR 2026-09-25b §2): the caller's own number at `sent`, or
   // accepted by the caller, inside the 7-day window. Keyed on the user claim, as in Postgres.
   // Each row carries its status and the live ones come first, in 0015's order (status <> 'sent',
   // expires_at, id) — insertion order would put an older, spent invite ahead of a live offer.
-  // 0028 (ADR 2026-10-03c §3): a caller whose device claim is not live is REFUSED by the rung-2
-  // open's name before anything is read — never handed an empty list.
+  // 0028 (ADR 2026-10-03c §3, ADR 2026-10-04): a caller whose device claim is not live, or is
+  // suspended, is REFUSED by the rung-2 open's name before anything is read — never handed `[]`.
   myInvites(): Promise<InviteOffer[]> {
-    if (!this.claimDeviceLive()) {
+    if (!this.claimDeviceLiveUnsuspended()) {
       // A rejection, not a synchronous throw: PgStore's refusal arrives as a rejected promise.
       return Promise.reject(new StoreDenied("unknown_candidate_device"));
     }
@@ -1641,10 +1644,13 @@ class MemTx implements Tx {
   }
   acceptInvite(invite: string): Promise<InviteAccepted> {
     if (!this.me || !this.dev) throw new StoreDenied("no_claims");
-    // 0028 (ADR 2026-10-03c §3): before the invite is looked up — an unknown id and a real one draw
-    // the same refusal, and nothing (not even the flip to `expired` below) is written.
+    // 0028 (ADR 2026-10-03c §3, ADR 2026-10-04: revoked or suspended): before the invite is looked
+    // up — an unknown id and a real one draw the same refusal, nothing is written, and a lapsed
+    // invite draws this refusal rather than invite_expired, so the caller cannot learn it lapsed.
     // A rejection, not a synchronous throw: PgStore's refusal arrives as a rejected promise.
-    if (!this.claimDeviceLive()) return Promise.reject(new StoreDenied("unknown_candidate_device"));
+    if (!this.claimDeviceLiveUnsuspended()) {
+      return Promise.reject(new StoreDenied("unknown_candidate_device"));
+    }
     const u = this.db.users.get(this.me);
     const i = this.db.invites.find((x) => x.id === invite);
     // An unknown invite and a wrong number refuse identically: neither tells the caller which it was.
@@ -1652,10 +1658,12 @@ class MemTx implements Tx {
     if (
       !u?.phone_hmac || u.erased_at || !bytesEqual(i.invitee_hmac as Uint8Array, u.phone_hmac)
     ) throw new StoreDenied("phone_mismatch");
-    if ((i.expires_at as Date) <= this.now) {
-      if (i.status === "sent") i.status = "expired";
-      throw new StoreDenied("invite_expired");
-    }
+    // No flip to `expired` here. 0006/0028's `update invites set status = 'expired'` is followed by
+    // `raise invite_expired` in the same statement with no EXCEPTION block, so Postgres rolls the
+    // update back and the row stays `sent`; this store mirrors that rather than keep a write the
+    // database never makes. The window still binds here (the refusal), my_invites hides the row by
+    // expires_at, and only the maintenance sweep (rf.expire_invites) moves it to `expired`.
+    if ((i.expires_at as Date) <= this.now) throw new StoreDenied("invite_expired");
     if (i.status !== "sent") throw new StoreDenied("invite_not_live");
     // 0006's upsert; 0027's trigger logs it (06 §7's re-admission is a membership change).
     this.db.writeMembership(

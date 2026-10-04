@@ -27,6 +27,9 @@
 //   • refusals by name: 403 `invite_not_for_you` · 403 `not_admin` · 403
 //     `unauthorized` · 409 `invite_not_live` · 409 `record_replayed` · 409
 //     `no_record` · 410 `invite_expired` · 400 `bad_phone` / `bad_record`;
+//   • 403 `unknown_request` on the invites GET and the accept ONLY: this
+//     device is not live — revoked, or suspended (ADR 2026-10-03c §3, 0028;
+//     desk 108). The recovery routes use the same name for something else.
 //   • the plan's hard caps (ADR 2026-09-05g §2 / §6 🔒, migration 0019): 409
 //     `seat_cap` / `seat_rotation_cap` on `invites` (`inviteError`), and
 //     `rejected:seat_cap` / `rejected:seat_rotation_cap` / `rejected:book_cap`
@@ -337,6 +340,7 @@ final class HttpMembersApi implements MembersApi {
   Future<List<InviteOffer>> myInvites() async {
     final body = await _send(
       () async => _http.get(_endpoints.invites, headers: await _headers()),
+      deviceGated: true,
     );
     return [
       for (final r in (body['invites'] as List<Object?>? ?? const []))
@@ -358,6 +362,7 @@ final class HttpMembersApi implements MembersApi {
         headers: await _headers(json: true),
         body: jsonEncode({'invite_id': inviteId}),
       ),
+      deviceGated: true,
     );
     return AcceptedInvite.fromJson(body);
   }
@@ -381,9 +386,14 @@ final class HttpMembersApi implements MembersApi {
   /// [MembersFailure]. A transport that never answered is
   /// [MembersRefusal.offline] — the one refusal that does not claim the
   /// server spoke.
+  ///
+  /// [deviceGated] marks the two routes 0028 gates on a live device (the
+  /// invites GET and the accept, ADR 2026-10-03c §3); only there is 403
+  /// `unknown_request` read as [MembersRefusal.deviceNotLive].
   Future<Map<String, Object?>> _send(
-    Future<MembersHttpResponse> Function() run,
-  ) async {
+    Future<MembersHttpResponse> Function() run, {
+    bool deviceGated = false,
+  }) async {
     final MembersHttpResponse res;
     try {
       res = await run();
@@ -404,7 +414,11 @@ final class HttpMembersApi implements MembersApi {
     if (res.statusCode >= 200 && res.statusCode < 300) return body;
     throw MembersFailure(
       'http ${res.statusCode}',
-      refusalOf(body['error'] as String?, res.statusCode),
+      refusalOf(
+        body['error'] as String?,
+        res.statusCode,
+        deviceGated: deviceGated,
+      ),
     );
   }
 }
@@ -417,7 +431,23 @@ final class HttpMembersApi implements MembersApi {
 /// the same rule as `sync_engine`'s `TransportFailure.fromHttp`, so the two
 /// doors cannot disagree about what is a cap. A cap name on another status is
 /// off-contract and stays [MembersRefusal.server].
-MembersRefusal refusalOf(String? error, int status) {
+///
+/// [deviceGated] is true for the invite routes 0028 gates on a live device
+/// (`sync-meta/invites` GET, `sync-meta/invites/accept`; ADR 2026-10-03c §3).
+/// There, and **only** there, 403 `unknown_request` is
+/// [MembersRefusal.deviceNotLive] (`inviteError`'s answer for
+/// `unknown_candidate_device`, sync-meta/index.ts). The recovery routes give
+/// the same name a different meaning (`recoveryError`: "no such attempt, or
+/// not yours"), so a route that is not device-gated keeps reading it as
+/// [MembersRefusal.server] rather than misnaming it.
+MembersRefusal refusalOf(
+  String? error,
+  int status, {
+  bool deviceGated = false,
+}) {
+  if (deviceGated && status == 403 && error == 'unknown_request') {
+    return MembersRefusal.deviceNotLive;
+  }
   final cap = status == 409 ? planCapRefusal(PlanCap.fromWire(error)) : null;
   return cap ?? _namedRefusal(error, status);
 }

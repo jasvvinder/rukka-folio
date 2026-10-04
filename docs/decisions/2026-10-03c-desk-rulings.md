@@ -32,14 +32,14 @@ own, spent: a nonce for S9.2, never an offer). Rows at `sent` come first. The co
 in `0006`, and nothing new is exposed. The `⚠️ SPEC` at `sync-meta/index.ts` (M11-INV1 repair) is
 retired. Desk 41's option (b) can now read it.
 
-### 3. A revoked device cannot read or accept its user's invites (desk 37) ⟦tests: E-03c-1 @M13, E-03c-2 @M13⟧
+### 3. A revoked device cannot read or accept its user's invites (desk 37) ⟦tests: E-03c-1, E-03c-2, E-03c-3, E-03c-4⟧
 `rf.my_invites` and `rf.accept_invite` refuse a caller whose device is not live (`rf.device_live_for`).
 Today they key on the user claim alone, so an unexpired access token on a revoked phone can still read
 offers and their nonces, and accept one. The nonce is not secret (04 §6.1), but a revoked device must
 not act for its user. The refusal is the same named refusal the other device-gated routes give. A
-`lane-server` slice builds it: E-03c-1 covers the read, E-03c-2 the accept.
+`lane-server` slice builds it: E-03c-1 covers the read, E-03c-2 the accept. Amended 4 Oct 2026: a suspended device is refused too — see ADR 2026-10-04-suspended-invites.
 
-### 4. S11.1 never offers an unverified member as a guardian (desk 53) ⟦tests: F1-03c-1 @M13, F1-03c-3 @M13, F1-03c-4 @M13⟧
+### 4. S11.1 never offers an unverified member as a guardian (desk 53) ⟦tests: F1-03c-1, F1-03c-3, F1-03c-4⟧
 A member whose ceremony stands at `invited`, `expired` or `blocked` cannot be **chosen** on S11.1. The
 checkbox is disabled with the same reason *Meet them* already shows (13 §4.3), consistent with 04 §7.3's
 verified-key rule. `save` still refuses to seal to an unverified key, as defence in depth.
@@ -60,7 +60,7 @@ ADR 2026-09-25 §4's `mailto:` to the one support address carries **no subject a
 `DiagnosticsSender` keeps no production producer, and the `⚠️ SPEC` comments in `diagnostics_seams.dart`
 and `s17_4_diagnostics_screen.dart` are retired.
 
-### 7. The email card warns not to share amounts or account numbers (desk 44) ⟦tests: F1-03c-2 @M13⟧
+### 7. The email card warns not to share amounts or account numbers (desk 44) ⟦tests: F1-03c-2⟧
 S17.3's email card carries the warning ADR 2026-09-25 §4 requires of the AI chat: *do not send amounts or
 account numbers*. The copy is new, under one ARB key in EN, PA and HI. This extends CLAUDE.md rule 4 to the
 one channel where the person writes the text. The 06 §8 statement of what support cannot do stays word

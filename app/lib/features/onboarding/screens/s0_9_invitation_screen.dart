@@ -81,6 +81,12 @@ enum InvitationStep {
   /// No session yet — the OTP step of 13 §3.2's happy path.
   needsOtp,
 
+  /// This phone is not a live device of its account — removed or paused — so
+  /// the invite routes refuse it before looking at any invite (ADR 2026-10-03c
+  /// §3, migration 0028; desk 108/109). One state for both: the wire does not
+  /// say which, and the words do not guess.
+  deviceNotLive,
+
   /// The request never reached a response (07 §1 rule 7).
   offline,
 
@@ -101,6 +107,7 @@ class InvitationScreen extends StatefulWidget {
     this.onOpenMyBook,
     this.onConfirmNumber,
     this.onSetUpPhone,
+    this.onOpenDevices,
   });
 
   /// The invite id the deep link carried, when it carried one. Null means
@@ -119,6 +126,13 @@ class InvitationScreen extends StatefulWidget {
   /// Goes to the F11 ladder (link a device · guardians · paper sheet) from the
   /// uncertified-device variant.
   final VoidCallback? onSetUpPhone;
+
+  /// Opens S11 Devices & security from the device-not-live state (desk 109).
+  /// S11 is reachable from a phone the server no longer treats as live —
+  /// S15.4 *This phone is paused* routes there too (devices_routes.dart) — so
+  /// the step the body names is a door, not only words. Null hides the door
+  /// rather than showing a disabled one; the own-book exit stays either way.
+  final VoidCallback? onOpenDevices;
 
   @override
   State<InvitationScreen> createState() => _InvitationScreenState();
@@ -222,6 +236,7 @@ class _InvitationScreenState extends State<InvitationScreen> {
     MembersRefusal.recordReplayed => InvitationStep.notLive,
     MembersRefusal.offline => InvitationStep.offline,
     MembersRefusal.unauthorized => InvitationStep.needsOtp,
+    MembersRefusal.deviceNotLive => InvitationStep.deviceNotLive,
     _ => InvitationStep.error,
   };
 
@@ -275,6 +290,29 @@ class _InvitationScreenState extends State<InvitationScreen> {
                 body: l10n.onboardingInviteSignInBody,
                 actionLabel: l10n.onboardingInviteSignInAction,
                 onAction: widget.onConfirmNumber,
+              ),
+              // The way out is the joiner's own book (07 §1 rule 6); the next
+              // step is a door to S11 Devices & security (the same route S15.4
+              // offers a paused phone), and *Try again* re-asks the server,
+              // which covers a pause that has since lifted (desk 109). A
+              // removed or paused phone is a security state, so the tone is
+              // `danger` (tokens.json `danger` role: "suspended device"),
+              // matching the app's suspended banner (rk_restriction.dart).
+              InvitationStep.deviceNotLive => _Outcome(
+                icon: Icons.phonelink_erase_outlined,
+                tone: _Tone.danger,
+                title: l10n.onboardingInviteDeviceNotLiveTitle,
+                body: l10n.onboardingInviteDeviceNotLiveBody,
+                actionLabel: l10n.onboardingInviteNotForYouAction,
+                onAction: widget.onOpenMyBook,
+                secondaryLabel: widget.onOpenDevices == null
+                    ? l10n.onboardingInviteErrorRetry
+                    : l10n.onboardingInviteDeviceNotLiveDevices,
+                onSecondary: widget.onOpenDevices ?? _load,
+                tertiaryLabel: widget.onOpenDevices == null
+                    ? null
+                    : l10n.onboardingInviteErrorRetry,
+                onTertiary: _load,
               ),
               InvitationStep.offline => _Outcome(
                 icon: Icons.cloud_off_outlined,
@@ -539,6 +577,8 @@ class _Outcome extends StatelessWidget {
     required this.onAction,
     this.secondaryLabel,
     this.onSecondary,
+    this.tertiaryLabel,
+    this.onTertiary,
   });
 
   final IconData icon;
@@ -549,6 +589,8 @@ class _Outcome extends StatelessWidget {
   final VoidCallback? onAction;
   final String? secondaryLabel;
   final VoidCallback? onSecondary;
+  final String? tertiaryLabel;
+  final VoidCallback? onTertiary;
 
   @override
   Widget build(BuildContext context) {
@@ -589,6 +631,13 @@ class _Outcome extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: TextButton(onPressed: onSecondary, child: Text(label)),
+          ),
+        ],
+        if (tertiaryLabel case final label?) ...[
+          const SizedBox(height: RkSpace.s2),
+          SizedBox(
+            width: double.infinity,
+            child: TextButton(onPressed: onTertiary, child: Text(label)),
           ),
         ],
       ],

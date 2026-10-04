@@ -352,6 +352,15 @@ enum MembersRefusal {
   /// Terminal, like [seatCap].
   bookCap,
 
+  /// This phone is not a live device of its account, so the invite routes
+  /// refuse it before any invite is looked at (ADR 2026-10-03c §3, desk 37,
+  /// migration 0028; suspended too, owner ruling 4 Oct 2026, desk 108). The
+  /// wire is 403 `unknown_request` on `sync-meta/invites` GET and
+  /// `sync-meta/invites/accept` **only** — the same name on any other members
+  /// route stays [server]. One answer for revoked and suspended: nothing on
+  /// the wire tells them apart, so nothing on screen may either.
+  deviceNotLive,
+
   /// Anything else the server said. Never guessed into a friendlier name.
   server,
 }

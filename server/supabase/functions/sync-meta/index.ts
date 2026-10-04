@@ -668,11 +668,13 @@ function sessionToWire(s: CeremonySession): Record<string, unknown> {
 // invited.
 //
 // ADR 2026-10-03c §3 (desk 37, 0028): a caller whose device claim is not a live device of its user
-// (rf.device_live_for — revoked, or somebody else's) is refused on BOTH the read and the accept,
-// before any invite is looked at. The database names it `unknown_candidate_device`, as the rung-2
-// open and rf.has_guardian_set do (0010, 0025), and inviteError gives it recoveryError's wire
-// answer for that name, 403 `unknown_request` — one refusal on every device-gated route, never an
-// empty list, and the same bytes whether or not the user has an invite.
+// (rf.device_live_for — revoked, or somebody else's) or is SUSPENDED (ADR 2026-10-04, desk 108) is
+// refused on BOTH the read and the accept, before any invite is looked at. The database names it
+// `unknown_candidate_device`, as the rung-2 open and rf.has_guardian_set do (0010, 0025), and
+// inviteError gives it recoveryError's wire answer for that name, 403 `unknown_request` — one
+// refusal on every device-gated route, never an empty list, the same bytes whether or not the user
+// has an invite, and nothing that tells suspended from revoked. (rf.has_guardian_set still answers
+// a suspended device — 0025 (c); only the invite routes refuse it.)
 async function invites(
   req: Request,
   deps: Deps,
@@ -680,7 +682,8 @@ async function invites(
   path: string,
 ): Promise<Response> {
   if (req.method === "GET" && path === "/invites") {
-    // ADR 2026-10-03c §3 (0028): a device that is not live is refused, never handed `[]`.
+    // ADR 2026-10-03c §3, ADR 2026-10-04 (0028): a device that is not live, or is suspended, is
+    // refused, never handed `[]`.
     let rows;
     try {
       rows = await deps.store.withClaims(claims, (tx) => tx.myInvites());

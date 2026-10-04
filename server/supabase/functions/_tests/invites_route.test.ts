@@ -244,10 +244,14 @@ Deno.test("E-06-33 an invite is spent once and lives 7 days: a second acceptance
   );
   assertEquals(late.status, 410);
   assertEquals((await body(late)).error, "invite_expired");
+  // The refusal is what binds the window at accept time, so a missed sweep never admits anyone. The
+  // row itself stays `sent`: in Postgres 0006's flip to `expired` is rolled back by the raise that
+  // follows it (one statement, no EXCEPTION block), and the MemStore mirrors that. Only the
+  // maintenance sweep rf.expire_invites moves it (tests/rls/invites.test.ts).
   assertEquals(
     f.r.db.invites.find((i) => i.id === second.invite_id)!.status,
-    "expired",
-    "lazy expiry binds at accept time, so a missed sweep never admits anyone",
+    "sent",
+    "a refused accept persists nothing",
   );
   // the expired offer is gone from the joiner's list too
   const offers = await body(

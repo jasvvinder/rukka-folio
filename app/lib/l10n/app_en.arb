@@ -7944,6 +7944,18 @@
   "@onboarding.invite.checking": {
     "description": "S0.9 loading state (13 §4.3) — the skeleton's label."
   },
+  "onboarding.invite.device_not_live.body": "It was removed or paused. Check Devices & security, here or on another of your phones, then try again.",
+  "@onboarding.invite.device_not_live.body": {
+    "description": "S0.9 device-not-live body — names the cause and the next step (07 §1 rule 6); the screen also offers a door to S11 Devices & security, the joiner's own book and a retry."
+  },
+  "onboarding.invite.device_not_live.devices": "Devices & security",
+  "@onboarding.invite.device_not_live.devices": {
+    "description": "S0.9 device-not-live secondary action → S11 Devices & security (desk 109; the same route S15.4 offers). Matches the S11 title devices.title."
+  },
+  "onboarding.invite.device_not_live.title": "This phone can’t open invitations",
+  "@onboarding.invite.device_not_live.title": {
+    "description": "S0.9 refusal: 403 `unknown_request` on the invite routes — this device is not live (ADR 2026-10-03c §3, 0028; desk 108/109). True for both removed and paused: the app cannot tell which, so the words must not choose."
+  },
   "onboarding.invite.error.body": "Nothing has changed. Try again in a moment.",
   "@onboarding.invite.error.body": {
     "description": "S0.9 error state — says what did not happen, so a retry is safe."

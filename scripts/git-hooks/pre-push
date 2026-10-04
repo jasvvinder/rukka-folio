@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# pre-push — refuse a push that ci.sh's format step would fail (a ~5 s check instead of a red CI run).
+# The nightly of 4 Oct 2026 died in 46 s on one unformatted file (scripts/check_strings.dart, 2b9e2a6):
+# the post-edit hook formats what an agent edits, but a file changed any other way could still land.
+#
+# Enable once per clone:   git config core.hooksPath scripts/git-hooks
+# Bypass in an emergency:  git push --no-verify
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+
+fail=0
+# The same paths as ci.sh's `format` step — keep the two in step.
+dart format --output=none --set-exit-if-changed packages scripts test app/lib app/test >/dev/null || {
+  echo "pre-push: dart format would change files — run: dart format packages scripts test app/lib app/test" >&2
+  fail=1
+}
+# The same check as `deno task lint`'s fmt half (server/deno.json).
+if command -v deno >/dev/null 2>&1; then
+  (cd server && deno fmt --check --quiet supabase/functions supabase/tests) || {
+    echo "pre-push: deno fmt would change files — run: (cd server && deno task fmt)" >&2
+    fail=1
+  }
+fi
+
+[ "$fail" = 0 ] || { echo "pre-push: push refused; format, commit, push again." >&2; exit 1; }
