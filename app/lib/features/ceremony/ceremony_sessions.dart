@@ -53,6 +53,12 @@
 //      never draws one: no relayed nonce is [ShowMyCodeNoInviteNonce], which
 //      S9.2 renders as its says-why state, and never a local value. The
 //      Regenerate path keeps that same nonce ([fixedInviteNonceSource], §4).
+//      One relay answer is **named, not swallowed** (PLAN desk 113): a phone
+//      the invite routes refuse as not live — revoked or suspended (ADR
+//      2026-10-03c §3, ADR 2026-10-04-suspended-invites §1) — is
+//      [ShowMyCodeDeviceNotLive], which S9.2 renders with a door to
+//      *Devices & security*, as S0.9 does (desk 109). *Check again* cannot
+//      fix that state, so it must not be the only way on.
 //      ⚠️ SPEC ADR 2026-09-25b Open — ceremonies not born of an invite
 //      (device linking, delegated verification, re-verification) have no
 //      invite nonce; not ruled, so they get the same fail-closed state.
@@ -65,6 +71,7 @@ import 'package:core_crypto/core_crypto.dart'
 import 'package:flutter/foundation.dart' show immutable;
 
 import '../../shared/ledger/verified_members.dart' show VerifiedMemberSink;
+import '../members/members_repository.dart' show MembersFailure, MembersRefusal;
 import 'ceremony_api.dart';
 import 'ceremony_repository.dart';
 import 'relayed_umk.dart';
@@ -91,18 +98,45 @@ typedef CeremonyMemberName = String Function(String userId);
 /// The relayed nonce of the invite that brought this user into the tenant
 /// (ADR 2026-09-25b §3), or null when this device has none. Null is final for
 /// this opening: the only honest answer to it is S9.2's says-why state.
+///
+/// A lookup may throw [InviteNonceDeviceNotLive] — the one failure S9.2
+/// names apart from *no nonce* (PLAN desk 113). Any other throw is no nonce.
 typedef InviteNonceLookup = Future<InviteNonce?> Function();
+
+/// The invite relay refused because **this device is not live** — revoked
+/// or suspended; the server does not say which, and neither may the words
+/// (ADR 2026-10-04-suspended-invites §1). Thrown by an [InviteNonceLookup];
+/// [LiveCeremonySessions.showMyCode] answers it with
+/// [ShowMyCodeDeviceNotLive].
+final class InviteNonceDeviceNotLive implements Exception {
+  /// The one instance-shaped value.
+  const InviteNonceDeviceNotLive();
+
+  @override
+  String toString() => 'InviteNonceDeviceNotLive';
+}
 
 /// An [InviteNonceLookup] over the relay's raw bytes (the members feature's
 /// `InviteNonceRelay.nonce`). A relay that throws, answers nothing, or answers
 /// anything but 16 bytes is **no nonce** — never padded, cut or replaced with
 /// a value drawn here. The relay carries no issue time, so none is invented.
+///
+/// The one exception (PLAN desk 113): a [MembersFailure] whose reason is
+/// [MembersRefusal.deviceNotLive] — the invite routes refusing a revoked or
+/// suspended phone (ADR 2026-10-03c §3) — is thrown on as
+/// [InviteNonceDeviceNotLive], so S9.2 names it instead of offering a
+/// *Check again* that cannot succeed. Every other failure is still null.
 InviteNonceLookup relayedInviteNonceOver(
   Future<Uint8List?> Function() relayed,
 ) => () async {
   final Uint8List? bytes;
   try {
     bytes = await relayed();
+  } on MembersFailure catch (failure) {
+    if (failure.reason == MembersRefusal.deviceNotLive) {
+      throw const InviteNonceDeviceNotLive();
+    }
+    return null;
   } on Object {
     return null;
   }
@@ -132,7 +166,9 @@ abstract class CeremonySessions {
   /// This install's own side (S9.2 Show my code) — the invitee proving their
   /// own UMK. Null when this device holds no key material (or no nonce seam
   /// is installed at all); [ShowMyCodeNoInviteNonce] when there is no relayed
-  /// invite nonce to put in the QR (ADR 2026-09-25b §3).
+  /// invite nonce to put in the QR (ADR 2026-09-25b §3);
+  /// [ShowMyCodeDeviceNotLive] when the invite relay refused this phone as
+  /// not live (PLAN desk 113).
   Future<ShowMyCodeOpening?> showMyCode();
 
   /// The verifier's side (S9.3) against [subjectUserId] — the **user id** of
@@ -179,6 +215,23 @@ final class ShowMyCodeNoInviteNonce extends ShowMyCodeOpening {
 
   @override
   int get hashCode => (ShowMyCodeNoInviteNonce).hashCode;
+}
+
+/// The invite relay refused this phone as **not live** — revoked or
+/// suspended (ADR 2026-10-03c §3, ADR 2026-10-04-suspended-invites §1; PLAN
+/// desk 113). Like [ShowMyCodeNoInviteNonce] it carries no repository: no
+/// session is opened and no QR is drawn. Unlike it, *Check again* alone
+/// cannot help, so S9.2 says why and offers *Devices & security* (desk 109's
+/// door, 07 §1 rule 6).
+final class ShowMyCodeDeviceNotLive extends ShowMyCodeOpening {
+  /// The one instance-shaped value; every not-live answer is equal.
+  const ShowMyCodeDeviceNotLive();
+
+  @override
+  bool operator ==(Object other) => other is ShowMyCodeDeviceNotLive;
+
+  @override
+  int get hashCode => (ShowMyCodeDeviceNotLive).hashCode;
 }
 
 /// What opening S9.3 produced.
@@ -330,6 +383,9 @@ final class LiveCeremonySessions implements CeremonySessions {
     final InviteNonce? nonce;
     try {
       nonce = await nonces();
+    } on InviteNonceDeviceNotLive {
+      // Desk 113: named, never folded into *no nonce*.
+      return const ShowMyCodeDeviceNotLive();
     } on Object {
       return const ShowMyCodeNoInviteNonce();
     }

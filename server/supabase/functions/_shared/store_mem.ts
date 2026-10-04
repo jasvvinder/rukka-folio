@@ -29,6 +29,7 @@ import {
   type MetaCursor,
   type MetaTable,
   type OtpChallenge,
+  RECORD_ID_TAKEN,
   type RecoveryAsk,
   type RecoveryProgress,
   type RecoveryRequest,
@@ -40,6 +41,7 @@ import {
   type SignedRecordRow,
   type Store,
   StoreDenied,
+  type StoredSignedRecord,
   type Tx,
   type UmkPublicRow,
   UserIdTakenError,
@@ -809,14 +811,22 @@ class MemTx implements Tx {
     );
   }
   insertSignedRecord(row: SignedRecordRow): Promise<{ seq: bigint; duplicate: boolean }> {
+    // PgTx's duplicate lookup runs under signed_records_select, so it finds only a record the
+    // caller can see; mirrored here (desk 90(b)).
     const ex = this.db.signed_records.find((r) => r.id === row.id);
-    if (ex) return Promise.resolve({ seq: ex.seq!, duplicate: true });
-    // signed_records_insert as 0022 §1 wrote it. Postgres checks the policy before the foreign key,
-    // so a tenant that does not exist answers `rls` like one with members (E-06-82).
+    if (ex && this.recordVisible(ex)) return Promise.resolve({ seq: ex.seq!, duplicate: true });
+    // signed_records_insert as 0022 §1 wrote it. Postgres checks the policy before the primary key
+    // and both before the foreign key, so a tenant that does not exist answers `rls` like one with
+    // members (E-06-82), and a hidden record's id is met only by a caller the policy admits.
     if (
       !this.isCertified() || row.author_device !== this.dev ||
       !this.mayFile(row.tenant_id, row.kind)
     ) throw new StoreDenied("rls");
+    // The id is held by a record the caller cannot see: 23505 on signed_records_pkey, which
+    // denialFromPg names RECORD_ID_TAKEN (desk 90(b)). PgStore's other cause — a concurrent
+    // transaction committing the id while the INSERT waits — cannot happen here: MemStore runs no
+    // transactions side by side (E-05g-34 is database-only).
+    if (ex) throw new StoreDenied(RECORD_ID_TAKEN);
     if (!this.db.tenants.has(row.tenant_id)) throw new StoreDenied("fk");
     const seq = ++this.db.seq;
     this.db.signed_records.push({ ...row, seq, applied_at: null, apply_note: null });
@@ -957,11 +967,16 @@ class MemTx implements Tx {
     return Promise.resolve(this.mayFile(t, kind));
   }
   storedRecordSeq(id: string): Promise<bigint | null> {
-    // signed_records_select (0005): the caller's own device's records, and its active tenants'.
-    const r = this.db.signed_records.find((x) =>
-      x.id === id && (this.activeInTenant(x.tenant_id) || x.author_device === this.dev)
-    );
+    const r = this.db.signed_records.find((x) => x.id === id && this.recordVisible(x));
     return Promise.resolve(r?.seq ?? null);
+  }
+  storedRecord(id: string): Promise<StoredSignedRecord | null> {
+    const r = this.db.signed_records.find((x) => x.id === id && this.recordVisible(x));
+    return Promise.resolve(r ? { ...r, apply_note: r.apply_note ?? null } : null);
+  }
+  /** signed_records_select (0005): the caller's own device's records, and its active tenants'. */
+  private recordVisible(r: SignedRecordRow): boolean {
+    return this.activeInTenant(r.tenant_id) || r.author_device === this.dev;
   }
   membershipStatus(t: string, u: string): Promise<string | null> {
     // memberships_select, as PgStore's read meets it: never a row the caller cannot see.

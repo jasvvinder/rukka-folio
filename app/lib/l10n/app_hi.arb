@@ -418,6 +418,22 @@
   "ceremony.show.channel_rule": "यह कोड कभी संदेश में न भेजें। कॉल पर बोलकर बताएँ, या उन्हें चौकोर स्कैन करने दें।",
   "ceremony.show.code.label": "आपका 8-अंकों का कोड",
   "ceremony.show.code.semantics": "आपका 8-अंकों का कोड: {digits}",
+  "ceremony.show.device_not_live.body": "यह फ़ोन हटाया गया है या रोका गया है। यहाँ या अपने किसी दूसरे फ़ोन पर ‘डिवाइस और सुरक्षा’ देखें, फिर दोबारा देखें।",
+  "@ceremony.show.device_not_live.body": {
+    "description": "machine-draft — native review M12"
+  },
+  "ceremony.show.device_not_live.devices": "डिवाइस और सुरक्षा",
+  "@ceremony.show.device_not_live.devices": {
+    "description": "machine-draft — native review M12 (matches devices.title)"
+  },
+  "ceremony.show.device_not_live.semantics": "यह फ़ोन हटाया गया है या रोका गया है।",
+  "@ceremony.show.device_not_live.semantics": {
+    "description": "machine-draft — native review M12"
+  },
+  "ceremony.show.device_not_live.title": "यह फ़ोन आपका कोड नहीं दिखा सकता",
+  "@ceremony.show.device_not_live.title": {
+    "description": "machine-draft — native review M12"
+  },
   "ceremony.show.error": "आपका कोड नहीं मिल सका।",
   "ceremony.show.expired": "यह कोड खत्म हो चुका है।",
   "ceremony.show.expires_in": "{time} में खत्म",

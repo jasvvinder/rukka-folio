@@ -62,6 +62,9 @@ final class _Server {
   List<Map<String, Object?>> rows = [];
   Map<String, Object?> Function(String inviteId)? acceptAnswer;
   bool offline = false;
+
+  /// When set, what the invites GET answers instead of [rows] (desk 113).
+  RkHttpResponse? getRefusal;
   late final transport = FakeRkHttpTransport(_answer);
 
   int get gets => [
@@ -82,6 +85,8 @@ final class _Server {
   ) {
     if (offline) throw const RkHttpFailure();
     if (method == 'GET' && url.path.endsWith('sync-meta/invites')) {
+      final refusal = getRefusal;
+      if (refusal != null) return refusal;
       return RkHttpResponse(200, jsonEncode({'invites': rows}));
     }
     if (method == 'POST' && url.path.endsWith('sync-meta/invites/accept')) {
@@ -387,6 +392,86 @@ void main() {
       expect(await launch(server, broken).nonce(), isNull);
     });
   });
+
+  // PLAN desk 113: the one relay failure that is NOT swallowed. A removed or
+  // paused phone is refused on the invites GET with 403 `unknown_request`
+  // (ADR 2026-10-03c §3, ADR 2026-10-04-suspended-invites §1); S9.2 must be
+  // able to name it, as S0.9 does (F1-03c-5…8). Every other failure keeps
+  // answering null — S9.2's *no code yet* — exactly as before.
+  group(
+    'InviteNonceRelay — not live is named, the rest is null (desk 113)',
+    () {
+      InviteNonceRelay launch(_Server server, RkPrefs store) =>
+          InviteNonceRelay(
+            offers: server.api.myInvites,
+            accept: server.api.acceptInviteRelayed,
+            store: store,
+          );
+
+      Future<RkPrefs> kept() async {
+        final store = MemoryPrefs();
+        await store.write(InviteNonceRelay.acceptedInviteKey, _inviteB);
+        return store;
+      }
+
+      test('F1-03c-9 after a restart, a 403 unknown_request on the invites GET '
+          'propagates from nonce() as MembersFailure(deviceNotLive) — not '
+          'null — and Check again recovers once the phone is live', () async {
+        final server = _Server()
+          ..rows = [
+            _row(id: _inviteB, status: 'accepted', nonce: _wire(_nonce(2))),
+          ]
+          ..getRefusal = RkHttpResponse(
+            403,
+            jsonEncode({'error': 'unknown_request'}),
+          );
+        final relay = launch(server, await kept());
+        await expectLater(
+          relay.nonce(),
+          throwsA(
+            isA<MembersFailure>().having(
+              (f) => f.reason,
+              'reason',
+              MembersRefusal.deviceNotLive,
+            ),
+          ),
+        );
+        expect(server.gets, 1);
+
+        server.getRefusal = null;
+        expect(await relay.nonce(), _nonce(2), reason: 'Check again');
+      });
+
+      test('F1-03c-10 control: offline, 403 forbidden, 401, 500, and no invite '
+          'accepted on this device still answer null from nonce(), never '
+          'a throw', () async {
+        for (final refusal in <RkHttpResponse?>[
+          null, // offline, below
+          RkHttpResponse(403, jsonEncode({'error': 'forbidden'})),
+          RkHttpResponse(401, jsonEncode({'error': 'unauthorized'})),
+          RkHttpResponse(500, jsonEncode({'error': 'internal'})),
+        ]) {
+          final server = _Server()
+            ..rows = [
+              _row(id: _inviteB, status: 'accepted', nonce: _wire(_nonce(2))),
+            ]
+            ..offline = refusal == null
+            ..getRefusal = refusal;
+          expect(await launch(server, await kept()).nonce(), isNull);
+        }
+
+        // Not live, but this device never accepted an invite: there is no
+        // invite of its own to read, so nothing is asked and nothing named.
+        final fresh = _Server()
+          ..getRefusal = RkHttpResponse(
+            403,
+            jsonEncode({'error': 'unknown_request'}),
+          );
+        expect(await launch(fresh, MemoryPrefs()).nonce(), isNull);
+        expect(fresh.gets, 0);
+      });
+    },
+  );
 }
 
 /// A protected item store that refuses every call.

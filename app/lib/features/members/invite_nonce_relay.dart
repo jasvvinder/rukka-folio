@@ -36,7 +36,7 @@ import 'dart:typed_data';
 
 import '../../shared/prefs.dart';
 import 'members_api.dart';
-import 'members_repository.dart' show MembersFailure;
+import 'members_repository.dart' show MembersFailure, MembersRefusal;
 
 /// The invitee's end of ADR 2026-09-25b §2: accepts through the relay so the
 /// accepted invite's id is known, and answers that invite's relayed nonce.
@@ -97,9 +97,16 @@ final class InviteNonceRelay {
 
   /// The relayed nonce of this device's own invite, or null — no invite
   /// accepted on this device, no nonce relayed for that id, or the relay (or
-  /// the store) could not be read. Never a throw, never a drawn value. Read
-  /// afresh on every call, so S9.2's *Check again* recovers once the relay
-  /// answers.
+  /// the store) could not be read. Never a drawn value. Read afresh on every
+  /// call, so S9.2's *Check again* recovers once the relay answers.
+  ///
+  /// **One refusal is not swallowed** (PLAN desk 113): when the invites GET
+  /// refuses because this device is not live — revoked or suspended, 403
+  /// `unknown_request` on a device-gated route (ADR 2026-10-03c §3, ADR
+  /// 2026-10-04-suspended-invites §1) — the [MembersFailure] with
+  /// [MembersRefusal.deviceNotLive] propagates, so S9.2 can name it as S0.9
+  /// does (desk 109) rather than offer a *Check again* that cannot succeed.
+  /// Every other failure is still null, exactly as before.
   Future<Uint8List?> nonce() async {
     final id = _ownInviteId ?? await _recall();
     if (id == null) return null;
@@ -108,7 +115,8 @@ final class InviteNonceRelay {
     final List<InviteOffer> rows;
     try {
       rows = await offers();
-    } on MembersFailure {
+    } on MembersFailure catch (failure) {
+      if (failure.reason == MembersRefusal.deviceNotLive) rethrow;
       return null;
     }
     for (final row in rows) {

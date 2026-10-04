@@ -24,6 +24,7 @@ import {
   type MetaCursor,
   type MetaTable,
   type OtpChallenge,
+  RECORD_ID_TAKEN,
   type RecoveryAsk,
   type RecoveryProgress,
   type RecoveryRequest,
@@ -34,6 +35,7 @@ import {
   type SignedRecordRow,
   type Store,
   StoreDenied,
+  type StoredSignedRecord,
   type Tx,
   type UmkPublicRow,
   UserIdTakenError,
@@ -341,19 +343,40 @@ class PgTx implements Tx {
         })),
     }));
   }
-  insertSignedRecord(row: SignedRecordRow): Promise<{ seq: bigint; duplicate: boolean }> {
-    return this.guarded(async () => {
-      const [dup] = await this.sql`select seq from signed_records where id = ${row.id}`;
-      if (dup) return { seq: big(dup.seq), duplicate: true };
-      const [ins] = await this.sql`insert into signed_records
+  async insertSignedRecord(row: SignedRecordRow): Promise<{ seq: bigint; duplicate: boolean }> {
+    // The lookup sees only what signed_records_select shows the caller, and only what is COMMITTED
+    // when it runs. The INSERT meets the primary key — 23505 on signed_records_pkey, which
+    // guarded() → denialFromPg names StoreDenied(RECORD_ID_TAKEN) inside this savepoint, so the
+    // rest of the batch stands (desk 90(b); it was an unmapped 500) — in two cases:
+    //   (1) a record the caller cannot see holds the id;
+    //   (2) another transaction was inserting the id, uncommitted when the lookup ran: the INSERT
+    //       waits on the key and raises 23505 once that transaction commits. The committed record
+    //       may be the caller's OWN device's (a retry racing the first request) or one it can see.
+    // So the lookup is asked again, after the savepoint has rolled back. withClaims' transaction is
+    // READ COMMITTED (the default; `sql.begin` names no level), so this new statement's snapshot
+    // includes what committed meanwhile: a record now visible is the duplicate it is, and is
+    // answered from what is stored (ADR 2026-10-03 §7 (b) gives `rejected:shape`/`id` only to an
+    // id owned by another device — postRecords compares the author). Only a record still hidden
+    // stays RECORD_ID_TAKEN (E-05g-33, E-05g-34).
+    try {
+      return await this.guarded(async () => {
+        const [dup] = await this.sql`select seq from signed_records where id = ${row.id}`;
+        if (dup) return { seq: big(dup.seq), duplicate: true };
+        const [ins] = await this.sql`insert into signed_records
         (id, suite_version, tenant_id, kind, payload_json, payload_bytes, author_device, author_sig, hlc)
         values (${row.id}, ${row.suite_version}, ${row.tenant_id}, ${row.kind}, ${
-        this.sql.json(row.payload_json as postgres.JSONValue)
-      },
+          this.sql.json(row.payload_json as postgres.JSONValue)
+        },
                 ${row.payload_bytes}, ${row.author_device}, ${row.author_sig}, ${row.hlc.toString()}::bigint)
         returning seq`;
-      return { seq: big(ins.seq), duplicate: false };
-    });
+        return { seq: big(ins.seq), duplicate: false };
+      });
+    } catch (e) {
+      if (!(e instanceof StoreDenied && e.reason === RECORD_ID_TAKEN)) throw e;
+      const [dup] = await this.sql`select seq from signed_records where id = ${row.id}`;
+      if (dup) return { seq: big(dup.seq), duplicate: true };
+      throw e;
+    }
   }
   async guardianMayRevoke(dev: string, tenant: string, version: number): Promise<boolean> {
     // 0026 §3, SECURITY DEFINER: a pending guardian cannot see the subject's membership row, so the
@@ -391,6 +414,12 @@ class PgTx implements Tx {
   async storedRecordSeq(id: string): Promise<bigint | null> {
     const [r] = await this.sql`select seq from signed_records where id = ${id}`;
     return r ? big(r.seq) : null;
+  }
+  async storedRecord(id: string): Promise<StoredSignedRecord | null> {
+    // signed_records_select (0005) decides what is visible; rf_api holds SELECT on the table, so
+    // apply_note comes with the row. Desk 90(c).
+    const [r] = await this.sql`select * from signed_records where id = ${id}`;
+    return r ? { ...recordRow(r), apply_note: (r.apply_note as string) ?? null } : null;
   }
   async membershipStatus(t: string, u: string): Promise<string | null> {
     const [r] = await this

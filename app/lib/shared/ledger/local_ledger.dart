@@ -5485,6 +5485,65 @@ final class LocalLedger
     });
   }
 
+  /// Every entry of [bookId] with its lines and note, live — the book-wide
+  /// read S21 Search builds its notes index from (07 §25 🔒 ⟦tests:
+  /// F1-07-35⟧). One query over the book's projected entries.
+  ///
+  /// The set is exactly the union of the book's [watchStatement]s, so search
+  /// finds what the khatas list: heads of accepted amend chains only
+  /// (`superseded_by IS NULL`), advance requests still `pending` or
+  /// `rejected` left out, reversed entries and their mirrors both present
+  /// (02 §5, §9). Ordered as the statements are — `(accounting_date, hlc,
+  /// entry_id)` (02 §9) — with each entry's lines in `line_index` order.
+  Stream<List<EntryView>> watchEntries(String bookId) {
+    final e = db.entriesP;
+    final l = db.entryLinesP;
+    final q = db.select(e).join([innerJoin(l, l.entryId.equalsExp(e.id))])
+      ..where(
+        e.bookId.equals(bookId) &
+            e.supersededBy.isNull() &
+            e.status.isNotIn(const ['pending', 'rejected']),
+      )
+      ..orderBy([
+        OrderingTerm.asc(e.accountingDate),
+        OrderingTerm.asc(e.hlc),
+        OrderingTerm.asc(e.id),
+        OrderingTerm.asc(l.lineIndex),
+      ]);
+    return q.watch().map((rows) {
+      final heads = <String, EntriesPData>{};
+      final lines = <String, List<Line>>{};
+      for (final r in rows) {
+        final row = r.readTable(e);
+        final line = r.readTable(l);
+        heads.putIfAbsent(row.id, () => row);
+        (lines[row.id] ??= []).add(
+          Line(accountId: line.accountId, amount: Paise(line.amountPaise)),
+        );
+      }
+      return List.unmodifiable([
+        for (final row in heads.values)
+          EntryView(
+            id: row.id,
+            bookId: row.bookId,
+            kind: EntryKind.parse(row.kind),
+            status: row.status,
+            date: LocalDate.parse(row.accountingDate),
+            lines: List.unmodifiable(lines[row.id]!),
+            reviewState: row.reviewState,
+            createdByUser: row.createdByUser,
+            hlc: row.hlc,
+            note: row.note,
+            channel: row.channel,
+            partyId: row.partyId,
+            amends: row.amends,
+            reverses: row.reverses,
+            supersededBy: row.supersededBy,
+          ),
+      ]);
+    });
+  }
+
   /// The held envelope carrying [objectId], or null when nothing on this
   /// phone holds it (ADR 2026-09-05b §4). *Held* means verified, in the
   /// mirror, not projected and not counted — S4.1 draws it as waiting, never

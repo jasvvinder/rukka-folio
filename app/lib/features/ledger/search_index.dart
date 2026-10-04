@@ -3,18 +3,13 @@
 //
 // Read side only, and only through the read APIs this feature already
 // consumes: [LocalLedger.watchAccounts] for accounts and parties (a party *is*
-// an account of class `party`, 02 §1.2) and [LocalLedger.watchStatement] for
-// the notes. No query is written here and `packages/data` is not touched.
-//
-// ⚠️ SPEC: there is no book-wide "entries with notes" read on [LocalLedger];
-// the notes half is assembled from one statement per account in the book and
-// de-duplicated by entry id. Every projected entry has at least one line, so
-// the union of every account's statement is every head entry the statements
-// show (heads of amend chains; pending/rejected advance requests excluded —
-// the same set S4 lists). It costs one query per account per projection
-// change while S21 is open. The data-layer method this wants is
-// `Stream<List<EntryView>> LocalLedger.watchEntries(String bookId)` (or a
-// `searchNotes(bookId, query)`), logged in the lane report as an open item.
+// an account of class `party`, 02 §1.2) and [LocalLedger.watchEntries] — one
+// book-wide query — for the notes. That read lists exactly the entries the
+// statements list (heads of amend chains; pending/rejected advance requests
+// excluded — the same set S4 lists). No query is written here and
+// `packages/data` is not touched.
+import 'dart:async';
+
 import 'package:core_ledger/core_ledger.dart' hide StatementRow;
 
 import '../../shared/ledger/local_ledger.dart';
@@ -166,42 +161,77 @@ SearchLine? amountLineOf(NoteHit hit, Map<String, Account> chart) {
   return hit.lines.isEmpty ? null : hit.lines.first;
 }
 
-/// The live index for [bookId]: rebuilt each time the book's projection
-/// changes ([LocalLedger.watchAccounts] re-emits on every change).
-Stream<LedgerSearchIndex> watchSearchIndex(LocalLedger ledger, String bookId) =>
-    ledger.watchAccounts(bookId).asyncMap((accounts) async {
-      final statements = await Future.wait([
-        for (final a in accounts) ledger.watchStatement(a.account.id).first,
+/// The index over one book's [accounts] and [entries] — every entry that
+/// carries a non-blank note becomes a [NoteHit], newest first.
+LedgerSearchIndex buildSearchIndex(
+  List<AccountBalance> accounts,
+  List<EntryView> entries,
+) {
+  final notes =
+      <NoteHit>[
+        for (final e in entries)
+          if (e.note != null && e.note!.trim().isNotEmpty)
+            NoteHit(
+              entryId: e.id,
+              date: e.date,
+              hlc: e.hlc,
+              kind: e.kind,
+              note: e.note!,
+              reviewState: e.reviewState,
+              lines: List.unmodifiable([
+                for (final l in e.lines)
+                  (accountId: l.accountId, amountPaise: l.amount.raw),
+              ]),
+            ),
+      ]..sort((a, b) {
+        final byDate = b.date.compareTo(a.date);
+        if (byDate != 0) return byDate;
+        final byHlc = b.hlc.compareTo(a.hlc);
+        return byHlc != 0 ? byHlc : b.entryId.compareTo(a.entryId);
+      });
+  return LedgerSearchIndex(accounts: accounts, notes: notes);
+}
+
+/// The live index for [bookId]: rebuilt whenever either the book's accounts
+/// ([LocalLedger.watchAccounts]) or its entries ([LocalLedger.watchEntries])
+/// re-emit, once both have emitted. Errors from either read reach the
+/// listener (S21's error state).
+Stream<LedgerSearchIndex> watchSearchIndex(LocalLedger ledger, String bookId) {
+  StreamSubscription<List<AccountBalance>>? accountsSub;
+  StreamSubscription<List<EntryView>>? entriesSub;
+  List<AccountBalance>? accounts;
+  List<EntryView>? entries;
+  late final StreamController<LedgerSearchIndex> out;
+  void emit() {
+    final a = accounts, e = entries;
+    if (a != null && e != null) out.add(buildSearchIndex(a, e));
+  }
+
+  out = StreamController<LedgerSearchIndex>(
+    onListen: () {
+      accountsSub = ledger.watchAccounts(bookId).listen((v) {
+        accounts = v;
+        emit();
+      }, onError: out.addError);
+      entriesSub = ledger.watchEntries(bookId).listen((v) {
+        entries = v;
+        emit();
+      }, onError: out.addError);
+    },
+    onPause: () {
+      accountsSub?.pause();
+      entriesSub?.pause();
+    },
+    onResume: () {
+      accountsSub?.resume();
+      entriesSub?.resume();
+    },
+    onCancel: () async {
+      await Future.wait([
+        if (accountsSub != null) accountsSub!.cancel(),
+        if (entriesSub != null) entriesSub!.cancel(),
       ]);
-      final lines = <String, List<SearchLine>>{};
-      final rows = <String, StatementRow>{};
-      for (final s in statements) {
-        for (final r in s) {
-          (lines[r.entryId] ??= []).add((
-            accountId: r.accountId,
-            amountPaise: r.amountPaise,
-          ));
-          rows[r.entryId] ??= r;
-        }
-      }
-      final notes =
-          <NoteHit>[
-            for (final r in rows.values)
-              if (r.note != null && r.note!.trim().isNotEmpty)
-                NoteHit(
-                  entryId: r.entryId,
-                  date: r.date,
-                  hlc: r.hlc,
-                  kind: r.kind,
-                  note: r.note!,
-                  reviewState: r.reviewState,
-                  lines: List.unmodifiable(lines[r.entryId]!),
-                ),
-          ]..sort((a, b) {
-            final byDate = b.date.compareTo(a.date);
-            if (byDate != 0) return byDate;
-            final byHlc = b.hlc.compareTo(a.hlc);
-            return byHlc != 0 ? byHlc : b.entryId.compareTo(a.entryId);
-          });
-      return LedgerSearchIndex(accounts: accounts, notes: notes);
-    });
+    },
+  );
+  return out.stream;
+}

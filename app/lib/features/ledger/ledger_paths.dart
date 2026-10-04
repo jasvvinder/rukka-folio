@@ -26,6 +26,12 @@ abstract final class LedgerPaths {
   static String partiesFor({required bool get}) =>
       '${RkPaths.ledger}/parties/${get ? 'get' : 'give'}';
 
-  /// S21 Search.
+  /// S21 Search. Bare, it searches the one book S3 resolves for itself.
   static const search = '${RkPaths.ledger}/search';
+
+  /// S21 Search over [bookId] — the door a scoped surface (S1) uses, so the
+  /// search covers the book on screen and not whichever the mirror lists
+  /// first (07 §25 🔒 "in scope"; 13 §2.2 scope persists per tab).
+  static String searchIn(String bookId) =>
+      '$search?book=${Uri.encodeQueryComponent(bookId)}';
 }

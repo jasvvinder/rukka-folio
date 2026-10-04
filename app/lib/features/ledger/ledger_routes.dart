@@ -32,7 +32,8 @@ final RkTabRoot ledgerRoot = RkTabRoot(
 /// statement and S4.1 entry detail (07 §6 flow line `tap row → S4.1 entry
 /// detail → [Amend | Reverse]`). S4.1 is a *detail viewer*, exempt from the
 /// depth rule — it opens from a row, it is not a destination (13 §211). S21
-/// search (07 §25) opens from S3's app-bar button; an account or party hit
+/// search (07 §25) opens from S3's and S1's app-bar buttons — S1's carries
+/// the book in scope as `?book=`; an account or party hit
 /// pushes S4, a note hit pushes S4.1.
 final List<RouteBase> ledgerRoutes = [
   GoRoute(
@@ -60,6 +61,9 @@ final List<RouteBase> ledgerRoutes = [
   GoRoute(
     path: LedgerPaths.search,
     builder: (context, state) => LedgerSearchScreen(
+      // `?book=` is set by a scoped door (S1, [LedgerPaths.searchIn]); bare,
+      // S21 resolves its book as S3 does.
+      bookId: state.uri.queryParameters['book'],
       onOpenAccount: (accountId) =>
           context.push(LedgerPaths.statementOf(accountId)),
       onOpenEntry: (entryId) => context.push(LedgerPaths.entryOf(entryId)),

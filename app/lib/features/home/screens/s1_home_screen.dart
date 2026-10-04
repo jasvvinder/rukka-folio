@@ -71,6 +71,7 @@ class HomeScreen extends StatefulWidget {
     this.rebuildProgress,
     this.closeSource,
     this.onOpenClose,
+    this.onOpenSearch,
   });
 
   /// Explicit book; when null the solo book is resolved ([soloBookId]) and
@@ -126,6 +127,12 @@ class HomeScreen extends StatefulWidget {
   /// the card re-reads its state: a month closed in the wizard must not still
   /// read *Close Aug 2026* on return.
   final Future<void> Function(String path)? onOpenClose;
+
+  /// Opens S21 Search (07 §25 🔒 ⟦tests: F1-07-35⟧; 13 §3.2: reached from
+  /// S3 and S1) over the book in scope — the id S1 is showing, never the
+  /// mirror's first book. When null no search button is drawn; nor is one in
+  /// *Everything*, which is no single book.
+  final void Function(String bookId)? onOpenSearch;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -239,6 +246,24 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.homeTitle),
+        // S21 (07 §25, 13 §3.2: reached from S3 and S1) — the same button S3
+        // draws, named by the same string.
+        actions: [
+          // The search covers the book in scope (07 §25 🔒), so the button
+          // waits for a book and hands it over.
+          // ⚠️ SPEC: what S21 searches in *Everything* is not ruled (07 §25
+          // says "in scope"; S21 searches one book). The conservative reading:
+          // no search door while the aggregate is on screen — never a search
+          // over one book presented as the aggregate. Switching back to a
+          // book brings the door back, so this is not a dead end.
+          if (widget.onOpenSearch case final open?)
+            if (scope?.bookId case final bookId?)
+              IconButton(
+                tooltip: l10n.ledgerSearchTitle,
+                icon: const Icon(Icons.search),
+                onPressed: () => open(bookId),
+              ),
+        ],
         bottom: control == null
             ? null
             : PreferredSize(

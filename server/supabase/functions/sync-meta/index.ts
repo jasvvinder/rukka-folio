@@ -39,6 +39,7 @@ import {
   META_TABLES,
   type MetaCursors,
   type MetaTable,
+  RECORD_ID_TAKEN,
   type RecoveryProgress,
   type RecoveryRequest,
   rowId,
@@ -861,8 +862,22 @@ async function intakeRecord(
   ) {
     return { id, result: "rejected:unauthorized", check: "rls" };
   }
-  const { seq, duplicate } = await tx.insertSignedRecord(parsed);
-  return { record: { ...parsed, seq }, seq, duplicate };
+  try {
+    const { seq, duplicate } = await tx.insertSignedRecord(parsed);
+    return { record: { ...parsed, seq }, seq, duplicate };
+  } catch (e) {
+    // Desk 90(b): the id is held by a record the caller still cannot see (the primary key; it was an
+    // unmapped 500). A record that a concurrent transaction committed under the id while the INSERT
+    // waited is not this arm: insertSignedRecord re-reads it and returns it as a duplicate, so the
+    // caller's own device's record is answered from what is stored (E-05g-34). Answered exactly
+    // as another device's VISIBLE record under the id is answered
+    // on /records — `rejected:shape`, check `id`, no seq — so an id the caller cannot see tells it
+    // no more than one it can. Nothing is stored for this record; the batch goes on.
+    if (e instanceof StoreDenied && e.reason === RECORD_ID_TAKEN) {
+      return { id, result: "rejected:shape", check: "id" };
+    }
+    throw e;
+  }
 }
 
 async function postRecords(
@@ -892,25 +907,37 @@ async function postRecords(
         if (duplicate) {
           // A re-sent id (desk 68(a)). Answer what happened to the STORED record, never the copy
           // just sent: it is the signed fact the server keeps and the meta pull serves.
-          const [stored] = await tx.signedRecordsAfter(seq - 1n, 1);
-          if (!stored || stored.id !== parsed.id || stored.author_device !== parsed.author_device) {
+          const stored = await tx.storedRecord(parsed.id);
+          if (!stored || stored.author_device !== parsed.author_device) {
             // Another device's record under this id: nothing of THIS record is stored or applied.
             results.push({ id, result: "rejected:shape", check: "id" });
             continue;
           }
           if (stored.applied_at) {
-            // Applied (or refused with a note) once, and never applied again — a replay of an old
-            // record must not undo a later one.
-            results.push({ id, result: "acked", seq: seq.toString() });
+            // Applied once, or refused with a note once, and never applied again — a replay of an
+            // old record must not undo a later one. A refusal answers as it did (desk 90(c); ADR
+            // 2026-10-03 §7, the `/records` replay, and its *Open* item "§7 (a)'s neighbour";
+            // E-05g-32): the stored note is the result, with the same seq. It was `acked`, which told the client a role or a member
+            // had moved when nothing had. The first answer's `check` (`not_admin`, `not_revoker`)
+            // is not stored — the note holds the result alone — so the replay carries none rather
+            // than one the server did not keep. A note that is not a refusal ("membership active",
+            // "counted 1 of 2", …) was acked, and is acked.
+            const note = stored.apply_note;
+            results.push(
+              note !== null && note.startsWith("rejected:")
+                ? { id, result: note, seq: seq.toString() }
+                : { id, result: "acked", seq: seq.toString() },
+            );
             continue;
           }
           // Stored but never applied: only the StoreDenied arm below leaves a record so — the
           // seat cap's refusal among them. Answering `acked` here told the client a member had
           // moved when nothing had. It is asked again, exactly as on arrival, so a plan that is
-          // still full answers the same named refusal (rejected:seat_cap …) and projects nothing.
-          // ⚠️ SPEC (desk 68(a), reported): once the plan has room, the same record applies and
-          // is acked — truthfully. Answering the FIRST outcome verbatim instead (never re-asking)
-          // needs the stored apply_note on a duplicate, which the Tx does not expose (_shared).
+          // still full answers the same named refusal (rejected:seat_cap …) and projects nothing;
+          // once the plan has room, the same record applies and is acked — truthfully. Ruled by
+          // ADR 2026-10-03 §7 (a) (owner, 3 Oct 2026; desk 73): re-asked, not answered verbatim.
+          // There is no first outcome stored to answer here anyway: the StoreDenied arm writes no
+          // note, so `apply_note` is null on such a record.
           rec = stored;
         }
         const { note, check } = await applyRecord(tx, rec, me!.user_id);
@@ -1118,10 +1145,15 @@ export function shapeRow(table: MetaTable, r: Record<string, unknown>): Record<s
         updated_at: ms(r.updated_at),
       };
     default: {
-      // verification_events, recovery_requests, escrow_policies: pass through with dates → ms
+      // verification_events, recovery_requests, escrow_policies: pass through with dates → ms.
+      // Bytes through `bin`, which copies first: recovery_requests.candidate_pub_x is bytea, and
+      // encoding PgStore's pooled Buffer view directly threw "ArrayBuffer is not detachable": every
+      // meta pull whose page held a recovery request — the subject's, and each guardian's who can
+      // see it (0010's recovery_requests_select_guardian) — was a 500, and since the cursor never
+      // moved past that row, so was every pull after it (desk 99; found by E-05-20).
       const out: Record<string, unknown> = { id };
       for (const [k, v] of Object.entries(r)) {
-        out[k] = v instanceof Date ? v.getTime() : v instanceof Uint8Array ? b64url.enc(v) : v;
+        out[k] = v instanceof Date ? v.getTime() : v instanceof Uint8Array ? bin(v) : v;
       }
       return out;
     }

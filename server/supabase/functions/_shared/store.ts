@@ -45,6 +45,11 @@ export interface SignedRecordRow {
   hlc: bigint;
   applied_at?: Date | null;
 }
+/** A stored record as the server keeps it: with `apply_note` (0003), what its apply said —
+ *  `rejected:<name>` for a record refused at apply (desk 90(c)), null while never applied. */
+export interface StoredSignedRecord extends SignedRecordRow {
+  apply_note: string | null;
+}
 export interface GuardianSet {
   subject_user_id: string;
   share_set_version: number;
@@ -365,7 +370,18 @@ export interface Tx {
   startTrial(tenantId: string, entity: EntityType): Promise<{ plan: PlanId; trial_end: Date }>;
   guardianSetHistory(subjectUserId: string): Promise<GuardianSet[]>;
   // signed records
+  /** Store a record, or report the one already stored under its id. `duplicate` only for a record
+   *  the caller can see (signed_records_select, 0005 — its own device's always), including one a
+   *  concurrent transaction committed under the id while this INSERT waited on the key (PgStore
+   *  asks again after the 23505; E-05g-34). An id held by a record the caller still CANNOT see is
+   *  the primary key's refusal: StoreDenied(RECORD_ID_TAKEN) (desk 90(b)), after the row policy,
+   *  as Postgres orders them. */
   insertSignedRecord(row: SignedRecordRow): Promise<{ seq: bigint; duplicate: boolean }>;
+  /** The record stored under `id` with the note its apply left (`apply_note`), among those the
+   *  caller can see (signed_records_select, 0005), or null — the duplicate read of POST /records
+   *  (desks 68(a), 90(c)): a re-sent id is answered from what is STORED. Never served on the meta
+   *  pull: `recordToWire` names its fields, and `apply_note` is not one of them. */
+  storedRecord(id: string): Promise<StoredSignedRecord | null>;
   /** ADR 2026-10-03b §3 — rf.guardian_may_revoke (0026, SECURITY DEFINER): would the CALLER's
    *  device_revocation approval of `deviceId`, filed in `tenantId` and naming `shareSetVersion`, be
    *  counted? The caller may file in that tenant (active or pending), is a guardian of the device's
@@ -664,10 +680,29 @@ export class StoreDenied extends Error {
   }
 }
 
+/** The internal name for "signed_records' primary key refused this id" (desk 90(b)). denialFromPg
+ *  names every 23505 on signed_records_pkey so, and that has two causes: a record the caller cannot
+ *  see holds the id, or a concurrent transaction committed a record under it while the INSERT
+ *  waited on the key (READ COMMITTED: the duplicate lookup could not see it uncommitted). PgTx.
+ *  insertSignedRecord tells them apart by asking the lookup again: a record now visible is a
+ *  `duplicate`, and only one still hidden leaves the store as RECORD_ID_TAKEN. Never a wire name:
+ *  the edge answers it as `rejected:shape`, check `id` — what another device's VISIBLE record
+ *  under the id already answers (ADR 2026-10-03 §7 (b)) — so an id the caller cannot see reveals
+ *  no more than one it can. No database guard raises this token. */
+export const RECORD_ID_TAKEN = "record_id_taken";
+
 /** Maps a Postgres error raised by 0003/0005 onto StoreDenied; anything else is rethrown. */
 export function denialFromPg(e: unknown): StoreDenied | null {
   const msg = (e as { message?: string })?.message ?? "";
   const code = (e as { code?: string })?.code ?? "";
+  // unique_violation on signed_records' primary key only (desk 90(b)): the INSERT met a key its
+  // duplicate lookup did not see — a record the row policy hides, or one a concurrent transaction
+  // committed after the lookup ran (insertSignedRecord asks again for that one). Any other unique
+  // violation is not a refusal this function names, and stays a thrown error.
+  if (
+    code === "23505" &&
+    (e as { constraint_name?: string })?.constraint_name === "signed_records_pkey"
+  ) return new StoreDenied(RECORD_ID_TAKEN);
   // insufficient_privilege. Postgres' own message is a sentence ("permission denied for table
   // invites"); a bare token is one of OUR guards raising a named refusal with errcode 42501
   // (rf.accept_invite's `phone_mismatch`, rf.create_invite's `not_admin`…). Pass the name through:

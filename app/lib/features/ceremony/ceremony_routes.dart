@@ -21,16 +21,25 @@
 // the factory answers [ShowMyCodeNoInviteNonce] and the route shows
 // [ShowMyCodeNoInviteScreen] — the placeholder that says why, with *Check
 // again* and *Close* — and never a QR over a nonce this device drew.
+//
+// And one more (PLAN desk 113): when the invite relay refuses this phone as
+// not live — revoked or suspended (ADR 2026-10-03c §3, ADR
+// 2026-10-04-suspended-invites §1) — the factory answers
+// [ShowMyCodeDeviceNotLive] and the route shows
+// [ShowMyCodeDeviceNotLiveScreen], with *Devices & security* pushed exactly
+// as S0.9 pushes it (desk 109), *Check again* and *Close*.
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../l10n/gen/app_localizations.dart';
 import '../../shared/app_scope.dart';
 import '../../shared/widgets/placeholder_screen.dart';
+import '../devices/devices_paths.dart';
 import 'camera_scanner.dart';
 import 'ceremony_paths.dart';
 import 'ceremony_scope.dart';
 import 'ceremony_sessions.dart';
+import 'screens/s9_2_device_not_live_screen.dart';
 import 'screens/s9_2_no_invite_screen.dart';
 import 'screens/s9_2_show_my_code_screen.dart';
 import 'screens/s9_3_key_incomplete_screen.dart';
@@ -45,6 +54,7 @@ export 'ceremony_scope.dart';
 export 'ceremony_sessions.dart';
 export 'mobile_scanner_adapter.dart' show MobileScannerCeremonyScanner;
 export 'relayed_umk.dart';
+export 'screens/s9_2_device_not_live_screen.dart';
 export 'screens/s9_2_no_invite_screen.dart';
 export 'screens/s9_2_show_my_code_screen.dart';
 export 'screens/s9_3_key_incomplete_screen.dart';
@@ -99,6 +109,14 @@ class ShowMyCodeRoute extends StatelessWidget {
         // ADR 2026-09-25b §3: no relayed nonce — the placeholder that says
         // why, with a way on (07 §1 rule 6), never a nonce drawn here.
         ShowMyCodeNoInviteNonce() => ShowMyCodeNoInviteScreen(
+          onCheckAgain: reopen,
+          onClose: () => Navigator.of(context).maybePop(),
+        ),
+        // Desk 113: the relay refused this phone as not live — named, with
+        // S0.9's door to S11 (desk 109), never the *no code yet* state whose
+        // only way on cannot succeed.
+        ShowMyCodeDeviceNotLive() => ShowMyCodeDeviceNotLiveScreen(
+          onOpenDevices: () => context.push(DevicesPaths.devices),
           onCheckAgain: reopen,
           onClose: () => Navigator.of(context).maybePop(),
         ),
