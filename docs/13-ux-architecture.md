@@ -101,7 +101,13 @@ Roles (admin · head · member · operator · viewer) change *what actions appea
 | **S0.8** | Set your PIN | onboarding | 6-digit, set + confirm (06 §4.4) ⟦tests: F1-07-62⟧ |
 | **S15.3** | Enter PIN | app lock | 6 boxes; Face ID button; *Forgot PIN* → OTP + biometric; **cooldown** states (5 free · 30 s · 1 min · 5 min · 15 min · 1 h, countdown row) and **PIN disabled** after 10 → OTP + biometric — the canvas's "a code, not a lockout" tone stays as copy (ADR 2026-09-05d §5, ADR 2026-09-05f §B) ⟦tests: F1-07-63⟧ |
 | **S0.1** | Language picker | onboarding | first screen ever shown |
-| **S0.2** | Phone + OTP | onboarding | identity |
+| **S0.06** | Start · new or already using Rukka (canvas 1b L0) | after S0.05 | two full-width doors: *I'm new* → S0.2 · *I already use Rukka · sign in* → S0.2 in its sign-in state; the invite line points to the link (ADR 2026-10-05c §1) |
+| **S0.2** | Phone + OTP | onboarding | identity · **sign-in state** (canvas 1b L2–L4): the heading says *Sign in*, *Set up instead* is offered, and the code goes by SMS only (ADR 2026-10-05c §1–§2) |
+| **S0.2a** | This number already has books (L1) | S0.2, *I'm new* path, after the code | *Sign in to my books* → S0.2b with no second code · *Use a different number* (ADR 2026-10-05c §2) |
+| **S0.2b** | Found you · is your old phone with you? (L5) | S0.2a / sign-in after the code; skipped when platform key sync restores (S11.5) | *Yes* → S0.2c · *No* → S11.6 fork (ADR 2026-10-05c §3) |
+| **S0.2c** | Approve from the old phone (L6) | S0.2b | the new phone shows its code (S9.2 components); the old phone scans it from Devices & security (04 §9.1) |
+| **S0.2d** | This phone is linked (L7) | S0.2c approved | → S0.8 set this phone's PIN → S1; tenants notified (ADR 2026-09-05d §6) |
+| **S0.2e** | No books on this number (L8) | S0.2, sign-in path, after the code | *Set up new books* → S0.3 with no second code · *Try another number* (ADR 2026-10-05c §2) |
 | **S0.3** | "What will you use this for?" | onboarding | **four** cards (ADR 2026-10-04c; was five); the trust card alone sets `tenant.type = organization` (07 §3.1) |
 | **S0.4** | Name & photo | onboarding | for approvals/ceremony |
 | **S0.5** | Keeping your books safe | onboarding | key sync stated on · automatic backup on with its disclosure · sheet action (04 §7.6, 07 §3.1) ⟦tests: F1-07-71, F1-07-72⟧ |
@@ -246,6 +252,9 @@ are valid; this table is the translation. Canvas captions use the design id.
 | Design id | Doc id | Screen |
 |---|---|---|
 | O0 · O0b · O1 | S0.0 · S0.05 · S0.1 | Splash · Welcome · Language |
+| L0 · L1 · L5 · L6 · L7 · L8 | S0.06 · S0.2a · S0.2b · S0.2c · S0.2d · S0.2e | Canvas 1b · Sign in (ADR 2026-10-05c) |
+| L2 · L3 · L4 | S0.2 | Sign-in state of Phone + OTP (canvas 1b) |
+| U1 · U2 · U3 · U3b · U4 | S15 · S15 · S15.3 · S15.3 · S15.3 | Canvas 1b · everyday unlock and forgot PIN (lock, seal opens, code, biometric confirm, new PIN) |
 | O2a/O2b · O3 · O4 · O4b | S0.2 · S0.3 · S0.4 · S0.8 | Phone+OTP · Purpose · Name · Set PIN |
 | O5 · O5b · O6a–c · O7a/b · O8 | S0.5 · S0.5b · S0.6 · S0.9 · S0.7 | Books safe · Sheet · Balances wizard · Invitation · Checklist |
 | S2-B / S2-C | S2.1 | A/C picker (in-place state / quick-add presentation) |
@@ -295,8 +304,11 @@ Every interactive component ships: default · pressed · disabled-with-reason ·
 Notation: `→` step · `◆` decision · `⟳` loops until · `‖` parallel.
 
 **F1 · First run**
-`S0.0 splash → S0.1 language → S0.05 welcome (3 slides, skippable) → S0.2 phone+OTP → S0.3 purpose ◆(Myself | My business | My family | Our trust) → S0.4 name → S0.8 set PIN → S0.5 keeping your books safe (+ S0.5b sheet: print → verify by scanning it back) → branch steps S0.6a–i per card, each skippable (07 §3.1.1) → S0.6 own opening balances (skippable) → S1 with setup checklist`
+`S0.0 splash → S0.1 language → S0.05 welcome (3 slides, skippable) → S0.06 start ◆(I'm new | already use Rukka → F1b) → S0.2 phone+OTP → S0.3 purpose ◆(Myself | My business | My family | Our trust) → S0.4 name → S0.8 set PIN → S0.5 keeping your books safe (+ S0.5b sheet: print → verify by scanning it back) → branch steps S0.6a–i per card, each skippable (07 §3.1.1) → S0.6 own opening balances (skippable) → S1 with setup checklist`
 Success: user reaches Home understanding that no password exists and the paper sheet matters. 🔒 Branch order ruled 2 Sep 2026 (ADR): **after the shared steps**, per 07 §3.1.1 — identity and safety finish before any entity setup, and every branch step lands on the checklist anyway. Canvas 0's map is aligned; Canvas 1's flow band is realigned when its partial is recovered (256 KiB cap). ⟦tests: F1-07-16⟧
+
+**F1b · Sign in on a new or reset phone** (ADR 2026-10-05c ⟦tests: F1-1005c-1 @M13, F1-1005c-2 @M13, F1-1005c-3 @M13⟧)
+`S0.06 → S0.2 (sign-in state, SMS) → code ◆(number has books → S11.5 silent restore if platform key sync holds the keys, else S0.2b ◆(old phone with you → S0.2c link → S0.2d → S0.8 → S1 | no → S11.6 fork)) | (no books → S0.2e ◆(set up → S0.3 … F1 | try another number → S0.2))`
 
 **F2 · Daily entry (the 8-second path)**
 `S1 verb button (or ( + )) → S2 amount keypad → account chip (none pre-selected) → S2.1 counterpart (recents first; inline create if new) → [note/photo/date optional] → Save → toast "Saved ✓" + Undo 10s → keypad stays open, zeroed`

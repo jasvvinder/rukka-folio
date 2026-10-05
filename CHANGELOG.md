@@ -100,6 +100,21 @@ review lane never named the canvas frames, so layouts were built from prose and 
   unmeasured). Owner is designing a dedicated sign-in screen (S0.2 serves sign-up and device activation today).
 - Spend: ~6.8 M of a 10 M owner override (cycles 3.0 M + 0.6 M + 3.1 M, gates ~0.06 M).
 
+**Design sync (late evening) — Canvas 1b · Sign in**
+- `/design-pull`: the new **Canvas 1b - Sign in** (L0–L8, U1–U4) was pulled into the local mirror; 30 other files
+  were re-fetched and found unchanged. The owner updated the canvas on two rulings, and it was re-pulled: the code goes
+  **by SMS only** (ADR 2026-09-25 §1 stands), and **the old phone scans the new phone's code** (04 §9.1 kept). Third
+  ruling: a forgotten PIN is reset with the **code + biometric where present** (06 §4.4 kept; the canvas owes the step).
+- `docs/decisions/2026-10-05c-sign-in-journey.md` — 🔒 one front door (S0.06); the number answers only after the code
+  (S0.2a / S0.2e, no second code, settling desk 129 for the sign-in path); old phone → link (S0.2b–d) or the S11.6 fork;
+  SMS only; forgot PIN = code + biometric. 13 §3.2 (S0.06, S0.2a–e, S0.2 sign-in state), §3.3 (L/U ids), §5 F1 + new
+  F1b; 07 §3.1/§3.2 cross-references. `/design-pull` takes Canvas 1b as the second `.dc.html` source exception.
+- Desks: 129 partly ruled, 131 superseded; new 156 (SIGNIN1 build), 157 (index `.dc.html` canvases), 158 (canvas fixes).
+- Canvas 1b fixes (desk 158) were made from the repo side, rendered, approved by the owner, pushed with DesignSync to
+  `Canvas 1b - Sign in.dc.html` and read back byte-identical: U3b biometric confirm, L6 *Devices & security*, and the
+  eight-box code under the QR; then L7's "remove it from Linked phones" → *Devices & security* (pushed, read back).
+  13 §3.3 maps U3b → S15.3. New desk 159: canvas 4's S9.2 draws 7 code boxes, not 8.
+
 **Commits**
 - _(fill next session)_
 

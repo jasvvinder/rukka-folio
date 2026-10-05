@@ -23,9 +23,12 @@ changed files/screens/strings; the on-disk mirror itself is the diff baseline.
   `Report Page.dc.html`. Canvas 17 has no partials: it is data-driven, so these three files *are* its source,
   and they are the one exception to the `*.dc.html` rule below. If `reports-data.js` ever exceeds 256 KiB,
   ask the app's agent to split it, as was done for canvas 1.
+- **Canvas 1b (owner, 5 Oct 2026):** `Canvas 1b - Sign in.dc.html`. Like Canvas 17 it has no partials, so the
+  `.dc.html` is its source and the second exception to the `*.dc.html` rule. `scripts/design_match.py` does not index
+  it yet (PLAN desk 143b).
 
 **Never pull:** `uploads/` (copies of repo docs — the repo is the source of truth),
-`screenshots/`, `_ds/`, `*.dc.html` (except Canvas 17's two above), `doc-page.js`, `support.js`, `.thumbnail`,
+`screenshots/`, `_ds/`, `*.dc.html` (except Canvas 17's two and Canvas 1b above), `doc-page.js`, `support.js`, `.thumbnail`,
 and the marketing pages (`Landing Page`, `Coming Soon*`). Those are the website's, not the app's (brand 11).
 
 ## Procedure
@@ -77,6 +80,7 @@ path — writing `canvas5.dc.html` creates a *duplicate* canvas in the app (happ
 |---|---|
 | 0 | `Canvas 0 - Master map.dc.html` |
 | 1 | `Canvas 1 - Onboarding.dc.html` |
+| 1b | `Canvas 1b - Sign in.dc.html` (no partials — the file is the source) |
 | 2 | `Canvas 2 - Entry.dc.html` |
 | 3 | `Canvas 3 - Locks and system.dc.html` |
 | 4 | `Canvas 4 - Members ceremony and roles.dc.html` |
