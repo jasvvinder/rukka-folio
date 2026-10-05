@@ -1,7 +1,11 @@
 // The sealed mark (11 brand guidelines, ADR 2026-09-03d): a book silhouette
-// with a strap and a wax seal. Embed the master art per brand rule — this is
-// a token-driven placeholder shape (no master SVG asset was handed to this
-// lane), never redrawn with ad-hoc hex values (CLAUDE.md § Layout).
+// with a strap and a wax seal, painted from the geometry of record —
+// `docs/brand/icons/master/mark-sealed.svg` (88-unit box: book 12..76 r5, two
+// entry rules at x54, strap x28 w14 y14..74 at .93, seal at (28,56) r10) — in
+// the mark tokens, never ad-hoc hex values (CLAUDE.md § Layout). The canvas
+// frames embed exactly this SVG at the size each one draws — c3 S15 face
+// states 60 px, c3 *PIN instead* 48 px, c1 S15.3 52 px — so the size is the
+// caller's (s15_lock_screen.dart `_LockPage`).
 import 'package:flutter/material.dart';
 
 import '../../../shared/tokens.dart';
@@ -51,22 +55,31 @@ class _MarkPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final r = RRect.fromRectAndRadius(
-      Offset.zero & size,
-      Radius.circular(size.shortestSide * 0.12),
+    // Master art units (mark-sealed.svg viewBox 0 0 88 88).
+    final u = size.shortestSide / 88;
+    Rect r(double x, double y, double w, double h) =>
+        Rect.fromLTWH(x * u, y * u, w * u, h * u);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(r(12, 12, 64, 64), Radius.circular(5 * u)),
+      Paint()..color = book,
     );
-    canvas.drawRRect(r, Paint()..color = book);
-    final strapRect = Rect.fromLTWH(
-      size.width * 0.46,
-      0,
-      size.width * 0.08,
-      size.height,
+    final rule = Radius.circular(2.25 * u);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(r(54, 33, 16, 4.5), rule),
+      Paint()..color = strap,
     );
-    canvas.drawRect(strapRect, Paint()..color = strap);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(r(54, 46.5, 16, 4.5), rule),
+      Paint()..color = strap.withValues(alpha: 0.55),
+    );
+    canvas.drawRect(
+      r(28, 14, 14, 60),
+      Paint()..color = strap.withValues(alpha: 0.93),
+    );
     if (sealOpacity > 0) {
       canvas.drawCircle(
-        Offset(size.width / 2, size.height * 0.62),
-        size.shortestSide * 0.16,
+        Offset(28 * u, 56 * u),
+        10 * u,
         Paint()..color = seal.withValues(alpha: sealOpacity),
       );
     }

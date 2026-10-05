@@ -1,5 +1,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- flutter_secure_storage's biometric option set (the device-key items,
+         ADR 2026-09-05d §4; features/devices/keychain_key_store.dart) shows the
+         framework BiometricPrompt, which the system refuses without this
+         permission (desk 145). API 28+ only, which is our floor, so the
+         legacy USE_FINGERPRINT is not needed. -->
+    <uses-permission android:name="android.permission.USE_BIOMETRIC"/>
+    <!-- No platform backup and no device-to-device transfer (03 §6 🔒,
+         ADR 2026-09-05c §8): the keystore keys never travel, so restored data
+         is useless at best and, for flutter_secure_storage, a startup failure.
+         API 28-30 obey allowBackup; API 31+ also need the extraction rules for
+         device transfer. -->
     <application
+        android:allowBackup="false"
+        android:fullBackupContent="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
         android:label="rukka_folio"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">

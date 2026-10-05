@@ -79,7 +79,7 @@ policies read **our** `user_id` / `device_id` claims; the per-transaction settin
 so a pooled connection can never carry it across transactions. Suite E gains a test that two
 interleaved requests on one pooled connection never see each other's claims.
 
-### 8. Smaller rulings ⟦tests: E-05c-8⟧
+### 8. Smaller rulings ⟦tests: E-05c-8, F1-05d-7⟧
 - **Platform backups excluded.** iOS: the local database and key cache carry the
   excluded-from-backup attribute (the keystore key does not travel, so the copy would be useless
   and would spend the user's iCloud quota). Android: `allowBackup=false`, backup rules empty.

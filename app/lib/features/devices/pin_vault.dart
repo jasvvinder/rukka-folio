@@ -19,6 +19,8 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
+
 import 'package:core_crypto/core_crypto.dart';
 
 import '../../shared/seams/key_store.dart';
@@ -101,7 +103,44 @@ final class InvalidPinFormat implements Exception {
 /// final r = await vault.verify(typed);
 /// ```
 final class PinVault {
-  PinVault({required this.keys, required this.suite, required this.now});
+  PinVault({
+    required this.keys,
+    required this.suite,
+    required this.now,
+    this.afterPinProven,
+  });
+
+  /// Run after every **successful** MPIN — a PIN set at O4b (S0.8) or a PIN
+  /// accepted at S15 — and never otherwise. The composition root hands in the
+  /// device-key custody (ADR 2026-10-05b §2 / §4): the upgrade to the
+  /// biometric binding happens here, behind the PIN, and never on a biometric
+  /// success alone. A failure inside it never changes the PIN's own answer —
+  /// the PIN-only items stay and open (ruling 2: a part-way failure keeps
+  /// them), so it is caught here.
+  final Future<void> Function()? afterPinProven;
+
+  /// Starts [afterPinProven] without making the PIN's answer wait for it:
+  /// the upgrade raises a platform biometric sheet, and flutter_secure_storage
+  /// 11.2.0 never answers when that sheet's negative button is pressed
+  /// (FlutterSecureStorage.java:1281-1282), so awaiting it here could hold an
+  /// accepted PIN — and S0.8 / S15 — for good. A hook that never finishes
+  /// leaves the PIN-only items in place (ADR 2026-10-05b §2).
+  void _proven() {
+    final hook = afterPinProven;
+    if (hook == null) return;
+    pendingAfterPin = () async {
+      try {
+        await hook();
+      } on Object {
+        // Nothing logged (rule 4); the custody left the old class intact.
+      }
+    }();
+  }
+
+  /// The last [afterPinProven] run started by a successful PIN (tests await
+  /// it; the app never does).
+  @visibleForTesting
+  Future<void>? pendingAfterPin;
 
   /// Secrets at rest; the whole vault is ONE item so counter, lockout and key
   /// share the item's protection and cannot be reset separately.
@@ -173,6 +212,7 @@ final class PinVault {
     } finally {
       item.dispose();
     }
+    _proven();
   }
 
   /// Checks [pin]. A miss increments the counter and, from the 5th miss on,
@@ -197,6 +237,7 @@ final class PinVault {
             reset.dispose();
           }
         }
+        _proven();
         return const PinAccepted();
       }
 

@@ -28,6 +28,12 @@ enum BiometricOutcome {
   /// readable by biometrics: the app asks for the MPIN once and re-creates the
   /// item (ADR 2026-09-05d §4). A distinct outcome because it has its own copy.
   reenrolled,
+
+  /// This phone runs **PIN-only** (ADR 2026-10-05b §1): no biometric that can
+  /// guard a hardware key is enrolled, or one was enrolled since and the
+  /// upgrade waits for the next PIN (§2). Nothing was prompted; S15 shows the
+  /// PIN boxes and no biometric button.
+  pinOnly,
 }
 
 /// Raises the platform biometric sheet.
@@ -36,6 +42,12 @@ abstract interface class BiometricGate {
   /// for a refusal — a refusal is an outcome, so the caller always has a path
   /// (07 §1 rule 6, no dead ends).
   Future<BiometricOutcome> authenticate({required String reason});
+
+  /// Whether a biometric that can guard a hardware key is enrolled on this
+  /// phone now (ADR 2026-10-05b §1: Face ID / Touch ID, or an Android Class 3
+  /// biometric of any kind). S0.8 states the matching app-lock line. Never
+  /// prompts.
+  Future<bool> qualifyingBiometricEnrolled();
 }
 
 /// A scripted gate for tests and for hosts with no biometric wired yet.
@@ -43,9 +55,16 @@ final class FakeBiometricGate implements BiometricGate {
   /// Answers [outcomes] in order, then repeats the last one forever.
   FakeBiometricGate([
     List<BiometricOutcome> outcomes = const [BiometricOutcome.success],
+    this.enrolled = true,
   ]) : _outcomes = List.of(outcomes);
 
   final List<BiometricOutcome> _outcomes;
+
+  /// What [qualifyingBiometricEnrolled] answers.
+  final bool enrolled;
+
+  @override
+  Future<bool> qualifyingBiometricEnrolled() async => enrolled;
 
   /// Reason strings seen, in order (for assertions).
   final List<String> prompts = [];

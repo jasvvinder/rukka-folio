@@ -39,10 +39,19 @@
 //
 // ── A phone backup does not carry the books ─────────────────────────────────
 //
-// The database file is excluded from platform backups (E-05c-8, ADR
-// 2026-09-05c) and the key is this-device-only in the keystore, so an iCloud /
-// Google backup restored onto another phone has neither. S11.4 states this
-// plainly (04 §7.6, ADR 2026-09-05f §G); restoration is the recovery ladder.
+// 03 §6 🔒 / ADR 2026-09-05c §8 exclude the database file from platform
+// backups, and the key is this-device-only in the keystore, so an iCloud /
+// Google backup restored onto another phone must have neither. Android: done —
+// the manifest sets `allowBackup="false"` and data_extraction_rules.xml
+// excludes every domain from cloud backup and device transfer (F1-05d-7).
+// iOS: the file lives in the Documents directory (bootstrap.dart,
+// `getApplicationDocumentsDirectory`), so bootstrap sets
+// `NSURLIsExcludedFromBackupKey` on it and on its -wal/-shm/-journal side
+// files at every launch, through the app's keystore channel
+// (`KeystorePlatform.excludeFromBackup`, AppDelegate.swift; desk 150). A
+// refusal is swallowed and retried next launch — the file is useless without
+// the this-device-only key. S11.4 states the backup rule plainly (04 §7.6,
+// ADR 2026-09-05f §G); restoration is the recovery ladder.
 import 'dart:typed_data';
 
 import 'package:core_crypto/core_crypto.dart';

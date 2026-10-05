@@ -434,11 +434,11 @@
   "@onboarding.set_pin.title": {
     "description": "S0.8 heading (07 §3.1 step 5 chain, 06 §4.4) — a 6-digit MPIN set at onboarding."
   },
-  "onboarding.set_pin.subtitle": "Six digits, only for this app",
+  "onboarding.set_pin.subtitle": "You'll use Face ID most of the time. This is for when it doesn't work — and it keeps your books closed even to someone who knows your phone's passcode.",
   "@onboarding.set_pin.subtitle": {
     "description": "S0.8 subtitle."
   },
-  "onboarding.set_pin.why": "Your family knows your phone's passcode. They won't know this.",
+  "onboarding.set_pin.why": "It keeps your books closed even to someone who knows your phone's passcode.",
   "@onboarding.set_pin.why": {
     "description": "S0.8 the reason the MPIN exists (06 §4.4) — said plainly, not asked."
   },
@@ -446,29 +446,17 @@
   "@onboarding.set_pin.biometric_note": {
     "description": "S0.8 the app-lock line stated at onboarding, never offered as a setting (07 §5.6, ADR 2026-09-05d §4)."
   },
-  "onboarding.set_pin.confirm.title": "Type it once more",
+  "onboarding.set_pin.confirm.title": "Type it again",
   "@onboarding.set_pin.confirm.title": {
     "description": "S0.8 confirm step heading."
   },
-  "onboarding.set_pin.confirm.subtitle": "So a typo can't lock you out later",
+  "onboarding.set_pin.confirm.subtitle": "Confirm the six digits you just chose.",
   "@onboarding.set_pin.confirm.subtitle": {
     "description": "S0.8 confirm step subtitle."
   },
-  "onboarding.set_pin.mismatch": "Those two didn't match — start again",
+  "onboarding.set_pin.mismatch": "Those two didn't match. Start again.",
   "@onboarding.set_pin.mismatch": {
     "description": "S0.8 error when the confirm step differs from the first entry."
-  },
-  "onboarding.set_pin.incomplete": "Type all 6 digits to continue",
-  "@onboarding.set_pin.incomplete": {
-    "description": "S0.8 disabled-with-reason line under Continue (13 §4.3)."
-  },
-  "onboarding.set_pin.continue": "Continue",
-  "@onboarding.set_pin.continue": {
-    "description": "S0.8 primary action."
-  },
-  "onboarding.set_pin.start_over": "Change PIN",
-  "@onboarding.set_pin.start_over": {
-    "description": "S0.8 returns from the confirm step to the first entry — no dead end (07 §1 rule 6)."
   },
   "onboarding.set_pin.saving": "Saving your PIN…",
   "@onboarding.set_pin.saving": {
@@ -1138,5 +1126,9 @@
   "onboarding.invite.device_not_live.devices": "Devices & security",
   "@onboarding.invite.device_not_live.devices": {
     "description": "S0.9 device-not-live secondary action → S11 Devices & security (desk 109; the same route S15.4 offers). Matches the S11 title devices.title."
-  }
+  },
+  "onboarding.set_pin.biometric_note_pin_only": "This phone has no fingerprint or face set up, so your PIN keeps this app closed to everyone else. Add one in your phone's settings and the app will use it after you next type your PIN.",
+  "@onboarding.set_pin.biometric_note_pin_only": {"description": "S0.8 PIN-only form of the app-lock line stated at onboarding, never asked (07 §5.6, ADR 2026-10-05b §1). ⚠️ SPEC: draft — design desk 148."},
+  "onboarding.set_pin.hint": "Six digits",
+  "@onboarding.set_pin.hint": {"description": "S0.8 caption under the boxes (c1 O4b *Set your PIN · six digits*); the step advances by itself at the sixth digit."}
 }

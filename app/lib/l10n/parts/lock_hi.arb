@@ -2,26 +2,89 @@
   "@@locale": "hi",
   "lock.title": "अपनी बहियाँ खोलने के लिए अनलॉक करें",
   "lock.biometric.prompt": "अपनी बहियाँ खोलें",
-  "lock.biometric.retry": "फ़ेस आईडी फिर आज़माएँ",
-  "lock.biometric.failed": "फ़ेस आईडी काम नहीं आई — अपना पिन भरें",
+  "lock.biometric.retry": "फिर कोशिश करें",
+  "@lock.biometric.retry": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
+  "lock.biometric.failed": "चेहरा पहचाना नहीं गया",
+  "@lock.biometric.failed": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
   "lock.biometric.unavailable": "इस समय इस फ़ोन पर फ़ेस आईडी उपलब्ध नहीं है — अपना पिन भरें",
   "lock.biometric.reenrolled": "इस फ़ोन पर नया चेहरा या उँगली का निशान जोड़ा गया है — एक बार अपना पिन भरें",
   "lock.pin.use_instead": "इसके बदले पिन भरें",
   "lock.pin.label": "अपना पिन भरें",
   "lock.pin.entered": "6 में से {count} अंक भरे गए",
-  "lock.pin.wrong": "यह पिन सही नहीं है",
-  "lock.pin.tries_left": "पिन बंद होने से पहले {count} कोशिशें बची हैं",
-  "lock.pin.one_try_left": "पिन बंद होने से पहले एक कोशिश बची है",
+  "lock.pin.wrong": "गलत पिन",
+  "@lock.pin.wrong": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
+  "lock.pin.tries_left": "{count} कोशिशें बची हैं, फिर आपके नंबर पर कोड चाहिए होगा",
+  "@lock.pin.tries_left": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
+  "lock.pin.one_try_left": "एक कोशिश बची है, फिर आपके नंबर पर कोड चाहिए होगा",
+  "@lock.pin.one_try_left": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
   "lock.cooldown.title": "थोड़ा रुक जाइए",
   "lock.cooldown.body": "यह एक कोड है, तालाबंदी नहीं। पिन अपने आप वापस चालू हो जाएगा — कुछ भी नहीं खोया।",
   "lock.cooldown.countdown": "{time} में दोबारा कोशिश करें",
   "lock.disabled.title": "पिन बंद कर दिया गया है",
   "lock.disabled.body": "आपकी बहियाँ सुरक्षित हैं और कुछ भी नहीं खोया। हम आपके नंबर पर जो कोड भेजेंगे उसे और फिर फ़ेस आईडी को पक्का करें, और नया पिन चुनें।",
-  "lock.forgot.action": "पिन भूल गए?",
-  "lock.forgot.title": "नया पिन बनाएँ",
-  "lock.forgot.body": "हम आपके पंजीकृत नंबर पर कोड भेजेंगे और फ़ेस आईडी माँगेंगे। फिर आप नया पिन चुनेंगे — आपकी बहियों को कुछ नहीं होता।",
-  "lock.forgot.start": "मुझे कोड भेजें",
+  "lock.forgot.action": "पिन भूल गए",
+  "@lock.forgot.action": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
+  "lock.forgot.title": "अपना पिन भूल गए",
+  "@lock.forgot.title": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
+  "lock.forgot.body": "हम आपके नंबर पर कोड भेजेंगे, फिर आप नया पिन बना सकते हैं — आपकी बहियों पर कोई असर नहीं पड़ता।",
+  "@lock.forgot.body": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
+  "lock.forgot.start": "कोड भेजें",
+  "@lock.forgot.start": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
   "lock.forgot.cancel": "वापस",
   "lock.keypad.delete": "मिटाएँ",
-  "lock.cover.semantics": "बैकग्राउंड में रहते समय ऐप ढकी हुई है"
+  "lock.cover.semantics": "बैकग्राउंड में रहते समय ऐप ढकी हुई है",
+  "lock.pin_only.note": "इस फ़ोन पर कोई उंगली का निशान या चेहरा नहीं है जो आपकी बहियों की रखवाली कर सके, इसलिए आपका पिन उन्हें खोलता है। फ़ोन की सेटिंग में एक जोड़ें, अगले पिन के बाद ऐप उसे इस्तेमाल करेगी।",
+  "@lock.pin_only.note": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05b)"
+  },
+  "lock.keys_need_biometric": "आपका पिन सही है। इस फ़ोन पर आपकी बहियाँ आपकी उंगली के निशान या चेहरे से बंद हैं, उन्हें खोलने के लिए एक बार और इस्तेमाल करें।",
+  "@lock.keys_need_biometric": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05b)"
+  },
+  "lock.biometric.sheet_subtitle": "अपनी उंगली का निशान या चेहरा इस्तेमाल करें",
+  "@lock.biometric.sheet_subtitle": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05b)"
+  },
+  "lock.forgot.body_pin_only": "इस फ़ोन पर कोई उंगली का निशान या चेहरा नहीं है जो दिखाए कि यह आप हैं, इसलिए आपके नंबर पर कोड अकेला काफ़ी नहीं है। नए फ़ोन की तरह साबित करें कि यह आप हैं — अपने परिवार के सदस्यों से या अपनी रिकवरी शीट से। आपकी बहियाँ सुरक्षित हैं।",
+  "@lock.forgot.body_pin_only": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05b)"
+  },
+  "lock.biometric.button": "फ़ेस आईडी",
+  "@lock.biometric.button": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
+  "lock.pin.tries_left_pin_only": "पिन बंद होने से पहले {count} कोशिशें बची हैं",
+  "@lock.pin.tries_left_pin_only": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
+  "lock.pin.one_try_left_pin_only": "पिन बंद होने से पहले एक कोशिश बची है",
+  "@lock.pin.one_try_left_pin_only": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
+  "lock.forgot.body_before_open": "कोड तभी भेजा जा सकता है जब ऐप खुला हो। अभी अपनी उंगली के निशान या चेहरे से इसे खोलें, फिर ऐप के अंदर 'पिन भूल गए' कोड भेजता है — आपकी बहियों पर कोई असर नहीं पड़ता।",
+  "@lock.forgot.body_before_open": {
+    "description": "machine-draft — native review M12 (KEY145B)"
+  },
+  "lock.forgot.start_before_open": "ऐप खोलें",
+  "@lock.forgot.start_before_open": {
+    "description": "machine-draft — native review M12 (KEY145B)"
+  }
 }

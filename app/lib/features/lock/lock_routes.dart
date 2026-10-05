@@ -8,6 +8,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../shared/router.dart' show RkPaths;
 import 'lock_paths.dart';
 import 'screens/s15_lock_screen.dart';
 
@@ -37,6 +38,10 @@ List<RouteBase> lockRoutes({
       reason: state.uri.queryParameters['reason'] == 'biometric-reenrolled'
           ? LockReason.biometricReenrolled
           : LockReason.routine,
+      // Desk 147 ⚠️ SPEC: Forgot PIN on a PIN-only phone goes to the S11
+      // recovery ladder (S11.6, the fork), not OTP alone — ADR 2026-10-05b
+      // *Open*, conservative reading (c) until the owner rules.
+      onForgotPinPinOnly: () => context.push(RkPaths.recoveryFork),
     ),
   ),
 ];

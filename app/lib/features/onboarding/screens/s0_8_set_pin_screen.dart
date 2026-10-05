@@ -9,14 +9,32 @@
 // a new face is added to this phone, the app asks for your PIN" (ADR
 // 2026-09-05d §4). There is no toggle, because it cannot be turned off.
 //
-// States (13 §4.3): default · disabled-with-reason (fewer than 6 digits) ·
-// error (the two entries differ; the vault refused) · loading (saving).
+// On a phone with no biometric that can guard a hardware key (ADR 2026-10-05b
+// §1) the line has a PIN-only form: the PIN alone keeps the app closed, and
+// the app moves to the biometric after the next PIN once one is added (§2).
+// The question is asked of the platform once, without a prompt; until it
+// answers the Face ID form shows (the canvas's). ⚠️ SPEC: the PIN-only copy is
+// a draft — design desk 148.
+//
+// Drawn to c1 O4b (ADR 2026-10-05 §1): back chevron, page title, the muted
+// *why* paragraph, six bordered boxes and *Six digits*. Each step advances by
+// itself at the sixth digit — the frame has no Continue button — and a
+// mismatch shows the frame's *Mismatch on confirm*: *Type it again* over six
+// `debit` boxes and *Those two didn't match. Start again.*, with both entries
+// already cleared (the canvas note: half a remembered PIN is worse than none).
+// The frame draws no keypad; the six boxes take the c3 S15 *PIN instead*
+// keypad, the same [PinKeypad] the lock uses, so the two cannot drift.
+//
+// States (13 §4.3): default · error (the two entries differ; the vault
+// refused) · loading (saving).
 import 'package:flutter/material.dart';
 
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
+import '../../../shared/widgets/rk_fit_text.dart';
 import '../../lock/lock_scope.dart';
+import '../../lock/widgets/face_id_glyph.dart';
 import '../../lock/widgets/pin_pad.dart';
 
 /// Which half of the two-step set is showing.
@@ -29,11 +47,26 @@ enum SetPinStep {
 }
 
 class SetPinScreen extends StatefulWidget {
-  const SetPinScreen({super.key, this.onDone});
+  const SetPinScreen({
+    super.key,
+    this.onDone,
+    this.onBack,
+    @visibleForTesting this.debugTyped = '',
+    @visibleForTesting this.debugMismatch = false,
+  });
+
+  /// Design captures only (ADR 2026-10-05 §2): seed the drawn state the
+  /// capture helper cannot type its way to. Never set by the app.
+  final String debugTyped;
+  final bool debugMismatch;
 
   /// Called once the vault holds the new PIN — the next step of 07 §3.1
   /// (S0.5 keeping your books safe). Never called on a failure.
   final VoidCallback? onDone;
+
+  /// The back chevron on the first step (c1 O4b): back to S0.4. On the
+  /// confirm step the chevron starts the PIN over instead.
+  final VoidCallback? onBack;
 
   @override
   State<SetPinScreen> createState() => _SetPinScreenState();
@@ -47,6 +80,29 @@ class _SetPinScreenState extends State<SetPinScreen> {
   bool _mismatch = false;
   bool _saveFailed = false;
 
+  /// Null until the platform answers; true ⇒ the Face ID line.
+  bool? _enrolled;
+  bool _asked = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _typed = widget.debugTyped;
+    _mismatch = widget.debugMismatch;
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (_asked) return;
+    final gate = LockScope.maybeOf(context)?.biometrics;
+    if (gate == null) return;
+    _asked = true;
+    gate.qualifyingBiometricEnrolled().then((v) {
+      if (mounted) setState(() => _enrolled = v);
+    });
+  }
+
   void _digit(String d) {
     if (_saving || _typed.length >= pinLength) return;
     setState(() {
@@ -54,6 +110,8 @@ class _SetPinScreenState extends State<SetPinScreen> {
       _mismatch = false;
       _saveFailed = false;
     });
+    // c1 O4b draws no Continue: the sixth digit is the step.
+    if (_typed.length == pinLength) _continue();
   }
 
   void _delete() {
@@ -116,94 +174,151 @@ class _SetPinScreenState extends State<SetPinScreen> {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
     final status = RkStatusColors.of(context);
-    final confirming = _step == SetPinStep.confirm;
-    final complete = _typed.length == pinLength;
+    // A mismatch has already cleared both entries, but it is drawn as the
+    // confirm step that failed (c1 O4b *Mismatch on confirm*) until the next
+    // digit starts the PIN over.
+    final confirming = _step == SetPinStep.confirm || _mismatch;
+    final showBack = confirming || widget.onBack != null;
+    final Widget below;
+    if (_mismatch || _saveFailed) {
+      // Error state — icon + words + colour, never colour alone (07 §1 rule 3).
+      below = _Notice(
+        icon: Icons.error_outline,
+        color: status.debit,
+        centred: true,
+        text: _mismatch
+            ? l10n.onboardingSetPinMismatch
+            : l10n.onboardingSetPinSaveFailed,
+      );
+    } else if (_saving) {
+      below = _Notice(
+        icon: Icons.lock_outline,
+        color: status.muted,
+        centred: true,
+        text: l10n.onboardingSetPinSaving,
+      );
+    } else {
+      below = Text(
+        l10n.onboardingSetPinHint,
+        style: text.bodyMedium?.copyWith(color: status.muted),
+        textAlign: TextAlign.center,
+      );
+    }
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(RkSpace.s6),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
+        child: LayoutBuilder(
+          builder: (context, viewport) => SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: viewport.maxHeight),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Text(
-                        confirming
-                            ? l10n.onboardingSetPinConfirmTitle
-                            : l10n.onboardingSetPinTitle,
-                        style: text.headlineMedium,
-                      ),
-                      const SizedBox(height: RkSpace.s2),
-                      Text(
-                        confirming
-                            ? l10n.onboardingSetPinConfirmSubtitle
-                            : l10n.onboardingSetPinSubtitle,
-                        style: text.bodyLarge,
-                      ),
-                      if (!confirming) ...[
-                        const SizedBox(height: RkSpace.s2),
-                        Text(
-                          l10n.onboardingSetPinWhy,
-                          style: text.bodyMedium?.copyWith(color: status.muted),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          RkSpace.s1,
+                          0,
+                          RkSpace.s4,
+                          RkSpace.s2,
                         ),
-                      ],
-                      const SizedBox(height: RkSpace.s6),
-                      PinBoxes(filled: _typed.length, error: _mismatch),
-                      const SizedBox(height: RkSpace.s3),
-                      // Error state — icon + word + colour, never colour alone
-                      // (07 §1 rule 3).
-                      if (_mismatch || _saveFailed)
-                        _Notice(
-                          icon: Icons.error_outline,
-                          color: status.debit,
-                          text: _mismatch
-                              ? l10n.onboardingSetPinMismatch
-                              : l10n.onboardingSetPinSaveFailed,
-                        )
-                      else if (_saving)
-                        _Notice(
-                          icon: Icons.lock_outline,
-                          color: status.muted,
-                          text: l10n.onboardingSetPinSaving,
-                        )
-                      else
-                        _Notice(
-                          icon: Icons.face_outlined,
-                          color: status.muted,
-                          text: l10n.onboardingSetPinBiometricNote,
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: SizedBox.square(
+                            dimension: RkSpace.s12,
+                            child: showBack
+                                ? IconButton(
+                                    onPressed: _saving
+                                        ? null
+                                        : (confirming
+                                              ? _startOver
+                                              : widget.onBack),
+                                    tooltip: MaterialLocalizations.of(context)
+                                        .backButtonTooltip,
+                                    color: status.muted,
+                                    icon: const Icon(
+                                      Icons.chevron_left,
+                                      size: RkIcon.grid,
+                                    ),
+                                  )
+                                : null,
+                          ),
                         ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          RkSpace.s6,
+                          RkSpace.s2,
+                          RkSpace.s6,
+                          0,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            RkFitText(
+                              confirming
+                                  ? l10n.onboardingSetPinConfirmTitle
+                                  : l10n.onboardingSetPinTitle,
+                              style: text.headlineMedium,
+                            ),
+                            const SizedBox(height: RkSpace.s3),
+                            // ADR 2026-10-05b §1: a PIN-only phone drops the
+                            // "You'll use Face ID" sentence (⚠️ SPEC: draft copy,
+                            // design desk 148).
+                            RkFitText(
+                              confirming
+                                  ? l10n.onboardingSetPinConfirmSubtitle
+                                  : (_enrolled == false
+                                        ? l10n.onboardingSetPinWhy
+                                        : l10n.onboardingSetPinSubtitle),
+                              style: text.bodyLarge?.copyWith(
+                                color: status.muted,
+                              ),
+                            ),
+                            const SizedBox(height: RkSpace.s6),
+                            PinBoxes(
+                              filled: _mismatch && _typed.isEmpty
+                                  ? pinLength
+                                  : _typed.length,
+                              error: _mismatch,
+                            ),
+                            const SizedBox(height: RkSpace.s6),
+                            below,
+                            // 07 §5.6 🔒 — the app-lock line is stated at
+                            // onboarding, not asked; on the first step only.
+                            if (!confirming && !_saving && !_saveFailed) ...[
+                              const SizedBox(height: RkSpace.s6),
+                              _Notice(
+                                icon: Icons.lock_outline,
+                                faceId: _enrolled != false,
+                                color: status.muted,
+                                text: _enrolled == false
+                                    ? l10n.onboardingSetPinBiometricNotePinOnly
+                                    : l10n.onboardingSetPinBiometricNote,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
                     ],
                   ),
-                ),
-              ),
-              PinKeypad(
-                onDigit: _saving ? null : _digit,
-                onDelete: _saving || _typed.isEmpty ? null : _delete,
-              ),
-              const SizedBox(height: RkSpace.s3),
-              // Disabled-with-reason (13 §4.3).
-              if (!complete)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: RkSpace.s2),
-                  child: Text(
-                    l10n.onboardingSetPinIncomplete,
-                    style: text.bodySmall?.copyWith(color: status.muted),
-                    textAlign: TextAlign.center,
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      RkSpace.s3,
+                      RkSpace.s5,
+                      RkSpace.s3,
+                      RkSpace.s4,
+                    ),
+                    child: PinKeypad(
+                      onDigit: _saving ? null : _digit,
+                      onDelete: _saving || _typed.isEmpty ? null : _delete,
+                    ),
                   ),
-                ),
-              FilledButton(
-                onPressed: complete && !_saving ? _continue : null,
-                child: Text(l10n.onboardingSetPinContinue),
+                ],
               ),
-              if (confirming)
-                TextButton(
-                  onPressed: _saving ? null : _startOver,
-                  child: Text(l10n.onboardingSetPinStartOver),
-                ),
-            ],
+            ),
           ),
         ),
       ),
@@ -212,21 +327,46 @@ class _SetPinScreenState extends State<SetPinScreen> {
 }
 
 class _Notice extends StatelessWidget {
-  const _Notice({required this.icon, required this.color, required this.text});
+  const _Notice({
+    required this.icon,
+    required this.color,
+    required this.text,
+    this.centred = false,
+    this.faceId = false,
+  });
 
   final IconData icon;
+
+  /// Lead with the canvas's Face ID glyph instead of [icon].
+  final bool faceId;
   final Color color;
   final String text;
 
+  /// The error line sits centred under the boxes (c1 O4b *Mismatch on
+  /// confirm*); the app-lock line reads as a paragraph.
+  final bool centred;
+
   @override
   Widget build(BuildContext context) {
-    final style = Theme.of(context).textTheme.bodySmall?.copyWith(color: color);
+    final style = Theme.of(context).textTheme.bodyMedium
+        ?.copyWith(color: color);
+    final label = RkFitText(
+      text,
+      style: style,
+      textAlign: centred ? TextAlign.center : TextAlign.start,
+    );
     return Row(
+      mainAxisAlignment: centred
+          ? MainAxisAlignment.center
+          : MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, size: RkIcon.grid, color: color),
+        if (faceId)
+          FaceIdGlyph(size: RkIcon.grid, color: color, compact: true)
+        else
+          Icon(icon, size: centred ? RkSpace.s4 : RkIcon.grid, color: color),
         const SizedBox(width: RkSpace.s2),
-        Expanded(child: Text(text, style: style)),
+        if (centred) Flexible(child: label) else Expanded(child: label),
       ],
     );
   }

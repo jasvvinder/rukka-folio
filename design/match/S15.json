@@ -1,0 +1,49 @@
+{
+ "sid": "S15",
+ "verdict": "deviates",
+ "frames": [
+  "c3/S15/App lock · waiting for Face ID",
+  "c3/S15/Face not recognised",
+  "c3/S15/PIN instead · six digits"
+ ],
+ "captures": [
+  "S15__default",
+  "S15__face-not-recognised",
+  "S15__pin-instead",
+  "S15__pin-only"
+ ],
+ "screen_files": [
+  "app/lib/features/lock/screens/s15_lock_screen.dart",
+  "app/lib/features/lock/widgets/pin_pad.dart",
+  "app/lib/features/lock/widgets/face_id_glyph.dart",
+  "app/lib/features/onboarding/widgets/sealed_mark.dart"
+ ],
+ "deviations": [
+  {
+   "what": "PIN-only variant (capture S15__pin-only): no Face ID button; a muted info line under the boxes says why (lock.pin_only.note)",
+   "reason": "A phone with no qualifying biometric runs PIN-only; the canvas draws only the Face ID case. Copy and placement are a draft for design desk 148",
+   "authority": "ADR 2026-10-05b §1"
+  },
+  {
+   "what": "'PIN instead' state adds an outlined 'Face ID' button between the boxes and the keypad, which the c3 frame does not draw",
+   "reason": "13 §3.2 row S15.3 names a Face ID button for this state and the c1 S15.3 'Enter PIN' frame draws it; the c3 and c1 frames of the same state disagree, the spec row decides",
+   "authority": "13 §3.2 row S15.3; c1/S15.3/Enter PIN · Face ID above the boxes"
+  },
+  {
+   "what": "Titles 'Unlock to open your books' / 'Enter your PIN' / 'Wrong PIN' draw in titleLarge (20 w500) where the canvas draws 17–19 px at 400–600",
+   "reason": "A canvas size maps to its type role, never a literal; the nearest role to 17–19 px is section (titleLarge)",
+   "authority": "ADR 2026-10-05 §1 (tokens.json decides values); design/tokens/tokens.json type.section"
+  },
+  {
+   "what": "Body copy (bodyLarge / bodyMedium: subtitles, the forgot-page body, status lines) draws with Material's inherited tracking — 0.5 px on bodyLarge, 0.25 px on bodyMedium — at 16 px, where the canvas sets 15.5 px untracked; the O4b subtitle wraps to four lines where the frame takes three, and the S15.3 forgot body breaks one word earlier",
+   "reason": "No token defines tracking (tokens.json type.scale carries none) and RkType.body sets no letterSpacing, so ThemeData merges rkTextTheme over the M3 defaults (theme_data.dart `defaultTextTheme.merge(textTheme)`; typography.dart bodyLarge letterSpacing 0.5). The fix is one line in rkTextTheme (letterSpacing: 0 for every slot) and changes every screen at once — foundation work outside this lane's folders; overriding it per screen would hide the defect. 15.5 px maps to the body role (16 px) by rule. Open item to the theme owner (KEY145B review finding 4)",
+   "authority": "app/lib/shared/theme.dart rkTextTheme — outside this lane's folders (open item); ADR 2026-10-05 §1 (tokens.json decides values: type.body 16)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-05",
+ "hashes": {
+  "screens": "383d52f26d284eb09242ab37a2ce22856e98bbb308eb57aa25806878e49557a0",
+  "frames": "ed8d1451bdada25d1aecd63ed5f533936e89abf6d5122d8b1b0ef69ae5e68a0d"
+ }
+}

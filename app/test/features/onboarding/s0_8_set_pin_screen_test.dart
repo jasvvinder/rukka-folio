@@ -17,70 +17,77 @@ import '../lock/lock_harness.dart';
 
 void main() {
   group('S0.8 Set your PIN (07 §3.1, 06 §4.4)', () {
-    testWidgets('F1-07-62 Continue is disabled with a reason until all 6 digits are typed '
-        '(13 §4.3 disabled-with-reason)', (tester) async {
-      sizeView(tester);
-      final clock = TestClock();
-      final vault = await makeVault(clock);
-      await pumpLock(
-        tester,
-        const SetPinScreen(),
-        vault: vault,
-        biometrics: FakeBiometricGate(),
-        clock: clock,
-      );
+    testWidgets(
+      'F1-07-62 a step advances only at the sixth digit — five is not a '
+      'PIN (06 §4.4 🔒; c1 O4b draws no Continue, *Six digits* says why)',
+      (tester) async {
+        sizeView(tester);
+        final clock = TestClock();
+        final vault = await makeVault(clock);
+        await pumpLock(
+          tester,
+          const SetPinScreen(),
+          vault: vault,
+          biometrics: FakeBiometricGate(),
+          clock: clock,
+        );
 
-      expect(find.text('Type all 6 digits to continue'), findsOneWidget);
-      expect(
-        tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
-        isNull,
-      );
+        expect(find.text('Six digits'), findsOneWidget);
+        expect(find.byType(FilledButton), findsNothing);
 
-      await typePin(tester, '12345');
-      expect(
-        tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
-        isNull,
-        reason: 'five digits is not a 6-digit MPIN (06 §4.4 🔒)',
-      );
+        await typePin(tester, '12345');
+        expect(
+          find.text('Set your PIN'),
+          findsOneWidget,
+          reason: 'five digits is not a 6-digit MPIN (06 §4.4 🔒)',
+        );
+        expect(find.text('Type it again'), findsNothing);
 
-      await typePin(tester, '6');
-      expect(find.text('Type all 6 digits to continue'), findsNothing);
-      expect(
-        tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
-        isNotNull,
-      );
-      await unmount(tester);
-    });
+        await typePin(tester, '6');
+        expect(find.text('Type it again'), findsOneWidget);
+        expect(await vault.status(), isA<PinNotSet>());
+        await unmount(tester);
+      },
+    );
 
-    testWidgets('F1-07-62 the PIN is confirmed before it is saved; a mismatch starts over '
-        'and saves nothing', (tester) async {
-      sizeView(tester);
-      final clock = TestClock();
-      final vault = await makeVault(clock);
-      var done = 0;
-      await pumpLock(
-        tester,
-        SetPinScreen(onDone: () => done++),
-        vault: vault,
-        biometrics: FakeBiometricGate(),
-        clock: clock,
-      );
+    testWidgets(
+      'F1-07-62 the PIN is confirmed before it is saved; a mismatch clears '
+      'both entries and saves nothing (c1 O4b *Mismatch on confirm*)',
+      (tester) async {
+        sizeView(tester);
+        final clock = TestClock();
+        final vault = await makeVault(clock);
+        var done = 0;
+        await pumpLock(
+          tester,
+          SetPinScreen(onDone: () => done++),
+          vault: vault,
+          biometrics: FakeBiometricGate(),
+          clock: clock,
+        );
 
-      await typePin(tester, '246813');
-      await tester.tap(find.byType(FilledButton));
-      await tester.pumpAndSettle();
-      expect(find.text('Type it once more'), findsOneWidget);
+        await typePin(tester, '246813');
+        expect(find.text('Type it again'), findsOneWidget);
 
-      await typePin(tester, '246814');
-      await tester.tap(find.byType(FilledButton));
-      await tester.pumpAndSettle();
+        await typePin(tester, '246814');
+        // Drawn as the confirm step that failed: words, an icon and six
+        // debit-edged boxes (07 §1 rule 3).
+        expect(
+          find.text("Those two didn't match. Start again."),
+          findsOneWidget,
+        );
+        expect(find.byIcon(Icons.error_outline), findsOneWidget);
+        expect(tester.widget<PinBoxes>(find.byType(PinBoxes)).error, isTrue);
+        expect(done, 0);
+        expect(await vault.status(), isA<PinNotSet>());
 
-      expect(find.text("Those two didn't match — start again"), findsOneWidget);
-      expect(find.text('Set your PIN'), findsOneWidget);
-      expect(done, 0);
-      expect(await vault.status(), isA<PinNotSet>());
-      await unmount(tester);
-    });
+        // Both entries were cleared: the next digit starts a new first entry.
+        await typePin(tester, '1');
+        expect(find.text('Set your PIN'), findsOneWidget);
+        expect(find.text("Those two didn't match. Start again."), findsNothing);
+        await unmount(tester);
+      },
+    );
 
     testWidgets('F1-07-62 matching entries write the one vault and the vault accepts that '
         'PIN afterwards', (tester) async {
@@ -97,11 +104,7 @@ void main() {
       );
 
       await typePin(tester, '246813');
-      await tester.tap(find.byType(FilledButton));
-      await tester.pumpAndSettle();
       await typePin(tester, '246813');
-      await tester.tap(find.byType(FilledButton));
-      await tester.pumpAndSettle();
 
       expect(done, 1);
       expect(await vault.status(), isA<PinReady>());

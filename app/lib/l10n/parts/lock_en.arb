@@ -8,11 +8,11 @@
   "@lock.biometric.prompt": {
     "description": "S15 reason string shown by the platform biometric sheet, which is raised automatically without a tap (07 §5.6)."
   },
-  "lock.biometric.retry": "Try Face ID again",
+  "lock.biometric.retry": "Try again",
   "@lock.biometric.retry": {
     "description": "S15 secondary action after a failed biometric attempt — never a dead end (07 §1 rule 6)."
   },
-  "lock.biometric.failed": "Face ID didn't work — type your PIN",
+  "lock.biometric.failed": "Face not recognised",
   "@lock.biometric.failed": {
     "description": "S15 line after biometric fails; the fallback is the 6-digit MPIN, never the phone's passcode (06 §4.4)."
   },
@@ -41,11 +41,11 @@
       }
     }
   },
-  "lock.pin.wrong": "That PIN is not right",
+  "lock.pin.wrong": "Wrong PIN",
   "@lock.pin.wrong": {
     "description": "S15.3 error after a wrong PIN."
   },
-  "lock.pin.tries_left": "{count} tries left before the PIN switches off",
+  "lock.pin.tries_left": "{count} tries left before you'll need a code on your number",
   "@lock.pin.tries_left": {
     "description": "S15.3 warning row once the free attempts are spent (ADR 2026-09-05d §5).",
     "placeholders": {
@@ -54,7 +54,7 @@
       }
     }
   },
-  "lock.pin.one_try_left": "One try left before the PIN switches off",
+  "lock.pin.one_try_left": "One try left before you'll need a code on your number",
   "@lock.pin.one_try_left": {
     "description": "S15.3 warning row on the last attempt."
   },
@@ -83,19 +83,19 @@
   "@lock.disabled.body": {
     "description": "S15.3 disabled explanation — forgetting the PIN is never data loss (06 §4.4)."
   },
-  "lock.forgot.action": "Forgot your PIN?",
+  "lock.forgot.action": "Forgot PIN",
   "@lock.forgot.action": {
     "description": "S15 door to the reset path — OTP to the registered number plus biometric (07 §5.6)."
   },
-  "lock.forgot.title": "Set a new PIN",
+  "lock.forgot.title": "Forgot your PIN",
   "@lock.forgot.title": {
     "description": "S15 forgot-PIN heading."
   },
-  "lock.forgot.body": "We'll send a code to your registered number and ask for Face ID. Then you pick a new PIN — your books are untouched.",
+  "lock.forgot.body": "We'll send a code to your number, then you can set a new one — your books are not affected.",
   "@lock.forgot.body": {
     "description": "S15 forgot-PIN explanation; nothing is re-encrypted (06 §4.4)."
   },
-  "lock.forgot.start": "Send me a code",
+  "lock.forgot.start": "Send the code",
   "@lock.forgot.start": {
     "description": "S15 primary action on the forgot-PIN door."
   },
@@ -110,5 +110,46 @@
   "lock.cover.semantics": "The app is covered while it is in the background",
   "@lock.cover.semantics": {
     "description": "S15.1 privacy cover — the mark on plain paper so no balance reaches the app switcher (07 §5.6 🔒)."
+  },
+  "lock.pin_only.note": "This phone has no fingerprint or face that can guard your books, so your PIN opens them. Add one in your phone's settings and the app will use it after your next PIN.",
+  "@lock.pin_only.note": {
+    "description": "S15 PIN-only variant (ADR 2026-10-05b §1): why no biometric button is offered. ⚠️ SPEC: draft — design desk 148 owns the final copy; desk 149 (weak face unlock) is covered by 'can guard'."
+  },
+  "lock.keys_need_biometric": "Your PIN is right. Your books on this phone are locked to your fingerprint or face, so use it once more to open them.",
+  "@lock.keys_need_biometric": {
+    "description": "S15 cold start on a biometric-bound phone after the PIN was accepted: the device keys still need the biometric (06 §4.4 🔒 MPIN is a gate, never a key). ⚠️ SPEC: KEY145 finding 2(b), owner."
+  },
+  "lock.biometric.sheet_subtitle": "Use your fingerprint or face",
+  "@lock.biometric.sheet_subtitle": {
+    "description": "Android system biometric sheet subtitle for the device-key items (ADR 2026-10-05b). Never offers the phone's PIN or pattern (07 §5.6)."
+  },
+  "lock.forgot.body_pin_only": "This phone has no fingerprint or face to show it's you, so a code to your number isn't enough on its own. Prove it's you the way a new phone would — with your family members or your recovery sheet. Your books are untouched.",
+  "@lock.forgot.body_pin_only": {
+    "description": "S15 forgot door on a PIN-only phone (desk 147, ADR 2026-10-05b Open): routes to the S11 recovery ladder, not OTP alone. ⚠️ SPEC: owner to rule; draft copy."
+  },
+  "lock.biometric.button": "Face ID",
+  "@lock.biometric.button": {
+    "description": "S15.3 outlined button under the PIN boxes that raises the biometric sheet again (c1 S15.3 *Enter PIN*; 13 §3.2 row S15.3 'Face ID button')."
+  },
+  "lock.pin.tries_left_pin_only": "{count} tries left before the PIN switches off",
+  "@lock.pin.tries_left_pin_only": {
+    "description": "S15.3 warning row on a PIN-only phone, where the reset is not a code to the number (ADR 2026-10-05b, desk 147).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "lock.pin.one_try_left_pin_only": "One try left before the PIN switches off",
+  "@lock.pin.one_try_left_pin_only": {
+    "description": "S15.3 last-try row on a PIN-only phone (ADR 2026-10-05b, desk 147)."
+  },
+  "lock.forgot.body_before_open": "A code can only be sent once the app is open. Open it with your fingerprint or face now, then Forgot PIN inside the app sends the code — your books are not affected.",
+  "@lock.forgot.body_before_open": {
+    "description": "S15 forgot door at cold start on a biometric phone: no code can be sent before the app is open, so the door opens the books with the biometric (KEY145B review finding 6). ⚠️ SPEC: 07 §5.6 OTP + biometric not reachable before the app is open; draft copy."
+  },
+  "lock.forgot.start_before_open": "Open the app",
+  "@lock.forgot.start_before_open": {
+    "description": "S15 forgot door action at cold start on a biometric phone: raises the biometric prompt (KEY145B review finding 6)."
   }
 }

@@ -158,8 +158,10 @@ final List<RouteBase> onboardingRoutes = [
   ),
   GoRoute(
     path: OnboardingPaths.setPin,
-    builder: (context, state) =>
-        SetPinScreen(onDone: () => context.go(OnboardingPaths.booksSafe)),
+    builder: (context, state) => SetPinScreen(
+      onDone: () => context.go(OnboardingPaths.booksSafe),
+      onBack: () => context.go(OnboardingPaths.namePhoto),
+    ),
   ),
   // 07 §3.1 step 5 🔒 — backup is configured here, at signup. Continue and
   // the sheet action both lead to S0.5b; the skip (shown when key sync is

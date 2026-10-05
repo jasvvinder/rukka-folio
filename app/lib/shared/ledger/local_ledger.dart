@@ -185,6 +185,23 @@ final class CashCountReading {
   final CashCount? lastCount;
 }
 
+/// The identity record is present but a device key or the wrapped UMK is not
+/// — a keystore wiped under us, or (iOS) a `biometryCurrentSet` item the
+/// platform dropped after an enrolment change. The recovery path (04 §7),
+/// never a second identity minted over the same books. The cold-start gate
+/// treats a missing **device key** as ADR 2026-10-05b §3 — the items are
+/// removed after the PIN — and a missing **wrapped UMK** alone as nothing to
+/// remove: the device keys read back, so deleting them would destroy the one
+/// thing still valid (KEY145B review finding 1; features/lock/cold_start_gate.dart).
+final class DeviceKeysMissing extends StateError {
+  DeviceKeysMissing({this.deviceKeys = true})
+    : super('identity present but device keys missing — recovery');
+
+  /// True when a device key itself was absent (or unreadable); false when the
+  /// device keys read back and only the promptless wrapped UMK is gone.
+  final bool deviceKeys;
+}
+
 /// The facade was used before [LocalLedger.bootstrapSolo] (or `open`).
 final class LedgerNotOpen implements Exception {
   /// Creates the error.
@@ -2233,6 +2250,13 @@ final class LocalLedger
   /// The one place a device id is minted (ADR 2026-09-16 §1 🔒): the auth
   /// client registers this id with the server and signs challenges under it;
   /// every envelope and signed record carries it. Nothing else mints one.
+  ///
+  /// ⚠️ SPEC (KEY145B review finding 2; owner): ADR 2026-10-05b §4 🔒 and 07
+  /// §5.6 🔒 say the device keys are minted after O4b, never at bootstrap.
+  /// They are minted here, at the first bootstrap, into the promptless
+  /// PIN-only class (keychain_key_store.dart) — because S0.2's device
+  /// registration (ADR 2026-09-16 §2, 06 §3) needs them before O4b exists.
+  /// See bootstrap.dart; not delivered, not reinterpreted.
   Future<void> _firstRun() async {
     final deviceId = newId();
     final userId = newId();
@@ -2289,7 +2313,10 @@ final class LocalLedger
     final xSeed = await keys.read(KeyIds.deviceAgreementKey);
     final wrappedUmk = await keys.read(KeyIds.wrappedUmk);
     if (edSeed == null || xSeed == null || wrappedUmk == null) {
-      throw StateError('identity present but device keys missing — recovery');
+      final deviceKeys = edSeed == null || xSeed == null;
+      if (edSeed != null) suite.zeroize(edSeed);
+      if (xSeed != null) suite.zeroize(xSeed);
+      throw DeviceKeysMissing(deviceKeys: deviceKeys);
     }
     final DeviceKeyPair device;
     try {

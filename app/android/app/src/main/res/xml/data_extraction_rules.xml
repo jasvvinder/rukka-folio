@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Platform backups of the client are excluded (03 §6 🔒, ADR 2026-09-05c §8:
+     "Android: allowBackup=false, backup rules empty"; desk 145 review).
+     android:allowBackup="false" already stops cloud backup, but on Android 12+
+     it does not stop device-to-device transfer — these rules do. Every domain
+     is excluded from both, so neither a cloud restore nor a new-phone transfer
+     brings back the SQLCipher file or flutter_secure_storage's
+     SharedPreferences without the Keystore keys that open them (which never
+     leave the phone): that restore makes the plugin unwrap with a fresh
+     Keystore key and fail at startup. Restoration is the recovery ladder
+     (04 §7), never a platform backup. -->
+<data-extraction-rules>
+    <cloud-backup>
+        <exclude domain="root" path="."/>
+        <exclude domain="file" path="."/>
+        <exclude domain="database" path="."/>
+        <exclude domain="sharedpref" path="."/>
+        <exclude domain="external" path="."/>
+        <exclude domain="device_root" path="."/>
+        <exclude domain="device_file" path="."/>
+        <exclude domain="device_database" path="."/>
+        <exclude domain="device_sharedpref" path="."/>
+    </cloud-backup>
+    <device-transfer>
+        <exclude domain="root" path="."/>
+        <exclude domain="file" path="."/>
+        <exclude domain="database" path="."/>
+        <exclude domain="sharedpref" path="."/>
+        <exclude domain="external" path="."/>
+        <exclude domain="device_root" path="."/>
+        <exclude domain="device_file" path="."/>
+        <exclude domain="device_database" path="."/>
+        <exclude domain="device_sharedpref" path="."/>
+    </device-transfer>
+</data-extraction-rules>

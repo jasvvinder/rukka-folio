@@ -37,6 +37,7 @@ import 'features/devices/at_rest.dart';
 import 'features/devices/devices_routes.dart';
 import 'features/devices/guardian_standing.dart';
 import 'features/devices/keychain_key_store.dart';
+import 'features/devices/keystore_platform.dart';
 import 'features/devices/pin_vault.dart';
 import 'features/entry/entry_routes.dart';
 import 'features/help/help_routes.dart';
@@ -52,6 +53,8 @@ import 'features/inbox/review_queue.dart';
 import 'features/import/import_routes.dart';
 import 'features/ledger/ledger_routes.dart';
 import 'features/legal/legal_routes.dart';
+import 'features/lock/cold_start_gate.dart';
+import 'features/lock/keystore_biometric_gate.dart';
 import 'features/members/invite_nonce_relay.dart';
 import 'features/members/members_api.dart';
 import 'features/members/members_review_policy.dart';
@@ -372,6 +375,23 @@ Future<void> bootstrap() async {
   );
   switch (result) {
     case Opened(:final db):
+      // 03 §6 🔒 / ADR 2026-09-05c §8 (desk 150): a phone backup never carries
+      // the books. Android keeps the whole app out of backup in its manifest;
+      // iOS needs NSURLIsExcludedFromBackupKey on the file and the SQLite side
+      // files, set through the app's keystore channel. A refusal is not a
+      // reason to lock the person out of their own books — the file is
+      // useless without the this-device-only key — so it is swallowed.
+      if (Platform.isIOS) {
+        try {
+          await const MethodChannelKeystorePlatform().excludeFromBackup([
+            for (final suffix in const ['', '-wal', '-shm', '-journal'])
+              '${file.path}$suffix',
+          ]);
+        } on Object {
+          // Retried at the next launch.
+        }
+      }
+
       // One HTTP door for the whole app (05 §1, 06 §2–§4): one `http.Client`,
       // one transport, one place that speaks `package:http`. `features/auth`
       // and `features/members` each see it through their own seam.
@@ -403,7 +423,40 @@ Future<void> bootstrap() async {
       // The MPIN vault the lock family reads (06 §4.4). Built here rather than
       // hung on RkScope because it needs the libsodium suite, which the scope
       // does not carry.
-      final vault = PinVault(keys: keys, suite: suite, now: DateTime.now);
+      //
+      // ADR 2026-10-05b §2 / §4 🔒: every successful MPIN — set at O4b, or
+      // accepted at S15 — is the one moment the device keys may move to the
+      // biometric binding (re-created, read back, then the PIN-only copy
+      // deleted). Never on a biometric success alone.
+      //
+      // The same moment re-arms the in-app relock prompt against the biometric
+      // set enrolled now (KEY145B review finding 3; keystore_platform.dart):
+      // the PIN is what admits a newly enrolled face, never the face alone.
+      final biometricGate = KeystoreBiometricGate(
+        keys: keys,
+        platform: const MethodChannelKeystorePlatform(),
+      );
+      final vault = PinVault(
+        keys: keys,
+        suite: suite,
+        now: DateTime.now,
+        afterPinProven: () async {
+          await keys.upgradeAfterPin();
+          await biometricGate.armAfterProof();
+        },
+      );
+
+      // The Android biometric sheet speaks ARB, not the plugin's English
+      // defaults (whose subtitle offers "device credentials" — 07 §5.6
+      // forbids); its negative button is the way to the PIN.
+      final l10n = await AppLocalizations.delegate.load(
+        settings.locale ?? const Locale('en'),
+      );
+      keys.setPromptCopy(
+        title: l10n.lockBiometricPrompt,
+        subtitle: l10n.lockBiometricSheetSubtitle,
+        cancel: l10n.lockPinUseInstead,
+      );
 
       // 13 §2.2 🔒 scope persists per tab and defaults to last used, so the
       // selection is held by the shell and handed down to S1 — not owned by
@@ -438,6 +491,64 @@ Future<void> bootstrap() async {
         now: DateTime.now,
         reviewPolicy: reviewPolicy,
       );
+      // ADR 2026-10-05b §4 🔒 — no keystore item that needs the person exists
+      // before the PIN does, and no biometric prompt comes before S15. A
+      // first run writes the device keys into the PIN-only class (promptless;
+      // `KeychainKeyStore.write`), so `bootstrapSolo` below asks nobody; the
+      // upgrade waits for O4b's PIN.
+      //
+      // ⚠️ SPEC (KEY145B review finding 2; owner): the same ruling, and 07
+      // §5.6 🔒, also say "Device keys are minted **after O4b**, never at
+      // bootstrap". This launch still mints them here, on the first run,
+      // before S0.2 — only into the promptless class. Moving the mint after
+      // O4b is not this lane's to make: S0.2's `activateDevice`
+      // (features/auth/http_auth_client.dart, ADR 2026-09-16 §1–§2 🔒, 06 §3)
+      // registers the ledger's device id **and its public keys** with the
+      // server and signs the challenge with the device Ed25519 key, and
+      // 13 §5 F1 puts S0.2 before O4b (S0.8). Minting after O4b needs either
+      // the registration moved after O4b or O4b moved before S0.2 — an
+      // auth/onboarding-order ruling. Until then the reading here is ruling
+      // 4's heading (no item that *needs the person*), and the literal line
+      // is an open owner item, not a delivered behaviour. On a phone whose keys are already
+      // biometric-bound, reading them *is* the prompt, so S15 goes up first
+      // and the ledger opens behind it (features/lock/cold_start_gate.dart):
+      // a cancel leaves the person on S15 with *Use PIN instead*, never on
+      // RukkaFolioBlocked.
+      if (await storedIdentity(keys) != null &&
+          await keys.binding() != DeviceKeyBinding.pinOnly) {
+        final through = Completer<ColdStartResult>();
+        runApp(
+          ColdStartApp(
+            locale: settings.locale,
+            themeMode: settings.appearance,
+            child: ColdStartGate(
+              vault: vault,
+              open: () => ledger.bootstrapSolo(),
+              dropInvalidated: () async {
+                await keys.dropInvalidatedAfterPin();
+              },
+              onDone: through.complete,
+            ),
+          ),
+        );
+        if (await through.future != ColdStartResult.opened) {
+          // ADR 2026-10-05b §3: the invalidated items are gone and the next
+          // device keys will land in the class chosen just now — but the key
+          // material is lost, so the books need the recovery ladder (04 §7).
+          // (Or the device keys opened and only the wrapped UMK is gone —
+          // nothing was removed; the same ladder.)
+          // ⚠️ SPEC: S19.x / the S11 entry from here is not built; this
+          // blocks with one plain line, as a wiped keystore always has.
+          runApp(const RukkaFolioBlocked());
+          return;
+        }
+        // The person was proved by the read that just opened the keys; the
+        // in-app S15 must not ask again for this launch. That read also proves
+        // the enrolled set is still the device keys' own, so the relock
+        // prompt is armed against it.
+        biometricGate.admitOnce();
+        await biometricGate.armAfterProof();
+      }
       final LedgerIdentity identity;
       try {
         identity = await ledger.bootstrapSolo();
@@ -479,9 +590,6 @@ Future<void> bootstrap() async {
       // and could check a record's chain, but believing a *membership* on it
       // is a trust decision this seam's owner makes, not a wiring detail —
       // left as it stands (lane report M7-W4).
-      final l10n = await AppLocalizations.delegate.load(
-        settings.locale ?? const Locale('en'),
-      );
       final membersApi = HttpMembersApi(
         transport: MembersTransportOverRkHttp(httpDoor),
         functionsRoot: Uri.parse(apiBase),
@@ -953,6 +1061,9 @@ Future<void> bootstrap() async {
           updateRequired: auth.updateRequired,
           settings: settings,
           pinVault: vault,
+          // ADR 2026-10-05b: S15 asks the device-key custody — PIN-only phones
+          // get the boxes and no biometric button (§1).
+          biometrics: biometricGate,
           // S12.x — the entitlement reading every route, sheet and the shell's
           // S12.5 banner read, mounted by the app above its router (ADR
           // 2026-09-24b §13). Untokened is the only honest production reading

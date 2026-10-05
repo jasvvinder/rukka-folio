@@ -6,8 +6,9 @@
 // screen), and the screen-reader label counts digits rather than reading them.
 //
 // Tokens only (CLAUDE.md § Layout); colour is never the only signal — the
-// error state pairs `debit` with an icon and a line of text on the screen
-// above (07 §1 rule 3).
+// error state pairs `debit` with words on the screen above (07 §1 rule 3).
+// Drawn to the canvas (ADR 2026-10-05 §1): c3 S15 *PIN instead · six digits*
+// for the boxes and the tiled keypad, c1 O4b / S15.3 for the same boxes.
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -18,13 +19,29 @@ import '../../../shared/tokens.dart';
 /// How many digits an MPIN has (06 §4.4 🔒 — six, never four).
 const pinLength = 6;
 
-/// The six boxes. [filled] is how many digits are typed; [error] tints and
-/// marks them after a rejected attempt.
+/// The canvas's box stroke (c3 S15 *PIN instead*, c1 O4b): 1.5 px, between
+/// the 1 px hairline and the 2 px icon stroke.
+const double _boxEdge = RkIcon.stroke * 0.75;
+
+/// The six boxes (c3 S15 *PIN instead · six digits*, c1 S15.3, c1 O4b): bordered
+/// squares on `surface`, a dot in each typed one, the rest in `hairline` —
+/// with the next one edged in `primary` when [markNext] (c3 S15 draws it, c1
+/// O4b does not). [filled] is how many digits are typed;
+/// [error] edges all six in `debit` after a rejected attempt or a mismatch —
+/// never the only signal, the screen above names the error in words.
 class PinBoxes extends StatelessWidget {
-  const PinBoxes({super.key, required this.filled, this.error = false});
+  const PinBoxes({
+    super.key,
+    required this.filled,
+    this.error = false,
+    this.markNext = false,
+  });
 
   /// Digits typed so far, 0..[pinLength].
   final int filled;
+
+  /// Edge the next box in `primary` (c3 S15 *PIN instead · six digits*).
+  final bool markNext;
 
   /// True after a wrong PIN — never the only signal.
   final bool error;
@@ -34,7 +51,14 @@ class PinBoxes extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final status = RkStatusColors.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final edge = error ? status.debit : status.hairline;
+    final ink = scheme.onSurface;
+    Color edge(int i) {
+      if (error) return status.debit;
+      if (i < filled) return ink;
+      if (markNext && i == filled) return scheme.primary;
+      return status.hairline;
+    }
+
     return Semantics(
       label: l10n.lockPinEntered(filled),
       excludeSemantics: true,
@@ -45,15 +69,23 @@ class PinBoxes extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: RkSpace.s1),
               child: Container(
-                width: RkSpace.s5,
-                height: RkSpace.s5,
+                width: RkSpace.s10 + RkSpace.s1,
+                height: RkSpace.rowMinHeight,
+                alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: i < filled
-                      ? (error ? status.debit : scheme.primary)
-                      : status.sunk,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: edge, width: 1),
+                  color: scheme.surface,
+                  border: Border.all(color: edge(i), width: _boxEdge),
                 ),
+                child: i < filled
+                    ? Container(
+                        width: RkSpace.s3,
+                        height: RkSpace.s3,
+                        decoration: BoxDecoration(
+                          color: ink,
+                          shape: BoxShape.circle,
+                        ),
+                      )
+                    : null,
               ),
             ),
         ],
@@ -84,7 +116,10 @@ class PinKeypad extends StatelessWidget {
       semanticLabel: digit,
       child: Text(
         digit,
-        style: text.headlineSmall?.copyWith(fontFeatures: RkType.tabular),
+        style: text.headlineSmall?.copyWith(
+          fontWeight: FontWeight.w500,
+          fontFeatures: RkType.tabular,
+        ),
       ),
     );
     return Column(
@@ -98,7 +133,7 @@ class PinKeypad extends StatelessWidget {
           Row(children: [for (final d in row) Expanded(child: key(d))]),
         Row(
           children: [
-            const Expanded(child: SizedBox(height: RkSpace.s12)),
+            const Expanded(child: SizedBox(height: _keyHeight)),
             Expanded(child: key('0')),
             Expanded(
               child: _PadKey(
@@ -107,7 +142,9 @@ class PinKeypad extends StatelessWidget {
                 child: Icon(
                   Icons.backspace_outlined,
                   size: RkIcon.grid,
-                  color: onDelete == null ? status.locked : null,
+                  // The canvas draws ⌫ in `muted` (c3 S15 *PIN instead*);
+                  // `locked` while there is nothing to delete.
+                  color: onDelete == null ? status.locked : status.muted,
                 ),
               ),
             ),
@@ -118,6 +155,12 @@ class PinKeypad extends StatelessWidget {
   }
 }
 
+/// The canvas's key tile height (c3 S15 *PIN instead*: 52 px).
+const double _keyHeight = RkSpace.s12 + RkSpace.s1;
+
+/// One key: a bordered tile on `surface` with square corners (c3 S15 *PIN
+/// instead · six digits*). Still a [TextButton], so focus, ripple and the
+/// disabled state come from the theme.
 class _PadKey extends StatelessWidget {
   const _PadKey({
     required this.child,
@@ -131,8 +174,10 @@ class _PadKey extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final status = RkStatusColors.of(context);
     return Padding(
-      padding: const EdgeInsets.all(RkSpace.s1),
+      padding: const EdgeInsets.all(RkSpace.s1 * 0.75),
       child: Semantics(
         button: true,
         label: semanticLabel,
@@ -145,9 +190,11 @@ class _PadKey extends StatelessWidget {
                   onPressed!();
                 },
           style: TextButton.styleFrom(
-            minimumSize: const Size.fromHeight(RkSpace.s12),
-            shape: const RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(RkRadius.lg)),
+            minimumSize: const Size.fromHeight(_keyHeight),
+            backgroundColor: scheme.surface,
+            foregroundColor: scheme.onSurface,
+            shape: RoundedRectangleBorder(
+              side: BorderSide(color: status.hairline),
             ),
           ),
           child: child,

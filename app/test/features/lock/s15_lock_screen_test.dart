@@ -56,8 +56,9 @@ void main() {
     );
 
     testWidgets(
-      'F1-07-63 a failed sensor falls back to the 6-digit MPIN — never the '
-      "phone's passcode (06 §4.4 🔒)",
+      'F1-07-63 a failed sensor says so, offers Try again, and Use PIN instead '
+      "beneath falls back to the 6-digit MPIN — never the phone's passcode "
+      '(06 §4.4 🔒; c3 S15 *Face not recognised*)',
       (tester) async {
         sizeView(tester);
         final clock = TestClock();
@@ -72,11 +73,19 @@ void main() {
           clock: clock,
         );
 
-        expect(find.byType(PinKeypad), findsOneWidget);
+        // c3 S15 *Face not recognised*: the face page stays, says so in
+        // words, and offers both doors (07 §5.6 🔒 Use PIN instead beneath).
+        expect(find.text('Face not recognised'), findsOneWidget);
         expect(
-          find.text("Face ID didn't work — type your PIN"),
+          find.widgetWithText(OutlinedButton, 'Try again'),
           findsOneWidget,
         );
+        expect(find.byType(PinKeypad), findsNothing);
+        expect(find.textContaining('passcode'), findsNothing);
+
+        await tester.tap(find.text('Use PIN instead'));
+        await tester.pumpAndSettle();
+        expect(find.byType(PinKeypad), findsOneWidget);
         expect(find.textContaining('passcode'), findsNothing);
 
         await typePin(tester, '135790');
@@ -108,10 +117,12 @@ void main() {
           findsOneWidget,
         );
         await typePin(tester, '111111');
-        expect(find.text('That PIN is not right'), findsOneWidget);
         expect(unlocked, 0);
-        // Error is never colour alone (07 §1 rule 3): a word and an icon.
-        expect(find.byIcon(Icons.error_outline), findsOneWidget);
+        // Error is never colour alone (07 §1 rule 3): the title says it in
+        // words (c1 S15.3 *Wrong PIN*) while the boxes are edged in debit.
+        expect(find.text('Wrong PIN'), findsOneWidget);
+        expect(find.text('Enter your PIN'), findsNothing);
+        expect(tester.widget<PinBoxes>(find.byType(PinBoxes)).error, isTrue);
 
         await typePin(tester, '135790');
         expect(unlocked, 1);
@@ -161,6 +172,8 @@ void main() {
           biometrics: FakeBiometricGate([BiometricOutcome.failed]),
           clock: clock,
         );
+        await tester.tap(find.text('Use PIN instead'));
+        await tester.pumpAndSettle();
 
         for (var i = 0; i < 5; i++) {
           await typePin(tester, '111111');
@@ -247,10 +260,10 @@ void main() {
         expect(find.byType(PinKeypad), findsNothing);
 
         // The door is live, not decorative (07 §1 rule 6).
-        await tester.tap(find.text('Send me a code'));
+        await tester.tap(find.text('Send the code'));
         await tester.pumpAndSettle();
-        expect(find.text('Set a new PIN'), findsOneWidget);
-        await tester.tap(find.text('Send me a code'));
+        expect(find.text('Forgot your PIN'), findsOneWidget);
+        await tester.tap(find.text('Send the code'));
         await tester.pumpAndSettle();
         expect(forgot, 1);
         await unmount(tester);
@@ -306,11 +319,17 @@ void main() {
           biometrics: FakeBiometricGate([BiometricOutcome.failed]),
           clock: clock,
         );
-
-        await tester.tap(find.text('Forgot your PIN?'));
+        await tester.tap(find.text('Use PIN instead'));
         await tester.pumpAndSettle();
-        expect(find.textContaining('your books are untouched'), findsOneWidget);
-        await tester.tap(find.text('Back'));
+
+        await tester.tap(find.text('Forgot PIN'));
+        await tester.pumpAndSettle();
+        // c1 S15.3 *Forgot PIN · a code, not a lockout*.
+        expect(
+          find.textContaining('your books are not affected'),
+          findsOneWidget,
+        );
+        await tester.tap(find.byTooltip('Back'));
         await tester.pumpAndSettle();
         expect(find.byType(PinKeypad), findsOneWidget);
         await unmount(tester);

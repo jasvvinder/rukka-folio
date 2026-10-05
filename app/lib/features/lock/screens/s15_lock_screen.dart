@@ -15,18 +15,27 @@
 //
 // Forgetting the PIN is never data loss (06 §4.4): the forgot door explains
 // that nothing is re-encrypted and hands off to the reset flow.
+//
+// PIN-only variant (ADR 2026-10-05b §1): when the gate answers
+// [BiometricOutcome.pinOnly] the phone has no biometric that can guard a
+// hardware key, so the screen is the canvas's *PIN instead · six digits*
+// frame from the first answer on — boxes and keypad, no biometric button, no
+// biometric line, and one muted line saying why (⚠️ SPEC: design desk 148
+// owns the final copy and placement). The cooldown panel then offers no face
+// either: the wait is the only way forward, and *Forgot PIN* stays.
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 
 import '../../../l10n/gen/app_localizations.dart';
-import '../../../shared/app_scope.dart';
 import '../../../shared/theme.dart';
+import '../../../shared/widgets/rk_fit_text.dart';
 import '../../../shared/tokens.dart';
 import '../../devices/pin_vault.dart';
 import '../../onboarding/widgets/sealed_mark.dart';
 import '../biometric_gate.dart';
 import '../lock_scope.dart';
+import '../widgets/face_id_glyph.dart';
 import '../widgets/pin_pad.dart';
 
 /// Why the PIN pad is being asked for, which changes one line of copy.
@@ -38,6 +47,13 @@ enum LockReason {
   /// A face or fingerprint was added to this phone, so the keystore item is no
   /// longer readable by biometrics (ADR 2026-09-05d §4).
   biometricReenrolled,
+
+  /// Cold start on a biometric-bound phone after the PIN was accepted: the
+  /// device keys still open only to the biometric (06 §4.4 🔒 — the MPIN is a
+  /// gate, never a key), so the screen says so and offers the biometric
+  /// again rather than asking for the PIN twice (cold_start_gate.dart).
+  /// ⚠️ SPEC: KEY145 finding 2(b), unresolved by ADR 2026-10-05b.
+  keysNeedBiometric,
 }
 
 class LockScreen extends StatefulWidget {
@@ -46,7 +62,33 @@ class LockScreen extends StatefulWidget {
     required this.onUnlocked,
     required this.onForgotPin,
     this.reason = LockReason.routine,
+    this.onForgotPinPinOnly,
+    this.forgotOpensWithBiometric = false,
+    @visibleForTesting this.debugTyped = '',
+    @visibleForTesting this.debugWrong = false,
+    @visibleForTesting this.debugForgotDoor = false,
   });
+
+  /// Design captures only (ADR 2026-10-05 §2): the capture helper pumps a
+  /// fresh tree and cannot type, so these seed the drawn state — digits in the
+  /// boxes, the wrong-PIN line, the forgot door. Never set by the app.
+  final String debugTyped;
+  final bool debugWrong;
+  final bool debugForgotDoor;
+
+  /// The forgot path on a **PIN-only** phone (desk 147). 06 §4.4's reset is
+  /// "OTP plus biometric", and this phone has no biometric; OTP alone is a SIM
+  /// swap away. ⚠️ SPEC: owner to rule (ADR 2026-10-05b *Open*); until then the
+  /// conservative reading (c) — the S11 recovery ladder — which the host
+  /// wires here. Null falls back to [onForgotPin].
+  final VoidCallback? onForgotPinPinOnly;
+
+  /// The cold-start S15 of a biometric phone (cold_start_gate.dart): no code
+  /// can be sent before the app is composed, so its forgot door opens the
+  /// books with the biometric — and the page says exactly that, never "We'll
+  /// send a code" (KEY145B review finding 6). ⚠️ SPEC: 07 §5.6's "OTP +
+  /// biometric, then a new PIN" is not reachable before the app is open.
+  final bool forgotOpensWithBiometric;
 
   /// Called the moment the person proves themselves, by face or by PIN.
   final VoidCallback onUnlocked;
@@ -69,13 +111,26 @@ class _LockScreenState extends State<LockScreen> {
   bool _showPad = false;
   bool _wrong = false;
   bool _busy = false;
+
+  /// A biometric attempt is in flight. Kept apart from [_busy] (a PIN being
+  /// checked) so the PIN pad works while a platform sheet is still pending:
+  /// flutter_secure_storage 11.2.0 never answers when its BiometricPrompt's
+  /// negative button is pressed (FlutterSecureStorage.java:1281-1282 sets a
+  /// no-op listener, and the framework then calls no error callback), so an
+  /// attempt can stay pending for good — *Use PIN instead* must still work
+  /// (ADR 2026-10-05b §4: a cancelled prompt never ends at a dead end).
+  bool _prompting = false;
   bool _forgotDoor = false;
+  bool _pinOnly = false;
   BiometricOutcome? _biometric;
   Timer? _ticker;
 
   @override
   void initState() {
     super.initState();
+    _typed = widget.debugTyped;
+    _wrong = widget.debugWrong;
+    _forgotDoor = widget.debugForgotDoor;
     // Biometric prompts automatically, without a tap (07 §5.6). It runs after
     // the first frame so the mark is already on screen behind the sheet.
     WidgetsBinding.instance.addPostFrameCallback((_) => _start());
@@ -99,6 +154,7 @@ class _LockScreenState extends State<LockScreen> {
       });
       return;
     }
+    if (widget.reason == LockReason.keysNeedBiometric) return;
     await _promptBiometric();
   }
 
@@ -128,20 +184,33 @@ class _LockScreenState extends State<LockScreen> {
     });
   }
 
+  // The vault's own clock: the cooldown it set is measured on the clock that
+  // set it, and the cold-start gate mounts this screen before any RkScope.
   Duration _remaining(PinCooldown status) =>
-      status.until.difference(RkScope.of(context).now());
+      status.until.difference(LockScope.of(context).vault.now());
+
+  /// Each attempt's number; an answer to an older attempt is ignored, so a
+  /// tap after a sheet that never answered starts a fresh one.
+  int _attempt = 0;
 
   Future<void> _promptBiometric() async {
-    if (_busy) return;
-    setState(() => _busy = true);
+    final attempt = ++_attempt;
+    setState(() => _prompting = true);
     final l10n = AppLocalizations.of(context);
     final outcome = await LockScope.of(context).biometrics
         .authenticate(reason: l10n.lockBiometricPrompt);
-    if (!mounted) return;
+    if (!mounted || attempt != _attempt) return;
     setState(() {
-      _busy = false;
+      _prompting = false;
       _biometric = outcome;
-      if (outcome != BiometricOutcome.success) _showPad = true;
+      if (outcome == BiometricOutcome.pinOnly) _pinOnly = true;
+      // c3 S15 *Face not recognised*: a refused face stays on the face
+      // page with *Try again*, and *Use PIN instead* beneath (07 §5.6). Any
+      // other refusal has nothing to retry, so the pad comes up.
+      if (outcome != BiometricOutcome.success &&
+          outcome != BiometricOutcome.failed) {
+        _showPad = true;
+      }
     });
     if (outcome == BiometricOutcome.success) widget.onUnlocked();
   }
@@ -184,101 +253,352 @@ class _LockScreenState extends State<LockScreen> {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
     final status = RkStatusColors.of(context);
+    final scheme = Theme.of(context).colorScheme;
     final vaultStatus = _status;
 
-    Widget body;
+    // c1 S15.3 *Forgot PIN · a code, not a lockout*: its own page, back
+    // chevron, no mark.
     if (_forgotDoor) {
-      body = _ForgotDoor(
-        onStart: widget.onForgotPin,
-        onCancel: () => setState(() => _forgotDoor = false),
-      );
-    } else if (vaultStatus == null) {
-      // Loading: the vault item has not been read yet (13 §4.3).
-      body = const Padding(
-        padding: EdgeInsets.symmetric(vertical: RkSpace.s6),
-        child: LinearProgressIndicator(),
-      );
-    } else if (vaultStatus is PinDisabled) {
-      body = _DisabledPanel(onReset: () => setState(() => _forgotDoor = true));
-    } else if (vaultStatus is PinCooldown) {
-      body = _CooldownPanel(
-        remaining: _remaining(vaultStatus),
-        onBiometric: _busy ? null : _promptBiometric,
-      );
-    } else if (_showPad && vaultStatus is PinReady) {
-      body = _PinPanel(
-        typed: _typed,
-        wrong: _wrong,
-        busy: _busy,
-        attemptsLeft: vaultStatus.attemptsLeft,
-        warn: vaultStatus.inPenaltyBand,
-        biometric: _biometric,
-        onDigit: _busy ? null : _digit,
-        onDelete: _busy || _typed.isEmpty ? null : _delete,
-        onRetryBiometric: _busy ? null : _promptBiometric,
-      );
-    } else {
-      // ⚠️ SPEC: a locked app with no PIN set (PinNotSet) is not a state 07
-      // §5.6 or 13 §3.2 names. Conservative reading: biometric is then the
-      // only gate — *Use PIN instead* would open a pad that can never accept
-      // anything — so the retry path is shown and the pad is not.
-      body = Column(
-        children: [
-          if (_busy)
-            const Padding(
-              padding: EdgeInsets.only(bottom: RkSpace.s4),
-              child: LinearProgressIndicator(),
-            ),
-          if (vaultStatus is PinReady)
-            TextButton(
-              onPressed: () => setState(() => _showPad = true),
-              child: Text(l10n.lockPinUseInstead),
-            )
-          else
-            TextButton(
-              onPressed: _busy ? null : _promptBiometric,
-              child: Text(l10n.lockBiometricRetry),
-            ),
-        ],
+      return _ForgotPage(
+        pinOnly: _pinOnly,
+        opensWithBiometric: !_pinOnly && widget.forgotOpensWithBiometric,
+        onStart: _pinOnly
+            ? (widget.onForgotPinPinOnly ?? widget.onForgotPin)
+            : widget.onForgotPin,
+        onBack: () => setState(() => _forgotDoor = false),
       );
     }
 
+    final title = RkFitText(
+      l10n.lockTitle,
+      style: text.titleLarge,
+      textAlign: TextAlign.center,
+    );
+    final forgotFoot = _FootLink(
+      label: l10n.lockForgotAction,
+      color: status.muted,
+      onPressed: () => setState(() => _forgotDoor = true),
+    );
+    final usePinFoot = _FootLink(
+      label: l10n.lockPinUseInstead,
+      color: scheme.primary,
+      strong: true,
+      onPressed: () => setState(() => _showPad = true),
+    );
+
+    if (vaultStatus == null) {
+      // Loading: the vault item has not been read yet (13 §4.3).
+      return _LockPage(
+        markSize: _LockPage.markFace,
+        body: [title, const LinearProgressIndicator()],
+      );
+    }
+    if (vaultStatus is PinDisabled) {
+      return _LockPage(
+        markSize: _LockPage.markPinS153,
+        body: [
+          _DisabledPanel(onReset: () => setState(() => _forgotDoor = true)),
+        ],
+      );
+    }
+    if (vaultStatus is PinCooldown) {
+      return _LockPage(
+        markSize: _LockPage.markPinS153,
+        body: [
+          _CooldownPanel(
+            remaining: _remaining(vaultStatus),
+            pinOnly: _pinOnly,
+            onBiometric: _promptBiometric,
+          ),
+        ],
+        foot: forgotFoot,
+      );
+    }
+    if (_showPad && vaultStatus is PinReady) {
+      // c3 S15 *PIN instead · six digits* / c1 S15.3 *Enter PIN* · *Wrong
+      // PIN*: from the top, boxes, the Face ID button, keypad at the foot.
+      return _LockPage(
+        centred: false,
+        markSize: _LockPage.markPin,
+        body: [
+          _PinPanel(
+            typed: _typed,
+            wrong: _wrong,
+            busy: _busy,
+            attemptsLeft: vaultStatus.attemptsLeft,
+            warn: vaultStatus.inPenaltyBand,
+            biometric: _biometric,
+            pinOnly: _pinOnly,
+            onRetryBiometric: _busy ? null : _promptBiometric,
+          ),
+        ],
+        keypad: PinKeypad(
+          onDigit: _busy ? null : _digit,
+          onDelete: _busy || _typed.isEmpty ? null : _delete,
+        ),
+        foot: forgotFoot,
+      );
+    }
+
+    // The face states (c3 S15 *waiting for Face ID*, *Face not recognised*).
+    final failed = !_prompting && _biometric == BiometricOutcome.failed;
+    final glyph = _FaceGlyph(
+      prompting: _prompting,
+      failed: failed,
+      onPressed: _prompting ? null : _promptBiometric,
+    );
+    if (widget.reason == LockReason.keysNeedBiometric) {
+      return _LockPage(
+        markSize: _LockPage.markFace,
+        body: [
+          title,
+          glyph,
+          _Line(
+            icon: Icons.fingerprint,
+            color: status.muted,
+            text: l10n.lockKeysNeedBiometric,
+          ),
+          _InkButton(
+            label: l10n.lockBiometricRetry,
+            onPressed: _prompting ? null : _promptBiometric,
+          ),
+        ],
+        foot: forgotFoot,
+      );
+    }
+    return _LockPage(
+      markSize: _LockPage.markFace,
+      body: [
+        title,
+        glyph,
+        if (failed)
+          Text(
+            l10n.lockBiometricFailed,
+            style: text.bodyMedium?.copyWith(color: status.debit),
+            textAlign: TextAlign.center,
+          ),
+        // ⚠️ SPEC: a locked app with no PIN set (PinNotSet) is not a state 07
+        // §5.6 or 13 §3.2 names. Conservative reading: biometric is then the
+        // only gate — *Use PIN instead* would open a pad that can never
+        // accept anything — so the retry path is shown and the pad is not.
+        if (failed || vaultStatus is! PinReady)
+          _InkButton(
+            label: l10n.lockBiometricRetry,
+            onPressed: _prompting ? null : _promptBiometric,
+          ),
+      ],
+      foot: vaultStatus is PinReady ? usePinFoot : null,
+    );
+  }
+}
+
+/// The lock family's page (c3 S15, c1 S15.3): the sealed mark at the size its
+/// frame draws ([markSize]) over [body], either centred in the space (the face
+/// states) or from the top with [keypad] anchored above [foot] (the PIN
+/// states). One scroll view holds it all, so 200 % text scrolls rather than
+/// overflows (13 §8).
+class _LockPage extends StatelessWidget {
+  const _LockPage({
+    required this.body,
+    required this.markSize,
+    this.keypad,
+    this.foot,
+    this.centred = true,
+  });
+
+  /// c3 *App lock · waiting for Face ID* / *Face not recognised*: 60 px.
+  static const markFace = RkSpace.s12 + RkSpace.s3;
+
+  /// c3 *PIN instead · six digits*: 48 px — the frame the PIN states are
+  /// built to (the c1 S15.3 *Enter PIN* / *Wrong PIN* frames draw the same
+  /// state at 52 px without the keypad; design/match/S15.3.json).
+  static const markPin = RkSpace.s12;
+
+  /// c1 S15.3 (cooldown and disabled, nearest drawn: *Enter PIN · Face ID
+  /// above the boxes*, *Wrong PIN · tries remaining*): 52 px.
+  static const markPinS153 = RkSpace.s12 + RkSpace.s1;
+
+  final double markSize;
+  final List<Widget> body;
+  final Widget? keypad;
+  final Widget? foot;
+  final bool centred;
+
+  @override
+  Widget build(BuildContext context) {
+    final content = Padding(
+      padding: EdgeInsets.only(top: centred ? 0 : RkSpace.s10),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: RkSpace.s6),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(child: SealedMark(size: markSize)),
+            for (final w in body) ...[const SizedBox(height: RkSpace.s5), w],
+          ],
+        ),
+      ),
+    );
+    final bottom = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        if (keypad != null)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              RkSpace.s3,
+              RkSpace.s5,
+              RkSpace.s3,
+              0,
+            ),
+            child: keypad,
+          ),
+        if (foot != null)
+          Padding(
+            padding: const EdgeInsets.fromLTRB(
+              RkSpace.s5,
+              RkSpace.s2,
+              RkSpace.s5,
+              RkSpace.s4,
+            ),
+            child: Center(child: foot),
+          )
+        else
+          const SizedBox(height: RkSpace.s4),
+      ],
+    );
     return Scaffold(
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(RkSpace.s6),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      const SizedBox(height: RkSpace.s6),
-                      const Center(child: SealedMark()),
-                      const SizedBox(height: RkSpace.s4),
-                      Text(
-                        l10n.lockTitle,
-                        style: text.headlineSmall,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: RkSpace.s6),
-                      body,
-                    ],
-                  ),
-                ),
+        // No intrinsics (RkFitText measures in a LayoutBuilder): the column
+        // is at least the viewport tall, and `spaceBetween` spreads the room
+        // — an empty lead keeps the face states centred above the foot.
+        child: LayoutBuilder(
+          builder: (context, viewport) => SingleChildScrollView(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: viewport.maxHeight),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (centred) const SizedBox.shrink(),
+                  content,
+                  bottom,
+                ],
               ),
-              if (!_forgotDoor && vaultStatus is! PinDisabled)
-                TextButton(
-                  onPressed: () => setState(() => _forgotDoor = true),
-                  child: Text(
-                    l10n.lockForgotAction,
-                    style: text.bodyMedium?.copyWith(color: status.muted),
-                  ),
-                ),
-            ],
+            ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The face glyph of c3 S15: `primary` while the sheet is up or idle,
+/// `debit` once the face was not recognised (with the words beside it — never
+/// colour alone, 07 §1 rule 3), painted as the canvas draws it
+/// ([FaceIdGlyph]). Tappable when no sheet is up, so a
+/// dismissed sheet is one tap from coming back.
+class _FaceGlyph extends StatelessWidget {
+  const _FaceGlyph({
+    required this.prompting,
+    required this.failed,
+    required this.onPressed,
+  });
+
+  final bool prompting;
+  final bool failed;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final color = failed
+        ? RkStatusColors.of(context).debit
+        : Theme.of(context).colorScheme.primary;
+    final icon = FaceIdGlyph(
+      size: RkIcon.grid * 2,
+      color: color,
+      semanticLabel: prompting ? l10n.lockBiometricPrompt : null,
+    );
+    if (onPressed == null) return Center(child: icon);
+    return Center(
+      child: IconButton(
+        onPressed: onPressed,
+        tooltip: l10n.lockBiometricButton,
+        icon: icon,
+      ),
+    );
+  }
+}
+
+/// The canvas's outlined button (c3 S15 *Try again*, c1 S15.3 *Face ID*):
+/// an ink edge, square corners, sized to its label rather than the row.
+class _InkButton extends StatelessWidget {
+  const _InkButton({required this.label, this.glyph = false, this.onPressed});
+
+  final String label;
+
+  /// Leads with the compact Face ID glyph (c1 S15.3 *Face ID*).
+  final bool glyph;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final ink = Theme.of(context).colorScheme.onSurface;
+    final text = Theme.of(context).textTheme;
+    final style = OutlinedButton.styleFrom(
+      minimumSize: const Size(RkSpace.s12, RkSpace.s10 + RkSpace.s1),
+      padding: const EdgeInsets.symmetric(horizontal: RkSpace.s5),
+      foregroundColor: ink,
+      side: BorderSide(color: ink, width: RkIcon.stroke * 0.75),
+      shape: const RoundedRectangleBorder(),
+      textStyle: text.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
+    );
+    final child = !glyph
+        ? OutlinedButton(onPressed: onPressed, style: style, child: Text(label))
+        : OutlinedButton.icon(
+            onPressed: onPressed,
+            style: style,
+            icon: FaceIdGlyph(
+              size: RkSpace.s5,
+              color: onPressed == null ? Theme.of(context).disabledColor : ink,
+              compact: true,
+            ),
+            label: Text(label),
+          );
+    return Center(child: child);
+  }
+}
+
+/// The foot link: *Use PIN instead* (`primary`, heavier) on the face states,
+/// *Forgot PIN* (`muted`) on the PIN states (c3 S15, c1 S15.3).
+class _FootLink extends StatelessWidget {
+  const _FootLink({
+    required this.label,
+    required this.color,
+    required this.onPressed,
+    this.strong = false,
+  });
+
+  final String label;
+  final Color color;
+  final bool strong;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = Theme.of(context).textTheme;
+    return TextButton(
+      onPressed: onPressed,
+      style: TextButton.styleFrom(
+        minimumSize: const Size(RkSpace.s12, RkSpace.s12),
+        foregroundColor: color,
+      ),
+      child: Text(
+        label,
+        textAlign: TextAlign.center,
+        style: text.bodyLarge?.copyWith(
+          color: color,
+          fontWeight: strong ? FontWeight.w600 : null,
         ),
       ),
     );
@@ -293,19 +613,17 @@ class _PinPanel extends StatelessWidget {
     required this.attemptsLeft,
     required this.warn,
     required this.biometric,
-    required this.onDigit,
-    required this.onDelete,
+    required this.pinOnly,
     required this.onRetryBiometric,
   });
 
+  final bool pinOnly;
   final String typed;
   final bool wrong;
   final bool busy;
   final int attemptsLeft;
   final bool warn;
   final BiometricOutcome? biometric;
-  final void Function(String)? onDigit;
-  final VoidCallback? onDelete;
   final VoidCallback? onRetryBiometric;
 
   @override
@@ -314,58 +632,84 @@ class _PinPanel extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     final status = RkStatusColors.of(context);
     final biometricLine = switch (biometric) {
-      BiometricOutcome.failed => l10n.lockBiometricFailed,
       BiometricOutcome.unavailable => l10n.lockBiometricUnavailable,
       BiometricOutcome.reenrolled => l10n.lockBiometricReenrolled,
       _ => null,
     };
+    // The tries row's next step is a code to the number — except on a
+    // PIN-only phone, whose reset is not (ADR 2026-10-05b, desk 147).
+    final triesLine = attemptsLeft <= 1
+        ? (pinOnly ? l10n.lockPinOneTryLeftPinOnly : l10n.lockPinOneTryLeft)
+        : (pinOnly
+              ? l10n.lockPinTriesLeftPinOnly(attemptsLeft)
+              : l10n.lockPinTriesLeft(attemptsLeft));
+    const gap = SizedBox(height: RkSpace.s5);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
-          l10n.lockPinLabel,
-          style: text.titleMedium,
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: RkSpace.s4),
-        PinBoxes(filled: typed.length, error: wrong),
-        const SizedBox(height: RkSpace.s3),
-        if (wrong)
-          _Line(
-            icon: Icons.error_outline,
-            color: status.debit,
-            text: l10n.lockPinWrong,
+        // c1 S15.3 *Wrong PIN*: the title itself names the error, and the
+        // six boxes stay edged in `debit` until the next digit — words and
+        // colour, never colour alone (07 §1 rule 3).
+        Semantics(
+          liveRegion: wrong,
+          child: RkFitText(
+            wrong ? l10n.lockPinWrong : l10n.lockPinLabel,
+            style: text.titleLarge,
+            textAlign: TextAlign.center,
           ),
+        ),
+        gap,
+        PinBoxes(
+          filled: wrong && typed.isEmpty ? pinLength : typed.length,
+          error: wrong,
+          markNext: true,
+        ),
         // The warning row only appears once the free attempts are spent —
         // before that it would be a threat, not a help (ADR 2026-09-05d §5).
-        if (warn)
-          _Line(
-            icon: Icons.timer_outlined,
-            color: status.pending,
-            text: attemptsLeft <= 1
-                ? l10n.lockPinOneTryLeft
-                : l10n.lockPinTriesLeft(attemptsLeft),
+        if (warn) ...[
+          gap,
+          Text(
+            triesLine,
+            style: text.bodyMedium?.copyWith(color: status.debit),
+            textAlign: TextAlign.center,
           ),
-        if (biometricLine != null)
+        ],
+        if (biometricLine != null && !pinOnly) ...[
+          gap,
           _Line(
-            icon: Icons.face_outlined,
+            icon: Icons.face_unlock_outlined,
             color: status.muted,
             text: biometricLine,
           ),
-        const SizedBox(height: RkSpace.s3),
-        PinKeypad(onDigit: onDigit, onDelete: onDelete),
-        TextButton(
-          onPressed: onRetryBiometric,
-          child: Text(l10n.lockBiometricRetry),
-        ),
+        ],
+        gap,
+        // ADR 2026-10-05b §1: a PIN-only phone has no biometric to retry, so
+        // the button gives way to one muted line saying why.
+        if (pinOnly)
+          _Line(
+            icon: Icons.info_outline,
+            color: status.muted,
+            text: l10n.lockPinOnlyNote,
+          )
+        else
+          _InkButton(
+            label: l10n.lockBiometricButton,
+            glyph: true,
+            onPressed: onRetryBiometric,
+          ),
       ],
     );
   }
 }
 
 class _CooldownPanel extends StatelessWidget {
-  const _CooldownPanel({required this.remaining, required this.onBiometric});
+  const _CooldownPanel({
+    required this.remaining,
+    required this.pinOnly,
+    required this.onBiometric,
+  });
 
+  final bool pinOnly;
   final Duration remaining;
   final VoidCallback? onBiometric;
 
@@ -377,15 +721,15 @@ class _CooldownPanel extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text(
+        RkFitText(
           l10n.lockCooldownTitle,
-          style: text.titleMedium,
+          style: text.titleLarge,
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: RkSpace.s2),
-        Text(
+        RkFitText(
           l10n.lockCooldownBody,
-          style: text.bodyMedium,
+          style: text.bodyLarge?.copyWith(color: status.muted),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: RkSpace.s4),
@@ -394,12 +738,16 @@ class _CooldownPanel extends StatelessWidget {
           color: status.pending,
           text: l10n.lockCooldownCountdown(formatCountdown(remaining)),
         ),
-        const SizedBox(height: RkSpace.s4),
-        // The wait is the PIN's policy alone — the face still opens the app.
-        TextButton(
-          onPressed: onBiometric,
-          child: Text(l10n.lockBiometricRetry),
-        ),
+        // The wait is the PIN's policy alone — the face still opens the app,
+        // unless the phone is PIN-only (ADR 2026-10-05b §1).
+        if (!pinOnly) ...[
+          const SizedBox(height: RkSpace.s4),
+          _InkButton(
+            label: l10n.lockBiometricButton,
+            glyph: true,
+            onPressed: onBiometric,
+          ),
+        ],
       ],
     );
   }
@@ -424,7 +772,10 @@ class _DisabledPanel extends StatelessWidget {
           text: l10n.lockDisabledTitle,
         ),
         const SizedBox(height: RkSpace.s2),
-        Text(l10n.lockDisabledBody, style: text.bodyMedium),
+        RkFitText(
+          l10n.lockDisabledBody,
+          style: text.bodyLarge?.copyWith(color: status.muted),
+        ),
         const SizedBox(height: RkSpace.s4),
         FilledButton(onPressed: onReset, child: Text(l10n.lockForgotStart)),
       ],
@@ -432,26 +783,102 @@ class _DisabledPanel extends StatelessWidget {
   }
 }
 
-class _ForgotDoor extends StatelessWidget {
-  const _ForgotDoor({required this.onStart, required this.onCancel});
+/// c1 S15.3 *Forgot PIN · a code, not a lockout*: back chevron, the page
+/// title, the muted explanation, and the one action at the foot.
+///
+/// ⚠️ SPEC: the frame also shows the registered number in a field. The lock
+/// mounts before any session (cold_start_gate.dart) and [LockScope] carries
+/// no number, so the field is left out rather than invented; the reset flow
+/// behind [onStart] owns the number. Owner item (lane M13-KEY145B).
+class _ForgotPage extends StatelessWidget {
+  const _ForgotPage({
+    required this.pinOnly,
+    required this.opensWithBiometric,
+    required this.onStart,
+    required this.onBack,
+  });
 
+  final bool pinOnly;
+
+  /// [LockScreen.forgotOpensWithBiometric]: the cold-start copy and action.
+  final bool opensWithBiometric;
   final VoidCallback onStart;
-  final VoidCallback onCancel;
+  final VoidCallback onBack;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Text(l10n.lockForgotTitle, style: text.titleMedium),
-        const SizedBox(height: RkSpace.s2),
-        Text(l10n.lockForgotBody, style: text.bodyMedium),
-        const SizedBox(height: RkSpace.s4),
-        FilledButton(onPressed: onStart, child: Text(l10n.lockForgotStart)),
-        TextButton(onPressed: onCancel, child: Text(l10n.lockForgotCancel)),
-      ],
+    final status = RkStatusColors.of(context);
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                RkSpace.s1,
+                0,
+                RkSpace.s4,
+                RkSpace.s2,
+              ),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: IconButton(
+                  onPressed: onBack,
+                  tooltip: l10n.lockForgotCancel,
+                  color: status.muted,
+                  icon: const Icon(Icons.chevron_left, size: RkIcon.grid),
+                ),
+              ),
+            ),
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(
+                  RkSpace.s6,
+                  RkSpace.s2,
+                  RkSpace.s6,
+                  0,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    RkFitText(l10n.lockForgotTitle, style: text.headlineMedium),
+                    const SizedBox(height: RkSpace.s4),
+                    RkFitText(
+                      pinOnly
+                          ? l10n.lockForgotBodyPinOnly
+                          : opensWithBiometric
+                          ? l10n.lockForgotBodyBeforeOpen
+                          : l10n.lockForgotBody,
+                      style: text.bodyLarge?.copyWith(color: status.muted),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                RkSpace.s5,
+                RkSpace.s3,
+                RkSpace.s5,
+                RkSpace.s4,
+              ),
+              child: FilledButton(
+                onPressed: onStart,
+                child: Text(
+                  opensWithBiometric
+                      ? l10n.lockForgotStartBeforeOpen
+                      : l10n.lockForgotStart,
+                  // A longer label wraps at 200 % rather than clipping (13 §8).
+                  softWrap: true,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

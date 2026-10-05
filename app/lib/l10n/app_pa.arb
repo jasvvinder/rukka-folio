@@ -2686,10 +2686,24 @@
   "@legal.title": {
     "description": "machine-draft — native review M12"
   },
-  "lock.biometric.failed": "ਫ਼ੇਸ ਆਈਡੀ ਕੰਮ ਨਹੀਂ ਕੀਤੀ — ਆਪਣਾ ਪਿੰਨ ਭਰੋ",
+  "lock.biometric.button": "ਫ਼ੇਸ ਆਈਡੀ",
+  "@lock.biometric.button": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
+  "lock.biometric.failed": "ਚਿਹਰਾ ਪਛਾਣਿਆ ਨਹੀਂ ਗਿਆ",
+  "@lock.biometric.failed": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
   "lock.biometric.prompt": "ਆਪਣੇ ਖਾਤੇ ਖੋਲ੍ਹੋ",
   "lock.biometric.reenrolled": "ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਨਵਾਂ ਚਿਹਰਾ ਜਾਂ ਉਂਗਲ ਦਾ ਨਿਸ਼ਾਨ ਜੋੜਿਆ ਗਿਆ ਹੈ — ਇੱਕ ਵਾਰ ਆਪਣਾ ਪਿੰਨ ਭਰੋ",
-  "lock.biometric.retry": "ਫ਼ੇਸ ਆਈਡੀ ਫਿਰ ਵਰਤੋ",
+  "lock.biometric.retry": "ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
+  "@lock.biometric.retry": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
+  "lock.biometric.sheet_subtitle": "ਆਪਣੀ ਉਂਗਲ ਦਾ ਨਿਸ਼ਾਨ ਜਾਂ ਚਿਹਰਾ ਵਰਤੋ",
+  "@lock.biometric.sheet_subtitle": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05b)"
+  },
   "lock.biometric.unavailable": "ਇਸ ਵੇਲੇ ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਫ਼ੇਸ ਆਈਡੀ ਉਪਲਬਧ ਨਹੀਂ — ਆਪਣਾ ਪਿੰਨ ਭਰੋ",
   "lock.cooldown.body": "ਇਹ ਇੱਕ ਕੋਡ ਹੈ, ਤਾਲਾਬੰਦੀ ਨਹੀਂ। ਪਿੰਨ ਆਪਣੇ ਆਪ ਵਾਪਸ ਚਾਲੂ ਹੋ ਜਾਵੇਗਾ — ਕੁਝ ਵੀ ਗੁੰਮ ਨਹੀਂ ਹੋਇਆ।",
   "lock.cooldown.countdown": "{time} ਵਿੱਚ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
@@ -2697,18 +2711,67 @@
   "lock.cover.semantics": "ਬੈਕਗਰਾਊਂਡ ਵਿੱਚ ਹੋਣ ਸਮੇਂ ਐਪ ਢੱਕੀ ਹੋਈ ਹੈ",
   "lock.disabled.body": "ਤੁਹਾਡੇ ਖਾਤੇ ਸੁਰੱਖਿਅਤ ਹਨ ਅਤੇ ਕੁਝ ਵੀ ਗੁੰਮ ਨਹੀਂ ਹੋਇਆ। ਅਸੀਂ ਤੁਹਾਡੇ ਨੰਬਰ ਉੱਤੇ ਭੇਜਿਆ ਕੋਡ ਅਤੇ ਫਿਰ ਫ਼ੇਸ ਆਈਡੀ ਪੱਕੀ ਕਰੋ, ਤੇ ਨਵਾਂ ਪਿੰਨ ਚੁਣੋ।",
   "lock.disabled.title": "ਪਿੰਨ ਬੰਦ ਕਰ ਦਿੱਤਾ ਗਿਆ ਹੈ",
-  "lock.forgot.action": "ਪਿੰਨ ਭੁੱਲ ਗਏ?",
-  "lock.forgot.body": "ਅਸੀਂ ਤੁਹਾਡੇ ਰਜਿਸਟਰ ਕੀਤੇ ਨੰਬਰ ਉੱਤੇ ਕੋਡ ਭੇਜਾਂਗੇ ਅਤੇ ਫ਼ੇਸ ਆਈਡੀ ਮੰਗਾਂਗੇ। ਫਿਰ ਤੁਸੀਂ ਨਵਾਂ ਪਿੰਨ ਚੁਣੋਗੇ — ਤੁਹਾਡੇ ਖਾਤਿਆਂ ਨੂੰ ਕੁਝ ਨਹੀਂ ਹੁੰਦਾ।",
+  "lock.forgot.action": "ਪਿੰਨ ਭੁੱਲ ਗਏ",
+  "@lock.forgot.action": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
+  "lock.forgot.body": "ਅਸੀਂ ਤੁਹਾਡੇ ਨੰਬਰ ਉੱਤੇ ਕੋਡ ਭੇਜਾਂਗੇ, ਫਿਰ ਤੁਸੀਂ ਨਵਾਂ ਪਿੰਨ ਬਣਾ ਸਕਦੇ ਹੋ — ਤੁਹਾਡੇ ਖਾਤਿਆਂ ਉੱਤੇ ਕੋਈ ਅਸਰ ਨਹੀਂ ਪੈਂਦਾ।",
+  "@lock.forgot.body": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
+  "lock.forgot.body_before_open": "ਕੋਡ ਤਾਂ ਹੀ ਭੇਜਿਆ ਜਾ ਸਕਦਾ ਹੈ ਜਦੋਂ ਐਪ ਖੁੱਲ੍ਹੀ ਹੋਵੇ। ਹੁਣੇ ਆਪਣੀ ਉਂਗਲ ਦੇ ਨਿਸ਼ਾਨ ਜਾਂ ਚਿਹਰੇ ਨਾਲ ਇਸਨੂੰ ਖੋਲ੍ਹੋ, ਫਿਰ ਐਪ ਦੇ ਅੰਦਰ 'ਪਿੰਨ ਭੁੱਲ ਗਏ' ਕੋਡ ਭੇਜਦਾ ਹੈ — ਤੁਹਾਡੇ ਖਾਤਿਆਂ ਉੱਤੇ ਕੋਈ ਅਸਰ ਨਹੀਂ ਪੈਂਦਾ।",
+  "@lock.forgot.body_before_open": {
+    "description": "machine-draft — native review M12 (KEY145B)"
+  },
+  "lock.forgot.body_pin_only": "ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਕੋਈ ਉਂਗਲ ਦਾ ਨਿਸ਼ਾਨ ਜਾਂ ਚਿਹਰਾ ਨਹੀਂ ਜੋ ਦਿਖਾਵੇ ਕਿ ਇਹ ਤੁਸੀਂ ਹੋ, ਇਸ ਲਈ ਤੁਹਾਡੇ ਨੰਬਰ ਉੱਤੇ ਕੋਡ ਇਕੱਲਾ ਕਾਫ਼ੀ ਨਹੀਂ। ਨਵੇਂ ਫ਼ੋਨ ਵਾਂਗ ਸਾਬਤ ਕਰੋ ਕਿ ਇਹ ਤੁਸੀਂ ਹੋ — ਆਪਣੇ ਪਰਿਵਾਰ ਦੇ ਜੀਆਂ ਨਾਲ ਜਾਂ ਆਪਣੀ ਰਿਕਵਰੀ ਸ਼ੀਟ ਨਾਲ। ਤੁਹਾਡੇ ਖਾਤੇ ਸੁਰੱਖਿਅਤ ਹਨ।",
+  "@lock.forgot.body_pin_only": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05b)"
+  },
   "lock.forgot.cancel": "ਵਾਪਸ",
-  "lock.forgot.start": "ਮੈਨੂੰ ਕੋਡ ਭੇਜੋ",
-  "lock.forgot.title": "ਨਵਾਂ ਪਿੰਨ ਬਣਾਓ",
+  "lock.forgot.start": "ਕੋਡ ਭੇਜੋ",
+  "@lock.forgot.start": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
+  "lock.forgot.start_before_open": "ਐਪ ਖੋਲ੍ਹੋ",
+  "@lock.forgot.start_before_open": {
+    "description": "machine-draft — native review M12 (KEY145B)"
+  },
+  "lock.forgot.title": "ਆਪਣਾ ਪਿੰਨ ਭੁੱਲ ਗਏ",
+  "@lock.forgot.title": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
   "lock.keypad.delete": "ਮਿਟਾਓ",
+  "lock.keys_need_biometric": "ਤੁਹਾਡਾ ਪਿੰਨ ਸਹੀ ਹੈ। ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਤੁਹਾਡੇ ਖਾਤੇ ਤੁਹਾਡੀ ਉਂਗਲ ਦੇ ਨਿਸ਼ਾਨ ਜਾਂ ਚਿਹਰੇ ਨਾਲ ਬੰਦ ਹਨ, ਇਹਨਾਂ ਨੂੰ ਖੋਲ੍ਹਣ ਲਈ ਇੱਕ ਵਾਰ ਹੋਰ ਵਰਤੋ।",
+  "@lock.keys_need_biometric": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05b)"
+  },
   "lock.pin.entered": "6 ਵਿੱਚੋਂ {count} ਅੰਕ ਭਰੇ ਗਏ",
   "lock.pin.label": "ਆਪਣਾ ਪਿੰਨ ਭਰੋ",
-  "lock.pin.one_try_left": "ਪਿੰਨ ਬੰਦ ਹੋਣ ਤੋਂ ਪਹਿਲਾਂ ਇੱਕ ਕੋਸ਼ਿਸ਼ ਬਾਕੀ ਹੈ",
-  "lock.pin.tries_left": "ਪਿੰਨ ਬੰਦ ਹੋਣ ਤੋਂ ਪਹਿਲਾਂ {count} ਕੋਸ਼ਿਸ਼ਾਂ ਬਾਕੀ ਹਨ",
+  "lock.pin.one_try_left": "ਇੱਕ ਕੋਸ਼ਿਸ਼ ਬਾਕੀ ਹੈ, ਫਿਰ ਤੁਹਾਡੇ ਨੰਬਰ ਉੱਤੇ ਕੋਡ ਦੀ ਲੋੜ ਪਵੇਗੀ",
+  "@lock.pin.one_try_left": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
+  "lock.pin.one_try_left_pin_only": "ਪਿੰਨ ਬੰਦ ਹੋਣ ਤੋਂ ਪਹਿਲਾਂ ਇੱਕ ਕੋਸ਼ਿਸ਼ ਬਾਕੀ ਹੈ",
+  "@lock.pin.one_try_left_pin_only": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
+  "lock.pin.tries_left": "{count} ਕੋਸ਼ਿਸ਼ਾਂ ਬਾਕੀ ਹਨ, ਫਿਰ ਤੁਹਾਡੇ ਨੰਬਰ ਉੱਤੇ ਕੋਡ ਦੀ ਲੋੜ ਪਵੇਗੀ",
+  "@lock.pin.tries_left": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
+  "lock.pin.tries_left_pin_only": "ਪਿੰਨ ਬੰਦ ਹੋਣ ਤੋਂ ਪਹਿਲਾਂ {count} ਕੋਸ਼ਿਸ਼ਾਂ ਬਾਕੀ ਹਨ",
+  "@lock.pin.tries_left_pin_only": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
   "lock.pin.use_instead": "ਇਸਦੀ ਥਾਂ ਪਿੰਨ ਵਰਤੋ",
-  "lock.pin.wrong": "ਇਹ ਪਿੰਨ ਸਹੀ ਨਹੀਂ ਹੈ",
+  "lock.pin.wrong": "ਗ਼ਲਤ ਪਿੰਨ",
+  "@lock.pin.wrong": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
+  "lock.pin_only.note": "ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਕੋਈ ਉਂਗਲ ਦਾ ਨਿਸ਼ਾਨ ਜਾਂ ਚਿਹਰਾ ਨਹੀਂ ਜੋ ਤੁਹਾਡੇ ਖਾਤਿਆਂ ਦੀ ਰਾਖੀ ਕਰ ਸਕੇ, ਇਸ ਲਈ ਤੁਹਾਡਾ ਪਿੰਨ ਇਹਨਾਂ ਨੂੰ ਖੋਲ੍ਹਦਾ ਹੈ। ਫ਼ੋਨ ਦੀਆਂ ਸੈਟਿੰਗਾਂ ਵਿੱਚ ਇੱਕ ਜੋੜੋ, ਅਗਲੇ ਪਿੰਨ ਤੋਂ ਬਾਅਦ ਐਪ ਉਸਨੂੰ ਵਰਤੇਗੀ।",
+  "@lock.pin_only.note": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05b)"
+  },
   "lock.title": "ਆਪਣੇ ਖਾਤੇ ਖੋਲ੍ਹਣ ਲਈ ਅਨਲਾਕ ਕਰੋ",
   "manage.cancel": "ਸਬਸਕ੍ਰਿਪਸ਼ਨ ਬੰਦ ਕਰੋ",
   "@manage.cancel": {
@@ -3074,17 +3137,37 @@
   "onboarding.recovery_sheet.why_body": "ਤੁਹਾਡਾ ਡਾਟਾ ਇੰਨੀ ਮਜ਼ਬੂਤੀ ਨਾਲ ਬੰਦ ਹੈ ਕਿ ਅਸੀਂ ਵੀ ਇਸਨੂੰ ਨਹੀਂ ਖੋਲ੍ਹ ਸਕਦੇ। ਇਹ ਸ਼ੀਟ ਉਹ ਇੱਕੋ ਕੁੰਜੀ ਹੈ ਜੋ ਤੁਸੀਂ ਆਪ ਰੱਖਦੇ ਹੋ — ਇਸਨੂੰ ਛਾਪੋ ਤੇ ਆਧਾਰ ਤੇ LIC ਦੇ ਕਾਗਜ਼ਾਂ ਨਾਲ ਰੱਖੋ।",
   "onboarding.recovery_sheet.why_title": "ਇੱਥੇ “ਪਾਸਵਰਡ ਭੁੱਲ ਗਏ” ਨਹੀਂ ਹੁੰਦਾ",
   "onboarding.set_pin.biometric_note": "ਫ਼ੇਸ ਆਈਡੀ ਇਸ ਐਪ ਨੂੰ ਹਰ ਕਿਸੇ ਤੋਂ ਬੰਦ ਰੱਖਦੀ ਹੈ — ਜੇ ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਨਵਾਂ ਚਿਹਰਾ ਜੋੜਿਆ ਗਿਆ, ਤਾਂ ਐਪ ਤੁਹਾਡਾ ਪਿੰਨ ਪੁੱਛੇਗੀ",
-  "onboarding.set_pin.confirm.subtitle": "ਤਾਂ ਜੋ ਕੋਈ ਗ਼ਲਤੀ ਬਾਅਦ ਵਿੱਚ ਤੁਹਾਨੂੰ ਬਾਹਰ ਨਾ ਰੱਖੇ",
-  "onboarding.set_pin.confirm.title": "ਇੱਕ ਵਾਰ ਹੋਰ ਭਰੋ",
-  "onboarding.set_pin.continue": "ਅੱਗੇ ਵਧੋ",
-  "onboarding.set_pin.incomplete": "ਅੱਗੇ ਵਧਣ ਲਈ ਪੂਰੇ 6 ਅੰਕ ਭਰੋ",
-  "onboarding.set_pin.mismatch": "ਦੋਵੇਂ ਮੇਲ ਨਹੀਂ ਖਾਂਦੇ — ਦੁਬਾਰਾ ਸ਼ੁਰੂ ਕਰੋ",
+  "onboarding.set_pin.biometric_note_pin_only": "ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਕੋਈ ਉਂਗਲ ਦਾ ਨਿਸ਼ਾਨ ਜਾਂ ਚਿਹਰਾ ਨਹੀਂ ਲੱਗਿਆ, ਇਸ ਲਈ ਤੁਹਾਡਾ ਪਿੰਨ ਇਸ ਐਪ ਨੂੰ ਹਰ ਕਿਸੇ ਤੋਂ ਬੰਦ ਰੱਖਦਾ ਹੈ। ਫ਼ੋਨ ਦੀਆਂ ਸੈਟਿੰਗਾਂ ਵਿੱਚ ਇੱਕ ਜੋੜੋ, ਅਗਲੀ ਵਾਰ ਪਿੰਨ ਭਰਨ ਤੋਂ ਬਾਅਦ ਐਪ ਉਸਨੂੰ ਵਰਤੇਗੀ।",
+  "@onboarding.set_pin.biometric_note_pin_only": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05b)"
+  },
+  "onboarding.set_pin.confirm.subtitle": "ਹੁਣੇ ਚੁਣੇ ਛੇ ਅੰਕ ਪੱਕੇ ਕਰੋ।",
+  "@onboarding.set_pin.confirm.subtitle": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
+  "onboarding.set_pin.confirm.title": "ਇੱਕ ਵਾਰ ਫਿਰ ਭਰੋ",
+  "@onboarding.set_pin.confirm.title": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
+  "onboarding.set_pin.hint": "ਛੇ ਅੰਕ",
+  "@onboarding.set_pin.hint": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
+  "onboarding.set_pin.mismatch": "ਦੋਵੇਂ ਮੇਲ ਨਹੀਂ ਖਾਂਦੇ। ਦੁਬਾਰਾ ਸ਼ੁਰੂ ਕਰੋ।",
+  "@onboarding.set_pin.mismatch": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
   "onboarding.set_pin.save_failed": "ਅਸੀਂ ਉਹ ਪਿੰਨ ਸੰਭਾਲ ਨਹੀਂ ਸਕੇ — ਇੱਕ ਵਾਰ ਹੋਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
   "onboarding.set_pin.saving": "ਤੁਹਾਡਾ ਪਿੰਨ ਸੰਭਾਲਿਆ ਜਾ ਰਿਹਾ ਹੈ…",
-  "onboarding.set_pin.start_over": "ਪਿੰਨ ਬਦਲੋ",
-  "onboarding.set_pin.subtitle": "ਛੇ ਅੰਕ, ਸਿਰਫ਼ ਇਸ ਐਪ ਲਈ",
+  "onboarding.set_pin.subtitle": "ਜ਼ਿਆਦਾਤਰ ਤੁਸੀਂ ਫ਼ੇਸ ਆਈਡੀ ਵਰਤੋਗੇ। ਇਹ ਉਦੋਂ ਲਈ ਹੈ ਜਦੋਂ ਉਹ ਕੰਮ ਨਾ ਕਰੇ — ਅਤੇ ਇਹ ਤੁਹਾਡੇ ਖਾਤੇ ਉਸ ਤੋਂ ਵੀ ਬੰਦ ਰੱਖਦਾ ਹੈ ਜਿਸਨੂੰ ਤੁਹਾਡੇ ਫ਼ੋਨ ਦਾ ਪਾਸਕੋਡ ਪਤਾ ਹੈ।",
+  "@onboarding.set_pin.subtitle": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
   "onboarding.set_pin.title": "ਆਪਣਾ ਪਿੰਨ ਬਣਾਓ",
-  "onboarding.set_pin.why": "ਤੁਹਾਡੇ ਪਰਿਵਾਰ ਨੂੰ ਤੁਹਾਡੇ ਫ਼ੋਨ ਦਾ ਪਾਸਕੋਡ ਪਤਾ ਹੈ। ਇਹ ਉਹਨਾਂ ਨੂੰ ਨਹੀਂ ਪਤਾ ਹੋਵੇਗਾ।",
+  "onboarding.set_pin.why": "ਇਹ ਤੁਹਾਡੇ ਖਾਤੇ ਉਸ ਤੋਂ ਵੀ ਬੰਦ ਰੱਖਦਾ ਹੈ ਜਿਸਨੂੰ ਤੁਹਾਡੇ ਫ਼ੋਨ ਦਾ ਪਾਸਕੋਡ ਪਤਾ ਹੈ।",
+  "@onboarding.set_pin.why": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
   "onboarding.trust.accounts.add_bank": "ਬੈਂਕ ਖਾਤਾ ਜੋੜੋ",
   "onboarding.trust.accounts.balance_label": "ਸ਼ੁਰੂਆਤੀ ਬਕਾਇਆ",
   "onboarding.trust.accounts.balancing_label": "ਇਸ ਨਾਲ ਬਰਾਬਰ ਹੁੰਦਾ ਹੈ",

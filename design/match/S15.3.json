@@ -1,0 +1,68 @@
+{
+ "sid": "S15.3",
+ "verdict": "deviates",
+ "frames": [
+  "c1/S15.3/Enter PIN · Face ID above the boxes",
+  "c1/S15.3/Wrong PIN · tries remaining",
+  "c1/S15.3/Forgot PIN · a code, not a lockout"
+ ],
+ "captures": [
+  "S15.3__default",
+  "S15.3__wrong-pin",
+  "S15.3__forgot-pin"
+ ],
+ "screen_files": [
+  "app/lib/features/lock/screens/s15_lock_screen.dart",
+  "app/lib/features/lock/widgets/pin_pad.dart",
+  "app/lib/features/lock/widgets/face_id_glyph.dart",
+  "app/lib/features/onboarding/widgets/sealed_mark.dart"
+ ],
+ "deviations": [
+  {
+   "what": "Enter PIN / Wrong PIN are laid out from the top with the tiled keypad above 'Forgot PIN'; the c1 frames centre the column and draw no keypad",
+   "reason": "The boxes need an input surface (no dead end); the c3 S15 'PIN instead · six digits' frame draws this same state with the in-app keypad, and one shared PinKeypad keeps S15, S15.3 and S0.8 from drifting. A system keyboard would also expose the PIN to third-party keyboards",
+   "authority": "ADR 2026-10-05 §1 via c3/S15/PIN instead · six digits; 07 §1 rule 6 (no dead ends)"
+  },
+  {
+   "what": "The next empty box is edged in primary (c3 draws it; c1 does not)",
+   "reason": "Same state drawn two ways; the c3 frame's focus cue is kept as the visible-focus aid",
+   "authority": "c3/S15/PIN instead · six digits; 13 §8 (focus visible)"
+  },
+  {
+   "what": "Forgot PIN page has no field showing the registered number",
+   "reason": "The lock mounts before any session (cold_start_gate.dart) and LockScope carries no number; inventing one is worse than leaving it out. The reset flow behind 'Send the code' owns the number. ⚠️ SPEC left at _ForgotPage",
+   "authority": "⚠️ SPEC: s15_lock_screen.dart _ForgotPage (open item, lane M13-KEY145B)"
+  },
+  {
+   "what": "On a PIN-only phone the forgot page says the recovery-ladder copy (lock.forgot.body_pin_only) and the tries row says 'before the PIN switches off'",
+   "reason": "A code to the number alone is not the reset on a phone with no biometric (desk 147); conservative reading (c)",
+   "authority": "ADR 2026-10-05b §1 and its Open item (desk 147)"
+  },
+  {
+   "what": "Titles 'Unlock to open your books' / 'Enter your PIN' / 'Wrong PIN' draw in titleLarge (20 w500) where the canvas draws 17–19 px at 400–600",
+   "reason": "A canvas size maps to its type role, never a literal; the nearest role to 17–19 px is section (titleLarge)",
+   "authority": "ADR 2026-10-05 §1 (tokens.json decides values); design/tokens/tokens.json type.section"
+  },
+  {
+   "what": "Filled 'Send the code' button carries the theme's rounded corners; the canvas draws it square",
+   "reason": "Corner radius comes from the app-wide FilledButton theme (RkRadius.md), not this screen; changing it is foundation work for every screen at once",
+   "authority": "app/lib/shared/theme.dart filledButtonTheme (tokens radius.md) — outside this lane's folders"
+  },
+  {
+   "what": "Body copy (bodyLarge / bodyMedium: subtitles, the forgot-page body, status lines) draws with Material's inherited tracking — 0.5 px on bodyLarge, 0.25 px on bodyMedium — at 16 px, where the canvas sets 15.5 px untracked; the O4b subtitle wraps to four lines where the frame takes three, and the S15.3 forgot body breaks one word earlier",
+   "reason": "No token defines tracking (tokens.json type.scale carries none) and RkType.body sets no letterSpacing, so ThemeData merges rkTextTheme over the M3 defaults (theme_data.dart `defaultTextTheme.merge(textTheme)`; typography.dart bodyLarge letterSpacing 0.5). The fix is one line in rkTextTheme (letterSpacing: 0 for every slot) and changes every screen at once — foundation work outside this lane's folders; overriding it per screen would hide the defect. 15.5 px maps to the body role (16 px) by rule. Open item to the theme owner (KEY145B review finding 4)",
+   "authority": "app/lib/shared/theme.dart rkTextTheme — outside this lane's folders (open item); ADR 2026-10-05 §1 (tokens.json decides values: type.body 16)"
+  },
+  {
+   "what": "Sealed mark at 48 px in Enter PIN / Wrong PIN where the c1 frames draw 52 px (cooldown and disabled use the c1 52 px; the face states the c3 60 px)",
+   "reason": "Enter PIN / Wrong PIN are the same widget state as c3 'PIN instead · six digits' and are built to that frame (keypad, layout), which draws the mark at 48 px; one state cannot carry both sizes. Sizes come from tokens (RkSpace.s12 = 48, s12 + s1 = 52, s12 + s3 = 60)",
+   "authority": "c3/S15/PIN instead · six digits (48 px); ADR 2026-10-05 §1"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-05",
+ "hashes": {
+  "screens": "383d52f26d284eb09242ab37a2ce22856e98bbb308eb57aa25806878e49557a0",
+  "frames": "ea162bae587f530197f2e1300e796072b81bf54dc9d6a9d36631f596343b637c"
+ }
+}

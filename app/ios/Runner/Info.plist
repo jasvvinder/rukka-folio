@@ -32,6 +32,8 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Face ID opens your books on this phone. If a new face is added to this phone, the app asks for your PIN.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>This app uses the camera only to read the square codes it shows: to check a family member’s key, to link a phone, or to read your recovery sheet. Nothing is recorded or sent.</string>
 	<key>UIApplicationSceneManifest</key>
