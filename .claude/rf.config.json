@@ -12,9 +12,10 @@
       "2026-10-01": 8000000,
       "2026-10-02": 3000000,
       "2026-10-03": 15500000,
-      "2026-10-04": 15000000
+      "2026-10-04": 15000000,
+      "2026-10-05": 10000000
     },
-    "_overrides_note": "ADR 2026-09-24 §3: dated, owner-set exceptions to daily_tokens. A date not listed falls back to daily_tokens; an expired entry is inert and may be deleted. Weekend of 26-27 Sep, owner-directed 24 Sep. 28 Sep = 10 M, owner-directed 28 Sep. 1 Oct = 8 M, owner-directed 1 Oct (review cycle of the five 30 Sep slices). 2 Oct = 3 M, owner-directed 2 Oct (CAPR-PG, desk 70). 3 Oct = 3 M, owner-directed 3 Oct (review cycle of SEC58/RLSH/SWEEP); raised to 12 M, owner-directed 3 Oct (server completion push); raised to 15.5 M, owner-directed 3 Oct (cycle: 0027 + S11.1 tenant_id / F1-03b-1). 4 Oct = 6 M, owner-directed 4 Oct (cycle: desk 37, 44, 53); raised to 15 M, owner-directed 4 Oct evening (cycle: desks 107, 116, 121).",
+    "_overrides_note": "ADR 2026-09-24 §3: dated, owner-set exceptions to daily_tokens. A date not listed falls back to daily_tokens; an expired entry is inert and may be deleted. Weekend of 26-27 Sep, owner-directed 24 Sep. 28 Sep = 10 M, owner-directed 28 Sep. 1 Oct = 8 M, owner-directed 1 Oct (review cycle of the five 30 Sep slices). 2 Oct = 3 M, owner-directed 2 Oct (CAPR-PG, desk 70). 3 Oct = 3 M, owner-directed 3 Oct (review cycle of SEC58/RLSH/SWEEP); raised to 12 M, owner-directed 3 Oct (server completion push); raised to 15.5 M, owner-directed 3 Oct (cycle: 0027 + S11.1 tenant_id / F1-03b-1). 4 Oct = 6 M, owner-directed 4 Oct (cycle: desk 37, 44, 53); raised to 15 M, owner-directed 4 Oct evening (cycle: desks 107, 116, 121). 5 Oct = 6 M, owner-directed 5 Oct (cycle: KEY145 Android key-store startup crash + DM0 review of the design-match tooling, ADR 2026-10-05); raised to 10 M, owner-directed 5 Oct (cycle: KEY145B PIN-only per ADR 2026-10-05b + desk 141 app bar font).",
     "_note": "weekly_tokens: no script can read your plan's quota (ADR 2026-09-13e; wf-spend.sh says so in its own comment). Run /usage in-session, read the weekly number, put it here. On a Team plan it may be pooled across seats — use YOUR share. Until it is set, the board shows spend with no ceiling. daily_tokens is the pacing ceiling: roughly weekly/6, so the week spreads over six build days instead of two (17-19 Sep burned 11.8M = 45% of all-time spend in three days)."
   },
 

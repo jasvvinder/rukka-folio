@@ -12,6 +12,99 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-05 — M13: design match (ADR 2026-10-05) · Android runs, PIN-only until a biometric (ADR 2026-10-05b) · AppBar font (`/cycle` ×3, push gate green ×2)
+
+Owner reported that no screen in the demo matched the design. Cause: the screen recipe, the UI lane prompts and the
+review lane never named the canvas frames, so layouts were built from prose and nothing ever looked at a screen
+(S1 even breaks 13 §10 decision 3, verbs docked low).
+
+**Added**
+- `scripts/design_match.py`: `index` (frame ids + hashes → `design/match/canvas-index.json`, committed: 104 S-ids/252
+  frames + 26 variant ids/49 frames, S-ids via the 13 §3.3 table), `render` (headless Chrome, 390×844 at 2×, Mukta),
+  `pair` (canvas beside app captures → `build/design_match/pairs/<S-id>.png`), `stamp` (record hashes).
+- `app/test/shared/design_capture.dart`: `rkDesignCapture`, real Mukta/Mukta Mahee/Noto Sans/Material Icons, optional
+  phone-width shell with the tab bar, PNG to `app/build/design_match/app/`, macOS-only golden. Self-test
+  `design_capture_test.dart` (`F1-1005-2`, `F1-1005-3`).
+- Android capture (owner, same day): `RkDesignTarget.ios` (390×844, matched against the frame) and
+  `RkDesignTarget.android` (360×800, Android's floor, reviewed for reflow). Every state is captured twice, and
+  the platform is always set explicitly, because a Flutter test otherwise runs as Android
+  (`foundation/_platform_io.dart`), so the first S1 captures were Android-flavoured at iPhone size (`F1-1005-4`).
+- Environment (local, not committed): Android 36 arm64 system image; emulators `rf_phone` (Medium Phone, 411×914 dp)
+  and `rf_min` (1080×2400 at density 480 = 360×800 dp, Android's floor, 13 §10 #9); GPU host mode and hardware
+  keyboard on both. `rf_min` boots and reports 1080x2400 / 480.
+- `scripts/check_design_match.dart` + `scripts/src/design_match.dart`, test `test/scripts/check_design_match_test.dart`
+  (`F1-1005-1`, 10 cases incl. Dart↔Python hash agreement); `ci.sh` step, warn-only. Today: 0 match · 76 missing ·
+  8 undrawn.
+
+- **Evening cycles** (each reviewed, verified, repaired in one round; push gate green after DM0/KEY145 and again after KEY145B/KEY141):
+  - KEY145 (`lane-ui-hard`, 3-lens): the root cause, from flutter_secure_storage 11.2.0 source, was not the one I guessed. Absent
+    markers on a fresh install read as an algorithm change; one plugin instance per namespace let the first option set configure
+    the device keys; and `.biometric()` on the DB key prompted on any phone with a screen lock. Now promptless / device item classes
+    have their own namespaces, migration is off, `USE_BIOMETRIC` is declared, and `allowBackup=false` + `data_extraction_rules.xml`
+    (ADR 2026-09-05c §8) are set (F1-05d-1…7).
+  - DM0: review of this morning's tooling found 14 confirmed defects, all repaired. Canvas renders were missing the `--ff` font
+    variable (131 frames rendered in serif); the gate could be fooled by `no-canvas` or by naming another screen's frame; the capture
+    now uses the production `RkShell` and the phone safe area, and fails on text drawn outside the design faces; golden branch test
+    F1-1005-5.
+  - KEY145B: ADR 2026-10-05b built. PIN-only device-key class, upgrade after MPIN unlock (read back, then sweep), re-create after
+    invalidation via a native Keystore helper (`RukkaKeystoreChannel.kt`), cold-start gate with *Use PIN instead*, S15 PIN-only
+    variant, S0.8 PIN-only line, iOS `NSURLIsExcludedFromBackupKey` (C-1005b-1…3, F1-1005b-1…2). Emulator: no biometric → Home;
+    PIN + fingerprint → upgrade; second fingerprint → invalidation → books lost on that phone (desk 152). Review blocker repaired:
+    a failed iOS Face ID (-25293/-25308) had been treated as an invalidation and would have removed the keys.
+  - KEY141: `rkTextTheme` faces every style in Mukta. AppBar titles **and** FilledButton labels had been drawing in the platform
+    font (F1-1005-6/7).
+  - Gate fix: the canvas-index field `key` was renamed to `frame`, after gitleaks read it as a generic API key (12 false positives).
+    No allowlist was added.
+  - Design-match records: `design/match/S15.json`, `S15.3.json`, `S0.8.json` (verdict deviates, PIN-only per ADR 2026-10-05b).
+
+**Changed**
+- CLAUDE.md § Precedence item 2 (owner-directed): canvas frames decide appearance; Layout and Commands list the tooling.
+- `.claude/skills/ui-screen` (render the frame before building; required *Design match* step), `lane-ui`/`lane-ui-hard`
+  (canvas rule; may write their own `design/match/<S-id>.json`), `lane-review` (new category 2 *Design match*),
+  `.claude/workflows/cycle.js` (`design` category, UI-slice review/build/repair wording, authority lens accepts a
+  frame), `.claude/skills/cycle`, `.claude/commands/design-pull.md` (step 5b: re-index, list stale records).
+- `design/design-system.md:3` and 13 §3.3 / §9 cross-reference the ADR.
+
+**Decided**
+- `docs/decisions/2026-10-05-design-match.md` — 🔒 the canvas frame is the authority on layout, components, placement,
+  icons and density (specs keep behaviour, tokens keep values, 🔒 lines and accessibility are never overridden); every UI
+  slice ends with capture → pair → record → stamp; approved captures become macOS-only goldens; the gate reports
+  missing/stale/unexplained records, warn-only until the re-skin closes; review checks design right after test honesty.
+
+**Changed** (dependencies)
+- `pubspec.lock`: `flutter_secure_storage` 11.0.0 → 11.2.0, `flutter_secure_storage_platform_interface` 2.0.3 → 2.1.1
+  (owner-chosen, desk 144).
+
+**Decided** (afternoon)
+- `docs/decisions/2026-10-05b-pin-only-until-biometric.md` — 🔒 owner chose option B. A phone with no strong biometric enrolled
+  runs PIN-only: the device-key item sits in the hardware keystore without a biometric binding, the MPIN alone gates the app,
+  and the device passcode is never offered. It upgrades to biometric binding at the first MPIN unlock after enrolment; losing
+  every biometric drops back through the PIN; device keys are minted after O4b, and *Use PIN instead* works at cold start.
+  06 §4 item 4 and 07 §5.6 are amended. Forgot-PIN on a PIN-only phone is open (desk 147).
+
+**Open**
+- Desks 138 (icon set) · 139 (budget overrides + freeze) · 140 (S1 frame has no centre **+**, against design-system §4.1 🔒)
+  · 141 (app bar titles in the platform font: `theme.dart:81`) · 142 (RESKIN1 full audit, next) · 143 (tooling follow-ups:
+  pa/hi/dark renders, Canvas 17 not indexed).
+- **Android** (desks 144–146): the app did not build (`flutter_secure_storage` 11.0.0 pins `compileSdk = 37`, upstream
+  #1224). The owner chose the 11.2.0 bump (lock only; the iOS `_darwin` package is unchanged at 0.4.0), and the APK now
+  builds. On the emulator, though, it **dies at startup in `KeychainKeyStore.read`**: the plugin detects an "algorithm
+  change" on a fresh install and demands a biometric prompt that Android refuses. The manifest has no `USE_BIOMETRIC`, and
+  the two Android option sets share one storage namespace (a hypothesis, not yet verified). This is key-storage security
+  work for a briefed lane (desk 145), not a patch. The launch screen is still Flutter's logo (desk 146).
+- Everything above was reviewed (`lane-review`), verified and repaired in `/cycle`, then gated (push lane green twice).
+- Desks 152 (owner/security: a biometric enrolment change loses the books on that phone; options (a)–(d), (b) recommended),
+  153 (owner: correct ADR 2026-10-05b §4 — my wording "minted after O4b" is impossible; S0.2 registration needs the keys),
+  154 (KEY145B ⚠️ SPECs: Forgot-PIN number field, stated-not-asked line on S0.8, "Face ID" on fingerprint phones, English
+  BiometricPrompt defaults), 155 (S15 frames disagree; SealedMark redraw touches S0.0/S15.1), 147, 149, 151 (insets still
+  unmeasured). Owner is designing a dedicated sign-in screen (S0.2 serves sign-up and device activation today).
+- Spend: ~6.8 M of a 10 M owner override (cycles 3.0 M + 0.6 M + 3.1 M, gates ~0.06 M).
+
+**Commits**
+- _(fill next session)_
+
+---
+
 ## 2026-10-04 (late night) — M13: desks 80, 81, 90(b)(c), 99, 113 built (`/cycle` WIRE90 + INV113 + S21B, push gate green, RLS 316/0)
 
 **Added**
