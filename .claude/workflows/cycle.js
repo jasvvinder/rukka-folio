@@ -4,7 +4,7 @@ export const meta = {
   whenToUse: 'Invoked by /cycle. The gate stays a SEPARATE run (workflow `gate-run`) — a limit hit must cost one stage, not the phase.',
   phases: [
     { title: 'Build', detail: 'one lane per slice, disjoint directories, tests-first' },
-    { title: 'Review', detail: 'read-only reviewer per slice, spec sections that own it' },
+    { title: 'Review', detail: 'read-only reviewer per slice, spec sections that own it, and the canvas pair for every screen (ADR 2026-10-05)' },
     { title: 'Verify', detail: 'adversarial refutation — findings must survive to reach the owner' },
     { title: 'Repair', detail: 'confirmed findings go back to the lane that owns the directory' },
   ],
@@ -48,7 +48,7 @@ const FINDINGS_SCHEMA = {
           file: { type: 'string' },
           line: { type: 'number' },
           severity: { type: 'string', description: 'blocker | major | minor' },
-          category: { type: 'string', description: 'test-honesty | spec | security | lock-trace | invariant' },
+          category: { type: 'string', description: 'test-honesty | design | spec | security | lock-trace | invariant' },
           claim: { type: 'string', description: 'one sentence: what is wrong' },
           evidence: { type: 'string', description: 'file:line, doc section, or golden row that shows it' },
           owning_dirs: { type: 'array', items: { type: 'string' } },
@@ -74,7 +74,7 @@ const VERDICT_SCHEMA = {
 const LENSES = [
   'correctness — read the actual code path and say whether the claim holds as stated',
   'context — is this already handled elsewhere (a caller, a guard, a deterministic checker, an existing test)?',
-  'authority — does the spec section cited actually say this, and does a newer ADR override it?',
+  'authority — does the spec section or canvas frame cited actually say or draw this, and does a newer ADR override it? (a canvas frame is an authority on how a screen looks, ADR 2026-10-05 §1)',
 ]
 
 if (!args || !Array.isArray(args.slices) || args.slices.length === 0) {
@@ -101,6 +101,7 @@ for (const s of args.slices) {
 
 const M = args.milestone || 'M?'
 const ROUNDS = args.maxRepairRounds ?? 2
+const isUi = (s) => s.dirs.some((d) => d.startsWith('app/lib/features') || d.startsWith('app/lib/shared'))
 const isHigh = (s) => s.risk === 'high' || s.dirs.some((d) => HIGH_RISK.some((h) => d.startsWith(h)))
 
 log(`${M}: ${args.slices.length} slice(s) — ${args.slices.map((s) => `${s.key}${isHigh(s) ? '*' : ''}`).join(' ')}  (* = 3-vote verify)`)
@@ -112,7 +113,14 @@ What it was asked to build:
 ${s.prompt}
 
 Read the current state of those directories and the spec sections that own them. Report findings
-per your agent instructions — test-honesty first. Write
+per your agent instructions — test-honesty first.${isUi(s) ? `
+
+This slice draws screens, so the **design** check applies (ADR 2026-10-05 §2, §5): for every S-id it
+builds or changes, open \`design/match/<S-id>.json\` and the pair image \`build/design_match/pairs/<S-id>.png\`
+(re-run \`python3 scripts/design_match.py pair <S-id>\` if it is missing or older than the screen). A visible
+difference the record does not explain is **major / design**; a record that says "match" over a pair that
+does not is **major / test-honesty**; a built screen with a canvas and no record is **major / design**.
+Cite the frame key and the caption.` : ''} Write
 \`.claude/lane-reports/${M}-${s.key}.review.json\` as you go.
 You have no Edit tool. Do not propose patches; state the defect and its evidence.`
 
@@ -138,7 +146,8 @@ const built = await pipeline(
     s.skipBuild
       ? Promise.resolve({ complete: true, files: [], tests: [], open: [], notes: 'build skipped' })
       : agent(
-          `${s.prompt}\n\nYou own ONLY: ${s.dirs.join(', ')}. Touch nothing outside them.\n` +
+          `${s.prompt}\n\nYou own ONLY: ${s.dirs.join(', ')}. Touch nothing outside them` +
+            (isUi(s) ? `, except design/match/<S-id>.json for the S-ids you build (ADR 2026-10-05 §2).\n` : '.\n') +
             `Write .claude/lane-reports/${M}-${s.key}.json as you go (key "${s.key}").`,
           { label: `build:${s.key}`, phase: 'Build', agentType: s.agent, schema: LANE_SCHEMA },
         ),
@@ -198,7 +207,8 @@ while (outstanding.length && round < ROUNDS) {
     outstanding.map((r) => () =>
       agent(
         `Repair confirmed review findings in slice **${r.slice.key}** (${M}).\n` +
-          `You own ONLY: ${r.slice.dirs.join(', ')}.\n\n` +
+          `You own ONLY: ${r.slice.dirs.join(', ')}` + (isUi(r.slice) ? ', plus design/match/<S-id>.json for its S-ids' : '') + `.\n` +
+          (isUi(r.slice) ? `A design finding is fixed when the screen matches its frame (or the record explains why not), re-captured, re-paired and re-stamped.\n` : '') + `\n` +
           r.confirmed
             .map((f, i) => `${i + 1}. [${f.severity}/${f.category}] ${f.file}${f.line ? ':' + f.line : ''}\n   ${f.claim}\n   evidence: ${f.evidence}`)
             .join('\n\n') +

@@ -20,14 +20,27 @@ In priority order — the first is the one this repo keeps getting wrong:
    "ran on the empty fake in production until 18 Sep" — feature shipped, suite green, wired to
    nothing. For each new test ask: if the production seam were replaced by a stub returning empty,
    would this test still pass? If yes, that is a finding.
-2. **Spec conformance.** Code vs the doc that *owns* the topic (CLAUDE.md § Precedence: 02 ledger,
-   03 storage, 04 crypto, 05 sync, 06 identity, 07 screens, 13 UX). **Docs win.** Cite section
+2. **Design match** (ADR 2026-10-05 §5), for any slice that touches `app/lib/features` or
+   `app/lib/shared`. On 5 Oct 2026 the owner found that **no screen matched its canvas**, because
+   until then nobody, reviewer included, ever looked at one. For each S-id in the slice, open
+   `design/match/<S-id>.json` and `build/design_match/pairs/<S-id>.png` (canvas left, app right;
+   regenerate with `python3 scripts/design_match.py pair <S-id>` if missing or older than the
+   screen). Then **look**: layout, component choice, placement, icons, hierarchy, density. A
+   difference the record does not explain with a reason and an authority is **major / design**. A
+   record that says `match` over a pair that does not match is **major / test-honesty**. A built
+   screen with a canvas and no record is **major / design**. Cite the frame key from
+   `design/match/canvas-index.json` and the caption. Only the default 390×844 English light iOS render
+   has to match; reflow at 200 % text or 360 px is allowed when the record says so (07 §1, 13 §8).
+   Each state also has an `__android360` capture (360×800, Android). Anything clipped, overlapping or
+   unreadable there is **major / design**; a plain Android platform default is not a finding.
+3. **Spec conformance.** Code vs the doc that *owns* the topic (CLAUDE.md § Precedence: 02 ledger,
+   03 storage, 04 crypto, 05 sync, 06 identity, 07 screens, 13 UX). **Docs win** on behaviour; the canvas frame wins on how a screen looks (ADR 2026-10-05 §1). Cite section
    numbers, not impressions.
-3. **Security**, when the slice touches `core_crypto`, `sync_engine`, `server/`: trust boundaries,
+4. **Security**, when the slice touches `core_crypto`, `sync_engine`, `server/`: trust boundaries,
    unverified-fingerprint wrapping (04 §8.2), RLS grants, ordering and replay.
-4. **🔒 and traceability.** Any 🔒 line touched carries `⟦tests: …⟧`; no ADR contradicted; a
+5. **🔒 and traceability.** Any 🔒 line touched carries `⟦tests: …⟧`; no ADR contradicted; a
    behaviour change that flips a green test carries the `@Skip('superseded by ADR …')`.
-5. **Repo invariants.** Integer paise, append-only, projector purity, tokens-only in widgets,
+6. **Repo invariants.** Integer paise, append-only, projector purity, tokens-only in widgets,
    EN/PA/HI parity, no plaintext financial data anywhere it could be logged.
 
 ## What you must NOT report

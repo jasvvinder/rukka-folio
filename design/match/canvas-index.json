@@ -1,0 +1,2073 @@
+{
+ "_": "Written by scripts/design_match.py index (ADR 2026-10-05 §4). Ids, captions and hashes only — frame content stays in the git-ignored mirror. Regenerate after every /design-pull.",
+ "screens": {
+  "S0.0": [
+   {
+    "frame": "c1/O0/Splash · the sealed mark and the lockup, nothing else",
+    "design_id": "O0",
+    "caption": "Splash · the sealed mark and the lockup, nothing else",
+    "sha256": "43ada80fb6d8b67a5dbabf7c6b271534107136d0067a3e007c9f098989fd6ff4"
+   },
+   {
+    "frame": "c11/O0/Splash",
+    "design_id": "O0",
+    "caption": "Splash",
+    "sha256": "43ada80fb6d8b67a5dbabf7c6b271534107136d0067a3e007c9f098989fd6ff4"
+   }
+  ],
+  "S0.1": [
+   {
+    "frame": "c1/O1/Language picker · the first screen ever shown",
+    "design_id": "O1",
+    "caption": "Language picker · the first screen ever shown",
+    "sha256": "b484aa74c9c70854b3a39f91d4434b5e2cabaea5abe4102001b00cd302671124"
+   },
+   {
+    "frame": "c11/O1/Language picker",
+    "design_id": "O1",
+    "caption": "Language picker",
+    "sha256": "b484aa74c9c70854b3a39f91d4434b5e2cabaea5abe4102001b00cd302671124"
+   }
+  ],
+  "S0.2": [
+   {
+    "frame": "c1/O2a/Phone · +91 fixed",
+    "design_id": "O2a",
+    "caption": "Phone · +91 fixed",
+    "sha256": "8f91bdf007f0e0461fb8dd78562802bdd7303321bb9c5470f62ca743c09b7d7c"
+   },
+   {
+    "frame": "c1/O2b/OTP · six boxes",
+    "design_id": "O2b",
+    "caption": "OTP · six boxes",
+    "sha256": "dda8b835d2e89c74420a4ab7d78ac9dad099535ad33de501e7de2adab8f1f5a8"
+   },
+   {
+    "frame": "c11/O2b/OTP · the only credential",
+    "design_id": "O2b",
+    "caption": "OTP · the only credential",
+    "sha256": "dda8b835d2e89c74420a4ab7d78ac9dad099535ad33de501e7de2adab8f1f5a8"
+   }
+  ],
+  "S0.3": [
+   {
+    "frame": "c1/O3/Purpose picker · five cards",
+    "design_id": "O3",
+    "caption": "Purpose picker · five cards",
+    "sha256": "6c587485e512da827cf0935ee33b1e4e5773943a47c4cbb0ed4107a55352fe88"
+   },
+   {
+    "frame": "c11/O3/Purpose · chooses Myself",
+    "design_id": "O3",
+    "caption": "Purpose · chooses Myself",
+    "sha256": "22aa9aeaedeaca869ec3d25128e6aaef63950e0f6b9020f7895c3baa08cabdf0"
+   },
+   {
+    "frame": "c12/O3/Purpose · chooses My shop",
+    "design_id": "O3",
+    "caption": "Purpose · chooses My shop",
+    "sha256": "f4bd158f14a4b4a4328fd4027876cc33a03c4c45687acf146792c960fa1a5869"
+   },
+   {
+    "frame": "c13/O3/Purpose · chooses My family",
+    "design_id": "O3",
+    "caption": "Purpose · chooses My family",
+    "sha256": "fa4b2f2b84d3c4862810f47bec6a0a1c4d5bdad4017e0ac3a23d588cd3ea5447"
+   },
+   {
+    "frame": "c14/O3/Purpose · chooses Our trust",
+    "design_id": "O3",
+    "caption": "Purpose · chooses Our trust",
+    "sha256": "046bb1b79313c351e35880614c277b8a219590f55216d13275d7d8c05d894845"
+   }
+  ],
+  "S0.4": [
+   {
+    "frame": "c1/O4/Name &amp; photo",
+    "design_id": "O4",
+    "caption": "Name &amp; photo",
+    "sha256": "8d271fe480b2f3962f51e875e2dabcccbe1f05ff2ffdb190e0cf470143e63640"
+   }
+  ],
+  "S0.05": [
+   {
+    "frame": "c1/O0b/Welcome 1 · your books, kept properly",
+    "design_id": "O0b",
+    "caption": "Welcome 1 · your books, kept properly",
+    "sha256": "6651dbc1fe9f25338863cfbae92288f098ea34e6c65a4e3ed7847983412771c7"
+   },
+   {
+    "frame": "c1/O0b/Welcome 2 · your family, on the same page",
+    "design_id": "O0b",
+    "caption": "Welcome 2 · your family, on the same page",
+    "sha256": "86230bf32f6afdf44e128923acd1bb5c0fb2af007b8cf95908c3009f37054cda"
+   },
+   {
+    "frame": "c1/O0b/Welcome 3 · sealed to everyone else",
+    "design_id": "O0b",
+    "caption": "Welcome 3 · sealed to everyone else",
+    "sha256": "e557f8c9343f6d5e2e0a6fedb9d23214ade9c4c5508b0389e796ec10a0f482b9"
+   },
+   {
+    "frame": "c11/O0b/Welcome · your books, kept properly",
+    "design_id": "O0b",
+    "caption": "Welcome · your books, kept properly",
+    "sha256": "6651dbc1fe9f25338863cfbae92288f098ea34e6c65a4e3ed7847983412771c7"
+   },
+   {
+    "frame": "c11/O0b/Welcome · sealed to everyone else",
+    "design_id": "O0b",
+    "caption": "Welcome · sealed to everyone else",
+    "sha256": "e557f8c9343f6d5e2e0a6fedb9d23214ade9c4c5508b0389e796ec10a0f482b9"
+   }
+  ],
+  "S0.5": [
+   {
+    "frame": "c1/O5/Keeping your books safe",
+    "design_id": "O5",
+    "caption": "Keeping your books safe",
+    "sha256": "744db01be5489291c5d83fcc13af781abaf1526b1b65c21797981181fcf620ac"
+   },
+   {
+    "frame": "c1/O5/No iCloud variant · the sheet is promoted",
+    "design_id": "O5",
+    "caption": "No iCloud variant · the sheet is promoted",
+    "sha256": "8758ae3934ece6db1787ccb426af99d3e0acc3d0d732692c653fd1683763e878"
+   },
+   {
+    "frame": "c11/O5/Keeping your books safe",
+    "design_id": "O5",
+    "caption": "Keeping your books safe",
+    "sha256": "744db01be5489291c5d83fcc13af781abaf1526b1b65c21797981181fcf620ac"
+   }
+  ],
+  "S0.5b": [
+   {
+    "frame": "c1/O5b/Recovery sheet · print or save",
+    "design_id": "O5b",
+    "caption": "Recovery sheet · print or save",
+    "sha256": "c116e465d746077fb1fef1fe4749a404f64e0bb2e54e03332f618fbaf4a7e65b"
+   }
+  ],
+  "S0.6": [
+   {
+    "frame": "c1/S0.6/Opening balances · first run",
+    "design_id": "S0.6",
+    "caption": "Opening balances · first run",
+    "sha256": "7f0830e69a2d2f9f4494958ceb7fb761a3e83aea40d1e416fbe9edebab586cf8"
+   },
+   {
+    "frame": "c11/O6a/Opening balances · what do you have",
+    "design_id": "O6a",
+    "caption": "Opening balances · what do you have",
+    "sha256": "df3f36c810ea96049a09e9895b0ec2f7a67022421c06a59e61ae4973219a2fd3"
+   },
+   {
+    "frame": "c11/O6c/Do you owe anyone",
+    "design_id": "O6c",
+    "caption": "Do you owe anyone",
+    "sha256": "16985e99f194a35709dac9f3c212d2298f1c7cf9b0dcbfcbdbb39c259f7b25e0"
+   },
+   {
+    "frame": "nd/S0.6-individual/S0.6-individual",
+    "design_id": "S0.6-individual",
+    "caption": "S0.6-individual",
+    "sha256": "7f0830e69a2d2f9f4494958ceb7fb761a3e83aea40d1e416fbe9edebab586cf8"
+   }
+  ],
+  "S0.6a": [
+   {
+    "frame": "c1/S0.6a/Name the business · type, FY",
+    "design_id": "S0.6a",
+    "caption": "Name the business · type, FY",
+    "sha256": "0b00b4d24a8a2dd18a43d6636a3d0378c77229fdcbaeead43a00ada18cf0e022"
+   },
+   {
+    "frame": "c1/S0.6a/Name the business · type, FY#2",
+    "design_id": "S0.6a",
+    "caption": "Name the business · type, FY",
+    "sha256": "0b00b4d24a8a2dd18a43d6636a3d0378c77229fdcbaeead43a00ada18cf0e022"
+   },
+   {
+    "frame": "c12/S0.6a/Name the business · type, FY",
+    "design_id": "S0.6a",
+    "caption": "Name the business · type, FY",
+    "sha256": "0b00b4d24a8a2dd18a43d6636a3d0378c77229fdcbaeead43a00ada18cf0e022"
+   }
+  ],
+  "S0.6a1": [
+   {
+    "frame": "c1/S0.6a1/Who owns it · only when Shared",
+    "design_id": "S0.6a1",
+    "caption": "Who owns it · only when Shared",
+    "sha256": "c4b05ad1c386184a0d4a338c2ba1739c2fd46c9aa2329ef4c331b4f3868ddba5"
+   },
+   {
+    "frame": "c1/S0.6a1/Different shares · steppers in whole shares",
+    "design_id": "S0.6a1",
+    "caption": "Different shares · steppers in whole shares",
+    "sha256": "c2303ce43c9c5c5028eb657fa0b2b9973b4d1bccf3b11ddc70d733fde3b9aac2"
+   },
+   {
+    "frame": "c1/S0.6a1/Who owns it · only when Shared#2",
+    "design_id": "S0.6a1",
+    "caption": "Who owns it · only when Shared",
+    "sha256": "c4b05ad1c386184a0d4a338c2ba1739c2fd46c9aa2329ef4c331b4f3868ddba5"
+   },
+   {
+    "frame": "c1/S0.6a1/Different shares · steppers in whole shares#2",
+    "design_id": "S0.6a1",
+    "caption": "Different shares · steppers in whole shares",
+    "sha256": "c2303ce43c9c5c5028eb657fa0b2b9973b4d1bccf3b11ddc70d733fde3b9aac2"
+   },
+   {
+    "frame": "nc/S0.6a1/S0.6a1",
+    "design_id": "S0.6a1",
+    "caption": "S0.6a1",
+    "sha256": "c4b05ad1c386184a0d4a338c2ba1739c2fd46c9aa2329ef4c331b4f3868ddba5"
+   },
+   {
+    "frame": "nc/S0.6a1-different/S0.6a1-different",
+    "design_id": "S0.6a1-different",
+    "caption": "S0.6a1-different",
+    "sha256": "c2303ce43c9c5c5028eb657fa0b2b9973b4d1bccf3b11ddc70d733fde3b9aac2"
+   }
+  ],
+  "S0.6b": [
+   {
+    "frame": "c1/S0.6b/What the shop has · Capital is computed",
+    "design_id": "S0.6b",
+    "caption": "What the shop has · Capital is computed",
+    "sha256": "765ab11e275eab558736a556f01b621fc57f34479f99f22cb9372b001b128c52"
+   },
+   {
+    "frame": "c1/S0.6b/What the business has · each owner's capital",
+    "design_id": "S0.6b",
+    "caption": "What the business has · each owner's capital",
+    "sha256": "6a36a0060cb69aedd5cc4506c3d5010e45f1fdf8949197feffbf04a841d0e8c0"
+   },
+   {
+    "frame": "c12/S0.6b/Its opening balances",
+    "design_id": "S0.6b",
+    "caption": "Its opening balances",
+    "sha256": "a139164836660f9423e5eaf2d4b4aceee68303aa56113de634929cef341ff37c"
+   },
+   {
+    "frame": "nd/S0.6b-justme/S0.6b-justme",
+    "design_id": "S0.6b-justme",
+    "caption": "S0.6b-justme",
+    "sha256": "765ab11e275eab558736a556f01b621fc57f34479f99f22cb9372b001b128c52"
+   },
+   {
+    "frame": "nd/S0.6b-shared/S0.6b-shared",
+    "design_id": "S0.6b-shared",
+    "caption": "S0.6b-shared",
+    "sha256": "6a36a0060cb69aedd5cc4506c3d5010e45f1fdf8949197feffbf04a841d0e8c0"
+   }
+  ],
+  "S0.6c": [
+   {
+    "frame": "c1/S0.6c/Add another business?",
+    "design_id": "S0.6c",
+    "caption": "Add another business?",
+    "sha256": "d95f526d48f72178affb4759ffb95a7f914fe77b5523591d978a38ccf2000bad"
+   }
+  ],
+  "S0.6d": [
+   {
+    "frame": "c1/S0.6d/Name the family",
+    "design_id": "S0.6d",
+    "caption": "Name the family",
+    "sha256": "223e6a2339cfc2c555590b44af600781c97bb5e60158d68807238250b878b8c7"
+   },
+   {
+    "frame": "c13/S0.6d/Name the family",
+    "design_id": "S0.6d",
+    "caption": "Name the family",
+    "sha256": "223e6a2339cfc2c555590b44af600781c97bb5e60158d68807238250b878b8c7"
+   }
+  ],
+  "S0.6e": [
+   {
+    "frame": "c1/S0.6e/Who else is in it? · invite heads",
+    "design_id": "S0.6e",
+    "caption": "Who else is in it? · invite heads",
+    "sha256": "bc8575c09a22840e9ab21fc1811d542f3aac35340c6cf0deee5b588ef782b062"
+   },
+   {
+    "frame": "c13/S0.6e/Who else is in it?",
+    "design_id": "S0.6e",
+    "caption": "Who else is in it?",
+    "sha256": "bc8575c09a22840e9ab21fc1811d542f3aac35340c6cf0deee5b588ef782b062"
+   }
+  ],
+  "S0.6f": [
+   {
+    "frame": "c1/S0.6f/What the pool has",
+    "design_id": "S0.6f",
+    "caption": "What the pool has",
+    "sha256": "f0c8a5adfe4410b50b06d76318ccbb526d13527ae996efd70740e0c148f4c81f"
+   },
+   {
+    "frame": "c13/S0.6f/The family’s shared accounts",
+    "design_id": "S0.6f",
+    "caption": "The family’s shared accounts",
+    "sha256": "709db4a31176ddea25cfe116d7cd3bd2f2a48b607ee14f3242bcb88a1f428570"
+   },
+   {
+    "frame": "nd/S0.6f-family/S0.6f-family",
+    "design_id": "S0.6f-family",
+    "caption": "S0.6f-family",
+    "sha256": "f0c8a5adfe4410b50b06d76318ccbb526d13527ae996efd70740e0c148f4c81f"
+   }
+  ],
+  "S0.6g": [
+   {
+    "frame": "c1/S0.6g/Name the trust and its type",
+    "design_id": "S0.6g",
+    "caption": "Name the trust and its type",
+    "sha256": "aae5cc4353f4a8a9c9b282d35e741726f4e9ecf333237e7d57ae36ee6697131b"
+   },
+   {
+    "frame": "c14/S0.6g/Name the trust and its type",
+    "design_id": "S0.6g",
+    "caption": "Name the trust and its type",
+    "sha256": "aae5cc4353f4a8a9c9b282d35e741726f4e9ecf333237e7d57ae36ee6697131b"
+   }
+  ],
+  "S0.6h": [
+   {
+    "frame": "c1/S0.6h/Who runs it? · committee roles",
+    "design_id": "S0.6h",
+    "caption": "Who runs it? · committee roles",
+    "sha256": "14442338569de2b9ba634ced596365224977bb766e32de0109fd5aa59dd7f6f2"
+   },
+   {
+    "frame": "c14/S0.6h/Who runs it? · committee roles",
+    "design_id": "S0.6h",
+    "caption": "Who runs it? · committee roles",
+    "sha256": "6da9eae5130118bd2fe887b8c522bef7419a784ec34eb8e945a4de9a941b2e42"
+   }
+  ],
+  "S0.6i": [
+   {
+    "frame": "c1/S0.6i/What the trust has · gollak counted",
+    "design_id": "S0.6i",
+    "caption": "What the trust has · gollak counted",
+    "sha256": "a810a11ce69ba6b9a99ea6dadbafbdc6f36d2e5baea5fa9614330c80d885badd"
+   },
+   {
+    "frame": "c14/S0.6i/The trust’s accounts · gollak",
+    "design_id": "S0.6i",
+    "caption": "The trust’s accounts · gollak",
+    "sha256": "c8e7340e1870b4c8f5277eb0dc6c5d0d6ba9085c48d62e74f1ff3757765b5b39"
+   },
+   {
+    "frame": "nd/S0.6i-trust/S0.6i-trust",
+    "design_id": "S0.6i-trust",
+    "caption": "S0.6i-trust",
+    "sha256": "a810a11ce69ba6b9a99ea6dadbafbdc6f36d2e5baea5fa9614330c80d885badd"
+   }
+  ],
+  "S0.7": [
+   {
+    "frame": "c1/O8/Setup checklist · Home, first run",
+    "design_id": "O8",
+    "caption": "Setup checklist · Home, first run",
+    "sha256": "d6f098f5048d531257f42faa18d6113bccbeabf654614a46478b647f0d835d93"
+   }
+  ],
+  "S0.8": [
+   {
+    "frame": "c1/O4b/Set your PIN · six digits",
+    "design_id": "O4b",
+    "caption": "Set your PIN · six digits",
+    "sha256": "c6d752559fbf7df271ed9f5aed76aa26853a13487276e897d31ad25dc9758d67"
+   },
+   {
+    "frame": "c1/O4b/Mismatch on confirm",
+    "design_id": "O4b",
+    "caption": "Mismatch on confirm",
+    "sha256": "df2f77fd348fb9c57ad0b0c57cdf6daaf0b586e40af93c44bb03fc29644df1c4"
+   },
+   {
+    "frame": "c11/O4b/Set your PIN",
+    "design_id": "O4b",
+    "caption": "Set your PIN",
+    "sha256": "c6d752559fbf7df271ed9f5aed76aa26853a13487276e897d31ad25dc9758d67"
+   }
+  ],
+  "S0.9": [
+   {
+    "frame": "c1/O7a/Invitation",
+    "design_id": "O7a",
+    "caption": "Invitation",
+    "sha256": "e784a47fbcc70c27c466790b76b401f60f2818bee9b88862267285e752a3f46d"
+   },
+   {
+    "frame": "c1/O7b/Accepted, awaiting verification",
+    "design_id": "O7b",
+    "caption": "Accepted, awaiting verification",
+    "sha256": "a21d3fbdbd7f4767b7f59aed71cb08cdb7ac87892f30b896fadb7818927a7064"
+   }
+  ],
+  "S1": [
+   {
+    "frame": "c15/S1/Home · the baseline",
+    "design_id": "S1",
+    "caption": "Home · the baseline",
+    "sha256": "d682d38cfd3dab3e551b9fe1ef4e5daa24c6a71a95e74e869a0f8baece23148e"
+   },
+   {
+    "frame": "c2/S1/Home · the baseline",
+    "design_id": "S1",
+    "caption": "Home · the baseline",
+    "sha256": "d682d38cfd3dab3e551b9fe1ef4e5daa24c6a71a95e74e869a0f8baece23148e"
+   },
+   {
+    "frame": "c7/S1/Home · the baseline",
+    "design_id": "S1",
+    "caption": "Home · the baseline",
+    "sha256": "d682d38cfd3dab3e551b9fe1ef4e5daa24c6a71a95e74e869a0f8baece23148e"
+   },
+   {
+    "frame": "c7/S1/Home · the baseline#2",
+    "design_id": "S1",
+    "caption": "Home · the baseline",
+    "sha256": "d682d38cfd3dab3e551b9fe1ef4e5daa24c6a71a95e74e869a0f8baece23148e"
+   }
+  ],
+  "S1.1": [
+   {
+    "frame": "c7/S1.1/You will give · drill-down",
+    "design_id": "S1.1",
+    "caption": "You will give · drill-down",
+    "sha256": "79d4af48a01f73c4ba496e65f2c8d0ed9b79127d76aff153b083b9acd6023761"
+   }
+  ],
+  "S1.2": [
+   {
+    "frame": "c12/S1.2/Two chips, not a sheet",
+    "design_id": "S1.2",
+    "caption": "Two chips, not a sheet",
+    "sha256": "97cd9d91973542a2b2018731e6aa3feed11fd59b4e2051212af7f82a1f26c3c1"
+   },
+   {
+    "frame": "c7/S1.2/Scope switcher · two books, two chips",
+    "design_id": "S1.2",
+    "caption": "Scope switcher · two books, two chips",
+    "sha256": "97cd9d91973542a2b2018731e6aa3feed11fd59b4e2051212af7f82a1f26c3c1"
+   },
+   {
+    "frame": "na/S1.2/S1.2",
+    "design_id": "S1.2",
+    "caption": "S1.2",
+    "sha256": "97cd9d91973542a2b2018731e6aa3feed11fd59b4e2051212af7f82a1f26c3c1"
+   }
+  ],
+  "S1.3": [
+   {
+    "frame": "c7/S1.3/Scope switcher sheet · three or more books (D1)",
+    "design_id": "S1.3",
+    "caption": "Scope switcher sheet · three or more books (D1)",
+    "sha256": "db4d37e0cf41dd07faf99a2ac56b55771f6cc17005881a1086f45682c8037295"
+   }
+  ],
+  "S2": [
+   {
+    "frame": "c11/S2/First entry · typing",
+    "design_id": "S2",
+    "caption": "First entry · typing",
+    "sha256": "2c0bf5038e2ba83cde22c343848037ac20f96c6d40df0f1edcdc56003328da71"
+   },
+   {
+    "frame": "c11/S2/Chosen · Save turns solid",
+    "design_id": "S2",
+    "caption": "Chosen · Save turns solid",
+    "sha256": "4634c4e450580b829747317987e8af5bd51076dfeac4907d3136a9b4f73f1b48"
+   },
+   {
+    "frame": "c2/S2/State 1 · typing",
+    "design_id": "S2",
+    "caption": "State 1 · typing",
+    "sha256": "c0d6b0f73db223361c7123a55fdbd6254b84afd2c30dcfd896c4b27e8bcca841"
+   },
+   {
+    "frame": "c2/S2/State 2 · choosing, in the same space",
+    "design_id": "S2",
+    "caption": "State 2 · choosing, in the same space",
+    "sha256": "f9c6553d3017073365cbd6979b953f5f7d93196e5dd643ebc60d566ebcd1e6e7"
+   },
+   {
+    "frame": "c2/S2/State 3 · chosen, Save turns solid",
+    "design_id": "S2",
+    "caption": "State 3 · chosen, Save turns solid",
+    "sha256": "65c72d6b865c10e465ba2b8b99d78a8dbb4644aa8cfa5259a6a259a1f5d79a13"
+   },
+   {
+    "frame": "c2/S2/Live preview line · five states",
+    "design_id": "S2",
+    "caption": "Live preview line · five states",
+    "sha256": "e6dbd8ca8eebdbfdeac93efe9c4b0b2f88688ea2a33396ac64598ae707c4ebd9"
+   },
+   {
+    "frame": "c2/S2/Preview · standard",
+    "design_id": "S2",
+    "caption": "Preview · standard",
+    "sha256": "3f75b22f5a3a9bec4fa54125df113c13ee5f1d6a399485b8c88b42b9d5aabd71"
+   },
+   {
+    "frame": "c2/S2/Preview · no narration",
+    "design_id": "S2",
+    "caption": "Preview · no narration",
+    "sha256": "83b6e42b25a02c12138a5534969ba750895a7a016bbfefd6b92bc788d56b281a"
+   },
+   {
+    "frame": "c2/S2/Preview · two-line wrap, ਪੰਜਾਬੀ names",
+    "design_id": "S2",
+    "caption": "Preview · two-line wrap, ਪੰਜਾਬੀ names",
+    "sha256": "53cf127f128b9a413a89b336fd441558d0d7ef19dbaf12ce14198a9f798c5ffa"
+   },
+   {
+    "frame": "c2/S2/Preview · split entry",
+    "design_id": "S2",
+    "caption": "Preview · split entry",
+    "sha256": "f95076ba9c2bfe7086d0a8b6a2d68e7e68f02d10e29d29be21ac69a507555a5b"
+   },
+   {
+    "frame": "c2/S2/No chip row · milk on khata",
+    "design_id": "S2",
+    "caption": "No chip row · milk on khata",
+    "sha256": "134ad81c01b1be0d001a533119967bb10c97df5ac9b43bf75c6bf205ab74b333"
+   },
+   {
+    "frame": "c2/S2/Slot labels by verb",
+    "design_id": "S2",
+    "caption": "Slot labels by verb",
+    "sha256": "e62aac9da157ff70a6511e6960eb2829268538775563b893cfa0ef7d2c189dc2"
+   },
+   {
+    "frame": "c2/S2/State 1 · typing#2",
+    "design_id": "S2",
+    "caption": "State 1 · typing",
+    "sha256": "c0d6b0f73db223361c7123a55fdbd6254b84afd2c30dcfd896c4b27e8bcca841"
+   },
+   {
+    "frame": "c2/S2/State 1 · typing#3",
+    "design_id": "S2",
+    "caption": "State 1 · typing",
+    "sha256": "c0d6b0f73db223361c7123a55fdbd6254b84afd2c30dcfd896c4b27e8bcca841"
+   },
+   {
+    "frame": "c2/S2/The import button · top right of every entry screen",
+    "design_id": "S2",
+    "caption": "The import button · top right of every entry screen",
+    "sha256": "c0d6b0f73db223361c7123a55fdbd6254b84afd2c30dcfd896c4b27e8bcca841"
+   }
+  ],
+  "S2.1": [
+   {
+    "frame": "c2/S2-B/Saved · over the member’s limit",
+    "design_id": "S2-B",
+    "caption": "Saved · over the member’s limit",
+    "sha256": "813321c6e077d5bf7b2abb2b7f02c2226847b5d110b7a6d489fc8bc006d52860"
+   }
+  ],
+  "S2.2": [
+   {
+    "frame": "c2/S2.2/Date picker",
+    "design_id": "S2.2",
+    "caption": "Date picker",
+    "sha256": "05ede56a50a58f9cadd0ad973a68e97559394cf1e4d076ccc94aa1a5fc734e79"
+   },
+   {
+    "frame": "c2/S2.2/A locked day",
+    "design_id": "S2.2",
+    "caption": "A locked day",
+    "sha256": "1edffc3db7ddaf3eb4aadee499de9102f6b29b1fd6ec07c86447050ad9fed101"
+   }
+  ],
+  "S2.3": [
+   {
+    "frame": "c13/S2.3/Inter-book transfer",
+    "design_id": "S2.3",
+    "caption": "Inter-book transfer",
+    "sha256": "fa815bbf85ef36191ad38714c1fa4ee64fd4abab8c31fd5e6c395acb4e00f906"
+   },
+   {
+    "frame": "c13/S2.3/In transit, on both sides",
+    "design_id": "S2.3",
+    "caption": "In transit, on both sides",
+    "sha256": "39039226c52661bbdc02eb9d707376b40d3bf8d76982577e2d77def0fa1790a7"
+   },
+   {
+    "frame": "c2/S2.3/Transfer within one book",
+    "design_id": "S2.3",
+    "caption": "Transfer within one book",
+    "sha256": "bb69cbf00978d61d06235ace1c2e6eef4506767cf878225603101ce3cc099f73"
+   },
+   {
+    "frame": "c2/S2.3/Transfer between books",
+    "design_id": "S2.3",
+    "caption": "Transfer between books",
+    "sha256": "fa815bbf85ef36191ad38714c1fa4ee64fd4abab8c31fd5e6c395acb4e00f906"
+   },
+   {
+    "frame": "c2/S2.3/In transit, on both sides",
+    "design_id": "S2.3",
+    "caption": "In transit, on both sides",
+    "sha256": "39039226c52661bbdc02eb9d707376b40d3bf8d76982577e2d77def0fa1790a7"
+   }
+  ],
+  "S2.4": [
+   {
+    "frame": "c2/S2.4/Fix an old entry",
+    "design_id": "S2.4",
+    "caption": "Fix an old entry",
+    "sha256": "7225cff77454466280e8f2eda341ce859e2a3c3ff95806f0a3cf1059d851b651"
+   },
+   {
+    "frame": "c2/S2.4/Cash count difference",
+    "design_id": "S2.4",
+    "caption": "Cash count difference",
+    "sha256": "59b63af6c10d5724ec04bda5cac3613df049891970a285e232b9ac75f29c8930"
+   },
+   {
+    "frame": "c2/S2.4/Write off a balance",
+    "design_id": "S2.4",
+    "caption": "Write off a balance",
+    "sha256": "b83ab0838817a8aef803ad43a5b569a396133e50864738e588c5ce7da853c532"
+   },
+   {
+    "frame": "c2/S2.4/Opening balance correction",
+    "design_id": "S2.4",
+    "caption": "Opening balance correction",
+    "sha256": "521102980b3e4c49a9c7b0f0f6f504cd2c0b34bae5bcb0ed2dfb7651030bb624"
+   }
+  ],
+  "S2.5": [
+   {
+    "frame": "c12/B5/Drawings · not a business expense",
+    "design_id": "B5",
+    "caption": "Drawings · not a business expense",
+    "sha256": "b995408b4c7a74fcc2db62118f35a21cfcfb91523bdf40fed4b1ba064bf53ee6"
+   },
+   {
+    "frame": "c2/B5/Drawings confirmation · business only",
+    "design_id": "B5",
+    "caption": "Drawings confirmation · business only",
+    "sha256": "b995408b4c7a74fcc2db62118f35a21cfcfb91523bdf40fed4b1ba064bf53ee6"
+   }
+  ],
+  "S3": [
+   {
+    "frame": "c7/S3/Ledger index",
+    "design_id": "S3",
+    "caption": "Ledger index",
+    "sha256": "38161949024dd47e32e2c9e6a4673f5b4341c1279e7ea59bbe5e58fef709a202"
+   },
+   {
+    "frame": "c7/S3/Ledger index#2",
+    "design_id": "S3",
+    "caption": "Ledger index",
+    "sha256": "38161949024dd47e32e2c9e6a4673f5b4341c1279e7ea59bbe5e58fef709a202"
+   }
+  ],
+  "S3.1": [
+   {
+    "frame": "c7/S3.1/Quick add · a sheet, from the Ledger tab",
+    "design_id": "S3.1",
+    "caption": "Quick add · a sheet, from the Ledger tab",
+    "sha256": "6ba9174cab52a7f4be0fedbf4ad07dc6112764311dc3fd6aeee32af0549df52c"
+   },
+   {
+    "frame": "na/S3.1/S3.1",
+    "design_id": "S3.1",
+    "caption": "S3.1",
+    "sha256": "6ba9174cab52a7f4be0fedbf4ad07dc6112764311dc3fd6aeee32af0549df52c"
+   }
+  ],
+  "S4": [
+   {
+    "frame": "c7/S4/A/C statement",
+    "design_id": "S4",
+    "caption": "A/C statement",
+    "sha256": "e8cd17a2ae97e68b4c52189e9177e1e3d9c7abf83efc40b5b12f0176c30954c3"
+   },
+   {
+    "frame": "c7/S4/A/C statement#2",
+    "design_id": "S4",
+    "caption": "A/C statement",
+    "sha256": "e8cd17a2ae97e68b4c52189e9177e1e3d9c7abf83efc40b5b12f0176c30954c3"
+   }
+  ],
+  "S4.1": [
+   {
+    "frame": "c11/S4.1/Entry detail",
+    "design_id": "S4.1",
+    "caption": "Entry detail",
+    "sha256": "59ab8eaf9039a873d2ce275c74622c2ad02eaef94da81c4212bc0d94d466c3d1"
+   },
+   {
+    "frame": "c2/S4.1/Entry detail · open period",
+    "design_id": "S4.1",
+    "caption": "Entry detail · open period",
+    "sha256": "59ab8eaf9039a873d2ce275c74622c2ad02eaef94da81c4212bc0d94d466c3d1"
+   },
+   {
+    "frame": "c2/S4.1/Imported entry · bank text + photo",
+    "design_id": "S4.1",
+    "caption": "Imported entry · bank text + photo",
+    "sha256": "550f24177d08ffc1756b3829838431a9ee173e0289bb4f3412747e3416538db8"
+   },
+   {
+    "frame": "c2/S4.1/Entry detail · open period#2",
+    "design_id": "S4.1",
+    "caption": "Entry detail · open period",
+    "sha256": "59ab8eaf9039a873d2ce275c74622c2ad02eaef94da81c4212bc0d94d466c3d1"
+   },
+   {
+    "frame": "c2/S4.1/Amended · struck-through history",
+    "design_id": "S4.1",
+    "caption": "Amended · struck-through history",
+    "sha256": "a7924891adc62f006184506d7be621c4c6f0aa8c722ae577bf736d3b284c2843"
+   },
+   {
+    "frame": "c2/S4.1/Locked period · Fix this entry",
+    "design_id": "S4.1",
+    "caption": "Locked period · Fix this entry",
+    "sha256": "bb05c4651b4e0cde0028838d81a70e840fb79496eef7f8daf799eadc5112e6fd"
+   },
+   {
+    "frame": "c2/S4.1/Reversed",
+    "design_id": "S4.1",
+    "caption": "Reversed",
+    "sha256": "923fce873fe3c7112ab12f7265cf14e59bf1768ceefcc24997b0b8cf1e1b5171"
+   }
+  ],
+  "S4.2": [
+   {
+    "frame": "c14/C5/Donation receipt · no tax language",
+    "design_id": "C5",
+    "caption": "Donation receipt · no tax language",
+    "sha256": "482111256d4450600b34bd7296e48bea7140c179bf70697bd52e3215b9ff8c5e"
+   },
+   {
+    "frame": "c16/C5/Donation receipt · trust only",
+    "design_id": "C5",
+    "caption": "Donation receipt · trust only",
+    "sha256": "1185ea1faf43716271a1202fe1ebca288e5543456940dfc8c4171df852a8080f"
+   }
+  ],
+  "S5": [
+   {
+    "frame": "c13/S5/The advance, four ages",
+    "design_id": "S5",
+    "caption": "The advance, four ages",
+    "sha256": "7da707cd21f5d2eea6ec15fea272b458ab623bbe3f038245499d657778253e0c"
+   },
+   {
+    "frame": "c6/S5/Advances · who is holding what",
+    "design_id": "S5",
+    "caption": "Advances · who is holding what",
+    "sha256": "66d7d29655d34d3da46631b4c101ca61b4fa98dc6ee303f708e47bb7a59753c0"
+   },
+   {
+    "frame": "c6/S5/The card, four ages",
+    "design_id": "S5",
+    "caption": "The card, four ages",
+    "sha256": "7da707cd21f5d2eea6ec15fea272b458ab623bbe3f038245499d657778253e0c"
+   }
+  ],
+  "S5.1": [
+   {
+    "frame": "c13/S5.1/Ask for an advance",
+    "design_id": "S5.1",
+    "caption": "Ask for an advance",
+    "sha256": "c72142d0cff9bb8bfc72e4812e4438af8736bfb33ff40749d4ec7b325e8b0bb7"
+   },
+   {
+    "frame": "c6/S5.1/Ask for an advance",
+    "design_id": "S5.1",
+    "caption": "Ask for an advance",
+    "sha256": "c72142d0cff9bb8bfc72e4812e4438af8736bfb33ff40749d4ec7b325e8b0bb7"
+   },
+   {
+    "frame": "c6/S5.1/Sent · waiting for Sunita",
+    "design_id": "S5.1",
+    "caption": "Sent · waiting for Sunita",
+    "sha256": "eb976c146d250638b95d765d23617a31ec0f50ec3a89430005fec7bcd36a5f45"
+   }
+  ],
+  "S5.5": [
+   {
+    "frame": "c11/S5.5/Count the cash",
+    "design_id": "S5.5",
+    "caption": "Count the cash",
+    "sha256": "3b7efec62d17b0ee3b7326c007c22bf5beaa55a41a2677f58c48a7da16a96f11"
+   },
+   {
+    "frame": "c5/S5.5/Count the cash · nothing counted yet",
+    "design_id": "S5.5",
+    "caption": "Count the cash · nothing counted yet",
+    "sha256": "3b7efec62d17b0ee3b7326c007c22bf5beaa55a41a2677f58c48a7da16a96f11"
+   },
+   {
+    "frame": "c5/S5.5/Verify mode · a difference",
+    "design_id": "S5.5",
+    "caption": "Verify mode · a difference",
+    "sha256": "02b4695c90a2b86bb6774df18c02263ae96d7036c796f3bca0a016554a940a34"
+   },
+   {
+    "frame": "c5/S5.5/Verify mode · matches",
+    "design_id": "S5.5",
+    "caption": "Verify mode · matches",
+    "sha256": "13db6729a7d3ce43a4dbdc5a931668d12e1b9a9c09987eed440c2c39e6293cb6"
+   },
+   {
+    "frame": "c5/S5.5/Collect mode · the gollak",
+    "design_id": "S5.5",
+    "caption": "Collect mode · the gollak",
+    "sha256": "912c8ec9f8f52aa36155b251f93a6bc75e97f95bea8dec22d48af8cb4fb9c9bc"
+   }
+  ],
+  "S6": [
+   {
+    "frame": "c9/S6/Inbox · three waiting",
+    "design_id": "S6",
+    "caption": "Inbox · three waiting",
+    "sha256": "a4fc902090eca0560e17b32b3cf77c5f24b1321b3858792aa3993f52f9b39200"
+   }
+  ],
+  "S6.1": [
+   {
+    "frame": "c9/S6.1/Grouped review card · Approve all or one by one",
+    "design_id": "S6.1",
+    "caption": "Grouped review card · Approve all or one by one",
+    "sha256": "03508c89424b7b760e5ff9a58b7258799a8e1eed38c325a33121457ebc4b8cb0"
+   }
+  ],
+  "S6.2": [
+   {
+    "frame": "c9/S6.2/Review stepper · 3 of 7",
+    "design_id": "S6.2",
+    "caption": "Review stepper · 3 of 7",
+    "sha256": "9db0a90607cffaf154cf186b985d82e4601ec9594cf86f75fc2005a3ef2a0194"
+   }
+  ],
+  "S6.3": [
+   {
+    "frame": "c9/S6.3/Structural approval · 2 of 3 approved",
+    "design_id": "S6.3",
+    "caption": "Structural approval · 2 of 3 approved",
+    "sha256": "593f35904647740099041d19f8ce453466af781a422fd91a008cc5abe837e3d3"
+   }
+  ],
+  "S7": [
+   {
+    "frame": "c8/S7.0a/Choose a file",
+    "design_id": "S7.0a",
+    "caption": "Choose a file",
+    "sha256": "f2350fe0c7801b7ddad9a80df410e4d27d5a2396c89a8f4bc4b340db822421fb"
+   },
+   {
+    "frame": "c8/S7.0b/Column mapping",
+    "design_id": "S7.0b",
+    "caption": "Column mapping",
+    "sha256": "3f6cb8a4bb0e66373db4b5429397193d1af7b1f4b449afb812126f25c0d35588"
+   },
+   {
+    "frame": "c8/S7.0c/Duplicates skipped · stated as work done",
+    "design_id": "S7.0c",
+    "caption": "Duplicates skipped · stated as work done",
+    "sha256": "20206706b020a5374029a9c7042633451b2d227676bf467200bf7f560ead2946"
+   }
+  ],
+  "S7.1": [
+   {
+    "frame": "c8/S7.1/Import inbox · four row states",
+    "design_id": "S7.1",
+    "caption": "Import inbox · four row states",
+    "sha256": "e852a6aae15817b4d34ca70a8ad5d5601575e65684679816682cea914e9878a2"
+   }
+  ],
+  "S7.1a": [
+   {
+    "frame": "c8/S7.1a/Collapsed and expanded",
+    "design_id": "S7.1a",
+    "caption": "Collapsed and expanded",
+    "sha256": "f8c378b95245ac999e7c5c595624738d1d3f315f1df1962b2959251703e61342"
+   }
+  ],
+  "S7.1b": [
+   {
+    "frame": "c8/S7.1b/A classified row, without and with a note",
+    "design_id": "S7.1b",
+    "caption": "A classified row, without and with a note",
+    "sha256": "d056e8c347adc0ced179a3df14890c70e610ea12d9ba6ce6ff1dbc9408b73d18"
+   }
+  ],
+  "S7.2": [
+   {
+    "frame": "c8/S7.2/Balance check · passing",
+    "design_id": "S7.2",
+    "caption": "Balance check · passing",
+    "sha256": "b61bbdef8ea5073421bc92cf9a92d44e3cd7465a4229424a4bac86f517f98e48"
+   },
+   {
+    "frame": "c8/S7.2/Balance check · matched",
+    "design_id": "S7.2",
+    "caption": "Balance check · matched",
+    "sha256": "1d476e9ebcc630fa95eb34644e0f28c4208f5b567c3837bebe94aa195f7c2315"
+   },
+   {
+    "frame": "c8/S7.2/Balance check · failing",
+    "design_id": "S7.2",
+    "caption": "Balance check · failing",
+    "sha256": "5c26b883073220ae7cb29247a25a43ba22e3d73b315fdc87aa00bc95e8390c0b"
+   },
+   {
+    "frame": "nb/S7.2-fail/S7.2-fail",
+    "design_id": "S7.2-fail",
+    "caption": "S7.2-fail",
+    "sha256": "5c26b883073220ae7cb29247a25a43ba22e3d73b315fdc87aa00bc95e8390c0b"
+   }
+  ],
+  "S8": [
+   {
+    "frame": "c15/S8/Menu · a hub, not a dump",
+    "design_id": "S8",
+    "caption": "Menu · a hub, not a dump",
+    "sha256": "28a15dff2992f08d04a2978c3e2d98744677d6889212f51ee899c881f09e1e4b"
+   },
+   {
+    "frame": "c15/S8/Menu · scrolled to the end · Legal, then the version",
+    "design_id": "S8",
+    "caption": "Menu · scrolled to the end · Legal, then the version",
+    "sha256": "6fc8c72e97de1bfff542e464797ee58499bdbbc6ed38c50fa39867b05fbada40"
+   }
+  ],
+  "S8.1": [
+   {
+    "frame": "c15/S8.1/Reports list",
+    "design_id": "S8.1",
+    "caption": "Reports list",
+    "sha256": "f6298808a6411faf9075238a563ffad0010a1e3d3d44820445c0d9bf5ca70bec"
+   }
+  ],
+  "S8.2": [
+   {
+    "frame": "c15/S8.2/Report viewer · Profit and Loss",
+    "design_id": "S8.2",
+    "caption": "Report viewer · Profit and Loss",
+    "sha256": "af175f03877edf1d90d7154cb64488ce546a5b45f71e277c1983207483d9be9b"
+   },
+   {
+    "frame": "c15/S8.2/Save or share · from the report’s PDF button",
+    "design_id": "S8.2",
+    "caption": "Save or share · from the report’s PDF button",
+    "sha256": "79de26ce7540cb9c25644888ee00d24b39bef35f1dc02846984c94e8a55c8539"
+   },
+   {
+    "frame": "c15/S8.2/Share sheet · Print, Save to Files, WhatsApp",
+    "design_id": "S8.2",
+    "caption": "Share sheet · Print, Save to Files, WhatsApp",
+    "sha256": "44de341a60481c60aa66a308f1bdd5a5c6f92ff092db3139cc9307a9ac8f393b"
+   },
+   {
+    "frame": "c15/S8.2/Report viewer · Profit and Loss#2",
+    "design_id": "S8.2",
+    "caption": "Report viewer · Profit and Loss",
+    "sha256": "af175f03877edf1d90d7154cb64488ce546a5b45f71e277c1983207483d9be9b"
+   },
+   {
+    "frame": "c15/S8.2/Nothing in this period yet",
+    "design_id": "S8.2",
+    "caption": "Nothing in this period yet",
+    "sha256": "2892140dcd5c8964ec630009c2c2a7dfdaee60d467265ae73cc7dbe50e82eed9"
+   },
+   {
+    "frame": "c15/S8.2/Trial Balance",
+    "design_id": "S8.2",
+    "caption": "Trial Balance",
+    "sha256": "4ebbf91412dc1328c229b31b06af500d9cdb0784785f79b2838c88493d7413bb"
+   },
+   {
+    "frame": "c15/S8.2/You will get, by age",
+    "design_id": "S8.2",
+    "caption": "You will get, by age",
+    "sha256": "eda91fcc18278832689dd4fa1c012d0efc56e801d667961a04c0a3f756367df5"
+   },
+   {
+    "frame": "c15/S8.2/Family match check",
+    "design_id": "S8.2",
+    "caption": "Family match check",
+    "sha256": "7528ebd34ab5c3266dac9854796d405931728c4c0223c58c6c655778c5156fff"
+   },
+   {
+    "frame": "c7/S8.2/Save or share · from the khata’s PDF button",
+    "design_id": "S8.2",
+    "caption": "Save or share · from the khata’s PDF button",
+    "sha256": "699826def239ffd6a58a220af06452258375b83acab5e81fb28c38e4cb068879"
+   },
+   {
+    "frame": "c7/S8.2/Share sheet · Print, Save to Files, WhatsApp",
+    "design_id": "S8.2",
+    "caption": "Share sheet · Print, Save to Files, WhatsApp",
+    "sha256": "924254e4ec0d13235326e115c47c20a777c15d7c462a1f0c28818ca7c67d2d25"
+   },
+   {
+    "frame": "nb/S8.2-tb/S8.2-tb",
+    "design_id": "S8.2-tb",
+    "caption": "S8.2-tb",
+    "sha256": "4ebbf91412dc1328c229b31b06af500d9cdb0784785f79b2838c88493d7413bb"
+   },
+   {
+    "frame": "nb/S8.2-age/S8.2-age",
+    "design_id": "S8.2-age",
+    "caption": "S8.2-age",
+    "sha256": "eda91fcc18278832689dd4fa1c012d0efc56e801d667961a04c0a3f756367df5"
+   },
+   {
+    "frame": "nb/S8.2-match/S8.2-match",
+    "design_id": "S8.2-match",
+    "caption": "S8.2-match",
+    "sha256": "7528ebd34ab5c3266dac9854796d405931728c4c0223c58c6c655778c5156fff"
+   }
+  ],
+  "S8.3": [
+   {
+    "frame": "c13/D5/Family reconciliation",
+    "design_id": "D5",
+    "caption": "Family reconciliation",
+    "sha256": "a666c6a55cf7bc2282bc990aed88e8f401b23a9371195c29a5ec02c878122ebb"
+   },
+   {
+    "frame": "c15/D5/Family reconciliation",
+    "design_id": "D5",
+    "caption": "Family reconciliation",
+    "sha256": "a666c6a55cf7bc2282bc990aed88e8f401b23a9371195c29a5ec02c878122ebb"
+   },
+   {
+    "frame": "c15/D5b/When a pair disagrees",
+    "design_id": "D5b",
+    "caption": "When a pair disagrees",
+    "sha256": "beb9537dc889530c7c09c33748634bc3f8270dafeab5ce3fd4823fdc8a54680e"
+   }
+  ],
+  "S9": [
+   {
+    "frame": "c13/S9/Books &amp; members",
+    "design_id": "S9",
+    "caption": "Books &amp; members",
+    "sha256": "0b8105879dc294063c751dc5b8134efa2c5a84b00015125da28f75405a79a27c"
+   },
+   {
+    "frame": "c14/S9/Members &amp; roles · a trust’s labels",
+    "design_id": "S9",
+    "caption": "Members &amp; roles · a trust’s labels",
+    "sha256": "fd509174297dd42454d27edba59d0a4b08fa2bfb316751260f6cb543ec72590b"
+   },
+   {
+    "frame": "c4/S9/Books &amp; members · roles and log",
+    "design_id": "S9",
+    "caption": "Books &amp; members · roles and log",
+    "sha256": "0b8105879dc294063c751dc5b8134efa2c5a84b00015125da28f75405a79a27c"
+   },
+   {
+    "frame": "c4/S9/Members &amp; roles · a trust’s labels",
+    "design_id": "S9",
+    "caption": "Members &amp; roles · a trust’s labels",
+    "sha256": "fd509174297dd42454d27edba59d0a4b08fa2bfb316751260f6cb543ec72590b"
+   },
+   {
+    "frame": "na/S9-trust/S9-trust",
+    "design_id": "S9-trust",
+    "caption": "S9-trust",
+    "sha256": "fd509174297dd42454d27edba59d0a4b08fa2bfb316751260f6cb543ec72590b"
+   }
+  ],
+  "S9.1": [
+   {
+    "frame": "c13/S9.1/Invite · phone, roles, limits",
+    "design_id": "S9.1",
+    "caption": "Invite · phone, roles, limits",
+    "sha256": "a88d4a41b81147bb789b4c532698735ae4f518d1304baefacf49e1c8dbadb8cc"
+   },
+   {
+    "frame": "c4/S9.1/Invite · phone, roles, limits, designation",
+    "design_id": "S9.1",
+    "caption": "Invite · phone, roles, limits, designation",
+    "sha256": "2e3957686bce8964cc2ccabc63c73a7ad4902afbd0efbe6fcb1e80daa5f009af"
+   },
+   {
+    "frame": "c4/S9.1/Pending invitation",
+    "design_id": "S9.1",
+    "caption": "Pending invitation",
+    "sha256": "df165e94ca59cae53074a5bffdb1ee9059bfe9b05eea8c5a9324c089c1b701db"
+   }
+  ],
+  "S9.2": [
+   {
+    "frame": "c13/S9.2/Show my code",
+    "design_id": "S9.2",
+    "caption": "Show my code",
+    "sha256": "425956e6496498cdbbc5048a06c19ea18a602e6be002ccf557101cbc43306f31"
+   },
+   {
+    "frame": "c4/S9.2/Show my code",
+    "design_id": "S9.2",
+    "caption": "Show my code",
+    "sha256": "425956e6496498cdbbc5048a06c19ea18a602e6be002ccf557101cbc43306f31"
+   }
+  ],
+  "S9.3": [
+   {
+    "frame": "c13/S9.3/Verify member",
+    "design_id": "S9.3",
+    "caption": "Verify member",
+    "sha256": "7fda9b18ce6f8e480ab9ae2e86d3111844bd53720b54512b5bc363ececd69f4c"
+   },
+   {
+    "frame": "c13/S9.3/Verified in person",
+    "design_id": "S9.3",
+    "caption": "Verified in person",
+    "sha256": "e48671dadcbff9bc5d67c06bc6f36cb7ead57602aed8a25ba35533e286876880"
+   },
+   {
+    "frame": "c4/S9.3/Scan his code",
+    "design_id": "S9.3",
+    "caption": "Scan his code",
+    "sha256": "7fda9b18ce6f8e480ab9ae2e86d3111844bd53720b54512b5bc363ececd69f4c"
+   },
+   {
+    "frame": "c4/S9.3/Both phones agree",
+    "design_id": "S9.3",
+    "caption": "Both phones agree",
+    "sha256": "e48671dadcbff9bc5d67c06bc6f36cb7ead57602aed8a25ba35533e286876880"
+   }
+  ],
+  "S9.4": [
+   {
+    "frame": "c4/S9.4/Mismatch · no way past",
+    "design_id": "S9.4",
+    "caption": "Mismatch · no way past",
+    "sha256": "9cbec78fbf4348f806e243b04a6c3a85319725006c1ac7739aa4e9f153b339f5"
+   }
+  ],
+  "S9.5": [
+   {
+    "frame": "c4/S9.5/Add a business · name, FY, balances",
+    "design_id": "S9.5",
+    "caption": "Add a business · name, FY, balances",
+    "sha256": "4c0f1b68d2c65cbee02bfea0c71be1bd5216d6ed5ff65c09fd32e624d8ad4b22"
+   },
+   {
+    "frame": "na/S9.5/S9.5",
+    "design_id": "S9.5",
+    "caption": "S9.5",
+    "sha256": "5b38714af5edc95c49b6b5e97c01bec7bbf5efd9f83f54a2fa0a9b87408f4a66"
+   }
+  ],
+  "S10": [
+   {
+    "frame": "c11/S10/Close August · step 1",
+    "design_id": "S10",
+    "caption": "Close August · step 1",
+    "sha256": "ea7a777a5df9cf1e7f6b52e182f9f03a1bc6584cdeb98e4a1a13dcea72d1ab5b"
+   },
+   {
+    "frame": "c11/S10/Confirm &amp; lock August",
+    "design_id": "S10",
+    "caption": "Confirm &amp; lock August",
+    "sha256": "a28d6d1fb270fedd4578cf7f9f71b37449ec1eeffee727b90c8c8a20e0f4f815"
+   },
+   {
+    "frame": "c13/S10/Confirm &amp; lock",
+    "design_id": "S10",
+    "caption": "Confirm &amp; lock",
+    "sha256": "a28d6d1fb270fedd4578cf7f9f71b37449ec1eeffee727b90c8c8a20e0f4f815"
+   },
+   {
+    "frame": "c14/S10/Confirm &amp; lock",
+    "design_id": "S10",
+    "caption": "Confirm &amp; lock",
+    "sha256": "a28d6d1fb270fedd4578cf7f9f71b37449ec1eeffee727b90c8c8a20e0f4f815"
+   },
+   {
+    "frame": "c5/S10/Close August · step 1",
+    "design_id": "S10",
+    "caption": "Close August · step 1",
+    "sha256": "ea7a777a5df9cf1e7f6b52e182f9f03a1bc6584cdeb98e4a1a13dcea72d1ab5b"
+   },
+   {
+    "frame": "c5/S10/Step 3 · the tray",
+    "design_id": "S10",
+    "caption": "Step 3 · the tray",
+    "sha256": "cbc6bb306585b0730f3b6020fea946a6ff6cda17fe9ce1eb83da25a76cd07f37"
+   },
+   {
+    "frame": "c5/S10/Step 4 · what you are signing",
+    "design_id": "S10",
+    "caption": "Step 4 · what you are signing",
+    "sha256": "2e0d2f66c6049352103cd17134d56df9946d605d6c9fff4d36eb0d67b8ac28b6"
+   }
+  ],
+  "S10.1": [
+   {
+    "frame": "c13/S10.1/Family close status · who you are waiting for",
+    "design_id": "S10.1",
+    "caption": "Family close status · who you are waiting for",
+    "sha256": "0679f5673e9170cea7f286746d078fe2cc677321b9969eba3490ade624fe8378"
+   },
+   {
+    "frame": "c5/S10.1/Family close status",
+    "design_id": "S10.1",
+    "caption": "Family close status",
+    "sha256": "0679f5673e9170cea7f286746d078fe2cc677321b9969eba3490ade624fe8378"
+   }
+  ],
+  "S10.2": [
+   {
+    "frame": "c11/S10.2/The month, as a card",
+    "design_id": "S10.2",
+    "caption": "The month, as a card",
+    "sha256": "d5cf232ed154ca660fbcac5e6ae394b4b1e3464d601acd6575c1ee95b161ca5c"
+   },
+   {
+    "frame": "c5/S10.2/Month summary card",
+    "design_id": "S10.2",
+    "caption": "Month summary card",
+    "sha256": "d5cf232ed154ca660fbcac5e6ae394b4b1e3464d601acd6575c1ee95b161ca5c"
+   },
+   {
+    "frame": "c5/S10.2/As an exported square",
+    "design_id": "S10.2",
+    "caption": "As an exported square",
+    "sha256": "9705ca8eb646d49e8d7f7314cf957c9305445eda24d9436112b11de690f64fa6"
+   }
+  ],
+  "S10.3": [
+   {
+    "frame": "c5/S10.3/Late arrivals tray",
+    "design_id": "S10.3",
+    "caption": "Late arrivals tray",
+    "sha256": "339a4d33aec0b27a4da3074ca6d17807b7f5fd15a248b211b51064125f594df5"
+   }
+  ],
+  "S10.4": [
+   {
+    "frame": "c5/S10.4/Year close · the ceremony",
+    "design_id": "S10.4",
+    "caption": "Year close · the ceremony",
+    "sha256": "b1382af913627439b0e9712cbfad940dc1363bf6c42b8f55a08262ab05f8b26b"
+   },
+   {
+    "frame": "c5/S10.4/Sealed · brought forward",
+    "design_id": "S10.4",
+    "caption": "Sealed · brought forward",
+    "sha256": "047ec1b3b139ed10e6d35bcf243002f9c4a8ee5289a4ffe68e5ede6a897b4920"
+   },
+   {
+    "frame": "c5/S10.4/Reopened · certificate voided",
+    "design_id": "S10.4",
+    "caption": "Reopened · certificate voided",
+    "sha256": "2eaa343aa23e52d8638abe11ec43e64fb0d5da05a7a37fc3482ccf8821d2daf1"
+   }
+  ],
+  "S10.5": [
+   {
+    "frame": "c5/S10.5/Before the lock · one phone still out",
+    "design_id": "S10.5",
+    "caption": "Before the lock · one phone still out",
+    "sha256": "2b3a58d8e931cabdb1ce51481e68e8053f4d438a66c507b0ec2a0aca45377dbd"
+   },
+   {
+    "frame": "c5/S10.5/Revoke sheet · a phone that won’t return",
+    "design_id": "S10.5",
+    "caption": "Revoke sheet · a phone that won’t return",
+    "sha256": "838945abafa0bbc60e15ced43be240b31880d9561a53fb6a6c74cc1b64def8cd"
+   }
+  ],
+  "S11": [
+   {
+    "frame": "c3/R3.1/Devices &amp; security",
+    "design_id": "R3.1",
+    "caption": "Devices &amp; security",
+    "sha256": "eee0d3feb512f90f8b69f68bd2d96ebdb0e6c9c115237efdc1ba47ada4eb2386"
+   },
+   {
+    "frame": "c3/R3.1b/Sheet not yet confirmed",
+    "design_id": "R3.1b",
+    "caption": "Sheet not yet confirmed",
+    "sha256": "d4692536958b341e99511ada81e0b3629d8baa0445bc8fc89bba365e0fa4fdac"
+   }
+  ],
+  "S11.1": [
+   {
+    "frame": "c3/R3.2/Guardian setup · any 2 of 3",
+    "design_id": "R3.2",
+    "caption": "Guardian setup · any 2 of 3",
+    "sha256": "88acdb1d65426bab82f5059ec30e772a5f02abe4632e9c993df330fc45bff9ba"
+   }
+  ],
+  "S11.2": [
+   {
+    "frame": "c1/R2.2/Ask your trusted members",
+    "design_id": "R2.2",
+    "caption": "Ask your trusted members",
+    "sha256": "861aba8d9254ca0d89e420911386d21d86ce90ad26bf8a60ef32d822925fc0a4"
+   },
+   {
+    "frame": "c1/R2.2b/Both approvals in",
+    "design_id": "R2.2b",
+    "caption": "Both approvals in",
+    "sha256": "3af1bef9ee80c8a17352e1763da0d915fc9bd37449dd9a06860fa8a2587de812"
+   }
+  ],
+  "S11.3": [
+   {
+    "frame": "c1/R2.4/Use your recovery sheet",
+    "design_id": "R2.4",
+    "caption": "Use your recovery sheet",
+    "sha256": "81d91504afc002a3096755ef2bf9d0ec4b2f13e79ae315f0537644b27200a763"
+   },
+   {
+    "frame": "c1/R2.4b/The code field, and failure",
+    "design_id": "R2.4b",
+    "caption": "The code field, and failure",
+    "sha256": "f2bcd7b67de3854bc80ad6934a2f5307323ea48c2514df42949615a8a42e37cf"
+   }
+  ],
+  "S11.4": [
+   {
+    "frame": "c3/R4/Backup settings · O5’s wording, with status",
+    "design_id": "R4",
+    "caption": "Backup settings · O5’s wording, with status",
+    "sha256": "7b6ad4d44c4ce3d18dc79ac2758982d7d1b0002d508ae9d3e38efa10bd428985"
+   }
+  ],
+  "S11.5": [
+   {
+    "frame": "c1/R2.0/Silent restore · the common case",
+    "design_id": "R2.0",
+    "caption": "Silent restore · the common case",
+    "sha256": "371c88ac87055170892dfa905c940fd0fe5ee24bb24e4f882ce2d337f2746386"
+   }
+  ],
+  "S11.6": [
+   {
+    "frame": "c1/R2.1/The fork · three ways back",
+    "design_id": "R2.1",
+    "caption": "The fork · three ways back",
+    "sha256": "a5eb5501a41040a9da8c2c6e2f43302dd15f4fb4892386fe2b810f7732f0658a"
+   },
+   {
+    "frame": "c1/R2.1b/The fork · a way we couldn’t check",
+    "design_id": "R2.1b",
+    "caption": "The fork · a way we couldn’t check",
+    "sha256": "94ab4fb15c4157e13da83adbac024a1206f107641e9358212de922bffdaa427c"
+   }
+  ],
+  "S11.7": [
+   {
+    "frame": "c1/R2.3/The guardian’s side",
+    "design_id": "R2.3",
+    "caption": "The guardian’s side",
+    "sha256": "690200983b44495b9328148a5998970fa3c3b6257cf4e64ad45818b6a16ced56"
+   }
+  ],
+  "S11.8": [
+   {
+    "frame": "c1/R2.5/Nothing worked yet",
+    "design_id": "R2.5",
+    "caption": "Nothing worked yet",
+    "sha256": "7f57d7531cc99bd73b0b82c41440fc8623df56a302aed0a842a760055e66f81e"
+   }
+  ],
+  "S12.1": [
+   {
+    "frame": "c10/S12.1/Plans",
+    "design_id": "S12.1",
+    "caption": "Plans",
+    "sha256": "811b5e82af0053083d3392003a491fca56ad9817674a6c302f1e4c834fa60679"
+   }
+  ],
+  "S12.2": [
+   {
+    "frame": "c10/S12.2/Before Apple’s sheet",
+    "design_id": "S12.2",
+    "caption": "Before Apple’s sheet",
+    "sha256": "18c95e89e04839c1aa9a2c75a10beb23bab0f05837344921fd64c0644a0185e9"
+   },
+   {
+    "frame": "c10/S12.2/Non-iOS variant",
+    "design_id": "S12.2",
+    "caption": "Non-iOS variant",
+    "sha256": "62437403ca6d6a683e165621f1411c5c96abb1fd10b5c6a158014c40dad602f4"
+   }
+  ],
+  "S12.3": [
+   {
+    "frame": "c10/S12.3/Manage subscription",
+    "design_id": "S12.3",
+    "caption": "Manage subscription",
+    "sha256": "f7a83459283c5fc615b41ca3f1778b3b8a4d929c757924474c66ddd8dd30fc5c"
+   }
+  ],
+  "S12.4": [
+   {
+    "frame": "c10/S12.4/Payment problem",
+    "design_id": "S12.4",
+    "caption": "Payment problem",
+    "sha256": "1cf4680f33820a6cb990316b940fa879c883635263975eb2e4ea85aee75fb20d"
+   }
+  ],
+  "S12.5": [
+   {
+    "frame": "c10/S12.5/Read-only mode",
+    "design_id": "S12.5",
+    "caption": "Read-only mode",
+    "sha256": "7ddfddbedb17e91c0039f587a511c2eb72fa95611b5851b79b84c73398b357fe"
+   }
+  ],
+  "S12.6": [
+   {
+    "frame": "c10/S12.6/Invoices",
+    "design_id": "S12.6",
+    "caption": "Invoices",
+    "sha256": "5f0fa01586ef4432620748fa44857e1d28a507a607c8473166dbc8c48aec3e22"
+   }
+  ],
+  "S13": [
+   {
+    "frame": "c10/S13/Settings",
+    "design_id": "S13",
+    "caption": "Settings",
+    "sha256": "38d9f92312e86fa4c16f49c2bf6c5719b283bc97a5f80d6b2eadb96b745075ff"
+   }
+  ],
+  "S14": [
+   {
+    "frame": "c12/S14/Partner positions · if he takes a partner",
+    "design_id": "S14",
+    "caption": "Partner positions · if he takes a partner",
+    "sha256": "bee25aca25f501ac2a32e95be22b2914b35d3ea3e0ccb6eeeb66e6a5b67985a3"
+   },
+   {
+    "frame": "c13/S14/Partner positions",
+    "design_id": "S14",
+    "caption": "Partner positions",
+    "sha256": "bee25aca25f501ac2a32e95be22b2914b35d3ea3e0ccb6eeeb66e6a5b67985a3"
+   },
+   {
+    "frame": "c6/S14/Partner positions",
+    "design_id": "S14",
+    "caption": "Partner positions",
+    "sha256": "bee25aca25f501ac2a32e95be22b2914b35d3ea3e0ccb6eeeb66e6a5b67985a3"
+   },
+   {
+    "frame": "c6/S14/Shortfall and debit variants",
+    "design_id": "S14",
+    "caption": "Shortfall and debit variants",
+    "sha256": "4e3655cfd4a0b6fdcde5c0899e7a55633c3f3b83fbf1a8fcd9ad54e1601384cd"
+   }
+  ],
+  "S14.1": [
+   {
+    "frame": "c6/S14.1/Distribution · 1 Period",
+    "design_id": "S14.1",
+    "caption": "Distribution · 1 Period",
+    "sha256": "d1694db6043f2923d9cc95807eebb70fca77e56ce105ce8cfa0098db9865bd8d"
+   },
+   {
+    "frame": "c6/S14.1/2 Preview",
+    "design_id": "S14.1",
+    "caption": "2 Preview",
+    "sha256": "30fec05e16c6de8dff4b7d6eaca24383877b988567daeb2b4da254c25cc5dc14"
+   },
+   {
+    "frame": "c6/S14.1/3 Confirm",
+    "design_id": "S14.1",
+    "caption": "3 Confirm",
+    "sha256": "9596c48ed1d894f7f50b3efe4ec0f89a409805d401ee10de9e13c954aad5b91c"
+   }
+  ],
+  "S14.2": [
+   {
+    "frame": "c6/S14.2/Drift · three equal routes",
+    "design_id": "S14.2",
+    "caption": "Drift · three equal routes",
+    "sha256": "4a0053a9f0bdc6dd5b30ec93a612040360df645cbca2aebd590a0b771c221503"
+   },
+   {
+    "frame": "c6/S14.2/Carried forward",
+    "design_id": "S14.2",
+    "caption": "Carried forward",
+    "sha256": "42dd00372f0948adcfb940b84e99b8418bbb175f18464fb3120a05cfac65af70"
+   }
+  ],
+  "S15": [
+   {
+    "frame": "c3/S15/App lock · waiting for Face ID",
+    "design_id": "S15",
+    "caption": "App lock · waiting for Face ID",
+    "sha256": "da172e749481739c9289783a0b305a39992834850d3348a8de97593b24846b19"
+   },
+   {
+    "frame": "c3/S15/Face not recognised",
+    "design_id": "S15",
+    "caption": "Face not recognised",
+    "sha256": "0a826914c7494ece5d61f2eb815b638c71257ba4e5a344dce749cebba73465e4"
+   },
+   {
+    "frame": "c3/S15/PIN instead · six digits",
+    "design_id": "S15",
+    "caption": "PIN instead · six digits",
+    "sha256": "2825f120aa96f90b721c78d54a8580b9a33c9a0424a87c972c7f8213ee3a3922"
+   }
+  ],
+  "S15.1": [
+   {
+    "frame": "c3/S15.1/Privacy cover · backgrounded",
+    "design_id": "S15.1",
+    "caption": "Privacy cover · backgrounded",
+    "sha256": "dfdf9f2740498a69d230f2d0e2167b7ae33990dd7ca00fc00e9aac597fa2da77"
+   },
+   {
+    "frame": "c3/S15.1/Both themes, side by side",
+    "design_id": "S15.1",
+    "caption": "Both themes, side by side",
+    "sha256": "9d3b269541af8edd672dc2078be55540bcd0708921a7cce2937fffeb6f0ac952"
+   }
+  ],
+  "S15.2": [
+   {
+    "frame": "c3/S15.2/Personal book lock · the same PIN, asked again",
+    "design_id": "S15.2",
+    "caption": "Personal book lock · the same PIN, asked again",
+    "sha256": "2dce26cff48e04a128bc0b6df84bfeef5a1c9055d00af2e5c70b8321c7eef443"
+   },
+   {
+    "frame": "c3/S15.2/Turning it on · no second number",
+    "design_id": "S15.2",
+    "caption": "Turning it on · no second number",
+    "sha256": "d1dd4554b8de64721c4dcc0c0dcdf6b88cf3563d4ea6511dce01519c2cdbbf49"
+   }
+  ],
+  "S15.3": [
+   {
+    "frame": "c1/S15.3/Enter PIN · Face ID above the boxes",
+    "design_id": "S15.3",
+    "caption": "Enter PIN · Face ID above the boxes",
+    "sha256": "3b3f948c0ff4a88c79cfeb7ec10e40304aee240eb7509f40458d6391e5b8cdfd"
+   },
+   {
+    "frame": "c1/S15.3/Wrong PIN · tries remaining",
+    "design_id": "S15.3",
+    "caption": "Wrong PIN · tries remaining",
+    "sha256": "f6df72eecef84dab959b4b3537cc205d6b514f51da1c3e6591fc8108c24d74e1"
+   },
+   {
+    "frame": "c1/S15.3/Forgot PIN · a code, not a lockout",
+    "design_id": "S15.3",
+    "caption": "Forgot PIN · a code, not a lockout",
+    "sha256": "278544a661b6f175f7b50e36f6990b57fc5a02ca9a899012fe1736592ff4531b"
+   }
+  ],
+  "S16": [
+   {
+    "frame": "c10/S16/My account",
+    "design_id": "S16",
+    "caption": "My account",
+    "sha256": "ea863e5c595a75f35734def3df24b811f7f6413a36e906981346be95af6670c9"
+   }
+  ],
+  "S16.1": [
+   {
+    "frame": "c10/S16.1/Edit profile · name and photo only",
+    "design_id": "S16.1",
+    "caption": "Edit profile · name and photo only",
+    "sha256": "6f2a105b119354cae1a7089289a0584ba0a06019bb3345d55f6465e565ffb12f"
+   }
+  ],
+  "S16.2": [
+   {
+    "frame": "c10/S16.2/Change number · confirm the old one",
+    "design_id": "S16.2",
+    "caption": "Change number · confirm the old one",
+    "sha256": "e0975b67dbe9a27d9eb3101d11598b309d23b0eaf85a49170c73d6f6e2513d1e"
+   },
+   {
+    "frame": "c10/S16.2/Lost number · the family confirms",
+    "design_id": "S16.2",
+    "caption": "Lost number · the family confirms",
+    "sha256": "a563462815d117ccb2a9dec3130fe82315c1613b3817f06cf2453f1b1be5bac2"
+   }
+  ],
+  "S16.3": [
+   {
+    "frame": "c10/S16.3/Delete account · honest, not hostile",
+    "design_id": "S16.3",
+    "caption": "Delete account · honest, not hostile",
+    "sha256": "8627f9b6062f74c39576e2ff6ec2cc49ea6ac0aa9ab38f1cc9a787dea0d03999"
+   }
+  ],
+  "S17": [
+   {
+    "frame": "c10/S17/Help",
+    "design_id": "S17",
+    "caption": "Help",
+    "sha256": "833478c006984b0f995731f26b24e077cf8f52f5c67fb19eaa7c476e94523469"
+   }
+  ],
+  "S17.2": [
+   {
+    "frame": "c10/S17.2/An article",
+    "design_id": "S17.2",
+    "caption": "An article",
+    "sha256": "a0d61a8bfcb86d3fc6742f6c1794ec07c6c171ce64b0ddad1577e6c77a913dcd"
+   }
+  ],
+  "S17.3": [
+   {
+    "frame": "c10/S17.3/Contact support",
+    "design_id": "S17.3",
+    "caption": "Contact support",
+    "sha256": "1817e600ae7be209f23ceb1762154edc8ff29217cf15c923cfb5eb116bcb9baf"
+   }
+  ],
+  "S17.4": [
+   {
+    "frame": "c10/S17.4/Send diagnostics",
+    "design_id": "S17.4",
+    "caption": "Send diagnostics",
+    "sha256": "12133fde6c5d9e348c63852a51a71e1a35fd7a61f17ebf9b86d11434f12e72fd"
+   }
+  ],
+  "S18": [
+   {
+    "frame": "c10/S18/Legal",
+    "design_id": "S18",
+    "caption": "Legal",
+    "sha256": "655c5ca92b56f0ff002b0a2e216729347dea505474b64f0d3b554a5b9414e28d"
+   }
+  ],
+  "S18.3": [
+   {
+    "frame": "c10/S18.3/What we can and cannot see",
+    "design_id": "S18.3",
+    "caption": "What we can and cannot see",
+    "sha256": "4fb6ea0c40ca1057d0557d76fd19e738f70d88e4b326cc4485329c5de106727d"
+   }
+  ],
+  "S19.1": [
+   {
+    "frame": "c3/S19.1/Update required",
+    "design_id": "S19.1",
+    "caption": "Update required",
+    "sha256": "94ccb105df28a521738074ede9b717e3a6de22121d861ea44c85732fe5f32f8d"
+   }
+  ],
+  "S19.2": [
+   {
+    "frame": "c3/S19.2/Maintenance",
+    "design_id": "S19.2",
+    "caption": "Maintenance",
+    "sha256": "e9e6f50b6b927ac13e4f2f2de2f885e511f7f300bd178ff4866c1170c8378dcb"
+   }
+  ],
+  "S19.3": [
+   {
+    "frame": "c3/S19.3/No connection · a chip, never a wall",
+    "design_id": "S19.3",
+    "caption": "No connection · a chip, never a wall",
+    "sha256": "b3a33e910c0df4204dc8ef69e8f17e12d45b489e0e0d9f5bc7e54b766ecce4df"
+   }
+  ],
+  "S19.4": [
+   {
+    "frame": "c3/S19.4/Priming · notifications",
+    "design_id": "S19.4",
+    "caption": "Priming · notifications",
+    "sha256": "e97ca6a4e73c072a987400f623c35954b0ed569dc02e3bc4f8c7ab68d095522a"
+   },
+   {
+    "frame": "c3/S19.4/Priming · camera",
+    "design_id": "S19.4",
+    "caption": "Priming · camera",
+    "sha256": "d522c2c7685f46c7adf6c97560c3a9131a9e76a1c47d58ccedf57e11d82cd592"
+   }
+  ],
+  "S20": [
+   {
+    "frame": "c2/S20/Attachment viewer",
+    "design_id": "S20",
+    "caption": "Attachment viewer",
+    "sha256": "dcc32dd1845243e217acd727024d260e03b9057db6648cf700aeaa1cee701def"
+   }
+  ],
+  "S21": [
+   {
+    "frame": "c7/S21/Search · recent, before typing",
+    "design_id": "S21",
+    "caption": "Search · recent, before typing",
+    "sha256": "19a513e6232acef2da8f7a86b91681c7c8ab1fd134dd6d1968072cda6192497c"
+   },
+   {
+    "frame": "c7/S21/Search · results",
+    "design_id": "S21",
+    "caption": "Search · results",
+    "sha256": "3d52e8bb92ad7150ce68d69807a64709ae1021f70826cfd93912c0c33d06d9fd"
+   }
+  ]
+ },
+ "variants": {
+  "A1": [
+   {
+    "frame": "c11/A1/Home · no scope chip anywhere",
+    "design_id": "A1",
+    "caption": "Home · no scope chip anywhere",
+    "sha256": "6c2736a7643f6f8cddc6ce7e2904078a35b66e90063a494c4dd51e11b0061897"
+   },
+   {
+    "frame": "c16/A1/Home · individual, no scope chip",
+    "design_id": "A1",
+    "caption": "Home · individual, no scope chip",
+    "sha256": "6c2736a7643f6f8cddc6ce7e2904078a35b66e90063a494c4dd51e11b0061897"
+   }
+  ],
+  "A2": [
+   {
+    "frame": "c16/A2/Ledger index · individual",
+    "design_id": "A2",
+    "caption": "Ledger index · individual",
+    "sha256": "905180b471cd216e9d2abccf77de5286a349f0927b53d9b34efb3f68f4c7600f"
+   }
+  ],
+  "A3": [
+   {
+    "frame": "c11/A3/Statement · the dairy khata",
+    "design_id": "A3",
+    "caption": "Statement · the dairy khata",
+    "sha256": "7672c4ae8c5e4e15c798b6d5268b6b239d9a374cb9f4423476253a81ca9f9877"
+   },
+   {
+    "frame": "c16/A3/Statement · the dairy khata",
+    "design_id": "A3",
+    "caption": "Statement · the dairy khata",
+    "sha256": "7672c4ae8c5e4e15c798b6d5268b6b239d9a374cb9f4423476253a81ca9f9877"
+   }
+  ],
+  "A4a": [
+   {
+    "frame": "c11/A4a/Seeded accounts after “Myself”",
+    "design_id": "A4a",
+    "caption": "Seeded accounts after “Myself”",
+    "sha256": "a72a32889ec6843096506c306c06b36b1765d0ea16cb8ec958e42f22ed583358"
+   },
+   {
+    "frame": "c16/A4a/Seeded accounts after “Myself”",
+    "design_id": "A4a",
+    "caption": "Seeded accounts after “Myself”",
+    "sha256": "a72a32889ec6843096506c306c06b36b1765d0ea16cb8ec958e42f22ed583358"
+   }
+  ],
+  "B1": [
+   {
+    "frame": "c12/B1/Home · business scope",
+    "design_id": "B1",
+    "caption": "Home · business scope",
+    "sha256": "8093bb71d04b33a6dc154ee4fc365a9678ecd659264f0da2c8ef14ba83dea480"
+   },
+   {
+    "frame": "c16/B1/Home · business scope",
+    "design_id": "B1",
+    "caption": "Home · business scope",
+    "sha256": "8093bb71d04b33a6dc154ee4fc365a9678ecd659264f0da2c8ef14ba83dea480"
+   }
+  ],
+  "B2": [
+   {
+    "frame": "c12/B2/Ledger index · business",
+    "design_id": "B2",
+    "caption": "Ledger index · business",
+    "sha256": "5343a4b87a135a2039b4454520d0dd8680f25d2ac1d18b0363e6d6ab458e2a4f"
+   },
+   {
+    "frame": "c16/B2/Ledger index · business",
+    "design_id": "B2",
+    "caption": "Ledger index · business",
+    "sha256": "5343a4b87a135a2039b4454520d0dd8680f25d2ac1d18b0363e6d6ab458e2a4f"
+   }
+  ],
+  "B3": [
+   {
+    "frame": "c12/B3/Statement · customer khata",
+    "design_id": "B3",
+    "caption": "Statement · customer khata",
+    "sha256": "85b9b8c52662676d320d91663a4b1d43f978b24885cf745522d49b3b1f789a8a"
+   },
+   {
+    "frame": "c16/B3/Statement · customer khata",
+    "design_id": "B3",
+    "caption": "Statement · customer khata",
+    "sha256": "85b9b8c52662676d320d91663a4b1d43f978b24885cf745522d49b3b1f789a8a"
+   }
+  ],
+  "B4": [
+   {
+    "frame": "c12/B4/Statement · supplier khata",
+    "design_id": "B4",
+    "caption": "Statement · supplier khata",
+    "sha256": "5696eeff508777d8e7de87fc39d0b02e79181584bde5e2fb42cfbffdfab5fd76"
+   },
+   {
+    "frame": "c16/B4/Statement · supplier khata",
+    "design_id": "B4",
+    "caption": "Statement · supplier khata",
+    "sha256": "5696eeff508777d8e7de87fc39d0b02e79181584bde5e2fb42cfbffdfab5fd76"
+   }
+  ],
+  "C1": [
+   {
+    "frame": "c14/C1/Home · trust scope",
+    "design_id": "C1",
+    "caption": "Home · trust scope",
+    "sha256": "dfa94fcf5aa1ade34f874ce34c51fb9f99bf3c92386101e453fafca6bb42c314"
+   },
+   {
+    "frame": "c16/C1/Home · trust scope",
+    "design_id": "C1",
+    "caption": "Home · trust scope",
+    "sha256": "4a2de250e35c8ea5506c2350509e51758fe561c5b0a603b9e78e9dc6f9f8620d"
+   }
+  ],
+  "C2": [
+   {
+    "frame": "c14/C2/Ledger index · trust",
+    "design_id": "C2",
+    "caption": "Ledger index · trust",
+    "sha256": "b08566273c7a3c2f5c27c315a9e9f3eff3afb7ee1f07aef88d354fd846d50bb8"
+   },
+   {
+    "frame": "c16/C2/Ledger index · trust",
+    "design_id": "C2",
+    "caption": "Ledger index · trust",
+    "sha256": "b08566273c7a3c2f5c27c315a9e9f3eff3afb7ee1f07aef88d354fd846d50bb8"
+   }
+  ],
+  "C3": [
+   {
+    "frame": "c14/C3/Gollak · open and count",
+    "design_id": "C3",
+    "caption": "Gollak · open and count",
+    "sha256": "896ac945f6ae05b1c3a266816313e034c62909ea7e0e6d52877df804ed1f5e4a"
+   },
+   {
+    "frame": "c5/C3/Gollak · open and count",
+    "design_id": "C3",
+    "caption": "Gollak · open and count",
+    "sha256": "896ac945f6ae05b1c3a266816313e034c62909ea7e0e6d52877df804ed1f5e4a"
+   }
+  ],
+  "C3b": [
+   {
+    "frame": "c14/C3b/After saving · still in the gollak",
+    "design_id": "C3b",
+    "caption": "After saving · still in the gollak",
+    "sha256": "dfd1c2c570e61297db7ebf946cc3e0c65861c833d31fce0eb22b234329edc542"
+   },
+   {
+    "frame": "c5/C3b/After saving · still in the gollak",
+    "design_id": "C3b",
+    "caption": "After saving · still in the gollak",
+    "sha256": "dfd1c2c570e61297db7ebf946cc3e0c65861c833d31fce0eb22b234329edc542"
+   }
+  ],
+  "C3c": [
+   {
+    "frame": "c14/C3c/Cash A/c · verify count",
+    "design_id": "C3c",
+    "caption": "Cash A/c · verify count",
+    "sha256": "5e547fcf06e6aab962bc8ccaf6c6bd6ea8c102b694049122a73c8c21b2b65a26"
+   },
+   {
+    "frame": "c5/C3c/Cash A/c · verify count",
+    "design_id": "C3c",
+    "caption": "Cash A/c · verify count",
+    "sha256": "5e547fcf06e6aab962bc8ccaf6c6bd6ea8c102b694049122a73c8c21b2b65a26"
+   }
+  ],
+  "C4": [
+   {
+    "frame": "c14/C4/Sevadar advance · Amritpal Singh",
+    "design_id": "C4",
+    "caption": "Sevadar advance · Amritpal Singh",
+    "sha256": "c07a347e884f6352a1ef50e2d951a96e79e6cce1fe7f2d8dfbcedbaf53dab915"
+   },
+   {
+    "frame": "c6/C4/Sevadar advance · Amritpal Singh",
+    "design_id": "C4",
+    "caption": "Sevadar advance · Amritpal Singh",
+    "sha256": "c07a347e884f6352a1ef50e2d951a96e79e6cce1fe7f2d8dfbcedbaf53dab915"
+   }
+  ],
+  "D2": [
+   {
+    "frame": "c13/D2/Home · Everything scope",
+    "design_id": "D2",
+    "caption": "Home · Everything scope",
+    "sha256": "a6cbe612f7cd0fbc8a1d27de5be37d546fd35456bc632aafd91157fce392da15"
+   },
+   {
+    "frame": "c16/D2/Home · Everything scope",
+    "design_id": "D2",
+    "caption": "Home · Everything scope",
+    "sha256": "a6cbe612f7cd0fbc8a1d27de5be37d546fd35456bc632aafd91157fce392da15"
+   }
+  ],
+  "D3": [
+   {
+    "frame": "c13/D3/Home · joint pool scope",
+    "design_id": "D3",
+    "caption": "Home · joint pool scope",
+    "sha256": "ef5758fb09334f92547869c89931bbad8749fbd47485db68d32455df9e040a39"
+   },
+   {
+    "frame": "c16/D3/Home · joint pool scope",
+    "design_id": "D3",
+    "caption": "Home · joint pool scope",
+    "sha256": "b7bf9bdb1c4ca2b4bcc699a33a66a2c0d6b60d76087bcd496c751911ab632ff6"
+   }
+  ],
+  "D8": [
+   {
+    "frame": "c4/D8/Members &amp; roles · joint family",
+    "design_id": "D8",
+    "caption": "Members &amp; roles · joint family",
+    "sha256": "d0b9f8e2a658f60371c83c1bc65025c2fcd0bfa94b72d7a10021ca27299b0437"
+   }
+  ],
+  "E2": [
+   {
+    "frame": "c7/E2/Ledger index, empty",
+    "design_id": "E2",
+    "caption": "Ledger index, empty",
+    "sha256": "44bf733191afd41483606b0ee0997c224fd22e75522c2f4b32338aed1f3e26c2"
+   }
+  ],
+  "E3": [
+   {
+    "frame": "c7/E3/A/C statement, empty",
+    "design_id": "E3",
+    "caption": "A/C statement, empty",
+    "sha256": "2ed5128bc10e224de387eba301f19e830996da2babc293fcc649fa32af545767"
+   }
+  ],
+  "E4": [
+   {
+    "frame": "c9/E4/Inbox, clear",
+    "design_id": "E4",
+    "caption": "Inbox, clear",
+    "sha256": "3fe23f819175fed2a7381c3d5f58c61d7b584e19ca428a27c86a6e3a46b16ab8"
+   }
+  ],
+  "E5": [
+   {
+    "frame": "c8/E5/Imported rows, empty",
+    "design_id": "E5",
+    "caption": "Imported rows, empty",
+    "sha256": "1e9116b92dfe035590b6e311dbc3218add26908d57af6f0166f44e9c0fcca627"
+   }
+  ],
+  "E5b": [
+   {
+    "frame": "c8/E5b/Import error",
+    "design_id": "E5b",
+    "caption": "Import error",
+    "sha256": "4db84c8c95f26fbf947808c34ca7d3630950c0588a6aa4ab4d85f6da90d2e827"
+   }
+  ],
+  "E6": [
+   {
+    "frame": "c3/E6/Offline chip · four states",
+    "design_id": "E6",
+    "caption": "Offline chip · four states",
+    "sha256": "6fbb38970d44ddd6c7de9c516be38b5743834bc94fa3219836e39da535aa90d5"
+   }
+  ],
+  "E7": [
+   {
+    "frame": "c2/E7/Locked date · the explanation sheet",
+    "design_id": "E7",
+    "caption": "Locked date · the explanation sheet",
+    "sha256": "80303e9bc47b863f93871e4c677391b8c4932e35b8a019499ba2e001f8e209f6"
+   }
+  ],
+  "FY-switcher": [
+   {
+    "frame": "nc/FY-switcher/FY-switcher",
+    "design_id": "FY-switcher",
+    "caption": "FY-switcher",
+    "sha256": "6cfebc82ee12b802e47e82c16a4e13e0fc680a1ab6de693556795127cc8e59b8"
+   }
+  ],
+  "R1": [
+   {
+    "frame": "c4/R1/Home · Admin",
+    "design_id": "R1",
+    "caption": "Home · Admin",
+    "sha256": "8a60c3817791a832887bf59114ea077f837841ffcbfafcaf93600615e420f6fe"
+   },
+   {
+    "frame": "c4/R1/Home · Head",
+    "design_id": "R1",
+    "caption": "Home · Head",
+    "sha256": "f25045e39cda0f3ac07bd8a3f0652022be634eba8f808ebc2e1f8b8222414e4d"
+   },
+   {
+    "frame": "c4/R1/Home · Member",
+    "design_id": "R1",
+    "caption": "Home · Member",
+    "sha256": "8a03a7683ca234ac7166d6be4c095fbc856cd9899e7ca071e744e584ce606c1a"
+   },
+   {
+    "frame": "c4/R1/Home · Operator",
+    "design_id": "R1",
+    "caption": "Home · Operator",
+    "sha256": "ed1da01494296ced76d7a5ee44b7b6ddd7c2bb80fbcc23207820c4a1dde2d89b"
+   },
+   {
+    "frame": "c4/R1/Home · Viewer",
+    "design_id": "R1",
+    "caption": "Home · Viewer",
+    "sha256": "b6036592ccf7e5f041a4723f880ec1f493b28b36106023786d446ded026f2ea7"
+   },
+   {
+    "frame": "c4/R1/Add entry · the Save zone by role",
+    "design_id": "R1",
+    "caption": "Add entry · the Save zone by role",
+    "sha256": "2eed6c48a8708a6af7343d2e05971adcf6e23f0b2d6b18a69539825f00dcdcd5"
+   },
+   {
+    "frame": "c4/R1/A/C statement · row menu and footer by role",
+    "design_id": "R1",
+    "caption": "A/C statement · row menu and footer by role",
+    "sha256": "7acb58d71ec6410c45724d9aad99ca39830a781746a19781a83e696034f1dc4c"
+   },
+   {
+    "frame": "c4/R1/Inbox · what lands in the tray by role",
+    "design_id": "R1",
+    "caption": "Inbox · what lands in the tray by role",
+    "sha256": "f20642a8f89059b2be9297b03fc6e87e5d06696c4995493de7385ff8c97755a3"
+   },
+   {
+    "frame": "c4/R1/Members · the controls on a row by role",
+    "design_id": "R1",
+    "caption": "Members · the controls on a row by role",
+    "sha256": "77b1dce787f925bfdf067d530f8aeab62df8dcbf965e8afdb2b2e58b9dbd39be"
+   }
+  ]
+ }
+}

@@ -206,6 +206,11 @@ step "coverage — 🔒 lines ↔ test ids, golden front-matter (blocking from M
 # additionally fails a superseded skip, or an ` @M<k>` planned test (ADR 2026-09-08 §2), that is due.
 dart run scripts/check_coverage.dart --strict --milestone M4
 
+step "design match — every screen with a canvas frame has a current record (warn-only, ADR 2026-10-05 §4)"
+# Warn-only until the owner closes the re-skin; then add --strict here, like check_coverage's M4 flip.
+# The records and canvas-index.json are committed; the canvas mirror is not, so CI only reads them.
+dart run scripts/check_design_match.dart
+
 step "analyze"
 dart analyze --fatal-infos scripts test
 for p in packages/*; do (cd "$p" && dart analyze --fatal-infos); done

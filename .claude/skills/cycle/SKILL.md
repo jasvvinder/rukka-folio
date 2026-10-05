@@ -64,8 +64,8 @@ What it does, per slice, in a pipeline (slice A reviews while slice B still buil
 
 | Stage | Who | Notes |
 |---|---|---|
-| **Build** | the named tier | writes `<M>-<key>.json` as it goes |
-| **Review** | `lane-review` (opus·high, **read-only**) | test-honesty first; writes `<M>-<key>.review.json` |
+| **Build** | the named tier | writes `<M>-<key>.json` as it goes; a UI slice ends with the **design match** — canvas render → capture → pair → `design/match/<S-id>.json` (ADR 2026-10-05 §2) |
+| **Review** | `lane-review` (opus·high, **read-only**) | test-honesty first, then **design** on UI slices (looks at each pair image); writes `<M>-<key>.review.json` |
 | **Verify** | 3 lenses on high-risk paths, 1 elsewhere | each prompted to **refute**; majority kills |
 | **Repair** | the original tier | confirmed findings only; **bounded at 2 rounds** |
 
@@ -84,6 +84,8 @@ explicitly only to force the 3-vote panel somewhere else.
 ## Rules that do not change
 
 - Lanes never run `ci.sh`, never read whole docs, never re-read a file after editing.
+- A UI slice is not done until each of its S-ids has a stamped `design/match/<S-id>.json` and the
+  lane has looked at the pair (ADR 2026-10-05). The owner's look at the pair is what turns on its golden.
 - Reports stay durable and `complete: false` until the work is wholly done.
 - Disjoint directories are per **run**; the next cycle may take what this one released.
 - A 🔒 line changed needs an ADR — the lane reports it in `open`, it does not edit the line.

@@ -20,6 +20,12 @@ in your context — follow its screen recipe; do not go and read the file.
 - **Design tokens only** — hex literals in widgets are review-blocking. `design/tokens/tokens.json`
   is the sole source for token values.
 - 07 §1 applies to every screen: 8-second entry, no dead ends, colour never alone.
+- **The canvas frame decides how the screen looks** (ADR 2026-10-05 §1): layout, components,
+  placement, icons, density. Render it before you build (`python3 scripts/design_match.py render
+  <S-ids>`), and finish with the **design match** of the `ui-screen` recipe: capture → pair → fix →
+  `design/match/<S-id>.json` → `stamp`. A screen whose pair you have not looked at is not complete,
+  and an unexplained difference from its frame is a defect, not a choice. You may write
+  `design/match/<S-id>.json` for your own S-ids even though `design/` is outside your feature folder.
 - Consumer surfaces say *Money in / Money out*; professional surfaces say Dr/Cr (02 §10). The
   posting logic never bends to the display language.
 - **`docs/` wins over code.** A 🔒 line you would need to change means **STOP** and report it in

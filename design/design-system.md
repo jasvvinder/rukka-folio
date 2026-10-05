@@ -1,6 +1,6 @@
 # Design System — Rukka Folio
 
-**Status:** Phase 0 deliverable, v0.1. Source of truth for values: `design/tokens/tokens.json` (this doc explains; the JSON decides). `tokens.css` (Phase A mockups) and `tokens.dart` (M5 app; the app imports its copy at `app/lib/shared/tokens.dart`) are generated views written by `scripts/gen_tokens.dart` (landed M0, 4 Sep 2026) — never edit them by hand; `scripts/ci.sh` fails on drift. Brand authority: `docs/11-brand-guidelines.md` v1.4 §4 (mark geometry of record: `docs/brand/icons/master/*.svg`); screen behavior: `docs/07-ui-flows.md`.
+**Status:** Phase 0 deliverable, v0.1. Source of truth for values: `design/tokens/tokens.json` (this doc explains; the JSON decides). `tokens.css` (Phase A mockups) and `tokens.dart` (M5 app; the app imports its copy at `app/lib/shared/tokens.dart`) are generated views written by `scripts/gen_tokens.dart` (landed M0, 4 Sep 2026) — never edit them by hand; `scripts/ci.sh` fails on drift. Brand authority: `docs/11-brand-guidelines.md` v1.4 §4 (mark geometry of record: `docs/brand/icons/master/*.svg`); screen behavior: `docs/07-ui-flows.md`; **screen appearance: the canvas frame for the S-id** (layout, components, placement, icons, density — ADR 2026-10-05 §1; checked by the design match, §2).
 
 ---
 

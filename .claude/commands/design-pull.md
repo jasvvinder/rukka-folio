@@ -54,6 +54,9 @@ and the marketing pages (`Landing Page`, `Coming Soon*`). Those are the website'
    - **design-only** — layout/visual with no doc impact → mirror commit only
 5. Update the owning docs per CLAUDE.md precedence (02 ledger · 06 identity · 07 screens ·
    13 UX architecture · design/DESIGN-PACK.md · 01 vocabulary).
+5b. Re-index the frames: `python3 scripts/design_match.py index` rewrites `design/match/canvas-index.json`
+   (committed). Then `dart run scripts/check_design_match.dart`: every record whose frames changed now reads
+   **stale**. List those S-ids in the report, because their screens must be re-matched (ADR 2026-10-05 §4).
 6. Record the sync: append a dated entry to `design/canvas-mirror/CHANGES.md` (files
    touched, screens/strings changed, doc updates made). Then one commit of the **doc
    updates only**, message `design-sync: <summary>` — the mirror is gitignored and never

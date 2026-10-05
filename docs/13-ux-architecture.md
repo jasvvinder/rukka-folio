@@ -240,6 +240,8 @@ Every push in 07 §17 names where it lands. Content-free throughout (04 §4).
 
 The canvases predate parts of this inventory and carry their own ids. Both vocabularies
 are valid; this table is the translation. Canvas captions use the design id.
+`scripts/design_match.py` reads this table to index the frames by S-id (ADR 2026-10-05 §4), so keep its
+`a · b` / `x · y` column pairing one-to-one when you edit it.
 
 | Design id | Doc id | Screen |
 |---|---|---|
@@ -414,6 +416,8 @@ Recovery completion revokes all prior sessions and notifies every tenant; **ever
 - [ ] `lang` attributes on user-typed strings · live regions on status chips · table semantics on the statement · camera-free ceremony path (design-system §3.1)
 - [ ] Every screen holds at **375×667 and 360×800** at 200% font scale; reduced-motion and dark passes
 - [ ] Token names used in the canvases follow the **token ↔ CSS ↔ Dart ↔ Figma ↔ canvas map** (design-system §4); no second palette anywhere
+
+> **ADR 2026-10-05 §1–§4** — the handoff runs the other way too. The canvas frame for an S-id decides how the built screen looks (layout, components, placement, icons, density). Every UI slice ends with a design match: canvas render → app capture at 390×844 → side-by-side pair → `design/match/<S-id>.json`. The approved capture becomes a macOS golden, and `check_design_match.dart` reports missing or stale records. ⟦tests: F1-1005-1, F1-1005-2, F1-1005-3, F1-1005-4, F1-1005-5⟧
 
 ## 10. Decisions — settled 🔒 ⟦tests: n/a — index of decisions settled elsewhere; each is marked at its owning ruling⟧
 

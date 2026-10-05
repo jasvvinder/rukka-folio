@@ -47,7 +47,8 @@ const settled = await parallel(
       `Milestone ${args.milestone}. You are lane **${l.key}**.
 
 You own these directories and must not touch anything else:
-${l.dirs.map((d) => `  - ${d}`).join('\n')}
+${l.dirs.map((d) => `  - ${d}`).join('\n')}${l.dirs.some((d) => d.startsWith('app/lib/features') || d.startsWith('app/lib/shared')) ? `
+Exception: design/match/<S-id>.json for the S-ids you build (ADR 2026-10-05 §2).` : ''}
 
 Your report file (write it early, keep it current, \`complete: false\` until wholly done):
   .claude/lane-reports/${args.milestone}-${l.key}.json
