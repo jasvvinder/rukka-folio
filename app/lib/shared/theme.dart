@@ -6,6 +6,10 @@ import 'package:flutter/material.dart';
 
 import 'tokens.dart';
 
+/// The fallback chain behind [RkType.family] (11 §4.4): Mukta Mahee for
+/// Gurmukhi, then Noto Sans — the only fallback.
+const rkFontFallback = [RkType.familyGurmukhi, RkType.familyFallback];
+
 /// Builds the theme for [brightness]. 11 §4.4: Mukta (Latin + Devanagari),
 /// Mukta Mahee (Gurmukhi), Noto Sans as the only fallback.
 ThemeData rkTheme(Brightness brightness) {
@@ -64,7 +68,7 @@ ThemeData rkTheme(Brightness brightness) {
     brightness: brightness,
     colorScheme: scheme,
     fontFamily: RkType.family,
-    fontFamilyFallback: const [RkType.familyGurmukhi, RkType.familyFallback],
+    fontFamilyFallback: rkFontFallback,
     textTheme: text,
     scaffoldBackgroundColor: bg,
     canvasColor: bg,
@@ -129,8 +133,18 @@ ThemeData rkTheme(Brightness brightness) {
 /// body→bodyLarge · table-row→bodyMedium · caption→bodySmall ·
 /// amount-row→labelLarge (tabular). amount-hero has no Material slot; use
 /// [RkType.amountHero] directly.
+///
+/// Every style carries the face itself (11 §4.4; desk 141, F1-1005-6/7):
+/// `ThemeData(fontFamily:)` faces only the textTheme it merges, while a style
+/// handed to a component theme (AppBar title, button label) replaces the
+/// widget's default whole — without the family here it draws in the system
+/// face, and Gurmukhi/Devanagari in whatever the OS picks.
 TextTheme rkTextTheme(Color ink) {
-  TextStyle c(TextStyle s) => s.copyWith(color: ink);
+  TextStyle c(TextStyle s) => s.copyWith(
+    color: ink,
+    fontFamily: RkType.family,
+    fontFamilyFallback: rkFontFallback,
+  );
   return TextTheme(
     displayLarge: c(RkType.display),
     headlineMedium: c(RkType.page),
