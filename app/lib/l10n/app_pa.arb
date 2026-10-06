@@ -2803,7 +2803,10 @@
     "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
   },
   "lock.biometric.prompt": "ਆਪਣੇ ਖਾਤੇ ਖੋਲ੍ਹੋ",
-  "lock.biometric.reenrolled": "ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਨਵਾਂ ਚਿਹਰਾ ਜਾਂ ਉਂਗਲ ਦਾ ਨਿਸ਼ਾਨ ਜੋੜਿਆ ਗਿਆ ਹੈ — ਇੱਕ ਵਾਰ ਆਪਣਾ ਪਿੰਨ ਭਰੋ",
+  "lock.biometric.reenrolled": "ਇਸ ਫ਼ੋਨ ਦੀਆਂ ਚਿਹਰੇ ਜਾਂ ਉਂਗਲ ਦੇ ਨਿਸ਼ਾਨ ਦੀਆਂ ਸੈਟਿੰਗਾਂ ਬਦਲ ਗਈਆਂ ਹਨ — ਇੱਕ ਵਾਰ ਆਪਣਾ ਪਿੰਨ ਭਰੋ",
+  "@lock.biometric.reenrolled": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06 §4)"
+  },
   "lock.biometric.retry": "ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
   "@lock.biometric.retry": {
     "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
@@ -2835,6 +2838,14 @@
   "@lock.forgot.body_pin_only": {
     "description": "machine-draft — native review M12 (ADR 2026-10-05b)"
   },
+  "lock.forgot.body_reenrolled": "ਤੁਹਾਡਾ ਪਿੰਨ ਬਣਨ ਤੋਂ ਬਾਅਦ ਇਸ ਫ਼ੋਨ ਦੀਆਂ ਚਿਹਰੇ ਜਾਂ ਉਂਗਲ ਦੇ ਨਿਸ਼ਾਨ ਦੀਆਂ ਸੈਟਿੰਗਾਂ ਬਦਲ ਗਈਆਂ ਹਨ, ਇਸ ਲਈ ਚਿਹਰਾ ਜਾਂ ਉਂਗਲ ਦਾ ਨਿਸ਼ਾਨ ਇਹ ਨਹੀਂ ਦਿਖਾ ਸਕਦਾ ਕਿ ਇਹ ਤੁਸੀਂ ਹੋ, ਅਤੇ ਤੁਹਾਡੇ ਨੰਬਰ ਉੱਤੇ ਕੋਡ ਇਕੱਲਾ ਕਾਫ਼ੀ ਨਹੀਂ। ਨਵੇਂ ਫ਼ੋਨ ਵਾਂਗ ਸਾਬਤ ਕਰੋ ਕਿ ਇਹ ਤੁਸੀਂ ਹੋ — ਆਪਣੇ ਪਰਿਵਾਰ ਦੇ ਜੀਆਂ ਨਾਲ ਜਾਂ ਆਪਣੀ ਰਿਕਵਰੀ ਸ਼ੀਟ ਨਾਲ। ਤੁਹਾਡੇ ਖਾਤੇ ਸੁਰੱਖਿਅਤ ਹਨ।",
+  "@lock.forgot.body_reenrolled": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06 §4)"
+  },
+  "lock.forgot.body_reenrolled_before_open": "ਤੁਹਾਡਾ ਪਿੰਨ ਬਣਨ ਤੋਂ ਬਾਅਦ ਇਸ ਫ਼ੋਨ ਦੀਆਂ ਚਿਹਰੇ ਜਾਂ ਉਂਗਲ ਦੇ ਨਿਸ਼ਾਨ ਦੀਆਂ ਸੈਟਿੰਗਾਂ ਬਦਲ ਗਈਆਂ ਹਨ, ਇਸ ਲਈ ਹੁਣ ਸਿਰਫ਼ ਤੁਹਾਡਾ ਪਿੰਨ ਹੀ ਐਪ ਖੋਲ੍ਹ ਸਕਦਾ ਹੈ। ਜੇ ਇਹ ਯਾਦ ਨਹੀਂ, ਤਾਂ ਤੁਹਾਡੇ ਖਾਤੇ ਗੁਆਚੇ ਨਹੀਂ — ਉਹ ਨਵੇਂ ਫ਼ੋਨ ਵਾਂਗ ਵਾਪਸ ਆਉਂਦੇ ਹਨ, ਆਪਣੇ ਪਰਿਵਾਰ ਦੇ ਜੀਆਂ ਨਾਲ ਜਾਂ ਆਪਣੀ ਰਿਕਵਰੀ ਸ਼ੀਟ ਨਾਲ।",
+  "@lock.forgot.body_reenrolled_before_open": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06 §4)"
+  },
   "lock.forgot.cancel": "ਵਾਪਸ",
   "lock.forgot.start": "ਕੋਡ ਭੇਜੋ",
   "@lock.forgot.start": {
@@ -2843,6 +2854,10 @@
   "lock.forgot.start_before_open": "ਐਪ ਖੋਲ੍ਹੋ",
   "@lock.forgot.start_before_open": {
     "description": "machine-draft — native review M12 (KEY145B)"
+  },
+  "lock.forgot.start_ladder": "ਸਾਬਤ ਕਰੋ ਕਿ ਇਹ ਤੁਸੀਂ ਹੋ",
+  "@lock.forgot.start_ladder": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06 §4)"
   },
   "lock.forgot.title": "ਆਪਣਾ ਪਿੰਨ ਭੁੱਲ ਗਏ",
   "@lock.forgot.title": {

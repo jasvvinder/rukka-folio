@@ -11,7 +11,10 @@
     "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
   },
   "lock.biometric.unavailable": "इस समय इस फ़ोन पर फ़ेस आईडी उपलब्ध नहीं है — अपना पिन भरें",
-  "lock.biometric.reenrolled": "इस फ़ोन पर नया चेहरा या उँगली का निशान जोड़ा गया है — एक बार अपना पिन भरें",
+  "lock.biometric.reenrolled": "इस फ़ोन की चेहरे या उँगली के निशान की सेटिंग बदल गई है — एक बार अपना पिन भरें",
+  "@lock.biometric.reenrolled": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06 §4)"
+  },
   "lock.pin.use_instead": "इसके बदले पिन भरें",
   "lock.pin.label": "अपना पिन भरें",
   "lock.pin.entered": "6 में से {count} अंक भरे गए",
@@ -82,6 +85,18 @@
   "lock.forgot.body_before_open": "कोड तभी भेजा जा सकता है जब ऐप खुला हो। अभी अपनी उंगली के निशान या चेहरे से इसे खोलें, फिर ऐप के अंदर 'पिन भूल गए' कोड भेजता है — आपकी बहियों पर कोई असर नहीं पड़ता।",
   "@lock.forgot.body_before_open": {
     "description": "machine-draft — native review M12 (KEY145B)"
+  },
+  "lock.forgot.body_reenrolled": "आपका पिन बनने के बाद इस फ़ोन की चेहरे या उँगली के निशान की सेटिंग बदल गई है, इसलिए चेहरा या उँगली का निशान नहीं दिखा सकता कि यह आप हैं, और आपके नंबर पर कोड अकेला काफ़ी नहीं है। नए फ़ोन की तरह साबित करें कि यह आप हैं — अपने परिवार के सदस्यों से या अपनी रिकवरी शीट से। आपकी बहियाँ सुरक्षित हैं।",
+  "@lock.forgot.body_reenrolled": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06 §4)"
+  },
+  "lock.forgot.body_reenrolled_before_open": "आपका पिन बनने के बाद इस फ़ोन की चेहरे या उँगली के निशान की सेटिंग बदल गई है, इसलिए अब सिर्फ़ आपका पिन ही ऐप खोल सकता है। अगर यह याद नहीं है, तो आपकी बहियाँ खोई नहीं हैं — वे नए फ़ोन की तरह वापस आती हैं, अपने परिवार के सदस्यों से या अपनी रिकवरी शीट से।",
+  "@lock.forgot.body_reenrolled_before_open": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06 §4)"
+  },
+  "lock.forgot.start_ladder": "साबित करें कि यह आप हैं",
+  "@lock.forgot.start_ladder": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06 §4)"
   },
   "lock.forgot.start_before_open": "ऐप खोलें",
   "@lock.forgot.start_before_open": {

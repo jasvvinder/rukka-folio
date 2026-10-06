@@ -1,29 +1,34 @@
-// An emulation of what reaches Android, for ADR 2026-10-05b's tests. It sits
-// on the two *real* method channels — flutter_secure_storage's
-// (`plugins.it_nomads.com/flutter_secure_storage`, driven through
-// `MethodChannelFlutterSecureStorage`, as F1-05d does) and the app's own
-// `rukka_folio/keystore` (driven through `MethodChannelKeystorePlatform`) — so
-// every assertion is about what crosses the boundary, not about a fake class.
+// An emulation of what reaches Android, for ADR 2026-10-05b's and ADR
+// 2026-10-06's tests. It sits on the two *real* method channels —
+// flutter_secure_storage's (`plugins.it_nomads.com/flutter_secure_storage`,
+// driven through `MethodChannelFlutterSecureStorage`, as F1-05d does) and the
+// app's own `rukka_folio/keystore` (driven through
+// `MethodChannelKeystorePlatform`) — so every assertion is about what crosses
+// the boundary, not about a fake class.
 //
-// What it models of flutter_secure_storage 11.2.0 on Android, per namespace:
-//   • `rukka_folio_device` (the biometric class): every call initialises the
-//     namespace first (FlutterSecureStoragePlugin.java:176-178), and that
-//     fails when no strong biometric is enrolled ("At least one biometric must
-//     be enrolled …", KeyCipherImplementationAES23.java:169-181), when the key
-//     was invalidated (KeyPermanentlyInvalidatedException → key mismatch,
+// Of flutter_secure_storage 11.2.0 on Android, per namespace:
+//   • `rukka_folio_device` (the legacy biometric class): every call
+//     initialises the namespace first (FlutterSecureStoragePlugin.java:176-178),
+//     and that fails when no strong biometric is enrolled
+//     (KeyCipherImplementationAES23.java:169-181), when the key was
+//     invalidated (KeyPermanentlyInvalidatedException → key mismatch,
 //     FlutterSecureStorage.java:425-426 → :1016), or when the person cancels
 //     the BiometricPrompt ("Biometric authentication error [10]", :1305-1308).
-//     So delete fails on an invalidated namespace too — the reason the app has
-//     its own reset.
 //   • every other namespace opens without a person.
-// And of the app's native helper: `qualifyingBiometricEnrolled` answers
-// [enrolled]; `resetBiometricDeviceItems` empties the biometric namespace and
-// clears the invalidation (RukkaKeystoreChannel.kt).
+// Of the app's native helper (RukkaKeystoreChannel.kt):
+//   • the device-key class (`deviceItem*`, ADR 2026-10-06 §1): [hw], with no
+//     person bound and nothing an enrolment change touches;
+//   • the gate (`armBiometricGate` / `authenticate` / `resetGate`, ruling 2):
+//     minted only with a qualifying biometric, invalidated by
+//     [changeEnrolment], answering `reenrolled` (and removing itself) when
+//     read after one;
+//   • `qualifyingBiometricEnrolled` answers [enrolled].
+// A method the native half does not have throws [MissingPluginException], so a
+// call to a removed one (KEY145B's `resetBiometricDeviceItems`) fails loudly.
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_secure_storage_platform_interface/flutter_secure_storage_platform_interface.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/features/devices/keystore_platform.dart';
@@ -32,13 +37,13 @@ const pluginChannel = MethodChannel(
   'plugins.it_nomads.com/flutter_secure_storage',
 );
 
-/// The biometric namespace (ADR 2026-09-05d §4 class).
+/// The legacy biometric namespace (ADR 2026-09-05d §4 as built).
 const biometricNs = 'rukka_folio_device';
 
-/// The PIN-only namespace (ADR 2026-10-05b §1 class).
+/// The legacy PIN-only namespace (ADR 2026-10-05b §1).
 const pinOnlyNs = 'rukka_folio_device_pin';
 
-/// The promptless namespace (DB key, vault, binding record).
+/// The promptless namespace (DB key, vault, records).
 const promptlessNs = 'rukka_folio';
 
 final class AndroidKeystoreEmulator {
@@ -47,32 +52,68 @@ final class AndroidKeystoreEmulator {
   /// A Class 3 biometric is enrolled (and a screen lock set).
   bool enrolled;
 
-  /// The biometric namespace's Keystore key was invalidated.
+  // ── the legacy biometric plugin namespace ──────────────────────────────
+
+  /// The legacy biometric namespace's Keystore key was invalidated.
   bool invalidated = false;
 
-  /// The next n biometric-namespace calls end in a cancelled prompt.
+  /// The next n legacy-biometric calls end in a cancelled prompt.
   int cancelBiometric = 0;
 
-  /// The next n biometric-namespace calls never answer — the plugin's
-  /// BiometricPrompt negative button (FlutterSecureStorage.java:1281-1282:
-  /// a no-op listener, and the framework then calls no error callback).
+  /// The next n legacy-biometric calls never answer (the plugin's negative
+  /// button, FlutterSecureStorage.java:1281-1282).
   int hangBiometric = 0;
 
-  /// Biometric-namespace reads return different bytes (a corrupt read-back).
+  /// Legacy-biometric reads return different bytes.
   bool corruptBiometricReads = false;
 
-  /// The next n biometric-namespace calls fail the way iOS reports a face that
-  /// was not recognised — `errSecAuthFailed` (-25293) through the plugin's
-  /// "Unexpected security result code" — which is NOT an invalidation.
+  /// The next n legacy-biometric calls fail as iOS reports a face that was
+  /// not recognised (errSecAuthFailed -25293) — NOT an invalidation.
   int failFaceBiometric = 0;
 
-  /// The relock gate (`armBiometricGate` / `authenticate` on the app's own
-  /// channel): armed against the set enrolled at arming time.
-  bool gateArmed = false;
+  /// The next plugin write to a key ending with this fails.
+  String? failPluginWriteKey;
 
-  /// Answers the relock prompt gives, in order; when empty an armed gate
-  /// answers `success` and an unarmed one `unarmed`.
+  /// Plugin deletes of keys ending with any of these fail.
+  final failPluginDeleteKeys = <String>{};
+
+  // ── the device-key class (ADR 2026-10-06 §1) ───────────────────────────
+
+  /// id → stored bytes.
+  final hw = <String, Uint8List>{};
+
+  /// The next n device-item writes fail.
+  int failHwWrites = 0;
+
+  /// The next n device-item reads fail.
+  int failHwReads = 0;
+
+  /// Device-item reads return different bytes.
+  bool corruptHwReads = false;
+
+  // ── the gate (ADR 2026-10-06 §2) ───────────────────────────────────────
+
+  /// A gate item exists.
+  bool gateMinted = false;
+
+  /// The gate's biometric set has changed since it was minted.
+  bool gateInvalid = false;
+
+  /// Answers the gate read gives, in order, for a valid gate; when empty a
+  /// valid gate answers `success`.
   final gateAnswers = <String>[];
+
+  /// A finger or face added or removed in Settings: the gate (and a legacy
+  /// biometric class) is invalidated; the device-key class is not.
+  void changeEnrolment({bool stillEnrolled = true}) {
+    enrolled = stillEnrolled;
+    if (gateMinted) gateInvalid = true;
+    if (stored.keys.any((k) => k.startsWith('$biometricNs/'))) {
+      invalidated = true;
+    }
+  }
+
+  // ── records ────────────────────────────────────────────────────────────
 
   /// Every plugin call, in order.
   final wire = <MethodCall>[];
@@ -80,7 +121,7 @@ final class AndroidKeystoreEmulator {
   /// Every call on the app's own channel, in order.
   final native = <MethodCall>[];
 
-  /// `namespace/key` → stored value.
+  /// `namespace/key` → stored value (plugin).
   final stored = <String, String>{};
 
   static Map<String, String> optionsOf(MethodCall c) =>
@@ -93,6 +134,9 @@ final class AndroidKeystoreEmulator {
     for (final c in wire)
       if (nsOf(c) == ns) c,
   ];
+
+  /// Native method names, in order.
+  List<String> get nativeMethods => [for (final c in native) c.method];
 
   /// Installs both handlers and the Android target; undone at tear-down.
   void install() {
@@ -162,9 +206,15 @@ final class AndroidKeystoreEmulator {
         );
       }
     }
-    final k = '$ns/${args['key']}';
+    final key = args['key'] as String;
+    final k = '$ns/$key';
     switch (call.method) {
       case 'write':
+        final f = failPluginWriteKey;
+        if (f != null && key.endsWith(f)) {
+          failPluginWriteKey = null;
+          throw PlatformException(code: 'write failed');
+        }
         stored[k] = args['value'] as String;
         return null;
       case 'read':
@@ -176,6 +226,9 @@ final class AndroidKeystoreEmulator {
       case 'containsKey':
         return stored.containsKey(k);
       case 'delete':
+        if (failPluginDeleteKeys.any(key.endsWith)) {
+          throw PlatformException(code: 'delete failed');
+        }
         stored.remove(k);
         return null;
     }
@@ -184,22 +237,58 @@ final class AndroidKeystoreEmulator {
 
   Future<Object?> _native(MethodCall call) async {
     native.add(call);
+    final args = call.arguments is Map
+        ? call.arguments as Map
+        : const <Object?, Object?>{};
     switch (call.method) {
       case 'qualifyingBiometricEnrolled':
         return enrolled;
-      case 'resetBiometricDeviceItems':
-        stored.removeWhere((k, _) => k.startsWith('$biometricNs/'));
-        invalidated = false;
-        return true;
       case 'excludeFromBackup':
         return true;
+      case 'deviceItemRead':
+        if (failHwReads > 0) {
+          failHwReads--;
+          throw PlatformException(code: 'device_item_failed');
+        }
+        final v = hw[args['id']];
+        if (v == null) return null;
+        if (corruptHwReads) return Uint8List.fromList([0, ...v]);
+        return Uint8List.fromList(v);
+      case 'deviceItemWrite':
+        if (failHwWrites > 0) {
+          failHwWrites--;
+          throw PlatformException(code: 'device_item_failed');
+        }
+        hw[args['id'] as String] = Uint8List.fromList(
+          args['bytes'] as Uint8List,
+        );
+        return true;
+      case 'deviceItemDelete':
+        hw.remove(args['id']);
+        return true;
+      case 'deviceItemContains':
+        return hw.containsKey(args['id']);
+      case 'deviceKeyStorage':
+        return 'strongBox';
       case 'armBiometricGate':
-        gateArmed = enrolled;
-        return enrolled;
+        if (!enrolled) return false;
+        gateMinted = true;
+        gateInvalid = false;
+        return true;
+      case 'resetGate':
+        gateMinted = false;
+        gateInvalid = false;
+        return true;
       case 'authenticate':
+        if (!gateMinted) return 'unarmed';
+        if (gateInvalid) {
+          gateMinted = false;
+          gateInvalid = false;
+          return 'reenrolled';
+        }
         if (gateAnswers.isNotEmpty) return gateAnswers.removeAt(0);
-        return gateArmed ? 'success' : 'unarmed';
+        return enrolled ? 'success' : 'unavailable';
     }
-    return null;
+    throw MissingPluginException('no native ${call.method}');
   }
 }

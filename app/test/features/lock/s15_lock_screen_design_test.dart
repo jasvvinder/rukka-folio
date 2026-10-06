@@ -36,6 +36,7 @@ void main() {
     String typed = '',
     bool wrong = false,
     bool forgot = false,
+    bool ladder = false,
   }) async {
     for (final target in RkDesignTarget.values) {
       final clock = TestClock();
@@ -57,6 +58,7 @@ void main() {
           child: LockScreen(
             onUnlocked: () {},
             onForgotPin: () {},
+            onForgotPinPinOnly: ladder ? () {} : null,
             debugTyped: typed,
             debugWrong: wrong,
             debugForgotDoor: forgot,
@@ -89,6 +91,35 @@ void main() {
       state: 'pin-only',
       gate: () => FakeBiometricGate([BiometricOutcome.pinOnly], false),
       typed: '13',
+    );
+  });
+
+  // ADR 2026-10-06 §4 (GATE1 review findings 2, 3): the gate was invalidated
+  // — no frame draws it; nearest c3/S15 *PIN instead · six digits* and
+  // c1/S15.3 *Forgot PIN* (design/match/S15.json, S15.3.json).
+  testWidgets('C-1006-4 design capture S15 re-enrolled · S15.3 forgot door '
+      're-enrolled (in the app, and before it is open)', (tester) async {
+    await capture(
+      tester,
+      sid: 'S15',
+      state: 'reenrolled',
+      gate: () => FakeBiometricGate([BiometricOutcome.reenrolled]),
+      typed: '13',
+    );
+    await capture(
+      tester,
+      sid: 'S15.3',
+      state: 'forgot-reenrolled',
+      gate: () => FakeBiometricGate([BiometricOutcome.reenrolled]),
+      forgot: true,
+      ladder: true,
+    );
+    await capture(
+      tester,
+      sid: 'S15.3',
+      state: 'forgot-reenrolled-before-open',
+      gate: () => FakeBiometricGate([BiometricOutcome.reenrolled]),
+      forgot: true,
     );
   });
 

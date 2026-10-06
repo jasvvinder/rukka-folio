@@ -7032,9 +7032,9 @@
   "@lock.biometric.prompt": {
     "description": "S15 reason string shown by the platform biometric sheet, which is raised automatically without a tap (07 §5.6)."
   },
-  "lock.biometric.reenrolled": "A new face or fingerprint was added to this phone — enter your PIN once",
+  "lock.biometric.reenrolled": "This phone's face or fingerprint settings have changed — enter your PIN once",
   "@lock.biometric.reenrolled": {
-    "description": "S15 copy variant after biometric re-enrolment (ADR 2026-09-05d §4)."
+    "description": "S15 line when the gate item was invalidated — a face or fingerprint added or removed, or every one removed (ADR 2026-10-06 §4): says only that the set changed, never which way. The MPIN, once, then a new gate."
   },
   "lock.biometric.retry": "Try again",
   "@lock.biometric.retry": {
@@ -7093,6 +7093,14 @@
   "@lock.forgot.body_pin_only": {
     "description": "S15 forgot door on a PIN-only phone (desk 147, ADR 2026-10-05b Open): routes to the S11 recovery ladder, not OTP alone. ⚠️ SPEC: owner to rule; draft copy."
   },
+  "lock.forgot.body_reenrolled": "This phone's face or fingerprint settings have changed since your PIN was set, so a face or fingerprint can't show it's you, and a code to your number isn't enough on its own. Prove it's you the way a new phone would — with your family members or your recovery sheet. Your books are untouched.",
+  "@lock.forgot.body_reenrolled": {
+    "description": "S15 forgot door in the re-enrolled state, inside the app: a biometric set that changed since the PIN was set cannot prove the person (the 06 §4.4 relative-enrols-a-face threat), so the reset is the S11 recovery ladder, not OTP + biometric (GATE1 review finding 2). ⚠️ SPEC: conservative reading, same as the PIN-only door (desk 147); owner to rule."
+  },
+  "lock.forgot.body_reenrolled_before_open": "This phone's face or fingerprint settings have changed since your PIN was set, so only your PIN can open the app now. If you can't remember it, your books are not lost — they come back the way they would on a new phone, with your family members or your recovery sheet.",
+  "@lock.forgot.body_reenrolled_before_open": {
+    "description": "S15 forgot door in the re-enrolled state at cold start (GATE1 review finding 2): the biometric cannot open the app and no code can be sent before it is open, so only the PIN opens; the ladder is named but not reachable from here. ⚠️ SPEC: S11 entry from the cold-start S15 not built; owner item."
+  },
   "lock.forgot.cancel": "Back",
   "@lock.forgot.cancel": {
     "description": "S15 leaves the forgot-PIN door without starting the reset."
@@ -7104,6 +7112,10 @@
   "lock.forgot.start_before_open": "Open the app",
   "@lock.forgot.start_before_open": {
     "description": "S15 forgot door action at cold start on a biometric phone: raises the biometric prompt (KEY145B review finding 6)."
+  },
+  "lock.forgot.start_ladder": "Prove it's you",
+  "@lock.forgot.start_ladder": {
+    "description": "S15 forgot door action that opens the S11 recovery ladder (PIN-only phone, desk 147; changed biometric set, ADR 2026-10-06 §4)."
   },
   "lock.forgot.title": "Forgot your PIN",
   "@lock.forgot.title": {

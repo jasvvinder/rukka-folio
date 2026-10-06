@@ -23,6 +23,18 @@
 // biometric line, and one muted line saying why (⚠️ SPEC: design desk 148
 // owns the final copy and placement). The cooldown panel then offers no face
 // either: the wait is the only way forward, and *Forgot PIN* stays.
+//
+// Re-enrolled variant (ADR 2026-10-06 §4): the gate was invalidated — a face
+// or fingerprint added or removed, or every one removed — so no biometric can
+// open the app until the MPIN has minted a new gate. The screen asks for the
+// MPIN with the reason line and draws **no** Face ID button (a tap could only
+// answer re-enrolled again, GATE1 review finding 3). Its forgot door cannot
+// lean on the biometric either: a set that changed since the PIN was set is
+// exactly the 06 §4.4 relative-enrols-a-face case, so the reset is the S11
+// recovery ladder, as on a PIN-only phone (⚠️ SPEC: conservative reading of
+// desk 147, owner to rule). Where no ladder door exists yet (the cold start,
+// [LockScreen.onForgotPinPinOnly] null) the page says only the PIN opens and
+// offers no button that would do nothing (GATE1 review finding 2).
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -44,15 +56,16 @@ enum LockReason {
   /// (06 §4.5, ADR 2026-09-05 §7).
   routine,
 
-  /// A face or fingerprint was added to this phone, so the keystore item is no
-  /// longer readable by biometrics (ADR 2026-09-05d §4).
+  /// A face or fingerprint was added to (or removed from) this phone, so the
+  /// gate item is no longer readable by biometrics: the MPIN, once, then a new
+  /// gate (ADR 2026-10-06 §4).
   biometricReenrolled,
 
-  /// Cold start on a biometric-bound phone after the PIN was accepted: the
-  /// device keys still open only to the biometric (06 §4.4 🔒 — the MPIN is a
-  /// gate, never a key), so the screen says so and offers the biometric
-  /// again rather than asking for the PIN twice (cold_start_gate.dart).
-  /// ⚠️ SPEC: KEY145 finding 2(b), unresolved by ADR 2026-10-05b.
+  /// Cold start on an install whose device keys still sit in the legacy
+  /// biometric-bound class (before ADR 2026-10-06's migration, ruling 5),
+  /// after the PIN was accepted: those keys open only to the biometric
+  /// (06 §4.4 🔒 — the MPIN is never a key), so the screen says so and offers
+  /// the biometric again (cold_start_gate.dart). Unreachable once migrated.
   keysNeedBiometric,
 }
 
@@ -76,11 +89,16 @@ class LockScreen extends StatefulWidget {
   final bool debugWrong;
   final bool debugForgotDoor;
 
-  /// The forgot path on a **PIN-only** phone (desk 147). 06 §4.4's reset is
-  /// "OTP plus biometric", and this phone has no biometric; OTP alone is a SIM
-  /// swap away. ⚠️ SPEC: owner to rule (ADR 2026-10-05b *Open*); until then the
+  /// The S11 recovery-ladder door: the forgot path on a **PIN-only** phone
+  /// (desk 147) and on one whose biometric set changed since the PIN was set
+  /// (ADR 2026-10-06 §4). 06 §4.4's reset is "OTP plus biometric", and neither
+  /// phone has a biometric that proves the person; OTP alone is a SIM swap
+  /// away. ⚠️ SPEC: owner to rule (ADR 2026-10-05b *Open*); until then the
   /// conservative reading (c) — the S11 recovery ladder — which the host
-  /// wires here. Null falls back to [onForgotPin].
+  /// wires here. Null (the cold start, where nothing behind the ladder is
+  /// composed yet) leaves that page with its explanation and no action —
+  /// never a button that does nothing, and never [onForgotPin], which there
+  /// is the biometric.
   final VoidCallback? onForgotPinPinOnly;
 
   /// The cold-start S15 of a biometric phone (cold_start_gate.dart): no code
@@ -123,6 +141,9 @@ class _LockScreenState extends State<LockScreen> {
   bool _forgotDoor = false;
   bool _pinOnly = false;
   BiometricOutcome? _biometric;
+
+  /// The gate was invalidated (ADR 2026-10-06 §4): only the MPIN opens now.
+  bool get _reenrolled => _biometric == BiometricOutcome.reenrolled;
   Timer? _ticker;
 
   @override
@@ -131,6 +152,12 @@ class _LockScreenState extends State<LockScreen> {
     _typed = widget.debugTyped;
     _wrong = widget.debugWrong;
     _forgotDoor = widget.debugForgotDoor;
+    // ADR 2026-10-06 §3 🔒: S15 is the only door, so the device keys close the
+    // moment it covers the app (the background timeout, the idle lock) and
+    // stay closed until the gate or the MPIN. Synchronous, before the first
+    // frame: a resume's sync nudge waits for that frame (bootstrap).
+    final gate = context.getInheritedWidgetOfExactType<LockScope>()?.biometrics;
+    if (gate is SealingBiometricGate) gate.sealBehindLock();
     // Biometric prompts automatically, without a tap (07 §5.6). It runs after
     // the first frame so the mark is already on screen behind the sheet.
     WidgetsBinding.instance.addPostFrameCallback((_) => _start());
@@ -259,12 +286,26 @@ class _LockScreenState extends State<LockScreen> {
     // c1 S15.3 *Forgot PIN · a code, not a lockout*: its own page, back
     // chevron, no mark.
     if (_forgotDoor) {
+      final ladder = widget.onForgotPinPinOnly;
+      final opensWithBiometric = widget.forgotOpensWithBiometric;
       return _ForgotPage(
-        pinOnly: _pinOnly,
-        opensWithBiometric: !_pinOnly && widget.forgotOpensWithBiometric,
-        onStart: _pinOnly
-            ? (widget.onForgotPinPinOnly ?? widget.onForgotPin)
-            : widget.onForgotPin,
+        body: _pinOnly
+            ? l10n.lockForgotBodyPinOnly
+            : _reenrolled
+            ? (ladder == null
+                  ? l10n.lockForgotBodyReenrolledBeforeOpen
+                  : l10n.lockForgotBodyReenrolled)
+            : opensWithBiometric
+            ? l10n.lockForgotBodyBeforeOpen
+            : l10n.lockForgotBody,
+        action: _pinOnly || _reenrolled
+            ? (ladder == null ? null : (l10n.lockForgotStartLadder, ladder))
+            : (
+                opensWithBiometric
+                    ? l10n.lockForgotStartBeforeOpen
+                    : l10n.lockForgotStart,
+                widget.onForgotPin,
+              ),
         onBack: () => setState(() => _forgotDoor = false),
       );
     }
@@ -307,7 +348,7 @@ class _LockScreenState extends State<LockScreen> {
         body: [
           _CooldownPanel(
             remaining: _remaining(vaultStatus),
-            pinOnly: _pinOnly,
+            noBiometric: _pinOnly || _reenrolled,
             onBiometric: _promptBiometric,
           ),
         ],
@@ -684,14 +725,16 @@ class _PinPanel extends StatelessWidget {
         ],
         gap,
         // ADR 2026-10-05b §1: a PIN-only phone has no biometric to retry, so
-        // the button gives way to one muted line saying why.
+        // the button gives way to one muted line saying why. ADR 2026-10-06
+        // §4: nor does one whose gate was invalidated — the reason line above
+        // already says why, and a tap could only answer re-enrolled again.
         if (pinOnly)
           _Line(
             icon: Icons.info_outline,
             color: status.muted,
             text: l10n.lockPinOnlyNote,
           )
-        else
+        else if (biometric != BiometricOutcome.reenrolled)
           _InkButton(
             label: l10n.lockBiometricButton,
             glyph: true,
@@ -705,11 +748,12 @@ class _PinPanel extends StatelessWidget {
 class _CooldownPanel extends StatelessWidget {
   const _CooldownPanel({
     required this.remaining,
-    required this.pinOnly,
+    required this.noBiometric,
     required this.onBiometric,
   });
 
-  final bool pinOnly;
+  /// PIN-only, or the gate was invalidated: no face can open the app now.
+  final bool noBiometric;
   final Duration remaining;
   final VoidCallback? onBiometric;
 
@@ -739,8 +783,9 @@ class _CooldownPanel extends StatelessWidget {
           text: l10n.lockCooldownCountdown(formatCountdown(remaining)),
         ),
         // The wait is the PIN's policy alone — the face still opens the app,
-        // unless the phone is PIN-only (ADR 2026-10-05b §1).
-        if (!pinOnly) ...[
+        // unless the phone is PIN-only (ADR 2026-10-05b §1) or its gate was
+        // invalidated (ADR 2026-10-06 §4).
+        if (!noBiometric) ...[
           const SizedBox(height: RkSpace.s4),
           _InkButton(
             label: l10n.lockBiometricButton,
@@ -792,17 +837,19 @@ class _DisabledPanel extends StatelessWidget {
 /// behind [onStart] owns the number. Owner item (lane M13-KEY145B).
 class _ForgotPage extends StatelessWidget {
   const _ForgotPage({
-    required this.pinOnly,
-    required this.opensWithBiometric,
-    required this.onStart,
+    required this.body,
+    required this.action,
     required this.onBack,
   });
 
-  final bool pinOnly;
+  /// The explanation for this phone's state (routine, before open, PIN-only,
+  /// re-enrolled).
+  final String body;
 
-  /// [LockScreen.forgotOpensWithBiometric]: the cold-start copy and action.
-  final bool opensWithBiometric;
-  final VoidCallback onStart;
+  /// The one action at the foot, or null where none can work yet (the
+  /// ladder before the app is composed) — the page then explains and the
+  /// back chevron returns to the PIN.
+  final (String label, VoidCallback onPressed)? action;
   final VoidCallback onBack;
 
   @override
@@ -846,36 +893,34 @@ class _ForgotPage extends StatelessWidget {
                     RkFitText(l10n.lockForgotTitle, style: text.headlineMedium),
                     const SizedBox(height: RkSpace.s4),
                     RkFitText(
-                      pinOnly
-                          ? l10n.lockForgotBodyPinOnly
-                          : opensWithBiometric
-                          ? l10n.lockForgotBodyBeforeOpen
-                          : l10n.lockForgotBody,
+                      body,
                       style: text.bodyLarge?.copyWith(color: status.muted),
                     ),
                   ],
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                RkSpace.s5,
-                RkSpace.s3,
-                RkSpace.s5,
-                RkSpace.s4,
-              ),
-              child: FilledButton(
-                onPressed: onStart,
-                child: Text(
-                  opensWithBiometric
-                      ? l10n.lockForgotStartBeforeOpen
-                      : l10n.lockForgotStart,
-                  // A longer label wraps at 200 % rather than clipping (13 §8).
-                  softWrap: true,
-                  textAlign: TextAlign.center,
+            if (action case (final label, final onPressed))
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  RkSpace.s5,
+                  RkSpace.s3,
+                  RkSpace.s5,
+                  RkSpace.s4,
                 ),
-              ),
-            ),
+                child: FilledButton(
+                  onPressed: onPressed,
+                  child: Text(
+                    label,
+                    // A longer label wraps at 200 % rather than clipping
+                    // (13 §8).
+                    softWrap: true,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              )
+            else
+              const SizedBox(height: RkSpace.s4),
           ],
         ),
       ),

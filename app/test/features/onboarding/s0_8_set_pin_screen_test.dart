@@ -5,14 +5,20 @@
 @Tags(['F1'])
 library;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:rukka_folio/features/devices/keychain_key_store.dart';
+import 'package:rukka_folio/features/devices/keystore_platform.dart';
 import 'package:rukka_folio/features/devices/pin_vault.dart';
+import 'package:rukka_folio/features/lock/keystore_biometric_gate.dart';
+import 'package:rukka_folio/shared/seams/key_store.dart';
 import 'package:rukka_folio/features/lock/biometric_gate.dart';
 import 'package:rukka_folio/features/lock/widgets/pin_pad.dart';
 import 'package:rukka_folio/features/onboarding/screens/s0_8_set_pin_screen.dart';
 
 import '../../shared/test_app.dart';
+import '../devices/keystore_emulator.dart';
 import '../lock/lock_harness.dart';
 
 void main() {
@@ -196,5 +202,61 @@ void main() {
         }
       },
     );
+  });
+
+  group('C-1006-2 the gate is minted after O4b (ADR 2026-10-06 §2)', () {
+    testWidgets('C-1006-2 setting the PIN at S0.8 mints the gate on a phone '
+        'with a qualifying biometric and none on a PIN-only phone — never '
+        'before the PIN exists, and without writing a device key', (
+      tester,
+    ) async {
+      for (final enrolled in [true, false]) {
+        sizeView(tester);
+        final android = AndroidKeystoreEmulator(enrolled: enrolled)..install();
+        final keys = KeychainKeyStore();
+        // First run: no PIN yet, the store opens and the device keys are
+        // minted (their class record first) — and no gate exists.
+        await tester.runAsync(() async {
+          expect(await keys.unsealIfNoPin(), isTrue);
+          await keys.write(KeyIds.deviceSigningKey, Uint8List(32));
+        });
+        expect(android.nativeMethods, isNot(contains('armBiometricGate')));
+        android.native.clear();
+        final vault = PinVault(
+          keys: keys,
+          suite: await testSuite(),
+          now: testNow,
+          onPinProven: keys.unsealAfterPin,
+          afterPinProven: () async {
+            await keys.afterPinProven();
+          },
+        );
+        final clock = TestClock();
+        await pumpLock(
+          tester,
+          SetPinScreen(onDone: () {}),
+          vault: vault,
+          biometrics: KeystoreBiometricGate(
+            keys: keys,
+            platform: const MethodChannelKeystorePlatform(),
+          ),
+          clock: clock,
+        );
+        await typePin(tester, '246813');
+        expect(android.gateMinted, isFalse, reason: 'not before the confirm');
+        await typePin(tester, '246813');
+        await tester.runAsync(() async => vault.pendingAfterPin);
+        await tester.pumpAndSettle();
+        expect(android.gateMinted, enrolled, reason: 'enrolled: $enrolled');
+        expect(await tester.runAsync(keys.gateArmed), enrolled);
+        expect(
+          android.nativeMethods.where((m) => m.startsWith('deviceItem')),
+          isEmpty,
+          reason: 'the gate moves no device key',
+        );
+        await unmount(tester);
+        debugDefaultTargetPlatformOverride = null;
+      }
+    });
   });
 }

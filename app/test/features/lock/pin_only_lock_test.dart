@@ -6,7 +6,6 @@
 library;
 
 import 'dart:convert';
-import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
@@ -33,262 +32,214 @@ import 'lock_harness.dart';
 
 const _small = Size(360, 800);
 
+/// The production cold-start attempt over [keys] (ADR 2026-10-06): the gate
+/// read, or — on a legacy biometric-bound install — null, so the device-key
+/// read itself prompts.
+Future<BiometricOutcome?> Function(String) attemptOf(KeychainKeyStore keys) {
+  final gate = KeystoreBiometricGate(
+    keys: keys,
+    platform: const MethodChannelKeystorePlatform(),
+  );
+  return (reason) => gate.openAtColdStart(reason: reason);
+}
+
 void main() {
   group('F1-1005b-1 S15 PIN-only variant (ADR 2026-10-05b §1)', () {
-    testWidgets('F1-1005b-1 a PIN-only phone gets the PIN boxes and keypad from the '
-        'first answer, no biometric button or line (also in cooldown), a line '
-        'saying why, and S0.8 states the PIN-only form — EN/PA/HI at 200% on '
-        '360x800', (tester) async {
-      final android = AndroidKeystoreEmulator(enrolled: false)..install();
-      final keys = KeychainKeyStore();
-      await tester.runAsync(
-        () => keys.write(KeyIds.deviceSigningKey, Uint8List.fromList([1])),
-      );
-      expect(await tester.runAsync(keys.binding), DeviceKeyBinding.pinOnly);
-      final gate = KeystoreBiometricGate(
-        keys: keys,
-        platform: const MethodChannelKeystorePlatform(),
-      );
+    testWidgets(
+      'F1-1005b-1 a PIN-only phone gets the PIN boxes and keypad from the '
+      'first answer, no biometric button or line (also in cooldown), a line '
+      'saying why, and S0.8 states the PIN-only form — EN/PA/HI at 200% on '
+      '360x800',
+      (tester) async {
+        final android = AndroidKeystoreEmulator(enrolled: false)..install();
+        // Adapted for ADR 2026-10-06: a PIN-only phone is one with no gate.
+        final keys = KeychainKeyStore(sealed: false);
+        await tester.runAsync(
+          () => keys.write(KeyIds.deviceSigningKey, Uint8List.fromList([1])),
+        );
+        expect(await tester.runAsync(keys.gateArmed), isFalse);
+        final gate = KeystoreBiometricGate(
+          keys: keys,
+          platform: const MethodChannelKeystorePlatform(),
+        );
 
-      for (final locale in lockLocales) {
-        final l10n = lookupAppLocalizations(locale);
+        for (final locale in lockLocales) {
+          final l10n = lookupAppLocalizations(locale);
+          final clock = TestClock();
+          final vault = await makeVault(clock);
+          await vault.setPin('135790');
+          await vault.pendingAfterPin;
+          await pumpLock(
+            tester,
+            LockScreen(onUnlocked: () {}, onForgotPin: () {}),
+            vault: vault,
+            biometrics: gate,
+            clock: clock,
+            locale: locale,
+            textScale: 2,
+            viewport: _small,
+          );
+          final why = '${locale.languageCode} @ 200% on 360x800';
+          expect(tester.takeException(), isNull, reason: why);
+          expect(find.byType(PinBoxes), findsOneWidget, reason: why);
+          expect(find.byType(PinKeypad), findsOneWidget, reason: why);
+          expect(
+            find.text(l10n.lockBiometricButton),
+            findsNothing,
+            reason: why,
+          );
+          expect(find.text(l10n.lockBiometricUnavailable), findsNothing);
+          expect(find.text(l10n.lockPinOnlyNote), findsOneWidget, reason: why);
+          expectTextFits(tester, reason: why);
+          // The forgot door on a PIN-only phone says the recovery-ladder
+          // reading (desk 147), not "a code and Face ID".
+          await tester.ensureVisible(find.text(l10n.lockForgotAction));
+          await tester.pumpAndSettle();
+          await tester.tap(find.text(l10n.lockForgotAction));
+          await tester.pumpAndSettle();
+          expect(find.text(l10n.lockForgotBodyPinOnly), findsOneWidget);
+          expect(find.text(l10n.lockForgotBody), findsNothing);
+          expectTextFits(tester, reason: '$why forgot');
+          await unmount(tester);
+
+          // Cooldown: the wait is the only way forward — no face offered.
+          for (var i = 0; i < 5; i++) {
+            await vault.verify('000000');
+          }
+          await pumpLock(
+            tester,
+            LockScreen(onUnlocked: () {}, onForgotPin: () {}),
+            vault: vault,
+            biometrics: gate,
+            clock: clock,
+            locale: locale,
+            textScale: 2,
+            viewport: _small,
+          );
+          expect(find.text(l10n.lockCooldownTitle), findsOneWidget);
+          expect(
+            find.text(l10n.lockBiometricButton),
+            findsNothing,
+            reason: why,
+          );
+          expectTextFits(tester, reason: '$why cooldown');
+          await unmount(tester);
+
+          // S0.8 states the PIN-only form of the app-lock line.
+          await pumpLock(
+            tester,
+            const SetPinScreen(),
+            vault: await makeVault(clock),
+            biometrics: gate,
+            clock: clock,
+            locale: locale,
+            textScale: 2,
+            viewport: _small,
+          );
+          expect(
+            find.text(l10n.onboardingSetPinBiometricNotePinOnly),
+            findsOneWidget,
+            reason: why,
+          );
+          expect(find.text(l10n.onboardingSetPinBiometricNote), findsNothing);
+          expectTextFits(tester, reason: '$why S0.8');
+          await unmount(tester);
+        }
+
+        // The same screen on a phone with a gate keeps its biometric button —
+        // the variant is the gate's, not the screen's default — and the button
+        // is live: it reads the gate (KEY145B finding 3; ADR 2026-10-06 §2).
+        await tester.runAsync(() async {
+          android.stored['$promptlessNs/rukka.${KeychainKeyStore.gateItemId}'] =
+              base64Encode(utf8.encode('armed'));
+        });
+        final en = lookupAppLocalizations(const Locale('en'));
+        keys.setPromptCopy(
+          title: en.lockBiometricPrompt,
+          subtitle: en.lockBiometricSheetSubtitle,
+          cancel: en.lockPinUseInstead,
+        );
+        android
+          ..enrolled = true
+          ..gateMinted = true
+          ..gateAnswers.add('cancelled');
         final clock = TestClock();
         final vault = await makeVault(clock);
         await vault.setPin('135790');
         await vault.pendingAfterPin;
+        var unlocked = 0;
         await pumpLock(
           tester,
-          LockScreen(onUnlocked: () {}, onForgotPin: () {}),
+          LockScreen(onUnlocked: () => unlocked++, onForgotPin: () {}),
           vault: vault,
           biometrics: gate,
           clock: clock,
-          locale: locale,
-          textScale: 2,
           viewport: _small,
         );
-        final why = '${locale.languageCode} @ 200% on 360x800';
-        expect(tester.takeException(), isNull, reason: why);
-        expect(find.byType(PinBoxes), findsOneWidget, reason: why);
-        expect(find.byType(PinKeypad), findsOneWidget, reason: why);
-        expect(find.text(l10n.lockBiometricButton), findsNothing, reason: why);
-        expect(find.text(l10n.lockBiometricUnavailable), findsNothing);
-        expect(find.text(l10n.lockPinOnlyNote), findsOneWidget, reason: why);
-        expectTextFits(tester, reason: why);
-        // The forgot door on a PIN-only phone says the recovery-ladder
-        // reading (desk 147), not "a code and Face ID".
-        await tester.ensureVisible(find.text(l10n.lockForgotAction));
+        expect(find.text('Face ID'), findsOneWidget);
+        expect(find.text(en.lockPinOnlyNote), findsNothing);
+        expect(find.text(en.lockBiometricUnavailable), findsNothing);
+        expect(unlocked, 0, reason: 'the auto-prompt was cancelled');
+        await tester.tap(find.text('Face ID'));
         await tester.pumpAndSettle();
-        await tester.tap(find.text(l10n.lockForgotAction));
-        await tester.pumpAndSettle();
-        expect(find.text(l10n.lockForgotBodyPinOnly), findsOneWidget);
-        expect(find.text(l10n.lockForgotBody), findsNothing);
-        expectTextFits(tester, reason: '$why forgot');
-        await unmount(tester);
-
-        // Cooldown: the wait is the only way forward — no face offered.
-        for (var i = 0; i < 5; i++) {
-          await vault.verify('000000');
-        }
-        await pumpLock(
-          tester,
-          LockScreen(onUnlocked: () {}, onForgotPin: () {}),
-          vault: vault,
-          biometrics: gate,
-          clock: clock,
-          locale: locale,
-          textScale: 2,
-          viewport: _small,
-        );
-        expect(find.text(l10n.lockCooldownTitle), findsOneWidget);
-        expect(find.text(l10n.lockBiometricButton), findsNothing, reason: why);
-        expectTextFits(tester, reason: '$why cooldown');
-        await unmount(tester);
-
-        // S0.8 states the PIN-only form of the app-lock line.
-        await pumpLock(
-          tester,
-          const SetPinScreen(),
-          vault: await makeVault(clock),
-          biometrics: gate,
-          clock: clock,
-          locale: locale,
-          textScale: 2,
-          viewport: _small,
-        );
+        expect(unlocked, 1, reason: 'the Face ID button prompts and unlocks');
         expect(
-          find.text(l10n.onboardingSetPinBiometricNotePinOnly),
-          findsOneWidget,
-          reason: why,
+          android.native.where((c) => c.method == 'authenticate').length,
+          2,
         );
-        expect(find.text(l10n.onboardingSetPinBiometricNote), findsNothing);
-        expectTextFits(tester, reason: '$why S0.8');
         await unmount(tester);
-      }
-
-      // The same screen on a biometric-bound phone keeps its biometric
-      // button — the variant is the binding's, not the screen's default — and
-      // the button is live: it raises the platform prompt (KEY145B finding 3).
-      await tester.runAsync(() async {
-        android.stored['$promptlessNs/rukka.${KeychainKeyStore.bindingItemId}'] =
-            base64Encode(utf8.encode('biometric'));
-      });
-      final en = lookupAppLocalizations(const Locale('en'));
-      keys.setPromptCopy(
-        title: en.lockBiometricPrompt,
-        subtitle: en.lockBiometricSheetSubtitle,
-        cancel: en.lockPinUseInstead,
-      );
-      android
-        ..gateArmed = true
-        ..gateAnswers.add('cancelled');
-      final clock = TestClock();
-      final vault = await makeVault(clock);
-      await vault.setPin('135790');
-      await vault.pendingAfterPin;
-      var unlocked = 0;
-      await pumpLock(
-        tester,
-        LockScreen(onUnlocked: () => unlocked++, onForgotPin: () {}),
-        vault: vault,
-        biometrics: gate,
-        clock: clock,
-        viewport: _small,
-      );
-      expect(find.text('Face ID'), findsOneWidget);
-      expect(find.text(en.lockPinOnlyNote), findsNothing);
-      expect(find.text(en.lockBiometricUnavailable), findsNothing);
-      expect(unlocked, 0, reason: 'the auto-prompt was cancelled');
-      await tester.tap(find.text('Face ID'));
-      await tester.pumpAndSettle();
-      expect(unlocked, 1, reason: 'the Face ID button prompts and unlocks');
-      expect(android.native.where((c) => c.method == 'authenticate').length, 2);
-      await unmount(tester);
-      debugDefaultTargetPlatformOverride = null;
-    });
+        debugDefaultTargetPlatformOverride = null;
+      },
+    );
   });
 
   group('F1-1005b-2 no person-bound item before O4b; a cancelled prompt '
       'reaches Use PIN instead (ADR 2026-10-05b §4)', () {
-    // ⚠️ SPEC (KEY145B review finding 2; owner): ruling 4 and 07 §5.6 🔒 also
-    // say the device keys are minted *after O4b*, never at bootstrap. They are
-    // not: S0.2's device registration (ADR 2026-09-16 §2, 06 §3) needs them
-    // first (bootstrap.dart). This test pins only ruling 4's heading — no
-    // keystore item that needs the person before the PIN — and says so; the
-    // literal line is the skipped test below, not a green one.
-    test('F1-1005b-2 (ruling 4 heading only) first run on a phone WITH a '
-        'fingerprint: bootstrapSolo mints the device keys at bootstrap, into '
-        'the promptless PIN-only class — nothing reaches the biometric class '
-        'and no prompt can rise — and only the PIN set at O4b binds them to '
-        'the biometric', () async {
-      final android = AndroidKeystoreEmulator(enrolled: true)..install();
-      final keys = KeychainKeyStore();
-      final ledger = LocalLedger(
-        db: await openTestDb(),
-        keys: keys,
-        suite: await testSuite(),
-        now: testNow,
-      );
-      addTearDown(ledger.dispose);
-      await ledger.bootstrapSolo();
-
-      expect(android.callsTo(biometricNs), isEmpty);
-      expect(
-        android.wire.where(
-          (c) =>
-              AndroidKeystoreEmulator.optionsOf(c)['enforceBiometrics'] ==
-              'true',
-        ),
-        isEmpty,
-      );
-      expect(
-        android.stored.keys,
-        containsAll([
-          '$pinOnlyNs/rukka.${KeyIds.deviceSigningKey}',
-          '$pinOnlyNs/rukka.${KeyIds.deviceAgreementKey}',
-        ]),
-      );
-      expect(await keys.binding(), DeviceKeyBinding.pinOnly);
-
-      // O4b: the PIN is set → the keys move behind the biometric.
-      final vault = PinVault(
-        keys: keys,
-        suite: await testSuite(),
-        now: testNow,
-        afterPinProven: () async {
-          await keys.upgradeAfterPin();
-        },
-      );
-      await vault.setPin('135790');
-      await vault.pendingAfterPin;
-      expect(await keys.binding(), DeviceKeyBinding.biometric);
-      expect(
-        android.stored.keys.where((k) => k.startsWith('$pinOnlyNs/')),
-        isEmpty,
-      );
-      expect(
-        android.stored.keys,
-        contains('$biometricNs/rukka.${KeyIds.deviceSigningKey}'),
-      );
-
-      // And the next launch reopens the same identity through them.
-      final again = LocalLedger(
-        db: ledger.db,
-        keys: KeychainKeyStore(),
-        suite: await testSuite(),
-        now: testNow,
-      );
-      expect((await again.bootstrapSolo()).deviceId, ledger.identity.deviceId);
-    });
+    // ADR 2026-10-06 §1 settles desk 153: the device keys are minted into the
+    // hardware-backed class with no biometric binding and never move, so the
+    // KEY145B tests of the PIN-only → biometric move and of the old root
+    // wiring are superseded (bodies in git history), re-landing in
+    // test/features/devices/gate_key_test.dart and gate_unlock_test.dart.
+    test(
+      'F1-1005b-2 (ruling 4 heading only) first run on a phone WITH a '
+      'fingerprint: bootstrapSolo mints the device keys at bootstrap, into the '
+      'promptless PIN-only class — nothing reaches the biometric class and no '
+      'prompt can rise — and only the PIN set at O4b binds them to the biometric',
+      () {},
+      skip:
+          'superseded by ADR 2026-10-06 §1; re-lands as C-1006-1 '
+          '(gate_key_test.dart)',
+    );
 
     test(
       'F1-1005b-2 device keys are minted after O4b, never at bootstrap',
       () {},
       skip:
-          '⚠️ SPEC (KEY145B review finding 2): not delivered — S0.2 registers '
-          "the ledger's device keys with the server before O4b (ADR 2026-09-16 "
-          '§2, 06 §3, 13 §5 F1); minting after O4b needs an auth / onboarding '
-          'order ruling by the owner. bootstrap.dart carries the marker.',
+          'superseded by ADR 2026-10-06 §1 (desk 153 settled: minted at the '
+          'first run that S0.2 registers, straight into the ruling-1 class, '
+          'never moved); re-lands as C-1006-1 (gate_key_test.dart)',
     );
 
-    test('F1-1005b-2 the composition root opens a biometric-bound ledger only '
-        'behind the cold-start S15, hands every successful PIN to the upgrade, '
-        'and gives the in-app S15 the custody gate (root pin)', () {
-      final root = File('lib/bootstrap.dart').readAsStringSync();
-      final gate = root.indexOf('ColdStartGate(');
-      final open = root.indexOf('identity = await ledger.bootstrapSolo()');
-      expect(gate, greaterThan(0));
-      expect(open, greaterThan(gate), reason: 'S15 before the device-key read');
-      expect(root, contains('open: () => ledger.bootstrapSolo()'));
-      expect(
-        RegExp(r'afterPinProven:[^;]*keys\.upgradeAfterPin\(\)').hasMatch(root),
-        isTrue,
-      );
-      expect(root, contains('biometrics: biometricGate'));
-      expect(root, contains('biometricGate.admitOnce()'));
-      // The relock prompt is armed only behind a proof (KEY145B finding 3):
-      // in afterPinProven, and after the cold-start read.
-      expect(
-        RegExp(
-          r'afterPinProven:[^;]*keys\.upgradeAfterPin\(\);\s*await biometricGate\.armAfterProof\(\)',
-        ).hasMatch(root),
-        isTrue,
-      );
-      expect(
-        RegExp(
-          r'biometricGate\.admitOnce\(\);\s*await biometricGate\.armAfterProof\(\)',
-        ).hasMatch(root),
-        isTrue,
-      );
-      expect(root, contains('!= ColdStartResult.opened'));
-    });
+    test(
+      'F1-1005b-2 the composition root opens a biometric-bound ledger only '
+      'behind the cold-start S15, hands every successful PIN to the upgrade, '
+      'and gives the in-app S15 the custody gate (root pin)',
+      () {},
+      skip:
+          'superseded by ADR 2026-10-06 §3 (every install with a PIN opens '
+          'behind S15; the PIN opens the store and mints the gate); re-lands as '
+          'C-1006-3 root pin (gate_unlock_test.dart)',
+    );
 
     testWidgets(
       'F1-1005b-2 cold start on a biometric-bound phone: S15 is up before the '
       'device keys are read, a cancelled prompt leaves Use PIN instead (never '
-      'RukkaFolioBlocked), and after the PIN the biometric opens the books',
+      'RukkaFolioBlocked), and after the PIN the biometric opens the books '
+      '(adapted, ADR 2026-10-06 §4/§5: a legacy biometric-bound install, and an '
+      'invalidated one removes nothing)',
       (tester) async {
         final android = AndroidKeystoreEmulator(enrolled: true)..install();
-        android.stored['$promptlessNs/rukka.${KeychainKeyStore.bindingItemId}'] =
+        android.stored['$promptlessNs/rukka.${KeychainKeyStore.classItemId}'] =
             base64Encode(utf8.encode('biometric'));
         android.stored['$biometricNs/rukka.${KeyIds.deviceSigningKey}'] =
             base64Encode([1, 2, 3]);
@@ -313,7 +264,7 @@ void main() {
                 final k = await keys.read(KeyIds.deviceSigningKey);
                 if (k == null) throw DeviceKeysMissing();
               },
-              dropInvalidated: keys.dropInvalidatedAfterPin,
+              attempt: attemptOf(keys),
               onDone: (r) => result = r,
             ),
           ),
@@ -349,7 +300,7 @@ void main() {
                 opens++;
                 await keys.read(KeyIds.deviceSigningKey);
               },
-              dropInvalidated: keys.dropInvalidatedAfterPin,
+              attempt: attemptOf(keys),
               onDone: (r) => result = r,
             ),
           ),
@@ -379,7 +330,7 @@ void main() {
                 opens++;
                 await keys.read(KeyIds.deviceSigningKey);
               },
-              dropInvalidated: keys.dropInvalidatedAfterPin,
+              attempt: attemptOf(keys),
               onDone: (r) => result = r,
             ),
           ),
@@ -394,8 +345,9 @@ void main() {
         expect(result, ColdStartResult.opened);
         expect(opens, 2);
 
-        // Invalidated: S15 goes to the PIN with the re-enrolment line, and only
-        // after the PIN are the items removed (ruling 3).
+        // Invalidated: S15 goes to the PIN with the re-enrolment line, and after
+        // the PIN the books need recovery — but nothing is removed, ever
+        // (ADR 2026-10-06 §4 supersedes ADR 2026-10-05b §3's removal).
         result = null;
         android.invalidated = true;
         android.native.clear();
@@ -408,9 +360,7 @@ void main() {
               open: () async {
                 await keys.read(KeyIds.deviceSigningKey);
               },
-              dropInvalidated: () async {
-                await keys.dropInvalidatedAfterPin();
-              },
+              attempt: attemptOf(keys),
               onDone: (r) => result = r,
             ),
           ),
@@ -426,7 +376,12 @@ void main() {
         expect(result, ColdStartResult.keysLost);
         expect(
           android.native.map((c) => c.method),
-          contains('resetBiometricDeviceItems'),
+          isNot(contains('resetBiometricDeviceItems')),
+        );
+        expect(
+          android.stored,
+          contains('$biometricNs/rukka.${KeyIds.deviceSigningKey}'),
+          reason: 'no error path deletes a device-key item',
         );
         expect(find.byType(RukkaFolioBlocked), findsNothing);
         await unmount(tester);
@@ -439,7 +394,7 @@ void main() {
     // A biometric-bound phone as the cold-start gate finds it.
     AndroidKeystoreEmulator boundPhone() {
       final android = AndroidKeystoreEmulator(enrolled: true)..install();
-      android.stored['$promptlessNs/rukka.${KeychainKeyStore.bindingItemId}'] =
+      android.stored['$promptlessNs/rukka.${KeychainKeyStore.classItemId}'] =
           base64Encode(utf8.encode('biometric'));
       android.stored['$biometricNs/rukka.${KeyIds.deviceSigningKey}'] =
           base64Encode([1, 2, 3]);
@@ -461,7 +416,6 @@ void main() {
       await vault.pendingAfterPin;
       final l10n = lookupAppLocalizations(const Locale('en'));
       ColdStartResult? result;
-      var dropped = 0;
       await tester.pumpWidget(
         ColdStartApp(
           locale: const Locale('en'),
@@ -471,10 +425,7 @@ void main() {
               final k = await keys.read(KeyIds.deviceSigningKey);
               if (k == null) throw DeviceKeysMissing();
             },
-            dropInvalidated: () async {
-              dropped++;
-              await keys.dropInvalidatedAfterPin();
-            },
+            attempt: attemptOf(keys),
             onDone: (r) => result = r,
           ),
         ),
@@ -488,7 +439,6 @@ void main() {
       await typePin(tester, '135790');
       await tester.pumpAndSettle();
       expect(result, ColdStartResult.opened);
-      expect(dropped, 0);
       expect(
         android.native.map((c) => c.method),
         isNot(contains('resetBiometricDeviceItems')),
@@ -545,7 +495,6 @@ void main() {
         await vault.setPin('135790');
         await vault.pendingAfterPin;
         ColdStartResult? result;
-        var dropped = 0;
         await tester.pumpWidget(
           ColdStartApp(
             locale: const Locale('en'),
@@ -556,14 +505,13 @@ void main() {
                 if (k == null) throw DeviceKeysMissing();
                 throw DeviceKeysMissing(deviceKeys: false);
               },
-              dropInvalidated: () async => dropped++,
+              attempt: attemptOf(keys),
               onDone: (r) => result = r,
             ),
           ),
         );
         await tester.pumpAndSettle();
         expect(result, ColdStartResult.umkMissing);
-        expect(dropped, 0);
         expect(
           android.native.map((c) => c.method),
           isNot(contains('resetBiometricDeviceItems')),
@@ -605,7 +553,7 @@ void main() {
                   final k = await keys.read(KeyIds.deviceSigningKey);
                   if (k == null) throw DeviceKeysMissing();
                 },
-                dropInvalidated: keys.dropInvalidatedAfterPin,
+                attempt: attemptOf(keys),
                 onDone: (r) => result = r,
               ),
             ),
@@ -643,9 +591,18 @@ void main() {
       'F1-07-63 the production gate prompts by itself on the background / '
       'idle relock of a biometric-bound phone — through the app\'s own channel '
       'with the ARB copy, never answering "unavailable" for an enrolled face — '
-      'and a changed set needs the PIN once, which re-arms it',
+      'and a changed set needs the PIN once, which re-arms it (adapted, ADR '
+      '2026-10-06 §2/§4: the prompt is the gate read, and the PIN mints a new '
+      'gate)',
       (tester) async {
-        final android = boundPhone();
+        // A phone in the ruling-1 class with a gate minted at O4b.
+        final android = AndroidKeystoreEmulator(enrolled: true)..install();
+        android
+          ..stored['$promptlessNs/rukka.${KeychainKeyStore.classItemId}'] =
+              base64Encode(utf8.encode('hardware'))
+          ..stored['$promptlessNs/rukka.${KeychainKeyStore.gateItemId}'] =
+              base64Encode(utf8.encode('armed'))
+          ..gateMinted = true;
         final keys = KeychainKeyStore();
         final en = lookupAppLocalizations(const Locale('en'));
         keys.setPromptCopy(
@@ -657,16 +614,15 @@ void main() {
           keys: keys,
           platform: const MethodChannelKeystorePlatform(),
         );
-        // Bootstrap arms the gate after the cold start proved the set.
-        await gate.armAfterProof();
-        expect(android.gateArmed, isTrue);
-
         final clock = TestClock();
         final vault = PinVault(
           keys: FakeKeyStore(),
           suite: await testSuite(),
           now: clock.call,
-          afterPinProven: gate.armAfterProof,
+          onPinProven: keys.unsealAfterPin,
+          afterPinProven: () async {
+            await keys.afterPinProven();
+          },
         );
         await vault.setPin('135790');
         await vault.pendingAfterPin;
@@ -695,7 +651,7 @@ void main() {
 
         // A face added while the app was in the background: the PIN, once.
         android
-          ..gateAnswers.add('reenrolled')
+          ..changeEnrolment()
           ..native.clear();
         unlocked = 0;
         await pumpLock(

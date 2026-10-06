@@ -11,7 +11,10 @@
     "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
   },
   "lock.biometric.unavailable": "ਇਸ ਵੇਲੇ ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਫ਼ੇਸ ਆਈਡੀ ਉਪਲਬਧ ਨਹੀਂ — ਆਪਣਾ ਪਿੰਨ ਭਰੋ",
-  "lock.biometric.reenrolled": "ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਨਵਾਂ ਚਿਹਰਾ ਜਾਂ ਉਂਗਲ ਦਾ ਨਿਸ਼ਾਨ ਜੋੜਿਆ ਗਿਆ ਹੈ — ਇੱਕ ਵਾਰ ਆਪਣਾ ਪਿੰਨ ਭਰੋ",
+  "lock.biometric.reenrolled": "ਇਸ ਫ਼ੋਨ ਦੀਆਂ ਚਿਹਰੇ ਜਾਂ ਉਂਗਲ ਦੇ ਨਿਸ਼ਾਨ ਦੀਆਂ ਸੈਟਿੰਗਾਂ ਬਦਲ ਗਈਆਂ ਹਨ — ਇੱਕ ਵਾਰ ਆਪਣਾ ਪਿੰਨ ਭਰੋ",
+  "@lock.biometric.reenrolled": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06 §4)"
+  },
   "lock.pin.use_instead": "ਇਸਦੀ ਥਾਂ ਪਿੰਨ ਵਰਤੋ",
   "lock.pin.label": "ਆਪਣਾ ਪਿੰਨ ਭਰੋ",
   "lock.pin.entered": "6 ਵਿੱਚੋਂ {count} ਅੰਕ ਭਰੇ ਗਏ",
@@ -82,6 +85,18 @@
   "lock.forgot.body_before_open": "ਕੋਡ ਤਾਂ ਹੀ ਭੇਜਿਆ ਜਾ ਸਕਦਾ ਹੈ ਜਦੋਂ ਐਪ ਖੁੱਲ੍ਹੀ ਹੋਵੇ। ਹੁਣੇ ਆਪਣੀ ਉਂਗਲ ਦੇ ਨਿਸ਼ਾਨ ਜਾਂ ਚਿਹਰੇ ਨਾਲ ਇਸਨੂੰ ਖੋਲ੍ਹੋ, ਫਿਰ ਐਪ ਦੇ ਅੰਦਰ 'ਪਿੰਨ ਭੁੱਲ ਗਏ' ਕੋਡ ਭੇਜਦਾ ਹੈ — ਤੁਹਾਡੇ ਖਾਤਿਆਂ ਉੱਤੇ ਕੋਈ ਅਸਰ ਨਹੀਂ ਪੈਂਦਾ।",
   "@lock.forgot.body_before_open": {
     "description": "machine-draft — native review M12 (KEY145B)"
+  },
+  "lock.forgot.body_reenrolled": "ਤੁਹਾਡਾ ਪਿੰਨ ਬਣਨ ਤੋਂ ਬਾਅਦ ਇਸ ਫ਼ੋਨ ਦੀਆਂ ਚਿਹਰੇ ਜਾਂ ਉਂਗਲ ਦੇ ਨਿਸ਼ਾਨ ਦੀਆਂ ਸੈਟਿੰਗਾਂ ਬਦਲ ਗਈਆਂ ਹਨ, ਇਸ ਲਈ ਚਿਹਰਾ ਜਾਂ ਉਂਗਲ ਦਾ ਨਿਸ਼ਾਨ ਇਹ ਨਹੀਂ ਦਿਖਾ ਸਕਦਾ ਕਿ ਇਹ ਤੁਸੀਂ ਹੋ, ਅਤੇ ਤੁਹਾਡੇ ਨੰਬਰ ਉੱਤੇ ਕੋਡ ਇਕੱਲਾ ਕਾਫ਼ੀ ਨਹੀਂ। ਨਵੇਂ ਫ਼ੋਨ ਵਾਂਗ ਸਾਬਤ ਕਰੋ ਕਿ ਇਹ ਤੁਸੀਂ ਹੋ — ਆਪਣੇ ਪਰਿਵਾਰ ਦੇ ਜੀਆਂ ਨਾਲ ਜਾਂ ਆਪਣੀ ਰਿਕਵਰੀ ਸ਼ੀਟ ਨਾਲ। ਤੁਹਾਡੇ ਖਾਤੇ ਸੁਰੱਖਿਅਤ ਹਨ।",
+  "@lock.forgot.body_reenrolled": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06 §4)"
+  },
+  "lock.forgot.body_reenrolled_before_open": "ਤੁਹਾਡਾ ਪਿੰਨ ਬਣਨ ਤੋਂ ਬਾਅਦ ਇਸ ਫ਼ੋਨ ਦੀਆਂ ਚਿਹਰੇ ਜਾਂ ਉਂਗਲ ਦੇ ਨਿਸ਼ਾਨ ਦੀਆਂ ਸੈਟਿੰਗਾਂ ਬਦਲ ਗਈਆਂ ਹਨ, ਇਸ ਲਈ ਹੁਣ ਸਿਰਫ਼ ਤੁਹਾਡਾ ਪਿੰਨ ਹੀ ਐਪ ਖੋਲ੍ਹ ਸਕਦਾ ਹੈ। ਜੇ ਇਹ ਯਾਦ ਨਹੀਂ, ਤਾਂ ਤੁਹਾਡੇ ਖਾਤੇ ਗੁਆਚੇ ਨਹੀਂ — ਉਹ ਨਵੇਂ ਫ਼ੋਨ ਵਾਂਗ ਵਾਪਸ ਆਉਂਦੇ ਹਨ, ਆਪਣੇ ਪਰਿਵਾਰ ਦੇ ਜੀਆਂ ਨਾਲ ਜਾਂ ਆਪਣੀ ਰਿਕਵਰੀ ਸ਼ੀਟ ਨਾਲ।",
+  "@lock.forgot.body_reenrolled_before_open": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06 §4)"
+  },
+  "lock.forgot.start_ladder": "ਸਾਬਤ ਕਰੋ ਕਿ ਇਹ ਤੁਸੀਂ ਹੋ",
+  "@lock.forgot.start_ladder": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06 §4)"
   },
   "lock.forgot.start_before_open": "ਐਪ ਖੋਲ੍ਹੋ",
   "@lock.forgot.start_before_open": {

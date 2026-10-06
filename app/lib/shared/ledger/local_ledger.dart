@@ -186,13 +186,13 @@ final class CashCountReading {
 }
 
 /// The identity record is present but a device key or the wrapped UMK is not
-/// — a keystore wiped under us, or (iOS) a `biometryCurrentSet` item the
-/// platform dropped after an enrolment change. The recovery path (04 §7),
-/// never a second identity minted over the same books. The cold-start gate
-/// treats a missing **device key** as ADR 2026-10-05b §3 — the items are
-/// removed after the PIN — and a missing **wrapped UMK** alone as nothing to
-/// remove: the device keys read back, so deleting them would destroy the one
-/// thing still valid (KEY145B review finding 1; features/lock/cold_start_gate.dart).
+/// — a keystore wiped under us, or (iOS, a legacy install from before ADR
+/// 2026-10-06) a `biometryCurrentSet` item the platform dropped after an
+/// enrolment change. The recovery path (04 §7), never a second identity
+/// minted over the same books. Nothing is removed on this path: under ADR
+/// 2026-10-06 §1 the device keys carry no biometric binding, so an enrolment
+/// change cannot cause it, and no error path deletes a device-key item
+/// (features/lock/cold_start_gate.dart).
 final class DeviceKeysMissing extends StateError {
   DeviceKeysMissing({this.deviceKeys = true})
     : super('identity present but device keys missing — recovery');
@@ -2251,12 +2251,13 @@ final class LocalLedger
   /// client registers this id with the server and signs challenges under it;
   /// every envelope and signed record carries it. Nothing else mints one.
   ///
-  /// ⚠️ SPEC (KEY145B review finding 2; owner): ADR 2026-10-05b §4 🔒 and 07
-  /// §5.6 🔒 say the device keys are minted after O4b, never at bootstrap.
-  /// They are minted here, at the first bootstrap, into the promptless
-  /// PIN-only class (keychain_key_store.dart) — because S0.2's device
-  /// registration (ADR 2026-09-16 §2, 06 §3) needs them before O4b exists.
-  /// See bootstrap.dart; not delivered, not reinterpreted.
+  /// ADR 2026-10-06 §1 🔒: the seeds and the wrapped UMK are written straight
+  /// into the hardware-backed device-key class with no user-authentication
+  /// binding (keychain_key_store.dart), and nothing moves them later. This
+  /// supersedes ADR 2026-10-05b §4's "minted after O4b" (desk 153).
+  /// ⚠️ SPEC: the ruling says "minted when the device is first registered
+  /// (S0.2)"; they are minted by the first launch and registered by S0.2's
+  /// `activateDevice` (bootstrap.dart carries the note).
   Future<void> _firstRun() async {
     final deviceId = newId();
     final userId = newId();

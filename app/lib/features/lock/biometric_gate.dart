@@ -50,6 +50,17 @@ abstract interface class BiometricGate {
   Future<bool> qualifyingBiometricEnrolled();
 }
 
+/// A gate that also closes what S15 guards (ADR 2026-10-06 §3 🔒): S15 calls
+/// [sealBehindLock] as it mounts, so after the background timeout (and the
+/// idle lock) nothing reads the device keys until the gate or the MPIN has
+/// opened them again. A gate with nothing to seal simply does not implement
+/// it.
+abstract interface class SealingBiometricGate implements BiometricGate {
+  /// S15 now covers the app: close the device keys, unless this is the S15
+  /// the person was let through moments ago at cold start.
+  void sealBehindLock();
+}
+
 /// A scripted gate for tests and for hosts with no biometric wired yet.
 final class FakeBiometricGate implements BiometricGate {
   /// Answers [outcomes] in order, then repeats the last one forever.

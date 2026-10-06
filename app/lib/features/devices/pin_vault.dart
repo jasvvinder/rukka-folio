@@ -107,25 +107,31 @@ final class PinVault {
     required this.keys,
     required this.suite,
     required this.now,
+    this.onPinProven,
     this.afterPinProven,
   });
 
+  /// Run synchronously on every **successful** MPIN — a PIN set at O4b or
+  /// accepted at S15 — before the PIN's answer is returned, and never
+  /// otherwise. The composition root hands in the device-key custody's
+  /// unseal (ADR 2026-10-06 §3 🔒: the device keys open only after the gate or
+  /// the MPIN), so the keys are open by the time S15 calls `onUnlocked`.
+  final void Function()? onPinProven;
+
   /// Run after every **successful** MPIN — a PIN set at O4b (S0.8) or a PIN
   /// accepted at S15 — and never otherwise. The composition root hands in the
-  /// device-key custody (ADR 2026-10-05b §2 / §4): the upgrade to the
-  /// biometric binding happens here, behind the PIN, and never on a biometric
-  /// success alone. A failure inside it never changes the PIN's own answer —
-  /// the PIN-only items stay and open (ruling 2: a part-way failure keeps
-  /// them), so it is caught here.
+  /// gate mint (ADR 2026-10-06 §2 / §4 🔒): a new gate for the biometric set
+  /// enrolled now, or none on a PIN-only phone — behind the PIN, never on a
+  /// biometric success alone. A failure inside it never changes the PIN's own
+  /// answer (the device keys are never touched by it), so it is caught here.
   final Future<void> Function()? afterPinProven;
 
-  /// Starts [afterPinProven] without making the PIN's answer wait for it:
-  /// the upgrade raises a platform biometric sheet, and flutter_secure_storage
-  /// 11.2.0 never answers when that sheet's negative button is pressed
-  /// (FlutterSecureStorage.java:1281-1282), so awaiting it here could hold an
-  /// accepted PIN — and S0.8 / S15 — for good. A hook that never finishes
-  /// leaves the PIN-only items in place (ADR 2026-10-05b §2).
+  /// Runs [onPinProven], then starts [afterPinProven] without making the
+  /// PIN's answer wait for it: the gate mint is platform work (a Keystore key,
+  /// a Keychain item) that has no business holding an accepted PIN — and S0.8
+  /// / S15 — behind it.
   void _proven() {
+    onPinProven?.call();
     final hook = afterPinProven;
     if (hook == null) return;
     pendingAfterPin = () async {

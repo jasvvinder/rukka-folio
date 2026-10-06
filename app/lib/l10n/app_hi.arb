@@ -2803,7 +2803,10 @@
     "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
   },
   "lock.biometric.prompt": "अपनी बहियाँ खोलें",
-  "lock.biometric.reenrolled": "इस फ़ोन पर नया चेहरा या उँगली का निशान जोड़ा गया है — एक बार अपना पिन भरें",
+  "lock.biometric.reenrolled": "इस फ़ोन की चेहरे या उँगली के निशान की सेटिंग बदल गई है — एक बार अपना पिन भरें",
+  "@lock.biometric.reenrolled": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06 §4)"
+  },
   "lock.biometric.retry": "फिर कोशिश करें",
   "@lock.biometric.retry": {
     "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
@@ -2835,6 +2838,14 @@
   "@lock.forgot.body_pin_only": {
     "description": "machine-draft — native review M12 (ADR 2026-10-05b)"
   },
+  "lock.forgot.body_reenrolled": "आपका पिन बनने के बाद इस फ़ोन की चेहरे या उँगली के निशान की सेटिंग बदल गई है, इसलिए चेहरा या उँगली का निशान नहीं दिखा सकता कि यह आप हैं, और आपके नंबर पर कोड अकेला काफ़ी नहीं है। नए फ़ोन की तरह साबित करें कि यह आप हैं — अपने परिवार के सदस्यों से या अपनी रिकवरी शीट से। आपकी बहियाँ सुरक्षित हैं।",
+  "@lock.forgot.body_reenrolled": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06 §4)"
+  },
+  "lock.forgot.body_reenrolled_before_open": "आपका पिन बनने के बाद इस फ़ोन की चेहरे या उँगली के निशान की सेटिंग बदल गई है, इसलिए अब सिर्फ़ आपका पिन ही ऐप खोल सकता है। अगर यह याद नहीं है, तो आपकी बहियाँ खोई नहीं हैं — वे नए फ़ोन की तरह वापस आती हैं, अपने परिवार के सदस्यों से या अपनी रिकवरी शीट से।",
+  "@lock.forgot.body_reenrolled_before_open": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06 §4)"
+  },
   "lock.forgot.cancel": "वापस",
   "lock.forgot.start": "कोड भेजें",
   "@lock.forgot.start": {
@@ -2843,6 +2854,10 @@
   "lock.forgot.start_before_open": "ऐप खोलें",
   "@lock.forgot.start_before_open": {
     "description": "machine-draft — native review M12 (KEY145B)"
+  },
+  "lock.forgot.start_ladder": "साबित करें कि यह आप हैं",
+  "@lock.forgot.start_ladder": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06 §4)"
   },
   "lock.forgot.title": "अपना पिन भूल गए",
   "@lock.forgot.title": {

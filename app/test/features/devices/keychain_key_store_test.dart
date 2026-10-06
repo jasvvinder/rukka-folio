@@ -52,7 +52,7 @@ final class RecordingPlatform extends FlutterSecureStoragePlatform {
     final t = throwOnRead;
     // The binding record (ADR 2026-10-05b) is promptless; the failure under
     // test is the device-key item's.
-    if (t != null && !key.endsWith(KeychainKeyStore.bindingItemId)) throw t;
+    if (t != null && !key.endsWith(KeychainKeyStore.classItemId)) throw t;
     return data[key];
   }
 
@@ -104,65 +104,68 @@ void main() {
       expect(platform.data, isEmpty);
     });
 
-    test('C-06-3 every item is this-device-only, after-first-unlock, never iCloud-synced, never wiped on error; only the device keys are bound to the current biometric set', () async {
-      final all = [
+    test(
+      'C-06-3 every item is this-device-only, after-first-unlock, never '
+      'iCloud-synced, never wiped on error; only the device keys are bound to '
+      'the current biometric set',
+      () {},
+      skip:
+          'superseded by ADR 2026-10-06 §1 (the device keys are never '
+          'biometric-bound); the device-key half re-lands as C-1006-1 '
+          '(gate_key_test.dart), the promptless half stays live as the next '
+          'test',
+    );
+
+    // GATE1 review finding 5: ADR 2026-10-06 §1 superseded only the device
+    // keys' binding. 04 §7.0 🔒 still holds for every promptless item — this
+    // device only, after first unlock, never iCloud, no access control, never
+    // wiped on error — so that half of C-06-3 stays live here.
+    test('C-06-3 every promptless item (database key, PIN vault, identity '
+        'records, recovery candidate) is this-device-only, after-first-unlock, '
+        'never iCloud-synced, has no biometric access control and is never '
+        'wiped on error, on both platforms', () async {
+      const promptless = [
         KeyIds.databaseKey,
-        KeyIds.wrappedUmk,
-        KeyIds.deviceSigningKey,
-        KeyIds.deviceAgreementKey,
+        PinVault.itemId,
+        'rk.ledger.identity',
+        'rk.ledger.device_cert',
+        'rk.ledger.umk_pubs_accepted',
+        'rk.ledger.identity_state',
+        KeyIds.recoveryCandidate,
       ];
-      for (final id in all) {
-        await store.write(id, Uint8List(4));
-      }
-      // The options map the plugin sends is per-platform; the test runs on
-      // the host, so inspect the static option sets the store hands over.
-      for (final apple in [
-        KeychainKeyStore.appleBase,
-        KeychainKeyStore.appleBiometric,
-      ]) {
-        final m = apple.toMap();
-        expect(m['accessibility'], 'first_unlock_this_device');
-        expect(m['synchronizable'], 'false');
-        expect(m['useSecureEnclave'], 'false');
-      }
-      expect(
-        KeychainKeyStore.appleBase.toMap().containsKey('accessControlFlags'),
-        isFalse,
-      );
-      expect(
-        KeychainKeyStore.appleBiometric.toMap()['accessControlFlags'],
-        '[biometryCurrentSet]',
-      );
-      // Android: what crosses the channel per item class is asserted by
-      // F1-05d-1…3 below (desk 145); here only the shared invariants.
-      for (final android in [
-        KeychainKeyStore.androidBase,
-        KeychainKeyStore.androidBiometric,
-      ]) {
-        final m = android.toMap();
-        expect(m['resetOnError'], 'false');
-        expect(m['storageCipherAlgorithm'], 'AES_GCM_NoPadding');
-      }
-      expect(
-        KeychainKeyStore.androidBase.toMap()['enforceBiometrics'],
-        'false',
-      );
-      final ab = KeychainKeyStore.androidBiometric.toMap();
-      expect(ab['enforceBiometrics'], 'true');
-      expect(ab['biometricType'], 'strongBiometricOnly');
-
-      expect(isBiometricBound(KeyIds.deviceSigningKey), isTrue);
-      expect(isBiometricBound(KeyIds.deviceAgreementKey), isTrue);
-      expect(isBiometricBound(KeyIds.databaseKey), isFalse);
-      expect(isBiometricBound(KeyIds.wrappedUmk), isFalse);
-      expect(isBiometricBound('rk.pin.vault'), isFalse);
-
-      // Whatever the host, the plugin received *some* option set for each
-      // call — never the plugin defaults (which sync to iCloud).
-      // (ADR 2026-10-05b adds the promptless binding record's own calls.)
-      expect(platform.calls.length, greaterThanOrEqualTo(all.length));
-      for (final (_, _, o) in platform.calls) {
-        expect(o, isNotEmpty);
+      for (final target in [TargetPlatform.iOS, TargetPlatform.android]) {
+        debugDefaultTargetPlatformOverride = target;
+        platform.calls.clear();
+        try {
+          for (final id in promptless) {
+            await store.write(id, Uint8List(4));
+            expect(await store.read(id), Uint8List(4));
+            expect(await store.contains(id), isTrue);
+          }
+        } finally {
+          debugDefaultTargetPlatformOverride = null;
+        }
+        for (final id in promptless) {
+          final sent = platform.calls.where((c) => c.$2 == 'rukka.$id');
+          expect(sent.length, 3, reason: '$target $id');
+          for (final (op, _, o) in sent) {
+            final why = '$target $op $id';
+            if (target == TargetPlatform.iOS) {
+              expect(
+                o['accessibility'],
+                'first_unlock_this_device',
+                reason: why,
+              );
+              expect(o['synchronizable'], 'false', reason: why);
+              expect(o['useSecureEnclave'], isNot('true'), reason: why);
+              expect(o.containsKey('accessControlFlags'), isFalse, reason: why);
+              expect(o['accountName'], 'rukka_folio', reason: why);
+            } else {
+              expect(o['resetOnError'], 'false', reason: why);
+              expect(o['enforceBiometrics'], isNot('true'), reason: why);
+            }
+          }
+        }
       }
     });
 
@@ -270,9 +273,10 @@ void main() {
       debugDefaultTargetPlatformOverride = null;
     });
 
+    // The wrapped UMK left this list with ADR 2026-10-06 §1: it is a
+    // device-key item now (C-1006-1). F1-05d-1 adapted, not superseded.
     final promptless = [
       KeyIds.databaseKey,
-      KeyIds.wrappedUmk,
       KeyIds.recoveryCandidate,
       PinVault.itemId,
     ];
@@ -316,46 +320,47 @@ void main() {
       }
     });
 
-    test('F1-05d-2 once the phone is biometric-bound (ADR 2026-10-05b §2), the device keys reach Android strong-biometric bound, in their own namespace, never wiped and never migrated', () async {
-      stored['rukka_folio/rukka.${KeychainKeyStore.bindingItemId}'] =
-          base64Encode(utf8.encode('biometric'));
-      for (final id in deviceKeys) {
-        await touch(id);
-      }
-      final deviceWire = [
-        for (final c in wire)
-          if (keyOf(c) != 'rukka.${KeychainKeyStore.bindingItemId}') c,
-      ];
-      expect(deviceWire, hasLength(deviceKeys.length * 4));
-      for (final c in deviceWire) {
-        final o = optionsOf(c);
-        expect(o['storageNamespace'], 'rukka_folio_device', reason: keyOf(c));
-        expect(o['keyCipherAlgorithm'], 'AES_GCM_NoPadding');
-        expect(o['enforceBiometrics'], 'true');
-        expect(o['biometricType'], 'strongBiometricOnly');
-        expect(o['resetOnError'], 'false');
-        expect(o['migrateOnAlgorithmChange'], 'false');
-      }
-    });
+    test(
+      'F1-05d-2 once the phone is biometric-bound (ADR 2026-10-05b §2), the '
+      'device keys reach Android strong-biometric bound, in their own '
+      'namespace, never wiped and never migrated',
+      () {},
+      skip:
+          'superseded by ADR 2026-10-06 §1 (no biometric binding on the device '
+          'keys; the gate carries it, §2); re-lands as C-1006-1 and C-1006-2 '
+          '(gate_key_test.dart)',
+    );
 
-    test('F1-05d-3 the item classes never share a storage namespace — the plugin keys one storage instance, its config, its algorithm markers and its Keystore alias by namespace, so a shared one lets whichever class initialises first decide for all (ADR 2026-10-05b adds the PIN-only class as a third)', () async {
-      final bindingKey = 'rukka_folio/rukka.${KeychainKeyStore.bindingItemId}';
-      String nsOfClass(DeviceKeyBinding b) {
-        stored[bindingKey] = base64Encode(
-          utf8.encode(b == DeviceKeyBinding.pinOnly ? 'pin-only' : 'biometric'),
-        );
-        return b.name;
+    test('F1-05d-3 the item classes never share a storage namespace — the '
+        'plugin keys one storage instance, its config, its algorithm markers '
+        'and its Keystore alias by namespace, so a shared one lets whichever '
+        'class initialises first decide for all (adapted, ADR 2026-10-06 §1: '
+        'the two legacy device-key namespaces and the promptless one stay '
+        'apart, and the ruling-1 class is not on the plugin at all)', () async {
+      final classKey = 'rukka_folio/rukka.${KeychainKeyStore.classItemId}';
+      final store = KeychainKeyStore(
+        storage: const FlutterSecureStorage(),
+        sealed: false,
+      );
+      Future<void> touchIn(String id) async {
+        await store.write(id, Uint8List.fromList([1, 2, 3]));
+        await store.read(id);
+        await store.contains(id);
+        await store.delete(id);
       }
 
       final byClass = <String, Set<String>>{};
-      for (final b in DeviceKeyBinding.values) {
-        final name = nsOfClass(b);
+      for (final (name, record) in const [
+        ('legacyPinOnly', 'pin-only'),
+        ('legacyBiometric', 'biometric'),
+      ]) {
+        stored[classKey] = base64Encode(utf8.encode(record));
         wire.clear();
         for (final id in deviceKeys) {
-          await touch(id);
+          await touchIn(id);
         }
         for (final c in wire) {
-          if (keyOf(c) == 'rukka.${KeychainKeyStore.bindingItemId}') continue;
+          if (keyOf(c) == 'rukka.${KeychainKeyStore.classItemId}') continue;
           (byClass[name] ??= {}).add(optionsOf(c)['storageNamespace']!);
         }
       }
@@ -366,16 +371,52 @@ void main() {
       byClass['promptless'] = {
         for (final c in wire) optionsOf(c)['storageNamespace']!,
       };
-      expect(byClass.values.every((v) => v.length == 1), isTrue);
+      expect(
+        byClass.values.every((v) => v.length == 1),
+        isTrue,
+        reason: '$byClass',
+      );
       expect(byClass.values.map((v) => v.single).toSet(), hasLength(3));
-      // And the stored values landed apart.
-      stored.clear();
-      await android.write(KeyIds.databaseKey, Uint8List.fromList([9]));
-      await android.write(KeyIds.deviceSigningKey, Uint8List.fromList([8]));
+
+      // The ruling-1 class: the app's own channel, never a plugin namespace.
+      final native = <MethodCall>[];
+      final messenger =
+          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+      messenger.setMockMethodCallHandler(
+        const MethodChannel('rukka_folio/keystore'),
+        (call) async {
+          native.add(call);
+          return call.method == 'deviceItemRead' ? Uint8List(1) : true;
+        },
+      );
+      addTearDown(
+        () => messenger.setMockMethodCallHandler(
+          const MethodChannel('rukka_folio/keystore'),
+          null,
+        ),
+      );
+      stored
+        ..clear()
+        ..[classKey] = base64Encode(utf8.encode('hardware'));
+      wire.clear();
+      await store.write(KeyIds.databaseKey, Uint8List.fromList([9]));
+      for (final id in [...deviceKeys, KeyIds.wrappedUmk]) {
+        await touchIn(id);
+      }
       expect(stored.keys, {
         'rukka_folio/rukka.${KeyIds.databaseKey}',
-        bindingKey,
-        'rukka_folio_device_pin/rukka.${KeyIds.deviceSigningKey}',
+        classKey,
+      });
+      expect(
+        wire.where((c) => keyOf(c) != 'rukka.${KeychainKeyStore.classItemId}'),
+        hasLength(1),
+        reason: 'only the database key reached the plugin',
+      );
+      expect(native.map((c) => c.method).toSet(), {
+        'deviceItemWrite',
+        'deviceItemRead',
+        'deviceItemContains',
+        'deviceItemDelete',
       });
     });
 

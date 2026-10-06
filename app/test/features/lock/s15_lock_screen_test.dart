@@ -291,15 +291,20 @@ void main() {
           clock: clock,
         );
 
+        // ADR 2026-10-06 §4: added or removed, or every one removed — the
+        // line names the change, not its direction (GATE1 review finding 6).
         expect(
           find.text(
-            'A new face or fingerprint was added to this phone — enter your PIN once',
+            "This phone's face or fingerprint settings have changed — enter "
+            'your PIN once',
           ),
           findsOneWidget,
         );
-        // The sensor cannot open the invalidated item, so it is not asked.
+        // The sensor cannot open the invalidated item, so it is not asked,
+        // and no Face ID button offers it (GATE1 review finding 3).
         expect(gate.prompts, isEmpty);
         expect(find.byType(PinKeypad), findsOneWidget);
+        expect(find.text('Face ID'), findsNothing);
         await unmount(tester);
       },
     );

@@ -55,6 +55,7 @@ import 'features/ledger/ledger_routes.dart';
 import 'features/legal/legal_routes.dart';
 import 'features/lock/cold_start_gate.dart';
 import 'features/lock/keystore_biometric_gate.dart';
+import 'features/lock/relock_sync_nudge.dart';
 import 'features/members/invite_nonce_relay.dart';
 import 'features/members/members_api.dart';
 import 'features/members/members_review_policy.dart';
@@ -424,14 +425,14 @@ Future<void> bootstrap() async {
       // hung on RkScope because it needs the libsodium suite, which the scope
       // does not carry.
       //
-      // ADR 2026-10-05b §2 / §4 🔒: every successful MPIN — set at O4b, or
-      // accepted at S15 — is the one moment the device keys may move to the
-      // biometric binding (re-created, read back, then the PIN-only copy
-      // deleted). Never on a biometric success alone.
-      //
-      // The same moment re-arms the in-app relock prompt against the biometric
-      // set enrolled now (KEY145B review finding 3; keystore_platform.dart):
-      // the PIN is what admits a newly enrolled face, never the face alone.
+      // ADR 2026-10-06 🔒 — the fingerprint guards a gate key, never the
+      // device keys. Every verified MPIN (set at O4b, or accepted at S15):
+      //   • opens the sealed device-key store at once (ruling 3, onPinProven
+      //     runs before the PIN's answer is returned);
+      //   • mints a new gate for the biometric set enrolled now, or none on a
+      //     PIN-only phone (rulings 2 and 4, afterPinProven). An enrolment
+      //     change therefore costs only the gate: the device keys, the UMK
+      //     copy and the books are never touched. Never on a biometric alone.
       final biometricGate = KeystoreBiometricGate(
         keys: keys,
         platform: const MethodChannelKeystorePlatform(),
@@ -440,15 +441,16 @@ Future<void> bootstrap() async {
         keys: keys,
         suite: suite,
         now: DateTime.now,
+        onPinProven: keys.unsealAfterPin,
         afterPinProven: () async {
-          await keys.upgradeAfterPin();
-          await biometricGate.armAfterProof();
+          await keys.afterPinProven();
         },
       );
 
-      // The Android biometric sheet speaks ARB, not the plugin's English
-      // defaults (whose subtitle offers "device credentials" — 07 §5.6
-      // forbids); its negative button is the way to the PIN.
+      // The biometric sheet (the gate read; a legacy class's own prompt)
+      // speaks ARB, not the plugin's English defaults (whose subtitle offers
+      // "device credentials" — 07 §5.6 forbids); its negative button is the
+      // way to the PIN.
       final l10n = await AppLocalizations.delegate.load(
         settings.locale ?? const Locale('en'),
       );
@@ -491,31 +493,26 @@ Future<void> bootstrap() async {
         now: DateTime.now,
         reviewPolicy: reviewPolicy,
       );
-      // ADR 2026-10-05b §4 🔒 — no keystore item that needs the person exists
-      // before the PIN does, and no biometric prompt comes before S15. A
-      // first run writes the device keys into the PIN-only class (promptless;
-      // `KeychainKeyStore.write`), so `bootstrapSolo` below asks nobody; the
-      // upgrade waits for O4b's PIN.
+      // ADR 2026-10-06 §3 🔒 — the device-key store is sealed: nothing reads
+      // the device keys, unwraps the UMK, signs or syncs until the person is
+      // through S15 by the gate (the biometric) or the MPIN. So on any install
+      // with an MPIN, S15 goes up first and the ledger opens behind it
+      // (features/lock/cold_start_gate.dart): a cancelled or failed biometric
+      // leaves *Use PIN instead*, never RukkaFolioBlocked. With no MPIN yet
+      // (first run, onboarding before O4b) there is no lock to pass and
+      // nothing to verify, so the store opens as it is (⚠️ SPEC in
+      // keychain_key_store.dart `unsealIfNoPin`).
       //
-      // ⚠️ SPEC (KEY145B review finding 2; owner): the same ruling, and 07
-      // §5.6 🔒, also say "Device keys are minted **after O4b**, never at
-      // bootstrap". This launch still mints them here, on the first run,
-      // before S0.2 — only into the promptless class. Moving the mint after
-      // O4b is not this lane's to make: S0.2's `activateDevice`
-      // (features/auth/http_auth_client.dart, ADR 2026-09-16 §1–§2 🔒, 06 §3)
-      // registers the ledger's device id **and its public keys** with the
-      // server and signs the challenge with the device Ed25519 key, and
-      // 13 §5 F1 puts S0.2 before O4b (S0.8). Minting after O4b needs either
-      // the registration moved after O4b or O4b moved before S0.2 — an
-      // auth/onboarding-order ruling. Until then the reading here is ruling
-      // 4's heading (no item that *needs the person*), and the literal line
-      // is an open owner item, not a delivered behaviour. On a phone whose keys are already
-      // biometric-bound, reading them *is* the prompt, so S15 goes up first
-      // and the ledger opens behind it (features/lock/cold_start_gate.dart):
-      // a cancel leaves the person on S15 with *Use PIN instead*, never on
-      // RukkaFolioBlocked.
-      if (await storedIdentity(keys) != null &&
-          await keys.binding() != DeviceKeyBinding.pinOnly) {
+      // Ruling 1: a first run mints the device keys straight into the
+      // hardware-backed class with no user-authentication binding, where they
+      // stay. ⚠️ SPEC: the ruling says "minted when the device is first
+      // registered (S0.2)"; they are minted by this first launch's
+      // `bootstrapSolo` (local_ledger.dart `_firstRun`) and registered by
+      // S0.2's `activateDevice` a few screens later. Moving the mint inside
+      // S0.2 is features/auth's (lane report M13-GATE1); what the ruling
+      // protects — the class they are born in, and that nothing moves them —
+      // holds.
+      if (!await keys.unsealIfNoPin()) {
         final through = Completer<ColdStartResult>();
         runApp(
           ColdStartApp(
@@ -523,31 +520,25 @@ Future<void> bootstrap() async {
             themeMode: settings.appearance,
             child: ColdStartGate(
               vault: vault,
+              attempt: (reason) =>
+                  biometricGate.openAtColdStart(reason: reason),
               open: () => ledger.bootstrapSolo(),
-              dropInvalidated: () async {
-                await keys.dropInvalidatedAfterPin();
-              },
               onDone: through.complete,
             ),
           ),
         );
         if (await through.future != ColdStartResult.opened) {
-          // ADR 2026-10-05b §3: the invalidated items are gone and the next
-          // device keys will land in the class chosen just now — but the key
-          // material is lost, so the books need the recovery ladder (04 §7).
-          // (Or the device keys opened and only the wrapped UMK is gone —
-          // nothing was removed; the same ladder.)
+          // The device keys are absent, a legacy biometric-bound class was
+          // invalidated, or only the wrapped UMK is gone: nothing was removed
+          // (ruling 4), and the books need the recovery ladder (04 §7).
           // ⚠️ SPEC: S19.x / the S11 entry from here is not built; this
           // blocks with one plain line, as a wiped keystore always has.
           runApp(const RukkaFolioBlocked());
           return;
         }
-        // The person was proved by the read that just opened the keys; the
-        // in-app S15 must not ask again for this launch. That read also proves
-        // the enrolled set is still the device keys' own, so the relock
-        // prompt is armed against it.
+        // The person is through; the in-app S15 must not ask again for this
+        // launch.
         biometricGate.admitOnce();
-        await biometricGate.armAfterProof();
       }
       final LedgerIdentity identity;
       try {
@@ -560,6 +551,16 @@ Future<void> bootstrap() async {
         // blocks with one plain line until that screen exists.
         runApp(const RukkaFolioBlocked());
         return;
+      }
+      // ADR 2026-10-06 §5 🔒: an install whose device keys still sit in a
+      // legacy class (biometric-bound, or ADR 2026-10-05b's PIN-only) moves
+      // now, behind the unlock that just opened them — copy, read back and
+      // compare, flip, mint the gate, then delete the old items. A failure
+      // part-way leaves the old items opening; it is tried again next launch.
+      try {
+        await keys.migrateAfterUnlock();
+      } on Object {
+        // Nothing logged (rule 4); the old class still opens.
       }
       // ADR 2026-10-04b §1–§2 🔒: `/otp/verify` proposes this ledger's user id
       // and confirms the identity on the echo (or re-mints it once on
@@ -1012,7 +1013,16 @@ Future<void> bootstrap() async {
       // through the observer. Fire-and-forget: 07 §1.7 🔒 says a sync cycle
       // never stands in front of the user, so nothing below awaits it.
       await sync.start();
-      final syncObserver = SyncLifecycleObserver(sync);
+      // ADR 2026-10-06 §3 🔒: a resume that puts S15 up (the background
+      // timeout) seals the device keys as S15 mounts, so the resume pull
+      // waits for that frame and runs only while they are open; the unlock
+      // that reopens them is the pull instead (features/lock/
+      // relock_sync_nudge.dart).
+      final syncObserver = RelockAwareSyncNudge(
+        sealed: () => keys.sealed,
+        nudge: sync.onAppForeground,
+      );
+      keys.onReopened = sync.onAppForeground;
       WidgetsBinding.instance.addObserver(syncObserver);
 
       // ADR 2026-10-04b §2: a `409 user_id_taken` re-mints the provisional
@@ -1022,6 +1032,7 @@ Future<void> bootstrap() async {
         ready: () => ledger.identityConfirmed && auth.current is Active,
         relaunch: () async {
           WidgetsBinding.instance.removeObserver(syncObserver);
+          keys.onReopened = null;
           // Unmount every screen first: they read the database closed below.
           runApp(const SizedBox.shrink());
           await WidgetsBinding.instance.endOfFrame;

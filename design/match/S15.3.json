@@ -4,12 +4,17 @@
  "frames": [
   "c1/S15.3/Enter PIN · Face ID above the boxes",
   "c1/S15.3/Wrong PIN · tries remaining",
-  "c1/S15.3/Forgot PIN · a code, not a lockout"
+  "c1/S15.3/Forgot PIN · a code, not a lockout",
+  "c1b/S15.3/Enter PIN · Face ID above the boxes",
+  "c1b/S15.3/Wrong PIN · tries remaining",
+  "c1b/S15.3/Forgot PIN · a code, not a lockout"
  ],
  "captures": [
   "S15.3__default",
   "S15.3__wrong-pin",
-  "S15.3__forgot-pin"
+  "S15.3__forgot-pin",
+  "S15.3__forgot-reenrolled",
+  "S15.3__forgot-reenrolled-before-open"
  ],
  "screen_files": [
   "app/lib/features/lock/screens/s15_lock_screen.dart",
@@ -57,12 +62,17 @@
    "what": "Sealed mark at 48 px in Enter PIN / Wrong PIN where the c1 frames draw 52 px (cooldown and disabled use the c1 52 px; the face states the c3 60 px)",
    "reason": "Enter PIN / Wrong PIN are the same widget state as c3 'PIN instead · six digits' and are built to that frame (keypad, layout), which draws the mark at 48 px; one state cannot carry both sizes. Sizes come from tokens (RkSpace.s12 = 48, s12 + s1 = 52, s12 + s3 = 60)",
    "authority": "c3/S15/PIN instead · six digits (48 px); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "Forgot page when the gate was invalidated: inside the app (capture S15.3__forgot-reenrolled) the body says the face or fingerprint settings changed so they cannot prove it's you, and the one action is 'Prove it's you' to the S11 recovery ladder; at cold start (S15.3__forgot-reenrolled-before-open) the body says only the PIN opens the app and the books are not lost, with no action button — the back chevron returns to the PIN",
+   "reason": "A biometric set changed since the PIN was set is the 06 §4.4 relative-enrols-a-face case, so code + biometric cannot be the reset; the ladder is the conservative reading, as for a PIN-only phone (desk 147). Before the app is composed no ladder entry exists, and a button that does nothing is a dead end (GATE1 review finding 2). The 'Prove it's you' label also replaces 'Send the code' on the PIN-only ladder door, which never sent a code",
+   "authority": "ADR 2026-10-06 §4; 07 §1 rule 6; ⚠️ SPEC s15_lock_screen.dart header + cold_start_gate.dart (S11 entry from the cold-start S15 not built, owner item)"
   }
  ],
  "approved_by_owner": false,
- "checked_on": "2026-10-05",
+ "checked_on": "2026-10-06",
  "hashes": {
-  "screens": "383d52f26d284eb09242ab37a2ce22856e98bbb308eb57aa25806878e49557a0",
-  "frames": "ea162bae587f530197f2e1300e796072b81bf54dc9d6a9d36631f596343b637c"
+  "screens": "79338c9c12d1cee89a9ebedeb744a4ea9a6e98c78f6aab8cf36d2b05609ba487",
+  "frames": "148300f80fbbf2726284bfd33ab238f35cdad09b10f1555b5a56c9453ace7cec"
  }
 }

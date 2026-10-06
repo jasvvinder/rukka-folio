@@ -1,35 +1,25 @@
-// Cold start on a phone whose device keys are biometric-bound (ADR 2026-10-05b
-// §4 🔒, 07 §5.6, 13 §3.2 S15).
+// The cold-start door (ADR 2026-10-06 §3 🔒, 07 §5.6, 13 §3.2 S15).
 //
-// Reading a biometric-bound device key *is* the platform's biometric prompt
-// (Android BiometricPrompt through flutter_secure_storage; iOS Keychain with
-// biometryCurrentSet). Bootstrap used to do that read before `runApp`, so the
-// system sheet came up over a blank window and a cancel ended at the
-// dead-end RukkaFolioBlocked (desk 145 review finding 3). Now bootstrap mounts
-// this gate first: S15 is on screen, its automatic biometric attempt *is* the
-// ledger opening, and anything but success leaves the person on S15 with
-// *Use PIN instead* — never on a blocked screen.
+// On any install with an MPIN, bootstrap mounts this gate **before** the
+// ledger opens: the device-key store is sealed (keychain_key_store.dart), and
+// nothing that needs the device keys — the reopen's unwrap, signing, sync —
+// runs until the person is through S15 by one of two doors:
+//   • the gate read with the biometric ([attempt] → the platform prompt over
+//     the gate item; its success opens the store); or
+//   • the MPIN (the vault's `onPinProven` opens the store; attempt policy ADR
+//     2026-09-05d §5 unchanged).
+// Only then does [open] read the device keys. A cancelled or failed biometric
+// leaves *Use PIN instead* on S15 — never RukkaFolioBlocked. An invalidated gate
+// (a fingerprint or face added or removed) is [BiometricOutcome.reenrolled]:
+// S15 asks for the MPIN once; the PIN's `afterPinProven` mints a new gate and
+// the device keys, the UMK copy and the books are untouched (ruling 4).
 //
-// After a correct PIN:
-//   • the device keys were invalidated (Android's [KeyStoreInvalidated], or a
-//     device-key item that reads back as absent — iOS answers an unreadable
-//     `biometryCurrentSet` item that way) → ruling 3: the invalidated items
-//     are removed and the binding re-chosen ([dropInvalidated]); the key
-//     material itself is gone, so the host goes on to recovery
-//     ([ColdStartResult.keysLost]).
-//   • a failed or refused prompt (iOS `errSecAuthFailed` / `…NotAllowed`
-//     included — keychain_key_store.dart `_looksInvalidated`) is never an
-//     invalidation and removes nothing (KEY145B review finding 1).
-//   • the device keys read back but the promptless wrapped UMK is gone → the
-//     person is proved by that read, nothing is removed, and the host goes
-//     on to recovery ([ColdStartResult.umkMissing]).
-//   • otherwise the keys still open only to the biometric — the MPIN is a gate,
-//     never a key (06 §4.4 🔒) — so the gate asks for it once more, saying why
-//     ([LockReason.keysNeedBiometric]). ⚠️ SPEC: KEY145 finding 2(b), which ADR
-//     2026-10-05b did not rule on; owner.
-//
-// A PIN-only phone never reaches this gate: its keys open without a person, so
-// bootstrap opens the ledger directly and the in-app S15 asks for the PIN.
+// Legacy installs (ruling 5) whose device keys still sit in the biometric-bound
+// class have no gate yet: [attempt] answers `null`, and the device-key read in
+// [open] raises the platform prompt itself, as before ADR 2026-10-06. If that
+// class was invalidated the material is gone ([KeyStoreInvalidated]); nothing
+// is deleted (ruling 4: no error path removes a device-key item) and the host
+// goes to recovery ([ColdStartResult.keysLost]).
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show PlatformException;
 
@@ -45,12 +35,11 @@ import 'screens/s15_lock_screen.dart';
 
 /// How the cold start ended.
 enum ColdStartResult {
-  /// The device keys were read: the ledger is open.
+  /// The person is through and the ledger is open.
   opened,
 
-  /// The biometric-bound keys were unreadable for good and have been
-  /// removed after the PIN (ADR 2026-10-05b §3); the books need the recovery
-  /// ladder.
+  /// The device keys are absent, or a legacy biometric-bound class was
+  /// invalidated: nothing was removed, and the books need the recovery ladder.
   keysLost,
 
   /// The device keys opened, but the wrapped UMK they unwrap is gone; nothing
@@ -90,21 +79,24 @@ class ColdStartGate extends StatefulWidget {
   const ColdStartGate({
     super.key,
     required this.vault,
+    required this.attempt,
     required this.open,
-    required this.dropInvalidated,
     required this.onDone,
   });
 
-  /// The MPIN vault — the same one the app uses.
+  /// The MPIN vault — the same one the app uses. Its `onPinProven` must open
+  /// the device-key store (bootstrap wires it).
   final PinVault vault;
 
-  /// Opens the ledger, which reads the device keys (the biometric prompt).
+  /// The biometric door ([KeystoreBiometricGate.openAtColdStart]): the gate
+  /// read; [BiometricOutcome.pinOnly] when there is no gate; `null` when the
+  /// device-key read itself prompts (a legacy biometric-bound install).
+  final Future<BiometricOutcome?> Function(String reason) attempt;
+
+  /// Opens the ledger, which reads the device keys.
   final Future<void> Function() open;
 
-  /// Ruling 3, after a correct PIN: remove the invalidated items.
-  final Future<void> Function() dropInvalidated;
-
-  /// Called once, when the person is through.
+  /// Called once, when the person is through (or the books need recovery).
   final void Function(ColdStartResult result) onDone;
 
   @override
@@ -116,8 +108,20 @@ class _ColdStartGateState extends State<ColdStartGate> {
   LockReason _reason = LockReason.routine;
   int _round = 0;
   bool _opened = false;
-  bool _invalidated = false;
+  bool _legacy = false;
+  bool _legacyLost = false;
   bool _done = false;
+
+  Future<BiometricOutcome> _attempt(String reason) async {
+    if (_opened) return BiometricOutcome.success;
+    final o = await widget.attempt(reason);
+    if (o == null) {
+      _legacy = true;
+      return _tryOpen();
+    }
+    if (o != BiometricOutcome.success) return o;
+    return _tryOpen();
+  }
 
   Future<BiometricOutcome> _tryOpen() async {
     if (_opened) return BiometricOutcome.success;
@@ -125,18 +129,20 @@ class _ColdStartGateState extends State<ColdStartGate> {
       await widget.open();
       _opened = true;
       return BiometricOutcome.success;
+    } on DeviceKeysSealed {
+      // Neither door has opened the store: stay on S15.
+      return BiometricOutcome.unavailable;
     } on KeyStoreInvalidated {
-      _invalidated = true;
+      // A legacy biometric-bound class the platform dropped: the material is
+      // gone. The PIN first (06 §4.4 — never reveal more before it), then
+      // recovery; nothing is removed.
+      _legacyLost = true;
       return BiometricOutcome.reenrolled;
     } on DeviceKeysMissing catch (e) {
-      if (!e.deviceKeys) {
-        // The device keys read back — the biometric proved the person — and
-        // must not be touched; only the UMK copy is gone.
-        _finish(ColdStartResult.umkMissing);
-        return BiometricOutcome.success;
-      }
-      _invalidated = true;
-      return BiometricOutcome.reenrolled;
+      _finish(
+        e.deviceKeys ? ColdStartResult.keysLost : ColdStartResult.umkMissing,
+      );
+      return BiometricOutcome.success;
     } on PlatformException catch (e) {
       return _cancelled(e)
           ? BiometricOutcome.cancelled
@@ -161,21 +167,23 @@ class _ColdStartGateState extends State<ColdStartGate> {
     widget.onDone(r);
   }
 
-  /// LockScreen's `onUnlocked`: by the biometric (the ledger is open) or by
-  /// the PIN (it may not be).
+  /// LockScreen's `onUnlocked`: by the gate (the ledger is open) or by the
+  /// PIN (the store is open; the ledger may not be yet).
   Future<void> _unlocked() async {
     if (_done) return;
     if (_opened) return _finish(ColdStartResult.opened);
-    if (!_invalidated) await _tryOpen();
+    if (_legacyLost) return _finish(ColdStartResult.keysLost);
+    await _tryOpen();
     if (_done) return;
     if (_opened) return _finish(ColdStartResult.opened);
-    if (_invalidated) {
-      await widget.dropInvalidated();
-      return _finish(ColdStartResult.keysLost);
-    }
+    if (_legacyLost) return _finish(ColdStartResult.keysLost);
     if (!mounted) return;
     setState(() {
-      _reason = LockReason.keysNeedBiometric;
+      // A legacy biometric-bound class still opens only to the biometric
+      // (06 §4.4: the MPIN is never a key), so the screen says so. The
+      // ruling-1 class needs no second proof; a read that failed there is
+      // offered again from the start.
+      _reason = _legacy ? LockReason.keysNeedBiometric : LockReason.routine;
       _round++;
     });
   }
@@ -189,15 +197,23 @@ class _ColdStartGateState extends State<ColdStartGate> {
       reason: _reason,
       onUnlocked: _unlocked,
       // ⚠️ SPEC: the forgot path ("OTP + biometric, then a new PIN", 07 §5.6)
-      // does not exist before the app is composed. On a biometric phone the
-      // biometric alone opens the keys, so the forgot door asks for it — and
-      // says so ([LockScreen.forgotOpensWithBiometric]: no code is promised
-      // here, KEY145B review finding 6); the code is sent from the in-app
-      // Forgot PIN (main.dart `_onForgotPin`).
+      // does not exist before the app is composed. On a phone with a gate the
+      // biometric alone opens the books, so the forgot door asks for it — and
+      // says so ([LockScreen.forgotOpensWithBiometric]; S15 turns it off on a
+      // PIN-only phone); the code is sent from the in-app Forgot PIN.
+      // Once the gate answers re-enrolled (or pin-only) no biometric can open
+      // the books, and no ladder door exists before the app is composed
+      // (`onForgotPinPinOnly` is left null): S15 then explains that only the
+      // PIN opens and offers no button that would do nothing (GATE1 review
+      // finding 2). ⚠️ SPEC: an S11 entry from the cold-start S15 is not
+      // built — the same gap as [ColdStartResult.keysLost]; owner item.
       forgotOpensWithBiometric: true,
       onForgotPin: () async {
-        final o = await _tryOpen();
-        if (o == BiometricOutcome.success) _finish(ColdStartResult.opened);
+        final reason = AppLocalizations.of(context).lockBiometricPrompt;
+        final o = await _attempt(reason);
+        if (o == BiometricOutcome.success && _opened) {
+          _finish(ColdStartResult.opened);
+        }
       },
     ),
   );
@@ -210,7 +226,7 @@ final class _OpeningGate implements BiometricGate {
 
   @override
   Future<BiometricOutcome> authenticate({required String reason}) =>
-      _state._tryOpen();
+      _state._attempt(reason);
 
   @override
   Future<bool> qualifyingBiometricEnrolled() async => true;

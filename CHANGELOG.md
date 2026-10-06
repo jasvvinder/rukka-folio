@@ -47,6 +47,23 @@ Running record of what changed in this repository and in the development environ
   Existing installs migrate once, behind an unlock. 06 §4 item 4, 04 §3.3, ADR 05d §4 and ADR 05b §2/§4 are
   cross-referenced. Build: lane GATE1.
 
+- **GATE1 (ADR 2026-10-06, built, reviewed, 3-lens verified, 6 findings repaired, push gate green):**
+  - The device keys and the UMK copy move to a native hardware class with no biometric binding: `RukkaKeystoreChannel.kt`,
+    AES-256-GCM wrap key, StrongBox when the phone declares it, else TEE. flutter_secure_storage has no non-auth StrongBox
+    path (`KeyCipherImplementationAES23.java:166-186`).
+  - A native gate key is bound to the current biometric set and minted after O4b.
+  - `KeychainKeyStore` seals the device items until the gate is read or the MPIN is verified, and S15 re-seals on every
+    relock; `RelockAwareSyncNudge` keeps sync behind the lock.
+  - A fingerprint change resets only the gate. The old biometric class migrates once, behind an unlock.
+  - Tests: C-1006-1…5, plus a boundary test for the codec's unmodifiable byte view, an emulator-found crash on second launch.
+  - Emulator `rf_min`: a 2nd fingerprint → MPIN → the ledger reopens with identical sqlite and key hashes. The no-biometric
+    path reaches Home.
+  - Not exercised: the StrongBox branch (no StrongBox on the AVD), and entry-after-MPIN (blocked by desks 163/165).
+  - Re-enrolled S15 shows no Face ID button. Forgot PIN goes to the ladder in-app, and at cold start the copy says only the PIN
+    opens the app.
+- Lane hand-back failures: "completed without StructuredOutput" was the lanes hitting maxTurns (GATE1 185/180; SIGNIN1A
+  review 93/90). Recovered from the on-disk reports.
+
 **Changed**
 - `server/supabase/functions/_tests/auth_challenge.test.ts` E-04b-1: `device_activation` removed from the "unknown phone is
   signed up" step, which ADR 2026-10-05c §2 supersedes (22/22 pass). `app/test/features/demo/demo_route_wiring_test.dart`
@@ -62,6 +79,9 @@ Running record of what changed in this repository and in the development environ
 - Docs: 06 §2 should describe the new wire; the ADR 2026-10-05c markers should gain E-1005c-* (desk 162).
 - Desk 161 (owner): the iOS SMS-code suggestion appears only after tapping the boxes; Android fill without the keyboard
   needs a plugin; L4's hidden resend row.
+- New desks 163–168: S0.6a createBook fails on device (pre-existing); Home "Couldn't load" with no book; redeploy
+  auth-challenge to dev (ops); Android "Face ID"/"iCloud Keychain" copy (owner/design); cold-start Forgot PIN has no ladder
+  entry (owner); mint the device keys at S0.2 (features/auth); StrongBox needs a real-phone run.
 
 **Commits**
 - _(fill next session)_

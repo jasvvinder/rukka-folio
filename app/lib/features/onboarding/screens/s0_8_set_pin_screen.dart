@@ -9,9 +9,15 @@
 // a new face is added to this phone, the app asks for your PIN" (ADR
 // 2026-09-05d §4). There is no toggle, because it cannot be turned off.
 //
+// Setting the PIN here is O4b, the moment ADR 2026-10-06 §2 🔒 mints the
+// biometric **gate** — through the vault's `afterPinProven`, wired at the
+// composition root (bootstrap.dart), not by this screen. The gate guards the
+// app; the device keys are never bound to the biometric (§1).
+//
 // On a phone with no biometric that can guard a hardware key (ADR 2026-10-05b
 // §1) the line has a PIN-only form: the PIN alone keeps the app closed, and
-// the app moves to the biometric after the next PIN once one is added (§2).
+// a gate is minted at the next PIN once a biometric is added (ADR 2026-10-06
+// §4).
 // The question is asked of the platform once, without a prompt; until it
 // answers the Face ID form shows (the canvas's). ⚠️ SPEC: the PIN-only copy is
 // a draft — design desk 148.
