@@ -291,8 +291,23 @@ class _RecoverySheetScreenState extends State<RecoverySheetScreen> {
                         ? l10n.onboardingRecoverySheetRetry
                         : l10n.onboardingRecoverySheetGenerate,
                   ),
-                )
-              else
+                ),
+              // 13 §4.3 disabled-with-reason (desk 171): with no sheet maker
+              // wired, *Make the sheet* stays disabled and says why directly
+              // under it — canvas 1 O5b's own pattern for a sleeping button
+              // ("Open the sheet once and this button wakes up": a centred
+              // muted line beneath it) — and names the way on, *Skip for
+              // now*. The words carry the reason; no colour is asked to.
+              if (!generated && widget.onGenerate == null)
+                Padding(
+                  padding: const EdgeInsets.only(top: RkSpace.s2),
+                  child: Text(
+                    l10n.onboardingRecoverySheetUnavailable,
+                    textAlign: TextAlign.center,
+                    style: text.bodySmall?.copyWith(color: status.muted),
+                  ),
+                ),
+              if (generated)
                 FilledButton(
                   onPressed: widget.onDone,
                   child: Text(l10n.onboardingRecoverySheetDone),

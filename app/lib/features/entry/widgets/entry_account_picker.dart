@@ -50,6 +50,7 @@ class EntryAccountPicker extends StatefulWidget {
     this.onPickBook,
     this.inBook,
     this.onLeaveBook,
+    this.searchLabel,
   });
 
   /// The slot being answered — its classes and what it may mint.
@@ -87,6 +88,13 @@ class EntryAccountPicker extends StatefulWidget {
   /// Back out of [inBook] to this book's own list. Never a dead end (07 §1
   /// rule 6): a wrong book is one tap to undo.
   final VoidCallback? onLeaveBook;
+
+  /// The open slot's label (*FOR*, *TO WHOM* …), carried on the search field
+  /// while the soft keyboard is up (PLAN desk 173). The screen gives the open
+  /// slot's own field up to this list then, so the question being answered
+  /// rides on the field that answers it. Null otherwise — the canvas 2
+  /// search field, hint only.
+  final String? searchLabel;
 
   @override
   State<EntryAccountPicker> createState() => _EntryAccountPickerState();
@@ -254,6 +262,8 @@ class _EntryAccountPickerState extends State<EntryAccountPicker> {
               isDense: true,
               prefixIcon: const Icon(Icons.search),
               hintText: l10n.entrySearchHint,
+              labelText: widget.searchLabel,
+              floatingLabelBehavior: FloatingLabelBehavior.always,
               border: const OutlineInputBorder(),
             ),
           ),

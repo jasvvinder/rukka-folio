@@ -12,7 +12,6 @@ library;
 import 'package:core_ledger/core_ledger.dart' show BookType;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:rukka_folio/features/home/home_paths.dart';
 import 'package:rukka_folio/features/onboarding/onboarding_routes.dart'
     show OnboardingPaths, onboardingFlow;
 import 'package:rukka_folio/features/onboarding/screens/s0_3_purpose_screen.dart';
@@ -113,7 +112,10 @@ Future<List<BookType>> _bookTypesCommittedBy(
   final path = router.state.uri.path;
   switch (purpose) {
     case OnboardingPurpose.myself:
-      expect(path, HomePaths.home, reason: 'Myself makes no further book');
+      // Desk 172: *Myself* goes straight on to S0.6, whose host finds — or,
+      // with S0.4 jumped here, makes — the personal book (desk 164).
+      expect(path, OnboardingPaths.openingBalances);
+      expect(find.text('What do you have?'), findsOneWidget);
     case OnboardingPurpose.businesses:
       expect(path, OnboardingPaths.business);
       await tester.enterText(find.byType(TextField).first, 'Sharma Traders');
@@ -323,7 +325,7 @@ void main() {
             p: await _bookTypesCommittedBy(tester, p),
         };
         expect(committed, {
-          OnboardingPurpose.myself: <BookType>[],
+          OnboardingPurpose.myself: [BookType.personal],
           OnboardingPurpose.businesses: [BookType.business],
           OnboardingPurpose.family: [BookType.family],
           OnboardingPurpose.trust: [BookType.organization],

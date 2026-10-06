@@ -33,10 +33,10 @@
   "home.today.empty": "आज अभी कुछ दर्ज नहीं हुआ",
   "home.today.under_review": "जाँच में",
   "home.today.review_chip": "{count, plural, =1{1 जाँच में · {amount}} other{{count} जाँच में · {amount}}}",
-  "home.setup.title": "अपनी बही शुरू करें",
-  "home.setup.opening_balances": "अपने शुरुआती बकाया भरें",
-  "home.setup.first_entry": "अपनी पहली प्रविष्टि दर्ज करें",
-  "home.setup.recovery_sheet": "अपनी रिकवरी शीट छापें",
+  "home.setup.title": "अभी कुछ मिनट, और आपकी बही चालू।",
+  "home.setup.opening_balances": "शुरुआती शेष राशि",
+  "home.setup.first_entry": "अपनी पहली प्रविष्टि लिखें",
+  "home.setup.recovery_sheet": "अपनी रिकवरी शीट सँभालें",
   "home.setup.add_family": "अपने परिवार को जोड़ें",
   "home.setup.done": "हो गया",
   "home.drilldown.title": "{label}",
@@ -68,5 +68,11 @@
   "home.close.done.title": "{month} बंद हो गया",
   "home.close.done.action": "महीना देखें",
   "home.verb.read_only.reason": "आपका प्लान समाप्त हो गया है, इसलिए नई एंट्री रुकी हुई हैं।",
-  "@home.verb.read_only.reason": {"description": "machine-draft — native review M12"}
+  "@home.verb.read_only.reason": {"description": "machine-draft — native review M12"},
+  "home.setup.first_entry_hint": "आज सुबह जो भी खर्च किया",
+  "@home.setup.first_entry_hint": {"description": "machine-draft — native review M12 (desk 172, canvas 1 O8 copy)"},
+  "home.setup.recovery_sheet_hint": "अभी छापी नहीं गई",
+  "@home.setup.recovery_sheet_hint": {"description": "machine-draft — native review M12 (desk 172, canvas 1 O8 copy)"},
+  "home.setup.add_family_hint": "वैकल्पिक — बही अकेले भी चलती है",
+  "@home.setup.add_family_hint": {"description": "machine-draft — native review M12 (desk 172, canvas 1 O8 copy)"}
 }

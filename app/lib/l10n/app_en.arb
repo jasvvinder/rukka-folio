@@ -4391,23 +4391,35 @@
   "@home.setup.add_family": {
     "description": "S0.7 checklist step 4 (07 §4 empty state)."
   },
+  "home.setup.add_family_hint": "Optional — the book works alone",
+  "@home.setup.add_family_hint": {
+    "description": "S0.7 checklist step 4 sub-line (canvas 1 O8)."
+  },
   "home.setup.done": "Done",
   "@home.setup.done": {
     "description": "S0.7 checklist — a step already finished, paired with a tick so colour is never alone (07 §1 rule 3)."
   },
-  "home.setup.first_entry": "Record your first entry",
+  "home.setup.first_entry": "Write your first entry",
   "@home.setup.first_entry": {
     "description": "S0.7 checklist step 2 (07 §4 empty state)."
   },
-  "home.setup.opening_balances": "Add your opening balances",
+  "home.setup.first_entry_hint": "Whatever you spent this morning",
+  "@home.setup.first_entry_hint": {
+    "description": "S0.7 checklist step 2 sub-line (canvas 1 O8)."
+  },
+  "home.setup.opening_balances": "Opening balances",
   "@home.setup.opening_balances": {
     "description": "S0.7 checklist step 1 (07 §4 empty state)."
   },
-  "home.setup.recovery_sheet": "Print your recovery sheet",
+  "home.setup.recovery_sheet": "Keep your recovery sheet",
   "@home.setup.recovery_sheet": {
     "description": "S0.7 checklist step 3 (07 §4 empty state)."
   },
-  "home.setup.title": "Get your book going",
+  "home.setup.recovery_sheet_hint": "Not printed yet",
+  "@home.setup.recovery_sheet_hint": {
+    "description": "S0.7 checklist step 3 sub-line — drawn with a warning icon, never colour alone (canvas 1 O8; 07 §1 rule 3)."
+  },
+  "home.setup.title": "A few minutes now, and your books are live.",
   "@home.setup.title": {
     "description": "S0.7 setup checklist heading — the S1 empty state replaces the position card with it (07 §4, 13 §3.2 row S0.7)."
   },
@@ -8488,6 +8500,84 @@
   "@onboarding.name_photo.title": {
     "description": "S0.4 name & photo (07 §3.1 step 4)."
   },
+  "onboarding.opening.add_account": "Add an account",
+  "@onboarding.opening.add_account": {
+    "description": "S0.6 row that opens S3.1 Quick add (canvas 1; ADR 2026-09-09d §1: no book seeds a bank)."
+  },
+  "onboarding.opening.add_account_hint": "bank, cash, a person, a category…",
+  "@onboarding.opening.add_account_hint": {
+    "description": "S0.6 Add an account examples (canvas 1)."
+  },
+  "onboarding.opening.amount_label": "{account}, balance today",
+  "@onboarding.opening.amount_label": {
+    "description": "S0.6 screen-reader label of a row's amount field (02 §4 asks a money account for its balance today). {account} is the account's name.",
+    "placeholders": {
+      "account": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.opening.as_on": "Balances as on {date}",
+  "@onboarding.opening.as_on": {
+    "description": "S0.6 read-only date line (02 §4 🔒 'balance today'; ADR 2026-09-09d §4). {date} is drawn bold — it must stay a whole placeholder.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.opening.cash_hint": "money in hand",
+  "@onboarding.opening.cash_hint": {
+    "description": "S0.6 line under the seeded Cash A/c (canvas 1)."
+  },
+  "onboarding.opening.create_error": "Your book could not be made. Nothing was changed.",
+  "@onboarding.opening.create_error": {
+    "description": "S0.6 host error — the personal book could not be made (07 §1 rule 12)."
+  },
+  "onboarding.opening.creating": "Getting your book ready…",
+  "@onboarding.opening.creating": {
+    "description": "S0.6 host working state while the personal book is found or made (11 §4.5)."
+  },
+  "onboarding.opening.default_book_name": "My book",
+  "@onboarding.opening.default_book_name": {
+    "description": "S0.6 host — the personal book's name only when the S0.4 name was lost to a cold start (13 §2.1; desk 164). Editable later like any book name."
+  },
+  "onboarding.opening.finish": "Finish",
+  "@onboarding.opening.finish": {
+    "description": "S0.6 primary — posts the figures and goes on to Home; ticks the S0.7 Opening balances row (desk 172)."
+  },
+  "onboarding.opening.have_empty": "Nothing yet. Add a bank or cash account.",
+  "@onboarding.opening.have_empty": {
+    "description": "S0.6 What you have group with no money account (only when the seeded Cash A/c was archived)."
+  },
+  "onboarding.opening.note": "Fill these in and we will show what you are starting with. Leave any at ₹0 — the account is still made.",
+  "@onboarding.opening.note": {
+    "description": "S0.6 footer note (canvas 1; 02 §4: zero balances post nothing)."
+  },
+  "onboarding.opening.owe_empty": "Nobody yet. Add anyone you have to pay.",
+  "@onboarding.opening.owe_empty": {
+    "description": "S0.6 Who you owe — empty (canvas 1)."
+  },
+  "onboarding.opening.owed_empty": "Nobody yet. Add anyone who owes you money.",
+  "@onboarding.opening.owed_empty": {
+    "description": "S0.6 Who owes you — empty (canvas 1)."
+  },
+  "onboarding.opening.retry": "Try again",
+  "@onboarding.opening.retry": {
+    "description": "S0.6 host retry."
+  },
+  "onboarding.opening.save_error": "Your balances could not be saved. Nothing was changed — press Finish again, or skip for now.",
+  "@onboarding.opening.save_error": {
+    "description": "S0.6 Finish failed — named cause and the way on (07 §1 rule 12)."
+  },
+  "onboarding.opening.skip": "Skip for now",
+  "@onboarding.opening.skip": {
+    "description": "S0.6 skip — goes on to Home; the S0.7 Opening balances row stays open as the way back (desk 172)."
+  },
+  "onboarding.opening.title": "What do you have?",
+  "@onboarding.opening.title": {
+    "description": "S0.6 Opening balances · first run title (canvas 1 frame S0.6; desk 172). The person's own personal book."
+  },
   "onboarding.purpose.card.businesses.description": "Shop, practice, freelance work — one or more",
   "@onboarding.purpose.card.businesses.description": {
     "description": "S0.3 card 2 description (ADR 2026-10-04c §1) — names no single trade; S0.6c asks the count."
@@ -8583,6 +8673,10 @@
   "onboarding.recovery_sheet.title": "Your recovery sheet",
   "@onboarding.recovery_sheet.title": {
     "description": "S0.5b title (13 §3.2 row S0.5b, 07 §3.1 step 6, 04 §7.4)."
+  },
+  "onboarding.recovery_sheet.unavailable": "This version of the app can't make the sheet yet. Tap Skip for now to carry on — you can make it once an update adds it.",
+  "@onboarding.recovery_sheet.unavailable": {
+    "description": "S0.5b disabled-with-reason (13 §4.3; desk 171): shown when no sheet maker is wired, beside the disabled Make the sheet."
   },
   "onboarding.recovery_sheet.verified": "Verified — we read your printed sheet back.",
   "@onboarding.recovery_sheet.verified": {

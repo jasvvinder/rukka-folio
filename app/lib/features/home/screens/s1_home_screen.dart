@@ -32,6 +32,7 @@ import 'package:core_ledger/core_ledger.dart';
 import 'package:flutter/material.dart';
 
 import '../../../l10n/gen/app_localizations.dart';
+import '../../../shared/app_settings.dart';
 import '../../../shared/format/money_format.dart';
 import '../../../shared/ledger/ledger_scope.dart';
 import '../../../shared/theme.dart';
@@ -39,6 +40,8 @@ import '../../../shared/tokens.dart';
 import '../../close/close_paths.dart';
 import '../../close/close_source.dart';
 import '../../ledger/ledger_book.dart';
+import '../../onboarding/opening_setup_record.dart';
+import '../../onboarding/personal_book.dart';
 import '../home_data.dart';
 import '../home_paths.dart';
 import '../home_rebuild.dart';
@@ -66,6 +69,7 @@ class HomeScreen extends StatefulWidget {
     this.onOpenTrialBalance,
     this.onOpenReconciliation,
     this.onSetupStep,
+    this.setupDoors = const {0, 1, 2, 3},
     this.rebuildingSlot,
     this.scopeController,
     this.rebuildProgress,
@@ -102,6 +106,10 @@ class HomeScreen extends StatefulWidget {
 
   /// Opens setup checklist step `index` (S0.7).
   final void Function(int index)? onSetupStep;
+
+  /// The checklist steps [onSetupStep] has a destination for; the others are
+  /// drawn as information only (07 §1 rule 6 — never a tap to nowhere).
+  final Set<int> setupDoors;
 
   /// A caller-supplied card in place of the verification card. Kept for the
   /// shell; S1.4 itself now comes from [rebuildProgress] and replaces the
@@ -154,6 +162,49 @@ class _HomeScreenState extends State<HomeScreen> {
   // empty for ever when there is no seam — Home draws no card and loses
   // nothing else.
   List<BookCloseStatus> _closeStatuses = const [];
+  // S0.6's *Finish* (desk 172): ticks the checklist's *Opening balances* row
+  // even when every figure was ₹0 and nothing was posted. Per book — the
+  // record of the book in scope, never an install-wide bit (P1A review,
+  // finding 6): S0.6 fills the personal book only.
+  String? _recordBook;
+  bool _openingRecorded = false;
+
+  // The personal book — the only one S0.6 fills, so the only one whose
+  // *Opening balances* row may open it (P1A review, finding 6).
+  String? _personalBookId;
+
+  void _watchRecordOf(String bookId) {
+    if (_recordBook == bookId) return;
+    _recordBook = bookId;
+    _openingRecorded = false;
+    unawaited(_readOpeningRecord(bookId));
+  }
+
+  Future<void> _readOpeningRecord(String bookId) async {
+    final recorded = await OpeningSetupRecord.isFinished(
+      AppSettingsScope.read(context)?.prefs,
+      bookId,
+    );
+    if (mounted && _recordBook == bookId && recorded != _openingRecorded) {
+      setState(() => _openingRecorded = recorded);
+    }
+  }
+
+  void _onOpeningRecord() {
+    if (_recordBook case final bookId?) unawaited(_readOpeningRecord(bookId));
+  }
+
+  Future<void> _resolvePersonal() async {
+    try {
+      final id = await personalBookIdOf(LedgerScope.of(context));
+      if (mounted && id != _personalBookId) {
+        setState(() => _personalBookId = id);
+      }
+    } on Object {
+      // Unreadable: the row stays information, never a door to the wrong
+      // book (07 §1 rule 6).
+    }
+  }
 
   @override
   void didChangeDependencies() {
@@ -165,13 +216,18 @@ class _HomeScreenState extends State<HomeScreen> {
     _resolveStarted = true;
     _scope.addListener(_onScope);
     _booksSub = watchBookRefs(LedgerScope.of(context)).listen(
-      _scope.setBooks,
+      (books) {
+        _scope.setBooks(books);
+        unawaited(_resolvePersonal());
+      },
       // A book list that cannot be read is not a reason to lose Home: the
       // switcher simply stays hidden (07 §1 rule 12, no dead ends).
       onError: (Object _) {},
     );
     _resolveBook();
     unawaited(_loadClose());
+    OpeningSetupRecord.changes.addListener(_onOpeningRecord);
+    unawaited(_resolvePersonal());
   }
 
   /// Reads every book's close state for the month that has just ended.
@@ -206,6 +262,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // Synchronous by design: awaiting a drift stream's cancel during disposal
     // deadlocks flutter_test's fake-async zone (the U2a finding).
     unawaited(_booksSub?.cancel());
+    OpeningSetupRecord.changes.removeListener(_onOpeningRecord);
     _scope.removeListener(_onScope);
     if (widget.scopeController == null) _scope.dispose();
     super.dispose();
@@ -333,6 +390,14 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _body(BuildContext context, String bookId) {
+    _watchRecordOf(bookId);
+    // *Opening balances* opens S0.6, which fills the personal book and no
+    // other; over a business, family or trust book the row is information
+    // until their own openings (S0.6b/f/i) have a door from Home (⚠️ SPEC,
+    // open P1A (a)).
+    final doors = bookId == _personalBookId
+        ? widget.setupDoors
+        : widget.setupDoors.difference(const {0});
     final l10n = AppLocalizations.of(context);
     final ledger = LedgerScope.of(context);
     final today = ledger.today();
@@ -371,6 +436,8 @@ class _HomeScreenState extends State<HomeScreen> {
           onOpenTrialBalance: widget.onOpenTrialBalance,
           onOpenReconciliation: widget.onOpenReconciliation,
           onSetupStep: widget.onSetupStep,
+          setupDoors: doors,
+          openingRecorded: _openingRecorded,
           rebuildingSlot: widget.rebuildingSlot,
         );
       },
@@ -407,6 +474,8 @@ class _HomeBody extends StatelessWidget {
     this.onOpenTrialBalance,
     this.onOpenReconciliation,
     this.onSetupStep,
+    this.setupDoors = const {0, 1, 2, 3},
+    this.openingRecorded = false,
     this.rebuildingSlot,
   });
 
@@ -421,6 +490,8 @@ class _HomeBody extends StatelessWidget {
   final VoidCallback? onOpenTrialBalance;
   final VoidCallback? onOpenReconciliation;
   final void Function(int index)? onSetupStep;
+  final Set<int> setupDoors;
+  final bool openingRecorded;
   final Widget? rebuildingSlot;
 
   @override
@@ -434,10 +505,16 @@ class _HomeBody extends StatelessWidget {
     ];
 
     // ⚠️ SPEC: 07 §4 says the position card collapses to the setup checklist
-    // for a "new user" but never defines the test. The conservative reading
-    // is taken here — a book with no entries at all — so a book that already
-    // carries postings never loses its position card.
-    final firstRun = snapshot.entryCount == 0;
+    // for a "new user" but never defines the test. The reading taken here —
+    // no entry beyond the opening balances ([HomeSnapshot.firstRun]) — lets
+    // desk 172's *Finish* land on the O8 checklist with the row ticked, and
+    // a book with one ordinary posting never loses its position card.
+    final firstRun = snapshot.firstRun;
+    // Desk 172: S0.6's *Finish* ticks the row whatever was typed; a figure on
+    // `Opening Balance / Capital A/c` ticks it too (an opening posted any
+    // other way). *Skip for now* does neither, so the row stays the way back.
+    // [openingRecorded] is this book's own record.
+    final openingDone = snapshot.openingBalancesDone || openingRecorded;
 
     final review = [
       for (final r in snapshot.today)
@@ -448,8 +525,12 @@ class _HomeBody extends StatelessWidget {
       (s, r) => s + (HomeTodayRow.amountLine(r, chart)?.amountPaise.abs() ?? 0),
     );
 
-    return ListView(
-      padding: const EdgeInsets.only(bottom: RkSpace.s10),
+    // Canvas 1 O8 and canvas 15 S1 pin the four verbs in a bar directly above
+    // the tab bar, with the list (hero, checklist or position, Today)
+    // scrolling above it; 07 §1 rules 1–2 🔒 ask the same — the verbs are
+    // never below the fold, first run or populated. Only the list scrolls.
+    final list = ListView(
+      padding: const EdgeInsets.only(bottom: RkSpace.s4),
       children: [
         HomeHero(
           totalPaise: snapshot.position.totalMoneyPaise,
@@ -468,9 +549,10 @@ class _HomeBody extends StatelessWidget {
         // skipped them and then posted an entry would have no way back to
         // them at all (07 §1 rule 6, no dead ends). Once they are recorded it
         // goes, and the position card stands alone.
-        if (firstRun || !snapshot.openingBalancesDone)
+        if (firstRun || !openingDone)
           HomeSetupChecklist(
-            openingBalancesDone: snapshot.openingBalancesDone,
+            openingBalancesDone: openingDone,
+            doors: setupDoors,
             // The book's first entry, which is also what ends the empty
             // state. Steps 3 and 4 have no completion source yet — the
             // widget's own ⚠️ SPEC note (S11.4, S13).
@@ -488,17 +570,16 @@ class _HomeBody extends StatelessWidget {
           inPaise: snapshot.monthInPaise,
           outPaise: snapshot.monthOutPaise,
         ),
-        HomeVerbGate(onVerb: onVerb),
-        // The *Close card* (07 §13 🔒 bullet 1) sits **below** the four verb
-        // buttons, not above them.
+        // The *Close card* (07 §13 🔒 bullet 1).
         //
         // ⚠️ SPEC: 07 §4 🔒 draws Home card by card and never places this one
-        // — the only instruction is 07 §13's *"appears on Home from the 1st"*.
-        // The conservative reading is the one that cannot cost the product its
-        // first rule: 07 §1 rule 1 🔒 says every design decision loses to the
-        // 8-second entry, so a monthly invitation may not push the verb
-        // buttons out of thumb reach (rule 2). It sits directly under them,
-        // above Today, where it is still the first thing after the actions.
+        // — the only instruction is 07 §13's *"appears on Home from the 1st"*
+        // — and no canvas frame draws it on Home. 07 §1 rule 1 🔒 says every
+        // design decision loses to the 8-second entry, so a monthly invitation
+        // may not push the verbs out of thumb reach (rule 2). The verbs are
+        // now pinned in [HomeVerbBar] below the list, so nothing in the list
+        // can push them; the card keeps its old slot, after the month line
+        // and above Today — the first thing the list offers after the figures.
         HomeCloseCards(
           statuses: closeStatuses,
           onOpenClose: onOpenClose,
@@ -583,6 +664,20 @@ class _HomeBody extends StatelessWidget {
                   : () => onOpenEntry!(row.entryId),
             ),
       ],
+    );
+    return LayoutBuilder(
+      builder: (context, box) => Column(
+        children: [
+          Expanded(child: list),
+          HomeVerbBar(
+            // Never more than half the body (07 §1 rule 11): at 200 % in a
+            // short window the bar scrolls inside itself and the list keeps
+            // its half.
+            maxHeight: box.maxHeight.isFinite ? box.maxHeight / 2 : null,
+            child: HomeVerbGate(onVerb: onVerb),
+          ),
+        ],
+      ),
     );
   }
 }

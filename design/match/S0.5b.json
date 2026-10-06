@@ -1,0 +1,36 @@
+{
+ "sid": "S0.5b",
+ "verdict": "deviates",
+ "frames": [
+  "c1/O5b/Recovery sheet · print or save"
+ ],
+ "captures": [
+  "S0.5b__default"
+ ],
+ "screen_files": [
+  "app/lib/features/onboarding/screens/s0_5b_recovery_sheet_screen.dart"
+ ],
+ "deviations": [
+  {
+   "what": "No sheet preview (the A4 page with its QR square and eight characters), no 'One A4 page' caption, no 'Print or save the sheet' / 'I've kept it safe' pair: the screen offers a disabled 'Make the sheet' with 'Skip for now'",
+   "reason": "No sheet can be made in this build: SealedRecoveryBlob has no byte framing and there is no PDF, print or scan-back (desk 171). The owner ruled to build rung 3 now (ADR 2026-10-06d); RUNG3B (lane-ui-hard) wires S0.5b to the sheet maker and re-skins it to O5b. Drawing a preview or a live print button now would promise a sheet that does not exist",
+   "authority": "ADR 2026-10-06d; PLAN desk 171 (RUNG3A/RUNG3B); 07 §1 rule 6"
+  },
+  {
+   "what": "'This version of the app can't make the sheet yet…' sits as a centred muted line under the disabled button",
+   "reason": "13 §4.3 disabled-with-reason. Placed and set as O5b sets its own sleeping button's reason ('Open the sheet once and this button wakes up': a centred muted line beneath it)",
+   "authority": "13 §4.3; canvas c1/O5b pattern; PLAN desk 171"
+  },
+  {
+   "what": "Title 'Your recovery sheet' as the page heading and the copy 'There is no \"forgot password\"…' where the frame has a back-chevron top bar titled 'Your recovery sheet' and the heading 'Only you can open your books' with two paragraphs",
+   "reason": "The copy is 07 §3.1 step 6's own ('explain in one screen why there is no forgot password'); the top bar, heading and copy follow O5b in RUNG3B's re-skin, which owns this screen next",
+   "authority": "07 §3.1 step 6 🔒; ADR 2026-10-06d (RUNG3B)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-06",
+ "hashes": {
+  "screens": "9907e79c71671a8d45611e1e4501a85e4a7d85d2143f6cb49acc31d1583d4e8e",
+  "frames": "a4bb57a84f1c30b7678be8c188dfa0d7f9b9b8c525895bff6b282869c56f71ad"
+ }
+}

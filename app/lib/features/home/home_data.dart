@@ -81,6 +81,7 @@ final class HomeSnapshot {
     required this.entryCount,
     required this.differencePaise,
     required this.health,
+    this.openingEntryCount = 0,
     this.inTransitPairs = const [],
   });
 
@@ -99,8 +100,21 @@ final class HomeSnapshot {
   /// This month's expense, as a positive figure (02 §9).
   final int monthOutPaise;
 
-  /// Entries in the book at all — zero is the new-user empty state (07 §4).
+  /// Entries in the book at all, the openings included.
   final int entryCount;
+
+  /// How many of [entryCount] are opening balances — the `adjustment`s S0.6
+  /// and S3.1 post against *Opening Balance* (02 §4).
+  final int openingEntryCount;
+
+  /// The 07 §4 new user: no entry yet **beyond the opening balances**.
+  ///
+  /// ⚠️ SPEC: 07 §4 never defines "new user". An opening is setup, not the
+  /// person's first entry — desk 172 (owner-ruled 6 Oct) has S0.6's *Finish*
+  /// land on Home with the O8 checklist and its *Opening balances* row ticked,
+  /// whatever was typed — so the openings do not end the empty state; the
+  /// first ordinary entry does (P1A review, finding 1).
+  bool get firstRun => entryCount - openingEntryCount == 0;
 
   /// Σ every account balance. Double entry makes this nil; anything else is
   /// what the verification card reports **in plain words** (07 §4 🔒, 02 §8).
@@ -191,7 +205,8 @@ Stream<HomeSnapshot> watchHome(
         today: v[2]! as List<HomeEntryRow>,
         monthInPaise: totals.inPaise,
         monthOutPaise: totals.outPaise,
-        entryCount: v[4]! as int,
+        entryCount: (v[4]! as _EntryCounts).all,
+        openingEntryCount: (v[4]! as _EntryCounts).openings,
         differencePaise: accounts.fold(0, (s, a) => s + a.balancePaise),
         health: v[5] as BookHealth?,
         inTransitPairs: v[6]! as List<ReconciliationPair>,
@@ -297,15 +312,31 @@ Stream<_MonthTotals> _watchMonth(
 }
 
 /// How many entries the book holds at all — zero is the setup checklist.
-Stream<int> _watchEntryCount(LocalLedger ledger, String bookId) {
+typedef _EntryCounts = ({int all, int openings});
+
+/// Every counted entry of [bookId], and how many of them are openings: an
+/// `adjustment` with a line on the *Opening Balance* system account (02 §4).
+Stream<_EntryCounts> _watchEntryCount(LocalLedger ledger, String bookId) {
   final db = ledger.db;
   final q = db.customSelect(
-    'SELECT COUNT(*) AS n FROM entries_p WHERE book_id = ?1 '
-    "AND superseded_by IS NULL AND status NOT IN ('pending','rejected')",
-    variables: [Variable.withString(bookId)],
-    readsFrom: {db.entriesP},
+    'SELECT COUNT(*) AS n, COALESCE(SUM(CASE WHEN e.kind = ? '
+    'AND EXISTS (SELECT 1 FROM entry_lines_p o '
+    'JOIN accounts_p a ON a.id = o.account_id '
+    "WHERE o.entry_id = e.id AND a.system_role = 'opening_balance') "
+    'THEN 1 ELSE 0 END), 0) AS o '
+    'FROM entries_p e WHERE e.book_id = ? '
+    "AND e.superseded_by IS NULL AND e.status NOT IN ('pending','rejected')",
+    variables: [
+      Variable.withString(EntryKind.adjustment.wire),
+      Variable.withString(bookId),
+    ],
+    readsFrom: {db.entriesP, db.entryLinesP, db.accountsP},
   );
-  return q.watch().map((rows) => rows.isEmpty ? 0 : rows.first.read<int>('n'));
+  return q.watch().map(
+    (rows) => rows.isEmpty
+        ? (all: 0, openings: 0)
+        : (all: rows.first.read<int>('n'), openings: rows.first.read<int>('o')),
+  );
 }
 
 /// [s] with a leading `null`, so a stream that emits nothing until the book is

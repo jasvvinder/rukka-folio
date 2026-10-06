@@ -2,11 +2,15 @@
 // on the root navigator via `featureRoutes` — these screens run before the
 // tab shell exists, same posture as features/auth's S0.2 (07 §5 flow F1:
 // splash → language → welcome → S0.2 → S0.3 purpose → S0.4 name → S0.8 PIN).
+import 'dart:async';
+
 import 'package:core_ledger/core_ledger.dart' show LocalDate;
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../shared/app_scope.dart';
+import '../../shared/app_settings.dart';
+import '../../shared/ledger/ledger_scope.dart';
 import '../../shared/router.dart' show RkPaths;
 import '../../shared/seams/auth_client.dart' show SignInDoor;
 
@@ -14,10 +18,12 @@ import '../auth/auth_paths.dart';
 import '../auth/screens/s0_2_phone_otp_screen.dart' show PhoneOtpScreen;
 import '../demo/widgets/demo_build_card.dart' show demoPurposeCard;
 import '../devices/devices_paths.dart';
+import '../entry/entry_restriction.dart';
 import '../home/home_paths.dart';
 import 'onboarding_flow.dart';
 import 'onboarding_gate.dart';
 import 'onboarding_paths.dart';
+import 'personal_book.dart';
 import 'screens/s0_0_splash_screen.dart';
 import 'screens/s0_05_welcome_screen.dart';
 import 'screens/s0_06_start_screen.dart';
@@ -37,6 +43,7 @@ import 'screens/s0_8_set_pin_screen.dart';
 import 'screens/s0_9_invitation_screen.dart';
 import 'widgets/business_opening_host.dart';
 import 'widgets/family_opening_host.dart';
+import 'widgets/personal_opening_host.dart';
 import 'widgets/trust_opening_host.dart';
 
 export 'onboarding_flow.dart' show OnboardingFlow, OnboardingFlowScope;
@@ -48,6 +55,11 @@ export 'onboarding_gate.dart'
         handOverToHome,
         previousOnboardingStep;
 export 'onboarding_paths.dart';
+export 'opening_setup_record.dart' show OpeningSetupRecord;
+export 'personal_book.dart' show ensurePersonalBook, personalBookIdOf;
+export 'screens/s0_6_opening_balances_screen.dart'
+    show FirstRunRow, IndianGroupingFormatter, OpeningBalancesScreen;
+export 'widgets/personal_opening_host.dart' show PersonalOpeningHost;
 export 'screens/s0_06_start_screen.dart' show StartScreen;
 export 'screens/s0_3_purpose_screen.dart' show OnboardingPurpose;
 export 'screens/s0_6a1_business_owners_screen.dart'
@@ -222,8 +234,15 @@ final List<RouteBase> onboardingRoutes = [
         initialName: onboardingFlow.yourName,
         // 07 §3.1 step 4's answer is carried forward, not dropped: S0.6a1 tags
         // the first owner row with it (ADR 2026-09-09 §1).
+        //
+        // Desk 164: the person's personal book is made here, the moment its
+        // name is known (13 §2.1; canvas 1 "One private book is already
+        // made") — see `personal_book.dart` for why here. Started, not
+        // awaited: S0.8 does not need it, and S0.6's host finds it (or the
+        // creation still in flight) before it fills the book's Cash A/c.
         onSubmit: (name, photo) {
           onboardingFlow.setYourName(name);
+          unawaited(_makePersonalBook(context, onboardingFlow.yourName));
           context.go(OnboardingPaths.setPin);
         },
       ),
@@ -261,8 +280,21 @@ final List<RouteBase> onboardingRoutes = [
   ),
   // 07 §3.1 step 6 / 04 §7.4 🔒. Generation, print/save and the scan-back
   // check are seams with no implementation in this build, so none is wired:
-  // the screen shows its intro with the actions disabled rather than
-  // pretending a sheet was made. The lane report names the wanted interface.
+  // the screen shows its intro with *Make the sheet* disabled **and its
+  // reason** (13 §4.3; desk 171) rather than pretending a sheet was made.
+  //
+  // ⚠️ SPEC / open (P1A, desk 171) — the cause, from the code, not GATE1 and
+  // not a missing printing dependency (`pdf` and `printing` are both in
+  // app/pubspec.yaml). Nothing in the build makes a sheet: (1) `core_crypto`
+  // seals the UMK under RK (`sealUmkUnderRecoveryKey`) but defines no byte
+  // framing for `SealedRecoveryBlob`, and `POST /sync-meta/recovery/sheet`
+  // (`RecoveryApi.publishSheet`) stores one opaque byte string — choosing the
+  // layout is core_crypto behaviour (bootstrap.dart's rung-3 note says the
+  // same), and a sheet published under a guessed framing would be a printed
+  // key nobody can open later; (2) no sheet PDF layout (04 §7.4: QR +
+  // Crockford fallback, EN + the user's language) and no scan-back verifier
+  // exist. The UMK itself is reachable (`LocalLedger.keyMaterial.umk`), so
+  // (1) is the blocker. Both are outside onboarding.
   GoRoute(
     path: OnboardingPaths.recoverySheet,
     builder: (context, state) => _chainStep(
@@ -368,12 +400,11 @@ final List<RouteBase> onboardingRoutes = [
           onboardingFlow.addAnotherBusiness();
           context.go(OnboardingPaths.business);
         },
-        // O6 (the user's own opening balances) is not this lane's screen; Home's
-        // S0.7 checklist is what brings it back (07 §3.1 step 7), the same
-        // landing every other branch takes — and the same landing for the skip,
-        // since 07 §3.1.1 makes every branch step skippable.
-        onDone: () => handOverToHome(context),
-        onSkip: () => handOverToHome(context),
+        // 07 §3.1.1 🔒 *My business* row: O6c → **O6** your own → checklist.
+        // *No, that's all* and the skip both go on to S0.6 (desk 172), since
+        // 07 §3.1.1 makes every branch step skippable.
+        onDone: () => context.go(OnboardingPaths.openingBalances),
+        onSkip: () => context.go(OnboardingPaths.openingBalances),
       ),
     ),
   ),
@@ -418,9 +449,9 @@ final List<RouteBase> onboardingRoutes = [
     builder: (context, state) => FamilyOpeningHost(
       flow: onboardingFlow,
       startDate: bookStartDateOf(context),
-      // Skipped or saved, the next stop is Home — where the S0.7 checklist
-      // brings a skipped wizard back (07 §3.1 step 7).
-      onDone: () => handOverToHome(context),
+      // Skipped or saved, the next stop is S0.6 (07 §3.1.1 🔒 *My family*
+      // row: O6f → O6 your own → checklist; desk 172).
+      onDone: () => context.go(OnboardingPaths.openingBalances),
       onBack: _backFrom(context, state),
     ),
   ),
@@ -466,11 +497,45 @@ final List<RouteBase> onboardingRoutes = [
     builder: (context, state) => TrustOpeningHost(
       flow: onboardingFlow,
       startDate: bookStartDateOf(context),
-      // Skipped or saved, the next stop is Home — where the S0.7 checklist
-      // brings a skipped wizard back (07 §3.1 step 7).
-      onDone: () => handOverToHome(context),
+      // Skipped or saved, the next stop is S0.6 (desk 172: shown once after
+      // the branch steps on every path, canvas 1 "All five paths converge
+      // here").
+      //
+      // ⚠️ SPEC (owner, open P1A): 07 §3.1.1 🔒's *Our trust* row still
+      // reads O6i → checklist with no O6, while 13 §5 F1 and canvas 1 put
+      // S0.6 after every branch. Desk 172 (owner-ruled 6 Oct, PLAN.md) rules
+      // S0.6 "once in the chain, after the branch steps" on every path, and
+      // this follows it; but the ruling is recorded only in PLAN.md — no ADR
+      // amends the 🔒 row and no ⟦tests⟧ marker names F1-1006c-*. This lane
+      // may not write docs/, so the amendment is the orchestrator's (open
+      // P1A). S0.6 is skippable, so a trust treasurer with no personal
+      // figures loses one tap.
+      onDone: () => context.go(OnboardingPaths.openingBalances),
       onBack: _backFrom(context, state),
     ),
+  ),
+  // S0.6 Opening balances · first run (desk 172). Once in the chain, after
+  // the branch steps; *Finish* and *Skip for now* both hand over to Home with
+  // the S0.7 checklist (ADR 2026-10-06b ruling 1: this is the chain's last
+  // step). Reopened later from the checklist's *Opening balances* row, when
+  // the install is already onboarded: Back then returns to Home.
+  GoRoute(
+    path: OnboardingPaths.openingBalances,
+    builder: (context, state) {
+      final chainBack = _backFrom(context, state);
+      return PersonalOpeningHost(
+        flow: onboardingFlow,
+        startDate: bookStartDateOf(context),
+        onDone: () => handOverToHome(context),
+        onBack: () {
+          if (AppSettingsScope.read(context)?.onboarded ?? false) {
+            context.go(HomePaths.home);
+          } else {
+            chainBack();
+          }
+        },
+      );
+    },
   ),
   // S0.9 Invitation accept — 13 §3.2's deep-link entry. It is a root route,
   // not a step of flow F1: a joiner arrives here from a WhatsApp/SMS link,
@@ -522,10 +587,8 @@ LocalDate bookStartDateOf(BuildContext context) {
   return LocalDate(now.year, now.month, now.day);
 }
 
-/// Where S0.8 goes next: the branch step the purpose card chose (07 §3.1.1).
-/// Every branch but *Myself* now has screens; *Myself* lands on Home, whose
-/// S0.7 checklist brings the skipped opening-balances step back (07 §3.1
-/// step 7 — that step is O6, not built by this lane).
+/// Where S0.8's chain (through S0.5 and S0.5b) goes next: the branch step the
+/// purpose card chose (07 §3.1.1), or S0.6 for *Myself*.
 /// Where the business branch goes after S0.6b (07 §3.1.1 🔒 branch table, as
 /// amended by ADR 2026-10-04c §1): the one **My business** card reads O6a →
 /// O6b → **O6c** *Add another business?* every time — one business or many.
@@ -535,13 +598,16 @@ LocalDate bookStartDateOf(BuildContext context) {
 String afterBusinessOpening(OnboardingFlow flow) =>
     flow.purpose == OnboardingPurpose.businesses
     ? OnboardingPaths.businessAnother
-    : HomePaths.home;
+    : OnboardingPaths.openingBalances;
 
 String afterSetPin(OnboardingFlow flow) => switch (flow.purpose) {
   OnboardingPurpose.businesses => OnboardingPaths.business,
   OnboardingPurpose.family => OnboardingPaths.family,
   OnboardingPurpose.trust => OnboardingPaths.trust,
-  _ => HomePaths.home,
+  // *Myself* — and a chain whose purpose a cold start lost, or the debug demo
+  // card's — goes straight on to S0.6 (07 §3.1.1 🔒 *Myself* row: O6 your
+  // own → checklist; desk 172).
+  _ => OnboardingPaths.openingBalances,
 };
 
 /// Wraps a chain step whose screen has no back affordance of its own: system
@@ -559,4 +625,21 @@ VoidCallback _backFrom(BuildContext context, GoRouterState state) {
     final previous = previousOnboardingStep(path, onboardingFlow);
     if (previous != null) context.go(previous);
   };
+}
+
+/// Desk 164: makes the person's personal book at S0.4 ([ensurePersonalBook]).
+/// Everything it needs is read from [context] before the first await. A
+/// read-only install (S12.5, ADR 2026-09-24b §13) or a failure makes nothing
+/// here — S0.6's host tries again in the open, with its sheet and its retry.
+Future<void> _makePersonalBook(BuildContext context, String name) async {
+  final ledger = LedgerScope.maybeOf(context);
+  if (ledger == null || name.isEmpty) return;
+  final sources = entryRestrictionSourcesOf(context);
+  final startDate = bookStartDateOf(context);
+  try {
+    if (await entryRestrictionFor(sources, const <String>[]) != null) return;
+    await ensurePersonalBook(ledger, name: name, startDate: startDate);
+  } on Object {
+    // Nothing logged (rule 4); S0.6 carries the retry.
+  }
 }

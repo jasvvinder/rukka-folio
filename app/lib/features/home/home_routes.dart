@@ -19,11 +19,13 @@
 // [homeRoot] build through one function, [homeScreenFor], so there is one
 // wiring, not two. S1.1 resolves the one book a solo
 // ledger has ([soloBookId]) until it takes scope too.
+import 'package:core_ledger/core_ledger.dart' show EntryKind;
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../shared/router.dart';
 import '../ledger/ledger_paths.dart';
+import '../onboarding/onboarding_paths.dart';
 import '../reports/reports_paths.dart';
 import 'home_paths.dart';
 import 'home_rebuild.dart';
@@ -65,6 +67,21 @@ Widget homeScreenFor(
   // re-reads its state when the closer comes back.
   onOpenClose: (path) async {
     await context.push<void>(path);
+  },
+  // The S0.7 checklist's doors (07 §3.1 step 7; desk 172). *Opening
+  // balances* reopens S0.6 alone — never the chain; S0.6 fills the personal
+  // book, so [HomeScreen] offers this door only while that book is in scope
+  // (P1A review, finding 6) — and *Write your first
+  // entry* is the S2 entry flow on *Money out*, the canvas's "whatever you
+  // spent this morning". ⚠️ SPEC / open (P1A): *Keep your recovery sheet* and
+  // *Add your family* have no destination this lane may name (S0.5b cannot
+  // make a sheet yet — desk 171; members are S13's), so they are drawn as
+  // information, not doors.
+  setupDoors: const {0, 1},
+  onSetupStep: (index) => switch (index) {
+    0 => context.push(OnboardingPaths.openingBalances),
+    1 => context.push('${RkPaths.entry}?verb=${EntryKind.moneyOut.wire}'),
+    _ => null,
   },
 );
 

@@ -96,6 +96,13 @@ abstract final class OnboardingPaths {
   /// trust's seeded chart (07 §3.1.1, ADR 2026-09-09c §3, ADR 2026-09-09d §2).
   static const trustAccounts = '/onboarding/trust/accounts';
 
+  /// S0.6 Opening balances · first run — "What do you have?" over the
+  /// person's own personal book (13 §5 F1 "→ S0.6 own opening balances
+  /// (skippable) → S1 with setup checklist"; desk 172). Shown once, after the
+  /// branch steps, on every path; reopened later only from the S0.7
+  /// checklist's *Opening balances* row.
+  static const openingBalances = '/onboarding/opening-balances';
+
   /// S0.9 Invitation accept — the joiner's side of 07 §12 (13 §3.2 row S0.9,
   /// design O7a/O7b). Its entry point is a **deep link**, so the invite id
   /// rides as the [invitationIdParam] query parameter:

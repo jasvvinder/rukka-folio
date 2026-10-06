@@ -16,7 +16,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/features/auth/phone_shape.dart';
 import 'package:rukka_folio/features/demo/demo_gate.dart';
-import 'package:rukka_folio/features/home/home_paths.dart';
 import 'package:rukka_folio/features/onboarding/onboarding_routes.dart';
 import 'package:rukka_folio/main.dart';
 import 'package:rukka_folio/shared/ledger/local_ledger.dart';
@@ -115,8 +114,8 @@ void main() {
     testWidgets('F1-DEMO-17 welcome → S0.2 → S0.3 with the demo on: the '
         "roster head's card is on the purpose route, building makes his books "
         'on the device, Continue goes to S0.4 with his roster name, no '
-        'purpose is recorded so the step after the PIN is Home — no second '
-        'book', (tester) async {
+        'purpose is recorded so the step after the PIN is S0.6 opening '
+        'balances (desk 172) — no second book', (tester) async {
       debugDemoBuilderOverride = true;
       debugDemoPhonesOverride = true;
       final ledger = (await tester.runAsync(() async {
@@ -169,7 +168,9 @@ void main() {
       );
       expect(onboardingFlow.yourName, 'Rakesh Sharma');
       expect(onboardingFlow.purpose, isNull);
-      expect(afterSetPin(onboardingFlow), HomePaths.home);
+      // Desk 172 (owner, 6 Oct): S0.6 is in the chain for every path, and a
+      // chain with no recorded purpose takes the *Myself* row (07 §3.1.1).
+      expect(afterSetPin(onboardingFlow), OnboardingPaths.openingBalances);
       expect(
         await _bookNames(tester, ledger),
         after,

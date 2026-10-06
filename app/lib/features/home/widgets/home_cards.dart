@@ -521,8 +521,11 @@ class HomeMonthLine extends StatelessWidget {
 }
 
 /// The four verb buttons (07 §4): they open the §5 entry flow with the verb
-/// pre-chosen. A [Wrap], not a [Row] — four labels in Gurmukhi at 200% do not
-/// fit one line on a 360 px phone (07 §1 rule 11).
+/// pre-chosen. Drawn as canvas 1 O8 and canvas 15 S1 draw them — four equal
+/// tiles, the direction arrow over the word — in one row; when the widest
+/// word of a label no longer fits a quarter of the width (Gurmukhi at 200 %,
+/// a 360 px phone) they reflow to 2 × 2 rather than clip (07 §1 rule 11).
+/// [HomeVerbBar] pins them above the tab bar.
 class HomeVerbButtons extends StatelessWidget {
   /// Creates the buttons.
   const HomeVerbButtons({super.key, this.onVerb, this.blockedReason});
@@ -541,82 +544,210 @@ class HomeVerbButtons extends StatelessWidget {
   /// S12.5 banner, which is drawn whenever this is (ADR 2026-09-24b §13).
   final String? blockedReason;
 
+  /// A tile's side padding. Half the frame's 4 px: the type role is the
+  /// 12 px caption where the frame draws 11.5 px, and at 390 px the frame's
+  /// *Gave on credit* fits one line only with the extra 4 px.
+  static const _tilePadX = RkSpace.s1 / 2;
+
+  /// Columns for [labels] in [width]: four, two or one — the most for which
+  /// the widest single word of any label, at the current text scale, still
+  /// fits a tile. A word is never broken mid-letter (07 §1 rule 11).
+  static int columnsFor(
+    BuildContext context,
+    double width,
+    List<String> labels,
+    TextStyle? style,
+  ) {
+    final scaler = MediaQuery.textScalerOf(context);
+    final direction = Directionality.of(context);
+    var widest = 0.0;
+    for (final label in labels) {
+      for (final word in label.split(RegExp(r'\s+'))) {
+        if (word.isEmpty) continue;
+        final painter = TextPainter(
+          text: TextSpan(text: word, style: style),
+          textDirection: direction,
+          textScaler: scaler,
+          maxLines: 1,
+        )..layout();
+        if (painter.width > widest) widest = painter.width;
+        painter.dispose();
+      }
+    }
+    for (final columns in const [4, 2]) {
+      final tile = (width - (columns - 1) * RkSpace.s2) / columns;
+      // The tile's own side padding and its 1 px border, each side.
+      if (widest <= tile - 2 * _tilePadX - 2) return columns;
+    }
+    return 1;
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final status = RkStatusColors.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    // The frame's 11.5 px medium label is the caption role (tokens.json).
+    final label = Theme.of(context).textTheme.bodySmall
+        ?.copyWith(fontWeight: FontWeight.w500);
     final reason = blockedReason;
     final onVerb = reason == null ? this.onVerb : null;
-    Widget button(EntryKind kind, String label, IconData icon, Color tint) =>
-        ConstrainedBox(
-          constraints: const BoxConstraints(minHeight: RkSpace.rowMinHeight),
-          child: OutlinedButton.icon(
-            onPressed: onVerb == null ? null : () => onVerb(kind),
-            // Disabled, the icon takes the button's own disabled ink: a
-            // direction tint on a verb that cannot be used would still read
-            // as an invitation.
-            icon: Icon(icon, size: 18, color: reason == null ? tint : null),
-            label: Text(label),
-          ),
-        );
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: RkSpace.gutter,
-        vertical: RkSpace.s2,
+    // The frame's arrows: Money in ↓ and Money out ↑, the two credit verbs
+    // → and ← in muted ink. The word under every arrow says the direction.
+    //
+    // ⚠️ SPEC (owner, open P1A): canvas 1 O8 and canvas 15 S1 tint the in/out
+    // arrows with `var(--in)` / `var(--out)` — the credit/debit tokens — but
+    // 07 §1 rule 3 🔒 keeps those for amounts only (icons take the
+    // success/warning/info/danger family, ADR 2026-09-05f §H1), and neither
+    // `success` nor `danger` (security/destructive, "never reads as money
+    // out") means a direction. A frame never overrides a 🔒 line (CLAUDE.md
+    // § Precedence), so until the owner rules, the two arrows are drawn in
+    // full ink — stronger than the credit verbs' muted ink, never a money
+    // tint (P1A review, finding 8).
+    final verbs = <(EntryKind, String, IconData, Color)>[
+      (
+        EntryKind.moneyIn,
+        l10n.homeVerbMoneyIn,
+        Icons.arrow_downward,
+        Theme.of(context).colorScheme.onSurface,
+      ),
+      (
+        EntryKind.moneyOut,
+        l10n.homeVerbMoneyOut,
+        Icons.arrow_upward,
+        Theme.of(context).colorScheme.onSurface,
+      ),
+      (
+        EntryKind.gaveCredit,
+        l10n.homeVerbGave,
+        Icons.arrow_forward,
+        status.muted,
+      ),
+      (EntryKind.tookCredit, l10n.homeVerbTook, Icons.arrow_back, status.muted),
+    ];
+    Widget tile((EntryKind, String, IconData, Color) v) => OutlinedButton(
+      onPressed: onVerb == null ? null : () => onVerb(v.$1),
+      style: OutlinedButton.styleFrom(
+        backgroundColor: scheme.surface,
+        foregroundColor: scheme.onSurface,
+        minimumSize: const Size(0, RkSpace.rowMinHeight),
+        padding: const EdgeInsets.symmetric(
+          horizontal: _tilePadX,
+          vertical: RkSpace.s5,
+        ),
+        textStyle: label,
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Wrap(
-            spacing: RkSpace.s2,
-            runSpacing: RkSpace.s2,
+          // Disabled, the arrow takes the button's own disabled ink: a
+          // direction tint on a verb that cannot be used would still read
+          // as an invitation.
+          Icon(v.$3, size: RkSpace.s5, color: reason == null ? v.$4 : null),
+          const SizedBox(height: RkSpace.s1),
+          Text(v.$2, textAlign: TextAlign.center),
+        ],
+      ),
+    );
+    Widget row(List<(EntryKind, String, IconData, Color)> part) =>
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              button(
-                EntryKind.moneyIn,
-                l10n.homeVerbMoneyIn,
-                Icons.south_west,
-                status.credit,
-              ),
-              button(
-                EntryKind.moneyOut,
-                l10n.homeVerbMoneyOut,
-                Icons.north_east,
-                status.debit,
-              ),
-              button(
-                EntryKind.gaveCredit,
-                l10n.homeVerbGave,
-                Icons.call_made,
-                status.debit,
-              ),
-              button(
-                EntryKind.tookCredit,
-                l10n.homeVerbTook,
-                Icons.call_received,
-                status.credit,
+              for (var i = 0; i < part.length; i++) ...[
+                if (i > 0) const SizedBox(width: RkSpace.s2),
+                Expanded(child: tile(part[i])),
+              ],
+            ],
+          ),
+        );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        LayoutBuilder(
+          builder: (context, box) {
+            final columns = columnsFor(context, box.maxWidth, [
+              for (final v in verbs) v.$2,
+            ], label);
+            if (columns == 4) return row(verbs);
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (var i = 0; i < verbs.length; i += columns) ...[
+                  if (i > 0) const SizedBox(height: RkSpace.s2),
+                  row(verbs.sublist(i, i + columns)),
+                ],
+              ],
+            );
+          },
+        ),
+        if (reason != null) ...[
+          const SizedBox(height: RkSpace.s2),
+          Row(
+            key: reasonKey,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.lock_outline, size: 18, color: status.muted),
+              const SizedBox(width: RkSpace.s2),
+              Expanded(
+                child: Text(
+                  reason,
+                  style: Theme.of(context).textTheme.bodySmall
+                      ?.copyWith(color: status.muted),
+                ),
               ),
             ],
           ),
-          if (reason != null) ...[
-            const SizedBox(height: RkSpace.s2),
-            Row(
-              key: reasonKey,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(Icons.lock_outline, size: 18, color: status.muted),
-                const SizedBox(width: RkSpace.s2),
-                Expanded(
-                  child: Text(
-                    reason,
-                    style: Theme.of(context).textTheme.bodySmall
-                        ?.copyWith(color: status.muted),
-                  ),
-                ),
-              ],
-            ),
-          ],
         ],
+      ],
+    );
+  }
+}
+
+/// The bar that holds [child] (the gated [HomeVerbButtons]) pinned to the
+/// bottom of Home's body, directly above the shell's tab bar, with the list
+/// scrolling above it — canvas 1 O8 (*Setup checklist · Home, first run*) and
+/// canvas 15 S1 (*Home · the baseline*) both draw it so, and 07 §1 rules 1–2
+/// 🔒 (8-second entry, the verbs in thumb reach) ask the same. A hairline
+/// separates it from the list; it never takes more than half the body — past
+/// that (200 % text in a short window) its own content scrolls, so the list
+/// above keeps room and nothing overflows (07 §1 rule 11).
+class HomeVerbBar extends StatelessWidget {
+  /// Creates the bar.
+  const HomeVerbBar({super.key, required this.child, this.maxHeight});
+
+  /// The key of the bar, for tests.
+  static const barKey = ValueKey('home.verb.bar');
+
+  /// The verbs.
+  final Widget child;
+
+  /// The most height the bar may take; unbounded when null.
+  final double? maxHeight;
+
+  @override
+  Widget build(BuildContext context) {
+    final status = RkStatusColors.of(context);
+    final content = Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: RkSpace.gutter,
+        vertical: RkSpace.s3,
       ),
+      child: child,
+    );
+    return DecoratedBox(
+      key: barKey,
+      decoration: BoxDecoration(
+        color: Theme.of(context).scaffoldBackgroundColor,
+        border: Border(top: BorderSide(color: status.hairline)),
+      ),
+      child: maxHeight == null
+          ? content
+          : ConstrainedBox(
+              constraints: BoxConstraints(maxHeight: maxHeight!),
+              child: SingleChildScrollView(child: content),
+            ),
     );
   }
 }
@@ -718,7 +849,10 @@ class HomeTodayRow extends StatelessWidget {
 }
 
 /// The setup checklist (S0.7) the position card collapses to for a new user
-/// (07 §4 empty state; 13 §8 "never a blank").
+/// (07 §4 empty state; 13 §8 "never a blank"), drawn as canvas 1 frame O8
+/// *Setup checklist · Home, first run*: a primary-ruled card, the one-line
+/// promise, then four rows — a ticked row is struck through beside a filled
+/// tick (desk 172: S0.6's *Finish* ticks *Opening balances*).
 class HomeSetupChecklist extends StatelessWidget {
   /// Creates the checklist.
   const HomeSetupChecklist({
@@ -726,6 +860,7 @@ class HomeSetupChecklist extends StatelessWidget {
     required this.openingBalancesDone,
     required this.firstEntryDone,
     this.onStep,
+    this.doors = const {0, 1, 2, 3},
   });
 
   /// Step 1 complete.
@@ -737,57 +872,163 @@ class HomeSetupChecklist extends StatelessWidget {
   /// Opens step [index] (0-based); null leaves the step unactionable.
   final void Function(int index)? onStep;
 
+  /// The steps that have somewhere to go. A step outside it is drawn without
+  /// a chevron and does not answer a tap — information, never a door to
+  /// nowhere (07 §1 rule 6).
+  final Set<int> doors;
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final status = RkStatusColors.of(context);
+    final text = Theme.of(context).textTheme;
+    final scheme = Theme.of(context).colorScheme;
+    final roomy = MediaQuery.textScalerOf(context).scale(1) > 1.5;
     // ⚠️ SPEC: 07 §4 lists four steps (opening balances → first entry →
     // recovery sheet → add family) but no doc says where Home reads the last
     // two from — the recovery sheet is 06/S11.4 and members are S13. Rather
     // than invent a completion rule they are shown as not-yet-done, which is
     // the conservative reading; wiring them belongs to those lanes.
-    Widget step(int index, String label, bool done) => RkLabelAmountRow(
-      leading: Icon(
-        done ? Icons.check_circle_outline : Icons.radio_button_unchecked,
-        size: 20,
-        color: done ? status.credit : status.muted,
-      ),
-      label: Text(label, style: Theme.of(context).textTheme.bodyMedium),
-      amount: done
-          ? Text(
-              l10n.homeSetupDone,
-              style: Theme.of(context).textTheme.bodySmall
-                  ?.copyWith(color: status.credit),
-            )
-          : const SizedBox.shrink(),
-      onTap: done || onStep == null ? null : () => onStep!(index),
-    );
-    return RkRuledCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+    Widget step(
+      int index,
+      String label,
+      bool done, {
+      String? hint,
+      bool warn = false,
+    }) {
+      // A ticked row stays a door, as canvas 1 O8 draws it (chevron on the
+      // struck *Opening balances*): guided setup is re-runnable until the
+      // first lock (02 §4), and a chevron that answers no tap would be a
+      // door to nowhere (07 §1 rule 6; P1A review, finding 5). The chevron
+      // is drawn exactly when the row opens something.
+      final open = onStep != null && doors.contains(index);
+      // The tick is a status icon — the `success` family, never the
+      // numerals-only `credit` (07 §1 rule 3 🔒; P1A review, finding 8).
+      final Widget mark = done
+          ? Icon(Icons.check_circle, size: RkIcon.grid, color: status.success)
+          : Icon(
+              Icons.radio_button_unchecked,
+              size: RkIcon.grid,
+              color: warn ? status.pending : status.hairline,
+            );
+      final body = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(
-              RkSpace.cardPadding,
-              RkSpace.s3,
-              RkSpace.cardPadding,
-              0,
+          Text(
+            label,
+            style: done
+                ? text.bodyLarge?.copyWith(
+                    color: status.muted,
+                    decoration: TextDecoration.lineThrough,
+                  )
+                : text.bodyLarge,
+          ),
+          if (!done && hint != null)
+            // Colour never alone (07 §1 rule 3): the warning
+            // carries an icon as well as its tint.
+            Row(
+              children: [
+                if (warn) ...[
+                  Icon(
+                    Icons.warning_amber_rounded,
+                    size: RkSpace.s4,
+                    color: status.pending,
+                  ),
+                  const SizedBox(width: RkSpace.s1),
+                ],
+                Flexible(
+                  child: Text(
+                    hint,
+                    style: text.bodyMedium?.copyWith(
+                      color: warn ? status.pending : status.muted,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            child: Semantics(
-              header: true,
-              child: Text(
-                l10n.homeSetupTitle,
-                style: Theme.of(context).textTheme.labelLarge
-                    ?.copyWith(color: status.muted),
+        ],
+      );
+      return Semantics(
+        button: open,
+        value: done ? l10n.homeSetupDone : null,
+        child: InkWell(
+          onTap: open ? () => onStep!(index) : null,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: RkSpace.s4),
+            // At large text the mark sits above the words, which then take
+            // the card's whole width: a Gurmukhi or Devanagari word at 200 %
+            // on a 360-wide phone needs it (07 §1 rule 11, 13 §8).
+            child: roomy
+                ? Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      mark,
+                      const SizedBox(height: RkSpace.s2),
+                      body,
+                    ],
+                  )
+                : Row(
+                    children: [
+                      mark,
+                      const SizedBox(width: RkSpace.s4),
+                      Expanded(child: body),
+                      // At large text the chevron gives its width to the words —
+                      // the whole row stays the button (07 §1 rule 11).
+                      if (open && !roomy)
+                        Icon(Icons.chevron_right, color: status.muted),
+                    ],
+                  ),
+          ),
+        ),
+      );
+    }
+
+    final divider = Divider(height: 1, color: status.hairline);
+    return RkRuledCard(
+      ruleColor: scheme.primary,
+      child: Padding(
+        padding: EdgeInsets.symmetric(
+          horizontal: roomy ? RkSpace.s3 : RkSpace.cardPadding,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: RkSpace.s4),
+              child: Semantics(
+                header: true,
+                child: Text(
+                  l10n.homeSetupTitle,
+                  style: text.bodyLarge?.copyWith(color: status.muted),
+                ),
               ),
             ),
-          ),
-          step(0, l10n.homeSetupOpeningBalances, openingBalancesDone),
-          step(1, l10n.homeSetupFirstEntry, firstEntryDone),
-          step(2, l10n.homeSetupRecoverySheet, false),
-          step(3, l10n.homeSetupAddFamily, false),
-          const SizedBox(height: RkSpace.s2),
-        ],
+            divider,
+            step(0, l10n.homeSetupOpeningBalances, openingBalancesDone),
+            divider,
+            step(
+              1,
+              l10n.homeSetupFirstEntry,
+              firstEntryDone,
+              hint: l10n.homeSetupFirstEntryHint,
+            ),
+            divider,
+            step(
+              2,
+              l10n.homeSetupRecoverySheet,
+              false,
+              hint: l10n.homeSetupRecoverySheetHint,
+              warn: true,
+            ),
+            divider,
+            step(
+              3,
+              l10n.homeSetupAddFamily,
+              false,
+              hint: l10n.homeSetupAddFamilyHint,
+            ),
+          ],
+        ),
       ),
     );
   }

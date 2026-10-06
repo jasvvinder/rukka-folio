@@ -225,14 +225,17 @@ void main() {
 
         expect(find.byType(HomeSetupChecklist), findsOneWidget);
         expect(find.byType(HomePositionCard), findsNothing);
-        expect(find.text('Get your book going'), findsOneWidget);
-        expect(find.text('Add your opening balances'), findsOneWidget);
-        expect(find.text('Record your first entry'), findsOneWidget);
+        expect(
+          find.text('A few minutes now, and your books are live.'),
+          findsOneWidget,
+        );
+        expect(find.text('Opening balances'), findsOneWidget);
+        expect(find.text('Write your first entry'), findsOneWidget);
         // Never a blank, and never a dead end (13 §8, 07 §1 rule 12).
         expect(find.text('Nothing recorded today yet'), findsOneWidget);
         expect(find.byType(HomeVerbButtons), findsOneWidget);
 
-        await tester.tap(find.text('Add your opening balances'));
+        await tester.tap(find.text('Opening balances'));
         await tester.pump();
         expect(steps, const [0]);
         await unmount(tester);

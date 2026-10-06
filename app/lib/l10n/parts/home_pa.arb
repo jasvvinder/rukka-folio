@@ -33,10 +33,10 @@
   "home.today.empty": "ਅੱਜ ਹਾਲੇ ਕੁਝ ਦਰਜ ਨਹੀਂ ਹੋਇਆ",
   "home.today.under_review": "ਜਾਂਚ ਅਧੀਨ",
   "home.today.review_chip": "{count, plural, =1{1 ਜਾਂਚ ਅਧੀਨ · {amount}} other{{count} ਜਾਂਚ ਅਧੀਨ · {amount}}}",
-  "home.setup.title": "ਆਪਣੀ ਵਹੀ ਸ਼ੁਰੂ ਕਰੋ",
-  "home.setup.opening_balances": "ਆਪਣੇ ਸ਼ੁਰੂਆਤੀ ਬਕਾਏ ਭਰੋ",
-  "home.setup.first_entry": "ਆਪਣਾ ਪਹਿਲਾ ਇੰਦਰਾਜ ਦਰਜ ਕਰੋ",
-  "home.setup.recovery_sheet": "ਆਪਣੀ ਰਿਕਵਰੀ ਸ਼ੀਟ ਛਾਪੋ",
+  "home.setup.title": "ਹੁਣ ਕੁਝ ਮਿੰਟ, ਅਤੇ ਤੁਹਾਡੀ ਵਹੀ ਚਾਲੂ।",
+  "home.setup.opening_balances": "ਸ਼ੁਰੂਆਤੀ ਬਕਾਏ",
+  "home.setup.first_entry": "ਆਪਣਾ ਪਹਿਲਾ ਇੰਦਰਾਜ ਲਿਖੋ",
+  "home.setup.recovery_sheet": "ਆਪਣੀ ਰਿਕਵਰੀ ਸ਼ੀਟ ਸੰਭਾਲੋ",
   "home.setup.add_family": "ਆਪਣੇ ਪਰਿਵਾਰ ਨੂੰ ਜੋੜੋ",
   "home.setup.done": "ਹੋ ਗਿਆ",
   "home.drilldown.title": "{label}",
@@ -68,5 +68,11 @@
   "home.close.done.title": "{month} ਬੰਦ ਹੋ ਗਿਆ",
   "home.close.done.action": "ਮਹੀਨਾ ਵੇਖੋ",
   "home.verb.read_only.reason": "ਤੁਹਾਡਾ ਪਲਾਨ ਖ਼ਤਮ ਹੋ ਗਿਆ ਹੈ, ਇਸ ਲਈ ਨਵੀਆਂ ਐਂਟਰੀਆਂ ਰੁਕੀਆਂ ਹੋਈਆਂ ਹਨ।",
-  "@home.verb.read_only.reason": {"description": "machine-draft — native review M12"}
+  "@home.verb.read_only.reason": {"description": "machine-draft — native review M12"},
+  "home.setup.first_entry_hint": "ਅੱਜ ਸਵੇਰੇ ਜੋ ਵੀ ਖਰਚਿਆ",
+  "@home.setup.first_entry_hint": {"description": "machine-draft — native review M12 (desk 172, canvas 1 O8 copy)"},
+  "home.setup.recovery_sheet_hint": "ਹਾਲੇ ਛਾਪੀ ਨਹੀਂ",
+  "@home.setup.recovery_sheet_hint": {"description": "machine-draft — native review M12 (desk 172, canvas 1 O8 copy)"},
+  "home.setup.add_family_hint": "ਚੋਣਵਾਂ — ਵਹੀ ਇਕੱਲੀ ਵੀ ਚੱਲਦੀ ਹੈ",
+  "@home.setup.add_family_hint": {"description": "machine-draft — native review M12 (desk 172, canvas 1 O8 copy)"}
 }

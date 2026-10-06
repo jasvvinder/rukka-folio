@@ -248,11 +248,20 @@ void main() {
         expect(where(router), OnboardingPaths.booksSafe);
         await go(tester, router, OnboardingPaths.recoverySheet);
 
-        // S0.5b's skip with no purpose recorded is `afterSetPin` → Home: the
-        // production callback, not a hand-written navigation.
+        // S0.5b's skip with no purpose recorded is `afterSetPin` → S0.6, the
+        // chain's last step now (desk 172) — not the hand-over: the record
+        // is not made yet. The production callback, not a hand-written
+        // navigation.
         tester
             .widget<RecoverySheetScreen>(find.byType(RecoverySheetScreen))
             .onSkip!();
+        await tester.pumpAndSettle();
+        expect(where(router), OnboardingPaths.openingBalances);
+        expect(settings.onboarded, isFalse);
+        expect(prefs.values[RkPrefKeys.onboarded], isNull);
+
+        // S0.6's *Skip for now* is the hand-over.
+        await tester.tap(find.text('Skip for now'));
         await tester.pumpAndSettle();
         expect(where(router), RkPaths.home);
         expect(settings.onboarded, isTrue);
@@ -438,6 +447,33 @@ void main() {
         () => onboardingFlow.setTrust(trust),
         OnboardingPaths.trustAccounts,
       ),
+      // S0.6 (desk 172), the chain's last step, goes back to the step before
+      // it on its path: S0.5b on *Myself* (or a lost purpose), S0.6c / S0.6f
+      // / S0.6i after a branch.
+      (OnboardingPaths.openingBalances, () {}, OnboardingPaths.recoverySheet),
+      (
+        OnboardingPaths.openingBalances,
+        () => onboardingFlow.setPurpose(OnboardingPurpose.myself),
+        OnboardingPaths.recoverySheet,
+      ),
+      (
+        OnboardingPaths.openingBalances,
+        () => onboardingFlow
+          ..setPurpose(OnboardingPurpose.businesses)
+          ..setBusiness(justMe)
+          ..businessBookId = 'b-1',
+        OnboardingPaths.businessAnother,
+      ),
+      (
+        OnboardingPaths.openingBalances,
+        () => onboardingFlow.setPurpose(OnboardingPurpose.family),
+        OnboardingPaths.familyAccounts,
+      ),
+      (
+        OnboardingPaths.openingBalances,
+        () => onboardingFlow.setPurpose(OnboardingPurpose.trust),
+        OnboardingPaths.trustAccounts,
+      ),
     ];
 
     for (final (i, (step, setup, previous)) in steps.indexed) {
@@ -457,6 +493,10 @@ void main() {
         expect(await systemBack(tester), isTrue, reason: 'the app stays open');
         expect(where(router), previous);
         expect(where(router), isNot(RkPaths.home));
+        // S0.6's host watches the book's accounts; cancelling a drift stream
+        // schedules a zero-length timer, fired here inside the test.
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.pump(const Duration(milliseconds: 1));
       });
     }
 

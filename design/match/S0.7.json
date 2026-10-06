@@ -1,0 +1,45 @@
+{
+ "sid": "S0.7",
+ "verdict": "deviates",
+ "frames": [
+  "c1/O8/Setup checklist · Home, first run"
+ ],
+ "captures": [
+  "S0.7__default",
+  "S0.7__open"
+ ],
+ "screen_files": [
+  "app/lib/features/home/home_routes.dart",
+  "app/lib/features/home/screens/s1_home_screen.dart",
+  "app/lib/features/home/widgets/home_cards.dart",
+  "app/lib/features/home/widgets/home_verb_gate.dart"
+ ],
+ "deviations": [
+  {
+   "what": "Around the checklist and the verb bar, Home is today's S1: an app bar titled 'Home' where O8 draws the scope pill with the person's name and a bell; the 'Balanced' verification card and the hero's 'Cash A/c ₹0' line where O8 draws 'Nothing recorded yet'; the shell's centre (+) in the tab bar, which O8 does not draw; so 'Today · 30 Aug' sits below the fold where O8 shows it above the verbs",
+   "reason": "This slice re-skins the checklist card and pins the four verbs above the tab bar (four equal tiles, arrow over word, the credit verbs in muted ink, as O8 draws them; the in/out arrow tints are the next deviation). The rest of Home is S1's own re-skin (S1.json); the verification card is required on Home; the tab bar and its (+) are the shell's (app/lib/shared), outside this lane",
+   "authority": "07 §4 🔒 (verification card); 07 §1 rules 1–2 🔒 (verbs in thumb reach); S1 re-skin and shell (+) — open items P1A"
+  },
+  {
+   "what": "Money in ↓ and Money out ↑ arrows are drawn in full ink where the frame tints them green and red (var(--in) / var(--out))",
+   "reason": "The frame's tints are the credit/debit tokens, which 07 §1 rule 3 🔒 keeps for amounts only; icons may take the success/warning/info/danger family, but none of those means a direction (danger is 'never reads as money out'). A frame never overrides a 🔒 line, so the arrows stay off the money tokens until the owner rules; the word under each arrow carries the direction",
+   "authority": "07 §1 rule 3 🔒; ADR 2026-09-05f §H1; CLAUDE.md § Precedence; ⚠️ SPEC home_cards.dart (open P1A)"
+  },
+  {
+   "what": "'Keep your recovery sheet' and 'Add your family' carry no chevron and do not answer a tap",
+   "reason": "No sheet can be made yet (desk 171) and members are S13's; a chevron with nowhere to go would be a dead end",
+   "authority": "07 §1 rule 6; open items P1A (desk 171, S13 door)"
+  },
+  {
+   "what": "At 200 % text the tick sits above the row's words and the chevrons go",
+   "reason": "A Gurmukhi/Devanagari word at 200 % on a 360-wide phone needs the card's full width",
+   "authority": "07 §1 rule 11; 13 §8; F1-07-57 layout sweep"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-06",
+ "hashes": {
+  "screens": "193ac5ff26c9e1de55c0cb9341d9deb472dfd3da8557f73c1ef1166132c426d4",
+  "frames": "bd15e9b68fe3fa67bbaa353bd6a558998b4c263ba00e06fd2327e66eb6277eb9"
+ }
+}

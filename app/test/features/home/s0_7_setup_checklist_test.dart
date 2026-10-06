@@ -65,149 +65,184 @@ Future<void> _firstEntry(LocalLedger l, String bookId) async {
 }
 
 void main() {
-  group('S0.7 setup checklist (13 §3.2 row S0.7, 07 §4, 07 §3.1 step 7 🔒)', () {
-    testWidgets(
-      'F1-07-57 a new user gets the checklist in place of the position card, '
-      'with every step of 07 §4 named',
-      (tester) async {
-        _tall(tester);
-        final (ledger, _) = await _newUser();
-        await pumpRk(tester, const HomeScreen(), ledger: ledger);
+  group(
+    'S0.7 setup checklist (13 §3.2 row S0.7, 07 §4, 07 §3.1 step 7 🔒)',
+    () {
+      testWidgets(
+        'F1-07-57 a new user gets the checklist in place of the position card, '
+        'with every step of 07 §4 named',
+        (tester) async {
+          _tall(tester);
+          final (ledger, _) = await _newUser();
+          await pumpRk(tester, const HomeScreen(), ledger: ledger);
 
-        expect(find.byType(HomeSetupChecklist), findsOneWidget);
-        expect(find.byType(HomePositionCard), findsNothing);
-        expect(find.text('Get your book going'), findsOneWidget);
-        expect(find.text('Add your opening balances'), findsOneWidget);
-        expect(find.text('Record your first entry'), findsOneWidget);
-        expect(find.text('Print your recovery sheet'), findsOneWidget);
-        expect(find.text('Add your family'), findsOneWidget);
-        // Nothing is done yet, so no step wears the word.
-        expect(find.text('Done'), findsNothing);
-        await _unmount(tester);
-      },
-    );
-
-    testWidgets(
-      'F1-07-57 tapping the opening-balances step resumes the wizard — that '
-      'is what makes skipping it safe (07 §3.1 step 7 🔒)',
-      (tester) async {
-        _tall(tester);
-        final (ledger, _) = await _newUser();
-        final steps = <int>[];
-        await pumpRk(
-          tester,
-          HomeScreen(onSetupStep: steps.add),
-          ledger: ledger,
-        );
-
-        await tester.tap(find.text('Add your opening balances'));
-        await tester.pump();
-        expect(steps, [0]);
-        await _unmount(tester);
-      },
-    );
-
-    testWidgets(
-      'F1-07-57 the card survives the first entry: the position card returns '
-      'and the checklist stays, because the balances are still missing',
-      (tester) async {
-        _tall(tester);
-        final (ledger, bookId) = await _newUser();
-        await _firstEntry(ledger, bookId);
-        await pumpRk(tester, const HomeScreen(), ledger: ledger);
-
-        expect(find.byType(HomePositionCard), findsOneWidget);
-        expect(find.byType(HomeSetupChecklist), findsOneWidget);
-        // Step 2 is done, and the word says so beside the tick — colour is
-        // never the only carrier (07 §1 rule 3).
-        expect(find.text('Done'), findsOneWidget);
-        await _unmount(tester);
-      },
-    );
-
-    testWidgets(
-      'F1-07-57 once the opening balances are recorded the checklist goes and '
-      'the position card stands alone',
-      (tester) async {
-        _tall(tester);
-        final (ledger, bookId) = await _newUser();
-        final cash = await _cashOf(ledger, bookId);
-        await ledger.openingBalances(bookId, balances: {cash.id: 1500000});
-        await pumpRk(tester, const HomeScreen(), ledger: ledger);
-
-        expect(find.byType(HomeSetupChecklist), findsNothing);
-        expect(find.byType(HomePositionCard), findsOneWidget);
-        await _unmount(tester);
-      },
-    );
-
-    testWidgets('F1-07-57 strings resolve in EN, PA and HI', (tester) async {
-      _tall(tester);
-      for (final locale in _locales) {
-        final (ledger, _) = await _newUser();
-        await pumpRk(
-          tester,
-          const HomeScreen(),
-          ledger: ledger,
-          locale: locale,
-        );
-        final card = find.byType(HomeSetupChecklist);
-        expect(
-          card,
-          findsOneWidget,
-          reason: 'no checklist in ${locale.languageCode}',
-        );
-        final labels = tester
-            .widgetList<Text>(
-              find.descendant(of: card, matching: find.byType(Text)),
-            )
-            .map((t) => t.data ?? '')
-            .where((s) => s.isNotEmpty);
-        expect(labels, hasLength(greaterThanOrEqualTo(5)));
-        for (final s in labels) {
-          expect(s, isNot(contains('home.setup')), reason: 'unresolved key');
-          // Consumer surface (02 §10 🔒, CLAUDE.md rule 9).
-          expect(s.contains('Dr '), isFalse);
-          expect(s.contains('Cr '), isFalse);
-        }
-        await _unmount(tester);
-      }
-    });
-
-    // Layout sweep (09 suite F, ADR 2026-09-05f §H): both phone viewports,
-    // 1.3 as well as 200 %, all three languages. The scale rides on
-    // `pumpRk(textScale:)` so the viewport survives it — a bare
-    // `MediaQueryData` hands the screen `Size.zero`, where nothing can
-    // overflow and the assertion means nothing.
-    for (final locale in _locales) {
-      for (final size in rkPhones) {
-        for (final scale in rkTextScales) {
-          testWidgets(
-            'F1-07-57 the checklist holds in ${locale.languageCode} at '
-            '${(scale * 100).round()}% on ${size.width.toInt()}x'
-            '${size.height.toInt()}',
-            (tester) async {
-              final (ledger, _) = await _newUser();
-              await pumpRk(
-                tester,
-                const HomeScreen(),
-                ledger: ledger,
-                locale: locale,
-                textScale: scale,
-                viewport: size,
-              );
-              expect(tester.takeException(), isNull);
-              expectTextFits(tester, reason: 'above the fold');
-              // Reachable, not clipped: the list scrolls to the checklist.
-              await tester.drag(find.byType(ListView), const Offset(0, -1200));
-              await tester.pumpAndSettle();
-              expect(tester.takeException(), isNull);
-              expectTextFits(tester, reason: 'scrolled to the checklist');
-              await _unmount(tester);
-            },
+          expect(find.byType(HomeSetupChecklist), findsOneWidget);
+          expect(find.byType(HomePositionCard), findsNothing);
+          // Canvas 1 frame O8's copy (desk 172).
+          expect(
+            find.text('A few minutes now, and your books are live.'),
+            findsOneWidget,
           );
+          expect(find.text('Opening balances'), findsOneWidget);
+          expect(find.text('Write your first entry'), findsOneWidget);
+          expect(find.text('Keep your recovery sheet'), findsOneWidget);
+          expect(find.text('Not printed yet'), findsOneWidget);
+          expect(find.text('Add your family'), findsOneWidget);
+          // Nothing is done yet, so no step wears the tick.
+          expect(find.byIcon(Icons.check_circle), findsNothing);
+          await _unmount(tester);
+        },
+      );
+
+      testWidgets(
+        'F1-07-57 tapping the opening-balances step resumes the wizard — that '
+        'is what makes skipping it safe (07 §3.1 step 7 🔒)',
+        (tester) async {
+          _tall(tester);
+          final (ledger, _) = await _newUser();
+          final steps = <int>[];
+          await pumpRk(
+            tester,
+            HomeScreen(onSetupStep: steps.add),
+            ledger: ledger,
+          );
+
+          await tester.tap(find.text('Opening balances'));
+          await tester.pump();
+          expect(steps, [0]);
+          await _unmount(tester);
+        },
+      );
+
+      testWidgets(
+        'F1-07-57 the card survives the first entry: the position card returns '
+        'and the checklist stays, because the balances are still missing',
+        (tester) async {
+          _tall(tester);
+          final (ledger, bookId) = await _newUser();
+          await _firstEntry(ledger, bookId);
+          await pumpRk(tester, const HomeScreen(), ledger: ledger);
+
+          expect(find.byType(HomePositionCard), findsOneWidget);
+          expect(find.byType(HomeSetupChecklist), findsOneWidget);
+          // Step 2 is done: a filled tick and the words struck through —
+          // colour is never the only carrier (07 §1 rule 3).
+          expect(find.byIcon(Icons.check_circle), findsOneWidget);
+          expect(
+            tester
+                .widget<Text>(find.text('Write your first entry'))
+                .style
+                ?.decoration,
+            TextDecoration.lineThrough,
+          );
+          await _unmount(tester);
+        },
+      );
+
+      // Desk 172 (owner-ruled 6 Oct) moved this case: an opening is setup, not
+      // the first entry, so with only the balances recorded the checklist stays
+      // with its first row ticked (HomeSnapshot.firstRun; P1A review, finding
+      // 1). It goes once an ordinary entry follows.
+      testWidgets(
+        'F1-07-57 with only the opening balances recorded the checklist stays, '
+        'its first row ticked; the first entry then retires it',
+        (tester) async {
+          _tall(tester);
+          final (ledger, bookId) = await _newUser();
+          final cash = await _cashOf(ledger, bookId);
+          await ledger.openingBalances(bookId, balances: {cash.id: 1500000});
+          await pumpRk(tester, const HomeScreen(), ledger: ledger);
+
+          expect(find.byType(HomeSetupChecklist), findsOneWidget);
+          expect(find.byType(HomePositionCard), findsNothing);
+          expect(
+            tester
+                .widget<Text>(find.text('Opening balances'))
+                .style
+                ?.decoration,
+            TextDecoration.lineThrough,
+          );
+          await _unmount(tester);
+
+          await _firstEntry(ledger, bookId);
+          await pumpRk(tester, const HomeScreen(), ledger: ledger);
+          expect(find.byType(HomeSetupChecklist), findsNothing);
+          expect(find.byType(HomePositionCard), findsOneWidget);
+          await _unmount(tester);
+        },
+      );
+
+      testWidgets('F1-07-57 strings resolve in EN, PA and HI', (tester) async {
+        _tall(tester);
+        for (final locale in _locales) {
+          final (ledger, _) = await _newUser();
+          await pumpRk(
+            tester,
+            const HomeScreen(),
+            ledger: ledger,
+            locale: locale,
+          );
+          final card = find.byType(HomeSetupChecklist);
+          expect(
+            card,
+            findsOneWidget,
+            reason: 'no checklist in ${locale.languageCode}',
+          );
+          final labels = tester
+              .widgetList<Text>(
+                find.descendant(of: card, matching: find.byType(Text)),
+              )
+              .map((t) => t.data ?? '')
+              .where((s) => s.isNotEmpty);
+          expect(labels, hasLength(greaterThanOrEqualTo(5)));
+          for (final s in labels) {
+            expect(s, isNot(contains('home.setup')), reason: 'unresolved key');
+            // Consumer surface (02 §10 🔒, CLAUDE.md rule 9).
+            expect(s.contains('Dr '), isFalse);
+            expect(s.contains('Cr '), isFalse);
+          }
+          await _unmount(tester);
+        }
+      });
+
+      // Layout sweep (09 suite F, ADR 2026-09-05f §H): both phone viewports,
+      // 1.3 as well as 200 %, all three languages. The scale rides on
+      // `pumpRk(textScale:)` so the viewport survives it — a bare
+      // `MediaQueryData` hands the screen `Size.zero`, where nothing can
+      // overflow and the assertion means nothing.
+      for (final locale in _locales) {
+        for (final size in rkPhones) {
+          for (final scale in rkTextScales) {
+            testWidgets(
+              'F1-07-57 the checklist holds in ${locale.languageCode} at '
+              '${(scale * 100).round()}% on ${size.width.toInt()}x'
+              '${size.height.toInt()}',
+              (tester) async {
+                final (ledger, _) = await _newUser();
+                await pumpRk(
+                  tester,
+                  const HomeScreen(),
+                  ledger: ledger,
+                  locale: locale,
+                  textScale: scale,
+                  viewport: size,
+                );
+                expect(tester.takeException(), isNull);
+                expectTextFits(tester, reason: 'above the fold');
+                // Reachable, not clipped: the list scrolls to the checklist.
+                await tester.drag(
+                  find.byType(ListView),
+                  const Offset(0, -1200),
+                );
+                await tester.pumpAndSettle();
+                expect(tester.takeException(), isNull);
+                expectTextFits(tester, reason: 'scrolled to the checklist');
+                await _unmount(tester);
+              },
+            );
+          }
         }
       }
-    }
-  });
+    },
+  );
 }

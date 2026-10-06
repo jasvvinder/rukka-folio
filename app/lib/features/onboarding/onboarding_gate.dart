@@ -24,6 +24,7 @@ import '../devices/pin_vault.dart' show PinNotSet, PinVault;
 import '../home/home_paths.dart';
 import 'onboarding_flow.dart';
 import 'onboarding_paths.dart';
+import 'screens/s0_3_purpose_screen.dart' show OnboardingPurpose;
 import 'screens/s0_6a_business_name_screen.dart';
 
 /// The launch gate of ADR 2026-10-06b. Built once by the composition root
@@ -99,8 +100,14 @@ class OnboardingGate {
   /// relaunch the OS served from the same process) and are asked again after
   /// a cold start that lost them — never the other way round. A PIN that
   /// exists puts the resume at S0.5, whatever was lost before it; with no
-  /// purpose recorded the chain then hands over through `afterSetPin`, and
-  /// Home's S0.7 checklist carries what was skipped (07 §3.1 step 7).
+  /// purpose recorded the chain then goes on through `afterSetPin` to S0.6
+  /// (desk 172) — whose host makes the personal book if S0.4's creation was
+  /// lost too (desk 164) — and hands over from there, where Home's S0.7
+  /// checklist carries what was skipped (07 §3.1 step 7). A resumed chain
+  /// never skips S0.6: the hand-over is only ever S0.6's *Finish* or *Skip*.
+  /// ⚠️ SPEC / open (P1A): a lost purpose also loses the branch steps
+  /// (S0.6a/d/g) — nothing persisted says which card was chosen, and the
+  /// checklist has no row for them.
   Future<String> resumeTarget() async {
     if (!hasAccount()) return OnboardingPaths.splash;
     if (await pinSet()) return OnboardingPaths.booksSafe;
@@ -310,5 +317,15 @@ String? previousOnboardingStep(String path, OnboardingFlow flow) =>
       OnboardingPaths.trustMembers => OnboardingPaths.trust,
       OnboardingPaths.trustAccounts =>
         flow.trustBookId != null ? null : OnboardingPaths.trustMembers,
+      // S0.6 (desk 172) comes after the branch the purpose card chose. A
+      // committing step it returns to that has already posted moves straight
+      // on again (never a second set of openings), so Back there reads as a
+      // hold — the step before it is never reopened for edits.
+      OnboardingPaths.openingBalances => switch (flow.purpose) {
+        OnboardingPurpose.businesses => OnboardingPaths.businessAnother,
+        OnboardingPurpose.family => OnboardingPaths.familyAccounts,
+        OnboardingPurpose.trust => OnboardingPaths.trustAccounts,
+        _ => OnboardingPaths.recoverySheet,
+      },
       _ => null,
     };

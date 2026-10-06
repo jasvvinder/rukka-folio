@@ -268,8 +268,13 @@ void main() {
         await tester.tap(find.text('No, that’s all'));
         await tester.pumpAndSettle();
 
-        // The old *My shop* row: O6a → O6b → O6 your own → checklist, whose
-        // landing is Home (S0.7 brings O6 back, 07 §3.1 step 7).
+        // The old *My shop* row: O6a → O6b → **O6 your own** → checklist
+        // (07 §3.1.1 🔒; desk 172): S0.6, whose *Skip for now* is the
+        // hand-over to Home's checklist.
+        expect(router.state.uri.path, OnboardingPaths.openingBalances);
+        expect(find.text('What do you have?'), findsOneWidget);
+        await tester.tap(find.text('Skip for now'));
+        await tester.pumpAndSettle();
         expect(router.state.uri.path, HomePaths.home);
       },
     );

@@ -107,6 +107,11 @@ abstract final class AddEntryKeys {
   /// Save.
   static const save = Key('entry.save');
 
+  /// A chip slot's label, shown above its chips in place of the field box
+  /// while the soft keyboard is up (PLAN desk 173).
+  static Key slotCaption(EntrySlot slot) =>
+      Key('entry.slot_caption.${slot.name}');
+
   /// The `Today` / picked-date chip — tapping it opens S2.2's calendar in
   /// place, exactly like a slot field opens its picker.
   static const dateChip = Key('entry.date_chip');
@@ -739,7 +744,17 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    // Read *above* the Scaffold: with resizeToAvoidBottomInset the body's
+    // MediaQuery has the keyboard's inset removed, so below it the keyboard
+    // is invisible (PLAN desk 173).
+    final keyboardUp = MediaQuery.viewInsetsOf(context).bottom > 0;
     return Scaffold(
+      // Only the picker's search field ever summons the keyboard, so only
+      // while a list holds the lower region does the body give way to it.
+      // The moment a pick closes the list the keyboard is still sliding
+      // away; the full layout then lies under it for those frames instead
+      // of being squeezed into what it has not yet given back (desk 173).
+      resizeToAvoidBottomInset: _openSlot != null && !_dateOpen,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: RkSpace.gutter),
@@ -751,13 +766,17 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                 )
               : _bookId == null
               ? _Loading(label: l10n.entryLoading)
-              : _data(context, _bookId!),
+              : _data(context, _bookId!, keyboardUp: keyboardUp),
         ),
       ),
     );
   }
 
-  Widget _data(BuildContext context, String bookId) {
+  Widget _data(
+    BuildContext context,
+    String bookId, {
+    required bool keyboardUp,
+  }) {
     final l10n = AppLocalizations.of(context);
     return StreamBuilder<List<AccountBalance>>(
       stream: _accounts,
@@ -788,6 +807,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                     cntSnap.data ?? const {},
                     bookSnap.data ?? const [],
                     toSnap.data ?? const [],
+                    keyboardUp: keyboardUp,
                   ),
                 ),
           ),
@@ -815,8 +835,9 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
     List<AccountBalance> accounts,
     Map<String, int> counts,
     List<EntryBook> books,
-    List<AccountBalance> toAccounts,
-  ) {
+    List<AccountBalance> toAccounts, {
+    required bool keyboardUp,
+  }) {
     final l10n = AppLocalizations.of(context);
     final ledger = LedgerScope.of(context);
     final status = RkStatusColors.of(context);
@@ -854,89 +875,144 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
     // is left to the owner rather than invented — see the lane report.
     final dense = scale >= 1.5;
     final rowPad = dense ? RkSpace.s1 : RkSpace.s2;
-
-    return Column(
-      children: [
-        // ── the verb, five positions ──────────────────────────────────────
-        Padding(
-          padding: EdgeInsets.symmetric(vertical: rowPad),
-          child: Row(
-            children: [
-              if (Navigator.of(context).canPop())
-                IconButton(
-                  icon: const Icon(Icons.close),
-                  tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
-                  onPressed: () => Navigator.of(context).maybePop(),
-                ),
-              Expanded(
-                child: EntryVerbPill(
-                  key: AddEntryKeys.verbPill,
-                  kind: _kind,
-                  onKind: _switchVerb,
-                ),
-              ),
-              // The **import door** (07 §11 *Entry point* 🔒, ADR 2026-09-03
-              // ruling 2): the action slot top right, opposite the close ✕.
-              // An icon and a tooltip rather than a word, because 07 §5 🔒
-              // forbids this screen a second row and the amount must stay
-              // first — the label is in the tooltip and in Semantics, so it
-              // is read aloud and long-pressed, never lost.
-              //
-              // It is sized to the pill, not to Material's default 48 px
-              // box: this screen never scrolls (07 §5 🔒), so twelve extra
-              // pixels of header come straight off the account list at the
-              // bottom — enough, measured, to push its last row out of
-              // reach. The width keeps a 44 px target; only the height is
-              // held to the row.
-              IconButton(
-                key: AddEntryKeys.importAction,
-                icon: const Icon(Icons.file_upload_outlined),
-                tooltip: l10n.entryImportAction,
-                iconSize: RkIcon.grid,
-                padding: const EdgeInsets.all(RkSpace.s1),
-                visualDensity: VisualDensity.compact,
-                constraints: const BoxConstraints(minWidth: 44),
-                onPressed: _openImport,
-              ),
-            ],
-          ),
+    // PLAN desk 173 — the soft keyboard is up over the picker's search. It
+    // takes 300–336 pt off the bottom, and the full stack (verb, amount, both
+    // slots and their chips, date, preview, Save) leaves the account list no
+    // room at all: the phase-0 harness logged a 93 pt overflow at 360×800.
+    // So while the keyboard is up the screen keeps exactly what 07 §5 🔒
+    // says stays visible — the verb, the amount and the chips, fixed where
+    // they are, never scrolled — and gives the list the rest:
+    //   · the open slot's own field (and its chips) gives way to the list
+    //     that is answering it; its label rides on the search field;
+    //   · a chip slot whose answer is a chip (or empty) drops its field box
+    //     and shows label + chips — the canvas 2 *State 2* drawing;
+    //   · the date chip, the preview line and Save step aside until the
+    //     keyboard goes (a pick, or the system's dismiss), and the canvas 2
+    //     layout is back the moment it does.
+    //
+    // ⚠️ SPEC: Save is not on screen while the keyboard is up, and neither
+    // are the date chip and the preview line (07 §5.5 🔒 reserves the
+    // preview's height so nothing shifts *as slots fill*; here it is the
+    // keyboard that takes the space). 07 §5 names amount, verb and chips as
+    // what stays visible and they do; nothing in 07 or 13 places Save above
+    // the keyboard. The reading that keeps every 🔒 line is taken; whether
+    // the owner wants Save kept at the cost of the list's rows is his call.
+    final searching = keyboardUp && _openSlot != null && !_dateOpen;
+    List<(String, String)> chipsFor(EntrySlot slot) => [
+      for (final a in topMoneyAccounts(
+        accounts,
+        counts,
+        exclude: _idOf(
+          slot == EntrySlot.money ? EntrySlot.ledger : EntrySlot.money,
         ),
-        // ── the amount, huge, first ───────────────────────────────────────
-        Semantics(
-          label: l10n.entryAmountA11y(
-            formatPaise(_amount.paise, locale: Localizations.localeOf(context)),
-            verbLabel(l10n, _kind),
-          ),
-          excludeSemantics: true,
-          child: SizedBox(
-            height: dense ? 56.0 : (56 + 24 * (scale - 1)).clamp(56.0, 96.0),
-            width: double.infinity,
-            child: FittedBox(
-              fit: BoxFit.scaleDown,
-              alignment: AlignmentDirectional.centerStart,
-              child: Text(
-                '$rupeeSign${_amount.display}',
-                key: AddEntryKeys.amount,
-                maxLines: 1,
-                style: RkType.amountHero.copyWith(
-                  color: _amount.isEmpty
-                      ? status.muted
-                      : Theme.of(context).colorScheme.onSurface,
-                ),
+      ))
+        (a.account.id, a.account.name),
+    ];
+
+    final upper = <Widget>[
+      // ── the verb, five positions ──────────────────────────────────────
+      Padding(
+        padding: EdgeInsets.symmetric(vertical: rowPad),
+        child: Row(
+          children: [
+            if (Navigator.of(context).canPop())
+              IconButton(
+                icon: const Icon(Icons.close),
+                tooltip: MaterialLocalizations.of(context).closeButtonTooltip,
+                onPressed: () => Navigator.of(context).maybePop(),
+              ),
+            Expanded(
+              child: EntryVerbPill(
+                key: AddEntryKeys.verbPill,
+                kind: _kind,
+                onKind: _switchVerb,
+              ),
+            ),
+            // The **import door** (07 §11 *Entry point* 🔒, ADR 2026-09-03
+            // ruling 2): the action slot top right, opposite the close ✕.
+            // An icon and a tooltip rather than a word, because 07 §5 🔒
+            // forbids this screen a second row and the amount must stay
+            // first — the label is in the tooltip and in Semantics, so it
+            // is read aloud and long-pressed, never lost.
+            //
+            // It is sized to the pill, not to Material's default 48 px
+            // box: this screen never scrolls (07 §5 🔒), so twelve extra
+            // pixels of header come straight off the account list at the
+            // bottom — enough, measured, to push its last row out of
+            // reach. The width keeps a 44 px target; only the height is
+            // held to the row.
+            IconButton(
+              key: AddEntryKeys.importAction,
+              icon: const Icon(Icons.file_upload_outlined),
+              tooltip: l10n.entryImportAction,
+              iconSize: RkIcon.grid,
+              padding: const EdgeInsets.all(RkSpace.s1),
+              visualDensity: VisualDensity.compact,
+              constraints: const BoxConstraints(minWidth: 44),
+              onPressed: _openImport,
+            ),
+          ],
+        ),
+      ),
+      // ── the amount, huge, first ───────────────────────────────────────
+      Semantics(
+        label: l10n.entryAmountA11y(
+          formatPaise(_amount.paise, locale: Localizations.localeOf(context)),
+          verbLabel(l10n, _kind),
+        ),
+        excludeSemantics: true,
+        child: SizedBox(
+          height: dense ? 56.0 : (56 + 24 * (scale - 1)).clamp(56.0, 96.0),
+          width: double.infinity,
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: AlignmentDirectional.centerStart,
+            child: Text(
+              '$rupeeSign${_amount.display}',
+              key: AddEntryKeys.amount,
+              maxLines: 1,
+              style: RkType.amountHero.copyWith(
+                color: _amount.isEmpty
+                    ? status.muted
+                    : Theme.of(context).colorScheme.onSurface,
               ),
             ),
           ),
         ),
-        // ── the two slots, labelled by verb ───────────────────────────────
-        for (final slot in plan.order) ...[
-          EntrySlotField(
-            key: AddEntryKeys.slot(slot),
-            label: slotLabel(l10n, plan.spec(slot).label),
-            value: shown(slot),
-            placeholder: l10n.entrySlotChoose,
-            open: _openSlot == slot,
-            onTap: () => _openSlotTap(slot),
-          ),
+      ),
+      // ── the two slots, labelled by verb ───────────────────────────────
+      for (final slot in plan.order)
+        if (!(searching && slot == _openSlot)) ...[
+          if (searching &&
+              _chipsVisible(slot, accounts) &&
+              !(_betweenBooks && slot == EntrySlot.ledger) &&
+              (_idOf(slot) == null ||
+                  chipsFor(slot).any((c) => c.$1 == _idOf(slot))))
+            // Keyboard up (desk 173): label + chips, as canvas 2 draws the
+            // chip slot — the chosen chip carries the ✓, so the answer stays
+            // on screen without the field box repeating it.
+            Padding(
+              padding: const EdgeInsets.only(top: RkSpace.s1),
+              child: SizedBox(
+                width: double.infinity,
+                child: Text(
+                  slotLabel(l10n, plan.spec(slot).label),
+                  key: AddEntryKeys.slotCaption(slot),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: RkType.caption.copyWith(color: status.muted),
+                ),
+              ),
+            )
+          else
+            EntrySlotField(
+              key: AddEntryKeys.slot(slot),
+              label: slotLabel(l10n, plan.spec(slot).label),
+              value: shown(slot),
+              placeholder: l10n.entrySlotChoose,
+              open: _openSlot == slot,
+              onTap: () => _openSlotTap(slot),
+            ),
           // The chip row is this book's three most-used money accounts, and
           // none of them can answer a slot that now lives in another book —
           // so it goes, exactly as 07 §5 step 2 🔒 takes it away whenever no
@@ -946,18 +1022,7 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
             Padding(
               padding: const EdgeInsets.only(top: RkSpace.s1),
               child: EntryChipRow(
-                names: [
-                  for (final a in topMoneyAccounts(
-                    accounts,
-                    counts,
-                    exclude: _idOf(
-                      slot == EntrySlot.money
-                          ? EntrySlot.ledger
-                          : EntrySlot.money,
-                    ),
-                  ))
-                    (a.account.id, a.account.name),
-                ],
+                names: chipsFor(slot),
                 selectedId: _idOf(slot),
                 onPick: (id) => _choose(slot, id),
                 onMore: () => setState(() {
@@ -997,7 +1062,8 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
               ),
             ),
         ],
-        // ── date · and the optional row ───────────────────────────────────
+      // ── date · and the optional row ───────────────────────────────────
+      if (!searching) ...[
         Padding(
           padding: EdgeInsets.symmetric(vertical: rowPad),
           child: Align(
@@ -1044,8 +1110,17 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
           debitName: debitName,
           complete: _complete,
         ),
+      ],
+    ];
+
+    return Column(
+      children: [
+        ...upper,
         // ── the lower region: keypad, or one slot's list, in place ────────
+        // Keyed, so the picker — and the search field the user is typing
+        // into — keeps its element when the rows above it change (desk 173).
         Expanded(
+          key: const ValueKey('entry.lower'),
           child: _dateOpen
               ? EntryDatePicker(
                   key: AddEntryKeys.datePicker,
@@ -1091,22 +1166,26 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                       ? bookOf(books, _toBookId)?.name
                       : null,
                   onLeaveBook: _leaveBook,
+                  searchLabel: searching
+                      ? slotLabel(l10n, plan.spec(_openSlot!).label)
+                      : null,
                 ),
         ),
         // ── Save: solid the instant the entry is complete ─────────────────
-        Padding(
-          padding: EdgeInsets.symmetric(vertical: rowPad),
-          child: SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              key: AddEntryKeys.save,
-              onPressed: _complete && !_saving
-                  ? () => _save(ledger, bookId, books)
-                  : null,
-              child: Text(l10n.entrySave),
+        if (!searching)
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: rowPad),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                key: AddEntryKeys.save,
+                onPressed: _complete && !_saving
+                    ? () => _save(ledger, bookId, books)
+                    : null,
+                child: Text(l10n.entrySave),
+              ),
             ),
           ),
-        ),
       ],
     );
   }

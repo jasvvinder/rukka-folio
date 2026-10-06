@@ -1981,11 +1981,23 @@
   "home.scope.label": "ਕਿਹੜੀਆਂ ਵਹੀਆਂ",
   "home.scope.sheet_title": "ਤੁਸੀਂ ਕਿਹੜੀਆਂ ਵਹੀਆਂ ਵੇਖਣਾ ਚਾਹੁੰਦੇ ਹੋ?",
   "home.setup.add_family": "ਆਪਣੇ ਪਰਿਵਾਰ ਨੂੰ ਜੋੜੋ",
+  "home.setup.add_family_hint": "ਚੋਣਵਾਂ — ਵਹੀ ਇਕੱਲੀ ਵੀ ਚੱਲਦੀ ਹੈ",
+  "@home.setup.add_family_hint": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 O8 copy)"
+  },
   "home.setup.done": "ਹੋ ਗਿਆ",
-  "home.setup.first_entry": "ਆਪਣਾ ਪਹਿਲਾ ਇੰਦਰਾਜ ਦਰਜ ਕਰੋ",
-  "home.setup.opening_balances": "ਆਪਣੇ ਸ਼ੁਰੂਆਤੀ ਬਕਾਏ ਭਰੋ",
-  "home.setup.recovery_sheet": "ਆਪਣੀ ਰਿਕਵਰੀ ਸ਼ੀਟ ਛਾਪੋ",
-  "home.setup.title": "ਆਪਣੀ ਵਹੀ ਸ਼ੁਰੂ ਕਰੋ",
+  "home.setup.first_entry": "ਆਪਣਾ ਪਹਿਲਾ ਇੰਦਰਾਜ ਲਿਖੋ",
+  "home.setup.first_entry_hint": "ਅੱਜ ਸਵੇਰੇ ਜੋ ਵੀ ਖਰਚਿਆ",
+  "@home.setup.first_entry_hint": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 O8 copy)"
+  },
+  "home.setup.opening_balances": "ਸ਼ੁਰੂਆਤੀ ਬਕਾਏ",
+  "home.setup.recovery_sheet": "ਆਪਣੀ ਰਿਕਵਰੀ ਸ਼ੀਟ ਸੰਭਾਲੋ",
+  "home.setup.recovery_sheet_hint": "ਹਾਲੇ ਛਾਪੀ ਨਹੀਂ",
+  "@home.setup.recovery_sheet_hint": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 O8 copy)"
+  },
+  "home.setup.title": "ਹੁਣ ਕੁਝ ਮਿੰਟ, ਅਤੇ ਤੁਹਾਡੀ ਵਹੀ ਚਾਲੂ।",
   "home.skeleton": "ਤੁਹਾਡੀ ਸਥਿਤੀ ਲੋਡ ਹੋ ਰਹੀ ਹੈ",
   "home.title": "ਘਰ",
   "home.today.empty": "ਅੱਜ ਹਾਲੇ ਕੁਝ ਦਰਜ ਨਹੀਂ ਹੋਇਆ",
@@ -3229,6 +3241,84 @@
   "onboarding.name_photo.photo_label": "ਫੋਟੋ ਸ਼ਾਮਲ ਕਰੋ (ਚੋਣਵਾਂ)",
   "onboarding.name_photo.subtitle": "ਅਪਰੂਵਲ ਅਤੇ ਤਸਦੀਕ ਸਮਾਰੋਹ ਵਿੱਚ ਦਿਖਾਇਆ ਜਾਂਦਾ ਹੈ — ਤੁਹਾਡੇ ਖਾਤਿਆਂ ਤੋਂ ਬਾਹਰ ਸਾਂਝਾ ਨਹੀਂ ਕੀਤਾ ਜਾਂਦਾ",
   "onboarding.name_photo.title": "ਅਸੀਂ ਤੁਹਾਨੂੰ ਕੀ ਕਹਿ ਕੇ ਬੁਲਾਈਏ?",
+  "onboarding.opening.add_account": "ਖਾਤਾ ਜੋੜੋ",
+  "@onboarding.opening.add_account": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
+  "onboarding.opening.add_account_hint": "ਬੈਂਕ, ਨਕਦ, ਕੋਈ ਵਿਅਕਤੀ, ਕੋਈ ਸ਼੍ਰੇਣੀ…",
+  "@onboarding.opening.add_account_hint": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
+  "onboarding.opening.amount_label": "{account}, ਅੱਜ ਦਾ ਬਕਾਇਆ",
+  "@onboarding.opening.amount_label": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)",
+    "placeholders": {
+      "account": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.opening.as_on": "{date} ਤੱਕ ਦੇ ਬਕਾਏ",
+  "@onboarding.opening.as_on": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.opening.cash_hint": "ਹੱਥ ਵਿੱਚ ਪੈਸਾ",
+  "@onboarding.opening.cash_hint": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
+  "onboarding.opening.create_error": "ਤੁਹਾਡੀ ਵਹੀ ਨਹੀਂ ਬਣ ਸਕੀ। ਕੁਝ ਨਹੀਂ ਬਦਲਿਆ।",
+  "@onboarding.opening.create_error": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
+  "onboarding.opening.creating": "ਤੁਹਾਡੀ ਵਹੀ ਤਿਆਰ ਹੋ ਰਹੀ ਹੈ…",
+  "@onboarding.opening.creating": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
+  "onboarding.opening.default_book_name": "ਮੇਰੀ ਵਹੀ",
+  "@onboarding.opening.default_book_name": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
+  "onboarding.opening.finish": "ਪੂਰਾ ਕਰੋ",
+  "@onboarding.opening.finish": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
+  "onboarding.opening.have_empty": "ਹਾਲੇ ਕੁਝ ਨਹੀਂ। ਕੋਈ ਬੈਂਕ ਜਾਂ ਨਕਦ ਖਾਤਾ ਜੋੜੋ।",
+  "@onboarding.opening.have_empty": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
+  "onboarding.opening.note": "ਇਹ ਭਰੋ ਅਤੇ ਅਸੀਂ ਦਿਖਾਵਾਂਗੇ ਕਿ ਤੁਸੀਂ ਕਿੱਥੋਂ ਸ਼ੁਰੂ ਕਰ ਰਹੇ ਹੋ। ਕਿਸੇ ਨੂੰ ₹0 'ਤੇ ਛੱਡ ਸਕਦੇ ਹੋ — ਖਾਤਾ ਫਿਰ ਵੀ ਬਣ ਜਾਂਦਾ ਹੈ।",
+  "@onboarding.opening.note": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
+  "onboarding.opening.owe_empty": "ਹਾਲੇ ਕੋਈ ਨਹੀਂ। ਜਿਸ ਨੂੰ ਤੁਸੀਂ ਪੈਸੇ ਦੇਣੇ ਹਨ, ਉਸ ਨੂੰ ਜੋੜੋ।",
+  "@onboarding.opening.owe_empty": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
+  "onboarding.opening.owed_empty": "ਹਾਲੇ ਕੋਈ ਨਹੀਂ। ਜਿਸ ਨੇ ਤੁਹਾਨੂੰ ਪੈਸੇ ਦੇਣੇ ਹਨ, ਉਸ ਨੂੰ ਜੋੜੋ।",
+  "@onboarding.opening.owed_empty": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
+  "onboarding.opening.retry": "ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
+  "@onboarding.opening.retry": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
+  "onboarding.opening.save_error": "ਤੁਹਾਡੇ ਬਕਾਏ ਸੰਭਾਲੇ ਨਹੀਂ ਜਾ ਸਕੇ। ਕੁਝ ਨਹੀਂ ਬਦਲਿਆ — ਦੁਬਾਰਾ 'ਪੂਰਾ ਕਰੋ' ਦਬਾਓ, ਜਾਂ ਹੁਣੇ ਲਈ ਛੱਡੋ।",
+  "@onboarding.opening.save_error": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
+  "onboarding.opening.skip": "ਹੁਣੇ ਲਈ ਛੱਡੋ",
+  "@onboarding.opening.skip": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
+  "onboarding.opening.title": "ਤੁਹਾਡੇ ਕੋਲ ਕੀ ਹੈ?",
+  "@onboarding.opening.title": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
   "onboarding.purpose.card.businesses.description": "ਦੁਕਾਨ, ਪ੍ਰੈਕਟਿਸ, ਫ੍ਰੀਲਾਂਸ ਕੰਮ — ਇੱਕ ਜਾਂ ਵੱਧ",
   "@onboarding.purpose.card.businesses.description": {
     "description": "machine-draft — native review M12 (ADR 2026-10-04c §1, desk 111)"
@@ -3256,6 +3346,10 @@
   "onboarding.recovery_sheet.share": "ਛਾਪੋ ਜਾਂ ਸੰਭਾਲੋ",
   "onboarding.recovery_sheet.skip": "ਹੁਣੇ ਲਈ ਛੱਡੋ",
   "onboarding.recovery_sheet.title": "ਤੁਹਾਡੀ ਰਿਕਵਰੀ ਸ਼ੀਟ",
+  "onboarding.recovery_sheet.unavailable": "ਐਪ ਦਾ ਇਹ ਸੰਸਕਰਣ ਹਾਲੇ ਸ਼ੀਟ ਨਹੀਂ ਬਣਾ ਸਕਦਾ। ਅੱਗੇ ਵਧਣ ਲਈ 'ਹੁਣੇ ਲਈ ਛੱਡੋ' ਦਬਾਓ — ਜਦੋਂ ਕੋਈ ਅੱਪਡੇਟ ਇਸ ਨੂੰ ਜੋੜੇਗਾ, ਤੁਸੀਂ ਇਸ ਨੂੰ ਬਣਾ ਸਕੋਗੇ।",
+  "@onboarding.recovery_sheet.unavailable": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
   "onboarding.recovery_sheet.verified": "ਪੜਤਾਲ ਹੋ ਗਈ — ਅਸੀਂ ਤੁਹਾਡੀ ਛਪੀ ਸ਼ੀਟ ਪੜ੍ਹ ਲਈ।",
   "onboarding.recovery_sheet.why_body": "ਤੁਹਾਡਾ ਡਾਟਾ ਇੰਨੀ ਮਜ਼ਬੂਤੀ ਨਾਲ ਬੰਦ ਹੈ ਕਿ ਅਸੀਂ ਵੀ ਇਸਨੂੰ ਨਹੀਂ ਖੋਲ੍ਹ ਸਕਦੇ। ਇਹ ਸ਼ੀਟ ਉਹ ਇੱਕੋ ਕੁੰਜੀ ਹੈ ਜੋ ਤੁਸੀਂ ਆਪ ਰੱਖਦੇ ਹੋ — ਇਸਨੂੰ ਛਾਪੋ ਤੇ ਆਧਾਰ ਤੇ LIC ਦੇ ਕਾਗਜ਼ਾਂ ਨਾਲ ਰੱਖੋ।",
   "onboarding.recovery_sheet.why_title": "ਇੱਥੇ “ਪਾਸਵਰਡ ਭੁੱਲ ਗਏ” ਨਹੀਂ ਹੁੰਦਾ",

@@ -1981,11 +1981,23 @@
   "home.scope.label": "कौन-सी बहियाँ",
   "home.scope.sheet_title": "आप कौन-सी बहियाँ देखना चाहते हैं?",
   "home.setup.add_family": "अपने परिवार को जोड़ें",
+  "home.setup.add_family_hint": "वैकल्पिक — बही अकेले भी चलती है",
+  "@home.setup.add_family_hint": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 O8 copy)"
+  },
   "home.setup.done": "हो गया",
-  "home.setup.first_entry": "अपनी पहली प्रविष्टि दर्ज करें",
-  "home.setup.opening_balances": "अपने शुरुआती बकाया भरें",
-  "home.setup.recovery_sheet": "अपनी रिकवरी शीट छापें",
-  "home.setup.title": "अपनी बही शुरू करें",
+  "home.setup.first_entry": "अपनी पहली प्रविष्टि लिखें",
+  "home.setup.first_entry_hint": "आज सुबह जो भी खर्च किया",
+  "@home.setup.first_entry_hint": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 O8 copy)"
+  },
+  "home.setup.opening_balances": "शुरुआती शेष राशि",
+  "home.setup.recovery_sheet": "अपनी रिकवरी शीट सँभालें",
+  "home.setup.recovery_sheet_hint": "अभी छापी नहीं गई",
+  "@home.setup.recovery_sheet_hint": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 O8 copy)"
+  },
+  "home.setup.title": "अभी कुछ मिनट, और आपकी बही चालू।",
   "home.skeleton": "आपकी स्थिति लोड हो रही है",
   "home.title": "होम",
   "home.today.empty": "आज अभी कुछ दर्ज नहीं हुआ",
@@ -3229,6 +3241,84 @@
   "onboarding.name_photo.photo_label": "फ़ोटो जोड़ें (वैकल्पिक)",
   "onboarding.name_photo.subtitle": "अनुमोदन (approvals) और सत्यापन समारोह में दिखाया जाता है — आपके खातों से बाहर साझा नहीं किया जाता",
   "onboarding.name_photo.title": "हम आपको क्या कहकर बुलाएँ?",
+  "onboarding.opening.add_account": "खाता जोड़ें",
+  "@onboarding.opening.add_account": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
+  "onboarding.opening.add_account_hint": "बैंक, नकद, कोई व्यक्ति, कोई श्रेणी…",
+  "@onboarding.opening.add_account_hint": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
+  "onboarding.opening.amount_label": "{account}, आज की शेष राशि",
+  "@onboarding.opening.amount_label": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)",
+    "placeholders": {
+      "account": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.opening.as_on": "{date} तक की शेष राशि",
+  "@onboarding.opening.as_on": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.opening.cash_hint": "हाथ में पैसा",
+  "@onboarding.opening.cash_hint": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
+  "onboarding.opening.create_error": "आपकी बही नहीं बन सकी। कुछ नहीं बदला।",
+  "@onboarding.opening.create_error": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
+  "onboarding.opening.creating": "आपकी बही तैयार हो रही है…",
+  "@onboarding.opening.creating": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
+  "onboarding.opening.default_book_name": "मेरी बही",
+  "@onboarding.opening.default_book_name": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
+  "onboarding.opening.finish": "पूरा करें",
+  "@onboarding.opening.finish": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
+  "onboarding.opening.have_empty": "अभी कुछ नहीं। कोई बैंक या नकद खाता जोड़ें।",
+  "@onboarding.opening.have_empty": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
+  "onboarding.opening.note": "इन्हें भरें और हम दिखाएँगे कि आप कहाँ से शुरू कर रहे हैं। किसी को ₹0 पर छोड़ सकते हैं — खाता फिर भी बन जाता है।",
+  "@onboarding.opening.note": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
+  "onboarding.opening.owe_empty": "अभी कोई नहीं। जिसे आपको पैसे देने हैं, उसे जोड़ें।",
+  "@onboarding.opening.owe_empty": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
+  "onboarding.opening.owed_empty": "अभी कोई नहीं। जिससे आपको पैसे लेने हैं, उसे जोड़ें।",
+  "@onboarding.opening.owed_empty": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
+  "onboarding.opening.retry": "फिर कोशिश करें",
+  "@onboarding.opening.retry": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
+  "onboarding.opening.save_error": "आपकी शेष राशि सहेजी नहीं जा सकी। कुछ नहीं बदला — फिर से 'पूरा करें' दबाएँ, या अभी के लिए छोड़ें।",
+  "@onboarding.opening.save_error": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
+  "onboarding.opening.skip": "अभी के लिए छोड़ें",
+  "@onboarding.opening.skip": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
+  "onboarding.opening.title": "आपके पास क्या है?",
+  "@onboarding.opening.title": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
   "onboarding.purpose.card.businesses.description": "दुकान, प्रैक्टिस, फ्रीलांस काम — एक या ज़्यादा",
   "@onboarding.purpose.card.businesses.description": {
     "description": "machine-draft — native review M12 (ADR 2026-10-04c §1, desk 111)"
@@ -3256,6 +3346,10 @@
   "onboarding.recovery_sheet.share": "छापें या सहेजें",
   "onboarding.recovery_sheet.skip": "अभी के लिए छोड़ें",
   "onboarding.recovery_sheet.title": "आपकी रिकवरी शीट",
+  "onboarding.recovery_sheet.unavailable": "ऐप का यह संस्करण अभी शीट नहीं बना सकता। आगे बढ़ने के लिए 'अभी के लिए छोड़ें' दबाएँ — जब कोई अपडेट इसे जोड़ेगा, आप इसे बना सकेंगे।",
+  "@onboarding.recovery_sheet.unavailable": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
   "onboarding.recovery_sheet.verified": "जाँच हो गई — हमने आपकी छपी शीट पढ़ ली।",
   "onboarding.recovery_sheet.why_body": "आपका डेटा इतनी मज़बूती से बंद है कि हम भी इसे नहीं खोल सकते। यह शीट वही इकलौती कुंजी है जो आप ख़ुद रखते हैं — इसे छापिए और आधार तथा LIC के काग़ज़ों के साथ रखिए।",
   "onboarding.recovery_sheet.why_title": "यहाँ “पासवर्ड भूल गए” नहीं होता",

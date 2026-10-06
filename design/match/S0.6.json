@@ -1,0 +1,53 @@
+{
+ "sid": "S0.6",
+ "verdict": "deviates",
+ "frames": [
+  "c1/S0.6/Opening balances · first run",
+  "c11/O6a/Opening balances · what do you have",
+  "c11/O6c/Do you owe anyone",
+  "nd/S0.6-individual/S0.6-individual"
+ ],
+ "captures": [
+  "S0.6__default",
+  "S0.6__have",
+  "S0.6__owe"
+ ],
+ "screen_files": [
+  "app/lib/features/onboarding/opening_figures.dart",
+  "app/lib/features/onboarding/screens/s0_6_opening_balances_screen.dart",
+  "app/lib/features/onboarding/widgets/personal_opening_host.dart"
+ ],
+ "deviations": [
+  {
+   "what": "Date reads '09 Sep 2026' where the frame draws '9 September 2026'",
+   "reason": "The house date form (formatLedgerDate) abbreviates the month in English and pads the day; the frame spells it out",
+   "authority": "13 §8 (English abbreviates months; PA/HI never do); shared/format/date_format.dart"
+  },
+  {
+   "what": "Title 28 px, body copy 16 px with Material's inherited tracking, where the frame sets ~26 px and 15.5 px untracked",
+   "reason": "A canvas size maps to its type role (page 28, body 16); the tracking is the theme-wide rkTextTheme defect already open on S0.8",
+   "authority": "ADR 2026-10-05 §1 (tokens.json decides values); design/match/S0.8.json deviation 4 (theme owner)"
+  },
+  {
+   "what": "c11 O6a and O6c (a three-step wizard: 'Step 1 of 3', 'Next', per-step cards, a running 'Books balanced' line) are drawn as one grouped screen: the 'have' and 'owe' captures show the same layout with a typed Cash A/c figure and with people on both sides",
+   "reason": "The three O6a–c steps became three groups on one screen once the chart is seeded; canvas 1's S0.6 frame (the 'All five paths converge here' row the owner ruled to follow) draws that one screen",
+   "authority": "13 §3.2 row S0.6; ADR 2026-09-09c §3; PLAN desk 172 (owner-ruled 6 Oct: follow canvas 1)"
+  },
+  {
+   "what": "A person's opening added through 'Add an account' shows read-only, magnitude only, under its 'Who owes you' / 'Who you owe' heading (capture S0.6__owe); c11 O6c draws an editable red field",
+   "reason": "S3.1 asks the balance in the same breath and posts it as the opening (02 §4 🔒), so re-asking here would post a second opening to the same account. The row shows the account's opening, never its running balance (a money account with an overdraft opening carries its −); a party's direction is carried by the group's words, never colour alone",
+   "authority": "02 §4 🔒; 07 §1 rule 3; 02 §10 🔒 (consumer vocabulary)"
+  },
+  {
+   "what": "At 130 %+ text a row's figure drops beneath its name, and above 150 % the note and both actions scroll with the rows instead of being pinned",
+   "reason": "Layout sweep F1-1006c-6: the pinned footer left the rows no room at 200 % on 375×667 and '₹1,370' was cut at 130 % on 360 px",
+   "authority": "07 §1 rule 11; 13 §8 (200 % without truncation on 375×667 and 360×800)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-06",
+ "hashes": {
+  "screens": "54237af77ffd67ed0743d9298220e5d972308587642e3742bea9eb20c0689069",
+  "frames": "76bcc79beb19ed8464c6e4296780441cf9ad839e44d70420e4b2ee66128a2f94"
+ }
+}
