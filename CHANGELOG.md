@@ -61,6 +61,9 @@ Running record of what changed in this repository and in the development environ
   - Not exercised: the StrongBox branch (no StrongBox on the AVD), and entry-after-MPIN (blocked by desks 163/165).
   - Re-enrolled S15 shows no Face ID button. Forgot PIN goes to the ladder in-app, and at cold start the copy says only the PIN
     opens the app.
+- **Dev brought to HEAD** (desks 123/136/165): migrations 0001–0030 (owner), all five edge functions redeployed; the
+  `/signup/adopt` probe answers 400 (live). Supabase CLI 2.116 → 2.119; `server/supabase/config.toml` `[inbucket]` →
+  `[local_smtp]` (deprecated section name).
 - Lane hand-back failures: "completed without StructuredOutput" was the lanes hitting maxTurns (GATE1 185/180; SIGNIN1A
   review 93/90). Recovered from the on-disk reports.
 
