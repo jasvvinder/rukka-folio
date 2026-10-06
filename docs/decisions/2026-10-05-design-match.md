@@ -123,10 +123,7 @@ The lane that builds or changes a screen runs this before it reports `complete: 
   components → screens → undrawn screens.
 
 ## Open ⚠️
-- ⚠️ **Icon set (owner):** the canvases draw stroke icons, and the app uses Material Icons (601
-  uses). Either copy the canvas SVG paths into an app icon set over the existing `svg_path.dart` (no
-  new dependency), or add a stroke-icon package (needs a dependency ADR). Decide this before phase 2's
-  shared components.
+- ✅ **Icon set, ruled by the owner 6 Oct 2026:** icons and all app assets come from the design. The canvas SVG icons (Lucide geometry, ISC notice on S18.4) are extracted into an app icon set over `svg_path.dart`, with no new package. Illustrations use the canvas wireframes until commissioned artwork exists.
 - ⚠️ **Budget (owner):** the re-skin is ~8–9 cycles, ~55–75 M tokens. A cycle costs ~7–10 M against
   a 1.2 M daily ceiling, so it needs `budget.daily_overrides` entries.
 - ⚠️ **Freeze (owner):** pause new screen slices until the phase-2 shared components land. Otherwise
