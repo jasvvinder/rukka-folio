@@ -47,6 +47,64 @@
     "design_id": "O2b",
     "caption": "OTP · the only credential",
     "sha256": "dda8b835d2e89c74420a4ab7d78ac9dad099535ad33de501e7de2adab8f1f5a8"
+   },
+   {
+    "frame": "c1b/L2/Sign in · your number",
+    "design_id": "L2",
+    "caption": "Sign in · your number",
+    "sha256": "67d036006b33812439d4da00f96c0db45663d1c757ce958c364c356c5f308040"
+   },
+   {
+    "frame": "c1b/L3/Code · sent by SMS",
+    "design_id": "L3",
+    "caption": "Code · sent by SMS",
+    "sha256": "7d8a595954beb16c14a05aa8e86cb597e39e8c0d52e87960c2be0fc64e9aa2fb"
+   },
+   {
+    "frame": "c1b/L4/Wrong code · tries left",
+    "design_id": "L4",
+    "caption": "Wrong code · tries left",
+    "sha256": "0205f9934a08fd56519b84d7f88ac5724d706b9d503047fea1882ee281926659"
+   }
+  ],
+  "S0.2a": [
+   {
+    "frame": "c1b/L1/This number already has books",
+    "design_id": "L1",
+    "caption": "This number already has books",
+    "sha256": "faa8c4c541fdbbf26e268bec934c6b3490008d068bba21643d2a04fd07aa8190"
+   }
+  ],
+  "S0.2b": [
+   {
+    "frame": "c1b/L5/Found you · is the old phone with you?",
+    "design_id": "L5",
+    "caption": "Found you · is the old phone with you?",
+    "sha256": "1053ba2e7bc646959cfe2d2de5d661b8b2029d6bc5bc639d3278bcd069b1fd66"
+   }
+  ],
+  "S0.2c": [
+   {
+    "frame": "c1b/L6/Approve from the old phone",
+    "design_id": "L6",
+    "caption": "Approve from the old phone",
+    "sha256": "b44b7d214482534113f347ee032aed117e52ae7848c72b8b6ebb460300ccef52"
+   }
+  ],
+  "S0.2d": [
+   {
+    "frame": "c1b/L7/Linked · books opening",
+    "design_id": "L7",
+    "caption": "Linked · books opening",
+    "sha256": "36f4fe8ca09e09871493e9a678d27d466709b23852cc8908598b7218041b333d"
+   }
+  ],
+  "S0.2e": [
+   {
+    "frame": "c1b/L8/Sign in · no books on this number",
+    "design_id": "L8",
+    "caption": "Sign in · no books on this number",
+    "sha256": "f3e2e3b7ada413d3b8fcaa24f6980bd218aa49929e99c102ab76fdd1ed9d1ebc"
    }
   ],
   "S0.3": [
@@ -173,6 +231,14 @@
     "design_id": "S0.6-individual",
     "caption": "S0.6-individual",
     "sha256": "7f0830e69a2d2f9f4494958ceb7fb761a3e83aea40d1e416fbe9edebab586cf8"
+   }
+  ],
+  "S0.06": [
+   {
+    "frame": "c1b/L0/Start · new or already using Rukka",
+    "design_id": "L0",
+    "caption": "Start · new or already using Rukka",
+    "sha256": "b425f2cb0e28561501498f98990ddefacb844d1d056edf5368abd1b146074197"
    }
   ],
   "S0.6a": [
@@ -1525,6 +1591,18 @@
     "design_id": "S15",
     "caption": "PIN instead · six digits",
     "sha256": "2825f120aa96f90b721c78d54a8580b9a33c9a0424a87c972c7f8213ee3a3922"
+   },
+   {
+    "frame": "c1b/U1/Open the app · Face ID asks first",
+    "design_id": "U1",
+    "caption": "Open the app · Face ID asks first",
+    "sha256": "e3fa0c4107d0c024197b900055399f8d62831a9072b1871c991283cdc9816311"
+   },
+   {
+    "frame": "c1b/U2/Unlocked · the seal opens",
+    "design_id": "U2",
+    "caption": "Unlocked · the seal opens",
+    "sha256": "8bfa12df2c1235138b96ad49aea05734c7c48876a382e40ad2d8e2ba11b58f14"
    }
   ],
   "S15.1": [
@@ -1573,6 +1651,42 @@
     "design_id": "S15.3",
     "caption": "Forgot PIN · a code, not a lockout",
     "sha256": "278544a661b6f175f7b50e36f6990b57fc5a02ca9a899012fe1736592ff4531b"
+   },
+   {
+    "frame": "c1b/S15.3/Enter PIN · Face ID above the boxes",
+    "design_id": "S15.3",
+    "caption": "Enter PIN · Face ID above the boxes",
+    "sha256": "b5c06fb69999609f43bdf4e2fb8a69a975d8b86846b880c50e542f3213995495"
+   },
+   {
+    "frame": "c1b/S15.3/Wrong PIN · tries remaining",
+    "design_id": "S15.3",
+    "caption": "Wrong PIN · tries remaining",
+    "sha256": "7e16ad4a948d130da888b5e855289ea9d430c6c649c4273170b093450d6dfefc"
+   },
+   {
+    "frame": "c1b/S15.3/Forgot PIN · a code, not a lockout",
+    "design_id": "S15.3",
+    "caption": "Forgot PIN · a code, not a lockout",
+    "sha256": "6cbc8467c8607c18956fb98fe2e141cab078db5161d0d77d5b2f803650546438"
+   },
+   {
+    "frame": "c1b/U3/Forgot PIN · enter the code",
+    "design_id": "U3",
+    "caption": "Forgot PIN · enter the code",
+    "sha256": "359730bb11061474f7d656e33465b7110267c9a1355bc0658fc0884e2a9acd05"
+   },
+   {
+    "frame": "c1b/U3b/Forgot PIN · confirm it’s you",
+    "design_id": "U3b",
+    "caption": "Forgot PIN · confirm it’s you",
+    "sha256": "4bfea65693d587458cdecc7c432577d3f4dde350814b5514149dba63b3303a96"
+   },
+   {
+    "frame": "c1b/U4/Set a new PIN",
+    "design_id": "U4",
+    "caption": "Set a new PIN",
+    "sha256": "b7aeed10b37e80a665550807b8da120334ef8a3ccbf2f00ac7b2b6b3ab711c05"
    }
   ],
   "S16": [

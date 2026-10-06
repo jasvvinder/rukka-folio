@@ -24,8 +24,10 @@ changed files/screens/strings; the on-disk mirror itself is the diff baseline.
   and they are the one exception to the `*.dc.html` rule below. If `reports-data.js` ever exceeds 256 KiB,
   ask the app's agent to split it, as was done for canvas 1.
 - **Canvas 1b (owner, 5 Oct 2026):** `Canvas 1b - Sign in.dc.html`. Like Canvas 17 it has no partials, so the
-  `.dc.html` is its source and the second exception to the `*.dc.html` rule. `scripts/design_match.py` does not index
-  it yet (PLAN desk 143b).
+  `.dc.html` is its source and the second exception to the `*.dc.html` rule. `scripts/design_match.py` indexes its
+  phone frames straight from the file (PLAN desk 157). `index` stops, naming the offset, if a static 390×844 phone
+  has no `id · caption` header (the header markup drifted) — fix the parser then, never drop the frame;
+  `python3 scripts/design_match.py selftest` checks the parser without the mirror.
 
 **Never pull:** `uploads/` (copies of repo docs — the repo is the source of truth),
 `screenshots/`, `_ds/`, `*.dc.html` (except Canvas 17's two and Canvas 1b above), `doc-page.js`, `support.js`, `.thumbnail`,

@@ -6,6 +6,7 @@
   python3 scripts/design_match.py render --all       # every frame (~2–3 min)
   python3 scripts/design_match.py pair S1            # canvas frames beside app captures → build/design_match/pairs/S1.png
   python3 scripts/design_match.py stamp S1           # fill design/match/S1.json's hashes
+  python3 scripts/design_match.py selftest           # the `.dc.html` parser against synthetic sources
 
 `render` and `pair` take doc S-ids (S1, S11.6) or design ids (A1, R2.1b, E3). Doc ids pick up every
 frame whose design id 13 §3.3 translates to them. Entity, role and state variants (A1–D8, R1, E1–E7)
@@ -16,7 +17,12 @@ for render/pair. `index` and `stamp` need only the mirror. CI never runs this: i
 index and records (scripts/check_design_match.dart).
 
 Frames come from partials/canvas*-screens.json and partials/new-screens-*.json, in the English light
-variant. Canvas 0 (master map) and Canvas 17 (reports, which has no partials) are not indexed.
+variant, and from the `.dc.html` canvases kept in the mirror because they have no partials (Canvas 1b,
+PLAN desk 157): there each 390×844 phone box under an `id · caption` header is one frame, wrapped in the
+canvas's own colour variables. A phone box bound by the canvas's template engine (a `{{ … }}` binding or an
+`sc-` directive on the box itself — Canvas 17's phones, `sc-for` over reports-data.js) has no static content
+and is skipped; every other phone box must have its header, or `index` stops rather than drop the frame.
+Canvas 0 (master map) is not indexed.
 ⚠️ The pa/hi and dark renders are not wired yet: the canvases translate through the i18n dictionaries
 in build-canvas.js, which this script does not replay.
 """
@@ -126,12 +132,70 @@ def frames():
         for k, h in json.load(open(f, encoding="utf-8")).items():
             if isinstance(h, str) and h.lstrip().startswith("<div"):
                 found.append((tag, k, k, h))
+    found += dc_frames()
     out, seen = [], {}
     for canvas, did, cap, h in found:
         base = f"{canvas}/{did}/{cap}"
         seen[base] = seen.get(base, 0) + 1
         key = base if seen[base] == 1 else f"{base}#{seen[base]}"
         out.append((key, canvas, did, cap, h))
+    return out
+
+
+_DC_HEADER = re.compile(
+    r'<div style="font-size:11\.5px;font-weight:700;letter-spacing:0\.06em;color:#201e1d">([^<]+)</div>\s*'
+    r'<div style="font-size:12\.5px;color:#6b6864">([^<]*)</div>\s*</div>\s*(?=<div style="width:390px;height:844px)')
+_DC_PHONE = re.compile(r'<div\b[^>]*\bstyle="width:390px;height:844px[^>]*>')
+_TAG = re.compile(r"<(/?)div\b[^>]*>")
+
+
+def _balanced_div(text, start):
+    """The <div …>…</div> that opens at `start`, matched by depth."""
+    depth = 0
+    for m in _TAG.finditer(text, start):
+        depth += -1 if m.group(1) else 1
+        if depth == 0:
+            return text[start:m.end()]
+    die(f"unbalanced <div> at offset {start}")
+
+
+def _templated(tag):
+    """A phone box drawn by the canvas's template engine (`{{ … }}` binding or an `sc-` directive on
+    the box itself) has no static content to index — Canvas 17's `sc-for` phones are the case."""
+    return "{{" in tag or re.search(r"\ssc-[\w-]+=", tag) is not None
+
+
+def _dc_text_frames(text, canvas, where):
+    """Frames of one `.dc.html` source. Every static 390×844 phone box must sit under an
+    `id · caption` header: a header that drifts (one attribute added, a style reordered) would
+    otherwise drop its frame silently, so a phone with no header is fatal (review DM157 #2)."""
+    heads = list(_DC_HEADER.finditer(text))
+    phones = [p.start() for p in _DC_PHONE.finditer(text) if not _templated(p.group(0))]
+    headed = [h.end() for h in heads]
+    if sorted(headed) != sorted(phones):
+        lost = sorted(set(phones) - set(headed))
+        die(f"{where}: {len(phones)} static 390×844 phone(s) but {len(heads)} `id · caption` header(s); "
+            f"phone(s) with no header at offset(s) {lost} — the header markup drifted, fix _DC_HEADER")
+    if heads and canvas is None:
+        die(f"{where}: has {len(heads)} phone frame(s) but its name is not `Canvas <n> - <title>.dc.html`")
+    v = re.search(r'<div style="(--bg:[^"]*)"', text)
+    vars_ = v.group(1).rstrip().rstrip(";") if v else ""
+    out = []
+    for h in heads:
+        box = _balanced_div(text, h.end())
+        out.append((canvas, html.unescape(h.group(1)).strip(), html.unescape(h.group(2)).strip(),
+                    f'<div style="{vars_}">{box}</div>' if vars_ else box))
+    return out
+
+
+def dc_frames(mirror=None):
+    """[(canvas, design_id, caption, html)] from the mirror's `.dc.html` sources (desk 157)."""
+    out = []
+    for f in sorted(glob.glob(os.path.join(mirror or MIRROR, "*.dc.html"))):
+        name = os.path.basename(f)[:-len(".dc.html")]
+        m = re.match(r"Canvas (\w+) - ", name)
+        text = open(f, encoding="utf-8").read()
+        out += _dc_text_frames(text, "c" + m.group(1) if m else None, os.path.basename(f))
     return out
 
 
@@ -354,7 +418,68 @@ def cmd_stamp(args):
     print(f"stamped {os.path.relpath(path, ROOT)}")
 
 
-COMMANDS = {"index": cmd_index, "render": cmd_render, "pair": cmd_pair, "stamp": cmd_stamp}
+# ---- selftest -------------------------------------------------------------------------------------
+
+def _st_head(did, cap):
+    return (f'<div><div style="font-size:11.5px;font-weight:700;letter-spacing:0.06em;color:#201e1d">{did}</div>\n'
+            f'  <div style="font-size:12.5px;color:#6b6864">{cap}</div>\n</div>\n')
+
+
+_ST_PHONE = '<div style="width:390px;height:844px;border-radius:44px"><div><p>{body}</p></div><div></div></div>'
+
+
+def cmd_selftest(_):
+    """The `.dc.html` parser against synthetic sources (review DM157 #1): two headed phones yield two
+    frames; a templated phone yields none; a phone whose header drifted stops the index; a phone in a
+    file with no `Canvas <n> - ` name stops it too. Needs no mirror."""
+    failures = []
+
+    def check(name, cond):
+        print(("ok   " if cond else "FAIL ") + name)
+        if not cond:
+            failures.append(name)
+
+    def run(files):
+        with tempfile.TemporaryDirectory() as d:
+            for n, t in files.items():
+                with open(os.path.join(d, n), "w", encoding="utf-8") as f:
+                    f.write(t)
+            try:
+                return dc_frames(d)
+            except SystemExit as e:
+                return str(e)
+
+    wrap = '<div style="--bg:#fff;--ink:#000;"><div>{}</div></div>'
+    good = wrap.format(_st_head("S0.2a", "Has books &amp; more") + _ST_PHONE.format(body="one")
+                       + _st_head("S0.2b", "Found you") + _ST_PHONE.format(body="two"))
+    got = run({"Canvas 9z - Synthetic.dc.html": good})
+    check("two headed phones → two frames", isinstance(got, list) and len(got) == 2)
+    if isinstance(got, list) and len(got) == 2:
+        check("canvas key from the file name", got[0][0] == "c9z")
+        check("design id and unescaped caption", got[0][1:3] == ("S0.2a", "Has books & more"))
+        check("frame is the whole balanced phone box",
+              got[0][3].endswith(_ST_PHONE.format(body="one") + "</div>") and "two" not in got[0][3])
+        check("frame wrapped in the canvas colour variables", got[1][3].startswith('<div style="--bg:#fff;--ink:#000">'))
+    templ = wrap.format(_st_head("{{ ph.id }}", "{{ ph.cap }}")
+                        + '<div lang="{{ ph.lang }}" style="width:390px;height:844px"><div></div></div>'
+                        + '<div sc-for="ph in phones" style="width:390px;height:844px"><div></div></div>')
+    check("templated phones yield no frame and no error", run({"Canvas 98 - Templated.dc.html": templ}) == [])
+    drift = wrap.format(_st_head("S0.2a", "One") + _ST_PHONE.format(body="one")
+                        + '<div><div style="font-size:11.5px;font-weight:700;color:#201e1d">S0.2b</div>'
+                        '<div style="font-size:12.5px;color:#6b6864">Two</div></div>' + _ST_PHONE.format(body="two"))
+    got = run({"Canvas 97 - Drift.dc.html": drift})
+    check("a phone whose header drifted stops the index", isinstance(got, str) and "no header" in got)
+    got = run({"Report Page.dc.html": good})
+    check("headed phones in a file not named `Canvas <n> - ` stop the index",
+          isinstance(got, str) and "not `Canvas" in got)
+    check("a file with no phones yields nothing", run({"Report Page.dc.html": "<div><div></div></div>"}) == [])
+    if failures:
+        die(f"selftest: {len(failures)} failure(s)")
+    print("selftest: all passed")
+
+
+COMMANDS = {"index": cmd_index, "render": cmd_render, "pair": cmd_pair, "stamp": cmd_stamp,
+            "selftest": cmd_selftest}
 
 if __name__ == "__main__":
     if len(sys.argv) < 2 or sys.argv[1] not in COMMANDS:
