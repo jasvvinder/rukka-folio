@@ -35,6 +35,9 @@ void main() {
   // `state` resolves the topmost match — a pushed screen, not only the last `go`.
   String location(GoRouter r) => r.state.uri.path;
 
+  // `buildRouter` with no `redirect` is the ungated shell: it opens on /home.
+  // Production passes the onboarding gate (ADR 2026-10-06b), which keeps an
+  // install that is not onboarded out of Home — see F1-1006b-1.
   testWidgets(
     'F1-13-6 shell opens on /home; tabs switch branches; ( + ) pushes /entry over the bar',
     (tester) async {

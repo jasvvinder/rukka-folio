@@ -307,6 +307,8 @@ Notation: `→` step · `◆` decision · `⟳` loops until · `‖` parallel.
 `S0.0 splash → S0.1 language → S0.05 welcome (3 slides, skippable) → S0.06 start ◆(I'm new | already use Rukka → F1b) → S0.2 phone+OTP → S0.3 purpose ◆(Myself | My business | My family | Our trust) → S0.4 name → S0.8 set PIN → S0.5 keeping your books safe (+ S0.5b sheet: print → verify by scanning it back) → branch steps S0.6a–i per card, each skippable (07 §3.1.1) → S0.6 own opening balances (skippable) → S1 with setup checklist`
 Success: user reaches Home understanding that no password exists and the paper sheet matters. 🔒 Branch order ruled 2 Sep 2026 (ADR): **after the shared steps**, per 07 §3.1.1 — identity and safety finish before any entity setup, and every branch step lands on the checklist anyway. Canvas 0's map is aligned; Canvas 1's flow band is realigned when its partial is recovered (256 KiB cap). ⟦tests: F1-07-16⟧
 
+> **ADR 2026-10-06b** — Home is unreachable until F1 or F1b hands over to it; a cold start resumes the chain, and system Back steps back through it. ⟦tests: F1-1006b-1 @M13⟧
+
 **F1b · Sign in on a new or reset phone** (ADR 2026-10-05c ⟦tests: F1-1005c-1 @M13, F1-1005c-2 @M13, F1-1005c-3 @M13⟧)
 `S0.06 → S0.2 (sign-in state, SMS) → code ◆(number has books → S11.5 silent restore if platform key sync holds the keys, else S0.2b ◆(old phone with you → S0.2c link → S0.2d → S0.8 → S1 | no → S11.6 fork)) | (no books → S0.2e ◆(set up → S0.3 … F1 | try another number → S0.2))`
 

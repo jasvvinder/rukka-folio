@@ -13,6 +13,11 @@ import 'shared/test_app.dart';
 void main() {
   // The shell boots on Home, strings resolve in all three languages, the four
   // tab labels render, nothing overflows at the default scale.
+  //
+  // This is the *ungated* shell (no `onboardingGate`): production always
+  // passes the gate, and an install that has not finished onboarding never
+  // boots on Home (ADR 2026-10-06b) — that is F1-1006b-1/-2 in
+  // test/features/onboarding/f1_1006b_no_home_before_onboarding_test.dart.
   const expected = {
     'en': ('Your position and today’s entries will appear here.', 'Ledger'),
     'pa': ('ਤੁਹਾਡੀ ਸਥਿਤੀ ਅਤੇ ਅੱਜ ਦੀਆਂ ਐਂਟਰੀਆਂ ਇੱਥੇ ਦਿਖਣਗੀਆਂ।', 'ਖਾਤੇ'),

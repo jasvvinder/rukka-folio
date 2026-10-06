@@ -1060,6 +1060,18 @@ Future<void> bootstrap() async {
       // The app as the routes see it. It is wrapped once more below, after
       // S11.1's repository exists, and that wrapping is what the scopes
       // around it receive as `app`.
+      // ADR 2026-10-06b 🔒 — Home is unreachable until F1/F1b hands over
+      // (`settings.onboarded`); every launch of an install that is not
+      // onboarded resumes the chain, with no launch argument. S0.2's result
+      // is the restored session, S0.8's the vault; S0.3/S0.4's answers ride
+      // the chain's own flow (onboarding_gate.dart). One gate: the router's
+      // redirect and F1b's end through the ladder read the same answers.
+      final onboardingGate = OnboardingGate.over(
+        auth: auth,
+        vault: vault,
+        flow: onboardingFlow,
+      );
+
       final shell = ShareSheetScope(
         sheet: shareSheet,
         child: RukkaFolioApp(
@@ -1072,6 +1084,7 @@ Future<void> bootstrap() async {
           updateRequired: auth.updateRequired,
           settings: settings,
           pinVault: vault,
+          onboardingGate: onboardingGate,
           // ADR 2026-10-05b: S15 asks the device-key custody — PIN-only phones
           // get the boxes and no biometric button (§1).
           biometrics: biometricGate,
@@ -1143,7 +1156,11 @@ Future<void> bootstrap() async {
             // (13 §5 F11). A finished restore lands on Home, which
             // features/recovery does not own.
             ...recoveryRoutes(
-              onRestored: (context) => context.go(RkPaths.home),
+              // F1b's end through the ladder (13 §5): a hand-over to Home
+              // only for a phone that is set up — a session and a PIN — and
+              // only then recorded as onboarded (ADR 2026-10-06b ruling 1);
+              // S11.8 with no device activated resumes the chain instead.
+              onRestored: onboardingGate.handOverIfReady,
             ),
             ...settingsRoutes,
             // S12/S12.1 — Menu → Subscription and Settings → Subscription

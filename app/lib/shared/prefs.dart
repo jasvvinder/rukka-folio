@@ -33,6 +33,11 @@ abstract final class RkPrefKeys {
   /// defaults to (13 §2.2 "defaults to last used").
   static const lastScope = 'scope.last';
 
+  /// `1` once this install's sign-up (13 §5 F1) or sign-in (F1b) chain has
+  /// handed over to Home (ADR 2026-10-06b ruling 1); absent before. Not
+  /// financial data — one bit about this install.
+  static const onboarded = 'onboarded';
+
   /// The scope a tab is showing; [tab] is the tab's path name.
   static String scopeOfTab(String tab) => 'scope.$tab';
 }

@@ -41,6 +41,9 @@ Running record of what changed in this repository and in the development environ
   frames are mapped, and there is a self-test.
 
 **Decided**
+- `docs/decisions/2026-10-06b-no-home-before-onboarding.md` — 🔒 owner: Home is unreachable until F1/F1b hands over; a
+  cold start resumes the chain; system Back follows the chain (only the first screen may exit). 07 §3.1 and 13 §5
+  cross-referenced.
 - `docs/decisions/2026-10-06-biometric-gate-key.md` — 🔒 owner chose option (b) on desk 152: the biometric set guards a
   separate gate key, and the device keys are never biometric-bound. An enrolment change costs only the gate (PIN → new
   gate), never the books. Device keys are minted at S0.2 into the hardware class and never move (settles desk 153).
@@ -64,6 +67,14 @@ Running record of what changed in this repository and in the development environ
 - **Dev brought to HEAD** (desks 123/136/165): migrations 0001–0030 (owner), all five edge functions redeployed; the
   `/signup/adopt` probe answers 400 (live). Supabase CLI 2.116 → 2.119; `server/supabase/config.toml` `[inbucket]` →
   `[local_smtp]` (deprecated section name).
+- **ONB1 (ADR 2026-10-06b, owner-ruled): the app never lands on Home before onboarding is finished.** Root cause:
+  `main.dart:167` built the router with no start location, so only `DEMO=1`'s injected route reached sign-up, and every
+  step used `context.go`, so system Back closed the app.
+  - Fix: an onboarded flag set at every hand-over, a GoRouter redirect, resume at the first unfinished step, and system
+    Back mirroring each step's back.
+  - Review blocker repaired: Back on S0.6c could re-post a book's opening balances.
+  - F1-1006b-1…3, mutation-checked; push gate green.
+  - Device: cold start → chain, Back steps back, relaunch → chain.
 - Lane hand-back failures: "completed without StructuredOutput" was the lanes hitting maxTurns (GATE1 185/180; SIGNIN1A
   review 93/90). Recovered from the on-disk reports.
 

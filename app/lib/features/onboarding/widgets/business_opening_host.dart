@@ -22,6 +22,7 @@ import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../../entry/entry_restriction.dart';
 import '../onboarding_flow.dart';
+import '../onboarding_gate.dart' show OnboardingBack;
 import '../screens/s0_6a_business_name_screen.dart';
 import '../screens/s0_6b_business_opening_balances_screen.dart';
 
@@ -34,6 +35,7 @@ class BusinessOpeningHost extends StatefulWidget {
     required this.startDate,
     this.onDone,
     this.onAddAccount,
+    this.onBack,
   });
 
   /// The answers S0.6a and S0.6a1 collected.
@@ -49,6 +51,14 @@ class BusinessOpeningHost extends StatefulWidget {
   /// Opens *Add an account* for a group (S3.1) — how a bank arrives, since
   /// no book seeds one (ADR 2026-09-09d §1).
   final void Function(OpeningGroup group)? onAddAccount;
+
+  /// System Back (ADR 2026-10-06b ruling 3): the chain's previous step. Held
+  /// while the book is being created or the balances are being saved — a
+  /// step mid-operation holds its place — and once the book exists the
+  /// route resolves no previous step at all (`previousOnboardingStep`), so
+  /// the answers fixed into the book are never reopened. Null leaves Back
+  /// alone.
+  final VoidCallback? onBack;
 
   @override
   State<BusinessOpeningHost> createState() => _BusinessOpeningHostState();
@@ -141,6 +151,14 @@ class _BusinessOpeningHostState extends State<BusinessOpeningHost> {
             startDate: widget.startDate,
           );
       flow.businessBookId = bookId;
+      // Mounted again after its balances were posted (a resume, a deep
+      // link): the step is done, so it moves on rather than offering to post
+      // a second set to the same book (07 §3.1.1 — never duplicated).
+      if (widget.flow.businessOpeningPosted) {
+        if (mounted) setState(() => _running = false);
+        widget.onDone?.call();
+        return;
+      }
       final chart = await ledger.chartOf(bookId);
       final rows = <OpeningRow>[
         for (final a in chart.accounts)
@@ -173,9 +191,15 @@ class _BusinessOpeningHostState extends State<BusinessOpeningHost> {
       final ledger = LedgerScope.of(context);
       final bookId = widget.flow.businessBookId;
       if (bookId == null) return;
+      // Posted once already: one set of opening adjustments per book.
+      if (widget.flow.businessOpeningPosted) {
+        widget.onDone?.call();
+        return;
+      }
       if (await refuseIfEntryRestricted(context, sources, [bookId])) return;
       try {
         await ledger.openingBalances(bookId, balances: balances);
+        widget.flow.markBusinessOpeningPosted();
         widget.onDone?.call();
       } on Object catch (e) {
         if (!mounted) return;
@@ -188,6 +212,20 @@ class _BusinessOpeningHostState extends State<BusinessOpeningHost> {
 
   @override
   Widget build(BuildContext context) {
+    final back = widget.onBack;
+    final body = _body(context);
+    if (back == null) return body;
+    // Read at the moment of the press: the two flags are not always set
+    // through setState, so a value captured at build could be stale.
+    return OnboardingBack(
+      onBack: () {
+        if (!_running && !_saving) back();
+      },
+      child: body,
+    );
+  }
+
+  Widget _body(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     if (_error != null) {
       return _CommitState(

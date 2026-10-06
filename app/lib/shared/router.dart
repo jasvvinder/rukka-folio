@@ -16,7 +16,8 @@ import 'widgets/rk_entitlement_banner.dart';
 import 'widgets/rk_nav_rail.dart';
 import 'widgets/rk_tab_bar.dart';
 
-export 'package:go_router/go_router.dart' show GoRouter, GoRoute, RouteBase;
+export 'package:go_router/go_router.dart'
+    show GoRouter, GoRoute, GoRouterRedirect, RouteBase;
 
 export 'widgets/rk_tab_bar.dart' show RkTab;
 
@@ -157,6 +158,9 @@ class RkTabRoot {
 /// [featureRoutes] mount on the root navigator — they cover the tab bar, as
 /// entry (S2) and detail screens do. Pass tab-nested routes through the
 /// matching [RkTabRoot.routes] instead.
+///
+/// [redirect] is the app's one top-level redirect — the onboarding launch gate
+/// (ADR 2026-10-06b) in production; null in shell-only tests.
 GoRouter buildRouter({
   required List<RouteBase> featureRoutes,
   RkTabRoot? home,
@@ -166,6 +170,7 @@ GoRouter buildRouter({
   WidgetBuilder? entry,
   String initialLocation = RkPaths.home,
   GlobalKey<NavigatorState>? navigatorKey,
+  GoRouterRedirect? redirect,
 }) {
   final rootKey = navigatorKey ?? GlobalKey<NavigatorState>(debugLabel: 'root');
   StatefulShellBranch branch(RkTab tab, RkTabRoot? root) {
@@ -184,6 +189,10 @@ GoRouter buildRouter({
   return GoRouter(
     navigatorKey: rootKey,
     initialLocation: initialLocation,
+    // The launch gate (ADR 2026-10-06b 🔒): until onboarding has handed over,
+    // Home and the tab shell are unreachable — the gate sends every such
+    // location into the chain (features/onboarding/onboarding_gate.dart).
+    redirect: redirect,
     routes: [
       StatefulShellRoute.indexedStack(
         builder: (context, state, shell) => RkShell(shell: shell),

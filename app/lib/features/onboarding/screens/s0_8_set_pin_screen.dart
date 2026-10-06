@@ -35,6 +35,7 @@
 // refused) · loading (saving).
 import 'package:flutter/material.dart';
 
+import '../onboarding_gate.dart' show OnboardingBack;
 import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
@@ -175,8 +176,33 @@ class _SetPinScreenState extends State<SetPinScreen> {
     widget.onDone?.call();
   }
 
+  /// System Back (ADR 2026-10-06b ruling 3) does exactly what the back
+  /// button does: the confirm step starts over, the choose step takes
+  /// [SetPinScreen.onBack], and a save in flight holds its place. Read at the
+  /// moment of the press, so it never acts on a stale step.
+  void _systemBack() {
+    if (_saving) return;
+    if (_step == SetPinStep.confirm || _mismatch) {
+      _startOver();
+    } else {
+      widget.onBack?.call();
+    }
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => OnboardingBack(
+    onBack: _systemBack,
+    // With no [SetPinScreen.onBack] (the screen pushed outside the chain)
+    // the choose step leaves Back to the navigator, as before.
+    exits:
+        widget.onBack == null &&
+        !_saving &&
+        _step != SetPinStep.confirm &&
+        !_mismatch,
+    child: _body(context),
+  );
+
+  Widget _body(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
     final status = RkStatusColors.of(context);

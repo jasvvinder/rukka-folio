@@ -39,6 +39,7 @@ class AppSettings extends ChangeNotifier {
   Duration _background = defaultAutoLockBackground;
   final Map<RkTab, String> _scopes = {};
   String? _lastScope;
+  bool _onboarded = false;
   bool _loaded = false;
 
   /// The chosen locale, or null to follow the device.
@@ -56,6 +57,11 @@ class AppSettings extends ChangeNotifier {
   /// True once [load] has finished.
   bool get loaded => _loaded;
 
+  /// True once this install's sign-up (13 §5 F1) or sign-in (F1b) chain has
+  /// handed over to Home (ADR 2026-10-06b ruling 1). Until then the router
+  /// keeps every launch inside the chain.
+  bool get onboarded => _onboarded;
+
   /// Reads every stored value; notifies once at the end.
   Future<void> load() async {
     final tag = await prefs.read(RkPrefKeys.locale);
@@ -72,6 +78,7 @@ class AppSettings extends ChangeNotifier {
       defaultAutoLockBackground,
     );
     _lastScope = await prefs.read(RkPrefKeys.lastScope);
+    _onboarded = await prefs.read(RkPrefKeys.onboarded) == '1';
     for (final tab in RkTab.values) {
       final scope = await prefs.read(RkPrefKeys.scopeOfTab(tab.name));
       if (scope != null) _scopes[tab] = scope;
@@ -120,6 +127,17 @@ class AppSettings extends ChangeNotifier {
       );
     }
     if (changed) notifyListeners();
+  }
+
+  /// Records the chain's hand-over to Home (ADR 2026-10-06b ruling 1). The
+  /// flag is set in memory **before** the write is awaited, so a navigation
+  /// to Home made right after this call already passes the router's gate.
+  /// Recorded once; later calls are no-ops. Nothing in the app clears it.
+  Future<void> markOnboarded() async {
+    if (_onboarded) return;
+    _onboarded = true;
+    notifyListeners();
+    await prefs.write(RkPrefKeys.onboarded, '1');
   }
 
   /// The scope [tab] is showing: its own, else the last scope used anywhere
@@ -172,6 +190,11 @@ class AppSettingsScope extends InheritedNotifier<AppSettings> {
   /// The nearest settings, or null when the shell mounted none.
   static AppSettings? maybeOf(BuildContext context) =>
       context.dependOnInheritedWidgetOfExactType<AppSettingsScope>()?.notifier;
+
+  /// The nearest settings without registering a dependency — for callbacks
+  /// (a route's hand-over), not for build methods.
+  static AppSettings? read(BuildContext context) =>
+      context.getInheritedWidgetOfExactType<AppSettingsScope>()?.notifier;
 
   /// The nearest settings; throws when none is mounted.
   static AppSettings of(BuildContext context) {

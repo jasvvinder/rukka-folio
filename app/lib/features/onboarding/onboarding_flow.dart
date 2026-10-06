@@ -51,6 +51,11 @@ class OnboardingFlow extends ChangeNotifier {
       if (b.draft case final draft?) draft.name,
   ];
 
+  /// True on a second (or later) pass round the *My business* loop — S0.6c's
+  /// *Add another* sent the person to S0.6a, so S0.6a's system Back returns
+  /// there (ADR 2026-10-06b ruling 3).
+  bool get loopingBusinesses => _cursor > 0;
+
   BusinessEntry? get _current =>
       _cursor < _businesses.length ? _businesses[_cursor] : null;
 
@@ -80,6 +85,18 @@ class OnboardingFlow extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// True once S0.6b's opening balances were posted for the business being
+  /// collected. A committing step that is mounted again (a resume, a deep
+  /// link) moves on instead of posting a second set of opening adjustments
+  /// to the same book (07 §3.1.1: resumable, never duplicated).
+  bool get businessOpeningPosted => _current?.openingPosted ?? false;
+
+  /// Records that S0.6b's opening balances were posted.
+  void markBusinessOpeningPosted() {
+    _ensureCurrent().openingPosted = true;
+    notifyListeners();
+  }
+
   /// S0.6c's *Add another business* (07 §3.1.1: O6c loops back to O6a).
   /// Moves the cursor past the finished entry so the next [setBusiness]
   /// starts a new business instead of editing the last one — nothing
@@ -98,7 +115,19 @@ class OnboardingFlow extends ChangeNotifier {
 
   /// The pool book created at S0.6f, once it exists (07 §3.1.1: resumable —
   /// never a second book for the same answers).
-  String? familyBookId;
+  String? get familyBookId => _familyBookId;
+  String? _familyBookId;
+
+  set familyBookId(String? value) {
+    // A different book has posted nothing yet.
+    if (value != _familyBookId) familyOpeningPosted = false;
+    _familyBookId = value;
+  }
+
+  /// True once S0.6f's opening balances were posted to [familyBookId] — the
+  /// same never-twice guard as [businessOpeningPosted]. Cleared whenever
+  /// [familyBookId] changes.
+  bool familyOpeningPosted = false;
 
   /// The S0.6g answer — the trust's name and illustrative type. Null on
   /// every other branch.
@@ -110,7 +139,19 @@ class OnboardingFlow extends ChangeNotifier {
 
   /// The trust book created at S0.6i, once it exists (07 §3.1.1: resumable —
   /// never a second book for the same answers).
-  String? trustBookId;
+  String? get trustBookId => _trustBookId;
+  String? _trustBookId;
+
+  set trustBookId(String? value) {
+    // A different book has posted nothing yet.
+    if (value != _trustBookId) trustOpeningPosted = false;
+    _trustBookId = value;
+  }
+
+  /// True once S0.6i's opening balances were posted to [trustBookId] — the
+  /// same never-twice guard as [businessOpeningPosted]. Cleared whenever
+  /// [trustBookId] changes.
+  bool trustOpeningPosted = false;
 
   /// Whether a recovery sheet has been generated and is still waiting to be
   /// scanned back (S0.5b, 04 §7.4 🔒 verified-storage nag). Null until S0.5b
@@ -125,6 +166,26 @@ class OnboardingFlow extends ChangeNotifier {
   /// Records S0.5b's outcome.
   void setRecoverySheetVerified(bool verified) {
     recoverySheetVerified = verified;
+    notifyListeners();
+  }
+
+  /// Forgets every answer — a fresh chain. Tests share the one
+  /// [OnboardingFlow] the routes hold, so each starts from here.
+  @visibleForTesting
+  void reset() {
+    yourName = '';
+    purpose = null;
+    _businesses.clear();
+    _cursor = 0;
+    family = null;
+    familyMembers = const [];
+    familyBookId = null;
+    familyOpeningPosted = false;
+    trust = null;
+    trustMembers = const [];
+    trustBookId = null;
+    trustOpeningPosted = false;
+    recoverySheetVerified = null;
     notifyListeners();
   }
 
@@ -251,7 +312,12 @@ class OnboardingFlow extends ChangeNotifier {
 /// flow — two businesses collected by the O6c loop have two ratios.
 final class BusinessEntry {
   /// Creates an entry; every field is filled as its step is answered.
-  BusinessEntry({this.draft, this.owners = const [], this.bookId});
+  BusinessEntry({
+    this.draft,
+    this.owners = const [],
+    this.bookId,
+    this.openingPosted = false,
+  });
 
   /// The S0.6a answers, once that step has been answered.
   BusinessDraft? draft;
@@ -261,6 +327,9 @@ final class BusinessEntry {
 
   /// The book created for this business at the committing step.
   String? bookId;
+
+  /// True once this business's opening balances were posted (S0.6b Save).
+  bool openingPosted;
 }
 
 /// The [OnboardingFlow] for the widget tree below.

@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../shared/app_scope.dart';
+import '../../shared/router.dart' show RkPaths;
 import '../../shared/seams/auth_client.dart' show SignInDoor;
 
 import '../auth/auth_paths.dart';
@@ -15,6 +16,7 @@ import '../demo/widgets/demo_build_card.dart' show demoPurposeCard;
 import '../devices/devices_paths.dart';
 import '../home/home_paths.dart';
 import 'onboarding_flow.dart';
+import 'onboarding_gate.dart';
 import 'onboarding_paths.dart';
 import 'screens/s0_0_splash_screen.dart';
 import 'screens/s0_05_welcome_screen.dart';
@@ -38,6 +40,13 @@ import 'widgets/family_opening_host.dart';
 import 'widgets/trust_opening_host.dart';
 
 export 'onboarding_flow.dart' show OnboardingFlow, OnboardingFlowScope;
+export 'onboarding_gate.dart'
+    show
+        OnboardingBack,
+        OnboardingBackMirror,
+        OnboardingGate,
+        handOverToHome,
+        previousOnboardingStep;
 export 'onboarding_paths.dart';
 export 'screens/s0_06_start_screen.dart' show StartScreen;
 export 'screens/s0_3_purpose_screen.dart' show OnboardingPurpose;
@@ -104,28 +113,49 @@ final OnboardingFlow onboardingFlow = OnboardingFlow();
 final List<RouteBase> onboardingRoutes = [
   GoRoute(
     path: OnboardingPaths.splash,
-    builder: (context, state) =>
-        SplashScreen(onFinished: () => context.go(OnboardingPaths.language)),
+    builder: (context, state) => OnboardingBack(
+      onBack: null,
+      exits: true,
+      child: SplashScreen(
+        onFinished: () => context.go(OnboardingPaths.language),
+      ),
+    ),
   ),
   GoRoute(
     path: OnboardingPaths.language,
-    builder: (context, state) => LanguagePickerScreen(
-      onSelected: (locale) => context.go(OnboardingPaths.welcome),
+    // ⚠️ SPEC (ADR 2026-10-06b ruling 3, "only the first screen may exit"):
+    // S0.0 is a launch animation with no input that hands straight on to
+    // S0.1, so S0.1 is the first step a person acts on and Back may leave the
+    // app from either. Back from S0.1 to S0.0 would only replay the mark and
+    // land on S0.1 again — a loop, not a previous step.
+    builder: (context, state) => OnboardingBack(
+      onBack: null,
+      exits: true,
+      child: LanguagePickerScreen(
+        onSelected: (locale) => context.go(OnboardingPaths.welcome),
+      ),
     ),
   ),
   GoRoute(
     path: OnboardingPaths.welcome,
-    builder: (context, state) =>
-        WelcomeScreen(onDone: () => context.go(OnboardingPaths.start)),
+    builder: (context, state) => _chainStep(
+      context,
+      state,
+      WelcomeScreen(onDone: () => context.go(OnboardingPaths.start)),
+    ),
   ),
   // ADR 2026-10-05c §1: the front door after the slides. Both doors open the
   // same S0.2; the door rides as a query parameter (never the number, never
   // a ticket — those stay in S0.2's memory).
   GoRoute(
     path: OnboardingPaths.start,
-    builder: (context, state) => StartScreen(
-      onNew: () => context.go(OnboardingPaths.signIn),
-      onSignIn: () => context.go(OnboardingPaths.signInReturning),
+    builder: (context, state) => _chainStep(
+      context,
+      state,
+      StartScreen(
+        onNew: () => context.go(OnboardingPaths.signIn),
+        onSignIn: () => context.go(OnboardingPaths.signInReturning),
+      ),
     ),
   ),
   // 13 §5 flows F1 / F1b: S0.06 → S0.2 → S0.3 (or S0.2a/S0.2b/S0.2e after the
@@ -134,53 +164,76 @@ final List<RouteBase> onboardingRoutes = [
   // carries on to the purpose cards.
   GoRoute(
     path: OnboardingPaths.signIn,
-    builder: (context, state) => PhoneOtpScreen(
-      key: ValueKey(state.uri.toString()),
-      door:
-          state.uri.queryParameters[OnboardingPaths.signInDoorParam] ==
-              OnboardingPaths.signInDoorReturning
-          ? SignInDoor.signIn
-          : SignInDoor.newBooks,
-      onboardingStep: true,
-      onBack: () => context.go(OnboardingPaths.start),
-      onDone: (_) => context.go(OnboardingPaths.purpose),
+    // System Back presses the back row of whichever S0.2 sub-step is on
+    // screen (ADR 2026-10-06b ruling 3): the number step → S0.06, the code
+    // step → the number step, *found you* → where it came from, and a step
+    // mid-operation (verifying, activating) holds — see
+    // [OnboardingBackMirror].
+    builder: (context, state) => OnboardingBackMirror(
+      child: PhoneOtpScreen(
+        key: ValueKey(state.uri.toString()),
+        door:
+            state.uri.queryParameters[OnboardingPaths.signInDoorParam] ==
+                OnboardingPaths.signInDoorReturning
+            ? SignInDoor.signIn
+            : SignInDoor.newBooks,
+        onboardingStep: true,
+        onBack: () => context.go(OnboardingPaths.start),
+        onDone: (_) => context.go(OnboardingPaths.purpose),
+        // F1b's *No, it's lost or reset* (13 §5: S0.2b → S11.6 fork) is
+        // **pushed** over this step, so system Back on the fork returns to
+        // S0.2b with its answers in place (ruling 3: only the chain's first
+        // screen may exit) — `go` would leave the fork alone on the stack.
+        onNoOldPhone: () => context.push(RkPaths.recoveryFork),
+      ),
     ),
   ),
   GoRoute(
     path: OnboardingPaths.purpose,
-    builder: (context, state) => PurposeScreen(
-      // DEBUG ONLY (owner-directed, 4 Oct 2026): null in every release build
-      // and whenever the signed-in phone is not on the demo roster. Continue
-      // carries on exactly as a purpose choice would — S0.4 name (prefilled
-      // with the roster name), S0.8 PIN, S0.5/S0.5b — and, with no purpose
-      // recorded, [afterSetPin] then lands on Home rather than a branch
-      // wizard that would make another book.
-      debugDemoCard: demoPurposeCard(
-        onContinue: (name) {
-          onboardingFlow.setYourName(name);
+    builder: (context, state) => _chainStep(
+      context,
+      state,
+      PurposeScreen(
+        // DEBUG ONLY (owner-directed, 4 Oct 2026): null in every release build
+        // and whenever the signed-in phone is not on the demo roster. Continue
+        // carries on exactly as a purpose choice would — S0.4 name (prefilled
+        // with the roster name), S0.8 PIN, S0.5/S0.5b — and, with no purpose
+        // recorded, [afterSetPin] then lands on Home rather than a branch
+        // wizard that would make another book.
+        debugDemoCard: demoPurposeCard(
+          onContinue: (name) {
+            onboardingFlow.setYourName(name);
+            context.go(OnboardingPaths.namePhoto);
+          },
+        ),
+        onSelected: (purpose) {
+          onboardingFlow.setPurpose(purpose);
           context.go(OnboardingPaths.namePhoto);
         },
       ),
-      onSelected: (purpose) {
-        onboardingFlow.setPurpose(purpose);
-        context.go(OnboardingPaths.namePhoto);
-      },
     ),
   ),
   GoRoute(
     path: OnboardingPaths.namePhoto,
-    builder: (context, state) => NamePhotoScreen(
-      initialName: onboardingFlow.yourName,
-      // 07 §3.1 step 4's answer is carried forward, not dropped: S0.6a1 tags
-      // the first owner row with it (ADR 2026-09-09 §1).
-      onSubmit: (name, photo) {
-        onboardingFlow.setYourName(name);
-        context.go(OnboardingPaths.setPin);
-      },
+    builder: (context, state) => _chainStep(
+      context,
+      state,
+      NamePhotoScreen(
+        initialName: onboardingFlow.yourName,
+        // 07 §3.1 step 4's answer is carried forward, not dropped: S0.6a1 tags
+        // the first owner row with it (ADR 2026-09-09 §1).
+        onSubmit: (name, photo) {
+          onboardingFlow.setYourName(name);
+          context.go(OnboardingPaths.setPin);
+        },
+      ),
     ),
   ),
   GoRoute(
     path: OnboardingPaths.setPin,
+    // System Back is the screen's own (it mirrors its back button: the
+    // confirm step starts over, the choose step goes back to S0.4, a save in
+    // flight holds) — see SetPinScreen.build.
     builder: (context, state) => SetPinScreen(
       onDone: () => context.go(OnboardingPaths.booksSafe),
       onBack: () => context.go(OnboardingPaths.namePhoto),
@@ -196,10 +249,14 @@ final List<RouteBase> onboardingRoutes = [
   // destination: naming the wrong cloud would be worse than the generic line.
   GoRoute(
     path: OnboardingPaths.booksSafe,
-    builder: (context, state) => BooksSafeScreen(
-      onContinue: () => context.go(OnboardingPaths.recoverySheet),
-      onSheet: () => context.go(OnboardingPaths.recoverySheet),
-      onSkip: () => context.go(afterSetPin(onboardingFlow)),
+    builder: (context, state) => _chainStep(
+      context,
+      state,
+      BooksSafeScreen(
+        onContinue: () => context.go(OnboardingPaths.recoverySheet),
+        onSheet: () => context.go(OnboardingPaths.recoverySheet),
+        onSkip: () => goOnboarding(context, afterSetPin(onboardingFlow)),
+      ),
     ),
   ),
   // 07 §3.1 step 6 / 04 §7.4 🔒. Generation, print/save and the scan-back
@@ -208,10 +265,14 @@ final List<RouteBase> onboardingRoutes = [
   // pretending a sheet was made. The lane report names the wanted interface.
   GoRoute(
     path: OnboardingPaths.recoverySheet,
-    builder: (context, state) => RecoverySheetScreen(
-      onVerifiedChanged: onboardingFlow.setRecoverySheetVerified,
-      onDone: () => context.go(afterSetPin(onboardingFlow)),
-      onSkip: () => context.go(afterSetPin(onboardingFlow)),
+    builder: (context, state) => _chainStep(
+      context,
+      state,
+      RecoverySheetScreen(
+        onVerifiedChanged: onboardingFlow.setRecoverySheetVerified,
+        onDone: () => goOnboarding(context, afterSetPin(onboardingFlow)),
+        onSkip: () => goOnboarding(context, afterSetPin(onboardingFlow)),
+      ),
     ),
   ),
   // The business branch (07 §3.1.1 O6a → O6b). S0.6a's ownership answer is
@@ -228,44 +289,52 @@ final List<RouteBase> onboardingRoutes = [
   // them a home is a `packages/data` change and is in the lane report.
   GoRoute(
     path: OnboardingPaths.business,
-    builder: (context, state) => BusinessNameScreen(
-      startDate: bookStartDateOf(context),
-      initial: onboardingFlow.business,
-      onSubmit: (draft) {
-        onboardingFlow.setBusiness(draft);
-        context.go(
-          draft.ownership == BusinessOwnershipChoice.shared
-              ? OnboardingPaths.businessOwners
-              : OnboardingPaths.businessOpening,
-        );
-      },
+    builder: (context, state) => _chainStep(
+      context,
+      state,
+      BusinessNameScreen(
+        startDate: bookStartDateOf(context),
+        initial: onboardingFlow.business,
+        onSubmit: (draft) {
+          onboardingFlow.setBusiness(draft);
+          context.go(
+            draft.ownership == BusinessOwnershipChoice.shared
+                ? OnboardingPaths.businessOwners
+                : OnboardingPaths.businessOpening,
+          );
+        },
+      ),
     ),
   ),
   GoRoute(
     path: OnboardingPaths.businessOwners,
-    builder: (context, state) => BusinessOwnersScreen(
-      yourName: onboardingFlow.yourName,
-      initialOwners: onboardingFlow.owners.isEmpty
-          ? null
-          : onboardingFlow.owners,
-      onSubmit: (owners) {
-        onboardingFlow.setOwners(owners);
-        context.go(OnboardingPaths.businessOpening);
-      },
-      // ADR 2026-09-09 §3: not a skip — back to S0.6a on the *Just me* branch.
-      onJustMeAfterAll: () {
-        final draft = onboardingFlow.business;
-        if (draft != null) {
-          onboardingFlow.setBusiness(
-            BusinessDraft(
-              name: draft.name,
-              ownership: BusinessOwnershipChoice.justMe,
-              fyStartMonth: draft.fyStartMonth,
-            ),
-          );
-        }
-        context.go(OnboardingPaths.business);
-      },
+    builder: (context, state) => _chainStep(
+      context,
+      state,
+      BusinessOwnersScreen(
+        yourName: onboardingFlow.yourName,
+        initialOwners: onboardingFlow.owners.isEmpty
+            ? null
+            : onboardingFlow.owners,
+        onSubmit: (owners) {
+          onboardingFlow.setOwners(owners);
+          context.go(OnboardingPaths.businessOpening);
+        },
+        // ADR 2026-09-09 §3: not a skip — back to S0.6a on the *Just me* branch.
+        onJustMeAfterAll: () {
+          final draft = onboardingFlow.business;
+          if (draft != null) {
+            onboardingFlow.setBusiness(
+              BusinessDraft(
+                name: draft.name,
+                ownership: BusinessOwnershipChoice.justMe,
+                fyStartMonth: draft.fyStartMonth,
+              ),
+            );
+          }
+          context.go(OnboardingPaths.business);
+        },
+      ),
     ),
   ),
   GoRoute(
@@ -275,7 +344,8 @@ final List<RouteBase> onboardingRoutes = [
       startDate: bookStartDateOf(context),
       // Skipped or saved, the *My business* card goes on to S0.6c (07 §3.1.1,
       // ADR 2026-10-04c §1) — see [afterBusinessOpening].
-      onDone: () => context.go(afterBusinessOpening(onboardingFlow)),
+      onDone: () => goOnboarding(context, afterBusinessOpening(onboardingFlow)),
+      onBack: _backFrom(context, state),
     ),
   ),
   // S0.6c — the loop control of the multi-business branch (07 §3.1.1 O6c,
@@ -285,22 +355,26 @@ final List<RouteBase> onboardingRoutes = [
   // the first (07 §3.1.1 — resumable, never duplicated).
   GoRoute(
     path: OnboardingPaths.businessAnother,
-    builder: (context, state) => AddAnotherBusinessScreen(
-      businesses: [
-        for (final entry in onboardingFlow.businesses)
-          if (entry.draft case final draft?)
-            AddedBusiness(name: draft.name, fyStartMonth: draft.fyStartMonth),
-      ],
-      onAddAnother: () {
-        onboardingFlow.addAnotherBusiness();
-        context.go(OnboardingPaths.business);
-      },
-      // O6 (the user's own opening balances) is not this lane's screen; Home's
-      // S0.7 checklist is what brings it back (07 §3.1 step 7), the same
-      // landing every other branch takes — and the same landing for the skip,
-      // since 07 §3.1.1 makes every branch step skippable.
-      onDone: () => context.go(HomePaths.home),
-      onSkip: () => context.go(HomePaths.home),
+    builder: (context, state) => _chainStep(
+      context,
+      state,
+      AddAnotherBusinessScreen(
+        businesses: [
+          for (final entry in onboardingFlow.businesses)
+            if (entry.draft case final draft?)
+              AddedBusiness(name: draft.name, fyStartMonth: draft.fyStartMonth),
+        ],
+        onAddAnother: () {
+          onboardingFlow.addAnotherBusiness();
+          context.go(OnboardingPaths.business);
+        },
+        // O6 (the user's own opening balances) is not this lane's screen; Home's
+        // S0.7 checklist is what brings it back (07 §3.1 step 7), the same
+        // landing every other branch takes — and the same landing for the skip,
+        // since 07 §3.1.1 makes every branch step skippable.
+        onDone: () => handOverToHome(context),
+        onSkip: () => handOverToHome(context),
+      ),
     ),
   ),
   // The family branch (07 §3.1.1 O6d → O6e → O6f). Every step is skippable
@@ -308,27 +382,35 @@ final List<RouteBase> onboardingRoutes = [
   // carries an empty (or partial) member list forward rather than blocking.
   GoRoute(
     path: OnboardingPaths.family,
-    builder: (context, state) => FamilyNameScreen(
-      startDate: bookStartDateOf(context),
-      initial: onboardingFlow.family,
-      onSubmit: (draft) {
-        onboardingFlow.setFamily(draft);
-        context.go(OnboardingPaths.familyMembers);
-      },
+    builder: (context, state) => _chainStep(
+      context,
+      state,
+      FamilyNameScreen(
+        startDate: bookStartDateOf(context),
+        initial: onboardingFlow.family,
+        onSubmit: (draft) {
+          onboardingFlow.setFamily(draft);
+          context.go(OnboardingPaths.familyMembers);
+        },
+      ),
     ),
   ),
   GoRoute(
     path: OnboardingPaths.familyMembers,
-    builder: (context, state) => FamilyMembersScreen(
-      yourName: onboardingFlow.yourName,
-      initialMembers: onboardingFlow.familyMembers.isEmpty
-          ? null
-          : onboardingFlow.familyMembers,
-      onSubmit: (members) {
-        onboardingFlow.setFamilyMembers(members);
-        context.go(OnboardingPaths.familyAccounts);
-      },
-      onSkip: () => context.go(OnboardingPaths.familyAccounts),
+    builder: (context, state) => _chainStep(
+      context,
+      state,
+      FamilyMembersScreen(
+        yourName: onboardingFlow.yourName,
+        initialMembers: onboardingFlow.familyMembers.isEmpty
+            ? null
+            : onboardingFlow.familyMembers,
+        onSubmit: (members) {
+          onboardingFlow.setFamilyMembers(members);
+          context.go(OnboardingPaths.familyAccounts);
+        },
+        onSkip: () => context.go(OnboardingPaths.familyAccounts),
+      ),
     ),
   ),
   GoRoute(
@@ -338,7 +420,8 @@ final List<RouteBase> onboardingRoutes = [
       startDate: bookStartDateOf(context),
       // Skipped or saved, the next stop is Home — where the S0.7 checklist
       // brings a skipped wizard back (07 §3.1 step 7).
-      onDone: () => context.go(HomePaths.home),
+      onDone: () => handOverToHome(context),
+      onBack: _backFrom(context, state),
     ),
   ),
   // The trust branch (07 §3.1.1 O6g → O6h → O6i). Every step is skippable
@@ -347,27 +430,35 @@ final List<RouteBase> onboardingRoutes = [
   // blocking — the same shape as the family branch's S0.6e.
   GoRoute(
     path: OnboardingPaths.trust,
-    builder: (context, state) => TrustNameScreen(
-      startDate: bookStartDateOf(context),
-      initial: onboardingFlow.trust,
-      onSubmit: (draft) {
-        onboardingFlow.setTrust(draft);
-        context.go(OnboardingPaths.trustMembers);
-      },
+    builder: (context, state) => _chainStep(
+      context,
+      state,
+      TrustNameScreen(
+        startDate: bookStartDateOf(context),
+        initial: onboardingFlow.trust,
+        onSubmit: (draft) {
+          onboardingFlow.setTrust(draft);
+          context.go(OnboardingPaths.trustMembers);
+        },
+      ),
     ),
   ),
   GoRoute(
     path: OnboardingPaths.trustMembers,
-    builder: (context, state) => TrustMembersScreen(
-      yourName: onboardingFlow.yourName,
-      initialMembers: onboardingFlow.trustMembers.isEmpty
-          ? null
-          : onboardingFlow.trustMembers,
-      onSubmit: (members) {
-        onboardingFlow.setTrustMembers(members);
-        context.go(OnboardingPaths.trustAccounts);
-      },
-      onSkip: () => context.go(OnboardingPaths.trustAccounts),
+    builder: (context, state) => _chainStep(
+      context,
+      state,
+      TrustMembersScreen(
+        yourName: onboardingFlow.yourName,
+        initialMembers: onboardingFlow.trustMembers.isEmpty
+            ? null
+            : onboardingFlow.trustMembers,
+        onSubmit: (members) {
+          onboardingFlow.setTrustMembers(members);
+          context.go(OnboardingPaths.trustAccounts);
+        },
+        onSkip: () => context.go(OnboardingPaths.trustAccounts),
+      ),
     ),
   ),
   GoRoute(
@@ -377,7 +468,8 @@ final List<RouteBase> onboardingRoutes = [
       startDate: bookStartDateOf(context),
       // Skipped or saved, the next stop is Home — where the S0.7 checklist
       // brings a skipped wizard back (07 §3.1 step 7).
-      onDone: () => context.go(HomePaths.home),
+      onDone: () => handOverToHome(context),
+      onBack: _backFrom(context, state),
     ),
   ),
   // S0.9 Invitation accept — 13 §3.2's deep-link entry. It is a root route,
@@ -405,6 +497,10 @@ final List<RouteBase> onboardingRoutes = [
     path: OnboardingPaths.invitation,
     builder: (context, state) => InvitationScreen(
       inviteId: state.uri.queryParameters[OnboardingPaths.invitationIdParam],
+      // ⚠️ SPEC (ADR 2026-10-06b ruling 1): S0.9 is not a step of F1 or F1b,
+      // so *Open my book* is not a hand-over. On an onboarded install it is
+      // Home as before; on one that is not, the gate resumes the chain (an
+      // invitee still sets a name and a PIN before Home).
       onOpenMyBook: () => context.go(HomePaths.home),
       onConfirmNumber: () => context.go(AuthPaths.phoneOtp),
       // The F11 ladder (13 §5) is features/devices' and features/auth's, not
@@ -447,3 +543,20 @@ String afterSetPin(OnboardingFlow flow) => switch (flow.purpose) {
   OnboardingPurpose.trust => OnboardingPaths.trust,
   _ => HomePaths.home,
 };
+
+/// Wraps a chain step whose screen has no back affordance of its own: system
+/// Back goes to [previousOnboardingStep] (ADR 2026-10-06b ruling 3).
+Widget _chainStep(BuildContext context, GoRouterState state, Widget step) =>
+    OnboardingBack(onBack: _backFrom(context, state), child: step);
+
+/// System Back on [state]'s step: the chain's previous step
+/// ([previousOnboardingStep]), resolved **at the press** — a committing step
+/// whose book was created while it was on screen holds from then on. Never
+/// null, so a step that holds still keeps Back from closing the app.
+VoidCallback _backFrom(BuildContext context, GoRouterState state) {
+  final path = state.uri.path;
+  return () {
+    final previous = previousOnboardingStep(path, onboardingFlow);
+    if (previous != null) context.go(previous);
+  };
+}

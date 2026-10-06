@@ -26,6 +26,7 @@ import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../../entry/entry_restriction.dart';
 import '../onboarding_flow.dart';
+import '../onboarding_gate.dart' show OnboardingBack;
 import '../screens/s0_6b_business_opening_balances_screen.dart'
     show OpeningGroup, OpeningRow;
 import '../screens/s0_6f_family_accounts_screen.dart';
@@ -39,6 +40,7 @@ class FamilyOpeningHost extends StatefulWidget {
     required this.startDate,
     this.onDone,
     this.onAddAccount,
+    this.onBack,
   });
 
   /// The answer S0.6d collected.
@@ -54,6 +56,14 @@ class FamilyOpeningHost extends StatefulWidget {
   /// Opens *Add an account* (S3.1) — how a bank arrives, since no book seeds
   /// one (ADR 2026-09-09d §1).
   final void Function(OpeningGroup group)? onAddAccount;
+
+  /// System Back (ADR 2026-10-06b ruling 3): the chain's previous step. Held
+  /// while the book is being created or the balances are being saved — a
+  /// step mid-operation holds its place — and once the book exists the
+  /// route resolves no previous step at all (`previousOnboardingStep`), so
+  /// the answers fixed into the book are never reopened. Null leaves Back
+  /// alone.
+  final VoidCallback? onBack;
 
   @override
   State<FamilyOpeningHost> createState() => _FamilyOpeningHostState();
@@ -117,6 +127,14 @@ class _FamilyOpeningHostState extends State<FamilyOpeningHost> {
             startDate: widget.startDate,
           );
       flow.familyBookId = bookId;
+      // Mounted again after its balances were posted (a resume, a deep
+      // link): the step is done, so it moves on rather than offering to post
+      // a second set to the same book (07 §3.1.1 — never duplicated).
+      if (widget.flow.familyOpeningPosted) {
+        if (mounted) setState(() => _running = false);
+        widget.onDone?.call();
+        return;
+      }
       final chart = await ledger.chartOf(bookId);
       // Only money accounts are reviewed here (ADR 2026-09-09c §1: the pool
       // seeds `Joint Cash A/c` and nothing else besides its Opening Balance /
@@ -153,9 +171,15 @@ class _FamilyOpeningHostState extends State<FamilyOpeningHost> {
       final ledger = LedgerScope.of(context);
       final bookId = widget.flow.familyBookId;
       if (bookId == null) return;
+      // Posted once already: one set of opening adjustments per book.
+      if (widget.flow.familyOpeningPosted) {
+        widget.onDone?.call();
+        return;
+      }
       if (await refuseIfEntryRestricted(context, sources, [bookId])) return;
       try {
         await ledger.openingBalances(bookId, balances: balances);
+        widget.flow.familyOpeningPosted = true;
         widget.onDone?.call();
       } on Object catch (e) {
         if (!mounted) return;
@@ -168,6 +192,20 @@ class _FamilyOpeningHostState extends State<FamilyOpeningHost> {
 
   @override
   Widget build(BuildContext context) {
+    final back = widget.onBack;
+    final body = _body(context);
+    if (back == null) return body;
+    // Read at the moment of the press: the two flags are not always set
+    // through setState, so a value captured at build could be stale.
+    return OnboardingBack(
+      onBack: () {
+        if (!_running && !_saving) back();
+      },
+      child: body,
+    );
+  }
+
+  Widget _body(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     if (_error != null) {
       return _CommitState(

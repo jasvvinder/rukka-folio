@@ -15,6 +15,7 @@ import 'features/home/home_scope.dart';
 import 'features/subscription/entitlement_source.dart';
 import 'features/subscription/plan_catalogue_source.dart';
 import 'features/lock/lock_routes.dart';
+import 'features/onboarding/onboarding_gate.dart';
 import 'l10n/gen/app_localizations.dart';
 import 'l10n/l10n.dart';
 import 'shared/app_scope.dart';
@@ -58,6 +59,7 @@ class RukkaFolioApp extends StatefulWidget {
     this.draftActivity,
     this.entitlement,
     this.planCatalogue,
+    this.onboardingGate,
   });
 
   final LedgerDatabase db;
@@ -145,6 +147,14 @@ class RukkaFolioApp extends StatefulWidget {
   /// the labelled offline mirror of `0018` (`planCatalogueSourceOf`).
   final PlanCatalogueSource? planCatalogue;
 
+  /// The launch gate of ADR 2026-10-06b 🔒: with it, Home and the tab shell
+  /// are unreachable until the chain has handed over (`AppSettings.onboarded`,
+  /// read from [settings]) and every launch resumes the chain. `bootstrap`
+  /// always passes one. Null (shell-only tests, which mount no chain to send
+  /// anyone into) leaves the router ungated — the same posture as a null
+  /// [pinVault]. Ignored when a prebuilt [router] is given.
+  final OnboardingGate? onboardingGate;
+
   @override
   State<RukkaFolioApp> createState() => _RukkaFolioAppState();
 }
@@ -177,6 +187,13 @@ class _RukkaFolioAppState extends State<RukkaFolioApp> {
         inbox: widget.inboxTabRoot,
         menu: widget.menuTabRoot,
         entry: widget.entryRoot,
+        redirect: switch (widget.onboardingGate) {
+          null => null,
+          final gate => (context, state) => gate.redirect(
+            state,
+            onboarded: _settings.onboarded,
+          ),
+        },
       );
 
   @override
