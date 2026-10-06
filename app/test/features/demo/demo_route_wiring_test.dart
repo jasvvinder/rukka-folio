@@ -26,6 +26,7 @@ import 'package:rukka_folio/shared/seams/key_store.dart';
 import 'package:rukka_folio/shared/seams/sync_client.dart';
 
 import '../../shared/test_app.dart';
+import '../auth/sign_in_harness.dart';
 
 /// The real app over [ledger], with only the onboarding routes, starting on
 /// S0.05 welcome — the hop the signup chain takes after the language step.
@@ -67,13 +68,15 @@ Future<void> _signIn(
 ) async {
   await tester.tap(find.text('Skip'));
   await tester.pumpAndSettle();
+  // ADR 2026-10-05c §1: the welcome slides now end at S0.06, the front door.
+  expect(router.state.uri.path, OnboardingPaths.start);
+  await tester.tap(find.text('I’m new · set up my books'));
+  await tester.pumpAndSettle();
   expect(router.state.uri.path, OnboardingPaths.signIn);
-  await tester.enterText(find.byType(TextField), tenDigits);
-  await tester.tap(find.text('Send code'));
-  await tester.pumpAndSettle();
-  await tester.enterText(find.byType(TextField), '123456');
-  await tester.tap(find.text('Verify'));
-  await tester.pumpAndSettle();
+  // S0.2 takes the number and the code on its in-app keypad (canvas 1b L2–L4);
+  // six digits verify by themselves.
+  await enterNumberAndSend(tester, tenDigits);
+  await tapKeys(tester, '123456');
   await tester.tap(find.text('Continue'));
   await tester.pumpAndSettle();
 }

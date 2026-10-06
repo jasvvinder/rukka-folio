@@ -16,8 +16,8 @@ final List<RouteBase> authRoutes = [
     path: AuthPaths.phoneOtp,
     builder: (context, state) => PhoneOtpScreen(
       onDone: (_) => context.go(RkPaths.home),
-      // ADR 2026-10-04b §3: *Get my books back* opens S11.6, the fork — the
-      // screen's own default, shared with the F1 signup route.
+      // ADR 2026-10-05c §3: S0.2b *No, it's lost or reset* opens S11.6, the
+      // fork — the screen's own default, shared with the F1 signup route.
     ),
   ),
   GoRoute(

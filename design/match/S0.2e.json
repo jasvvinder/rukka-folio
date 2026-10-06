@@ -1,0 +1,28 @@
+{
+ "sid": "S0.2e",
+ "verdict": "deviates",
+ "frames": [
+  "c1b/L8/Sign in · no books on this number"
+ ],
+ "captures": [
+  "S0.2e__default"
+ ],
+ "screen_files": [
+  "app/lib/features/auth/screens/s0_2e_no_books_screen.dart",
+  "app/lib/features/auth/screens/s0_2_phone_otp_screen.dart",
+  "app/lib/features/auth/widgets/sign_in_parts.dart"
+ ],
+ "deviations": [
+  {
+   "what": "Body copy (bodyLarge subtitles and leads) draws with Material's inherited tracking at 16 px where the canvas sets 15.5 px untracked, so lines break a word or two earlier than the frame",
+   "reason": "No token defines tracking and RkType.body sets none, so ThemeData merges the M3 default letterSpacing; the fix is one line in rkTextTheme for every screen (open item to the theme owner, as on S0.8). 15.5 px maps to the body role by rule",
+   "authority": "app/lib/shared/theme.dart rkTextTheme — outside this lane's folders; ADR 2026-10-05 §1 (tokens.json decides values: type.body 16)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-06",
+ "hashes": {
+  "screens": "f39641ef7bce41eb98a27003ce6ab3d9eb2ed17a012f4e8d5d3d84394c919e36",
+  "frames": "03274b933f193f1e97f2fea948c54d254c3aa997466bf619647cbba2d42204ab"
+ }
+}

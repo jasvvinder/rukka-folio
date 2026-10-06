@@ -1,0 +1,33 @@
+{
+ "sid": "S0.2a",
+ "verdict": "deviates",
+ "frames": [
+  "c1b/L1/This number already has books"
+ ],
+ "captures": [
+  "S0.2a__default"
+ ],
+ "screen_files": [
+  "app/lib/features/auth/screens/s0_2a_has_books_screen.dart",
+  "app/lib/features/auth/screens/s0_2_phone_otp_screen.dart",
+  "app/lib/features/auth/widgets/sign_in_parts.dart"
+ ],
+ "deviations": [
+  {
+   "what": "Heading 'Welcome back' without the name, and a person glyph in the avatar instead of the initials 'HK'",
+   "reason": "otp/verify does not carry the display name (server slice SIGNIN1B's contract has none), so there is no name to show; ⚠️ SPEC in the screen file, owner/server desk item",
+   "authority": "ADR 2026-10-05c §2 (the own display name *may* appear after the code); open ⚠️ SPEC s0_2a_has_books_screen.dart"
+  },
+  {
+   "what": "Body copy (bodyLarge subtitles and leads) draws with Material's inherited tracking at 16 px where the canvas sets 15.5 px untracked, so lines break a word or two earlier than the frame",
+   "reason": "No token defines tracking and RkType.body sets none, so ThemeData merges the M3 default letterSpacing; the fix is one line in rkTextTheme for every screen (open item to the theme owner, as on S0.8). 15.5 px maps to the body role by rule",
+   "authority": "app/lib/shared/theme.dart rkTextTheme — outside this lane's folders; ADR 2026-10-05 §1 (tokens.json decides values: type.body 16)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-06",
+ "hashes": {
+  "screens": "39973b2db3d4f59f4e511eb2953c18988c4a2b8c32a17fcc3232e7af24a1049e",
+  "frames": "24d5ce67898990d6ef8771f9b4928b0231dded019120821b3e0a572db820f697"
+ }
+}

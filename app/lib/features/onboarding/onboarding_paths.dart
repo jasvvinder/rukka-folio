@@ -13,6 +13,22 @@ abstract final class OnboardingPaths {
   /// S0.05 Welcome — 3 skippable slides, after language (13 §3.2).
   static const welcome = '/onboarding/welcome';
 
+  /// S0.06 Start — the front door after the welcome slides (ADR 2026-10-05c
+  /// §1, 13 §3.2 row S0.06, canvas 1b L0): *I'm new* or *I already use Rukka*.
+  static const start = '/onboarding/start';
+
+  /// The query parameter on [signIn] that names the S0.06 door. Absent (or
+  /// anything else) is the *I'm new* door; [signInDoorReturning] is the
+  /// sign-in door (S0.2's sign-in state, canvas 1b L2).
+  static const signInDoorParam = 'door';
+
+  /// [signInDoorParam]'s value for *I already use Rukka · sign in*.
+  static const signInDoorReturning = 'sign-in';
+
+  /// [signIn] on the sign-in door.
+  static String get signInReturning =>
+      '$signIn?$signInDoorParam=$signInDoorReturning';
+
   /// S0.2 Phone + OTP **inside the onboarding chain** — 13 §5 flow F1
   /// (`… → S0.05 welcome → S0.2 phone+OTP → S0.3 purpose → …`). The same
   /// screen as auth's own `AuthPaths.phoneOtp` route, which stays as it is

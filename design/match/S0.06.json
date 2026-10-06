@@ -1,0 +1,28 @@
+{
+ "sid": "S0.06",
+ "verdict": "deviates",
+ "frames": [
+  "c1b/L0/Start · new or already using Rukka"
+ ],
+ "captures": [
+  "S0.06__default"
+ ],
+ "screen_files": [
+  "app/lib/features/onboarding/screens/s0_06_start_screen.dart",
+  "app/lib/features/auth/widgets/sign_in_parts.dart",
+  "app/lib/features/onboarding/widgets/sealed_mark.dart"
+ ],
+ "deviations": [
+  {
+   "what": "The wordmark 'Rukka Folio' draws at the section role (20 px, w600) where the frame's reads near 24 px",
+   "reason": "A canvas size maps to its type role, never a literal; 24 px sits between section (20) and page (28) and the nearer role is section",
+   "authority": "ADR 2026-10-05 §1 (tokens.json decides values: type.section)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-06",
+ "hashes": {
+  "screens": "616bf8050867353a1859468934abab8fc1af1ff31d25f9a978fd611268a821dd",
+  "frames": "8b9646d2ed27ab29801970c1f4b33712eb040edce5b00f49012a8d17baf49b0e"
+ }
+}

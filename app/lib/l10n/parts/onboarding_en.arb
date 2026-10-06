@@ -192,7 +192,11 @@
   "onboarding.business.another.row_meta": "FY from 1 {month}",
   "@onboarding.business.another.row_meta": {
     "description": "S0.6c recap row, second line — the financial year that business keeps (02 §8.1).",
-    "placeholders": {"month": {"type": "String"}}
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
   },
   "onboarding.business.another.ready_tag": "set up",
   "@onboarding.business.another.ready_tag": {
@@ -1003,7 +1007,11 @@
   "onboarding.invite.offer.books": "{count, plural, =1{1 shared book} other{{count} shared books}}",
   "@onboarding.invite.offer.books": {
     "description": "S0.9 — how many shared books the invitation covers. A count is all the server sends before acceptance; the names are not its to give.",
-    "placeholders": {"count": {"type": "int"}}
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "onboarding.invite.offer.hidden": "The names come after you accept. A phone that has not joined is shown nothing about a family or a business — not even who asked.",
   "@onboarding.invite.offer.hidden": {
@@ -1012,7 +1020,11 @@
   "onboarding.invite.offer.expires": "This link stops working on {date}",
   "@onboarding.invite.offer.expires": {
     "description": "S0.9 — the 7-day window of 06 §7 🔒, as a date rather than a countdown.",
-    "placeholders": {"date": {"type": "String"}}
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
   },
   "onboarding.invite.offer.accept": "Accept invitation",
   "@onboarding.invite.offer.accept": {
@@ -1037,7 +1049,11 @@
   "onboarding.invite.joined.waiting": "{count, plural, =1{1 shared book is waiting for you} other{{count} shared books are waiting for you}}",
   "@onboarding.invite.joined.waiting": {
     "description": "S0.9 accepted state, before the meta pull has named the shared books — a count, never an invented name.",
-    "placeholders": {"count": {"type": "int"}}
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "onboarding.invite.joined.open": "Open my book",
   "@onboarding.invite.joined.open": {
@@ -1128,7 +1144,23 @@
     "description": "S0.9 device-not-live secondary action → S11 Devices & security (desk 109; the same route S15.4 offers). Matches the S11 title devices.title."
   },
   "onboarding.set_pin.biometric_note_pin_only": "This phone has no fingerprint or face set up, so your PIN keeps this app closed to everyone else. Add one in your phone's settings and the app will use it after you next type your PIN.",
-  "@onboarding.set_pin.biometric_note_pin_only": {"description": "S0.8 PIN-only form of the app-lock line stated at onboarding, never asked (07 §5.6, ADR 2026-10-05b §1). ⚠️ SPEC: draft — design desk 148."},
+  "@onboarding.set_pin.biometric_note_pin_only": {
+    "description": "S0.8 PIN-only form of the app-lock line stated at onboarding, never asked (07 §5.6, ADR 2026-10-05b §1). ⚠️ SPEC: draft — design desk 148."
+  },
   "onboarding.set_pin.hint": "Six digits",
-  "@onboarding.set_pin.hint": {"description": "S0.8 caption under the boxes (c1 O4b *Set your PIN · six digits*); the step advances by itself at the sixth digit."}
+  "@onboarding.set_pin.hint": {
+    "description": "S0.8 caption under the boxes (c1 O4b *Set your PIN · six digits*); the step advances by itself at the sixth digit."
+  },
+  "onboarding.start.new": "I’m new · set up my books",
+  "@onboarding.start.new": {
+    "description": "S0.06 first door (canvas 1b L0, ADR 2026-10-05c §1) → S0.2 on the I'm-new door."
+  },
+  "onboarding.start.sign_in": "I already use Rukka · sign in",
+  "@onboarding.start.sign_in": {
+    "description": "S0.06 second door (canvas 1b L0) → S0.2 in its sign-in state (ADR 2026-10-05c §1)."
+  },
+  "onboarding.start.invited": "Invited by someone? Open the link they sent you.",
+  "@onboarding.start.invited": {
+    "description": "S0.06 invite line (canvas 1b L0): 07 §12 stays the invite path — a deep link opens S0.9; this line is not a button."
+  }
 }

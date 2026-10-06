@@ -21,7 +21,9 @@
   "onboarding.purpose.card.myself.description": "अपने पैसों का हिसाब रखें",
   "onboarding.purpose.card.businesses.label": "मेरा कारोबार",
   "onboarding.purpose.card.businesses.description": "दुकान, प्रैक्टिस, फ्रीलांस काम — एक या ज़्यादा",
-  "@onboarding.purpose.card.businesses.description": {"description": "machine-draft — native review M12 (ADR 2026-10-04c §1, desk 111)"},
+  "@onboarding.purpose.card.businesses.description": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-04c §1, desk 111)"
+  },
   "onboarding.purpose.card.family.label": "मेरा परिवार",
   "onboarding.purpose.card.family.description": "घर के सभी लोगों के साथ साझा",
   "onboarding.purpose.card.trust.label": "हमारा ट्रस्ट",
@@ -97,16 +99,26 @@
   "onboarding.business.ownership_shared_note": "आगे आप बाकी मालिकों के नाम और हिस्से भरेंगे",
   "onboarding.set_pin.title": "अपना पिन बनाएँ",
   "onboarding.set_pin.subtitle": "ज़्यादातर आप फ़ेस आईडी इस्तेमाल करेंगे। यह तब के लिए है जब वह काम न करे — और यह आपकी बहियाँ उससे भी बंद रखता है जिसे आपके फ़ोन का पासकोड पता है।",
-  "@onboarding.set_pin.subtitle": {"description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"},
+  "@onboarding.set_pin.subtitle": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
   "onboarding.set_pin.why": "यह आपकी बहियाँ उससे भी बंद रखता है जिसे आपके फ़ोन का पासकोड पता है।",
-  "@onboarding.set_pin.why": {"description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"},
+  "@onboarding.set_pin.why": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
   "onboarding.set_pin.biometric_note": "फ़ेस आईडी इस ऐप को सबके लिए बंद रखती है — अगर इस फ़ोन पर नया चेहरा जोड़ा गया, तो ऐप आपका पिन पूछेगी",
   "onboarding.set_pin.confirm.title": "फिर से भरें",
-  "@onboarding.set_pin.confirm.title": {"description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"},
+  "@onboarding.set_pin.confirm.title": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
   "onboarding.set_pin.confirm.subtitle": "अभी चुने छह अंक पक्के करें।",
-  "@onboarding.set_pin.confirm.subtitle": {"description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"},
+  "@onboarding.set_pin.confirm.subtitle": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
   "onboarding.set_pin.mismatch": "दोनों मेल नहीं खाए। दोबारा शुरू करें।",
-  "@onboarding.set_pin.mismatch": {"description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"},
+  "@onboarding.set_pin.mismatch": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
   "onboarding.set_pin.saving": "आपका पिन सहेजा जा रहा है…",
   "onboarding.set_pin.save_failed": "हम वह पिन सहेज नहीं सके — एक बार और कोशिश करें",
   "onboarding.books_safe.title": "आपकी बहियाँ सुरक्षित रखना",
@@ -260,13 +272,35 @@
   "onboarding.invite.unset.body": "जब तक इस फ़ोन के पास आपकी चाबियाँ नहीं आतीं, यह अपने सिवा कुछ नहीं दिखाता — न बहियाँ, न लोग, न कोई निमंत्रण। पहले इसे तैयार करें, फिर लिंक दोबारा खोलें।",
   "onboarding.invite.unset.action": "यह फ़ोन तैयार करें",
   "onboarding.invite.device_not_live.title": "यह फ़ोन निमंत्रण नहीं खोल सकता",
-  "@onboarding.invite.device_not_live.title": {"description": "machine-draft — native review M12"},
+  "@onboarding.invite.device_not_live.title": {
+    "description": "machine-draft — native review M12"
+  },
   "onboarding.invite.device_not_live.body": "यह फ़ोन हटाया गया है या रोका गया है। यहाँ या अपने किसी दूसरे फ़ोन पर ‘डिवाइस और सुरक्षा’ देखें, फिर दोबारा कोशिश करें।",
-  "@onboarding.invite.device_not_live.body": {"description": "machine-draft — native review M12"},
+  "@onboarding.invite.device_not_live.body": {
+    "description": "machine-draft — native review M12"
+  },
   "onboarding.invite.device_not_live.devices": "डिवाइस और सुरक्षा",
-  "@onboarding.invite.device_not_live.devices": {"description": "machine-draft — native review M12 (matches devices.title)"},
+  "@onboarding.invite.device_not_live.devices": {
+    "description": "machine-draft — native review M12 (matches devices.title)"
+  },
   "onboarding.set_pin.biometric_note_pin_only": "इस फ़ोन पर कोई उंगली का निशान या चेहरा नहीं लगा है, इसलिए आपका पिन इस ऐप को सबके लिए बंद रखता है। फ़ोन की सेटिंग में एक जोड़ें, अगली बार पिन भरने के बाद ऐप उसे इस्तेमाल करेगी।",
-  "@onboarding.set_pin.biometric_note_pin_only": {"description": "machine-draft — native review M12 (ADR 2026-10-05b)"},
+  "@onboarding.set_pin.biometric_note_pin_only": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05b)"
+  },
   "onboarding.set_pin.hint": "छह अंक",
-  "@onboarding.set_pin.hint": {"description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"}
+  "@onboarding.set_pin.hint": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
+  "onboarding.start.new": "मैं नया हूँ · मेरे बही-खाते बनाएँ",
+  "@onboarding.start.new": {
+    "description": "machine-draft — native review M12"
+  },
+  "onboarding.start.sign_in": "मैं पहले से Rukka इस्तेमाल करता हूँ · साइन इन",
+  "@onboarding.start.sign_in": {
+    "description": "machine-draft — native review M12"
+  },
+  "onboarding.start.invited": "किसी ने न्योता भेजा? उनका भेजा लिंक खोलें।",
+  "@onboarding.start.invited": {
+    "description": "machine-draft — native review M12"
+  }
 }

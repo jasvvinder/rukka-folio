@@ -33,6 +33,14 @@
 //     an echo of it; `409 user_id_taken` re-mints once — ADR 2026-10-04b §1–§2
 //     (server lane ID107S);
 //   • `purpose` on both OTP calls (`PURPOSES` in index.ts) — [OtpPurpose];
+//     the S0.06 door picks it ([SignInDoor.purpose], ADR 2026-10-05c §1);
+//   • `otp/verify` 200 carries `account: "existing" | "created" | "none"`;
+//     `none` (sign-in door, unknown number — the server does NOT sign up)
+//     carries `{signup_ticket, expires_in_s}` and no ticket/user_id, and
+//     `signup/adopt {signup_ticket, user_id}` turns it into the signup:
+//     `{ticket, user_id, account: "created", expires_in_s}`, 400
+//     `signup_ticket_invalid`, 409 `user_id_taken` (server slice SIGNIN1B;
+//     an answer without `account` falls back to the user_id comparison);
 //   • error bodies `{ "error": "otp_invalid", "attempts_left"? }`,
 //     `ticket_invalid` (401), `device_cap` (409), `challenge_failed`,
 //     `refresh_invalid` / `refresh_reused` (401), `too_many_requests` (429);
@@ -94,6 +102,16 @@ enum OtpPurpose {
   const OtpPurpose(this.wire);
 
   final String wire;
+}
+
+/// The S0.06 door's OTP purpose (ADR 2026-10-05c §1): *I'm new* keeps
+/// `signup`; *sign in* sends `device_activation`, for which the server answers
+/// an unknown number with a signup ticket instead of signing it up (§2).
+extension SignInDoorPurpose on SignInDoor {
+  OtpPurpose get purpose => switch (this) {
+    SignInDoor.newBooks => OtpPurpose.signup,
+    SignInDoor.signIn => OtpPurpose.deviceActivation,
+  };
 }
 
 /// The API answered 426: this build is below the minimum client version for
@@ -222,6 +240,7 @@ final class AuthEndpoints {
 
   Uri get otpRequest => _sub('otp/request');
   Uri get otpVerify => _sub('otp/verify');
+  Uri get signupAdopt => _sub('signup/adopt'); // ADR 2026-10-05c §2
   Uri get devices => _sub('devices'); // 06 §3 step 2
   Uri get devicesCertify => _sub('devices/certify'); // 06 §3 step 3
   Uri get challenge => _sub('challenge'); // 06 §4 step 1
@@ -682,7 +701,8 @@ final class HttpAuthClient
 
   // --- 06 §2 OTP ----------------------------------------------------------
 
-  /// Sends a code to [phone]. [purpose] defaults to [defaultPurpose];
+  /// Sends a code to [phone]. [purpose] wins when given; otherwise [door]'s
+  /// purpose ([SignInDoorPurpose]); otherwise [defaultPurpose];
   /// [channel] is sent explicitly as `sms` (ADR 2026-09-25 §1) — ⚠️ WIRE
   /// the server's `otp/request` treats an absent `channel` as its own
   /// default, so the client never leaves it out. The 200 body is
@@ -694,10 +714,11 @@ final class HttpAuthClient
   @override
   Future<void> requestOtp(
     String phone, {
+    SignInDoor? door,
     OtpPurpose? purpose,
     OtpChannel channel = OtpChannel.sms,
   }) async {
-    final p = purpose ?? defaultPurpose;
+    final p = purpose ?? door?.purpose ?? defaultPurpose;
     // A 429 here carries `resend_after_s` too; _post records it before it
     // throws rateLimited.
     final r = await _post(endpoints.otpRequest, {
@@ -744,8 +765,25 @@ final class HttpAuthClient
   ///
   /// No identity in the store fails closed with [NoDeviceIdentity] before any
   /// request, as [activateDevice] does (ADR 2026-09-16 §3).
+  ///
+  /// The door-blind form of [checkOtp]: books under another account throw
+  /// [AuthFailureKind.existingAccount], no account throws
+  /// [AuthFailureKind.unavailable].
   @override
-  Future<ActivationTicket> verifyOtp(String code) async {
+  Future<ActivationTicket> verifyOtp(String code) async =>
+      switch (await checkOtp(code)) {
+        OtpThisPhone(:final ticket) => ticket,
+        OtpHasBooks() => throw const AuthFailure(
+          AuthFailureKind.existingAccount,
+        ),
+        OtpNoBooks() => throw const AuthFailure(AuthFailureKind.unavailable),
+      };
+
+  /// `POST otp/verify` and what the answer says about the number (ADR
+  /// 2026-10-05c §2): `account` when the server sends it, else the user_id
+  /// comparison above. See [verifyOtp] for the identity rules.
+  @override
+  Future<OtpOutcome> checkOtp(String code) async {
     final phone = _pendingPhone;
     final purpose = _pendingPurpose;
     if (phone == null || purpose == null) {
@@ -769,36 +807,65 @@ final class HttpAuthClient
       }
       final body = _json(r);
       if (r.statusCode == 409 && body['error'] == 'user_id_taken') {
-        // §2: safe only while nothing was authored — the ledger decides, and
-        // refuses once confirmed or written under. Once, never a loop.
-        final identity = signupIdentity;
-        if (reminted || identity == null) {
-          _log('user_id_taken');
-          throw const AuthFailure(AuthFailureKind.unavailable);
-        }
-        final String fresh;
-        try {
-          fresh = await identity.remintProvisionalIdentity();
-        } on IdentityNotProvisional {
-          _log('user_id_taken');
-          throw const AuthFailure(AuthFailureKind.unavailable);
-        }
-        if (!Uuid16.isCanonical(fresh) || fresh == userId) {
-          throw const AuthFailure(AuthFailureKind.unavailable);
-        }
-        userId = fresh;
+        userId = await _remintOnce(userId, reminted: reminted);
         reminted = true;
-        _log('user_id_reminted');
         continue;
       }
       _verifyRefused(r, body);
     }
   }
 
-  Future<ActivationTicket> _verified(
-    Map<String, Object?> body,
-    String userId,
-  ) async {
+  /// ADR 2026-10-04b §2: safe only while nothing was authored — the ledger
+  /// decides, and refuses once confirmed or written under. Once, never a
+  /// loop. Returns the fresh id, or throws [AuthFailureKind.unavailable].
+  Future<String> _remintOnce(String userId, {required bool reminted}) async {
+    final identity = signupIdentity;
+    if (reminted || identity == null) {
+      _log('user_id_taken');
+      throw const AuthFailure(AuthFailureKind.unavailable);
+    }
+    final String fresh;
+    try {
+      fresh = await identity.remintProvisionalIdentity();
+    } on IdentityNotProvisional {
+      _log('user_id_taken');
+      throw const AuthFailure(AuthFailureKind.unavailable);
+    }
+    if (!Uuid16.isCanonical(fresh) || fresh == userId) {
+      throw const AuthFailure(AuthFailureKind.unavailable);
+    }
+    _log('user_id_reminted');
+    return fresh;
+  }
+
+  Future<OtpOutcome> _verified(Map<String, Object?> body, String userId) async {
+    final account = body['account'];
+    if (account == 'none') {
+      // ADR 2026-10-05c §2: the sign-in door, a number with no account. The
+      // server signed nothing up; the code is spent; a signup happens only
+      // if the person chooses it ([adoptSignup]). Nothing is stored.
+      _pendingPhone = null;
+      _pendingPurpose = null;
+      final signup = body['signup_ticket'];
+      if (signup is! String || signup.isEmpty) {
+        _log('otp_verify_malformed');
+        throw const AuthFailure(AuthFailureKind.unavailable);
+      }
+      final ttl = body['expires_in_s'];
+      _log('otp_no_account');
+      return OtpNoBooks(
+        SignupTicket(
+          signup,
+          expiresIn: ttl is num ? Duration(seconds: ttl.ceil()) : null,
+        ),
+      );
+    }
+    if (account != null && account != 'existing' && account != 'created') {
+      _pendingPhone = null;
+      _pendingPurpose = null;
+      _log('otp_verify_malformed');
+      throw const AuthFailure(AuthFailureKind.unavailable);
+    }
     final ticket = body['ticket'];
     if (ticket is! String || ticket.isEmpty) {
       throw const AuthFailure(AuthFailureKind.unavailable);
@@ -810,21 +877,77 @@ final class HttpAuthClient
       // The ids themselves never reach the log (rule 4).
       _pendingPhone = null;
       _pendingPurpose = null;
-      if (answered is String && Uuid16.isCanonical(answered)) {
+      // `created` names this install's id by definition; another id with it
+      // is a server answer this client does not believe.
+      if (account != 'created' &&
+          answered is String &&
+          Uuid16.isCanonical(answered)) {
         _log('otp_existing_account');
-        throw const AuthFailure(AuthFailureKind.existingAccount);
+        return const OtpHasBooks();
       }
       _log('otp_user_id_mismatch');
       throw const AuthFailure(AuthFailureKind.unavailable);
     }
-    // §2: confirmed before anything is stored, so a stored session user id
-    // always names a confirmed identity.
-    await signupIdentity?.confirmIdentity(userId);
-    await _writeText(SessionItems.userId, userId);
+    await _confirmAndStore(userId);
     _pendingPhone = null;
     _pendingPurpose = null;
     _log('otp_verified');
-    return ActivationTicket(ticket);
+    return OtpThisPhone(ActivationTicket(ticket));
+  }
+
+  /// ADR 2026-10-04b §2: confirmed before anything is stored, so a stored
+  /// session user id always names a confirmed identity.
+  Future<void> _confirmAndStore(String userId) async {
+    await signupIdentity?.confirmIdentity(userId);
+    await _writeText(SessionItems.userId, userId);
+  }
+
+  /// `POST signup/adopt {signup_ticket, user_id}` (ADR 2026-10-05c §2, server
+  /// slice SIGNIN1B): S0.2e *Set up new books* — the signup, with no second
+  /// code. Believed only on an echo of this install's id with `account`
+  /// absent or `created`; `409 user_id_taken` re-mints once, exactly as
+  /// [checkOtp] does; `400 signup_ticket_invalid` →
+  /// [AuthFailureKind.signupTicketInvalid]. No identity → [NoDeviceIdentity]
+  /// before any request.
+  @override
+  Future<ActivationTicket> adoptSignup(SignupTicket signup) async {
+    final stored = await _userIdSource();
+    if (stored == null || !Uuid16.isCanonical(stored)) {
+      throw const NoDeviceIdentity();
+    }
+    var userId = stored;
+    var reminted = false;
+    while (true) {
+      final r = await _post(endpoints.signupAdopt, {
+        'signup_ticket': signup.value,
+        'user_id': userId,
+      });
+      final body = _json(r);
+      if (r.statusCode == 200) {
+        final ticket = body['ticket'];
+        final account = body['account'];
+        if (ticket is! String ||
+            ticket.isEmpty ||
+            body['user_id'] != userId ||
+            (account != null && account != 'created')) {
+          _log('signup_adopt_mismatch');
+          throw const AuthFailure(AuthFailureKind.unavailable);
+        }
+        await _confirmAndStore(userId);
+        _log('signup_adopted');
+        return ActivationTicket(ticket);
+      }
+      if (r.statusCode == 409 && body['error'] == 'user_id_taken') {
+        userId = await _remintOnce(userId, reminted: reminted);
+        reminted = true;
+        continue;
+      }
+      if (r.statusCode == 400 && body['error'] == 'signup_ticket_invalid') {
+        _log('signup_ticket_invalid');
+        throw const AuthFailure(AuthFailureKind.signupTicketInvalid);
+      }
+      _throwGeneric(r, 'signup_adopt');
+    }
   }
 
   Never _verifyRefused(AuthHttpResponse r, Map<String, Object?> body) {

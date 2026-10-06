@@ -2005,4 +2005,282 @@ void main() {
       expect(log.join('\n'), isNot(contains(existingUserId)));
     });
   });
+
+  group('ADR 2026-10-05c — the sign-in door on the wire (server slice '
+      'SIGNIN1B)', () {
+    late FakeSignupIdentity identity;
+
+    Future<HttpAuthClient> signupClient() async {
+      final c = await client();
+      identity = FakeSignupIdentity(keys);
+      c.signupIdentity = identity;
+      return c;
+    }
+
+    void scriptRequest() => t.on(
+      '/otp/request',
+      ScriptedTransport.ok({'ok': true, 'resend_after_s': 30}),
+    );
+
+    Matcher failsWith(AuthFailureKind kind) =>
+        throwsA(isA<AuthFailure>().having((f) => f.kind, 'kind', kind));
+
+    test('F1-1005c-2 the door picks the purpose: I\'m new sends signup, '
+        'sign in sends device_activation, on both OTP calls; an explicit '
+        'purpose still wins', () async {
+      final c = await signupClient();
+      scriptRequest();
+      await c.requestOtp(phone, door: SignInDoor.newBooks);
+      expect(t.last('/otp/request')['purpose'], 'signup');
+      await c.requestOtp(phone, door: SignInDoor.signIn);
+      expect(t.last('/otp/request')['purpose'], 'device_activation');
+      t.on(
+        '/otp/verify',
+        ScriptedTransport.ok({
+          'account': 'existing',
+          'ticket': 'tk-1',
+          'user_id': existingUserId,
+        }),
+      );
+      await c.checkOtp(code);
+      expect(t.last('/otp/verify')['purpose'], 'device_activation');
+      await c.requestOtp(
+        phone,
+        door: SignInDoor.signIn,
+        purpose: OtpPurpose.phoneChange,
+      );
+      expect(t.last('/otp/request')['purpose'], 'phone_change');
+      // Through the seam's own signature (what S0.2 calls).
+      final AuthClient seam = c;
+      await seam.requestOtp(phone, door: SignInDoor.signIn);
+      expect(t.last('/otp/request')['purpose'], 'device_activation');
+    });
+
+    test('F1-1005c-2 account parsing: created + our id → this phone (confirmed '
+        'and stored); existing + another id → has books (nothing stored); '
+        'existing + our own id → this phone; created + another id is not '
+        'believed; an unknown account value is refused', () async {
+      Future<(HttpAuthClient, Object)> run(Map<String, Object?> body) async {
+        t = ScriptedTransport();
+        keys = FakeKeyStore();
+        await seedLedgerIdentity(keys);
+        final c = await signupClient();
+        scriptRequest();
+        t.on('/otp/verify', ScriptedTransport.ok(body));
+        await c.requestOtp(phone, door: SignInDoor.signIn);
+        try {
+          return (c, await c.checkOtp(code));
+        } on AuthFailure catch (e) {
+          return (c, e);
+        }
+      }
+
+      var (_, out) = await run({
+        'account': 'created',
+        'ticket': 'tk-1',
+        'user_id': ledgerUserId,
+      });
+      expect(out, isA<OtpThisPhone>());
+      expect((out as OtpThisPhone).ticket.value, 'tk-1');
+      expect(identity.confirmedWith, [ledgerUserId]);
+      expect(await keys.contains(SessionItems.userId), isTrue);
+
+      (_, out) = await run({
+        'account': 'existing',
+        'ticket': 'tk-1',
+        'user_id': existingUserId,
+      });
+      expect(out, isA<OtpHasBooks>());
+      expect(identity.confirmedWith, isEmpty);
+      expect(await keys.contains(SessionItems.userId), isFalse);
+      expect(log.join('\n'), isNot(contains(existingUserId)));
+
+      (_, out) = await run({
+        'account': 'existing',
+        'ticket': 'tk-1',
+        'user_id': ledgerUserId,
+      });
+      expect(out, isA<OtpThisPhone>());
+
+      (_, out) = await run({
+        'account': 'created',
+        'ticket': 'tk-1',
+        'user_id': existingUserId,
+      });
+      expect(
+        out,
+        isA<AuthFailure>().having(
+          (f) => f.kind,
+          'kind',
+          AuthFailureKind.unavailable,
+        ),
+      );
+      expect(await keys.contains(SessionItems.userId), isFalse);
+
+      (_, out) = await run({
+        'account': 'mystery',
+        'ticket': 'tk-1',
+        'user_id': ledgerUserId,
+      });
+      expect(out, isA<AuthFailure>());
+      expect(await keys.contains(SessionItems.userId), isFalse);
+
+      // No `account` at all: the 04b user_id comparison still decides.
+      (_, out) = await run({'ticket': 'tk-1', 'user_id': existingUserId});
+      expect(out, isA<OtpHasBooks>());
+    });
+
+    test('F1-1005c-2 account none carries a signup ticket and nothing else: '
+        'nothing is confirmed or stored, the code is spent, and verifyOtp '
+        'refuses it as unavailable (no ticket to activate)', () async {
+      final c = await signupClient();
+      scriptRequest();
+      t.on(
+        '/otp/verify',
+        ScriptedTransport.ok({
+          'account': 'none',
+          'signup_ticket': 'st-1',
+          'expires_in_s': 600,
+        }),
+      );
+      await c.requestOtp(phone, door: SignInDoor.signIn);
+      final out = await c.checkOtp(code);
+      expect(out, isA<OtpNoBooks>());
+      final signup = (out as OtpNoBooks).signupTicket;
+      expect(signup.value, 'st-1');
+      expect(signup.expiresIn, const Duration(minutes: 10));
+      expect(identity.confirmedWith, isEmpty);
+      expect(await keys.contains(SessionItems.userId), isFalse);
+      expect(t.count('/devices'), 0);
+      await expectLater(
+        c.checkOtp(code),
+        failsWith(AuthFailureKind.noPendingCode),
+      );
+      expect(log.join('\n'), isNot(contains('st-1')));
+
+      // A `none` without a ticket is malformed, never a silent signup.
+      t = ScriptedTransport();
+      final c2 = await signupClient();
+      scriptRequest();
+      t.on('/otp/verify', ScriptedTransport.ok({'account': 'none'}));
+      await c2.requestOtp(phone, door: SignInDoor.signIn);
+      await expectLater(
+        c2.verifyOtp(code),
+        failsWith(AuthFailureKind.unavailable),
+      );
+    });
+
+    test('F1-1005c-2 adoptSignup posts {signup_ticket, user_id} to '
+        'auth-challenge/signup/adopt and, on an echo of our id with account '
+        'created, confirms, stores and returns the activation ticket — no '
+        'second OTP request', () async {
+      final c = await signupClient();
+      t.on(
+        '/signup/adopt',
+        ScriptedTransport.ok({
+          'ticket': 'tk-9',
+          'user_id': ledgerUserId,
+          'account': 'created',
+          'expires_in_s': 600,
+        }),
+      );
+      final ticket = await c.adoptSignup(const SignupTicket('st-1'));
+      expect(ticket.value, 'tk-9');
+      final req = t.requests.single;
+      expect(
+        req.url.toString(),
+        'https://api.test/functions/v1/auth-challenge/signup/adopt',
+      );
+      expect(req.body, {'signup_ticket': 'st-1', 'user_id': ledgerUserId});
+      expect(identity.confirmedWith, [ledgerUserId]);
+      expect(identity.storedAtConfirm, [false]);
+      expect(
+        utf8.decode((await keys.read(SessionItems.userId))!),
+        ledgerUserId,
+      );
+      expect(t.count('/otp/request'), 0);
+      expect(t.count('/otp/verify'), 0);
+      final joined = log.join('\n');
+      expect(joined, isNot(contains('st-1')));
+      expect(joined, isNot(contains(ledgerUserId)));
+    });
+
+    test('F1-1005c-2 adoptSignup errors: 400 signup_ticket_invalid → '
+        'signupTicketInvalid; 409 user_id_taken re-mints once and retries '
+        'with the fresh id; another id in the echo, a second 409 and a 500 '
+        'are unavailable; nothing stored on any failure; no identity → '
+        'NoDeviceIdentity before any request', () async {
+      var c = await signupClient();
+      t.on(
+        '/signup/adopt',
+        ScriptedTransport.ok({'error': 'signup_ticket_invalid'}, 400),
+      );
+      await expectLater(
+        c.adoptSignup(const SignupTicket('st-1')),
+        failsWith(AuthFailureKind.signupTicketInvalid),
+      );
+      expect(await keys.contains(SessionItems.userId), isFalse);
+
+      t = ScriptedTransport();
+      c = await signupClient();
+      t.on(
+        '/signup/adopt',
+        ScriptedTransport.ok({'error': 'user_id_taken'}, 409),
+      );
+      t.on(
+        '/signup/adopt',
+        ScriptedTransport.ok({
+          'ticket': 'tk-9',
+          'user_id': remintedUserId,
+          'account': 'created',
+        }),
+      );
+      expect((await c.adoptSignup(const SignupTicket('st-1'))).value, 'tk-9');
+      final bodies = [
+        for (final r in t.requests)
+          if (r.url.path.endsWith('/signup/adopt')) r.body,
+      ];
+      expect(bodies.map((b) => b['user_id']), [ledgerUserId, remintedUserId]);
+      expect(bodies.map((b) => b['signup_ticket']), ['st-1', 'st-1']);
+      expect(identity.reminted, 1);
+      expect(identity.confirmedWith, [remintedUserId]);
+
+      for (final answers in [
+        [
+          ScriptedTransport.ok({
+            'ticket': 'tk-9',
+            'user_id': existingUserId,
+            'account': 'created',
+          }),
+        ],
+        [
+          ScriptedTransport.ok({'error': 'user_id_taken'}, 409),
+          ScriptedTransport.ok({'error': 'user_id_taken'}, 409),
+        ],
+        [const AuthHttpResponse(500, '')],
+      ]) {
+        t = ScriptedTransport();
+        keys = FakeKeyStore();
+        await seedLedgerIdentity(keys);
+        c = await signupClient();
+        for (final a in answers) {
+          t.on('/signup/adopt', a);
+        }
+        await expectLater(
+          c.adoptSignup(const SignupTicket('st-1')),
+          failsWith(AuthFailureKind.unavailable),
+        );
+        expect(await keys.contains(SessionItems.userId), isFalse);
+      }
+
+      t = ScriptedTransport();
+      keys = FakeKeyStore();
+      c = await signupClient();
+      await expectLater(
+        c.adoptSignup(const SignupTicket('st-1')),
+        throwsA(isA<NoDeviceIdentity>()),
+      );
+      expect(t.requests, isEmpty);
+    });
+  });
 }

@@ -3,6 +3,7 @@ library;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/features/auth/http_auth_client.dart';
 import 'package:rukka_folio/features/auth/phone_shape.dart';
@@ -12,6 +13,7 @@ import 'package:rukka_folio/shared/seams/auth_client.dart';
 import 'package:rukka_folio/shared/seams/sync_client.dart';
 
 import '../../shared/test_app.dart';
+import 'sign_in_harness.dart';
 
 /// A movable clock for the resend cooldown; widgets read `RkScope.now`.
 final class _Clock {
@@ -32,8 +34,11 @@ final class _SmsChannelAuth extends FakeAuthClient implements OtpChannelSource {
   ValueListenable<OtpChannel?> get otpChannel => _channel;
 
   @override
-  Future<void> requestOtp(String phone) async {
-    await super.requestOtp(phone);
+  Future<void> requestOtp(
+    String phone, {
+    SignInDoor door = SignInDoor.newBooks,
+  }) async {
+    await super.requestOtp(phone, door: door);
     _channel.value = OtpChannel.sms;
   }
 }
@@ -42,14 +47,14 @@ final class _SmsChannelAuth extends FakeAuthClient implements OtpChannelSource {
 const _typed = '9999900001'; // +91 99999 00001
 const _e164 = '+91$_typed';
 
+/// How S0.2 writes the number (canvas 1b L3: `+91 98765 43210`).
+const _shown = '+91 99999 00001';
+
 /// The first synthetic demo number (dev project, owner-directed 4 Oct 2026).
 const _demo = '5000001001';
 
-Future<void> _enterPhoneAndSend(WidgetTester tester) async {
-  await tester.enterText(find.byType(TextField), _typed);
-  await tester.tap(find.text('Send code'));
-  await tester.pumpAndSettle();
-}
+Future<void> _enterPhoneAndSend(WidgetTester tester) =>
+    enterNumberAndSend(tester, _typed);
 
 /// The S0.2 title in each shipped language — the anchor the layout sweep
 /// looks for once the screen is drawn at 1.3× and 2×.
@@ -73,16 +78,16 @@ void main() {
         );
         expect(find.text('Your phone number'), findsOneWidget);
         expect(
-          find.text('+91 '),
+          find.text('+91'),
           findsOneWidget,
-        ); // fixed country prefix beside the field
+        ); // fixed country prefix beside the number
         await _enterPhoneAndSend(tester);
         expect(auth.requestedPhones, [_e164]);
+        expect(auth.requestedDoors, [SignInDoor.newBooks]);
         expect(find.text('Enter the code'), findsOneWidget);
-        expect(find.text('Sent to $_e164'), findsOneWidget);
-        await tester.enterText(find.byType(TextField), '482913');
-        await tester.tap(find.text('Verify'));
-        await tester.pumpAndSettle();
+        expect(find.text('Sent by SMS to $_shown.'), findsOneWidget);
+        // Six digits verify by themselves (canvas 1b L3 has no Verify button).
+        await tapKeys(tester, '482913');
         expect(auth.verifiedCodes, ['482913']);
         expect(
           auth.current,
@@ -96,22 +101,49 @@ void main() {
     );
 
     testWidgets(
-      'F1-06-2 wrong code shows attempts left, the third miss says the code expired and asks for a new one; the phone stays on screen (no dead end)',
+      'F1-06-2 wrong code shows tries left with the boxes kept; the third miss clears the boxes and, once the 06 §2 wait is over, a new code goes by itself — never a lockout (ADR 2026-10-05c §2); Change stays on screen (no dead end)',
       (tester) async {
+        final clock = _Clock();
         final auth = FakeAuthClient(expectedCode: '482913');
-        await pumpRk(tester, const PhoneOtpScreen(), auth: auth);
+        await pumpRk(
+          tester,
+          const PhoneOtpScreen(),
+          auth: auth,
+          now: clock.call,
+        );
         await _enterPhoneAndSend(tester);
+        // Let the first 30 s wait run out, so the third miss can resend.
+        clock.now = clock.now.add(const Duration(seconds: 31));
+        await tester.pump(const Duration(seconds: 1));
         for (final (code, expected) in [
-          ('000000', 'That code didn’t match. 2 tries left.'),
-          ('000001', 'That code didn’t match. 1 try left.'),
-          ('000002', 'That code has expired. Ask for a new one.'),
+          (
+            '000000',
+            'That code didn’t match. 2 tries left, then we’ll send a new one.',
+          ),
+          (
+            '000001',
+            'That code didn’t match. 1 try left, then we’ll send a new one.',
+          ),
         ]) {
-          await tester.enterText(find.byType(TextField), code);
-          await tester.tap(find.text('Verify'));
-          await tester.pumpAndSettle();
+          await tapKeys(tester, code);
           expect(find.text(expected), findsOneWidget);
+          // The rejected digits stay in the boxes (c1b L4).
+          expect(find.text(code[5]), findsWidgets);
         }
-        expect(find.text('Change number'), findsOneWidget);
+        await tapKeys(tester, '000002');
+        expect(
+          find.text(
+            'That code didn’t match three times. We’ve sent you a new one.',
+          ),
+          findsOneWidget,
+        );
+        expect(auth.requestedPhones, [_e164, _e164]);
+        expect(find.text('Change'), findsOneWidget);
+        // The new code verifies.
+        await tapKeys(tester, '482913');
+        expect(find.text('This phone is ready'), findsOneWidget);
+        clock.now = clock.now.add(const Duration(minutes: 5));
+        await tester.pump(const Duration(seconds: 1));
       },
     );
 
@@ -127,25 +159,20 @@ void main() {
           now: clock.call,
         );
         await _enterPhoneAndSend(tester);
-        expect(find.text('Send again in 30 s'), findsOneWidget);
-        expect(
-          tester
-              .widget<TextButton>(
-                find.widgetWithText(TextButton, 'Send again in 30 s'),
-              )
-              .onPressed,
-          isNull,
-        );
+        // The wait is words with a clock, not a button (c1 O2b).
+        expect(find.text('Send again in 0:30'), findsOneWidget);
+        expect(find.byIcon(Icons.schedule), findsOneWidget);
+        expect(find.widgetWithText(TextButton, 'Send again'), findsNothing);
         clock.now = clock.now.add(const Duration(seconds: 29));
         await tester.pump(const Duration(seconds: 1));
-        expect(find.text('Send again in 1 s'), findsOneWidget);
+        expect(find.text('Send again in 0:01'), findsOneWidget);
         clock.now = clock.now.add(const Duration(seconds: 1));
         await tester.pump(const Duration(seconds: 1));
-        expect(find.text('Send again'), findsOneWidget);
-        await tester.tap(find.text('Send again'));
+        expect(find.text('Didn’t get it?'), findsOneWidget);
+        await tester.tap(find.widgetWithText(TextButton, 'Send again'));
         await tester.pumpAndSettle();
         expect(auth.requestedPhones, hasLength(2));
-        expect(find.text('Send again in 60 s'), findsOneWidget);
+        expect(find.text('Send again in 1:00'), findsOneWidget);
         // Drain the periodic timer.
         clock.now = clock.now.add(const Duration(seconds: 60));
         await tester.pump(const Duration(seconds: 1));
@@ -174,6 +201,7 @@ void main() {
         await tester.pumpAndSettle();
         auth.failNext = const AuthFailure(AuthFailureKind.rateLimited);
         await _enterPhoneAndSend(tester);
+        expect(find.byIcon(Icons.error_outline), findsOneWidget);
         expect(
           find.text(
             'Too many tries for now. Please wait a while and try again.',
@@ -215,13 +243,28 @@ void main() {
     );
 
     testWidgets(
-      'F1-06-6 client-side validation refuses a short number before any request; strings resolve in PA and HI without overflow at 200 %',
+      'F1-06-6 Send waits for ten digits (c1 O2a), a ten-digit number that is not a mobile is refused before any request, the keypad stops at ten; strings resolve in PA and HI without overflow at 200 %',
       (tester) async {
         final auth = FakeAuthClient();
         await pumpRk(tester, const PhoneOtpScreen(), auth: auth);
-        await tester.enterText(find.byType(TextField), '98765');
-        await tester.tap(find.text('Send code'));
-        await tester.pumpAndSettle();
+        await tapKeys(tester, '98765');
+        expect(
+          tester
+              .widget<FilledButton>(
+                find.widgetWithText(FilledButton, 'Send code'),
+              )
+              .onPressed,
+          isNull,
+        );
+        await tapKeys(tester, '1234567');
+        expect(find.text('98765 12345'), findsOneWidget);
+        // A shape no mobile has: refused on the phone, no request.
+        await pumpRk(
+          tester,
+          const PhoneOtpScreen(key: ValueKey('shape')),
+          auth: auth,
+        );
+        await enterNumberAndSend(tester, '1234567890');
         expect(find.text('Enter the 10-digit mobile number.'), findsOneWidget);
         expect(auth.requestedPhones, isEmpty);
 
@@ -256,18 +299,19 @@ void main() {
         (tester) async {
           final auth = FakeAuthClient();
           await pumpRk(tester, const PhoneOtpScreen(), auth: auth);
-          await tester.enterText(find.byType(TextField), _demo);
-          await tester.tap(find.text('Send code'));
-          await tester.pumpAndSettle();
+          await enterNumberAndSend(tester, _demo);
           expect(
             find.text('Enter the 10-digit mobile number.'),
             findsOneWidget,
           );
           expect(auth.requestedPhones, isEmpty);
 
-          await tester.enterText(find.byType(TextField), _typed);
-          await tester.tap(find.text('Send code'));
-          await tester.pumpAndSettle();
+          await pumpRk(
+            tester,
+            const PhoneOtpScreen(key: ValueKey('control')),
+            auth: auth,
+          );
+          await enterNumberAndSend(tester, _typed);
           expect(auth.requestedPhones, [_e164]);
         },
       );
@@ -279,9 +323,7 @@ void main() {
           addTearDown(() => debugDemoPhonesOverride = null);
           final auth = FakeAuthClient();
           await pumpRk(tester, const PhoneOtpScreen(), auth: auth);
-          await tester.enterText(find.byType(TextField), _demo);
-          await tester.tap(find.text('Send code'));
-          await tester.pumpAndSettle();
+          await enterNumberAndSend(tester, _demo);
           expect(find.text('Enter the 10-digit mobile number.'), findsNothing);
           expect(auth.requestedPhones, ['+91$_demo']);
           expect(find.text('Enter the code'), findsOneWidget);
@@ -318,18 +360,25 @@ void main() {
             locale: locale,
             auth: auth,
           );
-          // Phone step: the screen is drawn and names SMS, not WhatsApp.
+          // Phone step: the screen is drawn and names SMS, not WhatsApp. The
+          // SMS sentence closes canvas 1 O2a's subtitle (one Text).
           expect(find.text(_title[lang]!), findsOneWidget, reason: lang);
-          expect(find.text(hint[lang]!), findsOneWidget, reason: lang);
+          expect(
+            find.textContaining(hint[lang]!),
+            findsOneWidget,
+            reason: lang,
+          );
           expect(find.textContaining('WhatsApp'), findsNothing, reason: lang);
 
-          await tester.enterText(find.byType(TextField), _typed);
+          await tapKeys(tester, _typed);
           await tester.tap(find.byType(FilledButton));
           await tester.pumpAndSettle();
-          // Code step reached through the seam, and no channel line at all.
+          // Code step reached through the seam, and no channel line at all —
+          // the one line names SMS (canvas 1b L3).
           expect(auth.requestedPhones, [_e164], reason: lang);
           expect(auth.otpChannel.value, OtpChannel.sms, reason: lang);
-          expect(find.textContaining(_e164), findsOneWidget, reason: lang);
+          expect(find.textContaining(_shown), findsOneWidget, reason: lang);
+          expect(find.textContaining('SMS'), findsOneWidget, reason: lang);
           expect(find.textContaining('WhatsApp'), findsNothing, reason: lang);
           expect(find.text(fallback[lang]!), findsNothing, reason: lang);
           expect(tester.takeException(), isNull);
@@ -373,120 +422,328 @@ void main() {
     );
   });
 
-  group('S0.2 a number that already has an account (ADR 2026-10-04b §3)', () {
-    /// The title, per locale — the anchor for the layout sweep.
+  // ADR 2026-10-05c §2 supersedes the single *already signed up* state of ADR
+  // 2026-10-04b §3 (desk 131): on the *I'm new* door it is S0.2a, whose *Sign
+  // in to my books* continues to S0.2b with no second code; *Get my books
+  // back* → fork is now S0.2b's *No, it's lost or reset*. The coverage below
+  // is the same three questions, re-pointed: never activated, both ways on,
+  // and the strings fit.
+  group('S0.2 a number that already has an account (ADR 2026-10-04b §3, '
+      're-pointed by ADR 2026-10-05c §2)', () {
+    /// The S0.2a title, per locale — the anchor for the layout sweep.
     const existingTitle = {
-      'en': 'This number is already signed up',
-      'pa': 'ਇਹ ਨੰਬਰ ਪਹਿਲਾਂ ਹੀ ਸਾਈਨ ਅੱਪ ਹੈ',
-      'hi': 'यह नंबर पहले से साइन अप है',
+      'en': 'Welcome back',
+      'pa': 'ਜੀ ਆਇਆਂ ਨੂੰ, ਫਿਰ ਤੋਂ',
+      'hi': 'फिर से स्वागत है',
     };
 
     Future<FakeAuthClient> reachExisting(
       WidgetTester tester, {
-      VoidCallback? onExistingAccount,
+      VoidCallback? onNoOldPhone,
       void Function(AuthSession)? onDone,
       Locale? locale,
       double textScale = 1,
       Size? viewport,
     }) async {
-      final auth = FakeAuthClient();
+      final auth = FakeAuthClient()..numbersWithBooks.add(_e164);
       await pumpRk(
         tester,
         // A fresh state per pump: the sweep re-pumps the same screen type.
         PhoneOtpScreen(
           key: UniqueKey(),
           onDone: onDone,
-          onExistingAccount: onExistingAccount,
+          onNoOldPhone: onNoOldPhone,
         ),
         auth: auth,
         locale: locale,
         textScale: textScale,
         viewport: viewport,
       );
-      await tester.enterText(find.byType(TextField), _typed);
-      await tester.tap(find.byType(FilledButton));
-      await tester.pumpAndSettle();
-      auth.failNext = const AuthFailure(AuthFailureKind.existingAccount);
-      await tester.enterText(find.byType(TextField), '482913');
-      await tester.tap(find.byType(FilledButton));
-      await tester.pumpAndSettle();
+      await enterNumberAndSend(tester, _typed);
+      await tapKeys(tester, '482913');
       return auth;
     }
 
     testWidgets(
-      'C-04b-2 a verify that answers another account shows "already signed up" — never activating this phone — with two ways on: Get my books back (to the 06 §5 fork) and Use a different number (back to the phone step); icon plus words, not colour alone',
+      'C-04b-2 a verify that answers another account shows S0.2a — never activating this phone — with two ways on: Sign in to my books (to S0.2b, no second code, then the 06 §5 fork) and Use a different number (back to the phone step)',
       (tester) async {
         var forked = 0;
         AuthSession? done;
         final auth = await reachExisting(
           tester,
-          onExistingAccount: () => forked++,
+          onNoOldPhone: () => forked++,
           onDone: (s) => done = s,
         );
-        expect(find.text('This number is already signed up'), findsOneWidget);
+        expect(find.text('Welcome back'), findsOneWidget);
         expect(
           find.text(
-            'Your books for this number are on the phone you used before. '
-            'Bring them to this phone, or use a different number.',
+            '$_shown is already used with Rukka Folio. One number keeps one '
+            'set of books, so there is nothing new to set up.',
           ),
           findsOneWidget,
         );
-        expect(find.byIcon(Icons.info_outline), findsOneWidget);
         expect(auth.current, isNot(isA<Active>()));
         expect(done, isNull);
 
-        await tester.tap(find.text('Get my books back'));
+        await tester.tap(find.text('Sign in to my books'));
+        await tester.pumpAndSettle();
+        expect(find.text('Is your old phone with you?'), findsOneWidget);
+        expect(auth.requestedPhones, hasLength(1), reason: 'no second code');
+        await tester.tap(find.text('No, it’s lost or reset'));
         await tester.pumpAndSettle();
         expect(forked, 1);
+        expect(auth.current, isNot(isA<Active>()));
 
+        // Back to S0.2a, then Use a different number → the phone step.
+        await tester.tap(find.byTooltip('Back'));
+        await tester.pumpAndSettle();
         await tester.tap(find.text('Use a different number'));
         await tester.pumpAndSettle();
         expect(find.text('Your phone number'), findsOneWidget);
-        expect(find.text('This number is already signed up'), findsNothing);
+        expect(find.text('Welcome back'), findsNothing);
       },
     );
 
     testWidgets(
-      'C-04b-2 with no callback the screen still draws both ways the body names — Get my books back (its own default, S11.6) and Use a different number — so the copy never promises a missing button',
+      'C-04b-2 with no callback S0.2b still draws the fork its copy promises — No, it\'s lost or reset is enabled — and S0.2a draws both actions',
       (tester) async {
         await reachExisting(tester);
-        expect(find.text('This number is already signed up'), findsOneWidget);
         expect(
-          find.widgetWithText(FilledButton, 'Get my books back'),
+          find.widgetWithText(FilledButton, 'Sign in to my books'),
           findsOneWidget,
         );
         expect(
-          find.widgetWithText(TextButton, 'Use a different number'),
+          find.widgetWithText(OutlinedButton, 'Use a different number'),
           findsOneWidget,
         );
+        await tester.tap(find.text('Sign in to my books'));
+        await tester.pumpAndSettle();
+        expect(find.text('No, it’s lost or reset'), findsOneWidget);
       },
     );
 
     testWidgets(
-      'C-04b-2 the existing-account state resolves in EN, PA and HI and fits at 1.3× and 2× on 360×800 and 375×667',
+      'C-04b-2 S0.2a and S0.2b resolve in EN, PA and HI and fit at 1.3× and 2× on 360×800 and 375×667',
       (tester) async {
         for (final locale in rkLocales) {
           for (final vp in rkPhones) {
             for (final scale in rkTextScales) {
               await reachExisting(
                 tester,
-                onExistingAccount: () {},
+                onNoOldPhone: () {},
                 locale: locale,
                 textScale: scale,
                 viewport: vp,
               );
+              final why = '${locale.languageCode} @ $scale on $vp';
               expect(
                 find.text(existingTitle[locale.languageCode]!),
                 findsOneWidget,
+                reason: why,
               );
               expect(tester.takeException(), isNull);
-              expectTextFits(
-                tester,
-                reason: '${locale.languageCode} @ $scale on $vp',
-              );
+              expectTextFits(tester, reason: why);
+              await tester.ensureVisible(find.byType(FilledButton));
+              await tester.tap(find.byType(FilledButton));
+              await tester.pumpAndSettle();
+              expect(tester.takeException(), isNull);
+              expectTextFits(tester, reason: 'S0.2b $why');
             }
           }
         }
+      },
+    );
+  });
+
+  group('S0.2 repair r1 — resend, autofill, targets (07 §3.1 step 2, '
+      'design-system §3.1)', () {
+    double? sizeOf(WidgetTester tester, String text) =>
+        tester.widget<Text>(find.text(text)).style?.fontSize;
+    double? bodyMedium(WidgetTester tester) =>
+        Theme.of(tester.element(find.text('Enter the code')))
+            .textTheme
+            .bodyMedium
+            ?.fontSize;
+
+    testWidgets(
+      'F1-06-3 an error never hides the resend: after an expired code the countdown stays beside the words, then Send again appears at zero and works; the helper lines are the body-small role (c1 O2b 13.5 px, c1b L3 14 px)',
+      (tester) async {
+        final clock = _Clock();
+        final auth = FakeAuthClient(expectedCode: '482913');
+        await pumpRk(
+          tester,
+          const PhoneOtpScreen(),
+          auth: auth,
+          now: clock.call,
+        );
+        await _enterPhoneAndSend(tester);
+        expect(sizeOf(tester, 'Send again in 0:30'), bodyMedium(tester));
+        expect(
+          tester.getSize(find.byIcon(Icons.schedule)).height,
+          bodyMedium(tester),
+        );
+        auth.failNext = const AuthFailure(AuthFailureKind.codeExpired);
+        await tapKeys(tester, '111111');
+        expect(
+          find.text('That code has expired. Ask for a new one.'),
+          findsOneWidget,
+        );
+        expect(
+          sizeOf(tester, 'That code has expired. Ask for a new one.'),
+          bodyMedium(tester),
+        );
+        expect(find.text('Send again in 0:30'), findsOneWidget);
+        expect(find.byIcon(Icons.schedule), findsOneWidget);
+        clock.now = clock.now.add(const Duration(seconds: 31));
+        await tester.pump(const Duration(seconds: 1));
+        expect(
+          find.text('That code has expired. Ask for a new one.'),
+          findsOneWidget,
+        );
+        expect(find.widgetWithText(TextButton, 'Send again'), findsOneWidget);
+        expect(sizeOf(tester, 'Didn’t get it?'), bodyMedium(tester));
+        await tester.tap(find.widgetWithText(TextButton, 'Send again'));
+        await tester.pumpAndSettle();
+        expect(auth.requestedPhones, [_e164, _e164]);
+        expect(find.text('Send again in 1:00'), findsOneWidget);
+        clock.now = clock.now.add(const Duration(minutes: 1));
+        await tester.pump(const Duration(seconds: 1));
+      },
+    );
+
+    testWidgets(
+      'F1-06-2 third miss inside the wait: the timer stays drawn beside "when the timer ends"; at zero the new code goes by itself and its countdown shows with the words; the next key clears the words, never the timer',
+      (tester) async {
+        final clock = _Clock();
+        final auth = FakeAuthClient(expectedCode: '482913');
+        await pumpRk(
+          tester,
+          const PhoneOtpScreen(),
+          auth: auth,
+          now: clock.call,
+        );
+        await _enterPhoneAndSend(tester);
+        for (final code in ['000000', '000001', '000002']) {
+          await tapKeys(tester, code);
+        }
+        expect(
+          find.text(
+            'That code didn’t match three times. We’ll send a new one when '
+            'the timer ends.',
+          ),
+          findsOneWidget,
+        );
+        expect(find.text('Send again in 0:30'), findsOneWidget);
+        expect(auth.requestedPhones, [_e164]);
+        clock.now = clock.now.add(const Duration(seconds: 31));
+        await tester.pump(const Duration(seconds: 1));
+        await tester.pumpAndSettle();
+        expect(auth.requestedPhones, [_e164, _e164]);
+        expect(
+          find.text(
+            'That code didn’t match three times. We’ve sent you a new one.',
+          ),
+          findsOneWidget,
+        );
+        expect(find.text('Send again in 1:00'), findsOneWidget);
+        await tapKeys(tester, '4');
+        expect(
+          find.text(
+            'That code didn’t match three times. We’ve sent you a new one.',
+          ),
+          findsNothing,
+        );
+        expect(find.text('Send again in 1:00'), findsOneWidget);
+        await tapKeys(tester, '82913');
+        expect(find.text('This phone is ready'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'F1-06-1 the code boxes are also a system text field: one-time-code autofill hint, number keyboard, a pasted SMS verifies by itself, and the drawn keypad drives the same field (WCAG 2.2 SC 3.3.8, design-system §3.1)',
+      (tester) async {
+        final auth = FakeAuthClient(expectedCode: '482913');
+        await pumpRk(tester, const PhoneOtpScreen(), auth: auth);
+        expect(find.byType(TextField), findsNothing, reason: 'number step');
+        await _enterPhoneAndSend(tester);
+        final field = find.byType(TextField);
+        expect(field, findsOneWidget);
+        final tf = tester.widget<TextField>(field);
+        expect(tf.autofillHints, contains(AutofillHints.oneTimeCode));
+        expect(tf.keyboardType, TextInputType.number);
+        // The keypad and the field are one code.
+        await tapKeys(tester, '48');
+        expect(tf.controller?.text, '48');
+        // Paste the whole SMS through the field's own paste action.
+        tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          (call) async => call.method == 'Clipboard.getData'
+              ? <String, Object?>{
+                  'text': 'Your Rukka Folio code is 482913. Valid 10 min.',
+                }
+              : null,
+        );
+        addTearDown(
+          () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+            SystemChannels.platform,
+            null,
+          ),
+        );
+        await tester.tap(field);
+        await tester.pump();
+        tester
+            .state<EditableTextState>(find.byType(EditableText))
+            .pasteText(SelectionChangedCause.toolbar);
+        await tester.pumpAndSettle();
+        expect(auth.verifiedCodes, ['482913']);
+        expect(find.text('This phone is ready'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'F1-06-1 a code typed on the system keyboard verifies; a wrong one keeps the rejected digits in the boxes and the next typed digit starts afresh',
+      (tester) async {
+        final auth = FakeAuthClient(expectedCode: '482913');
+        await pumpRk(tester, const PhoneOtpScreen(), auth: auth);
+        await _enterPhoneAndSend(tester);
+        await tester.enterText(find.byType(TextField), '000000');
+        await tester.pumpAndSettle();
+        expect(auth.verifiedCodes, ['000000']);
+        expect(
+          find.text(
+            'That code didn’t match. 2 tries left, then we’ll send a new one.',
+          ),
+          findsOneWidget,
+        );
+        await tester.enterText(find.byType(TextField), '482913');
+        await tester.pumpAndSettle();
+        expect(auth.verifiedCodes, ['000000', '482913']);
+        expect(find.text('This phone is ready'), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'F1-06-6 the inline links that are a way out (Change, Send again, Set up instead) are at least 44 dp tall (design-system §3.1 rule 9, 13 §8)',
+      (tester) async {
+        final clock = _Clock();
+        await pumpRk(
+          tester,
+          const PhoneOtpScreen(door: SignInDoor.signIn),
+          now: clock.call,
+        );
+        final setUp = find.widgetWithText(TextButton, 'Set up instead');
+        expect(tester.getSize(setUp).height, greaterThanOrEqualTo(44));
+        expect(tester.getSize(setUp).width, greaterThanOrEqualTo(44));
+        await _enterPhoneAndSend(tester);
+        clock.now = clock.now.add(const Duration(seconds: 31));
+        await tester.pump(const Duration(seconds: 1));
+        for (final label in ['Change', 'Send again']) {
+          final link = find.widgetWithText(TextButton, label);
+          expect(link, findsOneWidget, reason: label);
+          expect(tester.getSize(link).height, greaterThanOrEqualTo(44));
+          expect(tester.getSize(link).width, greaterThanOrEqualTo(44));
+        }
+        await expectLater(tester, meetsGuideline(iOSTapTargetGuideline));
       },
     );
   });

@@ -13,6 +13,61 @@ final class ActivationTicket {
   final String value;
 }
 
+/// Which door the person came in by on S0.06 (ADR 2026-10-05c §1 🔒). The
+/// door sets the S0.2 heading and the OTP purpose; it never changes what is
+/// shown about a number **before** its code is accepted (§2, 06 §2).
+enum SignInDoor {
+  /// *I'm new · set up my books* — the fresh signup (06 §5).
+  newBooks,
+
+  /// *I already use Rukka · sign in* — a further phone of an existing
+  /// account (06 §5 returning device).
+  signIn,
+}
+
+/// The one-shot right to turn a verified code for a number with no account
+/// into a signup, without a second code (ADR 2026-10-05c §2: *Set up new
+/// books* on S0.2e). Opaque; held in memory only, never in a route.
+final class SignupTicket {
+  const SignupTicket(this.value, {this.expiresIn});
+
+  /// Opaque server token.
+  final String value;
+
+  /// How long the server keeps it (`expires_in_s`), when it said.
+  final Duration? expiresIn;
+}
+
+/// What a correct code says about the number (ADR 2026-10-05c §2) — answered
+/// only after the code, never before (06 §2: no registered-number oracle).
+sealed class OtpOutcome {
+  const OtpOutcome();
+}
+
+/// The number's account is this install's own — new (`created`) or the
+/// install's confirmed identity. [ticket] activates this device (06 §3).
+final class OtpThisPhone extends OtpOutcome {
+  const OtpThisPhone(this.ticket);
+
+  final ActivationTicket ticket;
+}
+
+/// The number already has books under an account this phone is new to (ADR
+/// 2026-10-04b §3). Nothing was stored and nothing is activated; the way on
+/// is S0.2a / S0.2b (ADR 2026-10-05c §2–§3).
+final class OtpHasBooks extends OtpOutcome {
+  const OtpHasBooks();
+}
+
+/// The number has no account and the server did not sign it up (the sign-in
+/// door). [signupTicket] makes it a signup only if the person chooses *Set up
+/// new books* on S0.2e (ADR 2026-10-05c §2).
+final class OtpNoBooks extends OtpOutcome {
+  const OtpNoBooks(this.signupTicket);
+
+  final SignupTicket signupTicket;
+}
+
 /// An authenticated session (06 §4). Tokens themselves never leave the client.
 final class AuthSession {
   const AuthSession({required this.userId, required this.deviceId});
@@ -76,6 +131,11 @@ enum AuthFailureKind {
   /// link or recovery work (C-04b-4, M8). Not an oracle: it is answered only
   /// after a correct code (ADR 04b §3, 06 §2).
   existingAccount,
+
+  /// `signup/adopt` refused the [SignupTicket] (expired, spent or unknown):
+  /// the flow restarts from the number with a plain message (ADR 2026-10-05c
+  /// §2). Nothing was stored.
+  signupTicketInvalid,
 }
 
 /// The install's first-run identity as signup sees it (ADR 2026-10-04b §2 🔒).
@@ -134,11 +194,30 @@ abstract class AuthClient {
   /// The latest state without subscribing.
   AuthState get current;
 
-  /// Sends a 6-digit code to [phone] (06 §2). Moves to [OtpSent].
-  Future<void> requestOtp(String phone);
+  /// Sends a 6-digit code to [phone] (06 §2). Moves to [OtpSent]. [door] picks
+  /// the purpose (ADR 2026-10-05c §1): the answer is the same for every
+  /// number either way (06 §2).
+  Future<void> requestOtp(
+    String phone, {
+    SignInDoor door = SignInDoor.newBooks,
+  });
 
-  /// Checks [code]; yields the one-shot activation ticket (06 §2).
+  /// Checks [code]; yields the one-shot activation ticket (06 §2). A number
+  /// with books under another account throws
+  /// [AuthFailureKind.existingAccount]; one with no account (the sign-in
+  /// door) throws [AuthFailureKind.unavailable] — callers that route on the
+  /// answer use [checkOtp].
   Future<ActivationTicket> verifyOtp(String code);
+
+  /// Checks [code] and says what the number is (ADR 2026-10-05c §2): this
+  /// install's account, books under another account, or no account.
+  Future<OtpOutcome> checkOtp(String code);
+
+  /// Turns [ticket] into this install's signup — S0.2e *Set up new books*,
+  /// with no second code (ADR 2026-10-05c §2). Throws
+  /// [AuthFailureKind.signupTicketInvalid] when the server no longer honours
+  /// it.
+  Future<ActivationTicket> adoptSignup(SignupTicket ticket);
 
   /// Registers this device with [ticket] and opens a session (06 §3–§4).
   /// Moves to [Active]; certification comes later via the ceremony (04 §3.4).
@@ -180,8 +259,26 @@ class FakeAuthClient implements AuthClient {
   /// Phones [requestOtp] was called with, in order.
   final requestedPhones = <String>[];
 
-  /// Codes [verifyOtp] was called with, in order.
+  /// Codes [verifyOtp] / [checkOtp] were called with, in order.
   final verifiedCodes = <String>[];
+
+  /// Doors [requestOtp] was called with, in order (parallel to
+  /// [requestedPhones]).
+  final requestedDoors = <SignInDoor>[];
+
+  /// E.164 numbers that already have books under another account: a correct
+  /// code for one answers [OtpHasBooks] on either door (ADR 2026-10-05c §2).
+  /// Every other number is new — this install's own on the *I'm new* door,
+  /// [OtpNoBooks] on the sign-in door. [requestOtp] answers alike for both.
+  final numbersWithBooks = <String>{};
+
+  /// Signup tickets [adoptSignup] was called with, in order.
+  final adoptedTickets = <String>[];
+
+  String? _pendingPhone;
+  SignInDoor _pendingDoor = SignInDoor.newBooks;
+  int _signupSeq = 0;
+  final _unusedSignups = <String>{};
 
   static final _sixDigits = RegExp(r'^[0-9]{6}$');
 
@@ -208,16 +305,32 @@ class FakeAuthClient implements AuthClient {
   }
 
   @override
-  Future<void> requestOtp(String phone) async {
+  Future<void> requestOtp(
+    String phone, {
+    SignInDoor door = SignInDoor.newBooks,
+  }) async {
     _maybeFail();
     requestedPhones.add(phone);
+    requestedDoors.add(door);
+    _pendingPhone = phone;
+    _pendingDoor = door;
     _attempts = 0;
     _codePending = true;
     _set(OtpSent(phone));
   }
 
   @override
-  Future<ActivationTicket> verifyOtp(String code) async {
+  Future<ActivationTicket> verifyOtp(String code) async =>
+      switch (await checkOtp(code)) {
+        OtpThisPhone(:final ticket) => ticket,
+        OtpHasBooks() => throw const AuthFailure(
+          AuthFailureKind.existingAccount,
+        ),
+        OtpNoBooks() => throw const AuthFailure(AuthFailureKind.unavailable),
+      };
+
+  @override
+  Future<OtpOutcome> checkOtp(String code) async {
     _maybeFail();
     verifiedCodes.add(code);
     if (!_codePending) throw const AuthFailure(AuthFailureKind.noPendingCode);
@@ -235,9 +348,31 @@ class FakeAuthClient implements AuthClient {
       );
     }
     _codePending = false;
+    if (numbersWithBooks.contains(_pendingPhone)) return const OtpHasBooks();
+    if (_pendingDoor == SignInDoor.signIn) {
+      final signup = 'fake-signup-${++_signupSeq}';
+      _unusedSignups.add(signup);
+      return OtpNoBooks(
+        SignupTicket(signup, expiresIn: const Duration(minutes: 10)),
+      );
+    }
+    return OtpThisPhone(_mint());
+  }
+
+  ActivationTicket _mint() {
     final ticket = 'fake-ticket-${++_ticketSeq}';
     _unusedTickets.add(ticket);
     return ActivationTicket(ticket);
+  }
+
+  @override
+  Future<ActivationTicket> adoptSignup(SignupTicket ticket) async {
+    _maybeFail();
+    adoptedTickets.add(ticket.value);
+    if (!_unusedSignups.remove(ticket.value)) {
+      throw const AuthFailure(AuthFailureKind.signupTicketInvalid);
+    }
+    return _mint();
   }
 
   @override

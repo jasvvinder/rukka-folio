@@ -764,29 +764,110 @@
   "@auth.device.done.title": {
     "description": "S0.2 completion heading. Deliberately names NOTHING about the family or books — an OTP-only device sees only itself (ADR 2026-09-05d §2)."
   },
-  "auth.existing.body": "Your books for this number are on the phone you used before. Bring them to this phone, or use a different number.",
-  "@auth.existing.body": {
-    "description": "S0.2 existing-account body: names both ways forward (07 §1 no dead ends)."
-  },
   "auth.existing.other_number": "Use a different number",
   "@auth.existing.other_number": {
     "description": "S0.2 existing-account secondary action → back to the phone step."
   },
-  "auth.existing.restore": "Get my books back",
-  "@auth.existing.restore": {
-    "description": "S0.2 existing-account primary action → S11.6 recovery fork (06 §5 returning device)."
+  "auth.found_you.body": "Your books are sealed to your phones. The quickest way to open them here is from a phone that already has them.",
+  "@auth.found_you.body": {
+    "description": "S0.2b body (canvas 1b L5)."
   },
-  "auth.existing.title": "This number is already signed up",
-  "@auth.existing.title": {
-    "description": "S0.2 after a correct code when the number already has an account and this phone is new to it (ADR 2026-10-04b §3). Only shown after a correct code, so it is not an oracle (06 §2)."
+  "auth.found_you.no": "No, it’s lost or reset",
+  "@auth.found_you.no": {
+    "description": "S0.2b second choice → the S11.6 recovery fork (ADR 2026-10-05c §3)."
+  },
+  "auth.found_you.no.sub": "Your trusted members or recovery sheet",
+  "@auth.found_you.no.sub": {
+    "description": "S0.2b second choice, second line (canvas 1b L5)."
+  },
+  "auth.found_you.title": "Is your old phone with you?",
+  "@auth.found_you.title": {
+    "description": "S0.2b heading (canvas 1b L5, ADR 2026-10-05c §3)."
+  },
+  "auth.found_you.welcome": "Welcome back",
+  "@auth.found_you.welcome": {
+    "description": "S0.2b header line beside the avatar (canvas 1b L5 draws the name too — ⚠️ SPEC, otp/verify carries none)."
+  },
+  "auth.found_you.yes": "Yes, it’s with me",
+  "@auth.found_you.yes": {
+    "description": "S0.2b first choice → S0.2c (ADR 2026-10-05c §3). Disabled with a reason in this build (PLAN SIGNIN2)."
+  },
+  "auth.found_you.yes.sub": "Approve this phone from the old one",
+  "@auth.found_you.yes.sub": {
+    "description": "S0.2b first choice, second line (canvas 1b L5)."
+  },
+  "auth.found_you.yes.unavailable": "Approving from your old phone isn’t in this version of the app yet. Choose “No” below for now — your trusted members or your recovery sheet can open your books.",
+  "@auth.found_you.yes.unavailable": {
+    "description": "S0.2b reason under the disabled Yes (13 §4.3 disabled-with-reason; 07 §1 rule 6). Draft copy — own-device linking (S0.2c/S0.2d, 04 §9.1) is not built: PLAN desk SIGNIN2."
+  },
+  "auth.has_books.body": "{phone} is already used with {app}. One number keeps one set of books, so there is nothing new to set up.",
+  "@auth.has_books.body": {
+    "description": "S0.2a body (canvas 1b L1), after a correct code on the I'm-new door. {app} is app.name.",
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      },
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "auth.has_books.sign_in": "Sign in to my books",
+  "@auth.has_books.sign_in": {
+    "description": "S0.2a primary: on to S0.2b with no second code (ADR 2026-10-05c §2)."
+  },
+  "auth.has_books.title": "Welcome back",
+  "@auth.has_books.title": {
+    "description": "S0.2a heading (canvas 1b L1 draws \"Welcome back, {name}\"; otp/verify carries no name, so the name is left out — ⚠️ SPEC). Shown only after a correct code (06 §2)."
+  },
+  "auth.no_books.body": "If you use Rukka with a different number, sign in with that one. Otherwise you can set up new books now.",
+  "@auth.no_books.body": {
+    "description": "S0.2e body (canvas 1b L8)."
+  },
+  "auth.no_books.lead": "{phone} hasn’t been used with {app} before.",
+  "@auth.no_books.lead": {
+    "description": "S0.2e muted lead line (canvas 1b L8). {app} is app.name.",
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      },
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "auth.no_books.other_number": "Try another number",
+  "@auth.no_books.other_number": {
+    "description": "S0.2e secondary → back to the number, sign-in door kept."
+  },
+  "auth.no_books.set_up": "Set up new books",
+  "@auth.no_books.set_up": {
+    "description": "S0.2e primary: the signup, with no second code (ADR 2026-10-05c §2) → S0.3."
+  },
+  "auth.no_books.title": "No books on this number",
+  "@auth.no_books.title": {
+    "description": "S0.2e heading (canvas 1b L8), after a correct code on the sign-in door (ADR 2026-10-05c §2)."
   },
   "auth.offline.chip": "Offline — you need internet for the code.",
   "@auth.offline.chip": {
     "description": "S0.2 quiet chip when the sync seam reports Offline (07 §1 rule 7; S19.3 non-blocking)."
   },
-  "auth.otp.change_number": "Change number",
+  "auth.otp.boxes.label": "Code, {count} of 6 digits entered",
+  "@auth.otp.boxes.label": {
+    "description": "S0.2 screen-reader label for the six code boxes.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "auth.otp.change_number": "Change",
   "@auth.otp.change_number": {
-    "description": "S0.2 secondary action back to step 1."
+    "description": "S0.2 code step link back to the number (canvas 1b L3 / c1 O2b: Change)."
+  },
+  "auth.otp.didnt_get": "Didn’t get it?",
+  "@auth.otp.didnt_get": {
+    "description": "S0.2 code step, above the Send again link once the wait is over (canvas 1b L3)."
   },
   "auth.otp.error.expired": "That code has expired. Ask for a new one.",
   "@auth.otp.error.expired": {
@@ -796,9 +877,9 @@
   "@auth.otp.error.generic": {
     "description": "S0.2 any other failure — generic by rule (06 §2, no oracle)."
   },
-  "auth.otp.error.invalid": "That code didn’t match. {left, plural, =1{1 try left.} other{{left} tries left.}}",
+  "auth.otp.error.invalid": "That code didn’t match. {left, plural, =1{1 try left, then we’ll send a new one.} other{{left} tries left, then we’ll send a new one.}}",
   "@auth.otp.error.invalid": {
-    "description": "S0.2 wrong code; 3 attempts per code (06 §2).",
+    "description": "S0.2 wrong code (canvas 1b L4); 3 tries per code, then a new code is sent automatically (ADR 2026-10-05c §2, 06 §2).",
     "placeholders": {
       "left": {
         "type": "int"
@@ -809,6 +890,14 @@
   "@auth.otp.error.rate_limited": {
     "description": "S0.2 per-number / per-IP limit (06 §2). Generic — never says whether the number is registered."
   },
+  "auth.otp.error.resend_soon": "That code didn’t match three times. We’ll send a new one when the timer ends.",
+  "@auth.otp.error.resend_soon": {
+    "description": "S0.2 after the third miss while the 06 §2 resend wait still runs: the new code goes when it ends (ADR 2026-10-05c §2)."
+  },
+  "auth.otp.error.resent": "That code didn’t match three times. We’ve sent you a new one.",
+  "@auth.otp.error.resent": {
+    "description": "S0.2 after the third miss: boxes clear and a new code goes automatically — never a lockout (ADR 2026-10-05c §2)."
+  },
   "auth.otp.error.unavailable": "Couldn’t connect. Check your internet and try again.",
   "@auth.otp.error.unavailable": {
     "description": "S0.2 transport failure; nothing changed."
@@ -817,22 +906,26 @@
   "@auth.otp.field.label": {
     "description": "S0.2 OTP field label."
   },
+  "auth.otp.only_new_phone": "We only send this when you set up a new phone.",
+  "@auth.otp.only_new_phone": {
+    "description": "S0.2 code step footnote on the I'm-new door (canvas 1 O2b)."
+  },
   "auth.otp.resend": "Send again",
   "@auth.otp.resend": {
     "description": "S0.2 resend action once the backoff has passed."
   },
-  "auth.otp.resend.wait": "Send again in {seconds} s",
-  "@auth.otp.resend.wait": {
-    "description": "S0.2 resend button during the 30 s → 60 s → 5 min backoff (06 §2). Latin digits.",
+  "auth.otp.resend.countdown": "Send again in {time}",
+  "@auth.otp.resend.countdown": {
+    "description": "S0.2 resend wait (canvas 1 O2b: Send again in 0:24), 30 s → 60 s → 5 min (06 §2). {time} is m:ss, Latin digits.",
     "placeholders": {
-      "seconds": {
-        "type": "int"
+      "time": {
+        "type": "String"
       }
     }
   },
-  "auth.otp.sent_to": "Sent to {phone}",
+  "auth.otp.sent_to": "Sent by SMS to {phone}.",
   "@auth.otp.sent_to": {
-    "description": "S0.2 step 2 subtitle.",
+    "description": "S0.2 code step subtitle (canvas 1b L3): names SMS, the one channel (ADR 2026-09-25 §1, ADR 2026-10-05c §2). Followed by the Change link.",
     "placeholders": {
       "phone": {
         "type": "String"
@@ -878,6 +971,35 @@
   "auth.phone.title": "Your phone number",
   "@auth.phone.title": {
     "description": "S0.2 step 1 heading (06 §2). One number per person; OTP is the only sign-in event."
+  },
+  "auth.phone.why": "This is how your family and your books find you. There is no password to remember.",
+  "@auth.phone.why": {
+    "description": "S0.2 I'm-new door subtitle (canvas 1 O2a); the SMS line auth.phone.hint follows it."
+  },
+  "auth.sign_in.hint": "Enter the number you use with {app}. We’ll send a code by SMS.",
+  "@auth.sign_in.hint": {
+    "description": "S0.2 sign-in door subtitle (canvas 1b L2). {app} is the app name (app.name). SMS only (ADR 2026-09-25 §1).",
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "auth.sign_in.new_here": "New here?",
+  "@auth.sign_in.new_here": {
+    "description": "S0.2 sign-in door, before the Set up instead link (canvas 1b L2)."
+  },
+  "auth.sign_in.set_up_instead": "Set up instead",
+  "@auth.sign_in.set_up_instead": {
+    "description": "S0.2 sign-in door link: switches to the I'm-new door in place (ADR 2026-10-05c §1, canvas 1b L2)."
+  },
+  "auth.sign_in.title": "Sign in",
+  "@auth.sign_in.title": {
+    "description": "S0.2 heading on the sign-in door (canvas 1b L2, ADR 2026-10-05c §1)."
+  },
+  "auth.signup.expired": "That took too long. Enter your number again and we’ll send a new code.",
+  "@auth.signup.expired": {
+    "description": "S0.2e Set up new books when the server no longer honours the signup ticket (signup_ticket_invalid): back to the number (ADR 2026-10-05c §2)."
   },
   "backup.error": "Couldn’t load backup settings.",
   "@backup.error": {
@@ -8505,6 +8627,18 @@
   "onboarding.set_pin.why": "It keeps your books closed even to someone who knows your phone's passcode.",
   "@onboarding.set_pin.why": {
     "description": "S0.8 the reason the MPIN exists (06 §4.4) — said plainly, not asked."
+  },
+  "onboarding.start.invited": "Invited by someone? Open the link they sent you.",
+  "@onboarding.start.invited": {
+    "description": "S0.06 invite line (canvas 1b L0): 07 §12 stays the invite path — a deep link opens S0.9; this line is not a button."
+  },
+  "onboarding.start.new": "I’m new · set up my books",
+  "@onboarding.start.new": {
+    "description": "S0.06 first door (canvas 1b L0, ADR 2026-10-05c §1) → S0.2 on the I'm-new door."
+  },
+  "onboarding.start.sign_in": "I already use Rukka · sign in",
+  "@onboarding.start.sign_in": {
+    "description": "S0.06 second door (canvas 1b L0) → S0.2 in its sign-in state (ADR 2026-10-05c §1)."
   },
   "onboarding.trust.accounts.add_bank": "Add a bank account",
   "@onboarding.trust.accounts.add_bank": {

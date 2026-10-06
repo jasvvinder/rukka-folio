@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../shared/app_scope.dart';
+import '../../shared/seams/auth_client.dart' show SignInDoor;
 
 import '../auth/auth_paths.dart';
 import '../auth/screens/s0_2_phone_otp_screen.dart' show PhoneOtpScreen;
@@ -17,6 +18,7 @@ import 'onboarding_flow.dart';
 import 'onboarding_paths.dart';
 import 'screens/s0_0_splash_screen.dart';
 import 'screens/s0_05_welcome_screen.dart';
+import 'screens/s0_06_start_screen.dart';
 import 'screens/s0_1_language_screen.dart';
 import 'screens/s0_3_purpose_screen.dart';
 import 'screens/s0_4_name_photo_screen.dart';
@@ -37,6 +39,7 @@ import 'widgets/trust_opening_host.dart';
 
 export 'onboarding_flow.dart' show OnboardingFlow, OnboardingFlowScope;
 export 'onboarding_paths.dart';
+export 'screens/s0_06_start_screen.dart' show StartScreen;
 export 'screens/s0_3_purpose_screen.dart' show OnboardingPurpose;
 export 'screens/s0_6a1_business_owners_screen.dart'
     show BusinessOwnersScreen, OwnerDraft, ShareMode;
@@ -113,15 +116,35 @@ final List<RouteBase> onboardingRoutes = [
   GoRoute(
     path: OnboardingPaths.welcome,
     builder: (context, state) =>
-        WelcomeScreen(onDone: () => context.go(OnboardingPaths.signIn)),
+        WelcomeScreen(onDone: () => context.go(OnboardingPaths.start)),
   ),
-  // 13 §5 flow F1: welcome → S0.2 → S0.3. Auth's own S0.2 route lands on Home
-  // (it is also the forgot-PIN door), so the signup chain mounts the same
-  // screen here and carries on to the purpose cards.
+  // ADR 2026-10-05c §1: the front door after the slides. Both doors open the
+  // same S0.2; the door rides as a query parameter (never the number, never
+  // a ticket — those stay in S0.2's memory).
+  GoRoute(
+    path: OnboardingPaths.start,
+    builder: (context, state) => StartScreen(
+      onNew: () => context.go(OnboardingPaths.signIn),
+      onSignIn: () => context.go(OnboardingPaths.signInReturning),
+    ),
+  ),
+  // 13 §5 flows F1 / F1b: S0.06 → S0.2 → S0.3 (or S0.2a/S0.2b/S0.2e after the
+  // code, inside S0.2). Auth's own S0.2 route lands on Home (it is also the
+  // forgot-PIN door), so the signup chain mounts the same screen here and
+  // carries on to the purpose cards.
   GoRoute(
     path: OnboardingPaths.signIn,
-    builder: (context, state) =>
-        PhoneOtpScreen(onDone: (_) => context.go(OnboardingPaths.purpose)),
+    builder: (context, state) => PhoneOtpScreen(
+      key: ValueKey(state.uri.toString()),
+      door:
+          state.uri.queryParameters[OnboardingPaths.signInDoorParam] ==
+              OnboardingPaths.signInDoorReturning
+          ? SignInDoor.signIn
+          : SignInDoor.newBooks,
+      onboardingStep: true,
+      onBack: () => context.go(OnboardingPaths.start),
+      onDone: (_) => context.go(OnboardingPaths.purpose),
+    ),
   ),
   GoRoute(
     path: OnboardingPaths.purpose,

@@ -1,6 +1,7 @@
-// C-04b-2 at route level (review finding ID107C-1): ADR 2026-10-04b §3's
-// *already signed up* state offers the 06 §5 / 13 §5 F11 fork on **every**
-// route that mounts S0.2 — the F1 signup chain (`/onboarding/sign-in`,
+// C-04b-2 at route level (review finding ID107C-1), re-pointed by ADR
+// 2026-10-05c §2–§3 (desk 131): the *already signed up* state is now S0.2a →
+// S0.2b, and S0.2b's *No, it's lost or reset* offers the 06 §5 / 13 §5 F11
+// fork on **every** route that mounts S0.2 — the F1 signup chain (`/onboarding/sign-in`,
 // 13 §5 F1) as well as auth's own door. These mount the real route lists
 // under the real `RukkaFolioApp`, so a route that drops the fork fails here
 // rather than in a screen test that passes the callback by hand.
@@ -22,6 +23,7 @@ import 'package:rukka_folio/shared/seams/key_store.dart';
 import 'package:rukka_folio/shared/seams/sync_client.dart';
 
 import '../../shared/test_app.dart';
+import 'sign_in_harness.dart';
 
 const _forkMarker = 'S11.6 fork (stub)';
 
@@ -65,16 +67,12 @@ Future<GoRouter> _pump(
   return router;
 }
 
-/// Number → code, with the verify answering another account's id.
+/// Number → code, with the verify answering another account's id (S0.2a).
 Future<void> _reachExisting(WidgetTester tester, FakeAuthClient auth) async {
-  await tester.enterText(find.byType(TextField), '9999912345');
-  await tester.tap(find.text('Send code'));
-  await tester.pumpAndSettle();
-  auth.failNext = const AuthFailure(AuthFailureKind.existingAccount);
-  await tester.enterText(find.byType(TextField), '482913');
-  await tester.tap(find.text('Verify'));
-  await tester.pumpAndSettle();
-  expect(find.text('This number is already signed up'), findsOneWidget);
+  auth.numbersWithBooks.add('+919999912345');
+  await enterNumberAndSend(tester, '9999912345');
+  await tapKeys(tester, '482913');
+  expect(find.text('Sign in to my books'), findsOneWidget);
 }
 
 void main() {
@@ -88,7 +86,7 @@ void main() {
 
   for (final MapEntry(key: name, value: (routes, start)) in cases.entries) {
     testWidgets(
-      'C-04b-2 on $name a number that already has an account offers Get my books back, which opens S11.6 (13 §5 F11), and Use a different number, which goes back to the phone step — never activating this phone',
+      'C-04b-2 on $name a number that already has an account offers S0.2a: Sign in to my books → S0.2b (no second code), whose No, it\'s lost or reset opens S11.6 (13 §5 F11), and Use a different number, which goes back to the phone step — never activating this phone',
       (tester) async {
         final ledger = await openTestLedger();
         final auth = FakeAuthClient();
@@ -108,7 +106,10 @@ void main() {
         expect(router.state.uri.path, start);
 
         await _reachExisting(tester, auth);
-        await tester.tap(find.text('Get my books back'));
+        await tester.tap(find.text('Sign in to my books'));
+        await tester.pumpAndSettle();
+        expect(auth.requestedPhones, hasLength(2), reason: 'one per reach');
+        await tester.tap(find.text('No, it’s lost or reset'));
         await tester.pumpAndSettle();
         expect(router.state.uri.path, RkPaths.recoveryFork);
         expect(find.text(_forkMarker), findsOneWidget);
