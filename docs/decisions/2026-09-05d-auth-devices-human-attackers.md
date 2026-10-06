@@ -45,6 +45,8 @@ enrolment change makes the item unreadable by biometrics and the app falls back 
 then re-creates the item. This closes the exact threat 06 §4.4 names: a relative who knows the
 passcode enrols their own face. The onboarding line (07 §5.6) gains half a sentence.
 
+> **ADR 2026-10-06** — "the keystore item guarding the device key" is a separate **gate key**; the device keys themselves are never biometric-bound, so an enrolment change costs only the gate (PIN → new gate) and never the books. ⟦tests: C-1006-2 @M13, C-1006-4 @M13⟧
+
 ### 5. MPIN attempt policy — ours to enforce, not the enclave's
 The MPIN is compared by our code, so our code rate-limits it: **5 free attempts**, then 30 s, 1 min,
 5 min, 15 min, 1 h between attempts; after **10 failures** the PIN is disabled and reset requires

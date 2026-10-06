@@ -77,6 +77,8 @@ One symmetric key per book, per version: `(book_id, key_version)`. Every entry r
 ### 3.3 Device Keys 🔒 ⟦tests: B-04-11, B-04-34, F1-03-1, F1-03-2⟧
 Each device generates an Ed25519 signing pair **inside hardware keystore** (StrongBox / Secure Enclave when available) — used for auth (doc 06) and entry signing. The device also generates an X25519 pair for receiving the wrapped UMK; since mobile secure hardware does not natively host X25519, its private half is stored encrypted under a hardware-backed AES key from the OS keystore. ⚠️ Verify current platform support at build time; this is the accepted pattern as of spec date.
 
+> **ADR 2026-10-06 §1** — the device keys are hardware-backed (StrongBox / Secure Enclave when available) **without** a user-authentication binding; the biometric set guards a separate gate key, so an enrolment change never destroys them. ⟦tests: C-1006-1 @M13⟧
+
 **Platform nuance:** Android Keystore entries are destroyed on uninstall → reinstall on the same Android phone is a **new device**. iOS Keychain items survive reinstall → attempt Keychain restore first; only fall back to recovery if absent.
 
 ### 3.4 Device certificates — the trust chain 🔒 ⟦tests: B-04-34, B-04-35, B-04-36, B-04-37, B-04-39, B-04-40, B-04-41, F1-05-51, F1-05-52, F1-05-53, F1-05-54, F1-05-55, F1-05-56⟧

@@ -40,6 +40,13 @@ Running record of what changed in this repository and in the development environ
 - Tooling (desk 157, reviewed as DM157, 4 findings repaired): `design_match.py` indexes `.dc.html` canvases. All 17 Canvas 1b
   frames are mapped, and there is a self-test.
 
+**Decided**
+- `docs/decisions/2026-10-06-biometric-gate-key.md` — 🔒 owner chose option (b) on desk 152: the biometric set guards a
+  separate gate key, and the device keys are never biometric-bound. An enrolment change costs only the gate (PIN → new
+  gate), never the books. Device keys are minted at S0.2 into the hardware class and never move (settles desk 153).
+  Existing installs migrate once, behind an unlock. 06 §4 item 4, 04 §3.3, ADR 05d §4 and ADR 05b §2/§4 are
+  cross-referenced. Build: lane GATE1.
+
 **Changed**
 - `server/supabase/functions/_tests/auth_challenge.test.ts` E-04b-1: `device_activation` removed from the "unknown phone is
   signed up" step, which ADR 2026-10-05c §2 supersedes (22/22 pass). `app/test/features/demo/demo_route_wiring_test.dart`
