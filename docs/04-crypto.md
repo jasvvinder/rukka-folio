@@ -199,6 +199,8 @@ Standard device linking (§9.1).
 - Recovery: scan/type RK → fetch blob → decrypt UMK → same completion as §7.3 step 6.
 - Mandatory for solo users (no guardians possible); strongly nudged for everyone.
 
+> **ADR 2026-10-06d** — the sealed blob is `suite_version ‖ nonce ‖ ciphertext`; a recovered UMK is adopted only after its public halves match the account's; S0.5b makes, prints and scan-checks a real sheet. ⟦tests: B-1006d-1 @M13, B-1006d-2 @M13, B-1006d-3 @M13, C-1006d-1 @M13, F1-1006d-1 @M13, F1-1006d-2 @M13, F1-1006d-3 @M13⟧
+
 ### 7.0 Rung 0 — platform key sync 🔒 (owner-directed, 31 Aug 2026; tried before every other rung) ⟦tests: B-04-52, C-06-2, C-06-3, C-06-1, C-06-4, C-06-5, C-06-6, F1-06-66, F1-06-67, F1-06-68, F1-06-69, F1-06-87⟧
 **iOS: iCloud Keychain. Android: Block Store.** Both are end-to-end encrypted by the platform — Apple and Google cannot read them — so storing the wrapped UMK there does **not** weaken zero-knowledge; it adds a second device-class custodian the vendor still cannot open.
 

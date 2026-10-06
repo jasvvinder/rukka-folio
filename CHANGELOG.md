@@ -41,6 +41,8 @@ Running record of what changed in this repository and in the development environ
   frames are mapped, and there is a self-test.
 
 **Decided**
+- `2026-10-06d-recovery-sheet-build.md` — 🔒 rung 3 is built end to end (owner, 6 Oct): sealed blob = `suite_version ‖ nonce ‖ ciphertext`; a recovered UMK is adopted only after its public halves match the account's; S0.5b makes, prints and scan-checks a real sheet, S11.3 restores from it. `lane-core` approved for the core_crypto part (RUNG3A), then RUNG3B (`lane-ui-hard`). 04 §7.4 cross-referenced.
+- Desk 172 (owner): (a) follow the design — S0.6 in the chain; *Skip for now* → S0.7 checklist, resumable from its row.
 - `docs/decisions/2026-10-06b-no-home-before-onboarding.md` — 🔒 owner: Home is unreachable until F1/F1b hands over; a
   cold start resumes the chain; system Back follows the chain (only the first screen may exit). 07 §3.1 and 13 §5
   cross-referenced.
@@ -75,16 +77,41 @@ Running record of what changed in this repository and in the development environ
   - Review blocker repaired: Back on S0.6c could re-post a book's opening balances.
   - F1-1006b-1…3, mutation-checked; push gate green.
   - Device: cold start → chain, Back steps back, relaunch → chain.
+- **Release-readiness program** (owner, 6 Oct: *"audit, review, test, match UI, then ask for testing"*; 10 M/day 7–27 Oct).
+  Phase 0, the journey harness (JOURNEY0), is built and reviewed: 6 journeys on the real app on the emulator against dev.
+  First run:
+  - no personal book is ever created (desk 164);
+  - S0.5b "Make the sheet" is disabled with no reason (171);
+  - S0.6 never shown (owner, 172);
+  - the S2.1 picker overflows (173).
+  The recovery-sheet → Home jump and desk 163 were not reproduced.
 - Lane hand-back failures: "completed without StructuredOutput" was the lanes hitting maxTurns (GATE1 185/180; SIGNIN1A
   review 93/90). Recovered from the on-disk reports.
+- **Phase 1 flow fixes (P1A + P1B, `/cycle`, reviewed, 8 + P1B findings verified and repaired; push gate green).**
+  All six journeys now run end to end on `rf_min` against dev: sign-up → branch steps → S0.6 → Home with the checklist,
+  F2 posts ₹500 and Home shows it. *"Couldn't load your position"* is gone. The only defect left is S0.5b (rung 3, below).
+  - P1A: S0.4 makes the personal book on every path, once (desk 164); S0.6 opening balances is in the chain, *Finish*
+    posts the Cash figure and *Skip for now* lands on the S0.7 checklist with the row open (desk 172 (a)); S0.5b shows why
+    *Make the sheet* is disabled; the four verbs are pinned above the tab bar on Home as canvas c1/O8 draws them
+    (F1-1006c-1…8, 10…18). Design records S0.6, S0.7, S1 re-stamped (deviates, owner look pending).
+  - P1B: the S2.1 account picker no longer overflows with the keyboard up (desk 173, F1-1006c-9).
+  - Six NO-RESULT journeys on the first phase 1 run were the emulator at its lock screen after a reboot (credential
+    storage locked → *"Activity class … does not exist"*), not the code. `run_journeys.sh` now stops early and says so.
 
 **Changed**
 - `server/supabase/functions/_tests/auth_challenge.test.ts` E-04b-1: `device_activation` removed from the "unknown phone is
   signed up" step, which ADR 2026-10-05c §2 supersedes (22/22 pass). `app/test/features/demo/demo_route_wiring_test.dart`
   `_signIn` now goes through S0.06 and the keypad (F1-DEMO-17, 3/3).
-- `.claude/rf.config.json`: 6 Oct override 10 M (owner).
+- `.claude/rf.config.json`: 6 Oct override 14 M; 7–27 Oct 10 M per day (owner).
+- `app/test/features/demo/demo_route_wiring_test.dart` F1-DEMO-17: a chain with no recorded purpose now goes on to S0.6, not Home (desk 172).
+- `app/integration_test/journeys/support/flows.dart`: the S0.5b defect names rung 3 / ADR 2026-10-06d.
 
 **Open**
+- Rung 3 / desk 171: RUNG3A (`lane-core`) first thing 7 Oct, then RUNG3B; journeys stay FAIL on S0.5b until then.
+- Desk 174 (owner): skipped branch steps (S0.6a/d/g) have no way back from Home — checklist rows or Menu doors?
+- Desk 175 (owner/design): first-run Home keeps the *Balanced* card (07 §4 🔒) where c1/O8 draws none.
+- Desk 176: phase 3 inputs — the shell's centre (+) and missing Inbox badge vs every canvas; S1 header and cards.
+- ADR 2026-10-06d ⚠️: RK is made at S0.5b, not at signup; AEAD associated data left to `lane-core` to report.
 - Desk 160 SIGNIN2: own-device linking S0.2c/S0.2d is not built and not ruled.
 - Desk 129 remainder: phone change and account deletion still sign up an unknown phone.
 - The canvas greets by name, but `otp/verify` sends no display name.
