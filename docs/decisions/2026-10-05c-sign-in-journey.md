@@ -64,8 +64,10 @@ journey to be adopted into 07 and 13.
 - **Design:** done and pushed 5 Oct (owner-approved render): U3b biometric confirm, L6 *Devices & security*, and the
   eight-box code under the QR. Still open: the PIN-only variants of U1 and S15 (desk 148), and canvas 4's S9.2, which
   draws 7 code boxes where 07 §12 says eight (desk 159).
-- **Code (a later lane):** S0.06; the S0.2 sign-in state; S0.2a, S0.2b, S0.2c, S0.2d and S0.2e; routing by
-  `otp/verify`'s known/unknown answer **after** the code. Desk 131 closes with it: *Get my books back* becomes the
+- **Code:** S0.06; the S0.2 sign-in state; S0.2a, S0.2b and S0.2e; routing by `otp/verify`'s account answer **after** the
+  code. Note (5 Oct, scoping): there was no such answer; the server signed up every unknown number at verify. SIGNIN1B adds
+  `account` / `signup_ticket` / `/signup/adopt`. **S0.2c/S0.2d (own-device linking) is not built and not ruled**
+  (`ceremony_sessions.dart:60-64`), so it is PLAN desk 160 (SIGNIN2), and S0.2b's *Yes* is disabled with a reason until then. Desk 131 closes with it: *Get my books back* becomes the
   sign-in path. The design-match index does not yet read `.dc.html` sources (desk 143b), so Canvas 1b frames
   need that before their records can be stamped.
 - **Not changed:** OTP rules (06 §2), linking (04 §9.1), the recovery ladder (04 §7), the PIN-reset rule (06 §4.4),

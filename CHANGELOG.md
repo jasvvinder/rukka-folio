@@ -12,6 +12,53 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-06 — M13: SIGNIN1 sign-in journey (ADR 2026-10-05c) + desk 157 (`/cycle` + verify/repair, push gate green)
+
+**Added**
+- Server (M13-SIGNIN1B, `lane-server`, reviewed, 3-lens verify, 4 findings repaired): `otp/verify` answers
+  `account: existing|created|none`. On purpose `device_activation` an unknown phone is **not** signed up: the answer is
+  `{account: none, signup_ticket, expires_in_s}`. New `POST /signup/adopt {signup_ticket, user_id}` signs up on the person's
+  choice (S0.2e), with no second code. There is no new table: a sign-up ticket is an `activation_tickets` row with
+  `user_id` NULL, and the phone is sealed inside the opaque ticket (ADR 2026-09-05c §4). Tests E-1005c-1…14; RLS
+  329/1 before the orchestrator fixed the one superseded step (below).
+- App (M13-SIGNIN1A, `lane-ui-hard`): S0.06 front door; S0.2 sign-in state on an in-app keypad (canvas 1b L2–L4, SMS only);
+  S0.2a, S0.2b (*Yes* disabled with a reason until SIGNIN2) and S0.2e. Seam `requestOtp(door)` / `checkOtp` /
+  `adoptSignup`; `HttpAuthClient` maps door → purpose. F1-1005c-1…3 plus wire-contract tests; auth + onboarding
+  226 pass. Design-match records S0.06, S0.2, S0.2a, S0.2b, S0.2e (verdict deviates, stamped). The build's and the review's
+  structured results never reached the workflow (the agents ended without them). The review report on disk had 6
+  findings; the orchestrator verified them in a separate run (3 lenses, xhigh): 5 confirmed, 1 refuted (the S0.2b → No
+  route ends in the unbuilt adoption C-04b-4, desk 131, which is recorded, not a defect). The first repair run stalled
+  6 times and changed nothing; the rerun fixed all five, tests first:
+  - the resend row is never hidden by an error (07 §3.1, design-system §3.1 rule 2);
+  - autofill and paste are back through an invisible system field over the canvas code boxes (WCAG 2.2 SC 3.3.8,
+    design-system §3.1);
+  - helper lines use the body-small role, as the canvas draws them;
+  - `_adopt` catches every failure, so S0.2e is never stuck;
+  - inline links are ≥ 44 dp, checked by `meetsGuideline`.
+  auth + onboarding + demo: 235 pass. **Push gate green** (app suite and server 146 pass / 0 fail; the gate formatted 8
+  files).
+- Tooling (desk 157, reviewed as DM157, 4 findings repaired): `design_match.py` indexes `.dc.html` canvases. All 17 Canvas 1b
+  frames are mapped, and there is a self-test.
+
+**Changed**
+- `server/supabase/functions/_tests/auth_challenge.test.ts` E-04b-1: `device_activation` removed from the "unknown phone is
+  signed up" step, which ADR 2026-10-05c §2 supersedes (22/22 pass). `app/test/features/demo/demo_route_wiring_test.dart`
+  `_signIn` now goes through S0.06 and the keypad (F1-DEMO-17, 3/3).
+- `.claude/rf.config.json`: 6 Oct override 10 M (owner).
+
+**Open**
+- Desk 160 SIGNIN2: own-device linking S0.2c/S0.2d is not built and not ruled.
+- Desk 129 remainder: phone change and account deletion still sign up an unknown phone.
+- The canvas greets by name, but `otp/verify` sends no display name.
+- The in-app keypad loses platform SMS code autofill (owner/design call).
+- `/signup/adopt` has no per-IP limit of its own (06 §3 numbers still ⚠️ M6).
+- Docs: 06 §2 should describe the new wire; the ADR 2026-10-05c markers should gain E-1005c-* (desk 162).
+- Desk 161 (owner): the iOS SMS-code suggestion appears only after tapping the boxes; Android fill without the keyboard
+  needs a plugin; L4's hidden resend row.
+
+**Commits**
+- _(fill next session)_
+
 ## 2026-10-05 — M13: design match (ADR 2026-10-05) · Android runs, PIN-only until a biometric (ADR 2026-10-05b) · AppBar font (`/cycle` ×3, push gate green ×2)
 
 Owner reported that no screen in the demo matched the design. Cause: the screen recipe, the UI lane prompts and the
