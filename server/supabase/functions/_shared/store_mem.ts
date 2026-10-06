@@ -1825,6 +1825,18 @@ class MemTx implements Tx {
     t.consumed_at = now;
     return Promise.resolve(t);
   }
+  lockSignupTicket(hash: Uint8Array, now: Date): Promise<ActivationTicket | null> {
+    // The fake runs one request at a time; the row lock is Postgres's (tests/rls/signin_door).
+    const t = this.db.activation_tickets.find((x) =>
+      bytesEqual(x.ticket_hash, hash) && x.user_id === null && !x.consumed_at && x.expires_at > now
+    );
+    return Promise.resolve(t ?? null);
+  }
+  consumeSignupTicket(id: string, now: Date): Promise<void> {
+    const t = this.db.activation_tickets.find((x) => x.id === id);
+    if (t && t.user_id === null && !t.consumed_at) t.consumed_at = now;
+    return Promise.resolve();
+  }
   registerDevice(
     device: string,
     user: string,

@@ -1325,12 +1325,14 @@ Deno.test("E-04b-1 otp/verify records the client's user_id (ADR 2026-10-04b §1 
     assertEquals(r.db.users.get(mine)!.language, "pa");
   });
   await t.step(
-    "an unknown phone on another purpose: the server would sign it up, so the proposal is what it records",
+    "an unknown phone on phone change or account deletion: the server would sign it up, so the proposal is what it records",
     async () => {
       // ADR 04b §1: "honoured only where the server would otherwise call signupUser" — and
-      // "the server never mints a user id for a request that carried one". Today a phone with no
-      // account is signed up whatever the purpose, so both sentences say: record the proposal.
-      for (const purpose of ["device_activation", "phone_change", "account_deletion"]) {
+      // "the server never mints a user id for a request that carried one". A phone with no account
+      // is still signed up on these two purposes (desk 129 remainder, owner-open). device_activation
+      // no longer signs up an unknown phone — it answers account "none" + a signup ticket
+      // (ADR 2026-10-05c §2; E-1005c-*), so it is not in this list.
+      for (const purpose of ["phone_change", "account_deletion"]) {
         const r = rig();
         const mine = crypto.randomUUID();
         const code = await freshCode(r, PHONE, purpose);

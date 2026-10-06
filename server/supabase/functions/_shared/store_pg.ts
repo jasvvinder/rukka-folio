@@ -801,6 +801,25 @@ class PgTx implements Tx {
       } as ActivationTicket
       : null;
   }
+  async lockSignupTicket(hash: Uint8Array, now: Date): Promise<ActivationTicket | null> {
+    // FOR UPDATE: a second adopt of the same ticket waits here for the first to commit, then
+    // re-reads the row (READ COMMITTED re-checks the WHERE on the new version) and finds it spent.
+    // `user_id is null` keeps every activation ticket out (ADR 2026-10-05c §2).
+    const [r] = await this.sql`select * from activation_tickets
+      where ticket_hash = ${hash} and user_id is null and consumed_at is null and expires_at > ${now}
+      for update`;
+    return r
+      ? {
+        ...r,
+        ticket_hash: bytes(r.ticket_hash),
+        phone_hmac: bytes(r.phone_hmac),
+      } as ActivationTicket
+      : null;
+  }
+  async consumeSignupTicket(id: string, now: Date): Promise<void> {
+    await this.sql`update activation_tickets set consumed_at = ${now}
+      where id = ${id} and user_id is null and consumed_at is null`;
+  }
   async registerDevice(
     device: string,
     user: string,

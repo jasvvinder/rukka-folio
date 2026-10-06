@@ -545,6 +545,15 @@ export interface Tx {
   consumeOtpChallenge(id: string): Promise<void>;
   createActivationTicket(t: Omit<ActivationTicket, "id">): Promise<string>;
   consumeActivationTicket(ticketHash: Uint8Array, now: Date): Promise<ActivationTicket | null>;
+  /** ADR 2026-10-05c §2: a SIGN-UP ticket is an activation_tickets row that names no user (0004:
+   *  "null until signup creates the user"), written by createActivationTicket with user_id null
+   *  when a device_activation verify meets a phone with no account. Returns that row only while it
+   *  is live — no user, unconsumed, unexpired — and holds it (PgStore: FOR UPDATE) until the
+   *  transaction ends, so two adopts of one ticket in flight together are decided one after the
+   *  other and the second reads the first's consume. Never returns an activation ticket. */
+  lockSignupTicket(ticketHash: Uint8Array, now: Date): Promise<ActivationTicket | null>;
+  /** Spends a sign-up ticket (consumed_at := now) if it is still unspent. */
+  consumeSignupTicket(id: string, now: Date): Promise<void>;
   /** ADR 2026-09-16 §2: the client's `device` id is recorded, never minted here. Idempotent for
    *  the same user with the same keys on a live row; any other holder → DeviceIdTakenError. */
   registerDevice(

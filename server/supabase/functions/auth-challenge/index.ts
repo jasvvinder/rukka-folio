@@ -3,16 +3,34 @@
 //                       SMS is the one channel (ADR 2026-09-25 §1, amending 06 §2): `channel` is
 //                       accepted and ignored — never a 400, since an app build that still asks for
 //                       `whatsapp` must get its code — and the answer never names a channel (E-25-1).
-//   POST /otp/verify    {phone, purpose, code, user_id?, language?} → {ticket, user_id, expires_in_s}
+//   POST /otp/verify    {phone, purpose, code, user_id?, language?}
+//                         → {ticket, user_id, account: "existing" | "created", expires_in_s}
+//                         | {account: "none", signup_ticket, expires_in_s}
 //                       `user_id` is the id the ledger minted at first run (ADR 2026-10-04b §1 🔒).
-//                       A phone with no account is signed up UNDER it, never under one minted here;
-//                       a phone that has one answers with ITS id and the proposal is ignored (§3), on
-//                       every purpose. Present but not a canonical lowercase uuid → 400 bad_request,
-//                       before the challenge is read. Held by any user (an erased one too) → 409
+//                       A phone that has an account answers `existing` with ITS id and the proposal
+//                       is ignored (§3), on every purpose. A phone with none:
+//                         * device_activation — the SIGN-IN door (ADR 2026-10-05c §2 🔒): nobody is
+//                           signed up. The answer is `none` with an opaque, single-use sign-up
+//                           ticket (≤ 10 min) and NO ticket or user_id; /signup/adopt turns it into
+//                           the sign-up if the person chooses *Set up new books* (S0.2e).
+//                         * signup, phone_change, account_deletion — signed up UNDER the proposal,
+//                           never under an id minted here: `created`.
+//                       Present but not a canonical lowercase uuid → 400 bad_request, before the
+//                       challenge is read. Held by any user (an erased one too) → 409
 //                       `{error: user_id_taken}`, nothing created, and the challenge NOT consumed and
 //                       its attempts not bumped, so the client re-mints and retries once with the
 //                       same code (§2). Absent → the id is minted here, so an older client still
 //                       signs up.
+//   POST /signup/adopt  {signup_ticket, user_id} → {ticket, user_id, account: "created", expires_in_s}
+//                       ADR 2026-10-05c §2: the sign-up the person chose after a `none`, with NO
+//                       second code — the ticket is what only a verified code yields. user_id is
+//                       required (no client predates this route) and shape-checked first: missing
+//                       or malformed → 400 bad_request, ticket untouched. 409 user_id_taken exactly
+//                       as verify: nothing created, ticket NOT spent, one retry with a fresh id.
+//                       Every ticket problem — absent, malformed, unknown, spent, expired, not the
+//                       sealed phone's — is ONE 400 `{error: signup_ticket_invalid}`; so is a phone
+//                       that gained an account since the code (fail closed: the ticket is spent and
+//                       the client restarts at the code, which then answers `existing`).
 //   POST /devices       {device_id, ticket, pub_ed, pub_x, model?, os?, attestation?, umk?} → {device_id, user_id, status}
 //                       `umk` is the /devices/certify body below (incl. umk_pub_ed + umk_pub_x), so
 //                       the first device self-certifies in the same call (04 §3.4, 06 §3 step 4).
@@ -35,7 +53,15 @@ import { b64any, b64url, bytesEqual, concat, i64be, isUuid, uuid16 } from "../_s
 import { ACCESS_TTL_S, type Claims, mintAccessToken } from "../_shared/claims.ts";
 import { type Deps, serve } from "../_shared/deps.ts";
 import { clientIp, error, json, readJson, subPath } from "../_shared/http.ts";
-import { encryptPhone, normaliseE164, phoneHmac } from "../_shared/phone.ts";
+import {
+  encryptPhone,
+  normaliseE164,
+  openSignupTicket,
+  phoneHmac,
+  sealSignupTicket,
+  SIGNUP_TICKET_MAX_BYTES,
+  SIGNUP_TICKET_MIN_BYTES,
+} from "../_shared/phone.ts";
 import { authenticate, gate } from "../_shared/route.ts";
 import {
   blake2b256,
@@ -49,6 +75,7 @@ import {
   DeviceIdTakenError,
   type RefreshToken,
   StoreDenied,
+  type Tx,
   UserIdTakenError,
 } from "../_shared/store.ts";
 
@@ -58,6 +85,8 @@ export const OTP_RESEND_BACKOFF_S = [30, 60, 300]; // 06 §2: 30 s → 60 s → 
 export const OTP_PER_NUMBER = { hour: 5, day: 10 };
 export const OTP_PER_IP_HOUR = 30; // ⚠️ 06 §3: numbers M6
 export const TICKET_TTL_S = 10 * 60;
+/** ADR 2026-10-05c §2: a sign-up ticket lives no longer than an activation ticket (≤ 10 min). */
+export const SIGNUP_TICKET_TTL_S = 10 * 60;
 export const NONCE_TTL_S = 60;
 export const SKEW_S = 90;
 export const REFRESH_IDLE_S = 30 * 86400;
@@ -75,6 +104,8 @@ export async function handler(req: Request, deps: Deps): Promise<Response> {
       return otpRequest(req, deps, body);
     case "/otp/verify":
       return otpVerify(deps, body);
+    case "/signup/adopt":
+      return adoptSignup(deps, body);
     case "/devices":
       return registerDevice(deps, body);
     case "/devices/certify":
@@ -194,7 +225,32 @@ async function otpVerify(deps: Deps, b: Record<string, unknown>): Promise<Respon
     // client re-mints and retries ONCE with the same code). The code was proven first, so the 409
     // is no oracle to anyone who does not hold the phone.
     let user = await tx.findUserByPhoneHmac(hmac);
+    let account: "existing" | "created" = "existing";
+    if (!user && purpose === "device_activation") {
+      // The SIGN-IN door with a number that has no books (ADR 2026-10-05c §2 🔒, desk 129 for this
+      // path): the code is proven, but a sign-up happens only when the person chooses *Set up new
+      // books* (S0.2e) — so nobody is signed up here and the proposal is recorded nowhere. The code
+      // is spent; what carries forward is a single-use sign-up ticket that /signup/adopt accepts
+      // without a second code. It names no user, is bound to the phone's HMAC, and the number
+      // itself travels sealed inside it (phone.ts: nothing recoverable is kept for a person who has
+      // not signed up, ADR 2026-09-05c §4 🔒).
+      await tx.consumeOtpChallenge(c.id);
+      const sealed = await sealSignupTicket(deps.phoneKek, phone, language);
+      await tx.createActivationTicket({
+        ticket_hash: await blake2b256(sealed),
+        phone_hmac: hmac,
+        purpose,
+        user_id: null,
+        created_at: now,
+        expires_at: new Date(now.getTime() + SIGNUP_TICKET_TTL_S * 1000),
+        consumed_at: null,
+      });
+      return { status: 200 as const, account: "none" as const, signup_ticket: b64url.enc(sealed) };
+    }
     if (!user) {
+      // ⚠️ SPEC: desk 129 remainder (ADR 2026-10-05c § Open, owner-open) — whether a verified code
+      // for an unknown number on `phone_change` or `account_deletion` should sign it up is not
+      // ruled. Unchanged until it is: those purposes, and `signup` itself, sign up here.
       try {
         user = await tx.signupUser(
           hmac,
@@ -206,19 +262,14 @@ async function otpVerify(deps: Deps, b: Record<string, unknown>): Promise<Respon
         if (e instanceof UserIdTakenError) return { status: 409 as const };
         throw e;
       }
+      account = "created";
     }
     await tx.consumeOtpChallenge(c.id);
-    const ticket = await randomBytes(32);
-    await tx.createActivationTicket({
-      ticket_hash: await blake2b256(ticket),
-      phone_hmac: hmac,
-      purpose,
-      user_id: user,
-      created_at: now,
-      expires_at: new Date(now.getTime() + TICKET_TTL_S * 1000),
-      consumed_at: null,
-    });
-    return { status: 200 as const, ticket: b64url.enc(ticket), user_id: user };
+    return {
+      status: 200 as const,
+      account,
+      ...await issueActivationTicket(tx, now, hmac, purpose, user),
+    };
   });
   if (out.status === 409) return error(409, "user_id_taken");
   if (out.status !== 200) {
@@ -227,7 +278,108 @@ async function otpVerify(deps: Deps, b: Record<string, unknown>): Promise<Respon
       ...(out.attempts_left !== undefined ? { attempts_left: out.attempts_left } : {}),
     });
   }
-  return json(200, { ticket: out.ticket, user_id: out.user_id, expires_in_s: TICKET_TTL_S });
+  if (out.account === "none") {
+    return json(200, {
+      account: "none",
+      signup_ticket: out.signup_ticket,
+      expires_in_s: SIGNUP_TICKET_TTL_S,
+    });
+  }
+  return json(200, {
+    ticket: out.ticket,
+    user_id: out.user_id,
+    account: out.account,
+    expires_in_s: TICKET_TTL_S,
+  });
+}
+
+/** The activation ticket /devices consumes once (06 §2–§3), naming `user`. */
+async function issueActivationTicket(
+  tx: Tx,
+  now: Date,
+  hmac: Uint8Array,
+  purpose: string,
+  user: string,
+): Promise<{ ticket: string; user_id: string }> {
+  const ticket = await randomBytes(32);
+  await tx.createActivationTicket({
+    ticket_hash: await blake2b256(ticket),
+    phone_hmac: hmac,
+    purpose,
+    user_id: user,
+    created_at: now,
+    expires_at: new Date(now.getTime() + TICKET_TTL_S * 1000),
+    consumed_at: null,
+  });
+  return { ticket: b64url.enc(ticket), user_id: user };
+}
+
+// ---------------------------------------------------------------- sign-up by choice (ADR 2026-10-05c §2)
+async function adoptSignup(deps: Deps, b: Record<string, unknown>): Promise<Response> {
+  // The client-minted id (ADR 2026-10-04b §1 🔒) is required here — no client predates this route —
+  // and checked BEFORE the ticket is read, so a malformed id never touches the ticket.
+  if (!isUuid(b.user_id)) return error(400, "bad_request");
+  const proposed = b.user_id;
+  const invalid = () => error(400, "signup_ticket_invalid");
+  // Every ticket problem is the same answer (no oracle): a size no sealed ticket has is refused
+  // before any lookup; anything else is decided on the stored row.
+  const raw = b64any(b.signup_ticket);
+  if (!raw || raw.length < SIGNUP_TICKET_MIN_BYTES || raw.length > SIGNUP_TICKET_MAX_BYTES) {
+    return invalid();
+  }
+  const now = deps.now();
+  const hash = await blake2b256(raw);
+
+  const out = await deps.store.withClaims(null, async (tx) => {
+    // Held to commit: a second adopt of this ticket decides on what the first committed.
+    const t = await tx.lockSignupTicket(hash, now);
+    if (!t) return { status: 400 as const };
+    // Bound to the phone by HMAC: the number sealed in the ticket must be the one whose code was
+    // verified. Lookup by the hash of the whole ticket already ties the two; this is the check that
+    // no row and no ticket can be steered at another number.
+    const sealed = await openSignupTicket(deps.phoneKek, raw);
+    if (
+      !sealed ||
+      !(await constantTimeEqual(await phoneHmac(deps.phoneHmacKey, sealed.phone), t.phone_hmac))
+    ) return { status: 400 as const };
+    // The same per-phone serialisation as /otp/verify: a verify and an adopt for one number never
+    // both decide "no account" and both sign up.
+    await tx.lockPhoneForVerify(t.phone_hmac);
+    if (await tx.findUserByPhoneHmac(t.phone_hmac)) {
+      // The number gained books since the code. Fail CLOSED — never `existing` on a ticket that was
+      // issued for a sign-up — and spend the ticket, which can never succeed now; the client
+      // restarts at the code, whose verify answers `existing` (S0.2a / S0.2b).
+      await tx.consumeSignupTicket(t.id, now);
+      return { status: 400 as const };
+    }
+    let user: string;
+    try {
+      user = await tx.signupUser(
+        t.phone_hmac,
+        await encryptPhone(deps.phoneKek, sealed.phone),
+        sealed.language,
+        proposed,
+      );
+    } catch (e) {
+      // As verify (ADR 2026-10-04b §2): nothing written, the ticket NOT spent, so the client
+      // re-mints and retries once with the same ticket.
+      if (e instanceof UserIdTakenError) return { status: 409 as const };
+      throw e;
+    }
+    await tx.consumeSignupTicket(t.id, now);
+    return {
+      status: 200 as const,
+      ...await issueActivationTicket(tx, now, t.phone_hmac, "signup", user),
+    };
+  });
+  if (out.status === 409) return error(409, "user_id_taken");
+  if (out.status !== 200) return invalid();
+  return json(200, {
+    ticket: out.ticket,
+    user_id: out.user_id,
+    account: "created",
+    expires_in_s: TICKET_TTL_S,
+  });
 }
 
 // ---------------------------------------------------------------- devices (06 §3)
