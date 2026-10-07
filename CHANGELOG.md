@@ -12,6 +12,39 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-07 — M13: setup steps ruled required; draft frames for desk 174 and inline-account opening balances (design review, no code)
+
+**Added**
+- Draft review frames (not yet pushed to the design project), built from the canvas markup of c1/O8, c1/S0.6, c7/S3 and
+  c7/S4: https://claude.ai/artifact/G7HfuEuyL7F2HKtEtVHYxX (v2). They show Home with everything skippable skipped, the
+  family/trust *Finish …* rows, *Not needed* + Undo, S0.6 without Skip, and the statement prompt and Ledger marker for
+  an account created inside an entry.
+
+- Design project: staged `partials/new-screens-e.json` (9 approved frames) and `PROMPT-place-setup-steps.md`, both
+  read back byte-equal. No canvas was overwritten: the live Canvas 1 holds a design-session O8b that exists in no
+  partial, and both canvases are over the 256 KiB read cap (mirror `CHANGES.md`, 7 Oct).
+
+**Decided**
+- `2026-10-07-required-setup-steps.md` — 🔒 the recovery sheet (once RUNG3B lands), naming the chosen branch, and opening balances are required; invites and family/trust extra accounts stay skippable and return as one *Finish …* checklist row with ⋮ Not needed + Undo; the card leaves when every row is ticked or Not needed. 07 §3.1/§3.1.1 and 13 S0.6/S0.7 cross-referenced.
+- `2026-10-07b-inline-account-opening-balance.md` — 🔒 an account created inside an entry asks for its opening balance afterwards, on its statement (S4) with a Ledger marker (S3); same posting as S3.1. 02 §4 and 07 §6 cross-referenced.
+- Desk 174 (owner, 6–7 Oct): a checklist row per skipped branch. Then, 7 Oct: the recovery sheet, naming the chosen
+  business/family/trust, and opening balances (S0.6, S0.6b) are **required**. Invites (S0.6e/h) and the family/trust
+  extra accounts (S0.6f/i) stay skippable. This overturns 07 §3.1 steps 6–7 and §3.1.1 for those steps; the ADR is
+  written on frame approval. The sheet becomes required only once RUNG3B lands.
+- Found while checking: canvas c1/O5b already draws the recovery sheet with no Skip. The app's *Skip for now* was never
+  in the design.
+
+**Open**
+- Owner confirmed the six points. Next: desk 178 (design session places the frames), then SETUP174 and OPEN177; F1-1006c-4 is superseded in SETUP174.
+- 02 §4 🔒 gap, verified: accounts created from the entry picker (`s2_add_entry_screen.dart:1195`) never ask for an
+  opening balance. S3.1 does (`s3_1_quick_add_sheet.dart:141-183`).
+- RUNG3A (`lane-core`) not started yet today.
+
+**Commits**
+- _(fill next session)_
+
+---
+
 ## 2026-10-06 — M13: SIGNIN1 sign-in journey (ADR 2026-10-05c) + desk 157 (`/cycle` + verify/repair, push gate green)
 
 **Added**
@@ -125,7 +158,7 @@ Running record of what changed in this repository and in the development environ
   entry (owner); mint the device keys at S0.2 (features/auth); StrongBox needs a real-phone run.
 
 **Commits**
-- _(fill next session)_
+- `9091f34` JOURNEY0 harness · `795de1c` P1A/P1B · `ac13a21` ADR 2026-10-06d + plan/changelog (earlier 6 Oct work: `e12b056`…`9f8b881`)
 
 ## 2026-10-05 — M13: design match (ADR 2026-10-05) · Android runs, PIN-only until a biometric (ADR 2026-10-05b) · AppBar font (`/cycle` ×3, push gate green ×2)
 
