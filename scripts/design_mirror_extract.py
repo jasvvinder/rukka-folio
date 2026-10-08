@@ -32,6 +32,9 @@ def in_mirror_set(p):
     # Canvas 17 has no partials; these three files are its source (owner, 27 Sep 2026).
     if p in ("Canvas 17 - Reports and statements.dc.html", "reports-data.js", "Report Page.dc.html"):
         return True
+    # Canvas 1b has no partials either; the file is its source (owner, 5 Oct 2026).
+    if p == "Canvas 1b - Sign in.dc.html":
+        return True
     return p.startswith("partials/") or (p.startswith("i18n-") and p.endswith(".json"))
 
 envelopes, truncated = {}, set()

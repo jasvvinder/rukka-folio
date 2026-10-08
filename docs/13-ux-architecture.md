@@ -118,7 +118,7 @@ Roles (admin · head · member · operator · viewer) change *what actions appea
 | **S0.6c** | Add another business? | O6b | loop control, multi-business branch ⟦tests: F1-07-83⟧ |
 | **S0.6d** | Name the family | O3 branch | ⟦tests: F1-07-74⟧ |
 | **S0.6e** | Who else is in the family | O6d | invite heads by phone, **Skip for now** — the archetype S0.6a1 reuses (ADR 2026-09-09 §1) ⟦tests: F1-07-75⟧ |
-| **S0.6f** | The family's shared accounts | O6e | pool bank and cash; no bank seeded, added as `Add a bank account` (ADR 2026-09-09d §1) ⟦tests: F1-07-76⟧ |
+| **S0.6f** | The family's shared accounts | O6e | joint fund bank and cash; no bank seeded, added as `Add a bank account` (ADR 2026-09-09d §1) ⟦tests: F1-07-76⟧ |
 | **S0.6g** | Name the trust and its type | O3 branch | gurudwara · temple · society · registered trust ⟦tests: F1-07-80⟧ |
 | **S0.6h** | Who runs the trust | O6g | Chairman/President/Trustee/Sevadar, skippable ⟦tests: F1-07-81⟧ |
 | **S0.6i** | The trust's accounts | O6h | bank + gollak as `cash_collection` ⟦tests: F1-07-82⟧ |

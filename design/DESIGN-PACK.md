@@ -252,7 +252,7 @@ A slim strip that sits above the import inbox: two rows with tick or warning ico
 Design step 1 of 4: header "Close August · Step 1 of 4" with a progress bar; title "Count your cash"; a large tabular input pre-filled with the book figure; beneath it, once a different number is typed, a muted line "₹230 less than the book — we'll adjust it"; a wide primary Next button. Also design **step 3 (the tray)**: two clearly separated groups — a red-tinted "Must clear before closing" list (unexplained bank lines, entries awaiting review) each row tappable to resolve, and a muted "Worth checking" list (aged advances, cash not counted) that does not block, with a plain line stating the difference. And **step 4**: a summary list of declared balances with a lock icon and the button "Confirm & lock August".
 
 ## S10.1 — Family close status *(multi-book tenants)*
-A compact list inside the wizard showing every book's state: "Kirana Store — closed ✓" · "Agriculture Business — waiting on Pankaj" (with avatar) · "Joint pool — not started". The karta needs to see who he is waiting for.
+A compact list inside the wizard showing every book's state: "Kirana Store — closed ✓" · "Agriculture Business — waiting on Pankaj" (with avatar) · "Joint fund — not started". The karta needs to see who he is waiting for.
 
 ## S10.2 — Month summary card *(the reward screen)*
 The screen shown immediately after a book locks — a shareable card, not a receipt. Large month name, three figures ("In ₹1,75,000 · Out ₹1,38,200 · Saved ₹36,800" with the saved figure emphasised), then the three largest expenses as small rows with icons, and in a joint family a per-sub-family line. Bottom: **Share on WhatsApp** (primary) and Done. Warm, celebratory but quiet — a tick, not confetti. Design it to look right as an exported square image.
@@ -306,7 +306,7 @@ Calm, serious, one idea per line: heading "Only you can open your books", body e
 
 ## O6 · Opening balances — one grouped screen *(replaces the three-step wizard, ADR 2026-09-09c §3)*
 One screen, not three steps. Title *"What do you have?"* (business: *"What does the shop have?"* / *"What
-does the business have?"*, family: *"What does the pool have?"*, trust: *"What does the trust have?"*), then a
+does the business have?"*, family: *"What is in the joint fund?"*, trust: *"What does the trust have?"*), then a
 **plain read-only line** — *Balances as on 10 September 2026* — no box, no picker: 02 §4 🔒 asks money
 accounts for "balance today", so there is nothing to choose, and nothing may ever be dated before it
 (ADR 2026-09-09d §4). Beneath, **groups** where the wizard had steps: *What you have · Who owes you · Who you
@@ -441,7 +441,7 @@ A single-entry receipt preview on gurudwara letterhead: trust name, donor name, 
 
 ## D · JOINT FAMILY — Sharma Family
 
-*The full architecture: joint pool + three sub-families + two businesses + personal books. Everything above, plus the multi-book layer. Design this last.*
+*The full architecture: joint fund + three sub-families + two businesses + personal books. Everything above, plus the multi-book layer. Design this last.*
 
 ### D1 · Scope switcher sheet *(the screen that makes the product possible)*
 A bottom sheet opened from the scope chip, sections with headers: **Me** (Rahul's personal book, with a small lock icon meaning private) · **Family** (Sharma Joint Family · Rahul sub-family · Pankaj sub-family · Geeta sub-family) · **Businesses** (Agriculture Business · Sharma Super Store · Sharma Textile) · **Everything** (with a small "read-only" tag). Each row shows the book name and its current balance. The current scope is ticked.
@@ -449,17 +449,17 @@ A bottom sheet opened from the scope chip, sections with headers: **Me** (Rahul'
 ### D2 · Home — Everything scope
 Hero **total across all visible books**, then instead of a single position card, a **stack of compact book cards** — each with the book name, its balance, and a chevron; tapping one switches scope to that book. Below: a family-wide **open advances** card ("Sunil Sharma ₹5,800 · 17 days" from Agriculture Business) and an **inter-book status** card reading "All books reconciled ✓" with a chevron.
 
-### D3 · Home — Joint pool scope
+### D3 · Home — Joint fund scope
 Hero **₹63,000** (PNB Joint) plus Joint Cash ₹18,800. Position card rows: **Agriculture Business — you will give ₹4,00,000** · **Sharma Super Store — you will give ₹1,80,000** · **Rahul sub-family — you will get ₹2,00,000** · **Pankaj sub-family — you will get ₹2,00,000** · **Geeta sub-family — you will get ₹2,25,000**. Note these rows are *other books*, named plainly — never "Due to/from".
 
 ### D4 · Inter-book transfer sheet *(joint-only screen)*
 "Move money between books": a From block (book selector + account) and a To block (book selector + account), amount, note, and a plain-language confirmation line: "Agriculture Business will show ₹50,000 going out. Sharma Joint Family will show ₹50,000 coming in." Include the **in-transit state**: the entry row on both books tagged "In transit" in muted colour until the second half is approved.
 
 ### D5 · Family reconciliation screen *(joint-only)*
-A list of book pairs, each showing both sides and a green tick: "Joint pool ↔ Agriculture Business · ₹4,00,000 each way · ✓". Header reads "All books agree" with a large tick when every pair nets to zero; any non-zero pair shows amber with a "See the entries" link.
+A list of book pairs, each showing both sides and a green tick: "Joint fund ↔ Agriculture Business · ₹4,00,000 each way · ✓". Header reads "All books agree" with a large tick when every pair nets to zero; any non-zero pair shows amber with a "See the entries" link.
 
 ### D6 · Allowance flow
-The monthly household allowance from pool to sub-family, as a **repeating entry**: a card on the joint pool's Home reading "Monthly allowances · ₹1,15,000 · due 15 Sep" with a "Send now" button, expanding to per-sub-family rows with amounts editable before sending.
+The monthly household allowance from the joint fund to a sub-family, as a **repeating entry**: a card on the joint fund's Home reading "Monthly allowances · ₹1,15,000 · due 15 Sep" with a "Send now" button, expanding to per-sub-family rows with amounts editable before sending.
 
 ### D7 · Advance (ਐਡਵਾਂਸ) full cycle *(joint + trust + business)*
 Four states of the same card, designed as a set: **requested** (awaiting approval, amber) · **open** (₹5,800 with Sunil Sharma, 17 days, progress bar) · **overdue** (past the reminder threshold, red, with "Remind" button) · **settled** (green tick, collapsed).

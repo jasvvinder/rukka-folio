@@ -12,24 +12,52 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
-## 2026-10-08 — docs: PLAN refresh after the 7 Oct design pull (no code, no gate)
+## 2026-10-08 — docs: design pull of the 8 Oct translation pass; ADR 2026-10-08 (joint fund + PA/HI glossary)
 
-A `/plan` pass only. No lane ran and no gate ran, so no id moved to ✅.
+A `/plan` refresh, then `/design-pull`. The design session had spent 8 Oct translating the held-English frames,
+renaming *pool* to *joint fund*, drawing Android twins of the platform screens and recording glossary rulings. Several
+of those rulings contradicted owner-locked lines, and the owner confirmed them here. No code changed, and no lane or
+gate ran.
+
+**Added**
+- `docs/decisions/2026-10-08-joint-fund-and-glossary.md` (see Decided).
+- PLAN desk 179 (WORDS179: the ADR into ARB EN/PA/HI and the platform unlock names) and desk 180 (re-split the
+  over-cap partials, done the same day).
 
 **Changed**
-- PLAN §0 dated 8 Oct. The traceability row now shows today's `check_coverage` output (default mode, not a gate run):
-  428 🔒 lines, 0 unmarked, 1584 ids, 2596 tests (23 without an id). Orphans are 127, up from 24 on 4 Oct.
-- Desk 178 ✅: the frames were placed and pulled on 7 Oct, evening. Desk 174 (SETUP174) is unblocked. Its design match
-  must re-record S0.6 and S0.7. The recovery-sheet part still waits for RUNG3B.
+- 01 §1 rule 8 and §2: *Cash in hand*, *You will get / give*, *Advance out*, HI *Save*, HI *Face ID* (फ़ेस). New rows
+  *Joint fund* and *Sub-family*, plus two ADR cross-reference lines.
+- 07 §13 S10.1 line: *Joint fund not started*, with a cross-reference. 07 §3.1 and 13 S0.6f: *joint fund bank*.
+  DESIGN-PACK S10.1, O6 and §D: *joint fund*.
+- `design/match/canvas-index.json` rebuilt twice. After the re-split it holds 110 S-ids and 294 frames. S0.8, S15 and
+  S15.3 are newly stale, because their frames are now iPhone/Android pairs.
+- `scripts/design_mirror_extract.py`: Canvas 1b joins the mirror set. The command doc listed it, but the script had
+  dropped it.
+- PLAN: §0 dated 8 Oct, with traceability at today's `check_coverage`. Desk 178 ✅ (pulled 7 Oct, evening), desk 174
+  unblocked, desk 166 ruled.
+- Mirror (gitignored): 21 of 36 fetched files changed. Then a second pull after the owner had the five over-cap
+  partials re-split: all five stitch from their parts and equal the live files. Record in
+  `design/canvas-mirror/CHANGES.md`, 8 Oct and 8 Oct (later).
+
+**Decided**
+- `2026-10-08-joint-fund-and-glossary.md` — 🔒 *joint fund* (ਸਾਂਝਾ ਫ਼ੰਡ / साझा फ़ंड) replaces *pool* in every
+  user-facing string. Term table: ਹੱਥ ਵਿੱਚ ਰੋਕੜ / हाथ में रोकड़, ਤੁਸੀਂ ਲੈਣੇ ਹਨ / आपने लेने हैं, ਐਡਵਾਂਸ ਦਿੱਤਾ / एडवांस दिया, HI
+  सुरक्षित करें, ਪਰਿਵਾਰ never ਟੱਬਰ. The unlock method is named per platform (Face ID · Touch ID · Fingerprint · Face
+  unlock). Android swaps the Apple nouns, and App Store / Play Store are transliterated.
 
 **Open** ⚠️
-- The orphan count went from 24 to 127. The 5–6 Oct slices have test ids that no 🔒 marker names yet (desks 69, 105, 134
-  and 162). They are warn-only: `check_coverage --strict` still exits 0 (checked 8 Oct).
-- Desk 171: the `ac13a21` commit subject says the rung 3 sheet was "built end to end", but that commit holds only the ADR
-  and docs. No RUNG3A or RUNG3B lane report exists, so the row stays ⬜.
-- Next: RUNG3A (`lane-core`, already approved), then SETUP174 + OPEN177.
+- Canvas 11 A4a: the *Where your money sits* group is empty, because *Cash in Hand* was removed along with the *Your
+  bank* row. Ask the design session to restore it.
+- Desk 179: ARB + widgets for ADR 2026-10-08 (`lane-mech` strings, `lane-ui` S15/S15.2/S0.8 and F1-1008-1…3).
+- Test ids that no 🔒 marker names: 127, up from 24 on 4 Oct. They are warn-only, and `check_coverage --strict` still
+  exits 0 (checked 8 Oct).
+- Desk 171: the `ac13a21` commit subject says the rung 3 sheet was "built end to end", but that commit holds only the
+  ADR and docs. No RUNG3A or RUNG3B lane report exists, so the row stays ⬜.
+- Next: RUNG3A (`lane-core`, already approved), then SETUP174 + OPEN177, then WORDS179.
 
-**Commits** — pending.
+**Commits**
+- `6b56fb2` — the PLAN refresh (§0, desks 174/178).
+- The design pull, ADR 2026-10-08 and the doc updates — pending.
 
 ---
 
@@ -71,7 +99,7 @@ A `/plan` pass only. No lane ran and no gate ran, so no id moved to ✅.
 
 **Commits**
 - `6b87aaa` — ADRs 2026-10-07 and 2026-10-07b, docs cross-references, staged frames.
-- The evening design sync and the ADR 2026-10-07 correction (S0.6f/S0.6i required) — pending, committed with the 8 Oct entry.
+- `6b56fb2` — the evening design sync and the ADR 2026-10-07 correction (S0.6f/S0.6i required).
 
 ---
 

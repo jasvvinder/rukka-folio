@@ -109,34 +109,34 @@
   ],
   "S0.3": [
    {
-    "frame": "c1/O3/Purpose picker · five cards",
+    "frame": "c1/O3/Purpose picker · four cards",
     "design_id": "O3",
-    "caption": "Purpose picker · five cards",
-    "sha256": "6c587485e512da827cf0935ee33b1e4e5773943a47c4cbb0ed4107a55352fe88"
+    "caption": "Purpose picker · four cards",
+    "sha256": "a55379f2bb740ed896d608110811fb866ae8736fd2f4dd5aaa7e11eab1df4c06"
    },
    {
     "frame": "c11/O3/Purpose · chooses Myself",
     "design_id": "O3",
     "caption": "Purpose · chooses Myself",
-    "sha256": "22aa9aeaedeaca869ec3d25128e6aaef63950e0f6b9020f7895c3baa08cabdf0"
+    "sha256": "109883abd778ba20628e344628772336363114b766c764ae6952ba78a0c1f07e"
    },
    {
-    "frame": "c12/O3/Purpose · chooses My shop",
+    "frame": "c12/O3/Purpose · chooses My business",
     "design_id": "O3",
-    "caption": "Purpose · chooses My shop",
-    "sha256": "f4bd158f14a4b4a4328fd4027876cc33a03c4c45687acf146792c960fa1a5869"
+    "caption": "Purpose · chooses My business",
+    "sha256": "5012428964670557ab35ae8a362e3968ef26833e73532edc07647a6a28e0e313"
    },
    {
     "frame": "c13/O3/Purpose · chooses My family",
     "design_id": "O3",
     "caption": "Purpose · chooses My family",
-    "sha256": "fa4b2f2b84d3c4862810f47bec6a0a1c4d5bdad4017e0ac3a23d588cd3ea5447"
+    "sha256": "932b4322265214a35d118a1d7b2fb69df4d10f0f56b088ce6d63ea9376de40a1"
    },
    {
     "frame": "c14/O3/Purpose · chooses Our trust",
     "design_id": "O3",
     "caption": "Purpose · chooses Our trust",
-    "sha256": "046bb1b79313c351e35880614c277b8a219590f55216d13275d7d8c05d894845"
+    "sha256": "a3e9d12d82d3d75da6bb662e0a6aaf730a8eed762655f59f653ae48bec98045f"
    }
   ],
   "S0.4": [
@@ -181,22 +181,40 @@
   ],
   "S0.5": [
    {
-    "frame": "c1/O5/Keeping your books safe",
+    "frame": "c1/O5/Keeping your books safe · iPhone",
     "design_id": "O5",
-    "caption": "Keeping your books safe",
+    "caption": "Keeping your books safe · iPhone",
     "sha256": "744db01be5489291c5d83fcc13af781abaf1526b1b65c21797981181fcf620ac"
    },
    {
-    "frame": "c1/O5/No iCloud variant · the sheet is promoted",
+    "frame": "c1/O5/Keeping your books safe · Android",
     "design_id": "O5",
-    "caption": "No iCloud variant · the sheet is promoted",
+    "caption": "Keeping your books safe · Android",
+    "sha256": "4bc4fe568759dea87ba51f982abca41a607605c0eb3a1024716562596113da82"
+   },
+   {
+    "frame": "c1/O5/No iCloud variant · the sheet is promoted · iPhone",
+    "design_id": "O5",
+    "caption": "No iCloud variant · the sheet is promoted · iPhone",
     "sha256": "8758ae3934ece6db1787ccb426af99d3e0acc3d0d732692c653fd1683763e878"
    },
    {
-    "frame": "c11/O5/Keeping your books safe",
+    "frame": "c1/O5/No Google Password Manager variant · the sheet is promoted · Android",
     "design_id": "O5",
-    "caption": "Keeping your books safe",
+    "caption": "No Google Password Manager variant · the sheet is promoted · Android",
+    "sha256": "a8fe051a3f20562f8c707367576e803ae17976af12c4841948b504939801ab8e"
+   },
+   {
+    "frame": "c11/O5/Keeping your books safe · iPhone",
+    "design_id": "O5",
+    "caption": "Keeping your books safe · iPhone",
     "sha256": "744db01be5489291c5d83fcc13af781abaf1526b1b65c21797981181fcf620ac"
+   },
+   {
+    "frame": "c11/O5/Keeping your books safe · Android",
+    "design_id": "O5",
+    "caption": "Keeping your books safe · Android",
+    "sha256": "4bc4fe568759dea87ba51f982abca41a607605c0eb3a1024716562596113da82"
    }
   ],
   "S0.5b": [
@@ -218,13 +236,13 @@
     "frame": "c11/O6a/Opening balances · what do you have",
     "design_id": "O6a",
     "caption": "Opening balances · what do you have",
-    "sha256": "df3f36c810ea96049a09e9895b0ec2f7a67022421c06a59e61ae4973219a2fd3"
+    "sha256": "bf9c0626ca920a892e5a969036f38e558bc2a4de57e28fe64c91a8b0b6eb2b2a"
    },
    {
     "frame": "c11/O6c/Do you owe anyone",
     "design_id": "O6c",
     "caption": "Do you owe anyone",
-    "sha256": "16985e99f194a35709dac9f3c212d2298f1c7cf9b0dcbfcbdbb39c259f7b25e0"
+    "sha256": "b2c3b393bd42a0cc55a4e20c020648beb842b785da9579b30679436c646d2219"
    },
    {
     "frame": "nd/S0.6-individual/S0.6-individual",
@@ -249,12 +267,6 @@
     "sha256": "02e74351220322a2181a779497303ad03ff556793cffed2214d53b38564c86db"
    },
    {
-    "frame": "c1/S0.6a/Name the business · type, FY#2",
-    "design_id": "S0.6a",
-    "caption": "Name the business · type, FY",
-    "sha256": "02e74351220322a2181a779497303ad03ff556793cffed2214d53b38564c86db"
-   },
-   {
     "frame": "c12/S0.6a/Name the business · type, FY",
     "design_id": "S0.6a",
     "caption": "Name the business · type, FY",
@@ -270,18 +282,6 @@
    },
    {
     "frame": "c1/S0.6a1/Different shares · steppers in whole shares",
-    "design_id": "S0.6a1",
-    "caption": "Different shares · steppers in whole shares",
-    "sha256": "c2303ce43c9c5c5028eb657fa0b2b9973b4d1bccf3b11ddc70d733fde3b9aac2"
-   },
-   {
-    "frame": "c1/S0.6a1/Who owns it · only when Shared#2",
-    "design_id": "S0.6a1",
-    "caption": "Who owns it · only when Shared",
-    "sha256": "c4b05ad1c386184a0d4a338c2ba1739c2fd46c9aa2329ef4c331b4f3868ddba5"
-   },
-   {
-    "frame": "c1/S0.6a1/Different shares · steppers in whole shares#2",
     "design_id": "S0.6a1",
     "caption": "Different shares · steppers in whole shares",
     "sha256": "c2303ce43c9c5c5028eb657fa0b2b9973b4d1bccf3b11ddc70d733fde3b9aac2"
@@ -336,7 +336,13 @@
     "frame": "c1/S0.6c/Add another business?",
     "design_id": "S0.6c",
     "caption": "Add another business?",
-    "sha256": "ff28263e536a4c578bfbfcf315249b760b497b2121c11e61ec608c196e457d20"
+    "sha256": "30c3a751a6cd44cc9f1457f3f8679fa8ebf7b5126b44671839b0a4d549228d06"
+   },
+   {
+    "frame": "c12/S0.6c/Add another business? · No, that’s all",
+    "design_id": "S0.6c",
+    "caption": "Add another business? · No, that’s all",
+    "sha256": "30c3a751a6cd44cc9f1457f3f8679fa8ebf7b5126b44671839b0a4d549228d06"
    }
   ],
   "S0.6d": [
@@ -344,13 +350,13 @@
     "frame": "c1/S0.6d/Name the family",
     "design_id": "S0.6d",
     "caption": "Name the family",
-    "sha256": "c67992962f77e48e4400a857190340598793801154ee31dd0d0a340ec6dd0bd6"
+    "sha256": "72462af4deed5244579175a661660e4832835197150edd02740fd5f86febbee8"
    },
    {
     "frame": "c13/S0.6d/Name the family",
     "design_id": "S0.6d",
     "caption": "Name the family",
-    "sha256": "c67992962f77e48e4400a857190340598793801154ee31dd0d0a340ec6dd0bd6"
+    "sha256": "72462af4deed5244579175a661660e4832835197150edd02740fd5f86febbee8"
    }
   ],
   "S0.6e": [
@@ -369,16 +375,16 @@
   ],
   "S0.6f": [
    {
-    "frame": "c1/S0.6f/What the pool has",
+    "frame": "c1/S0.6f/What the joint fund has",
     "design_id": "S0.6f",
-    "caption": "What the pool has",
-    "sha256": "4ccbd00397dee4c4ccfd9e2a2b97856555465a075aa9972c3194209030508ee3"
+    "caption": "What the joint fund has",
+    "sha256": "f96c247ce2855caba99029f4ab472a586b1f5839f2d8e311410e01c5bcea5056"
    },
    {
     "frame": "c13/S0.6f/The family’s shared accounts",
     "design_id": "S0.6f",
     "caption": "The family’s shared accounts",
-    "sha256": "c382bf6c877c5b4d488f8a97bc4c307faed41ce8513fb6f9ce525248a99fb2df"
+    "sha256": "a093f88a39a947e6d1839853db9fab006b5d2a95e4139a7286dfd44aaa2fab4f"
    },
    {
     "frame": "nd/S0.6f-family/S0.6f-family",
@@ -440,45 +446,51 @@
     "frame": "c1/O8/Setup checklist · Home, first run",
     "design_id": "O8",
     "caption": "Setup checklist · Home, first run",
-    "sha256": "d8afd8046103a89696f3f05d6c88142f18625cfed045742a654fe6cda1ba6aab"
+    "sha256": "1702c3d250cd25d421c2b6c7d7c26f81b3783c864826f65b8ba894b6c4ecc377"
    },
    {
     "frame": "c1/O8b/Setup checklist · family, invites skipped",
     "design_id": "O8b",
     "caption": "Setup checklist · family, invites skipped",
-    "sha256": "6c504b2ff2e7b11742f68749c4e1b8035fd7dafdc5685beb0ce8662bd2f05a70"
+    "sha256": "aacc3f104b369db3dd10c4f4c036a65c421ab4fb2926ce88e6d50578a6b8bb0c"
    },
    {
     "frame": "c1/O8c/Setup checklist · trust, invites skipped",
     "design_id": "O8c",
     "caption": "Setup checklist · trust, invites skipped",
-    "sha256": "7a12db8bb13e18c215fa6af37e695ec59fab04b57aab46c2d07efc37f815ba8f"
+    "sha256": "d5d6eda0be51639357d9df2f90e64057bdd88cdcf568b226deac6f0be4255e27"
    },
    {
     "frame": "c1/O8d/Setup checklist · a branch finished",
     "design_id": "O8d",
     "caption": "Setup checklist · a branch finished",
-    "sha256": "b4fbeea3c742fd8df03dfe28ffeea37c147d26802b056b20664bf12ab173167d"
+    "sha256": "70e367f9a6f642bbfa6c52b337557f79ee9f892026691b5416336b794a0bf2be"
    },
    {
     "frame": "c1/O8e/Setup checklist · Not needed",
     "design_id": "O8e",
     "caption": "Setup checklist · Not needed",
-    "sha256": "ed9ab0fbbd5bbd67792566b42b4c32ac6288723d12c1ed203a656f0e46548fab"
+    "sha256": "a11ff6df6dd51028b7b83a57dc78339fea80d1fca4ea6862837f7eb63ac0e5f6"
    },
    {
     "frame": "c1/O8f/Setup checklist · after Not needed",
     "design_id": "O8f",
     "caption": "Setup checklist · after Not needed",
-    "sha256": "443134740ae82661dfc91e83b9f2e3da8198d7138860f7948ac7d6a62ac25a97"
+    "sha256": "3e8d4e6402ce302cc1c01c858c80cc5fa105f9f1b72a176424419a5664a83417"
    }
   ],
   "S0.8": [
    {
-    "frame": "c1/O4b/Set your PIN · six digits",
+    "frame": "c1/O4b/Set your PIN · six digits · iPhone",
     "design_id": "O4b",
-    "caption": "Set your PIN · six digits",
+    "caption": "Set your PIN · six digits · iPhone",
     "sha256": "c6d752559fbf7df271ed9f5aed76aa26853a13487276e897d31ad25dc9758d67"
+   },
+   {
+    "frame": "c1/O4b/Set your PIN · six digits · Android",
+    "design_id": "O4b",
+    "caption": "Set your PIN · six digits · Android",
+    "sha256": "b5fa5c58ccb92335154b7a1c0ec2293732f33ae804c0cb4734b3e0d24d8955e7"
    },
    {
     "frame": "c1/O4b/Mismatch on confirm",
@@ -487,10 +499,16 @@
     "sha256": "df2f77fd348fb9c57ad0b0c57cdf6daaf0b586e40af93c44bb03fc29644df1c4"
    },
    {
-    "frame": "c11/O4b/Set your PIN",
+    "frame": "c11/O4b/Set your PIN · iPhone",
     "design_id": "O4b",
-    "caption": "Set your PIN",
+    "caption": "Set your PIN · iPhone",
     "sha256": "c6d752559fbf7df271ed9f5aed76aa26853a13487276e897d31ad25dc9758d67"
+   },
+   {
+    "frame": "c11/O4b/Set your PIN · Android",
+    "design_id": "O4b",
+    "caption": "Set your PIN · Android",
+    "sha256": "b5fa5c58ccb92335154b7a1c0ec2293732f33ae804c0cb4734b3e0d24d8955e7"
    }
   ],
   "S0.9": [
@@ -498,13 +516,13 @@
     "frame": "c1/O7a/Invitation",
     "design_id": "O7a",
     "caption": "Invitation",
-    "sha256": "e784a47fbcc70c27c466790b76b401f60f2818bee9b88862267285e752a3f46d"
+    "sha256": "d0e22bffa60304ca89f004cd00795f2e7be982e10c1eec5bf25b7ad7539a5959"
    },
    {
     "frame": "c1/O7b/Accepted, awaiting verification",
     "design_id": "O7b",
     "caption": "Accepted, awaiting verification",
-    "sha256": "a21d3fbdbd7f4767b7f59aed71cb08cdb7ac87892f30b896fadb7818927a7064"
+    "sha256": "91094ba3c30b54ad2ef887b7d0ca33cc3e184162e39527566ad4ba99fe834967"
    }
   ],
   "S1": [
@@ -566,7 +584,7 @@
     "frame": "c7/S1.3/Scope switcher sheet · three or more books (D1)",
     "design_id": "S1.3",
     "caption": "Scope switcher sheet · three or more books (D1)",
-    "sha256": "db4d37e0cf41dd07faf99a2ac56b55771f6cc17005881a1086f45682c8037295"
+    "sha256": "6a90d14493823f818b23720204d5c251644e348d850120c38ca128aa4666a397"
    }
   ],
   "S2": [
@@ -666,7 +684,7 @@
     "frame": "c2/S2-B/Saved · over the member’s limit",
     "design_id": "S2-B",
     "caption": "Saved · over the member’s limit",
-    "sha256": "813321c6e077d5bf7b2abb2b7f02c2226847b5d110b7a6d489fc8bc006d52860"
+    "sha256": "0233a1070354718b7cc86ded722c17f3c9f5cb7c4a1b7f2a45136daea16e0cb3"
    }
   ],
   "S2.2": [
@@ -974,7 +992,7 @@
     "frame": "c9/S6.3/Structural approval · 2 of 3 approved",
     "design_id": "S6.3",
     "caption": "Structural approval · 2 of 3 approved",
-    "sha256": "593f35904647740099041d19f8ce453466af781a422fd91a008cc5abe837e3d3"
+    "sha256": "964351cf78f70a52f9662937b327ee6884a63a71ad7853258717dc7ff6fb25d3"
    }
   ],
   "S7": [
@@ -1049,10 +1067,16 @@
   ],
   "S8": [
    {
-    "frame": "c15/S8/Menu · a hub, not a dump",
+    "frame": "c15/S8/Menu · a hub, not a dump · iPhone",
     "design_id": "S8",
-    "caption": "Menu · a hub, not a dump",
+    "caption": "Menu · a hub, not a dump · iPhone",
     "sha256": "28a15dff2992f08d04a2978c3e2d98744677d6889212f51ee899c881f09e1e4b"
+   },
+   {
+    "frame": "c15/S8/Menu · a hub, not a dump · Android",
+    "design_id": "S8",
+    "caption": "Menu · a hub, not a dump · Android",
+    "sha256": "09754fb3c73481751cb9a859524c1806a67e436b409c547c3bad6dff389d3f77"
    },
    {
     "frame": "c15/S8/Menu · scrolled to the end · Legal, then the version",
@@ -1083,10 +1107,16 @@
     "sha256": "79de26ce7540cb9c25644888ee00d24b39bef35f1dc02846984c94e8a55c8539"
    },
    {
-    "frame": "c15/S8.2/Share sheet · Print, Save to Files, WhatsApp",
+    "frame": "c15/S8.2/Share sheet · iPhone · Print, Save to Files, WhatsApp",
     "design_id": "S8.2",
-    "caption": "Share sheet · Print, Save to Files, WhatsApp",
+    "caption": "Share sheet · iPhone · Print, Save to Files, WhatsApp",
     "sha256": "44de341a60481c60aa66a308f1bdd5a5c6f92ff092db3139cc9307a9ac8f393b"
+   },
+   {
+    "frame": "c15/S8.2/Share sheet · Android · Print, Save to device, WhatsApp",
+    "design_id": "S8.2",
+    "caption": "Share sheet · Android · Print, Save to device, WhatsApp",
+    "sha256": "5df995579e9a039407a996063441b7cf36e4c18c2f9258a01c6526a913476924"
    },
    {
     "frame": "c15/S8.2/Report viewer · Profit and Loss#2",
@@ -1104,19 +1134,19 @@
     "frame": "c15/S8.2/Trial Balance",
     "design_id": "S8.2",
     "caption": "Trial Balance",
-    "sha256": "4ebbf91412dc1328c229b31b06af500d9cdb0784785f79b2838c88493d7413bb"
+    "sha256": "36a519203fab85dceb14952c3b311db5af75d56db36af5af413aa288585093b6"
    },
    {
     "frame": "c15/S8.2/You will get, by age",
     "design_id": "S8.2",
     "caption": "You will get, by age",
-    "sha256": "eda91fcc18278832689dd4fa1c012d0efc56e801d667961a04c0a3f756367df5"
+    "sha256": "571754fb42a1fa2594af8b5bfa4fbfe672ca9e690aec67277de9491cd42fbad4"
    },
    {
     "frame": "c15/S8.2/Family match check",
     "design_id": "S8.2",
     "caption": "Family match check",
-    "sha256": "7528ebd34ab5c3266dac9854796d405931728c4c0223c58c6c655778c5156fff"
+    "sha256": "b0f8d54fa9c92a11ed0df9122987a9e0af1d01a8d6433f74e95ebf04495711ef"
    },
    {
     "frame": "c7/S8.2/Save or share · from the khata’s PDF button",
@@ -1125,10 +1155,16 @@
     "sha256": "699826def239ffd6a58a220af06452258375b83acab5e81fb28c38e4cb068879"
    },
    {
-    "frame": "c7/S8.2/Share sheet · Print, Save to Files, WhatsApp",
+    "frame": "c7/S8.2/Share sheet · iPhone · Print, Save to Files, WhatsApp",
     "design_id": "S8.2",
-    "caption": "Share sheet · Print, Save to Files, WhatsApp",
+    "caption": "Share sheet · iPhone · Print, Save to Files, WhatsApp",
     "sha256": "924254e4ec0d13235326e115c47c20a777c15d7c462a1f0c28818ca7c67d2d25"
+   },
+   {
+    "frame": "c7/S8.2/Share sheet · Android · Print, Save to device, WhatsApp",
+    "design_id": "S8.2",
+    "caption": "Share sheet · Android · Print, Save to device, WhatsApp",
+    "sha256": "dcfcc3d216ddca6087b08624713d1efdff6624ef75b8ef2b8f0477ba6bf7f8b8"
    },
    {
     "frame": "nb/S8.2-tb/S8.2-tb",
@@ -1154,19 +1190,19 @@
     "frame": "c13/D5/Family reconciliation",
     "design_id": "D5",
     "caption": "Family reconciliation",
-    "sha256": "a666c6a55cf7bc2282bc990aed88e8f401b23a9371195c29a5ec02c878122ebb"
+    "sha256": "941de1c95f32c9deab8ad78567835aea1ac58546c08f187b1faacf9e271f264f"
    },
    {
     "frame": "c15/D5/Family reconciliation",
     "design_id": "D5",
     "caption": "Family reconciliation",
-    "sha256": "a666c6a55cf7bc2282bc990aed88e8f401b23a9371195c29a5ec02c878122ebb"
+    "sha256": "941de1c95f32c9deab8ad78567835aea1ac58546c08f187b1faacf9e271f264f"
    },
    {
     "frame": "c15/D5b/When a pair disagrees",
     "design_id": "D5b",
     "caption": "When a pair disagrees",
-    "sha256": "beb9537dc889530c7c09c33748634bc3f8270dafeab5ce3fd4823fdc8a54680e"
+    "sha256": "0dd8eb95d9fcf42b8ea2404e60ec856d3510d47032878bfbeeced5e620315af5"
    }
   ],
   "S9": [
@@ -1332,13 +1368,13 @@
     "frame": "c13/S10.1/Family close status · who you are waiting for",
     "design_id": "S10.1",
     "caption": "Family close status · who you are waiting for",
-    "sha256": "0679f5673e9170cea7f286746d078fe2cc677321b9969eba3490ade624fe8378"
+    "sha256": "011c4c2a416c3ca956908104f21a5f0ba8e2248f9b0ff8cf4150b5417daf6ca1"
    },
    {
     "frame": "c5/S10.1/Family close status",
     "design_id": "S10.1",
     "caption": "Family close status",
-    "sha256": "0679f5673e9170cea7f286746d078fe2cc677321b9969eba3490ade624fe8378"
+    "sha256": "011c4c2a416c3ca956908104f21a5f0ba8e2248f9b0ff8cf4150b5417daf6ca1"
    }
   ],
   "S10.2": [
@@ -1455,10 +1491,16 @@
   ],
   "S11.4": [
    {
-    "frame": "c3/R4/Backup settings · O5’s wording, with status",
+    "frame": "c3/R4/Backup settings · O5’s wording, with status · iPhone",
     "design_id": "R4",
-    "caption": "Backup settings · O5’s wording, with status",
+    "caption": "Backup settings · O5’s wording, with status · iPhone",
     "sha256": "7b6ad4d44c4ce3d18dc79ac2758982d7d1b0002d508ae9d3e38efa10bd428985"
+   },
+   {
+    "frame": "c3/R4/Backup settings · O5’s wording, with status · Android",
+    "design_id": "R4",
+    "caption": "Backup settings · O5’s wording, with status · Android",
+    "sha256": "0e9f16f90f7ed31d1af08d063b4579e567db36ef61ff34d967a28f143c9f3695"
    }
   ],
   "S11.5": [
@@ -1493,10 +1535,16 @@
   ],
   "S11.8": [
    {
-    "frame": "c1/R2.5/Nothing worked yet",
+    "frame": "c1/R2.5/Nothing worked yet · iPhone",
     "design_id": "R2.5",
-    "caption": "Nothing worked yet",
+    "caption": "Nothing worked yet · iPhone",
     "sha256": "7f57d7531cc99bd73b0b82c41440fc8623df56a302aed0a842a760055e66f81e"
+   },
+   {
+    "frame": "c1/R2.5/Nothing worked yet · Android",
+    "design_id": "R2.5",
+    "caption": "Nothing worked yet · Android",
+    "sha256": "679bee7d0d660cb525a5457eaf635f02d9b3c9676a933b44b0f60623f43439e1"
    }
   ],
   "S12.1": [
@@ -1523,10 +1571,16 @@
   ],
   "S12.3": [
    {
-    "frame": "c10/S12.3/Manage subscription",
+    "frame": "c10/S12.3/Manage subscription · iPhone",
     "design_id": "S12.3",
-    "caption": "Manage subscription",
+    "caption": "Manage subscription · iPhone",
     "sha256": "f7a83459283c5fc615b41ca3f1778b3b8a4d929c757924474c66ddd8dd30fc5c"
+   },
+   {
+    "frame": "c10/S12.3/Manage subscription · Android",
+    "design_id": "S12.3",
+    "caption": "Manage subscription · Android",
+    "sha256": "ee107ff2923d97457847f133914d465ef2bddc041016e8d6c80f4ebba9e964c4"
    }
   ],
   "S12.4": [
@@ -1623,16 +1677,28 @@
   ],
   "S15": [
    {
-    "frame": "c3/S15/App lock · waiting for Face ID",
+    "frame": "c3/S15/App lock · waiting for Face ID · iPhone",
     "design_id": "S15",
-    "caption": "App lock · waiting for Face ID",
+    "caption": "App lock · waiting for Face ID · iPhone",
     "sha256": "da172e749481739c9289783a0b305a39992834850d3348a8de97593b24846b19"
    },
    {
-    "frame": "c3/S15/Face not recognised",
+    "frame": "c3/S15/App lock · waiting for fingerprint · Android",
     "design_id": "S15",
-    "caption": "Face not recognised",
+    "caption": "App lock · waiting for fingerprint · Android",
+    "sha256": "b06a54e66d0557c209adfcde3500d6b76aa6cacc187a035b3b173cce9e2d347b"
+   },
+   {
+    "frame": "c3/S15/Face not recognised · iPhone",
+    "design_id": "S15",
+    "caption": "Face not recognised · iPhone",
     "sha256": "0a826914c7494ece5d61f2eb815b638c71257ba4e5a344dce749cebba73465e4"
+   },
+   {
+    "frame": "c3/S15/Fingerprint not recognised · Android",
+    "design_id": "S15",
+    "caption": "Fingerprint not recognised · Android",
+    "sha256": "416f4436f66f62fb53adf6c6b082572e56f7d1d0d59460414ebb3b1e22856664"
    },
    {
     "frame": "c3/S15/PIN instead · six digits",
@@ -1669,30 +1735,54 @@
   ],
   "S15.2": [
    {
-    "frame": "c3/S15.2/Personal book lock · the same PIN, asked again",
+    "frame": "c3/S15.2/Personal book lock · the same PIN, asked again · iPhone",
     "design_id": "S15.2",
-    "caption": "Personal book lock · the same PIN, asked again",
+    "caption": "Personal book lock · the same PIN, asked again · iPhone",
     "sha256": "2dce26cff48e04a128bc0b6df84bfeef5a1c9055d00af2e5c70b8321c7eef443"
    },
    {
-    "frame": "c3/S15.2/Turning it on · no second number",
+    "frame": "c3/S15.2/Personal book lock · the same PIN, asked again · Android",
     "design_id": "S15.2",
-    "caption": "Turning it on · no second number",
+    "caption": "Personal book lock · the same PIN, asked again · Android",
+    "sha256": "d67ffc88b2077f95a0228e7da46c153443742ec6f69651d54cb3041cc11331ec"
+   },
+   {
+    "frame": "c3/S15.2/Turning it on · no second number · iPhone",
+    "design_id": "S15.2",
+    "caption": "Turning it on · no second number · iPhone",
     "sha256": "d1dd4554b8de64721c4dcc0c0dcdf6b88cf3563d4ea6511dce01519c2cdbbf49"
+   },
+   {
+    "frame": "c3/S15.2/Turning it on · no second number · Android",
+    "design_id": "S15.2",
+    "caption": "Turning it on · no second number · Android",
+    "sha256": "56d1ffa5a8d52460d790bd7270727a15f500a6902adb5dd8360ec196af6479a7"
    }
   ],
   "S15.3": [
    {
-    "frame": "c1/S15.3/Enter PIN · Face ID above the boxes",
+    "frame": "c1/S15.3/Enter PIN · Face ID above the boxes · iPhone",
     "design_id": "S15.3",
-    "caption": "Enter PIN · Face ID above the boxes",
+    "caption": "Enter PIN · Face ID above the boxes · iPhone",
     "sha256": "3b3f948c0ff4a88c79cfeb7ec10e40304aee240eb7509f40458d6391e5b8cdfd"
    },
    {
-    "frame": "c1/S15.3/Wrong PIN · tries remaining",
+    "frame": "c1/S15.3/Enter PIN · Fingerprint above the boxes · Android",
     "design_id": "S15.3",
-    "caption": "Wrong PIN · tries remaining",
+    "caption": "Enter PIN · Fingerprint above the boxes · Android",
+    "sha256": "1b8f71457c2fbc2ffbdb683ff6bc15fd4eafb2614a6fcb971e343cd315a9f826"
+   },
+   {
+    "frame": "c1/S15.3/Wrong PIN · tries remaining · iPhone",
+    "design_id": "S15.3",
+    "caption": "Wrong PIN · tries remaining · iPhone",
     "sha256": "f6df72eecef84dab959b4b3537cc205d6b514f51da1c3e6591fc8108c24d74e1"
+   },
+   {
+    "frame": "c1/S15.3/Wrong PIN · tries remaining · Android",
+    "design_id": "S15.3",
+    "caption": "Wrong PIN · tries remaining · Android",
+    "sha256": "920e123af9f85946c641606d9226a44a89e18c3f122d006193a360bc4a75940a"
    },
    {
     "frame": "c1/S15.3/Forgot PIN · a code, not a lockout",
@@ -1785,10 +1875,16 @@
   ],
   "S17.2": [
    {
-    "frame": "c10/S17.2/An article",
+    "frame": "c10/S17.2/An article · iPhone",
     "design_id": "S17.2",
-    "caption": "An article",
+    "caption": "An article · iPhone",
     "sha256": "a0d61a8bfcb86d3fc6742f6c1794ec07c6c171ce64b0ddad1577e6c77a913dcd"
+   },
+   {
+    "frame": "c10/S17.2/An article · Android",
+    "design_id": "S17.2",
+    "caption": "An article · Android",
+    "sha256": "b573177f82ff92a3bc6dc66645ed0cb444bff417a43d9f9c026081c4bacc3684"
    }
   ],
   "S17.3": [
@@ -1804,7 +1900,7 @@
     "frame": "c10/S17.4/Send diagnostics",
     "design_id": "S17.4",
     "caption": "Send diagnostics",
-    "sha256": "12133fde6c5d9e348c63852a51a71e1a35fd7a61f17ebf9b86d11434f12e72fd"
+    "sha256": "af033e7e76fab402d203f93592e2b0a2404994dfedd399980efde8903b020a39"
    }
   ],
   "S18": [
@@ -1825,10 +1921,16 @@
   ],
   "S19.1": [
    {
-    "frame": "c3/S19.1/Update required",
+    "frame": "c3/S19.1/Update required · iPhone",
     "design_id": "S19.1",
-    "caption": "Update required",
+    "caption": "Update required · iPhone",
     "sha256": "94ccb105df28a521738074ede9b717e3a6de22121d861ea44c85732fe5f32f8d"
+   },
+   {
+    "frame": "c3/S19.1/Update required · Android",
+    "design_id": "S19.1",
+    "caption": "Update required · Android",
+    "sha256": "7f21121dbc29668fc3a8b7c18edf2910974d0ea26e5b18a5549a351c2fe78772"
    }
   ],
   "S19.2": [
@@ -1926,7 +2028,7 @@
     "frame": "c11/A4a/Seeded accounts after “Myself”",
     "design_id": "A4a",
     "caption": "Seeded accounts after “Myself”",
-    "sha256": "a72a32889ec6843096506c306c06b36b1765d0ea16cb8ec958e42f22ed583358"
+    "sha256": "a8cd3a20e29e9eb1e35882421b18ff9bfafbb3d74a7735a4611d3d3ea4f46f5e"
    },
    {
     "frame": "c16/A4a/Seeded accounts after “Myself”",
@@ -2091,16 +2193,16 @@
   ],
   "D3": [
    {
-    "frame": "c13/D3/Home · joint pool scope",
+    "frame": "c13/D3/Home · joint fund scope",
     "design_id": "D3",
-    "caption": "Home · joint pool scope",
-    "sha256": "ef5758fb09334f92547869c89931bbad8749fbd47485db68d32455df9e040a39"
+    "caption": "Home · joint fund scope",
+    "sha256": "7a1730e1c07bf7889fbb3e9608e7f98eae7de44bb7b238e267c2a5cf3fc0df9f"
    },
    {
-    "frame": "c16/D3/Home · joint pool scope",
+    "frame": "c16/D3/Home · joint fund scope",
     "design_id": "D3",
-    "caption": "Home · joint pool scope",
-    "sha256": "b7bf9bdb1c4ca2b4bcc699a33a66a2c0d6b60d76087bcd496c751911ab632ff6"
+    "caption": "Home · joint fund scope",
+    "sha256": "1084fa43450aee9d669b9e93c6e3b08fedf5d08af59e1cfd3e02fe5f5b0a6416"
    }
   ],
   "D8": [
@@ -2148,7 +2250,7 @@
     "frame": "c8/E5b/Import error",
     "design_id": "E5b",
     "caption": "Import error",
-    "sha256": "4db84c8c95f26fbf947808c34ca7d3630950c0588a6aa4ab4d85f6da90d2e827"
+    "sha256": "bc1ae8cdff7ce8b2e9a047f9fe8767522f683fb16736f1a81ee00c43821b2ff9"
    }
   ],
   "E6": [
@@ -2156,7 +2258,7 @@
     "frame": "c3/E6/Offline chip · four states",
     "design_id": "E6",
     "caption": "Offline chip · four states",
-    "sha256": "6fbb38970d44ddd6c7de9c516be38b5743834bc94fa3219836e39da535aa90d5"
+    "sha256": "6fefa7b3046b7c501e43299b285ae02e844d3f959f0076e4ba0f055603f50701"
    }
   ],
   "E7": [
@@ -2210,19 +2312,19 @@
     "frame": "c4/R1/Add entry · the Save zone by role",
     "design_id": "R1",
     "caption": "Add entry · the Save zone by role",
-    "sha256": "2eed6c48a8708a6af7343d2e05971adcf6e23f0b2d6b18a69539825f00dcdcd5"
+    "sha256": "b0a76e9a7b22d90a8627df794a038703fa9a896e92d9c16164cfc8fc7863b498"
    },
    {
     "frame": "c4/R1/A/C statement · row menu and footer by role",
     "design_id": "R1",
     "caption": "A/C statement · row menu and footer by role",
-    "sha256": "7acb58d71ec6410c45724d9aad99ca39830a781746a19781a83e696034f1dc4c"
+    "sha256": "e1070d1a615fbd4b220d31606a4b3a4b03542f619bc6daca7304d3cf8047acd9"
    },
    {
     "frame": "c4/R1/Inbox · what lands in the tray by role",
     "design_id": "R1",
     "caption": "Inbox · what lands in the tray by role",
-    "sha256": "f20642a8f89059b2be9297b03fc6e87e5d06696c4995493de7385ff8c97755a3"
+    "sha256": "23f4a66b2ec7e62ca3772d963584dcc986e37794eb5b6cb92f4e2e70d68c3373"
    },
    {
     "frame": "c4/R1/Members · the controls on a row by role",

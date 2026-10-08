@@ -16,8 +16,9 @@
 7. **No string concatenation** — ICU MessageFormat, named placeholders, plural rules per language.
 8. **Platform nouns split into two classes 🔒 (owner-revised, 1 Sep 2026).** ⟦tests: F3-01-3 @M12⟧
    - **Latin script, untranslated — names the user must *match against their own screen*:** *iCloud Keychain · iCloud Drive · Files · Google Drive · App Store · Apple · **UPI*** (owner: stays Latin — it appears that way on every bank screen and in every SMS). Someone hunting for a setting must see the same words their phone shows; transliterating sends them looking for something that does not exist.
-   - **Transliterated — words used *inside a sentence*:** *Face ID* → **ਫੇਸ ਆਈਡੀ / फेस आईडी** · *PIN* → **ਪਿੰਨ / पिन** · "Face ID ਵਰਤੋ" mixes scripts mid-sentence and reads badly; "ਫੇਸ ਆਈਡੀ ਦੀ ਵਰਤੋਂ ਕਰੋ" reads as Punjabi.
+   - **Transliterated — words used *inside a sentence*:** *Face ID* → **ਫੇਸ ਆਈਡੀ / फ़ेस आईडी** · *PIN* → **ਪਿੰਨ / पिन** · "Face ID ਵਰਤੋ" mixes scripts mid-sentence and reads badly; "ਫੇਸ ਆਈਡੀ ਦੀ ਵਰਤੋਂ ਕਰੋ" reads as Punjabi.
    - The test: **is the user looking for it, or doing it?** Looking for it stays Latin; doing it gets transliterated.
+   > **ADR 2026-10-08 §3–§4** — the unlock method is named as the phone uses it (Face ID · Touch ID · Fingerprint · Face unlock, each with its own PA/HI form). Android screens swap the Apple nouns (Google Password Manager, Google Drive, Play Store, Google account), which stay Latin. **Exception:** *App Store* and *Play Store* are transliterated, ਐਪ ਸਟੋਰ / ऐप स्टोर and ਪਲੇ ਸਟੋਰ / प्ले स्टोर. ⟦tests: F1-1008-3 @M13, F3-01-3 @M12⟧
 9. **User-typed content carries its own language tag 🔒** — account names, notes and party names may be in any script regardless of the UI language, so each is stored and rendered with a `lang` marker (`pa`/`hi`/`en`) for correct screen-reader pronunciation and font selection (design-system §3.1 rule 1). ⟦tests: F3-01-4 @M12⟧
 9. Strings live in ARB files (`app_en.arb`, `app_pa.arb`, `app_hi.arb`); keys are `screen.element.state`; **CI fails if any key is missing in any language.**
 9. **Statement layout rule 🔒:** A/C statements and ledger exports use the traditional three columns — **ਨਾਮੇ | ਜਮ੍ਹਾਂ | ਬਾਕੀ** / **नामे | जमा | बाकी** / **Dr | Cr | Balance** — with b/d and c/d rows. Day-book lists keep the in/out arrows; the Dr/Cr detail shows on the entry view. ⟦tests: F3-01-5 @M12, F1-11-1, F1-11-2, F1-11-3, F1-11-6, F1-11-7, F1-11-8⟧
@@ -49,6 +50,10 @@
 | Purchase book | — | Purchase Book | ਖ਼ਰੀਦ ਵਹੀ | खरीद बही |
 | Entry | entry | Entry | ਐਂਟਰੀ | एंट्री |
 | Books of account (collective) | — | the books / your books | ਵਹੀ-ਖਾਤੇ · *your* → ਤੁਹਾਡੇ ਵਹੀ-ਖਾਤੇ | बही-खाते · *your* → आपके बही-खाते |
+| A family's common book | book(joint) | Joint fund | ਸਾਂਝਾ ਫ਼ੰਡ (oblique ਸਾਂਝੇ ਫ਼ੰਡ) | साझा फ़ंड (oblique साझे फ़ंड) |
+| Sub-family (household) | book(family) | Rahul sub-family | ਰਾਹੁਲ ਦਾ ਪਰਿਵਾਰ | राहुल का कुनबा |
+
+> **ADR 2026-10-08 §1–§2** — *Joint fund* replaces *pool* in every user-facing string; ਪੂੰਜੀ / पूँजी now means only *Capital*. A sub-family is ਪਰਿਵਾਰ in Punjabi (never ਟੱਬਰ). The engine's *pool* wording (02) is internal and unchanged. ⟦tests: F1-1008-1 @M13, F1-1008-2 @M13⟧
 
 ### Professional money terms (per reference file)
 | Concept | Internal | EN | ਪੰਜਾਬੀ | हिन्दी |
@@ -58,14 +63,14 @@
 | Balance | — | Balance | ਬਾਕੀ | बाकी |
 | Opening balance b/f | — | Opening balance | ਸ਼ੁਰੂਆਤੀ ਬਕਾਇਆ | शुरुआती बकाया |
 | Closing balance c/f | — | Closing balance | ਅੰਤਿਮ ਬਕਾਇਆ | अंतिम बकाया |
-| Cash in hand | money(cash) | Cash in hand | ਰੋਕੜ | रोकड़ |
+| Cash in hand | money(cash) | Cash in hand | ਹੱਥ ਵਿੱਚ ਰੋਕੜ | हाथ में रोकड़ |
 | Shop cash drawer | money(cash) | Galla | ਗੱਲਾ | गल्ला |
 | Donation box | money(cash_collection) | Gollak | ਗੋਲਕ | गोलक |
 | Count the cash | — | Count cash | ਰੋਕੜ ਗਿਣੋ | रोकड़ गिनें |
 | Open and count | — | Open and count | ਖੋਲ੍ਹ ਕੇ ਗਿਣੋ | खोलकर गिनें |
 | Bank balance | money(bank) | Bank balance | ਬੈਂਕ ਬਾਕੀ | बैंक बाकी |
-| Debtors (receivable side) | party Dr | Debtors — You will get | ਦੇਣਦਾਰ (ਲੈਣੇ ਹਨ) | देनदार (लेने हैं) |
-| Creditors (payable side) | party Cr | Creditors — You will give | ਲੈਣਦਾਰ (ਦੇਣੇ ਹਨ) | लेनदार (देने हैं) |
+| Debtors (receivable side) | party Dr | Debtors — You will get | ਦੇਣਦਾਰ (ਤੁਸੀਂ ਲੈਣੇ ਹਨ) | देनदार (आपने लेने हैं) |
+| Creditors (payable side) | party Cr | Creditors — You will give | ਲੈਣਦਾਰ (ਤੁਸੀਂ ਦੇਣੇ ਹਨ) | लेनदार (आपने देने हैं) |
 | Advance to a member | advance | Advance | ਐਡਵਾਂਸ | एडवांस |
 | Money you're holding | — | Advance with you | ਤੁਹਾਡੇ ਕੋਲ ਐਡਵਾਂਸ | आपके पास एडवांस |
 | Suspense | equity_system | Unexplained | ਅਣਪਛਾਤੀ ਰਕਮ | अज्ञात रकम |
@@ -99,7 +104,7 @@
 | Purpose card 4 — subtitle | gurudwara, temple, society or registered trust | ਗੁਰਦੁਆਰਾ, ਮੰਦਰ, ਸਭਾ ਜਾਂ ਰਜਿਸਟਰਡ ਟਰੱਸਟ | गुरुद्वारा, मंदिर, सभा या रजिस्टर्ड ट्रस्ट |
 | Skip (welcome slides, review stepper) | Skip | ਛੱਡੋ | छोड़ें |
 | Skip for now (any resumable setup step) | Skip for now | ਹੁਣ ਲਈ ਛੱਡੋ | अभी के लिए छोड़ें |
-| Today / Save / Undo | Today / Save / Undo | ਅੱਜ / ਸੇਵ ਕਰੋ / ਵਾਪਸ ਲਓ | आज / सेव करें / वापस लें |
+| Today / Save / Undo | Today / Save / Undo | ਅੱਜ / ਸੇਵ ਕਰੋ / ਵਾਪਸ ਲਓ | आज / सुरक्षित करें / वापस लें |
 
 > **ADR 2026-10-04c** — *Purpose card 2* is **My business · ਮੇਰਾ ਕਾਰੋਬਾਰ · मेरा कारोबार** (was *My shop*); the former *My businesses* card is retired and the cards renumber. ⟦tests: F1-04c-1⟧
 
@@ -171,7 +176,7 @@ These appear under card titles and in list rows. Previously undefined, which is 
 
 | Use | English | ਪੰਜਾਬੀ | हिन्दी |
 |---|---|---|---|
-| Advance card label | Advance out | ਐਡਵਾਂਸ | एडवांस |
+| Advance card label | Advance out | ਐਡਵਾਂਸ ਦਿੱਤਾ | एडवांस दिया |
 | Advance held (member's own view) | Advance with you | ਤੁਹਾਡੇ ਕੋਲ ਐਡਵਾਂਸ | आपके पास एडवांस |
 | Ageing meta under a name | Sunita Devi · 11 days | ਸੁਨੀਤਾ ਦੇਵੀ · 11 ਦਿਨਾਂ ਤੋਂ | सुनीता देवी · 11 दिन से |
 | Ageing chip, receivables | > 30 days | 30 ਦਿਨਾਂ ਤੋਂ ਵੱਧ | 30 दिन से ज़्यादा |
