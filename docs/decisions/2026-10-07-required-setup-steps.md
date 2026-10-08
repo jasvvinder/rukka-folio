@@ -9,6 +9,9 @@ The checklist (O8, S0.7) knows only four rows.
 - a checklist row for each skipped branch;
 - then: *"the required steps should not be skippable"*, which made the recovery sheet, naming the chosen branch, and
   opening balances required. Invites stay skippable.
+- 7 Oct, after the design session placed the frames: S0.6f (*What the pool has*) and S0.6i (*What the trust has*) are
+  the family's and trust's opening-balance screens on the canvas (placed from `new-screens-d`, 10 Sep). They are
+  **required** too. Canvas 11's older O6a/O6c lose their Skip as well.
 
 The owner approved the frames on 7 Oct (review page v2; staged in the design project as `partials/new-screens-e.json`).
 
@@ -23,22 +26,24 @@ The owner approved the frames on 7 Oct (review page v2; staged in the design pro
     step that cannot be completed must not block sign-up (07 §1 rule 6).
   - **Naming the chosen branch:** S0.6a (business name, ownership, year start), S0.6d (family name), S0.6g (trust
     name and type).
-  - **Opening balances:** S0.6 (your own) and S0.6b (each business's). Leaving every figure at ₹0 and tapping *Finish*
+  - **Opening balances:** S0.6 (your own), S0.6b (each business's), S0.6f (the family pool's) and S0.6i (the trust's).
+    Leaving every figure at ₹0 and tapping *Finish*
     is a valid answer and means starting at zero. There is no extra confirm.
 - This narrows 07 §3.1 step 7 and §3.1.1's *"every branch step is skippable"* to the steps in ruling 2. 04 §7.4's
   *"mandatory for solo users"* now holds for everyone at sign-up.
 
 ### 2. Still skippable 🔒 ⟦tests: F1-1007-3 @M13⟧
-- The welcome slides; **inviting people** (S0.6e family heads, S0.6h the trust's committee); the family's and trust's
-  **extra accounts** (S0.6f, S0.6i). 07 §3.1.1 🔒's *"Invitations are always skippable at signup"* is unchanged.
+- The welcome slides, and **inviting people** (S0.6e family heads, S0.6h the trust's committee). 07 §3.1.1 🔒's
+  *"Invitations are always skippable at signup"* is unchanged. S0.6f and S0.6i are opening balances, so ruling 1
+  covers them.
 
 ### 3. The checklist brings back what was skipped 🔒 ⟦tests: F1-1007-4 @M13, F1-1007-5 @M13, F1-1007-6 @M13⟧
 - **Opening balances** always arrives ticked, because it is required.
 - **Recovery sheet:** the row becomes *Check your recovery sheet · Not scanned back yet* (amber, the one item with a
   consequence) until the printed sheet is scanned back (04 §7.4 verified storage).
-- **Branch row:** on the family and trust paths, one *Finish <book name>* row appears while any skipped branch step
-  is open. Its subtitle names the next open step (invite, then the extra accounts), and tapping it resumes there with
-  what was saved kept. On the family path it **replaces** *Add your family*. The trust path has no family row. The
+- **Branch row:** on the family and trust paths, one *Finish <book name>* row appears while the invite step (S0.6e /
+  S0.6h) was skipped. Its subtitle names it (*Next: invite the other heads* / *who runs it*), and tapping it resumes
+  there with what was saved kept. On the family path it **replaces** *Add your family*. The trust path has no family row. The
   business path has no branch row (its steps are required); another business comes from Menu → Add a business (S9.5).
 - **Not needed** sits behind **⋮** on branch rows only. It hides the row, deletes nothing, and shows a toast with
   **Undo** (no confirm dialog). After that, Menu is the way in.
@@ -49,7 +54,7 @@ The owner approved the frames on 7 Oct (review page v2; staged in the design pro
 
 ## Consequences
 - **Code (one `lane-ui-hard` slice, after RUNG3B for the sheet part):**
-  - `app/lib/features/onboarding`: remove Skip from S0.6, S0.6b, S0.6a/d/g; persist the purpose and open branch
+  - `app/lib/features/onboarding`: remove Skip from S0.6, S0.6b, S0.6f, S0.6i, S0.6a/d/g; persist the purpose and open branch
     steps; the resume targets.
   - `app/lib/features/home`: the checklist rows (`home_cards.dart` `HomeSetupChecklist`, `home_routes.dart`
     setupDoors), ⋮ → Not needed + Undo, the card's exit rule.

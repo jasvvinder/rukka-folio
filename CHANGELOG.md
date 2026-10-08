@@ -12,6 +12,27 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-08 — docs: PLAN refresh after the 7 Oct design pull (no code, no gate)
+
+A `/plan` pass only. No lane ran and no gate ran, so no id moved to ✅.
+
+**Changed**
+- PLAN §0 dated 8 Oct. The traceability row now shows today's `check_coverage` output (default mode, not a gate run):
+  428 🔒 lines, 0 unmarked, 1584 ids, 2596 tests (23 without an id). Orphans are 127, up from 24 on 4 Oct.
+- Desk 178 ✅: the frames were placed and pulled on 7 Oct, evening. Desk 174 (SETUP174) is unblocked. Its design match
+  must re-record S0.6 and S0.7. The recovery-sheet part still waits for RUNG3B.
+
+**Open** ⚠️
+- The orphan count went from 24 to 127. The 5–6 Oct slices have test ids that no 🔒 marker names yet (desks 69, 105, 134
+  and 162). They are warn-only: `check_coverage --strict` still exits 0 (checked 8 Oct).
+- Desk 171: the `ac13a21` commit subject says the rung 3 sheet was "built end to end", but that commit holds only the ADR
+  and docs. No RUNG3A or RUNG3B lane report exists, so the row stays ⬜.
+- Next: RUNG3A (`lane-core`, already approved), then SETUP174 + OPEN177.
+
+**Commits** — pending.
+
+---
+
 ## 2026-10-07 — M13: setup steps ruled required; draft frames for desk 174 and inline-account opening balances (design review, no code)
 
 **Added**
@@ -24,8 +45,16 @@ Running record of what changed in this repository and in the development environ
   read back byte-equal. No canvas was overwritten: the live Canvas 1 holds a design-session O8b that exists in no
   partial, and both canvases are over the 256 KiB read cap (mirror `CHANGES.md`, 7 Oct).
 
+- Design sync, three pulls after the design session placed the frames and applied two follow-ups. Placed: O8–O8f on
+  Canvas 1, row 7 on Canvas 7 (S4 · S4 · S3). *Skip for now* removed from S0.6, S0.6a, S0.6b, S0.6c, S0.6d, S0.6f,
+  S0.6g and S0.6i across Canvases 1 and 11–14; it stays only on S0.6e/S0.6h (invites). The frame index is rebuilt
+  (8 new frames) and the S0.6 and S0.7 records are stale until SETUP174 re-matches them. DESIGN-PACK O6 follows ADR
+  2026-10-07. The combined canvas1/canvas7 partials are now over the read cap; the mirror re-stitches them from their
+  parts, and the result is checked equal to the live readable prefix.
+
 **Decided**
 - `2026-10-07-required-setup-steps.md` — 🔒 the recovery sheet (once RUNG3B lands), naming the chosen branch, and opening balances are required; invites and family/trust extra accounts stay skippable and return as one *Finish …* checklist row with ⋮ Not needed + Undo; the card leaves when every row is ticked or Not needed. 07 §3.1/§3.1.1 and 13 S0.6/S0.7 cross-referenced.
+- ADR 2026-10-07 corrected after placement (owner): S0.6f *What the pool has* and S0.6i *What the trust has* are opening balances, so required; canvas 11's older O6a/O6c lose Skip too. The family/trust *Finish …* row now covers invites only.
 - `2026-10-07b-inline-account-opening-balance.md` — 🔒 an account created inside an entry asks for its opening balance afterwards, on its statement (S4) with a Ledger marker (S3); same posting as S3.1. 02 §4 and 07 §6 cross-referenced.
 - Desk 174 (owner, 6–7 Oct): a checklist row per skipped branch. Then, 7 Oct: the recovery sheet, naming the chosen
   business/family/trust, and opening balances (S0.6, S0.6b) are **required**. Invites (S0.6e/h) and the family/trust
@@ -41,7 +70,8 @@ Running record of what changed in this repository and in the development environ
 - RUNG3A (`lane-core`) not started yet today.
 
 **Commits**
-- _(fill next session)_
+- `6b87aaa` — ADRs 2026-10-07 and 2026-10-07b, docs cross-references, staged frames.
+- The evening design sync and the ADR 2026-10-07 correction (S0.6f/S0.6i required) — pending, committed with the 8 Oct entry.
 
 ---
 

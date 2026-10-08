@@ -317,7 +317,8 @@ Gollak Cash); **no bank is seeded in any book** (ADR 2026-09-09d) — it arrives
 account** row, which opens S3.1's type grid and asks for an opening balance at creation. Empty groups read
 *None yet.* / *Nobody yet.* Capital and Drawings have **no row**: they take no opening balance and S3's System
 chip lists them. A footer line says in words what the figures will become (*"…what the shop is worth to you —
-your Capital"*). **Skip for now** stays on every variant; the setup checklist on Home brings the user back.
+your Capital"*). ~~**Skip for now** stays on every variant~~ **Required, no Skip, on every variant** (ADR 2026-10-07):
+*Finish* with every figure at ₹0 is a valid answer. ⟦tests: F1-1007-2 @M13⟧
 Drawn as five journey variants on canvas 1 (S0.6 · S0.6b Just me · S0.6b Shared · S0.6f · S0.6i).
 
 ## O7 · Join by invitation

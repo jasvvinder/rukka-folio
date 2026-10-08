@@ -212,7 +212,7 @@
     "frame": "c1/S0.6/Opening balances · first run",
     "design_id": "S0.6",
     "caption": "Opening balances · first run",
-    "sha256": "7f0830e69a2d2f9f4494958ceb7fb761a3e83aea40d1e416fbe9edebab586cf8"
+    "sha256": "49b514e012d67645a476498b6891c6b5613dbb5140d5cf52fe946cfdd154f66d"
    },
    {
     "frame": "c11/O6a/Opening balances · what do you have",
@@ -246,19 +246,19 @@
     "frame": "c1/S0.6a/Name the business · type, FY",
     "design_id": "S0.6a",
     "caption": "Name the business · type, FY",
-    "sha256": "0b00b4d24a8a2dd18a43d6636a3d0378c77229fdcbaeead43a00ada18cf0e022"
+    "sha256": "02e74351220322a2181a779497303ad03ff556793cffed2214d53b38564c86db"
    },
    {
     "frame": "c1/S0.6a/Name the business · type, FY#2",
     "design_id": "S0.6a",
     "caption": "Name the business · type, FY",
-    "sha256": "0b00b4d24a8a2dd18a43d6636a3d0378c77229fdcbaeead43a00ada18cf0e022"
+    "sha256": "02e74351220322a2181a779497303ad03ff556793cffed2214d53b38564c86db"
    },
    {
     "frame": "c12/S0.6a/Name the business · type, FY",
     "design_id": "S0.6a",
     "caption": "Name the business · type, FY",
-    "sha256": "0b00b4d24a8a2dd18a43d6636a3d0378c77229fdcbaeead43a00ada18cf0e022"
+    "sha256": "02e74351220322a2181a779497303ad03ff556793cffed2214d53b38564c86db"
    }
   ],
   "S0.6a1": [
@@ -304,19 +304,19 @@
     "frame": "c1/S0.6b/What the shop has · Capital is computed",
     "design_id": "S0.6b",
     "caption": "What the shop has · Capital is computed",
-    "sha256": "765ab11e275eab558736a556f01b621fc57f34479f99f22cb9372b001b128c52"
+    "sha256": "142d5d6a37bd655b2898e923cd2538ed8636c3e531aa9d30cb7f36abeaab99e4"
    },
    {
     "frame": "c1/S0.6b/What the business has · each owner's capital",
     "design_id": "S0.6b",
     "caption": "What the business has · each owner's capital",
-    "sha256": "6a36a0060cb69aedd5cc4506c3d5010e45f1fdf8949197feffbf04a841d0e8c0"
+    "sha256": "e101144b4bdb0069d44a086ca0e8fa00fdb285fe29b2340458d4656f75b1d2fb"
    },
    {
     "frame": "c12/S0.6b/Its opening balances",
     "design_id": "S0.6b",
     "caption": "Its opening balances",
-    "sha256": "a139164836660f9423e5eaf2d4b4aceee68303aa56113de634929cef341ff37c"
+    "sha256": "0459923ec9e5e213546170165a56daf55dc69c5c875f39a05e150800826331e9"
    },
    {
     "frame": "nd/S0.6b-justme/S0.6b-justme",
@@ -336,7 +336,7 @@
     "frame": "c1/S0.6c/Add another business?",
     "design_id": "S0.6c",
     "caption": "Add another business?",
-    "sha256": "d95f526d48f72178affb4759ffb95a7f914fe77b5523591d978a38ccf2000bad"
+    "sha256": "ff28263e536a4c578bfbfcf315249b760b497b2121c11e61ec608c196e457d20"
    }
   ],
   "S0.6d": [
@@ -344,13 +344,13 @@
     "frame": "c1/S0.6d/Name the family",
     "design_id": "S0.6d",
     "caption": "Name the family",
-    "sha256": "223e6a2339cfc2c555590b44af600781c97bb5e60158d68807238250b878b8c7"
+    "sha256": "c67992962f77e48e4400a857190340598793801154ee31dd0d0a340ec6dd0bd6"
    },
    {
     "frame": "c13/S0.6d/Name the family",
     "design_id": "S0.6d",
     "caption": "Name the family",
-    "sha256": "223e6a2339cfc2c555590b44af600781c97bb5e60158d68807238250b878b8c7"
+    "sha256": "c67992962f77e48e4400a857190340598793801154ee31dd0d0a340ec6dd0bd6"
    }
   ],
   "S0.6e": [
@@ -372,13 +372,13 @@
     "frame": "c1/S0.6f/What the pool has",
     "design_id": "S0.6f",
     "caption": "What the pool has",
-    "sha256": "f0c8a5adfe4410b50b06d76318ccbb526d13527ae996efd70740e0c148f4c81f"
+    "sha256": "4ccbd00397dee4c4ccfd9e2a2b97856555465a075aa9972c3194209030508ee3"
    },
    {
     "frame": "c13/S0.6f/The family’s shared accounts",
     "design_id": "S0.6f",
     "caption": "The family’s shared accounts",
-    "sha256": "709db4a31176ddea25cfe116d7cd3bd2f2a48b607ee14f3242bcb88a1f428570"
+    "sha256": "c382bf6c877c5b4d488f8a97bc4c307faed41ce8513fb6f9ce525248a99fb2df"
    },
    {
     "frame": "nd/S0.6f-family/S0.6f-family",
@@ -392,13 +392,13 @@
     "frame": "c1/S0.6g/Name the trust and its type",
     "design_id": "S0.6g",
     "caption": "Name the trust and its type",
-    "sha256": "aae5cc4353f4a8a9c9b282d35e741726f4e9ecf333237e7d57ae36ee6697131b"
+    "sha256": "1cf33434c177b40f7f8a160508500f4263a45f0062dc165e42d11efe14cc4d43"
    },
    {
     "frame": "c14/S0.6g/Name the trust and its type",
     "design_id": "S0.6g",
     "caption": "Name the trust and its type",
-    "sha256": "aae5cc4353f4a8a9c9b282d35e741726f4e9ecf333237e7d57ae36ee6697131b"
+    "sha256": "1cf33434c177b40f7f8a160508500f4263a45f0062dc165e42d11efe14cc4d43"
    }
   ],
   "S0.6h": [
@@ -420,13 +420,13 @@
     "frame": "c1/S0.6i/What the trust has · gollak counted",
     "design_id": "S0.6i",
     "caption": "What the trust has · gollak counted",
-    "sha256": "a810a11ce69ba6b9a99ea6dadbafbdc6f36d2e5baea5fa9614330c80d885badd"
+    "sha256": "0adb44ad39c1e05beb5b32ba09e89e1b927c014eed854c5930e30e93b020fd0e"
    },
    {
     "frame": "c14/S0.6i/The trust’s accounts · gollak",
     "design_id": "S0.6i",
     "caption": "The trust’s accounts · gollak",
-    "sha256": "c8e7340e1870b4c8f5277eb0dc6c5d0d6ba9085c48d62e74f1ff3757765b5b39"
+    "sha256": "ba38c6f10f0fa0e03ac657035ed3fa6212808a57706a7d3289b7e0d8cb85cef7"
    },
    {
     "frame": "nd/S0.6i-trust/S0.6i-trust",
@@ -440,7 +440,37 @@
     "frame": "c1/O8/Setup checklist · Home, first run",
     "design_id": "O8",
     "caption": "Setup checklist · Home, first run",
-    "sha256": "d6f098f5048d531257f42faa18d6113bccbeabf654614a46478b647f0d835d93"
+    "sha256": "d8afd8046103a89696f3f05d6c88142f18625cfed045742a654fe6cda1ba6aab"
+   },
+   {
+    "frame": "c1/O8b/Setup checklist · family, invites skipped",
+    "design_id": "O8b",
+    "caption": "Setup checklist · family, invites skipped",
+    "sha256": "6c504b2ff2e7b11742f68749c4e1b8035fd7dafdc5685beb0ce8662bd2f05a70"
+   },
+   {
+    "frame": "c1/O8c/Setup checklist · trust, invites skipped",
+    "design_id": "O8c",
+    "caption": "Setup checklist · trust, invites skipped",
+    "sha256": "7a12db8bb13e18c215fa6af37e695ec59fab04b57aab46c2d07efc37f815ba8f"
+   },
+   {
+    "frame": "c1/O8d/Setup checklist · a branch finished",
+    "design_id": "O8d",
+    "caption": "Setup checklist · a branch finished",
+    "sha256": "b4fbeea3c742fd8df03dfe28ffeea37c147d26802b056b20664bf12ab173167d"
+   },
+   {
+    "frame": "c1/O8e/Setup checklist · Not needed",
+    "design_id": "O8e",
+    "caption": "Setup checklist · Not needed",
+    "sha256": "ed9ab0fbbd5bbd67792566b42b4c32ac6288723d12c1ed203a656f0e46548fab"
+   },
+   {
+    "frame": "c1/O8f/Setup checklist · after Not needed",
+    "design_id": "O8f",
+    "caption": "Setup checklist · after Not needed",
+    "sha256": "443134740ae82661dfc91e83b9f2e3da8198d7138860f7948ac7d6a62ac25a97"
    }
   ],
   "S0.8": [
@@ -737,6 +767,12 @@
     "design_id": "S3",
     "caption": "Ledger index",
     "sha256": "38161949024dd47e32e2c9e6a4673f5b4341c1279e7ea59bbe5e58fef709a202"
+   },
+   {
+    "frame": "c7/S3/Ledger index · opening balance not set",
+    "design_id": "S3",
+    "caption": "Ledger index · opening balance not set",
+    "sha256": "a2f8d0d2236c05a726289fb4ed72a8756caa0a63b77427179d3efc89b93efa57"
    }
   ],
   "S3.1": [
@@ -765,6 +801,18 @@
     "design_id": "S4",
     "caption": "A/C statement",
     "sha256": "e8cd17a2ae97e68b4c52189e9177e1e3d9c7abf83efc40b5b12f0176c30954c3"
+   },
+   {
+    "frame": "c7/S4/A/C statement · opening balance not set",
+    "design_id": "S4",
+    "caption": "A/C statement · opening balance not set",
+    "sha256": "1a2ccd67d91b493db73eab8172a86a3e241d2b0a3eac093723a9f462f03048ed"
+   },
+   {
+    "frame": "c7/S4/A/C statement · add the opening balance",
+    "design_id": "S4",
+    "caption": "A/C statement · add the opening balance",
+    "sha256": "0ce7278496582fd715f140bd75ae66b96d5f318def261761630e59bb15234a30"
    }
   ],
   "S4.1": [
