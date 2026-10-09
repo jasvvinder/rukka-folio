@@ -11,6 +11,7 @@ import 'dart:typed_data';
 
 import 'package:core_crypto/core_crypto.dart' show DeviceCert;
 
+import 'binding.dart';
 import 'guard.dart';
 import 'transport.dart';
 import 'trust.dart';
@@ -738,8 +739,10 @@ final class FakeTransport implements FullSyncTransport {
   /// The server.
   final FakeSyncServer server;
 
-  /// The device.
-  final String deviceId;
+  /// The device the session authenticates as — what the access token names.
+  /// Settable: in the app the token is read late from auth, so a re-mint or
+  /// a registration changes who the same line speaks for (ADR 2026-10-09 §1).
+  String deviceId;
 
   /// Connectivity switch.
   bool online = true;
@@ -889,4 +892,36 @@ final class PlainGuard implements EnvelopeGuard {
 
   @override
   void dropAllKeys() {}
+
+  /// A plaintext device holds no keys to be missing: always bound. The
+  /// harness models *not registered yet* through the engine's
+  /// [DeviceIdentitySource] instead.
+  @override
+  bool boundTo(String deviceId) => true;
+}
+
+/// A [DeviceIdentitySource] a test or the harness flips by hand — the shape
+/// of the app's ledger-backed source, which answers [NotRegisteredYet] until
+/// S0.2 mints the keys (ADR 2026-10-09 §1).
+final class ManualIdentity implements DeviceIdentitySource {
+  /// Creates the source, [NotRegisteredYet] unless told otherwise.
+  ManualIdentity([this.identity = const NotRegisteredYet()]);
+
+  /// What [currentIdentity] answers.
+  DeviceIdentity identity;
+
+  @override
+  DeviceIdentity currentIdentity() => identity;
+}
+
+/// A [KeyMaterialSource] a test flips by hand (ADR 2026-10-09 §1).
+final class ManualKeyMaterial implements KeyMaterialSource {
+  /// Creates the source, [KeysNotRegisteredYet] unless told otherwise.
+  ManualKeyMaterial([this.keys = const KeysNotRegisteredYet()]);
+
+  /// What [currentKeys] answers.
+  GuardKeys keys;
+
+  @override
+  GuardKeys currentKeys() => keys;
 }

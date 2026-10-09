@@ -2,6 +2,8 @@
 // Nothing here carries financial content (CLAUDE.md rule 4): ids and reasons only.
 import 'package:meta/meta.dart';
 
+import 'binding.dart' show SyncHold;
+
 /// Something the app or a test must be able to see. Never silent.
 @immutable
 sealed class SyncEvent {
@@ -235,4 +237,35 @@ final class PinCheckFailed extends SyncEvent {
 
   /// Which check failed, as a constant (`spki_pin_failed`).
   final String? detail;
+}
+
+/// A round did nothing, or stopped at a route boundary, because of [reason]
+/// (ADR 2026-10-09 §1 🔒). Raised when a hold begins or changes reason — not
+/// on every held round — so a phone sitting before S0.2 is one event, not a
+/// stream. Never an Inbox cause and never a security event.
+final class SyncHeld extends SyncEvent {
+  /// Creates the event.
+  const SyncHeld(super.atMs, this.reason);
+
+  /// Why.
+  final SyncHold reason;
+}
+
+/// The engine now syncs as a different identity than its previous round — a
+/// registration or a C-04b-3 re-mint taking effect with no relaunch (ADR
+/// 2026-10-09 §1 🔒). Raised once per change, before the round's first
+/// request. Device ids only.
+final class IdentityRebound extends SyncEvent {
+  /// Creates the event.
+  const IdentityRebound(
+    super.atMs, {
+    required this.previousDeviceId,
+    required this.deviceId,
+  });
+
+  /// The device the previous round ran as.
+  final String previousDeviceId;
+
+  /// The device this round runs as.
+  final String deviceId;
 }

@@ -7,6 +7,11 @@
 // after the chain passes and the blob decrypts once, and the device never
 // wipes on the server's bare word. The clock and the network are injected —
 // nothing here reads `DateTime.now()`, `Random()` or `dart:io`.
+//
+// Who the engine is — device, user, tenant — is read at the start of every
+// round, never captured (ADR 2026-10-09 §1 🔒): before S0.2 the source
+// answers *not registered yet* and the round makes no request at all; a
+// registration or a re-mint is used by the next round with no rebuild.
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -16,6 +21,7 @@ import 'package:data/data.dart';
 import 'package:drift/drift.dart' show Value, Variable;
 
 import 'backoff.dart';
+import 'binding.dart';
 import 'events.dart';
 import 'guard.dart';
 import 'revocation.dart';
@@ -52,6 +58,7 @@ final class SyncReport {
     required this.keyWait,
     required this.epochChanged,
     required this.offline,
+    this.held,
   });
 
   /// Envelopes sent in push batches.
@@ -78,11 +85,16 @@ final class SyncReport {
   /// Whether a transport call found no connectivity.
   final bool offline;
 
+  /// Why the round did nothing, or stopped at a route boundary (ADR
+  /// 2026-10-09 §1 🔒); null when it ran under a settled identity.
+  final SyncHold? held;
+
   @override
   String toString() =>
       'SyncReport(pushed $pushed, acked $acked, pulled $pulled, verified '
       '$verified, quarantined $quarantined, keyWait $keyWait'
-      '${epochChanged ? ', epoch changed' : ''}${offline ? ', offline' : ''})';
+      '${epochChanged ? ', epoch changed' : ''}${offline ? ', offline' : ''}'
+      '${held != null ? ', held ${held!.name}' : ''})';
 }
 
 /// A role fact as a verified `book_role` record states it (D-05b-1: the
@@ -140,18 +152,61 @@ final class _GapKey {
 
 /// The sync engine for one device in one tenant.
 final class SyncEngine {
-  /// Creates the engine. [recompute] rebuilds projections after a pull when
-  /// given (the app and the harness pass one; wire tests may not).
+  /// Creates the engine for a fixed, already-registered identity — the
+  /// pre-ADR shape, kept so every existing wiring builds unchanged. It is
+  /// [SyncEngine.late] over a [FixedIdentity].
   SyncEngine({
+    required LedgerDatabase db,
+    required Mirror mirror,
+    required SyncTransport transport,
+    required Clock clock,
+    required EnvelopeGuard guard,
+    required RecordTrustStore trust,
+    required String deviceId,
+    required String userId,
+    required String tenantId,
+    Recompute? recompute,
+    AcceptedKeySink? keySink,
+    Jitter? jitter,
+    Backoff backoff = const Backoff(),
+    int authorGapInboxMs = 24 * 60 * 60 * 1000,
+    int keyWaitInboxMs = 24 * 60 * 60 * 1000,
+    int unobservedInboxMs = 30 * 24 * 60 * 60 * 1000,
+  }) : this.late(
+         db: db,
+         mirror: mirror,
+         transport: transport,
+         clock: clock,
+         guard: guard,
+         trust: trust,
+         identity: FixedIdentity(
+           RegisteredIdentity(
+             deviceId: deviceId,
+             userId: userId,
+             tenantId: tenantId,
+           ),
+         ),
+         recompute: recompute,
+         keySink: keySink,
+         jitter: jitter,
+         backoff: backoff,
+         authorGapInboxMs: authorGapInboxMs,
+         keyWaitInboxMs: keyWaitInboxMs,
+         unobservedInboxMs: unobservedInboxMs,
+       );
+
+  /// Creates the engine reading who it is from [identity] at the start of
+  /// every round (ADR 2026-10-09 §1 🔒). [recompute] rebuilds projections
+  /// after a pull when given (the app and the harness pass one; wire tests
+  /// may not).
+  SyncEngine.late({
     required this.db,
     required this.mirror,
     required this.transport,
     required this.clock,
     required this.guard,
     required this.trust,
-    required this.deviceId,
-    required this.userId,
-    required this.tenantId,
+    required this.identity,
     this.recompute,
     this.keySink,
     this.jitter,
@@ -180,14 +235,21 @@ final class SyncEngine {
   /// Trust state the guard reads and this engine feeds.
   final RecordTrustStore trust;
 
-  /// This device.
-  final String deviceId;
+  /// Who this engine syncs as, read at the start of every round and at
+  /// every route boundary — never captured (ADR 2026-10-09 §1 🔒).
+  final DeviceIdentitySource identity;
 
-  /// This device's user.
-  final String userId;
+  /// The identity the current (or last) round ran under. Set only by a
+  /// round that passed the binding check; read only inside one.
+  RegisteredIdentity? _bound;
 
-  /// The tenant.
-  final String tenantId;
+  RegisteredIdentity get _me => _bound!;
+
+  /// The hold last raised as an event, so a held phone is one event.
+  SyncHold? _lastHold;
+
+  /// Why a route stopped mid-round on the binding, for the round to report.
+  SyncHold? _routeHold;
 
   /// Projection rebuilder, if any.
   final Recompute? recompute;
@@ -225,6 +287,35 @@ final class SyncEngine {
 
   /// Life state.
   EngineMode get mode => _mode;
+
+  /// Whether a round would be held right now, and why — read live from
+  /// [identity] and the guard (ADR 2026-10-09 §1 🔒). Null when this device
+  /// has an identity and the guard holds that device's keys.
+  SyncHold? get hold => _holdFor(identity.currentIdentity());
+
+  SyncHold? _holdFor(DeviceIdentity id) => switch (id) {
+    NotRegisteredYet() => SyncHold.notRegistered,
+    RegisteredIdentity(:final deviceId) =>
+      guard.boundTo(deviceId) ? null : SyncHold.notRegistered,
+  };
+
+  /// Re-reads the binding at a route boundary: null while it is still the
+  /// one the round started under, else why the round stops here. Stopping
+  /// at a boundary means everything the server already answered was taken in
+  /// under the identity it was asked for, and nothing after it is sent.
+  SyncHold? _recheck() {
+    final id = identity.currentIdentity();
+    final h = _holdFor(id);
+    if (h != null) return _routeHold = h;
+    if (id != _bound) return _routeHold = SyncHold.bindingChanged;
+    return null;
+  }
+
+  void _raiseHold(SyncHold h) {
+    if (_lastHold == h) return;
+    _lastHold = h;
+    _emit(SyncHeld(_now, h));
+  }
 
   /// Books this engine syncs beside those the mirror and outbox already know.
   final Set<String> subscribedBooks = {};
@@ -366,6 +457,15 @@ final class SyncEngine {
     if (reasons.isNotEmpty) return NeedsAttention(List.unmodifiable(reasons));
     if (waitingFor != null) return WaitingFor(waitingFor);
     if (_offline) return const Offline();
+    if (hold != null) {
+      // ⚠️ SPEC (ADR 2026-10-09 §1; 05 §9 🔒 "no other states"): *not
+      // registered yet* is not a sixth state. Read conservatively: a queued
+      // row is "saved on phone · will sync" (true), and nothing queued is
+      // Offline — never Synced, which would claim a server confirmed
+      // something. The app tells the hold apart through [hold]; owner to
+      // confirm what the chip shows before S0.2 (lane report M13-SYNC168).
+      return pending > 0 ? SavedWillSync(pending) : const Offline();
+    }
     if (pending > 0) return SavedWillSync(pending);
     return const Synced();
   }
@@ -373,15 +473,33 @@ final class SyncEngine {
   // ── the round ───────────────────────────────────────────────────────────
 
   /// One sync round. Safe to call at any cadence (05 §7); idempotent.
+  ///
+  /// The round first reads who it is (ADR 2026-10-09 §1 🔒). Not registered
+  /// yet — no identity, or a guard without that device's keys — and it
+  /// returns at once, [SyncReport.held] saying so, having sent nothing,
+  /// verified nothing and signed nothing. A different identity than the last
+  /// round's is re-bound before the first request.
   Future<SyncReport> sync() async {
+    _offline = false;
+    _routeHold = null;
+    final id = identity.currentIdentity();
+    final h = _holdFor(id);
+    if (h != null) {
+      _raiseHold(h);
+      return _report(0, 0, 0, 0, 0, false, held: h);
+    }
+    final me = id as RegisteredIdentity;
+    final previous = _bound;
+    _bound = me;
+    _lastHold = null;
     await _restore();
+    if (previous != null && previous != me) await _rebind(previous, me);
     var pushed = 0;
     var acked = 0;
     var pulled = 0;
     var verified = 0;
     var quarantined = 0;
     var epochChanged = false;
-    _offline = false;
     if (_mode == EngineMode.wiped || _mode == EngineMode.updateRequired) {
       return _report(0, 0, 0, 0, 0, false);
     }
@@ -389,17 +507,31 @@ final class SyncEngine {
     //    `suspended`: a clean, authenticated meta round with no claim standing.
     final metaOk = await _metaRound();
     if (metaOk == _RouteResult.epochChanged) epochChanged = true;
+    if (metaOk == _RouteResult.held) {
+      return _held(0, 0, 0, 0, 0, epochChanged);
+    }
     if (_mode != EngineMode.active) {
       return _report(0, 0, 0, 0, 0, epochChanged);
     }
     if (metaOk == _RouteResult.offline) {
       return _report(0, 0, 0, 0, 0, epochChanged);
     }
-    // 2. Per book: push then pull.
+    // 2. Per book: push then pull — each route only while the binding the
+    //    round started under still holds.
     final books = await _books();
     for (var pass = 0; pass < 2; pass++) {
       var repush = false;
       for (final book in books) {
+        if (_recheck() != null) {
+          return _held(
+            pushed,
+            acked,
+            pulled,
+            verified,
+            quarantined,
+            epochChanged,
+          );
+        }
         final p = await _pushBook(book);
         pushed += p.pushed;
         acked += p.acked;
@@ -407,8 +539,28 @@ final class SyncEngine {
           epochChanged = true;
           repush = true;
         }
+        if (p.result == _RouteResult.held) {
+          return _held(
+            pushed,
+            acked,
+            pulled,
+            verified,
+            quarantined,
+            epochChanged,
+          );
+        }
         if (p.result == _RouteResult.offline || _mode != EngineMode.active) {
           return _report(
+            pushed,
+            acked,
+            pulled,
+            verified,
+            quarantined,
+            epochChanged,
+          );
+        }
+        if (_recheck() != null) {
+          return _held(
             pushed,
             acked,
             pulled,
@@ -424,6 +576,16 @@ final class SyncEngine {
         if (q.result == _RouteResult.epochChanged) {
           epochChanged = true;
           repush = true;
+        }
+        if (q.result == _RouteResult.held) {
+          return _held(
+            pushed,
+            acked,
+            pulled,
+            verified,
+            quarantined,
+            epochChanged,
+          );
         }
         if (q.result == _RouteResult.offline || _mode != EngineMode.active) {
           return _report(
@@ -448,8 +610,9 @@ final class SyncEngine {
     int pulled,
     int verified,
     int quarantined,
-    bool epochChanged,
-  ) => SyncReport(
+    bool epochChanged, {
+    SyncHold? held,
+  }) => SyncReport(
     pushed: pushed,
     acked: acked,
     pulled: pulled,
@@ -458,7 +621,73 @@ final class SyncEngine {
     keyWait: _keyWait.length,
     epochChanged: epochChanged,
     offline: _offline,
+    held: held,
   );
+
+  /// A round that stopped on the binding mid-way: counts so far, and why.
+  SyncReport _held(
+    int pushed,
+    int acked,
+    int pulled,
+    int verified,
+    int quarantined,
+    bool epochChanged,
+  ) {
+    final h = _routeHold ?? SyncHold.notRegistered;
+    _raiseHold(h);
+    return _report(
+      pushed,
+      acked,
+      pulled,
+      verified,
+      quarantined,
+      epochChanged,
+      held: h,
+    );
+  }
+
+  /// The identity changed between rounds — a registration superseded or a
+  /// C-04b-3 re-mint (ADR 2026-10-09 §1 🔒) — and this round is the first
+  /// under [next]. Everything the engine judged *as itself* is re-judged;
+  /// everything it learned about others stays exactly as attributed.
+  ///
+  /// - The meta cursor is the old session's view: read meta whole again
+  ///   (records dedupe by id, so nothing is applied twice).
+  /// - An unsigned `devices`-row claim was about the old device; the next
+  ///   meta page re-states the server's word about this one.
+  /// - Own fate is re-judged from the verified records already held: a
+  ///   revocation applied while it was somebody else's is this device's now,
+  ///   and the rebind must never be the door a revoked device walks through.
+  ///   A wiped engine stays wiped; nothing here resumes one.
+  /// - Role, membership and revocation facts are keyed by the ids their
+  ///   signed records name, so none of them moves to the new user.
+  Future<void> _rebind(RegisteredIdentity prev, RegisteredIdentity next) async {
+    _emit(
+      IdentityRebound(
+        _now,
+        previousDeviceId: prev.deviceId,
+        deviceId: next.deviceId,
+      ),
+    );
+    _metaCursor = null;
+    if (prev.deviceId != next.deviceId) _unsignedClaim = false;
+    if (_mode == EngineMode.wiped) return;
+    final cut = _ownCount().effectiveSeq;
+    if (cut != null) {
+      final rec = trust.revocations
+          .where((r) => r.revokedDeviceId == next.deviceId && r.seq == cut)
+          .firstOrNull;
+      await _wipe(rec?.recordId ?? '');
+      return;
+    }
+    for (final rm in trust.removals) {
+      if (rm.removedUserId == next.userId) {
+        guard.dropAllKeys();
+        _emit(KeysDropped(_now, rm.recordId));
+        return;
+      }
+    }
+  }
 
   Future<void> _restore() async {
     if (_restored) return;
@@ -492,7 +721,7 @@ final class SyncEngine {
       out.add(r.bookId);
     }
     for (final MapEntry(key: (book, user), value: _) in _roles.entries) {
-      if (user == userId) out.add(book);
+      if (user == _me.userId) out.add(book);
     }
     return out;
   }
@@ -582,7 +811,10 @@ final class SyncEngine {
 
   Future<_RouteResult> _metaRound() async {
     var epochChanged = false;
+    var first = true;
     while (true) {
+      if (!first && _recheck() != null) return _RouteResult.held;
+      first = false;
       final res = await _guarded(
         () => transport.meta(MetaRequest(after: _metaCursor)),
       );
@@ -590,7 +822,12 @@ final class SyncEngine {
         return _offline ? _RouteResult.offline : _RouteResult.stopped;
       }
       if (await _epoch(res.storeEpoch)) epochChanged = true;
-      await _applyMeta(res);
+      if (!await _applyMeta(res)) {
+        // The guard lost its keys mid-page: the cursor stays before the page
+        // so every record and key on it is read again once they are back.
+        _routeHold ??= SyncHold.notRegistered;
+        return _RouteResult.held;
+      }
       _metaCursor = res.next ?? _metaCursor;
       if (!res.hasMore) break;
     }
@@ -609,7 +846,10 @@ final class SyncEngine {
   /// Applies one meta page. A `devices` row about *this* device sets or
   /// clears the unsigned-revocation claim (ADR 05b §2); the claim persists
   /// across empty pages until a row retracts it or a record settles it.
-  Future<void> _applyMeta(MetaResponse m) async {
+  ///
+  /// Returns false when the guard answered *not registered* part-way (ADR
+  /// 2026-10-09 §1): the page was not finished and must be read again.
+  Future<bool> _applyMeta(MetaResponse m) async {
     // Certificates before records: the chain needs them.
     for (final d in m.devices) {
       trust.deviceOwners[d.id] = d.userId;
@@ -642,8 +882,8 @@ final class SyncEngine {
     final records = List.of(m.signedRecords)
       ..sort((a, b) => a.seq.compareTo(b.seq));
     for (final r in records) {
-      await _applyRecord(r);
-      if (_mode == EngineMode.wiped) return;
+      if (!await _applyRecord(r)) return false;
+      if (_mode == EngineMode.wiped) return true;
     }
     // Keys → persist, then drain key_wait. The order is the point: this page
     // is seen once (the cursor moves past it), so a key that only reached
@@ -659,16 +899,18 @@ final class SyncEngine {
           await _keyArrived(ref);
         case KeyNotAccepted():
           break; // not ours, or not a key: nothing happened
+        case KeyHeldNotRegistered():
+          return false; // not opened, not an answer about the row
       }
     }
     // Rows are the server's projection: check them against the records.
     for (final d in m.devices) {
       final revokedByRecord =
-          (d.id == deviceId
-              ? trust.revocationSeqFor(d.id, ownerUserId: userId)
+          (d.id == _me.deviceId
+              ? trust.revocationSeqFor(d.id, ownerUserId: _me.userId)
               : trust.revocationSeqOf(d.id)) !=
           null;
-      if (d.id == deviceId) {
+      if (d.id == _me.deviceId) {
         _unsignedClaim = d.claimsRevoked && !revokedByRecord;
       } else if (d.claimsRevoked && !revokedByRecord) {
         _emit(MetaMismatch(_now, 'devices', d.id, 'revoked without a record'));
@@ -703,11 +945,16 @@ final class SyncEngine {
         );
       }
     }
+    return true;
   }
 
-  Future<void> _applyRecord(WireSignedRecord r) async {
-    if (_seenRecordIds.contains(r.id)) return;
+  /// Checks and applies one record. False when the guard holds no keys
+  /// (ADR 2026-10-09 §1): nothing was checked, so nothing is stored — not
+  /// even as unverified — and the caller stops the page.
+  Future<bool> _applyRecord(WireSignedRecord r) async {
+    if (_seenRecordIds.contains(r.id)) return true;
     final verdict = guard.checkRecord(r);
+    if (verdict is RecordNotRegistered) return false;
     final ok = verdict is RecordVerified;
     await db
         .into(db.signedRecordsLocal)
@@ -726,7 +973,7 @@ final class SyncEngine {
         );
     if (!ok) {
       _emit(RecordIgnored(_now, r.id, (verdict as RecordRejected).reason));
-      return;
+      return true;
     }
     _seenRecordIds.add(r.id);
     _applyVerifiedRecord(r, fromStore: false);
@@ -740,11 +987,13 @@ final class SyncEngine {
       // can complete a count: the approvals are verified records already.
       await _wipe(r.id);
     }
+    return true;
   }
 
   /// This device's revocation count, its owner bound to this engine's own
   /// user — never to the server's `devices` row, which could name anyone.
-  RevocationCount _ownCount() => trust.countFor(deviceId, ownerUserId: userId);
+  RevocationCount _ownCount() =>
+      trust.countFor(_me.deviceId, ownerUserId: _me.userId);
 
   Map<String, Object?>? _payload(WireSignedRecord r) {
     try {
@@ -793,7 +1042,7 @@ final class SyncEngine {
             shareSetVersion: p['share_set_version'] as int?,
           ),
         );
-        final count = revoked == deviceId
+        final count = revoked == _me.deviceId
             ? _ownCount()
             : trust.countFor(revoked);
         for (final ig in count.ignored) {
@@ -843,7 +1092,7 @@ final class SyncEngine {
             role: role as String?,
             limits: _limitsOf(p),
           );
-          if (user == userId && role != null) {
+          if (user == _me.userId && role != null) {
             pushBlockedBooks.remove(book);
             pullBlockedBooks.remove(book);
             if (pullBlockedBooks.isEmpty) {
@@ -899,7 +1148,7 @@ final class SyncEngine {
       return;
     }
     for (final rm in trust.removals) {
-      if (rm.removedUserId == userId) {
+      if (rm.removedUserId == _me.userId) {
         guard.dropAllKeys();
         _emit(KeysDropped(_now, recordId));
         return;
@@ -927,7 +1176,7 @@ final class SyncEngine {
     for (final id in ids) {
       final w = _keyWait[id];
       if (w == null) continue;
-      await _admit(w.envelope);
+      if (await _admit(w.envelope) is EnvelopeNotRegistered) break;
     }
     // A stale-rejected outbox row of this book may now re-seal (05 §3).
     for (final r in await mirror.outboxRows(state: PushState.rejected)) {
@@ -988,6 +1237,9 @@ final class SyncEngine {
     }
     if (_now < _retryPushAtMs) return _PushResult(_RouteResult.stopped, 0, 0);
     while (true) {
+      if (pushed > 0 && _recheck() != null) {
+        return _PushResult(_RouteResult.held, pushed, acked);
+      }
       final rows = [
         for (final r in await mirror.outboxRows(state: PushState.queued))
           if (r.bookId == book) r,
@@ -1153,6 +1405,13 @@ final class SyncEngine {
         _open.add(AttentionReason.tenantFrozen);
         return _Outcome.stopBook;
       case PushOutcome.rejectedKeyVersionStale:
+        if (_holdFor(identity.currentIdentity()) != null) {
+          // The keys went away while the batch was out: no re-seal is
+          // possible now, and that is not the row's fault — queue it again
+          // rather than reject it for good.
+          await mirror.transition(id, PushState.queued);
+          return _Outcome.stopBook;
+        }
         final highest = guard.highestKeyVersion(book);
         if (!_staleRetried.contains(id) &&
             highest != null &&
@@ -1224,7 +1483,7 @@ final class SyncEngine {
       WireEnvelope(
         envelopeId: row.envelopeId,
         seq: row.seq,
-        tenantId: tenantId,
+        tenantId: _me.tenantId,
         bookId: row.bookId,
         objectId: row.objectId,
         objectType: row.objectType,
@@ -1264,7 +1523,13 @@ final class SyncEngine {
     if (pullBlockedBooks.contains(book)) {
       return const _PullResult(_RouteResult.stopped, 0, 0, 0);
     }
+    var firstPage = true;
     while (true) {
+      if (!firstPage && _recheck() != null) {
+        aborted = _RouteResult.held;
+        break;
+      }
+      firstPage = false;
       final res = await _guarded(
         () => transport.pull(PullRequest(bookId: book, afterSeq: after)),
       );
@@ -1302,7 +1567,7 @@ final class SyncEngine {
           break;
         }
         final seq = e.seq!;
-        if (e.authorDevice == deviceId) {
+        if (e.authorDevice == _me.deviceId) {
           await _observeOwn(e.envelopeId, seq);
         }
         final existing = await (db.select(
@@ -1312,7 +1577,8 @@ final class SyncEngine {
           if (existing.seq == null) await mirror.setSeq(e.envelopeId, seq);
           continue;
         }
-        switch (await _admit(e)) {
+        final verdict = await _admit(e);
+        switch (verdict) {
           case EnvelopeVerified():
             verified++;
             changed = true;
@@ -1321,7 +1587,16 @@ final class SyncEngine {
             changed = true;
           case EnvelopeKeyWait():
           case EnvelopeCorrupt():
+          case EnvelopeNotRegistered():
             break;
+        }
+        if (verdict is EnvelopeNotRegistered) {
+          // The guard lost its keys mid-page: nothing checked, nothing
+          // stored, and the cursor stops just before this envelope.
+          stopAt = seq - 1;
+          _routeHold ??= SyncHold.notRegistered;
+          aborted = _RouteResult.held;
+          break;
         }
       }
       if (stopAt > after) after = stopAt;
@@ -1334,6 +1609,7 @@ final class SyncEngine {
         }
       }
       if (floor > await _cursor(book)) await _setCursor(book, floor);
+      if (aborted != null) break;
       if (stopAt < res.nextSeq || !res.hasMore) break;
     }
     await _readYourWrites(book, after);
@@ -1397,6 +1673,8 @@ final class SyncEngine {
         }
       case EnvelopeCorrupt():
         _emit(BlobCorruptOnPull(_now, e.envelopeId));
+      case EnvelopeNotRegistered():
+        break; // nothing checked: nothing stored, nothing raised
     }
     return v;
   }
@@ -1435,7 +1713,7 @@ final class SyncEngine {
   }
 }
 
-enum _RouteResult { ok, epochChanged, offline, stopped }
+enum _RouteResult { ok, epochChanged, offline, stopped, held }
 
 enum _Outcome { acked, retryNow, stopBook, terminal }
 

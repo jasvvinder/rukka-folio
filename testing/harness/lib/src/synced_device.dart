@@ -34,30 +34,48 @@ final class SyncedDevice {
 
   /// Opens a device on [server]. Requests route through [network] when given
   /// (a dropped decision → `TransportOffline`; [model]'s offline windows too).
+  ///
+  /// With [identity] the engine reads who it is from that source at every
+  /// round (ADR 2026-10-09 §1) — a phone that registers late, or is re-minted
+  /// — and [userId]/[tenantId] are not used; without it the device is
+  /// registered from the start as `(id, userId, tenantId)`.
   static Future<SyncedDevice> open(
     String id, {
     required FakeSyncServer server,
     required Scheduler scheduler,
-    required String userId,
+    String? userId,
+    DeviceIdentitySource? identity,
     String tenantId = 't1',
     Network? network,
     NetworkModel? model,
     Set<String> books = const {},
     Set<String> trustedDevices = const {},
   }) async {
+    if (identity == null && userId == null) {
+      throw ArgumentError(
+        'a registered device needs a userId, a late one an '
+        'identity source',
+      );
+    }
     final device = await SimulatedDevice.open(id);
     final transport = server.transportFor(id);
     final trust = RecordTrustStore(umks: const MapUmkSource({}));
-    final engine = SyncEngine(
+    final engine = SyncEngine.late(
       db: device.db,
       mirror: device.mirror,
       transport: transport,
       clock: SchedulerClock(scheduler),
       guard: PlainGuard(trust: trust, trustedDevices: {...trustedDevices}),
       trust: trust,
-      deviceId: id,
-      userId: userId,
-      tenantId: tenantId,
+      identity:
+          identity ??
+          FixedIdentity(
+            RegisteredIdentity(
+              deviceId: id,
+              userId: userId!,
+              tenantId: tenantId,
+            ),
+          ),
       recompute: device.recompute,
     )..subscribedBooks.addAll(books);
     return SyncedDevice._(device, engine, transport, trust, scheduler)

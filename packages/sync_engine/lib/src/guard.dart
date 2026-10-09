@@ -10,6 +10,7 @@ import 'dart:typed_data';
 import 'package:core_crypto/core_crypto.dart';
 import 'package:meta/meta.dart';
 
+import 'binding.dart';
 import 'key_store.dart';
 import 'trust.dart';
 import 'wire.dart';
@@ -55,6 +56,15 @@ final class EnvelopeQuarantine extends EnvelopeVerdict {
   final String reason;
 }
 
+/// The guard holds no key material for this device yet (before S0.2, ADR
+/// 2026-10-09 §1 🔒), so it verified nothing and opened nothing. Not a
+/// quarantine, not a corruption and not a `key_wait`: nothing is stored,
+/// nothing is raised, and the cursor must not pass the envelope.
+final class EnvelopeNotRegistered extends EnvelopeVerdict {
+  /// Creates the verdict.
+  const EnvelopeNotRegistered();
+}
+
 /// What the guard decided about a signed record.
 @immutable
 sealed class RecordVerdict {
@@ -74,6 +84,15 @@ final class RecordRejected extends RecordVerdict {
 
   /// Why.
   final String reason;
+}
+
+/// The guard holds no key material yet (ADR 2026-10-09 §1 🔒): the chain was
+/// not checked, so the record is neither believed nor refused. The engine
+/// stores nothing and does not move the meta cursor past it; a caller that
+/// only asks "is this believed?" gets *no*, which is the fail-closed answer.
+final class RecordNotRegistered extends RecordVerdict {
+  /// Creates the verdict.
+  const RecordNotRegistered();
 }
 
 /// The at-rest form of a `wrapped_keys` row this device just accepted
@@ -149,6 +168,15 @@ final class KeyNotAccepted extends KeyAcceptance {
   final String reason;
 }
 
+/// The guard holds no key material yet (ADR 2026-10-09 §1 🔒), so the row
+/// was not opened. Unlike [KeyNotAccepted] this is not an answer about the
+/// row: the engine must keep the meta cursor before it, or the key is gone
+/// once the keys exist.
+final class KeyHeldNotRegistered extends KeyAcceptance {
+  /// Creates the outcome.
+  const KeyHeldNotRegistered();
+}
+
 /// Where an accepted key is written so it survives the process (03 §3.1).
 ///
 /// The engine holds this as a seam rather than writing `key_cache` itself:
@@ -197,42 +225,89 @@ abstract interface class EnvelopeGuard {
 
   /// Drops every book key (own verified revocation or removal, 05 §5).
   void dropAllKeys();
+
+  /// Whether this guard holds [deviceId]'s key material **now** (ADR
+  /// 2026-10-09 §1 🔒) — false before S0.2, after the holder disposed the
+  /// pair, and when the material is another device's. The engine runs a
+  /// round only when this is true for the identity it is about to sync as.
+  bool boundTo(String deviceId);
 }
 
-/// The production guard: `core_crypto` over a [BookKeyStore] and a
-/// [RecordTrustStore].
+/// The production guard: `core_crypto` over key material read at every use
+/// (ADR 2026-10-09 §1 🔒) and a [RecordTrustStore].
+///
+/// Nothing here captures a key: each call asks [material], and before S0.2
+/// — or once the holder disposed the pair — every operation fails closed
+/// with its own *not registered* answer: nothing verified, opened, unwrapped
+/// or signed.
 final class CryptoGuard implements EnvelopeGuard {
-  /// Creates the guard. [me] signs re-sealed envelopes (the outbox is the
-  /// author's own); [umk] opens `wrapped_keys` rows — null on a device that
-  /// holds no UMK yet (nothing unwraps).
+  /// Creates the guard over fixed material — the pre-ADR shape, kept so every
+  /// existing wiring builds unchanged. [me] signs re-sealed envelopes (the
+  /// outbox is the author's own); [umk] opens `wrapped_keys` rows — null on a
+  /// device that holds no UMK yet (nothing unwraps).
   CryptoGuard({
+    required CryptoSuite suite,
+    required BookKeyStore keys,
+    required RecordTrustStore trust,
+    required DeviceKeyPair me,
+    UmkKeyPair? umk,
+    int payloadSchema = payloadSchemaCurrent,
+  }) : this.late(
+         suite: suite,
+         trust: trust,
+         material: FixedKeyMaterial(
+           DeviceKeyMaterial(device: me, umk: umk, bookKeys: keys),
+         ),
+         payloadSchema: payloadSchema,
+       );
+
+  /// Creates the guard over [material], read at every use (ADR 2026-10-09
+  /// §1 🔒): a registration or a re-mint is used at the next call, with no
+  /// rebuild.
+  CryptoGuard.late({
     required this.suite,
-    required this.keys,
     required this.trust,
-    required this.me,
-    this.umk,
+    required this.material,
     this.payloadSchema = payloadSchemaCurrent,
   }) : _verifier = ChainVerifier(suite, trust);
 
   /// Crypto suite (libsodium + injected RNG).
   final CryptoSuite suite;
 
-  /// Unwrapped book keys, every version retained.
-  final BookKeyStore keys;
+  /// Where this device's pair, UMK and book keys are read, every call.
+  final KeyMaterialSource material;
 
   /// Trust state (certs, verified UMKs, revocation records).
   final RecordTrustStore trust;
-
-  /// This device's key pair.
-  final DeviceKeyPair me;
-
-  /// This user's UMK, if held here.
-  final UmkKeyPair? umk;
 
   @override
   final int payloadSchema;
 
   final ChainVerifier _verifier;
+
+  /// The material usable now, or null: none yet (before S0.2), or a pair or
+  /// UMK the holder has disposed (a stale borrow — refused, never used and
+  /// never mistaken for "no UMK"). Never kept past the call that asked.
+  DeviceKeyMaterial? _usable() => switch (material.currentKeys()) {
+    KeysNotRegisteredYet() => null,
+    DeviceKeyMaterial(:final device, :final umk)
+        when device.isDisposed || (umk?.isDisposed ?? false) =>
+      null,
+    final DeviceKeyMaterial m => m,
+  };
+
+  /// The live book-key store of the current material. Throws [StateError]
+  /// before S0.2 — an explicit refusal, never an empty stand-in store.
+  BookKeyStore get keys => switch (material.currentKeys()) {
+    DeviceKeyMaterial(:final bookKeys) => bookKeys,
+    KeysNotRegisteredYet() => throw StateError(
+      'no key material yet — the device is not registered '
+      '(ADR 2026-10-09 §1)',
+    ),
+  };
+
+  @override
+  bool boundTo(String deviceId) => _usable()?.device.deviceId == deviceId;
 
   @override
   Uint8List hash(Uint8List blob) => suite.blake2b256(blob);
@@ -261,6 +336,8 @@ final class CryptoGuard implements EnvelopeGuard {
 
   @override
   EnvelopeVerdict checkEnvelope(WireEnvelope envelope) {
+    final m = _usable();
+    if (m == null) return const EnvelopeNotRegistered();
     final env = _envelopeOf(envelope);
     if (env == null) return const EnvelopeQuarantine('malformed');
     switch (_verifier.verifyEnvelope(env, seq: envelope.seq)) {
@@ -271,7 +348,7 @@ final class CryptoGuard implements EnvelopeGuard {
       case ChainVerified():
         break;
     }
-    final key = keys.bookKey(
+    final key = m.bookKeys.bookKey(
       BookKeyRef(bookId: envelope.bookId, keyVersion: envelope.keyVersion),
     );
     if (key == null) return EnvelopeKeyWait(envelope.keyVersion);
@@ -284,6 +361,7 @@ final class CryptoGuard implements EnvelopeGuard {
 
   @override
   RecordVerdict checkRecord(WireSignedRecord record) {
+    if (_usable() == null) return const RecordNotRegistered();
     final SignedRecord r;
     try {
       r = SignedRecord(
@@ -309,10 +387,14 @@ final class CryptoGuard implements EnvelopeGuard {
   }
 
   @override
-  int? highestKeyVersion(String bookId) => keys.highestVersion(bookId);
+  int? highestKeyVersion(String bookId) =>
+      _usable()?.bookKeys.highestVersion(bookId);
 
   @override
   WireEnvelope? reseal(WireEnvelope envelope, {required int toVersion}) {
+    final m = _usable();
+    if (m == null) return null; // nothing is signed before S0.2
+    final keys = m.bookKeys;
     final oldKey = keys.bookKey(
       BookKeyRef(bookId: envelope.bookId, keyVersion: envelope.keyVersion),
     );
@@ -329,7 +411,7 @@ final class CryptoGuard implements EnvelopeGuard {
         env,
         oldKey: oldKey,
         newKey: newKey,
-        author: me,
+        author: m.device,
       );
     } on EnvelopeOpenFailed {
       return null;
@@ -355,7 +437,10 @@ final class CryptoGuard implements EnvelopeGuard {
 
   @override
   KeyAcceptance acceptWrappedKey(WireWrappedKey key) {
-    final me = umk;
+    final m = _usable();
+    if (m == null) return const KeyHeldNotRegistered();
+    final keys = m.bookKeys;
+    final me = m.umk;
     if (me == null) return const KeyNotAccepted('no_umk');
     if (key.kind != WireWrappedKey.kindBkForUser) {
       return const KeyNotAccepted('wrong_kind');
@@ -398,7 +483,12 @@ final class CryptoGuard implements EnvelopeGuard {
   }
 
   @override
-  void dropAllKeys() => keys.clear();
+  void dropAllKeys() {
+    // Dropping is never refused: a disposed pair's store is cleared too.
+    if (material.currentKeys() case DeviceKeyMaterial(:final bookKeys)) {
+      bookKeys.clear();
+    }
+  }
 
   @override
   DeviceCert? buildCert(WireDeviceCert cert, WireDevice device) {

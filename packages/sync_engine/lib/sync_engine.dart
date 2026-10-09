@@ -8,13 +8,15 @@
 /// harness runs the real engine deterministically.
 ///
 /// Entry points: [SyncEngine] (one device, one tenant), [CryptoGuard] over a
-/// [BookKeyStore] + [RecordTrustStore], the wire types of `wire.dart`, the
+/// [BookKeyStore] + [RecordTrustStore] — identity and key material read late,
+/// through [DeviceIdentitySource] and [KeyMaterialSource] (ADR 2026-10-09 §1), the wire types of `wire.dart`, the
 /// five-state [SyncStatus], typed [SyncEvent]s, [HttpSyncTransport] (the real
 /// HTTPS door onto the three edge functions, pinned through [SpkiPins]), and —
 /// for tests and the harness — [FakeSyncServer], [FakeTransport], [PlainGuard].
 library;
 
 export 'src/backoff.dart';
+export 'src/binding.dart';
 export 'src/engine.dart';
 export 'src/events.dart';
 export 'src/guard.dart';

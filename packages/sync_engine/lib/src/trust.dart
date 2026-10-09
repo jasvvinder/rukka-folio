@@ -5,6 +5,7 @@
 // 2026-09-06 §3). `revocationSeqOf` is computed on every call — never cached.
 import 'package:core_crypto/core_crypto.dart';
 
+import 'binding.dart';
 import 'revocation.dart';
 
 /// Where ceremony-verified UMKs come from (the app's `verification_events`).
@@ -23,6 +24,32 @@ final class MapUmkSource implements VerifiedUmkSource {
 
   @override
   VerifiedUmkPublic? verifiedUmkOf(String userId) => umks[userId];
+}
+
+/// The [VerifiedUmkSource] of whatever key material [keys] answers **now**
+/// (ADR 2026-10-09 §1 🔒): read at every call, never captured, so a C-04b-3
+/// re-mint or the S0.2 mint is believed at the next verification and the
+/// discarded user is not. Before the keys exist it believes nobody, and it
+/// believes nobody through a pair the holder has disposed — a fail-closed
+/// answer, never a guess.
+final class BoundUmkSource implements VerifiedUmkSource {
+  /// Creates the source over [keys].
+  const BoundUmkSource(this.keys);
+
+  /// Where the material is read.
+  final KeyMaterialSource keys;
+
+  @override
+  VerifiedUmkPublic? verifiedUmkOf(String userId) =>
+      switch (keys.currentKeys()) {
+        KeysNotRegisteredYet() => null,
+        DeviceKeyMaterial(:final device, :final umk)
+            when device.isDisposed || (umk?.isDisposed ?? false) =>
+          null,
+        DeviceKeyMaterial(:final verifiedUmks) => verifiedUmks?.verifiedUmkOf(
+          userId,
+        ),
+      };
 }
 
 /// A verified `member_removal` record reduced to what the cut-off needs.
@@ -46,8 +73,14 @@ final class RemovalRecord {
 
 /// Trust state for one tenant.
 final class RecordTrustStore implements TrustStore {
-  /// Creates the store.
+  /// Creates the store over [umks] — read live on every verification.
   RecordTrustStore({required this.umks});
+
+  /// Creates the store believing the UMKs of whatever material [keys]
+  /// answers at each verification ([BoundUmkSource]) — believing nobody
+  /// before S0.2 (ADR 2026-10-09 §1 🔒).
+  RecordTrustStore.late({required KeyMaterialSource keys})
+    : umks = BoundUmkSource(keys);
 
   /// Ceremony-verified UMKs.
   final VerifiedUmkSource umks;
