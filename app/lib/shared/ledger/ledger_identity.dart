@@ -1,7 +1,8 @@
 // One device, one id (ADR 2026-09-16 §1 🔒).
 //
 // `LocalLedger._firstRun` mints the install's device, user and tenant ids once
-// and stores them here, in the [KeyStore], as the identity record. The device
+// (ids only — the keys are minted inside S0.2, ADR 2026-10-09 §2) and stores
+// them here, in the [KeyStore], as the identity record. The device
 // id is baked into the device key pair, the wrapped UMK, every envelope's
 // `author_device_id`, every signed record and — since the ADR — the id
 // `features/auth` registers with the server and signs challenges under.
@@ -44,6 +45,36 @@ abstract final class LocalLedgerKeys {
   /// stored before the guard existed: it reads as confirmed, because an
   /// existing install is never locked out of its own books.
   static const identityState = 'rk.ledger.identity_state';
+
+  /// The device id `features/auth` stores once `POST /devices` has answered
+  /// (06 §3; `SessionItems.deviceId`, pinned equal by C-1009-2). Read by the
+  /// ledger only as evidence for the fail-closed rule of ADR 2026-10-09
+  /// *Open*: an install the server has registered is never read as *not
+  /// registered yet*. The ledger never writes it.
+  static const sessionDeviceId = 'rk.device.id';
+
+  /// Where this install's device keys stand (ADR 2026-10-09 §2), UTF-8:
+  /// [DeviceKeysState.none] from an ids-only first launch until S0.2's mint,
+  /// [DeviceKeysState.minting] while it runs, [DeviceKeysState.minted] after.
+  /// **Absent** means an install from before the ADR, whose keys were minted
+  /// at its first launch. It exists so a phone that has never held a device
+  /// key is not made to look for one: with no device-key class recorded, a
+  /// device-key read goes to the legacy biometric class
+  /// (`keychain_key_store.dart`), and the person would be asked for a
+  /// biometric to read a key that was never written. Not secret; promptless.
+  static const deviceKeysState = 'rk.ledger.device_keys';
+}
+
+/// The values of [LocalLedgerKeys.deviceKeysState].
+abstract final class DeviceKeysState {
+  /// Ids only: no device key has ever been written on this install.
+  static const none = 'none';
+
+  /// S0.2's mint began; seeds may be partly written.
+  static const minting = 'minting';
+
+  /// S0.2's mint finished.
+  static const minted = 'minted';
 }
 
 /// Whether `/otp/verify` has answered with the identity's own user id (ADR
@@ -52,13 +83,34 @@ abstract final class LocalLedgerKeys {
 /// landed — never reads as confirmed.
 final class IdentityState {
   /// Creates the record.
-  const IdentityState({required this.userId, required this.confirmed});
+  const IdentityState({
+    required this.userId,
+    required this.confirmed,
+    this.existingAccount = false,
+    this.umkAdopted = false,
+  });
 
   /// The user id the record speaks for.
   final String userId;
 
   /// True once signup echoed [userId].
   final bool confirmed;
+
+  /// True when [userId] was adopted from `/otp/verify` naming an account the
+  /// phone number already has (ADR 2026-10-04b §3, C-04b-4): this install is
+  /// a further device of that account, so S0.2's mint makes device seeds
+  /// only and never a UMK (ADR 2026-10-09 §2). Stored as an extra field, so
+  /// a build that predates it reads the record exactly as before.
+  final bool existingAccount;
+
+  /// True once a further device of an existing account ([existingAccount])
+  /// has adopted that account's UMK (rung 3 today; link and key sync at M8).
+  /// From then on its wrapped UMK is something it *had*: a reopen that
+  /// finds it (or a device seed) missing is keys lost, never *not
+  /// registered yet* (ADR 2026-10-09 *Open*; review finding KEY168B-3). The
+  /// [existingAccount] flag itself stays, so S0.2's mint can never make a
+  /// second UMK for the account. Stored as an extra field, as that one is.
+  final bool umkAdopted;
 
   static const _provisional = 'provisional';
   static const _confirmed = 'confirmed';
@@ -69,6 +121,8 @@ final class IdentityState {
       jsonEncode({
         'user_id': userId,
         'state': confirmed ? _confirmed : _provisional,
+        if (existingAccount) 'existing_account': true,
+        if (umkAdopted) 'umk_adopted': true,
       }),
     ),
   );
@@ -87,7 +141,12 @@ final class IdentityState {
     final user = j['user_id'], state = j['state'];
     if (user is! String || !Uuid16.isCanonical(user)) return null;
     if (state != _provisional && state != _confirmed) return null;
-    return IdentityState(userId: user, confirmed: state == _confirmed);
+    return IdentityState(
+      userId: user,
+      confirmed: state == _confirmed,
+      existingAccount: j['existing_account'] == true,
+      umkAdopted: j['umk_adopted'] == true,
+    );
   }
 }
 
@@ -146,8 +205,9 @@ final class LedgerIdentity {
 }
 
 /// The identity `LocalLedger` wrote at first run, read without opening the
-/// ledger. Null on an install that has never bootstrapped one — which is
-/// every install until `LocalLedger.bootstrapSolo()` has run once.
+/// ledger. Null on an install that has never opened one — which is every
+/// install until `LocalLedger.openIdentity()` (or `bootstrapSolo()`) has run
+/// once.
 Future<LedgerIdentity?> readStoredIdentity(KeyStore keys) async {
   final raw = await keys.read(LocalLedgerKeys.identity);
   return raw == null ? null : LedgerIdentity.decode(raw);

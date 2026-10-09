@@ -9,11 +9,14 @@
 //     → sign nonce ‖ uuid16(device_id) ‖ i64be(unix_ts) with the device Ed25519 key
 //     → access JWT (15 min) + rotating refresh token (30-day idle cap)
 //
-// Device keys are generated once through the injected [CryptoSuite] (libsodium
-// CSPRNG, rule 7) and rest as 32-byte seeds in the [KeyStore] under
-// [KeyIds.deviceSigningKey] / [KeyIds.deviceAgreementKey] — biometric-bound
-// on the platform store (ADR 2026-09-05d §4). An existing seed is reused, so a
-// reinstall on the same iPhone is the same device (06 §5 Keychain remnant).
+// Device keys are minted by the LEDGER, inside S0.2, in one idempotent step
+// immediately before `POST devices` ([DeviceKeyMint], ADR 2026-10-09 §2 🔒) —
+// with the UMK and its wrap for a new account, so no key exists that the UMK
+// was never wrapped to. They rest as 32-byte seeds in the [KeyStore] under
+// [KeyIds.deviceSigningKey] / [KeyIds.deviceAgreementKey], in the
+// non-biometric device-key class (ADR 2026-10-06 §1). This client only reads
+// them: it never mints a seed, and with none held it fails closed. A retried
+// POST reuses the seeds the ledger holds (06 §5 Keychain remnant).
 //
 // The clock is injected (rule 3). Nothing here logs a phone number, a code,
 // a token or a body (rule 4): [log] receives fixed event names only.
@@ -205,7 +208,7 @@ final class NoDeviceIdentity implements Exception {
 
   @override
   String toString() =>
-      'NoDeviceIdentity: LocalLedger.bootstrapSolo() must run before activateDevice()';
+      'NoDeviceIdentity: LocalLedger.openIdentity() must run before activateDevice()';
 }
 
 /// Exposes the min-version gate to screens (S0.2, S19.1) without widening
@@ -293,6 +296,7 @@ final class HttpAuthClient
     Future<String?> Function()? userIdSource,
     this.certifier,
     this.signupIdentity,
+    this.keyMint,
   }) : endpoints = AuthEndpoints(baseUrl),
        _log = log ?? _noLog,
        _deviceIdSource =
@@ -339,6 +343,13 @@ final class HttpAuthClient
   /// (a guarded ledger then authors nothing, which fails closed) and a taken
   /// id is not retried.
   SignupIdentity? signupIdentity;
+
+  /// The ledger's S0.2 key step (ADR 2026-10-09 §2 🔒), run once immediately
+  /// before `POST devices`. Settable for the same reason [certifier] is — the
+  /// composition root binds the ledger straight after building it. Null ⇒
+  /// nothing is minted here either: activation registers seeds the store
+  /// already holds, or fails closed with none.
+  DeviceKeyMint? keyMint;
 
   /// Where this device's id comes from: the ledger identity in the same key
   /// store by default (ADR 2026-09-16 §1). Injected only so a test can pin
@@ -882,11 +893,32 @@ final class HttpAuthClient
       if (account != 'created' &&
           answered is String &&
           Uuid16.isCanonical(answered)) {
+        // ADR 2026-10-04b §3 (C-04b-4): this install is a further device of
+        // that account, and takes its id before anything is authored. A
+        // ledger that refuses (confirmed, or written under) keeps its own;
+        // the answer to the screen is the same either way.
+        try {
+          await signupIdentity?.adoptExistingAccount(answered);
+        } on IdentityNotProvisional {
+          _log('otp_existing_account_not_adopted');
+        }
         _log('otp_existing_account');
         return const OtpHasBooks();
       }
       _log('otp_user_id_mismatch');
       throw const AuthFailure(AuthFailureKind.unavailable);
+    }
+    if (signupIdentity?.awaitingAccountUmk ?? false) {
+      // ADR 2026-10-04b §3 (review finding KEY168B-1): the echo names the
+      // existing account this install adopted on an earlier verify, and it
+      // holds none of that account's UMK. It is the same *has books* answer
+      // as the first time — nothing confirmed, nothing stored, no device
+      // registered — so S0.2 never reaches activation or new-books
+      // onboarding with no UMK. 06 §5: OTP → §3 → link (or recovery).
+      _pendingPhone = null;
+      _pendingPurpose = null;
+      _log('otp_existing_account');
+      return const OtpHasBooks();
     }
     await _confirmAndStore(userId);
     _pendingPhone = null;
@@ -980,6 +1012,10 @@ final class HttpAuthClient
     if (deviceId == null || !Uuid16.isCanonical(deviceId)) {
       throw const NoDeviceIdentity();
     }
+    // ADR 2026-10-09 §2 🔒: the ledger mints (or, on a retry, reuses) the
+    // seeds — and a new account's UMK — in one step, immediately before the
+    // POST. This client mints nothing.
+    await keyMint?.mintForRegistration();
     final pair = await _deviceKeys();
     try {
       final r = await _post(endpoints.devices, {
@@ -1219,18 +1255,18 @@ final class HttpAuthClient
 
   // --- device keys (04 §3.3) ------------------------------------------------
 
+  /// The device pair from the seeds the ledger minted (ADR 2026-10-09 §2
+  /// 🔒). Never mints: with either seed absent it fails closed —
+  /// [AuthFailureKind.unavailable], nothing sent, nothing written.
   Future<_DeviceKeys> _deviceKeys() async {
     final s = _suite.sodium;
-    var edSeed = await _keys.read(KeyIds.deviceSigningKey);
-    var xSeed = await _keys.read(KeyIds.deviceAgreementKey);
+    final edSeed = await _keys.read(KeyIds.deviceSigningKey);
+    final xSeed = await _keys.read(KeyIds.deviceAgreementKey);
     if (edSeed == null || xSeed == null) {
       if (edSeed != null) zeroise(edSeed);
       if (xSeed != null) zeroise(xSeed);
-      edSeed = _suite.randomBytes(s.crypto.sign.seedBytes);
-      xSeed = _suite.randomBytes(s.crypto.box.seedBytes);
-      await _keys.write(KeyIds.deviceSigningKey, edSeed);
-      await _keys.write(KeyIds.deviceAgreementKey, xSeed);
-      _log('device_keys_generated');
+      _log('device_keys_absent');
+      throw const AuthFailure(AuthFailureKind.unavailable);
     }
     final edSecure = s.secureCopy(edSeed);
     final xSecure = s.secureCopy(xSeed);

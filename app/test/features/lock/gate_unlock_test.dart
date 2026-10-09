@@ -228,7 +228,7 @@ void main() {
       final root = File('lib/bootstrap.dart').readAsStringSync();
       final seal = root.indexOf('if (!await keys.unsealIfNoPin())');
       final gate = root.indexOf('ColdStartGate(');
-      final open = root.indexOf('identity = await ledger.bootstrapSolo()');
+      final open = root.indexOf('await ledger.openIdentity()');
       final migrate = root.indexOf('await keys.migrateAfterUnlock()');
       expect(seal, greaterThan(0));
       expect(gate, greaterThan(seal));
@@ -247,7 +247,7 @@ void main() {
           'attempt: (reason) =>\n                  biometricGate.openAtColdStart(reason: reason)',
         ),
       );
-      expect(root, contains('open: () => ledger.bootstrapSolo()'));
+      expect(root, contains('open: () => ledger.openIdentity()'));
       expect(root, contains('biometricGate.admitOnce()'));
       expect(root, contains('biometrics: biometricGate'));
       // Nothing before the gate reads a device key: the only device-key

@@ -478,7 +478,8 @@ void main() {
         expect(root, contains('Future<void> bootstrap() async {'));
         final hosts = RegExp(
           r'final\s+app\s*=\s*GuardianStandingHost\(\s*trust:\s*trust\s*,\s*'
-          r'subjectUserId:\s*identity\.userId\s*,\s*'
+          // ADR 2026-10-09 §1 🔒: the live id, read at use, never captured.
+          r'subjectUserIdOf:\s*identity\.userId\s*,\s*'
           r'guardians:\s*guardians\s*,\s*child:\s*(\w+)\s*,?\s*\)',
         ).allMatches(root).toList();
         expect(
@@ -506,10 +507,23 @@ void main() {
         // …and `app` is what the scope tree around it receives (F1-24b-3
         // pins the CeremonyScope that does).
         expect(RegExp(r'\bchild:\s*app\s*,').allMatches(root), hasLength(1));
+        // ADR 2026-10-09 §1 🔒: the host makes one standing per subject — at
+        // first build, and again when the live id moves — and disposes the
+        // one it replaces. Every call is the host's own; none is undisposed.
+        final hostState = RegExp(
+          r'class _GuardianStandingHostState\b[\s\S]*?\n}\n',
+        ).firstMatch(root);
+        expect(hostState, isNotNull);
+        final calls = RegExp(r'trustStoreGuardianStanding\(');
         expect(
-          RegExp(r'trustStoreGuardianStanding\(').allMatches(root),
-          hasLength(1),
-          reason: 'the host’s own call — no second, undisposed standing',
+          calls.allMatches(root).length,
+          calls.allMatches(hostState![0]!).length,
+          reason: 'the host’s own calls — no standing made outside it',
+        );
+        expect(
+          hostState[0],
+          allOf(contains('old.dispose()'), contains('_standing.dispose()')),
+          reason: 'the replaced standing and the last one are both disposed',
         );
         expect(
           RegExp(r'final\s+trust\s*=\s*eng\.RecordTrustStore\(').hasMatch(root),
@@ -517,7 +531,8 @@ void main() {
           reason: '`trust` is the engine’s store, not a stand-in',
         );
         expect(
-          RegExp(r'eng\.SyncEngine\([^;]*\btrust:\s*trust\s*,').hasMatch(root),
+          RegExp(r'eng\.SyncEngine(\.late)?\([^;]*\btrust:\s*trust\s*,')
+              .hasMatch(root),
           isTrue,
           reason: 'the same store the engine files guardian sets into',
         );

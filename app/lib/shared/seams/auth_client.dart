@@ -127,9 +127,11 @@ enum AuthFailureKind {
   /// The code was right, but the number already belongs to an account and
   /// this install's provisional identity is not that account's (ADR
   /// 2026-10-04b §3 🔒 — a further device of an existing user, 06 §5). Nothing
-  /// was stored and no device was registered; adopting the account's id is
-  /// link or recovery work (C-04b-4, M8). Not an oracle: it is answered only
-  /// after a correct code (ADR 04b §3, 06 §2).
+  /// was stored in the session and no device was registered; the ledger
+  /// adopted the account's id before answering ([SignupIdentity
+  /// .adoptExistingAccount], C-04b-4), and its UMK arrives only by link or
+  /// recovery. Not an oracle: it is answered only after a correct code (ADR
+  /// 04b §3, 06 §2).
   existingAccount,
 
   /// `signup/adopt` refused the [SignupTicket] (expired, spent or unknown):
@@ -159,6 +161,40 @@ abstract interface class SignupIdentity {
   /// id. Throws [IdentityNotProvisional] when the identity is confirmed or
   /// anything has been authored under it.
   Future<String> remintProvisionalIdentity();
+
+  /// ADR 2026-10-04b §3 (C-04b-4): `/otp/verify` named [userId], an account
+  /// the phone number already has. The install becomes a further device of
+  /// that account **before anything is authored**: it drops its provisional
+  /// user and tenant ids (and any UMK minted with them), keeps its device id
+  /// and any device seeds, and stays provisional. A later `/otp/verify`
+  /// echoing [userId] does not confirm it while [awaitingAccountUmk]: the
+  /// device joins by link or recovery, whose registration mints device seeds
+  /// only (ADR 2026-10-09 §2). Throws [IdentityNotProvisional]
+  /// when the identity is confirmed or anything has been authored under it.
+  Future<void> adoptExistingAccount(String userId);
+
+  /// True while this install is a further device of an existing account
+  /// ([adoptExistingAccount], C-04b-4) that holds none of that account's
+  /// UMK yet. A later `/otp/verify` echoing the adopted id is then that
+  /// account's sign-in on a new phone (06 §5 *New phone, has old device*:
+  /// OTP → §3 → link), answered as *has books* — never confirmed, never
+  /// registered and never sent into new-books onboarding, because the UMK
+  /// arrives only through link, recovery or key sync (ADR 2026-10-04b §3).
+  bool get awaitingAccountUmk;
+}
+
+/// S0.2's key step (ADR 2026-10-09 §2 🔒), run by `features/auth`
+/// immediately before `POST /devices`. `LocalLedger` implements it: in one
+/// idempotent ledger step it creates the device's signing and agreement
+/// seeds and — for a **new** account only — the UMK and its local wrap, all
+/// straight into the non-biometric device-key class (ADR 2026-10-06 §1). A
+/// device signing in to an existing account gets seeds only (ADR 2026-10-04b
+/// §3). A retried POST reuses the seeds already held, so no key exists that
+/// the UMK was never wrapped to. The auth client never mints a seed itself.
+abstract interface class DeviceKeyMint {
+  /// Makes sure this device's registration keys rest in the key store, minting
+  /// only what is missing. Throws when the ledger is not open.
+  Future<void> mintForRegistration();
 }
 
 /// A re-mint was asked of an identity that is no longer provisional: it was

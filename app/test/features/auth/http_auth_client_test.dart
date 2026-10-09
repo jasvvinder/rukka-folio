@@ -5,16 +5,20 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:core_crypto/core_crypto.dart';
+import 'package:core_ledger/core_ledger.dart' show BookType;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/features/auth/auth_transport.dart';
 import 'package:rukka_folio/features/auth/http_auth_client.dart';
 import 'package:rukka_folio/shared/ledger/device_certification.dart';
 import 'package:rukka_folio/shared/ledger/ledger_identity.dart';
+import 'package:rukka_folio/shared/ledger/local_ledger.dart'
+    show IdentityNotConfirmed, LocalLedger;
 import 'package:rukka_folio/shared/records/device_added_record.dart';
 import 'package:rukka_folio/shared/records/device_record_author.dart';
 import 'package:rukka_folio/shared/seams/auth_client.dart';
 import 'package:rukka_folio/shared/seams/key_store.dart';
 
+import '../../shared/test_app.dart' show openTestDb, testNow;
 import '../devices/crypto_helpers.dart';
 
 /// Records every request and answers from a scripted table keyed by the
@@ -24,6 +28,9 @@ final class ScriptedTransport implements AuthTransport {
       <({Uri url, Map<String, String> headers, Map<String, Object?> body})>[];
   final Map<String, List<AuthHttpResponse>> script = {};
   bool offline = false;
+
+  /// Runs as `POST devices` is sent — what had happened by then.
+  void Function()? beforeDevices;
 
   void on(String path, AuthHttpResponse r) => (script[path] ??= []).add(r);
 
@@ -43,6 +50,7 @@ final class ScriptedTransport implements AuthTransport {
     required String body,
   }) async {
     if (offline) throw const AuthTransportException();
+    if (url.path.endsWith('/devices')) beforeDevices?.call();
     requests.add((
       url: url,
       headers: headers,
@@ -123,6 +131,45 @@ final class FakeSignupIdentity implements SignupIdentity {
     reminted++;
     await seedLedgerIdentity(keys, user: remintedUserId);
     return remintedUserId;
+  }
+
+  /// Ids adopted (ADR 2026-10-04b §3), in order.
+  final adopted = <String>[];
+
+  @override
+  Future<void> adoptExistingAccount(String userId) async {
+    if (confirmed) throw const IdentityNotProvisional();
+    adopted.add(userId);
+    await seedLedgerIdentity(keys, user: userId);
+  }
+
+  /// As the ledger answers it: an adopted account, and (a fake holds none)
+  /// no UMK of it.
+  @override
+  bool get awaitingAccountUmk => adopted.isNotEmpty;
+}
+
+/// The ledger's S0.2 key step as the auth client sees it ([DeviceKeyMint],
+/// ADR 2026-10-09 §2). The real one is `LocalLedger.mintForRegistration`
+/// (`test/shared/ledger/late_bound_keys_test.dart`, and the C-1009-2 tests
+/// below over a real ledger); this one writes seeds from the suite the same
+/// way — reusing any already held — and counts the asks.
+final class FakeKeyMint implements DeviceKeyMint {
+  FakeKeyMint(this.keys, this.suite);
+
+  final FakeKeyStore keys;
+  final CryptoSuite suite;
+  int asked = 0;
+
+  @override
+  Future<void> mintForRegistration() async {
+    asked++;
+    if (await keys.contains(KeyIds.deviceSigningKey) &&
+        await keys.contains(KeyIds.deviceAgreementKey)) {
+      return;
+    }
+    await keys.write(KeyIds.deviceSigningKey, suite.randomBytes(32));
+    await keys.write(KeyIds.deviceAgreementKey, suite.randomBytes(32));
   }
 }
 
@@ -287,20 +334,28 @@ void main() {
   late FakeKeyStore keys;
   late TestClock clock;
   late List<String> log;
+  late FakeKeyMint mint;
 
-  Future<HttpAuthClient> client({DeviceCertifier? certifier}) async =>
-      HttpAuthClient(
-        transport: t,
-        suite: await liveSuite(),
-        keys: keys,
-        now: clock.call,
-        baseUrl: Uri.parse('https://api.test/functions/v1/'),
-        clientVersion: '1.2.0',
-        deviceModel: 'Pixel 8',
-        deviceOs: 'Android 15',
-        log: log.add,
-        certifier: certifier,
-      );
+  Future<HttpAuthClient> client({
+    DeviceCertifier? certifier,
+    bool bindMint = true,
+  }) async {
+    final suite = await liveSuite();
+    mint = FakeKeyMint(keys, suite);
+    return HttpAuthClient(
+      transport: t,
+      suite: suite,
+      keys: keys,
+      now: clock.call,
+      baseUrl: Uri.parse('https://api.test/functions/v1/'),
+      clientVersion: '1.2.0',
+      deviceModel: 'Pixel 8',
+      deviceOs: 'Android 15',
+      log: log.add,
+      certifier: certifier,
+      keyMint: bindMint ? mint : null,
+    );
+  }
 
   void scriptHappyPath() {
     t.on(
@@ -555,10 +610,12 @@ void main() {
   });
 
   group('HttpAuthClient — 06 §3 registration, 06 §4 sessions', () {
-    test('C-06-9 activateDevice generates Ed25519 + X25519 seeds via the suite into KeyIds, registers with ticket + public keys + model/os, then signs nonce ‖ device_id ‖ unix_ts with the device key and opens an uncertified Active session', () async {
+    test('C-06-9 activateDevice asks the ledger\'s S0.2 step for the Ed25519 + X25519 seeds in KeyIds (ADR 2026-10-09 §2 — re-read: it no longer mints them itself), registers with ticket + public keys + model/os, then signs nonce ‖ device_id ‖ unix_ts with the device key and opens an uncertified Active session', () async {
       final c = await client();
       scriptHappyPath();
+      t.beforeDevices = () => expect(mint.asked, 1, reason: 'before POST');
       final s = await activate(c);
+      expect(mint.asked, 1);
 
       expect(s.deviceId, deviceId);
       expect(s.userId, 'u-1');
@@ -702,7 +759,9 @@ void main() {
       await activate(c2);
       expect(await keys.read(KeyIds.deviceSigningKey), edBefore);
       expect(keys.writes.where((w) => w == KeyIds.deviceSigningKey).length, 1);
-      expect(log.where((e) => e == 'device_keys_generated').length, 1);
+      // Written once, by the ledger's step (ADR 2026-10-09 §2) — never by
+      // this client.
+      expect(log, isNot(contains('device_keys_generated')));
 
       final c3 = await client();
       expect(c3.current, isA<SignedOut>());
@@ -1965,10 +2024,11 @@ void main() {
       expect(await keys.contains(SessionItems.userId), isFalse);
     });
 
-    test('C-04b-2 ADR 04b §3: a verify that answers ANOTHER account\'s user_id '
-        'surfaces existingAccount — the foreign id is not stored, the identity '
-        'is not confirmed, no device is registered, and the spent code is '
-        'forgotten', () async {
+    test('C-04b-2 C-04b-4 ADR 04b §3: a verify that answers ANOTHER account\'s '
+        'user_id surfaces existingAccount — the ledger adopts that id before '
+        'anything is authored (C-04b-4), the session stores nothing, the '
+        'identity is not confirmed, no device is registered, and the spent '
+        'code is forgotten', () async {
       final c = await signupClient();
       scriptRequest();
       t.on('/otp/verify', ScriptedTransport.ok(verified(existingUserId)));
@@ -1987,10 +2047,11 @@ void main() {
       expect(identity.reminted, 0);
       expect(await keys.contains(SessionItems.userId), isFalse);
       expect(t.count('/devices'), 0);
+      expect(identity.adopted, [existingUserId]);
       expect(
         (await readStoredIdentity(keys))!.userId,
-        ledgerUserId,
-        reason: 'the provisional identity is not adopted over (C-04b-4, M8)',
+        existingUserId,
+        reason: 'the account\'s id, adopted through the ledger (C-04b-4)',
       );
       await expectLater(
         c.verifyOtp(code),
@@ -2282,5 +2343,205 @@ void main() {
       );
       expect(t.requests, isEmpty);
     });
+  });
+
+  group('C-1009-2 S0.2 mints through the ledger, never in the auth client '
+      '(ADR 2026-10-09 §2)', () {
+    /// The production ledger (guard on) over this suite's key store, opened
+    /// the way the composition root opens it: ids only.
+    Future<LocalLedger> realLedger() async {
+      keys = FakeKeyStore();
+      final l = LocalLedger(
+        db: await openTestDb(),
+        keys: keys,
+        suite: await liveSuite(),
+        now: testNow,
+        requireConfirmedIdentity: true,
+      );
+      addTearDown(l.dispose);
+      await l.openIdentity();
+      return l;
+    }
+
+    Future<HttpAuthClient> over(LocalLedger l) async {
+      final c = await client(certifier: l, bindMint: false);
+      c.signupIdentity = l;
+      c.keyMint = l;
+      return c;
+    }
+
+    void scriptFor(LocalLedger l, {String? echo}) {
+      final id = l.identity;
+      t.on(
+        '/otp/request',
+        ScriptedTransport.ok({'ok': true, 'resend_after_s': 30}),
+      );
+      t.on(
+        '/otp/verify',
+        ScriptedTransport.ok({
+          'ticket': 'tk-1',
+          'user_id': echo ?? id.userId,
+          'expires_in_s': 600,
+        }),
+      );
+      t.on(
+        '/devices',
+        ScriptedTransport.ok({
+          'device_id': id.deviceId,
+          'user_id': id.userId,
+          'status': 'registered',
+        }),
+      );
+      t.on(
+        '/challenge',
+        ScriptedTransport.ok({
+          'nonce': Bytes.base64Url(nonce),
+          'expires_in_s': 60,
+        }),
+      );
+      t.on('/token', ScriptedTransport.ok(sessionBody('acc-1', 'ref-1')));
+    }
+
+    test('C-1009-2 with no ledger step bound and no seeds held, activation '
+        'fails closed before POST devices and the client writes no seed — '
+        'it never mints its own', () async {
+      final c = await client(bindMint: false);
+      scriptHappyPath();
+      await c.requestOtp(phone);
+      final ticket = await c.verifyOtp(code);
+      keys.writes.clear();
+      await expectLater(
+        c.activateDevice(ticket),
+        throwsA(
+          isA<AuthFailure>().having(
+            (f) => f.kind,
+            'kind',
+            AuthFailureKind.unavailable,
+          ),
+        ),
+      );
+      expect(t.count('/devices'), 0);
+      expect(keys.writes, isNot(contains(KeyIds.deviceSigningKey)));
+      expect(keys.writes, isNot(contains(KeyIds.deviceAgreementKey)));
+      expect(log, contains('device_keys_absent'));
+    });
+
+    test('C-1009-2 a new account: the ledger mints the seeds and the UMK '
+        'exactly when S0.2 activates — none before verify, all before POST '
+        'devices — the registered public keys are the ledger device\'s, the '
+        'device certifies under that UMK, and a retried POST reuses the '
+        'same keys', () async {
+      final l = await realLedger();
+      final c = await over(l);
+      scriptFor(l);
+      await c.requestOtp(phone);
+      final ticket = await c.verifyOtp(code);
+      expect(l.identityConfirmed, isTrue);
+      expect(l.keysRegistered, isFalse, reason: 'nothing minted at verify');
+      expect(await keys.contains(KeyIds.wrappedUmk), isFalse);
+
+      // The first POST dies on the wire; the retry must send the same keys.
+      t.script['/devices']!.insert(0, const AuthHttpResponse(500, ''));
+      t.beforeDevices = () => expect(l.keysRegistered, isTrue);
+      await expectLater(c.activateDevice(ticket), throwsA(anything));
+      final firstEd = t.last('/devices')['pub_ed'];
+      final session = await c.activateDevice(ticket);
+
+      expect(session.deviceId, l.identity.deviceId);
+      final reg = t.last('/devices');
+      expect(reg['pub_ed'], firstEd);
+      expect(
+        Bytes.fromBase64Url(reg['pub_ed'] as String),
+        l.keyMaterial.device.public.ed25519,
+      );
+      expect(
+        Bytes.fromBase64Url(reg['pub_x'] as String),
+        l.keyMaterial.device.public.x25519,
+      );
+      expect(await keys.contains(KeyIds.wrappedUmk), isTrue);
+      expect(l.keyMaterial.verifiedUmkOf(l.identity.userId), isNotNull);
+      expect(t.count('/devices/certify'), 1);
+      expect(log, isNot(contains('device_keys_generated')));
+    });
+
+    test(
+      'C-04b-4 C-1009-2 a fresh install signing in to an existing account '
+      'adopts the account\'s user id before any authoring; a second verify '
+      'echoing that id is HAS BOOKS again — never confirmed, never '
+      'registered, no key minted, no new-books onboarding — so the UMK can '
+      'only come by link or recovery (06 §5; review finding KEY168B-1)',
+      () async {
+        final l = await realLedger();
+        final provisional = l.identity;
+        final c = await over(l);
+        scriptFor(l, echo: existingUserId);
+        await c.requestOtp(phone);
+        expect(await c.checkOtp(code), isA<OtpHasBooks>());
+
+        expect(l.identity.userId, existingUserId);
+        expect(l.identity.deviceId, provisional.deviceId);
+        expect(l.identityConfirmed, isFalse);
+        expect(await l.mirror.bookIds(), isEmpty);
+        expect(await keys.contains(SessionItems.userId), isFalse);
+        expect(t.count('/devices'), 0);
+
+        // The account's own sign-in, later: the echo now names this install.
+        t.on(
+          '/otp/verify',
+          ScriptedTransport.ok({
+            'ticket': 'tk-2',
+            'user_id': existingUserId,
+            'account': 'existing',
+            'expires_in_s': 600,
+          }),
+        );
+        t.script['/otp/verify']!.removeAt(0);
+        expect(l.awaitingAccountUmk, isTrue);
+        await c.requestOtp(phone);
+        final out = await c.checkOtp(code);
+        expect(out, isA<OtpHasBooks>());
+        expect(
+          t.last('/otp/verify')['user_id'],
+          existingUserId,
+          reason: 'the second verify really proposed the adopted id',
+        );
+        expect(l.identityConfirmed, isFalse);
+        expect(l.identity.userId, existingUserId);
+        expect(await keys.contains(SessionItems.userId), isFalse);
+        expect(t.count('/devices'), 0);
+        expect(await keys.contains(KeyIds.deviceSigningKey), isFalse);
+        expect(await keys.contains(KeyIds.wrappedUmk), isFalse);
+        expect(l.keysRegistered, isFalse);
+        // Nothing can be authored: new-books onboarding is never reached, and
+        // had it been, the ledger would refuse.
+        await expectLater(
+          l.createBook(name: 'Ghar', type: BookType.personal),
+          throwsA(isA<IdentityNotConfirmed>()),
+        );
+        // And the door-blind form says the same.
+        t.on(
+          '/otp/verify',
+          ScriptedTransport.ok({
+            'ticket': 'tk-3',
+            'user_id': existingUserId,
+            'account': 'existing',
+            'expires_in_s': 600,
+          }),
+        );
+        t.script['/otp/verify']!.removeAt(0);
+        await c.requestOtp(phone);
+        await expectLater(
+          c.verifyOtp(code),
+          throwsA(
+            isA<AuthFailure>().having(
+              (e) => e.kind,
+              'kind',
+              AuthFailureKind.existingAccount,
+            ),
+          ),
+        );
+        expect(l.identityConfirmed, isFalse);
+      },
+    );
   });
 }

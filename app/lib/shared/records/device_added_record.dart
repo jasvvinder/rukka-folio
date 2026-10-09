@@ -80,16 +80,35 @@ final class DeviceAddedRecorder implements DeviceAddedAnnouncer {
   /// thing left undone, not something guessed at here.
   const DeviceAddedRecorder({
     required this.author,
-    required this.tenantId,
+    required String tenantId,
     required this.post,
     void Function(String event)? log,
-  }) : _log = log ?? _noLog;
+  }) : _tenantId = tenantId, // ignore: prefer_initializing_formals
+       _tenantIdOf = null,
+       _log = log ?? _noLog;
+
+  /// The recorder reading the tenant at each announcement (ADR 2026-10-09
+  /// §1 🔒): the composition root's, so a C-04b-3 re-mint or a C-04b-4
+  /// adoption before registration files the record in the install's tenant
+  /// as it is when the device certifies, never as it was at launch.
+  const DeviceAddedRecorder.late({
+    required this.author,
+    required String Function() tenantIdOf,
+    required this.post,
+    void Function(String event)? log,
+  }) : _tenantId = null,
+       // ignore: prefer_initializing_formals
+       _tenantIdOf = tenantIdOf,
+       _log = log ?? _noLog;
 
   /// Signs under this device's Ed25519 key (04 §3.3, 04 §8.3).
   final MembersRecordAuthor author;
 
-  /// The tenant the record belongs to.
-  final String tenantId;
+  final String? _tenantId;
+  final String Function()? _tenantIdOf;
+
+  /// The tenant the record belongs to, as of this read.
+  String get tenantId => _tenantIdOf?.call() ?? _tenantId!;
 
   /// Where a signed record goes (05 §5).
   final PostRecords post;

@@ -6,11 +6,13 @@
 // `ServerMembersRepository` declares [MembersRecordAuthor] and deliberately
 // takes it as nullable: with no author it refuses `invite()`, `reinvite()` and
 // `setAutoPostLimit()` with [MembersRefusal.unauthorized] rather than pretend
-// to write. This file is the author that makes those calls possible — and
-// [DeviceRecordAuthor.ifAvailable] is how the refusal stays reachable: it
-// returns **null** when this device holds no Ed25519 signing key or no device
-// id, so a device that cannot sign is wired with no author at all rather than
-// with one that throws halfway through an invite.
+// to write. This file is the author that makes those calls possible. It reads
+// the device id and the Ed25519 seed at every signature, never in its
+// constructor, so the composition root builds it at launch — before S0.2 has
+// minted any key (ADR 2026-10-09 §1 🔒) — and each signature refuses with the
+// same [MembersRefusal.unauthorized] until the device has registered, before
+// anything is built. [DeviceRecordAuthor.ifAvailable] (null when the device
+// cannot sign now) remains for callers whose device cannot change.
 //
 // The payload is encoded here and the exact bytes encoded are the exact bytes
 // signed and the exact bytes sent (rule 6: nothing re-serialises them, so a

@@ -1,6 +1,7 @@
 // ADR 2026-10-04b §2 🔒 — the first-run identity is provisional until signup
-// answers with it. `_firstRun` mints device, user and tenant ids, the device
-// keys and a UMK before the network is reached; until `/otp/verify` has echoed
+// answers with it. `_firstRun` mints device, user and tenant ids before the
+// network is reached (the keys follow inside S0.2, ADR 2026-10-09 §2;
+// `bootstrapSolo` runs both at once); until `/otp/verify` has echoed
 // that same `user_id`, the install authors nothing under them. The guard is
 // switched on by the composition root (`requireConfirmedIdentity`, pinned in
 // `test/shared/sync/bootstrap_wiring_test.dart`); every other suite keeps
@@ -238,9 +239,11 @@ void main() {
   });
 
   group('C-04b-3 a taken user id is re-minted once (ADR 2026-10-04b §2)', () {
-    test('C-04b-3 remintProvisionalIdentity mints a fresh user id, tenant id '
-        'and UMK, keeps the device id and device keys (ADR 2026-09-16 §1), '
-        'rewrites the stored identity and stays provisional', () async {
+    test('C-04b-3 remintProvisionalIdentity mints a fresh user id and tenant '
+        'id — ids only (ADR 2026-10-09 §2: before S0.2 there is no UMK to '
+        're-wrap) — keeps the device id and any device seeds (ADR 2026-09-16 '
+        '§1), rewrites the stored identity and stays provisional; S0.2\'s '
+        'mint then makes the UMK for the fresh user', () async {
       final db = await openTestDb();
       final l = await _guarded(keys, db: db);
       final old = await l.bootstrapSolo();
@@ -256,11 +259,11 @@ void main() {
       expect(l.identity.tenantId, isNot(old.tenantId));
       expect(Uuid16.isCanonical(l.identity.tenantId), isTrue);
       expect(l.identity.deviceId, old.deviceId);
-      expect(l.keyMaterial.device.deviceId, old.deviceId);
       expect(await keys.read(KeyIds.deviceSigningKey), edSeed);
       expect(await keys.read(KeyIds.deviceAgreementKey), xSeed);
-      expect(l.keyMaterial.umk.public.ed25519, isNot(oldUmk));
-      expect(l.keyMaterial.verifiedUmkOf(fresh), isNotNull);
+      // No UMK is minted by a re-mint; the one held is dropped with its wrap.
+      expect(await keys.contains(KeyIds.wrappedUmk), isFalse);
+      expect(() => l.keyMaterial, throwsA(isA<LedgerKeysNotRegistered>()));
       expect(l.identityConfirmed, isFalse);
 
       final stored = await readStoredIdentity(keys);
@@ -271,7 +274,7 @@ void main() {
       // The re-minted identity is what a relaunch opens, still provisional,
       // and it confirms under the new id only.
       final again = await _guarded(keys, db: db);
-      await again.bootstrapSolo();
+      await again.openIdentity();
       expect(again.identity.userId, fresh);
       expect(again.identityConfirmed, isFalse);
       await expectLater(
@@ -280,12 +283,16 @@ void main() {
       );
       await again.confirmIdentity(fresh);
       expect(again.identityConfirmed, isTrue);
+      await again.mintForRegistration();
+      expect(again.keyMaterial.device.deviceId, old.deviceId);
+      expect(again.keyMaterial.umk.public.ed25519, isNot(oldUmk));
+      expect(again.keyMaterial.verifiedUmkOf(fresh), isNotNull);
     });
 
     test('C-04b-3 a re-mint never zeroises key material a holder borrowed '
         'before it (the sync guard): the old UMK is retired, the root is '
         'told once through onIdentityReminted, and dispose() zeroises the '
-        'retired UMK with the live one (review finding ID107C-3)', () async {
+        'retired UMK (review finding ID107C-3)', () async {
       final l = await _guarded(keys);
       await l.bootstrapSolo();
       final borrowed = l.keyMaterial;
@@ -297,12 +304,9 @@ void main() {
       expect(told, 1);
       expect(borrowed.umk.isDisposed, isFalse);
       expect(() => borrowed.umk.x25519Secret, returnsNormally);
-      final live = l.keyMaterial.umk;
-      expect(identical(live, borrowed.umk), isFalse);
 
       l.dispose();
       expect(borrowed.umk.isDisposed, isTrue);
-      expect(live.isDisposed, isTrue);
       expect(() => borrowed.umk.x25519Secret, throwsStateError);
     });
 

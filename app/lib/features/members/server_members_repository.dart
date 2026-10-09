@@ -199,10 +199,18 @@ final class ServerMembersRepository implements MembersRepository {
   /// integrator passes in (ARB `members.verified.someone` and
   /// `members.pending_books.someone`) for the case where a ceremony is
   /// believed but this device does not know the other person's name.
+  ///
+  /// The ids are read at use (ADR 2026-10-09 §1 🔒): the composition root
+  /// passes [tenantIdOf] / [userIdOf], which answer the install's ids **now**,
+  /// so a C-04b-3 re-mint or a C-04b-4 adoption is seen at the next call with
+  /// no rebuild. [tenantId] / [userId] fix them instead, for a caller whose
+  /// ids cannot change; one of each pair is required.
   ServerMembersRepository({
     required MembersApi api,
-    required this.tenantId,
-    required this.userId,
+    String? tenantId,
+    String? userId,
+    String Function()? tenantIdOf,
+    String Function()? userIdOf,
     required RecordBelief believes,
     required String unknownVerifierName,
     required String someoneToMeetName,
@@ -214,6 +222,8 @@ final class ServerMembersRepository implements MembersRepository {
     int maxPages = 50,
     InviteLinkOf? inviteLinkOf,
   }) : _server = api,
+       _tenantIdOf = tenantIdOf ?? _fixed(tenantId, 'tenantId'),
+       _userIdOf = userIdOf ?? _fixed(userId, 'userId'),
        _linkOf = inviteLinkOf ?? ((_) => null),
        _belief = believes,
        _unknownVerifier = unknownVerifierName,
@@ -240,11 +250,22 @@ final class ServerMembersRepository implements MembersRepository {
   /// binds none and a created invite carries no link.
   final InviteLinkOf _linkOf;
 
-  /// The tenant this instance shows.
-  final String tenantId;
+  static String Function() _fixed(String? id, String name) {
+    if (id == null) {
+      throw ArgumentError.notNull('$name (or ${name}Of)');
+    }
+    return () => id;
+  }
 
-  /// The signed-in user (06 §1: one number, one human, one account).
-  final String userId;
+  final String Function() _tenantIdOf;
+  final String Function() _userIdOf;
+
+  /// The tenant this instance shows — the install's, as of this read.
+  String get tenantId => _tenantIdOf();
+
+  /// The signed-in user (06 §1: one number, one human, one account), as of
+  /// this read.
+  String get userId => _userIdOf();
 
   final _controller = StreamController<MembersSnapshot>.broadcast();
   MembersSnapshot? _current;

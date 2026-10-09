@@ -30,10 +30,25 @@ import 'package:core_ledger/core_ledger.dart'
     show openAdvances, yearClosePreconditions;
 import 'package:data/data.dart';
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart'
+    show ChangeNotifier, Listenable, ValueListenable, VoidCallback;
 import 'package:sync_engine/sync_engine.dart'
-    show AcceptedBookKey, AcceptedKeySink, BookKeyStore, VerifiedUmkSource;
+    show
+        AcceptedBookKey,
+        AcceptedKeySink,
+        BookKeyStore,
+        DeviceIdentity,
+        DeviceIdentitySource,
+        DeviceKeyMaterial,
+        GuardKeys,
+        KeyMaterialSource,
+        KeysNotRegisteredYet,
+        NotRegisteredYet,
+        RegisteredIdentity,
+        VerifiedUmkSource;
 
-import '../seams/auth_client.dart' show IdentityNotProvisional, SignupIdentity;
+import '../seams/auth_client.dart'
+    show DeviceKeyMint, IdentityNotProvisional, SignupIdentity;
 import '../seams/key_store.dart';
 import '../seams/review_policy.dart';
 import 'device_certification.dart';
@@ -44,7 +59,12 @@ export '../seams/review_policy.dart' show ReviewPolicy, noReviewPolicy;
 export 'device_certification.dart'
     show DeviceCertOffer, DeviceCertifier, umkKeyVersionFirst;
 export 'ledger_identity.dart'
-    show IdentityState, LedgerIdentity, LocalLedgerKeys, readStoredIdentity;
+    show
+        DeviceKeysState,
+        IdentityState,
+        LedgerIdentity,
+        LocalLedgerKeys,
+        readStoredIdentity;
 export 'verified_members.dart'
     show
         VerificationPayload,
@@ -202,13 +222,28 @@ final class DeviceKeysMissing extends StateError {
   final bool deviceKeys;
 }
 
-/// The facade was used before [LocalLedger.bootstrapSolo] (or `open`).
+/// An authoring door, or [LocalLedger.keyMaterial], was reached before this
+/// device's keys exist (ADR 2026-10-09 §1 🔒): the ids are minted at first
+/// launch, the keys only inside S0.2 ([LocalLedger.mintForRegistration]). An
+/// explicit *not registered yet* answer — never a null key, never a zero key,
+/// and never *keys lost* ([DeviceKeysMissing], 03 §5). Nothing was written.
+/// Also raised on a further device of an existing account (ADR 2026-10-04b
+/// §3) that holds device keys and no UMK yet: it can sign nothing under a
+/// UMK it does not hold.
+final class LedgerKeysNotRegistered extends StateError {
+  /// Creates the refusal.
+  LedgerKeysNotRegistered()
+    : super('device keys not registered yet — S0.2 mints them');
+}
+
+/// The facade was used before [LocalLedger.openIdentity] (or
+/// [LocalLedger.bootstrapSolo]).
 final class LedgerNotOpen implements Exception {
   /// Creates the error.
   const LedgerNotOpen();
 
   @override
-  String toString() => 'LedgerNotOpen: call bootstrapSolo() first';
+  String toString() => 'LedgerNotOpen: call openIdentity() first';
 }
 
 /// The install's identity is still provisional (ADR 2026-10-04b §2 🔒):
@@ -1320,6 +1355,113 @@ final class _SharedKeySource implements KeySource {
       tenants[bookId] ?? store?.tenantIdOf(bookId);
 }
 
+// ── late binding (ADR 2026-10-09 §1 🔒) ───────────────────────────────────
+
+/// The ledger's change signal for [LocalLedger.bindingChanges].
+final class _BindingChanges extends ChangeNotifier {
+  void changed() => notifyListeners();
+}
+
+/// One of the install's ids, read from the ledger at every [value] — never
+/// a copy — and announced when a mint, re-mint or adoption changes it.
+final class _LiveId implements ValueListenable<String> {
+  const _LiveId(this._ledger, this._read);
+
+  final LocalLedger _ledger;
+  final String Function(LedgerIdentity id) _read;
+
+  /// The id now. Throws [LedgerNotOpen] once the ledger is disposed.
+  @override
+  String get value => _read(_ledger.identity);
+
+  @override
+  void addListener(VoidCallback listener) =>
+      _ledger._bindingChanges.addListener(listener);
+
+  @override
+  void removeListener(VoidCallback listener) =>
+      _ledger._bindingChanges.removeListener(listener);
+}
+
+/// The late-bound view of one [LocalLedger] (ADR 2026-10-09 §1 🔒): what
+/// the composition root hands to everything it builds once, so that nothing
+/// captures a key or an id in a constructor.
+///
+/// * As `sync_engine`'s [DeviceIdentitySource] and [KeyMaterialSource] it
+///   answers [NotRegisteredYet] / [KeysNotRegisteredYet] until S0.2's mint
+///   ([LocalLedger.mintForRegistration]) — an explicit answer, never a null
+///   or zero key — and the live ids and material after it. It is checked
+///   before any key is touched, and read inside each call, never once.
+/// * [userId], [tenantId] and [deviceId] are the ids **now**, with a change
+///   signal, for the holders that are not in `sync_engine` (the members
+///   repository, S11.1's roster, S11's guardians row).
+///
+/// Borrowed, like [LedgerKeyMaterial]: it holds the ledger, not a copy of
+/// any secret byte, so [LocalLedger.dispose] zeroises what a reader would
+/// get — and a disposed pair is refused by the guard rather than used.
+final class LedgerBinding implements DeviceIdentitySource, KeyMaterialSource {
+  LedgerBinding._(this._ledger)
+    : userId = _LiveId(_ledger, (id) => id.userId),
+      tenantId = _LiveId(_ledger, (id) => id.tenantId),
+      deviceId = _LiveId(_ledger, (id) => id.deviceId);
+
+  final LocalLedger _ledger;
+
+  /// This install's user id now (`created_by_user`, the subject of its own
+  /// revocations).
+  final ValueListenable<String> userId;
+
+  /// This install's tenant id now.
+  final ValueListenable<String> tenantId;
+
+  /// This install's device id (minted once, ADR 2026-09-16 §1).
+  final ValueListenable<String> deviceId;
+
+  /// Fires when anything this view answers changes.
+  Listenable get changes => _ledger._bindingChanges;
+
+  /// Whether S0.2's mint has run: the ledger is open and holds the device
+  /// pair. A further device of an existing account reads true with no UMK
+  /// (ADR 2026-10-04b §3); the guard then opens no `wrapped_keys` row.
+  bool get registered => _ledger.keysRegistered;
+
+  @override
+  DeviceIdentity currentIdentity() {
+    final id = _ledger._identity;
+    if (id == null || _ledger._device == null) return const NotRegisteredYet();
+    return RegisteredIdentity(
+      deviceId: id.deviceId,
+      userId: id.userId,
+      tenantId: id.tenantId,
+    );
+  }
+
+  @override
+  GuardKeys currentKeys() {
+    final l = _ledger;
+    final id = l._identity, device = l._device, store = l._keySource.store;
+    if (id == null || device == null || store == null) {
+      return const KeysNotRegisteredYet();
+    }
+    final umk = l._umk, own = l._umkVerified, others = l._verifiedMembers;
+    return DeviceKeyMaterial(
+      device: device,
+      umk: umk,
+      bookKeys: store,
+      verifiedUmks: umk == null || own == null || others == null
+          ? others
+          : LedgerKeyMaterial._(
+              userId: id.userId,
+              device: device,
+              umk: umk,
+              bookKeys: store,
+              ownUmk: own,
+              others: others,
+            ),
+    );
+  }
+}
+
 // ── inter-book movement (02 §6 🔒) ─────────────────────────────────────────
 
 /// Why an inter-book action was refused (02 §6 🔒). Typed like
@@ -1912,7 +2054,7 @@ StructuralEvent? decodeStructuralEvent(
 
 /// The local ledger.
 final class LocalLedger
-    implements DeviceCertifier, AcceptedKeySink, SignupIdentity {
+    implements DeviceCertifier, AcceptedKeySink, SignupIdentity, DeviceKeyMint {
   /// Creates the facade. [suite] is the app's libsodium binding wrapped in a
   /// [CryptoSuite]; [now] is the injected wall clock the HLC ticks against.
   LocalLedger({
@@ -1990,7 +2132,26 @@ final class LocalLedger
   DeviceCert? _ownCert;
   bool _umkPubsAccepted = false;
   bool _identityConfirmed = false;
+  bool _existingAccount = false;
+
+  /// [IdentityState.umkAdopted] for the open identity.
+  bool _existingUmkAdopted = false;
   Hlc _clock = const Hlc(0);
+  final _BindingChanges _bindingChanges = _BindingChanges();
+
+  /// The late-bound view of this install's ids and keys (ADR 2026-10-09 §1
+  /// 🔒) that the composition root hands to everything it builds once — the
+  /// sync engine, its guard and trust store, the members repository, S11.1
+  /// and S11's guardians row. Each reads it at use, never in a constructor,
+  /// so the S0.2 mint, a C-04b-3 re-mint and a C-04b-4 adoption take effect
+  /// without a relaunch.
+  late final LedgerBinding binding = LedgerBinding._(this);
+
+  /// Fires when what [binding] answers changes: the S0.2 mint, a re-mint, an
+  /// adoption of an existing account's id, a recovered UMK.
+  Listenable get bindingChanges => _bindingChanges;
+
+  void _bindingChanged() => _bindingChanges.changed();
 
   /// Called with this device's own certificate the moment it is filed —
   /// [installOwnCert] at activation, and again at open when one was already
@@ -1999,17 +2160,20 @@ final class LocalLedger
   /// cannot be handed to this constructor (`bootstrap.dart`).
   void Function(DeviceCert cert)? onOwnCert;
 
-  /// Called after [remintProvisionalIdentity] has replaced the user id, the
-  /// tenant id and the UMK. Everything built from this ledger's identity or
-  /// [keyMaterial] before that moment — the sync engine, its guard, the
-  /// members repository — now names the discarded ids, so the composition
-  /// root rebuilds itself (`RootRelaunch` in `bootstrap.dart`).
+  /// Called after [remintProvisionalIdentity] has replaced the user id and
+  /// the tenant id. Everything the composition root built reads [binding]
+  /// (ADR 2026-10-09 §1 🔒), which answers the new ids at the next use
+  /// ([bindingChanges] fires for holders that keep a reading, such as S11's
+  /// guardians row); the root still rebuilds on it, at the next safe
+  /// foreground, for the ceremony builder, which takes the ids at launch
+  /// (`bootstrap.dart`, review finding KEY168B-2).
   void Function()? onIdentityReminted;
 
   /// Called after [adoptRecoveredUmk] has replaced the UMK (rung 3, ADR
-  /// 2026-10-06d §2). Same contract as [onIdentityReminted]: everything built
-  /// from [keyMaterial] before this moment holds the retired key and must be
-  /// rebuilt by the composition root. Wired by the S11.3 opener (RUNG3B).
+  /// 2026-10-06d §2). [binding] answers the new UMK at once; the composition
+  /// root still rebuilds on it (`RootRelaunch` in `bootstrap.dart`), because
+  /// the replaced UMK is retired rather than zeroised while a borrower may
+  /// hold it, and only [dispose] zeroises it.
   void Function()? onUmkAdopted;
 
   /// True after [bootstrapSolo] (or a successful re-open).
@@ -2030,7 +2194,20 @@ final class LocalLedger
     if (requireConfirmedIdentity && !_identityConfirmed) {
       throw const IdentityNotConfirmed();
     }
+    // ADR 2026-10-09 §1 🔒: nothing is signed or sealed before S0.2's mint.
+    if (_device == null || _umk == null) throw LedgerKeysNotRegistered();
   }
+
+  /// Whether this device's keys exist (S0.2 has run its mint, ADR 2026-10-09
+  /// §2). False before then and after [dispose]; a further device of an
+  /// existing account reads true once its seeds exist, with no UMK yet.
+  bool get keysRegistered => _identity != null && _device != null;
+
+  /// See [SignupIdentity.awaitingAccountUmk]: an adopted existing account
+  /// ([adoptExistingAccount]) with no UMK of its own yet.
+  @override
+  bool get awaitingAccountUmk =>
+      _identity != null && _existingAccount && _umk == null;
 
   /// Records that `/otp/verify` echoed [userId] (ADR 2026-10-04b §1–§2). Only
   /// this install's own id confirms it; any other is an `ArgumentError` and
@@ -2050,14 +2227,27 @@ final class LocalLedger
     if (_identityConfirmed) return;
     await keys.write(
       LocalLedgerKeys.identityState,
-      IdentityState(userId: id.userId, confirmed: true).encode(),
+      IdentityState(
+        userId: id.userId,
+        confirmed: true,
+        existingAccount: _existingAccount,
+        umkAdopted: _existingUmkAdopted,
+      ).encode(),
     );
     _identityConfirmed = true;
   }
 
   /// ADR 2026-10-04b §2 last bullet — the server answered `409
-  /// user_id_taken`: discards the provisional user id, the tenant id and the
-  /// UMK minted with them, mints fresh ones and returns the new user id.
+  /// user_id_taken`: discards the provisional user id and the tenant id,
+  /// mints fresh ones and returns the new user id.
+  ///
+  /// **Ids only** (ADR 2026-10-09 §2 🔒): before S0.2 there is no UMK to
+  /// re-wrap. Should one be held anyway (a ledger whose keys were minted
+  /// before signup answered — `bootstrapSolo`, never the composition root),
+  /// it is discarded with its wrap, not re-minted: S0.2's mint makes the
+  /// account's UMK, reusing the device seeds. Everything that reads the
+  /// ledger through [binding] sees the new ids at its next use, without a
+  /// relaunch (§1).
   ///
   /// The **device id and device keys stay** (⚠️ SPEC: §2 says *discards its
   /// provisional identity* without naming parts; ADR 2026-09-16 §1 🔒 mints a
@@ -2078,37 +2268,87 @@ final class LocalLedger
     if (_identityConfirmed || await _anythingAuthored()) {
       throw const IdentityNotProvisional();
     }
-    final userId = newId();
-    final tenantId = newId();
-    final umk = UmkKeyPair.generate(suite);
-    final wrapped = wrapUmkToDevice(suite, umk, _selfVerifyDevice(_device!));
     final identity = LedgerIdentity(
       deviceId: old.deviceId,
-      userId: userId,
-      tenantId: tenantId,
+      userId: newId(),
+      tenantId: newId(),
     );
+    await _replaceProvisionalIds(identity, existingAccount: false);
+    onIdentityReminted?.call();
+    return identity.userId;
+  }
+
+  /// ADR 2026-10-04b §3 (C-04b-4): see [SignupIdentity.adoptExistingAccount].
+  ///
+  /// The device id and any device seeds stay (ADR 2026-09-16 §1: nothing was
+  /// signed under them). The tenant id is re-minted, not kept and not
+  /// guessed. ⚠️ SPEC: §3 says the provisional `tenant_id` is discarded but
+  /// not what replaces it; the account's own tenant reaches this device only
+  /// with its UMK, by link or recovery (04 §9.1, §7), and nothing can be
+  /// authored before then, so a fresh placeholder id is the reading that
+  /// invents nothing (owner item, lane report M13-KEY168B).
+  ///
+  /// The identity stays **provisional**: a number typed by mistake can still
+  /// be left, and a later `409 user_id_taken` can still re-mint. A later
+  /// `/otp/verify` that echoes [userId] is answered *has books* again while
+  /// no UMK is held ([awaitingAccountUmk]) — it confirms nothing until the
+  /// account's UMK arrives by link or recovery (06 §5; review finding
+  /// KEY168B-1).
+  @override
+  Future<void> adoptExistingAccount(String userId) async {
+    _requireOpen();
+    if (!Uuid16.isCanonical(userId)) {
+      throw ArgumentError.value('<redacted>', 'userId', 'is not a uuid');
+    }
+    final old = _identity!;
+    if (userId == old.userId && _existingAccount) return;
+    if (_identityConfirmed || await _anythingAuthored()) {
+      throw const IdentityNotProvisional();
+    }
+    await _replaceProvisionalIds(
+      LedgerIdentity(deviceId: old.deviceId, userId: userId, tenantId: newId()),
+      existingAccount: true,
+    );
+  }
+
+  /// The shared tail of a re-mint and an adoption: the state record for the
+  /// new user id first, then the identity record — so one that dies half-way
+  /// never reads as confirmed — and any held UMK dropped with its wrap.
+  Future<void> _replaceProvisionalIds(
+    LedgerIdentity identity, {
+    required bool existingAccount,
+  }) async {
     await keys.write(
       LocalLedgerKeys.identityState,
-      IdentityState(userId: userId, confirmed: false).encode(),
+      IdentityState(
+        userId: identity.userId,
+        confirmed: false,
+        existingAccount: existingAccount,
+      ).encode(),
     );
-    await keys.write(KeyIds.wrappedUmk, wrapped.bytes);
+    final discarded = _umk;
+    if (discarded != null ||
+        (await _keysState() != DeviceKeysState.none &&
+            await keys.contains(KeyIds.wrappedUmk))) {
+      await keys.delete(KeyIds.wrappedUmk);
+    }
     await keys.write(
       LocalLedgerKeys.identity,
       identity.encode(suiteVersion: suiteVersion),
     );
-    final discarded = _umk;
-    _umk = umk;
-    _umkVerified = _selfVerifyUmk(umk, userId);
+    _umk = null;
+    _umkVerified = null;
+    _existingAccount = existingAccount;
+    _existingUmkAdopted = false;
     _keySource.store?.clear();
-    _keySource.store = BookKeyStore(tenantId: tenantId);
+    _keySource.store = BookKeyStore(tenantId: identity.tenantId);
     _keySource.tenants.clear();
     await _openVerifiedMembers(identity);
     _identity = identity;
-    // Retired, not zeroised: a guard built from [keyMaterial] still holds it
-    // until the root rebuilds; [dispose] zeroises it then.
+    // Retired, not zeroised: a borrow taken before this moment may still
+    // point at it; [dispose] zeroises it.
     if (discarded != null) _retiredUmks.add(discarded);
-    onIdentityReminted?.call();
-    return userId;
+    _bindingChanged();
   }
 
   /// Whether anything has been written under the identity that a re-mint
@@ -2246,6 +2486,24 @@ final class LocalLedger
     await keys.delete(LocalLedgerKeys.deviceCert);
     await keys.delete(LocalLedgerKeys.umkPubsAccepted);
     await keys.write(KeyIds.wrappedUmk, wrapped.bytes);
+    // An adopted further device (C-04b-4) now holds its account's UMK: it is
+    // recorded, so a wrapped UMK lost from here on reopens fail-closed
+    // rather than as *existing account, no UMK yet* (ADR 2026-10-09 *Open*;
+    // review finding KEY168B-3). The existing-account flag stays, so S0.2
+    // never mints a second UMK for the account. Written after the wrap: a
+    // kill in between reopens with the UMK present, the ordinary case.
+    if (_existingAccount && !_existingUmkAdopted) {
+      await keys.write(
+        LocalLedgerKeys.identityState,
+        IdentityState(
+          userId: id.userId,
+          confirmed: _identityConfirmed,
+          existingAccount: true,
+          umkAdopted: true,
+        ).encode(),
+      );
+      _existingUmkAdopted = true;
+    }
 
     final discarded = _umk;
     _umk = recovered;
@@ -2254,6 +2512,7 @@ final class LocalLedger
     _ownCert = null;
     _umkPubsAccepted = false;
     if (discarded != null) _retiredUmks.add(discarded);
+    _bindingChanged();
     onUmkAdopted?.call();
     return const RecoveredUmkAdopted();
   }
@@ -2262,14 +2521,22 @@ final class LocalLedger
   /// guard ⇒ confirmed (never lock an existing user out). Present ⇒ confirmed
   /// only when it says so **for this user id**; an unreadable record is
   /// provisional.
-  Future<void> _loadIdentityState(LedgerIdentity id) async {
+  ///
+  /// Read as a record ([_readIdentityState]) and applied after the keys are
+  /// classified ([_applyIdentityState]); the existing-account flag counts
+  /// only for the user id it was written for.
+  Future<IdentityState?> _readIdentityState(LedgerIdentity id) async {
     final raw = await keys.read(LocalLedgerKeys.identityState);
     if (raw == null) {
-      _identityConfirmed = true;
-      return;
+      return IdentityState(userId: id.userId, confirmed: true);
     }
     final st = IdentityState.decode(raw);
-    _identityConfirmed = st != null && st.confirmed && st.userId == id.userId;
+    if (st == null || st.userId != id.userId) return null;
+    return st;
+  }
+
+  void _applyIdentityState(IdentityState? st) {
+    _identityConfirmed = st != null && st.confirmed;
   }
 
   /// This install's ids; throws [LedgerNotOpen] before bootstrap.
@@ -2288,9 +2555,13 @@ final class LocalLedger
   ///
   /// Borrowed, not copied: the returned value holds the ledger's own objects
   /// and no copy of any secret byte, so [dispose] zeroises what a holder
-  /// still points at. Throws [LedgerNotOpen] before [bootstrapSolo].
+  /// still points at. Throws [LedgerNotOpen] before [openIdentity], and
+  /// [LedgerKeysNotRegistered] before S0.2's mint (ADR 2026-10-09 §1 🔒) —
+  /// never a null or zero key. Composition-root holders read [binding]
+  /// instead, which answers *not registered yet* rather than throwing.
   LedgerKeyMaterial get keyMaterial {
     _requireOpen();
+    if (_device == null || _umk == null) throw LedgerKeysNotRegistered();
     return LedgerKeyMaterial._(
       userId: _identity!.userId,
       device: _device!,
@@ -2426,7 +2697,7 @@ final class LocalLedger
   /// device or another x half (a re-keyed install) is not this one's.
   Future<void> _loadUmkPubsAccepted() async {
     final raw = await keys.read(LocalLedgerKeys.umkPubsAccepted);
-    if (raw == null) return;
+    if (raw == null || _device == null || _umk == null) return;
     _umkPubsAccepted = umkPubsAcceptedMatches(
       raw,
       deviceId: _device!.public.deviceId,
@@ -2442,7 +2713,7 @@ final class LocalLedger
   /// record).
   Future<void> _loadOwnCert() async {
     final raw = await keys.read(LocalLedgerKeys.deviceCert);
-    if (raw == null) return;
+    if (raw == null || _device == null || _umk == null) return;
     final cert = decodeDeviceCert(raw);
     if (cert == null) return;
     if (cert.device != _device!.public || cert.userId != _identity!.userId) {
@@ -2454,20 +2725,13 @@ final class LocalLedger
 
   // ── bootstrap ─────────────────────────────────────────────────────────────
 
-  /// First run of a solo user (07 §3.1, 04 §3.1–§3.4): mints device, user and
-  /// tenant ids, generates the device keys and the UMK from the suite's
-  /// CSPRNG, self-verifies the device (the first device holds the UMK, 04
-  /// §3.4), wraps the UMK to it and stores everything through [keys]. When
-  /// [firstBookName] is given and no book exists, the first book (with its
-  /// key, v1) is created too. Idempotent: a second call — or a new
-  /// [LocalLedger] over the same store — reopens the same identity and posts
-  /// with the same device.
-  Future<LedgerIdentity> bootstrapSolo({
-    String? firstBookName,
-    BookType firstBookType = BookType.personal,
-    String openingBalanceName = 'Opening Balance',
-    LocalDate? startDate,
-  }) async {
+  /// Opens this install's identity (ADR 2026-10-09 §2 🔒) — what the
+  /// composition root runs at every launch. A first launch mints the device,
+  /// user and tenant ids (ADR 2026-09-16 §1, ADR 2026-10-04b §2) and **no key
+  /// material**: S0.2 mints the keys ([mintForRegistration]). A later launch
+  /// reopens what is stored, under the fail-closed rule of [_reopen].
+  /// Idempotent.
+  Future<LedgerIdentity> openIdentity() async {
     if (_identity == null) {
       final stored = await keys.read(LocalLedgerKeys.identity);
       if (stored != null) {
@@ -2475,6 +2739,31 @@ final class LocalLedger
       } else {
         await _firstRun();
       }
+    }
+    return _identity!;
+  }
+
+  /// The whole solo first-device path at once (07 §3.1, 04 §3.1–§3.4): opens
+  /// the identity ([openIdentity]), runs S0.2's key step for it
+  /// ([mintForRegistration] — the device keys and, for a new account, the
+  /// UMK, self-verified and wrapped to the device, 04 §3.4) and, when
+  /// [firstBookName] is given and no book exists, creates the first book
+  /// (with its key, v1). Idempotent: a second call — or a new [LocalLedger]
+  /// over the same store — reopens the same identity and posts with the
+  /// same device.
+  ///
+  /// Not the composition root's door: production opens with [openIdentity]
+  /// and mints inside S0.2 (ADR 2026-10-09 §2 🔒). This is the suites', the
+  /// demo's and the harness's way to a ready ledger in one call.
+  Future<LedgerIdentity> bootstrapSolo({
+    String? firstBookName,
+    BookType firstBookType = BookType.personal,
+    String openingBalanceName = 'Opening Balance',
+    LocalDate? startDate,
+  }) async {
+    await openIdentity();
+    if (_device == null || (_umk == null && !_existingAccount)) {
+      await mintForRegistration();
     }
     if (firstBookName != null && (await mirror.bookIds()).isEmpty) {
       await createBook(
@@ -2491,73 +2780,182 @@ final class LocalLedger
   /// client registers this id with the server and signs challenges under it;
   /// every envelope and signed record carries it. Nothing else mints one.
   ///
-  /// ADR 2026-10-06 §1 🔒: the seeds and the wrapped UMK are written straight
-  /// into the hardware-backed device-key class with no user-authentication
-  /// binding (keychain_key_store.dart), and nothing moves them later. This
-  /// supersedes ADR 2026-10-05b §4's "minted after O4b" (desk 153).
-  /// ⚠️ SPEC: the ruling says "minted when the device is first registered
-  /// (S0.2)"; they are minted by the first launch and registered by S0.2's
-  /// `activateDevice` (bootstrap.dart carries the note).
+  /// Ids only (ADR 2026-10-09 §2 🔒): the device keys and the UMK are minted
+  /// inside S0.2 by [mintForRegistration], straight into the non-biometric
+  /// device-key class (ADR 2026-10-06 §1).
   Future<void> _firstRun() async {
-    final deviceId = newId();
-    final userId = newId();
-    final tenantId = newId();
-
-    final edSeed = suite.randomBytes(32);
-    final xSeed = suite.randomBytes(32);
-    final DeviceKeyPair device;
-    try {
-      device = _deviceFromSeeds(deviceId, edSeed, xSeed);
-      await keys.write(KeyIds.deviceSigningKey, edSeed);
-      await keys.write(KeyIds.deviceAgreementKey, xSeed);
-    } finally {
-      suite.zeroize(edSeed);
-      suite.zeroize(xSeed);
-    }
-
-    final umk = UmkKeyPair.generate(suite);
-    final wrapped = wrapUmkToDevice(suite, umk, _selfVerifyDevice(device));
-    await keys.write(KeyIds.wrappedUmk, wrapped.bytes);
-
     final identity = LedgerIdentity(
-      deviceId: deviceId,
-      userId: userId,
-      tenantId: tenantId,
+      deviceId: newId(),
+      userId: newId(),
+      tenantId: newId(),
     );
-    // ADR 2026-10-04b §2 🔒: provisional until `/otp/verify` echoes [userId].
-    // Written before the identity record: an absent state record reads as a
-    // pre-guard (confirmed) identity, so it must never be the one missing.
+    // ADR 2026-10-04b §2 🔒: provisional until `/otp/verify` echoes the user
+    // id. Written before the identity record: an absent state record reads
+    // as a pre-guard (confirmed) identity, so it must never be the one
+    // missing.
     await keys.write(
       LocalLedgerKeys.identityState,
-      IdentityState(userId: userId, confirmed: false).encode(),
+      IdentityState(userId: identity.userId, confirmed: false).encode(),
     );
+    await _writeKeysState(DeviceKeysState.none);
     await keys.write(
       LocalLedgerKeys.identity,
       identity.encode(suiteVersion: suiteVersion),
     );
-
     _identityConfirmed = false;
-    _device = device;
-    _umk = umk;
-    _umkVerified = _selfVerifyUmk(umk, userId);
-    _keySource.store = BookKeyStore(tenantId: tenantId);
+    _existingAccount = false;
+    _existingUmkAdopted = false;
+    _keySource.store = BookKeyStore(tenantId: identity.tenantId);
     await _openVerifiedMembers(identity);
     _identity = identity;
   }
 
+  /// S0.2's key step (ADR 2026-10-09 §2 🔒; [DeviceKeyMint]), run by the auth
+  /// client immediately before `POST /devices`. In one idempotent step it
+  /// makes sure the key store holds:
+  ///
+  ///  * the device signing and agreement seeds — the ones already held are
+  ///    reused, so a retried POST registers the same public keys;
+  ///  * for a **new** account only, the UMK, self-verified and wrapped to
+  ///    this (self-verified) device (04 §3.4). A further device of an
+  ///    existing account ([adoptExistingAccount]) gets seeds only, never a
+  ///    UMK (ADR 2026-10-04b §3); its UMK arrives by link or recovery.
+  ///
+  /// Everything goes through [keys] under [KeyIds], which the platform store
+  /// files in the hardware-backed device-key class with no user-authentication
+  /// binding (ADR 2026-10-06 §1, `keychain_key_store.dart`). Write order:
+  /// both seeds, then the wrapped UMK — so a step cut short leaves either
+  /// nothing, or seeds the next run reuses. Nothing is signed, nothing is
+  /// sent. [binding] answers the new keys from here on.
+  @override
+  Future<void> mintForRegistration() async {
+    _requireOpen();
+    final id = _identity!;
+    var changed = false;
+    final never = await _keysState() == DeviceKeysState.none;
+    if (never) await _writeKeysState(DeviceKeysState.minting);
+    if (_device == null) {
+      // A phone that never held a device key is not made to look for one.
+      var ed = never ? null : await keys.read(KeyIds.deviceSigningKey);
+      var x = never ? null : await keys.read(KeyIds.deviceAgreementKey);
+      if (ed == null || x == null) {
+        // Half a pair is the residue of a step cut short before any POST
+        // (the seeds are written before the request): never registered,
+        // never used, so it is replaced whole.
+        if (ed != null) suite.zeroize(ed);
+        if (x != null) suite.zeroize(x);
+        ed = suite.randomBytes(32);
+        x = suite.randomBytes(32);
+        try {
+          await keys.write(KeyIds.deviceSigningKey, ed);
+          await keys.write(KeyIds.deviceAgreementKey, x);
+        } on Object {
+          suite.zeroize(ed);
+          suite.zeroize(x);
+          rethrow;
+        }
+      }
+      try {
+        _device = _deviceFromSeeds(id.deviceId, ed, x);
+      } finally {
+        suite.zeroize(ed);
+        suite.zeroize(x);
+      }
+      changed = true;
+    }
+    if (_umk == null && !_existingAccount) {
+      final device = _device!;
+      final held = never ? null : await keys.read(KeyIds.wrappedUmk);
+      final UmkKeyPair umk;
+      if (held != null) {
+        // Wrapped by an earlier run of this step to these same seeds.
+        umk = unwrapUmk(
+          suite,
+          WrappedUmk(deviceId: id.deviceId, bytes: held),
+          device,
+        );
+      } else {
+        umk = UmkKeyPair.generate(suite);
+        final wrapped = wrapUmkToDevice(suite, umk, _selfVerifyDevice(device));
+        await keys.write(KeyIds.wrappedUmk, wrapped.bytes);
+      }
+      _umk = umk;
+      _umkVerified = _selfVerifyUmk(umk, id.userId);
+      changed = true;
+    }
+    if (await _keysState() != DeviceKeysState.minted) {
+      await _writeKeysState(DeviceKeysState.minted);
+    }
+    if (changed) _bindingChanged();
+  }
+
+  Future<String?> _keysState() async {
+    final raw = await keys.read(LocalLedgerKeys.deviceKeysState);
+    return raw == null ? null : utf8.decode(raw, allowMalformed: true);
+  }
+
+  Future<void> _writeKeysState(String state) => keys.write(
+    LocalLedgerKeys.deviceKeysState,
+    Uint8List.fromList(utf8.encode(state)),
+  );
+
+  /// Reopens a stored identity, reading which of four states the key store
+  /// is in (ADR 2026-10-09 *Open* ⚠️ — the conservative reading, until the
+  /// owner confirms):
+  ///
+  ///  1. seeds and wrapped UMK — the ordinary reopen;
+  ///  2. seeds and no UMK on a further device of an existing account
+  ///     ([IdentityState.existingAccount]) that has authored nothing and
+  ///     filed no certificate — open, with no UMK yet (the flag is cleared
+  ///     once the account's UMK is adopted, [adoptRecoveredUmk]);
+  ///  3. anything short of those **only when all three hold**: nothing has
+  ///     been authored, there is no device certificate, and the auth
+  ///     client has stored no registered device id — *not registered yet*:
+  ///     open on ids alone and leave S0.2 to mint (a relaunch before S0.2,
+  ///     or a kill between the OTP confirm and `POST /devices`);
+  ///  4. anything else — [DeviceKeysMissing], which ends at
+  ///     `RukkaFolioBlocked` (03 §5): keys lost, the recovery path (04 §7),
+  ///     never a second identity minted over the same books.
   Future<void> _reopen(Uint8List identityBytes) async {
     final id = LedgerIdentity.decode(identityBytes);
     if (id == null) {
       throw StateError('identity record unreadable — recovery (03 §5)');
     }
-    final edSeed = await keys.read(KeyIds.deviceSigningKey);
-    final xSeed = await keys.read(KeyIds.deviceAgreementKey);
-    final wrappedUmk = await keys.read(KeyIds.wrappedUmk);
-    if (edSeed == null || xSeed == null || wrappedUmk == null) {
-      final deviceKeys = edSeed == null || xSeed == null;
+    final state = await _readIdentityState(id);
+    // An ids-only install has no device key to read, and is not made to
+    // look for one ([LocalLedgerKeys.deviceKeysState]).
+    final never = await _keysState() == DeviceKeysState.none;
+    final edSeed = never ? null : await keys.read(KeyIds.deviceSigningKey);
+    final xSeed = never ? null : await keys.read(KeyIds.deviceAgreementKey);
+    final wrappedUmk = never ? null : await keys.read(KeyIds.wrappedUmk);
+    final seeds = edSeed != null && xSeed != null;
+    final existing = state?.existingAccount ?? false;
+    // 2 holds only while the account's UMK has never arrived: once it was
+    // adopted, or anything was authored or a certificate filed (neither
+    // happens before it arrives), a missing key is a key lost (review
+    // finding KEY168B-3) — fail closed, as 4, never *not registered yet*.
+    final umkAdopted = existing && (state?.umkAdopted ?? false);
+    if (existing &&
+        (!seeds || wrappedUmk == null) &&
+        (umkAdopted || await _anythingAuthored())) {
       if (edSeed != null) suite.zeroize(edSeed);
       if (xSeed != null) suite.zeroize(xSeed);
-      throw DeviceKeysMissing(deviceKeys: deviceKeys);
+      throw DeviceKeysMissing(deviceKeys: !seeds);
+    }
+    if (!seeds || (wrappedUmk == null && !existing)) {
+      if (edSeed != null) suite.zeroize(edSeed);
+      if (xSeed != null) suite.zeroize(xSeed);
+      if (!await _notRegisteredYet()) {
+        throw DeviceKeysMissing(deviceKeys: !seeds);
+      }
+      // 3. Not registered yet: ids only, nothing to load (nothing authored).
+      _existingAccount = existing;
+      _existingUmkAdopted = false;
+      _keySource.store = BookKeyStore(tenantId: id.tenantId);
+      await _openVerifiedMembers(id);
+      _applyIdentityState(state);
+      _identity = id;
+      return;
     }
     final DeviceKeyPair device;
     try {
@@ -2566,17 +2964,21 @@ final class LocalLedger
       suite.zeroize(edSeed);
       suite.zeroize(xSeed);
     }
-    final umk = unwrapUmk(
-      suite,
-      WrappedUmk(deviceId: id.deviceId, bytes: wrappedUmk),
-      device,
-    );
+    final umk = wrappedUmk == null
+        ? null
+        : unwrapUmk(
+            suite,
+            WrappedUmk(deviceId: id.deviceId, bytes: wrappedUmk),
+            device,
+          );
     _device = device;
     _umk = umk;
-    _umkVerified = _selfVerifyUmk(umk, id.userId);
+    _umkVerified = umk == null ? null : _selfVerifyUmk(umk, id.userId);
+    _existingAccount = existing;
+    _existingUmkAdopted = umkAdopted;
     _keySource.store = BookKeyStore(tenantId: id.tenantId);
     await _openVerifiedMembers(id);
-    await _loadIdentityState(id);
+    _applyIdentityState(state);
     _identity = id;
     await _loadOwnCert();
     await _loadUmkPubsAccepted();
@@ -2585,17 +2987,35 @@ final class LocalLedger
     for (final b in await db.select(db.booksP).get()) {
       _keySource.tenants[b.id] = b.tenantId;
     }
-    for (final row in await db.select(db.keyCache).get()) {
-      _keySource.tenants.putIfAbsent(row.bookId, () => id.tenantId);
-      final ref = BookKeyRef(bookId: row.bookId, keyVersion: row.keyVersion);
-      _keySource.required.put(
-        unwrapBookKey(suite, _decodeWrappedBookKey(ref, row.wrappedBlob), umk),
-      );
+    if (umk != null) {
+      for (final row in await db.select(db.keyCache).get()) {
+        _keySource.tenants.putIfAbsent(row.bookId, () => id.tenantId);
+        final ref = BookKeyRef(bookId: row.bookId, keyVersion: row.keyVersion);
+        _keySource.required.put(
+          unwrapBookKey(
+            suite,
+            _decodeWrappedBookKey(ref, row.wrappedBlob),
+            umk,
+          ),
+        );
+      }
     }
     await _seedClock();
     for (final bookId in await mirror.bookIds()) {
       await _rebuild(bookId);
     }
+  }
+
+  /// ADR 2026-10-09 *Open* ⚠️ — the three facts that together, and only
+  /// together, read an install with no (or partial) keys as *not registered
+  /// yet* rather than *keys lost*: nothing authored (no book, cached key,
+  /// outbox row, signed record, filed certificate or accepted-pubs marker),
+  /// no device certificate, and no device id stored by a `POST /devices` that
+  /// answered. Any one missing fails closed.
+  Future<bool> _notRegisteredYet() async {
+    if (await keys.contains(LocalLedgerKeys.deviceCert)) return false;
+    if (await keys.contains(LocalLedgerKeys.sessionDeviceId)) return false;
+    return !await _anythingAuthored();
   }
 
   /// Rebuilds a [DeviceKeyPair] from its two 32-byte seeds by replaying them

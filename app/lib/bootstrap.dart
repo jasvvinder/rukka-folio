@@ -14,6 +14,7 @@ import 'package:core_crypto/core_crypto.dart';
 import 'package:crypto/crypto.dart' as crypto;
 import 'package:data/data.dart';
 import 'package:drift/native.dart';
+import 'package:flutter/foundation.dart' show ValueListenable;
 import 'package:flutter/material.dart';
 import 'package:printing/printing.dart' show Printing;
 import 'package:http/http.dart' as http;
@@ -257,21 +258,35 @@ GuardianRoster guardianRosterOf(
 ///
 /// Without it S11 keeps the row's ordinary line: no reading, no claim
 /// (M13-REV89U finding 2). Pinned by F1-03b-4.
+///
+/// The subject is read late (ADR 2026-10-09 §1 🔒): the root passes
+/// [subjectUserIdOf], the ledger's live user id, and the host re-makes the
+/// reading when a C-04b-3 re-mint or a C-04b-4 adoption changes it — never a
+/// relaunch. [subjectUserId] fixes it instead, for a caller whose id cannot
+/// change; exactly one is given.
 class GuardianStandingHost extends StatefulWidget {
   /// Creates the host.
   const GuardianStandingHost({
     super.key,
     required this.trust,
-    required this.subjectUserId,
+    this.subjectUserId,
+    this.subjectUserIdOf,
     required this.guardians,
     required this.child,
-  });
+  }) : assert(
+         (subjectUserId == null) != (subjectUserIdOf == null),
+         'exactly one of subjectUserId and subjectUserIdOf',
+       );
 
   /// The engine's trust store — the facts its revocation count reads.
   final eng.RecordTrustStore trust;
 
-  /// The user id the engine counts this device's own revocations under.
-  final String subjectUserId;
+  /// The user id the engine counts this device's own revocations under,
+  /// fixed.
+  final String? subjectUserId;
+
+  /// The same id, live, with its change signal.
+  final ValueListenable<String>? subjectUserIdOf;
 
   /// S11.1's repository, the one door to `guardian_sets` the screens read.
   final ServerGuardians guardians;
@@ -284,16 +299,45 @@ class GuardianStandingHost extends StatefulWidget {
 }
 
 class _GuardianStandingHostState extends State<GuardianStandingHost> {
-  // Made once: S11 listens to it, and the scope treats a new object as a new
-  // reading. The root builds this widget once per process.
-  late final GuardianStanding _standing = trustStoreGuardianStanding(
+  // Made once per subject: S11 listens to it, and the scope treats a new
+  // object as a new reading. The root builds this widget once per process;
+  // only a change of the install's user id makes a second one.
+  late String _subject = _currentSubject();
+  late GuardianStanding _standing = trustStoreGuardianStanding(
     widget.trust,
-    subjectUserId: widget.subjectUserId,
+    subjectUserId: _subject,
     guardians: widget.guardians,
   );
 
+  String _currentSubject() =>
+      widget.subjectUserIdOf?.value ?? widget.subjectUserId!;
+
+  @override
+  void initState() {
+    super.initState();
+    widget.subjectUserIdOf?.addListener(_subjectChanged);
+  }
+
+  void _subjectChanged() {
+    final now = _currentSubject();
+    if (now == _subject || !mounted) return;
+    final old = _standing;
+    setState(() {
+      _subject = now;
+      _standing = trustStoreGuardianStanding(
+        widget.trust,
+        subjectUserId: now,
+        guardians: widget.guardians,
+      );
+    });
+    // After the frame that hands S11 the new reading, so nothing still
+    // listening to the old one is cut off mid-build.
+    WidgetsBinding.instance.addPostFrameCallback((_) => old.dispose());
+  }
+
   @override
   void dispose() {
+    widget.subjectUserIdOf?.removeListener(_subjectChanged);
     _standing.dispose();
     super.dispose();
   }
@@ -303,8 +347,13 @@ class _GuardianStandingHostState extends State<GuardianStandingHost> {
       GuardianStandingScope(standing: _standing, child: widget.child);
 }
 
-/// Rebuilds the composition root after a provisional re-mint (ADR
-/// 2026-10-04b §2 last bullet; review finding ID107C-3).
+/// Rebuilds the composition root after a recovered UMK is adopted (rung 3,
+/// ADR 2026-10-06d §2). Until ADR 2026-10-09 §1 it also ran after a
+/// provisional re-mint (ADR 2026-10-04b §2 last bullet; review finding
+/// ID107C-3); the root now reads ids and keys late, so a re-mint needs no
+/// rebuild (desk 126). What follows describes why a rebuild was needed then
+/// and still is for a replaced UMK, which is retired, not zeroised, until
+/// the old root's `ledger.dispose()`.
 ///
 /// Everything [bootstrap] builds from the ledger's identity is stamped at
 /// launch: the sync engine's user and tenant ids, its `CryptoGuard`'s UMK and
@@ -338,7 +387,7 @@ class RootRelaunch with WidgetsBindingObserver {
   /// Whether a re-mint has happened and the rebuild has not yet run.
   bool get pending => _armed && !_fired;
 
-  /// The ledger's `onIdentityReminted`.
+  /// The ledger's `onIdentityReminted` and `onUmkAdopted`.
   void arm() => _armed = true;
 
   @override
@@ -469,11 +518,14 @@ Future<void> bootstrap() async {
       }
       // The ledger itself (02 · 03 · 04), opened here because every screen
       // below `LedgerScope` assumes an open facade and because the identity it
-      // mints (or reopens) is what the members feature and the sync engine are
-      // stamped with. `bootstrapSolo` is idempotent: first run mints device,
-      // user and tenant ids and the keys; every later run reopens them. No
-      // book is named, so nothing is invented — onboarding still creates the
-      // first book (features/onboarding).
+      // mints (or reopens) is what the members feature and the sync engine
+      // read — late, through `ledger.binding` (ADR 2026-10-09 §1 🔒).
+      // `openIdentity` is idempotent: a first launch mints the device, user
+      // and tenant ids and no key material; every later run reopens them.
+      // The keys are minted inside S0.2, through the ledger, immediately
+      // before `POST devices` (§2: `auth.keyMint` below). No book is named,
+      // so nothing is invented — onboarding still creates the first book
+      // (features/onboarding).
       // The auto-post limit this client measures its own entries against
       // (02 §3 🔒, 03 §3.3 rule 5 🔒). It is answered from `book_roles`, which
       // reaches this app through `ServerMembersRepository` — and that
@@ -501,15 +553,13 @@ Future<void> bootstrap() async {
       // nothing to verify, so the store opens as it is (⚠️ SPEC in
       // keychain_key_store.dart `unsealIfNoPin`).
       //
-      // Ruling 1: a first run mints the device keys straight into the
-      // hardware-backed class with no user-authentication binding, where they
-      // stay. ⚠️ SPEC: the ruling says "minted when the device is first
-      // registered (S0.2)"; they are minted by this first launch's
-      // `bootstrapSolo` (local_ledger.dart `_firstRun`) and registered by
-      // S0.2's `activateDevice` a few screens later. Moving the mint inside
-      // S0.2 is features/auth's (lane report M13-GATE1); what the ruling
-      // protects — the class they are born in, and that nothing moves them —
-      // holds.
+      // Ruling 1: the device keys are minted when the device is first
+      // registered (S0.2) — by the ledger's `mintForRegistration`, which the
+      // auth client runs immediately before `POST devices` (ADR 2026-10-09
+      // §2 🔒) — straight into the hardware-backed class with no
+      // user-authentication binding, where they stay. A first launch mints
+      // ids only, so an install with an MPIN (after O4b, after S0.2) always
+      // has keys to open here.
       if (!await keys.unsealIfNoPin()) {
         final through = Completer<ColdStartResult>();
         runApp(
@@ -520,7 +570,7 @@ Future<void> bootstrap() async {
               vault: vault,
               attempt: (reason) =>
                   biometricGate.openAtColdStart(reason: reason),
-              open: () => ledger.bootstrapSolo(),
+              open: () => ledger.openIdentity(),
               onDone: through.complete,
             ),
           ),
@@ -538,18 +588,27 @@ Future<void> bootstrap() async {
         // launch.
         biometricGate.admitOnce();
       }
-      final LedgerIdentity identity;
       try {
-        identity = await ledger.bootstrapSolo();
+        await ledger.openIdentity();
       } on Object {
         // 03 §5 fail closed. The one reachable case is *identity present,
         // device keys missing* — a keystore wiped under us, which is the
         // recovery path (04 §7) and not something to paper over by minting a
-        // second identity for the same books. ⚠️ SPEC: S19.x explains it; this
-        // blocks with one plain line until that screen exists.
+        // second identity for the same books. An install with no keys yet
+        // opens instead, as *not registered yet*, only while nothing was
+        // authored, no certificate was filed and no device was registered
+        // (ADR 2026-10-09 *Open*, `LocalLedger._reopen`). ⚠️ SPEC: S19.x
+        // explains it; this blocks with one plain line until that screen
+        // exists.
         runApp(const RukkaFolioBlocked());
         return;
       }
+      // ADR 2026-10-09 §1 🔒 — everything below reads the install's ids and
+      // keys through this view, at use, never in a constructor: before S0.2
+      // it answers *not registered yet* (the engine holds, nothing is
+      // signed), and the S0.2 mint, a C-04b-3 re-mint or a C-04b-4 adoption
+      // takes effect without a relaunch.
+      final identity = ledger.binding;
       // ADR 2026-10-06 §5 🔒: an install whose device keys still sit in a
       // legacy class (biometric-bound, or ADR 2026-10-05b's PIN-only) moves
       // now, behind the unlock that just opened them — copy, read back and
@@ -564,14 +623,20 @@ Future<void> bootstrap() async {
       // and confirms the identity on the echo (or re-mints it once on
       // `user_id_taken`). Bound here, before any screen can reach S0.2.
       auth.signupIdentity = ledger;
+      // ADR 2026-10-09 §2 🔒: S0.2's key step is the ledger's — seeds, and a
+      // new account's UMK and wrap, in one idempotent step immediately before
+      // `POST devices`. The auth client mints nothing of its own.
+      auth.keyMint = ledger;
 
-      // Signing structural facts (ADR 2026-09-05b §1 🔒). Null when this
-      // device holds no Ed25519 key or has never registered — and null is the
-      // input `ServerMembersRepository` turns into `unauthorized`, which is
-      // the correct refusal and stays reachable. A provisional identity signs
-      // no record either (ADR 2026-10-04b §2 🔒): no device id is offered
-      // until signup has confirmed it.
-      final recordAuthor = await DeviceRecordAuthor.ifAvailable(
+      // Signing structural facts (ADR 2026-09-05b §1 🔒). Built always and
+      // read late (ADR 2026-10-09 §1 🔒): every signature reads the device id
+      // and the Ed25519 seed at that moment, so a device registered later in
+      // this launch signs without a relaunch. Until it has registered — no
+      // device id stored, no seed — each signature refuses `unauthorized`,
+      // which is the correct refusal and stays reachable. A provisional
+      // identity signs no record either (ADR 2026-10-04b §2 🔒): no device id
+      // is offered until signup has confirmed it.
+      final recordAuthor = DeviceRecordAuthor(
         suite: suite,
         keys: keys,
         deviceIdOf: () async {
@@ -603,8 +668,8 @@ Future<void> bootstrap() async {
       );
       final members = ServerMembersRepository(
         api: membersApi,
-        tenantId: identity.tenantId,
-        userId: identity.userId,
+        tenantIdOf: () => identity.tenantId.value,
+        userIdOf: () => identity.userId.value,
         believes: believeNothing,
         unknownVerifierName: l10n.membersVerifiedSomeone,
         someoneToMeetName: l10n.membersPendingBooksSomeone,
@@ -913,8 +978,11 @@ Future<void> bootstrap() async {
       // `authorUnverified` until one happens. That is the conservative
       // reading, and it is the reason `believes: believeNothing` above is
       // still right.
-      final material = ledger.keyMaterial;
-      final trust = eng.RecordTrustStore(umks: material);
+      //
+      // Read through `identity` (ADR 2026-10-09 §1 🔒): `BoundUmkSource`
+      // believes whatever UMK the binding answers at each verification —
+      // nobody before S0.2, the re-minted user after a C-04b-3 re-mint.
+      final trust = eng.RecordTrustStore(umks: eng.BoundUmkSource(identity));
 
       // 04 §3.4 🔒 — the device certificate, the root of the chain. Three
       // wires, all of them late because the trust store is built *from* the
@@ -948,13 +1016,11 @@ Future<void> bootstrap() async {
       // the same record route the members feature already uses (lane R1).
       // With no author (no Ed25519 key yet) the device certifies exactly as
       // before and files nothing; a failed post never un-certifies it.
-      if (recordAuthor != null) {
-        auth.announcer = DeviceAddedRecorder(
-          author: recordAuthor,
-          tenantId: identity.tenantId,
-          post: membersApi.postRecords,
-        );
-      }
+      auth.announcer = DeviceAddedRecorder.late(
+        author: recordAuthor,
+        tenantIdOf: () => identity.tenantId.value,
+        post: membersApi.postRecords,
+      );
       final ownCert = ledger.ownDeviceCert;
       if (ownCert != null) trust.certs[ownCert.deviceId] = ownCert;
       ledger.onOwnCert = (cert) => trust.certs[cert.deviceId] = cert;
@@ -971,7 +1037,11 @@ Future<void> bootstrap() async {
       // rotated refresh token a second time (06 §4 step 2 🔒 — a reuse
       // revokes the family). Pinned by F1-24b-2 (launch_reoffer_wiring_test).
       unawaited(auth.reofferUmkPublic());
-      final engine = eng.SyncEngine(
+      // ADR 2026-10-09 §1 🔒: built once, before any key may exist. The
+      // engine reads who it is, and the guard what it holds, from `identity`
+      // at every round and every call: before S0.2 a round sends nothing and
+      // holds `notRegistered`; the mint is used at the next round.
+      final engine = eng.SyncEngine.late(
         db: db,
         mirror: ledger.mirror,
         transport: buildSyncTransport(
@@ -979,17 +1049,13 @@ Future<void> bootstrap() async {
           accessTokenOf: auth.accessToken,
         ),
         clock: const SystemSyncClock(),
-        guard: eng.CryptoGuard(
+        guard: eng.CryptoGuard.late(
           suite: suite,
-          keys: material.bookKeys,
           trust: trust,
-          me: material.device,
-          umk: material.umk,
+          material: identity,
         ),
         trust: trust,
-        deviceId: identity.deviceId,
-        userId: identity.userId,
-        tenantId: identity.tenantId,
+        identity: identity,
         // Pulled envelopes are projected by the same projector the write path
         // uses — one Recompute, one set of keys (03 §3.3: a pure function of
         // the ordered envelopes).
@@ -1044,6 +1110,24 @@ Future<void> bootstrap() async {
       // ADR 2026-10-04b §2: a `409 user_id_taken` re-mints the provisional
       // identity in this process, after everything above was stamped with the
       // old ids. Bound before `runApp`, so before any S0.2 can verify.
+      // ADR 2026-10-09 §1 🔒: everything above reads the ids late (desk 126),
+      // so a re-mint takes effect for them at once. The root is still
+      // rebuilt after one, at the next safe foreground, for the one part
+      // that still takes the ids at launch: the ceremony builder
+      // (`buildLiveCeremonySessions(tenantId:, selfUserId:)`, features/
+      // ceremony, its call shape pinned by F1-24b-3). Without it S9.2/S9.3
+      // ran under the discarded ids for the rest of the process (review
+      // finding KEY168B-2). ⚠️ SPEC: ADR 10-09 §1's list does not name the
+      // ceremony builder; once its owner reads the ids late, this arm goes.
+      // A C-04b-4 adoption needs no arm: the adopted device is never
+      // confirmed before its UMK arrives (`awaitingAccountUmk`), so [ready]
+      // never holds for it, and the UMK's arrival arms below. A recovered
+      // UMK (rung 3, ADR
+      // 2026-10-06d §2) still rebuilds the root once it is safe to: the
+      // replaced UMK is retired, not zeroised, while a borrower may hold it,
+      // and only the rebuild's `ledger.dispose()` zeroises it; the trust
+      // store's own-certificate belief, filed under the replaced UMK, goes
+      // with the old root.
       final relaunch = RootRelaunch(
         ready: () => ledger.identityConfirmed && auth.current is Active,
         relaunch: () async {
@@ -1060,6 +1144,7 @@ Future<void> bootstrap() async {
         },
       );
       ledger.onIdentityReminted = relaunch.arm;
+      ledger.onUmkAdopted = relaunch.arm;
       WidgetsBinding.instance.addObserver(relaunch);
 
       homeScope.addListener(() {
@@ -1210,13 +1295,15 @@ Future<void> bootstrap() async {
         // `members` is the repository of; the builder is F1-03b-3's.
         roster: () async => guardianRosterOf(
           members.current,
-          tenantId: identity.tenantId,
+          tenantId: identity.tenantId.value,
           nameOf: memberName,
         ),
-        verified: material,
+        // Read at each save (ADR 2026-10-09 §1 🔒): nobody is believed, and
+        // nothing is sealed, before S0.2.
+        verified: eng.BoundUmkSource(identity),
         sealer: CryptoGuardianSealer(
           suite: suite,
-          umk: () => material.umk,
+          umk: () => ledger.keyMaterial.umk,
         ).call,
       );
 
@@ -1239,7 +1326,7 @@ Future<void> bootstrap() async {
         // two are reconciled the row finds no set for this id and never
         // warns — the same blind spot as the engine's own count
         // (`SyncEngine._ownCount`). No mapping is invented here.
-        subjectUserId: identity.userId,
+        subjectUserIdOf: identity.userId,
         guardians: guardians,
         child: shell,
       );
@@ -1299,8 +1386,18 @@ Future<void> bootstrap() async {
         api: ceremonyApi,
         pullMeta: membersApi.pullMeta,
         nonces: relayedInviteNonceOver(inviteNonces.nonce),
-        tenantId: identity.tenantId,
-        selfUserId: identity.userId,
+        // ⚠️ SPEC (ADR 2026-10-09 §1 lists the parts that capture ids; the
+        // ceremony builder is not among them, yet it does): it takes fixed
+        // ids (features/ceremony), so these are the ids at launch. After a
+        // C-04b-3 re-mint the root is rebuilt at the next safe foreground
+        // (`ledger.onIdentityReminted = relaunch.arm` above, review finding
+        // KEY168B-2) — HEAD's behaviour before ADR 10-09. Between the
+        // re-mint and that rebuild S9.2/S9.3 still name the discarded ids;
+        // closing that gap needs the builder to read ids late, which is the
+        // ceremony owner's (lane report M13-KEY168B). Not changed here,
+        // because F1-24b-3 pins this call's shape.
+        tenantId: identity.tenantId.value,
+        selfUserId: identity.userId.value,
         ownUmk: () {
           try {
             return ledger.keyMaterial.umk.public;
