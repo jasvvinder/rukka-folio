@@ -610,14 +610,24 @@ class PgTx implements Tx {
     // The CURRENT sheet only: an older version is a rotated-away RK (04 §7.4) and is never served.
     const [r] = await this.sql`select user_id, sheet_version, blob, created_at from recovery_sheets
       where user_id = rf.user_id() order by sheet_version desc limit 1`;
-    return r
-      ? {
-        user_id: r.user_id as string,
-        sheet_version: r.sheet_version as number,
-        blob: bytes(r.blob),
-        created_at: r.created_at as Date,
-      }
-      : null;
+    if (!r) return null;
+    // ADR 2026-10-06d ruling 2: the account's published UMK, read in the SAME transaction. The
+    // explicit `user_id = rf.user_id()` is load-bearing, not tidiness: `umk_select` (0005:318)
+    // also admits a certified tenant-mate via rf.shares_tenant, so leaning on RLS would hand a
+    // caller with no key of its own a neighbour's as its `expected` (E-1006d-4). The own-user arm
+    // of that policy is not certification-gated, which is what lets the wiped phone read it. The
+    // NEWEST key_version is the published one; if it is superseded there is none — no fallback.
+    const [k] = await this.sql`select pub_ed, pub_x, superseded_at from umk_public_keys
+      where user_id = rf.user_id() order by key_version desc limit 1`;
+    return {
+      user_id: r.user_id as string,
+      sheet_version: r.sheet_version as number,
+      blob: bytes(r.blob),
+      created_at: r.created_at as Date,
+      umk: k?.pub_ed && k.superseded_at == null
+        ? { pub_ed: bytes(k.pub_ed), pub_x: k.pub_x ? bytes(k.pub_x) : null }
+        : null,
+    };
   }
   async recoveryAsks(): Promise<RecoveryAsk[]> {
     // The guardian's own read: 0010's second SELECT policy shows a guardian the attempts of the set

@@ -1553,16 +1553,21 @@ class MemTx implements Tx {
     const mine = this.db.recovery_sheets.filter((s) => s.user_id === this.me)
       .sort((a, b) => (a.sheet_version as number) - (b.sheet_version as number));
     const cur = mine.at(-1);
-    return Promise.resolve(
-      cur
-        ? {
-          user_id: cur.user_id as string,
-          sheet_version: cur.sheet_version as number,
-          blob: cur.blob as Uint8Array,
-          created_at: cur.created_at as Date,
-        }
+    if (!cur) return Promise.resolve(null);
+    // ADR 2026-10-06d ruling 2 — PgStore's read, re-stated: the CALLER's own key rows only (never
+    // whatever `umk_select` would also admit), the newest key_version, and null when that row is
+    // superseded or absent. A laxer fake would let E-1006d-2 pass over a leaking database.
+    const k = this.db.umk_public_keys.filter((k) => k.user_id === this.me)
+      .sort((a, b) => (b.key_version as number) - (a.key_version as number))[0];
+    return Promise.resolve({
+      user_id: cur.user_id as string,
+      sheet_version: cur.sheet_version as number,
+      blob: cur.blob as Uint8Array,
+      created_at: cur.created_at as Date,
+      umk: k?.pub_ed && k.superseded_at == null
+        ? { pub_ed: k.pub_ed as Uint8Array, pub_x: (k.pub_x as Uint8Array | null) ?? null }
         : null,
-    );
+    });
   }
   private recoveryRow(r: Row): RecoveryRequest {
     return {
@@ -1932,6 +1937,12 @@ class MemTx implements Tx {
     if (pubX && pubX.length !== 32) throw new StoreDenied("umk_pub_malformed");
     const k = this.db.umk_public_keys.find((k) => k.user_id === user && k.key_version === version);
     if (!k) {
+      // 0031 re-stated: one registration per user. A NEW key_version beside any existing row —
+      // live or retired — is a second root minted by whoever is asking (06 §3 step 4 is "first
+      // device only"; 04 §9.2's UMK rotation has no write path yet). Refused, never added.
+      if (this.db.umk_public_keys.some((k) => k.user_id === user)) {
+        throw new StoreDenied("umk_version_conflict");
+      }
       this.db.umk_public_keys.push({
         user_id: user,
         key_version: version,
@@ -1961,6 +1972,14 @@ class MemTx implements Tx {
     umkVersion: number,
   ): Promise<void> {
     if (device !== this.dev) throw new StoreDenied("not_owner");
+    // 0031 re-stated: only under the caller's LIVE registered UMK at the version the cert names
+    // (ADR 2026-09-05d §2 🔒 "the user's registered UMK public key"). No row there, or a retired
+    // one, certifies nothing.
+    if (
+      !this.db.umk_public_keys.some((k) =>
+        k.user_id === this.me && k.key_version === umkVersion && k.superseded_at == null
+      )
+    ) throw new StoreDenied("umk_unknown");
     this.db.device_certs = this.db.device_certs.filter((c) => c.device_id !== device);
     this.db.device_certs.push({
       device_id: device,

@@ -266,26 +266,40 @@ Deno.test({
     "E-06-64 rf.set_umk_pubs refuses anything that is not 32 bytes (31, 33, 0, 64) for either half, so nothing a verifier will later compare byte-for-byte can be the wrong length (04 §3.1, §6.3 🔒)",
   ignore,
   async fn() {
+    // A user with NO registration yet. This used to be the stranger at key_version 2, beside the
+    // v1 row E-06-63 registered — a second root, which 0031 refuses (`umk_version_conflict`,
+    // E-05d-2). What this test pins, lengths and the ed-only registration, is unchanged.
+    const [nu] = await sql`insert into users (phone_hmac, phone_ct)
+      values (${crypto.getRandomValues(new Uint8Array(32))}, ${bytes(40, 0xb5)}) returning id`;
+    const [nd] = await sql`insert into devices (id, user_id, pub_ed, pub_x, status)
+      values (gen_random_uuid(), ${nu.id}, ${bytes(32, 6)}, ${bytes(32, 7)}, 'registered')
+      returning id`;
+    const fresh = nu.id as string, freshDev = nd.id as string;
     for (const n of [31, 33, 0, 64]) {
       assertStringIncludes(
-        await pgMsg(setPubs(fx.stranger, fx.dev.stranger, 2, bytes(32, 0xe4), bytes(n, 0x5a))),
+        await pgMsg(setPubs(fresh, freshDev, 1, bytes(32, 0xe4), bytes(n, 0x5a))),
         "umk_pub_malformed",
         `${n} bytes is refused as an x half`,
       );
       assertStringIncludes(
-        await pgMsg(setPubs(fx.stranger, fx.dev.stranger, 2, bytes(n, 0xe4), bytes(32, 0x5a))),
+        await pgMsg(setPubs(fresh, freshDev, 1, bytes(n, 0xe4), bytes(32, 0x5a))),
         "umk_pub_malformed",
         `${n} bytes is refused as an ed half`,
       );
     }
     assertEquals(
-      await pgCode(setPubs(fx.stranger, fx.dev.stranger, 2, bytes(32, 0xe4), null)),
+      (await sql`select 1 from umk_public_keys where user_id = ${fresh}`).length,
+      0,
+      "nothing malformed landed",
+    );
+    assertEquals(
+      await pgCode(setPubs(fresh, freshDev, 1, bytes(32, 0xe4), null)),
       "ok",
       "…while a NULL x half is accepted: a client that sends no x half still registers its ed half",
     );
     assertEquals(
       (await sql`select 1 from umk_public_keys
-        where user_id = ${fx.stranger} and key_version = 2 and pub_x is null`).length,
+        where user_id = ${fresh} and key_version = 1 and pub_x is null`).length,
       1,
       "the ed-only row exists with a NULL x half, and the ceremony fails closed on the device",
     );

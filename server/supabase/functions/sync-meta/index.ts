@@ -379,6 +379,24 @@ async function recovery(
       // current blob and nothing else; the server cannot open it and never learns RK. A user who
       // never printed a sheet is `no_sheet`, which is the honest answer and the one thing
       // `HttpRecoverySheet` could not be told before (F1-06-40).
+      //
+      // ADR 2026-10-06d ruling 2 🔒: the wiped phone adopts the UMK it opens only if its public
+      // halves match the account's published UMK, and it holds nothing else — so the caller's OWN
+      // registered key (both halves, the copy /devices/certify stored, 0012) rides with the blob.
+      // ADR 2026-09-13c §1 (ratified) makes the AEAD under the paper RK this rung's authenticator:
+      // a server that relays a wrong key can only cause a refusal. A missing half is `null` — the
+      // field is always present, the 200 is unchanged (S0.5b's scan-back reads this route and
+      // needs no key), and nothing is invented: the device fails closed on a null (04 §6.3
+      // "There is no override"), as it already does for an Ed-only row in the meta relay.
+      //
+      // ⚠️ SPEC (owner): (1) no spec rules the sheet-but-no-key case; null rather than a distinct
+      // 404 is the reading that invents nothing AND keeps S0.5b's `sheetOnServer`/scan-back (which
+      // need no key) working — the client must treat either null as "cannot verify", never as
+      // "that code didn't work" (F1-06-40). (2) ADR 2026-09-05d §2 🔒 lists four things an
+      // uncertified device may read and its own UMK public key is not one of them; 0005:318's
+      // own-user arm already admits it without certification, and ADR 2026-09-13c §1 (rung 2's
+      // "server-relayed registered key") and ADR 2026-10-06d ruling 2 both need the fresh phone to
+      // read it. Reported to fold into 05d §2 beside 0011's sheet blob, not decided here.
       const sheet = await deps.store.withClaims(claims, (tx) => tx.recoverySheet());
       if (!sheet) return error(404, "no_sheet");
       return jsonBigResponse(200, {
@@ -386,6 +404,8 @@ async function recovery(
         sheet_version: sheet.sheet_version,
         sealed_rk_blob: b64url.enc(sheet.blob),
         created_at: sheet.created_at.getTime(),
+        umk_pub_ed: sheet.umk ? b64url.enc(sheet.umk.pub_ed) : null,
+        umk_pub_x: sheet.umk?.pub_x ? b64url.enc(sheet.umk.pub_x) : null,
       });
     }
     if (path === "/recovery/has-guardian-set") {

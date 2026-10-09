@@ -277,6 +277,16 @@ export interface RecoverySheet {
   sheet_version: number;
   blob: Uint8Array;
   created_at: Date;
+  /** ADR 2026-10-06d ruling 2 🔒: the restoring phone adopts the UMK it opens with the paper RK
+   *  only if its public halves match "the account's published UMK" — and that phone (wiped,
+   *  uncertified) holds nothing else, so the key travels with the blob. It is the CALLER's own
+   *  registered copy (0001 `umk_public_keys`, both halves since 0012) at its NEWEST key_version,
+   *  read in the same transaction as the blob. `null` when no key is registered, or when the
+   *  newest row is superseded — never an older version behind it, never a key made up. `pub_x`
+   *  is null on an Ed-only row (see UmkPublicRow); the device fails closed on either null
+   *  (04 §6.3 "There is no override"). The AEAD under RK is what authenticates the key
+   *  (ADR 2026-09-13c §1): a server that relays a wrong one can only make the phone refuse. */
+  umk: UmkPublicRow | null;
 }
 
 /** 04 §7.3 step 2 — what a guardian is pushed: who, which new device, and its candidate key.
@@ -489,7 +499,10 @@ export interface Tx {
   // rotates RK, so it publishes the NEXT version and the old blob stops being served.
   /** 04 §7.4: upload `sealed_RK_blob` for the caller's own user. Returns the version it landed on. */
   publishRecoverySheet(blob: Uint8Array): Promise<number>;
-  /** 04 §7.4 Recovery: the caller's OWN current sealed blob, or null when no sheet was ever made. */
+  /** 04 §7.4 Recovery: the caller's OWN current sealed blob, or null when no sheet was ever made —
+   *  with the caller's OWN published UMK beside it (ADR 2026-10-06d ruling 2; RecoverySheet.umk).
+   *  Filtered on the caller, never on RLS alone: `umk_select` (0005:318) also admits a certified
+   *  tenant-mate to this user's key rows, and E-1006d-4 proves that leak is reachable. */
   recoverySheet(): Promise<RecoverySheet | null>;
   projectMembership(record: string, tenant: string, user: string, status: string): Promise<void>;
   projectBookRole(

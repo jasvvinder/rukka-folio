@@ -6,8 +6,22 @@
 import { assert, assertEquals } from "@std/assert";
 import { b64url } from "../_shared/bytes.ts";
 import { mintAccessToken } from "../_shared/claims.ts";
+import { handler as auth } from "../auth-challenge/index.ts";
 import { handler as meta } from "../sync-meta/index.ts";
-import { advance, body, get, type Member, member, post, random, type Rig, rig } from "./harness.ts";
+import {
+  advance,
+  body,
+  certBytes,
+  edKeypair,
+  get,
+  type Member,
+  member,
+  post,
+  random,
+  type Rig,
+  rig,
+  sign,
+} from "./harness.ts";
 
 /** Anyone who can hold a session: a `Member` from the harness, or a fresh candidate phone. */
 interface Who {
@@ -735,5 +749,224 @@ Deno.test("E-06-58 rung 3 has a surface at last: a certified device uploads `sea
     // and a blob is never in anybody's meta pull
     const pull = await metaPull(r, other);
     assert(!("recovery_sheets" in pull), "the sheet is fetched deliberately, never broadcast");
+  });
+});
+
+// ============================================================================================
+// RUNG 3's `expected` — ADR 2026-10-06d ruling 2 🔒, ADR 2026-09-13c §1 (ratified), 04 §7.4 🔒.
+// ============================================================================================
+// The restoring phone (uncertified, wiped) opens `sealed_RK_blob` with the RK read off paper and
+// may adopt the UMK it recovers ONLY if its public halves match "the account's published UMK"
+// (ruling 2). That phone holds nothing else, so the published key has to come from the same read
+// that hands it the blob: GET /recovery/sheet now carries the caller's OWN registered UMK — the
+// copy /devices/certify stored through rf.set_umk_pubs (0012) — as `umk_pub_ed` + `umk_pub_x`.
+// The AEAD under the paper RK is what authenticates the key (ADR 13c §1): a server that relays a
+// wrong public key can only make the phone REFUSE, never make it adopt something the user did not
+// seal. Ids E-1006d-1 … E-1006d-3; the PgStore arm is E-1006d-4 (tests/rls/recovery_sheet_umk).
+
+/** /devices/certify exactly as the app sends it since M11-CER2: the certificate is signed by the
+ *  UMK, and both public halves ride the body (auth-challenge certifyWith → tx.setUmkPubs, 0012).
+ *  What this writes is "the registered copy" every later assertion compares against. */
+async function certifyUmk(r: Rig, m: Member, opts: { x?: boolean } = {}) {
+  const umk = await edKeypair();
+  const umkX = await random(32);
+  const issued = r.clock.now.getTime();
+  const sig = await sign(certBytes(m.device.id, m.keys.pub, m.xpub, issued), umk.priv);
+  const res = await auth(
+    post("/auth-challenge/devices/certify", {
+      umk_pub_ed: b64url.enc(umk.pub),
+      ...(opts.x === false ? {} : { umk_pub_x: b64url.enc(umkX) }),
+      umk_key_version: 1,
+      cert: { signature: b64url.enc(sig), issued_at_ms: issued },
+    }, { token: await tok(r, m) }),
+    r.deps,
+  );
+  assertEquals(res.status, 200, `precondition: certify registered the UMK (${await res.text()})`);
+  const row = r.db.umk_public_keys.find((k) => k.user_id === m.user && k.key_version === 1);
+  assert(row, "precondition: the registered copy exists");
+  return { ed: umk.pub, x: umkX, row };
+}
+
+const sheetPut = async (r: Rig, w: Who, blob: Uint8Array) =>
+  await meta(
+    post("/sync-meta/recovery/sheet", { blob: b64url.enc(blob) }, { token: await tok(r, w) }),
+    r.deps,
+  );
+const sheetGet = async (r: Rig, w: Who) =>
+  await meta(get("/sync-meta/recovery/sheet", { token: await tok(r, w) }), r.deps);
+
+Deno.test("E-1006d-1 GET /recovery/sheet hands the restoring phone its OWN account's published UMK, both halves, byte-equal to the copy /devices/certify registered, beside the blob it already served — the uncertified wiped phone included, and the body is exactly the six fields (ADR 2026-10-06d ruling 2 🔒; ADR 2026-09-13c §1; 04 §7.4 🔒)", async (t) => {
+  const r = rig();
+  const tenant = r.db.addTenant();
+  const subject = await member(r, tenant, null, null);
+  const reg = await certifyUmk(r, subject);
+  const blob = await random(72);
+  assertEquals((await body(await sheetPut(r, subject, blob))).sheet_version, 1);
+
+  const expectOwn = (got: Record<string, unknown>, who: string) => {
+    assertEquals(
+      Object.keys(got).sort(),
+      ["created_at", "sealed_rk_blob", "sheet_version", "umk_pub_ed", "umk_pub_x", "user_id"],
+      `${who}: the six fields and nothing else — no key_version, no tenant, no device`,
+    );
+    assertEquals(got.user_id, subject.user);
+    assertEquals(got.sealed_rk_blob, b64url.enc(blob), `${who}: the blob is unchanged`);
+    // byte-equal to what certify was sent AND to what the store holds — never re-derived
+    assertEquals(got.umk_pub_ed, b64url.enc(reg.ed), `${who}: the Ed25519 half certify registered`);
+    assertEquals(got.umk_pub_x, b64url.enc(reg.x), `${who}: the X25519 half certify registered`);
+    assertEquals(b64url.dec(got.umk_pub_ed as string), reg.row.pub_ed as Uint8Array);
+    assertEquals(b64url.dec(got.umk_pub_x as string), reg.row.pub_x as Uint8Array);
+    assertEquals(b64url.dec(got.umk_pub_ed as string).length, 32);
+    assertEquals(b64url.dec(got.umk_pub_x as string).length, 32);
+  };
+
+  await t.step("the certified device that printed the sheet reads both halves", async () => {
+    const res = await sheetGet(r, subject);
+    assertEquals(res.status, 200);
+    expectOwn(await body(res), "certified");
+  });
+
+  await t.step(
+    "the wiped phone of 06 §5 — registered, NEVER certified — reads the same",
+    async () => {
+      const fresh = await candidate(r, subject.user);
+      assertEquals(r.db.devices.get(fresh.device.id)?.status, "registered", "precondition");
+      const res = await sheetGet(r, fresh);
+      assertEquals(res.status, 200);
+      expectOwn(await body(res), "uncertified");
+    },
+  );
+
+  await t.step("regenerating the sheet keeps relaying the same published key", async () => {
+    advance(r, 61_000);
+    const blob2 = await random(72);
+    assertEquals((await body(await sheetPut(r, subject, blob2))).sheet_version, 2);
+    const got = await body(await sheetGet(r, subject));
+    assertEquals(got.sheet_version, 2);
+    assertEquals(got.sealed_rk_blob, b64url.enc(blob2));
+    assertEquals(got.umk_pub_ed, b64url.enc(reg.ed));
+    assertEquals(got.umk_pub_x, b64url.enc(reg.x));
+  });
+});
+
+Deno.test("E-1006d-2 nobody else's UMK travels: a tenant-mate with its own key reads its own, a tenant-mate with a sheet and NO registered key reads null — never the subject's — and a caller with no sheet is `no_sheet` with no key field at all (ADR 2026-09-05d §2; 0005 umk_select; 04 §7.4 🔒)", async (t) => {
+  const r = rig();
+  const tenant = r.db.addTenant();
+  // Registration order matters to the mutation check: the subject's key row is FIRST in the store,
+  // so a read that forgot to filter on the caller would hand the subject's key to everybody.
+  const subject = await member(r, tenant, null, null);
+  const regS = await certifyUmk(r, subject);
+  const mate = await member(r, tenant, null, null);
+  const keyless = await member(r, tenant, null, null);
+  const stranger = await member(r, r.db.addTenant(), null, null);
+  await sheetPut(r, subject, await random(72));
+  const regM = await certifyUmk(r, mate);
+  const mateBlob = await random(72);
+  await sheetPut(r, mate, mateBlob);
+  const keylessBlob = await random(72);
+  assertEquals((await sheetPut(r, keyless, keylessBlob)).status, 200, "precondition");
+  assert(!r.db.umk_public_keys.some((k) => k.user_id === keyless.user), "precondition: no key");
+
+  const S_ED = b64url.enc(regS.ed), S_X = b64url.enc(regS.x);
+
+  await t.step("a tenant-mate with its own key reads ITS key, not the subject's", async () => {
+    const got = await body(await sheetGet(r, mate));
+    assertEquals(got.user_id, mate.user);
+    assertEquals(got.sealed_rk_blob, b64url.enc(mateBlob));
+    assertEquals(got.umk_pub_ed, b64url.enc(regM.ed));
+    assertEquals(got.umk_pub_x, b64url.enc(regM.x));
+  });
+
+  await t.step("a tenant-mate with no registered key reads null, never a neighbour's", async () => {
+    const res = await sheetGet(r, keyless);
+    assertEquals(res.status, 200, "the blob is still served: S0.5b's scan-back reads this route");
+    const got = await body(res);
+    assertEquals(got.sealed_rk_blob, b64url.enc(keylessBlob));
+    assertEquals(got.umk_pub_ed, null);
+    assertEquals(got.umk_pub_x, null);
+  });
+
+  await t.step("a stranger with no sheet is `no_sheet`, and the body names no key", async () => {
+    const res = await sheetGet(r, stranger);
+    assertEquals(res.status, 404);
+    const got = await body(res);
+    assertEquals(got, { error: "no_sheet" }, "exactly the old refusal — nothing added to it");
+  });
+
+  await t.step("query parameters name nobody: the route answers for the caller alone", async () => {
+    const res = await meta(
+      get(`/sync-meta/recovery/sheet?user_id=${subject.user}&subject_user_id=${subject.user}`, {
+        token: await tok(r, keyless),
+      }),
+      r.deps,
+    );
+    const text = await res.text();
+    assert(!text.includes(S_ED) && !text.includes(S_X), "the subject's key never appears");
+    assertEquals(JSON.parse(text).user_id, keyless.user);
+  });
+});
+
+Deno.test("E-1006d-3 no key is invented: a sheet with no registered UMK is served with umk_pub_ed = umk_pub_x = null; an Ed-only row relays its Ed half and a null X half (0012); the NEWEST key_version is the published one; a newest row that is superseded relays null rather than falling back to an older key (04 §6.3 'There is no override'; 04 §9.2; ADR 2026-09-05b §1)", async (t) => {
+  const r = rig();
+  const tenant = r.db.addTenant();
+  const m = await member(r, tenant, null, null);
+  const blob = await random(72);
+  await sheetPut(r, m, blob);
+  const read = async () => {
+    const res = await sheetGet(r, m);
+    assertEquals(res.status, 200);
+    const got = await body(res);
+    assertEquals(got.sealed_rk_blob, b64url.enc(blob), "the blob is served in every case");
+    return got;
+  };
+  const row = (v: number, ed: Uint8Array, x: Uint8Array | null, superseded: Date | null = null) =>
+    r.db.umk_public_keys.push({
+      user_id: m.user,
+      key_version: v,
+      pub_ed: ed,
+      pub_x: x,
+      created_at: r.clock.now,
+      superseded_at: superseded,
+      updated_at: r.clock.now,
+    });
+
+  await t.step(
+    "no registered key: both fields present and null — not omitted, not made up",
+    async () => {
+      const got = await read();
+      assert("umk_pub_ed" in got && "umk_pub_x" in got, "the shape is stable");
+      assertEquals(got.umk_pub_ed, null);
+      assertEquals(got.umk_pub_x, null);
+    },
+  );
+
+  const ed1 = await random(32);
+  await t.step("an Ed-only row (no x half offered yet): Ed relayed, X null", async () => {
+    row(1, ed1, null);
+    const got = await read();
+    assertEquals(got.umk_pub_ed, b64url.enc(ed1));
+    assertEquals(got.umk_pub_x, null, "the device fails closed on a missing half (04 §6.3)");
+  });
+
+  const ed2 = await random(32), x2 = await random(32);
+  // Both rotation states below are seeded as maintenance would write them: 0031 allows at most ONE
+  // live row per user (partial unique index), and rf_api cannot add a second key_version at all
+  // (E-05d-1, E-05d-2). A fixture holding two live rows would be a state the database refuses.
+  const at = (v: number) =>
+    r.db.umk_public_keys.find((k) => k.user_id === m.user && k.key_version === v)!;
+  await t.step("after a UMK rotation the NEWEST version is the published key", async () => {
+    at(1).superseded_at = r.clock.now; // the rotation retires version 1 …
+    row(2, ed2, x2); // … and version 2 is the one live row
+    const got = await read();
+    assertEquals(got.umk_pub_ed, b64url.enc(ed2));
+    assertEquals(got.umk_pub_x, b64url.enc(x2));
+  });
+
+  await t.step("a superseded newest row relays null — never the older key behind it", async () => {
+    at(2).superseded_at = r.clock.now;
+    at(1).superseded_at = null; // the one live row is now the OLDER version
+    const got = await read();
+    assertEquals(got.umk_pub_ed, null, "no fallback to version 1 (the key a rotation retired)");
+    assertEquals(got.umk_pub_x, null);
   });
 });
