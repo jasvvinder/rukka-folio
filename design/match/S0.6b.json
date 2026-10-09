@@ -1,0 +1,41 @@
+{
+ "sid": "S0.6b",
+ "verdict": "deviates",
+ "frames": [
+  "c1/S0.6b/What the shop has · Capital is computed",
+  "c1/S0.6b/What the business has · each owner's capital",
+  "c12/S0.6b/Its opening balances",
+  "nd/S0.6b-justme/S0.6b-justme",
+  "nd/S0.6b-shared/S0.6b-shared"
+ ],
+ "captures": [
+  "S0.6b__default"
+ ],
+ "screen_files": [
+  "app/lib/features/onboarding/screens/s0_6b_business_opening_balances_screen.dart",
+  "app/lib/features/onboarding/widgets/business_opening_host.dart"
+ ],
+ "deviations": [
+  {
+   "what": "Layout is the older review-and-fill screen (title, subtitle, date line with calendar icon, a heading per group, underlined amount fields, '+ Add a bank account', a 'Balances against' box, a Save button) where the c1 frame draws the S0.6 pattern: back chevron and progress dashes, 'What does the shop have?' title, 'Balances as on <date>', sunk group bands with right-aligned ₹ boxes, a dashed 'Add an account' row, a footer note band and 'Finish'",
+   "reason": "This slice (SETUP174) only removes the step's Skip (ADR 2026-10-07 ruling 1); the frames were placed 7 Oct (desk 178) and their re-skin onto the S0.6 pattern — with the joint-fund wording of ADR 2026-10-08 — is its own slice",
+   "authority": "open SETUP174 (re-skin S0.6b/S0.6f/S0.6i to the c1 frames); ADR 2026-10-08 §1 wording is WORDS179"
+  },
+  {
+   "what": "The nd/ frames draw 'Skip for now' under Finish; the app draws none",
+   "reason": "The step is required in sign-up; ₹0 everywhere then Save is a valid answer with no extra confirm",
+   "authority": "ADR 2026-10-07 ruling 1 🔒"
+  },
+  {
+   "what": "S9.5 (Menu → Add a business) still draws 'Skip for now' on this screen",
+   "reason": "Ruling 1 is 'Required before Home' and names S0.6b in sign-up; S9.5 is after Home, so the conservative reading leaves it as it was (offerSkip)",
+   "authority": "ADR 2026-10-07 ruling 1; ⚠️ SPEC business_opening_host.dart (open SETUP174)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-09",
+ "hashes": {
+  "screens": "ab3f7b34b560ec7f89bf810e0f47079c3539acfd2c78c0703045259c7c7dd75e",
+  "frames": "a88525d027bb9abcd69b5a8364fd71c60b5f3c7c21d7f88f7846b637d9379276"
+ }
+}

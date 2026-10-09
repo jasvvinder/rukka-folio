@@ -17,12 +17,16 @@ import 'package:data/data.dart' show BookOwnership;
 import 'package:flutter/material.dart';
 
 import '../../../l10n/gen/app_localizations.dart';
+import '../../../shared/app_settings.dart';
 import '../../../shared/ledger/ledger_scope.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../../entry/entry_restriction.dart';
 import '../onboarding_flow.dart';
+import '../screens/s0_3_purpose_screen.dart' show OnboardingPurpose;
+import '../setup_progress.dart' show SetupBranchBook, SetupProgress;
 import '../onboarding_gate.dart' show OnboardingBack;
+import '../opening_setup_record.dart';
 import '../screens/s0_6a_business_name_screen.dart';
 import '../screens/s0_6b_business_opening_balances_screen.dart';
 
@@ -36,6 +40,7 @@ class BusinessOpeningHost extends StatefulWidget {
     this.onDone,
     this.onAddAccount,
     this.onBack,
+    this.offerSkip = true,
   });
 
   /// The answers S0.6a and S0.6a1 collected.
@@ -44,8 +49,8 @@ class BusinessOpeningHost extends StatefulWidget {
   /// The day the book's books begin (ADR 2026-09-09d §4).
   final LocalDate startDate;
 
-  /// Called once the balances are posted, or *Skip for now* is taken — the
-  /// S0.7 checklist brings a skipped wizard back (07 §3.1 step 7).
+  /// Called once the balances are saved (ADR 2026-10-07 ruling 1: there is
+  /// no *Skip for now*; ₹0 everywhere is a valid answer).
   final VoidCallback? onDone;
 
   /// Opens *Add an account* for a group (S3.1) — how a bank arrives, since
@@ -59,6 +64,16 @@ class BusinessOpeningHost extends StatefulWidget {
   /// the answers fixed into the book are never reopened. Null leaves Back
   /// alone.
   final VoidCallback? onBack;
+
+  /// Draws S0.6b's *Skip for now* (→ [onDone]). Sign-up passes false: ADR
+  /// 2026-10-07 ruling 1 makes each business's opening balances required
+  /// before Home. S9.5 (Menu → Add a business, after Home) keeps the
+  /// default.
+  ///
+  /// ⚠️ SPEC: ruling 1 is titled *Required before Home* and names S0.6b in
+  /// sign-up; whether S9.5's pass through the same screen also loses its
+  /// Skip is not said. The conservative reading leaves S9.5 as it was.
+  final bool offerSkip;
 
   @override
   State<BusinessOpeningHost> createState() => _BusinessOpeningHostState();
@@ -108,7 +123,18 @@ class _BusinessOpeningHostState extends State<BusinessOpeningHost> {
       final ledger = LedgerScope.of(context);
       final flow = widget.flow;
       final draft = flow.business;
-      if (draft == null) throw StateError('S0.6a has not been answered');
+      // A step resumed over a book already made needs no answer: a cold start
+      // lost [draft] but `branch_resume.dart` put the book back.
+      if (draft == null && flow.businessBookId == null) {
+        throw StateError('S0.6a has not been answered');
+      }
+      // Kept on the device so a cold start resumes over this book instead of
+      // making a second (ADR 2026-10-06b ruling 2 🔒, 07 §3.1.1). Not in S9.5
+      // (Menu → Add a business), which reuses this host on an onboarded
+      // install. Read before the first await.
+      final settings = AppSettingsScope.read(context);
+      final keep = !(settings?.onboarded ?? false);
+      final made = flow.businessBookId == null;
       // S12.5 (ADR 2026-09-24b §13): creating the book appends envelopes (its
       // book_config and the seeded chart), so read-only refuses it with the
       // same sheet **before** `createBook` runs. A resumed step whose book
@@ -131,7 +157,7 @@ class _BusinessOpeningHostState extends State<BusinessOpeningHost> {
       final bookId =
           flow.businessBookId ??
           await ledger.createBook(
-            name: draft.name,
+            name: draft!.name,
             type: BookType.business,
             fyStartMonth: draft.fyStartMonth,
             ownership: draft.ownership == BusinessOwnershipChoice.shared
@@ -151,6 +177,16 @@ class _BusinessOpeningHostState extends State<BusinessOpeningHost> {
             startDate: widget.startDate,
           );
       flow.businessBookId = bookId;
+      if (made && keep) {
+        await SetupProgress.recordBranchBook(
+          settings?.prefs,
+          SetupBranchBook(
+            purpose: OnboardingPurpose.businesses,
+            bookId: bookId,
+            shared: draft?.ownership == BusinessOwnershipChoice.shared,
+          ),
+        );
+      }
       // Mounted again after its balances were posted (a resume, a deep
       // link): the step is done, so it moves on rather than offering to post
       // a second set to the same book (07 §3.1.1 — never duplicated).
@@ -185,7 +221,7 @@ class _BusinessOpeningHostState extends State<BusinessOpeningHost> {
     try {
       // S12.5 (ADR 2026-09-24b §13): read-only blocks onboarding's opening
       // balances with the same sheet. The figures stay typed on the screen
-      // underneath (drafts kept); *Skip for now* still leads on, so the step is
+      // underneath (drafts kept); ₹0 everywhere still saves, so the step is
       // never a dead end. Both seams are read before the first await.
       final sources = entryRestrictionSourcesOf(context);
       final ledger = LedgerScope.of(context);
@@ -196,9 +232,26 @@ class _BusinessOpeningHostState extends State<BusinessOpeningHost> {
         widget.onDone?.call();
         return;
       }
-      if (await refuseIfEntryRestricted(context, sources, [bookId])) return;
+      final prefs = AppSettingsScope.read(context)?.prefs;
+      // ADR 2026-10-07 ruling 1: the step is required, and ₹0 everywhere is a
+      // valid answer that posts nothing (02 §4) — so it is never refused as a
+      // write: read-only cannot turn a required step into a dead end (07 §1
+      // rule 6).
+      final toPost = {
+        for (final e in balances.entries)
+          if (e.value != 0) e.key: e.value,
+      };
+      if (toPost.isNotEmpty &&
+          await refuseIfEntryRestricted(context, sources, [bookId])) {
+        return;
+      }
       try {
-        await ledger.openingBalances(bookId, balances: balances);
+        if (toPost.isNotEmpty) {
+          await ledger.openingBalances(bookId, balances: toPost);
+        }
+        // Ruling 3: the S0.7 *Opening balances* row arrives ticked over this
+        // book too, whatever was typed.
+        await OpeningSetupRecord.markFinished(prefs, bookId);
         widget.flow.markBusinessOpeningPosted();
         widget.onDone?.call();
       } on Object catch (e) {
@@ -258,8 +311,8 @@ class _BusinessOpeningHostState extends State<BusinessOpeningHost> {
       rows: rows,
       startDate: widget.startDate,
       onSave: _save,
-      onSkip: widget.onDone,
       onAddAccount: widget.onAddAccount,
+      onSkip: widget.offerSkip ? widget.onDone : null,
     );
   }
 }

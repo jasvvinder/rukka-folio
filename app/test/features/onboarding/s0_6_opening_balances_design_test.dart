@@ -15,7 +15,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/features/onboarding/onboarding_routes.dart';
 
 import '../../shared/design_capture.dart';
-import '../../shared/test_app.dart';
 
 const _cash = FirstRunRow(
   accountId: 'cash',
@@ -43,7 +42,6 @@ void main() {
             rows: rows,
             asOn: LocalDate(2026, 9, 9),
             onFinish: (_) {},
-            onSkip: () {},
             onAddAccount: () {},
             onBack: () {},
             debugTyped: typed,

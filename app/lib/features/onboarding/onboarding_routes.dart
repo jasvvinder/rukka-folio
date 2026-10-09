@@ -20,10 +20,14 @@ import '../demo/widgets/demo_build_card.dart' show demoPurposeCard;
 import '../devices/devices_paths.dart';
 import '../entry/entry_restriction.dart';
 import '../home/home_paths.dart';
+import '../recovery/recovery_camera.dart' show RecoveryCameraHost;
+import 'branch_resume.dart';
 import 'onboarding_flow.dart';
 import 'onboarding_gate.dart';
 import 'onboarding_paths.dart';
 import 'personal_book.dart';
+import 'recovery_sheet/recovery_sheet_service.dart';
+import 'setup_progress.dart';
 import 'screens/s0_0_splash_screen.dart';
 import 'screens/s0_05_welcome_screen.dart';
 import 'screens/s0_06_start_screen.dart';
@@ -57,6 +61,7 @@ export 'onboarding_gate.dart'
 export 'onboarding_paths.dart';
 export 'opening_setup_record.dart' show OpeningSetupRecord;
 export 'personal_book.dart' show ensurePersonalBook, personalBookIdOf;
+export 'setup_progress.dart' show SetupBranch, SetupBranchState, SetupProgress;
 export 'screens/s0_6_opening_balances_screen.dart'
     show FirstRunRow, IndianGroupingFormatter, OpeningBalancesScreen;
 export 'widgets/personal_opening_host.dart' show PersonalOpeningHost;
@@ -68,8 +73,11 @@ export 'screens/s0_6a_business_name_screen.dart'
     show BusinessDraft, BusinessNameScreen, BusinessOwnershipChoice;
 export 'screens/s0_5_books_safe_screen.dart'
     show BooksSafeScreen, KeySyncAvailability;
+export 'recovery_sheet/recovery_sheet_pdf.dart'
+    show RecoverySheetContent, recoverySheetContentOf, renderRecoverySheet;
+export 'recovery_sheet/recovery_sheet_service.dart';
 export 'screens/s0_5b_recovery_sheet_screen.dart'
-    show RecoverySheetScreen, RecoverySheetStep;
+    show RecoverySheetEntry, RecoverySheetScreen, RecoverySheetStep;
 export 'invitation_gateway.dart'
     show
         DelegatedInvitationGateway,
@@ -220,6 +228,14 @@ final List<RouteBase> onboardingRoutes = [
         ),
         onSelected: (purpose) {
           onboardingFlow.setPurpose(purpose);
+          // Kept on the device so a cold start keeps the branch and the S0.7
+          // rows (ADR 2026-10-07 ruling 3, ADR 2026-10-06b ruling 2).
+          unawaited(
+            SetupProgress.recordPurpose(
+              AppSettingsScope.read(context)?.prefs,
+              purpose,
+            ),
+          );
           context.go(OnboardingPaths.namePhoto);
         },
       ),
@@ -274,36 +290,64 @@ final List<RouteBase> onboardingRoutes = [
       BooksSafeScreen(
         onContinue: () => context.go(OnboardingPaths.recoverySheet),
         onSheet: () => context.go(OnboardingPaths.recoverySheet),
-        onSkip: () => goOnboarding(context, afterSetPin(onboardingFlow)),
+        onSkip: () => unawaited(_afterSheet(context)),
       ),
     ),
   ),
-  // 07 §3.1 step 6 / 04 §7.4 🔒. Generation, print/save and the scan-back
-  // check are seams with no implementation in this build, so none is wired:
-  // the screen shows its intro with *Make the sheet* disabled **and its
-  // reason** (13 §4.3; desk 171) rather than pretending a sheet was made.
+  // 07 §3.1 step 6 / 04 §7.4 🔒 — rung 3's making half (ADR 2026-10-06d
+  // ruling 3 🔒). The sheet maker is bootstrap's [RecoverySheetServiceScope]
+  // (`LiveRecoverySheetService`: make → publish → only then the print
+  // sheet; scan or type back against the blob the server holds). The step is
+  // required (ADR 2026-10-07 ruling 1): the screen offers *Skip for now* only
+  // beside a failed publish, or when no maker is installed at all (07 §1
+  // rule 6). In the chain it makes; reopened from the S0.7 row on an
+  // onboarded install it first asks the server and checks a sheet that
+  // exists, so the row never rotates RK by accident.
   //
-  // ⚠️ SPEC / open (P1A, desk 171) — the cause, from the code, not GATE1 and
-  // not a missing printing dependency (`pdf` and `printing` are both in
-  // app/pubspec.yaml). Nothing in the build makes a sheet: (1) `core_crypto`
-  // seals the UMK under RK (`sealUmkUnderRecoveryKey`) but defines no byte
-  // framing for `SealedRecoveryBlob`, and `POST /sync-meta/recovery/sheet`
-  // (`RecoveryApi.publishSheet`) stores one opaque byte string — choosing the
-  // layout is core_crypto behaviour (bootstrap.dart's rung-3 note says the
-  // same), and a sheet published under a guessed framing would be a printed
-  // key nobody can open later; (2) no sheet PDF layout (04 §7.4: QR +
-  // Crockford fallback, EN + the user's language) and no scan-back verifier
-  // exist. The UMK itself is reachable (`LocalLedger.keyMaterial.umk`), so
-  // (1) is the blocker. Both are outside onboarding.
+  // S0.5b is the Back target of the step after it (onboarding_gate.dart
+  // `_backTarget`). Coming back in the same chain after the page was opened
+  // reopens on the *opened* state — *I've kept it safe* awake, the printed
+  // page still the live one — and *Print or save* then warns before it makes
+  // a new sheet (04 §7.4 🔒 a new sheet voids the old). [onboardingFlow]
+  // holds the fact (`recoverySheetPrinted`) for the life of the chain.
+  //
+  // ⚠️ SPEC: a **cold-start** resume (the app died after the print sheet)
+  // has no such fact — it lives in memory, like every chain answer — so
+  // S0.5b opens on *make*, and making again rotates RK and voids that page:
+  // the conservative reading of 04 §7.4 (only the newest sheet works, and
+  // the person is printing one now). Reported to the owner.
+  //
+  // [RecoveryCameraHost] lends this route's navigator to the scan
+  // (ADR 2026-09-19 ruling 1 🔒 — the one camera, `RecoveryCamera`).
   GoRoute(
     path: OnboardingPaths.recoverySheet,
     builder: (context, state) => _chainStep(
       context,
       state,
-      RecoverySheetScreen(
-        onVerifiedChanged: onboardingFlow.setRecoverySheetVerified,
-        onDone: () => goOnboarding(context, afterSetPin(onboardingFlow)),
-        onSkip: () => goOnboarding(context, afterSetPin(onboardingFlow)),
+      RecoveryCameraHost(
+        child: RecoverySheetScreen(
+          service: RecoverySheetServiceScope.maybeOf(context),
+          entry: (AppSettingsScope.read(context)?.onboarded ?? false)
+              ? RecoverySheetEntry.checkIfMade
+              : RecoverySheetEntry.make,
+          onBack: _backFrom(context, state),
+          printedEarlier: onboardingFlow.recoverySheetPrinted,
+          onPrintedChanged: onboardingFlow.setRecoverySheetPrinted,
+          onVerifiedChanged: (verified) {
+            onboardingFlow.setRecoverySheetVerified(verified);
+            // The S0.7 row *Check your recovery sheet* ticks once the sheet
+            // is checked back, and opens again when a new one is made
+            // (ADR 2026-10-07 ruling 3; 04 §7.4) — kept on the device.
+            unawaited(
+              SetupProgress.recordRecoverySheetVerified(
+                AppSettingsScope.read(context)?.prefs,
+                verified,
+              ),
+            );
+          },
+          onDone: () => unawaited(_afterSheet(context)),
+          onSkip: () => unawaited(_afterSheet(context)),
+        ),
       ),
     ),
   ),
@@ -374,8 +418,11 @@ final List<RouteBase> onboardingRoutes = [
     builder: (context, state) => BusinessOpeningHost(
       flow: onboardingFlow,
       startDate: bookStartDateOf(context),
-      // Skipped or saved, the *My business* card goes on to S0.6c (07 §3.1.1,
-      // ADR 2026-10-04c §1) — see [afterBusinessOpening].
+      // ADR 2026-10-07 ruling 1: required in sign-up — no *Skip for now*.
+      offerSkip: false,
+      // Once saved, the *My business* card goes on to S0.6c (07 §3.1.1,
+      // ADR 2026-10-04c §1) — see [afterBusinessOpening]. ADR 2026-10-07
+      // ruling 1: S0.6b is required, no *Skip for now*.
       onDone: () => goOnboarding(context, afterBusinessOpening(onboardingFlow)),
       onBack: _backFrom(context, state),
     ),
@@ -402,15 +449,20 @@ final List<RouteBase> onboardingRoutes = [
         },
         // 07 §3.1.1 🔒 *My business* row: O6c → **O6** your own → checklist.
         // *No, that's all* and the skip both go on to S0.6 (desk 172), since
-        // 07 §3.1.1 makes every branch step skippable.
+        // 07 §3.1.1 made every branch step skippable. ⚠️ SPEC: ADR 2026-10-07
+        // narrows that to the invite steps but names neither way for S0.6c;
+        // its Skip leads exactly where *No, that's all* does and posts
+        // nothing, so it is left as drawn (S0.6c is not this slice's S-id).
         onDone: () => context.go(OnboardingPaths.openingBalances),
         onSkip: () => context.go(OnboardingPaths.openingBalances),
       ),
     ),
   ),
-  // The family branch (07 §3.1.1 O6d → O6e → O6f). Every step is skippable
-  // and resumable; S0.6e's *Skip for now* is always visible (🔒) and simply
-  // carries an empty (or partial) member list forward rather than blocking.
+  // The family branch (07 §3.1.1 O6d → O6e → O6f). ADR 2026-10-07: naming
+  // (S0.6d) and the joint fund's opening balances (S0.6f) are required; only
+  // S0.6e's invites stay skippable — its *Skip for now* is always visible (🔒)
+  // and carries an empty (or partial) member list forward, and S0.7's
+  // *Finish <book>* row resumes S0.6e later with what was saved kept.
   GoRoute(
     path: OnboardingPaths.family,
     builder: (context, state) => _chainStep(
@@ -438,9 +490,21 @@ final List<RouteBase> onboardingRoutes = [
             : onboardingFlow.familyMembers,
         onSubmit: (members) {
           onboardingFlow.setFamilyMembers(members);
-          context.go(OnboardingPaths.familyAccounts);
+          _afterInvites(
+            context,
+            OnboardingPurpose.family,
+            answered: true,
+            next: OnboardingPaths.familyAccounts,
+          );
         },
-        onSkip: () => context.go(OnboardingPaths.familyAccounts),
+        // 07 §3.1.1 🔒 / ADR 2026-10-07 ruling 2: always skippable; the S0.7
+        // *Finish …* row brings it back.
+        onSkip: () => _afterInvites(
+          context,
+          OnboardingPurpose.family,
+          answered: false,
+          next: OnboardingPaths.familyAccounts,
+        ),
       ),
     ),
   ),
@@ -449,16 +513,17 @@ final List<RouteBase> onboardingRoutes = [
     builder: (context, state) => FamilyOpeningHost(
       flow: onboardingFlow,
       startDate: bookStartDateOf(context),
-      // Skipped or saved, the next stop is S0.6 (07 §3.1.1 🔒 *My family*
-      // row: O6f → O6 your own → checklist; desk 172).
+      // Once saved (required, ADR 2026-10-07 ruling 1), the next stop is
+      // S0.6 (07 §3.1.1 🔒 *My family* row: O6f → O6 your own → checklist;
+      // desk 172).
       onDone: () => context.go(OnboardingPaths.openingBalances),
       onBack: _backFrom(context, state),
     ),
   ),
-  // The trust branch (07 §3.1.1 O6g → O6h → O6i). Every step is skippable
-  // and resumable; S0.6h's *Skip for now* is always visible (🔒) and simply
-  // carries an empty (or partial) committee list forward rather than
-  // blocking — the same shape as the family branch's S0.6e.
+  // The trust branch (07 §3.1.1 O6g → O6h → O6i). ADR 2026-10-07: naming
+  // (S0.6g) and the trust's opening balances (S0.6i) are required; only
+  // S0.6h's invites stay skippable (🔒), the same shape as the family
+  // branch's S0.6e, and S0.7's *Finish <book>* row resumes it later.
   GoRoute(
     path: OnboardingPaths.trust,
     builder: (context, state) => _chainStep(
@@ -486,9 +551,21 @@ final List<RouteBase> onboardingRoutes = [
             : onboardingFlow.trustMembers,
         onSubmit: (members) {
           onboardingFlow.setTrustMembers(members);
-          context.go(OnboardingPaths.trustAccounts);
+          _afterInvites(
+            context,
+            OnboardingPurpose.trust,
+            answered: true,
+            next: OnboardingPaths.trustAccounts,
+          );
         },
-        onSkip: () => context.go(OnboardingPaths.trustAccounts),
+        // 07 §3.1.1 🔒 / ADR 2026-10-07 ruling 2: always skippable; the S0.7
+        // *Finish …* row brings it back.
+        onSkip: () => _afterInvites(
+          context,
+          OnboardingPurpose.trust,
+          answered: false,
+          next: OnboardingPaths.trustAccounts,
+        ),
       ),
     ),
   ),
@@ -497,7 +574,8 @@ final List<RouteBase> onboardingRoutes = [
     builder: (context, state) => TrustOpeningHost(
       flow: onboardingFlow,
       startDate: bookStartDateOf(context),
-      // Skipped or saved, the next stop is S0.6 (desk 172: shown once after
+      // Once saved (required, ADR 2026-10-07 ruling 1), the next stop is
+      // S0.6 (desk 172: shown once after
       // the branch steps on every path, canvas 1 "All five paths converge
       // here").
       //
@@ -508,15 +586,16 @@ final List<RouteBase> onboardingRoutes = [
       // this follows it; but the ruling is recorded only in PLAN.md — no ADR
       // amends the 🔒 row and no ⟦tests⟧ marker names F1-1006c-*. This lane
       // may not write docs/, so the amendment is the orchestrator's (open
-      // P1A). S0.6 is skippable, so a trust treasurer with no personal
-      // figures loses one tap.
+      // P1A). S0.6 at ₹0 then *Finish* (ADR 2026-10-07 ruling 1) costs a
+      // trust treasurer with no personal figures one tap.
       onDone: () => context.go(OnboardingPaths.openingBalances),
       onBack: _backFrom(context, state),
     ),
   ),
   // S0.6 Opening balances · first run (desk 172). Once in the chain, after
-  // the branch steps; *Finish* and *Skip for now* both hand over to Home with
-  // the S0.7 checklist (ADR 2026-10-06b ruling 1: this is the chain's last
+  // the branch steps; *Finish* hands over to Home with the S0.7 checklist
+  // (ADR 2026-10-07 ruling 1: required, no *Skip for now*; ADR 2026-10-06b
+  // ruling 1: this is the chain's last
   // step). Reopened later from the checklist's *Opening balances* row, when
   // the install is already onboarded: Back then returns to Home.
   GoRoute(
@@ -622,9 +701,87 @@ Widget _chainStep(BuildContext context, GoRouterState state, Widget step) =>
 VoidCallback _backFrom(BuildContext context, GoRouterState state) {
   final path = state.uri.path;
   return () {
+    // Reopened from the S0.7 checklist on an onboarded install (S0.5b, S0.6,
+    // S0.6e, S0.6h): Back returns to Home, never into the chain.
+    if (AppSettingsScope.read(context)?.onboarded ?? false) {
+      context.go(HomePaths.home);
+      return;
+    }
     final previous = previousOnboardingStep(path, onboardingFlow);
     if (previous != null) context.go(previous);
   };
+}
+
+/// Where S0.5 / S0.5b go next. In the chain: the branch the purpose card
+/// chose ([afterSetPin]) — with the purpose restored from the device when a
+/// cold start lost it (ADR 2026-10-07 ruling 3; this closes the old
+/// `onboarding_gate.dart` ⚠️ SPEC that a lost purpose also lost the branch).
+/// A branch whose book was already made resumes over that book
+/// ([resumeBranchBooks]). Reopened from the S0.7 checklist on an onboarded
+/// install: back to Home.
+Future<void> _afterSheet(BuildContext context) async {
+  final settings = AppSettingsScope.read(context);
+  if (settings?.onboarded ?? false) {
+    context.go(HomePaths.home);
+    return;
+  }
+  final ledger = LedgerScope.maybeOf(context);
+  if (onboardingFlow.purpose == null) {
+    final saved = await SetupProgress.purpose(settings?.prefs);
+    if (saved != null && onboardingFlow.purpose == null) {
+      onboardingFlow.setPurpose(saved);
+    }
+  }
+  // A branch book the lost chain had already made is resumed over, never
+  // re-asked and made again (ADR 2026-10-06b ruling 2 🔒 — the first step not
+  // yet completed; 07 §3.1.1 *never duplicated*; `branch_resume.dart`).
+  final resumed = ledger == null
+      ? null
+      : await resumeBranchBooks(onboardingFlow, settings?.prefs, ledger);
+  if (context.mounted) {
+    goOnboarding(context, resumed ?? afterSetPin(onboardingFlow));
+  }
+}
+
+/// Where S0.6e / S0.6h go once answered or skipped (ADR 2026-10-07 rulings 2
+/// and 3).
+///
+/// - In the chain: on to [next]. A skip records the open step on the device
+///   so S0.7 shows its *Finish …* row; an answer records that nothing is open.
+/// - Resumed from that S0.7 row on an onboarded install: an answer ticks the
+///   row; a skip leaves it open. Either way back to Home.
+///
+/// ⚠️ SPEC / open: the invitees collected here are held on [onboardingFlow]
+/// only — no code sends them (pre-existing; the invite send is S9.1's
+/// `MembersRepository`, not onboarding's). *Finish* ticks when S0.6e / S0.6h
+/// is answered, which is what ruling 3 names.
+void _afterInvites(
+  BuildContext context,
+  OnboardingPurpose purpose, {
+  required bool answered,
+  required String next,
+}) {
+  final settings = AppSettingsScope.read(context);
+  final prefs = settings?.prefs;
+  if (settings?.onboarded ?? false) {
+    if (answered) {
+      unawaited(SetupProgress.setBranchState(prefs, SetupBranchState.done));
+    }
+    context.go(HomePaths.home);
+    return;
+  }
+  unawaited(
+    answered
+        ? SetupProgress.invitesAnsweredInChain(prefs)
+        : SetupProgress.invitesSkipped(
+            prefs,
+            purpose,
+            bookId: purpose == OnboardingPurpose.family
+                ? onboardingFlow.familyBookId
+                : onboardingFlow.trustBookId,
+          ),
+  );
+  context.go(next);
 }
 
 /// Desk 164: makes the person's personal book at S0.4 ([ensurePersonalBook]).

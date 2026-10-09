@@ -225,6 +225,110 @@ final class IdentityNotConfirmed implements Exception {
       'IdentityNotConfirmed: sign in (06 §2) before authoring anything';
 }
 
+/// What [LocalLedger.makeRecoverySheet] hands S0.5b (04 §7.4 🔒; ADR
+/// 2026-10-06d §1, §3): the fresh RK the paper carries and the sealed blob
+/// bytes the server stores. The caller renders the sheet from [rk] with
+/// `recoverySheetQr(userId, rk)` / `recoverySheetTyped(suite, userId, rk)`,
+/// publishes [sealedBlob] through `RecoveryApi.publishSheet`, and [dispose]s
+/// — RK exists on paper and nowhere else afterwards.
+final class RecoverySheetMaterial {
+  /// Creates the material; [rk] is owned by it.
+  const RecoverySheetMaterial({
+    required this.userId,
+    required this.rk,
+    required this.sealedBlob,
+  });
+
+  /// Whose sheet it is — the install's user id, as the payload names it.
+  final String userId;
+
+  /// The recovery key, in guarded memory.
+  final RecoveryKey rk;
+
+  /// `SealedRecoveryBlob.encode()`: `suite_version ‖ nonce ‖ ciphertext`
+  /// (105 bytes). Ciphertext under RK — opaque to the server and to anyone
+  /// without the paper.
+  final Uint8List sealedBlob;
+
+  /// Zeroises RK.
+  void dispose() => rk.dispose();
+}
+
+/// The outcome of [LocalLedger.adoptRecoveredUmk] (ADR 2026-10-06d §2 🔒).
+sealed class RecoveredUmkOutcome {
+  const RecoveredUmkOutcome();
+}
+
+/// The blob opened under RK to the account's verified UMK, which is now this
+/// install's UMK, re-wrapped to this device. Completion — the device's own
+/// certificate under the recovered key and the revocation of every previous
+/// device (04 §7.3 step 6) — is the caller's next step, as after rung 2.
+final class RecoveredUmkAdopted extends RecoveredUmkOutcome {
+  /// Creates the outcome.
+  const RecoveredUmkAdopted();
+}
+
+/// Nothing was stored, for [reason].
+final class RecoveredUmkRefused extends RecoveredUmkOutcome {
+  /// Creates the refusal.
+  const RecoveredUmkRefused(this.reason);
+
+  /// Why.
+  final RecoveredUmkRefusal reason;
+
+  @override
+  String toString() => 'RecoveredUmkRefused(${reason.name})';
+}
+
+/// Why a recovered UMK was not adopted. The first two are R2.4's *"that
+/// code didn't work"* — this device cannot tell a mistyped code from a sheet
+/// reprinted since, and a blob that opens to a foreign key is refused the
+/// same way (nothing is said about *which* key it opened to). The last two
+/// are this install's state, not the code's: an S11.3 opener maps them to a
+/// **throw** (`RecoverySheetOpener`: a key that could not be installed
+/// learned nothing about the code), never to `false`.
+///
+/// A blob this build cannot frame is not here at all — that is
+/// [RecoveryBlobNotFramed], thrown, for the same reason.
+enum RecoveredUmkRefusal {
+  /// The blob framed but did not open under this RK: the AEAD refused
+  /// (a wrong or reprinted sheet, or ciphertext altered in transit).
+  didNotOpen,
+
+  /// It opened, but not to the account's published UMK (04 §7.3 step 4;
+  /// ADR 2026-10-06d §2).
+  mismatch,
+
+  /// The sheet names a user other than this install's identity. The blob is
+  /// not tried. Adopting the account's id is ADR 2026-10-04b §3's work
+  /// (C-04b-4), done before this door is reached.
+  notThisUser,
+
+  /// Something has been authored under the current UMK — a book, a cached
+  /// key, an outbox row, a signed record. Replacing the key would strand it.
+  /// ⚠️ SPEC: 06 §5 *every rung fails* says a sheet found later still opens
+  /// the old books but not which key then wins; refused until ruled.
+  keyInUse,
+}
+
+/// The server's `sealed_rk_blob` is not a blob this build can frame — the
+/// wrong length or a suite byte this build does not read (`SealedRecoveryBlob
+/// .decode`, ADR 2026-10-06d §1). Thrown by [LocalLedger.adoptRecoveredUmk]
+/// before any RK touches it, because it says nothing about the code the
+/// person typed: R2.4's *"that code didn't work"* would be a lie here, and
+/// the S11.3 seam contract puts it with the throws (`RecoverySheetOpener`).
+/// Nothing was stored.
+final class RecoveryBlobNotFramed implements Exception {
+  /// Creates the failure.
+  const RecoveryBlobNotFramed(this.reason);
+
+  /// `SealedRecoveryBlob.decode`'s reason (`length`, `suite`).
+  final String reason;
+
+  @override
+  String toString() => 'RecoveryBlobNotFramed($reason)';
+}
+
 /// One line of the Home position card (07 §4; 02 §9). Every figure is signed
 /// integer paise in the engine's convention.
 final class Position {
@@ -1902,6 +2006,12 @@ final class LocalLedger
   /// root rebuilds itself (`RootRelaunch` in `bootstrap.dart`).
   void Function()? onIdentityReminted;
 
+  /// Called after [adoptRecoveredUmk] has replaced the UMK (rung 3, ADR
+  /// 2026-10-06d §2). Same contract as [onIdentityReminted]: everything built
+  /// from [keyMaterial] before this moment holds the retired key and must be
+  /// rebuilt by the composition root. Wired by the S11.3 opener (RUNG3B).
+  void Function()? onUmkAdopted;
+
   /// True after [bootstrapSolo] (or a successful re-open).
   bool get isOpen => _identity != null;
 
@@ -2008,6 +2118,14 @@ final class LocalLedger
     if (_ownCert != null || _umkPubsAccepted) return true;
     if (await keys.contains(LocalLedgerKeys.deviceCert)) return true;
     if (await keys.contains(LocalLedgerKeys.umkPubsAccepted)) return true;
+    return _anythingAuthoredUnderKeys();
+  }
+
+  /// The subset of [_anythingAuthored] that a change of UMK would strand: a
+  /// book (its key is wrapped to the UMK), a cached key, an outbox row, a
+  /// signed record. A device certificate is not in this set — it describes
+  /// the device under a key and is simply dropped with that key.
+  Future<bool> _anythingAuthoredUnderKeys() async {
     if ((await mirror.bookIds()).isNotEmpty) return true;
     if ((await (db.select(db.keyCache)..limit(1)).get()).isNotEmpty) {
       return true;
@@ -2016,6 +2134,128 @@ final class LocalLedger
     return (await (db.select(
       db.signedRecordsLocal,
     )..limit(1)).get()).isNotEmpty;
+  }
+
+  // ── rung 3: the paper sheet (04 §7.4 🔒; ADR 2026-10-06d §1–§2) ───────────
+
+  /// Makes the material for a recovery sheet: a fresh RK from the suite's
+  /// CSPRNG and this install's UMK sealed under it, encoded as the bytes
+  /// `RecoveryApi.publishSheet` stores (ADR 2026-10-06d §1). Every call
+  /// draws a new RK, so publishing its blob invalidates every earlier sheet
+  /// (04 §7.4 — regenerating rotates RK). Nothing is stored here: RK lives
+  /// on the paper, the blob on the server, and the caller [RecoverySheetMaterial.dispose]s.
+  ///
+  /// Behind the authoring gate: the payload names the user id, and a
+  /// provisional one may still be re-minted (ADR 2026-10-04b §2).
+  RecoverySheetMaterial makeRecoverySheet() {
+    _requireAuthoring();
+    final rk = RecoveryKey.generate(suite);
+    final blob = sealUmkUnderRecoveryKey(suite, rk, _umk!);
+    return RecoverySheetMaterial(
+      userId: _identity!.userId,
+      rk: rk,
+      sealedBlob: blob.encode(),
+    );
+  }
+
+  /// Rung 3 restore (ADR 2026-10-06d §2 🔒; 04 §7.4 "decrypt UMK"): decodes
+  /// [sealedBlob] (the server's `sealed_rk_blob`), opens it under [rk] (the
+  /// scanned or typed sheet's key) and adopts the UMK inside **only if** its
+  /// public halves equal [expected] — the UMK the account **published**
+  /// (06 §3 item 3), as the server relays it (04 §7.3 step 4).
+  ///
+  /// [expected] is a plain [UmkPublic], not the [VerifiedUmkPublic] rung 2
+  /// demands, because this rung's authenticator is the AEAD under the paper
+  /// RK (ADR 2026-09-13c §1: *"no other rung has this gap"*): a forged or
+  /// swapped blob does not open, and a server lying about the published key
+  /// can only make a genuine sheet be refused. The comparison catches a
+  /// stale print after a UMK rotation (04 §9.2); it is not where trust
+  /// comes from. Nothing is wrapped to [expected] (CLAUDE.md rule 5): the
+  /// adopted key's own [VerifiedUmkPublic] is produced from possession by
+  /// [_selfVerifyUmk], exactly as for the key signup mints. A solo user —
+  /// for whom 04 §7.4 makes the sheet mandatory — has nobody to run a
+  /// ceremony with, which is why a ceremony-typed parameter cannot be
+  /// right here.
+  ///
+  /// On adoption the UMK is re-wrapped to this device's own key and written
+  /// where signup writes it (`KeyIds.wrappedUmk`, ADR 2026-10-06 §1), the
+  /// replaced UMK is retired (zeroised by [dispose], never under a live
+  /// holder — see [remintProvisionalIdentity]), a certificate and an
+  /// accepted-pubs record filed under the replaced key are dropped, and
+  /// [onUmkAdopted] fires. Completion (04 §7.3 step 6) is the caller's.
+  ///
+  /// Outcomes are typed — never a reason string, never a secret — and split
+  /// as the S11.3 seam contract splits them (`RecoverySheetOpener`): a
+  /// verdict **on the code** is a [RecoveredUmkRefused] (`didNotOpen`,
+  /// `mismatch` → R2.4); this install's own state is a [RecoveredUmkRefused]
+  /// too (`notThisUser`, `keyInUse`) but an opener throws on it; and a blob
+  /// this build cannot frame is a [RecoveryBlobNotFramed] **throw**, raised
+  /// before RK touches anything. On every path but adoption nothing is
+  /// stored and nothing is deleted. Every intermediate buffer is zeroised by
+  /// the primitives that made it; nothing here logs.
+  Future<RecoveredUmkOutcome> adoptRecoveredUmk({
+    required Uint8List sealedBlob,
+    required RecoveryKey rk,
+    required String sheetUserId,
+    required UmkPublic expected,
+  }) async {
+    _requireOpen();
+    final device = _device;
+    if (device == null) throw DeviceKeysMissing();
+    final id = _identity!;
+    if (sheetUserId != id.userId) {
+      return const RecoveredUmkRefused(RecoveredUmkRefusal.notThisUser);
+    }
+    if (await _anythingAuthoredUnderKeys()) {
+      return const RecoveredUmkRefused(RecoveredUmkRefusal.keyInUse);
+    }
+
+    // Framing first, and apart: a wrong length or an unread suite byte is
+    // this build's limit, not the person's code.
+    final SealedRecoveryBlob blob;
+    try {
+      blob = SealedRecoveryBlob.decode(sealedBlob);
+    } on RecoveryUnsealFailed catch (e) {
+      throw RecoveryBlobNotFramed(e.reason);
+    }
+
+    final UmkKeyPair recovered;
+    try {
+      recovered = openUmkWithRecoveryKeyVerified(
+        suite,
+        rk,
+        blob,
+        expected: expected,
+      );
+    } on RecoveryUnsealFailed catch (e) {
+      // Only the AEAD's refusal is a verdict on the code. The strict decode
+      // above leaves no other reason reachable; if one ever is, it is the
+      // blob's shape, not the code's.
+      if (e.reason != 'aead') throw RecoveryBlobNotFramed(e.reason);
+      return const RecoveredUmkRefused(RecoveredUmkRefusal.didNotOpen);
+    } on RecoveredUmkMismatch {
+      return const RecoveredUmkRefused(RecoveredUmkRefusal.mismatch);
+    }
+
+    // As at signup: the UMK rests wrapped to this (self-verified) device.
+    final wrapped = wrapUmkToDevice(
+      suite,
+      recovered,
+      _selfVerifyDevice(device),
+    );
+    await keys.delete(LocalLedgerKeys.deviceCert);
+    await keys.delete(LocalLedgerKeys.umkPubsAccepted);
+    await keys.write(KeyIds.wrappedUmk, wrapped.bytes);
+
+    final discarded = _umk;
+    _umk = recovered;
+    // From possession, as at signup — never from the relayed `expected`.
+    _umkVerified = _selfVerifyUmk(recovered, id.userId);
+    _ownCert = null;
+    _umkPubsAccepted = false;
+    if (discarded != null) _retiredUmks.add(discarded);
+    onUmkAdopted?.call();
+    return const RecoveredUmkAdopted();
   }
 
   /// Reads where signup stands at open. Absent ⇒ the identity predates the

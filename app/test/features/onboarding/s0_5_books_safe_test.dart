@@ -7,10 +7,13 @@
 @Tags(['F1'])
 library;
 
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/features/devices/devices_repository.dart';
 import 'package:rukka_folio/features/onboarding/screens/s0_5_books_safe_screen.dart';
+import 'package:rukka_folio/features/onboarding/recovery_sheet/recovery_sheet_service.dart';
 import 'package:rukka_folio/features/onboarding/screens/s0_5b_recovery_sheet_screen.dart';
 import 'package:rukka_folio/l10n/gen/app_localizations.dart';
 
@@ -283,22 +286,21 @@ void main() {
     });
   });
 
+  // F1-07-73 over the re-skinned S0.5b (canvas c1/O5b; ADR 2026-10-06d
+  // ruling 3). The live service's make/publish/check is F1-1006d-1…3
+  // (f1_1006d_recovery_sheet_test.dart); this group pins 13 §3.2's row —
+  // generate, print/save, verify by scanning back — on the screen itself.
   group('S0.5b Recovery sheet (07 §3.1 step 6, 04 §7.4 🔒)', () {
     testWidgets(
-      'F1-07-73 generate → share/print → the nag persists until the printed '
+      'F1-07-73 generate → print/save → the nag persists until the printed '
       'sheet is scanned back',
       (tester) async {
-        var generated = 0;
-        var shared = 0;
-        var scans = 0;
+        final service = _FakeSheetService();
         final verified = <bool>[];
         await pumpTall(
           tester,
           RecoverySheetScreen(
-            onGenerate: () async => generated++,
-            onShare: () async => shared++,
-            // The first scan does not match the printed sheet; the second does.
-            onScanBack: () async => ++scans > 1,
+            service: service,
             onVerifiedChanged: verified.add,
           ),
         );
@@ -306,115 +308,92 @@ void main() {
           tester.element(find.byType(RecoverySheetScreen)),
         );
 
-        // Intro: the one-screen explanation of why there is no reset.
+        // Intro: why there is no reset, and the drawing of the page.
         expect(find.text(l10n.onboardingRecoverySheetWhyTitle), findsOneWidget);
-        expect(find.text(l10n.onboardingRecoverySheetWhyBody), findsOneWidget);
-        expect(find.text(l10n.onboardingRecoverySheetShare), findsNothing);
-
-        await tester.tap(find.text(l10n.onboardingRecoverySheetGenerate));
+        expect(find.byType(RecoverySheetPreview), findsOneWidget);
+        await tester.tap(find.text(l10n.onboardingRecoverySheetPrint));
         await tester.pumpAndSettle();
-        expect(generated, 1);
+        expect(service.made, 1);
+        expect(service.opened, 1);
+        expect(verified, [false], reason: 'made, not checked: the nag starts');
 
-        // Ready: print/save, the risk line, and the nag.
-        expect(find.text(l10n.onboardingRecoverySheetShare), findsOneWidget);
-        expect(find.text(l10n.onboardingRecoverySheetRisk), findsOneWidget);
-        expect(find.text(l10n.onboardingRecoverySheetNagTitle), findsOneWidget);
-        expect(verified, [false]);
-
-        // No key material is ever rendered (04 §7.4 is a printed document).
-        await tester.tap(find.text(l10n.onboardingRecoverySheetShare));
-        await tester.pumpAndSettle();
-        expect(shared, 1);
-        expect(
-          find.text(l10n.onboardingRecoverySheetNagTitle),
-          findsOneWidget,
-          reason:
-              'printing is not verifying — the nag survives the share '
-              '(04 §7.4 🔒)',
+        // Printing is not verifying: reopened from S0.7 the screen checks.
+        await tester.pumpWidget(const SizedBox.shrink());
+        await pumpTall(
+          tester,
+          RecoverySheetScreen(
+            service: service,
+            entry: RecoverySheetEntry.checkIfMade,
+            onVerifiedChanged: verified.add,
+          ),
         );
-
-        // A scan that does not match keeps the nag and offers the scan again.
-        await tester.tap(find.text(l10n.onboardingRecoverySheetScan));
-        await tester.pumpAndSettle();
         expect(
-          find.text(l10n.onboardingRecoverySheetScanFailed),
+          find.text(l10n.onboardingRecoverySheetCheckHeading),
           findsOneWidget,
         );
-        expect(find.text(l10n.onboardingRecoverySheetNagTitle), findsOneWidget);
+        service.next = RecoverySheetCheckResult.didNotOpen;
+        await tester.tap(find.text(l10n.onboardingRecoverySheetCheckScan));
+        await tester.pumpAndSettle();
+        expect(
+          find.text(l10n.onboardingRecoverySheetCheckFailedTitle),
+          findsOneWidget,
+        );
         expect(verified, [false]);
 
-        // The matching scan is what stops it.
-        await tester.tap(find.text(l10n.onboardingRecoverySheetScan));
+        service.next = RecoverySheetCheckResult.opens;
+        await tester.tap(find.text(l10n.onboardingRecoverySheetCheckScan));
         await tester.pumpAndSettle();
-        expect(find.text(l10n.onboardingRecoverySheetVerified), findsOneWidget);
-        expect(find.text(l10n.onboardingRecoverySheetNagTitle), findsNothing);
+        expect(
+          find.text(l10n.onboardingRecoverySheetCheckVerified),
+          findsOneWidget,
+        );
         expect(verified, [false, true]);
       },
     );
 
-    testWidgets('F1-07-73 a failed generate changes nothing and keeps a retry '
-        '(13 §4.3, 07 §1 rule 6)', (tester) async {
-      final verified = <bool>[];
-      var calls = 0;
-      await pumpTall(
+    testWidgets('F1-07-73 no overflow at 200% on 360x800 in EN, PA and HI — '
+        'make, failed and check', (tester) async {
+      await expectNoOverflowInEveryLocale(
         tester,
-        RecoverySheetScreen(
-          onGenerate: () async {
-            if (++calls == 1) throw StateError('no sheet');
-          },
-          onShare: () async {},
-          onScanBack: () async => true,
-          onVerifiedChanged: verified.add,
-        ),
+        () => RecoverySheetScreen(service: _FakeSheetService()),
       );
-      final l10n = AppLocalizations.of(
-        tester.element(find.byType(RecoverySheetScreen)),
-      );
-
-      await tester.tap(find.text(l10n.onboardingRecoverySheetGenerate));
-      await tester.pumpAndSettle();
-      expect(find.text(l10n.onboardingRecoverySheetError), findsOneWidget);
-      expect(find.text(l10n.onboardingRecoverySheetShare), findsNothing);
-      expect(verified, isEmpty);
-
-      await tester.tap(find.text(l10n.onboardingRecoverySheetRetry));
-      await tester.pumpAndSettle();
-      expect(find.text(l10n.onboardingRecoverySheetShare), findsOneWidget);
-      expect(verified, [false]);
-    });
-
-    testWidgets('F1-07-73 the step is skippable and resumable (07 §3.1.1) — '
-        'skip never claims the sheet was verified', (tester) async {
-      var skipped = 0;
-      final verified = <bool>[];
-      await pumpTall(
+      await expectNoOverflowInEveryLocale(
         tester,
-        RecoverySheetScreen(
-          onGenerate: () async {},
-          onSkip: () => skipped++,
-          onVerifiedChanged: verified.add,
-        ),
+        () => RecoverySheetScreen(onSkip: () {}),
       );
-      final l10n = AppLocalizations.of(
-        tester.element(find.byType(RecoverySheetScreen)),
-      );
-      await tester.tap(find.text(l10n.onboardingRecoverySheetSkip));
-      await tester.pumpAndSettle();
-      expect(skipped, 1);
-      expect(verified, isEmpty);
-    });
-
-    testWidgets('F1-07-73 no overflow at 200% on 360x800 in EN, PA and HI', (
-      tester,
-    ) async {
       await expectNoOverflowInEveryLocale(
         tester,
         () => RecoverySheetScreen(
-          onGenerate: () async {},
-          onShare: () async {},
-          onScanBack: () async => true,
+          service: _FakeSheetService(),
+          entry: RecoverySheetEntry.checkIfMade,
         ),
       );
     });
   });
+}
+
+/// A service that makes, opens and checks on command — the screen's view of
+/// rung 3, with no crypto (that is F1-1006d's).
+final class _FakeSheetService implements RecoverySheetService {
+  int made = 0;
+  int opened = 0;
+  RecoverySheetCheckResult next = RecoverySheetCheckResult.opens;
+
+  @override
+  Future<RecoverySheetPrintout> make(Locale locale) async {
+    made++;
+    return RecoverySheetPrintout(Uint8List(4), (pdf, name) async {
+      opened++;
+      return true; // printed or saved
+    }, version: made);
+  }
+
+  @override
+  Future<bool> sheetOnServer() async => true;
+
+  @override
+  Future<RecoverySheetCheckResult> checkTyped(String typed) async => next;
+
+  @override
+  Future<RecoverySheetCheckResult> scan() async => next;
 }

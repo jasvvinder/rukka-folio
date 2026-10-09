@@ -146,20 +146,9 @@
   "onboarding.books_safe.skip": "ਹੁਣੇ ਲਈ ਛੱਡੋ",
   "onboarding.books_safe.resume_note": "ਤੁਸੀਂ ਇਸ ਉੱਤੇ ਹੋਮ ਦੀ ਸੈੱਟਅੱਪ ਸੂਚੀ ਤੋਂ ਵਾਪਸ ਆ ਸਕਦੇ ਹੋ।",
   "onboarding.recovery_sheet.title": "ਤੁਹਾਡੀ ਰਿਕਵਰੀ ਸ਼ੀਟ",
-  "onboarding.recovery_sheet.why_title": "ਇੱਥੇ “ਪਾਸਵਰਡ ਭੁੱਲ ਗਏ” ਨਹੀਂ ਹੁੰਦਾ",
-  "onboarding.recovery_sheet.why_body": "ਤੁਹਾਡਾ ਡਾਟਾ ਇੰਨੀ ਮਜ਼ਬੂਤੀ ਨਾਲ ਬੰਦ ਹੈ ਕਿ ਅਸੀਂ ਵੀ ਇਸਨੂੰ ਨਹੀਂ ਖੋਲ੍ਹ ਸਕਦੇ। ਇਹ ਸ਼ੀਟ ਉਹ ਇੱਕੋ ਕੁੰਜੀ ਹੈ ਜੋ ਤੁਸੀਂ ਆਪ ਰੱਖਦੇ ਹੋ — ਇਸਨੂੰ ਛਾਪੋ ਤੇ ਆਧਾਰ ਤੇ LIC ਦੇ ਕਾਗਜ਼ਾਂ ਨਾਲ ਰੱਖੋ।",
-  "onboarding.recovery_sheet.generate": "ਸ਼ੀਟ ਬਣਾਓ",
+  "onboarding.recovery_sheet.why_title": "ਤੁਹਾਡੀਆਂ ਵਹੀਆਂ ਸਿਰਫ਼ ਤੁਸੀਂ ਖੋਲ੍ਹ ਸਕਦੇ ਹੋ",
+  "onboarding.recovery_sheet.why_body": "ਤੁਹਾਡੀਆਂ ਐਂਟਰੀਆਂ ਇੱਕ ਅਜਿਹੀ ਕੁੰਜੀ ਨਾਲ ਬੰਦ ਹਨ ਜੋ ਸਿਰਫ਼ ਤੁਹਾਡੇ ਫ਼ੋਨ ਉੱਤੇ ਹੈ। ਅਸੀਂ ਇਹਨਾਂ ਨੂੰ ਨਹੀਂ ਖੋਲ੍ਹ ਸਕਦੇ। ਰੁੱਕਾ ਵਿੱਚ ਕੋਈ ਵੀ ਨਹੀਂ ਖੋਲ੍ਹ ਸਕਦਾ, ਅਤੇ ਕੋਈ ਅਦਾਲਤੀ ਹੁਕਮ ਇਹ ਨਹੀਂ ਬਦਲਦਾ।",
   "onboarding.recovery_sheet.generating": "ਤੁਹਾਡੀ ਸ਼ੀਟ ਬਣ ਰਹੀ ਹੈ…",
-  "onboarding.recovery_sheet.ready_title": "ਤੁਹਾਡੀ ਸ਼ੀਟ ਤਿਆਰ ਹੈ",
-  "onboarding.recovery_sheet.ready_body": "ਇਹ ਇਸ ਸਕਰੀਨ ਉੱਤੇ ਕਦੇ ਨਹੀਂ ਦਿਖਾਈ ਜਾਂਦੀ — ਇਸਨੂੰ ਛਾਪੋ ਜਾਂ ਸੰਭਾਲੋ, ਫਿਰ ਆਪਣੇ ਕਾਗਜ਼ਾਂ ਵਾਲੀ ਥਾਂ ਰੱਖੋ।",
-  "onboarding.recovery_sheet.share": "ਛਾਪੋ ਜਾਂ ਸੰਭਾਲੋ",
-  "onboarding.recovery_sheet.risk": "ਜੋ ਵੀ ਇਹ ਸ਼ੀਟ ਖੋਲ੍ਹੇਗਾ, ਉਹ ਤੁਹਾਡੀਆਂ ਵਹੀਆਂ ਖੋਲ੍ਹ ਸਕਦਾ ਹੈ।",
-  "onboarding.recovery_sheet.scan": "ਛਪੀ ਹੋਈ ਸ਼ੀਟ ਵਾਪਸ ਸਕੈਨ ਕਰੋ",
-  "onboarding.recovery_sheet.nag_title": "ਹਾਲੇ ਪੜਤਾਲ ਨਹੀਂ ਹੋਈ",
-  "onboarding.recovery_sheet.nag_body": "ਜਦੋਂ ਤੱਕ ਤੁਸੀਂ ਛਪੀ ਸ਼ੀਟ ਵਾਪਸ ਸਕੈਨ ਨਹੀਂ ਕਰਦੇ, ਅਸੀਂ ਯਾਦ ਕਰਾਉਂਦੇ ਰਹਾਂਗੇ — ਤਾਂ ਜੋ ਪਤਾ ਅੱਜ ਲੱਗੇ, ਉਸ ਦਿਨ ਨਹੀਂ ਜਦੋਂ ਲੋੜ ਪਵੇ।",
-  "onboarding.recovery_sheet.verified": "ਪੜਤਾਲ ਹੋ ਗਈ — ਅਸੀਂ ਤੁਹਾਡੀ ਛਪੀ ਸ਼ੀਟ ਪੜ੍ਹ ਲਈ।",
-  "onboarding.recovery_sheet.scan_failed": "ਇਹ ਇਸ ਸ਼ੀਟ ਨਾਲ ਮੇਲ ਨਹੀਂ ਖਾਂਦੀ। ਛਪਿਆ ਪੰਨਾ ਦੁਬਾਰਾ ਸਕੈਨ ਕਰੋ।",
-  "onboarding.recovery_sheet.error": "ਸ਼ੀਟ ਨਹੀਂ ਬਣ ਸਕੀ। ਕੁਝ ਵੀ ਨਹੀਂ ਬਦਲਿਆ।",
   "onboarding.recovery_sheet.retry": "ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
   "onboarding.recovery_sheet.skip": "ਹੁਣੇ ਲਈ ਛੱਡੋ",
   "onboarding.recovery_sheet.done": "ਹੋ ਗਿਆ",
@@ -182,7 +171,7 @@
   "onboarding.family.members.continue_label": "ਅੱਗੇ ਵਧੋ",
   "onboarding.family.members.skip": "ਹੁਣੇ ਲਈ ਛੱਡੋ",
   "onboarding.family.accounts.title": "ਤੁਹਾਡੇ ਪਰਿਵਾਰ ਦੇ ਸਾਂਝੇ ਖਾਤੇ",
-  "onboarding.family.accounts.subtitle": "ਇਹ ਖਾਤੇ ਪਹਿਲਾਂ ਹੀ ਬਣ ਚੁੱਕੇ ਹਨ — ਭਰੋ ਕਿ ਸਾਂਝੇ ਖਾਤੇ ਕੋਲ ਕੀ ਹੈ, ਜਾਂ ਹੁਣੇ ਲਈ ਛੱਡੋ।",
+  "onboarding.family.accounts.subtitle": "ਇਹ ਖਾਤੇ ਪਹਿਲਾਂ ਹੀ ਬਣ ਚੁੱਕੇ ਹਨ — ਭਰੋ ਕਿ ਸਾਂਝੇ ਖਾਤੇ ਕੋਲ ਕੀ ਹੈ, ਜਾਂ ਸਿਫ਼ਰ ਤੋਂ ਸ਼ੁਰੂ ਕਰਨ ਲਈ ₹0 ਰਹਿਣ ਦਿਓ।",
   "onboarding.family.accounts.dated_note": "ਇੱਥੇ ਹਰ ਬਕਾਇਆ {date} ਦੀ ਤਰੀਕ ਦਾ ਹੈ।",
   "onboarding.family.accounts.group_have": "ਸਾਂਝੇ ਖਾਤੇ ਕੋਲ ਕੀ ਹੈ",
   "onboarding.family.accounts.balance_label": "ਸ਼ੁਰੂਆਤੀ ਬਕਾਇਆ",
@@ -192,7 +181,6 @@
   "onboarding.family.accounts.balancing_zero": "ਕੁਝ ਹੋਰ ਲੋੜੀਂਦਾ ਨਹੀਂ — ਜੋ ਤੁਸੀਂ ਭਰਿਆ ਉਹ ਪੂਰਾ ਮੇਲ ਖਾਂਦਾ ਹੈ।",
   "onboarding.family.accounts.balancing_note": "{amount} ਓਪਨਿੰਗ ਬੈਲੇਂਸ / ਪੂੰਜੀ ਖਾਤੇ ਵਿੱਚ ਜਾਂਦਾ ਹੈ ਤਾਂ ਜੋ ਇੰਦਰਾਜ ਬਰਾਬਰ ਹੋਵੇ।",
   "onboarding.family.accounts.save": "ਸੰਭਾਲੋ",
-  "onboarding.family.accounts.skip": "ਹੁਣੇ ਲਈ ਛੱਡੋ",
   "onboarding.family.accounts.creating": "ਤੁਹਾਡਾ ਪਰਿਵਾਰਕ ਸਾਂਝਾ ਖਾਤਾ ਬਣ ਰਿਹਾ ਹੈ…",
   "onboarding.family.accounts.create_error": "ਤੁਹਾਡਾ ਪਰਿਵਾਰਕ ਸਾਂਝਾ ਖਾਤਾ ਨਹੀਂ ਬਣ ਸਕਿਆ। ਕੁਝ ਵੀ ਨਹੀਂ ਬਦਲਿਆ।",
   "onboarding.family.accounts.retry": "ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
@@ -225,7 +213,7 @@
   "onboarding.trust.role.trustee": "ਟਰੱਸਟੀ",
   "onboarding.trust.role.sevadar": "ਸੇਵਾਦਾਰ",
   "onboarding.trust.accounts.title": "ਟਰੱਸਟ ਦੇ ਖਾਤੇ",
-  "onboarding.trust.accounts.subtitle": "ਇਹ ਖਾਤੇ ਪਹਿਲਾਂ ਹੀ ਬਣ ਚੁੱਕੇ ਹਨ — ਭਰੋ ਕਿ ਟਰੱਸਟ ਕੋਲ ਕੀ ਹੈ, ਜਾਂ ਹੁਣੇ ਲਈ ਛੱਡੋ।",
+  "onboarding.trust.accounts.subtitle": "ਇਹ ਖਾਤੇ ਪਹਿਲਾਂ ਹੀ ਬਣ ਚੁੱਕੇ ਹਨ — ਭਰੋ ਕਿ ਟਰੱਸਟ ਕੋਲ ਕੀ ਹੈ, ਜਾਂ ਸਿਫ਼ਰ ਤੋਂ ਸ਼ੁਰੂ ਕਰਨ ਲਈ ₹0 ਰਹਿਣ ਦਿਓ।",
   "onboarding.trust.accounts.dated_note": "ਇੱਥੇ ਹਰ ਬਕਾਇਆ {date} ਦੀ ਤਰੀਕ ਦਾ ਹੈ।",
   "onboarding.trust.accounts.group_have": "ਟਰੱਸਟ ਕੋਲ ਕੀ ਹੈ",
   "onboarding.trust.accounts.balance_label": "ਸ਼ੁਰੂਆਤੀ ਬਕਾਇਆ",
@@ -236,7 +224,6 @@
   "onboarding.trust.accounts.balancing_zero": "ਕੁਝ ਹੋਰ ਲੋੜੀਂਦਾ ਨਹੀਂ — ਜੋ ਤੁਸੀਂ ਭਰਿਆ ਉਹ ਪੂਰਾ ਮੇਲ ਖਾਂਦਾ ਹੈ।",
   "onboarding.trust.accounts.balancing_note": "{amount} ਓਪਨਿੰਗ ਬੈਲੇਂਸ / ਪੂੰਜੀ ਖਾਤੇ ਵਿੱਚ ਜਾਂਦਾ ਹੈ ਤਾਂ ਜੋ ਇੰਦਰਾਜ ਬਰਾਬਰ ਹੋਵੇ।",
   "onboarding.trust.accounts.save": "ਸੰਭਾਲੋ",
-  "onboarding.trust.accounts.skip": "ਹੁਣੇ ਲਈ ਛੱਡੋ",
   "onboarding.trust.accounts.creating": "ਤੁਹਾਡੇ ਟਰੱਸਟ ਦੇ ਖਾਤੇ ਬਣ ਰਹੇ ਹਨ…",
   "onboarding.trust.accounts.create_error": "ਤੁਹਾਡਾ ਟਰੱਸਟ ਖਾਤਾ ਨਹੀਂ ਬਣ ਸਕਿਆ। ਕੁਝ ਵੀ ਨਹੀਂ ਬਦਲਿਆ।",
   "onboarding.trust.accounts.retry": "ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
@@ -304,39 +291,255 @@
     "description": "machine-draft — native review M12"
   },
   "onboarding.opening.title": "ਤੁਹਾਡੇ ਕੋਲ ਕੀ ਹੈ?",
-  "@onboarding.opening.title": {"description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"},
+  "@onboarding.opening.title": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
   "onboarding.opening.as_on": "{date} ਤੱਕ ਦੇ ਬਕਾਏ",
-  "@onboarding.opening.as_on": {"description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)", "placeholders": {"date": {"type": "String"}}},
+  "@onboarding.opening.as_on": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "onboarding.opening.cash_hint": "ਹੱਥ ਵਿੱਚ ਪੈਸਾ",
-  "@onboarding.opening.cash_hint": {"description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"},
+  "@onboarding.opening.cash_hint": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
   "onboarding.opening.have_empty": "ਹਾਲੇ ਕੁਝ ਨਹੀਂ। ਕੋਈ ਬੈਂਕ ਜਾਂ ਨਕਦ ਖਾਤਾ ਜੋੜੋ।",
-  "@onboarding.opening.have_empty": {"description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"},
+  "@onboarding.opening.have_empty": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
   "onboarding.opening.owed_empty": "ਹਾਲੇ ਕੋਈ ਨਹੀਂ। ਜਿਸ ਨੇ ਤੁਹਾਨੂੰ ਪੈਸੇ ਦੇਣੇ ਹਨ, ਉਸ ਨੂੰ ਜੋੜੋ।",
-  "@onboarding.opening.owed_empty": {"description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"},
+  "@onboarding.opening.owed_empty": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
   "onboarding.opening.owe_empty": "ਹਾਲੇ ਕੋਈ ਨਹੀਂ। ਜਿਸ ਨੂੰ ਤੁਸੀਂ ਪੈਸੇ ਦੇਣੇ ਹਨ, ਉਸ ਨੂੰ ਜੋੜੋ।",
-  "@onboarding.opening.owe_empty": {"description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"},
+  "@onboarding.opening.owe_empty": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
   "onboarding.opening.add_account": "ਖਾਤਾ ਜੋੜੋ",
-  "@onboarding.opening.add_account": {"description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"},
+  "@onboarding.opening.add_account": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
   "onboarding.opening.add_account_hint": "ਬੈਂਕ, ਨਕਦ, ਕੋਈ ਵਿਅਕਤੀ, ਕੋਈ ਸ਼੍ਰੇਣੀ…",
-  "@onboarding.opening.add_account_hint": {"description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"},
+  "@onboarding.opening.add_account_hint": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
   "onboarding.opening.note": "ਇਹ ਭਰੋ ਅਤੇ ਅਸੀਂ ਦਿਖਾਵਾਂਗੇ ਕਿ ਤੁਸੀਂ ਕਿੱਥੋਂ ਸ਼ੁਰੂ ਕਰ ਰਹੇ ਹੋ। ਕਿਸੇ ਨੂੰ ₹0 'ਤੇ ਛੱਡ ਸਕਦੇ ਹੋ — ਖਾਤਾ ਫਿਰ ਵੀ ਬਣ ਜਾਂਦਾ ਹੈ।",
-  "@onboarding.opening.note": {"description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"},
+  "@onboarding.opening.note": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
   "onboarding.opening.finish": "ਪੂਰਾ ਕਰੋ",
-  "@onboarding.opening.finish": {"description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"},
+  "@onboarding.opening.finish": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
   "onboarding.opening.skip": "ਹੁਣੇ ਲਈ ਛੱਡੋ",
-  "@onboarding.opening.skip": {"description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"},
+  "@onboarding.opening.skip": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
   "onboarding.opening.amount_label": "{account}, ਅੱਜ ਦਾ ਬਕਾਇਆ",
-  "@onboarding.opening.amount_label": {"description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)", "placeholders": {"account": {"type": "String"}}},
-  "onboarding.opening.save_error": "ਤੁਹਾਡੇ ਬਕਾਏ ਸੰਭਾਲੇ ਨਹੀਂ ਜਾ ਸਕੇ। ਕੁਝ ਨਹੀਂ ਬਦਲਿਆ — ਦੁਬਾਰਾ 'ਪੂਰਾ ਕਰੋ' ਦਬਾਓ, ਜਾਂ ਹੁਣੇ ਲਈ ਛੱਡੋ।",
-  "@onboarding.opening.save_error": {"description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"},
+  "@onboarding.opening.amount_label": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)",
+    "placeholders": {
+      "account": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.opening.save_error": "ਤੁਹਾਡੇ ਬਕਾਏ ਸੰਭਾਲੇ ਨਹੀਂ ਜਾ ਸਕੇ। ਕੁਝ ਨਹੀਂ ਬਦਲਿਆ — ਦੁਬਾਰਾ 'ਪੂਰਾ ਕਰੋ' ਦਬਾਓ।",
+  "@onboarding.opening.save_error": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
   "onboarding.opening.creating": "ਤੁਹਾਡੀ ਵਹੀ ਤਿਆਰ ਹੋ ਰਹੀ ਹੈ…",
-  "@onboarding.opening.creating": {"description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"},
+  "@onboarding.opening.creating": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
   "onboarding.opening.create_error": "ਤੁਹਾਡੀ ਵਹੀ ਨਹੀਂ ਬਣ ਸਕੀ। ਕੁਝ ਨਹੀਂ ਬਦਲਿਆ।",
-  "@onboarding.opening.create_error": {"description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"},
+  "@onboarding.opening.create_error": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
   "onboarding.opening.retry": "ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
-  "@onboarding.opening.retry": {"description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"},
+  "@onboarding.opening.retry": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
   "onboarding.opening.default_book_name": "ਮੇਰੀ ਵਹੀ",
-  "@onboarding.opening.default_book_name": {"description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"},
-  "onboarding.recovery_sheet.unavailable": "ਐਪ ਦਾ ਇਹ ਸੰਸਕਰਣ ਹਾਲੇ ਸ਼ੀਟ ਨਹੀਂ ਬਣਾ ਸਕਦਾ। ਅੱਗੇ ਵਧਣ ਲਈ 'ਹੁਣੇ ਲਈ ਛੱਡੋ' ਦਬਾਓ — ਜਦੋਂ ਕੋਈ ਅੱਪਡੇਟ ਇਸ ਨੂੰ ਜੋੜੇਗਾ, ਤੁਸੀਂ ਇਸ ਨੂੰ ਬਣਾ ਸਕੋਗੇ।",
-  "@onboarding.recovery_sheet.unavailable": {"description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"}
+  "@onboarding.opening.default_book_name": {
+    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+  },
+  "onboarding.recovery_sheet.unavailable": "ਇਹ ਫ਼ੋਨ ਇੱਥੇ ਸ਼ੀਟ ਨਹੀਂ ਬਣਾ ਸਕਦਾ। ਅੱਗੇ ਵਧਣ ਲਈ ‘ਹੁਣ ਲਈ ਛੱਡੋ’ ਦਬਾਓ — ਸ਼ੀਟ ਬਣਨ ਤੱਕ ਹੋਮ ਉੱਤੇ ਇਹ ਕਦਮ ਖੁੱਲ੍ਹਾ ਰਹੇਗਾ।",
+  "@onboarding.recovery_sheet.unavailable": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "@onboarding.recovery_sheet.why_title": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "@onboarding.recovery_sheet.why_body": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.why_body2": "ਇਸੇ ਲਈ ਕਾਗ਼ਜ਼ ਦਾ ਇੱਕ ਪੰਨਾ ਮਾਇਨੇ ਰੱਖਦਾ ਹੈ। ਇਸਨੂੰ ਛਾਪੋ, ਘਰ ਰੱਖੋ, ਅਤੇ ਫ਼ੋਨ ਗੁਆਚਣ ’ਤੇ ਵੀ ਤੁਹਾਡੀਆਂ ਵਹੀਆਂ ਬਚੀਆਂ ਰਹਿਣਗੀਆਂ।",
+  "@onboarding.recovery_sheet.why_body2": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.preview_caption": "ਇੱਕ A4 ਪੰਨਾ · ਸਕੈਨ ਕਰਨ ਲਈ ਇੱਕ ਵਰਗ, ਅਤੇ ਸਕੈਨ ਨਾ ਹੋਵੇ ਤਾਂ ਟਾਈਪ ਕਰਨ ਲਈ ਇੱਕ ਕੋਡ",
+  "@onboarding.recovery_sheet.preview_caption": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.preview_semantics": "ਛਪੇ ਪੰਨੇ ਦੀ ਤਸਵੀਰ: ਸਕੈਨ ਕਰਨ ਲਈ ਵਰਗ ਅਤੇ ਟਾਈਪ ਕਰਨ ਲਈ ਕੋਡ। ਤੁਹਾਡਾ ਆਪਣਾ ਕੋਡ ਸਿਰਫ਼ ਕਾਗ਼ਜ਼ ਉੱਤੇ ਹੈ।",
+  "@onboarding.recovery_sheet.preview_semantics": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.print": "ਸ਼ੀਟ ਛਾਪੋ ਜਾਂ ਸੇਵ ਕਰੋ",
+  "@onboarding.recovery_sheet.print": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.kept_safe": "ਮੈਂ ਇਸਨੂੰ ਸੰਭਾਲ ਕੇ ਰੱਖ ਲਿਆ ਹੈ",
+  "@onboarding.recovery_sheet.kept_safe": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.kept_safe_asleep": "ਸ਼ੀਟ ਇੱਕ ਵਾਰ ਖੋਲ੍ਹੋ, ਫਿਰ ਇਹ ਬਟਨ ਚਾਲੂ ਹੋ ਜਾਵੇਗਾ।",
+  "@onboarding.recovery_sheet.kept_safe_asleep": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.error_offline": "ਸ਼ੀਟ ਨਹੀਂ ਬਣੀ — ਤੁਸੀਂ ਆਫ਼ਲਾਈਨ ਹੋ। ਸ਼ੀਟ ਦਿਖਾਉਣ ਤੋਂ ਪਹਿਲਾਂ ਰੁੱਕਾ ਕੋਲ ਇਸਦੀ ਬੰਦ ਕਾਪੀ ਹੋਣੀ ਚਾਹੀਦੀ ਹੈ। ਕਨੈਕਟ ਕਰੋ ਅਤੇ ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
+  "@onboarding.recovery_sheet.error_offline": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.error_not_signed_in": "ਸ਼ੀਟ ਨਹੀਂ ਬਣੀ — ਇਸ ਫ਼ੋਨ ’ਤੇ ਅਜੇ ਸਾਈਨ ਇਨ ਨਹੀਂ ਹੋਇਆ। ਸਾਈਨ ਇਨ ਪੂਰਾ ਕਰੋ, ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
+  "@onboarding.recovery_sheet.error_not_signed_in": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.error_too_many": "ਸ਼ੀਟ ਨਹੀਂ ਬਣੀ — ਥੋੜ੍ਹੇ ਸਮੇਂ ਵਿੱਚ ਬਹੁਤ ਸਾਰੀਆਂ ਸ਼ੀਟਾਂ। ਕੁਝ ਮਿੰਟ ਰੁਕੋ ਅਤੇ ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
+  "@onboarding.recovery_sheet.error_too_many": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.error_needs_update": "ਸ਼ੀਟ ਨਹੀਂ ਬਣੀ — ਐਪ ਦਾ ਇਹ ਵਰਜ਼ਨ ਬਹੁਤ ਪੁਰਾਣਾ ਹੈ। ਰੁੱਕਾ ਅੱਪਡੇਟ ਕਰੋ, ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
+  "@onboarding.recovery_sheet.error_needs_update": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.error_server": "ਸ਼ੀਟ ਨਹੀਂ ਬਣੀ — ਰੁੱਕਾ ਇਸਦੀ ਬੰਦ ਕਾਪੀ ਨਹੀਂ ਰੱਖ ਸਕਿਆ। ਕੁਝ ਵੀ ਨਹੀਂ ਬਦਲਿਆ। ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
+  "@onboarding.recovery_sheet.error_server": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.open_failed": "ਪ੍ਰਿੰਟ ਸ਼ੀਟ ਨਹੀਂ ਖੁੱਲ੍ਹੀ। ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
+  "@onboarding.recovery_sheet.open_failed": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_heading": "ਆਪਣੀ ਛਪੀ ਸ਼ੀਟ ਜਾਂਚੋ",
+  "@onboarding.recovery_sheet.check_heading": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_body": "ਛਾਪੇ ਪੰਨੇ ਉੱਤੇ ਵਰਗ ਸਕੈਨ ਕਰੋ, ਜਾਂ ਇਸਦਾ ਕੋਡ ਟਾਈਪ ਕਰੋ। ਜਾਂਚ ਹੋਣ ਤੱਕ ਹੋਮ ਯਾਦ ਕਰਾਉਂਦਾ ਰਹੇਗਾ — ਤਾਂ ਜੋ ਤੁਹਾਨੂੰ ਅੱਜ ਪਤਾ ਲੱਗੇ, ਨਾ ਕਿ ਲੋੜ ਵਾਲੇ ਦਿਨ।",
+  "@onboarding.recovery_sheet.check_body": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_scan": "ਸ਼ੀਟ ਸਕੈਨ ਕਰੋ",
+  "@onboarding.recovery_sheet.check_scan": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_type": "ਇਸਦੀ ਥਾਂ ਕੋਡ ਟਾਈਪ ਕਰੋ",
+  "@onboarding.recovery_sheet.check_type": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_field_label": "ਤੁਹਾਡੀ ਸ਼ੀਟ ਉੱਤੇ ਲਿਖਿਆ ਕੋਡ",
+  "@onboarding.recovery_sheet.check_field_label": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_field_hint": "ਚਾਰ-ਚਾਰ ਦੇ ਸਮੂਹ, ਜਿਵੇਂ ਛਪੇ ਹਨ",
+  "@onboarding.recovery_sheet.check_field_hint": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_submit": "ਕੋਡ ਜਾਂਚੋ",
+  "@onboarding.recovery_sheet.check_submit": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_checking": "ਜਾਂਚ ਹੋ ਰਹੀ ਹੈ…",
+  "@onboarding.recovery_sheet.check_checking": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_verified": "ਜਾਂਚ ਹੋ ਗਈ — ਇਹ ਸ਼ੀਟ ਤੁਹਾਡੀਆਂ ਵਹੀਆਂ ਖੋਲ੍ਹਦੀ ਹੈ।",
+  "@onboarding.recovery_sheet.check_verified": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_failed_title": "ਉਹ ਕੋਡ ਨਹੀਂ ਚੱਲਿਆ",
+  "@onboarding.recovery_sheet.check_failed_title": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_failed_newer": "ਇੱਕ ਨਵੀਂ ਸ਼ੀਟ ਛਾਪੀ ਗਈ ਸੀ, ਅਤੇ ਸਿਰਫ਼ ਸਭ ਤੋਂ ਨਵੀਂ ਚੱਲਦੀ ਹੈ। ਨਵੀਂ ਬਣਦੇ ਹੀ ਪੁਰਾਣਾ ਪੰਨਾ ਕੰਮ ਕਰਨਾ ਬੰਦ ਕਰ ਦਿੰਦਾ ਹੈ।",
+  "@onboarding.recovery_sheet.check_failed_newer": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_failed_typo": "ਜਾਂ ਕੋਈ ਅੱਖਰ ਗ਼ਲਤ ਟਾਈਪ ਹੋਇਆ। O ਅਤੇ I ਅੱਖਰ ਕਦੇ ਨਹੀਂ ਵਰਤੇ ਜਾਂਦੇ, ਇਸ ਲਈ ਜੋ ਇਹਨਾਂ ਵਰਗਾ ਦਿਸੇ ਉਹ ਸਿਫ਼ਰ ਜਾਂ ਇੱਕ ਹੈ।",
+  "@onboarding.recovery_sheet.check_failed_typo": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_other_account": "ਇਹ ਸ਼ੀਟ ਕਿਸੇ ਹੋਰ ਖਾਤੇ ਦੀ ਹੈ। ਇਸ ਫ਼ੋਨ ਨੰਬਰ ਲਈ ਛਾਪੀ ਸ਼ੀਟ ਵਰਤੋ।",
+  "@onboarding.recovery_sheet.check_other_account": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_no_sheet": "ਰੁੱਕਾ ਕੋਲ ਅਜੇ ਤੁਹਾਡੀ ਕੋਈ ਸ਼ੀਟ ਨਹੀਂ ਹੈ। ਹੇਠਾਂ ਇੱਕ ਬਣਾਓ।",
+  "@onboarding.recovery_sheet.check_no_sheet": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_could_not_check": "ਜਾਂਚ ਲਈ ਰੁੱਕਾ ਤੱਕ ਨਹੀਂ ਪਹੁੰਚ ਸਕੇ। ਕਨੈਕਟ ਕਰੋ ਅਤੇ ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
+  "@onboarding.recovery_sheet.check_could_not_check": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_no_camera": "ਇਹ ਫ਼ੋਨ ਇੱਥੇ ਸਕੈਨ ਨਹੀਂ ਕਰ ਸਕਦਾ। ਇਸਦੀ ਥਾਂ ਕੋਡ ਟਾਈਪ ਕਰੋ।",
+  "@onboarding.recovery_sheet.check_no_camera": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_make_new": "ਨਵੀਂ ਸ਼ੀਟ ਬਣਾਓ",
+  "@onboarding.recovery_sheet.check_make_new": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_make_new_warning": "ਨਵੀਂ ਸ਼ੀਟ ਤੁਹਾਡੀ ਛਾਪੀ ਸ਼ੀਟ ਦੀ ਥਾਂ ਲੈ ਲੈਂਦੀ ਹੈ — ਪੁਰਾਣਾ ਪੰਨਾ ਕੰਮ ਕਰਨਾ ਬੰਦ ਕਰ ਦਿੰਦਾ ਹੈ।",
+  "@onboarding.recovery_sheet.check_make_new_warning": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_loading": "ਤੁਹਾਡੀ ਸ਼ੀਟ ਲੱਭ ਰਹੇ ਹਾਂ…",
+  "@onboarding.recovery_sheet.check_loading": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_load_failed": "ਤੁਹਾਡੀ ਸ਼ੀਟ ਲੱਭਣ ਲਈ ਰੁੱਕਾ ਤੱਕ ਨਹੀਂ ਪਹੁੰਚ ਸਕੇ। ਕਨੈਕਟ ਕਰੋ ਅਤੇ ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
+  "@onboarding.recovery_sheet.check_load_failed": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.pdf_title": "ਰੁੱਕਾ · ਰਿਕਵਰੀ ਸ਼ੀਟ",
+  "@onboarding.recovery_sheet.pdf_title": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.pdf_keep": "ਇਹ ਪੰਨਾ ਆਪਣੇ ਆਧਾਰ ਅਤੇ LIC ਦੇ ਕਾਗ਼ਜ਼ਾਂ ਨਾਲ ਰੱਖੋ — ਘਰ ਵਿੱਚ, ਦੁਕਾਨ ਵਿੱਚ ਨਹੀਂ।",
+  "@onboarding.recovery_sheet.pdf_keep": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.pdf_scan": "ਇਹ ਵਰਗ ਸਕੈਨ ਕਰੋ",
+  "@onboarding.recovery_sheet.pdf_scan": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.pdf_type": "ਜਾਂ ਇਹ ਕੋਡ ਟਾਈਪ ਕਰੋ। I, L, O ਅਤੇ U ਅੱਖਰ ਕਦੇ ਨਹੀਂ ਵਰਤੇ ਜਾਂਦੇ।",
+  "@onboarding.recovery_sheet.pdf_type": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.pdf_how_title": "ਜੇ ਤੁਹਾਡਾ ਫ਼ੋਨ ਗੁਆਚ ਜਾਵੇ",
+  "@onboarding.recovery_sheet.pdf_how_title": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.pdf_how_1": "ਨਵੇਂ ਫ਼ੋਨ ਉੱਤੇ ਰੁੱਕਾ ਇੰਸਟਾਲ ਕਰੋ ਅਤੇ “ਮੈਂ ਪਹਿਲਾਂ ਹੀ Rukka ਵਰਤਦਾ ਹਾਂ · ਸਾਈਨ ਇਨ” ਦਬਾਓ।",
+  "@onboarding.recovery_sheet.pdf_how_1": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.pdf_how_2": "ਆਪਣੇ ਫ਼ੋਨ ਨੰਬਰ ਨਾਲ ਸਾਈਨ ਇਨ ਕਰੋ, ਫਿਰ “ਆਪਣੀ ਰਿਕਵਰੀ ਸ਼ੀਟ ਵਰਤੋ” ਚੁਣੋ।",
+  "@onboarding.recovery_sheet.pdf_how_2": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.pdf_how_3": "ਉੱਪਰ ਵਾਲਾ ਵਰਗ ਸਕੈਨ ਕਰੋ, ਜਾਂ ਕੋਡ ਟਾਈਪ ਕਰੋ।",
+  "@onboarding.recovery_sheet.pdf_how_3": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.pdf_warning": "ਜਿਸ ਕੋਲ ਵੀ ਇਹ ਪੰਨਾ ਹੈ ਉਹ ਤੁਹਾਡੀਆਂ ਵਹੀਆਂ ਖੋਲ੍ਹ ਸਕਦਾ ਹੈ। ਸਿਰਫ਼ ਸਭ ਤੋਂ ਨਵੀਂ ਸ਼ੀਟ ਚੱਲਦੀ ਹੈ — ਨਵੀਂ ਸ਼ੀਟ ਇਸ ਪੰਨੇ ਦੀ ਥਾਂ ਲੈ ਲੈਂਦੀ ਹੈ।",
+  "@onboarding.recovery_sheet.pdf_warning": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  }
 }

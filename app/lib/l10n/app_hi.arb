@@ -1986,18 +1986,71 @@
     "description": "machine-draft — native review M12 (desk 172, canvas 1 O8 copy)"
   },
   "home.setup.done": "हो गया",
+  "home.setup.finish_book": "{name} पूरा करें",
+  "@home.setup.finish_book": {
+    "description": "machine-draft — native review M12 (desk 174, ADR 2026-10-07)",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "home.setup.finish_family_hint": "आगे: बाकी मुखियाओं को बुलाएँ",
+  "@home.setup.finish_family_hint": {
+    "description": "machine-draft — native review M12 (desk 174, ADR 2026-10-07)"
+  },
+  "home.setup.finish_family_unnamed": "साझा फ़ंड पूरा करें",
+  "@home.setup.finish_family_unnamed": {
+    "description": "machine-draft — native review M12 (desk 174, ADR 2026-10-07)"
+  },
+  "home.setup.finish_trust_hint": "आगे: चलाने वालों को बुलाएँ",
+  "@home.setup.finish_trust_hint": {
+    "description": "machine-draft — native review M12 (desk 174, ADR 2026-10-07)"
+  },
+  "home.setup.finish_trust_unnamed": "ट्रस्ट पूरा करें",
+  "@home.setup.finish_trust_unnamed": {
+    "description": "machine-draft — native review M12 (desk 174, ADR 2026-10-07)"
+  },
   "home.setup.first_entry": "अपनी पहली प्रविष्टि लिखें",
   "home.setup.first_entry_hint": "आज सुबह जो भी खर्च किया",
   "@home.setup.first_entry_hint": {
     "description": "machine-draft — native review M12 (desk 172, canvas 1 O8 copy)"
   },
+  "home.setup.more": "और विकल्प",
+  "@home.setup.more": {
+    "description": "machine-draft — native review M12 (desk 174, ADR 2026-10-07)"
+  },
+  "home.setup.not_needed": "ज़रूरत नहीं",
+  "@home.setup.not_needed": {
+    "description": "machine-draft — native review M12 (desk 174, ADR 2026-10-07)"
+  },
+  "home.setup.not_needed_family_body": "यह इस सूची से हट जाता है। कुछ भी मिटता नहीं। परिवार को कभी भी मेन्यू › सदस्य से बुलाएँ।",
+  "@home.setup.not_needed_family_body": {
+    "description": "machine-draft — native review M12 (desk 174, ADR 2026-10-07)"
+  },
+  "home.setup.not_needed_family_toast": "परिवार के न्योते आपकी सूची से हटाए। कभी भी मेन्यू से बुलाएँ।",
+  "@home.setup.not_needed_family_toast": {
+    "description": "machine-draft — native review M12 (desk 174, ADR 2026-10-07)"
+  },
+  "home.setup.not_needed_trust_body": "यह इस सूची से हट जाता है। कुछ भी मिटता नहीं। चलाने वालों को कभी भी मेन्यू › सदस्य से बुलाएँ।",
+  "@home.setup.not_needed_trust_body": {
+    "description": "machine-draft — native review M12 (desk 174, ADR 2026-10-07)"
+  },
+  "home.setup.not_needed_trust_toast": "कमेटी के न्योते आपकी सूची से हटाए। कभी भी मेन्यू से बुलाएँ।",
+  "@home.setup.not_needed_trust_toast": {
+    "description": "machine-draft — native review M12 (desk 174, ADR 2026-10-07)"
+  },
   "home.setup.opening_balances": "शुरुआती शेष राशि",
-  "home.setup.recovery_sheet": "अपनी रिकवरी शीट सँभालें",
-  "home.setup.recovery_sheet_hint": "अभी छापी नहीं गई",
+  "home.setup.recovery_sheet": "अपनी रिकवरी शीट जाँचें",
+  "home.setup.recovery_sheet_hint": "अभी वापस स्कैन नहीं हुई",
   "@home.setup.recovery_sheet_hint": {
     "description": "machine-draft — native review M12 (desk 172, canvas 1 O8 copy)"
   },
   "home.setup.title": "अभी कुछ मिनट, और आपकी बही चालू।",
+  "home.setup.undo": "वापस करें",
+  "@home.setup.undo": {
+    "description": "machine-draft — native review M12 (desk 174, ADR 2026-10-07)"
+  },
   "home.skeleton": "आपकी स्थिति लोड हो रही है",
   "home.title": "होम",
   "home.today.empty": "आज अभी कुछ दर्ज नहीं हुआ",
@@ -3162,8 +3215,7 @@
   "onboarding.family.accounts.group_have": "साझा खाते में क्या है",
   "onboarding.family.accounts.retry": "दोबारा कोशिश करें",
   "onboarding.family.accounts.save": "सहेजें",
-  "onboarding.family.accounts.skip": "अभी के लिए छोड़ें",
-  "onboarding.family.accounts.subtitle": "ये खाते पहले से बन चुके हैं — भरें कि साझा खाते में क्या है, या अभी के लिए छोड़ें।",
+  "onboarding.family.accounts.subtitle": "ये खाते पहले से बन चुके हैं — भरें कि साझा खाते में क्या है, या शून्य से शुरू करने के लिए ₹0 रहने दें।",
   "onboarding.family.accounts.title": "आपके परिवार के साझा खाते",
   "onboarding.family.accounts.zero_note": "₹0 पर छोड़ी गई पंक्ति भी बन जाती है — आप इसे कभी भी भर सकते हैं।",
   "onboarding.family.continue_label": "आगे बढ़ें",
@@ -3307,7 +3359,7 @@
   "@onboarding.opening.retry": {
     "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
   },
-  "onboarding.opening.save_error": "आपकी शेष राशि सहेजी नहीं जा सकी। कुछ नहीं बदला — फिर से 'पूरा करें' दबाएँ, या अभी के लिए छोड़ें।",
+  "onboarding.opening.save_error": "आपकी शेष राशि सहेजी नहीं जा सकी। कुछ नहीं बदला — फिर से 'पूरा करें' दबाएँ।",
   "@onboarding.opening.save_error": {
     "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
   },
@@ -3331,28 +3383,187 @@
   "onboarding.purpose.card.trust.description": "गुरुद्वारा, मंदिर, सभा या रजिस्टर्ड ट्रस्ट",
   "onboarding.purpose.card.trust.label": "हमारा ट्रस्ट",
   "onboarding.purpose.title": "आप इसका उपयोग किसके लिए करेंगे?",
+  "onboarding.recovery_sheet.check_body": "छापे गए पन्ने पर चौकोर स्कैन कीजिए, या उसका कोड टाइप कीजिए। जाँच होने तक होम याद दिलाता रहेगा — ताकि आपको आज पता चले, ज़रूरत वाले दिन नहीं।",
+  "@onboarding.recovery_sheet.check_body": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_checking": "जाँच हो रही है…",
+  "@onboarding.recovery_sheet.check_checking": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_could_not_check": "जाँच के लिए रुक्का तक नहीं पहुँच सके। कनेक्ट कीजिए और फिर कोशिश कीजिए।",
+  "@onboarding.recovery_sheet.check_could_not_check": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_failed_newer": "एक नई शीट छापी गई थी, और सिर्फ़ सबसे नई चलती है। नई बनते ही पुराना पन्ना काम करना बंद कर देता है।",
+  "@onboarding.recovery_sheet.check_failed_newer": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_failed_title": "वह कोड नहीं चला",
+  "@onboarding.recovery_sheet.check_failed_title": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_failed_typo": "या कोई अक्षर ग़लत टाइप हुआ। O और I अक्षर कभी इस्तेमाल नहीं होते, इसलिए जो इनके जैसा दिखे वह शून्य या एक है।",
+  "@onboarding.recovery_sheet.check_failed_typo": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_field_hint": "चार-चार के समूह, जैसे छपे हैं",
+  "@onboarding.recovery_sheet.check_field_hint": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_field_label": "आपकी शीट पर लिखा कोड",
+  "@onboarding.recovery_sheet.check_field_label": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_heading": "अपनी छपी शीट जाँचें",
+  "@onboarding.recovery_sheet.check_heading": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_load_failed": "आपकी शीट ढूँढने के लिए रुक्का तक नहीं पहुँच सके। कनेक्ट कीजिए और फिर कोशिश कीजिए।",
+  "@onboarding.recovery_sheet.check_load_failed": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_loading": "आपकी शीट ढूँढ रहे हैं…",
+  "@onboarding.recovery_sheet.check_loading": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_make_new": "नई शीट बनाएँ",
+  "@onboarding.recovery_sheet.check_make_new": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_make_new_warning": "नई शीट आपकी छापी गई शीट की जगह ले लेती है — पुराना पन्ना काम करना बंद कर देता है।",
+  "@onboarding.recovery_sheet.check_make_new_warning": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_no_camera": "यह फ़ोन यहाँ स्कैन नहीं कर सकता। इसके बजाय कोड टाइप कीजिए।",
+  "@onboarding.recovery_sheet.check_no_camera": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_no_sheet": "रुक्का के पास अभी आपकी कोई शीट नहीं है। नीचे एक बनाइए।",
+  "@onboarding.recovery_sheet.check_no_sheet": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_other_account": "यह शीट किसी दूसरे खाते की है। इस फ़ोन नंबर के लिए छापी गई शीट इस्तेमाल कीजिए।",
+  "@onboarding.recovery_sheet.check_other_account": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_scan": "शीट स्कैन करें",
+  "@onboarding.recovery_sheet.check_scan": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_submit": "कोड जाँचें",
+  "@onboarding.recovery_sheet.check_submit": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_type": "इसके बजाय कोड टाइप करें",
+  "@onboarding.recovery_sheet.check_type": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.check_verified": "जाँच हो गई — यह शीट आपकी बहियाँ खोलती है।",
+  "@onboarding.recovery_sheet.check_verified": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
   "onboarding.recovery_sheet.done": "हो गया",
-  "onboarding.recovery_sheet.error": "शीट नहीं बन सकी। कुछ भी नहीं बदला।",
-  "onboarding.recovery_sheet.generate": "शीट बनाइए",
+  "onboarding.recovery_sheet.error_needs_update": "शीट नहीं बनी — ऐप का यह वर्ज़न बहुत पुराना है। रुक्का अपडेट कीजिए, फिर कोशिश कीजिए।",
+  "@onboarding.recovery_sheet.error_needs_update": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.error_not_signed_in": "शीट नहीं बनी — इस फ़ोन पर अभी साइन इन नहीं हुआ है। साइन इन पूरा कीजिए, फिर कोशिश कीजिए।",
+  "@onboarding.recovery_sheet.error_not_signed_in": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.error_offline": "शीट नहीं बनी — आप ऑफ़लाइन हैं। शीट दिखाने से पहले रुक्का के पास उसकी बंद कॉपी होनी चाहिए। कनेक्ट कीजिए और फिर कोशिश कीजिए।",
+  "@onboarding.recovery_sheet.error_offline": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.error_server": "शीट नहीं बनी — रुक्का उसकी बंद कॉपी नहीं रख सका। कुछ भी नहीं बदला। फिर कोशिश कीजिए।",
+  "@onboarding.recovery_sheet.error_server": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.error_too_many": "शीट नहीं बनी — थोड़े समय में बहुत सारी शीटें। कुछ मिनट रुकिए और फिर कोशिश कीजिए।",
+  "@onboarding.recovery_sheet.error_too_many": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
   "onboarding.recovery_sheet.generating": "आपकी शीट बन रही है…",
-  "onboarding.recovery_sheet.nag_body": "जब तक आप छपी शीट वापस स्कैन नहीं करते, हम याद दिलाते रहेंगे — ताकि पता आज चले, उस दिन नहीं जब ज़रूरत पड़े।",
-  "onboarding.recovery_sheet.nag_title": "अभी जाँच नहीं हुई",
-  "onboarding.recovery_sheet.ready_body": "यह इस स्क्रीन पर कभी नहीं दिखाई जाती — इसे छापिए या सहेजिए, फिर अपने काग़ज़ों वाली जगह रखिए।",
-  "onboarding.recovery_sheet.ready_title": "आपकी शीट तैयार है",
+  "onboarding.recovery_sheet.kept_safe": "मैंने इसे सँभालकर रख लिया है",
+  "@onboarding.recovery_sheet.kept_safe": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.kept_safe_asleep": "शीट एक बार खोलिए, फिर यह बटन चालू हो जाएगा।",
+  "@onboarding.recovery_sheet.kept_safe_asleep": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.open_failed": "प्रिंट शीट नहीं खुली। फिर कोशिश कीजिए।",
+  "@onboarding.recovery_sheet.open_failed": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.pdf_how_1": "नए फ़ोन पर रुक्का इंस्टॉल कीजिए और “मैं पहले से Rukka इस्तेमाल करता हूँ · साइन इन” दबाइए।",
+  "@onboarding.recovery_sheet.pdf_how_1": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.pdf_how_2": "अपने फ़ोन नंबर से साइन इन कीजिए, फिर “अपनी रिकवरी शीट इस्तेमाल करें” चुनिए।",
+  "@onboarding.recovery_sheet.pdf_how_2": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.pdf_how_3": "ऊपर वाला चौकोर स्कैन कीजिए, या कोड टाइप कीजिए।",
+  "@onboarding.recovery_sheet.pdf_how_3": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.pdf_how_title": "अगर आपका फ़ोन खो जाए",
+  "@onboarding.recovery_sheet.pdf_how_title": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.pdf_keep": "यह पन्ना अपने आधार और LIC के काग़ज़ों के साथ रखिए — घर पर, दुकान में नहीं।",
+  "@onboarding.recovery_sheet.pdf_keep": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.pdf_scan": "यह चौकोर स्कैन करें",
+  "@onboarding.recovery_sheet.pdf_scan": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.pdf_title": "रुक्का · रिकवरी शीट",
+  "@onboarding.recovery_sheet.pdf_title": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.pdf_type": "या यह कोड टाइप कीजिए। I, L, O और U अक्षर कभी इस्तेमाल नहीं होते।",
+  "@onboarding.recovery_sheet.pdf_type": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.pdf_warning": "जिसके पास भी यह पन्ना है वह आपकी बहियाँ खोल सकता है। सिर्फ़ सबसे नई शीट चलती है — नई शीट इस पन्ने की जगह ले लेती है।",
+  "@onboarding.recovery_sheet.pdf_warning": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.preview_caption": "एक A4 पन्ना · स्कैन करने के लिए एक चौकोर, और स्कैन न हो तो टाइप करने के लिए एक कोड",
+  "@onboarding.recovery_sheet.preview_caption": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.preview_semantics": "छपे पन्ने की तस्वीर: स्कैन करने के लिए चौकोर और टाइप करने के लिए कोड। आपका अपना कोड सिर्फ़ काग़ज़ पर है।",
+  "@onboarding.recovery_sheet.preview_semantics": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.print": "शीट छापें या सेव करें",
+  "@onboarding.recovery_sheet.print": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
   "onboarding.recovery_sheet.retry": "दोबारा कोशिश कीजिए",
-  "onboarding.recovery_sheet.risk": "जो कोई यह शीट खोलेगा, वह आपकी बहियाँ खोल सकता है।",
-  "onboarding.recovery_sheet.scan": "छपी हुई शीट वापस स्कैन कीजिए",
-  "onboarding.recovery_sheet.scan_failed": "यह इस शीट से मेल नहीं खाती। छपा पन्ना दोबारा स्कैन कीजिए।",
-  "onboarding.recovery_sheet.share": "छापें या सहेजें",
   "onboarding.recovery_sheet.skip": "अभी के लिए छोड़ें",
   "onboarding.recovery_sheet.title": "आपकी रिकवरी शीट",
-  "onboarding.recovery_sheet.unavailable": "ऐप का यह संस्करण अभी शीट नहीं बना सकता। आगे बढ़ने के लिए 'अभी के लिए छोड़ें' दबाएँ — जब कोई अपडेट इसे जोड़ेगा, आप इसे बना सकेंगे।",
+  "onboarding.recovery_sheet.unavailable": "यह फ़ोन यहाँ शीट नहीं बना सकता। आगे बढ़ने के लिए ‘अभी के लिए छोड़ें’ दबाइए — शीट बनने तक होम पर यह क़दम खुला रहेगा।",
   "@onboarding.recovery_sheet.unavailable": {
-    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
   },
-  "onboarding.recovery_sheet.verified": "जाँच हो गई — हमने आपकी छपी शीट पढ़ ली।",
-  "onboarding.recovery_sheet.why_body": "आपका डेटा इतनी मज़बूती से बंद है कि हम भी इसे नहीं खोल सकते। यह शीट वही इकलौती कुंजी है जो आप ख़ुद रखते हैं — इसे छापिए और आधार तथा LIC के काग़ज़ों के साथ रखिए।",
-  "onboarding.recovery_sheet.why_title": "यहाँ “पासवर्ड भूल गए” नहीं होता",
+  "onboarding.recovery_sheet.why_body": "आपकी एंट्रियाँ एक ऐसी कुंजी से बंद हैं जो सिर्फ़ आपके फ़ोन पर है। हम उन्हें नहीं खोल सकते। रुक्का में कोई भी नहीं खोल सकता, और कोई अदालती आदेश इसे नहीं बदलता।",
+  "@onboarding.recovery_sheet.why_body": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.why_body2": "इसीलिए काग़ज़ का एक पन्ना मायने रखता है। इसे छापिए, घर पर रखिए, और फ़ोन खोने पर भी आपकी बहियाँ बची रहेंगी।",
+  "@onboarding.recovery_sheet.why_body2": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
+  "onboarding.recovery_sheet.why_title": "आपकी बहियाँ सिर्फ़ आप खोल सकते हैं",
+  "@onboarding.recovery_sheet.why_title": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+  },
   "onboarding.set_pin.biometric_note": "फ़ेस आईडी इस ऐप को सबके लिए बंद रखती है — अगर इस फ़ोन पर नया चेहरा जोड़ा गया, तो ऐप आपका पिन पूछेगी",
   "onboarding.set_pin.biometric_note_pin_only": "इस फ़ोन पर कोई उंगली का निशान या चेहरा नहीं लगा है, इसलिए आपका पिन इस ऐप को सबके लिए बंद रखता है। फ़ोन की सेटिंग में एक जोड़ें, अगली बार पिन भरने के बाद ऐप उसे इस्तेमाल करेगी।",
   "@onboarding.set_pin.biometric_note_pin_only": {
@@ -3409,8 +3620,7 @@
   "onboarding.trust.accounts.group_have": "ट्रस्ट के पास क्या है",
   "onboarding.trust.accounts.retry": "दोबारा कोशिश करें",
   "onboarding.trust.accounts.save": "सहेजें",
-  "onboarding.trust.accounts.skip": "अभी के लिए छोड़ें",
-  "onboarding.trust.accounts.subtitle": "ये खाते पहले से बन चुके हैं — भरें कि ट्रस्ट के पास क्या है, या अभी के लिए छोड़ें।",
+  "onboarding.trust.accounts.subtitle": "ये खाते पहले से बन चुके हैं — भरें कि ट्रस्ट के पास क्या है, या शून्य से शुरू करने के लिए ₹0 रहने दें।",
   "onboarding.trust.accounts.title": "ट्रस्ट के खाते",
   "onboarding.trust.accounts.zero_note": "₹0 पर छोड़ी गई पंक्ति भी बन जाती है — आप इसे कभी भी भर सकते हैं।",
   "onboarding.trust.continue_label": "आगे बढ़ें",

@@ -61,17 +61,63 @@ final class RecoveryKey {
   void dispose() => key.dispose();
 }
 
+/// XChaCha20-Poly1305 nonce length (04 §2: "24-byte random nonce").
+const int _recoveryNonceBytes = 24;
+
+/// Poly1305 tag length.
+const int _recoveryTagBytes = 16;
+
+/// The sealed plaintext: the UMK's 64 secret bytes (`x25519_seed ‖
+/// ed25519_seed`, [UmkKeyPair.exportSecretBytes]).
+const int _umkSecretBytes = 64;
+
+/// Wire length of a suite-1 [SealedRecoveryBlob]: `suite_version(1) ‖
+/// nonce(24) ‖ ciphertext(64) ‖ tag(16)` = 105 bytes (ADR 2026-10-06d §1).
+const int sealedRecoveryBlobBytes =
+    1 + _recoveryNonceBytes + _umkSecretBytes + _recoveryTagBytes;
+
 /// `sealed_RK_blob` (04 §7.4): XChaCha20-Poly1305 over the UMK's 64 secret
 /// bytes under RK with a fresh 24-byte nonce. The server stores it opaquely.
+///
+/// Wire form (ADR 2026-10-06d §1 🔒, after `GuardianShare.encode`):
+/// `suite_version(1) ‖ nonce(24) ‖ ciphertext ‖ tag(16)` — [encode] writes
+/// it and [decode] reads it strictly. A later suite bumps the first byte
+/// (04 §2); today's [decode] refuses anything but `0x01` rather than guess.
 @immutable
 final class SealedRecoveryBlob {
-  /// Wraps the parts.
+  /// Wraps the parts. [nonce] must be 24 bytes.
   SealedRecoveryBlob({
     required Uint8List nonce,
     required Uint8List ciphertext,
     this.suiteVersion = _currentSuite,
   }) : nonce = Uint8List.fromList(nonce),
-       ciphertext = Uint8List.fromList(ciphertext);
+       ciphertext = Uint8List.fromList(ciphertext) {
+    if (nonce.length != _recoveryNonceBytes) {
+      throw ArgumentError.value(
+        nonce.length,
+        'nonce',
+        'recovery nonce is $_recoveryNonceBytes bytes',
+      );
+    }
+  }
+
+  /// Strict inverse of [encode]. Throws [RecoveryUnsealFailed] with reason
+  /// `length` when [wire] is empty or not exactly [sealedRecoveryBlobBytes]
+  /// (a truncated tag, a short or a long body all land here) and `suite`
+  /// when the leading byte is not the current suite. It never infers a
+  /// layout from the length and never returns a partial blob.
+  static SealedRecoveryBlob decode(Uint8List wire) {
+    if (wire.isEmpty) throw const RecoveryUnsealFailed('length');
+    if (wire[0] != _currentSuite) throw const RecoveryUnsealFailed('suite');
+    if (wire.length != sealedRecoveryBlobBytes) {
+      throw const RecoveryUnsealFailed('length');
+    }
+    return SealedRecoveryBlob(
+      suiteVersion: wire[0],
+      nonce: Uint8List.sublistView(wire, 1, 1 + _recoveryNonceBytes),
+      ciphertext: Uint8List.sublistView(wire, 1 + _recoveryNonceBytes),
+    );
+  }
 
   /// `suite_version` byte (04 §2).
   final int suiteVersion;
@@ -81,6 +127,24 @@ final class SealedRecoveryBlob {
 
   /// Ciphertext ‖ Poly1305 tag.
   final Uint8List ciphertext;
+
+  /// Canonical wire bytes — what `publishSheet` stores and `GET
+  /// recovery/sheet` hands back: `suite_version ‖ nonce ‖ ciphertext`.
+  Uint8List encode() =>
+      Bytes.concat([Bytes.u8(suiteVersion), nonce, ciphertext]);
+}
+
+/// The UMK a recovery blob opened to is not the one the account published
+/// (ADR 2026-10-06d §2; 04 §7.3 step 4 — the same check as rung 2's
+/// [GuardianShareMismatch]). Raised by [openUmkWithRecoveryKeyVerified] after
+/// the derived pair has been disposed; nothing is handed back.
+final class RecoveredUmkMismatch implements Exception {
+  /// Creates the failure.
+  const RecoveredUmkMismatch();
+
+  @override
+  String toString() =>
+      'RecoveredUmkMismatch(recovered UMK does not match the expected public key)';
 }
 
 /// Opening a recovery blob failed: wrong RK, corrupt bytes, unknown suite or
@@ -138,13 +202,69 @@ UmkKeyPair openUmkWithRecoveryKey(
     throw const RecoveryUnsealFailed('aead');
   }
   try {
-    if (secret.length != 64) {
+    if (secret.length != _umkSecretBytes) {
       throw const RecoveryUnsealFailed('length');
     }
     return UmkKeyPair.fromSecretBytes(suite, secret);
   } finally {
     suite.zeroize(secret);
   }
+}
+
+/// Rung 3 recovery, **checked against the account's published UMK** (ADR
+/// 2026-10-06d §2 🔒; 04 §7.3 step 4): opens [blob] with [rk] as
+/// [openUmkWithRecoveryKey] does, then hands the pair back only if both
+/// public halves equal [expected] — the UMK the account registered (06 §3
+/// item 3), as the server relays it.
+///
+/// Why [expected] is a plain [UmkPublic] here while rung 2's
+/// `GuardianShareSet.reconstructVerified` demands a [VerifiedUmkPublic]: the
+/// authenticator of this rung is the AEAD under RK, which lives on paper and
+/// never on the server (ADR 2026-09-13c §1 — *"no other rung has this gap"*).
+/// A blob the server forged or swapped fails to open; a server that lies
+/// about the published key can only make a genuine blob be **refused**, which
+/// is a denial it already has. The comparison therefore adds no trust in the
+/// relayed key — it catches a sheet that opens to a key the account no longer
+/// runs on (a stale print after a UMK rotation, 04 §9.2). Nothing is ever
+/// wrapped to [expected] (CLAUDE.md rule 5): the recovered pair's own
+/// verified public is produced from possession by the adopter, as at signup.
+/// A solo user (04 §7.4: the sheet is mandatory for them) has nobody to run
+/// a ceremony with, so a ceremony-typed parameter would make the rung
+/// unusable for exactly its mandatory audience.
+///
+/// A wrong RK or corrupt bytes stay [RecoveryUnsealFailed]; a blob that
+/// opens to another key is [RecoveredUmkMismatch] with the derived pair
+/// disposed ([verifyRecoveredUmk]). The caller owns the returned
+/// [UmkKeyPair] and disposes it. No randomness is drawn on either path.
+UmkKeyPair openUmkWithRecoveryKeyVerified(
+  CryptoSuite suite,
+  RecoveryKey rk,
+  SealedRecoveryBlob blob, {
+  required UmkPublic expected,
+}) => verifyRecoveredUmk(
+  suite,
+  openUmkWithRecoveryKey(suite, rk, blob),
+  expected: expected,
+);
+
+/// The comparison half of [openUmkWithRecoveryKeyVerified], over a [pair]
+/// the caller already holds: returns [pair] when both of its public halves
+/// equal [expected] (constant time); otherwise **disposes [pair]** and throws
+/// [RecoveredUmkMismatch]. Public so a test can hold the pair and observe the
+/// disposal (ADR 2026-10-06d §2: *every buffer is zeroised*).
+UmkKeyPair verifyRecoveredUmk(
+  CryptoSuite suite,
+  UmkKeyPair pair, {
+  required UmkPublic expected,
+}) {
+  final ok =
+      suite.constantTimeEquals(pair.public.x25519, expected.x25519) &&
+      suite.constantTimeEquals(pair.public.ed25519, expected.ed25519);
+  if (!ok) {
+    pair.dispose();
+    throw const RecoveredUmkMismatch();
+  }
+  return pair;
 }
 
 // ---------------------------------------------------------------------------

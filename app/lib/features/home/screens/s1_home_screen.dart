@@ -27,6 +27,7 @@
 //   • S8.2 trial balance and the full day book have no route yet, so those
 //     two actions render only when a caller supplies them.
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:core_ledger/core_ledger.dart';
 import 'package:flutter/material.dart';
@@ -42,6 +43,9 @@ import '../../close/close_source.dart';
 import '../../ledger/ledger_book.dart';
 import '../../onboarding/opening_setup_record.dart';
 import '../../onboarding/personal_book.dart';
+import '../../onboarding/screens/s0_3_purpose_screen.dart'
+    show OnboardingPurpose;
+import '../../onboarding/setup_progress.dart';
 import '../home_data.dart';
 import '../home_paths.dart';
 import '../home_rebuild.dart';
@@ -69,7 +73,7 @@ class HomeScreen extends StatefulWidget {
     this.onOpenTrialBalance,
     this.onOpenReconciliation,
     this.onSetupStep,
-    this.setupDoors = const {0, 1, 2, 3},
+    this.setupDoors = const {...SetupStep.values},
     this.rebuildingSlot,
     this.scopeController,
     this.rebuildProgress,
@@ -104,12 +108,12 @@ class HomeScreen extends StatefulWidget {
   /// label (07 §10 🔒).
   final VoidCallback? onOpenReconciliation;
 
-  /// Opens setup checklist step `index` (S0.7).
-  final void Function(int index)? onSetupStep;
+  /// Opens a setup checklist row (S0.7).
+  final void Function(SetupStep step)? onSetupStep;
 
-  /// The checklist steps [onSetupStep] has a destination for; the others are
+  /// The checklist rows [onSetupStep] has a destination for; the others are
   /// drawn as information only (07 §1 rule 6 — never a tap to nowhere).
-  final Set<int> setupDoors;
+  final Set<SetupStep> setupDoors;
 
   /// A caller-supplied card in place of the verification card. Kept for the
   /// shell; S1.4 itself now comes from [rebuildProgress] and replaces the
@@ -147,6 +151,9 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  /// The pinned verb bar, measured so the *Not needed* toast floats above
+  /// its buttons (canvas 1 O8f), never over them.
+  final GlobalKey _verbBarKey = GlobalKey();
   String? _bookId;
   Object? _resolveError;
   bool _resolveStarted = false;
@@ -172,6 +179,137 @@ class _HomeScreenState extends State<HomeScreen> {
   // The personal book — the only one S0.6 fills, so the only one whose
   // *Opening balances* row may open it (P1A review, finding 6).
   String? _personalBookId;
+
+  // ADR 2026-10-07 ruling 3 — what sign-up left for the checklist, read from
+  // the device so the rows survive a cold start: the purpose card, the
+  // skipped invite step, and whether the recovery sheet was scanned back.
+  OnboardingPurpose? _purpose;
+  SetupBranch? _branch;
+  bool _sheetVerified = false;
+
+  Future<void> _readSetup() async {
+    final prefs = AppSettingsScope.read(context)?.prefs;
+    final purpose = await SetupProgress.purpose(prefs);
+    final branch = await SetupProgress.branch(prefs);
+    final verified = await SetupProgress.recoverySheetVerified(prefs);
+    if (!mounted) return;
+    if (purpose != _purpose ||
+        branch != _branch ||
+        verified != _sheetVerified) {
+      setState(() {
+        _purpose = purpose;
+        _branch = branch;
+        _sheetVerified = verified;
+      });
+    }
+  }
+
+  void _onSetupChange() => unawaited(_readSetup());
+
+  /// The *Finish …* row (ruling 3), or null: no skipped invite step, a
+  /// purpose without one, or ⋮ → *Not needed*.
+  SetupBranchRow? _branchRow() {
+    final branch = _branch;
+    if (branch == null || branch.state == SetupBranchState.notNeeded) {
+      return null;
+    }
+    final step = switch (branch.purpose) {
+      OnboardingPurpose.family => SetupStep.finishFamily,
+      OnboardingPurpose.trust => SetupStep.finishTrust,
+      _ => null,
+    };
+    if (step == null) return null;
+    final books = _scope.books;
+    // The book the record names; before S0.6f / S0.6i recorded it, the one
+    // book of the branch's kind (a chain that skipped invites always makes
+    // exactly one — ADR 2026-10-07 ruling 1 makes S0.6f / S0.6i required).
+    final group = step == SetupStep.finishFamily
+        ? HomeScopeGroup.family
+        : HomeScopeGroup.organizations;
+    final named =
+        books.where((b) => b.id == branch.bookId).firstOrNull ??
+        (branch.bookId == null
+            ? books.where((b) => b.group == group).singleOrNull
+            : null);
+    return SetupBranchRow(
+      step: step,
+      done: branch.state == SetupBranchState.done,
+      bookName: named?.name,
+    );
+  }
+
+  /// ⋮ → *Not needed* (ruling 3): hides the row, deletes nothing, and offers
+  /// Undo in a toast — no confirm dialog. Menu stays the way in.
+  Future<void> _notNeeded(SetupStep step) async {
+    final prefs = AppSettingsScope.read(context)?.prefs;
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    final l10n = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
+    final status = RkStatusColors.of(context);
+    final text = Theme.of(context).textTheme;
+    final before = _branch;
+    if (before != null) {
+      setState(
+        () => _branch = before.copyWith(state: SetupBranchState.notNeeded),
+      );
+    }
+    await SetupProgress.setBranchState(prefs, SetupBranchState.notNeeded);
+    // Canvas 1 O8f: the toast's bottom edge meets the verb buttons' top — it
+    // overlaps only the bar's top padding, so all four verbs stay in reach
+    // (07 §1 rules 1–2 🔒; SETUP174 review, finding 2). Measured after the
+    // await, when the bar is laid out.
+    final bar = _verbBarKey.currentContext?.findRenderObject();
+    final lift = bar is RenderBox && bar.hasSize
+        ? math.max(0.0, bar.size.height - RkSpace.s3)
+        : 0.0;
+    messenger
+      ?..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          // Canvas 1 O8f: a floating paper card with ink words and the
+          // primary *Undo*, not the theme's dark bar.
+          behavior: SnackBarBehavior.floating,
+          margin: EdgeInsets.fromLTRB(
+            RkSpace.s3,
+            RkSpace.s1,
+            RkSpace.s3,
+            RkSpace.s2 + lift,
+          ),
+          // 13 §4.2 *the 10 s Undo*; then it leaves on its own. An action
+          // would otherwise keep it up until tapped (Flutter ≥ 3.29 persists
+          // a SnackBar with an action by default) — over the verbs, and with
+          // Undo as the only way out.
+          duration: const Duration(seconds: 10),
+          persist: false,
+          backgroundColor: scheme.surface,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(RkRadius.lg),
+            side: BorderSide(color: status.hairline),
+          ),
+          content: Text(
+            step == SetupStep.finishTrust
+                ? l10n.homeSetupNotNeededTrustToast
+                : l10n.homeSetupNotNeededFamilyToast,
+            style: text.bodyLarge,
+          ),
+          action: SnackBarAction(
+            textColor: scheme.primary,
+            label: l10n.homeSetupUndo,
+            onPressed: () {
+              if (mounted && before != null) {
+                setState(
+                  () => _branch = before.copyWith(state: SetupBranchState.open),
+                );
+              }
+              unawaited(
+                SetupProgress.setBranchState(prefs, SetupBranchState.open),
+              );
+            },
+          ),
+        ),
+      );
+  }
 
   void _watchRecordOf(String bookId) {
     if (_recordBook == bookId) return;
@@ -227,7 +365,9 @@ class _HomeScreenState extends State<HomeScreen> {
     _resolveBook();
     unawaited(_loadClose());
     OpeningSetupRecord.changes.addListener(_onOpeningRecord);
+    SetupProgress.changes.addListener(_onSetupChange);
     unawaited(_resolvePersonal());
+    unawaited(_readSetup());
   }
 
   /// Reads every book's close state for the month that has just ended.
@@ -263,6 +403,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // deadlocks flutter_test's fake-async zone (the U2a finding).
     unawaited(_booksSub?.cancel());
     OpeningSetupRecord.changes.removeListener(_onOpeningRecord);
+    SetupProgress.changes.removeListener(_onSetupChange);
     _scope.removeListener(_onScope);
     if (widget.scopeController == null) _scope.dispose();
     super.dispose();
@@ -397,7 +538,8 @@ class _HomeScreenState extends State<HomeScreen> {
     // open P1A (a)).
     final doors = bookId == _personalBookId
         ? widget.setupDoors
-        : widget.setupDoors.difference(const {0});
+        : widget.setupDoors.difference(const {SetupStep.openingBalances});
+    final purpose = _purpose ?? _branch?.purpose;
     final l10n = AppLocalizations.of(context);
     final ledger = LedgerScope.of(context);
     final today = ledger.today();
@@ -438,7 +580,16 @@ class _HomeScreenState extends State<HomeScreen> {
           onSetupStep: widget.onSetupStep,
           setupDoors: doors,
           openingRecorded: _openingRecorded,
+          recoverySheetVerified: _sheetVerified,
+          setupBranch: _branchRow(),
+          // Ruling 3: the family's *Finish …* row replaces *Add your
+          // family*; a trust has no family row.
+          showAddFamily:
+              purpose != OnboardingPurpose.family &&
+              purpose != OnboardingPurpose.trust,
+          onNotNeeded: (step) => unawaited(_notNeeded(step)),
           rebuildingSlot: widget.rebuildingSlot,
+          verbBarKey: _verbBarKey,
         );
       },
     );
@@ -474,9 +625,14 @@ class _HomeBody extends StatelessWidget {
     this.onOpenTrialBalance,
     this.onOpenReconciliation,
     this.onSetupStep,
-    this.setupDoors = const {0, 1, 2, 3},
+    this.setupDoors = const {...SetupStep.values},
     this.openingRecorded = false,
+    this.recoverySheetVerified = false,
+    this.setupBranch,
+    this.showAddFamily = true,
+    this.onNotNeeded,
     this.rebuildingSlot,
+    this.verbBarKey,
   });
 
   final HomeSnapshot snapshot;
@@ -489,10 +645,17 @@ class _HomeBody extends StatelessWidget {
   final VoidCallback? onOpenDayBook;
   final VoidCallback? onOpenTrialBalance;
   final VoidCallback? onOpenReconciliation;
-  final void Function(int index)? onSetupStep;
-  final Set<int> setupDoors;
+  final void Function(SetupStep step)? onSetupStep;
+  final Set<SetupStep> setupDoors;
   final bool openingRecorded;
+  final bool recoverySheetVerified;
+  final SetupBranchRow? setupBranch;
+  final bool showAddFamily;
+  final void Function(SetupStep step)? onNotNeeded;
   final Widget? rebuildingSlot;
+
+  /// Keys the pinned verb bar so the screen can measure it.
+  final Key? verbBarKey;
 
   @override
   Widget build(BuildContext context) {
@@ -543,21 +706,28 @@ class _HomeBody extends StatelessWidget {
               differencePaise: snapshot.differencePaise,
               onOpenTrialBalance: onOpenTrialBalance,
             ),
-        // 07 §3.1 step 7 🔒: the opening-balances wizard is skippable and
-        // **resumable from Home's setup card**. So the checklist outlives the
-        // empty state — it stays until the balances are in, or a user who
-        // skipped them and then posted an entry would have no way back to
-        // them at all (07 §1 rule 6, no dead ends). Once they are recorded it
-        // goes, and the position card stands alone.
-        if (firstRun || !openingDone)
+        // ADR 2026-10-07 ruling 3: the checklist outlives the empty state —
+        // it leaves only when every row is ticked or set to *Not needed*
+        // (the optional *Add your family* never holds it open). Until then
+        // it sits above the position card, which returns with the first
+        // entry.
+        if (HomeSetupChecklist.isOpen(
+          openingBalancesDone: openingDone,
+          firstEntryDone: !firstRun,
+          recoverySheetVerified: recoverySheetVerified,
+          branch: setupBranch,
+        ))
           HomeSetupChecklist(
             openingBalancesDone: openingDone,
             doors: setupDoors,
             // The book's first entry, which is also what ends the empty
-            // state. Steps 3 and 4 have no completion source yet — the
-            // widget's own ⚠️ SPEC note (S11.4, S13).
+            // state.
             firstEntryDone: !firstRun,
+            recoverySheetVerified: recoverySheetVerified,
+            branch: setupBranch,
+            showAddFamily: showAddFamily,
             onStep: onSetupStep,
+            onNotNeeded: onNotNeeded,
           ),
         if (!firstRun)
           HomePositionCard(
@@ -670,6 +840,7 @@ class _HomeBody extends StatelessWidget {
         children: [
           Expanded(child: list),
           HomeVerbBar(
+            key: verbBarKey,
             // Never more than half the body (07 §1 rule 11): at 200 % in a
             // short window the bar scrolls inside itself and the list keeps
             // its half.

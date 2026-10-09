@@ -7,10 +7,10 @@
 // F1-1006c-3  S0.6 *Finish* posts the typed Cash A/c figure (integer paise)
 //             to the personal book, hands over to Home, and ticks the S0.7
 //             *Opening balances* row — even at ₹0, where nothing posts.
-// F1-1006c-4  S0.6 *Skip for now* hands over with the row open; the row
-//             reopens S0.6 alone, whose Back returns to Home.
-// F1-1006c-5  S0.5b with no sheet maker says why *Make the sheet* is disabled
-//             and *Skip for now* carries on (13 §4.3, desk 171).
+// F1-1006c-4  (superseded by ADR 2026-10-07 §1 — S0.6 has no Skip; see
+//             F1-1007-2) S0.6 *Skip for now* hands over with the row open.
+// F1-1006c-5  (superseded by ADR 2026-10-06d §3 — the real maker is wired;
+//             see F1-1006d-1) S0.5b with no sheet maker says why.
 // F1-1006c-6  S0.6 strings resolve in EN/PA/HI and hold at 130 % / 200 % on
 //             both phone floors.
 // F1-1006c-14 (review 2) reopened after an entry moved an account with no
@@ -111,8 +111,9 @@ Future<void> _answerName(WidgetTester tester, String name) async {
   await tapContinue(tester);
 }
 
-/// S0.5b's *Skip for now* → `afterSetPin`, then the branch with its defaults
-/// and every committing step skipped, up to S0.6.
+/// S0.5b's *Skip for now* → `afterSetPin`, then the branch with its defaults:
+/// invites skipped (still skippable, ADR 2026-10-07 ruling 2) and every
+/// opening-balances step saved at ₹0 (required, ruling 1), up to S0.6.
 Future<void> _walkBranch(
   WidgetTester tester,
   GoRouter router,
@@ -128,7 +129,7 @@ Future<void> _walkBranch(
     case OnboardingPurpose.businesses:
       await tester.enterText(find.byType(TextField).first, 'Kaur Traders');
       await tapContinue(tester); // S0.6a → S0.6b
-      await tester.tap(find.text('Skip for now')); // S0.6b → S0.6c
+      await tester.tap(find.text('Save and continue')); // S0.6b → S0.6c
       await tester.pumpAndSettle();
       await tester.tap(find.text('No, that’s all')); // S0.6c → S0.6
       await tester.pumpAndSettle();
@@ -137,14 +138,14 @@ Future<void> _walkBranch(
       await tapContinue(tester); // S0.6d → S0.6e
       await tester.tap(find.text('Skip for now')); // S0.6e → S0.6f
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Skip for now')); // S0.6f → S0.6
+      await tester.tap(find.text('Save')); // S0.6f at ₹0 → S0.6
       await tester.pumpAndSettle();
     case OnboardingPurpose.trust:
       await tester.enterText(find.byType(TextField).first, 'Guru Nanak Sabha');
       await tapContinue(tester); // S0.6g → S0.6h
       await tester.tap(find.text('Skip for now')); // S0.6h → S0.6i
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Skip for now')); // S0.6i → S0.6
+      await tester.tap(find.text('Save')); // S0.6i at ₹0 → S0.6
       await tester.pumpAndSettle();
   }
 }
@@ -165,7 +166,7 @@ void main() {
     };
     for (final purpose in OnboardingPurpose.values) {
       testWidgets('F1-1006c-1 ${purpose.name}: S0.4 makes "$_name"\'s personal '
-          'book; the branch ends at S0.6 over it; Skip hands over', (
+          'book; the branch ends at S0.6 over it; Finish hands over', (
         tester,
       ) async {
         final ledger = await openTestLedger();
@@ -196,7 +197,9 @@ void main() {
         expect(find.text('Cash A/c'), findsOneWidget);
         expect(find.text('money in hand'), findsOneWidget);
 
-        await tester.tap(find.text('Skip for now'));
+        // ADR 2026-10-07 ruling 1: S0.6 has no Skip; ₹0 + Finish hands over.
+        expect(find.text('Skip for now'), findsNothing);
+        await tester.tap(find.text('Finish'));
         await tester.pumpAndSettle();
         expect(_where(router), HomePaths.home);
         expect(find.byType(HomeSetupChecklist), findsOneWidget);
@@ -353,107 +356,34 @@ void main() {
     });
   });
 
+  // ADR 2026-10-07 §1 removed S0.6's *Skip for now*: the body (git history)
+  // drove a button that no longer exists. What it also proved — the row opens
+  // S0.6 alone on an onboarded install, Back returns Home, Finish ticks it —
+  // re-lands in F1-1007-2 (f1_1007_required_steps_test.dart).
   group('F1-1006c-4 Skip leaves the row open as the way back', () {
-    testWidgets('F1-1006c-4 Skip → Home with the row open; the row opens S0.6 '
-        'alone; Back returns Home; Finish there ticks it', (tester) async {
-      final ledger = await openTestLedger();
-      await ledger.bootstrapSolo();
-      onboardingFlow.setYourName(_name);
-      final prefs = MemoryPrefs();
-      final router = await _pump(
-        tester,
-        ledger,
-        at: OnboardingPaths.openingBalances,
-        prefs: prefs,
-      );
-      final bookId = (await _books(ledger, BookType.personal)).single.$1;
-      await tester.tap(find.text('Skip for now'));
-      await tester.pumpAndSettle();
-      expect(_where(router), HomePaths.home);
-      expect(prefs.values[OpeningSetupRecord.keyFor(bookId)], isNull);
-      expect(find.byIcon(Icons.check_circle), findsNothing);
-
-      // The production door (home_routes.dart): S0.6 and nothing else.
-      await tester.tap(find.text('Opening balances'));
-      await tester.pumpAndSettle();
-      expect(_where(router), OnboardingPaths.openingBalances);
-      expect(find.text('What do you have?'), findsOneWidget);
-
-      // Onboarded: Back goes Home, never into the chain.
-      await tester.binding.handlePopRoute();
-      await tester.pumpAndSettle();
-      expect(_where(router), HomePaths.home);
-
-      await tester.tap(find.text('Opening balances'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text('Finish'));
-      await tester.pumpAndSettle();
-      expect(_where(router), HomePaths.home);
-      expect(find.byIcon(Icons.check_circle), findsOneWidget);
-      // Still one personal book after reopening S0.6 twice.
-      expect(await _books(ledger, BookType.personal), hasLength(1));
-      await _unmount(tester);
-    });
+    test(
+      'F1-1006c-4 Skip → Home with the row open; the row opens S0.6 '
+      'alone; Back returns Home; Finish there ticks it',
+      () {},
+      skip: 'superseded by ADR 2026-10-07 §1; re-lands at M13',
+    );
   });
 
+  // F1-1006c-5 is superseded (ADR 2026-09-05i §4): it pinned S0.5b with no
+  // sheet maker as the *production* wiring (desk 171). RUNG3B wires the real
+  // maker (ADR 2026-10-06d ruling 3), so the copy it asserted ("can't make
+  // the sheet yet … once an update adds it") no longer describes production.
+  // What it also proved — with no maker the reason sits under the sleeping
+  // button and *Skip for now* carries on — re-lands in F1-1006d-1
+  // (f1_1006d_recovery_sheet_test.dart).
   group('F1-1006c-5 S0.5b disabled with its reason (desk 171)', () {
-    testWidgets('F1-1006c-5 no sheet maker: the reason sits under the '
-        'disabled Make the sheet, and Skip for now carries on', (tester) async {
-      final ledger = await openTestLedger();
-      await ledger.bootstrapSolo();
-      onboardingFlow.setPurpose(OnboardingPurpose.myself);
-      final router = await _pump(
-        tester,
-        ledger,
-        at: OnboardingPaths.recoverySheet,
-        prefs: MemoryPrefs(),
-      );
-      final make = tester.widget<FilledButton>(
-        find.widgetWithText(FilledButton, 'Make the sheet'),
-      );
-      expect(make.onPressed, isNull);
-      expect(
-        find.text(
-          'This version of the app can\'t make the sheet yet. Tap Skip for '
-          'now to carry on — you can make it once an update adds it.',
-        ),
-        findsOneWidget,
-      );
-      // Directly under the disabled button, as canvas 1 O5b sets a sleeping
-      // button's reason.
-      final reason = find.textContaining('can\'t make the sheet yet');
-      expect(
-        tester.getTopLeft(reason).dy,
-        greaterThan(
-          tester
-              .getBottomLeft(
-                find.widgetWithText(FilledButton, 'Make the sheet'),
-              )
-              .dy,
-        ),
-      );
-      await tester.tap(find.text('Skip for now'));
-      await tester.pumpAndSettle();
-      expect(_where(router), OnboardingPaths.openingBalances);
-      await _unmount(tester);
-    });
-
-    testWidgets('F1-1006c-5 a wired maker shows no unavailable line', (
-      tester,
-    ) async {
-      await pumpRk(
-        tester,
-        RecoverySheetScreen(onGenerate: () async {}),
-        viewport: rkPhone360,
-      );
-      expect(find.textContaining('can\'t make the sheet yet'), findsNothing);
-      final make = tester.widget<FilledButton>(
-        find.widgetWithText(FilledButton, 'Make the sheet'),
-      );
-      expect(make.onPressed, isNotNull);
-    });
+    test(
+      'F1-1006c-5 no sheet maker: the reason sits under the disabled Make '
+      'the sheet, and Skip for now carries on',
+      () {},
+      skip: 'superseded by ADR 2026-10-06d §3; re-lands at M13 as F1-1006d-1',
+    );
   });
-
   group('F1-1006c-6 S0.6 in EN/PA/HI at large text', () {
     const rows = [
       FirstRunRow(
@@ -484,7 +414,6 @@ void main() {
             rows: rows,
             asOn: LocalDate(2026, 9, 7),
             onFinish: (_) {},
-            onSkip: () {},
             onAddAccount: () {},
             onBack: () {},
           ),
@@ -494,7 +423,9 @@ void main() {
         final (title, finish, skip) = expected[locale.languageCode]!;
         expect(find.text(title), findsOneWidget);
         expect(find.text(finish), findsOneWidget);
-        expect(find.text(skip), findsOneWidget);
+        // ADR 2026-10-07 ruling 1 (F1-1007-2): S0.6 is required — the
+        // *Skip for now* this test once found is gone in every language.
+        expect(find.text(skip), findsNothing);
         // The posted party figure is shown, not asked again; it is magnitude
         // under its *who you owe* heading (07 §1 rule 3).
         expect(find.text('₹1,370'), findsOneWidget);
@@ -511,7 +442,6 @@ void main() {
                 rows: rows,
                 asOn: LocalDate(2026, 9, 7),
                 onFinish: (_) {},
-                onSkip: () {},
                 onAddAccount: () {},
                 onBack: () {},
               ),
@@ -617,8 +547,8 @@ void main() {
         ..values[OpeningSetupRecord.keyFor(personal)] = '1';
       final settings = AppSettings(prefs: prefs);
       await settings.load();
-      Future<List<int>> open(String bookId) async {
-        final steps = <int>[];
+      Future<List<SetupStep>> open(String bookId) async {
+        final steps = <SetupStep>[];
         await pumpRk(
           tester,
           AppSettingsScope(
@@ -639,7 +569,7 @@ void main() {
       }
 
       // The personal book: ticked by its own record, and a door to S0.6.
-      expect(await open(personal), [0]);
+      expect(await open(personal), [SetupStep.openingBalances]);
       expect(find.byIcon(Icons.check_circle), findsOneWidget);
       await _unmount(tester);
 

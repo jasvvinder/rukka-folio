@@ -58,7 +58,13 @@ Future<void> _pumpHost(
   addTearDown(tester.view.resetDevicePixelRatio);
   await pumpRk(
     tester,
-    BusinessOpeningHost(flow: flow, startDate: _start, onDone: onDone),
+    // Sign-up wiring (onboarding_routes.dart): ADR 2026-10-07 ruling 1.
+    BusinessOpeningHost(
+      flow: flow,
+      startDate: _start,
+      onDone: onDone,
+      offerSkip: false,
+    ),
     ledger: ledger,
   );
   await tester.pumpAndSettle();
@@ -161,8 +167,9 @@ void main() {
     );
 
     testWidgets(
-      'F1-09c-1 Skip for now still leaves the book and its seeded chart '
-      'behind — nothing is posted, and the step is not a dead end',
+      'F1-09c-1 ₹0 then Save (ADR 2026-10-07 ruling 1: no Skip for now) '
+      'still leaves the book and its seeded chart behind — nothing is '
+      'posted, and the step is not a dead end',
       (tester) async {
         final ledger = await openTestLedger();
         await ledger.bootstrapSolo(firstBookName: 'Me');
@@ -170,7 +177,8 @@ void main() {
         var done = 0;
         await _pumpHost(tester, ledger, flow, onDone: () => done++);
 
-        await tester.tap(find.byType(TextButton).last);
+        expect(find.text('Skip for now'), findsNothing);
+        await tester.tap(find.byType(FilledButton));
         await tester.pumpAndSettle();
 
         expect(done, 1);

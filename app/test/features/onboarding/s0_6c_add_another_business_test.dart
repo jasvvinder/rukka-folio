@@ -256,9 +256,10 @@ void main() {
         expect(router.state.uri.path, OnboardingPaths.businessOpening);
         expect(onboardingFlow.businessBookId, isNotNull);
 
-        // S0.6b — *Skip for now* is the host's onDone, the seam ADR
-        // 2026-10-04c §1 changed: it must reach S0.6c, not Home.
-        await tester.tap(find.text('Skip for now'));
+        // S0.6b — Save (at ₹0: ADR 2026-10-07 ruling 1 removed *Skip for
+        // now*) is the host's onDone, the seam ADR 2026-10-04c §1 changed: it
+        // must reach S0.6c, not Home.
+        await tester.tap(find.text('Save and continue'));
         await tester.pumpAndSettle();
         expect(router.state.uri.path, OnboardingPaths.businessAnother);
         expect(onboardingFlow.businesses, hasLength(1));
@@ -269,11 +270,11 @@ void main() {
         await tester.pumpAndSettle();
 
         // The old *My shop* row: O6a → O6b → **O6 your own** → checklist
-        // (07 §3.1.1 🔒; desk 172): S0.6, whose *Skip for now* is the
-        // hand-over to Home's checklist.
+        // (07 §3.1.1 🔒; desk 172): S0.6, whose *Finish* is the hand-over to
+        // Home's checklist (ADR 2026-10-07 ruling 1: ₹0 + Finish is valid).
         expect(router.state.uri.path, OnboardingPaths.openingBalances);
         expect(find.text('What do you have?'), findsOneWidget);
-        await tester.tap(find.text('Skip for now'));
+        await tester.tap(find.text('Finish'));
         await tester.pumpAndSettle();
         expect(router.state.uri.path, HomePaths.home);
       },

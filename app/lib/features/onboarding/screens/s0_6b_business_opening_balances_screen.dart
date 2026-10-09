@@ -6,7 +6,9 @@
 // is review-and-fill: three groups in the consumer vocabulary (02 §10 🔒 —
 // *What you have · Who owes you · Who you owe*, never Assets/Liabilities),
 // plus *What each owner put in* on a shared business. A row left empty is
-// still created; the S0.7 checklist brings the user back to any row skipped.
+// still created and posts nothing. ADR 2026-10-07 ruling 1: in sign-up the
+// step is required — no *Skip for now*; ₹0 everywhere then Save is a valid
+// answer. S9.5 (after Home) keeps its Skip ([onSkip]).
 //
 // **No bank is seeded** (ADR 2026-09-09d §1): the *What you have* group offers
 // *Add a bank account* instead, so the bank is named properly the first time
@@ -117,8 +119,8 @@ class BusinessOpeningBalancesScreen extends StatefulWidget {
     required this.rows,
     required this.startDate,
     this.onSave,
-    this.onSkip,
     this.onAddAccount,
+    this.onSkip,
   });
 
   /// The seeded accounts, already grouped by [OpeningRow.group].
@@ -132,7 +134,10 @@ class BusinessOpeningBalancesScreen extends StatefulWidget {
   /// them, and the account exists either way (ADR 2026-09-09c §3).
   final void Function(Map<String, int> balances)? onSave;
 
-  /// *Skip for now* — the S0.7 checklist brings the user back.
+  /// *Skip for now*; null draws none. ADR 2026-10-07 ruling 1: in sign-up
+  /// the step is required, so onboarding passes none — every figure left at
+  /// ₹0 and Save is a valid answer. S9.5 (Menu → Add a business, 07 §5.7 —
+  /// after Home, outside ruling 1) still passes one through its host.
   final VoidCallback? onSkip;
 
   /// Opens the *Add an account* type grid (S3.1) for a group — how a bank
@@ -306,11 +311,13 @@ class _BusinessOpeningBalancesScreenState
                 onPressed: () => widget.onSave?.call(_signed),
                 child: Text(l10n.onboardingBusinessOpeningSave),
               ),
-              const SizedBox(height: RkSpace.s2),
-              TextButton(
-                onPressed: widget.onSkip,
-                child: Text(l10n.onboardingBusinessOpeningSkip),
-              ),
+              if (widget.onSkip case final skip?) ...[
+                const SizedBox(height: RkSpace.s2),
+                TextButton(
+                  onPressed: skip,
+                  child: Text(l10n.onboardingBusinessOpeningSkip),
+                ),
+              ],
             ],
           ),
         ),

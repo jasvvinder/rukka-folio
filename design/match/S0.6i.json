@@ -1,0 +1,34 @@
+{
+ "sid": "S0.6i",
+ "verdict": "deviates",
+ "frames": [
+  "c1/S0.6i/What the trust has · gollak counted",
+  "c14/S0.6i/The trust’s accounts · gollak",
+  "nd/S0.6i-trust/S0.6i-trust"
+ ],
+ "captures": [
+  "S0.6i__default"
+ ],
+ "screen_files": [
+  "app/lib/features/onboarding/screens/s0_6i_trust_accounts_screen.dart",
+  "app/lib/features/onboarding/widgets/trust_opening_host.dart"
+ ],
+ "deviations": [
+  {
+   "what": "Layout is the older review-and-fill screen (title, subtitle, date line with calendar icon, a heading per group, underlined amount fields, '+ Add a bank account', a 'Balances against' box, a Save button) where the c1 frame draws the S0.6 pattern: back chevron and progress dashes, 'What does the trust have?' title, 'Balances as on <date>', sunk group bands with right-aligned ₹ boxes, a dashed 'Add an account' row, a footer note band and 'Finish'",
+   "reason": "This slice (SETUP174) only removes the step's Skip (ADR 2026-10-07 ruling 1); the frames were placed 7 Oct (desk 178) and their re-skin onto the S0.6 pattern — with the joint-fund wording of ADR 2026-10-08 — is its own slice",
+   "authority": "open SETUP174 (re-skin S0.6b/S0.6f/S0.6i to the c1 frames); ADR 2026-10-08 §1 wording is WORDS179"
+  },
+  {
+   "what": "The nd/ frames draw 'Skip for now' under Finish; the app draws none",
+   "reason": "The step is required in sign-up; ₹0 everywhere then Save is a valid answer with no extra confirm",
+   "authority": "ADR 2026-10-07 ruling 1 🔒"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-09",
+ "hashes": {
+  "screens": "32da2c08ef3d4bdeaa43257bbc4c941360ddcee534c962bc4635478f6e5498d8",
+  "frames": "88d5c92941b0aeb5aafcd744210eafd46f730e52651e5d4d48d9caee1a58e77d"
+ }
+}

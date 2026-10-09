@@ -9,8 +9,15 @@
 // *Finish* posts the typed figures through `LocalLedger.openingBalances` —
 // one `adjustment` per non-zero row against *Opening Balance* (02 §4; no
 // posting logic here) — records the press for the S0.7 checklist
-// ([OpeningSetupRecord]) and goes on. *Skip for now* goes on and records
-// nothing, so the checklist row stays open as the way back (desk 172).
+// ([OpeningSetupRecord]) and goes on. ADR 2026-10-07 ruling 1: the screen has
+// no *Skip for now* — ₹0 everywhere then *Finish* is a valid answer.
+//
+// ⚠️ SPEC (conservative reading, owner may refine): the working-state escapes
+// below — the book could not be made or read, or read-only refused making it —
+// keep their *Skip for now*. There the step cannot be completed, and ADR
+// 2026-10-07 itself keeps S0.5b's Skip for exactly that reason (07 §1 rule 6:
+// a step that cannot be completed must not block sign-up). Nothing is recorded
+// then, so the S0.7 row stays open as the way back.
 //
 // States (13 §4.3): working (ruled skeleton shape, 11 §4.5 — never a spinner),
 // error with retry (07 §1 rule 12), read-only refused (S12.5, ADR 2026-09-24b
@@ -55,7 +62,8 @@ class PersonalOpeningHost extends StatefulWidget {
   /// The day a book made here begins (ADR 2026-09-09d §4).
   final LocalDate startDate;
 
-  /// *Finish* (after the post) or *Skip for now* — the hand-over to Home.
+  /// *Finish* (after the post) — the hand-over to Home; also the error
+  /// states' escape (see the file's ⚠️ SPEC).
   final VoidCallback onDone;
 
   /// The back chevron and system Back (ADR 2026-10-06b ruling 3); held while
@@ -198,7 +206,7 @@ class _PersonalOpeningHostState extends State<PersonalOpeningHost> {
       };
       if (toPost.isNotEmpty) {
         // Read-only blocks the post with the S12.5 sheet; the figures stay
-        // typed underneath and *Skip for now* still leads on (no dead end).
+        // typed underneath and ₹0 everywhere still finishes (no dead end).
         if (await refuseIfEntryRestricted(context, sources, [bookId])) {
           if (mounted) setState(() => _saving = false);
           return;
@@ -313,7 +321,6 @@ class _PersonalOpeningHostState extends State<PersonalOpeningHost> {
               onBack: back,
               onAddAccount: _addAccount,
               onFinish: (balances) => unawaited(_finish(balances)),
-              onSkip: widget.onDone,
             );
           },
         );

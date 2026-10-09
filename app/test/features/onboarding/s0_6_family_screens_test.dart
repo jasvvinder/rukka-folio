@@ -336,8 +336,9 @@ void main() {
     );
 
     testWidgets(
-      'F1-07-76 Skip for now still leaves the pool book and its seeded '
-      'chart behind — nothing is posted, never a dead end',
+      'F1-07-76 ₹0 then Save (ADR 2026-10-07 ruling 1: no Skip for now) '
+      'still leaves the joint fund book and its seeded chart behind — '
+      'nothing is posted, never a dead end',
       (tester) async {
         final ledger = await openTestLedger();
         await ledger.bootstrapSolo(firstBookName: 'Me');
@@ -345,7 +346,8 @@ void main() {
         var done = 0;
         await pumpHost(tester, ledger, f, onDone: () => done++);
 
-        await tester.tap(find.byType(TextButton).last);
+        expect(find.text('Skip for now'), findsNothing);
+        await tester.tap(find.byType(FilledButton));
         await tester.pumpAndSettle();
 
         expect(done, 1);

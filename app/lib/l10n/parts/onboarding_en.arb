@@ -576,61 +576,17 @@
   "@onboarding.recovery_sheet.title": {
     "description": "S0.5b title (13 §3.2 row S0.5b, 07 §3.1 step 6, 04 §7.4)."
   },
-  "onboarding.recovery_sheet.why_title": "There is no “forgot password”",
+  "onboarding.recovery_sheet.why_title": "Only you can open your books",
   "@onboarding.recovery_sheet.why_title": {
-    "description": "S0.5b: the one-screen explanation (07 §3.1 step 6)."
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
   },
-  "onboarding.recovery_sheet.why_body": "Your data is locked so well that even we can't open it. This sheet is the one key you keep yourself — print it and keep it with your Aadhaar and LIC papers.",
+  "onboarding.recovery_sheet.why_body": "Your entries are locked with a key that exists only on your phone. We cannot open them. Nobody at Rukka can, and no court order changes that.",
   "@onboarding.recovery_sheet.why_body": {
-    "description": "S0.5b explanation, 07 §3.1 step 6's own words plus 04 §7.4's framing."
-  },
-  "onboarding.recovery_sheet.generate": "Make the sheet",
-  "@onboarding.recovery_sheet.generate": {
-    "description": "S0.5b primary action, the generate step (04 §7.4)."
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
   },
   "onboarding.recovery_sheet.generating": "Making your sheet…",
   "@onboarding.recovery_sheet.generating": {
     "description": "S0.5b loading state (13 §4.3)."
-  },
-  "onboarding.recovery_sheet.ready_title": "Your sheet is ready",
-  "@onboarding.recovery_sheet.ready_title": {
-    "description": "S0.5b state after generating."
-  },
-  "onboarding.recovery_sheet.ready_body": "It is never shown on this screen — print it or save it, then put it where you keep your papers.",
-  "@onboarding.recovery_sheet.ready_body": {
-    "description": "S0.5b: the sheet's contents are not rendered in the app."
-  },
-  "onboarding.recovery_sheet.share": "Print or save",
-  "@onboarding.recovery_sheet.share": {
-    "description": "S0.5b share/print action (04 §7.4, 04 §7.6)."
-  },
-  "onboarding.recovery_sheet.risk": "Anyone who opens this sheet can open your books.",
-  "@onboarding.recovery_sheet.risk": {
-    "description": "S0.5b risk line 🔒 (04 §7.6) — stated at the moment of choosing."
-  },
-  "onboarding.recovery_sheet.scan": "Scan the printed sheet back",
-  "@onboarding.recovery_sheet.scan": {
-    "description": "S0.5b verify action (04 §7.4 verified-storage)."
-  },
-  "onboarding.recovery_sheet.nag_title": "Not verified yet",
-  "@onboarding.recovery_sheet.nag_title": {
-    "description": "S0.5b verified-storage nag (04 §7.4) — persists until the printed sheet is scanned back."
-  },
-  "onboarding.recovery_sheet.nag_body": "We will keep reminding you until you scan the printed sheet back, so you find out today — not on the day you need it.",
-  "@onboarding.recovery_sheet.nag_body": {
-    "description": "S0.5b nag body; the badge also lives on Menu (07 §3.1 step 6)."
-  },
-  "onboarding.recovery_sheet.verified": "Verified — we read your printed sheet back.",
-  "@onboarding.recovery_sheet.verified": {
-    "description": "S0.5b verified state; the nag stops here."
-  },
-  "onboarding.recovery_sheet.scan_failed": "That didn't match this sheet. Scan the printed page again.",
-  "@onboarding.recovery_sheet.scan_failed": {
-    "description": "S0.5b scan error; never a dead end (07 §1 rule 6)."
-  },
-  "onboarding.recovery_sheet.error": "The sheet could not be made. Nothing was changed.",
-  "@onboarding.recovery_sheet.error": {
-    "description": "S0.5b error state with retry (13 §4.3)."
   },
   "onboarding.recovery_sheet.retry": "Try again",
   "@onboarding.recovery_sheet.retry": {
@@ -730,7 +686,7 @@
   "@onboarding.family.accounts.title": {
     "description": "S0.6f (13 §3.2, 07 §3.1.1 branch O6f)."
   },
-  "onboarding.family.accounts.subtitle": "These accounts already exist — fill in what the pool has, or leave it for now.",
+  "onboarding.family.accounts.subtitle": "These accounts already exist — fill in what the pool has, or leave any at ₹0 to start from zero.",
   "@onboarding.family.accounts.subtitle": {
     "description": "S0.6f — a review-and-fill screen, not a creation flow (ADR 2026-09-09c §3)."
   },
@@ -779,10 +735,6 @@
   "onboarding.family.accounts.save": "Save",
   "@onboarding.family.accounts.save": {
     "description": "S0.6f primary action."
-  },
-  "onboarding.family.accounts.skip": "Skip for now",
-  "@onboarding.family.accounts.skip": {
-    "description": "S0.6f skip — the S0.7 checklist brings the user back (07 §3.1 step 7)."
   },
   "onboarding.family.accounts.creating": "Setting up your family's pool…",
   "@onboarding.family.accounts.creating": {
@@ -922,7 +874,7 @@
   "@onboarding.trust.accounts.title": {
     "description": "S0.6i screen title."
   },
-  "onboarding.trust.accounts.subtitle": "These accounts already exist — fill in what the trust has, or skip for now.",
+  "onboarding.trust.accounts.subtitle": "These accounts already exist — fill in what the trust has, or leave any at ₹0 to start from zero.",
   "@onboarding.trust.accounts.subtitle": {
     "description": "S0.6i screen subtitle."
   },
@@ -975,10 +927,6 @@
   "onboarding.trust.accounts.save": "Save",
   "@onboarding.trust.accounts.save": {
     "description": "S0.6i primary action."
-  },
-  "onboarding.trust.accounts.skip": "Skip for now",
-  "@onboarding.trust.accounts.skip": {
-    "description": "S0.6i skip — the S0.7 checklist brings the user back (07 §3.1 step 7)."
   },
   "onboarding.trust.accounts.creating": "Setting up your trust's accounts…",
   "@onboarding.trust.accounts.creating": {
@@ -1164,39 +1112,249 @@
     "description": "S0.06 invite line (canvas 1b L0): 07 §12 stays the invite path — a deep link opens S0.9; this line is not a button."
   },
   "onboarding.opening.title": "What do you have?",
-  "@onboarding.opening.title": {"description": "S0.6 Opening balances · first run title (canvas 1 frame S0.6; desk 172). The person's own personal book."},
+  "@onboarding.opening.title": {
+    "description": "S0.6 Opening balances · first run title (canvas 1 frame S0.6; desk 172). The person's own personal book."
+  },
   "onboarding.opening.as_on": "Balances as on {date}",
-  "@onboarding.opening.as_on": {"description": "S0.6 read-only date line (02 §4 🔒 'balance today'; ADR 2026-09-09d §4). {date} is drawn bold — it must stay a whole placeholder.", "placeholders": {"date": {"type": "String"}}},
+  "@onboarding.opening.as_on": {
+    "description": "S0.6 read-only date line (02 §4 🔒 'balance today'; ADR 2026-09-09d §4). {date} is drawn bold — it must stay a whole placeholder.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "onboarding.opening.cash_hint": "money in hand",
-  "@onboarding.opening.cash_hint": {"description": "S0.6 line under the seeded Cash A/c (canvas 1)."},
+  "@onboarding.opening.cash_hint": {
+    "description": "S0.6 line under the seeded Cash A/c (canvas 1)."
+  },
   "onboarding.opening.have_empty": "Nothing yet. Add a bank or cash account.",
-  "@onboarding.opening.have_empty": {"description": "S0.6 What you have group with no money account (only when the seeded Cash A/c was archived)."},
+  "@onboarding.opening.have_empty": {
+    "description": "S0.6 What you have group with no money account (only when the seeded Cash A/c was archived)."
+  },
   "onboarding.opening.owed_empty": "Nobody yet. Add anyone who owes you money.",
-  "@onboarding.opening.owed_empty": {"description": "S0.6 Who owes you — empty (canvas 1)."},
+  "@onboarding.opening.owed_empty": {
+    "description": "S0.6 Who owes you — empty (canvas 1)."
+  },
   "onboarding.opening.owe_empty": "Nobody yet. Add anyone you have to pay.",
-  "@onboarding.opening.owe_empty": {"description": "S0.6 Who you owe — empty (canvas 1)."},
+  "@onboarding.opening.owe_empty": {
+    "description": "S0.6 Who you owe — empty (canvas 1)."
+  },
   "onboarding.opening.add_account": "Add an account",
-  "@onboarding.opening.add_account": {"description": "S0.6 row that opens S3.1 Quick add (canvas 1; ADR 2026-09-09d §1: no book seeds a bank)."},
+  "@onboarding.opening.add_account": {
+    "description": "S0.6 row that opens S3.1 Quick add (canvas 1; ADR 2026-09-09d §1: no book seeds a bank)."
+  },
   "onboarding.opening.add_account_hint": "bank, cash, a person, a category…",
-  "@onboarding.opening.add_account_hint": {"description": "S0.6 Add an account examples (canvas 1)."},
+  "@onboarding.opening.add_account_hint": {
+    "description": "S0.6 Add an account examples (canvas 1)."
+  },
   "onboarding.opening.note": "Fill these in and we will show what you are starting with. Leave any at ₹0 — the account is still made.",
-  "@onboarding.opening.note": {"description": "S0.6 footer note (canvas 1; 02 §4: zero balances post nothing)."},
+  "@onboarding.opening.note": {
+    "description": "S0.6 footer note (canvas 1; 02 §4: zero balances post nothing)."
+  },
   "onboarding.opening.finish": "Finish",
-  "@onboarding.opening.finish": {"description": "S0.6 primary — posts the figures and goes on to Home; ticks the S0.7 Opening balances row (desk 172)."},
+  "@onboarding.opening.finish": {
+    "description": "S0.6 primary — posts the figures and goes on to Home; ticks the S0.7 Opening balances row (desk 172)."
+  },
   "onboarding.opening.skip": "Skip for now",
-  "@onboarding.opening.skip": {"description": "S0.6 skip — goes on to Home; the S0.7 Opening balances row stays open as the way back (desk 172)."},
+  "@onboarding.opening.skip": {
+    "description": "S0.6 skip — goes on to Home; the S0.7 Opening balances row stays open as the way back (desk 172)."
+  },
   "onboarding.opening.amount_label": "{account}, balance today",
-  "@onboarding.opening.amount_label": {"description": "S0.6 screen-reader label of a row's amount field (02 §4 asks a money account for its balance today). {account} is the account's name.", "placeholders": {"account": {"type": "String"}}},
-  "onboarding.opening.save_error": "Your balances could not be saved. Nothing was changed — press Finish again, or skip for now.",
-  "@onboarding.opening.save_error": {"description": "S0.6 Finish failed — named cause and the way on (07 §1 rule 12)."},
+  "@onboarding.opening.amount_label": {
+    "description": "S0.6 screen-reader label of a row's amount field (02 §4 asks a money account for its balance today). {account} is the account's name.",
+    "placeholders": {
+      "account": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.opening.save_error": "Your balances could not be saved. Nothing was changed — press Finish again.",
+  "@onboarding.opening.save_error": {
+    "description": "S0.6 Finish failed — named cause and the way on (07 §1 rule 12)."
+  },
   "onboarding.opening.creating": "Getting your book ready…",
-  "@onboarding.opening.creating": {"description": "S0.6 host working state while the personal book is found or made (11 §4.5)."},
+  "@onboarding.opening.creating": {
+    "description": "S0.6 host working state while the personal book is found or made (11 §4.5)."
+  },
   "onboarding.opening.create_error": "Your book could not be made. Nothing was changed.",
-  "@onboarding.opening.create_error": {"description": "S0.6 host error — the personal book could not be made (07 §1 rule 12)."},
+  "@onboarding.opening.create_error": {
+    "description": "S0.6 host error — the personal book could not be made (07 §1 rule 12)."
+  },
   "onboarding.opening.retry": "Try again",
-  "@onboarding.opening.retry": {"description": "S0.6 host retry."},
+  "@onboarding.opening.retry": {
+    "description": "S0.6 host retry."
+  },
   "onboarding.opening.default_book_name": "My book",
-  "@onboarding.opening.default_book_name": {"description": "S0.6 host — the personal book's name only when the S0.4 name was lost to a cold start (13 §2.1; desk 164). Editable later like any book name."},
-  "onboarding.recovery_sheet.unavailable": "This version of the app can't make the sheet yet. Tap Skip for now to carry on — you can make it once an update adds it.",
-  "@onboarding.recovery_sheet.unavailable": {"description": "S0.5b disabled-with-reason (13 §4.3; desk 171): shown when no sheet maker is wired, beside the disabled Make the sheet."}
+  "@onboarding.opening.default_book_name": {
+    "description": "S0.6 host — the personal book's name only when the S0.4 name was lost to a cold start (13 §2.1; desk 164). Editable later like any book name."
+  },
+  "onboarding.recovery_sheet.unavailable": "This phone can’t make the sheet here. Tap Skip for now to carry on — Home keeps the step open until a sheet is made.",
+  "@onboarding.recovery_sheet.unavailable": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.why_body2": "That is why one page of paper matters. Print it, keep it at home, and your books survive a lost phone.",
+  "@onboarding.recovery_sheet.why_body2": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.preview_caption": "One A4 page · a square to scan, and a code to type if it won’t scan",
+  "@onboarding.recovery_sheet.preview_caption": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.preview_semantics": "A picture of the printed page: a square to scan and a code to type. Your own code is only on the paper.",
+  "@onboarding.recovery_sheet.preview_semantics": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.print": "Print or save the sheet",
+  "@onboarding.recovery_sheet.print": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.kept_safe": "I’ve kept it safe",
+  "@onboarding.recovery_sheet.kept_safe": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.kept_safe_asleep": "Open the sheet once and this button wakes up.",
+  "@onboarding.recovery_sheet.kept_safe_asleep": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.error_offline": "The sheet wasn’t made — you’re offline. Rukka must keep its locked copy before the sheet can be shown. Connect and try again.",
+  "@onboarding.recovery_sheet.error_offline": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.error_not_signed_in": "The sheet wasn’t made — this phone isn’t signed in yet. Finish signing in, then try again.",
+  "@onboarding.recovery_sheet.error_not_signed_in": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.error_too_many": "The sheet wasn’t made — too many sheets in a short time. Wait a few minutes and try again.",
+  "@onboarding.recovery_sheet.error_too_many": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.error_needs_update": "The sheet wasn’t made — this version of the app is too old. Update Rukka, then try again.",
+  "@onboarding.recovery_sheet.error_needs_update": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.error_server": "The sheet wasn’t made — Rukka could not keep its locked copy. Nothing was changed. Try again.",
+  "@onboarding.recovery_sheet.error_server": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.open_failed": "The print sheet didn’t open. Try again.",
+  "@onboarding.recovery_sheet.open_failed": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.check_heading": "Check your printed sheet",
+  "@onboarding.recovery_sheet.check_heading": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.check_body": "Scan the square on the page you printed, or type its code. Until it is checked, Home keeps reminding you — so you find out today, not on the day you need it.",
+  "@onboarding.recovery_sheet.check_body": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.check_scan": "Scan the sheet",
+  "@onboarding.recovery_sheet.check_scan": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.check_type": "Type the code instead",
+  "@onboarding.recovery_sheet.check_type": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.check_field_label": "The code on your sheet",
+  "@onboarding.recovery_sheet.check_field_label": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.check_field_hint": "Groups of four, as printed",
+  "@onboarding.recovery_sheet.check_field_hint": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.check_submit": "Check the code",
+  "@onboarding.recovery_sheet.check_submit": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.check_checking": "Checking…",
+  "@onboarding.recovery_sheet.check_checking": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.check_verified": "Checked — this sheet opens your books.",
+  "@onboarding.recovery_sheet.check_verified": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.check_failed_title": "That code didn’t work",
+  "@onboarding.recovery_sheet.check_failed_title": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.check_failed_newer": "A newer sheet was printed, and only the newest one works. The old page stops working the moment a new one is made.",
+  "@onboarding.recovery_sheet.check_failed_newer": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.check_failed_typo": "Or a character was mistyped. The letters O and I are never used, so anything that looks like one is a zero or a one.",
+  "@onboarding.recovery_sheet.check_failed_typo": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.check_other_account": "This sheet belongs to a different account. Use the sheet printed for this phone number.",
+  "@onboarding.recovery_sheet.check_other_account": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.check_no_sheet": "Rukka holds no sheet for you yet. Make one below.",
+  "@onboarding.recovery_sheet.check_no_sheet": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.check_could_not_check": "Couldn’t reach Rukka to check. Connect and try again.",
+  "@onboarding.recovery_sheet.check_could_not_check": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.check_no_camera": "This phone can’t scan here. Type the code instead.",
+  "@onboarding.recovery_sheet.check_no_camera": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.check_make_new": "Make a new sheet",
+  "@onboarding.recovery_sheet.check_make_new": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.check_make_new_warning": "A new sheet replaces the one you printed — the old page stops working.",
+  "@onboarding.recovery_sheet.check_make_new_warning": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.check_loading": "Looking for your sheet…",
+  "@onboarding.recovery_sheet.check_loading": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.check_load_failed": "Couldn’t reach Rukka to find your sheet. Connect and try again.",
+  "@onboarding.recovery_sheet.check_load_failed": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.pdf_title": "Rukka · recovery sheet",
+  "@onboarding.recovery_sheet.pdf_title": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.pdf_keep": "Keep this page with your Aadhaar and LIC papers — at home, not in the shop.",
+  "@onboarding.recovery_sheet.pdf_keep": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.pdf_scan": "Scan this square",
+  "@onboarding.recovery_sheet.pdf_scan": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.pdf_type": "Or type this code. The letters I, L, O and U are never used.",
+  "@onboarding.recovery_sheet.pdf_type": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.pdf_how_title": "If you lose your phone",
+  "@onboarding.recovery_sheet.pdf_how_title": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.pdf_how_1": "Install Rukka on the new phone and tap “I already use Rukka · sign in”.",
+  "@onboarding.recovery_sheet.pdf_how_1": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.pdf_how_2": "Sign in with your phone number, then choose “Use your recovery sheet”.",
+  "@onboarding.recovery_sheet.pdf_how_2": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.pdf_how_3": "Scan the square above, or type the code.",
+  "@onboarding.recovery_sheet.pdf_how_3": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  },
+  "onboarding.recovery_sheet.pdf_warning": "Anyone holding this page can open your books. Only the newest sheet works — a new one replaces this page.",
+  "@onboarding.recovery_sheet.pdf_warning": {
+    "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
+  }
 }

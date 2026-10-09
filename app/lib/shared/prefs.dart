@@ -40,6 +40,44 @@ abstract final class RkPrefKeys {
 
   /// The scope a tab is showing; [tab] is the tab's path name.
   static String scopeOfTab(String tab) => 'scope.$tab';
+
+  /// Prefix of the per-book S0.6 *Finish* record (desk 172); see
+  /// [openingBalancesOf]. Moved here from `OpeningSetupRecord.key` (desk 176)
+  /// — the stored string is unchanged, so a record written before the move
+  /// still reads.
+  static const openingBalances = 'setup.openingBalances';
+
+  /// `1` once an opening-balances step's *Finish* was pressed over [bookId]
+  /// (S0.6, S0.6b, S0.6f or S0.6i — ADR 2026-10-07 ruling 3: the S0.7 row
+  /// arrives ticked). Absent before.
+  static String openingBalancesOf(String bookId) => '$openingBalances.$bookId';
+
+  /// The purpose card chosen on S0.3 — an `OnboardingPurpose` name
+  /// (`myself` · `businesses` · `family` · `trust`) — kept so the branch
+  /// steps and the S0.7 checklist rows survive a cold start (ADR 2026-10-07
+  /// ruling 3; ADR 2026-10-06b ruling 2).
+  static const setupPurpose = 'setup.purpose';
+
+  /// The one branch step S0.7 can bring back (ADR 2026-10-07 ruling 3): the
+  /// family's or trust's invite step (S0.6e / S0.6h) when it was skipped. A
+  /// small JSON object `{"purpose", "state", "book"}` — a purpose name, one of
+  /// `open` · `done` · `notNeeded`, and the branch book's id once it exists.
+  /// Absent when nothing was skipped. No name, no phone number, no figure.
+  static const setupBranch = 'setup.branch';
+
+  /// The branch books sign-up has made, in the order they were made (S0.6b,
+  /// S0.6f, S0.6i's `createBook`): a small JSON list of
+  /// `{"purpose", "book", "shared"}` — a purpose name, a book id, and for a
+  /// business whether S0.6a said *Shared with others*. A cold start that lost
+  /// the in-memory chain resumes over these books instead of asking the name
+  /// again and making a second one (ADR 2026-10-06b ruling 2 🔒; 07 §3.1.1
+  /// *never duplicated*). No name, no phone number, no figure.
+  static const setupBranchBooks = 'setup.branchBooks';
+
+  /// `1` once the printed recovery sheet has been scanned back (04 §7.4
+  /// verified storage); absent before. The S0.7 row *Check your recovery
+  /// sheet* stays open until then (ADR 2026-10-07 ruling 3).
+  static const recoverySheetVerified = 'setup.recoverySheet.verified';
 }
 
 /// A string-keyed store of small device-local values.

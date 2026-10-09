@@ -1,6 +1,6 @@
 // S0.6 Opening balances · first run — "What do you have?" (13 §3.2 row S0.6,
-// 13 §5 F1 "→ S0.6 own opening balances (skippable) → S1 with setup
-// checklist", 07 §3.1 step 7, canvas 1 frame S0.6 in the row *All five paths
+// 13 §5 F1 "→ S0.6 own opening balances → S1 with setup checklist" — no
+// longer skippable (ADR 2026-10-07 ruling 1), 07 §3.1 step 7, canvas 1 frame S0.6 in the row *All five paths
 // converge here*; desk 172, owner-ruled 6 Oct: follow the design).
 //
 // The **person's own** book — the personal book made at S0.4
@@ -15,9 +15,11 @@
 // account for its *balance today*, and the book begins today (ADR 2026-09-09d
 // §4), so there is nothing to pick.
 //
-// *Finish* and *Skip for now* both lead on to Home (desk 172); the host
-// decides what each records. A row left at ₹0 posts nothing (02 §4) — the
-// account is still made, as the footer says.
+// *Finish* leads on to Home (desk 172); the host decides what it records.
+// ADR 2026-10-07 ruling 1: there is no *Skip for now* — opening balances are
+// required, and every row left at ₹0 then *Finish* is a valid answer (no extra
+// confirm). A row left at ₹0 posts nothing (02 §4) — the account is still
+// made, as the footer says.
 //
 // A row whose account already carries an **opening** (an account added
 // through *Add an account*, which asks its balance in the same breath, or a
@@ -84,7 +86,6 @@ class OpeningBalancesScreen extends StatefulWidget {
     required this.rows,
     required this.asOn,
     this.onFinish,
-    this.onSkip,
     this.onAddAccount,
     this.onBack,
     this.busy = false,
@@ -103,16 +104,13 @@ class OpeningBalancesScreen extends StatefulWidget {
   /// rows included; the engine skips them).
   final void Function(Map<String, int> balances)? onFinish;
 
-  /// *Skip for now* — the S0.7 checklist row stays open as the way back.
-  final VoidCallback? onSkip;
-
   /// *Add an account* (S3.1).
   final VoidCallback? onAddAccount;
 
   /// The back chevron; null draws none.
   final VoidCallback? onBack;
 
-  /// A save is in flight — *Finish* and *Skip* hold.
+  /// A save is in flight — *Finish* holds.
   final bool busy;
 
   /// The last *Finish* failed — the cause is named and *Finish* tries again
@@ -285,12 +283,6 @@ class _OpeningBalancesScreenState extends State<OpeningBalancesScreen> {
                 ),
               ),
               child: Text(l10n.onboardingOpeningFinish),
-            ),
-            const SizedBox(height: RkSpace.s1),
-            TextButton(
-              onPressed: widget.busy ? null : widget.onSkip,
-              style: TextButton.styleFrom(foregroundColor: status.muted),
-              child: Text(l10n.onboardingOpeningSkip),
             ),
           ],
         ),

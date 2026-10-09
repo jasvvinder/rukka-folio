@@ -2,44 +2,74 @@
  "sid": "S0.7",
  "verdict": "deviates",
  "frames": [
-  "c1/O8/Setup checklist · Home, first run"
+  "c1/O8/Setup checklist · Home, first run",
+  "c1/O8b/Setup checklist · family, invites skipped",
+  "c1/O8c/Setup checklist · trust, invites skipped",
+  "c1/O8d/Setup checklist · a branch finished",
+  "c1/O8e/Setup checklist · Not needed",
+  "c1/O8f/Setup checklist · after Not needed"
  ],
  "captures": [
-  "S0.7__default",
-  "S0.7__open"
+  "S0.7__O8",
+  "S0.7__O8b",
+  "S0.7__O8c",
+  "S0.7__O8d",
+  "S0.7__O8e",
+  "S0.7__O8f"
  ],
  "screen_files": [
   "app/lib/features/home/home_routes.dart",
   "app/lib/features/home/screens/s1_home_screen.dart",
   "app/lib/features/home/widgets/home_cards.dart",
-  "app/lib/features/home/widgets/home_verb_gate.dart"
+  "app/lib/features/home/widgets/home_verb_gate.dart",
+  "app/lib/features/onboarding/setup_progress.dart"
  ],
  "deviations": [
   {
-   "what": "Around the checklist and the verb bar, Home is today's S1: an app bar titled 'Home' where O8 draws the scope pill with the person's name and a bell; the 'Balanced' verification card and the hero's 'Cash A/c ₹0' line where O8 draws 'Nothing recorded yet'; the shell's centre (+) in the tab bar, which O8 does not draw; so 'Today · 30 Aug' sits below the fold where O8 shows it above the verbs",
-   "reason": "This slice re-skins the checklist card and pins the four verbs above the tab bar (four equal tiles, arrow over word, the credit verbs in muted ink, as O8 draws them; the in/out arrow tints are the next deviation). The rest of Home is S1's own re-skin (S1.json); the verification card is required on Home; the tab bar and its (+) are the shell's (app/lib/shared), outside this lane",
-   "authority": "07 §4 🔒 (verification card); 07 §1 rules 1–2 🔒 (verbs in thumb reach); S1 re-skin and shell (+) — open items P1A"
+   "what": "Around the checklist, Home is today's S1: an app bar titled 'Home' and, with two books (O8b–O8f), the two-chip scope toggle where the frames draw the scope pill with the person's name and a bell; the 'Balanced' verification card and the hero's 'Cash A/c ₹0' line where the frames draw 'Nothing recorded yet'; the shell's centre (+) in the tab bar; so 'Today · 6 Oct' is below the fold",
+   "reason": "This slice owns the checklist card; the rest of Home is S1's re-skin (S1.json), the toggle is 13 §2.2's two-book control, the verification card is required on Home, and the tab bar is the shell's",
+   "authority": "07 §4 🔒 (verification card); 13 §2.2 🔒 (two chips for two books); S1 re-skin and shell (+) — open P1A"
   },
   {
-   "what": "Money in ↓ and Money out ↑ arrows are drawn in full ink where the frame tints them green and red (var(--in) / var(--out))",
-   "reason": "The frame's tints are the credit/debit tokens, which 07 §1 rule 3 🔒 keeps for amounts only; icons may take the success/warning/info/danger family, but none of those means a direction (danger is 'never reads as money out'). A frame never overrides a 🔒 line, so the arrows stay off the money tokens until the owner rules; the word under each arrow carries the direction",
-   "authority": "07 §1 rule 3 🔒; ADR 2026-09-05f §H1; CLAUDE.md § Precedence; ⚠️ SPEC home_cards.dart (open P1A)"
+   "what": "Money in ↓ / Money out ↑ arrows in full ink where the frames tint them green and red",
+   "reason": "The tints are the credit/debit tokens, kept for amounts only; the word under each arrow carries the direction",
+   "authority": "07 §1 rule 3 🔒; ADR 2026-09-05f §H1; ⚠️ SPEC home_cards.dart (open P1A)"
   },
   {
-   "what": "'Keep your recovery sheet' and 'Add your family' carry no chevron and do not answer a tap",
-   "reason": "No sheet can be made yet (desk 171) and members are S13's; a chevron with nowhere to go would be a dead end",
-   "authority": "07 §1 rule 6; open items P1A (desk 171, S13 door)"
+   "what": "'Add your family' carries no chevron and does not answer a tap (O8)",
+   "reason": "Its door is S9 Members, another feature's screen, and no doc says which book it opens from Home; a chevron with nowhere to go would be a dead end",
+   "authority": "07 §1 rule 6; ⚠️ SPEC home_routes.dart (open SETUP174)"
   },
   {
-   "what": "At 200 % text the tick sits above the row's words and the chevrons go",
-   "reason": "A Gurmukhi/Devanagari word at 200 % on a 360-wide phone needs the card's full width",
-   "authority": "07 §1 rule 11; 13 §8; F1-07-57 layout sweep"
+   "what": "O8d draws the trust book in scope (hero ₹1,21,000 across Cash A/c · Gollak · Bank); the capture keeps the personal book in scope at ₹0",
+   "reason": "The capture shows the same checklist state (branch row ticked and struck, chevron, no ⋮); which book Home opens on is the scope holder's (13 §2.2), not the checklist's",
+   "authority": "13 §2.2 🔒"
+  },
+  {
+   "what": "O8e: the open ⋮ menu does not dim the page or tint the row behind it. Placement matches: the menu hangs under the Finish row, right edge on the ⋮, with the row in view (a row in the lower half of the list is scrolled up first, so the menu lands inside the list, not over the verbs)",
+   "reason": "Flutter's showMenu has no scrim and no anchor-row highlight; the card itself is drawn as the frame draws it (paper, hairline, ✕ + 'Not needed' + the line under it), anchored on the row's box (SETUP174 review finding 3, fixed)",
+   "authority": "design-system (hairlines over shadows, tokens.dart); Material showMenu"
+  },
+  {
+   "what": "O8e: 'Menu › Members' where the frame writes 'Menu → Members'",
+   "reason": "No bundled face (Mukta, Mukta Mahee, Noto Sans) carries U+2192, so → is a tofu box on the capture and a system-face fallback on a phone; › is in Mukta",
+   "authority": "11 §4.4 (the bundled faces); ADR 2026-10-05 §2 (no text outside the design faces)"
+  },
+  {
+   "what": "O8f: none in placement — the toast's bottom edge meets the verb buttons' top (it overlaps only the bar's hairline and top padding, as the frame draws it) and leaves on its own after 10 s; the residual difference is only that Home above it is taller (deviation 1)",
+   "reason": "Lifted by the measured verb-bar height; duration 10 s with persist:false (Flutter 3.47 otherwise keeps a SnackBar with an action up until tapped). SETUP174 review finding 2, fixed; F1-1007-5 asserts both",
+   "authority": "13 §4.2 (toast — the 10 s Undo); 07 §1 rules 1–2 🔒 (verbs stay in reach)"
+  },
+  {
+   "what": "At 200 % text the tick sits above the row's words and the chevrons go; the ⋮ stays beside the tick",
+   "reason": "A Gurmukhi/Devanagari word at 200 % on a 360-wide phone needs the card's full width; 'Not needed' must stay reachable",
+   "authority": "07 §1 rule 11; 13 §8; F1-1007-6 / F1-07-57 layout sweeps"
   }
  ],
  "approved_by_owner": false,
- "checked_on": "2026-10-06",
+ "checked_on": "2026-10-09",
  "hashes": {
-  "screens": "193ac5ff26c9e1de55c0cb9341d9deb472dfd3da8557f73c1ef1166132c426d4",
-  "frames": "bd15e9b68fe3fa67bbaa353bd6a558998b4c263ba00e06fd2327e66eb6277eb9"
+  "screens": "f08dc7f0181299da53de19e7a5ccc05d4ab97b9826d56427cd1f28b43b511068",
+  "frames": "04ef33c05deda429a8fa0f11a93c268f120da5adbb134c3fceb5b38032d9e644"
  }
 }

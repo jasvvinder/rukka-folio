@@ -2,6 +2,8 @@
 // design-system §2). Home is a CONSUMER surface (02 §10 🔒, CLAUDE.md rule 9):
 // *Money in / Money out*, plain words, never Dr/Cr — those live on the A/C
 // statement and the trial balance the verification card links to.
+import 'dart:async';
+
 import 'package:core_ledger/core_ledger.dart';
 import 'package:flutter/material.dart';
 
@@ -848,34 +850,116 @@ class HomeTodayRow extends StatelessWidget {
   }
 }
 
-/// The setup checklist (S0.7) the position card collapses to for a new user
-/// (07 §4 empty state; 13 §8 "never a blank"), drawn as canvas 1 frame O8
-/// *Setup checklist · Home, first run*: a primary-ruled card, the one-line
-/// promise, then four rows — a ticked row is struck through beside a filled
-/// tick (desk 172: S0.6's *Finish* ticks *Opening balances*).
+/// The rows the S0.7 setup checklist can draw (ADR 2026-10-07 ruling 3).
+enum SetupStep {
+  /// *Opening balances* — S0.6 over the personal book.
+  openingBalances,
+
+  /// *Finish* + the joint fund's name — the family's skipped invite step (S0.6e).
+  finishFamily,
+
+  /// *Finish* + the trust's name — the trust's skipped invite step (S0.6h).
+  finishTrust,
+
+  /// *Write your first entry* — S2 on *Money out*.
+  firstEntry,
+
+  /// *Check your recovery sheet* — S0.5b, until the sheet is scanned back.
+  recoverySheet,
+
+  /// *Add your family* — optional; never holds the card open.
+  addFamily,
+}
+
+/// The family's or trust's *Finish …* row (ADR 2026-10-07 ruling 3).
+@immutable
+final class SetupBranchRow {
+  /// Creates the row.
+  const SetupBranchRow({required this.step, required this.done, this.bookName})
+    : assert(
+        step == SetupStep.finishFamily || step == SetupStep.finishTrust,
+        'only the family and trust branches have a row',
+      );
+
+  /// [SetupStep.finishFamily] or [SetupStep.finishTrust].
+  final SetupStep step;
+
+  /// Done from the checklist — ticked and struck through (canvas 1 O8d).
+  final bool done;
+
+  /// The branch book's own name; null until it can be read.
+  final String? bookName;
+}
+
+/// The setup checklist (S0.7) — canvas 1 frames O8 (*Home, first run*), O8b /
+/// O8c (*family / trust, invites skipped*), O8d (*a branch finished*), O8e /
+/// O8f (*Not needed*). A primary-ruled card, the one-line promise, then the
+/// rows of ADR 2026-10-07 ruling 3:
+///
+/// 1. *Opening balances* — required, so it arrives ticked;
+/// 2. *Finish* + the book's name — family / trust only, while the invite step was
+///    skipped; ⋮ → *Not needed* hides it (the caller's toast offers Undo);
+/// 3. *Write your first entry*;
+/// 4. *Check your recovery sheet · Not scanned back yet* — amber, the one row
+///    with a consequence, until the printed sheet is scanned back;
+/// 5. *Add your family* — optional, on the *Myself* and *My business* paths
+///    only (the family's branch row replaces it; a trust has none).
+///
+/// A finished row ticks and strikes through. Whether the card is drawn at all
+/// is [isOpen] — the caller's decision, so the rule lives in one place.
 class HomeSetupChecklist extends StatelessWidget {
   /// Creates the checklist.
   const HomeSetupChecklist({
     super.key,
     required this.openingBalancesDone,
     required this.firstEntryDone,
+    this.recoverySheetVerified = false,
+    this.branch,
+    this.showAddFamily = true,
     this.onStep,
-    this.doors = const {0, 1, 2, 3},
+    this.onNotNeeded,
+    this.doors = const {...SetupStep.values},
   });
 
-  /// Step 1 complete.
+  /// Row 1 complete.
   final bool openingBalancesDone;
 
-  /// Step 2 complete.
+  /// The first entry is in.
   final bool firstEntryDone;
 
-  /// Opens step [index] (0-based); null leaves the step unactionable.
-  final void Function(int index)? onStep;
+  /// The printed sheet was scanned back (04 §7.4).
+  final bool recoverySheetVerified;
 
-  /// The steps that have somewhere to go. A step outside it is drawn without
-  /// a chevron and does not answer a tap — information, never a door to
+  /// The *Finish …* row, or null when no invite step is open or done (and
+  /// when it was set to *Not needed*).
+  final SetupBranchRow? branch;
+
+  /// Draws the optional *Add your family* row.
+  final bool showAddFamily;
+
+  /// Opens a row.
+  final void Function(SetupStep step)? onStep;
+
+  /// ⋮ → *Not needed* on the branch row; null draws no ⋮.
+  final void Function(SetupStep step)? onNotNeeded;
+
+  /// The rows that have somewhere to go. A row outside it is drawn without a
+  /// chevron and does not answer a tap — information, never a door to
   /// nowhere (07 §1 rule 6).
-  final Set<int> doors;
+  final Set<SetupStep> doors;
+
+  /// ADR 2026-10-07 ruling 3: the card leaves when every row is ticked or set
+  /// to *Not needed*; the optional *Add your family* row never holds it open.
+  static bool isOpen({
+    required bool openingBalancesDone,
+    required bool firstEntryDone,
+    required bool recoverySheetVerified,
+    SetupBranchRow? branch,
+  }) =>
+      !openingBalancesDone ||
+      !firstEntryDone ||
+      !recoverySheetVerified ||
+      (branch != null && !branch.done);
 
   @override
   Widget build(BuildContext context) {
@@ -884,24 +968,149 @@ class HomeSetupChecklist extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     final scheme = Theme.of(context).colorScheme;
     final roomy = MediaQuery.textScalerOf(context).scale(1) > 1.5;
-    // ⚠️ SPEC: 07 §4 lists four steps (opening balances → first entry →
-    // recovery sheet → add family) but no doc says where Home reads the last
-    // two from — the recovery sheet is 06/S11.4 and members are S13. Rather
-    // than invent a completion rule they are shown as not-yet-done, which is
-    // the conservative reading; wiring them belongs to those lanes.
+
+    Widget? notNeededMenu(SetupStep step) {
+      final hide = onNotNeeded;
+      if (hide == null) return null;
+      final body = step == SetupStep.finishTrust
+          ? l10n.homeSetupNotNeededTrustBody
+          : l10n.homeSetupNotNeededFamilyBody;
+      List<PopupMenuEntry<SetupStep>> items() => [
+        PopupMenuItem<SetupStep>(
+          value: step,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: RkSpace.s2),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.close, color: status.muted),
+                const SizedBox(width: RkSpace.s3),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(l10n.homeSetupNotNeeded, style: text.titleMedium),
+                      const SizedBox(height: RkSpace.s1),
+                      Text(
+                        body,
+                        style: text.bodyMedium?.copyWith(color: status.muted),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ];
+
+      final rowKey = ValueKey('home.setup.row.${step.name}');
+      // Canvas 1 O8e: the menu hangs **under the row it acts on**, right
+      // edge on the ⋮, so the row stays in view while the choice is made —
+      // not Material's default over the button, which covered the row
+      // (SETUP174 review, finding 3). Anchored on the row's own box, so the
+      // gap holds at every text size.
+      Element? rowOf(BuildContext button) {
+        Element? row;
+        button.visitAncestorElements((e) {
+          if (e.widget.key == rowKey) {
+            row = e;
+            return false;
+          }
+          return true;
+        });
+        return row;
+      }
+
+      // A row in the lower half of the list is first brought up, so the
+      // menu has room under it inside the list (O8e) rather than over the
+      // pinned verbs.
+      Future<void> raise(BuildContext button) async {
+        final row = rowOf(button);
+        if (row == null) return;
+        final viewport = Scrollable.maybeOf(row)?.context.findRenderObject();
+        final box = row.findRenderObject();
+        if (viewport is! RenderBox || box is! RenderBox) return;
+        final top = box.localToGlobal(Offset.zero, ancestor: viewport).dy;
+        if (top <= viewport.size.height / 2) return;
+        await Scrollable.ensureVisible(
+          row,
+          alignment: 0.25,
+          duration: RkMotion.s,
+        );
+      }
+
+      void present(BuildContext button) {
+        final overlay =
+            Overlay.of(button).context.findRenderObject()! as RenderBox;
+        final buttonBox = button.findRenderObject()! as RenderBox;
+        final anchor =
+            (rowOf(button)?.findRenderObject() as RenderBox?) ?? buttonBox;
+        final right = buttonBox
+            .localToGlobal(
+              buttonBox.size.topRight(Offset.zero),
+              ancestor: overlay,
+            )
+            .dx;
+        final bottom = anchor
+            .localToGlobal(
+              anchor.size.bottomLeft(Offset.zero),
+              ancestor: overlay,
+            )
+            .dy;
+        unawaited(
+          showMenu<SetupStep>(
+            context: button,
+            position: RelativeRect.fromRect(
+              Rect.fromLTWH(right, bottom, 0, 0),
+              Offset.zero & overlay.size,
+            ),
+            // A paper card with a hairline, not the theme's heavy outline
+            // (hairlines over shadows, tokens.dart).
+            color: scheme.surface,
+            elevation: 0,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(RkRadius.lg),
+              side: BorderSide(color: status.hairline),
+            ),
+            items: items(),
+          ).then((chosen) {
+            if (chosen != null) hide(chosen);
+          }),
+        );
+      }
+
+      return Builder(
+        builder: (button) => IconButton(
+          key: ValueKey('home.setup.more.${step.name}'),
+          tooltip: l10n.homeSetupMore,
+          icon: Icon(Icons.more_vert, color: status.muted),
+          onPressed: () => unawaited(
+            raise(button).then((_) {
+              if (button.mounted) present(button);
+            }),
+          ),
+        ),
+      );
+    }
+
     Widget step(
-      int index,
+      SetupStep id,
       String label,
       bool done, {
       String? hint,
       bool warn = false,
+      bool hideable = false,
     }) {
       // A ticked row stays a door, as canvas 1 O8 draws it (chevron on the
       // struck *Opening balances*): guided setup is re-runnable until the
       // first lock (02 §4), and a chevron that answers no tap would be a
       // door to nowhere (07 §1 rule 6; P1A review, finding 5). The chevron
       // is drawn exactly when the row opens something.
-      final open = onStep != null && doors.contains(index);
+      final open = onStep != null && doors.contains(id);
+      // An open branch row carries ⋮ in the chevron's place (O8b/O8c); once
+      // done it is an ordinary ticked row (O8d).
+      final menu = hideable && !done ? notNeededMenu(id) : null;
       // The tick is a status icon — the `success` family, never the
       // numerals-only `credit` (07 §1 rule 3 🔒; P1A review, finding 8).
       final Widget mark = done
@@ -952,17 +1161,22 @@ class HomeSetupChecklist extends StatelessWidget {
         button: open,
         value: done ? l10n.homeSetupDone : null,
         child: InkWell(
-          onTap: open ? () => onStep!(index) : null,
+          key: ValueKey('home.setup.row.${id.name}'),
+          onTap: open ? () => onStep!(id) : null,
           child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: RkSpace.s4),
+            padding: EdgeInsets.symmetric(
+              vertical: menu == null ? RkSpace.s4 : RkSpace.s2,
+            ),
             // At large text the mark sits above the words, which then take
             // the card's whole width: a Gurmukhi or Devanagari word at 200 %
-            // on a 360-wide phone needs it (07 §1 rule 11, 13 §8).
+            // on a 360-wide phone needs it (07 §1 rule 11, 13 §8). The ⋮
+            // stays beside the mark — *Not needed* must be reachable at any
+            // size.
             child: roomy
                 ? Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      mark,
+                      Row(children: [mark, const Spacer(), ?menu]),
                       const SizedBox(height: RkSpace.s2),
                       body,
                     ],
@@ -972,9 +1186,10 @@ class HomeSetupChecklist extends StatelessWidget {
                       mark,
                       const SizedBox(width: RkSpace.s4),
                       Expanded(child: body),
+                      ?menu,
                       // At large text the chevron gives its width to the words —
                       // the whole row stays the button (07 §1 rule 11).
-                      if (open && !roomy)
+                      if (menu == null && open)
                         Icon(Icons.chevron_right, color: status.muted),
                     ],
                   ),
@@ -984,6 +1199,8 @@ class HomeSetupChecklist extends StatelessWidget {
     }
 
     final divider = Divider(height: 1, color: status.hairline);
+    final branch = this.branch;
+    final family = branch?.step == SetupStep.finishFamily;
     return RkRuledCard(
       ruleColor: scheme.primary,
       child: Padding(
@@ -1004,29 +1221,54 @@ class HomeSetupChecklist extends StatelessWidget {
               ),
             ),
             divider,
-            step(0, l10n.homeSetupOpeningBalances, openingBalancesDone),
+            step(
+              SetupStep.openingBalances,
+              l10n.homeSetupOpeningBalances,
+              openingBalancesDone,
+            ),
+            if (branch != null) ...[
+              divider,
+              step(
+                branch.step,
+                switch (branch.bookName) {
+                  final name? when name.trim().isNotEmpty =>
+                    l10n.homeSetupFinishBook(name),
+                  _ =>
+                    family
+                        ? l10n.homeSetupFinishFamilyUnnamed
+                        : l10n.homeSetupFinishTrustUnnamed,
+                },
+                branch.done,
+                hint: family
+                    ? l10n.homeSetupFinishFamilyHint
+                    : l10n.homeSetupFinishTrustHint,
+                hideable: true,
+              ),
+            ],
             divider,
             step(
-              1,
+              SetupStep.firstEntry,
               l10n.homeSetupFirstEntry,
               firstEntryDone,
               hint: l10n.homeSetupFirstEntryHint,
             ),
             divider,
             step(
-              2,
+              SetupStep.recoverySheet,
               l10n.homeSetupRecoverySheet,
-              false,
+              recoverySheetVerified,
               hint: l10n.homeSetupRecoverySheetHint,
               warn: true,
             ),
-            divider,
-            step(
-              3,
-              l10n.homeSetupAddFamily,
-              false,
-              hint: l10n.homeSetupAddFamilyHint,
-            ),
+            if (showAddFamily) ...[
+              divider,
+              step(
+                SetupStep.addFamily,
+                l10n.homeSetupAddFamily,
+                false,
+                hint: l10n.homeSetupAddFamilyHint,
+              ),
+            ],
           ],
         ),
       ),

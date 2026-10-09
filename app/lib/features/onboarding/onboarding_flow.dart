@@ -106,6 +106,17 @@ class OnboardingFlow extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// A cold start lost the business loop after its books were made: put
+  /// [entries] back, the cursor on the last — the business the resume is
+  /// about (ADR 2026-10-06b ruling 2 🔒, `branch_resume.dart`). Ignored when
+  /// this process already holds a business.
+  void restoreBusinesses(List<BusinessEntry> entries) {
+    if (_businesses.isNotEmpty || entries.isEmpty) return;
+    _businesses.addAll(entries);
+    _cursor = entries.length - 1;
+    notifyListeners();
+  }
+
   /// The S0.6d answer — the family's name. Null on every other branch.
   FamilyDraft? family;
 
@@ -169,6 +180,20 @@ class OnboardingFlow extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Whether the sheet this chain made has been opened in the print sheet
+  /// (printed or saved, not cancelled). S0.5b is the Back target of the
+  /// step after it, and coming back must not make a new sheet behind the
+  /// person's back: that rotates RK and voids the page just printed (04
+  /// §7.4 🔒). With this set, S0.5b reopens on its *opened* state and a
+  /// fresh sheet is made only after the same warning the S0.7 row gives.
+  bool recoverySheetPrinted = false;
+
+  /// Records whether the current sheet's page was opened.
+  void setRecoverySheetPrinted(bool printed) {
+    recoverySheetPrinted = printed;
+    notifyListeners();
+  }
+
   /// Forgets every answer — a fresh chain. Tests share the one
   /// [OnboardingFlow] the routes hold, so each starts from here.
   @visibleForTesting
@@ -186,6 +211,7 @@ class OnboardingFlow extends ChangeNotifier {
     trustBookId = null;
     trustOpeningPosted = false;
     recoverySheetVerified = null;
+    recoverySheetPrinted = false;
     notifyListeners();
   }
 

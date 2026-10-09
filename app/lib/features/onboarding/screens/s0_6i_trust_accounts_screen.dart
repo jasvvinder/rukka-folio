@@ -47,7 +47,6 @@ class TrustAccountsScreen extends StatefulWidget {
     required this.rows,
     required this.startDate,
     this.onSave,
-    this.onSkip,
     this.onAddAccount,
   });
 
@@ -63,8 +62,8 @@ class TrustAccountsScreen extends StatefulWidget {
   /// them, and the account exists either way.
   final void Function(Map<String, int> balances)? onSave;
 
-  /// *Skip for now* — the S0.7 checklist brings the user back.
-  final VoidCallback? onSkip;
+  // ADR 2026-10-07 ruling 1: no *Skip for now* — opening balances are
+  // required; every figure left at ₹0 and Save is a valid answer.
 
   /// Opens *Add an account* (S3.1) for the trust — how a bank arrives, since
   /// no book seeds one (ADR 2026-09-09d §1/§2).
@@ -213,11 +212,6 @@ class _TrustAccountsScreenState extends State<TrustAccountsScreen> {
               FilledButton(
                 onPressed: () => widget.onSave?.call(_signed),
                 child: Text(l10n.onboardingTrustAccountsSave),
-              ),
-              const SizedBox(height: RkSpace.s2),
-              TextButton(
-                onPressed: widget.onSkip,
-                child: Text(l10n.onboardingTrustAccountsSkip),
               ),
             ],
           ),

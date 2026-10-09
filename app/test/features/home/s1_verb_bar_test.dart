@@ -37,15 +37,22 @@ Future<void> _pumpHome(
   void Function(EntryKind kind)? onVerb,
   Locale? locale,
   double textScale = 1,
+  bool setupFinished = false,
 }) async {
-  final settings = AppSettings(prefs: MemoryPrefs());
+  final prefs = MemoryPrefs();
+  if (setupFinished) {
+    // Every S0.7 row done (ADR 2026-10-07 ruling 3: the card leaves only
+    // then) — the recovery sheet scanned back is the one no ledger shows.
+    prefs.values[RkPrefKeys.recoverySheetVerified] = '1';
+  }
+  final settings = AppSettings(prefs: prefs);
   await settings.load();
   final home = AppSettingsScope(
     settings: settings,
     child: HomeScreen(
       onVerb: onVerb,
       onSetupStep: (_) {},
-      setupDoors: const {0, 1},
+      setupDoors: const {SetupStep.openingBalances, SetupStep.firstEntry},
     ),
   );
   final router = buildRouter(
@@ -131,7 +138,7 @@ void main() {
     'F1-1006c-11 populated Home at 360×800 pins the verbs the same way',
     (tester) async {
       final seed = await seedSoloLedger();
-      await _pumpHome(tester, seed.ledger);
+      await _pumpHome(tester, seed.ledger, setupFinished: true);
       expect(find.byType(HomePositionCard), findsOneWidget);
       final bar = find.byKey(HomeVerbBar.barKey);
       for (final label in _verbs) {

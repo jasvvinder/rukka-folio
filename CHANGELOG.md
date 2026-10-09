@@ -12,6 +12,79 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-09 — M13: SETUP174 required setup steps; desk 132; rung 3 make half (RUNG3A/B); late-bound sync engine (SYNC168)
+
+`/cycle` with two slices, each reviewed, verified and repaired in one round. **Push gate green** for everything below
+(separate run): app 2312 passed / 14 skipped, every package green, 9 files formatted by the gate; the DB-backed RLS
+suite was not run (`RF_TEST_DB_URL` unset — no server code changed today).
+- KEY168: 2 findings; 1 confirmed and repaired.
+- SETUP174: the build lane, then the first review, both hit their turn caps without returning a result. The review was
+  resumed from its partial file. 3 findings, all confirmed and all repaired:
+  - a cold start after the branch book was made created a second book;
+  - the *Not needed* toast never auto-dismissed (Flutter 3.47 sets `persist` on a SnackBar with an action);
+  - the ⋮ menu covered its own row.
+  The app suite then passed 2292 tests with 13 skipped.
+
+Later the same day the owner ruled two things: *build Rung 3, based on design*, and desk 168 option (c). Two more
+cycles followed:
+- RUNG3A (`lane-core`, approved in ADR 2026-10-06d) and SYNC168 (`lane-sync`) in one cycle, each with a 3-lens
+  verify: 4 + 1 findings confirmed and repaired.
+- RUNG3B (`lane-ui-hard`): 5 findings confirmed and repaired. The app suite passed 2312 tests.
+
+**Decided**
+- [ADR 2026-10-09](docs/decisions/2026-10-09-late-bound-device-keys.md): option (c). Key material and identity are
+  late-bound in the composition root (closes desk 126). The device keys are minted inside S0.2, and the UMK only for a
+  new account. The fail-closed rule for *not registered* vs *keys lost* is ⚠️ Open; the conservative reading is used.
+
+**Added**
+- RUNG3A: the `SealedRecoveryBlob` byte encoding, plus a strict decode (B-1006d-1/2). `LocalLedger.adoptRecoveredUmk`
+  adopts a recovered UMK only after checking it against the account's published UMK (B-1006d-3, C-1006d-1). Typed
+  refusals: `didNotOpen`, `mismatch`, `notThisUser`, `keyInUse`. A new `onUmkAdopted` hook.
+- SYNC168: `sync_engine` reads its key material and ids through providers. Before S0.2 it holds with
+  `SyncHold.notRegistered` and fails closed. A registration or a re-mint takes effect on the next cycle (D-1009-1).
+- RUNG3B: S0.5b makes the sheet. It generates RK, seals the UMK, publishes, and only then renders the one-page PDF:
+  QR, typed groups, EN + PA/HI instructions shaped through HarfBuzz as images. Then print or share, and scan-back or
+  type-back to tick the S0.7 row. Sign-up Skip removed except on a failed publish (F1-1006d-1…3).
+- SETUP174 (ADR 2026-10-07): `features/onboarding/setup_progress.dart` stores the chosen purpose and the open branch
+  steps in `RkPrefKeys`, so the checklist rows survive a cold start. New tests: F1-1007-1…6. New design-match records:
+  S0.6b, S0.6f, S0.6i.
+- KEY168: `app/test/features/auth/home_root_wiring_test.dart` (desk 132).
+
+**Changed**
+- Ruling 1: *Skip for now* is gone from S0.6, S0.6b, S0.6f and S0.6i. Leaving every figure at ₹0 and tapping
+  *Finish* is a valid answer. Ruling 3: the S0.7 checklist gains the *Finish <book>* family and trust rows, the amber
+  recovery-sheet row, ⋮ → *Not needed* with Undo, and the card's exit rule. F1-1006c-4 is skipped as superseded.
+  F1-07-57 was re-read against ruling 3. S0.6 and S0.7 match records re-recorded.
+- `OpeningSetupRecord.key` moved into `RkPrefKeys` (desk 176, small item).
+- Repair: S0.6b, S0.6f and S0.6i record each branch book they make (`RkPrefKeys.setupBranchBooks`), and
+  `branch_resume.dart` restores them before a cold-start resume (F1-1007-7, ×6). The *Not needed* toast lasts 10 s and
+  sits above the verb bar. The ⋮ menu opens under its row (new F1-1007-5 case).
+- Desk 132: `bootstrap.dart` mounts S1 through `homeTabRootWith(homeScope)`. The shipped app now has the
+  Reconciliation door, the Close card, search and the setup doors.
+
+**Open**
+- **No device proof yet for rung 3.** The journeys were not re-run on `rf_min`, and `run_journeys.sh` does not drive
+  Android's *Save as PDF*.
+- S11.3 restore (next): `sync-meta` GET /recovery/sheet must relay the published UMK as `UmkPublic` (lane-server). It
+  also needs C-04b-4 and the KEY168B composition-root work.
+- ⚠️ SPEC: canvas c1/O5b, R2.4 and R2.4b say *eight characters*, but 04 §7.4 🔒's typed code is 79 symbols + a
+  2-character checksum. Also: a cold start after printing remakes the sheet; S8.2's PDF likely has the same PA/HI
+  shaping defect.
+- Owner calls: the `keyInUse` refusal; no AEAD associated data; hiding the sync chip before S0.2; a further device
+  with no UMK skips `wrapped_keys` for good; a wipe after revocation is not re-judged at relaunch.
+- ⚠️ SPEC (SETUP174): S9.5 keeps its Skip; S0.6's error escapes keep Skip; S0.6c keeps Skip; invitees collected at
+  S0.6e/S0.6h are never sent (pre-existing); S0.6b, S0.6f and S0.6i deviate from their c1 frames; no bundled font has
+  U+2192 →.
+- `design/match/S1.json` is stale-stamped: its screen files changed, but S1 was not this slice's S-id. The S2
+  *Saved* toast has the same never-dismissing SnackBar bug (entry owner).
+- Desk items added: 181 (owner calls above), 182 (⚠️ SPECs), 183 (small follow-ups). PLAN: 132 and 174 ✅; 126, 168,
+  171 🟡 — next are KEY168B (composition root + mint in S0.2) and round 4 (S11.3 restore + device proof).
+- OPEN177: the *opening answered* flag needs an account-object field or a new record type (02/03, ADR). Held back.
+- WORDS179: held for a cycle of its own, because it touches nearly every ARB part.
+
+**Commits**
+- (pending)
+
 ## 2026-10-08 — docs: design pull of the 8 Oct translation pass; ADR 2026-10-08 (joint fund + PA/HI glossary)
 
 A `/plan` refresh, then `/design-pull`. The design session had spent 8 Oct translating the held-English frames,

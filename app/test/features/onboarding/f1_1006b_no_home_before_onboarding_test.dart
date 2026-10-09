@@ -260,8 +260,9 @@ void main() {
         expect(settings.onboarded, isFalse);
         expect(prefs.values[RkPrefKeys.onboarded], isNull);
 
-        // S0.6's *Skip for now* is the hand-over.
-        await tester.tap(find.text('Skip for now'));
+        // S0.6's *Finish* is the hand-over (ADR 2026-10-07 ruling 1: no
+        // Skip; ₹0 + Finish is a valid answer).
+        await tester.tap(find.text('Finish'));
         await tester.pumpAndSettle();
         expect(where(router), RkPaths.home);
         expect(settings.onboarded, isTrue);

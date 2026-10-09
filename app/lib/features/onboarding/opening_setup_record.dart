@@ -10,9 +10,9 @@
 // kept: one bit about this install, beside `onboarded`, in the same protected
 // device store ([RkPrefs]). Not financial data — no figure, no name.
 //
-// ⚠️ SPEC / open (P1A): `shared/prefs.dart` says `RkPrefKeys` is "the only
-// place these strings live"; that file is not this lane's, so the key lives
-// here until its owner moves it there.
+// ADR 2026-10-07 ruling 3: the opening-balances steps are required, so the
+// row always arrives ticked — S0.6b, S0.6f and S0.6i record their own book's
+// *Finish* here too. The key lives in `RkPrefKeys` (desk 176).
 import 'package:flutter/foundation.dart';
 
 import '../../shared/prefs.dart';
@@ -20,11 +20,11 @@ import '../../shared/prefs.dart';
 /// The S0.6 *Finish* record.
 abstract final class OpeningSetupRecord {
   /// The store key prefix; [keyFor] appends the book id.
-  static const key = 'setup.openingBalances';
+  static const key = RkPrefKeys.openingBalances;
 
-  /// The store key for [bookId]: `1` once S0.6's *Finish* was pressed over
-  /// that book; absent before.
-  static String keyFor(String bookId) => '$key.$bookId';
+  /// The store key for [bookId]: `1` once an opening-balances step's
+  /// *Finish* was pressed over that book; absent before.
+  static String keyFor(String bookId) => RkPrefKeys.openingBalancesOf(bookId);
 
   /// Bumped whenever [markFinished] records — Home listens, so a row ticked by
   /// S0.6 is ticked on the Home it returns to without a restart.

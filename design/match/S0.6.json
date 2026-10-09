@@ -42,12 +42,22 @@
    "what": "At 130 %+ text a row's figure drops beneath its name, and above 150 % the note and both actions scroll with the rows instead of being pinned",
    "reason": "Layout sweep F1-1006c-6: the pinned footer left the rows no room at 200 % on 375×667 and '₹1,370' was cut at 130 % on 360 px",
    "authority": "07 §1 rule 11; 13 §8 (200 % without truncation on 375×667 and 360×800)"
+  },
+  {
+   "what": "nd/S0.6-individual draws 'Skip for now' under Finish; the app draws none (c1/S0.6 draws none either)",
+   "reason": "Opening balances are required in sign-up; ₹0 everywhere then Finish is a valid answer with no extra confirm. The nd frame predates the ruling",
+   "authority": "ADR 2026-10-07 ruling 1 🔒"
+  },
+  {
+   "what": "Only the error states (the book could not be made or read, or read-only refused making it) keep a 'Skip for now' escape — not drawn by any frame",
+   "reason": "There the step cannot be completed, and a step that cannot be completed must not block sign-up — the same reasoning ADR 2026-10-07 applies to S0.5b; ⚠️ SPEC in personal_opening_host.dart",
+   "authority": "07 §1 rule 6 🔒; ADR 2026-10-07 ruling 1 (S0.5b clause)"
   }
  ],
  "approved_by_owner": false,
- "checked_on": "2026-10-06",
+ "checked_on": "2026-10-09",
  "hashes": {
-  "screens": "54237af77ffd67ed0743d9298220e5d972308587642e3742bea9eb20c0689069",
-  "frames": "76bcc79beb19ed8464c6e4296780441cf9ad839e44d70420e4b2ee66128a2f94"
+  "screens": "eb329dcfa515149c5bf182f0b85d58cc2997db1abe526e6e611278fc47cd5fa5",
+  "frames": "116680573bfef7e6bf8434cbe3b9bc67bdc721fe565a1fe4f47befcb536313af"
  }
 }

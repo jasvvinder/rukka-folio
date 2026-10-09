@@ -18,21 +18,21 @@ work), tests first, and the app part follows in a `lane-ui-hard` slice.
 
 ## Rulings 🔒 ⟦tests: n/a — container heading; each ruling below carries its own marker⟧
 
-### 1. The sealed blob's bytes are `suite_version ‖ nonce ‖ ciphertext` 🔒 ⟦tests: B-1006d-1 @M13, B-1006d-2 @M13⟧
+### 1. The sealed blob's bytes are `suite_version ‖ nonce ‖ ciphertext` 🔒 ⟦tests: B-1006d-1, B-1006d-2⟧
 - `sealed_RK_blob` = 1 byte `suite_version` (04 §2, currently `0x01`) ‖ the 24-byte XChaCha20-Poly1305 nonce ‖
   the ciphertext with its 16-byte tag. This follows the `GuardianShare.encode` precedent (`shamir.dart:420`).
 - `core_crypto` owns both directions: an encode on `SealedRecoveryBlob` and a strict decode. The decode refuses a wrong
   length, an unknown suite or a truncated tag with `RecoveryUnsealFailed`. It never guesses.
 - 04 §2 crypto agility is unchanged: a later suite bumps the first byte, and older blobs stay readable.
 
-### 2. A recovered UMK is adopted only after it is verified 🔒 ⟦tests: B-1006d-3 @M13, C-1006d-1 @M13⟧
+### 2. A recovered UMK is adopted only after it is verified 🔒 ⟦tests: B-1006d-3, C-1006d-1⟧
 - After `openUmkWithRecoveryKey`, the recovered key pair is adopted into the device's key material **only if** its public
   halves match the account's published UMK, the same check as every other rung (04 §7.3 step 6, CLAUDE.md rule 5).
 - On a mismatch nothing is stored, and S11.3 shows its *"that code didn't work"* state (R2.4).
 - Adoption re-wraps the local UMK copy to this device's key, as at signup (ADR 2026-10-06 §1). No secret is logged and
   every buffer is zeroised.
 
-### 3. S0.5b makes, prints and checks a real sheet 🔒 ⟦tests: F1-1006d-1 @M13, F1-1006d-2 @M13, F1-1006d-3 @M13⟧
+### 3. S0.5b makes, prints and checks a real sheet 🔒 ⟦tests: F1-1006d-1, F1-1006d-2, F1-1006d-3⟧
 - *Make the sheet* generates RK, seals the UMK, publishes the blob (`publishSheet`) and only then shows the sheet. A
   failed publish shows its reason and keeps *Skip for now*. It never shows a sheet the server does not hold.
 - The sheet is a one-page PDF laid out as 04 §7.4 says: QR, the typed fallback (Crockford Base32, groups of 4, 2-char

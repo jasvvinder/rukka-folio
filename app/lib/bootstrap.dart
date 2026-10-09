@@ -15,7 +15,7 @@ import 'package:crypto/crypto.dart' as crypto;
 import 'package:data/data.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:printing/printing.dart' show Printing;
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -41,10 +41,8 @@ import 'features/devices/keystore_platform.dart';
 import 'features/devices/pin_vault.dart';
 import 'features/entry/entry_routes.dart';
 import 'features/help/help_routes.dart';
-import 'features/home/home_rebuild.dart';
 import 'features/home/home_routes.dart';
 import 'features/home/home_scope.dart';
-import 'features/home/screens/s1_home_screen.dart';
 import 'features/inbox/inbox_routes.dart';
 import 'features/inbox/late_arrivals.dart';
 import 'features/inbox/ledger_late_arrivals.dart';
@@ -870,6 +868,24 @@ Future<void> bootstrap() async {
         codeOfQr: (qr) => recoverySheetCodeOfQr(suite, qr),
       );
 
+      // Rung 3's making half (04 §7.4 🔒; ADR 2026-10-06d ruling 3 🔒): S0.5b
+      // makes the sheet from this install's UMK, publishes the sealed blob
+      // and only then opens the page in the platform's **print** sheet
+      // (`Printing.layoutPdf`, not `sharePdf`: the share path writes the
+      // bytes to a temp file, and this page is the key — 04 §7.6). The check
+      // reads through the same camera as S11.3 (ADR 2026-09-19 ruling 1 🔒).
+      // RK's lifetime is stated in `recovery_sheet_service.dart`'s header.
+      final recoverySheetMaker = LiveRecoverySheetService(
+        ledger: ledger,
+        api: recoveryApi,
+        // `layoutPdf` answers false when the person cancels the sheet: that
+        // is not an opened page, so S0.5b's *I've kept it safe* stays asleep.
+        printer: (pdf, name) =>
+            Printing.layoutPdf(onLayout: (_) async => pdf, name: name),
+        render: (content, locale) => renderRecoverySheet(content, locale),
+        read: recoveryCamera.read,
+      );
+
       // ── the ladder itself (04 §7.0 🔒, §7.1, §7.2, §7.4 🔒; 13 §5 F11) ───
       //
       // One call, because the probe map is the fact worth pinning and a map
@@ -1074,99 +1090,92 @@ Future<void> bootstrap() async {
 
       final shell = ShareSheetScope(
         sheet: shareSheet,
-        child: RukkaFolioApp(
-          db: db,
-          sync: sync,
-          auth: auth,
-          keys: keys,
-          now: DateTime.now,
-          ledger: ledger,
-          updateRequired: auth.updateRequired,
-          settings: settings,
-          pinVault: vault,
-          onboardingGate: onboardingGate,
-          // ADR 2026-10-05b: S15 asks the device-key custody — PIN-only phones
-          // get the boxes and no biometric button (§1).
-          biometrics: biometricGate,
-          // S12.x — the entitlement reading every route, sheet and the shell's
-          // S12.5 banner read, mounted by the app above its router (ADR
-          // 2026-09-24b §13). Untokened is the only honest production reading
-          // until the verified producer lands (PLAN desk 23c): Free, never
-          // locked (ADR 2026-09-05g §1 🔒). The producer replaces this one
-          // binding and nothing below changes.
-          entitlement: const UntokenedEntitlementSource(),
-          // S12.1's plan list from the server catalogue (ADR 2026-09-25 §6;
-          // `GET /sync-meta/plans`). It hands back the last catalogue it
-          // read when offline, and never the offline mirror: a phone that has
-          // never reached the server is told so, with a retry.
-          planCatalogue: HttpPlanCatalogueSource(
-            transport: httpDoor,
-            functionsRoot: Uri.parse(apiBase),
-            accessToken: () async {
-              try {
-                return await auth.accessToken();
-              } on Object {
-                return null;
-              }
-            },
-            clientVersion: clientVersion,
-          ),
-          // S1 with the shell's scope holder. `homeRoot` (features/home) is
-          // the same screen without it — kept there for tests and previews;
-          // the two wirings must be changed together.
-          homeTabRoot: RkTabRoot(
-            builder: (context) => HomeScreen(
-              scopeController: homeScope,
-              // S1.4's producer (07 §28 🔒) — the same source `homeRoot`
-              // passes; the two wirings change together.
-              rebuildProgress: rebuildProgressOf(context),
-              onOpenPosition: (line) =>
-                  context.push(HomePaths.positionOf(line)),
-              onOpenAccount: (accountId) =>
-                  context.push(LedgerPaths.statementOf(accountId)),
-              onVerb: (kind) =>
-                  context.push('${RkPaths.entry}?verb=${kind.wire}'),
+        // S0.5b's sheet maker (rung 3, ADR 2026-10-06d ruling 3 🔒), over
+        // every route so the S0.7 row's reopen finds it too.
+        child: RecoverySheetServiceScope(
+          service: recoverySheetMaker,
+          child: RukkaFolioApp(
+            db: db,
+            sync: sync,
+            auth: auth,
+            keys: keys,
+            now: DateTime.now,
+            ledger: ledger,
+            updateRequired: auth.updateRequired,
+            settings: settings,
+            pinVault: vault,
+            onboardingGate: onboardingGate,
+            // ADR 2026-10-05b: S15 asks the device-key custody — PIN-only phones
+            // get the boxes and no biometric button (§1).
+            biometrics: biometricGate,
+            // S12.x — the entitlement reading every route, sheet and the shell's
+            // S12.5 banner read, mounted by the app above its router (ADR
+            // 2026-09-24b §13). Untokened is the only honest production reading
+            // until the verified producer lands (PLAN desk 23c): Free, never
+            // locked (ADR 2026-09-05g §1 🔒). The producer replaces this one
+            // binding and nothing below changes.
+            entitlement: const UntokenedEntitlementSource(),
+            // S12.1's plan list from the server catalogue (ADR 2026-09-25 §6;
+            // `GET /sync-meta/plans`). It hands back the last catalogue it
+            // read when offline, and never the offline mirror: a phone that has
+            // never reached the server is told so, with a retry.
+            planCatalogue: HttpPlanCatalogueSource(
+              transport: httpDoor,
+              functionsRoot: Uri.parse(apiBase),
+              accessToken: () async {
+                try {
+                  return await auth.accessToken();
+                } on Object {
+                  return null;
+                }
+              },
+              clientVersion: clientVersion,
             ),
+            // S1 with the shell's scope holder, through `homeScreenFor` — the one
+            // wiring the shipped app and `homeRoot` (tests, previews) share, so
+            // every door S1 has (07 §10 🔒 reconciliation, 07 §13 🔒 Close card,
+            // S21 search, the S0.7 setup doors) is a door here (desk 132).
+            homeTabRoot: homeTabRootWith(homeScope),
+            ledgerTabRoot: ledgerRoot,
+            // S6 Inbox (07 §9). `inboxRoutes` carries S6.2's stepper on the root
+            // navigator, so the review flow covers the tab bar.
+            inboxTabRoot: inboxRoot(),
+            menuTabRoot: menuRoot,
+            entryRoot: entryScreen,
+            featureRoutes: [
+              ...accountRoutes,
+              ...advancesRoutes,
+              ...onboardingRoutes,
+              ...partnersRoutes,
+              ...authRoutes,
+              ...booksRoutes,
+              ...cashCountRoutes,
+              ...ceremonyRoutes,
+              ...closeRoutes,
+              ...devicesRoutes,
+              ...helpRoutes,
+              ...homeRoutes,
+              ...inboxRoutes,
+              ...importRoutes,
+              ...ledgerRoutes,
+              ...legalRoutes,
+              ...membersRoutes,
+              // S11.5/S11.6/S11.8 — the activation ladder, root navigator
+              // (13 §5 F11). A finished restore lands on Home, which
+              // features/recovery does not own.
+              ...recoveryRoutes(
+                // F1b's end through the ladder (13 §5): a hand-over to Home
+                // only for a phone that is set up — a session and a PIN — and
+                // only then recorded as onboarded (ADR 2026-10-06b ruling 1);
+                // S11.8 with no device activated resumes the chain instead.
+                onRestored: onboardingGate.handOverIfReady,
+              ),
+              ...settingsRoutes,
+              // S12/S12.1 — Menu → Subscription and Settings → Subscription
+              // (07 §20); the doors live in features/menu and features/settings.
+              ...subscriptionRoutes,
+            ],
           ),
-          ledgerTabRoot: ledgerRoot,
-          // S6 Inbox (07 §9). `inboxRoutes` carries S6.2's stepper on the root
-          // navigator, so the review flow covers the tab bar.
-          inboxTabRoot: inboxRoot(),
-          menuTabRoot: menuRoot,
-          entryRoot: entryScreen,
-          featureRoutes: [
-            ...accountRoutes,
-            ...advancesRoutes,
-            ...onboardingRoutes,
-            ...partnersRoutes,
-            ...authRoutes,
-            ...booksRoutes,
-            ...cashCountRoutes,
-            ...ceremonyRoutes,
-            ...closeRoutes,
-            ...devicesRoutes,
-            ...helpRoutes,
-            ...homeRoutes,
-            ...inboxRoutes,
-            ...importRoutes,
-            ...ledgerRoutes,
-            ...legalRoutes,
-            ...membersRoutes,
-            // S11.5/S11.6/S11.8 — the activation ladder, root navigator
-            // (13 §5 F11). A finished restore lands on Home, which
-            // features/recovery does not own.
-            ...recoveryRoutes(
-              // F1b's end through the ladder (13 §5): a hand-over to Home
-              // only for a phone that is set up — a session and a PIN — and
-              // only then recorded as onboarded (ADR 2026-10-06b ruling 1);
-              // S11.8 with no device activated resumes the chain instead.
-              onRestored: onboardingGate.handOverIfReady,
-            ),
-            ...settingsRoutes,
-            // S12/S12.1 — Menu → Subscription and Settings → Subscription
-            // (07 §20); the doors live in features/menu and features/settings.
-            ...subscriptionRoutes,
-          ],
         ),
       );
 

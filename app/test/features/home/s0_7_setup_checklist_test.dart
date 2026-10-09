@@ -1,3 +1,7 @@
+// ADR 2026-10-07 ruling 3 re-read (F1-07-57 assertions it flips cite it): the
+// recovery-sheet row's copy, and the card's exit rule — every row ticked or
+// *Not needed*, so the scanned-back sheet now holds it too.
+//
 // F1 widget test for S0.7 — the setup checklist Home shows a new user (13 §3.2
 // row S0.7, 07 §4 empty state) and, crucially, the way back to a **skipped**
 // opening-balances wizard: 07 §3.1 step 7 🔒 makes that wizard *"skippable,
@@ -12,7 +16,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/features/home/screens/s1_home_screen.dart';
 import 'package:rukka_folio/features/home/widgets/home_cards.dart';
+import 'package:rukka_folio/shared/app_settings.dart';
 import 'package:rukka_folio/shared/ledger/local_ledger.dart';
+import 'package:rukka_folio/shared/prefs.dart';
 
 import '../../shared/test_app.dart';
 
@@ -85,8 +91,10 @@ void main() {
           );
           expect(find.text('Opening balances'), findsOneWidget);
           expect(find.text('Write your first entry'), findsOneWidget);
-          expect(find.text('Keep your recovery sheet'), findsOneWidget);
-          expect(find.text('Not printed yet'), findsOneWidget);
+          // ADR 2026-10-07 ruling 3: the sheet row reads *Check your recovery
+          // sheet · Not scanned back yet* until the sheet is scanned back.
+          expect(find.text('Check your recovery sheet'), findsOneWidget);
+          expect(find.text('Not scanned back yet'), findsOneWidget);
           expect(find.text('Add your family'), findsOneWidget);
           // Nothing is done yet, so no step wears the tick.
           expect(find.byIcon(Icons.check_circle), findsNothing);
@@ -100,7 +108,7 @@ void main() {
         (tester) async {
           _tall(tester);
           final (ledger, _) = await _newUser();
-          final steps = <int>[];
+          final steps = <SetupStep>[];
           await pumpRk(
             tester,
             HomeScreen(onSetupStep: steps.add),
@@ -109,7 +117,7 @@ void main() {
 
           await tester.tap(find.text('Opening balances'));
           await tester.pump();
-          expect(steps, [0]);
+          expect(steps, [SetupStep.openingBalances]);
           await _unmount(tester);
         },
       );
@@ -145,7 +153,8 @@ void main() {
       // 1). It goes once an ordinary entry follows.
       testWidgets(
         'F1-07-57 with only the opening balances recorded the checklist stays, '
-        'its first row ticked; the first entry then retires it',
+        'its first row ticked; the first entry retires it only once the '
+        'recovery sheet is scanned back (ADR 2026-10-07 ruling 3)',
         (tester) async {
           _tall(tester);
           final (ledger, bookId) = await _newUser();
@@ -165,7 +174,28 @@ void main() {
           await _unmount(tester);
 
           await _firstEntry(ledger, bookId);
-          await pumpRk(tester, const HomeScreen(), ledger: ledger);
+          // ADR 2026-10-07 ruling 3 flips the old assertion: the card leaves
+          // only when every row is ticked, and *Check your recovery sheet*
+          // is not until the printed sheet is scanned back.
+          final prefs = MemoryPrefs();
+          Future<void> pumpHome() async {
+            final settings = AppSettings(prefs: prefs);
+            await settings.load();
+            await pumpRk(
+              tester,
+              AppSettingsScope(settings: settings, child: const HomeScreen()),
+              ledger: ledger,
+            );
+            await tester.pumpAndSettle();
+          }
+
+          await pumpHome();
+          expect(find.byType(HomeSetupChecklist), findsOneWidget);
+          expect(find.byType(HomePositionCard), findsOneWidget);
+          await _unmount(tester);
+
+          prefs.values[RkPrefKeys.recoverySheetVerified] = '1';
+          await pumpHome();
           expect(find.byType(HomeSetupChecklist), findsNothing);
           expect(find.byType(HomePositionCard), findsOneWidget);
           await _unmount(tester);

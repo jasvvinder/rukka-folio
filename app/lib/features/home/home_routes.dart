@@ -32,8 +32,10 @@ import 'home_rebuild.dart';
 import 'home_scope.dart';
 import 'screens/s1_1_position_drilldown_screen.dart';
 import 'screens/s1_home_screen.dart';
+import 'widgets/home_cards.dart' show SetupStep;
 
 export 'home_paths.dart';
+export 'widgets/home_cards.dart' show SetupStep;
 
 /// S1 Home, wired — the one place S1's doors are spelled. A position row
 /// pushes S1.1 on the root navigator; a verb button pushes the S2 entry flow
@@ -68,20 +70,35 @@ Widget homeScreenFor(
   onOpenClose: (path) async {
     await context.push<void>(path);
   },
-  // The S0.7 checklist's doors (07 §3.1 step 7; desk 172). *Opening
-  // balances* reopens S0.6 alone — never the chain; S0.6 fills the personal
-  // book, so [HomeScreen] offers this door only while that book is in scope
-  // (P1A review, finding 6) — and *Write your first
-  // entry* is the S2 entry flow on *Money out*, the canvas's "whatever you
-  // spent this morning". ⚠️ SPEC / open (P1A): *Keep your recovery sheet* and
-  // *Add your family* have no destination this lane may name (S0.5b cannot
-  // make a sheet yet — desk 171; members are S13's), so they are drawn as
-  // information, not doors.
-  setupDoors: const {0, 1},
-  onSetupStep: (index) => switch (index) {
-    0 => context.push(OnboardingPaths.openingBalances),
-    1 => context.push('${RkPaths.entry}?verb=${EntryKind.moneyOut.wire}'),
-    _ => null,
+  // The S0.7 checklist's doors (07 §3.1 step 7; desk 172; ADR 2026-10-07
+  // ruling 3). *Opening balances* reopens S0.6 alone — never the chain; S0.6
+  // fills the personal book, so [HomeScreen] offers this door only while that
+  // book is in scope (P1A review, finding 6). *Finish <book>* resumes the
+  // skipped invite step — S0.6e for the joint fund, S0.6h for a trust — with
+  // what was saved kept; on an onboarded install those routes come back to
+  // Home. *Write your first entry* is the S2 entry flow on *Money out*, the
+  // canvas's "whatever you spent this morning". *Check your recovery sheet*
+  // opens S0.5b, which returns Home once onboarded (until RUNG3B it says why
+  // the sheet cannot be made yet — a door with its reason, ADR 2026-10-06d).
+  // ⚠️ SPEC / open: *Add your family* stays information — the members screen
+  // (S9, Menu → Members) is another feature's, and no doc says which book it
+  // should open from here.
+  setupDoors: const {
+    SetupStep.openingBalances,
+    SetupStep.finishFamily,
+    SetupStep.finishTrust,
+    SetupStep.firstEntry,
+    SetupStep.recoverySheet,
+  },
+  onSetupStep: (step) => switch (step) {
+    SetupStep.openingBalances => context.push(OnboardingPaths.openingBalances),
+    SetupStep.finishFamily => context.push(OnboardingPaths.familyMembers),
+    SetupStep.finishTrust => context.push(OnboardingPaths.trustMembers),
+    SetupStep.firstEntry => context.push(
+      '${RkPaths.entry}?verb=${EntryKind.moneyOut.wire}',
+    ),
+    SetupStep.recoverySheet => context.push(OnboardingPaths.recoverySheet),
+    SetupStep.addFamily => null,
   },
 );
 

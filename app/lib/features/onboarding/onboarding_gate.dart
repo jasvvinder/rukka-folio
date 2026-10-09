@@ -104,10 +104,17 @@ class OnboardingGate {
   /// (desk 172) — whose host makes the personal book if S0.4's creation was
   /// lost too (desk 164) — and hands over from there, where Home's S0.7
   /// checklist carries what was skipped (07 §3.1 step 7). A resumed chain
-  /// never skips S0.6: the hand-over is only ever S0.6's *Finish* or *Skip*.
-  /// ⚠️ SPEC / open (P1A): a lost purpose also loses the branch steps
-  /// (S0.6a/d/g) — nothing persisted says which card was chosen, and the
-  /// checklist has no row for them.
+  /// never skips S0.6: the hand-over is only ever S0.6's *Finish* (ADR
+  /// 2026-10-07 ruling 1 removed its *Skip*).
+  /// ADR 2026-10-07 ruling 3 closes the old P1A ⚠️ SPEC that a lost purpose
+  /// also lost the branch steps: S0.3's card is now kept on the device
+  /// (`RkPrefKeys.setupPurpose`), and S0.5 / S0.5b restore it before
+  /// [afterSetPin] picks the branch (`onboarding_routes.dart` `_afterSheet`)
+  /// — or, when the branch's book was already made, resume over that book at
+  /// its first step not yet done (`branch_resume.dart`; never a second book).
+  /// The gate itself still reads only the in-process [flow] for the
+  /// pre-PIN steps (it holds no prefs; `bootstrap.dart` builds it), so a cold
+  /// start before S0.4 asks the purpose again — the conservative reading.
   Future<String> resumeTarget() async {
     if (!hasAccount()) return OnboardingPaths.splash;
     if (await pinSet()) return OnboardingPaths.booksSafe;

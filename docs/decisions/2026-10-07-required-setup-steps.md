@@ -17,7 +17,7 @@ The owner approved the frames on 7 Oct (review page v2; staged in the design pro
 
 ## Rulings 🔒 ⟦tests: n/a — container heading; each ruling below carries its own marker⟧
 
-### 1. Required before Home 🔒 ⟦tests: F1-1007-1 @M13, F1-1007-2 @M13⟧
+### 1. Required before Home 🔒 ⟦tests: F1-1007-1, F1-1007-2⟧
 - Unchanged: language, phone and code, purpose card, name, PIN, *Keeping your books safe* (07 §3.1 steps 1–5).
 - **Now required, with no *Skip for now*:**
   - **The recovery sheet** (S0.5b): make it, then print or save it. The canvas O5b flow stands: *I've kept it safe*
@@ -32,12 +32,12 @@ The owner approved the frames on 7 Oct (review page v2; staged in the design pro
 - This narrows 07 §3.1 step 7 and §3.1.1's *"every branch step is skippable"* to the steps in ruling 2. 04 §7.4's
   *"mandatory for solo users"* now holds for everyone at sign-up.
 
-### 2. Still skippable 🔒 ⟦tests: F1-1007-3 @M13⟧
+### 2. Still skippable 🔒 ⟦tests: F1-1007-3⟧
 - The welcome slides, and **inviting people** (S0.6e family heads, S0.6h the trust's committee). 07 §3.1.1 🔒's
   *"Invitations are always skippable at signup"* is unchanged. S0.6f and S0.6i are opening balances, so ruling 1
   covers them.
 
-### 3. The checklist brings back what was skipped 🔒 ⟦tests: F1-1007-4 @M13, F1-1007-5 @M13, F1-1007-6 @M13⟧
+### 3. The checklist brings back what was skipped 🔒 ⟦tests: F1-1007-4, F1-1007-5, F1-1007-6⟧
 - **Opening balances** always arrives ticked, because it is required.
 - **Recovery sheet:** the row becomes *Check your recovery sheet · Not scanned back yet* (amber, the one item with a
   consequence) until the printed sheet is scanned back (04 §7.4 verified storage).

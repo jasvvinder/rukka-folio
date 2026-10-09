@@ -195,83 +195,115 @@ Future<bool> sharedSetupSteps(Journey j, OnboardingPurpose purpose) async {
       );
     },
   );
-  // S0.5b: 13 §5 F1 reads "S0.5b sheet: print → verify by scanning it back"
-  // and its Success line says the paper sheet matters (07 §3.1 step 6 🔒).
-  // The harness checks each of the sheet's actions is live: a drawn-but-dead
-  // action is a defect. It makes the sheet when it can, checks Share and
-  // Scan are live, and leaves by Done; print and scan-back themselves leave
-  // the app (system share sheet, camera) and are noted as not driven.
-  var generateLive = false;
+  // S0.5b (ADR 2026-10-06d ruling 3 🔒, ADR 2026-10-07 ruling 1): the sheet
+  // is required — *Print or save the sheet* must be live, *Skip for now*
+  // absent, *I've kept it safe* asleep until the page has been opened.
+  // Print makes the sheet, publishes its sealed blob to the dev server and
+  // only then raises Android's print sheet (`Printing.layoutPdf`). That
+  // sheet is another app's activity: this harness cannot drive it, so the
+  // run waits for the page to be **saved or printed** from outside — by the
+  // person watching (Save as PDF → save). Closing the sheet with Back is a
+  // cancel: `layoutPdf` answers false and *I've kept it safe* stays asleep
+  // (RUNG3B repair #1 — a cancelled print sheet is not an opened page), so an
+  // `adb shell input keyevent BACK` no longer wakes it (⚠️ run_journeys.sh
+  // sends nothing yet; reported). A publish that fails shows its reason
+  // and a *Skip for now*, and the journey records the reason as a defect.
   final shown = await j.step(
     'S0.5b',
     'Recovery sheet — "${en.onboardingRecoverySheetTitle}"',
     find.byType(RecoverySheetScreen),
-    act: () async {
-      generateLive = _buttonLive(j.text(en.onboardingRecoverySheetGenerate));
-    },
   );
   if (!shown) return false;
   const sheetAuthority =
       '13 §5 F1 "S0.5b sheet: print → verify by scanning it back"; '
       '13 §3.2 S0.5b "generate, print/save, verify by scanning back"; '
-      '07 §3.1 step 6 🔒';
-  if (!generateLive) {
+      '07 §3.1 step 6 🔒; ADR 2026-10-06d ruling 3; ADR 2026-10-07 ruling 1';
+  final print = j.text(en.onboardingRecoverySheetPrint);
+  final keptSafe = j.text(en.onboardingRecoverySheetKeptSafe);
+  final skip = j.text(en.onboardingRecoverySheetSkip);
+  if (!_buttonLive(print)) {
     await j.defect(
-      'S0.5b-generate',
-      '"${en.onboardingRecoverySheetGenerate}" enabled',
-      '"${en.onboardingRecoverySheetGenerate}" is drawn disabled, so the '
-          'recovery sheet cannot be made on this path (rung 3 unbuilt — ADR '
-          '2026-10-06d, desk 171)',
+      'S0.5b-print',
+      '"${en.onboardingRecoverySheetPrint}" enabled',
+      '"${en.onboardingRecoverySheetPrint}" is drawn disabled, so the '
+          'recovery sheet cannot be made on this path',
       authority: sheetAuthority,
     );
+  }
+  if (skip.evaluate().isNotEmpty) {
+    await j.defect(
+      'S0.5b-required',
+      'no "${en.onboardingRecoverySheetSkip}" before a publish has failed',
+      '"${en.onboardingRecoverySheetSkip}" is offered on arrival',
+      authority: sheetAuthority,
+    );
+  }
+  if (_buttonLive(keptSafe)) {
+    await j.defect(
+      'S0.5b-asleep',
+      '"${en.onboardingRecoverySheetKeptSafe}" asleep until the sheet is opened',
+      '"${en.onboardingRecoverySheetKeptSafe}" is live before anything was '
+          'opened',
+      authority: 'canvas c1/O5b',
+    );
+  }
+  if (!_buttonLive(print)) {
     return j.step(
       'S0.5b-skip',
       'Recovery sheet — leave by "${en.onboardingRecoverySheetSkip}"',
       find.byType(RecoverySheetScreen),
-      act: () => j.tap(j.text(en.onboardingRecoverySheetSkip)),
+      act: () => j.tap(skip),
     );
   }
+  var woke = false;
   final made = await j.step(
     'S0.5b-made',
-    'Sheet made — "${en.onboardingRecoverySheetReadyTitle}"',
-    j.text(en.onboardingRecoverySheetReadyTitle),
-    timeout: const Duration(seconds: 45),
+    'Sheet made, published and opened — "${en.onboardingRecoverySheetKeptSafe}" '
+        'wakes',
+    find.byType(RecoverySheetScreen),
+    timeout: const Duration(seconds: 150),
     act: () async {
-      await j.tap(j.text(en.onboardingRecoverySheetGenerate));
-      if (!await j.waitFor(
-        j.text(en.onboardingRecoverySheetReadyTitle),
-        timeout: const Duration(seconds: 30),
-      )) {
-        throw StateError(
-          'the sheet was not made (no "${en.onboardingRecoverySheetReadyTitle}")',
-        );
+      await j.tap(print);
+      final deadline = DateTime.now().add(const Duration(seconds: 140));
+      while (DateTime.now().isBefore(deadline)) {
+        await j.waitFor(keptSafe, timeout: const Duration(seconds: 2));
+        if (_buttonLive(keptSafe)) {
+          woke = true;
+          return;
+        }
+        if (skip.evaluate().isNotEmpty) return; // the publish failed
       }
     },
   );
   if (!made) return false;
-  for (final (sid, label) in [
-    ('S0.5b-share', en.onboardingRecoverySheetShare),
-    ('S0.5b-scan', en.onboardingRecoverySheetScan),
-  ]) {
-    if (!_buttonLive(j.text(label))) {
-      await j.defect(
-        sid,
-        '"$label" enabled once the sheet is made',
-        '"$label" is drawn disabled or missing after the sheet was made',
-        authority: sheetAuthority,
-      );
-    }
+  if (!woke) {
+    await j.defect(
+      'S0.5b-made',
+      'the sheet published and the print sheet opened',
+      skip.evaluate().isNotEmpty
+          ? 'the publish failed — S0.5b shows its reason and a Skip'
+          : '"${en.onboardingRecoverySheetKeptSafe}" never woke (the page '
+                'was not saved or printed — Back on the print sheet is a '
+                'cancel — or nothing opened)',
+      authority: sheetAuthority,
+    );
+    if (skip.evaluate().isEmpty) return false;
+    return j.step(
+      'S0.5b-skip',
+      'Recovery sheet — leave by "${en.onboardingRecoverySheetSkip}"',
+      find.byType(RecoverySheetScreen),
+      act: () => j.tap(skip),
+    );
   }
   j.note(
-    'S0.5b: print/share and verify-by-scanning-back were not driven — they '
-    'leave the app (system share sheet, camera); only that their actions are '
-    'live was checked.',
+    'S0.5b: the sheet was made and published and the print sheet opened; '
+    'scanning it back is the S0.7 row\'s (F1-1006d-3) and is not driven here.',
   );
   return j.step(
-    'S0.5b-done',
-    'Recovery sheet — leave by "${en.onboardingRecoverySheetDone}"',
-    j.text(en.onboardingRecoverySheetDone),
-    act: () => j.tap(j.text(en.onboardingRecoverySheetDone)),
+    'S0.5b-kept',
+    'Recovery sheet — leave by "${en.onboardingRecoverySheetKeptSafe}"',
+    keptSafe,
+    act: () => j.tap(keptSafe),
   );
 }
 
@@ -406,6 +438,87 @@ Future<bool> homeStep(Journey j, OnboardingPurpose purpose) async {
   if (!ok) return false;
   await _booksCheck(j, purpose);
   return !j.failed;
+}
+
+/// ADR 2026-10-07 ruling 3, on the family and trust paths whose invite step
+/// (S0.6e / S0.6h) the branch skipped: Home's S0.7 checklist carries one
+/// *Finish* + book-name row naming the next step, in place of *Add your
+/// family*; tapping it resumes the invite step; skipping there again returns
+/// to Home with the row still open. Then the recovery-sheet row reads *Check
+/// your recovery sheet · Not scanned back yet* (canvas 1 O8b / O8c).
+Future<bool> invitesSkippedRow(Journey j, OnboardingPurpose purpose) async {
+  final en = j.en;
+  if (j.failed) return false;
+  final (bookName, hint, resumed, skip) = switch (purpose) {
+    OnboardingPurpose.family => (
+      'Journey Family',
+      en.homeSetupFinishFamilyHint,
+      find.byType(FamilyMembersScreen),
+      en.onboardingFamilyMembersSkip,
+    ),
+    OnboardingPurpose.trust => (
+      'Journey Gurudwara',
+      en.homeSetupFinishTrustHint,
+      find.byType(TrustMembersScreen),
+      en.onboardingTrustMembersSkip,
+    ),
+    _ => throw ArgumentError.value(purpose, 'purpose', 'no invite step'),
+  };
+  const authority =
+      'ADR 2026-10-07 ruling 3 (a *Finish <book name>* row while the invite '
+      'step was skipped; it replaces *Add your family*); canvas 1 O8b / O8c';
+  final row = j.text(en.homeSetupFinishBook(bookName));
+  final shown = await j.step(
+    'S0.7-finish',
+    'Setup checklist row "${en.homeSetupFinishBook(bookName)}" · "$hint"',
+    row,
+    timeout: const Duration(seconds: 20),
+  );
+  if (!shown) return false;
+  if (j.text(hint).evaluate().isEmpty) {
+    await j.defect(
+      'S0.7-finish',
+      'the row names the next step: "$hint"',
+      '"$hint" is not under the row',
+      authority: authority,
+    );
+  }
+  if (j.text(en.homeSetupAddFamily).evaluate().isNotEmpty) {
+    await j.defect(
+      'S0.7-finish',
+      'no "${en.homeSetupAddFamily}" row on the ${purpose.name} path',
+      '"${en.homeSetupAddFamily}" is drawn beside the Finish row',
+      authority: authority,
+    );
+  }
+  if (j.text(en.homeSetupRecoverySheet).evaluate().isEmpty ||
+      j.text(en.homeSetupRecoverySheetHint).evaluate().isEmpty) {
+    await j.defect(
+      'S0.7-sheet',
+      '"${en.homeSetupRecoverySheet}" · "${en.homeSetupRecoverySheetHint}"',
+      'the recovery-sheet row does not read as ruling 3 says',
+      authority: 'ADR 2026-10-07 ruling 3; canvas 1 O8',
+    );
+  }
+  final opened = await j.step(
+    'S0.7-resume',
+    'Tapping the row resumes the skipped invite step',
+    j.text(en.homeSetupFinishBook(bookName)),
+    act: () => j.tap(j.text(en.homeSetupFinishBook(bookName))),
+  );
+  if (!opened) return false;
+  final again = await j.step(
+    purpose == OnboardingPurpose.family ? 'S0.6e-resumed' : 'S0.6h-resumed',
+    'The invite step again, still skippable — leave by "$skip"',
+    resumed,
+    act: () => j.tap(j.text(skip)),
+  );
+  if (!again) return false;
+  return j.step(
+    'S0.7-finish-kept',
+    'Back on Home, the row still open',
+    j.text(en.homeSetupFinishBook(bookName)),
+  );
 }
 
 /// The books the card must have created (13 §2.1 🔒 "Books created" column),

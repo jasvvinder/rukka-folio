@@ -216,7 +216,7 @@ void main() {
       (tester) async {
         tallViewport(tester);
         final ledger = await emptyBook();
-        final steps = <int>[];
+        final steps = <SetupStep>[];
         await pumpRk(
           tester,
           HomeScreen(onSetupStep: steps.add),
@@ -237,7 +237,7 @@ void main() {
 
         await tester.tap(find.text('Opening balances'));
         await tester.pump();
-        expect(steps, const [0]);
+        expect(steps, const [SetupStep.openingBalances]);
         await unmount(tester);
       },
     );

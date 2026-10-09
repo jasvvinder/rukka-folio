@@ -28,7 +28,11 @@ void resetOnboardingFlow() {
     ..familyBookId = null
     ..trust = null
     ..trustMembers = const []
-    ..trustBookId = null;
+    ..trustBookId = null
+    // S0.5b's chain facts: a printed page from an earlier test would reopen
+    // the next one on *opened*.
+    ..recoverySheetVerified = null
+    ..recoverySheetPrinted = false;
   if (onboardingFlow.business != null ||
       onboardingFlow.businessBookId != null) {
     onboardingFlow.addAnotherBusiness();
