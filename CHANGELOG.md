@@ -12,6 +12,58 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-09 (evening) — M13: late-bound device keys in the app (KEY168B); `/recovery/sheet` relays the UMK + 0031 single UMK root (RUNG3S, UMK0031); ADR 2026-10-09b
+
+`/cycle` with two slices, then a review-only cycle on 0031, then the push gate. **Push gate green**: app 2336 passed /
+14 skipped, every package green, 2 test files formatted by the gate. Server 150 passed on MemStore; the 186 DB-backed
+RLS tests were skipped by the push lane (`RF_TEST_DB_URL` unset). In-lane on a fresh DB 0001–0031: 334 passed / 2 failed,
+the 2 being the pre-existing entitlement-clock failures (desk 187).
+- KEY168B (`lane-ui-hard`): 3 findings confirmed and repaired. The main one: dropping the relaunch on re-mint left the
+  ceremony screens on discarded ids. The relaunch is back as a stopgap (desk 184 (b)).
+- RUNG3S (`lane-server`, 3-lens): 2 findings, 1 confirmed. It was a **pre-existing security blocker**:
+  `/devices/certify` took `umk_key_version` from the request body, so a device could register a second, self-minted
+  UMK as the account's trust root, and the sheet route would relay it. Repaired by migration 0031.
+- UMK0031 (review-only, owner-requested because 0031 was written in repair): 5 findings, 1 confirmed and repaired
+  (E-05d-2 judged refusals by raw message, blind to an unmapped error code; now through `denialFromPg` and the deployed
+  handler, 12/12 mutations killed). 0031 unchanged.
+- Orchestrator: F1-03b-4 in `bootstrap_wiring_test.dart` re-pointed to ADR 2026-10-09 §1 (desk 184 (a)), mutation-checked.
+
+**Decided**
+- [ADR 2026-10-09b](docs/decisions/2026-10-09b-uncertified-reads-own-umk.md) — 🔒 amends ADR 2026-09-05d §2: an
+  uncertified phone may read its own account's live UMK public key (relayed on `GET /recovery/sheet`); a sheet with no
+  live key is served with null key fields and the phone reports *cannot verify*, never *wrong code* (desk 186 (a)(b)).
+- [ADR 2026-10-09](docs/decisions/2026-10-09-late-bound-device-keys.md) — the fail-closed rule (*not registered yet*
+  only with no authoring, no certificate and no session device id) owner-confirmed; Consequences section added for
+  `rk.ledger.device_keys` and `IdentityState.existing_account` (desk 185 (a)(c)).
+
+**Added**
+- KEY168B: the composition root binds keys and ids late (`SyncEngine.late`, `CryptoGuard.late`, the guardian-standing
+  host on the live user id, `ServerMembersRepository` and `DeviceRecordAuthor` through providers); S0.2 mints the device
+  seeds in one idempotent ledger step before `POST /devices`, the UMK only for a new account; `HttpAuthClient` asks the
+  ledger instead of minting; `adoptExistingAccount` (C-04b-4); the fail-closed rule at the ledger and the cold-start
+  gate. Tests C-1009-1, C-1009-2, C-1006-1 (S0.2 form), C-04b-4; C-06-9 and C-04b-3 kept green.
+- RUNG3S: `GET /recovery/sheet` adds `umk_pub_ed` / `umk_pub_x` (b64url, null when no live row) in MemStore and PgStore
+  (E-1006d-1…4). `0031_umk_single_root.sql`: preflight refuses ambiguous data, one live UMK row per user (partial
+  unique index), `rf.set_umk_pubs` refuses a second version, `rf.certify_device` requires the live row (E-05d-1/2).
+
+**Changed**
+- Docs: ADR 10-09b cross-referenced under ADR 05d §2, 03 §2.5, 04 §7.4 and ADR 10-06d ruling 2; `@M13` dropped on
+  C-1009-1, C-1009-2 and C-1006-1; E-05d-1/2 added to 06 §3's marker.
+- PLAN: desk 168 ✅; 171 (a) ✅, (b) unblocked; new desk 184–187.
+
+**Open**
+- Desk 185 (b): which tenant id a phone joining an existing account holds (a placeholder for now).
+- Desk 186 (d), OPS: run 0031's header preflight query on rukka-folio-dev, apply 0031, redeploy `sync-meta`.
+- Desk 184 (b)(c): ceremony builder to read ids late; C-1006-1 in `gate_key_test.dart` still titled for first-run mint.
+- Desk 187: the RLS suite's fixed clock expired 7 Oct — E-05-20 and E-03b-5 fail on the nightly/RC RLS lane.
+- ⚠️ SPEC in 0031: UMK rotation (04 §9.2, 06 §6) has no write path; 0031 forbids a second version until an ADR gives one.
+- SYNC168's sync-chip proposal (hide while `notRegistered`) still unruled (desk 181 (c)).
+
+**Commits**
+- (pending)
+
+---
+
 ## 2026-10-09 — M13: SETUP174 required setup steps; desk 132; rung 3 make half (RUNG3A/B); late-bound sync engine (SYNC168)
 
 `/cycle` with two slices, each reviewed, verified and repaired in one round. **Push gate green** for everything below
@@ -83,7 +135,8 @@ cycles followed:
 - WORDS179: held for a cycle of its own, because it touches nearly every ARB part.
 
 **Commits**
-- (pending)
+- `1944445` — ADR 2026-10-09 + SYNC168.
+- `735c7bf` — SETUP174, desk 132, RUNG3A/B, plan + changelog.
 
 ## 2026-10-08 — docs: design pull of the 8 Oct translation pass; ADR 2026-10-08 (joint fund + PA/HI glossary)
 
@@ -130,7 +183,7 @@ gate ran.
 
 **Commits**
 - `6b56fb2` — the PLAN refresh (§0, desks 174/178).
-- The design pull, ADR 2026-10-08 and the doc updates — pending.
+- `4ac8011` — the design pull, ADR 2026-10-08 and the doc updates.
 
 ---
 

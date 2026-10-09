@@ -29,6 +29,7 @@ work), tests first, and the app part follows in a `lane-ui-hard` slice.
 - After `openUmkWithRecoveryKey`, the recovered key pair is adopted into the device's key material **only if** its public
   halves match the account's published UMK, the same check as every other rung (04 §7.3 step 6, CLAUDE.md rule 5).
 - On a mismatch nothing is stored, and S11.3 shows its *"that code didn't work"* state (R2.4).
+  > **ADR 2026-10-09b** — for rung 3, *the account's published UMK* is the server-relayed `UmkPublic` on `GET /recovery/sheet` (ADR 2026-09-13c §1); the adopted key's own verified form comes from possession, as at signup. ⟦tests: E-1006d-1, E-1006d-3⟧
 - Adoption re-wraps the local UMK copy to this device's key, as at signup (ADR 2026-10-06 §1). No secret is logged and
   every buffer is zeroised.
 

@@ -77,7 +77,7 @@ One symmetric key per book, per version: `(book_id, key_version)`. Every entry r
 ### 3.3 Device Keys 🔒 ⟦tests: B-04-11, B-04-34, F1-03-1, F1-03-2⟧
 Each device generates an Ed25519 signing pair **inside hardware keystore** (StrongBox / Secure Enclave when available) — used for auth (doc 06) and entry signing. The device also generates an X25519 pair for receiving the wrapped UMK; since mobile secure hardware does not natively host X25519, its private half is stored encrypted under a hardware-backed AES key from the OS keystore. ⚠️ Verify current platform support at build time; this is the accepted pattern as of spec date.
 
-> **ADR 2026-10-06 §1** — the device keys are hardware-backed (StrongBox / Secure Enclave when available) **without** a user-authentication binding; the biometric set guards a separate gate key, so an enrolment change never destroys them. ⟦tests: C-1006-1 @M13⟧
+> **ADR 2026-10-06 §1** — the device keys are hardware-backed (StrongBox / Secure Enclave when available) **without** a user-authentication binding; the biometric set guards a separate gate key, so an enrolment change never destroys them. ⟦tests: C-1006-1⟧
 
 **Platform nuance:** Android Keystore entries are destroyed on uninstall → reinstall on the same Android phone is a **new device**. iOS Keychain items survive reinstall → attempt Keychain restore first; only fall back to recovery if absent.
 
@@ -200,6 +200,7 @@ Standard device linking (§9.1).
 - Mandatory for solo users (no guardians possible); strongly nudged for everyone.
 
 > **ADR 2026-10-06d** — the sealed blob is `suite_version ‖ nonce ‖ ciphertext`; a recovered UMK is adopted only after its public halves match the account's; S0.5b makes, prints and scan-checks a real sheet. ⟦tests: B-1006d-1, B-1006d-2, B-1006d-3, C-1006d-1, F1-1006d-1, F1-1006d-2, F1-1006d-3⟧
+> **ADR 2026-10-09b** — the restoring phone takes `expected` from the account's published UMK, relayed with the sheet on `GET /recovery/sheet`; a sheet with no live key is served with null key fields and the phone cannot verify, never *wrong code*. ⟦tests: E-1006d-1, E-1006d-2, E-1006d-3, E-1006d-4⟧
 
 ### 7.0 Rung 0 — platform key sync 🔒 (owner-directed, 31 Aug 2026; tried before every other rung) ⟦tests: B-04-52, C-06-2, C-06-3, C-06-1, C-06-4, C-06-5, C-06-6, F1-06-66, F1-06-67, F1-06-68, F1-06-69, F1-06-87⟧
 **iOS: iCloud Keychain. Android: Block Store.** Both are end-to-end encrypted by the platform — Apple and Google cannot read them — so storing the wrapped UMK there does **not** weaken zero-knowledge; it adds a second device-class custodian the vendor still cannot open.

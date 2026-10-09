@@ -56,7 +56,7 @@ The upgrade trigger is therefore **any** biometric the phone offers, not one kin
   re-creates the item: biometric-bound if a strong biometric is enrolled now, PIN-only if none is.
 
 ### 4. No keystore item that needs the person exists before the PIN does 🔒 ⟦tests: F1-1005b-2 @M13⟧
-> **ADR 2026-10-06 §1–§2** — the device keys are minted at S0.2 registration straight into the hardware keystore without a biometric binding and never move; the **gate** is minted after O4b. This settles PLAN desk 153 (the "minted after O4b" wording). ⟦tests: C-1006-1 @M13, C-1006-2 @M13⟧
+> **ADR 2026-10-06 §1–§2** — the device keys are minted at S0.2 registration straight into the hardware keystore without a biometric binding and never move; the **gate** is minted after O4b. This settles PLAN desk 153 (the "minted after O4b" wording). ⟦tests: C-1006-1, C-1006-2 @M13⟧
 - Device keys are minted **after O4b** (the MPIN is set), not at bootstrap. Before that point the app
   may hold only items that open without a person (the database key, 04 §3.3).
 - At every cold start the lock screen's **Use PIN instead** (07 §5.6) is reachable whenever biometrics

@@ -25,7 +25,7 @@ as written.
 
 ## Rulings 🔒 ⟦tests: n/a — container heading; each ruling below carries its own marker⟧
 
-### 1. The device keys are never biometric-bound 🔒 ⟦tests: C-1006-1 @M13⟧
+### 1. The device keys are never biometric-bound 🔒 ⟦tests: C-1006-1⟧
 - The device signing seed (Ed25519), the device agreement key (X25519) and the locally wrapped UMK live in the
   **hardware-backed keystore without a user-authentication binding**:
   - Android: Keystore with StrongBox where the phone has one, else TEE; no `setUserAuthenticationRequired`, no

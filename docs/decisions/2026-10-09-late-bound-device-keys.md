@@ -20,7 +20,7 @@ late-bound key material and ids.
 
 ## Rulings 🔒 ⟦tests: n/a — container heading; each ruling below carries its own marker⟧
 
-### 1. Key material and identity are late-bound in the composition root 🔒 ⟦tests: D-1009-1, C-1009-1 @M13⟧
+### 1. Key material and identity are late-bound in the composition root 🔒 ⟦tests: D-1009-1, C-1009-1⟧
 - The parts that today capture the device key pair, the UMK or the user/tenant ids at launch read them through a
   provider when they use them. They no longer capture them in a constructor:
   - `sync_engine` (`SyncEngine`, `CryptoGuard`, `RecordTrustStore`);
@@ -29,7 +29,7 @@ late-bound key material and ids.
   The sync engine does not push, pull or verify, and says why. Nothing is signed.
 - A C-04b-3 re-mint, or the S0.2 registration, takes effect without a relaunch. This closes PLAN desk 126.
 
-### 2. The mint happens inside S0.2, through the ledger 🔒 ⟦tests: C-1006-1 @M13, C-1009-2 @M13⟧
+### 2. The mint happens inside S0.2, through the ledger 🔒 ⟦tests: C-1006-1, C-1009-2⟧
 - S0.2 creates the following in one ledger step, immediately before `POST /devices`:
   - the signing seed and the agreement seed;
   - for a **new account only**, the UMK and its local wrap.
@@ -44,7 +44,7 @@ late-bound key material and ids.
 - First launch mints ids (device id, user id, tenant id per ADR 2026-09-16 §1) and no key material.
 
 ## Open ⚠️
-- ⚠️ **Not registered yet vs keys lost (fail-closed rule) — conservative reading, owner to confirm.** Today, an identity
+- ✅ **Not registered yet vs keys lost (fail-closed rule) — owner confirmed 9 Oct 2026 (PLAN desk 185 (a)), as written below.** Today, an identity
   with no seeds means *keys lost*: `DeviceKeysMissing` (`local_ledger.dart:2320`) ends at `RukkaFolioBlocked` (03 §5).
   After this change, a relaunch before S0.2, or a kill between the OTP confirm and `POST /devices`, is in the same state.
   The build reads a phone as **not registered yet** (S0.2 may mint) only when all three hold:
@@ -53,3 +53,19 @@ late-bound key material and ids.
   - `SessionItems.deviceId` is absent.
 
   Anything else stays blocked, as today.
+  Built in M13-KEY168B (`local_ledger.dart`, `features/lock/cold_start_gate.dart`); both sides tested at the ledger and
+  through the real cold-start gate. ⟦tests: C-1009-2⟧
+
+## Consequences
+- Two device-local items are new; both live in the platform key store, not the Drift schema, so 03 has no section for
+  them. Owner approved 9 Oct 2026 (PLAN desk 185 (c)).
+  - `rk.ledger.device_keys` (`LocalLedgerKeys.deviceKeysState`: `none` · `minting` · `minted`; no prompt). It records that
+    an ids-only install has no device keys yet, so a device-key read is not sent to the legacy biometric class and the
+    phone does not ask for a biometric on every launch before S0.2. An absent marker means an install from before this
+    ADR and is read as before.
+  - `IdentityState.existing_account`: a fresh install signing in to an existing account (ADR 2026-10-04b §3, C-04b-4).
+    Older builds ignore it.
+- The composition root still re-arms `RootRelaunch` on `onIdentityReminted` beside `onUmkAdopted`, as a stopgap: the
+  ceremony builder (`features/ceremony` `buildLiveCeremonySessions`) is not in ruling 1's list and still takes the ids
+  at launch. When it reads them late, the re-mint relaunch comes out (PLAN desk 184 (b)).
+

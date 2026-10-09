@@ -30,6 +30,7 @@ predicate for every tenant table requires it.
 
 > **Amended by ADR 2026-09-24b §3** — one more read: an uncertified device may learn *whether its own user has a current guardian set* — a boolean, bounded to `user_id = rf.user_id()`, never k, n, a member or a share. Everything else above stands. ⟦tests: E-24b-1, F1-24b-4⟧
 > **Amended by ADR 2026-10-03 § Desk 45** — a non-live, foreign or erased caller is refused, never answered `false`. ⟦tests: E-24b-3, E-24b-4⟧
+> **Amended by ADR 2026-10-09b §1–§2** — one more read: the device's own account's registered UMK public key (live row, both halves), relayed on `GET /recovery/sheet` for rung 3; null fields when there is none. ⟦tests: E-1006d-1, E-1006d-2, E-1006d-3, E-1006d-4⟧
 
 ### 3. Support actions are delayed and cancellable ⟦tests: C-05d-8, F1-06-13, F1-06-15⟧
 Support-initiated **device revocation** follows the deletion pattern: a 24 h window, a notice on
