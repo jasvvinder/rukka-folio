@@ -1,0 +1,53 @@
+{
+ "sid": "S0.6d",
+ "verdict": "deviates",
+ "frames": [
+  "c1/S0.6d/Name the family",
+  "c13/S0.6d/Name the family"
+ ],
+ "captures": [
+  "S0.6d__default"
+ ],
+ "screen_files": [
+  "app/lib/features/onboarding/screens/s0_6d_family_name_screen.dart",
+  "app/lib/features/onboarding/onboarding_routes.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c1/c13 'Name the family': back chevron and progress dashes (1 of 3); the app draws neither",
+   "reason": "[shared] onboarding step top bar (back chevron + three progress dashes) — today it exists only as S0.6's private _TopBar (s0_6_opening_balances_screen.dart:381); the branch steps draw no top bar at all",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1/c13 'Name the family': 'FAMILY NAME' uppercase label over a boxed paper field; the app draws an underlined field with a floating label",
+   "reason": "[shared] boxed text field with an uppercase field label above it — the app draws Material's default underlined field with a floating label; there is no sub-theme for it in app/lib/shared/theme.dart (it sets only appBar, card, divider, listTile, filledButton, outlinedButton and bottomSheet themes), so the boxed field needs a new input-decoration theme or a shared field widget",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1/c13 'Name the family': no subtitle; the app adds 'You can change this later.'",
+   "reason": "[screen] copy line the frame does not draw",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1/c13 'Name the family': helper under the field 'This is the joint fund everyone shares. Each member also keeps a private book that nobody else can open.'; the app has none",
+   "reason": "[screen] the ruled joint-fund copy for S0.6d is not in the app",
+   "authority": "ADR 2026-10-08 §1 🔒 (S0.6d copy quoted)"
+  },
+  {
+   "what": "c1/c13 'Name the family': no start-date line; the app states 'Your family's books begin on 09 Sep 2026. Nothing can be dated before that day.'",
+   "reason": "[screen] the frame drops it; the stated start date is ruled for S0.6a only (13 §3.2) — ⚠️ SPEC owner to confirm whether S0.6d/S0.6g keep the line",
+   "authority": "ADR 2026-09-09d §4; 13 §3.2 S0.6a"
+  },
+  {
+   "what": "Android 360×800 capture: a text-selection handle is drawn under the caret of the autofocused name field; not checked on a device",
+   "reason": "[screen] Android capture only",
+   "authority": "ADR 2026-10-05 §2"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "0fd8aad7ff0c2b43db12223b6b49f4921465c41bd3f73ba76bba2c279a6da726",
+  "frames": "f93e5226ffad993999f297be5d6ca8fcc9a7852986d8f4cd936889f7fedf783f"
+ }
+}

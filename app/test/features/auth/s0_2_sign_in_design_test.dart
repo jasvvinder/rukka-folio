@@ -2,7 +2,8 @@
 // canvas 1b): S0.2 on both doors (c1 O2a/O2b, c1b L2/L3/L4), S0.2a (L1),
 // S0.2b (L5) and S0.2e (L8). S0.06 (L0) is captured from features/onboarding.
 // Pair with `python3 scripts/design_match.py pair S0.2` (and S0.2a, S0.2b,
-// S0.2e).
+// S0.2e). The RESKIN1 audit's further states (S0.2 held before registration,
+// S19.1, the S15.3 forgot door) are in reskin1_auth_test.dart.
 @Tags(['F1'])
 library;
 

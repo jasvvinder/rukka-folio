@@ -1,0 +1,32 @@
+{
+ "sid": "S15.2",
+ "verdict": "deviates",
+ "frames": [
+  "c3/S15.2/Personal book lock · the same PIN, asked again · iPhone",
+  "c3/S15.2/Personal book lock · the same PIN, asked again · Android",
+  "c3/S15.2/Turning it on · no second number · iPhone",
+  "c3/S15.2/Turning it on · no second number · Android"
+ ],
+ "captures": [],
+ "screen_files": [
+  "app/lib/features/lock/screens/s15_lock_screen.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c3/S15.2 'Personal book lock · the same PIN, asked again · iPhone' / '· Android': not built — no re-prompt screen with the book's initials disc, '<name>'s book', the extra-step line, six boxes, 'Same PIN as the app — nothing new to remember.' and the Face ID / Fingerprint button",
+   "reason": "[screen] S15.2 was left out of U1g by brief and no slice has built it (PLAN U1g row). The nearest built pattern is S15's PIN entry (s15_lock_screen.dart, named in screen_files so this record goes stale when it changes). When built it must name the method by platform (Fingerprint on the Android frame)",
+   "authority": "13 §3.2 row S15.2 (06 §4.4, ADR 2026-09-01: one PIN); ADR 2026-10-08 §3 🔒; ADR 2026-10-10b §1"
+  },
+  {
+   "what": "c3/S15.2 'Turning it on · no second number · iPhone' / '· Android': not built — no 'Personal book lock' settings page with the 'Ask again before <name>'s book opens' switch and its note",
+   "reason": "[screen] The opt-in switch (from S11) is not built either; nothing in the app turns the gate on",
+   "authority": "13 §3.2 row S15.2; ADR 2026-10-10b §1"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "59b6b73bacda36a235335eedf05e1b8f1d2de1c74bc471cdaa3d6b448b17ed55",
+  "frames": "a2fdc93eeff3723c3261d086081106c486639490d68e4ec187dbe8fd30f403aa"
+ }
+}

@@ -1,0 +1,68 @@
+{
+ "sid": "S0.6e",
+ "verdict": "deviates",
+ "frames": [
+  "c1/S0.6e/Who else is in it? · invite heads",
+  "c13/S0.6e/Who else is in it?"
+ ],
+ "captures": [
+  "S0.6e__default"
+ ],
+ "screen_files": [
+  "app/lib/features/onboarding/screens/s0_6e_family_members_screen.dart",
+  "app/lib/features/onboarding/onboarding_routes.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c1/c13 'Who else is in it?': back chevron and progress dashes (2 of 3); the app draws neither",
+   "reason": "[shared] onboarding step top bar (back chevron + three progress dashes) — today it exists only as S0.6's private _TopBar (s0_6_opening_balances_screen.dart:381); the branch steps draw no top bar at all",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1/c13 'Who else is in it?': title 'Who else is in it?'; the app says 'Who else is in the family?'",
+   "reason": "[screen] title copy differs from the ruled step name",
+   "authority": "07 §3.1.1 🔒 (O6e 'Who else is in it?')"
+  },
+  {
+   "what": "c1/c13 'Who else is in it?': subtitle 'Invite the head of each household. They verify in person when they join.'; the app says 'Invite the other heads by phone. They join once you verify each other in person.' plus an info line 'Invited members stay unverified until you meet them…'",
+   "reason": "[screen] copy and an extra info line",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1/c13 'Who else is in it?': invitees as list rows (name, '+91 …' phone, bordered amber 'TO INVITE' tag) and no row for you; the app draws editable cards ('you' card for the creator, then clock 'to invite' cards with Name/Phone fields and 'Remove <name>')",
+   "reason": "[shared] invite-person row (name, +91 phone, bordered caps tag YOU / TO INVITE, trailing slot for shares) — the S0.6e archetype that S0.6a1 reuses (13 §3.2); the app draws editable cards",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1/c13 'Who else is in it?': dashed-plus 'Add another household' row; the app draws an outlined 'person add' button",
+   "reason": "[shared] dashed-plus add row — today S0.6's private _AddAccountRow/_DashedSquare (s0_6_opening_balances_screen.dart); this screen draws a plain + icon text button",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1/c13 'Who else is in it?': footer note 'Nobody is added by a phone number alone…'; the app has none",
+   "reason": "[shared] step footer note — a muted paragraph pinned above the primary button (drawn inline only in S0.6c today)",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1/c13 'Who else is in it?': primary 'Send the invitations'; the app says 'Continue'",
+   "reason": "[screen] primary label copy",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1/c13 'Who else is in it?': 'Skip for now' in muted ink; the app draws it in primary (indigo) ink",
+   "reason": "[shared] secondary text button — the frames draw it in muted ink; the app draws Material's default TextButton, whose ink is colorScheme.primary (indigo), as there is no sub-theme for it in app/lib/shared/theme.dart (it sets only appBar, card, divider, listTile, filledButton, outlinedButton and bottomSheet themes)",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "Android 360×800 capture: the second invitee's card runs under the pinned Continue (scrolls)",
+   "reason": "[screen] follows from the card layout",
+   "authority": "ADR 2026-10-05 §2"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "b4d9fc2c84906c3e63390f26d390ac1be6f30c975d9796789b0549cf3edd59a8",
+  "frames": "6822853386c7a09ec031f87aefa497b070c1132eade693d1956dd36662ae6582"
+ }
+}

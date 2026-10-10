@@ -1,0 +1,87 @@
+{
+ "sid": "S0.5",
+ "verdict": "deviates",
+ "frames": [
+  "c1/O5/Keeping your books safe · iPhone",
+  "c1/O5/Keeping your books safe · Android",
+  "c1/O5/No iCloud variant · the sheet is promoted · iPhone",
+  "c1/O5/No Google Password Manager variant · the sheet is promoted · Android",
+  "c11/O5/Keeping your books safe · iPhone",
+  "c11/O5/Keeping your books safe · Android"
+ ],
+ "captures": [
+  "S0.5__default",
+  "S0.5__no_key_sync"
+ ],
+ "screen_files": [
+  "app/lib/features/onboarding/screens/s0_5_books_safe_screen.dart"
+ ],
+ "deviations": [
+  {
+   "what": "Canvas 1 'O5 Keeping your books safe · iPhone' (and c11): the subtitle is one muted small line 'Two things are already set up. The third takes a minute and is worth doing today.'; the app's subtitle is three lines of full-ink body: 'Your entries are already stored on our server, encrypted — losing a phone does not lose them. What needs keeping safe is your key.'",
+   "reason": "[canvas-wrong] 04 §7.6 🔒 requires the UI to state the true position — entries are already stored, encrypted, on the server; the frame's line omits it. Colour/size of the line (muted, small) is still a [screen] difference for phase 2",
+   "authority": "04 §7.6 🔒 ('State the true position in the UI'); CLAUDE.md § Precedence"
+  },
+  {
+   "what": "Canvas 1 O5 · iPhone: the three items are numbered (1 · 2 · 3 in small boxed numerals) and each sits in its own raised card; the app draws unboxed rows with a leading Material icon (key · cloud-upload · document) and no numbers",
+   "reason": "[shared] card surface (raised fill) + [screen] the numbered-step marker, which no shared component offers",
+   "authority": "ADR 2026-10-05 §1 (components); DESIGN-PACK §O5 ('three stacked items')"
+  },
+  {
+   "what": "Canvas 1 O5 · iPhone, item 1: 'on' with a tick sits at the right of the title, the line reads 'So a new iPhone can open your books. Apple cannot read it.' and a small navy 'change' link follows; the app puts a '✓ On' chip under the title, reads 'Apple cannot read it.' plus 'A phone backup does not carry your books — your key comes back with your Apple account, your books come back from the server', and has no 'change' link",
+   "reason": "[canvas-wrong] for the phone-backup sentence: 07 §3.1 step 5 🔒 requires it (ADR 2026-09-05c §8, 05f §G) and the frame drops it. [screen] for the rest: DESIGN-PACK O5 asks for 'A small change link' and the frame's line, which the app lacks",
+   "authority": "07 §3.1 step 5 🔒; design/DESIGN-PACK.md §O5"
+  },
+  {
+   "what": "Canvas 1 O5 · iPhone, item 2: one toggle in the card header, a 'Saving to [iCloud Drive ›]' destination chip, and the disclosure in an amber-bordered box with a warning triangle — 'One of these copies is readable — anyone with your Drive can read your books. Tap to change or turn off.'; the app (built as production builds it, with no destination) shows 'Automatic backup ✓ On', the generic line 'Saved to your own cloud drive' (no cloud named), then TWO toggle rows ('Encrypted copy of your books' with its own risk line; 'Readable copy, every month' with an amber eye and the disclosure in amber text, no box) and 'One tap turns either of these off.'",
+   "reason": "[canvas-wrong] for the two toggles: 04 §7.6 🔒 makes the encrypted vault and the readable export separate artefacts, each 'opt-in, each states its risk in one plain sentence at the moment of choosing'; one toggle cannot carry two risks. [screen] for the presentation: the destination chip (a picker door, 04 §7.6 'destination picker') and the boxed amber disclosure with an icon are the frame's and the app lacks both. The destination is not named in production: the booksSafe route passes no backupDestination (onboarding_routes.dart ⚠️ SPEC — no seam says which cloud, and naming the wrong one would be worse than the generic line), so the screen falls back to onboarding.booksSafe.backup.destination_unset. The disclosure's wording differs in both from 04 §7.6's sentence — reported in open",
+   "authority": "04 §7.6 🔒 (three artefacts, defaults table, 'must never be reworded into something softer'); design/DESIGN-PACK.md §O5 item 2; app/lib/features/onboarding/onboarding_routes.dart booksSafe route (⚠️ SPEC)"
+  },
+  {
+   "what": "Canvas 1 O5 · iPhone, item 3: 'Your recovery sheet / One printed page. It opens your books even if you lose the phone and the Apple account.' with an outlined square 'Make my recovery sheet' button inside the card, all above the fold; in the app item 3 and its button are below the fold at 390×844 and the copy differs",
+   "reason": "[screen] item order and density: the app's longer item 1/2 copy pushes the sheet off screen",
+   "authority": "ADR 2026-10-05 §1 (placement, density); design/DESIGN-PACK.md §O5 item 3"
+  },
+  {
+   "what": "Canvas 1 O5 · iPhone: the pinned primary button reads 'Done'; the app's reads 'Continue'",
+   "reason": "[screen] copy: no spec rules the label; S0.5 hands on to S0.5b (07 §3.1), which 'Continue' describes and 'Done' does not — reported in open",
+   "authority": "13 §3.2 row S0.5 → S0.5b; 07 §3.1"
+  },
+  {
+   "what": "Canvas 1 'O5 No iCloud variant · the sheet is promoted · iPhone' (a partial fragment — see the note on the fragments below): item 1 becomes 'iCloud Keychain is off on this phone / Without it, a new iPhone cannot open your books on its own. Your recovery sheet becomes the way back.' with a muted struck-cloud icon and a 'turn it on in Settings' link; the app's capture S0.5__no_key_sync shows an amber key-off icon, different copy at full-ink body size, and no Settings link. This capture is reachable only behind the unwired keySyncAvailable seam: production passes no check, a null check reads as on (s0_5_books_safe_screen.dart initState), so no user sees this state in this build",
+   "reason": "[screen] DESIGN-PACK O5's no-iCloud variant: 'a plain … line'; the amber icon reads as a warning the frame does not draw, and the Settings door is missing. ⚠️ SPEC: the state itself is unreachable until a platform key-sync seam is wired (onboarding_routes.dart ⚠️ SPEC; reported in open)",
+   "authority": "design/DESIGN-PACK.md §O5 (no-iCloud variant); 07 §1 rule 6 (no dead ends); 07 §3.1 step 5 🔒; app/lib/features/onboarding/onboarding_routes.dart booksSafe route (⚠️ SPEC)"
+  },
+  {
+   "what": "Canvas 1 O5 No iCloud variant (fragment): 'Make my recovery sheet' is drawn as the filled primary button with a muted 'Later' beneath it, directly after the item 2 card; the fragment draws no item 3 card and no screen foot, so whether the button is pinned is not drawn. In the app (S0.5__no_key_sync) the promoted FilledButton sits in the scrolling list below the fold at 390×844 and the foot shows only 'Skip for now'",
+   "reason": "[screen] 07 §3.1 step 5 makes the sheet the primary action here; at default size the primary action is off screen, and the frame puts it straight after item 2 rather than below a third card",
+   "authority": "07 §3.1 step 5 🔒 ('makes the sheet the primary action instead'); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "Canvas 1 'O5 Keeping your books safe · Android' and 'No Google Password Manager variant · Android': the Android frames say 'Google Password Manager', 'a new Android phone' and 'Google cannot read it'; the app's Android capture (360×800) still says 'iCloud Keychain', 'Apple cannot read it' and 'your Apple account'",
+   "reason": "[screen] the key-sync strings are iOS-only (onboarding.booksSafe.keysync.*); the canvas note on the Android twin says the app names the platform's own services. A real defect on Android, not a skin difference",
+   "authority": "04 §7.0 🔒 (Android Block Store / platform key sync); canvas c1 O5 Android twin note"
+  },
+  {
+   "what": "Canvas 1 O5: body lines are set wider in the app than in the frame",
+   "reason": "[shared] theme text styles (app/lib/shared/theme.dart rkTextTheme): Material's inherited letterSpacing (0.5 bodyLarge, 0.25 bodyMedium, 0.1–0.5 labels) is never zeroed, so every run of body/label text is wider than the canvas's untracked Mukta",
+   "authority": "tokens.json type.scale carries no tracking; open item from the S0.8 record (KEY145B review finding 4); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "Canvas 1 O5 · iPhone: the 'Done' button is square-cornered, 52 px tall (min-height:52px), inset 16 px (padding:12px 16px 14px); the app's Continue is the theme's FilledButton — 48 px tall with RkRadius.md (8 px) corners, inset 16 px by RkSpace.gutter (s0_5_books_safe_screen.dart Padding), so only height and corners differ",
+   "reason": "[shared] primary button (FilledButton theme, app/lib/shared/theme.dart filledButtonTheme: minimumSize RkSpace.s12 = 48, RkRadius.md corners). The gutter matches",
+   "authority": "design/tokens/tokens.json radius + the canvas's button component; ADR 2026-10-05 §1 (the frame decides components)"
+  },
+  {
+   "what": "Canvas 1 'O5 No iCloud variant · the sheet is promoted · iPhone' and 'O5 No Google Password Manager variant · the sheet is promoted · Android' are partial fragments, not 390×844 phones: each root is width:390px;padding:16px with no 844 height and no 9:41 status row, the render clips the right edge (item 2's toggle is cut at x=390) and the canvas annotation paragraph is drawn under the cards. They show items 1–2 and the promoted button only",
+   "reason": "[canvas-wrong] frame form, not content: only what the fragments draw (item 1 copy and icon, the Settings link, the destination chip, the sheet as the filled primary with 'Later') is compared; placement on the full screen (fold, pinned foot, item 3) is taken from the full O5 frames. Reported in open as an ambiguous frame",
+   "authority": "ADR 2026-10-05 §1–§2 (frames compared at 390×844); build/design_match/canvas/c1_O5_No_iCloud_variant_the_sheet_is_promoted_iPhone.html root div"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "b414438d71bdd601d37ae272c4b4e0d6b5f2e452a5b20ffecc7ba7bcd11aa370",
+  "frames": "6b26f34314097f8979f8807bc2372add65cb109124a24822123b441957696672"
+ }
+}

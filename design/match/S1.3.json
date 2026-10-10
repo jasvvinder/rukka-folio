@@ -1,0 +1,59 @@
+{
+ "sid": "S1.3",
+ "verdict": "deviates",
+ "frames": [
+  "c7/S1.3/Scope switcher sheet · three or more books (D1)"
+ ],
+ "captures": [
+  "S1.3__sheet"
+ ],
+ "screen_files": [
+  "app/lib/features/home/widgets/home_scope_switcher.dart",
+  "app/lib/features/home/screens/s1_home_screen.dart",
+  "app/lib/features/home/home_routes.dart",
+  "app/lib/shared/widgets/rk_tab_bar.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c7 S1.3 *Scope switcher sheet · three or more books (D1)*: behind the sheet the header is the 'Home' title and an outlined 'Me' chip with a book icon; the frame's header shows the person ('RS Rahul Sharma · Head'), sync and bell, and the scope pill filled navy ('Sharma Joint Family ⌄')",
+   "reason": "[shared] app bar/header; the bell is [canvas-wrong] (ADR 2026-09-05f §F)",
+   "authority": "ADR 2026-10-10b §3; 13 §2.3 🔒; ADR 2026-09-05f §F"
+  },
+  {
+   "what": "c7 S1.3: sheet title 'Which books do you want to see?' with no close; the frame titles it 'Which book?' with an ✕ at the right and a hairline under the title",
+   "reason": "[shared] sheet (header) + [screen] copy",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c7 S1.3: group headings ('Me', 'Family', 'Businesses') are sentence case at title size; the frame uses small uppercase letter-spaced captions with hairline-divided rows on paper",
+   "reason": "[shared] list row / section caption",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c7 S1.3: rows carry no per-book total; the frame puts each book's money at the right (₹86,400 …)",
+   "reason": "[screen] the figure needs a per-book total in the sheet — layout from the frame",
+   "authority": "ADR 2026-10-05 §1; 07 §5.7 🔒"
+  },
+  {
+   "what": "c7 S1.3: the 'Me' row has no lock and no 'Private — only you can see it' line; the frame draws both",
+   "reason": "[screen] not built",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c7 S1.3: the chosen row is marked by a grey tick only; the frame shades the row and ticks it in green",
+   "reason": "[shared] list row (selected state)",
+   "authority": "ADR 2026-10-05 §1; 07 §1 rule 3 🔒 (colour never alone — the tick stays)"
+  },
+  {
+   "what": "c7 S1.3: the sheet stops above the tab bar, whose (+) shows; the frame's sheet runs to the bottom edge over the tab bar",
+   "reason": "[shared] sheet (root-navigator presentation) and bottom bar/shell (no (+))",
+   "authority": "ADR 2026-10-10b §2"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "ef3cfcb594bca12bfb161b400fe6a769ae5235ea460a0f486538b3785207b073",
+  "frames": "a893bf92b15a8961008884286efbaf4ace55f71bca24dba7c44c8f0fe41d7276"
+ }
+}

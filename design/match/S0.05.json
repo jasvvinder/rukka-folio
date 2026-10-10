@@ -1,0 +1,67 @@
+{
+ "sid": "S0.05",
+ "verdict": "deviates",
+ "frames": [
+  "c1/O0b/Welcome 1 · your books, kept properly",
+  "c1/O0b/Welcome 2 · your family, on the same page",
+  "c1/O0b/Welcome 3 · sealed to everyone else",
+  "c11/O0b/Welcome · your books, kept properly",
+  "c11/O0b/Welcome · sealed to everyone else"
+ ],
+ "captures": [
+  "S0.05__slide1",
+  "S0.05__slide2",
+  "S0.05__slide3"
+ ],
+ "screen_files": [
+  "app/lib/features/onboarding/screens/s0_05_welcome_screen.dart"
+ ],
+ "deviations": [
+  {
+   "what": "Canvas 1 'O0b Welcome 1/2/3': slide copy differs on every slide. Frame: 1 'Your books, kept properly / Real double-entry underneath, without asking you to know any accounting.' · 2 'Your family, on the same page / Everyone who shares the money sees the same books, and who entered what.' · 3 'Sealed to everyone else / Even we cannot open them. That is why there is no password.' App: 1 'Your books, always with you / Cash, bank, parties — one place, on your phone' · 2 'No password, no risk / Your books are locked so well that even we can't open them' · 3 'Family and business, together / Share what you choose, keep the rest private'",
+   "reason": "[screen] the ARB strings (onboarding.welcome.slide*) predate DESIGN-PACK O0b, which rules the three ideas and their order exactly as the frame draws them; the app's slide 2 also drops 'that is why there is no password'",
+   "authority": "design/DESIGN-PACK.md §O0b (ranks with the numbered specs, CLAUDE.md § Precedence)"
+  },
+  {
+   "what": "Canvas 1 O0b Welcome 1/2/3: each slide has a line-drawn navy illustration above the title (a ruled two-page book · three people · a padlock); the app draws no illustration",
+   "reason": "[screen] no illustration assets exist; DESIGN-PACK O0b asks for one line drawing per slide",
+   "authority": "design/DESIGN-PACK.md §O0b; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "Canvas 1 O0b Welcome 1/2/3: title and body are left-aligned at the screen gutter, the body in the muted colour at ~15 px with loose leading; the app centres both and draws the body in full ink",
+   "reason": "[screen] _WelcomeSlide uses TextAlign.center and the default body colour",
+   "authority": "ADR 2026-10-05 §1 (layout); tokens.json colour roles"
+  },
+  {
+   "what": "Canvas 1 O0b Welcome 1/2/3: the page dots are an elongated ink pill for the current slide and two pale dots; the app draws three equal 8 px circles, the current one navy (primary) and the others mid-grey (muted)",
+   "reason": "[screen] page indicator is local to this screen (no shared component)",
+   "authority": "ADR 2026-10-05 §1 (components)"
+  },
+  {
+   "what": "Canvas 1 O0b Welcome 1/2/3: 'Skip' is a quiet muted label at the top right; the app draws it as a navy (primary) TextButton at label weight",
+   "reason": "[shared] tertiary text button colour (TextButton theme): the canvas draws dismiss/skip/later actions in muted ink throughout (also c1 O7a 'Not now', c1 O7b 'Later')",
+   "authority": "ADR 2026-10-05 §1 (components)"
+  },
+  {
+   "what": "Canvas 1 O0b Welcome 1/2/3: the Next / Get started button is square-cornered, ~52 px tall, full width inside a ~20 px gutter; the app's is ~48 px tall, rounded, inside a 24 px inset",
+   "reason": "[shared] primary button (FilledButton theme, app/lib/shared/theme.dart): ~48 px tall with RkRadius corners, inset by the ~24 px screen padding",
+   "authority": "design/tokens/tokens.json radius + the canvas's button component; ADR 2026-10-05 §1 (the frame decides components)"
+  },
+  {
+   "what": "Canvas 1 O0b Welcome 1/2/3: the title/body block sits in the middle third with the illustration above; the app's title sits higher-centre with nothing above it, so vertical rhythm differs on every slide",
+   "reason": "[screen] follows from the missing illustration and the centred layout",
+   "authority": "ADR 2026-10-05 §1 (placement)"
+  },
+  {
+   "what": "Canvas 1 O0b Welcome 1/2/3: body text is set wider than the frame's at the same size (letter-spaced)",
+   "reason": "[shared] theme text styles (app/lib/shared/theme.dart rkTextTheme): Material's inherited letterSpacing (0.5 bodyLarge, 0.25 bodyMedium, 0.1–0.5 labels) is never zeroed, so every run of body/label text is wider than the canvas's untracked Mukta",
+   "authority": "tokens.json type.scale carries no tracking; open item from the S0.8 record (KEY145B review finding 4); ADR 2026-10-05 §1"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "ddc999b1f7f38691c686fbbbb922ce6354c0fc5e63ec49201df3eea1157b50c4",
+  "frames": "0c2f866147b836bba9d6a6f6d93feaea55ca9b83a768b1ccc1473ad158b24141"
+ }
+}

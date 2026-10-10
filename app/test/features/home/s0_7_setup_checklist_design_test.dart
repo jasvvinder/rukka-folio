@@ -11,6 +11,9 @@
 // O8e — *Not needed*: the ⋮ menu open over the family row.
 // O8f — *after Not needed*: the row gone, the toast with Undo.
 //
+// Home is mounted through [homeScreenFor], the production wiring, never a
+// hand-built HomeScreen with a copied door set.
+//
 // O8e and O8f are states reached by a tap, so they are snapped after the
 // tap from the same mounted screen ([_snap]) rather than pumped fresh.
 @Tags(['F1'])
@@ -24,10 +27,8 @@ import 'package:core_ledger/core_ledger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:rukka_folio/features/home/home_routes.dart';
 import 'package:rukka_folio/features/home/home_scope.dart';
-import 'package:rukka_folio/features/home/screens/s1_home_screen.dart';
-import 'package:rukka_folio/features/home/widgets/home_cards.dart'
-    show SetupStep;
 import 'package:rukka_folio/shared/app_settings.dart';
 import 'package:rukka_folio/shared/prefs.dart';
 import 'package:rukka_folio/shared/widgets/rk_tab_bar.dart';
@@ -95,6 +96,7 @@ void main() {
         }
         final settings = AppSettings(prefs: prefs);
         await settings.load();
+        final scope = HomeScopeController()..select(HomeScope.book(personal));
         await rkDesignCapture(
           tester,
           sid: 'S0.7',
@@ -104,24 +106,19 @@ void main() {
           ledger: ledger,
           child: AppSettingsScope(
             settings: settings,
-            child: HomeScreen(
-              scopeController: HomeScopeController()
-                ..select(HomeScope.book(personal)),
-              onVerb: (_) {},
-              onSetupStep: (_) {},
-              // The production doors (home_routes.dart).
-              setupDoors: const {
-                SetupStep.openingBalances,
-                SetupStep.finishFamily,
-                SetupStep.finishTrust,
-                SetupStep.firstEntry,
-                SetupStep.recoverySheet,
-              },
+            // The production wiring (home_routes.dart homeScreenFor) — the
+            // same doors, search and position wiring the shipped S1 mounts,
+            // with scope on the personal book (R1D review finding 1).
+            child: Builder(
+              builder: (context) =>
+                  homeScreenFor(context, scopeController: scope),
             ),
           ),
         );
-        // The state each capture claims to show.
+        // The state each capture claims to show — through the production
+        // wiring, so the header carries S21's search door.
         expect(find.text('Check your recovery sheet'), findsOneWidget);
+        expect(find.byIcon(Icons.search), findsOneWidget);
         if (then != null) await then(target);
         await _unmount(tester);
         await tester.pump(const Duration(milliseconds: 1));

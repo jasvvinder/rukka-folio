@@ -14,20 +14,25 @@
  ],
  "deviations": [
   {
-   "what": "Heading 'Welcome back' without the name, and a person glyph in the avatar instead of the initials 'HK'",
-   "reason": "otp/verify does not carry the display name (server slice SIGNIN1B's contract has none), so there is no name to show; ⚠️ SPEC in the screen file, owner/server desk item",
+   "what": "c1b/L1 'This number already has books': the heading says 'Welcome back' without the name, and the avatar shows a person glyph instead of the initials 'HK'",
+   "reason": "[screen] otp/verify does not carry the display name (server contract of SIGNIN1B), so there is nothing to show; ⚠️ SPEC in the screen file, owner/server desk item",
    "authority": "ADR 2026-10-05c §2 (the own display name *may* appear after the code); open ⚠️ SPEC s0_2a_has_books_screen.dart"
   },
   {
-   "what": "Body copy (bodyLarge subtitles and leads) draws with Material's inherited tracking at 16 px where the canvas sets 15.5 px untracked, so lines break a word or two earlier than the frame",
-   "reason": "No token defines tracking and RkType.body sets none, so ThemeData merges the M3 default letterSpacing; the fix is one line in rkTextTheme for every screen (open item to the theme owner, as on S0.8). 15.5 px maps to the body role by rule",
-   "authority": "app/lib/shared/theme.dart rkTextTheme — outside this lane's folders; ADR 2026-10-05 §1 (tokens.json decides values: type.body 16)"
+   "what": "c1b/L1 'This number already has books': the avatar and heading sit ~8 px lower than the frame, and the body takes three lines at a wider line height",
+   "reason": "[screen] Follows from the 44 dp back-button row and the body tracking below",
+   "authority": "13 §8 (touch targets ≥ 44 dp); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c1b/L1 'This number already has books' body: body copy draws with Material's inherited tracking at 16 px where the canvas sets 15.5 px untracked, so lines break a word or two earlier than the frame",
+   "reason": "[shared] rkTextTheme (app/lib/shared/theme.dart). No token defines tracking and RkType.body sets none, so ThemeData merges the M3 defaults (bodyLarge 0.5 px, bodyMedium 0.25 px); one line in rkTextTheme (letterSpacing: 0) fixes every screen. 15.5 px maps to the body role (16) by rule",
+   "authority": "app/lib/shared/theme.dart rkTextTheme (phase 2 shared component); ADR 2026-10-05 §1 (tokens decide values: typography.scale.body 16)"
   }
  ],
  "approved_by_owner": false,
- "checked_on": "2026-10-06",
+ "checked_on": "2026-10-10",
  "hashes": {
-  "screens": "39973b2db3d4f59f4e511eb2953c18988c4a2b8c32a17fcc3232e7af24a1049e",
+  "screens": "14179c205d68fccc8ff5b166ad3a6eed59faaa9538a9316ca20384d9175067d6",
   "frames": "24d5ce67898990d6ef8771f9b4928b0231dded019120821b3e0a572db820f697"
  }
 }

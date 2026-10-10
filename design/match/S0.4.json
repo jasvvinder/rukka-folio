@@ -1,0 +1,62 @@
+{
+ "sid": "S0.4",
+ "verdict": "deviates",
+ "frames": [
+  "c1/O4/Name &amp; photo"
+ ],
+ "captures": [
+  "S0.4__default",
+  "S0.4__filled"
+ ],
+ "screen_files": [
+  "app/lib/features/onboarding/screens/s0_4_name_photo_screen.dart"
+ ],
+ "deviations": [
+  {
+   "what": "Canvas 1 'O4 Name & photo': a back chevron and a six-segment step-progress bar (four filled) sit above the title; the app has neither",
+   "reason": "[shared] onboarding step header (none exists): a back chevron and a six-segment step-progress bar drawn on every sign-up step frame; the app has no such component",
+   "authority": "ADR 2026-10-05 §1 (the frame decides components and placement); 13 §3.2 rows S0.3/S0.4"
+  },
+  {
+   "what": "Canvas 1 O4 Name & photo: the photo picker is an 84 px dashed-outline circle with a camera glyph and the word 'Photo', placed to the LEFT of the name field on one row; the app draws an 80 px filled beige circle with an add-photo icon, centred ABOVE the field, with 'Add a photo (optional)' under it",
+   "reason": "[screen] DESIGN-PACK O4 asks only for 'optional circular photo picker'; the frame decides its placement and form",
+   "authority": "design/DESIGN-PACK.md §O4; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "Canvas 1 O4 Name & photo: the explanation sits BELOW the field in two muted lines — 'Your family sees this when they approve your entries.' and 'The photo is optional and stays on the phones of people who share a book with you.'; the app puts one subtitle under the title in full ink — 'Shown in approvals and the verification ceremony — not shared beyond your books'",
+   "reason": "[screen] DESIGN-PACK O4 rules the muted line 'Your family sees this when they approve your entries.'; the app's copy and placement differ",
+   "authority": "design/DESIGN-PACK.md §O4"
+  },
+  {
+   "what": "Canvas 1 O4 Name & photo: the field's label 'Your name' is small and muted and the typed name is large (~20 px); in the app the label is navy (focused primary) and the value is body size (16 px); the empty field shows a hint 'e.g. Sunita Kaur' the frame does not draw (the frame shows only the filled state)",
+   "reason": "[shared] text field (InputDecoration theme): label colour and value size come from the shared theme",
+   "authority": "ADR 2026-10-05 §1 (components)"
+  },
+  {
+   "what": "Canvas 1 O4 Name & photo (filled): the caret sits after 'Amrit Kaur'; in the app's filled capture the caret is drawn over the last letter",
+   "reason": "[shared] text field — observed, not diagnosed; likely the theme's inherited letterSpacing (see the tracking deviation)",
+   "authority": "app/lib/shared/theme.dart (outside this lane)"
+  },
+  {
+   "what": "Canvas 1 O4 Name & photo: draws only the filled state with Continue awake; the app's empty state adds 'Enter your name to continue' above a disabled (grey-filled) Continue — a state the frame does not draw",
+   "reason": "[screen] 07 §1 rule 6 (no dead ends): a disabled button says why. The disabled fill is the shared primary button's disabled style, which c1 O3 draws as an outlined pale button instead",
+   "authority": "07 §1 rule 6 🔒; c1/O3 Purpose picker (disabled Continue pattern)"
+  },
+  {
+   "what": "Canvas 1 O4 Name & photo: Continue is square-cornered ~52 px within a ~20 px gutter; app ~48 px rounded inside 24 px",
+   "reason": "[shared] primary button (FilledButton theme, app/lib/shared/theme.dart): ~48 px tall with RkRadius corners, inset by the ~24 px screen padding",
+   "authority": "design/tokens/tokens.json radius + the canvas's button component; ADR 2026-10-05 §1 (the frame decides components)"
+  },
+  {
+   "what": "Canvas 1 O4 Name & photo: content inset is ~21 px from the screen edge; the app's is 24 px (tokens.json space.gutter is 16)",
+   "reason": "[shared] page gutter: the onboarding screens pad with RkSpace.s6 (24); neither matches the frame nor the 16 px gutter token",
+   "authority": "design/tokens/tokens.json space.gutter (16)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "6ccc3bf23b9fbb40609d71d2685fcd848c9fd0dc903be83c8401d3f211c7269f",
+  "frames": "6ba72bea4f07bf52bac361536632e0f966a5498e6903a825efd5aa4b677b5c6e"
+ }
+}

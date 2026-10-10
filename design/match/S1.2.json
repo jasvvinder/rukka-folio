@@ -1,0 +1,61 @@
+{
+ "sid": "S1.2",
+ "verdict": "deviates",
+ "frames": [
+  "c12/S1.2/Two chips, not a sheet",
+  "c7/S1.2/Scope switcher · two books, two chips",
+  "na/S1.2/S1.2"
+ ],
+ "captures": [
+  "S1.2__two-chips"
+ ],
+ "screen_files": [
+  "app/lib/features/home/widgets/home_scope_switcher.dart",
+  "app/lib/features/home/screens/s1_home_screen.dart",
+  "app/lib/features/home/home_routes.dart",
+  "app/lib/shared/widgets/rk_tab_bar.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c7/c12 S1.2 *Scope switcher · two books, two chips*: the two chips sit centred under a 'Home' title with a search icon; the frame puts them at the left of the header with no title and a settings-like icon at the right",
+   "reason": "[shared] app bar/header",
+   "authority": "ADR 2026-10-10b §3; 13 §2.2 🔒"
+  },
+  {
+   "what": "c7/c12 S1.2: the selected chip is filled in the saffron accent with a ✓ and reads 'Me'; the frame's selected chip is paper with a navy border, an initials avatar ('RS'), the book name ('Rahul’s book') and a chevron, and the other chip ('Sharma Textile') is paper with a hairline",
+   "reason": "[shared] chip (scope chip) — the avatar in the chip is also what carries 13 §2.3 who-am-I",
+   "authority": "ADR 2026-10-10b §3; 13 §2.3 🔒"
+  },
+  {
+   "what": "c7/c12 S1.2: hero caption 'Total money you have' in sentence case at title size, '₹ ' with a space before the figure, and the breakdown in full ink with no separators and every money account (incl. 'Cash A/c ₹0'); the frame uses an uppercase letter-spaced caption, '₹61,500' set tight, a muted breakdown joined by ' · ' listing only accounts that hold money, and a hairline under the hero",
+   "reason": "[shared] hero",
+   "authority": "ADR 2026-10-10b §3 (hero follows the canvas); 07 §4 🔒 (hero = sum of money accounts with breakdown — content unchanged)"
+  },
+  {
+   "what": "c7/c12 S1.2: the verification card and the money-account rows of the position card are drawn; the frame shows only You will get / You will give under the hero",
+   "reason": "[canvas-wrong] for the verification card; the money-account rows stay (02 §9)",
+   "authority": "07 §4 🔒; 02 §9 (F1-07-49)"
+  },
+  {
+   "what": "c7/c12 S1.2: no explanatory line; the frame closes with 'Tap the other chip to see the shop’s books. Both are yours; the shop’s figures never mix into this total.'",
+   "reason": "[screen] copy from the frame, not built",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c7/c12 S1.2: the frame draws no verb buttons on this Home; the app pins the four verbs",
+   "reason": "[canvas-wrong] Home's four verb tiles are pinned on every Home",
+   "authority": "ADR 2026-09-03b §1; 07 §4 🔒 (verb buttons)"
+  },
+  {
+   "what": "c7/c12 S1.2: the tab bar carries the docked centre (+) and no Inbox count badge; the frame draws four tabs (Home · Ledger · Inbox with badge · Menu) and no (+)",
+   "reason": "[shared] bottom bar/shell — to fix in phase 2: the shell follows the canvas",
+   "authority": "ADR 2026-10-10b §2 🔒 (F1-1010b-1 @M13)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "ef3cfcb594bca12bfb161b400fe6a769ae5235ea460a0f486538b3785207b073",
+  "frames": "e90a76c3cbb04ea810ad13b3e0b41fd9a8426008bc4f3b372c34c1a3f32aaa3a"
+ }
+}

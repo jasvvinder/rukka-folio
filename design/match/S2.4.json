@@ -1,0 +1,45 @@
+{
+ "sid": "S2.4",
+ "verdict": "deviates",
+ "frames": [
+  "c2/S2.4/Fix an old entry",
+  "c2/S2.4/Cash count difference",
+  "c2/S2.4/Write off a balance",
+  "c2/S2.4/Opening balance correction"
+ ],
+ "captures": [
+  "S2.4__cash-count-difference"
+ ],
+ "screen_files": [
+  "app/lib/features/cash_count/screens/s5_5_cash_count_screen.dart",
+  "app/lib/features/entry/entry_routes.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c2 S2.4 *Cash count difference*: the app asks with an AlertDialog over S5.5 ('Record the difference?', 'You counted ₹600 less than the book. Saving records one adjustment, so the book matches the cash.', 'Go back' / 'Record it'); the frame is a full screen 'Cash count difference' with a back chevron, 'ADJUSTMENT 1 OF 4', the heading 'The count is ₹600 less than the book', label/value rows (Book says · You counted · Difference · Reason), a ruled 'WHAT THIS WILL POST' card naming the entry, and a solid 'Post the difference'",
+   "reason": "[screen] the wizard is a confirmation dialog, not the drawn screen",
+   "authority": "ADR 2026-09-03b §2 🔒 (S5.5 on Save count is its one door); 13 §3.2 row S2.4"
+  },
+  {
+   "what": "c2 S2.4 *Fix an old entry*: no screen — the locked day's 'Fix an old entry' is a callback with no wizard behind it",
+   "reason": "[screen] not built (phase 3)",
+   "authority": "ADR 2026-09-03b §2 🔒; 02 §5; ADR 2026-10-10b §1"
+  },
+  {
+   "what": "c2 S2.4 *Write off a balance*: no screen — the S5 Write off action is disabled with its reason",
+   "reason": "[screen] not built (phase 3)",
+   "authority": "ADR 2026-09-03b §2 🔒; 02 §7; 07 §1 rule 6 🔒"
+  },
+  {
+   "what": "c2 S2.4 *Opening balance correction*: no screen — S13 Settings → Your books → Opening balances is disabled with its reason",
+   "reason": "[screen] not built (phase 3)",
+   "authority": "ADR 2026-09-03b §2 🔒 (S13 → Your books → Opening balances)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "e8b2359d1cc4d6fda3328df37de857dfc3aac134909e953d6376c88b9284ae4e",
+  "frames": "ddd3b4a68a56ba81abc584ddf5447e0e6b70b59b75bc63eef105df85fcc9d24f"
+ }
+}

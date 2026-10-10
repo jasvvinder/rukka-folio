@@ -2,77 +2,109 @@
  "sid": "S15.3",
  "verdict": "deviates",
  "frames": [
-  "c1/S15.3/Enter PIN · Face ID above the boxes",
-  "c1/S15.3/Wrong PIN · tries remaining",
+  "c1/S15.3/Enter PIN · Face ID above the boxes · iPhone",
+  "c1/S15.3/Enter PIN · Fingerprint above the boxes · Android",
+  "c1/S15.3/Wrong PIN · tries remaining · iPhone",
+  "c1/S15.3/Wrong PIN · tries remaining · Android",
   "c1/S15.3/Forgot PIN · a code, not a lockout",
   "c1b/S15.3/Enter PIN · Face ID above the boxes",
   "c1b/S15.3/Wrong PIN · tries remaining",
-  "c1b/S15.3/Forgot PIN · a code, not a lockout"
+  "c1b/S15.3/Forgot PIN · a code, not a lockout",
+  "c1b/U3/Forgot PIN · enter the code",
+  "c1b/U3b/Forgot PIN · confirm it’s you",
+  "c1b/U4/Set a new PIN"
  ],
  "captures": [
   "S15.3__default",
   "S15.3__wrong-pin",
   "S15.3__forgot-pin",
   "S15.3__forgot-reenrolled",
-  "S15.3__forgot-reenrolled-before-open"
+  "S15.3__forgot-reenrolled-before-open",
+  "S15.3__forgot-send-code-lands"
  ],
  "screen_files": [
   "app/lib/features/lock/screens/s15_lock_screen.dart",
   "app/lib/features/lock/widgets/pin_pad.dart",
   "app/lib/features/lock/widgets/face_id_glyph.dart",
-  "app/lib/features/onboarding/widgets/sealed_mark.dart"
+  "app/lib/features/onboarding/widgets/sealed_mark.dart",
+  "app/lib/features/auth/screens/s0_2_phone_otp_screen.dart"
  ],
  "deviations": [
   {
-   "what": "Enter PIN / Wrong PIN are laid out from the top with the tiled keypad above 'Forgot PIN'; the c1 frames centre the column and draw no keypad",
-   "reason": "The boxes need an input surface (no dead end); the c3 S15 'PIN instead · six digits' frame draws this same state with the in-app keypad, and one shared PinKeypad keeps S15, S15.3 and S0.8 from drifting. A system keyboard would also expose the PIN to third-party keyboards",
-   "authority": "ADR 2026-10-05 §1 via c3/S15/PIN instead · six digits; 07 §1 rule 6 (no dead ends)"
+   "what": "c1/S15.3 'Enter PIN · Fingerprint above the boxes · Android' and 'Wrong PIN · tries remaining · Android' (S15.3__default__android360, S15.3__wrong-pin__android360): the outlined button: the Android capture (__android360) draws the Face ID glyph and the word 'Face ID' / 'Face not recognised' where the Android frame draws a fingerprint glyph, 'Fingerprint' / 'Fingerprint not recognised' and the caption 'Touch the sensor'",
+   "reason": "[shared] FaceIdGlyph (app/lib/features/lock/widgets/face_id_glyph.dart) and the lock.biometric.* ARB keys name one method on every phone. The app does not yet name the method the phone uses (Face ID · Touch ID · Fingerprint · Face unlock). This is a defect against a 🔒 ruling, not a style choice: 'an Android fingerprint phone is never told Face ID'. It needs the gate to report which method it holds — a lock-feature change, not a re-skin",
+   "authority": "ADR 2026-10-08 §3 🔒 (F1-1008-3 @M13); PLAN desk 179 (WORDS179) / desk 166"
   },
   {
-   "what": "The next empty box is edged in primary (c3 draws it; c1 does not)",
-   "reason": "Same state drawn two ways; the c3 frame's focus cue is kept as the visible-focus aid",
-   "authority": "c3/S15/PIN instead · six digits; 13 §8 (focus visible)"
+   "what": "c1/S15.3 'Enter PIN · Face ID above the boxes · iPhone', 'Wrong PIN · tries remaining · iPhone' and the c1b twins (S15.3__default, S15.3__wrong-pin): laid out from the top with the tiled keypad above 'Forgot PIN'; the frames centre the column and draw no keypad",
+   "reason": "[canvas-wrong] The boxes need an input surface or the state is a dead end; c3/S15 'PIN instead · six digits' draws this same state with the in-app keypad, and one shared PinKeypad keeps S15, S15.3 and S0.8 from drifting. A system keyboard would also expose the PIN to third-party keyboards",
+   "authority": "07 §1 rule 6 🔒 (no dead ends); c3/S15 'PIN instead · six digits'; PLAN desk 155"
   },
   {
-   "what": "Forgot PIN page has no field showing the registered number",
-   "reason": "The lock mounts before any session (cold_start_gate.dart) and LockScope carries no number; inventing one is worse than leaving it out. The reset flow behind 'Send the code' owns the number. ⚠️ SPEC left at _ForgotPage",
-   "authority": "⚠️ SPEC: s15_lock_screen.dart _ForgotPage (open item, lane M13-KEY145B)"
+   "what": "c1/S15.3 'Enter PIN · Face ID above the boxes · iPhone' (S15.3__default): the next empty box is edged in primary; the c1/c1b frames do not draw it (c3 does)",
+   "reason": "[canvas-wrong] Same state drawn two ways; the c3 focus cue is kept as the visible-focus aid",
+   "authority": "13 §8 (focus visible); c3/S15 'PIN instead · six digits'"
   },
   {
-   "what": "On a PIN-only phone the forgot page says the recovery-ladder copy (lock.forgot.body_pin_only) and the tries row says 'before the PIN switches off'",
-   "reason": "A code to the number alone is not the reset on a phone with no biometric (desk 147); conservative reading (c)",
+   "what": "c1/S15.3 'Enter PIN' / 'Wrong PIN' (S15.3__default, S15.3__wrong-pin): the sealed mark draws at 48 px where the c1 frames draw 52 px; titles draw at 20 px (section role) where the frames draw ~17–18 px",
+   "reason": "[screen] Built to c3/S15 'PIN instead · six digits' (48 px mark), since one widget state cannot carry both sizes; the title follows the type-role rule ([shared] type scale)",
+   "authority": "ADR 2026-10-05 §1; tokens.json typography.scale.section, space"
+  },
+  {
+   "what": "c1/S15.3 'Wrong PIN · tries remaining · iPhone' (S15.3__wrong-pin): '2 tries left before you'll need a code on your number' is drawn with a straight apostrophe where the frame sets ’, and the line sits ~30 px under the boxes where the frame leaves ~43 px; c1/S15.3 'Forgot PIN · a code, not a lockout' (S15.3__forgot-pin): 'We'll send a code…' likewise straight where the frame sets ’",
+   "reason": "[screen] ARB copy in lock_en.arb (lock.pin.tries_left, lock.forgot.body) uses U+0027 where the canvas sets U+2019 (as auth_en.arb already does, e.g. update.offline). The tighter spacing follows the keypad layout above",
+   "authority": "ADR 2026-10-05 §1; 01 §1 (copy lives in ARB)"
+  },
+  {
+   "what": "c1/S15.3 and c1b/S15.3 'Forgot PIN · a code, not a lockout' (S15.3__forgot-pin): no field showing the registered number '+91 98765 43210'",
+   "reason": "[screen] The lock mounts before any session (cold_start_gate.dart) and LockScope carries no number; inventing one is worse than leaving it out. ⚠️ SPEC at _ForgotPage",
+   "authority": "⚠️ SPEC s15_lock_screen.dart _ForgotPage (open item)"
+  },
+  {
+   "what": "c1/S15.3 'Forgot PIN · a code, not a lockout' (S15.3__forgot-pin): the filled 'Send the code' button carries the theme's rounded corners (radius.md 8) and sits inset from the edges where the frame draws it square-cornered",
+   "reason": "[shared] FilledButton theme (app/lib/shared/theme.dart filledButtonTheme, tokens radius.md). The canvases disagree among themselves (c1b L1/L2/L8 draw it rounded; c1 S15.3 and c3 S19.1 draw it square), so the shared component needs one ruling",
+   "authority": "app/lib/shared/theme.dart filledButtonTheme; tokens.json radius.md (phase 2 shared component)"
+  },
+  {
+   "what": "c1/S15.3 'Forgot PIN · a code, not a lockout' body (takes three lines on Android where the frame takes two): body copy draws with Material's inherited tracking at 16 px where the canvas sets 15.5 px untracked, so lines break a word or two earlier than the frame",
+   "reason": "[shared] rkTextTheme (app/lib/shared/theme.dart). No token defines tracking and RkType.body sets none, so ThemeData merges the M3 defaults (bodyLarge 0.5 px, bodyMedium 0.25 px); one line in rkTextTheme (letterSpacing: 0) fixes every screen. 15.5 px maps to the body role (16) by rule",
+   "authority": "app/lib/shared/theme.dart rkTextTheme (phase 2 shared component); ADR 2026-10-05 §1 (tokens decide values: typography.scale.body 16)"
+  },
+  {
+   "what": "No frame: PIN-only phone — the forgot page says the recovery-ladder copy (lock.forgot.body_pin_only) and the tries row says 'before the PIN switches off'",
+   "reason": "[screen] A code to the number alone is not the reset on a phone with no biometric (desk 147); conservative reading",
    "authority": "ADR 2026-10-05b §1 and its Open item (desk 147)"
   },
   {
-   "what": "Titles 'Unlock to open your books' / 'Enter your PIN' / 'Wrong PIN' draw in titleLarge (20 w500) where the canvas draws 17–19 px at 400–600",
-   "reason": "A canvas size maps to its type role, never a literal; the nearest role to 17–19 px is section (titleLarge)",
-   "authority": "ADR 2026-10-05 §1 (tokens.json decides values); design/tokens/tokens.json type.section"
+   "what": "No frame: gate invalidated — in the app (S15.3__forgot-reenrolled) the body says the face or fingerprint settings changed and the one action is 'Prove it's you' (S11 ladder); at cold start (S15.3__forgot-reenrolled-before-open) the body says only the PIN opens the app, with no action button",
+   "reason": "[screen] A changed biometric set cannot be the reset (06 §4.4); before the app is composed no ladder entry exists, and a button that does nothing is a dead end. Nearest frame c1/S15.3 'Forgot PIN · a code, not a lockout'",
+   "authority": "ADR 2026-10-06 §4; 07 §1 rule 6 🔒"
   },
   {
-   "what": "Filled 'Send the code' button carries the theme's rounded corners; the canvas draws it square",
-   "reason": "Corner radius comes from the app-wide FilledButton theme (RkRadius.md), not this screen; changing it is foundation work for every screen at once",
-   "authority": "app/lib/shared/theme.dart filledButtonTheme (tokens radius.md) — outside this lane's folders"
+   "what": "c1b/U3 'Forgot PIN · enter the code' (S15.3__forgot-send-code-lands): 'Send the code' opens S0.2 at its number step — 'Your phone number', the I'm-new subtitle, an empty field and a disabled 'Send code', with no back chevron — where the frame shows the code step ('Enter the code', 'Sent by SMS to +91 98765 43210.', boxes, 'Send again in 0:24') with a back chevron",
+   "reason": "[screen] Only the reset's first step exists: the forgot door pushes the S0.2 route because the lock holds no number and the reverification flow is not built (⚠️ SPEC main.dart _onForgotPin). The missing chevron leaves iOS with only the edge-swipe back — flagged as an open item against 07 §1 rule 6",
+   "authority": "07 §5.6 🔒; ADR 2026-09-05d §5; ⚠️ SPEC app/lib/main.dart _onForgotPin; 07 §1 rule 6 🔒"
   },
   {
-   "what": "Body copy (bodyLarge / bodyMedium: subtitles, the forgot-page body, status lines) draws with Material's inherited tracking — 0.5 px on bodyLarge, 0.25 px on bodyMedium — at 16 px, where the canvas sets 15.5 px untracked; the O4b subtitle wraps to four lines where the frame takes three, and the S15.3 forgot body breaks one word earlier",
-   "reason": "No token defines tracking (tokens.json type.scale carries none) and RkType.body sets no letterSpacing, so ThemeData merges rkTextTheme over the M3 defaults (theme_data.dart `defaultTextTheme.merge(textTheme)`; typography.dart bodyLarge letterSpacing 0.5). The fix is one line in rkTextTheme (letterSpacing: 0 for every slot) and changes every screen at once — foundation work outside this lane's folders; overriding it per screen would hide the defect. 15.5 px maps to the body role (16 px) by rule. Open item to the theme owner (KEY145B review finding 4)",
-   "authority": "app/lib/shared/theme.dart rkTextTheme — outside this lane's folders (open item); ADR 2026-10-05 §1 (tokens.json decides values: type.body 16)"
+   "what": "c1b/U3b 'Forgot PIN · confirm it's you': not built — no step where, after the code, the biometric confirms the person ('The code proved the number. Face ID proves it is you holding this phone.', the system sheet, 'Cancel')",
+   "reason": "[screen] The reset's biometric step is not built (same ⚠️ SPEC as above)",
+   "authority": "07 §5.6 🔒 (OTP + biometric); ADR 2026-09-05d §5"
   },
   {
-   "what": "Sealed mark at 48 px in Enter PIN / Wrong PIN where the c1 frames draw 52 px (cooldown and disabled use the c1 52 px; the face states the c3 60 px)",
-   "reason": "Enter PIN / Wrong PIN are the same widget state as c3 'PIN instead · six digits' and are built to that frame (keypad, layout), which draws the mark at 48 px; one state cannot carry both sizes. Sizes come from tokens (RkSpace.s12 = 48, s12 + s1 = 52, s12 + s3 = 60)",
-   "authority": "c3/S15/PIN instead · six digits (48 px); ADR 2026-10-05 §1"
+   "what": "c1b/U4 'Set a new PIN': not reached — the reset never arrives at 'Choose a new PIN' (six boxes, 'Six digits. You'll type it twice.', keypad); S0.8's set-PIN screen exists but nothing links the forgot flow to it",
+   "reason": "[screen] Same open reset flow; S0.8 is owned by onboarding",
+   "authority": "07 §5.6 🔒; ⚠️ SPEC app/lib/main.dart _onForgotPin"
   },
   {
-   "what": "Forgot page when the gate was invalidated: inside the app (capture S15.3__forgot-reenrolled) the body says the face or fingerprint settings changed so they cannot prove it's you, and the one action is 'Prove it's you' to the S11 recovery ladder; at cold start (S15.3__forgot-reenrolled-before-open) the body says only the PIN opens the app and the books are not lost, with no action button — the back chevron returns to the PIN",
-   "reason": "A biometric set changed since the PIN was set is the 06 §4.4 relative-enrols-a-face case, so code + biometric cannot be the reset; the ladder is the conservative reading, as for a PIN-only phone (desk 147). Before the app is composed no ladder entry exists, and a button that does nothing is a dead end (GATE1 review finding 2). The 'Prove it's you' label also replaces 'Send the code' on the PIN-only ladder door, which never sent a code",
-   "authority": "ADR 2026-10-06 §4; 07 §1 rule 6; ⚠️ SPEC s15_lock_screen.dart header + cold_start_gate.dart (S11 entry from the cold-start S15 not built, owner item)"
+   "what": "c3/S15 'PIN instead · six digits' and c1/S15.3 'Enter PIN' frames (S15__pin-instead, S15.3__default): the six PIN boxes draw smaller and closer together — about 43 px wide with ~9 px gaps and slightly shorter, where the frames draw ~46 px boxes with ~11 px gaps",
+   "reason": "[shared] PIN box row (the same component on S0.8, S15, S15.3): box size and gap come from the shared widget, not the screen",
+   "authority": "canvas c3/S15 and c1/S15.3 frames (ADR 2026-10-05 §1); orchestrator check of build/design_match/pairs/S15.png on 10 Oct, after the R1C review filed it"
   }
  ],
  "approved_by_owner": false,
- "checked_on": "2026-10-06",
+ "checked_on": "2026-10-10",
  "hashes": {
-  "screens": "79338c9c12d1cee89a9ebedeb744a4ea9a6e98c78f6aab8cf36d2b05609ba487",
-  "frames": "148300f80fbbf2726284bfd33ab238f35cdad09b10f1555b5a56c9453ace7cec"
+  "screens": "539707be610df7f4d8dc247797b7701b18d9cbd8c2c632fb9d0777e83335020e",
+  "frames": "e4b052b0a9af1398c42f456de0e8bc02ab621684723bdf716203b4f35f04c349"
  }
 }

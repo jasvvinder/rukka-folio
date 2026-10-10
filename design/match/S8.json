@@ -1,0 +1,67 @@
+{
+ "sid": "S8",
+ "verdict": "deviates",
+ "frames": [
+  "c15/S8/Menu · a hub, not a dump · iPhone",
+  "c15/S8/Menu · a hub, not a dump · Android",
+  "c15/S8/Menu · scrolled to the end · Legal, then the version"
+ ],
+ "captures": [
+  "S8__default",
+  "S8__end"
+ ],
+ "screen_files": [
+  "app/lib/features/menu/screens/s8_menu_screen.dart",
+  "app/lib/features/menu/widgets/menu_row.dart",
+  "app/lib/features/menu/menu_routes.dart",
+  "app/lib/shared/widgets/rk_tab_bar.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c15 S8 *Menu · a hub, not a dump · iPhone* (and *· Android*): a 'Menu' app bar (centred on iOS, left on Android) on a lighter surface with a rule; the frame opens with a profile row — initials avatar 'AK', 'Amrit Kaur', 'Admin in this book', chevron (to S16 My account) — and no title",
+   "reason": "[shared] app bar/header; the profile row is [screen] (it carries 13 §2.3 who-am-I, and S16's parent is S8)",
+   "authority": "13 §2.3 🔒; 13 §3.2 row S16; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c15 S8 *Menu · a hub, not a dump · iPhone* (and *· Android*): one flat list; the frame groups rows under shaded caption bands 'THE BOOKS' · 'KEEPING THEM SAFE' · 'THIS APP'",
+   "reason": "[screen] grouping",
+   "authority": "ADR 2026-10-05 §1; 07 §2 🔒 (row order unchanged)"
+  },
+  {
+   "what": "c15 S8 *Menu · a hub, not a dump · iPhone* (and *· Android*): rows have no leading icon, sit on the page with no dividers, and the subtitle wraps under the title; the frame draws a line icon per row (document, calendar, people, download, lock, card, settings, help, shield) on paper rows with hairline dividers",
+   "reason": "[shared] list row",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c15 S8 *Menu · a hub, not a dump · iPhone* (and *· Android*): the app draws a 'Year close' row (disabled, clock, 'A financial year can be certified once it has ended.') between Close the month and Books & members; the frame has no Year close row",
+   "reason": "[canvas-wrong] Year close is a Menu door per book",
+   "authority": "07 §13 🔒 (Year close: Menu → per book); 13 §3.2 row S10.4 (parent S8); F1-07-229"
+  },
+  {
+   "what": "c15 S8 *Menu · a hub, not a dump · iPhone* (and *· Android*): subtitles are static descriptions ('Day book, cash book, statements, trial balance and more.', 'Your books, and adding a business.', 'Platform key sync, save your recovery sheet…', 'Linked devices, guardians…', 'Your plan, renewal…', 'Language, appearance, auto-lock, opening balances, export.'); the frame shows live status ('Day book, statements, position', '4 people · 1 waiting', 'iCloud Keychain on · sheet kept safe' / Android 'Google Password Manager on · sheet kept safe', '3 phones signed in', 'Family plan · renews 12 Apr', 'Language, PIN, export')",
+   "reason": "[screen] live row status not built",
+   "authority": "ADR 2026-10-05 §1; 07 §2 🔒"
+  },
+  {
+   "what": "c15 S8 *Menu · a hub, not a dump · iPhone* (and *· Android*): 'Close the month' subtitle reads 'Aug 2026 open · 3 items waiting'; the frame 'August open · 3 items waiting'",
+   "reason": "[screen] copy",
+   "authority": "07 §1 rule 5 🔒; ADR 2026-09-03"
+  },
+  {
+   "what": "c15 S8 *Menu · scrolled to the end · Legal, then the version*: 'Help' with 'Questions and answers, contact, and a report you can send.' where the frame writes 'Help on WhatsApp' / 'We usually reply the same day'; Legal's subtitle adds 'and what we can and cannot see'; no 'Rukka Folio 2.4.1' version line under Legal",
+   "reason": "[screen] copy and the version footer",
+   "authority": "13 §3.2 rows S17, S18; 07 §2 🔒 (Legal — terms, privacy, licences, what we can and cannot see)"
+  },
+  {
+   "what": "c15 S8 *Menu · a hub, not a dump · iPhone* (and *· Android*): the tab bar carries the docked centre (+) and no Inbox count badge; the frame draws four tabs (Home · Ledger · Inbox with badge · Menu) and no (+)",
+   "reason": "[shared] bottom bar/shell — to fix in phase 2: the shell follows the canvas",
+   "authority": "ADR 2026-10-10b §2 🔒 (F1-1010b-1 @M13)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "10683963b37d1059b09be11f6e45440b45eff5e860d55e445fd660d9aa8ea06d",
+  "frames": "f841aa9abc8e75805b48fdd212f46cb2f97492f5da886bfabae315b652f435bf"
+ }
+}

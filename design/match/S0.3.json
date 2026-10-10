@@ -1,0 +1,60 @@
+{
+ "sid": "S0.3",
+ "verdict": "deviates",
+ "frames": [
+  "c1/O3/Purpose picker · four cards",
+  "c11/O3/Purpose · chooses Myself",
+  "c12/O3/Purpose · chooses My business",
+  "c13/O3/Purpose · chooses My family",
+  "c14/O3/Purpose · chooses Our trust"
+ ],
+ "captures": [
+  "S0.3__default"
+ ],
+ "screen_files": [
+  "app/lib/features/onboarding/screens/s0_3_purpose_screen.dart"
+ ],
+ "deviations": [
+  {
+   "what": "Canvas 1 'O3 Purpose picker · four cards' and c11–c14 'O3 Purpose · chooses …': a back chevron and a six-segment step-progress bar (three filled) sit above the title; the app has neither",
+   "reason": "[shared] onboarding step header (none exists): a back chevron and a six-segment step-progress bar drawn on every sign-up step frame; the app has no such component",
+   "authority": "ADR 2026-10-05 §1 (the frame decides components and placement); 13 §3.2 rows S0.3/S0.4"
+  },
+  {
+   "what": "Canvas 1 O3 Purpose picker: each card is a horizontal row — a line-drawn illustration (~50 px: a ledger page · a shopfront · a house with three windows · a domed building with a flag) on the left, label and description to its right; the app stacks a 20 px Material icon (person · briefcase · family · bank columns) above the label",
+   "reason": "[screen] DESIGN-PACK O3 asks for 'large illustrated cards … line-drawn, warm'; no illustration assets exist and the card lays out in a column",
+   "authority": "design/DESIGN-PACK.md §O3; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "Canvas 1 O3 Purpose picker: cards are filled with the raised paper colour (lighter than the page) with a hairline border and ~10 px corners; the app's cards take the page colour with a hairline border",
+   "reason": "[shared] card surface (raised fill): the canvas draws every card on the raised paper tone (also c1 O1, c1 O5, c1 O7a/O7b); the app's onboarding cards sit on the page colour",
+   "authority": "tokens.json colour roles (surface raised); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "Canvas 1 O3 Purpose picker: descriptions read 'One private book' (Myself) and 'Joint + each member' (My family); the app reads 'Track your own money' and 'Shared with the people at home'. My business and Our trust match",
+   "reason": "[screen] neither DESIGN-PACK O3 nor 13 §3.2 rules these two lines; the frame and the ARB disagree and the owner picks — reported in open",
+   "authority": "design/DESIGN-PACK.md §O3 (silent on these two lines); 13 §3.2 row S0.3"
+  },
+  {
+   "what": "Canvas 1 O3 Purpose picker: a muted line 'You can change this later.' sits under the cards; the app has no such line",
+   "reason": "[screen] DESIGN-PACK O3: 'A muted line beneath: \"You can change this later.\"'",
+   "authority": "design/DESIGN-PACK.md §O3"
+  },
+  {
+   "what": "Canvas c11–c14 'O3 Purpose · chooses Myself / My business / My family / Our trust': a tapped card takes a navy outline and a check after its label, and a 'Continue' button at the foot wakes (asleep on c1 O3); the app has no selected state and no Continue — a tap hands the purpose straight to the next step",
+   "reason": "[screen] the app's tap-to-advance was chosen when S0.3 was built (s0_3_purpose_screen.dart header); four canvases now draw select-then-continue. Interaction model is the owner's call — reported in open",
+   "authority": "ADR 2026-10-05 §1 (the frame decides components); 13 §3.2 row S0.3"
+  },
+  {
+   "what": "Canvas 1 O3 Purpose picker: labels are w600 at ~17 px; the app draws them at the label role (w500, ~16 px), and the descriptions are set wider",
+   "reason": "[shared] theme text styles (app/lib/shared/theme.dart rkTextTheme): Material's inherited letterSpacing (0.5 bodyLarge, 0.25 bodyMedium, 0.1–0.5 labels) is never zeroed, so every run of body/label text is wider than the canvas's untracked Mukta",
+   "authority": "tokens.json type.scale carries no tracking; open item from the S0.8 record (KEY145B review finding 4); ADR 2026-10-05 §1"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "ef716afcc51a8285d9e45a0251e421bcdf000091ce03a3ece33ac2f67f0d4ad3",
+  "frames": "59261b8db18961bb475377d17f25f2b0a3a487be0422bb6abfa9a84e3c12b3d6"
+ }
+}

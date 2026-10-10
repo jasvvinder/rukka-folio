@@ -14,25 +14,25 @@
  ],
  "deviations": [
   {
-   "what": "'Yes, it's with me' is disabled (locked colours, lock glyph in place of the chevron) with a reason line under it: 'Approving from your old phone isn't in this version of the app yet. Choose “No” below for now — …'",
-   "reason": "Own-device linking (S0.2c/S0.2d, 04 §9.1) is not built and not ruled for build; ceremony_sessions.dart fails closed on it. 13 §4.3 disabled-with-reason and 07 §1 rule 6 (no dead ends): the reason names the way that works. Reason copy is a draft",
-   "authority": "ADR 2026-10-05c §3 + PLAN SIGNIN2"
+   "what": "c1b/L5 'Found you · is the old phone with you?': 'Yes, it's with me' is disabled (muted colours, a lock glyph in place of the chevron) with an info line under it ('Approving from your old phone isn't in this version of the app yet. Choose “No” below for now — …'), pushing 'No, it's lost or reset' ~100 px down",
+   "reason": "[screen] Own-device linking (S0.2c, S0.2d; 04 §9.1) is not built and not ruled for build (PLAN desk 160 SIGNIN2); ceremony_sessions.dart fails closed on it. Disabled-with-reason (13 §4.3) and no dead end (07 §1 rule 6): the reason names the way that works. Reason copy is a draft",
+   "authority": "ADR 2026-10-05c §3 🔒; PLAN desk 160 (SIGNIN2); 07 §1 rule 6"
   },
   {
-   "what": "Header reads 'Welcome back' with a person glyph — no name, no initials",
-   "reason": "otp/verify does not carry the display name (SIGNIN1B contract); ⚠️ SPEC in the screen file",
-   "authority": "ADR 2026-10-05c §2 (the own display name *may* appear); open ⚠️ SPEC s0_2b_found_you_screen.dart"
+   "what": "c1b/L5 'Found you · is the old phone with you?': the header reads 'Welcome back' with a person glyph — no name, no initials",
+   "reason": "[screen] otp/verify does not carry the display name (SIGNIN1B contract); ⚠️ SPEC in the screen file",
+   "authority": "ADR 2026-10-05c §2; open ⚠️ SPEC s0_2b_found_you_screen.dart"
   },
   {
-   "what": "Body copy (bodyLarge subtitles and leads) draws with Material's inherited tracking at 16 px where the canvas sets 15.5 px untracked, so lines break a word or two earlier than the frame",
-   "reason": "No token defines tracking and RkType.body sets none, so ThemeData merges the M3 default letterSpacing; the fix is one line in rkTextTheme for every screen (open item to the theme owner, as on S0.8). 15.5 px maps to the body role by rule",
-   "authority": "app/lib/shared/theme.dart rkTextTheme — outside this lane's folders; ADR 2026-10-05 §1 (tokens.json decides values: type.body 16)"
+   "what": "c1b/L5 'Found you · is the old phone with you?' lead and card subtitles (the 'No' card's subtitle wraps to two lines where the frame keeps one): body copy draws with Material's inherited tracking at 16 px where the canvas sets 15.5 px untracked, so lines break a word or two earlier than the frame",
+   "reason": "[shared] rkTextTheme (app/lib/shared/theme.dart). No token defines tracking and RkType.body sets none, so ThemeData merges the M3 defaults (bodyLarge 0.5 px, bodyMedium 0.25 px); one line in rkTextTheme (letterSpacing: 0) fixes every screen. 15.5 px maps to the body role (16) by rule",
+   "authority": "app/lib/shared/theme.dart rkTextTheme (phase 2 shared component); ADR 2026-10-05 §1 (tokens decide values: typography.scale.body 16)"
   }
  ],
  "approved_by_owner": false,
- "checked_on": "2026-10-06",
+ "checked_on": "2026-10-10",
  "hashes": {
-  "screens": "d4041ed064e0de4816221e2ab5993ece0e7ec8b92925300e6c9a35405ce8eeb6",
+  "screens": "25fc20801e268c15d483f22d2b885c633f4319cc464fc558ebc31614c1b5e288",
   "frames": "0e887d7ab7ac1416631ec5af2eea2fd7955ede64f8ad10aa367b3557eca68eb8"
  }
 }

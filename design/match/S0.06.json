@@ -14,15 +14,30 @@
  ],
  "deviations": [
   {
-   "what": "The wordmark 'Rukka Folio' draws at the section role (20 px, w600) where the frame's reads near 24 px",
-   "reason": "A canvas size maps to its type role, never a literal; 24 px sits between section (20) and page (28) and the nearer role is section",
+   "what": "Canvas 1b 'L0 Start · new or already using Rukka': the wordmark 'Rukka Folio' reads near 24 px; the app draws it at the section role (20 px, w600)",
+   "reason": "[screen] a canvas size maps to its type role, never a literal; 24 px sits between section (20) and page (28) and the nearer role is section. Kept from the 2026-10-06 record",
    "authority": "ADR 2026-10-05 §1 (tokens.json decides values: type.section)"
+  },
+  {
+   "what": "Canvas 1b L0 Start: the mark + wordmark block sits ~15 px higher in the app than in the frame, and the two doors and invite line sit ~10 px higher (the app keeps more room under the invite line)",
+   "reason": "[screen] vertical spacing of the start stack; small but visible in the pair",
+   "authority": "ADR 2026-10-05 §1 (placement)"
+  },
+  {
+   "what": "Canvas 1b L0 Start: the invite line 'Invited by someone? Open the link they sent you.' and both door labels are set wider in the app (the invite line spans ~300 px against the frame's ~267 px)",
+   "reason": "[shared] theme text styles (app/lib/shared/theme.dart rkTextTheme): Material's inherited letterSpacing (0.5 bodyLarge, 0.25 bodyMedium, 0.1–0.5 labels) is never zeroed, so every run of body/label text is wider than the canvas's untracked Mukta",
+   "authority": "tokens.json type.scale carries no tracking; open item from the S0.8 record (KEY145B review finding 4); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "Canvas 1b L0 Start: the two doors are ~52 px tall with ~6 px corners in the frame; the app's are 52 px (authActionHeight = RkSpace.s12 + RkSpace.s1, sign_in_parts.dart) inset 20 px (authSide = RkSpace.s5), with the FilledButton/OutlinedButton theme's RkRadius.md (8 px) corners — only the corner radius differs",
+   "reason": "[shared] button corner shape: AuthPrimaryAction/AuthSecondaryAction set their own height but take the shape from the theme (app/lib/shared/theme.dart filledButtonTheme/outlinedButtonTheme, RkRadius.md); the canvas's primary-button corner needs one ruling across screens (open)",
+   "authority": "design/tokens/tokens.json radius + the canvas's button component; ADR 2026-10-05 §1 (the frame decides components)"
   }
  ],
  "approved_by_owner": false,
- "checked_on": "2026-10-06",
+ "checked_on": "2026-10-10",
  "hashes": {
-  "screens": "616bf8050867353a1859468934abab8fc1af1ff31d25f9a978fd611268a821dd",
+  "screens": "7fcdc2e5487bf76d3720fee96b050da323ea40a408d335086f6d5c56f02f7206",
   "frames": "8b9646d2ed27ab29801970c1f4b33712eb040edce5b00f49012a8d17baf49b0e"
  }
 }

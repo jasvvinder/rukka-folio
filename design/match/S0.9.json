@@ -1,0 +1,73 @@
+{
+ "sid": "S0.9",
+ "verdict": "deviates",
+ "frames": [
+  "c1/O7a/Invitation",
+  "c1/O7b/Accepted, awaiting verification"
+ ],
+ "captures": [
+  "S0.9__offer",
+  "S0.9__joined"
+ ],
+ "screen_files": [
+  "app/lib/features/onboarding/screens/s0_9_invitation_screen.dart"
+ ],
+ "deviations": [
+  {
+   "what": "Canvas 1 'O7a Invitation' and 'O7b Accepted, awaiting verification': no app bar; the app draws an app bar titled 'Your invitation' on the raised surface with a divider",
+   "reason": "[shared] app bar: the app wraps S0.9 in a titled AppBar; these frames have none",
+   "authority": "ADR 2026-10-05 §1 (components)"
+  },
+  {
+   "what": "Canvas 1 O7a Invitation: the inviter is named before accepting — an 'AK' initials avatar, 'Amrit Kaur', 'Admin · Sharma Family', then the heading 'has invited you to Sharma Family'; the app shows 'You have been invited' and a card '3 shared books — The names come after you accept. A phone that has not joined is shown nothing about a family or a business — not even who asked.'",
+   "reason": "[screen] the frame is right: DESIGN-PACK §O7 specifies this header — 'a screen reading \"Amrit Kaur has invited you to Sharma Family\" with the roles being granted listed as chips' — and DESIGN-PACK ranks with the numbered specs on visual and interaction matters (CLAUDE.md § Precedence item 2). The app cannot draw it from what it receives: the offer (members_api.dart InviteOffer: invite id, tenant id, per-book role ids, expiry, creator id) carries no inviter, tenant or book names, so it is a data gap, not a skin difference. The app's copy 'A phone that has not joined is shown nothing … not even who asked' (onboarding.invite.offer.hidden) over-states ADR 2026-09-05d §2 🔒, which rules only for devices without a server-verified certificate; how the names reach the joiner (and the copy) is reported in open",
+   "authority": "design/DESIGN-PACK.md §O7; CLAUDE.md § Precedence item 2; app/lib/features/members/members_api.dart InviteOffer; ADR 2026-09-05d §2 🔒 (scope: uncertified devices)"
+  },
+  {
+   "what": "Canvas 1 O7a Invitation: an overline 'YOU WOULD BE GIVEN' over role chips ('Member · Joint fund', 'Head · Ramesh household', 'Viewer · Kirana Store'); the app has no role chips — only a count, and the link's expiry ('This link stops working on …') with a clock, which the frame does not draw",
+   "reason": "[screen] DESIGN-PACK §O7 asks for 'the roles being granted listed as chips'; the roles are on the wire and could be drawn, the book names are not (same data gap as above). Chips are a [shared] component gap (chip)",
+   "authority": "design/DESIGN-PACK.md §O7; ADR 2026-10-05 §1; members_api.dart InviteOffer.roles"
+  },
+  {
+   "what": "Canvas 1 O7a Invitation: a muted line 'Your own book stays private either way. Amrit cannot see it, and neither can we.' sits under the chips; the app has no such line",
+   "reason": "[screen] missing reassurance line (it names the inviter, which waits on the same data gap: DESIGN-PACK §O7 names them, the offer does not carry the name)",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "Canvas 1 O7a Invitation: 'Accept' and a muted 'Not now' are pinned at the foot; the app's 'Accept invitation' and a navy 'Not now' sit directly under the card mid-screen",
+   "reason": "[shared] tertiary text button colour (muted on canvas, primary in the app) + [screen] placement and label",
+   "authority": "ADR 2026-10-05 §1 (placement)"
+  },
+  {
+   "what": "Canvas 1 O7b Accepted, awaiting verification: a green tick and 'Your own book is ready' as a small green heading, then 'Start writing in it now. It is private to you.'; the app shows a large '✓ You are in' heading and a card 'Your own book works right now. It waits for nobody.'",
+   "reason": "[screen] copy and component; both state 07 §12's 'their personal book works immediately'",
+   "authority": "07 §12 🔒 (invitee experience); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "Canvas 1 O7b: an amber-accented callout card 'Meet Amrit to unlock the family books' with a clock icon, an explanation ('One of you opens Show my code, the other scans it…') and an outlined 'Show my code' button plus 'Later'; the app has no callout and no door to Show my code",
+   "reason": "[screen] the frame's next step (S9.x Show my code) is one tap away; the app leaves only 'Open my book'. Callout card is a [shared] component gap (accent callout)",
+   "authority": "07 §12 🔒 (ceremony screens: Show my code); 07 §1 rule 6 (no dead ends); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "Canvas 1 O7b: an overline 'WAITING TO BE UNLOCKED' and a ruled list — lock glyph, book name, the role at the right (Member · Head · Viewer); the app titles the list 'Shared books' and gives each row 'Meet Amrit to activate' under the name, no role",
+   "reason": "[canvas-wrong] for the per-row line: 07 §12 🔒 says shared books appear greyed with 'Meet Sunita to activate', which the frame moves into one header. [shared] list row + section overline for the rest (role at the right, ruled rows, uppercase overline)",
+   "authority": "07 §12 🔒; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "Canvas 1 O7b: 'Go to my book' pinned at the foot; the app's 'Open my book' sits mid-screen under an extra explanation paragraph the frame does not draw",
+   "reason": "[screen] label, placement and the extra paragraph",
+   "authority": "ADR 2026-10-05 §1 (placement)"
+  },
+  {
+   "what": "Canvas 1 O7a/O7b: body and row text is set wider in the app than in the frames",
+   "reason": "[shared] theme text styles (app/lib/shared/theme.dart rkTextTheme): Material's inherited letterSpacing (0.5 bodyLarge, 0.25 bodyMedium, 0.1–0.5 labels) is never zeroed, so every run of body/label text is wider than the canvas's untracked Mukta",
+   "authority": "tokens.json type.scale carries no tracking; open item from the S0.8 record (KEY145B review finding 4); ADR 2026-10-05 §1"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "026dbd29ea76264c5b6c529b7e94414b0ffbd8ebf40d6855971360576a33c98d",
+  "frames": "277ec4b86f1bcefd94b128744b31ee2627f7a7f418a12cac19496027233145af"
+ }
+}

@@ -1,0 +1,43 @@
+{
+ "sid": "S0.6c",
+ "verdict": "deviates",
+ "frames": [
+  "c1/S0.6c/Add another business?",
+  "c12/S0.6c/Add another business? · No, that’s all"
+ ],
+ "captures": [
+  "S0.6c__default"
+ ],
+ "screen_files": [
+  "app/lib/features/onboarding/screens/s0_6c_add_another_business_screen.dart",
+  "app/lib/features/onboarding/onboarding_routes.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c1 'Add another business?' / c12 '… · No, that's all': back chevron and progress dashes (3 of 3); the app draws neither",
+   "reason": "[shared] onboarding step top bar (back chevron + three progress dashes) — today it exists only as S0.6's private _TopBar (s0_6_opening_balances_screen.dart:381); the branch steps draw no top bar at all",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1 'Add another business?': the business row's subtitle reads 'shop · FY from 1 April · ₹1,50,500'; the app reads 'FY from 1 Apr'",
+   "reason": "[screen] the row carries no kind or opening total and abbreviates the month. The 'shop' kind is not asked (see S0.6a, 07 §5.7 🔒), so only the month spelling and the opening total are gaps",
+   "authority": "07 §5.7 🔒 (no kind); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c1 'Add another business?': dashed-plus 'Add another business' row; the app draws a plain + icon",
+   "reason": "[shared] dashed-plus add row — today S0.6's private _AddAccountRow/_DashedSquare (s0_6_opening_balances_screen.dart); this screen draws a plain + icon text button",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1/c12 'Add another business?': no 'Skip for now'; the app draws one under 'No, that's all'",
+   "reason": "[screen] S0.6c is a loop control whose 'No, that's all' already moves on; ADR 2026-10-07 ruling 1 does not list S0.6c among the required steps, so removing it is a design call the frame makes, not a ruled one — ⚠️ SPEC owner to confirm",
+   "authority": "ADR 2026-10-07 ruling 1–2; 13 §3.2 S0.6c"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "00be52e759b68e41c605b2ae605e93e47cbb4c2d3368ce0680400b319275f29f",
+  "frames": "64453f06c1de8426ab46adf6db49d77b139996f355d26df738be66da61d12e87"
+ }
+}

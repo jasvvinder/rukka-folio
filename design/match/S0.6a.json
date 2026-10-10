@@ -1,0 +1,68 @@
+{
+ "sid": "S0.6a",
+ "verdict": "deviates",
+ "frames": [
+  "c1/S0.6a/Name the business · type, FY",
+  "c12/S0.6a/Name the business · type, FY"
+ ],
+ "captures": [
+  "S0.6a__default"
+ ],
+ "screen_files": [
+  "app/lib/features/onboarding/screens/s0_6a_business_name_screen.dart",
+  "app/lib/features/onboarding/onboarding_routes.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c1/c12 'Name the business · type, FY': back chevron and progress dashes (1 of 3) at the top; the app draws neither",
+   "reason": "[shared] onboarding step top bar (back chevron + three progress dashes) — today it exists only as S0.6's private _TopBar (s0_6_opening_balances_screen.dart:381); the branch steps draw no top bar at all",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1/c12 'Name the business · type, FY': 'BUSINESS NAME' uppercase label over a boxed paper field; the app draws an underlined field with a floating 'Business name' label",
+   "reason": "[shared] boxed text field with an uppercase field label above it — the app draws Material's default underlined field with a floating label; there is no sub-theme for it in app/lib/shared/theme.dart (it sets only appBar, card, divider, listTile, filledButton, outlinedButton and bottomSheet themes), so the boxed field needs a new input-decoration theme or a shared field widget",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1/c12 'Name the business · type, FY': no subtitle under the title; the app adds 'You can change any of this later.'",
+   "reason": "[screen] copy line the frame does not draw",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1/c12 'Name the business · type, FY': a 'WHAT KIND' row of pill chips (Shop · Trading · Manufacturing · Services · Agriculture); the app asks no kind",
+   "reason": "[canvas-wrong] 07 §5.7 says four fields and nothing else; business presets by kind are not part of the business card and are an open feature (desk 122)",
+   "authority": "07 §5.7 🔒; ADR 2026-10-04c Open (business presets, PLAN desk 122)"
+  },
+  {
+   "what": "c1/c12 'Name the business · type, FY': no 'Who owns it?' question; the app draws Just me / Shared with others radio cards",
+   "reason": "[canvas-wrong] ownership is one of the four ruled fields and the required naming step names 'business name, ownership, year start'; S0.6a1 ('only when Shared') depends on it",
+   "authority": "07 §5.7 🔒; ADR 2026-10-07 ruling 1 🔒; ADR 2026-09-09 §1"
+  },
+  {
+   "what": "c1/c12 'Name the business · type, FY': 'FINANCIAL YEAR STARTS' as two pill chips (1 April · 1 January); the app draws a 12-month dropdown 'Apr' with the helper 'April for most businesses in India'",
+   "reason": "[shared] pill choice chips (single-select pills, ink border when selected) — no shared component exists; the screens draw radio cards or ChoiceChips. ⚠️ SPEC: two chips also narrow the choice from any month to two; 07 §5.7 rules only the 1 April default — owner to confirm before the dropdown goes",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1/c12 'Name the business · type, FY': no start-date line; the app states 'Your books begin on 09 Sep 2026. Nothing can be dated before that day.' with a calendar icon",
+   "reason": "[canvas-wrong] the S0.6a row requires the start date to be stated, never picked",
+   "authority": "13 §3.2 S0.6a; ADR 2026-09-09d §4"
+  },
+  {
+   "what": "c1/c12 'Name the business · type, FY': footer note 'The financial year decides which months close together…' above Continue; the app has none",
+   "reason": "[shared] step footer note — a muted paragraph pinned above the primary button (drawn inline only in S0.6c today)",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "Android 360×800 capture: a text-selection handle is drawn under the caret of the autofocused name field; not checked on a device",
+   "reason": "[screen] Android capture only; the iOS capture has no handle",
+   "authority": "ADR 2026-10-05 §2 (Android capture reviewed for reflow)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "c5f6dccdb27cde6a2fde4aa9f289c56ee5dee0c6e81091bd5a787cfa0b28e54f",
+  "frames": "41d13fb829078a36e29a5796d02c56fde3ed66ae529b454466ded2a77bc50b22"
+ }
+}

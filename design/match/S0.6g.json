@@ -1,0 +1,58 @@
+{
+ "sid": "S0.6g",
+ "verdict": "deviates",
+ "frames": [
+  "c1/S0.6g/Name the trust and its type",
+  "c14/S0.6g/Name the trust and its type"
+ ],
+ "captures": [
+  "S0.6g__default"
+ ],
+ "screen_files": [
+  "app/lib/features/onboarding/screens/s0_6g_trust_name_screen.dart",
+  "app/lib/features/onboarding/onboarding_routes.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c1/c14 'Name the trust and its type': back chevron and progress dashes (1 of 3); the app draws neither",
+   "reason": "[shared] onboarding step top bar (back chevron + three progress dashes) — today it exists only as S0.6's private _TopBar (s0_6_opening_balances_screen.dart:381); the branch steps draw no top bar at all",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1/c14 'Name the trust and its type': 'NAME' uppercase label over a boxed paper field; the app draws an underlined 'Trust name' field",
+   "reason": "[shared] boxed text field with an uppercase field label above it — the app draws Material's default underlined field with a floating label; there is no sub-theme for it in app/lib/shared/theme.dart (it sets only appBar, card, divider, listTile, filledButton, outlinedButton and bottomSheet themes), so the boxed field needs a new input-decoration theme or a shared field widget",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1/c14 'Name the trust and its type': no subtitle; the app adds 'You can change this later.'",
+   "reason": "[screen] copy line the frame does not draw",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1/c14 'Name the trust and its type': 'WHAT KIND' as pill chips (Gurudwara · Temple · Society · Registered trust) wrapping on two lines; the app draws a 'What kind of trust is it?' heading over four full-width radio cards",
+   "reason": "[shared] pill choice chips (single-select pills, ink border when selected) — no shared component exists; the screens draw radio cards or ChoiceChips",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1/c14 'Name the trust and its type': footer note 'The kind decides the words the app uses — gollak or donation box, sevadar or volunteer — and whether a registration number is asked for later.'; the app has none",
+   "reason": "[shared] step footer note — a muted paragraph pinned above the primary button (drawn inline only in S0.6c today)",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1/c14 'Name the trust and its type': no start-date line; the app states 'Your trust's books begin on 09 Sep 2026…'",
+   "reason": "[screen] the frame drops it; ruled for S0.6a only — ⚠️ SPEC owner to confirm for S0.6d/S0.6g",
+   "authority": "ADR 2026-09-09d §4; 13 §3.2 S0.6a"
+  },
+  {
+   "what": "Android 360×800 capture: a text-selection handle is drawn under the caret of the autofocused name field; not checked on a device",
+   "reason": "[screen] Android capture only",
+   "authority": "ADR 2026-10-05 §2"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "d53bb9db5ce307a074c1eadf92fb9bd149265e4d11c56586e611fc57e0a8ded2",
+  "frames": "3f08d614181c0bcb885b5ea6684accd7c33b538985e6a8b70bea301f6ef51598"
+ }
+}

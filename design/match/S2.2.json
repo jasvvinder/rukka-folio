@@ -1,0 +1,49 @@
+{
+ "sid": "S2.2",
+ "verdict": "deviates",
+ "frames": [
+  "c2/S2.2/Date picker",
+  "c2/S2.2/A locked day"
+ ],
+ "captures": [
+  "S2.2__date-picker",
+  "S2.2__locked-day"
+ ],
+ "screen_files": [
+  "app/lib/features/entry/screens/s2_add_entry_screen.dart",
+  "app/lib/features/entry/widgets/entry_date_picker.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c2 S2.2 *Date picker* / *A locked day*: the frame raises a bottom sheet over a dimmed S2 ('Which day?' with a 'Today' action; the locked-day explanation as a second sheet); the app swaps the calendar into S2's lower region in place",
+   "reason": "[canvas-wrong] the entry is one screen that never overlays; the date picker is never a sheet",
+   "authority": "07 §5 *Single screen, always* 🔒; F1-07-58"
+  },
+  {
+   "what": "c2 S2.2 *Date picker*: no weekday-initials row; the month reads 'Sep 2026' centred between the arrows (frame: 'August 2026' at the left, arrows at the right); the chosen day is a navy circle (frame: a navy square); no footnote ('Days up to 10 Aug are closed. Later dates are for a recurring entry.')",
+   "reason": "[screen] calendar layout and copy",
+   "authority": "ADR 2026-10-05 §1; 07 §5 step 4 🔒"
+  },
+  {
+   "what": "c2 S2.2 *Date picker*: locked days are not marked in the captured S2 — production S2 passes no lock lookup, so no day is ever locked there; the frame puts a lock under each closed day",
+   "reason": "[screen] ⚠️ SPEC entry_date_picker.dart: no public period-lock query yet (open). The locked-day capture is the picker widget alone with a lookup injected",
+   "authority": "07 §5 step 4 🔒; 07 §1 rule 6 🔒"
+  },
+  {
+   "what": "c2 S2.2 *A locked day*: the app shows a filled lock, '10 Aug 2026 is locked. To change something on this day, fix the old entry instead of starting a new one here.', an outlined 'Fix an old entry' stadium and an outlined 'Back to the calendar'; the frame shows an outline lock, the heading 'August up to the 10th is closed', a body naming the confirmed count, a shaded note ('A correction is recorded as a new entry dated today…'), 'Closed by Rahul Sharma · 10 Aug 2026, 8:15 pm', a solid navy 'Fix an old entry' and a text 'Choose another day'",
+   "reason": "[screen] content and copy; button styles are [shared] primary/secondary button",
+   "authority": "07 §5 step 4 🔒 (explain the lock, offer Fix an old entry); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c2 S2.2: the date chip is an underlined 'Today' link; the frame's is a chip with a calendar icon",
+   "reason": "[shared] chip",
+   "authority": "ADR 2026-10-05 §1"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "b74058184a729cda53ac7b1eb14a683105a684e9361efc32e59ec61ce759a263",
+  "frames": "8af4e6c74c161ed51f4ce75375a43caeb18c5c6a60d881bdad4861077c334647"
+ }
+}

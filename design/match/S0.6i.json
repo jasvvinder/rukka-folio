@@ -7,28 +7,60 @@
   "nd/S0.6i-trust/S0.6i-trust"
  ],
  "captures": [
-  "S0.6i__default"
+  "S0.6i__default",
+  "S0.6i__filled"
  ],
  "screen_files": [
   "app/lib/features/onboarding/screens/s0_6i_trust_accounts_screen.dart",
-  "app/lib/features/onboarding/widgets/trust_opening_host.dart"
+  "app/lib/features/onboarding/widgets/trust_opening_host.dart",
+  "app/lib/features/onboarding/onboarding_routes.dart"
  ],
  "deviations": [
   {
-   "what": "Layout is the older review-and-fill screen (title, subtitle, date line with calendar icon, a heading per group, underlined amount fields, '+ Add a bank account', a 'Balances against' box, a Save button) where the c1 frame draws the S0.6 pattern: back chevron and progress dashes, 'What does the trust have?' title, 'Balances as on <date>', sunk group bands with right-aligned ₹ boxes, a dashed 'Add an account' row, a footer note band and 'Finish'",
-   "reason": "This slice (SETUP174) only removes the step's Skip (ADR 2026-10-07 ruling 1); the frames were placed 7 Oct (desk 178) and their re-skin onto the S0.6 pattern — with the joint-fund wording of ADR 2026-10-08 — is its own slice",
-   "authority": "open SETUP174 (re-skin S0.6b/S0.6f/S0.6i to the c1 frames); ADR 2026-10-08 §1 wording is WORDS179"
+   "what": "c1 'What the trust has · gollak counted': drawn on the S0.6 pattern — back chevron and progress dashes (3 of 3), 'What does the trust have?', 'Balances as on 9 September 2026', sunk bands WHAT THE TRUST HAS / WHO OWES IT ('Nobody yet.'), ₹ box inputs with sub-lines ('day-to-day cash', 'counted, not estimated'), dashed 'Add an account · bank, cash, a person, a category…', footer band 'Fill these in and we will show what the trust is holding.' and 'Finish'; the app draws the older review-and-fill screen ('The trust's accounts', subtitle, calendar date line '09 Sep 2026', 'What the trust has' heading, underlined 'Opening balance' fields, '+ Add a bank account', 'Balances against' box, 'Save')",
+   "reason": "[shared] S0.6 opening-balances pattern (sunk uppercase group bands, right-aligned ₹ box inputs, 'Nobody yet.' party groups, dashed 'Add an account' row, footer note band, Finish) — private to s0_6_opening_balances_screen.dart; S0.6f/S0.6i still use the older review-and-fill layout shared with S0.6b",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
   },
   {
-   "what": "The nd/ frames draw 'Skip for now' under Finish; the app draws none",
-   "reason": "The step is required in sign-up; ₹0 everywhere then Save is a valid answer with no extra confirm",
+   "what": "c1 'What the trust has · gollak counted' / c14 / nd/S0.6i-trust: an active 'Add an account' row, and c14's filled state holds a bank row 'Trust SBI A/c · bank ₹3,21,400'; on the production path the app's '+ Add a bank account' is drawn disabled (greyed) and no bank can be added, so the filled capture holds only the seeded 'Cash' and 'Gollak Cash'",
+   "reason": "[screen] production defect, not a capture choice: no route passes onAddAccount (onboarding_routes.dart:513 FamilyOpeningHost / :574 TrustOpeningHost; the hosts forward null at family_opening_host.dart:282 / trust_opening_host.dart:305), so the TextButton gets onPressed: null. The captures pass none either, to show what production draws. Fix belongs to the onboarding routes (not this slice) — open item",
+   "authority": "ADR 2026-09-09d §1 (a bank arrives through Add an account during setup) and §2 (a trust that banks adds its bank on the same screen, one tap); 07 §1 no dead ends; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c1 'What the trust has · gollak counted', c14 'The trust's accounts · gollak' and nd/S0.6i-trust all name the cash row 'Cash A/c' (sub-line 'day-to-day cash' / 'cash in hand'); the app shows 'Cash' with no sub-line. c14 also names the gollak 'Gollak Cash A/c' where c1/nd and the app say 'Gollak Cash'",
+   "reason": "⚠️ SPEC: the specs differ on the name — 07 §3.1.1 🔒 O6i says 'Cash A/c (in hand)', while 07 §3.1 step 3 🔒 and ADR 2026-09-09d §2 seed 'Cash' (local_ledger.dart:3527 defaultCashName organization → 'Cash'; trust_opening_host.dart:183-191 shows chart names as they are). The app follows the newer ADR seed; the frames follow O6i. Owner to rule; the missing sub-lines go with the S0.6-pattern re-skin [shared]",
+   "authority": "ADR 2026-09-09d §2 🔒 (seed 'Cash', 'Gollak Cash'); 07 §3.1 step 3 🔒; 07 §3.1.1 🔒 O6i — ⚠️ SPEC open"
+  },
+  {
+   "what": "c1 'What the trust has · gollak counted': the gollak row is marked only by its sub-line 'counted, not estimated'; c14 'The trust's accounts · gollak' draws a bordered 'COLLECTION' tag; the app draws a piggy-bank note row under it ('This is the gollak — counted money leaves it only by deposit…')",
+   "reason": "[screen] gollak marking differs between frames and app; the note's content is ruled (02 §8.2) but its placement is the frame's",
+   "authority": "07 §3.1.1 🔒 (gollak as cash_collection); 02 §8.2; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c14 'The trust's accounts · gollak' (filled): '₹1,02,400' for the gollak in a boxed input with Indian grouping; the app shows '₹102400' in an underlined field",
+   "reason": "[shared] money input field — no digit grouping while a figure is held; goes with the S0.6 pattern's ₹ box",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c14 'The trust's accounts · gollak': 'Continue' and the collection-account note; c1 has 'Finish' and the holding note",
+   "reason": "[screen] c14 is the older filled-state frame; c1 (placed 7 Oct, desk 178) is followed for copy and the primary label",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "nd/S0.6i-trust: 'Skip for now' under Finish; the app draws none",
+   "reason": "[canvas-wrong] the trust's opening balances are required in sign-up",
    "authority": "ADR 2026-10-07 ruling 1 🔒"
+  },
+  {
+   "what": "Android 360×800 captures: the 'Balances against' box and the '₹0 is still created' line scroll under the pinned Save",
+   "reason": "[screen] goes with the S0.6-pattern re-skin",
+   "authority": "ADR 2026-10-05 §2"
   }
  ],
  "approved_by_owner": false,
- "checked_on": "2026-10-09",
+ "checked_on": "2026-10-10",
  "hashes": {
-  "screens": "32da2c08ef3d4bdeaa43257bbc4c941360ddcee534c962bc4635478f6e5498d8",
+  "screens": "070c7d8fb938c7071f92f56c52b386831bba72bc7158fe25fbec991b0a733221",
   "frames": "88d5c92941b0aeb5aafcd744210eafd46f730e52651e5d4d48d9caee1a58e77d"
  }
 }

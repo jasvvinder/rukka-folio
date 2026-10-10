@@ -2,9 +2,11 @@
  "sid": "S0.8",
  "verdict": "deviates",
  "frames": [
-  "c1/O4b/Set your PIN · six digits",
+  "c1/O4b/Set your PIN · six digits · iPhone",
+  "c1/O4b/Set your PIN · six digits · Android",
   "c1/O4b/Mismatch on confirm",
-  "c11/O4b/Set your PIN"
+  "c11/O4b/Set your PIN · iPhone",
+  "c11/O4b/Set your PIN · Android"
  ],
  "captures": [
   "S0.8__default",
@@ -18,30 +20,45 @@
  ],
  "deviations": [
   {
-   "what": "PIN-only form (capture S0.8__pin-only): subtitle drops 'You'll use Face ID…' and the app-lock line takes its PIN-only form with a lock glyph",
-   "reason": "No qualifying biometric enrolled; the canvas draws only the Face ID case. Draft copy for design desk 148",
+   "what": "Canvas 1 'O4b Set your PIN · six digits · iPhone' (c11 'O4b Set your PIN · iPhone'): PIN-only form (capture S0.8__pin-only): subtitle drops 'You'll use Face ID…' and the app-lock line takes its PIN-only form with a lock glyph",
+   "reason": "[screen] No qualifying biometric enrolled; the canvas draws only the Face ID case. Draft copy for design desk 148",
    "authority": "ADR 2026-10-05b §1"
   },
   {
-   "what": "The tiled in-app keypad sits at the foot; the O4b frames draw boxes only",
-   "reason": "The boxes need an input surface; c3 S15 'PIN instead' draws the keypad for the same six boxes and the shared PinKeypad keeps the two from drifting; a system keyboard would expose the PIN to third-party keyboards",
+   "what": "Canvas 1 'O4b Set your PIN · six digits · iPhone' and 'Mismatch on confirm': The tiled in-app keypad sits at the foot; the O4b frames draw boxes only",
+   "reason": "[screen] The boxes need an input surface; c3 S15 'PIN instead' draws the keypad for the same six boxes and the shared PinKeypad keeps the two from drifting; a system keyboard would expose the PIN to third-party keyboards",
    "authority": "ADR 2026-10-05 §1 via c3/S15/PIN instead · six digits; 07 §1 rule 6 (no dead ends)"
   },
   {
-   "what": "On the first step a muted line under 'Six digits' states the app lock: 'Face ID keeps this app closed to everyone else — if a new face is added to this phone, the app asks for your PIN'",
-   "reason": "07 §5.6 🔒 requires the line stated at onboarding, not asked; it is drawn on O5 (S0.5), which does not carry it yet, so it stays here until S0.5 does — moving it is S0.5's re-skin (open item)",
+   "what": "Canvas 1 'O4b Set your PIN · six digits · iPhone': On the first step a muted line under 'Six digits' states the app lock: 'Face ID keeps this app closed to everyone else — if a new face is added to this phone, the app asks for your PIN'",
+   "reason": "[screen] 07 §5.6 🔒 requires the line stated at onboarding, not asked; it is drawn on O5 (S0.5), which does not carry it yet, so it stays here until S0.5 does — moving it is S0.5's re-skin (open item)",
    "authority": "07 §5.6 🔒 (stated at onboarding, not asked); ADR 2026-09-05d §4"
   },
   {
-   "what": "Body copy (bodyLarge / bodyMedium: subtitles, the forgot-page body, status lines) draws with Material's inherited tracking — 0.5 px on bodyLarge, 0.25 px on bodyMedium — at 16 px, where the canvas sets 15.5 px untracked; the O4b subtitle wraps to four lines where the frame takes three, and the S15.3 forgot body breaks one word earlier",
-   "reason": "No token defines tracking (tokens.json type.scale carries none) and RkType.body sets no letterSpacing, so ThemeData merges rkTextTheme over the M3 defaults (theme_data.dart `defaultTextTheme.merge(textTheme)`; typography.dart bodyLarge letterSpacing 0.5). The fix is one line in rkTextTheme (letterSpacing: 0 for every slot) and changes every screen at once — foundation work outside this lane's folders; overriding it per screen would hide the defect. 15.5 px maps to the body role (16 px) by rule. Open item to the theme owner (KEY145B review finding 4)",
+   "what": "Canvas 1 'O4b Set your PIN · six digits · iPhone' and c11 'O4b Set your PIN · iPhone': Body copy (bodyLarge / bodyMedium: subtitles, the forgot-page body, status lines) draws with Material's inherited tracking — 0.5 px on bodyLarge, 0.25 px on bodyMedium — at 16 px, where the canvas sets 15.5 px untracked; the O4b subtitle wraps to four lines where the frame takes three, and the S15.3 forgot body breaks one word earlier",
+   "reason": "[shared] theme text styles (app/lib/shared/theme.dart rkTextTheme): Material's inherited letterSpacing (0.5 bodyLarge, 0.25 bodyMedium, 0.1–0.5 labels) is never zeroed, so every run of body/label text is wider than the canvas's untracked Mukta. No token defines tracking (tokens.json type.scale carries none) and RkType.body sets no letterSpacing, so ThemeData merges rkTextTheme over the M3 defaults (theme_data.dart `defaultTextTheme.merge(textTheme)`; typography.dart bodyLarge letterSpacing 0.5). The fix is one line in rkTextTheme (letterSpacing: 0 for every slot) and changes every screen at once — foundation work outside this lane's folders; overriding it per screen would hide the defect. 15.5 px maps to the body role (16 px) by rule. Open item to the theme owner (KEY145B review finding 4)",
    "authority": "app/lib/shared/theme.dart rkTextTheme — outside this lane's folders (open item); ADR 2026-10-05 §1 (tokens.json decides values: type.body 16)"
+  },
+  {
+   "what": "Canvas 1 'O4b Set your PIN · six digits · iPhone': the six PIN boxes span the full content width (~46×58 px, ~11 px apart, flush with the gutter); the app's are ~42×55 px with ~8 px gaps, centred with ~20 px spare on each side",
+   "reason": "[shared] PIN boxes (app/lib/features/lock/widgets/pin_pad.dart, shared with S15.3/S15)",
+   "authority": "ADR 2026-10-05 §1 (components, density)"
+  },
+  {
+   "what": "Canvas 1 'O4b Set your PIN · six digits · Android' (c11 'O4b Set your PIN · Android'): the Android frame says 'You'll use your fingerprint most of the time'; the app's Android capture (360×800) still says 'Face ID', and the app-lock line says Face ID too",
+   "reason": "[screen] the subtitle and the app-lock line name Face ID on every platform; the canvas note on the Android twins says the app names the method the phone actually uses (fingerprint/face unlock on Android, Face ID/Touch ID on iPhone). A real defect on Android",
+   "authority": "canvas c1 O5 Android twin note (applies to O4b's Android twins); 07 §5.6 🔒 (app-lock line names the phone's method)"
+  },
+  {
+   "what": "Canvas 1 'O4b Set your PIN · six digits · iPhone': the back chevron sits at y≈142 at ~16 px, the title at y≈199; in the app the chevron is smaller and ~8 px higher and the title ~8 px higher",
+   "reason": "[shared] app bar (leading chevron size and toolbar height)",
+   "authority": "ADR 2026-10-05 §1 (placement)"
   }
  ],
  "approved_by_owner": false,
- "checked_on": "2026-10-05",
+ "checked_on": "2026-10-10",
  "hashes": {
-  "screens": "b938758431485afc2b209c8d9e7ba7e903ed8ac5fb24c4596d09e5a2c80f0528",
-  "frames": "7fd989c4fa30fcc6fc3d3d5554a4f13bbc9310fd797498b50793b1324b712155"
+  "screens": "036af1996424d5cdd2d5fb89fef89d15ad31a65248bffc7bca32d2ff80dee46f",
+  "frames": "a111ef7e95d3360d9aa0bbac76f96a4f5eb6465cf161c555e2f1f714ec03ee43"
  }
 }

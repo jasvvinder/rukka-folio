@@ -1,0 +1,62 @@
+{
+ "sid": "S1.1",
+ "verdict": "deviates",
+ "frames": [
+  "c7/S1.1/You will give · drill-down"
+ ],
+ "captures": [
+  "S1.1__you-will-give"
+ ],
+ "screen_files": [
+  "app/lib/features/home/screens/s1_1_position_drilldown_screen.dart",
+  "app/lib/features/home/home_routes.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c7 S1.1 *You will give · drill-down*: centred title, no back chevron, lighter app-bar surface with a rule; the frame draws a back chevron with a left-aligned title on the page's cream",
+   "reason": "[shared] app bar/header (the capture mounts the screen as a root, so the back arrow production shows on push is absent too)",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c7 S1.1 *You will give · drill-down*: no total header; the frame opens with 'YOU OWE, IN ALL' over the total in large red and '5 people and suppliers · oldest 68 days'. The app puts a 'Total' row at the foot of the list",
+   "reason": "[screen] the total header is in the spec and the frame — defect",
+   "authority": "07 §7 🔒 (total header)"
+  },
+  {
+   "what": "c7 S1.1: no ageing chips on the rows; the frame draws an outlined chip under each name ('68 days', '41 days', '12 days' …)",
+   "reason": "[screen] defect — ageing chips are specified",
+   "authority": "07 §7 🔒 (ageing chips)"
+  },
+  {
+   "what": "c7 S1.1: the frame colours the chips red at 68 and 41 days and amber at 12 and 9 days, and orders its rows by age (₹1,70,000 · ₹11,200 · ₹3,600 · ₹8,400 · ₹91,000), not by balance",
+   "reason": "[canvas-wrong] 07 §7 sets ageing at amber over 30 days and red over 90 days, and orders the party list by balance — the frame's age ordering is wrong. The app does not sort by balance either: see the [screen] defect below",
+   "authority": "07 §7 🔒"
+  },
+  {
+   "what": "c7 S1.1 (capture S1.1__you-will-give): the app lists the parties in creation order — Vardhman Dairy −₹3,600, Tuglaq Yarn Company −₹1,70,000, Avtar Transport Co. −₹11,200 (the fixture creates them out of balance order so the order shows) — not by balance",
+   "reason": "[screen] defect — rowsFor (s1_1_position_drilldown_screen.dart:28-41) sorts by account.createdOrder ('creation order — 02 §9') and nothing re-sorts the party rows; 07 §7 asks for the party list sorted by balance. F1-1010rD-10 (reskin1_home_test.dart) asserts the balance order and is skipped until the home lane fixes it; it fails against today's code. ⚠️ SPEC: 07 §7 does not say ascending or descending — the test asks only that the list follows balance",
+   "authority": "07 §7 🔒 (party list sorted by balance)"
+  },
+  {
+   "what": "c7 S1.1: no filter chips; the frame draws 'All · Over 30 days · Over 60 days' under the header",
+   "reason": "[screen] layout element from the frame (not in the spec — thresholds would follow 07 §7: over 30 / over 90)",
+   "authority": "ADR 2026-10-05 §1; 07 §7 🔒"
+  },
+  {
+   "what": "c7 S1.1: rows sit inside a ruled card (navy left rule, rounded) with signed amounts (−₹1,70,000); the frame draws flat full-width rows divided by hairlines, unsigned red amounts and a chevron",
+   "reason": "[shared] list row — layout to the frame; the − sign stays with the tinted amount",
+   "authority": "ADR 2026-10-05 §1; 07 §1 rule 3 🔒 (sign with tinted amount)"
+  },
+  {
+   "what": "c7 S1.1: no footnote; the frame closes with 'Ageing is on the chip, not the amount — the colour says how long they have waited, never how large the figure is.'",
+   "reason": "[screen] copy from the frame, not built",
+   "authority": "ADR 2026-10-05 §1"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "569991a2ad75fcafbb6a5b3758995b2699d70f5ff0e3b5e0d3dedcc073c23d41",
+  "frames": "8637ebb08ac9fe69029d00ec8556ae332db4d9e2ab1d7e66a61ab0d146453d6f"
+ }
+}

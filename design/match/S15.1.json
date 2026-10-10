@@ -1,0 +1,34 @@
+{
+ "sid": "S15.1",
+ "verdict": "deviates",
+ "frames": [
+  "c3/S15.1/Privacy cover · backgrounded",
+  "c3/S15.1/Both themes, side by side"
+ ],
+ "captures": [
+  "S15.1__default",
+  "S15.1__dark"
+ ],
+ "screen_files": [
+  "app/lib/features/lock/widgets/privacy_cover.dart",
+  "app/lib/features/onboarding/widgets/sealed_mark.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c3/S15.1 'Privacy cover · backgrounded' and 'Both themes, side by side': the cover paints the card colour (light surface #FBF8F0, dark surface #24231F) where the frames paint the page paper (light bg #F5F0E4, dark bg #1A1A18)",
+   "reason": "[screen] PrivacyCoverSheet uses colorScheme.surface; the frame's field is the app background (color.*.bg)",
+   "authority": "ADR 2026-10-05 §1; tokens.json color.light.bg / color.dark.bg"
+  },
+  {
+   "what": "c3/S15.1 'Privacy cover · backgrounded': the mark draws ~69 px square where the frame draws ~52 px",
+   "reason": "[screen] SealedMark(size: RkSpace.s12 * 2); the frame's size maps to s12 + s1 (52), as on the c1 S15.3 frames",
+   "authority": "ADR 2026-10-05 §1; tokens.json space"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "9c3012b9f634a7e4121683a96b158fbd0f4189d12cc31566a57b2f3b1c2531c4",
+  "frames": "2244bbebe0a8e041dc5be558f10042ce3ce142f2697669b6abdf704d4670a427"
+ }
+}

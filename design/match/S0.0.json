@@ -1,0 +1,43 @@
+{
+ "sid": "S0.0",
+ "verdict": "deviates",
+ "frames": [
+  "c1/O0/Splash · the sealed mark and the lockup, nothing else",
+  "c11/O0/Splash"
+ ],
+ "captures": [
+  "S0.0__default"
+ ],
+ "screen_files": [
+  "app/lib/features/onboarding/screens/s0_0_splash_screen.dart",
+  "app/lib/features/onboarding/widgets/sealed_mark.dart"
+ ],
+ "deviations": [
+  {
+   "what": "Canvas 1 'O0 Splash · the sealed mark and the lockup, nothing else' (and c11 'O0 Splash'): the wordmark 'Rukka Folio' is drawn at ~20 px; the app draws it at the display role (~36 px), nearly twice the frame's size",
+   "reason": "[screen] the splash picks text.displayLarge for the lockup; the frame's size maps to the section role (20), as S0.06's lockup already does",
+   "authority": "ADR 2026-10-05 §1 (a canvas size maps to its type role); design/match/S0.06.json (same lockup at type.section)"
+  },
+  {
+   "what": "Canvas 1 O0 Splash: 'Folio' is drawn in the muted text colour at a light weight; the app draws 'Folio' at weight 300 in full ink, so the two words read as one colour",
+   "reason": "[screen] the frame's second word takes the muted ink (status.muted); DESIGN-PACK O0 rules only the weight (300), which the app keeps",
+   "authority": "design/DESIGN-PACK.md §O0 (Folio at weight 300); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "Canvas 1 O0 Splash: the mark sits on the vertical centre of the screen with the wordmark below it; in the app the mark-plus-wordmark column is centred as one group, so the mark sits ~60 px higher than the frame's",
+   "reason": "[screen] the Column is centred as a whole (Center › Column min); the frame centres the mark itself",
+   "authority": "ADR 2026-10-05 §1 (placement)"
+  },
+  {
+   "what": "Capture note, canvas 1 O0 Splash: captured with reducedMotion: true so the (invisible) loader rule is held still and the tree settles; the locked branch draws the same frame either way. The slow-start variant (loader rule + 'Opening your books.') and dark field are not drawn on canvas 1/11 and were not captured",
+   "reason": "[screen] capture method only; no visual difference arises from it",
+   "authority": "design/DESIGN-PACK.md §O0 (slow-start variant described, not drawn)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "8caffec403ed541c8e9447cd867343c8995329c6515bdc80b8d00f3655819271",
+  "frames": "6b336b1f03e9144c7cb70028fb882d9feceb04ecabe1ffc813c7de036df221c1"
+ }
+}

@@ -1,0 +1,42 @@
+{
+ "sid": "S0.1",
+ "verdict": "deviates",
+ "frames": [
+  "c1/O1/Language picker · the first screen ever shown",
+  "c11/O1/Language picker"
+ ],
+ "captures": [
+  "S0.1__default"
+ ],
+ "screen_files": [
+  "app/lib/features/onboarding/screens/s0_1_language_screen.dart"
+ ],
+ "deviations": [
+  {
+   "what": "Canvas 1 'O1 Language picker · the first screen ever shown' (and c11 'O1 Language picker'): the frame shows the sealed mark and the 'Rukka Folio' wordmark above the choices and no heading; the app shows no mark and adds a heading 'Choose your language' and a subtitle 'You can change this later in Settings'",
+   "reason": "[screen] DESIGN-PACK O1: 'with the Rukka Folio mark above. No other chrome'. The heading and subtitle are chrome the frame does not draw",
+   "authority": "design/DESIGN-PACK.md §O1; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "Canvas 1 O1 Language picker: each language is a tall (~108 px) raised card with a navy accent bar on its left edge and the language name at ~24 px in its own script, no radio; the app draws 56 px outlined rows on the page colour, the name at body size (16 px) and a trailing radio circle",
+   "reason": "[screen] DESIGN-PACK O1 rules 'three large tap targets … each rendered in its own script at 24px'; the app's rows are list rows with a radio. The raised card fill is the shared card gap (see S0.3)",
+   "authority": "design/DESIGN-PACK.md §O1 (24 px, large tap targets); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "Canvas 1 O1 Language picker: no button — a tap on a language is the choice; the app adds a 'Continue' button pinned at the foot, disabled (grey fill) until a row is selected, and draws a selected state",
+   "reason": "[screen] the app's select-then-continue was the conservative reading of an unruled default (⚠️ SPEC in s0_1_language_screen.dart). The frame draws neither a preselection nor a button, so 'nothing pre-selected' holds either way; DESIGN-PACK O1 says 'No other chrome'. Whether a tap commits directly is the owner's call — reported in open",
+   "authority": "design/DESIGN-PACK.md §O1; ⚠️ SPEC s0_1_language_screen.dart:4 (07 §3.1 silent on a default)"
+  },
+  {
+   "what": "Canvas 1 O1 Language picker: the choices sit in the lower-middle of the screen under the lockup; the app's sit at the top under the heading with empty space down to the button",
+   "reason": "[screen] follows from the heading/lockup difference",
+   "authority": "ADR 2026-10-05 §1 (placement)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "c4379730604405357f9b15d15a1a5effd8ecfa950dde68f1621920c585a23bc8",
+  "frames": "3c7b823c4777756dd8fd92f06b3b96193f71d02b9efe0a3630cdceae9e419119"
+ }
+}

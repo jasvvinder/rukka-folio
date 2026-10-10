@@ -1,0 +1,81 @@
+{
+ "sid": "S0.6a1",
+ "verdict": "deviates",
+ "frames": [
+  "c1/S0.6a1/Who owns it · only when Shared",
+  "c1/S0.6a1/Different shares · steppers in whole shares",
+  "nc/S0.6a1/S0.6a1",
+  "nc/S0.6a1-different/S0.6a1-different"
+ ],
+ "captures": [
+  "S0.6a1__equal",
+  "S0.6a1__different"
+ ],
+ "screen_files": [
+  "app/lib/features/onboarding/screens/s0_6a1_business_owners_screen.dart",
+  "app/lib/features/onboarding/onboarding_routes.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c1 'Who owns it · only when Shared' / 'Different shares · steppers in whole shares' (and nc copies): back chevron and progress dashes (2 of 3); the app draws neither",
+   "reason": "[shared] onboarding step top bar (back chevron + three progress dashes) — today it exists only as S0.6's private _TopBar (s0_6_opening_balances_screen.dart:381); the branch steps draw no top bar at all",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1 'Who owns it · only when Shared': subtitle 'Invite each owner. They verify in person when they join.'; the app says 'Add every owner by phone number, then set the shares.' and adds an info line 'Invited owners stay unverified until you meet them and verify them in person.'",
+   "reason": "[screen] copy and an extra info line the frame does not draw",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1 'Who owns it · only when Shared': 'Equal shares' / 'Different shares' as a pair of equal-width outlined pills; the app draws two ChoiceChips, the selected one filled in accent (bahi red) with a check avatar",
+   "reason": "[shared] choice pill — the app uses Material's default ChoiceChip: its selected fill is colorScheme.secondaryContainer, which the scheme leaves unset so it falls back to secondary = accent; the check/circle avatar is the screen's own _ModeChip. There is no sub-theme for it in app/lib/shared/theme.dart (it sets only appBar, card, divider, listTile, filledButton, outlinedButton and bottomSheet themes)",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1 'Who owns it · only when Shared' / 'Different shares': each owner is a list row — name, '+91 …' phone, a bordered YOU or TO INVITE tag, and '1 share' (equal) or a −/n/+ stepper with '50%' under it (different); the app draws an editable card per owner (person/clock icon, 'Owner's name' and 'Phone number' fields, 'Remove <name>' link, stepper with '2 shares' and '50% of the business')",
+   "reason": "[shared] invite-person row (name, +91 phone, bordered caps tag YOU / TO INVITE, trailing slot for shares) — the S0.6e archetype that S0.6a1 reuses (13 §3.2); the app draws editable cards",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1 'Who owns it · only when Shared': equal mode reads '1 share'; the app reads '1 shares'",
+   "reason": "[screen] plural not handled in the share-count string (an ICU plural in the ARB)",
+   "authority": "01 §1.8 (strings through ARB, EN/PA/HI)"
+  },
+  {
+   "what": "c1 'Who owns it · only when Shared': dashed-plus 'Add another owner' row; the app draws a 'person add' icon text button ('Add another owner') inside the scroll, below the fold of the 390×844 capture",
+   "reason": "[shared] dashed-plus add row — today S0.6's private _AddAccountRow/_DashedSquare (s0_6_opening_balances_screen.dart); this screen draws a TextButton.icon (s0_6a1_business_owners_screen.dart:258)",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1 'Who owns it' / 'Different shares': a sunk totals band pinned above the footer — 'Three equal shares ✓ Adds up' / 'Four shares in all ✓ 2 : 1 : 1'; the app draws its total as a plain titleSmall line '{total} shares in all' (onboarding.business_owners.total_note) inside the scroll after the add-owner button — no band, no tick, no 'Adds up' / ratio — below the fold of the 390×844 capture (s0_6a1_business_owners_screen.dart:265-268)",
+   "reason": "[screen] the total exists but as an in-scroll text line, not the frame's sunk band; it is not visible without scrolling",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1 'Who owns it' / 'Different shares': footer note 'Shares are fixed when the business is created… never a bigger share.' (+ 'Odd paise go to the largest share.' in different) as a muted paragraph pinned above the primary; the app draws the same 'Shares are fixed…' text (onboarding.business_owners.fixed_note) as a lock-icon note inside the scroll, after the total line and above the pinned Continue — below the fold of the 390×844 capture (s0_6a1_business_owners_screen.dart:270-273) — and has no 'Odd paise go to the largest share.' line",
+   "reason": "[shared] step footer note — a muted paragraph pinned above the primary button (drawn inline only in S0.6c today); here the note exists but scrolls with the content and carries an icon; the odd-paise line is missing [screen]",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1 'Who owns it · only when Shared': primary 'Send the invitations'; the app says 'Continue'",
+   "reason": "[screen] primary label copy",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1 'Who owns it · only when Shared': secondary 'Just me after all' in muted ink; the app draws it in primary (indigo) ink",
+   "reason": "[shared] secondary text button — the frames draw it in muted ink; the app draws Material's default TextButton, whose ink is colorScheme.primary (indigo), as there is no sub-theme for it in app/lib/shared/theme.dart (it sets only appBar, card, divider, listTile, filledButton, outlinedButton and bottomSheet themes)",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "Android 360×800 captures: the second owner's card runs under the pinned Continue (scrolls; nothing overlaps once scrolled)",
+   "reason": "[screen] follows from the card layout; goes with the row re-skin",
+   "authority": "ADR 2026-10-05 §2"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "54710db29ffb2afa80c21a84fa216c8aeaedbf2616abb8d0de7b7ed2a01ccf84",
+  "frames": "a322e64a5095af3a14dd8888984bd51f0258e830bccdba65df6ac39485c4484f"
+ }
+}

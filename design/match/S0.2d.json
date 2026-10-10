@@ -1,0 +1,24 @@
+{
+ "sid": "S0.2d",
+ "verdict": "deviates",
+ "frames": [
+  "c1b/L7/Linked · books opening"
+ ],
+ "captures": [],
+ "screen_files": [
+  "app/lib/features/auth/screens/s0_2b_found_you_screen.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c1b/L7 'Linked · books opening': not built — the whole screen — the green tick, 'This phone is linked', its body and 'Set a PIN for this phone' has no screen in the app. The only way towards it is S0.2b's 'Yes, it's with me', which is disabled with its reason (capture S0.2b__default)",
+   "reason": "[screen] Own-device linking is not buildable yet: no own-device QR screen, no 'Add a phone' on the old phone, no relay for the UMK wrapped by the old device, and device-link ceremonies fail closed ('not ruled', ceremony_sessions.dart). It needs rulings (nonce, expiry, who may link, the relay route) before a build. screen_files names the disabled door so this record goes stale when it changes",
+   "authority": "ADR 2026-10-05c §3 🔒; PLAN desk 160 (⛔ SIGNIN2); 04 §9.1 🔒; ADR 2026-10-10b §1 (no new S-id screen before phase 2)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "1fe5b23766ddcc0bf5325cad6fb54af5e46e1113021d6897dbb50ff89941b0a7",
+  "frames": "054fd90ea63489545f6cb8625d78e763fb703dbcced387fa151dec8e77ecc01e"
+ }
+}

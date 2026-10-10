@@ -2,9 +2,13 @@
  "sid": "S15",
  "verdict": "deviates",
  "frames": [
-  "c3/S15/App lock · waiting for Face ID",
-  "c3/S15/Face not recognised",
-  "c3/S15/PIN instead · six digits"
+  "c3/S15/App lock · waiting for Face ID · iPhone",
+  "c3/S15/App lock · waiting for fingerprint · Android",
+  "c3/S15/Face not recognised · iPhone",
+  "c3/S15/Fingerprint not recognised · Android",
+  "c3/S15/PIN instead · six digits",
+  "c1b/U1/Open the app · Face ID asks first",
+  "c1b/U2/Unlocked · the seal opens"
  ],
  "captures": [
   "S15__default",
@@ -21,35 +25,60 @@
  ],
  "deviations": [
   {
-   "what": "PIN-only variant (capture S15__pin-only): no Face ID button; a muted info line under the boxes says why (lock.pin_only.note)",
-   "reason": "A phone with no qualifying biometric runs PIN-only; the canvas draws only the Face ID case. Copy and placement are a draft for design desk 148",
+   "what": "c3/S15 'App lock · waiting for fingerprint · Android' and 'Fingerprint not recognised · Android' (S15__default__android360, S15__face-not-recognised__android360); also the 'Face ID' button of S15__pin-instead__android360: the Android capture (__android360) draws the Face ID glyph and the word 'Face ID' / 'Face not recognised' where the Android frame draws a fingerprint glyph, 'Fingerprint' / 'Fingerprint not recognised' and the caption 'Touch the sensor'",
+   "reason": "[shared] FaceIdGlyph (app/lib/features/lock/widgets/face_id_glyph.dart) and the lock.biometric.* ARB keys name one method on every phone. The app does not yet name the method the phone uses (Face ID · Touch ID · Fingerprint · Face unlock). This is a defect against a 🔒 ruling, not a style choice: 'an Android fingerprint phone is never told Face ID'. It needs the gate to report which method it holds — a lock-feature change, not a re-skin",
+   "authority": "ADR 2026-10-08 §3 🔒 (F1-1008-3 @M13); PLAN desk 179 (WORDS179) / desk 166"
+  },
+  {
+   "what": "c3/S15 'App lock · waiting for Face ID · iPhone', 'Face not recognised · iPhone', 'PIN instead · six digits': the titles 'Unlock to open your books' / 'Enter your PIN' draw at 20 px (section role) where the frames draw ~17 px",
+   "reason": "[shared] type scale — a canvas size maps to its role, never a literal; tokens hold no role between body 16 and section 20",
+   "authority": "ADR 2026-10-05 §1 (tokens decide values); tokens.json typography.scale.section"
+  },
+  {
+   "what": "c3/S15 'App lock · waiting for Face ID · iPhone' (S15__default): 'Use PIN instead' sits ~7 px lower than the frame",
+   "reason": "[screen] The link carries a 44 dp hit area and the column is laid out inside the safe area",
+   "authority": "13 §8 (touch targets ≥ 44 dp); design-system.md §3.1 rule 9 🔒"
+  },
+  {
+   "what": "c3/S15 'Face not recognised · iPhone' (S15__face-not-recognised): the outlined 'Try again' box is ~43 px tall where the frame draws ~50 px",
+   "reason": "[shared] OutlinedButton theme height (app/lib/shared/theme.dart); the c1 S15.3 frames draw the 'Face ID' outlined button at ~44 px, so the canvases disagree on one component",
+   "authority": "app/lib/shared/theme.dart outlinedButtonTheme (phase 2 shared component)"
+  },
+  {
+   "what": "c3/S15 'PIN instead · six digits' (S15__pin-instead): an outlined 'Face ID' button draws between the boxes and the keypad; the c3 frame has none",
+   "reason": "[canvas-wrong] 13 §3.2 row S15.3 names a Face ID button for this state and c1/S15.3 'Enter PIN · Face ID above the boxes · iPhone' draws it; the c3 and c1 frames of one state disagree and the spec row decides (PLAN desk 155)",
+   "authority": "13 §3.2 row S15.3; PLAN desk 155"
+  },
+  {
+   "what": "No frame: PIN-only variant (S15__pin-only) — no Face ID button; a muted info line under the boxes says why (lock.pin_only.note)",
+   "reason": "[screen] A phone with no qualifying biometric runs PIN-only; the canvas draws only the biometric case. Copy and placement are a draft for design desk 148. Nearest frame c3/S15 'PIN instead · six digits'",
    "authority": "ADR 2026-10-05b §1"
   },
   {
-   "what": "'PIN instead' state adds an outlined 'Face ID' button between the boxes and the keypad, which the c3 frame does not draw",
-   "reason": "13 §3.2 row S15.3 names a Face ID button for this state and the c1 S15.3 'Enter PIN' frame draws it; the c3 and c1 frames of the same state disagree, the spec row decides",
-   "authority": "13 §3.2 row S15.3; c1/S15.3/Enter PIN · Face ID above the boxes"
+   "what": "No frame: re-enrolled variant (S15__reenrolled) — the 'PIN instead · six digits' layout with one muted line under the boxes (lock.biometric.reenrolled) and no Face ID button",
+   "reason": "[screen] No frame draws the invalidated-gate state; nearest c3/S15 'PIN instead · six digits', which also draws no Face ID button",
+   "authority": "ADR 2026-10-06 §4"
   },
   {
-   "what": "Titles 'Unlock to open your books' / 'Enter your PIN' / 'Wrong PIN' draw in titleLarge (20 w500) where the canvas draws 17–19 px at 400–600",
-   "reason": "A canvas size maps to its type role, never a literal; the nearest role to 17–19 px is section (titleLarge)",
-   "authority": "ADR 2026-10-05 §1 (tokens.json decides values); design/tokens/tokens.json type.section"
+   "what": "c1b/U1 'Open the app · Face ID asks first' (nearest capture S15__default): the frame draws a launch screen titled 'Rukka Folio' with the system Face ID sheet over it and 'Use PIN' at the foot; the app draws 'Unlock to open your books', its own face glyph and 'Use PIN instead'",
+   "reason": "[screen] The system sheet is drawn by the OS and cannot be captured; under it the app shows the c3 'App lock · waiting for Face ID · iPhone' layout. c1b U1 and c3 S15 draw the same cold-start state with different title and link words — one needs ruling (owner design item)",
+   "authority": "ADR 2026-10-05 §1; c3/S15 'App lock · waiting for Face ID · iPhone'; open item (owner design)"
   },
   {
-   "what": "Body copy (bodyLarge / bodyMedium: subtitles, the forgot-page body, status lines) draws with Material's inherited tracking — 0.5 px on bodyLarge, 0.25 px on bodyMedium — at 16 px, where the canvas sets 15.5 px untracked; the O4b subtitle wraps to four lines where the frame takes three, and the S15.3 forgot body breaks one word earlier",
-   "reason": "No token defines tracking (tokens.json type.scale carries none) and RkType.body sets no letterSpacing, so ThemeData merges rkTextTheme over the M3 defaults (theme_data.dart `defaultTextTheme.merge(textTheme)`; typography.dart bodyLarge letterSpacing 0.5). The fix is one line in rkTextTheme (letterSpacing: 0 for every slot) and changes every screen at once — foundation work outside this lane's folders; overriding it per screen would hide the defect. 15.5 px maps to the body role (16 px) by rule. Open item to the theme owner (KEY145B review finding 4)",
-   "authority": "app/lib/shared/theme.dart rkTextTheme — outside this lane's folders (open item); ADR 2026-10-05 §1 (tokens.json decides values: type.body 16)"
+   "what": "c1b/U2 'Unlocked · the seal opens': not built — no transition screen with the opening seal and 'Good morning, Harpreet'; on success the lock closes straight onto the screen beneath",
+   "reason": "[screen] No unlocked/greeting state exists in features/lock. The greeting by name also needs a display-name source (the same gap as S0.2a). ADR 2026-10-10b §1 holds new screen work until phase 2",
+   "authority": "ADR 2026-10-10b §1; ADR 2026-10-05 §1"
   },
   {
-   "what": "Re-enrolled variant (capture S15__reenrolled): the 'PIN instead · six digits' layout with one muted line under the boxes (lock.biometric.reenrolled: the face or fingerprint settings changed — enter your PIN once) and no Face ID button",
-   "reason": "No frame draws the invalidated-gate state; nearest is c3 'PIN instead · six digits', which also draws no Face ID button. A button there could only answer re-enrolled again with no prompt (GATE1 review finding 3), and the line names a change that may be an addition or a removal (finding 6)",
-   "authority": "ADR 2026-10-06 §4; nearest c3/S15/PIN instead · six digits"
+   "what": "c3/S15 'PIN instead · six digits' and c1/S15.3 'Enter PIN' frames (S15__pin-instead, S15.3__default): the six PIN boxes draw smaller and closer together — about 43 px wide with ~9 px gaps and slightly shorter, where the frames draw ~46 px boxes with ~11 px gaps",
+   "reason": "[shared] PIN box row (the same component on S0.8, S15, S15.3): box size and gap come from the shared widget, not the screen",
+   "authority": "canvas c3/S15 and c1/S15.3 frames (ADR 2026-10-05 §1); orchestrator check of build/design_match/pairs/S15.png on 10 Oct, after the R1C review filed it"
   }
  ],
  "approved_by_owner": false,
- "checked_on": "2026-10-06",
+ "checked_on": "2026-10-10",
  "hashes": {
   "screens": "79338c9c12d1cee89a9ebedeb744a4ea9a6e98c78f6aab8cf36d2b05609ba487",
-  "frames": "ed8d1451bdada25d1aecd63ed5f533936e89abf6d5122d8b1b0ef69ae5e68a0d"
+  "frames": "057488858dd072dd747dafb20c14563dfb3d8d2239f9f815b05c2f3e0f365061"
  }
 }

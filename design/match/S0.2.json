@@ -14,7 +14,8 @@
   "S0.2__new-code",
   "S0.2__sign-in-number",
   "S0.2__sign-in-code",
-  "S0.2__wrong-code"
+  "S0.2__wrong-code",
+  "S0.2__held-offline"
  ],
  "screen_files": [
   "app/lib/features/auth/screens/s0_2_phone_otp_screen.dart",
@@ -24,50 +25,50 @@
  ],
  "deviations": [
   {
-   "what": "I'm-new subtitle (c1 O2a) ends with the SMS sentence 'We'll send a 6-digit code by SMS.'",
-   "reason": "The code goes by SMS only and the number step names it on both doors (the sign-in frame L2 does); c1 O2a predates the SMS ruling. C-25-1 asserts it",
+   "what": "c1/O2a 'Phone · +91 fixed' (capture S0.2__new-number): the subtitle ends with a third line, 'We'll send a 6-digit code by SMS.', so the number field sits ~24 px lower than the frame",
+   "reason": "[canvas-wrong] The code goes by SMS only and the number step names it on both doors (the newer c1b L2 frame does); c1 O2a predates the SMS ruling. C-25-1 asserts it",
    "authority": "ADR 2026-09-25 §1; ADR 2026-10-05c §2 (SMS only); C-25-1"
   },
   {
-   "what": "The I'm-new code step says 'Sent by SMS to …' where c1 O2b says 'Sent to …'",
-   "reason": "Both doors share one code step; the newer frame (c1b L3) names SMS",
-   "authority": "ADR 2026-10-05c §1–§2 (both doors use the same S0.2 code screen; SMS only)"
+   "what": "c1/O2b 'OTP · six boxes' and c11/O2b 'OTP · the only credential' (capture S0.2__new-code): the line says 'Sent by SMS to +91 98765 43210.' where both frames say 'Sent to +91 98765 43210.'",
+   "reason": "[canvas-wrong] Both doors share one code step and the newer frame c1b L3 'Code · sent by SMS' names SMS",
+   "authority": "ADR 2026-10-05c §1–§2 (one S0.2 code screen for both doors; SMS only)"
   },
   {
-   "what": "Send code is disabled in the theme's disabled colours (muted fill) rather than the frame's solid grey",
-   "reason": "The disabled look comes from the theme's FilledButton, shared by every screen",
-   "authority": "app/lib/shared/theme.dart filledButtonTheme — outside this lane's folders"
+   "what": "c1/O2a 'Phone · +91 fixed' (S0.2__new-number): the disabled 'Send code' draws in the theme's disabled colours (pale fill, pale label) where the frame draws a solid grey fill with a white label",
+   "reason": "[shared] FilledButton theme (app/lib/shared/theme.dart filledButtonTheme) — the disabled look is app-wide",
+   "authority": "app/lib/shared/theme.dart filledButtonTheme (phase 2 shared component)"
   },
   {
-   "what": "Keypad keys are square-cornered tiles with a 3 px gap; the c1/c1b frames round each key (~8 px) with a wider gap",
-   "reason": "The keypad is the shared PinKeypad the lock and S0.8 use (drawn to c3 S15 'PIN instead', square tiles) so the three cannot drift; rounding it is a features/lock change for every PIN screen, outside this lane",
-   "authority": "ADR 2026-10-05 §1 via c3/S15/PIN instead · six digits (the shared keypad's frame); app/lib/features/lock/widgets/pin_pad.dart owner"
+   "what": "c1/O2a, c1/O2b, c11/O2b, c1b/L2, c1b/L3, c1b/L4 (every S0.2 capture): keypad keys are square-cornered tiles with a 3 px gap where the frame rounds each key (~8 px) with a wider gap",
+   "reason": "[shared] PinKeypad (app/lib/features/lock/widgets/pin_pad.dart), shared by S0.2, S15, S15.3 and S0.8 and drawn to c3 S15 'PIN instead · six digits' (square tiles); the c1/c1b frames round them. Re-drawing it is one shared-component change",
+   "authority": "ADR 2026-10-05 §1; app/lib/features/lock/widgets/pin_pad.dart (phase 2 shared component)"
   },
   {
-   "what": "Body copy (bodyLarge subtitles and leads) draws with Material's inherited tracking at 16 px where the canvas sets 15.5 px untracked, so lines break a word or two earlier than the frame",
-   "reason": "No token defines tracking and RkType.body sets none, so ThemeData merges the M3 default letterSpacing; the fix is one line in rkTextTheme for every screen (open item to the theme owner, as on S0.8). 15.5 px maps to the body role by rule",
-   "authority": "app/lib/shared/theme.dart rkTextTheme — outside this lane's folders; ADR 2026-10-05 §1 (tokens.json decides values: type.body 16)"
+   "what": "c1/O2a 'Phone · +91 fixed' and c1b/L2 'Sign in · your number' subtitles: body copy draws with Material's inherited tracking at 16 px where the canvas sets 15.5 px untracked, so lines break a word or two earlier than the frame",
+   "reason": "[shared] rkTextTheme (app/lib/shared/theme.dart). No token defines tracking and RkType.body sets none, so ThemeData merges the M3 defaults (bodyLarge 0.5 px, bodyMedium 0.25 px); one line in rkTextTheme (letterSpacing: 0) fixes every screen. 15.5 px maps to the body role (16) by rule",
+   "authority": "app/lib/shared/theme.dart rkTextTheme (phase 2 shared component); ADR 2026-10-05 §1 (tokens decide values: typography.scale.body 16)"
   },
   {
-   "what": "The c1 step bar (2 of 6) draws only on S0.2 inside the F1 chain",
-   "reason": "Draws what c1 O2a/O2b show; the shared F1 stepper (13 §4.1 'stepper progress') is not yet a component, so S0.3–S0.8 do not draw it — ⚠️ SPEC in s0_2_phone_otp_screen.dart",
-   "authority": "open ⚠️ SPEC (s0_2_phone_otp_screen.dart _f1Step); 13 §4.1"
+   "what": "c1b/L3 'Code · sent by SMS', c1b/L4 'Wrong code · tries left', c1/O2b (S0.2__sign-in-code, S0.2__wrong-code, S0.2__new-code): the 'Sent by SMS to … Change' row is taller than the frame's text line, so the six boxes sit ~8 px lower; on c1b/L2 (S0.2__sign-in-number) 'Send code' sits ~10 px higher above 'New here? Set up instead'",
+   "reason": "[canvas-wrong] The inline links ('Change', 'Send again', 'Set up instead') carry a 44 dp hit area around the words; the canvas draws them as bare text, which decides their look, not their target. They are the only way out of several code-step states",
+   "authority": "design-system.md §3.1 rule 9 🔒 (target ≥ 44 pt); 13 §8 (touch targets ≥ 44 dp); ADR 2026-10-05 §1 (a frame never overrides accessibility)"
   },
   {
-   "what": "The inline links (c1b L2 'Set up instead', L3 'Change' / 'Send again') have a 44 dp hit area around the words, so the 'Sent by SMS to … Change' row is taller than the frame's text line; the gaps above and below it are tightened (s1 / s4) so the boxes land within a few px of c1b L3",
-   "reason": "The canvas draws the links as bare text; that decides their look, not their hit area. They are the only way out of several code-step states, and a 32 dp target fails the locked target size (review finding 5, SIGNIN1A repair r1)",
-   "authority": "design-system.md §3.1 rule 9 🔒 (target size ≥ 44 pt); 13 §8 (touch targets ≥ 44 dp); ADR 2026-10-05 §1 (accessibility is never overridden by a frame)"
+   "what": "No visible difference (all code-step captures): the six code boxes carry an invisible system text field (one-time-code autofill hint, paste) over them",
+   "reason": "[screen] Keeps the canvas keypad and boxes while restoring the platform's SMS one-time-code autofill and paste. Listed so the pair is not mistaken for a field-less screen",
+   "authority": "design-system.md §3.1 🔒 (WCAG 2.2 AA SC 3.3.8 Accessible Authentication); ADR 2026-10-05 §1"
   },
   {
-   "what": "No visible change: the six code boxes carry an invisible system text field (oneTimeCode autofill hint, paste) over them",
-   "reason": "Keeps the canvas keypad and boxes while restoring the platform's SMS one-time-code autofill and paste, so the code never has to be transcribed (review finding 2, SIGNIN1A repair r1). Nothing is drawn; listed so the pair is not mistaken for a field-less screen",
-   "authority": "design-system.md §3.1 🔒 (WCAG 2.2 AA, SC 3.3.8 Accessible Authentication); ADR 2026-10-05 §1"
+   "what": "No visible difference (capture S0.2__held-offline against c1b/L2 'Sign in · your number'): with the engine held before registration no sync chip draws even though the status underneath is offline — the pair matches S0.2__sign-in-number",
+   "reason": "[screen] Recorded because HELD181 changed what this screen draws before registration; F1-R1C-2 asserts the chip is absent when held (and fails when not held)",
+   "authority": "ADR 2026-10-10 §2 🔒 (HELD181)"
   }
  ],
  "approved_by_owner": false,
- "checked_on": "2026-10-06",
+ "checked_on": "2026-10-10",
  "hashes": {
-  "screens": "dab3789dda6fd45b0d3d59c035a906183a5b706dbc694496ad91dac429ef16e6",
+  "screens": "298e065cfad5dcf8d2d3c4c6d3e5ec517e899221fe9212f48fc98e9a00bb6ff7",
   "frames": "f4539e63e6f59a3dfd9252a2e49556140dced6178358694f5d9968b0cbf968d0"
  }
 }

@@ -8,51 +8,108 @@
   "c7/S1/Home · the baseline#2"
  ],
  "captures": [
-  "S1__default"
+  "S1__default",
+  "S1__below"
  ],
  "screen_files": [
   "app/lib/features/home/screens/s1_home_screen.dart",
   "app/lib/features/home/widgets/home_cards.dart",
   "app/lib/features/home/widgets/home_verb_gate.dart",
   "app/lib/features/home/widgets/home_scope_switcher.dart",
-  "app/lib/features/home/home_routes.dart"
+  "app/lib/features/home/home_routes.dart",
+  "app/lib/shared/widgets/rk_tab_bar.dart"
  ],
  "deviations": [
   {
-   "what": "App bar titled 'Home' (with search) where the frame draws the book pill 'Sharma Textile' with initials, a sync icon and a bell with a dot",
-   "reason": "Only the verb bar is re-skinned in this slice (journey defect S1-verb). The pill replaces the scope chip, whose visibility is ruled (hidden for an individual); taking the frame's header needs the scope control re-drawn and a bell/sync source, which is the S1 re-skin",
-   "authority": "13 §2.2 🔒 (scope chip only above one book); open item P1A (S1 re-skin, phase 3)"
+   "what": "c15/c2/c7 S1 *Home · the baseline*: a centred Material app bar titled 'Home' with a search icon, on a lighter paper surface with a hairline under it, where the frame draws the book pill (initials avatar · book name · chevron) at the left and a sync icon at the right on the page's own cream, no title and no rule",
+   "reason": "[shared] app bar/header — S1's header follows the canvas (book pill · sync); the pill must still reach avatar and role",
+   "authority": "ADR 2026-10-10b §3 🔒 (F1-1010b-2 @M13); 13 §2.3 🔒 (who am I, here)"
   },
   {
-   "what": "Hero reads 'Total money you have' in sentence case with every money account on its line (incl. 'Cash A/c ₹0'); the frame uses an uppercase caption and lists the accounts that hold money",
-   "reason": "Hero not re-skinned in this slice",
-   "authority": "open item P1A (S1 re-skin, phase 3)"
+   "what": "c15/c2/c7 S1 *Home · the baseline*: the frame draws a bell (with an unread dot) in the header; the app has none",
+   "reason": "[canvas-wrong] Home has no bell — the Inbox tab is the one tray",
+   "authority": "ADR 2026-09-05f §F; ADR 2026-10-10b Open (resolved)"
   },
   {
-   "what": "Verification card 'Balanced / Books balanced · difference nil' without a chevron where the frame draws 'Books balanced / Dr ₹… = Cr ₹… · no difference' with a chevron",
-   "reason": "Card copy and door not re-skinned in this slice; the Dr/Cr figures on a consumer surface need a ruling against 02 §10 / 01 §1.3 before they are drawn",
-   "authority": "07 §4 🔒; 02 §10; open item P1A"
+   "what": "c15/c2/c7 S1 *Home · the baseline*: the app keeps a search icon in the header; the frame draws no search door on Home",
+   "reason": "[screen] S21 Search is reached from S1 (13 §3.2); the frame's header has no place for it — ⚠️ SPEC: where the search door sits once the header is redrawn (open)",
+   "authority": "13 §3.2 row S21 (parents S3, S1)"
   },
   {
-   "what": "The shell's tab bar carries a centre (+) and no Inbox count badge; the frame draws four tabs and a badge",
-   "reason": "The tab bar is the shell's (app/lib/shared), outside this lane",
-   "authority": "open item P1A (shell re-skin, phase 3)"
+   "what": "c15/c2/c7 S1 *Home · the baseline*: hero caption 'Total money you have' in sentence case at title size, '₹ ' with a space before the figure, and the breakdown in full ink with no separators and every money account (incl. 'Cash A/c ₹0'); the frame uses an uppercase letter-spaced caption, '₹61,500' set tight, a muted breakdown joined by ' · ' listing only accounts that hold money, and a hairline under the hero",
+   "reason": "[shared] hero",
+   "authority": "ADR 2026-10-10b §3 (hero follows the canvas); 07 §4 🔒 (hero = sum of money accounts with breakdown — content unchanged)"
   },
   {
-   "what": "At 390×844 'This month' and Today are below the fold (the position card is taller), where the frame shows them above the verb bar",
-   "reason": "Follows from the position-card deviation; the list scrolls beneath the pinned verbs (F1-1006c-10/11)",
-   "authority": "02 §9; 07 §1 rule 2 🔒"
+   "what": "c15/c2/c7 S1 *Home · the baseline*: verification card reads 'Balanced' (circled tick) over 'Books balanced · difference nil'; the frame titles it '✓ Books balanced' (plain tick) over 'Dr ₹8,56,200 = Cr ₹8,56,200 · no difference'",
+   "reason": "[canvas-wrong] for the Dr/Cr line: S1 says Books balanced · difference nil, Dr/Cr one tap in on the trial balance. The title wording and tick style are [shared] card",
+   "authority": "ADR 2026-09-05f §F; ADR 2026-10-10b §4 and Open (resolved); 07 §4 🔒"
   },
   {
-   "what": "Money in ↓ and Money out ↑ arrows are drawn in full ink where the frame tints them green and red (var(--in) / var(--out))",
-   "reason": "The frame's tints are the credit/debit tokens, which 07 §1 rule 3 🔒 keeps for amounts only; icons may take the success/warning/info/danger family, but none of those means a direction (danger is 'never reads as money out'). A frame never overrides a 🔒 line, so the arrows stay off the money tokens until the owner rules; the word under each arrow carries the direction",
-   "authority": "07 §1 rule 3 🔒; ADR 2026-09-05f §H1; CLAUDE.md § Precedence; ⚠️ SPEC home_cards.dart (open P1A)"
+   "what": "c15/c2/c7 S1 *Home · the baseline*: the verification card has no chevron and no tap; the frame draws a chevron into the trial balance",
+   "reason": "[screen] defect — production (homeScreenFor) passes no onOpenTrialBalance, so the card is not a door; 07 §4 requires tapping through to the S8.2 trial balance",
+   "authority": "07 §4 🔒 (tapping through to the full trial balance)"
+  },
+  {
+   "what": "c15/c2/c7 S1 *Home · the baseline*: the position card is titled 'Position' and lists Cash in hand and SBI Saving rows, then You will get / You will give / Advances out (₹0) as one-line rows with signed tinted amounts (+₹5,000, −₹2,875) and a chevron; the frame draws only You will get / You will give / Advance out, each with a second line ('3 parties · Ramesh Kumar +2'), a dotted leader, a direction arrow (↓ / ↑ / clock) before an unsigned amount, and no card title",
+   "reason": "[shared] card (position rows: second line, leader, arrow) — but the money-account rows and the zero Advances line stay: the position card is 02 §9 exactly; and amounts keep their + / − sign",
+   "authority": "02 §9 / 07 §4 🔒 (F1-07-49); 07 §1 rule 3 🔒 (sign with every tinted amount); ADR 2026-10-10b Open (shorter card vs 02 §9)"
+  },
+  {
+   "what": "c15/c2/c7 S1 *Home · the baseline*: at 390×844 'This month' and the Today section sit below the pinned verbs (they are reached by scrolling — capture S1__below); the frame shows both above the verbs",
+   "reason": "[screen] follows from the taller position card (02 §9 rows incl. Cash in hand, SBI Saving, In transit) and the header; the list scrolls beneath the pinned verbs, which never move (07 §1 rule 2)",
+   "authority": "02 §9 / 07 §4 🔒 (position card = 02 §9 exactly); 07 §1 rule 2 🔒"
+  },
+  {
+   "what": "c15/c2/c7 S1 *Home · the baseline* (S1__below): 'This month' is a bare line — muted title, then 'In +₹18,600' and 'Out −₹5,275' with signed tinted amounts; the frame draws it as a bordered card, 'This month' at the left and '↓ In ₹1,75,000 · ↑ Out ₹1,38,200' right-aligned with direction arrows and a dot separator",
+   "reason": "[shared] card (month line as a card with arrowed In / Out); the sign stays with every tinted amount",
+   "authority": "07 §4 🔒 (This month In/Out stays on Home; presentation settled in the Home rework); 07 §1 rule 3 🔒; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c15/c2/c7 S1 *Home · the baseline* (S1__below): the Today header reads 'Today' in sentence case with no date and no day-book door; the frame draws 'TODAY · 30 AUG › day book' — uppercase letter-spaced caption, the date, and a chevron + 'day book' link into the full day book",
+   "reason": "[screen] defect — production (homeScreenFor, home_routes.dart:48-103) passes no onOpenDayBook, so s1_home_screen.dart:779-783 never draws the 'Full day book' door; 07 §4's wireframe has 'TODAY · 28 Aug ▸ full day book'. The caption style and date are [shared] list row (section caption)",
+   "authority": "07 §4 🔒 wireframe ('TODAY · 28 Aug ▸ full day book'); 07 §1 🔒 (no dead ends)"
+  },
+  {
+   "what": "c15/c2/c7 S1 *Home · the baseline*: when an entry today is under review, the summary chip ('n under review · ₹…') is drawn disabled — its onPressed is onOpenDayBook, which production leaves null; the frame's book has no under-review row, so the chip itself is not drawn there and the capture fixture has none either",
+   "reason": "[screen] defect — 07 §4: the summary chip is the single place the review status is written out and tapping it opens the filtered list; s1_home_screen.dart:809 wires it to the same missing onOpenDayBook (not captured: no under-review fixture)",
+   "authority": "07 §4 🔒 (Today section: summary chip, tapping it opens the filtered list)"
+  },
+  {
+   "what": "c15/c2/c7 S1 *Home · the baseline* (S1__below): Today rows are not tappable in production — homeScreenFor passes no onOpenEntry, so HomeTodayRow gets onTap null",
+   "reason": "[screen] defect — 07 §4: 'Tap any row → entry detail (audit trail, amend/reverse per 02 §5)'",
+   "authority": "07 §4 🔒 (Tap any row → entry detail); 07 §1 🔒 (no dead ends)"
+  },
+  {
+   "what": "c15/c2/c7 S1 *Home · the baseline* (S1__below): Today rows are one-line label/amount rows — 'Diesel   +₹2,875 Money in', 'SBI Saving   +₹4,000 Money in' — with no leading icon circle, no second line, a + / − sign and the direction word after the amount; the frame draws an icon circle (↙ / ↗), the party in ink over 'narration · account' muted, and an arrowed unsigned amount ('↓ ₹12,000'), with hairlines between rows",
+   "reason": "[shared] list row (Today row: icon circle, two lines, arrowed amount). ⚠️ SPEC (open): the capture's credit purchase (Took on credit, Diesel from Bharat Power, no money leg) reads '+₹2,875 Money in' — HomeTodayRow.amountLine falls back to the negated party line; whether a credit purchase should carry a Money in/out word at all is for the Home owner to settle, not this audit",
+   "authority": "07 §4 🔒 (Today section rows); 07 §1 rule 3 🔒 (sign or direction word with every tinted amount); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c15/c2/c7 S1 *Home · the baseline*: verb button labels are letter-spaced (label style tracking) where the frame sets them at normal tracking",
+   "reason": "[shared] verb buttons (Home verb bar)",
+   "authority": "design/tokens/tokens.json type roles; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c15/c2/c7 S1 *Home · the baseline*: Money in ↓ / Money out ↑ arrows in full ink where the frame tints them green and red",
+   "reason": "[canvas-wrong] the tints are the credit/debit tokens, which colour amounts only; the word under each arrow carries the direction (⚠️ SPEC home_cards.dart, open P1A — owner may rule otherwise)",
+   "authority": "07 §1 rule 3 🔒; ADR 2026-09-05f §H1"
+  },
+  {
+   "what": "c15/c2/c7 S1 *Home · the baseline*: the tab bar carries the docked centre (+) and no Inbox count badge; the frame draws four tabs (Home · Ledger · Inbox with badge · Menu) and no (+)",
+   "reason": "[shared] bottom bar/shell — to fix in phase 2: the shell follows the canvas",
+   "authority": "ADR 2026-10-10b §2 🔒 (F1-1010b-1 @M13)"
+  },
+  {
+   "what": "c15/c2/c7 S1 *Home · the baseline*: the frame's Inbox badge ('3') is not exercised — the capture has nothing in the Inbox",
+   "reason": "[shared] bottom bar/shell — badge behaviour belongs to the shell slice; capture fixture has no Inbox items",
+   "authority": "ADR 2026-10-10b §2"
   }
  ],
  "approved_by_owner": false,
- "checked_on": "2026-10-06",
+ "checked_on": "2026-10-10",
  "hashes": {
-  "screens": "9859b67531a54fff8e44bba77375567703517138c5e5f4e647822185151edc66",
+  "screens": "9e6e5d357ad4ab7577513776b4470d478bd7cca02c17cee0e4a8a6a704e91fbe",
   "frames": "382f3de97507095f9be69b2b8874ef669f10507f1d82bcbb7ff91b49493cd16a"
  }
 }

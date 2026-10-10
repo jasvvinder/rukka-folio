@@ -22,54 +22,95 @@
   "app/lib/features/home/screens/s1_home_screen.dart",
   "app/lib/features/home/widgets/home_cards.dart",
   "app/lib/features/home/widgets/home_verb_gate.dart",
-  "app/lib/features/onboarding/setup_progress.dart"
+  "app/lib/features/onboarding/setup_progress.dart",
+  "app/lib/shared/widgets/rk_tab_bar.dart"
  ],
  "deviations": [
   {
-   "what": "Around the checklist, Home is today's S1: an app bar titled 'Home' and, with two books (O8b–O8f), the two-chip scope toggle where the frames draw the scope pill with the person's name and a bell; the 'Balanced' verification card and the hero's 'Cash A/c ₹0' line where the frames draw 'Nothing recorded yet'; the shell's centre (+) in the tab bar; so 'Today · 6 Oct' is below the fold",
-   "reason": "This slice owns the checklist card; the rest of Home is S1's re-skin (S1.json), the toggle is 13 §2.2's two-book control, the verification card is required on Home, and the tab bar is the shell's",
-   "authority": "07 §4 🔒 (verification card); 13 §2.2 🔒 (two chips for two books); S1 re-skin and shell (+) — open P1A"
+   "what": "c1 O8 *Setup checklist · Home, first run*: (captured through the production wiring, homeScreenFor) a centred Material app bar titled 'Home' with a search icon, on a lighter paper surface with a hairline under it, where the frame draws the book pill (initials avatar · book name · chevron) at the left and a sync icon at the right on the page's own cream, no title and no rule (the frame's pill names the person, 'Amrit Kaur')",
+   "reason": "[shared] app bar/header — S1's header follows the canvas (book pill · sync); the pill must still reach avatar and role",
+   "authority": "ADR 2026-10-10b §3 🔒 (F1-1010b-2 @M13); 13 §2.3 🔒 (who am I, here)"
   },
   {
-   "what": "Money in ↓ / Money out ↑ arrows in full ink where the frames tint them green and red",
-   "reason": "The tints are the credit/debit tokens, kept for amounts only; the word under each arrow carries the direction",
-   "authority": "07 §1 rule 3 🔒; ADR 2026-09-05f §H1; ⚠️ SPEC home_cards.dart (open P1A)"
+   "what": "c1 O8b–O8f *Setup checklist · family/trust, invites skipped · a branch finished · Not needed*: with two books the app draws the two-chip scope toggle under the 'Home' title (selected chip filled in the saffron accent with a tick); the frames draw the single scope pill at the left of the header",
+   "reason": "[shared] app bar/header — the S1.2 two-chip control is redrawn with the header (see S1.2.json)",
+   "authority": "13 §2.2 🔒 (two chips for two books); ADR 2026-10-10b §3"
   },
   {
-   "what": "'Add your family' carries no chevron and does not answer a tap (O8)",
-   "reason": "Its door is S9 Members, another feature's screen, and no doc says which book it opens from Home; a chevron with nowhere to go would be a dead end",
-   "authority": "07 §1 rule 6; ⚠️ SPEC home_routes.dart (open SETUP174)"
+   "what": "c1 O8–O8f *Setup checklist*: the frame draws a bell (with an unread dot) in the header; the app has none",
+   "reason": "[canvas-wrong] Home has no bell — the Inbox tab is the one tray",
+   "authority": "ADR 2026-09-05f §F; ADR 2026-10-10b Open (resolved)"
   },
   {
-   "what": "O8d draws the trust book in scope (hero ₹1,21,000 across Cash A/c · Gollak · Bank); the capture keeps the personal book in scope at ₹0",
-   "reason": "The capture shows the same checklist state (branch row ticked and struck, chevron, no ⋮); which book Home opens on is the scope holder's (13 §2.2), not the checklist's",
+   "what": "c1 O8 *Setup checklist · Home, first run*: hero caption 'Total money you have' in sentence case at title size, '₹ ' with a space before the figure, and the breakdown in full ink with no separators and every money account (incl. 'Cash A/c ₹0'); the frame uses an uppercase letter-spaced caption, '₹61,500' set tight, a muted breakdown joined by ' · ' listing only accounts that hold money, and a hairline under the hero; at ₹0 the frame greys the figure and writes 'Nothing recorded yet' where the app writes 'Cash A/c ₹0' in ink",
+   "reason": "[shared] hero",
+   "authority": "ADR 2026-10-10b §3 (hero follows the canvas); 07 §4 🔒 (hero = sum of money accounts with breakdown — content unchanged)"
+  },
+  {
+   "what": "c1 O8–O8d: the 'Balanced · Books balanced · difference nil' verification card sits above the checklist; the frames draw no verification card on first-run Home",
+   "reason": "[canvas-wrong] the verification card is required on Home in every non-rebuilding state",
+   "authority": "07 §4 🔒 (Books-balanced verification card); 07 §1 rule 8 🔒"
+  },
+  {
+   "what": "c1 O8 *Home, first run*: at 390×844 the checklist's last row ('Add your family') and 'Today · 6 Oct' are below the pinned verbs, because the header and the verification card above it are taller",
+   "reason": "[screen] follows from the header and verification-card deviations; the list scrolls beneath the pinned verbs",
+   "authority": "07 §4 🔒; 07 §1 rule 2 🔒"
+  },
+  {
+   "what": "c1 O8 *Home, first run*: 'Today' section empty line reads 'Nothing recorded today yet' under a sentence-case 'Today' heading and a 'This month In ₹0 Out ₹0' line sits above it; the frame writes 'TODAY · 6 OCT' (uppercase caption with the date and a hairline) and 'Nothing written today. Tap a button below to start.', and draws no This-month line at ₹0",
+   "reason": "[screen] section caption style and empty-state copy",
+   "authority": "07 §1 rule 12 🔒 (empty state names the next action); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c1 O8–O8f *Setup checklist*: verb button labels are letter-spaced (label style tracking) where the frame sets them at normal tracking",
+   "reason": "[shared] verb buttons (Home verb bar)",
+   "authority": "design/tokens/tokens.json type roles; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c1 O8–O8f *Setup checklist*: Money in ↓ / Money out ↑ arrows in full ink where the frame tints them green and red",
+   "reason": "[canvas-wrong] the tints are the credit/debit tokens, which colour amounts only; the word under each arrow carries the direction (⚠️ SPEC home_cards.dart, open P1A — owner may rule otherwise)",
+   "authority": "07 §1 rule 3 🔒; ADR 2026-09-05f §H1"
+  },
+  {
+   "what": "c1 O8–O8f *Setup checklist*: the tab bar carries the docked centre (+) and no Inbox count badge; the frame draws four tabs (Home · Ledger · Inbox with badge · Menu) and no (+)",
+   "reason": "[shared] bottom bar/shell — to fix in phase 2: the shell follows the canvas",
+   "authority": "ADR 2026-10-10b §2 🔒 (F1-1010b-1 @M13)"
+  },
+  {
+   "what": "c1 O8 *Home, first run*: 'Add your family' carries no chevron and does not answer a tap",
+   "reason": "[screen] its door is S9 Members, another feature's screen, and no doc says which book it opens from Home; a chevron with nowhere to go would be a dead end",
+   "authority": "07 §1 rule 6 🔒; ⚠️ SPEC home_routes.dart (open SETUP174)"
+  },
+  {
+   "what": "c1 O8d *a branch finished*: the frame draws the trust book in scope (hero ₹1,21,000 across Cash A/c · Gollak · Bank); the capture keeps the personal book in scope at ₹0",
+   "reason": "[screen] capture fixture only — the checklist state (branch row ticked and struck, chevron, no ⋮) is the same; which book Home opens on is the scope holder's",
    "authority": "13 §2.2 🔒"
   },
   {
-   "what": "O8e: the open ⋮ menu does not dim the page or tint the row behind it. Placement matches: the menu hangs under the Finish row, right edge on the ⋮, with the row in view (a row in the lower half of the list is scrolled up first, so the menu lands inside the list, not over the verbs)",
-   "reason": "Flutter's showMenu has no scrim and no anchor-row highlight; the card itself is drawn as the frame draws it (paper, hairline, ✕ + 'Not needed' + the line under it), anchored on the row's box (SETUP174 review finding 3, fixed)",
-   "authority": "design-system (hairlines over shadows, tokens.dart); Material showMenu"
+   "what": "c1 O8e *Not needed*: the open ⋮ menu does not dim the page or tint the row behind it; placement matches (hangs under the Finish row, right edge on the ⋮)",
+   "reason": "[shared] sheet/menu — Flutter's showMenu has no scrim and no anchor-row highlight",
+   "authority": "design-system (hairlines over shadows); Material showMenu"
   },
   {
-   "what": "O8e: 'Menu › Members' where the frame writes 'Menu → Members'",
-   "reason": "No bundled face (Mukta, Mukta Mahee, Noto Sans) carries U+2192, so → is a tofu box on the capture and a system-face fallback on a phone; › is in Mukta",
-   "authority": "11 §4.4 (the bundled faces); ADR 2026-10-05 §2 (no text outside the design faces)"
+   "what": "c1 O8e *Not needed*: the menu's hint writes 'Menu › Members' where the frame writes 'Menu → Members'",
+   "reason": "[screen] defect — the frame's arrow is ruled out by no ADR or 🔒 line; the app substitutes '›' only because no bundled face carries U+2192 (it would be a tofu box). Fix: draw the arrow as an icon inline, as S2.json records for the same glyph in the S2 preview",
+   "authority": "ADR 2026-10-05 §1 (the frame decides icons); 11 §4.4 (the bundled faces — why → cannot be set as text); ADR 2026-10-05 §2"
   },
   {
-   "what": "O8f: none in placement — the toast's bottom edge meets the verb buttons' top (it overlaps only the bar's hairline and top padding, as the frame draws it) and leaves on its own after 10 s; the residual difference is only that Home above it is taller (deviation 1)",
-   "reason": "Lifted by the measured verb-bar height; duration 10 s with persist:false (Flutter 3.47 otherwise keeps a SnackBar with an action up until tapped). SETUP174 review finding 2, fixed; F1-1007-5 asserts both",
-   "authority": "13 §4.2 (toast — the 10 s Undo); 07 §1 rules 1–2 🔒 (verbs stay in reach)"
+   "what": "c1 O8f *after Not needed*: the toast is the Material SnackBar (dark full-width bar, white text) where the frame draws a paper card; its bottom edge meets the verb buttons' top as drawn and it leaves after 10 s",
+   "reason": "[shared] toast/snackbar",
+   "authority": "13 §4.2 (toast — the 10 s Undo); 07 §1 rules 1–2 🔒"
   },
   {
-   "what": "At 200 % text the tick sits above the row's words and the chevrons go; the ⋮ stays beside the tick",
-   "reason": "A Gurmukhi/Devanagari word at 200 % on a 360-wide phone needs the card's full width; 'Not needed' must stay reachable",
-   "authority": "07 §1 rule 11; 13 §8; F1-1007-6 / F1-07-57 layout sweeps"
+   "what": "At 200 % text the tick sits above the row's words and the chevrons go; the ⋮ stays beside the tick (not drawn on the canvas)",
+   "reason": "[screen] a Gurmukhi/Devanagari word at 200 % on a 360-wide phone needs the card's full width; 'Not needed' must stay reachable",
+   "authority": "07 §1 rule 9 🔒; 13 §8; F1-1007-6 / F1-07-57"
   }
  ],
  "approved_by_owner": false,
- "checked_on": "2026-10-09",
+ "checked_on": "2026-10-10",
  "hashes": {
-  "screens": "f08dc7f0181299da53de19e7a5ccc05d4ab97b9826d56427cd1f28b43b511068",
+  "screens": "ca1d034226d098342a1b11af73bff43319917642c5b3f8c48362c75b84fdd3f2",
   "frames": "04ef33c05deda429a8fa0f11a93c268f120da5adbb134c3fceb5b38032d9e644"
  }
 }

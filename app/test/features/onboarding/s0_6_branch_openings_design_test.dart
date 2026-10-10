@@ -4,7 +4,11 @@
 // pair S0.6b` (and S0.6f, S0.6i).
 //
 // default — each screen over its book's seeded money accounts at ₹0, as the
-//           sign-up chain shows it (no Skip).
+//           sign-up chain shows it (no Skip). S0.6f/S0.6i pass no onAddAccount,
+//           as no route does (onboarding_routes.dart), so their add-bank
+//           control is captured disabled, as production draws it. S0.6b keeps
+//           its stub until its own record (S0.6b.json, another slice) is
+//           re-checked — the business route passes none either.
 @Tags(['F1'])
 library;
 
@@ -49,7 +53,6 @@ void main() {
         ],
         startDate: _start,
         onSave: (_) {},
-        onAddAccount: (_) {},
       ),
       'S0.6i': TrustAccountsScreen(
         rows: const [
@@ -63,7 +66,6 @@ void main() {
         ],
         startDate: _start,
         onSave: (_) {},
-        onAddAccount: (_) {},
       ),
     };
     for (final MapEntry(key: sid, value: screen) in screens.entries) {

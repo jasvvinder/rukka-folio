@@ -1,5 +1,9 @@
 // Design captures for S15 / S15.3 (ADR 2026-10-05 §2), including the PIN-only
-// variant of ADR 2026-10-05b §1. Pair with
+// variant of ADR 2026-10-05b §1. Each state is captured for iPhone (390×844)
+// and Android (360×800): the iPhone capture pairs with the c3 S15 / c1 S15.3
+// *· iPhone* frames, the `__android360` capture with their *· Android* twins
+// (ADR 2026-10-08 §3; RESKIN1 audit, design/match/S15.json, S15.3.json). The
+// remaining lock states (S15.1) are in reskin1_lock_test.dart. Pair with
 // `python3 scripts/design_match.py pair S15` / `pair S15.3`.
 @Tags(['F1'])
 library;

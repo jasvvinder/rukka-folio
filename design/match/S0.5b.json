@@ -16,40 +16,50 @@
  ],
  "deviations": [
   {
-   "what": "The A4 preview's two code lines are masked (•••• ••••) where O5b prints sample characters (8F2K 9QD4 / 7HXN 3PW6)",
-   "reason": "The sheet is a printed document; the screen never shows key material. A real code on screen outlives the paper in screenshots, and a sample code that reads like one could be mistaken for the person's own",
+   "what": "Canvas 1 'O5b Recovery sheet · print or save': The A4 preview's two code lines are masked (•••• ••••) where O5b prints sample characters (8F2K 9QD4 / 7HXN 3PW6)",
+   "reason": "[canvas-wrong] The sheet is a printed document; the screen never shows key material. A real code on screen outlives the paper in screenshots, and a sample code that reads like one could be mistaken for the person's own",
    "authority": "04 §7.4 🔒 (sheet = one-page PDF); CLAUDE.md rule 4; ADR 2026-10-06d ruling 3"
   },
   {
-   "what": "The preview's header reads 'RUKKA · RECOVERY SHEET' where O5b prints 'RUKKA FOLIO · RECOVERY SHEET'",
-   "reason": "'Folio' is on the forbidden-jargon list for user-facing copy; scripts/check_strings.dart fails on it. The printed page carries the same title",
-   "authority": "01 §1 rule 4; CLAUDE.md rule 8"
+   "what": "Canvas 1 'O5b Recovery sheet · print or save': the preview's header reads 'RUKKA · RECOVERY SHEET' (onboarding.recovery_sheet.pdf_title 'Rukka · recovery sheet', upper-cased at s0_5b_recovery_sheet_screen.dart:708) where O5b prints 'RUKKA FOLIO · RECOVERY SHEET'",
+   "reason": "[screen] the frame is right: 01 §1 rule 4's carve-out 🔒 exempts the product name Rukka Folio wherever it appears as the name (export footers and printed pages included), so the app's shortened 'Rukka' is the deviation. Fixing it is a copy change outside this record (EN/PA/HI): check_strings.dart whitelists only app.name, app.name.short and about.*, so the title should take the name from app.name (an {appName} placeholder) rather than spell 'Folio' in an onboarding.* key — reported in open. The printed page carries the same title",
+   "authority": "docs/01-glossary.md §1 rule 4 (carve-out 🔒: the product name is exempt); scripts/check_strings.dart whitelisted(); ADR 2026-10-05 §1"
   },
   {
-   "what": "Caption reads 'One A4 page · a square to scan, and a code to type if it won't scan' where O5b says 'eight characters to type'",
-   "reason": "04 §7.4's typed fallback is Crockford Base32 of version ‖ user_id ‖ RK (49 bytes): 79 symbols + a 2-char checksum in groups of 4, not eight characters. ⚠️ SPEC: canvas c1/O5b, R2.4 and R2.4b all say 'eight characters' — the canvas copy conflicts with 04 §7.4; reported to the owner",
+   "what": "Canvas 1 'O5b Recovery sheet · print or save': Caption reads 'One A4 page · a square to scan, and a code to type if it won't scan' where O5b says 'eight characters to type'",
+   "reason": "[canvas-wrong] 04 §7.4's typed fallback is Crockford Base32 of version ‖ user_id ‖ RK (49 bytes): 79 symbols + a 2-char checksum in groups of 4, not eight characters. ⚠️ SPEC: canvas c1/O5b, R2.4 and R2.4b all say 'eight characters' — the canvas copy conflicts with 04 §7.4; reported to the owner",
    "authority": "04 §7.4 🔒; packages/core_crypto/lib/src/recovery.dart recoverySheetTyped"
   },
   {
-   "what": "The heading 'Only you can open your books' wraps to two lines and the caption sits just below the fold at 390×844",
-   "reason": "The frame draws the heading at ~24 pt; the page heading role in tokens.json is 28 pt (RkType.page), which wraps at this width. Everything else in the stack matches the frame's spacing. A failed make's reason is pinned directly above 'Try again' in the action area (outside the scrolling page), so it is on screen at 390×844 and 360×800 (captures S0.5b__not_made, __not_made__android360; F1-1006d-1 asserts it). Check results (R2.4b's causes) appear under the preview and are scrolled into view",
+   "what": "Canvas 1 'O5b Recovery sheet · print or save': The heading 'Only you can open your books' wraps to two lines and the caption sits just below the fold at 390×844",
+   "reason": "[screen] The frame draws the heading at ~24 pt; the page heading role in tokens.json is 28 pt (RkType.page), which wraps at this width. Everything else in the stack matches the frame's spacing. A failed make's reason is pinned directly above 'Try again' in the action area (outside the scrolling page), so it is on screen at 390×844 and 360×800 (captures S0.5b__not_made, __not_made__android360; F1-1006d-1 asserts it). Check results (R2.4b's causes) appear under the preview and are scrolled into view",
    "authority": "design/tokens/tokens.json (type roles); ADR 2026-10-05 §1 (a canvas size maps to its type role)"
   },
   {
-   "what": "Buttons have the theme's rounded corners where O5b draws square ones",
-   "reason": "Button shape is the shared theme's (app/lib/shared/theme.dart, RkRadius), not this screen's; every screen draws it so",
+   "what": "Canvas 1 'O5b Recovery sheet · print or save': Buttons have the theme's rounded corners where O5b draws square ones",
+   "reason": "[shared] primary button (FilledButton/OutlinedButton theme): Button shape is the shared theme's (app/lib/shared/theme.dart, RkRadius), not this screen's; every screen draws it so",
    "authority": "design/tokens/tokens.json RkRadius; shared theme (foundation lane)"
   },
   {
-   "what": "States the frame does not draw: not_made (reason pinned above Try again + Skip for now), check (Scan the sheet / Type the code instead / Make a new sheet), the in-progress line under the preview, and the Back re-entry in sign-up (opens on the 'opened' state; Print or save then asks before a new sheet voids the printed one)",
-   "reason": "ADR 2026-10-06d ruling 3 requires a failed publish to show its reason and keep Skip; 04 §7.4's scan-back and regenerate need a check state. Drawn in O5b's layout; check takes R2.4's scan + 'type the code instead' pair and R2.4b's two failure causes",
+   "what": "Canvas 1 'O5b Recovery sheet · print or save': States the frame does not draw: not_made (reason pinned above Try again + Skip for now), check (Scan the sheet / Type the code instead / Make a new sheet), the in-progress line under the preview, and the Back re-entry in sign-up (opens on the 'opened' state; Print or save then asks before a new sheet voids the printed one)",
+   "reason": "[screen] ADR 2026-10-06d ruling 3 requires a failed publish to show its reason and keep Skip; 04 §7.4's scan-back and regenerate need a check state. Drawn in O5b's layout; check takes R2.4's scan + 'type the code instead' pair and R2.4b's two failure causes",
    "authority": "ADR 2026-10-06d ruling 3 🔒; ADR 2026-10-07 ruling 1; 04 §7.4 🔒; 13 §4.3; canvas c1/R2.4, c1/R2.4b (pattern only); RUNG3B repair #1 (04 §7.4 🔒 a new sheet invalidates the old)"
+  },
+  {
+   "what": "Canvas 1 O5b Recovery sheet: the app bar's back chevron is a thin muted glyph and the title 'Your recovery sheet' is ~16 px regular; the app draws a heavier full-ink chevron and the title at ~20 px",
+   "reason": "[shared] app bar (AppBar theme: leading icon colour/weight and title role)",
+   "authority": "ADR 2026-10-05 §1 (components)"
+  },
+  {
+   "what": "Canvas 1 O5b Recovery sheet: the two body paragraphs are set wider in the app (the first wraps 'Rukka' to the next line where the frame keeps it)",
+   "reason": "[shared] theme text styles (app/lib/shared/theme.dart rkTextTheme): Material's inherited letterSpacing (0.5 bodyLarge, 0.25 bodyMedium, 0.1–0.5 labels) is never zeroed, so every run of body/label text is wider than the canvas's untracked Mukta",
+   "authority": "tokens.json type.scale carries no tracking; open item from the S0.8 record (KEY145B review finding 4); ADR 2026-10-05 §1"
   }
  ],
  "approved_by_owner": false,
- "checked_on": "2026-10-09",
+ "checked_on": "2026-10-10",
  "hashes": {
-  "screens": "128a5a3f676c40de522814894deca464a3528ac5c6521f0a828603911260300c",
+  "screens": "f61cceacdab43fa805e82b9fe146255f5563e580defd28d6aff5c03ff3e441e9",
   "frames": "a4bb57a84f1c30b7678be8c188dfa0d7f9b9b8c525895bff6b282869c56f71ad"
  }
 }

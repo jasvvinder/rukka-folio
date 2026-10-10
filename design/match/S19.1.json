@@ -1,0 +1,58 @@
+{
+ "sid": "S19.1",
+ "verdict": "deviates",
+ "frames": [
+  "c3/S19.1/Update required · iPhone",
+  "c3/S19.1/Update required · Android"
+ ],
+ "captures": [
+  "S19.1__default",
+  "S19.1__offline"
+ ],
+ "screen_files": [
+  "app/lib/features/auth/screens/s19_1_update_required_screen.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c3/S19.1 'Update required · iPhone' and '· Android': the screen is left-aligned under a Material 'system update' glyph in primary, where both frames centre the column under the brand mark (SealedMark)",
+   "reason": "[screen] Built before the frame; the frame decides layout and icon",
+   "authority": "ADR 2026-10-05 §1; 13 §3.2 row S19.1 (no layout ruled)"
+  },
+  {
+   "what": "c3/S19.1 'Update required · iPhone' / '· Android': the title is 'Update needed' (page role, 28 px, one line) where the frames say 'Please update Rukka Folio to keep going' (~20 px semibold, centred, two lines)",
+   "reason": "[screen] Copy and role predate the frame; 07 §24 and 13 §3.2 rule no copy for S19.1, so the frame's words and size (section role) are the design",
+   "authority": "ADR 2026-10-05 §1; 07 §24 🔒 (S19.1 named, copy not ruled); tokens typography.scale.section"
+  },
+  {
+   "what": "c3/S19.1 both frames: the body says 'This version of the app is too old to keep your books safe. Update to carry on.' in ink, left-aligned, where the frames say 'This version can no longer talk to your books. The update takes a moment and nothing is lost.' in muted text, centred",
+   "reason": "[screen] Copy predates the frame (auth_*.arb update.body); no spec copy rules it",
+   "authority": "ADR 2026-10-05 §1; 07 §24"
+  },
+  {
+   "what": "c3/S19.1 both frames: a version line 'You have 1.0.0 · needs 1.2.0' draws under the body; the frames have none",
+   "reason": "[screen] Added with the 426 handling; nothing rules it in or out. A re-skin decision for the owner: keep (support value) or drop (frame)",
+   "authority": "06 §4.5 (426 carries the required version); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c3/S19.1 'Update required · iPhone' says 'Open the App Store' and '· Android' says 'Open the Play Store'; the app says 'Update now' on both",
+   "reason": "[screen] The button names the store by platform per the platform-noun ruling; the ARB key update.action has one string",
+   "authority": "ADR 2026-10-08 §4 🔒 (App Store → Play Store on Android; F3-01-3 @M12); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c3/S19.1 'Update required · iPhone' / '· Android': the filled 'Update now' button carries the theme's rounded corners (radius.md 8) and sits inset from the edges where the frame draws it square-cornered",
+   "reason": "[shared] FilledButton theme (app/lib/shared/theme.dart filledButtonTheme, tokens radius.md). The canvases disagree among themselves (c1b L1/L2/L8 draw it rounded; c1 S15.3 and c3 S19.1 draw it square), so the shared component needs one ruling",
+   "authority": "app/lib/shared/theme.dart filledButtonTheme; tokens.json radius.md (phase 2 shared component)"
+  },
+  {
+   "what": "No frame: offline state (capture S19.1__offline) adds a wifi-off line 'You'll need internet to update.' above the button, and the button stays enabled",
+   "reason": "[screen] States from 13 §4.3 (offline) and 07 §1 rule 6 (no dead end); the canvas draws only the default",
+   "authority": "07 §1 rule 6 🔒; 07 §24 (S19.3 non-blocking)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "bc2297044bd978408b4d36ae3b8b0605ffc82f32ae5ce57472d62798eb59e37e",
+  "frames": "32b3d5e5b85ffad20a59133b92da49bf7d392f9e614d86c9c3836d05b83313b1"
+ }
+}

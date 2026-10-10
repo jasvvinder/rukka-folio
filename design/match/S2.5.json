@@ -1,0 +1,57 @@
+{
+ "sid": "S2.5",
+ "verdict": "deviates",
+ "frames": [
+  "c12/B5/Drawings · not a business expense",
+  "c2/B5/Drawings confirmation · business only"
+ ],
+ "captures": [
+  "S2.5__drawings"
+ ],
+ "screen_files": [
+  "app/lib/features/entry/screens/s2_add_entry_screen.dart",
+  "app/lib/features/entry/entry_routes.dart",
+  "app/lib/features/entry/entry_slots.dart",
+  "app/lib/features/entry/widgets/entry_verb_pill.dart",
+  "app/lib/features/entry/widgets/entry_chip_row.dart",
+  "app/lib/features/entry/widgets/entry_slot_field.dart",
+  "app/lib/features/entry/widgets/entry_account_picker.dart",
+  "app/lib/features/entry/widgets/entry_keypad.dart",
+  "app/lib/features/entry/widgets/entry_preview_line.dart",
+  "app/lib/features/entry/widgets/entry_date_picker.dart",
+  "app/lib/features/entry/widgets/entry_drawings_banner.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c12/c2 B5 *Drawings · not a business expense* / *Drawings confirmation · business only*: the frames raise a bottom sheet (person icon, 'Taking money out of the business', a body naming the book, a red-ruled card Amount ₹30,000 · Out of 'Business Cash A/c ⌄' · Recorded as Drawings, an info note, solid 'Confirm' and 'Go back'); the app draws a one-line muted banner under the FOR slot ('Money taken for yourself — recorded as a drawing, not a business expense.') and posts on Save with no confirm step",
+   "reason": "[screen] ⚠️ SPEC (open): 07 §5 says a one-line confirmation and also 'The sheet exists so…', while the single-screen rule forbids overlays — the app takes the one-line reading until the owner rules",
+   "authority": "07 §5 *Owner’s drawings* 🔒 and *Single screen, always* 🔒; ADR 2026-09-02"
+  },
+  {
+   "what": "c12/c2 B5: the frame's backdrop is not S2 ('MONEY OUT · SHARMA TEXTILE' caption, From / 'Paid to Rahul Sharma · owner' label rows)",
+   "reason": "[canvas-wrong] the backdrop is not the single entry screen of the c2 S2 frames",
+   "authority": "07 §5 🔒"
+  },
+  {
+   "what": "c12/c2 B5 *business only*: the capture's book is the personal fixture book with a Drawings account added; the frame is a business book",
+   "reason": "[screen] fixture only — the banner keys off the Drawings account (SystemRole.drawings)",
+   "authority": "07 §5 *Owner’s drawings* 🔒"
+  },
+  {
+   "what": "S2.5 capture (390×844): with the banner shown the keypad rows shrink to about half height and about 140 pt of empty space is left under Save",
+   "reason": "[screen] defect — the lower region does not share the space it has; not drawn on the canvas",
+   "authority": "07 §5 *Single screen, always* 🔒; 07 §1 rule 2 🔒"
+  },
+  {
+   "what": "c12/c2 B5: the frame tints the amount ₹30,000 red in the card",
+   "reason": "[screen] the app's typed amount is ink (see S2.json, the typed-amount ⚠️ SPEC)",
+   "authority": "07 §1 rule 3 🔒"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "64232b9011882f3823a9758430d3ea7e3c389e65ea68887e635b4bb6cdc91584",
+  "frames": "088502df230d70b1838b507b6078bf43051af37bbe674a135e3685f5a5f80c52"
+ }
+}

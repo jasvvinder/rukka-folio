@@ -1,0 +1,68 @@
+{
+ "sid": "S0.6h",
+ "verdict": "deviates",
+ "frames": [
+  "c1/S0.6h/Who runs it? · committee roles",
+  "c14/S0.6h/Who runs it? · committee roles"
+ ],
+ "captures": [
+  "S0.6h__default"
+ ],
+ "screen_files": [
+  "app/lib/features/onboarding/screens/s0_6h_trust_members_screen.dart",
+  "app/lib/features/onboarding/onboarding_routes.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c1/c14 'Who runs it? · committee roles': back chevron and progress dashes (2 of 3); the app draws neither",
+   "reason": "[shared] onboarding step top bar (back chevron + three progress dashes) — today it exists only as S0.6's private _TopBar (s0_6_opening_balances_screen.dart:381); the branch steps draw no top bar at all",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1/c14 'Who runs it? · committee roles': title 'Who runs it?'; the app says 'Who runs the trust?'",
+   "reason": "[screen] title copy differs from the ruled step name",
+   "authority": "07 §3.1.1 🔒 (O6h 'Who runs it?')"
+  },
+  {
+   "what": "c1/c14 'Who runs it? · committee roles': subtitle 'The same five capabilities as any book, under the names a committee uses.'; the app says 'Invite the committee by phone…' plus an info line 'Invited members stay unverified…'",
+   "reason": "[screen] copy and an extra info line",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1/c14 'Who runs it? · committee roles': one row per role (role name, capability sub-line, the assignee or 'n added' or 'Add', chevron) — Chairman, President, Trustee, Sevadar, Auditor; the app draws an editable card per person with Name, a Role dropdown and Phone",
+   "reason": "[screen] role-first list with a drill-in per role, not person cards; S0.6h only",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c1/c14 'Who runs it? · committee roles': an Auditor row ('reads and exports, enters nothing'); the app's TrustRole has no Auditor",
+   "reason": "[screen] 06 §1.0's organization defaults include viewer → Auditor, but 07 §3.1.1 🔒 names Chairman, President, Trustees, Sevadars at this step — ⚠️ SPEC owner to confirm a fifth role here",
+   "authority": "06 §1.0 (designation table); 07 §3.1.1 🔒"
+  },
+  {
+   "what": "c1 'Who runs it? · committee roles': second row 'Secretary'; c14 draws 'President' as the app does",
+   "reason": "[canvas-wrong] head defaults to President; Secretary is not a default label",
+   "authority": "06 §1.0 🔒 (ADR 2026-09-01)"
+  },
+  {
+   "what": "c1/c14 'Who runs it? · committee roles': Trustee's sub-line 'approves what is entered'",
+   "reason": "[screen] not drawn by the app; the claim is disputed (06 §1.0 ⚠️: 13 §7 gives review to admin/head only) and must not be copied until the owner rules",
+   "authority": "06 §1.0 ⚠️"
+  },
+  {
+   "what": "c1/c14 'Who runs it? · committee roles': 'Skip for now' in muted ink; the app draws it in primary (indigo) ink",
+   "reason": "[shared] secondary text button — the frames draw it in muted ink; the app draws Material's default TextButton, whose ink is colorScheme.primary (indigo), as there is no sub-theme for it in app/lib/shared/theme.dart (it sets only appBar, card, divider, listTile, filledButton, outlinedButton and bottomSheet themes)",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "Android 360×800 capture: the second member's card runs under the pinned Continue (scrolls)",
+   "reason": "[screen] follows from the card layout",
+   "authority": "ADR 2026-10-05 §2"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "ef9054fdb06533475ebd102edb44cfd99d896ae893b900b520f20181dada4488",
+  "frames": "5844b5d20105d2cd653708b595853123dfec47fc38f31a2e2010400a977e43fb"
+ }
+}

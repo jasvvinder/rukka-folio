@@ -1,0 +1,57 @@
+{
+ "sid": "S2.1",
+ "verdict": "deviates",
+ "frames": [
+  "c2/S2-B/Saved · over the member’s limit"
+ ],
+ "captures": [
+  "S2.1__saved",
+  "S2.1__picker"
+ ],
+ "screen_files": [
+  "app/lib/features/entry/screens/s2_add_entry_screen.dart",
+  "app/lib/features/entry/entry_routes.dart",
+  "app/lib/features/entry/entry_slots.dart",
+  "app/lib/features/entry/widgets/entry_verb_pill.dart",
+  "app/lib/features/entry/widgets/entry_chip_row.dart",
+  "app/lib/features/entry/widgets/entry_slot_field.dart",
+  "app/lib/features/entry/widgets/entry_account_picker.dart",
+  "app/lib/features/entry/widgets/entry_keypad.dart",
+  "app/lib/features/entry/widgets/entry_preview_line.dart",
+  "app/lib/features/entry/widgets/entry_date_picker.dart",
+  "app/lib/features/entry/widgets/entry_drawings_banner.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c2 S2-B *Saved · over the member’s limit*: the index files this frame under S2.1, which 13 §3.2 names 'A/C picker + inline create'; the frame draws the post-save state, not a picker. Both are captured: S2.1__saved for the frame, S2.1__picker for the row's screen (its look is recorded in S2.json, *State 2 · choosing*)",
+   "reason": "[canvas-wrong] index/design-id mismatch — ⚠️ SPEC (open): 13 §3.3 maps S2-B/S2-C to S2.1 as the picker's in-place state",
+   "authority": "13 §3.2 row S2.1; 13 §3.3"
+  },
+  {
+   "what": "c2 S2-B *Saved*: the toast is the Material SnackBar (dark full-width bar over the Save button, 'Saved ☐ (on phone)', white 'Undo'); the frame draws a paper card above the keypad with an amber left rule, a green tick, 'Saved' and a navy 'Undo'",
+   "reason": "[shared] toast/snackbar; the ✓ in 'Saved ✓' is a tofu box (U+2713 not in the bundled faces) — [screen] defect",
+   "authority": "13 §4.2 (toast); 07 §5 step 6 🔒; 11 §4.4"
+  },
+  {
+   "what": "c2 S2-B *Saved · over the member’s limit*: no '⏱ Sunita will review' line",
+   "reason": "[screen] member limits are not built (M7); the toast reads the plain Saved",
+   "authority": "07 §5 step 6 🔒; 02 §3"
+  },
+  {
+   "what": "c2 S2-B *Saved*: the slots stay as full fields with the chip row and the preview '₹0 · Cash in hand ☐ Diesel'; the frame collapses them to 'Cash A/c → Diesel Expense A/c' with 'Both sides kept for the next one — type an amount to repeat it.' and puts 'Keypad stayed open · zeroed for the next entry' under the muted ₹0 with a caret",
+   "reason": "[screen] post-save layout and copy",
+   "authority": "07 §5 step 7 🔒; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c2 S2-B *Saved*: header, keypad and Save button differ as recorded for S2 (verb pill, 3×4 keypad, rectangular Save); the frame's pill also carries a '›'",
+   "reason": "[shared] verb pill / primary button; keypad [screen] — see S2.json",
+   "authority": "07 §5 🔒"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "64232b9011882f3823a9758430d3ea7e3c389e65ea68887e635b4bb6cdc91584",
+  "frames": "8f5166e28be147fde931c008a61cc0be76cf47b67bbec55ece55ba0711c36cb6"
+ }
+}

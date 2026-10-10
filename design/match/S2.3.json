@@ -1,0 +1,76 @@
+{
+ "sid": "S2.3",
+ "verdict": "deviates",
+ "frames": [
+  "c13/S2.3/Inter-book transfer",
+  "c13/S2.3/In transit, on both sides",
+  "c2/S2.3/Transfer within one book",
+  "c2/S2.3/Transfer between books",
+  "c2/S2.3/In transit, on both sides"
+ ],
+ "captures": [
+  "S2.3__within-one-book",
+  "S2.3__between-books"
+ ],
+ "screen_files": [
+  "app/lib/features/entry/screens/s2_add_entry_screen.dart",
+  "app/lib/features/entry/entry_routes.dart",
+  "app/lib/features/entry/entry_slots.dart",
+  "app/lib/features/entry/widgets/entry_verb_pill.dart",
+  "app/lib/features/entry/widgets/entry_chip_row.dart",
+  "app/lib/features/entry/widgets/entry_slot_field.dart",
+  "app/lib/features/entry/widgets/entry_account_picker.dart",
+  "app/lib/features/entry/widgets/entry_keypad.dart",
+  "app/lib/features/entry/widgets/entry_preview_line.dart",
+  "app/lib/features/entry/widgets/entry_date_picker.dart",
+  "app/lib/features/entry/widgets/entry_drawings_banner.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c2 S2.3 *Transfer within one book* / c2·c13 *Transfer between books*: the frames draw separate screens ('Move money', 'Move money between books') with a back chevron and no keypad or verb pill; the app is S2 on the pill's fifth position",
+   "reason": "[canvas-wrong] Move money is the fifth swipe of the S2 pill, on the one entry screen",
+   "authority": "ADR 2026-09-03b §1 🔒; 07 §5 🔒 (five positions; single screen)"
+  },
+  {
+   "what": "c2 S2.3 *Transfer within one book*: the frame labels the sides 'OUT OF' / 'INTO' / 'HOW MUCH'; the app 'From' / 'To'",
+   "reason": "[canvas-wrong] the transfer slots are FROM / TO",
+   "authority": "07 §5 step 2 🔒 (slot table, Transfer row)"
+  },
+  {
+   "what": "c2 S2.3 *Transfer within one book*: no consequence note; the frame closes with 'Cash goes down by ₹20,000. Indian Bank goes up by ₹20,000. Your total does not change.' Between books the frame says what each book will show and who must approve ('… It waits for his approval before both halves are final.') and labels the action 'Send for approval'; the app says 'Save'",
+   "reason": "[screen] not built",
+   "authority": "07 §10 🔒; 02 §6; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c2/c13 S2.3 *Transfer between books*: the frame draws FROM BOOK / TO BOOK dropdown fields with each book's accounts as chips under it; the app keeps the source book implicit and offers the destination book inside the TO picker, writing 'Sharma Family · Family Cash' in the slot",
+   "reason": "[screen] layout",
+   "authority": "07 §10 🔒; F1-07-118; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c2 S2.3 *Transfer within one book*: the chip rows are centred and end in a '+ More' text button; the frame's are left-aligned paper chips with hairlines",
+   "reason": "[shared] chip",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c2 S2.3: the active verb ('Move money') is scrolled out of the pill row, so the screen never says it is a transfer",
+   "reason": "[shared] verb pill — defect",
+   "authority": "07 §5 🔒 (verb shown as a header chip)"
+  },
+  {
+   "what": "c2/c13 S2.3 *In transit, on both sides*: not captured — the waiting rows live on each book's day book (S1 Today / S3), and a pending second half needs another member's approval, which this audit's fixtures cannot reach",
+   "reason": "[screen] uncaptured state (open)",
+   "authority": "07 §10 🔒; ADR 2026-10-10b §1"
+  },
+  {
+   "what": "c2 S2.3: keypad, Save and preview as recorded for S2 (incl. the tofu → in the preview)",
+   "reason": "[screen]/[shared] — see S2.json",
+   "authority": "07 §5 🔒"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "64232b9011882f3823a9758430d3ea7e3c389e65ea68887e635b4bb6cdc91584",
+  "frames": "0c9a2c1e520e3228492870aeb6b0a21707723592f9a4109a9c409c3e2583fec7"
+ }
+}

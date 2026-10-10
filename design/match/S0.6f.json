@@ -7,28 +7,65 @@
   "nd/S0.6f-family/S0.6f-family"
  ],
  "captures": [
-  "S0.6f__default"
+  "S0.6f__default",
+  "S0.6f__filled"
  ],
  "screen_files": [
   "app/lib/features/onboarding/screens/s0_6f_family_accounts_screen.dart",
-  "app/lib/features/onboarding/widgets/family_opening_host.dart"
+  "app/lib/features/onboarding/widgets/family_opening_host.dart",
+  "app/lib/features/onboarding/onboarding_routes.dart"
  ],
  "deviations": [
   {
-   "what": "Layout is the older review-and-fill screen (title, subtitle, date line with calendar icon, a heading per group, underlined amount fields, '+ Add a bank account', a 'Balances against' box, a Save button) where the c1 frame draws the S0.6 pattern: back chevron and progress dashes, 'What is in the joint fund?' title, 'Balances as on <date>', sunk group bands with right-aligned ₹ boxes, a dashed 'Add an account' row, a footer note band and 'Finish'",
-   "reason": "This slice (SETUP174) only removes the step's Skip (ADR 2026-10-07 ruling 1); the frames were placed 7 Oct (desk 178) and their re-skin onto the S0.6 pattern — with the joint-fund wording of ADR 2026-10-08 — is its own slice",
-   "authority": "open SETUP174 (re-skin S0.6b/S0.6f/S0.6i to the c1 frames); ADR 2026-10-08 §1 wording is WORDS179"
+   "what": "c1 'What the joint fund has': drawn on the S0.6 pattern — back chevron and progress dashes (3 of 3), 'Balances as on 9 September 2026', sunk bands WHAT THE JOINT FUND HAS / WHO OWES THE JOINT FUND / WHAT THE JOINT FUND OWES with 'Nobody yet.', a ₹ box input right-aligned per row with a sub-line ('common cash'), dashed 'Add an account · bank, cash, a person, a category…', a footer note band and 'Finish'; the app draws the older review-and-fill screen (title, subtitle, calendar date line '09 Sep 2026', one 'What the pool has' heading, underlined 'Opening balance' fields, '+ Add a bank account', a 'Balances against' box, 'Save')",
+   "reason": "[shared] S0.6 opening-balances pattern (sunk uppercase group bands, right-aligned ₹ box inputs, 'Nobody yet.' party groups, dashed 'Add an account' row, footer note band, Finish) — private to s0_6_opening_balances_screen.dart; S0.6f/S0.6i still use the older review-and-fill layout shared with S0.6b",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
   },
   {
-   "what": "The nd/ frames draw 'Skip for now' under Finish; the app draws none",
-   "reason": "The step is required in sign-up; ₹0 everywhere then Save is a valid answer with no extra confirm",
+   "what": "c1 'What the joint fund has' / c13 / nd/S0.6f-family: an active 'Add an account' row, and c13's filled state holds a bank row 'PNB Joint A/c · bank ₹63,000' beside the cash; on the production path the app's '+ Add a bank account' is drawn disabled (greyed) and no bank row can be added, so the filled capture holds only the seeded 'Joint Cash A/c'",
+   "reason": "[screen] production defect, not a capture choice: no route passes onAddAccount (onboarding_routes.dart:513 FamilyOpeningHost / :574 TrustOpeningHost; the hosts forward null at family_opening_host.dart:282 / trust_opening_host.dart:305), so the TextButton gets onPressed: null. The captures pass none either, to show what production draws. Fix belongs to the onboarding routes (not this slice) — open item",
+   "authority": "ADR 2026-09-09d §1 (a bank arrives through Add an account during setup) and §2 (a trust that banks adds its bank on the same screen, one tap); 07 §1 no dead ends; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c13 'The family's shared accounts': the cash row is named 'Joint Cash' (sub-line 'kept at home'); c1/nd and the app say 'Joint Cash A/c' (the app has no sub-line)",
+   "reason": "[canvas-wrong] for the name — the seeded name is 'Joint Cash A/c' (LocalLedger.defaultCashName, family); c13 is the older filled-state frame. The missing sub-line goes with the S0.6-pattern re-skin [shared]",
+   "authority": "ADR 2026-09-09c §1 (seeded cash name); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c1 'What the joint fund has': title 'What is in the joint fund?' and joint-fund wording throughout; the app says 'Your family's shared accounts' and 'What the pool has' / 'fill in what the pool has'",
+   "reason": "[screen] ARB still carries the superseded pool wording",
+   "authority": "ADR 2026-10-08 §1 🔒 (S0.6f copy quoted); WORDS179"
+  },
+  {
+   "what": "c13 'The family's shared accounts' (filled): '₹18,800' in a boxed input with Indian grouping; the app shows '₹18800' in an underlined field",
+   "reason": "[shared] money input field — the opening-balance amount field shows no digit grouping while it holds a figure; goes with the S0.6 pattern's ₹ box",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "c13 'The family's shared accounts': footer 'Only what the joint fund itself holds…' and 'Continue'; c1 has 'Fill these in and we will show what the joint fund is holding…' and 'Finish'; the app has 'A row left at ₹0 is still created…', the 'Balances against' box and 'Save'",
+   "reason": "[screen] c13 is the older filled-state frame; c1 (placed 7 Oct, desk 178) is followed for copy and the primary label",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); open RESKIN2/3 (PLAN desk 142)"
+  },
+  {
+   "what": "nd/S0.6f-family: 'Skip for now' under Finish; the app draws none",
+   "reason": "[canvas-wrong] the family's opening balances are required in sign-up; ₹0 then Finish is a valid answer",
    "authority": "ADR 2026-10-07 ruling 1 🔒"
+  },
+  {
+   "what": "nd/S0.6f-family: 'What does the pool have?' / 'WHAT THE POOL HAS' / 'WHO OWES THE POOL'",
+   "reason": "[canvas-wrong] pool is replaced by joint fund in every user-facing string",
+   "authority": "ADR 2026-10-08 §1 🔒"
+  },
+  {
+   "what": "Android 360×800 capture (filled): the 'Balances against' box scrolls under the pinned Save and 'Opening Balance / Capital A/c' breaks as 'A/' + 'c' across lines",
+   "reason": "[screen] goes with the S0.6-pattern re-skin; 'A/c' wants a non-breaking join",
+   "authority": "ADR 2026-10-05 §2"
   }
  ],
  "approved_by_owner": false,
- "checked_on": "2026-10-09",
+ "checked_on": "2026-10-10",
  "hashes": {
-  "screens": "c5ccecaeb621d8137730cf19cac4b1ca9bbd3d2d47def4fb3ec3fb0c489cfe22",
+  "screens": "16afc7b3e4a6e6546c6c4917fb29426f008453a8e9dc920f19dbc53b393a3cc8",
   "frames": "5d11e571600cf89fe7afdfaf63105e16b02ad1bd6268f88db0ff04627c067abf"
  }
 }
