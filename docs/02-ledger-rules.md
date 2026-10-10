@@ -124,6 +124,7 @@ The user answers plain questions; the app builds the lines. Party-facing verbs a
 **Every new account asks for its opening balance at creation 🔒 (owner-approved)** — not only during first-run setup. The question is phrased by class, never as Dr/Cr: money accounts ask *"balance today"* (negative allowed → overdraft); party accounts ask *"do they owe you, or do you owe them?"* with the amount (**you will get** / **you will give**); expense/income accounts default to zero for the current FY. Each posts one `adjustment` against Opening Balance (equity).
 
 > **ADR 2026-10-07b** — an account created inside an entry asks for its opening balance afterwards: *Opening balance not set* on its statement (S4) and a marker in the Ledger index (S3), never during the entry; the answer posts the same opening adjustment as S3.1. ⟦tests: F1-1007b-1 @M13, F1-1007b-2 @M13, F1-1007b-3 @M13⟧
+> **ADR 2026-10-10c** — the inline-created account carries `opening: "pending"` until an opening adjustment posts or **Not needed** writes `"not_needed"`; both answers sync. ⟦tests: F1-1010c-1⟧
 
 > **ADR 2026-09-09d §4, §4a, §4b** — creating a book stamps it with an **immutable start date**, and opening
 > balances are dated there by default; nothing may be dated before it, and re-running setup corrects the amounts, never the date. The

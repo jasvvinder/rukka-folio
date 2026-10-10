@@ -188,6 +188,8 @@ attachment_cache(id pk, book_id, local_path, state)
 
 ### 3.2 Layer 2 — projections (rebuildable, indexed for the UI) 🔒 ⟦tests: E-03-1, E-03-2, E-03-3, E-03-9, F1-02-9, F1-02-10, F1-02-11, E-03-46, E-03-47, E-03-52⟧
 
+> **ADR 2026-10-10c §1–§3** — the `account` payload gains an optional `opening` (`pending` | `not_needed`; absent = answered), projected to `accounts_p.opening`; schema bump + full Recompute on upgrade. ⟦tests: E-1010c-1, E-1010c-2, E-1010c-3⟧
+
 > ⚠️ SPEC (CL2, 17 Sep 2026 — owner to ratify a third category): `close_progress_local(book_id, year, month, step, confirmed_banks_json)` is **device-local wizard state** for the resumable month close (07 §13) — never an envelope, never pushed, and in *neither* layer: Recompute does not drop it, because nothing in the envelope stream could put it back. Schema v3 adds it (§5). ⟦tests: E-03-46, F1-02-51⟧
 
 ```sql

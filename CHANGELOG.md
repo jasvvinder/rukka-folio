@@ -28,14 +28,18 @@ The owner raised today's ceiling to 30 M (Saturday; the weekly quota resets Sun 
 - **TRUST200 (lane-core, Fable)** — `evaluateStructural` and the data structural reader take a required injected `signerOf` keyed by (author device, author seq): an approval/veto counts only from its owner's certified device; a request id carried by more than one envelope is refused. A-02-97, E-03-87, E-03-88; goldens unchanged.
 - **TRUSTWIRE** — LocalLedger and bootstrap pass the production signer (ChainVerifier over the stored envelope); distribution refuses while a signer is not yet known; distribution tests that authored approvals for every owner from one phone rewritten. E-200-31…, F1-200-31….
 
+### Decided
+- `2026-10-10c-account-opening-marker.md` — 🔒 the account payload carries `opening` (`pending` | `not_needed`, absent = answered), projected to `accounts_p.opening` with a schema bump; resolves ADR 2026-10-07b Open (owner, desk 201).
+- Owner rulings, no 🔒 change: PA Save = ਸੇਵ ਕਰੋ (as 01 §2 / ADR 2026-10-08); the family's common book keeps its type and is labelled *Joint fund* on S9 and S10.1 (desk 203 a); S17.4 diagnostics reports *not registered yet* for a held phone (desk 203 b).
+
 ### Changed
 - `.claude/rf.config.json` — owner-directed 10 Oct: `daily_overrides` 2026-10-10 = 30 M; `weekly_tokens` = 72 M (46.16 M measured at /usage 64 %, the 25 Sep derivation). The file's `_` notes were not updated with this reason.
 - PLAN.md — desk 142, 177, 179, 183, 191, 196, 200 updated; S6.3 ✅ annotated; new desk 201–205.
 
 ### Open ⚠️
-- Desk 201 — opening-balance marker on the account payload (03 wire change); S3 marker colour.
+- Desk 201 — ruled; build OPENMARK next. S3 marker colour still open.
 - Desk 202 — ADR proposal: approvals name the request envelope (🔒 02 §7.2.1, 03); identical re-send; certificates memory-only after launch; engine book_id check for the next lane-core window.
-- Desk 203 — family book labelled *Joint fund*; S17.4 *not registered yet*.
+- Desk 203 — ruled; build next (label + diagnostics value).
 - Desk 204/205 — biometric modality query, prompt locale, S15.2 unbuilt; S7 import dead end in production (no ImportScope); R2C canvas questions.
 - Desk 200 (d) — ✓ / → glyph boxes in ~20 ARB parts still open.
 
