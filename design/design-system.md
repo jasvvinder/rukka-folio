@@ -75,6 +75,7 @@ Mukta everywhere (Mukta Mahee for Gurmukhi), Noto Sans fallback only. Scale: dis
 | — | — | — | — | `--frame`, `--dim` become tokens or are removed |
 
 ## 4.1 Bottom navigation — the four tab icons 🔒 (owner-directed, 3 Sep 2026) ⟦tests: F1-13-1, F1-13-2, F1-13-3, F1-13-4, F1-13-5⟧
+> **Amended by ADR 2026-10-10b §2** — no docked (+) in the bar; the four tab icons below are unchanged. ⟦tests: F1-1010b-1 @M13⟧
 
 One tab bar everywhere: **Home · Ledger · Inbox · Menu**, 4-column, **plus a docked centre ( + ) action that is not a tab** — no active state, no label; 13 §3.1, 07 §2 and DESIGN-PACK S1 state the same bar (ADR 2026-09-05f §A). Min-height 50, icons
 **21×21** (viewBox 24, feather-style stroke icons), label 10.5px. Active tab:

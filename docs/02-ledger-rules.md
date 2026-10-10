@@ -350,6 +350,8 @@ All balances are **derived, never stored authoritatively**: balance(account) = �
 
 **The vocabulary rule 🔒 (owner-directed):** users read bank statements, where *credit = money in* and *debit = money out* — the mirror of our ledger, because the bank keeps its own book (your deposit is its liability). **The engine's Dr/Cr logic never changes; the words the user sees do.** Import screens, entry screens and day-book lists speak only **Money in / Money out**; the bank's own credit/debit column is mapped on read and never shown as "Dr/Cr" to the user. Professional surfaces (A/C statements, trial balance, exports) show true ledger Dr/Cr per 01 §1.9. Mixing the two conventions anywhere in one surface is a defect.
 
+> **Amended by ADR 2026-10-10b §4** — consumer wording is a front-end label only; where space allows, the account's true ledger side may follow it in brackets (*Money in (Dr)*), never the bank's mirror; Dr/Cr is shown plainly where technically required (professional surfaces, S1's books-balance check). Label + bracketed true side is not *mixing*. ⟦tests: F1-1010b-3 @M13⟧
+
 **The one question 🔒:** a statement line already states direction and amount; the only unknown is the **counterpart** — where the money came from or went to. Every import line therefore asks exactly one question — *"Where did it come from?"* (money in) or *"Where did it go?"* (money out) — answered by picking or inline-creating an A/C. The user never sees or chooses a side. This is precisely the gap a paper bank-column notebook cannot fill: it records the balance but not the source, so it can never produce a position, a P&L, or "who owes me".
 
 **Narration 🔒 (clarified 31 Aug 2026).** Two separate fields that coexist; neither replaces the other:

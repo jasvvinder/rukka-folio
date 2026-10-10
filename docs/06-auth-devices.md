@@ -121,6 +121,8 @@ Challenge–response; no bearer secrets that outlive minutes.
 | New phone, no old device | OTP → §3 → **recovery ladder** (04 §7): guardians → paper sheet. **Immediate only if the user has no active certified device**; otherwise guardian recovery completes after a **24 h window** during which every existing device alarms with one-tap Cancel (ADR 2026-09-05d §1) — a user who still has a phone should *link* instead, and the screen says so |
 | Every rung fails | Login succeeds, vault empty. Shared books are re-wrappable to the user's *new* UMK by tenant members after a **fresh verification ceremony**. The personal book stays sealed **for now** — its ciphertext remains on the server, so recovering the Apple/Google account or finding the recovery sheet later still opens it (04 §7.6). If a readable export exists it holds the books in plain form and can seed opening balances in a fresh book. Say all of this plainly; do not tell the user their data is destroyed when it is not |
 
+> ⚠️ **ADR 2026-10-10 Open** — *Every rung fails*' new UMK has no write path: `0031_umk_single_root` refuses a second UMK version for a user. Resolved 10 Oct: the newer rulings govern (ADR 2026-10-04b §3, 10-09 §2, 09-13c); the *new UMK* remedy stays unbuilt until an ADR defines a proven new root. 0031 stands. ⟦tests: E-05d-1, E-05d-2⟧
+
 Recovery completion always revokes all prior sessions and devices of that user and notifies every tenant they belong to (04 §7.3 step 6). **Every newly certified device, on every path — signup, link, recovery, sheet, platform key sync, Keychain remnant — notifies all the user's other devices and every tenant, and lands as a `device_added` signed record (ADR 2026-09-05d §6).**
 
 ---

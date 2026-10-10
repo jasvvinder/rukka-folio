@@ -12,6 +12,72 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-10 — M13: S0.2 sign-up unblocked (HELD181); a further device's tenant is learned, never minted (TEN185); 0031 on dev; device journeys green; RESKIN1 round 1 (42 screens)
+
+The owner asked for the recommended course on the 9 Oct hand-off, then *decide from the design and specs*, *the app
+must not break*, and *accounting logic never changes*. **Push gate green** at the close: app 2385 passed / 15 skipped,
+every package green (core_ledger 185/185 incl. the worked-example goldens, core_crypto 98, sync_engine 96), server 150
+MemStore. In-lane RLS on a fresh DB 0001–0031: **336 / 0**. **All six device journeys PASS** on `rf_phone` against
+rukka-folio-dev (f1_myself 18 steps, f1_business 21, f1_family 25, f1_trust 25, f1b_sign_in 19, f2_first_entry 28).
+- **A live bug, found and fixed.** Since 9 Oct (SYNC168 + KEY168B) a held engine read `Offline`, and S0.2 disabled
+  *Send*/*Resend* on Offline: a real install could not request a sign-in code. The tests missed it because they ran on
+  `FakeSyncClient`.
+- Cycles:
+  - HELD181 (`lane-ui-hard`): 4 findings, 1 confirmed and repaired.
+  - TEN185 (`lane-sync`): the first review's agent never returned. A second pass (TEN185R) found 3 findings, 1
+    confirmed and repaired.
+  - ORCH1010, a review of the orchestrator's own edits: 3 findings, 1 confirmed and repaired.
+  - RESKIN1 R1A/R1B/R1D: 19 findings, 13 confirmed and repaired.
+  - R1C: the review ran out of turns twice. Its one finding was checked by the orchestrator and recorded.
+
+**Decided**
+- [ADR 2026-10-10](docs/decisions/2026-10-10-further-device-tenant-and-held-sync.md) — 🔒 §1: a further device's
+  tenant is *unknown* until it is certified, then learned from exactly one active membership; it is never minted. §2:
+  any engine hold shows no sync chip and disables nothing. Open, resolved by precedence: several memberships stay
+  unknown and fail closed; 06 §5 *Every rung fails* yields to ADR 10-04b §3 / 10-09 §2 / 09-13c, and 0031 stands.
+- [ADR 2026-10-10b](docs/decisions/2026-10-10b-reskin-first-shell-per-canvas.md) — 🔒 §1: re-skin first, new screen
+  slices pause. §2: the shell follows the canvas, four tabs and no centre (+) (amends 13 §3.1 and design-system §4.1).
+  §3: S1 header per canvas, within 13 §2.3. §4: the engine's Dr/Cr never changes; consumer wording is a front-end
+  label; the true side may follow in brackets where space allows, and is shown plainly where technically required
+  (02 §10 amendment line; CLAUDE.md rule 9). ADR 2026-09-05f §F stands: S1 says *Books balanced · difference nil*, and
+  Home has no bell.
+- Desk 192: the RESKIN1 readings settled by precedence.
+
+**Added**
+- `SyncClient.held` / `chipStatus` (S0.2, S19.1, S11.x); `InstallTenant`, `RegisteredAwaitingTenant` and
+  `SyncHold.tenantNotKnown`; the tenant-learning hook (sync_engine observes, LocalLedger rules); the ceremony builder
+  reads ids late (the re-mint relaunch is gone). Tests F1-1010-1/2, C-1010-1/2.
+- `scripts/journey_print_watch.py`: taps Android's print sheet (*Save as PDF* → save) so the journeys get past S0.5b.
+  It dumps the UI only while the print/save activity is in front.
+- RESKIN1 round 1: design captures and stamped `design/match` records for 42 screens (onboarding, branches, sign-in,
+  lock, Home, entry, menu), each difference tagged `[shared]`, `[screen]` or `[canvas-wrong]`.
+
+**Changed**
+- Desk 187: the RLS PgStore arms run on the real clock (E-05-20, E-03b-5).
+- Desk 189: the stolen-phone sheet no longer promises a master-key replacement (EN/PA/HI). F1-06-9 now confirms the
+  stolen path.
+- `@M13` dropped on C-1010-1/2 and F1-1010-1/2; ADR 10-10b markers fixed for `check_coverage --strict`.
+
+**Ops**
+- rukka-folio-dev: 0031's preflight was clean (36 live UMK rows / 36 users). `0031_umk_single_root` applied (dev at
+  0001–0031), `sync-meta` redeployed, security advisor clean.
+
+**Open**
+- Desk 193: 10 defects the audit found (Android *iCloud*/*Face ID* copy, the S1 card does not open the trial balance,
+  missing glyphs in Mukta/Noto, S2 Save outlined, clipping, S1.1 ageing).
+- Desk 194: owner questions (invite names before accept, FY chips, the search door, the split-entry frame, the index
+  mapping).
+- Desk 195: canvas fixes on the design side.
+- Desk 196: HELD181/TEN185 follow-ups (11 screens, a stale ⚠️, `device_added` for a further device, trust of the
+  learned tenant, *not known yet* copy).
+- Desk 191: wire the print watcher into `run_journeys.sh`, plus a retry for the load flake.
+- RESKIN1: 64 screens left.
+
+**Commits**
+- (pending)
+
+---
+
 ## 2026-10-09 (evening) — M13: late-bound device keys in the app (KEY168B); `/recovery/sheet` relays the UMK + 0031 single UMK root (RUNG3S, UMK0031); ADR 2026-10-09b
 
 `/cycle` with two slices, then a review-only cycle on 0031, then the push gate. **Push gate green**: app 2336 passed /
@@ -60,7 +126,9 @@ the 2 being the pre-existing entitlement-clock failures (desk 187).
 - SYNC168's sync-chip proposal (hide while `notRegistered`) still unruled (desk 181 (c)).
 
 **Commits**
-- (pending)
+- `0db074fd` — RUNG3S + 0031.
+- `dec7d4fb` — KEY168B + F1-03b-4.
+- `8ad19392` — ADR 2026-10-09b, ADR 10-09 confirmation, markers, plan + changelog.
 
 ---
 

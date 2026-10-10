@@ -61,6 +61,7 @@ records the ledger's `device_id` or answers `409 device_id_taken`, `auth-challen
   UMK, adopts the answered `user_id`, and obtains the UMK only through link, recovery or key sync
   (04 §9.1, §7, §7.0). Its `device_id` and device keys stay, per ADR 2026-09-16 §1: nothing has been
   signed under them yet either. ⟦tests: C-04b-4 @M8⟧
+  > **ADR 2026-10-10 §1** — the discarded `tenant_id` is replaced by none: a further device's tenant is *unknown* until it is certified and learns it from its memberships; it never mints one. ⟦tests: C-1010-1, C-1010-2⟧
 - No oracle opens up: the answer comes only after a correct OTP, which proves the person holds the
   phone (06 §2's generic-error rule governs `otp/request`, unchanged).
 
