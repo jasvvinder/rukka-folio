@@ -19,6 +19,7 @@
   "date.month.nov": "नवंबर",
   "date.month.dec": "दिसंबर",
   "connection.notice.title": "कोई कनेक्शन नहीं",
-  "connection.notice.body": "ऐप बिना इंटरनेट चलती है। आप जो भी दर्ज करते हैं वह इसी फ़ोन पर सेव रहता है और कनेक्शन वापस आने पर अपने आप सिंक हो जाता है।",
+  "connection.notice.body": "ऐप बिना इंटरनेट चलती है। आप जो भी दर्ज करते हैं वह इसी फ़ोन पर सुरक्षित रहता है और कनेक्शन वापस आने पर अपने आप सिंक हो जाता है।",
+  "@connection.notice.body": {"description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"},
   "connection.notice.retry": "अभी जाँचें"
 }

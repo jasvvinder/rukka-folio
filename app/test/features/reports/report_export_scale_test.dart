@@ -98,6 +98,32 @@ Widget _paid(Widget screen) => EntitlementScope(
   child: screen,
 );
 
+/// Taps [action] and lets the export it starts finish.
+///
+/// A Punjabi or Hindi PDF is shaped by the engine (desk 183 c,
+/// `shared/pdf_shaping.dart`): its lines are rasterised through `dart:ui`,
+/// whose futures complete on the real event loop — never inside the test's
+/// fake-async zone, where a bare `pumpAndSettle` would return with the file
+/// still unbuilt. So the export is given real turns ([WidgetTester.runAsync])
+/// and a frame after each, until [done] — then settled as before. Nothing is
+/// skipped: the same production export runs, only the clock it waits on is
+/// real.
+Future<void> _tapAndExport(
+  WidgetTester tester,
+  Finder action,
+  bool Function() done,
+) async {
+  await tester.tap(action);
+  await tester.pump();
+  for (var turn = 0; turn < 600 && !done(); turn++) {
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 10)),
+    );
+    await tester.pump();
+  }
+  await tester.pumpAndSettle();
+}
+
 void main() {
   group('a report at 200 % on 360×800 (07 §1 rule 11)', () {
     for (final locale in rkLocales) {
@@ -123,8 +149,11 @@ void main() {
 
         // Past 1.3x the primary action is an icon, which is what lets it
         // share the bar at all; it exports the PDF (ADR 2026-09-12d §2 🔒).
-        await tester.tap(find.byIcon(Icons.ios_share));
-        await tester.pumpAndSettle();
+        await _tapAndExport(
+          tester,
+          find.byIcon(Icons.ios_share),
+          () => sink.file != null,
+        );
 
         expect(tester.takeException(), isNull);
         final file = sink.file;
@@ -167,8 +196,11 @@ void main() {
         );
         expect(tester.takeException(), isNull);
 
-        await tester.tap(find.byIcon(Icons.ios_share));
-        await tester.pumpAndSettle();
+        await _tapAndExport(
+          tester,
+          find.byIcon(Icons.ios_share),
+          () => sink.file != null,
+        );
 
         expect(sink.file, isNotNull, reason: 'the statement never left S4');
         _expectNamedAndFits(

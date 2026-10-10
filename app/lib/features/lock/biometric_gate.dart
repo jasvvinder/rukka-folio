@@ -9,6 +9,8 @@
 // exists. A gate implementation must therefore never ask for it.
 import 'dart:async';
 
+import 'biometric_kind.dart';
+
 /// What a biometric attempt came back with.
 enum BiometricOutcome {
   /// The person proved themselves; the keystore item is readable.
@@ -62,12 +64,22 @@ abstract interface class SealingBiometricGate implements BiometricGate {
 }
 
 /// A scripted gate for tests and for hosts with no biometric wired yet.
-final class FakeBiometricGate implements BiometricGate {
+final class FakeBiometricGate
+    implements BiometricGate, BiometricModalitySource {
   /// Answers [outcomes] in order, then repeats the last one forever.
+  /// [modality] is what [enrolledModality] says — null, as on a host that
+  /// cannot tell, names the method neutrally (ADR 2026-10-08 §3).
   FakeBiometricGate([
     List<BiometricOutcome> outcomes = const [BiometricOutcome.success],
     this.enrolled = true,
+    this.modality,
   ]) : _outcomes = List.of(outcomes);
+
+  /// What [enrolledModality] answers.
+  final BiometricModality? modality;
+
+  @override
+  Future<BiometricModality?> enrolledModality() async => modality;
 
   final List<BiometricOutcome> _outcomes;
 

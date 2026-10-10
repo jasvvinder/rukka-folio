@@ -242,18 +242,30 @@
   "account.deletion.banner.body": "{date} ਨੂੰ। ਉਦੋਂ ਤੱਕ ਕੁਝ ਨਹੀਂ ਮਿਟਿਆ, ਅਤੇ ਤੁਸੀਂ ਇਸ ਨੂੰ ਰੋਕ ਸਕਦੇ ਹੋ।",
   "account.deletion.banner.title": "ਤੁਹਾਡਾ ਅਕਾਊਂਟ ਮਿਟਾਏ ਜਾਣ ਲਈ ਰੱਖਿਆ ਹੈ",
   "account.deletion.days_left": "{days, plural, =0{ਇੱਕ ਦਿਨ ਤੋਂ ਵੀ ਘੱਟ ਬਾਕੀ} =1{1 ਦਿਨ ਬਾਕੀ} other{{days} ਦਿਨ ਬਾਕੀ}}",
-  "account.edit.error": "ਤੁਹਾਡਾ ਨਾਂ ਸੰਭਾਲਿਆ ਨਹੀਂ ਜਾ ਸਕਿਆ।",
+  "account.edit.error": "ਤੁਹਾਡਾ ਨਾਂ ਸੇਵ ਨਹੀਂ ਹੋ ਸਕਿਆ।",
+  "@account.edit.error": {
+    "description": "machine-draft — native review M12; PA *Save* is ਸੇਵ ਕਰੋ (01 §2 term table; ADR 2026-10-08 §2, 'unchanged')"
+  },
   "account.edit.name.empty": "ਨਾਂ ਖਾਲੀ ਨਹੀਂ ਰਹਿ ਸਕਦਾ।",
   "account.edit.name.hint": "ਉਹ ਨਾਂ ਜੋ ਤੁਹਾਡੇ ਪਰਿਵਾਰ ਅਤੇ ਕਾਮਿਆਂ ਨੂੰ ਦਿਖਦਾ ਹੈ",
   "account.edit.name.label": "ਨਾਂ",
   "account.edit.photo.body": "ਇਸ ਵਰਜਨ ਵਿੱਚ ਫ਼ੋਟੋ ਨਹੀਂ ਹੈ। ਇਸ ਦੀ ਥਾਂ ਤੁਹਾਡੇ ਸ਼ੁਰੂਆਤੀ ਅੱਖਰ, ਤੁਹਾਡੀ ਆਪਣੀ ਲਿਪੀ ਵਿੱਚ, ਦਿਖਦੇ ਹਨ।",
   "account.edit.photo.title": "ਫ਼ੋਟੋ",
-  "account.edit.save": "ਸੰਭਾਲੋ",
+  "account.edit.save": "ਸੇਵ ਕਰੋ",
+  "@account.edit.save": {
+    "description": "machine-draft — native review M12; PA *Save* is ਸੇਵ ਕਰੋ (01 §2 term table; ADR 2026-10-08 §2, 'unchanged')"
+  },
   "account.edit.save.reason.empty": "ਪਹਿਲਾਂ ਨਾਂ ਲਿਖੋ।",
   "account.edit.save.reason.readonly": "ਤੁਹਾਡਾ ਅਕਾਊਂਟ ਹੁਣ ਸਿਰਫ਼ ਪੜ੍ਹਨ ਲਈ ਹੈ।",
   "account.edit.save.reason.unchanged": "ਅਜੇ ਕੁਝ ਨਹੀਂ ਬਦਲਿਆ।",
-  "account.edit.saved": "ਸੰਭਾਲ ਲਿਆ",
-  "account.edit.saving": "ਸੰਭਾਲ ਰਹੇ ਹਾਂ…",
+  "account.edit.saved": "ਸੇਵ ਹੋ ਗਿਆ",
+  "@account.edit.saved": {
+    "description": "machine-draft — native review M12; PA *Save* is ਸੇਵ ਕਰੋ (01 §2 term table; ADR 2026-10-08 §2, 'unchanged')"
+  },
+  "account.edit.saving": "ਸੇਵ ਕਰ ਰਹੇ ਹਾਂ…",
+  "@account.edit.saving": {
+    "description": "machine-draft — native review M12; PA *Save* is ਸੇਵ ਕਰੋ (01 §2 term table; ADR 2026-10-08 §2, 'unchanged')"
+  },
   "account.edit.title": "ਪ੍ਰੋਫਾਈਲ ਬਦਲੋ",
   "account.error": "ਤੁਹਾਡਾ ਅਕਾਊਂਟ ਨਹੀਂ ਆ ਸਕਿਆ।",
   "account.language.row.subtitle": "ਸੈਟਿੰਗਾਂ ਵਿੱਚ ਬਦਲੋ",
@@ -293,7 +305,10 @@
   "advances.empty.title": "ਇਸ ਵੇਲੇ ਕੋਈ ਐਡਵਾਂਸ ਬਾਹਰ ਨਹੀਂ ਹੈ।",
   "advances.error": "ਤੁਹਾਡੇ ਐਡਵਾਂਸ ਨਹੀਂ ਖੁੱਲ੍ਹ ਸਕੇ।",
   "advances.given.empty": "ਇਸ ਵਹੀ ਦੀ ਕੋਈ ਰਕਮ ਕਿਸੇ ਕੋਲ ਨਹੀਂ ਹੈ।",
-  "advances.given.title": "ਦਿੱਤਾ ਹੋਇਆ ਐਡਵਾਂਸ",
+  "advances.given.title": "ਐਡਵਾਂਸ ਦਿੱਤਾ",
+  "@advances.given.title": {
+    "description": "owner-given (ADR 2026-10-08 §2) — final"
+  },
   "advances.mine.empty": "ਤੁਹਾਡੇ ਕੋਲ ਕੋਈ ਐਡਵਾਂਸ ਨਹੀਂ ਹੈ।",
   "advances.mine.title": "ਤੁਹਾਡੇ ਕੋਲ ਐਡਵਾਂਸ",
   "advances.retry": "ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
@@ -303,11 +318,20 @@
   "advances.sheet.amount.empty": "ਰਕਮ ਭਰੋ।",
   "advances.sheet.amount.too_much": "ਇਹ ਤੁਹਾਡੇ ਕੋਲ ਬਚੀ {left} ਤੋਂ ਵੱਧ ਹੈ।",
   "advances.sheet.cancel": "ਰਹਿਣ ਦਿਓ",
-  "advances.sheet.error": "ਇਹ ਸਾਂਭੀ ਨਹੀਂ ਜਾ ਸਕੀ। ਕੁਝ ਵੀ ਨਹੀਂ ਬਦਲਿਆ।",
+  "advances.sheet.error": "ਇਹ ਸੇਵ ਨਹੀਂ ਹੋ ਸਕੀ। ਕੁਝ ਵੀ ਨਹੀਂ ਬਦਲਿਆ।",
+  "@advances.sheet.error": {
+    "description": "machine-draft — native review M12; PA *Save* is ਸੇਵ ਕਰੋ (01 §2 term table; ADR 2026-10-08 §2, 'unchanged')"
+  },
   "advances.sheet.return.into": "ਕਿੱਥੇ ਵਾਪਸ",
   "advances.sheet.return.title": "ਬਾਕੀ ਵਾਪਸ ਕਰੋ",
-  "advances.sheet.save": "ਸਾਂਭੋ",
-  "advances.sheet.saving": "ਸਾਂਭੀ ਜਾ ਰਹੀ ਹੈ…",
+  "advances.sheet.save": "ਸੇਵ ਕਰੋ",
+  "@advances.sheet.save": {
+    "description": "machine-draft — native review M12; PA *Save* is ਸੇਵ ਕਰੋ (01 §2 term table; ADR 2026-10-08 §2, 'unchanged')"
+  },
+  "advances.sheet.saving": "ਸੇਵ ਹੋ ਰਹੀ ਹੈ…",
+  "@advances.sheet.saving": {
+    "description": "machine-draft — native review M12; PA *Save* is ਸੇਵ ਕਰੋ (01 §2 term table; ADR 2026-10-08 §2, 'unchanged')"
+  },
   "advances.sheet.spend.category": "ਕਿਸ ਚੀਜ਼ ਲਈ?",
   "advances.sheet.spend.category.none": "ਪਹਿਲਾਂ ਖਰਚੇ ਦਾ ਖਾਤਾ ਬਣਾਓ — ਫਿਰ ਖਰਚ ਪਾਉਣ ਲਈ ਥਾਂ ਹੋਵੇਗੀ।",
   "advances.sheet.spend.title": "ਖਰਚ ਜੋੜੋ",
@@ -494,7 +518,10 @@
   "books.title": "ਵਹੀਆਂ",
   "books.type.business": "ਕਾਰੋਬਾਰ",
   "books.type.family": "ਪਰਿਵਾਰ",
-  "books.type.joint": "ਸਾਂਝਾ ਪੂਲ",
+  "books.type.joint": "ਸਾਂਝਾ ਫ਼ੰਡ",
+  "@books.type.joint": {
+    "description": "owner-given (ADR 2026-10-08 §1) — final"
+  },
   "books.type.organization": "ਟਰੱਸਟ ਜਾਂ ਸੁਸਾਇਟੀ",
   "books.type.personal": "ਨਿੱਜੀ",
   "ceremony.mismatch.body": "ਉਸ ਫ਼ੋਨ ਵਾਲਾ ਕੋਡ ਇਸ ਬੰਦੇ ਲਈ ਸਾਡੇ ਕੋਲ ਪਈਆਂ ਚਾਬੀਆਂ ਨਾਲ ਮੇਲ ਨਹੀਂ ਖਾਂਦਾ। ਹੋ ਸਕਦਾ ਹੈ ਕੋਈ ਹੋਰ ਉਹਨਾਂ ਦੀ ਥਾਂ ਖੜ੍ਹਾ ਹੋਵੇ। ਇਸ ਫ਼ੋਨ ਨੂੰ ਆਪਣੇ ਵਹੀ-ਖਾਤਿਆਂ ਤੱਕ ਪਹੁੰਚ ਨਾ ਦਿਓ।",
@@ -629,6 +656,10 @@
   "ceremony.verify.title": "ਮੈਂਬਰ ਦੀ ਤਸਦੀਕ ਕਰੋ",
   "ceremony.verify.wrong": "ਇਹ ਅੰਕ ਮੇਲ ਨਹੀਂ ਖਾਂਦੇ। {left, plural, =1{1 ਕੋਸ਼ਿਸ਼ ਬਾਕੀ।} other{{left} ਕੋਸ਼ਿਸ਼ਾਂ ਬਾਕੀ।}}",
   "close.back": "ਪਿੱਛੇ",
+  "close.balance.month_end": "{date} ਨੂੰ ਇਹ {amount} ਸੀ",
+  "@close.balance.month_end": {
+    "description": "machine-draft — native review M12"
+  },
   "close.bank.book_balance": "ਵਹੀ ਕਹਿੰਦੀ ਹੈ {amount}",
   "close.bank.confirmed": "{total} ਵਿੱਚੋਂ {count} ਪੱਕੀਆਂ ਕੀਤੀਆਂ",
   "close.bank.empty": "ਇਸ ਵਹੀ ਵਿੱਚ ਕੋਈ ਬੈਂਕ ਖਾਤਾ ਨਹੀਂ, ਸੋ ਪੱਕਾ ਕਰਨ ਲਈ ਕੁਝ ਨਹੀਂ ਹੈ।",
@@ -684,7 +715,10 @@
   "close.step2.title": "ਹਰ ਬੈਂਕ ਦੀ ਬਾਕੀ ਪੱਕੀ ਕਰੋ",
   "close.step3.help": "ਇਹਨਾਂ ਵਿੱਚੋਂ ਕੁਝ ਬੰਦੀ ਰੋਕਦੀਆਂ ਹਨ। ਬਾਕੀ ਸਿਰਫ਼ ਜਾਣਨ ਲਈ ਹਨ।",
   "close.step3.title": "ਟ੍ਰੇ ਖਾਲੀ ਕਰੋ",
-  "close.step4.help": "ਇਹ ਉਹ ਬਾਕੀਆਂ ਹਨ ਜੋ ਇਹ ਬੰਦੀ ਦਰਜ ਕਰੇਗੀ।",
+  "close.step4.help": "ਇਹ {date} ਦੀਆਂ ਬਾਕੀਆਂ ਹਨ — ਜੋ ਇਹ ਬੰਦੀ ਦਰਜ ਕਰੇਗੀ।",
+  "@close.step4.help": {
+    "description": "machine-draft — native review M12"
+  },
   "close.step4.title": "ਪੱਕਾ ਕਰੋ ਤੇ ਜਿੰਦਰਾ ਲਾਓ",
   "close.step_of": "ਕਦਮ {n} / {total}",
   "close.summary.done": "ਹੋ ਗਿਆ",
@@ -769,7 +803,7 @@
   "close.year.voided.title": "ਇਸ ਸਾਲ ਦਾ ਪ੍ਰਮਾਣ-ਪੱਤਰ ਰੱਦ ਹੋ ਗਿਆ ਹੈ",
   "close.year.warns.help": "ਪ੍ਰਮਾਣਿਤ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ ਵੇਖਣ ਯੋਗ ਹਨ, ਪਰ ਸਾਲ ਫਿਰ ਵੀ ਬੰਦ ਹੋ ਜਾਵੇਗਾ।",
   "close.year.warns.title": "ਇਹ ਸਾਲ-ਬੰਦੀ ਨਹੀਂ ਰੋਕਦੀਆਂ",
-  "connection.notice.body": "ਐਪ ਬਿਨਾਂ ਇੰਟਰਨੈੱਟ ਚੱਲਦੀ ਹੈ। ਤੁਸੀਂ ਜੋ ਵੀ ਦਰਜ ਕਰਦੇ ਹੋ, ਉਹ ਇਸ ਫ਼ੋਨ ’ਤੇ ਸੰਭਾਲਿਆ ਜਾਂਦਾ ਹੈ ਅਤੇ ਕਨੈਕਸ਼ਨ ਵਾਪਸ ਆਉਣ ’ਤੇ ਆਪੇ ਸਿੰਕ ਹੋ ਜਾਂਦਾ ਹੈ।",
+  "connection.notice.body": "ਐਪ ਬਿਨਾਂ ਇੰਟਰਨੈੱਟ ਚੱਲਦੀ ਹੈ। ਤੁਸੀਂ ਜੋ ਵੀ ਦਰਜ ਕਰਦੇ ਹੋ, ਉਹ ਇਸ ਫ਼ੋਨ ’ਤੇ ਸੇਵ ਹੋ ਜਾਂਦਾ ਹੈ ਅਤੇ ਕਨੈਕਸ਼ਨ ਵਾਪਸ ਆਉਣ ’ਤੇ ਆਪੇ ਸਿੰਕ ਹੋ ਜਾਂਦਾ ਹੈ।",
   "connection.notice.retry": "ਹੁਣੇ ਜਾਂਚੋ",
   "connection.notice.title": "ਕੋਈ ਕਨੈਕਸ਼ਨ ਨਹੀਂ",
   "count.blocked.amount": "ਜੋ ਗਿਣਿਆ ਹੈ, ਉਹ ਰਕਮ ਲਿਖੋ।",
@@ -1447,9 +1481,18 @@
   "entry.picker.empty": "\"{query}\" ਨਾਲ ਕੋਈ ਖਾਤਾ ਮੇਲ ਨਹੀਂ ਖਾਂਦਾ",
   "entry.placeholder.body": "ਐਂਟਰੀ ਦਾ ਕੀਪੈਡ ਇੱਥੇ ਹੋਵੇਗਾ।",
   "entry.retry": "ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
-  "entry.save": "ਸੰਭਾਲੋ",
-  "entry.save_error": "ਸੰਭਾਲਿਆ ਨਹੀਂ ਗਿਆ — ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
-  "entry.saved": "ਸੰਭਾਲਿਆ ✓ (ਫ਼ੋਨ ਉੱਤੇ)",
+  "entry.save": "ਸੇਵ ਕਰੋ",
+  "@entry.save": {
+    "description": "machine-draft — native review M12; PA *Save* is ਸੇਵ ਕਰੋ (01 §2 term table; ADR 2026-10-08 §2, 'unchanged')"
+  },
+  "entry.save_error": "ਸੇਵ ਨਹੀਂ ਹੋਇਆ — ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
+  "@entry.save_error": {
+    "description": "machine-draft — native review M12; PA *Save* is ਸੇਵ ਕਰੋ (01 §2 term table; ADR 2026-10-08 §2, 'unchanged')"
+  },
+  "entry.saved": "ਸੇਵ ਹੋਇਆ ✓ (ਫ਼ੋਨ ਉੱਤੇ)",
+  "@entry.saved": {
+    "description": "machine-draft — native review M12; PA *Save* is ਸੇਵ ਕਰੋ (01 §2 term table; ADR 2026-10-08 §2, 'unchanged')"
+  },
   "entry.search_hint": "ਖਾਤੇ ਖੋਜੋ",
   "entry.slot.choose": "ਖਾਤਾ ਚੁਣੋ",
   "entry.slot.for_what": "ਲਈ",
@@ -1488,11 +1531,11 @@
   "@faq.fix_entry.a1": {
     "description": "machine-draft — native review M12"
   },
-  "faq.fix_entry.a2": "ਸੰਭਾਲਣ ਤੋਂ ਤੁਰੰਤ ਬਾਅਦ ਇੱਕ ਸੌਖਾ ਰਾਹ ਵੀ ਹੈ: ਹੇਠਾਂ ਆਏ ਸੁਨੇਹੇ ਉੱਤੇ “ਵਾਪਸ” ਦਸ ਸਕਿੰਟ ਤੱਕ ਇੰਦਰਾਜ ਪੂਰੀ ਤਰ੍ਹਾਂ ਹਟਾ ਦਿੰਦਾ ਹੈ।",
+  "faq.fix_entry.a2": "ਸੇਵ ਕਰਨ ਤੋਂ ਤੁਰੰਤ ਬਾਅਦ ਇੱਕ ਸੌਖਾ ਰਾਹ ਵੀ ਹੈ: ਹੇਠਾਂ ਆਏ ਸੁਨੇਹੇ ਉੱਤੇ “ਵਾਪਸ” ਦਸ ਸਕਿੰਟ ਤੱਕ ਇੰਦਰਾਜ ਪੂਰੀ ਤਰ੍ਹਾਂ ਹਟਾ ਦਿੰਦਾ ਹੈ।",
   "@faq.fix_entry.a2": {
     "description": "machine-draft — native review M12"
   },
-  "faq.fix_entry.q": "ਕੀ ਮੈਂ ਸੰਭਾਲਣ ਤੋਂ ਬਾਅਦ ਇੰਦਰਾਜ ਬਦਲ ਸਕਦਾ ਹਾਂ?",
+  "faq.fix_entry.q": "ਕੀ ਮੈਂ ਸੇਵ ਕਰਨ ਤੋਂ ਬਾਅਦ ਇੰਦਰਾਜ ਬਦਲ ਸਕਦਾ ਹਾਂ?",
   "@faq.fix_entry.q": {
     "description": "machine-draft — native review M12"
   },
@@ -1592,7 +1635,7 @@
   "@faq.offline.a1": {
     "description": "machine-draft — native review M12"
   },
-  "faq.offline.a2": "ਜੋ ਅਜੇ ਭੇਜਿਆ ਨਹੀਂ ਗਿਆ, ਉਹ “ਫ਼ੋਨ ਉੱਤੇ ਸੰਭਾਲਿਆ · ਸਿੰਕ ਹੋਵੇਗਾ” ਵਜੋਂ ਦਿਸਦਾ ਹੈ ਅਤੇ ਕਨੈਕਸ਼ਨ ਆਉਂਦੇ ਹੀ ਆਪੇ ਚਲਾ ਜਾਂਦਾ ਹੈ।",
+  "faq.offline.a2": "ਜੋ ਅਜੇ ਭੇਜਿਆ ਨਹੀਂ ਗਿਆ, ਉਹ “ਫ਼ੋਨ ’ਤੇ ਸੇਵ ਹੋਇਆ · ਸਿੰਕ ਹੋਵੇਗਾ” ਵਜੋਂ ਦਿਸਦਾ ਹੈ ਅਤੇ ਕਨੈਕਸ਼ਨ ਆਉਂਦੇ ਹੀ ਆਪੇ ਚਲਾ ਜਾਂਦਾ ਹੈ।",
   "@faq.offline.a2": {
     "description": "machine-draft — native review M12"
   },
@@ -1612,7 +1655,7 @@
   "@faq.paper_sheet.q": {
     "description": "machine-draft — native review M12"
   },
-  "faq.review_flag.a1": "ਸੰਭਾਲੀ ਵੀ ਗਈ ਹੈ ਤੇ ਵਹੀ ਵਿੱਚ ਗਿਣੀ ਵੀ ਜਾਂਦੀ ਹੈ। ਉਹ ਸੁਨੇਹਾ ਸਿਰਫ਼ ਇਹ ਦੱਸਦਾ ਹੈ ਕਿ ਰਕਮ ਤੁਹਾਡੇ ਲਈ ਰੱਖੀ ਹੱਦ ਤੋਂ ਵੱਧ ਸੀ, ਇਸ ਲਈ ਇਹ ਮਾਲਕ ਦੇ ਇਨਬਾਕਸ ਵਿੱਚ ਵੀ ਪਹੁੰਚਦੀ ਹੈ।",
+  "faq.review_flag.a1": "ਸੇਵ ਵੀ ਹੋ ਗਈ ਹੈ ਤੇ ਵਹੀ ਵਿੱਚ ਗਿਣੀ ਵੀ ਜਾਂਦੀ ਹੈ। ਉਹ ਸੁਨੇਹਾ ਸਿਰਫ਼ ਇਹ ਦੱਸਦਾ ਹੈ ਕਿ ਰਕਮ ਤੁਹਾਡੇ ਲਈ ਰੱਖੀ ਹੱਦ ਤੋਂ ਵੱਧ ਸੀ, ਇਸ ਲਈ ਇਹ ਮਾਲਕ ਦੇ ਇਨਬਾਕਸ ਵਿੱਚ ਵੀ ਪਹੁੰਚਦੀ ਹੈ।",
   "@faq.review_flag.a1": {
     "description": "machine-draft — native review M12"
   },
@@ -1620,7 +1663,7 @@
   "@faq.review_flag.a2": {
     "description": "machine-draft — native review M12"
   },
-  "faq.review_flag.q": "ਮੇਰੀ ਇੰਦਰਾਜ ਕਹਿੰਦੀ ਹੈ ਕਿ ਕੋਈ ਇਸ ਨੂੰ ਵੇਖੇਗਾ। ਕੀ ਇਹ ਸੰਭਾਲੀ ਗਈ ਹੈ?",
+  "faq.review_flag.q": "ਮੇਰੀ ਇੰਦਰਾਜ ਕਹਿੰਦੀ ਹੈ ਕਿ ਕੋਈ ਇਸ ਨੂੰ ਵੇਖੇਗਾ। ਕੀ ਇਹ ਸੇਵ ਹੋ ਗਈ ਹੈ?",
   "@faq.review_flag.q": {
     "description": "machine-draft — native review M12"
   },
@@ -1712,9 +1755,9 @@
   "@guardians.nokey": {
     "description": "machine-draft — native review M12"
   },
-  "guardians.offline": "ਤੁਸੀਂ ਆਫ਼ਲਾਈਨ ਹੋ। ਤੁਹਾਡੀ ਚੋਣ ਫ਼ੋਨ ’ਤੇ ਸੰਭਾਲੀ ਗਈ ਹੈ ਤੇ ਵਾਪਸ ਆਉਣ ’ਤੇ ਭੇਜ ਦਿੱਤੀ ਜਾਵੇਗੀ।",
+  "guardians.offline": "ਤੁਸੀਂ ਆਫ਼ਲਾਈਨ ਹੋ। ਤੁਹਾਡੀ ਚੋਣ ਫ਼ੋਨ ’ਤੇ ਸੇਵ ਕੀਤੀ ਗਈ ਹੈ ਤੇ ਵਾਪਸ ਆਉਣ ’ਤੇ ਭੇਜ ਦਿੱਤੀ ਜਾਵੇਗੀ।",
   "@guardians.offline": {
-    "description": "machine-draft — native review M12"
+    "description": "machine-draft — native review M12; PA *Save* is ਸੇਵ ਕਰੋ (01 §2 term table; ADR 2026-10-08 §2, 'unchanged')"
   },
   "guardians.readonly": "ਹੁਣ ਸਿਰਫ਼ ਪੜ੍ਹਨ ਲਈ। ਤੁਸੀਂ ਆਪਣੇ ਭਰੋਸੇਮੰਦ ਮੈਂਬਰ ਦੇਖ ਸਕਦੇ ਹੋ, ਬਦਲ ਨਹੀਂ ਸਕਦੇ।",
   "@guardians.readonly": {
@@ -1736,29 +1779,29 @@
   "@guardians.rule.pick": {
     "description": "machine-draft — native review M12"
   },
-  "guardians.save": "ਭਰੋਸੇਮੰਦ ਮੈਂਬਰ ਸੰਭਾਲੋ",
+  "guardians.save": "ਭਰੋਸੇਮੰਦ ਮੈਂਬਰ ਸੇਵ ਕਰੋ",
   "@guardians.save": {
-    "description": "machine-draft — native review M12"
+    "description": "machine-draft — native review M12; PA *Save* is ਸੇਵ ਕਰੋ (01 §2 term table; ADR 2026-10-08 §2, 'unchanged')"
   },
-  "guardians.save.blocked.few": "ਸੰਭਾਲਣ ਤੋਂ ਪਹਿਲਾਂ ਘੱਟੋ-ਘੱਟ 2 ਜਣੇ ਚੁਣੋ।",
+  "guardians.save.blocked.few": "ਸੇਵ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ ਘੱਟੋ-ਘੱਟ 2 ਜਣੇ ਚੁਣੋ।",
   "@guardians.save.blocked.few": {
-    "description": "machine-draft — native review M12"
+    "description": "machine-draft — native review M12; PA *Save* is ਸੇਵ ਕਰੋ (01 §2 term table; ADR 2026-10-08 §2, 'unchanged')"
   },
-  "guardians.save.blocked.meet": "ਸੰਭਾਲਣ ਤੋਂ ਪਹਿਲਾਂ ਹਰ ਚੁਣੇ ਜਣੇ ਨੂੰ ਮਿਲੋ।",
+  "guardians.save.blocked.meet": "ਸੇਵ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ ਹਰ ਚੁਣੇ ਜਣੇ ਨੂੰ ਮਿਲੋ।",
   "@guardians.save.blocked.meet": {
-    "description": "machine-draft — native review M12"
+    "description": "machine-draft — native review M12; PA *Save* is ਸੇਵ ਕਰੋ (01 §2 term table; ADR 2026-10-08 §2, 'unchanged')"
   },
-  "guardians.save.blocked.unavailable": "ਤੁਹਾਡਾ ਚੁਣਿਆ ਕੋਈ ਜਣਾ ਹੁਣ ਭਰੋਸੇਮੰਦ ਮੈਂਬਰ ਨਹੀਂ ਬਣ ਸਕਦਾ। ਸੰਭਾਲਣ ਲਈ ਉਸ ਨੂੰ ਸੂਚੀ ਵਿੱਚੋਂ ਹਟਾਓ।",
+  "guardians.save.blocked.unavailable": "ਤੁਹਾਡਾ ਚੁਣਿਆ ਕੋਈ ਜਣਾ ਹੁਣ ਭਰੋਸੇਮੰਦ ਮੈਂਬਰ ਨਹੀਂ ਬਣ ਸਕਦਾ। ਸੇਵ ਕਰਨ ਲਈ ਉਸ ਨੂੰ ਸੂਚੀ ਵਿੱਚੋਂ ਹਟਾਓ।",
   "@guardians.save.blocked.unavailable": {
-    "description": "machine-draft — native review M12"
+    "description": "machine-draft — native review M12; PA *Save* is ਸੇਵ ਕਰੋ (01 §2 term table; ADR 2026-10-08 §2, 'unchanged')"
   },
-  "guardians.save.error": "ਇਹ ਸੰਭਾਲਿਆ ਨਹੀਂ ਗਿਆ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
+  "guardians.save.error": "ਇਹ ਸੇਵ ਨਹੀਂ ਹੋਇਆ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
   "@guardians.save.error": {
-    "description": "machine-draft — native review M12"
+    "description": "machine-draft — native review M12; PA *Save* is ਸੇਵ ਕਰੋ (01 §2 term table; ADR 2026-10-08 §2, 'unchanged')"
   },
-  "guardians.saved": "ਭਰੋਸੇਮੰਦ ਮੈਂਬਰ ਸੰਭਾਲ ਦਿੱਤੇ ਗਏ।",
+  "guardians.saved": "ਭਰੋਸੇਮੰਦ ਮੈਂਬਰ ਸੇਵ ਹੋ ਗਏ।",
   "@guardians.saved": {
-    "description": "machine-draft — native review M12"
+    "description": "machine-draft — native review M12; PA *Save* is ਸੇਵ ਕਰੋ (01 §2 term table; ADR 2026-10-08 §2, 'unchanged')"
   },
   "guardians.title": "ਭਰੋਸੇਮੰਦ ਮੈਂਬਰ",
   "@guardians.title": {
@@ -1991,8 +2034,14 @@
   "home.month.label": "ਇਸ ਮਹੀਨੇ",
   "home.month.out": "ਗਏ",
   "home.placeholder.body": "ਤੁਹਾਡੀ ਸਥਿਤੀ ਅਤੇ ਅੱਜ ਦੀਆਂ ਐਂਟਰੀਆਂ ਇੱਥੇ ਦਿਖਣਗੀਆਂ।",
-  "home.position.advances_out": "ਦਿੱਤੇ ਐਡਵਾਂਸ",
-  "home.position.cash": "ਹੱਥ ਵਿੱਚ ਨਕਦੀ",
+  "home.position.advances_out": "ਐਡਵਾਂਸ ਦਿੱਤਾ",
+  "@home.position.advances_out": {
+    "description": "owner-given (ADR 2026-10-08 §2) — final"
+  },
+  "home.position.cash": "ਹੱਥ ਵਿੱਚ ਰੋਕੜ",
+  "@home.position.cash": {
+    "description": "owner-given (ADR 2026-10-08 §2) — final"
+  },
   "home.position.drill": "ਸੂਚੀ ਵਿਖਾਓ",
   "home.position.in_transit": "ਰਾਹ ਵਿੱਚ",
   "home.position.in_transit.action": "ਪਰਿਵਾਰਕ ਮੇਲ ਵੇਖੋ",
@@ -2001,7 +2050,13 @@
   },
   "home.position.title": "ਸਥਿਤੀ",
   "home.position.you_will_get": "ਤੁਸੀਂ ਲੈਣੇ ਹਨ",
+  "@home.position.you_will_get": {
+    "description": "owner-given (ADR 2026-10-08 §2) — final"
+  },
   "home.position.you_will_give": "ਤੁਸੀਂ ਦੇਣੇ ਹਨ",
+  "@home.position.you_will_give": {
+    "description": "owner-given (ADR 2026-10-08 §2) — final"
+  },
   "home.rebuild.note": "ਇਹ ਪੂਰਾ ਹੁੰਦੇ ਹੀ ਤੁਹਾਡੇ ਅੰਕੜੇ ਸਹੀ ਹੋ ਜਾਣਗੇ।",
   "home.rebuild.progress": "{total} ਵਿੱਚੋਂ {done} ਇੰਦਰਾਜ ਵਾਪਸ ਆਏ",
   "home.rebuild.title": "ਇਹ ਵਹੀ ਦੁਬਾਰਾ ਜੋੜੀ ਜਾ ਰਹੀ ਹੈ",
@@ -2195,7 +2250,7 @@
   "import.inbox.money.out": "ਪੈਸੇ ਗਏ",
   "import.inbox.note.add": "+ ਆਪਣੀ ਗੱਲ",
   "import.inbox.note.hint": "ਤੁਹਾਡੇ ਆਪਣੇ ਸ਼ਬਦ (ਮਰਜ਼ੀ ਨਾਲ)",
-  "import.inbox.note.save": "ਸਾਂਭੋ",
+  "import.inbox.note.save": "ਸੇਵ ਕਰੋ",
   "import.inbox.notposted": "ਤੁਹਾਡੀ ਵਹੀ ਵਿੱਚ ਹਾਲੇ ਕੁਝ ਨਹੀਂ ਚੜ੍ਹਿਆ। ਹਰ ਲਾਈਨ ਪਹਿਲਾਂ ਇੱਕ ਸਵਾਲ ਪੁੱਛਦੀ ਹੈ।",
   "import.inbox.question.in": "ਇਹ ਪੈਸਾ ਕਿੱਥੋਂ ਆਇਆ?",
   "import.inbox.question.out": "ਇਹ ਪੈਸਾ ਕਿੱਥੇ ਗਿਆ?",
@@ -2245,7 +2300,7 @@
   "inbox.card.expand": "ਐਂਟਰੀਆਂ ਵਿਖਾਓ",
   "inbox.card.flag": "ਤੁਹਾਡੀ ਜਾਂਚ ਦੀ ਲੋੜ ਹੈ",
   "inbox.card.one.by.one": "ਇੱਕ-ਇੱਕ ਕਰਕੇ",
-  "inbox.card.posted": "ਇਹ ਪਹਿਲਾਂ ਹੀ ਵਹੀ ਵਿੱਚ ਹਨ। ਜਿਸ ਵੇਲੇ {author} ਨੇ ਇਹ ਸਾਂਭੀਆਂ, ਉਸੇ ਵੇਲੇ ਗਿਣੀਆਂ ਗਈਆਂ — ਤੁਸੀਂ ਇਨ੍ਹਾਂ ਦੀ ਜਾਂਚ ਕਰ ਰਹੇ ਹੋ, ਇਨ੍ਹਾਂ ਨੂੰ ਰੋਕਿਆ ਨਹੀਂ ਹੋਇਆ।",
+  "inbox.card.posted": "ਇਹ ਪਹਿਲਾਂ ਹੀ ਵਹੀ ਵਿੱਚ ਹਨ। ਜਿਸ ਵੇਲੇ {author} ਨੇ ਇਹ ਸੇਵ ਕੀਤੀਆਂ, ਉਸੇ ਵੇਲੇ ਗਿਣੀਆਂ ਗਈਆਂ — ਤੁਸੀਂ ਇਨ੍ਹਾਂ ਦੀ ਜਾਂਚ ਕਰ ਰਹੇ ਹੋ, ਇਨ੍ਹਾਂ ਨੂੰ ਰੋਕਿਆ ਨਹੀਂ ਹੋਇਆ।",
   "inbox.card.subtitle": "{book} · {day}",
   "inbox.card.total": "ਕੁੱਲ {amount}",
   "inbox.card.working": "ਭੇਜੀ ਜਾ ਰਹੀ ਹੈ…",
@@ -2310,7 +2365,7 @@
   "inbox.step.field.date": "ਤਾਰੀਖ਼",
   "inbox.step.field.from": "ਕਿੱਥੋਂ",
   "inbox.step.field.note": "ਲਿਖਤ",
-  "inbox.step.field.saved": "ਸਾਂਭੀ ਗਈ",
+  "inbox.step.field.saved": "ਸੇਵ ਹੋਈ",
   "inbox.step.field.to": "ਕਿੱਥੇ",
   "inbox.step.gone.body": "ਹੋ ਸਕਦਾ ਹੈ ਕਿਸੇ ਹੋਰ ਨੇ ਇਹ ਜਾਂਚ ਲਈਆਂ ਹੋਣ, ਜਾਂ ਇਹ ਪਹਿਲਾਂ ਹੀ ਨਿੱਬੜ ਚੁੱਕੀਆਂ ਹੋਣ।",
   "inbox.step.gone.title": "ਇਹ ਕਾਰਡ ਹੁਣ ਇੱਥੇ ਨਹੀਂ ਹੈ।",
@@ -2329,7 +2384,7 @@
   "inbox.step.skip": "ਛੱਡੋ",
   "inbox.step.skip.hint": "ਤੁਹਾਡੇ ਇਨਬਾਕਸ ਵਿੱਚ ਹੀ ਰਹੇਗੀ।",
   "inbox.step.title": "ਜਾਂਚ ਹੋ ਰਹੀ ਹੈ",
-  "inbox.step.working": "ਸਾਂਭੀ ਜਾ ਰਹੀ ਹੈ…",
+  "inbox.step.working": "ਸੇਵ ਹੋ ਰਹੀ ਹੈ…",
   "inbox.structural.approve": "ਮਨਜ਼ੂਰ ਕਰੋ",
   "inbox.structural.approve.body": "ਤੁਹਾਡੀ ਮਨਜ਼ੂਰੀ ਇਸੇ ਫ਼ੋਨ ਉੱਤੇ ਦਸਤਖ਼ਤ ਹੁੰਦੀ ਹੈ ਤੇ ਬਾਕੀਆਂ ਨਾਲ ਗਿਣੀ ਜਾਂਦੀ ਹੈ। ਬਦਲਾਅ ਉਦੋਂ ਹੀ ਲਾਗੂ ਹੋਵੇਗਾ ਜਦੋਂ ਲੋੜੀਂਦੇ ਮਾਲਕ ਮਨਜ਼ੂਰ ਕਰ ਦੇਣਗੇ।",
   "inbox.structural.approve.recorded": "ਤੁਹਾਡੀ ਮਨਜ਼ੂਰੀ ਲਿਖ ਲਈ ਗਈ ਹੈ।",
@@ -2343,7 +2398,7 @@
   "inbox.structural.detail.raised": "{date} ਨੂੰ {name} ਵੱਲੋਂ ਰੱਖਿਆ ਗਿਆ",
   "inbox.structural.detail.title": "ਬੁਨਿਆਦੀ ਬਦਲਾਅ",
   "inbox.structural.detail.you": "{name} (ਤੁਸੀਂ)",
-  "inbox.structural.done.body": "{total} ਵਿੱਚੋਂ {done} ਮਾਲਕਾਂ ਨੇ ਮਨਜ਼ੂਰ ਕੀਤਾ, ਸੋ ਇਹ ਹੁਣ ਲਾਗੂ ਹੈ।",
+  "inbox.structural.done.body": "{total} ਵਿੱਚੋਂ {done} ਮਾਲਕਾਂ ਨੇ ਮਨਜ਼ੂਰ ਕੀਤਾ। ਬਦਲਾਅ ਉੱਤੇ ਸਹਿਮਤੀ ਹੋ ਗਈ ਹੈ, ਪਰ ਹਾਲੇ ਇਹ ਬਦਲਾਅ ਵਹੀ ਵਿੱਚ ਕੀਤਾ ਨਹੀਂ ਗਿਆ।",
   "inbox.structural.done.title": "ਮਾਲਕ ਸਹਿਮਤ ਹੋ ਗਏ",
   "inbox.structural.flag": "ਮਾਲਕਾਂ ਦੀ ਸਹਿਮਤੀ ਜ਼ਰੂਰੀ",
   "inbox.structural.kind.archive": "{book} ਨੂੰ ਸਾਂਭ ਕੇ ਬੰਦ ਕਰੋ",
@@ -2369,11 +2424,14 @@
   "inbox.structural.quorum.unknown": "ਇਹ ਫ਼ੋਨ ਹਾਲੇ ਨਹੀਂ ਜਾਣਦਾ ਕਿ ਜਦੋਂ ਇਹ ਗੱਲ ਰੱਖੀ ਗਈ ਸੀ ਉਦੋਂ ਮਾਲਕ ਕੌਣ ਸਨ, ਇਸ ਲਈ ਇਹ ਮਨਜ਼ੂਰੀਆਂ ਗਿਣ ਨਹੀਂ ਸਕਦਾ।",
   "inbox.structural.raised.by": "{name} ਨੇ ਇਹ {book} ਵਿੱਚ ਰੱਖਿਆ ਹੈ।",
   "inbox.structural.ratio.unrecorded": "ਹੁਣ ਤੱਕ ਦੇ ਹਿੱਸੇ ਕਦੇ ਲਿਖੇ ਹੀ ਨਹੀਂ ਗਏ। ਇਸ ਦਾ ਮਤਲਬ ਬਰਾਬਰ ਹਿੱਸੇ ਨਹੀਂ ਹੁੰਦਾ, ਇਸ ਲਈ ਇੱਥੇ ਕੁਝ ਵੀ ਮੰਨ ਕੇ ਨਹੀਂ ਚੱਲਿਆ ਗਿਆ।",
+  "inbox.structural.signers.unconfirmed": "ਇਹ ਫ਼ੋਨ ਹਾਲੇ ਪੱਕਾ ਨਹੀਂ ਕਰ ਸਕਦਾ ਕਿ {book} ਵਿੱਚ ਮਾਲਕਾਂ ਦੇ ਕੁਝ ਫ਼ੈਸਲਿਆਂ ਉੱਤੇ ਦਸਤਖ਼ਤ ਕਿਸ ਨੇ ਕੀਤੇ, ਇਸ ਲਈ ਹੋ ਸਕਦਾ ਹੈ ਕਿ ਅਸਲ ਹਾਲਤ ਇਹ ਨਾ ਹੋਵੇ। ਜਦੋਂ ਇਹ ਪੱਕਾ ਹੋ ਜਾਵੇਗਾ, ਮਨਜ਼ੂਰ ਕਰਨ ਅਤੇ ਰੋਕਣ ਦਾ ਵਿਕਲਪ ਵਾਪਸ ਆ ਜਾਵੇਗਾ — ਆਮ ਤੌਰ ’ਤੇ ਅਗਲੀ ਸਿੰਕ ਤੋਂ ਬਾਅਦ।",
   "inbox.structural.term.now": "ਹੁਣ",
   "inbox.structural.term.proposed": "ਤਜਵੀਜ਼",
   "inbox.structural.term.removed": "ਹਟਾਇਆ ਜਾਵੇਗਾ",
   "inbox.structural.term.unrecorded": "ਲਿਖਿਆ ਨਹੀਂ ਗਿਆ",
   "inbox.structural.terms.title": "ਕੀ ਬਦਲੇਗਾ",
+  "inbox.structural.terms.unknown": "ਇਹ ਫ਼ੋਨ ਇਹ ਨਹੀਂ ਦਿਖਾ ਸਕਦਾ ਕਿ ਇਸ ਗੱਲ ਨਾਲ ਸਭ ਕੀ ਬਦਲੇਗਾ, ਇਸ ਲਈ ਇੱਥੇ ਇਹ ਮਨਜ਼ੂਰ ਨਹੀਂ ਹੋ ਸਕਦੀ। ਤੁਸੀਂ ਕਾਰਨ ਦੇ ਕੇ ਇਸਨੂੰ ਰੋਕ ਸਕਦੇ ਹੋ।",
+  "inbox.structural.unconfirmed": "{count, plural, =1{ਮਾਲਕਾਂ ਦਾ ਇੱਕ ਫ਼ੈਸਲਾ ਉਦੋਂ ਤੱਕ ਉਡੀਕ ਵਿੱਚ ਹੈ, ਜਦੋਂ ਤੱਕ ਇਹ ਫ਼ੋਨ ਪੱਕਾ ਨਹੀਂ ਕਰ ਲੈਂਦਾ ਕਿ ਉਸ ਉੱਤੇ ਦਸਤਖ਼ਤ ਕਿਸ ਨੇ ਕੀਤੇ।} other{ਮਾਲਕਾਂ ਦੇ {count} ਫ਼ੈਸਲੇ ਉਦੋਂ ਤੱਕ ਉਡੀਕ ਵਿੱਚ ਹਨ, ਜਦੋਂ ਤੱਕ ਇਹ ਫ਼ੋਨ ਪੱਕਾ ਨਹੀਂ ਕਰ ਲੈਂਦਾ ਕਿ ਉਹਨਾਂ ਉੱਤੇ ਦਸਤਖ਼ਤ ਕਿਸ ਨੇ ਕੀਤੇ।}}",
   "inbox.structural.veto": "ਕਾਰਨ ਦੇ ਕੇ ਰੋਕੋ",
   "inbox.structural.veto.body": "ਇੱਕ ਰੋਕ ਇਸ ਗੱਲ ਨੂੰ ਸਾਰਿਆਂ ਲਈ ਉਸੇ ਵੇਲੇ ਬੰਦ ਕਰ ਦਿੰਦੀ ਹੈ। ਤੁਹਾਡਾ ਨਾਂ ਤੇ ਤੁਹਾਡਾ ਕਾਰਨ ਵਹੀ ਦੇ ਰਿਕਾਰਡ ਉੱਤੇ ਜਾਂਦੇ ਹਨ, ਜਿੱਥੇ ਹਰ ਮੈਂਬਰ ਪੜ੍ਹ ਸਕਦਾ ਹੈ।",
   "inbox.structural.veto.confirm": "ਇਹ ਗੱਲ ਰੋਕ ਦਿਓ",
@@ -2562,14 +2620,22 @@
   },
   "ledger.entry.amend": "ਇਸ ਨੂੰ ਸੁਧਾਰੋ",
   "ledger.entry.amend.cancel": "ਰੱਦ ਕਰੋ",
+  "ledger.entry.amend.date_locked": "{month} ਬੰਦ ਹੈ, ਇਸ ਲਈ ਇਸ ਵਿੱਚ ਕੋਈ ਤਾਰੀਖ਼ ਨਹੀਂ ਪਾਈ ਜਾ ਸਕਦੀ। ਖੁੱਲ੍ਹੇ ਮਹੀਨੇ ਦੀ ਤਾਰੀਖ਼ ਚੁਣੋ।",
+  "@ledger.entry.amend.date_locked": {
+    "description": "machine-draft — native review M12"
+  },
   "ledger.entry.amend.date_note": "ਤਾਰੀਖ਼ ਜਾਂ ਨੋਟ ਬਦਲੋ",
-  "ledger.entry.amend.error": "ਇਹ ਸੁਧਾਰ ਸੰਭਾਲਿਆ ਨਹੀਂ ਜਾ ਸਕਿਆ",
-  "ledger.entry.amend.explain": "ਸੁਧਾਰ ਨਵੀਂ ਐਂਟਰੀ ਵਜੋਂ ਸੰਭਾਲਿਆ ਜਾਂਦਾ ਹੈ। ਜੋ ਲਿਖਤ ਤੁਸੀਂ ਵੇਖ ਰਹੇ ਹੋ, ਉਹ ਇਤਿਹਾਸ ਵਿੱਚ ਰਹਿੰਦੀ ਹੈ।",
+  "ledger.entry.amend.date_rule": "ਬੰਦ ਮਹੀਨੇ ਤੇ ਆਉਣ ਵਾਲੀਆਂ ਤਾਰੀਖ਼ਾਂ ਨਹੀਂ ਚੁਣੀਆਂ ਜਾ ਸਕਦੀਆਂ।",
+  "@ledger.entry.amend.date_rule": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.entry.amend.error": "ਇਹ ਸੁਧਾਰ ਸੇਵ ਨਹੀਂ ਹੋ ਸਕਿਆ",
+  "ledger.entry.amend.explain": "ਸੁਧਾਰ ਨਵੀਂ ਐਂਟਰੀ ਵਜੋਂ ਸੇਵ ਹੁੰਦਾ ਹੈ। ਜੋ ਲਿਖਤ ਤੁਸੀਂ ਵੇਖ ਰਹੇ ਹੋ, ਉਹ ਇਤਿਹਾਸ ਵਿੱਚ ਰਹਿੰਦੀ ਹੈ।",
   "ledger.entry.amend.figures": "ਰਕਮ ਜਾਂ ਖਾਤੇ ਬਦਲੋ",
   "ledger.entry.amend.figures_hint": "ਇਹੀ ਅੰਕੜੇ ਭਰ ਕੇ ਐਂਟਰੀ ਸਕਰੀਨ ਖੋਲ੍ਹਦਾ ਹੈ",
   "ledger.entry.amend.locked": "ਇਹ ਮਹੀਨਾ ਬੰਦ ਹੋ ਚੁੱਕਾ ਹੈ, ਇਸ ਲਈ ਇਸ ਵਿੱਚ ਕੁਝ ਨਹੀਂ ਬਦਲ ਸਕਦਾ। ਇਸ ਦੀ ਥਾਂ ਐਂਟਰੀ ਉਲਟਾਓ ਤੇ ਦੁਬਾਰਾ ਦਰਜ ਕਰੋ।",
   "ledger.entry.amend.locked_action": "ਪੁਰਾਣੀ ਐਂਟਰੀ ਠੀਕ ਕਰੋ",
-  "ledger.entry.amend.save": "ਸੁਧਾਰ ਸੰਭਾਲੋ",
+  "ledger.entry.amend.save": "ਸੁਧਾਰ ਸੇਵ ਕਰੋ",
   "ledger.entry.amend.title": "ਇਸ ਐਂਟਰੀ ਨੂੰ ਸੁਧਾਰੋ",
   "ledger.entry.amend_blocked": "ਸੁਧਾਰਨ ਲਈ ਸਭ ਤੋਂ ਨਵੀਂ ਲਿਖਤ ਖੋਲ੍ਹੋ",
   "ledger.entry.channel": "ਕਿਵੇਂ ਦਿੱਤਾ",
@@ -2584,6 +2650,42 @@
   "ledger.entry.held_hint": "ਇਹ ਸੁਧਾਰ ਉਸ ਐਂਟਰੀ ਤੋਂ ਪਹਿਲਾਂ ਪਹੁੰਚ ਗਿਆ ਜਿਸ ਨੂੰ ਇਹ ਸੁਧਾਰਦਾ ਹੈ। ਕੁਝ ਵੀ ਗੁਆਚਿਆ ਨਹੀਂ, ਤੇ ਹਾਲੇ ਕਿਸੇ ਹਿਸਾਬ ਵਿੱਚ ਨਹੀਂ ਗਿਣਿਆ ਗਿਆ — ਉਹ ਐਂਟਰੀ ਆਉਂਦੇ ਹੀ ਇਹ ਇੱਥੇ ਖੁੱਲ੍ਹ ਜਾਵੇਗਾ।",
   "ledger.entry.held_waiting_for": "ਐਂਟਰੀ {id} ਦੀ ਉਡੀਕ",
   "ledger.entry.kind.adjustment": "ਸੁਧਾਈ",
+  "ledger.entry.locked.amend_blocked": "{month} ਬੰਦ ਹੈ, ਇਸ ਲਈ ਇਹ ਐਂਟਰੀ ਬਦਲੀ ਨਹੀਂ ਜਾ ਸਕਦੀ। ਠੀਕ ਕਰੋ: ਅੱਜ ਇਸ ਨੂੰ ਉਲਟਾਓ, ਫਿਰ ਦੁਬਾਰਾ ਦਰਜ ਕਰੋ।",
+  "@ledger.entry.locked.amend_blocked": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.entry.locked.fix": "ਇਹ ਐਂਟਰੀ ਠੀਕ ਕਰੋ",
+  "@ledger.entry.locked.fix": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.entry.locked.fix_confirm": "ਉਲਟਾਓ, ਫਿਰ ਦੁਬਾਰਾ ਦਰਜ ਕਰੋ",
+  "@ledger.entry.locked.fix_confirm": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.entry.locked.fix_explain": "ਦੋ ਕਦਮ। ਪਹਿਲਾਂ ਅੱਜ, ਖੁੱਲ੍ਹੇ ਮਹੀਨੇ ਵਿੱਚ, ਉਲਟੀ ਐਂਟਰੀ ਪਾਈ ਜਾਂਦੀ ਹੈ ਤੇ ਇਹ ਐਂਟਰੀ ਗਿਣਤੀ ਵਿੱਚ ਨਹੀਂ ਰਹਿੰਦੀ। ਫਿਰ ਤੁਸੀਂ ਸਹੀ ਰਕਮ ਨਾਲ ਇਸ ਨੂੰ ਦੁਬਾਰਾ ਦਰਜ ਕਰਦੇ ਹੋ। {month} ਜਿਵੇਂ ਬੰਦ ਹੋਇਆ ਸੀ ਉਵੇਂ ਰਹਿੰਦਾ ਹੈ — ਹਰ ਐਂਟਰੀ ਇਤਿਹਾਸ ਵਿੱਚ ਰਹਿੰਦੀ ਹੈ।",
+  "@ledger.entry.locked.fix_explain": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.entry.locked.fix_hint": "ਇਹ ਅੱਜ ਉਲਟਾਈ ਜਾਂਦੀ ਹੈ ਤੇ ਤੁਸੀਂ ਇਸ ਨੂੰ ਦੁਬਾਰਾ ਦਰਜ ਕਰਦੇ ਹੋ। {month} ਦੁਬਾਰਾ ਨਹੀਂ ਲਿਖਿਆ ਜਾਂਦਾ।",
+  "@ledger.entry.locked.fix_hint": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.entry.locked.line": "{month} ਬੰਦ ਹੈ · {date} ਨੂੰ ਗਿਣ ਕੇ ਪੱਕਾ ਕੀਤਾ",
+  "@ledger.entry.locked.line": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.entry.locked.line_undated": "{month} ਬੰਦ ਹੈ",
+  "@ledger.entry.locked.line_undated": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.entry.locked.reentry": "ਦੁਬਾਰਾ ਦਰਜ ਕਰੋ",
+  "@ledger.entry.locked.reentry": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.entry.locked.reentry_hint": "{date} ਨੂੰ ਉਲਟਾਈ ਗਈ · {month} ਜਿਵੇਂ ਬੰਦ ਹੋਇਆ ਸੀ ਉਵੇਂ ਰਹਿੰਦਾ ਹੈ। ਜੇ ਇਹ ਹਾਲੇ ਵੀ ਖਾਤੇ ਵਿੱਚ ਚਾਹੀਦੀ ਹੈ, ਤਾਂ ਦੁਬਾਰਾ ਦਰਜ ਕਰੋ।",
+  "@ledger.entry.locked.reentry_hint": {
+    "description": "machine-draft — native review M12"
+  },
   "ledger.entry.missing": "ਇਹ ਐਂਟਰੀ ਇਸ ਫ਼ੋਨ ਵਿੱਚ ਨਹੀਂ ਹੈ",
   "ledger.entry.missing_hint": "ਸ਼ਾਇਦ ਇਹ ਹਾਲੇ ਇਸ ਫ਼ੋਨ ਤੱਕ ਨਹੀਂ ਪਹੁੰਚੀ। ਪਹੁੰਚਦੇ ਹੀ ਇੱਥੇ ਖੁੱਲ੍ਹ ਜਾਵੇਗੀ।",
   "ledger.entry.no_note": "ਕੋਈ ਨੋਟ ਨਹੀਂ",
@@ -2610,7 +2712,7 @@
   "ledger.entry.trail.open": "ਖੋਲ੍ਹੋ",
   "ledger.entry.trail.reversed": "ਬਾਅਦ ਵਾਲੀ ਐਂਟਰੀ ਨੇ ਇਸ ਨੂੰ ਉਲਟਾ ਦਿੱਤਾ ਹੈ",
   "ledger.entry.trail.reverses": "ਪਹਿਲੀ ਐਂਟਰੀ ਨੂੰ ਉਲਟਾਉਂਦੀ ਹੈ",
-  "ledger.entry.trail.saved": "ਸੰਭਾਲੀ ਗਈ",
+  "ledger.entry.trail.saved": "ਸੇਵ ਹੋਈ",
   "ledger.entry.trail.superseded": "ਇਸ ਦੀ ਥਾਂ ਨਵੀਂ ਲਿਖਤ ਆ ਗਈ ਹੈ",
   "ledger.filter.all": "ਸਾਰੇ",
   "ledger.filter.categories": "ਸ਼੍ਰੇਣੀਆਂ",
@@ -2623,6 +2725,94 @@
   "ledger.list.retry": "ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
   "ledger.list.skeleton": "ਖਾਤੇ ਲੋਡ ਹੋ ਰਹੇ ਹਨ",
   "ledger.new_account": "ਨਵਾਂ ਖਾਤਾ",
+  "ledger.opening_prompt.add": "ਸ਼ੁਰੂਆਤੀ ਬਾਕੀ ਪਾਓ",
+  "@ledger.opening_prompt.add": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_prompt.body_money": "ਜਦੋਂ ਇਹ ਵਹੀ ਸ਼ੁਰੂ ਹੋਈ, {name} ਵਿੱਚ ਕਿੰਨੇ ਪੈਸੇ ਸਨ? ਇਸਨੂੰ ਪਾਓ ਤਾਂ ਜੋ ਇਹ ਖਾਤਾ ਸਹੀ ਬਾਕੀ ਦਿਖਾਵੇ।",
+  "@ledger.opening_prompt.body_money": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_prompt.body_party": "ਕੀ ਅੱਜ ਤੋਂ ਪਹਿਲਾਂ {name} ਵੱਲ ਤੁਹਾਡਾ ਕੁਝ ਬਕਾਇਆ ਸੀ? ਇਸਨੂੰ ਪਾਓ ਤਾਂ ਜੋ ਇਹ ਖਾਤਾ ਸਹੀ ਬਾਕੀ ਦਿਖਾਵੇ।",
+  "@ledger.opening_prompt.body_party": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_prompt.not_needed": "ਲੋੜ ਨਹੀਂ",
+  "@ledger.opening_prompt.not_needed": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_prompt.not_needed_unavailable": "“ਲੋੜ ਨਹੀਂ” ਹਾਲੇ ਸੇਵ ਨਹੀਂ ਹੋ ਸਕਦਾ — ਇਹ ਅਗਲੇ ਅੱਪਡੇਟ ਵਿੱਚ ਆਵੇਗਾ। ਉਦੋਂ ਤੱਕ ਇਹ ਨੋਟ ਇੱਥੇ ਰਹੇਗਾ।",
+  "@ledger.opening_prompt.not_needed_unavailable": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_prompt.title": "ਸ਼ੁਰੂਆਤੀ ਬਾਕੀ ਨਹੀਂ ਪਾਈ",
+  "@ledger.opening_prompt.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.amount": "ਰਕਮ",
+  "@ledger.opening_sheet.amount": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.amount_error": "ਰਕਮ ਪਾਓ। ਇਹ ਸਿਫ਼ਰ ਨਹੀਂ ਹੋ ਸਕਦੀ।",
+  "@ledger.opening_sheet.amount_error": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.cancel": "ਰੱਦ ਕਰੋ",
+  "@ledger.opening_sheet.cancel": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.dated": "{date} ਨੂੰ ਸ਼ੁਰੂਆਤੀ ਬਾਕੀ ਵਜੋਂ ਦਰਜ — ਜਿਸ ਦਿਨ ਇਹ ਵਹੀ ਸ਼ੁਰੂ ਹੁੰਦੀ ਹੈ।",
+  "@ledger.opening_sheet.dated": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.dated_locked": "{date} ਨੂੰ ਸ਼ੁਰੂਆਤੀ ਬਾਕੀ ਵਜੋਂ ਦਰਜ — ਪਹਿਲਾ ਖੁੱਲ੍ਹਾ ਮਹੀਨਾ, ਕਿਉਂਕਿ ਜਿਸ ਮਹੀਨੇ ਇਹ ਵਹੀ ਸ਼ੁਰੂ ਹੁੰਦੀ ਹੈ ਉਹ ਬੰਦ ਹੈ।",
+  "@ledger.opening_sheet.dated_locked": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.save": "ਸੇਵ ਕਰੋ",
+  "@ledger.opening_sheet.save": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.save_error": "ਸ਼ੁਰੂਆਤੀ ਬਾਕੀ ਸੇਵ ਨਹੀਂ ਹੋ ਸਕੀ। ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ — ਜਾਂ ਬਾਅਦ ਵਿੱਚ ਤੁਹਾਡੀਆਂ ਵਹੀਆਂ → ਸ਼ੁਰੂਆਤੀ ਬਾਕੀ ਵਿੱਚ ਠੀਕ ਕਰੋ।",
+  "@ledger.opening_sheet.save_error": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.subtitle_money": "ਜਦੋਂ ਇਹ ਵਹੀ ਸ਼ੁਰੂ ਹੋਈ, ਇਸ ਖਾਤੇ ਵਿੱਚ ਜੋ ਸੀ।",
+  "@ledger.opening_sheet.subtitle_money": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.subtitle_party": "ਇਹ ਖਾਤਾ ਸ਼ੁਰੂ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ ਜੋ ਲੈਣ-ਦੇਣ ਬਾਕੀ ਸੀ।",
+  "@ledger.opening_sheet.subtitle_party": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.they_owe": "ਉਹ ਤੁਹਾਡੇ ਦੇਣਦਾਰ ਹਨ",
+  "@ledger.opening_sheet.they_owe": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.title": "{name}, ਅੱਜ ਤੋਂ ਪਹਿਲਾਂ",
+  "@ledger.opening_sheet.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.total_get": "ਕੁੱਲ ਮਿਲਾ ਕੇ ਤੁਹਾਨੂੰ {amount} ਮਿਲਣਗੇ।",
+  "@ledger.opening_sheet.total_get": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.total_give": "ਕੁੱਲ ਮਿਲਾ ਕੇ ਤੁਸੀਂ {amount} ਦੇਣੇ ਹਨ।",
+  "@ledger.opening_sheet.total_give": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.total_money": "ਕੁੱਲ ਮਿਲਾ ਕੇ {name} ਵਿੱਚ {amount} ਦਿਖੇਗਾ।",
+  "@ledger.opening_sheet.total_money": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.total_settled": "ਕਿਸੇ ਪਾਸੇ ਕੁਝ ਬਾਕੀ ਨਹੀਂ ਰਹੇਗਾ।",
+  "@ledger.opening_sheet.total_settled": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.you_owe": "ਤੁਸੀਂ ਉਹਨਾਂ ਦੇ ਦੇਣਦਾਰ ਹੋ",
+  "@ledger.opening_sheet.you_owe": {
+    "description": "machine-draft — native review M12"
+  },
   "ledger.placeholder.body": "ਸਾਰੇ ਖਾਤੇ, ੳ ਤੋਂ ਹ, ਇੱਥੇ ਸੂਚੀ ਵਿੱਚ ਹੋਣਗੇ।",
   "ledger.quick_add.back": "ਪਿੱਛੇ",
   "ledger.quick_add.cancel": "ਰੱਦ ਕਰੋ",
@@ -2633,8 +2823,8 @@
   "ledger.quick_add.opening_hint": "0.00",
   "ledger.quick_add.opening_label_money": "ਸ਼ੁਰੂਆਤੀ ਬਾਕੀ",
   "ledger.quick_add.opening_label_party": "ਕਿੰਨਾ, ਅਤੇ ਕੌਣ ਕਿਸਦਾ ਦੇਣਦਾਰ ਹੈ",
-  "ledger.quick_add.save": "ਸੰਭਾਲੋ",
-  "ledger.quick_add.save_error": "ਖਾਤਾ ਸੰਭਾਲਿਆ ਨਹੀਂ ਜਾ ਸਕਿਆ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
+  "ledger.quick_add.save": "ਸੇਵ ਕਰੋ",
+  "ledger.quick_add.save_error": "ਖਾਤਾ ਸੇਵ ਨਹੀਂ ਹੋ ਸਕਿਆ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
   "ledger.quick_add.title": "ਖਾਤਾ ਸ਼ਾਮਲ ਕਰੋ",
   "ledger.quick_add.type.bank": "ਬੈਂਕ",
   "ledger.quick_add.type.cash": "ਨਕਦ",
@@ -2894,13 +3084,17 @@
   "@legal.title": {
     "description": "machine-draft — native review M12"
   },
-  "lock.biometric.button": "ਫ਼ੇਸ ਆਈਡੀ",
-  "@lock.biometric.button": {
-    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
-  },
   "lock.biometric.failed": "ਚਿਹਰਾ ਪਛਾਣਿਆ ਨਹੀਂ ਗਿਆ",
   "@lock.biometric.failed": {
     "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
+  "lock.biometric.failed.any": "ਪਛਾਣਿਆ ਨਹੀਂ ਗਿਆ",
+  "@lock.biometric.failed.any": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
+  },
+  "lock.biometric.failed.fingerprint": "ਫ਼ਿੰਗਰਪ੍ਰਿੰਟ ਪਛਾਣਿਆ ਨਹੀਂ ਗਿਆ",
+  "@lock.biometric.failed.fingerprint": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
   },
   "lock.biometric.prompt": "ਆਪਣੇ ਖਾਤੇ ਖੋਲ੍ਹੋ",
   "lock.biometric.reenrolled": "ਇਸ ਫ਼ੋਨ ਦੀਆਂ ਚਿਹਰੇ ਜਾਂ ਉਂਗਲ ਦੇ ਨਿਸ਼ਾਨ ਦੀਆਂ ਸੈਟਿੰਗਾਂ ਬਦਲ ਗਈਆਂ ਹਨ — ਇੱਕ ਵਾਰ ਆਪਣਾ ਪਿੰਨ ਭਰੋ",
@@ -2915,12 +3109,32 @@
   "@lock.biometric.sheet_subtitle": {
     "description": "machine-draft — native review M12 (ADR 2026-10-05b)"
   },
-  "lock.biometric.unavailable": "ਇਸ ਵੇਲੇ ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਫ਼ੇਸ ਆਈਡੀ ਉਪਲਬਧ ਨਹੀਂ — ਆਪਣਾ ਪਿੰਨ ਭਰੋ",
+  "lock.biometric.touch_sensor": "ਸੈਂਸਰ ਨੂੰ ਛੂਹੋ",
+  "@lock.biometric.touch_sensor": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
+  },
+  "lock.biometric.unavailable": "ਇਸ ਵੇਲੇ ਇਸ ਫ਼ੋਨ ਉੱਤੇ {method} ਉਪਲਬਧ ਨਹੀਂ — ਆਪਣਾ ਪਿੰਨ ਭਰੋ",
+  "@lock.biometric.unavailable": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
   "lock.cooldown.body": "ਇਹ ਇੱਕ ਕੋਡ ਹੈ, ਤਾਲਾਬੰਦੀ ਨਹੀਂ। ਪਿੰਨ ਆਪਣੇ ਆਪ ਵਾਪਸ ਚਾਲੂ ਹੋ ਜਾਵੇਗਾ — ਕੁਝ ਵੀ ਗੁੰਮ ਨਹੀਂ ਹੋਇਆ।",
   "lock.cooldown.countdown": "{time} ਵਿੱਚ ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
   "lock.cooldown.title": "ਥੋੜ੍ਹਾ ਰੁਕ ਜਾਓ",
   "lock.cover.semantics": "ਬੈਕਗਰਾਊਂਡ ਵਿੱਚ ਹੋਣ ਸਮੇਂ ਐਪ ਢੱਕੀ ਹੋਈ ਹੈ",
-  "lock.disabled.body": "ਤੁਹਾਡੇ ਖਾਤੇ ਸੁਰੱਖਿਅਤ ਹਨ ਅਤੇ ਕੁਝ ਵੀ ਗੁੰਮ ਨਹੀਂ ਹੋਇਆ। ਅਸੀਂ ਤੁਹਾਡੇ ਨੰਬਰ ਉੱਤੇ ਭੇਜਿਆ ਕੋਡ ਅਤੇ ਫਿਰ ਫ਼ੇਸ ਆਈਡੀ ਪੱਕੀ ਕਰੋ, ਤੇ ਨਵਾਂ ਪਿੰਨ ਚੁਣੋ।",
+  "lock.disabled.body": "ਤੁਹਾਡੇ ਖਾਤੇ ਸੁਰੱਖਿਅਤ ਹਨ ਅਤੇ ਕੁਝ ਵੀ ਗੁੰਮ ਨਹੀਂ ਹੋਇਆ। ਅਸੀਂ ਤੁਹਾਡੇ ਨੰਬਰ ਉੱਤੇ ਜੋ ਕੋਡ ਭੇਜਾਂਗੇ ਉਹ ਪੱਕਾ ਕਰੋ, ਫਿਰ {method} ਨਾਲ ਪੁਸ਼ਟੀ ਕਰੋ, ਤੇ ਨਵਾਂ ਪਿੰਨ ਚੁਣੋ।",
+  "@lock.disabled.body": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
   "lock.disabled.title": "ਪਿੰਨ ਬੰਦ ਕਰ ਦਿੱਤਾ ਗਿਆ ਹੈ",
   "lock.forgot.action": "ਪਿੰਨ ਭੁੱਲ ਗਏ",
   "@lock.forgot.action": {
@@ -2967,6 +3181,34 @@
   "lock.keys_need_biometric": "ਤੁਹਾਡਾ ਪਿੰਨ ਸਹੀ ਹੈ। ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਤੁਹਾਡੇ ਖਾਤੇ ਤੁਹਾਡੀ ਉਂਗਲ ਦੇ ਨਿਸ਼ਾਨ ਜਾਂ ਚਿਹਰੇ ਨਾਲ ਬੰਦ ਹਨ, ਇਹਨਾਂ ਨੂੰ ਖੋਲ੍ਹਣ ਲਈ ਇੱਕ ਵਾਰ ਹੋਰ ਵਰਤੋ।",
   "@lock.keys_need_biometric": {
     "description": "machine-draft — native review M12 (ADR 2026-10-05b)"
+  },
+  "lock.method.any": "ਫ਼ਿੰਗਰਪ੍ਰਿੰਟ ਜਾਂ ਚਿਹਰਾ",
+  "@lock.method.any": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
+  },
+  "lock.method.any.inline": "ਆਪਣਾ ਫ਼ਿੰਗਰਪ੍ਰਿੰਟ ਜਾਂ ਚਿਹਰਾ",
+  "@lock.method.any.inline": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
+  },
+  "lock.method.face_id": "ਫੇਸ ਆਈਡੀ",
+  "@lock.method.face_id": {
+    "description": "owner-given (ADR 2026-10-08 §3) — final"
+  },
+  "lock.method.face_unlock": "ਫੇਸ ਅਨਲਾਕ",
+  "@lock.method.face_unlock": {
+    "description": "owner-given (ADR 2026-10-08 §3) — final"
+  },
+  "lock.method.fingerprint": "ਫ਼ਿੰਗਰਪ੍ਰਿੰਟ",
+  "@lock.method.fingerprint": {
+    "description": "owner-given (ADR 2026-10-08 §3) — final"
+  },
+  "lock.method.fingerprint.inline": "ਆਪਣਾ ਫ਼ਿੰਗਰਪ੍ਰਿੰਟ",
+  "@lock.method.fingerprint.inline": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
+  },
+  "lock.method.touch_id": "ਟੱਚ ਆਈਡੀ",
+  "@lock.method.touch_id": {
+    "description": "owner-given (ADR 2026-10-08 §3) — final"
   },
   "lock.pin.entered": "6 ਵਿੱਚੋਂ {count} ਅੰਕ ਭਰੇ ਗਏ",
   "lock.pin.label": "ਆਪਣਾ ਪਿੰਨ ਭਰੋ",
@@ -3062,13 +3304,13 @@
   "members.invited_by": "{name} ਨੇ ਸੱਦਿਆ · ਜੁੜਨ ਦੀ ਉਡੀਕ",
   "members.invited_by.unknown": "ਸੱਦਾ ਭੇਜਿਆ · ਜੁੜਨ ਦੀ ਉਡੀਕ",
   "members.limit.edit.clear": "ਹੱਦ ਹਟਾ ਦਿਓ",
-  "members.limit.edit.error": "ਇਹ ਹੱਦ ਸੰਭਾਲੀ ਨਹੀਂ ਗਈ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
+  "members.limit.edit.error": "ਇਹ ਹੱਦ ਸੇਵ ਨਹੀਂ ਹੋ ਸਕੀ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
   "members.limit.edit.field": "ਰਕਮ ਰੁਪਏ ਵਿੱਚ",
   "members.limit.edit.invalid": "ਰੁਪਏ ਵਿੱਚ ਰਕਮ ਭਰੋ, ਜਿਵੇਂ 5000।",
-  "members.limit.edit.save": "ਹੱਦ ਸੰਭਾਲੋ",
+  "members.limit.edit.save": "ਹੱਦ ਸੇਵ ਕਰੋ",
   "members.limit.edit.subtitle": "{name} · {book}",
   "members.limit.edit.title": "ਆਪਣੇ-ਆਪ ਚੜ੍ਹਨ ਦੀ ਹੱਦ",
-  "members.limit.edit.working": "ਸੰਭਾਲ ਰਹੇ ਹਾਂ…",
+  "members.limit.edit.working": "ਸੇਵ ਕਰ ਰਹੇ ਹਾਂ…",
   "members.limit.help": "ਇਸ ਤੋਂ ਵੱਧ ਦੀਆਂ ਐਂਟਰੀਆਂ ਵੀ ਚੜ੍ਹ ਜਾਂਦੀਆਂ ਹਨ — ਉਹ ਕਿਸੇ ਹੋਰ ਦੀ ਪਰਖ ਲਈ ਨਿਸ਼ਾਨਬੱਧ ਹੋ ਜਾਂਦੀਆਂ ਹਨ।",
   "members.limit.label": "ਆਪਣੇ-ਆਪ ਚੜ੍ਹਨ ਦੀ ਹੱਦ",
   "members.limit.locked": "ਹੱਦ ਸਿਰਫ਼ ਐਡਮਿਨ ਹੀ ਬਦਲ ਸਕਦਾ ਹੈ।",
@@ -3112,7 +3354,7 @@
   "members.verified.remote": "{date} ਨੂੰ {name} ਨੇ ਫ਼ੋਨ ’ਤੇ ਤਸਦੀਕ ਕੀਤਾ",
   "members.verified.someone": "ਇਸ ਵਹੀ ਵਿਚਲਾ ਕੋਈ ਜੀਅ",
   "members.you": "ਤੁਸੀਂ",
-  "menu.backup.row.subtitle": "ਪਲੇਟਫਾਰਮ ਕੁੰਜੀ ਸਿੰਕ, ਆਪਣੀ ਰਿਕਵਰੀ ਸ਼ੀਟ ਸੰਭਾਲੋ, ਅਤੇ ਮਹੀਨਾਵਾਰ ਪੜ੍ਹਨਯੋਗ ਕਾਪੀ।",
+  "menu.backup.row.subtitle": "ਪਲੇਟਫਾਰਮ ਕੁੰਜੀ ਸਿੰਕ, ਆਪਣੀ ਰਿਕਵਰੀ ਸ਼ੀਟ ਸੇਵ ਕਰੋ, ਅਤੇ ਮਹੀਨਾਵਾਰ ਪੜ੍ਹਨਯੋਗ ਕਾਪੀ।",
   "menu.backup.row.title": "ਬੈਕਅੱਪ",
   "menu.books_members.row.subtitle": "ਤੁਹਾਡੀਆਂ ਵਹੀਆਂ, ਅਤੇ ਨਵਾਂ ਕਾਰੋਬਾਰ ਜੋੜਨਾ।",
   "menu.books_members.row.title": "ਵਹੀਆਂ ਅਤੇ ਮੈਂਬਰ",
@@ -3154,12 +3396,21 @@
   "nav.inbox.label": "ਇਨਬਾਕਸ",
   "nav.ledger.label": "ਖਾਤੇ",
   "nav.menu.label": "ਮੀਨੂ",
-  "onboarding.books_safe.backup.destination": "{destination} ਵਿੱਚ ਸੰਭਾਲਿਆ ਜਾਂਦਾ ਹੈ",
-  "onboarding.books_safe.backup.destination_unset": "ਤੁਹਾਡੀ ਆਪਣੀ ਕਲਾਊਡ ਡਰਾਈਵ ਵਿੱਚ ਸੰਭਾਲਿਆ ਜਾਂਦਾ ਹੈ",
+  "onboarding.books_safe.backup.destination": "{destination} ਵਿੱਚ ਸੇਵ ਹੁੰਦਾ ਹੈ",
+  "@onboarding.books_safe.backup.destination": {
+    "description": "machine-draft — native review M12; PA *Save* is ਸੇਵ ਕਰੋ (01 §2 term table; ADR 2026-10-08 §2, 'unchanged')"
+  },
+  "onboarding.books_safe.backup.destination_unset": "ਤੁਹਾਡੀ ਆਪਣੀ ਕਲਾਊਡ ਡਰਾਈਵ ਵਿੱਚ ਸੇਵ ਹੁੰਦਾ ਹੈ",
+  "@onboarding.books_safe.backup.destination_unset": {
+    "description": "machine-draft — native review M12; PA *Save* is ਸੇਵ ਕਰੋ (01 §2 term table; ADR 2026-10-08 §2, 'unchanged')"
+  },
   "onboarding.books_safe.backup.off_hint": "ਇੱਕ ਵਾਰ ਛੂਹ ਕੇ ਇਹਨਾਂ ਵਿੱਚੋਂ ਕੋਈ ਵੀ ਬੰਦ ਕਰੋ।",
   "onboarding.books_safe.backup.readable_disclosure": "ਇਹ ਫ਼ਾਈਲ ਪੜ੍ਹੀ ਜਾ ਸਕਦੀ ਹੈ। ਜੋ ਵੀ ਉਸ ਡਰਾਈਵ ਨੂੰ ਖੋਲ੍ਹ ਸਕਦਾ ਹੈ, ਉਹ ਤੁਹਾਡੀਆਂ ਵਹੀਆਂ ਪੜ੍ਹ ਸਕਦਾ ਹੈ, ਤੇ Apple ਜਾਂ Google ਵੀ। ਇਹ ਇੱਕੋ ਫ਼ਾਈਲ ਹੈ ਜੋ ਇਹ ਐਪ ਇਨਕ੍ਰਿਪਟ ਨਹੀਂ ਕਰਦੀ।",
   "onboarding.books_safe.backup.readable_title": "ਪੜ੍ਹਨਯੋਗ ਨਕਲ, ਹਰ ਮਹੀਨੇ",
-  "onboarding.books_safe.backup.save_failed": "ਅਸੀਂ ਉਹ ਤਬਦੀਲੀ ਸੰਭਾਲ ਨਹੀਂ ਸਕੇ — ਇੱਕ ਵਾਰ ਹੋਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
+  "onboarding.books_safe.backup.save_failed": "ਅਸੀਂ ਉਹ ਤਬਦੀਲੀ ਸੇਵ ਨਹੀਂ ਕਰ ਸਕੇ — ਇੱਕ ਵਾਰ ਹੋਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
+  "@onboarding.books_safe.backup.save_failed": {
+    "description": "machine-draft — native review M12; PA *Save* is ਸੇਵ ਕਰੋ (01 §2 term table; ADR 2026-10-08 §2, 'unchanged')"
+  },
   "onboarding.books_safe.backup.state_on": "ਚਾਲੂ",
   "onboarding.books_safe.backup.title": "ਆਪਣੇ ਆਪ ਬੈਕਅੱਪ",
   "onboarding.books_safe.backup.vault_body": "ਇਹ ਇਨਕ੍ਰਿਪਟ ਰਹਿੰਦੀ ਹੈ: ਜਿਸ ਕੋਲ ਤੁਹਾਡੀ ਕੁੰਜੀ ਨਹੀਂ, ਉਸ ਲਈ ਬੇਕਾਰ — ਤੇ ਕੁੰਜੀ ਬਿਨਾਂ ਤੁਹਾਡੇ ਲਈ ਵੀ ਬੇਕਾਰ।",
@@ -3167,11 +3418,27 @@
   "onboarding.books_safe.continue_label": "ਅੱਗੇ ਵਧੋ",
   "onboarding.books_safe.intro": "ਤੁਹਾਡੀਆਂ ਐਂਟਰੀਆਂ ਪਹਿਲਾਂ ਹੀ ਸਾਡੇ ਸਰਵਰ ਉੱਤੇ ਇਨਕ੍ਰਿਪਟ ਹੋਈਆਂ ਪਈਆਂ ਹਨ — ਫ਼ੋਨ ਗੁਆਚਣ ਨਾਲ ਉਹ ਨਹੀਂ ਗੁਆਚਦੀਆਂ। ਸੰਭਾਲਣ ਵਾਲੀ ਚੀਜ਼ ਤੁਹਾਡੀ ਕੁੰਜੀ ਹੈ।",
   "onboarding.books_safe.keysync.apple": "Apple ਇਸਨੂੰ ਪੜ੍ਹ ਨਹੀਂ ਸਕਦਾ।",
+  "onboarding.books_safe.keysync.google": "Google ਇਸਨੂੰ ਪੜ੍ਹ ਨਹੀਂ ਸਕਦਾ।",
+  "@onboarding.books_safe.keysync.google": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
+  },
   "onboarding.books_safe.keysync.off_body": "ਤੁਹਾਡੀ ਕੁੰਜੀ ਉੱਥੇ ਨਹੀਂ ਰੱਖੀ ਜਾ ਸਕਦੀ, ਸੋ ਨਵਾਂ ਫ਼ੋਨ ਆਪਣੇ ਆਪ ਇਹ ਨਹੀਂ ਲੱਭੇਗਾ। ਇਸ ਦੀ ਥਾਂ ਰਿਕਵਰੀ ਸ਼ੀਟ ਬਣਾਓ — ਵਾਪਸ ਅੰਦਰ ਆਉਣ ਦਾ ਇਹੀ ਰਾਹ ਹੈ।",
   "onboarding.books_safe.keysync.off_title": "ਇਸ ਫ਼ੋਨ ਉੱਤੇ iCloud Keychain ਬੰਦ ਹੈ",
+  "onboarding.books_safe.keysync.off_title.android": "ਇਸ ਫ਼ੋਨ ਉੱਤੇ Google Password Manager ਬੰਦ ਹੈ",
+  "@onboarding.books_safe.keysync.off_title.android": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
+  },
   "onboarding.books_safe.keysync.phone_backup": "ਫ਼ੋਨ ਦਾ ਬੈਕਅੱਪ ਤੁਹਾਡੀਆਂ ਵਹੀਆਂ ਨਹੀਂ ਲਿਆਉਂਦਾ — ਤੁਹਾਡੀ ਕੁੰਜੀ ਤੁਹਾਡੇ Apple ਖਾਤੇ ਨਾਲ ਵਾਪਸ ਆਉਂਦੀ ਹੈ, ਵਹੀਆਂ ਸਰਵਰ ਤੋਂ ਵਾਪਸ ਆਉਂਦੀਆਂ ਹਨ।",
+  "onboarding.books_safe.keysync.phone_backup.android": "ਫ਼ੋਨ ਦਾ ਬੈਕਅੱਪ ਤੁਹਾਡੀਆਂ ਵਹੀਆਂ ਨਹੀਂ ਲਿਆਉਂਦਾ — ਤੁਹਾਡੀ ਕੁੰਜੀ ਤੁਹਾਡੇ Google ਖਾਤੇ ਨਾਲ ਵਾਪਸ ਆਉਂਦੀ ਹੈ, ਵਹੀਆਂ ਸਰਵਰ ਤੋਂ ਵਾਪਸ ਆਉਂਦੀਆਂ ਹਨ।",
+  "@onboarding.books_safe.keysync.phone_backup.android": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
+  },
   "onboarding.books_safe.keysync.state_on": "ਚਾਲੂ",
   "onboarding.books_safe.keysync.title": "ਤੁਹਾਡੀ ਕੁੰਜੀ iCloud Keychain ਵਿੱਚ ਰੱਖੀ ਜਾਂਦੀ ਹੈ",
+  "onboarding.books_safe.keysync.title.android": "ਤੁਹਾਡੀ ਕੁੰਜੀ Google Password Manager ਵਿੱਚ ਰੱਖੀ ਜਾਂਦੀ ਹੈ",
+  "@onboarding.books_safe.keysync.title.android": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
+  },
   "onboarding.books_safe.resume_note": "ਤੁਸੀਂ ਇਸ ਉੱਤੇ ਹੋਮ ਦੀ ਸੈੱਟਅੱਪ ਸੂਚੀ ਤੋਂ ਵਾਪਸ ਆ ਸਕਦੇ ਹੋ।",
   "onboarding.books_safe.sheet.action": "ਮੇਰੀ ਰਿਕਵਰੀ ਸ਼ੀਟ ਬਣਾਓ",
   "onboarding.books_safe.sheet.body": "ਇੱਕ ਛਪਿਆ ਹੋਇਆ ਪੰਨਾ, ਜੋ ਬਾਕੀ ਸਭ ਕੁਝ ਮੁੱਕ ਜਾਣ ਉੱਤੇ ਵੀ ਤੁਹਾਡੀਆਂ ਵਹੀਆਂ ਵਾਪਸ ਲਿਆਉਂਦਾ ਹੈ।",
@@ -3214,7 +3481,10 @@
   "onboarding.business_opening.group_owner_contributions": "ਹਰ ਮਾਲਕ ਨੇ ਕਿੰਨਾ ਪਾਇਆ",
   "onboarding.business_opening.group_you_owe": "ਤੁਸੀਂ ਕਿਸ ਨੂੰ ਦੇਣਾ ਹੈ",
   "onboarding.business_opening.retry": "ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
-  "onboarding.business_opening.save": "ਸੰਭਾਲੋ ਤੇ ਅੱਗੇ ਵਧੋ",
+  "onboarding.business_opening.save": "ਸੇਵ ਕਰੋ ਤੇ ਅੱਗੇ ਵਧੋ",
+  "@onboarding.business_opening.save": {
+    "description": "machine-draft — native review M12; PA *Save* is ਸੇਵ ਕਰੋ (01 §2 term table; ADR 2026-10-08 §2, 'unchanged')"
+  },
   "onboarding.business_opening.skip": "ਹੁਣੇ ਛੱਡੋ",
   "onboarding.business_opening.subtitle": "ਇਹ ਖਾਤੇ ਤਿਆਰ ਹਨ। ਹਰ ਇੱਕ ਵਿੱਚ ਕਿੰਨਾ ਹੈ ਭਰੋ, ਜਾਂ ਹੋਰ ਜੋੜੋ।",
   "onboarding.business_opening.suggestion_note": "ਹਿੱਸਿਆਂ ਤੋਂ ਸੁਝਾਈ ਰਕਮ — ਜੇ ਅਸਲ ਵਿੱਚ ਵੱਖਰੀ ਸੀ ਤਾਂ ਬਦਲ ਲਵੋ।",
@@ -3244,13 +3514,28 @@
   "onboarding.family.accounts.balancing_label": "ਇਸ ਨਾਲ ਬਰਾਬਰ ਹੁੰਦਾ ਹੈ",
   "onboarding.family.accounts.balancing_note": "{amount} ਓਪਨਿੰਗ ਬੈਲੇਂਸ / ਪੂੰਜੀ ਖਾਤੇ ਵਿੱਚ ਜਾਂਦਾ ਹੈ ਤਾਂ ਜੋ ਇੰਦਰਾਜ ਬਰਾਬਰ ਹੋਵੇ।",
   "onboarding.family.accounts.balancing_zero": "ਕੁਝ ਹੋਰ ਲੋੜੀਂਦਾ ਨਹੀਂ — ਜੋ ਤੁਸੀਂ ਭਰਿਆ ਉਹ ਪੂਰਾ ਮੇਲ ਖਾਂਦਾ ਹੈ।",
-  "onboarding.family.accounts.create_error": "ਤੁਹਾਡਾ ਪਰਿਵਾਰਕ ਸਾਂਝਾ ਖਾਤਾ ਨਹੀਂ ਬਣ ਸਕਿਆ। ਕੁਝ ਵੀ ਨਹੀਂ ਬਦਲਿਆ।",
-  "onboarding.family.accounts.creating": "ਤੁਹਾਡਾ ਪਰਿਵਾਰਕ ਸਾਂਝਾ ਖਾਤਾ ਬਣ ਰਿਹਾ ਹੈ…",
+  "onboarding.family.accounts.create_error": "ਤੁਹਾਡੇ ਪਰਿਵਾਰ ਦਾ ਸਾਂਝਾ ਫ਼ੰਡ ਨਹੀਂ ਬਣ ਸਕਿਆ। ਕੁਝ ਵੀ ਨਹੀਂ ਬਦਲਿਆ।",
+  "@onboarding.family.accounts.create_error": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
+  },
+  "onboarding.family.accounts.creating": "ਤੁਹਾਡੇ ਪਰਿਵਾਰ ਦਾ ਸਾਂਝਾ ਫ਼ੰਡ ਬਣ ਰਿਹਾ ਹੈ…",
+  "@onboarding.family.accounts.creating": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
+  },
   "onboarding.family.accounts.dated_note": "ਇੱਥੇ ਹਰ ਬਕਾਇਆ {date} ਦੀ ਤਰੀਕ ਦਾ ਹੈ।",
-  "onboarding.family.accounts.group_have": "ਸਾਂਝੇ ਖਾਤੇ ਕੋਲ ਕੀ ਹੈ",
+  "onboarding.family.accounts.group_have": "ਸਾਂਝੇ ਫ਼ੰਡ ਕੋਲ ਕੀ ਹੈ",
+  "@onboarding.family.accounts.group_have": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
+  },
   "onboarding.family.accounts.retry": "ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
-  "onboarding.family.accounts.save": "ਸੰਭਾਲੋ",
-  "onboarding.family.accounts.subtitle": "ਇਹ ਖਾਤੇ ਪਹਿਲਾਂ ਹੀ ਬਣ ਚੁੱਕੇ ਹਨ — ਭਰੋ ਕਿ ਸਾਂਝੇ ਖਾਤੇ ਕੋਲ ਕੀ ਹੈ, ਜਾਂ ਸਿਫ਼ਰ ਤੋਂ ਸ਼ੁਰੂ ਕਰਨ ਲਈ ₹0 ਰਹਿਣ ਦਿਓ।",
+  "onboarding.family.accounts.save": "ਸੇਵ ਕਰੋ",
+  "@onboarding.family.accounts.save": {
+    "description": "machine-draft — native review M12; PA *Save* is ਸੇਵ ਕਰੋ (01 §2 term table; ADR 2026-10-08 §2, 'unchanged')"
+  },
+  "onboarding.family.accounts.subtitle": "ਇਹ ਖਾਤੇ ਪਹਿਲਾਂ ਹੀ ਬਣ ਚੁੱਕੇ ਹਨ — ਭਰੋ ਕਿ ਸਾਂਝੇ ਫ਼ੰਡ ਕੋਲ ਕੀ ਹੈ, ਜਾਂ ਸਿਫ਼ਰ ਤੋਂ ਸ਼ੁਰੂ ਕਰਨ ਲਈ ₹0 ਰਹਿਣ ਦਿਓ।",
+  "@onboarding.family.accounts.subtitle": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
+  },
   "onboarding.family.accounts.title": "ਤੁਹਾਡੇ ਪਰਿਵਾਰ ਦੇ ਸਾਂਝੇ ਖਾਤੇ",
   "onboarding.family.accounts.zero_note": "₹0 ਉੱਤੇ ਛੱਡੀ ਕਤਾਰ ਵੀ ਬਣ ਜਾਂਦੀ ਹੈ — ਤੁਸੀਂ ਇਸਨੂੰ ਕਦੇ ਵੀ ਭਰ ਸਕਦੇ ਹੋ।",
   "onboarding.family.continue_label": "ਅੱਗੇ ਵਧੋ",
@@ -3394,7 +3679,7 @@
   "@onboarding.opening.retry": {
     "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
   },
-  "onboarding.opening.save_error": "ਤੁਹਾਡੇ ਬਕਾਏ ਸੰਭਾਲੇ ਨਹੀਂ ਜਾ ਸਕੇ। ਕੁਝ ਨਹੀਂ ਬਦਲਿਆ — ਦੁਬਾਰਾ 'ਪੂਰਾ ਕਰੋ' ਦਬਾਓ।",
+  "onboarding.opening.save_error": "ਤੁਹਾਡੇ ਬਕਾਏ ਸੇਵ ਨਹੀਂ ਹੋ ਸਕੇ। ਕੁਝ ਨਹੀਂ ਬਦਲਿਆ — ਦੁਬਾਰਾ 'ਪੂਰਾ ਕਰੋ' ਦਬਾਓ।",
   "@onboarding.opening.save_error": {
     "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
   },
@@ -3599,7 +3884,28 @@
   "@onboarding.recovery_sheet.why_title": {
     "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
   },
-  "onboarding.set_pin.biometric_note": "ਫ਼ੇਸ ਆਈਡੀ ਇਸ ਐਪ ਨੂੰ ਹਰ ਕਿਸੇ ਤੋਂ ਬੰਦ ਰੱਖਦੀ ਹੈ — ਜੇ ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਨਵਾਂ ਚਿਹਰਾ ਜੋੜਿਆ ਗਿਆ, ਤਾਂ ਐਪ ਤੁਹਾਡਾ ਪਿੰਨ ਪੁੱਛੇਗੀ",
+  "onboarding.set_pin.biometric_note": "{method} ਨਾਲ ਇਹ ਐਪ ਹਰ ਕਿਸੇ ਲਈ ਬੰਦ ਰਹਿੰਦੀ ਹੈ — ਜੇ ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਨਵਾਂ ਚਿਹਰਾ ਜੋੜਿਆ ਗਿਆ, ਤਾਂ ਐਪ ਤੁਹਾਡਾ ਪਿੰਨ ਪੁੱਛੇਗੀ",
+  "@onboarding.set_pin.biometric_note": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.set_pin.biometric_note.any": "ਤੁਹਾਡੇ ਫ਼ਿੰਗਰਪ੍ਰਿੰਟ ਜਾਂ ਚਿਹਰੇ ਨਾਲ ਇਹ ਐਪ ਹਰ ਕਿਸੇ ਲਈ ਬੰਦ ਰਹਿੰਦੀ ਹੈ — ਜੇ ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਨਵਾਂ ਜੋੜਿਆ ਗਿਆ, ਤਾਂ ਐਪ ਤੁਹਾਡਾ ਪਿੰਨ ਪੁੱਛੇਗੀ",
+  "@onboarding.set_pin.biometric_note.any": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
+  },
+  "onboarding.set_pin.biometric_note.fingerprint": "{method} ਨਾਲ ਇਹ ਐਪ ਹਰ ਕਿਸੇ ਲਈ ਬੰਦ ਰਹਿੰਦੀ ਹੈ — ਜੇ ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਨਵਾਂ ਫ਼ਿੰਗਰਪ੍ਰਿੰਟ ਜੋੜਿਆ ਗਿਆ, ਤਾਂ ਐਪ ਤੁਹਾਡਾ ਪਿੰਨ ਪੁੱਛੇਗੀ",
+  "@onboarding.set_pin.biometric_note.fingerprint": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
   "onboarding.set_pin.biometric_note_pin_only": "ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਕੋਈ ਉਂਗਲ ਦਾ ਨਿਸ਼ਾਨ ਜਾਂ ਚਿਹਰਾ ਨਹੀਂ ਲੱਗਿਆ, ਇਸ ਲਈ ਤੁਹਾਡਾ ਪਿੰਨ ਇਸ ਐਪ ਨੂੰ ਹਰ ਕਿਸੇ ਤੋਂ ਬੰਦ ਰੱਖਦਾ ਹੈ। ਫ਼ੋਨ ਦੀਆਂ ਸੈਟਿੰਗਾਂ ਵਿੱਚ ਇੱਕ ਜੋੜੋ, ਅਗਲੀ ਵਾਰ ਪਿੰਨ ਭਰਨ ਤੋਂ ਬਾਅਦ ਐਪ ਉਸਨੂੰ ਵਰਤੇਗੀ।",
   "@onboarding.set_pin.biometric_note_pin_only": {
     "description": "machine-draft — native review M12 (ADR 2026-10-05b)"
@@ -3620,11 +3926,22 @@
   "@onboarding.set_pin.mismatch": {
     "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
   },
-  "onboarding.set_pin.save_failed": "ਅਸੀਂ ਉਹ ਪਿੰਨ ਸੰਭਾਲ ਨਹੀਂ ਸਕੇ — ਇੱਕ ਵਾਰ ਹੋਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
-  "onboarding.set_pin.saving": "ਤੁਹਾਡਾ ਪਿੰਨ ਸੰਭਾਲਿਆ ਜਾ ਰਿਹਾ ਹੈ…",
-  "onboarding.set_pin.subtitle": "ਜ਼ਿਆਦਾਤਰ ਤੁਸੀਂ ਫ਼ੇਸ ਆਈਡੀ ਵਰਤੋਗੇ। ਇਹ ਉਦੋਂ ਲਈ ਹੈ ਜਦੋਂ ਉਹ ਕੰਮ ਨਾ ਕਰੇ — ਅਤੇ ਇਹ ਤੁਹਾਡੇ ਖਾਤੇ ਉਸ ਤੋਂ ਵੀ ਬੰਦ ਰੱਖਦਾ ਹੈ ਜਿਸਨੂੰ ਤੁਹਾਡੇ ਫ਼ੋਨ ਦਾ ਪਾਸਕੋਡ ਪਤਾ ਹੈ।",
+  "onboarding.set_pin.save_failed": "ਅਸੀਂ ਉਹ ਪਿੰਨ ਸੇਵ ਨਹੀਂ ਕਰ ਸਕੇ — ਇੱਕ ਵਾਰ ਹੋਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
+  "@onboarding.set_pin.save_failed": {
+    "description": "machine-draft — native review M12; PA *Save* is ਸੇਵ ਕਰੋ (01 §2 term table; ADR 2026-10-08 §2, 'unchanged')"
+  },
+  "onboarding.set_pin.saving": "ਤੁਹਾਡਾ ਪਿੰਨ ਸੇਵ ਹੋ ਰਿਹਾ ਹੈ…",
+  "@onboarding.set_pin.saving": {
+    "description": "machine-draft — native review M12; PA *Save* is ਸੇਵ ਕਰੋ (01 §2 term table; ADR 2026-10-08 §2, 'unchanged')"
+  },
+  "onboarding.set_pin.subtitle": "ਜ਼ਿਆਦਾਤਰ ਤੁਸੀਂ {method} ਵਰਤੋਗੇ। ਇਹ ਉਦੋਂ ਲਈ ਹੈ ਜਦੋਂ ਉਹ ਕੰਮ ਨਾ ਕਰੇ — ਅਤੇ ਇਹ ਤੁਹਾਡੇ ਖਾਤੇ ਉਸ ਤੋਂ ਵੀ ਬੰਦ ਰੱਖਦਾ ਹੈ ਜਿਸਨੂੰ ਤੁਹਾਡੇ ਫ਼ੋਨ ਦਾ ਪਾਸਕੋਡ ਪਤਾ ਹੈ।",
   "@onboarding.set_pin.subtitle": {
-    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
   },
   "onboarding.set_pin.title": "ਆਪਣਾ ਪਿੰਨ ਬਣਾਓ",
   "onboarding.set_pin.why": "ਇਹ ਤੁਹਾਡੇ ਖਾਤੇ ਉਸ ਤੋਂ ਵੀ ਬੰਦ ਰੱਖਦਾ ਹੈ ਜਿਸਨੂੰ ਤੁਹਾਡੇ ਫ਼ੋਨ ਦਾ ਪਾਸਕੋਡ ਪਤਾ ਹੈ।",
@@ -3654,7 +3971,10 @@
   "onboarding.trust.accounts.dated_note": "ਇੱਥੇ ਹਰ ਬਕਾਇਆ {date} ਦੀ ਤਰੀਕ ਦਾ ਹੈ।",
   "onboarding.trust.accounts.group_have": "ਟਰੱਸਟ ਕੋਲ ਕੀ ਹੈ",
   "onboarding.trust.accounts.retry": "ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
-  "onboarding.trust.accounts.save": "ਸੰਭਾਲੋ",
+  "onboarding.trust.accounts.save": "ਸੇਵ ਕਰੋ",
+  "@onboarding.trust.accounts.save": {
+    "description": "machine-draft — native review M12; PA *Save* is ਸੇਵ ਕਰੋ (01 §2 term table; ADR 2026-10-08 §2, 'unchanged')"
+  },
   "onboarding.trust.accounts.subtitle": "ਇਹ ਖਾਤੇ ਪਹਿਲਾਂ ਹੀ ਬਣ ਚੁੱਕੇ ਹਨ — ਭਰੋ ਕਿ ਟਰੱਸਟ ਕੋਲ ਕੀ ਹੈ, ਜਾਂ ਸਿਫ਼ਰ ਤੋਂ ਸ਼ੁਰੂ ਕਰਨ ਲਈ ₹0 ਰਹਿਣ ਦਿਓ।",
   "onboarding.trust.accounts.title": "ਟਰੱਸਟ ਦੇ ਖਾਤੇ",
   "onboarding.trust.accounts.zero_note": "₹0 ਉੱਤੇ ਛੱਡੀ ਕਤਾਰ ਵੀ ਬਣ ਜਾਂਦੀ ਹੈ — ਤੁਸੀਂ ਇਸਨੂੰ ਕਦੇ ਵੀ ਭਰ ਸਕਦੇ ਹੋ।",
@@ -4146,7 +4466,10 @@
   "recovery.fork.other_phone.title": "ਆਪਣਾ ਕੋਈ ਹੋਰ ਫ਼ੋਨ ਵਰਤੋ ਜਿਸ ਵਿੱਚ ਤੁਸੀਂ ਸਾਈਨ ਇਨ ਹੋ",
   "recovery.fork.retry": "ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ",
   "recovery.fork.sheet.body": "ਉਸ ਉੱਤੇ ਬਣੇ ਕੋਡ ਨੂੰ ਸਕੈਨ ਕਰੋ, ਜਾਂ ਕੋਡ ਹੱਥੀਂ ਲਿਖੋ।",
-  "recovery.fork.sheet.sub": "ਕਾਗ਼ਜ਼ ਵਾਲੀ, ਜਾਂ ਉਹ ਫ਼ਾਈਲ ਜੋ ਤੁਸੀਂ ਸੰਭਾਲੀ ਸੀ",
+  "recovery.fork.sheet.sub": "ਕਾਗ਼ਜ਼ ਵਾਲੀ, ਜਾਂ ਉਹ ਫ਼ਾਈਲ ਜੋ ਤੁਸੀਂ ਸੇਵ ਕੀਤੀ ਸੀ",
+  "@recovery.fork.sheet.sub": {
+    "description": "machine-draft — native review M12; PA *Save* is ਸੇਵ ਕਰੋ (01 §2 term table; ADR 2026-10-08 §2, 'unchanged')"
+  },
   "recovery.fork.sheet.title": "ਆਪਣੀ ਰਿਕਵਰੀ ਸ਼ੀਟ ਵਰਤੋ",
   "recovery.fork.title": "ਆਓ ਤੁਹਾਡੇ ਵਹੀ-ਖਾਤੇ ਇਸ ਫ਼ੋਨ ਉੱਤੇ ਵਾਪਸ ਲਿਆਈਏ",
   "recovery.fork.trusted.body": "ਜਿਨ੍ਹਾਂ ਨੂੰ ਤੁਸੀਂ ਚੁਣਿਆ ਸੀ, ਉਹ ਆਪਣੇ ਫ਼ੋਨ ਤੋਂ ਮਨਜ਼ੂਰੀ ਦੇਣਗੇ। ਪਹਿਲਾਂ ਉਨ੍ਹਾਂ ਨੂੰ ਫ਼ੋਨ ਕਰੋ — ਉਹ ਉਡੀਕ ਰਹੇ ਹਨ।",
@@ -4159,7 +4482,10 @@
   "recovery.nothing.family.title": "ਤੁਹਾਡੇ ਪਰਿਵਾਰਕ ਤੇ ਕਾਰੋਬਾਰੀ ਵਹੀ-ਖਾਤੇ",
   "recovery.nothing.private.body": "ਇਹ ਹਾਲੇ ਵੀ ਸਾਡੇ ਸਰਵਰ ਉੱਤੇ ਸੀਲ ਪਿਆ ਹੈ, ਬਿਲਕੁਲ ਜਿਵੇਂ ਤੁਸੀਂ ਛੱਡਿਆ ਸੀ।",
   "recovery.nothing.private.key_platform": "ਉਸ Apple ਜਾਂ Google ਖਾਤੇ ਵਿੱਚ ਸਾਈਨ ਇਨ ਕਰਨਾ ਜਿਸ ਕੋਲ ਤੁਹਾਡੀ ਚਾਬੀ ਸੀ।",
-  "recovery.nothing.private.key_sheet": "ਆਪਣੀ ਰਿਕਵਰੀ ਸ਼ੀਟ ਲੱਭਣੀ — ਕਾਗ਼ਜ਼ ਵਾਲੀ, ਜਾਂ ਉਹ ਫ਼ਾਈਲ ਜੋ ਤੁਸੀਂ ਸੰਭਾਲੀ ਸੀ।",
+  "recovery.nothing.private.key_sheet": "ਆਪਣੀ ਰਿਕਵਰੀ ਸ਼ੀਟ ਲੱਭਣੀ — ਕਾਗ਼ਜ਼ ਵਾਲੀ, ਜਾਂ ਉਹ ਫ਼ਾਈਲ ਜੋ ਤੁਸੀਂ ਸੇਵ ਕੀਤੀ ਸੀ।",
+  "@recovery.nothing.private.key_sheet": {
+    "description": "machine-draft — native review M12; PA *Save* is ਸੇਵ ਕਰੋ (01 §2 term table; ADR 2026-10-08 §2, 'unchanged')"
+  },
   "recovery.nothing.private.keys": "ਦੋ ਗੱਲਾਂ ਇਸਨੂੰ ਖੋਲ੍ਹ ਦੇਣਗੀਆਂ — ਅੱਜ, ਅਗਲੇ ਹਫ਼ਤੇ ਜਾਂ ਅਗਲੇ ਸਾਲ:",
   "recovery.nothing.private.status": "ਹਾਲੇ ਸੀਲ ਹੈ",
   "recovery.nothing.private.title": "ਤੁਹਾਡਾ ਨਿੱਜੀ ਵਹੀ-ਖਾਤਾ",
@@ -4247,9 +4573,9 @@
   "@recovery.sheet.type.label": {
     "description": "machine-draft — native review M12"
   },
-  "recovery.sheet.what": "ਇੱਕ ਛਪਿਆ ਹੋਇਆ ਸਫ਼ਾ, ਜਿਸ ਉੱਤੇ ਇੱਕ ਚੌਰਸ ਕੋਡ ਅਤੇ ਹੇਠਾਂ ਉਹੀ ਕੋਡ ਅੱਖਰਾਂ ਵਿੱਚ ਹੁੰਦਾ ਹੈ। ਹੋ ਸਕਦਾ ਹੈ ਤੁਸੀਂ ਇਸ ਨੂੰ ਫ਼ਾਈਲ ਵਜੋਂ ਸੰਭਾਲਿਆ ਹੋਵੇ।",
+  "recovery.sheet.what": "ਇੱਕ ਛਪਿਆ ਹੋਇਆ ਸਫ਼ਾ, ਜਿਸ ਉੱਤੇ ਇੱਕ ਚੌਰਸ ਕੋਡ ਅਤੇ ਹੇਠਾਂ ਉਹੀ ਕੋਡ ਅੱਖਰਾਂ ਵਿੱਚ ਹੁੰਦਾ ਹੈ। ਹੋ ਸਕਦਾ ਹੈ ਤੁਸੀਂ ਇਸ ਨੂੰ ਫ਼ਾਈਲ ਵਜੋਂ ਸੇਵ ਕੀਤਾ ਹੋਵੇ।",
   "@recovery.sheet.what": {
-    "description": "machine-draft — native review M12"
+    "description": "machine-draft — native review M12; PA *Save* is ਸੇਵ ਕਰੋ (01 §2 term table; ADR 2026-10-08 §2, 'unchanged')"
   },
   "recovery.show.back": "ਵਾਪਸ",
   "@recovery.show.back": {
@@ -4423,7 +4749,7 @@
   "reports.day_book.row.title": "ਰੋਜ਼ਨਾਮਚਾ",
   "reports.export.csv": "CSV",
   "reports.export.csv.description": "ਕਿਸੇ ਵੀ ਸਪਰੈੱਡਸ਼ੀਟ ਵਿੱਚ ਖੁੱਲ੍ਹਦੀ ਹੈ",
-  "reports.export.failed": "ਰਿਪੋਰਟ ਸੰਭਾਲੀ ਨਹੀਂ ਜਾ ਸਕੀ।",
+  "reports.export.failed": "ਰਿਪੋਰਟ ਸੇਵ ਨਹੀਂ ਹੋ ਸਕੀ।",
   "reports.export.file_name": "day-book-{year}.{extension}",
   "reports.export.generating": "ਤੁਹਾਡੀ ਫ਼ਾਈਲ ਤਿਆਰ ਹੋ ਰਹੀ ਹੈ",
   "reports.export.page": "ਸਫ਼ਾ {page} / {pages}",
@@ -4440,7 +4766,7 @@
   "@reports.export.pdf.see_plans": {
     "description": "machine-draft — native review M12"
   },
-  "reports.export.saved": "ਸੰਭਾਲੀ ਗਈ: {where}",
+  "reports.export.saved": "ਸੇਵ ਹੋ ਗਈ: {where}",
   "reports.export.title": "ਇਹ ਰਿਪੋਰਟ ਡਾਊਨਲੋਡ ਜਾਂ ਸਾਂਝੀ ਕਰੋ",
   "reports.export.xlsx": "XLSX",
   "reports.export.xlsx.description": "ਸਪਰੈੱਡਸ਼ੀਟ ਫ਼ਾਈਲ",
@@ -4653,11 +4979,11 @@
   "@subscription.row.read_only.title": {
     "description": "machine-draft — native review M12"
   },
-  "subscription.sheet.book_full.blocked": "ਇਹ ਵਹੀ ਪਲਾਨ ਦੀ ਹੱਦ ਤੱਕ ਪਹੁੰਚ ਗਈ ਹੈ, ਇਸ ਲਈ ਇਹ ਐਂਟਰੀ ਹਾਲੇ ਸੰਭਾਲੀ ਨਹੀਂ ਜਾ ਸਕਦੀ।",
+  "subscription.sheet.book_full.blocked": "ਇਹ ਵਹੀ ਪਲਾਨ ਦੀ ਹੱਦ ਤੱਕ ਪਹੁੰਚ ਗਈ ਹੈ, ਇਸ ਲਈ ਇਹ ਐਂਟਰੀ ਹਾਲੇ ਸੇਵ ਨਹੀਂ ਹੋ ਸਕਦੀ।",
   "subscription.sheet.book_full.still_works": "ਤੁਸੀਂ ਜੋ ਲਿਖਿਆ ਹੈ ਉਹ ਸੁਰੱਖਿਅਤ ਹੈ। ਪੜ੍ਹਨਾ ਅਤੇ ਐਕਸਪੋਰਟ ਚਲਦੇ ਰਹਿਣਗੇ।",
   "subscription.sheet.book_full.title": "ਇਹ ਵਹੀ ਭਰ ਗਈ ਹੈ",
   "subscription.sheet.dismiss": "ਆਪਣੀ ਐਂਟਰੀ 'ਤੇ ਵਾਪਸ",
-  "subscription.sheet.read_only.blocked": "ਤੁਹਾਡਾ ਪਲਾਨ ਖ਼ਤਮ ਹੋ ਗਿਆ ਹੈ, ਇਸ ਲਈ ਇਹ ਐਂਟਰੀ ਹਾਲੇ ਸੰਭਾਲੀ ਨਹੀਂ ਜਾ ਸਕਦੀ।",
+  "subscription.sheet.read_only.blocked": "ਤੁਹਾਡਾ ਪਲਾਨ ਖ਼ਤਮ ਹੋ ਗਿਆ ਹੈ, ਇਸ ਲਈ ਇਹ ਐਂਟਰੀ ਹਾਲੇ ਸੇਵ ਨਹੀਂ ਹੋ ਸਕਦੀ।",
   "subscription.sheet.read_only.still_works": "ਤੁਸੀਂ ਜੋ ਲਿਖਿਆ ਹੈ ਉਹ ਸੁਰੱਖਿਅਤ ਹੈ। ਤੁਸੀਂ ਹੁਣ ਵੀ ਵਹੀਆਂ ਪੜ੍ਹ ਸਕਦੇ ਹੋ, ਐਕਸਪੋਰਟ ਕਰ ਸਕਦੇ ਹੋ ਅਤੇ ਬੰਦ ਕਰ ਸਕਦੇ ਹੋ।",
   "subscription.sheet.read_only.title": "ਨਵੀਆਂ ਐਂਟਰੀਆਂ ਰੁਕੀਆਂ ਹੋਈਆਂ ਹਨ",
   "subscription.state.active": "ਚਾਲੂ",

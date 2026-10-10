@@ -19,6 +19,7 @@ import '../../../shared/ledger/local_ledger.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../ledger_book.dart';
+import '../widgets/opening_prompt.dart';
 import '../widgets/text_metrics.dart';
 import 's3_1_quick_add_sheet.dart';
 
@@ -63,6 +64,19 @@ class _LedgerIndexScreenState extends State<LedgerIndexScreen> {
   Object? _resolveError;
 
   bool _resolveStarted = false;
+
+  /// The accounts still waiting for their opening answer (ADR 2026-10-07b §1
+  /// 🔒), memoised per book so a rebuild does not resubscribe.
+  Stream<Set<String>>? _unanswered;
+  String? _unansweredBook;
+
+  Stream<Set<String>> _unansweredStream(LocalLedger ledger, String bookId) {
+    if (_unansweredBook != bookId) {
+      _unansweredBook = bookId;
+      _unanswered = ledger.watchOpeningUnanswered(bookId);
+    }
+    return _unanswered!;
+  }
 
   @override
   void didChangeDependencies() {
@@ -175,20 +189,28 @@ class _LedgerIndexScreenState extends State<LedgerIndexScreen> {
                 ),
               ),
             ),
-            SizedBox(
-              height: RkSpace.s10,
-              child: ListView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: RkSpace.gutter,
-                  vertical: RkSpace.s2,
-                ),
+            // The strip takes its height from its chips, so a label is never
+            // cut at any text size (13 §8; 07 §1 rule 9). It was a fixed
+            // 40 px box with 8 px padding, which left 24 px for a chip.
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(
+                horizontal: RkSpace.gutter,
+                vertical: RkSpace.s2,
+              ),
+              child: Row(
                 children: [
                   for (final f in LedgerFilter.values)
                     Padding(
-                      padding: const EdgeInsets.only(right: RkSpace.s2),
+                      padding: const EdgeInsetsDirectional.only(
+                        end: RkSpace.s2,
+                      ),
                       child: ChoiceChip(
                         label: Text(_filterLabel(l10n, f)),
+                        // c7 *Ledger index*: the selected pill carries no
+                        // tick; selection is said by its fill and by
+                        // Semantics' selected state.
+                        showCheckmark: false,
                         selected: _filter == f,
                         onSelected: (_) => setState(() => _filter = f),
                       ),
@@ -196,7 +218,13 @@ class _LedgerIndexScreenState extends State<LedgerIndexScreen> {
                 ],
               ),
             ),
-            Expanded(child: _list(context, rows)),
+            Expanded(
+              child: StreamBuilder<Set<String>>(
+                stream: _unansweredStream(ledger, bookId),
+                builder: (context, unanswered) =>
+                    _list(context, rows, unanswered.data ?? const <String>{}),
+              ),
+            ),
           ],
         );
       },
@@ -211,7 +239,11 @@ class _LedgerIndexScreenState extends State<LedgerIndexScreen> {
     LedgerFilter.system => l10n.ledgerFilterSystem,
   };
 
-  Widget _list(BuildContext context, List<AccountBalance> rows) {
+  Widget _list(
+    BuildContext context,
+    List<AccountBalance> rows,
+    Set<String> unansweredOpening,
+  ) {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
     final q = _query.trim().toLowerCase();
@@ -276,6 +308,16 @@ class _LedgerIndexScreenState extends State<LedgerIndexScreen> {
           classStyle,
         ),
       );
+      if (unansweredOpening.contains(row.account.id)) {
+        // The marker's icon and gap sit before its first word.
+        words = math.max(
+          words,
+          longestWordWidth(context, l10n.ledgerOpeningPromptTitle, classStyle) +
+              (classStyle?.fontSize ?? RkSpace.s4) *
+                  MediaQuery.textScalerOf(context).scale(1) +
+              RkSpace.s1,
+        );
+      }
       figures = math.max(
         figures,
         textRunWidth(
@@ -291,6 +333,7 @@ class _LedgerIndexScreenState extends State<LedgerIndexScreen> {
         MediaQuery.sizeOf(context).width - RkSpace.gutter * 2 - RkSpace.s4;
     final beside = words + figures <= line;
 
+    final band = _LetterHeader.extentFor(context);
     return CustomScrollView(
       slivers: [
         for (final letter in letters)
@@ -298,23 +341,38 @@ class _LedgerIndexScreenState extends State<LedgerIndexScreen> {
             slivers: [
               SliverPersistentHeader(
                 pinned: true,
-                delegate: _LetterHeader(letter: letter),
+                delegate: _LetterHeader(letter: letter, extent: band),
               ),
               SliverList.builder(
                 itemCount: groups[letter]!.length,
                 itemBuilder: (context, i) {
                   final row = groups[letter]![i];
+                  // S3 is a ledger — a professional surface — so the true
+                  // side is written plainly after the figure (*₹2,450 Cr*):
+                  // ADR 2026-10-10b §4 🔒, 02 §10. The tint by side is never
+                  // the only signal (07 §1 rule 3 🔒).
                   final money = MoneyText(
                     row.balancePaise,
                     vocabulary: Vocabulary.professional,
+                    showDirection: true,
                     favour: row.balancePaise >= 0
                         ? Favour.favourable
                         : Favour.unfavourable,
                   );
-                  final classLabel = Text(
+                  final kind = Text(
                     _classLabel(l10n, row.account.accountClass),
                     style: text.bodySmall,
                   );
+                  // ADR 2026-10-07b §1 🔒: a quiet line under the name until
+                  // the A/C's opening balance is answered — icon and words in
+                  // ink, never colour alone (07 §1 rule 3 🔒).
+                  final classLabel = unansweredOpening.contains(row.account.id)
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [kind, const OpeningMarker()],
+                        )
+                      : kind;
                   return ListTile(
                     minTileHeight: RkSpace.rowMinHeight,
                     title: Text(
@@ -474,17 +532,36 @@ class _Skeleton extends StatelessWidget {
 
 /// The pinned letter of the alphabet rail (07 §6). Opaque, so the rows it
 /// pins over do not read through it, and sized in text so it still fits its
-/// own letter at 200%.
+/// own letter at 200% — [extent] is measured from the letter's own line at
+/// the reader's text scale (it was a fixed 24 px, which cut the letter to
+/// half its 46 px line at 200 %).
 class _LetterHeader extends SliverPersistentHeaderDelegate {
-  const _LetterHeader({required this.letter});
+  const _LetterHeader({required this.letter, required this.extent});
 
   final String letter;
 
-  @override
-  double get minExtent => RkSpace.s6;
+  /// The band's height: the letter's line plus the band's own padding.
+  final double extent;
+
+  /// The band for [context]'s text style and scale, never under the token
+  /// minimum the band was drawn at.
+  static double extentFor(BuildContext context) {
+    final style = Theme.of(context).textTheme.labelLarge ?? RkType.amountRow;
+    final painter = TextPainter(
+      text: TextSpan(text: 'M', style: style),
+      textScaler: MediaQuery.textScalerOf(context),
+      textDirection: Directionality.of(context),
+    )..layout();
+    final line = painter.height;
+    painter.dispose();
+    return math.max(RkSpace.s6, line + RkSpace.s2);
+  }
 
   @override
-  double get maxExtent => RkSpace.s6;
+  double get minExtent => extent;
+
+  @override
+  double get maxExtent => extent;
 
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlaps) {
@@ -502,5 +579,6 @@ class _LetterHeader extends SliverPersistentHeaderDelegate {
   }
 
   @override
-  bool shouldRebuild(_LetterHeader old) => old.letter != letter;
+  bool shouldRebuild(_LetterHeader old) =>
+      old.letter != letter || old.extent != extent;
 }

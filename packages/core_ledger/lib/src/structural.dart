@@ -429,6 +429,20 @@ enum StructuralIgnoreReason {
 
   /// A lapse record authored before the window had closed.
   lapseBeforeDeadline,
+
+  /// The device that signed the record is certified to **another** user than
+  /// the one its `by_user` names (02 §7.2.1 🔒: each approval is authored on
+  /// that owner's own device) — a record signed in somebody else's name. Never
+  /// counted; the rest of the request still reads.
+  signerNotBound,
+
+  /// The reader cannot say whose device signed the record: no certificate it
+  /// can verify names the device, the device was revoked at or before this
+  /// record, or the record carries no author device. Not counted — and the
+  /// request is not applied while such a record precedes its decision point
+  /// ([StructuralOutcome.signersConfirmed]): an unseen record may be the veto
+  /// that closed it.
+  signerUnknown,
 }
 
 /// A record that did not count, with the reason (logged, never silent).
@@ -458,6 +472,7 @@ final class StructuralOutcome {
     required this.lapseRecorded,
     required this.deadlineMs,
     required this.ignored,
+    required this.signersConfirmed,
   });
 
   /// The request.
@@ -495,9 +510,43 @@ final class StructuralOutcome {
   /// Records that did not count.
   final List<StructuralIgnored> ignored;
 
+  /// False when the request, or a record ordered before its decision point,
+  /// could not be attributed to any certified device
+  /// ([StructuralIgnoreReason.signerUnknown]). Such a request is never
+  /// [StructuralStatus.approved] here: the unread record may be a veto. A
+  /// caller that offers a decision should withhold it while this is false.
+  /// Always true when no `signerOf` was given — the caller bound the records.
+  final bool signersConfirmed;
+
   /// True only once quorum exists — the single gate on applying anything.
   bool get isApplied => status == StructuralStatus.approved;
 }
+
+/// Whose certified device signed a structural envelope — the user id the
+/// signing device is certified to **as this reader can verify it now** — or
+/// null when the reader cannot say: no certificate it can verify names the
+/// device, the device was revoked at or before the envelope, the envelope
+/// carries no author device.
+///
+/// Asked by **signing identity, never by payload**: [authorDevice] is the
+/// device whose key sealed the envelope and [authorSeq] that device's per-book
+/// sequence for it (05 § per-author sequence 🔒, ADR 2026-09-05b §3) — unique
+/// per envelope, since the mirror quarantines a repeat as
+/// `author_seq_duplicate`. The record's own `id` and `by_user` are claims
+/// inside the ciphertext and are deliberately not handed in: a signer keyed by
+/// record id is the forgery route (a member's payload reusing an owner's
+/// record id would take that owner's signer), and this type leaves no record
+/// id to key by. The seq is what a revocation cut-off is measured in
+/// (04 §9.2): a device is nobody from its cut-off on, and a null seq is
+/// nobody too.
+///
+/// Injected, like the time: the engine reads no store (CLAUDE.md rule 3). The
+/// app's answer is a signature chain re-run over the stored envelope
+/// (`certifiedSignerOf`), never a label from the server's `devices` row.
+typedef StructuralSignerOf = String? Function(
+  String? authorDevice,
+  int? authorSeq,
+);
 
 /// Evaluates [request] against its [records] (every `structural_approval`
 /// envelope of the book — those naming another request are skipped) and the
@@ -509,11 +558,38 @@ final class StructuralOutcome {
 /// evaluation — the conservative direction, as ADR 2026-09-06 §3's cut-off
 /// only moves earlier. [asOfMs] decides one thing only: whether a request still
 /// short of quorum after its window is shown as pending or as lapsed.
+///
+/// **Who signed it** (02 §7.2.1 🔒: *each approval is authored on that owner's
+/// own device, so the server cannot manufacture one*). A record's `by_user` is
+/// a claim inside the payload; which device signed the envelope is what sync
+/// proved (04 §8 rule 3). With [signerOf] given, every record — the request
+/// included — counts only when the device that signed it is certified to the
+/// user it names:
+///
+///   * certified to **another** user → [StructuralIgnoreReason.signerNotBound],
+///     never counted, nothing else changes (a forged approval does not use up
+///     the real owner's slot; a forged veto closes nothing; a forged request
+///     is never approved — for a single-owner book that is the whole quorum);
+///   * **nobody** the reader can name → [StructuralIgnoreReason.signerUnknown],
+///     not counted, and while such a record precedes the decision point the
+///     request is held short of `approved` with
+///     [StructuralOutcome.signersConfirmed] false (the unread record may be the
+///     veto that closed it); a certified veto still closes it, and the window
+///     still lapses by time. One ordered after the decision point changes
+///     nothing ([StructuralIgnoreReason.afterDecision]).
+///
+/// [signerOf] has no default: every caller states its binding. **Null** is the
+/// caller's own assertion that it bound each record *per envelope* before
+/// handing it in — checked the signing device's certificate against the
+/// `by_user` the payload names and dropped every record it could not (the
+/// Inbox's `readStructuralBook`). A fold that reads records off the mirror
+/// cannot assert that and passes the function.
 StructuralOutcome evaluateStructural({
   required StructuralRequest request,
   required Iterable<StructuralEvent> records,
   required Iterable<OwnerSetVersion> owners,
   required int asOfMs,
+  required StructuralSignerOf? signerOf,
 }) {
   final byVersion = <int, OwnerSetVersion>{
     for (final v in owners) v.version: v,
@@ -521,6 +597,7 @@ StructuralOutcome evaluateStructural({
   final deadline = request.hlc.physicalMs + structuralExpiryMs;
   final ignored = <StructuralIgnored>[];
   final counted = <String, StructuralApproval>{}; // owner → first approval
+  var signersConfirmed = true;
 
   StructuralOutcome result({
     required StructuralStatus status,
@@ -540,9 +617,41 @@ StructuralOutcome evaluateStructural({
     lapseRecorded: lapseRecorded,
     deadlineMs: deadline,
     ignored: List.unmodifiable(ignored),
+    signersConfirmed: signersConfirmed,
   );
 
+  /// Why [record] may not be read under [signerOf], or null when it may. The
+  /// signer is asked by the envelope's signing identity only — never by the
+  /// record's id or `by_user`, which are the claims being checked.
+  StructuralIgnoreReason? unbound(StructuralEvent record) {
+    if (signerOf == null) return null;
+    final signer = signerOf(record.authorDevice, record.authorSeq);
+    if (signer == null) {
+      signersConfirmed = false;
+      return StructuralIgnoreReason.signerUnknown;
+    }
+    return signer == _claimedBy(record)
+        ? null
+        : StructuralIgnoreReason.signerNotBound;
+  }
+
   final atRequest = byVersion[request.ownerSetVersion];
+
+  // The initiation is a signed statement like any other: one nobody certified
+  // made, or one made in somebody else's name, is not a request of this book.
+  // Nothing is counted against it, and it lapses by time like any request
+  // nobody approved.
+  final requestUnbound = unbound(request);
+  if (requestUnbound != null) {
+    ignored.add(StructuralIgnored(request.id, requestUnbound));
+    return result(
+      status: asOfMs > deadline
+          ? StructuralStatus.lapsed
+          : StructuralStatus.pending,
+      threshold: atRequest?.required,
+    );
+  }
+
   if (atRequest == null) {
     // No reader can say who the owners are: nothing counts, nothing applies.
     return result(status: StructuralStatus.pending);
@@ -569,6 +678,11 @@ StructuralOutcome evaluateStructural({
         ..sort((a, b) => compareEventOrder(a.hlc, a.id, b.hlc, b.id));
 
   for (final r in sorted) {
+    final why = unbound(r);
+    if (why != null) {
+      ignored.add(StructuralIgnored(r.id, why));
+      continue;
+    }
     switch (r) {
       case StructuralApproval():
         final set = byVersion[r.ownerSetVersion];
@@ -597,6 +711,11 @@ StructuralOutcome evaluateStructural({
         counted[r.byUser] = r;
         if (r.ownerSetVersion < earliest) earliest = r.ownerSetVersion;
         if (counted.length >= threshold()) {
+          // Quorum on the records this reader can attribute — but a record
+          // before this point that it could not attribute may be the veto
+          // that closed the request. Hold short of approved; keep walking so
+          // a certified veto or a recorded lapse still decides it.
+          if (!signersConfirmed) continue;
           _ignoreRest(sorted, r, ignored);
           return result(
             status: StructuralStatus.approved,
@@ -650,6 +769,14 @@ StructuralOutcome evaluateStructural({
   }
   return result(status: StructuralStatus.pending, threshold: threshold());
 }
+
+/// The user a structural record claims to be by — the payload's `by_user`.
+String _claimedBy(StructuralEvent record) => switch (record) {
+  StructuralRequest(:final byUser) => byUser,
+  StructuralApproval(:final byUser) => byUser,
+  StructuralVeto(:final byUser) => byUser,
+  StructuralLapse(:final byUser) => byUser,
+};
 
 /// Marks every record ordered after [decider] as `afterDecision`.
 void _ignoreRest(

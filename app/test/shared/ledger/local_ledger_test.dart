@@ -1146,6 +1146,61 @@ void _adr2026_09_09d() {
       expect(await l.startDateOf(bookId), start);
     });
 
+    test(
+      'A-09d-5 when the start month is locked the opening lands on the '
+      'first day of the earliest open month, never before the start',
+      () async {
+        // testNow is 7 Sep 2026: July and August are over and can be locked.
+        final start = LocalDate(2026, 7, 15);
+        final (l, bookId, cash, _) = await shop(startDate: start);
+        expect(await l.openingDateOf(bookId), start);
+
+        await l.lockMonth(bookId, start.yearMonth, declaredBalances: const {});
+        expect(await l.openingDateOf(bookId), LocalDate(2026, 8, 1));
+        final august = await l.openingBalances(
+          bookId,
+          balances: {cash.id: 1_000_00},
+        );
+        expect(august.single.accountingDate, LocalDate(2026, 8, 1));
+
+        await l.lockMonth(
+          bookId,
+          YearMonth(2026, 8),
+          declaredBalances: const {},
+        );
+        final september = await l.openingBalances(
+          bookId,
+          balances: {cash.id: 50_00},
+        );
+        expect(september.single.accountingDate, LocalDate(2026, 9, 1));
+        // The start itself never moves (ADR 2026-09-09d §4).
+        expect(await l.startDateOf(bookId), start);
+      },
+    );
+
+    test("F1-1007b-3 balanceOf — the sheet's *in all* base — is the live, all-time balance of the A/C", () async {
+      final (l, bookId, cash, sales) = await shop(
+        startDate: LocalDate(2026, 3, 1),
+      );
+      // One in the year that ended 31 Mar 2026, one in the running year.
+      await l.moneyIn(
+        bookId: bookId,
+        into: cash.id,
+        from: sales.id,
+        paise: 300_00,
+        date: LocalDate(2026, 3, 10),
+      );
+      await l.moneyIn(
+        bookId: bookId,
+        into: cash.id,
+        from: sales.id,
+        paise: 500_00,
+        date: LocalDate(2026, 9, 1),
+      );
+      expect(await l.balanceOf(bookId, cash.id), 800_00);
+      expect(await l.balanceOf(bookId, sales.id), -800_00);
+    });
+
     test('A-09d-6 the floor is an authoring guard, not a §1.4 invariant — a reader raises nothing on an earlier-dated entry', () async {
       final (l, bookId, cash, sales) = await shop();
       final start = (await l.startDateOf(bookId))!;

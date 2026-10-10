@@ -25,6 +25,18 @@
 # main(), turns a PASS result into FAIL). The script exits 1 when any journey run now is not PASS,
 # 2 on a setup error, 0 otherwise.
 #
+# Print sheet (desk 191 a): a journey that prints (S0.5b's recovery sheet) opens Android's own print
+# activity, which the test cannot drive. scripts/journey_print_watch.py runs beside each journey and
+# taps Save as PDF -> save; it is started before the journey and stopped (kill + wait) after it, and
+# on any exit of this script (trap EXIT). Its taps go to app/build/journeys/<journey>/print_watch.log.
+# It only dumps the UI while the print or save activity is in front: a dump turns accessibility on,
+# and over the app under test that leaves a SemanticsHandle the test framework fails on.
+#
+# One retry (desk 191 b): a run whose output says "Service connection disposed" (the VM service
+# dropping while the test loads) is run once more from a fresh install. The retry is said on stderr,
+# at the head of flutter_test.log, and as a warning in report.json; the first attempt's output is
+# kept as flutter_test.attempt1.log.
+#
 # Debug only, like scripts/run_dev.sh: RF_DEMO_PHONES is refused by a release build.
 set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -71,21 +83,56 @@ fi
 mkdir -p "$OUT"
 echo "journeys on $DEVICE against rukka-folio-dev ($REF) — demo numbers +91 5…, OTP 123456" >&2
 
+# The print-sheet watcher of the journey in flight; stopped after each journey and on any exit.
+WATCH_PID=""
+start_print_watch() {
+  ADB="$ADB" python3 "$ROOT/scripts/journey_print_watch.py" "$DEVICE" 3600 >>"$1/print_watch.log" 2>&1 &
+  WATCH_PID=$!
+}
+stop_print_watch() {
+  if [ -n "$WATCH_PID" ]; then
+    kill "$WATCH_PID" 2>/dev/null || true
+    wait "$WATCH_PID" 2>/dev/null || true
+    WATCH_PID=""
+  fi
+}
+trap stop_print_watch EXIT
+trap 'exit 130' INT TERM
+
+# One attempt at journey $1 (file $2) from a fresh install, its output in $3.
+run_journey() {
+  # Fresh install: no books, no keystore items, no PIN, no onboarded flag.
+  "$ADB" -s "$DEVICE" uninstall "$APP_ID" >/dev/null 2>&1 || true
+  flutter test "integration_test/journeys/$2" -d "$DEVICE" --no-uninstall \
+    --dart-define=RF_API_BASE="https://$REF.supabase.co/functions/v1/" \
+    --dart-define=RF_DEMO_PHONES=true \
+    ${RF_JOURNEY_PURPOSE:+--dart-define=RF_JOURNEY_PURPOSE=$RF_JOURNEY_PURPOSE} \
+    >"$3" 2>&1
+}
+
 cd "$ROOT/app"
 UNKNOWN=0
 for J in $JOURNEYS; do
   F="$(file_of "$J")" || { echo "unknown journey: $J" >&2; UNKNOWN=1; continue; }
   DIR="$OUT/$J"
   rm -rf "$DIR"; mkdir -p "$DIR"
-  # Fresh install: no books, no keystore items, no PIN, no onboarded flag.
-  "$ADB" -s "$DEVICE" uninstall "$APP_ID" >/dev/null 2>&1 || true
   start=$(date +%s)
-  flutter test "integration_test/journeys/$F" -d "$DEVICE" --no-uninstall \
-    --dart-define=RF_API_BASE="https://$REF.supabase.co/functions/v1/" \
-    --dart-define=RF_DEMO_PHONES=true \
-    ${RF_JOURNEY_PURPOSE:+--dart-define=RF_JOURNEY_PURPOSE=$RF_JOURNEY_PURPOSE} \
-    >"$DIR/flutter_test.log" 2>&1
+  start_print_watch "$DIR"
+  run_journey "$J" "$F" "$DIR/flutter_test.log"
   code=$?
+  # A VM-service drop while the test loads is the harness, not the app: run it once more.
+  if [ "$code" -ne 0 ] && grep -q 'Service connection disposed' "$DIR/flutter_test.log"; then
+    msg="retried $J once: the first attempt (exit $code) reported 'Service connection disposed' at test load"
+    echo "$msg" >&2
+    mv "$DIR/flutter_test.log" "$DIR/flutter_test.attempt1.log"
+    echo "$msg" >"$DIR/retried"
+    run_journey "$J" "$F" "$DIR/flutter_test.retry.log"
+    code=$?
+    { echo "[run_journeys] $msg — this is the retry's output; the first is flutter_test.attempt1.log"
+      cat "$DIR/flutter_test.retry.log"; } >"$DIR/flutter_test.log"
+    rm -f "$DIR/flutter_test.retry.log"
+  fi
+  stop_print_watch
   echo "$code" >"$DIR/exit_code"
   echo "$(( $(date +%s) - start ))" >"$DIR/wall_seconds"
   # Screenshots + result.json live in the app's cache dir (a debug build is run-as-able).
@@ -126,6 +173,9 @@ for name in names:
         r.setdefault("failure", None)
         r["failure"] = r["failure"] or {"journey": name, "reason": "the run ended before the journey finished (crash or timeout)", "last_step": (r.get("steps") or [{}])[-1]}
     r["exit_code"] = code
+    retried = os.path.join(d, "retried")
+    if os.path.exists(retried):
+        r.setdefault("warnings", []).append(open(retried).read().strip())
     # The verdict and the test's exit code must agree; a disagreement is a FAIL with its own reason.
     if r["verdict"] == "PASS" and code != "0":
         r["verdict"] = "FAIL"

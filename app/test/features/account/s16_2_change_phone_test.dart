@@ -448,6 +448,44 @@ void main() {
     );
 
     testWidgets(
+      'F1-196-7 S16.2 over a held engine (Offline underneath): no offline '
+      'chip and the code request is not disabled by the hold; once '
+      'registered, a real Offline shows the chip and disables it (ADR 2026-10-10 §2 🔒)',
+      (tester) async {
+        final seam = FakePhoneChange(initial: _start());
+        addTearDown(seam.dispose);
+        final sync = FakeSyncClient(initial: const Offline(), held: true);
+        addTearDown(sync.dispose);
+        await pumpRk(tester, _screen(seam), sync: sync, viewport: rkPhone360);
+        final chip = find.textContaining(
+          'You can start this the moment you are back',
+        );
+        expect(chip, findsNothing);
+        await tester.tap(_otp);
+        await tester.pumpAndSettle();
+        expect(seam.oldSends, 1);
+
+        // A fresh screen over a registered engine that really is offline.
+        final seam2 = FakePhoneChange(initial: _start());
+        addTearDown(seam2.dispose);
+        final sync2 = FakeSyncClient(initial: const Offline(), held: true);
+        addTearDown(sync2.dispose);
+        await pumpRk(
+          tester,
+          KeyedSubtree(key: UniqueKey(), child: _screen(seam2)),
+          sync: sync2,
+          viewport: rkPhone360,
+        );
+        sync2.held = false;
+        await tester.pumpAndSettle();
+        expect(chip, findsOneWidget);
+        await tester.tap(_otp);
+        await tester.pumpAndSettle();
+        expect(seam2.oldSends, 0);
+      },
+    );
+
+    testWidgets(
       'F1-07-370 the loading and error states of 13 §4.3: a ruled skeleton '
       'announced in words, then a named cause with a retry beside it — never '
       'a raw code (07 §1 rule 12)',

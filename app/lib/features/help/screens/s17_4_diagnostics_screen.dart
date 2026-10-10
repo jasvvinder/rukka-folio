@@ -172,13 +172,18 @@ class _SendDiagnosticsScreenState extends State<SendDiagnosticsScreen> {
             retryLabel: l10n.diagErrorRetry,
             onRetry: _collectFacts,
           ),
-          DiagCollect.ready => StreamBuilder<SyncStatus>(
-            stream: sync.status,
-            initialData: sync.current,
+          // The chip (and the Send block) read the held-aware status: held →
+          // null, no offline line, Send not blocked (ADR 2026-10-10 §2 🔒).
+          // The report still carries the engine's raw status — it is a
+          // diagnostic of what the engine reports, re-read on every emit.
+          DiagCollect.ready => StreamBuilder<SyncStatus?>(
+            stream: sync.chipStatus,
+            initialData: sync.chipCurrent,
             builder: (context, snap) => _Report(
               facts: _facts,
               builtAt: _builtAt!,
-              sync: snap.data ?? const Synced(),
+              sync: sync.current,
+              chip: snap.data,
               send: _send,
               canSend: widget.sender != null,
               onSend: _sendNow,
@@ -197,6 +202,7 @@ class _Report extends StatelessWidget {
     required this.facts,
     required this.builtAt,
     required this.sync,
+    required this.chip,
     required this.send,
     required this.canSend,
     required this.onSend,
@@ -206,6 +212,9 @@ class _Report extends StatelessWidget {
   final DeviceFacts facts;
   final DateTime builtAt;
   final SyncStatus sync;
+
+  /// The held-aware chip status ([SyncChip.chipCurrent]); null while held.
+  final SyncStatus? chip;
   final DiagSend send;
   final bool canSend;
   final Future<void> Function(String payload) onSend;
@@ -216,7 +225,7 @@ class _Report extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final text = Theme.of(context).textTheme;
     final status = RkStatusColors.of(context);
-    final offline = sync is Offline;
+    final offline = chip is Offline;
 
     // Built from the live MediaQuery, Theme and Localizations, so the payload
     // on screen is the payload of *this* phone in *this* state.

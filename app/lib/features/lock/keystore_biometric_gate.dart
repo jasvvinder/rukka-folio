@@ -20,10 +20,25 @@
 import '../devices/keychain_key_store.dart';
 import '../devices/keystore_platform.dart';
 import 'biometric_gate.dart';
+import 'biometric_kind.dart';
 
 /// [BiometricGate] over the gate key.
-final class KeystoreBiometricGate implements SealingBiometricGate {
-  KeystoreBiometricGate({required this.keys, required this.platform});
+final class KeystoreBiometricGate
+    implements SealingBiometricGate, BiometricModalitySource {
+  KeystoreBiometricGate({
+    required this.keys,
+    required this.platform,
+    this.modality,
+  });
+
+  /// Which biometric is enrolled (ADR 2026-10-08 §3: the screens name the
+  /// method the phone uses). ⚠️ SPEC: the keystore channel has no such query
+  /// yet (features/devices + the native halves), so the host passes none and
+  /// the method is named neutrally — never guessed (WORDS179 open item).
+  final Future<BiometricModality?> Function()? modality;
+
+  @override
+  Future<BiometricModality?> enrolledModality() async => await modality?.call();
 
   /// The device-key custody: the gate record, the gate read, the ARB copy.
   final KeychainKeyStore keys;

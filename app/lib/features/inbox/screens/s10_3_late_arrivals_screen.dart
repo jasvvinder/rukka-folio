@@ -87,9 +87,10 @@ class _LateArrivalsScreenState extends State<LateArrivalsScreen> {
                   ? _LateError(onRetry: _refresh)
                   : const LateArrivalsSkeleton();
             }
-            return StreamBuilder<SyncStatus>(
-              stream: scope.sync.status,
-              initialData: scope.sync.current,
+            return StreamBuilder<SyncStatus?>(
+              // Held → null: no chip, nothing disabled (ADR 2026-10-10 §2 🔒).
+              stream: scope.sync.chipStatus,
+              initialData: scope.sync.chipCurrent,
               builder: (context, ss) => RefreshIndicator(
                 onRefresh: _refresh,
                 child: ListView(

@@ -16,10 +16,8 @@
   "@lock.biometric.failed": {
     "description": "S15 line after biometric fails; the fallback is the 6-digit MPIN, never the phone's passcode (06 §4.4)."
   },
-  "lock.biometric.unavailable": "Face ID isn't available on this phone right now — type your PIN",
-  "@lock.biometric.unavailable": {
-    "description": "S15 line when the platform reports no usable biometric."
-  },
+  "lock.biometric.unavailable": "{method} isn't available on this phone right now — type your PIN",
+  "@lock.biometric.unavailable": {"description": "S15 line when the platform reports no usable biometric. {method} is the phone's own method (lock.method.*, ADR 2026-10-08 §3).", "placeholders": {"method": {"type": "String"}}},
   "lock.biometric.reenrolled": "This phone's face or fingerprint settings have changed — enter your PIN once",
   "@lock.biometric.reenrolled": {
     "description": "S15 line when the gate item was invalidated — a face or fingerprint added or removed, or every one removed (ADR 2026-10-06 §4): says only that the set changed, never which way. The MPIN, once, then a new gate."
@@ -79,10 +77,8 @@
   "@lock.disabled.title": {
     "description": "S15.3 disabled state after 10 failures (ADR 2026-09-05d §5)."
   },
-  "lock.disabled.body": "Your books are safe and nothing is lost. Confirm the code we send to your number, then Face ID, and pick a new PIN.",
-  "@lock.disabled.body": {
-    "description": "S15.3 disabled explanation — forgetting the PIN is never data loss (06 §4.4)."
-  },
+  "lock.disabled.body": "Your books are safe and nothing is lost. Confirm the code we send to your number, then {method}, and pick a new PIN.",
+  "@lock.disabled.body": {"description": "S15.3 disabled state body: OTP to the registered number plus biometric, then a new PIN (07 §5.6). {method} is the phone's own method (lock.method.*, ADR 2026-10-08 §3).", "placeholders": {"method": {"type": "String"}}},
   "lock.forgot.action": "Forgot PIN",
   "@lock.forgot.action": {
     "description": "S15 door to the reset path — OTP to the registered number plus biometric (07 §5.6)."
@@ -127,10 +123,6 @@
   "@lock.forgot.body_pin_only": {
     "description": "S15 forgot door on a PIN-only phone (desk 147, ADR 2026-10-05b Open): routes to the S11 recovery ladder, not OTP alone. ⚠️ SPEC: owner to rule; draft copy."
   },
-  "lock.biometric.button": "Face ID",
-  "@lock.biometric.button": {
-    "description": "S15.3 outlined button under the PIN boxes that raises the biometric sheet again (c1 S15.3 *Enter PIN*; 13 §3.2 row S15.3 'Face ID button')."
-  },
   "lock.pin.tries_left_pin_only": "{count} tries left before the PIN switches off",
   "@lock.pin.tries_left_pin_only": {
     "description": "S15.3 warning row on a PIN-only phone, where the reset is not a code to the number (ADR 2026-10-05b, desk 147).",
@@ -163,5 +155,25 @@
   "lock.forgot.start_before_open": "Open the app",
   "@lock.forgot.start_before_open": {
     "description": "S15 forgot door action at cold start on a biometric phone: raises the biometric prompt (KEY145B review finding 6)."
-  }
+  },
+  "lock.method.face_id": "Face ID",
+  "@lock.method.face_id": {"description": "iPhone face unlock, by name (ADR 2026-10-08 §3 🔒 — the unlock method is named as the phone uses it; the four names are separate terms, never translations of one another). S15 / S15.3 button, and the {method} of the S15 and S0.8 lines."},
+  "lock.method.touch_id": "Touch ID",
+  "@lock.method.touch_id": {"description": "iPhone fingerprint, by name (ADR 2026-10-08 §3 🔒 — the unlock method is named as the phone uses it; the four names are separate terms, never translations of one another)."},
+  "lock.method.fingerprint": "Fingerprint",
+  "@lock.method.fingerprint": {"description": "Android fingerprint, by name (ADR 2026-10-08 §3 🔒 — the unlock method is named as the phone uses it; the four names are separate terms, never translations of one another). Never *Face ID* on an Android phone (desk 166)."},
+  "lock.method.face_unlock": "Face unlock",
+  "@lock.method.face_unlock": {"description": "Android face (a Class 3 face that can guard a hardware key, ADR 2026-10-05b §1), by name (ADR 2026-10-08 §3 🔒 — the unlock method is named as the phone uses it; the four names are separate terms, never translations of one another)."},
+  "lock.method.any": "Fingerprint or face",
+  "@lock.method.any": {"description": "⚠️ SPEC: the method when the phone has not said which biometric is enrolled (no modality seam wired yet, WORDS179). Names no method the phone may not have, so it is never wrong (ADR 2026-10-08 §3); owner to confirm."},
+  "lock.method.fingerprint.inline": "your fingerprint",
+  "@lock.method.fingerprint.inline": {"description": "The Android fingerprint inside a sentence (S0.8 subtitle *You'll use your fingerprint most of the time*, c1/c11 O4b Android frame)."},
+  "lock.method.any.inline": "your fingerprint or face",
+  "@lock.method.any.inline": {"description": "lock.method.any inside a sentence. ⚠️ SPEC: see lock.method.any."},
+  "lock.biometric.failed.fingerprint": "Fingerprint not recognised",
+  "@lock.biometric.failed.fingerprint": {"description": "S15 line after a fingerprint (Touch ID or Android fingerprint) fails — c3 S15 *Fingerprint not recognised · Android*. Words beside the red glyph, never colour alone (07 §1 rule 3)."},
+  "lock.biometric.failed.any": "Not recognised",
+  "@lock.biometric.failed.any": {"description": "S15 failed line when the phone has not said which biometric it uses (lock.method.any)."},
+  "lock.biometric.touch_sensor": "Touch the sensor",
+  "@lock.biometric.touch_sensor": {"description": "S15 caption under the fingerprint glyph while the sheet is up (c3 S15 *App lock · waiting for fingerprint · Android*). Fingerprint phones only; the face frames draw no caption."}
 }

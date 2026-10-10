@@ -75,6 +75,7 @@ class _InboxScreenState extends State<InboxScreen> {
       if (!mounted) return;
       final cold =
           ReviewQueueScope.of(context).current == null ||
+          StructuralRequestsScope.of(context).current == null ||
           LateArrivalsScope.of(context).current == null;
       if (cold) _refresh();
     });
@@ -220,9 +221,10 @@ class _InboxScreenState extends State<InboxScreen> {
               builder: (context, st) => StreamBuilder<LateArrivalsTray>(
                 stream: lateTray.watch(),
                 initialData: lateTray.current,
-                builder: (context, lt) => StreamBuilder<SyncStatus>(
-                  stream: scope.sync.status,
-                  initialData: scope.sync.current,
+                builder: (context, lt) => StreamBuilder<SyncStatus?>(
+                  // Held → null: no chip, nothing disabled (ADR 2026-10-10 §2 🔒).
+                  stream: scope.sync.chipStatus,
+                  initialData: scope.sync.chipCurrent,
                   builder: (context, ss) => _body(
                     context,
                     s,
@@ -285,6 +287,31 @@ class _InboxScreenState extends State<InboxScreen> {
               padding: const EdgeInsets.only(bottom: RkSpace.s3),
               child: Text(l10n.inboxSectionStructural, style: text.titleLarge),
             ),
+            // Records whose signer this phone cannot name yet are not cards —
+            // a request another owner raised may be among them — so the
+            // section says how many wait instead of hiding them (02 §7.2.1 🔒;
+            // 13 §4.3). Icon and words, never hue alone (07 §1 rule 3).
+            if (structural.unconfirmed > 0)
+              Padding(
+                padding: const EdgeInsets.only(bottom: RkSpace.s4),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.sync_problem,
+                      size: 20,
+                      color: RkStatusColors.of(context).info,
+                    ),
+                    const SizedBox(width: RkSpace.s2),
+                    Expanded(
+                      child: Text(
+                        l10n.inboxStructuralUnconfirmed(structural.unconfirmed),
+                        style: text.bodyMedium,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             for (final item in structural.visible)
               Padding(
                 padding: const EdgeInsets.only(bottom: RkSpace.s4),

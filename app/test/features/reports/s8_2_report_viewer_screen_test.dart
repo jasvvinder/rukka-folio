@@ -55,6 +55,7 @@ import 'package:xml/xml.dart';
 
 import 'package:rukka_folio/features/subscription/entitlement_source.dart';
 import 'package:rukka_folio/features/subscription/tier_catalogue.dart';
+import 'package:rukka_folio/l10n/gen/app_localizations.dart';
 
 import '../../shared/test_app.dart';
 
@@ -1350,5 +1351,81 @@ void main() {
         expect(String.fromCharCodes(bytes.take(5)), '%PDF-');
       },
     );
+  });
+
+  // REP183C review finding 4: S8.2's Download / Share wears S4's loader rule
+  // while the file is written, and ignores a second tap meanwhile. A Punjabi
+  // day book is used because it is shaped line by line through `dart:ui`,
+  // which never completes inside the fake-async zone — so the build is
+  // provably still running between the taps below, until `runAsync` lets it.
+  testWidgets('F1-183-27 S8.2 Download / Share shows the loader rule while '
+      'the PDF is written and builds it once however often it is tapped', (
+    tester,
+  ) async {
+    final seeded = await seedSoloLedger();
+    var delivered = 0;
+    ReportFile? file;
+    Future<ReportDelivery> sink(ReportFile f) async {
+      delivered++;
+      file = f;
+      return ReportSaved(f.name);
+    }
+
+    await pumpRk(
+      tester,
+      _paid(ReportViewerScreen(sink: sink)),
+      ledger: seeded.ledger,
+      locale: const Locale('pa'),
+      viewport: rkTallViewport,
+    );
+    final l10n = lookupAppLocalizations(const Locale('pa'));
+    final primary = find.descendant(
+      of: find.byType(AppBar),
+      matching: find.byType(TextButton),
+    );
+    expect(find.byType(LinearProgressIndicator), findsNothing);
+
+    await tester.tap(primary);
+    await tester.pump();
+    await tester.pump();
+    // The rule and its words, never colour alone (07 §1 rule 3).
+    expect(find.byType(LinearProgressIndicator), findsOneWidget);
+    expect(find.text(l10n.reportsExportGenerating), findsOneWidget);
+
+    // A second and a third tap while it runs start nothing.
+    await tester.tap(primary);
+    await tester.pump();
+    await tester.tap(primary);
+    await tester.pump();
+
+    for (var turn = 0; turn < 600 && file == null; turn++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 10)),
+      );
+      await tester.pump();
+    }
+    expect(file, isNotNull, reason: 'the export never reached the sink');
+    // Let any build a second tap might have started finish too.
+    for (var turn = 0; turn < 100; turn++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 10)),
+      );
+      await tester.pump();
+    }
+    expect(delivered, 1, reason: 'one tap, one file — the others are ignored');
+    expect(find.byType(LinearProgressIndicator), findsNothing);
+    expect(find.text(l10n.reportsExportGenerating), findsNothing);
+
+    // Done, the action works again.
+    await tester.tap(primary);
+    await tester.pump();
+    for (var turn = 0; turn < 600 && delivered < 2; turn++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 10)),
+      );
+      await tester.pump();
+    }
+    expect(delivered, 2);
+    await unmount(tester);
   });
 }

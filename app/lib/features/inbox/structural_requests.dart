@@ -155,6 +155,8 @@ final class StructuralItem {
     this.terms = const [],
     this.subject,
     this.viewerCanInitiate = false,
+    this.termsKnown = true,
+    this.signersConfirmed = true,
   });
 
   /// The signed request (02 §7.2.1). Its `action` is the 🔒 kind and its
@@ -194,6 +196,30 @@ final class StructuralItem {
   /// *an admin initiates*). Drives the lapsed card's one next action.
   final bool viewerCanInitiate;
 
+  /// Whether [terms] state **everything** the request would change (07 §26
+  /// 🔒 *states exactly what will change*).
+  ///
+  /// False when the request's payload carries something this build cannot
+  /// put into words — an action whose payload no doc fixes, a key it does not
+  /// know, a line it cannot place. Such a request is still drawn (it is in the
+  /// member-visible admin feed, 02 §7.2 item 3) but cannot be **approved**
+  /// here: an owner never signs a change their own screen could not show
+  /// them. A veto stays offered — refusing what you cannot read is the safe
+  /// direction, and 02 §7.2.1 lets any owner veto.
+  final bool termsKnown;
+
+  /// Whether this phone could name the signer of **every** structural record
+  /// in the request's book (02 §7.2.1 🔒 *authored on that owner's own
+  /// device*).
+  ///
+  /// False while any of them waits for a certificate this phone can verify —
+  /// on every launch before the meta read, for one. Such a record may be the
+  /// veto that closed this request or the approvals that decided it, so
+  /// [status] and the count are what *this phone* can confirm, and neither
+  /// **Approve** nor **Veto** is offered until it can read the rest: a
+  /// signature is never asked for over a count that may be missing a veto.
+  final bool signersConfirmed;
+
   /// What kind of structural change (02 §7.2.1's 🔒 table).
   StructuralAction get action => request.action;
 
@@ -222,11 +248,17 @@ final class StructuralItem {
   bool get viewerIsInitiator => request.byUser == viewerId;
 
   /// True while the reading owner may still sign either way.
-  bool get viewerMayDecide =>
+  bool get viewerMayDecide => viewerMayVeto && termsKnown;
+
+  /// True while the reading owner may still veto — everything
+  /// [viewerMayDecide] needs except that the terms be readable (see
+  /// [termsKnown]).
+  bool get viewerMayVeto =>
       viewerIsOwner &&
       status == StructuralStatus.pending &&
       !viewerHasApproved &&
-      required != null;
+      required != null &&
+      signersConfirmed;
 
   /// Why the two buttons are absent, when they are (13 §4.3
   /// *disabled-with-reason* — never a silently missing control).
@@ -234,7 +266,12 @@ final class StructuralItem {
     if (status != StructuralStatus.pending) return null;
     if (!viewerIsOwner) return StructuralBlock.notAnOwner;
     if (viewerHasApproved) return StructuralBlock.alreadyApproved;
+    // Before the veto-only case: until every signer is named, *pending*
+    // itself is unconfirmed, so not even a veto is offered. (The card states
+    // it on its own line in every status, whatever the block.)
+    if (!signersConfirmed) return StructuralBlock.signersUnconfirmed;
     if (required == null) return StructuralBlock.unknownOwnerSet;
+    if (!termsKnown) return StructuralBlock.termsUnknown;
     return null;
   }
 
@@ -277,24 +314,41 @@ enum StructuralBlock {
   /// The request names an owner-set version this phone has not seen, so no
   /// reader here can say who the owners are (the engine counts nothing).
   unknownOwnerSet,
+
+  /// This phone cannot state everything the request would change
+  /// ([StructuralItem.termsKnown] false), so it offers no **Approve** — only
+  /// the veto.
+  termsUnknown,
+
+  /// This phone cannot yet name the signer of every record in the book
+  /// ([StructuralItem.signersConfirmed] false), so where the request stands
+  /// is not confirmed and nothing is offered to sign.
+  signersUnconfirmed,
 }
 
 /// What S6's structural section renders.
 @immutable
 final class StructuralInbox {
   /// Creates the snapshot.
-  const StructuralInbox({this.items = const []});
+  const StructuralInbox({this.items = const [], this.unconfirmed = 0});
 
   /// Requests, newest first. Ones [StructuralItem.isVisible] rejects are
   /// dropped by the screen, not by the seam.
   final List<StructuralItem> items;
 
+  /// Structural records on this phone whose signer it cannot name yet — a
+  /// request another owner raised among them is not drawn as a card, so S6
+  /// says how many wait rather than show nothing (13 §4.3: never a silently
+  /// empty Inbox).
+  final int unconfirmed;
+
   /// The cards actually drawn.
   List<StructuralItem> get visible =>
       items.where((i) => i.isVisible).toList(growable: false);
 
-  /// Whether anything is drawn at all.
-  bool get isEmpty => visible.isEmpty;
+  /// Whether the structural section draws anything at all — a card, or the
+  /// line about records still waiting to be read.
+  bool get isEmpty => visible.isEmpty && unconfirmed == 0;
 }
 
 /// Anything the seam could not do. Carries no plaintext financial data

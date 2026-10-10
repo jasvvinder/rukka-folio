@@ -14,7 +14,9 @@
   "app/lib/features/ledger/screens/s3_ledger_index_screen.dart",
   "app/lib/features/ledger/ledger_routes.dart",
   "app/lib/shared/format/money_format.dart",
-  "app/lib/shared/widgets/rk_tab_bar.dart"
+  "app/lib/shared/widgets/rk_tab_bar.dart",
+  "app/lib/features/ledger/widgets/opening_prompt.dart",
+  "app/lib/shared/ledger/local_ledger.dart"
  ],
  "deviations": [
   {
@@ -28,9 +30,9 @@
    "authority": "ADR 2026-10-05 §1; design-system text-field component; 01 §1.3 (khata is allowed consumer vocabulary)"
   },
   {
-   "what": "c7 S3 *Ledger index*: the filter chips are Material ChoiceChips — the selected one filled in the terracotta accent with a check mark, the rest outlined squared-off chips — and their labels are cut through the middle: the strip is a SizedBox of RkSpace.s10 = 40 px with RkSpace.s2 = 8 px vertical padding, leaving 24 px for a chip; the frame draws full-height pills (~44 px), the selected 'All' in navy with no check, the others paper with a hairline",
-   "reason": "[shared] chip (filter chip: colour, shape, no check mark). The clipped labels are a [screen] defect at default size (07 §1: no clipped text; 13 §8)",
-   "authority": "ADR 2026-10-05 §1; 13 §8 / 07 §1 accessibility (text never cut)"
+   "what": "c7 S3 *Ledger index*: the filter chips are Material ChoiceChips — the selected one filled in the terracotta accent, the rest outlined squared-off chips; the frame draws full-height pills (~44 px), the selected 'All' in navy, the others paper with a hairline. (FIX200: the strip now takes its height from its chips, so no label is cut at any text size — F1-200-4 at 390×844 and at 200 % on 360×800 in EN/PA/HI — and the check mark is gone, as the frame draws it)",
+   "reason": "[shared] chip (filter chip: colour, pill shape) — the chip theme is app/lib/shared/theme.dart, not this screen's",
+   "authority": "ADR 2026-10-05 §1; design-system chip component"
   },
   {
    "what": "c7 S3 *Ledger index*: the app offers five chips 'All · Parties · Categories · Money · System' (System off the right edge); the frame draws four, 'All · People · Categories · Money'",
@@ -38,7 +40,7 @@
    "authority": "07 §6 (filter chips All · Parties · Categories · Money · System; F1-07-42); CLAUDE.md § Precedence (specs decide copy)"
   },
   {
-   "what": "c7 S3 *Ledger index*: the list surfaces are the wrong way round — the app's letter headers are a bare muted letter on paper (_LetterHeader is a Container in colorScheme.surface, s3_ledger_index_screen.dart; band 'B' sampled (251,248,240)) and its rows sit on the page colour (token bg, Bharat Power row (245,240,228)); the frame shades each letter band (token sunk, (239,233,218)) with a hairline above and below and puts the rows on paper (token surface, (251,248,240))",
+   "what": "c7 S3 *Ledger index*: the list surfaces are the wrong way round — the app's letter headers are a bare muted letter on paper (_LetterHeader is a Container in colorScheme.surface, s3_ledger_index_screen.dart; band 'B' sampled (251,248,240)) and its rows sit on the page colour (token bg, Bharat Power row (245,240,228)); the frame shades each letter band (token sunk, (239,233,218)) with a hairline above and below and puts the rows on paper (token surface, (251,248,240)). (FIX200: the band's height now follows its letter's line at the reader's text scale — it was a fixed 24 px that cut the letter at 200 %; surfaces unchanged)",
    "reason": "[shared] list row (section band on sunk, rows on surface) — both surfaces are swapped, not only the band",
    "authority": "ADR 2026-10-05 §1"
   },
@@ -48,9 +50,9 @@
    "authority": "ADR 2026-10-05 §1; 13 §4.1 (P1 row)"
   },
   {
-   "what": "c7 S3 *Ledger index*: balances are bare figures ('₹2,450', '₹20,600', '₹1,25,000') with no Dr/Cr word, tinted green when Dr and red when Cr; the frame writes the true side after each figure ('₹2,450 Cr', '₹47,000 Dr') and tints only the Cr figure",
-   "reason": "[screen] defect — S3 is a ledger, a professional surface, so the true Dr/Cr is shown plainly; today the side is carried by colour alone (MoneyText professional with favour and no showDirection, s3_ledger_index_screen.dart _list), which 07 §1 rule 3 forbids",
-   "authority": "ADR 2026-10-10b §4 🔒 (S3 Ledger index is professional; Dr/Cr shown plainly); 07 §1 rule 3 🔒 (colour never alone); 02 §10"
+   "what": "c7 S3 *Ledger index*: the app writes the true side after each figure as the frame does ('₹2,450 Cr', '₹20,600 Dr' — FIX200, F1-200-5), but still tints Dr figures green as well as Cr figures red; the frame tints only the Cr figure and leaves Dr in ink",
+   "reason": "[screen] — 07 §6 🔒 asks for a balance 'colored by sign', which the app reads as both signs tinted (option A, design-system §5); the side is now in words, so colour is no longer alone (07 §1 rule 3 🔒). ⚠️ SPEC (open): whether 'colored by sign' allows Dr in ink, as the frame draws it — owner to rule",
+   "authority": "07 §6 🔒 (colored by sign); 07 §1 rule 3 🔒; ADR 2026-10-10b §4 🔒 (S3 professional, Dr/Cr plainly); design-system §5"
   },
   {
    "what": "c7 S3 *Ledger index*: the app lists the system accounts the book holds ('Cash A/c ₹0', 'Opening Balance ₹1,25,000 System') under All; the frame's All list has none",
@@ -73,11 +75,6 @@
    "authority": "07 §1 🔒 (no dead ends; nothing hidden); 13 §8 (content never covered); Material FAB guidance (list end inset)"
   },
   {
-   "what": "c7 S3 *Ledger index · opening balance not set*: Ramesh Kumar (a person created without an opening balance, one loan of ₹500 against him) is a plain row; the frame puts a quiet accent line '(i) Opening balance not set' under his name and a person icon",
-   "reason": "[screen] not built — ADR 2026-10-07b's per-account 'opening answered' flag and the S3 marker do not exist in app/lib (no match for the flag anywhere); the account is reachable today exactly as captured",
-   "authority": "ADR 2026-10-07b §1 🔒 (F1-1007b-1 @M13)"
-  },
-  {
    "what": "c7 S3 *Ledger index*: the tab bar carries the docked centre (+) and no Inbox count badge; the frame draws four tabs (Home · Ledger · Inbox with badge '3' · Menu)",
    "reason": "[shared] tab bar/shell",
    "authority": "ADR 2026-10-10b §2 🔒 (F1-1010b-1 @M13)"
@@ -86,12 +83,22 @@
    "what": "c7 S3 *Ledger index*: (any) letter-spacing on Material labels",
    "reason": "[shared] theme letterSpacing → desk 193(j)",
    "authority": "PLAN desk 193 (j)"
+  },
+  {
+   "what": "c7 S3 *Ledger index · opening balance not set*: the marker is built (OPEN177) — Ramesh Kumar's row carries '(i) Opening balance not set' in ink under his name, as the frame draws it; the app keeps the class line 'Parties' above it (the frame has no class line, see the list-row deviation), so the row is one line taller than the frame's",
+   "reason": "[screen] the class subtitle is the app's only class cue until the leading class icon lands ([shared] list row). The marker colour is colorScheme.primary (ink), as the frame draws it; ⚠️ SPEC: ADR 2026-10-07b §1 says 'the accent colour' and the token named accent is bahi red (the Cr figure's colour) — the approved frame is followed, owner to confirm",
+   "authority": "ADR 2026-10-07b §1 🔒 (F1-1007b-1 @M13); 07 §1 rule 3 🔒 (icon + words, never colour alone); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c7 S3 *Ledger index · opening balance not set*: which rows carry the marker is derived from synced data — a person with no opening adjustment against Opening Balance (and not carried in a certified year-close vector). The capture fixture therefore gives Bharat Power and the seed's Ramesh an opening (as S3.1 would), so only the entry-picker person is marked, as in the frame; in a live book a person created in S3.1 or setup with a ZERO opening would also be marked, and cannot be dismissed",
+   "reason": "[screen] ⚠️ SPEC (ADR 2026-10-07b Open ⚠️, PLAN desk 177): an answer of zero and *Not needed* need a synced per-account field (03's call) — proposed in the OPEN177 lane report; no device-local flag (a second device would ask again)",
+   "authority": "ADR 2026-10-07b §1–§2 🔒 and Open ⚠️; 03 §2.3 (account object), §3.3 rule 4"
   }
  ],
  "approved_by_owner": false,
  "checked_on": "2026-10-10",
  "hashes": {
-  "screens": "915fd103f9ac3eb5958e5d997d071ed71f2f3c9bdf6c90b94427365e938c7817",
+  "screens": "04d71ea44ee049c1e86bae13a18a5c284badec5fd7390d212a3826506bdf61d5",
   "frames": "bee2ebe47d3a8a3733b51363d70c81bbfa84ec32562e47e05d33cf364078875f"
  }
 }

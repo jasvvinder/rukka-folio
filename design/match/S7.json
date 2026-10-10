@@ -1,0 +1,107 @@
+{
+ "sid": "S7",
+ "verdict": "deviates",
+ "frames": [
+  "c8/S7.0a/Choose a file",
+  "c8/S7.0b/Column mapping",
+  "c8/S7.0c/Duplicates skipped · stated as work done"
+ ],
+ "captures": [
+  "S7__production",
+  "S7__choose-file",
+  "S7__mapping",
+  "S7__duplicates",
+  "S7__duplicates-skipped"
+ ],
+ "screen_files": [
+  "app/lib/features/import/screens/s7_import_screen.dart",
+  "app/lib/features/import/screens/s7_0_mapping_screen.dart",
+  "app/lib/features/import/widgets/import_parts.dart",
+  "app/lib/features/import/widgets/mapping_parts.dart",
+  "app/lib/features/import/import_routes.dart",
+  "app/lib/features/import/ledger_import_source.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c8 S7.0a *Choose a file* (S7__production): as production routes it, S7 opens on the error state — 'Couldn’t open your bank A/Cs.' with Try again — where the frame draws the account chips and the drop zone. bootstrap.dart mounts no ImportScope and builds no LedgerImportSource (grep -rn ImportScope app/lib finds only features/import), so ImportScreen.didChangeDependencies sets StateError('no ImportScope'); Try again repeats it. Every other S7/S7.1/S7.2 capture mounts the scope production would need and is ⚠️ SPEC-marked unreachable",
+   "reason": "[screen] defect — the import door from S2 is a dead end in a shipped build; wiring ImportScope(LedgerImportSource) above the router belongs to the composition owner (bootstrap.dart)",
+   "authority": "07 §1 rule 6 🔒 (no dead ends); 13 §3.2 row S7; ADR 2026-09-03 (S2 header door)"
+  },
+  {
+   "what": "c8 S7.0a *Choose a file*: even with a scope, production's entitlement is UntokenedEntitlementSource (bootstrap.dart:1217), which lacks statement_import, so S7 would show the 'not on this plan' state; S7__choose-file passes an entitlement that includes it",
+   "reason": "[screen] — the plan gate is ruled behaviour; the frame draws a plan that includes import. Reachable once the verified token producer lands (PLAN desk 23c)",
+   "authority": "ADR 2026-09-25 §3, §5–§6 🔒; ADR 2026-09-05g §1 🔒"
+  },
+  {
+   "what": "c8 S7.0a *Choose a file*: app bar is the Material bar on the lighter surface fill with the title centred beside the platform back button (S7 is pushed from the S2 header — s2_add_entry_screen.dart `push(ImportPaths.root)` — and the capture pushes it the same way); the frame draws the chevron at left with the title 'Import a statement' left-aligned beside it on the page cream, hairline under",
+   "reason": "[shared] app bar — surface fill vs page cream and centred vs leading title (theme.dart appBarTheme: backgroundColor scheme.surface, titleTextStyle titleLarge, platform-default centring)",
+   "authority": "ADR 2026-10-05 §1 (frame decides layout)"
+  },
+  {
+   "what": "c8 S7.0a *Choose a file*: the account picker is a numbered step heading '1 · Which A/C is this statement for?' + help line, then a list row with a filled check circle per A/C; the frame draws an uppercase letter-spaced caption 'INTO WHICH ACCOUNT' and horizontal pill chips (selected = navy filled with a card icon, unselected = outlined)",
+   "reason": "[shared] chip (selection chips) and section caption",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c8 S7.0a *Choose a file*: the file step is a heading '2 · Which file?' over a tinted card holding a navy filled 'Choose a file' button (document icon), the formats line, 'Today this app reads CSV. XLS, OFX and PDF are coming.' and a green phone icon + 'Read on this phone. Nothing readable leaves it.'; the frame draws a dashed-border drop zone with a navy cloud-upload icon, 'Tap to choose a file' title and 'CSV, XLS, OFX or PDF · up to 10 MB', then the privacy sentence below the zone as body copy",
+   "reason": "[screen] drop zone (ImportDropZone, import_parts.dart): component and icon follow the frame; the 'Today this app reads CSV' line stays — the parser reads CSV only and the screen must not promise formats it cannot read",
+   "authority": "ADR 2026-10-05 §1; 07 §1 rule 12 (say what is true); 07 §11 item 1 🔒"
+  },
+  {
+   "what": "c8 S7.0a *Choose a file*: the frame pins a full-width 'Continue' primary button (disabled until a file is chosen) at the bottom; the app has no Continue — picking a file reads it and moves straight to the mapping step",
+   "reason": "[screen] — one tap fewer (07 §1 rule 1, 8-second entry); ⚠️ SPEC (open): whether the frame's two-step pick-then-Continue is wanted",
+   "authority": "07 §1 rule 1 🔒; 07 §11 item 1 🔒 (pick account → pick file → confirm mapping → duplicates skipped)"
+  },
+  {
+   "what": "c8 S7.0b *Column mapping* (S7__mapping): title 'Check the columns' centred with no subtitle; the frame left-aligns it with a subtitle 'aug-statement.csv · 35 lines' (file name · line count) under it",
+   "reason": "[shared] app bar (title + subtitle); the subtitle is [screen]",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c8 S7.0b *Column mapping*: the app adds an intro 'This is how the file was read. Correct anything that’s wrong.' + 'We’ll remember this for sbi, so the next statement needs no checking.' at the top; the frame has only 'We'll remember this for Indian Bank.' below the selectors, naming the bank, not a lower-case bank key",
+   "reason": "[screen] — the remembered line shows the internal bankKey ('sbi', LedgerImportSource.bankKeyOf) instead of a display name; position and intro copy follow the frame",
+   "authority": "ADR 2026-10-05 §1; 07 §11 item 1 🔒 (corrections remembered per bank)"
+  },
+  {
+   "what": "c8 S7.0b *Column mapping*: each role is a label stacked above an outlined Material dropdown (filled triangle), and the description role is labelled 'Bank’s own words'; the frame puts the label (muted) in a left column and a rounded paper select with a chevron in the right column, labelled 'Description'",
+   "reason": "[shared] select/field (form field: label-left, rounded select, chevron); the label copy is [screen]",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c8 S7.0b *Column mapping*: the app shows a fifth row 'Balance' (Closing Balance); the frame shows Date, Description, Money out, Money in only",
+   "reason": "[canvas-wrong] the balance column feeds the S7.2 opening/closing check, which is ruled behaviour",
+   "authority": "07 §11 item 1 🔒 (Balance check); ADR 2026-09-01 §2 🔒"
+  },
+  {
+   "what": "c8 S7.0b *Column mapping*: under the selectors the app draws one card 'First line, read this way' (date, bank text, '−₹20,000 Money out'); the frame draws 'FIRST THREE LINES OF YOUR FILE' as a bordered four-column table (DATE · NARRATION · OUT · IN) with raw figures",
+   "reason": "[screen] sample preview (SampleLineCard, mapping_parts.dart) — table and three lines follow the frame",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c8 S7.0b *Column mapping*: the bank text in the sample card is drawn in 'monospace', which the capture host has no face for — it shows as a solid bar; on a phone it is the system monospace",
+   "reason": "[screen] — 02 §10 asks for muted monospace bank text and tokens.json has no monospace family (⚠️ SPEC in inbox_parts.dart); not a defect of the screen at runtime",
+   "authority": "02 §10 🔒 (bank text muted monospace); 11 §4.4"
+  },
+  {
+   "what": "c8 S7.0b *Column mapping*: the confirm button reads 'That’s right' and sits in the scrolling list below the sample card (off-screen at 390×844); the frame pins 'Looks right, continue' full-width at the bottom above a hairline",
+   "reason": "[shared] primary button (pinned bottom action bar); copy is [screen]",
+   "authority": "ADR 2026-10-05 §1; 07 §1 rule 2 (primary action reachable)"
+  },
+  {
+   "what": "c8 S7.0c *Duplicates skipped · stated as work done* (S7__duplicates-skipped): the app replaces the mapping with a 'Ready to sort' page — '2 lines already imported — skipped' as a plain title line, '2 lines to sort', 'Nothing is in your books yet…' and a 'Sort these lines' button; the frame draws only a ruled status card: green 3px left rule, green check, '12 lines already imported — skipped'",
+   "reason": "[shared] card (ruled status card with check) for the skipped line; the rest of the page is [screen] — the frame shows the banner alone, so where it sits (top of S7.1, per 07 §11 item 1 'stated before anything else') is ⚠️ SPEC (open)",
+   "authority": "07 §11 item 1 🔒 (duplicates stated before anything else); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c8 S7.0c *Duplicates skipped* (S7__duplicates): through the ledger door the count is always zero — 'Nothing in this file was imported before.' — because LedgerImportSource.alreadyImported returns const {} (ledger_import_source.dart); the skipped state is captured only over FakeImportSource",
+   "reason": "[screen] defect — duplicate defence is a 🔒 rule and production cannot detect a re-imported line; blocked on bank_text having somewhere to land (ledger_import_source.dart header)",
+   "authority": "02 §10 🔒 (line identity, duplicate defence); 07 §11 item 1 🔒"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "8f15457d453c8dca01c2d6891fb931c5995fae941b6ad5c56d5a2c7942e4a396",
+  "frames": "917cc81615aae2a1e45853a8afda2b6187d8e94abd867184a608e416efba30a1"
+ }
+}

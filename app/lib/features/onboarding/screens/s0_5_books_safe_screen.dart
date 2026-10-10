@@ -18,6 +18,13 @@
 // When iCloud Keychain is unavailable or disabled the screen says so plainly
 // and the sheet becomes the primary action (07 §3.1 step 5 🔒, last sentence).
 //
+// Platform nouns (ADR 2026-10-08 §4 🔒): item (a) names iCloud Keychain and
+// Apple only on an iPhone; on Android it names Google Password Manager and
+// Google (04 §7.0 🔒: Android's key sync is Block Store, which Android shows
+// people as Google Password Manager) — the c1 O5 iPhone/Android pair. The
+// platform is the theme's ([TargetPlatform]), so tests and the design
+// captures set it.
+//
 // ⚠️ SPEC: 07 §3.1 step 5 names *one* item (b) "Automatic backup", while
 // 04 §7.6's defaults table has **two** artefacts on by default — the encrypted
 // vault file and the monthly readable export — and only the readable one
@@ -129,6 +136,7 @@ class _BooksSafeScreenState extends State<BooksSafeScreen> {
     final repo = DevicesRepositoryScope.of(context);
     final keySync = _keySync;
     final sheetIsPrimary = keySync == false;
+    final android = Theme.of(context).platform == TargetPlatform.android;
 
     return Scaffold(
       body: SafeArea(
@@ -168,18 +176,27 @@ class _BooksSafeScreenState extends State<BooksSafeScreen> {
                         else if (keySync)
                           _Item(
                             icon: Icons.key_outlined,
-                            title: l10n.onboardingBooksSafeKeysyncTitle,
+                            title: android
+                                ? l10n.onboardingBooksSafeKeysyncTitleAndroid
+                                : l10n.onboardingBooksSafeKeysyncTitle,
                             state: l10n.onboardingBooksSafeKeysyncStateOn,
-                            lines: [
-                              l10n.onboardingBooksSafeKeysyncApple,
-                              l10n.onboardingBooksSafeKeysyncPhoneBackup,
-                            ],
+                            lines: android
+                                ? [
+                                    l10n.onboardingBooksSafeKeysyncGoogle,
+                                    l10n.onboardingBooksSafeKeysyncPhoneBackupAndroid,
+                                  ]
+                                : [
+                                    l10n.onboardingBooksSafeKeysyncApple,
+                                    l10n.onboardingBooksSafeKeysyncPhoneBackup,
+                                  ],
                           )
                         else
                           _Item(
                             icon: Icons.key_off_outlined,
                             iconColor: status.pending,
-                            title: l10n.onboardingBooksSafeKeysyncOffTitle,
+                            title: android
+                                ? l10n.onboardingBooksSafeKeysyncOffTitleAndroid
+                                : l10n.onboardingBooksSafeKeysyncOffTitle,
                             lines: [l10n.onboardingBooksSafeKeysyncOffBody],
                             emphasisIndex: 0,
                           ),

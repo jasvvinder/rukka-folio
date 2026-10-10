@@ -53,6 +53,7 @@ import '../widgets/cash_count_header.dart';
 import '../widgets/text_metrics.dart';
 import '../../../shared/seams/closed_years.dart';
 import '../widgets/fy_switcher.dart';
+import '../widgets/opening_prompt.dart';
 
 class AccountStatementScreen extends StatefulWidget {
   const AccountStatementScreen({
@@ -63,6 +64,7 @@ class AccountStatementScreen extends StatefulWidget {
     this.onCountCash,
     this.closedYears = noClosedYears,
     this.sink = shareReportFile,
+    this.onOpeningNotNeeded,
   });
 
   /// The account whose statement this is.
@@ -88,6 +90,11 @@ class AccountStatementScreen extends StatefulWidget {
   /// share sheet and names a file only if it cannot (ADR 2026-09-13 §1 🔒); a
   /// test injects a fake and reads the bytes.
   final ReportSink sink;
+
+  /// Records *Not needed* on the opening-balance prompt (ADR 2026-10-07b §2
+  /// 🔒). Null — every build until the synced field exists (⚠️ SPEC in
+  /// `widgets/opening_prompt.dart`) — draws it disabled with its reason.
+  final OpeningNotNeeded? onOpeningNotNeeded;
 
   @override
   State<AccountStatementScreen> createState() => _AccountStatementScreenState();
@@ -120,6 +127,25 @@ class _AccountStatementScreenState extends State<AccountStatementScreen> {
   /// Memoised so a rebuild does not resubscribe the drift stream every frame.
   Stream<Statement>? _rows;
   String? _rowsKey;
+
+  /// The book's accounts still waiting for their opening answer (ADR
+  /// 2026-10-07b §1 🔒) — the data layer's derivation, memoised per book.
+  Stream<Set<String>>? _unanswered;
+  String? _unansweredBook;
+
+  Stream<Set<String>> _unansweredStream(LocalLedger ledger, String bookId) {
+    if (_unansweredBook != bookId) {
+      _unansweredBook = bookId;
+      _unanswered = ledger.watchOpeningUnanswered(bookId);
+    }
+    return _unanswered!;
+  }
+
+  Future<void> _addOpening(String bookId, Account account) async {
+    await showOpeningBalanceSheet(context, bookId: bookId, account: account);
+    // Nothing to refresh: the posted adjustment reaches both live streams —
+    // the statement and the unanswered set — on its own.
+  }
 
   Stream<Statement> _statementStream(LocalLedger ledger, FinancialYear fy) {
     final key = '${widget.accountId}|${fy.label}|${fy.startMonth}';
@@ -322,51 +348,93 @@ class _AccountStatementScreenState extends State<AccountStatementScreen> {
         }
         _chart = chart;
         final account = chart.maybeAccount(widget.accountId);
-        return StreamBuilder<Statement>(
-          stream: _statementStream(ledger, _fy!),
-          builder: (context, snap) {
-            final l10n = AppLocalizations.of(context);
-            final statement = snap.data;
-            if (statement != null) _latest = statement;
-            return Scaffold(
-              appBar: AppBar(
-                title: Text(account?.name ?? l10n.ledgerTitle),
-                // The export trio of ADR 2026-09-12e §2 🔒: this screen is
-                // *View*, and these are *Download / Share* and *Export*. They
-                // are the same two widgets S8.2 wears, so neither bar can
-                // drift from the other (see `reports/widgets/
-                // export_actions.dart` for how the pair survives 200 % text
-                // scale on a 360 px phone).
-                actions: [
-                  ReportExportAction(onPressed: _exportDefault),
-                  ReportChooseFormatAction(onPressed: _openExportSheet),
-                ],
-              ),
-              body: Column(
-                children: [
-                  // The wait is a 2 px rule with words beside it, never a
-                  // spinner (11 §4.5 🔒, 13 §4.3).
-                  if (_generating) const _GeneratingRule(),
-                  Expanded(
-                    child: snap.hasError
-                        ? _ErrorState(
-                            text: l10n.ledgerStatementError,
-                            onRetry: () => setState(() {}),
-                          )
-                        : statement == null
-                        ? _Skeleton(label: l10n.ledgerStatementSkeleton)
-                        : _statement(context, chart, statement),
-                  ),
-                ],
-              ),
-            );
-          },
+        return StreamBuilder<Set<String>>(
+          stream: _unansweredStream(ledger, bookId),
+          builder: (context, unanswered) => _statementFor(
+            context,
+            ledger,
+            bookId,
+            chart,
+            account,
+            unansweredOpening:
+                unanswered.data?.contains(widget.accountId) ?? false,
+          ),
         );
       },
     );
   }
 
-  Widget _statement(BuildContext context, Chart chart, Statement statement) {
+  Widget _statementFor(
+    BuildContext context,
+    LocalLedger ledger,
+    String bookId,
+    Chart chart,
+    Account? account, {
+    required bool unansweredOpening,
+  }) => StreamBuilder<Statement>(
+    stream: _statementStream(ledger, _fy!),
+    builder: (context, snap) {
+      final l10n = AppLocalizations.of(context);
+      final statement = snap.data;
+      if (statement != null) _latest = statement;
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(account?.name ?? l10n.ledgerTitle),
+          // The export trio of ADR 2026-09-12e §2 🔒: this screen is
+          // *View*, and these are *Download / Share* and *Export*. They
+          // are the same two widgets S8.2 wears, so neither bar can
+          // drift from the other (see `reports/widgets/
+          // export_actions.dart` for how the pair survives 200 % text
+          // scale on a 360 px phone).
+          actions: [
+            ReportExportAction(onPressed: _exportDefault),
+            ReportChooseFormatAction(onPressed: _openExportSheet),
+          ],
+        ),
+        body: Column(
+          children: [
+            // The wait is a 2 px rule with words beside it, never a
+            // spinner (11 §4.5 🔒, 13 §4.3).
+            if (_generating) const _GeneratingRule(),
+            Expanded(
+              child: snap.hasError
+                  ? _ErrorState(
+                      text: l10n.ledgerStatementError,
+                      onRetry: () => setState(() {}),
+                    )
+                  : statement == null
+                  ? _Skeleton(label: l10n.ledgerStatementSkeleton)
+                  : _statement(
+                      context,
+                      chart,
+                      statement,
+                      prompt: unansweredOpening && account != null
+                          ? _prompt(bookId, account)
+                          : null,
+                    ),
+            ),
+          ],
+        ),
+      );
+    },
+  );
+
+  /// ADR 2026-10-07b §1 🔒: the prompt sits at the top of the statement, above
+  /// the year, until the opening is answered.
+  Widget _prompt(String bookId, Account account) => OpeningPromptCard(
+    account: account,
+    onAdd: () => _addOpening(bookId, account),
+    onNotNeeded: widget.onOpeningNotNeeded == null
+        ? null
+        : () => widget.onOpeningNotNeeded!(bookId, account.id),
+  );
+
+  Widget _statement(
+    BuildContext context,
+    Chart chart,
+    Statement statement, {
+    Widget? prompt,
+  }) {
     final l10n = AppLocalizations.of(context);
     final ledger = LedgerScope.of(context);
     final now = ledger.now();
@@ -377,6 +445,7 @@ class _AccountStatementScreenState extends State<AccountStatementScreen> {
     if (statement.isEmpty && statement.openingPaise == 0) {
       return ListView(
         children: [
+          ?prompt,
           // 02 §8.2 🔒: the count block sits in the header, above the year —
           // an account with no entries this year is exactly the one you may
           // want to count.
@@ -431,6 +500,7 @@ class _AccountStatementScreenState extends State<AccountStatementScreen> {
     return ListView(
       padding: const EdgeInsets.symmetric(vertical: RkSpace.s2),
       children: [
+        ?prompt,
         // The statement header of a cash / cash_collection A/C carries the
         // last count and the door to S5.5 (02 §8.2 🔒 *Where it appears*).
         if (chart.maybeAccount(widget.accountId) case final account?)

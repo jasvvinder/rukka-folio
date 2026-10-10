@@ -305,6 +305,38 @@ void main() {
       },
     );
 
+    testWidgets(
+      'F1-196-5 S9.1 over a held engine (Offline underneath): no offline '
+      'line and Send is not disabled by the hold; once registered, a real '
+      'Offline states its reason and disables Send (ADR 2026-10-10 §2 🔒)',
+      (tester) async {
+        final repo = FakeMembersRepository(
+          initial: _snapshot(TenantType.organization),
+        );
+        final sync = FakeSyncClient(initial: const Offline(), held: true);
+        addTearDown(sync.dispose);
+        await pumpRk(
+          tester,
+          _scoped(repo, const InviteScreen()),
+          sync: sync,
+          viewport: rkTallViewport,
+        );
+        const line =
+            'You’re offline. An invite needs one connection — try again when '
+            'you’re back.';
+        FilledButton send() => tester.widget<FilledButton>(
+          find.widgetWithText(FilledButton, 'Send invite'),
+        );
+        expect(find.text(line), findsNothing);
+        expect(send().onPressed, isNotNull);
+
+        sync.held = false;
+        await tester.pumpAndSettle();
+        expect(find.text(line), findsOneWidget);
+        expect(send().onPressed, isNull);
+      },
+    );
+
     for (final locale in rkLocales) {
       for (final scale in rkTextScales) {
         testWidgets('F1-07-26 S9.1 holds at ${scale}x text on 360×800 in '

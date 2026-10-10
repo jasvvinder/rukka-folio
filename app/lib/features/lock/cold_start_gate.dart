@@ -30,6 +30,7 @@ import '../../shared/theme.dart';
 import '../devices/keychain_key_store.dart';
 import '../devices/pin_vault.dart';
 import 'biometric_gate.dart';
+import 'biometric_kind.dart';
 import 'lock_scope.dart';
 import 'screens/s15_lock_screen.dart';
 
@@ -82,7 +83,13 @@ class ColdStartGate extends StatefulWidget {
     required this.attempt,
     required this.open,
     required this.onDone,
+    this.modality,
   });
+
+  /// Which biometric is enrolled, for naming the method on S15 (ADR
+  /// 2026-10-08 §3) — [KeystoreBiometricGate.enrolledModality]. Null names
+  /// it neutrally.
+  final Future<BiometricModality?> Function()? modality;
 
   /// The MPIN vault — the same one the app uses. Its `onPinProven` must open
   /// the device-key store (bootstrap wires it).
@@ -219,10 +226,14 @@ class _ColdStartGateState extends State<ColdStartGate> {
   );
 }
 
-final class _OpeningGate implements BiometricGate {
+final class _OpeningGate implements BiometricGate, BiometricModalitySource {
   _OpeningGate(this._state);
 
   final _ColdStartGateState _state;
+
+  @override
+  Future<BiometricModality?> enrolledModality() async =>
+      await _state.widget.modality?.call();
 
   @override
   Future<BiometricOutcome> authenticate({required String reason}) =>

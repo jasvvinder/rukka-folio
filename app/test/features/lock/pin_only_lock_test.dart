@@ -83,12 +83,11 @@ void main() {
           expect(tester.takeException(), isNull, reason: why);
           expect(find.byType(PinBoxes), findsOneWidget, reason: why);
           expect(find.byType(PinKeypad), findsOneWidget, reason: why);
+          expect(find.text(l10n.lockMethodAny), findsNothing, reason: why);
           expect(
-            find.text(l10n.lockBiometricButton),
+            find.text(l10n.lockBiometricUnavailable(l10n.lockMethodAny)),
             findsNothing,
-            reason: why,
           );
-          expect(find.text(l10n.lockBiometricUnavailable), findsNothing);
           expect(find.text(l10n.lockPinOnlyNote), findsOneWidget, reason: why);
           expectTextFits(tester, reason: why);
           // The forgot door on a PIN-only phone says the recovery-ladder
@@ -117,11 +116,7 @@ void main() {
             viewport: _small,
           );
           expect(find.text(l10n.lockCooldownTitle), findsOneWidget);
-          expect(
-            find.text(l10n.lockBiometricButton),
-            findsNothing,
-            reason: why,
-          );
+          expect(find.text(l10n.lockMethodAny), findsNothing, reason: why);
           expectTextFits(tester, reason: '$why cooldown');
           await unmount(tester);
 
@@ -141,7 +136,10 @@ void main() {
             findsOneWidget,
             reason: why,
           );
-          expect(find.text(l10n.onboardingSetPinBiometricNote), findsNothing);
+          expect(
+            find.text(l10n.onboardingSetPinBiometricNoteAny),
+            findsNothing,
+          );
           expectTextFits(tester, reason: '$why S0.8');
           await unmount(tester);
         }
@@ -176,11 +174,17 @@ void main() {
           clock: clock,
           viewport: _small,
         );
-        expect(find.text('Face ID'), findsOneWidget);
+        // No modality seam is wired, so the method is named neutrally
+        // (ADR 2026-10-08 §3) — never *Face ID* on this Android phone.
+        expect(find.text(en.lockMethodAny), findsOneWidget);
+        expect(find.text('Face ID'), findsNothing);
         expect(find.text(en.lockPinOnlyNote), findsNothing);
-        expect(find.text(en.lockBiometricUnavailable), findsNothing);
+        expect(
+          find.text(en.lockBiometricUnavailable(en.lockMethodAny)),
+          findsNothing,
+        );
         expect(unlocked, 0, reason: 'the auto-prompt was cancelled');
-        await tester.tap(find.text('Face ID'));
+        await tester.tap(find.text(en.lockMethodAny));
         await tester.pumpAndSettle();
         expect(unlocked, 1, reason: 'the Face ID button prompts and unlocks');
         expect(
@@ -431,7 +435,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(find.text(l10n.lockBiometricFailed), findsOneWidget);
+      expect(find.text(l10n.lockBiometricFailedAny), findsOneWidget);
       expect(find.text(l10n.lockBiometricReenrolled), findsNothing);
 
       await tester.tap(find.text(l10n.lockPinUseInstead));
@@ -646,7 +650,10 @@ void main() {
           'subtitle': en.lockBiometricSheetSubtitle,
           'cancel': en.lockPinUseInstead,
         });
-        expect(find.text(en.lockBiometricUnavailable), findsNothing);
+        expect(
+          find.text(en.lockBiometricUnavailable(en.lockMethodAny)),
+          findsNothing,
+        );
         await unmount(tester);
 
         // A face added while the app was in the background: the PIN, once.

@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/features/devices/pin_vault.dart';
 import 'package:rukka_folio/features/lock/biometric_gate.dart';
+import 'package:rukka_folio/features/lock/biometric_kind.dart';
 import 'package:rukka_folio/features/lock/screens/s15_lock_screen.dart';
 import 'package:rukka_folio/features/lock/widgets/pin_pad.dart';
 
@@ -69,7 +70,11 @@ void main() {
           tester,
           LockScreen(onUnlocked: () => unlocked++, onForgotPin: () {}),
           vault: vault,
-          biometrics: FakeBiometricGate([BiometricOutcome.failed]),
+          biometrics: FakeBiometricGate(
+            [BiometricOutcome.failed],
+            true,
+            BiometricModality.face,
+          ),
           clock: clock,
         );
 
@@ -106,13 +111,19 @@ void main() {
           tester,
           LockScreen(onUnlocked: () => unlocked++, onForgotPin: () {}),
           vault: vault,
-          biometrics: FakeBiometricGate([BiometricOutcome.unavailable]),
+          biometrics: FakeBiometricGate(
+            [BiometricOutcome.unavailable],
+            true,
+            BiometricModality.fingerprint,
+          ),
           clock: clock,
         );
 
+        // An Android fingerprint phone (the test platform) is told its own
+        // method, never Face ID (ADR 2026-10-08 §3).
         expect(
           find.text(
-            "Face ID isn't available on this phone right now — type your PIN",
+            "Fingerprint isn't available on this phone right now — type your PIN",
           ),
           findsOneWidget,
         );
@@ -305,6 +316,7 @@ void main() {
         expect(gate.prompts, isEmpty);
         expect(find.byType(PinKeypad), findsOneWidget);
         expect(find.text('Face ID'), findsNothing);
+        expect(find.text('Fingerprint or face'), findsNothing);
         await unmount(tester);
       },
     );

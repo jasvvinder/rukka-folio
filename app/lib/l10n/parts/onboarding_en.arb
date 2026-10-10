@@ -438,18 +438,14 @@
   "@onboarding.set_pin.title": {
     "description": "S0.8 heading (07 §3.1 step 5 chain, 06 §4.4) — a 6-digit MPIN set at onboarding."
   },
-  "onboarding.set_pin.subtitle": "You'll use Face ID most of the time. This is for when it doesn't work — and it keeps your books closed even to someone who knows your phone's passcode.",
-  "@onboarding.set_pin.subtitle": {
-    "description": "S0.8 subtitle."
-  },
+  "onboarding.set_pin.subtitle": "You'll use {method} most of the time. This is for when it doesn't work — and it keeps your books closed even to someone who knows your phone's passcode.",
+  "@onboarding.set_pin.subtitle": {"description": "S0.8 subtitle (c1/c11 O4b). {method} is the phone's own method as it reads inside a sentence — *Face ID* / *Touch ID* / *your fingerprint* / *Face unlock* (ADR 2026-10-08 §3; the Android frame reads *You'll use your fingerprint most of the time*).", "placeholders": {"method": {"type": "String"}}},
   "onboarding.set_pin.why": "It keeps your books closed even to someone who knows your phone's passcode.",
   "@onboarding.set_pin.why": {
     "description": "S0.8 the reason the MPIN exists (06 §4.4) — said plainly, not asked."
   },
-  "onboarding.set_pin.biometric_note": "Face ID keeps this app closed to everyone else — if a new face is added to this phone, the app asks for your PIN",
-  "@onboarding.set_pin.biometric_note": {
-    "description": "S0.8 the app-lock line stated at onboarding, never offered as a setting (07 §5.6, ADR 2026-09-05d §4)."
-  },
+  "onboarding.set_pin.biometric_note": "{method} keeps this app closed to everyone else — if a new face is added to this phone, the app asks for your PIN",
+  "@onboarding.set_pin.biometric_note": {"description": "S0.8 app-lock line on a face phone (07 §5.6 🔒 stated, not asked). {method} is *Face ID* or *Face unlock* (ADR 2026-10-08 §3).", "placeholders": {"method": {"type": "String"}}},
   "onboarding.set_pin.confirm.title": "Type it again",
   "@onboarding.set_pin.confirm.title": {
     "description": "S0.8 confirm step heading."
@@ -601,9 +597,7 @@
     "description": "S0.5b continue to the next step."
   },
   "onboarding.family.title": "Name your family",
-  "@onboarding.family.title": {
-    "description": "S0.6d (13 §3.2, 07 §3.1.1 branch O6d) — name the family pool."
-  },
+  "@onboarding.family.title": {"description": "S0.6d (13 §3.2, 07 §3.1.1 branch O6d) — name the family's joint fund (ADR 2026-10-08 §1: *joint fund*, never *pool*)."},
   "onboarding.family.subtitle": "You can change this later.",
   "@onboarding.family.subtitle": {
     "description": "S0.6d reassurance line, matching S0.6a's."
@@ -686,7 +680,7 @@
   "@onboarding.family.accounts.title": {
     "description": "S0.6f (13 §3.2, 07 §3.1.1 branch O6f)."
   },
-  "onboarding.family.accounts.subtitle": "These accounts already exist — fill in what the pool has, or leave any at ₹0 to start from zero.",
+  "onboarding.family.accounts.subtitle": "These accounts already exist — fill in what the joint fund has, or leave any at ₹0 to start from zero.",
   "@onboarding.family.accounts.subtitle": {
     "description": "S0.6f — a review-and-fill screen, not a creation flow (ADR 2026-09-09c §3)."
   },
@@ -699,7 +693,7 @@
       }
     }
   },
-  "onboarding.family.accounts.group_have": "What the pool has",
+  "onboarding.family.accounts.group_have": "What the joint fund has",
   "@onboarding.family.accounts.group_have": {
     "description": "S0.6f group heading, consumer vocabulary (02 §10)."
   },
@@ -736,11 +730,11 @@
   "@onboarding.family.accounts.save": {
     "description": "S0.6f primary action."
   },
-  "onboarding.family.accounts.creating": "Setting up your family's pool…",
+  "onboarding.family.accounts.creating": "Setting up your family's joint fund…",
   "@onboarding.family.accounts.creating": {
     "description": "S0.6f working state — the ruled skeleton of 11 §4.5, never a spinner."
   },
-  "onboarding.family.accounts.create_error": "Your family's pool could not be created. Nothing was changed.",
+  "onboarding.family.accounts.create_error": "Your family's joint fund could not be created. Nothing was changed.",
   "@onboarding.family.accounts.create_error": {
     "description": "S0.6f error state (07 §1 rule 12: never a dead end)."
   },
@@ -1356,5 +1350,17 @@
   "onboarding.recovery_sheet.pdf_warning": "Anyone holding this page can open your books. Only the newest sheet works — a new one replaces this page.",
   "@onboarding.recovery_sheet.pdf_warning": {
     "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
-  }
+  },
+  "onboarding.set_pin.biometric_note.fingerprint": "{method} keeps this app closed to everyone else — if a new fingerprint is added to this phone, the app asks for your PIN",
+  "@onboarding.set_pin.biometric_note.fingerprint": {"description": "S0.8 app-lock line on a fingerprint phone. {method} is *Touch ID* or *Fingerprint* (ADR 2026-10-08 §3).", "placeholders": {"method": {"type": "String"}}},
+  "onboarding.set_pin.biometric_note.any": "Your fingerprint or face keeps this app closed to everyone else — if a new one is added to this phone, the app asks for your PIN",
+  "@onboarding.set_pin.biometric_note.any": {"description": "S0.8 app-lock line when the phone has not said which biometric it uses (lock.method.any). ⚠️ SPEC: see lock.method.any."},
+  "onboarding.books_safe.keysync.title.android": "Your key is kept in Google Password Manager",
+  "@onboarding.books_safe.keysync.title.android": {"description": "S0.5 item (a) title on Android (c1 O5 *Keeping your books safe · Android*). ADR 2026-10-08 §4 🔒 — the Android swap of the iPhone line; Google Password Manager stays Latin (01 §1 rule 8). The key itself is held by Block Store (04 §7.0 🔒); Google Password Manager is the name Android shows people."},
+  "onboarding.books_safe.keysync.google": "Google cannot read it.",
+  "@onboarding.books_safe.keysync.google": {"description": "S0.5 item (a) line on Android — the vendor cannot read the key (04 §7.0 🔒). ADR 2026-10-08 §4 🔒 — the Android swap of the iPhone line; Google Password Manager stays Latin (01 §1 rule 8). The key itself is held by Block Store (04 §7.0 🔒); Google Password Manager is the name Android shows people."},
+  "onboarding.books_safe.keysync.phone_backup.android": "A phone backup does not carry your books — your key comes back with your Google account, your books come back from the server.",
+  "@onboarding.books_safe.keysync.phone_backup.android": {"description": "S0.5 item (a) line on Android (ADR 2026-09-05f §G). ADR 2026-10-08 §4 🔒 — the Android swap of the iPhone line; Google Password Manager stays Latin (01 §1 rule 8). The key itself is held by Block Store (04 §7.0 🔒); Google Password Manager is the name Android shows people."},
+  "onboarding.books_safe.keysync.off_title.android": "Google Password Manager is off on this phone",
+  "@onboarding.books_safe.keysync.off_title.android": {"description": "S0.5 unavailable variant on Android (c1 O5 *No Google Password Manager variant · the sheet is promoted · Android*). ADR 2026-10-08 §4 🔒 — the Android swap of the iPhone line; Google Password Manager stays Latin (01 §1 rule 8). The key itself is held by Block Store (04 §7.0 🔒); Google Password Manager is the name Android shows people."}
 }

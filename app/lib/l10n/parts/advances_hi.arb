@@ -8,7 +8,8 @@
   "advances.empty.body": "एडवांस वह रकम है जो किसी काम के लिए किसी को दी जाती है। जो वह खर्च करता है वह इसमें से घटता है, और जो बचता है वह वापस आता है।",
   "advances.mine.title": "आपके पास एडवांस",
   "advances.mine.empty": "आपके पास कोई एडवांस नहीं है।",
-  "advances.given.title": "दिया हुआ एडवांस",
+  "advances.given.title": "एडवांस दिया",
+  "@advances.given.title": {"description": "owner-given (ADR 2026-10-08 §2) — final"},
   "advances.given.empty": "इस बही की कोई रकम किसी के पास नहीं है।",
   "advances.card.purpose.none": "कोई कारण नहीं लिखा",
   "advances.card.taken": "{date} को लिया",
@@ -31,8 +32,11 @@
   "advances.sheet.amount": "रकम",
   "advances.sheet.amount.empty": "रकम भरें।",
   "advances.sheet.amount.too_much": "यह आपके पास बची {left} से ज़्यादा है।",
-  "advances.sheet.save": "सहेजें",
-  "advances.sheet.saving": "सहेजी जा रही है…",
+  "advances.sheet.save": "सुरक्षित करें",
+  "@advances.sheet.save": {"description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"},
+  "advances.sheet.saving": "सुरक्षित की जा रही है…",
+  "@advances.sheet.saving": {"description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"},
   "advances.sheet.cancel": "रहने दें",
-  "advances.sheet.error": "यह सहेजी नहीं जा सकी। कुछ भी नहीं बदला।"
+  "advances.sheet.error": "यह सुरक्षित नहीं की जा सकी। कुछ भी नहीं बदला।",
+  "@advances.sheet.error": {"description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"}
 }

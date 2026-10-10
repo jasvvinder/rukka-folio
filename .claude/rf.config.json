@@ -1,8 +1,7 @@
 {
   "_": "Rukka Folio build-loop config. Owner-set. Read by .claude/bin/rf-state.py.",
-
   "budget": {
-    "weekly_tokens": 125000000,
+    "weekly_tokens": 72000000,
     "_weekly_note": "Derived, owner-approved 25 Sep 2026: /usage read 5% used (resets 27 Sep 9:30pm) against 6.86M measured by wf-spend.sh; 6.86M / 0.055 (5% rounded up) = 125M floor. wf-spend excludes orchestrator sessions and /usage may not be raw tokens, so the true quota is likely higher. Replace with the exact figure when known.",
     "daily_tokens": 1200000,
     "daily_overrides": {
@@ -18,7 +17,7 @@
       "2026-10-07": 10000000,
       "2026-10-08": 10000000,
       "2026-10-09": 10000000,
-      "2026-10-10": 10000000,
+      "2026-10-10": 30000000,
       "2026-10-11": 10000000,
       "2026-10-12": 10000000,
       "2026-10-13": 10000000,
@@ -40,7 +39,6 @@
     "_overrides_note": "ADR 2026-09-24 §3: dated, owner-set exceptions to daily_tokens. A date not listed falls back to daily_tokens; an expired entry is inert and may be deleted. Weekend of 26-27 Sep, owner-directed 24 Sep. 28 Sep = 10 M, owner-directed 28 Sep. 1 Oct = 8 M, owner-directed 1 Oct (review cycle of the five 30 Sep slices). 2 Oct = 3 M, owner-directed 2 Oct (CAPR-PG, desk 70). 3 Oct = 3 M, owner-directed 3 Oct (review cycle of SEC58/RLSH/SWEEP); raised to 12 M, owner-directed 3 Oct (server completion push); raised to 15.5 M, owner-directed 3 Oct (cycle: 0027 + S11.1 tenant_id / F1-03b-1). 4 Oct = 6 M, owner-directed 4 Oct (cycle: desk 37, 44, 53); raised to 15 M, owner-directed 4 Oct evening (cycle: desks 107, 116, 121). 5 Oct = 6 M, owner-directed 5 Oct (cycle: KEY145 Android key-store startup crash + DM0 review of the design-match tooling, ADR 2026-10-05); raised to 10 M, owner-directed 5 Oct (cycle: KEY145B PIN-only per ADR 2026-10-05b + desk 141 app bar font). 6 Oct = 10 M, owner-directed 5 Oct night (SIGNIN1 sign-in journey cycle, ADR 2026-10-05c, + desk 157 review). 6 Oct raised to 14 M, owner-directed 6 Oct afternoon (phase 1 started early). 7–27 Oct = 10 M/day, owner-directed 6 Oct (release-readiness program: journey harness → flow fixes → UI audit → re-skin → owner test; extend if it runs longer).",
     "_note": "weekly_tokens: no script can read your plan's quota (ADR 2026-09-13e; wf-spend.sh says so in its own comment). Run /usage in-session, read the weekly number, put it here. On a Team plan it may be pooled across seats — use YOUR share. Until it is set, the board shows spend with no ceiling. daily_tokens is the pacing ceiling: roughly weekly/6, so the week spreads over six build days instead of two (17-19 Sep burned 11.8M = 45% of all-time spend in three days)."
   },
-
   "cycle": {
     "max_lanes_per_round": 5,
     "max_repair_rounds": 2,

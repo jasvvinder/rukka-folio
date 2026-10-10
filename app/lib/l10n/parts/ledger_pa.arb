@@ -24,8 +24,8 @@
   "ledger.quick_add.type.income": "ਆਮਦਨ ਸ਼੍ਰੇਣੀ",
   "ledger.quick_add.cancel": "ਰੱਦ ਕਰੋ",
   "ledger.quick_add.back": "ਪਿੱਛੇ",
-  "ledger.quick_add.save": "ਸੰਭਾਲੋ",
-  "ledger.quick_add.save_error": "ਖਾਤਾ ਸੰਭਾਲਿਆ ਨਹੀਂ ਜਾ ਸਕਿਆ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
+  "ledger.quick_add.save": "ਸੇਵ ਕਰੋ",
+  "ledger.quick_add.save_error": "ਖਾਤਾ ਸੇਵ ਨਹੀਂ ਹੋ ਸਕਿਆ। ਦੁਬਾਰਾ ਕੋਸ਼ਿਸ਼ ਕਰੋ।",
   "ledger.quick_add.name_label": "ਨਾਮ",
   "ledger.quick_add.name_hint": "ਜਿਵੇਂ HDFC ਸੇਵਿੰਗਸ",
   "ledger.quick_add.name_error": "ਨਾਮ ਦਰਜ ਕਰੋ",
@@ -66,7 +66,7 @@
   "ledger.entry.entered_by_you": "ਤੁਸੀਂ",
   "ledger.entry.entered_by_other": "ਇੱਕ ਹੋਰ ਮੈਂਬਰ",
   "ledger.entry.trail": "ਇਤਿਹਾਸ",
-  "ledger.entry.trail.saved": "ਸੰਭਾਲੀ ਗਈ",
+  "ledger.entry.trail.saved": "ਸੇਵ ਹੋਈ",
   "ledger.entry.trail.amends": "ਪਹਿਲੀ ਲਿਖਤ ਨੂੰ ਸੁਧਾਰਦੀ ਹੈ",
   "ledger.entry.trail.superseded": "ਇਸ ਦੀ ਥਾਂ ਨਵੀਂ ਲਿਖਤ ਆ ਗਈ ਹੈ",
   "ledger.entry.trail.reverses": "ਪਹਿਲੀ ਐਂਟਰੀ ਨੂੰ ਉਲਟਾਉਂਦੀ ਹੈ",
@@ -84,12 +84,12 @@
   "ledger.entry.amend.figures": "ਰਕਮ ਜਾਂ ਖਾਤੇ ਬਦਲੋ",
   "ledger.entry.amend.figures_hint": "ਇਹੀ ਅੰਕੜੇ ਭਰ ਕੇ ਐਂਟਰੀ ਸਕਰੀਨ ਖੋਲ੍ਹਦਾ ਹੈ",
   "ledger.entry.amend.date_note": "ਤਾਰੀਖ਼ ਜਾਂ ਨੋਟ ਬਦਲੋ",
-  "ledger.entry.amend.save": "ਸੁਧਾਰ ਸੰਭਾਲੋ",
+  "ledger.entry.amend.save": "ਸੁਧਾਰ ਸੇਵ ਕਰੋ",
   "ledger.entry.amend.cancel": "ਰੱਦ ਕਰੋ",
-  "ledger.entry.amend.error": "ਇਹ ਸੁਧਾਰ ਸੰਭਾਲਿਆ ਨਹੀਂ ਜਾ ਸਕਿਆ",
+  "ledger.entry.amend.error": "ਇਹ ਸੁਧਾਰ ਸੇਵ ਨਹੀਂ ਹੋ ਸਕਿਆ",
   "ledger.entry.amend.locked": "ਇਹ ਮਹੀਨਾ ਬੰਦ ਹੋ ਚੁੱਕਾ ਹੈ, ਇਸ ਲਈ ਇਸ ਵਿੱਚ ਕੁਝ ਨਹੀਂ ਬਦਲ ਸਕਦਾ। ਇਸ ਦੀ ਥਾਂ ਐਂਟਰੀ ਉਲਟਾਓ ਤੇ ਦੁਬਾਰਾ ਦਰਜ ਕਰੋ।",
   "ledger.entry.amend.locked_action": "ਪੁਰਾਣੀ ਐਂਟਰੀ ਠੀਕ ਕਰੋ",
-  "ledger.entry.amend.explain": "ਸੁਧਾਰ ਨਵੀਂ ਐਂਟਰੀ ਵਜੋਂ ਸੰਭਾਲਿਆ ਜਾਂਦਾ ਹੈ। ਜੋ ਲਿਖਤ ਤੁਸੀਂ ਵੇਖ ਰਹੇ ਹੋ, ਉਹ ਇਤਿਹਾਸ ਵਿੱਚ ਰਹਿੰਦੀ ਹੈ।",
+  "ledger.entry.amend.explain": "ਸੁਧਾਰ ਨਵੀਂ ਐਂਟਰੀ ਵਜੋਂ ਸੇਵ ਹੁੰਦਾ ਹੈ। ਜੋ ਲਿਖਤ ਤੁਸੀਂ ਵੇਖ ਰਹੇ ਹੋ, ਉਹ ਇਤਿਹਾਸ ਵਿੱਚ ਰਹਿੰਦੀ ਹੈ।",
   "ledger.entry.reverse.title": "ਇਸ ਐਂਟਰੀ ਨੂੰ ਉਲਟਾਓ",
   "ledger.entry.reverse.explain": "ਅੱਜ ਦੀ ਤਾਰੀਖ਼ ਨਾਲ ਉਲਟੀ ਐਂਟਰੀ ਪਾਈ ਜਾਂਦੀ ਹੈ। ਦੋਵੇਂ ਇਤਿਹਾਸ ਵਿੱਚ ਰਹਿੰਦੀਆਂ ਹਨ — ਪਹਿਲੀ ਕਦੇ ਮਿਟਾਈ ਨਹੀਂ ਜਾਂਦੀ।",
   "ledger.entry.reverse.reason": "ਕਿਉਂ (ਮਰਜ਼ੀ ਨਾਲ)",
@@ -112,5 +112,137 @@
   "ledger.search.section.accounts": "ਖਾਤੇ",
   "ledger.search.section.notes": "ਨੋਟਾਂ ਵਿੱਚ",
   "ledger.search.note_meta": "{date} · {note}",
-  "ledger.search.under_review": "ਜਾਂਚ ਅਧੀਨ"
+  "ledger.search.under_review": "ਜਾਂਚ ਅਧੀਨ",
+  "ledger.entry.locked.line": "{month} ਬੰਦ ਹੈ · {date} ਨੂੰ ਗਿਣ ਕੇ ਪੱਕਾ ਕੀਤਾ",
+  "@ledger.entry.locked.line": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.entry.locked.line_undated": "{month} ਬੰਦ ਹੈ",
+  "@ledger.entry.locked.line_undated": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.entry.locked.amend_blocked": "{month} ਬੰਦ ਹੈ, ਇਸ ਲਈ ਇਹ ਐਂਟਰੀ ਬਦਲੀ ਨਹੀਂ ਜਾ ਸਕਦੀ। ਠੀਕ ਕਰੋ: ਅੱਜ ਇਸ ਨੂੰ ਉਲਟਾਓ, ਫਿਰ ਦੁਬਾਰਾ ਦਰਜ ਕਰੋ।",
+  "@ledger.entry.locked.amend_blocked": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.entry.locked.fix": "ਇਹ ਐਂਟਰੀ ਠੀਕ ਕਰੋ",
+  "@ledger.entry.locked.fix": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.entry.locked.fix_hint": "ਇਹ ਅੱਜ ਉਲਟਾਈ ਜਾਂਦੀ ਹੈ ਤੇ ਤੁਸੀਂ ਇਸ ਨੂੰ ਦੁਬਾਰਾ ਦਰਜ ਕਰਦੇ ਹੋ। {month} ਦੁਬਾਰਾ ਨਹੀਂ ਲਿਖਿਆ ਜਾਂਦਾ।",
+  "@ledger.entry.locked.fix_hint": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.entry.locked.fix_explain": "ਦੋ ਕਦਮ। ਪਹਿਲਾਂ ਅੱਜ, ਖੁੱਲ੍ਹੇ ਮਹੀਨੇ ਵਿੱਚ, ਉਲਟੀ ਐਂਟਰੀ ਪਾਈ ਜਾਂਦੀ ਹੈ ਤੇ ਇਹ ਐਂਟਰੀ ਗਿਣਤੀ ਵਿੱਚ ਨਹੀਂ ਰਹਿੰਦੀ। ਫਿਰ ਤੁਸੀਂ ਸਹੀ ਰਕਮ ਨਾਲ ਇਸ ਨੂੰ ਦੁਬਾਰਾ ਦਰਜ ਕਰਦੇ ਹੋ। {month} ਜਿਵੇਂ ਬੰਦ ਹੋਇਆ ਸੀ ਉਵੇਂ ਰਹਿੰਦਾ ਹੈ — ਹਰ ਐਂਟਰੀ ਇਤਿਹਾਸ ਵਿੱਚ ਰਹਿੰਦੀ ਹੈ।",
+  "@ledger.entry.locked.fix_explain": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.entry.locked.fix_confirm": "ਉਲਟਾਓ, ਫਿਰ ਦੁਬਾਰਾ ਦਰਜ ਕਰੋ",
+  "@ledger.entry.locked.fix_confirm": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.entry.locked.reentry": "ਦੁਬਾਰਾ ਦਰਜ ਕਰੋ",
+  "@ledger.entry.locked.reentry": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.entry.locked.reentry_hint": "{date} ਨੂੰ ਉਲਟਾਈ ਗਈ · {month} ਜਿਵੇਂ ਬੰਦ ਹੋਇਆ ਸੀ ਉਵੇਂ ਰਹਿੰਦਾ ਹੈ। ਜੇ ਇਹ ਹਾਲੇ ਵੀ ਖਾਤੇ ਵਿੱਚ ਚਾਹੀਦੀ ਹੈ, ਤਾਂ ਦੁਬਾਰਾ ਦਰਜ ਕਰੋ।",
+  "@ledger.entry.locked.reentry_hint": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.entry.amend.date_rule": "ਬੰਦ ਮਹੀਨੇ ਤੇ ਆਉਣ ਵਾਲੀਆਂ ਤਾਰੀਖ਼ਾਂ ਨਹੀਂ ਚੁਣੀਆਂ ਜਾ ਸਕਦੀਆਂ।",
+  "@ledger.entry.amend.date_rule": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.entry.amend.date_locked": "{month} ਬੰਦ ਹੈ, ਇਸ ਲਈ ਇਸ ਵਿੱਚ ਕੋਈ ਤਾਰੀਖ਼ ਨਹੀਂ ਪਾਈ ਜਾ ਸਕਦੀ। ਖੁੱਲ੍ਹੇ ਮਹੀਨੇ ਦੀ ਤਾਰੀਖ਼ ਚੁਣੋ।",
+  "@ledger.entry.amend.date_locked": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_prompt.title": "ਸ਼ੁਰੂਆਤੀ ਬਾਕੀ ਨਹੀਂ ਪਾਈ",
+  "@ledger.opening_prompt.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_prompt.body_party": "ਕੀ ਅੱਜ ਤੋਂ ਪਹਿਲਾਂ {name} ਵੱਲ ਤੁਹਾਡਾ ਕੁਝ ਬਕਾਇਆ ਸੀ? ਇਸਨੂੰ ਪਾਓ ਤਾਂ ਜੋ ਇਹ ਖਾਤਾ ਸਹੀ ਬਾਕੀ ਦਿਖਾਵੇ।",
+  "@ledger.opening_prompt.body_party": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_prompt.body_money": "ਜਦੋਂ ਇਹ ਵਹੀ ਸ਼ੁਰੂ ਹੋਈ, {name} ਵਿੱਚ ਕਿੰਨੇ ਪੈਸੇ ਸਨ? ਇਸਨੂੰ ਪਾਓ ਤਾਂ ਜੋ ਇਹ ਖਾਤਾ ਸਹੀ ਬਾਕੀ ਦਿਖਾਵੇ।",
+  "@ledger.opening_prompt.body_money": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_prompt.add": "ਸ਼ੁਰੂਆਤੀ ਬਾਕੀ ਪਾਓ",
+  "@ledger.opening_prompt.add": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_prompt.not_needed": "ਲੋੜ ਨਹੀਂ",
+  "@ledger.opening_prompt.not_needed": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_prompt.not_needed_unavailable": "“ਲੋੜ ਨਹੀਂ” ਹਾਲੇ ਸੇਵ ਨਹੀਂ ਹੋ ਸਕਦਾ — ਇਹ ਅਗਲੇ ਅੱਪਡੇਟ ਵਿੱਚ ਆਵੇਗਾ। ਉਦੋਂ ਤੱਕ ਇਹ ਨੋਟ ਇੱਥੇ ਰਹੇਗਾ।",
+  "@ledger.opening_prompt.not_needed_unavailable": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.title": "{name}, ਅੱਜ ਤੋਂ ਪਹਿਲਾਂ",
+  "@ledger.opening_sheet.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.subtitle_party": "ਇਹ ਖਾਤਾ ਸ਼ੁਰੂ ਕਰਨ ਤੋਂ ਪਹਿਲਾਂ ਜੋ ਲੈਣ-ਦੇਣ ਬਾਕੀ ਸੀ।",
+  "@ledger.opening_sheet.subtitle_party": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.subtitle_money": "ਜਦੋਂ ਇਹ ਵਹੀ ਸ਼ੁਰੂ ਹੋਈ, ਇਸ ਖਾਤੇ ਵਿੱਚ ਜੋ ਸੀ।",
+  "@ledger.opening_sheet.subtitle_money": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.they_owe": "ਉਹ ਤੁਹਾਡੇ ਦੇਣਦਾਰ ਹਨ",
+  "@ledger.opening_sheet.they_owe": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.you_owe": "ਤੁਸੀਂ ਉਹਨਾਂ ਦੇ ਦੇਣਦਾਰ ਹੋ",
+  "@ledger.opening_sheet.you_owe": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.amount": "ਰਕਮ",
+  "@ledger.opening_sheet.amount": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.amount_error": "ਰਕਮ ਪਾਓ। ਇਹ ਸਿਫ਼ਰ ਨਹੀਂ ਹੋ ਸਕਦੀ।",
+  "@ledger.opening_sheet.amount_error": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.total_get": "ਕੁੱਲ ਮਿਲਾ ਕੇ ਤੁਹਾਨੂੰ {amount} ਮਿਲਣਗੇ।",
+  "@ledger.opening_sheet.total_get": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.total_give": "ਕੁੱਲ ਮਿਲਾ ਕੇ ਤੁਸੀਂ {amount} ਦੇਣੇ ਹਨ।",
+  "@ledger.opening_sheet.total_give": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.total_settled": "ਕਿਸੇ ਪਾਸੇ ਕੁਝ ਬਾਕੀ ਨਹੀਂ ਰਹੇਗਾ।",
+  "@ledger.opening_sheet.total_settled": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.total_money": "ਕੁੱਲ ਮਿਲਾ ਕੇ {name} ਵਿੱਚ {amount} ਦਿਖੇਗਾ।",
+  "@ledger.opening_sheet.total_money": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.dated": "{date} ਨੂੰ ਸ਼ੁਰੂਆਤੀ ਬਾਕੀ ਵਜੋਂ ਦਰਜ — ਜਿਸ ਦਿਨ ਇਹ ਵਹੀ ਸ਼ੁਰੂ ਹੁੰਦੀ ਹੈ।",
+  "@ledger.opening_sheet.dated": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.dated_locked": "{date} ਨੂੰ ਸ਼ੁਰੂਆਤੀ ਬਾਕੀ ਵਜੋਂ ਦਰਜ — ਪਹਿਲਾ ਖੁੱਲ੍ਹਾ ਮਹੀਨਾ, ਕਿਉਂਕਿ ਜਿਸ ਮਹੀਨੇ ਇਹ ਵਹੀ ਸ਼ੁਰੂ ਹੁੰਦੀ ਹੈ ਉਹ ਬੰਦ ਹੈ।",
+  "@ledger.opening_sheet.dated_locked": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.cancel": "ਰੱਦ ਕਰੋ",
+  "@ledger.opening_sheet.cancel": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.save": "ਸੇਵ ਕਰੋ",
+  "@ledger.opening_sheet.save": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.save_error": "ਸ਼ੁਰੂਆਤੀ ਬਾਕੀ ਸੇਵ ਨਹੀਂ ਹੋ ਸਕੀ। ਫਿਰ ਕੋਸ਼ਿਸ਼ ਕਰੋ — ਜਾਂ ਬਾਅਦ ਵਿੱਚ ਤੁਹਾਡੀਆਂ ਵਹੀਆਂ → ਸ਼ੁਰੂਆਤੀ ਬਾਕੀ ਵਿੱਚ ਠੀਕ ਕਰੋ।",
+  "@ledger.opening_sheet.save_error": {
+    "description": "machine-draft — native review M12"
+  }
 }

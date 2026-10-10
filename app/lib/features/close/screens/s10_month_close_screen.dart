@@ -472,6 +472,12 @@ class _MonthCloseScreenState extends State<MonthCloseScreen> {
                                 style: Theme.of(context).textTheme.bodySmall
                                     ?.copyWith(color: status.muted),
                               ),
+                              ..._monthEndLine(
+                                l,
+                                view,
+                                live: a.bookBalance,
+                                monthEnd: a.monthEndBalance,
+                              ),
                               const SizedBox(height: RkSpace.s2),
                               // Colour never alone: glyph + word + tint.
                               CloseStateRow(
@@ -505,6 +511,29 @@ class _MonthCloseScreenState extends State<MonthCloseScreen> {
             ),
       ],
     );
+  }
+
+  /// Steps 1–2: the month-end figure under *The book says*, only when entries
+  /// dated after the month make it differ. The live figure is the one to count
+  /// against (S5.5 counts against it) or check with the bank's app; this line
+  /// is why step 4 declares another number (02 §8 step 4 🔒).
+  List<Widget> _monthEndLine(
+    AppLocalizations l,
+    CloseView view, {
+    required Paise live,
+    required Paise monthEnd,
+  }) {
+    if (monthEnd == live) return const [];
+    return [
+      RkFitText(
+        l.closeBalanceMonthEnd(
+          formatPaise(monthEnd.raw, locale: Localizations.localeOf(context)),
+          formatLedgerDate(view.period.lastDay, strings: l),
+        ),
+        style: Theme.of(context).textTheme.bodySmall
+            ?.copyWith(color: RkStatusColors.of(context).muted),
+      ),
+    ];
   }
 
   // ── step 2 · Confirm each bank balance ─────────────────────────────────────
@@ -547,6 +576,12 @@ class _MonthCloseScreenState extends State<MonthCloseScreen> {
                     ),
                     style: Theme.of(context).textTheme.bodySmall
                         ?.copyWith(color: status.muted),
+                  ),
+                  ..._monthEndLine(
+                    l,
+                    view,
+                    live: a.bookBalance,
+                    monthEnd: a.monthEndBalance,
                   ),
                   const SizedBox(height: RkSpace.s3),
                   Wrap(
@@ -717,7 +752,14 @@ class _MonthCloseScreenState extends State<MonthCloseScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        CloseStepHeader(title: l.closeStep4Title, help: l.closeStep4Help),
+        // Dated: the declared figures are the month's, not today's — steps
+        // 1–2 showed today's (02 §8 step 4 🔒; [CloseView.declaredBalances]).
+        CloseStepHeader(
+          title: l.closeStep4Title,
+          help: l.closeStep4Help(
+            formatLedgerDate(view.period.lastDay, strings: l),
+          ),
+        ),
         // S10.1 — *the family's state, not just yours* 🔒. Multi-book only:
         // a solo shopkeeper has no family close to read (07 §13 🔒).
         if (_statuses.length > 1)

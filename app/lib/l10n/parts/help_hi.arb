@@ -105,12 +105,12 @@
   "faq.new_phone.a2": "अगर इनमें से कुछ भी बचा नहीं है, तो सच्चा जवाब यही है कि उस बही को कोई नहीं खोल सकता — न हम, न सहायता। यही वह निजता है जिसका वादा किया गया था, काम करती हुई।",
   "@faq.new_phone.a2": {"description": "machine-draft — native review M12"},
 
-  "faq.fix_entry.q": "सहेजने के बाद क्या मैं कोई एंट्री बदल सकता हूँ?",
-  "@faq.fix_entry.q": {"description": "machine-draft — native review M12"},
+  "faq.fix_entry.q": "सुरक्षित करने के बाद क्या मैं कोई एंट्री बदल सकता हूँ?",
+  "@faq.fix_entry.q": {"description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"},
   "faq.fix_entry.a1": "हाँ, जब तक उसका महीना खुला है। बदलाव सुधार के रूप में दर्ज होता है: सबसे नया रूप आपको दिखता है, और पुराना उस एंट्री के इतिहास में रहता है, ताकि बही हमेशा दिखाए कि बात यहाँ तक कैसे पहुँची।",
   "@faq.fix_entry.a1": {"description": "machine-draft — native review M12"},
-  "faq.fix_entry.a2": "सहेजने के तुरंत बाद एक आसान रास्ता भी है: नीचे के संदेश पर “पहले जैसा” दस सेकंड तक एंट्री को पूरी तरह हटा देता है।",
-  "@faq.fix_entry.a2": {"description": "machine-draft — native review M12"},
+  "faq.fix_entry.a2": "सुरक्षित करने के तुरंत बाद एक आसान रास्ता भी है: नीचे के संदेश पर “पहले जैसा” दस सेकंड तक एंट्री को पूरी तरह हटा देता है।",
+  "@faq.fix_entry.a2": {"description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"},
 
   "faq.locked_date.q": "मैं पुरानी एंट्री क्यों नहीं बदल सकता?",
   "@faq.locked_date.q": {"description": "machine-draft — native review M12"},
@@ -130,8 +130,8 @@
   "@faq.offline.q": {"description": "machine-draft — native review M12"},
   "faq.offline.a1": "हाँ। एंट्री लिखना, ब्यौरे, रिपोर्टें और निर्यात — सब फ़ोन पर पहले से मौजूद चीज़ों से चलते हैं।",
   "@faq.offline.a1": {"description": "machine-draft — native review M12"},
-  "faq.offline.a2": "जो अभी भेजा नहीं गया, वह “फ़ोन पर सहेजा · सिंक होगा” के रूप में दिखता है, और कनेक्शन आते ही अपने आप चला जाता है।",
-  "@faq.offline.a2": {"description": "machine-draft — native review M12"},
+  "faq.offline.a2": "जो अभी भेजा नहीं गया, वह “फ़ोन पर सुरक्षित हुआ · सिंक होगा” के रूप में दिखता है, और कनेक्शन आते ही अपने आप चला जाता है।",
+  "@faq.offline.a2": {"description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"},
 
   "faq.meet_in_person.q": "किसी को जोड़ने के लिए मुझे उससे आमने-सामने क्यों मिलना पड़ता है?",
   "@faq.meet_in_person.q": {"description": "machine-draft — native review M12"},
@@ -140,10 +140,10 @@
   "faq.meet_in_person.a2": "यह क़दम कोई आपकी जगह नहीं कर सकता। सहायता भी नहीं, और इसे छोड़ने की कोई सेटिंग नहीं है।",
   "@faq.meet_in_person.a2": {"description": "machine-draft — native review M12"},
 
-  "faq.review_flag.q": "मेरी एंट्री कहती है कि कोई इसे देखेगा। क्या वह सहेजी गई है?",
-  "@faq.review_flag.q": {"description": "machine-draft — native review M12"},
-  "faq.review_flag.a1": "सहेजी गई है, और बही में गिनी भी जा रही है। वह टिप्पणी सिर्फ़ इतना कहती है कि रक़म आपके लिए तय हद से ऊपर थी, इसलिए वह मालिक के इनबॉक्स में भी एक नज़र के लिए पहुँच गई।",
-  "@faq.review_flag.a1": {"description": "machine-draft — native review M12"},
+  "faq.review_flag.q": "मेरी एंट्री कहती है कि कोई इसे देखेगा। क्या वह सुरक्षित की गई है?",
+  "@faq.review_flag.q": {"description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"},
+  "faq.review_flag.a1": "सुरक्षित की गई है, और बही में गिनी भी जा रही है। वह टिप्पणी सिर्फ़ इतना कहती है कि रक़म आपके लिए तय हद से ऊपर थी, इसलिए वह मालिक के इनबॉक्स में भी एक नज़र के लिए पहुँच गई।",
+  "@faq.review_flag.a1": {"description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"},
   "faq.review_flag.a2": "इंतज़ार के दौरान कुछ भी रोका नहीं जाता, और सवाल उठने पर कुछ भी मिटाया नहीं जाता — उसकी जगह सुधार लिखा जाता है।",
   "@faq.review_flag.a2": {"description": "machine-draft — native review M12"},
 

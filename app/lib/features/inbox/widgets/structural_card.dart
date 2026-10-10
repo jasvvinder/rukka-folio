@@ -190,6 +190,9 @@ class StructuralCard extends StatelessWidget {
               ),
             ],
             ..._statusLines(context),
+            // Whatever the status reads, it is what this phone can confirm:
+            // a record it cannot attribute yet may change it (02 §7.2.1 🔒).
+            if (!item.signersConfirmed) _unconfirmedLine(context),
             if (error) ...[
               const SizedBox(height: RkSpace.s2),
               _IconLine(
@@ -420,12 +423,44 @@ class StructuralCard extends StatelessWidget {
                 l10n.inboxStructuralNotOwner(item.bookName),
               ),
             );
+          case StructuralBlock.termsUnknown:
+            // 07 §26 🔒: the card states exactly what will change. Where this
+            // build cannot, it says so and withholds Approve (13 §4.3
+            // disabled-with-reason); the veto stays below.
+            out.add(
+              line(
+                Icons.help_outline,
+                status.warning,
+                l10n.inboxStructuralTermsUnknown,
+              ),
+            );
           case StructuralBlock.unknownOwnerSet:
+          case StructuralBlock.signersUnconfirmed: // its own line, any status
           case null:
             break;
         }
         return out;
     }
+  }
+
+  /// Why nothing is offered, and why the status may still change, while this
+  /// phone cannot name every signer in the book (13 §4.3
+  /// disabled-with-reason). Icon and words, never hue alone (07 §1 rule 3).
+  Widget _unconfirmedLine(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final text = Theme.of(context).textTheme;
+    final status = RkStatusColors.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(top: RkSpace.s2),
+      child: _IconLine(
+        icon: Icons.sync_problem,
+        colour: status.info,
+        child: Text(
+          l10n.inboxStructuralSignersUnconfirmed(item.bookName),
+          style: text.bodyMedium,
+        ),
+      ),
+    );
   }
 
   List<Widget> _actions(BuildContext context) {
@@ -456,6 +491,18 @@ class StructuralCard extends StatelessWidget {
           ),
         )
         ..add(const SizedBox(height: RkSpace.s2))
+        ..add(
+          OutlinedButton(
+            onPressed: onVeto,
+            style: OutlinedButton.styleFrom(foregroundColor: status.danger),
+            child: Text(l10n.inboxStructuralVeto),
+          ),
+        );
+    } else if (item.viewerMayVeto) {
+      // Terms this build cannot state: no Approve, but any owner may still
+      // veto (02 §7.2.1 🔒) — refusing what you cannot read is the safe side.
+      out
+        ..add(const SizedBox(height: RkSpace.s4))
         ..add(
           OutlinedButton(
             onPressed: onVeto,

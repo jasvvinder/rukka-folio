@@ -62,9 +62,10 @@ final class CloseCashAccount {
     required this.accountId,
     required this.name,
     required this.bookBalance,
+    Paise? monthEndBalance,
     this.lastCountDate,
     this.countedInPeriod = false,
-  });
+  }) : monthEndBalance = monthEndBalance ?? bookBalance;
 
   /// The A/C being counted — the id the S5.5 path is built from.
   final String accountId;
@@ -72,8 +73,15 @@ final class CloseCashAccount {
   /// Its name, as the user wrote it.
   final String name;
 
-  /// What the entries say is in it (engine sign, 02 §9).
+  /// What the entries say is in it **now** (engine sign, 02 §9) — the live
+  /// figure S5.5 counts against and posts its adjustment from, so step 1 and
+  /// the sheet it opens can never show two different books (02 §8 step 1 🔒).
   final Paise bookBalance;
+
+  /// What the entries dated on or before the period's last day put in it —
+  /// the figure the lock declares (02 §8 step 4 🔒). Equal to [bookBalance]
+  /// when nothing is dated after the month.
+  final Paise monthEndBalance;
 
   /// When it was last counted, or null if it never has been.
   final LocalDate? lastCountDate;
@@ -92,7 +100,8 @@ final class CloseBankAccount {
     required this.accountId,
     required this.name,
     required this.bookBalance,
-  });
+    Paise? monthEndBalance,
+  }) : monthEndBalance = monthEndBalance ?? bookBalance;
 
   /// The A/C.
   final String accountId;
@@ -100,8 +109,14 @@ final class CloseBankAccount {
   /// Its name.
   final String name;
 
-  /// The balance to confirm against the bank's app or statement (02 §8 step 2).
+  /// The balance **now**, the one to confirm against the bank's app or
+  /// passbook (02 §8 step 2 🔒) — which show today's balance, not the month's.
   final Paise bookBalance;
+
+  /// The balance as of the period's last day — the figure the lock declares
+  /// (02 §8 step 4 🔒). Equal to [bookBalance] when nothing is dated after
+  /// the month.
+  final Paise monthEndBalance;
 }
 
 /// A warn-only tray item — the two 02 §8 🔒 and 07 §13 🔒 name.
@@ -298,11 +313,14 @@ final class CloseView {
   final int fyStartMonth;
 
   /// The declared balances the lock envelope records (02 §8 step 4 🔒): every
-  /// money A/C of the book, cash and bank alike, at the figure the closer has
-  /// just been shown. Integer paise, keyed by account id.
+  /// money A/C of the book, cash and bank alike, **as of the period's last
+  /// day** — the figure step 4 shows under its dated heading. Steps 1–2 check
+  /// the live figure against the world (the cash box, the bank's app); the
+  /// month-end figure follows from it by the entries dated after the month,
+  /// which are all in the book. Integer paise, keyed by account id.
   Map<String, Paise> get declaredBalances => {
-    for (final a in cashAccounts) a.accountId: a.bookBalance,
-    for (final a in bankAccounts) a.accountId: a.bookBalance,
+    for (final a in cashAccounts) a.accountId: a.monthEndBalance,
+    for (final a in bankAccounts) a.accountId: a.monthEndBalance,
   };
 }
 

@@ -1121,9 +1121,9 @@
   "@books.type.family": {
     "description": "Book type label (02 §1.1 BookType.family)."
   },
-  "books.type.joint": "Shared pool",
+  "books.type.joint": "Joint fund",
   "@books.type.joint": {
-    "description": "Book type label (02 §1.1 BookType.joint — the family common pool)."
+    "description": "Book type label (02 §1.1 BookType.joint — the family's common book). User-facing name is *Joint fund*, never *pool* (ADR 2026-10-08 §1 🔒); the engine's *pool* wording is internal."
   },
   "books.type.organization": "Trust or society",
   "@books.type.organization": {
@@ -1469,6 +1469,18 @@
   "@close.back": {
     "description": "S10 — step back through the wizard. Never a dead end (07 §1 rule 6): every step but the first has one."
   },
+  "close.balance.month_end": "It was {amount} on {date}",
+  "@close.balance.month_end": {
+    "description": "S10 steps 1–2 row meta, shown only when it differs from *The book says*: the A/C's balance on the month's last day — the figure step 4 declares (02 §8 step 4 🔒). The live figure above it is the one to count against or check with the bank's app; this one explains why step 4 shows a different number. Amount and date pre-formatted (07 §1 rules 4–5).",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
   "close.bank.book_balance": "The book says {amount}",
   "@close.bank.book_balance": {
     "description": "S10 step 2 row meta — what the entries make this bank A/C. Amount pre-formatted.",
@@ -1669,7 +1681,7 @@
   },
   "close.family.state.not_started": "Not started",
   "@close.family.state.not_started": {
-    "description": "S10.1 state — nothing saved and nothing blocking (07 §13 🔒 writes *Joint pool not started*)."
+    "description": "S10.1 state — nothing saved and nothing blocking (07 §13 🔒 writes *Joint fund not started*, ADR 2026-10-08 §1)."
   },
   "close.family.state.waiting": "Waiting on {name}",
   "@close.family.state.waiting": {
@@ -1780,9 +1792,14 @@
   "@close.step3.title": {
     "description": "S10 step 3 — 02 §8 step 3 🔒, verbatim."
   },
-  "close.step4.help": "These are the balances this close will record.",
+  "close.step4.help": "These are the balances on {date} — what this close will record.",
   "@close.step4.help": {
-    "description": "S10 step 4, one line under the title: the declared balances go on the close envelope (02 §8 step 4 🔒)."
+    "description": "S10 step 4, one line under the title: the declared balances go on the close envelope (02 §8 step 4 🔒). {date} is the last day of the month being closed, pre-formatted per 07 §1 rule 5 — the declared figures are as of that day, not today, so the heading says so.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
   },
   "close.step4.title": "Confirm & lock",
   "@close.step4.title": {
@@ -5840,9 +5857,9 @@
       }
     }
   },
-  "inbox.structural.done.body": "{done} of {total} owners approved, so this is now in force.",
+  "inbox.structural.done.body": "{done} of {total} owners approved. The change is agreed, but it has not been made in the books yet.",
   "@inbox.structural.done.body": {
-    "description": "S6.3 approved state body.",
+    "description": "S6.3 approved state body — quorum reached. ⚠️ SPEC: nothing in the app applies an approved request yet (an approved distribution is not posted, no business_setting is written — desk item, lane report M13-F200I), so this must not say the change is in force. 02 §7.2.1 🔒 (*it takes effect only when the quorum of signed approval envelopes exists*) states a condition, not the applying step that is still missing.",
     "placeholders": {
       "done": {
         "type": "int"
@@ -6006,6 +6023,15 @@
   "@inbox.structural.ratio.unrecorded": {
     "description": "S6.3 note when an ownership-ratio request finds no ratio recorded — 02 §7.1 🔒 forbids reading an absent map as equal shares."
   },
+  "inbox.structural.signers.unconfirmed": "This phone can’t yet confirm who signed some of the owners’ decisions in {book}, so this may not be where things really stand. Approve and Veto come back once it can — usually after the next sync.",
+  "@inbox.structural.signers.unconfirmed": {
+    "description": "S6.3 — 02 §7.2.1 🔒 counts an approval or veto only from that owner’s own device. While a record’s signer cannot be confirmed on this phone (no checkable device certificate yet, e.g. before the first sync after a launch) it is not counted, the status may be missing a veto, so Approve and Veto are withheld with this reason (13 §4.3).",
+    "placeholders": {
+      "book": {
+        "type": "String"
+      }
+    }
+  },
   "inbox.structural.term.now": "Now",
   "@inbox.structural.term.now": {
     "description": "S6.3 column label for the term in force."
@@ -6025,6 +6051,19 @@
   "inbox.structural.terms.title": "What will change",
   "@inbox.structural.terms.title": {
     "description": "S6.3 heading over the terms in force beside the proposed ones (07 §26 🔒)."
+  },
+  "inbox.structural.terms.unknown": "This phone can’t show everything this request would change, so it can’t be approved here. You can still stop it with a reason.",
+  "@inbox.structural.terms.unknown": {
+    "description": "S6.3 disabled-with-reason (13 §4.3): the request carries a change this app version cannot put into words (07 §26 🔒 states exactly what will change), so Approve is withheld; Veto with reason stays."
+  },
+  "inbox.structural.unconfirmed": "{count, plural, =1{One decision for the owners is waiting until this phone can confirm who signed it.} other{{count} decisions for the owners are waiting until this phone can confirm who signed them.}}",
+  "@inbox.structural.unconfirmed": {
+    "description": "S6 structural section — records whose signer this phone cannot confirm yet are not drawn as cards (a request another owner raised may be among them), so the section says how many wait rather than show nothing (13 §4.3; 02 §7.2.1 🔒).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   },
   "inbox.structural.veto": "Veto with reason",
   "@inbox.structural.veto": {
@@ -6414,9 +6453,22 @@
   "@ledger.entry.amend.cancel": {
     "description": "S4.1 amend sheet — close without posting."
   },
+  "ledger.entry.amend.date_locked": "{month} is closed, so nothing can be dated in it. Pick a date in an open month.",
+  "@ledger.entry.amend.date_locked": {
+    "description": "FIX200 repair — S4.1 amend sheet: the engine refused the new date because its month is closed (periodLocked, 02 §8). Named cause + path (13 §8 Errors).",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
   "ledger.entry.amend.date_note": "Change the date or the note",
   "@ledger.entry.amend.date_note": {
     "description": "S4.1 amend sheet — the two fields corrected here."
+  },
+  "ledger.entry.amend.date_rule": "Closed months and future dates can’t be picked.",
+  "@ledger.entry.amend.date_rule": {
+    "description": "FIX200 repair — S4.1 amend sheet, under the date: why some days are greyed in the calendar (07 §5 step 4 🔒: locked dates greyed, future dates disabled)."
   },
   "ledger.entry.amend.error": "Couldn't save this correction",
   "@ledger.entry.amend.error": {
@@ -6511,6 +6563,78 @@
   "ledger.entry.kind.adjustment": "Adjustment",
   "@ledger.entry.kind.adjustment": {
     "description": "S4.1 — headline verb label for a guided adjustment; the other five reuse entry.verb.* (01 §2 verb table)."
+  },
+  "ledger.entry.locked.amend_blocked": "{month} is closed, so this entry can’t be changed. Fix it: reverse it today, then enter it again.",
+  "@ledger.entry.locked.amend_blocked": {
+    "description": "FIX200 (desk 200 a) — S4.1 disabled-with-reason under the greyed *Correct this* in a locked month (02 §5 🔒: amendment forbidden in a locked period; 13 §4.3; 07 §1 rule 6).",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.entry.locked.fix": "Fix this entry",
+  "@ledger.entry.locked.fix": {
+    "description": "FIX200 (desk 200 a) — S4.1 footer action for an entry in a locked month — the reversal 02 §5 🔒 leaves open (*Fix an old entry*; ADR 2026-09-03b)."
+  },
+  "ledger.entry.locked.fix_confirm": "Reverse it, then enter again",
+  "@ledger.entry.locked.fix_confirm": {
+    "description": "FIX200 repair — S4.1 fix sheet confirm in a locked month: posts the reversal, then opens the entry flow for the corrected re-entry (02 §5 🔒 *Fix an old entry*: reversal plus the re-entry)."
+  },
+  "ledger.entry.locked.fix_explain": "Two steps. First an opposite entry is posted today, in the open month, and this one stops counting. Then you enter it again with the right figures. {month} stays as it was closed — every entry stays in the history.",
+  "@ledger.entry.locked.fix_explain": {
+    "description": "FIX200 (desk 200 a) — S4.1 fix sheet — what the locked-month reversal does, in plain words (02 §5 🔒).",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.entry.locked.fix_hint": "It is reversed today and you enter it again. {month} is not rewritten.",
+  "@ledger.entry.locked.fix_hint": {
+    "description": "FIX200 (desk 200 a) — S4.1 line under *Fix this entry* (c2 *Locked period · Fix this entry*).",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.entry.locked.line": "{month} is closed · counted and confirmed {date}",
+  "@ledger.entry.locked.line": {
+    "description": "FIX200 (desk 200 a) — S4.1 muted lock line under the headline for an entry in a locked month (c2 *Locked period · Fix this entry*; 02 §8). {month} is the full month name, {date} the day the lock was signed.",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.entry.locked.line_undated": "{month} is closed",
+  "@ledger.entry.locked.line_undated": {
+    "description": "FIX200 (desk 200 a) — S4.1 lock line when the lock's day is not known.",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.entry.locked.reentry": "Enter it again",
+  "@ledger.entry.locked.reentry": {
+    "description": "FIX200 repair — S4.1 action on an entry in a locked month that was reversed in an open month: opens the entry flow for the corrected re-entry (02 §5 🔒; 07 §1 rule 6)."
+  },
+  "ledger.entry.locked.reentry_hint": "Reversed {date} · {month} stays as it was closed. If it still belongs in the books, enter it again.",
+  "@ledger.entry.locked.reentry_hint": {
+    "description": "FIX200 repair — S4.1 line under the pinned *Enter it again* on a locked-month entry reversed by *Fix this entry* (c2 *Reversed*). {date} is the reversal's date, {month} the closed month.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
   },
   "ledger.entry.missing": "This entry isn't on this phone",
   "@ledger.entry.missing": {
@@ -6672,6 +6796,137 @@
   "ledger.new_account": "New A/C",
   "@ledger.new_account": {
     "description": "S3 index — FAB opening the S3.1 quick-add sheet."
+  },
+  "ledger.opening_prompt.add": "Add opening balance",
+  "@ledger.opening_prompt.add": {
+    "description": "S4 prompt card primary action — opens the opening-balance sheet (ADR 2026-10-07b §2 🔒)."
+  },
+  "ledger.opening_prompt.body_money": "How much was in {name} when this book started? Add it so this khata shows the right balance.",
+  "@ledger.opening_prompt.body_money": {
+    "description": "S4 prompt card body for a money A/C (02 §4 *balance today*). {name} is the A/C name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.opening_prompt.body_party": "Did {name} owe you anything before today? Add it so this khata shows the right balance.",
+  "@ledger.opening_prompt.body_party": {
+    "description": "S4 prompt card body for a person (c7 S4 *opening balance not set*). {name} is the A/C name, user data.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.opening_prompt.not_needed": "Not needed",
+  "@ledger.opening_prompt.not_needed": {
+    "description": "S4 prompt card second action — records that the opening is zero (ADR 2026-10-07b §2 🔒)."
+  },
+  "ledger.opening_prompt.not_needed_unavailable": "Not needed can't be saved yet — it arrives in an update. Until then this note stays here.",
+  "@ledger.opening_prompt.not_needed_unavailable": {
+    "description": "S4 prompt card: why *Not needed* is disabled. ⚠️ SPEC (ADR 2026-10-07b Open ⚠️): the answer has nowhere to sync yet (needs an account field, 03's call), and a phone-only answer would ask again on the next device."
+  },
+  "ledger.opening_prompt.title": "Opening balance not set",
+  "@ledger.opening_prompt.title": {
+    "description": "S4 prompt card title and the S3 row marker (ADR 2026-10-07b §1 🔒): an A/C created inside an entry whose opening balance has not been answered. Shown in the accent ink with an info icon — the words carry the state, never the colour alone (07 §1 rule 3)."
+  },
+  "ledger.opening_sheet.amount": "Amount",
+  "@ledger.opening_sheet.amount": {
+    "description": "Opening-balance sheet: amount field label."
+  },
+  "ledger.opening_sheet.amount_error": "Enter the amount. It can't be zero.",
+  "@ledger.opening_sheet.amount_error": {
+    "description": "Opening-balance sheet: the amount is empty, zero or not a number. Zero posts nothing (02 §4)."
+  },
+  "ledger.opening_sheet.cancel": "Cancel",
+  "@ledger.opening_sheet.cancel": {
+    "description": "Opening-balance sheet: close without saving."
+  },
+  "ledger.opening_sheet.dated": "Recorded as the opening balance on {date}, the day this book starts.",
+  "@ledger.opening_sheet.dated": {
+    "description": "Opening-balance sheet: the date the adjustment is posted on — the book's start date (ADR 2026-09-09d §4). {date} pre-formatted.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.opening_sheet.dated_locked": "Recorded as the opening balance on {date}, the first open month — the month this book starts in is closed.",
+  "@ledger.opening_sheet.dated_locked": {
+    "description": "Opening-balance sheet: the date the adjustment is posted on when the book's start month is already locked — the first day of the earliest open month (ADR 2026-09-09d §4). {date} pre-formatted.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.opening_sheet.save": "Save",
+  "@ledger.opening_sheet.save": {
+    "description": "Opening-balance sheet: post the one opening adjustment (ADR 2026-10-07b §2 🔒)."
+  },
+  "ledger.opening_sheet.save_error": "Couldn't save the opening balance. Try again — or correct it later in Your books → Opening balances.",
+  "@ledger.opening_sheet.save_error": {
+    "description": "Opening-balance sheet: the engine refused or the write failed (e.g. the book's first month is closed). Named path forward (13 §8 Errors; ADR 2026-09-03b ruling 2)."
+  },
+  "ledger.opening_sheet.subtitle_money": "What was in this account when this book started.",
+  "@ledger.opening_sheet.subtitle_money": {
+    "description": "Opening-balance sheet line under the title, for a money A/C (02 §4: *balance today*, negative allowed for an overdraft)."
+  },
+  "ledger.opening_sheet.subtitle_party": "What was already owed before you started this khata.",
+  "@ledger.opening_sheet.subtitle_party": {
+    "description": "Opening-balance sheet line under the title, for a person (02 §4: *do they owe you, or do you owe them?*)."
+  },
+  "ledger.opening_sheet.they_owe": "They owe you",
+  "@ledger.opening_sheet.they_owe": {
+    "description": "Opening-balance sheet: the person's side — you will get (02 §4). Consumer words, never Dr/Cr."
+  },
+  "ledger.opening_sheet.title": "{name}, before today",
+  "@ledger.opening_sheet.title": {
+    "description": "Opening-balance sheet title (c7 S4 *add the opening balance*). {name} is the A/C name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.opening_sheet.total_get": "You will get {amount} in all.",
+  "@ledger.opening_sheet.total_get": {
+    "description": "Opening-balance sheet: what the person's A/C will read once this opening is added to what is already there. {amount} is pre-formatted.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.opening_sheet.total_give": "You will give {amount} in all.",
+  "@ledger.opening_sheet.total_give": {
+    "description": "Opening-balance sheet: as total_get, when you will owe them.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.opening_sheet.total_money": "{name} will show {amount} in all.",
+  "@ledger.opening_sheet.total_money": {
+    "description": "Opening-balance sheet, money A/C: the balance once this opening is added. {amount} pre-formatted, signed when negative.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.opening_sheet.total_settled": "Nothing will be owed either way.",
+  "@ledger.opening_sheet.total_settled": {
+    "description": "Opening-balance sheet: as total_get, when the A/C comes to zero."
+  },
+  "ledger.opening_sheet.you_owe": "You owe them",
+  "@ledger.opening_sheet.you_owe": {
+    "description": "Opening-balance sheet: the person's side — you will give (02 §4)."
   },
   "ledger.placeholder.body": "Every account, A to Z, will be listed here.",
   "@ledger.placeholder.body": {
@@ -7137,13 +7392,17 @@
   "@legal.title": {
     "description": "S18 hub app-bar title, reached from the Menu's last row under 'This app' (07 §2, ADR 2026-09-03 ruling 3)."
   },
-  "lock.biometric.button": "Face ID",
-  "@lock.biometric.button": {
-    "description": "S15.3 outlined button under the PIN boxes that raises the biometric sheet again (c1 S15.3 *Enter PIN*; 13 §3.2 row S15.3 'Face ID button')."
-  },
   "lock.biometric.failed": "Face not recognised",
   "@lock.biometric.failed": {
     "description": "S15 line after biometric fails; the fallback is the 6-digit MPIN, never the phone's passcode (06 §4.4)."
+  },
+  "lock.biometric.failed.any": "Not recognised",
+  "@lock.biometric.failed.any": {
+    "description": "S15 failed line when the phone has not said which biometric it uses (lock.method.any)."
+  },
+  "lock.biometric.failed.fingerprint": "Fingerprint not recognised",
+  "@lock.biometric.failed.fingerprint": {
+    "description": "S15 line after a fingerprint (Touch ID or Android fingerprint) fails — c3 S15 *Fingerprint not recognised · Android*. Words beside the red glyph, never colour alone (07 §1 rule 3)."
   },
   "lock.biometric.prompt": "Unlock your books",
   "@lock.biometric.prompt": {
@@ -7161,9 +7420,18 @@
   "@lock.biometric.sheet_subtitle": {
     "description": "Android system biometric sheet subtitle for the device-key items (ADR 2026-10-05b). Never offers the phone's PIN or pattern (07 §5.6)."
   },
-  "lock.biometric.unavailable": "Face ID isn't available on this phone right now — type your PIN",
+  "lock.biometric.touch_sensor": "Touch the sensor",
+  "@lock.biometric.touch_sensor": {
+    "description": "S15 caption under the fingerprint glyph while the sheet is up (c3 S15 *App lock · waiting for fingerprint · Android*). Fingerprint phones only; the face frames draw no caption."
+  },
+  "lock.biometric.unavailable": "{method} isn't available on this phone right now — type your PIN",
   "@lock.biometric.unavailable": {
-    "description": "S15 line when the platform reports no usable biometric."
+    "description": "S15 line when the platform reports no usable biometric. {method} is the phone's own method (lock.method.*, ADR 2026-10-08 §3).",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
   },
   "lock.cooldown.body": "It's a code, not a lockout. The PIN comes back on its own — nothing is lost.",
   "@lock.cooldown.body": {
@@ -7186,9 +7454,14 @@
   "@lock.cover.semantics": {
     "description": "S15.1 privacy cover — the mark on plain paper so no balance reaches the app switcher (07 §5.6 🔒)."
   },
-  "lock.disabled.body": "Your books are safe and nothing is lost. Confirm the code we send to your number, then Face ID, and pick a new PIN.",
+  "lock.disabled.body": "Your books are safe and nothing is lost. Confirm the code we send to your number, then {method}, and pick a new PIN.",
   "@lock.disabled.body": {
-    "description": "S15.3 disabled explanation — forgetting the PIN is never data loss (06 §4.4)."
+    "description": "S15.3 disabled state body: OTP to the registered number plus biometric, then a new PIN (07 §5.6). {method} is the phone's own method (lock.method.*, ADR 2026-10-08 §3).",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
   },
   "lock.disabled.title": "The PIN is switched off",
   "@lock.disabled.title": {
@@ -7245,6 +7518,34 @@
   "lock.keys_need_biometric": "Your PIN is right. Your books on this phone are locked to your fingerprint or face, so use it once more to open them.",
   "@lock.keys_need_biometric": {
     "description": "S15 cold start on a biometric-bound phone after the PIN was accepted: the device keys still need the biometric (06 §4.4 🔒 MPIN is a gate, never a key). ⚠️ SPEC: KEY145 finding 2(b), owner."
+  },
+  "lock.method.any": "Fingerprint or face",
+  "@lock.method.any": {
+    "description": "⚠️ SPEC: the method when the phone has not said which biometric is enrolled (no modality seam wired yet, WORDS179). Names no method the phone may not have, so it is never wrong (ADR 2026-10-08 §3); owner to confirm."
+  },
+  "lock.method.any.inline": "your fingerprint or face",
+  "@lock.method.any.inline": {
+    "description": "lock.method.any inside a sentence. ⚠️ SPEC: see lock.method.any."
+  },
+  "lock.method.face_id": "Face ID",
+  "@lock.method.face_id": {
+    "description": "iPhone face unlock, by name (ADR 2026-10-08 §3 🔒 — the unlock method is named as the phone uses it; the four names are separate terms, never translations of one another). S15 / S15.3 button, and the {method} of the S15 and S0.8 lines."
+  },
+  "lock.method.face_unlock": "Face unlock",
+  "@lock.method.face_unlock": {
+    "description": "Android face (a Class 3 face that can guard a hardware key, ADR 2026-10-05b §1), by name (ADR 2026-10-08 §3 🔒 — the unlock method is named as the phone uses it; the four names are separate terms, never translations of one another)."
+  },
+  "lock.method.fingerprint": "Fingerprint",
+  "@lock.method.fingerprint": {
+    "description": "Android fingerprint, by name (ADR 2026-10-08 §3 🔒 — the unlock method is named as the phone uses it; the four names are separate terms, never translations of one another). Never *Face ID* on an Android phone (desk 166)."
+  },
+  "lock.method.fingerprint.inline": "your fingerprint",
+  "@lock.method.fingerprint.inline": {
+    "description": "The Android fingerprint inside a sentence (S0.8 subtitle *You'll use your fingerprint most of the time*, c1/c11 O4b Android frame)."
+  },
+  "lock.method.touch_id": "Touch ID",
+  "@lock.method.touch_id": {
+    "description": "iPhone fingerprint, by name (ADR 2026-10-08 §3 🔒 — the unlock method is named as the phone uses it; the four names are separate terms, never translations of one another)."
   },
   "lock.pin.entered": "{count} of 6 digits entered",
   "@lock.pin.entered": {
@@ -7908,6 +8209,10 @@
   "@onboarding.books_safe.keysync.apple": {
     "description": "S0.5 item (a) plain line (04 §7.0)."
   },
+  "onboarding.books_safe.keysync.google": "Google cannot read it.",
+  "@onboarding.books_safe.keysync.google": {
+    "description": "S0.5 item (a) line on Android — the vendor cannot read the key (04 §7.0 🔒). ADR 2026-10-08 §4 🔒 — the Android swap of the iPhone line; Google Password Manager stays Latin (01 §1 rule 8). The key itself is held by Block Store (04 §7.0 🔒); Google Password Manager is the name Android shows people."
+  },
   "onboarding.books_safe.keysync.off_body": "Your key cannot be kept there, so a new phone will not find it by itself. Make a recovery sheet instead — it is your way back in.",
   "@onboarding.books_safe.keysync.off_body": {
     "description": "S0.5 unavailable state body; the sheet becomes the primary action."
@@ -7916,9 +8221,17 @@
   "@onboarding.books_safe.keysync.off_title": {
     "description": "S0.5 unavailable state (07 §3.1 step 5 🔒: the screen says so plainly)."
   },
+  "onboarding.books_safe.keysync.off_title.android": "Google Password Manager is off on this phone",
+  "@onboarding.books_safe.keysync.off_title.android": {
+    "description": "S0.5 unavailable variant on Android (c1 O5 *No Google Password Manager variant · the sheet is promoted · Android*). ADR 2026-10-08 §4 🔒 — the Android swap of the iPhone line; Google Password Manager stays Latin (01 §1 rule 8). The key itself is held by Block Store (04 §7.0 🔒); Google Password Manager is the name Android shows people."
+  },
   "onboarding.books_safe.keysync.phone_backup": "A phone backup does not carry your books — your key comes back with your Apple account, your books come back from the server.",
   "@onboarding.books_safe.keysync.phone_backup": {
     "description": "S0.5 item (a), verbatim intent of ADR 2026-09-05f §G / ADR 2026-09-05c §8."
+  },
+  "onboarding.books_safe.keysync.phone_backup.android": "A phone backup does not carry your books — your key comes back with your Google account, your books come back from the server.",
+  "@onboarding.books_safe.keysync.phone_backup.android": {
+    "description": "S0.5 item (a) line on Android (ADR 2026-09-05f §G). ADR 2026-10-08 §4 🔒 — the Android swap of the iPhone line; Google Password Manager stays Latin (01 §1 rule 8). The key itself is held by Block Store (04 §7.0 🔒); Google Password Manager is the name Android shows people."
   },
   "onboarding.books_safe.keysync.state_on": "On",
   "@onboarding.books_safe.keysync.state_on": {
@@ -7927,6 +8240,10 @@
   "onboarding.books_safe.keysync.title": "Your key is kept in iCloud Keychain",
   "@onboarding.books_safe.keysync.title": {
     "description": "S0.5 item (a): stated, not asked (07 §3.1 step 5 🔒, 04 §7.0)."
+  },
+  "onboarding.books_safe.keysync.title.android": "Your key is kept in Google Password Manager",
+  "@onboarding.books_safe.keysync.title.android": {
+    "description": "S0.5 item (a) title on Android (c1 O5 *Keeping your books safe · Android*). ADR 2026-10-08 §4 🔒 — the Android swap of the iPhone line; Google Password Manager stays Latin (01 §1 rule 8). The key itself is held by Block Store (04 §7.0 🔒); Google Password Manager is the name Android shows people."
   },
   "onboarding.books_safe.resume_note": "You can come back to this from the setup list on Home.",
   "@onboarding.books_safe.resume_note": {
@@ -8271,11 +8588,11 @@
   "@onboarding.family.accounts.balancing_zero": {
     "description": "S0.6f — the balancing amount is zero."
   },
-  "onboarding.family.accounts.create_error": "Your family's pool could not be created. Nothing was changed.",
+  "onboarding.family.accounts.create_error": "Your family's joint fund could not be created. Nothing was changed.",
   "@onboarding.family.accounts.create_error": {
     "description": "S0.6f error state (07 §1 rule 12: never a dead end)."
   },
-  "onboarding.family.accounts.creating": "Setting up your family's pool…",
+  "onboarding.family.accounts.creating": "Setting up your family's joint fund…",
   "@onboarding.family.accounts.creating": {
     "description": "S0.6f working state — the ruled skeleton of 11 §4.5, never a spinner."
   },
@@ -8288,7 +8605,7 @@
       }
     }
   },
-  "onboarding.family.accounts.group_have": "What the pool has",
+  "onboarding.family.accounts.group_have": "What the joint fund has",
   "@onboarding.family.accounts.group_have": {
     "description": "S0.6f group heading, consumer vocabulary (02 §10)."
   },
@@ -8300,7 +8617,7 @@
   "@onboarding.family.accounts.save": {
     "description": "S0.6f primary action."
   },
-  "onboarding.family.accounts.subtitle": "These accounts already exist — fill in what the pool has, or leave any at ₹0 to start from zero.",
+  "onboarding.family.accounts.subtitle": "These accounts already exist — fill in what the joint fund has, or leave any at ₹0 to start from zero.",
   "@onboarding.family.accounts.subtitle": {
     "description": "S0.6f — a review-and-fill screen, not a creation flow (ADR 2026-09-09c §3)."
   },
@@ -8392,7 +8709,7 @@
   },
   "onboarding.family.title": "Name your family",
   "@onboarding.family.title": {
-    "description": "S0.6d (13 §3.2, 07 §3.1.1 branch O6d) — name the family pool."
+    "description": "S0.6d (13 §3.2, 07 §3.1.1 branch O6d) — name the family's joint fund (ADR 2026-10-08 §1: *joint fund*, never *pool*)."
   },
   "onboarding.invite.checking": "Checking your invitation…",
   "@onboarding.invite.checking": {
@@ -8911,9 +9228,27 @@
   "@onboarding.recovery_sheet.why_title": {
     "description": "S0.5b recovery sheet (canvas c1/O5b; 04 §7.4; ADR 2026-10-06d ruling 3)."
   },
-  "onboarding.set_pin.biometric_note": "Face ID keeps this app closed to everyone else — if a new face is added to this phone, the app asks for your PIN",
+  "onboarding.set_pin.biometric_note": "{method} keeps this app closed to everyone else — if a new face is added to this phone, the app asks for your PIN",
   "@onboarding.set_pin.biometric_note": {
-    "description": "S0.8 the app-lock line stated at onboarding, never offered as a setting (07 §5.6, ADR 2026-09-05d §4)."
+    "description": "S0.8 app-lock line on a face phone (07 §5.6 🔒 stated, not asked). {method} is *Face ID* or *Face unlock* (ADR 2026-10-08 §3).",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.set_pin.biometric_note.any": "Your fingerprint or face keeps this app closed to everyone else — if a new one is added to this phone, the app asks for your PIN",
+  "@onboarding.set_pin.biometric_note.any": {
+    "description": "S0.8 app-lock line when the phone has not said which biometric it uses (lock.method.any). ⚠️ SPEC: see lock.method.any."
+  },
+  "onboarding.set_pin.biometric_note.fingerprint": "{method} keeps this app closed to everyone else — if a new fingerprint is added to this phone, the app asks for your PIN",
+  "@onboarding.set_pin.biometric_note.fingerprint": {
+    "description": "S0.8 app-lock line on a fingerprint phone. {method} is *Touch ID* or *Fingerprint* (ADR 2026-10-08 §3).",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
   },
   "onboarding.set_pin.biometric_note_pin_only": "This phone has no fingerprint or face set up, so your PIN keeps this app closed to everyone else. Add one in your phone's settings and the app will use it after you next type your PIN.",
   "@onboarding.set_pin.biometric_note_pin_only": {
@@ -8943,9 +9278,14 @@
   "@onboarding.set_pin.saving": {
     "description": "S0.8 loading state while the vault writes the protected item (13 §4.3)."
   },
-  "onboarding.set_pin.subtitle": "You'll use Face ID most of the time. This is for when it doesn't work — and it keeps your books closed even to someone who knows your phone's passcode.",
+  "onboarding.set_pin.subtitle": "You'll use {method} most of the time. This is for when it doesn't work — and it keeps your books closed even to someone who knows your phone's passcode.",
   "@onboarding.set_pin.subtitle": {
-    "description": "S0.8 subtitle."
+    "description": "S0.8 subtitle (c1/c11 O4b). {method} is the phone's own method as it reads inside a sentence — *Face ID* / *Touch ID* / *your fingerprint* / *Face unlock* (ADR 2026-10-08 §3; the Android frame reads *You'll use your fingerprint most of the time*).",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
   },
   "onboarding.set_pin.title": "Set your PIN",
   "@onboarding.set_pin.title": {

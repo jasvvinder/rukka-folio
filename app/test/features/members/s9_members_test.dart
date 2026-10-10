@@ -525,6 +525,26 @@ void main() {
       },
     );
 
+    testWidgets(
+      'F1-196-4 S9 over a held engine (Offline underneath) shows no offline '
+      'chip; once registered the real Offline chip shows (ADR 2026-10-10 §2 🔒)',
+      (tester) async {
+        final repo = FakeMembersRepository(
+          initial: _adminSnapshot(members: [_you, _sunita]),
+        );
+        final sync = FakeSyncClient(initial: const Offline(), held: true);
+        addTearDown(sync.dispose);
+        await pumpRk(tester, _scoped(repo, const MembersScreen()), sync: sync);
+        const chip = 'Offline — showing what this phone last saw.';
+        expect(find.text(chip), findsNothing);
+        expect(find.text('Sunita'), findsOneWidget);
+
+        sync.held = false;
+        await tester.pumpAndSettle();
+        expect(find.text(chip), findsOneWidget);
+      },
+    );
+
     for (final locale in rkLocales) {
       for (final scale in rkTextScales) {
         testWidgets('F1-07-26 S9 holds at ${scale}x text on 360×800 in '

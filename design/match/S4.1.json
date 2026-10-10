@@ -63,14 +63,14 @@
    "authority": "02 §5 🔒 (amend chain, append-only); ADR 2026-10-05 §1"
   },
   {
-   "what": "c2 *Locked period · Fix this entry*: an entry dated 31 Aug, with August locked (lockMonth), draws exactly as an open-period entry — 'Correct this' and 'Reverse this' both enabled; the frame adds a muted lock line 'August is closed · counted and confirmed 10 Aug' and replaces the footer with an outlined 'Fix this entry' over 'A correction is posted today. August is not rewritten.'",
-   "reason": "[screen] defect — S4.1 has no locked-period state: entry_detail.dart:74 'canAmend => !isReplaced && !isReversed' never looks at period locks, so it offers an amendment 02 §5 forbids in a locked period",
-   "authority": "02 §5 🔒 (locked period: amendment forbidden; the only path is reversal — 'Fix an old entry'); ADR 2026-09-03b (S4.1 'Fix this entry')"
+   "what": "c2 *Locked period · Fix this entry*: the app draws the frame's state (FIX200, F1-200-1/2/6/7) — the muted lock line with a lock icon under the headline and a pinned footer, a full-width outlined 'Fix this entry' above a hairline. What still differs: (1) 'Correct this' stays in the body, greyed, with its reason 'Aug is closed, so this entry can’t be changed. Fix it: reverse it today, then enter it again.'; the frame drops it; (2) the line under the footer button reads 'It is reversed today and you enter it again. Aug is not rewritten.', the frame 'A correction is posted today. August is not rewritten.'; (3) EN writes 'Aug', not 'August'; (4) the lock line ends with the lock's day in the ledger date form ('counted and confirmed 07 Sep 2026'), the frame '10 Aug'; (5) the footer button's outline is the theme's hairline, the frame's is navy",
+   "reason": "(1) [screen] by rule — 13 §4.3 disabled-with-reason: a blocked action is shown with why, never silently removed; (2) [screen] copy — the fix is two halves (02 §5 🔒: reversal plus the corrected re-entry), so the line says both rather than promising a 'correction' the reversal alone is not (review finding F200L-1). The sheet's button 'Reverse it, then enter again' posts the reversal and opens S2 on the entry's own verb (ledger_routes.dart onEnterAgain). ⚠️ SPEC (open): ADR 2026-09-03b makes *Fix an old entry* an S2.4 wizard that posts both; S2.4 is not built and S2 takes no prefill, so the user types the re-entry's figures; (3)–(4) [screen] copy by 07 §1 rule 5 🔒 (EN months abbreviated; ledger date form), as Home's close card does; (5) [shared] outlined button theme",
+   "authority": "02 §5 🔒 (locked period: reversal plus the optional corrected re-entry, 'Fix an old entry'); 02 §8 🔒; 13 §4.3; 07 §1 rules 5–6 🔒; ADR 2026-09-03b"
   },
   {
-   "what": "c2 *Reversed*: the app strikes the red amount and the big 'Money out' and adds a 'Reversed' chip, then the same legs/details as any entry (note 'Isuzu, full tank') and the trail line 'A later entry has reversed this one · 07 Sep 2026' with 'Open'; the frame greys and strikes the amount, writes 'This entry no longer counts' beside a boxed 'Reversed' tag, shows 'Reversed on  2 Sep 2026 · by Rahul Sharma' and 'Reason  Wrong khata chosen', a 'THE PAIR' card (original −₹2,400 struck / reversal +₹2,400 green, 'August stays as it was counted…'), and a 'See the new entry' footer button",
-   "reason": "[screen] — the reversal's reason ('Wrong khata chosen', posted through LocalLedger.reverse note) is not shown on the original, and there is no pair card; the struck amount stays tinted red where the frame greys it ([shared] amount — struck state)",
-   "authority": "02 §5 🔒 (reversal with optional reason, refs.reverses); ADR 2026-10-05 §1"
+   "what": "c2 *Reversed*: captured as the frame draws it — an August entry reversed today after August closed. The app strikes the red amount and the big 'Money out', adds a 'Reversed' chip and the lock line, then the same legs/details as any entry, and pins an outlined 'Enter it again' over 'Reversed 07 Sep 2026 · Aug stays as it was closed. If it still belongs in the books, enter it again.'; the frame greys and strikes the amount, writes 'This entry no longer counts' beside a boxed 'Reversed' tag, shows 'Reversed on  2 Sep 2026 · by Rahul Sharma' and 'Reason  Wrong khata chosen', a 'THE PAIR' card (original −₹2,400 struck / reversal +₹2,400 green, 'August stays as it was counted…'), a 'New entry posted' history row and a pinned 'See the new entry'",
+   "reason": "[screen] — the frame's footer opens the re-entry already posted; the app's opens S2 to post it, because the re-entry carries no refs back to the original (02 §5 names none), so S4.1 cannot find 'the new entry' and offers the re-entry as a conditional instead (⚠️ SPEC, entry_detail.dart awaitsReentry). The reversal's reason ('Wrong khata chosen', posted through LocalLedger.reverse note) is not shown on the original, and there is no pair card; the struck amount stays tinted red where the frame greys it ([shared] amount — struck state); the footer outline is [shared] outlined button theme",
+   "authority": "02 §5 🔒 (reversal with optional reason, refs.reverses; locked period: reversal plus the corrected re-entry); 07 §1 rule 6 🔒; ADR 2026-10-05 §1"
   },
   {
    "what": "c2 *Entry detail* frames: (any) letter-spacing on Material labels",
@@ -81,7 +81,7 @@
  "approved_by_owner": false,
  "checked_on": "2026-10-10",
  "hashes": {
-  "screens": "799b55187eb9a4f1cabb82be0bf48ed1859fdf3fa124364777fbd58db358670f",
+  "screens": "27b6d66f6977f35bdc612f7a1cea9650cf4479b2540535af162974573ec43288",
   "frames": "d9aae9e676f690e35d9b1de24582df03af0690fbabf5045ecd9dc44ab823ec24"
  }
 }

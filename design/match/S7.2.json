@@ -1,0 +1,57 @@
+{
+ "sid": "S7.2",
+ "verdict": "deviates",
+ "frames": [
+  "c8/S7.2/Balance check · passing",
+  "c8/S7.2/Balance check · matched",
+  "c8/S7.2/Balance check · failing",
+  "nb/S7.2-fail/S7.2-fail"
+ ],
+ "captures": [
+  "S7.2__passing",
+  "S7.2__matched",
+  "S7.2__failing"
+ ],
+ "screen_files": [
+  "app/lib/features/import/screens/s7_2_balance_check_screen.dart",
+  "app/lib/features/import/balance_check.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c8 S7.2 *Balance check · passing / failing*: the app is a full pushed screen (app bar 'Balance check', period line '02 Aug 2026 to 11 Aug 2026', verdict rows with figures, 'Back to the lines' primary button); the frame draws only a two-row card that sits at the top of S7.1 (see c8 S7.1 *Import inbox*), with no app bar, period, figures or button",
+   "reason": "[screen] — S7.2 is its own S-id with three outcomes, each 'stated in words with the numbers'; the figures stay. ⚠️ SPEC (open): whether S7.2 becomes the inline card on S7.1",
+   "authority": "07 §11 item 1 🔒 (Balance check, stated with the numbers); ADR 2026-09-01 §2 🔒; 13 §3.2 row S7.2"
+  },
+  {
+   "what": "c8 S7.2 *Balance check · passing*: rows are free-standing on the page with a 24 px outlined check-circle and a teal → arrow; the frame groups both in one bordered paper card split by a hairline, with a plain green check and a muted clock icon, the second line in muted ink",
+   "reason": "[shared] card (two-row status card) and icon set (plain check, clock)",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c8 S7.2 *Balance check · passing*: copy 'Opening matches your book ✓' and 'Closing will match once these 4 lines are recorded' with a figures line under each; the frame says 'Opening balance matches your book' (no trailing ✓) and no figures",
+   "reason": "[screen] copy — the figures lines stay (stated with the numbers); glyph boxes → desk 200(d) (the trailing ✓ in import.balance.* strings)",
+   "authority": "07 §11 item 1 🔒; desk 200(d)"
+  },
+  {
+   "what": "c8 S7.2 *Balance check · failing* / nb *S7.2-fail*: the app writes 'Opening doesn’t match your book.' with an amber outlined ! circle, then a second block 'An earlier statement is missing.' (history icon) with 'Your book is ₹4,200 away from the statement on 02 Aug 2026.' and the next action as body text; the frame draws one danger-tinted row '⚠ Opening is ₹4,200 different — an earlier statement may be missing' with a navy 'What do I do?' link, and a second muted row 'Closing cannot be checked until the opening agrees'",
+   "reason": "[screen] — the frame's failing card (tinted row, warning triangle, 'What do I do?' door to the two answers, the closing row's honesty line) is the layout to follow; the gap and date stay in the copy",
+   "authority": "07 §11 item 1 🔒 (mismatch says an earlier statement is missing, with the gap); 07 §1 rule 3 🔒 (icon with colour); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c8 S7.2 *Balance check · matched*: the frame captioned 'matched' draws a cash count ('COUNTED SO FAR ₹14,500 · Your book says ₹14,500 · ✓ Matches the book — no adjustment needed' + 'Save count'), not an import balance check; S7.2__matched shows the app's matched outcome ('Your book already agrees, at both ends ✓') for the record",
+   "reason": "[canvas-wrong] the frame is S5.5 cash-count content under an S7.2 caption — reported as an open canvas item; the app keeps the ruled matched outcome",
+   "authority": "ADR 2026-09-01 §2 🔒 (S7.2 = passing · matched · failing); 13 §3.2 rows S5.5, S7.2"
+  },
+  {
+   "what": "c8 S7.2 *Balance check*: app bar is the shared Material bar (lighter surface, centred title, chevron back)",
+   "reason": "[shared] app bar",
+   "authority": "ADR 2026-10-05 §1"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "2d6f748fe3bf1f623b5430dd667cefe972d7c0abc81d6de1ba7f0fb2951c9081",
+  "frames": "b0fa749ad99d5f0c0df47895723fe29d0faebe928b8d4d89620fc5e0fda0bacb"
+ }
+}

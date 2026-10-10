@@ -10,7 +10,8 @@
   "@lock.biometric.failed": {
     "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
   },
-  "lock.biometric.unavailable": "इस समय इस फ़ोन पर फ़ेस आईडी उपलब्ध नहीं है — अपना पिन भरें",
+  "lock.biometric.unavailable": "इस समय इस फ़ोन पर {method} उपलब्ध नहीं है — अपना पिन भरें",
+  "@lock.biometric.unavailable": {"description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)", "placeholders": {"method": {"type": "String"}}},
   "lock.biometric.reenrolled": "इस फ़ोन की चेहरे या उँगली के निशान की सेटिंग बदल गई है — एक बार अपना पिन भरें",
   "@lock.biometric.reenrolled": {
     "description": "machine-draft — native review M12 (ADR 2026-10-06 §4)"
@@ -34,7 +35,8 @@
   "lock.cooldown.body": "यह एक कोड है, तालाबंदी नहीं। पिन अपने आप वापस चालू हो जाएगा — कुछ भी नहीं खोया।",
   "lock.cooldown.countdown": "{time} में दोबारा कोशिश करें",
   "lock.disabled.title": "पिन बंद कर दिया गया है",
-  "lock.disabled.body": "आपकी बहियाँ सुरक्षित हैं और कुछ भी नहीं खोया। हम आपके नंबर पर जो कोड भेजेंगे उसे और फिर फ़ेस आईडी को पक्का करें, और नया पिन चुनें।",
+  "lock.disabled.body": "आपकी बहियाँ सुरक्षित हैं और कुछ भी नहीं खोया। हम आपके नंबर पर जो कोड भेजेंगे उसे पक्का करें, फिर {method} से पुष्टि करें, और नया पिन चुनें।",
+  "@lock.disabled.body": {"description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)", "placeholders": {"method": {"type": "String"}}},
   "lock.forgot.action": "पिन भूल गए",
   "@lock.forgot.action": {
     "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
@@ -70,10 +72,6 @@
   "@lock.forgot.body_pin_only": {
     "description": "machine-draft — native review M12 (ADR 2026-10-05b)"
   },
-  "lock.biometric.button": "फ़ेस आईडी",
-  "@lock.biometric.button": {
-    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
-  },
   "lock.pin.tries_left_pin_only": "पिन बंद होने से पहले {count} कोशिशें बची हैं",
   "@lock.pin.tries_left_pin_only": {
     "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
@@ -101,5 +99,25 @@
   "lock.forgot.start_before_open": "ऐप खोलें",
   "@lock.forgot.start_before_open": {
     "description": "machine-draft — native review M12 (KEY145B)"
-  }
+  },
+  "lock.method.face_id": "फ़ेस आईडी",
+  "@lock.method.face_id": {"description": "owner-given (ADR 2026-10-08 §3) — final"},
+  "lock.method.touch_id": "टच आईडी",
+  "@lock.method.touch_id": {"description": "owner-given (ADR 2026-10-08 §3) — final"},
+  "lock.method.fingerprint": "फ़िंगरप्रिंट",
+  "@lock.method.fingerprint": {"description": "owner-given (ADR 2026-10-08 §3) — final"},
+  "lock.method.face_unlock": "फ़ेस अनलॉक",
+  "@lock.method.face_unlock": {"description": "owner-given (ADR 2026-10-08 §3) — final"},
+  "lock.method.any": "फ़िंगरप्रिंट या चेहरा",
+  "@lock.method.any": {"description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"},
+  "lock.method.fingerprint.inline": "अपना फ़िंगरप्रिंट",
+  "@lock.method.fingerprint.inline": {"description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"},
+  "lock.method.any.inline": "अपना फ़िंगरप्रिंट या चेहरा",
+  "@lock.method.any.inline": {"description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"},
+  "lock.biometric.failed.fingerprint": "फ़िंगरप्रिंट पहचाना नहीं गया",
+  "@lock.biometric.failed.fingerprint": {"description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"},
+  "lock.biometric.failed.any": "पहचाना नहीं गया",
+  "@lock.biometric.failed.any": {"description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"},
+  "lock.biometric.touch_sensor": "सेंसर को छुएँ",
+  "@lock.biometric.touch_sensor": {"description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"}
 }

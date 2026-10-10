@@ -11,10 +11,12 @@
 //     projector's own canonical vector and `core_ledger.projectorVersion`
 //     (02 §8 step 4 🔒, ADR 2026-09-05c §3). No hash is computed in this
 //     file, and none may be;
-//   * the figures — `watchAccounts` and `lastCashCount`, the same reads S1,
-//     S4 and S5.5 draw from, so the close cannot disagree with the screens
-//     the closer just came from (02 §9: balances are derived, never stored
-//     twice).
+//   * the figures — the live `balances` row and `lastCashCount`, the same
+//     reads S1, S4 and S5.5 draw from, so steps 1–2 cannot disagree with the
+//     screens the closer just came from (02 §9: balances are derived, never
+//     stored twice). Step 4 declares the same row less what is dated after
+//     the month ([_figures]), shown under a dated heading — the one figure
+//     that is the month's rather than today's (02 §8 step 4 🔒).
 //
 // What it adds is only shape: the engine's blockers become [CloseBlockingItem]
 // with a human label, the warn-only facts become [CloseWarningItem], and the
@@ -53,6 +55,8 @@ final class LedgerCloseSource implements CloseSource {
     final accounts = await ledger.watchAccounts(bookId).first;
     final bookName = await _bookName(bookId);
 
+    final figures = await _figures(bookId, period.lastDay);
+
     final cash = <CloseCashAccount>[];
     final banks = <CloseBankAccount>[];
     final unverified = <CloseWarningItem>[];
@@ -60,7 +64,13 @@ final class LedgerCloseSource implements CloseSource {
     for (final row in accounts) {
       final a = row.account;
       if (!a.isMoney || row.archived) continue;
-      final balance = Paise(row.balancePaise);
+      // Both figures from the one statement: today's, which steps 1–2 check
+      // against the cash box and the bank, and the month-end one the lock
+      // declares (02 §8 step 4 🔒) — see [_figures]. An A/C the statement
+      // did not see (added between the two reads) has nothing dated at all.
+      final f = figures[a.id] ?? (row.balancePaise, row.balancePaise);
+      final live = Paise(f.$1);
+      final monthEnd = Paise(f.$2);
       if (a.subtype == MoneySubtype.cash ||
           a.subtype == MoneySubtype.cashCollection) {
         // The row is a door to S5.5, which owns counting (02 §8.2 🔒); this
@@ -71,7 +81,8 @@ final class LedgerCloseSource implements CloseSource {
           CloseCashAccount(
             accountId: a.id,
             name: a.name,
-            bookBalance: balance,
+            bookBalance: live,
+            monthEndBalance: monthEnd,
             lastCountDate: last?.date,
             countedInPeriod: counted,
           ),
@@ -87,7 +98,12 @@ final class LedgerCloseSource implements CloseSource {
         }
       } else {
         banks.add(
-          CloseBankAccount(accountId: a.id, name: a.name, bookBalance: balance),
+          CloseBankAccount(
+            accountId: a.id,
+            name: a.name,
+            bookBalance: live,
+            monthEndBalance: monthEnd,
+          ),
         );
       }
     }
@@ -231,6 +247,75 @@ final class LedgerCloseSource implements CloseSource {
       }
     }
     return CloseProgress(confirmedBankIds: saved.confirmedAccountIds);
+  }
+
+  /// Per account of [bookId]: `(live, monthEnd)` signed paise — the live
+  /// `balances` figure, and that figure less what the **counted** entries
+  /// dated after [lastDay] moved.
+  ///
+  /// Why the declared figure is as of the period's last day: 02 §8 🔒 has a
+  /// late arrival count in every live balance "but leave the certified month
+  /// untouched", and the year close the month closes feed (02 §8.1 🔒) is
+  /// restricted to `accounting_date` ≤ the last day regardless of HLC.
+  /// Closing August on 3 Sep with the live balance would certify September's
+  /// money as August's (PLAN desk 200 (e)).
+  ///
+  /// Why steps 1–2 still show the live figure: step 1 counts the cash that is
+  /// in the box *today* and S5.5 posts its adjustment from the live balance,
+  /// and step 2 checks against "the bank's app/statement" (02 §8 step 2 🔒),
+  /// which show today's balance. Live and month-end differ only by entries
+  /// that are in the book, so confirming the one confirms the other; the
+  /// screen shows the month-end figure beside the live one whenever they
+  /// differ, and step 4's heading is dated.
+  ///
+  /// ⚠️ SPEC: 02 §8 step 4 says "the declared balances" without spelling out
+  /// *as of when*; this is the reading the two 🔒 lines above force, and the
+  /// conservative one — owner to confirm.
+  ///
+  /// Why it subtracts rather than sums: `balances` is the projector's live
+  /// figure, which already includes a certified seed vector when the book was
+  /// rebuilt from one (03 §3.3 rule 3) — a sum over `entry_lines_p` alone
+  /// would lose that seed. The data layer's own invariant is
+  /// `balances = seed + Σ entry_lines_p of entries in ('posted','void')`
+  /// (`Recompute.verifyBalances`, ADR 05c §6), so taking the post-period part
+  /// of that same sum back off is exact and derives no balance of its own
+  /// (02 §9). No `packages/data` or `core_ledger` read answers *balance of a
+  /// money A/C at date D* for a month (`closingVector` is per FY), which is
+  /// why this one query lives here.
+  ///
+  /// Why **one statement**: Recompute rewrites `balances` and `entry_lines_p`
+  /// together in its own transaction (recompute.dart). Two separate reads
+  /// could straddle a rebuild — a sync pull landing while S10 loads — and
+  /// subtract a post-rebuild sum from a pre-rebuild balance, a figure that is
+  /// neither live nor as-of and would then be signed. A single SQLite
+  /// statement reads one snapshot, so the pair is always consistent.
+  Future<Map<String, (int, int)>> _figures(
+    String bookId,
+    LocalDate lastDay,
+  ) async {
+    final rows = await ledger.db
+        .customSelect(
+          'SELECT a.id AS a, COALESCE(b.balance_paise, 0) AS live, '
+          'COALESCE((SELECT SUM(l.amount_paise) FROM entry_lines_p l '
+          'JOIN entries_p e ON e.id = l.entry_id '
+          'WHERE l.book_id = a.book_id AND l.account_id = a.id '
+          'AND e.accounting_date > ?2 '
+          "AND e.status IN ('posted','void')), 0) AS after "
+          'FROM accounts_p a LEFT JOIN balances b ON b.account_id = a.id '
+          'WHERE a.book_id = ?1',
+          variables: [
+            Variable.withString(bookId),
+            Variable.withString(lastDay.toIso()),
+          ],
+        )
+        .get();
+    return {
+      for (final r in rows)
+        r.read<String>('a'): (
+          r.read<int>('live'),
+          r.read<int>('live') - r.read<int>('after'),
+        ),
+    };
   }
 
   Future<String> _bookName(String bookId) async {

@@ -1,0 +1,60 @@
+{
+ "sid": "S8.3",
+ "verdict": "deviates",
+ "frames": [
+  "c13/D5/Family reconciliation",
+  "c15/D5/Family reconciliation",
+  "c15/D5b/When a pair disagrees"
+ ],
+ "captures": [
+  "S8.3__default",
+  "S8.3__mismatch"
+ ],
+ "screen_files": [
+  "app/lib/features/reports/screens/s8_3_family_reconciliation_screen.dart",
+  "app/lib/features/reports/reports_routes.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c13/c15 D5 *Family reconciliation*: app bar 'Family Reconciliation' centred on the lighter surface; the frame titles it 'Between the books', left-aligned beside the chevron on the page cream",
+   "reason": "[shared] app bar; the title copy is [screen] — the app uses the 07 §14 report name",
+   "authority": "07 §14 🔒 (Family Reconciliation); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c13/c15 D5 *Family reconciliation*: the verdict is a 24 px outlined check-circle beside 'Everything matches' (title size) over 'Every pair of your books agrees, to the paisa.', on a band with a hairline under; the frame draws a large 54 px ring with a check, 'All books agree' at display size, and 'Checked to 27 Aug · six pairs, every one nets to zero' (date checked to and pair count)",
+   "reason": "[shared] hero/verdict block (large ring icon + display title); copy 'All books agree' and the checked-to date + pair count are [screen]",
+   "authority": "07 §10 🔒 ('a single proud green ✓', stated in words — kept); 07 §1 rule 3 🔒; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c13/c15 D5 *Family reconciliation*: each matched pair in the app is a block — 'Me and Sharma Family' title, a green outlined check + 'Matched', 'What left one book arrived in the other.', 'This side +₹50,000 Money in'; the frame draws a one-row pair 'Joint fund ↔ Agriculture Business' over '₹4,00,000 each way' with a plain green check at the right, hairline between rows",
+   "reason": "[shared] list row (pair row: ↔ title, muted 'each way' line, trailing check); the word 'Matched' stays with the tick (colour never alone) — the frame's trailing check alone is [canvas-wrong] for that part",
+   "authority": "07 §1 rule 3 🔒 (colour never alone); 02 §6 🔒; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c13/c15 D5 *Family reconciliation*: the app shows the pair figure as signed consumer money '+₹50,000 Money in' from this book's side (Me — the capture fixture pins the reader's own book as This side; production meets each pair from the first book id, ORDER BY book_id over CSPRNG uuids, so on a device which book is This side is arbitrary); the frame states the unsigned '₹4,00,000 each way'",
+   "reason": "[screen] — S8.3 is a consumer surface (Money in / Money out); 'each way' for a netted pair is a copy choice for the Reports owner",
+   "authority": "02 §10 🔒 / CLAUDE.md rule 9 (consumer vocabulary); 07 §1 rule 3 🔒 (sign or direction word with a tinted amount)"
+  },
+  {
+   "what": "c15 D5b *When a pair disagrees*: the app's verdict is an amber outlined triangle + '1 pair does not match' / 'These entries make up the difference.', then the pair block with an amber triangle + 'Does not match', 'This side +₹50,000 Money in', 'Difference +₹50,000 Money in' and an 'Entries behind this' list of three dated entries; the frame draws an amber ring with '!', 'One pair does not agree' / 'Five pairs are fine. The sixth is short by ₹12,000.', and the pair row 'Joint fund ↔ Sharma Textile' with an amber line 'Joint fund says ₹86,000 · Textile says ₹74,000' and a single amber 'See the entries' link at the right",
+   "reason": "[screen] — the frame's both-sides figures and one 'See the entries' door replace the inline entry list. ⚠️ SPEC (open): 02 §6 says a non-zero pair is 'listed with the entries composing it' — whether a door to them satisfies that is for the owner; the amber tone and no-blame wording already agree",
+   "authority": "02 §6 🔒 (non-zero pair listed with the entries composing it); ADR 2026-09-05e §7 🔒; 07 §1 rule 3 🔒"
+  },
+  {
+   "what": "c13/c15 D5 *Family reconciliation*: the app keeps the tab bar (S8.3 nests under Menu → Reports) with the docked (+); the frame draws no tab bar",
+   "reason": "[shared] bottom bar/shell — (+) removal is phase 2; tab bar presence on report pages is inconsistent across the canvas (see S8.1 record)",
+   "authority": "ADR 2026-10-10b §2 🔒"
+  },
+  {
+   "what": "c13/c15 D5, D5b: which book the app calls *This side* — and so the pair title order ('Me and Sharma Family' vs 'Sharma Family and Me') and the sign of every figure — is decided by book-id order (LocalLedger.reconciliation iterates mirror.bookIds(), ORDER BY book_id; ids are random uuids), not by the book the reader is in. The captures pin Me first so they are stable; the frame names the joint fund first in every pair",
+   "reason": "[screen] — the side a pair is read from should follow a rule (the book being viewed, or the frame's fixed order), not an id's random bytes; ⚠️ SPEC (open) for the Reports owner",
+   "authority": "02 §6 🔒 (every pair listed once); 07 §1 rule 3 🔒 (sign/direction stated); ADR 2026-10-05 §1"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "8cd124fcdf561e913c59a5ac2e0cc67a27f054087c8afce99e5b8b165e2c4421",
+  "frames": "05e3d9e248c537abb6ac500a36437d70f00ac80fcd1f0b68ea476e401c5311c3"
+ }
+}

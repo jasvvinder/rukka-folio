@@ -94,6 +94,17 @@ class _ReportViewerScreenState extends State<ReportViewerScreen> {
   List<ClosedYear> _closed = const [];
   FinancialYear? _fy;
 
+  /// While a file is being written: the loader rule shows (design-system §7,
+  /// *countable work … export: loader rule*), and a second tap is ignored —
+  /// it would start a second build of the same file, and a Punjabi or Hindi
+  /// PDF is shaped line by line, which takes seconds on a long book
+  /// (REP183C review finding 4; S4's `_generating` is the same rule).
+  bool _generating = false;
+
+  /// From the tap until the file is delivered (or the sheet that replaces it
+  /// closes) — the guard, wider than [_generating], which only draws.
+  bool _exporting = false;
+
   /// Memoised so a rebuild does not resubscribe the drift stream every frame.
   Stream<DayBook>? _stream;
   String? _streamKey;
@@ -250,17 +261,43 @@ class _ReportViewerScreenState extends State<ReportViewerScreen> {
         ],
       ),
       body: SafeArea(
-        child: _resolveError != null
-            ? _ErrorState(text: l10n.reportsViewerError, onRetry: _retry)
-            : _bookId == null || _fy == null
-            ? _Skeleton(label: l10n.reportsViewerSkeleton)
-            : _body(context, _bookId!),
+        child: Column(
+          children: [
+            // The wait is a 2 px rule with words beside it, never a spinner
+            // (11 §4.5 🔒, 13 §4.3) — S4's, for the same export.
+            if (_generating) const _GeneratingRule(),
+            Expanded(
+              child: _resolveError != null
+                  ? _ErrorState(text: l10n.reportsViewerError, onRetry: _retry)
+                  : _bookId == null || _fy == null
+                  ? _Skeleton(label: l10n.reportsViewerSkeleton)
+                  : _body(context, _bookId!),
+            ),
+          ],
+        ),
       ),
     );
   }
 
+  /// [_buildFile] with the loader rule around it. The sheet closes itself
+  /// before the file is written, so the rule belongs to this screen: it runs
+  /// around the generating, the part that takes time.
+  Future<ReportFile> _buildWithRule(ReportFormat format) async {
+    if (mounted) setState(() => _generating = true);
+    try {
+      return await _buildFile(format);
+    } finally {
+      if (mounted) setState(() => _generating = false);
+    }
+  }
+
   void _openExportSheet() {
-    showReportExportSheet(context, buildFile: _buildFile, sink: widget.sink);
+    if (_generating) return;
+    showReportExportSheet(
+      context,
+      buildFile: _buildWithRule,
+      sink: widget.sink,
+    );
   }
 
   /// The primary action: write the default format and say where it went, with
@@ -269,8 +306,14 @@ class _ReportViewerScreenState extends State<ReportViewerScreen> {
   /// whose token includes it; otherwise the format sheet opens, PDF row shut
   /// with its reason (ADR 2026-09-25 §5 🔒; see [runReportDefaultExport]).
   void _exportDefault() {
+    if (_exporting || _generating) return;
+    _exporting = true;
     unawaited(
-      runReportDefaultExport(context, buildFile: _buildFile, sink: widget.sink),
+      runReportDefaultExport(
+        context,
+        buildFile: _buildWithRule,
+        sink: widget.sink,
+      ).whenComplete(() => _exporting = false),
     );
   }
 
@@ -851,6 +894,47 @@ class _Skeleton extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The wait while a report is written: the 2 px loader **rule** of 11 §4.5 🔒
+/// with the words beside it, announced as a live region. Never a spinner, and
+/// never colour alone (07 §1 rule 3) — the sentence says what is happening,
+/// the rule only that it still is. The same widget as S4's `_GeneratingRule`
+/// (s4_account_statement_screen.dart); each screen keeps its own copy because
+/// neither owns the other's folder.
+class _GeneratingRule extends StatelessWidget {
+  const _GeneratingRule();
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final status = RkStatusColors.of(context);
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        LinearProgressIndicator(
+          minHeight: RkMotion.loaderTrackHeight,
+          backgroundColor: status.loaderTrack,
+          color: status.loaderSegment,
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: RkSpace.gutter,
+            vertical: RkSpace.s2,
+          ),
+          child: Semantics(
+            liveRegion: true,
+            child: Text(
+              l10n.reportsExportGenerating,
+              style: Theme.of(context).textTheme.bodyMedium
+                  ?.copyWith(color: status.muted),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

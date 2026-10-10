@@ -14,6 +14,7 @@ import 'package:rukka_folio/features/devices/pin_vault.dart';
 import 'package:rukka_folio/features/lock/keystore_biometric_gate.dart';
 import 'package:rukka_folio/shared/seams/key_store.dart';
 import 'package:rukka_folio/features/lock/biometric_gate.dart';
+import 'package:rukka_folio/features/lock/biometric_kind.dart';
 import 'package:rukka_folio/features/lock/widgets/pin_pad.dart';
 import 'package:rukka_folio/features/onboarding/screens/s0_8_set_pin_screen.dart';
 
@@ -154,7 +155,11 @@ void main() {
           tester,
           const SetPinScreen(),
           vault: vault,
-          biometrics: FakeBiometricGate(),
+          biometrics: FakeBiometricGate(
+            const [BiometricOutcome.success],
+            true,
+            BiometricModality.face,
+          ),
           clock: clock,
         );
 

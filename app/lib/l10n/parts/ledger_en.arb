@@ -506,5 +506,221 @@
   "ledger.search.under_review": "Under review",
   "@ledger.search.under_review": {
     "description": "S21 note-hit status beside the amber clock while the entry's review flag is open (02 §3)."
+  },
+  "ledger.entry.locked.line": "{month} is closed · counted and confirmed {date}",
+  "@ledger.entry.locked.line": {
+    "description": "FIX200 (desk 200 a) — S4.1 muted lock line under the headline for an entry in a locked month (c2 *Locked period · Fix this entry*; 02 §8). {month} is the full month name, {date} the day the lock was signed.",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.entry.locked.line_undated": "{month} is closed",
+  "@ledger.entry.locked.line_undated": {
+    "description": "FIX200 (desk 200 a) — S4.1 lock line when the lock's day is not known.",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.entry.locked.amend_blocked": "{month} is closed, so this entry can’t be changed. Fix it: reverse it today, then enter it again.",
+  "@ledger.entry.locked.amend_blocked": {
+    "description": "FIX200 (desk 200 a) — S4.1 disabled-with-reason under the greyed *Correct this* in a locked month (02 §5 🔒: amendment forbidden in a locked period; 13 §4.3; 07 §1 rule 6).",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.entry.locked.fix": "Fix this entry",
+  "@ledger.entry.locked.fix": {
+    "description": "FIX200 (desk 200 a) — S4.1 footer action for an entry in a locked month — the reversal 02 §5 🔒 leaves open (*Fix an old entry*; ADR 2026-09-03b)."
+  },
+  "ledger.entry.locked.fix_hint": "It is reversed today and you enter it again. {month} is not rewritten.",
+  "@ledger.entry.locked.fix_hint": {
+    "description": "FIX200 (desk 200 a) — S4.1 line under *Fix this entry* (c2 *Locked period · Fix this entry*).",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.entry.locked.fix_explain": "Two steps. First an opposite entry is posted today, in the open month, and this one stops counting. Then you enter it again with the right figures. {month} stays as it was closed — every entry stays in the history.",
+  "@ledger.entry.locked.fix_explain": {
+    "description": "FIX200 (desk 200 a) — S4.1 fix sheet — what the locked-month reversal does, in plain words (02 §5 🔒).",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.entry.locked.fix_confirm": "Reverse it, then enter again",
+  "@ledger.entry.locked.fix_confirm": {
+    "description": "FIX200 repair — S4.1 fix sheet confirm in a locked month: posts the reversal, then opens the entry flow for the corrected re-entry (02 §5 🔒 *Fix an old entry*: reversal plus the re-entry)."
+  },
+  "ledger.entry.locked.reentry": "Enter it again",
+  "@ledger.entry.locked.reentry": {
+    "description": "FIX200 repair — S4.1 action on an entry in a locked month that was reversed in an open month: opens the entry flow for the corrected re-entry (02 §5 🔒; 07 §1 rule 6)."
+  },
+  "ledger.entry.locked.reentry_hint": "Reversed {date} · {month} stays as it was closed. If it still belongs in the books, enter it again.",
+  "@ledger.entry.locked.reentry_hint": {
+    "description": "FIX200 repair — S4.1 line under the pinned *Enter it again* on a locked-month entry reversed by *Fix this entry* (c2 *Reversed*). {date} is the reversal's date, {month} the closed month.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.entry.amend.date_rule": "Closed months and future dates can’t be picked.",
+  "@ledger.entry.amend.date_rule": {
+    "description": "FIX200 repair — S4.1 amend sheet, under the date: why some days are greyed in the calendar (07 §5 step 4 🔒: locked dates greyed, future dates disabled)."
+  },
+  "ledger.entry.amend.date_locked": "{month} is closed, so nothing can be dated in it. Pick a date in an open month.",
+  "@ledger.entry.amend.date_locked": {
+    "description": "FIX200 repair — S4.1 amend sheet: the engine refused the new date because its month is closed (periodLocked, 02 §8). Named cause + path (13 §8 Errors).",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.opening_prompt.title": "Opening balance not set",
+  "@ledger.opening_prompt.title": {
+    "description": "S4 prompt card title and the S3 row marker (ADR 2026-10-07b §1 🔒): an A/C created inside an entry whose opening balance has not been answered. Shown in the accent ink with an info icon — the words carry the state, never the colour alone (07 §1 rule 3)."
+  },
+  "ledger.opening_prompt.body_party": "Did {name} owe you anything before today? Add it so this khata shows the right balance.",
+  "@ledger.opening_prompt.body_party": {
+    "description": "S4 prompt card body for a person (c7 S4 *opening balance not set*). {name} is the A/C name, user data.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.opening_prompt.body_money": "How much was in {name} when this book started? Add it so this khata shows the right balance.",
+  "@ledger.opening_prompt.body_money": {
+    "description": "S4 prompt card body for a money A/C (02 §4 *balance today*). {name} is the A/C name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.opening_prompt.add": "Add opening balance",
+  "@ledger.opening_prompt.add": {
+    "description": "S4 prompt card primary action — opens the opening-balance sheet (ADR 2026-10-07b §2 🔒)."
+  },
+  "ledger.opening_prompt.not_needed": "Not needed",
+  "@ledger.opening_prompt.not_needed": {
+    "description": "S4 prompt card second action — records that the opening is zero (ADR 2026-10-07b §2 🔒)."
+  },
+  "ledger.opening_prompt.not_needed_unavailable": "Not needed can't be saved yet — it arrives in an update. Until then this note stays here.",
+  "@ledger.opening_prompt.not_needed_unavailable": {
+    "description": "S4 prompt card: why *Not needed* is disabled. ⚠️ SPEC (ADR 2026-10-07b Open ⚠️): the answer has nowhere to sync yet (needs an account field, 03's call), and a phone-only answer would ask again on the next device."
+  },
+  "ledger.opening_sheet.title": "{name}, before today",
+  "@ledger.opening_sheet.title": {
+    "description": "Opening-balance sheet title (c7 S4 *add the opening balance*). {name} is the A/C name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.opening_sheet.subtitle_party": "What was already owed before you started this khata.",
+  "@ledger.opening_sheet.subtitle_party": {
+    "description": "Opening-balance sheet line under the title, for a person (02 §4: *do they owe you, or do you owe them?*)."
+  },
+  "ledger.opening_sheet.subtitle_money": "What was in this account when this book started.",
+  "@ledger.opening_sheet.subtitle_money": {
+    "description": "Opening-balance sheet line under the title, for a money A/C (02 §4: *balance today*, negative allowed for an overdraft)."
+  },
+  "ledger.opening_sheet.they_owe": "They owe you",
+  "@ledger.opening_sheet.they_owe": {
+    "description": "Opening-balance sheet: the person's side — you will get (02 §4). Consumer words, never Dr/Cr."
+  },
+  "ledger.opening_sheet.you_owe": "You owe them",
+  "@ledger.opening_sheet.you_owe": {
+    "description": "Opening-balance sheet: the person's side — you will give (02 §4)."
+  },
+  "ledger.opening_sheet.amount": "Amount",
+  "@ledger.opening_sheet.amount": {
+    "description": "Opening-balance sheet: amount field label."
+  },
+  "ledger.opening_sheet.amount_error": "Enter the amount. It can't be zero.",
+  "@ledger.opening_sheet.amount_error": {
+    "description": "Opening-balance sheet: the amount is empty, zero or not a number. Zero posts nothing (02 §4)."
+  },
+  "ledger.opening_sheet.total_get": "You will get {amount} in all.",
+  "@ledger.opening_sheet.total_get": {
+    "description": "Opening-balance sheet: what the person's A/C will read once this opening is added to what is already there. {amount} is pre-formatted.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.opening_sheet.total_give": "You will give {amount} in all.",
+  "@ledger.opening_sheet.total_give": {
+    "description": "Opening-balance sheet: as total_get, when you will owe them.",
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.opening_sheet.total_settled": "Nothing will be owed either way.",
+  "@ledger.opening_sheet.total_settled": {
+    "description": "Opening-balance sheet: as total_get, when the A/C comes to zero."
+  },
+  "ledger.opening_sheet.total_money": "{name} will show {amount} in all.",
+  "@ledger.opening_sheet.total_money": {
+    "description": "Opening-balance sheet, money A/C: the balance once this opening is added. {amount} pre-formatted, signed when negative.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.opening_sheet.dated": "Recorded as the opening balance on {date}, the day this book starts.",
+  "@ledger.opening_sheet.dated": {
+    "description": "Opening-balance sheet: the date the adjustment is posted on — the book's start date (ADR 2026-09-09d §4). {date} pre-formatted.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.opening_sheet.dated_locked": "Recorded as the opening balance on {date}, the first open month — the month this book starts in is closed.",
+  "@ledger.opening_sheet.dated_locked": {
+    "description": "Opening-balance sheet: the date the adjustment is posted on when the book's start month is already locked — the first day of the earliest open month (ADR 2026-09-09d §4). {date} pre-formatted.",
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "ledger.opening_sheet.cancel": "Cancel",
+  "@ledger.opening_sheet.cancel": {
+    "description": "Opening-balance sheet: close without saving."
+  },
+  "ledger.opening_sheet.save": "Save",
+  "@ledger.opening_sheet.save": {
+    "description": "Opening-balance sheet: post the one opening adjustment (ADR 2026-10-07b §2 🔒)."
+  },
+  "ledger.opening_sheet.save_error": "Couldn't save the opening balance. Try again — or correct it later in Your books → Opening balances.",
+  "@ledger.opening_sheet.save_error": {
+    "description": "Opening-balance sheet: the engine refused or the write failed (e.g. the book's first month is closed). Named path forward (13 §8 Errors; ADR 2026-09-03b ruling 2)."
   }
 }

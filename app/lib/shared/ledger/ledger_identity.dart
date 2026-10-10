@@ -37,6 +37,21 @@ abstract final class LocalLedgerKeys {
   /// device's own chain on a cold start, without a meta round trip.
   static const deviceCert = 'rk.ledger.device_cert';
 
+  /// Other devices' certificates this install has seen prove a signature
+  /// (04 §3.4), JSON — see `encodeRetainedCerts`. Public material only. Kept
+  /// because the server stops serving a removed member's certificate
+  /// (`rf.device_visible`) while their signed records stay in every book: the
+  /// signature chain must still verify them on this phone at every later
+  /// launch (03 *Deletion mechanics* 🔒 — *the signature chain still verifies
+  /// on every device*). Promptless, like [deviceCert].
+  ///
+  /// ⚠️ SPEC (03 §3.1 🔒, for the 03 owner): the client schema has no table
+  /// for other devices' certificates, so they sit in the key store beside
+  /// this device's own (public material, a few hundred bytes per device). A
+  /// `device_certs_local` table in the mirror would be the natural home; that
+  /// is a 🔒 schema change, not made here (review TRUSTWIRE-1).
+  static const peerCerts = 'rk.ledger.peer_certs';
+
   /// The server holds this UMK's x half (ADR 2026-09-24b §2), JSON — see
   /// `encodeUmkPubsAccepted`. Its presence stops the launch-time re-offer
   /// (owner ruling 25 Sep, PLAN desk 33).

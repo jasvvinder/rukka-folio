@@ -5,18 +5,20 @@ The journey harness cannot drive another app's activity (flows.dart S0.5b). This
 the UI hierarchy over adb and, when the print spooler or the document saver is in front, taps
 its primary button. It never touches the app under test.
 """
-import re, subprocess, sys, time
+import os, re, subprocess, sys, time
 
 DEV = sys.argv[1] if len(sys.argv) > 1 else "emulator-5554"
 DEADLINE = time.time() + float(sys.argv[2] if len(sys.argv) > 2 else 3600)
+# scripts/run_journeys.sh passes the adb it resolved (the SDK's, when adb is not on PATH).
+ADB = os.environ.get("ADB") or "adb"
 
 
 def adb(*a):
-    return subprocess.run(["adb", "-s", DEV, *a], capture_output=True, text=True).stdout
+    return subprocess.run([ADB, "-s", DEV, *a], capture_output=True, text=True).stdout
 
 
 def dump():
-    return subprocess.run(["adb", "-s", DEV, "exec-out", "uiautomator", "dump", "/dev/tty"],
+    return subprocess.run([ADB, "-s", DEV, "exec-out", "uiautomator", "dump", "/dev/tty"],
                           capture_output=True, text=True).stdout
 
 
@@ -62,7 +64,10 @@ while time.time() < DEADLINE:
             or find(xml, lambda n: 'resource-id="android:id/button1"' in n)
     if hit:
         x, y = centre(hit)
-        print(time.strftime("%H:%M:%S"), "tap", x, y, (re.search(r'resource-id="([^"]*)"', hit).group(1) or re.search(r'text="([^"]*)"', hit).group(1)), flush=True)
+        rid = re.search(r'resource-id="([^"]*)"', hit)
+        txt = re.search(r'text="([^"]*)"', hit)
+        label = (rid.group(1) if rid else "") or (txt.group(1) if txt else "")
+        print(time.strftime("%H:%M:%S"), "tap", x, y, label, flush=True)
         adb("shell", "input", "tap", str(x), str(y))
         time.sleep(3)
     else:

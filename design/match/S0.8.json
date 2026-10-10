@@ -16,7 +16,8 @@
  "screen_files": [
   "app/lib/features/onboarding/screens/s0_8_set_pin_screen.dart",
   "app/lib/features/lock/widgets/pin_pad.dart",
-  "app/lib/features/lock/widgets/face_id_glyph.dart"
+  "app/lib/features/lock/widgets/face_id_glyph.dart",
+  "app/lib/features/lock/biometric_kind.dart"
  ],
  "deviations": [
   {
@@ -45,9 +46,9 @@
    "authority": "ADR 2026-10-05 §1 (components, density)"
   },
   {
-   "what": "Canvas 1 'O4b Set your PIN · six digits · Android' (c11 'O4b Set your PIN · Android'): the Android frame says 'You'll use your fingerprint most of the time'; the app's Android capture (360×800) still says 'Face ID', and the app-lock line says Face ID too",
-   "reason": "[screen] the subtitle and the app-lock line name Face ID on every platform; the canvas note on the Android twins says the app names the method the phone actually uses (fingerprint/face unlock on Android, Face ID/Touch ID on iPhone). A real defect on Android",
-   "authority": "canvas c1 O5 Android twin note (applies to O4b's Android twins); 07 §5.6 🔒 (app-lock line names the phone's method)"
+   "what": "Production (not the captures): on a real phone the subtitle reads 'You'll use your fingerprint or face most of the time' and the app-lock line its neutral form, because no seam yet reports which biometric is enrolled; the captures inject it (iPhone face → 'Face ID', Android fingerprint → 'your fingerprint'), which matches c1/c11 O4b iPhone and Android. The app-lock line on Android leads with Material's fingerprint icon",
+   "reason": "[screen] ⚠️ SPEC app/lib/features/lock/biometric_kind.dart: the keystore channel (features/devices + native halves) has no modality query; guessing would tell some phones the wrong method. The seam is KeystoreBiometricGate.modality for bootstrap to wire",
+   "authority": "ADR 2026-10-08 §3 🔒; ⚠️ SPEC biometric_kind.dart (WORDS179 open item)"
   },
   {
    "what": "Canvas 1 'O4b Set your PIN · six digits · iPhone': the back chevron sits at y≈142 at ~16 px, the title at y≈199; in the app the chevron is smaller and ~8 px higher and the title ~8 px higher",
@@ -58,7 +59,7 @@
  "approved_by_owner": false,
  "checked_on": "2026-10-10",
  "hashes": {
-  "screens": "036af1996424d5cdd2d5fb89fef89d15ad31a65248bffc7bca32d2ff80dee46f",
+  "screens": "1f78ac57a5391f790bad09aa9225528dbb4d02a22ea69f9aa401b48bc8531b31",
   "frames": "a111ef7e95d3360d9aa0bbac76f96a4f5eb6465cf161c555e2f1f714ec03ee43"
  }
 }

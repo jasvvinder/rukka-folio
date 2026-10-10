@@ -525,6 +525,30 @@ void main() {
       },
     );
 
+    testWidgets(
+      'F1-196-10 S11.1 over a held engine (Offline underneath) shows no '
+      'offline note; once registered the real note shows '
+      '(ADR 2026-10-10 §2 🔒)',
+      (tester) async {
+        final repo = FakeGuardians(
+          initial: GuardianSetup(candidates: _three()),
+        );
+        addTearDown(repo.dispose);
+        final sync = FakeSyncClient(initial: const Offline(), held: true);
+        addTearDown(sync.dispose);
+        await pumpRk(tester, _screen(repo), sync: sync, viewport: rkPhone360);
+        const note =
+            'You are offline. Your choice is saved on this phone and goes out '
+            'when you are back.';
+        expect(find.text(note), findsNothing);
+        expect(find.text('Sunita'), findsOneWidget);
+
+        sync.held = false;
+        await tester.pumpAndSettle();
+        expect(find.text(note), findsOneWidget);
+      },
+    );
+
     testWidgets('F1-07-545 “Meet them” reaches S9.3 for the member’s **user id** through '
         'the real devices route — a candidate with no invite id is still met '
         '(04 §6 one component, four uses; 04 §7.3 🔒 mutual ceremony per '

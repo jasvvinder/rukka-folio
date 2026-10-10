@@ -41,6 +41,7 @@ class EntryDetailScreen extends StatefulWidget {
     required this.entryId,
     this.onOpenEntry,
     this.onAmendFigures,
+    this.onEnterAgain,
     this.memberName,
   });
 
@@ -55,6 +56,19 @@ class EntryDetailScreen extends StatefulWidget {
   /// keypad and the account pickers (07 §5). When null the amend sheet still
   /// offers the date and the note — the fields S4.1 owns.
   final void Function(String entryId)? onAmendFigures;
+
+  /// Opens the entry flow (S2) on [EntryKind] for the corrected re-entry that
+  /// 02 §5 🔒 pairs with the reversal of a locked-month entry (*Fix an old
+  /// entry*). Called right after *Fix this entry* posts the reversal, and
+  /// again from *Enter it again* on the reversed entry. When null the sheet
+  /// posts the reversal only and says so.
+  ///
+  /// ⚠️ SPEC: 02 §5 has the app post both halves in one guided flow, and
+  /// ADR 2026-09-03b makes that flow an S2.4 wizard whose door is this
+  /// screen. S2.4 is not built and S2 takes no prefill, so the re-entry opens
+  /// S2 on the entry's own verb with today's date and the user types the
+  /// right figures. See the FIX200 lane report.
+  final void Function(EntryKind kind)? onEnterAgain;
 
   /// Resolves a `created_by_user` to a name. Null, or a null answer, falls
   /// back to *you* / *another member* — never a raw uuid.
@@ -103,6 +117,7 @@ class _EntryDetailScreenState extends State<EntryDetailScreen> {
               detail: detail,
               onOpenEntry: widget.onOpenEntry,
               onAmendFigures: widget.onAmendFigures,
+              onEnterAgain: widget.onEnterAgain,
               memberName: widget.memberName,
               onChanged: _reload,
             ),
@@ -123,6 +138,7 @@ class _PostedBody extends StatelessWidget {
     required this.onChanged,
     this.onOpenEntry,
     this.onAmendFigures,
+    this.onEnterAgain,
     this.memberName,
   });
 
@@ -130,13 +146,14 @@ class _PostedBody extends StatelessWidget {
   final VoidCallback onChanged;
   final void Function(String entryId)? onOpenEntry;
   final void Function(String entryId)? onAmendFigures;
+  final void Function(EntryKind kind)? onEnterAgain;
   final String? Function(String userId)? memberName;
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final view = detail.view;
-    return ListView(
+    final list = ListView(
       padding: const EdgeInsets.fromLTRB(
         RkSpace.gutter,
         RkSpace.s4,
@@ -145,6 +162,12 @@ class _PostedBody extends StatelessWidget {
       ),
       children: [
         _Headline(detail: detail),
+        // c2 *Locked period · Fix this entry*: the month's state, said once,
+        // in words and an icon — never only by a greyed button (07 §1 rule 3).
+        if (detail.inLockedPeriod) ...[
+          const SizedBox(height: RkSpace.s4),
+          _LockLine(detail: detail),
+        ],
         const SizedBox(height: RkSpace.s5),
         _SectionHeading(l10n.ledgerEntrySides),
         for (final line in view.lines)
@@ -190,6 +213,48 @@ class _PostedBody extends StatelessWidget {
           detail: detail,
           onAmendFigures: onAmendFigures,
           onChanged: onChanged,
+        ),
+      ],
+    );
+    final reenter = reentryFor(detail, onEnterAgain);
+    if (detail.awaitsReentry && reenter != null) {
+      // c2 *Reversed* (the locked-month entry after *Fix this entry*): the
+      // reversal is half of 02 §5 🔒 *Fix an old entry*; the other half, the
+      // corrected re-entry, stays pinned in the footer where the frame puts
+      // its action — the screen after the fix is never a dead end.
+      final month = monthName(l10n, view.date.month);
+      return Column(
+        children: [
+          Expanded(child: list),
+          _PinnedFooter(
+            label: l10n.ledgerEntryLockedReentry,
+            hint: l10n.ledgerEntryLockedReentryHint(
+              formatLedgerDate(detail.reversedBy!.date, strings: l10n),
+              month,
+            ),
+            onPressed: () => reenter(view.kind),
+          ),
+        ],
+      );
+    }
+    if (!detail.lockedOnly) return list;
+    // c2 *Locked period · Fix this entry*: the one path 02 §5 🔒 leaves is a
+    // footer pinned in thumb reach (07 §1 rule 2), above a rule, whatever the
+    // scroll — never below the fold under a greyed button.
+    return Column(
+      children: [
+        Expanded(child: list),
+        _PinnedFooter(
+          label: l10n.ledgerEntryLockedFix,
+          hint: l10n.ledgerEntryLockedFixHint(monthName(l10n, view.date.month)),
+          onPressed: detail.canReverse
+              ? () => openReverseSheet(
+                  context,
+                  detail,
+                  onChanged,
+                  onEnterAgain: onEnterAgain,
+                )
+              : null,
         ),
       ],
     );
@@ -581,6 +646,41 @@ class _TrailRow extends StatelessWidget {
 
 // ── actions ──────────────────────────────────────────────────────────────────
 
+/// The muted lock line (c2 *Locked period · Fix this entry*): the month is
+/// closed, and — when the projection knows it — the day its lock was signed.
+class _LockLine extends StatelessWidget {
+  const _LockLine({required this.detail});
+
+  final EntryDetailPosted detail;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final status = RkStatusColors.of(context);
+    final month = monthName(l10n, detail.view.date.month);
+    final on = detail.lockedOn;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(Icons.lock_outline, size: RkSpace.s5, color: status.locked),
+        const SizedBox(width: RkSpace.s2),
+        Expanded(
+          child: Text(
+            on == null
+                ? l10n.ledgerEntryLockedLineUndated(month)
+                : l10n.ledgerEntryLockedLine(
+                    month,
+                    formatLedgerDate(on, strings: l10n),
+                  ),
+            style: Theme.of(context).textTheme.bodyMedium
+                ?.copyWith(color: status.muted),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 class _Actions extends StatelessWidget {
   const _Actions({
     required this.detail,
@@ -596,11 +696,38 @@ class _Actions extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final status = RkStatusColors.of(context);
-    final reason = !detail.canAmend
+    final text = Theme.of(context).textTheme;
+    final month = monthName(l10n, detail.view.date.month);
+    final reason = detail.lockedOnly
+        ? l10n.ledgerEntryLockedAmendBlocked(month)
+        : !detail.canAmend
         ? (detail.isReversed
               ? l10n.ledgerEntryReverseBlocked
               : l10n.ledgerEntryAmendBlocked)
         : null;
+    final amend = FilledButton(
+      onPressed: detail.canAmend
+          ? () => openAmendSheet(context, detail, onAmendFigures, onChanged)
+          : null,
+      child: Text(l10n.ledgerEntryAmend),
+    );
+    // Disabled-with-reason (13 §4.3): a greyed button never stands alone.
+    final why = reason == null
+        ? null
+        : Text(reason, style: text.bodySmall?.copyWith(color: status.muted));
+    if (detail.lockedOnly) {
+      // 02 §5 🔒 *Locked period*: amendment is forbidden by rule, so
+      // *Correct this* stays, greyed, with its reason (13 §4.3); the path —
+      // *Fix this entry* — is the pinned footer ([_PinnedFooter]).
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          amend,
+          const SizedBox(height: RkSpace.s2),
+          why!,
+        ],
+      );
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -608,17 +735,7 @@ class _Actions extends StatelessWidget {
           spacing: RkSpace.s3,
           runSpacing: RkSpace.s3,
           children: [
-            FilledButton(
-              onPressed: detail.canAmend
-                  ? () => openAmendSheet(
-                      context,
-                      detail,
-                      onAmendFigures,
-                      onChanged,
-                    )
-                  : null,
-              child: Text(l10n.ledgerEntryAmend),
-            ),
+            amend,
             OutlinedButton(
               onPressed: detail.canReverse
                   ? () => openReverseSheet(context, detail, onChanged)
@@ -627,43 +744,122 @@ class _Actions extends StatelessWidget {
             ),
           ],
         ),
-        // Disabled-with-reason (13 §4.3): a greyed button never stands alone.
-        if (reason != null) ...[
-          const SizedBox(height: RkSpace.s2),
-          Text(
-            reason,
-            style: Theme.of(context).textTheme.bodySmall
-                ?.copyWith(color: status.muted),
-          ),
-        ],
+        if (why != null) ...[const SizedBox(height: RkSpace.s2), why],
       ],
     );
   }
 }
 
+/// The pinned footer of the locked-month states — c2 *Locked period · Fix
+/// this entry* (*Fix this entry*, the reversal 02 §5 🔒 leaves open, whose
+/// door on S4.1 is ADR 2026-09-03b's) and c2 *Reversed* (*Enter it again*,
+/// the corrected re-entry that completes it): one full-width outlined action
+/// over its promise, above a hairline.
+class _PinnedFooter extends StatelessWidget {
+  const _PinnedFooter({
+    required this.label,
+    required this.hint,
+    required this.onPressed,
+  });
+
+  final String label;
+  final String hint;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final status = RkStatusColors.of(context);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border(top: BorderSide(color: status.hairline)),
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            RkSpace.gutter,
+            RkSpace.s3,
+            RkSpace.gutter,
+            RkSpace.s3,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              OutlinedButton(onPressed: onPressed, child: Text(label)),
+              const SizedBox(height: RkSpace.s2),
+              Text(
+                hint,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodySmall
+                    ?.copyWith(color: status.muted),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// The re-entry door for [detail], or null when there is none to offer.
+///
+/// ⚠️ SPEC: an adjustment is guided-only (02 §2 verb 6) and has no position
+/// on S2 (`entryVerbOf` maps it to *Money in*), so its re-entry belongs to the
+/// S2.4 wizards, which are not built; no S2 door is offered for one rather
+/// than one that would re-enter it as the wrong verb.
+void Function(EntryKind kind)? reentryFor(
+  EntryDetailPosted detail,
+  void Function(EntryKind kind)? onEnterAgain,
+) => detail.view.kind == EntryKind.adjustment ? null : onEnterAgain;
+
 /// Opens the guided reversal sheet (02 §5): an auto-built mirror entry dated
 /// today, with an optional reason. Nothing here is freeform — the user never
 /// picks accounts or sides.
+///
+/// For an entry in a locked month this is *Fix this entry* (02 §5 🔒 *Fix an
+/// old entry*: the reversal plus the corrected re-entry). When [onEnterAgain]
+/// is given, posting the reversal goes straight on to the re-entry.
 Future<void> openReverseSheet(
   BuildContext context,
   EntryDetailPosted detail,
-  VoidCallback onChanged,
-) async {
+  VoidCallback onChanged, {
+  void Function(EntryKind kind)? onEnterAgain,
+}) async {
   final ledger = LedgerScope.of(context);
+  final reenter = detail.inLockedPeriod
+      ? reentryFor(detail, onEnterAgain)
+      : null;
   final posted = await showModalBottomSheet<bool>(
     context: context,
     isScrollControlled: true,
     useSafeArea: true,
-    builder: (context) => _ReverseSheet(detail: detail, ledger: ledger),
+    builder: (context) => _ReverseSheet(
+      detail: detail,
+      ledger: ledger,
+      reenters: reenter != null,
+    ),
   );
-  if (posted ?? false) onChanged();
+  if (!(posted ?? false)) return;
+  onChanged();
+  // The footer that opened this sheet is gone once S4.1 reloads (the entry is
+  // now reversed), so the callback — which carries the route's own context —
+  // is called without asking whether this one is still mounted.
+  reenter?.call(detail.view.kind);
 }
 
 class _ReverseSheet extends StatefulWidget {
-  const _ReverseSheet({required this.detail, required this.ledger});
+  const _ReverseSheet({
+    required this.detail,
+    required this.ledger,
+    required this.reenters,
+  });
 
   final EntryDetailPosted detail;
   final LocalLedger ledger;
+
+  /// Posting goes on to the corrected re-entry (02 §5 🔒 *Fix an old entry*).
+  final bool reenters;
 
   @override
   State<_ReverseSheet> createState() => _ReverseSheetState();
@@ -716,10 +912,18 @@ class _ReverseSheetState extends State<_ReverseSheet> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    // An entry in a locked month is reversed as *Fix this entry* (02 §5 🔒,
+    // ADR 2026-09-03b): the same mirror dated today, said as what it is for.
+    final locked = widget.detail.inLockedPeriod;
+    final month = monthName(l10n, widget.detail.view.date.month);
     return _SheetFrame(
-      title: l10n.ledgerEntryReverseTitle,
+      title: locked ? l10n.ledgerEntryLockedFix : l10n.ledgerEntryReverseTitle,
       children: [
-        Text(l10n.ledgerEntryReverseExplain),
+        Text(
+          locked
+              ? l10n.ledgerEntryLockedFixExplain(month)
+              : l10n.ledgerEntryReverseExplain,
+        ),
         const SizedBox(height: RkSpace.s4),
         TextField(
           controller: _reason,
@@ -732,7 +936,9 @@ class _ReverseSheetState extends State<_ReverseSheet> {
         const SizedBox(height: RkSpace.s5),
         _SheetButtons(
           cancel: l10n.ledgerEntryReverseCancel,
-          confirm: l10n.ledgerEntryReverseConfirm,
+          confirm: widget.reenters
+              ? l10n.ledgerEntryLockedFixConfirm
+              : l10n.ledgerEntryReverseConfirm,
           busy: _busy,
           onConfirm: _post,
         ),
@@ -800,6 +1006,7 @@ class _AmendSheetState extends State<_AmendSheet> {
   bool _busy = false;
   String? _error;
   bool _locked = false;
+  bool _dateLocked = false;
 
   @override
   void dispose() {
@@ -808,11 +1015,25 @@ class _AmendSheetState extends State<_AmendSheet> {
   }
 
   Future<void> _pickDate() async {
+    // 07 §5 step 4 🔒: any date in an open month; future dates disabled;
+    // closed months greyed. The engine refuses all three (`checkAuthoringRules`
+    // no-future-date, `periodLocked`, `beforeBookStart`), so the calendar
+    // offers exactly what it will accept. The entry's own date is always in
+    // range — it was accepted when posted.
+    final detail = widget.detail;
+    final today = widget.ledger.today();
+    final start = detail.bookStart;
+    DateTime day(LocalDate d) => DateTime(d.year, d.month, d.day);
+    final first = start == null || _date.compareTo(start) < 0 ? _date : start;
+    final last = _date.compareTo(today) > 0 ? _date : today;
     final picked = await showDatePicker(
       context: context,
-      initialDate: DateTime(_date.year, _date.month, _date.day),
-      firstDate: DateTime(_date.year - 5),
-      lastDate: DateTime(_date.year + 5),
+      initialDate: day(_date),
+      firstDate: start == null ? DateTime(_date.year - 5) : day(first),
+      lastDate: day(last),
+      selectableDayPredicate: (d) =>
+          d == day(_date) ||
+          !detail.lockedMonths.contains(YearMonth(d.year, d.month)),
     );
     if (picked != null) {
       setState(() => _date = LocalDate(picked.year, picked.month, picked.day));
@@ -847,8 +1068,14 @@ class _AmendSheetState extends State<_AmendSheet> {
       setState(() {
         _busy = false;
         _locked = e.has(ViolationKind.amendInLockedPeriod);
+        // The entry's month is open but the new date's month is closed —
+        // closed after the sheet opened, since the calendar greys the ones
+        // it knew. Named cause + path (13 §8 Errors): pick another date.
+        _dateLocked = !_locked && e.has(ViolationKind.periodLocked);
         _error = _locked
             ? l10n.ledgerEntryAmendLocked
+            : _dateLocked
+            ? l10n.ledgerEntryAmendDateLocked(monthName(l10n, _date.month))
             : l10n.ledgerEntryAmendError;
       });
     } catch (_) {
@@ -887,6 +1114,12 @@ class _AmendSheetState extends State<_AmendSheet> {
           subtitle: Text(formatLedgerDate(_date, strings: l10n)),
           onTap: _pickDate,
         ),
+        Text(
+          l10n.ledgerEntryAmendDateRule,
+          style: Theme.of(context).textTheme.bodySmall
+              ?.copyWith(color: RkStatusColors.of(context).muted),
+        ),
+        const SizedBox(height: RkSpace.s3),
         TextField(
           controller: _note,
           decoration: InputDecoration(labelText: l10n.ledgerEntryNote),

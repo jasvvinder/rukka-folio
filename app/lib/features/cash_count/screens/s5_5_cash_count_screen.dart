@@ -775,9 +775,10 @@ class _OfflineChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sync = RkScope.of(context).sync;
-    return StreamBuilder<SyncStatus>(
-      stream: sync.status,
-      initialData: sync.current,
+    return StreamBuilder<SyncStatus?>(
+      // Held → null: no chip, nothing disabled (ADR 2026-10-10 §2 🔒).
+      stream: sync.chipStatus,
+      initialData: sync.chipCurrent,
       builder: (context, snapshot) {
         final status = snapshot.data;
         if (status is! Offline && status is! SavedWillSync) {

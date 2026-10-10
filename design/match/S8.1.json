@@ -1,0 +1,54 @@
+{
+ "sid": "S8.1",
+ "verdict": "deviates",
+ "frames": [
+  "c15/S8.1/Reports list"
+ ],
+ "captures": [
+  "S8.1__default"
+ ],
+ "screen_files": [
+  "app/lib/features/reports/screens/s8_1_reports_list_route.dart",
+  "app/lib/features/reports/screens/s8_1_reports_list_screen.dart",
+  "app/lib/features/reports/widgets/reports_row.dart",
+  "app/lib/features/reports/reports_routes.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c15 S8.1 *Reports list*: app bar title 'Reports' centred on the lighter surface fill; the frame left-aligns it beside the chevron on the page cream",
+   "reason": "[shared] app bar",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c15 S8.1 *Reports list*: the frame draws a filter strip under the bar — a navy filled book chip 'Sharma Textile' and an outlined 'FY 2026–27' chip; the app has neither (the FY switcher lives inside S8.2)",
+   "reason": "[shared] chip (book / FY selector chips); where the year is chosen is [screen] — the FY switcher is one control on S4 · S8.2 · S10.4",
+   "authority": "ADR 2026-09-09 §4 🔒 (one FY switcher, on S4 · S8.2 · S10.4); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c15 S8.1 *Reports list*: every row in the frame is enabled with a title, a muted one-line description ('Everything recorded, day by day', 'Only cash in and out', 'Every khata’s balance, both columns' …) and a chevron, split by hairlines; in the app only Day Book and Family Reconciliation are enabled (leading icon + title + chevron, no description), and Cash Book, A/C statement (any), Trial Balance, You-will-get / You-will-give with ageing, Profit/Loss (per FY/range), Full Position, Advances ageing, Business comparison are muted and disabled with a clock + 'This report has not been built yet.'",
+   "reason": "[shared] list row (title + description + chevron, hairline); disabled-with-reason stays until each report lands (M12) — the frame draws the finished list",
+   "authority": "07 §14 🔒 (report order); ADR 2026-09-12 Consequences (remaining reports at M12); 07 §1 rule 6 🔒 (no dead ends — a disabled row states why)"
+  },
+  {
+   "what": "c15 S8.1 *Reports list*: row titles differ — app 'A/C statement (any)', 'You-will-get / You-will-give with ageing', 'Profit/Loss (per FY/range)', 'Full Position'; frame 'A/C statement', 'You will get / You will give', 'Profit and Loss', 'Full position'",
+   "reason": "[screen] copy — the app titles transcribe 07 §14's list verbatim, parentheticals included",
+   "authority": "07 §14 🔒 (report list); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c15 S8.1 *Reports list*: the app lists Family Reconciliation and Business comparison after Advances ageing; the frame's visible list ends at Advances ageing (the rest below the fold is not drawn)",
+   "reason": "[screen] — cannot be compared beyond the frame's fold",
+   "authority": "07 §14 🔒"
+  },
+  {
+   "what": "c15 S8.1 *Reports list*: the app keeps the tab bar (S8.1 nests under the Menu tab root) with the docked centre (+); the frame draws no tab bar on this pushed page",
+   "reason": "[shared] bottom bar/shell — the (+) goes in phase 2 (ADR 2026-10-10b §2); whether S8.1 shows the tab bar at all: the c15 S8.2 *Trial Balance* frame does draw it under a report, so the canvas is inconsistent — ⚠️ SPEC (open)",
+   "authority": "ADR 2026-10-10b §2 🔒; reports_routes.dart header (S8.1 nests under Menu, tab bar visible)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "7698d6c05ba68b134dd4e22eb752e1c90e77300765d0dbe17e729d0839fb56a7",
+  "frames": "620518ae0734d515faa4ffb15bef8bc7a0176b924c5e6c6f484b6d27258c8383"
+ }
+}

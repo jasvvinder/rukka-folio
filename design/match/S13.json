@@ -1,0 +1,53 @@
+{
+ "sid": "S13",
+ "verdict": "deviates",
+ "frames": [
+  "c10/S13/Settings"
+ ],
+ "captures": [
+  "S13__default"
+ ],
+ "screen_files": [
+  "app/lib/features/settings/screens/s13_settings_screen.dart",
+  "app/lib/features/settings/widgets/settings_row.dart",
+  "app/lib/features/settings/settings_routes.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c10 S13 *Settings*: title 'Settings' centred on the lighter surface fill; the frame left-aligns it beside the chevron on the page cream",
+   "reason": "[shared] app bar",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c10 S13 *Settings*: section headers are sentence-case bold title-size labels ('General', 'Your books') on the page; the frame uses uppercase letter-spaced muted captions ('LANGUAGE', 'TELL ME ABOUT', 'THIS PHONE') on a cream band, with the rows on a paper fill between hairlines",
+   "reason": "[shared] list row / section caption (grouped settings list: caption band + paper rows + hairlines)",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c10 S13 *Settings*: language is one row 'Language · English' with a chevron to a picker; the frame lists the three languages inline as rows — native name over the English name ('ਪੰਜਾਬੀ / Punjabi', 'हिन्दी / Hindi', 'English / English') with a navy check on the current one — and the note 'Changes the moment you tap. Names you typed yourself stay as you typed them.'",
+   "reason": "[screen] — language picker inline with native names and the note follows the frame",
+   "authority": "07 §16 🔒 (Language, per member); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c10 S13 *Settings*: the frame draws a 'TELL ME ABOUT' group of four navy switches — Entries waiting for me, Advances going past 30 days, A month closed by someone else (on), Payments and plans (off); the app has one disabled row 'Notifications' with a clock + 'Notification preferences arrive with the notification catalog (07 §17).'",
+   "reason": "[screen] — not built: notification preferences wait on the 07 §17 catalog (M7); the toggles' set is for that slice to settle against 07 §17. [shared] switch row when built",
+   "authority": "07 §16 🔒 (notification preferences); 07 §17 🔒 (catalog, @M7)"
+  },
+  {
+   "what": "c10 S13 *Settings*: the app has an 'Appearance' row with a three-segment icon control (auto ✓ · sun · moon), and a 'Your books' group (Book management, Opening balances) plus Categories and Auto-lock rows, each disabled with a clock + reason; the frame's first screen shows none of these (its 'THIS PHONE' group begins at the fold)",
+   "reason": "[screen] — Appearance, Your books → Opening balances, the category editor and Auto-lock are 🔒 Settings contents; order and placement follow the frame once it draws them (below its fold, not comparable here). The disabled rows' texts are Not-built-yet states",
+   "authority": "07 §16 🔒; 13 §3.2 row S13; ADR 2026-09-03b ruling 2; ADR 2026-09-05f §H12"
+  },
+  {
+   "what": "c10 S13 *Settings*: the Appearance segmented control shows icons only (a check on the selected 'auto' segment), no words",
+   "reason": "[screen] — icon-only segments; the labels are carried by tooltip and Semantics (s13_settings_screen.dart:283-302), so state is not colour alone. The frame does not draw this control in view",
+   "authority": "07 §1 rule 3 🔒 (colour never alone)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "d49e2d4588e3a39d28956486595f76d2aef12dfa555cc2350ccc583ebbf9510c",
+  "frames": "bfeeee34a4e4dbed7515b2df5f87f6d52211220ed2b3758f3cf5c321aea6f52c"
+ }
+}

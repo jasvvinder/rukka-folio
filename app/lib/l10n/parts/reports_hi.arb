@@ -38,8 +38,10 @@
   "@reports.export.page": {
     "description": "machine-draft — native review M12"
   },
-  "reports.export.saved": "सहेजी गई: {where}",
-  "reports.export.failed": "रिपोर्ट सहेजी नहीं जा सकी।",
+  "reports.export.saved": "सुरक्षित की गई: {where}",
+  "@reports.export.saved": {"description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"},
+  "reports.export.failed": "रिपोर्ट सुरक्षित नहीं की जा सकी।",
+  "@reports.export.failed": {"description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"},
   "reports.export.file_name": "day-book-{year}.{extension}",
   "reports.statement.report.title": "खाता स्टेटमेंट",
   "reports.statement.account.label": "खाता",

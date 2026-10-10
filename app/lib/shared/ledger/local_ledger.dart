@@ -1721,6 +1721,24 @@ enum DistributionRefusal {
   /// A `book_config` version or a `business_setting` record was quarantined,
   /// so the terms in force cannot be trusted (ADR 2026-09-14b §2, §5). The
   /// deed alone is the wrong answer once a change exists that cannot be read.
+  ///
+  /// Also while a `structural_approval` of the book is signed by a device this
+  /// phone cannot name (`StructuralReading.signersConfirmed` false, 02 §7.2.1
+  /// 🔒): what it decided cannot be counted either way. That case is told
+  /// apart by [DistributionPreview.signersUnconfirmed] /
+  /// [DistributionRefused.signersUnconfirmed], because it is usually a wait,
+  /// not a verdict — the device's certificate has not reached this phone yet
+  /// and a sync brings it (the Inbox's `signersUnconfirmed`). It is no longer
+  /// what a member's removal leaves behind: certificates that proved a
+  /// signature are retained across launches (`retainPeerCert`, review
+  /// TRUSTWIRE-1).
+  ///
+  /// ⚠️ SPEC (07 §1 rule 6 🔒, review TRUSTWIRE-2, for the partners lane): the
+  /// wait deserves its own value here and its own S14.1 block — *why*, the
+  /// path (*usually after the next sync*) and a re-read on sync status, as the
+  /// Inbox does. Adding the value breaks `ledger_partners_port.dart`'s
+  /// exhaustive switch, which this lane does not own, so the distinction rides
+  /// on the flag until that lane maps it.
   termsUnverified,
 
   /// Net profit for the year is exactly zero: there is nothing to appropriate
@@ -1745,6 +1763,7 @@ final class DistributionRefused implements Exception {
     this.refusal, {
     this.excess = Paise.zero,
     this.structural,
+    this.signersUnconfirmed = false,
   });
 
   /// The book.
@@ -1759,6 +1778,9 @@ final class DistributionRefused implements Exception {
 
   /// For [DistributionRefusal.structural]: the engine's own reason.
   final StructuralRefusal? structural;
+
+  /// [DistributionPreview.signersUnconfirmed], carried through.
+  final bool signersUnconfirmed;
 
   @override
   String toString() => 'DistributionRefused($bookId: ${refusal.name})';
@@ -1830,10 +1852,19 @@ final class DistributionPreview {
     required this.ownerSetVersion,
     required this.approvalsRequired,
     this.refusal,
+    this.signersUnconfirmed = false,
   });
 
   /// The book.
   final String bookId;
+
+  /// True when [refusal] is [DistributionRefusal.termsUnverified] **because**
+  /// a structural record of the book is signed by a device this phone cannot
+  /// name yet (02 §7.2.1 🔒) — a wait a sync usually ends, which S14.1 should
+  /// show with that path and re-read on sync status (07 §1 rules 6, 7 🔒),
+  /// never as the final *terms could not be read* block. False for every
+  /// other refusal, a forged signer included: that one is a verdict.
+  final bool signersUnconfirmed;
 
   /// The open financial year the profit figure is scoped to (ADR
   /// 2026-09-05e §8: net profit is **FY-scoped**, whatever period the interest
@@ -2075,6 +2106,12 @@ StructuralEvent? decodeStructuralEvent(
   }
 }
 
+/// Whose certified device signed [sealed] — a user id, or null when this
+/// phone cannot say. [seq] is the row's server sequence (the revocation
+/// cut-off of 04 §8.3 is read against it). See
+/// [LocalLedger.structuralSignerOf].
+typedef EnvelopeSigner = String? Function(Envelope sealed, {required int? seq});
+
 /// The local ledger.
 final class LocalLedger
     implements
@@ -2124,6 +2161,31 @@ final class LocalLedger
   /// lines later, in the same synchronous stretch, before `runApp`.
   ReviewPolicy reviewPolicy;
 
+  /// Whose certified device signed a stored envelope — the user the
+  /// structural reader binds a `structural_approval`'s `by_user` to
+  /// (02 §7.2.1 🔒: *each approval is authored on that owner's own device, so
+  /// the server cannot manufacture one*).
+  ///
+  /// Asked over the envelope rebuilt from the mirror at **every** read, with
+  /// the row's server `seq`; the composition root's answer re-runs the
+  /// signature chain of 04 §3.4 (`ChainVerifier`) over it and names the
+  /// certificate's user only when the chain holds now — never the `devices`
+  /// row's label, which nothing signs (review F200I-1). The certificate it
+  /// checks is this launch's from the meta channel or, for a device the
+  /// server no longer serves (a removed member), the one this install
+  /// retained when it proved a signature ([retainPeerCert],
+  /// `RetainedCertTrust`; review TRUSTWIRE-1). Null, or null back, means
+  /// *this phone cannot say*: every other device's record is then
+  /// `signerUnknown`, nothing it decides applies, and a distribution is
+  /// refused [DistributionRefusal.termsUnverified] with
+  /// [DistributionPreview.signersUnconfirmed]. This device's own envelopes
+  /// are its own user's by construction and never reach it.
+  ///
+  /// Mutable, like [reviewPolicy] and [onOwnCert], because the trust store it
+  /// reads is built *from* this ledger's material after it is constructed;
+  /// `bootstrap.dart` installs it through [wireLedgerTrust] before `runApp`.
+  EnvelopeSigner? structuralSignerOf;
+
   /// The provisional-identity guard (ADR 2026-10-04b §2 🔒): when true,
   /// every authoring door — [createBook], every envelope, a verification
   /// record, a book key accepted from sync, the device certificate and the
@@ -2158,6 +2220,14 @@ final class LocalLedger
   VerifiedUmkPublic? _umkVerified;
   VerifiedMemberDirectory? _verifiedMembers;
   DeviceCert? _ownCert;
+
+  /// Other devices' certificates retained across launches ([retainPeerCert]),
+  /// by device id.
+  final Map<String, DeviceCert> _peerCerts = {};
+
+  /// The retained-certificate writes, one after another, so the last write
+  /// carries every certificate retained before it.
+  Future<void> _peerCertWrites = Future<void>.value();
   bool _umkPubsAccepted = false;
   bool _identityConfirmed = false;
   bool _existingAccount = false;
@@ -2692,6 +2762,84 @@ final class LocalLedger
     onOwnCert?.call(cert);
   }
 
+  /// Another device's certificate retained on this install, or null — see
+  /// [retainPeerCert]. Offered to `ChainVerifier` only for a device the
+  /// trust store holds no certificate for this launch
+  /// (`RetainedCertTrust`), and checked by it at every use.
+  DeviceCert? retainedCertOf(String deviceId) => _peerCerts[deviceId];
+
+  /// Keeps [cert] — another device's certificate — across launches, when it
+  /// verifies under the ceremony-verified UMK of the user it names (04 §3.4,
+  /// §8.2 🔒): the same check `ChainVerifier` makes, so nothing a server sends
+  /// becomes a retained certificate unless it is already a proof this phone
+  /// believes. This device's own certificate has its own record and is never
+  /// retained here. Never throws: an unreadable certificate, an unverified
+  /// user or a failed write keeps nothing new (the in-memory copy stays, and
+  /// the next certificate retained writes the whole set again). Completes
+  /// once the set as it stands — this certificate included — is written.
+  ///
+  /// Why (03 *Deletion mechanics* 🔒, review TRUSTWIRE-1): the server stops
+  /// serving a removed member's certificate, but their signed records stay;
+  /// the structural reader re-runs the chain over them at every read and
+  /// needs this copy to keep naming them — or every ratio change they
+  /// approved would stop counting, at the next launch, for ever.
+  Future<void> retainPeerCert(DeviceCert cert) async {
+    final id = _identity;
+    if (id == null || cert.deviceId == id.deviceId) return;
+    final was = _peerCerts[cert.deviceId];
+    if (was != null &&
+        jsonEncode(deviceCertJson(was)) == jsonEncode(deviceCertJson(cert))) {
+      // Already kept — offered at every structural read, so this is the
+      // common path. Returns once every write queued before it has landed.
+      return _peerCertWrites;
+    }
+    final umk = id.userId == cert.userId
+        ? _umkVerified
+        : _verifiedMembers?.verifiedUmkOf(cert.userId);
+    if (umk == null) return;
+    try {
+      if (!cert.verify(suite, umk.public)) return;
+    } on Object {
+      return;
+    }
+    _peerCerts[cert.deviceId] = cert;
+    final holder = id.deviceId;
+    _peerCertWrites = _peerCertWrites.then((_) async {
+      if (_identity?.deviceId != holder) return;
+      try {
+        await keys.write(
+          LocalLedgerKeys.peerCerts,
+          encodeRetainedCerts(
+            holderDeviceId: holder,
+            certs: List.of(_peerCerts.values),
+          ),
+        );
+      } on Object {
+        // Kept in memory; the next retained certificate rewrites the set.
+      }
+    });
+    await _peerCertWrites;
+  }
+
+  /// Reads the retained certificates back at open. A record for another
+  /// install, or one that will not read, is none retained — the chain then
+  /// asks the meta channel alone, as before any was kept.
+  Future<void> _loadPeerCerts() async {
+    _peerCerts.clear();
+    final id = _identity;
+    if (id == null) return;
+    final Uint8List? raw;
+    try {
+      raw = await keys.read(LocalLedgerKeys.peerCerts);
+    } on Object {
+      return;
+    }
+    if (raw == null) return;
+    for (final c in decodeRetainedCerts(raw, holderDeviceId: id.deviceId)) {
+      if (c.deviceId != id.deviceId) _peerCerts[c.deviceId] = c;
+    }
+  }
+
   /// Records the server's acceptance of this install's x half (see
   /// [DeviceCertifier.recordUmkPubsAccepted]). Only for this device and this
   /// UMK's own bytes; anything else is ignored, never thrown — the caller is
@@ -3004,11 +3152,18 @@ final class LocalLedger
     _existingAccount = existing;
     _existingUmkAdopted = umkAdopted;
     _keySource.store = _newKeyStore();
-    await _openVerifiedMembers(id);
+    // The stored confirmation first: folding the directory checks each
+    // verification record's signature against this device's key, through
+    // the same `author` callback that refuses a provisional identity — read
+    // before the state was applied, a confirmed install with one verified
+    // member failed to reopen (`IdentityNotConfirmed`; found by F1-200-32's
+    // relaunch, TRUSTWIRE repair).
     _applyIdentityState(state);
+    await _openVerifiedMembers(id);
     _identity = id;
     await _loadOwnCert();
     await _loadUmkPubsAccepted();
+    await _loadPeerCerts();
 
     // Tenants and wrapped book keys back into memory (03 §3.1 key_cache).
     for (final b in await db.select(db.booksP).get()) {
@@ -4171,16 +4326,17 @@ final class LocalLedger
   /// held. Zero balances post nothing. The entries need not net to zero —
   /// Opening Balance absorbs the difference.
   ///
-  /// [date] defaults to the book's start date (ADR 2026-09-09d §4): an opening
-  /// balance describes the position on the day the books began, whenever the
-  /// account happens to be added. Pass a later date only when that month is
-  /// already locked — the 02 §8.1 pattern, the fix lands in the open period.
+  /// [date] defaults to [openingDateOf] (ADR 2026-09-09d §4): the book's
+  /// start date — an opening balance describes the position on the day the
+  /// books began, whenever the account happens to be added — or, when that
+  /// month is already locked, the first day of the earliest open month (the
+  /// 02 §8.1 pattern, the fix lands in the open period).
   Future<List<Entry>> openingBalances(
     String bookId, {
     required Map<String, int> balances,
     LocalDate? date,
   }) async {
-    final when = date ?? await startDateOf(bookId) ?? today();
+    final when = date ?? await openingDateOf(bookId);
     final c = await chartOf(bookId);
     final opening = c
         .byClass(AccountClass.equitySystem)
@@ -4210,6 +4366,96 @@ final class LocalLedger
       );
     }
     return out;
+  }
+
+  /// The day an opening balance added now is dated at (ADR 2026-09-09d §4 🔒,
+  /// A-09d-5): the book's start date; if that month is already locked, the
+  /// first day of the earliest open month after it, never later than today's
+  /// month. When every month up to today's is locked the start date is
+  /// returned unchanged, and [post] refuses it as `periodLocked` — the caller
+  /// shows its save error rather than this inventing a date.
+  ///
+  /// A book written before the ADR has no start date; today stands in, as it
+  /// always has here.
+  Future<LocalDate> openingDateOf(String bookId) async {
+    final start = await startDateOf(bookId) ?? today();
+    final periods = (await _stateOf(bookId)).periods;
+    if (periods.currentStatus(start.yearMonth) != PeriodStatus.locked) {
+      return start;
+    }
+    final last = today().yearMonth;
+    for (var m = start.yearMonth.next; m.compareTo(last) <= 0; m = m.next) {
+      if (periods.currentStatus(m) != PeriodStatus.locked) return m.firstDay;
+    }
+    return start;
+  }
+
+  /// What [accountId] of [bookId] reads now, all time, signed as the engine
+  /// signs it (+ = Dr: *you will get* for a person) — the live balance the
+  /// projection holds, whichever year a screen happens to be showing.
+  Future<int> balanceOf(String bookId, String accountId) async =>
+      (await _stateOf(bookId)).balances[accountId].raw;
+
+  /// The accounts of [bookId] still waiting for their opening-balance answer
+  /// (ADR 2026-10-07b §1 🔒): the S4 prompt and the S3 marker read this.
+  ///
+  /// **Derived from synced data only** — never a device preference, so a
+  /// second device that has applied the same envelopes asks exactly the same
+  /// question, or none. An account counts as answered when either holds:
+  ///
+  /// - an opening adjustment exists for it — an `adjustment` entry with one
+  ///   line on it and one on the book's *Opening Balance* account, whatever
+  ///   became of that entry later (ruling 2: either answer is final for the
+  ///   prompt; corrections go through *Opening balances*);
+  /// - a certified year close carries it in its vector (02 §8.1): its b/f is
+  ///   then the certified figure for every device. This also keeps the answer
+  ///   on a device whose archived years hold the adjustment only inside that
+  ///   vector (03 §3.3 rule 3). A person created after a close is not in any
+  ///   vector and is still asked; their answer lands in the earliest open
+  ///   month ([openingDateOf]).
+  ///
+  /// People accounts only, and never an archived one. ⚠️ SPEC (ADR
+  /// 2026-10-07b Open ⚠️, PLAN desk 177): the ruling names *money or people*
+  /// accounts; this reads **people only**. The entry picker — the one
+  /// creation path that does not ask — can create a person but never a money
+  /// account (`entry_slots.dart`: no slot lists `AccountClass.money` as
+  /// creatable, and a money account needs a subtype the picker never asks
+  /// for). Until the account object carries whether its opening was asked
+  /// (the wire field proposed in the lane report — 03's call), *unanswered*
+  /// is derived from what already syncs, and for money accounts that would
+  /// mark every Cash and bank account whose setup answer was zero. Expense
+  /// and income accounts never ask (02 §4: they start at zero for the year).
+  ///
+  /// ⚠️ SPEC: an account created in S3.1 or setup with a **zero** answer posts
+  /// nothing (02 §4; [openingBalances] skips zero), so it reads as
+  /// unanswered here, and *Not needed* cannot be recorded either — both need
+  /// the account-level field the lane report proposes. Until then the prompt
+  /// for such an account stays until a non-zero opening is added.
+  Stream<Set<String>> watchOpeningUnanswered(String bookId) {
+    final q = db.customSelect(
+      'SELECT a.id FROM accounts_p a '
+      "WHERE a.book_id = ? AND a.class = 'party' AND a.archived = 0 "
+      'AND NOT EXISTS ('
+      '  SELECT 1 FROM entry_lines_p l '
+      '  JOIN entries_p e ON e.id = l.entry_id '
+      '  JOIN entry_lines_p o ON o.entry_id = e.id '
+      '  JOIN accounts_p ob ON ob.id = o.account_id '
+      "  WHERE l.account_id = a.id AND e.kind = 'adjustment' "
+      "  AND ob.system_role = 'opening_balance'"
+      ') '
+      // A year_close vector is a JSON object keyed by account id with integer
+      // values, so the quoted id occurs in it only as a key.
+      'AND NOT EXISTS ('
+      '  SELECT 1 FROM year_close_p y '
+      '  WHERE y.book_id = a.book_id AND y.vector IS NOT NULL '
+      "  AND instr(y.vector, '\"' || a.id || '\"') > 0"
+      ')',
+      variables: [Variable.withString(bookId)],
+      readsFrom: {db.accountsP, db.entriesP, db.entryLinesP, db.yearCloseP},
+    );
+    return q.watch().map(
+      (rows) => {for (final r in rows) r.read<String>('id')},
+    );
   }
 
   // ── the review queue (02 §3 🔒) ────────────────────────────────────────────
@@ -4705,6 +4951,13 @@ final class LocalLedger
   /// `readStructuralState` unjudged: quarantined, unverified and corrupt rows
   /// are skipped exactly as Recompute skips them, and every policy question is
   /// the reader's.
+  ///
+  /// The one judgement added here is *who signed* each `structural_approval`
+  /// (02 §7.2.1 🔒): this device's own records are its own user's; every
+  /// other one is named by [structuralSignerOf] at this read, asked by the
+  /// envelope's signing identity `(author_device, author_seq)`. A record
+  /// signed by somebody other than its `by_user` is not counted, and one
+  /// nobody here can name leaves `signersConfirmed` false — never a guess.
   Future<StructuralReading> structuralStateOf(String bookId) async {
     _requireOpen();
     final rows =
@@ -4726,6 +4979,19 @@ final class LocalLedger
     final configVersions = <BookConfigVersion>[];
     final events = <StructuralEvent>[];
     final settings = <BusinessSetting>[];
+    // The signed envelope is rebuilt exactly as the opener rebuilds it (same
+    // tenant source, same payload schema), so the signature the signer
+    // re-checks is over the bytes that were opened — as the Inbox does
+    // (ledger_structural_requests.dart, `_sealedOf`).
+    final opener = recompute.opener;
+    final crypto = opener is CryptoPayloadOpener ? opener : null;
+    final tenantId = crypto?.keys.tenantIdOf(bookId);
+    // Signing identity → certified user, per verified record (02 §7.2.1 🔒).
+    // Keyed by `(author_device, author_seq)`, never by the payload's id: the
+    // pair is unique per verified envelope (05 per-author sequence 🔒; the
+    // mirror quarantines a repeat as `author_seq_duplicate`), the id is
+    // whatever the author wrote.
+    final signerByAuthor = <(String, int), String?>{};
     for (final r in rows) {
       if (r.quarantined == 1 || r.verified != 1) continue;
       final read = mirror.readBlobOfRow(r);
@@ -4767,7 +5033,29 @@ final class LocalLedger
               authorDevice: r.authorDevice,
               authorSeq: r.authorSeq,
             );
-            if (ev != null) events.add(ev);
+            // Unreadable, notThisObject or otherBook — as the Inbox refuses
+            // them (ledger_structural_requests.dart, `readStructuralBook`):
+            // a payload whose id is not the envelope's object id, or whose
+            // book is not the envelope's, is not this record.
+            if (ev == null || ev.id != r.objectId || ev.bookId != bookId) {
+              break;
+            }
+            events.add(ev);
+            final signer = r.authorDevice == identity.deviceId
+                ? identity.userId
+                : _structuralSignerOfRow(
+                    r,
+                    read.bytes,
+                    tenantId: tenantId,
+                    payloadSchema: crypto?.payloadSchema,
+                  );
+            // A pair seen twice (the mirror should have quarantined the
+            // second) names its signer only if both agree: otherwise nobody.
+            signerByAuthor.update(
+              (r.authorDevice, r.authorSeq),
+              (was) => was == signer ? was : null,
+              ifAbsent: () => signer,
+            );
         }
       } on FormatException {
         continue;
@@ -4780,7 +5068,43 @@ final class LocalLedger
       structuralEvents: events,
       businessSettings: settings,
       asOfMs: now().millisecondsSinceEpoch,
+      signerOf: (device, seq) =>
+          device == null || seq == null ? null : signerByAuthor[(device, seq)],
     );
+  }
+
+  /// Whose certified device signed the envelope [r] stores, by
+  /// [structuralSignerOf] over the envelope rebuilt from the row and [blob] —
+  /// or null when no signer is installed, the parts do not make an envelope,
+  /// or anything throws: *this phone cannot say*, never a guess.
+  String? _structuralSignerOfRow(
+    EnvelopesLocalData r,
+    Uint8List blob, {
+    required String? tenantId,
+    required int? payloadSchema,
+  }) {
+    final signer = structuralSignerOf;
+    if (signer == null || tenantId == null || payloadSchema == null) {
+      return null;
+    }
+    try {
+      final sealed = Envelope.fromParts(
+        suiteVersion: suiteVersion,
+        tenantId: tenantId,
+        bookId: r.bookId,
+        objectId: r.objectId,
+        objectType: r.objectType,
+        keyVersion: r.keyVersion,
+        payloadSchema: payloadSchema,
+        authorDeviceId: r.authorDevice,
+        hlc: r.hlc,
+        envelopeId: r.envelopeId,
+        blob: blob,
+      );
+      return signer(sealed, seq: r.seq);
+    } on Object {
+      return null;
+    }
   }
 
   /// Authors one `structural_approval` envelope — the initiation, approval,
@@ -4899,32 +5223,50 @@ final class LocalLedger
         reading.owners.inForce?.required ??
         (partnerAccounts.isEmpty ? 1 : partnerAccounts.length);
 
-    DistributionPreview refuse(DistributionRefusal refusal) =>
-        DistributionPreview(
-          bookId: bookId,
-          financialYear: fy,
-          from: start,
-          to: end,
-          netProfit: netProfit(state, chart, fy),
-          shares: const [],
-          interest: const {},
-          lines: const [],
-          headroom: distributionHeadroom(
-            state,
-            chart,
-            fy: fy,
-            proposed: Paise.zero,
-          ).headroom,
-          excess: Paise.zero,
-          interestEnabled: interestTerms.enabled,
-          rateBasisPoints: interestTerms.rateBasisPoints,
-          ownerSetVersion: ownerSetVersion,
-          approvalsRequired: approvalsRequired,
-          refusal: refusal,
-        );
+    DistributionPreview refuse(
+      DistributionRefusal refusal, {
+      bool signersUnconfirmed = false,
+    }) => DistributionPreview(
+      bookId: bookId,
+      financialYear: fy,
+      from: start,
+      to: end,
+      netProfit: netProfit(state, chart, fy),
+      shares: const [],
+      interest: const {},
+      lines: const [],
+      headroom: distributionHeadroom(
+        state,
+        chart,
+        fy: fy,
+        proposed: Paise.zero,
+      ).headroom,
+      excess: Paise.zero,
+      interestEnabled: interestTerms.enabled,
+      rateBasisPoints: interestTerms.rateBasisPoints,
+      ownerSetVersion: ownerSetVersion,
+      approvalsRequired: approvalsRequired,
+      refusal: refusal,
+      signersUnconfirmed: signersUnconfirmed,
+    );
 
     if (config?.ownership != BookOwnership.shared) {
       return refuse(DistributionRefusal.notShared);
+    }
+    // A structural record of this book is signed by a device this phone cannot
+    // name: it may be the veto that closed a ratio change, or the approvals
+    // that reached one, so the terms in force are not known. Asked before the
+    // quarantine below, because an approval nobody can name also leaves the
+    // `business_setting` it completed unapplied — the same wait, which must
+    // not read as a final block. Certificates that proved a signature are
+    // retained across launches (`retainPeerCert`), so this is the wait for a
+    // certificate this phone has never held — usually ended by a sync — and
+    // not what a member's removal leaves behind (review TRUSTWIRE-1, -2).
+    if (!reading.signersConfirmed) {
+      return refuse(
+        DistributionRefusal.termsUnverified,
+        signersUnconfirmed: true,
+      );
     }
     if (reading.quarantined.isNotEmpty) {
       return refuse(DistributionRefusal.termsUnverified);
@@ -5035,7 +5377,12 @@ final class LocalLedger
     final preview = await distributionPreview(bookId, from: from, to: to);
     final refusal = preview.refusal;
     if (refusal != null) {
-      throw DistributionRefused(bookId, refusal, excess: preview.excess);
+      throw DistributionRefused(
+        bookId,
+        refusal,
+        excess: preview.excess,
+        signersUnconfirmed: preview.signersUnconfirmed,
+      );
     }
     final when = date ?? preview.to;
     if (preview.quorumOfOne) {
@@ -6806,6 +7153,7 @@ final class LocalLedger
     _umkVerified = null;
     _verifiedMembers = null;
     _ownCert = null;
+    _peerCerts.clear();
     _umkPubsAccepted = false;
     _identity = null;
   }

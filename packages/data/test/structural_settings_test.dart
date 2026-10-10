@@ -400,6 +400,7 @@ void main() {
           ],
           owners: const [owners],
           asOfMs: _day(13),
+          signerOf: null,
         );
         expect(outcome.isApplied, isTrue);
 
@@ -777,6 +778,7 @@ void main() {
           structuralEvents: events(),
           owners: const [ownersV1],
           asOfMs: _day(20),
+          signerOf: null,
         );
 
     test('E-03-36 a record whose request is approved and whose settings equal '
@@ -923,6 +925,7 @@ void main() {
         ],
         owners: const [ownersV1],
         asOfMs: _day(20),
+        signerOf: null,
       );
       expect(vetoed.applied, isEmpty);
       expect(

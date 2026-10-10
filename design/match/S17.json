@@ -1,0 +1,44 @@
+{
+ "sid": "S17",
+ "verdict": "deviates",
+ "frames": [
+  "c10/S17/Help"
+ ],
+ "captures": [
+  "S17__default"
+ ],
+ "screen_files": [
+  "app/lib/features/help/screens/s17_help_screen.dart",
+  "app/lib/features/help/widgets/help_widgets.dart",
+  "app/lib/features/help/faq_catalog.dart",
+  "app/lib/features/help/help_routes.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c10 S17 *Help*: title 'Help' centred on the lighter surface fill; the frame left-aligns it beside the chevron on the page cream",
+   "reason": "[shared] app bar",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c10 S17 *Help*: the app opens with an intro line 'Find an answer here, or send us the little that we are allowed to see.' then a rounded outlined Material search field 'Search help'; the frame has no intro and a square-cornered paper search box 'What do you need help with?' on a cream band",
+   "reason": "[shared] search field; the intro and placeholder copy are [screen]",
+   "authority": "07 §22 🔒 (searchable FAQ hub); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c10 S17 *Help*: the app lists questions directly under 'Questions people ask', grouped by sentence-case muted headers (Getting started, Writing entries, Family, staff and partners …), each a row with a ? circle icon, the question and a chevron; the frame lists topics under an uppercase caption 'BY WHAT YOU ARE DOING' — Getting started, Entering money, Bank statements, Family and sharing, Closing the month, If you lose your phone, Plans and payment — each a paper row with title + muted description + chevron between hairlines, no leading icon",
+   "reason": "[screen] — the frame's hub is a topic list (one level more: topic → questions); the app's is the question list. ⚠️ SPEC (open): the topic level is not in faq_catalog.dart's FaqGroup set (start, entries, people, safety, trouble) — the frame's seven topics do not map one-to-one. [shared] list row (title + description + chevron)",
+   "authority": "07 §22 🔒; ADR 2026-09-02 (S17.1 folded into S17); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c10 S17 *Help*: the frame ends its first screen with a full-width navy primary button at the bottom (label cut by the fold); the app has no pinned action — Contact support and Send diagnostics are rows further down the scrolling list (s17_help_screen.dart:162, :168)",
+   "reason": "[shared] primary button (pinned bottom action); the frame's label is not visible, so its target is not verified",
+   "authority": "ADR 2026-10-05 §1"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "8f7fa7067b9b888126e7415cbdc72279526904620b6101450f62d0f1693110df",
+  "frames": "808ca860145f740385c2a536cbbaf16fb576dd28e5f3ae40b3fc11783a10ef3a"
+ }
+}

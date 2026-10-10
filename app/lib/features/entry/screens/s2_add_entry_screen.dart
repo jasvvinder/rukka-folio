@@ -548,7 +548,11 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
             l10n.entrySaved,
             key: AddEntryKeys.savedMessage,
           ),
+          // 13 §4.2 *the 10 s Undo*; then it leaves on its own. Flutter ≥
+          // 3.29 persists a SnackBar with an action until it is tapped —
+          // over the keypad and Save (desk 183 b; the SETUP174 fix on S1).
           duration: const Duration(seconds: 10),
+          persist: false,
           action: SnackBarAction(
             label: l10n.entryUndo,
             onPressed: () => _undo(ledger, entry.id),
@@ -675,7 +679,11 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
             l10n.entrySaved,
             key: AddEntryKeys.savedMessage,
           ),
+          // 13 §4.2 *the 10 s Undo*; then it leaves on its own. Flutter ≥
+          // 3.29 persists a SnackBar with an action until it is tapped —
+          // over the keypad and Save (desk 183 b; the SETUP174 fix on S1).
           duration: const Duration(seconds: 10),
+          persist: false,
           action: SnackBarAction(
             label: l10n.entryUndo,
             // ⚠️ SPEC: 02 §5 defines the reversal of *an entry*; neither it
@@ -1243,6 +1251,10 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                 onPressed: _complete && !_saving
                     ? () => _save(ledger, bookId, books)
                     : null,
+                // No shrink shim: at 200 % on 360×800 the longest Save label,
+                // HI *सुरक्षित करें* (ADR 2026-10-08 §2), is one line in Mukta.
+                // F1-07-121 measures that in the design fonts and fails if a
+                // label ever wraps (07 §5 🔒: this screen never scrolls).
                 child: Text(l10n.entrySave),
               ),
             ),

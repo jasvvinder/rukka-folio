@@ -256,6 +256,31 @@ void main() {
     },
   );
 
+  testWidgets(
+    'F1-196-1 S6 over a held engine (Offline underneath) shows no offline '
+    'chip; once registered the real Offline chip shows (ADR 2026-10-10 §2 🔒)',
+    (tester) async {
+      final queue = FakeReviewQueue(
+        initial: InboxSnapshot(reviews: [_group(entries: 1)]),
+      );
+      addTearDown(queue.dispose);
+      final sync = FakeSyncClient(initial: const Offline(), held: true);
+      addTearDown(sync.dispose);
+      await pumpRk(
+        tester,
+        _screen(queue),
+        sync: sync,
+        viewport: rkTallViewport,
+      );
+      expect(find.textContaining('Offline'), findsNothing);
+      expect(find.text('Approve all'), findsOneWidget);
+
+      sync.held = false;
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Offline'), findsOneWidget);
+    },
+  );
+
   for (final locale in rkLocales) {
     for (final scale in rkTextScales) {
       testWidgets(

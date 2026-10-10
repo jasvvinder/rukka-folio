@@ -476,12 +476,8 @@ final class SyncEngine {
     if (waitingFor != null) return WaitingFor(waitingFor);
     if (_offline) return const Offline();
     if (hold != null) {
-      // ⚠️ SPEC (ADR 2026-10-09 §1; 05 §9 🔒 "no other states"): *not
-      // registered yet* is not a sixth state. Read conservatively: a queued
-      // row is "saved on phone · will sync" (true), and nothing queued is
-      // Offline — never Synced, which would claim a server confirmed
-      // something. The app tells the hold apart through [hold]; owner to
-      // confirm what the chip shows before S0.2 (lane report M13-SYNC168).
+      // Held is not a sixth state (05 §9 🔒): queued → SavedWillSync, else
+      // Offline, never Synced; the app shows no chip while held (ADR 2026-10-10 §2).
       return pending > 0 ? SavedWillSync(pending) : const Offline();
     }
     if (pending > 0) return SavedWillSync(pending);

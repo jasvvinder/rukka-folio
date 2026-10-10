@@ -98,6 +98,7 @@ StructuralItem _item({
     records: records,
     owners: versions,
     asOfMs: asOfMs ?? _nowMs,
+    signerOf: null, // fixtures are pre-bound: each approval is its own owner's
   );
   return StructuralItem(
     request: r,
@@ -663,9 +664,11 @@ void main() {
       },
     );
 
-    testWidgets('F1-07-36 quorum reached is stated as in force', (
-      tester,
-    ) async {
+    // Review F200I-4: the card used to say *"so this is now in force"*, but
+    // nothing in the app applies an approved request yet (no distribution is
+    // posted, no business_setting written), so it states agreement only.
+    testWidgets('F1-07-36 quorum reached is stated as agreed — and not as '
+        'already made in the books', (tester) async {
       final seam = _seam([
         _item(viewerId: 'u2', approvedBy: const ['u1', 'u2', 'u3']),
       ]);
@@ -673,9 +676,13 @@ void main() {
 
       expect(find.text('The owners agreed'), findsOneWidget);
       expect(
-        find.text('3 of 3 owners approved, so this is now in force.'),
+        find.text(
+          '3 of 3 owners approved. The change is agreed, but it has not been '
+          'made in the books yet.',
+        ),
         findsOneWidget,
       );
+      expect(find.textContaining('in force'), findsNothing);
       expect(find.widgetWithText(FilledButton, 'Approve'), findsNothing);
     });
   });

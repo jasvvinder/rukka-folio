@@ -1,0 +1,102 @@
+{
+ "sid": "S8.2",
+ "verdict": "deviates",
+ "frames": [
+  "c15/S8.2/Report viewer · Profit and Loss",
+  "c15/S8.2/Save or share · from the report’s PDF button",
+  "c15/S8.2/Share sheet · iPhone · Print, Save to Files, WhatsApp",
+  "c15/S8.2/Share sheet · Android · Print, Save to device, WhatsApp",
+  "c15/S8.2/Report viewer · Profit and Loss#2",
+  "c15/S8.2/Nothing in this period yet",
+  "c15/S8.2/Trial Balance",
+  "c15/S8.2/You will get, by age",
+  "c15/S8.2/Family match check",
+  "c7/S8.2/Save or share · from the khata’s PDF button",
+  "c7/S8.2/Share sheet · iPhone · Print, Save to Files, WhatsApp",
+  "c7/S8.2/Share sheet · Android · Print, Save to device, WhatsApp",
+  "nb/S8.2-tb/S8.2-tb",
+  "nb/S8.2-age/S8.2-age",
+  "nb/S8.2-match/S8.2-match"
+ ],
+ "captures": [
+  "S8.2__day-book",
+  "S8.2__choose-format",
+  "S8.2__empty"
+ ],
+ "screen_files": [
+  "app/lib/features/reports/screens/s8_2_report_viewer_screen.dart",
+  "app/lib/features/reports/widgets/export_actions.dart",
+  "app/lib/features/reports/widgets/export_sheet.dart",
+  "app/lib/features/reports/day_book.dart",
+  "app/lib/features/ledger/widgets/fy_switcher.dart",
+  "app/lib/features/reports/reports_routes.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c15 S8.2 *Report viewer · Profit and Loss* (and #2), *Trial Balance*, *You will get, by age*, *Family match check*, nb *S8.2-tb* / *S8.2-age* / *S8.2-match*: none of these reports exists — production S8.2 is the Day Book only (reports_routes.dart builds `const ReportViewerScreen()` under /menu/reports/day-book), and S8.1 shows the others disabled-with-reason. The Day Book capture stands in for the viewer layout",
+   "reason": "[screen] — not built: the remaining reports are M12. Each frame becomes its report's target when it is built",
+   "authority": "ADR 2026-09-12 Consequences (remaining reports M12); 07 §14 🔒; 13 §3.2 row S8.2"
+  },
+  {
+   "what": "c15 S8.2 *Report viewer · Profit and Loss*: the frame's header is a left-aligned title over a muted subtitle 'Sharma Textile · Aug 2026' (book · period) with two outlined square buttons 'PDF' and 'Share' at the right (c15 *Trial Balance* / *You will get, by age* / *Family match check*: bold title, subtitle 'Sharma Textile · as at 31 Aug 2026', navy text links 'PDF' 'Share', no back chevron); the app's bar has a chevron, 'Day Book' as title with no subtitle, a navy share icon + 'Download / Share' text button and a ••• overflow icon for Choose a format",
+   "reason": "[shared] app bar (title + book · period subtitle, leading alignment, text actions); the two actions stay as ruled — Download/Share sends PDF, Choose a format opens the three-format sheet — the frame's 'PDF' + 'Share' pair is a relabel the owner may rule on",
+   "authority": "ADR 2026-09-12 §1 🔒 (View report / Download-Share, both paths); ADR 2026-09-12d §2 🔒 (PDF default); ADR 2026-09-13 §1 🔒 (Share half)"
+  },
+  {
+   "what": "c15 S8.2 *Report viewer · Profit and Loss*: the frame has a one-line takeaway band on paper ('August: in ₹1,75,000 · out ₹1,38,200 · saved ₹36,800') then an uppercase letter-spaced column header (KHATA · THIS MONTH · YEAR) with a heavy rule under it; the Day Book shows 'FY 2026-27' as muted text, a takeaway line '7 entries ₹1,65,000 Dr ₹1,65,000 Cr', a green check + 'Dr and Cr agree', and a sentence-case 'Particulars   Dr   Cr' header at title size with no rule",
+   "reason": "[shared] report table header (uppercase caption, heavy rule) and takeaway band; FY as plain text is the ruled shipped state until a year has closed",
+   "authority": "ADR 2026-09-09 §4 🔒 (FY switcher: plain text before any close); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c15 S8.2 *Report viewer · Profit and Loss* / *Trial Balance*: rows are single-line label + right-aligned figures split by hairlines; the Day Book groups each voucher as a block — date heading (muted, title size), one row per line with the Dr figure in the middle column and the Cr in the right, the narration muted under, and a full-bleed hairline between vouchers",
+   "reason": "[screen] — the Day Book's voucher grouping is its own shape (07 §14); row type and density follow the frame's table rows when restyled — [shared] list row (report row)",
+   "authority": "07 §14 🔒 (Day Book); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c15 S8.2 *Report viewer · Profit and Loss*: the frame uses consumer section captions 'MONEY EARNED' (green) / 'MONEY SPENT' (red) and a 'Saved' total; the app's report vocabulary is professional — the Day Book says Dr / Cr",
+   "reason": "[canvas-wrong] for the vocabulary: reports are a professional surface and show true Dr/Cr; P&L wording is settled when it is built (M12)",
+   "authority": "ADR 2026-10-10b §4 🔒; 02 §10 🔒; CLAUDE.md rule 9"
+  },
+  {
+   "what": "c15 S8.2 *Save or share · from the report’s PDF button* / c7 *Save or share · from the khata’s PDF button*: the frame's sheet covers the whole screen including the bottom, titled 'Save or share' with a subtitle (report · book · period) and a close ×, rows PDF ('A4, print-ready · amount in words · 2 pages') and 'Spreadsheet (XLSX)' ('Opens in Excel or Google Sheets') with tinted icon tiles and chevrons, and the footer 'Made on this phone. Nothing leaves it until you share.'; the app's sheet (S8.2__choose-format) is titled 'Download or share this report' with no subtitle or ×, rows PDF / CSV / XLSX with bare icons, and opens inside the Menu tab, so the tab bar and (+) sit over its bottom edge",
+   "reason": "[shared] sheet (title + subtitle + close, icon tiles, footer; opened on the root navigator so it covers the tab bar); CSV stays — [canvas-wrong] for the two-row list",
+   "authority": "ADR 2026-09-12e §2 🔒 (every report surface offers PDF, CSV, XLSX); ADR 2026-09-12 §1 🔒"
+  },
+  {
+   "what": "c15/c7 S8.2 *Save or share*: the PDF row is enabled in the frame; in the app it is drawn with a lock and 'PDF is not on your plan. CSV and XLSX work on every plan.' — production's entitlement is untokened (Free), which has no PDF output",
+   "reason": "[screen] — the plan gate is ruled; the frame draws a plan with PDF",
+   "authority": "ADR 2026-09-25 §5 🔒 (Free: no PDF output); ADR 2026-09-05g §1 🔒 (no token is Free)"
+  },
+  {
+   "what": "c15 S8.2 *Share sheet · iPhone / Android* and c7 *Share sheet · iPhone / Android*: not captured — the app hands the file to the platform share sheet (Printing.sharePdf, file_report_sink.dart:31), which the OS draws; the frames mock that sheet ('Ready to share', file tile, WhatsApp/Mail/Files/Copy, Print, Save to Files/device)",
+   "reason": "[screen] — the platform draws it; nothing in the app to match. Checkable only on a device",
+   "authority": "ADR 2026-09-13 §1 🔒 (Share raises the platform share sheet)"
+  },
+  {
+   "what": "c15 S8.2 *Nothing in this period yet* (S8.2__empty): the app writes 'Nothing has been entered in this period.' as one left-aligned body line under 'FY 2026-27', with the export actions still in the bar; the frame centres an outlined document illustration, the title 'Nothing in this period yet', 'September has no entries so far. The report will fill in as you record.' and an outlined 'Choose another month' button, with no PDF/Share in the bar",
+   "reason": "[shared] empty state (centred icon, title, body, one next action); the 'Choose another month' door is the FY switcher's, which ships as plain text until a year closes — ⚠️ SPEC (open): the empty state's one next action",
+   "authority": "13 §4.3 (empty state with one next action); 07 §1 rule 6 🔒; ADR 2026-09-09 §4 🔒"
+  },
+  {
+   "what": "c15 S8.2 *Trial Balance* / *You will get, by age* / *Family match check*: those frames draw the four-tab bar (Home · Ledger · Inbox · Menu); the app's bar has the docked (+)",
+   "reason": "[shared] bottom bar/shell — phase 2",
+   "authority": "ADR 2026-10-10b §2 🔒"
+  },
+  {
+   "what": "S8.2__day-book__android360, S8.2__empty__android360, S8.2__choose-format__android360 (360×800): the app-bar title is clipped to 'Day …' — the leading back arrow, the 'Download / Share' text button with its icon and the ••• overflow leave the title too little width. At 390×844 it reads 'Day Book' in full. The frame (c15 *Report viewer*) has short 'PDF' / 'Share' actions and a full title",
+   "reason": "[screen] defect — clipped text in the Android capture is a defect, not a platform default; the fix (shorter or icon-only actions on narrow widths, or the frame's 'PDF' + 'Share' pair under the [shared] app bar) belongs to the Reports owner (app/lib/features/reports/widgets/export_actions.dart, s8_2_report_viewer_screen.dart), outside this audit slice",
+   "authority": "ADR 2026-10-05 §2 (Android capture: anything broken, clipped or unreadable is fixed); 13 §8 (no truncation at 360×800, even at 200 % — here it truncates at 100 %); ADR 2026-09-12 §1 🔒 (both export actions stay)"
+  },
+  {
+   "what": "While Download / Share (or a format picked from the sheet) writes the file, a 2 px loader rule with 'Preparing your file' sits under the app bar, and further taps are ignored until the file is written. No canvas frame draws this transient state; it is not in any capture, because the drawn states are idle",
+   "reason": "[state] — the canvas draws no export-in-progress frame; this follows S4's generating rule for the same export (s4_account_statement_screen.dart _GeneratingRule). Added after shaping made a Punjabi or Hindi PDF take long enough to need it (REP183C review finding 4)",
+   "authority": "design-system.md §7 (op < 200 ms: nothing; countable work incl. export: loader rule); 11 §4.5 🔒 (rule, never a spinner); 07 §1 rule 3 (never colour alone)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "70bacf2fe40dacd8a1f479afb635d343ae177301a3824a60ea64bc0382364ba6",
+  "frames": "2ddd57ccfa9dce78810dccbcd97b37b681e182624e88bf7cf1294c8a994d90da"
+ }
+}

@@ -452,6 +452,28 @@
   "@inbox.structural.quorum.unknown": {
     "description": "S6.3 disabled-with-reason: the request names an owner-set version this reader has not seen (13 §4.3)."
   },
+  "inbox.structural.terms.unknown": "This phone can’t show everything this request would change, so it can’t be approved here. You can still stop it with a reason.",
+  "@inbox.structural.terms.unknown": {
+    "description": "S6.3 disabled-with-reason (13 §4.3): the request carries a change this app version cannot put into words (07 §26 🔒 states exactly what will change), so Approve is withheld; Veto with reason stays."
+  },
+  "inbox.structural.signers.unconfirmed": "This phone can’t yet confirm who signed some of the owners’ decisions in {book}, so this may not be where things really stand. Approve and Veto come back once it can — usually after the next sync.",
+  "@inbox.structural.signers.unconfirmed": {
+    "description": "S6.3 — 02 §7.2.1 🔒 counts an approval or veto only from that owner’s own device. While a record’s signer cannot be confirmed on this phone (no checkable device certificate yet, e.g. before the first sync after a launch) it is not counted, the status may be missing a veto, so Approve and Veto are withheld with this reason (13 §4.3).",
+    "placeholders": {
+      "book": {
+        "type": "String"
+      }
+    }
+  },
+  "inbox.structural.unconfirmed": "{count, plural, =1{One decision for the owners is waiting until this phone can confirm who signed it.} other{{count} decisions for the owners are waiting until this phone can confirm who signed them.}}",
+  "@inbox.structural.unconfirmed": {
+    "description": "S6 structural section — records whose signer this phone cannot confirm yet are not drawn as cards (a request another owner raised may be among them), so the section says how many wait rather than show nothing (13 §4.3; 02 §7.2.1 🔒).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
   "inbox.structural.deadline": "Lapses on {date} if the owners have not agreed by then.",
   "@inbox.structural.deadline": {
     "description": "S6.3 — the 14-day expiry of 02 §7.2.1, taken from the engine’s own deadline.",
@@ -555,9 +577,9 @@
   "@inbox.structural.done.title": {
     "description": "S6.3 approved state — quorum reached."
   },
-  "inbox.structural.done.body": "{done} of {total} owners approved, so this is now in force.",
+  "inbox.structural.done.body": "{done} of {total} owners approved. The change is agreed, but it has not been made in the books yet.",
   "@inbox.structural.done.body": {
-    "description": "S6.3 approved state body.",
+    "description": "S6.3 approved state body — quorum reached. ⚠️ SPEC: nothing in the app applies an approved request yet (an approved distribution is not posted, no business_setting is written — desk item, lane report M13-F200I), so this must not say the change is in force. 02 §7.2.1 🔒 (*it takes effect only when the quorum of signed approval envelopes exists*) states a condition, not the applying step that is still missing.",
     "placeholders": {
       "done": {
         "type": "int"

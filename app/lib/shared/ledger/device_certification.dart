@@ -174,19 +174,8 @@ bool umkPubsAcceptedMatches(
 /// Field names match the `device_certs` meta row (03 §2.2) so the two shapes
 /// stay readable side by side; unknown fields are ignored on decode and the
 /// record is never rewritten (the identity record's rule).
-Uint8List encodeDeviceCert(DeviceCert cert) => Uint8List.fromList(
-  utf8.encode(
-    jsonEncode({
-      'suite_version': cert.suiteVersion,
-      'user_id': cert.userId,
-      'device_id': cert.device.deviceId,
-      'pub_ed': Bytes.base64Url(cert.device.ed25519),
-      'pub_x': Bytes.base64Url(cert.device.x25519),
-      'issued_at_ms': cert.issuedAtMs,
-      'signature': Bytes.base64Url(cert.signature),
-    }),
-  ),
-);
+Uint8List encodeDeviceCert(DeviceCert cert) =>
+    Uint8List.fromList(utf8.encode(jsonEncode(deviceCertJson(cert))));
 
 /// Parses [encodeDeviceCert]. Null on anything that is not the record — a
 /// certificate that will not parse is a device that is not certified, which is
@@ -198,6 +187,22 @@ DeviceCert? decodeDeviceCert(Uint8List bytes) {
   } on FormatException {
     return null;
   }
+  return deviceCertFromJson(j);
+}
+
+/// [cert] as the JSON object [encodeDeviceCert] stores.
+Map<String, Object?> deviceCertJson(DeviceCert cert) => {
+  'suite_version': cert.suiteVersion,
+  'user_id': cert.userId,
+  'device_id': cert.device.deviceId,
+  'pub_ed': Bytes.base64Url(cert.device.ed25519),
+  'pub_x': Bytes.base64Url(cert.device.x25519),
+  'issued_at_ms': cert.issuedAtMs,
+  'signature': Bytes.base64Url(cert.signature),
+};
+
+/// Parses one [deviceCertJson] object; null on anything else.
+DeviceCert? deviceCertFromJson(Object? j) {
   if (j is! Map) return null;
   final userId = j['user_id'], deviceId = j['device_id'];
   final pubEd = j['pub_ed'], pubX = j['pub_x'];
@@ -229,4 +234,41 @@ DeviceCert? decodeDeviceCert(Uint8List bytes) {
   } on ArgumentError {
     return null;
   }
+}
+
+/// The stored form of the **retained** certificates — other devices' (see
+/// `LocalLedger.retainPeerCert`): UTF-8 JSON `{holder_device_id, certs: [...]}`
+/// in the [KeyStore], each entry a [deviceCertJson] object. [holderDeviceId]
+/// is this install's device: a record written for another install (a
+/// re-minted identity) is not read back. Public material only — a signature
+/// and two public keys per device, as the `device_certs` meta row carries.
+Uint8List encodeRetainedCerts({
+  required String holderDeviceId,
+  required Iterable<DeviceCert> certs,
+}) => Uint8List.fromList(
+  utf8.encode(
+    jsonEncode({
+      'holder_device_id': holderDeviceId,
+      'certs': [for (final c in certs) deviceCertJson(c)],
+    }),
+  ),
+);
+
+/// Parses [encodeRetainedCerts] for [holderDeviceId]. An entry that will not
+/// parse is skipped; a record for another holder, or one that is not the
+/// record at all, reads as none retained — the state every install starts in.
+List<DeviceCert> decodeRetainedCerts(
+  Uint8List bytes, {
+  required String holderDeviceId,
+}) {
+  final Object? j;
+  try {
+    j = jsonDecode(utf8.decode(bytes));
+  } on FormatException {
+    return const [];
+  }
+  if (j is! Map || j['holder_device_id'] != holderDeviceId) return const [];
+  final certs = j['certs'];
+  if (certs is! List) return const [];
+  return [for (final c in certs) ?deviceCertFromJson(c)];
 }

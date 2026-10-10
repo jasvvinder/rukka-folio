@@ -134,6 +134,7 @@ OwnerSetReading _fold({
   accounts: accounts ?? _chart(),
   structuralEvents: events,
   asOfMs: _day(asOfDay),
+  signerOf: null,
 );
 
 const _twoOwners = {'farm:amrit': 1, 'farm:sukhdev': 1};
@@ -246,6 +247,7 @@ void main() {
         records: records,
         owners: reading.versions,
         asOfMs: _day(20),
+        signerOf: null,
       );
       expect(outcome.status, StructuralStatus.pending);
       expect(outcome.isApplied, isFalse);
@@ -264,6 +266,7 @@ void main() {
           ),
         ],
         asOfMs: _day(20),
+        signerOf: null,
       );
       expect(shrunk.isApplied, isTrue, reason: 'the wrong answer, stated');
     });
@@ -609,6 +612,7 @@ void main() {
         records: approvals,
         owners: versions,
         asOfMs: _day(20),
+        signerOf: null,
       );
       expect(outcome.threshold, 2, reason: 'the two owners of version 1');
       expect(outcome.isApplied, isTrue);
@@ -620,6 +624,7 @@ void main() {
         records: approvals,
         owners: versions,
         asOfMs: _day(20),
+        signerOf: null,
       );
       expect(premature.status, StructuralStatus.pending);
     });
@@ -644,6 +649,7 @@ void main() {
         ],
         owners: versions,
         asOfMs: _day(20),
+        signerOf: null,
       );
       expect(outcome.threshold, 2, reason: 'version 1, the earliest named');
       expect(outcome.isApplied, isTrue);
@@ -657,6 +663,7 @@ void main() {
         ],
         owners: versions,
         asOfMs: _day(20),
+        signerOf: null,
       );
       expect(fresh.threshold, 3);
       expect(fresh.status, StructuralStatus.pending);
@@ -760,6 +767,7 @@ void main() {
         records: events,
         owners: reading.versions,
         asOfMs: _day(20),
+        signerOf: null,
       );
       expect(outcome.status, StructuralStatus.pending);
       expect(outcome.approvedBy, ['amrit']);
@@ -809,6 +817,7 @@ void main() {
         records: events,
         owners: reading.versions,
         asOfMs: _day(20),
+        signerOf: null,
       );
       expect(outcome.status, StructuralStatus.pending);
       expect(
@@ -833,6 +842,7 @@ void main() {
         structuralEvents: events,
         owners: reading.versions,
         asOfMs: _day(20),
+        signerOf: null,
       );
       expect(verified.applied, isEmpty);
       expect(
@@ -854,6 +864,7 @@ void main() {
         ],
         owners: reading.versions,
         asOfMs: _day(20),
+        signerOf: null,
       );
       expect(later.threshold, 3);
       expect(later.isApplied, isFalse);
@@ -947,6 +958,7 @@ void main() {
       structuralEvents: story(),
       businessSettings: records(),
       asOfMs: _day(50),
+      signerOf: null,
     );
 
     test('E-03-45 founding two, a ratio by both, a third owner, then majority '
@@ -1003,6 +1015,7 @@ void main() {
           records: story(),
           owners: asMajority,
           asOfMs: _day(50),
+          signerOf: null,
         ).isApplied,
         isTrue,
       );
@@ -1011,6 +1024,7 @@ void main() {
         records: story(),
         owners: asAllOwners,
         asOfMs: _day(50),
+        signerOf: null,
       );
       expect(under.status, StructuralStatus.pending);
       expect(under.threshold, 3);
@@ -1022,6 +1036,7 @@ void main() {
         structuralEvents: story(),
         owners: asAllOwners,
         asOfMs: _day(50),
+        signerOf: null,
       );
       expect(verified.applied.map((r) => r.id), ['bs-1', 'bs-2', 'bs-3']);
       expect(verified.quarantined.single.objectId, 'bs-4');
@@ -1047,6 +1062,7 @@ void main() {
         structuralEvents: story(),
         businessSettings: records(),
         asOfMs: _day(50),
+        signerOf: null,
       );
       expect(empty.deed, isNull);
       expect(empty.owners.versions, isEmpty);
@@ -1072,6 +1088,7 @@ void main() {
           structuralEvents: const [],
           businessSettings: const [],
           asOfMs: _day(50),
+          signerOf: null,
         ),
         throwsArgumentError,
       );

@@ -314,9 +314,10 @@ class _Body extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final sync = RkScope.of(context).sync;
     final n = chosen.length;
-    return StreamBuilder<SyncStatus>(
-      stream: sync.status,
-      initialData: sync.current,
+    return StreamBuilder<SyncStatus?>(
+      // Held → null: no chip, nothing disabled (ADR 2026-10-10 §2 🔒).
+      stream: sync.chipStatus,
+      initialData: sync.chipCurrent,
       builder: (context, ss) {
         final offline = ss.data is Offline;
         return ListView(

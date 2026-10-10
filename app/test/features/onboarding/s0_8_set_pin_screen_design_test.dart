@@ -6,6 +6,7 @@ library;
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/features/lock/biometric_gate.dart';
+import 'package:rukka_folio/features/lock/biometric_kind.dart';
 import 'package:rukka_folio/features/lock/lock_scope.dart';
 import 'package:rukka_folio/features/onboarding/screens/s0_8_set_pin_screen.dart';
 
@@ -31,9 +32,15 @@ void main() {
           target: target,
           child: LockScope(
             vault: await makeVault(clock),
-            biometrics: FakeBiometricGate(const [
-              BiometricOutcome.unavailable,
-            ], enrolled),
+            // ADR 2026-10-08 §3: the c1/c11 O4b pair names each phone's
+            // own method — Face ID on the iPhone, the fingerprint on Android.
+            biometrics: FakeBiometricGate(
+              const [BiometricOutcome.unavailable],
+              enrolled,
+              target == RkDesignTarget.ios
+                  ? BiometricModality.face
+                  : BiometricModality.fingerprint,
+            ),
             child: SetPinScreen(
               onBack: () {},
               debugTyped: typed,

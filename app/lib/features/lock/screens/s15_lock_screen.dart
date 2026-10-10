@@ -35,6 +35,13 @@
 // desk 147, owner to rule). Where no ladder door exists yet (the cold start,
 // [LockScreen.onForgotPinPinOnly] null) the page says only the PIN opens and
 // offers no button that would do nothing (GATE1 review finding 2).
+//
+// The method by name (ADR 2026-10-08 §3 🔒, desk 166): every line, button and
+// glyph names the method this phone uses — Face ID · Touch ID · Fingerprint ·
+// Face unlock — from the platform and the gate's enrolled modality
+// ([BiometricWords]); never *Face ID* on an Android phone. A gate that cannot
+// say which biometric is enrolled gets the neutral name (⚠️ SPEC, see
+// biometric_kind.dart).
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -46,8 +53,8 @@ import '../../../shared/tokens.dart';
 import '../../devices/pin_vault.dart';
 import '../../onboarding/widgets/sealed_mark.dart';
 import '../biometric_gate.dart';
+import '../biometric_kind.dart';
 import '../lock_scope.dart';
-import '../widgets/face_id_glyph.dart';
 import '../widgets/pin_pad.dart';
 
 /// Why the PIN pad is being asked for, which changes one line of copy.
@@ -142,6 +149,9 @@ class _LockScreenState extends State<LockScreen> {
   bool _pinOnly = false;
   BiometricOutcome? _biometric;
 
+  /// Which biometric the gate says is enrolled; null names it neutrally.
+  BiometricModality? _modality;
+
   /// The gate was invalidated (ADR 2026-10-06 §4): only the MPIN opens now.
   bool get _reenrolled => _biometric == BiometricOutcome.reenrolled;
   Timer? _ticker;
@@ -170,6 +180,9 @@ class _LockScreenState extends State<LockScreen> {
   }
 
   Future<void> _start() async {
+    final modality = await enrolledModalityOf(LockScope.of(context).biometrics);
+    if (!mounted) return;
+    setState(() => _modality = modality);
     await _refresh();
     if (!mounted) return;
     if (widget.reason == LockReason.biometricReenrolled) {
@@ -282,6 +295,7 @@ class _LockScreenState extends State<LockScreen> {
     final status = RkStatusColors.of(context);
     final scheme = Theme.of(context).colorScheme;
     final vaultStatus = _status;
+    final words = BiometricWords.of(context, _modality);
 
     // c1 S15.3 *Forgot PIN · a code, not a lockout*: its own page, back
     // chevron, no mark.
@@ -338,7 +352,10 @@ class _LockScreenState extends State<LockScreen> {
       return _LockPage(
         markSize: _LockPage.markPinS153,
         body: [
-          _DisabledPanel(onReset: () => setState(() => _forgotDoor = true)),
+          _DisabledPanel(
+            words: words,
+            onReset: () => setState(() => _forgotDoor = true),
+          ),
         ],
       );
     }
@@ -348,6 +365,7 @@ class _LockScreenState extends State<LockScreen> {
         body: [
           _CooldownPanel(
             remaining: _remaining(vaultStatus),
+            words: words,
             noBiometric: _pinOnly || _reenrolled,
             onBiometric: _promptBiometric,
           ),
@@ -369,6 +387,7 @@ class _LockScreenState extends State<LockScreen> {
             attemptsLeft: vaultStatus.attemptsLeft,
             warn: vaultStatus.inPenaltyBand,
             biometric: _biometric,
+            words: words,
             pinOnly: _pinOnly,
             onRetryBiometric: _busy ? null : _promptBiometric,
           ),
@@ -384,6 +403,7 @@ class _LockScreenState extends State<LockScreen> {
     // The face states (c3 S15 *waiting for Face ID*, *Face not recognised*).
     final failed = !_prompting && _biometric == BiometricOutcome.failed;
     final glyph = _FaceGlyph(
+      words: words,
       prompting: _prompting,
       failed: failed,
       onPressed: _prompting ? null : _promptBiometric,
@@ -412,9 +432,17 @@ class _LockScreenState extends State<LockScreen> {
       body: [
         title,
         glyph,
+        // c3 S15 *waiting for fingerprint · Android*: the sensor is named
+        // under the glyph; the face frames draw no caption.
+        if (!failed && (words.kind?.isFingerprint ?? false))
+          Text(
+            l10n.lockBiometricTouchSensor,
+            style: text.bodyMedium?.copyWith(color: status.muted),
+            textAlign: TextAlign.center,
+          ),
         if (failed)
           Text(
-            l10n.lockBiometricFailed,
+            words.failed,
             style: text.bodyMedium?.copyWith(color: status.debit),
             textAlign: TextAlign.center,
           ),
@@ -533,18 +561,20 @@ class _LockPage extends StatelessWidget {
   }
 }
 
-/// The face glyph of c3 S15: `primary` while the sheet is up or idle,
-/// `debit` once the face was not recognised (with the words beside it — never
-/// colour alone, 07 §1 rule 3), painted as the canvas draws it
-/// ([FaceIdGlyph]). Tappable when no sheet is up, so a
-/// dismissed sheet is one tap from coming back.
+/// The method's glyph of c3 S15 — the face (iPhone) or the fingerprint
+/// (Android), as [BiometricWords] picks it: `primary` while the sheet is up or
+/// idle, `debit` once it was not recognised (with the words beside it — never
+/// colour alone, 07 §1 rule 3). Tappable when no sheet is up, so a dismissed
+/// sheet is one tap from coming back.
 class _FaceGlyph extends StatelessWidget {
   const _FaceGlyph({
+    required this.words,
     required this.prompting,
     required this.failed,
     required this.onPressed,
   });
 
+  final BiometricWords words;
   final bool prompting;
   final bool failed;
   final VoidCallback? onPressed;
@@ -555,31 +585,29 @@ class _FaceGlyph extends StatelessWidget {
     final color = failed
         ? RkStatusColors.of(context).debit
         : Theme.of(context).colorScheme.primary;
-    final icon = FaceIdGlyph(
+    final icon = words.glyph(
       size: RkIcon.grid * 2,
       color: color,
       semanticLabel: prompting ? l10n.lockBiometricPrompt : null,
     );
     if (onPressed == null) return Center(child: icon);
     return Center(
-      child: IconButton(
-        onPressed: onPressed,
-        tooltip: l10n.lockBiometricButton,
-        icon: icon,
-      ),
+      child: IconButton(onPressed: onPressed, tooltip: words.name, icon: icon),
     );
   }
 }
 
-/// The canvas's outlined button (c3 S15 *Try again*, c1 S15.3 *Face ID*):
-/// an ink edge, square corners, sized to its label rather than the row.
+/// The canvas's outlined button (c3 S15 *Try again*, c1 S15.3 *Face ID* /
+/// *Fingerprint*): an ink edge, square corners, sized to its label rather
+/// than the row.
 class _InkButton extends StatelessWidget {
-  const _InkButton({required this.label, this.glyph = false, this.onPressed});
+  const _InkButton({required this.label, this.glyph, this.onPressed});
 
   final String label;
 
-  /// Leads with the compact Face ID glyph (c1 S15.3 *Face ID*).
-  final bool glyph;
+  /// Leads with the method's compact glyph (c1 S15.3 *Face ID above the
+  /// boxes* / *Fingerprint above the boxes*).
+  final BiometricWords? glyph;
   final VoidCallback? onPressed;
 
   @override
@@ -594,17 +622,21 @@ class _InkButton extends StatelessWidget {
       shape: const RoundedRectangleBorder(),
       textStyle: text.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
     );
-    final child = !glyph
+    final words = glyph;
+    final child = words == null
         ? OutlinedButton(onPressed: onPressed, style: style, child: Text(label))
         : OutlinedButton.icon(
             onPressed: onPressed,
             style: style,
-            icon: FaceIdGlyph(
+            icon: words.glyph(
               size: RkSpace.s5,
               color: onPressed == null ? Theme.of(context).disabledColor : ink,
               compact: true,
             ),
-            label: Text(label),
+            // The method's name is one long word in PA/HI and up to three in
+            // EN (*Fingerprint or face*): it wraps, and a word wider than the
+            // button steps down rather than running past the edge (13 §8).
+            label: RkFitText(label, textAlign: TextAlign.center),
           );
     return Center(child: child);
   }
@@ -654,10 +686,12 @@ class _PinPanel extends StatelessWidget {
     required this.attemptsLeft,
     required this.warn,
     required this.biometric,
+    required this.words,
     required this.pinOnly,
     required this.onRetryBiometric,
   });
 
+  final BiometricWords words;
   final bool pinOnly;
   final String typed;
   final bool wrong;
@@ -673,7 +707,7 @@ class _PinPanel extends StatelessWidget {
     final text = Theme.of(context).textTheme;
     final status = RkStatusColors.of(context);
     final biometricLine = switch (biometric) {
-      BiometricOutcome.unavailable => l10n.lockBiometricUnavailable,
+      BiometricOutcome.unavailable => l10n.lockBiometricUnavailable(words.name),
       BiometricOutcome.reenrolled => l10n.lockBiometricReenrolled,
       _ => null,
     };
@@ -718,7 +752,9 @@ class _PinPanel extends StatelessWidget {
         if (biometricLine != null && !pinOnly) ...[
           gap,
           _Line(
-            icon: Icons.face_unlock_outlined,
+            icon: words.fingerprintGlyph
+                ? Icons.fingerprint
+                : Icons.face_unlock_outlined,
             color: status.muted,
             text: biometricLine,
           ),
@@ -736,8 +772,8 @@ class _PinPanel extends StatelessWidget {
           )
         else if (biometric != BiometricOutcome.reenrolled)
           _InkButton(
-            label: l10n.lockBiometricButton,
-            glyph: true,
+            label: words.name,
+            glyph: words,
             onPressed: onRetryBiometric,
           ),
       ],
@@ -748,12 +784,14 @@ class _PinPanel extends StatelessWidget {
 class _CooldownPanel extends StatelessWidget {
   const _CooldownPanel({
     required this.remaining,
+    required this.words,
     required this.noBiometric,
     required this.onBiometric,
   });
 
   /// PIN-only, or the gate was invalidated: no face can open the app now.
   final bool noBiometric;
+  final BiometricWords words;
   final Duration remaining;
   final VoidCallback? onBiometric;
 
@@ -787,11 +825,7 @@ class _CooldownPanel extends StatelessWidget {
         // invalidated (ADR 2026-10-06 §4).
         if (!noBiometric) ...[
           const SizedBox(height: RkSpace.s4),
-          _InkButton(
-            label: l10n.lockBiometricButton,
-            glyph: true,
-            onPressed: onBiometric,
-          ),
+          _InkButton(label: words.name, glyph: words, onPressed: onBiometric),
         ],
       ],
     );
@@ -799,8 +833,9 @@ class _CooldownPanel extends StatelessWidget {
 }
 
 class _DisabledPanel extends StatelessWidget {
-  const _DisabledPanel({required this.onReset});
+  const _DisabledPanel({required this.words, required this.onReset});
 
+  final BiometricWords words;
   final VoidCallback onReset;
 
   @override
@@ -818,7 +853,7 @@ class _DisabledPanel extends StatelessWidget {
         ),
         const SizedBox(height: RkSpace.s2),
         RkFitText(
-          l10n.lockDisabledBody,
+          l10n.lockDisabledBody(words.name),
           style: text.bodyLarge?.copyWith(color: status.muted),
         ),
         const SizedBox(height: RkSpace.s4),

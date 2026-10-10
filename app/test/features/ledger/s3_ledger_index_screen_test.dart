@@ -67,8 +67,10 @@ void main() {
 
     testWidgets('F1-07-42 the alphabet rail is sticky (07 §6)', (tester) async {
       // Short on purpose: a rail can only be shown to stick if the list
-      // actually scrolls under it.
-      tester.view.physicalSize = const Size(400, 500);
+      // actually scrolls under it. (560, not 500, since FIX200: the chip
+      // strip and the letter bands take their height from their text, so a
+      // 500 px screen built only three of the four groups.)
+      tester.view.physicalSize = const Size(400, 560);
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
       final seed = await seedSoloLedger();

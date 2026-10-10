@@ -5,19 +5,22 @@
   "c9/S6.3/Structural approval · 2 of 3 approved"
  ],
  "captures": [
-  "S6.3__unreachable-2-of-3"
+  "S6.3__pending-2-of-3"
  ],
  "screen_files": [
   "app/lib/features/inbox/screens/s6_3_structural_review_screen.dart",
   "app/lib/features/inbox/widgets/structural_card.dart",
   "app/lib/features/inbox/structural_requests.dart",
-  "app/lib/features/inbox/inbox_routes.dart"
+  "app/lib/features/inbox/ledger_structural_requests.dart",
+  "app/lib/features/inbox/ledger_inbox_seams.dart",
+  "app/lib/features/inbox/inbox_routes.dart",
+  "app/lib/features/inbox/certified_signer.dart"
  ],
  "deviations": [
   {
-   "what": "c9 S6.3 *Structural approval · 2 of 3 approved*: the state is unreachable in production — no StructuralRequestsScope is installed anywhere in app/lib (bootstrap.dart installs LateArrivalsScope and ReviewQueueScope only), so StructuralRequestsScope.of falls back to an empty FakeStructuralRequests: S6 never draws a structural card and nothing opens S6.3. The capture runs the production widget on that fake (⚠️ SPEC in reskin1_inbox_test.dart)",
-   "reason": "[screen] defect — S6.3's data seam is not wired to the ledger, so 02 §7.2.1's structural approvals cannot be seen or decided in the app",
-   "authority": "07 §26 🔒 (F1-07-36); 02 §7.2.1 🔒; structural_requests.dart StructuralRequestsScope (fallback: empty fake)"
+   "what": "c9 S6.3 *Structural approval · 2 of 3 approved*: the capture is that count, reached on the production seams — LedgerStructuralRequests with certifiedSignerOf (installed by bootstrap.dart through LedgerInboxSeams), a three-owner book, the request raised through LocalLedger.proposeDistribution, and Sukhdev's and Harjit's approvals each signed on their own certified phone and chain-verified into the mirror (structural_fixture.dart, review F200I). Two things differ from the frame's state: the request is a profit distribution ('Share out the profit'), not a ratio change, because the app has no ratio-change writer yet; and the owner left to decide is the reader who raised it (Amrit), so the card carries the raiser's line 'You raised this. Raising it is not approving it — it still needs your own approval.', where the frame's reader is the third owner ('waiting for Harjit')",
+   "reason": "[screen] state — the frame's request kind has no writer in the app; the drawn components are the same card (tag, title, terms, quorum, actions), and 02 §7.2.1 🔒 makes the initiator's approval a separate signature, which the card says",
+   "authority": "07 §26 🔒 (F1-07-36); 02 §7.2.1 🔒; F1-200-11…17, E-200-11…27 (desk 200 (c); review F200I)"
   },
   {
    "what": "c9 S6.3 *Structural approval*: the frame draws only the card, outside a phone (no status row, no header) and the same render carries the next section of the canvas (designer note 'Before/after is stated in plain figures…' and 'S10.1 · FAMILY CLOSE STATUS' card); the app draws the card on a pushed screen titled 'Structural change' (centred Material app bar)",
@@ -25,22 +28,27 @@
    "authority": "13 §3.2 row S6.3 (Structural approval card, parent S6); inbox_routes.dart (S6.3 is a root-navigator route)"
   },
   {
-   "what": "c9 S6.3 *Structural approval*: the app's card opens with an amber tag 'Owners must agree' (people icon), the title 'Change the ownership shares' and 'Amrit Kaur raised this in Sharma Brothers.'; the frame opens with an 'AK' avatar, 'Amrit Kaur proposed · today' and the muted line 'Change the profit-sharing ratio'",
-   "reason": "[shared] card (typed inbox card header: avatar, who · when, then the action). Title copy 'ownership shares' vs 'profit-sharing ratio' is [screen] copy for the owner",
+   "what": "c9 S6.3 *Structural approval*: the app's card opens with an amber tag 'Owners must agree' (people icon), the title 'Share out the profit' and 'Amrit Kaur raised this in Sharma Brothers.'; the frame opens with an 'AK' avatar, 'Amrit Kaur proposed · today' and the muted line 'Change the profit-sharing ratio'",
+   "reason": "[shared] card (typed inbox card header: avatar, who · when, then the action). The title differs with the request kind (deviation 1); the app's ratio-change title 'Change the ownership shares' vs the frame's 'profit-sharing ratio' is [screen] copy for the owner",
    "authority": "ADR 2026-10-05 §1; 07 §26 🔒; CLAUDE.md § Precedence (specs decide copy)"
   },
   {
-   "what": "c9 S6.3 *Structural approval*: 'What will change' lists each owner on three lines (name, then 'Now  Proposed' captions, then '1  40' with the proposed figure bold); the frame states it as a two-row table — 'NOW  Amrit 33.3% · Sukhdev 33.3% · Harjit 33.3%' on a shaded row, 'AFTER  Amrit 40% · Sukhdev 30% · Harjit 30%' with the changed figures bold",
-   "reason": "[screen] layout (one line per state is denser). Figures: shares are weights and stay the stated numbers; a percentage may be shown as computed beside them, not in place of them — the frame's percent-only rows lose the weights the engine divides by",
-   "authority": "ADR 2026-09-09 §2 (shares are whole-number weights, never percentages; the percentage is computed and displayed); 07 §26 🔒 ('Amrit 40 · Sukhdev 30 · Harjit 30 — currently equal thirds')"
+   "what": "c9 S6.3 *Structural approval*: for a profit distribution the app's 'What will change' names each partner by their Partner Current A/c ('Amrit Kaur — Partner Current A/c') with 'Now ₹0' beside 'Proposed ₹1,00,000'; the frame's NOW/AFTER rows are for a ratio change and have no money",
+   "reason": "[screen] copy/content — a distribution has no term in force, so *now* is what this request has credited so far (nothing), the shape the S6.3 screens were built against; whether *now* should instead be each partner's current balance is for the owner (⚠️ SPEC in ledger_structural_requests.dart)",
+   "authority": "07 §26 🔒 ('states exactly what will change, in words with figures'); 02 §7.1 🔒 (Dr Profit Distributed · Cr each Partner Current); CLAUDE.md rule 1"
   },
   {
-   "what": "c9 S6.3 *Structural approval*: quorum is a green progress bar over '2 of 3 owners have approved' plus 'Lapses on 21 Sep 2026 if the owners have not agreed by then.'; the frame shows three small avatars (AK, SS filled; HS dashed, pending) and '2 of 3 approved · waiting for Harjit' in green, with no lapse line",
-   "reason": "[screen] — the frame names who is still to vote; the lapse date is the app's (02 §7.2.1 requests lapse) and stays",
+   "what": "c9 S6.3 *Structural approval*: 'What will change' lists each partner on three lines — 'Amrit Kaur — Partner Current A/c', then the captions 'Now  Proposed', then '₹0  ₹1,00,000' with the proposed figure bold — three times (Amrit, Sukhdev, Harjit); the frame states its change as a two-row table, 'NOW  Amrit 33.3% · Sukhdev 33.3% · Harjit 33.3%' on a shaded row and 'AFTER  Amrit 40% · Sukhdev 30% · Harjit 30%' with the changed figures bold",
+   "reason": "[screen] layout — one block per partner holds a money figure in each state and stacks rather than clips at 200 % (07 §1 rules 9, 11); the frame's single row per state has no room for a rupee figure per partner. For a ratio change (not in this pair) the same block carries the whole-number weights, not the frame's percentages",
+   "authority": "07 §26 🔒 ('states exactly what will change, in words with figures'); ADR 2026-09-09 §2 (shares are whole-number weights; a percentage is computed and displayed beside them)"
+  },
+  {
+   "what": "c9 S6.3 *Structural approval*: quorum is a green progress bar two-thirds filled over '2 of 3 owners have approved', then 'Lapses on 21 Sep 2026 if the owners have not agreed by then.'; the frame shows three small avatars (AK, SS filled; HS dashed, pending) and '2 of 3 approved · waiting for Harjit' in green, with no lapse line",
+   "reason": "[screen] — the frame names who is still to vote with avatars; the app states the engine's count and the lapse date (02 §7.2.1: a request lapses after 14 days), which stays",
    "authority": "07 §26 🔒 (quorum progress 2 of 3); 02 §7.2.1 🔒; ADR 2026-09-14 ruling 1 (the engine's quorum number)"
   },
   {
-   "what": "c9 S6.3 *Structural approval*: the actions are stacked full-width — filled navy 'Approve' over an outlined 'Veto with reason' with red text and a paper border — then (above them) 'Nothing has changed yet. No money and no permission moves until the owners agree.'; the frame sets 'Approve' (navy) and 'Veto' (red outline, red text) side by side, with 'Nothing changes until everyone approves. A veto asks you for a reason, and it is recorded.' under them",
+   "what": "c9 S6.3 *Structural approval*: the actions are stacked full-width — filled navy 'Approve' over an outlined 'Veto with reason' with red text and a paper border — with 'Nothing has changed yet. No money and no permission moves until the owners agree.' and the raiser's line above them; the frame sets 'Approve' (navy) and 'Veto' (red outline, red text) side by side, with 'Nothing changes until everyone approves. A veto asks you for a reason, and it is recorded.' under them",
    "reason": "[shared] button row (side-by-side primary + destructive outline). The label stays 'Veto with reason' — [canvas-wrong] for the frame's bare 'Veto'",
    "authority": "07 §26 🔒 (Approve / Veto with reason; a veto cancels and logs); ADR 2026-10-05 §1"
   },
@@ -53,12 +61,17 @@
    "what": "c9 S6.3 *Structural approval*: (any) letter-spacing on Material labels",
    "reason": "[shared] theme letterSpacing → desk 193(j)",
    "authority": "PLAN desk 193 (j)"
+  },
+  {
+   "what": "c9 S6.3 *Structural approval*: on the 390×844 and 360×800 captures the stacked 'Veto with reason' sits at or below the fold (the screen scrolls); the frame's side-by-side pair fits in the card",
+   "reason": "[shared] button row — falls out of the side-by-side primary + destructive pair already listed above",
+   "authority": "ADR 2026-10-05 §1; 07 §1 rule 6"
   }
  ],
  "approved_by_owner": false,
  "checked_on": "2026-10-10",
  "hashes": {
-  "screens": "55fa568e7bdd4d5b5dd5fdd4d6942f9fa6a85d369cadf66df7a6da129d6903ea",
+  "screens": "825d7d78a27cdaf0ea5f519c82fae90fb57a138867dd91c5e96beaaa598b962f",
   "frames": "44636b5c6a3d5e8e20e89c055e2d4cccf31ca72efc2b988788dbe70177e7c193"
  }
 }

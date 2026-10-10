@@ -1,0 +1,50 @@
+{
+ "sid": "S17.4",
+ "verdict": "deviates",
+ "frames": [
+  "c10/S17.4/Send diagnostics"
+ ],
+ "captures": [
+  "S17.4__default"
+ ],
+ "screen_files": [
+  "app/lib/features/help/screens/s17_4_diagnostics_screen.dart",
+  "app/lib/features/help/diagnostics_report.dart",
+  "app/lib/features/help/diagnostics_seams.dart",
+  "app/lib/features/help/widgets/help_widgets.dart",
+  "app/lib/features/help/help_routes.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c10 S17.4 *Send diagnostics*: title centred on the lighter surface fill; the frame left-aligns it beside the chevron on the page cream",
+   "reason": "[shared] app bar",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c10 S17.4 *Send diagnostics*: the frame opens with the headline 'This is everything that would be sent' and the muted line 'Nothing is sent unless you tap the button. No amounts, names or notes are included.'; the app opens with one body paragraph 'This is the report, whole. What you read here is what is sent — the app has no second version of it.' and a 'What the report says' header",
+   "reason": "[screen] copy and type role (headline + muted subtitle)",
+   "authority": "07 §22 🔒 (the payload shown before sending); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c10 S17.4 *Send diagnostics*: the frame shows the payload as a tinted block of raw monospace key: value lines (app, device, locale · books, storage · free, last_sync, sync_errors with three timestamped errors, entry_ids/amounts/account_names/notes: redacted, photos: not included); the app shows a two-column table of friendly labels and values (Kind of phone ios · Language en · Text size setting 1.00 · Light or dark light · Sync state synced · Entries waiting to sync 0 · Storage version 4 · Made at 2026-09-07T04:30Z) with hairlines",
+   "reason": "[screen] — the fields differ because the app's report is only what it can read today: production passes device: null (help_routes.dart builds const SendDiagnosticsScreen(); s17_4_diagnostics_screen.dart:80 'Null in production'), so app version, device model, storage and sync-error history are absent. The raw-block presentation is the frame's to follow",
+   "authority": "07 §22 🔒 (financial values scrubbed, payload shown before sending); CLAUDE.md rule 4"
+  },
+  {
+   "what": "c10 S17.4 *Send diagnostics*: the frame's assurance is a single paper card with a green check: 'Every financial value is replaced with “redacted” before it leaves your phone.'; the app draws a grey-ruled card 'What can never be in it' with four ⊘ rows (Amounts, balances and totals · Account, party and book names · Notes, and anything else you typed · Names and phone numbers of people)",
+   "reason": "[shared] card (assurance card); the four exclusions are the app's statement of what is scrubbed — copy is [screen]",
+   "authority": "07 §22 🔒; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c10 S17.4 *Send diagnostics*: the frame pins an enabled full-width navy 'Send this to support' at the bottom; in the app the send action sits below the fold at 390×844 (not in view in S17.4__default) and, in production, is disabled with 'The report cannot be sent from the app yet. Copy it and paste it into an email to support.' — help_routes.dart passes no sender (s17_4_diagnostics_screen.dart:85-88, :183, :239)",
+   "reason": "[shared] primary button (pinned bottom action); the disabled send is [canvas-wrong] for the frame's enabled one — the support mailto carries no body, so the person pastes the report",
+   "authority": "ADR 2026-10-03c §6 (mailto carries no subject and no body; S17.4's report is pasted); ADR 2026-09-25 §4; ADR 2026-10-05 §1"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "edc5137bdd8059bff635f5f382b198d145b65296917030fe992bed2dc6a18714",
+  "frames": "b9a8a0f56eca026362148a48358ea24096e66e3d8296217dc2450d76096393a5"
+ }
+}

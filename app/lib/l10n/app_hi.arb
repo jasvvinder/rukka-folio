@@ -242,18 +242,30 @@
   "account.deletion.banner.body": "{date} को। तब तक कुछ नहीं मिटा है, और आप इसे रोक सकते हैं।",
   "account.deletion.banner.title": "आपका अकाउंट मिटाने के लिए रखा है",
   "account.deletion.days_left": "{days, plural, =0{एक दिन से भी कम बाकी} =1{1 दिन बाकी} other{{days} दिन बाकी}}",
-  "account.edit.error": "आपका नाम सहेजा नहीं जा सका।",
+  "account.edit.error": "आपका नाम सुरक्षित नहीं किया जा सका।",
+  "@account.edit.error": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "account.edit.name.empty": "नाम खाली नहीं रह सकता।",
   "account.edit.name.hint": "वह नाम जो आपके परिवार और कामगारों को दिखता है",
   "account.edit.name.label": "नाम",
   "account.edit.photo.body": "इस वर्ज़न में फ़ोटो नहीं है। इसकी जगह आपके शुरुआती अक्षर, आपकी अपनी लिपि में, दिखते हैं।",
   "account.edit.photo.title": "फ़ोटो",
-  "account.edit.save": "सहेजें",
+  "account.edit.save": "सुरक्षित करें",
+  "@account.edit.save": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "account.edit.save.reason.empty": "पहले नाम लिखें।",
   "account.edit.save.reason.readonly": "आपका अकाउंट अभी सिर्फ़ पढ़ने के लिए है।",
   "account.edit.save.reason.unchanged": "अभी कुछ नहीं बदला।",
-  "account.edit.saved": "सहेज लिया",
-  "account.edit.saving": "सहेज रहे हैं…",
+  "account.edit.saved": "सुरक्षित कर लिया",
+  "@account.edit.saved": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
+  "account.edit.saving": "सुरक्षित कर रहे हैं…",
+  "@account.edit.saving": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "account.edit.title": "प्रोफ़ाइल बदलें",
   "account.error": "आपका अकाउंट नहीं आ सका।",
   "account.language.row.subtitle": "सेटिंग्स में बदलें",
@@ -293,7 +305,10 @@
   "advances.empty.title": "इस समय कोई एडवांस बाहर नहीं है।",
   "advances.error": "आपके एडवांस नहीं खुल सके।",
   "advances.given.empty": "इस बही की कोई रकम किसी के पास नहीं है।",
-  "advances.given.title": "दिया हुआ एडवांस",
+  "advances.given.title": "एडवांस दिया",
+  "@advances.given.title": {
+    "description": "owner-given (ADR 2026-10-08 §2) — final"
+  },
   "advances.mine.empty": "आपके पास कोई एडवांस नहीं है।",
   "advances.mine.title": "आपके पास एडवांस",
   "advances.retry": "फिर कोशिश करें",
@@ -303,11 +318,20 @@
   "advances.sheet.amount.empty": "रकम भरें।",
   "advances.sheet.amount.too_much": "यह आपके पास बची {left} से ज़्यादा है।",
   "advances.sheet.cancel": "रहने दें",
-  "advances.sheet.error": "यह सहेजी नहीं जा सकी। कुछ भी नहीं बदला।",
+  "advances.sheet.error": "यह सुरक्षित नहीं की जा सकी। कुछ भी नहीं बदला।",
+  "@advances.sheet.error": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "advances.sheet.return.into": "कहाँ वापस",
   "advances.sheet.return.title": "बाकी वापस करें",
-  "advances.sheet.save": "सहेजें",
-  "advances.sheet.saving": "सहेजी जा रही है…",
+  "advances.sheet.save": "सुरक्षित करें",
+  "@advances.sheet.save": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
+  "advances.sheet.saving": "सुरक्षित की जा रही है…",
+  "@advances.sheet.saving": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "advances.sheet.spend.category": "किस चीज़ के लिए?",
   "advances.sheet.spend.category.none": "पहले खर्च का खाता बनाएँ — फिर खर्च डालने की जगह होगी।",
   "advances.sheet.spend.title": "खर्च जोड़ें",
@@ -473,12 +497,24 @@
   "backup.readable.risk": "यह फ़ाइल पढ़ी जा सकती है। जिसके पास आपका Drive है, वह आपके बही-खाते पढ़ सकता है।",
   "backup.readable.title": "हर महीने पढ़ने योग्य कॉपी (XLSX + PDF)",
   "backup.readonly": "इस फ़ोन पर सिर्फ़ पढ़ने के लिए — ये सेटिंग्स यहाँ बदली नहीं जा सकतीं।",
-  "backup.save.error": "यह बदलाव सेव नहीं हो सका। फिर कोशिश करें।",
-  "backup.saved_offline": "फ़ोन पर सेव हुआ · सिंक होगा",
-  "backup.sheet.action": "सेव करें या छापें",
+  "backup.save.error": "यह बदलाव सुरक्षित नहीं हो सका। फिर कोशिश करें।",
+  "@backup.save.error": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
+  "backup.saved_offline": "फ़ोन पर सुरक्षित हुआ · सिंक होगा",
+  "@backup.saved_offline": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
+  "backup.sheet.action": "सुरक्षित करें या छापें",
+  "@backup.sheet.action": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "backup.sheet.restores": "बही-खाते वापस लाती है",
   "backup.sheet.risk": "जो भी यह फ़ाइल खोले, वह आपके बही-खाते खोल सकता है।",
-  "backup.sheet.title": "रिकवरी शीट को फ़ाइल के रूप में सेव करें",
+  "backup.sheet.title": "रिकवरी शीट को फ़ाइल के रूप में सुरक्षित करें",
+  "@backup.sheet.title": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "backup.title": "बैकअप",
   "backup.vault.restores": "सिर्फ़ चाबी के साथ ही वापस लाती है",
   "backup.vault.risk": "बिना आपकी चाबी किसी के काम की नहीं — आपके भी नहीं।",
@@ -494,7 +530,10 @@
   "books.title": "बहियाँ",
   "books.type.business": "कारोबार",
   "books.type.family": "परिवार",
-  "books.type.joint": "साझा पूल",
+  "books.type.joint": "साझा फ़ंड",
+  "@books.type.joint": {
+    "description": "owner-given (ADR 2026-10-08 §1) — final"
+  },
   "books.type.organization": "ट्रस्ट या सोसाइटी",
   "books.type.personal": "निजी",
   "ceremony.mismatch.body": "उस फ़ोन का कोड इस व्यक्ति के लिए हमारे पास रखी चाबियों से मेल नहीं खाता। हो सकता है कोई और उनकी जगह खड़ा हो। इस फ़ोन को अपने बही-खातों तक पहुँच न दें।",
@@ -629,6 +668,10 @@
   "ceremony.verify.title": "सदस्य की जाँच करें",
   "ceremony.verify.wrong": "ये अंक मेल नहीं खाते। {left, plural, =1{1 कोशिश बाकी।} other{{left} कोशिशें बाकी।}}",
   "close.back": "पीछे",
+  "close.balance.month_end": "{date} को यह {amount} थी",
+  "@close.balance.month_end": {
+    "description": "machine-draft — native review M12"
+  },
   "close.bank.book_balance": "बही कहती है {amount}",
   "close.bank.confirmed": "{total} में से {count} पक्की कीं",
   "close.bank.empty": "इस बही में कोई बैंक खाता नहीं, सो पक्का करने के लिए कुछ नहीं है।",
@@ -684,7 +727,10 @@
   "close.step2.title": "हर बैंक की बाकी पक्की करें",
   "close.step3.help": "इनमें से कुछ बंदी रोकती हैं। बाकी सिर्फ़ जानने के लिए हैं।",
   "close.step3.title": "ट्रे खाली करें",
-  "close.step4.help": "ये वे बाकियाँ हैं जो यह बंदी दर्ज करेगी।",
+  "close.step4.help": "ये {date} की बाकियाँ हैं — जो यह बंदी दर्ज करेगी।",
+  "@close.step4.help": {
+    "description": "machine-draft — native review M12"
+  },
   "close.step4.title": "पक्का करें और ताला लगाएँ",
   "close.step_of": "चरण {n} / {total}",
   "close.summary.done": "हो गया",
@@ -769,7 +815,10 @@
   "close.year.voided.title": "इस वर्ष का प्रमाण-पत्र रद्द हो गया है",
   "close.year.warns.help": "प्रमाणित करने से पहले देखने योग्य हैं, पर वर्ष फिर भी बंद हो जाएगा।",
   "close.year.warns.title": "ये वर्ष-बंदी नहीं रोकतीं",
-  "connection.notice.body": "ऐप बिना इंटरनेट चलती है। आप जो भी दर्ज करते हैं वह इसी फ़ोन पर सेव रहता है और कनेक्शन वापस आने पर अपने आप सिंक हो जाता है।",
+  "connection.notice.body": "ऐप बिना इंटरनेट चलती है। आप जो भी दर्ज करते हैं वह इसी फ़ोन पर सुरक्षित रहता है और कनेक्शन वापस आने पर अपने आप सिंक हो जाता है।",
+  "@connection.notice.body": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "connection.notice.retry": "अभी जाँचें",
   "connection.notice.title": "कोई कनेक्शन नहीं",
   "count.blocked.amount": "जो गिना है वह रकम लिखें।",
@@ -780,8 +829,14 @@
   "count.coins.help": "सिक्के जोड़कर रकम लिखें।",
   "count.coins.label": "सिक्के",
   "count.confirm.cancel": "वापस जाएँ",
-  "count.confirm.less": "आपकी गिनती बही से {amount} कम है। सेव करने पर एक एंट्री पड़ जाएगी, ताकि बही रोकड़ से मिल जाए।",
-  "count.confirm.more": "आपकी गिनती बही से {amount} ज़्यादा है। सेव करने पर एक एंट्री पड़ जाएगी, ताकि बही रोकड़ से मिल जाए।",
+  "count.confirm.less": "आपकी गिनती बही से {amount} कम है। सुरक्षित करने पर एक एंट्री पड़ जाएगी, ताकि बही रोकड़ से मिल जाए।",
+  "@count.confirm.less": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
+  "count.confirm.more": "आपकी गिनती बही से {amount} ज़्यादा है। सुरक्षित करने पर एक एंट्री पड़ जाएगी, ताकि बही रोकड़ से मिल जाए।",
+  "@count.confirm.more": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "count.confirm.save": "लिख दें",
   "count.confirm.title": "फ़र्क लिख दें?",
   "count.difference.less": "बही से {amount} कम — हम इसे ठीक कर देंगे",
@@ -804,7 +859,10 @@
   "count.names.counted_by": "गिनती किसने की",
   "count.names.required": "गोलक की गिनती पर दो नाम होते हैं।",
   "count.names.witness": "गवाह",
-  "count.offline": "फ़ोन पर सेव हुआ · सिंक होगा",
+  "count.offline": "फ़ोन पर सुरक्षित हुआ · सिंक होगा",
+  "@count.offline": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "count.readonly.banner": "सिर्फ़ पढ़ने के लिए",
   "count.result.adjusted": "गिनती हुई, और {amount} का फ़र्क लिखा गया",
   "count.result.adjusted.note": "अब एक एंट्री से बही रोकड़ से मिलती है।",
@@ -814,9 +872,18 @@
   "count.result.verified": "{date} को हिसाब मिला",
   "count.result.verified.note": "रोकड़ बही से मिल गई, इसलिए कोई एंट्री नहीं पड़ी।",
   "count.retry": "फिर कोशिश करें",
-  "count.save": "गिनती सेव करें",
-  "count.save.error": "गिनती सेव नहीं हुई।",
-  "count.saving": "गिनती सेव हो रही है",
+  "count.save": "गिनती सुरक्षित करें",
+  "@count.save": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
+  "count.save.error": "गिनती सुरक्षित नहीं हुई।",
+  "@count.save.error": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
+  "count.saving": "गिनती सुरक्षित हो रही है",
+  "@count.saving": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "count.skeleton": "गिनती की शीट खुल रही है",
   "count.title.collect": "खोलकर गिनें",
   "count.title.verify": "रोकड़ गिनें",
@@ -1447,9 +1514,18 @@
   "entry.picker.empty": "\"{query}\" से कोई खाता मेल नहीं खाता",
   "entry.placeholder.body": "एंट्री का कीपैड यहाँ होगा।",
   "entry.retry": "फिर कोशिश करें",
-  "entry.save": "सहेजें",
-  "entry.save_error": "सहेजा नहीं गया — फिर कोशिश करें",
-  "entry.saved": "सहेजा गया ✓ (फ़ोन पर)",
+  "entry.save": "सुरक्षित करें",
+  "@entry.save": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
+  "entry.save_error": "सुरक्षित नहीं हुआ — फिर कोशिश करें",
+  "@entry.save_error": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
+  "entry.saved": "सुरक्षित हुआ ✓ (फ़ोन पर)",
+  "@entry.saved": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "entry.search_hint": "खाते खोजें",
   "entry.slot.choose": "खाता चुनें",
   "entry.slot.for_what": "किसलिए",
@@ -1488,13 +1564,13 @@
   "@faq.fix_entry.a1": {
     "description": "machine-draft — native review M12"
   },
-  "faq.fix_entry.a2": "सहेजने के तुरंत बाद एक आसान रास्ता भी है: नीचे के संदेश पर “पहले जैसा” दस सेकंड तक एंट्री को पूरी तरह हटा देता है।",
+  "faq.fix_entry.a2": "सुरक्षित करने के तुरंत बाद एक आसान रास्ता भी है: नीचे के संदेश पर “पहले जैसा” दस सेकंड तक एंट्री को पूरी तरह हटा देता है।",
   "@faq.fix_entry.a2": {
-    "description": "machine-draft — native review M12"
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
   },
-  "faq.fix_entry.q": "सहेजने के बाद क्या मैं कोई एंट्री बदल सकता हूँ?",
+  "faq.fix_entry.q": "सुरक्षित करने के बाद क्या मैं कोई एंट्री बदल सकता हूँ?",
   "@faq.fix_entry.q": {
-    "description": "machine-draft — native review M12"
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
   },
   "faq.group.entries": "एंट्री लिखना",
   "@faq.group.entries": {
@@ -1592,9 +1668,9 @@
   "@faq.offline.a1": {
     "description": "machine-draft — native review M12"
   },
-  "faq.offline.a2": "जो अभी भेजा नहीं गया, वह “फ़ोन पर सहेजा · सिंक होगा” के रूप में दिखता है, और कनेक्शन आते ही अपने आप चला जाता है।",
+  "faq.offline.a2": "जो अभी भेजा नहीं गया, वह “फ़ोन पर सुरक्षित हुआ · सिंक होगा” के रूप में दिखता है, और कनेक्शन आते ही अपने आप चला जाता है।",
   "@faq.offline.a2": {
-    "description": "machine-draft — native review M12"
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
   },
   "faq.offline.q": "क्या ऐप इंटरनेट के बिना चलता है?",
   "@faq.offline.q": {
@@ -1612,17 +1688,17 @@
   "@faq.paper_sheet.q": {
     "description": "machine-draft — native review M12"
   },
-  "faq.review_flag.a1": "सहेजी गई है, और बही में गिनी भी जा रही है। वह टिप्पणी सिर्फ़ इतना कहती है कि रक़म आपके लिए तय हद से ऊपर थी, इसलिए वह मालिक के इनबॉक्स में भी एक नज़र के लिए पहुँच गई।",
+  "faq.review_flag.a1": "सुरक्षित की गई है, और बही में गिनी भी जा रही है। वह टिप्पणी सिर्फ़ इतना कहती है कि रक़म आपके लिए तय हद से ऊपर थी, इसलिए वह मालिक के इनबॉक्स में भी एक नज़र के लिए पहुँच गई।",
   "@faq.review_flag.a1": {
-    "description": "machine-draft — native review M12"
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
   },
   "faq.review_flag.a2": "इंतज़ार के दौरान कुछ भी रोका नहीं जाता, और सवाल उठने पर कुछ भी मिटाया नहीं जाता — उसकी जगह सुधार लिखा जाता है।",
   "@faq.review_flag.a2": {
     "description": "machine-draft — native review M12"
   },
-  "faq.review_flag.q": "मेरी एंट्री कहती है कि कोई इसे देखेगा। क्या वह सहेजी गई है?",
+  "faq.review_flag.q": "मेरी एंट्री कहती है कि कोई इसे देखेगा। क्या वह सुरक्षित की गई है?",
   "@faq.review_flag.q": {
-    "description": "machine-draft — native review M12"
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
   },
   "faq.support_powers.a1": "सहायता न कोई बही या उसकी कोई एंट्री पढ़ सकती है, न कोई चाबी वापस ला सकती है, न कोई सदस्य जोड़ सकती है, और न वह मुलाक़ात छोड़ सकती है जो सदस्य को चालू करती है। इनमें से कोई भी ताक़त इस व्यवस्था में मौजूद नहीं है।",
   "@faq.support_powers.a1": {
@@ -1712,9 +1788,9 @@
   "@guardians.nokey": {
     "description": "machine-draft — native review M12"
   },
-  "guardians.offline": "आप ऑफ़लाइन हैं। आपकी चुनाव फ़ोन पर सहेज ली गई है और वापस आने पर भेज दी जाएगी।",
+  "guardians.offline": "आप ऑफ़लाइन हैं। आपकी चुनाव फ़ोन पर सुरक्षित कर ली गई है और वापस आने पर भेज दी जाएगी।",
   "@guardians.offline": {
-    "description": "machine-draft — native review M12"
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
   },
   "guardians.readonly": "अभी सिर्फ़ पढ़ने के लिए। आप अपने भरोसेमंद सदस्य देख सकते हैं, बदल नहीं सकते।",
   "@guardians.readonly": {
@@ -1736,29 +1812,29 @@
   "@guardians.rule.pick": {
     "description": "machine-draft — native review M12"
   },
-  "guardians.save": "भरोसेमंद सदस्य सहेजें",
+  "guardians.save": "भरोसेमंद सदस्य सुरक्षित करें",
   "@guardians.save": {
-    "description": "machine-draft — native review M12"
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
   },
-  "guardians.save.blocked.few": "सहेजने से पहले कम से कम 2 लोग चुनें।",
+  "guardians.save.blocked.few": "सुरक्षित करने से पहले कम से कम 2 लोग चुनें।",
   "@guardians.save.blocked.few": {
-    "description": "machine-draft — native review M12"
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
   },
-  "guardians.save.blocked.meet": "सहेजने से पहले हर चुने हुए व्यक्ति से मिलें।",
+  "guardians.save.blocked.meet": "सुरक्षित करने से पहले हर चुने हुए व्यक्ति से मिलें।",
   "@guardians.save.blocked.meet": {
-    "description": "machine-draft — native review M12"
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
   },
-  "guardians.save.blocked.unavailable": "आपका चुना कोई व्यक्ति अभी भरोसेमंद सदस्य नहीं बन सकता। सहेजने के लिए उसे सूची से हटाएँ।",
+  "guardians.save.blocked.unavailable": "आपका चुना कोई व्यक्ति अभी भरोसेमंद सदस्य नहीं बन सकता। सुरक्षित करने के लिए उसे सूची से हटाएँ।",
   "@guardians.save.blocked.unavailable": {
-    "description": "machine-draft — native review M12"
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
   },
-  "guardians.save.error": "यह सहेजा नहीं गया। दोबारा कोशिश करें।",
+  "guardians.save.error": "यह सुरक्षित नहीं हुआ। दोबारा कोशिश करें।",
   "@guardians.save.error": {
-    "description": "machine-draft — native review M12"
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
   },
-  "guardians.saved": "भरोसेमंद सदस्य सहेज दिए गए।",
+  "guardians.saved": "भरोसेमंद सदस्य सुरक्षित कर दिए गए।",
   "@guardians.saved": {
-    "description": "machine-draft — native review M12"
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
   },
   "guardians.title": "भरोसेमंद सदस्य",
   "@guardians.title": {
@@ -1967,13 +2043,13 @@
   "home.drilldown.empty": "इस पंक्ति के पीछे अभी कुछ नहीं",
   "home.drilldown.empty_action": "प्रविष्टि दर्ज करें",
   "home.drilldown.error": "यह सूची लोड नहीं हो सकी",
-  "home.drilldown.header.you_will_get": "आपको कुल मिलने हैं",
+  "home.drilldown.header.you_will_get": "आपने कुल लेने हैं",
   "@home.drilldown.header.you_will_get": {
-    "description": "machine-draft — native review M12 (F193H)"
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179) — follows the owner form आपने लेने हैं"
   },
-  "home.drilldown.header.you_will_give": "आपको कुल देने हैं",
+  "home.drilldown.header.you_will_give": "आपने कुल देने हैं",
   "@home.drilldown.header.you_will_give": {
-    "description": "machine-draft — native review M12 (F193H)"
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179) — follows the owner form आपने देने हैं"
   },
   "home.drilldown.oldest": "{days, plural, =1{सबसे पुराना 1 दिन से} other{सबसे पुराना {days} दिन से}}",
   "@home.drilldown.oldest": {
@@ -1991,8 +2067,14 @@
   "home.month.label": "इस महीने",
   "home.month.out": "गए",
   "home.placeholder.body": "आपकी स्थिति और आज की एंट्रियाँ यहाँ दिखेंगी।",
-  "home.position.advances_out": "दिए गए एडवांस",
-  "home.position.cash": "हाथ में नक़दी",
+  "home.position.advances_out": "एडवांस दिया",
+  "@home.position.advances_out": {
+    "description": "owner-given (ADR 2026-10-08 §2) — final"
+  },
+  "home.position.cash": "हाथ में रोकड़",
+  "@home.position.cash": {
+    "description": "owner-given (ADR 2026-10-08 §2) — final"
+  },
   "home.position.drill": "सूची दिखाएँ",
   "home.position.in_transit": "रास्ते में",
   "home.position.in_transit.action": "पारिवारिक मिलान देखें",
@@ -2000,8 +2082,14 @@
     "description": "machine-draft — native review M12"
   },
   "home.position.title": "स्थिति",
-  "home.position.you_will_get": "आपको मिलने हैं",
-  "home.position.you_will_give": "आपको देने हैं",
+  "home.position.you_will_get": "आपने लेने हैं",
+  "@home.position.you_will_get": {
+    "description": "owner-given (ADR 2026-10-08 §2) — final"
+  },
+  "home.position.you_will_give": "आपने देने हैं",
+  "@home.position.you_will_give": {
+    "description": "owner-given (ADR 2026-10-08 §2) — final"
+  },
   "home.rebuild.note": "यह पूरा होते ही आपके आंकड़े सही हो जाएँगे।",
   "home.rebuild.progress": "{total} में से {done} प्रविष्टियाँ वापस आईं",
   "home.rebuild.title": "यह बही दोबारा जोड़ी जा रही है",
@@ -2195,7 +2283,10 @@
   "import.inbox.money.out": "पैसे गए",
   "import.inbox.note.add": "+ अपनी बात",
   "import.inbox.note.hint": "आपके अपने शब्द (वैकल्पिक)",
-  "import.inbox.note.save": "सहेजें",
+  "import.inbox.note.save": "सुरक्षित करें",
+  "@import.inbox.note.save": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "import.inbox.notposted": "आपकी बही में अभी कुछ नहीं चढ़ा। हर लाइन पहले एक सवाल पूछती है।",
   "import.inbox.question.in": "यह पैसा कहाँ से आया?",
   "import.inbox.question.out": "यह पैसा कहाँ गया?",
@@ -2245,7 +2336,10 @@
   "inbox.card.expand": "एंट्रियाँ दिखाएँ",
   "inbox.card.flag": "आपकी जाँच चाहिए",
   "inbox.card.one.by.one": "एक-एक करके",
-  "inbox.card.posted": "ये पहले से बही में हैं। जिस पल {author} ने इन्हें सहेजा, उसी पल ये गिनी गईं — आप इन्हें जाँच रहे हैं, रोक नहीं रहे।",
+  "inbox.card.posted": "ये पहले से बही में हैं। जिस पल {author} ने इन्हें सुरक्षित किया, उसी पल ये गिनी गईं — आप इन्हें जाँच रहे हैं, रोक नहीं रहे।",
+  "@inbox.card.posted": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "inbox.card.subtitle": "{book} · {day}",
   "inbox.card.total": "कुल {amount}",
   "inbox.card.working": "भेजी जा रही है…",
@@ -2310,7 +2404,10 @@
   "inbox.step.field.date": "तारीख़",
   "inbox.step.field.from": "कहाँ से",
   "inbox.step.field.note": "लिखत",
-  "inbox.step.field.saved": "सहेजी गई",
+  "inbox.step.field.saved": "सुरक्षित की गई",
+  "@inbox.step.field.saved": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "inbox.step.field.to": "कहाँ",
   "inbox.step.gone.body": "हो सकता है किसी और ने इन्हें जाँच लिया हो, या ये पहले ही निपट चुकी हों।",
   "inbox.step.gone.title": "यह कार्ड अब यहाँ नहीं है।",
@@ -2329,7 +2426,10 @@
   "inbox.step.skip": "छोड़ें",
   "inbox.step.skip.hint": "आपके इनबॉक्स में ही रहेगी।",
   "inbox.step.title": "जाँच हो रही है",
-  "inbox.step.working": "सहेजी जा रही है…",
+  "inbox.step.working": "सुरक्षित की जा रही है…",
+  "@inbox.step.working": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "inbox.structural.approve": "मंज़ूरी दें",
   "inbox.structural.approve.body": "आपकी मंज़ूरी इसी फ़ोन पर दस्तख़त होती है और बाकियों के साथ गिनी जाती है। बदलाव तभी लागू होगा जब ज़रूरी मालिक मंज़ूरी दे देंगे।",
   "inbox.structural.approve.recorded": "आपकी मंज़ूरी लिख ली गई है।",
@@ -2343,7 +2443,7 @@
   "inbox.structural.detail.raised": "{date} को {name} ने रखा",
   "inbox.structural.detail.title": "बुनियादी बदलाव",
   "inbox.structural.detail.you": "{name} (आप)",
-  "inbox.structural.done.body": "{total} में से {done} मालिकों ने मंज़ूरी दी, इसलिए यह अब लागू है।",
+  "inbox.structural.done.body": "{total} में से {done} मालिकों ने मंज़ूरी दी। बदलाव पर सहमति हो गई है, पर यह बदलाव अभी बही में किया नहीं गया।",
   "inbox.structural.done.title": "मालिक सहमत हो गए",
   "inbox.structural.flag": "मालिकों की सहमति ज़रूरी",
   "inbox.structural.kind.archive": "{book} को समेटकर बंद करें",
@@ -2369,11 +2469,14 @@
   "inbox.structural.quorum.unknown": "यह फ़ोन अभी नहीं जानता कि जब यह बात रखी गई थी तब मालिक कौन थे, इसलिए यह मंज़ूरियाँ गिन नहीं सकता।",
   "inbox.structural.raised.by": "{name} ने यह {book} में रखा है।",
   "inbox.structural.ratio.unrecorded": "अब तक के हिस्से कभी लिखे ही नहीं गए। इसका मतलब बराबर हिस्से नहीं होता, इसलिए यहाँ कुछ भी मानकर नहीं चला गया।",
+  "inbox.structural.signers.unconfirmed": "यह फ़ोन अभी पक्का नहीं कर सकता कि {book} में मालिकों के कुछ फ़ैसलों पर दस्तख़त किसने किए, इसलिए हो सकता है कि असल स्थिति यह न हो। जब यह पक्का हो जाएगा, मंज़ूरी देने और रोकने का विकल्प वापस आ जाएगा — आम तौर पर अगले सिंक के बाद।",
   "inbox.structural.term.now": "अभी",
   "inbox.structural.term.proposed": "प्रस्ताव",
   "inbox.structural.term.removed": "हटाया जाएगा",
   "inbox.structural.term.unrecorded": "लिखा नहीं गया",
   "inbox.structural.terms.title": "क्या बदलेगा",
+  "inbox.structural.terms.unknown": "यह फ़ोन नहीं दिखा सकता कि इस बात से सब क्या बदलेगा, इसलिए यहाँ इसे मंज़ूरी नहीं दी जा सकती। आप कारण देकर इसे रोक सकते हैं।",
+  "inbox.structural.unconfirmed": "{count, plural, =1{मालिकों का एक फ़ैसला तब तक रुका है, जब तक यह फ़ोन पक्का नहीं कर लेता कि उस पर दस्तख़त किसने किए।} other{मालिकों के {count} फ़ैसले तब तक रुके हैं, जब तक यह फ़ोन पक्का नहीं कर लेता कि उन पर दस्तख़त किसने किए।}}",
   "inbox.structural.veto": "कारण देकर रोकें",
   "inbox.structural.veto.body": "एक रोक इस बात को सबके लिए उसी वक़्त बंद कर देती है। आपका नाम और आपका कारण बही के रिकॉर्ड पर जाते हैं, जहाँ हर सदस्य पढ़ सकता है।",
   "inbox.structural.veto.confirm": "यह बात रोक दें",
@@ -2562,14 +2665,31 @@
   },
   "ledger.entry.amend": "इसे सुधारें",
   "ledger.entry.amend.cancel": "रद्द करें",
+  "ledger.entry.amend.date_locked": "{month} बंद है, इसलिए इसमें कोई तारीख़ नहीं डाली जा सकती। खुले महीने की तारीख़ चुनें।",
+  "@ledger.entry.amend.date_locked": {
+    "description": "machine-draft — native review M12"
+  },
   "ledger.entry.amend.date_note": "तारीख़ या नोट बदलें",
-  "ledger.entry.amend.error": "यह सुधार सहेजा नहीं जा सका",
-  "ledger.entry.amend.explain": "सुधार नई एंट्री के रूप में सहेजा जाता है। जो लिखत आप देख रहे हैं, वह इतिहास में बनी रहती है।",
+  "ledger.entry.amend.date_rule": "बंद महीने और आने वाली तारीख़ें नहीं चुनी जा सकतीं।",
+  "@ledger.entry.amend.date_rule": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.entry.amend.error": "यह सुधार सुरक्षित नहीं किया जा सका",
+  "@ledger.entry.amend.error": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
+  "ledger.entry.amend.explain": "सुधार नई एंट्री के रूप में सुरक्षित किया जाता है। जो लिखत आप देख रहे हैं, वह इतिहास में बनी रहती है।",
+  "@ledger.entry.amend.explain": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "ledger.entry.amend.figures": "रकम या खाते बदलें",
   "ledger.entry.amend.figures_hint": "यही आंकड़े भरकर एंट्री स्क्रीन खोलता है",
   "ledger.entry.amend.locked": "यह महीना बंद हो चुका है, इसलिए इसमें कुछ नहीं बदल सकता। इसकी जगह एंट्री उलटें और दोबारा दर्ज करें।",
   "ledger.entry.amend.locked_action": "पुरानी एंट्री ठीक करें",
-  "ledger.entry.amend.save": "सुधार सहेजें",
+  "ledger.entry.amend.save": "सुधार सुरक्षित करें",
+  "@ledger.entry.amend.save": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "ledger.entry.amend.title": "इस एंट्री को सुधारें",
   "ledger.entry.amend_blocked": "सुधारने के लिए सबसे नई लिखत खोलें",
   "ledger.entry.channel": "कैसे दिया",
@@ -2584,6 +2704,42 @@
   "ledger.entry.held_hint": "यह सुधार उस एंट्री से पहले पहुँच गया जिसे यह सुधारता है। कुछ भी खोया नहीं है, और अभी किसी हिसाब में गिना नहीं गया — वह एंट्री आते ही यह यहाँ खुल जाएगा।",
   "ledger.entry.held_waiting_for": "एंट्री {id} का इंतज़ार",
   "ledger.entry.kind.adjustment": "सुधार",
+  "ledger.entry.locked.amend_blocked": "{month} बंद है, इसलिए यह एंट्री बदली नहीं जा सकती। ठीक करें: आज इसे उलटें, फिर दोबारा दर्ज करें।",
+  "@ledger.entry.locked.amend_blocked": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.entry.locked.fix": "यह एंट्री ठीक करें",
+  "@ledger.entry.locked.fix": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.entry.locked.fix_confirm": "उलटें, फिर दोबारा दर्ज करें",
+  "@ledger.entry.locked.fix_confirm": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.entry.locked.fix_explain": "दो कदम। पहले आज, खुले महीने में, उलटी एंट्री डाली जाती है और यह एंट्री गिनती में नहीं रहती। फिर आप सही रकम के साथ इसे दोबारा दर्ज करते हैं। {month} जैसे बंद हुआ था वैसे ही रहता है — हर एंट्री इतिहास में रहती है।",
+  "@ledger.entry.locked.fix_explain": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.entry.locked.fix_hint": "यह आज उलटी जाती है और आप इसे दोबारा दर्ज करते हैं। {month} दोबारा नहीं लिखा जाता।",
+  "@ledger.entry.locked.fix_hint": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.entry.locked.line": "{month} बंद है · {date} को गिनकर पक्का किया",
+  "@ledger.entry.locked.line": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.entry.locked.line_undated": "{month} बंद है",
+  "@ledger.entry.locked.line_undated": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.entry.locked.reentry": "दोबारा दर्ज करें",
+  "@ledger.entry.locked.reentry": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.entry.locked.reentry_hint": "{date} को उलटी गई · {month} जैसे बंद हुआ था वैसे ही रहता है। अगर यह अब भी खाते में चाहिए, तो दोबारा दर्ज करें।",
+  "@ledger.entry.locked.reentry_hint": {
+    "description": "machine-draft — native review M12"
+  },
   "ledger.entry.missing": "यह एंट्री इस फ़ोन में नहीं है",
   "ledger.entry.missing_hint": "शायद यह अभी इस फ़ोन तक नहीं पहुँची है। पहुँचते ही यहाँ खुल जाएगी।",
   "ledger.entry.no_note": "कोई नोट नहीं",
@@ -2610,7 +2766,10 @@
   "ledger.entry.trail.open": "खोलें",
   "ledger.entry.trail.reversed": "बाद वाली एंट्री ने इसे उलट दिया है",
   "ledger.entry.trail.reverses": "पहली एंट्री को उलटती है",
-  "ledger.entry.trail.saved": "सहेजी गई",
+  "ledger.entry.trail.saved": "सुरक्षित की गई",
+  "@ledger.entry.trail.saved": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "ledger.entry.trail.superseded": "इसकी जगह नई लिखत आ गई है",
   "ledger.filter.all": "सभी",
   "ledger.filter.categories": "श्रेणियाँ",
@@ -2623,6 +2782,94 @@
   "ledger.list.retry": "फिर कोशिश करें",
   "ledger.list.skeleton": "खाते लोड हो रहे हैं",
   "ledger.new_account": "नया खाता",
+  "ledger.opening_prompt.add": "शुरुआती बाकी डालें",
+  "@ledger.opening_prompt.add": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_prompt.body_money": "जब यह बही शुरू हुई, {name} में कितने पैसे थे? इसे डालें ताकि यह खाता सही बाकी दिखाए।",
+  "@ledger.opening_prompt.body_money": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_prompt.body_party": "क्या आज से पहले {name} पर आपका कुछ बकाया था? इसे डालें ताकि यह खाता सही बाकी दिखाए।",
+  "@ledger.opening_prompt.body_party": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_prompt.not_needed": "ज़रूरत नहीं",
+  "@ledger.opening_prompt.not_needed": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_prompt.not_needed_unavailable": "“ज़रूरत नहीं” अभी सुरक्षित नहीं किया जा सकता — यह अगले अपडेट में आएगा। तब तक यह नोट यहीं रहेगा।",
+  "@ledger.opening_prompt.not_needed_unavailable": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
+  "ledger.opening_prompt.title": "शुरुआती बाकी नहीं डाली",
+  "@ledger.opening_prompt.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.amount": "रकम",
+  "@ledger.opening_sheet.amount": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.amount_error": "रकम डालें। यह शून्य नहीं हो सकती।",
+  "@ledger.opening_sheet.amount_error": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.cancel": "रद्द करें",
+  "@ledger.opening_sheet.cancel": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.dated": "{date} को शुरुआती बाकी के रूप में दर्ज — जिस दिन यह बही शुरू होती है।",
+  "@ledger.opening_sheet.dated": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.dated_locked": "{date} को शुरुआती बाकी के रूप में दर्ज — पहला खुला महीना, क्योंकि जिस महीने यह बही शुरू होती है वह बंद है।",
+  "@ledger.opening_sheet.dated_locked": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.save": "सुरक्षित करें",
+  "@ledger.opening_sheet.save": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
+  "ledger.opening_sheet.save_error": "शुरुआती बाकी सुरक्षित नहीं की जा सकी। फिर कोशिश करें — या बाद में आपकी बहियाँ → शुरुआती बाकी में ठीक करें।",
+  "@ledger.opening_sheet.save_error": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
+  "ledger.opening_sheet.subtitle_money": "जब यह बही शुरू हुई, इस खाते में जो था।",
+  "@ledger.opening_sheet.subtitle_money": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.subtitle_party": "यह खाता शुरू करने से पहले जो लेन-देन बाकी था।",
+  "@ledger.opening_sheet.subtitle_party": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.they_owe": "वे आपके देनदार हैं",
+  "@ledger.opening_sheet.they_owe": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.title": "{name}, आज से पहले",
+  "@ledger.opening_sheet.title": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.total_get": "कुल मिलाकर आपको {amount} मिलेंगे।",
+  "@ledger.opening_sheet.total_get": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.total_give": "कुल मिलाकर आपको {amount} देने हैं।",
+  "@ledger.opening_sheet.total_give": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.total_money": "कुल मिलाकर {name} में {amount} दिखेगा।",
+  "@ledger.opening_sheet.total_money": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.total_settled": "किसी तरफ़ कुछ बाकी नहीं रहेगा।",
+  "@ledger.opening_sheet.total_settled": {
+    "description": "machine-draft — native review M12"
+  },
+  "ledger.opening_sheet.you_owe": "आप उनके देनदार हैं",
+  "@ledger.opening_sheet.you_owe": {
+    "description": "machine-draft — native review M12"
+  },
   "ledger.placeholder.body": "सभी खाते, अ से ज्ञ तक, यहाँ सूची में होंगे।",
   "ledger.quick_add.back": "पीछे",
   "ledger.quick_add.cancel": "रद्द करें",
@@ -2633,8 +2880,14 @@
   "ledger.quick_add.opening_hint": "0.00",
   "ledger.quick_add.opening_label_money": "शुरुआती बाकी",
   "ledger.quick_add.opening_label_party": "कितना, और कौन किसका देनदार है",
-  "ledger.quick_add.save": "सहेजें",
-  "ledger.quick_add.save_error": "खाता सहेजा नहीं जा सका। फिर कोशिश करें।",
+  "ledger.quick_add.save": "सुरक्षित करें",
+  "@ledger.quick_add.save": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
+  "ledger.quick_add.save_error": "खाता सुरक्षित नहीं किया जा सका। फिर कोशिश करें।",
+  "@ledger.quick_add.save_error": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "ledger.quick_add.title": "खाता जोड़ें",
   "ledger.quick_add.type.bank": "बैंक",
   "ledger.quick_add.type.cash": "नकद",
@@ -2894,13 +3147,17 @@
   "@legal.title": {
     "description": "machine-draft — native review M12"
   },
-  "lock.biometric.button": "फ़ेस आईडी",
-  "@lock.biometric.button": {
-    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
-  },
   "lock.biometric.failed": "चेहरा पहचाना नहीं गया",
   "@lock.biometric.failed": {
     "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+  },
+  "lock.biometric.failed.any": "पहचाना नहीं गया",
+  "@lock.biometric.failed.any": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
+  },
+  "lock.biometric.failed.fingerprint": "फ़िंगरप्रिंट पहचाना नहीं गया",
+  "@lock.biometric.failed.fingerprint": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
   },
   "lock.biometric.prompt": "अपनी बहियाँ खोलें",
   "lock.biometric.reenrolled": "इस फ़ोन की चेहरे या उँगली के निशान की सेटिंग बदल गई है — एक बार अपना पिन भरें",
@@ -2915,12 +3172,32 @@
   "@lock.biometric.sheet_subtitle": {
     "description": "machine-draft — native review M12 (ADR 2026-10-05b)"
   },
-  "lock.biometric.unavailable": "इस समय इस फ़ोन पर फ़ेस आईडी उपलब्ध नहीं है — अपना पिन भरें",
+  "lock.biometric.touch_sensor": "सेंसर को छुएँ",
+  "@lock.biometric.touch_sensor": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
+  },
+  "lock.biometric.unavailable": "इस समय इस फ़ोन पर {method} उपलब्ध नहीं है — अपना पिन भरें",
+  "@lock.biometric.unavailable": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
   "lock.cooldown.body": "यह एक कोड है, तालाबंदी नहीं। पिन अपने आप वापस चालू हो जाएगा — कुछ भी नहीं खोया।",
   "lock.cooldown.countdown": "{time} में दोबारा कोशिश करें",
   "lock.cooldown.title": "थोड़ा रुक जाइए",
   "lock.cover.semantics": "बैकग्राउंड में रहते समय ऐप ढकी हुई है",
-  "lock.disabled.body": "आपकी बहियाँ सुरक्षित हैं और कुछ भी नहीं खोया। हम आपके नंबर पर जो कोड भेजेंगे उसे और फिर फ़ेस आईडी को पक्का करें, और नया पिन चुनें।",
+  "lock.disabled.body": "आपकी बहियाँ सुरक्षित हैं और कुछ भी नहीं खोया। हम आपके नंबर पर जो कोड भेजेंगे उसे पक्का करें, फिर {method} से पुष्टि करें, और नया पिन चुनें।",
+  "@lock.disabled.body": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
   "lock.disabled.title": "पिन बंद कर दिया गया है",
   "lock.forgot.action": "पिन भूल गए",
   "@lock.forgot.action": {
@@ -2967,6 +3244,34 @@
   "lock.keys_need_biometric": "आपका पिन सही है। इस फ़ोन पर आपकी बहियाँ आपकी उंगली के निशान या चेहरे से बंद हैं, उन्हें खोलने के लिए एक बार और इस्तेमाल करें।",
   "@lock.keys_need_biometric": {
     "description": "machine-draft — native review M12 (ADR 2026-10-05b)"
+  },
+  "lock.method.any": "फ़िंगरप्रिंट या चेहरा",
+  "@lock.method.any": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
+  },
+  "lock.method.any.inline": "अपना फ़िंगरप्रिंट या चेहरा",
+  "@lock.method.any.inline": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
+  },
+  "lock.method.face_id": "फ़ेस आईडी",
+  "@lock.method.face_id": {
+    "description": "owner-given (ADR 2026-10-08 §3) — final"
+  },
+  "lock.method.face_unlock": "फ़ेस अनलॉक",
+  "@lock.method.face_unlock": {
+    "description": "owner-given (ADR 2026-10-08 §3) — final"
+  },
+  "lock.method.fingerprint": "फ़िंगरप्रिंट",
+  "@lock.method.fingerprint": {
+    "description": "owner-given (ADR 2026-10-08 §3) — final"
+  },
+  "lock.method.fingerprint.inline": "अपना फ़िंगरप्रिंट",
+  "@lock.method.fingerprint.inline": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
+  },
+  "lock.method.touch_id": "टच आईडी",
+  "@lock.method.touch_id": {
+    "description": "owner-given (ADR 2026-10-08 §3) — final"
   },
   "lock.pin.entered": "6 में से {count} अंक भरे गए",
   "lock.pin.label": "अपना पिन भरें",
@@ -3062,13 +3367,22 @@
   "members.invited_by": "{name} ने बुलाया · जुड़ने का इंतज़ार",
   "members.invited_by.unknown": "बुलावा भेजा · जुड़ने का इंतज़ार",
   "members.limit.edit.clear": "हद हटा दें",
-  "members.limit.edit.error": "यह हद सहेजी नहीं जा सकी। फिर कोशिश करें।",
+  "members.limit.edit.error": "यह हद सुरक्षित नहीं की जा सकी। फिर कोशिश करें।",
+  "@members.limit.edit.error": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "members.limit.edit.field": "रक़म रुपयों में",
   "members.limit.edit.invalid": "रुपयों में रक़म भरें, जैसे 5000।",
-  "members.limit.edit.save": "हद सहेजें",
+  "members.limit.edit.save": "हद सुरक्षित करें",
+  "@members.limit.edit.save": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "members.limit.edit.subtitle": "{name} · {book}",
   "members.limit.edit.title": "अपने-आप चढ़ने की हद",
-  "members.limit.edit.working": "सहेज रहे हैं…",
+  "members.limit.edit.working": "सुरक्षित कर रहे हैं…",
+  "@members.limit.edit.working": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "members.limit.help": "इससे ऊपर की एंट्री भी चढ़ जाती है — वह किसी और की जाँच के लिए निशान लगा दी जाती है।",
   "members.limit.label": "अपने-आप चढ़ने की हद",
   "members.limit.locked": "हद सिर्फ़ एडमिन ही बदल सकता है।",
@@ -3112,7 +3426,10 @@
   "members.verified.remote": "{date} को {name} ने फ़ोन पर जाँचा",
   "members.verified.someone": "इस बही का कोई सदस्य",
   "members.you": "आप",
-  "menu.backup.row.subtitle": "प्लेटफ़ॉर्म की-सिंक, अपनी रिकवरी शीट सहेजें, और मासिक पठनीय प्रति।",
+  "menu.backup.row.subtitle": "प्लेटफ़ॉर्म की-सिंक, अपनी रिकवरी शीट सुरक्षित करें, और मासिक पठनीय प्रति।",
+  "@menu.backup.row.subtitle": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "menu.backup.row.title": "बैकअप",
   "menu.books_members.row.subtitle": "आपकी बहियाँ, और नया कारोबार जोड़ना।",
   "menu.books_members.row.title": "बहियाँ और सदस्य",
@@ -3154,12 +3471,21 @@
   "nav.inbox.label": "इनबॉक्स",
   "nav.ledger.label": "खाते",
   "nav.menu.label": "मेनू",
-  "onboarding.books_safe.backup.destination": "{destination} में सहेजा जाता है",
-  "onboarding.books_safe.backup.destination_unset": "आपकी अपनी क्लाउड ड्राइव में सहेजा जाता है",
+  "onboarding.books_safe.backup.destination": "{destination} में सुरक्षित किया जाता है",
+  "@onboarding.books_safe.backup.destination": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
+  "onboarding.books_safe.backup.destination_unset": "आपकी अपनी क्लाउड ड्राइव में सुरक्षित किया जाता है",
+  "@onboarding.books_safe.backup.destination_unset": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "onboarding.books_safe.backup.off_hint": "एक बार छूकर इनमें से कोई भी बंद कर दीजिए।",
   "onboarding.books_safe.backup.readable_disclosure": "यह फ़ाइल पढ़ी जा सकती है। जो कोई उस ड्राइव को खोल सकता है, वह आपकी बहियाँ पढ़ सकता है, और Apple या Google भी। यह इकलौती फ़ाइल है जिसे यह ऐप एन्क्रिप्ट नहीं करता।",
   "onboarding.books_safe.backup.readable_title": "पढ़ी जा सकने वाली नक़ल, हर महीने",
-  "onboarding.books_safe.backup.save_failed": "हम वह बदलाव सहेज नहीं सके — एक बार और कोशिश कीजिए",
+  "onboarding.books_safe.backup.save_failed": "हम वह बदलाव सुरक्षित नहीं कर सके — एक बार और कोशिश कीजिए",
+  "@onboarding.books_safe.backup.save_failed": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "onboarding.books_safe.backup.state_on": "चालू",
   "onboarding.books_safe.backup.title": "अपने आप बैकअप",
   "onboarding.books_safe.backup.vault_body": "यह एन्क्रिप्ट ही रहती है: जिसके पास आपकी कुंजी नहीं, उसके लिए बेकार — और कुंजी बिना आपके लिए भी बेकार।",
@@ -3167,11 +3493,27 @@
   "onboarding.books_safe.continue_label": "आगे बढ़ें",
   "onboarding.books_safe.intro": "आपकी एंट्रियाँ पहले से ही हमारे सर्वर पर एन्क्रिप्ट करके रखी हैं — फ़ोन खोने से वे नहीं खोतीं। सँभालने वाली चीज़ आपकी कुंजी है।",
   "onboarding.books_safe.keysync.apple": "Apple इसे पढ़ नहीं सकता।",
+  "onboarding.books_safe.keysync.google": "Google इसे पढ़ नहीं सकता।",
+  "@onboarding.books_safe.keysync.google": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
+  },
   "onboarding.books_safe.keysync.off_body": "आपकी कुंजी वहाँ नहीं रखी जा सकती, इसलिए नया फ़ोन इसे अपने आप नहीं पाएगा। इसके बदले रिकवरी शीट बनाइए — वापस अंदर आने का यही रास्ता है।",
   "onboarding.books_safe.keysync.off_title": "इस फ़ोन पर iCloud Keychain बंद है",
+  "onboarding.books_safe.keysync.off_title.android": "इस फ़ोन पर Google Password Manager बंद है",
+  "@onboarding.books_safe.keysync.off_title.android": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
+  },
   "onboarding.books_safe.keysync.phone_backup": "फ़ोन का बैकअप आपकी बहियाँ नहीं लाता — आपकी कुंजी आपके Apple खाते के साथ लौटती है, बहियाँ सर्वर से लौटती हैं।",
+  "onboarding.books_safe.keysync.phone_backup.android": "फ़ोन का बैकअप आपकी बहियाँ नहीं लाता — आपकी कुंजी आपके Google खाते के साथ लौटती है, बहियाँ सर्वर से लौटती हैं।",
+  "@onboarding.books_safe.keysync.phone_backup.android": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
+  },
   "onboarding.books_safe.keysync.state_on": "चालू",
   "onboarding.books_safe.keysync.title": "आपकी कुंजी iCloud Keychain में रखी जाती है",
+  "onboarding.books_safe.keysync.title.android": "आपकी कुंजी Google Password Manager में रखी जाती है",
+  "@onboarding.books_safe.keysync.title.android": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
+  },
   "onboarding.books_safe.resume_note": "आप इस पर होम की सेटअप सूची से वापस आ सकते हैं।",
   "onboarding.books_safe.sheet.action": "मेरी रिकवरी शीट बनाइए",
   "onboarding.books_safe.sheet.body": "एक छपा हुआ पन्ना, जो बाक़ी सब कुछ चले जाने पर भी आपकी बहियाँ वापस लाता है।",
@@ -3214,7 +3556,10 @@
   "onboarding.business_opening.group_owner_contributions": "हर मालिक ने कितना लगाया",
   "onboarding.business_opening.group_you_owe": "आपको किसे देना है",
   "onboarding.business_opening.retry": "फिर कोशिश करें",
-  "onboarding.business_opening.save": "सहेजें और आगे बढ़ें",
+  "onboarding.business_opening.save": "सुरक्षित करें और आगे बढ़ें",
+  "@onboarding.business_opening.save": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "onboarding.business_opening.skip": "अभी छोड़ें",
   "onboarding.business_opening.subtitle": "ये खाते तैयार हैं। हर एक में कितना है भरें, या और जोड़ें।",
   "onboarding.business_opening.suggestion_note": "हिस्सों से सुझाई रकम — असल में अलग थी तो बदल लें।",
@@ -3244,13 +3589,28 @@
   "onboarding.family.accounts.balancing_label": "इसके बराबर होता है",
   "onboarding.family.accounts.balancing_note": "{amount} ओपनिंग बैलेंस / पूंजी खाते में जाता है ताकि प्रविष्टि बराबर हो।",
   "onboarding.family.accounts.balancing_zero": "कुछ और ज़रूरी नहीं — जो आपने भरा वह पूरा मेल खाता है।",
-  "onboarding.family.accounts.create_error": "आपका पारिवारिक साझा खाता नहीं बन सका। कुछ भी नहीं बदला।",
-  "onboarding.family.accounts.creating": "आपका पारिवारिक साझा खाता बन रहा है…",
+  "onboarding.family.accounts.create_error": "आपके परिवार का साझा फ़ंड नहीं बन सका। कुछ भी नहीं बदला।",
+  "@onboarding.family.accounts.create_error": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
+  },
+  "onboarding.family.accounts.creating": "आपके परिवार का साझा फ़ंड बन रहा है…",
+  "@onboarding.family.accounts.creating": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
+  },
   "onboarding.family.accounts.dated_note": "यहाँ हर बकाया {date} की तारीख़ का है।",
-  "onboarding.family.accounts.group_have": "साझा खाते में क्या है",
+  "onboarding.family.accounts.group_have": "साझे फ़ंड के पास क्या है",
+  "@onboarding.family.accounts.group_have": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
+  },
   "onboarding.family.accounts.retry": "दोबारा कोशिश करें",
-  "onboarding.family.accounts.save": "सहेजें",
-  "onboarding.family.accounts.subtitle": "ये खाते पहले से बन चुके हैं — भरें कि साझा खाते में क्या है, या शून्य से शुरू करने के लिए ₹0 रहने दें।",
+  "onboarding.family.accounts.save": "सुरक्षित करें",
+  "@onboarding.family.accounts.save": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
+  "onboarding.family.accounts.subtitle": "ये खाते पहले से बन चुके हैं — भरें कि साझे फ़ंड के पास क्या है, या शून्य से शुरू करने के लिए ₹0 रहने दें।",
+  "@onboarding.family.accounts.subtitle": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
+  },
   "onboarding.family.accounts.title": "आपके परिवार के साझा खाते",
   "onboarding.family.accounts.zero_note": "₹0 पर छोड़ी गई पंक्ति भी बन जाती है — आप इसे कभी भी भर सकते हैं।",
   "onboarding.family.continue_label": "आगे बढ़ें",
@@ -3394,9 +3754,9 @@
   "@onboarding.opening.retry": {
     "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
   },
-  "onboarding.opening.save_error": "आपकी शेष राशि सहेजी नहीं जा सकी। कुछ नहीं बदला — फिर से 'पूरा करें' दबाएँ।",
+  "onboarding.opening.save_error": "आपकी शेष राशि सुरक्षित नहीं की जा सकी। कुछ नहीं बदला — फिर से 'पूरा करें' दबाएँ।",
   "@onboarding.opening.save_error": {
-    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
   },
   "onboarding.opening.skip": "अभी के लिए छोड़ें",
   "@onboarding.opening.skip": {
@@ -3576,9 +3936,9 @@
   "@onboarding.recovery_sheet.preview_semantics": {
     "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
   },
-  "onboarding.recovery_sheet.print": "शीट छापें या सेव करें",
+  "onboarding.recovery_sheet.print": "शीट छापें या सुरक्षित करें",
   "@onboarding.recovery_sheet.print": {
-    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
   },
   "onboarding.recovery_sheet.retry": "दोबारा कोशिश कीजिए",
   "onboarding.recovery_sheet.skip": "अभी के लिए छोड़ें",
@@ -3599,7 +3959,28 @@
   "@onboarding.recovery_sheet.why_title": {
     "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
   },
-  "onboarding.set_pin.biometric_note": "फ़ेस आईडी इस ऐप को सबके लिए बंद रखती है — अगर इस फ़ोन पर नया चेहरा जोड़ा गया, तो ऐप आपका पिन पूछेगी",
+  "onboarding.set_pin.biometric_note": "{method} से यह ऐप सबके लिए बंद रहता है — अगर इस फ़ोन पर नया चेहरा जोड़ा गया, तो ऐप आपका पिन पूछेगी",
+  "@onboarding.set_pin.biometric_note": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
+  "onboarding.set_pin.biometric_note.any": "आपके फ़िंगरप्रिंट या चेहरे से यह ऐप सबके लिए बंद रहता है — अगर इस फ़ोन पर नया जोड़ा गया, तो ऐप आपका पिन पूछेगी",
+  "@onboarding.set_pin.biometric_note.any": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"
+  },
+  "onboarding.set_pin.biometric_note.fingerprint": "{method} से यह ऐप सबके लिए बंद रहता है — अगर इस फ़ोन पर नया फ़िंगरप्रिंट जोड़ा गया, तो ऐप आपका पिन पूछेगी",
+  "@onboarding.set_pin.biometric_note.fingerprint": {
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
+  },
   "onboarding.set_pin.biometric_note_pin_only": "इस फ़ोन पर कोई उंगली का निशान या चेहरा नहीं लगा है, इसलिए आपका पिन इस ऐप को सबके लिए बंद रखता है। फ़ोन की सेटिंग में एक जोड़ें, अगली बार पिन भरने के बाद ऐप उसे इस्तेमाल करेगी।",
   "@onboarding.set_pin.biometric_note_pin_only": {
     "description": "machine-draft — native review M12 (ADR 2026-10-05b)"
@@ -3620,11 +4001,22 @@
   "@onboarding.set_pin.mismatch": {
     "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
   },
-  "onboarding.set_pin.save_failed": "हम वह पिन सहेज नहीं सके — एक बार और कोशिश करें",
-  "onboarding.set_pin.saving": "आपका पिन सहेजा जा रहा है…",
-  "onboarding.set_pin.subtitle": "ज़्यादातर आप फ़ेस आईडी इस्तेमाल करेंगे। यह तब के लिए है जब वह काम न करे — और यह आपकी बहियाँ उससे भी बंद रखता है जिसे आपके फ़ोन का पासकोड पता है।",
+  "onboarding.set_pin.save_failed": "हम वह पिन सुरक्षित नहीं कर सके — एक बार और कोशिश करें",
+  "@onboarding.set_pin.save_failed": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
+  "onboarding.set_pin.saving": "आपका पिन सुरक्षित किया जा रहा है…",
+  "@onboarding.set_pin.saving": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
+  "onboarding.set_pin.subtitle": "ज़्यादातर आप {method} इस्तेमाल करेंगे। यह तब के लिए है जब वह काम न करे — और यह आपकी बहियाँ उससे भी बंद रखता है जिसे आपके फ़ोन का पासकोड पता है।",
   "@onboarding.set_pin.subtitle": {
-    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
+    "description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)",
+    "placeholders": {
+      "method": {
+        "type": "String"
+      }
+    }
   },
   "onboarding.set_pin.title": "अपना पिन बनाएँ",
   "onboarding.set_pin.why": "यह आपकी बहियाँ उससे भी बंद रखता है जिसे आपके फ़ोन का पासकोड पता है।",
@@ -3654,7 +4046,10 @@
   "onboarding.trust.accounts.dated_note": "यहाँ हर बकाया {date} की तारीख़ का है।",
   "onboarding.trust.accounts.group_have": "ट्रस्ट के पास क्या है",
   "onboarding.trust.accounts.retry": "दोबारा कोशिश करें",
-  "onboarding.trust.accounts.save": "सहेजें",
+  "onboarding.trust.accounts.save": "सुरक्षित करें",
+  "@onboarding.trust.accounts.save": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "onboarding.trust.accounts.subtitle": "ये खाते पहले से बन चुके हैं — भरें कि ट्रस्ट के पास क्या है, या शून्य से शुरू करने के लिए ₹0 रहने दें।",
   "onboarding.trust.accounts.title": "ट्रस्ट के खाते",
   "onboarding.trust.accounts.zero_note": "₹0 पर छोड़ी गई पंक्ति भी बन जाती है — आप इसे कभी भी भर सकते हैं।",
@@ -4146,7 +4541,10 @@
   "recovery.fork.other_phone.title": "अपना कोई दूसरा फ़ोन इस्तेमाल करें जिसमें आप साइन इन हैं",
   "recovery.fork.retry": "फिर कोशिश करें",
   "recovery.fork.sheet.body": "उस पर बना कोड स्कैन करें, या कोड हाथ से लिखें।",
-  "recovery.fork.sheet.sub": "काग़ज़ वाली, या वह फ़ाइल जो आपने सहेजी थी",
+  "recovery.fork.sheet.sub": "काग़ज़ वाली, या वह फ़ाइल जो आपने सुरक्षित की थी",
+  "@recovery.fork.sheet.sub": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "recovery.fork.sheet.title": "अपनी रिकवरी शीट इस्तेमाल करें",
   "recovery.fork.title": "आइए आपके बही-खाते इस फ़ोन पर वापस लाएँ",
   "recovery.fork.trusted.body": "जिन्हें आपने चुना था, वे अपने फ़ोन से मंज़ूरी देंगे। पहले उन्हें फ़ोन करें — वे इंतज़ार में हैं।",
@@ -4159,7 +4557,10 @@
   "recovery.nothing.family.title": "आपके परिवार और कारोबार के बही-खाते",
   "recovery.nothing.private.body": "यह अभी भी हमारे सर्वर पर सील पड़ा है, बिल्कुल जैसा आपने छोड़ा था।",
   "recovery.nothing.private.key_platform": "उस Apple या Google खाते में साइन इन करना जिसके पास आपकी चाबी थी।",
-  "recovery.nothing.private.key_sheet": "अपनी रिकवरी शीट ढूँढ़ना — काग़ज़ वाली, या वह फ़ाइल जो आपने सहेजी थी।",
+  "recovery.nothing.private.key_sheet": "अपनी रिकवरी शीट ढूँढ़ना — काग़ज़ वाली, या वह फ़ाइल जो आपने सुरक्षित की थी।",
+  "@recovery.nothing.private.key_sheet": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "recovery.nothing.private.keys": "दो चीज़ें इसे खोल देंगी — आज, अगले हफ़्ते या अगले साल:",
   "recovery.nothing.private.status": "अभी सील है",
   "recovery.nothing.private.title": "आपका निजी बही-खाता",
@@ -4247,9 +4648,9 @@
   "@recovery.sheet.type.label": {
     "description": "machine-draft — native review M12"
   },
-  "recovery.sheet.what": "एक छपा हुआ पन्ना, जिस पर एक चौकोर कोड और नीचे वही कोड अक्षरों में होता है। हो सकता है आपने इसे फ़ाइल के रूप में सहेजा हो।",
+  "recovery.sheet.what": "एक छपा हुआ पन्ना, जिस पर एक चौकोर कोड और नीचे वही कोड अक्षरों में होता है। हो सकता है आपने इसे फ़ाइल के रूप में सुरक्षित किया हो।",
   "@recovery.sheet.what": {
-    "description": "machine-draft — native review M12"
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
   },
   "recovery.show.back": "वापस",
   "@recovery.show.back": {
@@ -4423,7 +4824,10 @@
   "reports.day_book.row.title": "रोज़नामचा",
   "reports.export.csv": "CSV",
   "reports.export.csv.description": "किसी भी स्प्रेडशीट में खुलती है",
-  "reports.export.failed": "रिपोर्ट सहेजी नहीं जा सकी।",
+  "reports.export.failed": "रिपोर्ट सुरक्षित नहीं की जा सकी।",
+  "@reports.export.failed": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "reports.export.file_name": "day-book-{year}.{extension}",
   "reports.export.generating": "आपकी फ़ाइल तैयार हो रही है",
   "reports.export.page": "पृष्ठ {page} / {pages}",
@@ -4440,7 +4844,10 @@
   "@reports.export.pdf.see_plans": {
     "description": "machine-draft — native review M12"
   },
-  "reports.export.saved": "सहेजी गई: {where}",
+  "reports.export.saved": "सुरक्षित की गई: {where}",
+  "@reports.export.saved": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "reports.export.title": "यह रिपोर्ट डाउनलोड या साझा करें",
   "reports.export.xlsx": "XLSX",
   "reports.export.xlsx.description": "स्प्रेडशीट फ़ाइल",
@@ -4653,11 +5060,17 @@
   "@subscription.row.read_only.title": {
     "description": "machine-draft — native review M12"
   },
-  "subscription.sheet.book_full.blocked": "यह बही प्लान की सीमा तक पहुँच गई है, इसलिए यह एंट्री अभी सहेजी नहीं जा सकती।",
+  "subscription.sheet.book_full.blocked": "यह बही प्लान की सीमा तक पहुँच गई है, इसलिए यह एंट्री अभी सुरक्षित नहीं की जा सकती।",
+  "@subscription.sheet.book_full.blocked": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "subscription.sheet.book_full.still_works": "आपने जो लिखा है वह सुरक्षित है। पढ़ना और एक्सपोर्ट चलते रहेंगे।",
   "subscription.sheet.book_full.title": "यह बही भर गई है",
   "subscription.sheet.dismiss": "अपनी एंट्री पर वापस",
-  "subscription.sheet.read_only.blocked": "आपका प्लान समाप्त हो गया है, इसलिए यह एंट्री अभी सहेजी नहीं जा सकती।",
+  "subscription.sheet.read_only.blocked": "आपका प्लान समाप्त हो गया है, इसलिए यह एंट्री अभी सुरक्षित नहीं की जा सकती।",
+  "@subscription.sheet.read_only.blocked": {
+    "description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"
+  },
   "subscription.sheet.read_only.still_works": "आपने जो लिखा है वह सुरक्षित है। आप अब भी बहियाँ पढ़ सकते हैं, एक्सपोर्ट कर सकते हैं और बंद कर सकते हैं।",
   "subscription.sheet.read_only.title": "नई एंट्री रुकी हुई हैं",
   "subscription.state.active": "चालू",

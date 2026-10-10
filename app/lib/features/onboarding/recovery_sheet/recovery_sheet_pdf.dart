@@ -20,8 +20,9 @@
 // second language is laid out by the engine's own paragraph (HarfBuzz —
 // the same shaping every screen of the app gets), in the app's own faces
 // (Mukta / Mukta Mahee, 11 §4.4), and placed on the page as an image at
-// [_rasterScale] × its point size — print resolution. English, which
-// pdf 3.13 sets correctly, stays text.
+// [ShapedLine.rasterScale] × its point size — print resolution. English, which
+// pdf 3.13 sets correctly, stays text. The shaping itself lives in
+// `shared/pdf_shaping.dart`, shared with the report PDF (desk 183 c).
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:ui' show Locale;
@@ -32,9 +33,11 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../../../l10n/gen/app_localizations.dart';
-import '../../../shared/theme.dart' show rkFontFallback;
+import '../../../shared/pdf_shaping.dart' show ShapedLine, shapePdfLine;
 import '../../../shared/tokens.dart';
 import '../../reports/export/pdf_report.dart' show ReportFonts;
+
+export '../../../shared/pdf_shaping.dart' show ShapedLine;
 
 /// What the page prints: the QR text and the typed code's groups. Both carry
 /// RK (04 §7.4's spec-mandated exception to "no key in a String"); build the
@@ -81,32 +84,11 @@ List<String> recoverySheetPageStrings(AppLocalizations l) => [
   ...recoverySheetInstructions(l),
 ];
 
-/// A line of the user's language, shaped by the engine and drawn to an image
-/// (see the header): [png] at [rasterScale] × the point size, to be placed
-/// at [width] × [height] points.
-final class ShapedLine {
-  /// Wraps the drawn line.
-  const ShapedLine({
-    required this.png,
-    required this.width,
-    required this.height,
-  });
-
-  /// The drawn paragraph, transparent behind the ink.
-  final Uint8List png;
-
-  /// Its size on the page, in points.
-  final double width;
-
-  /// Its size on the page, in points.
-  final double height;
-
-  /// Device pixels per point of [png].
-  static const double rasterScale = _rasterScale;
-}
-
 /// Lays [text] out with the engine's paragraph — full complex-script shaping
-/// — in the app's faces, wrapped at [maxWidth] points, and draws it.
+/// — in the app's faces, wrapped at [maxWidth] points, and draws it. The
+/// sheet's own name for [shapePdfLine] (`shared/pdf_shaping.dart`), where the
+/// helper now lives so the report PDF shares it; the sheet's lines are drawn
+/// exactly as before.
 ///
 /// Must run where `dart:ui` can rasterise (the UI isolate; a widget test's
 /// `runAsync`).
@@ -116,52 +98,13 @@ Future<ShapedLine> shapeRecoverySheetLine(
   required ui.Color color,
   bool bold = false,
   double maxWidth = _contentWidth,
-}) async {
-  final weight = bold ? ui.FontWeight.w600 : ui.FontWeight.w400;
-  final builder =
-      ui.ParagraphBuilder(
-          ui.ParagraphStyle(
-            fontFamily: RkType.family,
-            fontSize: size,
-            fontWeight: weight,
-          ),
-        )
-        ..pushStyle(
-          ui.TextStyle(
-            color: color,
-            fontFamily: RkType.family,
-            fontFamilyFallback: rkFontFallback,
-            fontSize: size,
-            fontWeight: weight,
-          ),
-        )
-        ..addText(text);
-  final paragraph = builder.build()
-    ..layout(ui.ParagraphConstraints(width: maxWidth));
-  final width = paragraph.longestLine.ceilToDouble().clamp(1.0, maxWidth);
-  final height = paragraph.height.ceilToDouble().clamp(1.0, double.infinity);
-  final recorder = ui.PictureRecorder();
-  ui.Canvas(recorder)
-    ..scale(_rasterScale)
-    ..drawParagraph(paragraph, ui.Offset.zero);
-  final picture = recorder.endRecording();
-  paragraph.dispose();
-  final image = await picture.toImage(
-    (width * _rasterScale).ceil(),
-    (height * _rasterScale).ceil(),
-  );
-  picture.dispose();
-  try {
-    final data = await image.toByteData(format: ui.ImageByteFormat.png);
-    return ShapedLine(
-      png: data!.buffer.asUint8List(),
-      width: width,
-      height: height,
-    );
-  } finally {
-    image.dispose();
-  }
-}
+}) => shapePdfLine(
+  text,
+  size: size,
+  color: color,
+  bold: bold,
+  maxWidth: maxWidth,
+);
 
 /// Renders the one-page sheet. [local] is the user's language; null or
 /// English prints the instructions once. The second language is shaped by
@@ -388,9 +331,6 @@ const pw.BarcodeQRCorrectionLevel recoverySheetQrCorrection =
 /// The width the instructions wrap at: A4 less both margins.
 const double _contentWidth = 21.0 * PdfPageFormat.cm - 2 * _margin;
 
-/// Device pixels per point of a shaped line — 4 × 72 = 288 dpi, print
-/// resolution for 10 pt text.
-const double _rasterScale = 4;
 const double _bodySize = 10;
 const double _codeSize = 15;
 const int _groupsPerRow = 6;

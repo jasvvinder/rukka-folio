@@ -44,11 +44,9 @@ import 'features/entry/entry_routes.dart';
 import 'features/help/help_routes.dart';
 import 'features/home/home_routes.dart';
 import 'features/home/home_scope.dart';
+import 'features/inbox/certified_signer.dart';
 import 'features/inbox/inbox_routes.dart';
-import 'features/inbox/late_arrivals.dart';
-import 'features/inbox/ledger_late_arrivals.dart';
-import 'features/inbox/ledger_review_queue.dart';
-import 'features/inbox/review_queue.dart';
+import 'features/inbox/ledger_inbox_seams.dart';
 import 'features/import/import_routes.dart';
 import 'features/ledger/ledger_routes.dart';
 import 'features/legal/legal_routes.dart';
@@ -72,6 +70,7 @@ import 'l10n/gen/app_localizations.dart';
 import 'main.dart';
 import 'shared/app_settings.dart';
 import 'shared/ledger/local_ledger.dart';
+import 'shared/ledger/retained_certs.dart';
 import 'shared/prefs.dart';
 import 'shared/records/device_added_record.dart';
 import 'shared/records/device_record_author.dart';
@@ -209,6 +208,76 @@ LocalLedger productionLedger({
   reviewPolicy: reviewPolicy,
   requireConfirmedIdentity: true,
 );
+
+/// The trust wiring the composition root gives [ledger] once [trust] exists —
+/// all of it late, because the trust store is built *from* the ledger's
+/// material and so cannot be handed to its constructor:
+///   • a certificate filed in an earlier session seeds [trust], so a cold
+///     start verifies its own envelopes instead of quarantining them
+///     `certMissing`, and one filed later in this session reaches it live
+///     (04 §3.4 🔒);
+///   • the structural reader learns whose certified device signed each
+///     `structural_approval` through [chainCertifiedSigner] (02 §7.2.1 🔒 —
+///     *each approval is authored on that owner's own device*) over the
+///     returned [RetainedCertTrust]: [trust] first, then the certificates
+///     this install retained ([LocalLedger.retainedCertOf]). Every
+///     certificate [trust] answers a structural signer with is offered to
+///     [LocalLedger.retainPeerCert], which keeps it only when it verifies
+///     under its user's ceremony-verified UMK. A removed member's certificate
+///     is never served again (`rf.device_visible`), but the records they
+///     signed stay; without the retained copy every one of them would be
+///     `signerUnknown` from the next launch on, and no distribution of that
+///     book would ever be offered again (03 *Deletion mechanics* 🔒, review
+///     TRUSTWIRE-1).
+///
+/// Returns that view, so every other structural signer — the Inbox's
+/// `certifiedSignerOf` — reads, and retains, the same certificates and the
+/// two surfaces cannot disagree about who signed. The Inbox re-reads every
+/// book's structural records whenever `envelopes_local` changes, so a
+/// certificate is offered the moment a record it signed arrives. [bootstrap]
+/// is its only production caller; separate so F1-200-31 drives the very
+/// wiring production runs.
+TrustStore wireLedgerTrust(
+  LocalLedger ledger,
+  eng.RecordTrustStore trust,
+  CryptoSuite suite,
+) {
+  final ownCert = ledger.ownDeviceCert;
+  if (ownCert != null) trust.certs[ownCert.deviceId] = ownCert;
+  final signers = RetainedCertTrust(
+    trust,
+    retained: ledger.retainedCertOf,
+    retain: ledger.retainPeerCert,
+  );
+  ledger
+    ..onOwnCert = ((cert) => trust.certs[cert.deviceId] = cert)
+    ..structuralSignerOf = chainCertifiedSigner(signers, suite);
+  return signers;
+}
+
+/// [EnvelopeSigner] over [trust]: the certificate's user only when
+/// [ChainVerifier.verifyEnvelope] holds for the stored envelope **now** (04
+/// §3.4, §8.3; ADR 2026-09-05b §5) — a certificate for exactly this device,
+/// under a ceremony-verified UMK, whose keys signed this envelope, not revoked
+/// at or below its `seq`. Anything else — no certificate held for the
+/// device, a relabelled or forged certificate, a throw — is null: never the `devices` row's label, which 04 §3.4 does not sign. The
+/// same chain `certifiedSignerOf` runs for the Inbox (certified_signer.dart).
+/// [trust] is [wireLedgerTrust]'s [RetainedCertTrust] in production, so
+/// *no certificate yet* means one this install has never held.
+EnvelopeSigner chainCertifiedSigner(TrustStore trust, CryptoSuite suite) {
+  final chain = ChainVerifier(suite, trust);
+  return (Envelope sealed, {required int? seq}) {
+    final ChainVerdict verdict;
+    try {
+      verdict = chain.verifyEnvelope(sealed, seq: seq);
+    } on Object {
+      return null;
+    }
+    if (verdict is! ChainVerified) return null;
+    // The certificate the chain just accepted (no await between the two).
+    return trust.certOf(sealed.authorDeviceId)?.userId;
+  };
+}
 
 /// S11.1's roster (04 §7.3 Setup) from the members feature's [snapshot],
 /// read in [tenant] — the install's tenant, whose members the snapshot
@@ -1039,9 +1108,11 @@ Future<void> bootstrap() async {
         tenantOf: () => identity.tenant.value,
         post: membersApi.postRecords,
       );
-      final ownCert = ledger.ownDeviceCert;
-      if (ownCert != null) trust.certs[ownCert.deviceId] = ownCert;
-      ledger.onOwnCert = (cert) => trust.certs[cert.deviceId] = cert;
+      // The own certificate seeds `trust`, and both structural signers — the
+      // ledger's and the Inbox's — read `signers`: this launch's certificates,
+      // then the ones this install retained (02 §7.2.1 🔒) — see
+      // [wireLedgerTrust].
+      final signers = wireLedgerTrust(ledger, trust, suite);
       // ADR 2026-09-24b §2 — every installed device re-offers its UMK's X25519
       // half once per launch, with no prompt. Before 0012 no client sent it,
       // so an installed device's `umk_public_keys` row holds `pub_ed` alone
@@ -1425,6 +1496,27 @@ Future<void> bootstrap() async {
         keys: ledger.verifiedMembers,
       );
 
+      // S6's live seams (07 §9 🔒, §13 🔒, §26 🔒), built once and installed
+      // below through `inbox.scopes`. S6.3's structural requests read whose a
+      // signature is through `certifiedSignerOf` — `ChainVerifier` re-run over
+      // the stored envelope **at that read**: the certificate under its
+      // user's ceremony-verified UMK, the envelope's signature under the
+      // certified keys — never the user id alone: that id is the
+      // server's `devices` row, copied unsigned into the certificate the
+      // engine builds (`CryptoGuard.buildCert`; 04 §3.4 signs no user id),
+      // and 02 §7.2.1 🔒 counts an approval as *authored on that owner's own
+      // device, so the server cannot manufacture one*. Certificates arrive on
+      // the meta read, so the requests are re-read on every sync status, and
+      // until one has arrived — or been retained in an earlier session, which
+      // `signers` reads too — a book's requests offer no signature (desk 200
+      // (c); review F200I-1, -2; TRUSTWIRE-1).
+      final inbox = LedgerInboxSeams(
+        ledger,
+        memberName: memberName,
+        signerOf: certifiedSignerOf(signers, suite),
+        refreshOn: sync.status,
+      );
+
       // S9/S9.1 read the repository off the tree; with no tenant yet there is
       // nothing to read and the scope's own empty fake is the right answer.
       // S0.9 (13 §3.2) reads its invitations off the tree the same way. Bound
@@ -1460,7 +1552,10 @@ Future<void> bootstrap() async {
             // surface (07 §9 🔒), so the tray merges every book this device
             // holds rather than following Home's selected book. So is
             // `ReviewQueueScope`, for the same reason: S6's approvals now run
-            // on the real ledger (02 §3 🔒) instead of `FakeReviewQueue`. The
+            // on the real ledger (02 §3 🔒) instead of `FakeReviewQueue` — and
+            // so does `StructuralRequestsScope` (S6.3, 02 §7.2.1 🔒), which
+            // fell back to an empty fake until desk 200 (c). All three come
+            // from `inbox.scopes` (features/inbox/ledger_inbox_seams.dart). The
             // author's name is the members repository's — the ledger holds no
             // contact book — and falls back to the *someone in this book*
             // string when this phone does not hold the contact (ADR
@@ -1473,64 +1568,57 @@ Future<void> bootstrap() async {
                   source: LedgerYearCloseSource(ledger),
                   child: ClosedYearsScope(
                     source: LedgerClosedYearsSource(ledger).call,
-                    child: LateArrivalsScope(
-                      tray: LedgerLateArrivals(ledger),
-                      child: ReviewQueueScope(
-                        queue: LedgerReviewQueue(
-                          ledger,
-                          authorNameOf: memberName,
-                        ),
-                        child: PartnersScope(
-                          port: LedgerPartnersPort(ledger),
-                          // The activation ladder's three producers. They sit
-                          // innermost because they are the newest and own no
-                          // other screen; nothing below reads them but S11.2,
-                          // S11.3 and S11.7, each of which still falls back to
-                          // what it was constructed with when a scope is
-                          // absent (07 §1 rule 6 — a missing scope is never a
-                          // red screen).
-                          // S11.5 and S11.6's one source. Outermost of the
-                          // activation producers because it is the one the
-                          // fork asks before any other screen exists — and
-                          // because installing it is what stops S11.6 running
-                          // on `FakeRecoveryLadder` in production, where every
-                          // rung reads as available whether it is or not.
-                          child: RecoveryLadderScope(
-                            ladder: recoveryLadder,
-                            child: GuardianRecoveryScope(
-                              recovery: guardianRecovery,
-                              child: RecoverySheetScope(
-                                sheet: recoverySheet,
-                                child: GuardianApprovalsScope(
-                                  approvals: guardianApprovals,
-                                  // S11.1's live producer, innermost with the
-                                  // other activation producers. The screen
-                                  // still falls back to the seam's own fake
-                                  // when the scope is absent (07 §1 rule 6 —
-                                  // a missing scope is never a red screen),
-                                  // which is why installing it here is what
-                                  // stops S11.1 running on `FakeGuardians` in
-                                  // production.
-                                  child: GuardiansScope(
-                                    repository: guardians,
-                                    // The recovery scans' camera and the
-                                    // *Call* controls' dialer (ADR
-                                    // 2026-09-19 🔒), read by S11.2, S11.3
-                                    // and S11.7 only.
-                                    child: RecoveryCameraScope(
-                                      camera: recoveryCamera,
-                                      child: DialerScope(
-                                        dialer: dialer,
-                                        // S9.2 / S9.3 open through this
-                                        // factory; without it both routes
-                                        // fall back to `NoCeremonySessions`
-                                        // and wait for ever.
-                                        child: CeremonyScope(
-                                          sessions: ceremonySessions,
-                                          newScanner:
-                                              MobileScannerCeremonyScanner.new,
-                                          child: app,
-                                        ),
+                    child: inbox.scopes(
+                      child: PartnersScope(
+                        port: LedgerPartnersPort(ledger),
+                        // The activation ladder's three producers. They sit
+                        // innermost because they are the newest and own no
+                        // other screen; nothing below reads them but S11.2,
+                        // S11.3 and S11.7, each of which still falls back to
+                        // what it was constructed with when a scope is
+                        // absent (07 §1 rule 6 — a missing scope is never a
+                        // red screen).
+                        // S11.5 and S11.6's one source. Outermost of the
+                        // activation producers because it is the one the
+                        // fork asks before any other screen exists — and
+                        // because installing it is what stops S11.6 running
+                        // on `FakeRecoveryLadder` in production, where every
+                        // rung reads as available whether it is or not.
+                        child: RecoveryLadderScope(
+                          ladder: recoveryLadder,
+                          child: GuardianRecoveryScope(
+                            recovery: guardianRecovery,
+                            child: RecoverySheetScope(
+                              sheet: recoverySheet,
+                              child: GuardianApprovalsScope(
+                                approvals: guardianApprovals,
+                                // S11.1's live producer, innermost with the
+                                // other activation producers. The screen
+                                // still falls back to the seam's own fake
+                                // when the scope is absent (07 §1 rule 6 —
+                                // a missing scope is never a red screen),
+                                // which is why installing it here is what
+                                // stops S11.1 running on `FakeGuardians` in
+                                // production.
+                                child: GuardiansScope(
+                                  repository: guardians,
+                                  // The recovery scans' camera and the
+                                  // *Call* controls' dialer (ADR
+                                  // 2026-09-19 🔒), read by S11.2, S11.3
+                                  // and S11.7 only.
+                                  child: RecoveryCameraScope(
+                                    camera: recoveryCamera,
+                                    child: DialerScope(
+                                      dialer: dialer,
+                                      // S9.2 / S9.3 open through this
+                                      // factory; without it both routes
+                                      // fall back to `NoCeremonySessions`
+                                      // and wait for ever.
+                                      child: CeremonyScope(
+                                        sessions: ceremonySessions,
+                                        newScanner:
+                                            MobileScannerCeremonyScanner.new,
+                                        child: app,
                                       ),
                                     ),
                                   ),

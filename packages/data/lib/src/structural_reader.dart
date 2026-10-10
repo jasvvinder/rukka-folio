@@ -14,6 +14,26 @@
 //     `evaluateStructural(...).isApplied` is true, and its `settings` must equal
 //     that request's payload.
 //
+// Two trust rules in front of them (TRUST200, 10 Oct 2026; 02 §7.2.1 🔒 *each
+// approval is authored on that owner's own device, so the server cannot
+// manufacture one*):
+//   * **Who signed it.** A record's `by_user` is a claim inside the payload;
+//     which device signed the envelope is what sync proved (04 §8 rule 3). The
+//     reader takes the certified device → user map as an injected function
+//     (`signerOf`, no I/O here, asked by `(author_device, author_seq)` — the
+//     envelope's signing identity, never the record's id or `by_user`) and
+//     `evaluateStructural` counts a record only when the two agree. A signer
+//     the reader cannot name is nobody's: the record is listed
+//     ([StructuralReading.recordRefusals]), not counted, and the reading says
+//     its signers are not all confirmed ([StructuralReading.signersConfirmed]).
+//     `signerOf` has no default: every caller states its binding, and null is
+//     the caller's own assertion that it bound each envelope itself.
+//   * **One envelope per request id.** Approvals bind to `request_id` only, so
+//     a request id carried by more than one envelope could let a record verify
+//     against terms the owners never approved. Such an id is refused whole
+//     (`ambiguousRequest`), whatever the terms — the Inbox refuses the same
+//     pair, and the fold must not apply what the Inbox will not show.
+//
 // Neither rule is a projector rule: `decodeEvent` returns null for a
 // `business_setting`, `projectedObjectTypes` excludes it, and `project()` never
 // sees either object — the golden `content_hash` is untouched by construction
@@ -50,6 +70,25 @@ enum StructuralQuarantineReason {
 
   /// The record belongs to another book than the one being read.
   otherBook,
+
+  /// The device that signed the record is certified to **another** user than
+  /// its `by_user` names — a record signed in somebody else's name
+  /// (02 §7.2.1 🔒). Never counted; the rest of the book still reads.
+  signerNotBound,
+
+  /// The reader cannot say whose device signed the record: no certificate it
+  /// can verify names the device, the device was revoked at or before this
+  /// record, or the record carries no author device. Not counted, and
+  /// [StructuralReading.signersConfirmed] is false. **Provisional**: a
+  /// certificate may still arrive, so a caller never writes this to
+  /// `envelopes_local` as a permanent refusal.
+  signerUnknown,
+
+  /// The request id is carried by more than one `structural_approval`
+  /// envelope, so an approval naming it could be counted for either set of
+  /// terms. Neither carrier is read, and a `business_setting` naming the id is
+  /// refused.
+  ambiguousRequest,
 }
 
 /// One object a reader refused, with the reason it records against the
@@ -231,11 +270,16 @@ final class BusinessSettingReading {
 /// approvals, vetoes and lapses `evaluateStructural` counts. [owners] are the
 /// book's owner-set versions and [asOfMs] is the injected physical time (never
 /// a clock read here; `core_ledger` decides only pending-vs-lapsed with it).
+/// [signerOf] is the certified device → user map, handed to
+/// `evaluateStructural` so that a record counts only when signed on its
+/// owner's own device (02 §7.2.1 🔒); null means the caller bound every record
+/// before handing it in — see [readStructuralState].
 ///
 /// A record with no request, an unknown or unapproved request, a request whose
-/// action sets no settings, a differing payload, or another book's id is
-/// **quarantined with its reason, never silently skipped**: every input appears
-/// in exactly one of the two lists. Nothing is mutated.
+/// action sets no settings, a differing payload, another book's id, or a
+/// request id carried by more than one envelope is **quarantined with its
+/// reason, never silently skipped**: every input appears in exactly one of the
+/// two lists. Nothing is mutated.
 ///
 /// ⚠️ SPEC (ADR 2026-09-14b § Open, for the 05 owner): `05` line 97 puts
 /// `business_setting` in the **all-time** bootstrap set while
@@ -254,13 +298,16 @@ BusinessSettingReading verifyBusinessSettings({
   required Iterable<StructuralEvent> structuralEvents,
   required Iterable<OwnerSetVersion> owners,
   required int asOfMs,
+  required StructuralSignerOf? signerOf,
 }) {
   final events = structuralEvents.toList(growable: false);
+  final ambiguous = ambiguousRequestIds(events, bookId: bookId);
   final requests = <String, StructuralRequest>{
     for (final e in events.whereType<StructuralRequest>())
       // A request of another book never authorises anything here; to this book
-      // it simply does not exist.
-      if (e.bookId == bookId) e.id: e,
+      // it simply does not exist. Nor does one whose id more than one envelope
+      // carries: an approval naming it names no one set of terms.
+      if (e.bookId == bookId && !ambiguous.contains(e.id)) e.id: e,
   };
   final outcomes = <String, StructuralOutcome>{};
   StructuralOutcome outcomeOf(StructuralRequest request) =>
@@ -269,6 +316,7 @@ BusinessSettingReading verifyBusinessSettings({
         records: events,
         owners: owners,
         asOfMs: asOfMs,
+        signerOf: signerOf,
       );
 
   final ordered = records.toList()
@@ -302,6 +350,15 @@ BusinessSettingReading verifyBusinessSettings({
         record,
         StructuralQuarantineReason.noRequest,
         'no request_id — nothing authorised it (ADR 2026-09-14b §5)',
+      );
+      continue;
+    }
+    if (ambiguous.contains(requestId)) {
+      refuse(
+        record,
+        StructuralQuarantineReason.ambiguousRequest,
+        'request $requestId is carried by more than one envelope, so the terms '
+        'its approvals name are not one set (02 §7.2.1 🔒)',
       );
       continue;
     }
@@ -377,6 +434,30 @@ bool jsonValuesEqual(Object? a, Object? b) {
   return a == b;
 }
 
+/// The request ids of [bookId] that more than one `structural_approval`
+/// envelope carries — each envelope is one [StructuralRequest] event here, and
+/// two with the same `id` are two carriers.
+///
+/// Refused whatever the terms: 03 defines no amend of a `structural_approval`
+/// (a re-initiation is a fresh request — [StructuralRequest.copyWith]), the
+/// approvals bind to the id alone, and the Inbox refuses the same pair, so a
+/// fold that read one of them would apply what the Inbox will not show.
+Set<String> ambiguousRequestIds(
+  Iterable<StructuralEvent> events, {
+  required String bookId,
+}) {
+  final carriers = <String, int>{};
+  for (final e in events) {
+    if (e is StructuralRequest && e.bookId == bookId) {
+      carriers[e.id] = (carriers[e.id] ?? 0) + 1;
+    }
+  }
+  return {
+    for (final MapEntry(:key, :value) in carriers.entries)
+      if (value > 1) key,
+  };
+}
+
 // ---------------------------------------------------------------------------
 // The owner-set fold (ADR 2026-09-14b §3 and § Open bullet 4)
 // ---------------------------------------------------------------------------
@@ -439,6 +520,10 @@ enum OwnerSetRefusalReason {
 
   /// The change would leave the book with no owners at all.
   noOwnersLeft,
+
+  /// The request id is carried by more than one envelope
+  /// ([StructuralQuarantineReason.ambiguousRequest]); no carrier is folded.
+  ambiguousRequest,
 }
 
 /// One claim the owner-set fold refused, with the reason it records.
@@ -521,7 +606,12 @@ final class OwnerSetReading {
 /// [accounts] its chart; both are filtered to [deed]'s book. [asOfMs] is the
 /// injected physical time — the fold reads no clock (CLAUDE.md rule 3) and
 /// `evaluateStructural` uses it for one thing only: whether a request past its
-/// window is pending or lapsed.
+/// window is pending or lapsed. [signerOf] is the certified device → user map
+/// (02 §7.2.1 🔒; null = the caller bound every record, see
+/// [readStructuralState]) — it matters most here, where a forged approval on a
+/// `quorum_setting` would soften every quorum after it. A request id carried
+/// by more than one envelope is refused ([OwnerSetRefusalReason.ambiguousRequest])
+/// and folds nothing.
 ///
 /// Input order does not matter, nothing is mutated, and every claim is either
 /// folded in or listed in [OwnerSetReading.refused].
@@ -541,6 +631,7 @@ OwnerSetReading ownerSetVersions({
   required Iterable<Account> accounts,
   required Iterable<StructuralEvent> structuralEvents,
   required int asOfMs,
+  required StructuralSignerOf? signerOf,
 }) {
   final refused = <OwnerSetRefusal>[];
   final chart = <String, Account>{
@@ -588,8 +679,24 @@ OwnerSetReading ownerSetVersions({
   final events = structuralEvents
       .where((e) => e.bookId == deed.id)
       .toList(growable: false);
-  final requests = events.whereType<StructuralRequest>().toList()
-    ..sort((a, b) => compareEventOrder(a.hlc, a.id, b.hlc, b.id));
+  final ambiguous = ambiguousRequestIds(events, bookId: deed.id);
+  for (final id in ambiguous.toList()..sort()) {
+    refused.add(
+      OwnerSetRefusal(
+        objectId: id,
+        reason: OwnerSetRefusalReason.ambiguousRequest,
+        detail:
+            'request $id is carried by more than one envelope, so the terms '
+            'its approvals name are not one set (02 §7.2.1 🔒)',
+      ),
+    );
+  }
+  final requests =
+      events
+          .whereType<StructuralRequest>()
+          .where((r) => !ambiguous.contains(r.id))
+          .toList()
+        ..sort((a, b) => compareEventOrder(a.hlc, a.id, b.hlc, b.id));
 
   // Versions whose quorum has been reached but whose order point has not yet
   // been passed by the walk, kept in `(hlc, id)` order of that point.
@@ -612,6 +719,7 @@ OwnerSetReading ownerSetVersions({
       records: events,
       owners: versions,
       asOfMs: asOfMs,
+      signerOf: signerOf,
     );
     if (!outcome.isApplied) continue;
     // The order point the change lands at: where quorum was reached, but never
@@ -822,6 +930,8 @@ final class StructuralReading {
     required this.settings,
     required this.inForce,
     required this.quarantined,
+    required this.recordRefusals,
+    required this.signersConfirmed,
   });
 
   /// The `book_config` versions read (ADR 2026-09-14b §2).
@@ -837,10 +947,41 @@ final class StructuralReading {
   /// authorised record, in `(hlc, envelope_id)` order (§2).
   final Map<String, Object?> inForce;
 
-  /// Every envelope refused by the two envelope-level rules, deed versions
-  /// first. Owner-set refusals are kept apart in [ownerRefusals]: they are
-  /// statements about the chart, not about an envelope's validity.
+  /// Every envelope refused by the envelope-level rules **that bear on the
+  /// terms in force** — deed versions, then the `business_setting` records.
+  /// Non-empty means the terms this reading shows are not the whole story,
+  /// and a caller that posts on them (S14.1) refuses. Two kinds of refusal are
+  /// kept apart because they are not that: owner-set refusals in
+  /// [ownerRefusals] (statements about the chart), and the
+  /// `structural_approval` records the fold would not count in
+  /// [recordRefusals]. A refused record reaches the terms in force only
+  /// through a `business_setting` that names its request, and that record is
+  /// then listed here on its own (`requestNotApplied`, `ambiguousRequest`);
+  /// a stray forged, unattributable or duplicated record must not stop a
+  /// book's distributions for good (review TRUST200 #3).
   final List<StructuralQuarantine> quarantined;
+
+  /// The `structural_approval` records of the book the fold did not count —
+  /// signed in somebody else's name ([StructuralQuarantineReason.signerNotBound]),
+  /// signed by a device this reader cannot yet name
+  /// ([StructuralQuarantineReason.signerUnknown], provisional: a certificate
+  /// may still arrive, so never written as a permanent refusal), or a request
+  /// id more than one envelope carries
+  /// ([StructuralQuarantineReason.ambiguousRequest]). In `(hlc, id)` order,
+  /// ids and reasons only. Listed, never silent; not in [quarantined].
+  final List<StructuralQuarantine> recordRefusals;
+
+  /// False when some `structural_approval` record of the book could not be
+  /// attributed to any certified device under the `signerOf` given — a
+  /// certificate not yet held, a revoked device, no author device. Such a
+  /// record is not counted and the fold applied nothing it decides; a caller
+  /// that offers a decision, or posts on these terms, should wait for a read
+  /// that confirms them. Always true under `signerOf: null`, where the caller
+  /// bound the records itself. On a fresh launch, before the first meta page
+  /// has delivered the other devices' certificates, this is false for every
+  /// book with another device's record (F200I open #1) — a transient, not a
+  /// permanent state, so a caller that gates on it gates until that read.
+  final bool signersConfirmed;
 
   /// The creation version — the frozen deed.
   BookConfig? get deed => config.deed;
@@ -875,6 +1016,25 @@ final class StructuralReading {
 /// one ratio it hands `splitByRatio` (ADR 2026-09-14b §6), and
 /// `reading.owners.inForce` is what its approval count is judged against.
 ///
+/// **[signerOf] — who signed it** (02 §7.2.1 🔒, TRUST200). The certified
+/// device → user map, as the caller can verify it *now* (the app re-runs the
+/// signature chain over the stored envelope: `certifiedSignerOf`), injected so
+/// nothing here reads a store. Every `structural_approval` record — request,
+/// approval, veto, lapse — is then counted only when the device that signed it
+/// is certified to the `by_user` it names; a forgery is listed
+/// [StructuralQuarantineReason.signerNotBound] and never counted, a record
+/// nobody can be named for is listed [StructuralQuarantineReason.signerUnknown],
+/// never counted, and leaves [StructuralReading.signersConfirmed] false. Both
+/// are listed in [StructuralReading.recordRefusals], apart from
+/// [StructuralReading.quarantined]. The signer is asked by the envelope's
+/// signing identity `(author_device, author_seq)` and never by the record's
+/// id or `by_user`. [signerOf] has no default — omission was the hole F200I
+/// found — and **null** is the caller's own assertion that it bound every
+/// record per envelope before handing it in (the Inbox's `readStructuralBook`
+/// checks each envelope's signing device against the `by_user` it names and
+/// drops what it cannot bind). A caller reading straight from the mirror
+/// cannot assert that and passes the function.
+///
 /// ⚠️ SPEC (ADR 2026-09-14b §5, for the ADR's owner): §5's reader rule checks
 /// that an authorising request is approved and that its payload equals the
 /// record's `settings` — it does **not** check that the request's *action* owns
@@ -893,6 +1053,7 @@ StructuralReading readStructuralState({
   required Iterable<StructuralEvent> structuralEvents,
   required Iterable<BusinessSetting> businessSettings,
   required int asOfMs,
+  required StructuralSignerOf? signerOf,
 }) {
   final config = readBookConfigVersions(configVersions);
   for (final version in configVersions) {
@@ -913,6 +1074,8 @@ StructuralReading readStructuralState({
       settings: const BusinessSettingReading(applied: [], quarantined: []),
       inForce: const {},
       quarantined: List.unmodifiable(config.quarantined),
+      recordRefusals: const [],
+      signersConfirmed: true,
     );
   }
 
@@ -920,18 +1083,26 @@ StructuralReading readStructuralState({
   // routine amend may carry the structural keys forward but may never change
   // them (§2), so the two agree by construction and the deed is the honest
   // one to read.
+  final events = structuralEvents.toList(growable: false);
+  final recordRefusals = _structuralRecordRefusals(
+    events,
+    bookId: bookId,
+    signerOf: signerOf,
+  );
   final owners = ownerSetVersions(
     deed: deed,
     accounts: accounts,
-    structuralEvents: structuralEvents,
+    structuralEvents: events,
     asOfMs: asOfMs,
+    signerOf: signerOf,
   );
   final settings = verifyBusinessSettings(
     bookId: bookId,
     records: businessSettings,
-    structuralEvents: structuralEvents,
+    structuralEvents: events,
     owners: owners.versions,
     asOfMs: asOfMs,
+    signerOf: signerOf,
   );
   return StructuralReading(
     config: config,
@@ -945,5 +1116,78 @@ StructuralReading readStructuralState({
       ...config.quarantined,
       ...settings.quarantined,
     ]),
+    recordRefusals: List.unmodifiable(recordRefusals),
+    signersConfirmed: recordRefusals.every(
+      (q) => q.reason != StructuralQuarantineReason.signerUnknown,
+    ),
   );
 }
+
+/// The `structural_approval` records of [bookId] the reader will not count —
+/// the same judgement `evaluateStructural` makes with [signerOf], listed once
+/// per record at book level so nothing is silently skipped — plus every
+/// carrier of a request id more than one envelope carries. In `(hlc, id)`
+/// order; no payload in a detail (CLAUDE.md rule 4).
+List<StructuralQuarantine> _structuralRecordRefusals(
+  List<StructuralEvent> events, {
+  required String bookId,
+  required StructuralSignerOf? signerOf,
+}) {
+  final ambiguous = ambiguousRequestIds(events, bookId: bookId);
+  final mine = events.where((e) => e.bookId == bookId).toList()
+    ..sort((a, b) => compareEventOrder(a.hlc, a.id, b.hlc, b.id));
+  final out = <StructuralQuarantine>[];
+  for (final e in mine) {
+    final where = e.authorDevice == null
+        ? 'no author device'
+        : 'device ${e.authorDevice} #${e.authorSeq}';
+    if (signerOf != null) {
+      final signer = signerOf(e.authorDevice, e.authorSeq);
+      if (signer == null) {
+        out.add(
+          StructuralQuarantine(
+            objectId: e.id,
+            reason: StructuralQuarantineReason.signerUnknown,
+            detail:
+                'structural_approval ${e.phase.name}: $where is not certified '
+                'to anyone this reader can verify (02 §7.2.1 🔒; provisional)',
+          ),
+        );
+        continue;
+      }
+      if (signer != _claimedBy(e)) {
+        out.add(
+          StructuralQuarantine(
+            objectId: e.id,
+            reason: StructuralQuarantineReason.signerNotBound,
+            detail:
+                'structural_approval ${e.phase.name}: $where is certified to '
+                'another user than by_user names (02 §7.2.1 🔒)',
+          ),
+        );
+        continue;
+      }
+    }
+    if (e is StructuralRequest && ambiguous.contains(e.id)) {
+      out.add(
+        StructuralQuarantine(
+          objectId: e.id,
+          reason: StructuralQuarantineReason.ambiguousRequest,
+          detail:
+              'structural_approval initiation: request ${e.id} is carried by '
+              'more than one envelope ($where); no carrier is read '
+              '(02 §7.2.1 🔒)',
+        ),
+      );
+    }
+  }
+  return out;
+}
+
+/// The user a structural record claims to be by — the payload's `by_user`.
+String _claimedBy(StructuralEvent record) => switch (record) {
+  StructuralRequest(:final byUser) => byUser,
+  StructuralApproval(:final byUser) => byUser,
+  StructuralVeto(:final byUser) => byUser,
+  StructuralLapse(:final byUser) => byUser,
+};

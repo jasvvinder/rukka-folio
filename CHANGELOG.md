@@ -12,6 +12,38 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-10 (night) — M13: desk 200 fixes, opening-balance prompt, wording (joint fund · PA/HI Save), structural approvals bound to the certified signer (Fable)
+
+The owner raised today's ceiling to 30 M (Saturday; the weekly quota resets Sun 11 Oct 9:30; /usage read 64 % all-model, 4 % Fable) and asked to complete as much as possible. Two `/cycle`s plus four single-slice cycles ran, every slice built → reviewed → verified → repaired; push gate green twice. With the owner's say-so, one `lane-core` (Fable) lane closed two trust holes F200I found in structural approvals.
+
+### Added
+- **F200L** — S4.1 entry detail offers no *Correct this* in a locked month (reads `periods_p`; the engine already refused); S3 chip strip sized by its text; S3 balances carry Dr/Cr in words, not colour alone (07 §1 rule 3, ADR 2026-10-10b §4). F1-200-1…9.
+- **F200I** — S6.3 structural approval runs on the real ledger: `LedgerStructuralRequests` + `certified_signer.dart`, installed in `bootstrap.dart` (was an empty fake while PLAN said ✅). F1-200-11…, E-200-11….
+- **F200C** — S10 month close declares balances as of the period's last day (02 §8 step 4 read with §8/§8.1 🔒); the live figure shows beside it when they differ; same check on year close. F1-200-21…26.
+- **MISC183 / REP183C** — S2 *Saved* toast dismisses; PA/HI report PDFs shaped (shared `pdf_shaping.dart`, on by default); journey print watcher wired into `run_journeys.sh` with one retry on `Service connection disposed`. F1-183-1/2, 11…17, 21….
+- **OPEN177** — ADR 2026-10-07b: *Opening balance not set* on S4 and S3 for inline-created people accounts, sheet reusing S3.1; 'answered' derived from synced data. F1-1007b-1…3.
+- **WORDS179 / FIX179 / PASAVE** — ADR 2026-10-08: *joint fund*, term table, HI Save सुरक्षित करें, PA Save ਸੇਵ ਕਰੋ (owner 10 Oct), Android platform nouns, unlock name by platform behind `BiometricModalitySource` (neutral *Fingerprint or face* until a native query exists); S2.3 layout absorbs the longer HI Save at 200 %. F1-1008-1…3, F1-179-*, F1-PASAVE-1.
+- **CHIP196** — the 11 screens that read raw sync status judged one by one; held-aware chip where they can render while held; stale ⚠️ SPEC comment removed from `engine.dart`. F1-196-*.
+- **R2C** — RESKIN1 round 2: S7, S7.1, S7.2, S8.1–S8.3, S13, S17, S17.2–S17.4 captured and recorded (F1-1010r2C-*).
+- **TRUST200 (lane-core, Fable)** — `evaluateStructural` and the data structural reader take a required injected `signerOf` keyed by (author device, author seq): an approval/veto counts only from its owner's certified device; a request id carried by more than one envelope is refused. A-02-97, E-03-87, E-03-88; goldens unchanged.
+- **TRUSTWIRE** — LocalLedger and bootstrap pass the production signer (ChainVerifier over the stored envelope); distribution refuses while a signer is not yet known; distribution tests that authored approvals for every owner from one phone rewritten. E-200-31…, F1-200-31….
+
+### Changed
+- `.claude/rf.config.json` — owner-directed 10 Oct: `daily_overrides` 2026-10-10 = 30 M; `weekly_tokens` = 72 M (46.16 M measured at /usage 64 %, the 25 Sep derivation). The file's `_` notes were not updated with this reason.
+- PLAN.md — desk 142, 177, 179, 183, 191, 196, 200 updated; S6.3 ✅ annotated; new desk 201–205.
+
+### Open ⚠️
+- Desk 201 — opening-balance marker on the account payload (03 wire change); S3 marker colour.
+- Desk 202 — ADR proposal: approvals name the request envelope (🔒 02 §7.2.1, 03); identical re-send; certificates memory-only after launch; engine book_id check for the next lane-core window.
+- Desk 203 — family book labelled *Joint fund*; S17.4 *not registered yet*.
+- Desk 204/205 — biometric modality query, prompt locale, S15.2 unbuilt; S7 import dead end in production (no ImportScope); R2C canvas questions.
+- Desk 200 (d) — ✓ / → glyph boxes in ~20 ARB parts still open.
+
+### Commits
+- _(fill next session)_
+
+---
+
 ## 2026-10-10 (evening) — M13: FIX193 (desk 193 (c)–(j)) + RESKIN1 round 2 (22 screens)
 
 `/cycle F193H F193E R2A R2B`: every slice built, reviewed read-only, verified and repaired in one round. R2B's build
@@ -65,7 +97,7 @@ gates and fix ≈ 0.1 M).
 - Round 3 still needs 42 screens. Next is R2C: S7–S7.2, S8.1–S8.3, S13, S17–S17.4.
 
 ### Commits
-- _(fill next session)_
+- `fe31afe` M13: FIX193 + RESKIN1 round 2
 
 ## 2026-10-10 — M13: S0.2 sign-up unblocked (HELD181); a further device's tenant is learned, never minted (TEN185); 0031 on dev; device journeys green; RESKIN1 round 1 (42 screens)
 

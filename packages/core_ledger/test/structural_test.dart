@@ -3,6 +3,13 @@
 // round-trip, veto, expiry, single-owner books, and the 🔒 enumeration of
 // structural actions. Synthetic data only. The screen (S6.3) and the server
 // relay are other lanes.
+//
+// Every call here writes `signerOf: null` out: the records are the caller's,
+// bound per envelope before they reach the engine (the Inbox's contract —
+// `readStructuralBook` checks each envelope's signing device against the
+// `by_user` it names and drops what it cannot bind). The binding itself is
+// A-02-97 (structural_signer_test.dart); nothing in this file counts a record
+// whose signer was not already the caller's business to check.
 @Tags(['A'])
 library;
 
@@ -105,6 +112,7 @@ void main() {
         records: const [],
         owners: const [three],
         asOfMs: day(11),
+        signerOf: null,
       );
       expect(out.status, StructuralStatus.pending);
       expect(out.isApplied, isFalse);
@@ -121,6 +129,7 @@ void main() {
         records: two,
         owners: const [three],
         asOfMs: day(13),
+        signerOf: null,
       );
       expect(pending.status, StructuralStatus.pending);
       expect(pending.approvedBy, ['amrit', 'sukhdev']);
@@ -131,6 +140,7 @@ void main() {
         records: [...two, approve('harjit', at(13))],
         owners: const [three],
         asOfMs: day(13),
+        signerOf: null,
       );
       expect(done.status, StructuralStatus.approved);
       expect(done.isApplied, isTrue);
@@ -147,6 +157,7 @@ void main() {
         records: [approve('sukhdev', at(11)), approve('harjit', at(12))],
         owners: const [three],
         asOfMs: day(12),
+        signerOf: null,
       );
       expect(out.status, StructuralStatus.pending);
       expect(out.approvedBy, ['sukhdev', 'harjit']);
@@ -164,12 +175,14 @@ void main() {
         records: records,
         owners: const [three],
         asOfMs: day(20),
+        signerOf: null,
       );
       final b = evaluateStructural(
         request: ratioRequest(),
         records: records.reversed,
         owners: const [three],
         asOfMs: day(20),
+        signerOf: null,
       );
       expect(a.status, b.status);
       expect(a.approvedBy, b.approvedBy);
@@ -195,6 +208,7 @@ void main() {
         records: approvals,
         owners: const [three],
         asOfMs: day(14),
+        signerOf: null,
       );
       expect(before.status, StructuralStatus.approved);
       final after = evaluateStructural(
@@ -205,6 +219,7 @@ void main() {
         ],
         owners: const [three],
         asOfMs: day(14),
+        signerOf: null,
       );
       expect(after.status, StructuralStatus.vetoed);
       expect(after.veto?.reason, 'wait for the season');
@@ -233,6 +248,7 @@ void main() {
         ],
         owners: const [three],
         asOfMs: day(13),
+        signerOf: null,
       );
       expect(out.status, StructuralStatus.pending);
       expect(out.approvedBy, ['amrit', 'sukhdev']);
@@ -253,6 +269,7 @@ void main() {
         ],
         owners: const [three],
         asOfMs: day(14),
+        signerOf: null,
       );
       expect(out.status, StructuralStatus.vetoed);
       expect(out.veto?.byUser, 'harjit');
@@ -284,6 +301,7 @@ void main() {
         ],
         owners: const [three],
         asOfMs: day(12),
+        signerOf: null,
       );
       expect(out.status, StructuralStatus.pending);
       expect(out.ignored.single.reason, StructuralIgnoreReason.notOwner);
@@ -298,6 +316,7 @@ void main() {
         records: records,
         owners: const [three],
         asOfMs: day(24),
+        signerOf: null,
       );
       expect(inWindow.status, StructuralStatus.pending);
       final lapsed = evaluateStructural(
@@ -305,6 +324,7 @@ void main() {
         records: records,
         owners: const [three],
         asOfMs: day(24) + 1,
+        signerOf: null,
       );
       expect(lapsed.status, StructuralStatus.lapsed);
       expect(lapsed.lapseRecorded, isFalse);
@@ -316,6 +336,7 @@ void main() {
         records: [...records, approve('harjit', at(25))],
         owners: const [three],
         asOfMs: day(30),
+        signerOf: null,
       );
       expect(late.status, StructuralStatus.lapsed);
       expect(late.ignored.single.reason, StructuralIgnoreReason.afterDeadline);
@@ -328,6 +349,7 @@ void main() {
         ],
         owners: const [three],
         asOfMs: day(30),
+        signerOf: null,
       );
       expect(edge.status, StructuralStatus.approved);
     });
@@ -345,6 +367,7 @@ void main() {
         records: [approve('amrit', at(11)), early],
         owners: const [three],
         asOfMs: day(21),
+        signerOf: null,
       );
       expect(out.status, StructuralStatus.pending);
       expect(
@@ -364,6 +387,7 @@ void main() {
         records: [approve('amrit', at(11)), logged],
         owners: const [three],
         asOfMs: day(25),
+        signerOf: null,
       );
       expect(lapsed.status, StructuralStatus.lapsed);
       expect(lapsed.lapseRecorded, isTrue);
@@ -374,6 +398,7 @@ void main() {
         records: [approve('amrit', at(11)), logged],
         owners: const [three],
         asOfMs: day(26),
+        signerOf: null,
       );
       expect(again.status, StructuralStatus.pending);
       expect(again.approvedBy, isEmpty, reason: 'records name the old request');
@@ -408,6 +433,7 @@ void main() {
         ],
         owners: const [three, four],
         asOfMs: day(16),
+        signerOf: null,
       );
       // Threshold is that of the earliest version among counted records (v1:
       // all three owners), so amrit + gurmeet + sukhdev = 3 approvals reach it
@@ -432,6 +458,7 @@ void main() {
         ],
         owners: const [three],
         asOfMs: day(13),
+        signerOf: null,
       );
       expect(out.status, StructuralStatus.pending);
       expect(out.threshold, isNull);
@@ -458,6 +485,7 @@ void main() {
         records: const [],
         owners: const [justMe],
         asOfMs: day(10),
+        signerOf: null,
       );
       // Applied at initiation: the owner's own signed initiation is the one
       // approval a quorum of one needs. Nothing is ever pending.
@@ -473,6 +501,7 @@ void main() {
           records: const [],
           owners: const [justMe],
           asOfMs: day(400),
+          signerOf: null,
         ).status,
         StructuralStatus.approved,
       );
@@ -504,6 +533,7 @@ void main() {
         records: two,
         owners: const [three],
         asOfMs: day(12),
+        signerOf: null,
       );
       final unchanged = applyStructural(config, pending);
       expect(
@@ -518,6 +548,7 @@ void main() {
         records: [...two, approve('harjit', at(13))],
         owners: const [three],
         asOfMs: day(13),
+        signerOf: null,
       );
       final applied = applyStructural(config, done);
       expect(applied['partner_shares'], {
@@ -641,6 +672,7 @@ void main() {
         ],
         owners: const [three],
         asOfMs: day(12),
+        signerOf: null,
       );
       expect(
         structuralQuorumOf(applyStructural(config, pending)),
@@ -655,6 +687,7 @@ void main() {
         ],
         owners: const [three],
         asOfMs: day(13),
+        signerOf: null,
       );
       expect(
         structuralQuorumOf(applyStructural(config, done)),

@@ -27,13 +27,19 @@
   "app/lib/features/lock/widgets/pin_pad.dart",
   "app/lib/features/lock/widgets/face_id_glyph.dart",
   "app/lib/features/onboarding/widgets/sealed_mark.dart",
-  "app/lib/features/auth/screens/s0_2_phone_otp_screen.dart"
+  "app/lib/features/auth/screens/s0_2_phone_otp_screen.dart",
+  "app/lib/features/lock/biometric_kind.dart"
  ],
  "deviations": [
   {
-   "what": "c1/S15.3 'Enter PIN · Fingerprint above the boxes · Android' and 'Wrong PIN · tries remaining · Android' (S15.3__default__android360, S15.3__wrong-pin__android360): the outlined button: the Android capture (__android360) draws the Face ID glyph and the word 'Face ID' / 'Face not recognised' where the Android frame draws a fingerprint glyph, 'Fingerprint' / 'Fingerprint not recognised' and the caption 'Touch the sensor'",
-   "reason": "[shared] FaceIdGlyph (app/lib/features/lock/widgets/face_id_glyph.dart) and the lock.biometric.* ARB keys name one method on every phone. The app does not yet name the method the phone uses (Face ID · Touch ID · Fingerprint · Face unlock). This is a defect against a 🔒 ruling, not a style choice: 'an Android fingerprint phone is never told Face ID'. It needs the gate to report which method it holds — a lock-feature change, not a re-skin",
-   "authority": "ADR 2026-10-08 §3 🔒 (F1-1008-3 @M13); PLAN desk 179 (WORDS179) / desk 166"
+   "what": "c3/S15 'App lock · waiting for fingerprint · Android', 'Fingerprint not recognised · Android' and c1/S15.3 'Enter PIN · Fingerprint above the boxes · Android' (the __android360 captures): the fingerprint glyph is Material's Icons.fingerprint — closed concentric whorls — where the frames draw a lighter open-stroke fingerprint",
+   "reason": "[shared] No drawn fingerprint glyph exists in the app (FaceIdGlyph paints only the face); the capture helper allows Material Icons, so the platform icon stands in until a painted fingerprint joins face_id_glyph.dart",
+   "authority": "ADR 2026-10-05 §1 (frames decide icons) — open item, WORDS179"
+  },
+  {
+   "what": "Production (not the captures): on a real phone the method is named neutrally — 'Fingerprint or face', with the platform's glyph — because no seam yet reports which biometric is enrolled; the captures inject it (iPhone face → Face ID, Android fingerprint → Fingerprint) as the frames draw",
+   "reason": "[screen] ⚠️ SPEC biometric_kind.dart: the keystore channel (features/devices + native halves) has no modality query, and guessing would break the 🔒 ruling on some phones (a Touch ID iPhone told Face ID). KeystoreBiometricGate.modality / ColdStartGate.modality are the seam for bootstrap to wire",
+   "authority": "ADR 2026-10-08 §3 🔒; ⚠️ SPEC app/lib/features/lock/biometric_kind.dart (WORDS179 open item)"
   },
   {
    "what": "c1/S15.3 'Enter PIN · Face ID above the boxes · iPhone', 'Wrong PIN · tries remaining · iPhone' and the c1b twins (S15.3__default, S15.3__wrong-pin): laid out from the top with the tiled keypad above 'Forgot PIN'; the frames centre the column and draw no keypad",
@@ -104,7 +110,7 @@
  "approved_by_owner": false,
  "checked_on": "2026-10-10",
  "hashes": {
-  "screens": "539707be610df7f4d8dc247797b7701b18d9cbd8c2c632fb9d0777e83335020e",
+  "screens": "81aaa916ff0900cfc49b0f253e717c595ce0478b9fbad898c249421f1f5bb719",
   "frames": "e4b052b0a9af1398c42f456de0e8bc02ab621684723bdf716203b4f35f04c349"
  }
 }

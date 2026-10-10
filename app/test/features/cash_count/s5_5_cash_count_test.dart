@@ -458,6 +458,29 @@ void main() {
       },
     );
 
+    testWidgets(
+      'F1-196-3 S5.5 over a held engine (Offline underneath) shows no sync '
+      'chip and Save works; once registered the real chip shows '
+      '(ADR 2026-10-10 §2 🔒)',
+      (tester) async {
+        final source = FakeCashCountSource(target: verifyTarget());
+        final sync = FakeSyncClient(initial: const Offline(), held: true);
+        addTearDown(sync.dispose);
+        await pumpSheet(tester, source, locale: en, sync: sync);
+        final l10n = stringsFor(tester);
+        expect(find.text(l10n.countOffline), findsNothing);
+        await typeTotal(tester, '2500');
+        expect(
+          tester.widget<FilledButton>(find.byType(FilledButton)).onPressed,
+          isNotNull,
+        );
+
+        sync.held = false;
+        await tester.pumpAndSettle();
+        expect(find.text(l10n.countOffline), findsOneWidget);
+      },
+    );
+
     testWidgets('F1-07-107 a save that fails keeps every counted figure', (
       tester,
     ) async {

@@ -9,14 +9,18 @@
  ],
  "captures": [
   "S4__default",
-  "S4__opening-not-set"
+  "S4__opening-not-set",
+  "S4__add-opening"
  ],
  "screen_files": [
   "app/lib/features/ledger/screens/s4_account_statement_screen.dart",
   "app/lib/features/ledger/widgets/fy_switcher.dart",
   "app/lib/features/ledger/widgets/cash_count_header.dart",
   "app/lib/features/reports/widgets/export_actions.dart",
-  "app/lib/features/ledger/ledger_routes.dart"
+  "app/lib/features/ledger/ledger_routes.dart",
+  "app/lib/features/ledger/widgets/opening_prompt.dart",
+  "app/lib/features/ledger/screens/s3_1_quick_add_sheet.dart",
+  "app/lib/shared/ledger/local_ledger.dart"
  ],
  "deviations": [
   {
@@ -65,25 +69,35 @@
    "authority": "07 §6 🔒 (cells coloured directionally per option A, design-system §5)"
   },
   {
-   "what": "c7 S4 *A/C statement · opening balance not set*: Ramesh Kumar's statement (a person created without an opening balance, ₹500 lent today) shows no prompt; the frame draws a card under the header — '(i) Opening balance not set', 'Did Ramesh owe you anything before today? Add it so this khata shows the right balance.', a navy 'Add opening balance' button and a 'Not needed' link — and a header line 'Person who'll pay you · added today' with 'You will get ↓ ₹500' in green",
-   "reason": "[screen] not built — no per-account 'opening answered' flag and no S4 prompt exist in app/lib; the state is reachable today exactly as captured",
-   "authority": "ADR 2026-10-07b §1 🔒 (F1-1007b-1, F1-1007b-2 @M13)"
-  },
-  {
-   "what": "c7 S4 *A/C statement · add the opening balance*: not captured — the sheet 'Ramesh, before today' (They owe you / You owe them segmented, Amount field '₹ 2,000', 'You will get ₹2,500 in all. Recorded as the opening balance on 1 Apr 2026…', Cancel / Save) has no widget in the app, so no production path reaches it",
-   "reason": "[screen] not built — the sheet that answers the prompt is part of the same ADR slice",
-   "authority": "ADR 2026-10-07b §2 🔒 (F1-1007b-3 @M13)"
-  },
-  {
    "what": "c7 S4 *A/C statement*: (any) letter-spacing on Material labels",
    "reason": "[shared] theme letterSpacing → desk 193(j)",
    "authority": "PLAN desk 193 (j)"
+  },
+  {
+   "what": "c7 S4 *A/C statement · opening balance not set*: the card is built (OPEN177) and matches the frame's — info icon in ink, 'Opening balance not set', 'Did Ramesh Kumar owe you anything before today? Add it so this khata shows the right balance.', a navy 'Add opening balance' button with 'Not needed' beside it — but 'Not needed' is drawn disabled (muted) with a line under the actions the frame does not have: 'Not needed can't be saved yet — it arrives in an update. Until then this note stays here.'",
+   "reason": "[screen] ⚠️ SPEC (ADR 2026-10-07b Open ⚠️, PLAN desk 177): *Not needed* records a zero opening and posts nothing, so it needs a synced home — no account field carries it today (03 §2.3) and a phone-only answer would ask again on a second device. Proposal (account payload field) in the OPEN177 lane report; disabled-with-reason keeps the action from being a silent dead button (07 §1 rule 6)",
+   "authority": "ADR 2026-10-07b §2 🔒 and Open ⚠️; 07 §1 🔒 (no dead ends); 03 §2.3"
+  },
+  {
+   "what": "c7 S4 *A/C statement · opening balance not set*: the frame's tall header ('Person who'll pay you · added today', 'You will get ↓ ₹500') and its Daily/Monthly/Yearly/Custom control are not drawn; the card sits directly under the one-line app bar, above the FY line and the three columns",
+   "reason": "[screen] the header and period control are the S4 re-skin (see the header and period deviations above; PLAN desk 198, out of this slice)",
+   "authority": "ADR 2026-10-05 §1; 07 §6 🔒 (FY switcher, three columns)"
+  },
+  {
+   "what": "c7 S4 *A/C statement · add the opening balance*: the sheet is built and captured (S4__add-opening) — title 'Ramesh Kumar, before today', 'What was already owed before you started this khata.', 'They owe you / You owe them', the amount, 'You will get ₹2,500 in all.' with the figure emphasised as the frame draws it (semibold, money-in green — money-out red for 'give'; matched in the 2026-10-10 re-pair, the rest of the sentence muted) and 'Recorded as the opening balance on 31 Aug 2026, the day this book starts.', Cancel / Save. Remaining differences: the selected segment is filled bahi red with paper words (the frame: a raised paper pill with green words and a green ↓ on a sunk track); the amount is an underlined Material field with a small '₹ 2000' (the frame: a large filled box '₹ 2,000' with a navy outline); the date line follows the total on its own line (the frame runs them on as one paragraph); the frame's sheet title uses the short name 'Ramesh'; the frame's date '1 Apr 2026' is its own book's start, the app's '31 Aug 2026' the capture fixture's. When the book's first month is locked the date line reads '… on <first day of the earliest open month>, the first open month — the month this book starts in is closed.' (ADR 2026-09-09d §4) — a state the canvas does not draw",
+   "reason": "[shared] segmented control and text field are the theme's (app/lib/shared/theme.dart), not this screen's. The title uses the A/C name as the person wrote it — the app has no short-name field. The total and the date are separate sentences in the ARB (ledger.opening_sheet.total_* / dated / dated_locked), so each stays one translatable unit in PA/HI; they are set as two lines rather than concatenated. On Android 360 the two actions stack (Save over Cancel) by measurement, not by scale: reflow, not a defect",
+   "authority": "ADR 2026-10-07b §2 🔒; ADR 2026-09-09d §4 🔒 (locked start month); ADR 2026-10-05 §1; design-system segmented / text-field components; 01 §1.8 (strings through ARB); 07 §1 rule 9"
+  },
+  {
+   "what": "c7 S4 *A/C statement* (default, Sunil Dairy): the capture fixture now gives Sunil Dairy an opening of ₹300 Cr (an 'Opening Balance' row dated 31 Aug, the book's start), where the frame's supplier has none",
+   "reason": "[screen] fixture — under the interim derivation (OPEN177) a person without an opening adjustment carries the prompt; the frame's supplier was set up with his opening answered, and an answer of zero cannot be recorded yet (⚠️ SPEC, ADR 2026-10-07b Open ⚠️)",
+   "authority": "ADR 2026-10-07b §1 🔒 and Open ⚠️"
   }
  ],
  "approved_by_owner": false,
  "checked_on": "2026-10-10",
  "hashes": {
-  "screens": "8e409be5b5da5a72f656b918ab905b3be178acb8c0c1b8b1497ad51d49b6d72c",
+  "screens": "72cb5511a65e9dc6f82396d199a3253c4b8c3e76ce158ed07345e2cc4d163808",
   "frames": "f44ea4f14257e720ac46e1c826d41d6c510c6bb6a8288c78b149ebb91957042a"
  }
 }

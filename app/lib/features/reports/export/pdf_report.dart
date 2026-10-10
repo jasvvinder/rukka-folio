@@ -37,6 +37,16 @@
 // the numerals against it. Indian digit grouping was never deferred: it is what
 // [formatPaise] already does on every surface of the app. The Free-tenant
 // watermark remains M12 work of its own (ADR 2026-09-12 §2, `F3-07-3`).
+//
+// **Embedded faces are not enough for Punjabi and Hindi** (desk 183 c):
+// `package:pdf` draws glyphs but does not *shape* Indic scripts, so a
+// Gurmukhi or Devanagari run set as PDF text prints misspelled — a pre-base
+// vowel sign after its consonant, a halant showing, a nukta adrift. Every such
+// run is laid out by the engine instead and placed as an image
+// (`shared/pdf_shaping.dart`, the recovery sheet's approach); Latin runs —
+// figures, Dr/Cr, English names — stay vector text.
+import 'dart:math' as math;
+import 'dart:ui' as ui show TextAlign;
 import 'dart:ui' show Locale;
 
 import 'package:core_ledger/core_ledger.dart';
@@ -46,6 +56,7 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 import '../../../shared/format/money_format.dart';
+import '../../../shared/pdf_shaping.dart';
 import '../../../shared/tokens.dart';
 import '../day_book.dart';
 import 'day_book_table.dart';
@@ -175,61 +186,139 @@ PdfColor get _hairline => PdfColor.fromInt(RkColorsLight.hairline.toARGB32());
 ///
 /// [locale] only reaches [formatPaise]; digits are Latin in every locale by
 /// rule (11 §4.4). [pageNumber] renders the page footer, e.g. *Page 1 of 3*.
+///
+/// [shaper] shapes every Gurmukhi and Devanagari run (desk 183 c — see
+/// `shared/pdf_shaping.dart`: `package:pdf` does not shape Indic scripts, so
+/// set as PDF text a Punjabi or Hindi line prints misspelled). With a shaper
+/// this must run where `dart:ui` can rasterise — the UI isolate, or a widget
+/// test's `runAsync`. Null draws every run as vector text, as before.
 Future<Uint8List> reportTablePdf(
   ReportTable table, {
   required String Function(int page, int pages) pageNumber,
   required ReportFonts fonts,
   required Locale locale,
+  PdfLineShaper? shaper,
 }) async {
-  final doc = pw.Document(
-    // Metadata that travels with the file: the report's own name and nothing
-    // else — no account name, no party name, no figure (CLAUDE.md rule 4).
-    title: table.name,
-  );
-
   String money(int paise) =>
       formatPaise(paise, locale: locale, showPaise: true);
 
-  final rows = <pw.TableRow>[
-    _headerRow(table),
-    for (final row in table.rows) _bodyRow(table, row, money),
-  ];
+  final words = _Words(shaper);
+  final columns = _columnPoints(table);
 
-  doc.addPage(
-    pw.MultiPage(
-      pageFormat: _a4,
-      margin: const pw.EdgeInsets.all(_margin),
-      theme: fonts.theme,
-      // The default cap is 20 pages; a year of a busy book is more than that,
-      // and a truncated report would be a wrong report, not a short one.
-      maxPages: 1000,
-      header: (context) => _head(table),
-      footer: (context) => _foot(pageNumber, context),
-      build: (context) => [
-        pw.Table(
-          columnWidths: {
-            for (var i = 0; i < table.columns.length; i++)
-              i: switch (table.columns[i].width) {
-                ReportFixedWidth(:final points) => pw.FixedColumnWidth(points),
-                ReportFlexWidth(:final factor) => pw.FlexColumnWidth(factor),
-              },
-          },
-          children: rows,
-        ),
-        if (table.amountInWords case final words?) _amountInWords(words),
-      ],
-    ),
+  pw.Widget body() => pw.Table(
+    columnWidths: {
+      for (var i = 0; i < table.columns.length; i++)
+        i: switch (table.columns[i].width) {
+          ReportFixedWidth(:final points) => pw.FixedColumnWidth(points),
+          ReportFlexWidth(:final factor) => pw.FlexColumnWidth(factor),
+        },
+    },
+    children: [
+      _headerRow(table, words, columns),
+      for (final row in table.rows) _bodyRow(table, row, money, words, columns),
+    ],
   );
-  return doc.save();
+
+  pw.Document document(pw.Widget Function(pw.Context context) footer) {
+    final doc = pw.Document(
+      // Metadata that travels with the file: the report's own name and
+      // nothing else — no account name, no party name, no figure
+      // (CLAUDE.md rule 4).
+      title: table.name,
+    );
+    doc.addPage(
+      pw.MultiPage(
+        pageFormat: _a4,
+        margin: const pw.EdgeInsets.all(_margin),
+        theme: fonts.theme,
+        // The default cap is 20 pages; a year of a busy book is more than
+        // that, and a truncated report would be a wrong report, not a short
+        // one.
+        maxPages: 1000,
+        header: (context) => _head(table, words),
+        footer: footer,
+        build: (context) => [
+          body(),
+          if (table.amountInWords case final inWords?)
+            _amountInWords(inWords, words),
+        ],
+      ),
+    );
+    return doc;
+  }
+
+  if (shaper == null) {
+    return document((context) => _foot(pageNumber, context, words)).save();
+  }
+
+  // Step one: every run the page will draw asks for its shape, without a
+  // page being laid out (`package:pdf` builds synchronously; shaping is not).
+  // Each distinct string is shaped once, however many rows repeat it.
+  _head(table, words);
+  body();
+  if (table.amountInWords case final w?) _amountInWords(w, words);
+  final probe = pageNumber(1, 1);
+  words.foot(probe);
+  await shaper.settle();
+
+  if (!needsComplexShaping(probe)) {
+    return document((context) => _foot(pageNumber, context, words)).save();
+  }
+
+  // The footer says *page p of n*, and n is known only once the pages are
+  // laid out. So the pages are laid out once with a footer box of the shaped
+  // line's height, counted, every *p of n* is shaped, and the same layout is
+  // built again with them — same box, so the same page breaks.
+  final footHeight = words.foot(probe)!.height!;
+  final pages = document((context) => _footBox(footHeight, null))
+      .document
+      .pdfPageList
+      .pages
+      .length;
+  for (var p = 1; p <= pages; p++) {
+    words.foot(pageNumber(p, pages));
+  }
+  await shaper.settle();
+  return document(
+    (context) => _footBox(
+      footHeight,
+      context.pagesCount == pages
+          ? words.foot(pageNumber(context.pageNumber, pages))
+          : null,
+    ),
+  ).save();
 }
 
 /// Any [ReportTable] as a [ReportFile] ready for a [ReportSink].
+///
+/// [shapeComplexScripts] shapes Gurmukhi and Devanagari (desk 183 c) and is
+/// **on by default**, so every screen that exports a PDF — S8.2's day book,
+/// S4's statement — prints Punjabi and Hindi spelled correctly without having
+/// to remember to ask. It shapes only runs that need it ([needsComplexShaping]):
+/// an English report rasterises nothing. With it on, a Punjabi or Hindi report
+/// must be built where `dart:ui` can rasterise — the UI isolate in the app, a
+/// widget test's `tester.runAsync` (the fake-async zone never completes a
+/// rasterising future). Passing false draws every run as vector text — the
+/// pre-183 behaviour, kept for a caller that must stay off `dart:ui`.
+///
+/// ⚠️ SPEC: the cost of the default at a year's scale is an open owner call
+/// (REP183C review finding 1). No doc sets a size, time or memory budget for
+/// an export. Measured in flutter_tester on 10 Oct 2026, a Punjabi day-book
+/// table, date, account and narration in Gurmukhi, every narration distinct:
+/// 1,000 rows — vector 1.1 s / 0.20 MB file / 315 MB peak RSS; shaped 3.5 s /
+/// 7.9 MB / 756 MB. 3,000 rows (the writer allows 1,000 pages) — vector
+/// 7.2 s / 0.58 MB / 408 MB; shaped 9.7 s / 24.0 MB / 1,463 MB, from a 238 MB
+/// start. [PdfLineShaper] now draws four lines at a time, which took the
+/// 3,000-row peak down from 1,787 MB. The rest grows while `package:pdf`
+/// lays out and saves, which fits it decoding every embedded PNG to raw
+/// pixels (not separately attributed). Not measured on a device.
 Future<ReportFile> reportTablePdfFile(
   ReportTable table, {
   required String Function(int page, int pages) pageNumber,
   required ReportFonts fonts,
   required Locale locale,
   required String fileName,
+  bool shapeComplexScripts = true,
 }) async => ReportFile(
   name: fileName,
   format: ReportFormat.pdf,
@@ -238,13 +327,15 @@ Future<ReportFile> reportTablePdfFile(
     pageNumber: pageNumber,
     fonts: fonts,
     locale: locale,
+    shaper: shapeComplexScripts ? PdfLineShaper() : null,
   ),
 );
 
 /// The day book as an A4 PDF document.
 ///
 /// [accountName] resolves an account id to its display name — the caller holds
-/// the [Chart], this file does not reach for one.
+/// the [Chart], this file does not reach for one. [shaper] is
+/// [reportTablePdf]'s.
 Future<Uint8List> dayBookPdf(
   DayBook book, {
   required String Function(String accountId) accountName,
@@ -255,6 +346,7 @@ Future<Uint8List> dayBookPdf(
   required String Function(int page, int pages) pageNumber,
   required ReportFonts fonts,
   required Locale locale,
+  PdfLineShaper? shaper,
 }) => reportTablePdf(
   dayBookTable(
     book,
@@ -267,9 +359,12 @@ Future<Uint8List> dayBookPdf(
   pageNumber: pageNumber,
   fonts: fonts,
   locale: locale,
+  shaper: shaper,
 );
 
 /// The day book as a [ReportFile] ready for a [ReportSink].
+/// [shapeComplexScripts] is [reportTablePdfFile]'s: on by default, so S8.2's
+/// Punjabi and Hindi day book is shaped (desk 183 c).
 Future<ReportFile> dayBookPdfFile(
   DayBook book, {
   required String Function(String accountId) accountName,
@@ -281,6 +376,7 @@ Future<ReportFile> dayBookPdfFile(
   required ReportFonts fonts,
   required Locale locale,
   required String fileName,
+  bool shapeComplexScripts = true,
 }) async {
   final bytes = await dayBookPdf(
     book,
@@ -292,13 +388,98 @@ Future<ReportFile> dayBookPdfFile(
     pageNumber: pageNumber,
     fonts: fonts,
     locale: locale,
+    shaper: shapeComplexScripts ? PdfLineShaper() : null,
   );
   return ReportFile(name: fileName, format: ReportFormat.pdf, bytes: bytes);
 }
 
+/// The width text may take on the page: A4 less both margins.
+double get _contentWidth => _a4.width - 2 * _margin;
+
+/// Each column's width in points, as `pw.Table` lays it out at full width:
+/// fixed columns take their points, flex columns share what is left by
+/// factor. A shaped run wraps at its cell's width, so it must know it before
+/// the table is laid out.
+List<double> _columnPoints(ReportTable table) {
+  var fixed = 0.0;
+  var flex = 0.0;
+  for (final column in table.columns) {
+    switch (column.width) {
+      case ReportFixedWidth(:final points):
+        fixed += points;
+      case ReportFlexWidth(:final factor):
+        flex += factor;
+    }
+  }
+  final free = math.max(0.0, _contentWidth - fixed);
+  return [
+    for (final column in table.columns)
+      switch (column.width) {
+        ReportFixedWidth(:final points) => points,
+        ReportFlexWidth(:final factor) =>
+          flex == 0 ? 0.0 : free * factor / flex,
+      },
+  ];
+}
+
+/// The text width inside a cell of [columnPoints] — less the cell padding.
+double _cellWidth(double columnPoints) =>
+    math.max(1.0, columnPoints - 2 * RkSpace.s1);
+
+/// How a run of text reaches the page: the engine-shaped image when there is
+/// a shaper and the run needs one, vector text otherwise. Same size, weight
+/// and ink either way.
+final class _Words {
+  const _Words(this.shaper);
+
+  final PdfLineShaper? shaper;
+
+  pw.Widget call(
+    String text, {
+    required double size,
+    required double maxWidth,
+    bool bold = false,
+    bool muted = false,
+    pw.TextAlign align = pw.TextAlign.left,
+  }) {
+    final end = align == pw.TextAlign.right;
+    final shaped = shaper?.line(
+      text,
+      size: size,
+      color: muted ? RkColorsLight.textMuted : RkColorsLight.text,
+      maxWidth: maxWidth,
+      bold: bold,
+      align: end ? ui.TextAlign.right : null,
+    );
+    if (shaped != null) {
+      return end
+          ? pw.Align(alignment: pw.Alignment.topRight, child: shaped)
+          : shaped;
+    }
+    return pw.Text(
+      text,
+      textAlign: align,
+      style: pw.TextStyle(
+        fontSize: size,
+        fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal,
+        color: muted ? _muted : _ink,
+      ),
+    );
+  }
+
+  /// The footer line, shaped — null while it is queued, or with no shaper.
+  pw.Image? foot(String text) => shaper?.line(
+    text,
+    size: _metaSize,
+    color: RkColorsLight.textMuted,
+    maxWidth: _contentWidth,
+    align: ui.TextAlign.right,
+  ) as pw.Image?;
+}
+
 /// The masthead, repeated on every page so a loose sheet still says what it is
 /// and which book, account and period it covers.
-pw.Widget _head(ReportTable table) => pw.Container(
+pw.Widget _head(ReportTable table, _Words words) => pw.Container(
   margin: const pw.EdgeInsets.only(bottom: RkSpace.s3),
   padding: const pw.EdgeInsets.only(bottom: RkSpace.s2),
   decoration: const pw.BoxDecoration(
@@ -307,19 +488,14 @@ pw.Widget _head(ReportTable table) => pw.Container(
   child: pw.Column(
     crossAxisAlignment: pw.CrossAxisAlignment.start,
     children: [
-      pw.Text(
-        table.name,
-        style: pw.TextStyle(
-          fontSize: _titleSize,
-          fontWeight: pw.FontWeight.bold,
-          color: _ink,
-        ),
-      ),
+      words(table.name, size: _titleSize, bold: true, maxWidth: _contentWidth),
       pw.SizedBox(height: RkSpace.s1),
-      pw.Text(
+      words(
         [for (final line in table.meta) '${line.label}: ${line.value}']
             .join('    '),
-        style: pw.TextStyle(fontSize: _metaSize, color: _muted),
+        size: _metaSize,
+        muted: true,
+        maxWidth: _contentWidth,
       ),
     ],
   ),
@@ -329,28 +505,47 @@ pw.Widget _head(ReportTable table) => pw.Container(
 pw.Widget _foot(
   String Function(int page, int pages) pageNumber,
   pw.Context context,
+  _Words words,
 ) => pw.Container(
   alignment: pw.Alignment.centerRight,
   margin: const pw.EdgeInsets.only(top: RkSpace.s2),
-  child: pw.Text(
+  child: words(
     pageNumber(context.pageNumber, context.pagesCount),
-    style: pw.TextStyle(fontSize: _metaSize, color: _muted),
+    size: _metaSize,
+    muted: true,
+    maxWidth: _contentWidth,
   ),
+);
+
+/// The shaped footer: a box of the line's [height] whatever it holds, so the
+/// counting layout and the final one break pages in the same places.
+pw.Widget _footBox(double height, pw.Widget? line) => pw.Container(
+  alignment: pw.Alignment.centerRight,
+  margin: const pw.EdgeInsets.only(top: RkSpace.s2),
+  height: height,
+  child: line,
 );
 
 /// The column headings — repeated at the top of every page, because a table
 /// whose Dr and Cr columns are named only on page one is unreadable on page
 /// two (07 §1 rule 2: never a dead end, and a nameless column is one).
-pw.TableRow _headerRow(ReportTable table) => pw.TableRow(
-  repeat: true,
-  decoration: pw.BoxDecoration(
-    border: pw.Border(bottom: pw.BorderSide(color: _ink, width: 0.7)),
-  ),
-  children: [
-    for (final column in table.columns)
-      _cell(column.title, bold: true, align: _align(column.align)),
-  ],
-);
+pw.TableRow _headerRow(ReportTable table, _Words words, List<double> columns) =>
+    pw.TableRow(
+      repeat: true,
+      decoration: pw.BoxDecoration(
+        border: pw.Border(bottom: pw.BorderSide(color: _ink, width: 0.7)),
+      ),
+      children: [
+        for (var i = 0; i < table.columns.length; i++)
+          _cell(
+            table.columns[i].title,
+            words,
+            width: columns[i],
+            bold: true,
+            align: _align(table.columns[i].align),
+          ),
+      ],
+    );
 
 pw.TextAlign _align(ReportAlign align) =>
     align == ReportAlign.end ? pw.TextAlign.right : pw.TextAlign.left;
@@ -362,6 +557,8 @@ pw.TableRow _bodyRow(
   ReportTable table,
   ReportRow row,
   String Function(int paise) money,
+  _Words words,
+  List<double> columns,
 ) {
   final emphasised =
       row.kind == ReportRowKind.total || row.kind == ReportRowKind.boundary;
@@ -380,8 +577,10 @@ pw.TableRow _bodyRow(
         _pdfCell(
           i < row.cells.length ? row.cells[i] : null,
           column: table.columns[i],
+          width: columns[i],
           bold: emphasised,
           money: money,
+          words: words,
         ),
     ],
   );
@@ -392,19 +591,29 @@ pw.TableRow _bodyRow(
 pw.Widget _pdfCell(
   ReportCell? cell, {
   required ReportColumn column,
+  required double width,
   required bool bold,
   required String Function(int paise) money,
+  required _Words words,
 }) {
   final align = _align(column.align);
   return switch (cell) {
-    null => _cell('', align: align),
+    null => _cell('', words, width: width, align: align),
     ReportTextCell(:final text, :final muted) => _cell(
       text,
+      words,
+      width: width,
       bold: bold,
       muted: muted,
       align: align,
     ),
-    ReportDateCell(:final text) => _cell(text, bold: bold, align: align),
+    ReportDateCell(:final text) => _cell(
+      text,
+      words,
+      width: width,
+      bold: bold,
+      align: align,
+    ),
     // A signed figure is a balance: professional surfaces print the magnitude
     // and tag the side in words, never a `+` (02 §10 🔒, design-system §1
     // rule 0b 🔒).
@@ -412,6 +621,8 @@ pw.Widget _pdfCell(
       signed
           ? '${money(paise.abs())}${side == null ? '' : ' $side'}'
           : money(paise),
+      words,
+      width: width,
       bold: bold,
       align: align,
     ),
@@ -425,17 +636,20 @@ pw.Widget _pdfCell(
 /// is what the figures are checked against, which is the whole reason a paper
 /// ledger carries it. It wraps rather than clipping, because a crore amount in
 /// Gurmukhi is a long line and a truncated amount in words is worse than none.
-pw.Widget _amountInWords(ReportMetaLine words) => pw.Container(
+pw.Widget _amountInWords(ReportMetaLine line, _Words words) => pw.Container(
   margin: const pw.EdgeInsets.only(top: RkSpace.s2),
-  child: pw.Text(
-    '${words.label}: ${words.value}',
-    style: pw.TextStyle(fontSize: _bodySize, color: _ink),
+  child: words(
+    '${line.label}: ${line.value}',
+    size: _bodySize,
+    maxWidth: _contentWidth,
   ),
 );
 
-/// One table cell.
+/// One table cell, [width] points wide.
 pw.Widget _cell(
-  String text, {
+  String text,
+  _Words words, {
+  required double width,
   bool bold = false,
   bool muted = false,
   pw.TextAlign align = pw.TextAlign.left,
@@ -444,13 +658,12 @@ pw.Widget _cell(
     horizontal: RkSpace.s1,
     vertical: RkSpace.s1,
   ),
-  child: pw.Text(
+  child: words(
     text,
-    textAlign: align,
-    style: pw.TextStyle(
-      fontSize: _bodySize,
-      fontWeight: bold ? pw.FontWeight.bold : pw.FontWeight.normal,
-      color: muted ? _muted : _ink,
-    ),
+    size: _bodySize,
+    maxWidth: _cellWidth(width),
+    bold: bold,
+    muted: muted,
+    align: align,
   ),
 );

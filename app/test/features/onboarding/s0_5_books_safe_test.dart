@@ -52,12 +52,20 @@ void main() {
         );
 
         // (a) stated, never asked: the line is there and it has no switch.
-        expect(find.text(l10n.onboardingBooksSafeKeysyncTitle), findsOneWidget);
-        expect(find.text(l10n.onboardingBooksSafeKeysyncApple), findsOneWidget);
+        // The test platform is Android, so the line names Google Password
+        // Manager (ADR 2026-10-08 §4; the iPhone copy is F1-1008-3).
+        expect(
+          find.text(l10n.onboardingBooksSafeKeysyncTitleAndroid),
+          findsOneWidget,
+        );
+        expect(
+          find.text(l10n.onboardingBooksSafeKeysyncGoogle),
+          findsOneWidget,
+        );
         // ADR 2026-09-05f §G / ADR 2026-09-05c §8 — the one line that stops a
         // user believing an iCloud phone backup carries the books.
         expect(
-          find.text(l10n.onboardingBooksSafeKeysyncPhoneBackup),
+          find.text(l10n.onboardingBooksSafeKeysyncPhoneBackupAndroid),
           findsOneWidget,
         );
         expect(
@@ -215,7 +223,7 @@ void main() {
         );
 
         expect(
-          find.text(l10n.onboardingBooksSafeKeysyncOffTitle),
+          find.text(l10n.onboardingBooksSafeKeysyncOffTitleAndroid),
           findsOneWidget,
         );
         expect(
@@ -223,7 +231,7 @@ void main() {
           findsOneWidget,
         );
         expect(
-          find.text(l10n.onboardingBooksSafeKeysyncTitle),
+          find.text(l10n.onboardingBooksSafeKeysyncTitleAndroid),
           findsNothing,
           reason: 'nothing may claim the key is in a Keychain that is off',
         );
@@ -269,7 +277,7 @@ void main() {
           tester.element(find.byType(BooksSafeScreen)),
         );
         expect(
-          find.text(l10n.onboardingBooksSafeKeysyncOffTitle),
+          find.text(l10n.onboardingBooksSafeKeysyncOffTitleAndroid),
           findsOneWidget,
         );
       },

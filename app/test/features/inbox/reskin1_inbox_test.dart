@@ -7,7 +7,10 @@
 //        has no S6.1 screen: the grouped card is [ReviewCard], drawn inline in
 //        S6, so S6.1 is captured as S6 holding that card.
 // S6.2 — canvas 9 *Review stepper · 3 of 7*.
-// S6.3 — canvas 9 *Structural approval · 2 of 3 approved*.
+// S6.3 — canvas 9 *Structural approval · 2 of 3 approved*, captured on the
+//        production seams (`LedgerInboxSeams`, desk 200 (c)) and the
+//        production signer (`certifiedSignerOf`, review F200I): the two other
+//        owners' approvals are signed on their own certified phones.
 //
 // TEST HONESTY: S6 and S6.2 run on the seams production installs
 // (bootstrap.dart: `LateArrivalsScope(tray: LedgerLateArrivals(ledger))` and
@@ -26,20 +29,23 @@ import 'package:core_ledger/core_ledger.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:rukka_folio/features/inbox/certified_signer.dart';
 import 'package:rukka_folio/features/inbox/late_arrivals.dart';
+import 'package:rukka_folio/features/inbox/ledger_inbox_seams.dart';
 import 'package:rukka_folio/features/inbox/ledger_late_arrivals.dart';
 import 'package:rukka_folio/features/inbox/ledger_review_queue.dart';
 import 'package:rukka_folio/features/inbox/review_queue.dart';
 import 'package:rukka_folio/features/inbox/screens/s6_2_review_stepper_screen.dart';
 import 'package:rukka_folio/features/inbox/screens/s6_3_structural_review_screen.dart';
 import 'package:rukka_folio/features/inbox/screens/s6_inbox_screen.dart';
-import 'package:rukka_folio/features/inbox/structural_requests.dart';
 import 'package:rukka_folio/features/inbox/widgets/review_card.dart';
+import 'package:rukka_folio/features/inbox/widgets/structural_card.dart';
 import 'package:rukka_folio/shared/ledger/local_ledger.dart';
 import 'package:rukka_folio/shared/widgets/rk_tab_bar.dart';
 
 import '../../shared/design_capture.dart';
 import '../../shared/test_app.dart';
+import 'structural_fixture.dart';
 
 const _ramesh = 'user-ramesh';
 
@@ -193,72 +199,6 @@ InboxScreen _inboxScreen() => InboxScreen(
   onOpenLateArrivals: () {},
 );
 
-// ---------------------------------------------------------------- S6.3
-
-final _nowMs = testNow().millisecondsSinceEpoch;
-
-/// 07 §26's worked example, as `s6_3_structural_test.dart` builds it: Amrit
-/// proposes 40 · 30 · 30 over equal thirds; Amrit and Sukhdev have approved;
-/// the viewer is Harjit, an owner who has not voted yet.
-StructuralItem _ratioChange() {
-  final r = StructuralRequest(
-    id: 'r1',
-    bookId: 'b1',
-    hlc: Hlc.compose(physicalMs: _nowMs - 2 * 60 * 60 * 1000, counter: 0),
-    action: StructuralAction.ownershipRatio,
-    byUser: 'u1',
-    ownerSetVersion: 1,
-  );
-  StructuralApproval approval(String by, int n) => StructuralApproval(
-    id: 'a-$by',
-    bookId: r.bookId,
-    hlc: Hlc.compose(physicalMs: r.hlc.physicalMs + n * 60 * 1000, counter: 0),
-    requestId: r.id,
-    byUser: by,
-    ownerSetVersion: 1,
-  );
-  const owners = {'u1', 'u2', 'u3'};
-  final outcome = evaluateStructural(
-    request: r,
-    records: [approval('u1', 1), approval('u2', 2)],
-    owners: const [
-      OwnerSetVersion(
-        version: 1,
-        ownerIds: owners,
-        quorum: StructuralQuorum.allOwners,
-      ),
-    ],
-    asOfMs: _nowMs,
-  );
-  return StructuralItem(
-    request: r,
-    outcome: outcome,
-    bookName: 'Sharma Brothers',
-    initiatorName: 'Amrit Kaur',
-    ownerNames: const {'u1': 'Amrit', 'u2': 'Sukhdev', 'u3': 'Harjit'},
-    viewerId: 'u3',
-    viewerIsOwner: true,
-    viewerCanInitiate: false,
-    terms: const [
-      StructuralTerm(
-        subject: 'Amrit',
-        current: StructuralText('1'),
-        proposed: StructuralText('40'),
-      ),
-      StructuralTerm(
-        subject: 'Sukhdev',
-        current: StructuralText('1'),
-        proposed: StructuralText('30'),
-      ),
-      StructuralTerm(
-        subject: 'Harjit',
-        current: StructuralText('1'),
-        proposed: StructuralText('30'),
-      ),
-    ],
-  );
-}
-
 void main() {
   testWidgets('F1-1010r2A-6 design capture S6 (inbox, one grouped card of '
       'seven) and S6.1 (the grouped review card, entry list open)', (
@@ -316,32 +256,62 @@ void main() {
     }
   });
 
-  // ⚠️ SPEC: this state is UNREACHABLE in production. No StructuralRequestsScope
-  // is installed anywhere in app/lib (bootstrap.dart wires LateArrivalsScope
-  // and ReviewQueueScope only), so StructuralRequestsScope.of falls back to an
-  // empty FakeStructuralRequests: S6 never draws a structural card and nothing
-  // opens S6.3. The card is captured on that fake only so the frame can be
-  // compared with the widget that would draw it; design/match/S6.3.json
-  // records the gap.
-  testWidgets('F1-1010r2A-8 design capture S6.3 (structural approval, 2 of 3 '
-      '— unreachable in production, see ⚠️ SPEC)', (tester) async {
+  // S6.3 as production builds it (desk 200 (c); review F200I): the
+  // composition root's `LedgerInboxSeams` and `certifiedSignerOf` over a real
+  // ledger and the trust store bootstrap builds, the pending request raised
+  // through `LocalLedger.proposeDistribution` on a three-owner book. c9's
+  // *2 of 3 approved*: Sukhdev and Harjit each approve on their own certified
+  // phone (chain-verified into the mirror, structural_fixture.dart), and the
+  // reader — the owner who raised it and has not approved — is left to decide.
+  testWidgets('F1-1010r2A-8 design capture S6.3 (structural approval on the '
+      'production seams, 2 of 3 from the other owners\' own phones, the '
+      'owner to decide)', (tester) async {
     for (final target in RkDesignTarget.values) {
-      final seam = FakeStructuralRequests(
-        initial: StructuralInbox(items: [_ratioChange()]),
-      );
-      addTearDown(seam.dispose);
+      late SharedBook book;
+      late LedgerInboxSeams seams;
+      late String requestId;
+      await tester.runAsync(() async {
+        book = await sharedBook();
+        final request = await book.proposeDistribution();
+        requestId = request.id;
+        final trust = productionTrust(book);
+        for (final (i, owner) in const [sukhdev, harjit].indexed) {
+          final phone = await remotePhone(book, owner);
+          phone.fileCertIn(trust);
+          final ok = await receiveFrom(
+            book,
+            phone,
+            approvalOf(book, request, owner, minutes: i + 1),
+            trust: trust,
+            authorSeq: 1,
+            seq: i + 1,
+          );
+          expect(ok, isTrue);
+        }
+        seams = LedgerInboxSeams(
+          book.ledger,
+          memberName: book.nameOf,
+          signerOf: certifiedSignerOf(trust, book.ledger.suite),
+        );
+        await seams.structural.refresh();
+      });
       await rkDesignCapture(
         tester,
         sid: 'S6.3',
-        state: 'unreachable-2-of-3',
+        state: 'pending-2-of-3',
         target: target,
-        child: StructuralRequestsScope(
-          requests: seam,
-          child: StructuralReviewScreen(requestId: 'r1', onDone: () {}),
+        child: seams.scopes(
+          child: StructuralReviewScreen(requestId: requestId, onDone: () {}),
         ),
       );
-      expect(find.byType(StructuralReviewScreen), findsOneWidget);
+      expect(find.byType(StructuralCard), findsOneWidget);
+      expect(find.text('Share out the profit'), findsOneWidget);
+      expect(find.text('2 of 3 owners have approved'), findsOneWidget);
+      expect(find.widgetWithText(FilledButton, 'Approve'), findsOneWidget);
+      _drop('S6.3__unreachable-2-of-3${target.suffix}');
+      _drop('S6.3__pending-0-of-3${target.suffix}');
       await _unmount(tester);
+      await tester.runAsync(seams.dispose);
     }
   });
 }

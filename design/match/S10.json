@@ -44,6 +44,11 @@
    "authority": "07 §13 🔒; ADR 2026-10-05 §1"
   },
   {
+   "what": "c5/c11 S10 *Close August · step 1* and S10 step 2 (no frame): each cash and bank card shows the live figure ('The book says ₹21,600') and, only when entries dated after the month make it differ, a second muted line with the month-end figure step 4 declares ('It was ₹17,600 on 31 Aug 2026'; SBI Saving ₹1,14,600 / ₹1,18,600). The frame draws one book figure on step 1 and has no step-2 frame",
+   "reason": "[screen] F200C repair, finding 1: step 1 counts the cash in the box today and opens S5.5, which counts against and posts its adjustment from the live balance; step 2 checks against the bank's app/passbook, which show today's balance — so both steps show the live figure, while 02 §8 step 4 declares the month-end one (desk 200 (e)). The second line explains why step 4 shows a different number and appears only when the two differ",
+   "authority": "02 §8 steps 1, 2 and 4 🔒; 02 §8.2 🔒 (S5.5 owns counting); 07 §1 rule 6 🔒; ⚠️ SPEC in ledger_close_source.dart _figures (as of when — owner to confirm)"
+  },
+  {
    "what": "S10 step 2 *Confirm each bank balance* (capture S10__step2-banks): the canvas draws no frame for step 2, so it is captured for the record only — per-A/C card with 'Matches' / 'Doesn't match' choice chips and 'Confirmed 0 of 1'",
    "reason": "[screen] no frame to match; nearest drawn pattern is the step 3/4 card list",
    "authority": "07 §13 🔒 (bank confirm: Matches ✓ / Doesn't match ▸ reconcile)"
@@ -74,12 +79,12 @@
    "authority": "ADR 2026-10-05 §1; design/tokens/tokens.json radii"
   },
   {
-   "what": "c5/c11/c13/c14 S10 *Step 4 · what you are signing* / *Confirm & lock*: title 'Confirm & lock' / help 'These are the balances this close will record.'; the frame's title is 'What you are signing' / 'These are the balances August will be locked at.'",
-   "reason": "[screen] step 4 copy",
-   "authority": "07 §13 🔒; ADR 2026-10-05 §1"
+   "what": "c5/c11/c13/c14 S10 *Step 4 · what you are signing* / *Confirm & lock*: title 'Confirm & lock' / help 'These are the balances on 31 Aug 2026 — what this close will record.'; the frame's title is 'What you are signing' / 'These are the balances August will be locked at.'",
+   "reason": "[screen] step 4 copy. The help line is dated (F200C repair, finding 1): the declared figures are the month's, while steps 1–2 show today's, so step 4 must say which day its figures are for; the frame's 'August will be locked at' carries the month, the app carries the last day",
+   "authority": "07 §13 🔒; 02 §8 step 4 🔒 (declared balances); ADR 2026-10-05 §1"
   },
   {
-   "what": "c5/c11/c13/c14 S10 *Step 4*: the declared-balances card is titled 'Declared balances' and lists only the money A/Cs (Cash A/c ₹0, Cash in hand ₹21,600, SBI Saving ₹1,14,600) in rows 4 px apart with the amount in a Flexible beside the name, so it sits mid-row (x≈200 of 390) rather than at the right edge; the frame has no card title, lists cash, bank and party balances in tall hairline-divided rows with amounts right-aligned, parties marked '₹1,44,000 Dr' / '₹1,70,000 Cr'",
+   "what": "c5/c11/c13/c14 S10 *Step 4*: the declared-balances card is titled 'Declared balances' and lists only the money A/Cs (Cash A/c ₹0, Cash in hand ₹17,600, SBI Saving ₹1,18,600 — as of 31 Aug since desk 200 (e), under the dated help line; the 1 Sep transfer the R2B capture counted is no longer in them) in rows 4 px apart with the amount in a Flexible beside the name, so it sits mid-row (x≈200 of 390) rather than at the right edge; the frame has no card title, lists cash, bank and party balances in tall hairline-divided rows with amounts right-aligned, parties marked '₹1,44,000 Dr' / '₹1,70,000 Cr'",
    "reason": "[screen] spec violation, not an owner question: 07 §13 🔒 says the confirm & lock step 'shows the balance vector summary', and 02 §8 step 4 🔒 names the declared balances and the client-computed balance vector as two separate things. _stepLock (s10_month_close_screen.dart:708-740) renders only CloseView.declaredBalances, which close_source.dart builds from the cash and bank A/Cs alone, so the party balances the frame lists (Guru Nanak Cloth House ₹1,44,000 Dr, Tuglaq Yarn Company ₹1,70,000 Cr) — part of the vector being signed — are missing. The frame follows the spec here; the fix belongs to the close owner (screen + CloseView), with Dr/Cr allowed after the consumer wording in brackets (ADR 2026-10-10b §4). The mid-row amount is a separate [screen] layout defect (Flexible + RkFitText in _stepLock)",
    "authority": "07 §13 🔒 (confirm & lock shows the balance vector summary); 02 §8 step 4 🔒 (declared balances and the balance vector hash); ADR 2026-10-10b §4; ADR 2026-10-05 §1"
   },
@@ -102,7 +107,7 @@
  "approved_by_owner": false,
  "checked_on": "2026-10-10",
  "hashes": {
-  "screens": "50b22dc3d22cf98deeb7deaec24c0e5ba0d1429623d1343ed0d22ca9b9b46e34",
+  "screens": "4424d1802af0d27cdfdd2ee742dd33aa95fde566838848d81dc9d775699aa301",
   "frames": "6072faac002857e83eb211de9cf700f5b571b72d1502e365da3c5d52826274a3"
  }
 }

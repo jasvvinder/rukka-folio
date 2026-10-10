@@ -188,6 +188,25 @@ void main() {
     );
 
     testWidgets(
+      'F1-196-6 S16 over a held engine (Offline underneath) shows no offline '
+      'chip; once registered the real Offline chip shows (ADR 2026-10-10 §2 🔒)',
+      (tester) async {
+        final repo = FakeAccountRepository(initial: _snap());
+        addTearDown(repo.dispose);
+        final sync = FakeSyncClient(initial: const Offline(), held: true);
+        addTearDown(sync.dispose);
+        await pumpRk(tester, _screen(repo), sync: sync, viewport: rkPhone360);
+        const chip = 'Offline — showing what this phone last saw.';
+        expect(find.text(chip), findsNothing);
+        expect(find.byKey(const Key('account.row.name')), findsOneWidget);
+
+        sync.held = false;
+        await tester.pumpAndSettle();
+        expect(find.text(chip), findsOneWidget);
+      },
+    );
+
+    testWidgets(
       'F1-07-318 no dead ends (07 §1 rule 6): the change-phone row is a row '
       'with a reason, never a missing door and never a tap that does nothing '
       '— and read-only says what still works',

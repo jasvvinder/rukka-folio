@@ -10,10 +10,10 @@
   "subscription.banner.book_full.body": "ਇਹ ਵਹੀ ਪਲਾਨ ਦੀ ਹੱਦ ਤੱਕ ਪਹੁੰਚ ਗਈ ਹੈ। ਪੜ੍ਹਨਾ ਅਤੇ ਐਕਸਪੋਰਟ ਚਲਦੇ ਰਹਿਣਗੇ; ਨਵੀਆਂ ਐਂਟਰੀਆਂ ਰੁਕੀਆਂ ਹੋਈਆਂ ਹਨ।",
 
   "subscription.sheet.read_only.title": "ਨਵੀਆਂ ਐਂਟਰੀਆਂ ਰੁਕੀਆਂ ਹੋਈਆਂ ਹਨ",
-  "subscription.sheet.read_only.blocked": "ਤੁਹਾਡਾ ਪਲਾਨ ਖ਼ਤਮ ਹੋ ਗਿਆ ਹੈ, ਇਸ ਲਈ ਇਹ ਐਂਟਰੀ ਹਾਲੇ ਸੰਭਾਲੀ ਨਹੀਂ ਜਾ ਸਕਦੀ।",
+  "subscription.sheet.read_only.blocked": "ਤੁਹਾਡਾ ਪਲਾਨ ਖ਼ਤਮ ਹੋ ਗਿਆ ਹੈ, ਇਸ ਲਈ ਇਹ ਐਂਟਰੀ ਹਾਲੇ ਸੇਵ ਨਹੀਂ ਹੋ ਸਕਦੀ।",
 
   "subscription.sheet.book_full.title": "ਇਹ ਵਹੀ ਭਰ ਗਈ ਹੈ",
-  "subscription.sheet.book_full.blocked": "ਇਹ ਵਹੀ ਪਲਾਨ ਦੀ ਹੱਦ ਤੱਕ ਪਹੁੰਚ ਗਈ ਹੈ, ਇਸ ਲਈ ਇਹ ਐਂਟਰੀ ਹਾਲੇ ਸੰਭਾਲੀ ਨਹੀਂ ਜਾ ਸਕਦੀ।",
+  "subscription.sheet.book_full.blocked": "ਇਹ ਵਹੀ ਪਲਾਨ ਦੀ ਹੱਦ ਤੱਕ ਪਹੁੰਚ ਗਈ ਹੈ, ਇਸ ਲਈ ਇਹ ਐਂਟਰੀ ਹਾਲੇ ਸੇਵ ਨਹੀਂ ਹੋ ਸਕਦੀ।",
 
   "subscription.sheet.read_only.still_works": "ਤੁਸੀਂ ਜੋ ਲਿਖਿਆ ਹੈ ਉਹ ਸੁਰੱਖਿਅਤ ਹੈ। ਤੁਸੀਂ ਹੁਣ ਵੀ ਵਹੀਆਂ ਪੜ੍ਹ ਸਕਦੇ ਹੋ, ਐਕਸਪੋਰਟ ਕਰ ਸਕਦੇ ਹੋ ਅਤੇ ਬੰਦ ਕਰ ਸਕਦੇ ਹੋ।",
   "subscription.sheet.book_full.still_works": "ਤੁਸੀਂ ਜੋ ਲਿਖਿਆ ਹੈ ਉਹ ਸੁਰੱਖਿਅਤ ਹੈ। ਪੜ੍ਹਨਾ ਅਤੇ ਐਕਸਪੋਰਟ ਚਲਦੇ ਰਹਿਣਗੇ।",

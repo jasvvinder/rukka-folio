@@ -28,10 +28,8 @@
   "@books.type.family": {
     "description": "Book type label (02 §1.1 BookType.family)."
   },
-  "books.type.joint": "Shared pool",
-  "@books.type.joint": {
-    "description": "Book type label (02 §1.1 BookType.joint — the family common pool)."
-  },
+  "books.type.joint": "Joint fund",
+  "@books.type.joint": {"description": "Book type label (02 §1.1 BookType.joint — the family's common book). User-facing name is *Joint fund*, never *pool* (ADR 2026-10-08 §1 🔒); the engine's *pool* wording is internal."},
   "books.type.business": "Business",
   "@books.type.business": {
     "description": "Book type label (02 §1.1 BookType.business)."

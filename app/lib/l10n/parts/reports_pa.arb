@@ -38,8 +38,8 @@
   "@reports.export.page": {
     "description": "machine-draft — native review M12"
   },
-  "reports.export.saved": "ਸੰਭਾਲੀ ਗਈ: {where}",
-  "reports.export.failed": "ਰਿਪੋਰਟ ਸੰਭਾਲੀ ਨਹੀਂ ਜਾ ਸਕੀ।",
+  "reports.export.saved": "ਸੇਵ ਹੋ ਗਈ: {where}",
+  "reports.export.failed": "ਰਿਪੋਰਟ ਸੇਵ ਨਹੀਂ ਹੋ ਸਕੀ।",
   "reports.export.file_name": "day-book-{year}.{extension}",
   "reports.statement.report.title": "ਖਾਤਾ ਸਟੇਟਮੈਂਟ",
   "reports.statement.account.label": "ਖਾਤਾ",

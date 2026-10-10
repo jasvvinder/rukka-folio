@@ -194,7 +194,7 @@ void main() {
       keys = process();
       result = await coldStart(tester, keys, await vaultOver(keys));
       await tester.pumpAndSettle();
-      expect(find.text(en.lockBiometricFailed), findsOneWidget);
+      expect(find.text(en.lockBiometricFailedAny), findsOneWidget);
       expect(find.text(en.lockPinUseInstead), findsOneWidget);
       expect(firstIndex(android, 'deviceItemRead'), -1);
       await tester.tap(find.text(en.lockPinUseInstead));
@@ -395,7 +395,7 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text(l10n.lockBiometricReenrolled), findsOneWidget);
         expect(find.byType(PinKeypad), findsOneWidget, reason: why);
-        expect(find.text(l10n.lockBiometricButton), findsNothing, reason: why);
+        expect(find.text(l10n.lockMethodAny), findsNothing, reason: why);
         expectTextFits(tester, reason: '$why pad');
 
         await tester.ensureVisible(find.text(l10n.lockForgotAction));
@@ -429,7 +429,7 @@ void main() {
         );
         await tester.pumpAndSettle();
         expect(find.text(l10n.lockCooldownTitle), findsOneWidget, reason: why);
-        expect(find.text(l10n.lockBiometricButton), findsNothing, reason: why);
+        expect(find.text(l10n.lockMethodAny), findsNothing, reason: why);
         await unmount(tester);
       }
     });
@@ -457,7 +457,7 @@ void main() {
       expect(keys.sealed, isTrue);
       // GATE1 review finding 3: no Face ID button — a tap could only answer
       // re-enrolled again, with no prompt.
-      expect(find.text(en.lockBiometricButton), findsNothing);
+      expect(find.text(en.lockMethodAny), findsNothing);
       // GATE1 review finding 2: the forgot door neither promises the face
       // nor offers a button that does nothing; Back returns to the PIN.
       final asked = android.nativeMethods

@@ -4,8 +4,8 @@
 //
 // S3   — canvas 7 *Ledger index* and *Ledger index · opening balance not set*.
 // S3.1 — canvas 7 *Quick add · a sheet, from the Ledger tab*.
-// S4   — canvas 7 *A/C statement*, *· opening balance not set* (and *· add the
-//        opening balance*, not built — see design/match/S4.json).
+// S4   — canvas 7 *A/C statement*, *· opening balance not set* and *· add the
+//        opening balance* (ADR 2026-10-07b, OPEN177).
 // S4.1 — canvas 11 / 2 *Entry detail* and its states (amended, locked period,
 //        reversed; *imported entry* is not built — see design/match/S4.1.json).
 // S21  — canvas 7 *Search · recent, before typing* and *Search · results*.
@@ -31,6 +31,7 @@ import 'package:rukka_folio/features/ledger/screens/s3_1_quick_add_sheet.dart';
 import 'package:rukka_folio/features/ledger/screens/s3_ledger_index_screen.dart';
 import 'package:rukka_folio/features/ledger/screens/s4_1_entry_detail_screen.dart';
 import 'package:rukka_folio/features/ledger/screens/s4_account_statement_screen.dart';
+import 'package:rukka_folio/features/ledger/widgets/opening_prompt.dart';
 import 'package:rukka_folio/shared/widgets/rk_tab_bar.dart';
 
 import '../../shared/design_capture.dart';
@@ -94,12 +95,15 @@ Future<_Shop> _shop() async {
     name: 'Bharat Power',
     accountClass: AccountClass.party,
   );
-  await l.tookCredit(
-    bookId: seed.bookId,
-    fromWhom: bharat.id,
-    took: seed.fuelId,
-    paise: 245_000,
-    date: today.addDays(-4),
+  // Bharat Power and Sunil Dairy were set up the way S3.1 sets an account up
+  // — with their opening answered — so, as in the frames, neither carries
+  // the ADR 2026-10-07b prompt. (An opening of zero cannot be recorded yet:
+  // see design/match/S4.json and the OPEN177 lane report.) The seed's own
+  // Ramesh is answered too, leaving Ramesh Kumar the one person the entry
+  // picker made, as c7 *opening balance not set* draws.
+  await l.openingBalances(
+    seed.bookId,
+    balances: {bharat.id: -245_000, seed.partyId: 50_000},
   );
   final milk = await l.addAccount(
     seed.bookId,
@@ -143,6 +147,7 @@ Future<_Shop> _shop() async {
     date: today,
     note: 'Milk taken on credit',
   );
+  await l.openingBalances(seed.bookId, balances: {sunil.id: -30_000});
   final rk = await l.addAccount(
     seed.bookId,
     name: 'Ramesh Kumar',
@@ -168,8 +173,11 @@ AccountStatementScreen _statement(String accountId) => AccountStatementScreen(
   onCountCash: (_) {},
 );
 
-EntryDetailScreen _detail(String entryId) =>
-    EntryDetailScreen(entryId: entryId, onOpenEntry: (_) {});
+EntryDetailScreen _detail(String entryId) => EntryDetailScreen(
+  entryId: entryId,
+  onOpenEntry: (_) {},
+  onEnterAgain: (_) {},
+);
 
 LedgerSearchScreen _search() =>
     LedgerSearchScreen(onOpenAccount: (_) {}, onOpenEntry: (_) {});
@@ -216,6 +224,8 @@ void main() {
       await tester.drag(find.byType(CustomScrollView), const Offset(0, -260));
       await tester.pumpAndSettle();
       expect(find.text('Ramesh Kumar'), findsOneWidget);
+      // ADR 2026-10-07b §1: the one marker, on the entry-picker person.
+      expect(find.byKey(OpeningPromptKeys.marker), findsOneWidget);
       await _snap(tester, 'S3__opening-not-set${target.suffix}');
       await _unmount(tester);
     }
@@ -266,7 +276,22 @@ void main() {
         // draws its leading back button; the capture has to show it.
         expect(find.byType(BackButton), findsOneWidget);
         expect(find.text(name), findsWidgets);
+        // ADR 2026-10-07b §1: only the entry-picker person carries the prompt.
+        expect(
+          find.byKey(OpeningPromptKeys.card),
+          state == 'opening-not-set' ? findsOneWidget : findsNothing,
+        );
         await _snap(tester, 'S4__$state${target.suffix}');
+        if (state == 'opening-not-set') {
+          // c7 *A/C statement · add the opening balance*: the sheet, side
+          // *They owe you*, ₹2,000 typed.
+          await tester.tap(find.byKey(OpeningPromptKeys.add));
+          await _settle(tester);
+          await tester.enterText(find.byKey(OpeningPromptKeys.amount), '2000');
+          await _settle(tester);
+          expect(find.text('You will get ₹2,500 in all.'), findsOneWidget);
+          await _snap(tester, 'S4__add-opening${target.suffix}');
+        }
         _drop('S4__pre${target.suffix}');
         await _unmount(tester);
       }
@@ -317,19 +342,21 @@ void main() {
         date: today.addDays(-7),
         note: 'Isuzu, full tank',
       );
-      await l.lockMonth(
-        seed.bookId,
-        YearMonth(2026, 8),
-        declaredBalances: const {},
-      );
-      // Reversed, with a reason.
+      // Reversed, with a reason: c2 *Reversed* draws an August entry fixed
+      // after August closed (*August stays as it was counted*), so this one
+      // is dated in August too and reversed today by *Fix this entry*.
       final wrong = await l.moneyOut(
         bookId: seed.bookId,
         from: seed.cashId,
         forWhat: seed.fuelId,
         paise: 240_000,
-        date: today.addDays(-2),
+        date: today.addDays(-7),
         note: 'Isuzu, full tank',
+      );
+      await l.lockMonth(
+        seed.bookId,
+        YearMonth(2026, 8),
+        declaredBalances: const {},
       );
       await l.reverse(wrong.id, date: today, note: 'Wrong khata chosen');
 

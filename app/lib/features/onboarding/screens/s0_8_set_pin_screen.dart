@@ -40,8 +40,8 @@ import '../../../l10n/gen/app_localizations.dart';
 import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 import '../../../shared/widgets/rk_fit_text.dart';
+import '../../lock/biometric_kind.dart';
 import '../../lock/lock_scope.dart';
-import '../../lock/widgets/face_id_glyph.dart';
 import '../../lock/widgets/pin_pad.dart';
 
 /// Which half of the two-step set is showing.
@@ -87,8 +87,12 @@ class _SetPinScreenState extends State<SetPinScreen> {
   bool _mismatch = false;
   bool _saveFailed = false;
 
-  /// Null until the platform answers; true ⇒ the Face ID line.
+  /// Null until the platform answers; true ⇒ the app-lock line.
   bool? _enrolled;
+
+  /// Which biometric is enrolled, so the lines name the method this phone
+  /// uses (ADR 2026-10-08 §3); null names it neutrally.
+  BiometricModality? _modality;
   bool _asked = false;
 
   @override
@@ -107,6 +111,9 @@ class _SetPinScreenState extends State<SetPinScreen> {
     _asked = true;
     gate.qualifyingBiometricEnrolled().then((v) {
       if (mounted) setState(() => _enrolled = v);
+    });
+    enrolledModalityOf(gate).then((m) {
+      if (mounted) setState(() => _modality = m);
     });
   }
 
@@ -204,6 +211,7 @@ class _SetPinScreenState extends State<SetPinScreen> {
 
   Widget _body(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final words = BiometricWords.of(context, _modality);
     final text = Theme.of(context).textTheme;
     final status = RkStatusColors.of(context);
     // A mismatch has already cleared both entries, but it is drawn as the
@@ -304,7 +312,9 @@ class _SetPinScreenState extends State<SetPinScreen> {
                                   ? l10n.onboardingSetPinConfirmSubtitle
                                   : (_enrolled == false
                                         ? l10n.onboardingSetPinWhy
-                                        : l10n.onboardingSetPinSubtitle),
+                                        : l10n.onboardingSetPinSubtitle(
+                                            words.inline,
+                                          )),
                               style: text.bodyLarge?.copyWith(
                                 color: status.muted,
                               ),
@@ -324,11 +334,21 @@ class _SetPinScreenState extends State<SetPinScreen> {
                               const SizedBox(height: RkSpace.s6),
                               _Notice(
                                 icon: Icons.lock_outline,
-                                faceId: _enrolled != false,
+                                method: _enrolled == false ? null : words,
                                 color: status.muted,
                                 text: _enrolled == false
                                     ? l10n.onboardingSetPinBiometricNotePinOnly
-                                    : l10n.onboardingSetPinBiometricNote,
+                                    : switch (words.kind) {
+                                        null =>
+                                          l10n.onboardingSetPinBiometricNoteAny,
+                                        final k when k.isFingerprint =>
+                                          l10n.onboardingSetPinBiometricNoteFingerprint(
+                                            words.name,
+                                          ),
+                                        _ => l10n.onboardingSetPinBiometricNote(
+                                          words.name,
+                                        ),
+                                      },
                               ),
                             ],
                           ],
@@ -364,13 +384,14 @@ class _Notice extends StatelessWidget {
     required this.color,
     required this.text,
     this.centred = false,
-    this.faceId = false,
+    this.method,
   });
 
   final IconData icon;
 
-  /// Lead with the canvas's Face ID glyph instead of [icon].
-  final bool faceId;
+  /// Lead with the method's own glyph (face or fingerprint, ADR 2026-10-08
+  /// §3) instead of [icon].
+  final BiometricWords? method;
   final Color color;
   final String text;
 
@@ -393,8 +414,8 @@ class _Notice extends StatelessWidget {
           : MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        if (faceId)
-          FaceIdGlyph(size: RkIcon.grid, color: color, compact: true)
+        if (method case final words?)
+          words.glyph(size: RkIcon.grid, color: color, compact: true)
         else
           Icon(icon, size: centred ? RkSpace.s4 : RkIcon.grid, color: color),
         const SizedBox(width: RkSpace.s2),

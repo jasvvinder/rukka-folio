@@ -1,0 +1,58 @@
+{
+ "sid": "S7.1",
+ "verdict": "deviates",
+ "frames": [
+  "c8/S7.1/Import inbox · four row states"
+ ],
+ "captures": [
+  "S7.1__default"
+ ],
+ "screen_files": [
+  "app/lib/features/import/screens/s7_1_inbox_screen.dart",
+  "app/lib/features/import/widgets/inbox_parts.dart",
+  "app/lib/features/import/ledger_import_source.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c8 S7.1 *Import inbox · four row states*: unreachable in production — S7.1 is pushed from S7.0c, and S7 opens on its error state because bootstrap.dart mounts no ImportScope (see design/match/S7.json); without the scope S7.1 itself shows 'Couldn’t sort these lines.'. S7.1__default mounts LedgerImportSource over a seeded ledger (⚠️ SPEC in reskin1_import_test.dart)",
+   "reason": "[screen] defect — composition: ImportScope is never mounted",
+   "authority": "07 §1 rule 6 🔒 (no dead ends); 13 §3.2 row S7.1"
+  },
+  {
+   "what": "c8 S7.1 *Import inbox*: title 'Import inbox' centred with an icon action (balance check) at right; the frame titles the bar with the account 'Indian Bank 0192', left-aligned, with the subtitle '23 lines to record · 12 done' and no action",
+   "reason": "[shared] app bar (title + subtitle, leading alignment); the account title and progress subtitle are [screen]",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c8 S7.1 *Import inbox*: the balance check is a separate pushed screen (S7.2) behind the app-bar icon; the frame draws it inline at the top of the inbox as a two-row card — '✓ Opening balance matches your book' / clock 'Closing will match once these 23 lines are recorded'",
+   "reason": "[screen] — S7.2 is its own S-id (13 §3.2) with three outcomes; the frame folds its summary into S7.1. ⚠️ SPEC (open): inline card on S7.1 and/or the S7.2 screen",
+   "authority": "13 §3.2 row S7.2; ADR 2026-09-01 §2 🔒; 07 §11 item 1 🔒"
+  },
+  {
+   "what": "c8 S7.1 *Import inbox*: above the rows the app writes 'Nothing is in your books yet. Each line asks one question first.' and '4 lines still waiting'; the frame has neither (the count lives in the subtitle)",
+   "reason": "[screen]",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c8 S7.1 *Import inbox*: each line is a separate rounded card with date '02 Aug 2026' at top-left, the amount '−₹20,000' with 'Money out' under it mid-row, the bank text in muted italic below, a 'New' chip with a ? icon, the question 'Where did it go?', an outlined 'Choose an A/C' button and a 'Record now, explain later' text button; the frame draws full-bleed rows split by hairlines: bank text first in muted monospace with an expand chevron, date '02 Aug' right, then '↑ Money out ₹20,000' arrowed and tinted, then the question as a navy-outlined tappable field 'Where did it go?' with a chevron",
+   "reason": "[shared] list row (import line row: full-bleed, hairline, bank text first, arrowed amount, question field); the bank text face is italic, not monospace, because tokens.json has no monospace family (⚠️ SPEC inbox_parts.dart:12)",
+   "authority": "02 §10 🔒 (bank text verbatim, muted monospace); 07 §1 rule 3 🔒 (direction word with tinted amount — kept); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c8 S7.1 *Import inbox · four row states*: the frame draws four states — New (question), Suggested ('Looks like Electricity Expense ✓ Yes'), Matched ('✓ Mehta Traders · recorded, matched to your entry') and the transfer question ('Is this the same money moving between your accounts?'); through the ledger door every line is New, so only the first is captured",
+   "reason": "[screen] — Matched and Suggested need bank_text on posted entries, which the engine does not store (ledger_import_source.dart:126); the transfer card (S7.3) needs a matching line in another A/C, which the seeded book does not have",
+   "authority": "02 §10 🔒 (bank_text); 13 §3.2 rows S7.1, S7.3"
+  },
+  {
+   "what": "c8 S7.1 *Import inbox*: the frame pins a footer 'Not sure about one? Record it now, explain later — it waits in Suspense.' at the bottom; the app puts a 'Record now, explain later' button inside every card and pins no footer",
+   "reason": "[screen]",
+   "authority": "07 §11 item 3 🔒 (Suspense door); ADR 2026-10-05 §1"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "bb4b15bb4e420127b9020cf4000358f46c37bf4e05781c0921ce698896798f06",
+  "frames": "7edcf115f5ded423015573b53f7e1f2db5157622cabaff8eaa8efe4a2316b06e"
+ }
+}

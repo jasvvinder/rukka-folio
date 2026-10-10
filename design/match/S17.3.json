@@ -1,0 +1,54 @@
+{
+ "sid": "S17.3",
+ "verdict": "deviates",
+ "frames": [
+  "c10/S17.3/Contact support"
+ ],
+ "captures": [
+  "S17.3__default"
+ ],
+ "screen_files": [
+  "app/lib/features/help/screens/s17_3_contact_screen.dart",
+  "app/lib/features/help/widgets/help_widgets.dart",
+  "app/lib/features/help/support_mailer.dart",
+  "app/lib/features/help/help_routes.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c10 S17.3 *Contact support*: title centred on the lighter surface fill; the frame left-aligns it beside the chevron on the page cream",
+   "reason": "[shared] app bar",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c10 S17.3 *Contact support*: the frame's primary action is a pinned full-width navy 'Message us on WhatsApp' with 'Send diagnostics instead' as a muted text link under it; the app's primary is 'Email support' (mail icon) inside a navy-ruled card that also shows the address support@rukkafolio.com and 'Copy the address'",
+   "reason": "[canvas-wrong] — the pilot channel is email; WhatsApp was struck from S17.3. Pinning the primary at the bottom is [shared] primary button",
+   "authority": "ADR 2026-09-25 §4 🔒 (S17.3's primary action is Email support; amends 07 §22 and DESIGN-PACK S17.3); ADR 2026-10-03c §6–§7"
+  },
+  {
+   "what": "c10 S17.3 *Contact support*: the frame opens with 'We usually reply the same day' (headline) and 'Monday to Saturday, 9 am to 7 pm. Write in ਪੰਜਾਬੀ, हिन्दी or English — whichever is easier.'; the app has no reply-time promise or hours, and opens on the email card ('Write to support from your email app.')",
+   "reason": "[screen] — a reply-time and hours promise is an operational commitment no doc rules; ⚠️ SPEC (open) for the owner",
+   "authority": "07 §22 🔒; ADR 2026-09-25 §4"
+  },
+  {
+   "what": "c10 S17.3 *Contact support*: the app's email card carries a shield + 'Do not send amounts or account numbers by email.'; the frame has no such warning",
+   "reason": "[canvas-wrong] — the warning is ruled",
+   "authority": "ADR 2026-10-03c §6–§7 (email card carries the do-not-send warning)"
+  },
+  {
+   "what": "c10 S17.3 *Contact support*: 'What support cannot do' — the frame titles it 'What we cannot do' in amber inside an amber-bordered card with a 3px amber left rule: 'We cannot see your entries or recover your keys, so we cannot restore your books.' / 'For that, use your trusted members or your recovery sheet — those are the only two ways in, by design.' and an 'Open recovery ›' link; the app draws a grey-ruled paper card titled 'What support cannot do' with four ⊘ rows (Read a book, or any entry in one · Recover a key, or open your books for you · Add a member to your book · Skip the meeting that activates a member) and 'None of these exist in the app, so nobody can be talked into one.'",
+   "reason": "[shared] card (ruled callout: amber tone, border); the four-item wording stays word for word — [canvas-wrong] for the frame's two-sentence version, which drops 'add a member' and 'bypass a ceremony'",
+   "authority": "ADR 2026-09-25 §4 🔒 (the 06 §8 statement stays word for word); 06 §8 🔒; 07 §22 🔒"
+  },
+  {
+   "what": "c10 S17.3 *Contact support*: the frame lists 'WHAT WE CAN HELP WITH' — four rows with green checks (Payments, plans and invoices · Something in the app not working · Understanding what a screen is telling you · Sending your books out as a file); the app has none, and instead ends with 'Still stuck?' and two icon rows ('What can support see, and what can it do?' → article, 'Send diagnostics' → S17.4)",
+   "reason": "[screen] — the can-help list is new copy for the help owner; the app's two doors stay (S17.4 door per 07 §22)",
+   "authority": "07 §22 🔒; ADR 2026-10-05 §1"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "9fd6d7d2dfd3f07a3aaab6576300a078717255168e756a817b452f805abb482b",
+  "frames": "2c2067672fd391388d4ba8641be2f69782b93da084e7561acc189b5b1556390b"
+ }
+}

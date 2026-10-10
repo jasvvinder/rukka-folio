@@ -88,7 +88,8 @@
   "onboarding.business_opening.balancing_zero": "शुरुआती प्रविष्टि पूरी बराबर है — ओपनिंग बैलेंस / पूंजी खाते के लिए कुछ नहीं बचता।",
   "onboarding.business_opening.dated_note": "यहाँ सब कुछ {date} का है, जिस दिन से खाते शुरू होते हैं।",
   "onboarding.business_opening.skip": "अभी छोड़ें",
-  "onboarding.business_opening.save": "सहेजें और आगे बढ़ें",
+  "onboarding.business_opening.save": "सुरक्षित करें और आगे बढ़ें",
+  "@onboarding.business_opening.save": {"description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"},
   "onboarding.business_opening.creating": "आपकी बहियाँ तैयार की जा रही हैं…",
   "onboarding.business_opening.create_error": "हम यह बही नहीं बना सके।",
   "onboarding.business_opening.retry": "फिर कोशिश करें",
@@ -98,15 +99,14 @@
   "onboarding.business.ownership_shared": "दूसरों के साथ साझा",
   "onboarding.business.ownership_shared_note": "आगे आप बाकी मालिकों के नाम और हिस्से भरेंगे",
   "onboarding.set_pin.title": "अपना पिन बनाएँ",
-  "onboarding.set_pin.subtitle": "ज़्यादातर आप फ़ेस आईडी इस्तेमाल करेंगे। यह तब के लिए है जब वह काम न करे — और यह आपकी बहियाँ उससे भी बंद रखता है जिसे आपके फ़ोन का पासकोड पता है।",
-  "@onboarding.set_pin.subtitle": {
-    "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
-  },
+  "onboarding.set_pin.subtitle": "ज़्यादातर आप {method} इस्तेमाल करेंगे। यह तब के लिए है जब वह काम न करे — और यह आपकी बहियाँ उससे भी बंद रखता है जिसे आपके फ़ोन का पासकोड पता है।",
+  "@onboarding.set_pin.subtitle": {"description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)", "placeholders": {"method": {"type": "String"}}},
   "onboarding.set_pin.why": "यह आपकी बहियाँ उससे भी बंद रखता है जिसे आपके फ़ोन का पासकोड पता है।",
   "@onboarding.set_pin.why": {
     "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
   },
-  "onboarding.set_pin.biometric_note": "फ़ेस आईडी इस ऐप को सबके लिए बंद रखती है — अगर इस फ़ोन पर नया चेहरा जोड़ा गया, तो ऐप आपका पिन पूछेगी",
+  "onboarding.set_pin.biometric_note": "{method} से यह ऐप सबके लिए बंद रहता है — अगर इस फ़ोन पर नया चेहरा जोड़ा गया, तो ऐप आपका पिन पूछेगी",
+  "@onboarding.set_pin.biometric_note": {"description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)", "placeholders": {"method": {"type": "String"}}},
   "onboarding.set_pin.confirm.title": "फिर से भरें",
   "@onboarding.set_pin.confirm.title": {
     "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
@@ -119,8 +119,10 @@
   "@onboarding.set_pin.mismatch": {
     "description": "machine-draft — native review M12 (ADR 2026-10-05 §1, canvas copy)"
   },
-  "onboarding.set_pin.saving": "आपका पिन सहेजा जा रहा है…",
-  "onboarding.set_pin.save_failed": "हम वह पिन सहेज नहीं सके — एक बार और कोशिश करें",
+  "onboarding.set_pin.saving": "आपका पिन सुरक्षित किया जा रहा है…",
+  "@onboarding.set_pin.saving": {"description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"},
+  "onboarding.set_pin.save_failed": "हम वह पिन सुरक्षित नहीं कर सके — एक बार और कोशिश करें",
+  "@onboarding.set_pin.save_failed": {"description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"},
   "onboarding.books_safe.title": "आपकी बहियाँ सुरक्षित रखना",
   "onboarding.books_safe.intro": "आपकी एंट्रियाँ पहले से ही हमारे सर्वर पर एन्क्रिप्ट करके रखी हैं — फ़ोन खोने से वे नहीं खोतीं। सँभालने वाली चीज़ आपकी कुंजी है।",
   "onboarding.books_safe.keysync.title": "आपकी कुंजी iCloud Keychain में रखी जाती है",
@@ -131,14 +133,17 @@
   "onboarding.books_safe.keysync.off_body": "आपकी कुंजी वहाँ नहीं रखी जा सकती, इसलिए नया फ़ोन इसे अपने आप नहीं पाएगा। इसके बदले रिकवरी शीट बनाइए — वापस अंदर आने का यही रास्ता है।",
   "onboarding.books_safe.backup.title": "अपने आप बैकअप",
   "onboarding.books_safe.backup.state_on": "चालू",
-  "onboarding.books_safe.backup.destination": "{destination} में सहेजा जाता है",
-  "onboarding.books_safe.backup.destination_unset": "आपकी अपनी क्लाउड ड्राइव में सहेजा जाता है",
+  "onboarding.books_safe.backup.destination": "{destination} में सुरक्षित किया जाता है",
+  "@onboarding.books_safe.backup.destination": {"description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"},
+  "onboarding.books_safe.backup.destination_unset": "आपकी अपनी क्लाउड ड्राइव में सुरक्षित किया जाता है",
+  "@onboarding.books_safe.backup.destination_unset": {"description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"},
   "onboarding.books_safe.backup.vault_title": "बहियों की एन्क्रिप्ट की हुई नक़ल",
   "onboarding.books_safe.backup.vault_body": "यह एन्क्रिप्ट ही रहती है: जिसके पास आपकी कुंजी नहीं, उसके लिए बेकार — और कुंजी बिना आपके लिए भी बेकार।",
   "onboarding.books_safe.backup.readable_title": "पढ़ी जा सकने वाली नक़ल, हर महीने",
   "onboarding.books_safe.backup.readable_disclosure": "यह फ़ाइल पढ़ी जा सकती है। जो कोई उस ड्राइव को खोल सकता है, वह आपकी बहियाँ पढ़ सकता है, और Apple या Google भी। यह इकलौती फ़ाइल है जिसे यह ऐप एन्क्रिप्ट नहीं करता।",
   "onboarding.books_safe.backup.off_hint": "एक बार छूकर इनमें से कोई भी बंद कर दीजिए।",
-  "onboarding.books_safe.backup.save_failed": "हम वह बदलाव सहेज नहीं सके — एक बार और कोशिश कीजिए",
+  "onboarding.books_safe.backup.save_failed": "हम वह बदलाव सुरक्षित नहीं कर सके — एक बार और कोशिश कीजिए",
+  "@onboarding.books_safe.backup.save_failed": {"description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"},
   "onboarding.books_safe.sheet.title": "रिकवरी शीट",
   "onboarding.books_safe.sheet.body": "एक छपा हुआ पन्ना, जो बाक़ी सब कुछ चले जाने पर भी आपकी बहियाँ वापस लाता है।",
   "onboarding.books_safe.sheet.action": "मेरी रिकवरी शीट बनाइए",
@@ -171,18 +176,23 @@
   "onboarding.family.members.continue_label": "आगे बढ़ें",
   "onboarding.family.members.skip": "अभी के लिए छोड़ें",
   "onboarding.family.accounts.title": "आपके परिवार के साझा खाते",
-  "onboarding.family.accounts.subtitle": "ये खाते पहले से बन चुके हैं — भरें कि साझा खाते में क्या है, या शून्य से शुरू करने के लिए ₹0 रहने दें।",
+  "onboarding.family.accounts.subtitle": "ये खाते पहले से बन चुके हैं — भरें कि साझे फ़ंड के पास क्या है, या शून्य से शुरू करने के लिए ₹0 रहने दें।",
+  "@onboarding.family.accounts.subtitle": {"description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"},
   "onboarding.family.accounts.dated_note": "यहाँ हर बकाया {date} की तारीख़ का है।",
-  "onboarding.family.accounts.group_have": "साझा खाते में क्या है",
+  "onboarding.family.accounts.group_have": "साझे फ़ंड के पास क्या है",
+  "@onboarding.family.accounts.group_have": {"description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"},
   "onboarding.family.accounts.balance_label": "शुरुआती बकाया",
   "onboarding.family.accounts.add_bank": "बैंक खाता जोड़ें",
   "onboarding.family.accounts.zero_note": "₹0 पर छोड़ी गई पंक्ति भी बन जाती है — आप इसे कभी भी भर सकते हैं।",
   "onboarding.family.accounts.balancing_label": "इसके बराबर होता है",
   "onboarding.family.accounts.balancing_zero": "कुछ और ज़रूरी नहीं — जो आपने भरा वह पूरा मेल खाता है।",
   "onboarding.family.accounts.balancing_note": "{amount} ओपनिंग बैलेंस / पूंजी खाते में जाता है ताकि प्रविष्टि बराबर हो।",
-  "onboarding.family.accounts.save": "सहेजें",
-  "onboarding.family.accounts.creating": "आपका पारिवारिक साझा खाता बन रहा है…",
-  "onboarding.family.accounts.create_error": "आपका पारिवारिक साझा खाता नहीं बन सका। कुछ भी नहीं बदला।",
+  "onboarding.family.accounts.save": "सुरक्षित करें",
+  "@onboarding.family.accounts.save": {"description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"},
+  "onboarding.family.accounts.creating": "आपके परिवार का साझा फ़ंड बन रहा है…",
+  "@onboarding.family.accounts.creating": {"description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"},
+  "onboarding.family.accounts.create_error": "आपके परिवार का साझा फ़ंड नहीं बन सका। कुछ भी नहीं बदला।",
+  "@onboarding.family.accounts.create_error": {"description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"},
   "onboarding.family.accounts.retry": "दोबारा कोशिश करें",
   "onboarding.trust.title": "अपने ट्रस्ट का नाम रखें",
   "onboarding.trust.subtitle": "यह आप बाद में बदल सकते हैं।",
@@ -223,7 +233,8 @@
   "onboarding.trust.accounts.balancing_label": "इसके बराबर होता है",
   "onboarding.trust.accounts.balancing_zero": "कुछ और ज़रूरी नहीं — जो आपने भरा वह पूरा मेल खाता है।",
   "onboarding.trust.accounts.balancing_note": "{amount} ओपनिंग बैलेंस / पूंजी खाते में जाता है ताकि प्रविष्टि बराबर हो।",
-  "onboarding.trust.accounts.save": "सहेजें",
+  "onboarding.trust.accounts.save": "सुरक्षित करें",
+  "@onboarding.trust.accounts.save": {"description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"},
   "onboarding.trust.accounts.creating": "आपके ट्रस्ट के खाते बन रहे हैं…",
   "onboarding.trust.accounts.create_error": "आपका ट्रस्ट खाता नहीं बन सका। कुछ भी नहीं बदला।",
   "onboarding.trust.accounts.retry": "दोबारा कोशिश करें",
@@ -348,10 +359,8 @@
       }
     }
   },
-  "onboarding.opening.save_error": "आपकी शेष राशि सहेजी नहीं जा सकी। कुछ नहीं बदला — फिर से 'पूरा करें' दबाएँ।",
-  "@onboarding.opening.save_error": {
-    "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
-  },
+  "onboarding.opening.save_error": "आपकी शेष राशि सुरक्षित नहीं की जा सकी। कुछ नहीं बदला — फिर से 'पूरा करें' दबाएँ।",
+  "@onboarding.opening.save_error": {"description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"},
   "onboarding.opening.creating": "आपकी बही तैयार हो रही है…",
   "@onboarding.opening.creating": {
     "description": "machine-draft — native review M12 (desk 172, canvas 1 S0.6 copy)"
@@ -390,10 +399,8 @@
   "@onboarding.recovery_sheet.preview_semantics": {
     "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
   },
-  "onboarding.recovery_sheet.print": "शीट छापें या सेव करें",
-  "@onboarding.recovery_sheet.print": {
-    "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
-  },
+  "onboarding.recovery_sheet.print": "शीट छापें या सुरक्षित करें",
+  "@onboarding.recovery_sheet.print": {"description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"},
   "onboarding.recovery_sheet.kept_safe": "मैंने इसे सँभालकर रख लिया है",
   "@onboarding.recovery_sheet.kept_safe": {
     "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
@@ -541,5 +548,17 @@
   "onboarding.recovery_sheet.pdf_warning": "जिसके पास भी यह पन्ना है वह आपकी बहियाँ खोल सकता है। सिर्फ़ सबसे नई शीट चलती है — नई शीट इस पन्ने की जगह ले लेती है।",
   "@onboarding.recovery_sheet.pdf_warning": {
     "description": "machine-draft — native review M12 (ADR 2026-10-06d, RUNG3B)"
-  }
+  },
+  "onboarding.set_pin.biometric_note.fingerprint": "{method} से यह ऐप सबके लिए बंद रहता है — अगर इस फ़ोन पर नया फ़िंगरप्रिंट जोड़ा गया, तो ऐप आपका पिन पूछेगी",
+  "@onboarding.set_pin.biometric_note.fingerprint": {"description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)", "placeholders": {"method": {"type": "String"}}},
+  "onboarding.set_pin.biometric_note.any": "आपके फ़िंगरप्रिंट या चेहरे से यह ऐप सबके लिए बंद रहता है — अगर इस फ़ोन पर नया जोड़ा गया, तो ऐप आपका पिन पूछेगी",
+  "@onboarding.set_pin.biometric_note.any": {"description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"},
+  "onboarding.books_safe.keysync.title.android": "आपकी कुंजी Google Password Manager में रखी जाती है",
+  "@onboarding.books_safe.keysync.title.android": {"description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"},
+  "onboarding.books_safe.keysync.google": "Google इसे पढ़ नहीं सकता।",
+  "@onboarding.books_safe.keysync.google": {"description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"},
+  "onboarding.books_safe.keysync.phone_backup.android": "फ़ोन का बैकअप आपकी बहियाँ नहीं लाता — आपकी कुंजी आपके Google खाते के साथ लौटती है, बहियाँ सर्वर से लौटती हैं।",
+  "@onboarding.books_safe.keysync.phone_backup.android": {"description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"},
+  "onboarding.books_safe.keysync.off_title.android": "इस फ़ोन पर Google Password Manager बंद है",
+  "@onboarding.books_safe.keysync.off_title.android": {"description": "machine-draft — native review M12 (ADR 2026-10-08, WORDS179)"}
 }

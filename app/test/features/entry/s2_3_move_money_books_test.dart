@@ -16,6 +16,7 @@
 //             EN/PA/HI at 200 % on 360×800 — 13 §4.3's states included.
 import 'package:core_ledger/core_ledger.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/features/entry/entry_books.dart';
 import 'package:rukka_folio/features/entry/entry_refusal.dart';
@@ -25,6 +26,7 @@ import 'package:rukka_folio/features/entry/widgets/entry_date_picker.dart';
 import 'package:rukka_folio/l10n/gen/app_localizations.dart';
 import 'package:rukka_folio/shared/ledger/local_ledger.dart';
 
+import '../../shared/design_capture.dart';
 import '../../shared/test_app.dart';
 
 int _pumpSeq = 0;
@@ -86,6 +88,24 @@ Future<void> _pumpEntry(
 Future<void> _unmount(WidgetTester tester) async {
   await tester.pumpWidget(const SizedBox.shrink());
   await tester.pump(const Duration(milliseconds: 1));
+}
+
+/// The Save label is drawn on a single line. A label that wraps doubles the
+/// button's height, which comes off the lower region of a screen that never
+/// scrolls (07 §5 🔒).
+void _expectSaveOneLine(WidgetTester tester, String reason) {
+  final paragraph = tester.renderObject<RenderParagraph>(
+    find.descendant(
+      of: find.byKey(AddEntryKeys.save),
+      matching: find.byType(RichText),
+    ),
+  );
+  // One line ⇔ the width the label was given holds its whole unwrapped run.
+  expect(
+    paragraph.getMaxIntrinsicWidth(double.infinity),
+    lessThanOrEqualTo(paragraph.size.width + 0.5),
+    reason: '$reason · Save label wrapped',
+  );
 }
 
 AppLocalizations _l10n(WidgetTester tester) =>
@@ -518,8 +538,15 @@ void main() {
 
     testWidgets(
       'F1-07-121 EN, PA and HI at 200 % on 360×800: the chooser, the book '
-      'list and both slot values fit, and nothing is cut',
+      'list and both slot values fit, nothing is cut, and Save stays one line '
+      '(07 §5 🔒: the screen never scrolls)',
       (tester) async {
+        // Measured in the faces the phone draws (Mukta / Mukta Mahee / Noto
+        // Sans), not the FlutterTest font's one-em-per-code-unit boxes, which
+        // over-measure Devanagari about threefold (FIX179 review). Each test
+        // file is its own isolate; the tests after this one in the file pass
+        // in either face.
+        await rkLoadDesignFonts(tester);
         for (final locale in rkLocales) {
           final two = await _seedTwoBooks();
           await _pumpEntry(
@@ -529,6 +556,9 @@ void main() {
             textScale: 2,
             viewport: rkPhone360,
           );
+          // A wrapped Save doubles the button and takes its height off the
+          // chooser's list, whose book row is then never built (FIX179).
+          _expectSaveOneLine(tester, '${locale.languageCode} · 200 %');
           await tester.tap(find.byKey(AddEntryKeys.slot(EntrySlot.ledger)));
           await tester.pumpAndSettle();
           expect(tester.takeException(), isNull);

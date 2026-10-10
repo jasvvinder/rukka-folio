@@ -246,9 +246,10 @@ class _InviteScreenState extends State<InviteScreen> {
               );
             }
             final s = snap.data ?? const MembersSnapshot();
-            return StreamBuilder<SyncStatus>(
-              stream: scope.sync.status,
-              initialData: scope.sync.current,
+            return StreamBuilder<SyncStatus?>(
+              // Held → null: no chip, nothing disabled (ADR 2026-10-10 §2 🔒).
+              stream: scope.sync.chipStatus,
+              initialData: scope.sync.chipCurrent,
               builder: (context, ss) =>
                   _form(context, s, offline: ss.data is Offline),
             );

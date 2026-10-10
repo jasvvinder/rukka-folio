@@ -349,6 +349,35 @@ void main() {
     });
 
     testWidgets(
+      'F1-196-8 S17.4 over a held engine (Offline underneath): no offline '
+      'line and Send is not blocked by the hold; once registered, a real '
+      'Offline shows the line and blocks Send (ADR 2026-10-10 §2 🔒)',
+      (tester) async {
+        final l10n = await AppLocalizations.delegate.load(const Locale('en'));
+        final sync = FakeSyncClient(initial: const Offline(), held: true);
+        addTearDown(sync.dispose);
+        await pumpRk(
+          tester,
+          SendDiagnosticsScreen(device: _FakeDevice(), sender: _FakeSender()),
+          sync: sync,
+          viewport: rkTallViewport,
+        );
+        await tester.pumpAndSettle();
+        VoidCallback? send() =>
+            tester.widget<FilledButton>(find.byType(FilledButton)).onPressed;
+        expect(find.text(l10n.diagOffline), findsNothing);
+        expect(find.text(l10n.diagSendReasonOffline), findsNothing);
+        expect(send(), isNotNull);
+
+        sync.held = false;
+        await tester.pumpAndSettle();
+        expect(find.text(l10n.diagOffline), findsOneWidget);
+        expect(find.text(l10n.diagSendReasonOffline), findsOneWidget);
+        expect(send(), isNull);
+      },
+    );
+
+    testWidgets(
       'F1-07-405 the payload shown to the person carries NO amount, account '
       'name or party name, even over a seeded ledger and a device seam '
       'stuffed with them (CLAUDE.md rule 4)',

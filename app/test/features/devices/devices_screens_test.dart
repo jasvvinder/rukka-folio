@@ -288,6 +288,48 @@ void main() {
     );
   });
 
+  group('F1-196 held engine — no sync chip, nothing disabled (ADR 2026-10-10 §2 🔒)', () {
+    testWidgets(
+      'F1-196-9 S11 over a held engine (Offline underneath) shows no offline '
+      'chip; once registered the real Offline chip shows',
+      (tester) async {
+        final repo = FakeDevicesRepository(
+          initial: DevicesSnapshot(devices: [_thisPhone]),
+        );
+        final sync = FakeSyncClient(initial: const Offline(), held: true);
+        addTearDown(sync.dispose);
+        await pumpRk(tester, _scoped(repo, const DevicesScreen()), sync: sync);
+        const chip = 'Offline — showing what this phone last saw.';
+        expect(find.text(chip), findsNothing);
+
+        sync.held = false;
+        await tester.pumpAndSettle();
+        expect(find.text(chip), findsOneWidget);
+      },
+    );
+
+    testWidgets(
+      'F1-196-11 S11.4 over a held engine (Offline underneath): a change '
+      'says no "will sync" line; once registered, a real Offline does',
+      (tester) async {
+        const line = 'Saved on phone · will sync';
+        final repo = FakeDevicesRepository(initial: const DevicesSnapshot());
+        final sync = FakeSyncClient(initial: const Offline(), held: true);
+        addTearDown(sync.dispose);
+        await pumpRk(tester, _scoped(repo, const BackupScreen()), sync: sync);
+        await tester.tap(find.byType(Switch).last);
+        await tester.pumpAndSettle();
+        expect(find.text(line), findsNothing);
+
+        sync.held = false;
+        await tester.pumpAndSettle();
+        await tester.tap(find.byType(Switch).last);
+        await tester.pumpAndSettle();
+        expect(find.text(line), findsOneWidget);
+      },
+    );
+  });
+
   group('S11.9 / S11.10 cancel windows (ADR 2026-09-05d §1, §3; 05i §9)', () {
     testWidgets(
       'F1-06-13 S11.10 support action: verbatim body, countdown ticks against the injected clock, Cancel at 23 h 59 works and shows Cancelled; a failed cancel shows the error and keeps the button',

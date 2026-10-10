@@ -56,6 +56,15 @@ final List<RouteBase> ledgerRoutes = [
       // A version of the chain replaces this one rather than stacking, so
       // walking an amend chain never grows the back stack (13 §211).
       onOpenEntry: (entryId) => context.replace(LedgerPaths.entryOf(entryId)),
+      // 02 §5 🔒 *Fix an old entry*: after the reversal, the corrected
+      // re-entry opens S2 on the entry's own verb (`?verb=`, which
+      // `entryVerbOf` reads), over this screen so back returns here.
+      onEnterAgain: (kind) => context.push(
+        Uri(
+          path: RkPaths.entry,
+          queryParameters: {'verb': kind.wire},
+        ).toString(),
+      ),
     ),
   ),
   GoRoute(

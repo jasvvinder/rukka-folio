@@ -1,0 +1,51 @@
+{
+ "sid": "S17.2",
+ "verdict": "deviates",
+ "frames": [
+  "c10/S17.2/An article · iPhone",
+  "c10/S17.2/An article · Android"
+ ],
+ "captures": [
+  "S17.2__default",
+  "S17.2__default__android360"
+ ],
+ "screen_files": [
+  "app/lib/features/help/screens/s17_2_faq_article_screen.dart",
+  "app/lib/features/help/widgets/help_widgets.dart",
+  "app/lib/features/help/faq_catalog.dart",
+  "app/lib/features/help/help_routes.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c10 S17.2 *An article · iPhone / Android*: the app bar is titled 'Answer', centred; the frame titles it with the topic 'If you lose your phone', left-aligned beside the chevron, on the page cream",
+   "reason": "[shared] app bar; the topic title depends on the topic level S17 lacks (see S17 record) — [screen]",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c10 S17.2 *An article*: the question is 'I have a new phone. How do I get my books back?' at headline size and the answer names the order the app tries (phone's own key backup, another phone, guardians, paper sheet) and that nobody can open a book otherwise; the frame asks 'Can I get my books back on a new phone?' at a larger display size and its answer is platform-specific — 'iCloud Keychain' on the iPhone frame, 'Google Password Manager' on the Android frame — with 'any 2 of your 3 trusted members'",
+   "reason": "[screen] copy — the article's text is the FAQ owner's (help ARB); the frame's platform-specific keychain wording and the '2 of 3' figure were not checked against 04/06 in this audit (not verified)",
+   "authority": "07 §22 🔒; ADR 2026-10-05 §1 (frames decide layout, specs decide copy)"
+  },
+  {
+   "what": "c10 S17.2 *An article*: the frame draws a callout card — 3px amber left rule, 'One thing we cannot do is open your books for you.' over a muted explanation; the app has no callout (the sentence is part of the body)",
+   "reason": "[shared] card (ruled callout)",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c10 S17.2 *An article*: the frame's 'RELATED' caption lists navy links 'Print your recovery sheet' and 'Choose your trusted members' with chevrons and hairlines; the app has 'Did this not answer it?' with 'Read the other questions' (list icon) and 'Contact support · Email' (mail icon)",
+   "reason": "[screen] — related-article doors are not in the FAQ model; the app's two doors keep the article from being a dead end. [shared] list row (link row)",
+   "authority": "07 §1 rule 6 🔒 (no dead ends); 07 §22 🔒"
+  },
+  {
+   "what": "c10 S17.2 *An article*: the frame ends with 'Did this help?' and outlined square Yes / No buttons; the app has no feedback control",
+   "reason": "[screen] — not built; where the answer would go is unruled. ⚠️ SPEC (open): feedback on articles would be a new outbound signal, which 04 §4 / CLAUDE.md rule 4 (no analytics on content) must clear first",
+   "authority": "07 §22 🔒; CLAUDE.md rule 4"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "c69af1aaca3b012ee1262cca745b488ade3843c2514c82f278c7e15da7ab0499",
+  "frames": "091ce5112bec77ffae150c6cee9e1aa10d2cd9e752c565f1bb02ec0e6b87ea21"
+ }
+}

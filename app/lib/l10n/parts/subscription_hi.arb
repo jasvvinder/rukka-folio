@@ -10,10 +10,12 @@
   "subscription.banner.book_full.body": "यह बही प्लान की सीमा तक पहुँच गई है। पढ़ना और एक्सपोर्ट चलते रहेंगे; नई एंट्री रुकी हुई हैं।",
 
   "subscription.sheet.read_only.title": "नई एंट्री रुकी हुई हैं",
-  "subscription.sheet.read_only.blocked": "आपका प्लान समाप्त हो गया है, इसलिए यह एंट्री अभी सहेजी नहीं जा सकती।",
+  "subscription.sheet.read_only.blocked": "आपका प्लान समाप्त हो गया है, इसलिए यह एंट्री अभी सुरक्षित नहीं की जा सकती।",
+  "@subscription.sheet.read_only.blocked": {"description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"},
 
   "subscription.sheet.book_full.title": "यह बही भर गई है",
-  "subscription.sheet.book_full.blocked": "यह बही प्लान की सीमा तक पहुँच गई है, इसलिए यह एंट्री अभी सहेजी नहीं जा सकती।",
+  "subscription.sheet.book_full.blocked": "यह बही प्लान की सीमा तक पहुँच गई है, इसलिए यह एंट्री अभी सुरक्षित नहीं की जा सकती।",
+  "@subscription.sheet.book_full.blocked": {"description": "machine-draft — native review M12; HI *Save* is सुरक्षित करें (ADR 2026-10-08 §2, owner-given)"},
 
   "subscription.sheet.read_only.still_works": "आपने जो लिखा है वह सुरक्षित है। आप अब भी बहियाँ पढ़ सकते हैं, एक्सपोर्ट कर सकते हैं और बंद कर सकते हैं।",
   "subscription.sheet.book_full.still_works": "आपने जो लिखा है वह सुरक्षित है। पढ़ना और एक्सपोर्ट चलते रहेंगे।",

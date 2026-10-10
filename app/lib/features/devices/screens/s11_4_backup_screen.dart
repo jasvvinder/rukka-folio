@@ -92,9 +92,10 @@ class _BackupScreenState extends State<BackupScreen> {
                 ),
               );
             }
-            return StreamBuilder<SyncStatus>(
-              stream: sync.status,
-              initialData: sync.current,
+            return StreamBuilder<SyncStatus?>(
+              // Held → null: no chip, nothing disabled (ADR 2026-10-10 §2 🔒).
+              stream: sync.chipStatus,
+              initialData: sync.chipCurrent,
               builder: (context, ss) {
                 final offline = ss.data is Offline;
                 final readOnly = s.readOnly;

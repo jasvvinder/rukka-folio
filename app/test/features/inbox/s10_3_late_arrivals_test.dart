@@ -246,6 +246,26 @@ void main() {
   );
 
   testWidgets(
+    'F1-196-2 S10.3 over a held engine (Offline underneath) shows no offline '
+    'chip; once registered the real Offline chip shows (ADR 2026-10-10 §2 🔒)',
+    (tester) async {
+      final tray = FakeLateArrivals(
+        initial: LateArrivalsTray(items: [_item()]),
+      );
+      addTearDown(tray.dispose);
+      final sync = FakeSyncClient(initial: const Offline(), held: true);
+      addTearDown(sync.dispose);
+      await pumpRk(tester, _screen(tray), sync: sync, viewport: rkTallViewport);
+      expect(_says(tester, 'Offline'), isFalse);
+      expect(find.text('Re-date to today'), findsOneWidget);
+
+      sync.held = false;
+      await tester.pumpAndSettle();
+      expect(_says(tester, 'Offline'), isTrue);
+    },
+  );
+
+  testWidgets(
     'F1-07-185 re-date to today is one tap and keeps the entry in the book',
     (tester) async {
       final tray = FakeLateArrivals(

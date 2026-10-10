@@ -301,7 +301,8 @@ void main() {
         // The party line's total-header caption (07 §7, F1-193-3).
         (Locale('en'), 'You will get', 'OWED TO YOU, IN ALL'),
         (Locale('pa'), 'ਤੁਸੀਂ ਲੈਣੇ ਹਨ', 'ਤੁਸੀਂ ਕੁੱਲ ਲੈਣੇ ਹਨ'),
-        (Locale('hi'), 'आपको मिलने हैं', 'आपको कुल मिलने हैं'),
+        // HI per ADR 2026-10-08 §2 (owner row: आपने लेने हैं).
+        (Locale('hi'), 'आपने लेने हैं', 'आपने कुल लेने हैं'),
       ]) {
         final seed = await seedSoloLedger();
         await pumpRk(

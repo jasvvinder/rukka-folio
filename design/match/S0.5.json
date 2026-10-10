@@ -58,9 +58,9 @@
    "authority": "07 §3.1 step 5 🔒 ('makes the sheet the primary action instead'); ADR 2026-10-05 §1"
   },
   {
-   "what": "Canvas 1 'O5 Keeping your books safe · Android' and 'No Google Password Manager variant · Android': the Android frames say 'Google Password Manager', 'a new Android phone' and 'Google cannot read it'; the app's Android capture (360×800) still says 'iCloud Keychain', 'Apple cannot read it' and 'your Apple account'",
-   "reason": "[screen] the key-sync strings are iOS-only (onboarding.booksSafe.keysync.*); the canvas note on the Android twin says the app names the platform's own services. A real defect on Android, not a skin difference",
-   "authority": "04 §7.0 🔒 (Android Block Store / platform key sync); canvas c1 O5 Android twin note"
+   "what": "Canvas 1 'O5 Keeping your books safe · Android' (S0.5__default__android360): item 1 now names Google Password Manager, 'Google cannot read it.' and 'your Google account' as the frame does; the frame's 'So a new Android phone can open your books.' line (like the iPhone's 'So a new iPhone…') is still not drawn, and the readable copy's disclosure keeps its 'Apple or Google' wording on both platforms",
+   "reason": "[screen] The platform nouns are fixed (WORDS179). The missing 'So a new … phone' line is the same item-1 layout difference recorded for the iPhone frame above; the disclosure is 04 §7.6 🔒 copy that names both vendors and is not an Apple-only noun",
+   "authority": "ADR 2026-10-08 §4 🔒; 04 §7.0 🔒; 04 §7.6 🔒"
   },
   {
    "what": "Canvas 1 O5: body lines are set wider in the app than in the frame",
@@ -81,7 +81,7 @@
  "approved_by_owner": false,
  "checked_on": "2026-10-10",
  "hashes": {
-  "screens": "b414438d71bdd601d37ae272c4b4e0d6b5f2e452a5b20ffecc7ba7bcd11aa370",
+  "screens": "22f8a167b1bc4d35b4a974ab398d8e0b353432f524bfad0b768ff161f357133d",
   "frames": "6b26f34314097f8979f8807bc2372add65cb109124a24822123b441957696672"
  }
 }

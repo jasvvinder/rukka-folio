@@ -13,6 +13,7 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/features/devices/pin_vault.dart';
 import 'package:rukka_folio/features/lock/biometric_gate.dart';
+import 'package:rukka_folio/features/lock/biometric_kind.dart';
 import 'package:rukka_folio/features/lock/lock_scope.dart';
 import 'package:rukka_folio/features/lock/screens/s15_lock_screen.dart';
 
@@ -21,7 +22,14 @@ import '../../shared/test_app.dart';
 import 'lock_harness.dart';
 
 /// A sheet that is still up: the attempt never answers.
-final class _Waiting implements BiometricGate {
+final class _Waiting implements BiometricGate, BiometricModalitySource {
+  _Waiting(this.modality);
+
+  final BiometricModality modality;
+
+  @override
+  Future<BiometricModality?> enrolledModality() async => modality;
+
   @override
   Future<BiometricOutcome> authenticate({required String reason}) =>
       Completer<BiometricOutcome>().future;
@@ -35,7 +43,7 @@ void main() {
     WidgetTester tester, {
     required String sid,
     required String state,
-    required BiometricGate Function() gate,
+    required BiometricGate Function(BiometricModality modality) gate,
     int misses = 0,
     String typed = '',
     bool wrong = false,
@@ -43,6 +51,11 @@ void main() {
     bool ladder = false,
   }) async {
     for (final target in RkDesignTarget.values) {
+      // ADR 2026-10-08 §3: each frame pair names the phone's own method — the
+      // iPhone frames Face ID, the Android twins the fingerprint.
+      final modality = target == RkDesignTarget.ios
+          ? BiometricModality.face
+          : BiometricModality.fingerprint;
       final clock = TestClock();
       final vault = await makeVault(clock);
       await vault.setPin('135790');
@@ -58,7 +71,7 @@ void main() {
         target: target,
         child: LockScope(
           vault: vault,
-          biometrics: gate(),
+          biometrics: gate(modality),
           child: LockScreen(
             onUnlocked: () {},
             onForgotPin: () {},
@@ -80,20 +93,20 @@ void main() {
       tester,
       sid: 'S15',
       state: 'face-not-recognised',
-      gate: () => FakeBiometricGate([BiometricOutcome.failed]),
+      gate: (m) => FakeBiometricGate([BiometricOutcome.failed], true, m),
     );
     await capture(
       tester,
       sid: 'S15',
       state: 'pin-instead',
-      gate: () => FakeBiometricGate([BiometricOutcome.cancelled]),
+      gate: (m) => FakeBiometricGate([BiometricOutcome.cancelled], true, m),
       typed: '13',
     );
     await capture(
       tester,
       sid: 'S15',
       state: 'pin-only',
-      gate: () => FakeBiometricGate([BiometricOutcome.pinOnly], false),
+      gate: (m) => FakeBiometricGate([BiometricOutcome.pinOnly], false, m),
       typed: '13',
     );
   });
@@ -107,14 +120,14 @@ void main() {
       tester,
       sid: 'S15',
       state: 'reenrolled',
-      gate: () => FakeBiometricGate([BiometricOutcome.reenrolled]),
+      gate: (m) => FakeBiometricGate([BiometricOutcome.reenrolled], true, m),
       typed: '13',
     );
     await capture(
       tester,
       sid: 'S15.3',
       state: 'forgot-reenrolled',
-      gate: () => FakeBiometricGate([BiometricOutcome.reenrolled]),
+      gate: (m) => FakeBiometricGate([BiometricOutcome.reenrolled], true, m),
       forgot: true,
       ladder: true,
     );
@@ -122,7 +135,7 @@ void main() {
       tester,
       sid: 'S15.3',
       state: 'forgot-reenrolled-before-open',
-      gate: () => FakeBiometricGate([BiometricOutcome.reenrolled]),
+      gate: (m) => FakeBiometricGate([BiometricOutcome.reenrolled], true, m),
       forgot: true,
     );
   });
@@ -133,14 +146,14 @@ void main() {
       tester,
       sid: 'S15.3',
       state: 'default',
-      gate: () => FakeBiometricGate([BiometricOutcome.cancelled]),
+      gate: (m) => FakeBiometricGate([BiometricOutcome.cancelled], true, m),
       typed: '13',
     );
     await capture(
       tester,
       sid: 'S15.3',
       state: 'wrong-pin',
-      gate: () => FakeBiometricGate([BiometricOutcome.cancelled]),
+      gate: (m) => FakeBiometricGate([BiometricOutcome.cancelled], true, m),
       // c1 S15.3 *Wrong PIN* says "2 tries left": eight misses spent.
       misses: 8,
       wrong: true,
@@ -149,7 +162,7 @@ void main() {
       tester,
       sid: 'S15.3',
       state: 'forgot-pin',
-      gate: () => FakeBiometricGate([BiometricOutcome.cancelled]),
+      gate: (m) => FakeBiometricGate([BiometricOutcome.cancelled], true, m),
       forgot: true,
     );
   });
