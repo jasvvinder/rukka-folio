@@ -123,6 +123,9 @@ Deno.test({
                 ${sig}, 1)`;
 
       const r: Rig = rig();
+      // Real clock: the database mints the entitlement token against its own now() (0014), and the
+      // rig's fixed T0 + 30 d TTL expired on 7 Oct 2026.
+      r.clock.now = new Date();
       const m = {
         user: subject.user,
         device: { id: subject.dev },

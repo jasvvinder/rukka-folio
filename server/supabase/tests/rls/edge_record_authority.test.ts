@@ -63,6 +63,9 @@ const PLAN = "zz_edge83_many";
 
 function pgWorld(sql: postgres.Sql, store: PgStore): World {
   const r = rig();
+  // The database judges token expiry against its own now() (rf.mint_entitlement_token, 0014), so
+  // the PgStore arm runs on the real clock — the rig's fixed T0 + 30 d TTL expired on 7 Oct 2026.
+  r.clock.now = new Date();
   const calls: string[] = [];
   r.deps.store = spy(store, calls);
   const deviceOf = async (user: string): Promise<Member> => {
