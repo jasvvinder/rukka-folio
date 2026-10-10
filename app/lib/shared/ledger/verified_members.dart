@@ -60,7 +60,10 @@ import 'dart:typed_data';
 import 'package:core_crypto/core_crypto.dart';
 import 'package:core_ledger/core_ledger.dart' show Hlc;
 import 'package:data/data.dart' show SignedRecordMirror, SignedRecordRow;
-import 'package:sync_engine/sync_engine.dart' show VerifiedUmkSource;
+import 'package:sync_engine/sync_engine.dart'
+    show InstallTenant, KnownTenant, TenantNotKnownYet, VerifiedUmkSource;
+
+import 'ledger_identity.dart' show LedgerTenantNotKnown;
 
 /// Payload field names of a `verification_event` record (ADR 2026-09-05d §7).
 ///
@@ -182,13 +185,13 @@ final class VerifiedMemberDirectory
   VerifiedMemberDirectory({
     required this.suite,
     required this.records,
-    required this.tenantId,
+    required InstallTenant tenant,
     required this.selfUserId,
     required this.author,
     required this.tick,
     required this.newRecordId,
     this.authorOf,
-  });
+  }) : _tenant = tenant; // ignore: prefer_initializing_formals
 
   /// libsodium (CLAUDE.md rule 7).
   final CryptoSuite suite;
@@ -197,8 +200,25 @@ final class VerifiedMemberDirectory
   final SignedRecordMirror records;
 
   /// The tenant these verifications belong to — also inside the signed
-  /// header, so a record of another tenant cannot be folded in here.
-  final String tenantId;
+  /// header, so a record of another tenant cannot be folded in here. On a
+  /// further device that has not learned its tenant (ADR 2026-10-10 §1 🔒)
+  /// it is [TenantNotKnownYet]: nobody is believed, and nothing is signed.
+  InstallTenant get tenant => _tenant;
+  InstallTenant _tenant;
+
+  /// The tenant learned (ADR 2026-10-10 §1 🔒): moves an unknown tenant to
+  /// [tenantId] and folds this tenant's records. A known tenant never
+  /// changes — the call is then a no-op.
+  Future<void> learnTenant(String tenantId) async {
+    if (_tenant is KnownTenant) return;
+    _tenant = KnownTenant(tenantId);
+    await load();
+  }
+
+  String? get _tenantId => switch (_tenant) {
+    KnownTenant(:final id) => id,
+    TenantNotKnownYet() => null,
+  };
 
   /// This install's own user; its own key comes from [LedgerKeyMaterial], not
   /// from a record, so a record naming it is stored and ignored.
@@ -236,6 +256,8 @@ final class VerifiedMemberDirectory
   /// Idempotent: call it at open and after any pull that wrote records.
   Future<void> load() async {
     _believed.clear();
+    final tenantId = _tenantId;
+    if (tenantId == null) return;
     for (final row in await records.ofKind(
       SignedRecordKind.verificationEvent,
       tenantId: tenantId,
@@ -256,6 +278,8 @@ final class VerifiedMemberDirectory
     if (!Uuid16.isCanonical(userId)) {
       throw ArgumentError.value(userId, 'userId', 'must be a canonical uuid');
     }
+    // ADR 2026-10-10 §1 🔒: nothing is signed under a tenant not known yet.
+    final tenantId = _tenantId ?? (throw const LedgerTenantNotKnown());
     // The record is built and signed here, then read back through the *same*
     // gate the load path uses: one believing function, so the write path
     // cannot be looser than the read path.
@@ -317,7 +341,8 @@ final class VerifiedMemberDirectory
   /// The one gate. Returns the member a row proves, or null when it proves
   /// nothing this install may act on.
   VerifiedMember? _believe(SignedRecordRow row) {
-    if (row.tenantId != tenantId) return null;
+    final tenantId = _tenantId;
+    if (tenantId == null || row.tenantId != tenantId) return null;
     if (row.kind != SignedRecordKind.verificationEvent) return null;
 
     // ⚠️ SPEC 03 §3.1: `signed_records_local` stores no `suite_version`, but

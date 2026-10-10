@@ -22,6 +22,7 @@ import 'package:rukka_folio/shared/ledger/local_ledger.dart';
 import 'package:rukka_folio/shared/seams/key_store.dart';
 
 import '../test_app.dart';
+import 'tenant_of.dart';
 
 const String _memberA = '55555555-5555-4555-8555-555555555551';
 const String _memberB = '55555555-5555-4555-8555-555555555552';

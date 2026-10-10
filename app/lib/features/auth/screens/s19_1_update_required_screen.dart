@@ -71,9 +71,11 @@ class _UpdateRequiredScreenState extends State<UpdateRequiredScreen> {
                   style: text.bodySmall?.copyWith(fontFeatures: RkType.tabular),
                 ),
                 const Spacer(),
-                StreamBuilder<SyncStatus>(
-                  stream: sync.status,
-                  initialData: sync.current,
+                StreamBuilder<SyncStatus?>(
+                  // Null while the engine is held before S0.2: no chip, and nothing
+                  // disabled (ADR 2026-10-10 §2 🔒).
+                  stream: sync.chipStatus,
+                  initialData: sync.chipCurrent,
                   builder: (context, snap) => snap.data is Offline
                       ? Padding(
                           padding: const EdgeInsets.only(bottom: RkSpace.s3),

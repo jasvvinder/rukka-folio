@@ -209,6 +209,7 @@ final class SyncEngine {
     required this.identity,
     this.recompute,
     this.keySink,
+    this.tenantSink,
     this.jitter,
     Backoff backoff = const Backoff(),
     this.authorGapInboxMs = 24 * 60 * 60 * 1000,
@@ -241,9 +242,19 @@ final class SyncEngine {
 
   /// The identity the current (or last) round ran under. Set only by a
   /// round that passed the binding check; read only inside one.
-  RegisteredIdentity? _bound;
+  SignedInIdentity? _bound;
 
-  RegisteredIdentity get _me => _bound!;
+  SignedInIdentity get _me => _bound!;
+
+  /// Where a complete meta read of this user's own memberships goes while
+  /// the install's tenant is not known (ADR 2026-10-10 §1 🔒). Null hands
+  /// nothing over: the device then stays [SyncHold.tenantNotKnown].
+  final TenantLearningSink? tenantSink;
+
+  /// This user's own `memberships` rows, by tenant, last word wins — kept
+  /// only during a round bound to [RegisteredAwaitingTenant], from the start
+  /// of the feed; null otherwise.
+  Map<String, String>? _ownRows;
 
   /// The hold last raised as an event, so a held phone is one event.
   SyncHold? _lastHold;
@@ -295,17 +306,24 @@ final class SyncEngine {
 
   SyncHold? _holdFor(DeviceIdentity id) => switch (id) {
     NotRegisteredYet() => SyncHold.notRegistered,
-    RegisteredIdentity(:final deviceId) =>
-      guard.boundTo(deviceId) ? null : SyncHold.notRegistered,
+    SignedInIdentity(:final deviceId) when !guard.boundTo(deviceId) =>
+      SyncHold.notRegistered,
+    RegisteredAwaitingTenant() => SyncHold.tenantNotKnown,
+    RegisteredIdentity() => null,
   };
 
   /// Re-reads the binding at a route boundary: null while it is still the
   /// one the round started under, else why the round stops here. Stopping
   /// at a boundary means everything the server already answered was taken in
   /// under the identity it was asked for, and nothing after it is sent.
+  ///
+  /// A device awaiting its tenant reads meta under that same binding (ADR
+  /// 2026-10-10 §1 🔒): its [SyncHold.tenantNotKnown] stops nothing between
+  /// meta pages; the round itself ends before the first push.
   SyncHold? _recheck() {
     final id = identity.currentIdentity();
     final h = _holdFor(id);
+    if (h == SyncHold.tenantNotKnown && id == _bound) return null;
     if (h != null) return _routeHold = h;
     if (id != _bound) return _routeHold = SyncHold.bindingChanged;
     return null;
@@ -479,21 +497,39 @@ final class SyncEngine {
   /// returns at once, [SyncReport.held] saying so, having sent nothing,
   /// verified nothing and signed nothing. A different identity than the last
   /// round's is re-bound before the first request.
+  ///
+  /// Registered with no tenant known (ADR 2026-10-10 §1 🔒) — a further
+  /// device of an existing account — and the round reads meta, from the
+  /// start of the feed, and nothing else: what the whole read showed of this
+  /// user's own memberships goes to [tenantSink], and the round ends before
+  /// any push or pull, [SyncHold.tenantNotKnown] — or
+  /// [SyncHold.bindingChanged] when the sink learned the tenant, so the next
+  /// round runs under it.
   Future<SyncReport> sync() async {
     _offline = false;
     _routeHold = null;
     final id = identity.currentIdentity();
     final h = _holdFor(id);
-    if (h != null) {
+    if (h != null && h != SyncHold.tenantNotKnown) {
       _raiseHold(h);
       return _report(0, 0, 0, 0, 0, false, held: h);
     }
-    final me = id as RegisteredIdentity;
+    final me = id as SignedInIdentity;
     final previous = _bound;
     _bound = me;
-    _lastHold = null;
+    // An awaiting device's hold is one event however many rounds it reads.
+    if (h == null) _lastHold = null;
     await _restore();
     if (previous != null && previous != me) await _rebind(previous, me);
+    final awaiting = me is RegisteredAwaitingTenant;
+    if (awaiting) {
+      // The whole feed, every round: a delta cannot show that a tenant is
+      // the only one.
+      _metaCursor = null;
+      _ownRows = {};
+    } else {
+      _ownRows = null;
+    }
     var pushed = 0;
     var acked = 0;
     var pulled = 0;
@@ -508,13 +544,26 @@ final class SyncEngine {
     final metaOk = await _metaRound();
     if (metaOk == _RouteResult.epochChanged) epochChanged = true;
     if (metaOk == _RouteResult.held) {
+      _ownRows = null;
       return _held(0, 0, 0, 0, 0, epochChanged);
     }
     if (_mode != EngineMode.active) {
+      _ownRows = null;
       return _report(0, 0, 0, 0, 0, epochChanged);
     }
     if (metaOk == _RouteResult.offline) {
+      _ownRows = null;
       return _report(0, 0, 0, 0, 0, epochChanged);
+    }
+    if (awaiting) {
+      // ADR 2026-10-10 §1 🔒: nothing is stamped, pulled or opened under a
+      // tenant this device does not know. Only a read that finished — every
+      // page, no refusal — is handed over.
+      final rows = _ownRows!;
+      _ownRows = null;
+      if (metaOk != _RouteResult.stopped) await _handOver(me, rows);
+      _routeHold = _recheck() ?? SyncHold.tenantNotKnown;
+      return _held(0, 0, 0, 0, 0, epochChanged);
     }
     // 2. Per book: push then pull — each route only while the binding the
     //    round started under still holds.
@@ -661,7 +710,7 @@ final class SyncEngine {
   ///   A wiped engine stays wiped; nothing here resumes one.
   /// - Role, membership and revocation facts are keyed by the ids their
   ///   signed records name, so none of them moves to the new user.
-  Future<void> _rebind(RegisteredIdentity prev, RegisteredIdentity next) async {
+  Future<void> _rebind(SignedInIdentity prev, SignedInIdentity next) async {
     _emit(
       IdentityRebound(
         _now,
@@ -687,6 +736,34 @@ final class SyncEngine {
         return;
       }
     }
+  }
+
+  /// Hands what a complete read showed of [me]'s own memberships to the
+  /// sink (ADR 2026-10-10 §1 🔒): the tenants whose last row says `active`,
+  /// less any tenant where the newest **verified** record of [me]'s
+  /// membership says otherwise — a server row is a claim, a record is the
+  /// fact the client keeps (D-05b-1).
+  Future<void> _handOver(
+    RegisteredAwaitingTenant me,
+    Map<String, String> rows,
+  ) async {
+    final sink = tenantSink;
+    if (sink == null) return;
+    final newest = <String, MembershipFact>{};
+    for (final f in trust.memberships) {
+      if (f.userId != me.userId) continue;
+      final cur = newest[f.tenantId];
+      if (cur == null || f.seq > cur.seq) newest[f.tenantId] = f;
+    }
+    final active = <String>{
+      for (final e in rows.entries)
+        if (e.value == 'active' &&
+            (newest[e.key] == null || newest[e.key]!.status == 'active'))
+          e.key,
+    };
+    await sink.ownMembershipsRead(
+      OwnMemberships(userId: me.userId, activeTenantIds: active),
+    );
   }
 
   Future<void> _restore() async {
@@ -930,6 +1007,13 @@ final class SyncEngine {
             'row differs from record ${fact.recordId}',
           ),
         );
+      }
+    }
+    final own = _ownRows;
+    if (own != null) {
+      // In feed order: a later row for the same tenant is the newer word.
+      for (final row in m.memberships) {
+        if (row.userId == _me.userId) own[row.tenantId] = row.status;
       }
     }
     for (final row in m.memberships) {
@@ -1226,6 +1310,14 @@ final class SyncEngine {
   // ── push (05 §3) ────────────────────────────────────────────────────────
 
   Future<_PushResult> _pushBook(String book) async {
+    // ADR 2026-10-10 §1 🔒: the stamp is reachable only through a known
+    // tenant. `sync` never gets here otherwise; this keeps it so.
+    final me = _bound;
+    if (me is! RegisteredIdentity) {
+      _routeHold ??= SyncHold.tenantNotKnown;
+      return _PushResult(_RouteResult.held, 0, 0);
+    }
+    final tenantId = me.tenantId;
     var pushed = 0;
     var acked = 0;
     var epochChanged = false;
@@ -1252,7 +1344,7 @@ final class SyncEngine {
       final batch = <WireEnvelope>[];
       var bytes = 0;
       for (final r in rows) {
-        final w = await _outboxWire(r);
+        final w = await _outboxWire(r, tenantId);
         if (w == null) continue;
         if (batch.isNotEmpty &&
             (batch.length >= maxN || bytes + w.size > maxBytes)) {
@@ -1451,7 +1543,7 @@ final class SyncEngine {
   /// its `key_version` is stale (05 §3). The header comes from the author's
   /// own mirror row; the blob from the mirror too, so a re-seal is always
   /// computed from the original (the mirror is append-only and keeps `v`).
-  Future<WireEnvelope?> _outboxWire(OutboxData r) async {
+  Future<WireEnvelope?> _outboxWire(OutboxData r, String tenantId) async {
     final row = await (db.select(
       db.envelopesLocal,
     )..where((t) => t.envelopeId.equals(r.envelopeId))).getSingleOrNull();
@@ -1461,7 +1553,7 @@ final class SyncEngine {
       // the pull, so the push waits a round instead of refusing.
       return null;
     }
-    var w = _wireOfRow(row, row.envelopeBlob, row.keyVersion);
+    var w = _wireOfRow(row, row.envelopeBlob, row.keyVersion, tenantId);
     final highest = guard.highestKeyVersion(r.bookId);
     if (highest != null && highest > row.keyVersion) {
       final resealed = guard.reseal(w, toVersion: highest);
@@ -1474,27 +1566,31 @@ final class SyncEngine {
       }
     } else if (!_sameBytes(r.envelopeBlob, row.envelopeBlob)) {
       // Already re-sealed in an earlier round; push that copy.
-      w = _wireOfRow(row, r.envelopeBlob, highest ?? row.keyVersion);
+      w = _wireOfRow(row, r.envelopeBlob, highest ?? row.keyVersion, tenantId);
     }
     return w;
   }
 
-  WireEnvelope _wireOfRow(EnvelopesLocalData row, Uint8List blob, int kv) =>
-      WireEnvelope(
-        envelopeId: row.envelopeId,
-        seq: row.seq,
-        tenantId: _me.tenantId,
-        bookId: row.bookId,
-        objectId: row.objectId,
-        objectType: row.objectType,
-        keyVersion: kv,
-        suiteVersion: suiteVersion,
-        payloadSchema: guard.payloadSchema,
-        authorDevice: row.authorDevice,
-        hlc: row.hlc,
-        blobHash: guard.hash(blob),
-        blob: blob,
-      );
+  WireEnvelope _wireOfRow(
+    EnvelopesLocalData row,
+    Uint8List blob,
+    int kv,
+    String tenantId,
+  ) => WireEnvelope(
+    envelopeId: row.envelopeId,
+    seq: row.seq,
+    tenantId: tenantId,
+    bookId: row.bookId,
+    objectId: row.objectId,
+    objectType: row.objectType,
+    keyVersion: kv,
+    suiteVersion: suiteVersion,
+    payloadSchema: guard.payloadSchema,
+    authorDevice: row.authorDevice,
+    hlc: row.hlc,
+    blobHash: guard.hash(blob),
+    blob: blob,
+  );
 
   // ── pull (05 §4) ────────────────────────────────────────────────────────
 
@@ -1512,6 +1608,12 @@ final class SyncEngine {
       );
 
   Future<_PullResult> _pullBook(String book) async {
+    // ADR 2026-10-10 §1 🔒: no envelope is pulled or opened under a tenant
+    // this device does not know.
+    if (_bound is! RegisteredIdentity) {
+      _routeHold ??= SyncHold.tenantNotKnown;
+      return const _PullResult(_RouteResult.held, 0, 0, 0);
+    }
     var pulled = 0;
     var verified = 0;
     var quarantined = 0;

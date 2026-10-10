@@ -26,7 +26,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:rukka_folio/features/ceremony/ceremony_routes.dart';
 import 'package:rukka_folio/l10n/gen/app_localizations.dart';
 import 'package:rukka_folio/shared/seams/http_transport.dart';
-import 'package:sync_engine/sync_engine.dart' show MetaResponse;
+import 'package:sync_engine/sync_engine.dart'
+    show InstallTenant, KnownTenant, MetaResponse, TenantNotKnownYet;
 
 import '../../shared/test_app.dart';
 
@@ -291,8 +292,8 @@ void main() {
           suite: suite,
           api: api,
           pullMeta: feed.call,
-          tenantId: _tenantId,
-          selfUserId: _selfId,
+          tenantOf: () => const KnownTenant(_tenantId),
+          selfUserIdOf: () => _selfId,
           ownUmk: () => _umk(70),
           verifierName: () => 'Aman',
           memberName: (_) => 'Sunita',
@@ -471,8 +472,8 @@ void main() {
           suite: suite,
           api: relay.api,
           pullMeta: feed.call,
-          tenantId: _tenantId,
-          selfUserId: _selfId,
+          tenantOf: () => const KnownTenant(_tenantId),
+          selfUserIdOf: () => _selfId,
           ownUmk: () => _umk(70),
           verifierName: () => 'Aman',
           memberName: (_) => 'Sunita',
@@ -519,8 +520,8 @@ void main() {
         suite: suite,
         api: relay.api,
         pullMeta: feed.call,
-        tenantId: _tenantId,
-        selfUserId: _selfId,
+        tenantOf: () => const KnownTenant(_tenantId),
+        selfUserIdOf: () => _selfId,
         ownUmk: () => null,
         verifierName: () => 'Aman',
         memberName: (_) => 'Sunita',
@@ -535,6 +536,52 @@ void main() {
       expect(await s.showMyCode(), isNull);
       expect(asked, 0);
     });
+
+    test(
+      'C-1009-1 C-1010-1 desk 184 (b): the factory reads the tenant and '
+      'the user at each opening, never at build — a tenant not known yet '
+      'opens neither side and asks nothing; once it is known the very same '
+      'factory opens S9.2 in it, its QR naming the user as it is then',
+      () async {
+        InstallTenant tenant = const TenantNotKnownYet();
+        var self = '0b1c2d3e-4f50-4617-8829-3a4b5c6d7e8f'; // before a re-mint
+        var asked = 0;
+        final s = buildLiveCeremonySessions(
+          suite: suite,
+          api: relay.api,
+          pullMeta: feed.call,
+          tenantOf: () => tenant,
+          selfUserIdOf: () => self,
+          ownUmk: () => _umk(70),
+          verifierName: () => 'Aman',
+          memberName: (_) => 'Sunita',
+          now: testNow,
+          log: RecordingCeremonyEventLog(),
+          keys: RecordingVerifiedMemberSink(),
+          nonces: () async {
+            asked++;
+            return InviteNonce(bytes: _relayedNonce());
+          },
+          polling: _stall,
+        );
+
+        expect(await s.showMyCode(), isNull);
+        expect(await s.verifyMember(_memberId), isNull);
+        expect(asked, 0, reason: 'no nonce asked for in a tenant not known');
+        expect(relay.commits, isEmpty, reason: 'no session opened');
+        expect(relay.transport.calls, isEmpty);
+        expect(feed.asked, isEmpty, reason: 'no relayed key looked up');
+
+        // The tenant learned and the user re-minted, after the build.
+        tenant = const KnownTenant(_tenantId);
+        self = _selfId;
+        final opening = await s.showMyCode();
+        expect(opening, isA<ShowMyCodeReady>());
+        final code = await (opening! as ShowMyCodeReady).repository.load();
+        expect(QrPayload.decode(code.qrPayload).userId, _selfId);
+        expect(relay.commits.single['tenant_id'], _tenantId);
+      },
+    );
 
     testWidgets('F1-25b-1 S9.2 route: relayed nonce → the code screen; none → '
         'the says-why state with Check again and Close, never the silent '
@@ -589,8 +636,8 @@ void main() {
         suite: suite,
         api: relay.api,
         pullMeta: _Feed([_page(const [])]).call,
-        tenantId: _tenantId,
-        selfUserId: _selfId,
+        tenantOf: () => const KnownTenant(_tenantId),
+        selfUserIdOf: () => _selfId,
         ownUmk: () => _umk(70),
         verifierName: () => 'Aman',
         memberName: (_) => 'Sunita',

@@ -78,6 +78,10 @@ void main() {
   );
 
   /// First run (no PIN yet → open), as bootstrap does it.
+  /// A first launch — ids only (ADR 2026-10-09 §2 🔒) — and then S0.2's key
+  /// step, `mintForRegistration`, which is where the device keys and a new
+  /// account's UMK are minted (desk 184 (c)); nothing key-shaped reaches the
+  /// device-key class before it.
   Future<LocalLedger> firstRun(KeychainKeyStore keys) async {
     expect(await keys.unsealIfNoPin(), isTrue);
     final ledger = LocalLedger(
@@ -87,7 +91,18 @@ void main() {
       now: testNow,
     );
     addTearDown(ledger.dispose);
-    await ledger.bootstrapSolo();
+    final writesBefore = android.native
+        .where((c) => c.method == 'deviceItemWrite')
+        .length;
+    await ledger.openIdentity();
+    expect(
+      android.native.where((c) => c.method == 'deviceItemWrite').length,
+      writesBefore,
+      reason: 'the first run mints ids only — no device key, no UMK',
+    );
+    expect(ledger.keysRegistered, isFalse);
+    await ledger.mintForRegistration();
+    expect(ledger.keysRegistered, isTrue);
     return ledger;
   }
 
@@ -104,8 +119,10 @@ void main() {
       android.native.where((c) => c.method == method).length;
 
   group('ruling 1 — the device keys are never biometric-bound', () {
-    test('C-1006-1 the device keys and the wrapped UMK are minted at the first '
-        'run straight into the hardware-backed class (the app channel — no '
+    test('C-1006-1 the device keys and the wrapped UMK are minted by S0.2\'s '
+        'key step (mintForRegistration, ADR 2026-10-09 §2 — never at the first '
+        'run, which mints ids only) straight into the hardware-backed class '
+        '(the app channel — no '
         'plugin namespace, no biometric option) and are never written again '
         'by an unlock, a gate, an enrolment change or a PIN; the native key '
         'is StrongBox where available with no user-auth binding and no '

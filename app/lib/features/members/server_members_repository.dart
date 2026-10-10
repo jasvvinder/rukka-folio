@@ -46,7 +46,10 @@ import 'dart:typed_data';
 import 'package:sync_engine/sync_engine.dart'
     show
         EnvelopeGuard,
+        InstallTenant,
+        KnownTenant,
         MetaResponse,
+        TenantNotKnownYet,
         RecordVerified,
         WireBookRole,
         WireSignedRecord;
@@ -201,15 +204,20 @@ final class ServerMembersRepository implements MembersRepository {
   /// believed but this device does not know the other person's name.
   ///
   /// The ids are read at use (ADR 2026-10-09 §1 🔒): the composition root
-  /// passes [tenantIdOf] / [userIdOf], which answer the install's ids **now**,
-  /// so a C-04b-3 re-mint or a C-04b-4 adoption is seen at the next call with
-  /// no rebuild. [tenantId] / [userId] fix them instead, for a caller whose
-  /// ids cannot change; one of each pair is required.
+  /// passes [tenantOf] / [userIdOf], which answer the install's ids **now**,
+  /// so a C-04b-3 re-mint, a C-04b-4 adoption or a learned tenant is seen at
+  /// the next call with no rebuild. [tenantId] / [userId] fix them instead,
+  /// for a caller whose ids cannot change; one of each pair is required.
+  ///
+  /// While [tenantOf] answers [TenantNotKnownYet] — a further device that has
+  /// not learned its account's tenant (ADR 2026-10-10 §1 🔒) — every read and
+  /// write throws [MembersTenantNotKnown] before anything is sent: the list
+  /// is *not known yet*, never an empty tenant, and nothing is signed.
   ServerMembersRepository({
     required MembersApi api,
     String? tenantId,
     String? userId,
-    String Function()? tenantIdOf,
+    InstallTenant Function()? tenantOf,
     String Function()? userIdOf,
     required RecordBelief believes,
     required String unknownVerifierName,
@@ -222,7 +230,7 @@ final class ServerMembersRepository implements MembersRepository {
     int maxPages = 50,
     InviteLinkOf? inviteLinkOf,
   }) : _server = api,
-       _tenantIdOf = tenantIdOf ?? _fixed(tenantId, 'tenantId'),
+       _tenantOf = tenantOf ?? _fixedTenant(tenantId),
        _userIdOf = userIdOf ?? _fixed(userId, 'userId'),
        _linkOf = inviteLinkOf ?? ((_) => null),
        _belief = believes,
@@ -257,11 +265,23 @@ final class ServerMembersRepository implements MembersRepository {
     return () => id;
   }
 
-  final String Function() _tenantIdOf;
+  static InstallTenant Function() _fixedTenant(String? id) {
+    if (id == null) throw ArgumentError.notNull('tenantId (or tenantOf)');
+    final known = KnownTenant(id);
+    return () => known;
+  }
+
+  final InstallTenant Function() _tenantOf;
   final String Function() _userIdOf;
 
   /// The tenant this instance shows — the install's, as of this read.
-  String get tenantId => _tenantIdOf();
+  InstallTenant get tenant => _tenantOf();
+
+  /// The tenant id, or [MembersTenantNotKnown] (ADR 2026-10-10 §1 🔒).
+  String get _tenantId => switch (_tenantOf()) {
+    KnownTenant(:final id) => id,
+    TenantNotKnownYet() => throw const MembersTenantNotKnown(),
+  };
 
   /// The signed-in user (06 §1: one number, one human, one account), as of
   /// this read.
@@ -299,6 +319,8 @@ final class ServerMembersRepository implements MembersRepository {
     // beginning of the meta feed rather than resuming a cursor: the cursor
     // is the sync engine's to keep, and a partial page would silently drop
     // people from the list.
+    // ADR 2026-10-10 §1 🔒: not known yet is said, never shown as nobody.
+    if (_tenantOf() is TenantNotKnownYet) throw const MembersTenantNotKnown();
     final pages = <MetaResponse>[];
     String? after;
     for (var i = 0; i < _pageCap; i++) {
@@ -319,7 +341,7 @@ final class ServerMembersRepository implements MembersRepository {
     final believed = <String, WireSignedRecord>{};
     for (final page in pages) {
       for (final r in page.signedRecords) {
-        if (r.tenantId != tenantId) continue;
+        if (r.tenantId != _tenantId) continue;
         if (!_belief(r)) continue;
         believed[r.id] = r;
       }
@@ -336,7 +358,7 @@ final class ServerMembersRepository implements MembersRepository {
     // Books of this tenant (06 §1.1: a role is per book, never global).
     final books = <String, TenantBook>{};
     for (final row in _extraRows(pages, 'books')) {
-      if (row['tenant_id'] != tenantId) continue;
+      if (row['tenant_id'] != _tenantId) continue;
       final id = row['id'] as String?;
       if (id == null) continue;
       books[id] = TenantBook(id: id, name: _bookName(id) ?? '');
@@ -372,7 +394,7 @@ final class ServerMembersRepository implements MembersRepository {
     final members = <Member>[];
     for (final page in pages) {
       for (final m in page.memberships) {
-        if (m.tenantId != tenantId) continue;
+        if (m.tenantId != _tenantId) continue;
         if (m.status == _Status.removed) continue;
         if (members.any((x) => x.id == m.userId)) continue;
         final ceremony = ceremonies[m.userId];
@@ -414,7 +436,7 @@ final class ServerMembersRepository implements MembersRepository {
     // that is the whole point of 06 §7's `invited` state — so the rows come
     // from the `invites` table and are keyed by the invite id.
     for (final row in _extraRows(pages, 'invites')) {
-      if (row['tenant_id'] != tenantId) continue;
+      if (row['tenant_id'] != _tenantId) continue;
       final id = row['id'] as String?;
       final status = row['status'] as String?;
       if (id == null || status == null) continue;
@@ -469,7 +491,7 @@ final class ServerMembersRepository implements MembersRepository {
         <String, ({String verifier, VerificationMethod method, DateTime at})>{};
     final at = <String, DateTime>{};
     for (final row in _extraRows(pages, 'verification_events')) {
-      if (row['tenant_id'] != tenantId) continue;
+      if (row['tenant_id'] != _tenantId) continue;
       if (row['result'] != 'verified') continue;
       final subject = row['subject_user'] as String?;
       final verifier = row['verifier_user'] as String?;
@@ -518,7 +540,7 @@ final class ServerMembersRepository implements MembersRepository {
   ) {
     for (final page in pages) {
       for (final m in page.memberships) {
-        if (m.tenantId != tenantId || m.userId != user) continue;
+        if (m.tenantId != _tenantId || m.userId != user) continue;
         // `source_record_id` rides in the row but not in [WireMembership];
         // the record is found by what it says instead.
         for (final r in believed.values) {
@@ -620,7 +642,7 @@ final class ServerMembersRepository implements MembersRepository {
 
   bool _frozen(List<MetaResponse> pages, DateTime now) {
     for (final row in _extraRows(pages, 'tenant_freezes')) {
-      if (row['tenant_id'] != tenantId) continue;
+      if (row['tenant_id'] != _tenantId) continue;
       if (row['lifted_at'] != null) continue;
       final expires = _msOrNull(row['expires_at']);
       if (expires == null || expires.isAfter(now)) return true;
@@ -686,7 +708,7 @@ final class ServerMembersRepository implements MembersRepository {
     }
     final author = _requireAuthor();
     final record = await author.sign(
-      tenantId: tenantId,
+      tenantId: _tenantId,
       kind: MembersRecordKind.invite,
       // {roles, nonce} — and no identifier of the invitee, because this
       // device cannot compute `invitee_hmac` and a record carrying the number
@@ -778,7 +800,7 @@ final class ServerMembersRepository implements MembersRepository {
   Future<void> _postOne(String kind, Map<String, Object?> payload) async {
     final author = _requireAuthor();
     final record = await author.sign(
-      tenantId: tenantId,
+      tenantId: _tenantId,
       kind: kind,
       payload: payload,
     );

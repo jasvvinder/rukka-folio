@@ -524,6 +524,43 @@ void main() {
     );
 
     testWidgets(
+      'F1-1010-2 held before S0.2 (ADR 2026-10-10 §2 🔒): the engine\'s '
+      'Offline draws no offline chip and the square still draws; once not '
+      'held the quiet chip is back, live (05 §9, 07 §1 rule 7)',
+      (tester) async {
+        const chip =
+            'Offline — your code still works, so they can scan it now.';
+        final (holder, held) = await tester.runAsync(
+          heldPair,
+        ) as (KeyStoreRecoveryCandidate, Uint8List);
+        final sync = FakeSyncClient(initial: const Offline(), held: true);
+        await pumpRk(
+          tester,
+          RecoveryShowMyCodeScreen(
+            key: const ValueKey('held'),
+            myCode: myCode(holder, () => candidate(held)),
+            encode: _Encoder().call,
+          ),
+          sync: sync,
+          viewport: rkTallViewport,
+        );
+        await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+        await tester.pumpAndSettle();
+        expect(find.byType(RkQrView), findsOneWidget);
+        expect(find.text(chip), findsNothing);
+
+        sync.held = false;
+        await tester.pumpAndSettle();
+        expect(find.byType(RkQrView), findsOneWidget);
+        expect(find.text(chip), findsOneWidget);
+
+        sync.held = true;
+        await tester.pumpAndSettle();
+        expect(find.text(chip), findsNothing);
+      },
+    );
+
+    testWidgets(
       'F1-13c-7 every state resolves in EN, PA and HI and fits at 200 % on '
       '360×800 and 375×667',
       (tester) async {

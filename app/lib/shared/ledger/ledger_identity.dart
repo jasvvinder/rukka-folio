@@ -14,11 +14,15 @@
 // never rewritten — with one exception, a provisional identity re-minted on
 // `409 user_id_taken` before anything was authored under it (ADR 2026-10-04b
 // §2): [LedgerIdentity.decode] ignores fields it does not know
-// rather than dropping them on a re-encode (rule 6).
+// rather than dropping them on a re-encode (rule 6) — and with one more, a
+// further device's tenant: unknown when it adopts an existing account, and
+// written once when it is learned from that account (ADR 2026-10-10 §1 🔒).
 import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:core_crypto/core_crypto.dart' show Uuid16;
+import 'package:sync_engine/sync_engine.dart'
+    show InstallTenant, KnownTenant, TenantNotKnownYet;
 
 import '../seams/key_store.dart';
 
@@ -150,14 +154,35 @@ final class IdentityState {
   }
 }
 
+/// The install's tenant is not known yet (ADR 2026-10-10 §1 🔒): a further
+/// device of an existing account learns its tenant from that account once it
+/// is certified, and authors nothing that would carry one before then — no
+/// book, no envelope. Thrown before any write.
+final class LedgerTenantNotKnown implements Exception {
+  /// Creates the refusal.
+  const LedgerTenantNotKnown();
+
+  @override
+  String toString() =>
+      'LedgerTenantNotKnown: this device has not learned its tenant yet';
+}
+
 /// Who this install is: the ids every envelope is stamped with (04 §4).
 final class LedgerIdentity {
-  /// Creates the identity.
+  /// Creates the identity of an install that holds its tenant.
   const LedgerIdentity({
     required this.deviceId,
     required this.userId,
-    required this.tenantId,
-  });
+    required String tenantId,
+  }) : _tenantId = tenantId; // ignore: prefer_initializing_formals
+
+  /// A further device of an existing account (ADR 2026-10-04b §3) whose
+  /// tenant is not known yet (ADR 2026-10-10 §1 🔒): it discarded its
+  /// provisional tenant, mints none, and learns its account's.
+  const LedgerIdentity.tenantNotKnown({
+    required this.deviceId,
+    required this.userId,
+  }) : _tenantId = null;
 
   /// `author_device_id` — canonical uuid (04 §3.3). Minted once, at first
   /// run, by the ledger (ADR 2026-09-16 §1).
@@ -166,8 +191,19 @@ final class LedgerIdentity {
   /// `created_by_user` — canonical uuid.
   final String userId;
 
-  /// `tenant_id` in every AAD (04 §4).
-  final String tenantId;
+  final String? _tenantId;
+
+  /// `tenant_id` in every AAD (04 §4) — or, on a further device that has
+  /// not learned it yet, [TenantNotKnownYet] (ADR 2026-10-10 §1 🔒). Typed,
+  /// so a reader reaches an id only by matching [KnownTenant].
+  InstallTenant get tenant => switch (_tenantId) {
+    final String id => KnownTenant(id),
+    null => const TenantNotKnownYet(),
+  };
+
+  /// The marker an identity whose tenant is not known is stored with. An
+  /// absent `tenant_id` alone is not enough: it reads as no record at all.
+  static const _tenantNotKnown = 'not_known';
 
   /// The stored form: UTF-8 JSON with the suite version the keys were made
   /// under (04 §2 — every stored artefact carries it).
@@ -176,15 +212,20 @@ final class LedgerIdentity {
       jsonEncode({
         'device_id': deviceId,
         'user_id': userId,
-        'tenant_id': tenantId,
+        if (_tenantId != null)
+          'tenant_id': _tenantId
+        else
+          'tenant': _tenantNotKnown,
         'suite_version': suiteVersion,
       }),
     ),
   );
 
   /// Parses a stored record. Null when the bytes are not the record: not
-  /// JSON, not an object, or any of the three ids missing or not a canonical
-  /// uuid. Unknown fields are ignored, never an error.
+  /// JSON, not an object, the device or user id missing or not a canonical
+  /// uuid, or a tenant that is neither a canonical uuid nor the explicit
+  /// *not known* marker (ADR 2026-10-10 §1 🔒). Unknown fields are ignored,
+  /// never an error.
   static LedgerIdentity? decode(Uint8List bytes) {
     final Object? j;
     try {
@@ -194,12 +235,12 @@ final class LedgerIdentity {
     }
     if (j is! Map) return null;
     final device = j['device_id'], user = j['user_id'], tenant = j['tenant_id'];
-    if (device is! String || user is! String || tenant is! String) return null;
-    if (!Uuid16.isCanonical(device) ||
-        !Uuid16.isCanonical(user) ||
-        !Uuid16.isCanonical(tenant)) {
-      return null;
+    if (device is! String || user is! String) return null;
+    if (!Uuid16.isCanonical(device) || !Uuid16.isCanonical(user)) return null;
+    if (tenant == null && j['tenant'] == _tenantNotKnown) {
+      return LedgerIdentity.tenantNotKnown(deviceId: device, userId: user);
     }
+    if (tenant is! String || !Uuid16.isCanonical(tenant)) return null;
     return LedgerIdentity(deviceId: device, userId: user, tenantId: tenant);
   }
 }

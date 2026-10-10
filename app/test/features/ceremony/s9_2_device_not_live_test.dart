@@ -38,7 +38,7 @@ import 'package:rukka_folio/l10n/gen/app_localizations.dart';
 import 'package:rukka_folio/shared/prefs.dart';
 import 'package:rukka_folio/shared/seams/http_transport.dart';
 import 'package:rukka_folio/shared/theme.dart';
-import 'package:sync_engine/sync_engine.dart' show MetaResponse;
+import 'package:sync_engine/sync_engine.dart' show KnownTenant, MetaResponse;
 
 import '../../shared/test_app.dart';
 
@@ -170,8 +170,8 @@ void main() {
           'has_more': false,
           'umk_public_keys': const <Object?>[],
         }),
-        tenantId: _tenantId,
-        selfUserId: _selfId,
+        tenantOf: () => const KnownTenant(_tenantId),
+        selfUserIdOf: () => _selfId,
         ownUmk: () => _umk(70),
         verifierName: () => 'Aman',
         memberName: (_) => 'Sunita',

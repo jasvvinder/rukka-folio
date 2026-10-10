@@ -50,8 +50,6 @@
   "@devices.stolen.consequence.removed": {"description": "04 §9.2: wrapped UMK + sessions deleted, best-effort remote wipe.", "placeholders": {"name": {"type": "String"}}},
   "devices.stolen.consequence.book_keys": "Every book you can read gets a new key. Everyone in those books receives it automatically.",
   "@devices.stolen.consequence.book_keys": {"description": "04 §9.2: BK rotation for every book the user can read."},
-  "devices.stolen.consequence.master_key": "Your master key is replaced too. Your trusted members get new shares and your old recovery sheet stops working — print a new one after this.",
-  "@devices.stolen.consequence.master_key": {"description": "04 §9.2 recommended UMK rotation → §7.3/§7.4 redistribution; the old sheet is invalid (07 §15)."},
   "devices.stolen.consequence.cutoff": "Entries made from that phone before now stay in the books; anything it sends after this is set aside.",
   "@devices.stolen.consequence.cutoff": {"description": "04 §9.2 cut-off at the revocation record's seq; later envelopes quarantined."},
   "devices.stolen.confirm": "Yes, it was stolen",

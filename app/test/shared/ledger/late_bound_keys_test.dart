@@ -38,6 +38,7 @@ import 'package:sync_engine/sync_engine.dart' as eng;
 
 import '../../features/devices/keystore_emulator.dart';
 import '../test_app.dart';
+import 'tenant_of.dart';
 
 const _existingUser = '1f2e3d4c-5b6a-4978-8695-a4b3c2d1e0f9';
 
@@ -230,9 +231,12 @@ void main() {
       final material = l.binding.currentKeys();
       expect(material, isA<eng.DeviceKeyMaterial>());
       expect((material as eng.DeviceKeyMaterial).umk, isNull);
+      // ADR 2026-10-10 §1 🔒 (C-1010-1): registered under the account's user,
+      // with no tenant until it is learned — never a RegisteredIdentity
+      // carrying a placeholder id.
       expect(
         l.binding.currentIdentity(),
-        isA<eng.RegisteredIdentity>().having(
+        isA<eng.RegisteredAwaitingTenant>().having(
           (r) => r.userId,
           'userId',
           _existingUser,
@@ -396,7 +400,10 @@ void main() {
       expect(l.identity.userId, _existingUser);
       expect(l.binding.userId.value, _existingUser);
       expect(l.identity.deviceId, old.deviceId);
-      expect(l.identity.tenantId, isNot(old.tenantId));
+      // ADR 2026-10-10 §1 🔒: the provisional tenant is discarded and none
+      // replaces it — not a placeholder, not a mint (C-1010-1).
+      expect(l.identity.tenant, const TenantNotKnownYet());
+      expect(old.tenant, isA<KnownTenant>());
       expect(l.identityConfirmed, isFalse);
       await expectLater(
         l.createBook(name: 'Me', type: BookType.personal),

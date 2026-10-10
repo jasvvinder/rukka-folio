@@ -82,7 +82,7 @@ void main() {
     );
 
     testWidgets(
-      'F1-06-9 Remove opens a confirm sheet and revokes through the repository; the stolen path states the four 04 §9.2 consequences before confirm and passes stolen: true',
+      'F1-06-9 Remove opens a confirm sheet and revokes through the repository; the stolen path states the 04 §9.2 consequences it can keep (three; UMK rotation is only recommended and unbuilt) before confirm and passes stolen: true',
       (tester) async {
         final repo = FakeDevicesRepository(
           initial: DevicesSnapshot(devices: [_thisPhone, _other]),
@@ -99,10 +99,8 @@ void main() {
           find.textContaining('Every book you can read gets a new key'),
           findsOneWidget,
         );
-        expect(
-          find.textContaining('Your master key is replaced too'),
-          findsOneWidget,
-        );
+        // ADR 2026-10-10 Open (desk 189): no master-key promise — UMK rotation has no write path.
+        expect(find.textContaining('master key'), findsNothing);
         expect(
           find.textContaining('anything it sends after this is set aside'),
           findsOneWidget,
@@ -116,6 +114,22 @@ void main() {
         await tester.tap(find.text('Remove phone'));
         await tester.pumpAndSettle();
         expect(repo.revoked, [(id: 'd-2', stolen: false)]);
+        expect(find.text('Papa’s phone'), findsNothing);
+        expect(find.text('Only this phone is linked.'), findsOneWidget);
+
+        // The stolen path, confirmed: the repository must see stolen: true.
+        final stolenRepo = FakeDevicesRepository(
+          initial: DevicesSnapshot(devices: [_thisPhone, _other]),
+        );
+        await pumpRk(
+          tester,
+          _scoped(stolenRepo, DevicesScreen(key: UniqueKey())),
+        );
+        await tester.tap(find.text('This phone was stolen'));
+        await tester.pumpAndSettle();
+        await tester.tap(find.text('Yes, it was stolen'));
+        await tester.pumpAndSettle();
+        expect(stolenRepo.revoked, [(id: 'd-2', stolen: true)]);
         expect(find.text('Papa’s phone'), findsNothing);
         expect(find.text('Only this phone is linked.'), findsOneWidget);
       },

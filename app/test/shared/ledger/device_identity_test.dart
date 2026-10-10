@@ -18,6 +18,7 @@ import 'package:rukka_folio/shared/seams/auth_client.dart';
 import 'package:rukka_folio/shared/seams/key_store.dart';
 
 import '../test_app.dart';
+import 'tenant_of.dart';
 
 /// A server that follows ADR 2026-09-16 §2: it records the `device_id` the
 /// client sends and echoes it. Everything else is the minimum happy path.

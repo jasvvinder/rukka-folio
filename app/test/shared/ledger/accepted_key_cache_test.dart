@@ -16,6 +16,7 @@ import 'package:rukka_folio/shared/seams/key_store.dart';
 import 'package:sync_engine/sync_engine.dart' as eng;
 
 import '../test_app.dart';
+import 'tenant_of.dart';
 
 /// The `wrapped_keys` row a member's device would pull for [bk]: sealed to
 /// [l]'s own ceremony-verified UMK, which is the only fingerprint this

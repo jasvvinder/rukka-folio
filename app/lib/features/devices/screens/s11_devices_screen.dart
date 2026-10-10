@@ -128,7 +128,8 @@ class _DevicesScreenState extends State<DevicesScreen> {
         lines: [
           l10n.devicesStolenConsequenceRemoved(d.name),
           l10n.devicesStolenConsequenceBookKeys,
-          l10n.devicesStolenConsequenceMasterKey,
+          // No master-key line: 04 §9.2 only *recommends* UMK rotation, which has no write path and
+          // `0031_umk_single_root` refuses (ADR 2026-10-10 Open; copy honesty, ADR 2026-09-05f §G).
           l10n.devicesStolenConsequenceCutoff,
         ],
         confirm: l10n.devicesStolenConfirm,

@@ -14,6 +14,7 @@ import 'package:rukka_folio/shared/ledger/local_ledger.dart';
 import 'package:rukka_folio/shared/seams/key_store.dart';
 
 import '../test_app.dart';
+import 'tenant_of.dart';
 
 Future<int> envelopeCount(LocalLedger l) async =>
     (await l.db.select(l.db.envelopesLocal).get()).length;

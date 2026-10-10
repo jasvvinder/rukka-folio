@@ -69,6 +69,7 @@ import 'dart:typed_data';
 import 'package:core_crypto/core_crypto.dart'
     show CryptoSuite, UmkPublic, VerificationMethod;
 import 'package:flutter/foundation.dart' show immutable;
+import 'package:sync_engine/sync_engine.dart' show InstallTenant, KnownTenant;
 
 import '../../shared/ledger/verified_members.dart' show VerifiedMemberSink;
 import '../members/members_repository.dart' show MembersFailure, MembersRefusal;
@@ -302,8 +303,8 @@ final class LiveCeremonySessions implements CeremonySessions {
   LiveCeremonySessions({
     required this.suite,
     required this.api,
-    required this.tenantId,
-    required this.selfUserId,
+    required this.tenantOf,
+    required this.selfUserIdOf,
     required this.ownUmk,
     this.nonces,
     required this.verifierName,
@@ -325,11 +326,15 @@ final class LiveCeremonySessions implements CeremonySessions {
   final CeremonyApi api;
 
   /// The tenant whose ceremony this is — migration 0007 keys a session by
-  /// `(tenant_id, subject_user)`.
-  final String tenantId;
+  /// `(tenant_id, subject_user)` — read at each opening, never captured (ADR
+  /// 2026-10-09 §1 🔒), so a re-mint or a learned tenant is used at once.
+  /// While it is [TenantNotKnownYet] (a further device, ADR 2026-10-10 §1
+  /// 🔒) neither side opens: no session is looked up or opened in a tenant
+  /// this device does not know.
+  final InstallTenant Function() tenantOf;
 
-  /// This install's own user.
-  final String selfUserId;
+  /// This install's own user, read at each opening.
+  final String Function() selfUserIdOf;
 
   /// This install's own UMK public halves, or null before the ledger is open.
   /// A callback, not a field, so a closed ledger is never held here.
@@ -377,6 +382,7 @@ final class LiveCeremonySessions implements CeremonySessions {
     final umk = ownUmk();
     final nonces = this.nonces;
     if (umk == null || nonces == null) return null;
+    if (tenantOf() is! KnownTenant) return null;
     // ADR 2026-09-25b §3: the relayed nonce, or the says-why state. Read once
     // per opening, before any session exists, so a device without one never
     // opens a 0007 session it could not put in a QR.
@@ -390,16 +396,19 @@ final class LiveCeremonySessions implements CeremonySessions {
       return const ShowMyCodeNoInviteNonce();
     }
     if (nonce == null) return const ShowMyCodeNoInviteNonce();
+    // Read after the nonce: the ids as they are when the session opens.
+    final tenant = tenantOf();
+    if (tenant is! KnownTenant) return null;
     return ShowMyCodeReady(
       CryptoShowMyCodeRepository(
         suite: suite,
-        userId: selfUserId,
+        userId: selfUserIdOf(),
         umk: umk,
         // §4: Regenerate keeps this nonce and opens a fresh session.
         nonces: fixedInviteNonceSource(nonce),
         relay: ServerShowerSessionRelay(
           api: api,
-          tenantId: tenantId,
+          tenantId: tenant.id,
           now: now,
           polling: polling,
         ),
@@ -413,7 +422,8 @@ final class LiveCeremonySessions implements CeremonySessions {
     // 0007 refuses `self_verification` in the database. Refusing it here too
     // means the screen never opens a session that cannot exist — and a device
     // can never be talked into comparing its own key with itself.
-    if (subjectUserId.isEmpty || subjectUserId == selfUserId) return null;
+    if (subjectUserId.isEmpty || subjectUserId == selfUserIdOf()) return null;
+    if (tenantOf() is! KnownTenant) return null;
     final UmkPublic relayed;
     switch (await relayedUmk(subjectUserId)) {
       case null:
@@ -459,13 +469,17 @@ Future<String?> noLiveCeremonySession(String subjectUserId) async => null;
 
 /// A [CeremonySessionLookup] over `GET sync-meta/ceremony?subject_user_id=…
 /// &tenant_id=…` (04 §6.4 *delegated*): the newest unexpired session for the
-/// subject in [tenantId], or null — `no_live_session`, offline, or a refusal.
-/// A session that belongs to anyone but the subject asked for is not theirs,
-/// and is refused rather than trusted.
+/// subject in the tenant [tenantOf] answers at the lookup, or null —
+/// `no_live_session`, offline, a refusal, or a tenant not known yet (ADR
+/// 2026-10-10 §1 🔒, nothing is asked). A session that belongs to anyone but
+/// the subject asked for is not theirs, and is refused rather than trusted.
 CeremonySessionLookup liveCeremonySessionOver(
   CeremonyApi api, {
-  required String tenantId,
+  required InstallTenant Function() tenantOf,
 }) => (subjectUserId) async {
+  final tenant = tenantOf();
+  if (tenant is! KnownTenant) return null;
+  final tenantId = tenant.id;
   try {
     final s = await api.liveSessionFor(
       tenantId: tenantId,
@@ -500,6 +514,12 @@ CeremonySessionLookup liveCeremonySessionOver(
 ///   • the live session is looked up by subject and tenant over [api]
 ///     ([liveCeremonySessionOver]).
 ///
+///   • the ids are read at each opening, never captured (ADR 2026-10-09 §1
+///     🔒, desk 184 (b)): [tenantOf] and [selfUserIdOf] answer the install's
+///     ids **now**, so a C-04b-3 re-mint or a learned tenant (ADR 2026-10-10
+///     §1 🔒) reaches S9.2/S9.3 with no rebuild, and a tenant not known yet
+///     opens neither side;
+///
 ///   • the invite nonce is [nonces] — in production
 ///     [relayedInviteNonceOver] the members feature's `InviteNonceRelay`
 ///     (ADR 2026-09-25b §3, pinned by F1-25b-1). Left null it keeps S9.2 on
@@ -508,8 +528,8 @@ LiveCeremonySessions buildLiveCeremonySessions({
   required CryptoSuite suite,
   required CeremonyApi api,
   required MetaPageReader pullMeta,
-  required String tenantId,
-  required String selfUserId,
+  required InstallTenant Function() tenantOf,
+  required String Function() selfUserIdOf,
   required UmkPublic? Function() ownUmk,
   required String Function() verifierName,
   required CeremonyMemberName memberName,
@@ -521,8 +541,8 @@ LiveCeremonySessions buildLiveCeremonySessions({
 }) => LiveCeremonySessions(
   suite: suite,
   api: api,
-  tenantId: tenantId,
-  selfUserId: selfUserId,
+  tenantOf: tenantOf,
+  selfUserIdOf: selfUserIdOf,
   ownUmk: ownUmk,
   nonces: nonces,
   verifierName: verifierName,
@@ -531,7 +551,7 @@ LiveCeremonySessions buildLiveCeremonySessions({
   log: log,
   keys: keys,
   relayedUmk: MetaRelayedUmkSource(pullMeta).call,
-  liveSessionOf: liveCeremonySessionOver(api, tenantId: tenantId),
+  liveSessionOf: liveCeremonySessionOver(api, tenantOf: tenantOf),
   polling: polling,
 );
 

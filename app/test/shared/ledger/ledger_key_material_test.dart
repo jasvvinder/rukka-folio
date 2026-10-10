@@ -13,6 +13,7 @@ import 'package:rukka_folio/shared/ledger/local_ledger.dart';
 import 'package:sync_engine/sync_engine.dart' as eng;
 
 import '../test_app.dart';
+import 'tenant_of.dart';
 
 void main() {
   group('LedgerKeyMaterial (04 §3.4, §8.2 · 05 §1, §5)', () {

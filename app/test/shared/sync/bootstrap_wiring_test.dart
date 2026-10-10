@@ -35,6 +35,7 @@ import 'package:sync_engine/sync_engine.dart' as eng;
 
 import '../test_app.dart' show openTestDb, testNow;
 import 'guardian_test_keys.dart';
+import '../ledger/tenant_of.dart';
 
 /// Synthetic tenant id (rule 4) — canonical, as `parseGuardianDraft` takes
 /// nothing else.
@@ -221,7 +222,7 @@ void main() {
         // The root's own builder — the line under test.
         roster: () async => guardianRosterOf(
           snapshot,
-          tenantId: _tenant,
+          tenant: const eng.KnownTenant(_tenant),
           nameOf: (_) => 'Member',
         ),
         verified: eng.MapUmkSource({
@@ -241,14 +242,14 @@ void main() {
     });
 
     test('the root reads S11.1’s roster through that builder, in '
-        'identity.tenantId, and builds no roster of its own', () {
+        'identity.tenant, and builds no roster of its own', () {
       final root = _bootstrapCode();
       expect(root, contains('Future<void> bootstrap() async {'));
       expect(
         RegExp(
           r'ServerGuardians\([^;]*roster:\s*\(\)\s*async\s*=>\s*'
           r'guardianRosterOf\(\s*members\.current\s*,\s*'
-          r'tenantId:\s*identity\.tenantId\b',
+          r'tenant:\s*identity\.tenant\.value\b',
         ).hasMatch(root),
         isTrue,
         reason:
@@ -593,11 +594,16 @@ void main() {
     });
   });
 
-  group('C-04b-3 a re-mint rebuilds the composition root (review finding '
-      'ID107C-3)', () {
+  // Desk 184 (b), ADR 2026-10-09 §1 🔒: since the ceremony builder reads the
+  // ids late, a C-04b-3 re-mint needs no rebuild — every part of the root
+  // sees the new ids at its next use. RootRelaunch stays for a recovered UMK
+  // (rung 3, ADR 2026-10-06d §2), whose replaced key only a rebuild's
+  // `ledger.dispose()` zeroises (review finding ID107C-3).
+  group('C-04b-3 a re-mint needs no rebuild; a recovered UMK still rebuilds '
+      'the composition root (review finding ID107C-3, desk 184 (b))', () {
     test('RootRelaunch fires once, on the first return to the foreground '
-        'after a re-mint, and only when the re-minted identity is confirmed '
-        'with a live session', () {
+        'after it is armed, and only when the identity is confirmed with a '
+        'live session', () {
       TestWidgetsFlutterBinding.ensureInitialized();
       var ready = false;
       var runs = 0;
@@ -611,7 +617,7 @@ void main() {
       expect(runs, 0);
       expect(r.pending, isFalse);
 
-      // Re-minted but S0.2 not finished: wait.
+      // Armed but S0.2 not finished: wait.
       ready = false;
       r.arm();
       expect(r.pending, isTrue);
@@ -638,12 +644,28 @@ void main() {
       expect(runs, 1, reason: 'once per root — the next root has its own');
     });
 
-    test('the root binds it to the ledger before runApp, and its rebuild '
-        'unmounts the screens, then disposes sync, the ledger (zeroising the '
-        'retired UMK) and the database before bootstrapping again', () {
+    test('the root binds it to a recovered UMK — not to a re-mint, which the '
+        'late-bound root (the ceremony builder included) takes without one — '
+        'before runApp, and its rebuild unmounts the screens, then disposes '
+        'sync, the ledger (zeroising the retired UMK) and the database before '
+        'bootstrapping again', () {
       final root = _bootstrapCode();
+      expect(
+        RegExp(r'onIdentityReminted\s*=').hasMatch(root),
+        isFalse,
+        reason: 'a re-mint rebuilds nothing (desk 184 (b))',
+      );
+      expect(
+        RegExp(
+          r'buildLiveCeremonySessions\([^;]*'
+          r'tenantOf:\s*\(\)\s*=>\s*identity\.tenant\.value\s*,\s*'
+          r'selfUserIdOf:\s*\(\)\s*=>\s*identity\.userId\.value\s*,',
+        ).hasMatch(root),
+        isTrue,
+        reason: 'S9.2/S9.3 read the ids at each opening, which is why',
+      );
       final bind = root.indexOf(
-        RegExp(r'ledger\.onIdentityReminted\s*=\s*relaunch\.arm;'),
+        RegExp(r'ledger\.onUmkAdopted\s*=\s*relaunch\.arm;'),
       );
       expect(bind, greaterThan(0));
       final mounted = root.indexOf(

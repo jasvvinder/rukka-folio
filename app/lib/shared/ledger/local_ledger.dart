@@ -41,10 +41,16 @@ import 'package:sync_engine/sync_engine.dart'
         DeviceIdentitySource,
         DeviceKeyMaterial,
         GuardKeys,
+        InstallTenant,
         KeyMaterialSource,
         KeysNotRegisteredYet,
+        KnownTenant,
         NotRegisteredYet,
+        OwnMemberships,
+        RegisteredAwaitingTenant,
         RegisteredIdentity,
+        TenantLearningSink,
+        TenantNotKnownYet,
         VerifiedUmkSource;
 
 import '../seams/auth_client.dart'
@@ -58,11 +64,16 @@ import 'verified_members.dart';
 export '../seams/review_policy.dart' show ReviewPolicy, noReviewPolicy;
 export 'device_certification.dart'
     show DeviceCertOffer, DeviceCertifier, umkKeyVersionFirst;
+
+export 'package:sync_engine/sync_engine.dart'
+    show InstallTenant, KnownTenant, OwnMemberships, TenantNotKnownYet;
+
 export 'ledger_identity.dart'
     show
         DeviceKeysState,
         IdentityState,
         LedgerIdentity,
+        LedgerTenantNotKnown,
         LocalLedgerKeys,
         readStoredIdentity;
 export 'verified_members.dart'
@@ -1363,16 +1374,17 @@ final class _BindingChanges extends ChangeNotifier {
 }
 
 /// One of the install's ids, read from the ledger at every [value] — never
-/// a copy — and announced when a mint, re-mint or adoption changes it.
-final class _LiveId implements ValueListenable<String> {
+/// a copy — and announced when a mint, re-mint, adoption or a learned
+/// tenant changes it.
+final class _LiveId<T> implements ValueListenable<T> {
   const _LiveId(this._ledger, this._read);
 
   final LocalLedger _ledger;
-  final String Function(LedgerIdentity id) _read;
+  final T Function(LedgerIdentity id) _read;
 
   /// The id now. Throws [LedgerNotOpen] once the ledger is disposed.
   @override
-  String get value => _read(_ledger.identity);
+  T get value => _read(_ledger.identity);
 
   @override
   void addListener(VoidCallback listener) =>
@@ -1391,10 +1403,13 @@ final class _LiveId implements ValueListenable<String> {
 ///   answers [NotRegisteredYet] / [KeysNotRegisteredYet] until S0.2's mint
 ///   ([LocalLedger.mintForRegistration]) — an explicit answer, never a null
 ///   or zero key — and the live ids and material after it. It is checked
-///   before any key is touched, and read inside each call, never once.
-/// * [userId], [tenantId] and [deviceId] are the ids **now**, with a change
+///   before any key is touched, and read inside each call, never once. A
+///   further device whose tenant is not known yet (ADR 2026-10-10 §1 🔒) is
+///   [RegisteredAwaitingTenant]: the engine reads meta to learn it, and
+///   stamps, pulls and opens nothing.
+/// * [userId], [tenant] and [deviceId] are the ids **now**, with a change
 ///   signal, for the holders that are not in `sync_engine` (the members
-///   repository, S11.1's roster, S11's guardians row).
+///   repository, S11.1's roster, S11's guardians row, the ceremony).
 ///
 /// Borrowed, like [LedgerKeyMaterial]: it holds the ledger, not a copy of
 /// any secret byte, so [LocalLedger.dispose] zeroises what a reader would
@@ -1402,7 +1417,7 @@ final class _LiveId implements ValueListenable<String> {
 final class LedgerBinding implements DeviceIdentitySource, KeyMaterialSource {
   LedgerBinding._(this._ledger)
     : userId = _LiveId(_ledger, (id) => id.userId),
-      tenantId = _LiveId(_ledger, (id) => id.tenantId),
+      tenant = _LiveId(_ledger, (id) => id.tenant),
       deviceId = _LiveId(_ledger, (id) => id.deviceId);
 
   final LocalLedger _ledger;
@@ -1411,8 +1426,10 @@ final class LedgerBinding implements DeviceIdentitySource, KeyMaterialSource {
   /// revocations).
   final ValueListenable<String> userId;
 
-  /// This install's tenant id now.
-  final ValueListenable<String> tenantId;
+  /// This install's tenant now — [TenantNotKnownYet] on a further device
+  /// until it learns its account's (ADR 2026-10-10 §1 🔒). Typed: a reader
+  /// reaches an id only by matching [KnownTenant].
+  final ValueListenable<InstallTenant> tenant;
 
   /// This install's device id (minted once, ADR 2026-09-16 §1).
   final ValueListenable<String> deviceId;
@@ -1429,11 +1446,17 @@ final class LedgerBinding implements DeviceIdentitySource, KeyMaterialSource {
   DeviceIdentity currentIdentity() {
     final id = _ledger._identity;
     if (id == null || _ledger._device == null) return const NotRegisteredYet();
-    return RegisteredIdentity(
-      deviceId: id.deviceId,
-      userId: id.userId,
-      tenantId: id.tenantId,
-    );
+    return switch (id.tenant) {
+      KnownTenant(id: final tenantId) => RegisteredIdentity(
+        deviceId: id.deviceId,
+        userId: id.userId,
+        tenantId: tenantId,
+      ),
+      TenantNotKnownYet() => RegisteredAwaitingTenant(
+        deviceId: id.deviceId,
+        userId: id.userId,
+      ),
+    };
   }
 
   @override
@@ -2054,7 +2077,12 @@ StructuralEvent? decodeStructuralEvent(
 
 /// The local ledger.
 final class LocalLedger
-    implements DeviceCertifier, AcceptedKeySink, SignupIdentity, DeviceKeyMint {
+    implements
+        DeviceCertifier,
+        AcceptedKeySink,
+        SignupIdentity,
+        DeviceKeyMint,
+        TenantLearningSink {
   /// Creates the facade. [suite] is the app's libsodium binding wrapped in a
   /// [CryptoSuite]; [now] is the injected wall clock the HLC ticks against.
   LocalLedger({
@@ -2164,9 +2192,8 @@ final class LocalLedger
   /// the tenant id. Everything the composition root built reads [binding]
   /// (ADR 2026-10-09 §1 🔒), which answers the new ids at the next use
   /// ([bindingChanges] fires for holders that keep a reading, such as S11's
-  /// guardians row); the root still rebuilds on it, at the next safe
-  /// foreground, for the ceremony builder, which takes the ids at launch
-  /// (`bootstrap.dart`, review finding KEY168B-2).
+  /// guardians row) — the ceremony builder too, since desk 184 (b), so the
+  /// root no longer rebuilds on it. Kept for a holder that wants to be told.
   void Function()? onIdentityReminted;
 
   /// Called after [adoptRecoveredUmk] has replaced the UMK (rung 3, ADR
@@ -2281,12 +2308,12 @@ final class LocalLedger
   /// ADR 2026-10-04b §3 (C-04b-4): see [SignupIdentity.adoptExistingAccount].
   ///
   /// The device id and any device seeds stay (ADR 2026-09-16 §1: nothing was
-  /// signed under them). The tenant id is re-minted, not kept and not
-  /// guessed. ⚠️ SPEC: §3 says the provisional `tenant_id` is discarded but
-  /// not what replaces it; the account's own tenant reaches this device only
-  /// with its UMK, by link or recovery (04 §9.1, §7), and nothing can be
-  /// authored before then, so a fresh placeholder id is the reading that
-  /// invents nothing (owner item, lane report M13-KEY168B).
+  /// signed under them). The tenant becomes **not known** (ADR 2026-10-10 §1
+  /// 🔒): the provisional one is discarded and none is minted or guessed.
+  /// Every reader of it answers *not known yet* — the sync engine reads meta
+  /// and holds, nothing is filed, published or opened under a tenant — until
+  /// [ownMembershipsRead] learns the account's, once this device is
+  /// certified.
   ///
   /// The identity stays **provisional**: a number typed by mistake can still
   /// be left, and a later `409 user_id_taken` can still re-mint. A later
@@ -2306,7 +2333,7 @@ final class LocalLedger
       throw const IdentityNotProvisional();
     }
     await _replaceProvisionalIds(
-      LedgerIdentity(deviceId: old.deviceId, userId: userId, tenantId: newId()),
+      LedgerIdentity.tenantNotKnown(deviceId: old.deviceId, userId: userId),
       existingAccount: true,
     );
   }
@@ -2341,7 +2368,7 @@ final class LocalLedger
     _existingAccount = existingAccount;
     _existingUmkAdopted = false;
     _keySource.store?.clear();
-    _keySource.store = BookKeyStore(tenantId: identity.tenantId);
+    _keySource.store = _newKeyStore();
     _keySource.tenants.clear();
     await _openVerifiedMembers(identity);
     _identity = identity;
@@ -2805,7 +2832,7 @@ final class LocalLedger
     _identityConfirmed = false;
     _existingAccount = false;
     _existingUmkAdopted = false;
-    _keySource.store = BookKeyStore(tenantId: identity.tenantId);
+    _keySource.store = _newKeyStore();
     await _openVerifiedMembers(identity);
     _identity = identity;
   }
@@ -2951,7 +2978,7 @@ final class LocalLedger
       // 3. Not registered yet: ids only, nothing to load (nothing authored).
       _existingAccount = existing;
       _existingUmkAdopted = false;
-      _keySource.store = BookKeyStore(tenantId: id.tenantId);
+      _keySource.store = _newKeyStore();
       await _openVerifiedMembers(id);
       _applyIdentityState(state);
       _identity = id;
@@ -2976,7 +3003,7 @@ final class LocalLedger
     _umkVerified = umk == null ? null : _selfVerifyUmk(umk, id.userId);
     _existingAccount = existing;
     _existingUmkAdopted = umkAdopted;
-    _keySource.store = BookKeyStore(tenantId: id.tenantId);
+    _keySource.store = _newKeyStore();
     await _openVerifiedMembers(id);
     _applyIdentityState(state);
     _identity = id;
@@ -2989,7 +3016,9 @@ final class LocalLedger
     }
     if (umk != null) {
       for (final row in await db.select(db.keyCache).get()) {
-        _keySource.tenants.putIfAbsent(row.bookId, () => id.tenantId);
+        if (id.tenant case KnownTenant(id: final tenantId)) {
+          _keySource.tenants.putIfAbsent(row.bookId, () => tenantId);
+        }
         final ref = BookKeyRef(bookId: row.bookId, keyVersion: row.keyVersion);
         _keySource.required.put(
           unwrapBookKey(
@@ -3084,7 +3113,7 @@ final class LocalLedger
     final directory = VerifiedMemberDirectory(
       suite: suite,
       records: SignedRecordMirror(db),
-      tenantId: id.tenantId,
+      tenant: id.tenant,
       selfUserId: id.userId,
       // Borrowed, never held: after [dispose] the callback throws rather than
       // hand out a zeroised key. A provisional identity signs no record
@@ -3195,8 +3224,14 @@ final class LocalLedger
           mode: InsertMode.insertOrIgnore,
         );
     // The book's tenant, for the projector's [KeySource]: a book learned
-    // through sync has no `books_p` row until its config envelope opens.
-    _keySource.tenants.putIfAbsent(key.ref.bookId, () => _identity!.tenantId);
+    // through sync has no `books_p` row until its config envelope opens. A
+    // further device that has not learned its tenant files the key and no
+    // tenant (ADR 2026-10-10 §1 🔒): the store answers the tenant once it is
+    // learned, and *unknown* — a `key_wait`, never an envelope opened under
+    // a guess — until then.
+    if (_identity!.tenant case KnownTenant(id: final tenantId)) {
+      _keySource.tenants.putIfAbsent(key.ref.bookId, () => tenantId);
+    }
   }
 
   static WrappedBookKey _decodeWrappedBookKey(BookKeyRef ref, Uint8List blob) =>
@@ -3211,6 +3246,72 @@ final class LocalLedger
 
   void _requireOpen() {
     if (_identity == null) throw const LedgerNotOpen();
+  }
+
+  // ── a further device learns its tenant (ADR 2026-10-10 §1 🔒) ─────────────
+
+  /// The one [BookKeyStore], answering the install's tenant at every use:
+  /// null — `KeyUnavailable`, a `key_wait` — while a further device has not
+  /// learned it, so no envelope is opened under a tenant it does not know.
+  BookKeyStore _newKeyStore() => BookKeyStore.late(
+    tenantOf: () => switch (_identity?.tenant) {
+      KnownTenant(:final id) => id,
+      _ => null,
+    },
+  );
+
+  /// The install's tenant, or [LedgerTenantNotKnown] — the authoring doors'
+  /// refusal, raised before their first write.
+  String _requireKnownTenant() => switch (_identity!.tenant) {
+    KnownTenant(:final id) => id,
+    TenantNotKnownYet() => throw const LedgerTenantNotKnown(),
+  };
+
+  /// `sync_engine`'s [TenantLearningSink]: what one complete meta read showed
+  /// of this user's own active memberships (ADR 2026-10-10 §1 🔒, 05d §2, 06
+  /// §3 step 3). The tenant is learned — written to the identity record, so
+  /// it survives a relaunch, and announced through [bindingChanges], so every
+  /// late-bound reader has it at its next use — only when all hold:
+  ///
+  /// * the tenant is not known yet: a first device's (minted at S0.3, ADR
+  ///   2026-10-04b §4) and a learned one never change;
+  /// * the read was made as this install's own user;
+  /// * this device is certified ([ownDeviceCert]) — the ruling's *once the
+  ///   device is certified*, checked here as well as by the server's RLS, so
+  ///   a row an uncertified device should never have seen teaches it
+  ///   nothing. A certified device's ids can no longer be re-minted or
+  ///   re-adopted, so the identity record written here cannot race one;
+  /// * the account holds **exactly one** active membership. ⚠️ SPEC (ADR
+  ///   2026-10-10 *Open*): with several, which one is the install's is the
+  ///   owner's to rule — the tenant stays unknown and everything stays
+  ///   closed. With none, there is nothing to learn yet.
+  ///
+  /// The id is the server's row (`memberships.tenant_id`), less any tenant a
+  /// verified record contradicts (the engine's [OwnMemberships]). It is not a
+  /// secret, and a wrong one opens nothing: every envelope's AAD binds the
+  /// tenant (04 §5), and the server refuses a push to a tenant this user is
+  /// not an active member of.
+  @override
+  Future<void> ownMembershipsRead(OwnMemberships read) async {
+    final id = _identity;
+    if (id == null || id.tenant is KnownTenant) return;
+    if (read.userId != id.userId || _ownCert == null) return;
+    if (read.activeTenantIds.length != 1) return;
+    final tenantId = read.activeTenantIds.single;
+    if (!Uuid16.isCanonical(tenantId)) return;
+    final learned = LedgerIdentity(
+      deviceId: id.deviceId,
+      userId: id.userId,
+      tenantId: tenantId,
+    );
+    await keys.write(
+      LocalLedgerKeys.identity,
+      learned.encode(suiteVersion: suiteVersion),
+    );
+    if (!identical(_identity, id)) return; // disposed meanwhile
+    _identity = learned;
+    await _verifiedMembers?.learnTenant(tenantId);
+    _bindingChanged();
   }
 
   // ── books and accounts ────────────────────────────────────────────────────
@@ -3237,8 +3338,10 @@ final class LocalLedger
   }) async {
     // ADR 2026-10-04b §2 🔒: the book key, the config envelope and every
     // seeded account are authored under the identity — none while it is
-    // provisional.
+    // provisional, and none before a further device knows its tenant (ADR
+    // 2026-10-10 §1 🔒).
     _requireAuthoring();
+    final tenantId = _requireKnownTenant();
     if (ownerShares.isNotEmpty && ownerShares.length != ownerNames.length) {
       throw ArgumentError.value(
         ownerShares,
@@ -3264,7 +3367,6 @@ final class LocalLedger
         'share weights are whole and positive',
       );
     }
-    final id = _identity!;
     final bookId = newId();
     final bk = BookKey.generate(suite, bookId: bookId, keyVersion: 1);
     final wrapped = wrapBookKey(suite, bk, _umkVerified!);
@@ -3278,7 +3380,7 @@ final class LocalLedger
           ),
         );
     _keySource.required.put(bk);
-    _keySource.tenants[bookId] = id.tenantId;
+    _keySource.tenants[bookId] = tenantId;
 
     // The partner accounts' ids are minted here, before the config is
     // authored, because `book_config.partner_shares` keys the weights to the
@@ -3294,7 +3396,7 @@ final class LocalLedger
     ];
     final config = BookConfig(
       id: bookId,
-      tenantId: id.tenantId,
+      tenantId: tenantId,
       type: type,
       name: name,
       fyStartMonth: fyStartMonth,
@@ -5247,8 +5349,10 @@ final class LocalLedger
     required Hlc hlc,
     required Map<String, Object?> Function(int authorSeq) object,
   }) {
-    // Every envelope passes here (ADR 2026-10-04b §2 🔒).
+    // Every envelope passes here (ADR 2026-10-04b §2 🔒), and none is sealed
+    // under a tenant this device has not learned (ADR 2026-10-10 §1 🔒).
     _requireAuthoring();
+    final tenantId = _requireKnownTenant();
     final id = _identity!;
     final device = _device!;
     final key = _currentKey(bookId);
@@ -5257,7 +5361,7 @@ final class LocalLedger
       final envelopeId = newId();
       final env = EnvelopeBuilder.seal(
         suite,
-        tenantId: id.tenantId,
+        tenantId: tenantId,
         bookId: bookId,
         objectId: objectId,
         objectType: objectType,

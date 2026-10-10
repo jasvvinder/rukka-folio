@@ -11,6 +11,16 @@
 // reader fails closed on it: no push, no pull, no verify, no signing, and a
 // typed [SyncHold] saying why. It is not *keys lost* (03 §5,
 // `DeviceKeysMissing`) and not corruption, and nothing reads it as either.
+//
+// A further device of an existing account (ADR 2026-10-10 §1 🔒) is
+// registered — its device keys exist — but holds no tenant: it never mints
+// one, and learns it from its own account once it is certified and its
+// memberships are readable. Until then its source answers
+// [RegisteredAwaitingTenant] and the engine reads meta only — to learn —
+// and pushes nothing, pulls nothing and opens nothing under a tenant
+// ([SyncHold.tenantNotKnown]). What the read showed goes to a
+// [TenantLearningSink]; the rule that turns it into the install's tenant is
+// the identity owner's, not this package's.
 import 'package:core_crypto/core_crypto.dart' show DeviceKeyPair, UmkKeyPair;
 import 'package:meta/meta.dart';
 
@@ -42,10 +52,23 @@ final class NotRegisteredYet extends DeviceIdentity {
   String toString() => 'NotRegisteredYet';
 }
 
+/// A registered device: its keys exist, so it has a device and a user it is
+/// judged under (its own-device revocation, its own user's role and
+/// removal). Whether it also knows its tenant is which subtype it is.
+sealed class SignedInIdentity extends DeviceIdentity {
+  const SignedInIdentity();
+
+  /// This device.
+  String get deviceId;
+
+  /// This device's user.
+  String get userId;
+}
+
 /// The ids this device pushes, pulls and is judged under (its own-device
 /// revocation, its own user's role and removal, its own envelopes coming
 /// back).
-final class RegisteredIdentity extends DeviceIdentity {
+final class RegisteredIdentity extends SignedInIdentity {
   /// Creates the identity.
   const RegisteredIdentity({
     required this.deviceId,
@@ -54,9 +77,11 @@ final class RegisteredIdentity extends DeviceIdentity {
   });
 
   /// This device.
+  @override
   final String deviceId;
 
   /// This device's user.
+  @override
   final String userId;
 
   /// The tenant the engine syncs.
@@ -74,6 +99,116 @@ final class RegisteredIdentity extends DeviceIdentity {
 
   @override
   String toString() => 'RegisteredIdentity($deviceId)';
+}
+
+/// A registered further device of an existing account whose tenant is not
+/// known yet (ADR 2026-10-10 §1 🔒): it signed in to an account that already
+/// had one, discarded its provisional tenant and minted none. The engine
+/// reads meta under it — that is how the tenant is learned — and holds
+/// everything that would carry a tenant: no push is stamped, no envelope is
+/// pulled or opened ([SyncHold.tenantNotKnown]).
+final class RegisteredAwaitingTenant extends SignedInIdentity {
+  /// Creates the identity.
+  const RegisteredAwaitingTenant({
+    required this.deviceId,
+    required this.userId,
+  });
+
+  @override
+  final String deviceId;
+
+  @override
+  final String userId;
+
+  @override
+  bool operator ==(Object other) =>
+      other is RegisteredAwaitingTenant &&
+      other.deviceId == deviceId &&
+      other.userId == userId;
+
+  @override
+  int get hashCode => Object.hash(deviceId, userId, 0x1010);
+
+  @override
+  String toString() => 'RegisteredAwaitingTenant($deviceId)';
+}
+
+// ── the install's tenant (ADR 2026-10-10 §1 🔒) ────────────────────────────
+
+/// The install's tenant as its holder answers **now**. Typed rather than a
+/// nullable id, so that no reader can pass *unknown* on as if it were an id:
+/// the only way to an id is to match [KnownTenant].
+@immutable
+sealed class InstallTenant {
+  const InstallTenant();
+}
+
+/// The install holds this tenant: a first device minted it at S0.3 (ADR
+/// 2026-10-04b §4), or a further device learned it from its account.
+final class KnownTenant extends InstallTenant {
+  /// Creates the answer.
+  const KnownTenant(this.id);
+
+  /// `tenant_id` — a canonical uuid.
+  final String id;
+
+  @override
+  bool operator ==(Object other) => other is KnownTenant && other.id == id;
+
+  @override
+  int get hashCode => id.hashCode;
+
+  @override
+  String toString() => 'KnownTenant';
+}
+
+/// A further device's tenant before it is learned (ADR 2026-10-10 §1 🔒).
+/// Not a placeholder and not a fresh mint: nothing is stamped, filed,
+/// published or opened under it, and nothing is filtered against it.
+final class TenantNotKnownYet extends InstallTenant {
+  /// The one value.
+  const TenantNotKnownYet();
+
+  @override
+  bool operator ==(Object other) => other is TenantNotKnownYet;
+
+  @override
+  int get hashCode => 0x1010;
+
+  @override
+  String toString() => 'TenantNotKnownYet';
+}
+
+/// What one **complete** meta read showed of this device's own user's
+/// memberships, handed to the identity owner while the install's tenant is
+/// not known (ADR 2026-10-10 §1 🔒). Complete means every page, from the
+/// start of the feed, read under [userId] with the binding unchanged — never
+/// a delta, so a tenant that is merely absent from one page is never
+/// mistaken for the only one.
+@immutable
+final class OwnMemberships {
+  /// Creates the read.
+  const OwnMemberships({required this.userId, required this.activeTenantIds});
+
+  /// The user the read was made as.
+  final String userId;
+
+  /// The tenants of this user's `active` memberships as the server's rows
+  /// state them, less any tenant where a verified record of this user's
+  /// membership says otherwise (the record's value is the one kept, D-05b-1).
+  final Set<String> activeTenantIds;
+
+  @override
+  String toString() => 'OwnMemberships(${activeTenantIds.length} active)';
+}
+
+/// Where the engine hands an [OwnMemberships] read. The rule that turns it
+/// into the install's tenant — exactly one active membership, and only on a
+/// certified device — is the holder's (the app's ledger), not the engine's.
+abstract interface class TenantLearningSink {
+  /// Takes [read]. Called at most once per round, after the meta read and
+  /// before the round ends; the round re-reads its binding afterwards.
+  Future<void> ownMembershipsRead(OwnMemberships read);
 }
 
 /// Where the engine reads its identity — at every round, never once.
@@ -186,7 +321,14 @@ enum SyncHold {
   notRegistered,
 
   /// The identity changed while a round ran (a registration, a C-04b-3
-  /// re-mint). The round stopped at the next route boundary, with every row
-  /// it had already taken in kept; the next round runs under the new ids.
+  /// re-mint, a tenant learned). The round stopped at the next route
+  /// boundary, with every row it had already taken in kept; the next round
+  /// runs under the new ids.
   bindingChanged,
+
+  /// A registered further device whose tenant is not known yet (ADR
+  /// 2026-10-10 §1 🔒, [RegisteredAwaitingTenant]). The round read meta —
+  /// to learn the tenant — and nothing else: no push was stamped, no
+  /// envelope pulled or opened. Not keys lost and not corruption.
+  tenantNotKnown,
 }

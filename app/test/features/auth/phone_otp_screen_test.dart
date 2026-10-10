@@ -180,7 +180,7 @@ void main() {
     );
 
     testWidgets(
-      'F1-06-4 offline: quiet chip, Send disabled with the reason, nothing blocking; rate-limited and unavailable failures read generic',
+      'F1-06-4 offline: a quiet chip and nothing blocking — Send stays live and rests on the auth client\'s own answer, never on sync status (ADR 2026-10-10 §2); rate-limited and unavailable failures read generic',
       (tester) async {
         final sync = FakeSyncClient(initial: const Offline());
         final auth = FakeAuthClient();
@@ -189,18 +189,25 @@ void main() {
           find.text('Offline — you need internet for the code.'),
           findsOneWidget,
         );
+        await tapKeys(tester, _typed);
         expect(
           tester
               .widget<FilledButton>(
                 find.widgetWithText(FilledButton, 'Send code'),
               )
               .onPressed,
-          isNull,
+          isNotNull,
+          reason: 'sync status never disables Send (ADR 2026-10-10 §2)',
         );
-        sync.current = const Synced();
-        await tester.pumpAndSettle();
+        // The tap reaches the auth client while the chip still shows; what
+        // comes back is the auth client's own answer.
         auth.failNext = const AuthFailure(AuthFailureKind.rateLimited);
-        await _enterPhoneAndSend(tester);
+        await tester.tap(find.widgetWithText(FilledButton, 'Send code'));
+        await tester.pumpAndSettle();
+        expect(
+          find.text('Offline — you need internet for the code.'),
+          findsOneWidget,
+        );
         expect(find.byIcon(Icons.error_outline), findsOneWidget);
         expect(
           find.text(

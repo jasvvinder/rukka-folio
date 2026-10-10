@@ -407,9 +407,11 @@ class _Waiting extends StatelessWidget {
     final restore = attempt.restore;
     final done = attempt.state == RecoveryAttemptState.approved;
 
-    return StreamBuilder<SyncStatus>(
-      stream: sync.status,
-      initialData: sync.current,
+    return StreamBuilder<SyncStatus?>(
+      // Null while the engine is held before S0.2: no chip, and nothing
+      // disabled (ADR 2026-10-10 §2 🔒).
+      stream: sync.chipStatus,
+      initialData: sync.chipCurrent,
       builder: (context, ss) {
         final offline = ss.data is Offline;
         return ListView(

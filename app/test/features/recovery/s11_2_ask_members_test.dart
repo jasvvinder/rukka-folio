@@ -312,6 +312,33 @@ void main() {
     );
 
     testWidgets(
+      'F1-1010-2 held before S0.2 (ADR 2026-10-10 §2 🔒): the engine\'s '
+      'Offline draws no offline row and stops nothing; once not held the '
+      'quiet row is back, live (05 §9, 07 §1 rule 7)',
+      (tester) async {
+        final sync = FakeSyncClient(initial: const Offline(), held: true);
+        await pumpRk(
+          tester,
+          AskTrustedMembersScreen(recovery: _seam()),
+          sync: sync,
+          viewport: rkTallViewport,
+        );
+        await _passCeremony(tester);
+        expect(find.textContaining('approvals will show up'), findsNothing);
+        expect(find.text('1 of 2 approvals'), findsOneWidget);
+
+        sync.held = false;
+        await tester.pumpAndSettle();
+        expect(find.textContaining('approvals will show up'), findsOneWidget);
+        expect(find.text('1 of 2 approvals'), findsOneWidget);
+
+        sync.held = true;
+        await tester.pumpAndSettle();
+        expect(find.textContaining('approvals will show up'), findsNothing);
+      },
+    );
+
+    testWidgets(
       'F1-07-297 the screen holds at 130 % and 200 % text on 360×800 and '
       '375×667 in all three languages, with no overflow and no cut word',
       (tester) async {

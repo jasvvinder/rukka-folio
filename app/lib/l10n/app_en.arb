@@ -2901,10 +2901,6 @@
   "@devices.stolen.consequence.cutoff": {
     "description": "04 §9.2 cut-off at the revocation record's seq; later envelopes quarantined."
   },
-  "devices.stolen.consequence.master_key": "Your master key is replaced too. Your trusted members get new shares and your old recovery sheet stops working — print a new one after this.",
-  "@devices.stolen.consequence.master_key": {
-    "description": "04 §9.2 recommended UMK rotation → §7.3/§7.4 redistribution; the old sheet is invalid (07 §15)."
-  },
   "devices.stolen.consequence.removed": "{name} is removed: its sign-in and keys are cancelled, and we try to wipe it from afar.",
   "@devices.stolen.consequence.removed": {
     "description": "04 §9.2: wrapped UMK + sessions deleted, best-effort remote wipe.",

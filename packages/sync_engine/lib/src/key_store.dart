@@ -8,10 +8,21 @@ import 'package:data/data.dart';
 /// Book keys by `(book, version)` plus the book → tenant map.
 final class BookKeyStore implements KeySource {
   /// Creates a store for one tenant.
-  BookKeyStore({required this.tenantId});
+  BookKeyStore({required String tenantId}) : _tenantOf = (() => tenantId);
 
-  /// The tenant every book here belongs to.
-  final String tenantId;
+  /// A store whose tenant is read at every use (ADR 2026-10-10 §1 🔒): a
+  /// further device holds keys before it knows its tenant, and answers
+  /// [tenantIdOf] with null — `KeyUnavailable`, a `key_wait`, never an
+  /// envelope opened under a tenant — until [tenantOf] does.
+  BookKeyStore.late({required String? Function() tenantOf})
+    // ignore: prefer_initializing_formals
+    : _tenantOf = tenantOf;
+
+  final String? Function() _tenantOf;
+
+  /// The tenant every book here belongs to, as of this read; null while the
+  /// install's tenant is not known.
+  String? get tenantId => _tenantOf();
 
   final Map<BookKeyRef, BookKey> _keys = {};
   final Set<String> _books = {};
@@ -45,7 +56,7 @@ final class BookKeyStore implements KeySource {
   BookKey? bookKey(BookKeyRef ref) => _keys[ref];
 
   @override
-  String? tenantIdOf(String bookId) => tenantId;
+  String? tenantIdOf(String bookId) => _tenantOf();
 
   /// Drops every key of [bookId] (membership removed, 05 §5).
   void dropBook(String bookId) {

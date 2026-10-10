@@ -284,6 +284,18 @@ final class CreatedInvite {
   final Uri? link;
 }
 
+/// The install's tenant is not known yet (ADR 2026-10-10 §1 🔒): a further
+/// device of an existing account learns it from that account once it is
+/// certified. Until then the members of *a* tenant cannot be read and
+/// nothing can be signed for one — said with this, never with an empty list.
+final class MembersTenantNotKnown implements Exception {
+  /// Creates the refusal.
+  const MembersTenantNotKnown();
+
+  @override
+  String toString() => 'MembersTenantNotKnown';
+}
+
 /// Why a members call failed. Named, because 07 §1 rule 6 forbids a dead end
 /// and a screen cannot offer the right way out of an unnamed failure — and
 /// because ADR 2026-09-05d §9 🔒 needs [inviteNotForYou] to mean *exactly*

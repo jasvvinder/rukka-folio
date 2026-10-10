@@ -62,7 +62,8 @@ class EngineSyncClient implements SyncClient {
     PeriodicTimerFactory timerFactory = Timer.periodic,
     SyncStatus initial = const Offline(),
   }) : _timerFactory = timerFactory,
-       _current = initial;
+       _current = initial,
+       _heldSeen = engine.hold != null;
 
   /// The engine this client drives.
   final eng.SyncEngine engine;
@@ -79,7 +80,9 @@ class EngineSyncClient implements SyncClient {
   final PeriodicTimerFactory _timerFactory;
 
   final _controller = StreamController<SyncStatus>.broadcast();
+  final _heldController = StreamController<bool>.broadcast();
   SyncStatus _current;
+  bool _heldSeen;
   Timer? _backstop;
   Completer<void>? _cycle;
   bool _again = false;
@@ -95,12 +98,22 @@ class EngineSyncClient implements SyncClient {
   /// popups); this one exists so a test can see a swallowed throw.
   bool get lastCycleFailed => _lastCycleFailed;
 
-  /// Completes when no cycle is in flight. A trigger registers its cycle
-  /// synchronously, so `trigger(); await settled;` is deterministic.
-  Future<void> get settled => _cycle?.future ?? Future<void>.value();
+  /// Completes when no cycle, and no catch-up refresh (see [held]), is in
+  /// flight. A trigger registers its cycle synchronously, so
+  /// `trigger(); await settled;` is deterministic.
+  Future<void> get settled async {
+    await _catchingUp;
+    await _cycle?.future;
+  }
 
+  /// The status as of the last [refresh], read together with [held]: the
+  /// two always come from the same read, so a chip never pairs one hold
+  /// with the status the other produced (see [held]).
   @override
-  SyncStatus get current => _current;
+  SyncStatus get current {
+    _catchUp();
+    return _current;
+  }
 
   /// Book full, read straight off the engine's own quota stop
   /// ([eng.SyncEngine.quotaStoppedBooks]: added on `rejected:quota`, removed
@@ -109,9 +122,50 @@ class EngineSyncClient implements SyncClient {
   @override
   bool isBookFull(String bookId) => engine.quotaStoppedBooks.contains(bookId);
 
+  /// Held *not registered yet* ([eng.SyncEngine.hold], ADR 2026-10-09 §1),
+  /// as of the same [refresh] that produced [current].
+  ///
+  /// The pair is answered together, never a live hold beside a stored
+  /// status: the S0.2 mint registers the identity without running a round,
+  /// and a live `false` beside the `Offline` the held engine reported would
+  /// draw the offline chip for an engine that itself reports `Synced` (ADR
+  /// 2026-10-10 §2 🔒). Instead, a read of [held] or [current] that finds the
+  /// engine's live hold has moved since that refresh starts one at once; it
+  /// brings both across, the status before the unheld flip on
+  /// [heldChanges], so a chip shows nothing until the registered engine's
+  /// own status is in hand.
+  @override
+  bool get held {
+    _catchUp();
+    return _heldSeen;
+  }
+
+  // Any hold (ADR 2026-10-10 §2): not registered before S0.2, or a further device's
+  // tenant not known yet (§1). `hold` never answers `bindingChanged`.
+  bool get _liveHeld => engine.hold != null;
+
+  Future<void>? _catchingUp;
+
+  /// Starts one [refresh] when the engine's live hold differs from the one
+  /// [current] was read with. At most one runs at a time; a failure is
+  /// swallowed like a round's (07 §1.7: no popups) and leaves the last pair.
+  void _catchUp() {
+    if (_disposed || _catchingUp != null || _liveHeld == _heldSeen) return;
+    _catchingUp = refresh()
+        .catchError((Object _) => _lastCycleFailed = true)
+        .whenComplete(() => _catchingUp = null);
+  }
+
+  @override
+  Stream<bool> get heldChanges => Stream<bool>.multi((out) {
+    out.add(held);
+    final sub = _heldController.stream.listen(out.add, onDone: out.close);
+    out.onCancel = sub.cancel;
+  });
+
   @override
   Stream<SyncStatus> get status => Stream<SyncStatus>.multi((out) {
-    out.add(_current);
+    out.add(current);
     final sub = _controller.stream.listen(out.add, onDone: out.close);
     out.onCancel = sub.cancel;
   });
@@ -127,13 +181,25 @@ class EngineSyncClient implements SyncClient {
     });
   }
 
-  /// Recomputes [current] from the engine without running a cycle.
+  /// Recomputes [current] and [held] from the engine without running a
+  /// cycle.
+  ///
+  /// The order keeps a chip from flashing a state it should not show (ADR
+  /// 2026-10-10 §2): becoming held is announced before the status that goes
+  /// with it, and ceasing to be held after it.
   Future<void> refresh() async {
     if (_disposed) return;
     final next = syncStatusFrom(await engine.status(), memberName);
-    if (_disposed || _same(_current, next)) return;
-    _current = next;
-    _controller.add(next);
+    if (_disposed) return;
+    final h = _liveHeld;
+    final flipped = h != _heldSeen;
+    _heldSeen = h;
+    if (flipped && h) _heldController.add(h);
+    if (!_same(_current, next)) {
+      _current = next;
+      _controller.add(next);
+    }
+    if (flipped && !h) _heldController.add(h);
   }
 
   // ── 05 §7 triggers ──────────────────────────────────────────────────────
@@ -213,6 +279,7 @@ class EngineSyncClient implements SyncClient {
     _backstop?.cancel();
     _backstop = null;
     await _controller.close();
+    await _heldController.close();
   }
 
   // The seam's states carry no `==`, and widening it would touch every UI

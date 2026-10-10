@@ -6,10 +6,9 @@
 // and `DeviceRecordAuthor` (with the `device_added` recorder it signs for).
 // Before the keys exist a reader gets an explicit *not registered yet*
 // answer; the S0.2 mint and a C-04b-3 re-mint take effect with no relaunch
-// for every late-bound part. The root still rebuilds, at the next safe
-// foreground, on `onUmkAdopted` (rung 3) and on `onIdentityReminted` — the
-// latter only for the ceremony builder, which takes the ids at launch
-// (review finding KEY168B-2).
+// for every late-bound part — the ceremony builder too since desk 184 (b),
+// so the re-mint arm of review finding KEY168B-2 is gone. The root still
+// rebuilds, at the next safe foreground, on `onUmkAdopted` (rung 3).
 //
 // Behaviour over a real `LocalLedger` (in-memory SQLite, libsodium); the
 // root's own wiring through its source, comments stripped — the reading
@@ -41,6 +40,7 @@ import 'package:sync_engine/sync_engine.dart' as eng;
 import 'package:sync_engine/sync_engine.dart' show MetaResponse;
 
 import '../../shared/test_app.dart';
+import '../../shared/ledger/tenant_of.dart';
 
 /// `lib/bootstrap.dart` with `//` comments stripped, so a pin cannot pass on
 /// prose that merely names the call.
@@ -159,7 +159,7 @@ void main() {
       expect(
         RegExp(
           r'ServerMembersRepository\([^;]*'
-          r'tenantIdOf:\s*\(\)\s*=>\s*identity\.tenantId\.value\s*,\s*'
+          r'tenantOf:\s*\(\)\s*=>\s*identity\.tenant\.value\s*,\s*'
           r'userIdOf:\s*\(\)\s*=>\s*identity\.userId\.value\s*,',
         ).hasMatch(root),
         isTrue,
@@ -174,7 +174,7 @@ void main() {
       expect(
         RegExp(
           r'roster:\s*\(\)\s*async\s*=>\s*guardianRosterOf\(\s*'
-          r'members\.current\s*,\s*tenantId:\s*identity\.tenantId\.value',
+          r'members\.current\s*,\s*tenant:\s*identity\.tenant\.value',
         ).hasMatch(root),
         isTrue,
         reason: 'S11.1 reads the tenant at each save',
@@ -195,15 +195,32 @@ void main() {
         RegExp(
           r'auth\.announcer\s*=\s*DeviceAddedRecorder\.late\(\s*'
           r'author:\s*recordAuthor\s*,\s*'
-          r'tenantIdOf:\s*\(\)\s*=>\s*identity\.tenantId\.value',
+          r'tenantOf:\s*\(\)\s*=>\s*identity\.tenant\.value',
         ).hasMatch(root),
         isTrue,
       );
     });
 
-    test('C-1009-1 C-04b-3 S0.2 mints through the ledger the root bound, and '
-        'the root rebuilds on a recovered UMK and on a re-mint (the ceremony '
-        'builder still takes the ids at launch)', () {
+    test('C-1010-2 the root hands the engine\'s membership reads to the ledger '
+        'it reads its identity from, so a further device learns its tenant '
+        'with no relaunch (ADR 2026-10-10 §1)', () {
+      final root = _root();
+      expect(
+        RegExp(
+          r'eng\.SyncEngine\.late\([^;]*identity:\s*identity\s*,[^;]*'
+          r'tenantSink:\s*ledger\s*,',
+        ).hasMatch(root),
+        isTrue,
+      );
+      expect(
+        RegExp(r'final\s+identity\s*=\s*ledger\.binding\s*;').hasMatch(root),
+        isTrue,
+      );
+    });
+
+    test('C-1009-1 C-04b-3 S0.2 mints through the ledger the root bound; the '
+        'root rebuilds on a recovered UMK and not on a re-mint, because the '
+        'ceremony builder reads the ids at each opening (desk 184 (b))', () {
       final root = _root();
       final signup = root.indexOf(
         RegExp(r'auth\.signupIdentity\s*=\s*ledger;'),
@@ -217,20 +234,23 @@ void main() {
         isTrue,
       );
       expect(
-        RegExp(r'ledger\.onIdentityReminted\s*=\s*relaunch\.arm;')
-            .hasMatch(root),
-        isTrue,
-        reason:
-            'S9.2/S9.3 are built with the ids at launch (buildLiveCeremonySessions '
-            'tenantId:/selfUserId:), so a re-mint must still rebuild the root '
-            '(review finding KEY168B-2)',
+        RegExp(r'onIdentityReminted\s*=').hasMatch(root),
+        isFalse,
+        reason: 'nothing in the root takes the ids at launch any more',
       );
       expect(
         RegExp(
-          r'buildLiveCeremonySessions\([^;]*selfUserId:\s*identity\.userId\.value',
+          r'buildLiveCeremonySessions\([^;]*'
+          r'tenantOf:\s*\(\)\s*=>\s*identity\.tenant\.value\s*,\s*'
+          r'selfUserIdOf:\s*\(\)\s*=>\s*identity\.userId\.value',
         ).hasMatch(root),
         isTrue,
-        reason: 'if the ceremony ever reads the ids late, drop the re-mint arm',
+        reason: 'S9.2/S9.3 read the ids late (ADR 2026-10-09 §1, desk 184 (b))',
+      );
+      expect(
+        RegExp(r'buildLiveCeremonySessions\([^;]*\btenantId:').hasMatch(root),
+        isFalse,
+        reason: 'no fixed tenant id is handed to the ceremony',
       );
     });
 
@@ -242,20 +262,20 @@ void main() {
       final api = _Api();
       final repo = ServerMembersRepository(
         api: api,
-        tenantIdOf: () => l.binding.tenantId.value,
+        tenantOf: () => l.binding.tenant.value,
         userIdOf: () => l.binding.userId.value,
         believes: believeNothing,
         unknownVerifierName: 'someone',
         someoneToMeetName: 'someone',
         author: author,
       );
-      expect(repo.tenantId, l.identity.tenantId);
+      expect(repo.tenant, KnownTenant(l.identity.tenantId));
       final before = l.identity.tenantId;
 
       await l.remintProvisionalIdentity();
 
-      expect(repo.tenantId, l.identity.tenantId);
-      expect(repo.tenantId, isNot(before));
+      expect(repo.tenant, KnownTenant(l.identity.tenantId));
+      expect(repo.tenant, isNot(KnownTenant(before)));
       expect(repo.userId, l.identity.userId);
       await repo.invite(
         const InviteRequest(
@@ -285,7 +305,7 @@ void main() {
       final posted = <List<Map<String, Object?>>>[];
       final recorder = DeviceAddedRecorder.late(
         author: author,
-        tenantIdOf: () => l.binding.tenantId.value,
+        tenantOf: () => l.binding.tenant.value,
         post: (records) async {
           posted.add(records);
           return const ['ok'];
@@ -314,7 +334,7 @@ void main() {
       );
 
       final wire = await author.sign(
-        tenantId: recorder.tenantId,
+        tenantId: (recorder.tenant as KnownTenant).id,
         kind: 'device_added',
         payload: {'device_id': l.identity.deviceId},
       );

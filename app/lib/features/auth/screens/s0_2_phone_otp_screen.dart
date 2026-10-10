@@ -17,8 +17,10 @@
 // States (13 §4.3): default · sending · verifying · wrong code (tries left,
 // boxes edged) · third miss (boxes clear, a new code goes by itself within
 // the 06 §2 backoff — never a lockout, ADR 2026-10-05c §2) · resend cooldown
-// 30 s → 60 s → 5 min (06 §2) · offline (quiet chip, send disabled with the
-// chip as its reason — 07 §1 rule 7) · min-version gate (426 → S19.1 inline,
+// 30 s → 60 s → 5 min (06 §2) · offline (a quiet chip only, 07 §1 rule 7;
+// *Send* and *Send again* rest on the auth client's own answer, never on sync
+// status — ADR 2026-10-10 §2 🔒; no chip at all while the engine is held
+// before the mint) · min-version gate (426 → S19.1 inline,
 // 06 §4.5) · activating · done · S0.2a / S0.2b / S0.2e. Errors are generic by
 // rule. The done step names nothing about the family — an OTP-only device
 // sees only itself (ADR 2026-09-05d §2). The clock is `RkScope.now` (rule 3);
@@ -603,9 +605,12 @@ class _PhoneOtpScreenState extends State<PhoneOtpScreen> {
 
   Widget _body(BuildContext context) {
     final sync = RkScope.of(context).sync;
-    return StreamBuilder<SyncStatus>(
-      stream: sync.status,
-      initialData: sync.current,
+    return StreamBuilder<SyncStatus?>(
+      // Null while the engine is held before S0.2: no chip. The status only
+      // ever draws the quiet chip; it disables nothing, held or not (ADR
+      // 2026-10-10 §2 🔒: Send and Resend rest on the auth client).
+      stream: sync.chipStatus,
+      initialData: sync.chipCurrent,
       builder: (context, snap) {
         final offline = snap.data is Offline;
         return switch (_step) {
@@ -702,7 +707,7 @@ class _PhoneOtpScreenState extends State<PhoneOtpScreen> {
         children: [
           AuthPrimaryAction(
             label: _busy ? l10n.authPhoneSending : l10n.authPhoneSend,
-            onPressed: _busy || offline || !complete ? null : _send,
+            onPressed: _busy || !complete ? null : _send,
           ),
           if (signIn)
             Padding(
@@ -773,7 +778,7 @@ class _PhoneOtpScreenState extends State<PhoneOtpScreen> {
               _LinkButton(
                 label: l10n.authOtpResend,
                 color: scheme.primary,
-                onPressed: offline ? null : _resend,
+                onPressed: _resend,
               ),
             ],
           );

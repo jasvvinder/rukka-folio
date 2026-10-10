@@ -211,16 +211,33 @@ LocalLedger productionLedger({
 );
 
 /// S11.1's roster (04 §7.3 Setup) from the members feature's [snapshot],
-/// read in [tenantId] — the install's tenant, whose members the snapshot
+/// read in [tenant] — the install's tenant, whose members the snapshot
 /// holds, and so the tenant a set chosen from them is set up in (ADR
 /// 2026-10-03b §1 🔒: `guardian_sets.tenant_id`). Without it
 /// [ServerGuardians.save] refuses `no_tenant` before anything is sealed, so
 /// a roster with no tenant is an S11.1 that can never save (M13-REV89U
 /// finding 1).
 ///
+/// A tenant not known yet (a further device, ADR 2026-10-10 §1 🔒) is said
+/// — [GuardiansFailure] `no_tenant`, thrown before any member is listed —
+/// never a roster of nobody.
+///
 /// Separate from [bootstrap] so F1-03b-3 can drive a real save through it;
 /// [bootstrap] is its only production caller.
 GuardianRoster guardianRosterOf(
+  MembersSnapshot? snapshot, {
+  required eng.InstallTenant tenant,
+  required String Function(String userId) nameOf,
+}) => switch (tenant) {
+  eng.TenantNotKnownYet() => throw const GuardiansFailure('no_tenant'),
+  eng.KnownTenant(id: final tenantId) => _rosterIn(
+    snapshot,
+    tenantId: tenantId,
+    nameOf: nameOf,
+  ),
+};
+
+GuardianRoster _rosterIn(
   MembersSnapshot? snapshot, {
   required String tenantId,
   required String Function(String userId) nameOf,
@@ -387,7 +404,8 @@ class RootRelaunch with WidgetsBindingObserver {
   /// Whether a re-mint has happened and the rebuild has not yet run.
   bool get pending => _armed && !_fired;
 
-  /// The ledger's `onIdentityReminted` and `onUmkAdopted`.
+  /// The ledger's `onUmkAdopted` (the `onIdentityReminted` arm went with
+  /// desk 184 (b): the ceremony builder reads ids late).
   void arm() => _armed = true;
 
   @override
@@ -668,7 +686,7 @@ Future<void> bootstrap() async {
       );
       final members = ServerMembersRepository(
         api: membersApi,
-        tenantIdOf: () => identity.tenantId.value,
+        tenantOf: () => identity.tenant.value,
         userIdOf: () => identity.userId.value,
         believes: believeNothing,
         unknownVerifierName: l10n.membersVerifiedSomeone,
@@ -1018,7 +1036,7 @@ Future<void> bootstrap() async {
       // before and files nothing; a failed post never un-certifies it.
       auth.announcer = DeviceAddedRecorder.late(
         author: recordAuthor,
-        tenantIdOf: () => identity.tenantId.value,
+        tenantOf: () => identity.tenant.value,
         post: membersApi.postRecords,
       );
       final ownCert = ledger.ownDeviceCert;
@@ -1067,6 +1085,11 @@ Future<void> bootstrap() async {
         // holds the key once and then sits in `key_wait` for ever, because the
         // meta cursor has passed the `wrapped_keys` row (05 §4, §5).
         keySink: ledger,
+        // ADR 2026-10-10 §1 🔒: a further device's tenant is learned from its
+        // own account — what a complete meta read showed of its memberships
+        // goes to the ledger, which holds the rule (exactly one active, and
+        // only once certified).
+        tenantSink: ledger,
       );
       final sync = EngineSyncClient(
         engine: engine,
@@ -1109,25 +1132,18 @@ Future<void> bootstrap() async {
 
       // ADR 2026-10-04b §2: a `409 user_id_taken` re-mints the provisional
       // identity in this process, after everything above was stamped with the
-      // old ids. Bound before `runApp`, so before any S0.2 can verify.
-      // ADR 2026-10-09 §1 🔒: everything above reads the ids late (desk 126),
-      // so a re-mint takes effect for them at once. The root is still
-      // rebuilt after one, at the next safe foreground, for the one part
-      // that still takes the ids at launch: the ceremony builder
-      // (`buildLiveCeremonySessions(tenantId:, selfUserId:)`, features/
-      // ceremony, its call shape pinned by F1-24b-3). Without it S9.2/S9.3
-      // ran under the discarded ids for the rest of the process (review
-      // finding KEY168B-2). ⚠️ SPEC: ADR 10-09 §1's list does not name the
-      // ceremony builder; once its owner reads the ids late, this arm goes.
-      // A C-04b-4 adoption needs no arm: the adopted device is never
-      // confirmed before its UMK arrives (`awaitingAccountUmk`), so [ready]
-      // never holds for it, and the UMK's arrival arms below. A recovered
-      // UMK (rung 3, ADR
-      // 2026-10-06d §2) still rebuilds the root once it is safe to: the
-      // replaced UMK is retired, not zeroised, while a borrower may hold it,
-      // and only the rebuild's `ledger.dispose()` zeroises it; the trust
-      // store's own-certificate belief, filed under the replaced UMK, goes
-      // with the old root.
+      // old ids. ADR 2026-10-09 §1 🔒: everything above reads the ids late —
+      // the ceremony builder too, since desk 184 (b) — so a re-mint, and a
+      // further device's learned tenant (ADR 2026-10-10 §1 🔒), take effect
+      // for them at once with no rebuild. A re-mint happens before S0.2,
+      // when no UMK exists (ids only, §2), so nothing is retired that only a
+      // rebuild's `dispose()` would zeroise: the re-mint arm of review
+      // finding KEY168B-2 is gone. A recovered UMK (rung 3, ADR 2026-10-06d
+      // §2) still rebuilds the root once it is safe to: the replaced UMK is
+      // retired, not zeroised, while a borrower may hold it, and only the
+      // rebuild's `ledger.dispose()` zeroises it; the trust store's
+      // own-certificate belief, filed under the replaced UMK, goes with the
+      // old root.
       final relaunch = RootRelaunch(
         ready: () => ledger.identityConfirmed && auth.current is Active,
         relaunch: () async {
@@ -1143,7 +1159,6 @@ Future<void> bootstrap() async {
           await bootstrap();
         },
       );
-      ledger.onIdentityReminted = relaunch.arm;
       ledger.onUmkAdopted = relaunch.arm;
       WidgetsBinding.instance.addObserver(relaunch);
 
@@ -1295,7 +1310,7 @@ Future<void> bootstrap() async {
         // `members` is the repository of; the builder is F1-03b-3's.
         roster: () async => guardianRosterOf(
           members.current,
-          tenantId: identity.tenantId.value,
+          tenant: identity.tenant.value,
           nameOf: memberName,
         ),
         // Read at each save (ADR 2026-10-09 §1 🔒): nobody is believed, and
@@ -1386,18 +1401,12 @@ Future<void> bootstrap() async {
         api: ceremonyApi,
         pullMeta: membersApi.pullMeta,
         nonces: relayedInviteNonceOver(inviteNonces.nonce),
-        // ⚠️ SPEC (ADR 2026-10-09 §1 lists the parts that capture ids; the
-        // ceremony builder is not among them, yet it does): it takes fixed
-        // ids (features/ceremony), so these are the ids at launch. After a
-        // C-04b-3 re-mint the root is rebuilt at the next safe foreground
-        // (`ledger.onIdentityReminted = relaunch.arm` above, review finding
-        // KEY168B-2) — HEAD's behaviour before ADR 10-09. Between the
-        // re-mint and that rebuild S9.2/S9.3 still name the discarded ids;
-        // closing that gap needs the builder to read ids late, which is the
-        // ceremony owner's (lane report M13-KEY168B). Not changed here,
-        // because F1-24b-3 pins this call's shape.
-        tenantId: identity.tenantId.value,
-        selfUserId: identity.userId.value,
+        // ADR 2026-10-09 §1 🔒 (desk 184 (b)): read at each opening, so a
+        // C-04b-3 re-mint or a learned tenant (ADR 2026-10-10 §1 🔒) reaches
+        // S9.2/S9.3 with no rebuild, and a tenant not known yet opens
+        // neither side.
+        tenantOf: () => identity.tenant.value,
+        selfUserIdOf: () => identity.userId.value,
         ownUmk: () {
           try {
             return ledger.keyMaterial.umk.public;

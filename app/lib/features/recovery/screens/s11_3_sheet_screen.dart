@@ -253,9 +253,11 @@ class _Entry extends StatelessWidget {
     final typed = controller.text.trim().isNotEmpty;
     final malformed = typed && code == null;
 
-    return StreamBuilder<SyncStatus>(
-      stream: sync.status,
-      initialData: sync.current,
+    return StreamBuilder<SyncStatus?>(
+      // Null while the engine is held before S0.2: no chip, and nothing
+      // disabled (ADR 2026-10-10 §2 🔒).
+      stream: sync.chipStatus,
+      initialData: sync.chipCurrent,
       builder: (context, ss) => ListView(
         padding: const EdgeInsets.fromLTRB(
           RkSpace.gutter,

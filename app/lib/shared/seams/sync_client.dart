@@ -65,14 +65,82 @@ abstract class SyncClient {
   /// getter so no caller can hold (or mutate) a snapshot that goes stale when
   /// the plan is upgraded and the book resumes. Reads are never blocked by it.
   bool isBookFull(String bookId);
+
+  /// Whether the engine is held *not registered yet* (ADR 2026-10-09 §1 🔒):
+  /// before S0.2 mints this phone's keys there is nobody to sync as, and the
+  /// engine sends nothing. Not a sixth [SyncStatus] — 05 §9 🔒 keeps five,
+  /// and while held [current] still reads one of them (`Offline` when nothing
+  /// is queued). A screen tells the two apart through this signal: while
+  /// held it shows **no** sync chip, and no control is disabled because of
+  /// it (ADR 2026-10-10 §2 🔒). Read it through [SyncChip] rather than by hand.
+  ///
+  /// [held] and [current] are one pair: an implementation answers both from
+  /// the same read of its engine, never a fresh hold beside a status read
+  /// under the other one — the `Offline` a held engine reports, paired with
+  /// a registered hold, would draw a chip the engine does not report.
+  bool get held;
+
+  /// [held] now, then every change. Emits the current value on listen.
+  Stream<bool> get heldChanges;
+}
+
+/// What a screen's sync chip shows (ADR 2026-10-10 §2 🔒): the client's
+/// [SyncStatus] once the engine is registered, and `null` — no chip at all,
+/// not `Offline`, and nothing disabled — while it is [SyncClient.held]. Once
+/// not held, 05 §9 and 07 §1 rule 7 apply unchanged. Showing nothing is not a
+/// sixth state; the seam's states stay the five.
+extension SyncChip on SyncClient {
+  /// The chip's status now; `null` while held.
+  SyncStatus? get chipCurrent => held ? null : current;
+
+  /// The chip's status now, then on every status or [SyncClient.held]
+  /// change; `null` while held. Emits the current value on listen.
+  Stream<SyncStatus?> get chipStatus => Stream<SyncStatus?>.multi((out) {
+    var isHeld = held;
+    var last = current;
+    void emit() => out.add(isHeld ? null : last);
+    final statuses = status.listen((s) {
+      last = s;
+      emit();
+    }, onDone: out.close);
+    final holds = heldChanges.listen((h) {
+      isHeld = h;
+      emit();
+    });
+    out.onCancel = () async {
+      await statuses.cancel();
+      await holds.cancel();
+    };
+  });
 }
 
 /// In-memory fake for UI lanes and tests: set [current], count [syncNowCalls].
 class FakeSyncClient implements SyncClient {
-  FakeSyncClient({SyncStatus initial = const Synced()}) : _current = initial;
+  FakeSyncClient({SyncStatus initial = const Synced(), bool held = false})
+    : _current = initial,
+      _held = held;
 
   final _controller = StreamController<SyncStatus>.broadcast();
+  final _heldController = StreamController<bool>.broadcast();
   SyncStatus _current;
+  bool _held;
+
+  /// Not held unless a test says so — the registered phone every screen test
+  /// before ADR 2026-10-10 assumed.
+  @override
+  bool get held => _held;
+
+  /// Emits [value] to every [heldChanges] listener.
+  set held(bool value) {
+    _held = value;
+    _heldController.add(value);
+  }
+
+  @override
+  Stream<bool> get heldChanges async* {
+    yield _held;
+    yield* _heldController.stream;
+  }
 
   /// Number of times [syncNow] ran.
   int syncNowCalls = 0;
@@ -108,6 +176,9 @@ class FakeSyncClient implements SyncClient {
     if (next != null) current = next;
   }
 
-  /// Closes the stream.
-  Future<void> dispose() => _controller.close();
+  /// Closes the streams.
+  Future<void> dispose() async {
+    await _controller.close();
+    await _heldController.close();
+  }
 }

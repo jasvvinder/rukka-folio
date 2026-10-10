@@ -27,6 +27,7 @@ import 'package:rukka_folio/shared/seams/key_store.dart';
 import 'package:sync_engine/sync_engine.dart' as eng;
 
 import '../test_app.dart';
+import 'tenant_of.dart';
 
 /// The activation routes, with a `devices/certify` that checks the signature
 /// exactly as the edge function does.

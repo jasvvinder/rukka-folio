@@ -433,4 +433,72 @@ void main() {
       expect(fake.isBookFull('b-other'), isFalse);
     });
   });
+
+  // ADR 2026-10-10 §2 🔒: before S0.2 the engine is held *not registered*
+  // (ADR 2026-10-09 §1) and its status reads Offline; the seam's held signal
+  // is how a screen tells the two apart without a sixth state (05 §9 🔒).
+  group('held before S0.2 (ADR 2026-10-10 §2)', () {
+    test('F1-1010-1 EngineSyncClient.held answers the engine\'s hold — true '
+        'while not registered (status still one of the five), and flips to '
+        'false on the stream once the identity is registered and a round '
+        'runs; the fake answers not held until told', () async {
+      final identity = eng.ManualIdentity();
+      final trust = eng.RecordTrustStore(umks: const eng.MapUmkSource({}));
+      final engine = eng.SyncEngine.late(
+        db: device.db,
+        mirror: device.mirror,
+        transport: server.transportFor(_device),
+        clock: clock,
+        guard: eng.PlainGuard(trust: trust),
+        trust: trust,
+        identity: identity,
+      )..subscribedBooks.add(_book);
+      final c = EngineSyncClient(
+        engine: engine,
+        memberName: (id) => id,
+        timerFactory: (d, f) => _FakeTimer(d, f),
+      );
+      addTearDown(c.dispose);
+      final seen = <bool>[];
+      final sub = c.heldChanges.listen(seen.add);
+      addTearDown(sub.cancel);
+      await c.start();
+      expect(engine.hold, eng.SyncHold.notRegistered);
+      expect(c.held, isTrue);
+      expect(c.current, isA<Offline>(), reason: 'no sixth state (05 §9)');
+
+      // A held round sends nothing and stays held.
+      await c.syncNow();
+      expect(c.held, isTrue);
+
+      // A further device awaiting its tenant (ADR 2026-10-10 §1) is held too:
+      // no Offline chip while it is online and reading meta.
+      identity.identity = const eng.RegisteredAwaitingTenant(
+        deviceId: _device,
+        userId: 'u-a',
+      );
+      await c.syncNow();
+      await pumpEventQueue();
+      expect(engine.hold, eng.SyncHold.tenantNotKnown);
+      expect(c.held, isTrue);
+
+      identity.identity = const eng.RegisteredIdentity(
+        deviceId: _device,
+        userId: 'u-a',
+        tenantId: _tenant,
+      );
+      await c.syncNow();
+      await pumpEventQueue();
+      expect(c.held, isFalse);
+      expect(c.current, isA<Synced>());
+      expect(seen, [true, false]);
+      expect(await c.heldChanges.first, isFalse);
+
+      final fake = FakeSyncClient();
+      expect(fake.held, isFalse);
+      fake.held = true;
+      expect(fake.held, isTrue);
+      expect(await fake.heldChanges.first, isTrue);
+    });
+  });
 }

@@ -32,6 +32,7 @@ import 'package:rukka_folio/shared/ledger/local_ledger.dart';
 import 'package:rukka_folio/shared/seams/key_store.dart';
 
 import '../test_app.dart';
+import 'tenant_of.dart';
 
 /// The account owner: a bootstrapped ledger with one book and a sheet.
 /// [published] is the UMK public as the server would relay it to a wiped

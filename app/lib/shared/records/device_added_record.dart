@@ -37,6 +37,8 @@
 library;
 
 import 'package:core_crypto/core_crypto.dart' show Bytes, DeviceCert;
+import 'package:sync_engine/sync_engine.dart'
+    show InstallTenant, KnownTenant, TenantNotKnownYet;
 
 import '../../features/members/members_api.dart' show MembersApi;
 import '../../features/members/server_members_repository.dart'
@@ -84,31 +86,39 @@ final class DeviceAddedRecorder implements DeviceAddedAnnouncer {
     required this.post,
     void Function(String event)? log,
   }) : _tenantId = tenantId, // ignore: prefer_initializing_formals
-       _tenantIdOf = null,
+       _tenantOf = null,
        _log = log ?? _noLog;
 
   /// The recorder reading the tenant at each announcement (ADR 2026-10-09
   /// §1 🔒): the composition root's, so a C-04b-3 re-mint or a C-04b-4
   /// adoption before registration files the record in the install's tenant
   /// as it is when the device certifies, never as it was at launch.
+  ///
+  /// A further device certifies **before** it can learn its tenant — an
+  /// uncertified device reads no memberships (ADR 2026-09-05d §2) — so at
+  /// that moment [tenantOf] answers [TenantNotKnownYet], and nothing is
+  /// signed or filed (ADR 2026-10-10 §1 🔒): [notFiledTenantUnknownEvent] is
+  /// logged instead. ⚠️ SPEC: nothing re-files it once the tenant is learned
+  /// — 05 §5 gives records no retry, and none is invented here (lane report
+  /// M13-TEN185).
   const DeviceAddedRecorder.late({
     required this.author,
-    required String Function() tenantIdOf,
+    required InstallTenant Function() tenantOf,
     required this.post,
     void Function(String event)? log,
   }) : _tenantId = null,
        // ignore: prefer_initializing_formals
-       _tenantIdOf = tenantIdOf,
+       _tenantOf = tenantOf,
        _log = log ?? _noLog;
 
   /// Signs under this device's Ed25519 key (04 §3.3, 04 §8.3).
   final MembersRecordAuthor author;
 
   final String? _tenantId;
-  final String Function()? _tenantIdOf;
+  final InstallTenant Function()? _tenantOf;
 
   /// The tenant the record belongs to, as of this read.
-  String get tenantId => _tenantIdOf?.call() ?? _tenantId!;
+  InstallTenant get tenant => _tenantOf?.call() ?? KnownTenant(_tenantId!);
 
   /// Where a signed record goes (05 §5).
   final PostRecords post;
@@ -123,6 +133,11 @@ final class DeviceAddedRecorder implements DeviceAddedAnnouncer {
   /// Fixed event name for an announcement that did not land. Carries nothing
   /// about the device (rule 4).
   static const String unfiledEvent = 'device_added_unfiled';
+
+  /// Fixed event name for an announcement not filed because the install's
+  /// tenant is not known yet (ADR 2026-10-10 §1 🔒). Carries nothing.
+  static const String notFiledTenantUnknownEvent =
+      'device_added_tenant_not_known';
 
   /// The payload for [cert] — the certificate itself (ADR 2026-09-05d §6),
   /// field for field as `devices/certify` sends it.
@@ -146,6 +161,14 @@ final class DeviceAddedRecorder implements DeviceAddedAnnouncer {
     required int umkKeyVersion,
     String? issuedByDevice,
   }) async {
+    final String tenantId;
+    switch (tenant) {
+      case KnownTenant(:final id):
+        tenantId = id;
+      case TenantNotKnownYet():
+        _log(notFiledTenantUnknownEvent);
+        return;
+    }
     try {
       final record = await author.sign(
         tenantId: tenantId,
