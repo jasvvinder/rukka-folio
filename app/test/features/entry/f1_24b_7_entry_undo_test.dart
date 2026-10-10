@@ -88,7 +88,9 @@ void main() {
     // typed; Save is pressed through the button itself because the Undo
     // snackbar sits over it for the 10 seconds this test lives inside.
     await _typeAmount(tester, '2400');
-    tester.widget<ElevatedButton>(find.byKey(AddEntryKeys.save)).onPressed!();
+    tester
+        .widget<ButtonStyleButton>(find.byKey(AddEntryKeys.save))
+        .onPressed!();
     await settleIo(tester);
     expect(raisedSheetKind(tester), RkRestrictionKind.readOnly);
     expect(await _entryCount(tester, s), before + 1);

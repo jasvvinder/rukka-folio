@@ -1,0 +1,70 @@
+{
+ "sid": "S21",
+ "verdict": "deviates",
+ "frames": [
+  "c7/S21/Search · recent, before typing",
+  "c7/S21/Search · results"
+ ],
+ "captures": [
+  "S21__before-typing",
+  "S21__results"
+ ],
+ "screen_files": [
+  "app/lib/features/ledger/screens/s21_search_screen.dart",
+  "app/lib/features/ledger/search_index.dart",
+  "app/lib/features/ledger/ledger_routes.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c7 S21 *Search · recent, before typing* and *· results*: a centred Material app bar titled 'Search' (no back chevron in the capture — S21 is pushed from S3/S1 in production, where Material adds it) sits above the field; the frame has no title bar — the search field is the first thing under the status row, with a 'Cancel' text link to its right once typing starts",
+   "reason": "[shared] app bar/header (search screens: field as header, Cancel instead of back)",
+   "authority": "ADR 2026-10-05 §1; ledger_routes.dart (S21 pushed from S3/S1)"
+  },
+  {
+   "what": "c7 S21 *Search · recent, before typing*: the field is an outlined TextField, focused (navy border) with the hint 'Search accounts, parties, notes'; the frame draws an unfocused filled paper field with a hairline and the hint 'Search khatas, people, notes'",
+   "reason": "[shared] search field (text input). Hint copy is [screen] — the frame's 'khatas, people' vs the app's 'accounts, parties'",
+   "authority": "ADR 2026-10-05 §1; CLAUDE.md § Precedence (specs decide copy)"
+  },
+  {
+   "what": "c7 S21 *Search · recent, before typing*: before typing the app shows one muted line 'Type a name, or a few words from a note.' with a search icon; the frame shows a 'RECENT' caption over five recent searches (clock icon, the text, a × to remove each, hairlines) and the footnote 'Recent searches are kept on this phone only, and each can be removed.'",
+   "reason": "[screen] — recent searches are deliberately not built: they store the user's typed text, which neither 07 §25 nor 13 §3.2 rules (⚠️ SPEC in s21_search_screen.dart header, logged open)",
+   "authority": "07 §25 🔒 (F1-07-35); 13 §3.2 row S21; CLAUDE.md § Workflow (ambiguous spec: conservative reading, never invent behaviour)"
+  },
+  {
+   "what": "c7 S21 *Search · results*: the app groups hits as 'Accounts' and 'In notes' (and 'Parties' when a party name matches) under sentence-case muted headings; the frame uses uppercase letter-spaced captions 'KHATAS', 'ENTRIES', 'IN NOTES' — with an ENTRIES group (the entries of a matched khata) the app does not have",
+   "reason": "[shared] list row (section caption style). The ENTRIES group is [screen], deliberately left out (⚠️ SPEC in s21_search_screen.dart header: not in 07 §25 🔒 or 13 §3.2)",
+   "authority": "07 §25 🔒; 13 §3.2 row S21"
+  },
+  {
+   "what": "c7 S21 *Search · results*: account hits carry a leading class icon (shapes for a category) and a trailing chevron, the balance tinted ('₹1,370 Dr' green); the frame draws no icons, no chevrons, the class line 'Category' / 'Supplier · milk', and the balance in muted ink ('₹16,900 Dr')",
+   "reason": "[shared] list row (result row: no leading icon, no chevron, muted figure). The Dr/Cr word stays as the frame draws it",
+   "authority": "ADR 2026-10-10b §4 🔒 (S21 Search · results matched with Dr/Cr); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c7 S21 *Search · results*: note hits read 'Milk Expense / Today · Milk taken on credit  +₹420 Money in ›' — counter account as title, signed tinted figure with the consumer word; the frame titles the hit with the note ('July and August milk bills' / 'On an entry of 12 Aug') and its entry rows with a muted signed figure ('– ₹3,600')",
+   "reason": "[screen] row content. ⚠️ SPEC (open, same as S1 Today rows): a credit purchase with no money leg (Took on credit, Milk Expense from Sunil Dairy) reads '+₹420 Money in' — the consumer word comes from the party-side fallback; for the Home/ledger owner to settle",
+   "authority": "07 §25 🔒; 02 §10 🔒; 07 §1 rule 3 🔒"
+  },
+  {
+   "what": "c7 S21 *Search · results*: the 'Sunil Dairy · Paid part of last week's milk' note hit drops its figure to a third line ('−₹500 Money out') while its neighbours keep it beside the text — the row reflows when the second line is long; the frame keeps every figure on the right",
+   "reason": "[screen] row reflow (s21_search_screen.dart measures width per row) — uneven at default size",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c7 S21 *Search · results*: no explanatory footnote; the frame ends with 'One field, three kinds of answer. Khatas first, because a name is usually what someone is looking for.'",
+   "reason": "[canvas-wrong] — designer's annotation inside the phone, not product copy",
+   "authority": "CLAUDE.md § Precedence (specs decide copy); 07 §25 🔒"
+  },
+  {
+   "what": "c7 S21 frames: (any) letter-spacing on Material labels",
+   "reason": "[shared] theme letterSpacing → desk 193(j)",
+   "authority": "PLAN desk 193 (j)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "d141cd83d1befc8ee25c7bd0749bc9e14e0e9df7964445416d02da7a0a5b745e",
+  "frames": "ccfeaa28512e46f6752506b6c189bbbe115b395e38c883d13d6e23f9a39b2ed6"
+ }
+}

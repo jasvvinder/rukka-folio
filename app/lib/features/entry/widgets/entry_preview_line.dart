@@ -22,10 +22,16 @@ import '../../../shared/theme.dart';
 import '../../../shared/tokens.dart';
 
 /// The dotted placeholder that stands in for an empty slot (07 §5.5 🔒).
-const String previewGap = '⋯';
+///
+/// Drawn as an icon, never as text: U+22EF (and U+2192 for the arrow) is in
+/// none of Mukta / Mukta Mahee / Noto Sans (11 §4.4 owns the set), so as a
+/// glyph it is a system-face fallback on a phone and a box in the capture
+/// (PLAN desk 193 (e)).
+const IconData previewGapIcon = Icons.more_horiz;
 
-/// The arrow between the credited and the debited account (01 §2.1).
-const String previewArrow = '→';
+/// The arrow between the credited and the debited account (01 §2.1) — the
+/// canvas 2 *Live preview line* draws it as a thin forward arrow.
+const IconData previewArrowIcon = Icons.arrow_forward;
 
 /// Lines the preview reserves from the first frame — two, because a pair of
 /// long Gurmukhi names wraps rather than truncating (design canvas 2 row 2,
@@ -75,6 +81,22 @@ class EntryPreviewLine extends StatelessWidget {
     final scaler = MediaQuery.textScalerOf(context);
     final lineHeight =
         scaler.scale(base.fontSize ?? 13) * RkType.lineHeightNormal;
+    // Sized in logical pixels at the text's scaled size: a WidgetSpan is not
+    // scaled by the paragraph's TextScaler.
+    final glyph = scaler.scale(base.fontSize ?? 13);
+    InlineSpan icon(IconData data, {required bool gap}) => WidgetSpan(
+      alignment: PlaceholderAlignment.middle,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: RkSpace.s1),
+        child: Icon(
+          data,
+          size: glyph,
+          // The gap is a muted placeholder in every state; the arrow wears
+          // the line's own ink (canvas 2 *Live preview line · five states*).
+          color: gap ? status.muted : base.color,
+        ),
+      ),
+    );
 
     return SizedBox(
       // 🔒 Full height from the first frame.
@@ -95,9 +117,15 @@ class EntryPreviewLine extends StatelessWidget {
                   ),
                 ),
                 const TextSpan(text: ' · '),
-                TextSpan(text: creditName ?? previewGap),
-                const TextSpan(text: ' $previewArrow '),
-                TextSpan(text: debitName ?? previewGap),
+                if (creditName != null)
+                  TextSpan(text: creditName)
+                else
+                  icon(previewGapIcon, gap: true),
+                icon(previewArrowIcon, gap: false),
+                if (debitName != null)
+                  TextSpan(text: debitName)
+                else
+                  icon(previewGapIcon, gap: true),
                 if (note != null && note!.isNotEmpty)
                   TextSpan(
                     text: ' · $note',

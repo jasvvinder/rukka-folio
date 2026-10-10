@@ -1,0 +1,62 @@
+{
+ "sid": "S14.1",
+ "verdict": "deviates",
+ "frames": [
+  "c6/S14.1/Distribution · 1 Period",
+  "c6/S14.1/2 Preview",
+  "c6/S14.1/3 Confirm"
+ ],
+ "captures": [
+  "S14.1__step1-period",
+  "S14.1__step2-preview",
+  "S14.1__step3-confirm"
+ ],
+ "screen_files": [
+  "app/lib/features/partners/screens/s14_1_distribute_screen.dart",
+  "app/lib/features/partners/widgets/distribution_parts.dart",
+  "app/lib/features/partners/partners_routes.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c6 S14.1 (all steps): Material AppBar 'Distribute profit' centred with a full-width three-bar stepper and 'Step n of 3' in the body; the frame titles each step ('Period', 'Preview', 'Confirm') left-aligned beside a back chevron with a short segmented mark at the header's right",
+   "reason": "[shared] app bar; [screen] stepper in the body (DistributeStepper, distribution_parts.dart) — the same shape as S10's CloseStepper",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c6 S14.1 *Distribution · 1 Period*: heading 'Which stretch of the year?' with help 'The profit is the whole year's. These dates only set the stretch that interest is worked out over.', then a ruled card 'Financial year 2026-27' with From '01 Apr 2026' / To '07 Sep 2026' and a calendar-edit icon, values sitting mid-row; the frame has no heading, a plain card with From '1 Apr 2026 ▾' / To '31 Aug 2026 ▾' right-aligned, then 'PROFIT IN THIS PERIOD ₹5,94,000' and 'Money earned ₹14,82,000 − money spent ₹8,88,000'",
+   "reason": "[screen] the period's profit is not shown on step 1; dates zero-padded ('01 Apr') where the frame writes '1 Apr'; the app defaults To to today, the frame to month end. The frame implies the dates set the profit; the app says they only bound interest (the profit is the year's) — the app's reading is the port's contract",
+   "authority": "02 §7.1 🔒; partners_port.dart DistributionPort.distributionPreview (the profit figure is the year's either way); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c6 S14.1 *2 Preview*: a 'Profit for 2026-27 ₹5,94,000.00' card ('Interest on capital is off for this business, so there is one line each.'), then one card per owner titled with the account name ('Amrit Kaur — Partner Current A/c', '1 of 3') with 'Share ₹1,98,000.00' and a wrapped '… altogether ₹1,98,000.00' row; the frame lists the owners in one card ('Amrit Kaur', 'Share 1/3', 'Interest on capital ₹10,800 + share ₹1,90,200' with the total at the right), then 'Distributed ₹5,94,000' and 'The odd 40 paise went to Amrit Kaur, first in the list.'",
+   "reason": "[screen] preview layout (card per owner vs one list), account-name titles, the 'altogether' row wraps to two lines; amounts carry paise ('₹1,98,000.00') where the frame drops them. The profit is the frame's ₹5,94,000 because the capture book is the worked example's season; the frame's interest lines are a book with interest on capital switched on, which this one is not (02 §7.1, off by default). How odd paise are split is the engine's; only the display is at issue",
+   "authority": "02 §7.1 🔒 (distribution per ownership ratio, integer paise); CLAUDE.md rule 1; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c6 S14.1 *3 Confirm*: heading 'Ready to record' / 'Every owner has to approve this. It waits in their Inbox until they do, and nothing changes before then.', a ruled card listing each owner's figure and 'The whole entry ₹5,94,000.00', and the commit button 'Propose to the owners' wrapping onto two lines, left-aligned inside the right half of the Back/Next footer; the frame says 'This posts one entry and moves no cash.' with a tinted summary (Period 1 Apr – 31 Aug 2026 · Profit shared ₹5,94,000 · Between 3 partners) and a full-width 'Share the profit'",
+   "reason": "[screen] the commit label wraps and misaligns (footer splits the width with Back) — a layout defect. The frame's 'posts one entry' copy is wrong for this book: a shared business's distribution is structural and needs every owner's approval, so the app proposes rather than posts",
+   "authority": "02 §7.2.1 🔒 (distribution is structural — quorum); 07 §1 rule 6 🔒; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c6 S14.1: Back is a footer button on steps 2–3 (Back + Next split the width); the frame has one full-width primary and back in the header chevron",
+   "reason": "[screen] wizard footer (DistributeFooter — the same shape as S10's CloseWizardFooter)",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "S14.1: cards rounded (radius 12) with 3 px navy rules; the frame's are square, hairline-bordered or tinted",
+   "reason": "[shared] card (rule card radius)",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "S14.1: theme letterSpacing",
+   "reason": "[shared] theme letterSpacing → desk 193(j)",
+   "authority": "desk 193(j)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "af17d8f213138959a940a941d9318af2c54fbe717cdab8374f45d5c722af4516",
+  "frames": "a0cbe638b670e622e71667b7411a7771833c67d8f0290273111d3a6e95aff70e"
+ }
+}

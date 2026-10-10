@@ -1,0 +1,25 @@
+{
+ "sid": "S4.2",
+ "verdict": "deviates",
+ "frames": [
+  "c14/C5/Donation receipt · no tax language",
+  "c16/C5/Donation receipt · trust only"
+ ],
+ "captures": [],
+ "screen_files": [
+  "app/lib/features/ledger/screens/s4_1_entry_detail_screen.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c14 C5 *Donation receipt · no tax language* and c16 C5 *Donation receipt · trust only*: not built — the whole screen ('Receipt' header with 'No. 0431', the receipt card with the trust's Gurmukhi and English names, 'Rukka Folio · Trust register · Regd. 1979', receipt number and date, 'RECEIVED WITH THANKS FROM' with the donor's name in Gurmukhi and English, the amount '₹21,000' with words in Punjabi and English, 'TOWARDS' / 'RECEIVED IN', 'An acknowledgement of your sewa. Not a tax document.' with the signatory line, a 'Language on the receipt' toggle (ਪੰਜਾਬੀ + EN · हिंदी) and a navy 'Share' button) has no widget in the app. Its parent, S4.1 entry detail, offers no receipt door (capture S4.1__default), so no production path reaches it",
+   "reason": "[screen] deferred, not a defect — donation receipts move to the next phase; S4.2 was never built and no F1 test exists. screen_files names the parent door so this record goes stale when S4.1 changes. The two frames differ only in the signatory ('President' vs 'Secretary')",
+   "authority": "ADR 2026-09-25 §7 (donation receipts move to the next phase); 13 §3.2 row S4.2 (⏸ next phase); 07 §14; ADR 2026-10-10b §1 (no new S-id screens before phase 2)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "2300a8c78d30efd3c9f808fc6bcb70c7f8a6cb36bb167977d9a1496c4f57c910",
+  "frames": "7a2cd3b285d5e22409d37bafa52bf6ca11f14ffdd4fab80c6bb8a2f2dd47f3ee"
+ }
+}

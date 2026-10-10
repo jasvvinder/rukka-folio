@@ -19,7 +19,8 @@
   "app/lib/features/entry/widgets/entry_keypad.dart",
   "app/lib/features/entry/widgets/entry_preview_line.dart",
   "app/lib/features/entry/widgets/entry_date_picker.dart",
-  "app/lib/features/entry/widgets/entry_drawings_banner.dart"
+  "app/lib/features/entry/widgets/entry_drawings_banner.dart",
+  "app/lib/features/entry/widgets/entry_tick_text.dart"
  ],
  "deviations": [
   {
@@ -28,9 +29,9 @@
    "authority": "13 §3.2 row S2.1; 13 §3.3"
   },
   {
-   "what": "c2 S2-B *Saved*: the toast is the Material SnackBar (dark full-width bar over the Save button, 'Saved ☐ (on phone)', white 'Undo'); the frame draws a paper card above the keypad with an amber left rule, a green tick, 'Saved' and a navy 'Undo'",
-   "reason": "[shared] toast/snackbar; the ✓ in 'Saved ✓' is a tofu box (U+2713 not in the bundled faces) — [screen] defect",
-   "authority": "13 §4.2 (toast); 07 §5 step 6 🔒; 11 §4.4"
+   "what": "c2 S2-B *Saved*: the toast is the Material SnackBar (dark full-width bar over the Save button, 'Saved ✓ (on phone)' with the ✓ drawn as the check icon, white 'Undo'); the frame draws a paper card above the keypad with an amber left rule, a green tick, 'Saved' and a navy 'Undo'",
+   "reason": "[shared] toast/snackbar",
+   "authority": "13 §4.2 (toast); 07 §5 step 6 🔒"
   },
   {
    "what": "c2 S2-B *Saved · over the member’s limit*: no '⏱ Sunita will review' line",
@@ -38,20 +39,20 @@
    "authority": "07 §5 step 6 🔒; 02 §3"
   },
   {
-   "what": "c2 S2-B *Saved*: the slots stay as full fields with the chip row and the preview '₹0 · Cash in hand ☐ Diesel'; the frame collapses them to 'Cash A/c → Diesel Expense A/c' with 'Both sides kept for the next one — type an amount to repeat it.' and puts 'Keypad stayed open · zeroed for the next entry' under the muted ₹0 with a caret",
+   "what": "c2 S2-B *Saved*: the slots stay as full fields with the chip row and the preview '₹0 · Cash in hand → Diesel' (the arrow drawn as an icon, desk 193 (e)); the frame collapses them to 'Cash A/c → Diesel Expense A/c' with 'Both sides kept for the next one — type an amount to repeat it.' and puts 'Keypad stayed open · zeroed for the next entry' under the muted ₹0 with a caret",
    "reason": "[screen] post-save layout and copy",
    "authority": "07 §5 step 7 🔒; ADR 2026-10-05 §1"
   },
   {
-   "what": "c2 S2-B *Saved*: header, keypad and Save button differ as recorded for S2 (verb pill, 3×4 keypad, rectangular Save); the frame's pill also carries a '›'",
-   "reason": "[shared] verb pill / primary button; keypad [screen] — see S2.json",
+   "what": "c2 S2-B *Saved*: header and keypad differ as recorded for S2 (verb chip row, 4-column keypad); Save's radius is the token radius; the frame's pill also carries a '›'",
+   "reason": "[shared] verb pill / button radius; keypad [screen] — see S2.json",
    "authority": "07 §5 🔒"
   }
  ],
  "approved_by_owner": false,
  "checked_on": "2026-10-10",
  "hashes": {
-  "screens": "64232b9011882f3823a9758430d3ea7e3c389e65ea68887e635b4bb6cdc91584",
+  "screens": "212b1a58806f5adbe0f85d7968dbc3e64ce1d8bf9ad7993b8f84071bb651bea9",
   "frames": "8f5166e28be147fde931c008a61cc0be76cf47b67bbec55ece55ba0711c36cb6"
  }
 }

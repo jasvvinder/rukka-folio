@@ -170,6 +170,76 @@ void main() {
       expect(unfaced, isEmpty);
     });
   }
+
+  // PLAN desk 193 (j): Material 2021's type scale tracks every role
+  // (bodyLarge 0.5, bodyMedium 0.25, labelLarge 0.1 …), and a style that
+  // does not say otherwise inherits it — so body and label text ran wider
+  // than the canvas on every audited screen. tokens.json defines no
+  // tracking and the frames draw running text untracked, so 0 is the
+  // baseline; the few roles the frames do track (c2/S2 hero amount -0.02em,
+  // uppercase captions 0.08em) have no token yet and are a recorded
+  // deviation in design/match/S2.json.
+  for (final b in Brightness.values) {
+    testWidgets('F1-193-18 the ${b.name} theme tracks no text — every text '
+        'style and the ambient body style carry letterSpacing 0', (
+      tester,
+    ) async {
+      final theme = rkTheme(b);
+      final tracked = [
+        for (final MapEntry(:key, :value) in _textStyleSlots(theme).entries)
+          if ((value.letterSpacing ?? 0) != 0) '$key: ${value.letterSpacing}',
+      ];
+      expect(tracked, isEmpty);
+      for (final tt in [theme.textTheme, theme.primaryTextTheme]) {
+        for (final s in [
+          tt.displayLarge,
+          tt.displayMedium,
+          tt.displaySmall,
+          tt.headlineLarge,
+          tt.headlineMedium,
+          tt.headlineSmall,
+          tt.titleLarge,
+          tt.titleMedium,
+          tt.titleSmall,
+          tt.bodyLarge,
+          tt.bodyMedium,
+          tt.bodySmall,
+          tt.labelLarge,
+          tt.labelMedium,
+          tt.labelSmall,
+        ]) {
+          expect(s?.letterSpacing, 0);
+        }
+      }
+      // rkTextTheme on its own (component themes take styles from it).
+      final own = rkTextTheme(theme.colorScheme.onSurface);
+      expect(own.bodyLarge!.letterSpacing, 0);
+      expect(own.bodySmall!.letterSpacing, 0);
+
+      // What a bare `Text(RkType.body…)` inherits under a Scaffold.
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: theme,
+          home: Scaffold(
+            body: Column(
+              children: [
+                Text('Body', style: RkType.body),
+                TextButton(onPressed: () {}, child: const Text('Btn')),
+              ],
+            ),
+          ),
+        ),
+      );
+      for (final t in ['Body', 'Btn']) {
+        final p = tester.renderObject<RenderParagraph>(
+          find.byWidgetPredicate(
+            (w) => w is RichText && w.text.toPlainText() == t,
+          ),
+        );
+        expect(p.text.style?.letterSpacing ?? 0, 0, reason: t);
+      }
+    });
+  }
 }
 
 const _fallback = [RkType.familyGurmukhi, RkType.familyFallback];

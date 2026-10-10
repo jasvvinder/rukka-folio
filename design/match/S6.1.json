@@ -1,0 +1,63 @@
+{
+ "sid": "S6.1",
+ "verdict": "deviates",
+ "frames": [
+  "c9/S6.1/Grouped review card · Approve all or one by one"
+ ],
+ "captures": [
+  "S6.1__grouped-card"
+ ],
+ "screen_files": [
+  "app/lib/features/inbox/widgets/review_card.dart",
+  "app/lib/features/inbox/screens/s6_inbox_screen.dart",
+  "app/lib/features/inbox/ledger_review_queue.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c9 S6.1 *Grouped review card · Approve all or one by one*: the frame draws S6.1 as its own full screen — back chevron, a header with the 'RS' avatar, 'Ramesh Sharma · Sharma Textile' and '7 entries · ₹23,400 · today', the entry list, and the actions pinned at the foot; the app has no S6.1 screen: the grouped card is ReviewCard, drawn inline in S6 (capture S6.1__grouped-card is S6 holding that card after a tap on 'Show the entries', the state the frame draws with its rows open)",
+   "reason": "[screen] presentation — 13 §3.2 row S6.1 'Review — grouped card' (parent S6) and 07 §9 describe a card in the Inbox; ⚠️ SPEC (open): whether S6.1 becomes a pushed screen as the frame draws it",
+   "authority": "07 §9 🔒 (flags group into one card per author + book + day); 13 §3.2 row S6.1"
+  },
+  {
+   "what": "c9 S6.1 *Grouped review card*: the card's header reads 'Ramesh Sharma' over 'Me · Today', then '7 entries   ₹39,170 in all' on its own line; the frame reads 'Ramesh Sharma · Sharma Textile' over '7 entries · ₹23,400 · today' (book in muted after a dot, count, total and day on one line)",
+   "reason": "[shared] card (typed inbox card header layout); content is the same (author, book, count, magnitude total, day)",
+   "authority": "07 §9 🔒 ('Ramesh · Kirana Store · 7 entries · ₹23,400'); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c9 S6.1 *Grouped review card*: before the rows the card carries an amber flag line 'Needs your review' and the explainer 'Already in the book. These counted the moment Ramesh Sharma saved them — you are checking them, not releasing them.', then 'Hide the entries ⌃'; the frame goes straight from the header to the rows and puts its explainer below them ('Every entry is already posted and counted. Approving clears the flags — it does not move money, and rejecting one never blocks the rest.'), after '…4 more, tap to see each'. Opened, the app lists all seven rows with no 'N more' line",
+   "reason": "[screen] — the extra flag line and the explainer's position; the post-then-review explainer stays in either wording. The list is collapsed by default in the app (S6 records that); opened, it lists every row where the frame shows three and a 'more' line",
+   "authority": "07 §9 🔒 (expandable list); 02 §3 🔒 (post-then-review: nothing may suggest the money is waiting)"
+  },
+  {
+   "what": "c9 S6.1 *Grouped review card*: the rows. Each app row (_EntryRow, review_card.dart) is a three-line block ~110 px tall — a 20 px photo / no-photo icon and a 'from → to' title ('Cash in hand → Diesel', up to 2 lines) with an IconButton × at the right, then '−₹2,400 Money out' and the date on a second line, then the note muted on a third; the frame draws ~75 px one-line rows — a square photo thumbnail at the left, the account ('Diesel Expense A/c') over 'note · account · time' ('Isuzu, full tank · Cash · 2:02 pm'), the amount at the right, a circled × quick-reject",
+   "reason": "[shared] list row (inbox entry row: thumbnail, two-line text block, trailing figure, circled ×). The app's thumbnail is an icon only (no photo preview) — 07 §9 asks for photo thumbnails",
+   "authority": "07 §9 🔒 (expandable list with photo thumbnails and per-row ✕ quick-reject); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c9 S6.1 *Grouped review card*: the arrow in each row title ('Cash in hand → Diesel', ARB inbox.row.route '{from} → {to}') is drawn as a missing-glyph box in both captures. U+2192 is in none of the bundled faces (Mukta, Mukta Mahee, Noto Sans — checked with fontTools); the capture has no system fallback, so a phone draws it only if its own system font has the arrow",
+   "reason": "[shared] type — a glyph the bundled stack does not carry (11 §4.4 names Noto Sans as the fallback, and the bundled Noto Sans subset lacks U+2192). Not cured here: the cure is an icon, a bundled glyph, or copy without the arrow, owned by the inbox lane / font owner",
+   "authority": "11 §4.4 (font stack, fallback Noto Sans); ADR 2026-10-05 §2 (the capture fails on unfaced text — this one is faced but glyph-less)"
+  },
+  {
+   "what": "c9 S6.1 *Grouped review card*: the frame tints row amounts with no sign and no word ('₹2,400' red, '₹18,600' green)",
+   "reason": "[canvas-wrong] — a tinted amount carries its sign or direction word; the app's opened rows keep them ('−₹2,400 Money out', S6.1__grouped-card)",
+   "authority": "07 §1 rule 3 🔒 (colour never alone)"
+  },
+  {
+   "what": "c9 S6.1 *Grouped review card*: actions are a full-width filled navy 'Approve all' over a full-width outlined 'One by one' at the foot of the card — with the rows open they scroll below the fold (not visible in S6.1__grouped-card); the frame says 'Approve all 7' (count in the label) on a filled navy button over an outlined 'One by one', pinned at the foot of the screen",
+   "reason": "[shared] primary button (label with count is [screen] copy); the pin follows from the screen presentation above",
+   "authority": "07 §9 🔒 (two actions, owner-approved: Approve all / One by one); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c9 S6.1 *Grouped review card*: (any) letter-spacing on Material labels",
+   "reason": "[shared] theme letterSpacing → desk 193(j)",
+   "authority": "PLAN desk 193 (j)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "619406d2a04e9f1e39ce4174641563eab487e9edfc42a5de564cde86062f82f1",
+  "frames": "39d4ce3dd2f0c8694e816c02f8489362808018882162d9b63b3243c03af304d5"
+ }
+}

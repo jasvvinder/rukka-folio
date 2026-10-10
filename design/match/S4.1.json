@@ -1,0 +1,87 @@
+{
+ "sid": "S4.1",
+ "verdict": "deviates",
+ "frames": [
+  "c11/S4.1/Entry detail",
+  "c2/S4.1/Entry detail · open period",
+  "c2/S4.1/Entry detail · open period#2",
+  "c2/S4.1/Imported entry · bank text + photo",
+  "c2/S4.1/Amended · struck-through history",
+  "c2/S4.1/Locked period · Fix this entry",
+  "c2/S4.1/Reversed"
+ ],
+ "captures": [
+  "S4.1__default",
+  "S4.1__amended",
+  "S4.1__locked",
+  "S4.1__reversed"
+ ],
+ "screen_files": [
+  "app/lib/features/ledger/screens/s4_1_entry_detail_screen.dart",
+  "app/lib/features/ledger/entry_detail.dart",
+  "app/lib/features/ledger/ledger_routes.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c11 *Entry detail* / c2 *Entry detail · open period*: the app bar centres 'Entry' on a lighter surface with no back chevron (the capture mounts S4.1 as the only route; production pushes it from S4 and Material draws the arrow); the frame left-aligns 'Entry' after a back chevron on the page colour",
+   "reason": "[shared] app bar/header (left-aligned title, page colour). The missing chevron is a capture artefact",
+   "authority": "ADR 2026-10-05 §1; ledger_routes.dart (S4.1 pushed from S4)"
+  },
+  {
+   "what": "c11 / c2 *Entry detail · open period*: the headline is three stacked lines — a muted verb 'Money out', the amount '−₹2,400' in debit red, then a second, very large 'Money out' in ink (headline size); the frame draws the red '− ₹2,400' alone and under it one flow line '₹2,400 · Cash A/c → Diesel Expense A/c', with a rule beneath",
+   "reason": "[screen] headline (the doubled verb is redundant at headline size); the flow line replaces the app's 'Both sides' block below",
+   "authority": "ADR 2026-10-05 §1; 07 §1 rule 3 🔒 (sign stays with the tinted amount — the frame keeps '−')"
+  },
+  {
+   "what": "c11 / c2 *Entry detail · open period*: a 'Both sides' section lists each leg with paise and a consumer word — 'Diesel  +₹2,400.00 Money in', 'Cash in hand  −₹2,400.00 Money out'; the frame has no legs list, only the 'Cash A/c → Diesel Expense A/c' flow line",
+   "reason": "[screen] — ⚠️ SPEC (open): labelling an expense category's Dr leg 'Money in' reads as money arriving; the consumer word belongs to money accounts. Whether S4.1 shows both legs at all, and in which words, is for the owner (02 §10 and ADR 2026-10-10b §4 allow the true side in brackets)",
+   "authority": "02 §10 🔒; ADR 2026-10-10b §4 🔒; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c11 / c2 *Entry detail · open period*: the details are bodySmall label / right-aligned value pairs without rules — 'Date 06 Sep 2026', 'Note', 'Bill photo  No bill photo on this entry', 'Entered by you'; the frame draws a two-column fact table with hairlines — 'When  27 Aug 2026 · 2:02 pm' (date and time), 'Who' with an initials avatar 'RA', 'Ramesh' over 'Operator · Sharma Textile', and 'Note' — with no photo row when there is none",
+   "reason": "[shared] list row (fact row: left label column, hairline). The time of entry, role and book under the author are [screen] — production passes no memberName (ledger_routes.dart), so the author is 'you' / 'another member' only",
+   "authority": "ADR 2026-10-05 §1; 13 §2.3 (who did it)"
+  },
+  {
+   "what": "c11 / c2 *Entry detail · open period*: the history is a 'History' heading, a check icon and 'Saved · 06 Sep 2026', then 'Nothing is ever rubbed out. Every version stays here.'; the frame's 'HISTORY' is an uppercase letter-spaced caption over dotted timeline rows 'Entered by Ramesh / 27 Aug, 2:02 pm' and 'Reviewed by Sunita / 27 Aug, 6:40 pm' with hairlines",
+   "reason": "[shared] list row (timeline row; section caption). Who entered and who reviewed, with times, are [screen] — the trail names neither today",
+   "authority": "ADR 2026-10-05 §1; 02 §5 🔒 (audit trail)"
+  },
+  {
+   "what": "c11 / c2 *Entry detail · open period*: two stacked buttons at the foot — a filled navy 'Correct this' and an outlined 'Reverse this'; the frame has one outlined full-width 'Edit' in a footer above a rule",
+   "reason": "[canvas-wrong] for the single 'Edit' — 07 §4 and 02 §5 🔒 give the entry detail both amend and reverse; the button style (outlined, footer bar) is [shared] primary/secondary button",
+   "authority": "02 §5 🔒; 07 §4 (entry detail: audit trail, amend/reverse per 02 §5); ledger_routes.dart"
+  },
+  {
+   "what": "c2 *Imported entry · bank text + photo*: not captured — there is no imported entry in the app: no 'THE BANK’S OWN WORDS' block (raw UPI narration in monospace), no bill-photo row with thumbnail and chevron, no 'brought in from the bank' date, no 'Classified this row' author line",
+   "reason": "[screen] not built — bank-statement import has no path into S4.1 today, so no production state reaches this frame",
+   "authority": "ADR 2026-10-10b §1 (no new S-id screens before phase 2); ADR 2026-10-05 §2"
+  },
+  {
+   "what": "c2 *Amended · struck-through history*: the app shows the head version like any entry ('−₹2,600', note 'Isuzu, full tank + oil') with one trail line 'Corrects an earlier version' and an 'Open' link set low beside it; the frame adds an 'EDITED TWICE' card with an amber left rule listing each change struck-through → new ('₹2,400 → ₹2,600', 'Isuzu, full tank → Isuzu, full tank + oil') and timeline rows 'Amount changed by Ramesh', 'Note changed by Ramesh'",
+   "reason": "[screen] — the app shows the chain one version at a time (ledger_routes.dart: walking an amend chain replaces the page); the frame's diff card is new. The 'Open' link's baseline sits below its row text — [screen] alignment defect",
+   "authority": "02 §5 🔒 (amend chain, append-only); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c2 *Locked period · Fix this entry*: an entry dated 31 Aug, with August locked (lockMonth), draws exactly as an open-period entry — 'Correct this' and 'Reverse this' both enabled; the frame adds a muted lock line 'August is closed · counted and confirmed 10 Aug' and replaces the footer with an outlined 'Fix this entry' over 'A correction is posted today. August is not rewritten.'",
+   "reason": "[screen] defect — S4.1 has no locked-period state: entry_detail.dart:74 'canAmend => !isReplaced && !isReversed' never looks at period locks, so it offers an amendment 02 §5 forbids in a locked period",
+   "authority": "02 §5 🔒 (locked period: amendment forbidden; the only path is reversal — 'Fix an old entry'); ADR 2026-09-03b (S4.1 'Fix this entry')"
+  },
+  {
+   "what": "c2 *Reversed*: the app strikes the red amount and the big 'Money out' and adds a 'Reversed' chip, then the same legs/details as any entry (note 'Isuzu, full tank') and the trail line 'A later entry has reversed this one · 07 Sep 2026' with 'Open'; the frame greys and strikes the amount, writes 'This entry no longer counts' beside a boxed 'Reversed' tag, shows 'Reversed on  2 Sep 2026 · by Rahul Sharma' and 'Reason  Wrong khata chosen', a 'THE PAIR' card (original −₹2,400 struck / reversal +₹2,400 green, 'August stays as it was counted…'), and a 'See the new entry' footer button",
+   "reason": "[screen] — the reversal's reason ('Wrong khata chosen', posted through LocalLedger.reverse note) is not shown on the original, and there is no pair card; the struck amount stays tinted red where the frame greys it ([shared] amount — struck state)",
+   "authority": "02 §5 🔒 (reversal with optional reason, refs.reverses); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c2 *Entry detail* frames: (any) letter-spacing on Material labels",
+   "reason": "[shared] theme letterSpacing → desk 193(j)",
+   "authority": "PLAN desk 193 (j)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "799b55187eb9a4f1cabb82be0bf48ed1859fdf3fa124364777fbd58db358670f",
+  "frames": "d9aae9e676f690e35d9b1de24582df03af0690fbabf5045ecd9dc44ab823ec24"
+ }
+}

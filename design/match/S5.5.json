@@ -1,0 +1,91 @@
+{
+ "sid": "S5.5",
+ "verdict": "deviates",
+ "frames": [
+  "c11/S5.5/Count the cash",
+  "c5/S5.5/Count the cash · nothing counted yet",
+  "c5/S5.5/Verify mode · a difference",
+  "c5/S5.5/Verify mode · matches",
+  "c5/S5.5/Collect mode · the gollak"
+ ],
+ "captures": [
+  "S5.5__verify-empty",
+  "S5.5__verify-difference",
+  "S5.5__verify-matches",
+  "S5.5__collect"
+ ],
+ "screen_files": [
+  "app/lib/features/cash_count/screens/s5_5_cash_count_screen.dart",
+  "app/lib/features/cash_count/widgets/denomination_grid.dart",
+  "app/lib/features/cash_count/widgets/count_parts.dart",
+  "app/lib/features/cash_count/cash_count_routes.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c5/c11 S5.5 (all frames): Material AppBar centred ('Count the cash'; 'Open and count' in collect mode), no back chevron in the capture; the frame left-aligns the title beside a back chevron, and in collect mode titles it 'Gollak · Open and count'",
+   "reason": "[shared] app bar (centred iOS title); [screen] collect title omits the A/C name (it is the first body line instead)",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c5/c11 S5.5 *Count the cash · nothing counted yet* (S5.5__verify-empty): the body opens with the A/C name 'Cash in hand', 'The book already knows this balance; the count checks it.' and 'Not counted yet' before the figure; the frame opens straight on 'COUNTED TOTAL ₹0'",
+   "reason": "[screen] extra header lines above the counted total",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c5/c11 S5.5 *nothing counted yet*: with nothing counted the app already states the difference — red ↘ '₹21,600 less than the book — we'll adjust it' — under 'The book says ₹21,600'; the frame shows 'Book says ₹1,30,600 · start counting' and no difference until something is counted",
+   "reason": "[screen] defect — a ₹0 count is presented as a shortage to be adjusted before the user has counted anything",
+   "authority": "07 §5.5 🔒; 02 §8.2 🔒 (a count never moves money); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c5/c11 S5.5 verify mode: opens on a single 'Counted total' text field with a 'Count note by note' switch (off), then 'Who counted' and 'Witness' fields; the frame opens on the denomination grid (₹500…₹10 rows with square − / count / + steppers and a line total, a Coins field) with 'Just enter the total instead' as a link",
+   "reason": "[screen] default entry mode (single figure first vs grid first) and the switch-vs-link control; who-counted / witness fields are visible in the app and not in the frame's verify mode",
+   "authority": "07 §13 🔒 (accepts either a single figure or the denomination sheet); 07 §5.5 🔒; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c5 S5.5 *Verify mode · a difference* (S5.5__verify-difference): 'Counted total' caption in sentence case, '₹21,000' hero, then 'The book says ₹21,600' and a red ↘ arrow with '₹600 less than the book — we'll adjust it' in ink; the frame uses an uppercase 'COUNTED TOTAL' caption and an amber ⓵ with the sentence in amber, and under Save: 'The ₹600 is posted as a cash shortage, dated today.'",
+   "reason": "[screen] the consequence line under Save is absent (the guided S2.4 confirmation follows Save instead, ADR 2026-09-03b §2); difference icon/colour differ — the app's red arrow is the debit token on an icon, the frame's amber is warning on words, both allowed. Caption style is [shared] section caption",
+   "authority": "ADR 2026-09-03b §2 🔒; 07 §1 rule 3 🔒; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c5 S5.5 *Verify mode · matches* (S5.5__verify-matches): green ⊙ 'Matches the book — nothing to adjust' in ink; the frame's '✓ Matches the book' in green with 'Nothing to adjust. The count is recorded as it stands.' under Save",
+   "reason": "[screen] wording split differs; status word in green is allowed",
+   "authority": "07 §5.5 🔒; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c5/c11 S5.5: the hero figure shows wide tabular gaps ('₹2 1,600' — the narrow 1 is set on a tabular advance); the frame's '₹1,30,000' is set tight",
+   "reason": "[shared] amount hero (RkType.tabular — FontFeature.tabularFigures, tokens.dart:167 — on the hero size)",
+   "authority": "design/tokens/tokens.json type roles; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c5 S5.5 *Collect mode · the gollak* (S5.5__collect): the denomination grid is drawn only ~256 px wide (rows end at x≈256 of 390) and its rows drift sideways from row to row (₹500 starts at x=16, ₹50 at x=20), steppers are bare −/+ glyphs and the line totals sit at the grid's right edge; the frame's rows are full width with square bordered steppers and right-aligned totals",
+   "reason": "[screen] defect — DenominationGrid in collect mode does not take the full width and its rows are not aligned",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout); 07 §1 rule 11 🔒 (containers sized for the longest scripts — a 256 px grid leaves no room for PA/HI growth)"
+  },
+  {
+   "what": "c5 S5.5 *Collect mode · the gollak*: the 'Count note by note' switch is drawn disabled-on with a help line that repeats the header sentence ('Nobody knows what is inside until it is opened, so this count is the record.' appears twice); the frame has no switch in collect mode",
+   "reason": "[screen] redundant control and duplicated copy (the grid is mandatory for a collection count)",
+   "authority": "02 §8.2 🔒 (collection: denomination grid and two names required)"
+  },
+  {
+   "what": "c5 S5.5 *Collect mode · the gollak*: the frame's lead 'What you count is what came in. There is nothing to match it against.' and the disabled 'Save the count' with 'Two names are needed before this can be saved.'; the app's Save is disabled with 'Write what you counted.'",
+   "reason": "[screen] copy of the hero help and the save reason (the two-names reason only appears once a total is entered, if at all — not exercised)",
+   "authority": "02 §8.2 🔒; 13 §4.3"
+  },
+  {
+   "what": "S5.5: primary button rounded (radius 12); the frame's is square",
+   "reason": "[shared] primary button radius",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "S5.5: theme letterSpacing",
+   "reason": "[shared] theme letterSpacing → desk 193(j)",
+   "authority": "desk 193(j)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "56796fe0aa59701c1239abfff58bbe8202ce0da05fe5896a07456721030c195d",
+  "frames": "f590701017de7d344fe21a92b60e5a3ebb7485fd4dc4a9a65cff75dfa5010efe"
+ }
+}

@@ -35,18 +35,19 @@
   "app/lib/features/entry/widgets/entry_keypad.dart",
   "app/lib/features/entry/widgets/entry_preview_line.dart",
   "app/lib/features/entry/widgets/entry_date_picker.dart",
-  "app/lib/features/entry/widgets/entry_drawings_banner.dart"
+  "app/lib/features/entry/widgets/entry_drawings_banner.dart",
+  "app/lib/features/entry/widgets/entry_tick_text.dart"
  ],
  "deviations": [
   {
-   "what": "c2 S2 *State 1 · typing* (and c11 *First entry · typing*): the verb control is a horizontally scrolling row of five chips (selected one filled navy with ✓, others beige), clipped at 'Gave on cre…' at 390, with no close ✕; the frame draws ✕ at the left, one centred outlined pill (arrow + 'Money out') with five pager dots under it, and the import icon at the right",
+   "what": "c2 S2 *State 1 · typing* (and c11 *First entry · typing*): the verb control is a horizontally scrolling row of five chips (selected one filled navy with ✓, others beige) that pans to keep the chosen verb in view, so its neighbours are clipped at the edges at 390; no close ✕ when S2 is the root; the frame draws ✕ at the left, one centred outlined pill (arrow + 'Money out') with five pager dots under it, and the import icon at the right",
    "reason": "[shared] verb pill",
    "authority": "07 §5 🔒 (verb shown as a coloured header chip, switchable by swipe or tap); ADR 2026-09-03b §1 🔒 (five positions)"
   },
   {
    "what": "c2 S2 *State 1 · typing* (and c11 *First entry · typing*): the frame tints the pill's border, arrow and word in the Money-out red, and sets the typed amount in that red with a smaller muted ₹ and a caret; the app's pill selection is navy and the amount is full ink with no caret",
-   "reason": "[canvas-wrong] for the pill (the debit token colours amounts only). ⚠️ SPEC for the typed amount: it is an amount, but rule 3 pairs a tinted amount with a sign and the typed amount has none — not tinted until ruled (open). Caret and the smaller ₹ are [screen]",
-   "authority": "07 §1 rule 3 🔒; ADR 2026-09-05f §H1"
+   "reason": "[canvas-wrong] for the pill (the debit token colours amounts only) and for the typed amount: PLAN desk 192 (✅ 10 Oct) ruled the S2 typed amount stays ink — rule 3 pairs a tinted amount with a sign, and the typed amount has none. Caret and the smaller ₹ are [screen]",
+   "authority": "07 §1 rule 3 🔒; ADR 2026-09-05f §H1; PLAN desk 192 ruling"
   },
   {
    "what": "c2 S2 *State 1 · typing*: no close ✕ is drawn anywhere on the screen (the capture mounts S2 as a root; production pushes it, but the screen itself draws no close either)",
@@ -59,19 +60,24 @@
    "authority": "ADR 2026-09-03 (import button in the S2 header); ADR 2026-10-05 §1"
   },
   {
-   "what": "c2 S2 *Slot labels by verb* / *State 1 · typing*: slot labels are sentence case at label size ('From', 'For', 'From whom', 'What did you take'); the frame sets them as uppercase letter-spaced captions ('FROM', 'FOR', 'FROM WHOM')",
-   "reason": "[shared] section caption",
-   "authority": "ADR 2026-10-05 §1; 07 §5 step 2 🔒 (labels by verb — wording unchanged)"
+   "what": "c2 S2 *Slot labels by verb* / *State 1 · typing*: slot labels are sentence case at label size ('From', 'For', 'From whom', 'What did you take'), untracked; the frame sets them as uppercase captions tracked 0.08em ('FROM', 'FOR', 'FROM WHOM')",
+   "reason": "[shared] section caption — case and tracking. The theme tracks every role 0 (desk 193 (j)) because tokens.json carries no letter-spacing; the frame's per-role tracking (0.08em captions here, and below) needs a token before any widget can use it",
+   "authority": "ADR 2026-10-05 §1; 07 §5 step 2 🔒 (labels by verb — wording unchanged); design/tokens/tokens.json (no tracking token)"
   },
   {
-   "what": "c2 S2 *State 1 · typing* (and c11 *First entry · typing*): the money slot is a 'Choose an account' search field and then the chip row; the frame draws only the chip row under FROM, ending in a dashed '+' chip. The app's '+ More' text button is clipped ('+ Mc') at 390",
-   "reason": "[screen] slot layout; the clipped '+ More' is a defect",
+   "what": "c2 S2 *State 1 · typing*: the hero amount is drawn untracked; the frame tracks it -0.02em (and the empty-slot ⋯ placeholders 0.16em, which the app draws as icons, desk 193 (e))",
+   "reason": "[shared] type tracking — tokens.json defines no letter-spacing, and a value in a widget would be a literal outside the sole token source; the theme's 0 (desk 193 (j)) removes Material's inherited 0.1–0.5 and matches the frame's untracked running text",
+   "authority": "CLAUDE.md § Precedence (tokens.json the sole source for values); PLAN desk 193 (j)"
+  },
+  {
+   "what": "c2 S2 *State 1 · typing* (and c11 *First entry · typing*): the money slot is a 'Choose an account' search field and then the chip row; the frame draws only the chip row under FROM. The row ends in the frame's dashed '+' chip, which stays wholly on screen (desk 193 (f)); its 'More' label is its tooltip and spoken name",
+   "reason": "[screen] slot layout",
    "authority": "07 §5 step 2 🔒 (three most-used money accounts plus + More); ADR 2026-10-05 §1"
   },
   {
-   "what": "c2 S2 *State 1 · typing* (and c11 *First entry · typing*): unselected chips are beige-filled with no border; the frame's are paper with a hairline. Selected chip (navy with ✓) matches",
+   "what": "c2 S2 *State 1 · typing* (and c11 *First entry · typing*): unselected chips are beige-filled with no border; the frame's are paper with a hairline. Selected chip (navy with ✓) matches; the chips and the dashed + draw at the chip height (body line + 2 × s2) centred in a hit area at least 44 pt tall and wide, so the row is 44 tall",
    "reason": "[shared] chip",
-   "authority": "ADR 2026-10-05 §1"
+   "authority": "ADR 2026-10-05 §1; 13 §8 (touch targets ≥ 44) 🔒; design-system §3.1 item 9"
   },
   {
    "what": "c2 S2 *State 1–3*: the ledger slot is an underlined field with a search icon (focused: filled with a 2 px navy underline; answered: grey circled tick); the frame draws a hairline box with a chevron (focused: navy outline box; answered: green tick)",
@@ -84,11 +90,6 @@
    "authority": "07 §5 steps 4–5 🔒"
   },
   {
-   "what": "c2 S2 *Live preview line · five states* / *State 1–3*: the preview's ⋯ placeholders and → arrow draw as tofu boxes ('₹2,400 · ☐☐☐', 'Cash in hand ☐ Diesel'): U+22EF and U+2192 are not in Mukta / Mukta Mahee / Noto Sans; the frame draws dotted placeholders and an arrow",
-   "reason": "[screen] defect — glyphs outside the bundled faces (a system-face fallback on a phone, a box in the capture); draw the arrow as an icon and the dots in a covered glyph",
-   "authority": "07 §5 step 5.5 🔒 (empty slots are dotted placeholders); 11 §4.4; ADR 2026-10-05 §2"
-  },
-  {
    "what": "c2 S2 *Preview · standard*: the complete line is one weight; the frame sets three weights (amount emphasised, names normal, narration lighter)",
    "reason": "[screen] preview typography",
    "authority": "07 §5 step 5.5 🔒 (note appended in lighter type)"
@@ -99,9 +100,9 @@
    "authority": "ADR 2026-10-10b §1 (audit scope); ⚠️ SPEC: which screen produces a split entry (open)"
   },
   {
-   "what": "c2 S2 *State 1 · typing*: the keypad is four columns with '+' and '.' on the right, a full-width 0, beige borderless keys and a tofu ⌫ (U+232B not in the bundled faces); the frame draws a 3×4 grid (1–9, '.', 0, ⌫ icon) of paper keys with hairlines on a darker band",
-   "reason": "[screen] keypad layout; the ⌫ tofu is a defect (use the backspace icon)",
-   "authority": "ADR 2026-10-05 §1; 11 §4.4"
+   "what": "c2 S2 *State 1 · typing*: the keypad is four columns with '+' and '.' on the right, a full-width 0 and beige borderless keys; the frame draws a 3×4 grid (1–9, '.', 0, ⌫) of paper keys with hairlines on a darker band. The ⌫ is now the backspace icon (desk 193 (e))",
+   "reason": "[screen] keypad layout",
+   "authority": "ADR 2026-10-05 §1"
   },
   {
    "what": "c2 S2 *State 1 · typing*: the frame's keypad has no '+' key",
@@ -109,9 +110,9 @@
    "authority": "07 §5 step 1 🔒"
   },
   {
-   "what": "c2/c11 S2 *Chosen · Save turns solid*: the enabled Save is an outlined paper stadium with navy text (disabled: grey-filled stadium); the frame's Save is a full-width small-radius rectangle that turns solid navy when complete (disabled: paper with a hairline and muted text)",
-   "reason": "[shared] primary button — and a defect against the spec: Save must turn solid",
-   "authority": "07 §5 step 5.5 🔒 (Save turns solid)"
+   "what": "c2/c11 S2 *Chosen · Save turns solid*: Save is solid navy when complete and paper with a hairline and muted words when not, as drawn (desk 193 (d)); its corner radius is the theme's RkRadius.md, where the frame draws a smaller radius",
+   "reason": "[shared] primary button radius — desk 192 ruled the shared button radius comes from tokens.json, not a frame",
+   "authority": "design/tokens/tokens.json (radius); PLAN desk 192 ruling; 07 §5 step 5.5 🔒"
   },
   {
    "what": "c2 S2 *State 2 · choosing, in the same space*: picker rows are plain names with a signed tinted balance (+₹5,000) and no icon or class line; the frame draws an icon tile and a class line ('category', 'supplier') per row, and on *No chip row · milk on khata* a bare '₹3,600 Cr'",
@@ -124,9 +125,9 @@
    "authority": "07 §5 step 3 🔒"
   },
   {
-   "what": "c2 S2 *No chip row · milk on khata*: the capture opens FROM WHOM before choosing the expense, so 'What did you take' and its chip row still show; the frame has Milk Expense already chosen and no chip row. The active verb ('Took on credit') is scrolled out of the pill row, so no verb shows as chosen",
-   "reason": "[screen] fixture order for the chip row; the hidden active verb is a [shared] verb pill defect",
-   "authority": "07 §5 step 2 🔒 (chip row absent when no money account is involved); 07 §5 🔒 (verb shown)"
+   "what": "c2 S2 *No chip row · milk on khata*: the capture opens FROM WHOM before choosing the expense, so 'What did you take' and its chip row still show; the frame has Milk Expense already chosen and no chip row. The chosen verb ('Took on credit') is in view (desk 193 (g))",
+   "reason": "[screen] fixture order for the chip row",
+   "authority": "07 §5 step 2 🔒 (chip row absent when no money account is involved)"
   },
   {
    "what": "c11 S2 *First entry · typing*: the pager under the pill has four dots",
@@ -142,7 +143,7 @@
  "approved_by_owner": false,
  "checked_on": "2026-10-10",
  "hashes": {
-  "screens": "64232b9011882f3823a9758430d3ea7e3c389e65ea68887e635b4bb6cdc91584",
+  "screens": "212b1a58806f5adbe0f85d7968dbc3e64ce1d8bf9ad7993b8f84071bb651bea9",
   "frames": "7c1ce22abfd93916bcdd3df1fbaf31e824fa2ad8c1b6b24b9837a7a4c662a59b"
  }
 }

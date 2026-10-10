@@ -92,13 +92,13 @@ void main() {
 
       expect(titleText('Cash in hand'), findsOneWidget);
       // Two rows — the seed's own cash account and the `Cash A/c` every book
-      // is seeded with (ADR 2026-09-09c §1) — plus the line total. The total
-      // and the funded account both read ₹21,600, and integer paise never
-      // became a float on the way.
-      expect(find.byType(RkLabelAmountRow), findsNWidgets(3));
+      // is seeded with (ADR 2026-09-09c §1) — under the total header (07 §7,
+      // F1-193-3). The total and the funded account both read ₹21,600, and
+      // integer paise never became a float on the way.
+      expect(find.byType(RkLabelAmountRow), findsNWidgets(2));
       expect(find.text('Cash A/c'), findsOneWidget);
       expect(money('+₹21,600'), findsNWidgets(2));
-      expect(find.text('Total'), findsOneWidget);
+      expect(find.text('TOTAL'), findsOneWidget);
       // Not the other lines' accounts.
       expect(find.text('SBI Saving'), findsNothing);
       expect(find.text('Ramesh'), findsNothing);
@@ -152,7 +152,8 @@ void main() {
       );
 
       expect(find.text('SBI Saving'), findsOneWidget);
-      expect(find.byType(RkLabelAmountRow), findsNWidgets(2)); // row + total
+      // One row; the total is the header's (F1-193-3), not a row.
+      expect(find.byType(RkLabelAmountRow), findsOneWidget);
       await unmount(tester);
     });
 
@@ -297,9 +298,10 @@ void main() {
     testWidgets('F1-07-50 strings resolve in EN, PA and HI', (tester) async {
       tallViewport(tester);
       for (final (locale, title, total) in const [
-        (Locale('en'), 'You will get', 'Total'),
-        (Locale('pa'), 'ਤੁਸੀਂ ਲੈਣੇ ਹਨ', 'ਕੁੱਲ'),
-        (Locale('hi'), 'आपको मिलने हैं', 'कुल'),
+        // The party line's total-header caption (07 §7, F1-193-3).
+        (Locale('en'), 'You will get', 'OWED TO YOU, IN ALL'),
+        (Locale('pa'), 'ਤੁਸੀਂ ਲੈਣੇ ਹਨ', 'ਤੁਸੀਂ ਕੁੱਲ ਲੈਣੇ ਹਨ'),
+        (Locale('hi'), 'आपको मिलने हैं', 'आपको कुल मिलने हैं'),
       ]) {
         final seed = await seedSoloLedger();
         await pumpRk(

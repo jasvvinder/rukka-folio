@@ -41,6 +41,8 @@
 // **Undo (10 s)**, and the keypad stays open, zeroed, for the next entry
 // (07 §5 steps 6–7). Undo posts an append-only **reversal** (02 §5) — the
 // entry and its mirror both stay in history; nothing is ever deleted.
+import 'dart:math' as math;
+
 import 'package:core_ledger/core_ledger.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -72,6 +74,7 @@ import '../widgets/entry_drawings_banner.dart';
 import '../widgets/entry_keypad.dart';
 import '../widgets/entry_preview_line.dart';
 import '../widgets/entry_slot_field.dart';
+import '../widgets/entry_tick_text.dart';
 import '../widgets/entry_verb_pill.dart';
 
 /// Widget keys the screen's own tests drive it by.
@@ -106,6 +109,9 @@ abstract final class AddEntryKeys {
 
   /// Save.
   static const save = Key('entry.save');
+
+  /// The Saved toast's message — `entry.saved`, its ✓ drawn as an icon.
+  static const savedMessage = Key('entry.saved_message');
 
   /// A chip slot's label, shown above its chips in place of the field box
   /// while the soft keyboard is up (PLAN desk 173).
@@ -538,7 +544,10 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
       messenger.hideCurrentSnackBar();
       messenger.showSnackBar(
         SnackBar(
-          content: Text(l10n.entrySaved),
+          content: EntryTickText(
+            l10n.entrySaved,
+            key: AddEntryKeys.savedMessage,
+          ),
           duration: const Duration(seconds: 10),
           action: SnackBarAction(
             label: l10n.entryUndo,
@@ -662,7 +671,10 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
       messenger.hideCurrentSnackBar();
       messenger.showSnackBar(
         SnackBar(
-          content: Text(l10n.entrySaved),
+          content: EntryTickText(
+            l10n.entrySaved,
+            key: AddEntryKeys.savedMessage,
+          ),
           duration: const Duration(seconds: 10),
           action: SnackBarAction(
             label: l10n.entryUndo,
@@ -1032,37 +1044,10 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
                 moreLabel: l10n.entryChipsMore,
               ),
             ),
-          // S2.5 (07 §5 "Owner's drawings" 🔒, ADR 2026-09-02): fires the
-          // instant Money out's ledger slot answers to the book's Drawings
-          // account — never silently, and never as a blocking sheet.
-          if (_kind == EntryKind.moneyOut &&
-              slot == EntrySlot.ledger &&
-              _idOf(slot) != null &&
-              _idOf(slot) == drawingsAccountOf(accounts)?.id)
-            // ⚠️ SPEC: at 200 % on 360×800 the sentence 07 §5 🔒 fixes runs
-            // to ~312 pt — more than the whole free height the fixed rows
-            // leave, so a rigid banner overflows the body by ~90 pt. 07 §5's
-            // "never scrolls" 🔒 governs the *screen*, and it still does not
-            // move: the banner is made flexible instead, so it takes only
-            // what is free (splitting it with the lower region) and carries
-            // its own scroll for the remainder, exactly as the picker's list
-            // and its create question already do. This is a second instance
-            // of the collision the owner parked on 07 §5 — the conservative
-            // reading is kept and nothing is resolved here; see the lane
-            // report.
-            Flexible(
-              fit: FlexFit.loose,
-              child: SingleChildScrollView(
-                child: Padding(
-                  padding: const EdgeInsets.only(top: RkSpace.s2),
-                  child: EntryDrawingsBanner(
-                    message: l10n.entryDrawingsConfirmation,
-                  ),
-                ),
-              ),
-            ),
         ],
-      // ── date · and the optional row ───────────────────────────────────
+    ];
+    // ── date · and the optional row, then the preview ───────────────────
+    final tail = <Widget>[
       if (!searching) ...[
         Padding(
           padding: EdgeInsets.symmetric(vertical: rowPad),
@@ -1113,72 +1098,148 @@ class _AddEntryScreenState extends State<AddEntryScreen> {
       ],
     ];
 
+    // S2.5 (07 §5 "Owner's drawings" 🔒, ADR 2026-09-02): fires the instant
+    // Money out's ledger slot answers to the book's Drawings account — never
+    // silently, and never as a blocking sheet. Money out draws its ledger
+    // slot last, so the banner sits straight under it, above the date row.
+    // While that slot is being re-searched with the keyboard up its field is
+    // hidden, and so is its banner — the picker gets the whole free height
+    // (as at HEAD before desk 193 (h) moved the banner out of the slot loop).
+    final drawings =
+        _kind == EntryKind.moneyOut &&
+        _idOf(EntrySlot.ledger) != null &&
+        _idOf(EntrySlot.ledger) == drawingsAccountOf(accounts)?.id &&
+        !(searching && _openSlot == EntrySlot.ledger);
+
     return Column(
       children: [
         ...upper,
-        // ── the lower region: keypad, or one slot's list, in place ────────
+        // ── banner · date · preview · the lower region, sharing the rest ──
         // Keyed, so the picker — and the search field the user is typing
-        // into — keeps its element when the rows above it change (desk 173).
+        // into — keeps its element when the rows above it change (desk 173);
+        // each child below is a keyed LayoutId for the same reason.
+        //
+        // ⚠️ SPEC: at 200 % on 360×800 the drawings sentence 07 §5 🔒 fixes
+        // runs to ~312 pt — more than the whole free height the fixed rows
+        // leave, so a rigid banner overflows the body by ~90 pt. 07 §5's
+        // "never scrolls" 🔒 governs the *screen*, and it still does not
+        // move: the banner takes at most half of what is free and carries its
+        // own scroll for the remainder, exactly as the picker's list and its
+        // create question already do. This is a second instance of the
+        // collision the owner parked on 07 §5 — the conservative reading is
+        // kept and nothing is resolved here.
+        //
+        // At its natural height (every default size) the banner takes only
+        // that, and the lower region the whole of the rest — a loose Flexible
+        // beside an Expanded had split the space in half and left the unused
+        // part of the banner's half empty under Save (PLAN desk 193 (h)).
         Expanded(
           key: const ValueKey('entry.lower'),
-          child: _dateOpen
-              ? EntryDatePicker(
-                  key: AddEntryKeys.datePicker,
-                  today: ledger.today(),
-                  selected: _selectedDate ?? ledger.today(),
-                  onPick: _pickDate,
-                  onFixOldEntry: _fixOldEntry,
-                  // ⚠️ SPEC (see entry_date_picker.dart's file-level note):
-                  // `LocalLedger` has no public period-lock query yet, so
-                  // every period reads as open here — no book in this
-                  // milestone's build ever locks a month.
-                )
-              : _openSlot == null
-              ? EntryKeypad(
-                  key: AddEntryKeys.keypad,
-                  onKey: _onKey,
-                  keyOf: AddEntryKeys.pad,
-                )
-              : EntryAccountPicker(
-                  key: AddEntryKeys.picker,
-                  searchKey: AddEntryKeys.search,
-                  createKey: AddEntryKeys.create,
-                  spec: plan.spec(_openSlot!),
-                  rows: _candidatesFor(
-                    _openSlot!,
-                    accounts,
-                    counts,
-                    toAccounts,
+          child: CustomMultiChildLayout(
+            delegate: _LowerShare(),
+            children: [
+              if (drawings)
+                LayoutId(
+                  id: _LowerShare.banner,
+                  child: SingleChildScrollView(
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: RkSpace.s2),
+                      child: EntryDrawingsBanner(
+                        message: l10n.entryDrawingsConfirmation,
+                      ),
+                    ),
                   ),
-                  onPick: (id) => _choose(_openSlot!, id),
-                  onCreate: (name, accountClass) =>
-                      _create(ledger, bookId, name, accountClass),
-                  // 13 §3.2 row S2.3: one chooser, two destinations. The
-                  // other books appear only on *Move money*'s TO slot — no
-                  // other slot of any other verb can be answered by a book.
-                  books:
-                      _kind == EntryKind.transfer &&
-                          _openSlot == EntrySlot.ledger
-                      ? otherBooks(books, bookId)
-                      : const [],
-                  onPickBook: (id) => _chooseBook(ledger, id),
-                  inBook: _betweenBooks && _openSlot == EntrySlot.ledger
-                      ? bookOf(books, _toBookId)?.name
-                      : null,
-                  onLeaveBook: _leaveBook,
-                  searchLabel: searching
-                      ? slotLabel(l10n, plan.spec(_openSlot!).label)
-                      : null,
                 ),
+              if (tail.isNotEmpty) ...[
+                LayoutId(id: _LowerShare.date, child: tail[0]),
+                LayoutId(id: _LowerShare.preview, child: tail[1]),
+              ],
+              LayoutId(
+                id: _LowerShare.lower,
+                // ── the lower region: keypad, or one slot's list ─────────
+                child: _dateOpen
+                    ? EntryDatePicker(
+                        key: AddEntryKeys.datePicker,
+                        today: ledger.today(),
+                        selected: _selectedDate ?? ledger.today(),
+                        onPick: _pickDate,
+                        onFixOldEntry: _fixOldEntry,
+                        // ⚠️ SPEC (see entry_date_picker.dart's file-level note):
+                        // `LocalLedger` has no public period-lock query yet, so
+                        // every period reads as open here — no book in this
+                        // milestone's build ever locks a month.
+                      )
+                    : _openSlot == null
+                    ? EntryKeypad(
+                        key: AddEntryKeys.keypad,
+                        onKey: _onKey,
+                        keyOf: AddEntryKeys.pad,
+                      )
+                    : EntryAccountPicker(
+                        key: AddEntryKeys.picker,
+                        searchKey: AddEntryKeys.search,
+                        createKey: AddEntryKeys.create,
+                        spec: plan.spec(_openSlot!),
+                        rows: _candidatesFor(
+                          _openSlot!,
+                          accounts,
+                          counts,
+                          toAccounts,
+                        ),
+                        onPick: (id) => _choose(_openSlot!, id),
+                        onCreate: (name, accountClass) =>
+                            _create(ledger, bookId, name, accountClass),
+                        // 13 §3.2 row S2.3: one chooser, two destinations. The
+                        // other books appear only on *Move money*'s TO slot — no
+                        // other slot of any other verb can be answered by a book.
+                        books:
+                            _kind == EntryKind.transfer &&
+                                _openSlot == EntrySlot.ledger
+                            ? otherBooks(books, bookId)
+                            : const [],
+                        onPickBook: (id) => _chooseBook(ledger, id),
+                        inBook: _betweenBooks && _openSlot == EntrySlot.ledger
+                            ? bookOf(books, _toBookId)?.name
+                            : null,
+                        onLeaveBook: _leaveBook,
+                        searchLabel: searching
+                            ? slotLabel(l10n, plan.spec(_openSlot!).label)
+                            : null,
+                      ),
+              ),
+            ],
+          ),
         ),
         // ── Save: solid the instant the entry is complete ─────────────────
+        // 07 §5 step 5.5 🔒: the enabled Save is the solid primary (PLAN desk
+        // 193 (d) — an ElevatedButton drew it as an outlined paper stadium).
+        // Disabled, it is paper with a hairline and muted words, as canvas 2
+        // *State 1 · typing* draws it; the radius is the theme's, from
+        // tokens.json (desk 192).
         if (!searching)
           Padding(
             padding: EdgeInsets.symmetric(vertical: rowPad),
             child: SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
+              child: FilledButton(
                 key: AddEntryKeys.save,
+                style: ButtonStyle(
+                  backgroundColor: WidgetStateProperty.resolveWith(
+                    (states) => states.contains(WidgetState.disabled)
+                        ? Theme.of(context).colorScheme.surface
+                        : null,
+                  ),
+                  foregroundColor: WidgetStateProperty.resolveWith(
+                    (states) => states.contains(WidgetState.disabled)
+                        ? status.muted
+                        : null,
+                  ),
+                  side: WidgetStateProperty.resolveWith(
+                    (states) => states.contains(WidgetState.disabled)
+                        ? BorderSide(color: status.hairline)
+                        : null,
+                  ),
+                ),
                 onPressed: _complete && !_saving
                     ? () => _save(ledger, bookId, books)
                     : null,
@@ -1287,4 +1348,53 @@ class _ErrorState extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Lays out what shares the space under the slots (PLAN desk 193 (h)): the
+/// S2.5 drawings banner, the date row, the preview line, and the lower region
+/// (keypad · picker · calendar), top to bottom.
+///
+/// The date row and the preview take their natural height. Of what is left,
+/// the banner takes its natural height but never more than half — beyond
+/// that it scrolls inside itself — and the lower region takes **all** the
+/// rest, so no space is ever left over under Save.
+class _LowerShare extends MultiChildLayoutDelegate {
+  _LowerShare();
+
+  static const banner = 'banner';
+  static const date = 'date';
+  static const preview = 'preview';
+  static const lower = 'lower';
+
+  @override
+  void performLayout(Size size) {
+    final w = size.width;
+    final row = BoxConstraints.tightFor(width: w);
+    final dateH = hasChild(date) ? layoutChild(date, row).height : 0.0;
+    final previewH = hasChild(preview) ? layoutChild(preview, row).height : 0.0;
+    final free = math.max(0.0, size.height - dateH - previewH);
+    final bannerH = hasChild(banner)
+        ? layoutChild(
+            banner,
+            BoxConstraints(minWidth: w, maxWidth: w, maxHeight: free / 2),
+          ).height
+        : 0.0;
+    final lowerH = math.max(0.0, free - bannerH);
+    layoutChild(lower, BoxConstraints.tightFor(width: w, height: lowerH));
+
+    var y = 0.0;
+    for (final (id, h) in [
+      (banner, bannerH),
+      (date, dateH),
+      (preview, previewH),
+      (lower, lowerH),
+    ]) {
+      if (!hasChild(id)) continue;
+      positionChild(id, Offset(0, y));
+      y += h;
+    }
+  }
+
+  @override
+  bool shouldRelayout(_LowerShare oldDelegate) => false;
 }

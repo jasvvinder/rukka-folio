@@ -178,52 +178,77 @@ class HomeVerificationCard extends StatelessWidget {
     final status = RkStatusColors.of(context);
     final locale = Localizations.localeOf(context);
     final tint = balanced ? status.credit : status.pending;
-    return RkRuledCard(
-      ruleColor: tint,
-      child: Padding(
-        padding: const EdgeInsets.all(RkSpace.cardPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Colour never alone: icon + word + the sentence below (07 §1 r3).
-            Wrap(
-              spacing: RkSpace.s2,
-              runSpacing: RkSpace.s1,
-              crossAxisAlignment: WrapCrossAlignment.center,
-              children: [
-                Icon(
-                  balanced ? Icons.check_circle_outline : Icons.error_outline,
-                  size: 18,
-                  color: tint,
-                ),
-                Text(
+    final open = onOpenTrialBalance;
+    // Canvas c7/c15/c2 S1 *Home · the baseline*: a title row — tick, the
+    // title in the tint, and (on the door) the chevron in that same row —
+    // over a small muted line indented under the title text (the frame's
+    // 19 px tick + 9 px gap = 28 px; here a 20 px tick + an 8 px gap, the
+    // 4pt grid's nearest). Padding is the frame's 10/14 on the 4pt grid
+    // (8/12) — the card is a status strip, not a figure card.
+    const tick = RkSpace.s5;
+    const tickGap = RkSpace.s2;
+    final content = Padding(
+      padding: const EdgeInsets.symmetric(
+        horizontal: RkSpace.s3,
+        vertical: RkSpace.s2,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Colour never alone: icon + word + the sentence below (07 §1 r3).
+          Row(
+            children: [
+              Icon(
+                balanced ? Icons.check : Icons.error_outline,
+                size: tick,
+                color: tint,
+              ),
+              const SizedBox(width: tickGap),
+              Expanded(
+                child: Text(
                   balanced
                       ? l10n.homeVerifyPillBalanced
                       : l10n.homeVerifyPillCheck,
                   style: Theme.of(context).textTheme.labelLarge
                       ?.copyWith(color: tint),
                 ),
+              ),
+              // The door (07 §4 🔒 "tapping through to the full trial
+              // balance"): the frame's chevron sits in the title row.
+              if (open != null) ...[
+                const SizedBox(width: RkSpace.s2),
+                Icon(
+                  Icons.chevron_right,
+                  size: RkSpace.s4,
+                  color: status.muted,
+                ),
               ],
-            ),
-            const SizedBox(height: RkSpace.s2),
-            Text(
+            ],
+          ),
+          Padding(
+            padding: const EdgeInsetsDirectional.only(start: tick + tickGap),
+            child: Text(
               balanced
                   ? l10n.homeVerifyBalanced
                   : l10n.homeVerifyOff(
                       formatPaise(differencePaise.abs(), locale: locale),
                     ),
-              style: Theme.of(context).textTheme.bodyMedium,
+              style: Theme.of(context).textTheme.bodySmall
+                  ?.copyWith(color: status.muted),
             ),
-            if (onOpenTrialBalance != null) ...[
-              const SizedBox(height: RkSpace.s2),
-              TextButton(
-                onPressed: onOpenTrialBalance,
-                child: Text(l10n.homeVerifyAction),
-              ),
-            ],
-          ],
-        ),
+          ),
+        ],
       ),
+    );
+    return RkRuledCard(
+      ruleColor: tint,
+      child: open == null
+          ? content
+          : Semantics(
+              button: true,
+              label: l10n.homeVerifyAction,
+              child: InkWell(onTap: open, child: content),
+            ),
     );
   }
 }

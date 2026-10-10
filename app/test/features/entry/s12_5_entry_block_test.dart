@@ -133,7 +133,7 @@ Future<void> _fillMoneyOut(WidgetTester tester) async {
 }
 
 bool _saveEnabled(WidgetTester tester) =>
-    tester.widget<ElevatedButton>(find.byKey(AddEntryKeys.save)).enabled;
+    tester.widget<ButtonStyleButton>(find.byKey(AddEntryKeys.save)).enabled;
 
 String? _slotValue(WidgetTester tester, EntrySlot slot) =>
     tester.widget<EntrySlotField>(find.byKey(AddEntryKeys.slot(slot))).value;
@@ -252,7 +252,7 @@ void main() {
         money: 'Cash in hand',
         other: 'Diesel',
       );
-      expect(find.text(l10n.entrySaved), findsNothing);
+      expect(find.byKey(AddEntryKeys.savedMessage), findsNothing);
 
       // Still blocked on the second try — the sheet is not a one-off.
       await _tapSave(tester);
@@ -302,7 +302,11 @@ void main() {
           ...before,
           s.bookId,
         ], reason: '$name: exactly one entry posted');
-        expect(find.text(l10n.entrySaved), findsOneWidget, reason: name);
+        expect(
+          find.byKey(AddEntryKeys.savedMessage),
+          findsOneWidget,
+          reason: name,
+        );
         // 07 §20 🔒: never "your plan lapsed" before the server has said so;
         // 07 §5 *States*: offline = identical, so S2 carries no banner.
         expect(find.text(l10n.subscriptionSheetReadOnlyTitle), findsNothing);

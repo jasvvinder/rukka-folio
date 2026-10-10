@@ -47,7 +47,16 @@ abstract final class HomePaths {
   /// S1.1 Position line drill-down; `:line` is a [PositionLine] wire name.
   static const position = '${RkPaths.home}/position/:line';
 
-  /// The S1.1 path for [line].
-  static String positionOf(PositionLine line) =>
-      '${RkPaths.home}/position/${line.wire}';
+  /// The S1.1 path for [line] over the book Home has in scope ([bookId]),
+  /// so the drill-down totals the same rows as the position row it came from
+  /// (02 §9 "per selected scope"; 13 §2.2). The book rides as `?book=`.
+  static String positionOf(PositionLine line, {String? bookId}) {
+    final path = '${RkPaths.home}/position/${line.wire}';
+    return bookId == null
+        ? path
+        : '$path?$bookQuery=${Uri.encodeQueryComponent(bookId)}';
+  }
+
+  /// The query parameter naming S1.1's book.
+  static const bookQuery = 'book';
 }

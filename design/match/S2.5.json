@@ -19,13 +19,14 @@
   "app/lib/features/entry/widgets/entry_keypad.dart",
   "app/lib/features/entry/widgets/entry_preview_line.dart",
   "app/lib/features/entry/widgets/entry_date_picker.dart",
-  "app/lib/features/entry/widgets/entry_drawings_banner.dart"
+  "app/lib/features/entry/widgets/entry_drawings_banner.dart",
+  "app/lib/features/entry/widgets/entry_tick_text.dart"
  ],
  "deviations": [
   {
    "what": "c12/c2 B5 *Drawings · not a business expense* / *Drawings confirmation · business only*: the frames raise a bottom sheet (person icon, 'Taking money out of the business', a body naming the book, a red-ruled card Amount ₹30,000 · Out of 'Business Cash A/c ⌄' · Recorded as Drawings, an info note, solid 'Confirm' and 'Go back'); the app draws a one-line muted banner under the FOR slot ('Money taken for yourself — recorded as a drawing, not a business expense.') and posts on Save with no confirm step",
-   "reason": "[screen] ⚠️ SPEC (open): 07 §5 says a one-line confirmation and also 'The sheet exists so…', while the single-screen rule forbids overlays — the app takes the one-line reading until the owner rules",
-   "authority": "07 §5 *Owner’s drawings* 🔒 and *Single screen, always* 🔒; ADR 2026-09-02"
+   "reason": "[canvas-wrong] PLAN desk 192 (✅ 10 Oct) ruled S2.5 drawings keeps the one-line banner — 07 §5 *Single screen, always* 🔒 forbids the overlay, so the Confirm sheet is canvas-wrong; the posting needs no confirm step",
+   "authority": "07 §5 *Owner’s drawings* 🔒 and *Single screen, always* 🔒; ADR 2026-09-02; PLAN desk 192 ruling"
   },
   {
    "what": "c12/c2 B5: the frame's backdrop is not S2 ('MONEY OUT · SHARMA TEXTILE' caption, From / 'Paid to Rahul Sharma · owner' label rows)",
@@ -38,20 +39,15 @@
    "authority": "07 §5 *Owner’s drawings* 🔒"
   },
   {
-   "what": "S2.5 capture (390×844): with the banner shown the keypad rows shrink to about half height and about 140 pt of empty space is left under Save",
-   "reason": "[screen] defect — the lower region does not share the space it has; not drawn on the canvas",
-   "authority": "07 §5 *Single screen, always* 🔒; 07 §1 rule 2 🔒"
-  },
-  {
    "what": "c12/c2 B5: the frame tints the amount ₹30,000 red in the card",
-   "reason": "[screen] the app's typed amount is ink (see S2.json, the typed-amount ⚠️ SPEC)",
-   "authority": "07 §1 rule 3 🔒"
+   "reason": "[canvas-wrong] PLAN desk 192 ruled the typed amount stays ink (see S2.json)",
+   "authority": "07 §1 rule 3 🔒; PLAN desk 192 ruling"
   }
  ],
  "approved_by_owner": false,
  "checked_on": "2026-10-10",
  "hashes": {
-  "screens": "64232b9011882f3823a9758430d3ea7e3c389e65ea68887e635b4bb6cdc91584",
+  "screens": "212b1a58806f5adbe0f85d7968dbc3e64ce1d8bf9ad7993b8f84071bb651bea9",
   "frames": "088502df230d70b1838b507b6078bf43051af37bbe674a135e3685f5a5f80c52"
  }
 }

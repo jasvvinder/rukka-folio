@@ -1,0 +1,64 @@
+{
+ "sid": "S6.3",
+ "verdict": "deviates",
+ "frames": [
+  "c9/S6.3/Structural approval · 2 of 3 approved"
+ ],
+ "captures": [
+  "S6.3__unreachable-2-of-3"
+ ],
+ "screen_files": [
+  "app/lib/features/inbox/screens/s6_3_structural_review_screen.dart",
+  "app/lib/features/inbox/widgets/structural_card.dart",
+  "app/lib/features/inbox/structural_requests.dart",
+  "app/lib/features/inbox/inbox_routes.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c9 S6.3 *Structural approval · 2 of 3 approved*: the state is unreachable in production — no StructuralRequestsScope is installed anywhere in app/lib (bootstrap.dart installs LateArrivalsScope and ReviewQueueScope only), so StructuralRequestsScope.of falls back to an empty FakeStructuralRequests: S6 never draws a structural card and nothing opens S6.3. The capture runs the production widget on that fake (⚠️ SPEC in reskin1_inbox_test.dart)",
+   "reason": "[screen] defect — S6.3's data seam is not wired to the ledger, so 02 §7.2.1's structural approvals cannot be seen or decided in the app",
+   "authority": "07 §26 🔒 (F1-07-36); 02 §7.2.1 🔒; structural_requests.dart StructuralRequestsScope (fallback: empty fake)"
+  },
+  {
+   "what": "c9 S6.3 *Structural approval*: the frame draws only the card, outside a phone (no status row, no header) and the same render carries the next section of the canvas (designer note 'Before/after is stated in plain figures…' and 'S10.1 · FAMILY CLOSE STATUS' card); the app draws the card on a pushed screen titled 'Structural change' (centred Material app bar)",
+   "reason": "[canvas-wrong] for the frame extent — the canvas frame is a component sample, not a screen; the screen around the card follows the nearest drawn pattern (S6.2's stepper header). Reported in open",
+   "authority": "13 §3.2 row S6.3 (Structural approval card, parent S6); inbox_routes.dart (S6.3 is a root-navigator route)"
+  },
+  {
+   "what": "c9 S6.3 *Structural approval*: the app's card opens with an amber tag 'Owners must agree' (people icon), the title 'Change the ownership shares' and 'Amrit Kaur raised this in Sharma Brothers.'; the frame opens with an 'AK' avatar, 'Amrit Kaur proposed · today' and the muted line 'Change the profit-sharing ratio'",
+   "reason": "[shared] card (typed inbox card header: avatar, who · when, then the action). Title copy 'ownership shares' vs 'profit-sharing ratio' is [screen] copy for the owner",
+   "authority": "ADR 2026-10-05 §1; 07 §26 🔒; CLAUDE.md § Precedence (specs decide copy)"
+  },
+  {
+   "what": "c9 S6.3 *Structural approval*: 'What will change' lists each owner on three lines (name, then 'Now  Proposed' captions, then '1  40' with the proposed figure bold); the frame states it as a two-row table — 'NOW  Amrit 33.3% · Sukhdev 33.3% · Harjit 33.3%' on a shaded row, 'AFTER  Amrit 40% · Sukhdev 30% · Harjit 30%' with the changed figures bold",
+   "reason": "[screen] layout (one line per state is denser). Figures: shares are weights and stay the stated numbers; a percentage may be shown as computed beside them, not in place of them — the frame's percent-only rows lose the weights the engine divides by",
+   "authority": "ADR 2026-09-09 §2 (shares are whole-number weights, never percentages; the percentage is computed and displayed); 07 §26 🔒 ('Amrit 40 · Sukhdev 30 · Harjit 30 — currently equal thirds')"
+  },
+  {
+   "what": "c9 S6.3 *Structural approval*: quorum is a green progress bar over '2 of 3 owners have approved' plus 'Lapses on 21 Sep 2026 if the owners have not agreed by then.'; the frame shows three small avatars (AK, SS filled; HS dashed, pending) and '2 of 3 approved · waiting for Harjit' in green, with no lapse line",
+   "reason": "[screen] — the frame names who is still to vote; the lapse date is the app's (02 §7.2.1 requests lapse) and stays",
+   "authority": "07 §26 🔒 (quorum progress 2 of 3); 02 §7.2.1 🔒; ADR 2026-09-14 ruling 1 (the engine's quorum number)"
+  },
+  {
+   "what": "c9 S6.3 *Structural approval*: the actions are stacked full-width — filled navy 'Approve' over an outlined 'Veto with reason' with red text and a paper border — then (above them) 'Nothing has changed yet. No money and no permission moves until the owners agree.'; the frame sets 'Approve' (navy) and 'Veto' (red outline, red text) side by side, with 'Nothing changes until everyone approves. A veto asks you for a reason, and it is recorded.' under them",
+   "reason": "[shared] button row (side-by-side primary + destructive outline). The label stays 'Veto with reason' — [canvas-wrong] for the frame's bare 'Veto'",
+   "authority": "07 §26 🔒 (Approve / Veto with reason; a veto cancels and logs); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c9 S6.3 *Structural approval*: the card's left rule is amber; the frame's is navy",
+   "reason": "[shared] card (typed inbox card rule colour). The frame's note says nothing is tinted 'because indigo here would read as correct' — the rule colour is for the card component to settle",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c9 S6.3 *Structural approval*: (any) letter-spacing on Material labels",
+   "reason": "[shared] theme letterSpacing → desk 193(j)",
+   "authority": "PLAN desk 193 (j)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "55fa568e7bdd4d5b5dd5fdd4d6942f9fa6a85d369cadf66df7a6da129d6903ea",
+  "frames": "44636b5c6a3d5e8e20e89c055e2d4cccf31ca72efc2b988788dbe70177e7c193"
+ }
+}

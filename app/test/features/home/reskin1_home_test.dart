@@ -129,14 +129,57 @@ void main() {
     }
   });
 
+  // Desk 193 (i): what the ageing chips look like once ages are known. No
+  // doc yet defines a party's age, so production draws none; this capture
+  // feeds the seam a fake (95 / 41 / 12 days — one red, one amber, one none) so
+  // the chip and footnote can be paired with canvas c7 S1.1.
+  testWidgets('F1-193-7 design capture S1.1 with ageing chips (fake ages '
+      'through the seam)', (tester) async {
+    const fakeAges = {
+      'Tuglaq Yarn Company': 95,
+      'Avtar Transport Co.': 41,
+      'Vardhman Dairy': 12,
+    };
+    for (final target in RkDesignTarget.values) {
+      final seed = await seedSoloLedger();
+      for (final (name, paise) in _suppliers) {
+        final party = await seed.ledger.addAccount(
+          seed.bookId,
+          name: name,
+          accountClass: AccountClass.party,
+        );
+        await seed.ledger.tookCredit(
+          bookId: seed.bookId,
+          fromWhom: party.id,
+          took: seed.fuelId,
+          paise: paise,
+          date: seed.ledger.today().addDays(-3),
+        );
+      }
+      await rkDesignCapture(
+        tester,
+        sid: 'S1.1',
+        state: 'ageing-fake',
+        target: target,
+        ledger: seed.ledger,
+        child: PositionDrilldownScreen(
+          line: PositionLine.youWillGive,
+          onOpenAccount: (_) {},
+          ageDaysOf: (row) => fakeAges[row.account.name],
+        ),
+      );
+      expect(find.text('> 90 days'), findsOneWidget);
+      expect(find.text('> 30 days'), findsOneWidget);
+      await _unmount(tester);
+    }
+  });
+
   // 07 §7 🔒: *party list sorted by balance*. The doc does not say which way,
   // so the test asks only that the list is ordered by balance — the party
   // with the middle balance sits between the other two.
   testWidgets(
     'F1-1010rD-10 S1.1 sorts parties by balance, not creation order',
-    skip: true, // defect, R1D finding 2: rowsFor sorts by createdOrder
-    // (s1_1_position_drilldown_screen.dart:28-41); the home lane un-skips
-    // this with the fix.
+    // R1D finding 2, fixed by F193H (desk 193 (i)); F1-193-4 pins the way.
     (tester) async {
       final seed = await seedSoloLedger();
       for (final (name, paise) in _suppliers) {
@@ -171,6 +214,7 @@ void main() {
         isTrue,
         reason: 'the middle balance must sit between the other two',
       );
+      await _unmount(tester);
     },
   );
 

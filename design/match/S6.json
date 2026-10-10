@@ -1,0 +1,70 @@
+{
+ "sid": "S6",
+ "verdict": "deviates",
+ "frames": [
+  "c9/S6/Inbox · three waiting"
+ ],
+ "captures": [
+  "S6__waiting"
+ ],
+ "screen_files": [
+  "app/lib/features/inbox/screens/s6_inbox_screen.dart",
+  "app/lib/features/inbox/widgets/review_card.dart",
+  "app/lib/features/inbox/ledger_review_queue.dart",
+  "app/lib/features/inbox/inbox_routes.dart",
+  "app/lib/shared/widgets/rk_tab_bar.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c9 S6 *Inbox · three waiting*: a centred Material app bar 'Inbox' on a lighter surface with a rule, then a 'Needs your review' section heading; the frame has a large left-aligned 'Inbox' title with a muted count line '3 waiting' under it on the page colour, and no section headings",
+   "reason": "[shared] app bar/header (large left title + count line). The section headings ('Needs your review', 'Owners must agree', late arrivals) are [screen]",
+   "authority": "ADR 2026-10-05 §1; 07 §9 🔒"
+  },
+  {
+   "what": "c9 S6 *Inbox · three waiting*: the grouped card as S6 draws it — card rule and avatar. The app's card has an amber left rule and a filled navy initials avatar; the frame uses a navy left rule and a pale avatar with ink initials",
+   "reason": "[shared] card (typed inbox card: rule colour, avatar)",
+   "authority": "ADR 2026-10-05 §1; 13 §4.1 (P3 typed cards)"
+  },
+  {
+   "what": "c9 S6 *Inbox · three waiting*: the card's flag and header. The frame puts a top-right amber 'Review' tag with a clock icon on the header line ('Ramesh Sharma · Sharma Textile' over '7 entries · ₹23,400 · today'); the app draws 'Ramesh Sharma' over 'Me · Today', then '7 entries  ₹39,170 in all' on its own line, then a separate amber flag line 'Needs your review' (flag icon) and the post-then-review explainer under the header",
+   "reason": "[screen] card header layout and flag placement (a tag in the header vs a flag line under it); the flag keeps its word next to its colour in both. The explainer stays (02 §3 🔒: nothing may suggest the money is waiting) — the frame carries it on S6.1 instead",
+   "authority": "07 §9 🔒 ('Ramesh · Kirana Store · 7 entries · ₹23,400'); 02 §3 🔒; 07 §1 rule 3 🔒; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c9 S6 *Inbox · three waiting*: the card's entry rows. The frame opens the first two entries inline — a photo icon, one line ('Cotton lot 40 kg', 'Bharat Power · Aug bill'), an arrowed tinted figure ('↓ ₹12,000' green, '↑ ₹2,450' red) and a × quick-reject, with hairlines — then a '+ 5 more' link; the app keeps every row behind 'Show the entries ⌄' (collapsed by default) and has no 'N more' link (S6.1__grouped-card shows the app's rows once opened)",
+   "reason": "[screen] — 07 §9 asks for an expandable list with photo thumbnails and per-row ✕ quick-reject; the frame shows a preview of two open rows and a link to the rest, the app shows none until tapped",
+   "authority": "07 §9 🔒 (expandable list with photo thumbnails and per-row ✕ quick-reject); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c9 S6 *Inbox · three waiting*: the card's actions. The frame draws one row — an outlined navy 'Approve all 7' (count in the label) at left, a text-only muted 'One by one' at right; the app stacks a full-width filled navy 'Approve all' over a full-width outlined 'One by one'. (The c9 S6.1 frame, a different presentation, draws filled over outlined — see design/match/S6.1.json; the two frames disagree with each other on the button styles)",
+   "reason": "[shared] button row (outlined primary + text secondary side by side) for S6's inline card; the label with count is [screen] copy. Which emphasis wins between c9 S6 and c9 S6.1 is a frame-vs-frame question for the owner",
+   "authority": "07 §9 🔒 (two actions, owner-approved: Approve all / One by one); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c9 S6 *Inbox · three waiting*: the frame's second card — 'Indian Bank 0192 · Sharma Textile / 12 lines to classify · Aug statement', two raw statement lines in monospace ('ATM WDL SBI0192 ↑ ₹20,000', 'NEFT MEHTA TRADERS ↓ ₹31,000'), '+ 10 more', 'Classify 12 lines' / 'Later' — is not drawn by the app",
+   "reason": "[screen] not built — statement import has no Inbox source yet (s6_inbox_screen.dart header: 'imports … need a source this build does not have yet; a state that cannot be sourced is not drawn'); 07 §11 says import lines also surface in the Inbox",
+   "authority": "07 §11 🔒 (import lines also surface in the Inbox); 13 §4.1 (P3 typed cards)"
+  },
+  {
+   "what": "c9 S6 *Inbox · three waiting*: the frame's third card ('RK' avatar, 'Ramesh Kumar · joined 2 days ago', cut off by the tab bar) is not drawn by the app",
+   "reason": "[screen] not built — invites/membership have no Inbox source yet (same header comment); the membership states are 13's 'invited → joined_pending_verification → active'",
+   "authority": "13 §4.1 (P3 typed cards); 13 membership states (invited → joined_pending_verification → active)"
+  },
+  {
+   "what": "c9 S6 *Inbox · three waiting*: the tab bar carries the docked centre (+) and the Inbox tab shows no count badge although one card is waiting; the frame draws four tabs and an amber '3' badge on Inbox",
+   "reason": "[shared] tab bar/shell",
+   "authority": "ADR 2026-10-10b §2 🔒 (F1-1010b-1 @M13)"
+  },
+  {
+   "what": "c9 S6 *Inbox · three waiting*: (any) letter-spacing on Material labels",
+   "reason": "[shared] theme letterSpacing → desk 193(j)",
+   "authority": "PLAN desk 193 (j)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "cd427bf3b656af626866d9a81293660bd450c261a41fc296667a572097de6ed3",
+  "frames": "6befa90c4d244d0ab1bcd97b83a01117ed56663c3e346c20b0ece4e60f124457"
+ }
+}

@@ -1940,9 +1940,45 @@
   "home.close.steps": "{total} ਕਦਮ",
   "home.close.title": "{month} ਬੰਦ ਕਰੋ",
   "home.close.waiting": "{name} ਦੀ ਉਡੀਕ",
+  "home.drilldown.ageing.note": "ਉਮਰ ਚਿੱਪ ਉੱਤੇ ਹੈ, ਰਕਮ ਉੱਤੇ ਨਹੀਂ — ਰੰਗ ਦੱਸਦਾ ਹੈ ਕਿ ਉਹ ਕਿੰਨੀ ਦੇਰ ਤੋਂ ਉਡੀਕ ਰਹੇ ਹਨ, ਰਕਮ ਕਿੰਨੀ ਵੱਡੀ ਹੈ ਇਹ ਕਦੇ ਨਹੀਂ।",
+  "@home.drilldown.ageing.note": {
+    "description": "machine-draft — native review M12 (F193H)"
+  },
+  "home.drilldown.ageing.over_30": "30 ਦਿਨਾਂ ਤੋਂ ਵੱਧ",
+  "@home.drilldown.ageing.over_30": {
+    "description": "01 §2.0 🔒 owner-approved text"
+  },
+  "home.drilldown.ageing.over_90": "90 ਦਿਨਾਂ ਤੋਂ ਵੱਧ",
+  "@home.drilldown.ageing.over_90": {
+    "description": "01 §2.0 🔒 owner-approved text"
+  },
+  "home.drilldown.count.accounts": "{count, plural, =1{1 ਖਾਤਾ} other{{count} ਖਾਤੇ}}",
+  "@home.drilldown.count.accounts": {
+    "description": "machine-draft — native review M12 (F193H)"
+  },
+  "home.drilldown.count.parties": "{count, plural, =1{1 ਵਿਅਕਤੀ ਜਾਂ ਸਪਲਾਇਰ} other{{count} ਲੋਕ ਅਤੇ ਸਪਲਾਇਰ}}",
+  "@home.drilldown.count.parties": {
+    "description": "machine-draft — native review M12 (F193H)"
+  },
+  "home.drilldown.count.you_will_get": "{count, plural, =1{1 ਦੇਣਦਾਰ} other{{count} ਦੇਣਦਾਰ}}",
+  "@home.drilldown.count.you_will_get": {
+    "description": "machine-draft — native review M12 (F193H); ਦੇਣਦਾਰ is the 01 §2 term for You will get"
+  },
   "home.drilldown.empty": "ਇਸ ਲਾਈਨ ਪਿੱਛੇ ਹਾਲੇ ਕੁਝ ਨਹੀਂ",
   "home.drilldown.empty_action": "ਇੰਦਰਾਜ ਦਰਜ ਕਰੋ",
   "home.drilldown.error": "ਇਹ ਸੂਚੀ ਲੋਡ ਨਹੀਂ ਹੋ ਸਕੀ",
+  "home.drilldown.header.you_will_get": "ਤੁਸੀਂ ਕੁੱਲ ਲੈਣੇ ਹਨ",
+  "@home.drilldown.header.you_will_get": {
+    "description": "machine-draft — native review M12 (F193H)"
+  },
+  "home.drilldown.header.you_will_give": "ਤੁਸੀਂ ਕੁੱਲ ਦੇਣੇ ਹਨ",
+  "@home.drilldown.header.you_will_give": {
+    "description": "machine-draft — native review M12 (F193H)"
+  },
+  "home.drilldown.oldest": "{days, plural, =1{ਸਭ ਤੋਂ ਪੁਰਾਣਾ 1 ਦਿਨ ਤੋਂ} other{ਸਭ ਤੋਂ ਪੁਰਾਣਾ {days} ਦਿਨਾਂ ਤੋਂ}}",
+  "@home.drilldown.oldest": {
+    "description": "machine-draft — native review M12 (F193H)"
+  },
   "home.drilldown.skeleton": "ਇਹ ਸੂਚੀ ਲੋਡ ਹੋ ਰਹੀ ਹੈ",
   "home.drilldown.title": "{label}",
   "home.drilldown.total": "ਕੁੱਲ",

@@ -24,8 +24,10 @@
 // the normal card is gated on `integrity_ok` (ADR 2026-09-05c §3/§6).
 //
 // Not yet wired, and deliberately not invented here:
-//   • S8.2 trial balance and the full day book have no route yet, so those
-//     two actions render only when a caller supplies them.
+//   • The full day book has no route here yet, so that action renders only
+//     when a caller supplies it. The trial-balance door is wired by
+//     `home_routes.dart` (desk 193 (c)), to S8.1 until the S8.2 trial balance
+//     exists (⚠️ SPEC there).
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -86,8 +88,8 @@ class HomeScreen extends StatefulWidget {
   /// the scope controller takes over as soon as a second book exists.
   final String? bookId;
 
-  /// Drills a position line into its list (S1.1).
-  final void Function(PositionLine line)? onOpenPosition;
+  /// Drills a position line into its list (S1.1) over the book in scope.
+  final void Function(PositionLine line, String bookId)? onOpenPosition;
 
   /// Opens one account's statement (S4).
   final void Function(String accountId)? onOpenAccount;
@@ -570,7 +572,12 @@ class _HomeScreenState extends State<HomeScreen> {
               if (s.bookId == bookId) s,
           ],
           onOpenClose: _openClose,
-          onOpenPosition: widget.onOpenPosition,
+          // The book in scope travels with the line (02 §9 "per selected
+          // scope"): S1.1 must total the rows this card summed.
+          onOpenPosition: switch (widget.onOpenPosition) {
+            final open? => (line) => open(line, bookId),
+            null => null,
+          },
           onOpenAccount: widget.onOpenAccount,
           onVerb: widget.onVerb,
           onOpenEntry: widget.onOpenEntry,

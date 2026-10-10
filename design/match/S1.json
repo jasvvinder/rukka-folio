@@ -41,14 +41,14 @@
    "authority": "ADR 2026-10-10b §3 (hero follows the canvas); 07 §4 🔒 (hero = sum of money accounts with breakdown — content unchanged)"
   },
   {
-   "what": "c15/c2/c7 S1 *Home · the baseline*: verification card reads 'Balanced' (circled tick) over 'Books balanced · difference nil'; the frame titles it '✓ Books balanced' (plain tick) over 'Dr ₹8,56,200 = Cr ₹8,56,200 · no difference'",
-   "reason": "[canvas-wrong] for the Dr/Cr line: S1 says Books balanced · difference nil, Dr/Cr one tap in on the trial balance. The title wording and tick style are [shared] card",
-   "authority": "ADR 2026-09-05f §F; ADR 2026-10-10b §4 and Open (resolved); 07 §4 🔒"
+   "what": "c15/c2/c7 S1 *Home · the baseline*: verification card reads 'Balanced' (tick) over 'Books balanced · difference nil'; the frame titles it '✓ Books balanced' over 'Dr ₹8,56,200 = Cr ₹8,56,200 · no difference'. Layout now follows the frame (review F193H finding 1): the chevron sits in the title row, the line under it is the caption role (12 px) in muted, indented under the title text (20 px tick + 8 px gap = 28 px, the frame's 19 + 9), and the card pads 8/12 — the 4pt grid's nearest to the frame's 10/14 (F1-193-2). The card is the door the frame draws (plain tick, chevron, whole card taps — desk 193 (c)); ⚠️ SPEC: with no trial-balance surface yet it opens S8.1 Reports, where the Trial Balance row stands disabled-with-reason (home_routes.dart _trialBalanceDoor; F1-193-1)",
+   "reason": "[canvas-wrong] for the Dr/Cr line: S1 says Books balanced · difference nil, Dr/Cr one tap in on the trial balance. The title wording is [shared] card. The door's destination is interim until the S8.2 trial balance exists (M12, ADR 2026-09-12 Consequences). Padding 8/12 for the frame's 10/14: the spacing tokens are a 4pt grid (tokens.json space), a canvas size maps to its token, never a literal",
+   "authority": "ADR 2026-09-05f §F; ADR 2026-10-10b §4 and Open (resolved); 07 §4 🔒 (tapping through to the full trial balance); design/tokens/tokens.json space (4pt grid)"
   },
   {
-   "what": "c15/c2/c7 S1 *Home · the baseline*: the verification card has no chevron and no tap; the frame draws a chevron into the trial balance",
-   "reason": "[screen] defect — production (homeScreenFor) passes no onOpenTrialBalance, so the card is not a door; 07 §4 requires tapping through to the S8.2 trial balance",
-   "authority": "07 §4 🔒 (tapping through to the full trial balance)"
+   "what": "c15/c2/c7 S1 *Home · the baseline*: the verification and position cards round all four corners, so the 3px green/navy rule curves at top and bottom; the frame squares the rule side (border-radius:0 12px 12px 0)",
+   "reason": "[shared] card — RkRuledCard (app/lib/shared/widgets/rk_ruled_card.dart:35, BorderRadius.circular(RkRadius.lg) on every corner) is outside the Home lane's directories; the fix is a one-line radius change there (BorderRadiusDirectional.horizontal(end: RkRadius.lg)) for every ruled card in the app. Open item for the shared-widgets owner (lane F193H open)",
+   "authority": "design/design-system.md:62 (3px left rule with square corners on that side); docs/11-brand-guidelines.md:125 (never rounded on that side); design/tokens/tokens.json ruleLeft note"
   },
   {
    "what": "c15/c2/c7 S1 *Home · the baseline*: the position card is titled 'Position' and lists Cash in hand and SBI Saving rows, then You will get / You will give / Advances out (₹0) as one-line rows with signed tinted amounts (+₹5,000, −₹2,875) and a chevron; the frame draws only You will get / You will give / Advance out, each with a second line ('3 parties · Ramesh Kumar +2'), a dotted leader, a direction arrow (↓ / ↑ / clock) before an unsigned amount, and no card title",
@@ -109,7 +109,7 @@
  "approved_by_owner": false,
  "checked_on": "2026-10-10",
  "hashes": {
-  "screens": "9e6e5d357ad4ab7577513776b4470d478bd7cca02c17cee0e4a8a6a704e91fbe",
+  "screens": "cf6edadf7868fbfd572e777519aad5033f0e073ce6d322dfe10fc9ef8e1b6102",
   "frames": "382f3de97507095f9be69b2b8874ef669f10507f1d82bcbb7ff91b49493cd16a"
  }
 }

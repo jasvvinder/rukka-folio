@@ -23,7 +23,8 @@
   "app/lib/features/entry/widgets/entry_keypad.dart",
   "app/lib/features/entry/widgets/entry_preview_line.dart",
   "app/lib/features/entry/widgets/entry_date_picker.dart",
-  "app/lib/features/entry/widgets/entry_drawings_banner.dart"
+  "app/lib/features/entry/widgets/entry_drawings_banner.dart",
+  "app/lib/features/entry/widgets/entry_tick_text.dart"
  ],
  "deviations": [
   {
@@ -47,14 +48,9 @@
    "authority": "07 §10 🔒; F1-07-118; ADR 2026-10-05 §1"
   },
   {
-   "what": "c2 S2.3 *Transfer within one book*: the chip rows are centred and end in a '+ More' text button; the frame's are left-aligned paper chips with hairlines",
+   "what": "c2 S2.3 *Transfer within one book*: unselected chips are beige-filled with no border, where the frame's are paper chips with hairlines; each row ends in the dashed '+' chip",
    "reason": "[shared] chip",
    "authority": "ADR 2026-10-05 §1"
-  },
-  {
-   "what": "c2 S2.3: the active verb ('Move money') is scrolled out of the pill row, so the screen never says it is a transfer",
-   "reason": "[shared] verb pill — defect",
-   "authority": "07 §5 🔒 (verb shown as a header chip)"
   },
   {
    "what": "c2/c13 S2.3 *In transit, on both sides*: not captured — the waiting rows live on each book's day book (S1 Today / S3), and a pending second half needs another member's approval, which this audit's fixtures cannot reach",
@@ -62,7 +58,7 @@
    "authority": "07 §10 🔒; ADR 2026-10-10b §1"
   },
   {
-   "what": "c2 S2.3: keypad, Save and preview as recorded for S2 (incl. the tofu → in the preview)",
+   "what": "c2 S2.3: keypad and Save radius as recorded for S2",
    "reason": "[screen]/[shared] — see S2.json",
    "authority": "07 §5 🔒"
   }
@@ -70,7 +66,7 @@
  "approved_by_owner": false,
  "checked_on": "2026-10-10",
  "hashes": {
-  "screens": "64232b9011882f3823a9758430d3ea7e3c389e65ea68887e635b4bb6cdc91584",
+  "screens": "212b1a58806f5adbe0f85d7968dbc3e64ce1d8bf9ad7993b8f84071bb651bea9",
   "frames": "0c9a2c1e520e3228492870aeb6b0a21707723592f9a4109a9c409c3e2583fec7"
  }
 }

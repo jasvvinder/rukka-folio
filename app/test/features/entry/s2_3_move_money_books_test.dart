@@ -99,7 +99,7 @@ Future<void> _typeAmount(WidgetTester tester, String keys) async {
 }
 
 bool _saveEnabled(WidgetTester tester) =>
-    tester.widget<ElevatedButton>(find.byKey(AddEntryKeys.save)).enabled;
+    tester.widget<ButtonStyleButton>(find.byKey(AddEntryKeys.save)).enabled;
 
 /// A tap that also counts: the stopwatch of F1-07-121 is an interaction
 /// count, the honest F1 proxy for 07 §1 rule 1's eight seconds.
@@ -577,7 +577,13 @@ void main() {
         expect(find.textContaining('₹5,000'), findsWidgets);
         expect(_saveEnabled(tester), isFalse);
 
-        // Switching the pill drops the destination with the slots.
+        // Switching the pill drops the destination with the slots. The row
+        // keeps *Move money* in view (desk 193 (g)), so pan to the target
+        // first, as a thumb would.
+        await tester.ensureVisible(
+          find.text(verbLabel(l10n, EntryKind.moneyOut)),
+        );
+        await tester.pumpAndSettle();
         await tester.tap(find.text(verbLabel(l10n, EntryKind.moneyOut)));
         await tester.pumpAndSettle();
         expect(find.text(l10n.entrySlotChoose), findsNWidgets(2));

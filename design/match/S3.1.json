@@ -1,0 +1,48 @@
+{
+ "sid": "S3.1",
+ "verdict": "deviates",
+ "frames": [
+  "c7/S3.1/Quick add · a sheet, from the Ledger tab",
+  "na/S3.1/S3.1"
+ ],
+ "captures": [
+  "S3.1__sheet"
+ ],
+ "screen_files": [
+  "app/lib/features/ledger/screens/s3_1_quick_add_sheet.dart",
+  "app/lib/features/ledger/screens/s3_ledger_index_screen.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c7 S3.1 *Quick add · a sheet, from the Ledger tab* (and its duplicate na/S3.1): the app's sheet is a type picker — 'Add an account' / 'What kind of account?' over a two-column grid of seven types (Bank, Cash, Credit card, Someone I owe, Someone who owes me, Expense category, Income category) and a Cancel link; the frame draws a search-first picker — a focused search field ('Langar'), a strip of recent-account chips (Gollak Cash, Trust SBI, Electricity, Granthi Honorarium…), a dashed-box '+ Create ‘Langar’ A/C' row, then the matching accounts as rows with a square icon, the name over its class ('category') and its balance ('₹2,34,000 Dr', '₹0')",
+   "reason": "[screen] — 13 §3.2 row S3.1 calls this the same component as the entry flow's picker (design S2-C) in a sheet presentation; the app built a separate type-first create sheet. Behaviour to keep from 07 §6 / 02 §4 🔒: a new account asks for its opening balance at creation (the app's second step) — the frame's create row must still lead there",
+   "authority": "13 §3.2 row S3.1; 02 §4 🔒 (every new account asks for its opening balance at creation); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c7 S3.1 *Quick add*: the frame's balances carry the true side ('₹2,34,000 Dr'); the app's sheet shows no balances",
+   "reason": "[screen] follows from the component above; when rows land, Dr/Cr stays as drawn",
+   "authority": "ADR 2026-10-10b §4 🔒 (S3.1 Quick add matched with Dr/Cr)"
+  },
+  {
+   "what": "c7 S3.1 *Quick add*: the sheet opens on the Ledger tab's own navigator, so the tab bar (with the centre (+)) is drawn over the bottom of the sheet, undimmed, and the type grid ends above it; the frame's sheet runs to the bottom edge over a scrim, with no tab bar",
+   "reason": "[shared] sheet (modal bottom sheet should open on the root navigator — showModalBottomSheet in s3_ledger_index_screen.dart _openQuickAdd uses the default useRootNavigator: false)",
+   "authority": "ADR 2026-10-05 §1 (the frame draws the sheet over the whole screen)"
+  },
+  {
+   "what": "c7 S3.1 *Quick add*: the scrim behind the sheet is lighter in the app and the drag handle is darker and wider than the frame's pale short handle; the frame shows only the 'Ledger' title under the scrim (no search field / chips visible)",
+   "reason": "[shared] sheet (scrim, handle). The content under the scrim is S3's own header — see design/match/S3.json",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c7 S3.1 *Quick add*: (any) letter-spacing on Material labels",
+   "reason": "[shared] theme letterSpacing → desk 193(j)",
+   "authority": "PLAN desk 193 (j)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "a839bbbefec10d417fa4398409daa7808f977d95d08df4c759911a88b455dbe4",
+  "frames": "8b24269eb8260d3005e063c93e3106bd294697094c633d59206caa1bd38da527"
+ }
+}

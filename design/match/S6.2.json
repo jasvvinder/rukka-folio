@@ -1,0 +1,53 @@
+{
+ "sid": "S6.2",
+ "verdict": "deviates",
+ "frames": [
+  "c9/S6.2/Review stepper · 3 of 7"
+ ],
+ "captures": [
+  "S6.2__3-of-7"
+ ],
+ "screen_files": [
+  "app/lib/features/inbox/screens/s6_2_review_stepper_screen.dart",
+  "app/lib/features/inbox/ledger_review_queue.dart",
+  "app/lib/features/inbox/inbox_routes.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c9 S6.2 *Review stepper · 3 of 7*: a centred Material app bar 'Reviewing' with '3 of 7' as plain text at the right, no progress dots, and no close control in the capture (S6.2 is pushed from S6 in production, where Material adds a back arrow); the frame left-aligns 'Review 3 of 7' after a × close, with a dot track under it (two green done dots, a navy pill for the current one, four pale dots)",
+   "reason": "[shared] app bar/header (stepper header: × close, title with count, progress dots)",
+   "authority": "07 §9 🔒 (progress shown, '3 of 7'); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c9 S6.2 *Review stepper*: the photo is a 120 px sunk box ('No photo came with this entry') placed after the amount; the frame gives the photo most of the screen — a tall rounded panel 'Bill photo · tap to zoom' at the top, the entry below it",
+   "reason": "[screen] — 07 §9 asks for each entry full-screen and lists the photo first; the box height (120) is a literal in s6_2_review_stepper_screen.dart _photo",
+   "authority": "07 §9 🔒 (each entry full-screen: photo, amount, A/Cs, date/time, author, note); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c9 S6.2 *Review stepper*: the entry reads 'Entered by Ramesh Sharma' / 'In Me', the amount '−₹3,800' in debit red with 'Money out' under it, an info line 'Already in the book. Approving changes no balance; rejecting posts a reversal beside it.', then label/value fields Date · From (To, Note, Saved below the fold); the frame reads the entry's title ('Labour wages'), the amount '↑ ₹3,800' in red with an arrow and no sign, and one muted meta line '30 Aug · 12:11 pm · by Ramesh · note: labour and material'",
+   "reason": "[screen] content density (the frame folds author, time and note into one line and drops the A/Cs, which 07 §9 lists). The arrow without a sign or word is [canvas-wrong] on its own: the app keeps '−' plus 'Money out'",
+   "authority": "07 §9 🔒 (photo, amount, A/Cs, date/time, author, note); 07 §1 rule 3 🔒; 02 §3 🔒"
+  },
+  {
+   "what": "c9 S6.2 *Review stepper*: the app keeps a quiet 'Ask for a better photo' link under the photo; the frame has none",
+   "reason": "[canvas-wrong] — 07 §9 asks for it",
+   "authority": "07 §9 🔒 (a quiet ask for a better photo link)"
+  },
+  {
+   "what": "c9 S6.2 *Review stepper*: the actions are stacked full-width — filled navy 'Approve', outlined navy 'Reject', text 'Skip', then 'Stays in your inbox.'; the frame puts them in one row in a footer above a rule — 'Reject' outlined in the debit red, 'Skip' as text, 'Approve' filled navy — with no hint line",
+   "reason": "[shared] button row (destructive outlined button in red; three-up action bar)",
+   "authority": "07 §9 🔒 (Approve / Reject (reason required → auto-reversal) / Skip (stays flagged)); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c9 S6.2 *Review stepper*: (any) letter-spacing on Material labels",
+   "reason": "[shared] theme letterSpacing → desk 193(j)",
+   "authority": "PLAN desk 193 (j)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "1d3d6bd3ab0039793fd498d86fb1d1e2d2f097dde6f367474c2790efb585e344",
+  "frames": "3852612ad8c9e4214f28966810d2bc3dc3d43234bb6e2a79a90fae994b168eb7"
+ }
+}

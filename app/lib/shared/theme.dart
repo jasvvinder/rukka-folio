@@ -63,7 +63,7 @@ ThemeData rkTheme(Brightness brightness) {
   };
 
   final text = rkTextTheme(scheme.onSurface);
-  return ThemeData(
+  final theme = ThemeData(
     useMaterial3: true,
     brightness: brightness,
     colorScheme: scheme,
@@ -126,6 +126,43 @@ ThemeData rkTheme(Brightness brightness) {
     ),
     extensions: [status],
   );
+  // PLAN desk 193 (j): ThemeData merges [text] over Material 2021's type
+  // scale, which tracks every role (bodyLarge 0.5, bodyMedium 0.25, labelLarge
+  // 0.1 …). The roles rkTextTheme does not map — and every component default
+  // that reads them — would keep that tracking, and so would any Text that
+  // inherits the ambient body style. tokens.json defines no tracking, and
+  // the frames draw running body/label text untracked (CSS `normal`), so 0
+  // is the baseline. The frames *do* track a few roles — c2/S2 *State 1 ·
+  // typing* sets -0.02em on the hero amount, 0.08em on the uppercase
+  // FROM/FOR captions, 0.16em on the ⋯ placeholders — but no token carries
+  // those values yet, so they are a recorded deviation (design/match/S2.json),
+  // not literals here.
+  return theme.copyWith(
+    textTheme: _untracked(theme.textTheme),
+    primaryTextTheme: _untracked(theme.primaryTextTheme),
+  );
+}
+
+/// [t] with every role's tracking set to 0 — sizes, weights, faces kept.
+TextTheme _untracked(TextTheme t) {
+  TextStyle? z(TextStyle? s) => s?.copyWith(letterSpacing: 0);
+  return t.copyWith(
+    displayLarge: z(t.displayLarge),
+    displayMedium: z(t.displayMedium),
+    displaySmall: z(t.displaySmall),
+    headlineLarge: z(t.headlineLarge),
+    headlineMedium: z(t.headlineMedium),
+    headlineSmall: z(t.headlineSmall),
+    titleLarge: z(t.titleLarge),
+    titleMedium: z(t.titleMedium),
+    titleSmall: z(t.titleSmall),
+    bodyLarge: z(t.bodyLarge),
+    bodyMedium: z(t.bodyMedium),
+    bodySmall: z(t.bodySmall),
+    labelLarge: z(t.labelLarge),
+    labelMedium: z(t.labelMedium),
+    labelSmall: z(t.labelSmall),
+  );
 }
 
 /// The RkType scale mapped onto Material's TextTheme slots, ink-coloured.
@@ -139,9 +176,16 @@ ThemeData rkTheme(Brightness brightness) {
 /// handed to a component theme (AppBar title, button label) replaces the
 /// widget's default whole — without the family here it draws in the system
 /// face, and Gurmukhi/Devanagari in whatever the OS picks.
+///
+/// Tracking is 0 on every role (PLAN desk 193 (j)): tokens.json defines no
+/// letter-spacing, the canvas frames draw running body/label text untracked,
+/// and without an explicit 0 a role inherits Material 2021's (0.1–0.5). The
+/// few roles the frames do track (hero amount, uppercase captions) wait on a
+/// token — see the note in [rkTheme].
 TextTheme rkTextTheme(Color ink) {
   TextStyle c(TextStyle s) => s.copyWith(
     color: ink,
+    letterSpacing: 0,
     fontFamily: RkType.family,
     fontFamilyFallback: rkFontFallback,
   );

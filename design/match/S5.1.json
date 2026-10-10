@@ -1,0 +1,33 @@
+{
+ "sid": "S5.1",
+ "verdict": "deviates",
+ "frames": [
+  "c13/S5.1/Ask for an advance",
+  "c6/S5.1/Ask for an advance",
+  "c6/S5.1/Sent · waiting for Sunita"
+ ],
+ "captures": [],
+ "screen_files": [
+  "app/lib/features/advances/advances_paths.dart",
+  "app/lib/features/advances/advances_routes.dart",
+  "app/lib/features/advances/screens/s5_advances_screen.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c6/c13 S5.1 *Ask for an advance*: the screen does not exist — advances_paths.dart declares the S5.1 path as 'Not built here', advances_routes.dart registers no route for it, and S5 draws no door to it (see S5__empty). The frame: 'HOW MUCH ₹6,400', 'WHAT FOR required' with a purpose field and the hint 'Sunita sees this line before she decides…', 'FROM WHICH BOOK Sharma Textile', an approver card 'Sunita will decide this. She is the approver for Sharma Textile.', 'Send the request'",
+   "reason": "[screen] not built. The ledger side exists (LocalLedger.requestAdvance: pending, purpose required, approver recorded); the screen is the missing piece. 'required' in red on the purpose label is a status colour on a word, which is allowed",
+   "authority": "07 §8 🔒 (Request flow: amount → purpose (required) → from which book → submits to approver); 02 §7 🔒"
+  },
+  {
+   "what": "c6 S5.1 *Sent · waiting for Sunita*: not built — the frame's Home card 'Waiting for Sunita · sent 2:40 pm · Diesel and driver for the Isuzu ₹6,400' with 'Remind her' / 'Cancel'. Its amount is amber",
+   "reason": "[screen] not built (tracked in Inbox both sides per 07 §8). The amber amount is [canvas-wrong]: status colours never colour amounts",
+   "authority": "07 §8 🔒 (tracked in Inbox both sides); 07 §1 rule 3 🔒; ADR 2026-09-05f §H1"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "4af52369e950ff771d06906ed67c2217f3e3a989491dd0dc21622b3875fe4a41",
+  "frames": "7c0190020e79d28456def7b298e64ac968a211d8d56cc1fc08017f11c173a959"
+ }
+}

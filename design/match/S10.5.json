@@ -1,0 +1,49 @@
+{
+ "sid": "S10.5",
+ "verdict": "deviates",
+ "frames": [
+  "c5/S10.5/Before the lock · one phone still out",
+  "c5/S10.5/Revoke sheet · a phone that won’t return"
+ ],
+ "captures": [
+  "S10.5__phone-out"
+ ],
+ "screen_files": [
+  "app/lib/features/close/widgets/close_blocked_panel.dart",
+  "app/lib/features/close/screens/s10_month_close_screen.dart",
+  "app/lib/features/close/widgets/close_parts.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c5 S10.5 *Before the lock · one phone still out*: the app draws S10.5 as a single panel in place of the lock action on step 4 ('Close blocked — waiting on a device', body 'Entries from another phone haven't arrived…', a disabled 'Remind another phone' with reason, 'The lock stays off until the missing entries arrive.'), under the Declared balances card; the frame gives it step 3's whole body — 'Waiting for every phone', a row per writing phone (Rahul Sharma · This phone ✓ All entries in; Sunita Sharma · iPhone 13 ✓; Ramesh · Galaxy A14 ⏱ Last connected 29 Aug) with 'Nudge Ramesh' and 'Phone lost or gone for good?' on the waiting row, a note on what Nudge sends, and a disabled footer 'Waiting for 1 phone' / 'You can lock August as soon as Ramesh's phone syncs.'",
+   "reason": "[screen] ADR 2026-09-27b §2–§3 rules the per-phone list with Nudge and the revoke door — not built yet (F1-27b-* @M12); the app has no per-device roster for a book and no device name for the gap (LedgerCloseSource leaves deviceName null), so it says 'another phone'",
+   "authority": "ADR 2026-09-27b §2–§3; 07 §28 🔒 (names the phone, offers Remind {name}); ADR 2026-09-05b §3"
+  },
+  {
+   "what": "c5 S10.5 *Revoke sheet · a phone that won't return*: not captured — the app has no revoke door on S10.5 (the frame's sheet: 'Revoke Ramesh's Galaxy A14?', red consequence panel 'Entries still on this phone will never reach the book.', red 'Revoke this phone', 'Keep waiting')",
+   "reason": "[screen] unreachable in production: the door is not built",
+   "authority": "ADR 2026-09-27b §3 (revoked from the ⏳ row, consequence stated first)"
+  },
+  {
+   "what": "c5 S10.5: the panel's icon is an amber phone glyph and the remind button a grey disabled FilledButton with a bell; the frame's waiting row uses an amber clock and an outlined navy 'Nudge Ramesh'",
+   "reason": "[screen] icon and button style follow the panel; [shared] disabled button style",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c5 S10.5 *Before the lock · one phone still out*: header is the Material AppBar with the title centred ('Close Aug 2026' over 'Me') and the four-bar stepper in the body showing 'Step 4 of 4'; the frame left-aligns 'Close August' beside a back chevron with 'Step 3 of 4' as subtitle and the segmented mark at the right",
+   "reason": "[shared] app bar — as S10; the app shows S10.5 on step 4 (in place of the lock action), the frame on step 3",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "S10.5: theme letterSpacing",
+   "reason": "[shared] theme letterSpacing → desk 193(j)",
+   "authority": "desk 193(j)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "09edf0bdb0a46ed29ac1b2bae5518b651c1525c083c5a82ce4ac0e52896248ce",
+  "frames": "eecbfff6c9558408e4cb9fbf3e82d081d8d99b72ca7270cf6cdd95be7b76605f"
+ }
+}

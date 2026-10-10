@@ -1,0 +1,72 @@
+{
+ "sid": "S10.2",
+ "verdict": "deviates",
+ "frames": [
+  "c11/S10.2/The month, as a card",
+  "c5/S10.2/Month summary card",
+  "c5/S10.2/As an exported square"
+ ],
+ "captures": [
+  "S10.2__after-lock",
+  "S10.2__card"
+ ],
+ "screen_files": [
+  "app/lib/features/close/widgets/month_summary_card.dart",
+  "app/lib/features/close/screens/s10_2_month_summary_screen.dart",
+  "app/lib/features/close/screens/s10_month_close_screen.dart",
+  "app/lib/features/close/close_routes.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c5/c11 S10.2 *Month summary card*: on its own route (S10.2__card) the app has an AppBar titled 'Aug 2026 is closed' and repeats the same words as the body heading ('Aug 2026 is closed' over 'Me'); the frame has no app bar — a centred green '✓ August is closed' line, then the card",
+   "reason": "[screen] header duplication and missing success line",
+   "authority": "07 §13 🔒 (a reward, not a receipt); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c5/c11 S10.2 (S10.2__after-lock): inside the wizard the reward keeps the app bar, the full four-bar stepper and 'Step 4 of 4', and adds a rule card 'Aug 2026 is locked.' above the summary; the frame shows none of the wizard chrome once locked",
+   "reason": "[screen] the wizard chrome stays on the reward",
+   "authority": "07 §13 🔒; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c5/c11 S10.2: the card lists 'Money in ₹18,600', 'Money out ₹2,400' and 'Saved ₹16,200' as three label/amount rows with wide vertical gaps, all in ink, amounts right-aligned; the frame has an uppercase book-name caption ('SHARMA TEXTILE') and 'August 2026' as the card's title, In and Out side by side with the amounts tinted green/red, then 'Saved' over a large figure on the left",
+   "reason": "[screen] summary card layout; tinting In/Out needs the word beside it (it has it: 'In' / 'Out'), so colour is not alone",
+   "authority": "07 §13 🔒 (*August · in ₹1,75,000 · out ₹1,38,200 · saved ₹36,800*); 07 §1 rule 3 🔒; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c5/c11 S10.2: the three biggest are a separate card 'The three biggest this month' with one row 'Diesel ₹2,400'; the frame puts 'WHERE IT WENT' inside the same card with hairline rows",
+   "reason": "[screen] biggest-three placement and caption",
+   "authority": "07 §13 🔒 (with the three largest expenses); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c5/c11 S10.2: sharing is a disabled 'Share as a picture' button with the reason 'This phone can't make a picture of this card yet. The month's figures are in Reports.'; the frame's primary is 'Share on WhatsApp' with 'The card above is what gets shared — a square image, no app chrome.' and a text 'Done'",
+   "reason": "[screen] image share not built (disabled with its reason, 13 §4.3); label differs ('Share as a picture' vs 'Share on WhatsApp'). Done is a filled primary in the app, a text button in the frame",
+   "authority": "07 §13 🔒 (Shareable to WhatsApp as an image); 13 §4.3"
+  },
+  {
+   "what": "c5 S10.2 *As an exported square*: not captured — the exported image does not exist (share is disabled); the frame's square has a navy leading rule, '✓ closed' badge, IN/OUT captions, SAVED in green and 'Biggest three · …' as one muted line",
+   "reason": "[screen] unreachable: no export path in production yet",
+   "authority": "07 §13 🔒"
+  },
+  {
+   "what": "c5/c11 S10.2: no joint-family breakdown — the card has no per-sub-family totals (neither does the frame for a single business book)",
+   "reason": "[screen] 07 §13 asks for each sub-family's total in a joint family; not exercised by this fixture (solo book)",
+   "authority": "07 §13 🔒"
+  },
+  {
+   "what": "S10.2: rule card radius RkRadius.lg = 12 with a 3 px green leading rule; the frame's card is square with a hairline border",
+   "reason": "[shared] card (rule card radius)",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "S10.2: theme letterSpacing",
+   "reason": "[shared] theme letterSpacing → desk 193(j)",
+   "authority": "desk 193(j)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "5a8d6b19b4ef05cfac0967c1084dc91ce38ced69027dcc56e5de5c8d82e40e0b",
+  "frames": "cb1ff70e9faf8db071cfdf4dd3a1fa646330255b0044009bc6343c49ec95d2b2"
+ }
+}

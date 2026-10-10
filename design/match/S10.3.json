@@ -1,0 +1,64 @@
+{
+ "sid": "S10.3",
+ "verdict": "deviates",
+ "frames": [
+  "c5/S10.3/Late arrivals tray"
+ ],
+ "captures": [
+  "S10.3__one-late"
+ ],
+ "screen_files": [
+  "app/lib/features/inbox/screens/s10_3_late_arrivals_screen.dart",
+  "app/lib/features/inbox/widgets/late_arrival_card.dart",
+  "app/lib/features/inbox/widgets/reopen_sheet.dart",
+  "app/lib/features/inbox/inbox_routes.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c5 S10.3 *Late arrivals tray*: Material AppBar with 'Late arrivals' centred; the frame left-aligns the title beside a back chevron. The capture shows no back chevron only because it mounts S10.3 as the app's home",
+   "reason": "[shared] app bar (centred iOS title). Production pushes S10.3 from the Inbox — inbox_routes.dart:28-29, onOpenLateArrivals: () => GoRouter.of(context).push(InboxPaths.lateArrivals) — so the AppBar does draw a back button there; the missing chevron in the capture is a capture artifact, not a deviation. The deviation is the centred title",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c5 S10.3: no intro line; the frame opens with 'One entry arrived after its month was closed. Re-dating keeps August as you signed it.'",
+   "reason": "[screen] missing count-led intro",
+   "authority": "07 §13 🔒 (each item: entry + why it's here); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c5 S10.3: the card leads with a red ↗ arrow and 'Money out ₹2,400' as its headline, then 'Cash in hand → Diesel' (the → drawn in a non-design face) and 'Diesel' again as the note; the frame leads with the narration 'Diesel' as the title, 'Written by Ramesh · dated 28 Aug' muted, and puts the amount '− ₹2,400' in red at the right of an amber 'Reached us 2 Sep, after August closed' line",
+   "reason": "[screen] card hierarchy (amount-led vs narration-led). The arrow is a [shared] glyph-coverage defect: inbox.late.card.route is '{from} → {to}' and none of the bundled faces (Mukta, Mukta Mahee, Noto Sans — checked with fontTools) maps U+2192, so on a phone the platform's fallback face draws it, not a design face; only the test harness draws it as a box (design_capture.dart:76-78). The capture's face check passes because the run's family is Mukta. Same for '✓' in close.year.sealed.badge (S10.4). Author name is not shown",
+   "authority": "07 §1 rule 3 🔒 (sign or direction word with a tinted amount — both present); 11 §4.4 (Mukta faces); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c5 S10.3: the why line reads 'Dated 28 Aug 2026, but Me's Aug 2026 had already been closed on 05 Oct 2026.' with a clock-bag icon, then 'It is already counted in your balances. Only Aug 2026's closed figures leave it out.'; the frame says 'Reached us 2 Sep, after August closed' in amber, no icon, and no already-counted sentence",
+   "reason": "[screen] the app states the close date ('05 Oct', zero-padded) where the frame states the arrival date; the already-counted sentence is the app's rule 1 (nothing here is pending, 02 §8 🔒) — keep its meaning when restyling. Book-name possessive ('Me's') reads oddly for the default solo book name",
+   "authority": "02 §8 🔒; 07 §13 🔒; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c5 S10.3: actions are a full-width rounded 'Re-date to today' and, under it, a full-width red-outlined 'Re-open Aug 2026'; the frame puts 'Re-date to today' (navy, square) and 'Open it' (outlined) side by side, and the re-open is a separate red-bordered card below — '⓵ Re-open August instead / Admin only. The certified balances for August are voided and everyone who closed will be asked to close again.'",
+   "reason": "[screen] the app has no 'Open it' door to the entry; re-open stays scary-styled and behind its confirm sheet in both",
+   "authority": "07 §13 🔒 (Re-date to today default / Re-open August admin, scary-styled, logged); 07 §1 rule 6 🔒"
+  },
+  {
+   "what": "c5 S10.3: the frame's line 'August's reports and statements can't be exported until this is settled.' is absent",
+   "reason": "[screen] ADR 2026-09-27b §3: a late arrival still in the tray blocks exports of its period (tests @M12) — not built here",
+   "authority": "ADR 2026-09-27b §3"
+  },
+  {
+   "what": "c5 S10.3: the card is rounded (radius 12) with a hairline border and no rule; the frame's card is square with a 3 px amber leading rule",
+   "reason": "[shared] card (rule card)",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "S10.3: theme letterSpacing",
+   "reason": "[shared] theme letterSpacing → desk 193(j)",
+   "authority": "desk 193(j)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "6af76776ee6f766edd23b25fbdc0d9cd188b27a26cd614f47073512235ac411a",
+  "frames": "ec7877eaf9cba87651a746cf0e563065903fdd327055a89d6d7501cead74f6d5"
+ }
+}

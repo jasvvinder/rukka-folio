@@ -151,7 +151,7 @@ void main() {
           tester,
           HomeScreen(
             onOpenReconciliation: () => reconciliation++,
-            onOpenPosition: (line) => drilled = line,
+            onOpenPosition: (line, _) => drilled = line,
           ),
           ledger: m.seed.ledger,
         );

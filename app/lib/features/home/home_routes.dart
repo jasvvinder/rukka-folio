@@ -17,8 +17,9 @@
 // preview or a test pumped without data still shows the book. The shipped app
 // mounts [homeTabRootWith] with the shell's scope controller; it and
 // [homeRoot] build through one function, [homeScreenFor], so there is one
-// wiring, not two. S1.1 resolves the one book a solo
-// ledger has ([soloBookId]) until it takes scope too.
+// wiring, not two. S1.1 opens over the book Home has in scope
+// (`?book=`, [HomePaths.positionOf]); the solo-book fallback is only for a
+// path that names none.
 import 'package:core_ledger/core_ledger.dart' show EntryKind;
 import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
@@ -52,7 +53,9 @@ Widget homeScreenFor(
   scopeController: scopeController,
   // S1.4's producer (07 §28 🔒).
   rebuildProgress: rebuildProgressOf(context),
-  onOpenPosition: (line) => context.push(HomePaths.positionOf(line)),
+  // S1.1 opens over the book in scope, so its total is the row's (02 §9).
+  onOpenPosition: (line, bookId) =>
+      context.push(HomePaths.positionOf(line, bookId: bookId)),
   onOpenAccount: (accountId) =>
       context.push(LedgerPaths.statementOf(accountId)),
   // S21 Search (07 §25 🔒; 13 §3.2: reached from S3 and S1) — the route the
@@ -63,6 +66,15 @@ Widget homeScreenFor(
   // (Menu → Reports)") — the path constant is read from the feature that
   // owns S8.3, never re-spelled here.
   onOpenReconciliation: () => context.push(ReportsPaths.reconciliationLocation),
+  // The verification card's door (07 §4 🔒: "tapping through to the full
+  // trial balance (S8.2 report viewer)"; desk 193 (c)).
+  // ⚠️ SPEC (lane F193H open): the app has no trial-balance surface yet — S8.2
+  // renders the Day Book only and S8.1 keeps *Trial Balance* disabled-with-
+  // reason until its report lands (ADR 2026-09-12 Consequences: M12). Until
+  // then the door opens S8.1 Reports, where the Trial Balance row stands with
+  // its reason, rather than leaving the card a dead end or pointing it at the
+  // Day Book. When the trial balance gets a location, it replaces this one.
+  onOpenTrialBalance: () => context.push(_trialBalanceDoor),
   // The Home *Close card* (07 §13 🔒 bullet 1). The path is S10's or
   // S10.2's, built by the card from `ClosePaths` — the feature that owns
   // the route spells it, never this file. The push is awaited so the card
@@ -102,6 +114,10 @@ Widget homeScreenFor(
   },
 );
 
+/// Where S1's verification card goes: S8.1 Reports, under the Menu tab — see
+/// the ⚠️ SPEC note at [homeScreenFor]'s `onOpenTrialBalance`.
+const _trialBalanceDoor = '${RkPaths.menu}/${ReportsPaths.root}';
+
 /// S1 as the shipped app mounts it: [homeScreenFor] with the shell's scope
 /// holder, so scope outlives the screen (13 §2.2). `bootstrap.dart` passes
 /// this as `homeTabRoot`.
@@ -125,6 +141,9 @@ final List<RouteBase> homeRoutes = [
           PositionLine.parse(state.pathParameters['line']!) ??
           PositionLine.cash,
       accountId: state.uri.queryParameters['account'],
+      // The book Home had in scope; absent only on a hand-typed path, where
+      // the screen falls back to the solo book.
+      bookId: state.uri.queryParameters[HomePaths.bookQuery],
       onOpenAccount: (accountId) =>
           context.push(LedgerPaths.statementOf(accountId)),
     ),

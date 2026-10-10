@@ -15,7 +15,14 @@ import '../../../shared/tokens.dart';
 import '../entry_slots.dart';
 
 /// The five-position pill.
-class EntryVerbPill extends StatelessWidget {
+///
+/// The chosen position is **always inside the row's viewport** (PLAN desk 193
+/// (g)): on *Took on credit* and *Move money* it sits past the right edge at
+/// 390 wide, and a pill that has panned its own answer out of sight leaves
+/// the screen not saying which verb it is posting (07 §5 🔒, the verb shown
+/// as the header chip). On first build, and whenever the position changes,
+/// the row pans to centre it.
+class EntryVerbPill extends StatefulWidget {
   /// Creates the pill.
   const EntryVerbPill({super.key, required this.kind, required this.onKind});
 
@@ -26,7 +33,47 @@ class EntryVerbPill extends StatelessWidget {
   final void Function(EntryKind kind) onKind;
 
   @override
+  State<EntryVerbPill> createState() => _EntryVerbPillState();
+}
+
+class _EntryVerbPillState extends State<EntryVerbPill> {
+  final Map<EntryKind, GlobalKey> _keys = {
+    for (final k in entryVerbs) k: GlobalKey(),
+  };
+
+  @override
+  void initState() {
+    super.initState();
+    _reveal(Duration.zero);
+  }
+
+  @override
+  void didUpdateWidget(EntryVerbPill old) {
+    super.didUpdateWidget(old);
+    if (old.kind != widget.kind) _reveal(RkMotion.s);
+  }
+
+  /// Pans the row so the chosen position is in view, after this frame lays
+  /// it out. Only the row's own Scrollable moves: the screen has no other.
+  void _reveal(Duration duration) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final target = _keys[widget.kind]?.currentContext;
+      if (!mounted || target == null) return;
+      // Reduced motion is a jump cut (11 §4.5).
+      final still = MediaQuery.maybeDisableAnimationsOf(context) ?? false;
+      Scrollable.ensureVisible(
+        target,
+        alignment: 0.5,
+        duration: still ? Duration.zero : duration,
+        curve: RkMotion.easeBrand,
+      );
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final kind = widget.kind;
+    final onKind = widget.onKind;
     final l10n = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
     final status = RkStatusColors.of(context);
@@ -36,6 +83,7 @@ class EntryVerbPill extends StatelessWidget {
         children: [
           for (final k in entryVerbs)
             Padding(
+              key: _keys[k],
               padding: const EdgeInsets.only(right: RkSpace.s2),
               child: Material(
                 color: k == kind ? scheme.primary : status.sunk,

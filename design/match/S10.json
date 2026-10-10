@@ -1,0 +1,108 @@
+{
+ "sid": "S10",
+ "verdict": "deviates",
+ "frames": [
+  "c11/S10/Close August · step 1",
+  "c11/S10/Confirm &amp; lock August",
+  "c13/S10/Confirm &amp; lock",
+  "c14/S10/Confirm &amp; lock",
+  "c5/S10/Close August · step 1",
+  "c5/S10/Step 3 · the tray",
+  "c5/S10/Step 4 · what you are signing"
+ ],
+ "captures": [
+  "S10__step1-count",
+  "S10__step2-banks",
+  "S10__step3-tray",
+  "S10__step4-lock"
+ ],
+ "screen_files": [
+  "app/lib/features/close/screens/s10_month_close_screen.dart",
+  "app/lib/features/close/widgets/close_parts.dart",
+  "app/lib/features/close/widgets/close_blocked_panel.dart",
+  "app/lib/features/close/close_routes.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c5/c11/c13/c14 S10 (every frame): the header is a Material AppBar with the title centred on iOS — 'Close Aug 2026' over the book name 'Me' — and no back chevron in the capture; the frame left-aligns 'Close August' beside a back chevron, with 'Step n of 4' as its subtitle and a compact four-segment progress mark at the right of the header",
+   "reason": "[shared] app bar (Material AppBar centres its title on iOS; the frame's header is leading-aligned with a back chevron and a trailing progress mark). The capture mounts S10 as the app's home, so no back button is implied; production pushes S10 on the root navigator (close_routes.dart), where the AppBar draws one. Month written short ('Aug 2026', monthName) where the frame spells 'August'",
+   "authority": "ADR 2026-10-05 §1 (the frame decides layout and components); 07 §13 🔒 (Close card copy *Close August*)"
+  },
+  {
+   "what": "c5/c11/c13/c14 S10: progress is a full-width four-bar CloseStepper under the app bar plus a 'Step n of 4' caption above the step title; the frame folds both into the header (subtitle 'Step n of 4', a short segmented mark at the top right)",
+   "reason": "[screen] CloseStepper (close_parts.dart) sits in the body; the frame moves progress into the header",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c5/c11 S10 *Close August · step 1*: step 1 is a list of door cards, one per cash A/C ('Cash A/c — The book says ₹0 — Not counted this month · Never counted ›', 'Cash in hand …'), each opening S5.5; the frame draws the count inline — 'WHAT YOU COUNTED' caption, a large ₹1,30,000 figure on an underline, the difference in words ('₹600 less than the book — we'll adjust it') and a 'Count it note by note instead' link",
+   "reason": "[screen] 07 §13 asks for the cash-count step as a big keypad with the difference in words and either a single figure or the denomination sheet — the frame follows the spec; the app's step 1 hands every count to S5.5 (the header comment cites 02 §8.2 🔒: S5.5 owns counting). How to reconcile one owner of counting with an inline figure is for the build phase",
+   "authority": "07 §13 🔒 (cash count: big keypad, difference in words; single figure or denomination sheet); 02 §8.2 🔒"
+  },
+  {
+   "what": "c5/c11 S10 *Close August · step 1*: step heading help reads 'Open each one and count what is really there.'; the frame's reads 'Open the cash box and count what is actually there. The book figure is filled in — change it if the count differs.'",
+   "reason": "[screen] copy follows the step's different structure (door list vs inline figure)",
+   "authority": "07 §13 🔒; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "S10 step 2 *Confirm each bank balance* (capture S10__step2-banks): the canvas draws no frame for step 2, so it is captured for the record only — per-A/C card with 'Matches' / 'Doesn't match' choice chips and 'Confirmed 0 of 1'",
+   "reason": "[screen] no frame to match; nearest drawn pattern is the step 3/4 card list",
+   "authority": "07 §13 🔒 (bank confirm: Matches ✓ / Doesn't match ▸ reconcile)"
+  },
+  {
+   "what": "c5 S10 *Step 3 · the tray*: title 'Clear the tray' with help 'Some of these stop the close. The rest are only worth knowing.'; the frame titles the step by count ('Three things need your eye') with no help line",
+   "reason": "[screen] step title copy",
+   "authority": "07 §13 🔒 (blocking vs warning stated plainly); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c5 S10 *Step 3 · the tray*: the blocking card is headed 'These stop the close' (title case, ink) over 'The month can't be locked until each one is settled.', rows use a ⊘ block glyph with one line ('Entries from another phone haven't arrived', no second line naming the phone); the frame heads it 'MUST CLEAR BEFORE CLOSING' (uppercase, letter-spaced, red) over 'August cannot be locked while these are open.', rows use a circled-! glyph, a count-led title ('1 phone hasn't sent everything yet'), a muted second line ('Ramesh's phone · last connected 29 Aug') and a chevron into the item",
+   "reason": "[screen] tray rows have no chevron/door into the item and no second line where the ledger has no label (author gaps carry no device name — LedgerCloseSource._labelFor returns null); the caption style is [shared] section caption",
+   "authority": "07 §13 🔒 (S10.5 names the phone); 07 §1 rule 6 🔒 (no dead ends); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c5 S10 *Step 3 · the tray*: the warning card is headed 'These don't stop the close' over 'Worth a look before you lock, but the close goes ahead either way.' and lists 'This cash wasn't counted this month' per A/C (Cash A/c, Cash in hand) with no chevron; the frame heads it 'WORTH CHECKING' / 'These do not stop the close.' and its rows are count- or party-led ('Advance with Sunil Sharma · 48 days', '₹5,800 · past 30 days'; 'SBI Savings not counted this month', 'Last counted 31 Jul') with chevrons",
+   "reason": "[screen] warning rows: no door, wording per kind rather than per item",
+   "authority": "07 §13 🔒 (aged advances and unverified counts warn); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c5 S10 *Step 3 · the tray*: the app's footer is a Back + Next pair (CloseWizardFooter) with Next always enabled; the frame has a single full-width Next, disabled (outlined, muted) while anything blocks, with '10 items must be cleared first' under it, and back lives in the header chevron",
+   "reason": "[screen] CloseWizardFooter — Back is a footer button where the frame uses the header chevron; the frame's disabled-with-reason Next is closer to 13 §4.3 than the app's always-enabled Next (the app instead disables the lock action on step 4 with its reason)",
+   "authority": "13 §4.3 (disabled with its reason); 07 §1 rule 6 🔒 (no dead ends); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c5 S10 *Step 3 · the tray* / c11/c13/c14 *Confirm & lock*: cards are rounded (CloseCard radius RkRadius.lg = 12) with a 3 px leading rule (RkRadius.ruleLeftWidth); the frame's cards and buttons are square-cornered, the blocking card is a full red-outlined tinted panel and the signing card has no rule",
+   "reason": "[shared] card (CloseCard / rule card) and primary button radius",
+   "authority": "ADR 2026-10-05 §1; design/tokens/tokens.json radii"
+  },
+  {
+   "what": "c5/c11/c13/c14 S10 *Step 4 · what you are signing* / *Confirm & lock*: title 'Confirm & lock' / help 'These are the balances this close will record.'; the frame's title is 'What you are signing' / 'These are the balances August will be locked at.'",
+   "reason": "[screen] step 4 copy",
+   "authority": "07 §13 🔒; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c5/c11/c13/c14 S10 *Step 4*: the declared-balances card is titled 'Declared balances' and lists only the money A/Cs (Cash A/c ₹0, Cash in hand ₹21,600, SBI Saving ₹1,14,600) in rows 4 px apart with the amount in a Flexible beside the name, so it sits mid-row (x≈200 of 390) rather than at the right edge; the frame has no card title, lists cash, bank and party balances in tall hairline-divided rows with amounts right-aligned, parties marked '₹1,44,000 Dr' / '₹1,70,000 Cr'",
+   "reason": "[screen] spec violation, not an owner question: 07 §13 🔒 says the confirm & lock step 'shows the balance vector summary', and 02 §8 step 4 🔒 names the declared balances and the client-computed balance vector as two separate things. _stepLock (s10_month_close_screen.dart:708-740) renders only CloseView.declaredBalances, which close_source.dart builds from the cash and bank A/Cs alone, so the party balances the frame lists (Guru Nanak Cloth House ₹1,44,000 Dr, Tuglaq Yarn Company ₹1,70,000 Cr) — part of the vector being signed — are missing. The frame follows the spec here; the fix belongs to the close owner (screen + CloseView), with Dr/Cr allowed after the consumer wording in brackets (ADR 2026-10-10b §4). The mid-row amount is a separate [screen] layout defect (Flexible + RkFitText in _stepLock)",
+   "authority": "07 §13 🔒 (confirm & lock shows the balance vector summary); 02 §8 step 4 🔒 (declared balances and the balance vector hash); ADR 2026-10-10b §4; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c5 S10 *Step 4 · what you are signing*: the frame's '✓ All 3 phones are in' line above the balances is absent; the app draws nothing about phones when no gap is open",
+   "reason": "[screen] ADR 2026-09-27b §2 lists every writing phone as ✓ all in / ⏳ last heard — not built (tests @M12)",
+   "authority": "ADR 2026-09-27b §2–§3"
+  },
+  {
+   "what": "c5/c11/c13/c14 S10 *Step 4*: the lock action 'Lock Aug 2026' (lock icon) is a rounded FilledButton inside a card in the scroll body, with a Back button in the footer; the frame's 'Confirm & lock August' is a square full-width primary pinned at the bottom, and a tinted note card above it says 'After this, entries dated in August or earlier can only be corrected by a new entry dated today.' — the app has no such note",
+   "reason": "[screen] lock action placement and label, and the missing consequence note",
+   "authority": "02 §8 🔒 (locked period — corrections by new entry); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "S10 (all states): theme letterSpacing",
+   "reason": "[shared] theme letterSpacing → desk 193(j)",
+   "authority": "desk 193(j)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "50b22dc3d22cf98deeb7deaec24c0e5ba0d1429623d1343ed0d22ca9b9b46e34",
+  "frames": "6072faac002857e83eb211de9cf700f5b571b72d1502e365da3c5d52826274a3"
+ }
+}

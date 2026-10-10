@@ -5,11 +5,13 @@
   "c7/S1.1/You will give · drill-down"
  ],
  "captures": [
-  "S1.1__you-will-give"
+  "S1.1__you-will-give",
+  "S1.1__ageing-fake"
  ],
  "screen_files": [
   "app/lib/features/home/screens/s1_1_position_drilldown_screen.dart",
-  "app/lib/features/home/home_routes.dart"
+  "app/lib/features/home/home_routes.dart",
+  "app/lib/features/home/home_paths.dart"
  ],
  "deviations": [
   {
@@ -18,45 +20,50 @@
    "authority": "ADR 2026-10-05 §1"
   },
   {
-   "what": "c7 S1.1 *You will give · drill-down*: no total header; the frame opens with 'YOU OWE, IN ALL' over the total in large red and '5 people and suppliers · oldest 68 days'. The app puts a 'Total' row at the foot of the list",
-   "reason": "[screen] the total header is in the spec and the frame — defect",
-   "authority": "07 §7 🔒 (total header)"
+   "what": "c7 S1.1 *You will give · drill-down* (S1.1__you-will-give): no ageing chips and no 'oldest N days' in the header meta; the frame draws a chip under each name and 'oldest 68 days'",
+   "reason": "[screen] ⚠️ SPEC (open, lane F193H): no doc defines how a party balance is aged (02 §7 ages advances only; 02 §9 names 'drill-down and ageing' without a rule) and neither packages/data nor core_ledger exposes a per-party age, so the chips, the 'oldest' meta and the footnote stand behind PositionDrilldownScreen.ageDaysOf, null in production. S1.1__ageing-fake drives the seam with fake ages to show them (F1-193-5, F1-193-7)",
+   "authority": "07 §7 🔒 (ageing chips); CLAUDE.md rule 11"
   },
   {
-   "what": "c7 S1.1: no ageing chips on the rows; the frame draws an outlined chip under each name ('68 days', '41 days', '12 days' …)",
-   "reason": "[screen] defect — ageing chips are specified",
-   "authority": "07 §7 🔒 (ageing chips)"
+   "what": "c7 S1.1 (S1.1__ageing-fake): the chips read '> 90 days' (red) and '> 30 days' (amber) and a party 30 days old or newer has none; the frame writes the day count ('68 days', '41 days', '4 days'), colours 41 days red and 12/9 days amber, and gives every row a chip (grey for 4 days). Shape follows the frame (review F193H finding 5): a square-cornered tag (no radius), 1 px tint border, tight 1/6 px padding; the text stays the caption role at 12 px where the frame sets 11 px",
+   "reason": "[canvas-wrong] 07 §7 sets the chips at > 30 days amber and > 90 days red, and 01 §2.0 🔒 fixes their words in EN/PA/HI. The red is the danger role, not the debit red, which colours numerals only. 12 px for 11 px: there is no 11 px type role, and a canvas size maps to its role, never a literal",
+   "authority": "07 §7 🔒; 01 §2.0 🔒; 07 §1 rule 3 🔒; design/tokens/tokens.json type roles (caption)"
   },
   {
-   "what": "c7 S1.1: the frame colours the chips red at 68 and 41 days and amber at 12 and 9 days, and orders its rows by age (₹1,70,000 · ₹11,200 · ₹3,600 · ₹8,400 · ₹91,000), not by balance",
-   "reason": "[canvas-wrong] 07 §7 sets ageing at amber over 30 days and red over 90 days, and orders the party list by balance — the frame's age ordering is wrong. The app does not sort by balance either: see the [screen] defect below",
+   "what": "c7 S1.1: the frame orders its rows by age (₹1,70,000 · ₹11,200 · ₹3,600 · ₹8,400 · ₹91,000); the app orders the party list by balance, largest first",
+   "reason": "[canvas-wrong] 07 §7 orders the party list by balance (F1-193-4, F1-1010rD-10). ⚠️ SPEC: 07 §7 does not say which way; largest first is the conservative reading",
    "authority": "07 §7 🔒"
   },
   {
-   "what": "c7 S1.1 (capture S1.1__you-will-give): the app lists the parties in creation order — Vardhman Dairy −₹3,600, Tuglaq Yarn Company −₹1,70,000, Avtar Transport Co. −₹11,200 (the fixture creates them out of balance order so the order shows) — not by balance",
-   "reason": "[screen] defect — rowsFor (s1_1_position_drilldown_screen.dart:28-41) sorts by account.createdOrder ('creation order — 02 §9') and nothing re-sorts the party rows; 07 §7 asks for the party list sorted by balance. F1-1010rD-10 (reskin1_home_test.dart) asserts the balance order and is skipped until the home lane fixes it; it fails against today's code. ⚠️ SPEC: 07 §7 does not say ascending or descending — the test asks only that the list follows balance",
-   "authority": "07 §7 🔒 (party list sorted by balance)"
-  },
-  {
    "what": "c7 S1.1: no filter chips; the frame draws 'All · Over 30 days · Over 60 days' under the header",
-   "reason": "[screen] layout element from the frame (not in the spec — thresholds would follow 07 §7: over 30 / over 90)",
+   "reason": "[screen] not built — filtering needs the party age that no doc defines yet (see the ageing deviation); when built, thresholds follow 07 §7 (over 30 / over 90), not the frame's 60",
    "authority": "ADR 2026-10-05 §1; 07 §7 🔒"
   },
   {
-   "what": "c7 S1.1: rows sit inside a ruled card (navy left rule, rounded) with signed amounts (−₹1,70,000); the frame draws flat full-width rows divided by hairlines, unsigned red amounts and a chevron",
-   "reason": "[shared] list row — layout to the frame; the − sign stays with the tinted amount",
-   "authority": "ADR 2026-10-05 §1; 07 §1 rule 3 🔒 (sign with tinted amount)"
+   "what": "c7 S1.1: header and rows now follow the frame (caption · large total · meta · rule, flat rows with hairlines and a chevron), but the total and row amounts keep their − sign (−₹1,84,800, −₹1,70,000) where the frame prints them unsigned, and the row chevron is the shared row's ink chevron where the frame's is thin and muted",
+   "reason": "[shared] list row (chevron) — RkLabelAmountRow; the − sign stays with every tinted amount",
+   "authority": "07 §1 rule 3 🔒 (sign with tinted amount); ADR 2026-10-05 §1"
   },
   {
-   "what": "c7 S1.1: no footnote; the frame closes with 'Ageing is on the chip, not the amount — the colour says how long they have waited, never how large the figure is.'",
-   "reason": "[screen] copy from the frame, not built",
-   "authority": "ADR 2026-10-05 §1"
+   "what": "c7 S1.1 (S1.1__you-will-give): no footnote; the frame closes with 'Ageing is on the chip, not the amount — …'",
+   "reason": "[screen] the footnote explains the chips, so it is drawn only when a chip is (S1.1__ageing-fake shows it); production has no chips yet (⚠️ SPEC above)",
+   "authority": "07 §7 🔒; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c7 S1.1: the caption is not letter-spaced as the frame's is",
+   "reason": "[shared] theme letterSpacing — handled by the parallel slice for desk 193 (j)",
+   "authority": "design/tokens/tokens.json type roles"
+  },
+  {
+   "what": "c7 S1.1: the frame draws only the You will give list, whose meta reads '5 people and suppliers'; the You will get list (no frame) reads '{n} people and customers' (PA ਦੇਣਦਾਰ, HI देनदार)",
+   "reason": "[screen] those who owe you are debtors, never suppliers — the frame's pattern with the debtor counterpart (review F193H finding 4; F1-193-9)",
+   "authority": "docs/01-glossary.md §2 (Debtors — You will get / Creditors — You will give)"
   }
  ],
  "approved_by_owner": false,
  "checked_on": "2026-10-10",
  "hashes": {
-  "screens": "569991a2ad75fcafbb6a5b3758995b2699d70f5ff0e3b5e0d3dedcc073c23d41",
+  "screens": "e0447b66ae039f81486a5b29cceb767de7401c67fb303e457553297b2392c343",
   "frames": "8637ebb08ac9fe69029d00ec8556ae332db4d9e2ab1d7e66a61ab0d146453d6f"
  }
 }

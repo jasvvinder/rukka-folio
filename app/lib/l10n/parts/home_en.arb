@@ -116,7 +116,6 @@
   "@home.rebuild.progress": {"description": "S1.4 determinate loader count 🔒 (07 §28, 11 §4.5): counts, never percentages, never a spinner.", "placeholders": {"done": {"type": "int"}, "total": {"type": "int"}}},
   "home.rebuild.note": "Your figures will be right as soon as this finishes.",
   "@home.rebuild.note": {"description": "S1.4 note: the book is not shown as whole while it rebuilds (13 §3.2 row S1.4)."},
-
   "home.close.title": "Close {month}",
   "@home.close.title": {"description": "S1 Home *Close card* (07 §13 🔒 bullet 1: `Close August ▸ 4 steps`), one per book the user closes, from the 1st. ⚠️ SPEC: 07 §13 writes a full English month while 07 §1 rule 5 🔒 abbreviates; the global rule is taken and S10 uses the same form. {month} pre-formatted.", "placeholders": {"month": {"type": "String"}}},
   "home.close.steps": "{total} steps",
@@ -162,5 +161,23 @@
   "home.setup.not_needed_trust_toast": "Committee invites taken off your list. Invite from Menu any time.",
   "@home.setup.not_needed_trust_toast": {"description": "S0.7 toast after Not needed, trust path, with Undo (canvas 1 O8f pattern)."},
   "home.setup.undo": "Undo",
-  "@home.setup.undo": {"description": "S0.7 toast action — puts the row back (canvas 1 O8f)."}
+  "@home.setup.undo": {"description": "S0.7 toast action — puts the row back (canvas 1 O8f)."},
+  "home.drilldown.header.you_will_give": "You owe, in all",
+  "@home.drilldown.header.you_will_give": {"description": "S1.1 total header caption on the You will give list (07 §7 🔒 total header; canvas c7 S1.1 'YOU OWE, IN ALL'). Consumer words, never Dr/Cr (02 §10)."},
+  "home.drilldown.header.you_will_get": "Owed to you, in all",
+  "@home.drilldown.header.you_will_get": {"description": "S1.1 total header caption on the You will get list (07 §7 🔒 total header; same pattern as canvas c7 S1.1)."},
+  "home.drilldown.count.parties": "{count, plural, =1{1 person or supplier} other{{count} people and suppliers}}",
+  "@home.drilldown.count.parties": {"description": "S1.1 total header meta on the You will give list: how many parties you owe — creditors (canvas c7 S1.1 '5 people and suppliers'). The You will get list uses home.drilldown.count.you_will_get.", "placeholders": {"count": {"type": "int"}}},
+  "home.drilldown.count.you_will_get": "{count, plural, =1{1 person or customer} other{{count} people and customers}}",
+  "@home.drilldown.count.you_will_get": {"description": "S1.1 total header meta on the You will get list: how many parties owe you — debtors (01 §2 'Debtors — You will get'), so customers, never suppliers. Mirrors the You will give frame's pattern (canvas c7 S1.1); no You will get frame is drawn.", "placeholders": {"count": {"type": "int"}}},
+  "home.drilldown.count.accounts": "{count, plural, =1{1 account} other{{count} accounts}}",
+  "@home.drilldown.count.accounts": {"description": "S1.1 total header meta for a non-party line (cash, bank, advances, in transit).", "placeholders": {"count": {"type": "int"}}},
+  "home.drilldown.oldest": "{days, plural, =1{oldest 1 day} other{oldest {days} days}}",
+  "@home.drilldown.oldest": {"description": "S1.1 total header meta: the oldest party's age (canvas c7 S1.1 'oldest 68 days'). Indic forms use since (01 §2.0 🔒). Shown only when an age is known.", "placeholders": {"days": {"type": "int"}}},
+  "home.drilldown.ageing.over_30": "> 30 days",
+  "@home.drilldown.ageing.over_30": {"description": "S1.1 ageing chip, receivables — 01 §2.0 🔒 exact text; amber, the text carries the meaning (07 §1 rule 3, 07 §7 🔒)."},
+  "home.drilldown.ageing.over_90": "> 90 days",
+  "@home.drilldown.ageing.over_90": {"description": "S1.1 ageing chip, overdue — 01 §2.0 🔒 exact text; red, the text carries the meaning (07 §1 rule 3, 07 §7 🔒)."},
+  "home.drilldown.ageing.note": "Ageing is on the chip, not the amount — the colour says how long they have waited, never how large the figure is.",
+  "@home.drilldown.ageing.note": {"description": "S1.1 footnote under the list when ageing chips are drawn (canvas c7 S1.1)."}
 }

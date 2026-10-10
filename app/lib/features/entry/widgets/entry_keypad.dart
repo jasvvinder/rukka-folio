@@ -17,8 +17,13 @@ const String keypadPlus = '+';
 /// The `.` key's character.
 const String keypadDot = '.';
 
-/// The backspace key's character.
+/// The backspace key's identity (its widget key and [EntryKeypad.onKey]
+/// value). Never drawn: U+232B is in none of the bundled faces (11 §4.4), so
+/// the key shows [keypadBackspaceIcon] instead (PLAN desk 193 (e)).
 const String keypadBackspace = '⌫';
+
+/// What the backspace key draws — the canvas 2 keypad's delete-left glyph.
+const IconData keypadBackspaceIcon = Icons.backspace_outlined;
 
 /// Rows of the pad, in order.
 const List<List<String>> keypadRows = [
@@ -92,9 +97,12 @@ class _PadKey extends StatelessWidget {
     final status = RkStatusColors.of(context);
     return Padding(
       padding: const EdgeInsets.all(RkSpace.s1),
+      // The spoken node carries the tap itself: with the InkWell excluded,
+      // TalkBack / VoiceOver would otherwise find a button that does nothing.
       child: Semantics(
         button: true,
         label: label,
+        onTap: onTap,
         excludeSemantics: true,
         child: Material(
           key: widgetKey,
@@ -107,13 +115,20 @@ class _PadKey extends StatelessWidget {
               child: FittedBox(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: RkSpace.s2),
-                  child: Text(
-                    keyChar,
-                    style: RkType.page.copyWith(
-                      fontFeatures: RkType.tabular,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  ),
+                  child: keyChar == keypadBackspace
+                      ? Icon(
+                          keypadBackspaceIcon,
+                          size: MediaQuery.textScalerOf(context)
+                              .scale(RkType.page.fontSize ?? 28),
+                          color: Theme.of(context).colorScheme.onSurface,
+                        )
+                      : Text(
+                          keyChar,
+                          style: RkType.page.copyWith(
+                            fontFeatures: RkType.tabular,
+                            color: Theme.of(context).colorScheme.onSurface,
+                          ),
+                        ),
                 ),
               ),
             ),

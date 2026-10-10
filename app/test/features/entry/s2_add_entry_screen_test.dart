@@ -107,7 +107,7 @@ Future<void> _typeAmount(WidgetTester tester, String keys) async {
 }
 
 bool _saveEnabled(WidgetTester tester) =>
-    tester.widget<ElevatedButton>(find.byKey(AddEntryKeys.save)).enabled;
+    tester.widget<ButtonStyleButton>(find.byKey(AddEntryKeys.save)).enabled;
 
 Color? _previewColor(WidgetTester tester) =>
     tester.widget<Text>(find.byKey(AddEntryKeys.previewText)).style?.color;
@@ -276,7 +276,7 @@ void main() {
         chips.map((c) => c.name),
         containsAll(['Cash in hand', 'SBI Saving']),
       );
-      expect(find.text(_l10n(tester).entryChipsMore), findsOneWidget);
+      expect(find.byTooltip(_l10n(tester).entryChipsMore), findsOneWidget);
       await _unmount(tester);
     });
 
@@ -300,7 +300,7 @@ void main() {
       await tester.tap(find.text('Diesel').first);
       await tester.pumpAndSettle();
       expect(find.byType(EntryAccountChip), findsNothing);
-      expect(find.text(_l10n(tester).entryChipsMore), findsNothing);
+      expect(find.byTooltip(_l10n(tester).entryChipsMore), findsNothing);
       await _unmount(tester);
     });
 
@@ -355,7 +355,7 @@ void main() {
       // Nothing yet · typing · one side chosen · complete · note appended.
       await pumpLine(const EntryPreviewLine(amountPaise: 0, complete: false));
       expect(find.textContaining('₹0'), findsOneWidget);
-      expect(find.textContaining('⋯'), findsOneWidget);
+      expect(find.byIcon(previewGapIcon), findsNWidgets(2));
 
       await pumpLine(
         const EntryPreviewLine(amountPaise: 240000, complete: false),
@@ -370,7 +370,7 @@ void main() {
         ),
       );
       expect(find.textContaining('Cash A/c'), findsOneWidget);
-      expect(find.textContaining('⋯'), findsOneWidget);
+      expect(find.byIcon(previewGapIcon), findsOneWidget);
 
       await pumpLine(
         const EntryPreviewLine(
@@ -380,8 +380,8 @@ void main() {
           complete: true,
         ),
       );
-      expect(find.textContaining('→'), findsOneWidget);
-      expect(find.textContaining('⋯'), findsNothing);
+      expect(find.byIcon(previewArrowIcon), findsOneWidget);
+      expect(find.byIcon(previewGapIcon), findsNothing);
 
       await pumpLine(
         const EntryPreviewLine(
@@ -432,7 +432,7 @@ void main() {
 
         // Snackbar: `Saved ✓ (on phone)` with Undo (10 s).
         final l10n = _l10n(tester);
-        expect(find.text(l10n.entrySaved), findsOneWidget);
+        expect(find.byKey(AddEntryKeys.savedMessage), findsOneWidget);
         expect(find.text(l10n.entryUndo), findsOneWidget);
         final bar = tester.widget<SnackBar>(find.byType(SnackBar));
         expect(bar.duration, const Duration(seconds: 10));
@@ -547,7 +547,7 @@ void main() {
       tester,
     ) async {
       await _pumpEntry(tester, kind: EntryKind.moneyOut);
-      await tester.tap(find.text(_l10n(tester).entryChipsMore));
+      await tester.tap(find.byTooltip(_l10n(tester).entryChipsMore));
       await tester.pumpAndSettle();
       expect(find.byKey(AddEntryKeys.picker), findsOneWidget);
       expect(find.byKey(AddEntryKeys.keypad), findsNothing);
@@ -935,7 +935,7 @@ void main() {
         // Incomplete: muted colour, and the sentence itself carries the gap
         // as written dots, never a blank colour swatch (07 §5.5 🔒).
         expect(_previewColor(tester), muted);
-        expect(find.textContaining('⋯'), findsWidgets);
+        expect(find.byIcon(previewGapIcon), findsWidgets);
 
         await _typeAmount(tester, '500');
         await tester.tap(find.text('Cash in hand'));
@@ -949,7 +949,7 @@ void main() {
         // replaced by the real account names in the same instant (07 §5.5
         // "completion is the validation" 🔒).
         expect(_previewColor(tester), isNot(muted));
-        expect(find.textContaining('⋯'), findsNothing);
+        expect(find.byIcon(previewGapIcon), findsNothing);
         expect(find.textContaining('Diesel'), findsWidgets);
         await _unmount(tester);
       },

@@ -44,6 +44,21 @@ class _Probe extends StatelessWidget {
             const Card(
               child: ListTile(title: Text('Probe'), subtitle: Text('₹1,200')),
             ),
+            // A band blended between two token colours: hundreds of distinct
+            // pixel colours that do not depend on typography, so the
+            // blank-capture guards (`distinctColours`) keep their margin when
+            // a type token (tracking, size) changes — desk 193 (j) took the
+            // text-only probe to exactly the threshold.
+            const SizedBox(
+              height: RkSpace.s12,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [RkColorsLight.primary, RkColorsLight.accent],
+                  ),
+                ),
+              ),
+            ),
             ?extra,
           ],
         ),

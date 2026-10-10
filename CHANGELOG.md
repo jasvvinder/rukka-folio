@@ -12,6 +12,61 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-10 (evening) — M13: FIX193 (desk 193 (c)–(j)) + RESKIN1 round 2 (22 screens)
+
+`/cycle F193H F193E R2A R2B`: every slice built, reviewed read-only, verified and repaired in one round. R2B's build
+agent hit its turn cap before handing back, so its review ran as a second one-slice cycle. **Push gate green**, run
+twice: once after the `F1-1005-4` fix, once after R2B's repair. Spend ≈ 4.1 M (cycle 3.32 M, R2B review 0.66 M,
+gates and fix ≈ 0.1 M).
+- **Review findings:** F193H 6, all 6 confirmed. F193E 6, 5 confirmed. R2A 10, 7 confirmed. R2B 6, all 6 confirmed.
+  Every confirmed finding was repaired; none was disputed.
+- **Gate:** red once, on `F1-1005-4`. Zero letter-spacing left the capture probe with exactly 50 colours. A one-round
+  fix added a token-coloured gradient band to `_Probe`, which now draws 409 colours. Thresholds are unchanged.
+
+### Added
+- S1: the verification card's trial-balance button is now passed in by the production composition (`home_routes.dart`;
+  07 §4 🔒). For now it opens S8.1 Reports (F1-193-1…3).
+- S1.1: a total header, rows sorted by largest absolute balance, and ageing chips behind
+  `PositionDrilldownScreen.ageDaysOf`. Production leaves that seam null until party ageing is ruled (07 §7 🔒;
+  F1-193-4…9).
+- `EntryTickText` draws ✓ as an icon and keeps the copy as written. S2's preview ⋯/→ and the keypad ⌫ are now icons
+  (F1-193-11…21).
+- RESKIN1 round 2 design-match records:
+  - R2A (`reskin1_ledger_test.dart`, `reskin1_inbox_test.dart`): S3, S3.1, S4, S4.1, S4.2, S21, S6, S6.1, S6.2,
+    S6.3.
+  - R2B (`reskin1_close_test.dart`, `reskin1_partners_test.dart`, `reskin1_advances_test.dart`): S10–S10.5,
+    S14–S14.2, S5, S5.1, S5.5.
+  - Missing records went from 64 to 42.
+
+### Changed
+- S2:
+  - The enabled Save is solid (07 §5 item 5.5 🔒).
+  - *+ More* is no longer clipped at 390 px wide.
+  - The selected verb stays visible in the pill row.
+- S2.5: the keypad fills the gap that was left under Save.
+- `rkTextTheme`: letter-spacing comes from tokens, else 0, replacing Material's inherited tracking (desk 193 (j)). Every
+  other screen's design-match record is now stale on letter-spacing.
+- Records restamped: S1, S1.1, S2, S2.1, S2.2, S2.3, S2.5. `F1-1010rD-10` is un-skipped.
+
+### Open
+- Desk 197: FIX193 readings — the interim destination of the trial-balance button, party ageing, sort direction, and
+  the red of the ageing chip.
+- Desk 198: R2A readings — S4 columns (07 §6 🔒 vs 13 §3.2), S4 order and period picker, the missing S3.1 door, S6.1
+  drawn as its own screen, consumer wording on non-money legs, the S6.3 frame.
+- Desk 199: R2B readings — the S14.2 drift margin, whether S10.4's voided state is reachable, party balances on the
+  signing sheet, and screens not yet built (S5.1, S10.2, S10.5).
+- Desk 200: defects —
+  - S4.1 offers *Correct this* in a locked month (02 §5 🔒).
+  - S3: chips are clipped, and Dr/Cr is shown by colour alone.
+  - S6.3 is unreachable.
+  - ✓ and → are missing in about 20 ARB parts.
+  - **Check:** S10 may declare live balances instead of month-end ones (`LedgerCloseSource.loadClose`).
+- Desk 193 (a)(b) stay with WORDS179.
+- Round 3 still needs 42 screens. Next is R2C: S7–S7.2, S8.1–S8.3, S13, S17–S17.4.
+
+### Commits
+- _(fill next session)_
+
 ## 2026-10-10 — M13: S0.2 sign-up unblocked (HELD181); a further device's tenant is learned, never minted (TEN185); 0031 on dev; device journeys green; RESKIN1 round 1 (42 screens)
 
 The owner asked for the recommended course on the 9 Oct hand-off, then *decide from the design and specs*, *the app

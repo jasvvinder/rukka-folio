@@ -1,0 +1,85 @@
+{
+ "sid": "S10.4",
+ "verdict": "deviates",
+ "frames": [
+  "c5/S10.4/Year close · the ceremony",
+  "c5/S10.4/Sealed · brought forward",
+  "c5/S10.4/Reopened · certificate voided"
+ ],
+ "captures": [
+  "S10.4__ceremony",
+  "S10.4__blocked",
+  "S10.4__sealed"
+ ],
+ "screen_files": [
+  "app/lib/features/close/screens/s10_4_year_close_screen.dart",
+  "app/lib/features/close/widgets/close_parts.dart",
+  "app/lib/features/close/widgets/close_blocked_panel.dart",
+  "app/lib/features/ledger/widgets/fy_switcher.dart",
+  "app/lib/shared/widgets/rk_banner.dart",
+  "app/lib/features/close/close_routes.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c5 S10.4 (all frames): Material AppBar 'Year close' centred over the book name 'Me'; the frame left-aligns 'Close the year' beside a back chevron, no subtitle",
+   "reason": "[shared] app bar (centred iOS title, book-name subtitle); title copy 'Year close' vs 'Close the year'",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c5 S10.4 *Year close · the ceremony* (S10.4__ceremony): no 'FY 2026–27' caption and the title is 'Before this year can close' with help 'What stops the close and what only warns are two separate lists below.'; the frame has an uppercase 'FY 2026–27' caption, title 'Sealing the year' and 'This is done once. After it, the year's figures become the balances the next year opens with.'",
+   "reason": "[screen] ceremony heading copy and caption; FY written with a hyphen ('2026-27') where the frame uses an en dash ('2026–27')",
+   "authority": "07 §13 🔒 (preconditions checklist → certify); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c5 S10.4 *the ceremony*: when nothing blocks, the checklist collapses to one green rule card 'Everything is settled. FY 2026-27 is ready to close.'; the frame keeps the checklist visible under 'BEFORE YOU CAN SEAL' with a ticked row per precondition ('All twelve months locked', 'Suspense account at zero', 'Nothing waiting for review') and hairlines between",
+   "reason": "[screen] passed preconditions are not listed",
+   "authority": "02 §8.1 🔒 (the preconditions); 07 §13 🔒; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c5 S10.4 *the ceremony*: the frame's warning row 'Profit shared between partners · open it' and the note card 'Sharing the profit is optional — …' are business-only; the capture's book is personal, so the app's equivalent ('Share this year's profit first?' door to S14.1) is not drawn",
+   "reason": "[screen] business variant not exercised by this fixture; the app's door copy differs ('Share this year's profit first?' / 'Share the profit')",
+   "authority": "07 §13 🔒 (optional *Distribute profit first* for businesses); 02 §7.2.1"
+  },
+  {
+   "what": "c5 S10.4 *the ceremony*: 'What this year hands to the next' card with a help paragraph lists every balance-sheet line with Dr/Cr ('Bharat Fuels ₹17,000 Cr', 'Cash in hand ₹22,600 Dr', 'Opening Balance ₹1,25,000 Cr', 'SBI Saving ₹1,00,000 Dr', 'This year's result ₹19,400 Dr') and a 'Carried forward ₹1,42,000 Dr' total; the frame's 'WHAT GETS CERTIFIED' card shows money A/Cs without a suffix ('Business Cash ₹1,30,000') in tall hairline rows",
+   "reason": "[screen] vector card title/caption and row density; Dr/Cr on every line is the true ledger reading of the closing vector (the frame keeps Dr/Cr for parties). S10.4 is a professional-leaning surface — keep Dr/Cr, consumer wording may lead in brackets per ADR 2026-10-10b §4",
+   "authority": "ADR 2026-09-05e §2 🔒 (the vector shown before the action is the projector's); ADR 2026-10-10b §4; CLAUDE.md rule 9"
+  },
+  {
+   "what": "c5 S10.4 *the ceremony*: 'Certify FY 2026-27' (badge icon) is a rounded FilledButton inside a card at the end of the scroll; the frame's 'Close FY 2026–27' is a square full-width primary pinned at the bottom",
+   "reason": "[screen] action label and placement; [shared] primary button radius",
+   "authority": "07 §13 🔒 (certify → year seals); ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c5 S10.4 (S10.4__blocked, open year): a red rule card 'These stop the year close' lists one row per open month ('Apr 2026 is still open — Lock it from the month close, then come back.' ×12), running past the fold; the frame draws no blocked state",
+   "reason": "[screen] no frame for the blocked ceremony; nearest drawn pattern is S10 *Step 3 · the tray*. Twelve identical rows with no door into the month close is long — a grouped 'n months still open ›' would follow the tray pattern",
+   "authority": "02 §8.1 🔒; 07 §1 rule 6 🔒"
+  },
+  {
+   "what": "c5 S10.4 *Sealed · brought forward* (S10.4__sealed): the app shows the FY switcher pill ('FY 2026-27 ▾'), a green rule card 'Certified ✓ FY 2026-27' (the ✓ is drawn in a non-design face — a box in the harness capture) / 'The year is sealed. Its closing balances are the opening balances of FY 2027-28.' / 'Carried forward ₹1,42,000 Dr', and a 'Done' primary; the frame shows a large circled tick, 'FY 2026–27 is sealed', 'Certified 1 Apr 2027 by Rahul Sharma. The figures below are what FY 2027–28 opens with.', a 'BROUGHT FORWARD · 1 APR 2027' list of every carried balance, a note that a year switcher now sits on every ledger, and 'Open FY 2027–28'",
+   "reason": "[screen] sealed state lists only the total, not the brought-forward lines, and names no certifier or date; 'Open FY 2027–28' door absent. The ✓ is [shared] glyph coverage: none of the bundled faces (Mukta, Mukta Mahee, Noto Sans — checked with fontTools) maps U+2713, so a phone draws it in its platform fallback face (design_capture.dart:76-78 — only the harness draws a box); close.year.sealed.badge. The FY switcher pill is required here (ADR 2026-09-09 §4 🔒) — the frame's note card describes it instead of drawing it",
+   "authority": "07 §13 🔒 (closed years show *Certified ✓ FY 2026-27*); ADR 2026-09-09 §4 🔒 (FY switcher on S4 · S8.2 · S10.4); 11 §4.4"
+  },
+  {
+   "what": "c5 S10.4 *Reopened · certificate voided*: not captured — the screen has the state (YearCloseKeys.voided, RkBannerSurface) but this device cannot reach it: once a year is certified, LocalLedger.unlockMonth refuses every month inside it (MonthUnlockRefusal.closedYear). The frame's banner is a dark-red block with a warning triangle, 'This year's certificate was voided', 'Reopened by Rahul Sharma on 14 Apr 2027…'",
+   "reason": "[screen] unreachable in production on this phone (⚠️ SPEC in reskin1_close_test.dart). Also: the app's voided banner cannot name who re-opened or when (LedgerYearCloseSource leaves voidedBy null — its own ⚠️ SPEC)",
+   "authority": "02 §8.1 🔒 (Reopening voids the certificate, loudly); 13 §6 🔒"
+  },
+  {
+   "what": "S10.4: cards rounded (radius 12) with 3 px leading rules; the frame's cards are square, hairline-bordered",
+   "reason": "[shared] card (rule card radius)",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "S10.4: theme letterSpacing",
+   "reason": "[shared] theme letterSpacing → desk 193(j)",
+   "authority": "desk 193(j)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "48f65b94245cbe0843dc025d08680ab1530c0e0679e59cf247e1d915a81e9ff6",
+  "frames": "bb267f59179cb4f8bdda5ee555b92d11f8b1687fef0ae736a82c6309108cdea4"
+ }
+}

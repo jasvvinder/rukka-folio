@@ -198,7 +198,9 @@ void main() {
         await _openSlot(tester, EntrySlot.ledger);
         await _pickIn(tester, 'Diesel');
         expect(
-          tester.widget<ElevatedButton>(find.byKey(AddEntryKeys.save)).enabled,
+          tester
+              .widget<ButtonStyleButton>(find.byKey(AddEntryKeys.save))
+              .enabled,
           isTrue,
         );
       },

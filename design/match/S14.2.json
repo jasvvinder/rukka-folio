@@ -1,0 +1,60 @@
+{
+ "sid": "S14.2",
+ "verdict": "deviates",
+ "frames": [
+  "c6/S14.2/Drift · three equal routes",
+  "c6/S14.2/Carried forward"
+ ],
+ "captures": [
+  "S14.2__drift-test-margin"
+ ],
+ "screen_files": [
+  "app/lib/features/partners/widgets/drift_settlement_card.dart",
+  "app/lib/features/partners/widgets/settlement_sheet.dart",
+  "app/lib/features/partners/screens/s14_partner_positions_screen.dart",
+  "app/lib/features/partners/ledger_partners_port.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c6 S14.2 *Drift · three equal routes*: production never draws the card — LedgerPartnersPort passes an empty drift list with driftMargin null because no margin is configured anywhere (02 §7.1 names a configurable margin with no storage and no default). The capture S14.2__drift-test-margin supplies a ₹10,000 margin through a test-only port wrapper (⚠️ SPEC in reskin1_partners_test.dart)",
+   "reason": "[screen] unreachable in production until the margin setting exists — owner decision (⚠️ SPEC in partners_port.dart)",
+   "authority": "02 §7.1 🔒 (Drift visibility, configurable margin); 07 §27 🔒"
+  },
+  {
+   "what": "c6 S14.2 *Drift · three equal routes*: in the app the card sits at the top of S14 (inside 'Partners'), not on its own screen 'Between the partners'",
+   "reason": "[screen] placement — 13 §3.2 lists S14.2 as its own row; the app embeds it in S14",
+   "authority": "13 §3.2 row S14.2; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c6 S14.2: headline 'Amrit Kaur — Partner Current A/c has ₹35,000 more with the business than the others' beside a blue info icon, then 'Nothing has to be done about it. It is here so everybody can see the same picture.'; the frame has an uppercase 'WORTH KNOWING' caption, 'Amrit has ₹68,332 more with the business than her third.' and 'She put in more and took out less. Nothing is owed until the family chooses one of these.'",
+   "reason": "[screen] headline copy (account name vs first name; *than the others* vs *than her third* — the app compares with the group average, which is what partnerDrift computes); info-toned in both",
+   "authority": "02 §7.1 🔒 (above the group average); 07 §27 🔒 (informational, never a demand)"
+  },
+  {
+   "what": "c6 S14.2: the three routes are full-width outlined buttons ('Business pays out', 'One owner pays another', 'Carry forward' disabled) under 'If you do want to even it out', with the reason 'This already happens: at year close the balance is closed and re-opened, dated and checked. Nothing to do here.'; the frame draws three equal radio rows each with a one-line consequence ('₹68,332 leaves the Agri Current A/c…', 'Rahul and Pankaj pay her directly…', 'Leave it as it is…'), Carry forward preselected, and one primary that acts on the choice",
+   "reason": "[screen] route selector (radio list + one action vs three buttons). Carry forward is disabled-with-reason in the app because the year close performs it — the frame makes it a selectable, recorded choice; label 'One owner pays another' vs 'Settle between partners'",
+   "authority": "07 §27 🔒 (three doors: pay out · partner-to-partner · carry forward); 02 §7.1 🔒 (carry forward is the default, performed by §8.1); 13 §4.3"
+  },
+  {
+   "what": "c6 S14.2 *Carried forward*: not captured — the app records no carry-forward decision, so there is no confirmation ('✓ Carried forward / Amrit's ₹68,332 stays with the business. It re-opens on her balance under 2026–27, certified 1 Apr 2027. / Recorded by Rahul Sharma · 27 Aug 2026')",
+   "reason": "[screen] unreachable: carry forward is not an action in the app (see above) — ⚠️ SPEC for the owner whether choosing it should record anything",
+   "authority": "07 §27 🔒; 02 §7.1 🔒"
+  },
+  {
+   "what": "c6 S14.2: card rounded (radius 12) with a 3 px info-blue rule; the frame's card is square and hairline-bordered, no rule",
+   "reason": "[shared] card (RkRuledCard)",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "S14.2: theme letterSpacing",
+   "reason": "[shared] theme letterSpacing → desk 193(j)",
+   "authority": "desk 193(j)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "176f6c66efd703c54b7bde8ae864ebb9bdd5218f953189b4f0a84b7627bfd278",
+  "frames": "e2c6a74f7521470b2ee74f33164e33ccb95cd3eb807f2fb29a2009cf0d15eaca"
+ }
+}

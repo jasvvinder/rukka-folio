@@ -1,0 +1,49 @@
+{
+ "sid": "S10.1",
+ "verdict": "deviates",
+ "frames": [
+  "c13/S10.1/Family close status · who you are waiting for",
+  "c5/S10.1/Family close status"
+ ],
+ "captures": [
+  "S10.1__family"
+ ],
+ "screen_files": [
+  "app/lib/features/close/widgets/family_close_status.dart",
+  "app/lib/features/close/screens/s10_month_close_screen.dart",
+  "app/lib/features/close/widgets/close_parts.dart"
+ ],
+ "deviations": [
+  {
+   "what": "c5/c13 S10.1 *Family close status*: in the app S10.1 is a card section inside S10 step 4 ('The family's close' over 'Closing is a joint act, so here is where every book stands.', above Declared balances), drawn only when the device holds more than one book; the frame gives it a screen of its own — header 'Closing August', title 'Three books still open', help 'You can close your own books now. The others close when the person who keeps them does it.'",
+   "reason": "[screen] 07 §13 asks only that the wizard show every book's status; the frame makes it a full screen with a count-led title — placement follows the frame in the build phase",
+   "authority": "07 §13 🔒 (the family's state, not just yours); 13 §3.2 row S10.1; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c5/c13 S10.1: rows are icon + name + muted status word ('Me — Not started', 'Agriculture Business — Waiting on another phone', 'Sharma Super Store — Closed'), packed with no dividers and no chevrons, the current book included; the frame draws hairline-divided rows, the status in its tone colour under the name ('closed' green, 'waiting on Pankaj' amber, 'not started' muted), an initials avatar for the person waited on, a dashed circle for not started, and a chevron into each open book",
+   "reason": "[screen] status rows: tone colour on the status word (paired with the icon — colour never alone holds), avatar, dividers, chevron door. 'waiting on Pankaj' is unreachable here: the author gap carries no device/person name, so the app says 'another phone' (ADR 2026-09-05b §3)",
+   "authority": "07 §13 🔒 (*Agriculture waiting on Pankaj*); 07 §1 rule 3 🔒; ADR 2026-09-05b §3; ADR 2026-10-05 §1"
+  },
+  {
+   "what": "c5/c13 S10.1: the frame's note card 'Nudge Pankaj and Amrit, or close the joint fund without them — their books will show as open for August until they do.' and the 'Nudge both' (outlined) / 'Close the joint fund anyway' (text) actions are absent",
+   "reason": "[screen] nudge is not built (S10.5's remind is disabled with its reason); the frame already says *joint fund* (ADR 2026-10-08 §1) — the app has no joint-fund copy on this surface yet → WORDS179",
+   "authority": "ADR 2026-09-27b §2 (Nudge, @M12); ADR 2026-10-08 §1"
+  },
+  {
+   "what": "c5/c13 S10.1: the status icons are Material outline glyphs (radio-unchecked circle, a phonelink-off glyph for waiting, check-circle for closed) at the row's leading edge; the frame uses a plain tick, the avatar and a dashed circle",
+   "reason": "[shared] status icon set",
+   "authority": "ADR 2026-10-05 §1"
+  },
+  {
+   "what": "S10.1: theme letterSpacing",
+   "reason": "[shared] theme letterSpacing → desk 193(j)",
+   "authority": "desk 193(j)"
+  }
+ ],
+ "approved_by_owner": false,
+ "checked_on": "2026-10-10",
+ "hashes": {
+  "screens": "9d5d45557751f046d5055f6a56bdb96872363ad7218788971dd5703ed1817917",
+  "frames": "58f69decb0e172d4c48214c69585cffe60c5fbc91ce5f4eb800ceb5d9605d6c7"
+ }
+}

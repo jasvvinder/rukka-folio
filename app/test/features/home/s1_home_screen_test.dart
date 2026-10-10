@@ -157,7 +157,10 @@ void main() {
       final accounts = <String>[];
       await pumpRk(
         tester,
-        HomeScreen(onOpenPosition: drilled.add, onOpenAccount: accounts.add),
+        HomeScreen(
+          onOpenPosition: (line, _) => drilled.add(line),
+          onOpenAccount: accounts.add,
+        ),
         ledger: seed.ledger,
       );
 
