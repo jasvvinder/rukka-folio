@@ -12,6 +12,169 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-19 — docs: research outline — no statute as a source
+
+**Decided** (owner, 19 Oct 2026)
+- Statute is not a source for the Accounting Standard or the Ledger Rules. The Partnership, Trusts and Societies Acts and Hindu law on the joint family cover legal rights, registration and tax, not how books are kept. The one rule the books need from them (the partnership defaults when there is no deed) is taught by the textbooks and is cited from there.
+
+**Changed**
+- `docs/reference/research/OUTLINE.md`: Statute level removed from the source hierarchy (now ICAI → textbooks → bahi-khata practice); rule 1 no longer names "the Act and section"; new rule 6 *No statute*; topic 14 reads "the textbook defaults when there is no deed"; topic 15 renamed *Joint family*, "the karta and the sub-families" (HUF and coparcener dropped; *karta* kept as the everyday word).
+- `docs/reference/financial-accounting-standards.md`: D14 (§12.7) and Appendix G cite NCERT Class 12 for the no-deed partnership defaults instead of Partnership Act s.13; the chapter is not yet fetched — confirm at research topic 14.
+
+- `OUTLINE.md`, after an audit of an outside reference pack (owner, 19 Oct 2026): rule 7 *No compliance claim*; topic 1 adds the fundamental assumptions and the AS 1 considerations; topic 11 adds the errors a balanced trial balance does not show; topic 19 asks whether a working trial balance (opening · period · closing) is expected; topic 20 adds what every report states at its head; `research/OPEN.md` rows get a fixed format. The pack's four sample books, open-item matching of party payments, and its app-design material were not adopted — they conflict with owner rulings (sub-family accounts, 13 Oct), slide into invoicing (00-vision), or belong to the app specs.
+
+**Open**
+- NCERT Class 12 partnership chapter and page for the no-deed defaults — to be confirmed when topic 14 is researched.
+- App phase, later: 02 states no rule that an account's class is fixed once posted to (a grep of 02 found none; not checked further).
+
+---
+
+## 2026-10-13 — docs: PRACTICE10 — the ten-book practice set
+
+**Added**
+- `docs/reference/worked-examples/practice/` rebuilt as ten compact books (ADR 2026-10-12 §11–§12), one generator and one independent checker:
+  - the seven use cases from practice with the owner's real names — `individual-jasvinder-singh` (personal book + Jasvinder Technologies), `shop-sukhwinder-sales-co`, `partnership-bal-fabricators` (2 : 2 : 1, fixed capital + current accounts, P&L Appropriation with 6% interest on capital), `joint-family-randhawa` (seven books), `trust-radha-soami-satsang-sabha` (R&P, I&E, Balance Sheet), `contractor-bal-aluminium-pvc-works`, `farmer-bal-agriculture` (KCC);
+  - truck, committee and landlord re-cut to the compact size, placeholder names kept.
+- Every book: accounts and openings → every ledger → Day Book → Cash Book → statements → year end; no Bank Book; one-month summary only; one chosen-period statement; positions at 30 Sep and 31 Mar; ageing; bank-statement table for individual, shop, truck and landlord; a `.tech.md` companion.
+- Inter-book money only through accounts named after the other book; a summary at the end of each multi-book file shows every pair agreeing entry for entry.
+
+**Changed**
+- `build.py` rewritten: multi-book files, partners and appropriation (computed, never posted), credit card, KCC, gollak, stake and link accounts, corrections that name the entry they fix; per-book page check fails above 14 pages.
+- `check_md.py` rewritten to match: per-book parsing, Cash Book only, appropriation, partners' table, family summary, entry-count range, whole-word plain-word lint. 17,371 checks, 0 problems; two runs byte-identical; `check_coverage --strict --milestone M4` ok.
+- Ledger rows print without the entry note (the Day Book, the Cash Book and the chosen-period statement keep it), so each book fits in 10–12 pages.
+- `README.md` (generated) and `GAPS.md` re-derived over all ten books; A7 stays dropped; new gaps A11 (the inter-book shape for a business and its owner), A12 (correction entry vs amend) and B1–B5 (partnerships).
+
+**Decided** (owner, 13 Oct 2026 — applied in the same session)
+- Trust: *Dairy Donation* is income; *Construction* stays an expense head.
+- Joint family: the joint book is **Randhawa Joint Family** (was *Randhawa Family Fund*), with **one running account per sub-family**. Household money, money taken to be returned and bills the family pays go on the Dr side; money the household puts in goes on the Cr side, whether into the family, straight into a family business, or by paying a family-business bill. It is not a debt. At the year end it is **settled or carried forward** (most families carry it forward). The book shows a settlement borne by the family, a settlement from a sub-family's share of business income, and a carry-forward.
+- Joint family: money a family business sends home is the family's **income** (*Income from …*); money the family puts into a business stays at what it put in.
+- `build.py` / `check_md.py`: the family summary compares brought-forward balances and the money moved in both directions per pair; new entry types *Paid by the joint family* and *Settled at year end*. 17,481 checks, 0 problems.
+
+**Decided** (owner, 13 Oct 2026, later) — ADR 2026-10-12 §11 amended, §14 added
+- Ledger rows carry each entry's note in small type. The Day Book and Cash Book are not part of the printed book; each book has them in an export file beside it (`<file>.export.md` / `.html`). In the app: print or export the ledger, Day Book and Cash Book for any period, with or without notes, choosing **All** or a multi-select of sections and accounts.
+- Interest on capital is optional (Bal Fabricators adds 6% as its partners agreed; the brick field adds none) — stated in each partnership book.
+- Account types on reports: a short plain word in the accounts list only (*Person / shop, Thing owned, Deposit, Own money …*). No bracketed standard word and no type column in the trial balance, so Punjabi and Hindi stay short. The app shows no type word (ADR 2026-10-12 §14).
+- `docs/reference/financial-accounting-standards.md`: new **§1.7.1** gives, for each of the 21 catalogue types, what Dr means, what Cr means, the natural balance and how it reads, and the entries that use it. New **§1.7.2** lists the 11 types the practice books use that the engine does not have yet (Deposit, Deposit held, Fund, partner's capital and current, Money in a business, Owner, Sub-family, Joint family, *Income from …*, advance to a non-member) — each with Dr/Cr meaning, example entries and its GAPS item, marked not built. Row 20's example renamed to *Randhawa Joint Family*.
+- Owner, 13 Oct 2026: a fixed or recurring deposit or an investment is its own type, **Deposit**, not *Thing owned* — standard §1.2, §12.4, §1.7.2 row 22, ADR 2026-10-12 §6 note and §14, GAPS A3.
+- Owner, 13 Oct 2026: a security deposit held from a person is **its own account, one per person** (*Deposit held – {person}*), never netted against the khata. The landlord book now has five deposit accounts and Randhawa Real Estate two; standard §12.4 and §1.7.2 row 23, ADR §14 and GAPS A2b updated. The standard's old line saying the landlord book kept deposits as party balances was wrong and is corrected.
+- Owner, 13 Oct 2026: a security deposit **paid** to a person is likewise its own account, *Deposit paid – {person}* (an asset). The shop book now carries *Deposit paid – Kapoor Properties* (₹90,000 paid to the shop's landlord). Standard §12.4 and §1.7.2 row 33, ADR §14 and GAPS A2b updated.
+- The printed book is now numbered 1 accounts · 2 ledgers · 3 what the app shows (the bank-statement table is 3.6) · 4 year end. The printed books are 10–11 pages; the Randhawa books 7–11 each. `check_md.py` reads the Day Book from the export and checks every ledger note against it: 19,034 checks, 0 problems. `INDEX.md` reading order updated.
+
+**Open** ⚠️
+- Owner review of the whole set — desk 206. Still open in `practice/README.md` §5: the personal book holding the business at money put in less taken out; the partnership appropriation computed, not posted; compact quarterly entries. GAPS A11 asks for a ruling on the joint-family shapes against 02 §6 and ADR 2026-09-09c §2.
+- After approval: archive `usecases/` and update `INDEX.md` (ADR 2026-10-12 §13).
+
+**Commits**
+- (none — held until the owner has reviewed the set)
+
+## 2026-10-13 — docs: compact samples, PDFs not committed, use-case set to be archived
+
+**Changed**
+- `.gitignore` — worked-example PDFs in `usecases/` and `practice/` are local outputs. The original golden set's five PDFs stay tracked.
+- `docs/reference/worked-examples/INDEX.md` — status lines: the practice set is 10 books, being finalized; the use-case set is to be archived without a golden designation.
+
+**Decided**
+- ADR 2026-10-12, owner 12–13 Oct 2026:
+  - §11 compact samples: about 40–60 entries and 10–12 pages per book, no Bank Book (the Cash Book stays), PDFs not committed.
+  - §12 one practice set of ten books: the seven use cases are rebuilt from practice with the owner's real names.
+  - §13 the rule-based `usecases/` set is archived once the practice set is reviewed, and its golden designation is removed. §3 and ADR 2026-10-11 §5 are withdrawn.
+- Owner: nothing is committed until the new set is reviewed.
+
+**Open** ⚠️
+- PRACTICE10, the ten-book rebuild, is not started. A first run was stopped before it changed any file. The brief is at `.claude/lane-reports/PRACTICE10-brief.md` (git-ignored).
+
+**Commits**
+- none — held for the owner's review
+
+## 2026-10-12 — docs: accounting docs tree, Accounting Standard v3, plain-language reports, practice examples (truck · committee · landlord), labourers as expense heads (Fable)
+
+**Added**
+- `docs/reference/worked-examples/practice/` — three books written from real bookkeeping practice rather than our rules, as **target output** for development:
+  - Sukhdev Singh Transport (truck operator): 266 entries;
+  - Guru Nanak Welfare Committee: 137 entries;
+  - Gurdial Singh Sandhu (landlord): 188 entries.
+
+  All names are placeholders and the year is FY 2025-26. There is no tax, invoicing, stock or payroll, and no depreciation or accruals; assets are kept at cost. Every entry is a real cash or bank movement or a credit with a named party. The truck and landlord books each turn one month's bank statement into entries. Each book shows the live position at two dates, one month in full, one account for a chosen period, and a *You will get / You will give* list with ageing. The year end has the trial balance, P&L or (committee) R&P plus I&E, the balance sheet and the carry-forward. `GAPS.md` lists what the app needs to produce them; A7 (registers and entry tags) was dropped by the owner. `check_md.py` passes 11,059 checks with 0 problems, and the output is deterministic.
+- `docs/reference/worked-examples/INDEX.md` — the one index of every worked-example set.
+- `docs/archive/` with `README.md`:
+  - the 30 Aug originals (`Financial_Architecture_Specification.md`, `ledger_rules_specification.md`);
+  - `punjabi_accounting_terms.md`;
+  - `financial-accounting-standards-v2.0.md` (byte-identical copy);
+  - `accounting-audit-errata.md`.
+
+**Changed**
+- `docs/reference/financial-accounting-standards.md` is rewritten in place as **Rukka Folio Accounting Standard v3**:
+  - §0 *What the books must do*: manual entry or bank-statement import → own accounts → live position → statements for any period and any account;
+  - §1.7 the one account-type catalogue (21 rows; unbuilt rows are marked "ruled, build pending");
+  - §11–§17 books and openings, everyday transactions, import and bank reconciliation, close, year-end statements per book type, reports, and the open-decision index;
+  - Appendices A–G.
+
+  Every v2.0 🔒 line is kept verbatim, and every section number cited elsewhere still points to the same content.
+- `docs/02-ledger-rules.md`:
+  - header names v3;
+  - Corpus struck from the stored equity roles (it is computed, ADR 2026-09-05e §2);
+  - ADR 2026-09-09c §4 added to §4;
+  - a pointer to the v3 catalogue;
+  - 🔒 §8.1 *any date range, any account*.
+- `docs/00-vision.md` — one sentence pointing to v3 §0.
+- `docs/reference/worked-examples-usecases/` moved to `docs/reference/worked-examples/usecases/` and reworked:
+  - **Plain-language printed reports.** Household words with the true side in brackets, e.g. *Money in (Dr)*; no engine names, § or ADR references, or ⚠️ notes on the page (a lint refuses them). The technical detail moves to a `.tech.md` companion per book.
+  - **The trust's *Manni Labour A/c* / *Ravinder Labour A/c* are expense heads** (wages paid monthly in cash; the year's totals are ₹1,08,000 and ₹1,02,000), and *Labour A/c* holds daily-wage labour.
+  - **Every book reads in one order:** accounts and opening balances (Dr and Cr totals agree) → every account's statement → day book and supporting registers → closing balances (trial balance) → the year's income and expenses by head with entry counts → position with the make-up of Corpus / Accumulated surplus → year end and b/f.
+  - **Figures unchanged:** `fixtures.json` matches apart from `content_hash_md`, with 3,557 signed lines compared.
+  - **Checks:** `check_md.py` passes 6,794 checks with 0 problems; the self-test refuses 12 of 12 mutations; the output is deterministic; the set is 1,770 vouchers.
+- `README.md`, `docs/01-glossary.md` and `.claude/skills/goldens/SKILL.md` now point to the archived paths.
+- `check_coverage --strict` is ok, and the golden test passes (`A-ref-*`, 35 tests).
+
+**Decided**
+- ADR 2026-10-12 (owner, 12 Oct 2026):
+  - §1 archive the superseded files;
+  - §2 printed reports use plain native words with the Dr/Cr in brackets (keeps ADR 2026-10-10b §4), and technical terms stay behind the scenes;
+  - §3 the use-case set becomes golden after the S1–S12 rulings, bookkeeper sign-off and A-ref-8/9;
+  - §4 v3 keeps its filename;
+  - §5 the core requirement is written once, with both entry routes first-class;
+  - §6 one account-type catalogue, an `asset` class (*Thing owned*), every type creatable from S3.1, a loan account is optional, and the Capital tile records capital introduced;
+  - §7 bank reconciliation at month close;
+  - §8 party write-offs go to a *Written off* expense;
+  - §9 every worked example lives in `docs/reference/worked-examples/`;
+  - §10 the practice examples are target output.
+
+  §6–§8 take effect with their build slices.
+- ADR 2026-10-11 §6: labourers as expense heads; the ledger-book order.
+- Owner: no registers or entry tags; a register is just the account the user names, plus the *You will get / You will give* list with ageing.
+
+**Open** ⚠️
+- v3 §17: decisions D7–D19 and D-opt-1 to D-opt-3. The use-case README's S1–S12.
+- `practice/GAPS.md` A2 asks for a liability kind for deposits held; ADR 2026-10-12 §6 said none for now. The owner should re-rule this.
+- Build slices to plan:
+  - the `asset` class and the full S3.1 grid;
+  - bank reconciliation;
+  - the *Written off* head;
+  - 07 §14 reports matching the examples' layout and language;
+  - glossary keys for the new plain words (v3 §1.7, App. C).
+- Wording the owner should confirm (use-case rework): *Correction / adjustment* vs 01's *Fix / Adjust*; *Where it went (Dr) / Where it came from (Cr)*; the equity line names.
+- No engine test reads the new sets yet. The PDFs are not inspected by eye. `docs/reference/worked-examples/` is 38 MB with its PDFs.
+
+**Commits**
+- (pending)
+
+## 2026-10-11 — docs: use-case worked examples (second reference set) + independent audit of the existing set (Fable)
+
+**Added**
+- `docs/reference/worked-examples-usecases/` — a second accounting reference set, built from the financial architecture spec and 02 only (not the app, not demo data): 7 use cases, 14 books, 1,792 vouchers, FY 2025-26 full year with month locks and a year close in every book. Individual + own business, shop, partnership (2:2:1, interest on capital, a partner in Dr), joint family with sub-family books and three businesses, trust (gollak per 02 §8.2), contractor, farmer with KCC. `build.py` regenerates every file byte-for-byte (integer paise, asserts every rule; `--self-test` proves 12 guards fire); `check_md.py` re-derives every figure from the printed markdown (6,256 checks); `fixtures.json` is the machine-readable copy for a future engine test. Reviewed independently (one repair round: gate glyphs, RF-037 kind `money_out`, one appropriation entry BF-183, openings per account, standards §2 b/f row, honest assertions). PROVISIONAL, pending bookkeeper sign-off.
+- `.demo/worked-examples/` (git-ignored) — an earlier private draft on the dev demo roster; superseded by the folder above, safe to delete.
+
+**Decided**
+- `docs/decisions/2026-10-11-use-case-worked-examples.md` (Proposed) — owner, 11 Oct 2026: a second reference set beside the existing one; the existing `docs/reference/worked-examples/` stays untouched and remains the golden set; the owner's real names are allowed in the new folder (reverses the 4 Oct "never committed" note for this folder only); plain link labels instead of "Due to/from"; truck operator and committee skipped; trust accounts as the owner named them.
+
+**Open** ⚠️
+- No engine test reads the new set yet (ADR 2026-10-11 §5 names what it would take: a test over `fixtures.json`, bookkeeper sign-off, content_hash).
+- Audit of the existing set (arithmetic all correct): trust pays from `Gollak Cash A/c` (T-003/011/018/022/027, against 02 §8.2); Agri Cash and Sub-family Cash end negative; partnership opening not credited to partners (ADR 09c §4); §5 splits in rupees, not paise (errata F-7); natural-balance labels for Drawings / Profit Distributed; reconciliation without Dr/Cr; non-reproducible generators. Owner to decide whether to fix there (moves the goldens, needs an ADR).
+- 13 ⚠️ SPEC readings in the new README §5 (e.g. personal side of an owner takeout, Suspense clearing posting, Manni/Ravinder as parties, Construction expensed — no fixed-asset class).
+
+**Commits**
+- (pending)
+
 ## 2026-10-10 (night) — M13: desk 200 fixes, opening-balance prompt, wording (joint fund · PA/HI Save), structural approvals bound to the certified signer (Fable)
 
 The owner raised today's ceiling to 30 M (Saturday; the weekly quota resets Sun 11 Oct 9:30; /usage read 64 % all-model, 4 % Fable) and asked to complete as much as possible. Two `/cycle`s plus four single-slice cycles ran, every slice built → reviewed → verified → repaired; push gate green twice. With the owner's say-so, one `lane-core` (Fable) lane closed two trust holes F200I found in structural approvals.
