@@ -88,7 +88,7 @@ export 'verified_members.dart'
 /// These are **account names** — user data the user may rename — not UI
 /// labels, so they never become ARB keys; the UI loads the tree for the book
 /// type and locale and passes it to [LocalLedger.createBook]
-/// (docs/reference/seed-category-trees.md).
+/// (docs/accounting/05-account-name-presets.md).
 final class SeedCategory {
   /// Creates a seeded category.
   const SeedCategory(this.name, this.accountClass)
@@ -3657,8 +3657,8 @@ final class LocalLedger
     }
     // ADR 2026-09-09c §1's income/expense column. Category names are *user
     // data* the user may rename, not ARB labels, so they are passed in by the
-    // caller localised (docs/reference/seed-category-trees.md, "How these
-    // reach the app") — which is also what keeps `core_ledger` free of
+    // caller localised (docs/accounting/05-account-name-presets.md, ADR
+    // 2026-09-09c §1) — which is also what keeps `core_ledger` free of
     // strings.
     //
     // ⚠️ SPEC: only the **trust** tree has a default here, because 07 §3.1

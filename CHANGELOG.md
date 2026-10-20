@@ -12,6 +12,32 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-20 — docs: seeded category trees replaced by a draft account-name preset list
+
+**Added**
+- `docs/accounting/05-account-name-presets.md`: one list of common account names grouped by account type (Expense, Income, Cash, Bank, Credit card or overdraft, Loan, Wallet), to be offered as one-tap chips when the user names an account of that type. The same names for every kind of book. Draft, EN only; PA/HI wait for native review (01 §1.8).
+
+**Changed**
+- `docs/reference/seed-category-trees.md` removed (deletion committed in `a9eb5e6`). Its names came from the 30 Aug set archived as defective, its trust list contradicted 07 §3.1 🔒, and it split names by kind of book. `docs/reference/` is now gone.
+- Re-pointed to the new file: `local_ledger.dart` (two comments), two tests' comments, PLAN U1f and PLAN-122, ADR 2026-09-09c Open, 01 §1.8, 02 §12 item 1. `docs/reference/` folder pointers updated in CLAUDE.md (precedence 3 and layout; path only), README, `lane-core`, the 09 preamble and the 13 header. No behaviour or test changed.
+
+**Decided**
+- Owner direction, 20 Oct 2026, **not yet an ADR**. Rulings wait until the foundations are settled and are made once at the app-requirements pass (PLAN-210). The direction:
+  - no income/expense heads seeded per kind of book;
+  - one list of common names by account type, offered as one-tap chips and used only if the user picks one;
+  - the reference books are samples, not a source for these names.
+
+  Until it is ruled, 07 §3.1 🔒 (the trust's four seeded heads) and ADR 2026-09-09c §1 stand. Recorded in PLAN-122 and 02 §12 item 1.
+
+**Open**
+- ⚠️ PA/HI names for every preset: native review (PLAN-111's reviewer).
+- Not re-pointed: `design/DESIGN-PACK.md` cites `docs/reference/worked-examples/*.md` for the figures in its frames (the archived 30 Aug figures), and the goldens skill's description still says `docs/reference`.
+
+**Commits**
+- `a9eb5e6` (deletion only); the rest is still to commit.
+
+---
+
 ## 2026-10-20 — docs: all research questions ruled; `docs/accounting/` with four foundation documents and five reference books
 
 **Added**

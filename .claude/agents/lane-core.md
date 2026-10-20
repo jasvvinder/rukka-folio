@@ -19,7 +19,7 @@ Solve the blocker; do not take on adjacent work. If the blocker turns out to be 
 1. `docs/decisions/` ADRs — newest on a topic wins.
 2. Numbered specs `00`–`13` and `design/` — the doc that **owns** the topic wins (02 ledger,
    03 storage, 04 crypto, 05 sync, 06 identity, 07 screens, 11 brand, 13 UX architecture).
-3. `docs/reference/` — behavioural reference for the engine.
+3. `docs/accounting/` — behavioural reference for the engine.
 4. `docs/requirements-architecture.md` — ⛔ **background only, non-normative; loses every conflict.**
 
 Two sources at the same level in genuine conflict → **stop and ask.** Leave a `⚠️ SPEC:` comment

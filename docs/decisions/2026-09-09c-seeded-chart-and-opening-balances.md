@@ -82,7 +82,7 @@ seeded, editable defaults; the user renames them on S0.6b (ruling 3).
 - **Milestone:** M5.
 
 ## Open ⚠️
-- **The category trees are drafted but not ratified** — `docs/reference/seed-category-trees.md`, EN only,
+- **The category trees are drafted but not ratified** — `docs/reference/seed-category-trees.md` (replaced 20 Oct 2026 by the draft `docs/accounting/05-account-name-presets.md`: one list by account type, not by book), EN only,
   every name taken verbatim from the worked examples. Two things need the owner: the ਪੰਜਾਬੀ/हिन्दी columns
   (native review per `01 §1.8`, never machine translation), and a **fourth tree**. `01 §1.8` and `02` both
   say household/shop/trust, but the examples carry a distinct **farm** vocabulary that no shop tree covers,

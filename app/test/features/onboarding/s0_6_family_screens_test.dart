@@ -300,7 +300,7 @@ void main() {
           isEmpty,
           reason:
               'the household category tree is drafted and unratified '
-              '(docs/reference/seed-category-trees.md) — the family book '
+              '(docs/accounting/05-account-name-presets.md) — the family book '
               'seeds no categories unless the caller passes them',
         );
         expect(chart.byClass(AccountClass.categoryExpense), isEmpty);

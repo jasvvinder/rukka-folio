@@ -1251,7 +1251,7 @@ void _adr2026_09_09c() {
       );
       // No category tree is seeded unless the caller passes one: the
       // household/shop trees are drafted and unratified (ADR 2026-09-09c
-      // Open ⚠️, docs/reference/seed-category-trees.md).
+      // Open ⚠️, docs/accounting/05-account-name-presets.md).
       expect(
         chart.accounts.where(
           (a) =>

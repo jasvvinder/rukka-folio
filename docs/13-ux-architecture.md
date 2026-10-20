@@ -1,7 +1,7 @@
 # 13 — UX Architecture & Flow Framework
 
 **Version 1.1 · 5 Sep 2026 · Production handoff draft.** (v1.1 = ADR 2026-09-05f: every 5 Sep ADR state given a home; tab bar settled; inventory hygiene.)
-Authorities: `docs/07-ui-flows.md` (screen detail) · `docs/02-ledger-rules.md` + `docs/reference/` (engine behaviour) · `docs/11-brand-guidelines.md` (brand) · `design/tokens/` (values) · `docs/01-glossary.md` (strings).
+Authorities: `docs/07-ui-flows.md` (screen detail) · `docs/02-ledger-rules.md` + `docs/accounting/` (engine behaviour) · `docs/11-brand-guidelines.md` (brand) · `design/tokens/` (values) · `docs/01-glossary.md` (strings).
 This document is the connective layer: it defines *what screens exist, how they relate, what states they carry, and how a user moves between them.* Where it and doc 07 disagree, 07 wins on screen-level detail and this document wins on structure. ⚠️ marks decisions still open.
 
 ---

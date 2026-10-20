@@ -405,7 +405,7 @@ All balances are **derived, never stored authoritatively**: balance(account) = �
 
 ## 12. Open items ⚠️
 
-1. Default seeded category trees per book type (household vs shop vs trust) — draft with the family pilot; ship in EN + PA.
+1. Default seeded category trees per book type (household vs shop vs trust) — draft with the family pilot; ship in EN + PA. Owner direction 20 Oct 2026, to be ruled at the app-requirements pass: one preset list by account type, offered as one-tap chips; draft `docs/accounting/05-account-name-presets.md`.
 2. Reminder-day defaults for advance ageing (15/30 proposed).
 3. `channel` tag taxonomy for online/offline filtering (UPI / card / netbanking / cash) — finalize with 07-ui-flows.md.
 4. Whether Late Arrivals may auto-post if the month is re-opened anyway — decide after pilot friction is observed.

@@ -34,6 +34,7 @@ Depreciation, accrued and prepaid items, and closing stock are an optional year-
 | [`02-accounts-and-transactions.md`](02-accounts-and-transactions.md) | The rule for each kind of account and transaction: cash and bank, persons, advances, loans, things owned and deposits, goods bought for sale, corrections, entries that move no money |
 | [`03-entities.md`](03-entities.md) | How each kind of owner keeps its book: household and sole proprietor, partnership, joint family, related books, trusts and committees, landlord |
 | [`04-year-end-and-reports.md`](04-year-end-and-reports.md) | Month end, year end and carry-forward; what every report states and contains |
+| [`05-account-name-presets.md`](05-account-name-presets.md) | Common account names, one list grouped by account type, offered as one-tap suggestions when an account is named |
 | [`reference-books/`](reference-books/) | Five finished ledger books for FY 2025-26, made to these rules. They are the output the app must produce: individual, joint family, shop, partnership, trust. `COVERAGE.md` shows where each rule appears; `GAPS.md` lists what the app still needs to produce them. |
 
 ## Where the rules come from

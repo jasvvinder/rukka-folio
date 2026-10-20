@@ -32,7 +32,7 @@ README.md · CLAUDE.md            entry points
 CHANGELOG.md                     session-by-session record of changes (what + why; git holds the diff)
 docs/00–13                       normative specs (13 = UX architecture)
 docs/decisions/                  ADRs — one file per 🔒 change
-docs/brand/ · docs/reference/    brand assets · accounting reference + worked examples (.md + .pdf)
+docs/brand/ · docs/accounting/   brand assets · accounting foundations + five reference books (.md + .pdf)
 docs/requirements-architecture.md  ⛔ background only, non-normative
 design/DESIGN-PACK.md            the only file a designer needs
 design/design-system.md · tokens/  rules, contrast audit, token source

@@ -169,7 +169,7 @@ append-only, 02 §5).
 
 **Surface precedence:** this document governs in-product terminology; marketing/site/deck copy follows the brand voice and localisation rules (11 §5). Brand's "financial terms stay in English" rule applies to marketing and search-facing text, not to this table.
 
-Seeded category trees (household/shop/trust) ship in all three languages in a separate seed file, same review gate.
+Seeded category trees (household/shop/trust) ship in all three languages in a separate seed file, same review gate. Draft: `docs/accounting/05-account-name-presets.md`.
 
 ## 2.0 Duration, ageing and status meta strings 🔒 (owner-approved, 31 Aug 2026) ⟦tests: F3-01-11 @M12⟧
 These appear under card titles and in list rows. Previously undefined, which is how a machine translation slipped in.
