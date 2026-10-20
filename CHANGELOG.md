@@ -12,6 +12,21 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-20 — docs: Day Book layouts on print and export; no separate journal book
+
+**Added**
+- `docs/accounting/04-year-end-and-reports.md` §5.3: when the Day Book is printed or exported, the user chooses a layout over the same entries: the list, the **journal layout** (Dr line, indented *To* line, narration in brackets, two amount columns, no L.F.) or the Cash Book. A *No money moved only* filter gives the textbook journal proper. Cites NCERT ch. 3 §3.4, taken from 01 rule 3.2 and not re-read.
+
+**Decided**
+- Owner, 20 Oct 2026, no ADR yet: one record of entries with several layouts; no separate journal book. Recorded as an input to PLAN-210, which also notes that the UI label must avoid *journal* (01 rule 4).
+
+- Owner: follow the standard. The journal layout opens with the opening entry and ends with the year-close entries, because the journal proper holds them (01 §3.6: NCERT ch. 4 §4.6, ICAI BoS ch. 2 unit 4 §4.7). The list layout of the Day Book is unchanged.
+
+**Commits**
+- (to fill)
+
+---
+
 ## 2026-10-20 — docs: seeded category trees replaced by a draft account-name preset list
 
 **Added**
@@ -34,7 +49,7 @@ Running record of what changed in this repository and in the development environ
 - Not re-pointed: `design/DESIGN-PACK.md` cites `docs/reference/worked-examples/*.md` for the figures in its frames (the archived 30 Aug figures), and the goldens skill's description still says `docs/reference`.
 
 **Commits**
-- `a9eb5e6` (deletion only); the rest is still to commit.
+- `a9eb5e6` (deletion only), `3fc8c39`.
 
 ---
 

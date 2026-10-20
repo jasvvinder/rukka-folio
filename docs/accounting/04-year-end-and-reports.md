@@ -247,6 +247,26 @@ Date    No.  Entry                         Money in (Dr)    Money out (Cr)
 
 **Example.** Professional: `Dr Mohan ₹5,000 · Cr Sales ₹5,000`, then `Dr Cash ₹3,000 · Cr Mohan ₹3,000`. Plain words: "Sold ₹5,000 to Mohan on 2 April; on 5 April he paid ₹3,000. Both on the day's page, in order."
 
+**Layouts when printed or exported.** There is one record of entries and no separate journal book. When the Day Book is printed or exported, the user chooses how its entries are laid out, and the entries are the same in every layout:
+- **the list** above;
+- **the journal layout**, for an accountant. Each entry is a Dr line, then a *To* line indented beneath it for the credit, then the note in brackets as the narration, with two amount columns. An entry with more than one account on a side has one line per account. No L.F. (ledger folio) column is printed, because the account's name identifies its ledger page. As in the textbook journal, the layout also carries the entries that are not typed: **it opens with the opening entry** when the period starts on the book's first day, and **ends with the year-close entries** (rule 2.1) when the period includes the last day of a closed year, each dated as made;
+- **the Cash Book** (rule 5.4), which takes only the entries that move cash or bank.
+
+In any layout, a filter *No money moved only* gives the entries a textbook journal proper holds (*01 — Accounting foundations*, 3.6): corrections, write-offs, transfers between heads, goods taken for home.
+
+```
+Day Book (journal layout) — {book} — April 2026
+Date    Particulars                              Dr ₹      Cr ₹
+2 Apr   Mohan A/c ......................... Dr   5,000
+          To Sales A/c                                    5,000
+        (Sold to Mohan on credit — entry 1)
+5 Apr   Cash A/c .......................... Dr   3,000
+          To Mohan A/c                                    3,000
+        (Mohan paid in cash — entry 2)
+```
+
+**Source (layouts):** NCERT Class 11 Part I, Ch 3 §3.4 (journal format: date, particulars with the Dr account and *To* the Cr account, L.F., debit and credit amounts, narration). The journal proper holds opening, closing, adjusting, rectification and transfer entries: NCERT ch. 4 introduction and §4.6 (pp. 139–140); ICAI BoS Module 1 ch. 2 unit 4 §4.7 (pp. 2.96–2.97). Both citations are taken from *01 — Accounting foundations*, 3.2 and 3.6; the textbooks were not re-read for this rule. One record with several layouts and no separate journal book: owner, 20 Oct 2026.
+
 ### 5.4 Cash Book (cash and bank)
 
 **Rule.** The Cash Book lists every receipt and every payment of cash and of each bank account, in date order, receipts (*Money in*) on the left and payments (*Money out*) on the right, starting from the opening cash and bank balances and ending with the closing ones. Cash is always on the *Money in (Dr)* side or nil; a bank account that has been overdrawn is shown on the other side. A bank account has its own column. A transfer between cash and bank appears on both sides. Cash taken from the bank for the owner's own use is *Drawings*, not a transfer.
