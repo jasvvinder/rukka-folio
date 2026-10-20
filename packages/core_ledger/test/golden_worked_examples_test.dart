@@ -28,7 +28,8 @@ import 'helpers.dart' show workspaceRoot;
 
 // Resolved from the repository root so `dart test` passes from the package or the
 // workspace root (ADR 2026-09-05i §9).
-final _dir = '${workspaceRoot()}/docs/archive/reference/worked-examples-original';
+final _dir =
+    '${workspaceRoot()}/docs/archive/reference/worked-examples-original';
 const _files = [
   'individual-rahul-sharma.md',
   'business-sharma-textile.md',
