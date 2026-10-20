@@ -55,6 +55,7 @@ const FINDINGS_SCHEMA = {
       },
     },
     citations: { type: 'array', items: { type: 'object' } },
+    questions: { type: 'array', items: { type: 'object' }, description: 'acct-munim only: practice questions for the human bookkeeper; not verified' },
     notes: { type: 'string' },
   },
   required: ['complete', 'findings'],
@@ -163,5 +164,6 @@ return {
   confirmed,
   refuted: done.flatMap((r) => r.refuted),
   citations: done.flatMap((r) => r.review?.citations || []),
+  questions_for_bookkeeper: done.flatMap((r) => r.review?.questions || []),
   next: 'present confirmed findings to the owner grouped by document, one line each with evidence; the owner rules keep/change; edits are made in the main session afterwards',
 }

@@ -12,6 +12,21 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-21 — env: accounting panel narrowed after review
+
+**Changed**
+- `.claude/workflows/cycle.js`: `acct-auditor` runs in `/cycle` only for slices that produce a book (`packages/core_ledger`, `testing/goldens`, `app/lib/features/reports`). The `data` package and the ledger, close, partners, advances and entry features are dropped, because a slice with no book output gives the auditor nothing to audit. `accounting: true` adds any other slice.
+- `.claude/agents/acct-munim.md`: findings are only what can be shown from the text (plain words vs Dr/Cr, contradictions, uncovered cases, names). Anything resting on "how it is really done" becomes a **question for the bookkeeper** in `questions`, unverified and without severity, for PLAN-209. `acct-review.js` passes these through as `questions_for_bookkeeper`.
+- `.claude/skills/acct-review/SKILL.md`: states what the panel is not. It is not the bookkeeper sign-off. It is the same model that wrote the docs, so shared errors pass. It is not the test of app output: that is the deterministic golden tests (`A-ref-*`, M14) and `check_md.py`, and `output` mode only diagnoses a mismatch, checks report statements, or helps write a golden test. `/cycle` skill table updated.
+
+**Decided**
+- Owner, 21 Oct 2026: keep the panel but narrow it as above; judge it by one trial run (`/acct-review docs 01`) before relying on all four agents.
+
+**Commits**
+- (to fill)
+
+---
+
 ## 2026-10-20 — env: accounting review panel (agents, workflow, skill) and its place in /cycle
 
 **Added**
@@ -28,7 +43,7 @@ Running record of what changed in this repository and in the development environ
 - The new agent types load in a fresh session. The first run will show whether they resolve.
 
 **Commits**
-- (to fill)
+- `a294246`.
 
 ---
 

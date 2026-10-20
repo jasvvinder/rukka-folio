@@ -19,13 +19,11 @@ export const meta = {
 // .claude/lane-reports/<milestone>-<key>.review.json (review), written by the agents
 // themselves, so a session-limit kill loses the run but never the work.
 
-// Slices whose output is accounting (postings, ledgers, reports, exports) also get the accounting
-// auditor (.claude/agents/acct-auditor.md) in the Review stage, against docs/accounting/.
-const ACCOUNTING = [
-  'packages/core_ledger', 'packages/data', 'testing/goldens',
-  'app/lib/features/ledger', 'app/lib/features/reports', 'app/lib/features/close',
-  'app/lib/features/partners', 'app/lib/features/advances', 'app/lib/features/entry',
-]
+// Slices that produce a book (postings, golden books, printed or exported reports) also get the
+// accounting auditor (.claude/agents/acct-auditor.md) in the Review stage, against docs/accounting/.
+// Kept narrow on purpose: a slice with no book output gives the auditor nothing to audit.
+// `accounting: true` on a slice adds it anywhere else.
+const ACCOUNTING = ['packages/core_ledger', 'testing/goldens', 'app/lib/features/reports']
 
 const HIGH_RISK = [
   'packages/core_crypto', 'packages/core_ledger', 'packages/sync_engine',
