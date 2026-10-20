@@ -12,6 +12,26 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-20 — env: accounting review panel (agents, workflow, skill) and its place in /cycle
+
+**Added**
+- `.claude/agents/acct-ca.md`, `acct-munim.md`, `acct-entities.md`, `acct-auditor.md`: a read-only accounting panel, all Opus. The Chartered Accountant checks standards, textbooks, report formats and every citation (WebFetch on ICAI/NCERT only). The senior bookkeeper checks practice, plain words against Dr/Cr, workability and vocabulary. The entity specialist covers partnership, joint family, trust/NPO, landlord and related books. The auditor re-derives every figure and compares app output with its reference book. Each agent files findings with evidence, `not checked` where it could not verify, and never edits.
+- `.claude/workflows/acct-review.js`: Review then Verify. Each panel member reviews the target, and each finding is put to a different member prompted to refute it (two refuters for a blocker; it survives only on a majority). Returns the survivors, the refuted findings and the citation table. Kinds: `docs`, `book`, `output` (with `golden`).
+- `.claude/skills/acct-review/SKILL.md`: `/acct-review docs|book|output …`, which calls the workflow and presents the survivors for the owner to rule on.
+
+**Changed**
+- `.claude/workflows/cycle.js`: slices whose directories produce accounting (`ACCOUNTING`: core_ledger, data, testing/goldens, and the ledger/reports/close/partners/advances/entry features) also get `acct-auditor` in the Review stage, beside `lane-review`. Its findings are verified with an accounting lens first. `accounting: true/false` on a slice overrides. Syntax-checked; not yet run.
+- `/cycle` skill table, CLAUDE.md (layout and Commands) and PLAN-209 describe the panel. It runs before the bookkeeper sign-off and never replaces it.
+
+**Open**
+- Cost per run is unmeasured. Read `wf-spend.sh` after the first `/acct-review` and write the figure into the skill.
+- The new agent types load in a fresh session. The first run will show whether they resolve.
+
+**Commits**
+- (to fill)
+
+---
+
 ## 2026-10-20 — docs: Day Book layouts on print and export; no separate journal book
 
 **Added**
@@ -23,7 +43,7 @@ Running record of what changed in this repository and in the development environ
 - Owner: follow the standard. The journal layout opens with the opening entry and ends with the year-close entries, because the journal proper holds them (01 §3.6: NCERT ch. 4 §4.6, ICAI BoS ch. 2 unit 4 §4.7). The list layout of the Day Book is unchanged.
 
 **Commits**
-- (to fill)
+- `898c91e`.
 
 ---
 

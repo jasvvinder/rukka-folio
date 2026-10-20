@@ -19,6 +19,14 @@ export const meta = {
 // .claude/lane-reports/<milestone>-<key>.review.json (review), written by the agents
 // themselves, so a session-limit kill loses the run but never the work.
 
+// Slices whose output is accounting (postings, ledgers, reports, exports) also get the accounting
+// auditor (.claude/agents/acct-auditor.md) in the Review stage, against docs/accounting/.
+const ACCOUNTING = [
+  'packages/core_ledger', 'packages/data', 'testing/goldens',
+  'app/lib/features/ledger', 'app/lib/features/reports', 'app/lib/features/close',
+  'app/lib/features/partners', 'app/lib/features/advances', 'app/lib/features/entry',
+]
+
 const HIGH_RISK = [
   'packages/core_crypto', 'packages/core_ledger', 'packages/sync_engine',
   'server/supabase/migrations', 'server/supabase/functions',
@@ -76,6 +84,8 @@ const LENSES = [
   'context — is this already handled elsewhere (a caller, a guard, a deterministic checker, an existing test)?',
   'authority — does the spec section or canvas frame cited actually say or draw this, and does a newer ADR override it? (a canvas frame is an authority on how a screen looks, ADR 2026-10-05 §1)',
 ]
+// first lens for a finding filed by the accounting auditor
+const ACCT_LENS = 'accounting — does the rule in docs/accounting/ or the reference-book row cited actually say this, does the arithmetic hold in integer paise, and is it in scope (bookkeeping only; the khata basis is a ruled choice)?'
 
 if (!args || !Array.isArray(args.slices) || args.slices.length === 0) {
   throw new Error('args.slices must be a non-empty array of { key, agent, dirs, prompt }')
@@ -102,9 +112,26 @@ for (const s of args.slices) {
 const M = args.milestone || 'M?'
 const ROUNDS = args.maxRepairRounds ?? 2
 const isUi = (s) => s.dirs.some((d) => d.startsWith('app/lib/features') || d.startsWith('app/lib/shared'))
+const isAcct = (s) => s.accounting === true || (s.accounting !== false && s.dirs.some((d) => ACCOUNTING.some((a) => d.startsWith(a))))
 const isHigh = (s) => s.risk === 'high' || s.dirs.some((d) => HIGH_RISK.some((h) => d.startsWith(h)))
 
-log(`${M}: ${args.slices.length} slice(s) — ${args.slices.map((s) => `${s.key}${isHigh(s) ? '*' : ''}`).join(' ')}  (* = 3-vote verify)`)
+log(`${M}: ${args.slices.length} slice(s) — ${args.slices.map((s) => `${s.key}${isHigh(s) ? '*' : ''}${isAcct(s) ? '$' : ''}`).join(' ')}  (* = 3-vote verify, $ = accounting auditor)`)
+
+const acctPrompt = (s) => `Audit the accounting that the slice **${s.key}** of milestone ${M} produces.
+
+Directories it owns: ${s.dirs.join(', ')}
+What it was asked to build:
+${s.prompt}
+
+Find the book output this slice produces or changes: golden tests (\`testing/goldens\`, suite A, the
+\`A-ref-*\` tests), export fixtures, report builders, or the postings its tests assert. Where you can
+produce output (run the slice's tests, read a golden or fixture), re-derive every figure per your
+agent instructions and compare it with the reference book that covers the case in
+\`docs/accounting/reference-books/\`. Where no output can be produced, check the posting and report code
+against the rules in \`docs/accounting/\` 01–04: account, side, balance, year close, and what each report
+must state. Say plainly which of the two you did. Write
+\`.claude/lane-reports/${M}-${s.key}.acct.json\` as you go. Every finding carries file:line and the rule or
+reference-book row it breaks; set category to "acct:<kind>".`
 
 const reviewPrompt = (s) => `Review the slice **${s.key}** of milestone ${M}.
 
@@ -154,22 +181,45 @@ const built = await pipeline(
 
   // ---- Review ------------------------------------------------------------
   (build, s) =>
-    agent(reviewPrompt(s), {
-      label: `review:${s.key}`,
-      phase: 'Review',
-      agentType: 'lane-review',
-      schema: FINDINGS_SCHEMA,
-    }).then((r) => ({ slice: s, build, review: r })),
+    parallel([
+      () =>
+        agent(reviewPrompt(s), {
+          label: `review:${s.key}`,
+          phase: 'Review',
+          agentType: 'lane-review',
+          schema: FINDINGS_SCHEMA,
+        }),
+      ...(isAcct(s)
+        ? [() =>
+            agent(acctPrompt(s), {
+              label: `acct:${s.key}`,
+              phase: 'Review',
+              agentType: 'acct-auditor',
+              schema: FINDINGS_SCHEMA,
+            })]
+        : []),
+    ]).then(([r, a]) => ({
+      slice: s,
+      build,
+      review: {
+        complete: (r?.complete ?? false) && (a ? a.complete === true : true),
+        findings: [...(r?.findings || []), ...(a?.findings || []).map((f) => ({ ...f, owning_dirs: f.owning_dirs || s.dirs }))],
+        notes: [r?.notes, a?.notes].filter(Boolean).join(' | '),
+      },
+    })),
 
   // ---- Verify ------------------------------------------------------------
   async (r) => {
     const findings = r.review?.findings || []
     if (!findings.length) return { ...r, confirmed: [], killed: 0 }
-    const votes = isHigh(r.slice) ? LENSES : LENSES.slice(0, 1)
+    const lensesFor = (f) => {
+      const base = isHigh(r.slice) ? LENSES : LENSES.slice(0, 1)
+      return String(f.category || '').startsWith('acct') ? [ACCT_LENS, ...base.slice(1)] : base
+    }
     const judged = await parallel(
       findings.map((f) => () =>
         parallel(
-          votes.map((lens, i) => () =>
+          lensesFor(f).map((lens, i) => () =>
             agent(verifyPrompt(f, lens), {
               label: `verify:${r.slice.key}:${(f.file || '?').split('/').pop()}:${i}`,
               phase: 'Verify',

@@ -26,7 +26,7 @@ If two sources at the same level genuinely conflict, stop and ask — leave a `�
 /server/admin    internal panel (M13)
 /testing         harness/(two-client rig, 09 §1; created at M2, ADR 2026-09-05i §7) · fixtures/(SYNTHETIC sync/UI data only — never real entries; accounting goldens stay in docs/accounting/reference-books/) · goldens/(export byte-comparisons, suite F3)
 /design          design-system.md + tokens/ (tokens.json = single source → tokens.css, tokens.dart; UI code uses tokens ONLY — hex literals in widgets are review-blocking) · canvas-mirror/ (git-ignored, /design-pull — the drawn screens) · match/ (canvas-index.json + one design-match record per S-id, ADR 2026-10-05)
-/.claude         agents/(lane tiers — model+effort per lane) · workflows/(lanes.js, gate-run.js) · skills/ · hooks/ · bin/(wf-spend.sh, lane-status.sh) · lane-reports/(git-ignored, durable lane output)
+/.claude         agents/(lane tiers — model+effort per lane; acct-* = read-only accounting panel) · workflows/(lanes.js, gate-run.js, cycle.js, acct-review.js) · skills/ · hooks/ · bin/(wf-spend.sh, lane-status.sh) · lane-reports/(git-ignored, durable lane output)
 /scripts         ci.sh (the gate) · check_strings.dart (fails on missing EN/PA/HI key, placeholder drift, forbidden jargon) · check_purity.sh (no Flutter in packages; no I/O/clock/RNG in core_*; no hex literals in app) · gen_tokens.dart (tokens.json → tokens.css/.dart; --check in CI) · gen_l10n_arb.dart (dotted ARB keys → identifier keys for gen_l10n)
 ```
 Trunk-based on protected `main`; tags at milestone exits (`m1-ledger-core`); secrets only in CI secrets + local `.env` (never committed).
@@ -99,7 +99,8 @@ Trunk-based on protected `main`; tags at milestone exits (`m1-ledger-core`); sec
 - Server: `eval "$(scripts/rls_db.sh)"` builds the RLS database from a local Postgres (no Docker — the migrations are
   plain Postgres + `pgcrypto`) and exports `RF_TEST_DB_URL`; then `cd server && deno task test` runs the hostile-query
   suite. `supabase db reset` remains the Docker path. · `deno test server/functions`
-- Build: `/cycle <keys>` (build → review → verify → repair; ≤5 slices) · `/lane <keys>` (build only, ≤5 lanes) · `/gate [lane]` (separate run, always) · `/close` (plan → changelog → clear)
+- Build: `/cycle <keys>` (build → review → verify → repair; ≤5 slices; accounting slices also get `acct-auditor`) · `/lane <keys>` (build only, ≤5 lanes) · `/gate [lane]` (separate run, always) · `/close` (plan → changelog → clear)
+- Accounting panel: `/acct-review docs|book|output …` — CA, munim, entity specialist and auditor (read-only, `.claude/agents/acct-*.md`) review `docs/accounting/`, a reference book, or an app-produced book against its reference book; each finding is cross-examined by another panel member; survivors go to the owner. Precedes, never replaces, the bookkeeper sign-off (PLAN-209).
 - Position / budget: **`.claude/bin/board.sh`** (where the build stands, your desk, spend vs ceilings; `--line` for a statusline; printed automatically at session start) · `.claude/bin/rf-state.py` (writes `.claude/state.json`) · `.claude/bin/wf-spend.sh` (week's spend; `--all`) · `.claude/bin/lane-status.sh` (which lanes landed, which are part-way) · ceilings live in `.claude/rf.config.json`
 - Design match: `python3 scripts/design_match.py render|pair|stamp <S-id>` (needs the mirror + Chrome) · `index` after every /design-pull · captures via `app/test/shared/design_capture.dart` · `dart run scripts/check_design_match.dart` (warn-only until the re-skin closes)
 - Full gate: `./scripts/ci.sh` (push lane by default; `LANE=nightly|rc|release` selects the others — 09 §preamble, ADR 2026-09-05i §2) · `dart run scripts/check_coverage.dart` (🔒→test ids; warn-only until M4)

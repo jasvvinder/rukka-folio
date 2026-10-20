@@ -66,6 +66,7 @@ What it does, per slice, in a pipeline (slice A reviews while slice B still buil
 |---|---|---|
 | **Build** | the named tier | writes `<M>-<key>.json` as it goes; a UI slice ends with the **design match** — canvas render → capture → pair → `design/match/<S-id>.json` (ADR 2026-10-05 §2) |
 | **Review** | `lane-review` (opus·high, **read-only**) | test-honesty first, then **design** on UI slices (looks at each pair image); writes `<M>-<key>.review.json` |
+| **Review (accounting)** | `acct-auditor` (opus·xhigh, **read-only**), beside `lane-review` | only for slices whose dirs produce accounting (`ACCOUNTING` in `cycle.js`; `accounting: false/true` on a slice overrides): re-derives the slice's book output against `docs/accounting/` and the reference books; findings verified with the accounting lens first; writes `<M>-<key>.acct.json` |
 | **Verify** | 3 lenses on high-risk paths, 1 elsewhere | each prompted to **refute**; majority kills |
 | **Repair** | the original tier | confirmed findings only; **bounded at 2 rounds** |
 
