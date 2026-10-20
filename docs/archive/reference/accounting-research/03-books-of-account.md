@@ -1,0 +1,95 @@
+# 03 — Books of account
+
+**Questions (from the outline):** Journal, the subsidiary books (cash book, day book / rokad), and the ledger. What a small entity actually keeps. How the bahi-khata maps onto the journal and ledger.
+**Settles (tracing only):** GAPS A8
+
+How the sources were read. NCERT and ICAI BoS PDFs were downloaded and the full text read (`fetched`). The bahi-khata material rests on three secondary course documents; the academic paper they relay (B.M. Lall Nigam, Abacus 22(2), 1986, pp. 148–161) could not be obtained and is `not fetched`. Treat the bahi-khata findings as indicative until a specialist source confirms them.
+
+## 1. Findings
+
+### 1.1 Source documents come first
+A transaction is entered only when supported by a document (cash memo, invoice and delivery challan, receipt, pay-slip, pass-book). NCERT's objectivity concept: each transaction is supported by a verifiable voucher, which is why historical cost is used. ICAI BoS: transactions are "supported by a substantial document like purchase invoices, bills, pay-slips, cash-memos, passbook".
+**Source:** NCERT Class 11 Financial Accounting I, ch. 3 §3.1 and ch. 2 §2.2.13 — fetched. ICAI BoS Foundation Paper 1, Module 1 ch. 2 unit 1 §1.5, p. 2.10 — fetched.
+**Example.** Professional: computer bought against a cash memo: `Dr Computer A/c ₹35,000 · Cr Cash A/c ₹35,000`. Plain words: "Bought a computer ₹35,000, paid cash; cash memo kept."
+
+### 1.2 The journal: the book of original entry
+The journal is the book where a transaction is recorded first, in date order, with each transaction entered separately. Columns: date; particulars (account to be debited first, "Dr" at the end; account credited on the next line prefixed "To"; then a narration); ledger folio (filled at posting, not at journalising); debit amount; credit amount. Page totals are carried forward. A simple entry has two accounts; a compound entry has more. Recording in the journal is journalising.
+**Source:** NCERT ch. 3 §3.4 and §3.4.1 (p. 60–62) — fetched. ICAI BoS Module 1 ch. 2 unit 1 §1.9, §1.9.1 (pp. 2.18–2.19) — fetched.
+**Example.** Professional: `24 Dec: Dr Purchases A/c ₹30,000 · Cr Govind Traders A/c ₹30,000`, narration "purchase of goods from Govind Traders". Plain words: "24 December: bought goods ₹30,000 from Govind Traders on credit."
+
+### 1.3 The ledger: the principal book
+The ledger is the collection of all accounts and is the principal book of account. Each account has a debit side (left) and a credit side (right), with date, particulars, journal folio and amount. An account is opened once, preferably on its own page or card, and all entries for it are posted to it. "To" is used with the account on the debit side and "By" on the credit side. Posting copies each journal debit to the debit side of its account and each credit to the credit side, and cross-references the folios. Posting is done periodically (weekly, fortnightly or monthly). The ledger gives the net position of any account, for example what a customer owes or what a supplier is owed, which the journal cannot give because it is in date order.
+**Source:** NCERT ch. 3 §3.5 (p. 63, 73) and §3.6 (p. 75) — fetched. ICAI BoS Module 1 ch. 2 unit 2 §2.1–2.3 (pp. 2.53–2.54) — fetched.
+**Example.** Professional: the entry in 1.2 is posted as `Purchases A/c, debit side: To Govind Traders ₹30,000` and `Govind Traders A/c, credit side: By Purchases ₹30,000`. Plain words: "In the Purchases page: ₹30,000, from Govind Traders. In Govind Traders' page: ₹30,000 owed, for goods."
+
+### 1.4 Balancing an account
+At the end of a period each personal and real account is totalled on both sides; the difference goes on the shorter side as "Balance c/d" and is brought down as "Balance b/d" at the start of the next period. Expense and revenue accounts are not balanced; they are closed into trading and profit and loss.
+**Source:** NCERT ch. 4 §4.7 (p. 141–142) — fetched. ICAI BoS Module 1 ch. 2 unit 2 §2.4 (p. 2.54) — fetched.
+**Example.** Professional: Stationery bought in January: ₹480 opening, ₹800 by cheque, ₹1,280 on credit; closes `By Balance c/d ₹2,560` (BoS illustration). Plain words: "Stationery account for January: ₹2,560 carried to February."
+
+### 1.5 Journal against ledger
+NCERT's five points: the journal is the book of first entry, the ledger of second entry; the journal is chronological, the ledger analytical; the journal has greater importance as legal evidence; transaction is the basis of classification in the journal, the account in the ledger; recording in the journal is journalising, in the ledger posting.
+**Source:** NCERT ch. 3, "Distinction between Journal and Ledger" (p. 74) — fetched.
+**Example.** Professional: one transaction, two places. Journal: `Dr Rent A/c ₹8,000 · Cr Cash A/c ₹8,000`. Ledger: `Rent A/c, debit side ₹8,000` and `Cash A/c, credit side ₹8,000`. Plain words: "Paid ₹8,000 rent in cash. Written once in date order; then once in the Rent page and once in the Cash page."
+
+### 1.6 Subsidiary books (special journals) and the journal proper
+When transactions are many, the journal is subdivided: cash book, purchases book, sales book, purchases returns, sales returns, bills receivable and bills payable. They are also called day books or subsidiary books. A small business may record everything in the journal alone. What fits no special book goes to the journal proper: opening entries, closing entries, adjusting entries, rectification entries, transfer entries, dishonour of bills, and miscellaneous items such as goods withdrawn by the owner and credit purchase of non-trading items.
+**Source:** NCERT ch. 3 §3.4 (p. 61) and ch. 4 introduction and §4.6 (p. 139–140) — fetched. ICAI BoS Module 1 ch. 2 unit 4 (Subsidiary Books), §4.7 "journal proper" list, pp. 2.96–2.97 — fetched.
+**Example.** Professional (journal proper): the owner takes goods ₹4,000 for home: `Dr Drawings A/c ₹4,000 · Cr Purchases A/c ₹4,000`. Plain words: "Owner took goods worth ₹4,000 for home use." (the debit and credit are our illustration of the item NCERT lists, "goods withdrawn by the owner for personal use".)
+
+### 1.7 The cash book serves as journal and ledger
+The cash book records all cash receipts and payments, starts with the cash or bank balance at the beginning of the period, and is generally made monthly. It "serves the purpose of both journal as well as the ledger (cash) account"; when a cash book is kept, cash transactions are not journalised and no separate cash or bank account is needed in the ledger. It is kept by "all organisations, big or small, profit or not-for-profit". Forms: single column, double column (cash and bank, or cash and discount), three column, and a petty cash book. A cash book with a credit opening balance in the bank column shows an overdraft.
+**Source:** NCERT ch. 4 §4.1 (p. 100) and §4.1.1–4.1.4 — fetched. ICAI BoS Module 1 ch. 2 unit 5 (Cash Book), §5.1, p. 2.104, and the Summary, p. 2.119 — fetched.
+**Example.** Professional: `Dr Cash A/c ₹2,000 · Cr Kapoor Traders A/c ₹2,000` is written once in the cash book, receipts side: "Kapoor Traders ₹2,000", and the credit is then posted to Kapoor Traders' ledger page. Plain words: "Kapoor Traders paid ₹2,000 cash. Written on the receipts side of the cash book; Kapoor Traders' page shows it as received."
+
+### 1.8 What a small entity actually keeps: incomplete records
+NCERT: single entry "is not a system but a lack of system"; only personal accounts and the cash book are kept; it is "followed by small business firms as it is very simple and flexible". ICAI BoS names three forms: pure single entry (personal accounts only, said to exist "only on paper"); simple single entry (personal accounts and cash book); quasi single entry (personal accounts, cash book and some subsidiary books such as sales, purchases and bills, with scattered notes of wages, rent and rates), which "is generally adopted as a substitute for double entry". The cash book of such a business "mixes up business and personal transactions of the owners", and profit is "only an estimate". BoS adds that many small proprietors keep only a few records because of lack of knowledge or because the business is small, and that records may be destroyed (fire).
+**Source:** NCERT ch. 2 §2.3 (p. 36) — fetched. ICAI BoS Foundation Paper 1 Accounting (Module II, Aug 2026 ed.), Ch. 9 §1 and §2, pp. 9.3–9.5 — fetched (ICAI BoS PDF) https://resource.cdn.icai.org/74620bos60479-fnd-cp9.pdf. (Label corrected 20 Oct 2026: Accounting is Foundation Paper 1; chapter 9 is in Module II, not "Paper 2".)
+**Example.** Professional (simple single entry, a shop's register): `Dr Mr A ₹300` (nothing else recorded; the sale itself is not entered). Plain words: "Mr A owes ₹300 for bread and milk."
+
+### 1.9 The bahi-khata (Mahajani) system and how it maps
+Description in the course material read: transactions are first entered in the rokad (rokar, rojmel) bahi, the daily cash book, and then posted to the khata bahi, the ledger. A "kaccha ankada" (rough trial balance, "utaro") is drawn up. Books are hard-bound, red-covered, with pages in folds (sal), eight folds in the cash and ledger books. The left four folds are the Jama (credit) side; the right four are the Naam, also called Udhar (debit), side. In each side the first fold (sira) holds the amount and the other three (peta) hold the particulars, narration and folio. The word "Shri" prefixes an account name. Books are kept in Mahajani or similar scripts. The same sources say Mahajani accounts are classed as personal (vyaktigat), real (vastavik) and nominal (avastavik) accounts.
+The mapping to the modern books, as the sources describe it:
+- **Rokad / rojmel bahi = cash book with journal function.** One line per cash transaction naming the *other* account only, on the side that account takes: cash received is written on the Jama side ("Shri Bhada Khate Jama"); cash paid is written on the Naam/Udhar side ("Shri Majuri Khate Udhar"). The cash account's own effect is not written, because the book is the cash account. A credit (non-cash) transaction is written on both sides, the debited account on the Udhar side and the credited account on the Jama side.
+- **Khata bahi = ledger.** Separate accounts for persons, goods, assets, income and expense; the Saadi khata bahi holds all of them and is the basis of the trial balance and annual accounts.
+- **Havalamel (also Jama-Kharchi mel, Mand-Chhod no mel) = journal proper.** Entries that move no cash and close or adjust accounts (closing stock, outstanding and prepaid expense, depreciation, bad debts, interest on capital, rectification), written Jama and Udhar with equal totals.
+- **Bethomel** is named beside the rojmel as a basic book of entry but is not defined in the text read. The "Bethi / Tham khatavahi" is a separate rough record of credit sales and purchases, closed when settled and entered in the rojmel.
+- **Nakal bahi.** No source read describes a nakal bahi. Its role as journal or copy book is not verified.
+**Source:** CESS management course PDF "Journey of Indian Accounting Practices", part 2 (Deshi Nama) and part 3 (Mahajani) — fetched (secondary; relays Hitesh Shukla 2015, Rithu Sethi 2018, Anshuman Pandey 2012, Swati Chandra 2011, none read). Shivaji University CDOE IKS course, unit 1 §a — fetched (secondary; relays Nigam 1986, not read). Sarthaks eConnect, "What are the terminologies used in Mahajani Bahi khata system" (an RBSE Class 9 book-keeping answer) — search, https://www.sarthaks.com/792470/what-are-the-terminologies-used-in-mahajani-bahi-khata-system-exmpain-them (page read via fetch tool extract; student-contributed).
+**Example.** Professional: `Dr Cash A/c ₹300 · Cr Rent A/c ₹300`. Plain words, in the rokad bahi, on the Jama (left) side: "Shri Rent Khate Jama ₹300 (cash received)". Professional: `Dr Wages A/c ₹100 · Cr Cash A/c ₹100`. In the rokad bahi on the Naam/Udhar side: "Shri Wages Khate Udhar ₹100 (cash paid)". Professional: `Dr Purchases A/c ₹700 · Cr Ramesh A/c ₹700`. In the rokad bahi: Udhar side "Shri Purchases Khate ₹700", and Jama side "Shri Ramesh Khate ₹700".
+
+### 1.10 Where the bahi-khata differs from the modern books
+Two descriptions disagree. The Shivaji summary of Nigam says the system makes a double entry only for transactions affecting real or personal accounts: nominal-account transactions are not posted to the ledger, so no profit and loss account and no trial balance can be drawn up, and credit sales are recorded by debiting personal accounts directly, which "dilutes" the journal. The CESS course PDF describes the Deshi Nama books as including nominal accounts, a trial balance (utaro), closing entries through Havalamel and annual accounts. Left side is Jama (credit) and right side Naam/Udhar (debit), the reverse of the English ledger, which Sarthaks calls "totally against English system".
+**Source:** Shivaji University IKS course, unit 1 §a — fetched (secondary). CESS course PDF part 2 — fetched (secondary). Sarthaks (as above) — search.
+**Example.** Professional: a credit sale of ₹10,000 to Kapoor Traders. Modern: `Dr Kapoor Traders A/c ₹10,000 · Cr Sales A/c ₹10,000`. As the Shivaji summary describes the traditional book: only the personal account is entered, `Dr Kapoor Traders A/c ₹10,000` (Naam side), with no Sales account posting. Plain words: "Sold ₹10,000 goods to Kapoor Traders on credit; Kapoor Traders' page shows ₹10,000 owed."
+
+## 2. Where the sources disagree, or are silent
+- **Nominal accounts in the bahi-khata.** The Shivaji IKS summary (Nigam) says they are not posted and no trial balance exists; the CESS course PDF describes a nominal account, Havalamel closing and a trial balance. Neither original read.
+- **Name of the debit side.** "Naam" (Nigam via Shivaji; Sarthaks) against "Udhar" (CESS Deshi Nama). Search snippets from other sites glossed "udhar" as an outflow; unverified.
+- **Textbook label.** The Shivaji summary says "all standard text-books" call bahi-khata single entry; the CESS PDF calls it a complete double-entry system. NCERT and ICAI BoS Foundation do not discuss bahi-khata.
+- **Nakal bahi.** Not described by any source read.
+- **Citation in the CESS PDF.** It credits the rokad/jama-kharchi description to "NCERT Class 11, 2022"; the NCERT Class 11 Financial Accounting I and II PDFs read do not contain it (searched for "rokad", "rojmel", "jama kharchi", "deshi"). The underlying text may be a state-board book; not verified.
+- **Cash book and ledger.** NCERT ch. 4 says the cash book is both journal and ledger account; ICAI BoS Module 1 ch. 2 unit 5 treats it likewise. They agree.
+- **Day book.** Neither NCERT nor ICAI BoS uses "day book" for a single book; both use "day books" for the subsidiary books as a group. The outline's "day book / rokad" pairing is not supported by a source as one book.
+- **BoS chapter references re-checked (20 Oct 2026).** The ICAI BoS references above were checked against the Aug 2026 edition; they agree, now with page numbers. The one label error ("Foundation Paper 2 (Module 2)" for chapter 9) is corrected in §1.8. On the day book: the BoS lists "Purchase day book, Cash book, Sales day book and Purchases returns" as books of original entry (Ch. 2 Unit 1, p. 2.2) and uses "day books" for the purchases, sales and similar books (Ch. 9 §4.1, p. 9.14); it never uses "day book" for one book of everything. The BoS is silent on the rokad bahi, the nakal bahi and the bahi-khata (no hit).
+
+## 3. Not settled by the sources
+| Topic | Question | Options (each with its source) | Book affected | Status |
+|---|---|---|---|---|
+| Books | Is the rokad bahi the cash book alone, or cash book plus journal? | (a) Cash book plus journal for cash entries (CESS PDF: "Rojmel serves the purpose of a cash account"). (b) Cash book only (Nigam via Shivaji summary: cash book first, then ledger). | all | open |
+| Books | Does a traditional book post nominal accounts and yield a trial balance? | (a) Yes (CESS PDF). (b) No (Shivaji summary of Nigam). Primary source needed. | landlord, contractor, farmer, truck operator, sole trader | open |
+| Books | What is a nakal bahi and where does it sit? | Not described in any source read. | all traditional books | open |
+| Books | Which side is debit when mapping a bahi-khata page to a modern ledger? | Left Jama = credit, right Naam/Udhar = debit (CESS PDF, Sarthaks). Not confirmed by a primary source. | all traditional books | open |
+| Books | What does a small entity keep as a minimum? | (a) Cash book and personal accounts (ICAI BoS ch. 9, simple single entry). (b) Add sales/purchases books (quasi single entry). No source says which minimum is adequate. | household, sole trader, farmer, truck operator | open |
+
+## 4. Answers to the GAPS items this topic settles
+- **A8 (statements every book prints).** From the books-of-account sources: a ledger account for a period shows opening balance brought down, the entries, and the closing balance carried down (ICAI BoS ch. 2 unit 2 §2.4; NCERT ch. 4 §4.7). A cash book is generally made monthly, and a Receipts and Payments Account is the cash book summarised without the date column (NCERT ch. 4 §4.1; ICAI BoS Module 2 ch. 8 §2). The chosen-period statement is therefore a period's ledger or cash-book view with the opening balance first. The ageing, the family summary and the print/export chooser are not addressed by these sources; see topic 20.
+
+## 5. Sources
+1. NCERT, Accountancy Class 11, Financial Accounting Part I (reprint 2026-27), ch. 2 §2.2.13, §2.3; ch. 3 §3.1, §3.4–3.6; ch. 4 intro, §4.1, §4.6, §4.7 — https://ncert.nic.in/textbook/pdf/keac102.pdf, keac103.pdf, keac104.pdf (same host) — fetched.
+2. ICAI BoS, CA Foundation Paper 1, Module 1 ch. 2 units 1, 2, 4, 5 — https://resource.cdn.icai.org/93942bos-aps6170-ch2u1.pdf, 93943bos-aps6170-ch2u2.pdf, 93945bos-aps6170-ch2u4.pdf, 93946bos-aps6170-ch2u5.pdf — fetched. Study material.
+3. ICAI BoS, Module 2 ch. 8 and ch. 9 — https://resource.cdn.icai.org/88115bos-aps2240-ch8.pdf, https://resource.cdn.icai.org/88116bos-aps2240-ch9.pdf — fetched.
+4. CESS management course, "Journey of Indian Accounting Practices" — https://management.cessedu.org/sites/management.cessedu.org/files/2%20Journey%20of%20Indian%20Accounting%20Practices%2016th%20March.pdf — fetched (secondary).
+5. Shivaji University CDOE, B.Com II sem. III IKS "Evolution of Accounting in India" — https://www.unishivaji.ac.in/uploads/distedu/2025_2026/Eligibility%20list/17_11_25/IKS_Evolution%20of%20Accounting%20in%20Inda_Book_Upload%20(1).pdf — fetched (secondary).
+6. Sarthaks eConnect, Mahajani bahi khata terminology — https://www.sarthaks.com/792470/what-are-the-terminologies-used-in-mahajani-bahi-khata-system-exmpain-them — search (extract via fetch tool; user-contributed RBSE Class 9 answer).
+7. B.M. Lall Nigam, "Bahi-Khata: The Pre-Pacioli Indian Double-Entry System of Bookkeeping", Abacus 22(2), 1986, pp. 148–161 (DOI 10.1111/j.1467-6281.1986.tb00132.x); C.W. Nobes, comment, Abacus 23(2), 1987, pp. 182–184 — not fetched; bibliographic details seen in a search result only.

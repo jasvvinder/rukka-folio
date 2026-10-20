@@ -42,7 +42,7 @@ void main() {
     });
 
     /// The three reference drawings: sharma B-022 (₹25,000, Cr Business Cash),
-    /// sharma B-031 (₹30,000, Cr Indian Bank) and standards §4.2 B11 (₹5,000,
+    /// sharma B-031 (₹30,000, Cr Indian Bank) and archived standard v3 §4.2 B11 (₹5,000,
     /// Cr Business Cash).
     List<(String, Account, int)> reference() => [
       ('B-022', cash, 25000),

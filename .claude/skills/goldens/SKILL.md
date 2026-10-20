@@ -6,8 +6,10 @@ description: Run only the worked-example golden tests in core_ledger (suite A go
 # /goldens $ARGUMENTS
 
 The goldens are the **behavioural reference for the ledger engine** (CLAUDE.md § Accounting
-authority): `docs/reference/financial-accounting-standards.md` + `docs/reference/worked-examples/*.md`,
-parsed by `packages/core_ledger/test/golden_worked_examples_test.dart`.
+authority): `docs/accounting/` and its five reference books in `docs/accounting/reference-books/`.
+⚠️ Since ADR 2026-10-20 the old test `packages/core_ledger/test/golden_worked_examples_test.dart` is skipped as
+superseded (it read the archived 30 Aug set); the engine test over the reference books re-lands at M14, and
+until then this skill has nothing live to run.
 
 ```bash
 cd packages/core_ledger && dart test test/golden_worked_examples_test.dart --reporter expanded $ARGUMENTS
@@ -22,7 +24,8 @@ show both as ₹ too), and which of these it is:
 2. **Spec vs reference disagreement** — 02 says one thing, the worked example another. **Stop and
    ask the owner.** Do not patch either. Leave a `⚠️ SPEC:` comment where the test would change and
    put the item in the changelog **Open** list. Known reconciliations pending sign-off are listed in
-   `docs/reference/accounting-audit-errata.md` (partnership paise split, ₹1,354/₹1,355 interest) — check
+   `docs/archive/reference/financial-accounting-standards-v3.md` Appendix D (partnership paise split, ₹1,354/₹1,355 interest;
+   the errata itself is archived at `docs/archive/reference/accounting-audit-errata.md`) — check
    there first.
 3. **Parser drift** — the markdown table shape changed. Fix the parser, not the fixture.
 

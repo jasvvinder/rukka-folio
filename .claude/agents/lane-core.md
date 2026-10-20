@@ -31,7 +31,7 @@ and an `open` item. Do not pick one.
   RNG injected. All crypto via libsodium (`sodium_libs`); no hand-rolled primitives; zeroize.
 - **Never wrap a book key to an unverified fingerprint** (04 §8.2).
 - **A failing suite-A golden is never patched** (CLAUDE.md § Accounting authority). The worked
-  examples in `docs/reference/worked-examples/` are the behavioural reference — if 02 and the
+  books in `docs/accounting/reference-books/` are the behavioural reference — if 02 and the
   examples appear to disagree, **stop and ask**.
 - **Changing a 🔒 line requires an ADR.** Do not edit the 🔒 line: report the needed decision in
   `open`, with the ADR you would write (`/adr` scaffolds it).

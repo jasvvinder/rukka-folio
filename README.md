@@ -18,8 +18,7 @@ Zero-knowledge, offline-first ledger app for individuals, joint families, and th
 | Test gates | `docs/09-acceptance-tests.md` |
 | Build order | `docs/10-roadmap.md` |
 | Brand (owner v1.3): name, logo, tokens, voice | `docs/11-brand-guidelines.md` + `docs/brand/` (visual HTML, precedence notes) |
-| Accounting standards & audit (bookkeeper review) | `docs/reference/financial-accounting-standards.md` + `accounting-audit-errata.md` (originals in `docs/reference/original/`) |
-| **Worked examples for CA review (FY 2026-27, PDFs)** | `docs/reference/worked-examples/` — 5 entity types, 185 vouchers, full ledgers, verified trial balances |
+| Accounting (bookkeeper review) | `docs/accounting/` — the accounting foundations and **`reference-books/`**, five finished ledger books for FY 2025-26 (individual, joint family, shop, partnership, trust) that the app must produce (ADR 2026-10-20). Superseded sets are under `docs/archive/reference/`. |
 | Design rules, contrast audit & tokens | `design/design-system.md` + `design/tokens/` |
 | UX architecture, screen inventory & flows | `docs/13-ux-architecture.md` |
 | **Design / wireframing — start here** | `design/DESIGN-PACK.md` (stepped prompts, self-contained) |

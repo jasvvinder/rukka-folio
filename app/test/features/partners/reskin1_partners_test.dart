@@ -121,7 +121,7 @@ Future<void> _shoot(
 }
 
 /// The farm's season — vouchers G-001…G-008 of
-/// `docs/reference/worked-examples/joint-business-partnership.md` §2: the bank
+/// `docs/archive/reference/worked-examples-original/joint-business-partnership.md` §2: the bank
 /// opens at ₹50,000; Amrit pays seed ₹1,80,000, Sukhdev diesel ₹95,000 and
 /// Harjit labour ₹60,000 from their own pockets; the tractor repair ₹41,000
 /// leaves the bank; crop ₹8,50,000 and milk ₹1,20,000 are banked; Amrit draws

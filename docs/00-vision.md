@@ -2,7 +2,7 @@
 
 **Tagline (11 §2):** *Every rupee. Accounted for.*
 
-**What:** One app where a person, a family, or a joint family with n businesses records what they actually have — banks, cash, udhaar given and taken, advances — and sees one live position screen. Real double-entry underneath; a paper rokad-vahi on top.
+**What:** One app where a person, a family, or a joint family with n businesses records what they actually have — banks, cash, udhaar given and taken, advances — and sees one live position screen. Real double-entry underneath; a paper rokad-vahi on top. What the books must do — every entry recorded, typed by hand or answered from a bank statement, posted to the user's own accounts, a live position every day, a statement for any account and any period — is written once in `docs/accounting/README.md`, *What the books must give them* (ADR 2026-10-12 §5, moved by ADR 2026-10-20).
 
 **Who:** Indian households and small/medium business families who today keep a daybook, cashbook, and ledger on paper — starting with our own joint family as pilot users. English + ਪੰਜਾਬੀ + हिन्दी at launch.
 

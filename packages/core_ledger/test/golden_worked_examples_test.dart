@@ -1,6 +1,11 @@
 // Suite A — golden fixtures (CLAUDE.md § Accounting authority, 09 §2 A).
 //
-// Replays every voucher of docs/reference/worked-examples/*.md (five documents, eight
+// SUPERSEDED (ADR 2026-10-20 §3): the original five-document set was audited defective on
+// 11 Oct 2026 (docs/archive/reference/worked-examples-usecases/README.md §7) and archived; the
+// behavioural reference is now docs/accounting/reference-books/. These tests stay skipped
+// until an engine test replays the reference books (M14, with the bookkeeper's sign-off).
+//
+// Replays every voucher of docs/archive/reference/worked-examples-original/*.md (five documents, eight
 // books) through the engine and asserts, per worked-examples/README.md §2:
 //   • every ledger row's running balance and side, and every closing c/f;
 //   • every trial-balance row and both totals; every book balances alone;
@@ -11,6 +16,7 @@
 // engine's proof against the reference as it stands. Test code may read files —
 // the purity rule (CLAUDE.md rule 3) binds lib/, not test/.
 @Tags(['A'])
+@Skip('superseded by ADR 2026-10-20 §3; re-lands at M14')
 library;
 
 import 'dart:io';
@@ -22,7 +28,7 @@ import 'helpers.dart' show workspaceRoot;
 
 // Resolved from the repository root so `dart test` passes from the package or the
 // workspace root (ADR 2026-09-05i §9).
-final _dir = '${workspaceRoot()}/docs/reference/worked-examples';
+final _dir = '${workspaceRoot()}/docs/archive/reference/worked-examples-original';
 const _files = [
   'individual-rahul-sharma.md',
   'business-sharma-textile.md',
@@ -287,7 +293,7 @@ ReplayedBook replay(FixtureBook fixture) {
     );
   }
 
-  // Vouchers: rows sharing an id form one multi-line entry (standards §8).
+  // Vouchers: rows sharing an id form one multi-line entry (archived standard v3 §8).
   final grouped = <String, List<FixtureVoucherRow>>{};
   for (final v in fixture.vouchers) {
     grouped.putIfAbsent(v.voucher, () => []).add(v);

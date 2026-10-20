@@ -2,7 +2,7 @@
 /// periods, advances, inter-book pairs, partners, cash counts, balances (02). M1.
 ///
 /// Spec owner: `docs/02-ledger-rules.md`; behavioural reference:
-/// `docs/reference/financial-accounting-standards.md` + `worked-examples/`.
+/// `docs/accounting/` + `docs/accounting/reference-books/` (ADR 2026-10-20).
 /// Pure Dart — no Flutter, no I/O, no `DateTime.now()`, no `Random()`
 /// (CLAUDE.md rule 3; CI-enforced by `scripts/check_purity.sh`). Clock and RNG
 /// are always injected: dates arrive as `LocalDate`, order as `Hlc`.

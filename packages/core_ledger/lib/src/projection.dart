@@ -1046,7 +1046,7 @@ TrialBalance trialBalance(
 }
 
 /// One row of an account statement: the traditional three-column layout with a
-/// running balance and its side on every row (01 §1.9, reference standards §2).
+/// running balance and its side on every row (01 §1.9, archived standard v3 §2).
 final class StatementRow {
   /// Creates a row.
   const StatementRow({

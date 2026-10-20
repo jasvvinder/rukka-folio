@@ -9,7 +9,7 @@ You are building **Rukka Folio** — a zero-knowledge, offline-first ledger app 
 1. **`docs/decisions/` ADRs** — dated; the newest ADR on a topic beats everything below.
 2. **Numbered specs `00`–`13`** (13 = UX architecture, normative) and **`design/`** — `design-system.md` and `DESIGN-PACK.md` carry 🔒 decisions and rank with the numbered specs on visual and interaction matters; `design/tokens/tokens.json` is the sole source for token values. **The canvas frames** (`design/canvas-mirror/partials/`, S-id ↔ design id in 13 §3.3) **decide how a screen looks** — layout, components, placement, icons, density — while the specs decide behaviour, states and copy, and tokens decide values. A frame never overrides a 🔒 line or 07 §1 / 13 §8 accessibility; where it seems to, `⚠️ SPEC:` and ask. Every UI slice ends with a **design match** — capture → pair → `design/match/<S-id>.json` (ADR 2026-10-05).
 2b. **Former item 2:** numbered specs — normative. Within them, the doc that *owns* the topic wins: 02 owns ledger semantics, 03 owns storage, 04 owns crypto, 05 owns sync, 06 owns identity, 07 owns screens, 11 owns brand. A passing mention in another doc never overrides the owner.
-3. **`docs/reference/`** — behavioural reference for the ledger engine (see *Accounting authority* below), but the class model, verbs and invariants of 02 govern how it is represented.
+3. **`docs/accounting/`** and **`docs/reference/`** — behavioural reference for the ledger engine (see *Accounting authority* below), but the class model, verbs and invariants of 02 govern how it is represented.
 4. **`docs/requirements-architecture.md`** — ⛔ **background only, non-normative.** It predates zero-knowledge and post-then-review and **loses every conflict**. See its banner for the list of superseded sections. Never implement from it.
 
 If two sources at the same level genuinely conflict, stop and ask — leave a `⚠️ SPEC:` comment, do not pick one.
@@ -18,12 +18,13 @@ If two sources at the same level genuinely conflict, stop and ask — leave a `�
 ```
 /CLAUDE.md /README.md /PLAN.md(build tracker — read first) /pubspec.yaml(workspace) /.github/workflows(ci.yml…)
 /docs            00-vision … 13-ux-architecture + requirements-architecture; docs/decisions/ = ADRs (one dated file per 🔒 change)
+                 docs/accounting/ = accounting foundations 01–04 + reference-books/ (ADR 2026-10-20) · docs/archive/ = superseded, never normative
 /app             Flutter UI only: lib/features/*, lib/shared/, lib/l10n/(app_en.arb, app_pa.arb, app_hi.arb), assets/fonts/(Mukta, Mukta Mahee; fallback Noto Sans — 11 §4.4)
 /packages        pure Dart, NO Flutter imports (CI-enforced):
                  core_ledger(02) · core_crypto(04) · data(03: Drift+SQLCipher+projector) · sync_engine(05)
 /server/supabase migrations/(incl. all RLS) · functions/(sync-push, sync-pull, sync-meta, auth-challenge, billing-webhook) · tests/rls/
 /server/admin    internal panel (M13)
-/testing         harness/(two-client rig, 09 §1; created at M2, ADR 2026-09-05i §7) · fixtures/(SYNTHETIC sync/UI data only — never real entries; accounting goldens stay in docs/reference/) · goldens/(export byte-comparisons, suite F3)
+/testing         harness/(two-client rig, 09 §1; created at M2, ADR 2026-09-05i §7) · fixtures/(SYNTHETIC sync/UI data only — never real entries; accounting goldens stay in docs/accounting/reference-books/) · goldens/(export byte-comparisons, suite F3)
 /design          design-system.md + tokens/ (tokens.json = single source → tokens.css, tokens.dart; UI code uses tokens ONLY — hex literals in widgets are review-blocking) · canvas-mirror/ (git-ignored, /design-pull — the drawn screens) · match/ (canvas-index.json + one design-match record per S-id, ADR 2026-10-05)
 /.claude         agents/(lane tiers — model+effort per lane) · workflows/(lanes.js, gate-run.js) · skills/ · hooks/ · bin/(wf-spend.sh, lane-status.sh) · lane-reports/(git-ignored, durable lane output)
 /scripts         ci.sh (the gate) · check_strings.dart (fails on missing EN/PA/HI key, placeholder drift, forbidden jargon) · check_purity.sh (no Flutter in packages; no I/O/clock/RNG in core_*; no hex literals in app) · gen_tokens.dart (tokens.json → tokens.css/.dart; --check in CI) · gen_l10n_arb.dart (dotted ARB keys → identifier keys for gen_l10n)
@@ -31,7 +32,7 @@ If two sources at the same level genuinely conflict, stop and ask — leave a `�
 Trunk-based on protected `main`; tags at milestone exits (`m1-ledger-core`); secrets only in CI secrets + local `.env` (never committed).
 
 ## Accounting authority 🔒 ⟦tests: A-ref-1, A-ref-2, A-ref-3, A-ref-4, A-ref-5, A-ref-6, A-ref-7⟧
-`docs/reference/financial-accounting-standards.md` + `docs/reference/worked-examples/` (five entity types, eight books, 185 vouchers, machine-verified trial balances) are the **behavioural reference for the ledger engine**. When 02 and the worked examples appear to disagree, stop and ask — do not guess. On bookkeeper sign-off these examples become golden fixtures: the engine must reproduce every ledger and trial balance exactly (09, suite A).
+`docs/accounting/` is the **behavioural reference for the ledger engine** (ADR 2026-10-20): the accounting foundations `01`–`04`, written from the research and the 125 rulings of 20 Oct 2026 (research, rulings and the superseded standard v3 archived under `docs/archive/reference/`), and **`reference-books/`** — five reference books (individual, joint family, shop, partnership, trust), each a finished ledger book the app must produce. When 02 and the reference disagree, stop and ask — do not guess. On bookkeeper sign-off the reference books become golden fixtures: the engine must reproduce every ledger and trial balance exactly (09, suite A). The original five-book set of 30 Aug is archived as defective; its tests `A-ref-1…7` are skipped as superseded and re-land against the reference books at M14.
 
 ## Non-negotiable rules
 1. **Money is integer paise** (`int`/`BIGINT`). Any float touching money is a bug.

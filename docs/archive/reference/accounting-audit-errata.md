@@ -1,6 +1,8 @@
 # Accounting Audit — Errata for the Uploaded Reference Files
 
-**Scope:** full re-audit of `original/ledger_rules_specification.md` ("File 2", the revised worked example) and `original/Financial_Architecture_Specification.md` ("File 1", the architecture doc). Every ledger and trial balance was recomputed by hand. Corrections are consolidated in `financial-accounting-standards.md`, which supersedes both originals. ⚠️ Pending: bookkeeper re-verification of the corrected version before the scenarios freeze as golden test fixtures.
+> **Archived 12 Oct 2026 (ADR 2026-10-12 §4).** §1–§3 were applied in standards v2.0; the live items of §4 (F-5…F-7) are folded into `docs/reference/financial-accounting-standards.md` Appendix D (*Corrections applied*). Nothing here is normative.
+
+**Scope:** full re-audit of `original/ledger_rules_specification.md` (now archived at `docs/archive/reference/original/`) ("File 2", the revised worked example) and `original/Financial_Architecture_Specification.md` ("File 1", the architecture doc). Every ledger and trial balance was recomputed by hand. Corrections are consolidated in `financial-accounting-standards.md`, which supersedes both originals. ⚠️ Pending: bookkeeper re-verification of the corrected version before the scenarios freeze as golden test fixtures.
 
 ---
 

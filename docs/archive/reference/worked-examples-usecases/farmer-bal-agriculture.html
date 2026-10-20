@@ -1,0 +1,995 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Farmer — Bal Agriculture (Amar Bal)</title>
+<style>
+@page { size: A4; margin: 13mm 12mm 14mm 12mm; }
+html { font-size: 10.5px; }
+body { font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, "Noto Sans", sans-serif; color: #111; margin: 0; padding: 0 2mm; line-height: 1.35; }
+h1 { font-size: 2em; margin: 0 0 .4em 0; }
+h2 { font-size: 1.45em; margin: 1.3em 0 .4em 0; border-bottom: 1.5px solid #333; padding-bottom: .15em; page-break-after: avoid; }
+h3 { font-size: 1.18em; margin: 1.1em 0 .3em 0; page-break-after: avoid; }
+h4 { font-size: 1.02em; margin: .9em 0 .25em 0; page-break-after: avoid; }
+p { margin: .35em 0 .55em 0; }
+ul { margin: .3em 0 .7em 1.2em; padding: 0; }
+li { margin: .15em 0; }
+table { border-collapse: collapse; width: 100%; margin: .35em 0 .9em 0; page-break-inside: auto; font-variant-numeric: tabular-nums; }
+tr { page-break-inside: avoid; }
+th, td { border: .5px solid #999; padding: 2.2px 4px; vertical-align: top; font-size: .95em; }
+th { background: #eee; text-align: left; font-weight: 600; }
+td.r, th.r { text-align: right; white-space: nowrap; }
+td.c, th.c { text-align: center; }
+td.n, th.n { text-align: left; white-space: nowrap; }
+tr.total td { font-weight: 700; background: #f4f4f4; }
+tr.khata td { background: #f9f9f9; font-style: italic; }
+em { color: #444; }
+s { color: #777; }
+code { font-family: Menlo, Consolas, monospace; font-size: .92em; background: #f3f3f3; padding: 0 2px; }
+hr { border: 0; border-top: 1px solid #bbb; margin: 1.2em 0; }
+.meta { color: #333; font-size: .95em; }
+.warn { background: #fff7e0; border-left: 3px solid #d08a00; padding: .3em .6em; }
+thead { display: table-header-group; }
+</style></head><body>
+<h1>Farmer — Bal Agriculture (Amar Bal)</h1>
+<p><strong>About this book:</strong> One-owner farm book — KCC loan account, fertiliser khata, MSP wheat, basmati through an arhtiya, milk on a ten-day cycle. Amar Bal farms wheat, basmati and a few buffaloes. The Kisan Credit Card is a <strong>loan account</strong> (it opens with money owed to the bank): drawdowns and repayments are Transfers, the bank's interest debits are Money out from the loan account. Fertiliser goes on the dealer's khata, wheat is procured at MSP and paid straight into the bank, basmati is sold through an arhtiya who deducts his charges, milk goes to the dairy society on a ten-day cycle and is paid monthly, PM-Kisan instalments arrive by DBT, and one month-end cash count comes up short.</p>
+<p><strong>Period:</strong> 01 Apr 2025 – 31 Mar 2026 (FY 2025-26) · every month closed · year closed. Sample report — the figures are illustrative.</p>
+<table><thead><tr>
+<th class="l">Person</th>
+<th class="l">Role in this example</th>
+</tr></thead><tbody>
+<tr><td class="l">Amar Bal</td><td class="l">farmer · the only member (admin) — nothing needs a second person's approval</td></tr>
+<tr><td class="l">Bhatti Khad Store</td><td class="l">fertiliser dealer — khata (party)</td></tr>
+<tr><td class="l">Garg &amp; Co.</td><td class="l">arhtiya (commission agent) — gross sale on his khata, charges deducted, net paid (party)</td></tr>
+<tr><td class="l">Verka Milk Society</td><td class="l">dairy society — a bill every ten days, paid on the 7th of the next month (party)</td></tr>
+</tbody></table>
+<p>How to read it: amounts are in ₹, with paise shown only when they are not zero. Every statement is written the way a ledger book is, with the plain meaning first and the true side in brackets — Money in (Dr), Money out (Cr), You will get (Dr), You will give (Cr). An account statement runs Date · Entry · Particulars (<em>To …</em> on the Dr side, <em>By …</em> on the Cr side) · Dr · Cr · Balance · Side; it opens with the balance brought forward and ends with the closing balance carried down, the totals and the opening balance for the new year. Income and expense heads have no opening balance and end with their total for the year.</p>
+<h2>Book: Bal Agriculture — Farm Book</h2>
+<p>Business book (just me) · started 01 Apr 2025 · members: Amar Bal — admin, no limit.</p>
+<h3>1. Accounts and opening balances</h3>
+<p>Every account in this book, in the order it was opened, with its balance on 01 Apr 2025. Each opening balance is set against <em>Opening Balance / Capital A/c</em>, so the Dr and Cr totals agree. Income and expense heads have no opening balance — they start every year at zero.</p>
+<table><thead><tr>
+<th class="r">#</th>
+<th class="l">Account</th>
+<th class="l">Type</th>
+<th class="l">What it is for</th>
+<th class="r">Opening balance (Dr) ₹</th>
+<th class="r">Opening balance (Cr) ₹</th>
+</tr></thead><tbody>
+<tr><td class="r">1</td><td class="l">Farm Cash A/c</td><td class="l">Cash</td><td class="l"></td><td class="r">9,000</td><td class="r">—</td></tr>
+<tr><td class="r">2</td><td class="l">SBI Savings A/c</td><td class="l">Bank (savings)</td><td class="l"></td><td class="r">2,60,000</td><td class="r">—</td></tr>
+<tr><td class="r">3</td><td class="l">SBI Kisan Credit Card A/c</td><td class="l">Loan</td><td class="l">loan account</td><td class="r">—</td><td class="r">2,40,000</td></tr>
+<tr><td class="r">4</td><td class="l">Bhatti Khad Store A/c</td><td class="l">Person / shop</td><td class="l">fertiliser dealer — khata</td><td class="r">—</td><td class="r">18,000</td></tr>
+<tr><td class="r">5</td><td class="l">Garg &amp; Co. (arhtiya) A/c</td><td class="l">Person / shop</td><td class="l">commission agent</td><td class="r">—</td><td class="r">—</td></tr>
+<tr><td class="r">6</td><td class="l">Verka Milk Society A/c</td><td class="l">Person / shop</td><td class="l">dairy society</td><td class="r">5,950</td><td class="r">—</td></tr>
+<tr><td class="r">7</td><td class="l">Drawings A/c</td><td class="l">Taken out by the owner (drawings)</td><td class="l"></td><td class="r">—</td><td class="r">—</td></tr>
+<tr><td class="r">8</td><td class="l">Opening Balance / Capital A/c</td><td class="l">Own money (capital)</td><td class="l"></td><td class="r">—</td><td class="r">16,950</td></tr>
+<tr><td class="r">9</td><td class="l">Adjustments A/c</td><td class="l">Adjustments</td><td class="l"></td><td class="r">—</td><td class="r">—</td></tr>
+<tr><td class="r">10</td><td class="l">Crop Sale Income A/c</td><td class="l">Income</td><td class="l"></td><td class="r">—</td><td class="r">—</td></tr>
+<tr><td class="r">11</td><td class="l">Milk Sale Income A/c</td><td class="l">Income</td><td class="l"></td><td class="r">—</td><td class="r">—</td></tr>
+<tr><td class="r">12</td><td class="l">Government Support Income A/c (PM-Kisan)</td><td class="l">Income</td><td class="l"></td><td class="r">—</td><td class="r">—</td></tr>
+<tr><td class="r">13</td><td class="l">Seed &amp; Fertiliser Expense A/c</td><td class="l">Expense</td><td class="l"></td><td class="r">—</td><td class="r">—</td></tr>
+<tr><td class="r">14</td><td class="l">Diesel &amp; Machinery Expense A/c</td><td class="l">Expense</td><td class="l"></td><td class="r">—</td><td class="r">—</td></tr>
+<tr><td class="r">15</td><td class="l">Labour Expense A/c</td><td class="l">Expense</td><td class="l"></td><td class="r">—</td><td class="r">—</td></tr>
+<tr><td class="r">16</td><td class="l">Machinery Repair Expense A/c</td><td class="l">Expense</td><td class="l"></td><td class="r">—</td><td class="r">—</td></tr>
+<tr><td class="r">17</td><td class="l">Cattle Feed Expense A/c</td><td class="l">Expense</td><td class="l"></td><td class="r">—</td><td class="r">—</td></tr>
+<tr><td class="r">18</td><td class="l">Interest on KCC Expense A/c</td><td class="l">Expense</td><td class="l"></td><td class="r">—</td><td class="r">—</td></tr>
+<tr><td class="r">19</td><td class="l">Arhtiya Charges Expense A/c</td><td class="l">Expense</td><td class="l"></td><td class="r">—</td><td class="r">—</td></tr>
+<tr><td class="r">20</td><td class="l">Tube-well Electricity Expense A/c</td><td class="l">Expense</td><td class="l"></td><td class="r">—</td><td class="r">—</td></tr>
+<tr><td class="r"></td><td class="l"><strong>Total of opening balances</strong></td><td class="l"></td><td class="l"></td><td class="r"><strong>2,74,950</strong></td><td class="r"><strong>2,74,950</strong></td></tr>
+</tbody></table>
+<h3>2. Account statements (ledgers) — every account of the book</h3>
+<h4>Farm Cash A/c</h4>
+<p><em>Cash. The balance is normally Dr — money you have.</em></p>
+<table><thead><tr>
+<th class="n">Date</th>
+<th class="n">Entry</th>
+<th class="l">Particulars</th>
+<th class="r">Money in (Dr)</th>
+<th class="r">Money out (Cr)</th>
+<th class="r">Balance ₹</th>
+<th class="c">Side</th>
+</tr></thead><tbody>
+<tr><td class="n">01 Apr 2025</td><td class="n"></td><td class="l">Opening balance b/f</td><td class="r">—</td><td class="r">—</td><td class="r">9,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">02 Apr 2025</td><td class="n">AG-006</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;Cash drawn from SBI for the month&lt;/em&gt;</td><td class="r">42,000</td><td class="r">—</td><td class="r">51,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">04 Apr 2025</td><td class="n">AG-007</td><td class="l">By Drawings A/c<br>&lt;em&gt;Household drawing for the month in cash (not a farm expense)&lt;/em&gt;</td><td class="r">—</td><td class="r">12,000</td><td class="r">39,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">09 Apr 2025</td><td class="n">AG-009</td><td class="l">By Diesel &amp; Machinery Expense A/c<br>&lt;em&gt;Diesel for tractor and tube-well, cash&lt;/em&gt;</td><td class="r">—</td><td class="r">9,800</td><td class="r">29,200</td><td class="c">Dr</td></tr>
+<tr><td class="n">14 Apr 2025</td><td class="n">AG-011</td><td class="l">By Cattle Feed Expense A/c<br>&lt;em&gt;Cattle feed (khal and chokar), cash&lt;/em&gt;</td><td class="r">—</td><td class="r">5,400</td><td class="r">23,800</td><td class="c">Dr</td></tr>
+<tr><td class="n">16 Apr 2025</td><td class="n">AG-012</td><td class="l">By Labour Expense A/c<br>&lt;em&gt;Farm labour for the month paid in cash&lt;/em&gt;</td><td class="r">—</td><td class="r">14,000</td><td class="r">9,800</td><td class="c">Dr</td></tr>
+<tr><td class="n">02 May 2025</td><td class="n">AG-017</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;Cash drawn from SBI for the month&lt;/em&gt;</td><td class="r">28,000</td><td class="r">—</td><td class="r">37,800</td><td class="c">Dr</td></tr>
+<tr><td class="n">04 May 2025</td><td class="n">AG-018</td><td class="l">By Drawings A/c<br>&lt;em&gt;Household drawing for the month in cash (not a farm expense)&lt;/em&gt;</td><td class="r">—</td><td class="r">12,000</td><td class="r">25,800</td><td class="c">Dr</td></tr>
+<tr><td class="n">09 May 2025</td><td class="n">AG-022</td><td class="l">By Diesel &amp; Machinery Expense A/c<br>&lt;em&gt;Diesel for tractor and tube-well, cash&lt;/em&gt;</td><td class="r">—</td><td class="r">6,200</td><td class="r">19,600</td><td class="c">Dr</td></tr>
+<tr><td class="n">14 May 2025</td><td class="n">AG-024</td><td class="l">By Cattle Feed Expense A/c<br>&lt;em&gt;Cattle feed (khal and chokar), cash&lt;/em&gt;</td><td class="r">—</td><td class="r">5,400</td><td class="r">14,200</td><td class="c">Dr</td></tr>
+<tr><td class="n">16 May 2025</td><td class="n">AG-025</td><td class="l">By Labour Expense A/c<br>&lt;em&gt;Farm labour for the month paid in cash&lt;/em&gt;</td><td class="r">—</td><td class="r">4,000</td><td class="r">10,200</td><td class="c">Dr</td></tr>
+<tr><td class="n">02 Jun 2025</td><td class="n">AG-029</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;Cash drawn from SBI for the month&lt;/em&gt;</td><td class="r">52,000</td><td class="r">—</td><td class="r">62,200</td><td class="c">Dr</td></tr>
+<tr><td class="n">04 Jun 2025</td><td class="n">AG-030</td><td class="l">By Drawings A/c<br>&lt;em&gt;Household drawing for the month in cash (not a farm expense)&lt;/em&gt;</td><td class="r">—</td><td class="r">12,000</td><td class="r">50,200</td><td class="c">Dr</td></tr>
+<tr><td class="n">09 Jun 2025</td><td class="n">AG-032</td><td class="l">By Diesel &amp; Machinery Expense A/c<br>&lt;em&gt;Diesel for tractor and tube-well, cash&lt;/em&gt;</td><td class="r">—</td><td class="r">11,500</td><td class="r">38,700</td><td class="c">Dr</td></tr>
+<tr><td class="n">14 Jun 2025</td><td class="n">AG-034</td><td class="l">By Cattle Feed Expense A/c<br>&lt;em&gt;Cattle feed (khal and chokar), cash&lt;/em&gt;</td><td class="r">—</td><td class="r">5,400</td><td class="r">33,300</td><td class="c">Dr</td></tr>
+<tr><td class="n">16 Jun 2025</td><td class="n">AG-036</td><td class="l">By Labour Expense A/c<br>&lt;em&gt;Farm labour for the month paid in cash&lt;/em&gt;</td><td class="r">—</td><td class="r">22,000</td><td class="r">11,300</td><td class="c">Dr</td></tr>
+<tr><td class="n">02 Jul 2025</td><td class="n">AG-041</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;Cash drawn from SBI for the month&lt;/em&gt;</td><td class="r">48,000</td><td class="r">—</td><td class="r">59,300</td><td class="c">Dr</td></tr>
+<tr><td class="n">04 Jul 2025</td><td class="n">AG-042</td><td class="l">By Drawings A/c<br>&lt;em&gt;Household drawing for the month in cash (not a farm expense)&lt;/em&gt;</td><td class="r">—</td><td class="r">12,000</td><td class="r">47,300</td><td class="c">Dr</td></tr>
+<tr><td class="n">09 Jul 2025</td><td class="n">AG-044</td><td class="l">By Diesel &amp; Machinery Expense A/c<br>&lt;em&gt;Diesel for tractor and tube-well, cash&lt;/em&gt;</td><td class="r">—</td><td class="r">12,400</td><td class="r">34,900</td><td class="c">Dr</td></tr>
+<tr><td class="n">14 Jul 2025</td><td class="n">AG-047</td><td class="l">By Cattle Feed Expense A/c<br>&lt;em&gt;Cattle feed (khal and chokar), cash&lt;/em&gt;</td><td class="r">—</td><td class="r">5,400</td><td class="r">29,500</td><td class="c">Dr</td></tr>
+<tr><td class="n">16 Jul 2025</td><td class="n">AG-048</td><td class="l">By Labour Expense A/c<br>&lt;em&gt;Farm labour for the month paid in cash&lt;/em&gt;</td><td class="r">—</td><td class="r">18,000</td><td class="r">11,500</td><td class="c">Dr</td></tr>
+<tr><td class="n">31 Jul 2025</td><td class="n">AG-053</td><td class="l">By Adjustments A/c<br>&lt;em&gt;Cash count of Farm Cash A/c: counted ₹11,200 against book ₹11,500 — ₹300 short posted to Adjustments A/c&lt;/em&gt;</td><td class="r">—</td><td class="r">300</td><td class="r">11,200</td><td class="c">Dr</td></tr>
+<tr><td class="n">02 Aug 2025</td><td class="n">AG-054</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;Cash drawn from SBI for the month&lt;/em&gt;</td><td class="r">30,000</td><td class="r">—</td><td class="r">41,200</td><td class="c">Dr</td></tr>
+<tr><td class="n">04 Aug 2025</td><td class="n">AG-056</td><td class="l">By Drawings A/c<br>&lt;em&gt;Household drawing for the month in cash (not a farm expense)&lt;/em&gt;</td><td class="r">—</td><td class="r">12,000</td><td class="r">29,200</td><td class="c">Dr</td></tr>
+<tr><td class="n">09 Aug 2025</td><td class="n">AG-058</td><td class="l">By Diesel &amp; Machinery Expense A/c<br>&lt;em&gt;Diesel for tractor and tube-well, cash&lt;/em&gt;</td><td class="r">—</td><td class="r">8,100</td><td class="r">21,100</td><td class="c">Dr</td></tr>
+<tr><td class="n">14 Aug 2025</td><td class="n">AG-060</td><td class="l">By Cattle Feed Expense A/c<br>&lt;em&gt;Cattle feed (khal and chokar), cash&lt;/em&gt;</td><td class="r">—</td><td class="r">5,400</td><td class="r">15,700</td><td class="c">Dr</td></tr>
+<tr><td class="n">16 Aug 2025</td><td class="n">AG-061</td><td class="l">By Labour Expense A/c<br>&lt;em&gt;Farm labour for the month paid in cash&lt;/em&gt;</td><td class="r">—</td><td class="r">4,000</td><td class="r">11,700</td><td class="c">Dr</td></tr>
+<tr><td class="n">02 Sep 2025</td><td class="n">AG-065</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;Cash drawn from SBI for the month&lt;/em&gt;</td><td class="r">30,000</td><td class="r">—</td><td class="r">41,700</td><td class="c">Dr</td></tr>
+<tr><td class="n">04 Sep 2025</td><td class="n">AG-066</td><td class="l">By Drawings A/c<br>&lt;em&gt;Household drawing for the month in cash (not a farm expense)&lt;/em&gt;</td><td class="r">—</td><td class="r">12,000</td><td class="r">29,700</td><td class="c">Dr</td></tr>
+<tr><td class="n">09 Sep 2025</td><td class="n">AG-068</td><td class="l">By Diesel &amp; Machinery Expense A/c<br>&lt;em&gt;Diesel for tractor and tube-well, cash&lt;/em&gt;</td><td class="r">—</td><td class="r">7,600</td><td class="r">22,100</td><td class="c">Dr</td></tr>
+<tr><td class="n">14 Sep 2025</td><td class="n">AG-070</td><td class="l">By Cattle Feed Expense A/c<br>&lt;em&gt;Cattle feed (khal and chokar), cash&lt;/em&gt;</td><td class="r">—</td><td class="r">5,400</td><td class="r">16,700</td><td class="c">Dr</td></tr>
+<tr><td class="n">16 Sep 2025</td><td class="n">AG-071</td><td class="l">By Labour Expense A/c<br>&lt;em&gt;Farm labour for the month paid in cash&lt;/em&gt;</td><td class="r">—</td><td class="r">4,000</td><td class="r">12,700</td><td class="c">Dr</td></tr>
+<tr><td class="n">02 Oct 2025</td><td class="n">AG-077</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;Cash drawn from SBI for the month&lt;/em&gt;</td><td class="r">45,000</td><td class="r">—</td><td class="r">57,700</td><td class="c">Dr</td></tr>
+<tr><td class="n">04 Oct 2025</td><td class="n">AG-078</td><td class="l">By Drawings A/c<br>&lt;em&gt;Household drawing for the month in cash (not a farm expense)&lt;/em&gt;</td><td class="r">—</td><td class="r">12,000</td><td class="r">45,700</td><td class="c">Dr</td></tr>
+<tr><td class="n">09 Oct 2025</td><td class="n">AG-080</td><td class="l">By Diesel &amp; Machinery Expense A/c<br>&lt;em&gt;Diesel for tractor and tube-well, cash&lt;/em&gt;</td><td class="r">—</td><td class="r">10,900</td><td class="r">34,800</td><td class="c">Dr</td></tr>
+<tr><td class="n">14 Oct 2025</td><td class="n">AG-082</td><td class="l">By Cattle Feed Expense A/c<br>&lt;em&gt;Cattle feed (khal and chokar), cash&lt;/em&gt;</td><td class="r">—</td><td class="r">5,400</td><td class="r">29,400</td><td class="c">Dr</td></tr>
+<tr><td class="n">16 Oct 2025</td><td class="n">AG-083</td><td class="l">By Labour Expense A/c<br>&lt;em&gt;Farm labour for the month paid in cash&lt;/em&gt;</td><td class="r">—</td><td class="r">16,000</td><td class="r">13,400</td><td class="c">Dr</td></tr>
+<tr><td class="n">02 Nov 2025</td><td class="n">AG-087</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;Cash drawn from SBI for the month&lt;/em&gt;</td><td class="r">42,000</td><td class="r">—</td><td class="r">55,400</td><td class="c">Dr</td></tr>
+<tr><td class="n">04 Nov 2025</td><td class="n">AG-088</td><td class="l">By Drawings A/c<br>&lt;em&gt;Household drawing for the month in cash (not a farm expense)&lt;/em&gt;</td><td class="r">—</td><td class="r">12,000</td><td class="r">43,400</td><td class="c">Dr</td></tr>
+<tr><td class="n">09 Nov 2025</td><td class="n">AG-091</td><td class="l">By Diesel &amp; Machinery Expense A/c<br>&lt;em&gt;Diesel for tractor and tube-well, cash&lt;/em&gt;</td><td class="r">—</td><td class="r">11,800</td><td class="r">31,600</td><td class="c">Dr</td></tr>
+<tr><td class="n">14 Nov 2025</td><td class="n">AG-095</td><td class="l">By Cattle Feed Expense A/c<br>&lt;em&gt;Cattle feed (khal and chokar), cash&lt;/em&gt;</td><td class="r">—</td><td class="r">5,400</td><td class="r">26,200</td><td class="c">Dr</td></tr>
+<tr><td class="n">16 Nov 2025</td><td class="n">AG-096</td><td class="l">By Labour Expense A/c<br>&lt;em&gt;Farm labour for the month paid in cash&lt;/em&gt;</td><td class="r">—</td><td class="r">12,000</td><td class="r">14,200</td><td class="c">Dr</td></tr>
+<tr><td class="n">02 Dec 2025</td><td class="n">AG-103</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;Cash drawn from SBI for the month&lt;/em&gt;</td><td class="r">29,000</td><td class="r">—</td><td class="r">43,200</td><td class="c">Dr</td></tr>
+<tr><td class="n">04 Dec 2025</td><td class="n">AG-104</td><td class="l">By Drawings A/c<br>&lt;em&gt;Household drawing for the month in cash (not a farm expense)&lt;/em&gt;</td><td class="r">—</td><td class="r">12,000</td><td class="r">31,200</td><td class="c">Dr</td></tr>
+<tr><td class="n">09 Dec 2025</td><td class="n">AG-106</td><td class="l">By Diesel &amp; Machinery Expense A/c<br>&lt;em&gt;Diesel for tractor and tube-well, cash&lt;/em&gt;</td><td class="r">—</td><td class="r">7,200</td><td class="r">24,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">14 Dec 2025</td><td class="n">AG-108</td><td class="l">By Cattle Feed Expense A/c<br>&lt;em&gt;Cattle feed (khal and chokar), cash&lt;/em&gt;</td><td class="r">—</td><td class="r">5,400</td><td class="r">18,600</td><td class="c">Dr</td></tr>
+<tr><td class="n">16 Dec 2025</td><td class="n">AG-110</td><td class="l">By Labour Expense A/c<br>&lt;em&gt;Farm labour for the month paid in cash&lt;/em&gt;</td><td class="r">—</td><td class="r">4,000</td><td class="r">14,600</td><td class="c">Dr</td></tr>
+<tr><td class="n">02 Jan 2026</td><td class="n">AG-115</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;Cash drawn from SBI for the month&lt;/em&gt;</td><td class="r">28,000</td><td class="r">—</td><td class="r">42,600</td><td class="c">Dr</td></tr>
+<tr><td class="n">04 Jan 2026</td><td class="n">AG-116</td><td class="l">By Drawings A/c<br>&lt;em&gt;Household drawing for the month in cash (not a farm expense)&lt;/em&gt;</td><td class="r">—</td><td class="r">12,000</td><td class="r">30,600</td><td class="c">Dr</td></tr>
+<tr><td class="n">09 Jan 2026</td><td class="n">AG-118</td><td class="l">By Diesel &amp; Machinery Expense A/c<br>&lt;em&gt;Diesel for tractor and tube-well, cash&lt;/em&gt;</td><td class="r">—</td><td class="r">6,400</td><td class="r">24,200</td><td class="c">Dr</td></tr>
+<tr><td class="n">14 Jan 2026</td><td class="n">AG-120</td><td class="l">By Cattle Feed Expense A/c<br>&lt;em&gt;Cattle feed (khal and chokar), cash&lt;/em&gt;</td><td class="r">—</td><td class="r">5,400</td><td class="r">18,800</td><td class="c">Dr</td></tr>
+<tr><td class="n">16 Jan 2026</td><td class="n">AG-121</td><td class="l">By Labour Expense A/c<br>&lt;em&gt;Farm labour for the month paid in cash&lt;/em&gt;</td><td class="r">—</td><td class="r">4,000</td><td class="r">14,800</td><td class="c">Dr</td></tr>
+<tr><td class="n">02 Feb 2026</td><td class="n">AG-125</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;Cash drawn from SBI for the month&lt;/em&gt;</td><td class="r">35,000</td><td class="r">—</td><td class="r">49,800</td><td class="c">Dr</td></tr>
+<tr><td class="n">04 Feb 2026</td><td class="n">AG-126</td><td class="l">By Drawings A/c<br>&lt;em&gt;Household drawing for the month in cash (not a farm expense)&lt;/em&gt;</td><td class="r">—</td><td class="r">12,000</td><td class="r">37,800</td><td class="c">Dr</td></tr>
+<tr><td class="n">09 Feb 2026</td><td class="n">AG-128</td><td class="l">By Diesel &amp; Machinery Expense A/c<br>&lt;em&gt;Diesel for tractor and tube-well, cash&lt;/em&gt;</td><td class="r">—</td><td class="r">6,900</td><td class="r">30,900</td><td class="c">Dr</td></tr>
+<tr><td class="n">11 Feb 2026</td><td class="n">AG-130</td><td class="l">By Machinery Repair Expense A/c<br>&lt;em&gt;Tube-well motor rewinding, cash&lt;/em&gt;</td><td class="r">—</td><td class="r">6,200</td><td class="r">24,700</td><td class="c">Dr</td></tr>
+<tr><td class="n">14 Feb 2026</td><td class="n">AG-131</td><td class="l">By Cattle Feed Expense A/c<br>&lt;em&gt;Cattle feed (khal and chokar), cash&lt;/em&gt;</td><td class="r">—</td><td class="r">5,400</td><td class="r">19,300</td><td class="c">Dr</td></tr>
+<tr><td class="n">16 Feb 2026</td><td class="n">AG-132</td><td class="l">By Labour Expense A/c<br>&lt;em&gt;Farm labour for the month paid in cash&lt;/em&gt;</td><td class="r">—</td><td class="r">4,000</td><td class="r">15,300</td><td class="c">Dr</td></tr>
+<tr><td class="n">02 Mar 2026</td><td class="n">AG-138</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;Cash drawn from SBI for the month&lt;/em&gt;</td><td class="r">36,000</td><td class="r">—</td><td class="r">51,300</td><td class="c">Dr</td></tr>
+<tr><td class="n">04 Mar 2026</td><td class="n">AG-139</td><td class="l">By Drawings A/c<br>&lt;em&gt;Household drawing for the month in cash (not a farm expense)&lt;/em&gt;</td><td class="r">—</td><td class="r">12,000</td><td class="r">39,300</td><td class="c">Dr</td></tr>
+<tr><td class="n">09 Mar 2026</td><td class="n">AG-142</td><td class="l">By Diesel &amp; Machinery Expense A/c<br>&lt;em&gt;Diesel for tractor and tube-well, cash&lt;/em&gt;</td><td class="r">—</td><td class="r">10,200</td><td class="r">29,100</td><td class="c">Dr</td></tr>
+<tr><td class="n">14 Mar 2026</td><td class="n">AG-144</td><td class="l">By Cattle Feed Expense A/c<br>&lt;em&gt;Cattle feed (khal and chokar), cash&lt;/em&gt;</td><td class="r">—</td><td class="r">5,400</td><td class="r">23,700</td><td class="c">Dr</td></tr>
+<tr><td class="n">16 Mar 2026</td><td class="n">AG-145</td><td class="l">By Labour Expense A/c<br>&lt;em&gt;Farm labour for the month paid in cash&lt;/em&gt;</td><td class="r">—</td><td class="r">8,000</td><td class="r">15,700</td><td class="c">Dr</td></tr>
+<tr class="khata"><td class="n">31 Mar 2026</td><td class="n"></td><td class="l">Closing balance c/d</td><td class="r">—</td><td class="r">15,700</td><td class="r">—</td><td class="c">—</td></tr>
+<tr class="total"><td class="n"></td><td class="n"></td><td class="l">Total (incl. opening b/f)</td><td class="r">4,54,000</td><td class="r">4,54,000</td><td class="r"></td><td class="c"></td></tr>
+<tr class="khata"><td class="n">01 Apr 2026</td><td class="n"></td><td class="l">Opening balance b/d (FY 2026-27)</td><td class="r">15,700</td><td class="r">—</td><td class="r">15,700</td><td class="c">Dr</td></tr>
+</tbody></table>
+<h4>SBI Savings A/c</h4>
+<p><em>Bank (savings). The balance is normally Dr — money you have.</em></p>
+<table><thead><tr>
+<th class="n">Date</th>
+<th class="n">Entry</th>
+<th class="l">Particulars</th>
+<th class="r">Money in (Dr)</th>
+<th class="r">Money out (Cr)</th>
+<th class="r">Balance ₹</th>
+<th class="c">Side</th>
+</tr></thead><tbody>
+<tr><td class="n">01 Apr 2025</td><td class="n"></td><td class="l">Opening balance b/f</td><td class="r">—</td><td class="r">—</td><td class="r">2,60,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">02 Apr 2025</td><td class="n">AG-006</td><td class="l">By Farm Cash A/c<br>&lt;em&gt;Cash drawn from SBI for the month&lt;/em&gt;</td><td class="r">—</td><td class="r">42,000</td><td class="r">2,18,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">07 Apr 2025</td><td class="n">AG-008</td><td class="l">To Verka Milk Society A/c<br>&lt;em&gt;Verka Milk Society paid last month's three milk cycles by NEFT&lt;/em&gt;</td><td class="r">5,950</td><td class="r">—</td><td class="r">2,23,950</td><td class="c">Dr</td></tr>
+<tr><td class="n">19 Apr 2025</td><td class="n">AG-013</td><td class="l">By Tube-well Electricity Expense A/c<br>&lt;em&gt;Tube-well electricity bill by net banking&lt;/em&gt;</td><td class="r">—</td><td class="r">1,900</td><td class="r">2,22,050</td><td class="c">Dr</td></tr>
+<tr><td class="n">25 Apr 2025</td><td class="n">AG-015</td><td class="l">To Crop Sale Income A/c<br>&lt;em&gt;Wheat 160 qtl procured at MSP ₹2,425 — payment credited direct to the SBI account by the procurement agency&lt;/em&gt;</td><td class="r">3,88,000</td><td class="r">—</td><td class="r">6,10,050</td><td class="c">Dr</td></tr>
+<tr><td class="n">02 May 2025</td><td class="n">AG-017</td><td class="l">By Farm Cash A/c<br>&lt;em&gt;Cash drawn from SBI for the month&lt;/em&gt;</td><td class="r">—</td><td class="r">28,000</td><td class="r">5,82,050</td><td class="c">Dr</td></tr>
+<tr><td class="n">05 May 2025</td><td class="n">AG-019</td><td class="l">By SBI Kisan Credit Card A/c<br>&lt;em&gt;KCC repaid in full after the wheat payment (Transfer: Dr loan account · Cr savings)&lt;/em&gt;</td><td class="r">—</td><td class="r">2,40,000</td><td class="r">3,42,050</td><td class="c">Dr</td></tr>
+<tr><td class="n">07 May 2025</td><td class="n">AG-020</td><td class="l">To Verka Milk Society A/c<br>&lt;em&gt;Verka Milk Society paid last month's three milk cycles by NEFT&lt;/em&gt;</td><td class="r">17,623.50</td><td class="r">—</td><td class="r">3,59,673.50</td><td class="c">Dr</td></tr>
+<tr><td class="n">08 May 2025</td><td class="n">AG-021</td><td class="l">By Bhatti Khad Store A/c<br>&lt;em&gt;Paid Bhatti Khad Store the rabi khata by UPI&lt;/em&gt;</td><td class="r">—</td><td class="r">18,000</td><td class="r">3,41,673.50</td><td class="c">Dr</td></tr>
+<tr><td class="n">19 May 2025</td><td class="n">AG-026</td><td class="l">By Tube-well Electricity Expense A/c<br>&lt;em&gt;Tube-well electricity bill by net banking&lt;/em&gt;</td><td class="r">—</td><td class="r">2,400</td><td class="r">3,39,273.50</td><td class="c">Dr</td></tr>
+<tr><td class="n">02 Jun 2025</td><td class="n">AG-029</td><td class="l">By Farm Cash A/c<br>&lt;em&gt;Cash drawn from SBI for the month&lt;/em&gt;</td><td class="r">—</td><td class="r">52,000</td><td class="r">2,87,273.50</td><td class="c">Dr</td></tr>
+<tr><td class="n">07 Jun 2025</td><td class="n">AG-031</td><td class="l">To Verka Milk Society A/c<br>&lt;em&gt;Verka Milk Society paid last month's three milk cycles by NEFT&lt;/em&gt;</td><td class="r">17,955.75</td><td class="r">—</td><td class="r">3,05,229.25</td><td class="c">Dr</td></tr>
+<tr><td class="n">19 Jun 2025</td><td class="n">AG-037</td><td class="l">By Tube-well Electricity Expense A/c<br>&lt;em&gt;Tube-well electricity bill by net banking&lt;/em&gt;</td><td class="r">—</td><td class="r">2,900</td><td class="r">3,02,329.25</td><td class="c">Dr</td></tr>
+<tr><td class="n">02 Jul 2025</td><td class="n">AG-041</td><td class="l">By Farm Cash A/c<br>&lt;em&gt;Cash drawn from SBI for the month&lt;/em&gt;</td><td class="r">—</td><td class="r">48,000</td><td class="r">2,54,329.25</td><td class="c">Dr</td></tr>
+<tr><td class="n">07 Jul 2025</td><td class="n">AG-043</td><td class="l">To Verka Milk Society A/c<br>&lt;em&gt;Verka Milk Society paid last month's three milk cycles by NEFT&lt;/em&gt;</td><td class="r">15,889</td><td class="r">—</td><td class="r">2,70,218.25</td><td class="c">Dr</td></tr>
+<tr><td class="n">10 Jul 2025</td><td class="n">AG-045</td><td class="l">To SBI Kisan Credit Card A/c<br>&lt;em&gt;KCC drawn for transplanting and inputs (Transfer: Dr savings · Cr loan account)&lt;/em&gt;</td><td class="r">1,80,000</td><td class="r">—</td><td class="r">4,50,218.25</td><td class="c">Dr</td></tr>
+<tr><td class="n">19 Jul 2025</td><td class="n">AG-049</td><td class="l">By Tube-well Electricity Expense A/c<br>&lt;em&gt;Tube-well electricity bill by net banking&lt;/em&gt;</td><td class="r">—</td><td class="r">2,800</td><td class="r">4,47,418.25</td><td class="c">Dr</td></tr>
+<tr><td class="n">02 Aug 2025</td><td class="n">AG-054</td><td class="l">By Farm Cash A/c<br>&lt;em&gt;Cash drawn from SBI for the month&lt;/em&gt;</td><td class="r">—</td><td class="r">30,000</td><td class="r">4,17,418.25</td><td class="c">Dr</td></tr>
+<tr><td class="n">02 Aug 2025</td><td class="n">AG-055</td><td class="l">To Government Support Income A/c (PM-Kisan)<br>&lt;em&gt;PM-Kisan instalment ₹2,000 credited by DBT&lt;/em&gt;</td><td class="r">2,000</td><td class="r">—</td><td class="r">4,19,418.25</td><td class="c">Dr</td></tr>
+<tr><td class="n">07 Aug 2025</td><td class="n">AG-057</td><td class="l">To Verka Milk Society A/c<br>&lt;em&gt;Verka Milk Society paid last month's three milk cycles by NEFT&lt;/em&gt;</td><td class="r">18,022.25</td><td class="r">—</td><td class="r">4,37,440.50</td><td class="c">Dr</td></tr>
+<tr><td class="n">19 Aug 2025</td><td class="n">AG-062</td><td class="l">By Tube-well Electricity Expense A/c<br>&lt;em&gt;Tube-well electricity bill by net banking&lt;/em&gt;</td><td class="r">—</td><td class="r">2,600</td><td class="r">4,34,840.50</td><td class="c">Dr</td></tr>
+<tr><td class="n">02 Sep 2025</td><td class="n">AG-065</td><td class="l">By Farm Cash A/c<br>&lt;em&gt;Cash drawn from SBI for the month&lt;/em&gt;</td><td class="r">—</td><td class="r">30,000</td><td class="r">4,04,840.50</td><td class="c">Dr</td></tr>
+<tr><td class="n">07 Sep 2025</td><td class="n">AG-067</td><td class="l">To Verka Milk Society A/c<br>&lt;em&gt;Verka Milk Society paid last month's three milk cycles by NEFT&lt;/em&gt;</td><td class="r">18,655.50</td><td class="r">—</td><td class="r">4,23,496</td><td class="c">Dr</td></tr>
+<tr><td class="n">19 Sep 2025</td><td class="n">AG-072</td><td class="l">By Tube-well Electricity Expense A/c<br>&lt;em&gt;Tube-well electricity bill by net banking&lt;/em&gt;</td><td class="r">—</td><td class="r">2,300</td><td class="r">4,21,196</td><td class="c">Dr</td></tr>
+<tr><td class="n">23 Sep 2025</td><td class="n">AG-074</td><td class="l">By Machinery Repair Expense A/c<br>&lt;em&gt;Tractor hydraulic pump repair, workshop paid by NEFT&lt;/em&gt;</td><td class="r">—</td><td class="r">9,800</td><td class="r">4,11,396</td><td class="c">Dr</td></tr>
+<tr><td class="n">02 Oct 2025</td><td class="n">AG-077</td><td class="l">By Farm Cash A/c<br>&lt;em&gt;Cash drawn from SBI for the month&lt;/em&gt;</td><td class="r">—</td><td class="r">45,000</td><td class="r">3,66,396</td><td class="c">Dr</td></tr>
+<tr><td class="n">07 Oct 2025</td><td class="n">AG-079</td><td class="l">To Verka Milk Society A/c<br>&lt;em&gt;Verka Milk Society paid last month's three milk cycles by NEFT&lt;/em&gt;</td><td class="r">19,887.75</td><td class="r">—</td><td class="r">3,86,283.75</td><td class="c">Dr</td></tr>
+<tr><td class="n">19 Oct 2025</td><td class="n">AG-084</td><td class="l">By Tube-well Electricity Expense A/c<br>&lt;em&gt;Tube-well electricity bill by net banking&lt;/em&gt;</td><td class="r">—</td><td class="r">1,800</td><td class="r">3,84,483.75</td><td class="c">Dr</td></tr>
+<tr><td class="n">02 Nov 2025</td><td class="n">AG-087</td><td class="l">By Farm Cash A/c<br>&lt;em&gt;Cash drawn from SBI for the month&lt;/em&gt;</td><td class="r">—</td><td class="r">42,000</td><td class="r">3,42,483.75</td><td class="c">Dr</td></tr>
+<tr><td class="n">07 Nov 2025</td><td class="n">AG-090</td><td class="l">To Verka Milk Society A/c<br>&lt;em&gt;Verka Milk Society paid last month's three milk cycles by NEFT&lt;/em&gt;</td><td class="r">20,221</td><td class="r">—</td><td class="r">3,62,704.75</td><td class="c">Dr</td></tr>
+<tr><td class="n">18 Nov 2025</td><td class="n">AG-097</td><td class="l">To Garg &amp; Co. (arhtiya) A/c<br>&lt;em&gt;Garg &amp; Co. paid the net basmati proceeds by RTGS — khata settled&lt;/em&gt;</td><td class="r">6,04,500</td><td class="r">—</td><td class="r">9,67,204.75</td><td class="c">Dr</td></tr>
+<tr><td class="n">19 Nov 2025</td><td class="n">AG-098</td><td class="l">To Government Support Income A/c (PM-Kisan)<br>&lt;em&gt;PM-Kisan instalment ₹2,000 credited by DBT&lt;/em&gt;</td><td class="r">2,000</td><td class="r">—</td><td class="r">9,69,204.75</td><td class="c">Dr</td></tr>
+<tr><td class="n">19 Nov 2025</td><td class="n">AG-099</td><td class="l">By Tube-well Electricity Expense A/c<br>&lt;em&gt;Tube-well electricity bill by net banking&lt;/em&gt;</td><td class="r">—</td><td class="r">1,500</td><td class="r">9,67,704.75</td><td class="c">Dr</td></tr>
+<tr><td class="n">28 Nov 2025</td><td class="n">AG-101</td><td class="l">By Bhatti Khad Store A/c<br>&lt;em&gt;Paid Bhatti Khad Store the kharif khata by NEFT&lt;/em&gt;</td><td class="r">—</td><td class="r">60,000</td><td class="r">9,07,704.75</td><td class="c">Dr</td></tr>
+<tr><td class="n">02 Dec 2025</td><td class="n">AG-103</td><td class="l">By Farm Cash A/c<br>&lt;em&gt;Cash drawn from SBI for the month&lt;/em&gt;</td><td class="r">—</td><td class="r">29,000</td><td class="r">8,78,704.75</td><td class="c">Dr</td></tr>
+<tr><td class="n">07 Dec 2025</td><td class="n">AG-105</td><td class="l">To Verka Milk Society A/c<br>&lt;em&gt;Verka Milk Society paid last month's three milk cycles by NEFT&lt;/em&gt;</td><td class="r">21,154.25</td><td class="r">—</td><td class="r">8,99,859</td><td class="c">Dr</td></tr>
+<tr><td class="n">15 Dec 2025</td><td class="n">AG-109</td><td class="l">By SBI Kisan Credit Card A/c<br>&lt;em&gt;KCC repaid after the basmati payment&lt;/em&gt;</td><td class="r">—</td><td class="r">1,80,000</td><td class="r">7,19,859</td><td class="c">Dr</td></tr>
+<tr><td class="n">19 Dec 2025</td><td class="n">AG-111</td><td class="l">By Tube-well Electricity Expense A/c<br>&lt;em&gt;Tube-well electricity bill by net banking&lt;/em&gt;</td><td class="r">—</td><td class="r">1,400</td><td class="r">7,18,459</td><td class="c">Dr</td></tr>
+<tr><td class="n">02 Jan 2026</td><td class="n">AG-115</td><td class="l">By Farm Cash A/c<br>&lt;em&gt;Cash drawn from SBI for the month&lt;/em&gt;</td><td class="r">—</td><td class="r">28,000</td><td class="r">6,90,459</td><td class="c">Dr</td></tr>
+<tr><td class="n">07 Jan 2026</td><td class="n">AG-117</td><td class="l">To Verka Milk Society A/c<br>&lt;em&gt;Verka Milk Society paid last month's three milk cycles by NEFT&lt;/em&gt;</td><td class="r">22,387.50</td><td class="r">—</td><td class="r">7,12,846.50</td><td class="c">Dr</td></tr>
+<tr><td class="n">19 Jan 2026</td><td class="n">AG-122</td><td class="l">By Tube-well Electricity Expense A/c<br>&lt;em&gt;Tube-well electricity bill by net banking&lt;/em&gt;</td><td class="r">—</td><td class="r">1,500</td><td class="r">7,11,346.50</td><td class="c">Dr</td></tr>
+<tr><td class="n">02 Feb 2026</td><td class="n">AG-125</td><td class="l">By Farm Cash A/c<br>&lt;em&gt;Cash drawn from SBI for the month&lt;/em&gt;</td><td class="r">—</td><td class="r">35,000</td><td class="r">6,76,346.50</td><td class="c">Dr</td></tr>
+<tr><td class="n">07 Feb 2026</td><td class="n">AG-127</td><td class="l">To Verka Milk Society A/c<br>&lt;em&gt;Verka Milk Society paid last month's three milk cycles by NEFT&lt;/em&gt;</td><td class="r">21,219.75</td><td class="r">—</td><td class="r">6,97,566.25</td><td class="c">Dr</td></tr>
+<tr><td class="n">18 Feb 2026</td><td class="n">AG-133</td><td class="l">By Bhatti Khad Store A/c<br>&lt;em&gt;Part payment to Bhatti Khad Store by UPI&lt;/em&gt;</td><td class="r">—</td><td class="r">20,000</td><td class="r">6,77,566.25</td><td class="c">Dr</td></tr>
+<tr><td class="n">19 Feb 2026</td><td class="n">AG-134</td><td class="l">By Tube-well Electricity Expense A/c<br>&lt;em&gt;Tube-well electricity bill by net banking&lt;/em&gt;</td><td class="r">—</td><td class="r">1,400</td><td class="r">6,76,166.25</td><td class="c">Dr</td></tr>
+<tr><td class="n">24 Feb 2026</td><td class="n">AG-136</td><td class="l">To Government Support Income A/c (PM-Kisan)<br>&lt;em&gt;PM-Kisan instalment ₹2,000 credited by DBT&lt;/em&gt;</td><td class="r">2,000</td><td class="r">—</td><td class="r">6,78,166.25</td><td class="c">Dr</td></tr>
+<tr><td class="n">02 Mar 2026</td><td class="n">AG-138</td><td class="l">By Farm Cash A/c<br>&lt;em&gt;Cash drawn from SBI for the month&lt;/em&gt;</td><td class="r">—</td><td class="r">36,000</td><td class="r">6,42,166.25</td><td class="c">Dr</td></tr>
+<tr><td class="n">05 Mar 2026</td><td class="n">AG-140</td><td class="l">To SBI Kisan Credit Card A/c<br>&lt;em&gt;KCC drawn for the wheat harvest — combine hire and labour&lt;/em&gt;</td><td class="r">1,20,000</td><td class="r">—</td><td class="r">7,62,166.25</td><td class="c">Dr</td></tr>
+<tr><td class="n">07 Mar 2026</td><td class="n">AG-141</td><td class="l">To Verka Milk Society A/c<br>&lt;em&gt;Verka Milk Society paid last month's three milk cycles by NEFT&lt;/em&gt;</td><td class="r">20,053</td><td class="r">—</td><td class="r">7,82,219.25</td><td class="c">Dr</td></tr>
+<tr><td class="n">19 Mar 2026</td><td class="n">AG-146</td><td class="l">By Tube-well Electricity Expense A/c<br>&lt;em&gt;Tube-well electricity bill by net banking&lt;/em&gt;</td><td class="r">—</td><td class="r">1,700</td><td class="r">7,80,519.25</td><td class="c">Dr</td></tr>
+<tr class="khata"><td class="n">31 Mar 2026</td><td class="n"></td><td class="l">Closing balance c/d</td><td class="r">—</td><td class="r">7,80,519.25</td><td class="r">—</td><td class="c">—</td></tr>
+<tr class="total"><td class="n"></td><td class="n"></td><td class="l">Total (incl. opening b/f)</td><td class="r">17,77,519.25</td><td class="r">17,77,519.25</td><td class="r"></td><td class="c"></td></tr>
+<tr class="khata"><td class="n">01 Apr 2026</td><td class="n"></td><td class="l">Opening balance b/d (FY 2026-27)</td><td class="r">7,80,519.25</td><td class="r">—</td><td class="r">7,80,519.25</td><td class="c">Dr</td></tr>
+</tbody></table>
+<h4>SBI Kisan Credit Card A/c</h4>
+<p><em>Loan. The balance is normally Cr — what you owe the bank. A Dr balance would mean the bank holds your money.</em></p>
+<table><thead><tr>
+<th class="n">Date</th>
+<th class="n">Entry</th>
+<th class="l">Particulars</th>
+<th class="r">Paid to the bank (Dr)</th>
+<th class="r">Taken or charged by the bank (Cr)</th>
+<th class="r">Balance ₹</th>
+<th class="c">Side</th>
+</tr></thead><tbody>
+<tr><td class="n">01 Apr 2025</td><td class="n"></td><td class="l">Opening balance b/f</td><td class="r">—</td><td class="r">—</td><td class="r">2,40,000</td><td class="c">Cr</td></tr>
+<tr><td class="n">05 May 2025</td><td class="n">AG-019</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;KCC repaid in full after the wheat payment (Transfer: Dr loan account · Cr savings)&lt;/em&gt;</td><td class="r">2,40,000</td><td class="r">—</td><td class="r">0</td><td class="c">—</td></tr>
+<tr><td class="n">30 Jun 2025</td><td class="n">AG-040</td><td class="l">By Interest on KCC Expense A/c<br>&lt;em&gt;Interest debited by SBI on the Kisan Credit Card account (Money out from the loan account)&lt;/em&gt;</td><td class="r">—</td><td class="r">1,604.38</td><td class="r">1,604.38</td><td class="c">Cr</td></tr>
+<tr><td class="n">10 Jul 2025</td><td class="n">AG-045</td><td class="l">By SBI Savings A/c<br>&lt;em&gt;KCC drawn for transplanting and inputs (Transfer: Dr savings · Cr loan account)&lt;/em&gt;</td><td class="r">—</td><td class="r">1,80,000</td><td class="r">1,81,604.38</td><td class="c">Cr</td></tr>
+<tr><td class="n">30 Sep 2025</td><td class="n">AG-076</td><td class="l">By Interest on KCC Expense A/c<br>&lt;em&gt;Interest debited by SBI on the Kisan Credit Card account (Money out from the loan account)&lt;/em&gt;</td><td class="r">—</td><td class="r">2,853.70</td><td class="r">1,84,458.08</td><td class="c">Cr</td></tr>
+<tr><td class="n">15 Dec 2025</td><td class="n">AG-109</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;KCC repaid after the basmati payment&lt;/em&gt;</td><td class="r">1,80,000</td><td class="r">—</td><td class="r">4,458.08</td><td class="c">Cr</td></tr>
+<tr><td class="n">31 Dec 2025</td><td class="n">AG-114</td><td class="l">By Interest on KCC Expense A/c<br>&lt;em&gt;Interest debited by SBI on the Kisan Credit Card account (Money out from the loan account)&lt;/em&gt;</td><td class="r">—</td><td class="r">3,172.60</td><td class="r">7,630.68</td><td class="c">Cr</td></tr>
+<tr><td class="n">05 Mar 2026</td><td class="n">AG-140</td><td class="l">By SBI Savings A/c<br>&lt;em&gt;KCC drawn for the wheat harvest — combine hire and labour&lt;/em&gt;</td><td class="r">—</td><td class="r">1,20,000</td><td class="r">1,27,630.68</td><td class="c">Cr</td></tr>
+<tr><td class="n">31 Mar 2026</td><td class="n">AG-149</td><td class="l">By Interest on KCC Expense A/c<br>&lt;em&gt;Interest debited by SBI on the Kisan Credit Card account (Money out from the loan account)&lt;/em&gt;</td><td class="r">—</td><td class="r">912.33</td><td class="r">1,28,543.01</td><td class="c">Cr</td></tr>
+<tr class="khata"><td class="n">31 Mar 2026</td><td class="n"></td><td class="l">Closing balance c/d</td><td class="r">1,28,543.01</td><td class="r">—</td><td class="r">—</td><td class="c">—</td></tr>
+<tr class="total"><td class="n"></td><td class="n"></td><td class="l">Total (incl. opening b/f)</td><td class="r">5,48,543.01</td><td class="r">5,48,543.01</td><td class="r"></td><td class="c"></td></tr>
+<tr class="khata"><td class="n">01 Apr 2026</td><td class="n"></td><td class="l">Opening balance b/d (FY 2026-27)</td><td class="r">—</td><td class="r">1,28,543.01</td><td class="r">1,28,543.01</td><td class="c">Cr</td></tr>
+</tbody></table>
+<h4>Bhatti Khad Store A/c</h4>
+<p><em>Person / shop. Dr = you will get · Cr = you will give.</em></p>
+<table><thead><tr>
+<th class="n">Date</th>
+<th class="n">Entry</th>
+<th class="l">Particulars</th>
+<th class="r">Given or billed to them (Dr)</th>
+<th class="r">Received or taken from them (Cr)</th>
+<th class="r">Balance ₹</th>
+<th class="c">Side</th>
+</tr></thead><tbody>
+<tr><td class="n">01 Apr 2025</td><td class="n"></td><td class="l">Opening balance b/f</td><td class="r">—</td><td class="r">—</td><td class="r">18,000</td><td class="c">Cr</td></tr>
+<tr><td class="n">08 May 2025</td><td class="n">AG-021</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;Paid Bhatti Khad Store the rabi khata by UPI&lt;/em&gt;</td><td class="r">18,000</td><td class="r">—</td><td class="r">0</td><td class="c">—</td></tr>
+<tr><td class="n">15 Jun 2025</td><td class="n">AG-035</td><td class="l">By Seed &amp; Fertiliser Expense A/c<br>&lt;em&gt;Bhatti Khad Store — urea and DAP for basmati nursery and transplanting, on khata&lt;/em&gt;</td><td class="r">—</td><td class="r">38,000</td><td class="r">38,000</td><td class="c">Cr</td></tr>
+<tr><td class="n">20 Jul 2025</td><td class="n">AG-050</td><td class="l">By Seed &amp; Fertiliser Expense A/c<br>&lt;em&gt;Bhatti Khad Store — zinc, pesticide and weedicide on khata&lt;/em&gt;</td><td class="r">—</td><td class="r">22,000</td><td class="r">60,000</td><td class="c">Cr</td></tr>
+<tr><td class="n">05 Nov 2025</td><td class="n">AG-089</td><td class="l">By Seed &amp; Fertiliser Expense A/c<br>&lt;em&gt;Bhatti Khad Store — wheat seed and DAP on khata&lt;/em&gt;</td><td class="r">—</td><td class="r">41,000</td><td class="r">1,01,000</td><td class="c">Cr</td></tr>
+<tr><td class="n">28 Nov 2025</td><td class="n">AG-101</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;Paid Bhatti Khad Store the kharif khata by NEFT&lt;/em&gt;</td><td class="r">60,000</td><td class="r">—</td><td class="r">41,000</td><td class="c">Cr</td></tr>
+<tr><td class="n">18 Feb 2026</td><td class="n">AG-133</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;Part payment to Bhatti Khad Store by UPI&lt;/em&gt;</td><td class="r">20,000</td><td class="r">—</td><td class="r">21,000</td><td class="c">Cr</td></tr>
+<tr class="khata"><td class="n">31 Mar 2026</td><td class="n"></td><td class="l">Closing balance c/d</td><td class="r">21,000</td><td class="r">—</td><td class="r">—</td><td class="c">—</td></tr>
+<tr class="total"><td class="n"></td><td class="n"></td><td class="l">Total (incl. opening b/f)</td><td class="r">1,19,000</td><td class="r">1,19,000</td><td class="r"></td><td class="c"></td></tr>
+<tr class="khata"><td class="n">01 Apr 2026</td><td class="n"></td><td class="l">Opening balance b/d (FY 2026-27)</td><td class="r">—</td><td class="r">21,000</td><td class="r">21,000</td><td class="c">Cr</td></tr>
+</tbody></table>
+<h4>Garg &amp; Co. (arhtiya) A/c</h4>
+<p><em>Person / shop. Dr = you will get · Cr = you will give.</em></p>
+<table><thead><tr>
+<th class="n">Date</th>
+<th class="n">Entry</th>
+<th class="l">Particulars</th>
+<th class="r">Given or billed to them (Dr)</th>
+<th class="r">Received or taken from them (Cr)</th>
+<th class="r">Balance ₹</th>
+<th class="c">Side</th>
+</tr></thead><tbody>
+<tr><td class="n">01 Apr 2025</td><td class="n"></td><td class="l">Opening balance b/f</td><td class="r">—</td><td class="r">—</td><td class="r">0</td><td class="c">—</td></tr>
+<tr><td class="n">10 Nov 2025</td><td class="n">AG-092</td><td class="l">To Crop Sale Income A/c<br>&lt;em&gt;Basmati 155 qtl sold through Garg &amp; Co. at ₹4,000 — gross sale on the arhtiya's khata&lt;/em&gt;</td><td class="r">6,20,000</td><td class="r">—</td><td class="r">6,20,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">12 Nov 2025</td><td class="n">AG-094</td><td class="l">By Arhtiya Charges Expense A/c<br>&lt;em&gt;Garg &amp; Co. — commission and mandi charges deducted (2.5%)&lt;/em&gt;</td><td class="r">—</td><td class="r">15,500</td><td class="r">6,04,500</td><td class="c">Dr</td></tr>
+<tr><td class="n">18 Nov 2025</td><td class="n">AG-097</td><td class="l">By SBI Savings A/c<br>&lt;em&gt;Garg &amp; Co. paid the net basmati proceeds by RTGS — khata settled&lt;/em&gt;</td><td class="r">—</td><td class="r">6,04,500</td><td class="r">0</td><td class="c">—</td></tr>
+<tr class="khata"><td class="n">31 Mar 2026</td><td class="n"></td><td class="l">Closing balance c/d</td><td class="r">—</td><td class="r">—</td><td class="r">—</td><td class="c">—</td></tr>
+<tr class="total"><td class="n"></td><td class="n"></td><td class="l">Total (incl. opening b/f)</td><td class="r">6,20,000</td><td class="r">6,20,000</td><td class="r"></td><td class="c"></td></tr>
+<tr class="khata"><td class="n">01 Apr 2026</td><td class="n"></td><td class="l">Opening balance b/d (FY 2026-27)</td><td class="r">—</td><td class="r">—</td><td class="r">0</td><td class="c">—</td></tr>
+</tbody></table>
+<h4>Verka Milk Society A/c</h4>
+<p><em>Person / shop. Dr = you will get · Cr = you will give.</em></p>
+<table><thead><tr>
+<th class="n">Date</th>
+<th class="n">Entry</th>
+<th class="l">Particulars</th>
+<th class="r">Given or billed to them (Dr)</th>
+<th class="r">Received or taken from them (Cr)</th>
+<th class="r">Balance ₹</th>
+<th class="c">Side</th>
+</tr></thead><tbody>
+<tr><td class="n">01 Apr 2025</td><td class="n"></td><td class="l">Opening balance b/f</td><td class="r">—</td><td class="r">—</td><td class="r">5,950</td><td class="c">Dr</td></tr>
+<tr><td class="n">07 Apr 2025</td><td class="n">AG-008</td><td class="l">By SBI Savings A/c<br>&lt;em&gt;Verka Milk Society paid last month's three milk cycles by NEFT&lt;/em&gt;</td><td class="r">—</td><td class="r">5,950</td><td class="r">0</td><td class="c">—</td></tr>
+<tr><td class="n">10 Apr 2025</td><td class="n">AG-010</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">5,737.25</td><td class="r">—</td><td class="r">5,737.25</td><td class="c">Dr</td></tr>
+<tr><td class="n">20 Apr 2025</td><td class="n">AG-014</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">5,874.50</td><td class="r">—</td><td class="r">11,611.75</td><td class="c">Dr</td></tr>
+<tr><td class="n">30 Apr 2025</td><td class="n">AG-016</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised&lt;/em&gt;</td><td class="r">6,011.75</td><td class="r">—</td><td class="r">17,623.50</td><td class="c">Dr</td></tr>
+<tr><td class="n">07 May 2025</td><td class="n">AG-020</td><td class="l">By SBI Savings A/c<br>&lt;em&gt;Verka Milk Society paid last month's three milk cycles by NEFT&lt;/em&gt;</td><td class="r">—</td><td class="r">17,623.50</td><td class="r">0</td><td class="c">—</td></tr>
+<tr><td class="n">10 May 2025</td><td class="n">AG-023</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">5,848</td><td class="r">—</td><td class="r">5,848</td><td class="c">Dr</td></tr>
+<tr><td class="n">20 May 2025</td><td class="n">AG-027</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">5,985.25</td><td class="r">—</td><td class="r">11,833.25</td><td class="c">Dr</td></tr>
+<tr><td class="n">31 May 2025</td><td class="n">AG-028</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised&lt;/em&gt;</td><td class="r">6,122.50</td><td class="r">—</td><td class="r">17,955.75</td><td class="c">Dr</td></tr>
+<tr><td class="n">07 Jun 2025</td><td class="n">AG-031</td><td class="l">By SBI Savings A/c<br>&lt;em&gt;Verka Milk Society paid last month's three milk cycles by NEFT&lt;/em&gt;</td><td class="r">—</td><td class="r">17,955.75</td><td class="r">0</td><td class="c">—</td></tr>
+<tr><td class="n">10 Jun 2025</td><td class="n">AG-033</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">5,159.75</td><td class="r">—</td><td class="r">5,159.75</td><td class="c">Dr</td></tr>
+<tr><td class="n">20 Jun 2025</td><td class="n">AG-038</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">5,296</td><td class="r">—</td><td class="r">10,455.75</td><td class="c">Dr</td></tr>
+<tr><td class="n">30 Jun 2025</td><td class="n">AG-039</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised&lt;/em&gt;</td><td class="r">5,433.25</td><td class="r">—</td><td class="r">15,889</td><td class="c">Dr</td></tr>
+<tr><td class="n">07 Jul 2025</td><td class="n">AG-043</td><td class="l">By SBI Savings A/c<br>&lt;em&gt;Verka Milk Society paid last month's three milk cycles by NEFT&lt;/em&gt;</td><td class="r">—</td><td class="r">15,889</td><td class="r">0</td><td class="c">—</td></tr>
+<tr><td class="n">10 Jul 2025</td><td class="n">AG-046</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">5,870.50</td><td class="r">—</td><td class="r">5,870.50</td><td class="c">Dr</td></tr>
+<tr><td class="n">20 Jul 2025</td><td class="n">AG-051</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">6,007.75</td><td class="r">—</td><td class="r">11,878.25</td><td class="c">Dr</td></tr>
+<tr><td class="n">31 Jul 2025</td><td class="n">AG-052</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised&lt;/em&gt;</td><td class="r">6,144</td><td class="r">—</td><td class="r">18,022.25</td><td class="c">Dr</td></tr>
+<tr><td class="n">07 Aug 2025</td><td class="n">AG-057</td><td class="l">By SBI Savings A/c<br>&lt;em&gt;Verka Milk Society paid last month's three milk cycles by NEFT&lt;/em&gt;</td><td class="r">—</td><td class="r">18,022.25</td><td class="r">0</td><td class="c">—</td></tr>
+<tr><td class="n">10 Aug 2025</td><td class="n">AG-059</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">6,681.25</td><td class="r">—</td><td class="r">6,681.25</td><td class="c">Dr</td></tr>
+<tr><td class="n">20 Aug 2025</td><td class="n">AG-063</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">5,918.50</td><td class="r">—</td><td class="r">12,599.75</td><td class="c">Dr</td></tr>
+<tr><td class="n">31 Aug 2025</td><td class="n">AG-064</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised&lt;/em&gt;</td><td class="r">6,055.75</td><td class="r">—</td><td class="r">18,655.50</td><td class="c">Dr</td></tr>
+<tr><td class="n">07 Sep 2025</td><td class="n">AG-067</td><td class="l">By SBI Savings A/c<br>&lt;em&gt;Verka Milk Society paid last month's three milk cycles by NEFT&lt;/em&gt;</td><td class="r">—</td><td class="r">18,655.50</td><td class="r">0</td><td class="c">—</td></tr>
+<tr><td class="n">10 Sep 2025</td><td class="n">AG-069</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">6,492</td><td class="r">—</td><td class="r">6,492</td><td class="c">Dr</td></tr>
+<tr><td class="n">20 Sep 2025</td><td class="n">AG-073</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">6,629.25</td><td class="r">—</td><td class="r">13,121.25</td><td class="c">Dr</td></tr>
+<tr><td class="n">30 Sep 2025</td><td class="n">AG-075</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised&lt;/em&gt;</td><td class="r">6,766.50</td><td class="r">—</td><td class="r">19,887.75</td><td class="c">Dr</td></tr>
+<tr><td class="n">07 Oct 2025</td><td class="n">AG-079</td><td class="l">By SBI Savings A/c<br>&lt;em&gt;Verka Milk Society paid last month's three milk cycles by NEFT&lt;/em&gt;</td><td class="r">—</td><td class="r">19,887.75</td><td class="r">0</td><td class="c">—</td></tr>
+<tr><td class="n">10 Oct 2025</td><td class="n">AG-081</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">7,203.75</td><td class="r">—</td><td class="r">7,203.75</td><td class="c">Dr</td></tr>
+<tr><td class="n">20 Oct 2025</td><td class="n">AG-085</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">6,440</td><td class="r">—</td><td class="r">13,643.75</td><td class="c">Dr</td></tr>
+<tr><td class="n">31 Oct 2025</td><td class="n">AG-086</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised&lt;/em&gt;</td><td class="r">6,577.25</td><td class="r">—</td><td class="r">20,221</td><td class="c">Dr</td></tr>
+<tr><td class="n">07 Nov 2025</td><td class="n">AG-090</td><td class="l">By SBI Savings A/c<br>&lt;em&gt;Verka Milk Society paid last month's three milk cycles by NEFT&lt;/em&gt;</td><td class="r">—</td><td class="r">20,221</td><td class="r">0</td><td class="c">—</td></tr>
+<tr><td class="n">10 Nov 2025</td><td class="n">AG-093</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">6,914.50</td><td class="r">—</td><td class="r">6,914.50</td><td class="c">Dr</td></tr>
+<tr><td class="n">20 Nov 2025</td><td class="n">AG-100</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">7,051.75</td><td class="r">—</td><td class="r">13,966.25</td><td class="c">Dr</td></tr>
+<tr><td class="n">30 Nov 2025</td><td class="n">AG-102</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised&lt;/em&gt;</td><td class="r">7,188</td><td class="r">—</td><td class="r">21,154.25</td><td class="c">Dr</td></tr>
+<tr><td class="n">07 Dec 2025</td><td class="n">AG-105</td><td class="l">By SBI Savings A/c<br>&lt;em&gt;Verka Milk Society paid last month's three milk cycles by NEFT&lt;/em&gt;</td><td class="r">—</td><td class="r">21,154.25</td><td class="r">0</td><td class="c">—</td></tr>
+<tr><td class="n">10 Dec 2025</td><td class="n">AG-107</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">7,625.25</td><td class="r">—</td><td class="r">7,625.25</td><td class="c">Dr</td></tr>
+<tr><td class="n">20 Dec 2025</td><td class="n">AG-112</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">7,762.50</td><td class="r">—</td><td class="r">15,387.75</td><td class="c">Dr</td></tr>
+<tr><td class="n">31 Dec 2025</td><td class="n">AG-113</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised&lt;/em&gt;</td><td class="r">6,999.75</td><td class="r">—</td><td class="r">22,387.50</td><td class="c">Dr</td></tr>
+<tr><td class="n">07 Jan 2026</td><td class="n">AG-117</td><td class="l">By SBI Savings A/c<br>&lt;em&gt;Verka Milk Society paid last month's three milk cycles by NEFT&lt;/em&gt;</td><td class="r">—</td><td class="r">22,387.50</td><td class="r">0</td><td class="c">—</td></tr>
+<tr><td class="n">10 Jan 2026</td><td class="n">AG-119</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">6,936</td><td class="r">—</td><td class="r">6,936</td><td class="c">Dr</td></tr>
+<tr><td class="n">20 Jan 2026</td><td class="n">AG-123</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">7,073.25</td><td class="r">—</td><td class="r">14,009.25</td><td class="c">Dr</td></tr>
+<tr><td class="n">31 Jan 2026</td><td class="n">AG-124</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised&lt;/em&gt;</td><td class="r">7,210.50</td><td class="r">—</td><td class="r">21,219.75</td><td class="c">Dr</td></tr>
+<tr><td class="n">07 Feb 2026</td><td class="n">AG-127</td><td class="l">By SBI Savings A/c<br>&lt;em&gt;Verka Milk Society paid last month's three milk cycles by NEFT&lt;/em&gt;</td><td class="r">—</td><td class="r">21,219.75</td><td class="r">0</td><td class="c">—</td></tr>
+<tr><td class="n">10 Feb 2026</td><td class="n">AG-129</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">6,847.75</td><td class="r">—</td><td class="r">6,847.75</td><td class="c">Dr</td></tr>
+<tr><td class="n">20 Feb 2026</td><td class="n">AG-135</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">6,984</td><td class="r">—</td><td class="r">13,831.75</td><td class="c">Dr</td></tr>
+<tr><td class="n">28 Feb 2026</td><td class="n">AG-137</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised&lt;/em&gt;</td><td class="r">6,221.25</td><td class="r">—</td><td class="r">20,053</td><td class="c">Dr</td></tr>
+<tr><td class="n">07 Mar 2026</td><td class="n">AG-141</td><td class="l">By SBI Savings A/c<br>&lt;em&gt;Verka Milk Society paid last month's three milk cycles by NEFT&lt;/em&gt;</td><td class="r">—</td><td class="r">20,053</td><td class="r">0</td><td class="c">—</td></tr>
+<tr><td class="n">10 Mar 2026</td><td class="n">AG-143</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">6,058.50</td><td class="r">—</td><td class="r">6,058.50</td><td class="c">Dr</td></tr>
+<tr><td class="n">20 Mar 2026</td><td class="n">AG-147</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">6,195.75</td><td class="r">—</td><td class="r">12,254.25</td><td class="c">Dr</td></tr>
+<tr><td class="n">31 Mar 2026</td><td class="n">AG-148</td><td class="l">To Milk Sale Income A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised&lt;/em&gt;</td><td class="r">6,332</td><td class="r">—</td><td class="r">18,586.25</td><td class="c">Dr</td></tr>
+<tr class="khata"><td class="n">31 Mar 2026</td><td class="n"></td><td class="l">Closing balance c/d</td><td class="r">—</td><td class="r">18,586.25</td><td class="r">—</td><td class="c">—</td></tr>
+<tr class="total"><td class="n"></td><td class="n"></td><td class="l">Total (incl. opening b/f)</td><td class="r">2,37,605.50</td><td class="r">2,37,605.50</td><td class="r"></td><td class="c"></td></tr>
+<tr class="khata"><td class="n">01 Apr 2026</td><td class="n"></td><td class="l">Opening balance b/d (FY 2026-27)</td><td class="r">18,586.25</td><td class="r">—</td><td class="r">18,586.25</td><td class="c">Dr</td></tr>
+</tbody></table>
+<h4>Drawings A/c</h4>
+<p><em>Taken out by the owner (drawings). Dr = what the owner has taken out of the business.</em></p>
+<table><thead><tr>
+<th class="n">Date</th>
+<th class="n">Entry</th>
+<th class="l">Particulars</th>
+<th class="r">Taken out by the owner (Dr)</th>
+<th class="r">Put back (Cr)</th>
+<th class="r">Balance ₹</th>
+<th class="c">Side</th>
+</tr></thead><tbody>
+<tr><td class="n">01 Apr 2025</td><td class="n"></td><td class="l">Opening balance b/f</td><td class="r">—</td><td class="r">—</td><td class="r">0</td><td class="c">—</td></tr>
+<tr><td class="n">04 Apr 2025</td><td class="n">AG-007</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Household drawing for the month in cash (not a farm expense)&lt;/em&gt;</td><td class="r">12,000</td><td class="r">—</td><td class="r">12,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">04 May 2025</td><td class="n">AG-018</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Household drawing for the month in cash (not a farm expense)&lt;/em&gt;</td><td class="r">12,000</td><td class="r">—</td><td class="r">24,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">04 Jun 2025</td><td class="n">AG-030</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Household drawing for the month in cash (not a farm expense)&lt;/em&gt;</td><td class="r">12,000</td><td class="r">—</td><td class="r">36,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">04 Jul 2025</td><td class="n">AG-042</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Household drawing for the month in cash (not a farm expense)&lt;/em&gt;</td><td class="r">12,000</td><td class="r">—</td><td class="r">48,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">04 Aug 2025</td><td class="n">AG-056</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Household drawing for the month in cash (not a farm expense)&lt;/em&gt;</td><td class="r">12,000</td><td class="r">—</td><td class="r">60,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">04 Sep 2025</td><td class="n">AG-066</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Household drawing for the month in cash (not a farm expense)&lt;/em&gt;</td><td class="r">12,000</td><td class="r">—</td><td class="r">72,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">04 Oct 2025</td><td class="n">AG-078</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Household drawing for the month in cash (not a farm expense)&lt;/em&gt;</td><td class="r">12,000</td><td class="r">—</td><td class="r">84,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">04 Nov 2025</td><td class="n">AG-088</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Household drawing for the month in cash (not a farm expense)&lt;/em&gt;</td><td class="r">12,000</td><td class="r">—</td><td class="r">96,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">04 Dec 2025</td><td class="n">AG-104</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Household drawing for the month in cash (not a farm expense)&lt;/em&gt;</td><td class="r">12,000</td><td class="r">—</td><td class="r">1,08,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">04 Jan 2026</td><td class="n">AG-116</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Household drawing for the month in cash (not a farm expense)&lt;/em&gt;</td><td class="r">12,000</td><td class="r">—</td><td class="r">1,20,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">04 Feb 2026</td><td class="n">AG-126</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Household drawing for the month in cash (not a farm expense)&lt;/em&gt;</td><td class="r">12,000</td><td class="r">—</td><td class="r">1,32,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">04 Mar 2026</td><td class="n">AG-139</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Household drawing for the month in cash (not a farm expense)&lt;/em&gt;</td><td class="r">12,000</td><td class="r">—</td><td class="r">1,44,000</td><td class="c">Dr</td></tr>
+<tr class="khata"><td class="n">31 Mar 2026</td><td class="n"></td><td class="l">Closing balance c/d</td><td class="r">—</td><td class="r">1,44,000</td><td class="r">—</td><td class="c">—</td></tr>
+<tr class="total"><td class="n"></td><td class="n"></td><td class="l">Total (incl. opening b/f)</td><td class="r">1,44,000</td><td class="r">1,44,000</td><td class="r"></td><td class="c"></td></tr>
+<tr class="khata"><td class="n">01 Apr 2026</td><td class="n"></td><td class="l">Opening balance b/d (FY 2026-27)</td><td class="r">1,44,000</td><td class="r">—</td><td class="r">1,44,000</td><td class="c">Dr</td></tr>
+</tbody></table>
+<h4>Opening Balance / Capital A/c</h4>
+<p><em>Own money (capital). Cr = your own money in this book (opening balances and capital put in).</em></p>
+<table><thead><tr>
+<th class="n">Date</th>
+<th class="n">Entry</th>
+<th class="l">Particulars</th>
+<th class="r">Withdrawn (Dr)</th>
+<th class="r">Own money put in (Cr)</th>
+<th class="r">Balance ₹</th>
+<th class="c">Side</th>
+</tr></thead><tbody>
+<tr><td class="n">01 Apr 2025</td><td class="n"></td><td class="l">Opening balance b/f</td><td class="r">—</td><td class="r">—</td><td class="r">16,950</td><td class="c">Cr</td></tr>
+<tr class="khata"><td class="n">31 Mar 2026</td><td class="n"></td><td class="l">Closing balance c/d</td><td class="r">16,950</td><td class="r">—</td><td class="r">—</td><td class="c">—</td></tr>
+<tr class="total"><td class="n"></td><td class="n"></td><td class="l">Total (incl. opening b/f)</td><td class="r">16,950</td><td class="r">16,950</td><td class="r"></td><td class="c"></td></tr>
+<tr class="khata"><td class="n">01 Apr 2026</td><td class="n"></td><td class="l">Opening balance b/d (FY 2026-27)</td><td class="r">—</td><td class="r">16,950</td><td class="r">16,950</td><td class="c">Cr</td></tr>
+</tbody></table>
+<h4>Adjustments A/c</h4>
+<p><em>Adjustments. Either side — cash-count differences and amounts written off.</em></p>
+<table><thead><tr>
+<th class="n">Date</th>
+<th class="n">Entry</th>
+<th class="l">Particulars</th>
+<th class="r">Difference (Dr)</th>
+<th class="r">Difference (Cr)</th>
+<th class="r">Balance ₹</th>
+<th class="c">Side</th>
+</tr></thead><tbody>
+<tr><td class="n">01 Apr 2025</td><td class="n"></td><td class="l">Opening balance b/f</td><td class="r">—</td><td class="r">—</td><td class="r">0</td><td class="c">—</td></tr>
+<tr><td class="n">31 Jul 2025</td><td class="n">AG-053</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Cash count of Farm Cash A/c: counted ₹11,200 against book ₹11,500 — ₹300 short posted to Adjustments A/c&lt;/em&gt;</td><td class="r">300</td><td class="r">—</td><td class="r">300</td><td class="c">Dr</td></tr>
+<tr class="khata"><td class="n">31 Mar 2026</td><td class="n"></td><td class="l">Closing balance c/d</td><td class="r">—</td><td class="r">300</td><td class="r">—</td><td class="c">—</td></tr>
+<tr class="total"><td class="n"></td><td class="n"></td><td class="l">Total (incl. opening b/f)</td><td class="r">300</td><td class="r">300</td><td class="r"></td><td class="c"></td></tr>
+<tr class="khata"><td class="n">01 Apr 2026</td><td class="n"></td><td class="l">Opening balance b/d (FY 2026-27)</td><td class="r">300</td><td class="r">—</td><td class="r">300</td><td class="c">Dr</td></tr>
+</tbody></table>
+<h4>Crop Sale Income A/c</h4>
+<p><em>Income. Cr = received or earned this year. Starts every year at zero.</em></p>
+<table><thead><tr>
+<th class="n">Date</th>
+<th class="n">Entry</th>
+<th class="l">Particulars</th>
+<th class="r">Refund or correction (Dr)</th>
+<th class="r">Received or earned (Cr)</th>
+<th class="r">Balance ₹</th>
+<th class="c">Side</th>
+</tr></thead><tbody>
+<tr><td class="n">25 Apr 2025</td><td class="n">AG-015</td><td class="l">By SBI Savings A/c<br>&lt;em&gt;Wheat 160 qtl procured at MSP ₹2,425 — payment credited direct to the SBI account by the procurement agency&lt;/em&gt;</td><td class="r">—</td><td class="r">3,88,000</td><td class="r">3,88,000</td><td class="c">Cr</td></tr>
+<tr><td class="n">10 Nov 2025</td><td class="n">AG-092</td><td class="l">By Garg &amp; Co. (arhtiya) A/c<br>&lt;em&gt;Basmati 155 qtl sold through Garg &amp; Co. at ₹4,000 — gross sale on the arhtiya's khata&lt;/em&gt;</td><td class="r">—</td><td class="r">6,20,000</td><td class="r">10,08,000</td><td class="c">Cr</td></tr>
+<tr class="total"><td class="n"></td><td class="n"></td><td class="l">Total for the year (FY 2025-26)</td><td class="r">—</td><td class="r">10,08,000</td><td class="r">10,08,000</td><td class="c">Cr</td></tr>
+</tbody></table>
+<h4>Milk Sale Income A/c</h4>
+<p><em>Income. Cr = received or earned this year. Starts every year at zero.</em></p>
+<table><thead><tr>
+<th class="n">Date</th>
+<th class="n">Entry</th>
+<th class="l">Particulars</th>
+<th class="r">Refund or correction (Dr)</th>
+<th class="r">Received or earned (Cr)</th>
+<th class="r">Balance ₹</th>
+<th class="c">Side</th>
+</tr></thead><tbody>
+<tr><td class="n">10 Apr 2025</td><td class="n">AG-010</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">5,737.25</td><td class="r">5,737.25</td><td class="c">Cr</td></tr>
+<tr><td class="n">20 Apr 2025</td><td class="n">AG-014</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">5,874.50</td><td class="r">11,611.75</td><td class="c">Cr</td></tr>
+<tr><td class="n">30 Apr 2025</td><td class="n">AG-016</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">6,011.75</td><td class="r">17,623.50</td><td class="c">Cr</td></tr>
+<tr><td class="n">10 May 2025</td><td class="n">AG-023</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">5,848</td><td class="r">23,471.50</td><td class="c">Cr</td></tr>
+<tr><td class="n">20 May 2025</td><td class="n">AG-027</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">5,985.25</td><td class="r">29,456.75</td><td class="c">Cr</td></tr>
+<tr><td class="n">31 May 2025</td><td class="n">AG-028</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">6,122.50</td><td class="r">35,579.25</td><td class="c">Cr</td></tr>
+<tr><td class="n">10 Jun 2025</td><td class="n">AG-033</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">5,159.75</td><td class="r">40,739</td><td class="c">Cr</td></tr>
+<tr><td class="n">20 Jun 2025</td><td class="n">AG-038</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">5,296</td><td class="r">46,035</td><td class="c">Cr</td></tr>
+<tr><td class="n">30 Jun 2025</td><td class="n">AG-039</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">5,433.25</td><td class="r">51,468.25</td><td class="c">Cr</td></tr>
+<tr><td class="n">10 Jul 2025</td><td class="n">AG-046</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">5,870.50</td><td class="r">57,338.75</td><td class="c">Cr</td></tr>
+<tr><td class="n">20 Jul 2025</td><td class="n">AG-051</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">6,007.75</td><td class="r">63,346.50</td><td class="c">Cr</td></tr>
+<tr><td class="n">31 Jul 2025</td><td class="n">AG-052</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">6,144</td><td class="r">69,490.50</td><td class="c">Cr</td></tr>
+<tr><td class="n">10 Aug 2025</td><td class="n">AG-059</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">6,681.25</td><td class="r">76,171.75</td><td class="c">Cr</td></tr>
+<tr><td class="n">20 Aug 2025</td><td class="n">AG-063</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">5,918.50</td><td class="r">82,090.25</td><td class="c">Cr</td></tr>
+<tr><td class="n">31 Aug 2025</td><td class="n">AG-064</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">6,055.75</td><td class="r">88,146</td><td class="c">Cr</td></tr>
+<tr><td class="n">10 Sep 2025</td><td class="n">AG-069</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">6,492</td><td class="r">94,638</td><td class="c">Cr</td></tr>
+<tr><td class="n">20 Sep 2025</td><td class="n">AG-073</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">6,629.25</td><td class="r">1,01,267.25</td><td class="c">Cr</td></tr>
+<tr><td class="n">30 Sep 2025</td><td class="n">AG-075</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">6,766.50</td><td class="r">1,08,033.75</td><td class="c">Cr</td></tr>
+<tr><td class="n">10 Oct 2025</td><td class="n">AG-081</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">7,203.75</td><td class="r">1,15,237.50</td><td class="c">Cr</td></tr>
+<tr><td class="n">20 Oct 2025</td><td class="n">AG-085</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">6,440</td><td class="r">1,21,677.50</td><td class="c">Cr</td></tr>
+<tr><td class="n">31 Oct 2025</td><td class="n">AG-086</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">6,577.25</td><td class="r">1,28,254.75</td><td class="c">Cr</td></tr>
+<tr><td class="n">10 Nov 2025</td><td class="n">AG-093</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">6,914.50</td><td class="r">1,35,169.25</td><td class="c">Cr</td></tr>
+<tr><td class="n">20 Nov 2025</td><td class="n">AG-100</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">7,051.75</td><td class="r">1,42,221</td><td class="c">Cr</td></tr>
+<tr><td class="n">30 Nov 2025</td><td class="n">AG-102</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">7,188</td><td class="r">1,49,409</td><td class="c">Cr</td></tr>
+<tr><td class="n">10 Dec 2025</td><td class="n">AG-107</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">7,625.25</td><td class="r">1,57,034.25</td><td class="c">Cr</td></tr>
+<tr><td class="n">20 Dec 2025</td><td class="n">AG-112</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">7,762.50</td><td class="r">1,64,796.75</td><td class="c">Cr</td></tr>
+<tr><td class="n">31 Dec 2025</td><td class="n">AG-113</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">6,999.75</td><td class="r">1,71,796.50</td><td class="c">Cr</td></tr>
+<tr><td class="n">10 Jan 2026</td><td class="n">AG-119</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">6,936</td><td class="r">1,78,732.50</td><td class="c">Cr</td></tr>
+<tr><td class="n">20 Jan 2026</td><td class="n">AG-123</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">7,073.25</td><td class="r">1,85,805.75</td><td class="c">Cr</td></tr>
+<tr><td class="n">31 Jan 2026</td><td class="n">AG-124</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">7,210.50</td><td class="r">1,93,016.25</td><td class="c">Cr</td></tr>
+<tr><td class="n">10 Feb 2026</td><td class="n">AG-129</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">6,847.75</td><td class="r">1,99,864</td><td class="c">Cr</td></tr>
+<tr><td class="n">20 Feb 2026</td><td class="n">AG-135</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">6,984</td><td class="r">2,06,848</td><td class="c">Cr</td></tr>
+<tr><td class="n">28 Feb 2026</td><td class="n">AG-137</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">6,221.25</td><td class="r">2,13,069.25</td><td class="c">Cr</td></tr>
+<tr><td class="n">10 Mar 2026</td><td class="n">AG-143</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">6,058.50</td><td class="r">2,19,127.75</td><td class="c">Cr</td></tr>
+<tr><td class="n">20 Mar 2026</td><td class="n">AG-147</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">6,195.75</td><td class="r">2,25,323.50</td><td class="c">Cr</td></tr>
+<tr><td class="n">31 Mar 2026</td><td class="n">AG-148</td><td class="l">By Verka Milk Society A/c<br>&lt;em&gt;Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised&lt;/em&gt;</td><td class="r">—</td><td class="r">6,332</td><td class="r">2,31,655.50</td><td class="c">Cr</td></tr>
+<tr class="total"><td class="n"></td><td class="n"></td><td class="l">Total for the year (FY 2025-26)</td><td class="r">—</td><td class="r">2,31,655.50</td><td class="r">2,31,655.50</td><td class="c">Cr</td></tr>
+</tbody></table>
+<h4>Government Support Income A/c (PM-Kisan)</h4>
+<p><em>Income. Cr = received or earned this year. Starts every year at zero.</em></p>
+<table><thead><tr>
+<th class="n">Date</th>
+<th class="n">Entry</th>
+<th class="l">Particulars</th>
+<th class="r">Refund or correction (Dr)</th>
+<th class="r">Received or earned (Cr)</th>
+<th class="r">Balance ₹</th>
+<th class="c">Side</th>
+</tr></thead><tbody>
+<tr><td class="n">02 Aug 2025</td><td class="n">AG-055</td><td class="l">By SBI Savings A/c<br>&lt;em&gt;PM-Kisan instalment ₹2,000 credited by DBT&lt;/em&gt;</td><td class="r">—</td><td class="r">2,000</td><td class="r">2,000</td><td class="c">Cr</td></tr>
+<tr><td class="n">19 Nov 2025</td><td class="n">AG-098</td><td class="l">By SBI Savings A/c<br>&lt;em&gt;PM-Kisan instalment ₹2,000 credited by DBT&lt;/em&gt;</td><td class="r">—</td><td class="r">2,000</td><td class="r">4,000</td><td class="c">Cr</td></tr>
+<tr><td class="n">24 Feb 2026</td><td class="n">AG-136</td><td class="l">By SBI Savings A/c<br>&lt;em&gt;PM-Kisan instalment ₹2,000 credited by DBT&lt;/em&gt;</td><td class="r">—</td><td class="r">2,000</td><td class="r">6,000</td><td class="c">Cr</td></tr>
+<tr class="total"><td class="n"></td><td class="n"></td><td class="l">Total for the year (FY 2025-26)</td><td class="r">—</td><td class="r">6,000</td><td class="r">6,000</td><td class="c">Cr</td></tr>
+</tbody></table>
+<h4>Seed &amp; Fertiliser Expense A/c</h4>
+<p><em>Expense. Dr = spent this year. Starts every year at zero.</em></p>
+<table><thead><tr>
+<th class="n">Date</th>
+<th class="n">Entry</th>
+<th class="l">Particulars</th>
+<th class="r">Spent (Dr)</th>
+<th class="r">Refund or correction (Cr)</th>
+<th class="r">Balance ₹</th>
+<th class="c">Side</th>
+</tr></thead><tbody>
+<tr><td class="n">15 Jun 2025</td><td class="n">AG-035</td><td class="l">To Bhatti Khad Store A/c<br>&lt;em&gt;Bhatti Khad Store — urea and DAP for basmati nursery and transplanting, on khata&lt;/em&gt;</td><td class="r">38,000</td><td class="r">—</td><td class="r">38,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">20 Jul 2025</td><td class="n">AG-050</td><td class="l">To Bhatti Khad Store A/c<br>&lt;em&gt;Bhatti Khad Store — zinc, pesticide and weedicide on khata&lt;/em&gt;</td><td class="r">22,000</td><td class="r">—</td><td class="r">60,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">05 Nov 2025</td><td class="n">AG-089</td><td class="l">To Bhatti Khad Store A/c<br>&lt;em&gt;Bhatti Khad Store — wheat seed and DAP on khata&lt;/em&gt;</td><td class="r">41,000</td><td class="r">—</td><td class="r">1,01,000</td><td class="c">Dr</td></tr>
+<tr class="total"><td class="n"></td><td class="n"></td><td class="l">Total for the year (FY 2025-26)</td><td class="r">1,01,000</td><td class="r">—</td><td class="r">1,01,000</td><td class="c">Dr</td></tr>
+</tbody></table>
+<h4>Diesel &amp; Machinery Expense A/c</h4>
+<p><em>Expense. Dr = spent this year. Starts every year at zero.</em></p>
+<table><thead><tr>
+<th class="n">Date</th>
+<th class="n">Entry</th>
+<th class="l">Particulars</th>
+<th class="r">Spent (Dr)</th>
+<th class="r">Refund or correction (Cr)</th>
+<th class="r">Balance ₹</th>
+<th class="c">Side</th>
+</tr></thead><tbody>
+<tr><td class="n">09 Apr 2025</td><td class="n">AG-009</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Diesel for tractor and tube-well, cash&lt;/em&gt;</td><td class="r">9,800</td><td class="r">—</td><td class="r">9,800</td><td class="c">Dr</td></tr>
+<tr><td class="n">09 May 2025</td><td class="n">AG-022</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Diesel for tractor and tube-well, cash&lt;/em&gt;</td><td class="r">6,200</td><td class="r">—</td><td class="r">16,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">09 Jun 2025</td><td class="n">AG-032</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Diesel for tractor and tube-well, cash&lt;/em&gt;</td><td class="r">11,500</td><td class="r">—</td><td class="r">27,500</td><td class="c">Dr</td></tr>
+<tr><td class="n">09 Jul 2025</td><td class="n">AG-044</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Diesel for tractor and tube-well, cash&lt;/em&gt;</td><td class="r">12,400</td><td class="r">—</td><td class="r">39,900</td><td class="c">Dr</td></tr>
+<tr><td class="n">09 Aug 2025</td><td class="n">AG-058</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Diesel for tractor and tube-well, cash&lt;/em&gt;</td><td class="r">8,100</td><td class="r">—</td><td class="r">48,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">09 Sep 2025</td><td class="n">AG-068</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Diesel for tractor and tube-well, cash&lt;/em&gt;</td><td class="r">7,600</td><td class="r">—</td><td class="r">55,600</td><td class="c">Dr</td></tr>
+<tr><td class="n">09 Oct 2025</td><td class="n">AG-080</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Diesel for tractor and tube-well, cash&lt;/em&gt;</td><td class="r">10,900</td><td class="r">—</td><td class="r">66,500</td><td class="c">Dr</td></tr>
+<tr><td class="n">09 Nov 2025</td><td class="n">AG-091</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Diesel for tractor and tube-well, cash&lt;/em&gt;</td><td class="r">11,800</td><td class="r">—</td><td class="r">78,300</td><td class="c">Dr</td></tr>
+<tr><td class="n">09 Dec 2025</td><td class="n">AG-106</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Diesel for tractor and tube-well, cash&lt;/em&gt;</td><td class="r">7,200</td><td class="r">—</td><td class="r">85,500</td><td class="c">Dr</td></tr>
+<tr><td class="n">09 Jan 2026</td><td class="n">AG-118</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Diesel for tractor and tube-well, cash&lt;/em&gt;</td><td class="r">6,400</td><td class="r">—</td><td class="r">91,900</td><td class="c">Dr</td></tr>
+<tr><td class="n">09 Feb 2026</td><td class="n">AG-128</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Diesel for tractor and tube-well, cash&lt;/em&gt;</td><td class="r">6,900</td><td class="r">—</td><td class="r">98,800</td><td class="c">Dr</td></tr>
+<tr><td class="n">09 Mar 2026</td><td class="n">AG-142</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Diesel for tractor and tube-well, cash&lt;/em&gt;</td><td class="r">10,200</td><td class="r">—</td><td class="r">1,09,000</td><td class="c">Dr</td></tr>
+<tr class="total"><td class="n"></td><td class="n"></td><td class="l">Total for the year (FY 2025-26)</td><td class="r">1,09,000</td><td class="r">—</td><td class="r">1,09,000</td><td class="c">Dr</td></tr>
+</tbody></table>
+<h4>Labour Expense A/c</h4>
+<p><em>Expense. Dr = spent this year. Starts every year at zero.</em></p>
+<table><thead><tr>
+<th class="n">Date</th>
+<th class="n">Entry</th>
+<th class="l">Particulars</th>
+<th class="r">Spent (Dr)</th>
+<th class="r">Refund or correction (Cr)</th>
+<th class="r">Balance ₹</th>
+<th class="c">Side</th>
+</tr></thead><tbody>
+<tr><td class="n">16 Apr 2025</td><td class="n">AG-012</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Farm labour for the month paid in cash&lt;/em&gt;</td><td class="r">14,000</td><td class="r">—</td><td class="r">14,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">16 May 2025</td><td class="n">AG-025</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Farm labour for the month paid in cash&lt;/em&gt;</td><td class="r">4,000</td><td class="r">—</td><td class="r">18,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">16 Jun 2025</td><td class="n">AG-036</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Farm labour for the month paid in cash&lt;/em&gt;</td><td class="r">22,000</td><td class="r">—</td><td class="r">40,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">16 Jul 2025</td><td class="n">AG-048</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Farm labour for the month paid in cash&lt;/em&gt;</td><td class="r">18,000</td><td class="r">—</td><td class="r">58,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">16 Aug 2025</td><td class="n">AG-061</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Farm labour for the month paid in cash&lt;/em&gt;</td><td class="r">4,000</td><td class="r">—</td><td class="r">62,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">16 Sep 2025</td><td class="n">AG-071</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Farm labour for the month paid in cash&lt;/em&gt;</td><td class="r">4,000</td><td class="r">—</td><td class="r">66,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">16 Oct 2025</td><td class="n">AG-083</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Farm labour for the month paid in cash&lt;/em&gt;</td><td class="r">16,000</td><td class="r">—</td><td class="r">82,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">16 Nov 2025</td><td class="n">AG-096</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Farm labour for the month paid in cash&lt;/em&gt;</td><td class="r">12,000</td><td class="r">—</td><td class="r">94,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">16 Dec 2025</td><td class="n">AG-110</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Farm labour for the month paid in cash&lt;/em&gt;</td><td class="r">4,000</td><td class="r">—</td><td class="r">98,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">16 Jan 2026</td><td class="n">AG-121</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Farm labour for the month paid in cash&lt;/em&gt;</td><td class="r">4,000</td><td class="r">—</td><td class="r">1,02,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">16 Feb 2026</td><td class="n">AG-132</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Farm labour for the month paid in cash&lt;/em&gt;</td><td class="r">4,000</td><td class="r">—</td><td class="r">1,06,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">16 Mar 2026</td><td class="n">AG-145</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Farm labour for the month paid in cash&lt;/em&gt;</td><td class="r">8,000</td><td class="r">—</td><td class="r">1,14,000</td><td class="c">Dr</td></tr>
+<tr class="total"><td class="n"></td><td class="n"></td><td class="l">Total for the year (FY 2025-26)</td><td class="r">1,14,000</td><td class="r">—</td><td class="r">1,14,000</td><td class="c">Dr</td></tr>
+</tbody></table>
+<h4>Machinery Repair Expense A/c</h4>
+<p><em>Expense. Dr = spent this year. Starts every year at zero.</em></p>
+<table><thead><tr>
+<th class="n">Date</th>
+<th class="n">Entry</th>
+<th class="l">Particulars</th>
+<th class="r">Spent (Dr)</th>
+<th class="r">Refund or correction (Cr)</th>
+<th class="r">Balance ₹</th>
+<th class="c">Side</th>
+</tr></thead><tbody>
+<tr><td class="n">23 Sep 2025</td><td class="n">AG-074</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;Tractor hydraulic pump repair, workshop paid by NEFT&lt;/em&gt;</td><td class="r">9,800</td><td class="r">—</td><td class="r">9,800</td><td class="c">Dr</td></tr>
+<tr><td class="n">11 Feb 2026</td><td class="n">AG-130</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Tube-well motor rewinding, cash&lt;/em&gt;</td><td class="r">6,200</td><td class="r">—</td><td class="r">16,000</td><td class="c">Dr</td></tr>
+<tr class="total"><td class="n"></td><td class="n"></td><td class="l">Total for the year (FY 2025-26)</td><td class="r">16,000</td><td class="r">—</td><td class="r">16,000</td><td class="c">Dr</td></tr>
+</tbody></table>
+<h4>Cattle Feed Expense A/c</h4>
+<p><em>Expense. Dr = spent this year. Starts every year at zero.</em></p>
+<table><thead><tr>
+<th class="n">Date</th>
+<th class="n">Entry</th>
+<th class="l">Particulars</th>
+<th class="r">Spent (Dr)</th>
+<th class="r">Refund or correction (Cr)</th>
+<th class="r">Balance ₹</th>
+<th class="c">Side</th>
+</tr></thead><tbody>
+<tr><td class="n">14 Apr 2025</td><td class="n">AG-011</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Cattle feed (khal and chokar), cash&lt;/em&gt;</td><td class="r">5,400</td><td class="r">—</td><td class="r">5,400</td><td class="c">Dr</td></tr>
+<tr><td class="n">14 May 2025</td><td class="n">AG-024</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Cattle feed (khal and chokar), cash&lt;/em&gt;</td><td class="r">5,400</td><td class="r">—</td><td class="r">10,800</td><td class="c">Dr</td></tr>
+<tr><td class="n">14 Jun 2025</td><td class="n">AG-034</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Cattle feed (khal and chokar), cash&lt;/em&gt;</td><td class="r">5,400</td><td class="r">—</td><td class="r">16,200</td><td class="c">Dr</td></tr>
+<tr><td class="n">14 Jul 2025</td><td class="n">AG-047</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Cattle feed (khal and chokar), cash&lt;/em&gt;</td><td class="r">5,400</td><td class="r">—</td><td class="r">21,600</td><td class="c">Dr</td></tr>
+<tr><td class="n">14 Aug 2025</td><td class="n">AG-060</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Cattle feed (khal and chokar), cash&lt;/em&gt;</td><td class="r">5,400</td><td class="r">—</td><td class="r">27,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">14 Sep 2025</td><td class="n">AG-070</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Cattle feed (khal and chokar), cash&lt;/em&gt;</td><td class="r">5,400</td><td class="r">—</td><td class="r">32,400</td><td class="c">Dr</td></tr>
+<tr><td class="n">14 Oct 2025</td><td class="n">AG-082</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Cattle feed (khal and chokar), cash&lt;/em&gt;</td><td class="r">5,400</td><td class="r">—</td><td class="r">37,800</td><td class="c">Dr</td></tr>
+<tr><td class="n">14 Nov 2025</td><td class="n">AG-095</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Cattle feed (khal and chokar), cash&lt;/em&gt;</td><td class="r">5,400</td><td class="r">—</td><td class="r">43,200</td><td class="c">Dr</td></tr>
+<tr><td class="n">14 Dec 2025</td><td class="n">AG-108</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Cattle feed (khal and chokar), cash&lt;/em&gt;</td><td class="r">5,400</td><td class="r">—</td><td class="r">48,600</td><td class="c">Dr</td></tr>
+<tr><td class="n">14 Jan 2026</td><td class="n">AG-120</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Cattle feed (khal and chokar), cash&lt;/em&gt;</td><td class="r">5,400</td><td class="r">—</td><td class="r">54,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">14 Feb 2026</td><td class="n">AG-131</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Cattle feed (khal and chokar), cash&lt;/em&gt;</td><td class="r">5,400</td><td class="r">—</td><td class="r">59,400</td><td class="c">Dr</td></tr>
+<tr><td class="n">14 Mar 2026</td><td class="n">AG-144</td><td class="l">To Farm Cash A/c<br>&lt;em&gt;Cattle feed (khal and chokar), cash&lt;/em&gt;</td><td class="r">5,400</td><td class="r">—</td><td class="r">64,800</td><td class="c">Dr</td></tr>
+<tr class="total"><td class="n"></td><td class="n"></td><td class="l">Total for the year (FY 2025-26)</td><td class="r">64,800</td><td class="r">—</td><td class="r">64,800</td><td class="c">Dr</td></tr>
+</tbody></table>
+<h4>Interest on KCC Expense A/c</h4>
+<p><em>Expense. Dr = spent this year. Starts every year at zero.</em></p>
+<table><thead><tr>
+<th class="n">Date</th>
+<th class="n">Entry</th>
+<th class="l">Particulars</th>
+<th class="r">Spent (Dr)</th>
+<th class="r">Refund or correction (Cr)</th>
+<th class="r">Balance ₹</th>
+<th class="c">Side</th>
+</tr></thead><tbody>
+<tr><td class="n">30 Jun 2025</td><td class="n">AG-040</td><td class="l">To SBI Kisan Credit Card A/c<br>&lt;em&gt;Interest debited by SBI on the Kisan Credit Card account (Money out from the loan account)&lt;/em&gt;</td><td class="r">1,604.38</td><td class="r">—</td><td class="r">1,604.38</td><td class="c">Dr</td></tr>
+<tr><td class="n">30 Sep 2025</td><td class="n">AG-076</td><td class="l">To SBI Kisan Credit Card A/c<br>&lt;em&gt;Interest debited by SBI on the Kisan Credit Card account (Money out from the loan account)&lt;/em&gt;</td><td class="r">2,853.70</td><td class="r">—</td><td class="r">4,458.08</td><td class="c">Dr</td></tr>
+<tr><td class="n">31 Dec 2025</td><td class="n">AG-114</td><td class="l">To SBI Kisan Credit Card A/c<br>&lt;em&gt;Interest debited by SBI on the Kisan Credit Card account (Money out from the loan account)&lt;/em&gt;</td><td class="r">3,172.60</td><td class="r">—</td><td class="r">7,630.68</td><td class="c">Dr</td></tr>
+<tr><td class="n">31 Mar 2026</td><td class="n">AG-149</td><td class="l">To SBI Kisan Credit Card A/c<br>&lt;em&gt;Interest debited by SBI on the Kisan Credit Card account (Money out from the loan account)&lt;/em&gt;</td><td class="r">912.33</td><td class="r">—</td><td class="r">8,543.01</td><td class="c">Dr</td></tr>
+<tr class="total"><td class="n"></td><td class="n"></td><td class="l">Total for the year (FY 2025-26)</td><td class="r">8,543.01</td><td class="r">—</td><td class="r">8,543.01</td><td class="c">Dr</td></tr>
+</tbody></table>
+<h4>Arhtiya Charges Expense A/c</h4>
+<p><em>Expense. Dr = spent this year. Starts every year at zero.</em></p>
+<table><thead><tr>
+<th class="n">Date</th>
+<th class="n">Entry</th>
+<th class="l">Particulars</th>
+<th class="r">Spent (Dr)</th>
+<th class="r">Refund or correction (Cr)</th>
+<th class="r">Balance ₹</th>
+<th class="c">Side</th>
+</tr></thead><tbody>
+<tr><td class="n">12 Nov 2025</td><td class="n">AG-094</td><td class="l">To Garg &amp; Co. (arhtiya) A/c<br>&lt;em&gt;Garg &amp; Co. — commission and mandi charges deducted (2.5%)&lt;/em&gt;</td><td class="r">15,500</td><td class="r">—</td><td class="r">15,500</td><td class="c">Dr</td></tr>
+<tr class="total"><td class="n"></td><td class="n"></td><td class="l">Total for the year (FY 2025-26)</td><td class="r">15,500</td><td class="r">—</td><td class="r">15,500</td><td class="c">Dr</td></tr>
+</tbody></table>
+<h4>Tube-well Electricity Expense A/c</h4>
+<p><em>Expense. Dr = spent this year. Starts every year at zero.</em></p>
+<table><thead><tr>
+<th class="n">Date</th>
+<th class="n">Entry</th>
+<th class="l">Particulars</th>
+<th class="r">Spent (Dr)</th>
+<th class="r">Refund or correction (Cr)</th>
+<th class="r">Balance ₹</th>
+<th class="c">Side</th>
+</tr></thead><tbody>
+<tr><td class="n">19 Apr 2025</td><td class="n">AG-013</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;Tube-well electricity bill by net banking&lt;/em&gt;</td><td class="r">1,900</td><td class="r">—</td><td class="r">1,900</td><td class="c">Dr</td></tr>
+<tr><td class="n">19 May 2025</td><td class="n">AG-026</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;Tube-well electricity bill by net banking&lt;/em&gt;</td><td class="r">2,400</td><td class="r">—</td><td class="r">4,300</td><td class="c">Dr</td></tr>
+<tr><td class="n">19 Jun 2025</td><td class="n">AG-037</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;Tube-well electricity bill by net banking&lt;/em&gt;</td><td class="r">2,900</td><td class="r">—</td><td class="r">7,200</td><td class="c">Dr</td></tr>
+<tr><td class="n">19 Jul 2025</td><td class="n">AG-049</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;Tube-well electricity bill by net banking&lt;/em&gt;</td><td class="r">2,800</td><td class="r">—</td><td class="r">10,000</td><td class="c">Dr</td></tr>
+<tr><td class="n">19 Aug 2025</td><td class="n">AG-062</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;Tube-well electricity bill by net banking&lt;/em&gt;</td><td class="r">2,600</td><td class="r">—</td><td class="r">12,600</td><td class="c">Dr</td></tr>
+<tr><td class="n">19 Sep 2025</td><td class="n">AG-072</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;Tube-well electricity bill by net banking&lt;/em&gt;</td><td class="r">2,300</td><td class="r">—</td><td class="r">14,900</td><td class="c">Dr</td></tr>
+<tr><td class="n">19 Oct 2025</td><td class="n">AG-084</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;Tube-well electricity bill by net banking&lt;/em&gt;</td><td class="r">1,800</td><td class="r">—</td><td class="r">16,700</td><td class="c">Dr</td></tr>
+<tr><td class="n">19 Nov 2025</td><td class="n">AG-099</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;Tube-well electricity bill by net banking&lt;/em&gt;</td><td class="r">1,500</td><td class="r">—</td><td class="r">18,200</td><td class="c">Dr</td></tr>
+<tr><td class="n">19 Dec 2025</td><td class="n">AG-111</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;Tube-well electricity bill by net banking&lt;/em&gt;</td><td class="r">1,400</td><td class="r">—</td><td class="r">19,600</td><td class="c">Dr</td></tr>
+<tr><td class="n">19 Jan 2026</td><td class="n">AG-122</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;Tube-well electricity bill by net banking&lt;/em&gt;</td><td class="r">1,500</td><td class="r">—</td><td class="r">21,100</td><td class="c">Dr</td></tr>
+<tr><td class="n">19 Feb 2026</td><td class="n">AG-134</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;Tube-well electricity bill by net banking&lt;/em&gt;</td><td class="r">1,400</td><td class="r">—</td><td class="r">22,500</td><td class="c">Dr</td></tr>
+<tr><td class="n">19 Mar 2026</td><td class="n">AG-146</td><td class="l">To SBI Savings A/c<br>&lt;em&gt;Tube-well electricity bill by net banking&lt;/em&gt;</td><td class="r">1,700</td><td class="r">—</td><td class="r">24,200</td><td class="c">Dr</td></tr>
+<tr class="total"><td class="n"></td><td class="n"></td><td class="l">Total for the year (FY 2025-26)</td><td class="r">24,200</td><td class="r">—</td><td class="r">24,200</td><td class="c">Dr</td></tr>
+</tbody></table>
+<h3>3. Day book — every entry in date order</h3>
+<table><thead><tr>
+<th class="n">Date</th>
+<th class="n">Entry</th>
+<th class="l">Type</th>
+<th class="l">Details</th>
+<th class="l">Where it went (Dr)</th>
+<th class="l">Where it came from (Cr)</th>
+<th class="r">Amount ₹</th>
+<th class="l">Entered by</th>
+<th class="l">Notes</th>
+</tr></thead><tbody>
+<tr><td class="n">01 Apr 2025</td><td class="n">AG-001</td><td class="l">Correction / adjustment</td><td class="l">Opening balance of Farm Cash A/c as on 01 Apr 2025 — 9,000 Dr (set against Opening Balance / Capital A/c)</td><td class="l">Farm Cash A/c</td><td class="l">Opening Balance / Capital A/c</td><td class="r">9,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">01 Apr 2025</td><td class="n">AG-002</td><td class="l">Correction / adjustment</td><td class="l">Opening balance of SBI Savings A/c as on 01 Apr 2025 — 2,60,000 Dr (set against Opening Balance / Capital A/c)</td><td class="l">SBI Savings A/c</td><td class="l">Opening Balance / Capital A/c</td><td class="r">2,60,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">01 Apr 2025</td><td class="n">AG-003</td><td class="l">Correction / adjustment</td><td class="l">Opening balance of SBI Kisan Credit Card A/c as on 01 Apr 2025 — 2,40,000 Cr (set against Opening Balance / Capital A/c)</td><td class="l">Opening Balance / Capital A/c</td><td class="l">SBI Kisan Credit Card A/c</td><td class="r">2,40,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">01 Apr 2025</td><td class="n">AG-004</td><td class="l">Correction / adjustment</td><td class="l">Opening balance of Bhatti Khad Store A/c as on 01 Apr 2025 — 18,000 Cr (set against Opening Balance / Capital A/c)</td><td class="l">Opening Balance / Capital A/c</td><td class="l">Bhatti Khad Store A/c</td><td class="r">18,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">01 Apr 2025</td><td class="n">AG-005</td><td class="l">Correction / adjustment</td><td class="l">Opening balance of Verka Milk Society A/c as on 01 Apr 2025 — 5,950 Dr (set against Opening Balance / Capital A/c)</td><td class="l">Verka Milk Society A/c</td><td class="l">Opening Balance / Capital A/c</td><td class="r">5,950</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">02 Apr 2025</td><td class="n">AG-006</td><td class="l">Transfer</td><td class="l">Cash drawn from SBI for the month</td><td class="l">Farm Cash A/c</td><td class="l">SBI Savings A/c</td><td class="r">42,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">04 Apr 2025</td><td class="n">AG-007</td><td class="l">Money out</td><td class="l">Household drawing for the month in cash (not a farm expense)</td><td class="l">Drawings A/c</td><td class="l">Farm Cash A/c</td><td class="r">12,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">07 Apr 2025</td><td class="n">AG-008</td><td class="l">Money in</td><td class="l">Verka Milk Society paid last month's three milk cycles by NEFT</td><td class="l">SBI Savings A/c</td><td class="l">Verka Milk Society A/c</td><td class="r">5,950</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">09 Apr 2025</td><td class="n">AG-009</td><td class="l">Money out</td><td class="l">Diesel for tractor and tube-well, cash</td><td class="l">Diesel &amp; Machinery Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">9,800</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">10 Apr 2025</td><td class="n">AG-010</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">5,737.25</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">14 Apr 2025</td><td class="n">AG-011</td><td class="l">Money out</td><td class="l">Cattle feed (khal and chokar), cash</td><td class="l">Cattle Feed Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">5,400</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">16 Apr 2025</td><td class="n">AG-012</td><td class="l">Money out</td><td class="l">Farm labour for the month paid in cash</td><td class="l">Labour Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">14,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">19 Apr 2025</td><td class="n">AG-013</td><td class="l">Money out</td><td class="l">Tube-well electricity bill by net banking</td><td class="l">Tube-well Electricity Expense A/c</td><td class="l">SBI Savings A/c</td><td class="r">1,900</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">20 Apr 2025</td><td class="n">AG-014</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">5,874.50</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">25 Apr 2025</td><td class="n">AG-015</td><td class="l">Money in</td><td class="l">Wheat 160 qtl procured at MSP ₹2,425 — payment credited direct to the SBI account by the procurement agency</td><td class="l">SBI Savings A/c</td><td class="l">Crop Sale Income A/c</td><td class="r">3,88,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">30 Apr 2025</td><td class="n">AG-016</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">6,011.75</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">02 May 2025</td><td class="n">AG-017</td><td class="l">Transfer</td><td class="l">Cash drawn from SBI for the month</td><td class="l">Farm Cash A/c</td><td class="l">SBI Savings A/c</td><td class="r">28,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">04 May 2025</td><td class="n">AG-018</td><td class="l">Money out</td><td class="l">Household drawing for the month in cash (not a farm expense)</td><td class="l">Drawings A/c</td><td class="l">Farm Cash A/c</td><td class="r">12,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">05 May 2025</td><td class="n">AG-019</td><td class="l">Transfer</td><td class="l">KCC repaid in full after the wheat payment (Transfer: Dr loan account · Cr savings)</td><td class="l">SBI Kisan Credit Card A/c</td><td class="l">SBI Savings A/c</td><td class="r">2,40,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">07 May 2025</td><td class="n">AG-020</td><td class="l">Money in</td><td class="l">Verka Milk Society paid last month's three milk cycles by NEFT</td><td class="l">SBI Savings A/c</td><td class="l">Verka Milk Society A/c</td><td class="r">17,623.50</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">08 May 2025</td><td class="n">AG-021</td><td class="l">Money out</td><td class="l">Paid Bhatti Khad Store the rabi khata by UPI</td><td class="l">Bhatti Khad Store A/c</td><td class="l">SBI Savings A/c</td><td class="r">18,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">09 May 2025</td><td class="n">AG-022</td><td class="l">Money out</td><td class="l">Diesel for tractor and tube-well, cash</td><td class="l">Diesel &amp; Machinery Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">6,200</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">10 May 2025</td><td class="n">AG-023</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">5,848</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">14 May 2025</td><td class="n">AG-024</td><td class="l">Money out</td><td class="l">Cattle feed (khal and chokar), cash</td><td class="l">Cattle Feed Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">5,400</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">16 May 2025</td><td class="n">AG-025</td><td class="l">Money out</td><td class="l">Farm labour for the month paid in cash</td><td class="l">Labour Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">4,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">19 May 2025</td><td class="n">AG-026</td><td class="l">Money out</td><td class="l">Tube-well electricity bill by net banking</td><td class="l">Tube-well Electricity Expense A/c</td><td class="l">SBI Savings A/c</td><td class="r">2,400</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">20 May 2025</td><td class="n">AG-027</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">5,985.25</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">31 May 2025</td><td class="n">AG-028</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">6,122.50</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">02 Jun 2025</td><td class="n">AG-029</td><td class="l">Transfer</td><td class="l">Cash drawn from SBI for the month</td><td class="l">Farm Cash A/c</td><td class="l">SBI Savings A/c</td><td class="r">52,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">04 Jun 2025</td><td class="n">AG-030</td><td class="l">Money out</td><td class="l">Household drawing for the month in cash (not a farm expense)</td><td class="l">Drawings A/c</td><td class="l">Farm Cash A/c</td><td class="r">12,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">07 Jun 2025</td><td class="n">AG-031</td><td class="l">Money in</td><td class="l">Verka Milk Society paid last month's three milk cycles by NEFT</td><td class="l">SBI Savings A/c</td><td class="l">Verka Milk Society A/c</td><td class="r">17,955.75</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">09 Jun 2025</td><td class="n">AG-032</td><td class="l">Money out</td><td class="l">Diesel for tractor and tube-well, cash</td><td class="l">Diesel &amp; Machinery Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">11,500</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">10 Jun 2025</td><td class="n">AG-033</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">5,159.75</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">14 Jun 2025</td><td class="n">AG-034</td><td class="l">Money out</td><td class="l">Cattle feed (khal and chokar), cash</td><td class="l">Cattle Feed Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">5,400</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">15 Jun 2025</td><td class="n">AG-035</td><td class="l">Took on credit</td><td class="l">Bhatti Khad Store — urea and DAP for basmati nursery and transplanting, on khata</td><td class="l">Seed &amp; Fertiliser Expense A/c</td><td class="l">Bhatti Khad Store A/c</td><td class="r">38,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">16 Jun 2025</td><td class="n">AG-036</td><td class="l">Money out</td><td class="l">Farm labour for the month paid in cash</td><td class="l">Labour Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">22,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">19 Jun 2025</td><td class="n">AG-037</td><td class="l">Money out</td><td class="l">Tube-well electricity bill by net banking</td><td class="l">Tube-well Electricity Expense A/c</td><td class="l">SBI Savings A/c</td><td class="r">2,900</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">20 Jun 2025</td><td class="n">AG-038</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">5,296</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">30 Jun 2025</td><td class="n">AG-039</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">5,433.25</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">30 Jun 2025</td><td class="n">AG-040</td><td class="l">Money out</td><td class="l">Interest debited by SBI on the Kisan Credit Card account (Money out from the loan account)</td><td class="l">Interest on KCC Expense A/c</td><td class="l">SBI Kisan Credit Card A/c</td><td class="r">1,604.38</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">02 Jul 2025</td><td class="n">AG-041</td><td class="l">Transfer</td><td class="l">Cash drawn from SBI for the month</td><td class="l">Farm Cash A/c</td><td class="l">SBI Savings A/c</td><td class="r">48,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">04 Jul 2025</td><td class="n">AG-042</td><td class="l">Money out</td><td class="l">Household drawing for the month in cash (not a farm expense)</td><td class="l">Drawings A/c</td><td class="l">Farm Cash A/c</td><td class="r">12,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">07 Jul 2025</td><td class="n">AG-043</td><td class="l">Money in</td><td class="l">Verka Milk Society paid last month's three milk cycles by NEFT</td><td class="l">SBI Savings A/c</td><td class="l">Verka Milk Society A/c</td><td class="r">15,889</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">09 Jul 2025</td><td class="n">AG-044</td><td class="l">Money out</td><td class="l">Diesel for tractor and tube-well, cash</td><td class="l">Diesel &amp; Machinery Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">12,400</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">10 Jul 2025</td><td class="n">AG-045</td><td class="l">Transfer</td><td class="l">KCC drawn for transplanting and inputs (Transfer: Dr savings · Cr loan account)</td><td class="l">SBI Savings A/c</td><td class="l">SBI Kisan Credit Card A/c</td><td class="r">1,80,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">10 Jul 2025</td><td class="n">AG-046</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">5,870.50</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">14 Jul 2025</td><td class="n">AG-047</td><td class="l">Money out</td><td class="l">Cattle feed (khal and chokar), cash</td><td class="l">Cattle Feed Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">5,400</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">16 Jul 2025</td><td class="n">AG-048</td><td class="l">Money out</td><td class="l">Farm labour for the month paid in cash</td><td class="l">Labour Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">18,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">19 Jul 2025</td><td class="n">AG-049</td><td class="l">Money out</td><td class="l">Tube-well electricity bill by net banking</td><td class="l">Tube-well Electricity Expense A/c</td><td class="l">SBI Savings A/c</td><td class="r">2,800</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">20 Jul 2025</td><td class="n">AG-050</td><td class="l">Took on credit</td><td class="l">Bhatti Khad Store — zinc, pesticide and weedicide on khata</td><td class="l">Seed &amp; Fertiliser Expense A/c</td><td class="l">Bhatti Khad Store A/c</td><td class="r">22,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">20 Jul 2025</td><td class="n">AG-051</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">6,007.75</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">31 Jul 2025</td><td class="n">AG-052</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">6,144</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">31 Jul 2025</td><td class="n">AG-053</td><td class="l">Correction / adjustment</td><td class="l">Cash count of Farm Cash A/c: counted ₹11,200 against book ₹11,500 — ₹300 short posted to Adjustments A/c</td><td class="l">Adjustments A/c</td><td class="l">Farm Cash A/c</td><td class="r">300</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">02 Aug 2025</td><td class="n">AG-054</td><td class="l">Transfer</td><td class="l">Cash drawn from SBI for the month</td><td class="l">Farm Cash A/c</td><td class="l">SBI Savings A/c</td><td class="r">30,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">02 Aug 2025</td><td class="n">AG-055</td><td class="l">Money in</td><td class="l">PM-Kisan instalment ₹2,000 credited by DBT</td><td class="l">SBI Savings A/c</td><td class="l">Government Support Income A/c (PM-Kisan)</td><td class="r">2,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">04 Aug 2025</td><td class="n">AG-056</td><td class="l">Money out</td><td class="l">Household drawing for the month in cash (not a farm expense)</td><td class="l">Drawings A/c</td><td class="l">Farm Cash A/c</td><td class="r">12,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">07 Aug 2025</td><td class="n">AG-057</td><td class="l">Money in</td><td class="l">Verka Milk Society paid last month's three milk cycles by NEFT</td><td class="l">SBI Savings A/c</td><td class="l">Verka Milk Society A/c</td><td class="r">18,022.25</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">09 Aug 2025</td><td class="n">AG-058</td><td class="l">Money out</td><td class="l">Diesel for tractor and tube-well, cash</td><td class="l">Diesel &amp; Machinery Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">8,100</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">10 Aug 2025</td><td class="n">AG-059</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">6,681.25</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">14 Aug 2025</td><td class="n">AG-060</td><td class="l">Money out</td><td class="l">Cattle feed (khal and chokar), cash</td><td class="l">Cattle Feed Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">5,400</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">16 Aug 2025</td><td class="n">AG-061</td><td class="l">Money out</td><td class="l">Farm labour for the month paid in cash</td><td class="l">Labour Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">4,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">19 Aug 2025</td><td class="n">AG-062</td><td class="l">Money out</td><td class="l">Tube-well electricity bill by net banking</td><td class="l">Tube-well Electricity Expense A/c</td><td class="l">SBI Savings A/c</td><td class="r">2,600</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">20 Aug 2025</td><td class="n">AG-063</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">5,918.50</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">31 Aug 2025</td><td class="n">AG-064</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">6,055.75</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">02 Sep 2025</td><td class="n">AG-065</td><td class="l">Transfer</td><td class="l">Cash drawn from SBI for the month</td><td class="l">Farm Cash A/c</td><td class="l">SBI Savings A/c</td><td class="r">30,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">04 Sep 2025</td><td class="n">AG-066</td><td class="l">Money out</td><td class="l">Household drawing for the month in cash (not a farm expense)</td><td class="l">Drawings A/c</td><td class="l">Farm Cash A/c</td><td class="r">12,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">07 Sep 2025</td><td class="n">AG-067</td><td class="l">Money in</td><td class="l">Verka Milk Society paid last month's three milk cycles by NEFT</td><td class="l">SBI Savings A/c</td><td class="l">Verka Milk Society A/c</td><td class="r">18,655.50</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">09 Sep 2025</td><td class="n">AG-068</td><td class="l">Money out</td><td class="l">Diesel for tractor and tube-well, cash</td><td class="l">Diesel &amp; Machinery Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">7,600</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">10 Sep 2025</td><td class="n">AG-069</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">6,492</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">14 Sep 2025</td><td class="n">AG-070</td><td class="l">Money out</td><td class="l">Cattle feed (khal and chokar), cash</td><td class="l">Cattle Feed Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">5,400</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">16 Sep 2025</td><td class="n">AG-071</td><td class="l">Money out</td><td class="l">Farm labour for the month paid in cash</td><td class="l">Labour Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">4,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">19 Sep 2025</td><td class="n">AG-072</td><td class="l">Money out</td><td class="l">Tube-well electricity bill by net banking</td><td class="l">Tube-well Electricity Expense A/c</td><td class="l">SBI Savings A/c</td><td class="r">2,300</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">20 Sep 2025</td><td class="n">AG-073</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">6,629.25</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">23 Sep 2025</td><td class="n">AG-074</td><td class="l">Money out</td><td class="l">Tractor hydraulic pump repair, workshop paid by NEFT</td><td class="l">Machinery Repair Expense A/c</td><td class="l">SBI Savings A/c</td><td class="r">9,800</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">30 Sep 2025</td><td class="n">AG-075</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">6,766.50</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">30 Sep 2025</td><td class="n">AG-076</td><td class="l">Money out</td><td class="l">Interest debited by SBI on the Kisan Credit Card account (Money out from the loan account)</td><td class="l">Interest on KCC Expense A/c</td><td class="l">SBI Kisan Credit Card A/c</td><td class="r">2,853.70</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">02 Oct 2025</td><td class="n">AG-077</td><td class="l">Transfer</td><td class="l">Cash drawn from SBI for the month</td><td class="l">Farm Cash A/c</td><td class="l">SBI Savings A/c</td><td class="r">45,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">04 Oct 2025</td><td class="n">AG-078</td><td class="l">Money out</td><td class="l">Household drawing for the month in cash (not a farm expense)</td><td class="l">Drawings A/c</td><td class="l">Farm Cash A/c</td><td class="r">12,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">07 Oct 2025</td><td class="n">AG-079</td><td class="l">Money in</td><td class="l">Verka Milk Society paid last month's three milk cycles by NEFT</td><td class="l">SBI Savings A/c</td><td class="l">Verka Milk Society A/c</td><td class="r">19,887.75</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">09 Oct 2025</td><td class="n">AG-080</td><td class="l">Money out</td><td class="l">Diesel for tractor and tube-well, cash</td><td class="l">Diesel &amp; Machinery Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">10,900</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">10 Oct 2025</td><td class="n">AG-081</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">7,203.75</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">14 Oct 2025</td><td class="n">AG-082</td><td class="l">Money out</td><td class="l">Cattle feed (khal and chokar), cash</td><td class="l">Cattle Feed Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">5,400</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">16 Oct 2025</td><td class="n">AG-083</td><td class="l">Money out</td><td class="l">Farm labour for the month paid in cash</td><td class="l">Labour Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">16,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">19 Oct 2025</td><td class="n">AG-084</td><td class="l">Money out</td><td class="l">Tube-well electricity bill by net banking</td><td class="l">Tube-well Electricity Expense A/c</td><td class="l">SBI Savings A/c</td><td class="r">1,800</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">20 Oct 2025</td><td class="n">AG-085</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">6,440</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">31 Oct 2025</td><td class="n">AG-086</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">6,577.25</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">02 Nov 2025</td><td class="n">AG-087</td><td class="l">Transfer</td><td class="l">Cash drawn from SBI for the month</td><td class="l">Farm Cash A/c</td><td class="l">SBI Savings A/c</td><td class="r">42,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">04 Nov 2025</td><td class="n">AG-088</td><td class="l">Money out</td><td class="l">Household drawing for the month in cash (not a farm expense)</td><td class="l">Drawings A/c</td><td class="l">Farm Cash A/c</td><td class="r">12,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">05 Nov 2025</td><td class="n">AG-089</td><td class="l">Took on credit</td><td class="l">Bhatti Khad Store — wheat seed and DAP on khata</td><td class="l">Seed &amp; Fertiliser Expense A/c</td><td class="l">Bhatti Khad Store A/c</td><td class="r">41,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">07 Nov 2025</td><td class="n">AG-090</td><td class="l">Money in</td><td class="l">Verka Milk Society paid last month's three milk cycles by NEFT</td><td class="l">SBI Savings A/c</td><td class="l">Verka Milk Society A/c</td><td class="r">20,221</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">09 Nov 2025</td><td class="n">AG-091</td><td class="l">Money out</td><td class="l">Diesel for tractor and tube-well, cash</td><td class="l">Diesel &amp; Machinery Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">11,800</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">10 Nov 2025</td><td class="n">AG-092</td><td class="l">Gave on credit</td><td class="l">Basmati 155 qtl sold through Garg &amp; Co. at ₹4,000 — gross sale on the arhtiya's khata</td><td class="l">Garg &amp; Co. (arhtiya) A/c</td><td class="l">Crop Sale Income A/c</td><td class="r">6,20,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">10 Nov 2025</td><td class="n">AG-093</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">6,914.50</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">12 Nov 2025</td><td class="n">AG-094</td><td class="l">Took on credit</td><td class="l">Garg &amp; Co. — commission and mandi charges deducted (2.5%)</td><td class="l">Arhtiya Charges Expense A/c</td><td class="l">Garg &amp; Co. (arhtiya) A/c</td><td class="r">15,500</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">14 Nov 2025</td><td class="n">AG-095</td><td class="l">Money out</td><td class="l">Cattle feed (khal and chokar), cash</td><td class="l">Cattle Feed Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">5,400</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">16 Nov 2025</td><td class="n">AG-096</td><td class="l">Money out</td><td class="l">Farm labour for the month paid in cash</td><td class="l">Labour Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">12,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">18 Nov 2025</td><td class="n">AG-097</td><td class="l">Money in</td><td class="l">Garg &amp; Co. paid the net basmati proceeds by RTGS — khata settled</td><td class="l">SBI Savings A/c</td><td class="l">Garg &amp; Co. (arhtiya) A/c</td><td class="r">6,04,500</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">19 Nov 2025</td><td class="n">AG-098</td><td class="l">Money in</td><td class="l">PM-Kisan instalment ₹2,000 credited by DBT</td><td class="l">SBI Savings A/c</td><td class="l">Government Support Income A/c (PM-Kisan)</td><td class="r">2,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">19 Nov 2025</td><td class="n">AG-099</td><td class="l">Money out</td><td class="l">Tube-well electricity bill by net banking</td><td class="l">Tube-well Electricity Expense A/c</td><td class="l">SBI Savings A/c</td><td class="r">1,500</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">20 Nov 2025</td><td class="n">AG-100</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">7,051.75</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">28 Nov 2025</td><td class="n">AG-101</td><td class="l">Money out</td><td class="l">Paid Bhatti Khad Store the kharif khata by NEFT</td><td class="l">Bhatti Khad Store A/c</td><td class="l">SBI Savings A/c</td><td class="r">60,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">30 Nov 2025</td><td class="n">AG-102</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">7,188</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">02 Dec 2025</td><td class="n">AG-103</td><td class="l">Transfer</td><td class="l">Cash drawn from SBI for the month</td><td class="l">Farm Cash A/c</td><td class="l">SBI Savings A/c</td><td class="r">29,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">04 Dec 2025</td><td class="n">AG-104</td><td class="l">Money out</td><td class="l">Household drawing for the month in cash (not a farm expense)</td><td class="l">Drawings A/c</td><td class="l">Farm Cash A/c</td><td class="r">12,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">07 Dec 2025</td><td class="n">AG-105</td><td class="l">Money in</td><td class="l">Verka Milk Society paid last month's three milk cycles by NEFT</td><td class="l">SBI Savings A/c</td><td class="l">Verka Milk Society A/c</td><td class="r">21,154.25</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">09 Dec 2025</td><td class="n">AG-106</td><td class="l">Money out</td><td class="l">Diesel for tractor and tube-well, cash</td><td class="l">Diesel &amp; Machinery Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">7,200</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">10 Dec 2025</td><td class="n">AG-107</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">7,625.25</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">14 Dec 2025</td><td class="n">AG-108</td><td class="l">Money out</td><td class="l">Cattle feed (khal and chokar), cash</td><td class="l">Cattle Feed Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">5,400</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">15 Dec 2025</td><td class="n">AG-109</td><td class="l">Transfer</td><td class="l">KCC repaid after the basmati payment</td><td class="l">SBI Kisan Credit Card A/c</td><td class="l">SBI Savings A/c</td><td class="r">1,80,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">16 Dec 2025</td><td class="n">AG-110</td><td class="l">Money out</td><td class="l">Farm labour for the month paid in cash</td><td class="l">Labour Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">4,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">19 Dec 2025</td><td class="n">AG-111</td><td class="l">Money out</td><td class="l">Tube-well electricity bill by net banking</td><td class="l">Tube-well Electricity Expense A/c</td><td class="l">SBI Savings A/c</td><td class="r">1,400</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">20 Dec 2025</td><td class="n">AG-112</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">7,762.50</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">31 Dec 2025</td><td class="n">AG-113</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">6,999.75</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">31 Dec 2025</td><td class="n">AG-114</td><td class="l">Money out</td><td class="l">Interest debited by SBI on the Kisan Credit Card account (Money out from the loan account)</td><td class="l">Interest on KCC Expense A/c</td><td class="l">SBI Kisan Credit Card A/c</td><td class="r">3,172.60</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">02 Jan 2026</td><td class="n">AG-115</td><td class="l">Transfer</td><td class="l">Cash drawn from SBI for the month</td><td class="l">Farm Cash A/c</td><td class="l">SBI Savings A/c</td><td class="r">28,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">04 Jan 2026</td><td class="n">AG-116</td><td class="l">Money out</td><td class="l">Household drawing for the month in cash (not a farm expense)</td><td class="l">Drawings A/c</td><td class="l">Farm Cash A/c</td><td class="r">12,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">07 Jan 2026</td><td class="n">AG-117</td><td class="l">Money in</td><td class="l">Verka Milk Society paid last month's three milk cycles by NEFT</td><td class="l">SBI Savings A/c</td><td class="l">Verka Milk Society A/c</td><td class="r">22,387.50</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">09 Jan 2026</td><td class="n">AG-118</td><td class="l">Money out</td><td class="l">Diesel for tractor and tube-well, cash</td><td class="l">Diesel &amp; Machinery Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">6,400</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">10 Jan 2026</td><td class="n">AG-119</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">6,936</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">14 Jan 2026</td><td class="n">AG-120</td><td class="l">Money out</td><td class="l">Cattle feed (khal and chokar), cash</td><td class="l">Cattle Feed Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">5,400</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">16 Jan 2026</td><td class="n">AG-121</td><td class="l">Money out</td><td class="l">Farm labour for the month paid in cash</td><td class="l">Labour Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">4,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">19 Jan 2026</td><td class="n">AG-122</td><td class="l">Money out</td><td class="l">Tube-well electricity bill by net banking</td><td class="l">Tube-well Electricity Expense A/c</td><td class="l">SBI Savings A/c</td><td class="r">1,500</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">20 Jan 2026</td><td class="n">AG-123</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">7,073.25</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">31 Jan 2026</td><td class="n">AG-124</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">7,210.50</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">02 Feb 2026</td><td class="n">AG-125</td><td class="l">Transfer</td><td class="l">Cash drawn from SBI for the month</td><td class="l">Farm Cash A/c</td><td class="l">SBI Savings A/c</td><td class="r">35,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">04 Feb 2026</td><td class="n">AG-126</td><td class="l">Money out</td><td class="l">Household drawing for the month in cash (not a farm expense)</td><td class="l">Drawings A/c</td><td class="l">Farm Cash A/c</td><td class="r">12,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">07 Feb 2026</td><td class="n">AG-127</td><td class="l">Money in</td><td class="l">Verka Milk Society paid last month's three milk cycles by NEFT</td><td class="l">SBI Savings A/c</td><td class="l">Verka Milk Society A/c</td><td class="r">21,219.75</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">09 Feb 2026</td><td class="n">AG-128</td><td class="l">Money out</td><td class="l">Diesel for tractor and tube-well, cash</td><td class="l">Diesel &amp; Machinery Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">6,900</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">10 Feb 2026</td><td class="n">AG-129</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">6,847.75</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">11 Feb 2026</td><td class="n">AG-130</td><td class="l">Money out</td><td class="l">Tube-well motor rewinding, cash</td><td class="l">Machinery Repair Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">6,200</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">14 Feb 2026</td><td class="n">AG-131</td><td class="l">Money out</td><td class="l">Cattle feed (khal and chokar), cash</td><td class="l">Cattle Feed Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">5,400</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">16 Feb 2026</td><td class="n">AG-132</td><td class="l">Money out</td><td class="l">Farm labour for the month paid in cash</td><td class="l">Labour Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">4,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">18 Feb 2026</td><td class="n">AG-133</td><td class="l">Money out</td><td class="l">Part payment to Bhatti Khad Store by UPI</td><td class="l">Bhatti Khad Store A/c</td><td class="l">SBI Savings A/c</td><td class="r">20,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">19 Feb 2026</td><td class="n">AG-134</td><td class="l">Money out</td><td class="l">Tube-well electricity bill by net banking</td><td class="l">Tube-well Electricity Expense A/c</td><td class="l">SBI Savings A/c</td><td class="r">1,400</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">20 Feb 2026</td><td class="n">AG-135</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">6,984</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">24 Feb 2026</td><td class="n">AG-136</td><td class="l">Money in</td><td class="l">PM-Kisan instalment ₹2,000 credited by DBT</td><td class="l">SBI Savings A/c</td><td class="l">Government Support Income A/c (PM-Kisan)</td><td class="r">2,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">28 Feb 2026</td><td class="n">AG-137</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">6,221.25</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">02 Mar 2026</td><td class="n">AG-138</td><td class="l">Transfer</td><td class="l">Cash drawn from SBI for the month</td><td class="l">Farm Cash A/c</td><td class="l">SBI Savings A/c</td><td class="r">36,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">04 Mar 2026</td><td class="n">AG-139</td><td class="l">Money out</td><td class="l">Household drawing for the month in cash (not a farm expense)</td><td class="l">Drawings A/c</td><td class="l">Farm Cash A/c</td><td class="r">12,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">05 Mar 2026</td><td class="n">AG-140</td><td class="l">Transfer</td><td class="l">KCC drawn for the wheat harvest — combine hire and labour</td><td class="l">SBI Savings A/c</td><td class="l">SBI Kisan Credit Card A/c</td><td class="r">1,20,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">07 Mar 2026</td><td class="n">AG-141</td><td class="l">Money in</td><td class="l">Verka Milk Society paid last month's three milk cycles by NEFT</td><td class="l">SBI Savings A/c</td><td class="l">Verka Milk Society A/c</td><td class="r">20,053</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">09 Mar 2026</td><td class="n">AG-142</td><td class="l">Money out</td><td class="l">Diesel for tractor and tube-well, cash</td><td class="l">Diesel &amp; Machinery Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">10,200</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">10 Mar 2026</td><td class="n">AG-143</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 1st–10th — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">6,058.50</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">14 Mar 2026</td><td class="n">AG-144</td><td class="l">Money out</td><td class="l">Cattle feed (khal and chokar), cash</td><td class="l">Cattle Feed Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">5,400</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">16 Mar 2026</td><td class="n">AG-145</td><td class="l">Money out</td><td class="l">Farm labour for the month paid in cash</td><td class="l">Labour Expense A/c</td><td class="l">Farm Cash A/c</td><td class="r">8,000</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">19 Mar 2026</td><td class="n">AG-146</td><td class="l">Money out</td><td class="l">Tube-well electricity bill by net banking</td><td class="l">Tube-well Electricity Expense A/c</td><td class="l">SBI Savings A/c</td><td class="r">1,700</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">20 Mar 2026</td><td class="n">AG-147</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 11th–20th — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">6,195.75</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">31 Mar 2026</td><td class="n">AG-148</td><td class="l">Gave on credit</td><td class="l">Milk supplied to Verka Milk Society, 21st to month end — society's fat-based bill raised</td><td class="l">Verka Milk Society A/c</td><td class="l">Milk Sale Income A/c</td><td class="r">6,332</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+<tr><td class="n">31 Mar 2026</td><td class="n">AG-149</td><td class="l">Money out</td><td class="l">Interest debited by SBI on the Kisan Credit Card account (Money out from the loan account)</td><td class="l">Interest on KCC Expense A/c</td><td class="l">SBI Kisan Credit Card A/c</td><td class="r">912.33</td><td class="l">Amar Bal</td><td class="l"></td></tr>
+</tbody></table>
+<p><em>149 entries, of which 149 count. An entry that was corrected or reversed is shown struck through and stays in the record. Every entry number appears in each account statement it touches.</em></p>
+<h3>4. Corrections and approvals</h3>
+<p>No correction, reversal or approval was needed in this book this year.</p>
+<h3>5. Months closed and cash counts</h3>
+<p>Cash is counted at the close of the month's last day and any difference is entered that day; the month is then closed a few days later. A month is closed only when nothing is waiting: no unexplained money, no entry waiting for approval, no advance request waiting.</p>
+<table><thead><tr>
+<th class="l">Month</th>
+<th class="l">Closed on</th>
+<th class="l">Closed by</th>
+<th class="l">Cash counts</th>
+<th class="l">At the closing</th>
+</tr></thead><tbody>
+<tr><td class="l">Apr 2025</td><td class="l">05 May 2025</td><td class="l">Amar Bal</td><td class="l">30 Apr 2025 Farm Cash A/c: book 9,800 = counted 9,800 ✓ verified</td><td class="l">entries waiting for approval: none<br>advance requests waiting: none</td></tr>
+<tr><td class="l">May 2025</td><td class="l">05 Jun 2025</td><td class="l">Amar Bal</td><td class="l">31 May 2025 Farm Cash A/c: book 10,200 = counted 10,200 ✓ verified</td><td class="l">entries waiting for approval: none<br>advance requests waiting: none</td></tr>
+<tr><td class="l">Jun 2025</td><td class="l">05 Jul 2025</td><td class="l">Amar Bal</td><td class="l">30 Jun 2025 Farm Cash A/c: book 11,300 = counted 11,300 ✓ verified</td><td class="l">entries waiting for approval: none<br>advance requests waiting: none</td></tr>
+<tr><td class="l">Jul 2025</td><td class="l">05 Aug 2025</td><td class="l">Amar Bal</td><td class="l">31 Jul 2025 Farm Cash A/c: book 11,500, counted 11,200 → short 300, AG-053</td><td class="l">entries waiting for approval: none<br>advance requests waiting: none</td></tr>
+<tr><td class="l">Aug 2025</td><td class="l">05 Sep 2025</td><td class="l">Amar Bal</td><td class="l">31 Aug 2025 Farm Cash A/c: book 11,700 = counted 11,700 ✓ verified</td><td class="l">entries waiting for approval: none<br>advance requests waiting: none</td></tr>
+<tr><td class="l">Sep 2025</td><td class="l">05 Oct 2025</td><td class="l">Amar Bal</td><td class="l">30 Sep 2025 Farm Cash A/c: book 12,700 = counted 12,700 ✓ verified</td><td class="l">entries waiting for approval: none<br>advance requests waiting: none</td></tr>
+<tr><td class="l">Oct 2025</td><td class="l">05 Nov 2025</td><td class="l">Amar Bal</td><td class="l">31 Oct 2025 Farm Cash A/c: book 13,400 = counted 13,400 ✓ verified</td><td class="l">entries waiting for approval: none<br>advance requests waiting: none</td></tr>
+<tr><td class="l">Nov 2025</td><td class="l">05 Dec 2025</td><td class="l">Amar Bal</td><td class="l">30 Nov 2025 Farm Cash A/c: book 14,200 = counted 14,200 ✓ verified</td><td class="l">entries waiting for approval: none<br>advance requests waiting: none</td></tr>
+<tr><td class="l">Dec 2025</td><td class="l">05 Jan 2026</td><td class="l">Amar Bal</td><td class="l">31 Dec 2025 Farm Cash A/c: book 14,600 = counted 14,600 ✓ verified</td><td class="l">entries waiting for approval: none<br>advance requests waiting: none</td></tr>
+<tr><td class="l">Jan 2026</td><td class="l">05 Feb 2026</td><td class="l">Amar Bal</td><td class="l">31 Jan 2026 Farm Cash A/c: book 14,800 = counted 14,800 ✓ verified</td><td class="l">entries waiting for approval: none<br>advance requests waiting: none</td></tr>
+<tr><td class="l">Feb 2026</td><td class="l">05 Mar 2026</td><td class="l">Amar Bal</td><td class="l">28 Feb 2026 Farm Cash A/c: book 15,300 = counted 15,300 ✓ verified</td><td class="l">entries waiting for approval: none<br>advance requests waiting: none</td></tr>
+<tr><td class="l">Mar 2026</td><td class="l">05 Apr 2026</td><td class="l">Amar Bal</td><td class="l">31 Mar 2026 Farm Cash A/c: book 15,700 = counted 15,700 ✓ verified</td><td class="l">entries waiting for approval: none<br>advance requests waiting: none</td></tr>
+</tbody></table>
+<h3>6. The Kisan Credit Card as a loan account</h3>
+<p>The KCC is a loan account: a Cr balance is what the farm owes the bank. Money drawn and money repaid are Transfers between the loan account and the savings account; the interest the bank charges is Money out from the loan account to <em>Interest on KCC Expense</em>. The bank charges interest separately, which is how a KCC works.</p>
+<table><thead><tr>
+<th class="l">Date</th>
+<th class="l">Entry</th>
+<th class="l">Type</th>
+<th class="l">What happened</th>
+<th class="r">Repaid to the bank (Dr) ₹</th>
+<th class="r">Drawn or charged by the bank (Cr) ₹</th>
+</tr></thead><tbody>
+<tr><td class="l">05 May 2025</td><td class="l">AG-019</td><td class="l">Transfer</td><td class="l">KCC repaid in full after the wheat payment (Transfer: Dr loan account · Cr savings)</td><td class="r">2,40,000</td><td class="r">—</td></tr>
+<tr><td class="l">30 Jun 2025</td><td class="l">AG-040</td><td class="l">Money out</td><td class="l">Interest debited by SBI on the Kisan Credit Card account (Money out from the loan account)</td><td class="r">—</td><td class="r">1,604.38</td></tr>
+<tr><td class="l">10 Jul 2025</td><td class="l">AG-045</td><td class="l">Transfer</td><td class="l">KCC drawn for transplanting and inputs (Transfer: Dr savings · Cr loan account)</td><td class="r">—</td><td class="r">1,80,000</td></tr>
+<tr><td class="l">30 Sep 2025</td><td class="l">AG-076</td><td class="l">Money out</td><td class="l">Interest debited by SBI on the Kisan Credit Card account (Money out from the loan account)</td><td class="r">—</td><td class="r">2,853.70</td></tr>
+<tr><td class="l">15 Dec 2025</td><td class="l">AG-109</td><td class="l">Transfer</td><td class="l">KCC repaid after the basmati payment</td><td class="r">1,80,000</td><td class="r">—</td></tr>
+<tr><td class="l">31 Dec 2025</td><td class="l">AG-114</td><td class="l">Money out</td><td class="l">Interest debited by SBI on the Kisan Credit Card account (Money out from the loan account)</td><td class="r">—</td><td class="r">3,172.60</td></tr>
+<tr><td class="l">05 Mar 2026</td><td class="l">AG-140</td><td class="l">Transfer</td><td class="l">KCC drawn for the wheat harvest — combine hire and labour</td><td class="r">—</td><td class="r">1,20,000</td></tr>
+<tr><td class="l">31 Mar 2026</td><td class="l">AG-149</td><td class="l">Money out</td><td class="l">Interest debited by SBI on the Kisan Credit Card account (Money out from the loan account)</td><td class="r">—</td><td class="r">912.33</td></tr>
+</tbody></table>
+<h4>The milk society, the arhtiya and the khad store</h4>
+<table><thead><tr>
+<th class="l">Person / shop</th>
+<th class="r">Balance</th>
+<th class="r">You will get ₹</th>
+<th class="l">Owed since</th>
+<th class="r">Days</th>
+<th class="l">How old</th>
+</tr></thead><tbody>
+<tr><td class="l">Verka Milk Society A/c</td><td class="r">18,586.25 Dr</td><td class="r">18,586.25</td><td class="l">10 Mar 2026</td><td class="r">21</td><td class="l">current</td></tr>
+<tr><td class="l">Garg &amp; Co. (arhtiya) A/c</td><td class="r">0 —</td><td class="r">—</td><td class="l">—</td><td class="r">—</td><td class="l">nothing to get</td></tr>
+<tr><td class="l">Bhatti Khad Store A/c</td><td class="r">21,000 Cr</td><td class="r">—</td><td class="l">—</td><td class="r">—</td><td class="l">nothing to get</td></tr>
+</tbody></table>
+<p>Sood (interest an arhtiya may charge on an advance) is <strong>not entered</strong> anywhere in this book; Garg &amp; Co. advanced nothing here, so the question does not arise.</p>
+<h3>7. Closing balances (trial balance) as on 31 Mar 2026</h3>
+<p>Every account's balance on 31 Mar 2026, on the side it falls. The two totals agree — that is the check that the books balance.</p>
+<table><thead><tr>
+<th class="l">Account</th>
+<th class="l">Type</th>
+<th class="r">Closing balance (Dr) ₹</th>
+<th class="r">Closing balance (Cr) ₹</th>
+</tr></thead><tbody>
+<tr><td class="l">Farm Cash A/c</td><td class="l">Cash</td><td class="r">15,700</td><td class="r">—</td></tr>
+<tr><td class="l">SBI Savings A/c</td><td class="l">Bank (savings)</td><td class="r">7,80,519.25</td><td class="r">—</td></tr>
+<tr><td class="l">SBI Kisan Credit Card A/c</td><td class="l">Loan</td><td class="r">—</td><td class="r">1,28,543.01</td></tr>
+<tr><td class="l">Bhatti Khad Store A/c</td><td class="l">Person / shop</td><td class="r">—</td><td class="r">21,000</td></tr>
+<tr><td class="l">Garg &amp; Co. (arhtiya) A/c</td><td class="l">Person / shop</td><td class="r">—</td><td class="r">—</td></tr>
+<tr><td class="l">Verka Milk Society A/c</td><td class="l">Person / shop</td><td class="r">18,586.25</td><td class="r">—</td></tr>
+<tr><td class="l">Drawings A/c</td><td class="l">Taken out by the owner (drawings)</td><td class="r">1,44,000</td><td class="r">—</td></tr>
+<tr><td class="l">Opening Balance / Capital A/c</td><td class="l">Own money (capital)</td><td class="r">—</td><td class="r">16,950</td></tr>
+<tr><td class="l">Adjustments A/c</td><td class="l">Adjustments</td><td class="r">300</td><td class="r">—</td></tr>
+<tr><td class="l">Crop Sale Income A/c</td><td class="l">Income</td><td class="r">—</td><td class="r">10,08,000</td></tr>
+<tr><td class="l">Milk Sale Income A/c</td><td class="l">Income</td><td class="r">—</td><td class="r">2,31,655.50</td></tr>
+<tr><td class="l">Government Support Income A/c (PM-Kisan)</td><td class="l">Income</td><td class="r">—</td><td class="r">6,000</td></tr>
+<tr><td class="l">Seed &amp; Fertiliser Expense A/c</td><td class="l">Expense</td><td class="r">1,01,000</td><td class="r">—</td></tr>
+<tr><td class="l">Diesel &amp; Machinery Expense A/c</td><td class="l">Expense</td><td class="r">1,09,000</td><td class="r">—</td></tr>
+<tr><td class="l">Labour Expense A/c</td><td class="l">Expense</td><td class="r">1,14,000</td><td class="r">—</td></tr>
+<tr><td class="l">Machinery Repair Expense A/c</td><td class="l">Expense</td><td class="r">16,000</td><td class="r">—</td></tr>
+<tr><td class="l">Cattle Feed Expense A/c</td><td class="l">Expense</td><td class="r">64,800</td><td class="r">—</td></tr>
+<tr><td class="l">Interest on KCC Expense A/c</td><td class="l">Expense</td><td class="r">8,543.01</td><td class="r">—</td></tr>
+<tr><td class="l">Arhtiya Charges Expense A/c</td><td class="l">Expense</td><td class="r">15,500</td><td class="r">—</td></tr>
+<tr><td class="l">Tube-well Electricity Expense A/c</td><td class="l">Expense</td><td class="r">24,200</td><td class="r">—</td></tr>
+<tr class="total"><td class="l">Total</td><td class="l"></td><td class="r">14,12,148.51</td><td class="r">14,12,148.51</td></tr>
+</tbody></table>
+<p><strong>Dr total ₹14,12,148.51 = Cr total ₹14,12,148.51 — the books balance.</strong></p>
+<h3>8. Income and expenses for the year — Profit &amp; Loss Account, FY 2025-26</h3>
+<p>FY 2025-26: income ₹12,45,655.50 · expenses ₹4,53,043.01 · <strong>net profit ₹7,92,612.49</strong>. Each head shows its <strong>total for the whole year</strong> — the same figure as the <em>Total for the year</em> row of its statement above — and how many entries made it up. Income and expense heads are not carried forward; they start FY 2026-27 at zero.</p>
+<table><thead><tr>
+<th class="l">Particulars</th>
+<th class="r">Entries</th>
+<th class="r">Expenses (Dr) ₹</th>
+<th class="r">Income (Cr) ₹</th>
+</tr></thead><tbody>
+<tr><td class="l">To Seed &amp; Fertiliser Expense A/c</td><td class="r">3</td><td class="r">1,01,000</td><td class="r">—</td></tr>
+<tr><td class="l">To Diesel &amp; Machinery Expense A/c</td><td class="r">12</td><td class="r">1,09,000</td><td class="r">—</td></tr>
+<tr><td class="l">To Labour Expense A/c</td><td class="r">12</td><td class="r">1,14,000</td><td class="r">—</td></tr>
+<tr><td class="l">To Machinery Repair Expense A/c</td><td class="r">2</td><td class="r">16,000</td><td class="r">—</td></tr>
+<tr><td class="l">To Cattle Feed Expense A/c</td><td class="r">12</td><td class="r">64,800</td><td class="r">—</td></tr>
+<tr><td class="l">To Interest on KCC Expense A/c</td><td class="r">4</td><td class="r">8,543.01</td><td class="r">—</td></tr>
+<tr><td class="l">To Arhtiya Charges Expense A/c</td><td class="r">1</td><td class="r">15,500</td><td class="r">—</td></tr>
+<tr><td class="l">To Tube-well Electricity Expense A/c</td><td class="r">12</td><td class="r">24,200</td><td class="r">—</td></tr>
+<tr><td class="l">By Crop Sale Income A/c</td><td class="r">2</td><td class="r">—</td><td class="r">10,08,000</td></tr>
+<tr><td class="l">By Milk Sale Income A/c</td><td class="r">36</td><td class="r">—</td><td class="r">2,31,655.50</td></tr>
+<tr><td class="l">By Government Support Income A/c (PM-Kisan)</td><td class="r">3</td><td class="r">—</td><td class="r">6,000</td></tr>
+<tr><td class="l"><strong>Total of the heads for the year</strong></td><td class="r"></td><td class="r"><strong>4,53,043.01</strong></td><td class="r"><strong>12,45,655.50</strong></td></tr>
+<tr><td class="l">To Net profit for the year</td><td class="r"></td><td class="r">7,92,612.49</td><td class="r">—</td></tr>
+<tr><td class="l"><strong>Total</strong></td><td class="r"></td><td class="r"><strong>12,45,655.50</strong></td><td class="r"><strong>12,45,655.50</strong></td></tr>
+</tbody></table>
+<h3>9. What the business has and what it owes (position) as on 31 Mar 2026</h3>
+<p>What the business has and what it owes on 31 Mar 2026: money in hand and in the bank, what others will pay, advances held (Dr), against what is still to be paid — people and shops, bank loans and cards, partners' balances (Cr). Each account sits on the side its balance falls. The difference is the <strong>Owner's funds in the business (accumulated surplus)</strong>, a figure worked out from the others and not an account of its own.</p>
+<table><thead><tr>
+<th class="l">Account</th>
+<th class="l">Type</th>
+<th class="r">What the business has (Dr) ₹</th>
+<th class="r">What it owes (Cr) ₹</th>
+</tr></thead><tbody>
+<tr><td class="l">Farm Cash A/c</td><td class="l">Cash</td><td class="r">15,700</td><td class="r">—</td></tr>
+<tr><td class="l">SBI Savings A/c</td><td class="l">Bank (savings)</td><td class="r">7,80,519.25</td><td class="r">—</td></tr>
+<tr><td class="l">SBI Kisan Credit Card A/c</td><td class="l">Loan</td><td class="r">—</td><td class="r">1,28,543.01</td></tr>
+<tr><td class="l">Bhatti Khad Store A/c</td><td class="l">Person / shop</td><td class="r">—</td><td class="r">21,000</td></tr>
+<tr><td class="l">Garg &amp; Co. (arhtiya) A/c</td><td class="l">Person / shop</td><td class="r">—</td><td class="r">—</td></tr>
+<tr><td class="l">Verka Milk Society A/c</td><td class="l">Person / shop</td><td class="r">18,586.25</td><td class="r">—</td></tr>
+<tr><td class="l"><strong>Owner's funds in the business (accumulated surplus)</strong> — made up below</td><td class="l">own money</td><td class="r">—</td><td class="r">6,65,262.49</td></tr>
+<tr><td class="l"><strong>Total</strong></td><td class="l"></td><td class="r"><strong>8,14,805.50</strong></td><td class="r"><strong>8,14,805.50</strong></td></tr>
+</tbody></table>
+<h4>How the Owner's funds in the business is made up</h4>
+<table><thead><tr>
+<th class="l">Particulars</th>
+<th class="r">Amount ₹</th>
+<th class="c">Side</th>
+</tr></thead><tbody>
+<tr><td class="l">Opening Balance / Capital A/c (opening own money and capital put in)</td><td class="r">16,950</td><td class="c">Cr</td></tr>
+<tr><td class="l">Adjustments A/c (cash-count differences, amounts written off)</td><td class="r">300</td><td class="c">Dr</td></tr>
+<tr><td class="l">Net profit for FY 2025-26 (from the income and expenses above)</td><td class="r">7,92,612.49</td><td class="c">Cr</td></tr>
+<tr><td class="l">Drawings A/c (taken out by the owner)</td><td class="r">1,44,000</td><td class="c">Dr</td></tr>
+<tr><td class="l">= <strong>Owner's funds in the business (accumulated surplus)</strong></td><td class="r"><strong>6,65,262.49</strong></td><td class="c">Cr</td></tr>
+</tbody></table>
+<h3>10. Year end — balances carried to FY 2026-27</h3>
+<p>The year was closed on 09 Apr 2026 by Amar Bal, after every month had been closed with nothing waiting — no unexplained money, no entry waiting for approval, no advance request waiting. These are the balances on 31 Mar 2026 that carry into FY 2026-27; every member's phone works them out from the same entries and gets the same figures.</p>
+<table><thead><tr>
+<th class="l">Account carried to FY 2026-27 (balance on 31 Mar 2026)</th>
+<th class="l">Type</th>
+<th class="r">Balance ₹</th>
+<th class="c">Side</th>
+</tr></thead><tbody>
+<tr><td class="l">Farm Cash A/c</td><td class="l">Cash</td><td class="r">15,700</td><td class="c">Dr</td></tr>
+<tr><td class="l">SBI Savings A/c</td><td class="l">Bank (savings)</td><td class="r">7,80,519.25</td><td class="c">Dr</td></tr>
+<tr><td class="l">SBI Kisan Credit Card A/c</td><td class="l">Loan</td><td class="r">1,28,543.01</td><td class="c">Cr</td></tr>
+<tr><td class="l">Bhatti Khad Store A/c</td><td class="l">Person / shop</td><td class="r">21,000</td><td class="c">Cr</td></tr>
+<tr><td class="l">Garg &amp; Co. (arhtiya) A/c</td><td class="l">Person / shop</td><td class="r">0</td><td class="c">—</td></tr>
+<tr><td class="l">Verka Milk Society A/c</td><td class="l">Person / shop</td><td class="r">18,586.25</td><td class="c">Dr</td></tr>
+<tr><td class="l">Drawings A/c</td><td class="l">Taken out by the owner (drawings)</td><td class="r">1,44,000</td><td class="c">Dr</td></tr>
+<tr><td class="l">Opening Balance / Capital A/c</td><td class="l">Own money (capital)</td><td class="r">16,950</td><td class="c">Cr</td></tr>
+<tr><td class="l">Adjustments A/c</td><td class="l">Adjustments</td><td class="r">300</td><td class="c">Dr</td></tr>
+<tr><td class="l"><strong>Net profit for FY 2025-26</strong> — one line; income and expense heads are not carried</td><td class="l">this year's result</td><td class="r">7,92,612.49</td><td class="c">Cr</td></tr>
+</tbody></table>
+<p>The carried balances agree: Dr ₹9,59,105.50 = Cr ₹9,59,105.50. No closing entry is posted — the balances simply carry forward.</p>
+<h4>FY 2026-27 opening balances (as on 01 Apr 2026)</h4>
+<table><thead><tr>
+<th class="l">Account</th>
+<th class="r">Opening balance ₹</th>
+<th class="c">Side</th>
+</tr></thead><tbody>
+<tr><td class="l">Farm Cash A/c</td><td class="r">15,700</td><td class="c">Dr</td></tr>
+<tr><td class="l">SBI Savings A/c</td><td class="r">7,80,519.25</td><td class="c">Dr</td></tr>
+<tr><td class="l">SBI Kisan Credit Card A/c</td><td class="r">1,28,543.01</td><td class="c">Cr</td></tr>
+<tr><td class="l">Bhatti Khad Store A/c</td><td class="r">21,000</td><td class="c">Cr</td></tr>
+<tr><td class="l">Garg &amp; Co. (arhtiya) A/c</td><td class="r">0</td><td class="c">—</td></tr>
+<tr><td class="l">Verka Milk Society A/c</td><td class="r">18,586.25</td><td class="c">Dr</td></tr>
+<tr><td class="l">Drawings A/c</td><td class="r">1,44,000</td><td class="c">Dr</td></tr>
+<tr><td class="l">Opening Balance / Capital A/c</td><td class="r">16,950</td><td class="c">Cr</td></tr>
+<tr><td class="l">Adjustments A/c</td><td class="r">300</td><td class="c">Dr</td></tr>
+</tbody></table>
+<p>Income and expense heads open FY 2026-27 at zero. Each account statement for FY 2026-27 starts from these figures.</p>
+</body></html>

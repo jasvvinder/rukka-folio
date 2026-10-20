@@ -1,6 +1,6 @@
 # Research outline — Accounting Standard and Ledger Rules
 
-**Status:** Draft for owner approval, 15 Oct 2026. Nothing is researched or written until this outline is approved.
+**Status:** Approved by the owner, 19 Oct 2026 (drafted 15 Oct; statute dropped and topics 1, 11, 19, 20 extended on 19 Oct). Research started 19 Oct 2026.
 
 ## Purpose
 

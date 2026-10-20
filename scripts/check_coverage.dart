@@ -11,8 +11,8 @@
 //   warns on: (c) an id a test declares that no marker names (orphan)  (d) a test without an id
 //   also lists every live `superseded by ADR …; re-lands at M<n>` skip (§4); with --milestone M<n>,
 //   a skip whose re-land milestone is ≤ n is a failure (09 §4 release gate).
-// Job 2 — golden governance. docs/reference/worked-examples/README.md front-matter: when
-// `approved_on` is set, `content_hash` must equal BLAKE2b-256 over the five example files
+// Job 2 — golden governance. docs/accounting/reference-books/README.md front-matter: when
+// `approved_on` is set, `content_hash` must equal BLAKE2b-256 over the five reference books
 // (filename order, bytes concatenated). The current hash is always printed for sign-off.
 //
 // Phased (§1): warn-only until M4 exit — exit 0 unless --strict (or COVERAGE_STRICT=1). ci.sh
@@ -32,17 +32,19 @@ const _docExcludes = [
   'docs/requirements-architecture.md', // ⛔ non-normative background (CLAUDE.md § Precedence 4)
   'design/canvas-mirror', // generated mirror of the design tool
   'docs/brand', // brand assets
+  'docs/archive', // superseded material, never normative (ADR 2026-10-12 §1, ADR 2026-10-20 §3)
 ];
 // 'test' is the root suite ci.sh runs as `dart test test/` (F1-10-*: the ARB merge and contrast
 // checkers). Omitting it made every id those tests declare read as a dangling marker.
 const _testRoots = ['packages', 'app/test', 'testing', 'server', 'test'];
-const _goldenDir = 'docs/reference/worked-examples';
+// The five reference books (ADR 2026-10-20 §2), in filename order.
+const _goldenDir = 'docs/accounting/reference-books';
 const _goldenFiles = [
-  'individual-rahul-sharma.md',
-  'business-sharma-textile.md',
-  'trust-singh-sabha-gurudwara.md',
-  'joint-family-sharma.md',
-  'joint-business-partnership.md',
+  'individual-jasvinder-singh.md',
+  'joint-family-randhawa.md',
+  'partnership-bal-fabricators.md',
+  'shop-sukhwinder-sales-co.md',
+  'trust-radha-soami-satsang-sabha.md',
 ];
 
 final _idPattern = RegExp(r'^[A-Z]+[0-9]?-[0-9A-Za-z]+-[0-9]+$');

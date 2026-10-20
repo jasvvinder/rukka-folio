@@ -17,7 +17,7 @@ abstract final class Verbs {
   /// In a business the counterpart may also be the book's
   /// `Opening Balance / Capital A/c` — capital introduced is
   /// `Dr money · Cr Capital`, never income (02 §7.1, ADR 2026-09-13 §4,
-  /// `financial-accounting-standards.md` §4.1 B01 *"Owner adds capital"*). It
+  /// archived standard v3 (`docs/archive/reference/financial-accounting-standards-v3.md`) §4.1 B01 *"Owner adds capital"*). It
   /// is the exact mirror of [moneyOut]'s Drawings slot and, like it, the only
   /// `equity_system` account this verb accepts, so the verb and `checkShape`
   /// agree in both directions; every other system account posts through its

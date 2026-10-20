@@ -12,6 +12,65 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-20 — docs: all research questions ruled; `docs/accounting/` with four foundation documents and five reference books
+
+**Added**
+- `docs/accounting/README.md`: who keeps these books, what they must produce, the khata basis, reading order, source order.
+- `docs/accounting/01-foundations.md` · `02-accounts-and-transactions.md` · `03-entities.md` · `04-year-end-and-reports.md` (≈1,930 lines): real bookkeeping practice written from the twenty research notes and the rulings; every rule cites its external source or the ruling, with a Dr/Cr example and a plain-words line; no app, ADR or tax content.
+- `docs/accounting/reference-books/`: the practice set reduced to **five books** (individual, joint family, shop, partnership, trust) with the truck, farmer, landlord, contractor and committee mechanics folded in; `COVERAGE.md` maps every ruling and merged mechanic to its entries; `GAPS.md` rewritten for five books; `check_md.py` rewritten (16,931 checks, 0 problems); byte-identical reruns; content hash `27d2129b…1df0`.
+- `docs/decisions/2026-10-20-accounting-folder-five-reference-books.md`.
+
+**Changed**
+- `OPEN.md`: all 124 questions ruled (113 by the product architect on the owner's delegation, 11 accepted from sources), with a "product lens" section; O-04-7 added (opening value of an old asset); O-16-1 amended after review (owner ↔ business pairs agree by entry, not balance — *profit kept in the business*); O-10-2 clarified (no opening stock); O-02-2 lost an unchecked T.S. Grewal citation. Mirrored in the Accounting Rulings Register artifact.
+- Books follow the rulings: every report head states book, period, basis, *Year closed*, *Made on*; year close posted (closing entries, drawings and result to own money, both appropriations posted); *Income from Jasvinder Technologies*; retention, advances and interest-bearing loans on their own accounts; corrections name the entry fixed; *Cash short / over*; *Written off*; trust funds beside the General Fund, fund spending via I&E + transfer, donated item at ₹1; "What the app shows" retitled.
+- Archived to `docs/archive/reference/`: the 30 Aug golden set (`worked-examples-original/`), the use-case set (`worked-examples-usecases/`), the five merged practice books (`practice-books-merged/`), standard v3 (`financial-accounting-standards-v3.md`), the research notes with `OUTLINE.md` and `OPEN.md` (`accounting-research/`).
+- `golden_worked_examples_test.dart` (`A-ref-1…7`) `@Skip('superseded by ADR 2026-10-20 §3; re-lands at M14')`, reading the archived path; `check_coverage.dart` hashes the five reference books and skips `docs/archive/`.
+- Re-pointed: CLAUDE.md (*Accounting authority*, precedence 3, layout), 00-vision, 02 header and catalogue pointer, root README, `.gitignore`, goldens skill, `lane-core`, `testing/fixtures/README.md`, `docs/ops/lead-times.md`, `seed-category-trees.md`, and comments in `verbs.dart`, `invariants.dart`, `money.dart`, `projection.dart` and four tests.
+- Research note 09: AS 1 URL corrected to `asb.html?a=104` (fetched; `a=102` is an ICAI announcements page).
+
+**Decided**
+- ADR 2026-10-20 — one accounting folder; five reference books; the original golden set archived and its tests skipped as superseded; the use-case set, standard v3 and the research archived (owner, 20 Oct 2026: "Archive now", "Five books").
+- The khata basis for every book; depreciation, accruals and closing stock opt-in (`OPEN.md` O-01-1, O-09-1, O-19-4).
+
+**Open**
+- Desk 207: owner reads `docs/accounting/` and may veto any ruling. Desk 208: rank of `docs/accounting/` above 02 after sign-off (ADR 2026-10-20 Open). Desk 209: bookkeeper review (points flagged by the writers listed there). Desk 210: the app-requirements pass — 02 §5, §6, §7, §8.1 and ADR 2026-09-05e §2 contradict the rulings.
+- Two books sit at the 14-page limit (individual personal book, Bal Fabricators).
+- Checks run: `check_md.py` 0 problems; `check_coverage` ok; `core_ledger` analyze clean, 158 passed / 1 skipped. The CI gate was not run.
+
+**Commits**
+- 
+
+## 2026-10-20 — docs: accounting research — twenty topic notes and the open list
+
+**Added**
+- `docs/reference/research/01-…20-*.md`: one working note per outline topic — 178 rules at first pass, 209 after the BoS pass, each cited and marked *fetched / search / not fetched*, each with a professional and a plain-words Dr/Cr example; disagreements between sources recorded, not resolved. Six parallel research passes, ≈1.06 M tokens.
+- `docs/reference/research/OPEN.md`: the 124 questions the sources leave open or disagree on, compiled from every note's §3 in the approved row format (Rule chosen · Source · Book affected · Status · Ruled by and date), ids `O-<topic>-<n>`, all `open`.
+
+**Changed**
+- `OUTLINE.md` status: approved by the owner 19 Oct 2026; research started.
+
+**Decided** (by the sources — for the owner's single ruling, nothing applied yet)
+- Topic 14: NCERT Class 12 Part I ch. 1 §1.5.1 (pp. 8–9) **posts** the P&L Appropriation by journal entries to the partners' capital/current accounts; no computed-only form is taught. Re-checked against the NCERT PDF text (leac101, Reprint 2026-27). Bears on practice gaps B1, F4.
+- Topic 14: the no-deed defaults are NCERT Class 12 Part I ch. 1 §1.2.1 (a)–(e), p. 4 — re-checked against the PDF; closes the 19 Oct open item. The standard's citation (D14, Appendix G) is to be updated on the owner's confirmation.
+- Topic 19: NCERT teaches closing entries (nominal accounts transferred to Trading/P&L, result and drawings closed to capital); no source read describes a result computed without them. Bears on practice gap F3.
+- Topic 17: the two ICAI sources disagree on spending from a specific fund — ICAI BoS Foundation ch. 8 debits the fund; the ICAI Technical Guide on NPOs charges I&E and transfers from the fund. Recorded both ways (O-17 rows).
+
+**Open**
+- ICAI Framework (2000) checked against the full PDF the owner supplied (`89089asb-aps2918-framework.pdf`, kept in the owner's Downloads, not committed): ¶22–24, 30, 35, 37, 40, 49, 81, 93, 95, 96 quote and number correctly; notes 01, 09, 10, 12 now mark them *fetched (ICAI PDF)*; note 15 records that the Framework never mentions a family (¶67 names sole proprietorships, partnerships and trusts).
+- ICAI PDFs the owner supplied (`~/Downloads/icai/`, not committed) checked against the notes, 20 Oct 2026:
+  - **AS 1** — every citation confirmed; the ¶18 vs ¶24 discrepancy is settled (both: ¶18 explains, ¶24 is the main principle) — `OPEN.md` O-01-5 marked *settled by source*.
+  - **FAQ on the Guidance Note on Financial Statements of Non-Corporate Entities** — the Note applies to periods beginning on or after 1 April 2024 and supersedes the 2022 Technical Guide; it prescribes formats and comparatives; not-for-profits follow the NPO Technical Guide instead; the NPO guide's ICAI file (`resource.cdn.icai.org/74188asb60123.pdf`) is the one the third-party copy reproduced. Notes 15, 17, 19, 20.
+  - **Appendix I to the Compendium (1 April 2025)** — the only AS 10 relief for MSMEs is ¶87 (encouraged disclosures); AS 3 does not apply to MSMEs. Note 09.
+  - **NPO Technical Guide, 2009 edition** — same fund method as the 2023 edition (¶114 restricted, ¶111 designated: charge I&E, transfer from the fund); ¶27 Receipts & Payments as the cash-basis statement; ¶32 accrual recommended for all NPOs. Note 17; O-17-1, O-17-9, O-20-4.
+  - Not used: AS 23 (associates — not relevant), Ind AS overview (Ind AS does not apply to these entities), PPE records implementation guide.
+- **ICAI BoS Foundation Paper 1 *Accounting* (Aug 2026 edition) read from `resource.cdn.icai.org`** — ch. 1–10 (22 chapter/unit PDFs, kept in the session scratchpad, not committed): 31 rules added across notes 03–20 (209 in all), ~35 BoS references confirmed and 6 corrected; 10 `OPEN.md` rows *settled by source* (O-05-5, O-06-2, O-06-3, O-06-6, O-08-4, O-11-2, O-12-5, O-12-6, O-14-1, O-19-3) and options added to 46 more; row ids unchanged. Spot-checked by the orchestrator against the chapter text: O-14-1 (ch. 10 U1, Illustration 1 journal entries), O-19-3 (ch. 7 U1 p. 7.26, entries (1)–(5) reversed next year), O-12-5 (ch. 9 §4.5 pp. 9.22–9.23, payments to creditors out of personal cash = fresh investment). Still silent after BoS: credit card and wallet as the holder's account, KCC, EMI split, loans from relatives, staff and non-employee advances, retention money, security deposit paid, RD and cumulative FD interest, gold, set-off of a debtor-creditor, ledger statement for a chosen period, an all-entries day book, ageing, sleeping partner, household and joint-family accounts, the gollak.
+- Source access: kb.icai.org served a certificate for another host (not bypassed), so the 2023 Guidance Note's own text is still not read and AS 5, 9, 10, 13 were read through page extracts — paragraph numbers need confirming against the PDFs (AS 1 returned ¶18 and ¶24 for the same rule). The ICAI Technical Guide on NPOs was read from a third-party copy (caalley.com). The current NCERT Class 12 has no not-for-profit chapter. The Nigam (1986) bahi-khata paper was not obtained.
+- No source found for: credit card, wallet, KCC, EMI split, supplier/customer/staff advances, retention money, security deposits, FD/RD interest, gold, cash short/over, a household's or joint family's own accounts, the gollak, a landlord's own book, ageing, a day book of all entries. Each is an `O-` row.
+- Ruling page published for the owner (private artifact *Accounting Rulings Register*, https://claude.ai/artifact/7BnbPyMXDcedHJeXy7hAvA): all 124 `OPEN.md` rows with their evidence; the owner picks an option, writes a ruling, sends it to the bookkeeper or drops it; settled rows ask for acceptance. Rulings save to the page's store (owner/editors only) and are read back to fill `OPEN.md` in one pass.
+- Next (outline): owner rules `OPEN.md` once → write the Accounting Standard and the Ledger Rules from the notes → re-check the ten practice books → bookkeeper review.
+
+---
+
 ## 2026-10-19 — docs: research outline — no statute as a source
 
 **Decided** (owner, 19 Oct 2026)

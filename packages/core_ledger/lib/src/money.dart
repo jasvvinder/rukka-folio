@@ -63,7 +63,7 @@ extension type const Paise(int raw) {
 }
 
 /// Ledger side. Professional surfaces show absolute value + side, never a minus
-/// sign (reference standards §2, §9); consumer surfaces say Money in / Money out.
+/// sign (archived standard v3 §2, §9); consumer surfaces say Money in / Money out.
 enum Side {
   /// Debit — ਨਾਮੇ / नामे.
   dr,

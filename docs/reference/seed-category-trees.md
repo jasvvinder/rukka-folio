@@ -7,7 +7,7 @@ review gate."* `02` (open items) adds: *"draft with the family pilot; ship in EN
 EN column itself is a proposal for the pilot, not a ruling.
 
 What ADR 2026-09-09c §1 settles is the **structure** of the seed. This file is the missing half: the
-names. Every EN name below is taken verbatim from `docs/reference/worked-examples/`, the behavioural
+names. Every EN name below is taken verbatim from the 30 Aug worked examples (archived 20 Oct 2026 at `docs/archive/reference/worked-examples-original/`), then the behavioural
 reference (CLAUDE.md § Accounting authority) — nothing here is invented.
 
 **Finding: there are four trees, not three.** `01 §1.8` and `02` both say *household / shop / trust*, but

@@ -40,7 +40,7 @@ void main() {
     });
 
     test('A-09b-5 Verbs.moneyIn → Dr money · Cr Opening Balance/Capital for B01', () {
-      // standards §4.1 B01 — "Owner adds capital", Dr HDFC · Cr Capital 5,000.
+      // archived standard v3 §4.1 B01 — "Owner adds capital", Dr HDFC · Cr Capital 5,000.
       expect(Verbs.moneyIn(into: bank, from: opening, amount: rs(5000)), [
         dr(bank, rs(5000)),
         cr(opening, rs(5000)),

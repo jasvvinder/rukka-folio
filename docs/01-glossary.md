@@ -1,6 +1,6 @@
 # 01 — Glossary & Strings (EN / ਪੰਜਾਬੀ / हिन्दी)
 
-**Status:** Draft 2 (professional-terms revision per owner + `docs/reference/punjabi_accounting_terms.md`). ⚠️ **Every ਪੰਜਾਬੀ and हिन्दी string is a working draft and must be reviewed by a native speaker (ideally pilot family members) before ship.** The EN column is the string-key source of truth.
+**Status:** Draft 2 (professional-terms revision per owner + `docs/reference/punjabi_accounting_terms.md`, archived 12 Oct 2026 at `docs/archive/reference/`). ⚠️ **Every ਪੰਜਾਬੀ and हिन्दी string is a working draft and must be reviewed by a native speaker (ideally pilot family members) before ship.** The EN column is the string-key source of truth.
 
 ---
 

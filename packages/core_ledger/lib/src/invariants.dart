@@ -210,7 +210,7 @@ Violation? checkShape(Entry entry, Chart chart) {
       a.systemRole == SystemRole.drawings;
   // Capital introduced is an ordinary Money in whose counterpart is the
   // book's Opening Balance / Capital A/c (02 §7.1, ADR 2026-09-13 §4;
-  // `financial-accounting-standards.md` §4.1 B01 "Owner adds capital",
+  // archived standard v3 (`docs/archive/reference/financial-accounting-standards-v3.md`) §4.1 B01 "Owner adds capital",
   // `Dr HDFC · Cr Capital`). The exact mirror of [isDrawings]: one
   // equity_system role admitted on one side of one verb, and Capital is the
   // Opening Balance account itself (ADR 2026-09-09b §1 🔒 — no separate

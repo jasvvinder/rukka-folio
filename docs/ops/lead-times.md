@@ -100,7 +100,7 @@ Spec: 08 §ruling — **IAP on iOS, gateway on Android/web**, web-first checkout
 
 ## 7. Bookkeeper sign-off of the worked examples — needed at Phase D exit ⛔
 Spec: ADR 2026-09-05i §3 — README front-matter `approved_by` / `approved_on` / `content_hash`, machine-checked; blocks **M14** exit.
-1. Book a CA or experienced bookkeeper for a 2-hour review of `docs/reference/worked-examples/` (five entities, eight books, 185 vouchers) in the week of 28 Sep.
+1. Book a CA or experienced bookkeeper for a 2-hour review of `docs/accounting/` and its five reference books (ADR 2026-10-20) once they are written.
 2. Before the meeting, reconcile the two known errata (partnership paise split; ₹1,354/₹1,355 interest — 09 suite A note).
 3. Hand back: the three front-matter fields signed; any figure change after that needs an ADR.
 
