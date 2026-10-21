@@ -140,9 +140,9 @@ When money comes in from a person whose debt was written off, it is not credited
 Diary: *Money in ₹1,200 (Income: Bad debts recovered) — Mohan paid what I had written off last year.*
 
 ### 2.7 No provision for doubtful debts
-Because the book records money when it moves and dues when they arise, it does not set aside an estimate for debts that may not be paid. A provision presupposes receivables on an accrual basis. A book that opts into year-end adjustments may add one; *04 — Year end and reports* describes it.
+Because the book records money when it moves and dues when they arise, it does not set aside an estimate for debts that may not be paid. A provision presupposes receivables on an accrual basis. This holds whether or not the book has opted into year-end adjustments: a provision is not among them.
 **Source:** ICAI BoS Ch. 7 Unit 1 §1.4 adjustments (6), (7), p. 7.26 [16]; NCERT Part II ch. 9 §9.9 [4]. No provision by default: ruled 20 Oct 2026 (O-06-7, O-01-6): khata basis.
-**Example.** No entry. In an opted-in book: `Dr Provision Expense A/c ₹650 · Cr Provision for Doubtful Debts A/c ₹650` (5% of ₹13,000 still owed).
+**Example.** No entry, in any book, for the ₹13,000 still owed; if a debtor is later known not to pay, the balance is written off then.
 Diary: *Nothing recorded for debts that may not be paid. Written off only when You will get nothing.*
 
 ---
@@ -272,7 +272,7 @@ Day-to-day servicing and repairs are an expense. A replacement part, addition or
 Diary: *Spent ₹2,000 on Repairs.* / *Paid ₹30,000 for new shutters — added to the shop's cost.*
 
 ### 5.4 No depreciation unless the book opts in; the report must say so
-Depreciation is not charged by default. Things owned stay at cost, and every report that shows them carries the sentence: **"Things owned are shown at what they cost; no depreciation is charged."** A business book may opt into depreciation at year end, at a rate for each thing; *04 — Year end and reports* describes the step. The sources treat the charge as the rule for a book kept on the accrual basis, and say that leaving it out overstates both the thing and the result; the book therefore states the omission rather than hiding it.
+Depreciation is not charged by default. Things owned stay at cost, and every report that shows them carries the sentence: **"Things owned are shown at what they cost; no depreciation is charged."** A business book, or a trust or committee, may opt into depreciation at year end, at a rate for each thing; *04 — Year end and reports* describes the step. The sources treat the charge as the rule for a book kept on the accrual basis, and say that leaving it out overstates both the thing and the result; the book therefore states the omission rather than hiding it.
 **Source:** NCERT Part I ch. 7 §7.4.3 p. 232 [6]; AS 10 ¶50, 52 [24]; AS 1 ¶27 (departures are disclosed) [21]; ICAI BoS Ch. 5 §1.1 pp. 5.2–5.4 [15]. Omission by default: ruled 20 Oct 2026 (O-09-1): households, farms and trucks do not keep it; the books make no compliance claim.
 **Example.** Computer bought ₹45,000, three-year life. By default: no entry; it stays at ₹45,000. If opted in: `Dr Depreciation A/c ₹9,000 · Cr Computer A/c ₹9,000`.
 Diary: *Computer: Thing owned ₹45,000. No depreciation is charged; the report says so.*
@@ -348,7 +348,7 @@ Without a stock count, the result of trading is sales less goods bought less dir
 Diary: *Bought ₹75,000, sold ₹1,25,000, wages ₹8,000: ₹42,000 left over. No stock is counted.*
 
 ### 6.3 A book may enter one closing-stock figure at year end
-A book opens with no stock, unless the previous year entered an opt-in closing-stock figure; that figure is taken back into *Goods bought for sale* on the first day of the new year.
+Goods on the shelf when a book opens are debited to *Goods bought for sale* in the opening entry (*01*, opening balances of things owned). In every later year, a closing-stock figure entered at the previous year end is taken back into *Goods bought for sale* on the first day of the new year; a book that entered none starts the year with no stock.
 A count is not required. A book that chooses to enter a figure for unsold goods does so once, at year end: the asset *Closing stock* is debited and *Goods bought for sale* credited, and the entry is reversed on the first day of the next year. Quantities are never tracked.
 **Source:** NCERT Part II ch. 9 §9.2 pp. 320–321 [4]; ICAI BoS Ch. 4 §4.1 p. 4.8, §6 p. 4.19 [14]. Purchase adjustment chosen, and no count required: ruled 20 Oct 2026 (O-10-2, O-10-3). *04 — Year end and reports* describes the option.
 **Example.** `Dr Closing Stock A/c ₹15,000 · Cr Goods Bought for Sale A/c ₹15,000`; next year's first day `Dr Goods Bought for Sale A/c ₹15,000 · Cr Closing Stock A/c ₹15,000`.

@@ -65,7 +65,7 @@ The closing entries are real entries in the ledger, so every account's page show
 
 ### 2.2 Year-end adjustments are optional, off by default, and the report says which way the book was kept
 
-**Rule.** The book is kept on money paid and received, and on what people owe or are owed when it arises (the khata basis): nothing is recorded for the passage of time alone. At the year end a book may opt in to adjustments; if it does not, none is made. The adjustments are:
+**Rule.** The book is kept on money paid and received, and on what people owe or are owed when it arises (the khata basis): nothing is recorded for the passage of time alone. At the year end a business book (shop, contractor, farm, truck, landlord, partnership) or a trust or committee may opt in to adjustments; if it does not, none is made. A household or joint-family book stays on the khata basis. The adjustments are:
 
 | Adjustment | What it does | Entry (professional) | Plain words |
 |---|---|---|---|
@@ -78,13 +78,13 @@ The closing entries are real entries in the ledger, so every account's page show
 
 If the book opts in, the head of every report says so (rule 4.1), and the adjustments appear in the year-end section. The outstanding, prepaid, accrued, in-advance and stock adjustments are reversed on the first day of the next year (rule 2.5). Depreciation is not reversed.
 
-**Source:** NCERT Class 11 Part II, Ch 9 §9.1 (why profit is not cash received less cash paid), §9.3 (outstanding expense), §9.4 (prepaid), §9.5 (accrued income), §9.6 (income received in advance). AS 1 ¶27 (a book not kept on the accrual basis discloses the fact). ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 1 Unit 2, pp. 1.38–1.39 (cash-basis profit is cash received less cash paid, with no adjustments). Off by default and optional: none settles it — ruled 20 Oct 2026 (O-01-1, O-19-4): the people who keep these books record money as it moves and a live position needs no year-end estimates; the report says which way the book was kept.
+**Source:** NCERT Class 11 Part II, Ch 9 §9.1 (why profit is not cash received less cash paid), §9.3 (outstanding expense), §9.4 (prepaid), §9.5 (accrued income), §9.6 (income received in advance). AS 1 ¶27 (a book not kept on the accrual basis discloses the fact). ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 1 Unit 2, p. 1.42 (cash-basis profit is cash received less cash paid, with no adjustments). Off by default and optional: none settles it — ruled 20 Oct 2026 (O-01-1, O-19-4; O-17-3 for the trust), and the household and joint family kept out by owner ruling, 21 Oct 2026: the people who keep these books record money as it moves and a live position needs no year-end estimates; the report says which way the book was kept.
 
 **Example.** Professional (NCERT §9.1): insurance ₹1,200 paid on 1 July for twelve months; the year ends 31 March. With adjustments on: `Dr Prepaid insurance ₹300 · Cr Insurance ₹300`; the year's insurance is ₹900. With them off, the year's insurance is ₹1,200. Plain words: "Paid ₹1,200 insurance in July. Nine months of it is this year's cost. If I keep it simple, I count all ₹1,200 this year and the head of the report says so."
 
 ### 2.3 Depreciation is charged only on opt-in, at a rate per thing owned
 
-**Rule.** By default things owned stay at what they cost and no depreciation is charged. A business book (shop, contractor, farm, truck, landlord, partnership) may opt in at the year end. Then each thing owned carries its own yearly rate, and the charge is an expense of the year:
+**Rule.** By default things owned stay at what they cost and no depreciation is charged. A business book (shop, contractor, farm, truck, landlord, partnership) or a trust or committee may opt in at the year end. Then each thing owned carries its own yearly rate, and the charge is an expense of the year:
 
 `Dr Depreciation ₹x · Cr {thing owned} ₹x`
 
@@ -96,7 +96,7 @@ When the book has not opted in, every report that shows things owned prints the 
 
 ### 2.4 Closing stock is a figure the person types, and nothing more
 
-**Rule.** The book does not count or value goods. A shop that wants a stock figure types one rupee amount at the year end; it is an opt-in adjustment (rule 2.2) and reduces the year's cost of what was bought for sale. A book that types none prints the standing note in rule 4.3. Stock valuation as such is outside this document.
+**Rule.** The book does not count or value goods. A shop that wants a stock figure types one rupee amount at the year end; it is an opt-in adjustment (rule 2.2) and reduces the year's cost of what was bought for sale. A book that types none prints the standing note in rule 4.3. A closing figure is measured against the goods on the shelf at the opening, which the opening entry put into *Goods bought for sale* (01, opening balances of things owned); a book that typed no opening goods may type a closing figure only if the shelf was in fact empty at the opening. Stock valuation as such is outside this document.
 
 **Source:** NCERT Class 11 Part II, Ch 8 §8.4.4, p. 294 (the presumption that everything bought has been sold); ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 4 §4.3, p. 4.10 (goods not in inventory are taken as sold). The wording of the note: none settles it — ruled 20 Oct 2026 (O-10-1).
 
@@ -199,8 +199,9 @@ The head is repeated on every page of a printed report, and an exported file car
 | The book sells goods and typed no closing stock | *No stock is counted. Everything bought for sale is treated as sold or used in the year it was bought.* |
 | Own money is negative (what is owed is more than what is had) | *Owes more than it owns.* |
 | The year is open | the head already says *Year open – figures may change*; no further note |
+| The book opted in to year-end adjustments this year for the first time, or stopped making them | *This year the book {made / stopped making} year-end adjustments; last year's figures beside them are {without / with} them. They change this year's result by ₹{x}.* |
 
-**Source:** things owned: NCERT Class 11 Part II, Ch 7 §7.4.3; AS 10 ¶50, ¶52; AS 1 ¶27; ruled 20 Oct 2026 (O-09-1) — the wording is the book's own, no source gives it. Stock: NCERT Class 11 Part II, Ch 8 §8.4.4, p. 294 and ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 4 §4.3, p. 4.10; wording ruled 20 Oct 2026 (O-10-1). Negative own money: none settles it — ruled 20 Oct 2026 (O-04-4): a negative figure on its usual side states the fact more plainly than the older form that moves it to the other side.
+**Source:** things owned: NCERT Class 11 Part II, Ch 7 §7.4.3; AS 10 ¶50, ¶52; AS 1 ¶27; ruled 20 Oct 2026 (O-09-1) — the wording is the book's own, no source gives it. Stock: NCERT Class 11 Part II, Ch 8 §8.4.4, p. 294 and ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 4 §4.3, p. 4.10; wording ruled 20 Oct 2026 (O-10-1). Negative own money: none settles it — ruled 20 Oct 2026 (O-04-4): a negative figure on its usual side states the fact more plainly than the older form that moves it to the other side. Change of basis: AS 1 ¶22, ¶26 (a change of policy is disclosed with the amount by which it affects the statements); NCERT Class 11 Part I ch. 2 §2.2.10; wording: owner ruling, 21 Oct 2026.
 
 **Example.** Professional: no entry. Plain words: at the foot of a household's position — "*Things owned are shown at what they cost; no depreciation is charged.*"
 
@@ -379,7 +380,7 @@ The **year-end section** that follows a year close lists: the closing entries (r
 
 **Source:** ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 7 Unit 1 §1.1, p. 7.3 (a cash flow statement and a statement of changes in equity are not mandatory for non-corporate entities); ICAI Technical Guide on Financial Statements of Non-Corporate Entities (June 2022), Ch V and Appendix A Annexure 2 (AS 3 not applicable to Levels II–IV; the two places are worded differently). Statement of affairs: ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 9 §3, pp. 9.6–9.10 (a working statement for incomplete records, differing from a balance sheet). Ruled 20 Oct 2026 (O-20-5, O-20-8).
 
-**Example.** Professional (BoS Ch. 9, the figures of Rakesh): cash ₹3,200, stock ₹34,800, debtors ₹31,000, machine ₹85,000 against creditors ₹12,000 and bank loan ₹10,000: `Dr Cash ₹3,200 · Dr Stock ₹34,800 · Dr Debtors ₹31,000 · Dr Machine ₹85,000 · Cr Creditors ₹12,000 · Cr Bank loan ₹10,000 · Cr Capital ₹1,32,000`. Plain words: "On the first day I wrote down everything the shop owns and owes; the ₹1,32,000 between them is my own money in it."
+**Example.** Professional (BoS Ch. 9, the figures of Rakesh): cash ₹3,200, stock ₹34,800, debtors ₹31,000, machine ₹85,000 against creditors ₹12,000 and bank loan ₹10,000: `Dr Cash ₹3,200 · Dr Goods bought for sale ₹34,800 · Dr Debtors ₹31,000 · Dr Machine ₹85,000 · Cr Creditors ₹12,000 · Cr Bank loan ₹10,000 · Cr Capital ₹1,32,000`. The textbook's Stock goes to *Goods bought for sale*, and its Debtors and Creditors to one account per person (01, opening). Plain words: "On the first day I wrote down everything the shop owns and owes; the ₹1,32,000 between them is my own money in it."
 
 ## 6. Reports by kind of book
 

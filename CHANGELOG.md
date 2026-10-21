@@ -12,6 +12,49 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-21 — docs: accounting panel run on 01; owner rulings applied to 01, 02, 04
+
+**Changed**
+- `docs/accounting/01-foundations.md`, from the first `/acct-review docs 01` run (CA, munim and entities; 39 findings, 17 confirmed, 19 refuted). All 12 distinct findings were ruled by the owner and applied:
+  - §4.3, §4.6, §2.10: goods on the shelf at the opening go into *Goods bought for sale* in the opening entry. Leaving them out let a first-year closing count overstate the year's result by the whole opening stock. That was the blocker, MU-1/CA-5.
+  - §4.3: example restored to the BoS figures (₹25,60,000 each side, Own money ₹20,00,000), with receivables one line per person.
+  - §2.5: the Drawings rule is limited to a sole owner and a household. Partners' drawings go to their capital or current account (03 §2.4). A sub-family's drawings go to its running account. NCERT Class 12 citation corrected.
+  - §2.8: only advances for spending get their own account. Trade advances stay on the running khata.
+  - §1.4: business books and trusts may opt in to year-end adjustments; a household or joint family may not.
+  - §1.5: a change of basis is disclosed with its effect in rupees.
+  - §1.7: no provision for doubtful debts in any book.
+  - §3.1: an entry with no document carries a note of who and why.
+  - §1.3: wages are entered in the month they are paid.
+  - §1.8: new substance-over-form example.
+  - §1.10: a trust prints all three statements, and its opt-in includes depreciation.
+  - §4.8: rule text reworded to match its example.
+  - AS 1, BoS and NCERT citations and page numbers corrected.
+- `02-accounts-and-transactions.md`: §2.7 drops the opted-in provision; §5.4 lets trusts opt into depreciation; §6.3 covers opening goods.
+- `04-year-end-and-reports.md`:
+  - §2.2 and §2.3: who may opt in.
+  - §2.4: a closing figure needs the opening goods entered.
+  - §4.3: new standing note for a change of basis (AS 1 ¶26).
+  - §5.10: example Stock changed to *Goods bought for sale*.
+- `.claude/skills/acct-review/SKILL.md`: measured cost recorded: 2.41 M tokens and 23 min for one `docs` run.
+- `PLAN.md` PLAN-209: run outcome added, plus the four questions still for the bookkeeper (MU-Q2, Q5, Q6, Q7).
+
+**Decided**
+- Owner, 21 Oct 2026, on the panel's findings for 01. Draft accounting docs need no ADR until the app-requirements pass (PLAN-210):
+  - Wages count in the month paid.
+  - Everything the book has goes into the opening, goods included.
+  - The financial year is April to March.
+  - The head for a bad debt is *Written off*.
+  - The panel's fix applies to each other finding, read from a bookkeeper's point of view.
+
+**Open**
+- The shop reference book opens with no goods on the shelf (`shop-sukhwinder-sales-co.tech.md`). It needs an opening goods figure, or a statement that the shelf was empty (PLAN-209).
+- Next `/acct-review docs 02`, then 03, 04, 05.
+
+**Commits**
+- (to fill)
+
+---
+
 ## 2026-10-21 — env: accounting panel narrowed after review
 
 **Changed**
