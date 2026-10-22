@@ -71,7 +71,7 @@ Rules for the chips:
 | Petty Cash | | |
 | Gollak | | |
 
-*Gollak* creates a `cash_collection` account (02 §8.2).
+*Gollak* in a trust's book is the `cash_collection` account the trust's setup creates (07 §3.1). In any other book it is an ordinary cash account (`cash`, 02 §8.2): it is counted to check it, and nothing in it is income.
 
 ## Bank
 

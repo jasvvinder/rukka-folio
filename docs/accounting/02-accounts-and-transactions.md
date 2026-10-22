@@ -2,15 +2,15 @@
 
 **Status:** Draft, 20 Oct 2026 — for a bookkeeper's review.
 
-This document gives the rule for each kind of account and each kind of everyday transaction in the books of an Indian household, a joint family, a small business (shop, contractor, farm, truck, landlord, partnership) or a trust or committee: cash and bank, people who owe or are owed, advances, loans, things owned and deposits, goods bought for sale, corrections, and entries that move no money. It describes bookkeeping practice for people who keep a rokad, a khata and a ledger; it does not claim that a book kept this way complies with the Accounting Standards or any statutory format. The basis of recording (the *khata basis*), the books themselves, entity-specific rules and the year-end and reports are in the other documents: *01 — Accounting foundations*, *03 — Entities*, *04 — Year end and reports*.
+Every entry moves an amount from one account to another, between accounts the person has opened, each of a kind in the table below; the person decides which accounts an entry uses. This document gives the kinds of account and shows common transactions as worked entries in the books of an Indian household, a joint family, a small business (shop, contractor, farm, truck, landlord, partnership) or a trust or committee: cash and bank, people who owe or are owed, advances, loans, things owned and deposits, goods bought for sale, corrections, and entries that move no money. A case not shown here is entered the same way, from one account to another; it needs no rule of its own. It describes bookkeeping practice for people who keep a rokad, a khata and a ledger; it does not claim that a book kept this way complies with the Accounting Standards or any statutory format. The basis of recording (the *khata basis*), the books themselves, entity-specific rules and the year-end and reports are in the other documents: *01 — Accounting foundations*, *03 — Entities*, *04 — Year end and reports*.
 
-**The khata basis, in one paragraph.** Money is recorded when it moves. An amount due to or from a named person (a credit sale or purchase, rent charged, an advance, a loan) is recorded when it arises. Nothing is recorded for time alone: no accrued or prepaid items, no depreciation, no closing stock, no provision for doubtful debts — unless the book opts into year-end adjustments, which *04 — Year end and reports* describes. Every rule below is consistent with this, and each says where an optional year-end variant exists.
+**The khata basis, in one paragraph.** Money is recorded when it moves. An amount due to or from a named person (a credit sale or purchase, rent charged, an advance, a loan) is recorded when it arises. Nothing is recorded for time alone: no accrued or prepaid items, no depreciation, no closing stock, no provision for doubtful debts — unless a business book, or a trust or committee, opts into year-end adjustments (a household or joint-family book does not), which *04 — Year end and reports* describes. Every rule below is consistent with this, and each says where an optional year-end variant exists.
 
 ## Kinds of account
 
 | Plain word | Standard type | Natural side | Examples |
 |---|---|---|---|
-| Cash | Asset | Dr | Cash in hand; the shop till; petty cash held by a clerk |
+| Cash | Asset | Dr | Cash in hand; the shop till; *Petty cash*, the float held by a petty cashier (3.7) |
 | Gollak | Asset | Dr | Donation box of a gurdwara, mandir or committee, until counted and banked |
 | Bank | Asset | Dr (Cr when overdrawn) | Savings, current and salary accounts; an overdraft on a current account |
 | Wallet | Asset | Dr | UPI wallet, FASTag balance, prepaid card |
@@ -24,10 +24,11 @@ This document gives the rule for each kind of account and each kind of everyday 
 | Loan | Liability (from) or Asset (to) | Cr (from) or Dr (to) | *Loan from – {person}*, *Loan to – {person}*, a bank term loan, a vehicle loan |
 | Thing owned | Asset | Dr | Truck, tractor, machine, land, building, gold, furniture |
 | Deposit | Asset | Dr | Fixed deposit, recurring deposit, other investment placed with a bank or institution |
-| Income head | Income | Cr | Sales, rent received, interest received, donations, commission |
+| Income head | Income | Cr | Sales, rent received, interest received, donations, commission received |
 | Expense head | Expense | Dr | Goods bought for sale, wages, rent, repairs, interest paid, household costs |
 | Written off | Expense | Dr | *Written off*, or a named head such as *Rent written off* |
 | Cash short / over | Expense when short (Dr); Income when over (Cr) | Dr or Cr | The difference between the cash counted and the cash book |
+| Not yet sorted | Holding account | Dr or Cr | A bank-statement line not yet given its account; sorted before the year closes (7.5) |
 
 Own money (capital) and Drawings belong to the owner's side of the book and are described in *03 — Entities*.
 
@@ -51,14 +52,14 @@ The cash balance is always on the debit side, because cash paid out cannot excee
 **Example.** Cash opening ₹8,000, received ₹4,000, paid ₹9,500: balance `Dr ₹2,500`. A bank book closing `Cr ₹3,200` means the account is overdrawn by ₹3,200.
 Diary: *Cash in hand ₹2,500.* / *Bank: I owe the bank ₹3,200.*
 
-### 1.3 Cash put in the bank, or drawn for the till, is a Transfer
-Cash paid into the bank, and cash drawn from the bank for the business's own cash box, move money between two of the book's own accounts. They are entered once, as a Transfer, and are posted to no person or head. A cheque received on one day and banked on a later day is Money in (cash) on the day of receipt, and a Transfer to the bank on the day it is banked.
+### 1.3 A move between two of the book's own accounts is a Transfer
+Cash paid into the bank, and cash drawn from the bank for the business's own cash box, move money between two of the book's own accounts. They are entered once, as a Transfer, and are posted to no person or head. Every other move between the book's own accounts is a Transfer too: a wallet loaded (1.9), a petty-cash float handed over (3.7), a card bill paid (1.7), a KCC repaid (4.5), a deposit placed or returned (5.9, 5.10). In the Cash Book only a Transfer between cash and a bank is a contra entry, shown on both sides; a Transfer to or from a wallet, a card, a loan or a deposit is a payment or a receipt of the cash or bank. A cheque received on one day and banked on a later day is Money in (cash) on the day of receipt, and a Transfer to the bank on the day it is banked.
 **Source:** NCERT Part I ch. 4 §4.1.2 ("contra entry") [1]; ICAI BoS Ch. 2 Unit 5 §5.2 point 4, p. 2.109 [11].
 **Example.** `Dr Bank A/c ₹20,000 · Cr Cash A/c ₹20,000`; and `Dr Cash A/c ₹10,000 · Cr Bank A/c ₹10,000`.
 Diary: *Transfer ₹20,000 from Cash in hand to Bank.* / *Transfer ₹10,000 from Bank to Cash in hand — for the till.*
 
 ### 1.4 Cash drawn from the bank for private use is Drawings, not a Transfer
-A withdrawal for the owner's or the family's own use is not moved between the book's own accounts; it leaves the book. It is Drawings. A Transfer covers only cash moved between the business's own cash and bank.
+A withdrawal for the owner's or the family's own use is not moved between the book's own accounts; it leaves the book. It is Drawings. A Transfer is only a move between two of the book's own accounts (1.3).
 **Source:** ICAI BoS Ch. 2 Unit 5 §5.2 p. 2.109 [11]; Ch. 9 §4.4 p. 9.22 [18].
 **Example.** `Dr Drawings A/c ₹10,000 · Cr Bank A/c ₹10,000`.
 Diary: *Drawings ₹10,000 from Bank — for house expenses.*
@@ -67,13 +68,13 @@ Diary: *Drawings ₹10,000 from Bank — for house expenses.*
 Charges, interest debited, standing-instruction payments and direct debits are money out of the bank book. Interest, dividends and direct deposits the bank credits are money in. A customer's cheque that comes back unpaid is entered as money out of the bank against the customer, restoring what he owed before.
 **Source:** NCERT Part I ch. 4 §4.1.2 [1]; ICAI BoS Ch. 3 §5 cause (vi), p. 3.10 [13].
 **Example.** `Dr Bank Charges A/c ₹120 · Cr Bank A/c ₹120`. Dishonour: `Dr Kapoor Traders A/c ₹12,000 · Cr Bank A/c ₹12,000`.
-Diary: *Money out ₹120 (Dr Bank charges) — Bank took service charges.* / *Kapoor Traders' cheque for ₹12,000 bounced — You will get ₹12,000 from Kapoor Traders again.*
+Diary: *Money out ₹120 (Cr Bank) — Bank charges: the bank took service charges.* / *Kapoor Traders' cheque for ₹12,000 bounced — You will get ₹12,000 from Kapoor Traders again.*
 
 ### 1.6 An overdraft or cash credit on a current account is the bank account running a credit balance
 An overdraft, or a cash credit operated through the current account, is not a separate loan account. It is the same bank account standing on the credit side. The sanctioned limit is not an entry. In the position, a credit balance shows under *What I owe* as a short-term loan. A Kisan Credit Card or cash-credit limit that the bank keeps as a separate loan account is different: see 4.5.
 **Source:** NCERT Part I ch. 4 §4.1.2 [1]; ICAI BoS Ch. 2 Unit 5 §5.2 p. 2.110 [11]; Ch. 7 Unit 1 §1.6 p. 7.39 [16].
 **Example.** Bank book closes `Cr ₹8,000`; the bank charges ₹160 interest: `Dr Interest on Overdraft A/c ₹160 · Cr Bank A/c ₹160`.
-Diary: *Bank: I owe the bank ₹8,000 (What I owe).* / *Money out ₹160 (Dr Interest) — Bank charged interest on the overdraft.*
+Diary: *Bank: I owe the bank ₹8,000 (What I owe).* / *Money out ₹160 (Cr Bank) — Interest on overdraft: the bank charged interest.*
 
 ### 1.7 A credit card is a liability of its own; paying the bill is a Transfer
 Each card has its own account. A spend on the card is not money out of the bank: it credits the card and debits the expense or the thing bought. Paying the bill is a Transfer from the bank to the card, which brings the card account down.
@@ -82,10 +83,10 @@ Each card has its own account. A spend on the card is not money out of the bank:
 Diary: *Spent ₹3,000 on Fuel — on HDFC card.* / *Transfer ₹3,000 from Bank to HDFC card — bill paid.*
 
 ### 1.8 A sale taken on a customer's card is a cash sale; the bank's commission is an expense
-Seen from the seller, a card sale is a cash sale: the bank credits the seller's account and takes a commission, which is debited to the bank at once.
+Seen from the seller, a card sale is a cash sale: the bank credits the seller's account and takes a commission, which comes out of the bank at once as an expense, *Card commission*.
 **Source:** ICAI BoS Ch. 2 Unit 5 §5.5, pp. 2.117–2.118 [11].
-**Example.** `Dr Bank A/c ₹5,000 · Cr Sales A/c ₹5,000`; commission at 2%: `Dr Commission A/c ₹100 · Cr Bank A/c ₹100`.
-Diary: *Money in ₹5,000 (Dr Bank) — Sale on a customer's card.* / *Money out ₹100 (Dr Commission) — Bank's charge.*
+**Example.** `Dr Bank A/c ₹5,000 · Cr Sales A/c ₹5,000`; commission at 2%: `Dr Card Commission A/c ₹100 · Cr Bank A/c ₹100`.
+Diary: *Money in ₹5,000 (Dr Bank) — Sale on a customer's card.* / *Money out ₹100 (Cr Bank) — Card commission: the bank's charge.*
 
 ### 1.9 A wallet is a money account of its own
 A wallet is an asset that behaves like cash. Loading it is a Transfer from the bank or cash; spending from it is a payment out of the wallet.
@@ -104,8 +105,8 @@ Diary: *Bank took ₹300 charges and paid ₹1,500 insurance; written into my ba
 ## 2. Persons: debtors and creditors
 
 ### 2.1 One running account per person
-A person who is sometimes a customer and sometimes a supplier has one account, not two. Sales and money given are debited; purchases, returns and money taken are credited. The balance is what remains, shown as *You will get* or *You will give* by its side. Deposits, retention money, advances for spending and interest-bearing loans are the exceptions (see the opening of this document).
-**Source:** NCERT Part I ch. 4 §4 ("Ramneek's Account") [1]. Dual-role single account ruled 20 Oct 2026 (O-06-1): the khata the users already keep.
+A person who is sometimes a customer and sometimes a supplier has one account, not two. Sales to him, goods sent back to him and money given to him are debited; purchases from him, goods he sends back and money taken from him are credited. The balance is what remains, shown as *You will get* or *You will give* by its side. Deposits, retention money, advances for spending and interest-bearing loans are the exceptions (see the opening of this document).
+**Source:** NCERT Part I ch. 4 §4.7, p. 146 ("Ramneek's Account") [1]; §4.3, p. 127 (a purchase return debits the supplier) [1]. Dual-role single account ruled 20 Oct 2026 (O-06-1): the khata the users already keep.
 **Example.** `Dr Ramesh A/c ₹4,140 · Cr Sales A/c ₹4,140`; return `Dr Sales Return A/c ₹440 · Cr Ramesh A/c ₹440`; payment `Dr Cash A/c ₹3,700 · Cr Ramesh A/c ₹3,700`. Balance nil.
 Diary: *Gave on credit ₹4,140 to Ramesh (You will get). He returned ₹440 and Received ₹3,700 — account clear.*
 
@@ -122,10 +123,10 @@ Money received from a customer before delivery is a liability until the goods go
 Diary: *Money in ₹30,000 from Ramesh ahead (You will give goods).* / *Sold ₹30,000 to Ramesh — balance nil.*
 
 ### 2.4 Money held back by a customer or contractor is Retention held, on its own account
-When a customer or contractor holds back part of what is due until the work is accepted, that amount is *Retention held by – {party}*, an asset on the party's page beside the running account. It is not left in the khata, because the khata would then show money not yet due as overdue. When it falls due, a Transfer moves it into the khata; when it is paid, it is money in.
+When a customer or contractor holds back part of what is due until the work is accepted, that amount is *Retention held by – {party}*, an asset on the party's page beside the running account. It is not left in the khata, because the khata would then show money not yet due as overdue. When it falls due, an entry with no money moved (*Retention released*) moves it into the khata; when it is paid, it is money in.
 **Source:** none settles it — ruled 20 Oct 2026 (O-06-4): the owner's 13 Oct 2026 deposit reasoning applies — netting it in the khata makes money not yet due look overdue.
 **Example.** Work billed ₹5,00,000; ₹25,000 held back: `Dr Sharma Builders A/c ₹4,75,000 · Dr Retention held by Sharma Builders A/c ₹25,000 · Cr Contract Income A/c ₹5,00,000`. On release: `Dr Sharma Builders A/c ₹25,000 · Cr Retention held by Sharma Builders A/c ₹25,000`.
-Diary: *Gave on credit ₹4,75,000 to Sharma Builders; ₹25,000 is held back as Retention.* / *Transfer ₹25,000 from Retention to Sharma Builders' khata — now due.*
+Diary: *Gave on credit ₹4,75,000 to Sharma Builders; ₹25,000 is held back as Retention.* / *Retention released: ₹25,000 moved to Sharma Builders' khata — now due. No money moved.*
 
 ### 2.5 What will not come is written off by a plain entry
 A debt known not to come is a loss: *Written off* (an expense head) is debited and the person's account credited. There is no provision first. The same entry serves any balance, not only a trade debt (see 8.2).
@@ -142,7 +143,7 @@ Diary: *Money in ₹1,200 (Income: Bad debts recovered) — Mohan paid what I ha
 ### 2.7 No provision for doubtful debts
 Because the book records money when it moves and dues when they arise, it does not set aside an estimate for debts that may not be paid. A provision presupposes receivables on an accrual basis. This holds whether or not the book has opted into year-end adjustments: a provision is not among them.
 **Source:** ICAI BoS Ch. 7 Unit 1 §1.4 adjustments (6), (7), p. 7.26 [16]; NCERT Part II ch. 9 §9.9 [4]. No provision by default: ruled 20 Oct 2026 (O-06-7, O-01-6): khata basis.
-**Example.** No entry, in any book, for the ₹13,000 still owed; if a debtor is later known not to pay, the balance is written off then.
+**Example.** Customers owe ₹13,000 at the year end and one of them may not pay. No entry, in any book; if a debtor is later known not to pay, the balance is written off then.
 Diary: *Nothing recorded for debts that may not be paid. Written off only when You will get nothing.*
 
 ---
@@ -186,10 +187,10 @@ An imprest is a fixed float held by a petty cashier inside the business. A float
 Diary: *Gave ₹10,000 as Advance to Bhola; later gave ₹5,000 more.*
 
 ### 3.7 Petty cash held by a clerk under an imprest: refilled only against bills
-A fixed sum is handed to the petty cashier. He pays small bills from it, and when he presents bills the same amount is returned, so he again holds the full float. The cashier receives no cash other than that. The balance with the cashier is cash; each period's bills are debited to their heads.
+A fixed sum is handed to the petty cashier. He pays small bills from it, and when he presents bills the same amount is returned, so he again holds the full float. The cashier receives no cash other than that. The float is its own account, *Petty cash*, a kind of Cash: handing it over and refilling it are Transfers from the main cash (1.3), and the bills are debited to their heads and credited to *Petty cash* when they are presented, and in any case at each month end and at the year end.
 **Source:** NCERT Part I ch. 4 §4.1.3 [1]; ICAI BoS Ch. 2 Unit 5 §5.4 pp. 2.112–2.114 [11].
-**Example.** Float ₹5,000; bills ₹3,200 (conveyance ₹1,200, postage ₹800, stationery ₹1,200): `Dr Conveyance A/c ₹1,200 · Dr Postage A/c ₹800 · Dr Stationery A/c ₹1,200 · Cr Cash A/c ₹3,200`.
-Diary: *Gave Suresh ₹5,000 for small bills. He brought bills for ₹3,200; I gave him ₹3,200 to bring his float back to ₹5,000.*
+**Example.** Float handed over: `Dr Petty Cash A/c ₹5,000 · Cr Cash A/c ₹5,000`. Bills ₹3,200 (conveyance ₹1,200, postage ₹800, stationery ₹1,200): `Dr Conveyance A/c ₹1,200 · Dr Postage A/c ₹800 · Dr Stationery A/c ₹1,200 · Cr Petty Cash A/c ₹3,200`. Refill: `Dr Petty Cash A/c ₹3,200 · Cr Cash A/c ₹3,200`.
+Diary: *Transfer ₹5,000 from Cash in hand to Petty cash — Suresh's float.* / *Suresh's bills: Conveyance ₹1,200, Postage ₹800, Stationery ₹1,200 — ₹3,200 from Petty cash.* / *Transfer ₹3,200 from Cash in hand to Petty cash — float back to ₹5,000.*
 
 ---
 
@@ -203,7 +204,7 @@ Diary: *Money in ₹25,000 — Took a Loan from Dayal Traders (What I owe).*
 
 ### 4.2 A loan to or from a relative is udhaar unless it carries interest or a schedule
 Money given to a relative and expected back sits in his running account on the debit side (*You will get*); money taken from him sits on the credit side (*You will give*). A loan that carries interest or has a repayment schedule gets its own account, *Loan to – {person}* or *Loan from – {person}*, on the person's page beside his running account.
-**Source:** ICAI BoS §1.7.1 (personal accounts; chapter not confirmed in the research note). Ruled 20 Oct 2026 (O-02-4): matches the per-person deposit ruling and stops an interest-bearing loan hiding in everyday udhaar.
+**Source:** ICAI BoS Ch. 2 Unit 1 §1.7.1, p. 2.16 [26] (a person's account is a personal account). Own account for a loan with interest or a schedule: ruled 20 Oct 2026 (O-02-4): matches the per-person deposit ruling and stops an interest-bearing loan hiding in everyday udhaar.
 **Example.** `Dr Bank A/c ₹50,000 · Cr Loan from Ramesh A/c ₹50,000` (at 12% a year, to be repaid in two years).
 Diary: *Money in ₹50,000 — Loan from Ramesh at 12%, to be repaid in two years.*
 
@@ -232,13 +233,13 @@ The book records the lender's figures. A difference found later is put right by 
 Diary: *Interest was ₹50 short against the bank's statement; corrected.*
 
 ### 4.7 Interest is recorded when it is charged or paid
-Interest on a loan taken is an expense when the lender charges it (on the statement) or when it is paid. For a hand loan between people, it is recorded when paid or when added to the person's account by agreement. Nothing is recorded for time alone; a book that opts into year-end adjustments may add the interest due to date (*04 — Year end and reports*).
-**Source:** NCERT Part II ch. 9 §9.3 [4] and AS 9 ¶8.2 [23] describe interest on a time basis in accrual books; ICAI BoS Ch. 7 Unit 1 p. 7.23 [16]. Interest when charged or paid: ruled 20 Oct 2026 (O-08-5): khata basis.
+Interest on a loan taken is an expense when the lender charges it (on the statement) or when it is paid. For a hand loan between people, it is recorded when paid or when added to the *Loan from – {person}* account by agreement (4.2). Nothing is recorded for time alone; a business book, or a trust or committee, that opts into year-end adjustments may add the interest due to date (*04 — Year end and reports*).
+**Source:** NCERT Part II ch. 9 §9.3 [4] describes interest on a time basis in accrual books; ICAI BoS Ch. 7 Unit 1 p. 7.23 [16]. Interest when charged or paid: ruled 20 Oct 2026 (O-08-5): khata basis.
 **Example.** `Dr Interest on Loan A/c ₹500 · Cr Bank A/c ₹500`.
 Diary: *Paid ₹500 from Bank — interest on the loan.*
 
 ### 4.8 Interest on a loan given is income when received or when charged by agreement
-Interest on money lent is income when it arrives, or when it is added to the borrower's account by agreement. Not by time alone.
+Interest on money lent is income when it arrives, or when it is added to the *Loan to – {person}* account by agreement (4.2). Not by time alone.
 **Source:** AS 9 ¶8.2 [23] and ICAI BoS Ch. 7 Unit 1 p. 7.24 [16] (accrual books). Ruled 20 Oct 2026 (O-08-7): khata basis.
 **Example.** `Dr Cash A/c ₹1,500 · Cr Interest Received A/c ₹1,500` (3 months at 12% on ₹50,000, received).
 Diary: *Money in ₹1,500 (Income: Interest) — from my friend on his ₹50,000 loan.*
@@ -253,8 +254,8 @@ Diary: *Nothing — the loan carries no interest.*
 
 ## 5. Assets and deposits
 
-### 5.1 A purchase that lasts and that the book lists is a Thing owned; the rest is expense
-Money spent for something that lasts more than a year and that the book wants on its list of things owned (vehicle, machine, land, gold, furniture) is a Thing owned. Money spent for what is used up in the year is an expense. Small tools and consumables are expenses. There is no rupee limit: a fixed figure would be wrong for a household and a firm alike.
+### 5.1 A purchase that lasts more than a year is a Thing owned; the rest is expense
+Money spent for something that will be used for more than a year (vehicle, machine, land, gold, furniture) is a Thing owned, unless it is small for this book (materiality). Money spent for what is used up in the year is an expense. Small tools and consumables are expenses. There is no rupee limit: a fixed figure would be wrong for a household and a firm alike.
 **Source:** NCERT Part II ch. 8 §8.2.1–8.2.3 pp. 279–281 [3]; Part I ch. 2 §2.2.12 (materiality) [7]; ICAI Framework ¶49, 93, 95, 96 [20]; ICAI BoS Ch. 1 Unit 2 p. 1.48 [8]. No limit: ruled 20 Oct 2026 (O-09-9).
 **Example.** `Dr Furniture A/c ₹12,000 · Cr Cash A/c ₹12,000` (a steel cupboard); `Dr Wages A/c ₹12,000 · Cr Cash A/c ₹12,000` (a month's wages).
 Diary: *Bought Furniture ₹12,000 — Thing owned.* / *Spent ₹12,000 on Wages — Expense.*
@@ -266,15 +267,15 @@ Cost is the price plus freight, insurance in transit, installation, registration
 Diary: *Bought a flour mill ₹50,000 and paid ₹5,000 to bring and fit it — it stands at ₹55,000.*
 
 ### 5.3 Repairs are expense; an addition or improvement is added to cost
-Day-to-day servicing and repairs are an expense. A replacement part, addition or extension that becomes part of the thing is added to its cost.
-**Source:** AS 10 ¶12, 13 [24]; NCERT Part I ch. 7 §7.10 p. 259 and ch. 6 §6.4.4 p. 190 [6][5]; ICAI BoS Ch. 1 Unit 3 §3.2(c)–(d) p. 1.63 [9].
-**Example.** `Dr Repairs A/c ₹2,000 · Cr Cash A/c ₹2,000` (tap); `Dr Shop Building A/c ₹30,000 · Cr Bank A/c ₹30,000` (new shutters).
-Diary: *Spent ₹2,000 on Repairs.* / *Paid ₹30,000 for new shutters — added to the shop's cost.*
+Day-to-day servicing, repairs and the replacement of a worn-out part are an expense. An addition or extension that adds to what the thing can do is added to its cost. Where a major part is replaced and its cost is added to the thing, the cost of the part taken out is removed from the thing at the same time.
+**Source:** AS 10 ¶12, 13, 78 [24]; NCERT Part I ch. 7 §7.10 p. 259 and ch. 6 §6.4.4 p. 190 [6][5]; ICAI BoS Ch. 1 Unit 3 §3.2(c)–(d) p. 1.63 and Illustration 1 (5), pp. 1.64–1.65 (a worn-out part replaced is revenue expense) [9].
+**Example.** `Dr Repairs A/c ₹2,000 · Cr Cash A/c ₹2,000` (tap); `Dr Shop Building A/c ₹30,000 · Cr Bank A/c ₹30,000` (a store room added at the back).
+Diary: *Spent ₹2,000 on Repairs.* / *Paid ₹30,000 to add a store room — added to the shop's cost.*
 
 ### 5.4 No depreciation unless the book opts in; the report must say so
 Depreciation is not charged by default. Things owned stay at cost, and every report that shows them carries the sentence: **"Things owned are shown at what they cost; no depreciation is charged."** A business book, or a trust or committee, may opt into depreciation at year end, at a rate for each thing; *04 — Year end and reports* describes the step. The sources treat the charge as the rule for a book kept on the accrual basis, and say that leaving it out overstates both the thing and the result; the book therefore states the omission rather than hiding it.
 **Source:** NCERT Part I ch. 7 §7.4.3 p. 232 [6]; AS 10 ¶50, 52 [24]; AS 1 ¶27 (departures are disclosed) [21]; ICAI BoS Ch. 5 §1.1 pp. 5.2–5.4 [15]. Omission by default: ruled 20 Oct 2026 (O-09-1): households, farms and trucks do not keep it; the books make no compliance claim.
-**Example.** Computer bought ₹45,000, three-year life. By default: no entry; it stays at ₹45,000. If opted in: `Dr Depreciation A/c ₹9,000 · Cr Computer A/c ₹9,000`.
+**Example.** Computer bought ₹45,000; rate 20% a year. By default: no entry; it stays at ₹45,000. If opted in: `Dr Depreciation A/c ₹9,000 · Cr Computer A/c ₹9,000`.
 Diary: *Computer: Thing owned ₹45,000. No depreciation is charged; the report says so.*
 
 ### 5.5 Land, gold and jewellery are not depreciable
@@ -296,7 +297,7 @@ A Thing owned bought on credit is debited at its full cost and the seller's acco
 Diary: *Bought a Truck ₹18,00,000: Loan from Punjab Bank ₹15,00,000, Paid ₹3,00,000 from Bank.* / *Took Furniture ₹8,000 on credit from Rao Furnishings (You will give).*
 
 ### 5.8 An unfinished building is a Thing owned at cost; a trust may expense it
-Money spent building a hall or house is *Building under construction*, a Thing owned at cost, moved to the finished building when complete. General running costs and start-up losses are not part of it. A trust or committee may instead charge construction as an expense of the year if its statements say so.
+Money spent building a hall or house is *Building under construction*, a Thing owned at cost, moved to the finished building when complete. General running costs and start-up losses are not part of it. A trust or committee may instead charge construction as an expense of the year; its statements then print the standing note in *04 — Year end and reports*, 4.3.
 **Source:** AS 10 ¶7, 9, 17(b), 18, 20, 21, 82(b) [24]. The trust alternative: owner ruling 13 Oct 2026 (construction is an expense head for a trust); default ruled 20 Oct 2026 (O-09-7).
 **Example.** `Dr Hall Under Construction A/c ₹2,00,000 · Cr Bank A/c ₹2,00,000`; the same month `Dr Office Expenses A/c ₹6,000 · Cr Cash A/c ₹6,000`.
 Diary: *Paid ₹2,00,000 for materials and labour on the new Hall — Thing owned, not an expense.*
@@ -308,7 +309,7 @@ A fixed deposit, a recurring deposit or any investment placed with a bank or ins
 Diary: *Transfer ₹1,00,000 from Bank to Deposit (fixed deposit).* / *Transfer ₹2,000 from Bank to Deposit (monthly RD).*
 
 ### 5.10 Interest on a deposit is recorded when the bank credits it
-Interest is income when the bank credits it (statement or passbook). If the bank adds it to a cumulative deposit, the Deposit rises; if it is paid out, it is money in. At maturity the amount placed returns as a Transfer (a capital receipt), and the interest is income. Accrual by time applies only if the book opts into year-end adjustments.
+Interest is income when the bank credits it (statement or passbook). If the bank adds it to a cumulative deposit, the Deposit rises; if it is paid out, it is money in. At maturity the amount placed returns as a Transfer (a capital receipt), and the interest is income. Accrual by time applies only if a business book, or a trust or committee, opts into year-end adjustments.
 **Source:** AS 9 ¶8.2 [23]; ICAI BoS Ch. 1 Unit 3 §3.4 Illustration 4(d) p. 1.67 [9]; Ch. 7 Unit 1 p. 7.19 and adjustment (2) p. 7.24 [16]. Ruled 20 Oct 2026 (O-09-4, O-09-5): khata basis; follows the bank's record.
 **Example.** Interest added to a cumulative deposit: `Dr Fixed Deposit A/c ₹4,000 · Cr Interest Received A/c ₹4,000`. Paid out: `Dr Bank A/c ₹4,000 · Cr Interest Received A/c ₹4,000`. Maturity: `Dr Bank A/c ₹5,40,000 · Cr Fixed Deposit A/c ₹5,00,000 · Cr Interest Received A/c ₹40,000`.
 Diary: *Bank added ₹4,000 interest to the Deposit (Income).* / *Deposit matured: ₹5,00,000 Deposit back, ₹40,000 Income.*
@@ -377,7 +378,7 @@ An amount put against the wrong person or head is moved by one entry. No money m
 Diary: *Rent of ₹2,000 was written against the landlord's khata; moved to Rent.*
 
 ### 7.4 A difference in the cash count goes at once to *Cash short / over*
-Whenever the cash counted differs from the cash book, the difference is entered that day to *Cash short / over*: an expense when short, income when over, with a note. If the cause is found later, a correction entry moves it to the right account. If the owner admits taking the money, it is Drawings instead.
+The count includes cheques received and not yet banked (1.3); a count of petty cash includes the bills in hand not yet entered (3.7). Whenever the cash counted differs from the cash book, the difference is entered that day to *Cash short / over*: an expense when short, income when over, with a note. If the cause is found later, a correction entry moves it to the right account. If the owner admits taking the money, it is Drawings instead.
 **Source:** none settles it — ruled 20 Oct 2026 (O-11-1): no Indian source treats it; with daily counts a suspense balance would be an unexplained figure nobody clears. The owner's-mixed-book case: ICAI BoS Ch. 9 §4.1 item (3) p. 9.15 [18].
 **Example.** Short ₹300: `Dr Cash Short / Over A/c ₹300 · Cr Cash A/c ₹300`. Found to be a missed bill for conveyance: `Dr Conveyance A/c ₹300 · Cr Cash Short / Over A/c ₹300` — note: "corrects entry no. 52".
 Diary: *Cash in hand counted ₹300 less than the book; written as Cash short.* / *Found it: Spent ₹300 on Conveyance, bill missed.*
@@ -389,16 +390,16 @@ Entries cannot be one-sided, so no difference arises that needs parking in a sus
 Diary: *Money in ₹7,500 — Not yet sorted. Later: from Mohan.*
 
 ### 7.6 A correction to a closed year is made in the current year, with a note
-A closed year is never reopened. The correction is entered today, to the right head, dated the day it is made, with a note naming the year it belongs to.
-**Source:** AS 5 ¶4.3, 15 [22] (prior-period items are shown separately; corporate). NCERT Part I ch. 6 §6.6.3 p. 202 [5] and ICAI BoS Ch. 2 Unit 6 §6.5.3 p. 2.147 [12] use a Profit and Loss Adjustment account; this book does not, ruled 20 Oct 2026 (O-11-4): one rule for books with and without a profit and loss account.
-**Example.** Last year's March rent of ₹3,000 was missed: `Dr Rent A/c ₹3,000 · Cr Landlord A/c ₹3,000` — note: "belongs to year ended 31 Mar 2026; found 14 May 2026".
-Diary: *Found in May that March's rent ₹3,000 was missed; written now with a note that it belongs to last year.*
+A closed year is never reopened. The correction is entered today, dated the day it is made, with a note naming the year it belongs to. A correction that changes an income or an expense goes to that head's line for earlier years (*Rent — earlier year*), shown as its own line in this year's statement, so this year's figures do not carry last year's item unseen.
+**Source:** AS 5 ¶4.3, 15 [22] (the nature and amount of prior-period items are shown separately). NCERT Part I ch. 6 §6.6.3 p. 202 [5] and ICAI BoS Ch. 2 Unit 6 §6.5.3 p. 2.147 [12] use a Profit and Loss Adjustment account for the same purpose; this book uses a line per head instead, ruled 20 Oct 2026 (O-11-4): one rule for books with and without a profit and loss account.
+**Example.** Last year's March rent of ₹3,000 was missed: `Dr Rent — Earlier Year A/c ₹3,000 · Cr Landlord A/c ₹3,000` — note: "belongs to year ended 31 Mar 2026; found 14 May 2026".
+Diary: *Found in May that March's rent ₹3,000 was missed; written now as Rent — earlier year, with a note that it belongs to last year.*
 
 ### 7.7 What a balanced trial balance does not show
 Totals that agree prove only that every debit has a matching credit and that posting and adding are right. They do not show: a transaction omitted completely; a right amount put to the wrong account; an item of the wrong kind (capital as expense); or two errors that cancel.
 **Source:** NCERT Part I ch. 6 §6.2.1 pp. 182–183, §6.4.1–6.4.5 pp. 189–191 [5].
-**Example.** `Dr Repairs A/c ₹30,000 · Cr Bank A/c ₹30,000` for new shutters; the totals agree, yet the shop building is understated by ₹30,000. Corrected: `Dr Shop Building A/c ₹30,000 · Cr Repairs A/c ₹30,000`.
-Diary: *Paid ₹30,000 for new shutters but wrote Repairs; moved to Shop Building.*
+**Example.** `Dr Repairs A/c ₹30,000 · Cr Bank A/c ₹30,000` for a store room added to the shop; the totals agree, yet the shop building is understated by ₹30,000. Corrected: `Dr Shop Building A/c ₹30,000 · Cr Repairs A/c ₹30,000`.
+Diary: *Paid ₹30,000 to add a store room but wrote Repairs; moved to Shop Building.*
 
 ### 7.8 When two sides differ, look for half and for nines
 If a difference between two totals divides by 2, an item of half that amount may be on the wrong side. If it divides by 9, two digits may be swapped. Also re-add, compare against the statement, compare with last year.
@@ -442,18 +443,18 @@ Diary: *Spent ₹3,000 on Rent — Own money, paid by Ramesh from his pocket.*
 
 ### 8.6 Goods taken by the owner for the house are Drawings
 Goods used other than for sale are taken out of *Goods bought for sale*, and the suitable account is debited — for the owner's own use, Drawings.
-**Source:** ICAI BoS Ch. 7 Unit 1 §1.5 item 1 pp. 7.30–7.31, 7.58 [16]. Ruled 20 Oct 2026 (O-12-6).
+**Source:** ICAI BoS Ch. 7 Unit 1 §1.5 item 3, pp. 7.31, 7.58 [16]. Ruled 20 Oct 2026 (O-12-6).
 **Example.** `Dr Drawings A/c ₹4,000 · Cr Goods Bought for Sale A/c ₹4,000`.
 Diary: *Drawings ₹4,000 — goods taken home from the shop.*
 
 ### 8.7 Goods lost by fire or theft: the loss, the insurer's share, the rest
 The loss is first taken to *Loss by fire*, credited against *Goods bought for sale*. If the insurer admits a claim, it is an asset (*Insurance claim*) until the money arrives; the part not met stays as the loss.
-**Source:** ICAI BoS Ch. 7 Unit 1 §1.5 item 3 pp. 7.30–7.32, 7.58 [16]. The BoS charges the uninsured part to the profit and loss account; the uninsured part stays in *Loss by fire*, an expense head, and reaches the profit and loss through the year close (ruled 20 Oct 2026, O-12-6).
+**Source:** ICAI BoS Ch. 7 Unit 1 §1.5 item 1, pp. 7.30, 7.58 [16]. The BoS charges the uninsured part to the profit and loss account; the uninsured part stays in *Loss by fire*, an expense head, and reaches the profit and loss through the year close (ruled 20 Oct 2026, O-12-6).
 **Example.** `Dr Loss by Fire A/c ₹6,000 · Cr Goods Bought for Sale A/c ₹6,000`; claim admitted ₹4,500: `Dr Insurance Claim A/c ₹4,500 · Cr Loss by Fire A/c ₹4,500`. ₹1,500 remains in Loss by fire.
 Diary: *Fire destroyed ₹6,000 of goods. The insurer accepts ₹4,500 (What I have); ₹1,500 is my loss.*
 
 ### 8.8 Year-end adjustments are entries too, and only when the book opts in
-Depreciation, prepaid and outstanding items, accrued income and a closing-stock figure are journal entries with no cash. By default none is made. *04 — Year end and reports* describes each option.
+Depreciation, prepaid and outstanding items, accrued income, income received in advance and a closing-stock figure are journal entries with no cash. By default none is made; only a business book, or a trust or committee, may opt in. *04 — Year end and reports* describes each option.
 **Source:** NCERT Part I ch. 4 §4.6 item 2 p. 139; ch. 7 §7.1.2 p. 229 [1][6]; Part II ch. 9 §9.2–9.8 pp. 320–329 [4]. Opt-in only: ruled 20 Oct 2026 (O-01-1, O-19-4): khata basis.
 **Example.** In an opted-in book: `Dr Depreciation A/c ₹1,500 · Cr Furniture A/c ₹1,500`.
 Diary: *Year-end: ₹1,500 of wear written off Furniture (only if this book keeps depreciation).*

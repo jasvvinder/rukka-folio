@@ -14,17 +14,18 @@ description: Run the accounting panel (CA, munim, entity specialist, auditor) ov
 | Agent | Discipline | Default for |
 |---|---|---|
 | `acct-ca` | Chartered Accountant (ICAI): standards, textbooks, report formats; checks every citation with WebFetch on ICAI/NCERT | docs, book, output |
-| `acct-munim` | Senior bookkeeper: plain words vs Dr/Cr, uncovered cases, vocabulary; practice claims come back as questions for the bookkeeper | docs, book |
+| `acct-munim` | Senior bookkeeper: plain words vs Dr/Cr, workable entries, vocabulary; practice claims come back as questions for the bookkeeper | docs, book |
 | `acct-entities` | Partnership, joint family, trust/NPO, landlord, related books | docs, book |
 | `acct-auditor` | Re-derives every figure; compares app output with its reference book | book, output |
 
 ## What the panel is, and what it is not
 - **It is not the bookkeeper sign-off** of PLAN-209. It runs before that review and makes it shorter. It never replaces it.
 - **It is the same model that wrote the docs.** It catches what a careful reader can show from the text: citations that don't say what the rule claims, arithmetic, contradictions between documents, plain words that contradict the Dr/Cr, missing report statements. It cannot catch an error the writer and the panel share. Claims about real practice come back as **questions for the bookkeeper**, not findings.
+- **It does not hunt for gaps.** Every entry is from one account to another, between accounts the user opens and chooses. A case the docs do not show needs no rule, and is not a finding or a question (ADR 2026-10-22 §2).
 - **It is not the test of the app's output.** That test is deterministic: the golden tests (suite A, `A-ref-*`, re-landing at M14) compare the engine's books with the reference books exactly, every run, at no token cost, and `check_md.py` does the same for the reference books themselves. Use `output` mode to diagnose a golden mismatch, to check what a printed or exported report must state (which a byte-diff does not explain), or to help write a new golden test. Do not use it as the test.
 
 ## Run
-1. **Budget first.** Run `.claude/bin/board.sh`. If today's ceiling cannot hold the run, say so and stop. Measured cost: `docs 01` (21 Oct 2026, 3 reviewers, 39 findings, 44 agents) took **2.41 M tokens and 23 min**. Budget about 2–2.5 M for each `docs` run.
+1. **Budget first.** Run `.claude/bin/board.sh`. If today's ceiling cannot hold the run, say so and stop. Measured cost: `docs 01` (21 Oct 2026, 3 reviewers, 39 findings, 44 agents) took **2.41 M tokens and 23 min**. `docs 02` (22 Oct 2026, 3 reviewers, 58 findings, 63 agents) took **3.36 M tokens and 25 min**. Budget about 2.5–3.5 M for each `docs` run.
 2. **Resolve the files.**
    - `docs 03` → `docs/accounting/03-entities.md`, and so on. For `all`, run once per document, never all five in one run.
    - `book shop` → the three files `docs/accounting/reference-books/shop-sukhwinder-sales-co{.md,.export.md,.tech.md}`.

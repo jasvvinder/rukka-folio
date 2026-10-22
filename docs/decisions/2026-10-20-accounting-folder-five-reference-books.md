@@ -14,7 +14,7 @@ The accounting documentation had grown into three worked-example sets in one fol
   - `04-year-end-and-reports.md` — year end, and what every report contains and states (topics 19–20).
 - `reference-books/` — the reference books (§2).
 - The documents describe real bookkeeping, independent of the app: no ADR, engine class, build status or test id appears in them (owner, 15 Oct 2026).
-- The folder ranks where `docs/reference/` ranked (CLAUDE.md § Precedence 3). Whether it should rank above 02 on accounting matters after the bookkeeper's review is **open** (below).
+- The folder ranks where `docs/reference/` ranked (CLAUDE.md § Precedence 3). Whether it should rank above 02 on accounting matters after the bookkeeper's review: **ruled 22 Oct 2026, ADR 2026-10-22 §1** (yes, on accounting behaviour).
 
 ### 2. Five reference books replace the ten practice books 🔒 ⟦tests: A-ref-1, A-ref-2, A-ref-3, A-ref-4, A-ref-5, A-ref-6, A-ref-7⟧
 - The five: **individual** (Jasvinder Singh, with Jasvinder Technologies), **joint family** (Randhawa: the family, three sub-families, Agriculture, Real Estate, Brick Field), **shop** (Sukhwinder Sales Co.), **partnership** (Bal Fabricators), **trust** (Radha Soami Satsang Sabha).
@@ -46,4 +46,4 @@ ADR 2026-10-12 §13 is carried out now rather than after the practice review: `u
 - **App.** Nothing yet. The rulings of 20 Oct 2026 contradict some app behaviour (02 §5 amends a posted entry where the rulings correct by a new entry; 02 §7 requires approval for an advance; ADR 2026-09-05e §2 keeps drawings separate where the rulings close them to capital). Per the owner's order of 15 Oct 2026 these are taken up once, in the app-requirements pass after the bookkeeper's review, not now.
 
 ## Open ⚠️
-- **Rank.** Should `docs/accounting/`, once a bookkeeper has signed it off, rank above 02 on accounting matters (so 02 is fixed to agree with it), rather than at reference level below 02 as now? A 🔒 change to CLAUDE.md § Precedence; asked 20 Oct 2026, not yet ruled.
+- **Rank.** Should `docs/accounting/`, once a bookkeeper has signed it off, rank above 02 on accounting matters (so 02 is fixed to agree with it), rather than at reference level below 02 as now? A 🔒 change to CLAUDE.md § Precedence; asked 20 Oct 2026. **Ruled 22 Oct 2026 → ADR 2026-10-22 §1.**

@@ -609,7 +609,9 @@ def ledger_table(b, acct, rows, start, end, bf_label, cd_label, bd_label, show_b
     opening = b.balance_at(acct.name, start - dt.timedelta(days=1)) if acct.is_bs else 0
     tdr = tcr = 0
     if acct.is_bs:
-        out.append("| %s |  | %s | — | — | %s | %s |" % (fdate(start), bf_label, fmt(abs(opening), show_zero=True), side_of(opening)))
+        # 04 §5.2, ADR 2026-09-24b §9: the opening balance stands in the amount column of its side, so each column adds up to the Total
+        out.append("| %s |  | %s | %s | %s | %s | %s |" % (fdate(start), bf_label, fmt(opening if opening > 0 else 0), fmt(-opening if opening < 0 else 0),
+                                                         fmt(abs(opening), show_zero=True), side_of(opening)))
     bal = opening
     for r in rows:
         bal += r["dr"] - r["cr"]
@@ -664,7 +666,7 @@ def sec_ledgers(b):
     out = ["### 2. Every account (ledger)", "", head_line(b.name, "%s to %s" % (fdate(FY_START), fdate(FY_END))), ""]
     out.append("One account after another: date, entry number, the other account (*To …* on the Dr side, *By …* on the Cr side) with the entry's note in small type, the amount on its side, "
                "the running balance and its side. "
-               "Accounts that carry a balance open with *Opening balance b/f* and end *Closing balance c/d · Total · Opening balance b/d*; "
+               "Accounts that carry a balance open with *Opening balance b/f* and end *Closing balance c/d · Total · Opening balance b/d*, the opening and closing balances standing in the amount column of their side so that each column adds up to the Total; "
                "income and expense accounts end with their total for the year. The last rows of the heads, the drawings and the own-money accounts are the year-close entries "
                "(numbers ending Y1, Y2 …) that the book makes itself on %s — they are listed in section 4." % fdate(FY_END))
     out.append("")
@@ -1230,28 +1232,22 @@ def int_or(cell):
 
 
 def carry_rows(b):
-    """(label, group, signed balance) of every account that opens FY 2026-27 with a balance — after the year close; one own-money figure per owner."""
+    """(label, group, signed balance) of every account that opens FY 2026-27 with a balance — after the year close.
+    A partner's capital and current account each carry their own balance, as their ledgers do (03 §2.2, 04 §2.6)."""
     pcb = b.post_close_balances()
     rows = []
-    done = set()
-    if b.partners:
-        for p in b.partners:
-            mine = [x for x in (p.get("capital"), p.get("current")) if x]
-            done.update(mine)
-            rows.append(("%s — partner's own money" % p["name"], "Own money", sum(pcb[x] for x in mine)))
     for n in b.order:
         a = b.accounts[n]
-        if not a.is_bs or n in done or pcb[n] == 0:
+        if not a.is_bs or pcb[n] == 0:
             continue
         rows.append((n, a.group, pcb[n]))
-    # keep the chart order for accounts, partners first when there are partners
     return rows
 
 
 def sec_carry_forward(b, num):
     out = ["#### 4.%d Carried into FY 2026-27" % num, "", head_line(b.name, "opening balances on 01 Apr 2026"), ""]
     out.append("Every account that carries a balance takes its balance **after the year close** into the new year as its opening balance b/d on 01 Apr 2026 — the b/d line of its ledger. "
-               "Income and expense accounts and the drawings start FY 2026-27 at nil; the own money opens as one figure for each owner%s." % (" (each partner's capital and current account together)" if b.partners else ""))
+               "Income and expense accounts and the drawings start FY 2026-27 at nil; %s." % ("each partner's capital account and current account open at their own balances, as in their ledgers" if b.partners else "the own money opens as one figure for each owner"))
     out.append("")
     rows = []
     tdr = tcr = 0
@@ -1336,8 +1332,12 @@ def sec_family_summary(case):
                     res = bus.counts["result"]
                 assert a_ - b_ == res - takes, ("profit kept in the business", own.name, bus.name, a_, b_, res, takes)
                 m_ = lambda x: ("−" if x < 0 else "") + "₹" + fmt(abs(x), show_zero=True)
-                kept.append("**Profit kept in the business — %s and %s:** the business's own money after the year close %s, less the money put in that %s holds %s, is %s. "
-                            "That is the business's profit for %s %s less the %s taken out (%s − %s = %s)." % (own.name, bus.name, m_(a_), own.name, m_(b_), m_(a_ - b_), own.name, m_(res), m_(takes), m_(res), m_(takes), m_(res - takes)))
+                if a_ - b_ >= 0:
+                    kept.append("**Profit kept in the business — %s and %s:** the business's own money after the year close %s, less the money put in that %s holds %s, is %s. "
+                                "That is the business's profit for %s %s less the %s taken out (%s − %s = %s)." % (own.name, bus.name, m_(a_), own.name, m_(b_), m_(a_ - b_), own.name, m_(res), m_(takes), m_(res), m_(takes), m_(res - takes)))
+                else:   # 03 §4.1: more taken out than the profit
+                    kept.append("**Taken out beyond the profit — %s and %s:** the business's own money after the year close %s, less the money put in that %s holds %s, is %s. "
+                                "The business's profit for %s was %s and %s was taken out (%s − %s = %s)." % (own.name, bus.name, m_(a_), own.name, m_(b_), m_(a_ - b_), own.name, m_(res), m_(takes), m_(res), m_(takes), m_(res - takes)))
     out += table(["Book", "Its accounts for the other book", "Brought forward ₹", "Given (Dr) ₹", "Received (Cr) ₹", "Other book", "Its accounts", "Brought forward ₹", "Given (Dr) ₹", "Received (Cr) ₹", "Entries", "Agree"],
                  ["l", "l", "r", "r", "r", "l", "l", "r", "r", "r", "r", "c"], rows)
     out.append("")
@@ -2114,7 +2114,9 @@ def build_trust():
     wrong = b.pay(D(2025, 9, 6), genx, cash, R(2800), "Fodder for the dairy, cash")
     b.fix(D(2025, 9, 20), dairy, genx, R(2800), "Entry {ref} (fodder) was written to General Expense — moved to Dairy Expense", "Journal (correction)", ref=wrong)
     b.finalize()
-    b.assets_note = "The langar hall's cost is in Construction, an expense head, so it does not appear here as a thing owned. The Langar Hall Fund is money held for that purpose and is shown with the own money, beside the General Fund, not inside it."
+    built = sum(a for v in b.vouchers for n, a in v.lines if n == "Construction A/c")   # 04 §4.3: the hall's cost to date (construction began this year)
+    b.assets_note = ("The cost of the langar hall, ₹%s to date, is charged to expenditure and is not shown as a thing owned. "
+                     "The Langar Hall Fund is money held for that purpose and is shown with the own money, beside the General Fund, not inside it." % fmt(built))
     b.gaps = [("Gollak Cash A/c", "money subtype cash_collection: the count records the donation (Dr Gollak · Cr Donations – gollak), emptying is a transfer (O-17-8)"),
               ("Langar Hall Fund A/c", "an earmarked fund; spending is one action, two postings: the cost to Income & Expenditure and the same amount transferred from the fund (O-17-1); interest on the fund's deposit goes to the fund (O-17-2) — GAPS A4, E2"),
               ("Furniture & Equipment A/c", "a thing donated and kept is entered at ₹1 with its estimated value in the note (O-17-7)"),
@@ -2566,6 +2568,7 @@ def build_family():
                       "and the family's 3 of 5 of the brick field's, ₹%s." % (fmt(res(G)), fmt(res(E)), fmt(kshare)))
     for bk in (F, G, E, K):
         bk.assets_note = "Things owned are shown at what they cost."
+    F.assets_note += " The businesses are shown at the money put into them, not at their worth."   # 04 §4.3, §5.8: the family's stake in its businesses
     F.gaps = [("Sub-family accounts", "a running account per sub-family inside the joint book, carried forward or settled at the year end (owner, 13 Oct 2026) — GAPS A11"),
               ("Income from …", "money a family business sends home is the family's income; money put in stays at cost (the cost method) — GAPS A11"),
               ("three-book entries", "a household paying into a family business, or paying its bill, writes in three books (household, business, joint) — GAPS A11")]
@@ -2658,7 +2661,7 @@ def render_readme(cases, mds):
     out.append("The printed book (`<file>.md` / `.html` / local `.pdf`); every numbered heading is followed by its head line:")
     out.append("")
     out.append("1. **Accounts and opening balances** — every account with its plain type and what it is; Dr total = Cr total.")
-    out.append("2. **Every account (ledger)** — Date · No. · Particulars (*To …* / *By …*, with the entry's note in small type) · plain Dr column · plain Cr column · Balance · Side. Balance accounts open *Opening balance b/f* and end *Closing balance c/d · Total · Opening balance b/d*; "
+    out.append("2. **Every account (ledger)** — Date · No. · Particulars (*To …* / *By …*, with the entry's note in small type) · plain Dr column · plain Cr column · Balance · Side. Balance accounts open *Opening balance b/f* and end *Closing balance c/d · Total · Opening balance b/d*, the opening and closing balances standing in the amount column of their side so that each column adds up to the Total; "
                "income and expense accounts end with *Total for the year*; the own-money, drawings and head accounts end with their year-close row.")
     out.append("3. **Positions and statements during the year** — the full position at 30 Sep 2025 and 31 Mar 2026 with how the own money is made up; **one month** (October 2025) as an account-by-account summary; "
                "**one account for a chosen period** (the statement a user shares); **You will get / You will give** with ageing; "

@@ -24,7 +24,7 @@ Bookkeeping only. Tax, GST, TDS, invoicing, inventory and payroll are out of sco
 ## What you check, in order
 1. **Is this how the transaction is really kept?** (These usually become *questions for the bookkeeper*, below.) For each rule and each entry in a book, ask whether a working bookkeeper would post it this way. Check the account it goes to, whether a person's account is one running khata, and whether an advance, a deposit, retention or an interest-bearing loan sits on its own account. Then ask: would the khata holder, reading their page, recognise it?
 2. **Do the plain words match the Dr/Cr?** Every rule and every entry has a diary line in household words (*Money in*, *Money out*, *You will get*, *You will give*). If the words say one thing and the Dr/Cr does another, that is a `blocker`. If the words would make the person act wrongly, for example think they owe when they are owed, that is a `blocker` too.
-3. **Is it workable day to day?** Look for a rule that needs information the person does not have on the day, or an entry that takes more steps than the paper rokad. Look for a head no bookkeeper would open, and for a common real case that no rule or book covers (cash short, a cheque that bounced, money given to a relative, a payment split between cash and bank). Each is a finding.
+3. **Is it workable day to day?** Look for a rule that needs information the person does not have on the day, or an entry that takes more steps than the paper rokad. Look for a head no bookkeeper would open. A case the docs do not show is **not** a finding: every entry is from one account to another, between accounts the user opens, and the user chooses them (ADR 2026-10-22 §2).
 4. **Vocabulary.** Check that Jama/Naam, rokad, khata, havalamel, galla, gollak, arhtiya and theka are used as practice uses them (`01` §3.9). Also check `05`'s preset names: are they names real people use for that account type?
 5. **The reports a bookkeeper hands over.** Day Book, Cash Book, account statement, who owes what since when, the year's result, carry-forward. Would the owner of the book understand them, and would a CA accept them?
 
@@ -34,8 +34,8 @@ Bookkeeping only. Tax, GST, TDS, invoicing, inventory and payroll are out of sco
 
 ## Findings and questions are different things
 You are a model. You have read about practice; you have not kept a book. So:
-- A **finding** is something you can show from the text itself: a plain-words line that contradicts its Dr/Cr, a rule that contradicts another rule or a book, a case no rule covers, a name with no meaning for its account type. Each carries the file, the section or entry number and the quoted text.
-- A **question for the bookkeeper** is anything that rests on "this is how it is really done". Put it in `questions`, never in `findings`, phrased as a question the human bookkeeper (PLAN-209) can answer yes or no, with what you think practice is and why. Questions are not verified by the panel and carry no severity.
+- A **finding** is something you can show from the text itself: a plain-words line that contradicts its Dr/Cr, a rule that contradicts another rule or a book, a name with no meaning for its account type. Each carries the file, the section or entry number and the quoted text.
+- A **question for the bookkeeper** is anything that rests on "this is how it is really done". Ask only about a rule or an entry the docs or books actually show — never about a case they do not show, or which accounts a user should pick. Put it in `questions`, never in `findings`, phrased as a question the human bookkeeper (PLAN-209) can answer yes or no, with what you think practice is and why. Questions are not verified by the panel and carry no severity.
 
 ## What you must not report
 - Style or taste.
@@ -44,7 +44,7 @@ You are a model. You have read about practice; you have not kept a book. So:
 
 ## Severity (findings only)
 - `blocker`: the book would be wrong, or would mislead its owner into acting wrongly.
-- `major`: a common real case is not covered, or two rules lead to different entries for the same case.
+- `major`: two rules lead to different entries for the same case, or a rule as written would post a common case to the wrong side.
 - `minor`: wording or a name with no meaning for its account type.
 
 Below minor, do not file.

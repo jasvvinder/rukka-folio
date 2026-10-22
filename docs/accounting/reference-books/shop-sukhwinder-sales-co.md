@@ -51,13 +51,13 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 
 *Sukhwinder Sales Co. · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-One account after another: date, entry number, the other account (*To …* on the Dr side, *By …* on the Cr side) with the entry's note in small type, the amount on its side, the running balance and its side. Accounts that carry a balance open with *Opening balance b/f* and end *Closing balance c/d · Total · Opening balance b/d*; income and expense accounts end with their total for the year. The last rows of the heads, the drawings and the own-money accounts are the year-close entries (numbers ending Y1, Y2 …) that the book makes itself on 31 Mar 2026 — they are listed in section 4.
+One account after another: date, entry number, the other account (*To …* on the Dr side, *By …* on the Cr side) with the entry's note in small type, the amount on its side, the running balance and its side. Accounts that carry a balance open with *Opening balance b/f* and end *Closing balance c/d · Total · Opening balance b/d*, the opening and closing balances standing in the amount column of their side so that each column adds up to the Total; income and expense accounts end with their total for the year. The last rows of the heads, the drawings and the own-money accounts are the year-close entries (numbers ending Y1, Y2 …) that the book makes itself on 31 Mar 2026 — they are listed in section 4.
 
 #### Cash A/c
 
 | Date | No. | Particulars | Money in (Dr) | Money out (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 22,000 | Dr |
+| 01 Apr 2025 |  | Opening balance b/f | 22,000 | — | 22,000 | Dr |
 | 16 May 2025 | S-006 | By Freight & Cartage A/c<br><em>Cartage of the Jaquar consignment, cash</em> | — | 4,600 | 17,400 | Dr |
 | 30 Jun 2025 | S-009 | To Sales A/c<br><em>Counter sales in cash, April–June 2025 (from the daily cash memo book)</em> | 3,86,000 | — | 4,03,400 | Dr |
 | 30 Jun 2025 | S-010 | By PNB Current A/c<br><em>Counter cash deposited in the bank</em> | — | 3,82,000 | 21,400 | Dr |
@@ -80,7 +80,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Money in (Dr) | Money out (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 4,80,000 | Dr |
+| 01 Apr 2025 |  | Opening balance b/f | 4,80,000 | — | 4,80,000 | Dr |
 | 03 Apr 2025 | S-001 | By Shop Rent A/c<br><em>Shop rent, April–June 2025</em> | — | 45,000 | 4,35,000 | Dr |
 | 08 Apr 2025 | S-002 | By Supreme Pipes Ltd A/c<br><em>Supreme Pipes paid — March bill (opening balance)</em> | — | 1,18,000 | 3,17,000 | Dr |
 | 14 Apr 2025 | S-003 | To Guru Nanak Builders A/c<br><em>Guru Nanak Builders paid March's goods (opening balance)</em> | 64,000 | — | 3,81,000 | Dr |
@@ -123,7 +123,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | You will get (Dr) | You will give (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 64,000 | Dr |
+| 01 Apr 2025 |  | Opening balance b/f | 64,000 | — | 64,000 | Dr |
 | 14 Apr 2025 | S-003 | By PNB Current A/c<br><em>Guru Nanak Builders paid March's goods (opening balance)</em> | — | 64,000 | 0 | — |
 | 30 Jun 2025 | S-011 | To Sales A/c<br><em>Goods to Guru Nanak Builders on khata, April–June 2025</em> | 2,38,000 | — | 2,38,000 | Dr |
 | 15 Jul 2025 | S-016 | By PNB Current A/c<br><em>Guru Nanak Builders paid for the goods of April–June 2025</em> | — | 2,38,000 | 0 | — |
@@ -154,7 +154,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | You will get (Dr) | You will give (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 1,18,000 | Cr |
+| 01 Apr 2025 |  | Opening balance b/f | — | 1,18,000 | 1,18,000 | Cr |
 | 08 Apr 2025 | S-002 | To PNB Current A/c<br><em>Supreme Pipes paid — March bill (opening balance)</em> | 1,18,000 | — | 0 | — |
 | 30 Jun 2025 | S-012 | By Goods Bought for Sale A/c<br><em>Pipes and fittings from Supreme Pipes on khata, April–June 2025</em> | — | 3,34,000 | 3,34,000 | Cr |
 | 18 Jul 2025 | S-017 | To PNB Current A/c<br><em>Supreme Pipes paid — goods of April–June 2025</em> | 3,34,000 | — | 0 | — |
@@ -171,7 +171,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | You will get (Dr) | You will give (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 46,500 | Cr |
+| 01 Apr 2025 |  | Opening balance b/f | — | 46,500 | 46,500 | Cr |
 | 25 Apr 2025 | S-004 | To PNB Current A/c<br><em>Jaquar Sanitary Agency paid — opening balance</em> | 46,500 | — | 0 | — |
 | 20 May 2025 | S-007 | By Goods Bought for Sale A/c<br><em>Sanitary ware from Jaquar Sanitary Agency on khata</em> | — | 1,18,600 | 1,18,600 | Cr |
 | 26 Aug 2025 | S-021 | To PNB Current A/c<br><em>Jaquar Sanitary Agency paid — May bill</em> | 1,18,600 | — | 0 | — |
@@ -195,7 +195,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Paid (Dr) | Got back / set off (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 90,000 | Dr |
+| 01 Apr 2025 |  | Opening balance b/f | 90,000 | — | 90,000 | Dr |
 | 31 Mar 2026 |  | Closing balance c/d | — | 90,000 | — | — |
 |  |  | **Total** | **90,000** | **90,000** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | 90,000 | — | 90,000 | Dr |
@@ -204,7 +204,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Bought (Dr) | Sold (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 1,20,000 | Dr |
+| 01 Apr 2025 |  | Opening balance b/f | 1,20,000 | — | 1,20,000 | Dr |
 | 26 Nov 2025 | S-035 | To PNB Current A/c<br><em>New display rack for sanitary ware — thing owned, at cost</em> | 38,000 | — | 1,58,000 | Dr |
 | 31 Mar 2026 |  | Closing balance c/d | — | 1,58,000 | — | — |
 |  |  | **Total** | **1,58,000** | **1,58,000** |  |  |
@@ -214,7 +214,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Taken out (Dr) | Put in (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 6,11,500 | Cr |
+| 01 Apr 2025 |  | Opening balance b/f | — | 6,11,500 | 6,11,500 | Cr |
 | 31 Mar 2026 | S-Y3 | By Profit & Loss A/c<br><em>Net profit added to own money</em> | — | 6,08,070 | 12,19,570 | Cr |
 | 31 Mar 2026 | S-Y4 | To Drawings A/c – Sukhwinder Bal<br><em>Drawings closed to own money</em> | 2,40,000 | — | 9,79,570 | Cr |
 | 31 Mar 2026 |  | Closing balance c/d | 9,79,570 | — | — | — |

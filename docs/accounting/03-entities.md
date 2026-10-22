@@ -11,7 +11,7 @@ This document says how each kind of owner keeps a book: a household, a sole prop
 | Partnership | The firm's money | Partners' capital (one per partner; with a Partner's current where capital is fixed) | Profit & Loss, then Profit & Loss Appropriation Account |
 | Joint family | The family's money, and what each sub-family has given or taken | Family's own money | Income & Expenses; result *Saving* |
 | Trust or committee | The trust's or committee's money, in funds | General Fund (and Corpus where founders gave it) | Income & Expenditure, with Receipts & Payments and the position (Balance Sheet) |
-| Landlord | The owner's money, with one account per tenant | The owner's Own money | Profit & Loss |
+| Landlord | The owner's money, with one account per tenant | The owner's Own money | Profit & Loss (business book); Income & Expenses, result *Saving* (household) |
 
 Plain words used throughout: *Money in, Money out, Received, Spent, You will get, You will give, Own money, Drawings / Taken for home, Partner, Partner's capital, Partner's current, Sub-family, Joint family, Fund, General Fund, Income, Expense, Saving, Spent more than came in, What I have, What I owe.* The true ledger side follows in brackets where it helps.
 
@@ -35,7 +35,7 @@ Diary: "Ramesh started his shop with ₹5,00,000 of his own cash." (*Money in* t
 
 Fresh money brought in during the year is recorded like the opening money: the account that receives it is debited and Own money (Capital) is credited. It is not income of the shop, and it never enters the year's profit. Money lent by a relative is a different thing, a loan, and is recorded in its own account (see *02 — Accounts and transactions*).
 
-**Source:** NCERT Class 11 Part I, ch. 3, Illustration 1 (keac103 p. 18); NCERT Class 11 Part II, ch. 8 §8.2.2 *Receipts* (keac201 p. 5, a capital receipt is an obligation to the owner); NCERT Class 11 Part I, ch. 1 §1.5.10 *Profit* ("the excess of revenues of a period over its related expenses").
+**Source:** NCERT Class 11 Part I, ch. 3, Illustration 1 (keac103 pp. 57–58) and the journal of Rohit (p. 63); NCERT Class 11 Part II, ch. 8 §8.2.2 *Receipts* (keac201 p. 5, a capital receipt is an obligation to the owner); NCERT Class 11 Part I, ch. 1 §1.5.10 *Profit* ("the excess of revenues of a period over its related expenses").
 
 **Example.**
 Dr Bank A/c ₹1,00,000 · Cr Capital A/c ₹1,00,000 (not Cr Sales or Income).
@@ -183,9 +183,9 @@ Diary: "The year's profit was ₹3,00,000. Each partner gets 6% on his capital, 
 
 ### 2.6 Salary, commission and interest on capital are shares of profit, not costs
 
-Partners' salary, commission and interest on capital are appropriations in the Profit & Loss Appropriation Account, below the profit line. They are allowed only if the partners agreed them. Interest on capital is **optional**: it is allowed only where the partners agreed it, and then at the agreed rate, on the opening capital for the year and on any addition from the date it came in.
+Partners' salary, commission and interest on capital are appropriations in the Profit & Loss Appropriation Account, below the profit line. They are allowed only if the partners agreed them. Interest on capital is **optional**: it is allowed only where the partners agreed it, and then at the agreed rate, on the opening capital for the year, on any addition from the date it came in, and on the reduced capital from the date of any agreed withdrawal of capital.
 
-**Source:** NCERT Class 12 Part I, ch. 1 §1.5.1 and §1.5.2, pp. 8–9, 15–16, Illustration 5, p. 17; ICAI BoS Foundation Paper 1, Ch. 10 Unit 1 §1.8, pp. 10.15–10.17 (both agree). The ICAI exposure draft instead shows partners' remuneration and interest on capital as charges above the profit line (ED-NCE Part II, line X; General Instructions item 4); the two sources differ and the textbook form is ruled (O-14-2). Owner ruling, 13 Oct 2026 (interest on capital only if agreed).
+**Source:** NCERT Class 12 Part I, ch. 1 §1.5.1 and §1.5.2, pp. 8–9, 15–16 (§1.5.2 item (iii), p. 16: after a withdrawal, interest runs on the reduced capital), Illustration 5, p. 17; ICAI BoS Foundation Paper 1, Ch. 10 Unit 1 §1.8, pp. 10.15–10.17 (both agree). The ICAI exposure draft instead shows partners' remuneration and interest on capital as charges above the profit line (ED-NCE Part II, line X; General Instructions item 4); the two sources differ and the textbook form is ruled (O-14-2). Owner ruling, 13 Oct 2026 (interest on capital only if agreed).
 
 **Example.** Ramesh's capital was ₹5,00,000, and ₹1,00,000 more came in on 1 October; agreed 6% a year: 5,00,000 × 6% + 1,00,000 × 6% × 6/12 = ₹33,000.
 Dr Profit & Loss Appropriation A/c ₹33,000 · Cr Ramesh Current A/c ₹33,000.
@@ -207,7 +207,7 @@ A partner may lend the firm money apart from his capital. It goes in its own acc
 
 **Source:** NCERT Class 12 Part I, ch. 1 §1.2.1 item (d), p. 4 (6%); ICAI BoS Foundation Paper 1, Ch. 10 Unit 1 §1.8, Illustration 2, pp. 10.16–10.17 (interest on a partner's loan "is not an appropriation of profit"). Ruled O-14-2.
 
-**Example.** A lent ₹20,000 on 1 July; capitals ₹40,000 and ₹10,000; profit before the loan interest ₹50,600; 6% for six months is ₹600; the rest, ₹50,000, is shared equally.
+**Example.** A lent ₹20,000 on 1 October (year ending 31 March); capitals ₹40,000 and ₹10,000; profit before the loan interest ₹50,600; 6% for six months is ₹600; the rest, ₹50,000, is shared equally.
 Dr Interest on Loan from A A/c ₹600 · Cr Loan from A A/c ₹600 (an expense, before profit).
 Dr Profit & Loss Appropriation A/c ₹50,000 · Cr A Capital A/c ₹25,000 · Cr B Capital A/c ₹25,000.
 Diary: "A lent the firm ₹20,000 for half a year. With nothing agreed he gets 6%, ₹600, taken off before the split. The remaining ₹50,000 is shared half and half."
@@ -224,20 +224,20 @@ Diary: "Ramesh paid the firm's ₹4,000 bill to Kapoor Traders from his own pock
 
 ### 2.10 A change of ratio in the year is divided by time
 
-When partners change their sharing ratio during the year, the year's profit is divided by days: the part before the change in the old ratio, the part after in the new. If the partners close the books at the change date, each part's actual profit is used instead. The value the gaining partner owes the losing partner for the change itself is settled between their capital accounts, in the proportion each gained or gave up; no goodwill account is opened in the firm's books.
+When partners change their sharing ratio during the year, the year's profit is divided by days: the part before the change in the old ratio, the part after in the new. If the partners close the books at the change date, each part's actual profit is used instead. The value the gaining partner owes the losing partner for the change itself is settled between their capital accounts (their current accounts where capital is fixed, 2.2), in the proportion each gained or gave up; no goodwill account is opened in the firm's books.
 
 **Source:** ICAI BoS Foundation Paper 1, Ch. 10 Unit 5 §5.3, pp. 10.173–10.174 (time basis, taught for the death of a partner; applied here by analogy; ruled O-14-6); Ch. 10 Unit 2 §2.1 pp. 10.43–10.44 and §2.6 pp. 10.61–10.62 (change of ratio settled through capital accounts; "in no case the goodwill account is to be raised"); NCERT Class 12 Part I, ch. 2 §2.9, Illustration 29. No source divides one year's profit between two ratios.
 
 **Example.** Profit ₹1,20,000; 3 : 2 for the first half and equal for the second (shown at half-year for a round figure; in practice by days). First half ₹60,000 gives ₹36,000 and ₹24,000; second half gives ₹30,000 each.
 Dr Profit & Loss Appropriation A/c ₹1,20,000 · Cr Ramesh Current A/c ₹66,000 · Cr Suresh Current A/c ₹54,000.
-Settling the change itself (BoS figures): A, B, C equal partners move to 4 : 3 : 2; goodwill ₹90,000; A gains one-ninth, C loses one-ninth: Dr A's Capital A/c ₹10,000 · Cr C's Capital A/c ₹10,000.
+Settling the change itself (BoS figures): A, B, C equal partners move to 4 : 3 : 2; goodwill ₹90,000; A gains one-ninth, C loses one-ninth: Dr A's Capital A/c ₹10,000 · Cr C's Capital A/c ₹10,000 (capitals fluctuating; with fixed capitals, Dr A's Current A/c · Cr C's Current A/c).
 Diary: "From 1 October Ramesh and Suresh share equally instead of 3 to 2. Ramesh got his 3-to-2 share of the first six months and half of the rest: ₹66,000; Suresh ₹54,000."
 
 ### 2.11 A partner who does not work is treated like any partner
 
 A partner who puts money in but does not work, or whose drawings another partner enters, has the same accounts as any partner. Whoever keeps the book records the entry, with a note of who asked for it. A partner who does not work has no salary unless the partners agreed one.
 
-**Source:** none settles it — ruled 20 Oct 2026 (O-14-7): no source read treats a sleeping or nominal partner; NCERT Class 12 Part I ch. 1 §1.2.1 item (e) gives no salary unless agreed, and the books record transactions, not who was present.
+**Source:** ICAI BoS Foundation Paper 1, Ch. 10 Unit 1 §1.8, p. 10.15 (a partner who does not work as much as another still shares profit as agreed, or equally), and the answer to true-or-false question 6, p. 10.36 ("Even if a partner does not take part in the business he is entitled for his share of profit"); NCERT Class 12 Part I ch. 1 §1.2.1 item (e) (no salary unless agreed). Who enters a drawing for another partner is not covered by the sources; ruled 20 Oct 2026 (O-14-7): the books record transactions, not who was present.
 
 **Example.**
 Dr Suresh Current A/c ₹10,000 · Cr Cash A/c ₹10,000 (entered by Ramesh; note: "taken by Suresh's son, on Suresh's phone call").
@@ -271,7 +271,7 @@ Diary: "The karta took ₹15,000 for his own household's expenses. It goes in hi
 
 ### 3.2 One running account per sub-family; it is not a debt
 
-The family's book holds one running account per sub-family, *{Sub-family} A/c*. On the debit side: household money given, money taken that is to be returned, and bills the family pays for that household. On the credit side: what the household puts in — into the family, straight into a family business, or by paying a family-business bill from its own money. It is not a debt; it sits under Own money. The sub-family's own book holds the matching account named after the family.
+The family's book holds one running account per sub-family, *{Sub-family} A/c*. On the debit side: household money given, money taken that is to be returned, and bills the family pays for that household. On the credit side: what the household puts in — into the family, straight into a family business, or by paying a family-business bill from its own money. It is not a debt; it sits under Own money, in both books. The sub-family's own book holds the matching account named after the family.
 
 **Source:** owner ruling, 13 Oct 2026; ICAI BoS Intermediate Paper 1, Ch. 15 §6, pp. 15.41–15.44 (converse running accounts of head office and branch), by analogy. Ruled O-15-1.
 
@@ -303,7 +303,7 @@ Diary: "The textile shop sent ₹20,000 home. For the family that is income from
 
 At year end each sub-family's running account is either **carried forward** as it stands (most families do) or **settled**. It is settled either by the family bearing it (charged to a family expense head) or from the sub-family's share of the family's business income. A share of business income is not a reduction of the family's income: the income came home and stays income; the family **shares it out** of its own money, as a partnership shares its profit, through a *Business income shared out* account that closes to the family's own money with the year's result. In the sub-family's own book the same amount is income, *Share of family business income*. A balance carried forward opens the next year unchanged.
 
-**Source:** owner ruling, 13 Oct 2026; ICAI BoS Intermediate Paper 1, Ch. 15 §7.1, p. 15.48 (the reconciled balance is carried forward, "To Balance b/d"). Ruled O-15-5. The two settling entries below are written from the ruling; no source gives them.
+**Source:** owner ruling, 13 Oct 2026; ICAI BoS Intermediate Paper 1, Ch. 15 §7.1, p. 15.47 (the reconciled balance is carried forward, "To Balance b/d"). Ruled O-15-5. The two settling entries below are written from the ruling; no source gives them.
 
 **Example.** Rajinder's account stands at ₹30,000 against him (more taken than put in).
 Carry forward: no entry; Rajinder's household A/c ₹30,000 Dr opens the next year.
@@ -333,7 +333,7 @@ Each book holds one account named after the other (*Rajinder's household A/c*, *
 
 A **running-account pair** (a family and a sub-family; two people) is converse balance for balance: where one is debit the other is credit, for the same amount, and the family summary shows that they agree.
 
-An **owner and the business he owns** (a family and its business, a person and his own shop) agree entry by entry: money put in matches the business's capital, and *Income from {business}* matches the business's drawings. They do not agree in balance. The owner holds the business at the money he put in, while the business's own money also carries its profit, so the summary prints the difference as *profit kept in the business*.
+An **owner and the business he owns** (a family and its business, a person and his own shop) agree entry by entry: money put in matches the business's capital, and *Income from {business}* matches the business's drawings. They do not agree in balance. The owner holds the business at the money he put in, while the business's own money also carries its profit, so the summary prints the difference as *profit kept in the business*. Where the business has paid out more than the owner's profit, the difference is negative and is printed as *taken out beyond the profit*.
 
 **Source:** ICAI BoS Intermediate Paper 1, Ch. 15 §6, *Accounting for Independent Branches*, pp. 15.41–15.44, by analogy; owner ruling, 13 Oct 2026 (naming, and money put in staying at what was put in). The source teaches the pair for branches of one concern only, where the balances agree. Ruled O-16-1 (amended 20 Oct 2026).
 
@@ -363,18 +363,18 @@ Diary: Rajinder: "Paid the electrician ₹2,500 for Harpreet's household." Harpr
 
 ### 4.4 When the two accounts disagree, correct the book that missed the item
 
-The two balances must agree. If they do not, the difference is cash or goods in transit, an item one side paid or collected directly and the other has not been told, or an item recorded at one end only. The fix is entered only in the book that did not record it; the book that recorded it in full makes no further entry.
+For a running-account pair the two balances must agree. If they do not, the difference is cash or goods in transit, an item one side paid or collected directly and the other has not been told, or an item recorded at one end only. The fix is entered only in the book that did not record it; the book that recorded it in full makes no further entry. An owner and the business he owns do not agree in balance (4.1); they are checked entry by entry, and an entry found in only one book is entered in the other.
 
-**Source:** ICAI BoS Intermediate Paper 1, Ch. 15 §7 and §7.1, worked example and "Important Points to be noted", pp. 15.44–15.48.
+**Source:** ICAI BoS Intermediate Paper 1, Ch. 15 §7 and §7.1, worked example and "Important Points to be noted", pp. 15.44–15.48. The source reconciles a head office and its branch, where the balances agree; it is applied here to running-account pairs only.
 
-**Example.** The family's Sharma Textile A/c reads ₹1,12,000 and the business's Family A/c reads ₹78,500; the difference is ₹33,500. The business paid ₹14,500 to a supplier of the family, and the family had not recorded it: in the family's book Dr Supplier A/c ₹14,500 · Cr Sharma Textile A/c ₹14,500.
-Diary: "The two sides differed by ₹33,500. Part was ₹14,500 the business had paid our supplier for us. We had not written it; now we have, in our book only."
+**Example.** The family's Rajinder's household A/c reads ₹45,000 against the household; Rajinder's Family A/c reads ₹30,500 in the family's favour; the difference is ₹14,500. Rajinder's household paid ₹14,500 to a supplier of the family, and the family had not recorded it: in the family's book Dr Supplier A/c ₹14,500 · Cr Rajinder's household A/c ₹14,500. Both books now say ₹30,500.
+Diary: "Our book and Rajinder's differed by ₹14,500. It was the ₹14,500 Rajinder's household had paid our supplier for us. We had not written it; now we have, in our book only. Both say ₹30,500: agrees."
 
 ### 4.5 Carried forward by default; settled when the two books agree
 
 The pair carries its balance forward from year to year; nothing closes it. They settle it in money whenever both books agree to. A joint family's sub-family accounts follow their own rule above.
 
-**Source:** ICAI BoS Intermediate Paper 1, Ch. 15 §7.1 worked example, p. 15.48 (the reconciled balance carried forward as "To Balance b/d"). Settling in money is not covered by the source; ruled O-16-4.
+**Source:** ICAI BoS Intermediate Paper 1, Ch. 15 §7.1 worked example, p. 15.47 (the reconciled balance carried forward as "To Balance b/d"). Settling in money is not covered by the source; ruled O-16-4.
 
 **Example.** Rajinder's household account stands at ₹90,000 against him at the opening.
 Family's book: Dr Rajinder's household A/c ₹90,000 (brought forward). The household pays ₹30,000 back: Dr Bank A/c ₹30,000 · Cr Rajinder's household A/c ₹30,000. Rajinder's book: Cr Family A/c ₹90,000 brought forward; Dr Family A/c ₹30,000 · Cr Bank A/c ₹30,000.
@@ -408,9 +408,9 @@ Diary: "Received ₹3,000 membership fee from Kapoor." (It appears in Receipts &
 
 ### 5.2 General Fund and Corpus
 
-The General Fund is the committee's own money: every receipt that is not for a stated purpose, less what is spent, carried year to year. Corpus is only money given expressly as corpus: the founders' gift, or a donation the donor says is for corpus. Everything else is the General Fund. The year's surplus or deficit goes to the General Fund.
+The General Fund is the committee's own money: every receipt not held in a fund (5.4) or as Corpus, less what is spent, carried year to year. Corpus is only the founders' or promoters' gift, given to start the trust. A donor who is not a founder and asks that the money be kept and only its income used gives an endowment, a fund of its own (5.4). Everything else is the General Fund. The year's surplus or deficit goes to the General Fund.
 
-**Source:** ICAI Technical Guide on NPOs, 2023 ed. para 106(a)(i)–(iii) and 109 (corpus is the non-reducible fund contributed by founders or promoters; the General Fund is all other unrestricted money). The BoS's Capital Fund is wider (Foundation Paper 1, Ch. 8 §4, pp. 8.10–8.11); the Guide is the higher source and is followed (ruled O-17-6).
+**Source:** ICAI Technical Guide on NPOs, 2023 ed. para 106(a)(i) (corpus is the non-reducible fund contributed by founders or promoters), 106(a)(iii) (the General Fund is the unrestricted money other than designated funds and corpus), 106(b) and 112 (an endowment, whose principal is not spent, is a restricted fund) and 109 (the year's surplus or deficit goes to the General Fund). The BoS's Capital Fund is wider (Foundation Paper 1, Ch. 8 §4, pp. 8.10–8.11); the Guide is the higher source and is followed (ruled O-17-6; corpus limited to the founders' gift, owner ruling 22 Oct 2026).
 
 **Example.**
 Dr Cash A/c ₹10,00,000 · Cr Corpus A/c ₹10,00,000.
@@ -418,9 +418,9 @@ Diary: "The founders gave ₹10,00,000 to start the trust. It is Corpus."
 
 ### 5.3 General donations and legacies are income
 
-A donation or legacy with no restriction on its use is Income in the Income & Expenditure account (*Income*, and then the General Fund through the surplus). A receipt for a purpose, such as a *Dairy Donation* receipt, is Income too. A legacy goes to a fund for a purpose only if the will restricts its use.
+A donation or legacy with no restriction on its use is Income in the Income & Expenditure account (*Income*, and then the General Fund through the surplus). A donation towards one of the trust's running activities, such as a *Dairy Donation* for the cows' feed or a donation for langar rations, is Income too, under its own head; the test that separates it from a fund is in 5.4. A legacy goes to a fund for a purpose only if the will restricts its use.
 
-**Source:** ICAI Technical Guide on NPOs, 2023 ed. para 106(a) ("All incomes (donations, legacies, investment income, fees, etc.) not subject to external restrictions are part of unrestricted funds"); ICAI BoS Foundation Paper 1, Ch. 8 "Other concepts" item 1(b), p. 8.13, and Illustration 4 (general donations credited to Income & Expenditure). The BoS also says elsewhere that a legacy or an unspecified donation is added to the Capital Fund (§4.1.1, "Other concepts" item 3, MCQ 3); the Guide is the higher source and is followed (ruled O-17-4, O-17-5). Owner ruling, 13 Oct 2026 (a *Dairy Donation*-style receipt for a purpose is income).
+**Source:** ICAI Technical Guide on NPOs, 2023 ed. para 106(a) ("All incomes (donations, legacies, investment income, fees, etc.) not subject to external restrictions are part of unrestricted funds"); ICAI BoS Foundation Paper 1, Ch. 8 "Other concepts" item 1(b), p. 8.13, Illustration 4 (general donations credited to Income & Expenditure) and MCQ 3, p. 8.40 (answer (b), Income and Expenditure Account, p. 8.45). The BoS also says elsewhere that a legacy or an unspecified donation is added to the Capital Fund (§4.1.1, p. 8.11; "Other concepts" item 3, p. 8.13); the Guide is the higher source and is followed (ruled O-17-4, O-17-5). Owner ruling, 13 Oct 2026 (a *Dairy Donation*-style receipt for a running activity is income).
 
 **Example.**
 Dr Cash A/c ₹55,000 · Cr Donations A/c ₹55,000; Dr Bank A/c ₹2,00,000 · Cr Legacy A/c ₹2,00,000.
@@ -428,9 +428,9 @@ Diary: "Received ₹55,000 in general donations. A legacy of ₹2,00,000 came un
 
 ### 5.4 Money given for a purpose is held in a fund of its own
 
-When the donor says what the money is for, it is credited to a fund named for the purpose, not to the year's income, and shown separately in the position. It is spent only on that purpose. A fund is a purpose set aside; it is not a bank account.
+When the donor gives money for something to be built, bought or kept (a hall, a named appeal, an endowment), it is credited to a fund named for the purpose, not to the year's income, and shown separately in the position. It is spent only on that purpose. A donation towards one of the trust's running activities (the dairy, the langar), used up in the year's work, is not a fund: it is income under its own head (5.3). A fund is a purpose set aside; it is not a bank account.
 
-**Source:** ICAI Technical Guide on NPOs, 2023 ed. paras 106(b), 110 (restricted funds are credited to a separate fund account when received and shown separately); ICAI BoS Foundation Paper 1, Ch. 8 §3.1, pp. 8.5–8.6, and §4.1.1, p. 8.11 (a donation for a stated purpose goes to a special fund).
+**Source:** ICAI BoS Foundation Paper 1, Ch. 8 §4.1.1, p. 8.11 (donations raised for revenue expenditure are credited to Income & Expenditure; those for a specific purpose, with the donor's intention, go to a special fund) — the test followed here, with owner ruling, 13 Oct 2026 (the dairy donation is income) and owner ruling, 22 Oct 2026 (the test); ICAI BoS Foundation Paper 1, Ch. 8 §3.1, pp. 8.5–8.6; ICAI Technical Guide on NPOs, 2023 ed. paras 106(b), 110 (restricted funds are credited to a separate fund account when received and shown separately). Para 110 would place every donor-restricted receipt in a fund, revenue or capital; the book follows the BoS test instead.
 
 **Example.**
 Dr Cash A/c ₹1,00,000 · Cr Community Hall Fund A/c ₹1,00,000.
@@ -438,12 +438,12 @@ Diary: "Received ₹1,00,000 from Sharma for the community hall."
 
 ### 5.5 Spending from a fund is charged to expenditure, with a matching transfer from the fund
 
-When the trust spends for the purpose of a fund, the spending is charged to Income & Expenditure and the same amount is transferred from the fund. The two postings are entered as one action: "paid from the Hall Fund". Every rupee spent is visible in Income & Expenditure, and the surplus on that fund is nil.
+When the trust spends for the purpose of a fund, the spending is charged to Income & Expenditure and the same amount is transferred from the fund to an income head, *Transferred from the {fund} A/c*, which the year close carries to Income & Expenditure. The two postings are entered as one action: "paid from the Hall Fund". Every rupee spent is visible in Income & Expenditure, and the surplus on that fund is nil.
 
 **Source:** ICAI Technical Guide on NPOs, 2023 ed. paras 101, 107, 110 (2009 ed. ¶111, ¶114). ICAI BoS Foundation Paper 1, Ch. 8 §4.1.1, p. 8.11, and "Other concepts" item 5, Illustration 5, debits the fund directly and says the expense is on no account charged to Income & Expenditure; the two ICAI sources differ and the Technical Guide, the higher source, is followed (ruled O-17-1).
 
 **Example.** ₹30,000 for hall repairs, from the Hall Fund.
-Dr Hall Repairs A/c ₹30,000 · Cr Cash A/c ₹30,000; Dr Community Hall Fund A/c ₹30,000 · Cr Income & Expenditure A/c (fund column) ₹30,000.
+Dr Hall Repairs A/c ₹30,000 · Cr Cash A/c ₹30,000; Dr Community Hall Fund A/c ₹30,000 · Cr Transferred from the Community Hall Fund A/c ₹30,000 (income; closed to Income & Expenditure at the year end).
 Diary: "Paid ₹30,000 for hall repairs, out of the Hall Fund." (One action; two postings.)
 
 ### 5.6 Interest on a fund's investment goes as the donor said
@@ -458,13 +458,13 @@ Diary: "Interest of ₹6,000 on the hall's fixed deposit came in; added to the H
 
 ### 5.7 A building or other thing bought from a fund is held at cost, and the fund moves to the General Fund
 
-A thing the trust buys with a fund's money is carried at what it cost (a thing owned, not an expense). When it is bought, the fund is transferred to the General Fund up to the cost, because the fund's purpose is fulfilled. A trust that opts into depreciation (see *04 — Year end and reports*) instead releases the fund to Income & Expenditure year by year in step with the depreciation. A building under construction is held at cost as *Building under construction* and moves to the finished building when complete; a trust or committee may instead charge construction as an expense of the year, saying so in its statements.
+A thing the trust buys with a fund's money is carried at what it cost (a thing owned, not an expense). When it is bought, the fund is transferred to the General Fund up to the cost, because the fund's purpose is fulfilled. A trust that opts into depreciation (see *04 — Year end and reports*) instead releases the fund to Income & Expenditure year by year in step with the depreciation. A building under construction is held at cost as *Building under construction* and moves to the finished building when complete; a trust or committee may instead charge construction as an expense of the year, saying so in its statements (the standing note in *04 — Year end and reports*, 4.3).
 
-**Source:** ICAI Technical Guide on NPOs, 2023 ed. para 110 (fund for a non-depreciable asset moves to capital reserve; for a depreciable asset it is treated as deferred income); ICAI BoS Foundation Paper 1, Ch. 8 §3.1, pp. 8.3–8.4 (capital expenditure is not an expense). With no depreciation by default the asset behaves as non-depreciable (ruled O-17-3). Construction as an expense of the year: owner ruling, 13 Oct 2026 (ruled O-09-7).
+**Source:** ICAI Technical Guide on NPOs, 2023 ed. para 110 (for a depreciable asset the fund is treated as deferred income; for a non-depreciable asset it is transferred to a *Capital Reserve*). The book departs from para 110 on the non-depreciable case and moves the fund to the General Fund instead, so the trust keeps one own-money account (owner ruling, 22 Oct 2026); para 109(a) likewise keeps grants for a non-depreciable asset within the General Fund. ICAI BoS Foundation Paper 1, Ch. 8 §3.1, p. 8.6 (expenditure on a fixed asset is capitalised, not an expense). With no depreciation by default the asset behaves as non-depreciable (ruled O-17-3). Construction as an expense of the year: owner ruling, 13 Oct 2026 (ruled O-09-7).
 
 **Example.** A hall is built for ₹5,00,000 from the Hall Fund.
 Dr Hall Building A/c ₹5,00,000 · Cr Bank A/c ₹5,00,000; then Dr Community Hall Fund A/c ₹5,00,000 · Cr General Fund A/c ₹5,00,000.
-Diary: "Paid ₹5,00,000 to build the hall. The Hall Fund's purpose is done; ₹5,00,000 moves to the General Fund." If the trust charges construction to the year, with ₹3,00,000 from the Hall Fund and ₹2,00,000 from general money: Dr Hall Construction A/c ₹5,00,000 · Cr Bank A/c ₹5,00,000; Dr Community Hall Fund A/c ₹3,00,000 · Cr Income & Expenditure A/c ₹3,00,000 (as in the rule on spending from a fund). The part met from the fund nets to nil; only the ₹2,00,000 paid from general money falls on the year, as a deficit, and the statements say so.
+Diary: "Paid ₹5,00,000 to build the hall. The Hall Fund's purpose is done; ₹5,00,000 moves to the General Fund." If the trust charges construction to the year, with ₹3,00,000 from the Hall Fund and ₹2,00,000 from general money: Dr Hall Construction A/c ₹5,00,000 · Cr Bank A/c ₹5,00,000; Dr Community Hall Fund A/c ₹3,00,000 · Cr Transferred from the Community Hall Fund A/c ₹3,00,000 (as in the rule on spending from a fund). The part met from the fund nets to nil; only the ₹2,00,000 paid from general money falls on the year, as a deficit, and the statements say so.
 
 ### 5.8 Things donated and kept are entered at a nominal rupee
 
@@ -478,7 +478,7 @@ Diary: "Sharma gave the society a cupboard worth about ₹40,000. Entered at ₹
 
 ### 5.9 A donation box (gollak, hundi) is recorded when it is counted
 
-The count records the donation. Debit *Gollak* (the counted cash in the box) and credit *Donations – gollak* (or the fund, if the box is for a purpose). Emptying the box into the cash box or bank is a transfer: debit cash or bank, credit *Gollak*. Money not yet counted is not recorded.
+The count records the donation. Debit *Gollak* (the counted cash in the box) and credit *Donations – gollak* (or the fund, if the box is for something to be built, bought or kept, 5.4). Emptying the box into the cash box or bank is a transfer: debit cash or bank, credit *Gollak*. Money not yet counted is not recorded.
 
 **Source:** none settles it — ruled 20 Oct 2026 (O-17-8): no accounting source read mentions a donation box (a news report on a large trust describes custody only: sealed boxes, two keys, counted by two people, entered after the bank's receipt). The rule follows general donations, ICAI Technical Guide on NPOs, 2023 ed. para 106(a).
 
@@ -500,7 +500,7 @@ Diary: "Verma paid his ₹500 subscription." Or: "Verma's ₹500 is due this mon
 
 The book posts the closing entries itself: income and expenditure heads to Income & Expenditure; the surplus (or deficit) to the General Fund. A fund's balance carries forward in its own account. Corpus is untouched. See *04 — Year end and reports* for the three printed statements.
 
-**Source:** ICAI BoS Foundation Paper 1, Ch. 8 §3.3(iv), p. 8.8 and Illustration 4 (surplus added to the Capital Fund); ICAI Technical Guide on NPOs, 2023 ed. para 106(a) (surplus or deficit goes to the General Fund). Ruled O-19-1.
+**Source:** ICAI BoS Foundation Paper 1, Ch. 8 §3.3(iv), p. 8.7 (the balance of Income & Expenditure is transferred to the Accumulated or Capital Fund) and Illustration 4, pp. 8.15–8.16 (the ₹57,000 surplus of the example); ICAI Technical Guide on NPOs, 2023 ed. para 109 (surplus or deficit goes to the General Fund). Ruled O-19-1.
 
 **Example.**
 Dr Income & Expenditure A/c ₹57,000 · Cr General Fund A/c ₹57,000.
@@ -510,7 +510,7 @@ Diary: "The year's income was ₹57,000 more than the year's spending. The ₹57
 
 ## 6. Landlord
 
-A landlord's book is the owner's own book (a household's or a business's, as in the first section). What is particular to it is the account for each tenant, and the way rent, advance rent, deposits and property spending are kept.
+A landlord's book is the owner's own book (a household's or a business's, as in the first section). Its year statement follows the book the rent is kept in: a household that lets property keeps *Income & Expenses* with the result *Saving* (1.10), rent being one of its income heads, and stays on the khata basis; a landlord's business book keeps *Profit & Loss*. What is particular to it is the account for each tenant, and the way rent, advance rent, deposits and property spending are kept.
 
 ### 6.1 Rent is charged to the tenant's account when it falls due
 
@@ -541,12 +541,13 @@ A security deposit is held in its own account for each tenant, *Deposit held –
 **Example.**
 Received: Dr Cash A/c ₹50,000 · Cr Deposit held – Sharma A/c ₹50,000.
 Set off against unpaid rent of ₹12,000, by agreement: Dr Deposit held – Sharma A/c ₹12,000 · Cr Sharma (Tenant) A/c ₹12,000.
-Returned: Dr Deposit held – Sharma A/c ₹38,000 · Cr Cash A/c ₹38,000. Forfeited: Dr Deposit held – Sharma A/c ₹5,000 · Cr Deposit forfeited A/c ₹5,000.
-Diary: "Sharma gave ₹50,000 deposit. ₹12,000 was set against rent he owed. The remaining ₹38,000 was returned when he left." (A forfeited amount is income, *Deposit forfeited*.)
+Returned: Dr Deposit held – Sharma A/c ₹38,000 · Cr Cash A/c ₹38,000.
+Or, if ₹5,000 of it is forfeited by agreement: returned Dr Deposit held – Sharma A/c ₹33,000 · Cr Cash A/c ₹33,000; forfeited Dr Deposit held – Sharma A/c ₹5,000 · Cr Deposit forfeited A/c ₹5,000.
+Diary: "Sharma gave ₹50,000 deposit. ₹12,000 was set against rent he owed. The remaining ₹38,000 was returned when he left." Or: "…₹33,000 was returned and ₹5,000 kept, as agreed." (A forfeited amount is income, *Deposit forfeited*.)
 
 ### 6.4 A repair is an expense; an improvement is added to the building's cost
 
-Day-to-day servicing and repair is an expense when paid. Spending that raises what the building yields (an extra room, a replaced major part) is added to the building's cost as a thing owned. No depreciation is charged by default.
+Day-to-day servicing and repair is an expense when paid. Spending that raises what the building yields (an extra room, a replaced major part) is added to the building's cost as a thing owned; when a major part is replaced, the cost of the part taken out is removed at the same time (*02*, 5.3). Replacing a worn-out part is a repair. No depreciation is charged by default.
 
 **Source:** ICAI BoS Foundation Paper 1, Ch. 1 Unit 3 §3.2(c)–(e), p. 1.63 (an improvement that increases expected benefits is added to the asset; repairs are expense; materiality counts); ICAI BoS Intermediate Paper 1, Ch. 5 Unit 2 §2.10, pp. 5.38–5.40 (AS 10 study material on subsequent costs). Ruled O-18-4; no depreciation by default (see *04 — Year end and reports*).
 
@@ -566,11 +567,11 @@ Diary: "Verma left owing ₹7,000 and will not pay. Written off as an expense."
 
 ### 6.6 What is particular to the landlord's year close
 
-The book posts the closing entries itself: income (*Rent*, *Deposit forfeited*) and expense heads to the result; the profit and any drawings to the owner's Own money. A tenant's balance and a deposit held carry forward in their own accounts. See *04 — Year end and reports*.
+The book posts the closing entries itself: income (*Rent*, *Deposit forfeited*) and expense heads to the result; the result to the owner's Own money — in a business book the profit, with any drawings; in a household the saving (1.10). A tenant's balance and a deposit held carry forward in their own accounts. See *04 — Year end and reports*.
 
-**Source:** NCERT Class 11 Part II, ch. 8 §8.6.2 items (7)–(8); ruled O-19-1.
+**Source:** NCERT Class 11 Part II, ch. 8 §8.6.2 items (7)–(8); ruled O-19-1; a household's statement, ruled O-13-5 (1.10).
 
-**Example.**
+**Example.** A landlord's business book:
 Dr Rent A/c ₹1,56,000 · Cr Profit & Loss A/c ₹1,56,000; Dr Profit & Loss A/c ₹30,000 · Cr Repairs and Maintenance A/c ₹30,000; Dr Profit & Loss A/c ₹1,26,000 · Cr Own money A/c ₹1,26,000.
 Diary: "Rent for the year ₹1,56,000, repairs ₹30,000. Profit ₹1,26,000, added to my own money."
 
@@ -588,11 +589,11 @@ Diary: "Rent for the year ₹1,56,000, repairs ₹30,000. Profit ₹1,26,000, ad
 8. ICAI Board of Studies, Foundation Paper 1 *Accounting*, Ch. 7 Unit 1 §1.4–1.5 (pp. 7.9–7.41). https://resource.cdn.icai.org/74616bos60479-fnd-cp7-u1.pdf
 9. ICAI Board of Studies, Foundation Paper 1 *Accounting*, Ch. 8 *Financial Statements of Not-for-Profit Organisations* (pp. 8.2–8.36). https://resource.cdn.icai.org/74619bos60479-fnd-cp8.pdf
 10. ICAI Board of Studies, Foundation Paper 1 *Accounting*, Ch. 9 §4 (pp. 9.15, 9.22–9.23). https://resource.cdn.icai.org/74620bos60479-fnd-cp9.pdf
-11. ICAI Board of Studies, Foundation Paper 1 *Accounting*, Ch. 10 Unit 1 (pp. 10.11–10.21, 10.31). https://resource.cdn.icai.org/74621bos60479-fnd-cp10-u1.pdf
+11. ICAI Board of Studies, Foundation Paper 1 *Accounting*, Ch. 10 Unit 1 (pp. 10.11–10.21, 10.31, 10.36). https://resource.cdn.icai.org/74621bos60479-fnd-cp10-u1.pdf
 12. ICAI Board of Studies, Foundation Paper 1 *Accounting*, Ch. 10 Unit 2 (pp. 10.43–10.62). https://resource.cdn.icai.org/74622bos60479-fnd-cp10-u2.pdf
 13. ICAI Board of Studies, Foundation Paper 1 *Accounting*, Ch. 10 Unit 5 §5.3 (pp. 10.173–10.174). https://resource.cdn.icai.org/74625bos60479-fnd-cp10-u5.pdf
 14. ICAI Board of Studies, Intermediate Paper 1 *Advanced Accounting*, Ch. 15 *Accounting for Branches including Foreign Branches*, §6–§7 (pp. 15.41–15.48). https://resource.cdn.icai.org/74721bos60485-inter-p1-cp15.pdf
 15. ICAI Board of Studies, Intermediate Paper 1 *Advanced Accounting*, Ch. 5 Unit 2 §2.10 (AS 10), pp. 5.38–5.40. https://resource.cdn.icai.org/74696bos60485-inter-p1-cp5-u2.pdf
-16. ICAI, *Technical Guide on Accounting for Not-for-Profit Organisations (NPOs)*, third edition, June 2023 (paras 18–24, 49, 100–114, 135), and second edition foreword 26 Aug 2009 (¶26–32, 105, 107, 111, 114). https://resource.cdn.icai.org/74188asb60123.pdf
-17. ICAI, *Framework for the Preparation and Presentation of Financial Statements* (ASB, July 2000), ¶49. Owner-supplied ICAI PDF `89089asb-aps2918-framework.pdf` (no URL given in the research notes).
+16. ICAI, *Technical Guide on Accounting for Not-for-Profit Organisations (NPOs)*, third edition, June 2023 (paras 18–24, 49, 100–114, 135), and first edition, 2009 (foreword 26 Aug 2009) (¶26–32, 105, 107, 111, 114). https://resource.cdn.icai.org/74188asb60123.pdf
+17. ICAI, *Framework for the Preparation and Presentation of Financial Statements* (ASB, July 2000), ¶49. https://indasaccess.icai.org/Volume-III/AS/asb.html?a=101 (also the owner-supplied ICAI PDF `89089asb-aps2918-framework.pdf`).
 18. News report on custody of donation boxes by a large trust (custody practice only; not an accounting source; cited for context in the gollak rule). https://news24online.com/india/from-donation-box-to-bank-heres-how-ram-mandir-monitors-every-rupee-donated-by-devotees/868043/

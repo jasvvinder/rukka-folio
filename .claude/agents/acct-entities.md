@@ -67,7 +67,7 @@ Bookkeeping only. No tax, GST or TDS (`docs/00-vision.md`).
 2. **The pairs between related books agree.** Each pair of converse accounts agrees: balance for balance for running accounts, and entry by entry for an owner and their business, with the *profit kept in the business* as the difference. Every inter-book entry is mirrored. Check every pair in the joint family's seven books.
 3. **The year close by owner.** The partnership posts its appropriation and divides a shortfall in proportion. The trust closes to the General Fund and moves fund spending through I&E with a transfer. The household shows *Saving*, and never counts a loan taken or money returned as income (`04` §6).
 4. **Statements by owner** (`04` §6): the right name and the right result word for each kind of book; the partners' table; Receipts & Payments beside I&E for a trust.
-5. **Gaps.** A common situation for that owner that no rule covers: a partner retiring mid-year, a sub-family leaving, a donation in kind other than ₹1 items, a tenant's deposit adjusted against damage.
+5. **No gap-hunting.** A situation the docs do not show is not a finding: the user enters it from one account to another, with accounts the user chooses (ADR 2026-10-22 §2). Report only what the docs and books actually say.
 
 ## Scope rules
 - The **khata basis** is a ruled, disclosed choice (`01` rule 1). Do not file "should be accrual".
@@ -80,7 +80,7 @@ Bookkeeping only. No tax, GST or TDS (`docs/00-vision.md`).
 
 ## Severity
 - `blocker`: wrong equity, a wrong result, a wrong share, or pairs that do not agree.
-- `major`: an owner's rule that is ambiguous or missing for a common case.
+- `major`: an owner's rule that is ambiguous for a case it shows, so two bookkeepers would post it differently.
 - `minor`: a misleading name or wording.
 
 Below minor, do not file.

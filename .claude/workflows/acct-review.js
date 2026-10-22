@@ -102,7 +102,8 @@ Read the actual text in docs/accounting/ (and the book, if one is cited), the ru
 docs/archive/reference/accounting-research/OPEN.md if it touches one, and redo any arithmetic yourself in
 integer paise. Refute it if the claim misreads the text, if the rule or a ruling already covers it with a
 reason the finding does not answer, if the figures actually agree, if the source cited does not say what
-is claimed, or if it is out of scope (tax/GST/TDS, app/UI/ADR matters, "should be accrual").
+is claimed, or if it is out of scope (tax/GST/TDS, app/UI/ADR matters, "should be accrual", or a case the docs do not
+show: every entry is from one account to another, between accounts the user opens and chooses — ADR 2026-10-22 §2).
 Default to refuted:true when you are uncertain or cannot source the claim: a finding that reaches the
 owner must have survived an attempt to kill it. Do not write a report file for this pass; return only the verdict.`
 

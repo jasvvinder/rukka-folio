@@ -61,13 +61,13 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 
 *Jasvinder Singh · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-One account after another: date, entry number, the other account (*To …* on the Dr side, *By …* on the Cr side) with the entry's note in small type, the amount on its side, the running balance and its side. Accounts that carry a balance open with *Opening balance b/f* and end *Closing balance c/d · Total · Opening balance b/d*; income and expense accounts end with their total for the year. The last rows of the heads, the drawings and the own-money accounts are the year-close entries (numbers ending Y1, Y2 …) that the book makes itself on 31 Mar 2026 — they are listed in section 4.
+One account after another: date, entry number, the other account (*To …* on the Dr side, *By …* on the Cr side) with the entry's note in small type, the amount on its side, the running balance and its side. Accounts that carry a balance open with *Opening balance b/f* and end *Closing balance c/d · Total · Opening balance b/d*, the opening and closing balances standing in the amount column of their side so that each column adds up to the Total; income and expense accounts end with their total for the year. The last rows of the heads, the drawings and the own-money accounts are the year-close entries (numbers ending Y1, Y2 …) that the book makes itself on 31 Mar 2026 — they are listed in section 4.
 
 #### Cash A/c
 
 | Date | No. | Particulars | Money in (Dr) | Money out (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 8,000 | Dr |
+| 01 Apr 2025 |  | Opening balance b/f | 8,000 | — | 8,000 | Dr |
 | 02 Apr 2025 | JP-002 | To SBI Savings A/c<br><em>Cash withdrawn (ATM)</em> | 45,000 | — | 53,000 | Dr |
 | 05 Apr 2025 | JP-003 | By Sharma General Store A/c<br><em>Grocer's khata of March paid, cash</em> | — | 3,200 | 49,800 | Dr |
 | 30 Jun 2025 | JP-010 | By House Help Wages A/c<br><em>House help's wages, April–June, cash</em> | — | 30,000 | 19,800 | Dr |
@@ -89,7 +89,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Money in (Dr) | Money out (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 1,85,000 | Dr |
+| 01 Apr 2025 |  | Opening balance b/f | 1,85,000 | — | 1,85,000 | Dr |
 | 01 Apr 2025 | JP-001 | To Income from Jasvinder Technologies A/c<br><em>Received from Jasvinder Technologies — money sent home</em> | 1,20,000 | — | 3,05,000 | Dr |
 | 02 Apr 2025 | JP-002 | By Cash A/c<br><em>Cash withdrawn (ATM)</em> | — | 45,000 | 2,60,000 | Dr |
 | 15 Apr 2025 | JP-004 | By School Fees A/c<br><em>School fees, first half-year</em> | — | 42,000 | 2,18,000 | Dr |
@@ -131,7 +131,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Money in (Dr) | Money out (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 1,200 | Dr |
+| 01 Apr 2025 |  | Opening balance b/f | 1,200 | — | 1,200 | Dr |
 | 03 Oct 2025 | JP-022 | To SBI Savings A/c<br><em>FASTag wallet recharged from savings</em> | 3,000 | — | 4,200 | Dr |
 | 31 Mar 2026 | JP-051 | By Toll & Parking A/c<br><em>Tolls, October–March, per the FASTag statement</em> | — | 2,640 | 1,560 | Dr |
 | 31 Mar 2026 |  | Closing balance c/d | — | 1,560 | — | — |
@@ -142,7 +142,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Paid in (Dr) | Spent on the card (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 12,400 | Cr |
+| 01 Apr 2025 |  | Opening balance b/f | — | 12,400 | 12,400 | Cr |
 | 18 Apr 2025 | JP-005 | To SBI Savings A/c<br><em>Credit-card bill paid from savings</em> | 12,400 | — | 0 | — |
 | 12 May 2025 | JP-006 | By Car Fuel & Upkeep A/c<br><em>Fuel, April–May, on the credit card</em> | — | 9,800 | 9,800 | Cr |
 | 18 Jun 2025 | JP-009 | To SBI Savings A/c<br><em>Credit-card bill paid from savings</em> | 26,300 | — | 16,500 | Dr |
@@ -158,7 +158,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Kept aside (Dr) | Taken back (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 2,00,000 | Dr |
+| 01 Apr 2025 |  | Opening balance b/f | 2,00,000 | — | 2,00,000 | Dr |
 | 20 Sep 2025 | JP-018 | By SBI Savings A/c<br><em>Fixed deposit of ₹1,00,000 matured — back to savings</em> | — | 1,00,000 | 1,00,000 | Dr |
 | 31 Mar 2026 |  | Closing balance c/d | — | 1,00,000 | — | — |
 |  |  | **Total** | **2,00,000** | **2,00,000** |  |  |
@@ -168,7 +168,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Put in (Dr) | Taken out (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 5,79,740 | Dr |
+| 01 Apr 2025 |  | Opening balance b/f | 5,79,740 | — | 5,79,740 | Dr |
 | 16 Jun 2025 | JP-008 | To SBI Savings A/c<br><em>Put into Jasvinder Technologies for the new laptops</em> | 1,00,000 | — | 6,79,740 | Dr |
 | 31 Mar 2026 |  | Closing balance c/d | — | 6,79,740 | — | — |
 |  |  | **Total** | **6,79,740** | **6,79,740** |  |  |
@@ -190,7 +190,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | You will get (Dr) | You will give (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 3,200 | Cr |
+| 01 Apr 2025 |  | Opening balance b/f | — | 3,200 | 3,200 | Cr |
 | 05 Apr 2025 | JP-003 | To Cash A/c<br><em>Grocer's khata of March paid, cash</em> | 3,200 | — | 0 | — |
 | 30 Sep 2025 | JP-020 | By Groceries & Household A/c<br><em>Groceries on khata, April–September</em> | — | 48,400 | 48,400 | Cr |
 | 06 Oct 2025 | JP-023 | To SBI Savings A/c<br><em>Grocer's khata of April–September paid (UPI)</em> | 48,400 | — | 0 | — |
@@ -236,7 +236,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Bought (Dr) | Sold (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 6,40,000 | Dr |
+| 01 Apr 2025 |  | Opening balance b/f | 6,40,000 | — | 6,40,000 | Dr |
 | 31 Mar 2026 |  | Closing balance c/d | — | 6,40,000 | — | — |
 |  |  | **Total** | **6,40,000** | **6,40,000** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | 6,40,000 | — | 6,40,000 | Dr |
@@ -269,7 +269,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Taken out (Dr) | Put in (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 15,98,340 | Cr |
+| 01 Apr 2025 |  | Opening balance b/f | — | 15,98,340 | 15,98,340 | Cr |
 | 31 Mar 2026 | JP-Y3 | By Income & Expenses A/c<br><em>Saving for the year added to own money</em> | — | 30,362 | 16,28,702 | Cr |
 | 31 Mar 2026 |  | Closing balance c/d | 16,28,702 | — | — | — |
 |  |  | **Total** | **16,28,702** | **16,28,702** |  |  |
@@ -722,13 +722,13 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 
 *Jasvinder Technologies · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-One account after another: date, entry number, the other account (*To …* on the Dr side, *By …* on the Cr side) with the entry's note in small type, the amount on its side, the running balance and its side. Accounts that carry a balance open with *Opening balance b/f* and end *Closing balance c/d · Total · Opening balance b/d*; income and expense accounts end with their total for the year. The last rows of the heads, the drawings and the own-money accounts are the year-close entries (numbers ending Y1, Y2 …) that the book makes itself on 31 Mar 2026 — they are listed in section 4.
+One account after another: date, entry number, the other account (*To …* on the Dr side, *By …* on the Cr side) with the entry's note in small type, the amount on its side, the running balance and its side. Accounts that carry a balance open with *Opening balance b/f* and end *Closing balance c/d · Total · Opening balance b/d*, the opening and closing balances standing in the amount column of their side so that each column adds up to the Total; income and expense accounts end with their total for the year. The last rows of the heads, the drawings and the own-money accounts are the year-close entries (numbers ending Y1, Y2 …) that the book makes itself on 31 Mar 2026 — they are listed in section 4.
 
 #### Cash A/c
 
 | Date | No. | Particulars | Money in (Dr) | Money out (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 5,000 | Dr |
+| 01 Apr 2025 |  | Opening balance b/f | 5,000 | — | 5,000 | Dr |
 | 07 Jul 2025 | JT-013 | To HDFC Bank Current A/c<br><em>Cash withdrawn for office cash (ATM)</em> | 15,000 | — | 20,000 | Dr |
 | 22 Aug 2025 | JT-019 | By Travel A/c<br><em>Travel to Chandigarh for the Punjab Agro Board meetings, cash</em> | — | 6,400 | 13,600 | Dr |
 | 19 Dec 2025 | JT-034 | By Office & Sundry A/c<br><em>Stationery and printer cartridges, cash</em> | — | 2,800 | 10,800 | Dr |
@@ -741,7 +741,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Money in (Dr) | Money out (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 3,20,000 | Dr |
+| 01 Apr 2025 |  | Opening balance b/f | 3,20,000 | — | 3,20,000 | Dr |
 | 01 Apr 2025 | JT-001 | By Drawings A/c – Jasvinder Singh<br><em>Sent home for the household — to Jasvinder Singh's savings account</em> | — | 1,20,000 | 2,00,000 | Dr |
 | 03 Apr 2025 | JT-002 | By Internet & Phone A/c<br><em>Broadband and mobile, April–September</em> | — | 11,800 | 1,88,200 | Dr |
 | 05 Apr 2025 | JT-003 | By Office Rent A/c<br><em>Office rent, April–June 2025</em> | — | 54,000 | 1,34,200 | Dr |
@@ -782,7 +782,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | You will get (Dr) | You will give (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 1,18,000 | Dr |
+| 01 Apr 2025 |  | Opening balance b/f | 1,18,000 | — | 1,18,000 | Dr |
 | 12 Apr 2025 | JT-005 | By HDFC Bank Current A/c<br><em>Medtech Solutions paid the March 2025 bill (opening balance)</em> | — | 1,18,000 | 0 | — |
 | 30 Jun 2025 | JT-009 | To Service Income A/c<br><em>Support retainer, April–June 2025 (₹69,000 a month)</em> | 2,07,000 | — | 2,07,000 | Dr |
 | 14 Jul 2025 | JT-015 | By HDFC Bank Current A/c<br><em>Medtech Solutions paid the retainer of April–June 2025</em> | — | 2,07,000 | 0 | — |
@@ -825,7 +825,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | You will get (Dr) | You will give (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 8,260 | Cr |
+| 01 Apr 2025 |  | Opening balance b/f | — | 8,260 | 8,260 | Cr |
 | 10 Apr 2025 | JT-004 | To HDFC Bank Current A/c<br><em>Hosting bill of January–March 2025 paid (opening balance)</em> | 8,260 | — | 0 | — |
 | 30 Jun 2025 | JT-010 | By Hosting & Software A/c<br><em>Hosting bill, April–June 2025</em> | — | 8,260 | 8,260 | Cr |
 | 10 Jul 2025 | JT-014 | To HDFC Bank Current A/c<br><em>Hosting bill of April–June 2025 paid</em> | 8,260 | — | 0 | — |
@@ -853,7 +853,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Bought (Dr) | Sold (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 1,45,000 | Dr |
+| 01 Apr 2025 |  | Opening balance b/f | 1,45,000 | — | 1,45,000 | Dr |
 | 18 Jun 2025 | JT-008 | To HDFC Bank Current A/c<br><em>Two laptops for the office — things owned, at cost</em> | 1,10,000 | — | 2,55,000 | Dr |
 | 31 Mar 2026 |  | Closing balance c/d | — | 2,55,000 | — | — |
 |  |  | **Total** | **2,55,000** | **2,55,000** |  |  |
@@ -863,7 +863,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Taken out (Dr) | Put in (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 5,79,740 | Cr |
+| 01 Apr 2025 |  | Opening balance b/f | — | 5,79,740 | 5,79,740 | Cr |
 | 16 Jun 2025 | JT-007 | By HDFC Bank Current A/c<br><em>Put in by Jasvinder Singh for the new laptops</em> | — | 1,00,000 | 6,79,740 | Cr |
 | 31 Mar 2026 | JT-Y3 | By Profit & Loss A/c<br><em>Net profit added to own money</em> | — | 6,24,340 | 13,04,080 | Cr |
 | 31 Mar 2026 | JT-Y4 | To Drawings A/c – Jasvinder Singh<br><em>Drawings closed to own money</em> | 4,80,000 | — | 8,24,080 | Cr |

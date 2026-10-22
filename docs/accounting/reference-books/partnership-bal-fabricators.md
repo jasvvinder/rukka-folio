@@ -58,13 +58,13 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 
 *Bal Fabricators · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-One account after another: date, entry number, the other account (*To …* on the Dr side, *By …* on the Cr side) with the entry's note in small type, the amount on its side, the running balance and its side. Accounts that carry a balance open with *Opening balance b/f* and end *Closing balance c/d · Total · Opening balance b/d*; income and expense accounts end with their total for the year. The last rows of the heads, the drawings and the own-money accounts are the year-close entries (numbers ending Y1, Y2 …) that the book makes itself on 31 Mar 2026 — they are listed in section 4.
+One account after another: date, entry number, the other account (*To …* on the Dr side, *By …* on the Cr side) with the entry's note in small type, the amount on its side, the running balance and its side. Accounts that carry a balance open with *Opening balance b/f* and end *Closing balance c/d · Total · Opening balance b/d*, the opening and closing balances standing in the amount column of their side so that each column adds up to the Total; income and expense accounts end with their total for the year. The last rows of the heads, the drawings and the own-money accounts are the year-close entries (numbers ending Y1, Y2 …) that the book makes itself on 31 Mar 2026 — they are listed in section 4.
 
 #### Cash A/c
 
 | Date | No. | Particulars | Money in (Dr) | Money out (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 15,000 | Dr |
+| 01 Apr 2025 |  | Opening balance b/f | 15,000 | — | 15,000 | Dr |
 | 23 Aug 2025 | BF-022 | By Steel & Material A/c<br><em>Tempo hire for the Verka frames' delivery, cash</em> | — | 4,200 | 10,800 | Dr |
 | 06 Oct 2025 | BF-030 | To Punjab & Sind Bank Current A/c<br><em>Cash withdrawn for the workshop (ATM)</em> | 20,000 | — | 30,800 | Dr |
 | 03 Nov 2025 | BF-035 | By Advance – Gurmeet Singh (foreman) A/c<br><em>Advance to the foreman for the Verka canopy site, cash</em> | — | 25,000 | 5,800 | Dr |
@@ -76,7 +76,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Money in (Dr) | Money out (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 5,14,000 | Dr |
+| 01 Apr 2025 |  | Opening balance b/f | 5,14,000 | — | 5,14,000 | Dr |
 | 05 Apr 2025 | BF-001 | By Workshop Rent A/c<br><em>Workshop rent, April–June 2025</em> | — | 36,000 | 4,78,000 | Dr |
 | 10 Apr 2025 | BF-002 | To Sandhu Builders A/c<br><em>Mobilisation advance from Sandhu Builders for the staircases and railings of Sunny Enclave</em> | 1,50,000 | — | 6,28,000 | Dr |
 | 16 Apr 2025 | BF-003 | To Verka Dairy Plant A/c<br><em>Verka Dairy Plant paid the March bill (opening balance)</em> | 48,000 | — | 6,76,000 | Dr |
@@ -118,7 +118,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | You will get (Dr) | You will give (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 48,000 | Dr |
+| 01 Apr 2025 |  | Opening balance b/f | 48,000 | — | 48,000 | Dr |
 | 16 Apr 2025 | BF-003 | By Punjab & Sind Bank Current A/c<br><em>Verka Dairy Plant paid the March bill (opening balance)</em> | — | 48,000 | 0 | — |
 | 28 May 2025 | BF-005 | To Fabrication Income A/c<br><em>Verka Dairy Plant — cattle-shed frames</em> | 3,86,000 | — | 3,86,000 | Dr |
 | 09 Jul 2025 | BF-014 | By Punjab & Sind Bank Current A/c<br><em>Verka Dairy Plant paid for the cattle-shed frames</em> | — | 3,86,000 | 0 | — |
@@ -176,7 +176,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | You will get (Dr) | You will give (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 72,000 | Cr |
+| 01 Apr 2025 |  | Opening balance b/f | — | 72,000 | 72,000 | Cr |
 | 22 Apr 2025 | BF-004 | To Punjab & Sind Bank Current A/c<br><em>Jindal Steel Traders paid — opening balance</em> | 72,000 | — | 0 | — |
 | 30 Jun 2025 | BF-011 | By Steel & Material A/c<br><em>Steel from Jindal Steel Traders on khata, April–June 2025</em> | — | 1,98,000 | 1,98,000 | Cr |
 | 21 Jul 2025 | BF-018 | To Punjab & Sind Bank Current A/c<br><em>Jindal Steel Traders paid — steel of April–June 2025</em> | 1,98,000 | — | 0 | — |
@@ -218,7 +218,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Bought (Dr) | Sold (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 2,65,000 | Dr |
+| 01 Apr 2025 |  | Opening balance b/f | 2,65,000 | — | 2,65,000 | Dr |
 | 09 Dec 2025 | BF-038 | To Punjab & Sind Bank Current A/c<br><em>New MIG welding set — thing owned, at cost</em> | 68,000 | — | 3,33,000 | Dr |
 | 31 Mar 2026 |  | Closing balance c/d | — | 3,33,000 | — | — |
 |  |  | **Total** | **3,33,000** | **3,33,000** |  |  |
@@ -228,7 +228,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Taken out (Dr) | Put in (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 3,00,000 | Cr |
+| 01 Apr 2025 |  | Opening balance b/f | — | 3,00,000 | 3,00,000 | Cr |
 | 31 Mar 2026 |  | Closing balance c/d | 3,00,000 | — | — | — |
 |  |  | **Total** | **3,00,000** | **3,00,000** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | 3,00,000 | 3,00,000 | Cr |
@@ -237,7 +237,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Taken out (Dr) | Put in (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 3,00,000 | Cr |
+| 01 Apr 2025 |  | Opening balance b/f | — | 3,00,000 | 3,00,000 | Cr |
 | 31 Mar 2026 |  | Closing balance c/d | 3,00,000 | — | — | — |
 |  |  | **Total** | **3,00,000** | **3,00,000** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | 3,00,000 | 3,00,000 | Cr |
@@ -246,7 +246,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Taken out (Dr) | Put in (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 1,50,000 | Cr |
+| 01 Apr 2025 |  | Opening balance b/f | — | 1,50,000 | 1,50,000 | Cr |
 | 31 Mar 2026 |  | Closing balance c/d | 1,50,000 | — | — | — |
 |  |  | **Total** | **1,50,000** | **1,50,000** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | 1,50,000 | 1,50,000 | Cr |
@@ -255,7 +255,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Taken out (Dr) | Put in (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 12,000 | Cr |
+| 01 Apr 2025 |  | Opening balance b/f | — | 12,000 | 12,000 | Cr |
 | 12 Jun 2025 | BF-008 | By Transport A/c<br><em>Truck hire for the Verka frames, paid by Sukhwinder Bal in cash from his pocket</em> | — | 8,500 | 20,500 | Cr |
 | 15 Jul 2025 | BF-016 | To Punjab & Sind Bank Current A/c<br><em>Drawings of Sukhwinder Bal</em> | 1,50,000 | — | 1,29,500 | Dr |
 | 31 Mar 2026 | BF-Y4 | By P&L Appropriation A/c<br><em>Interest on capital, as the partners agreed, to the partners' accounts (out of profit only)</em> | — | 18,000 | 1,11,500 | Dr |
@@ -268,7 +268,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Taken out (Dr) | Put in (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 8,000 | Cr |
+| 01 Apr 2025 |  | Opening balance b/f | — | 8,000 | 8,000 | Cr |
 | 15 Jul 2025 | BF-017 | To Punjab & Sind Bank Current A/c<br><em>Drawings of Pradeep Bal</em> | 1,50,000 | — | 1,42,000 | Dr |
 | 16 Feb 2026 | BF-049 | By Electricity A/c<br><em>Workshop electricity, September–January, paid by Pradeep Bal from his own account</em> | — | 33,800 | 1,08,200 | Dr |
 | 31 Mar 2026 | BF-Y4 | By P&L Appropriation A/c<br><em>Interest on capital, as the partners agreed, to the partners' accounts (out of profit only)</em> | — | 18,000 | 90,200 | Dr |
@@ -644,17 +644,20 @@ Each partner's account after the year's interest and share is shown in the table
 
 *Bal Fabricators · opening balances on 01 Apr 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-Every account that carries a balance takes its balance **after the year close** into the new year as its opening balance b/d on 01 Apr 2026 — the b/d line of its ledger. Income and expense accounts and the drawings start FY 2026-27 at nil; the own money opens as one figure for each owner (each partner's capital and current account together).
+Every account that carries a balance takes its balance **after the year close** into the new year as its opening balance b/d on 01 Apr 2026 — the b/d line of its ledger. Income and expense accounts and the drawings start FY 2026-27 at nil; each partner's capital account and current account open at their own balances, as in their ledgers.
 
 | Account (opening balance b/d on 01 Apr 2026) | Type | Balance ₹ | Side |
 |:---|:---|---:|:---:|
-| Sukhwinder Bal — partner's own money | Own money | 4,62,620 | Cr |
-| Pradeep Bal — partner's own money | Own money | 4,83,920 | Cr |
-| Harjeet Singh — partner's own money | Own money | 1,46,060 | Cr |
 | Cash A/c | Cash | 5,800 | Dr |
 | Punjab & Sind Bank Current A/c | Bank | 8,86,100 | Dr |
 | Retention held by – Sandhu Builders A/c | Retention held | 34,000 | Dr |
 | Jindal Steel Traders A/c | Person / shop | 1,68,000 | Cr |
 | Advance – Gurmeet Singh (foreman) A/c | Advance | 1,700 | Dr |
 | Machinery & Tools A/c | Thing owned | 3,33,000 | Dr |
-| **Σ Dr = Σ Cr** |  | **12,60,600** | **= 12,60,600** |
+| Capital A/c – Sukhwinder Bal | Partner's capital | 3,00,000 | Cr |
+| Capital A/c – Pradeep Bal | Partner's capital | 3,00,000 | Cr |
+| Capital A/c – Harjeet Singh | Partner's capital | 1,50,000 | Cr |
+| Current A/c – Sukhwinder Bal | Partner's current | 1,62,620 | Cr |
+| Current A/c – Pradeep Bal | Partner's current | 1,83,920 | Cr |
+| Current A/c – Harjeet Singh | Partner's current | 3,940 | Dr |
+| **Σ Dr = Σ Cr** |  | **12,64,540** | **= 12,64,540** |

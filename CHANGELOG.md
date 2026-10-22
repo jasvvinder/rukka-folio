@@ -12,6 +12,106 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-22 — docs: accounting panel runs on 03, 04, 05; every confirmed finding ruled and applied to 03, 04, 05 and the reference books
+
+**Changed**
+- `/acct-review docs 03 04 05` (CA, munim, entities; 6.70 M tokens): 03 — 48 findings, 27 confirmed, 21 refuted; 04 — 44 findings, 21 confirmed, 23 refuted; 05 — 14 findings, all refuted. The owner ruled every confirmed finding "as recommended"; all are applied. Reports: `.claude/lane-reports/acct-docs-{03,04,05}-*.json`.
+- `docs/accounting/03-entities.md`:
+  - §4.4: "the two balances must agree" is limited to running-account pairs; the example is rebuilt on the family and Rajinder's household (₹45,000 / ₹30,500, the ₹14,500 entered in the family's book). An owner and his business are checked entry by entry (CA-2/MU-2/EN-1).
+  - §5.3, §5.4, §5.2, §5.9: the BoS §4.1.1 test separates a fund from income. Money for something to be built, bought or kept goes to a fund; a donation towards a running activity (dairy, langar) is income under its own head (CA-4/MU-1/EN-5).
+  - §5.2: Corpus is only the founders' or promoters' gift; another donor's "keep it, use the income" gift is an endowment fund (Technical Guide 106(a)(i), 106(b), 112) (CA-5).
+  - §5.5, §5.7: spending from a fund credits *Transferred from the {fund} A/c*, an income head closed at the year end, as the trust book does (CA-6/EN-14).
+  - §5.7: a fund that buys a thing owned still moves to the General Fund; the source now states the departure from Technical Guide para 110's Capital Reserve (CA-11).
+  - Table row and §6: a landlord's statement follows the book the rent is kept in. A household keeps Income & Expenses and *Saving*; a landlord's business book keeps Profit & Loss (CA-3/MU-5/EN-4).
+  - §2.6: interest on capital runs on the reduced capital after an agreed withdrawal (CA-8).
+  - §2.10: a ratio change is settled through current accounts where capital is fixed (EN-8).
+  - §4.1: a negative difference prints as *taken out beyond the profit* (EN-10).
+  - §3.2: a sub-family account sits under Own money "in both books" (O-15-1).
+  - §6.3: the deposit forfeiture is an alternative case (CA-16/EN-11).
+  - §2.8: the loan date is 1 October, for an April–March year (EN-13).
+  - Citations: §2.11 BoS pp. 10.15 and 10.36; §5.3 MCQ 3 moved to the supporting citations; pages 15.47, 8.6 and 8.7; Technical Guide para 109; keac103 book pages; the 2009 Technical Guide is the first edition; the Framework's URL added (CA-9, CA-10, CA-12).
+- `docs/accounting/04-year-end-and-reports.md`:
+  - §5.8, §6.3: the Own money make-up includes money put in during the year (EN-1/CA-12).
+  - §5.8: the sample's last-year column now adds up to Own money of 12,000 (CA-1/MU-6).
+  - §5.2: the ledger's opening balance goes in the amount column of its side (*b/f*), so both columns add up to the Total; the printed form stays *c/d · Total · b/d* (ADR 2026-09-24b §9). §5.6's statement totals are of the period's entries only (CA-4).
+  - §5.1: the example gains Shop fittings ₹60,000, so the balancing figure is Cr Own money ₹24,500 (CA-5).
+  - §2.2, §2.3, §6.2: the landlord rule follows 03 §6 (EN-3).
+  - §6.2: drawings are shown in the Own money make-up, not under the result; the stock note is printed only by a book that buys goods for sale (EN-12).
+  - §5.8, §4.3: the position lists money in a business, with a new standing note (EN-13).
+  - §6.6:
+    - a family and a sub-family are shown within own money, not as *You will get / You will give*;
+    - the sample pair statement now adds up;
+    - a negative difference prints as *taken out beyond the profit*;
+    - item 2 names the family's Income & Expenses (EN-4, EN-12, EN-7).
+  - §6.7: cites Technical Guide paras 107 and 110 instead of 101, and states the General Fund departure (CA-13).
+  - §5.3: the filter is renamed *Journal entries only* (MU-5).
+  - §2.1: the example names one owner, Ankit (EN-19).
+  - Citations: BoS p. 1.38; NCERT Ch 7 is in Class 11 Part I (keac107); NCERT §9.2 p. 321 for the stock reversal; BoS §1.8 p. 7.43; "not widely used"; "no prescribed form" applies to the balance sheet; the June 2022 Technical Guide is superseded from 1 April 2024 (FAQ Q3) (CA-6…11, CA-18).
+- `docs/accounting/05-account-name-presets.md`: the *Gollak* chip is a `cash_collection` account only in a trust's book. Anywhere else it is ordinary cash, because a household's gollak holds its own money (owner, 22 Oct 2026).
+- Reference books (`docs/accounting/reference-books/build.py`, `check_md.py`, regenerated; 16,931 checks, 0 problems; page caps held):
+  - the ledger b/f amount is printed in its column, so all 252 printed ledger totals add up;
+  - the partnership and brick-field carry-forward lists each partner's capital and current account separately;
+  - the trust's position prints the 04 §4.3 construction note with ₹5,54,000;
+  - the Brick Field pair prints *Taken out beyond the profit* (−₹1,20,480);
+  - the joint family's position notes that its businesses are shown at the money put in.
+  - `COVERAGE.md` and `GAPS.md` now mention the new wording.
+- `PLAN.md`: §0 dated 22 Oct; PLAN-209 records the 03/04/05 runs.
+
+**Decided**
+- Owner rulings, 22 Oct 2026, on the panel's findings (no 🔒 line touched in 03, 04 or 05, so no ADR):
+  - the BoS test separates a fund from income;
+  - Corpus is the founders' gift only, which narrows O-17-6;
+  - a fund that buys a thing owned moves to the General Fund, a stated departure from Technical Guide para 110;
+  - a landlord's statement follows the book;
+  - a household's gollak is cash, not a donation box;
+  - ledgers keep the ADR 2026-09-24b §9 form, with the b/f amount in its column.
+
+**Open**
+- PLAN-209: bookkeeper questions from these runs (03: 6, 04: 6, 05: 2) are in the `acct-munim` reports. The `book <name>` panel runs on the five reference books are still to do.
+
+**Commits**
+- (fill next session)
+
+---
+
+## 2026-10-22 — docs: accounting panel run on 02; defects corrected in 02, 03, 04; rank and scope of the accounting docs (ADR 2026-10-22)
+
+**Changed**
+- `docs/accounting/02-accounts-and-transactions.md`, from `/acct-review docs 02` (CA, munim, entities; 58 findings, 30 confirmed = 25 distinct, 28 refuted). The owner's direction: correct what is wrong, make no new rules. The defects corrected:
+  - §5.4: the depreciation example now gives a rate of 20% a year. The old "three-year life" did not give the printed ₹9,000 (CA-1/MU-21).
+  - §2.1: returns now go on the right sides of the account. Goods sent back to a person are debited to him, and goods he sends back are credited (CA-2/MU-19).
+  - §1.3, §1.4: Transfer is now defined as any move between two of the book's own accounts, which matches its use in §1.7, §1.9, §4.5, §5.9 and §5.10. In the Cash Book only cash ↔ bank is a contra entry. §2.4's retention release is now a no-money *Retention released* entry, as BF-048 already shows it (CA-4/MU-4).
+  - §3.7: petty cash is its own account. The float, the bills and the refill are each entered, and bills are entered at the latest at the month end and the year end (CA-5/MU-10).
+  - §5.1: "that the book wants on its list" is gone. The test is now use for more than a year, unless the item is small for the book (CA-6).
+  - §5.3, §7.7: replacing a worn-out part is a repair. When a major part is replaced, the old part's cost comes out. The shutters example is now a store room (CA-7). 03 §6.4 is aligned.
+  - §7.6: a closed-year correction now goes to a *{head} — earlier year* line, shown on its own, as AS 5 ¶15 and the BoS require. "(corporate)" is dropped from the AS 5 citation (CA-8).
+  - §4.7, §4.8: interest added by agreement now goes to the *Loan from / Loan to* account (MU-8). AS 9 is dropped from §4.7.
+  - §7.4: the cash count now includes cheques not yet banked and petty-cash bills in hand (CA-14).
+  - Opening paragraph, §4.7, §5.10, §8.8: opting into adjustments is limited to business books and trusts, and §8.8 now lists income received in advance (CA-16).
+  - §1.5, §1.6, §1.8: the diary bracket now always gives the money account's side. §1.8's head is renamed *Card commission*, and the Kinds table now says *commission received* (MU-18, CA-13).
+  - Kinds table: rows added for *Petty cash* and *Not yet sorted*.
+  - §2.7: the ₹13,000 example now says where the figure comes from (MU-26).
+  - Citations corrected: §2.1 (NCERT §4.7 p. 146), §4.2 (BoS Ch. 2 Unit 1 §1.7.1 p. 2.16), §8.6 and §8.7 (BoS item numbers swapped) (CA-18…20).
+- `04-year-end-and-reports.md`: §4.3 has a new standing note for a trust that charges construction to expenditure (CA-10). §5.8's position lists now include an overdrawn bank, cards, KCC, wallets, advances, retention and deposits (CA-17).
+- `03-entities.md`: §5.7 points to the new 04 note, and §6.4 matches 02 §5.3.
+- `PLAN.md`: PLAN-207/208 closed; PLAN-209 records the run outcome, with the gaps and practice questions closed with no rule.
+- `.claude/skills/acct-review/SKILL.md`: measured cost of a `docs` run updated (02: 3.36 M tokens, 25 min).
+
+- `02` opening paragraph: every entry is from one account to another, between accounts the person opens; a case not shown is entered the same way (ADR 2026-10-22 §2).
+- Panel briefs (`acct-munim`, `acct-entities`, `acct-review.js`, the skill): a case the docs do not show is no longer a finding or a bookkeeper question.
+
+**Decided**
+- [ADR 2026-10-22](docs/decisions/2026-10-22-accounting-rank-and-scope.md) 🔒: §1 after the bookkeeper's sign-off `docs/accounting/` ranks above 02 on accounting behaviour, and 02 keeps representation (desk 208, owner: as recommended); §2 the docs give account kinds and worked entries, not a rule per case, so the six "gaps" of the 02 run and the 01/02 practice questions are closed with no rule; §3 khata / account basis confirmed for every book, and all the rulings of 20 Oct 2026 accepted (desk 207). CLAUDE.md § Precedence 3 and § Accounting authority updated.
+
+**Open**
+- PLAN-209 (bookkeeper sign-off) still blocks M14 exit. Panel runs on 03, 04, 05 and the five books are still to do.
+- The reference books are unchanged: none uses the changed wording (grep), and `check_md.py` passes (16,931 checks, 0 problems).
+
+**Commits**
+- (fill next session)
+
+---
+
 ## 2026-10-21 — docs: accounting panel run on 01; owner rulings applied to 01, 02, 04
 
 **Changed**

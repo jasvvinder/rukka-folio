@@ -326,7 +326,7 @@ def check_ledger_rows(bk, name, rows, where):
         vid = clean(r[1])
         if part.startswith("Opening balance b/f"):
             bal = bk.opening[name]
-            ok(bk.is_bs[name] and paise(r[5]) == abs(bal) and clean(r[6]) == side(bal), "%s %s: b/f" % (where, name))
+            ok(bk.is_bs[name] and paise(r[3]) == max(bal, 0) and paise(r[4]) == max(-bal, 0) and paise(r[5]) == abs(bal) and clean(r[6]) == side(bal), "%s %s: b/f" % (where, name))
         elif part.startswith("Closing balance c/d"):
             closed = True
             ok(paise(r[3]) == (-bal if bal < 0 else 0) and paise(r[4]) == (bal if bal > 0 else 0), "%s %s: c/d" % (where, name))
@@ -601,7 +601,7 @@ def check_custom(bk):
     for r in rows:
         part = clean(r[2])
         if part.startswith("Balance b/f"):
-            ok(paise(r[5]) == abs(bal) and clean(r[6]) == side(bal), "%s custom %s: b/f" % (bk.path, name))
+            ok(paise(r[3]) == max(bal, 0) and paise(r[4]) == max(-bal, 0) and paise(r[5]) == abs(bal) and clean(r[6]) == side(bal), "%s custom %s: b/f" % (bk.path, name))
         elif part.startswith("Balance c/f"):
             ok(paise(r[3]) == max(-bal, 0) and paise(r[4]) == max(bal, 0), "%s custom %s: c/f" % (bk.path, name))
         elif part == "Total" or part.startswith("Total for the period"):
@@ -811,16 +811,11 @@ def check_closing(bk):
         if bk.is_bs[n] and bk.type[n] not in EQUITY and bk.closing[n] != 0:
             ok(n in listed, "%s BS: %s missing" % (bk.path, n))
     ok(tl == ta, "%s BS: sides %d / %d" % (bk.path, tl, ta))
-    # carry-forward: after the year close; every balance-sheet account, one own-money figure for each owner
+    # carry-forward: after the year close; every balance-sheet account at its own balance (a partner's capital and current separately, 04 §2.6)
     i = find(lines, r"^#### 4\.\d Carried into FY 2026-27")
     head_ok(bk.path, lines, i, bk.name)
     rows = read_tables(lines, i, block(lines, i))[0][1][1:]
     owners = {}
-    if ap is not None:
-        for who in shares:
-            capn, curn = "Capital A/c – %s" % who, "Current A/c – %s" % who
-            mine = [x for x in (capn, curn) if x in bk.closing] or ["%s A/c" % who]
-            owners["%s — partner's own money" % who] = mine
     expect = {}
     inowner = {n for ns in owners.values() for n in ns}
     for lab, ns in owners.items():
@@ -908,12 +903,13 @@ def check_family(label, books, lines):
             ok(sum(b.closing[x] for x in mine) == -sum(ob.closing[x] for x in theirs), "%s: %s / %s are a running-account pair but do not agree balance for balance" % (label, b.name, ob.name))
         else:
             own, bus, oa, ba = owner
-            hdr = "**Profit kept in the business — %s and %s:**" % (own.name, bus.name)
+            a_ = -sum(bus.pcb[x] for x in ba if bus.type[x] in EQUITY)
+            b_ = sum(own.closing[x] for x in oa if own.type[x] == "Money in a business")
+            # 03 §4.1: a negative difference is printed as taken out beyond the profit
+            hdr = ("**Profit kept in the business — %s and %s:**" if a_ - b_ >= 0 else "**Taken out beyond the profit — %s and %s:**") % (own.name, bus.name)
             kl = [ln for ln in lines if ln.startswith(hdr)]
             if ok(len(kl) == 1, "%s: the profit-kept line for %s / %s is missing" % (label, own.name, bus.name)):
                 nums = [(-1 if sg else 1) * paise(v) for sg, v in re.findall(r"(−?)₹(\d(?:[\d,]*\d)?(?:\.\d\d)?)", kl[0].replace(hdr, ""))]
-                a_ = -sum(bus.pcb[x] for x in ba if bus.type[x] in EQUITY)
-                b_ = sum(own.closing[x] for x in oa if own.type[x] == "Money in a business")
                 takes = -sum(own.closing[x] for x in oa if own.type[x] == "Income")
                 res = bus.appr_credit.get(own.name) if bus.appr_credit else bus.result
                 ok(res is not None and nums == [a_, b_, a_ - b_, res, takes, res, takes, res - takes] and a_ - b_ == res - takes,

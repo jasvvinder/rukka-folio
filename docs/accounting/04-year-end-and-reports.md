@@ -61,11 +61,11 @@ The closing entries are real entries in the ledger, so every account's page show
 
 **Source:** NCERT Class 11 Part II, Ch 8 §8.4, §8.4.2, §8.4.3, §8.6.2 item (8) (expenses and incomes transferred to the Trading and Profit and Loss Account by closing entries; profit transferred to capital; drawings closed to capital); NCERT Class 11 Part I, Ch 4 §4.6 item 4 (transfer entries). ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 7 Unit 1 §1.3–§1.4, pp. 7.9–7.23, and p. 7.19 (drawings closed to capital). The BoS Ch. 9 §3, pp. 9.6–9.7, computes the result by comparing capital at two dates, without closing entries, but only for records that are incomplete. Posting rather than computing: ruled 20 Oct 2026 (O-19-1, O-19-6) on the textbook method, because every book here keeps full double entry.
 
-**Example.** Professional (NCERT Ch 8, Ankit): income ₹1,30,000, expenses ₹1,25,500: `Dr Profit and Loss ₹4,500 · Cr Own money (Capital) ₹4,500`. Drawings (own figures), Ramesh took ₹36,000 for himself: `Dr Own money ₹36,000 · Cr Drawings ₹36,000`. Plain words: "The year left ₹4,500 over, added to Ankit's own money in the business. The ₹36,000 Ramesh took out for his own use is taken off his own money."
+**Example.** Professional (NCERT Ch 8, Ankit): income ₹1,30,000, expenses ₹1,25,500: `Dr Profit and Loss ₹4,500 · Cr Own money (Capital) ₹4,500`. Drawings (own figures), Ankit took ₹36,000 for himself: `Dr Own money ₹36,000 · Cr Drawings ₹36,000`. Plain words: "The year left ₹4,500 over, added to Ankit's own money in the business. The ₹36,000 Ankit took out for his own use is taken off his own money."
 
 ### 2.2 Year-end adjustments are optional, off by default, and the report says which way the book was kept
 
-**Rule.** The book is kept on money paid and received, and on what people owe or are owed when it arises (the khata basis): nothing is recorded for the passage of time alone. At the year end a business book (shop, contractor, farm, truck, landlord, partnership) or a trust or committee may opt in to adjustments; if it does not, none is made. A household or joint-family book stays on the khata basis. The adjustments are:
+**Rule.** The book is kept on money paid and received, and on what people owe or are owed when it arises (the khata basis): nothing is recorded for the passage of time alone. At the year end a business book (shop, contractor, farm, truck, a landlord's business book, partnership) or a trust or committee may opt in to adjustments; if it does not, none is made. A household or joint-family book stays on the khata basis, including a household that lets property (*03*, 6). The adjustments are:
 
 | Adjustment | What it does | Entry (professional) | Plain words |
 |---|---|---|---|
@@ -78,19 +78,19 @@ The closing entries are real entries in the ledger, so every account's page show
 
 If the book opts in, the head of every report says so (rule 4.1), and the adjustments appear in the year-end section. The outstanding, prepaid, accrued, in-advance and stock adjustments are reversed on the first day of the next year (rule 2.5). Depreciation is not reversed.
 
-**Source:** NCERT Class 11 Part II, Ch 9 §9.1 (why profit is not cash received less cash paid), §9.3 (outstanding expense), §9.4 (prepaid), §9.5 (accrued income), §9.6 (income received in advance). AS 1 ¶27 (a book not kept on the accrual basis discloses the fact). ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 1 Unit 2, p. 1.42 (cash-basis profit is cash received less cash paid, with no adjustments). Off by default and optional: none settles it — ruled 20 Oct 2026 (O-01-1, O-19-4; O-17-3 for the trust), and the household and joint family kept out by owner ruling, 21 Oct 2026: the people who keep these books record money as it moves and a live position needs no year-end estimates; the report says which way the book was kept.
+**Source:** NCERT Class 11 Part II, Ch 9 §9.1 (why profit is not cash received less cash paid), §9.3 (outstanding expense), §9.4 (prepaid), §9.5 (accrued income), §9.6 (income received in advance). AS 1 ¶27 (a book not kept on the accrual basis discloses the fact). ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 1 Unit 2, p. 1.38 (cash-basis profit is cash received less cash paid, with no adjustments). Off by default and optional: none settles it — ruled 20 Oct 2026 (O-01-1, O-19-4; O-17-3 for the trust), and the household and joint family kept out by owner ruling, 21 Oct 2026: the people who keep these books record money as it moves and a live position needs no year-end estimates; the report says which way the book was kept.
 
 **Example.** Professional (NCERT §9.1): insurance ₹1,200 paid on 1 July for twelve months; the year ends 31 March. With adjustments on: `Dr Prepaid insurance ₹300 · Cr Insurance ₹300`; the year's insurance is ₹900. With them off, the year's insurance is ₹1,200. Plain words: "Paid ₹1,200 insurance in July. Nine months of it is this year's cost. If I keep it simple, I count all ₹1,200 this year and the head of the report says so."
 
 ### 2.3 Depreciation is charged only on opt-in, at a rate per thing owned
 
-**Rule.** By default things owned stay at what they cost and no depreciation is charged. A business book (shop, contractor, farm, truck, landlord, partnership) or a trust or committee may opt in at the year end. Then each thing owned carries its own yearly rate, and the charge is an expense of the year:
+**Rule.** By default things owned stay at what they cost and no depreciation is charged. A business book (shop, contractor, farm, truck, a landlord's business book, partnership) or a trust or committee may opt in at the year end. Then each thing owned carries its own yearly rate, and the charge is an expense of the year:
 
 `Dr Depreciation ₹x · Cr {thing owned} ₹x`
 
 When the book has not opted in, every report that shows things owned prints the standing note in rule 4.3. When it has, the report shows each thing at cost, the depreciation so far and what is left.
 
-**Source:** NCERT Class 11 Part II, Ch 7 §7.4.3, p. 232 and AS 10 ¶50, ¶52 (depreciation is a charge of the year); ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 5 §1.3, p. 5.5 (not charging it gives neither the true profit nor the true value of the asset); AS 1 ¶27 (a departure is disclosed). Not charging it by default: none settles it — ruled 20 Oct 2026 (O-09-1): households, farms and trucks in these books do not keep it; the book makes no compliance claim and the note states the fact. Where a trust's fund buys a thing owned and depreciation is opted in, the fund is released to the year's income in step with the depreciation (O-17-3).
+**Source:** NCERT Class 11 Part I, Ch 7 §7.4.3, p. 232 and AS 10 ¶50, ¶52 (depreciation is a charge of the year); ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 5 §1.3, p. 5.5 (not charging it gives neither the true profit nor the true value of the asset); AS 1 ¶27 (a departure is disclosed). Not charging it by default: none settles it — ruled 20 Oct 2026 (O-09-1): households, farms and trucks in these books do not keep it; the book makes no compliance claim and the note states the fact. Where a trust's fund buys a thing owned and depreciation is opted in, the fund is released to the year's income in step with the depreciation (O-17-3).
 
 **Example.** Professional: a delivery cart bought for ₹60,000, rate 10% a year: `Dr Depreciation ₹6,000 · Cr Cart ₹6,000`; shown as cost ₹60,000, depreciation ₹6,000, left ₹54,000. Plain words: "The cart cost ₹60,000. I set aside ₹6,000 for a year's wear; it is now shown as worth ₹54,000."
 
@@ -106,7 +106,7 @@ When the book has not opted in, every report that shows things owned prints the 
 
 **Rule.** If the book opted in to the timing adjustments of rule 2.2 (outstanding, prepaid, accrued, in advance) or typed a closing-stock figure, the book cancels each one with an opposite entry dated the first day of the next year. This stops a later payment or receipt from counting twice. It applies only to a book that opted in; depreciation is not reversed.
 
-**Source:** ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 7 Unit 1 §1.4, p. 7.26 ("Next year in the beginning entries No. (1) to (5) should be reversed"); the ICAI BoS virtual-coaching deck "9. Financial Statements of NPO", p. 118, shows the same (a faculty slide deck, not the study material). NCERT Ch 9 is silent on reversal. Ruled 20 Oct 2026 (O-19-3), accepted on the BoS text.
+**Source:** ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 7 Unit 1 §1.4, p. 7.26 ("Next year in the beginning entries No. (1) to (5) should be reversed"); the ICAI BoS virtual-coaching deck "9. Financial Statements of NPO", p. 118, shows the same (a faculty slide deck, not the study material). NCERT Class 11 Part II, Ch 9 §9.2, p. 321 gives the same entry for stock (*Purchases A/c Dr. To Opening stock A/c* in the next year). Ruled 20 Oct 2026 (O-19-3), accepted on the BoS text.
 
 **Example.** Professional (BoS pattern, own figures): 31 March `Dr Rent ₹14,000 · Cr Outstanding rent ₹14,000`; 1 April `Dr Outstanding rent ₹14,000 · Cr Rent ₹14,000`; when the rent is paid in May, `Dr Rent ₹14,000 · Cr Cash ₹14,000` brings the new year's Rent back to nil, so the ₹14,000 counts only in the old year. Plain words: "At the year end I wrote the ₹14,000 rent I still owed. On 1 April I cancelled that note so that paying it in May leaves the new year with nothing for it."
 
@@ -120,7 +120,7 @@ When the book has not opted in, every report that shows things owned prints the 
 - things owned, at cost (less depreciation if opted in);
 - deposits, advances and loans, in their own accounts on the person's page;
 - funds (for a trust or committee), each at its own balance;
-- *Own money*, as one figure after the year's result and drawings (a partnership: each partner's own accounts).
+- *Own money*, as one figure after the year's result and drawings (a partnership: each partner's capital account and current account, each at its own balance).
 
 *Starts again at nothing:*
 - every income head and every expense head;
@@ -128,7 +128,7 @@ When the book has not opted in, every report that shows things owned prints the 
 
 The carry-forward report (rule 5.9) lists these, opening against closing, and the opening balances of the new year equal the closing balances of the old.
 
-**Source:** NCERT Class 11 Part II, Ch 8 §8.6, §8.7 (the balance sheet becomes the opening trial balance of the next period; revenue and expense accounts start the next year at nil); NCERT Class 11 Part I, Ch 4 §4.1.4 (balance carried down, brought down on the first day). ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 7 Unit 1 §1.4 and p. 7.41 (balances of real and personal accounts carried forward in the balance sheet).
+**Source:** NCERT Class 11 Part II, Ch 8 §8.6, §8.7 (the balance sheet becomes the opening trial balance of the next period; revenue and expense accounts start the next year at nil); NCERT Class 11 Part I, Ch 4 §4.1.4 (balance carried down, brought down on the first day). ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 7 Unit 1 §1.4 and §1.8, p. 7.43 (balances of real and personal accounts carried forward).
 
 **Example.** Professional (NCERT Ch 8 §8.7): the new book opens `Dr Furniture ₹15,000 · Dr Debtors ₹15,500 · Dr Bank ₹5,000 · Dr Cash ₹1,000 · Cr Own money ₹16,500 · Cr Loan ₹5,000 · Cr Creditors ₹15,000`; sales, wages and rent start at nil. Plain words: "On 1 April the new book opens with what I had and owed at the end of the old one: ₹16,500 own money. Sales, wages and rent start from zero."
 
@@ -151,7 +151,7 @@ Total                              1,62,000              1,62,000
 
 A person's account whose balance is nil may be left out. A zero line may be shown in its usual column.
 
-**Source:** NCERT Class 11 Part I, Ch 6 §6.1 and Fig. 6.1 (a statement of balances at a date; columns of debit and credit balance); §6.3.1–§6.3.3 (the balances method is "the most widely used method in practice"; the totals method and the totals-cum-balances method "not used in practice"). ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 2 Unit 3 §3.2, p. 2.68 (one form, "Dr Amount (Total or Balance)", dated at its head). No source read shows opening, period and closing columns. Closing balances only: ruled 20 Oct 2026 (O-19-2).
+**Source:** NCERT Class 11 Part I, Ch 6 §6.1 and Fig. 6.1 (a statement of balances at a date; columns of debit and credit balance); §6.3.1–§6.3.3 (the balances method is "the most widely used method in practice"; the totals method "not widely used in practice"; the totals-cum-balances method "not used in practice"). ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 2 Unit 3 §3.2, p. 2.68 (one form, "Dr Amount (Total or Balance)", dated at its head). No source read shows opening, period and closing columns. Closing balances only: ruled 20 Oct 2026 (O-19-2).
 
 **Example.** Professional (NCERT Ch 8 §8.3, Ankit): Cash `Dr ₹1,000`, Capital `Cr ₹12,000`, Sales `Cr ₹1,25,000`, Goods bought for sale `Dr ₹75,000`, and so on; both columns total ₹1,62,000. Plain words: "Listed every account's balance on 31 March. Both sides came to ₹1,62,000, so the posting adds up."
 
@@ -185,7 +185,7 @@ The head is repeated on every page of a printed report, and an exported file car
 
 **Rule.** A year-end report (position, the year's income and expenses, and for trusts the three statements) shows last year's figure beside this year's, except in a book's first year.
 
-**Source:** ICAI Technical Guide on Financial Statements of Non-Corporate Entities (June 2022), Ch VI General Instructions item 5 (comparatives for the preceding period, except in the first statements). The ICAI FAQ on the Guidance Note on Financial Statements of Non-Corporate Entities, Q9, says the same (citing Framework ¶42). Applied to every book here as a plain practice, not as a claim of following a format.
+**Source:** ICAI Technical Guide on Financial Statements of Non-Corporate Entities (June 2022; superseded from 1 April 2024, FAQ Q3 — cited for what its forms show), Ch VI General Instructions item 5 (comparatives for the preceding period, except in the first statements). The ICAI FAQ on the Guidance Note on Financial Statements of Non-Corporate Entities, Q9, says the same (citing Framework ¶42). Applied to every book here as a plain practice, not as a claim of following a format.
 
 **Example.** Professional: Own money `₹1,25,000 (2027) · ₹1,10,000 (2026)`. Plain words: "This year's figure and last year's side by side, so you can see what changed."
 
@@ -198,10 +198,12 @@ The head is repeated on every page of a printed report, and an exported file car
 | The report shows things owned and the book has not opted in to depreciation | *Things owned are shown at what they cost; no depreciation is charged.* |
 | The book sells goods and typed no closing stock | *No stock is counted. Everything bought for sale is treated as sold or used in the year it was bought.* |
 | Own money is negative (what is owed is more than what is had) | *Owes more than it owns.* |
+| The position shows money put into a business (*03*, 1.9) | *The business is shown at the money put into it, not at its worth.* (With more than one: *The businesses are shown at the money put into them, not at their worth.*) |
+| A trust or committee charged the construction of a building to the year's expenditure (*02*, 5.8) | *The cost of {building}, ₹{x} to date, is charged to expenditure and is not shown as a thing owned.* |
 | The year is open | the head already says *Year open – figures may change*; no further note |
 | The book opted in to year-end adjustments this year for the first time, or stopped making them | *This year the book {made / stopped making} year-end adjustments; last year's figures beside them are {without / with} them. They change this year's result by ₹{x}.* |
 
-**Source:** things owned: NCERT Class 11 Part II, Ch 7 §7.4.3; AS 10 ¶50, ¶52; AS 1 ¶27; ruled 20 Oct 2026 (O-09-1) — the wording is the book's own, no source gives it. Stock: NCERT Class 11 Part II, Ch 8 §8.4.4, p. 294 and ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 4 §4.3, p. 4.10; wording ruled 20 Oct 2026 (O-10-1). Negative own money: none settles it — ruled 20 Oct 2026 (O-04-4): a negative figure on its usual side states the fact more plainly than the older form that moves it to the other side. Change of basis: AS 1 ¶22, ¶26 (a change of policy is disclosed with the amount by which it affects the statements); NCERT Class 11 Part I ch. 2 §2.2.10; wording: owner ruling, 21 Oct 2026.
+**Source:** things owned: NCERT Class 11 Part I, Ch 7 §7.4.3; AS 10 ¶50, ¶52; AS 1 ¶27; ruled 20 Oct 2026 (O-09-1) — the wording is the book's own, no source gives it. Stock: NCERT Class 11 Part II, Ch 8 §8.4.4, p. 294 and ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 4 §4.3, p. 4.10; wording ruled 20 Oct 2026 (O-10-1). Construction charged to expenditure: owner ruling, 13 Oct 2026 (O-09-7), disclosed as the no-depreciation departure is (AS 1 ¶27); the wording is the book's own. Negative own money: none settles it — ruled 20 Oct 2026 (O-04-4): a negative figure on its usual side states the fact more plainly than the older form that moves it to the other side. Change of basis: AS 1 ¶22, ¶26 (a change of policy is disclosed with the amount by which it affects the statements); NCERT Class 11 Part I ch. 2 §2.2.10; wording: owner ruling, 21 Oct 2026.
 
 **Example.** Professional: no entry. Plain words: at the foot of a household's position — "*Things owned are shown at what they cost; no depreciation is charged.*"
 
@@ -218,14 +220,16 @@ Every report below carries the head of rule 4.1. Amounts are in rupees.
 | Cash in hand | Money | 12,500 | Dr |
 | Mohan | Person | 2,000 | Dr (You will get) |
 | Loan from Sunil | Loan | 50,000 | Cr (You will give) |
+| Shop fittings | Thing owned | 60,000 | Dr |
+| Own money | Own money | 24,500 | Cr |
 
 **Source:** NCERT Class 11 Part II, Ch 8 §8.7 and ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 7 Unit 1 §1.8, pp. 7.43–7.44 (the opening entry lists each asset and liability and the balancing capital). The report itself: none settles it — ruled 20 Oct 2026 (O-20-3), the list of reports every book gives.
 
-**Example.** Professional: `Dr Cash ₹12,500 · Dr Mohan ₹2,000 · Cr Loan from Sunil ₹50,000 · Cr Own money ₹(balancing figure)`. Plain words: "The list of every page in my book and what it held on the first day."
+**Example.** Professional: `Dr Cash ₹12,500 · Dr Mohan ₹2,000 · Dr Shop fittings ₹60,000 · Cr Loan from Sunil ₹50,000 · Cr Own money ₹24,500` (the balancing figure: 74,500 − 50,000). Plain words: "The list of every page in my book and what it held on the first day."
 
 ### 5.2 Ledger
 
-**Rule.** The ledger of every account: one page per account, showing its opening balance, every entry in date order (date, entry number, the other account, a note), the two amount columns *Money in (Dr)* and *Money out (Cr)*, the running balance with its side, the totals and the closing balance. It may be taken for one account or for all, for any period.
+**Rule.** The ledger of every account: one page per account, showing its opening balance, every entry in date order (date, entry number, the other account, a note), the two amount columns *Money in (Dr)* and *Money out (Cr)*, the running balance with its side, the totals of the two columns and the closing balance. As in the textbook ledger, the opening balance is entered in the amount column of its side (*Balance b/f*) and the closing balance on the other side (*Balance c/d*), so both columns add up to the same *Total*; the printed ledger ends *c/d · Total · b/d* (ADR 2026-09-24b §9; `docs/02-ledger-rules.md` §8.1). It may be taken for one account or for all, for any period.
 
 **Source:** NCERT Class 11 Part I, Ch 4 §4.1.4 and Ch 6 §6.1 (each account balanced, Balance c/d and Balance b/d); ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 2 Unit 2 §2.2, p. 2.53 (ledger account format). Ruled 20 Oct 2026 (O-20-3).
 
@@ -253,7 +257,7 @@ Date    No.  Entry                         Money in (Dr)    Money out (Cr)
 - **the journal layout**, for an accountant. Each entry is a Dr line, then a *To* line indented beneath it for the credit, then the note in brackets as the narration, with two amount columns. An entry with more than one account on a side has one line per account. No L.F. (ledger folio) column is printed, because the account's name identifies its ledger page. As in the textbook journal, the layout also carries the entries that are not typed: **it opens with the opening entry** when the period starts on the book's first day, and **ends with the year-close entries** (rule 2.1) when the period includes the last day of a closed year, each dated as made;
 - **the Cash Book** (rule 5.4), which takes only the entries that move cash or bank.
 
-In any layout, a filter *No money moved only* gives the entries a textbook journal proper holds (*01 — Accounting foundations*, 3.6): corrections, write-offs, transfers between heads, goods taken for home.
+In any layout, a filter *Journal entries only* gives the entries a textbook journal proper holds (*01 — Accounting foundations*, 3.6): corrections, write-offs, transfers between heads, goods taken for home.
 
 ```
 Day Book (journal layout) — {book} — April 2026
@@ -297,7 +301,7 @@ The trial balance of rule 3.1 is a report of every book, at any date.
 1. the head (rule 4.1) with the account's name;
 2. the **opening balance** on the first day, with its side;
 3. every entry in date order, each with date, entry number, note, the other account, the two amount columns and the **running balance with its side**;
-4. the **totals** of the two columns;
+4. the **totals** of the two columns, of the period's entries only (the opening balance is not part of them);
 5. the **closing balance** with its side.
 
 For a person, the closing line reads *You will get ₹x* or *You will give ₹x*. The opening plus the movements equals the closing; nothing is left out of the period.
@@ -339,25 +343,25 @@ If Gurdeep paid ₹2,000 on 31 March, the ₹2,000 would first settle the oldest
 
 **Rule.** The position is the book's balances at a date, in three parts:
 
-- **What I have** (assets): *Cash in hand*; each bank account; money *You will get* from persons; things owned (at cost; rule 4.3); deposits given.
-- **What I owe** (liabilities): money *You will give* to persons; loans taken; deposits held.
-- **Own money**: what remains after what is owed is taken from what is had. At the year end it equals the opening *Own money* plus the year's result less drawings.
+- **What I have** (assets): *Cash in hand* (with petty cash); each bank account in credit; wallets; money *You will get* from persons; advances; retention held by others; things owned (at cost; rule 4.3); deposits (fixed and recurring) and deposits paid; money in a business the owner holds, at the money put in (*03*, 1.9; rule 4.3).
+- **What I owe** (liabilities): money *You will give* to persons; a bank account overdrawn; credit cards; cash-credit and KCC loans; loans taken; deposits held.
+- **Own money**: what remains after what is owed is taken from what is had. At the year end it equals the opening *Own money*, plus money put in during the year, plus the year's result (less a loss), less drawings.
 
 What I have equals What I owe plus Own money. A trust or committee shows its funds in the place of Own money (rule 6.7). Money owed to one person and by the same person is shown as one balance on that person's account, not netted against another person's.
 
 ```
 Position — {book} — as on 31 March 2027         This year    Last year
 What I have
-  Cash in hand                                     1,000        2,500
-  Bank — SBI                                       5,000        4,000
-  You will get (persons)                          15,500       14,000
+  Cash in hand                                     1,000        1,000
+  Bank — SBI                                       5,000        3,500
+  You will get (persons)                          15,500       12,500
   Things owned (at cost)                          15,000       15,000
-  Total                                           36,500       35,500
+  Total                                           36,500       32,000
 What I owe
   You will give (persons)                         15,000       15,000
   Loan from Sunil                                  5,000        5,000
   Total                                           20,000       20,000
-Own money                                         16,500       15,500
+Own money                                         16,500       12,000
 ```
 
 **Source:** NCERT Class 11 Part II, Ch 8 §8.6 and Summary item 3 (a balance sheet is a statement of assets and liabilities at a date, true only on that date; capital is the balancing figure); ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 7 Unit 1 §1.6, pp. 7.39–7.40 (no hard and fast rule on presentation). Plain headings and the three parts: ruled 20 Oct 2026 (O-20-3); negative own money by O-04-4.
@@ -406,15 +410,15 @@ Saving                              40,000
 
 ### 6.2 Business, farm, truck, landlord: Profit & Loss
 
-**Rule.** A shop, contractor, farm, truck or landlord's year is the report *Profit & Loss*: income heads (sales, work done, produce sold, freight, rent received) less expense heads, giving *Profit* or *Loss*. When the book has not typed a closing stock, the note of rule 4.3 appears. The result goes at year close to *Own money* (a proprietor) or to the partners (a firm, rule 6.4). Where *Drawings* exist they are shown beneath the result and closed to *Own money*.
+**Rule.** A shop, contractor, farm, truck or landlord's business book has the year's report *Profit & Loss*: income heads (sales, work done, produce sold, freight, rent received) less expense heads, giving *Profit* or *Loss*. A household that lets property keeps *Income & Expenses* (rule 6.1; *03*, 6). When a book that buys goods for sale has not typed a closing stock, the note of rule 4.3 appears. The result goes at year close to *Own money* (a proprietor) or to the partners (a firm, rule 6.4). Drawings are not part of the result: they are closed to *Own money* and shown in the position's make-up of own money (rule 6.3).
 
-**Source:** NCERT Class 11 Part II, Ch 8 §8.3 and Summary item 1 (Trading and Profit and Loss Account and Balance Sheet from the trial balance); ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 7 Unit 1 §1.1, pp. 7.2–7.3. NCERT Ch 8 §8.6.1 says there is no prescribed form for a proprietary or partnership firm; ICAI's Technical Guide recommends one, and the layout here follows neither. Ruled 20 Oct 2026 (O-20-3).
+**Source:** NCERT Class 11 Part II, Ch 8 §8.3 and Summary item 1 (Trading and Profit and Loss Account and Balance Sheet from the trial balance); ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 7 Unit 1 §1.1, pp. 7.2–7.3. NCERT Ch 8 §8.6.1 says there is no prescribed form of balance sheet for a proprietary or partnership firm, and gives no form of Profit & Loss either; ICAI's Technical Guide recommends one, and the layout here follows neither. Ruled 20 Oct 2026 (O-20-3).
 
 **Example.** Professional (NCERT Ch 8, Ankit): income ₹1,30,000 less expenses ₹1,25,500 = profit ₹4,500: `Dr Profit and Loss ₹4,500 · Cr Own money ₹4,500`. Plain words: "A year's page of what came in and what went out: ₹4,500 left over, added to Ankit's own money."
 
 ### 6.3 Sole proprietor's own money
 
-**Rule.** One *Own money* account and one *Drawings* account. The position shows *Own money* at opening, plus profit (or less loss), less drawings, equal to closing. There is no separate current account.
+**Rule.** One *Own money* account and one *Drawings* account. The position shows *Own money* at opening, plus money put in during the year, plus profit (or less loss), less drawings, equal to closing. There is no separate current account.
 
 **Source:** NCERT Class 11 Part II, Ch 8 §8.6.2 item (8) (drawings closed to capital). No current account: ruled 20 Oct 2026 (O-13-2) — the simplest form that gives the same result.
 
@@ -460,22 +464,24 @@ Closing balance — owed to Ramesh      1,05,250
 
 1. For each pair of related books, the **account between the two books**: both books' accounts side by side, each with its opening balance, every entry (date, number, note) and its closing balance. Two kinds of pair:
    - **Running-account pair** (the family and a sub-family; two people): the balances agree, on opposite sides. The last line is *Agrees*, or the entries found in only one book.
-   - **Owner and the business it owns** (the family and its business): the entries agree one for one (money put in against the business's own money; *Income from {business}* against the business's drawings), but the balances do not. The family holds the business at the money put in, while the business's own money also carries its profit. The last line therefore prints the difference as *profit kept in the business*.
-2. The family's own income and expenses and its result, taken to the family's own money. The family's income is only what comes home; a business's profit is worked out in the business's own book and **stated** in the summary, not counted again as the family's income.
+   - **Owner and the business it owns** (the family and its business): the entries agree one for one (money put in against the business's own money; *Income from {business}* against the business's drawings), but the balances do not. The family holds the business at the money put in, while the business's own money also carries its profit. The last line therefore prints the difference as *profit kept in the business*, or, where the business has paid out more than the profit, as *taken out beyond the profit* (*03*, 4.1).
+2. The family book's own year statement, *Income & Expenses*, with the result *Saving* or *Spent more than came in* (rule 6.1), taken to the family's own money; it is printed with the family's book, and the summary does not repeat it. The family's income is only what comes home; a business's profit is worked out in the business's own book and **stated** in the summary, not counted again as the family's income.
 3. Each business's result, stated beside the family's, for information.
 
 ```
 Account between Family book and Sharma Textile — 1 April 2026 to 31 March 2027
-                       Family book's view       Sharma Textile's view
-Opening                Money in a business 1,00,000   Own money put in   1,00,000
-Money put in           20,000                   20,000
-Income from the business (home)  (6,000)        Drawings (6,000)
+                            Family book's view               Sharma Textile's view
+Opening                     Money in a business  1,00,000    Own money            1,00,000
+Money put in                                       20,000                           20,000
+Profit for the year                                     —                           31,000
+Sent home                   Income from the business 6,000   Drawings              (6,000)
+                            (income, not in the stake)
 Entries agree one for one
-Closing                Money in a business 1,20,000   Own money, with profit  1,45,000
-Profit kept in the business                                                  25,000
+Closing                     Money in a business  1,20,000    Own money, with profit 1,45,000
+Profit kept in the business (1,45,000 − 1,20,000 = 31,000 − 6,000)                  25,000
 ```
 
-A running-account pair is laid out the same way, with *You will get* on one side and *You will give* on the other, and the closing line *Agrees*.
+A running-account pair is laid out the same way, with the closing line *Agrees*. Between two people the balances read *You will get* in one book and *You will give* in the other. Between the family and a sub-family the account is not a debt (*03*, 3.2): it sits within own money in both books and reads *against the household* or *in the household's favour* in the family's book, and *in the family's favour* or *against the family* in the sub-family's book.
 
 
 The accounts of each pair carry the other book's name and are never called *Due to* or *Due from*.
@@ -507,7 +513,7 @@ Closing balance                             55,000
 
 Receipts & Payments alone is not the report of any trust or committee here, however small.
 
-**Source:** ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 8 §1, p. 8.2 (non-profit bodies prepare Receipts and Payments, Income and Expenditure and a Balance Sheet); §2.1, p. 8.4 (Receipts and Payments alone "is not favoured" except for simple activities with no assets but cash and no liabilities); §2–§4, pp. 8.3–8.11 (what each statement is; surplus carried to the capital fund). ICAI Technical Guide on Accounting by Not-for-Profit Organisations, paras 100–103 (the Income and Expenditure Account and Balance Sheet; integrated balance sheet, no set-off), 106(a), 110, 111; 2009 ed. ¶27 (a cash-basis body prepares a Receipts and Payments statement) and ¶32 (accrual recommended for all). The ICAI BoS virtual-coaching deck "9. Financial Statements of Not-for-Profit Organisations", Concepts 1–7, gives the same set (a faculty slide deck). Ruled 20 Oct 2026 (O-20-4, O-17-9, O-17-1, O-17-2, O-17-3, O-17-4): all three statements always, because the three come from the same entries and a small committee loses nothing; the ICAI Technical Guide (paras 101, 107, 110) is followed over the BoS for spending from a fund.
+**Source:** ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 8 §1, p. 8.2 (non-profit bodies prepare Receipts and Payments, Income and Expenditure and a Balance Sheet); §2.1, p. 8.4 (Receipts and Payments alone "is not favoured" except for simple activities with no assets but cash and no liabilities); §2–§4, pp. 8.3–8.11 (what each statement is; surplus carried to the capital fund). ICAI Technical Guide on Accounting by Not-for-Profit Organisations, paras 100–103 (the Income and Expenditure Account and Balance Sheet; integrated balance sheet, no set-off), 106(a), 110, 111; 2009 ed. ¶27 (a cash-basis body prepares a Receipts and Payments statement) and ¶32 (accrual recommended for all). The ICAI BoS virtual-coaching deck "9. Financial Statements of Not-for-Profit Organisations", Concepts 1–7, gives the same set (a faculty slide deck). Ruled 20 Oct 2026 (O-20-4, O-17-9, O-17-1, O-17-2, O-17-3, O-17-4): all three statements always, because the three come from the same entries and a small committee loses nothing; the ICAI Technical Guide (paras 107, 110) is followed over the BoS for spending from a fund. A thing owned bought from a fund: the fund moves to the General Fund, not to the *Capital Reserve* of the Technical Guide's para 110 — a departure, so the trust keeps one own-money account (owner ruling, 22 Oct 2026; *03*, 5.7).
 
 **Example.** Professional: membership fees ₹40,000 received in cash: `Dr Cash ₹40,000 · Cr Membership fees ₹40,000`; on the receipts side of Receipts & Payments in full, and in Income & Expenditure in full too, since the book is kept on money received; only a book that opted into year-end adjustments counts just the part that belongs to the year. Year's surplus ₹8,000: `Dr Income and Expenditure ₹8,000 · Cr General Fund ₹8,000`. Plain words: "The cash page shows every rupee that came in; the income page counts it as this year's income (a book that opted into adjustments counts only the part that belongs to the year). We came out ₹8,000 ahead and added it to the General Fund."
 
@@ -517,17 +523,17 @@ These points are stated so that a bookkeeper can check them:
 
 - **Formats.** No source requires the report head here (basis line, open-or-closed status, date made); AS 1 asks for policies to be stated in one place, and the Technical Guide's forms show name, date, unit and comparatives. The head is a ruling (rule 4.1).
 - **Day Book, account statement, ageing, family summary.** None is a report named in the textbooks or ICAI material read; each rests on a ruling (rules 5.3, 5.6, 5.7, 6.6).
-- **ICAI Guidance Note.** The Guidance Note (Aug 2023) text could not be read; its FAQ says it applies from accounting periods beginning on or after 1 April 2024, prescribes formats, and leaves not-for-profit bodies to ICAI's own guide (Q1–Q4, Q6–Q9). Nothing in this document claims to follow it.
+- **ICAI Guidance Note.** The Guidance Note (Aug 2023) text could not be read; its FAQ says it applies from accounting periods beginning on or after 1 April 2024, prescribes formats, and leaves not-for-profit bodies to ICAI's own guide (Q1–Q4, Q6–Q9); Q3 says it supersedes the June 2022 Technical Guide on non-corporate entities, which this document cites only for what its forms show. Nothing in this document claims to follow either.
 - **Cash flow.** The ICAI Technical Guide words the small-entity position in two ways (Ch V "may not include … encouraged" and Annexure 2 "Not Applicable"); the BoS says "not mandatory". No cash-flow statement is made (rule 5.10).
 - **Trust statements.** The ICAI Technical Guide names the Receipts and Payments statement for cash-basis bodies and recommends accrual for all; the BoS names all three. All three are produced (rule 6.7).
 
 ## Sources
 
-1. NCERT, Accountancy Class 11 Part II (Financial Accounting – II), Ch 7 §7.4.3; Ch 8 "Financial Statements – I" (§8.3, 8.4, 8.4.2, 8.4.3, 8.4.4, 8.6, 8.6.1, 8.6.2, 8.7), Reprint 2026-27. https://ncert.nic.in/textbook/pdf/keac201.pdf
+1. NCERT, Accountancy Class 11 Part II (Financial Accounting – II), Ch 8 "Financial Statements – I" (§8.3, 8.4, 8.4.2, 8.4.3, 8.4.4, 8.6, 8.6.1, 8.6.2, 8.7), Reprint 2026-27. https://ncert.nic.in/textbook/pdf/keac201.pdf
 2. NCERT, Class 11 Part II, Ch 9 "Financial Statements – II" (§9.1–9.6, §9.9). https://ncert.nic.in/textbook/pdf/keac202.pdf
-3. NCERT, Class 11 Part I (Financial Accounting – I): Ch 1 §1.5.10; Ch 2 §2.2.4; Ch 3 §3.4; Ch 4 §4.1, §4.1.4, §4.6; Ch 5 "Bank Reconciliation Statement" (§5.1, 5.1.1, 5.2, 5.2.1); Ch 6 §6.1–6.3.3. https://ncert.nic.in/textbook/pdf/keac102.pdf, keac103, keac104, keac105, keac106
+3. NCERT, Class 11 Part I (Financial Accounting – I): Ch 1 §1.5.10; Ch 2 §2.2.4; Ch 3 §3.4; Ch 4 §4.1, §4.1.4, §4.6; Ch 5 "Bank Reconciliation Statement" (§5.1, 5.1.1, 5.2, 5.2.1); Ch 6 §6.1–6.3.3; Ch 7 §7.4.3, p. 232. https://ncert.nic.in/textbook/pdf/keac102.pdf, keac103, keac104, keac105, keac106, keac107
 4. NCERT, Class 12 Accountancy Part I, Ch 1 "Accounting for Partnership: Basic Concepts" (§1.4, 1.5, 1.5.1, Fig. 1.3). https://ncert.nic.in/textbook/pdf/leac101.pdf
-5. ICAI, Technical Guide on Financial Statements of Non-Corporate Entities, First Edition, June 2022 (Ch V, Ch VI General Instructions items 3–5 and the forms; Appendix A Annexure 2). https://asb-icai-prod.s3.ap-south-1.amazonaws.com/course_file_meta/Technical%20Guide%20on%20Financial%20Statements%20of%20Non-Corporate%20Entities.pdf
+5. ICAI, Technical Guide on Financial Statements of Non-Corporate Entities, First Edition, June 2022 (Ch V, Ch VI General Instructions items 3–5 and the forms; Appendix A Annexure 2). Superseded by the Guidance Note for accounting periods from 1 April 2024 (ICAI FAQ, Q3); cited here for what its forms show, not as current guidance. https://asb-icai-prod.s3.ap-south-1.amazonaws.com/course_file_meta/Technical%20Guide%20on%20Financial%20Statements%20of%20Non-Corporate%20Entities.pdf
 6. ICAI, AS 1 Disclosure of Accounting Policies, ¶18–20, 24–27. https://indasaccess.icai.org/Volume-III/AS/asb.html?a=104
 7. ICAI, AS 10 Property, Plant and Equipment (¶50, ¶52, as cited in the research notes; not re-read here).
 8. ICAI, Frequently Asked Questions on the Guidance Note on Financial Statements of Non-Corporate Entities (ASB and AASB), Q1–Q4, Q6–Q9 — ICAI PDF `86963asb-aps1419-faq-gn-of-fs-of-nces.pdf`.
