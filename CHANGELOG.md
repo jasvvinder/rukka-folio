@@ -12,6 +12,30 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-22 — docs: accounting panel on the shop book; every confirmed finding applied through build.py to all five reference books
+
+**Changed**
+- `/acct-review book shop` (auditor, CA, munim, entities; 40 agents, 2.32 M tokens): 34 findings, 16 confirmed (10 distinct issues), 18 refuted. The owner ruled "change all", and for the Cash Book "add the PNB column". Reports: `.claude/lane-reports/acct-book-shop-*.json`. The fixes are in the generator, so all five books changed, not only the shop.
+- `reference-books/build.py`:
+  - §3.4 statement of one account follows 04 §5.6: the opening balance shows its side only; the totals are of the period's entries only; the closing line reads *You will get / You will give* for a person. There is no c/f amount in either column (MU-1/AU-1/CA-2). 02 §8.1's "b/f and c/f rows fall at the range's first and last day" still holds: the opening and closing lines sit on those days.
+  - Export Cash Book follows 04 §5.4: one Cash Book of cash and the bank, with a Money in and a Money out column for each. A cash–bank transfer stands on both sides, the opening balances sit on the Money in side, and each month ends with its totals and balances (AU-3/CA-1/MU-5).
+  - Standing notes are printed at the foot of their report, as 04 §4.3 says (AU-6/CA-7). The things-owned note now also appears on the accounts list, the ledgers, the one-month summary, the trial balance and the carry-forward wherever a thing owned is shown (AU-5). The no-stock note appears on the positions, the one-month summary, the year's statement and the balance sheet (CA-3).
+  - The carry-forward lists the closing balance after the close against the opening b/d of 01 Apr 2026 (04 §2.6) (AU-4).
+  - The position make-up gives income − spent = result first, then start + put in − taken out ± result = own money now. Each chain now adds up to its own line (AU-9).
+  - Column words: income heads *Returned (Dr) / Income (Cr)* (was *Received*) (MU-6); own money and partners *Put in / added (Cr)*; drawings and share-out *Put back / closed to own money (Cr)* (EN-1).
+  - Shop: the landlord's ₹90,000 deposit is "six months' rent" (AU-7/CA-5).
+- `reference-books/check_md.py` re-derives each new layout: the Cash Book columns, To/By and transfers; the statement's period totals and closing words; the position make-up; the carry-forward's two columns; every standing note present exactly when it applies, and at the foot. A mutation test caught each old defect when it was put back.
+- `docs/accounting/04-year-end-and-reports.md` §4.3: the no-stock row now names the reports that give a result or work it into own money, as 02 §6.2 says (CA-3).
+- `reference-books/GAPS.md` (column words) and `COVERAGE.md` (O-03-1 Cash Book) bring their wording into line. The generated README says the bank has its column in the Cash Book, so there is no separate Bank Book.
+- Build: 20,698 checks, 0 problems. Pages: shop 13; individual 14 + 11; partnership 14; trust 14; joint family 9–13 per book. Individual, partnership and trust are at the 14-page limit.
+
+**Open**
+- Bookkeeper questions MU-Q1–Q4 (write-off vs kasar for a disputed bill; when bank charges are entered; second-person words on a statement sent to the other party; a quarter's counter sales as one line) → PLAN-209.
+- Panel runs still to do: individual, partnership, trust, then joint family (one per day from 23 Oct).
+
+**Commits**
+- (fill in)
+
 ## 2026-10-22 — docs: accounting panel runs on 03, 04, 05; every confirmed finding ruled and applied to 03, 04, 05 and the reference books
 
 **Changed**

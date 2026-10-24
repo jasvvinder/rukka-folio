@@ -68,20 +68,60 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 
 *53 entries: Advance settled 2 · Correction 1 · Gave on credit 7 · Money in 10 · Money out 24 · Paid by a partner 2 · Retention released 1 · Took on credit 5 · Transfer 1.*
 
-### 2. Cash Book — Cash A/c
+### 2. Cash Book — Cash A/c and Punjab & Sind Bank Current A/c
 
 *Bal Fabricators · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-Every rupee of cash in and out, with the note of each entry, balanced at the end of every month that had cash entries; the balance is what the cash box must hold.
+Every receipt and every payment of cash and of the bank, with the note of each entry: money in on the left, money out on the right, a column for each. Money moved between the cash box and the bank stands on both sides — out of one, into the other. Each month that had entries ends with its totals and the balance of each; the cash balance is what the cash box must hold, the bank balance is the bank's.
 
-| Date | No. | Particulars | Money in (Dr) | Money out (Cr) | Balance ₹ | Side |
-|:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 15,000 | Dr |
-| 23 Aug 2025 | BF-022 | By Steel & Material A/c<br><em>Tempo hire for the Verka frames' delivery, cash</em> | — | 4,200 | 10,800 | Dr |
-| 31 Aug 2025 |  | **Month total — August 2025 · closing balance** | **0** | **4,200** | **10,800** | **Dr** |
-| 06 Oct 2025 | BF-030 | To Punjab & Sind Bank Current A/c<br><em>Cash withdrawn for the workshop (ATM)</em> | 20,000 | — | 30,800 | Dr |
-| 31 Oct 2025 |  | **Month total — October 2025 · closing balance** | **20,000** | **0** | **30,800** | **Dr** |
-| 03 Nov 2025 | BF-035 | By Advance – Gurmeet Singh (foreman) A/c<br><em>Advance to the foreman for the Verka canopy site, cash</em> | — | 25,000 | 5,800 | Dr |
-| 30 Nov 2025 |  | **Month total — November 2025 · closing balance** | **0** | **25,000** | **5,800** | **Dr** |
+| Date | No. | Particulars | Money in (Dr) — Cash ₹ | Money in (Dr) — Punjab & Sind Bank Current A/c ₹ | Money out (Cr) — Cash ₹ | Money out (Cr) — Punjab & Sind Bank Current A/c ₹ | Balance — Cash ₹ | Balance — Punjab & Sind Bank Current A/c ₹ |
+|:---|:---|:---|---:|---:|---:|---:|---:|---:|
+| 01 Apr 2025 |  | Opening balance b/f | 15,000 | 5,14,000 | — | — | 15,000 | 5,14,000 |
+| 05 Apr 2025 | BF-001 | By Workshop Rent A/c<br><em>Workshop rent, April–June 2025</em> | — | — | — | 36,000 | 15,000 | 4,78,000 |
+| 10 Apr 2025 | BF-002 | To Sandhu Builders A/c<br><em>Mobilisation advance from Sandhu Builders for the staircases and railings of Sunny Enclave</em> | — | 1,50,000 | — | — | 15,000 | 6,28,000 |
+| 16 Apr 2025 | BF-003 | To Verka Dairy Plant A/c<br><em>Verka Dairy Plant paid the March bill (opening balance)</em> | — | 48,000 | — | — | 15,000 | 6,76,000 |
+| 22 Apr 2025 | BF-004 | By Jindal Steel Traders A/c<br><em>Jindal Steel Traders paid — opening balance</em> | — | — | — | 72,000 | 15,000 | 6,04,000 |
+| 30 Apr 2025 |  | **Month total — April 2025 · closing balance** | **0** | **1,98,000** | **0** | **1,08,000** | **15,000** | **6,04,000** |
+| 02 Jun 2025 | BF-006 | By Shree Powder Coaters A/c<br><em>Advance to Shree Powder Coaters for the staircases' powder coating</em> | — | — | — | 60,000 | 15,000 | 5,44,000 |
+| 02 Jun 2025 | BF-007 | By Current A/c – Harjeet Singh<br><em>Drawings of Harjeet Singh</em> | — | — | — | 50,000 | 15,000 | 4,94,000 |
+| 30 Jun 2025 | BF-012 | By Wages A/c<br><em>Wages of the welders and helpers, April–June 2025</em> | — | — | — | 1,26,000 | 15,000 | 3,68,000 |
+| 30 Jun 2025 |  | **Month total — June 2025 · closing balance** | **0** | **0** | **0** | **2,36,000** | **15,000** | **3,68,000** |
+| 05 Jul 2025 | BF-013 | By Workshop Rent A/c<br><em>Workshop rent, July–September 2025</em> | — | — | — | 36,000 | 15,000 | 3,32,000 |
+| 09 Jul 2025 | BF-014 | To Verka Dairy Plant A/c<br><em>Verka Dairy Plant paid for the cattle-shed frames</em> | — | 3,86,000 | — | — | 15,000 | 7,18,000 |
+| 15 Jul 2025 | BF-016 | By Current A/c – Sukhwinder Bal<br><em>Drawings of Sukhwinder Bal</em> | — | — | — | 1,50,000 | 15,000 | 5,68,000 |
+| 15 Jul 2025 | BF-017 | By Current A/c – Pradeep Bal<br><em>Drawings of Pradeep Bal</em> | — | — | — | 1,50,000 | 15,000 | 4,18,000 |
+| 21 Jul 2025 | BF-018 | By Jindal Steel Traders A/c<br><em>Jindal Steel Traders paid — steel of April–June 2025</em> | — | — | — | 1,98,000 | 15,000 | 2,20,000 |
+| 22 Jul 2025 | BF-019 | To Sandhu Builders A/c<br><em>Sandhu Builders paid running bill 1 less the 5% held back and ₹50,000 of the advance</em> | — | 2,35,000 | — | — | 15,000 | 4,55,000 |
+| 31 Jul 2025 |  | **Month total — July 2025 · closing balance** | **0** | **6,21,000** | **0** | **5,34,000** | **15,000** | **4,55,000** |
+| 05 Aug 2025 | BF-020 | By Shree Powder Coaters A/c<br><em>Shree Powder Coaters paid the rest of the bill</em> | — | — | — | 13,500 | 15,000 | 4,41,500 |
+| 12 Aug 2025 | BF-021 | To Punjab Steel Sheds A/c<br><em>Punjab Steel Sheds paid for April–June</em> | — | 2,64,000 | — | — | 15,000 | 7,05,500 |
+| 23 Aug 2025 | BF-022 | By Steel & Material A/c<br><em>Tempo hire for the Verka frames' delivery, cash</em> | — | — | 4,200 | — | 10,800 | 7,05,500 |
+| 31 Aug 2025 |  | **Month total — August 2025 · closing balance** | **0** | **2,64,000** | **4,200** | **13,500** | **10,800** | **7,05,500** |
+| 18 Sep 2025 | BF-024 | By Electricity A/c<br><em>Workshop electricity, April–August</em> | — | — | — | 31,400 | 10,800 | 6,74,100 |
+| 30 Sep 2025 | BF-028 | By Wages A/c<br><em>Wages of the welders and helpers, July–September 2025</em> | — | — | — | 1,18,000 | 10,800 | 5,56,100 |
+| 30 Sep 2025 |  | **Month total — September 2025 · closing balance** | **0** | **0** | **0** | **1,49,400** | **10,800** | **5,56,100** |
+| 05 Oct 2025 | BF-029 | By Workshop Rent A/c<br><em>Workshop rent, October–December 2025</em> | — | — | — | 36,000 | 10,800 | 5,20,100 |
+| 06 Oct 2025 | BF-030 | Punjab & Sind Bank Current A/c to Cash A/c<br><em>Cash withdrawn for the workshop (ATM)</em> | 20,000 | — | — | 20,000 | 30,800 | 5,00,100 |
+| 20 Oct 2025 | BF-031 | By Jindal Steel Traders A/c<br><em>Jindal Steel Traders paid — steel of July–September 2025</em> | — | — | — | 1,76,000 | 30,800 | 3,24,100 |
+| 24 Oct 2025 | BF-032 | To Sandhu Builders A/c<br><em>Sandhu Builders paid running bill 2 less the 5% held back and ₹50,000 of the advance</em> | — | 2,92,000 | — | — | 30,800 | 6,16,100 |
+| 24 Oct 2025 | BF-033 | By Current A/c – Harjeet Singh<br><em>Drawings of Harjeet Singh</em> | — | — | — | 50,000 | 30,800 | 5,66,100 |
+| 31 Oct 2025 |  | **Month total — October 2025 · closing balance** | **20,000** | **2,92,000** | **0** | **2,82,000** | **30,800** | **5,66,100** |
+| 03 Nov 2025 | BF-035 | By Advance – Gurmeet Singh (foreman) A/c<br><em>Advance to the foreman for the Verka canopy site, cash</em> | — | — | 25,000 | — | 5,800 | 5,66,100 |
+| 14 Nov 2025 | BF-036 | To Punjab Steel Sheds A/c<br><em>Punjab Steel Sheds paid for July–September</em> | — | 2,76,500 | — | — | 5,800 | 8,42,600 |
+| 30 Nov 2025 |  | **Month total — November 2025 · closing balance** | **0** | **2,76,500** | **25,000** | **0** | **5,800** | **8,42,600** |
+| 09 Dec 2025 | BF-038 | By Machinery & Tools A/c<br><em>New MIG welding set — thing owned, at cost</em> | — | — | — | 68,000 | 5,800 | 7,74,600 |
+| 18 Dec 2025 | BF-039 | To Verka Dairy Plant A/c<br><em>Verka Dairy Plant paid for the racks and canopy</em> | — | 4,18,500 | — | — | 5,800 | 11,93,100 |
+| 31 Dec 2025 | BF-042 | By Wages A/c<br><em>Wages of the welders and helpers, October–December 2025</em> | — | — | — | 1,32,000 | 5,800 | 10,61,100 |
+| 31 Dec 2025 |  | **Month total — December 2025 · closing balance** | **0** | **4,18,500** | **0** | **2,00,000** | **5,800** | **10,61,100** |
+| 05 Jan 2026 | BF-043 | By Workshop Rent A/c<br><em>Workshop rent, January–March 2026</em> | — | — | — | 36,000 | 5,800 | 10,25,100 |
+| 20 Jan 2026 | BF-044 | By Jindal Steel Traders A/c<br><em>Jindal Steel Traders paid — steel of October–December 2025</em> | — | — | — | 2,14,000 | 5,800 | 8,11,100 |
+| 23 Jan 2026 | BF-045 | To Sandhu Builders A/c<br><em>Sandhu Builders paid running bill 3 less the 5% held back and ₹50,000 of the advance</em> | — | 2,54,000 | — | — | 5,800 | 10,65,100 |
+| 31 Jan 2026 |  | **Month total — January 2026 · closing balance** | **0** | **2,54,000** | **0** | **2,50,000** | **5,800** | **10,65,100** |
+| 02 Feb 2026 | BF-046 | By Current A/c – Harjeet Singh<br><em>Drawings of Harjeet Singh</em> | — | — | — | 50,000 | 5,800 | 10,15,100 |
+| 02 Feb 2026 | BF-047 | By Advance – Gurmeet Singh (foreman) A/c<br><em>Labour money to the foreman for the Sunny Enclave railings</em> | — | — | — | 20,000 | 5,800 | 9,95,100 |
+| 28 Feb 2026 |  | **Month total — February 2026 · closing balance** | **0** | **0** | **0** | **70,000** | **5,800** | **9,95,100** |
+| 06 Mar 2026 | BF-050 | To Sandhu Builders A/c<br><em>Sandhu Builders paid the released retention</em> | — | 15,000 | — | — | 5,800 | 10,10,100 |
+| 31 Mar 2026 | BF-053 | By Wages A/c<br><em>Wages of the welders and helpers, January–March 2026</em> | — | — | — | 1,24,000 | 5,800 | 8,86,100 |
+| 31 Mar 2026 |  | **Month total — March 2026 · closing balance** | **0** | **15,000** | **0** | **1,24,000** | **5,800** | **8,86,100** |
 
-*Cash in hand on 31 Mar 2026: ₹5,800 — the same as the Cash A/c in section 2.*
+*On 31 Mar 2026: Cash A/c ₹5,800 · Punjab & Sind Bank Current A/c ₹8,86,100 — the same as in section 2.*

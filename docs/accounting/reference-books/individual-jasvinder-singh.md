@@ -57,6 +57,8 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 | 28 | Written off A/c | Expense | Money known not to come back — the part of the friend's loan he could not repay | — | — |
 |  | **Total of opening balances** |  |  | **16,13,940** | **16,13,940** |
 
+Things owned are shown at what they cost; no depreciation is charged.
+
 ### 2. Every account (ledger)
 
 *Jasvinder Singh · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
@@ -267,7 +269,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Capital A/c – Jasvinder Singh
 
-| Date | No. | Particulars | Taken out (Dr) | Put in (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken out (Dr) | Put in / added (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | 15,98,340 | 15,98,340 | Cr |
 | 31 Mar 2026 | JP-Y3 | By Income & Expenses A/c<br><em>Saving for the year added to own money</em> | — | 30,362 | 16,28,702 | Cr |
@@ -277,7 +279,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Income from Jasvinder Technologies A/c
 
-| Date | No. | Particulars | Returned (Dr) | Received (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 | JP-001 | By SBI Savings A/c<br><em>Received from Jasvinder Technologies — money sent home</em> | — | 1,20,000 | 1,20,000 | Cr |
 | 15 Jul 2025 | JP-012 | By SBI Savings A/c<br><em>Received from Jasvinder Technologies — money sent home</em> | — | 1,20,000 | 2,40,000 | Cr |
@@ -288,7 +290,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Interest A/c
 
-| Date | No. | Particulars | Returned (Dr) | Received (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 12 Dec 2025 | JP-032 | By SBI Savings A/c<br><em>Interest on the hand loan paid by Gurpreet Sandhu for seven months</em> | — | 1,875 | 1,875 | Cr |
 | 31 Dec 2025 | JP-039 | By SBI Savings A/c<br><em>Interest on the fixed deposit, paid to savings</em> | — | 14,400 | 16,275 | Cr |
@@ -298,7 +300,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Gifts Received A/c
 
-| Date | No. | Particulars | Returned (Dr) | Received (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 03 Aug 2025 | JP-014 | By SBI Savings A/c<br><em>Birthday gift from an uncle (UPI)</em> | — | 11,000 | 11,000 | Cr |
 |  |  | **Total for the year** | **—** | **11,000** | **11,000** | **Cr** |
@@ -400,6 +402,8 @@ One account after another: date, entry number, the other account (*To …* on th
 |  |  | **Total for the year** | **10,000** | **—** | **10,000** | **Dr** |
 | 31 Mar 2026 | JP-Y2 | By Income & Expenses A/c<br><em>Expense heads closed to Income & Expenses</em> | — | 10,000 | 0 | — |
 
+Things owned are shown at what they cost; no depreciation is charged.
+
 ### 3. Positions and statements during the year
 
 #### 3.1 Full position on 30 Sep 2025 — what I have, what I will get, what I will give
@@ -407,7 +411,6 @@ One account after another: date, entry number, the other account (*To …* on th
 *Jasvinder Singh · on 30 Sep 2025 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
 Every account with a balance on 30 Sep 2025, placed on the side its balance falls. What I have plus what I will get, less what I will give, is the own money.
-Things owned are shown at what they cost; no depreciation is charged.
 
 |  | Account | Have / will get ₹ | Will give / funds ₹ |
 |:---|:---|---:|---:|
@@ -427,20 +430,22 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 | How it is made up | ₹ |
 |:---|---:|
+| Income so far | 2,51,000 |
+| − Spent so far | 2,27,900 |
+| **= Result so far (saving)** | **23,100** |
 | Own money at the start of the year (01 Apr 2025) | 15,98,340 |
 | + Put in so far | 0 |
 | − Taken out so far | 0 |
-| + Income so far | 2,51,000 |
-| − Spent so far | 2,27,900 |
-| **= Result so far (saving)** | **23,100** |
+| + Result so far (saving) | 23,100 |
 | **= Own money now** | **16,21,440** |
+
+Things owned are shown at what they cost; no depreciation is charged.
 
 #### 3.2 Full position on 31 Mar 2026 — year end
 
 *Jasvinder Singh · on 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
 Every account with a balance on 31 Mar 2026, placed on the side its balance falls. What I have plus what I will get, less what I will give, is the own money.
-Things owned are shown at what they cost; no depreciation is charged.
 
 |  | Account | Have / will get ₹ | Will give / funds ₹ |
 |:---|:---|---:|---:|
@@ -462,13 +467,16 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 | How it is made up | ₹ |
 |:---|---:|
+| Income so far | 5,10,635 |
+| − Spent so far | 4,80,273 |
+| **= Result so far (saving)** | **30,362** |
 | Own money at the start of the year (01 Apr 2025) | 15,98,340 |
 | + Put in so far | 0 |
 | − Taken out so far | 0 |
-| + Income so far | 5,10,635 |
-| − Spent so far | 4,80,273 |
-| **= Result so far (saving)** | **30,362** |
+| + Result so far (saving) | 30,362 |
 | **= Own money now** | **16,28,702** |
+
+Things owned are shown at what they cost; no depreciation is charged.
 
 #### 3.3 One month — October 2025, account by account
 
@@ -502,6 +510,8 @@ Every account's balance on 01 Oct 2025, what went on its Dr side and its Cr side
 
 *October 2025 in brief: income ₹1,20,000 · spent ₹44,000 · saving ₹76,000.*
 
+Things owned are shown at what they cost; no depreciation is charged.
+
 #### 3.4 One account for a chosen period — Loan to – Gurpreet Sandhu A/c, 01 Apr 2025 to 31 Mar 2026
 
 *Jasvinder Singh — Loan to – Gurpreet Sandhu A/c · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
@@ -510,12 +520,12 @@ The friend's loan account for the year — the loan, the part returned, and the 
 
 | Date | No. | Particulars | Lent (Dr) | Paid back / written off (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Balance b/f on 01 Apr 2025 | — | — | 0 | — |
+| 01 Apr 2025 |  | Opening balance on 01 Apr 2025 | — | — | 0 | — |
 | 18 May 2025 | JP-007 | To SBI Savings A/c<br><em>Hand loan to Gurpreet Sandhu, on a small interest (UPI)</em> | 25,000 | — | 25,000 | Dr |
 | 12 Dec 2025 | JP-031 | By SBI Savings A/c<br><em>Gurpreet Sandhu returned part of the loan</em> | — | 15,000 | 10,000 | Dr |
 | 31 Mar 2026 | JP-049 | By Written off A/c<br><em>The last ₹10,000 of Gurpreet Sandhu's loan written off — he has said he cannot repay it</em> | — | 10,000 | 0 | — |
-| 31 Mar 2026 |  | Balance c/f on 31 Mar 2026 | — | — | — | — |
-|  |  | **Total** | **25,000** | **25,000** |  |  |
+|  |  | **Total for the period** | **25,000** | **25,000** |  |  |
+| 31 Mar 2026 |  | **Closing balance on 31 Mar 2026** |  |  | **0** | **—** |
 
 #### 3.5 You will get / You will give — who owes what, and since when (on 31 Mar 2026)
 
@@ -588,6 +598,8 @@ The closing balance of every account after the last entry of the year (before th
 
 *Accounts with entries in the year but nil on 31 Mar 2026 (not listed above): Loan to – Gurpreet Sandhu A/c; Advance – house help A/c; Advance – Balwinder Singh A/c.*
 
+Things owned are shown at what they cost; no depreciation is charged.
+
 #### 4.2 Income & Expenses for FY 2025-26
 
 *Jasvinder Singh · FY 2025-26 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
@@ -631,10 +643,6 @@ Nobody types these. When the year is closed the book itself closes every income 
 
 *Jasvinder Singh · on 31 Mar 2026, after the year close · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-Things owned are shown at what they cost; no depreciation is charged.
-
-The business is shown at the money put into it, not at its worth.
-
 **Own money, and what I will give**
 
 | Particulars | ₹ |
@@ -665,27 +673,33 @@ The business is shown at the money put into it, not at its worth.
 
 **Both sides ₹24,35,831. The books balance.**
 
+The business is shown at the money put into it, not at its worth.
+
+Things owned are shown at what they cost; no depreciation is charged.
+
 #### 4.5 Carried into FY 2026-27
 
 *Jasvinder Singh · opening balances on 01 Apr 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
 Every account that carries a balance takes its balance **after the year close** into the new year as its opening balance b/d on 01 Apr 2026 — the b/d line of its ledger. Income and expense accounts and the drawings start FY 2026-27 at nil; the own money opens as one figure for each owner.
 
-| Account (opening balance b/d on 01 Apr 2026) | Type | Balance ₹ | Side |
-|:---|:---|---:|:---:|
-| Cash A/c | Cash | 10,300 | Dr |
-| SBI Savings A/c | Bank | 85,931 | Dr |
-| FASTag Wallet A/c | Wallet | 1,560 | Dr |
-| HDFC Credit Card A/c | Credit card | 16,500 | Dr |
-| SBI Fixed Deposit A/c | Deposit | 1,00,000 | Dr |
-| Jasvinder Technologies A/c | Money in a business | 6,79,740 | Dr |
-| Sharma General Store A/c | Person / shop | 49,500 | Cr |
-| Balwinder Singh A/c | Person / shop | 1,800 | Dr |
-| Car – Maruti Baleno A/c | Thing owned | 6,40,000 | Dr |
-| Car – Hyundai Venue A/c | Thing owned | 9,00,000 | Dr |
-| Car Loan – HDFC Bank A/c | Loan | 7,57,629 | Cr |
-| Capital A/c – Jasvinder Singh | Own money | 16,28,702 | Cr |
-| **Σ Dr = Σ Cr** |  | **24,35,831** | **= 24,35,831** |
+| Account | Type | Closing 31 Mar 2026, after the close ₹ | Side | Opening b/d 01 Apr 2026 ₹ | Side |
+|:---|:---|---:|:---:|---:|:---:|
+| Cash A/c | Cash | 10,300 | Dr | 10,300 | Dr |
+| SBI Savings A/c | Bank | 85,931 | Dr | 85,931 | Dr |
+| FASTag Wallet A/c | Wallet | 1,560 | Dr | 1,560 | Dr |
+| HDFC Credit Card A/c | Credit card | 16,500 | Dr | 16,500 | Dr |
+| SBI Fixed Deposit A/c | Deposit | 1,00,000 | Dr | 1,00,000 | Dr |
+| Jasvinder Technologies A/c | Money in a business | 6,79,740 | Dr | 6,79,740 | Dr |
+| Sharma General Store A/c | Person / shop | 49,500 | Cr | 49,500 | Cr |
+| Balwinder Singh A/c | Person / shop | 1,800 | Dr | 1,800 | Dr |
+| Car – Maruti Baleno A/c | Thing owned | 6,40,000 | Dr | 6,40,000 | Dr |
+| Car – Hyundai Venue A/c | Thing owned | 9,00,000 | Dr | 9,00,000 | Dr |
+| Car Loan – HDFC Bank A/c | Loan | 7,57,629 | Cr | 7,57,629 | Cr |
+| Capital A/c – Jasvinder Singh | Own money | 16,28,702 | Cr | 16,28,702 | Cr |
+| **Σ Dr = Σ Cr** |  | **24,35,831** | **= 24,35,831** | **24,35,831** | **= 24,35,831** |
+
+Things owned are shown at what they cost; no depreciation is charged.
 
 ## Book: Jasvinder Technologies — own business book
 
@@ -717,6 +731,8 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 | 16 | Travel A/c | Expense | Travel to clients | — | — |
 | 17 | Office & Sundry A/c | Expense | Stationery, accountant's fee, bank charges, small items | — | — |
 |  | **Total of opening balances** |  |  | **5,88,000** | **5,88,000** |
+
+Things owned are shown at what they cost; no depreciation is charged.
 
 ### 2. Every account (ledger)
 
@@ -861,7 +877,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Capital A/c – Jasvinder Singh
 
-| Date | No. | Particulars | Taken out (Dr) | Put in (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken out (Dr) | Put in / added (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | 5,79,740 | 5,79,740 | Cr |
 | 16 Jun 2025 | JT-007 | By HDFC Bank Current A/c<br><em>Put in by Jasvinder Singh for the new laptops</em> | — | 1,00,000 | 6,79,740 | Cr |
@@ -873,7 +889,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Drawings A/c – Jasvinder Singh
 
-| Date | No. | Particulars | Taken out (Dr) | Put back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken out (Dr) | Put back / closed to own money (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | — | 0 | — |
 | 01 Apr 2025 | JT-001 | To HDFC Bank Current A/c<br><em>Sent home for the household — to Jasvinder Singh's savings account</em> | 1,20,000 | — | 1,20,000 | Dr |
@@ -887,7 +903,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Service Income A/c
 
-| Date | No. | Particulars | Returned (Dr) | Received (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 30 Jun 2025 | JT-009 | By Medtech Solutions A/c<br><em>Support retainer, April–June 2025 (₹69,000 a month)</em> | — | 2,07,000 | 2,07,000 | Cr |
 | 31 Jul 2025 | JT-017 | By Kaur Exports A/c<br><em>Kaur Exports — export-order mobile application delivered</em> | — | 1,40,000 | 3,47,000 | Cr |
@@ -963,6 +979,8 @@ One account after another: date, entry number, the other account (*To …* on th
 |  |  | **Total for the year** | **11,800** | **—** | **11,800** | **Dr** |
 | 31 Mar 2026 | JT-Y2 | By Profit & Loss A/c<br><em>Expense heads closed to Profit & Loss</em> | — | 11,800 | 0 | — |
 
+Things owned are shown at what they cost; no depreciation is charged.
+
 ### 3. Positions and statements during the year
 
 #### 3.1 Full position on 30 Sep 2025 — what I have, what I will get, what I will give
@@ -970,7 +988,6 @@ One account after another: date, entry number, the other account (*To …* on th
 *Jasvinder Technologies · on 30 Sep 2025 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
 Every account with a balance on 30 Sep 2025, placed on the side its balance falls. What I have plus what I will get, less what I will give, is the own money.
-Things owned are shown at what they cost; no depreciation is charged.
 
 |  | Account | Have / will get ₹ | Will give / funds ₹ |
 |:---|:---|---:|---:|
@@ -987,20 +1004,22 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 | How it is made up | ₹ |
 |:---|---:|
+| Income so far | 7,90,000 |
+| − Spent so far | 4,27,620 |
+| **= Result so far (profit)** | **3,62,380** |
 | Own money at the start of the year (01 Apr 2025) | 5,79,740 |
 | + Put in so far | 1,00,000 |
 | − Taken out so far | 2,40,000 |
-| + Income so far | 7,90,000 |
-| − Spent so far | 4,27,620 |
-| **= Result so far (profit)** | **3,62,380** |
+| + Result so far (profit) | 3,62,380 |
 | **= Own money now** | **8,02,120** |
+
+Things owned are shown at what they cost; no depreciation is charged.
 
 #### 3.2 Full position on 31 Mar 2026 — year end
 
 *Jasvinder Technologies · on 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
 Every account with a balance on 31 Mar 2026, placed on the side its balance falls. What I have plus what I will get, less what I will give, is the own money.
-Things owned are shown at what they cost; no depreciation is charged.
 
 |  | Account | Have / will get ₹ | Will give / funds ₹ |
 |:---|:---|---:|---:|
@@ -1017,13 +1036,16 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 | How it is made up | ₹ |
 |:---|---:|
+| Income so far | 14,71,000 |
+| − Spent so far | 8,46,660 |
+| **= Result so far (profit)** | **6,24,340** |
 | Own money at the start of the year (01 Apr 2025) | 5,79,740 |
 | + Put in so far | 1,00,000 |
 | − Taken out so far | 4,80,000 |
-| + Income so far | 14,71,000 |
-| − Spent so far | 8,46,660 |
-| **= Result so far (profit)** | **6,24,340** |
+| + Result so far (profit) | 6,24,340 |
 | **= Own money now** | **8,24,080** |
+
+Things owned are shown at what they cost; no depreciation is charged.
 
 #### 3.3 One month — October 2025, account by account
 
@@ -1052,6 +1074,8 @@ Every account's balance on 01 Oct 2025, what went on its Dr side and its Cr side
 
 *October 2025 in brief: income ₹0 · spent ₹65,800 · loss ₹65,800.*
 
+Things owned are shown at what they cost; no depreciation is charged.
+
 #### 3.4 One account for a chosen period — Kaur Exports A/c, 01 Apr 2025 to 31 Mar 2026
 
 *Jasvinder Technologies — Kaur Exports A/c · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
@@ -1060,14 +1084,14 @@ One client's khata for the year — an advance before the work (they are owed wo
 
 | Date | No. | Particulars | You will get (Dr) | You will give (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Balance b/f on 01 Apr 2025 | — | — | 0 | — |
+| 01 Apr 2025 |  | Opening balance on 01 Apr 2025 | — | — | 0 | — |
 | 06 May 2025 | JT-006 | By HDFC Bank Current A/c<br><em>Advance from Kaur Exports for their export-order mobile application</em> | — | 60,000 | 60,000 | Cr |
 | 31 Jul 2025 | JT-017 | To Service Income A/c<br><em>Kaur Exports — export-order mobile application delivered</em> | 1,40,000 | — | 80,000 | Dr |
 | 08 Sep 2025 | JT-021 | By HDFC Bank Current A/c<br><em>Kaur Exports paid the rest of the application bill</em> | — | 80,000 | 0 | — |
 | 20 Jan 2026 | JT-042 | To Service Income A/c<br><em>Kaur Exports — website redesign</em> | 90,000 | — | 90,000 | Dr |
 | 18 Mar 2026 | JT-045 | By HDFC Bank Current A/c<br><em>Kaur Exports paid the website bill</em> | — | 90,000 | 0 | — |
-| 31 Mar 2026 |  | Balance c/f on 31 Mar 2026 | — | — | — | — |
-|  |  | **Total** | **2,30,000** | **2,30,000** |  |  |
+|  |  | **Total for the period** | **2,30,000** | **2,30,000** |  |  |
+| 31 Mar 2026 |  | **Closing balance on 31 Mar 2026** |  |  | **0** | **—** |
 
 #### 3.5 You will get / You will give — who owes what, and since when (on 31 Mar 2026)
 
@@ -1128,6 +1152,8 @@ The closing balance of every account after the last entry of the year (before th
 
 *Accounts with entries in the year but nil on 31 Mar 2026 (not listed above): Kaur Exports A/c; Advance – Rohit Verma A/c.*
 
+Things owned are shown at what they cost; no depreciation is charged.
+
 #### 4.2 Profit & Loss Account for FY 2025-26
 
 *Jasvinder Technologies · FY 2025-26 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
@@ -1166,8 +1192,6 @@ Nobody types these. When the year is closed the book itself closes every income 
 
 *Jasvinder Technologies · on 31 Mar 2026, after the year close · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-Things owned are shown at what they cost; no depreciation is charged.
-
 **Own money, and what I will give**
 
 | Particulars | ₹ |
@@ -1193,22 +1217,26 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 **Both sides ₹8,35,880. The books balance.**
 
+Things owned are shown at what they cost; no depreciation is charged.
+
 #### 4.5 Carried into FY 2026-27
 
 *Jasvinder Technologies · opening balances on 01 Apr 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
 Every account that carries a balance takes its balance **after the year close** into the new year as its opening balance b/d on 01 Apr 2026 — the b/d line of its ledger. Income and expense accounts and the drawings start FY 2026-27 at nil; the own money opens as one figure for each owner.
 
-| Account (opening balance b/d on 01 Apr 2026) | Type | Balance ₹ | Side |
-|:---|:---|---:|:---:|
-| Cash A/c | Cash | 5,600 | Dr |
-| HDFC Bank Current A/c | Bank | 1,91,280 | Dr |
-| Medtech Solutions A/c | Person / shop | 2,07,000 | Dr |
-| Punjab Agro Board A/c | Person / shop | 1,77,000 | Dr |
-| Cloudnine Hosting A/c | Person / shop | 11,800 | Cr |
-| Laptops & Office Equipment A/c | Thing owned | 2,55,000 | Dr |
-| Capital A/c – Jasvinder Singh | Own money | 8,24,080 | Cr |
-| **Σ Dr = Σ Cr** |  | **8,35,880** | **= 8,35,880** |
+| Account | Type | Closing 31 Mar 2026, after the close ₹ | Side | Opening b/d 01 Apr 2026 ₹ | Side |
+|:---|:---|---:|:---:|---:|:---:|
+| Cash A/c | Cash | 5,600 | Dr | 5,600 | Dr |
+| HDFC Bank Current A/c | Bank | 1,91,280 | Dr | 1,91,280 | Dr |
+| Medtech Solutions A/c | Person / shop | 2,07,000 | Dr | 2,07,000 | Dr |
+| Punjab Agro Board A/c | Person / shop | 1,77,000 | Dr | 1,77,000 | Dr |
+| Cloudnine Hosting A/c | Person / shop | 11,800 | Cr | 11,800 | Cr |
+| Laptops & Office Equipment A/c | Thing owned | 2,55,000 | Dr | 2,55,000 | Dr |
+| Capital A/c – Jasvinder Singh | Own money | 8,24,080 | Cr | 8,24,080 | Cr |
+| **Σ Dr = Σ Cr** |  | **8,35,880** | **= 8,35,880** | **8,35,880** | **= 8,35,880** |
+
+Things owned are shown at what they cost; no depreciation is charged.
 
 ## The two books side by side — the books agree
 

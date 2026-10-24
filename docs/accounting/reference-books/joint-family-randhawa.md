@@ -52,6 +52,8 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 | 26 | Business Income Shared Out A/c | Share-out | A sub-family's share of the family's business income, shared out of the family's own money to settle its account — not a cost | — | — |
 |  | **Total of opening balances** |  |  | **1,47,92,100** | **1,47,92,100** |
 
+Things owned are shown at what they cost; no depreciation is charged.
+
 ### 2. Every account (ledger)
 
 *Randhawa Joint Family · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
@@ -234,7 +236,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Capital A/c – Randhawa family
 
-| Date | No. | Particulars | Taken out (Dr) | Put in (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken out (Dr) | Put in / added (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | 1,47,70,500 | 1,47,70,500 | Cr |
 | 31 Mar 2026 | RJ-Y3 | By Income & Expenses A/c<br><em>Saving for the year added to own money</em> | — | 8,19,760 | 1,55,90,260 | Cr |
@@ -245,7 +247,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Income from Randhawa Agriculture A/c
 
-| Date | No. | Particulars | Returned (Dr) | Received (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 06 May 2025 | RJ-004 | By SBI Joint Savings A/c<br><em>Wheat money sent home by Randhawa Agriculture</em> | — | 4,00,000 | 4,00,000 | Cr |
 | 25 Nov 2025 | RJ-024 | By SBI Joint Savings A/c<br><em>Paddy money sent home by Randhawa Agriculture</em> | — | 3,50,000 | 7,50,000 | Cr |
@@ -254,7 +256,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Income from Randhawa Real Estate A/c
 
-| Date | No. | Particulars | Returned (Dr) | Received (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 15 Sep 2025 | RJ-015 | By SBI Joint Savings A/c<br><em>Rent surplus sent home by Randhawa Real Estate</em> | — | 60,000 | 60,000 | Cr |
 | 10 Dec 2025 | RJ-027 | By SBI Joint Savings A/c<br><em>Plot money sent home by Randhawa Real Estate</em> | — | 2,50,000 | 3,10,000 | Cr |
@@ -263,7 +265,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Income from Randhawa Brick Field A/c
 
-| Date | No. | Particulars | Returned (Dr) | Received (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 10 Jul 2025 | RJ-007 | By SBI Joint Savings A/c<br><em>Taken from the brick field — the family's income</em> | — | 1,50,000 | 1,50,000 | Cr |
 | 20 Mar 2026 | RJ-036 | By SBI Joint Savings A/c<br><em>Taken from the brick field — the family's income</em> | — | 1,80,000 | 3,30,000 | Cr |
@@ -272,7 +274,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Interest A/c
 
-| Date | No. | Particulars | Returned (Dr) | Received (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 30 Sep 2025 | RJ-017 | By SBI Joint Savings A/c<br><em>Savings interest</em> | — | 2,860 | 2,860 | Cr |
 | 31 Mar 2026 | RJ-040 | By SBI Joint Savings A/c<br><em>Interest on the fixed deposits, paid to savings</em> | — | 36,500 | 39,360 | Cr |
@@ -344,7 +346,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Business Income Shared Out A/c
 
-| Date | No. | Particulars | Shared out (Dr) | Put back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Shared out (Dr) | Put back / closed to own money (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | — | 0 | — |
 | 31 Mar 2026 | RJ-037 | To Lakhbeer's Family A/c<br><em>The ₹30,000 still due from what Lakhbeer took, settled from his share of the family's business income</em> | 30,000 | — | 30,000 | Dr |
@@ -353,6 +355,8 @@ One account after another: date, entry number, the other account (*To …* on th
 |  |  | **Total** | **30,000** | **30,000** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | — | 0 | — |
 
+Things owned are shown at what they cost; no depreciation is charged.
+
 ### 3. Positions and statements during the year
 
 #### 3.1 Full position on 30 Sep 2025 — what I have, what I will get, what I will give
@@ -360,7 +364,6 @@ One account after another: date, entry number, the other account (*To …* on th
 *Randhawa Joint Family · on 30 Sep 2025 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
 Every account with a balance on 30 Sep 2025, placed on the side its balance falls. What I have plus what I will get, less what I will give, is the family's own money.
-Things owned are shown at what they cost; no depreciation is charged.
 
 |  | Account | Have / will get ₹ | Will give / funds ₹ |
 |:---|:---|---:|---:|
@@ -380,20 +383,22 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 | How it is made up | ₹ |
 |:---|---:|
+| Income so far | 6,12,860 |
+| − Spent so far | 2,15,500 |
+| **= Result so far (saving)** | **3,97,360** |
 | Family's own money at the start of the year (01 Apr 2025) | 1,47,64,500 |
 | + Put in so far (by the sub-families, and their accounts settled) | 40,000 |
 | − Taken out so far (given to the sub-families or spent for them) | 2,25,000 |
-| + Income so far | 6,12,860 |
-| − Spent so far | 2,15,500 |
-| **= Result so far (saving)** | **3,97,360** |
+| + Result so far (saving) | 3,97,360 |
 | **= Family's own money now** | **1,49,76,860** |
+
+Things owned are shown at what they cost; no depreciation is charged.
 
 #### 3.2 Full position on 31 Mar 2026 — year end
 
 *Randhawa Joint Family · on 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
 Every account with a balance on 31 Mar 2026, placed on the side its balance falls. What I have plus what I will get, less what I will give, is the family's own money.
-Things owned are shown at what they cost; no depreciation is charged.
 
 |  | Account | Have / will get ₹ | Will give / funds ₹ |
 |:---|:---|---:|---:|
@@ -413,13 +418,16 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 | How it is made up | ₹ |
 |:---|---:|
+| Income so far | 14,29,360 |
+| − Spent so far | 6,09,600 |
+| **= Result so far (saving)** | **8,19,760** |
 | Family's own money at the start of the year (01 Apr 2025) | 1,47,64,500 |
 | + Put in so far (by the sub-families, and their accounts settled) | 3,47,000 |
 | − Taken out so far (given to the sub-families or spent for them) | 3,97,500 |
-| + Income so far | 14,29,360 |
-| − Spent so far | 6,09,600 |
-| **= Result so far (saving)** | **8,19,760** |
+| + Result so far (saving) | 8,19,760 |
 | **= Family's own money now** | **1,55,33,760** |
+
+Things owned are shown at what they cost; no depreciation is charged.
 
 #### 3.3 One month — October 2025, account by account
 
@@ -453,6 +461,8 @@ Every account's balance on 01 Oct 2025, what went on its Dr side and its Cr side
 
 *October 2025 in brief: income ₹0 · spent ₹1,01,500 · spent more than came in ₹1,01,500.*
 
+Things owned are shown at what they cost; no depreciation is charged.
+
 #### 3.4 One account for a chosen period — Amarjeet's Family A/c, 01 Apr 2025 to 31 Mar 2026
 
 *Randhawa Joint Family — Amarjeet's Family A/c · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
@@ -461,13 +471,13 @@ One sub-family's account for the year — household money, a bill the family pai
 
 | Date | No. | Particulars | Spent for them / given (Dr) | Put in by them (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Balance b/f on 01 Apr 2025 | 18,000 | — | 18,000 | Dr |
+| 01 Apr 2025 |  | Opening balance on 01 Apr 2025 | — | — | 18,000 | Dr |
 | 03 Apr 2025 | RJ-001 | To SBI Joint Savings A/c<br><em>Household money for six months to Amarjeet's family</em> | 45,000 | — | 63,000 | Dr |
 | 03 Oct 2025 | RJ-018 | To SBI Joint Savings A/c<br><em>Household money for six months to Amarjeet's family</em> | 45,000 | — | 1,08,000 | Dr |
 | 26 Dec 2025 | RJ-028 | To Cash A/c<br><em>Amarjeet's household — Indu's dental treatment, paid by the family in cash</em> | 9,000 | — | 1,17,000 | Dr |
 | 31 Mar 2026 | RJ-038 | By Household Expenses – Amarjeet's family A/c<br><em>Amarjeet's family's account settled for the year — the family bears it as Amarjeet's household expenses</em> | — | 1,17,000 | 0 | — |
-| 31 Mar 2026 |  | Balance c/f on 31 Mar 2026 | — | — | — | — |
-|  |  | **Total** | **1,17,000** | **1,17,000** |  |  |
+|  |  | **Total for the period** | **99,000** | **1,17,000** |  |  |
+| 31 Mar 2026 |  | **Closing balance on 31 Mar 2026** |  |  | **0** | **—** |
 
 #### 3.5 You will get / You will give — who owes what, and since when (on 31 Mar 2026)
 
@@ -521,6 +531,8 @@ The closing balance of every account after the last entry of the year (before th
 
 *Accounts with entries in the year but nil on 31 Mar 2026 (not listed above): Amarjeet's Family A/c; Advance – mason A/c.*
 
+Things owned are shown at what they cost; no depreciation is charged.
+
 #### 4.2 Income & Expenses for FY 2025-26
 
 *Randhawa Joint Family · FY 2025-26 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
@@ -563,10 +575,6 @@ Nobody types these. When the year is closed the book itself closes every income 
 
 *Randhawa Joint Family · on 31 Mar 2026, after the year close · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-Things owned are shown at what they cost; no depreciation is charged.
-
-Things owned are shown at what they cost. The businesses are shown at the money put into them, not at their worth.
-
 **Own money, and what I will give**
 
 | Particulars | ₹ |
@@ -595,27 +603,33 @@ Things owned are shown at what they cost. The businesses are shown at the money 
 
 **Both sides ₹1,55,93,160. The books balance.**
 
+Things owned are shown at what they cost. The businesses are shown at the money put into them, not at their worth.
+
+Things owned are shown at what they cost; no depreciation is charged.
+
 #### 4.5 Carried into FY 2026-27
 
 *Randhawa Joint Family · opening balances on 01 Apr 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
 Every account that carries a balance takes its balance **after the year close** into the new year as its opening balance b/d on 01 Apr 2026 — the b/d line of its ledger. Income and expense accounts and the drawings start FY 2026-27 at nil; the own money opens as one figure for each owner.
 
-| Account (opening balance b/d on 01 Apr 2026) | Type | Balance ₹ | Side |
-|:---|:---|---:|:---:|
-| Cash A/c | Cash | 34,800 | Dr |
-| SBI Joint Savings A/c | Bank | 5,39,260 | Dr |
-| SBI Fixed Deposit A/c | Deposit | 8,00,000 | Dr |
-| Family House, Village Kotli A/c | Thing owned | 25,00,000 | Dr |
-| Family Gold A/c | Thing owned | 6,00,000 | Dr |
-| Lakhbeer's Family A/c | Sub-family | 2,18,500 | Dr |
-| Lakhwinder's Family A/c | Sub-family | 1,92,000 | Cr |
-| Randhawa Agriculture A/c | Money in a business | 64,98,100 | Dr |
-| Randhawa Real Estate A/c | Money in a business | 31,37,000 | Dr |
-| Randhawa Brick Field A/c | Money in a business | 14,84,000 | Dr |
-| Doodhwala (milk khata) A/c | Person / shop | 59,400 | Cr |
-| Capital A/c – Randhawa family | Own money | 1,55,60,260 | Cr |
-| **Σ Dr = Σ Cr** |  | **1,58,11,660** | **= 1,58,11,660** |
+| Account | Type | Closing 31 Mar 2026, after the close ₹ | Side | Opening b/d 01 Apr 2026 ₹ | Side |
+|:---|:---|---:|:---:|---:|:---:|
+| Cash A/c | Cash | 34,800 | Dr | 34,800 | Dr |
+| SBI Joint Savings A/c | Bank | 5,39,260 | Dr | 5,39,260 | Dr |
+| SBI Fixed Deposit A/c | Deposit | 8,00,000 | Dr | 8,00,000 | Dr |
+| Family House, Village Kotli A/c | Thing owned | 25,00,000 | Dr | 25,00,000 | Dr |
+| Family Gold A/c | Thing owned | 6,00,000 | Dr | 6,00,000 | Dr |
+| Lakhbeer's Family A/c | Sub-family | 2,18,500 | Dr | 2,18,500 | Dr |
+| Lakhwinder's Family A/c | Sub-family | 1,92,000 | Cr | 1,92,000 | Cr |
+| Randhawa Agriculture A/c | Money in a business | 64,98,100 | Dr | 64,98,100 | Dr |
+| Randhawa Real Estate A/c | Money in a business | 31,37,000 | Dr | 31,37,000 | Dr |
+| Randhawa Brick Field A/c | Money in a business | 14,84,000 | Dr | 14,84,000 | Dr |
+| Doodhwala (milk khata) A/c | Person / shop | 59,400 | Cr | 59,400 | Cr |
+| Capital A/c – Randhawa family | Own money | 1,55,60,260 | Cr | 1,55,60,260 | Cr |
+| **Σ Dr = Σ Cr** |  | **1,58,11,660** | **= 1,58,11,660** | **1,58,11,660** | **= 1,58,11,660** |
+
+Things owned are shown at what they cost; no depreciation is charged.
 
 ## Book: Amarjeet's Family — household book
 
@@ -739,7 +753,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Capital A/c – Amarjeet's family
 
-| Date | No. | Particulars | Taken out (Dr) | Put in (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken out (Dr) | Put in / added (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | 47,800 | 47,800 | Cr |
 | 31 Mar 2026 | RA-Y3 | By Income & Expenses A/c<br><em>Saving for the year added to own money</em> | — | 24,810 | 72,610 | Cr |
@@ -749,7 +763,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Stitching Income A/c
 
-| Date | No. | Particulars | Returned (Dr) | Received (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 30 May 2025 | RA-003 | By Cash A/c<br><em>Indu's stitching — suits for the season, cash</em> | — | 6,400 | 6,400 | Cr |
 | 30 Oct 2025 | RA-017 | By Cash A/c<br><em>Indu's stitching — suits for the season, cash</em> | — | 9,800 | 16,200 | Cr |
@@ -760,7 +774,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Received from the Joint Family A/c
 
-| Date | No. | Particulars | Returned (Dr) | Received (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 31 Mar 2026 | RA-030 | By Randhawa Joint Family A/c<br><em>Our account with the joint family settled for the year — the family bears it</em> | — | 1,17,000 | 1,17,000 | Cr |
 |  |  | **Total for the year** | **—** | **1,17,000** | **1,17,000** | **Cr** |
@@ -768,7 +782,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Interest A/c
 
-| Date | No. | Particulars | Returned (Dr) | Received (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 31 Mar 2026 | RA-032 | By PNB Savings A/c<br><em>Savings interest</em> | — | 910 | 910 | Cr |
 |  |  | **Total for the year** | **—** | **910** | **910** | **Cr** |
@@ -864,12 +878,13 @@ Every account with a balance on 30 Sep 2025, placed on the side its balance fall
 
 | How it is made up | ₹ |
 |:---|---:|
+| Income so far | 6,400 |
+| − Spent so far | 47,500 |
+| **= Result so far (spent more than came in)** | **41,100** |
 | Own money at the start of the year (01 Apr 2025) | 65,800 |
 | + Put in so far | 45,000 |
 | − Taken out so far | 0 |
-| + Income so far | 6,400 |
-| − Spent so far | 47,500 |
-| **= Result so far (spent more than came in)** | **41,100** |
+| − Result so far (spent more than came in) | 41,100 |
 | **= Own money now** | **69,700** |
 
 #### 3.2 Full position on 31 Mar 2026 — year end
@@ -890,12 +905,13 @@ Every account with a balance on 31 Mar 2026, placed on the side its balance fall
 
 | How it is made up | ₹ |
 |:---|---:|
+| Income so far | 1,46,910 |
+| − Spent so far | 1,22,100 |
+| **= Result so far (saving)** | **24,810** |
 | Own money at the start of the year (01 Apr 2025) | 65,800 |
 | + Put in so far | 99,000 |
 | − Taken out so far | 1,17,000 |
-| + Income so far | 1,46,910 |
-| − Spent so far | 1,22,100 |
-| **= Result so far (saving)** | **24,810** |
+| + Result so far (saving) | 24,810 |
 | **= Own money now** | **72,610** |
 
 #### 3.3 One month — October 2025, account by account
@@ -930,13 +946,13 @@ Our account with the joint family for the year — the same entries as the famil
 
 | Date | No. | Particulars | Put in / paid back (Dr) | Received from the family (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Balance b/f on 01 Apr 2025 | — | 18,000 | 18,000 | Cr |
+| 01 Apr 2025 |  | Opening balance on 01 Apr 2025 | — | — | 18,000 | Cr |
 | 03 Apr 2025 | RA-001 | By PNB Savings A/c<br><em>Household money for six months from the joint family</em> | — | 45,000 | 63,000 | Cr |
 | 03 Oct 2025 | RA-013 | By PNB Savings A/c<br><em>Household money for six months from the joint family</em> | — | 45,000 | 1,08,000 | Cr |
 | 26 Dec 2025 | RA-022 | By Medical A/c<br><em>Indu's dental treatment, paid by the joint family</em> | — | 9,000 | 1,17,000 | Cr |
 | 31 Mar 2026 | RA-030 | To Received from the Joint Family A/c<br><em>Our account with the joint family settled for the year — the family bears it</em> | 1,17,000 | — | 0 | — |
-| 31 Mar 2026 |  | Balance c/f on 31 Mar 2026 | — | — | — | — |
-|  |  | **Total** | **1,17,000** | **1,17,000** |  |  |
+|  |  | **Total for the period** | **1,17,000** | **99,000** |  |  |
+| 31 Mar 2026 |  | **Closing balance on 31 Mar 2026** |  |  | **0** | **—** |
 
 #### 3.5 You will get / You will give — who owes what, and since when (on 31 Mar 2026)
 
@@ -1046,13 +1062,13 @@ Nobody types these. When the year is closed the book itself closes every income 
 
 Every account that carries a balance takes its balance **after the year close** into the new year as its opening balance b/d on 01 Apr 2026 — the b/d line of its ledger. Income and expense accounts and the drawings start FY 2026-27 at nil; the own money opens as one figure for each owner.
 
-| Account (opening balance b/d on 01 Apr 2026) | Type | Balance ₹ | Side |
-|:---|:---|---:|:---:|
-| Cash A/c | Cash | 22,500 | Dr |
-| PNB Savings A/c | Bank | 64,310 | Dr |
-| Gill Kiryana Store A/c | Person / shop | 14,200 | Cr |
-| Capital A/c – Amarjeet's family | Own money | 72,610 | Cr |
-| **Σ Dr = Σ Cr** |  | **86,810** | **= 86,810** |
+| Account | Type | Closing 31 Mar 2026, after the close ₹ | Side | Opening b/d 01 Apr 2026 ₹ | Side |
+|:---|:---|---:|:---:|---:|:---:|
+| Cash A/c | Cash | 22,500 | Dr | 22,500 | Dr |
+| PNB Savings A/c | Bank | 64,310 | Dr | 64,310 | Dr |
+| Gill Kiryana Store A/c | Person / shop | 14,200 | Cr | 14,200 | Cr |
+| Capital A/c – Amarjeet's family | Own money | 72,610 | Cr | 72,610 | Cr |
+| **Σ Dr = Σ Cr** |  | **86,810** | **= 86,810** | **86,810** | **= 86,810** |
 
 ## Book: Lakhbeer's Family — household book
 
@@ -1183,7 +1199,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Capital A/c – Lakhbeer's family
 
-| Date | No. | Particulars | Taken out (Dr) | Put in (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken out (Dr) | Put in / added (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | 90,000 | 90,000 | Cr |
 | 31 Mar 2026 | RB-Y3 | To Income & Expenses A/c<br><em>Spent more than came in — taken from own money</em> | 1,33,460 | — | 43,460 | Dr |
@@ -1193,7 +1209,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Interest A/c
 
-| Date | No. | Particulars | Returned (Dr) | Received (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 31 Mar 2026 | RB-029 | By HDFC Savings A/c<br><em>Savings interest</em> | — | 640 | 640 | Cr |
 |  |  | **Total for the year** | **—** | **640** | **640** | **Cr** |
@@ -1201,7 +1217,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Share of Family Business Income A/c
 
-| Date | No. | Particulars | Returned (Dr) | Received (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 31 Mar 2026 | RB-028 | By Randhawa Joint Family A/c<br><em>The ₹30,000 still due from what we took, settled from our share of the family's business income</em> | — | 30,000 | 30,000 | Cr |
 |  |  | **Total for the year** | **—** | **30,000** | **30,000** | **Cr** |
@@ -1259,6 +1275,8 @@ One account after another: date, entry number, the other account (*To …* on th
 |  |  | **Total for the year** | **29,300** | **—** | **29,300** | **Dr** |
 | 31 Mar 2026 | RB-Y2 | By Income & Expenses A/c<br><em>Expense heads closed to Income & Expenses</em> | — | 29,300 | 0 | — |
 
+Things owned are shown at what they cost; no depreciation is charged.
+
 ### 3. Positions and statements during the year
 
 #### 3.1 Full position on 30 Sep 2025 — what I have, what I will get, what I will give
@@ -1266,7 +1284,6 @@ One account after another: date, entry number, the other account (*To …* on th
 *Lakhbeer's Family · on 30 Sep 2025 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
 Every account with a balance on 30 Sep 2025, placed on the side its balance falls. What I have plus what I will get, less what I will give, is the own money.
-Things owned are shown at what they cost; no depreciation is charged.
 
 |  | Account | Have / will get ₹ | Will give / funds ₹ |
 |:---|:---|---:|---:|
@@ -1281,20 +1298,22 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 | How it is made up | ₹ |
 |:---|---:|
+| Income so far | 0 |
+| − Spent so far | 60,500 |
+| **= Result so far (spent more than came in)** | **60,500** |
 | Own money at the start of the year (01 Apr 2025) | 90,000 |
 | + Put in so far | 1,80,000 |
 | − Taken out so far | 0 |
-| + Income so far | 0 |
-| − Spent so far | 60,500 |
-| **= Result so far (spent more than came in)** | **60,500** |
+| − Result so far (spent more than came in) | 60,500 |
 | **= Own money now** | **2,09,500** |
+
+Things owned are shown at what they cost; no depreciation is charged.
 
 #### 3.2 Full position on 31 Mar 2026 — year end
 
 *Lakhbeer's Family · on 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
 Every account with a balance on 31 Mar 2026, placed on the side its balance falls. What I have plus what I will get, less what I will give, is the own money.
-Things owned are shown at what they cost; no depreciation is charged.
 
 |  | Account | Have / will get ₹ | Will give / funds ₹ |
 |:---|:---|---:|---:|
@@ -1308,13 +1327,16 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 | How it is made up | ₹ |
 |:---|---:|
+| Income so far | 30,640 |
+| − Spent so far | 1,64,100 |
+| **= Result so far (spent more than came in)** | **1,33,460** |
 | Own money at the start of the year (01 Apr 2025) | 90,000 |
 | + Put in so far | 2,68,500 |
 | − Taken out so far | 50,000 |
-| + Income so far | 30,640 |
-| − Spent so far | 1,64,100 |
-| **= Result so far (spent more than came in)** | **1,33,460** |
+| − Result so far (spent more than came in) | 1,33,460 |
 | **= Own money now** | **1,75,040** |
+
+Things owned are shown at what they cost; no depreciation is charged.
 
 #### 3.3 One month — October 2025, account by account
 
@@ -1340,6 +1362,8 @@ Every account's balance on 01 Oct 2025, what went on its Dr side and its Cr side
 
 *October 2025 in brief: income ₹0 · spent ₹34,800 · spent more than came in ₹34,800.*
 
+Things owned are shown at what they cost; no depreciation is charged.
+
 #### 3.4 One account for a chosen period — Bajwa Medical Store A/c, 01 Apr 2025 to 31 Mar 2026
 
 *Lakhbeer's Family — Bajwa Medical Store A/c · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
@@ -1348,14 +1372,14 @@ The chemist's khata for the year — medicines on credit and the payments. This 
 
 | Date | No. | Particulars | You will get (Dr) | You will give (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Balance b/f on 01 Apr 2025 | — | — | 0 | — |
+| 01 Apr 2025 |  | Opening balance on 01 Apr 2025 | — | — | 0 | — |
 | 14 May 2025 | RB-003 | By Medical A/c<br><em>Medicines on khata</em> | — | 2,400 | 2,400 | Cr |
 | 22 Sep 2025 | RB-009 | By Medical A/c<br><em>Medicines on khata</em> | — | 3,100 | 5,500 | Cr |
 | 04 Oct 2025 | RB-012 | To Cash A/c<br><em>Chemist's khata paid, cash</em> | 5,500 | — | 0 | — |
 | 03 Feb 2026 | RB-024 | By Medical A/c<br><em>Medicines on khata</em> | — | 2,700 | 2,700 | Cr |
 | 02 Mar 2026 | RB-026 | To Cash A/c<br><em>Chemist's khata paid, cash</em> | 2,700 | — | 0 | — |
-| 31 Mar 2026 |  | Balance c/f on 31 Mar 2026 | — | — | — | — |
-|  |  | **Total** | **8,200** | **8,200** |  |  |
+|  |  | **Total for the period** | **8,200** | **8,200** |  |  |
+| 31 Mar 2026 |  | **Closing balance on 31 Mar 2026** |  |  | **0** | **—** |
 
 #### 3.5 You will get / You will give — who owes what, and since when (on 31 Mar 2026)
 
@@ -1396,6 +1420,8 @@ The closing balance of every account after the last entry of the year (before th
 
 *Accounts with entries in the year but nil on 31 Mar 2026 (not listed above): Bajwa Medical Store A/c; Advance – painter A/c.*
 
+Things owned are shown at what they cost; no depreciation is charged.
+
 #### 4.2 Income & Expenses for FY 2025-26
 
 *Lakhbeer's Family · FY 2025-26 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
@@ -1433,8 +1459,6 @@ Nobody types these. When the year is closed the book itself closes every income 
 
 *Lakhbeer's Family · on 31 Mar 2026, after the year close · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-Things owned are shown at what they cost; no depreciation is charged.
-
 **Own money, and what I will give**
 
 | Particulars | ₹ |
@@ -1457,20 +1481,24 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 **Both sides ₹1,75,040. The books balance.**
 
+Things owned are shown at what they cost; no depreciation is charged.
+
 #### 4.5 Carried into FY 2026-27
 
 *Lakhbeer's Family · opening balances on 01 Apr 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
 Every account that carries a balance takes its balance **after the year close** into the new year as its opening balance b/d on 01 Apr 2026 — the b/d line of its ledger. Income and expense accounts and the drawings start FY 2026-27 at nil; the own money opens as one figure for each owner.
 
-| Account (opening balance b/d on 01 Apr 2026) | Type | Balance ₹ | Side |
-|:---|:---|---:|:---:|
-| Cash A/c | Cash | 9,000 | Dr |
-| HDFC Savings A/c | Bank | 67,540 | Dr |
-| Randhawa Joint Family A/c | Joint family | 2,18,500 | Cr |
-| Motorcycle A/c | Thing owned | 98,500 | Dr |
-| Capital A/c – Lakhbeer's family | Own money | 43,460 | Dr |
-| **Σ Dr = Σ Cr** |  | **2,18,500** | **= 2,18,500** |
+| Account | Type | Closing 31 Mar 2026, after the close ₹ | Side | Opening b/d 01 Apr 2026 ₹ | Side |
+|:---|:---|---:|:---:|---:|:---:|
+| Cash A/c | Cash | 9,000 | Dr | 9,000 | Dr |
+| HDFC Savings A/c | Bank | 67,540 | Dr | 67,540 | Dr |
+| Randhawa Joint Family A/c | Joint family | 2,18,500 | Cr | 2,18,500 | Cr |
+| Motorcycle A/c | Thing owned | 98,500 | Dr | 98,500 | Dr |
+| Capital A/c – Lakhbeer's family | Own money | 43,460 | Dr | 43,460 | Dr |
+| **Σ Dr = Σ Cr** |  | **2,18,500** | **= 2,18,500** | **2,18,500** | **= 2,18,500** |
+
+Things owned are shown at what they cost; no depreciation is charged.
 
 ## Book: Lakhwinder's Family — household book
 
@@ -1597,7 +1625,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Capital A/c – Lakhwinder's family
 
-| Date | No. | Particulars | Taken out (Dr) | Put in (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken out (Dr) | Put in / added (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | 96,200 | 96,200 | Cr |
 | 31 Mar 2026 | RC-Y3 | By Income & Expenses A/c<br><em>Saving for the year added to own money</em> | — | 6,11,200 | 7,07,400 | Cr |
@@ -1607,7 +1635,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Salary A/c
 
-| Date | No. | Particulars | Returned (Dr) | Received (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 | RC-001 | By SBI Salary A/c<br><em>Salary for March 2025 (after deductions)</em> | — | 62,400 | 62,400 | Cr |
 | 01 May 2025 | RC-004 | By SBI Salary A/c<br><em>Salary for April 2025 (after deductions)</em> | — | 62,400 | 1,24,800 | Cr |
@@ -1626,7 +1654,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Tuition Income A/c
 
-| Date | No. | Particulars | Returned (Dr) | Received (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 31 Jul 2025 | RC-013 | By Cash A/c<br><em>Harjeet's tuition fees, April–July, cash</em> | — | 9,000 | 9,000 | Cr |
 | 28 Feb 2026 | RC-035 | By Cash A/c<br><em>Harjeet's tuition fees, August–February, cash</em> | — | 12,000 | 21,000 | Cr |
@@ -1726,12 +1754,13 @@ Every account with a balance on 30 Sep 2025, placed on the side its balance fall
 
 | How it is made up | ₹ |
 |:---|---:|
+| Income so far | 3,83,400 |
+| − Spent so far | 95,300 |
+| **= Result so far (saving)** | **2,88,100** |
 | Own money at the start of the year (01 Apr 2025) | 84,200 |
 | + Put in so far | 0 |
 | − Taken out so far | 40,000 |
-| + Income so far | 3,83,400 |
-| − Spent so far | 95,300 |
-| **= Result so far (saving)** | **2,88,100** |
+| + Result so far (saving) | 2,88,100 |
 | **= Own money now** | **3,32,300** |
 
 #### 3.2 Full position on 31 Mar 2026 — year end
@@ -1754,12 +1783,13 @@ Every account with a balance on 31 Mar 2026, placed on the side its balance fall
 
 | How it is made up | ₹ |
 |:---|---:|
+| Income so far | 7,69,800 |
+| − Spent so far | 1,58,600 |
+| **= Result so far (saving)** | **6,11,200** |
 | Own money at the start of the year (01 Apr 2025) | 84,200 |
 | + Put in so far | 0 |
 | − Taken out so far | 1,80,000 |
-| + Income so far | 7,69,800 |
-| − Spent so far | 1,58,600 |
-| **= Result so far (saving)** | **6,11,200** |
+| + Result so far (saving) | 6,11,200 |
 | **= Own money now** | **5,15,400** |
 
 #### 3.3 One month — October 2025, account by account
@@ -1795,15 +1825,15 @@ The credit card for the year — what was spent on it and the bills paid from th
 
 | Date | No. | Particulars | Paid in (Dr) | Spent on the card (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Balance b/f on 01 Apr 2025 | — | 6,800 | 6,800 | Cr |
+| 01 Apr 2025 |  | Opening balance on 01 Apr 2025 | — | — | 6,800 | Cr |
 | 18 Apr 2025 | RC-003 | To SBI Salary A/c<br><em>Credit-card bill paid</em> | 6,800 | — | 0 | — |
 | 20 May 2025 | RC-005 | By Household & Groceries A/c<br><em>Groceries, on the credit card</em> | — | 11,800 | 11,800 | Cr |
 | 18 Jun 2025 | RC-008 | To SBI Salary A/c<br><em>Credit-card bill paid</em> | 11,800 | — | 0 | — |
 | 18 Oct 2025 | RC-022 | By Clothes & Social A/c<br><em>Clothes for Diwali, on the credit card</em> | — | 16,400 | 16,400 | Cr |
 | 18 Nov 2025 | RC-025 | To SBI Salary A/c<br><em>Credit-card bill paid</em> | 16,400 | — | 0 | — |
 | 16 Feb 2026 | RC-034 | By Household & Groceries A/c<br><em>Groceries, on the credit card</em> | — | 12,600 | 12,600 | Cr |
-| 31 Mar 2026 |  | Balance c/f on 31 Mar 2026 | 12,600 | — | — | — |
-|  |  | **Total** | **47,600** | **47,600** |  |  |
+|  |  | **Total for the period** | **35,000** | **40,800** |  |  |
+| 31 Mar 2026 |  | **Closing balance on 31 Mar 2026** |  |  | **12,600** | **Cr** |
 
 #### 3.5 You will get / You will give — who owes what, and since when (on 31 Mar 2026)
 
@@ -1914,16 +1944,16 @@ Nobody types these. When the year is closed the book itself closes every income 
 
 Every account that carries a balance takes its balance **after the year close** into the new year as its opening balance b/d on 01 Apr 2026 — the b/d line of its ledger. Income and expense accounts and the drawings start FY 2026-27 at nil; the own money opens as one figure for each owner.
 
-| Account (opening balance b/d on 01 Apr 2026) | Type | Balance ₹ | Side |
-|:---|:---|---:|:---:|
-| Cash A/c | Cash | 33,400 | Dr |
-| SBI Salary A/c | Bank | 4,15,700 | Dr |
-| Randhawa Joint Family A/c | Joint family | 1,92,000 | Dr |
-| SBI Credit Card A/c | Credit card | 12,600 | Cr |
-| Post Office RD A/c | Deposit | 96,000 | Dr |
-| Capital A/c – Lakhwinder's family | Own money | 7,07,400 | Cr |
-| Kotli Dairy A/c | Person / shop | 17,100 | Cr |
-| **Σ Dr = Σ Cr** |  | **7,37,100** | **= 7,37,100** |
+| Account | Type | Closing 31 Mar 2026, after the close ₹ | Side | Opening b/d 01 Apr 2026 ₹ | Side |
+|:---|:---|---:|:---:|---:|:---:|
+| Cash A/c | Cash | 33,400 | Dr | 33,400 | Dr |
+| SBI Salary A/c | Bank | 4,15,700 | Dr | 4,15,700 | Dr |
+| Randhawa Joint Family A/c | Joint family | 1,92,000 | Dr | 1,92,000 | Dr |
+| SBI Credit Card A/c | Credit card | 12,600 | Cr | 12,600 | Cr |
+| Post Office RD A/c | Deposit | 96,000 | Dr | 96,000 | Dr |
+| Capital A/c – Lakhwinder's family | Own money | 7,07,400 | Cr | 7,07,400 | Cr |
+| Kotli Dairy A/c | Person / shop | 17,100 | Cr | 17,100 | Cr |
+| **Σ Dr = Σ Cr** |  | **7,37,100** | **= 7,37,100** | **7,37,100** | **= 7,37,100** |
 
 ## Book: Randhawa Agriculture — family business book
 
@@ -1962,6 +1992,8 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 | 23 | Interest on KCC A/c | Expense | Interest charged to the KCC | — | — |
 | 24 | Cattle Feed & Vet A/c | Expense | Feed, fodder and the vet for the buffaloes | — | — |
 |  | **Total of opening balances** |  |  | **67,64,600** | **67,64,600** |
+
+Things owned are shown at what they cost; no depreciation is charged.
 
 ### 2. Every account (ledger)
 
@@ -2114,7 +2146,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Capital A/c – Randhawa Joint Family
 
-| Date | No. | Particulars | Taken out (Dr) | Put in (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken out (Dr) | Put in / added (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | 64,18,100 | 64,18,100 | Cr |
 | 20 Jun 2025 | RG-013 | By PNB Savings A/c (farm)<br><em>Put in by the joint family for the paddy nursery and theka</em> | — | 80,000 | 64,98,100 | Cr |
@@ -2126,7 +2158,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Drawings A/c – Randhawa Joint Family
 
-| Date | No. | Particulars | Taken out (Dr) | Put back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken out (Dr) | Put back / closed to own money (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | — | 0 | — |
 | 06 May 2025 | RG-006 | To PNB Savings A/c (farm)<br><em>Wheat money sent home to the joint family</em> | 4,00,000 | — | 4,00,000 | Dr |
@@ -2138,7 +2170,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Wheat Sales A/c
 
-| Date | No. | Particulars | Returned (Dr) | Received (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 28 Apr 2025 | RG-004 | By PNB Savings A/c (farm)<br><em>Wheat sold at MSP — 340 quintals @ ₹2,425, paid into the bank</em> | — | 8,24,500 | 8,24,500 | Cr |
 |  |  | **Total for the year** | **—** | **8,24,500** | **8,24,500** | **Cr** |
@@ -2146,7 +2178,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Paddy Sales A/c
 
-| Date | No. | Particulars | Returned (Dr) | Received (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 30 Oct 2025 | RG-024 | By Bansal & Sons A/c<br><em>Paddy sold through Bansal & Sons — 490 quintals @ ₹2,340 (PR-126)</em> | — | 11,46,600 | 11,46,600 | Cr |
 |  |  | **Total for the year** | **—** | **11,46,600** | **11,46,600** | **Cr** |
@@ -2154,7 +2186,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Milk Sales A/c
 
-| Date | No. | Particulars | Returned (Dr) | Received (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 30 Sep 2025 | RG-021 | By Verka Milk Society A/c<br><em>Milk to Verka Milk Society, April–September (ten-day bills)</em> | — | 1,22,400 | 1,22,400 | Cr |
 | 31 Mar 2026 | RG-040 | By Verka Milk Society A/c<br><em>Milk to Verka Milk Society, October–March (ten-day bills)</em> | — | 1,38,600 | 2,61,000 | Cr |
@@ -2163,7 +2195,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Straw & PM-Kisan Income A/c
 
-| Date | No. | Particulars | Returned (Dr) | Received (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 10 May 2025 | RG-007 | By PNB Savings A/c (farm)<br><em>Wheat straw sold</em> | — | 18,000 | 18,000 | Cr |
 | 02 Aug 2025 | RG-017 | By PNB Savings A/c (farm)<br><em>PM-Kisan instalments, three</em> | — | 6,000 | 24,000 | Cr |
@@ -2244,6 +2276,8 @@ One account after another: date, entry number, the other account (*To …* on th
 |  |  | **Total for the year** | **34,600** | **—** | **34,600** | **Dr** |
 | 31 Mar 2026 | RG-Y2 | By Profit & Loss A/c<br><em>Expense heads closed to Profit & Loss</em> | — | 34,600 | 0 | — |
 
+Things owned are shown at what they cost; no depreciation is charged.
+
 ### 3. Positions and statements during the year
 
 #### 3.1 Full position on 30 Sep 2025 — what I have, what I will get, what I will give
@@ -2251,7 +2285,6 @@ One account after another: date, entry number, the other account (*To …* on th
 *Randhawa Agriculture · on 30 Sep 2025 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
 Every account with a balance on 30 Sep 2025, placed on the side its balance falls. What I have plus what I will get, less what I will give, is the own money.
-Things owned are shown at what they cost; no depreciation is charged.
 
 |  | Account | Have / will get ₹ | Will give / funds ₹ |
 |:---|:---|---:|---:|
@@ -2271,20 +2304,22 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 | How it is made up | ₹ |
 |:---|---:|
+| Income so far | 9,70,900 |
+| − Spent so far | 5,58,150 |
+| **= Result so far (profit)** | **4,12,750** |
 | Own money at the start of the year (01 Apr 2025) | 64,18,100 |
 | + Put in so far | 80,000 |
 | − Taken out so far | 4,00,000 |
-| + Income so far | 9,70,900 |
-| − Spent so far | 5,58,150 |
-| **= Result so far (profit)** | **4,12,750** |
+| + Result so far (profit) | 4,12,750 |
 | **= Own money now** | **65,10,850** |
+
+Things owned are shown at what they cost; no depreciation is charged.
 
 #### 3.2 Full position on 31 Mar 2026 — year end
 
 *Randhawa Agriculture · on 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
 Every account with a balance on 31 Mar 2026, placed on the side its balance falls. What I have plus what I will get, less what I will give, is the own money.
-Things owned are shown at what they cost; no depreciation is charged.
 
 |  | Account | Have / will get ₹ | Will give / funds ₹ |
 |:---|:---|---:|---:|
@@ -2304,13 +2339,16 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 | How it is made up | ₹ |
 |:---|---:|
+| Income so far | 22,56,100 |
+| − Spent so far | 8,09,935 |
+| **= Result so far (profit)** | **14,46,165** |
 | Own money at the start of the year (01 Apr 2025) | 64,18,100 |
 | + Put in so far | 80,000 |
 | − Taken out so far | 7,50,000 |
-| + Income so far | 22,56,100 |
-| − Spent so far | 8,09,935 |
-| **= Result so far (profit)** | **14,46,165** |
+| + Result so far (profit) | 14,46,165 |
 | **= Own money now** | **71,94,265** |
+
+Things owned are shown at what they cost; no depreciation is charged.
 
 #### 3.3 One month — October 2025, account by account
 
@@ -2348,6 +2386,8 @@ Every account's balance on 01 Oct 2025, what went on its Dr side and its Cr side
 
 *October 2025 in brief: income ₹11,46,600 · spent ₹90,065 · profit ₹10,56,535.*
 
+Things owned are shown at what they cost; no depreciation is charged.
+
 #### 3.4 One account for a chosen period — KCC – PNB A/c, 01 Apr 2025 to 31 Mar 2026
 
 *Randhawa Agriculture — KCC – PNB A/c · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
@@ -2356,7 +2396,7 @@ The KCC loan account for the year — drawn for each crop, the bank's interest, 
 
 | Date | No. | Particulars | Paid in (Dr) | Drawn / charged (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Balance b/f on 01 Apr 2025 | — | 3,20,000 | 3,20,000 | Cr |
+| 01 Apr 2025 |  | Opening balance on 01 Apr 2025 | — | — | 3,20,000 | Cr |
 | 02 May 2025 | RG-005 | To PNB Savings A/c (farm)<br><em>KCC paid back from the wheat money</em> | 3,20,000 | — | 0 | — |
 | 04 Jun 2025 | RG-009 | By PNB Savings A/c (farm)<br><em>Money drawn on the KCC for the paddy season</em> | — | 2,00,000 | 2,00,000 | Cr |
 | 25 Jul 2025 | RG-016 | By Diesel & Repairs A/c<br><em>Diesel and puddler repairs, paid from the KCC</em> | — | 24,600 | 2,24,600 | Cr |
@@ -2364,8 +2404,8 @@ The KCC loan account for the year — drawn for each crop, the bank's interest, 
 | 03 Nov 2025 | RG-027 | By PNB Savings A/c (farm)<br><em>Money drawn on the KCC for wheat sowing</em> | — | 1,50,000 | 3,84,450 | Cr |
 | 17 Nov 2025 | RG-031 | To PNB Savings A/c (farm)<br><em>KCC paid back from the paddy money</em> | 2,00,000 | — | 1,84,450 | Cr |
 | 31 Mar 2026 | RG-039 | By Interest on KCC A/c<br><em>Interest charged by the bank to the KCC (half-year)</em> | — | 5,420 | 1,89,870 | Cr |
-| 31 Mar 2026 |  | Balance c/f on 31 Mar 2026 | 1,89,870 | — | — | — |
-|  |  | **Total** | **7,09,870** | **7,09,870** |  |  |
+|  |  | **Total for the period** | **5,20,000** | **3,89,870** |  |  |
+| 31 Mar 2026 |  | **Closing balance on 31 Mar 2026** |  |  | **1,89,870** | **Cr** |
 
 #### 3.5 You will get / You will give — who owes what, and since when (on 31 Mar 2026)
 
@@ -2419,6 +2459,8 @@ The closing balance of every account after the last entry of the year (before th
 
 *Accounts with entries in the year but nil on 31 Mar 2026 (not listed above): Bansal & Sons A/c.*
 
+Things owned are shown at what they cost; no depreciation is charged.
+
 #### 4.2 Profit & Loss Account for FY 2025-26
 
 *Randhawa Agriculture · FY 2025-26 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
@@ -2462,10 +2504,6 @@ Nobody types these. When the year is closed the book itself closes every income 
 
 *Randhawa Agriculture · on 31 Mar 2026, after the year close · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-Things owned are shown at what they cost; no depreciation is charged.
-
-Things owned are shown at what they cost.
-
 **Own money, and what I will give**
 
 | Particulars | ₹ |
@@ -2494,25 +2532,31 @@ Things owned are shown at what they cost.
 
 **Both sides ₹74,68,135. The books balance.**
 
+Things owned are shown at what they cost.
+
+Things owned are shown at what they cost; no depreciation is charged.
+
 #### 4.5 Carried into FY 2026-27
 
 *Randhawa Agriculture · opening balances on 01 Apr 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
 Every account that carries a balance takes its balance **after the year close** into the new year as its opening balance b/d on 01 Apr 2026 — the b/d line of its ledger. Income and expense accounts and the drawings start FY 2026-27 at nil; the own money opens as one figure for each owner.
 
-| Account (opening balance b/d on 01 Apr 2026) | Type | Balance ₹ | Side |
-|:---|:---|---:|:---:|
-| Cash A/c | Cash | 6,000 | Dr |
-| PNB Savings A/c (farm) | Bank | 6,80,035 | Dr |
-| KCC – PNB A/c | KCC loan | 1,89,870 | Cr |
-| Sandhu Fertilisers A/c | Person / shop | 84,000 | Cr |
-| Advance – Aman Randhawa A/c | Advance | 3,500 | Dr |
-| Verka Milk Society A/c | Person / shop | 1,38,600 | Dr |
-| Farm Land, Village Kotli A/c | Thing owned | 54,00,000 | Dr |
-| Tractor & Implements A/c | Thing owned | 9,20,000 | Dr |
-| Buffaloes A/c | Thing owned | 3,20,000 | Dr |
-| Capital A/c – Randhawa Joint Family | Own money | 71,94,265 | Cr |
-| **Σ Dr = Σ Cr** |  | **74,68,135** | **= 74,68,135** |
+| Account | Type | Closing 31 Mar 2026, after the close ₹ | Side | Opening b/d 01 Apr 2026 ₹ | Side |
+|:---|:---|---:|:---:|---:|:---:|
+| Cash A/c | Cash | 6,000 | Dr | 6,000 | Dr |
+| PNB Savings A/c (farm) | Bank | 6,80,035 | Dr | 6,80,035 | Dr |
+| KCC – PNB A/c | KCC loan | 1,89,870 | Cr | 1,89,870 | Cr |
+| Sandhu Fertilisers A/c | Person / shop | 84,000 | Cr | 84,000 | Cr |
+| Advance – Aman Randhawa A/c | Advance | 3,500 | Dr | 3,500 | Dr |
+| Verka Milk Society A/c | Person / shop | 1,38,600 | Dr | 1,38,600 | Dr |
+| Farm Land, Village Kotli A/c | Thing owned | 54,00,000 | Dr | 54,00,000 | Dr |
+| Tractor & Implements A/c | Thing owned | 9,20,000 | Dr | 9,20,000 | Dr |
+| Buffaloes A/c | Thing owned | 3,20,000 | Dr | 3,20,000 | Dr |
+| Capital A/c – Randhawa Joint Family | Own money | 71,94,265 | Cr | 71,94,265 | Cr |
+| **Σ Dr = Σ Cr** |  | **74,68,135** | **= 74,68,135** | **74,68,135** | **= 74,68,135** |
+
+Things owned are shown at what they cost; no depreciation is charged.
 
 ## Book: Randhawa Real Estate — family business book
 
@@ -2546,6 +2590,8 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 | 18 | Brokerage A/c | Expense | Dealer's brokerage on the plot sale | — | — |
 | 19 | Rent written off A/c | Expense | Rent a tenant will not pay, after it was asked for | — | — |
 |  | **Total of opening balances** |  |  | **32,03,000** | **32,03,000** |
+
+Things owned are shown at what they cost; no depreciation is charged.
 
 ### 2. Every account (ledger)
 
@@ -2692,7 +2738,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Capital A/c – Randhawa Joint Family
 
-| Date | No. | Particulars | Taken out (Dr) | Put in (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken out (Dr) | Put in / added (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | 31,37,000 | 31,37,000 | Cr |
 | 31 Mar 2026 | RE-Y3 | By Profit & Loss A/c<br><em>Net profit added to own money</em> | — | 5,32,500 | 36,69,500 | Cr |
@@ -2703,7 +2749,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Drawings A/c – Randhawa Joint Family
 
-| Date | No. | Particulars | Taken out (Dr) | Put back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken out (Dr) | Put back / closed to own money (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | — | 0 | — |
 | 15 Sep 2025 | RE-009 | To Axis Bank Current A/c<br><em>Rent surplus sent home to the joint family</em> | 60,000 | — | 60,000 | Dr |
@@ -2715,7 +2761,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Rent Income A/c
 
-| Date | No. | Particulars | Returned (Dr) | Received (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 | RE-001 | By Kotli Medical Hall A/c / Bhullar Hardware A/c<br><em>Rent for April–June 2025</em> | — | 66,000 | 66,000 | Cr |
 | 01 Jul 2025 | RE-007 | By Kotli Medical Hall A/c / Bhullar Hardware A/c<br><em>Rent for July–September 2025</em> | — | 66,000 | 1,32,000 | Cr |
@@ -2726,7 +2772,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Profit on Sale of Plot A/c
 
-| Date | No. | Particulars | Returned (Dr) | Received (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 18 Nov 2025 | RE-014 | By Axis Bank Current A/c<br><em>Plot No. 14 sold for ₹15,50,000 — its cost ₹12,00,000 and the profit ₹3,50,000</em> | — | 3,50,000 | 3,50,000 | Cr |
 |  |  | **Total for the year** | **—** | **3,50,000** | **3,50,000** | **Cr** |
@@ -2734,7 +2780,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Deposit forfeited A/c
 
-| Date | No. | Particulars | Returned (Dr) | Received (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 31 Dec 2025 | RE-020 | By Deposit held – Bhullar Hardware A/c<br><em>The other ₹5,000 of Bhullar Hardware's deposit kept — he left without the notice the agreement asks for</em> | — | 5,000 | 5,000 | Cr |
 |  |  | **Total for the year** | **—** | **5,000** | **5,000** | **Cr** |
@@ -2775,6 +2821,8 @@ One account after another: date, entry number, the other account (*To …* on th
 |  |  | **Total for the year** | **2,000** | **—** | **2,000** | **Dr** |
 | 31 Mar 2026 | RE-Y2 | By Profit & Loss A/c<br><em>Expense heads closed to Profit & Loss</em> | — | 2,000 | 0 | — |
 
+Things owned are shown at what they cost; no depreciation is charged.
+
 ### 3. Positions and statements during the year
 
 #### 3.1 Full position on 30 Sep 2025 — what I have, what I will get, what I will give
@@ -2782,7 +2830,6 @@ One account after another: date, entry number, the other account (*To …* on th
 *Randhawa Real Estate · on 30 Sep 2025 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
 Every account with a balance on 30 Sep 2025, placed on the side its balance falls. What I have plus what I will get, less what I will give, is the own money.
-Things owned are shown at what they cost; no depreciation is charged.
 
 |  | Account | Have / will get ₹ | Will give / funds ₹ |
 |:---|:---|---:|---:|
@@ -2799,20 +2846,22 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 | How it is made up | ₹ |
 |:---|---:|
+| Income so far | 1,32,000 |
+| − Spent so far | 17,000 |
+| **= Result so far (profit)** | **1,15,000** |
 | Own money at the start of the year (01 Apr 2025) | 31,37,000 |
 | + Put in so far | 0 |
 | − Taken out so far | 60,000 |
-| + Income so far | 1,32,000 |
-| − Spent so far | 17,000 |
-| **= Result so far (profit)** | **1,15,000** |
+| + Result so far (profit) | 1,15,000 |
 | **= Own money now** | **31,92,000** |
+
+Things owned are shown at what they cost; no depreciation is charged.
 
 #### 3.2 Full position on 31 Mar 2026 — year end
 
 *Randhawa Real Estate · on 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
 Every account with a balance on 31 Mar 2026, placed on the side its balance falls. What I have plus what I will get, less what I will give, is the own money.
-Things owned are shown at what they cost; no depreciation is charged.
 
 |  | Account | Have / will get ₹ | Will give / funds ₹ |
 |:---|:---|---:|---:|
@@ -2828,13 +2877,16 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 | How it is made up | ₹ |
 |:---|---:|
+| Income so far | 5,89,000 |
+| − Spent so far | 56,500 |
+| **= Result so far (profit)** | **5,32,500** |
 | Own money at the start of the year (01 Apr 2025) | 31,37,000 |
 | + Put in so far | 0 |
 | − Taken out so far | 3,10,000 |
-| + Income so far | 5,89,000 |
-| − Spent so far | 56,500 |
-| **= Result so far (profit)** | **5,32,500** |
+| + Result so far (profit) | 5,32,500 |
 | **= Own money now** | **33,59,500** |
+
+Things owned are shown at what they cost; no depreciation is charged.
 
 #### 3.3 One month — October 2025, account by account
 
@@ -2861,6 +2913,8 @@ Every account's balance on 01 Oct 2025, what went on its Dr side and its Cr side
 
 *October 2025 in brief: income ₹66,000 · spent ₹0 · profit ₹66,000.*
 
+Things owned are shown at what they cost; no depreciation is charged.
+
 #### 3.4 One account for a chosen period — Bhullar Hardware A/c, 01 Apr 2025 to 31 Mar 2026
 
 *Randhawa Real Estate — Bhullar Hardware A/c · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
@@ -2869,7 +2923,7 @@ The tenant who left — rent charged, paid late and in part, his deposit set off
 
 | Date | No. | Particulars | You will get (Dr) | You will give (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Balance b/f on 01 Apr 2025 | 10,000 | — | 10,000 | Dr |
+| 01 Apr 2025 |  | Opening balance on 01 Apr 2025 | — | — | 10,000 | Dr |
 | 01 Apr 2025 | RE-001 | To Rent Income A/c<br><em>Rent for April–June 2025</em> | 30,000 | — | 40,000 | Dr |
 | 15 Apr 2025 | RE-003 | By Axis Bank Current A/c<br><em>Rent of March 2025 received (opening balance)</em> | — | 10,000 | 30,000 | Dr |
 | 12 May 2025 | RE-004 | By Axis Bank Current A/c<br><em>Rent of April–June 2025 received</em> | — | 30,000 | 0 | — |
@@ -2878,8 +2932,8 @@ The tenant who left — rent charged, paid late and in part, his deposit set off
 | 01 Oct 2025 | RE-012 | To Rent Income A/c<br><em>Rent for October–December 2025</em> | 30,000 | — | 30,000 | Dr |
 | 22 Dec 2025 | RE-018 | By Axis Bank Current A/c<br><em>Rent of October–December 2025 received — only ₹5,000 of ₹30,000</em> | — | 5,000 | 25,000 | Dr |
 | 31 Dec 2025 | RE-019 | By Deposit held – Bhullar Hardware A/c<br><em>Bhullar Hardware left shop 2 owing ₹25,000 of the October–December rent — ₹25,000 of his ₹30,000 deposit set off against it</em> | — | 25,000 | 0 | — |
-| 31 Mar 2026 |  | Balance c/f on 31 Mar 2026 | — | — | — | — |
-|  |  | **Total** | **1,00,000** | **1,00,000** |  |  |
+|  |  | **Total for the period** | **90,000** | **1,00,000** |  |  |
+| 31 Mar 2026 |  | **Closing balance on 31 Mar 2026** |  |  | **0** | **—** |
 
 #### 3.5 You will get / You will give — who owes what, and since when (on 31 Mar 2026)
 
@@ -2922,6 +2976,8 @@ The closing balance of every account after the last entry of the year (before th
 
 *Accounts with entries in the year but nil on 31 Mar 2026 (not listed above): Kotli Medical Hall A/c; Bhullar Hardware A/c; Deposit held – Bhullar Hardware A/c; Advance – registry clerk A/c; Plot No. 14, Model Colony A/c.*
 
+Things owned are shown at what they cost; no depreciation is charged.
+
 #### 4.2 Profit & Loss Account for FY 2025-26
 
 *Randhawa Real Estate · FY 2025-26 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
@@ -2960,10 +3016,6 @@ Nobody types these. When the year is closed the book itself closes every income 
 
 *Randhawa Real Estate · on 31 Mar 2026, after the year close · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-Things owned are shown at what they cost; no depreciation is charged.
-
-Things owned are shown at what they cost.
-
 **Own money, and what I will give**
 
 | Particulars | ₹ |
@@ -2988,21 +3040,27 @@ Things owned are shown at what they cost.
 
 **Both sides ₹33,95,500. The books balance.**
 
+Things owned are shown at what they cost.
+
+Things owned are shown at what they cost; no depreciation is charged.
+
 #### 4.5 Carried into FY 2026-27
 
 *Randhawa Real Estate · opening balances on 01 Apr 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
 Every account that carries a balance takes its balance **after the year close** into the new year as its opening balance b/d on 01 Apr 2026 — the b/d line of its ledger. Income and expense accounts and the drawings start FY 2026-27 at nil; the own money opens as one figure for each owner.
 
-| Account (opening balance b/d on 01 Apr 2026) | Type | Balance ₹ | Side |
-|:---|:---|---:|:---:|
-| Cash A/c | Cash | 6,600 | Dr |
-| Axis Bank Current A/c | Bank | 3,50,300 | Dr |
-| Deposit held – Kotli Medical Hall A/c | Deposit held | 36,000 | Cr |
-| Shops at Kotli Chowk A/c | Thing owned | 19,90,000 | Dr |
-| Plot No. 7, Green Enclave A/c | Thing owned | 10,48,600 | Dr |
-| Capital A/c – Randhawa Joint Family | Own money | 33,59,500 | Cr |
-| **Σ Dr = Σ Cr** |  | **33,95,500** | **= 33,95,500** |
+| Account | Type | Closing 31 Mar 2026, after the close ₹ | Side | Opening b/d 01 Apr 2026 ₹ | Side |
+|:---|:---|---:|:---:|---:|:---:|
+| Cash A/c | Cash | 6,600 | Dr | 6,600 | Dr |
+| Axis Bank Current A/c | Bank | 3,50,300 | Dr | 3,50,300 | Dr |
+| Deposit held – Kotli Medical Hall A/c | Deposit held | 36,000 | Cr | 36,000 | Cr |
+| Shops at Kotli Chowk A/c | Thing owned | 19,90,000 | Dr | 19,90,000 | Dr |
+| Plot No. 7, Green Enclave A/c | Thing owned | 10,48,600 | Dr | 10,48,600 | Dr |
+| Capital A/c – Randhawa Joint Family | Own money | 33,59,500 | Cr | 33,59,500 | Cr |
+| **Σ Dr = Σ Cr** |  | **33,95,500** | **= 33,95,500** | **33,95,500** | **= 33,95,500** |
+
+Things owned are shown at what they cost; no depreciation is charged.
 
 ## Book: Randhawa Brick Field — shared business book
 
@@ -3032,6 +3090,8 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 | 14 | Land Lease & Royalty A/c | Expense | Lease of the kiln land and earth royalty | — | — |
 | 15 | Repairs & Sundry A/c | Expense | Kiln repairs and small items | — | — |
 |  | **Total of opening balances** |  |  | **19,59,000** | **19,59,000** |
+
+Things owned are shown at what they cost; no depreciation is charged.
 
 ### 2. Every account (ledger)
 
@@ -3154,7 +3214,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Randhawa Joint Family A/c
 
-| Date | No. | Particulars | Taken out (Dr) | Put in (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken out (Dr) | Put in / added (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | 11,64,000 | 11,64,000 | Cr |
 | 10 Jul 2025 | RK-015 | To HDFC Bank Current A/c<br><em>Taken out by the joint family</em> | 1,50,000 | — | 10,14,000 | Cr |
@@ -3169,7 +3229,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Nirmaljeet Gill A/c
 
-| Date | No. | Particulars | Taken out (Dr) | Put in (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken out (Dr) | Put in / added (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | 7,00,000 | 7,00,000 | Cr |
 | 12 Jul 2025 | RK-016 | To HDFC Bank Current A/c<br><em>Taken out by Nirmaljeet Gill (entered on his instruction)</em> | 1,00,000 | — | 6,00,000 | Cr |
@@ -3182,7 +3242,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Brick Sales A/c
 
-| Date | No. | Particulars | Returned (Dr) | Received (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 30 Apr 2025 | RK-004 | By Cash A/c<br><em>Bricks sold for cash at the kiln this month</em> | — | 2,96,000 | 2,96,000 | Cr |
 | 20 May 2025 | RK-006 | By Sidhu Builders A/c<br><em>Bricks on khata — trolleys delivered this month</em> | — | 3,12,000 | 6,08,000 | Cr |
@@ -3242,6 +3302,8 @@ One account after another: date, entry number, the other account (*To …* on th
 |  |  | **Total for the year** | **69,400** | **—** | **69,400** | **Dr** |
 | 31 Mar 2026 | RK-Y2 | By Profit & Loss A/c<br><em>Expense heads closed to Profit & Loss</em> | — | 69,400 | 0 | — |
 
+Things owned are shown at what they cost; no depreciation is charged.
+
 ### 3. Positions and statements during the year
 
 #### 3.1 Full position on 30 Sep 2025 — what I have, what I will get, what I will give
@@ -3249,7 +3311,6 @@ One account after another: date, entry number, the other account (*To …* on th
 *Randhawa Brick Field · on 30 Sep 2025 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
 Every account with a balance on 30 Sep 2025, placed on the side its balance falls. What I have plus what I will get, less what I will give, is the partners' own money.
-Things owned are shown at what they cost; no depreciation is charged.
 
 |  | Account | Have / will get ₹ | Will give / funds ₹ |
 |:---|:---|---:|---:|
@@ -3264,20 +3325,22 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 | How it is made up | ₹ |
 |:---|---:|
+| Income so far | 12,00,000 |
+| − Spent so far | 1,77,900 |
+| **= Result so far (profit)** | **10,22,100** |
 | Partners' own money at the start of the year (01 Apr 2025) | 18,64,000 |
 | + Put in so far | 0 |
 | − Taken out so far | 2,50,000 |
-| + Income so far | 12,00,000 |
-| − Spent so far | 1,77,900 |
-| **= Result so far (profit)** | **10,22,100** |
+| + Result so far (profit) | 10,22,100 |
 | **= Partners' own money now** | **26,36,100** |
+
+Things owned are shown at what they cost; no depreciation is charged.
 
 #### 3.2 Full position on 31 Mar 2026 — year end
 
 *Randhawa Brick Field · on 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
 Every account with a balance on 31 Mar 2026, placed on the side its balance falls. What I have plus what I will get, less what I will give, is the partners' own money.
-Things owned are shown at what they cost; no depreciation is charged.
 
 |  | Account | Have / will get ₹ | Will give / funds ₹ |
 |:---|:---|---:|---:|
@@ -3295,13 +3358,16 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 | How it is made up | ₹ |
 |:---|---:|
+| Income so far | 18,38,000 |
+| − Spent so far | 14,88,800 |
+| **= Result so far (profit)** | **3,49,200** |
 | Partners' own money at the start of the year (01 Apr 2025) | 18,64,000 |
 | + Put in so far | 4,50,000 |
 | − Taken out so far | 5,50,000 |
-| + Income so far | 18,38,000 |
-| − Spent so far | 14,88,800 |
-| **= Result so far (profit)** | **3,49,200** |
+| + Result so far (profit) | 3,49,200 |
 | **= Partners' own money now** | **21,13,200** |
+
+Things owned are shown at what they cost; no depreciation is charged.
 
 #### 3.3 One month — October 2025, account by account
 
@@ -3326,20 +3392,22 @@ Every account's balance on 01 Oct 2025, what went on its Dr side and its Cr side
 
 *October 2025 in brief: income ₹0 · spent ₹1,80,000 · loss ₹1,80,000.*
 
+Things owned are shown at what they cost; no depreciation is charged.
+
 #### 3.4 One account for a chosen period — Nirmaljeet Gill A/c, 01 Apr 2025 to 31 Mar 2026
 
 *Randhawa Brick Field — Nirmaljeet Gill A/c · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
 The outside partner's account for the year — what he put in and took out, before his share of the profit. This is the statement the user shares.
 
-| Date | No. | Particulars | Taken out (Dr) | Put in (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken out (Dr) | Put in / added (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Balance b/f on 01 Apr 2025 | — | 7,00,000 | 7,00,000 | Cr |
+| 01 Apr 2025 |  | Opening balance on 01 Apr 2025 | — | — | 7,00,000 | Cr |
 | 12 Jul 2025 | RK-016 | To HDFC Bank Current A/c<br><em>Taken out by Nirmaljeet Gill (entered on his instruction)</em> | 1,00,000 | — | 6,00,000 | Cr |
 | 22 Oct 2025 | RK-020 | By HDFC Bank Current A/c<br><em>Put in by Nirmaljeet Gill for the season</em> | — | 1,30,000 | 7,30,000 | Cr |
 | 22 Mar 2026 | RK-034 | To HDFC Bank Current A/c<br><em>Taken out by Nirmaljeet Gill (entered on his instruction)</em> | 1,20,000 | — | 6,10,000 | Cr |
-| 31 Mar 2026 |  | Balance c/f on 31 Mar 2026 | 6,10,000 | — | — | — |
-|  |  | **Total** | **8,30,000** | **8,30,000** |  |  |
+|  |  | **Total for the period** | **2,20,000** | **1,30,000** |  |  |
+| 31 Mar 2026 |  | **Closing balance on 31 Mar 2026** |  |  | **6,10,000** | **Cr** |
 
 #### 3.5 You will get / You will give — who owes what, and since when (on 31 Mar 2026)
 
@@ -3383,6 +3451,8 @@ The closing balance of every account after the last entry of the year (before th
 | **TOTALS** | **39,67,000** | **39,67,000** |
 
 **Checked: Dr ₹39,67,000 = Cr ₹39,67,000. The books balance.**
+
+Things owned are shown at what they cost; no depreciation is charged.
 
 #### 4.2 Profit & Loss Account for FY 2025-26
 
@@ -3434,10 +3504,6 @@ Nobody types these. When the year is closed the book itself closes every income 
 
 *Randhawa Brick Field · on 31 Mar 2026, after the year close · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-Things owned are shown at what they cost; no depreciation is charged.
-
-Things owned are shown at what they cost.
-
 **The partners' accounts at the year end**
 
 | Partner | Capital ₹ | Account before the year close ₹ | + Interest on capital ₹ | + Share of profit ₹ | Account after the close ₹ | Partner's total ₹ |
@@ -3468,24 +3534,30 @@ Things owned are shown at what they cost.
 
 **Both sides ₹24,78,200. The books balance.**
 
+Things owned are shown at what they cost.
+
+Things owned are shown at what they cost; no depreciation is charged.
+
 #### 4.6 Carried into FY 2026-27
 
 *Randhawa Brick Field · opening balances on 01 Apr 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
 Every account that carries a balance takes its balance **after the year close** into the new year as its opening balance b/d on 01 Apr 2026 — the b/d line of its ledger. Income and expense accounts and the drawings start FY 2026-27 at nil; each partner's capital account and current account open at their own balances, as in their ledgers.
 
-| Account (opening balance b/d on 01 Apr 2026) | Type | Balance ₹ | Side |
-|:---|:---|---:|:---:|
-| Cash A/c | Cash | 27,100 | Dr |
-| HDFC Bank Current A/c | Bank | 5,18,000 | Dr |
-| Sidhu Builders A/c | Person / shop | 84,000 | Dr |
-| Dhaliwal Contractors A/c | Person / shop | 1,96,000 | Dr |
-| Jindal Coal Depot A/c | Person / shop | 3,65,000 | Cr |
-| Advance – pathera jamadar A/c | Advance | 3,100 | Dr |
-| Kiln & Chimney A/c | Thing owned | 16,50,000 | Dr |
-| Randhawa Joint Family A/c | Partner | 13,63,520 | Cr |
-| Nirmaljeet Gill A/c | Partner | 7,49,680 | Cr |
-| **Σ Dr = Σ Cr** |  | **24,78,200** | **= 24,78,200** |
+| Account | Type | Closing 31 Mar 2026, after the close ₹ | Side | Opening b/d 01 Apr 2026 ₹ | Side |
+|:---|:---|---:|:---:|---:|:---:|
+| Cash A/c | Cash | 27,100 | Dr | 27,100 | Dr |
+| HDFC Bank Current A/c | Bank | 5,18,000 | Dr | 5,18,000 | Dr |
+| Sidhu Builders A/c | Person / shop | 84,000 | Dr | 84,000 | Dr |
+| Dhaliwal Contractors A/c | Person / shop | 1,96,000 | Dr | 1,96,000 | Dr |
+| Jindal Coal Depot A/c | Person / shop | 3,65,000 | Cr | 3,65,000 | Cr |
+| Advance – pathera jamadar A/c | Advance | 3,100 | Dr | 3,100 | Dr |
+| Kiln & Chimney A/c | Thing owned | 16,50,000 | Dr | 16,50,000 | Dr |
+| Randhawa Joint Family A/c | Partner | 13,63,520 | Cr | 13,63,520 | Cr |
+| Nirmaljeet Gill A/c | Partner | 7,49,680 | Cr | 7,49,680 | Cr |
+| **Σ Dr = Σ Cr** |  | **24,78,200** | **= 24,78,200** | **24,78,200** | **= 24,78,200** |
+
+Things owned are shown at what they cost; no depreciation is charged.
 
 ## Family summary — the books agree
 

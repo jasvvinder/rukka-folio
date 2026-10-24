@@ -66,37 +66,71 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 
 *51 entries: Advance settled 1 · Correction 1 · Money in 10 · Money out 26 · Took on credit 2 · Transfer 10 · Written off 1.*
 
-### 2. Cash Book — Cash A/c
+### 2. Cash Book — Cash A/c and SBI Savings A/c
 
 *Jasvinder Singh · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-Every rupee of cash in and out, with the note of each entry, balanced at the end of every month that had cash entries; the balance is what the cash box must hold.
+Every receipt and every payment of cash and of the bank, with the note of each entry: money in on the left, money out on the right, a column for each. Money moved between the cash box and the bank stands on both sides — out of one, into the other. Each month that had entries ends with its totals and the balance of each; the cash balance is what the cash box must hold, the bank balance is the bank's.
 
-| Date | No. | Particulars | Money in (Dr) | Money out (Cr) | Balance ₹ | Side |
-|:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 8,000 | Dr |
-| 02 Apr 2025 | JP-002 | To SBI Savings A/c<br><em>Cash withdrawn (ATM)</em> | 45,000 | — | 53,000 | Dr |
-| 05 Apr 2025 | JP-003 | By Sharma General Store A/c<br><em>Grocer's khata of March paid, cash</em> | — | 3,200 | 49,800 | Dr |
-| 30 Apr 2025 |  | **Month total — April 2025 · closing balance** | **45,000** | **3,200** | **49,800** | **Dr** |
-| 30 Jun 2025 | JP-010 | By House Help Wages A/c<br><em>House help's wages, April–June, cash</em> | — | 30,000 | 19,800 | Dr |
-| 30 Jun 2025 |  | **Month total — June 2025 · closing balance** | **0** | **30,000** | **19,800** | **Dr** |
-| 08 Jul 2025 | JP-011 | By Advance – house help A/c<br><em>Salary advance to the house help, cash</em> | — | 6,000 | 13,800 | Dr |
-| 31 Jul 2025 |  | **Month total — July 2025 · closing balance** | **0** | **6,000** | **13,800** | **Dr** |
-| 26 Sep 2025 | JP-019 | To SBI Savings A/c<br><em>Cash withdrawn (ATM)</em> | 45,000 | — | 58,800 | Dr |
-| 30 Sep 2025 | JP-021 | By House Help Wages A/c<br><em>House help's wages, July–September — ₹6,000 of it recovered from her advance, the rest paid in cash</em> | — | 24,000 | 34,800 | Dr |
-| 30 Sep 2025 |  | **Month total — September 2025 · closing balance** | **45,000** | **24,000** | **34,800** | **Dr** |
-| 05 Nov 2025 | JP-028 | By Gifts & Social A/c<br><em>Shagun at a cousin's wedding and Gurpurab, cash</em> | — | 11,000 | 23,800 | Dr |
-| 30 Nov 2025 |  | **Month total — November 2025 · closing balance** | **0** | **11,000** | **23,800** | **Dr** |
-| 18 Dec 2025 | JP-033 | By Advance – Balwinder Singh A/c<br><em>Advance to Balwinder Singh for the Vaishno Devi trip, cash</em> | — | 15,000 | 8,800 | Dr |
-| 27 Dec 2025 | JP-035 | To SBI Savings A/c<br><em>Cash withdrawn (ATM)</em> | 30,000 | — | 38,800 | Dr |
-| 28 Dec 2025 | JP-037 | To Advance – Balwinder Singh A/c<br><em>Balwinder Singh returned the unspent part of the advance, cash</em> | 1,500 | — | 40,300 | Dr |
-| 31 Dec 2025 | JP-038 | By House Help Wages A/c<br><em>House help's wages, October–December, cash</em> | — | 30,000 | 10,300 | Dr |
-| 31 Dec 2025 |  | **Month total — December 2025 · closing balance** | **31,500** | **45,000** | **10,300** | **Dr** |
-| 02 Mar 2026 | JP-044 | To SBI Savings A/c<br><em>Cash withdrawn (ATM)</em> | 30,000 | — | 40,300 | Dr |
-| 31 Mar 2026 | JP-048 | By House Help Wages A/c<br><em>House help's wages, January–March, cash</em> | — | 30,000 | 10,300 | Dr |
-| 31 Mar 2026 |  | **Month total — March 2026 · closing balance** | **30,000** | **30,000** | **10,300** | **Dr** |
+| Date | No. | Particulars | Money in (Dr) — Cash ₹ | Money in (Dr) — SBI Savings A/c ₹ | Money out (Cr) — Cash ₹ | Money out (Cr) — SBI Savings A/c ₹ | Balance — Cash ₹ | Balance — SBI Savings A/c ₹ |
+|:---|:---|:---|---:|---:|---:|---:|---:|---:|
+| 01 Apr 2025 |  | Opening balance b/f | 8,000 | 1,85,000 | — | — | 8,000 | 1,85,000 |
+| 01 Apr 2025 | JP-001 | To Income from Jasvinder Technologies A/c<br><em>Received from Jasvinder Technologies — money sent home</em> | — | 1,20,000 | — | — | 8,000 | 3,05,000 |
+| 02 Apr 2025 | JP-002 | SBI Savings A/c to Cash A/c<br><em>Cash withdrawn (ATM)</em> | 45,000 | — | — | 45,000 | 53,000 | 2,60,000 |
+| 05 Apr 2025 | JP-003 | By Sharma General Store A/c<br><em>Grocer's khata of March paid, cash</em> | — | — | 3,200 | — | 49,800 | 2,60,000 |
+| 15 Apr 2025 | JP-004 | By School Fees A/c<br><em>School fees, first half-year</em> | — | — | — | 42,000 | 49,800 | 2,18,000 |
+| 18 Apr 2025 | JP-005 | By HDFC Credit Card A/c<br><em>Credit-card bill paid from savings</em> | — | — | — | 12,400 | 49,800 | 2,05,600 |
+| 30 Apr 2025 |  | **Month total — April 2025 · closing balance** | **45,000** | **1,20,000** | **3,200** | **99,400** | **49,800** | **2,05,600** |
+| 18 May 2025 | JP-007 | By Loan to – Gurpreet Sandhu A/c<br><em>Hand loan to Gurpreet Sandhu, on a small interest (UPI)</em> | — | — | — | 25,000 | 49,800 | 1,80,600 |
+| 31 May 2025 |  | **Month total — May 2025 · closing balance** | **0** | **0** | **0** | **25,000** | **49,800** | **1,80,600** |
+| 16 Jun 2025 | JP-008 | By Jasvinder Technologies A/c<br><em>Put into Jasvinder Technologies for the new laptops</em> | — | — | — | 1,00,000 | 49,800 | 80,600 |
+| 18 Jun 2025 | JP-009 | By HDFC Credit Card A/c<br><em>Credit-card bill paid from savings</em> | — | — | — | 26,300 | 49,800 | 54,300 |
+| 30 Jun 2025 | JP-010 | By House Help Wages A/c<br><em>House help's wages, April–June, cash</em> | — | — | 30,000 | — | 19,800 | 54,300 |
+| 30 Jun 2025 |  | **Month total — June 2025 · closing balance** | **0** | **0** | **30,000** | **1,26,300** | **19,800** | **54,300** |
+| 08 Jul 2025 | JP-011 | By Advance – house help A/c<br><em>Salary advance to the house help, cash</em> | — | — | 6,000 | — | 13,800 | 54,300 |
+| 15 Jul 2025 | JP-012 | To Income from Jasvinder Technologies A/c<br><em>Received from Jasvinder Technologies — money sent home</em> | — | 1,20,000 | — | — | 13,800 | 1,74,300 |
+| 21 Jul 2025 | JP-013 | By Electricity & Phone A/c<br><em>Electricity and phone bills, six months</em> | — | — | — | 15,500 | 13,800 | 1,58,800 |
+| 31 Jul 2025 |  | **Month total — July 2025 · closing balance** | **0** | **1,20,000** | **6,000** | **15,500** | **13,800** | **1,58,800** |
+| 03 Aug 2025 | JP-014 | To Gifts Received A/c<br><em>Birthday gift from an uncle (UPI)</em> | — | 11,000 | — | — | 13,800 | 1,69,800 |
+| 28 Aug 2025 | JP-016 | By Medical & Insurance A/c<br><em>LIC premium (yearly)</em> | — | — | — | 38,000 | 13,800 | 1,31,800 |
+| 31 Aug 2025 |  | **Month total — August 2025 · closing balance** | **0** | **11,000** | **0** | **38,000** | **13,800** | **1,31,800** |
+| 17 Sep 2025 | JP-017 | By HDFC Credit Card A/c<br><em>Credit-card bill paid from savings</em> | — | — | — | 14,200 | 13,800 | 1,17,600 |
+| 20 Sep 2025 | JP-018 | To SBI Fixed Deposit A/c<br><em>Fixed deposit of ₹1,00,000 matured — back to savings</em> | — | 1,00,000 | — | — | 13,800 | 2,17,600 |
+| 26 Sep 2025 | JP-019 | SBI Savings A/c to Cash A/c<br><em>Cash withdrawn (ATM)</em> | 45,000 | — | — | 45,000 | 58,800 | 1,72,600 |
+| 30 Sep 2025 | JP-021 | By House Help Wages A/c / To Advance – house help A/c<br><em>House help's wages, July–September — ₹6,000 of it recovered from her advance, the rest paid in cash</em> | — | — | 24,000 | — | 34,800 | 1,72,600 |
+| 30 Sep 2025 |  | **Month total — September 2025 · closing balance** | **45,000** | **1,00,000** | **24,000** | **59,200** | **34,800** | **1,72,600** |
+| 03 Oct 2025 | JP-022 | By FASTag Wallet A/c<br><em>FASTag wallet recharged from savings</em> | — | — | — | 3,000 | 34,800 | 1,69,600 |
+| 06 Oct 2025 | JP-023 | By Sharma General Store A/c<br><em>Grocer's khata of April–September paid (UPI)</em> | — | — | — | 48,400 | 34,800 | 1,21,200 |
+| 16 Oct 2025 | JP-024 | By School Fees A/c<br><em>School fees, second half-year</em> | — | — | — | 44,000 | 34,800 | 77,200 |
+| 17 Oct 2025 | JP-025 | By HDFC Credit Card A/c<br><em>Credit-card bill paid from savings</em> | — | — | — | 18,600 | 34,800 | 58,600 |
+| 20 Oct 2025 | JP-026 | To Income from Jasvinder Technologies A/c<br><em>Received from Jasvinder Technologies — money sent home</em> | — | 1,20,000 | — | — | 34,800 | 1,78,600 |
+| 25 Oct 2025 | JP-027 | By Car – Hyundai Venue A/c / To Car Loan – HDFC Bank A/c<br><em>Second car bought for ₹9,00,000: the lender paid the dealer ₹8,00,000 (the loan) and the margin ₹1,00,000 was paid from savings</em> | — | — | — | 1,00,000 | 34,800 | 78,600 |
+| 31 Oct 2025 |  | **Month total — October 2025 · closing balance** | **0** | **1,20,000** | **0** | **2,14,000** | **34,800** | **78,600** |
+| 05 Nov 2025 | JP-028 | By Gifts & Social A/c<br><em>Shagun at a cousin's wedding and Gurpurab, cash</em> | — | — | 11,000 | — | 23,800 | 78,600 |
+| 30 Nov 2025 |  | **Month total — November 2025 · closing balance** | **0** | **0** | **11,000** | **0** | **23,800** | **78,600** |
+| 05 Dec 2025 | JP-030 | By Car Loan – HDFC Bank A/c / By Interest on Car Loan A/c<br><em>Car loan instalment 1 of 60, split as on the lender's statement</em> | — | — | — | 16,801 | 23,800 | 61,799 |
+| 12 Dec 2025 | JP-031 | To Loan to – Gurpreet Sandhu A/c<br><em>Gurpreet Sandhu returned part of the loan</em> | — | 15,000 | — | — | 23,800 | 76,799 |
+| 12 Dec 2025 | JP-032 | To Interest A/c<br><em>Interest on the hand loan paid by Gurpreet Sandhu for seven months</em> | — | 1,875 | — | — | 23,800 | 78,674 |
+| 18 Dec 2025 | JP-033 | By Advance – Balwinder Singh A/c<br><em>Advance to Balwinder Singh for the Vaishno Devi trip, cash</em> | — | — | 15,000 | — | 8,800 | 78,674 |
+| 22 Dec 2025 | JP-034 | To Income from Jasvinder Technologies A/c<br><em>Received from Jasvinder Technologies — money sent home</em> | — | 1,20,000 | — | — | 8,800 | 1,98,674 |
+| 27 Dec 2025 | JP-035 | SBI Savings A/c to Cash A/c<br><em>Cash withdrawn (ATM)</em> | 30,000 | — | — | 30,000 | 38,800 | 1,68,674 |
+| 28 Dec 2025 | JP-037 | To Advance – Balwinder Singh A/c<br><em>Balwinder Singh returned the unspent part of the advance, cash</em> | 1,500 | — | — | — | 40,300 | 1,68,674 |
+| 31 Dec 2025 | JP-038 | By House Help Wages A/c<br><em>House help's wages, October–December, cash</em> | — | — | 30,000 | — | 10,300 | 1,68,674 |
+| 31 Dec 2025 | JP-039 | To Interest A/c<br><em>Interest on the fixed deposit, paid to savings</em> | — | 14,400 | — | — | 10,300 | 1,83,074 |
+| 31 Dec 2025 |  | **Month total — December 2025 · closing balance** | **31,500** | **1,51,275** | **45,000** | **46,801** | **10,300** | **1,83,074** |
+| 05 Jan 2026 | JP-040 | By Car Loan – HDFC Bank A/c / By Interest on Car Loan A/c<br><em>Car loan instalment 2 of 60, split as on the lender's statement</em> | — | — | — | 16,801 | 10,300 | 1,66,273 |
+| 21 Jan 2026 | JP-041 | By Electricity & Phone A/c<br><em>Electricity and phone bills, six months</em> | — | — | — | 14,200 | 10,300 | 1,52,073 |
+| 31 Jan 2026 |  | **Month total — January 2026 · closing balance** | **0** | **0** | **0** | **31,001** | **10,300** | **1,52,073** |
+| 05 Feb 2026 | JP-042 | By Car Loan – HDFC Bank A/c / By Interest on Car Loan A/c<br><em>Car loan instalment 3 of 60, split as on the lender's statement</em> | — | — | — | 16,801 | 10,300 | 1,35,272 |
+| 20 Feb 2026 | JP-043 | By Groceries & Household A/c<br><em>Gas cylinder booking and pipe repair (UPI)</em> | — | — | — | 5,900 | 10,300 | 1,29,372 |
+| 28 Feb 2026 |  | **Month total — February 2026 · closing balance** | **0** | **0** | **0** | **22,701** | **10,300** | **1,29,372** |
+| 02 Mar 2026 | JP-044 | SBI Savings A/c to Cash A/c<br><em>Cash withdrawn (ATM)</em> | 30,000 | — | — | 30,000 | 40,300 | 99,372 |
+| 05 Mar 2026 | JP-046 | By Car Loan – HDFC Bank A/c / By Interest on Car Loan A/c<br><em>Car loan instalment 4 of 60, split as on the lender's statement</em> | — | — | — | 16,801 | 40,300 | 82,571 |
+| 31 Mar 2026 | JP-048 | By House Help Wages A/c<br><em>House help's wages, January–March, cash</em> | — | — | 30,000 | — | 10,300 | 82,571 |
+| 31 Mar 2026 | JP-050 | To Interest A/c<br><em>Savings interest</em> | — | 3,360 | — | — | 10,300 | 85,931 |
+| 31 Mar 2026 |  | **Month total — March 2026 · closing balance** | **30,000** | **3,360** | **30,000** | **46,801** | **10,300** | **85,931** |
 
-*Cash in hand on 31 Mar 2026: ₹10,300 — the same as the Cash A/c in section 2.*
+*On 31 Mar 2026: Cash A/c ₹10,300 · SBI Savings A/c ₹85,931 — the same as in section 2.*
 
 ## Book: Jasvinder Technologies — own business book
 
@@ -159,22 +193,61 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 
 *48 entries: Correction 1 · Gave on credit 8 · Money in 9 · Money out 25 · Took on credit 4 · Transfer 1.*
 
-### 2. Cash Book — Cash A/c
+### 2. Cash Book — Cash A/c and HDFC Bank Current A/c
 
 *Jasvinder Technologies · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-Every rupee of cash in and out, with the note of each entry, balanced at the end of every month that had cash entries; the balance is what the cash box must hold.
+Every receipt and every payment of cash and of the bank, with the note of each entry: money in on the left, money out on the right, a column for each. Money moved between the cash box and the bank stands on both sides — out of one, into the other. Each month that had entries ends with its totals and the balance of each; the cash balance is what the cash box must hold, the bank balance is the bank's.
 
-| Date | No. | Particulars | Money in (Dr) | Money out (Cr) | Balance ₹ | Side |
-|:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 5,000 | Dr |
-| 07 Jul 2025 | JT-013 | To HDFC Bank Current A/c<br><em>Cash withdrawn for office cash (ATM)</em> | 15,000 | — | 20,000 | Dr |
-| 31 Jul 2025 |  | **Month total — July 2025 · closing balance** | **15,000** | **0** | **20,000** | **Dr** |
-| 22 Aug 2025 | JT-019 | By Travel A/c<br><em>Travel to Chandigarh for the Punjab Agro Board meetings, cash</em> | — | 6,400 | 13,600 | Dr |
-| 31 Aug 2025 |  | **Month total — August 2025 · closing balance** | **0** | **6,400** | **13,600** | **Dr** |
-| 19 Dec 2025 | JT-034 | By Office & Sundry A/c<br><em>Stationery and printer cartridges, cash</em> | — | 2,800 | 10,800 | Dr |
-| 31 Dec 2025 |  | **Month total — December 2025 · closing balance** | **0** | **2,800** | **10,800** | **Dr** |
-| 14 Feb 2026 | JT-043 | By Travel A/c<br><em>Travel to Ludhiana for Kaur Exports, cash</em> | — | 5,200 | 5,600 | Dr |
-| 28 Feb 2026 |  | **Month total — February 2026 · closing balance** | **0** | **5,200** | **5,600** | **Dr** |
+| Date | No. | Particulars | Money in (Dr) — Cash ₹ | Money in (Dr) — HDFC Bank Current A/c ₹ | Money out (Cr) — Cash ₹ | Money out (Cr) — HDFC Bank Current A/c ₹ | Balance — Cash ₹ | Balance — HDFC Bank Current A/c ₹ |
+|:---|:---|:---|---:|---:|---:|---:|---:|---:|
+| 01 Apr 2025 |  | Opening balance b/f | 5,000 | 3,20,000 | — | — | 5,000 | 3,20,000 |
+| 01 Apr 2025 | JT-001 | By Drawings A/c – Jasvinder Singh<br><em>Sent home for the household — to Jasvinder Singh's savings account</em> | — | — | — | 1,20,000 | 5,000 | 2,00,000 |
+| 03 Apr 2025 | JT-002 | By Internet & Phone A/c<br><em>Broadband and mobile, April–September</em> | — | — | — | 11,800 | 5,000 | 1,88,200 |
+| 05 Apr 2025 | JT-003 | By Office Rent A/c<br><em>Office rent, April–June 2025</em> | — | — | — | 54,000 | 5,000 | 1,34,200 |
+| 10 Apr 2025 | JT-004 | By Cloudnine Hosting A/c<br><em>Hosting bill of January–March 2025 paid (opening balance)</em> | — | — | — | 8,260 | 5,000 | 1,25,940 |
+| 12 Apr 2025 | JT-005 | To Medtech Solutions A/c<br><em>Medtech Solutions paid the March 2025 bill (opening balance)</em> | — | 1,18,000 | — | — | 5,000 | 2,43,940 |
+| 30 Apr 2025 |  | **Month total — April 2025 · closing balance** | **0** | **1,18,000** | **0** | **1,94,060** | **5,000** | **2,43,940** |
+| 06 May 2025 | JT-006 | To Kaur Exports A/c<br><em>Advance from Kaur Exports for their export-order mobile application</em> | — | 60,000 | — | — | 5,000 | 3,03,940 |
+| 31 May 2025 |  | **Month total — May 2025 · closing balance** | **0** | **60,000** | **0** | **0** | **5,000** | **3,03,940** |
+| 16 Jun 2025 | JT-007 | To Capital A/c – Jasvinder Singh<br><em>Put in by Jasvinder Singh for the new laptops</em> | — | 1,00,000 | — | — | 5,000 | 4,03,940 |
+| 18 Jun 2025 | JT-008 | By Laptops & Office Equipment A/c<br><em>Two laptops for the office — things owned, at cost</em> | — | — | — | 1,10,000 | 5,000 | 2,93,940 |
+| 30 Jun 2025 | JT-011 | By Salary A/c<br><em>Salary of Rohit Verma, April–June 2025</em> | — | — | — | 1,35,000 | 5,000 | 1,58,940 |
+| 30 Jun 2025 |  | **Month total — June 2025 · closing balance** | **0** | **1,00,000** | **0** | **2,45,000** | **5,000** | **1,58,940** |
+| 05 Jul 2025 | JT-012 | By Office Rent A/c<br><em>Office rent, July–September 2025</em> | — | — | — | 54,000 | 5,000 | 1,04,940 |
+| 07 Jul 2025 | JT-013 | HDFC Bank Current A/c to Cash A/c<br><em>Cash withdrawn for office cash (ATM)</em> | 15,000 | — | — | 15,000 | 20,000 | 89,940 |
+| 10 Jul 2025 | JT-014 | By Cloudnine Hosting A/c<br><em>Hosting bill of April–June 2025 paid</em> | — | — | — | 8,260 | 20,000 | 81,680 |
+| 14 Jul 2025 | JT-015 | To Medtech Solutions A/c<br><em>Medtech Solutions paid the retainer of April–June 2025</em> | — | 2,07,000 | — | — | 20,000 | 2,88,680 |
+| 15 Jul 2025 | JT-016 | By Drawings A/c – Jasvinder Singh<br><em>Sent home for the household — to Jasvinder Singh's savings account</em> | — | — | — | 1,20,000 | 20,000 | 1,68,680 |
+| 31 Jul 2025 |  | **Month total — July 2025 · closing balance** | **15,000** | **2,07,000** | **0** | **1,97,260** | **20,000** | **1,68,680** |
+| 11 Aug 2025 | JT-018 | By Advance – Rohit Verma A/c<br><em>Salary advance to Rohit Verma</em> | — | — | — | 20,000 | 20,000 | 1,48,680 |
+| 22 Aug 2025 | JT-019 | By Travel A/c<br><em>Travel to Chandigarh for the Punjab Agro Board meetings, cash</em> | — | — | 6,400 | — | 13,600 | 1,48,680 |
+| 31 Aug 2025 |  | **Month total — August 2025 · closing balance** | **0** | **0** | **6,400** | **20,000** | **13,600** | **1,48,680** |
+| 08 Sep 2025 | JT-021 | To Kaur Exports A/c<br><em>Kaur Exports paid the rest of the application bill</em> | — | 80,000 | — | — | 13,600 | 2,28,680 |
+| 15 Sep 2025 | JT-022 | By Office & Sundry A/c<br><em>Accountant's fee for the FY 2024-25 books</em> | — | — | — | 9,000 | 13,600 | 2,19,680 |
+| 26 Sep 2025 | JT-023 | By Internet & Phone A/c<br><em>Domain and e-mail renewal</em> | — | — | — | 4,720 | 13,600 | 2,14,960 |
+| 30 Sep 2025 | JT-026 | By Salary A/c / To Advance – Rohit Verma A/c<br><em>Salary of Rohit Verma, July–September 2025 — ₹20,000 of it recovered from his advance, the rest paid</em> | — | — | — | 1,15,000 | 13,600 | 99,960 |
+| 30 Sep 2025 |  | **Month total — September 2025 · closing balance** | **0** | **80,000** | **0** | **1,28,720** | **13,600** | **99,960** |
+| 03 Oct 2025 | JT-027 | By Internet & Phone A/c<br><em>Broadband and mobile, October–March</em> | — | — | — | 11,800 | 13,600 | 88,160 |
+| 05 Oct 2025 | JT-029 | By Office Rent A/c<br><em>Office rent, October–December 2025</em> | — | — | — | 54,000 | 13,600 | 34,160 |
+| 10 Oct 2025 | JT-030 | By Cloudnine Hosting A/c<br><em>Hosting bill of July–September 2025 paid</em> | — | — | — | 9,440 | 13,600 | 24,720 |
+| 13 Oct 2025 | JT-031 | To Medtech Solutions A/c<br><em>Medtech Solutions paid the retainer of July–September 2025</em> | — | 2,07,000 | — | — | 13,600 | 2,31,720 |
+| 20 Oct 2025 | JT-032 | By Drawings A/c – Jasvinder Singh<br><em>Sent home for the household — to Jasvinder Singh's savings account</em> | — | — | — | 1,20,000 | 13,600 | 1,11,720 |
+| 31 Oct 2025 |  | **Month total — October 2025 · closing balance** | **0** | **2,07,000** | **0** | **1,95,240** | **13,600** | **1,11,720** |
+| 21 Nov 2025 | JT-033 | To Punjab Agro Board A/c<br><em>Punjab Agro Board paid the first stage (late)</em> | — | 2,36,000 | — | — | 13,600 | 3,47,720 |
+| 30 Nov 2025 |  | **Month total — November 2025 · closing balance** | **0** | **2,36,000** | **0** | **0** | **13,600** | **3,47,720** |
+| 19 Dec 2025 | JT-034 | By Office & Sundry A/c<br><em>Stationery and printer cartridges, cash</em> | — | — | 2,800 | — | 10,800 | 3,47,720 |
+| 22 Dec 2025 | JT-035 | By Drawings A/c – Jasvinder Singh<br><em>Sent home for the household — to Jasvinder Singh's savings account</em> | — | — | — | 1,20,000 | 10,800 | 2,27,720 |
+| 31 Dec 2025 | JT-038 | By Salary A/c<br><em>Salary of Rohit Verma, October–December 2025</em> | — | — | — | 1,35,000 | 10,800 | 92,720 |
+| 31 Dec 2025 |  | **Month total — December 2025 · closing balance** | **0** | **0** | **2,800** | **2,55,000** | **10,800** | **92,720** |
+| 05 Jan 2026 | JT-039 | By Office Rent A/c<br><em>Office rent, January–March 2026</em> | — | — | — | 54,000 | 10,800 | 38,720 |
+| 10 Jan 2026 | JT-040 | By Cloudnine Hosting A/c<br><em>Hosting bill of October–December 2025 paid</em> | — | — | — | 9,440 | 10,800 | 29,280 |
+| 12 Jan 2026 | JT-041 | To Medtech Solutions A/c<br><em>Medtech Solutions paid the retainer of October–December 2025</em> | — | 2,07,000 | — | — | 10,800 | 2,36,280 |
+| 31 Jan 2026 |  | **Month total — January 2026 · closing balance** | **0** | **2,07,000** | **0** | **63,440** | **10,800** | **2,36,280** |
+| 14 Feb 2026 | JT-043 | By Travel A/c<br><em>Travel to Ludhiana for Kaur Exports, cash</em> | — | — | 5,200 | — | 5,600 | 2,36,280 |
+| 28 Feb 2026 |  | **Month total — February 2026 · closing balance** | **0** | **0** | **5,200** | **0** | **5,600** | **2,36,280** |
+| 18 Mar 2026 | JT-045 | To Kaur Exports A/c<br><em>Kaur Exports paid the website bill</em> | — | 90,000 | — | — | 5,600 | 3,26,280 |
+| 31 Mar 2026 | JT-048 | By Salary A/c<br><em>Salary of Rohit Verma, January–March 2026</em> | — | — | — | 1,35,000 | 5,600 | 1,91,280 |
+| 31 Mar 2026 |  | **Month total — March 2026 · closing balance** | **0** | **90,000** | **0** | **1,35,000** | **5,600** | **1,91,280** |
 
-*Cash in hand on 31 Mar 2026: ₹5,600 — the same as the Cash A/c in section 2.*
+*On 31 Mar 2026: Cash A/c ₹5,600 · HDFC Bank Current A/c ₹1,91,280 — the same as in section 2.*

@@ -72,36 +72,69 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 
 *57 entries: Correction 1 · Gave on credit 6 · Money in 11 · Money out 27 · Took on credit 6 · Transfer 5 · Written off 1.*
 
-### 2. Cash Book — Cash A/c
+### 2. Cash Book — Cash A/c and PNB Current A/c
 
 *Sukhwinder Sales Co. · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-Every rupee of cash in and out, with the note of each entry, balanced at the end of every month that had cash entries; the balance is what the cash box must hold.
+Every receipt and every payment of cash and of the bank, with the note of each entry: money in on the left, money out on the right, a column for each. Money moved between the cash box and the bank stands on both sides — out of one, into the other. Each month that had entries ends with its totals and the balance of each; the cash balance is what the cash box must hold, the bank balance is the bank's.
 
-| Date | No. | Particulars | Money in (Dr) | Money out (Cr) | Balance ₹ | Side |
-|:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 22,000 | Dr |
-| 16 May 2025 | S-006 | By Freight & Cartage A/c<br><em>Cartage of the Jaquar consignment, cash</em> | — | 4,600 | 17,400 | Dr |
-| 31 May 2025 |  | **Month total — May 2025 · closing balance** | **0** | **4,600** | **17,400** | **Dr** |
-| 30 Jun 2025 | S-009 | To Sales A/c<br><em>Counter sales in cash, April–June 2025 (from the daily cash memo book)</em> | 3,86,000 | — | 4,03,400 | Dr |
-| 30 Jun 2025 | S-010 | By PNB Current A/c<br><em>Counter cash deposited in the bank</em> | — | 3,82,000 | 21,400 | Dr |
-| 30 Jun 2025 |  | **Month total — June 2025 · closing balance** | **3,86,000** | **3,82,000** | **21,400** | **Dr** |
-| 30 Aug 2025 | S-022 | By Goods Bought for Sale A/c<br><em>Tempo hire for a delivery to Phagwara, cash</em> | — | 3,200 | 18,200 | Dr |
-| 31 Aug 2025 |  | **Month total — August 2025 · closing balance** | **0** | **3,200** | **18,200** | **Dr** |
-| 30 Sep 2025 | S-024 | To Sales A/c<br><em>Counter sales in cash, July–September 2025 (from the daily cash memo book)</em> | 3,42,500 | — | 3,60,700 | Dr |
-| 30 Sep 2025 | S-025 | By PNB Current A/c<br><em>Counter cash deposited in the bank</em> | — | 3,36,500 | 24,200 | Dr |
-| 30 Sep 2025 |  | **Month total — September 2025 · closing balance** | **3,42,500** | **3,36,500** | **24,200** | **Dr** |
-| 03 Nov 2025 | S-032 | To PNB Current A/c<br><em>Cash withdrawn for change and small payments (ATM)</em> | 15,000 | — | 39,200 | Dr |
-| 30 Nov 2025 |  | **Month total — November 2025 · closing balance** | **15,000** | **0** | **39,200** | **Dr** |
-| 31 Dec 2025 | S-037 | To Sales A/c<br><em>Counter sales in cash, October–December 2025 (from the daily cash memo book)</em> | 4,12,000 | — | 4,51,200 | Dr |
-| 31 Dec 2025 | S-038 | By PNB Current A/c<br><em>Counter cash deposited in the bank</em> | — | 4,06,000 | 45,200 | Dr |
-| 31 Dec 2025 | S-042 | By Cash short / over A/c<br><em>Counter cash counted ₹1,150 less than the cash book — charged to Cash short / over</em> | — | 1,150 | 44,050 | Dr |
-| 31 Dec 2025 |  | **Month total — December 2025 · closing balance** | **4,12,000** | **4,07,150** | **44,050** | **Dr** |
-| 24 Jan 2026 | S-046 | By Freight & Cartage A/c<br><em>Cartage and delivery, cash</em> | — | 5,100 | 38,950 | Dr |
-| 31 Jan 2026 |  | **Month total — January 2026 · closing balance** | **0** | **5,100** | **38,950** | **Dr** |
-| 31 Mar 2026 | S-050 | To Sales A/c<br><em>Counter sales in cash, January–March 2026 (from the daily cash memo book)</em> | 3,98,500 | — | 4,37,450 | Dr |
-| 31 Mar 2026 | S-051 | By PNB Current A/c<br><em>Counter cash deposited in the bank</em> | — | 3,92,500 | 44,950 | Dr |
-| 31 Mar 2026 | S-056 | To Cash short / over A/c<br><em>Counter cash counted ₹300 more than the cash book — got back to Cash short / over</em> | 300 | — | 45,250 | Dr |
-| 31 Mar 2026 |  | **Month total — March 2026 · closing balance** | **3,98,800** | **3,92,500** | **45,250** | **Dr** |
+| Date | No. | Particulars | Money in (Dr) — Cash ₹ | Money in (Dr) — PNB Current A/c ₹ | Money out (Cr) — Cash ₹ | Money out (Cr) — PNB Current A/c ₹ | Balance — Cash ₹ | Balance — PNB Current A/c ₹ |
+|:---|:---|:---|---:|---:|---:|---:|---:|---:|
+| 01 Apr 2025 |  | Opening balance b/f | 22,000 | 4,80,000 | — | — | 22,000 | 4,80,000 |
+| 03 Apr 2025 | S-001 | By Shop Rent A/c<br><em>Shop rent, April–June 2025</em> | — | — | — | 45,000 | 22,000 | 4,35,000 |
+| 08 Apr 2025 | S-002 | By Supreme Pipes Ltd A/c<br><em>Supreme Pipes paid — March bill (opening balance)</em> | — | — | — | 1,18,000 | 22,000 | 3,17,000 |
+| 14 Apr 2025 | S-003 | To Guru Nanak Builders A/c<br><em>Guru Nanak Builders paid March's goods (opening balance)</em> | — | 64,000 | — | — | 22,000 | 3,81,000 |
+| 25 Apr 2025 | S-004 | By Jaquar Sanitary Agency A/c<br><em>Jaquar Sanitary Agency paid — opening balance</em> | — | — | — | 46,500 | 22,000 | 3,34,500 |
+| 30 Apr 2025 |  | **Month total — April 2025 · closing balance** | **0** | **64,000** | **0** | **2,09,500** | **22,000** | **3,34,500** |
+| 10 May 2025 | S-005 | By Drawings A/c – Sukhwinder Bal<br><em>Drawings for the household</em> | — | — | — | 60,000 | 22,000 | 2,74,500 |
+| 16 May 2025 | S-006 | By Freight & Cartage A/c<br><em>Cartage of the Jaquar consignment, cash</em> | — | — | 4,600 | — | 17,400 | 2,74,500 |
+| 31 May 2025 |  | **Month total — May 2025 · closing balance** | **0** | **0** | **4,600** | **60,000** | **17,400** | **2,74,500** |
+| 06 Jun 2025 | S-008 | To Dhillon Plumbing Works A/c<br><em>Advance from Dhillon Plumbing Works against a hotel job</em> | — | 50,000 | — | — | 17,400 | 3,24,500 |
+| 30 Jun 2025 | S-009 | To Sales A/c<br><em>Counter sales in cash, April–June 2025 (from the daily cash memo book)</em> | 3,86,000 | — | — | — | 4,03,400 | 3,24,500 |
+| 30 Jun 2025 | S-010 | Cash A/c to PNB Current A/c<br><em>Counter cash deposited in the bank</em> | — | 3,82,000 | 3,82,000 | — | 21,400 | 7,06,500 |
+| 30 Jun 2025 | S-013 | By Salary A/c<br><em>Salary of Manpreet Kaur, April–June 2025</em> | — | — | — | 54,000 | 21,400 | 6,52,500 |
+| 30 Jun 2025 |  | **Month total — June 2025 · closing balance** | **3,86,000** | **4,32,000** | **3,82,000** | **54,000** | **21,400** | **6,52,500** |
+| 03 Jul 2025 | S-014 | By Shop Rent A/c<br><em>Shop rent, July–September 2025</em> | — | — | — | 45,000 | 21,400 | 6,07,500 |
+| 15 Jul 2025 | S-016 | To Guru Nanak Builders A/c<br><em>Guru Nanak Builders paid for the goods of April–June 2025</em> | — | 2,38,000 | — | — | 21,400 | 8,45,500 |
+| 18 Jul 2025 | S-017 | By Supreme Pipes Ltd A/c<br><em>Supreme Pipes paid — goods of April–June 2025</em> | — | — | — | 3,34,000 | 21,400 | 5,11,500 |
+| 31 Jul 2025 |  | **Month total — July 2025 · closing balance** | **0** | **2,38,000** | **0** | **3,79,000** | **21,400** | **5,11,500** |
+| 10 Aug 2025 | S-018 | By Drawings A/c – Sukhwinder Bal<br><em>Drawings for the household</em> | — | — | — | 60,000 | 21,400 | 4,51,500 |
+| 12 Aug 2025 | S-019 | By Advance – Manpreet Kaur A/c<br><em>Salary advance to Manpreet Kaur</em> | — | — | — | 10,000 | 21,400 | 4,41,500 |
+| 21 Aug 2025 | S-020 | By Electricity & Phone A/c<br><em>Shop electricity and phone, April–August</em> | — | — | — | 14,800 | 21,400 | 4,26,700 |
+| 26 Aug 2025 | S-021 | By Jaquar Sanitary Agency A/c<br><em>Jaquar Sanitary Agency paid — May bill</em> | — | — | — | 1,18,600 | 21,400 | 3,08,100 |
+| 30 Aug 2025 | S-022 | By Goods Bought for Sale A/c<br><em>Tempo hire for a delivery to Phagwara, cash</em> | — | — | 3,200 | — | 18,200 | 3,08,100 |
+| 31 Aug 2025 |  | **Month total — August 2025 · closing balance** | **0** | **0** | **3,200** | **2,03,400** | **18,200** | **3,08,100** |
+| 30 Sep 2025 | S-024 | To Sales A/c<br><em>Counter sales in cash, July–September 2025 (from the daily cash memo book)</em> | 3,42,500 | — | — | — | 3,60,700 | 3,08,100 |
+| 30 Sep 2025 | S-025 | Cash A/c to PNB Current A/c<br><em>Counter cash deposited in the bank</em> | — | 3,36,500 | 3,36,500 | — | 24,200 | 6,44,600 |
+| 30 Sep 2025 | S-028 | By Salary A/c / To Advance – Manpreet Kaur A/c<br><em>Salary of Manpreet Kaur, July–September 2025 — ₹10,000 of it recovered from her advance, the rest paid</em> | — | — | — | 44,000 | 24,200 | 6,00,600 |
+| 30 Sep 2025 |  | **Month total — September 2025 · closing balance** | **3,42,500** | **3,36,500** | **3,36,500** | **44,000** | **24,200** | **6,00,600** |
+| 03 Oct 2025 | S-029 | By Shop Rent A/c<br><em>Shop rent, October–December 2025</em> | — | — | — | 45,000 | 24,200 | 5,55,600 |
+| 09 Oct 2025 | S-030 | By Supreme Pipes Ltd A/c<br><em>Supreme Pipes paid — goods of July–September 2025</em> | — | — | — | 3,01,500 | 24,200 | 2,54,100 |
+| 22 Oct 2025 | S-031 | To Guru Nanak Builders A/c<br><em>Guru Nanak Builders paid for the goods of July–September 2025 (late)</em> | — | 2,14,500 | — | — | 24,200 | 4,68,600 |
+| 31 Oct 2025 |  | **Month total — October 2025 · closing balance** | **0** | **2,14,500** | **0** | **3,46,500** | **24,200** | **4,68,600** |
+| 03 Nov 2025 | S-032 | PNB Current A/c to Cash A/c<br><em>Cash withdrawn for change and small payments (ATM)</em> | 15,000 | — | — | 15,000 | 39,200 | 4,53,600 |
+| 10 Nov 2025 | S-033 | By Drawings A/c – Sukhwinder Bal<br><em>Drawings for the household</em> | — | — | — | 60,000 | 39,200 | 3,93,600 |
+| 26 Nov 2025 | S-035 | By Shop Fittings & Counter A/c<br><em>New display rack for sanitary ware — thing owned, at cost</em> | — | — | — | 38,000 | 39,200 | 3,55,600 |
+| 30 Nov 2025 |  | **Month total — November 2025 · closing balance** | **15,000** | **0** | **0** | **1,13,000** | **39,200** | **3,55,600** |
+| 31 Dec 2025 | S-037 | To Sales A/c<br><em>Counter sales in cash, October–December 2025 (from the daily cash memo book)</em> | 4,12,000 | — | — | — | 4,51,200 | 3,55,600 |
+| 31 Dec 2025 | S-038 | Cash A/c to PNB Current A/c<br><em>Counter cash deposited in the bank</em> | — | 4,06,000 | 4,06,000 | — | 45,200 | 7,61,600 |
+| 31 Dec 2025 | S-041 | By Salary A/c<br><em>Salary of Manpreet Kaur, October–December 2025</em> | — | — | — | 54,000 | 45,200 | 7,07,600 |
+| 31 Dec 2025 | S-042 | By Cash short / over A/c<br><em>Counter cash counted ₹1,150 less than the cash book — charged to Cash short / over</em> | — | — | 1,150 | — | 44,050 | 7,07,600 |
+| 31 Dec 2025 |  | **Month total — December 2025 · closing balance** | **4,12,000** | **4,06,000** | **4,07,150** | **54,000** | **44,050** | **7,07,600** |
+| 03 Jan 2026 | S-043 | By Shop Rent A/c<br><em>Shop rent, January–March 2026</em> | — | — | — | 45,000 | 44,050 | 6,62,600 |
+| 14 Jan 2026 | S-044 | To Guru Nanak Builders A/c<br><em>Guru Nanak Builders paid for the goods of October–December 2025</em> | — | 2,56,000 | — | — | 44,050 | 9,18,600 |
+| 16 Jan 2026 | S-045 | By Supreme Pipes Ltd A/c<br><em>Supreme Pipes paid — goods of October–December 2025</em> | — | — | — | 3,52,000 | 44,050 | 5,66,600 |
+| 24 Jan 2026 | S-046 | By Freight & Cartage A/c<br><em>Cartage and delivery, cash</em> | — | — | 5,100 | — | 38,950 | 5,66,600 |
+| 31 Jan 2026 |  | **Month total — January 2026 · closing balance** | **0** | **2,56,000** | **5,100** | **3,97,000** | **38,950** | **5,66,600** |
+| 09 Feb 2026 | S-047 | To Dhillon Plumbing Works A/c<br><em>Dhillon Plumbing Works paid part of the balance</em> | — | 60,000 | — | — | 38,950 | 6,26,600 |
+| 10 Feb 2026 | S-048 | By Drawings A/c – Sukhwinder Bal<br><em>Drawings for the household</em> | — | — | — | 60,000 | 38,950 | 5,66,600 |
+| 19 Feb 2026 | S-049 | By Electricity & Phone A/c<br><em>Shop electricity and phone, September–January</em> | — | — | — | 17,200 | 38,950 | 5,49,400 |
+| 28 Feb 2026 |  | **Month total — February 2026 · closing balance** | **0** | **60,000** | **0** | **77,200** | **38,950** | **5,49,400** |
+| 31 Mar 2026 | S-050 | To Sales A/c<br><em>Counter sales in cash, January–March 2026 (from the daily cash memo book)</em> | 3,98,500 | — | — | — | 4,37,450 | 5,49,400 |
+| 31 Mar 2026 | S-051 | Cash A/c to PNB Current A/c<br><em>Counter cash deposited in the bank</em> | — | 3,92,500 | 3,92,500 | — | 44,950 | 9,41,900 |
+| 31 Mar 2026 | S-054 | By Salary A/c<br><em>Salary of Manpreet Kaur, January–March 2026</em> | — | — | — | 54,000 | 44,950 | 8,87,900 |
+| 31 Mar 2026 | S-055 | By Bank Charges & Sundry A/c<br><em>Bank charges for the year</em> | — | — | — | 1,180 | 44,950 | 8,86,720 |
+| 31 Mar 2026 | S-056 | To Cash short / over A/c<br><em>Counter cash counted ₹300 more than the cash book — got back to Cash short / over</em> | 300 | — | — | — | 45,250 | 8,86,720 |
+| 31 Mar 2026 |  | **Month total — March 2026 · closing balance** | **3,98,800** | **3,92,500** | **3,92,500** | **55,180** | **45,250** | **8,86,720** |
 
-*Cash in hand on 31 Mar 2026: ₹45,250 — the same as the Cash A/c in section 2.*
+*On 31 Mar 2026: Cash A/c ₹45,250 · PNB Current A/c ₹8,86,720 — the same as in section 2.*

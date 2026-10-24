@@ -25,7 +25,7 @@ Technical, hand-written (ADR 2026-10-20 §2). It maps (A) every ruled row of `do
 ### 3. Books of account
 | Row | Book | Entries / section | What shows it |
 |---|---|---|---|
-| O-03-1, O-20-7 | all five | `<file>.export.md` | the Day Book (every entry, date order) and the Cash Book (cash and bank entries only, balanced each month). |
+| O-03-1, O-20-7 | all five | `<file>.export.md` | the Day Book (every entry, date order) and the Cash Book (cash and the bank, a Money in and a Money out column for each, a transfer between them on both sides, totalled and balanced each month — 04 §5.4). |
 | O-03-2 | all five | section 2 and 4.1 | income and expense heads are posted to the ledger and the trial balance includes them. |
 | O-03-3 | all five | the Type cell of every Day Book row in the export | an entry that moves no money is marked *no money moved*; no nakal bahi. |
 | O-03-5 | all five | the export and sections 1–2 | a Day Book, a Cash Book and a ledger with an account for every person, head and thing owned. |

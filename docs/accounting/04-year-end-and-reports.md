@@ -196,7 +196,7 @@ The head is repeated on every page of a printed report, and an exported file car
 | When | The note |
 |---|---|
 | The report shows things owned and the book has not opted in to depreciation | *Things owned are shown at what they cost; no depreciation is charged.* |
-| The book sells goods and typed no closing stock | *No stock is counted. Everything bought for sale is treated as sold or used in the year it was bought.* |
+| The book sells goods and typed no closing stock, and the report gives a result or works it into own money — a position and its make-up, a month's summary, the year's statement, the balance sheet (*02*, 6.2) | *No stock is counted. Everything bought for sale is treated as sold or used in the year it was bought.* |
 | Own money is negative (what is owed is more than what is had) | *Owes more than it owns.* |
 | The position shows money put into a business (*03*, 1.9) | *The business is shown at the money put into it, not at its worth.* (With more than one: *The businesses are shown at the money put into them, not at their worth.*) |
 | A trust or committee charged the construction of a building to the year's expenditure (*02*, 5.8) | *The cost of {building}, ₹{x} to date, is charged to expenditure and is not shown as a thing owned.* |

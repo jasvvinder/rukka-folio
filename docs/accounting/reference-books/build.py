@@ -142,13 +142,13 @@ KIND = {
     "loan":     ("Liability", "Personal", "Cr", ("Paid back (Dr)", "Taken (Cr)"), "Loan"),
     "deposit":  ("Liability", "Personal", "Cr", ("Returned / set off (Dr)", "Received (Cr)"), "Deposit held"),
     "fund":     ("Capital (earmarked fund)", "Personal", "Cr", ("Spent from it (Dr)", "Added to it (Cr)"), "Fund"),
-    "capital":  ("Capital", "Personal", "Cr", ("Taken out (Dr)", "Put in (Cr)"), "Own money"),
-    "drawings": ("Capital (contra)", "Personal", "Dr", ("Taken out (Dr)", "Put back (Cr)"), "Drawings"),
-    "shareout": ("Capital (contra)", "Personal", "Dr", ("Shared out (Dr)", "Put back (Cr)"), "Share-out"),
-    "partner":  ("Capital", "Personal", "Cr", ("Taken out (Dr)", "Put in (Cr)"), "Partner"),
-    "pcapital": ("Capital", "Personal", "Cr", ("Taken out (Dr)", "Put in (Cr)"), "Partner's capital"),
-    "pcurrent": ("Capital", "Personal", "by sign", ("Taken out (Dr)", "Put in (Cr)"), "Partner's current"),
-    "income":   ("Income", "Nominal", "Cr", ("Returned (Dr)", "Received (Cr)"), "Income"),
+    "capital":  ("Capital", "Personal", "Cr", ("Taken out (Dr)", "Put in / added (Cr)"), "Own money"),
+    "drawings": ("Capital (contra)", "Personal", "Dr", ("Taken out (Dr)", "Put back / closed to own money (Cr)"), "Drawings"),
+    "shareout": ("Capital (contra)", "Personal", "Dr", ("Shared out (Dr)", "Put back / closed to own money (Cr)"), "Share-out"),
+    "partner":  ("Capital", "Personal", "Cr", ("Taken out (Dr)", "Put in / added (Cr)"), "Partner"),
+    "pcapital": ("Capital", "Personal", "Cr", ("Taken out (Dr)", "Put in / added (Cr)"), "Partner's capital"),
+    "pcurrent": ("Capital", "Personal", "by sign", ("Taken out (Dr)", "Put in / added (Cr)"), "Partner's current"),
+    "income":   ("Income", "Nominal", "Cr", ("Returned (Dr)", "Income (Cr)"), "Income"),
     "expense":  ("Expense", "Nominal", "Dr", ("Spent (Dr)", "Got back (Cr)"), "Expense"),
 }
 MONEY_KINDS = ("cash", "gollak", "bank", "wallet", "card", "cc")
@@ -591,6 +591,7 @@ def sec_chart(b):
     assert tdr == tcr
     out += table(["#", "Account", "Type", "What it is", "Opening balance (Dr) ₹", "Opening balance (Cr) ₹"], ["r", "l", "l", "l", "r", "r"], rows)
     out.append("")
+    out += foot_notes(b, things=shows_things_owned(b, FY_START - dt.timedelta(days=1)))
     return out
 
 
@@ -650,6 +651,31 @@ def ledger_table(b, acct, rows, start, end, bf_label, cd_label, bd_label, show_b
     return out, opening, tdr, tcr, closing
 
 
+def statement_table(b, acct, rows, start, end):
+    """04 §5.6: the opening balance with its side, every entry with its running balance, the totals of the period's entries only
+    (the opening balance is not part of them), then the closing balance with its side — for a person, You will get / You will give."""
+    dr_l, cr_l = acct.cols
+    out = table(["Date", "No.", "Particulars", dr_l, cr_l, "Balance ₹", "Side"], ["l", "l", "l", "r", "r", "r", "c"], [])
+    opening = b.balance_at(acct.name, start - dt.timedelta(days=1)) if acct.is_bs else 0
+    out.append("| %s |  | Opening balance on %s | — | — | %s | %s |" % (fdate(start), fdate(start), fmt(abs(opening), show_zero=True), side_of(opening)))
+    bal = opening
+    tdr = tcr = 0
+    for r in rows:
+        bal += r["dr"] - r["cr"]
+        tdr += r["dr"]
+        tcr += r["cr"]
+        out.append("| %s | %s | %s<br><em>%s</em> | %s | %s | %s | %s |" % (fdate(r["date"]), r["vid"], r["part"], r["vch"].narration, fmt(r["dr"]), fmt(r["cr"]),
+                                                                          fmt(abs(bal), show_zero=True), side_of(bal)))
+    assert bal == opening + tdr - tcr
+    out.append("|  |  | %s | %s | %s |  |  |" % (bold("Total for the period"), bold(fmt(tdr, show_zero=True)), bold(fmt(tcr, show_zero=True))))
+    if acct.kind == "party" and bal:
+        label = "Closing balance on %s — %s" % (fdate(end), "You will get" if bal > 0 else "You will give")
+    else:
+        label = "Closing balance on %s" % fdate(end)
+    out.append("| %s |  | %s |  |  | %s | %s |" % (fdate(end), bold(label), bold(fmt(abs(bal), show_zero=True)), bold(side_of(bal))))
+    return out
+
+
 def natural_line(a):
     if a.kind == "party":
         return "on the Dr side when they owe you, on the Cr side when you owe them"
@@ -681,6 +707,7 @@ def sec_ledgers(b):
         rows, _, _, _, _ = ledger_table(b, a, a.rows, FY_START, FY_END, "Opening balance b/f", "Closing balance c/d", "Opening balance b/d (FY 2026-27)", narr=True, close=True)
         out += rows
         out.append("")
+    out += foot_notes(b, things=any(b.accounts[n].kind == "fixed" and (b.accounts[n].rows or b.accounts[n].opening) for n in b.order))
     return out
 
 
@@ -714,31 +741,55 @@ def sec_daybook(b):
     return out
 
 
-def cash_book(b, name, heading):
-    """The Cash Book: the cash account's entries with a total and closing balance for every month that had cash entries."""
-    a = b.accounts[name]
+def cash_book(b, names, heading):
+    """04 §5.4: the Cash Book of cash and each bank account — receipts (Money in) on the left, payments (Money out) on the right, a column for each
+    account on each side; a transfer between them stands on both sides. It opens with the opening balances on the Money in side (an overdrawn bank
+    on the other), totals each month that had entries (the month's entries only) and gives each account's balance at the month end."""
+    accts = [b.accounts[n] for n in names]
+    short = {n: ("Cash" if b.accounts[n].kind == "cash" else n) for n in names}
     out = ["### %s" % heading, "", head_line(b.name, "%s to %s" % (fdate(FY_START), fdate(FY_END))), ""]
-    out.append("Every rupee of cash in and out, with the note of each entry, balanced at the end of every month that had cash entries; the balance is what the cash box must hold.")
+    out.append("Every receipt and every payment of cash and of the bank, with the note of each entry: money in on the left, money out on the right, a column for each. "
+               "Money moved between the cash box and the bank stands on both sides — out of one, into the other. Each month that had entries ends with its totals and "
+               "the balance of each; the cash balance is what the cash box must hold, the bank balance is the bank's.")
     out.append("")
-    out += table(["Date", "No.", "Particulars", "Money in (Dr)", "Money out (Cr)", "Balance ₹", "Side"], ["l", "l", "l", "r", "r", "r", "c"], [])
-    bal = a.opening
-    out.append("| %s |  | Opening balance b/f | — | — | %s | %s |" % (fdate(FY_START), fmt(bal, show_zero=True), side_of(bal)))
+    heads = ["Date", "No.", "Particulars"] + ["Money in (Dr) — %s ₹" % short[n] for n in names] + ["Money out (Cr) — %s ₹" % short[n] for n in names] + ["Balance — %s ₹" % short[n] for n in names]
+    out += table(heads, ["l", "l", "l"] + ["r"] * (3 * len(names)), [])
+
+    def bal_cell(x):
+        return fmt(abs(x), show_zero=True) + (" Cr" if x < 0 else "")
+    bal = {n: b.accounts[n].opening for n in names}
+    out.append("| %s |  | Opening balance b/f | %s | %s | %s |" % (fdate(FY_START), " | ".join(fmt(max(bal[n], 0)) for n in names),
+                                                                 " | ".join(fmt(max(-bal[n], 0)) for n in names), " | ".join(bal_cell(bal[n]) for n in names)))
+    vchs = [v for v in b.vouchers if any(n in names for n, _ in v.lines)]
     for (y, m) in fy_months():
-        mrows = [r for r in a.rows if (r["date"].year, r["date"].month) == (y, m)]
-        if not mrows:
+        mv = [v for v in vchs if (v.date.year, v.date.month) == (y, m)]
+        if not mv:
             continue
-        mdr = mcr = 0
-        for r in mrows:
-            bal += r["dr"] - r["cr"]
-            mdr += r["dr"]
-            mcr += r["cr"]
-            out.append("| %s | %s | %s<br><em>%s</em> | %s | %s | %s | %s |" % (fdate(r["date"]), r["vid"], r["part"], r["vch"].narration, fmt(r["dr"]), fmt(r["cr"]),
-                                                                              fmt(bal, show_zero=True), side_of(bal)))
-        out.append("| %s |  | %s | %s | %s | %s | %s |" % (fdate(month_end(y, m)), bold("Month total — %s · closing balance" % month_name(y, m)),
-                                                          bold(fmt(mdr, show_zero=True)), bold(fmt(mcr, show_zero=True)), bold(fmt(bal, show_zero=True)), bold(side_of(bal))))
-    assert bal == a.closing
+        mdr = {n: 0 for n in names}
+        mcr = {n: 0 for n in names}
+        for v in mv:
+            amt = {n: 0 for n in names}
+            for n, x in v.lines:
+                if n in names:
+                    amt[n] += x
+            for n in names:
+                bal[n] += amt[n]
+                mdr[n] += max(amt[n], 0)
+                mcr[n] += max(-amt[n], 0)
+            others = [(n, x) for n, x in v.lines if n not in names]
+            if not others:
+                part = "%s to %s" % (" / ".join(n for n in names if amt[n] < 0), " / ".join(n for n in names if amt[n] > 0))
+            else:
+                part = " / ".join(("To " if x < 0 else "By ") + n for n, x in others)     # as in the cash and bank ledgers: To the account credited, By the account debited
+            out.append("| %s | %s | %s<br><em>%s</em> | %s | %s | %s |" % (fdate(v.date), v.vid, part, v.narration, " | ".join(fmt(max(amt[n], 0)) for n in names),
+                                                                        " | ".join(fmt(max(-amt[n], 0)) for n in names), " | ".join(bal_cell(bal[n]) for n in names)))
+        out.append("| %s |  | %s | %s | %s | %s |" % (fdate(month_end(y, m)), bold("Month total — %s · closing balance" % month_name(y, m)),
+                                                     " | ".join(bold(fmt(mdr[n], show_zero=True)) for n in names), " | ".join(bold(fmt(mcr[n], show_zero=True)) for n in names),
+                                                     " | ".join(bold(bal_cell(bal[n])) for n in names)))
+    for a in accts:
+        assert bal[a.name] == a.closing, (b.name, a.name)
     out.append("")
-    out.append("*Cash in hand on 31 Mar 2026: ₹%s — the same as the %s in section 2.*" % (fmt(bal, show_zero=True), name))
+    out.append("*On 31 Mar 2026: %s — the same as in section 2.*" % " · ".join("%s ₹%s" % (n, bal_cell(bal[n])) for n in names))
     out.append("")
     return out
 
@@ -769,11 +820,8 @@ def sec_bank_extract(b, num):
 def sec_books(b):
     """The export: the Day Book and each Cash Book of one book, with notes."""
     out = sec_daybook(b)
-    k = 2
-    for n in b.order:
-        if b.accounts[n].kind == "cash":
-            out += cash_book(b, n, "%d. Cash Book — %s" % (k, n))
-            k += 1
+    names = [n for n in b.order if b.accounts[n].kind == "cash"] + [n for n in b.order if b.accounts[n].kind == "bank"]
+    out += cash_book(b, names, "2. Cash Book — %s" % " and ".join(names))
     return out
 
 
@@ -847,8 +895,6 @@ def shows_things_owned(b, date):
 def position_table(b, date, heading):
     out = ["#### %s" % heading, "", head_line(b.name, "on %s" % fdate(date)), ""]
     out.append("Every account with a balance on %s, placed on the side its balance falls. What I have plus what I will get, less what I will give, is the %s." % (fdate(date), b.own_word.lower()))
-    if shows_things_owned(b, date):
-        out.append(COST_LINE)
     out.append("")
     groups = {"have": [], "get": [], "give": [], "fund": []}
     for n in b.order:
@@ -880,17 +926,31 @@ def position_table(b, date, heading):
     start, put, taken = b.equity_parts(date)
     inc, exp = b.result_to(date)
     result = inc - exp
-    mk = [["%s at the start of the year (01 Apr 2025)" % b.own_word, fmt(start, show_zero=True)]]
-    mk.append(["+ Put in so far" + b.put_note, fmt(put, show_zero=True)])
-    mk.append(["− Taken out so far" + b.taken_note, fmt(taken, show_zero=True)])
-    mk.append(["+ Income so far", fmt(inc, show_zero=True)])
+    # the result first (income − spent), then the own money (start + put in − taken out ± the result), each chain adding up to its own line (04 §6.3)
+    mk = [["Income so far", fmt(inc, show_zero=True)]]
     mk.append(["− Spent so far", fmt(exp, show_zero=True)])
     mk.append([bold("= Result so far (%s)" % (result_word(b, result))), bold(fmt(abs(result), show_zero=True))])
+    mk.append(["%s at the start of the year (01 Apr 2025)" % b.own_word, fmt(start, show_zero=True)])
+    mk.append(["+ Put in so far" + b.put_note, fmt(put, show_zero=True)])
+    mk.append(["− Taken out so far" + b.taken_note, fmt(taken, show_zero=True)])
+    mk.append(["%s Result so far (%s)" % ("+" if result >= 0 else "−", result_word(b, result)), fmt(abs(result), show_zero=True)])
     own = start + put - taken + result
     mk.append([bold("= %s now" % b.own_word), bold(fmt(own, show_zero=True))])
     assert own == net, ("position make-up", b.name, own, net, date)
     out += table(["How it is made up", "₹"], ["l", "r"], mk)
     out.append("")
+    out += foot_notes(b, things=shows_things_owned(b, date), stock=True)
+    return out
+
+
+def foot_notes(b, things=False, stock=False):
+    """04 §4.3: the standing notes a report prints at its foot — things owned at cost, and (a book that sells goods with no closing stock) the no-stock line
+    on every report that gives the result or works it into own money (02 §6.2)."""
+    out = []
+    if things:
+        out += [COST_LINE, ""]
+    if stock and b.stock_line:
+        out += [STOCK_LINE, ""]
     return out
 
 
@@ -935,6 +995,7 @@ def sec_statements(b):
     exp = sum(b.movement(n, start, end)[0] - b.movement(n, start, end)[1] for n in b.order if b.accounts[n].kind == "expense")
     out.append("*%s in brief: income ₹%s · spent ₹%s · %s ₹%s.*" % (month_name(y, m), fmt(inc, show_zero=True), fmt(exp, show_zero=True), result_word(b, inc - exp), fmt(abs(inc - exp), show_zero=True)))
     out.append("")
+    out += foot_notes(b, things=any(b.accounts[n].kind == "fixed" and (b.balance_at(n, start - dt.timedelta(days=1)) or b.movement(n, start, end) != (0, 0)) for n in b.order), stock=True)
     name, s, e, why = b.custom
     a = b.accounts[name]
     out.append("#### 3.4 One account for a chosen period — %s, %s to %s" % (name, fdate(s), fdate(e)))
@@ -944,9 +1005,7 @@ def sec_statements(b):
     out.append(why + " This is the statement the user shares.")
     out.append("")
     rows = [r for r in a.rows if s <= r["date"] <= e]
-    lines, opening, tdr, tcr, closing = ledger_table(b, a, rows, s, e, "Balance b/f on %s" % fdate(s), "Balance c/f on %s" % fdate(e), "", show_bd=False,
-                                                     total_label="Total for the period", narr=True)
-    out += lines
+    out += statement_table(b, a, rows, s, e)
     out.append("")
     out += sec_ageing(b, 5)
     if b.bank_extract:
@@ -985,6 +1044,7 @@ def sec_closing(b):
         out.append("")
         out.append("*Accounts with entries in the year but nil on 31 Mar 2026 (not listed above): %s.*" % "; ".join(zero))
     out.append("")
+    out += foot_notes(b, things=shows_things_owned(b, FY_END))
     num = 2
     if b.style == "npo":
         out += sec_npo_rp(b, num)
@@ -1006,8 +1066,6 @@ def sec_closing(b):
     out.append("")
     out.append("Every income and expense account's **total for the year** — the *Total for the year* line of its ledger — with the number of entries that made it up. "
                "Only what was really received, spent or charged on credit during the year; nothing is added or spread at the year end.")
-    if b.stock_line:
-        out.append(STOCK_LINE)
     if b.pl_note:
         out.append(b.pl_note)
     out.append("")
@@ -1036,6 +1094,7 @@ def sec_closing(b):
     out.append("")
     out.append("**FY 2025-26: income ₹%s · spent ₹%s · %s ₹%s.**" % (fmt(ti, show_zero=True), fmt(te, show_zero=True), result_word(b, result), fmt(abs(result), show_zero=True)))
     out.append("")
+    out += foot_notes(b, stock=True)
     if has_funds:
         out += sec_fund_statements(b, n_fund)
     if b.partners:
@@ -1155,12 +1214,6 @@ def sec_npo_rp(b, num):
 
 def sec_balance_sheet(b, result, num):
     out = ["#### 4.%d Full position on 31 Mar 2026 (Balance Sheet)" % num, "", head_line(b.name, "on %s, after the year close" % fdate(FY_END)), ""]
-    if shows_things_owned(b, FY_END):
-        out.append(COST_LINE)
-        out.append("")
-    if b.assets_note:
-        out.append(b.assets_note)
-        out.append("")
     liab_rows, asset_rows, fund_rows = [], [], []
     tl = ta = 0
     for n in b.order:
@@ -1217,6 +1270,10 @@ def sec_balance_sheet(b, result, num):
     out.append("")
     out.append("**Both sides ₹%s. The books balance.**" % fmt(ta, show_zero=True))
     out.append("")
+    if b.assets_note:
+        out.append(b.assets_note)
+        out.append("")
+    out += foot_notes(b, things=shows_things_owned(b, FY_END), stock=True)
     b.counts["own_close"] = own_close
     b.counts["result"] = result
     return out
@@ -1252,15 +1309,18 @@ def sec_carry_forward(b, num):
     rows = []
     tdr = tcr = 0
     for label, group, bal in carry_rows(b):
-        rows.append([label, group, fmt(abs(bal), show_zero=True), side_of(bal)])
+        # 04 §2.6: opening against closing — the closing balance after the close, and the same figure as the new year's opening b/d
+        rows.append([label, group, fmt(abs(bal), show_zero=True), side_of(bal), fmt(abs(bal), show_zero=True), side_of(bal)])
         if bal > 0:
             tdr += bal
         else:
             tcr += -bal
     assert tdr == tcr, ("carry-forward", b.name, tdr, tcr)
-    rows.append([bold("Σ Dr = Σ Cr"), "", bold(fmt(tdr)), bold("= " + fmt(tcr))])
-    out += table(["Account (opening balance b/d on 01 Apr 2026)", "Type", "Balance ₹", "Side"], ["l", "l", "r", "c"], rows)
+    rows.append([bold("Σ Dr = Σ Cr"), "", bold(fmt(tdr)), bold("= " + fmt(tcr)), bold(fmt(tdr)), bold("= " + fmt(tcr))])
+    out += table(["Account", "Type", "Closing 31 Mar 2026, after the close ₹", "Side", "Opening b/d 01 Apr 2026 ₹", "Side"], ["l", "l", "r", "c", "r", "c"], rows)
     out.append("")
+    pcb = b.post_close_balances()
+    out += foot_notes(b, things=any(b.accounts[n].kind == "fixed" and pcb[n] for n in b.order))
     return out
 
 
@@ -1847,7 +1907,7 @@ def build_shop():
     sup = b.add(Account("Supreme Pipes Ltd A/c", "party", "Supplier (khata) — pipes and fittings", -R(118000)))
     jaq = b.add(Account("Jaquar Sanitary Agency A/c", "party", "Supplier (khata) — sanitary ware", -R(46500)))
     adv = b.add(Account("Advance – Manpreet Kaur A/c", "advance", "Salary advance to the salesman"))
-    sdep = b.add(Account("Deposit paid – Kapoor Properties A/c", "deppaid", "Security deposit paid to the shop's landlord (two months' rent) — comes back when the shop is vacated", R(90000)))
+    sdep = b.add(Account("Deposit paid – Kapoor Properties A/c", "deppaid", "Security deposit paid to the shop's landlord (six months' rent) — comes back when the shop is vacated", R(90000)))
     fit = b.add(Account("Shop Fittings & Counter A/c", "fixed", "Racks, counter and display at what they cost", R(120000)))
     cap = b.add(Account("Capital A/c – Sukhwinder Bal", "capital", "Owner's own money in the shop"))
     drw = b.add(Account("Drawings A/c – Sukhwinder Bal", "drawings", "Money taken for the household"))
@@ -2669,9 +2729,10 @@ def render_readme(cases, mds):
     out.append("4. **Year end** — trial balance (closing balances only, O-19-2); Receipts & Payments (trust); the year's statement (Profit & Loss, Income & Expenditure, Income & Expenses for a household), with the no-stock line for the shop; **each fund's statement** (trust); "
                "the P&L Appropriation Account (the two partnerships); **the year-close entries**; the Balance Sheet (with the partners' table where there are partners); the carry-forward into FY 2026-27.")
     out.append("")
-    out.append("**The export** (`<file>.export.md` / `.html`): the **Day Book** (every entry, its plain type, Dr and Cr accounts, amount, note) and the **Cash Book** (each cash account, balanced at the end of every month that had cash entries) — "
-               "what the app gives when the user downloads them, for any period and with or without notes; here the full year, with notes. They are not part of the printed book, and there is no Bank Book "
-               "(ADR 2026-10-12 §11, amended 13 Oct 2026). The year-close entries are made by the book and are not in the Day Book. When printing or exporting, the app lets the user choose **All**, or a multi-select of the sections and the accounts to include, for any period and with or without notes.")
+    out.append("**The export** (`<file>.export.md` / `.html`): the **Day Book** (every entry, its plain type, Dr and Cr accounts, amount, note) and the **Cash Book** (cash and the bank, a column for each on the Money in and the Money out side, "
+               "a transfer between them on both sides, with each month's totals and balances — 04 §5.4) — "
+               "what the app gives when the user downloads them, for any period and with or without notes; here the full year, with notes. They are not part of the printed book; there is no separate Bank Book, "
+               "since the bank has its column in the Cash Book (ADR 2026-10-12 §11, amended 13 Oct 2026). The year-close entries are made by the book and are not in the Day Book. When printing or exporting, the app lets the user choose **All**, or a multi-select of the sections and the accounts to include, for any period and with or without notes.")
     out.append("")
     out.append("## 4. What each file shows")
     out.append("")

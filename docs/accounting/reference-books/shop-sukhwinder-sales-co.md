@@ -32,7 +32,7 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 | 5 | Supreme Pipes Ltd A/c | Person / shop | Supplier (khata) — pipes and fittings | — | 1,18,000 |
 | 6 | Jaquar Sanitary Agency A/c | Person / shop | Supplier (khata) — sanitary ware | — | 46,500 |
 | 7 | Advance – Manpreet Kaur A/c | Advance | Salary advance to the salesman | — | — |
-| 8 | Deposit paid – Kapoor Properties A/c | Deposit paid | Security deposit paid to the shop's landlord (two months' rent) — comes back when the shop is vacated | 90,000 | — |
+| 8 | Deposit paid – Kapoor Properties A/c | Deposit paid | Security deposit paid to the shop's landlord (six months' rent) — comes back when the shop is vacated | 90,000 | — |
 | 9 | Shop Fittings & Counter A/c | Thing owned | Racks, counter and display at what they cost | 1,20,000 | — |
 | 10 | Capital A/c – Sukhwinder Bal | Own money | Owner's own money in the shop | — | 6,11,500 |
 | 11 | Drawings A/c – Sukhwinder Bal | Drawings | Money taken for the household | — | — |
@@ -46,6 +46,8 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 | 19 | Cash short / over A/c | Expense | What the counter cash count found short (spent) or over (got back) against the cash book, charged at once | — | — |
 | 20 | Written off A/c | Expense | A customer's balance known not to come | — | — |
 |  | **Total of opening balances** |  |  | **7,76,000** | **7,76,000** |
+
+Things owned are shown at what they cost; no depreciation is charged.
 
 ### 2. Every account (ledger)
 
@@ -212,7 +214,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Capital A/c – Sukhwinder Bal
 
-| Date | No. | Particulars | Taken out (Dr) | Put in (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken out (Dr) | Put in / added (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | 6,11,500 | 6,11,500 | Cr |
 | 31 Mar 2026 | S-Y3 | By Profit & Loss A/c<br><em>Net profit added to own money</em> | — | 6,08,070 | 12,19,570 | Cr |
@@ -223,7 +225,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Drawings A/c – Sukhwinder Bal
 
-| Date | No. | Particulars | Taken out (Dr) | Put back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken out (Dr) | Put back / closed to own money (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | — | 0 | — |
 | 10 May 2025 | S-005 | To PNB Current A/c<br><em>Drawings for the household</em> | 60,000 | — | 60,000 | Dr |
@@ -237,7 +239,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Sales A/c
 
-| Date | No. | Particulars | Returned (Dr) | Received (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 30 Jun 2025 | S-009 | By Cash A/c<br><em>Counter sales in cash, April–June 2025 (from the daily cash memo book)</em> | — | 3,86,000 | 3,86,000 | Cr |
 | 30 Jun 2025 | S-011 | By Guru Nanak Builders A/c<br><em>Goods to Guru Nanak Builders on khata, April–June 2025</em> | — | 2,38,000 | 6,24,000 | Cr |
@@ -333,6 +335,8 @@ One account after another: date, entry number, the other account (*To …* on th
 |  |  | **Total for the year** | **2,300** | **—** | **2,300** | **Dr** |
 | 31 Mar 2026 | S-Y2 | By Profit & Loss A/c<br><em>Expense heads closed to Profit & Loss</em> | — | 2,300 | 0 | — |
 
+Things owned are shown at what they cost; no depreciation is charged.
+
 ### 3. Positions and statements during the year
 
 #### 3.1 Full position on 30 Sep 2025 — what I have, what I will get, what I will give
@@ -340,7 +344,6 @@ One account after another: date, entry number, the other account (*To …* on th
 *Sukhwinder Sales Co. · on 30 Sep 2025 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
 Every account with a balance on 30 Sep 2025, placed on the side its balance falls. What I have plus what I will get, less what I will give, is the own money.
-Things owned are shown at what they cost; no depreciation is charged.
 
 |  | Account | Have / will get ₹ | Will give / funds ₹ |
 |:---|:---|---:|---:|
@@ -358,20 +361,24 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 | How it is made up | ₹ |
 |:---|---:|
+| Income so far | 12,67,500 |
+| − Spent so far | 9,74,700 |
+| **= Result so far (profit)** | **2,92,800** |
 | Own money at the start of the year (01 Apr 2025) | 6,11,500 |
 | + Put in so far | 0 |
 | − Taken out so far | 1,20,000 |
-| + Income so far | 12,67,500 |
-| − Spent so far | 9,74,700 |
-| **= Result so far (profit)** | **2,92,800** |
+| + Result so far (profit) | 2,92,800 |
 | **= Own money now** | **7,84,300** |
+
+Things owned are shown at what they cost; no depreciation is charged.
+
+No stock is counted. Everything bought for sale is treated as sold or used in the year it was bought.
 
 #### 3.2 Full position on 31 Mar 2026 — year end
 
 *Sukhwinder Sales Co. · on 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
 Every account with a balance on 31 Mar 2026, placed on the side its balance falls. What I have plus what I will get, less what I will give, is the own money.
-Things owned are shown at what they cost; no depreciation is charged.
 
 |  | Account | Have / will get ₹ | Will give / funds ₹ |
 |:---|:---|---:|---:|
@@ -390,13 +397,18 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 | How it is made up | ₹ |
 |:---|---:|
+| Income so far | 26,23,800 |
+| − Spent so far | 20,15,730 |
+| **= Result so far (profit)** | **6,08,070** |
 | Own money at the start of the year (01 Apr 2025) | 6,11,500 |
 | + Put in so far | 0 |
 | − Taken out so far | 2,40,000 |
-| + Income so far | 26,23,800 |
-| − Spent so far | 20,15,730 |
-| **= Result so far (profit)** | **6,08,070** |
+| + Result so far (profit) | 6,08,070 |
 | **= Own money now** | **9,79,570** |
+
+Things owned are shown at what they cost; no depreciation is charged.
+
+No stock is counted. Everything bought for sale is treated as sold or used in the year it was bought.
 
 #### 3.3 One month — October 2025, account by account
 
@@ -425,6 +437,10 @@ Every account's balance on 01 Oct 2025, what went on its Dr side and its Cr side
 
 *October 2025 in brief: income ₹0 · spent ₹45,000 · loss ₹45,000.*
 
+Things owned are shown at what they cost; no depreciation is charged.
+
+No stock is counted. Everything bought for sale is treated as sold or used in the year it was bought.
+
 #### 3.4 One account for a chosen period — Dhillon Plumbing Works A/c, 01 Apr 2025 to 31 Mar 2026
 
 *Sukhwinder Sales Co. — Dhillon Plumbing Works A/c · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
@@ -433,14 +449,14 @@ The plumbing contractor's khata for the year — an advance first, then goods th
 
 | Date | No. | Particulars | You will get (Dr) | You will give (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Balance b/f on 01 Apr 2025 | — | — | 0 | — |
+| 01 Apr 2025 |  | Opening balance on 01 Apr 2025 | — | — | 0 | — |
 | 06 Jun 2025 | S-008 | By PNB Current A/c<br><em>Advance from Dhillon Plumbing Works against a hotel job</em> | — | 50,000 | 50,000 | Cr |
 | 04 Jul 2025 | S-015 | To Sales A/c<br><em>Pipes and fittings to Dhillon Plumbing Works for the hotel job</em> | 86,500 | — | 36,500 | Dr |
 | 11 Dec 2025 | S-036 | To Sales A/c<br><em>Sanitary ware to Dhillon Plumbing Works</em> | 42,800 | — | 79,300 | Dr |
 | 09 Feb 2026 | S-047 | By PNB Current A/c<br><em>Dhillon Plumbing Works paid part of the balance</em> | — | 60,000 | 19,300 | Dr |
 | 31 Mar 2026 | S-057 | By Written off A/c<br><em>₹2,300 of Dhillon Plumbing Works' balance written off — he disputes the sanitary-ware bill and will not pay it</em> | — | 2,300 | 17,000 | Dr |
-| 31 Mar 2026 |  | Balance c/f on 31 Mar 2026 | — | 17,000 | — | — |
-|  |  | **Total** | **1,29,300** | **1,29,300** |  |  |
+|  |  | **Total for the period** | **1,29,300** | **1,12,300** |  |  |
+| 31 Mar 2026 |  | **Closing balance on 31 Mar 2026 — You will get** |  |  | **17,000** | **Dr** |
 
 #### 3.5 You will get / You will give — who owes what, and since when (on 31 Mar 2026)
 
@@ -507,12 +523,13 @@ The closing balance of every account after the last entry of the year (before th
 
 *Accounts with entries in the year but nil on 31 Mar 2026 (not listed above): Advance – Manpreet Kaur A/c.*
 
+Things owned are shown at what they cost; no depreciation is charged.
+
 #### 4.2 Profit & Loss Account for FY 2025-26
 
 *Sukhwinder Sales Co. · FY 2025-26 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
 Every income and expense account's **total for the year** — the *Total for the year* line of its ledger — with the number of entries that made it up. Only what was really received, spent or charged on credit during the year; nothing is added or spread at the year end.
-No stock is counted. Everything bought for sale is treated as sold or used in the year it was bought.
 
 | Particulars | Entries | Spent / expenses (Dr) ₹ | Income (Cr) ₹ |
 |:---|---:|---:|---:|
@@ -531,6 +548,8 @@ No stock is counted. Everything bought for sale is treated as sold or used in th
 
 **FY 2025-26: income ₹26,23,800 · spent ₹20,15,730 · profit ₹6,08,070.**
 
+No stock is counted. Everything bought for sale is treated as sold or used in the year it was bought.
+
 #### 4.3 Year close — the entries the book makes itself on 31 Mar 2026
 
 *Sukhwinder Sales Co. · year ended 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
@@ -547,8 +566,6 @@ Nobody types these. When the year is closed the book itself closes every income 
 #### 4.4 Full position on 31 Mar 2026 (Balance Sheet)
 
 *Sukhwinder Sales Co. · on 31 Mar 2026, after the year close · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
-
-Things owned are shown at what they cost; no depreciation is charged.
 
 **Own money, and what I will give**
 
@@ -577,21 +594,27 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 **Both sides ₹14,43,970. The books balance.**
 
+Things owned are shown at what they cost; no depreciation is charged.
+
+No stock is counted. Everything bought for sale is treated as sold or used in the year it was bought.
+
 #### 4.5 Carried into FY 2026-27
 
 *Sukhwinder Sales Co. · opening balances on 01 Apr 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
 Every account that carries a balance takes its balance **after the year close** into the new year as its opening balance b/d on 01 Apr 2026 — the b/d line of its ledger. Income and expense accounts and the drawings start FY 2026-27 at nil; the own money opens as one figure for each owner.
 
-| Account (opening balance b/d on 01 Apr 2026) | Type | Balance ₹ | Side |
-|:---|:---|---:|:---:|
-| Cash A/c | Cash | 45,250 | Dr |
-| PNB Current A/c | Bank | 8,86,720 | Dr |
-| Guru Nanak Builders A/c | Person / shop | 2,47,000 | Dr |
-| Dhillon Plumbing Works A/c | Person / shop | 17,000 | Dr |
-| Supreme Pipes Ltd A/c | Person / shop | 3,38,000 | Cr |
-| Jaquar Sanitary Agency A/c | Person / shop | 1,26,400 | Cr |
-| Deposit paid – Kapoor Properties A/c | Deposit paid | 90,000 | Dr |
-| Shop Fittings & Counter A/c | Thing owned | 1,58,000 | Dr |
-| Capital A/c – Sukhwinder Bal | Own money | 9,79,570 | Cr |
-| **Σ Dr = Σ Cr** |  | **14,43,970** | **= 14,43,970** |
+| Account | Type | Closing 31 Mar 2026, after the close ₹ | Side | Opening b/d 01 Apr 2026 ₹ | Side |
+|:---|:---|---:|:---:|---:|:---:|
+| Cash A/c | Cash | 45,250 | Dr | 45,250 | Dr |
+| PNB Current A/c | Bank | 8,86,720 | Dr | 8,86,720 | Dr |
+| Guru Nanak Builders A/c | Person / shop | 2,47,000 | Dr | 2,47,000 | Dr |
+| Dhillon Plumbing Works A/c | Person / shop | 17,000 | Dr | 17,000 | Dr |
+| Supreme Pipes Ltd A/c | Person / shop | 3,38,000 | Cr | 3,38,000 | Cr |
+| Jaquar Sanitary Agency A/c | Person / shop | 1,26,400 | Cr | 1,26,400 | Cr |
+| Deposit paid – Kapoor Properties A/c | Deposit paid | 90,000 | Dr | 90,000 | Dr |
+| Shop Fittings & Counter A/c | Thing owned | 1,58,000 | Dr | 1,58,000 | Dr |
+| Capital A/c – Sukhwinder Bal | Own money | 9,79,570 | Cr | 9,79,570 | Cr |
+| **Σ Dr = Σ Cr** |  | **14,43,970** | **= 14,43,970** | **14,43,970** | **= 14,43,970** |
+
+Things owned are shown at what they cost; no depreciation is charged.
