@@ -7,7 +7,7 @@ build.py — the five reference books: compact worked-example ledger books for F
     joint-family-randhawa                 joint family, three sub-families, Agriculture, Real Estate, Brick Field (seven books)
     shop-sukhwinder-sales-co              pipes & sanitary shop
     partnership-bal-fabricators           2:2:1 partnership; a contract job with retention money, a mobilisation advance, supplier advances
-    trust-radha-soami-satsang-sabha       trust: gollak, langar, dairy, construction, an earmarked Langar Hall Fund; R&P, I&E, Balance Sheet, fund statement
+    trust-radha-soami-satsang-sabha       trust: gollak, langar, dairy, construction, a Langar Hall Fund for a purpose; R&P, I&E, Balance Sheet, fund statement
 
 Five practice books were merged into these five on 20 Oct 2026 (truck, farmer, landlord, contractor, committee); their finished
 outputs are archived at docs/archive/reference/practice-books-merged/ and COVERAGE.md says where each mechanic now sits.
@@ -50,7 +50,10 @@ MAX_PAGES = 14                        # ADR 2026-10-12 §11 (kept by ADR 2026-10
 BASIS_LINE = "Kept on money paid and received, and what people owe; no year-end adjustments."
 MADE_ON = "02 Apr 2026, 10:00"
 COST_LINE = "Things owned are shown at what they cost; no depreciation is charged."
+STAKE_LINE = "The business is shown at the money put into it, not at its worth."          # 04 §4.3: a position that shows money put into a business
+STAKES_LINE = "The businesses are shown at the money put into them, not at their worth."  # the same note, when more than one business is shown
 STOCK_LINE = "No stock is counted. Everything bought for sale is treated as sold or used in the year it was bought."
+BUILD_LINE = "The cost of %s, ₹%s to date, is charged to expenditure and is not shown as a thing owned."   # 04 §4.3, 02 §5.8: a trust that charges a building to expenditure
 
 # ---------------------------------------------------------------------------------------------
 # money and date helpers — integer paise only
@@ -136,20 +139,20 @@ KIND = {
     "advance":  ("Asset", "Personal", "Dr", ("Given as advance (Dr)", "Settled / returned (Cr)"), "Advance"),
     "loanto":   ("Asset", "Personal", "Dr", ("Lent (Dr)", "Paid back / written off (Cr)"), "Loan given"),
     "retention": ("Asset", "Personal", "Dr", ("Held back (Dr)", "Released (Cr)"), "Retention held"),
-    "fixed":    ("Asset", "Real", "Dr", ("Bought (Dr)", "Sold (Cr)"), "Thing owned"),
+    "fixed":    ("Asset", "Real", "Dr", ("Bought / received (Dr)", "Sold / gone (Cr)"), "Thing owned"),
     "deppaid":  ("Asset", "Personal", "Dr", ("Paid (Dr)", "Got back / set off (Cr)"), "Deposit paid"),
-    "invest":   ("Asset", "Personal", "Dr", ("Kept aside (Dr)", "Taken back (Cr)"), "Deposit"),
+    "invest":   ("Asset", "Personal", "Dr", ("Kept aside / interest added (Dr)", "Taken back (Cr)"), "Deposit"),
     "loan":     ("Liability", "Personal", "Cr", ("Paid back (Dr)", "Taken (Cr)"), "Loan"),
     "deposit":  ("Liability", "Personal", "Cr", ("Returned / set off (Dr)", "Received (Cr)"), "Deposit held"),
-    "fund":     ("Capital (earmarked fund)", "Personal", "Cr", ("Spent from it (Dr)", "Added to it (Cr)"), "Fund"),
+    "fund":     ("Capital (fund for a purpose)", "Personal", "Cr", ("Spent from it (Dr)", "Added to it (Cr)"), "Fund"),
     "capital":  ("Capital", "Personal", "Cr", ("Taken out (Dr)", "Put in / added (Cr)"), "Own money"),
     "drawings": ("Capital (contra)", "Personal", "Dr", ("Taken out (Dr)", "Put back / closed to own money (Cr)"), "Drawings"),
     "shareout": ("Capital (contra)", "Personal", "Dr", ("Shared out (Dr)", "Put back / closed to own money (Cr)"), "Share-out"),
     "partner":  ("Capital", "Personal", "Cr", ("Taken out (Dr)", "Put in / added (Cr)"), "Partner"),
     "pcapital": ("Capital", "Personal", "Cr", ("Taken out (Dr)", "Put in / added (Cr)"), "Partner's capital"),
     "pcurrent": ("Capital", "Personal", "by sign", ("Taken out (Dr)", "Put in / added (Cr)"), "Partner's current"),
-    "income":   ("Income", "Nominal", "Cr", ("Returned (Dr)", "Income (Cr)"), "Income"),
-    "expense":  ("Expense", "Nominal", "Dr", ("Spent (Dr)", "Got back (Cr)"), "Expense"),
+    "income":   ("Income", "Nominal", "Cr", ("Returned / closed (Dr)", "Income (Cr)"), "Income"),
+    "expense":  ("Expense", "Nominal", "Dr", ("Spent (Dr)", "Got back / closed (Cr)"), "Expense"),
 }
 MONEY_KINDS = ("cash", "gollak", "bank", "wallet", "card", "cc")
 NONNEG_MONEY = ("cash", "gollak", "bank", "wallet")
@@ -181,6 +184,19 @@ APP_VERB = {
     "Journal (retention released)": "retention money released by transfer to the party's khata (O-06-4): Dr the person · Cr retention held — see GAPS D2",
 }
 VTYPES = tuple(PLAIN_VTYPE)
+CONTRA_KINDS = ("cash", "gollak", "bank", "cc")   # 02 §1.3: a contra is cash ↔ bank only
+
+
+def formal_vtype(b, v):
+    """The formal voucher type the technical companion prints. A transfer that is not cash ↔ bank (a card bill, a wallet load, a deposit made or
+    matured) is a payment from, or a receipt into, the cash or bank side; the app verb stays *transfer*."""
+    if v.vtype != "Contra" or all(b.accounts[n].kind in CONTRA_KINDS for n, _ in v.lines):
+        return v.vtype
+    if any(b.accounts[n].kind in CONTRA_KINDS and a < 0 for n, a in v.lines):
+        return "Payment"
+    if any(b.accounts[n].kind in CONTRA_KINDS and a > 0 for n, a in v.lines):
+        return "Receipt"
+    return "Journal"
 
 
 class Account(object):
@@ -244,6 +260,8 @@ class Book(object):
         self.pl_title = {"business": "Profit & Loss Account", "property": "Profit & Loss Account",
                          "household": "Income & Expenses", "npo": "Income & Expenditure Account"}[style]
         self.assets_note = ""
+        self.journal_word = "an adjustment where no money moved"   # what a plain Journal is in this book (the tech companion's basis line)
+        self.construction = None        # (expense head, the building) — a trust that charges a building to expenditure (02 §5.8, 03 §5.7)
         self.chart_note = ""
         self.put_note = ""              # e.g. " (by the sub-families, or settled)" on the own-money make-up
         self.taken_note = ""            # replaces the default sentence on how the openings balance
@@ -385,6 +403,9 @@ class Book(object):
                         for r in a.rows:
                             print(r["vid"], fdate(r["date"]), fmt(r["dr"]), fmt(r["cr"]), fmt(r["bal"]), r["vch"].narration[:50], file=sys.stderr)
                     assert row["bal"] >= 0, ("cash/bank negative", self.name, a.name, row["vid"], row["bal"])
+            if a.kind == "card":
+                for row in a.rows:   # a card bill only brings what is owed down (02 §1.7): a card never stands on the Dr side
+                    assert row["bal"] <= 0, ("card overpaid", self.name, a.name, row["vid"])
             if a.kind in ("advance", "fixed", "invest", "gollak", "deppaid", "loanto", "retention"):
                 for row in a.rows:
                     assert row["bal"] >= 0, ("over-settled", self.name, a.name, row["vid"])
@@ -420,7 +441,7 @@ class Book(object):
 
     def appropriation(self, result):
         """P&L Appropriation (posted at the year close, O-14-1): interest on fixed capital where agreed and only out of profit (O-14-3), then the agreed shares.
-        Returns [(partner, interest, share)]; leftover paise of the share go one each to the partners in order."""
+        Returns [(partner, interest, share)]; leftover paise of the share go to the largest ratio, ties to the earliest partner (02 §7.1)."""
         if not self.partners:
             return []
         rows = []
@@ -435,8 +456,8 @@ class Book(object):
         weights = sum(p["share"] for p in self.partners)
         shares = [rest * p["share"] // weights for p in self.partners]
         left = rest - sum(shares)
-        for k in range(left):
-            shares[k] += 1
+        # 02 §7.1 🔒: the remainder goes to the partner with the largest ratio, ties to the earliest-created partner account (the list is in that order)
+        shares[max(range(len(self.partners)), key=lambda k: (self.partners[k]["share"], -k))] += left
         return [(p, i, s) for (p, i), s in zip(rows, shares)]
 
 
@@ -693,8 +714,8 @@ def sec_ledgers(b):
     out.append("One account after another: date, entry number, the other account (*To …* on the Dr side, *By …* on the Cr side) with the entry's note in small type, the amount on its side, "
                "the running balance and its side. "
                "Accounts that carry a balance open with *Opening balance b/f* and end *Closing balance c/d · Total · Opening balance b/d*, the opening and closing balances standing in the amount column of their side so that each column adds up to the Total; "
-               "income and expense accounts end with their total for the year. The last rows of the heads, the drawings and the own-money accounts are the year-close entries "
-               "(numbers ending Y1, Y2 …) that the book makes itself on %s — they are listed in section 4." % fdate(FY_END))
+               "income and expense accounts end with their total for the year. The last rows of the heads%s and the own-money accounts are the year-close entries "
+               "(numbers ending Y1, Y2 …) that the book makes itself on %s — they are listed in section 4." % (", the drawings" if has_drawings(b) else "", fdate(FY_END)))
     out.append("")
     for n in b.order:
         a = b.accounts[n]
@@ -780,7 +801,11 @@ def cash_book(b, names, heading):
             if not others:
                 part = "%s to %s" % (" / ".join(n for n in names if amt[n] < 0), " / ".join(n for n in names if amt[n] > 0))
             else:
-                part = " / ".join(("To " if x < 0 else "By ") + n for n, x in others)     # as in the cash and bank ledgers: To the account credited, By the account debited
+                # as in the cash or bank ledger: only the accounts on the other side of the money that moved (an advance recovered, a lender's part, a fund's transfer stay in the note)
+                moved = [n for n in names if amt[n]]
+                net = sum(amt[n] for n in names)
+                part = ([r["part"] for r in b.accounts[moved[0]].rows if r["vid"] == v.vid][0] if len(moved) == 1 else
+                        " / ".join(("To " if net > 0 else "By ") + n for n, x in others if (x < 0) == (net > 0)))
             out.append("| %s | %s | %s<br><em>%s</em> | %s | %s | %s |" % (fdate(v.date), v.vid, part, v.narration, " | ".join(fmt(max(amt[n], 0)) for n in names),
                                                                         " | ".join(fmt(max(-amt[n], 0)) for n in names), " | ".join(bal_cell(bal[n]) for n in names)))
         out.append("| %s |  | %s | %s | %s | %s |" % (fdate(month_end(y, m)), bold("Month total — %s · closing balance" % month_name(y, m)),
@@ -789,7 +814,7 @@ def cash_book(b, names, heading):
     for a in accts:
         assert bal[a.name] == a.closing, (b.name, a.name)
     out.append("")
-    out.append("*On 31 Mar 2026: %s — the same as in section 2.*" % " · ".join("%s ₹%s" % (n, bal_cell(bal[n])) for n in names))
+    out.append("*On 31 Mar 2026: %s — the same as the closing balances in the ledgers of the printed book (its section 2).*" % " · ".join("%s ₹%s" % (n, bal_cell(bal[n])) for n in names))
     out.append("")
     return out
 
@@ -894,7 +919,9 @@ def shows_things_owned(b, date):
 
 def position_table(b, date, heading):
     out = ["#### %s" % heading, "", head_line(b.name, "on %s" % fdate(date)), ""]
-    out.append("Every account with a balance on %s, placed on the side its balance falls. What I have plus what I will get, less what I will give, is the %s." % (fdate(date), b.own_word.lower()))
+    funds = any(b.accounts[n].kind == "fund" and b.balance_at(n, date) != 0 for n in b.order)
+    own = b.own_word if b.style == "npo" else b.own_word.lower()     # the General Fund is the account's name
+    out.append("Every account with a balance on %s, placed on the side its balance falls. What I have plus what I will get, less what I will give%s, is the %s." % (fdate(date), " and less the funds held for a purpose" if funds else "", own))
     out.append("")
     groups = {"have": [], "get": [], "give": [], "fund": []}
     for n in b.order:
@@ -939,14 +966,30 @@ def position_table(b, date, heading):
     assert own == net, ("position make-up", b.name, own, net, date)
     out += table(["How it is made up", "₹"], ["l", "r"], mk)
     out.append("")
-    out += foot_notes(b, things=shows_things_owned(b, date), stock=True)
+    out += foot_notes(b, things=shows_things_owned(b, date), stock=True, stakes=shows_stakes(b, date), date=date)
     return out
 
 
-def foot_notes(b, things=False, stock=False):
+def shows_stakes(b, date):
+    """How many businesses a position on this date shows at the money put in (04 §4.3, 03 §1.9)."""
+    return sum(1 for n in b.order if b.accounts[n].kind == "stake" and b.balance_at(n, date) != 0)
+
+
+def built_to(b, date):
+    """The building's cost charged to expenditure up to a date (the year-close entries are not vouchers)."""
+    head = b.construction[0]
+    return sum(a for v in b.vouchers if v.date <= date for n, a in v.lines if n == head and a > 0)
+
+
+def foot_notes(b, things=False, stock=False, stakes=0, date=None):
     """04 §4.3: the standing notes a report prints at its foot — things owned at cost, and (a book that sells goods with no closing stock) the no-stock line
-    on every report that gives the result or works it into own money (02 §6.2)."""
+    on every report that gives the result or works it into own money (02 §6.2); a trust that charges a building to expenditure prints the construction
+    line on the same reports (passed `date`), with the cost to that date (02 §5.8, 03 §5.7)."""
     out = []
+    if date and b.construction and built_to(b, date):
+        out += [BUILD_LINE % (b.construction[1], fmt(built_to(b, date))), ""]
+    if stakes:
+        out += [STAKE_LINE if stakes == 1 else STAKES_LINE, ""]
     if things:
         out += [COST_LINE, ""]
     if stock and b.stock_line:
@@ -995,7 +1038,7 @@ def sec_statements(b):
     exp = sum(b.movement(n, start, end)[0] - b.movement(n, start, end)[1] for n in b.order if b.accounts[n].kind == "expense")
     out.append("*%s in brief: income ₹%s · spent ₹%s · %s ₹%s.*" % (month_name(y, m), fmt(inc, show_zero=True), fmt(exp, show_zero=True), result_word(b, inc - exp), fmt(abs(inc - exp), show_zero=True)))
     out.append("")
-    out += foot_notes(b, things=any(b.accounts[n].kind == "fixed" and (b.balance_at(n, start - dt.timedelta(days=1)) or b.movement(n, start, end) != (0, 0)) for n in b.order), stock=True)
+    out += foot_notes(b, things=any(b.accounts[n].kind == "fixed" and (b.balance_at(n, start - dt.timedelta(days=1)) or b.movement(n, start, end) != (0, 0)) for n in b.order), stock=True, date=end)
     name, s, e, why = b.custom
     a = b.accounts[name]
     out.append("#### 3.4 One account for a chosen period — %s, %s to %s" % (name, fdate(s), fdate(e)))
@@ -1094,7 +1137,7 @@ def sec_closing(b):
     out.append("")
     out.append("**FY 2025-26: income ₹%s · spent ₹%s · %s ₹%s.**" % (fmt(ti, show_zero=True), fmt(te, show_zero=True), result_word(b, result), fmt(abs(result), show_zero=True)))
     out.append("")
-    out += foot_notes(b, stock=True)
+    out += foot_notes(b, stock=True, date=FY_END)
     if has_funds:
         out += sec_fund_statements(b, n_fund)
     if b.partners:
@@ -1188,26 +1231,18 @@ def sec_npo_rp(b, num):
             else:
                 payments[n] = payments.get(n, 0) + a
     money = [n for n in b.order if b.accounts[n].is_money]
-    rows = []
-    tr = tp = 0
-    for n in money:
-        rows.append(["Receipts", "To Opening balance — " + n, fmt(b.accounts[n].opening, show_zero=True)])
-        tr += b.accounts[n].opening
-    for n in b.order:
-        if n in receipts:
-            rows.append(["Receipts", "To " + n, fmt(receipts[n], show_zero=True)])
-            tr += receipts[n]
-    rows.append(["", bold("Total receipts"), bold(fmt(tr))])
-    for n in b.order:
-        if n in payments:
-            rows.append(["Payments", "By " + n, fmt(payments[n], show_zero=True)])
-            tp += payments[n]
-    for n in money:
-        rows.append(["Payments", "By Closing balance — " + n, fmt(b.accounts[n].closing, show_zero=True)])
-        tp += b.accounts[n].closing
-    rows.append(["", bold("Total payments"), bold(fmt(tp))])
+    left = [("To Opening balance — " + n, b.accounts[n].opening) for n in money] + [("To " + n, receipts[n]) for n in b.order if n in receipts]
+    right = [("By " + n, payments[n]) for n in b.order if n in payments] + [("By Closing balance — " + n, b.accounts[n].closing) for n in money]
+    tr, tp = sum(x for _, x in left), sum(x for _, x in right)
     assert tr == tp, ("R&P", tr, tp)
-    out += table(["Side", "Particulars", "₹"], ["l", "l", "r"], rows)
+    # two sides, as the textbooks print it (04 §6.7): receipts on the left, payments on the right, totals level at the foot
+    rows = []
+    for k in range(max(len(left), len(right))):
+        l = left[k] if k < len(left) else ("", None)
+        r = right[k] if k < len(right) else ("", None)
+        rows.append([l[0], "" if l[1] is None else fmt(l[1], show_zero=True), r[0], "" if r[1] is None else fmt(r[1], show_zero=True)])
+    rows.append([bold("Total"), bold(fmt(tr)), bold("Total"), bold(fmt(tp))])
+    out += table(["Receipts", "₹", "Payments", "₹"], ["l", "r", "l", "r"], rows)
     out.append("")
     return out
 
@@ -1241,14 +1276,19 @@ def sec_balance_sheet(b, result, num):
         prow = []
         ap = b.appropriation(result)
         for p, i, s in ap:
+            # 04 §6.5: for each account of each partner, the year — opening, put in, interest on capital, share of profit, drawings, closing
             cap = -b.accounts[p["capital"]].closing if p.get("capital") else 0
-            cur = -b.accounts[p["current"]].closing
-            after = cur + i + s
-            assert -pcb[p["current"]] == after, ("partner after the close", p["name"])
-            prow.append([p["name"], fmt(cap) if p.get("capital") else "—", amt_side(-cur), fmt(i), fmt(s), amt_side(-after), fmt(cap + after, show_zero=True)])
+            for n, close_cr in ((p["capital"], (0, 0)), (p["current"], (i, s))) if p.get("capital") else ((p["current"], (i, s)),):
+                a = b.accounts[n]
+                taken, put = b.movement(n, FY_START, FY_END)
+                after = -a.closing + sum(close_cr)
+                assert -pcb[n] == after and a.opening + taken - put == a.closing, ("partner's account for the year", n)
+                prow.append([p["name"], "Capital" if n == p.get("capital") else "Current" if p.get("capital") else "Partner's account", amt_side(a.opening),
+                             fmt(put), fmt(close_cr[0]), fmt(close_cr[1]), fmt(taken), amt_side(-after)])
+            after = -b.accounts[p["current"]].closing + i + s
             eq_rows.append(["%s — %s at the end" % (p["name"], "capital and current account" if p.get("capital") else "partner's account"), fmt(cap + after, show_zero=True)])
-        out += table(["Partner", "Capital ₹", "Account before the year close ₹", "+ Interest on capital ₹", "+ Share of profit ₹", "Account after the close ₹", "Partner's total ₹"],
-                     ["l", "r", "r", "r", "r", "r", "r"], prow)
+        out += table(["Partner", "Account", "Opening ₹", "+ Put in ₹", "+ Interest on capital ₹", "+ Share of profit ₹", "− Drawings ₹", "Closing ₹"],
+                     ["l", "l", "r", "r", "r", "r", "r", "r"], prow)
         out.append("")
         assert sum(int_or(r[1]) for r in eq_rows) == own_close
     else:
@@ -1273,7 +1313,7 @@ def sec_balance_sheet(b, result, num):
     if b.assets_note:
         out.append(b.assets_note)
         out.append("")
-    out += foot_notes(b, things=shows_things_owned(b, FY_END), stock=True)
+    out += foot_notes(b, things=shows_things_owned(b, FY_END), stock=True, stakes=shows_stakes(b, FY_END), date=FY_END)
     b.counts["own_close"] = own_close
     b.counts["result"] = result
     return out
@@ -1301,10 +1341,14 @@ def carry_rows(b):
     return rows
 
 
+def has_drawings(b):
+    return any(b.accounts[n].kind == "drawings" for n in b.order)
+
+
 def sec_carry_forward(b, num):
     out = ["#### 4.%d Carried into FY 2026-27" % num, "", head_line(b.name, "opening balances on 01 Apr 2026"), ""]
     out.append("Every account that carries a balance takes its balance **after the year close** into the new year as its opening balance b/d on 01 Apr 2026 — the b/d line of its ledger. "
-               "Income and expense accounts and the drawings start FY 2026-27 at nil; %s." % ("each partner's capital account and current account open at their own balances, as in their ledgers" if b.partners else "the own money opens as one figure for each owner"))
+               "Income and expense accounts%s start FY 2026-27 at nil; %s." % (" and the drawings" if has_drawings(b) else "", "each partner's capital account and current account open at their own balances, as in their ledgers" if b.partners else "the General Fund and each fund open at one figure each" if b.style == "npo" else "the own money opens as one figure for each owner"))
     out.append("")
     rows = []
     tdr = tcr = 0
@@ -1362,10 +1406,12 @@ def sec_family_summary(case):
         return []
     out = ["## %s — the books agree" % ("Family summary" if len(case.books) > 2 else "The two books side by side"), "",
            head_line(" · ".join(b.name for b in case.books), "FY 2025-26"), ""]
+    stake = [any(x.accounts[n].kind == "stake" for x, y in (pr, pr[::-1]) for n in accounts_for(x, y)) for pr in pairs]
     out.append("Money that moves between two books is written in both, in accounts named after the other book. For each pair: the balances brought forward agree, "
-               "and what one book gave is what the other received, entry for entry. A family and a sub-family also agree balance for balance on opposite sides. "
-               "An owner and the business he owns agree entry by entry — money put in against the business's capital, money sent home against its drawings — but not in balance: "
-               "the owner holds the business at the money put in, while the business's own money also carries its profit, so the difference is printed under the table as *profit kept in the business*.")
+               "and what one book gave is what the other received, entry for entry."
+               + (" A family and a sub-family also agree balance for balance on opposite sides." if not all(stake) else "")
+               + (" An owner and the business he owns agree entry by entry — money put in against the business's capital, money sent home against its drawings — but not in balance: "
+                  "the owner holds the business at the money put in, while the business's own money also carries its profit, so the difference is printed under the table as *profit kept in the business*." if any(stake) else ""))
     out.append("")
     rows = []
     kept = []
@@ -1577,6 +1623,39 @@ def lint_plain(md, slug):
             raise AssertionError("printed book %s contains %r near: %r" % (slug, tok, md[max(0, i - 80):i + 80]))
 
 
+ENTRY_KINDS = [   # (formal voucher type, the kind of entry it is) — in the order the basis line lists them
+    ("Receipt", "a bank or cash movement"), ("Payment", "a bank or cash movement"),
+    ("Journal (credit given)", "a khata entry with a named party"), ("Journal (credit taken)", "a khata entry with a named party"),
+    ("loan", "a loan instalment as the bank paid it"), ("Contra", "a transfer between own accounts"),
+    ("Journal (advance settled)", "an advance or its settlement"), ("advance", "an advance or its settlement"),
+    ("Journal (paid by partner)", "a partner's own-pocket payment"), ("Journal (paid by family)", "a payment the joint family made for a sub-family"),
+    ("Payment (from a fund)", "a payment from a fund"), ("Journal (interest added)", "interest the bank adds to a deposit"),
+    ("Journal", None), ("Journal (settled)", "a running account settled at year end"),
+    ("Journal (set off)", "a deposit held set off against what is owed"), ("Journal (deposit forfeited)", "a deposit held kept as income"),
+    ("Journal (retention released)", "retention money released"), ("Journal (written off)", "an amount written off"),
+    ("Journal (correction)", "a correction"),
+]
+
+
+def entry_kinds(case):
+    """The closed list of the kinds of entry this case's books hold (every voucher maps to at least one)."""
+    seen = set()
+    for b in case.books:
+        for v in b.vouchers:
+            keys = {v.vtype}
+            if v.vtype in ("Receipt", "Payment"):
+                keys |= {b.accounts[n].kind for n, a in v.lines if b.accounts[n].kind == "advance" or (b.accounts[n].kind == "loan" and a > 0)}
+            assert v.vtype in dict(ENTRY_KINDS), ("no kind of entry for", v.vtype)
+            seen |= keys
+    words = []
+    for key, w in ENTRY_KINDS:
+        if key in seen:
+            w = w or " or ".join(sorted({b.journal_word for b in case.books if any(v.vtype == "Journal" for v in b.vouchers)}))
+            if w not in words:
+                words.append(w)
+    return ", ".join(words[:-1]) + ", or " + words[-1] if len(words) > 1 else words[0]
+
+
 def render_tech(case, md):
     """Developer-facing companion: standard types, formal voucher types, app verbs, sources, gaps."""
     out = ["# Technical companion — %s" % case.title, ""]
@@ -1586,7 +1665,7 @@ def render_tech(case, md):
     out.append("## Basis (ADR 2026-10-12 §2, §10–§12; ADR 2026-10-20 §2; rulings of 20 Oct 2026 in `docs/archive/reference/accounting-research/OPEN.md`)")
     out.append("")
     out.append("- No tax, GST, TDS, invoicing, stock or payroll (`docs/00-vision.md`, non-goals). Purchases for resale are an expense when bought or taken on credit; there is no closing stock.")
-    out.append("- Transaction-driven: every entry is a bank or cash movement, a khata entry with a named party, a loan instalment as the bank paid it, a transfer between own accounts, an advance or its settlement, a partner's own-pocket payment, or a correction.")
+    out.append("- Transaction-driven: every entry is %s." % entry_kinds(case))
     out.append("- The khata basis (O-01-1): no depreciation, prepaid, outstanding or accrued entries and no closing stock; things owned stay at cost (O-09-1). The year close is **posted** by the book itself (O-19-1) on 31 Mar 2026 — income and expense heads to the result, the result and Drawings to own money, a partnership through a posted P&L Appropriation Account (O-14-1), a trust's surplus or deficit to the General Fund — listed below as entries `<prefix>-Y1 …`, formal type `Journal (year close)`; none is typed by the user and none is in the Day Book export.")
     out.append("- Plain words in the printed book; the true side stays in a small bracket after the plain label (ADR 2026-10-10b §4). Ledger rows carry each entry's note in small type; the Day Book and the Cash Book are an export (`%s.export.md`), not part of the printed book (ADR 2026-10-12 §11, amended 13 Oct 2026)." % case.slug)
     out.append("")
@@ -1605,13 +1684,13 @@ def render_tech(case, md):
         out.append("")
         rows = []
         for v in b.vouchers:
-            rows.append([v.vid, fdate(v.date), PLAIN_VTYPE[v.vtype], v.vtype, APP_VERB[v.vtype], "; ".join("%s %s" % (n, fmt(a)) for n, a in v.dr_lines()),
+            rows.append([v.vid, fdate(v.date), PLAIN_VTYPE[v.vtype], formal_vtype(b, v), APP_VERB[v.vtype], "; ".join("%s %s" % (n, fmt(a)) for n, a in v.dr_lines()),
                          "; ".join("%s %s" % (n, fmt(a)) for n, a in v.cr_lines())])
         out += table(["No.", "Date", "Printed type", "Formal voucher type", "App verb (02 §2)", "Dr", "Cr"], ["l", "l", "l", "l", "l", "l", "l"], rows)
         out.append("")
         kinds = {}
         for v in b.vouchers:
-            kinds[v.vtype] = kinds.get(v.vtype, 0) + 1
+            kinds[formal_vtype(b, v)] = kinds.get(formal_vtype(b, v), 0) + 1
         out.append("*%d vouchers: %s.*" % (len(b.vouchers), " · ".join("%s %d" % (k, kinds[k]) for k in sorted(kinds))))
         out.append("")
         fund_entries = [v for v in b.vouchers if v.vtype == "Payment (from a fund)"]
@@ -1633,7 +1712,7 @@ def render_tech(case, md):
         out.append("")
         if b.partners:
             out.append("*P&L Appropriation (posted): " + "; ".join("%s interest %s + share %s" % (p["name"], fmt(i, show_zero=True), fmt(s, show_zero=True)) for p, i, s in b.appropriation(b.counts["result"]))
-                       + ". Leftover paise of the share go one each to the partners in the order listed. Interest on capital only where the partners agreed it and only out of profit (O-14-3).*")
+                       + ". Leftover paise of the share go to the partner with the largest ratio, ties to the earliest partner account (02 §7.1). Interest on capital only where the partners agreed it and only out of profit (O-14-3).*")
             out.append("")
         if b.gaps:
             out.append("### Where this book needs what the app's rules do not yet provide (see `GAPS.md`)")
@@ -1650,7 +1729,7 @@ def render_tech(case, md):
     out.append("## Checks")
     out.append("")
     out.append("- `build.py` asserts: every voucher sums to zero with ≥ 2 non-zero lines and no account twice; money in/out touches a money account and no-money entries do not (a Money out may also credit an advance it recovers or the lender's part of a purchase); a transfer joins two own money/deposit accounts; "
-               "spending from a fund charges the year and moves the same amount out of the fund; the gollak is filled only by a count and emptied only into cash or bank; openings and the trial balance balance; cash, bank and wallet never go negative; advances, loans given, retention, things owned and deposits are never over-settled; fixed capital does not move; "
+               "spending from a fund charges the year and moves the same amount out of the fund; the gollak is filled only by a count and emptied only into cash or bank; openings and the trial balance balance; cash, bank and wallet never go negative, a credit card never goes past nil; advances, loans given, retention, things owned and deposits are never over-settled; fixed capital does not move; "
                "every year-close entry balances, the result account and every income, expense and drawings account stand at nil after them, and the own money after them equals the balance sheet's; "
                "the position make-up equals the position at both dates; the balance sheet balances; the carry-forward sums to zero; every inter-book pair agrees entry for entry; the entry count is within the compact range; no book prints on more than 14 A4 pages.")
     out.append("- `check_md.py` re-derives the printed book independently (no shared code): chart totals, the Day Book entry by entry, every ledger row by row, the Cash Book with its month totals, the bank-statement extract, "
@@ -1694,7 +1773,7 @@ def build_individual():
     c.people = [
         ("Jasvinder Singh", "Owner of both books"),
         ("Gurpreet Sandhu", "Friend — borrowed ₹25,000 in May on a small interest, returned ₹15,000 in December; the rest written off in March"),
-        ("Sharma General Store", "Grocer — household khata, settled each quarter"),
+        ("Sharma General Store", "Grocer — household khata, settled every six months"),
         ("Balwinder Singh", "Part-time driver — took ₹15,000 for the family's Vaishno Devi trip in December and accounted for it"),
         ("HDFC Bank", "Car lender — ₹8,00,000 for the second car, paid to the dealer, 60 monthly instalments from 05 Dec 2025"),
         ("Medtech Solutions · Kaur Exports · Punjab Agro Board", "Clients of the business — billed on khata; Kaur Exports pays in advance once"),
@@ -1828,7 +1907,7 @@ def build_individual():
     p.v(D(2026, 3, 31), "Journal (written off)", "The last ₹10,000 of Gurpreet Sandhu's loan written off — he has said he cannot repay it", [(wo, R(10000)), (gur, -R(10000))])
     for d, a, nm in [(D(2025, 5, 12), R(9800), "Fuel, April–May"), (D(2025, 8, 9), R(14200), "Fuel and car service"), (D(2025, 11, 10), R(18600), "Car insurance renewal")]:
         p.pay(d, carx, card, a, "%s, on the credit card" % nm)
-    for d, a in [(D(2025, 4, 18), R(12400)), (D(2025, 6, 18), R(26300)), (D(2025, 9, 17), R(14200)), (D(2025, 10, 17), R(18600))]:
+    for d, a in [(D(2025, 4, 18), R(12400)), (D(2025, 6, 18), R(9800)), (D(2025, 9, 17), R(14200)), (D(2025, 12, 17), R(18600))]:
         p.move(d, card, pb, a, "Credit-card bill paid from savings", "CC PAYMENT DR–HDFC CARD")
     p.pay(D(2025, 8, 28), med_, pb, R(38000), "LIC premium (yearly)", "NACH DR–LIC OF INDIA")
     p.pay(D(2025, 11, 5), soc, pc, R(11000), "Shagun at a cousin's wedding and Gurpurab, cash")
@@ -1863,7 +1942,7 @@ def build_individual():
                       "and is not written in the personal book; after the year close the business's own money is ₹%s."
                       % (fmt(p.accounts[biz].closing), fmt(home), fmt(tr), fmt(-t.post_close_balances()[cap])))
     t.assets_note = ""
-    p.assets_note = "The business is shown at the money put into it, not at its worth."
+    p.assets_note = ""
     t.gaps = [("Capital / Drawings A/c – Jasvinder Singh", "a sole proprietor's business book keeps Capital and Drawings (O-13-1, O-13-2); both are named after the owner, whose personal book is the other book of the pair (O-13-4; GAPS A11)")]
     p.gaps = [("Jasvinder Technologies A/c · Income from …", "own money in a business held at what was put in; money the business sends home is income (O-13-4, cost method; GAPS A11)"),
               ("HDFC Credit Card A/c", "money subtype card, Cr by sign; card bill paid by transfer"), ("Car – Maruti Baleno A/c", "asset at cost (GAPS A1)"),
@@ -1981,13 +2060,13 @@ def build_partnership():
         "**Bal Fabricators** is a steel-fabrication and aluminium workshop owned by **Sukhwinder Bal**, **Pradeep Bal** and **Harjeet Singh**, who is from outside the family, sharing profit **2 : 2 : 1**. "
         "Each partner has a **fixed capital account** and a **current account**: drawings and costs a partner pays from his own pocket go to his current account; the capitals do not move. "
         "Their agreement gives **interest on capital at 6% a year**, then the rest of the profit in the ratio. At the year close the book posts the P&L Appropriation Account and adds each partner's part to his account. "
-        "The year's big job is a contract for a builder, **Sandhu Builders**: a mobilisation advance, three running bills of which 5% is held back until hand-over, and the retention money kept in its own account beside the builder's khata. "
+        "The year's big job is a contract for a builder, **Sandhu Builders**: a mobilisation advance, three running bills of which 5% is held back until the work of that bill is accepted, and the retention money kept in its own account beside the builder's khata. "
         "The powder-coating supplier is paid in advance and then sends his bill; the site foreman runs the labour money as an advance and accounts for it.",
     ]
     c.people = [
         ("Sukhwinder Bal", "Partner — share 2, capital ₹3,00,000"),
-        ("Pradeep Bal", "Partner — share 2, capital ₹3,00,000; pays some workshop costs from his own pocket"),
-        ("Harjeet Singh", "Partner from outside the family — share 1, capital ₹1,50,000; draws more than the others"),
+        ("Pradeep Bal", "Partner — share 2, capital ₹3,00,000; pays some workshop costs from his own pocket, as Sukhwinder does once"),
+        ("Harjeet Singh", "Partner from outside the family — share 1, capital ₹1,50,000; draws as much as the others, more than his share of the profit"),
         ("Verka Dairy Plant · Punjab Steel Sheds", "Customers on khata"),
         ("Sandhu Builders", "Builder — contract job: mobilisation advance, running bills with 5% held back"),
         ("Jindal Steel Traders", "Steel supplier on khata"),
@@ -2001,7 +2080,7 @@ def build_partnership():
     verka = b.add(Account("Verka Dairy Plant A/c", "party", "Customer (khata) — sheds and racks", R(48000)))
     pss = b.add(Account("Punjab Steel Sheds A/c", "party", "Customer (khata) — fabrication on job work"))
     sandhu = b.add(Account("Sandhu Builders A/c", "party", "Builder (khata) — contract job: advance first, then running bills less the 5% held back"))
-    ret = b.add(Account("Retention held by – Sandhu Builders A/c", "retention", "5% of each bill the builder holds back until hand-over — released to the khata when due"))
+    ret = b.add(Account("Retention held by – Sandhu Builders A/c", "retention", "5% of each bill the builder holds back until the work of that bill is accepted — released to the khata when due"))
     jin = b.add(Account("Jindal Steel Traders A/c", "party", "Supplier (khata) — steel sections and sheets", -R(72000)))
     pcw = b.add(Account("Shree Powder Coaters A/c", "party", "Supplier (khata) — powder coating; paid in advance, then billed"))
     fadv = b.add(Account("Advance – Gurmeet Singh (foreman) A/c", "advance", "Money with the foreman for site labour and small purchases, accounted for against his slips"))
@@ -2047,7 +2126,7 @@ def build_partnership():
     for d, k in [(D(2025, 7, 22), 0), (D(2025, 10, 24), 1), (D(2026, 1, 23), 2)]:
         a = bills[k][1]
         b.rec(d, bank, sandhu, a - a * 5 // 100 - R(50000), "Sandhu Builders paid running bill %d less the 5%% held back and ₹50,000 of the advance" % (k + 1), "RTGS CR–SANDHU BUILDERS")
-    b.v(D(2026, 2, 15), "Journal (retention released)", "Retention of running bill 1 (₹15,000) released by Sandhu Builders after the defect period — moved to his khata", [(sandhu, R(15000)), (ret, -R(15000))])
+    b.v(D(2026, 2, 15), "Journal (retention released)", "Retention of running bill 1 (₹15,000) released by Sandhu Builders — the work of that bill accepted; moved to his khata", [(sandhu, R(15000)), (ret, -R(15000))])
     b.rec(D(2026, 3, 6), bank, sandhu, R(15000), "Sandhu Builders paid the released retention", "RTGS CR–SANDHU BUILDERS")
     for k, a in enumerate([R(198000), R(176000), R(214000), R(168000)]):
         b.took(Q4E[k], steel, jin, a, "Steel from Jindal Steel Traders on khata, %s" % Q4N[k])
@@ -2078,7 +2157,7 @@ def build_partnership():
     wrong = b.pay(D(2025, 8, 23), steel, cash, R(4200), "Tempo hire for the Verka frames' delivery, cash")
     b.fix(D(2025, 9, 2), trn, steel, R(4200), "Entry {ref} (tempo hire) was written to Steel & Material — moved to Transport", "Journal (correction)", ref=wrong)
     b.finalize()
-    b.assets_note = "Each partner's account after the year's interest and share is shown in the table above. The builder's retention money is in its own account: money the firm will get when the job is handed over."
+    b.assets_note = "Each partner's account after the year's interest and share is shown in the table above. The builder's retention money is in its own account: money the firm will get as the work of each bill is accepted."
     b.gaps = [("Current A/c – each partner", "02 §1.2 has one `partner` account per member; practice keeps a fixed capital and a current account (GAPS B2)"),
               ("P&L Appropriation A/c", "interest on capital (as agreed, only out of profit) and the 2:2:1 share posted at the year close to the partners' current accounts (O-14-1, O-14-3; GAPS B1)"),
               ("Paid by a partner", "a partner pays a firm cost from his own pocket — Dr expense · Cr partner's current account"),
@@ -2086,7 +2165,7 @@ def build_partnership():
     c.books = [b]
     c.demonstrates = ["fixed capital and current accounts for three partners; a posted P&L Appropriation: 6% interest on capital out of profit, then 2 : 2 : 1",
                       "a contract job for a builder: mobilisation advance recovered bill by bill, 5% retention in its own account, released when due", "a supplier paid in advance whose account crosses to the other side and back",
-                      "an advance settled with part written off", "partners paying firm costs from their own pocket", "a partner whose current account ends on the Dr side before his share", "a correction"]
+                      "an advance settled with part written off", "partners paying firm costs from their own pocket", "a partner whose current account stays on the Dr side after his interest and share", "a correction"]
     return c
 
 
@@ -2111,12 +2190,12 @@ def build_trust():
         ("Three families and an NRI donor", "Gave for the langar hall — the money went to the Langar Hall Fund; one family donated a steel almirah that the trust keeps"),
     ]
     b = Book("Radha Soami Satsang Sabha", "trust book", "RS", "npo")
-    b.about = "Trust book · gollak counted and emptied into cash or bank · langar through the sewadar's advance · dairy · construction as an expense · an earmarked Langar Hall Fund with its deposit and interest · two labourers with their own heads."
+    b.about = "Trust book · gollak counted and emptied into cash or bank · langar through the sewadar's advance · dairy · construction as an expense · a Langar Hall Fund (the donors' money for the hall) with its deposit and interest · two labourers with their own heads."
     b.own_word = "General Fund"
     cash = b.add(Account("Cash A/c", "cash", "The trust's cash box, with the secretary", R(22000)))
     gol = b.add(Account("Gollak Cash A/c", "gollak", "The gollak — counted every two months, emptied only into the cash box or the bank"))
     bank = b.add(Account("SBI Current A/c", "bank", "The trust's current account", R(485000)))
-    lfd = b.add(Account("SBI Fixed Deposit (Langar Hall Fund) A/c", "invest", "Fixed deposit made from the langar hall donations — belongs to the Langar Hall Fund", R(200000)))
+    lfd = b.add(Account("SBI Fixed Deposit (Langar Hall Fund) A/c", "invest", "Fixed deposit made from the langar hall donations — its interest goes to the Langar Hall Fund", R(200000)))
     adv = b.add(Account("Advance – Amritpal Singh A/c", "advance", "Langar money with the sewadar, accounted for with bills"))
     cem = b.add(Account("Kotli Cement Store A/c", "party", "Building-material store (khata) — cement and bricks for the hall"))
     furn = b.add(Account("Furniture & Equipment A/c", "fixed", "Things given to the trust and kept, at ₹1 each — the estimated value is in the entry's note"))
@@ -2153,7 +2232,7 @@ def build_trust():
     b.pay(D(2025, 9, 10), cem, bank, R(148000), "Kotli Cement Store paid for the cement and bricks", "NEFT DR–KOTLI CEMENT")
     for d, a, who in [(D(2025, 5, 20), R(51000), "a family, for the langar hall"), (D(2025, 8, 12), R(25000), "an NRI family, for the langar hall"), (D(2026, 1, 20), R(31000), "a family in memory of an elder, for the langar hall")]:
         b.rec(d, bank, lfund, a, "Donation from %s — to the Langar Hall Fund" % who, "NEFT CR–HALL DONATION")
-    b.v(D(2026, 3, 20), "Journal (interest added)", "Yearly interest added by the bank to the Langar Hall Fund's fixed deposit — belongs to the fund", [(lfd, R(14000)), (lfund, -R(14000))])
+    b.v(D(2026, 3, 20), "Journal (interest added)", "Yearly interest added by the bank to the deposit made from the langar hall donations — added to the Langar Hall Fund", [(lfd, R(14000)), (lfund, -R(14000))])
     for d, a, what in [(D(2025, 10, 14), R(186000), "steel and shuttering"), (D(2025, 12, 22), R(124000), "mason contractor, first bill")]:
         b.v(d, "Payment (from a fund)", "Langar hall — %s, paid from the Langar Hall Fund" % what, [(cons, a), (lfund, a), (bank, -a), (ltr, -a)], stmt="NEFT DR–CONSTRUCTION")
     b.pay(D(2026, 3, 16), cons, bank, R(96000), "Langar hall — mason contractor, second bill (from the trust's general money)", "NEFT DR–CONSTRUCTION")
@@ -2174,18 +2253,18 @@ def build_trust():
     wrong = b.pay(D(2025, 9, 6), genx, cash, R(2800), "Fodder for the dairy, cash")
     b.fix(D(2025, 9, 20), dairy, genx, R(2800), "Entry {ref} (fodder) was written to General Expense — moved to Dairy Expense", "Journal (correction)", ref=wrong)
     b.finalize()
-    built = sum(a for v in b.vouchers for n, a in v.lines if n == "Construction A/c")   # 04 §4.3: the hall's cost to date (construction began this year)
-    b.assets_note = ("The cost of the langar hall, ₹%s to date, is charged to expenditure and is not shown as a thing owned. "
-                     "The Langar Hall Fund is money held for that purpose and is shown with the own money, beside the General Fund, not inside it." % fmt(built))
+    b.construction = ("Construction A/c", "the langar hall")
+    b.journal_word = "a thing given in kind and kept"   # 04 §4.3: the hall's cost to date (construction began this year)
+    b.assets_note = "The Langar Hall Fund is money held for that purpose and is shown with the own money, beside the General Fund, not inside it."
     b.gaps = [("Gollak Cash A/c", "money subtype cash_collection: the count records the donation (Dr Gollak · Cr Donations – gollak), emptying is a transfer (O-17-8)"),
-              ("Langar Hall Fund A/c", "an earmarked fund; spending is one action, two postings: the cost to Income & Expenditure and the same amount transferred from the fund (O-17-1); interest on the fund's deposit goes to the fund (O-17-2) — GAPS A4, E2"),
+              ("Langar Hall Fund A/c", "a fund for a purpose — the donors' money for the hall, restricted by them, not set aside by the committee (ICAI TG on NPOs ¶106); spending is one action, two postings: the cost to Income & Expenditure and the same amount transferred from the fund (O-17-1); interest on the fund's deposit goes to the fund (O-17-2) — GAPS A4, E2"),
               ("Furniture & Equipment A/c", "a thing donated and kept is entered at ₹1 with its estimated value in the note (O-17-7)"),
               ("Construction A/c", "an expense head — confirmed by the owner 13 Oct 2026, although ADR 2026-10-12 §6's asset class could hold a building at cost"),
               ("Dairy Donation A/c", "income (donations received for the dairy) — confirmed by the owner 13 Oct 2026"),
               ("R&P", "Receipts & Payments for organization books (GAPS A8)")]
     c.books = [b]
     c.demonstrates = ["gollak counts that record the donation, emptied only into cash or bank", "langar through the sewadar's advance", "Manni and Ravinder as expense heads", "construction as an expense head",
-                      "an earmarked Langar Hall Fund: donations for the hall, its fixed deposit's interest added to the fund, the hall paid from the fund in one action", "a donated thing kept at ₹1", "R&P, I&E, Balance Sheet and a statement of each fund", "a correction"]
+                      "a Langar Hall Fund for a purpose (the donors' money for the hall): donations for the hall, its fixed deposit's interest added to the fund, the hall paid from the fund in one action", "a donated thing kept at ₹1", "R&P, I&E, Balance Sheet and a statement of each fund", "a correction"]
     return c
 
 
@@ -2212,6 +2291,7 @@ def build_family():
     qe = Q4E
     # ---------------- books and accounts ------------------------------------------------------
     F = Book("Randhawa Joint Family", "joint family book", "RJ", "household")
+    F.journal_word = "money a sub-family put straight into a family business"
     F.about = "The joint family's own book · house, gold and deposits · the common kitchen · one account per sub-family, settled or carried forward · money put into the family businesses · their money sent home as family income."
     F.own_word = "Family's own money"
     F.put_note = " (by the sub-families, and their accounts settled)"
@@ -2628,7 +2708,6 @@ def build_family():
                       "and the family's 3 of 5 of the brick field's, ₹%s." % (fmt(res(G)), fmt(res(E)), fmt(kshare)))
     for bk in (F, G, E, K):
         bk.assets_note = "Things owned are shown at what they cost."
-    F.assets_note += " The businesses are shown at the money put into them, not at their worth."   # 04 §4.3, §5.8: the family's stake in its businesses
     F.gaps = [("Sub-family accounts", "a running account per sub-family inside the joint book, carried forward or settled at the year end (owner, 13 Oct 2026) — GAPS A11"),
               ("Income from …", "money a family business sends home is the family's income; money put in stays at cost (the cost method) — GAPS A11"),
               ("three-book entries", "a household paying into a family business, or paying its bill, writes in three books (household, business, joint) — GAPS A11")]
@@ -2670,7 +2749,7 @@ def render_readme(cases, mds):
     out.append("")
     out.append("**Five books, ADR 2026-10-20 §2.** The practice set had ten books; the truck operator, the farmer, the landlord, the contractor and the committee were merged into the kept five (their finished outputs are archived at "
                "`docs/archive/reference/practice-books-merged/`): the truck's vehicle loan, the driver's advance and the FASTag wallet are in the individual; the farm's KCC, arhtiya, milk and buffaloes are in Randhawa Agriculture; the landlord's improvement, "
-               "set-off, forfeiture and write-off are in Randhawa Real Estate; the contractor's retention money, mobilisation advance and supplier advance are in Bal Fabricators; the committee's earmarked fund is in the trust.")
+               "set-off, forfeiture and write-off are in Randhawa Real Estate; the contractor's retention money, mobilisation advance and supplier advance are in Bal Fabricators; the committee's fund for a purpose is in the trust.")
     out.append("")
     out.append("All five carry the owner's real names (ADR 2026-10-12 §12, extending ADR 2026-10-11 §2); the people the merged mechanics add (the driver, the foreman, the caretaker, the donors) are made-up names. Every figure is illustrative.")
     out.append("")
@@ -2704,7 +2783,7 @@ def render_readme(cases, mds):
     out.append("- **Corrections are new entries**, never edits; each correction's note names the entry it fixes, with its number and date (O-11-2, O-11-5).")
     out.append("- **The year close is posted by the book itself** (O-19-1): income and expense heads to the result; the result and the drawings to own money; for both partnerships (Bal Fabricators and Randhawa Brick Field) through a posted P&L Appropriation Account to each partner — "
                "interest on capital only where the partners agreed it (Bal Fabricators does, 6% a year on fixed capital; Randhawa Brick Field does not) and only out of profit (O-14-1…O-14-3); the trust's surplus or deficit to the General Fund; the joint family's to its own money. "
-               "The entries are printed in the year-end section (numbers ending Y1, Y2 …) and on the last rows of the ledgers they touch; the carry-forward then opens with one own-money figure for each owner (O-19-6).")
+               "The entries are printed in the year-end section (numbers ending Y1, Y2 …) and on the last rows of the ledgers they touch; the carry-forward then opens with one own-money figure for each owner; a partnership with fixed capital carries each partner's capital and current account at its own balance (04 §2.6, O-19-1).")
     out.append("- **Own business, and a business owned by another book** (O-13-4, O-15-3): the owner's personal book holds the business as one account at the money put in; money the business sends home is *Income from {business}* (the cost method), the same as the joint family's. "
                "A household's statement is *Income & Expenses*, its result *Saving* or *Spent more than came in*; loans, money returned, transfers between own accounts and a matured deposit are never income (O-13-5).")
     out.append("- **A fund is money for one purpose** (O-17-1, O-17-2): gifts for it and its deposit's interest are added to it; spending from it is one action — the cost is charged to Income & Expenditure and the same amount is moved out of the fund (two postings in the technical companion). "
@@ -2771,7 +2850,7 @@ def render_readme(cases, mds):
     out.append("- `python3 -I build.py` in this folder regenerates every file (`--no-pdf` skips Chrome and the page check; `--chrome PATH`; `--skip-check` skips the checker). Standard library only, integer paise, no clock, no randomness; "
                "two runs give byte-identical `.md`, `.html` and `.tech.md` (PDF dates and ids are pinned too).")
     out.append("- **`build.py` asserts** on every run: every entry sums to zero with at least two lines and no account twice; money in/out touches a money account and no-money entries do not (a Money out may also credit an advance it recovers or the lender's part of a purchase); a transfer joins two own money/deposit accounts; "
-               "spending from a fund charges the year and moves the same amount out of the fund; the gollak is filled only by a count and emptied only into cash or bank; openings and the trial balance balance; cash, bank and wallet never go negative; advances, loans given, retention, things owned and deposits are never over-settled; fixed capital never moves; "
+               "spending from a fund charges the year and moves the same amount out of the fund; the gollak is filled only by a count and emptied only into cash or bank; openings and the trial balance balance; cash, bank and wallet never go negative, a credit card never goes past nil; advances, loans given, retention, things owned and deposits are never over-settled; fixed capital never moves; "
                "every year-close entry balances and leaves every head, the drawings and the result account at nil; the position make-up equals the position at both dates; the balance sheet balances; the carry-forward sums to zero; every inter-book pair agrees entry for entry; the entry count is in range; no book prints on more than 14 pages.")
     out.append("- **`check_md.py`** (no code shared with `build.py`) re-derives every printed figure from the markdown: chart, Day Book, every ledger row (including the year-close rows), the Cash Book, the bank extract, both positions and their make-up, the one-month summary (and that it does not repeat the entries), "
                "the chosen-period statement, the ageing, the trial balance, the year's statement, each fund's statement, the appropriation (interest from the printed rate and capital; each share within a paisa of the exact ratio, and posted to the partners' accounts), Receipts & Payments, the year-close entries, the balance sheet and partners' table, "

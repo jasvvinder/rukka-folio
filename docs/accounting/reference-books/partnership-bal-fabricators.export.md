@@ -59,7 +59,7 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 23 Jan 2026 | BF-045 | Money in | Punjab & Sind Bank Current A/c | Sandhu Builders A/c | 2,54,000 | Sandhu Builders paid running bill 3 less the 5% held back and ₹50,000 of the advance |
 | 02 Feb 2026 | BF-046 | Money out | Current A/c – Harjeet Singh | Punjab & Sind Bank Current A/c | 50,000 | Drawings of Harjeet Singh |
 | 02 Feb 2026 | BF-047 | Money out | Advance – Gurmeet Singh (foreman) A/c | Punjab & Sind Bank Current A/c | 20,000 | Labour money to the foreman for the Sunny Enclave railings |
-| 15 Feb 2026 | BF-048 | Retention released — no money moved | Sandhu Builders A/c | Retention held by – Sandhu Builders A/c | 15,000 | Retention of running bill 1 (₹15,000) released by Sandhu Builders after the defect period — moved to his khata |
+| 15 Feb 2026 | BF-048 | Retention released — no money moved | Sandhu Builders A/c | Retention held by – Sandhu Builders A/c | 15,000 | Retention of running bill 1 (₹15,000) released by Sandhu Builders — the work of that bill accepted; moved to his khata |
 | 16 Feb 2026 | BF-049 | Paid by a partner — no money moved | Electricity A/c | Current A/c – Pradeep Bal | 33,800 | Workshop electricity, September–January, paid by Pradeep Bal from his own account |
 | 06 Mar 2026 | BF-050 | Money in | Punjab & Sind Bank Current A/c | Sandhu Builders A/c | 15,000 | Sandhu Builders paid the released retention |
 | 28 Mar 2026 | BF-051 | Advance settled — no money moved | Wages A/c ₹11,800<br>Steel & Material A/c ₹6,200<br>Written off A/c ₹1,000 | Advance – Gurmeet Singh (foreman) A/c | 19,000 | Foreman's slips for the Sunny Enclave railings set against his advance — ₹1,000 of slips lost, written off; ₹1,700 stays with him |
@@ -124,4 +124,4 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 31 Mar 2026 | BF-053 | By Wages A/c<br><em>Wages of the welders and helpers, January–March 2026</em> | — | — | — | 1,24,000 | 5,800 | 8,86,100 |
 | 31 Mar 2026 |  | **Month total — March 2026 · closing balance** | **0** | **15,000** | **0** | **1,24,000** | **5,800** | **8,86,100** |
 
-*On 31 Mar 2026: Cash A/c ₹5,800 · Punjab & Sind Bank Current A/c ₹8,86,100 — the same as in section 2.*
+*On 31 Mar 2026: Cash A/c ₹5,800 · Punjab & Sind Bank Current A/c ₹8,86,100 — the same as the closing balances in the ledgers of the printed book (its section 2).*

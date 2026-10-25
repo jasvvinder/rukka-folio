@@ -12,6 +12,76 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-25 — docs: accounting panel on the trust book; every confirmed finding applied through build.py
+
+**Changed**
+- `/acct-review book trust` (40 agents, 2.49 M tokens, 17 min): 36 findings, 11 confirmed (7 distinct issues), 25 refuted. The owner ruled "fix all". Reports: `.claude/lane-reports/acct-book-trust-*.json`.
+- `reference-books/build.py`:
+  - Construction note (AU-1/CA-1/MU-6, major): *The cost of the langar hall, ₹{x} to date, is charged to expenditure and is not shown as a thing owned.* now stands at the foot of every report that gives the result (04 §4.3, 02 §5.8, 03 §5.7): 3.1 (₹1,48,000), 3.2 (₹5,54,000), the October summary (₹3,34,000), the I&E and the balance sheet. It was printed only under the balance sheet, inside `assets_note`. New `Book.construction` and `built_to()`; `foot_notes()` takes the report's date. It follows the shop's no-stock note, not the things-owned note, so it is not on the trial balance or the ledgers.
+  - Position sentence (AU-6/CA-8/EN-2): in a book with funds, "…less what I will give and less the funds held for a purpose, is the General Fund." The trust's carry-forward says "the General Fund and each fund open at one figure each" instead of "one figure for each owner".
+  - Receipts & Payments (CA-4): two sides, receipts (*To …*) on the left and payments (*By …*) on the right, totals level at the foot, as 04 §6.7 says.
+  - Column words (CA-9): things owned *Bought / received (Dr) · Sold / gone (Cr)*; deposits *Kept aside / interest added (Dr) · Taken back (Cr)*. All five books.
+  - "Earmarked" (CA-7): the hall fund is the donors' money for a purpose; in the ICAI Technical Guide on NPOs (¶106) "earmarked" is a fund the trustees set aside themselves. Now "a fund for a purpose" in the book, the tech companion's class (*Capital (fund for a purpose)*), README, GAPS A4 and COVERAGE.
+  - Kinds of entry (AU-12): the tech companion's basis line is derived from each book's entries (`ENTRY_KINDS`, `entry_kinds()`; an unmapped voucher type fails the build), so it names RS-045 (a thing given in kind and kept) and RS-050 (interest the bank adds to a deposit). The old fixed list was also wrong for the other books (a partner's own-pocket payment in the shop; write-offs, set-offs, forfeits, retention and family entries missing).
+  - Deposit wording (CA-6; AU-2, MU-1 and EN-1 were refuted on the same point): the fixed deposit is no longer said to "belong to" the fund once it holds more than the fund. Its interest still goes to the fund (03 §5.6, O-17-2); no posting changes.
+- `check_md.py`: the R&P read as two sides (header, side of each line, both totals level); the construction note required exactly where the cost to the report's date is not nil, with that cost. The committed books fail 8 checks under the new rules; the rebuilt books pass.
+- `GAPS.md` A8 (two-sided R&P, the construction note) and column words; A4 heading and §G item 6 reworded.
+- Build: 21,929 checks, 0 problems. Pages unchanged (trust 14).
+
+**Open**
+- Bookkeeper questions MU-Q1–Q4 (cement and mason bills paid from general money while the fund held money; interest on a current account vs a savings account; no langar July–September and quarterly advance settlement; a gollak deposit dated 2 Oct, a bank holiday) → PLAN-209.
+- Panel run still to do: joint family.
+
+**Commits**
+- (fill in)
+
+## 2026-10-24 — docs: accounting panel on the partnership book; every confirmed finding applied through build.py
+
+**Changed**
+- `/acct-review book partnership` (32 agents, 2.08 M tokens, 17 min): 28 findings, 8 confirmed (6 distinct issues), 20 refuted (all 7 of the munim's). The owner ruled "fix all six". Reports: `.claude/lane-reports/acct-book-partnership-*.json`.
+- `reference-books/build.py`:
+  - Partners' table (CA-2): one row per partner's account, with Opening · + Put in · + Interest on capital · + Share of profit · − Drawings · Closing, as 04 §6.5 lists. The drawings (₹1,50,000 each) and the own-pocket payments (₹8,500, ₹33,800) are now visible. The partner's total stays in the balance sheet. The brick field's table in the joint family's book follows.
+  - Profit-split remainder (CA-10): the leftover paise go to the partner with the largest ratio, ties to the earliest partner account, per 02 §7.1 🔒. The old rule gave them one each in listed order. No book has a remainder, so no figure changes. The tech companion's sentence says the same.
+  - Cast (AU-5/CA-8/EN-1): Harjeet "draws as much as the others, more than his share of the profit"; Pradeep's line notes that Sukhwinder also paid once from his pocket. The README describes a current account that "stays on the Dr side after his interest and share".
+  - Retention (AU-6): held back "until the work of that bill is accepted" throughout. BF-048's note says the work of bill 1 was accepted; the position note says the same.
+  - Cash Book foot (AU-8): "the same as the closing balances in the ledgers of the printed book (its section 2)". All five exports.
+  - README year-close line (EN-2): a fixed-capital partnership carries each partner's capital and current account at its own balance (04 §2.6, O-19-1, not O-19-6).
+- `check_md.py`: the partners' table re-derived account by account (opening, put in, interest, share, drawings, closing after the close; every partner account exactly once). The committed books fail it.
+- `GAPS.md` A13 and B1: the carry-forward and the partners' table described as they now are.
+- Build: 21,835 checks, 0 problems. Pages unchanged (partnership 14).
+
+**Open**
+- Bookkeeper questions MU-Q1–Q7 (mobilisation advance in its own account; welders paid quarterly; lost slips to Wages or Written off; a partner's Dr current account on the assets side; five months' electricity at once; retention bill by bill; a "steel treated as used" note) → PLAN-209.
+- Panel runs still to do: trust, joint family.
+
+**Commits**
+- (fill in)
+
+## 2026-10-24 — docs: accounting panel on the individual book; every confirmed finding applied through build.py
+
+**Changed**
+- `/acct-review book individual` (auditor, CA, munim, entities; 36 agents, 2.34 M tokens, 16 min): 31 findings, 14 confirmed (8 distinct issues), 17 refuted. The owner ruled "do and fix all". Reports: `.claude/lane-reports/acct-book-individual-*.json`.
+- `reference-books/build.py`:
+  - Credit card overpaid by ₹16,500 (AU-1/CA-1/MU-1): the 18 Jun bill (JP-009) is now ₹9,800, the May spend it pays; the ₹18,600 bill is paid on 17 Dec, after the 10 Nov insurance spend. The card ends the year at nil, no longer under *What I have*. Moving the payment renumbers JP-025…032; `GAPS.md` and `COVERAGE.md` are remapped by script.
+  - A card never stands on the Dr side: `validate_balances` asserts it, and `check_md.py` checks every card ledger row.
+  - Stake note (AU-2/CA-2/EN-3): *The business is shown at the money put into it, not at its worth.* is printed at the foot of every position that shows money put into a business (04 §4.3): 3.1, 3.2 and 4.4 in the personal book and in the joint family's book (plural wording there). It is no longer carried in `assets_note`.
+  - Cash Book particulars (MU-2/AU-5): a cash or bank row names the accounts on the other side of the money that moved, taken from that account's ledger row. An advance recovered, a lender's part or a fund's transfer stays in the note. This also changes the shop (S-028) and the trust (RS-028, RS-035).
+  - Technical companion (CA-6): the formal voucher type is Contra only for cash ↔ bank (02 §1.3). Card bills, wallet loads and deposits made are Payment, a matured deposit is Receipt. The app verb stays *transfer*. Individual: Contra 4 · Payment 31 · Receipt 11.
+  - Column words (EN-7): income heads *Returned / closed (Dr)*, expense heads *Got back / closed (Cr)*. All five books.
+  - Boilerplate (AU-7): the ledger and carry-forward intros name the drawings only in a book that keeps a Drawings account; the pair summary names a family and sub-family only where such a pair exists, and an owner and business only where a stake exists.
+  - Grocer's khata "settled every six months" (AU-6/CA-8/MU-4).
+- `check_md.py`: the stake note (singular and plural) exactly when it applies, on positions and the balance sheet; Cash Book particulars equal the money account's ledger particulars; no card past nil. Mutation test: the committed books fail 21 checks under the new rules, the rebuilt books pass.
+- `docs/accounting/03-entities.md` §1 intro (EN-6): the business book holds the business's money and records the owner's dealings only where money moves between the business and its owner.
+- `GAPS.md` column words updated. Build: 21,817 checks, 0 problems. Pages unchanged: individual 14 + 11, shop 13, partnership 14, trust 14, joint family 9–13.
+- `PLAN.md` PLAN-209 records the shop and individual runs.
+
+**Open**
+- Bookkeeper questions MU-Q1–Q6 (a grocer's khata monthly, not half-yearly; wages monthly, not quarterly; the driver's ₹1,800 left open; FASTag tolls counted twice; LIC endowment premium as an expense or a saving; FD interest at maturity) → PLAN-209, `.claude/lane-reports/acct-book-individual-acct-munim.json`.
+- Panel runs still to do: partnership, trust, joint family.
+
+**Commits**
+- (fill in)
+
 ## 2026-10-22 — docs: accounting panel on the shop book; every confirmed finding applied through build.py to all five reference books
 
 **Changed**
@@ -34,7 +104,7 @@ Running record of what changed in this repository and in the development environ
 - Panel runs still to do: individual, partnership, trust, then joint family (one per day from 23 Oct).
 
 **Commits**
-- (fill in)
+- `1dec029`
 
 ## 2026-10-22 — docs: accounting panel runs on 03, 04, 05; every confirmed finding ruled and applied to 03, 04, 05 and the reference books
 

@@ -106,7 +106,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 31 Aug 2025 |  | **Month total — August 2025 · closing balance** | **0** | **0** | **3,200** | **2,03,400** | **18,200** | **3,08,100** |
 | 30 Sep 2025 | S-024 | To Sales A/c<br><em>Counter sales in cash, July–September 2025 (from the daily cash memo book)</em> | 3,42,500 | — | — | — | 3,60,700 | 3,08,100 |
 | 30 Sep 2025 | S-025 | Cash A/c to PNB Current A/c<br><em>Counter cash deposited in the bank</em> | — | 3,36,500 | 3,36,500 | — | 24,200 | 6,44,600 |
-| 30 Sep 2025 | S-028 | By Salary A/c / To Advance – Manpreet Kaur A/c<br><em>Salary of Manpreet Kaur, July–September 2025 — ₹10,000 of it recovered from her advance, the rest paid</em> | — | — | — | 44,000 | 24,200 | 6,00,600 |
+| 30 Sep 2025 | S-028 | By Salary A/c<br><em>Salary of Manpreet Kaur, July–September 2025 — ₹10,000 of it recovered from her advance, the rest paid</em> | — | — | — | 44,000 | 24,200 | 6,00,600 |
 | 30 Sep 2025 |  | **Month total — September 2025 · closing balance** | **3,42,500** | **3,36,500** | **3,36,500** | **44,000** | **24,200** | **6,00,600** |
 | 03 Oct 2025 | S-029 | By Shop Rent A/c<br><em>Shop rent, October–December 2025</em> | — | — | — | 45,000 | 24,200 | 5,55,600 |
 | 09 Oct 2025 | S-030 | By Supreme Pipes Ltd A/c<br><em>Supreme Pipes paid — goods of July–September 2025</em> | — | — | — | 3,01,500 | 24,200 | 2,54,100 |
@@ -137,4 +137,4 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 31 Mar 2026 | S-056 | To Cash short / over A/c<br><em>Counter cash counted ₹300 more than the cash book — got back to Cash short / over</em> | 300 | — | — | — | 45,250 | 8,86,720 |
 | 31 Mar 2026 |  | **Month total — March 2026 · closing balance** | **3,98,800** | **3,92,500** | **3,92,500** | **55,180** | **45,250** | **8,86,720** |
 
-*On 31 Mar 2026: Cash A/c ₹45,250 · PNB Current A/c ₹8,86,720 — the same as in section 2.*
+*On 31 Mar 2026: Cash A/c ₹45,250 · PNB Current A/c ₹8,86,720 — the same as the closing balances in the ledgers of the printed book (its section 2).*

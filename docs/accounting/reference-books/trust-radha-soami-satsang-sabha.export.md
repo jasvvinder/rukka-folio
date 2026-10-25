@@ -61,7 +61,7 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 18 Feb 2026 | RS-047 | Money out | Dairy Expense A/c | SBI Current A/c | 16,200 | Fodder and feed for the dairy |
 | 21 Feb 2026 | RS-048 | Money in | SBI Current A/c | Donation A/c | 31,000 | Donation from an NRI family |
 | 16 Mar 2026 | RS-049 | Money out | Construction A/c | SBI Current A/c | 96,000 | Langar hall — mason contractor, second bill (from the trust's general money) |
-| 20 Mar 2026 | RS-050 | Interest added to a deposit — no money moved | SBI Fixed Deposit (Langar Hall Fund) A/c | Langar Hall Fund A/c | 14,000 | Yearly interest added by the bank to the Langar Hall Fund's fixed deposit — belongs to the fund |
+| 20 Mar 2026 | RS-050 | Interest added to a deposit — no money moved | SBI Fixed Deposit (Langar Hall Fund) A/c | Langar Hall Fund A/c | 14,000 | Yearly interest added by the bank to the deposit made from the langar hall donations — added to the Langar Hall Fund |
 | 29 Mar 2026 | RS-051 | Money in | Gollak Cash A/c | Donations – gollak A/c | 95,750 | Gollak counted by Amritpal Singh, witnessed by Ranjeet Singh (note-count sheet 6) |
 | 30 Mar 2026 | RS-052 | Transfer | SBI Current A/c | Gollak Cash A/c | 95,750 | Gollak deposited in the bank |
 | 31 Mar 2026 | RS-053 | Money in | SBI Current A/c | Bank Interest A/c | 6,840 | Interest credited by the bank |
@@ -106,7 +106,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 30 Sep 2025 |  | **Month total — September 2025 · closing balance** | **50,000** | **0** | **55,300** | **1,69,400** | **63,300** | **4,58,650** |
 | 01 Oct 2025 | RS-026 | By Advance – Amritpal Singh A/c<br><em>Langar advance to Amritpal Singh</em> | — | — | — | 90,000 | 63,300 | 3,68,650 |
 | 02 Oct 2025 | RS-027 | To Gollak Cash A/c<br><em>Rest of the gollak deposited in the bank</em> | — | 19,850 | — | — | 63,300 | 3,88,500 |
-| 14 Oct 2025 | RS-028 | By Construction A/c / By Langar Hall Fund A/c / To Transferred from the Langar Hall Fund A/c<br><em>Langar hall — steel and shuttering, paid from the Langar Hall Fund</em> | — | — | — | 1,86,000 | 63,300 | 2,02,500 |
+| 14 Oct 2025 | RS-028 | By Construction A/c<br><em>Langar hall — steel and shuttering, paid from the Langar Hall Fund</em> | — | — | — | 1,86,000 | 63,300 | 2,02,500 |
 | 20 Oct 2025 | RS-029 | By Dairy Expense A/c<br><em>Fodder and feed for the dairy</em> | — | — | — | 12,800 | 63,300 | 1,89,700 |
 | 31 Oct 2025 |  | **Month total — October 2025 · closing balance** | **0** | **19,850** | **0** | **2,88,800** | **63,300** | **1,89,700** |
 | 04 Nov 2025 | RS-030 | By Labour A/c<br><em>Daily-wage labour for the Gurpurab diwan, cash</em> | — | — | 18,000 | — | 45,300 | 1,89,700 |
@@ -114,7 +114,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 30 Nov 2025 |  | **Month total — November 2025 · closing balance** | **0** | **1,10,000** | **18,000** | **0** | **45,300** | **2,99,700** |
 | 01 Dec 2025 | RS-033 | To Gollak Cash A/c<br><em>Gollak deposited in the bank</em> | — | 1,12,600 | — | — | 45,300 | 4,12,300 |
 | 08 Dec 2025 | RS-034 | To Dairy Donation A/c<br><em>Donation for the dairy</em> | — | 15,000 | — | — | 45,300 | 4,27,300 |
-| 22 Dec 2025 | RS-035 | By Construction A/c / By Langar Hall Fund A/c / To Transferred from the Langar Hall Fund A/c<br><em>Langar hall — mason contractor, first bill, paid from the Langar Hall Fund</em> | — | — | — | 1,24,000 | 45,300 | 3,03,300 |
+| 22 Dec 2025 | RS-035 | By Construction A/c<br><em>Langar hall — mason contractor, first bill, paid from the Langar Hall Fund</em> | — | — | — | 1,24,000 | 45,300 | 3,03,300 |
 | 29 Dec 2025 | RS-036 | SBI Current A/c to Cash A/c<br><em>Cash withdrawn for wages (cheque, self)</em> | 45,000 | — | — | 45,000 | 90,300 | 2,58,300 |
 | 31 Dec 2025 | RS-037 | By Manni Labour A/c<br><em>Manni's wages, October–December 2025, cash</em> | — | — | 27,000 | — | 63,300 | 2,58,300 |
 | 31 Dec 2025 | RS-038 | By Ravinder Labour A/c<br><em>Ravinder's wages, October–December 2025, cash</em> | — | — | 25,500 | — | 37,800 | 2,58,300 |
@@ -135,4 +135,4 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 31 Mar 2026 | RS-055 | By Ravinder Labour A/c<br><em>Ravinder's wages, January–March 2026, cash</em> | — | — | 25,500 | — | 35,300 | 2,62,190 |
 | 31 Mar 2026 |  | **Month total — March 2026 · closing balance** | **0** | **1,02,590** | **52,500** | **96,000** | **35,300** | **2,62,190** |
 
-*On 31 Mar 2026: Cash A/c ₹35,300 · SBI Current A/c ₹2,62,190 — the same as in section 2.*
+*On 31 Mar 2026: Cash A/c ₹35,300 · SBI Current A/c ₹2,62,190 — the same as the closing balances in the ledgers of the printed book (its section 2).*

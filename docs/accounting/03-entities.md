@@ -19,7 +19,7 @@ Plain words used throughout: *Money in, Money out, Received, Spent, You will get
 
 ## 1. Sole proprietor and household
 
-A sole proprietor keeps the business as one book and himself as another. The business book holds only money that moves between the business and its owner; the owner's own life stays in his own (household) book. A household book has no profit: its result is a saving.
+A sole proprietor keeps the business as one book and himself as another. The business book holds the business's money; it records the owner's dealings only where money moves between the business and its owner. The owner's own life stays in his own (household) book. A household book has no profit: its result is a saving.
 
 ### 1.1 The owner and the business are two books
 

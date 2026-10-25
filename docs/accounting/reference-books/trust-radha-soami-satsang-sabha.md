@@ -14,7 +14,7 @@ Amounts are in ₹; paise are shown only when there are paise. Plain words come 
 
 ## Book: Radha Soami Satsang Sabha — trust book
 
-Trust book · gollak counted and emptied into cash or bank · langar through the sewadar's advance · dairy · construction as an expense · an earmarked Langar Hall Fund with its deposit and interest · two labourers with their own heads.
+Trust book · gollak counted and emptied into cash or bank · langar through the sewadar's advance · dairy · construction as an expense · a Langar Hall Fund (the donors' money for the hall) with its deposit and interest · two labourers with their own heads.
 
 ### 1. Accounts and opening balances
 
@@ -27,7 +27,7 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 | 1 | Cash A/c | Cash | The trust's cash box, with the secretary | 22,000 | — |
 | 2 | Gollak Cash A/c | Gollak | The gollak — counted every two months, emptied only into the cash box or the bank | — | — |
 | 3 | SBI Current A/c | Bank | The trust's current account | 4,85,000 | — |
-| 4 | SBI Fixed Deposit (Langar Hall Fund) A/c | Deposit | Fixed deposit made from the langar hall donations — belongs to the Langar Hall Fund | 2,00,000 | — |
+| 4 | SBI Fixed Deposit (Langar Hall Fund) A/c | Deposit | Fixed deposit made from the langar hall donations — its interest goes to the Langar Hall Fund | 2,00,000 | — |
 | 5 | Advance – Amritpal Singh A/c | Advance | Langar money with the sewadar, accounted for with bills | — | — |
 | 6 | Kotli Cement Store A/c | Person / shop | Building-material store (khata) — cement and bricks for the hall | — | — |
 | 7 | Furniture & Equipment A/c | Thing owned | Things given to the trust and kept, at ₹1 each — the estimated value is in the entry's note | — | — |
@@ -51,7 +51,7 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 
 *Radha Soami Satsang Sabha · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-One account after another: date, entry number, the other account (*To …* on the Dr side, *By …* on the Cr side) with the entry's note in small type, the amount on its side, the running balance and its side. Accounts that carry a balance open with *Opening balance b/f* and end *Closing balance c/d · Total · Opening balance b/d*, the opening and closing balances standing in the amount column of their side so that each column adds up to the Total; income and expense accounts end with their total for the year. The last rows of the heads, the drawings and the own-money accounts are the year-close entries (numbers ending Y1, Y2 …) that the book makes itself on 31 Mar 2026 — they are listed in section 4.
+One account after another: date, entry number, the other account (*To …* on the Dr side, *By …* on the Cr side) with the entry's note in small type, the amount on its side, the running balance and its side. Accounts that carry a balance open with *Opening balance b/f* and end *Closing balance c/d · Total · Opening balance b/d*, the opening and closing balances standing in the amount column of their side so that each column adds up to the Total; income and expense accounts end with their total for the year. The last rows of the heads and the own-money accounts are the year-close entries (numbers ending Y1, Y2 …) that the book makes itself on 31 Mar 2026 — they are listed in section 4.
 
 #### Cash A/c
 
@@ -142,10 +142,10 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### SBI Fixed Deposit (Langar Hall Fund) A/c
 
-| Date | No. | Particulars | Kept aside (Dr) | Taken back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Kept aside / interest added (Dr) | Taken back (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | 2,00,000 | — | 2,00,000 | Dr |
-| 20 Mar 2026 | RS-050 | To Langar Hall Fund A/c<br><em>Yearly interest added by the bank to the Langar Hall Fund's fixed deposit — belongs to the fund</em> | 14,000 | — | 2,14,000 | Dr |
+| 20 Mar 2026 | RS-050 | To Langar Hall Fund A/c<br><em>Yearly interest added by the bank to the deposit made from the langar hall donations — added to the Langar Hall Fund</em> | 14,000 | — | 2,14,000 | Dr |
 | 31 Mar 2026 |  | Closing balance c/d | — | 2,14,000 | — | — |
 |  |  | **Total** | **2,14,000** | **2,14,000** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | 2,14,000 | — | 2,14,000 | Dr |
@@ -178,7 +178,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Furniture & Equipment A/c
 
-| Date | No. | Particulars | Bought (Dr) | Sold (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Bought / received (Dr) | Sold / gone (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | — | 0 | — |
 | 08 Feb 2026 | RS-045 | To Donation A/c<br><em>A family gave a steel almirah for the office — kept by the trust, entered at ₹1; estimated value ₹18,000</em> | 1 | — | 1 | Dr |
@@ -196,7 +196,7 @@ One account after another: date, entry number, the other account (*To …* on th
 | 14 Oct 2025 | RS-028 | To Transferred from the Langar Hall Fund A/c<br><em>Langar hall — steel and shuttering, paid from the Langar Hall Fund</em> | 1,86,000 | — | 1,40,000 | Cr |
 | 22 Dec 2025 | RS-035 | To Transferred from the Langar Hall Fund A/c<br><em>Langar hall — mason contractor, first bill, paid from the Langar Hall Fund</em> | 1,24,000 | — | 16,000 | Cr |
 | 20 Jan 2026 | RS-041 | By SBI Current A/c<br><em>Donation from a family in memory of an elder, for the langar hall — to the Langar Hall Fund</em> | — | 31,000 | 47,000 | Cr |
-| 20 Mar 2026 | RS-050 | By SBI Fixed Deposit (Langar Hall Fund) A/c<br><em>Yearly interest added by the bank to the Langar Hall Fund's fixed deposit — belongs to the fund</em> | — | 14,000 | 61,000 | Cr |
+| 20 Mar 2026 | RS-050 | By SBI Fixed Deposit (Langar Hall Fund) A/c<br><em>Yearly interest added by the bank to the deposit made from the langar hall donations — added to the Langar Hall Fund</em> | — | 14,000 | 61,000 | Cr |
 | 31 Mar 2026 |  | Closing balance c/d | 61,000 | — | — | — |
 |  |  | **Total** | **3,71,000** | **3,71,000** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | 61,000 | 61,000 | Cr |
@@ -213,7 +213,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Donations – gollak A/c
 
-| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 31 May 2025 | RS-004 | By Gollak Cash A/c<br><em>Gollak counted by Amritpal Singh, witnessed by Ranjeet Singh (note-count sheet 1)</em> | — | 86,450 | 86,450 | Cr |
 | 31 Jul 2025 | RS-014 | By Gollak Cash A/c<br><em>Gollak counted by Amritpal Singh, witnessed by Ranjeet Singh (note-count sheet 2)</em> | — | 74,200 | 1,60,650 | Cr |
@@ -226,7 +226,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Transferred from the Langar Hall Fund A/c
 
-| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 14 Oct 2025 | RS-028 | By Langar Hall Fund A/c<br><em>Langar hall — steel and shuttering, paid from the Langar Hall Fund</em> | — | 1,86,000 | 1,86,000 | Cr |
 | 22 Dec 2025 | RS-035 | By Langar Hall Fund A/c<br><em>Langar hall — mason contractor, first bill, paid from the Langar Hall Fund</em> | — | 1,24,000 | 3,10,000 | Cr |
@@ -235,7 +235,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Donation A/c
 
-| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 14 Apr 2025 | RS-002 | By SBI Current A/c<br><em>Donation from a family on Baisakhi</em> | — | 51,000 | 51,000 | Cr |
 | 09 Aug 2025 | RS-016 | By SBI Current A/c<br><em>Donation from a sponsor for the monthly satsang</em> | — | 25,000 | 76,000 | Cr |
@@ -247,7 +247,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Dairy Donation A/c
 
-| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 12 Jun 2025 | RS-007 | By Cash A/c<br><em>Donation for the dairy (cow feed), cash</em> | — | 4,100 | 4,100 | Cr |
 | 08 Dec 2025 | RS-034 | By SBI Current A/c<br><em>Donation for the dairy</em> | — | 15,000 | 19,100 | Cr |
@@ -256,7 +256,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Bank Interest A/c
 
-| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 31 Mar 2026 | RS-053 | By SBI Current A/c<br><em>Interest credited by the bank</em> | — | 6,840 | 6,840 | Cr |
 |  |  | **Total for the year** | **—** | **6,840** | **6,840** | **Cr** |
@@ -264,7 +264,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Construction A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 18 Jul 2025 | RS-013 | To Kotli Cement Store A/c<br><em>Langar hall — cement and bricks on the store's khata</em> | 1,48,000 | — | 1,48,000 | Dr |
 | 14 Oct 2025 | RS-028 | To SBI Current A/c<br><em>Langar hall — steel and shuttering, paid from the Langar Hall Fund</em> | 1,86,000 | — | 3,34,000 | Dr |
@@ -275,7 +275,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### General Expense A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 06 Sep 2025 | RS-018 | To Cash A/c<br><em>Fodder for the dairy, cash</em> | 2,800 | — | 2,800 | Dr |
 | 15 Sep 2025 | RS-020 | To SBI Current A/c<br><em>Electricity, April–August</em> | 21,400 | — | 24,200 | Dr |
@@ -286,7 +286,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Dairy Expense A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 20 Jun 2025 | RS-008 | To SBI Current A/c<br><em>Fodder and feed for the dairy</em> | 14,600 | — | 14,600 | Dr |
 | 20 Sep 2025 | RS-021 | To General Expense A/c<br><em>Entry RS-018 of 06 Sep 2025 (fodder) was written to General Expense — moved to Dairy Expense</em> | 2,800 | — | 17,400 | Dr |
@@ -297,7 +297,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Labour A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 04 Nov 2025 | RS-030 | To Cash A/c<br><em>Daily-wage labour for the Gurpurab diwan, cash</em> | 18,000 | — | 18,000 | Dr |
 |  |  | **Total for the year** | **18,000** | **—** | **18,000** | **Dr** |
@@ -305,7 +305,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Manni Labour A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 30 Jun 2025 | RS-010 | To Cash A/c<br><em>Manni's wages, April–June 2025, cash</em> | 27,000 | — | 27,000 | Dr |
 | 30 Sep 2025 | RS-024 | To Cash A/c<br><em>Manni's wages, July–September 2025, cash</em> | 27,000 | — | 54,000 | Dr |
@@ -316,7 +316,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Ravinder Labour A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 30 Jun 2025 | RS-011 | To Cash A/c<br><em>Ravinder's wages, April–June 2025, cash</em> | 25,500 | — | 25,500 | Dr |
 | 30 Sep 2025 | RS-025 | To Cash A/c<br><em>Ravinder's wages, July–September 2025, cash</em> | 25,500 | — | 51,000 | Dr |
@@ -327,7 +327,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Langar A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 30 Jun 2025 | RS-012 | To Advance – Amritpal Singh A/c<br><em>Amritpal Singh's langar bills set against his advance</em> | 58,650 | — | 58,650 | Dr |
 | 31 Dec 2025 | RS-039 | To Advance – Amritpal Singh A/c<br><em>Amritpal Singh's langar bills set against his advance</em> | 88,400 | — | 1,47,050 | Dr |
@@ -343,7 +343,7 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 *Radha Soami Satsang Sabha · on 30 Sep 2025 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-Every account with a balance on 30 Sep 2025, placed on the side its balance falls. What I have plus what I will get, less what I will give, is the general fund.
+Every account with a balance on 30 Sep 2025, placed on the side its balance falls. What I have plus what I will get, less what I will give and less the funds held for a purpose, is the General Fund.
 
 |  | Account | Have / will get ₹ | Will give / funds ₹ |
 |:---|:---|---:|---:|
@@ -370,11 +370,13 @@ Every account with a balance on 30 Sep 2025, placed on the side its balance fall
 | − Result so far (deficit) | 39,850 |
 | **= General Fund now** | **4,17,150** |
 
+The cost of the langar hall, ₹1,48,000 to date, is charged to expenditure and is not shown as a thing owned.
+
 #### 3.2 Full position on 31 Mar 2026 — year end
 
 *Radha Soami Satsang Sabha · on 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-Every account with a balance on 31 Mar 2026, placed on the side its balance falls. What I have plus what I will get, less what I will give, is the general fund.
+Every account with a balance on 31 Mar 2026, placed on the side its balance falls. What I have plus what I will get, less what I will give and less the funds held for a purpose, is the General Fund.
 
 |  | Account | Have / will get ₹ | Will give / funds ₹ |
 |:---|:---|---:|---:|
@@ -400,6 +402,8 @@ Every account with a balance on 31 Mar 2026, placed on the side its balance fall
 | − Taken out so far | 0 |
 | − Result so far (deficit) | 5,409 |
 | **= General Fund now** | **4,51,591** |
+
+The cost of the langar hall, ₹5,54,000 to date, is charged to expenditure and is not shown as a thing owned.
 
 Things owned are shown at what they cost; no depreciation is charged.
 
@@ -431,6 +435,8 @@ Every account's balance on 01 Oct 2025, what went on its Dr side and its Cr side
 | **Total of the month's entries** |  |  | **4,94,650** | **4,94,650** |  |  |
 
 *October 2025 in brief: income ₹1,86,000 · spent ₹1,98,800 · deficit ₹12,800.*
+
+The cost of the langar hall, ₹3,34,000 to date, is charged to expenditure and is not shown as a thing owned.
 
 #### 3.4 One account for a chosen period — Gollak Cash A/c, 01 Apr 2025 to 31 Mar 2026
 
@@ -513,29 +519,20 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 The cash book and the bank together: opening cash and bank, everything received and paid by account (things bought included), closing cash and bank. Money moved between own cash, gollak and bank is neither a receipt nor a payment and is left out; a cost paid from a fund is a payment of the cost.
 
-| Side | Particulars | ₹ |
-|:---|:---|---:|
-| Receipts | To Opening balance — Cash A/c | 22,000 |
-| Receipts | To Opening balance — Gollak Cash A/c | 0 |
-| Receipts | To Opening balance — SBI Current A/c | 4,85,000 |
-| Receipts | To Langar Hall Fund A/c | 1,07,000 |
-| Receipts | To Donations – gollak A/c | 5,20,150 |
-| Receipts | To Donation A/c | 2,17,000 |
-| Receipts | To Dairy Donation A/c | 19,100 |
-| Receipts | To Bank Interest A/c | 6,840 |
-|  | **Total receipts** | **13,77,090** |
-| Payments | By Advance – Amritpal Singh A/c | 2,10,000 |
-| Payments | By Kotli Cement Store A/c | 1,48,000 |
-| Payments | By Construction A/c | 4,06,000 |
-| Payments | By General Expense A/c | 44,000 |
-| Payments | By Dairy Expense A/c | 43,600 |
-| Payments | By Labour A/c | 18,000 |
-| Payments | By Manni Labour A/c | 1,08,000 |
-| Payments | By Ravinder Labour A/c | 1,02,000 |
-| Payments | By Closing balance — Cash A/c | 35,300 |
-| Payments | By Closing balance — Gollak Cash A/c | 0 |
-| Payments | By Closing balance — SBI Current A/c | 2,62,190 |
-|  | **Total payments** | **13,77,090** |
+| Receipts | ₹ | Payments | ₹ |
+|:---|---:|:---|---:|
+| To Opening balance — Cash A/c | 22,000 | By Advance – Amritpal Singh A/c | 2,10,000 |
+| To Opening balance — Gollak Cash A/c | 0 | By Kotli Cement Store A/c | 1,48,000 |
+| To Opening balance — SBI Current A/c | 4,85,000 | By Construction A/c | 4,06,000 |
+| To Langar Hall Fund A/c | 1,07,000 | By General Expense A/c | 44,000 |
+| To Donations – gollak A/c | 5,20,150 | By Dairy Expense A/c | 43,600 |
+| To Donation A/c | 2,17,000 | By Labour A/c | 18,000 |
+| To Dairy Donation A/c | 19,100 | By Manni Labour A/c | 1,08,000 |
+| To Bank Interest A/c | 6,840 | By Ravinder Labour A/c | 1,02,000 |
+|  |  | By Closing balance — Cash A/c | 35,300 |
+|  |  | By Closing balance — Gollak Cash A/c | 0 |
+|  |  | By Closing balance — SBI Current A/c | 2,62,190 |
+| **Total** | **13,77,090** | **Total** | **13,77,090** |
 
 #### 4.3 Income & Expenditure Account for FY 2025-26
 
@@ -563,6 +560,8 @@ Every income and expense account's **total for the year** — the *Total for the
 
 **FY 2025-26: income ₹10,73,091 · spent ₹10,78,500 · deficit ₹5,409.**
 
+The cost of the langar hall, ₹5,54,000 to date, is charged to expenditure and is not shown as a thing owned.
+
 #### 4.4 Each fund — its year
 
 *Radha Soami Satsang Sabha · FY 2025-26 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
@@ -579,7 +578,7 @@ A fund holds money given for one purpose. Gifts for it and the interest its depo
 | 14 Oct 2025 | RS-028 | To Transferred from the Langar Hall Fund A/c<br><em>Langar hall — steel and shuttering, paid from the Langar Hall Fund</em> | 1,86,000 | — | 1,40,000 | Cr |
 | 22 Dec 2025 | RS-035 | To Transferred from the Langar Hall Fund A/c<br><em>Langar hall — mason contractor, first bill, paid from the Langar Hall Fund</em> | 1,24,000 | — | 16,000 | Cr |
 | 20 Jan 2026 | RS-041 | By SBI Current A/c<br><em>Donation from a family in memory of an elder, for the langar hall — to the Langar Hall Fund</em> | — | 31,000 | 47,000 | Cr |
-| 20 Mar 2026 | RS-050 | By SBI Fixed Deposit (Langar Hall Fund) A/c<br><em>Yearly interest added by the bank to the Langar Hall Fund's fixed deposit — belongs to the fund</em> | — | 14,000 | 61,000 | Cr |
+| 20 Mar 2026 | RS-050 | By SBI Fixed Deposit (Langar Hall Fund) A/c<br><em>Yearly interest added by the bank to the deposit made from the langar hall donations — added to the Langar Hall Fund</em> | — | 14,000 | 61,000 | Cr |
 | 31 Mar 2026 |  | Closing balance c/d | 61,000 | — | — | — |
 |  |  | **Total** | **3,71,000** | **3,71,000** |  |  |
 
@@ -624,7 +623,9 @@ Nobody types these. When the year is closed the book itself closes every income 
 
 **Both sides ₹5,12,591. The books balance.**
 
-The cost of the langar hall, ₹5,54,000 to date, is charged to expenditure and is not shown as a thing owned. The Langar Hall Fund is money held for that purpose and is shown with the own money, beside the General Fund, not inside it.
+The Langar Hall Fund is money held for that purpose and is shown with the own money, beside the General Fund, not inside it.
+
+The cost of the langar hall, ₹5,54,000 to date, is charged to expenditure and is not shown as a thing owned.
 
 Things owned are shown at what they cost; no depreciation is charged.
 
@@ -632,7 +633,7 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 *Radha Soami Satsang Sabha · opening balances on 01 Apr 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-Every account that carries a balance takes its balance **after the year close** into the new year as its opening balance b/d on 01 Apr 2026 — the b/d line of its ledger. Income and expense accounts and the drawings start FY 2026-27 at nil; the own money opens as one figure for each owner.
+Every account that carries a balance takes its balance **after the year close** into the new year as its opening balance b/d on 01 Apr 2026 — the b/d line of its ledger. Income and expense accounts start FY 2026-27 at nil; the General Fund and each fund open at one figure each.
 
 | Account | Type | Closing 31 Mar 2026, after the close ₹ | Side | Opening b/d 01 Apr 2026 ₹ | Side |
 |:---|:---|---:|:---:|---:|:---:|

@@ -109,7 +109,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 31 Mar 2026 | RJ-040 | To Interest A/c<br><em>Interest on the fixed deposits, paid to savings</em> | — | 36,500 | — | — | 34,800 | 5,39,260 |
 | 31 Mar 2026 |  | **Month total — March 2026 · closing balance** | **0** | **2,16,500** | **0** | **0** | **34,800** | **5,39,260** |
 
-*On 31 Mar 2026: Cash A/c ₹34,800 · SBI Joint Savings A/c ₹5,39,260 — the same as in section 2.*
+*On 31 Mar 2026: Cash A/c ₹34,800 · SBI Joint Savings A/c ₹5,39,260 — the same as the closing balances in the ledgers of the printed book (its section 2).*
 
 ## Book: Amarjeet's Family — household book
 
@@ -201,7 +201,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 31 Mar 2026 | RA-032 | To Interest A/c<br><em>Savings interest</em> | — | 910 | — | — | 22,500 | 64,310 |
 | 31 Mar 2026 |  | **Month total — March 2026 · closing balance** | **0** | **910** | **4,800** | **0** | **22,500** | **64,310** |
 
-*On 31 Mar 2026: Cash A/c ₹22,500 · PNB Savings A/c ₹64,310 — the same as in section 2.*
+*On 31 Mar 2026: Cash A/c ₹22,500 · PNB Savings A/c ₹64,310 — the same as the closing balances in the ledgers of the printed book (its section 2).*
 
 ## Book: Lakhbeer's Family — household book
 
@@ -286,7 +286,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 31 Mar 2026 | RB-029 | To Interest A/c<br><em>Savings interest</em> | — | 640 | — | — | 9,000 | 67,540 |
 | 31 Mar 2026 |  | **Month total — March 2026 · closing balance** | **0** | **640** | **2,700** | **7,400** | **9,000** | **67,540** |
 
-*On 31 Mar 2026: Cash A/c ₹9,000 · HDFC Savings A/c ₹67,540 — the same as in section 2.*
+*On 31 Mar 2026: Cash A/c ₹9,000 · HDFC Savings A/c ₹67,540 — the same as the closing balances in the ledgers of the printed book (its section 2).*
 
 ## Book: Lakhwinder's Family — household book
 
@@ -392,7 +392,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 05 Mar 2026 | RC-037 | By Post Office RD A/c<br><em>Six months of the recurring deposit</em> | — | — | — | 30,000 | 33,400 | 4,15,700 |
 | 31 Mar 2026 |  | **Month total — March 2026 · closing balance** | **0** | **62,400** | **0** | **30,000** | **33,400** | **4,15,700** |
 
-*On 31 Mar 2026: Cash A/c ₹33,400 · SBI Salary A/c ₹4,15,700 — the same as in section 2.*
+*On 31 Mar 2026: Cash A/c ₹33,400 · SBI Salary A/c ₹4,15,700 — the same as the closing balances in the ledgers of the printed book (its section 2).*
 
 ## Book: Randhawa Agriculture — family business book
 
@@ -493,7 +493,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 25 Mar 2026 | RG-037 | By Advance – Aman Randhawa A/c<br><em>Labour money to Aman Randhawa</em> | — | — | — | 20,000 | 6,000 | 6,80,035 |
 | 31 Mar 2026 |  | **Month total — March 2026 · closing balance** | **0** | **0** | **0** | **20,000** | **6,000** | **6,80,035** |
 
-*On 31 Mar 2026: Cash A/c ₹6,000 · PNB Savings A/c (farm) ₹6,80,035 — the same as in section 2.*
+*On 31 Mar 2026: Cash A/c ₹6,000 · PNB Savings A/c (farm) ₹6,80,035 — the same as the closing balances in the ledgers of the printed book (its section 2).*
 
 ## Book: Randhawa Real Estate — family business book
 
@@ -562,7 +562,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 30 Sep 2025 |  | **Month total — September 2025 · closing balance** | **0** | **30,000** | **0** | **74,200** | **5,200** | **2,02,800** |
 | 07 Oct 2025 | RE-013 | To Kotli Medical Hall A/c<br><em>Rent of October–December 2025 received</em> | — | 36,000 | — | — | 5,200 | 2,38,800 |
 | 31 Oct 2025 |  | **Month total — October 2025 · closing balance** | **0** | **36,000** | **0** | **0** | **5,200** | **2,38,800** |
-| 18 Nov 2025 | RE-014 | To Plot No. 14, Model Colony A/c / To Profit on Sale of Plot A/c<br><em>Plot No. 14 sold for ₹15,50,000 — its cost ₹12,00,000 and the profit ₹3,50,000</em> | — | 15,50,000 | — | — | 5,200 | 17,88,800 |
+| 18 Nov 2025 | RE-014 | To Plot No. 14, Model Colony A/c / Profit on Sale of Plot A/c<br><em>Plot No. 14 sold for ₹15,50,000 — its cost ₹12,00,000 and the profit ₹3,50,000</em> | — | 15,50,000 | — | — | 5,200 | 17,88,800 |
 | 20 Nov 2025 | RE-015 | By Brokerage A/c<br><em>Dealer's brokerage on the plot sale (2%)</em> | — | — | — | 31,000 | 5,200 | 17,57,800 |
 | 30 Nov 2025 |  | **Month total — November 2025 · closing balance** | **0** | **15,50,000** | **0** | **31,000** | **5,200** | **17,57,800** |
 | 10 Dec 2025 | RE-016 | By Drawings A/c – Randhawa Joint Family<br><em>Part of the plot money sent home to the joint family</em> | — | — | — | 2,50,000 | 5,200 | 15,07,800 |
@@ -577,7 +577,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 20 Feb 2026 | RE-028 | To Advance – registry clerk A/c<br><em>The registry clerk returned the rest, cash</em> | 1,400 | — | — | — | 6,600 | 3,50,300 |
 | 28 Feb 2026 |  | **Month total — February 2026 · closing balance** | **1,400** | **0** | **0** | **10,50,000** | **6,600** | **3,50,300** |
 
-*On 31 Mar 2026: Cash A/c ₹6,600 · Axis Bank Current A/c ₹3,50,300 — the same as in section 2.*
+*On 31 Mar 2026: Cash A/c ₹6,600 · Axis Bank Current A/c ₹3,50,300 — the same as the closing balances in the ledgers of the printed book (its section 2).*
 
 ## Book: Randhawa Brick Field — shared business book
 
@@ -679,4 +679,4 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 31 Mar 2026 | RK-039 | Cash A/c to HDFC Bank Current A/c<br><em>Kiln cash deposited</em> | — | 1,85,000 | 1,85,000 | — | 27,100 | 5,18,000 |
 | 31 Mar 2026 |  | **Month total — March 2026 · closing balance** | **1,98,000** | **3,45,000** | **2,06,500** | **3,00,000** | **27,100** | **5,18,000** |
 
-*On 31 Mar 2026: Cash A/c ₹27,100 · HDFC Bank Current A/c ₹5,18,000 — the same as in section 2.*
+*On 31 Mar 2026: Cash A/c ₹27,100 · HDFC Bank Current A/c ₹5,18,000 — the same as the closing balances in the ledgers of the printed book (its section 2).*

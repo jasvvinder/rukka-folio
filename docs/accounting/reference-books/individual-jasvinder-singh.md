@@ -6,7 +6,7 @@
 |:---|:---|
 | Jasvinder Singh | Owner of both books |
 | Gurpreet Sandhu | Friend — borrowed ₹25,000 in May on a small interest, returned ₹15,000 in December; the rest written off in March |
-| Sharma General Store | Grocer — household khata, settled each quarter |
+| Sharma General Store | Grocer — household khata, settled every six months |
 | Balwinder Singh | Part-time driver — took ₹15,000 for the family's Vaishno Devi trip in December and accounted for it |
 | HDFC Bank | Car lender — ₹8,00,000 for the second car, paid to the dealer, 60 monthly instalments from 05 Dec 2025 |
 | Medtech Solutions · Kaur Exports · Punjab Agro Board | Clients of the business — billed on khata; Kaur Exports pays in advance once |
@@ -63,7 +63,7 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 *Jasvinder Singh · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-One account after another: date, entry number, the other account (*To …* on the Dr side, *By …* on the Cr side) with the entry's note in small type, the amount on its side, the running balance and its side. Accounts that carry a balance open with *Opening balance b/f* and end *Closing balance c/d · Total · Opening balance b/d*, the opening and closing balances standing in the amount column of their side so that each column adds up to the Total; income and expense accounts end with their total for the year. The last rows of the heads, the drawings and the own-money accounts are the year-close entries (numbers ending Y1, Y2 …) that the book makes itself on 31 Mar 2026 — they are listed in section 4.
+One account after another: date, entry number, the other account (*To …* on the Dr side, *By …* on the Cr side) with the entry's note in small type, the amount on its side, the running balance and its side. Accounts that carry a balance open with *Opening balance b/f* and end *Closing balance c/d · Total · Opening balance b/d*, the opening and closing balances standing in the amount column of their side so that each column adds up to the Total; income and expense accounts end with their total for the year. The last rows of the heads and the own-money accounts are the year-close entries (numbers ending Y1, Y2 …) that the book makes itself on 31 Mar 2026 — they are listed in section 4.
 
 #### Cash A/c
 
@@ -76,7 +76,7 @@ One account after another: date, entry number, the other account (*To …* on th
 | 08 Jul 2025 | JP-011 | By Advance – house help A/c<br><em>Salary advance to the house help, cash</em> | — | 6,000 | 13,800 | Dr |
 | 26 Sep 2025 | JP-019 | To SBI Savings A/c<br><em>Cash withdrawn (ATM)</em> | 45,000 | — | 58,800 | Dr |
 | 30 Sep 2025 | JP-021 | By House Help Wages A/c<br><em>House help's wages, July–September — ₹6,000 of it recovered from her advance, the rest paid in cash</em> | — | 24,000 | 34,800 | Dr |
-| 05 Nov 2025 | JP-028 | By Gifts & Social A/c<br><em>Shagun at a cousin's wedding and Gurpurab, cash</em> | — | 11,000 | 23,800 | Dr |
+| 05 Nov 2025 | JP-027 | By Gifts & Social A/c<br><em>Shagun at a cousin's wedding and Gurpurab, cash</em> | — | 11,000 | 23,800 | Dr |
 | 18 Dec 2025 | JP-033 | By Advance – Balwinder Singh A/c<br><em>Advance to Balwinder Singh for the Vaishno Devi trip, cash</em> | — | 15,000 | 8,800 | Dr |
 | 27 Dec 2025 | JP-035 | To SBI Savings A/c<br><em>Cash withdrawn (ATM)</em> | 30,000 | — | 38,800 | Dr |
 | 28 Dec 2025 | JP-037 | To Advance – Balwinder Singh A/c<br><em>Balwinder Singh returned the unspent part of the advance, cash</em> | 1,500 | — | 40,300 | Dr |
@@ -98,36 +98,36 @@ One account after another: date, entry number, the other account (*To …* on th
 | 18 Apr 2025 | JP-005 | By HDFC Credit Card A/c<br><em>Credit-card bill paid from savings</em> | — | 12,400 | 2,05,600 | Dr |
 | 18 May 2025 | JP-007 | By Loan to – Gurpreet Sandhu A/c<br><em>Hand loan to Gurpreet Sandhu, on a small interest (UPI)</em> | — | 25,000 | 1,80,600 | Dr |
 | 16 Jun 2025 | JP-008 | By Jasvinder Technologies A/c<br><em>Put into Jasvinder Technologies for the new laptops</em> | — | 1,00,000 | 80,600 | Dr |
-| 18 Jun 2025 | JP-009 | By HDFC Credit Card A/c<br><em>Credit-card bill paid from savings</em> | — | 26,300 | 54,300 | Dr |
-| 15 Jul 2025 | JP-012 | To Income from Jasvinder Technologies A/c<br><em>Received from Jasvinder Technologies — money sent home</em> | 1,20,000 | — | 1,74,300 | Dr |
-| 21 Jul 2025 | JP-013 | By Electricity & Phone A/c<br><em>Electricity and phone bills, six months</em> | — | 15,500 | 1,58,800 | Dr |
-| 03 Aug 2025 | JP-014 | To Gifts Received A/c<br><em>Birthday gift from an uncle (UPI)</em> | 11,000 | — | 1,69,800 | Dr |
-| 28 Aug 2025 | JP-016 | By Medical & Insurance A/c<br><em>LIC premium (yearly)</em> | — | 38,000 | 1,31,800 | Dr |
-| 17 Sep 2025 | JP-017 | By HDFC Credit Card A/c<br><em>Credit-card bill paid from savings</em> | — | 14,200 | 1,17,600 | Dr |
-| 20 Sep 2025 | JP-018 | To SBI Fixed Deposit A/c<br><em>Fixed deposit of ₹1,00,000 matured — back to savings</em> | 1,00,000 | — | 2,17,600 | Dr |
-| 26 Sep 2025 | JP-019 | By Cash A/c<br><em>Cash withdrawn (ATM)</em> | — | 45,000 | 1,72,600 | Dr |
-| 03 Oct 2025 | JP-022 | By FASTag Wallet A/c<br><em>FASTag wallet recharged from savings</em> | — | 3,000 | 1,69,600 | Dr |
-| 06 Oct 2025 | JP-023 | By Sharma General Store A/c<br><em>Grocer's khata of April–September paid (UPI)</em> | — | 48,400 | 1,21,200 | Dr |
-| 16 Oct 2025 | JP-024 | By School Fees A/c<br><em>School fees, second half-year</em> | — | 44,000 | 77,200 | Dr |
-| 17 Oct 2025 | JP-025 | By HDFC Credit Card A/c<br><em>Credit-card bill paid from savings</em> | — | 18,600 | 58,600 | Dr |
-| 20 Oct 2025 | JP-026 | To Income from Jasvinder Technologies A/c<br><em>Received from Jasvinder Technologies — money sent home</em> | 1,20,000 | — | 1,78,600 | Dr |
-| 25 Oct 2025 | JP-027 | By Car – Hyundai Venue A/c<br><em>Second car bought for ₹9,00,000: the lender paid the dealer ₹8,00,000 (the loan) and the margin ₹1,00,000 was paid from savings</em> | — | 1,00,000 | 78,600 | Dr |
-| 05 Dec 2025 | JP-030 | By Car Loan – HDFC Bank A/c / Interest on Car Loan A/c<br><em>Car loan instalment 1 of 60, split as on the lender's statement</em> | — | 16,801 | 61,799 | Dr |
-| 12 Dec 2025 | JP-031 | To Loan to – Gurpreet Sandhu A/c<br><em>Gurpreet Sandhu returned part of the loan</em> | 15,000 | — | 76,799 | Dr |
-| 12 Dec 2025 | JP-032 | To Interest A/c<br><em>Interest on the hand loan paid by Gurpreet Sandhu for seven months</em> | 1,875 | — | 78,674 | Dr |
-| 22 Dec 2025 | JP-034 | To Income from Jasvinder Technologies A/c<br><em>Received from Jasvinder Technologies — money sent home</em> | 1,20,000 | — | 1,98,674 | Dr |
-| 27 Dec 2025 | JP-035 | By Cash A/c<br><em>Cash withdrawn (ATM)</em> | — | 30,000 | 1,68,674 | Dr |
-| 31 Dec 2025 | JP-039 | To Interest A/c<br><em>Interest on the fixed deposit, paid to savings</em> | 14,400 | — | 1,83,074 | Dr |
-| 05 Jan 2026 | JP-040 | By Car Loan – HDFC Bank A/c / Interest on Car Loan A/c<br><em>Car loan instalment 2 of 60, split as on the lender's statement</em> | — | 16,801 | 1,66,273 | Dr |
-| 21 Jan 2026 | JP-041 | By Electricity & Phone A/c<br><em>Electricity and phone bills, six months</em> | — | 14,200 | 1,52,073 | Dr |
-| 05 Feb 2026 | JP-042 | By Car Loan – HDFC Bank A/c / Interest on Car Loan A/c<br><em>Car loan instalment 3 of 60, split as on the lender's statement</em> | — | 16,801 | 1,35,272 | Dr |
-| 20 Feb 2026 | JP-043 | By Groceries & Household A/c<br><em>Gas cylinder booking and pipe repair (UPI)</em> | — | 5,900 | 1,29,372 | Dr |
-| 02 Mar 2026 | JP-044 | By Cash A/c<br><em>Cash withdrawn (ATM)</em> | — | 30,000 | 99,372 | Dr |
-| 05 Mar 2026 | JP-046 | By Car Loan – HDFC Bank A/c / Interest on Car Loan A/c<br><em>Car loan instalment 4 of 60, split as on the lender's statement</em> | — | 16,801 | 82,571 | Dr |
-| 31 Mar 2026 | JP-050 | To Interest A/c<br><em>Savings interest</em> | 3,360 | — | 85,931 | Dr |
-| 31 Mar 2026 |  | Closing balance c/d | — | 85,931 | — | — |
+| 18 Jun 2025 | JP-009 | By HDFC Credit Card A/c<br><em>Credit-card bill paid from savings</em> | — | 9,800 | 70,800 | Dr |
+| 15 Jul 2025 | JP-012 | To Income from Jasvinder Technologies A/c<br><em>Received from Jasvinder Technologies — money sent home</em> | 1,20,000 | — | 1,90,800 | Dr |
+| 21 Jul 2025 | JP-013 | By Electricity & Phone A/c<br><em>Electricity and phone bills, six months</em> | — | 15,500 | 1,75,300 | Dr |
+| 03 Aug 2025 | JP-014 | To Gifts Received A/c<br><em>Birthday gift from an uncle (UPI)</em> | 11,000 | — | 1,86,300 | Dr |
+| 28 Aug 2025 | JP-016 | By Medical & Insurance A/c<br><em>LIC premium (yearly)</em> | — | 38,000 | 1,48,300 | Dr |
+| 17 Sep 2025 | JP-017 | By HDFC Credit Card A/c<br><em>Credit-card bill paid from savings</em> | — | 14,200 | 1,34,100 | Dr |
+| 20 Sep 2025 | JP-018 | To SBI Fixed Deposit A/c<br><em>Fixed deposit of ₹1,00,000 matured — back to savings</em> | 1,00,000 | — | 2,34,100 | Dr |
+| 26 Sep 2025 | JP-019 | By Cash A/c<br><em>Cash withdrawn (ATM)</em> | — | 45,000 | 1,89,100 | Dr |
+| 03 Oct 2025 | JP-022 | By FASTag Wallet A/c<br><em>FASTag wallet recharged from savings</em> | — | 3,000 | 1,86,100 | Dr |
+| 06 Oct 2025 | JP-023 | By Sharma General Store A/c<br><em>Grocer's khata of April–September paid (UPI)</em> | — | 48,400 | 1,37,700 | Dr |
+| 16 Oct 2025 | JP-024 | By School Fees A/c<br><em>School fees, second half-year</em> | — | 44,000 | 93,700 | Dr |
+| 20 Oct 2025 | JP-025 | To Income from Jasvinder Technologies A/c<br><em>Received from Jasvinder Technologies — money sent home</em> | 1,20,000 | — | 2,13,700 | Dr |
+| 25 Oct 2025 | JP-026 | By Car – Hyundai Venue A/c<br><em>Second car bought for ₹9,00,000: the lender paid the dealer ₹8,00,000 (the loan) and the margin ₹1,00,000 was paid from savings</em> | — | 1,00,000 | 1,13,700 | Dr |
+| 05 Dec 2025 | JP-029 | By Car Loan – HDFC Bank A/c / Interest on Car Loan A/c<br><em>Car loan instalment 1 of 60, split as on the lender's statement</em> | — | 16,801 | 96,899 | Dr |
+| 12 Dec 2025 | JP-030 | To Loan to – Gurpreet Sandhu A/c<br><em>Gurpreet Sandhu returned part of the loan</em> | 15,000 | — | 1,11,899 | Dr |
+| 12 Dec 2025 | JP-031 | To Interest A/c<br><em>Interest on the hand loan paid by Gurpreet Sandhu for seven months</em> | 1,875 | — | 1,13,774 | Dr |
+| 17 Dec 2025 | JP-032 | By HDFC Credit Card A/c<br><em>Credit-card bill paid from savings</em> | — | 18,600 | 95,174 | Dr |
+| 22 Dec 2025 | JP-034 | To Income from Jasvinder Technologies A/c<br><em>Received from Jasvinder Technologies — money sent home</em> | 1,20,000 | — | 2,15,174 | Dr |
+| 27 Dec 2025 | JP-035 | By Cash A/c<br><em>Cash withdrawn (ATM)</em> | — | 30,000 | 1,85,174 | Dr |
+| 31 Dec 2025 | JP-039 | To Interest A/c<br><em>Interest on the fixed deposit, paid to savings</em> | 14,400 | — | 1,99,574 | Dr |
+| 05 Jan 2026 | JP-040 | By Car Loan – HDFC Bank A/c / Interest on Car Loan A/c<br><em>Car loan instalment 2 of 60, split as on the lender's statement</em> | — | 16,801 | 1,82,773 | Dr |
+| 21 Jan 2026 | JP-041 | By Electricity & Phone A/c<br><em>Electricity and phone bills, six months</em> | — | 14,200 | 1,68,573 | Dr |
+| 05 Feb 2026 | JP-042 | By Car Loan – HDFC Bank A/c / Interest on Car Loan A/c<br><em>Car loan instalment 3 of 60, split as on the lender's statement</em> | — | 16,801 | 1,51,772 | Dr |
+| 20 Feb 2026 | JP-043 | By Groceries & Household A/c<br><em>Gas cylinder booking and pipe repair (UPI)</em> | — | 5,900 | 1,45,872 | Dr |
+| 02 Mar 2026 | JP-044 | By Cash A/c<br><em>Cash withdrawn (ATM)</em> | — | 30,000 | 1,15,872 | Dr |
+| 05 Mar 2026 | JP-046 | By Car Loan – HDFC Bank A/c / Interest on Car Loan A/c<br><em>Car loan instalment 4 of 60, split as on the lender's statement</em> | — | 16,801 | 99,071 | Dr |
+| 31 Mar 2026 | JP-050 | To Interest A/c<br><em>Savings interest</em> | 3,360 | — | 1,02,431 | Dr |
+| 31 Mar 2026 |  | Closing balance c/d | — | 1,02,431 | — | — |
 |  |  | **Total** | **8,10,635** | **8,10,635** |  |  |
-| 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | 85,931 | — | 85,931 | Dr |
+| 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | 1,02,431 | — | 1,02,431 | Dr |
 
 #### FASTag Wallet A/c
 
@@ -147,18 +147,18 @@ One account after another: date, entry number, the other account (*To …* on th
 | 01 Apr 2025 |  | Opening balance b/f | — | 12,400 | 12,400 | Cr |
 | 18 Apr 2025 | JP-005 | To SBI Savings A/c<br><em>Credit-card bill paid from savings</em> | 12,400 | — | 0 | — |
 | 12 May 2025 | JP-006 | By Car Fuel & Upkeep A/c<br><em>Fuel, April–May, on the credit card</em> | — | 9,800 | 9,800 | Cr |
-| 18 Jun 2025 | JP-009 | To SBI Savings A/c<br><em>Credit-card bill paid from savings</em> | 26,300 | — | 16,500 | Dr |
-| 09 Aug 2025 | JP-015 | By Car Fuel & Upkeep A/c<br><em>Fuel and car service, on the credit card</em> | — | 14,200 | 2,300 | Dr |
-| 17 Sep 2025 | JP-017 | To SBI Savings A/c<br><em>Credit-card bill paid from savings</em> | 14,200 | — | 16,500 | Dr |
-| 17 Oct 2025 | JP-025 | To SBI Savings A/c<br><em>Credit-card bill paid from savings</em> | 18,600 | — | 35,100 | Dr |
-| 10 Nov 2025 | JP-029 | By Car Fuel & Upkeep A/c<br><em>Car insurance renewal, on the credit card</em> | — | 18,600 | 16,500 | Dr |
-| 31 Mar 2026 |  | Closing balance c/d | — | 16,500 | — | — |
-|  |  | **Total** | **71,500** | **71,500** |  |  |
-| 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | 16,500 | — | 16,500 | Dr |
+| 18 Jun 2025 | JP-009 | To SBI Savings A/c<br><em>Credit-card bill paid from savings</em> | 9,800 | — | 0 | — |
+| 09 Aug 2025 | JP-015 | By Car Fuel & Upkeep A/c<br><em>Fuel and car service, on the credit card</em> | — | 14,200 | 14,200 | Cr |
+| 17 Sep 2025 | JP-017 | To SBI Savings A/c<br><em>Credit-card bill paid from savings</em> | 14,200 | — | 0 | — |
+| 10 Nov 2025 | JP-028 | By Car Fuel & Upkeep A/c<br><em>Car insurance renewal, on the credit card</em> | — | 18,600 | 18,600 | Cr |
+| 17 Dec 2025 | JP-032 | To SBI Savings A/c<br><em>Credit-card bill paid from savings</em> | 18,600 | — | 0 | — |
+| 31 Mar 2026 |  | Closing balance c/d | — | — | — | — |
+|  |  | **Total** | **55,000** | **55,000** |  |  |
+| 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | — | 0 | — |
 
 #### SBI Fixed Deposit A/c
 
-| Date | No. | Particulars | Kept aside (Dr) | Taken back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Kept aside / interest added (Dr) | Taken back (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | 2,00,000 | — | 2,00,000 | Dr |
 | 20 Sep 2025 | JP-018 | By SBI Savings A/c<br><em>Fixed deposit of ₹1,00,000 matured — back to savings</em> | — | 1,00,000 | 1,00,000 | Dr |
@@ -182,7 +182,7 @@ One account after another: date, entry number, the other account (*To …* on th
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | — | 0 | — |
 | 18 May 2025 | JP-007 | To SBI Savings A/c<br><em>Hand loan to Gurpreet Sandhu, on a small interest (UPI)</em> | 25,000 | — | 25,000 | Dr |
-| 12 Dec 2025 | JP-031 | By SBI Savings A/c<br><em>Gurpreet Sandhu returned part of the loan</em> | — | 15,000 | 10,000 | Dr |
+| 12 Dec 2025 | JP-030 | By SBI Savings A/c<br><em>Gurpreet Sandhu returned part of the loan</em> | — | 15,000 | 10,000 | Dr |
 | 31 Mar 2026 | JP-049 | By Written off A/c<br><em>The last ₹10,000 of Gurpreet Sandhu's loan written off — he has said he cannot repay it</em> | — | 10,000 | 0 | — |
 | 31 Mar 2026 |  | Closing balance c/d | — | — | — | — |
 |  |  | **Total** | **25,000** | **25,000** |  |  |
@@ -236,7 +236,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Car – Maruti Baleno A/c
 
-| Date | No. | Particulars | Bought (Dr) | Sold (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Bought / received (Dr) | Sold / gone (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | 6,40,000 | — | 6,40,000 | Dr |
 | 31 Mar 2026 |  | Closing balance c/d | — | 6,40,000 | — | — |
@@ -245,10 +245,10 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Car – Hyundai Venue A/c
 
-| Date | No. | Particulars | Bought (Dr) | Sold (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Bought / received (Dr) | Sold / gone (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | — | 0 | — |
-| 25 Oct 2025 | JP-027 | To Car Loan – HDFC Bank A/c / SBI Savings A/c<br><em>Second car bought for ₹9,00,000: the lender paid the dealer ₹8,00,000 (the loan) and the margin ₹1,00,000 was paid from savings</em> | 9,00,000 | — | 9,00,000 | Dr |
+| 25 Oct 2025 | JP-026 | To Car Loan – HDFC Bank A/c / SBI Savings A/c<br><em>Second car bought for ₹9,00,000: the lender paid the dealer ₹8,00,000 (the loan) and the margin ₹1,00,000 was paid from savings</em> | 9,00,000 | — | 9,00,000 | Dr |
 | 31 Mar 2026 |  | Closing balance c/d | — | 9,00,000 | — | — |
 |  |  | **Total** | **9,00,000** | **9,00,000** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | 9,00,000 | — | 9,00,000 | Dr |
@@ -258,8 +258,8 @@ One account after another: date, entry number, the other account (*To …* on th
 | Date | No. | Particulars | Paid back (Dr) | Taken (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | — | 0 | — |
-| 25 Oct 2025 | JP-027 | By Car – Hyundai Venue A/c<br><em>Second car bought for ₹9,00,000: the lender paid the dealer ₹8,00,000 (the loan) and the margin ₹1,00,000 was paid from savings</em> | — | 8,00,000 | 8,00,000 | Cr |
-| 05 Dec 2025 | JP-030 | To SBI Savings A/c<br><em>Car loan instalment 1 of 60, split as on the lender's statement</em> | 10,468 | — | 7,89,532 | Cr |
+| 25 Oct 2025 | JP-026 | By Car – Hyundai Venue A/c<br><em>Second car bought for ₹9,00,000: the lender paid the dealer ₹8,00,000 (the loan) and the margin ₹1,00,000 was paid from savings</em> | — | 8,00,000 | 8,00,000 | Cr |
+| 05 Dec 2025 | JP-029 | To SBI Savings A/c<br><em>Car loan instalment 1 of 60, split as on the lender's statement</em> | 10,468 | — | 7,89,532 | Cr |
 | 05 Jan 2026 | JP-040 | To SBI Savings A/c<br><em>Car loan instalment 2 of 60, split as on the lender's statement</em> | 10,551 | — | 7,78,981 | Cr |
 | 05 Feb 2026 | JP-042 | To SBI Savings A/c<br><em>Car loan instalment 3 of 60, split as on the lender's statement</em> | 10,634 | — | 7,68,347 | Cr |
 | 05 Mar 2026 | JP-046 | To SBI Savings A/c<br><em>Car loan instalment 4 of 60, split as on the lender's statement</em> | 10,718 | — | 7,57,629 | Cr |
@@ -279,20 +279,20 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Income from Jasvinder Technologies A/c
 
-| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 | JP-001 | By SBI Savings A/c<br><em>Received from Jasvinder Technologies — money sent home</em> | — | 1,20,000 | 1,20,000 | Cr |
 | 15 Jul 2025 | JP-012 | By SBI Savings A/c<br><em>Received from Jasvinder Technologies — money sent home</em> | — | 1,20,000 | 2,40,000 | Cr |
-| 20 Oct 2025 | JP-026 | By SBI Savings A/c<br><em>Received from Jasvinder Technologies — money sent home</em> | — | 1,20,000 | 3,60,000 | Cr |
+| 20 Oct 2025 | JP-025 | By SBI Savings A/c<br><em>Received from Jasvinder Technologies — money sent home</em> | — | 1,20,000 | 3,60,000 | Cr |
 | 22 Dec 2025 | JP-034 | By SBI Savings A/c<br><em>Received from Jasvinder Technologies — money sent home</em> | — | 1,20,000 | 4,80,000 | Cr |
 |  |  | **Total for the year** | **—** | **4,80,000** | **4,80,000** | **Cr** |
 | 31 Mar 2026 | JP-Y1 | To Income & Expenses A/c<br><em>Income heads closed to Income & Expenses</em> | 4,80,000 | — | 0 | — |
 
 #### Interest A/c
 
-| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 12 Dec 2025 | JP-032 | By SBI Savings A/c<br><em>Interest on the hand loan paid by Gurpreet Sandhu for seven months</em> | — | 1,875 | 1,875 | Cr |
+| 12 Dec 2025 | JP-031 | By SBI Savings A/c<br><em>Interest on the hand loan paid by Gurpreet Sandhu for seven months</em> | — | 1,875 | 1,875 | Cr |
 | 31 Dec 2025 | JP-039 | By SBI Savings A/c<br><em>Interest on the fixed deposit, paid to savings</em> | — | 14,400 | 16,275 | Cr |
 | 31 Mar 2026 | JP-050 | By SBI Savings A/c<br><em>Savings interest</em> | — | 3,360 | 19,635 | Cr |
 |  |  | **Total for the year** | **—** | **19,635** | **19,635** | **Cr** |
@@ -300,7 +300,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Gifts Received A/c
 
-| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 03 Aug 2025 | JP-014 | By SBI Savings A/c<br><em>Birthday gift from an uncle (UPI)</em> | — | 11,000 | 11,000 | Cr |
 |  |  | **Total for the year** | **—** | **11,000** | **11,000** | **Cr** |
@@ -308,7 +308,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Groceries & Household A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 30 Sep 2025 | JP-020 | To Sharma General Store A/c<br><em>Groceries on khata, April–September</em> | 48,400 | — | 48,400 | Dr |
 | 20 Feb 2026 | JP-043 | To SBI Savings A/c<br><em>Gas cylinder booking and pipe repair (UPI)</em> | 5,900 | — | 54,300 | Dr |
@@ -319,7 +319,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Electricity & Phone A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 21 Jul 2025 | JP-013 | To SBI Savings A/c<br><em>Electricity and phone bills, six months</em> | 15,500 | — | 15,500 | Dr |
 | 21 Jan 2026 | JP-041 | To SBI Savings A/c<br><em>Electricity and phone bills, six months</em> | 14,200 | — | 29,700 | Dr |
@@ -329,7 +329,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### School Fees A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 15 Apr 2025 | JP-004 | To SBI Savings A/c<br><em>School fees, first half-year</em> | 42,000 | — | 42,000 | Dr |
 | 16 Oct 2025 | JP-024 | To SBI Savings A/c<br><em>School fees, second half-year</em> | 44,000 | — | 86,000 | Dr |
@@ -338,7 +338,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### House Help Wages A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 30 Jun 2025 | JP-010 | To Cash A/c<br><em>House help's wages, April–June, cash</em> | 30,000 | — | 30,000 | Dr |
 | 30 Sep 2025 | JP-021 | To Advance – house help A/c / Cash A/c<br><em>House help's wages, July–September — ₹6,000 of it recovered from her advance, the rest paid in cash</em> | 30,000 | — | 60,000 | Dr |
@@ -349,18 +349,18 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Car Fuel & Upkeep A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 12 May 2025 | JP-006 | To HDFC Credit Card A/c<br><em>Fuel, April–May, on the credit card</em> | 9,800 | — | 9,800 | Dr |
 | 09 Aug 2025 | JP-015 | To HDFC Credit Card A/c<br><em>Fuel and car service, on the credit card</em> | 14,200 | — | 24,000 | Dr |
-| 10 Nov 2025 | JP-029 | To HDFC Credit Card A/c<br><em>Car insurance renewal, on the credit card</em> | 18,600 | — | 42,600 | Dr |
+| 10 Nov 2025 | JP-028 | To HDFC Credit Card A/c<br><em>Car insurance renewal, on the credit card</em> | 18,600 | — | 42,600 | Dr |
 | 28 Dec 2025 | JP-036 | To Advance – Balwinder Singh A/c<br><em>Balwinder Singh's trip bills — fuel, tolls, parking — set against his advance; ₹1,800 with no bill moved to his own account</em> | 8,200 | — | 50,800 | Dr |
 |  |  | **Total for the year** | **50,800** | **—** | **50,800** | **Dr** |
 | 31 Mar 2026 | JP-Y2 | By Income & Expenses A/c<br><em>Expense heads closed to Income & Expenses</em> | — | 50,800 | 0 | — |
 
 #### Toll & Parking A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 28 Dec 2025 | JP-036 | To Advance – Balwinder Singh A/c<br><em>Balwinder Singh's trip bills — fuel, tolls, parking — set against his advance; ₹1,800 with no bill moved to his own account</em> | 3,500 | — | 3,500 | Dr |
 | 31 Mar 2026 | JP-051 | To FASTag Wallet A/c<br><em>Tolls, October–March, per the FASTag statement</em> | 2,640 | — | 6,140 | Dr |
@@ -369,9 +369,9 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Interest on Car Loan A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 05 Dec 2025 | JP-030 | To SBI Savings A/c<br><em>Car loan instalment 1 of 60, split as on the lender's statement</em> | 6,333 | — | 6,333 | Dr |
+| 05 Dec 2025 | JP-029 | To SBI Savings A/c<br><em>Car loan instalment 1 of 60, split as on the lender's statement</em> | 6,333 | — | 6,333 | Dr |
 | 05 Jan 2026 | JP-040 | To SBI Savings A/c<br><em>Car loan instalment 2 of 60, split as on the lender's statement</em> | 6,250 | — | 12,583 | Dr |
 | 05 Feb 2026 | JP-042 | To SBI Savings A/c<br><em>Car loan instalment 3 of 60, split as on the lender's statement</em> | 6,167 | — | 18,750 | Dr |
 | 05 Mar 2026 | JP-046 | To SBI Savings A/c<br><em>Car loan instalment 4 of 60, split as on the lender's statement</em> | 6,083 | — | 24,833 | Dr |
@@ -380,7 +380,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Medical & Insurance A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 28 Aug 2025 | JP-016 | To SBI Savings A/c<br><em>LIC premium (yearly)</em> | 38,000 | — | 38,000 | Dr |
 |  |  | **Total for the year** | **38,000** | **—** | **38,000** | **Dr** |
@@ -388,15 +388,15 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Gifts & Social A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 05 Nov 2025 | JP-028 | To Cash A/c<br><em>Shagun at a cousin's wedding and Gurpurab, cash</em> | 11,000 | — | 11,000 | Dr |
+| 05 Nov 2025 | JP-027 | To Cash A/c<br><em>Shagun at a cousin's wedding and Gurpurab, cash</em> | 11,000 | — | 11,000 | Dr |
 |  |  | **Total for the year** | **11,000** | **—** | **11,000** | **Dr** |
 | 31 Mar 2026 | JP-Y2 | By Income & Expenses A/c<br><em>Expense heads closed to Income & Expenses</em> | — | 11,000 | 0 | — |
 
 #### Written off A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 31 Mar 2026 | JP-049 | To Loan to – Gurpreet Sandhu A/c<br><em>The last ₹10,000 of Gurpreet Sandhu's loan written off — he has said he cannot repay it</em> | 10,000 | — | 10,000 | Dr |
 |  |  | **Total for the year** | **10,000** | **—** | **10,000** | **Dr** |
@@ -415,9 +415,8 @@ Every account with a balance on 30 Sep 2025, placed on the side its balance fall
 |  | Account | Have / will get ₹ | Will give / funds ₹ |
 |:---|:---|---:|---:|
 | What I have | Cash A/c | 34,800 |  |
-| What I have | SBI Savings A/c | 1,72,600 |  |
+| What I have | SBI Savings A/c | 1,89,100 |  |
 | What I have | FASTag Wallet A/c | 1,200 |  |
-| What I have | HDFC Credit Card A/c | 16,500 |  |
 | What I have | SBI Fixed Deposit A/c | 1,00,000 |  |
 | What I have | Jasvinder Technologies A/c | 6,79,740 |  |
 | What I have | Loan to – Gurpreet Sandhu A/c | 25,000 |  |
@@ -439,6 +438,8 @@ Every account with a balance on 30 Sep 2025, placed on the side its balance fall
 | + Result so far (saving) | 23,100 |
 | **= Own money now** | **16,21,440** |
 
+The business is shown at the money put into it, not at its worth.
+
 Things owned are shown at what they cost; no depreciation is charged.
 
 #### 3.2 Full position on 31 Mar 2026 — year end
@@ -450,9 +451,8 @@ Every account with a balance on 31 Mar 2026, placed on the side its balance fall
 |  | Account | Have / will get ₹ | Will give / funds ₹ |
 |:---|:---|---:|---:|
 | What I have | Cash A/c | 10,300 |  |
-| What I have | SBI Savings A/c | 85,931 |  |
+| What I have | SBI Savings A/c | 1,02,431 |  |
 | What I have | FASTag Wallet A/c | 1,560 |  |
-| What I have | HDFC Credit Card A/c | 16,500 |  |
 | What I have | SBI Fixed Deposit A/c | 1,00,000 |  |
 | What I have | Jasvinder Technologies A/c | 6,79,740 |  |
 | What I have | Car – Maruti Baleno A/c | 6,40,000 |  |
@@ -476,6 +476,8 @@ Every account with a balance on 31 Mar 2026, placed on the side its balance fall
 | + Result so far (saving) | 30,362 |
 | **= Own money now** | **16,28,702** |
 
+The business is shown at the money put into it, not at its worth.
+
 Things owned are shown at what they cost; no depreciation is charged.
 
 #### 3.3 One month — October 2025, account by account
@@ -487,9 +489,8 @@ Every account's balance on 01 Oct 2025, what went on its Dr side and its Cr side
 | Account | Opening 01 Oct 2025 ₹ | Side | Dr side in month ₹ | Cr side in month ₹ | Closing 31 Oct 2025 ₹ | Side |
 |:---|---:|:---:|---:|---:|---:|:---:|
 | Cash A/c | 34,800 | Dr | — | — | 34,800 | Dr |
-| SBI Savings A/c | 1,72,600 | Dr | 1,20,000 | 2,14,000 | 78,600 | Dr |
+| SBI Savings A/c | 1,89,100 | Dr | 1,20,000 | 1,95,400 | 1,13,700 | Dr |
 | FASTag Wallet A/c | 1,200 | Dr | 3,000 | — | 4,200 | Dr |
-| HDFC Credit Card A/c | 16,500 | Dr | 18,600 | — | 35,100 | Dr |
 | SBI Fixed Deposit A/c | 1,00,000 | Dr | — | — | 1,00,000 | Dr |
 | Jasvinder Technologies A/c | 6,79,740 | Dr | — | — | 6,79,740 | Dr |
 | Loan to – Gurpreet Sandhu A/c | 25,000 | Dr | — | — | 25,000 | Dr |
@@ -506,7 +507,7 @@ Every account's balance on 01 Oct 2025, what went on its Dr side and its Cr side
 | House Help Wages A/c | 60,000 | Dr | — | — | 60,000 | Dr |
 | Car Fuel & Upkeep A/c | 24,000 | Dr | — | — | 24,000 | Dr |
 | Medical & Insurance A/c | 38,000 | Dr | — | — | 38,000 | Dr |
-| **Total of the month's entries** |  |  | **11,34,000** | **11,34,000** |  |  |
+| **Total of the month's entries** |  |  | **11,15,400** | **11,15,400** |  |  |
 
 *October 2025 in brief: income ₹1,20,000 · spent ₹44,000 · saving ₹76,000.*
 
@@ -522,7 +523,7 @@ The friend's loan account for the year — the loan, the part returned, and the 
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance on 01 Apr 2025 | — | — | 0 | — |
 | 18 May 2025 | JP-007 | To SBI Savings A/c<br><em>Hand loan to Gurpreet Sandhu, on a small interest (UPI)</em> | 25,000 | — | 25,000 | Dr |
-| 12 Dec 2025 | JP-031 | By SBI Savings A/c<br><em>Gurpreet Sandhu returned part of the loan</em> | — | 15,000 | 10,000 | Dr |
+| 12 Dec 2025 | JP-030 | By SBI Savings A/c<br><em>Gurpreet Sandhu returned part of the loan</em> | — | 15,000 | 10,000 | Dr |
 | 31 Mar 2026 | JP-049 | By Written off A/c<br><em>The last ₹10,000 of Gurpreet Sandhu's loan written off — he has said he cannot repay it</em> | — | 10,000 | 0 | — |
 |  |  | **Total for the period** | **25,000** | **25,000** |  |  |
 | 31 Mar 2026 |  | **Closing balance on 31 Mar 2026** |  |  | **0** | **—** |
@@ -548,14 +549,13 @@ How the book is kept from the bank: every line of the month's statement is answe
 
 | Date | As the bank printed it | Withdrawal ₹ | Deposit ₹ | Balance ₹ | Which account | No. |
 |:---|:---|---:|---:|---:|:---|:---|
-| 01 Oct 2025 | Opening balance |  |  | 1,72,600 |  |  |
-| 03 Oct 2025 | UPI DR–FASTAG RECHARGE | 3,000 | — | 1,69,600 | FASTag Wallet A/c | JP-022 |
-| 06 Oct 2025 | UPI DR–SHARMA GENERAL STORE | 48,400 | — | 1,21,200 | Sharma General Store A/c | JP-023 |
-| 16 Oct 2025 | NEFT DR–SCHOOL FEES | 44,000 | — | 77,200 | School Fees A/c | JP-024 |
-| 17 Oct 2025 | CC PAYMENT DR–HDFC CARD | 18,600 | — | 58,600 | HDFC Credit Card A/c | JP-025 |
-| 20 Oct 2025 | IMPS CR–JASVINDER TECHNOLOGIES | — | 1,20,000 | 1,78,600 | Income from Jasvinder Technologies A/c | JP-026 |
-| 25 Oct 2025 | RTGS DR–HYUNDAI DEALER (MARGIN) | 1,00,000 | — | 78,600 | Car – Hyundai Venue A/c ₹9,00,000<br>Car Loan – HDFC Bank A/c ₹8,00,000 | JP-027 |
-| 31 Oct 2025 | **Closing balance** |  |  | **78,600** |  |  |
+| 01 Oct 2025 | Opening balance |  |  | 1,89,100 |  |  |
+| 03 Oct 2025 | UPI DR–FASTAG RECHARGE | 3,000 | — | 1,86,100 | FASTag Wallet A/c | JP-022 |
+| 06 Oct 2025 | UPI DR–SHARMA GENERAL STORE | 48,400 | — | 1,37,700 | Sharma General Store A/c | JP-023 |
+| 16 Oct 2025 | NEFT DR–SCHOOL FEES | 44,000 | — | 93,700 | School Fees A/c | JP-024 |
+| 20 Oct 2025 | IMPS CR–JASVINDER TECHNOLOGIES | — | 1,20,000 | 2,13,700 | Income from Jasvinder Technologies A/c | JP-025 |
+| 25 Oct 2025 | RTGS DR–HYUNDAI DEALER (MARGIN) | 1,00,000 | — | 1,13,700 | Car – Hyundai Venue A/c ₹9,00,000<br>Car Loan – HDFC Bank A/c ₹8,00,000 | JP-026 |
+| 31 Oct 2025 | **Closing balance** |  |  | **1,13,700** |  |  |
 
 ### 4. Year end — FY 2025-26
 
@@ -568,9 +568,8 @@ The closing balance of every account after the last entry of the year (before th
 | Account | Dr balance ₹ | Cr balance ₹ |
 |:---|---:|---:|
 | Cash A/c | 10,300 | — |
-| SBI Savings A/c | 85,931 | — |
+| SBI Savings A/c | 1,02,431 | — |
 | FASTag Wallet A/c | 1,560 | — |
-| HDFC Credit Card A/c | 16,500 | — |
 | SBI Fixed Deposit A/c | 1,00,000 | — |
 | Jasvinder Technologies A/c | 6,79,740 | — |
 | Sharma General Store A/c | — | 49,500 |
@@ -596,7 +595,7 @@ The closing balance of every account after the last entry of the year (before th
 
 **Checked: Dr ₹29,16,104 = Cr ₹29,16,104. The books balance.**
 
-*Accounts with entries in the year but nil on 31 Mar 2026 (not listed above): Loan to – Gurpreet Sandhu A/c; Advance – house help A/c; Advance – Balwinder Singh A/c.*
+*Accounts with entries in the year but nil on 31 Mar 2026 (not listed above): HDFC Credit Card A/c; Loan to – Gurpreet Sandhu A/c; Advance – house help A/c; Advance – Balwinder Singh A/c.*
 
 Things owned are shown at what they cost; no depreciation is charged.
 
@@ -661,9 +660,8 @@ Nobody types these. When the year is closed the book itself closes every income 
 | Particulars | ₹ |
 |:---|---:|
 | Cash A/c | 10,300 |
-| SBI Savings A/c | 85,931 |
+| SBI Savings A/c | 1,02,431 |
 | FASTag Wallet A/c | 1,560 |
-| HDFC Credit Card A/c | 16,500 |
 | SBI Fixed Deposit A/c | 1,00,000 |
 | Jasvinder Technologies A/c | 6,79,740 |
 | Balwinder Singh A/c | 1,800 |
@@ -681,14 +679,13 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 *Jasvinder Singh · opening balances on 01 Apr 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-Every account that carries a balance takes its balance **after the year close** into the new year as its opening balance b/d on 01 Apr 2026 — the b/d line of its ledger. Income and expense accounts and the drawings start FY 2026-27 at nil; the own money opens as one figure for each owner.
+Every account that carries a balance takes its balance **after the year close** into the new year as its opening balance b/d on 01 Apr 2026 — the b/d line of its ledger. Income and expense accounts start FY 2026-27 at nil; the own money opens as one figure for each owner.
 
 | Account | Type | Closing 31 Mar 2026, after the close ₹ | Side | Opening b/d 01 Apr 2026 ₹ | Side |
 |:---|:---|---:|:---:|---:|:---:|
 | Cash A/c | Cash | 10,300 | Dr | 10,300 | Dr |
-| SBI Savings A/c | Bank | 85,931 | Dr | 85,931 | Dr |
+| SBI Savings A/c | Bank | 1,02,431 | Dr | 1,02,431 | Dr |
 | FASTag Wallet A/c | Wallet | 1,560 | Dr | 1,560 | Dr |
-| HDFC Credit Card A/c | Credit card | 16,500 | Dr | 16,500 | Dr |
 | SBI Fixed Deposit A/c | Deposit | 1,00,000 | Dr | 1,00,000 | Dr |
 | Jasvinder Technologies A/c | Money in a business | 6,79,740 | Dr | 6,79,740 | Dr |
 | Sharma General Store A/c | Person / shop | 49,500 | Cr | 49,500 | Cr |
@@ -867,7 +864,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Laptops & Office Equipment A/c
 
-| Date | No. | Particulars | Bought (Dr) | Sold (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Bought / received (Dr) | Sold / gone (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | 1,45,000 | — | 1,45,000 | Dr |
 | 18 Jun 2025 | JT-008 | To HDFC Bank Current A/c<br><em>Two laptops for the office — things owned, at cost</em> | 1,10,000 | — | 2,55,000 | Dr |
@@ -903,7 +900,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Service Income A/c
 
-| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 30 Jun 2025 | JT-009 | By Medtech Solutions A/c<br><em>Support retainer, April–June 2025 (₹69,000 a month)</em> | — | 2,07,000 | 2,07,000 | Cr |
 | 31 Jul 2025 | JT-017 | By Kaur Exports A/c<br><em>Kaur Exports — export-order mobile application delivered</em> | — | 1,40,000 | 3,47,000 | Cr |
@@ -918,7 +915,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Salary A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 30 Jun 2025 | JT-011 | To HDFC Bank Current A/c<br><em>Salary of Rohit Verma, April–June 2025</em> | 1,35,000 | — | 1,35,000 | Dr |
 | 30 Sep 2025 | JT-026 | To Advance – Rohit Verma A/c / HDFC Bank Current A/c<br><em>Salary of Rohit Verma, July–September 2025 — ₹20,000 of it recovered from his advance, the rest paid</em> | 1,35,000 | — | 2,70,000 | Dr |
@@ -929,7 +926,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Office Rent A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 05 Apr 2025 | JT-003 | To HDFC Bank Current A/c<br><em>Office rent, April–June 2025</em> | 54,000 | — | 54,000 | Dr |
 | 05 Jul 2025 | JT-012 | To HDFC Bank Current A/c<br><em>Office rent, July–September 2025</em> | 54,000 | — | 1,08,000 | Dr |
@@ -940,7 +937,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Hosting & Software A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 30 Jun 2025 | JT-010 | To Cloudnine Hosting A/c<br><em>Hosting bill, April–June 2025</em> | 8,260 | — | 8,260 | Dr |
 | 30 Sep 2025 | JT-025 | To Cloudnine Hosting A/c<br><em>Hosting bill, July–September 2025</em> | 9,440 | — | 17,700 | Dr |
@@ -952,7 +949,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Internet & Phone A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 03 Apr 2025 | JT-002 | To HDFC Bank Current A/c<br><em>Broadband and mobile, April–September</em> | 11,800 | — | 11,800 | Dr |
 | 26 Sep 2025 | JT-023 | To HDFC Bank Current A/c<br><em>Domain and e-mail renewal</em> | 4,720 | — | 16,520 | Dr |
@@ -963,7 +960,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Travel A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 22 Aug 2025 | JT-019 | To Cash A/c<br><em>Travel to Chandigarh for the Punjab Agro Board meetings, cash</em> | 6,400 | — | 6,400 | Dr |
 | 14 Feb 2026 | JT-043 | To Cash A/c<br><em>Travel to Ludhiana for Kaur Exports, cash</em> | 5,200 | — | 11,600 | Dr |
@@ -972,7 +969,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Office & Sundry A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 15 Sep 2025 | JT-022 | To HDFC Bank Current A/c<br><em>Accountant's fee for the FY 2024-25 books</em> | 9,000 | — | 9,000 | Dr |
 | 19 Dec 2025 | JT-034 | To Cash A/c<br><em>Stationery and printer cartridges, cash</em> | 2,800 | — | 11,800 | Dr |
@@ -1242,7 +1239,7 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 *Jasvinder Singh · Jasvinder Technologies · FY 2025-26 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-Money that moves between two books is written in both, in accounts named after the other book. For each pair: the balances brought forward agree, and what one book gave is what the other received, entry for entry. A family and a sub-family also agree balance for balance on opposite sides. An owner and the business he owns agree entry by entry — money put in against the business's capital, money sent home against its drawings — but not in balance: the owner holds the business at the money put in, while the business's own money also carries its profit, so the difference is printed under the table as *profit kept in the business*.
+Money that moves between two books is written in both, in accounts named after the other book. For each pair: the balances brought forward agree, and what one book gave is what the other received, entry for entry. An owner and the business he owns agree entry by entry — money put in against the business's capital, money sent home against its drawings — but not in balance: the owner holds the business at the money put in, while the business's own money also carries its profit, so the difference is printed under the table as *profit kept in the business*.
 
 | Book | Its accounts for the other book | Brought forward ₹ | Given (Dr) ₹ | Received (Cr) ₹ | Other book | Its accounts | Brought forward ₹ | Given (Dr) ₹ | Received (Cr) ₹ | Entries | Agree |
 |:---|:---|---:|---:|---:|:---|:---|---:|---:|---:|---:|:---:|

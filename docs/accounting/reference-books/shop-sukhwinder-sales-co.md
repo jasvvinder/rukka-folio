@@ -204,7 +204,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Shop Fittings & Counter A/c
 
-| Date | No. | Particulars | Bought (Dr) | Sold (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Bought / received (Dr) | Sold / gone (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | 1,20,000 | — | 1,20,000 | Dr |
 | 26 Nov 2025 | S-035 | To PNB Current A/c<br><em>New display rack for sanitary ware — thing owned, at cost</em> | 38,000 | — | 1,58,000 | Dr |
@@ -239,7 +239,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Sales A/c
 
-| Date | No. | Particulars | Returned (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 30 Jun 2025 | S-009 | By Cash A/c<br><em>Counter sales in cash, April–June 2025 (from the daily cash memo book)</em> | — | 3,86,000 | 3,86,000 | Cr |
 | 30 Jun 2025 | S-011 | By Guru Nanak Builders A/c<br><em>Goods to Guru Nanak Builders on khata, April–June 2025</em> | — | 2,38,000 | 6,24,000 | Cr |
@@ -256,7 +256,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Goods Bought for Sale A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 20 May 2025 | S-007 | To Jaquar Sanitary Agency A/c<br><em>Sanitary ware from Jaquar Sanitary Agency on khata</em> | 1,18,600 | — | 1,18,600 | Dr |
 | 30 Jun 2025 | S-012 | To Supreme Pipes Ltd A/c<br><em>Pipes and fittings from Supreme Pipes on khata, April–June 2025</em> | 3,34,000 | — | 4,52,600 | Dr |
@@ -271,7 +271,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Freight & Cartage A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 16 May 2025 | S-006 | To Cash A/c<br><em>Cartage of the Jaquar consignment, cash</em> | 4,600 | — | 4,600 | Dr |
 | 06 Sep 2025 | S-023 | To Goods Bought for Sale A/c<br><em>Entry S-022 of 30 Aug 2025 (tempo hire) was written to Goods Bought for Sale — moved to Freight & Cartage</em> | 3,200 | — | 7,800 | Dr |
@@ -281,7 +281,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Salary A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 30 Jun 2025 | S-013 | To PNB Current A/c<br><em>Salary of Manpreet Kaur, April–June 2025</em> | 54,000 | — | 54,000 | Dr |
 | 30 Sep 2025 | S-028 | To Advance – Manpreet Kaur A/c / PNB Current A/c<br><em>Salary of Manpreet Kaur, July–September 2025 — ₹10,000 of it recovered from her advance, the rest paid</em> | 54,000 | — | 1,08,000 | Dr |
@@ -292,7 +292,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Shop Rent A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 03 Apr 2025 | S-001 | To PNB Current A/c<br><em>Shop rent, April–June 2025</em> | 45,000 | — | 45,000 | Dr |
 | 03 Jul 2025 | S-014 | To PNB Current A/c<br><em>Shop rent, July–September 2025</em> | 45,000 | — | 90,000 | Dr |
@@ -303,7 +303,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Electricity & Phone A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 21 Aug 2025 | S-020 | To PNB Current A/c<br><em>Shop electricity and phone, April–August</em> | 14,800 | — | 14,800 | Dr |
 | 19 Feb 2026 | S-049 | To PNB Current A/c<br><em>Shop electricity and phone, September–January</em> | 17,200 | — | 32,000 | Dr |
@@ -312,7 +312,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Bank Charges & Sundry A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 31 Mar 2026 | S-055 | To PNB Current A/c<br><em>Bank charges for the year</em> | 1,180 | — | 1,180 | Dr |
 |  |  | **Total for the year** | **1,180** | **—** | **1,180** | **Dr** |
@@ -320,7 +320,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Cash short / over A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 31 Dec 2025 | S-042 | To Cash A/c<br><em>Counter cash counted ₹1,150 less than the cash book — charged to Cash short / over</em> | 1,150 | — | 1,150 | Dr |
 | 31 Mar 2026 | S-056 | By Cash A/c<br><em>Counter cash counted ₹300 more than the cash book — got back to Cash short / over</em> | — | 300 | 850 | Dr |
@@ -329,7 +329,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Written off A/c
 
-| Date | No. | Particulars | Spent (Dr) | Got back (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 31 Mar 2026 | S-057 | To Dhillon Plumbing Works A/c<br><em>₹2,300 of Dhillon Plumbing Works' balance written off — he disputes the sanitary-ware bill and will not pay it</em> | 2,300 | — | 2,300 | Dr |
 |  |  | **Total for the year** | **2,300** | **—** | **2,300** | **Dr** |

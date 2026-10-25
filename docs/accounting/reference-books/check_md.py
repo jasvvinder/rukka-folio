@@ -29,6 +29,8 @@ BASIS = "Kept on money paid and received, and what people owe; no year-end adjus
 MADE_ON = "02 Apr 2026, 10:00"
 COST_LINE = "Things owned are shown at what they cost; no depreciation is charged."
 STOCK_LINE = "No stock is counted. Everything bought for sale is treated as sold or used in the year it was bought."
+STAKE_LINE = "The business is shown at the money put into it, not at its worth."
+STAKES_LINE = "The businesses are shown at the money put into them, not at their worth."
 VTYPES = {"Money in", "Money out", "Transfer", "Gave on credit", "Took on credit", "Advance settled", "Paid by a partner", "Correction", "Paid by the joint family",
           "Settled at year end", "Fix / Adjust", "Paid from a fund", "Interest added to a deposit", "Written off", "Deposit set off", "Deposit forfeited", "Retention released"}
 YEAR_CLOSE = r"^#### 4\.\d Year close — the entries the book makes itself on 31 Mar 2026$"
@@ -366,10 +368,12 @@ def check_ledger_rows(bk, name, rows, where):
             note = re.search(r"<br><em>(.*)</em>$", r[2])
             ok(note is not None and note.group(1) == bk.narr[pvid], "%s %s row %s: note differs from the Day Book" % (where, name, pvid))
             ok(part.startswith("To ") if a > 0 else part.startswith("By "), "%s %s row %s: To/By" % (where, name, pvid))
+            bk.__dict__.setdefault("lpart", {})[(name, pvid)] = part
             bal += a
             tdr += max(a, 0)
             tcr += max(-a, 0)
             ok(paise(r[5]) == abs(bal) and clean(r[6]) == side(bal), "%s %s row %s: running balance" % (where, name, pvid))
+            ok(bk.type[name] != "Credit card" or bal <= 0, "%s %s row %s: a credit card paid past nil" % (where, name, pvid))
     final = bk.pcb[name] if bk.is_bs[name] else bk.closing[name]
     ok(idx == len(posts) and cidx == len(cposts) and closed and (bal == final if bk.is_bs[name] else bal == bk.closing[name]), "%s %s: rows/closing" % (where, name))
 
@@ -399,6 +403,21 @@ def check_ledgers(bk):
 def bal_paise(cell):
     c = clean(cell)
     return -paise(c[:-3]) if c.endswith(" Cr") else paise(c)
+
+
+BUILD_RE = re.compile(r"^The cost of (.+?), ₹([\d,]+) to date, is charged to expenditure and is not shown as a thing owned\.$")
+
+
+def build_ok(bk, lines, s, e, date, what):
+    """04 §4.3, 02 §5.8: a book that charges a building to expenditure (a Construction A/c) prints the construction note, with the cost to the
+    report's date, at the foot of every report that gives the result — exactly when that cost is not nil."""
+    cost = sum(a for d, _, a in bk.post.get("Construction A/c", []) if d <= date and a > 0)
+    found = [(j, BUILD_RE.match(lines[j])) for j in range(s, e) if BUILD_RE.match(lines[j])]
+    ok(len(found) == (1 if cost else 0), "%s %s: the construction note must be printed exactly when the cost to date is not nil" % (bk.path, what))
+    for j, m in found:
+        ok(paise(m.group(2)) == cost, "%s %s: the construction note says %s, the cost to %s is %d paise" % (bk.path, what, m.group(2), date, cost))
+        last = max([k for k in range(s, e) if lines[k].startswith("|")] or [-1])
+        ok(j > last, "%s %s: the construction note must stand at the foot of the report" % (bk.path, what))
 
 
 def foot_ok(bk, lines, s, e, note, expected, what):
@@ -462,8 +481,11 @@ def check_cash_books(bk):
             if all(m in names for m, _ in v["lines"]):
                 ok(any(amt[n] > 0 for n in names) and any(amt[n] < 0 for n in names), "%s Cash Book row %s: a transfer stands on both sides" % (bk.path, v["vid"]))
             else:
-                want_part = " / ".join(("To " if a < 0 else "By ") + m for m, a in v["lines"] if m not in names)
-                ok(part == want_part, "%s Cash Book row %s: particulars %r, expected %r (To the account credited, By the account debited)" % (bk.path, v["vid"], part, want_part))
+                moved = [n for n in names if amt[n]]
+                came_in = sum(amt[n] for n in names) > 0
+                want_part = (bk.lpart[(moved[0], v["vid"])] if len(moved) == 1 else
+                             " / ".join(("To " if came_in else "By ") + m for m, a in v["lines"] if m not in names and (a < 0) == came_in))
+                ok(part == want_part, "%s Cash Book row %s: particulars %r, expected %r (only the accounts on the other side of the money that moved, as in its ledger)" % (bk.path, v["vid"], part, want_part))
     ok(idx == len(vchs) and all(bal[n] == bk.closing[n] for n in names), "%s Cash Book: rows/closing" % bk.path)
 
 
@@ -551,6 +573,10 @@ def check_positions(bk):
         shows = any(bk.type[n] == "Thing owned" and bal_at(bk, n, date) != 0 for n in bk.accounts)
         foot_ok(bk, lines, i, block(lines, i), COST_LINE, shows, "position %s" % date)
         foot_ok(bk, lines, i, block(lines, i), STOCK_LINE, "Goods Bought for Sale A/c" in bk.type, "position %s" % date)
+        build_ok(bk, lines, i, block(lines, i), date, "position %s" % date)
+        nst = sum(1 for n in bk.accounts if bk.type[n] == "Money in a business" and bal_at(bk, n, date) != 0)
+        foot_ok(bk, lines, i, block(lines, i), STAKE_LINE, nst == 1, "position %s" % date)
+        foot_ok(bk, lines, i, block(lines, i), STAKES_LINE, nst > 1, "position %s" % date)
         tbls = read_tables(lines, i, block(lines, i))
         have = get = give = fund = 0
         seen = set()
@@ -625,6 +651,7 @@ def check_month(bk):
     ok(paise(rows[-1][3]) == tdr == tcr == paise(rows[-1][4]), "%s one-month: totals" % bk.path)
     foot_ok(bk, lines, i, block(lines, i), COST_LINE, any(bk.type[n] == "Thing owned" and (bal_at(bk, n, mon - datetime.timedelta(days=1)) or mov(bk, n, mon, end) != (0, 0)) for n in bk.accounts), "one-month")
     foot_ok(bk, lines, i, block(lines, i), STOCK_LINE, "Goods Bought for Sale A/c" in bk.type, "one-month")
+    build_ok(bk, lines, i, block(lines, i), end, "one-month")
     for n in bk.accounts:
         if n not in seen:
             ok(bal_at(bk, n, mon - datetime.timedelta(days=1)) == 0 and mov(bk, n, mon, end) == (0, 0), "%s one-month: %s omitted" % (bk.path, n))
@@ -734,28 +761,38 @@ def check_closing(bk):
                     rec[n] = rec.get(n, 0) - a
                 else:
                     pay[n] = pay.get(n, 0) + a
+        # 04 §6.7: two sides — receipts (To …) on the left, payments (By …) on the right, totals level at the foot
+        hdr = [clean(c) for c in read_tables(lines, rp, block(lines, rp))[0][1][0]]
+        if not ok(hdr == ["Receipts", "₹", "Payments", "₹"], "%s R&P: receipts on the left, payments on the right (04 §6.7)" % bk.path):
+            rows = []
         tr = tp = 0
         prec, ppay = set(), set()
+        totals = 0
         for r in rows:
-            p = clean(r[1])
-            if p.startswith("To Opening balance — "):
-                ok(paise(r[2]) == bk.opening[p[21:]], "%s R&P: opening" % bk.path)
-                tr += paise(r[2])
-            elif p.startswith("By Closing balance — "):
-                ok(paise(r[2]) == bk.closing[p[21:]], "%s R&P: closing" % bk.path)
-                tp += paise(r[2])
-            elif p.startswith("To "):
-                ok(rec.get(p[3:]) == paise(r[2]), "%s R&P: %s" % (bk.path, p))
-                prec.add(p[3:])
-                tr += paise(r[2])
-            elif p.startswith("By "):
-                ok(pay.get(p[3:]) == paise(r[2]), "%s R&P: %s" % (bk.path, p))
-                ppay.add(p[3:])
-                tp += paise(r[2])
-            elif p == "Total receipts":
-                ok(paise(r[2]) == tr, "%s R&P: total receipts" % bk.path)
-            elif p == "Total payments":
-                ok(paise(r[2]) == tp, "%s R&P: total payments" % bk.path)
+            for p, amt, sidex in ((clean(r[0]), r[1], "To "), (clean(r[2]), r[3], "By ")):
+                if not p:
+                    ok(not clean(amt), "%s R&P: an amount with no particulars" % bk.path)
+                    continue
+                if p == "Total":
+                    ok(paise(amt) == (tr if sidex == "To " else tp), "%s R&P: total %s" % (bk.path, "receipts" if sidex == "To " else "payments"))
+                    totals += 1
+                    continue
+                ok(p.startswith(sidex), "%s R&P: %r on the wrong side" % (bk.path, p))
+                if p.startswith("To Opening balance — "):
+                    ok(paise(amt) == bk.opening[p[21:]], "%s R&P: opening" % bk.path)
+                    tr += paise(amt)
+                elif p.startswith("By Closing balance — "):
+                    ok(paise(amt) == bk.closing[p[21:]], "%s R&P: closing" % bk.path)
+                    tp += paise(amt)
+                elif p.startswith("To "):
+                    ok(rec.get(p[3:]) == paise(amt), "%s R&P: %s" % (bk.path, p))
+                    prec.add(p[3:])
+                    tr += paise(amt)
+                elif p.startswith("By "):
+                    ok(pay.get(p[3:]) == paise(amt), "%s R&P: %s" % (bk.path, p))
+                    ppay.add(p[3:])
+                    tp += paise(amt)
+        ok(totals == 2 and clean(rows[-1][0]) == clean(rows[-1][2]) == "Total", "%s R&P: both totals level on the last row" % bk.path)
         ok(tr == tp and prec == set(rec) and ppay == set(pay), "%s R&P: heads / totals" % bk.path)
     # the year's statement
     i = None
@@ -765,6 +802,7 @@ def check_closing(bk):
             break
     head_ok(bk.path, lines, i, bk.name)
     foot_ok(bk, lines, i, block(lines, i), STOCK_LINE, "Goods Bought for Sale A/c" in bk.type, "year's statement")
+    build_ok(bk, lines, i, block(lines, i), FY_END, "year's statement")
     rows = read_tables(lines, i, block(lines, i))[0][1][1:]
     heads = set()
     for r in rows:
@@ -804,6 +842,10 @@ def check_closing(bk):
     head_ok(bk.path, lines, i, bk.name)
     foot_ok(bk, lines, i, block(lines, i), COST_LINE, any(bk.type[n] == "Thing owned" and bk.closing[n] != 0 for n in bk.accounts), "balance sheet")
     foot_ok(bk, lines, i, block(lines, i), STOCK_LINE, "Goods Bought for Sale A/c" in bk.type, "balance sheet")
+    build_ok(bk, lines, i, block(lines, i), FY_END, "balance sheet")
+    nst = sum(1 for n in bk.accounts if bk.type[n] == "Money in a business" and bk.closing[n] != 0)
+    foot_ok(bk, lines, i, block(lines, i), STAKE_LINE, nst == 1, "balance sheet")
+    foot_ok(bk, lines, i, block(lines, i), STAKES_LINE, nst > 1, "balance sheet")
     tbls = read_tables(lines, i, block(lines, i))
     start, put, taken = equity_parts(bk, FY_END)
     own_close = start + put - taken + result
@@ -812,19 +854,25 @@ def check_closing(bk):
     if ap is not None:
         prow = tbls[0][1][1:]
         k = 1
+        ok(len(tbls[0][1][0]) == 8 and "Drawings" in tbls[0][1][0][6], "%s partners: 04 §6.5 columns (opening, put in, interest, share, drawings, closing)" % bk.path)
+        seen = []
         for r in prow:
-            who = clean(r[0])
-            capn, curn = "Capital A/c – %s" % who, "Current A/c – %s" % who
-            if capn in bk.closing:
-                cap = -bk.closing[capn]
-                cur = -bk.closing[curn]
-            else:
-                cap = 0
-                cur = -bk.closing["%s A/c" % who]
-            ok(paise(r[1]) == cap and signed(r[2]) == -cur and paise(r[3]) == interest.get(who, 0) and paise(r[4]) == shares[who][2], "%s partners: %s" % (bk.path, who))
-            after = cur + interest.get(who, 0) + shares[who][2]
-            ok(signed(r[5]) == -after and paise(r[6]) == cap + after and bk.pcb[curn if capn in bk.closing else "%s A/c" % who] == -after, "%s partners: %s after the share" % (bk.path, who))
-            partners_total[who] = cap + after
+            who, which = clean(r[0]), clean(r[1])
+            n = {"Capital": "Capital A/c – %s" % who, "Current": "Current A/c – %s" % who}.get(which, "%s A/c" % who)
+            ok(n in bk.closing, "%s partners: no account %s" % (bk.path, n))
+            if n not in bk.closing:
+                continue
+            put = -sum(a for _, _, a in bk.post[n] if a < 0)
+            drawn = sum(a for _, _, a in bk.post[n] if a > 0)
+            i_, s_ = (0, 0) if which == "Capital" else (interest.get(who, 0), shares[who][2])
+            ok(signed(r[2]) == bk.opening[n] and paise(r[3]) == put and paise(r[4]) == i_ and paise(r[5]) == s_ and paise(r[6]) == drawn,
+               "%s partners: %s %s — opening, put in, interest, share, drawings" % (bk.path, who, which))
+            after = -bk.closing[n] + i_ + s_
+            ok(signed(r[7]) == -after and bk.pcb[n] == -after, "%s partners: %s %s closing after the close" % (bk.path, who, which))
+            partners_total[who] = partners_total.get(who, 0) + after
+            seen.append(n)
+        want = [n for n in bk.accounts if n.startswith(("Capital A/c – ", "Current A/c – ")) or any(n == "%s A/c" % w for w in shares)]
+        ok(sorted(seen) == sorted(want), "%s partners: every partner's account once %s" % (bk.path, sorted(set(want) ^ set(seen))))
         ok(sum(partners_total.values()) == own_close, "%s partners: totals != own money" % bk.path)
     liab, assets = tbls[k][1][1:], tbls[k + 1][1][1:]
     kinds_seq = [bk.type.get(clean(r[0])) for r in liab if clean(r[0]) in bk.type]
