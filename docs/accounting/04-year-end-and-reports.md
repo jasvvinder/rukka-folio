@@ -120,7 +120,7 @@ When the book has not opted in, every report that shows things owned prints the 
 - things owned, at cost (less depreciation if opted in);
 - deposits, advances and loans, in their own accounts on the person's page;
 - funds (for a trust or committee), each at its own balance;
-- *Own money*, as one figure after the year's result and drawings (a partnership: each partner's capital account and current account, each at its own balance).
+- *Own money*, as one figure after the year's result and drawings (a partnership: each partner's capital account and current account, each at its own balance; or each partner's one account, where capital is kept fluctuating — rule 6.5).
 
 *Starts again at nothing:*
 - every income head and every expense head;

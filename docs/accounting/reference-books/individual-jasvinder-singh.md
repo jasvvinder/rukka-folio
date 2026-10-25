@@ -1239,12 +1239,32 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 *Jasvinder Singh · Jasvinder Technologies · FY 2025-26 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-Money that moves between two books is written in both, in accounts named after the other book. For each pair: the balances brought forward agree, and what one book gave is what the other received, entry for entry. An owner and the business he owns agree entry by entry — money put in against the business's capital, money sent home against its drawings — but not in balance: the owner holds the business at the money put in, while the business's own money also carries its profit, so the difference is printed under the table as *profit kept in the business*.
+Money that moves between two books is written in both, in accounts named after the other book. For each pair: the balances brought forward agree, and what one book gave is what the other received, entry for entry. The table below gives each pair's totals; the account between each pair follows it, entry by entry. An owner and the business he owns agree entry by entry — money put in against the business's capital, money sent home against its drawings — but not in balance: the owner holds the business at the money put in, while the business's own money also carries its profit, so the difference is printed at the foot of that pair's account as *profit kept in the business*.
 
 | Book | Its accounts for the other book | Brought forward ₹ | Given (Dr) ₹ | Received (Cr) ₹ | Other book | Its accounts | Brought forward ₹ | Given (Dr) ₹ | Received (Cr) ₹ | Entries | Agree |
 |:---|:---|---:|---:|---:|:---|:---|---:|---:|---:|---:|:---:|
 | Jasvinder Singh | Jasvinder Technologies A/c<br>Income from Jasvinder Technologies A/c | 5,79,740 Dr | 1,00,000 | 4,80,000 | Jasvinder Technologies | Capital A/c – Jasvinder Singh<br>Drawings A/c – Jasvinder Singh | 5,79,740 Cr | 4,80,000 | 1,00,000 | 5 | Yes |
 
-**Profit kept in the business — Jasvinder Singh and Jasvinder Technologies:** the business's own money after the year close ₹8,24,080, less the money put in that Jasvinder Singh holds ₹6,79,740, is ₹1,44,340. That is the business's profit for Jasvinder Singh ₹6,24,340 less the ₹4,80,000 taken out (₹6,24,340 − ₹4,80,000 = ₹1,44,340).
-
 The two sides agree entry by entry, on every date. The personal book holds the business at the money put in (₹6,79,740) and takes the money the business sends home as income (*Income from Jasvinder Technologies*, ₹4,80,000 this year); in the business book the same money is the owner's drawings. The business's net profit for the year, ₹6,24,340, is worked out in its own book and is not written in the personal book; after the year close the business's own money is ₹8,24,080.
+
+### Account between Jasvinder Singh and Jasvinder Technologies — 01 Apr 2025 to 31 Mar 2026
+
+*Jasvinder Singh · Jasvinder Technologies · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
+
+Jasvinder Singh: Jasvinder Technologies A/c and Income from Jasvinder Technologies A/c. Jasvinder Technologies: Capital A/c – Jasvinder Singh and Drawings A/c – Jasvinder Singh. Each entry is shown once, with its number in both books; the note is Jasvinder Singh's.
+
+| Date | What happened | No. | Jasvinder Singh (Dr) ₹ | (Cr) ₹ | No. | Jasvinder Technologies (Dr) ₹ | (Cr) ₹ |
+|:---|:---|:---|---:|---:|:---|---:|---:|
+| 01 Apr 2025 | Brought forward |  | 5,79,740 |  |  |  | 5,79,740 |
+| 01 Apr 2025 | Received from Jasvinder Technologies — money sent home | JP-001 |  | 1,20,000 | JT-001 | 1,20,000 |  |
+| 16 Jun 2025 | Put into Jasvinder Technologies for the new laptops | JP-008 | 1,00,000 |  | JT-007 |  | 1,00,000 |
+| 15 Jul 2025 | Received from Jasvinder Technologies — money sent home | JP-012 |  | 1,20,000 | JT-016 | 1,20,000 |  |
+| 20 Oct 2025 | Received from Jasvinder Technologies — money sent home | JP-025 |  | 1,20,000 | JT-032 | 1,20,000 |  |
+| 22 Dec 2025 | Received from Jasvinder Technologies — money sent home | JP-034 |  | 1,20,000 | JT-035 | 1,20,000 |  |
+| 31 Mar 2026 | Year close in Jasvinder Singh only — Income heads closed to Income & Expenses | JP-Y1 | 4,80,000 |  |  |  |  |
+| 31 Mar 2026 | Year close in Jasvinder Technologies only — Net profit added to own money |  |  |  | JT-Y3 |  | 6,24,340 |
+| 31 Mar 2026 | **Closing balance, after the year close** |  | **6,79,740** |  |  |  | **8,24,080** |
+
+**Entries agree one for one.**
+
+**Profit kept in the business — Jasvinder Singh and Jasvinder Technologies:** the business's own money after the year close ₹8,24,080, less the money put in that Jasvinder Singh holds ₹6,79,740, is ₹1,44,340. That is the business's profit for Jasvinder Singh ₹6,24,340 less the ₹4,80,000 taken out (₹6,24,340 − ₹4,80,000 = ₹1,44,340).

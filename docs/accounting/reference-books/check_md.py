@@ -619,8 +619,11 @@ def check_positions(bk):
         inc, exp = result_to(bk, date)
         # the result first (income − spent = result), then start + put in − taken out ± result = own money now (04 §6.3)
         res = inc - exp
+        # a household's book names its account with the joint family in the make-up, in the words of that account's columns (MU-3)
+        hh = any(bk.type[n] == "Joint family" for n in bk.accounts)
+        put_w, taken_w = ("+ Received from the joint family so far", "− Put into the joint family, paid back or settled so far") if hh else ("+ Put in so far", "− Taken out so far")
         ok(vals[0] == ("Income so far", inc) and vals[1] == ("− Spent so far", exp) and vals[2][0].startswith("= Result so far") and vals[2][1] == abs(res)
-           and vals[3][1] == start and vals[4][0].startswith("+ Put in so far") and vals[4][1] == put and vals[5][0].startswith("− Taken out so far") and vals[5][1] == taken
+           and vals[3][1] == start and vals[4][0].startswith(put_w) and vals[4][1] == put and vals[5][0].startswith(taken_w) and vals[5][1] == taken
            and vals[6][0].startswith(("+ " if res >= 0 else "− ") + "Result so far") and vals[6][1] == abs(res),
            "%s position %s: make-up lines" % (bk.path, date))
         ok(vals[7][1] == start + put - taken + res == have + get - give - fund, "%s position %s: make-up != position" % (bk.path, date))
@@ -666,6 +669,9 @@ def check_custom(bk):
     name, s, e = m.group(1).strip(), pdate(m.group(2)), pdate(m.group(3))
     rows = read_tables(lines, i, block(lines, i))[0][1][1:]
     posts = [p for p in bk.post[name] if s <= p[0] <= e]
+    if e == FY_END and bk.is_bs[name]:
+        # 04 §5.6, nothing is left out of the period: a statement to the closed year's last day carries the year-close entries on the account (CA-7)
+        posts += [(FY_END, vid, a) for vid, _, a, _ in bk.close_posts.get(name, [])]
     bal = bal_at(bk, name, s - datetime.timedelta(days=1)) if bk.is_bs[name] else 0
     start_bal = bal
     # 04 §5.6: opening with its side; the entries; the totals of the period's entries only; the closing balance with its side
@@ -686,6 +692,10 @@ def check_custom(bk):
     tot, clo = rows[-2], rows[-1]
     ok(clean(tot[2]) == "Total for the period" and paise(tot[3]) == tdr and paise(tot[4]) == tcr, "%s custom %s: totals of the period's entries only" % (bk.path, name))
     word = ("You will get" if bal > 0 else "You will give") if bk.type[name] == "Person / shop" and bal else None
+    if bk.type[name] in ("Sub-family", "Joint family") and bal:
+        # 04 §6.6: a sub-family's running account reads against / in favour of the household, or of the family in the household's book
+        word = (("against the household" if bal > 0 else "in the household's favour") if bk.type[name] == "Sub-family"
+                else ("against the family" if bal > 0 else "in the family's favour"))
     ok(clean(clo[2]).startswith("Closing balance on") and (word is None or clean(clo[2]).endswith(word)) and paise(clo[3]) == 0 and paise(clo[4]) == 0
        and paise(clo[5]) == abs(bal) and clean(clo[6]) == side(bal), "%s custom %s: closing line" % (bk.path, name))
     ok(idx == len(posts) and posts and bal == start_bal + sum(a for _, _, a in posts), "%s custom %s: rows" % (bk.path, name))
@@ -882,9 +892,9 @@ def check_closing(bk):
         p = clean(r[0])
         if p.endswith("at the start, 01 Apr 2025"):
             ok(paise(r[1]) == start, "%s BS: own money at the start" % bk.path)
-        elif p.startswith("Add: put in"):
+        elif p.startswith(("Add: put in", "Add: received from the joint family")):
             ok(paise(r[1]) == put, "%s BS: put in" % bk.path)
-        elif p.startswith("Less: taken out"):
+        elif p.startswith(("Less: taken out", "Less: put into the joint family")):
             ok(paise(r[1]) == taken, "%s BS: taken out" % bk.path)
         elif p.startswith("Add: ") or p.startswith("Less: "):
             ok(paise(r[1]) == abs(result), "%s BS: result" % bk.path)
@@ -958,6 +968,87 @@ def check_closing(bk):
     return result
 
 
+def check_pair_section(label, lines, b, ob, mine, theirs):
+    """04 §6.6 item 1, 03 §4.6: the account between two books — each opening, every entry once with its number in both books (the two numbers post the
+    same amount on opposite sides of the pair's accounts), the year-close entries on the pair's accounts (net per entry), each closing after the close;
+    a running-account pair ends *Agrees* in the 04 §6.6 words."""
+    i = find(lines, r"^### Account between %s and %s — " % (re.escape(b.name), re.escape(ob.name)))
+    if not ok(i is not None, "%s: the account between %s and %s is missing" % (label, b.name, ob.name)):
+        return
+    head_ok(label, lines, i, "%s · %s" % (b.name, ob.name))
+    end = block(lines, i)
+    tbls = read_tables(lines, i, end)
+    if not ok(len(tbls) == 1, "%s: account between %s and %s: one table expected" % (label, b.name, ob.name)):
+        return
+    rows = tbls[0][1][1:]
+    val = lambda r, k: paise(r[k]) - paise(r[k + 1])
+    op1 = sum(b.opening[x] for x in mine if b.is_bs[x])
+    op2 = sum(ob.opening[x] for x in theirs if ob.is_bs[x])
+    ok(clean(rows[0][1]) == "Brought forward" and val(rows[0], 3) == op1 and val(rows[0], 6) == op2, "%s: %s / %s pair section: brought forward" % (label, b.name, ob.name))
+    want1 = sorted((d, vid, a) for x in mine for d, vid, a in b.post[x])
+    want2 = sorted((d, vid, a) for x in theirs for d, vid, a in ob.post[x])
+    got1, got2, bal1, bal2 = [], [], op1, op2
+    close1, close2 = {}, {}
+    for x in mine:
+        for vid, _, a, _ in b.close_posts.get(x, []):
+            close1[vid] = close1.get(vid, 0) + a
+    for x in theirs:
+        for vid, _, a, _ in ob.close_posts.get(x, []):
+            close2[vid] = close2.get(vid, 0) + a
+    seen1, seen2 = {}, {}
+    for r in rows[1:-1]:
+        d, v1, v2 = pdate(r[0]), clean(r[2]), clean(r[5])
+        a1, a2 = val(r, 3), val(r, 6)
+        bal1 += a1
+        bal2 += a2
+        if "-Y" in v1 or "-Y" in v2:
+            ok(d == FY_END and (not v1 or not v2), "%s: %s / %s pair section: a year-close row belongs to one book" % (label, b.name, ob.name))
+            if v1:
+                seen1[v1] = a1
+            else:
+                seen2[v2] = a2
+            continue
+        ok(a1 == -a2 != 0, "%s: %s / %s pair section %s/%s: not the same amount on opposite sides" % (label, b.name, ob.name, v1, v2))
+        got1.append((d, v1, a1))
+        got2.append((d, v2, a2))
+    ok(sorted(got1) == want1 and sorted(got2) == want2, "%s: %s / %s pair section: the entries are not every entry of the pair's accounts" % (label, b.name, ob.name))
+    ok(seen1 == {k: v for k, v in close1.items() if v} and seen2 == {k: v for k, v in close2.items() if v}, "%s: %s / %s pair section: year-close rows" % (label, b.name, ob.name))
+    c1 = sum(b.pcb[x] for x in mine)
+    c2 = sum(ob.pcb[x] for x in theirs)
+    clo = rows[-1]
+    ok(clean(clo[1]).startswith("Closing balance") and val(clo, 3) == c1 == bal1 and val(clo, 6) == c2 == bal2, "%s: %s / %s pair section: closing after the close" % (label, b.name, ob.name))
+    tail = [ln for ln in lines[i:end] if ln.startswith("**")]
+    stake = any(b.type[x] == "Money in a business" for x in mine) or any(ob.type[x] == "Money in a business" for x in theirs)
+    if stake:
+        ok(any(ln == "**Entries agree one for one.**" for ln in tail), "%s: %s / %s pair section: last line" % (label, b.name, ob.name))
+    else:
+        ok(c1 == -c2, "%s: %s / %s running-account pair does not agree" % (label, b.name, ob.name))
+        words = {("Sub-family", 1): "against the household", ("Sub-family", -1): "in the household's favour",
+                 ("Joint family", 1): "against the family", ("Joint family", -1): "in the family's favour"}
+        if c1 == 0:
+            exp = "**Agrees** — nil in both books."
+        else:
+            w = lambda bk, x, c: words.get((bk.type[x], 1 if c > 0 else -1), side(c))
+            exp = "**Agrees** — ₹%s %s in %s's book, and ₹%s %s in %s's book." % (fmt_in(abs(c1)), w(b, mine[0], c1), b.name, fmt_in(abs(c2)), w(ob, theirs[0], c2), ob.name)
+        ok(exp in tail, "%s: %s / %s pair section: expected %r" % (label, b.name, ob.name, exp))
+
+
+def fmt_in(p):
+    """Integer paise → Indian-grouped rupees (paise only when non-zero), as the books print them."""
+    r, ps = divmod(p, 100)
+    s = str(r)
+    if len(s) > 3:
+        head, tail = s[:-3], s[-3:]
+        parts = []
+        while len(head) > 2:
+            parts.insert(0, head[-2:])
+            head = head[:-2]
+        if head:
+            parts.insert(0, head)
+        s = ",".join(parts) + "," + tail
+    return s + (".%02d" % ps if ps else "")
+
+
 def check_family(label, books, lines):
     """Pairs of books keeping accounts named after each other: the account named after the other book, and (joint book) its
     'Income from …' head. Openings must be opposite and every posting mirrored on the other side, entry for entry."""
@@ -992,6 +1083,7 @@ def check_family(label, books, lines):
         mine = [x.strip() for x in r[1].split("<br>")]
         theirs = [x.strip() for x in r[6].split("<br>")]
         ok(set(mine) == set(accts(b, ob)) and set(theirs) == set(accts(ob, b)), "%s: summary accounts %s" % (label, r[1]))
+        check_pair_section(label, lines, b, ob, mine, theirs)
         op1 = sum(b.opening[x] for x in mine if b.is_bs[x])
         g1 = sum(a for x in mine for _, _, a in b.post[x] if a > 0)
         r1 = -sum(a for x in mine for _, _, a in b.post[x] if a < 0)

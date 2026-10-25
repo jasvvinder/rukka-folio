@@ -263,6 +263,8 @@ class Book(object):
         self.journal_word = "an adjustment where no money moved"   # what a plain Journal is in this book (the tech companion's basis line)
         self.construction = None        # (expense head, the building) — a trust that charges a building to expenditure (02 §5.8, 03 §5.7)
         self.chart_note = ""
+        self.put_word = "Put in"        # the own-money make-up's words for money put in and taken out — a household's book names its account with the joint family (MU-3)
+        self.taken_word = "Taken out"
         self.put_note = ""              # e.g. " (by the sub-families, or settled)" on the own-money make-up
         self.taken_note = ""            # replaces the default sentence on how the openings balance
         self.sources = []
@@ -672,9 +674,19 @@ def ledger_table(b, acct, rows, start, end, bf_label, cd_label, bd_label, show_b
     return out, opening, tdr, tcr, closing
 
 
-def statement_table(b, acct, rows, start, end):
+def running_words(acct, bal):
+    """04 §6.6: a sub-family's running account reads against / in favour of the household in the family's book, and in / against the family's favour in the household's."""
+    if acct.kind != "partner" or not bal or acct.group not in ("Sub-family", "Joint family"):
+        return ""
+    if acct.group == "Sub-family":
+        return "against the household" if bal > 0 else "in the household's favour"
+    return "against the family" if bal > 0 else "in the family's favour"
+
+
+def statement_table(b, acct, rows, start, end, closes=()):
     """04 §5.6: the opening balance with its side, every entry with its running balance, the totals of the period's entries only
-    (the opening balance is not part of them), then the closing balance with its side — for a person, You will get / You will give."""
+    (the opening balance is not part of them), then the closing balance with its side — for a person, You will get / You will give.
+    A period that ends on the closed year's last day includes the year-close entries on the account: nothing is left out of the period."""
     dr_l, cr_l = acct.cols
     out = table(["Date", "No.", "Particulars", dr_l, cr_l, "Balance ₹", "Side"], ["l", "l", "l", "r", "r", "r", "c"], [])
     opening = b.balance_at(acct.name, start - dt.timedelta(days=1)) if acct.is_bs else 0
@@ -687,10 +699,17 @@ def statement_table(b, acct, rows, start, end):
         tcr += r["cr"]
         out.append("| %s | %s | %s<br><em>%s</em> | %s | %s | %s | %s |" % (fdate(r["date"]), r["vid"], r["part"], r["vch"].narration, fmt(r["dr"]), fmt(r["cr"]),
                                                                           fmt(abs(bal), show_zero=True), side_of(bal)))
+    for cp in closes:
+        line, bal, cd, cc = close_row(b, acct, cp, bal)
+        out.append(line)
+        tdr += cd
+        tcr += cc
     assert bal == opening + tdr - tcr
     out.append("|  |  | %s | %s | %s |  |  |" % (bold("Total for the period"), bold(fmt(tdr, show_zero=True)), bold(fmt(tcr, show_zero=True))))
     if acct.kind == "party" and bal:
         label = "Closing balance on %s — %s" % (fdate(end), "You will get" if bal > 0 else "You will give")
+    elif running_words(acct, bal):
+        label = "Closing balance on %s — %s" % (fdate(end), running_words(acct, bal))
     else:
         label = "Closing balance on %s" % fdate(end)
     out.append("| %s |  | %s |  |  | %s | %s |" % (fdate(end), bold(label), bold(fmt(abs(bal), show_zero=True)), bold(side_of(bal))))
@@ -958,8 +977,8 @@ def position_table(b, date, heading):
     mk.append(["− Spent so far", fmt(exp, show_zero=True)])
     mk.append([bold("= Result so far (%s)" % (result_word(b, result))), bold(fmt(abs(result), show_zero=True))])
     mk.append(["%s at the start of the year (01 Apr 2025)" % b.own_word, fmt(start, show_zero=True)])
-    mk.append(["+ Put in so far" + b.put_note, fmt(put, show_zero=True)])
-    mk.append(["− Taken out so far" + b.taken_note, fmt(taken, show_zero=True)])
+    mk.append(["+ %s so far%s" % (b.put_word, b.put_note), fmt(put, show_zero=True)])
+    mk.append(["− %s so far%s" % (b.taken_word, b.taken_note), fmt(taken, show_zero=True)])
     mk.append(["%s Result so far (%s)" % ("+" if result >= 0 else "−", result_word(b, result)), fmt(abs(result), show_zero=True)])
     own = start + put - taken + result
     mk.append([bold("= %s now" % b.own_word), bold(fmt(own, show_zero=True))])
@@ -1048,7 +1067,7 @@ def sec_statements(b):
     out.append(why + " This is the statement the user shares.")
     out.append("")
     rows = [r for r in a.rows if s <= r["date"] <= e]
-    out += statement_table(b, a, rows, s, e)
+    out += statement_table(b, a, rows, s, e, b.close_posts(name) if e == FY_END and a.is_bs else ())
     out.append("")
     out += sec_ageing(b, 5)
     if b.bank_extract:
@@ -1167,10 +1186,11 @@ def sec_close_entries(b, num):
     res = b.result_name()
     out = ["#### 4.%d Year close — the entries the book makes itself on %s" % (num, fdate(FY_END)), "", head_line(b.name, "year ended %s" % fdate(FY_END)), ""]
     own = "the General Fund" if b.style == "npo" else ("the partners' accounts, through the P&L Appropriation Account" if b.partners else "own money")
-    dw = any(b.accounts[n].kind in ("drawings", "shareout") for n in b.order)
+    # AU-5: name what is closed — a family book has no drawings, it closes the business income shared out
+    dw = " and ".join(w for k, w in (("drawings", "the drawings"), ("shareout", "the business income shared out")) if any(b.accounts[n].kind == k for n in b.order))
     out.append("Nobody types these. When the year is closed the book itself closes every income head and every expense head to **%s**, and then the result%s to %s. "
                "After them every income head, every expense head%s and %s stand at nil, and the ledgers above show each entry on its last row." % (
-                   res[:-4], " and the drawings" if dw else "", own, ", the drawings" if dw else "", res[:-4]))
+                   res[:-4], " and " + dw if dw else "", own, ", " + dw if dw else "", res[:-4]))
     out.append("")
     rows = []
     for vid, note, lines in b.close_entries():
@@ -1294,8 +1314,8 @@ def sec_balance_sheet(b, result, num):
     else:
         label = b.own_word
         eq_rows.append([label + " — at the start, 01 Apr 2025", fmt(start, show_zero=True)])
-        eq_rows.append(["Add: put in during the year" + b.put_note, fmt(put, show_zero=True)])
-        eq_rows.append(["Less: taken out during the year" + b.taken_note, fmt(taken, show_zero=True)])
+        eq_rows.append(["Add: %s during the year%s" % (b.put_word.lower(), b.put_note), fmt(put, show_zero=True)])
+        eq_rows.append(["Less: %s during the year%s" % (b.taken_word.lower(), b.taken_note), fmt(taken, show_zero=True)])
         eq_rows.append(["%s: %s for the year" % ("Add" if result >= 0 else "Less", result_word(b, result)), fmt(abs(result), show_zero=True)])
         eq_rows.append([bold(label + " — at the end, 31 Mar 2026"), bold(fmt(own_close, show_zero=True))])
     total_l = tl + own_close
@@ -1347,8 +1367,22 @@ def has_drawings(b):
 
 def sec_carry_forward(b, num):
     out = ["#### 4.%d Carried into FY 2026-27" % num, "", head_line(b.name, "opening balances on 01 Apr 2026"), ""]
+    pcb = b.post_close_balances()
+    running = [n for n in b.order if b.accounts[n].kind == "partner" and not b.partners and pcb[n]]
+    if b.partners:
+        # CA-11: a firm with fluctuating capital keeps one account per partner
+        how = ("each partner's capital account and current account open at their own balances, as in their ledgers" if any(p.get("capital") for p in b.partners)
+               else "each partner's account opens at its own balance, as in its ledger")
+    elif b.style == "npo":
+        how = "the General Fund and each fund open at one figure each"
+    elif running:
+        # EN-7, 03 §3.6: a sub-family's (or the joint family's) running account sits within own money but carries its own balance
+        how = "the own-money account opens as one figure, and %s — within own money — open%s at %s own balance%s" % (
+            " and ".join(running), "s" if len(running) == 1 else "", "its" if len(running) == 1 else "their", "" if len(running) == 1 else "s")
+    else:
+        how = "the own money opens as one figure for each owner"
     out.append("Every account that carries a balance takes its balance **after the year close** into the new year as its opening balance b/d on 01 Apr 2026 — the b/d line of its ledger. "
-               "Income and expense accounts%s start FY 2026-27 at nil; %s." % (" and the drawings" if has_drawings(b) else "", "each partner's capital account and current account open at their own balances, as in their ledgers" if b.partners else "the General Fund and each fund open at one figure each" if b.style == "npo" else "the own money opens as one figure for each owner"))
+               "Income and expense accounts%s start FY 2026-27 at nil; %s." % (" and the drawings" if has_drawings(b) else "", how))
     out.append("")
     rows = []
     tdr = tcr = 0
@@ -1400,6 +1434,60 @@ def link_pairs(case):
     return pairs
 
 
+def pair_rows(bk, names):
+    """A pair's entries in one book: [(date, signed amount, entry number, note)] in date order."""
+    return sorted(((r["date"], r["dr"] - r["cr"], r["vid"], r["vch"].narration) for n in names for r in bk.accounts[n].rows), key=lambda x: (x[0], x[2]))
+
+
+def dr_cr(x, nil=False):
+    """An amount in its column; a nil balance prints 0 in the first (`nil`)."""
+    return (fmt(x) if x > 0 else ("0" if nil and x == 0 else ""), fmt(-x) if x < 0 else "")
+
+
+def pair_section(b, ob, mine, theirs, op1, op2, last):
+    """04 §6.6 item 1, 03 §4.6: the account between two books — both books' accounts side by side, each with its opening balance, every entry
+    (date, number, note), the year-close entries on them, and its closing balance; the last line is *Agrees*, or the profit kept in the business."""
+    out = ["### Account between %s and %s — %s to %s" % (b.name, ob.name, fdate(FY_START), fdate(FY_END)), "",
+           head_line("%s · %s" % (b.name, ob.name), "%s to %s" % (fdate(FY_START), fdate(FY_END))), ""]
+    out.append("%s: %s. %s: %s. Each entry is shown once, with its number in both books; the note is %s's." % (b.name, " and ".join(mine), ob.name, " and ".join(theirs), b.name))
+    out.append("")
+    rows = [[fdate(FY_START), "Brought forward", ""] + list(dr_cr(op1, True)) + [""] + list(dr_cr(op2, True))]
+    left = {}
+    for d, x, vid, _ in pair_rows(ob, theirs):
+        left.setdefault((d, -x), []).append(vid)
+    bal1, bal2 = op1, op2
+    for d, x, vid, note in pair_rows(b, mine):
+        other = left[(d, x)].pop(0)
+        bal1 += x
+        bal2 -= x
+        rows.append([fdate(d), note, vid] + list(dr_cr(x)) + [other] + list(dr_cr(-x)))
+    assert not any(left.values()), ("an entry in only one book", b.name, ob.name)
+    for bk, names, k in ((b, mine, 0), (ob, theirs, 1)):
+        # the year-close entries on the pair's accounts, one row per entry, net over the pair's accounts (a drawings account closed to its capital nets to nil)
+        net, notes = {}, {}
+        for n in names:
+            for vid, note, x, _ in bk.close_posts(n):
+                net[vid] = net.get(vid, 0) + x
+                notes[vid] = note
+        for vid in sorted(net, key=lambda v: int(v.rsplit("Y", 1)[1])):
+            x = net[vid]
+            if not x:
+                continue
+            cells = [vid] + list(dr_cr(x))
+            rows.append([fdate(FY_END), "Year close in %s only — %s" % (bk.name, notes[vid])] + (cells + ["", "", ""] if k == 0 else ["", "", ""] + cells))
+            if k == 0:
+                bal1 += x
+            else:
+                bal2 += x
+    pcb1, pcb2 = b.post_close_balances(), ob.post_close_balances()
+    assert bal1 == sum(pcb1[n] for n in mine) and bal2 == sum(pcb2[n] for n in theirs), ("pair closing", b.name, ob.name)
+    rows.append([fdate(FY_END), bold("Closing balance, after the year close"), ""] + [bold(c) if c else "" for c in dr_cr(bal1, True)] + [""] + [bold(c) if c else "" for c in dr_cr(bal2, True)])
+    out += table(["Date", "What happened", "No.", "%s (Dr) ₹" % b.name, "(Cr) ₹", "No.", "%s (Dr) ₹" % ob.name, "(Cr) ₹"], ["l", "l", "l", "r", "r", "l", "r", "r"], rows)
+    out.append("")
+    out += last(bal1, bal2)
+    return out
+
+
 def sec_family_summary(case):
     pairs = link_pairs(case)
     if not pairs:
@@ -1408,13 +1496,13 @@ def sec_family_summary(case):
            head_line(" · ".join(b.name for b in case.books), "FY 2025-26"), ""]
     stake = [any(x.accounts[n].kind == "stake" for x, y in (pr, pr[::-1]) for n in accounts_for(x, y)) for pr in pairs]
     out.append("Money that moves between two books is written in both, in accounts named after the other book. For each pair: the balances brought forward agree, "
-               "and what one book gave is what the other received, entry for entry."
+               "and what one book gave is what the other received, entry for entry. The table below gives each pair's totals; the account between each pair follows it, entry by entry."
                + (" A family and a sub-family also agree balance for balance on opposite sides." if not all(stake) else "")
                + (" An owner and the business he owns agree entry by entry — money put in against the business's capital, money sent home against its drawings — but not in balance: "
-                  "the owner holds the business at the money put in, while the business's own money also carries its profit, so the difference is printed under the table as *profit kept in the business*." if any(stake) else ""))
+                  "the owner holds the business at the money put in, while the business's own money also carries its profit, so the difference is printed at the foot of that pair's account as *profit kept in the business*." if any(stake) else ""))
     out.append("")
     rows = []
-    kept = []
+    sections = []
     for b, ob in pairs:
         mine, theirs = accounts_for(b, ob), accounts_for(ob, b)
         op1 = sum(b.accounts[n].opening for n in mine if b.accounts[n].is_bs)
@@ -1426,6 +1514,7 @@ def sec_family_summary(case):
         g1 = sum(x for _, x in p1 if x > 0)
         r1 = -sum(x for _, x in p1 if x < 0)
         rows.append([b.name, "<br>".join(mine), amt_side(op1), fmt(g1), fmt(r1), ob.name, "<br>".join(theirs), amt_side(op2), fmt(r1), fmt(g1), len(p1), "Yes"])
+        kept = []
         for own, bus, oa, ba in ((b, ob, mine, theirs), (ob, b, theirs, mine)):
             if any(own.accounts[n].kind == "stake" for n in oa):
                 pcb = bus.post_close_balances()
@@ -1438,19 +1527,32 @@ def sec_family_summary(case):
                     res = bus.counts["result"]
                 assert a_ - b_ == res - takes, ("profit kept in the business", own.name, bus.name, a_, b_, res, takes)
                 m_ = lambda x: ("−" if x < 0 else "") + "₹" + fmt(abs(x), show_zero=True)
+                # AU-8: in a firm, what the owner's money is set against is its own partner's account, not the firm's own money as a whole
+                held = ("%s's partner's account in the business after the year close" % own.name) if bus.partners else "the business's own money after the year close"
                 if a_ - b_ >= 0:
-                    kept.append("**Profit kept in the business — %s and %s:** the business's own money after the year close %s, less the money put in that %s holds %s, is %s. "
-                                "That is the business's profit for %s %s less the %s taken out (%s − %s = %s)." % (own.name, bus.name, m_(a_), own.name, m_(b_), m_(a_ - b_), own.name, m_(res), m_(takes), m_(res), m_(takes), m_(res - takes)))
+                    kept.append("**Profit kept in the business — %s and %s:** %s %s, less the money put in that %s holds %s, is %s. "
+                                "That is the business's profit for %s %s less the %s taken out (%s − %s = %s)." % (own.name, bus.name, held, m_(a_), own.name, m_(b_), m_(a_ - b_), own.name, m_(res), m_(takes), m_(res), m_(takes), m_(res - takes)))
                 else:   # 03 §4.1: more taken out than the profit
-                    kept.append("**Taken out beyond the profit — %s and %s:** the business's own money after the year close %s, less the money put in that %s holds %s, is %s. "
-                                "The business's profit for %s was %s and %s was taken out (%s − %s = %s)." % (own.name, bus.name, m_(a_), own.name, m_(b_), m_(a_ - b_), own.name, m_(res), m_(takes), m_(res), m_(takes), m_(res - takes)))
+                    kept.append("**Taken out beyond the profit — %s and %s:** %s %s, less the money put in that %s holds %s, is %s. "
+                                "The business's profit for %s was %s and %s was taken out (%s − %s = %s)." % (own.name, bus.name, held, m_(a_), own.name, m_(b_), m_(a_ - b_), own.name, m_(res), m_(takes), m_(res), m_(takes), m_(res - takes)))
+
+        def last(bal1, bal2, kept=kept, b=b, ob=ob, mine=mine, theirs=theirs):
+            if kept:
+                return ["**Entries agree one for one.**", ""] + [x for k in kept for x in (k, "")]
+            assert bal1 == -bal2, ("running-account pair does not agree", b.name, ob.name)
+            if bal1 == 0:
+                return ["**Agrees** — nil in both books.", ""]
+            w1 = running_words(b.accounts[mine[0]], bal1) or side_of(bal1)
+            w2 = running_words(ob.accounts[theirs[0]], bal2) or side_of(bal2)
+            return ["**Agrees** — ₹%s %s in %s's book, and ₹%s %s in %s's book." % (fmt(abs(bal1)), w1, b.name, fmt(abs(bal2)), w2, ob.name), ""]
+        sections.append(pair_section(b, ob, mine, theirs, op1, op2, last))
     out += table(["Book", "Its accounts for the other book", "Brought forward ₹", "Given (Dr) ₹", "Received (Cr) ₹", "Other book", "Its accounts", "Brought forward ₹", "Given (Dr) ₹", "Received (Cr) ₹", "Entries", "Agree"],
                  ["l", "l", "r", "r", "r", "l", "l", "r", "r", "r", "r", "c"], rows)
     out.append("")
-    for k in kept:
-        out += [k, ""]
     if case.summary_note:
         out += [case.summary_note, ""]
+    for sec in sections:
+        out += sec
     return out
 
 
@@ -2316,14 +2418,14 @@ def build_family():
     ffd = F.add(Account("SBI Fixed Deposit A/c", "invest", "The family's fixed deposits", R(500000)))
     fhouse = F.add(Account("Family House, Village Kotli A/c", "fixed", "The family house at what it cost", R(2500000)))
     fgold = F.add(Account("Family Gold A/c", "fixed", "Gold and jewellery at what it cost", R(600000)))
-    SUBCOLS = ("Spent for them / given (Dr)", "Put in by them (Cr)")
+    SUBCOLS = ("Spent for them / given (Dr)", "Put in by them / settled (Cr)")
     fA = F.add(Account("Amarjeet's Family A/c", "partner", "Amarjeet's household's account — spent for it or given, less put in; settled or carried forward", R(18000), group="Sub-family", cols=SUBCOLS))
     fB = F.add(Account("Lakhbeer's Family A/c", "partner", "Lakhbeer's household's account — spent for it or given, less put in; settled or carried forward", group="Sub-family", cols=SUBCOLS))
     fC = F.add(Account("Lakhwinder's Family A/c", "partner", "Lakhwinder's household's account — puts in more than it draws; carried forward", -R(12000), group="Sub-family", cols=SUBCOLS))
     fG = F.add(Account("Randhawa Agriculture A/c", "stake", "The family's money put into its farm, at what it put in"))
     fE = F.add(Account("Randhawa Real Estate A/c", "stake", "The family's money put into its real estate, at what it put in"))
     fK = F.add(Account("Randhawa Brick Field A/c", "stake", "The family's money put into the brick field (its 3 of 5 share), at what it put in"))
-    fmilk = F.add(Account("Doodhwala (milk khata) A/c", "party", "Milkman (khata) — milk for the common kitchen, settled each half-year", -R(9600)))
+    fmilk = F.add(Account("Doodhwala (milk khata) A/c", "party", "Milkman (khata) — milk for the common kitchen, written up each half-year; March 2025's milk brought forward", -R(9600)))
     fmason = F.add(Account("Advance – mason A/c", "advance", "Advance to the mason for the roof, settled against his bill"))
     fcap = F.add(Account("Capital A/c – Randhawa family", "capital", "The family's own money"))
     fiG = F.add(Account("Income from Randhawa Agriculture A/c", "income", "Money the farm sent home — the family's income"))
@@ -2342,6 +2444,7 @@ def build_family():
     def household(bk, bank_name, bank_open, cash_open, link_open):
         bc = bk.add(Account("Cash A/c", "cash", "Cash at home", cash_open))
         bb = bk.add(Account(bank_name, "bank", "The household's bank account", bank_open))
+        bk.put_word, bk.taken_word = "Received from the joint family", "Put into the joint family, paid back or settled"
         bl = bk.add(Account("Randhawa Joint Family A/c", "partner", "Our account with the joint family — received from it, less put in; settled or carried forward", link_open,
                             group="Joint family", cols=("Put in / paid back (Dr)", "Received from the family (Cr)")))
         return bc, bb, bl
@@ -2423,11 +2526,10 @@ def build_family():
     eF = E.add(Account("Capital A/c – Randhawa Joint Family", "capital", "The owner's own money in the real estate — the joint family's; named after the owner's book"))
     eFd = E.add(Account("Drawings A/c – Randhawa Joint Family", "drawings", "Money the real estate sent home to the joint family; closed to own money at the year end"))
     erent = E.add(Account("Rent Income A/c", "income", "Rent of the two shops"))
-    egain = E.add(Account("Profit on Sale of Plot A/c", "income", "Sale price of the plot less what it cost"))
+    egain = E.add(Account("Profit on Sale of Plot A/c", "income", "Sale price of the plot, less what it cost and the cost of selling it"))
     eforf = E.add(Account("Deposit forfeited A/c", "income", "Part of a tenant's deposit kept when he left without notice"))
     etax = E.add(Account("Property Tax A/c", "expense", "Municipal property tax"))
     erep = E.add(Account("Repairs A/c", "expense", "Repairs to the shops"))
-    ebrok = E.add(Account("Brokerage A/c", "expense", "Dealer's brokerage on the plot sale"))
     ewo = E.add(Account("Rent written off A/c", "expense", "Rent a tenant will not pay, after it was asked for"))
     # Brick field
     kc = K.add(Account("Cash A/c", "cash", "Kiln cash, with the munshi", R(15000)))
@@ -2515,7 +2617,7 @@ def build_family():
     F.pay(D(2025, 9, 4), frep, fb, R(21000), "Rest of the mason's bill for the roof", "NEFT DR–ROOF REPAIR")
     F.took(D(2025, 9, 30), fkit, fmilk, R(57600), "Milk for April–September on the milkman's khata")
     F.took(D(2026, 3, 31), fkit, fmilk, R(59400), "Milk for October–March on the milkman's khata")
-    F.pay(D(2025, 10, 4), fmilk, fb, R(67200), "Milkman's khata of February–September paid", "UPI DR–DOODHWALA")
+    F.pay(D(2025, 10, 4), fmilk, fb, R(67200), "Milkman's khata paid — March (brought forward) and April–September", "UPI DR–DOODHWALA")
     F.pay(D(2025, 7, 18), fcar, fb, R(28400), "Family car insurance", "NETBANKING DR–INSURANCE")
     wrong = F.pay(D(2025, 12, 28), fsoc, fc, R(6200), "Car service, cash")
     F.fix(D(2026, 1, 5), fcar, fsoc, R(6200), "Entry {ref} (car service) was written to Gurdwara & Social — moved to Family Car", "Journal (correction)", ref=wrong)
@@ -2547,8 +2649,9 @@ def build_family():
     A.rec(D(2026, 3, 31), ab, aint, R(910), "Savings interest", "INT.CR")
     A.pay(D(2025, 9, 30), ahelp, ac, R(9000), "House help's wages, July–September, cash")
     A.pay(D(2025, 10, 15), aadv, ac, R(3000), "Advance to the house help for Diwali, cash")
-    A.v(D(2025, 12, 31), "Journal (advance settled)", "The house help's advance set against her October–December wages", [(ahelp, R(3000)), (aadv, -R(3000))])
-    A.pay(D(2025, 12, 31), ahelp, ac, R(6000), "House help's wages, October–December, less the advance, cash")
+    # O-07-5 (01 §1.3 rule 2, 02 §3.5): the advance is recovered in the wage entry itself — one entry, full wage · advance part · cash net
+    A.v(D(2025, 12, 31), "Payment", "House help's wages, October–December — ₹3,000 of it recovered from her Diwali advance, the rest paid in cash",
+        [(ahelp, R(9000)), (aadv, -R(3000)), (ac, -R(6000))])
     A.custom = (aF, D(2025, 4, 1), D(2026, 3, 31), "Our account with the joint family for the year — the same entries as the family's account for this household, on the other side, and its settlement.")
     # ---------------- Lakhbeer's family ----------------------------------------------------------
     Bb.pay(D(2025, 8, 8), bbike, bb, R(98500), "Motorcycle for Aman — thing owned, at cost", "NEFT DR–HERO MOTORS")
@@ -2650,9 +2753,10 @@ def build_family():
         [(edep2, R(5000)), (eforf, -R(5000))])
     E.v(D(2026, 3, 25), "Journal (written off)", "₹2,000 of Kotli Medical Hall's January–March rent written off — he refuses to pay the disputed water charge",
         [(ewo, R(2000)), (et1, -R(2000))])
-    E.v(D(2025, 11, 18), "Receipt", "Plot No. 14 sold for ₹15,50,000 — its cost ₹12,00,000 and the profit ₹3,50,000",
+    E.v(D(2025, 11, 18), "Receipt", "Plot No. 14 sold for ₹15,50,000 — its cost ₹12,00,000, the profit before the cost of selling ₹3,50,000",
         [(eb, R(1550000)), (eplot, -R(1200000)), (egain, -R(350000))], stmt="RTGS CR–PLOT SALE")
-    E.pay(D(2025, 11, 20), ebrok, eb, R(31000), "Dealer's brokerage on the plot sale (2%)", "NEFT DR–PROPERTY DEALER")
+    # 02 §5.6 (AS 10 ¶79): the gain is measured on the money received less the costs of selling — the brokerage goes against the same gain
+    E.pay(D(2025, 11, 20), egain, eb, R(31000), "Dealer's brokerage on the plot sale (2%) — a cost of selling it, set against the profit on the sale", "NEFT DR–PROPERTY DEALER")
     E.pay(D(2025, 12, 12), eshops, eb, R(140000), "Mezzanine floor built over shop 1 — an improvement, added to the shops' cost", "NEFT DR–BUILDER")
     E.pay(D(2026, 2, 5), eplot2, eb, R(980000), "Plot No. 7, Green Enclave bought — thing owned, at cost", "RTGS DR–PLOT PURCHASE")
     E.pay(D(2026, 2, 9), eadv, eb, R(70000), "Money to the registry clerk for stamp duty and registry", "IMPS DR–REGISTRY CLERK")
@@ -2692,7 +2796,7 @@ def build_family():
     wrong = K.pay(D(2025, 6, 10), kmould, kc, R(3400), "Kiln office electricity bill, cash")
     K.fix(D(2025, 6, 30), krep, kmould, R(3400), "Entry {ref} (electricity) was written to Moulding Labour — moved to Repairs & Sundry", "Journal (correction)", ref=wrong)
     K.move(D(2025, 11, 12), kc, kb, R(20000), "Cash withdrawn for the kiln (ATM)", "ATM WDL–KOTLI")
-    K.custom = (kG, D(2025, 4, 1), D(2026, 3, 31), "The outside partner's account for the year — what he put in and took out, before his share of the profit.")
+    K.custom = (kG, D(2025, 4, 1), D(2026, 3, 31), "The outside partner's account for the year — what he put in and took out, and his share of the profit posted at the year close.")
     # ---------------- finish -------------------------------------------------------------------
     books = [F, A, Bb, C, G, E, K]
     for bk in books:
@@ -2706,8 +2810,6 @@ def build_family():
                       "and the rest is carried forward. **Family businesses:** the joint book holds each business at the money the family put in; money a business sends home is the family's income "
                       "(*Income from …*). Each business works out its own profit in its own book and it is not written in the joint book: Randhawa Agriculture ₹%s, Randhawa Real Estate ₹%s, "
                       "and the family's 3 of 5 of the brick field's, ₹%s." % (fmt(res(G)), fmt(res(E)), fmt(kshare)))
-    for bk in (F, G, E, K):
-        bk.assets_note = "Things owned are shown at what they cost."
     F.gaps = [("Sub-family accounts", "a running account per sub-family inside the joint book, carried forward or settled at the year end (owner, 13 Oct 2026) — GAPS A11"),
               ("Income from …", "money a family business sends home is the family's income; money put in stays at cost (the cost method) — GAPS A11"),
               ("three-book entries", "a household paying into a family business, or paying its bill, writes in three books (household, business, joint) — GAPS A11")]

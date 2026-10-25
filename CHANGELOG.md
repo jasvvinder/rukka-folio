@@ -12,6 +12,32 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-25 — docs: accounting panel on the joint-family book; every confirmed finding applied through build.py
+
+**Changed**
+- `/acct-review book joint-family` (48 agents, 3.58 M tokens, 33 min): 43 findings, 18 confirmed (11 distinct), 25 refuted. The owner ruled "do all fixes". Reports: `.claude/lane-reports/acct-book-joint-family-*.json`.
+- `reference-books/build.py`:
+  - Family summary (AU-1/CA-6/EN-1, major): after the totals table, an *Account between {A} and {B}* section for each pair, as 04 §6.6 item 1 and 03 §4.6 say. It shows both books' accounts side by side: the balance brought forward, every entry once with its number in both books and the note, the year-close entries on the pair's accounts (net per entry, in one book only) and each closing after the close. A running-account pair ends *Agrees* in the 04 §6.6 words (*against the household* / *in the household's favour*; *against the family* / *in the family's favour*); an owner ↔ business pair ends *Entries agree one for one* and the profit-kept line. The individual file's two-books summary gets the same section (the same rule; EN-4 of the individual run).
+  - Chosen-period statement (CA-7, major): a statement to the closed year's last day carries the year-close entries on the account (04 §5.6, nothing left out). Nirmaljeet Gill's statement now shows RK-Y4 and closes at ₹7,49,680 Cr, as his ledger, the partners' table and the carry-forward do. A sub-family account's closing line carries the 04 §6.6 words.
+  - House help (CA-8/MU-4, major): RA-024 and RA-025 are now one entry, `Dr House Help ₹9,000 · Cr Advance – house help ₹3,000 · Cr Cash ₹6,000` (01 §1.3 rule 2, 02 §3.5, O-07-5). RA has 31 entries, and RA-025 onwards are renumbered.
+  - The sub-family column (MU-7): *Put in by them / settled (Cr)*, so the family's settlement no longer reads as money the household put in.
+  - Household make-up (MU-3/EN-2): in RA, RB and RC the own-money lines use the words of the household's account with the family. *+ Received from the joint family so far* and *− Put into the joint family, paid back or settled so far* replace *put in* / *taken out*, which meant the opposite of the account's columns. The same words appear on the balance sheet.
+  - Plot sale (CA-14): the dealer's brokerage RE-015 is debited to *Profit on Sale of Plot A/c* (₹3,19,000 net), and *Brokerage A/c* is gone. The year's profit is unchanged at ₹5,32,500.
+  - Wording: the RJ year-close sentence names *the business income shared out*, not *the drawings* (AU-5). The brick field's carry-forward says *each partner's account opens at its own balance*, because the capital is fluctuating (CA-11/MU-10). The family's and the households' carry-forwards name the running account that opens at its own balance within own money (EN-7). In the profit-kept line for the firm, the ₹13,63,520 is *the family's partner's account in the business*, not the business's own money (AU-8). The short duplicate cost note is removed from the four balance sheets (AU-6/CA-15). The milkman's opening and RJ-020 note now agree: March brought forward plus April–September, *written up each half-year* (MU-8).
+- `check_md.py`: re-derives every *Account between* section independently (brought forward, every entry of the pair's accounts mirrored, year-close rows, closing after the close, the *Agrees* words); the chosen-period statement must include the year-close rows when it ends on 31 Mar 2026; a sub-family statement's closing words; the household make-up and balance-sheet words. Mutation-tested: deleting a pair row, flipping the *Agrees* words or dropping RK-Y4 from the statement each fails.
+- `02-accounts-and-transactions.md` §5.6: the gain or loss is measured on the money received *less the costs of selling it*, and a later selling cost goes to the same gain or loss account (AS 10 ¶79, which the citation already named). Worked figures added.
+- `04-year-end-and-reports.md` §2.6: a partnership with fluctuating capital carries each partner's one account.
+- `COVERAGE.md`: O-16-5 moved from *not shown* to a shown row; O-07-5 lists `RA-024`; `RA-030` corrected to `RA-029`. `GAPS.md` lists `RA-024` with the salary advances.
+- Build: 22,005 checks, 0 problems; two runs give the same content hash. Pages: joint family 9–13 per book, individual 14 + 11, shop 13, partnership 14, trust 14.
+- `PLAN.md` PLAN-209 records the run; every panel run before the bookkeeper is done.
+
+**Open**
+- Bookkeeper questions MU-Q1–Q9 → PLAN-209, in `.claude/lane-reports/acct-book-joint-family-acct-munim.json`. They cover: udhaar on the running account; every brother's kharch borne alike; a share-out to one brother only; peshgi on the khata or on an advance account; arhtiya commission on MSP; a milk society paying half-yearly; rewiring as repairs; khata written monthly; brick-field money beyond the profit as income.
+- Citations `acct-ca` could not fetch (three NCERT chapters, the ICAI Technical Guide PDF) are still not checked. ICAI BoS Intermediate Ch. 15 §6 does not support 03 §3.2's "not a debt" (CA-3 itself was refuted; the source is cited by analogy only).
+
+**Commits**
+- (fill in)
+
 ## 2026-10-25 — docs: accounting panel on the trust book; every confirmed finding applied through build.py
 
 **Changed**
@@ -33,7 +59,7 @@ Running record of what changed in this repository and in the development environ
 - Panel run still to do: joint family.
 
 **Commits**
-- (fill in)
+- `392940f`
 
 ## 2026-10-24 — docs: accounting panel on the partnership book; every confirmed finding applied through build.py
 
@@ -55,7 +81,7 @@ Running record of what changed in this repository and in the development environ
 - Panel runs still to do: trust, joint family.
 
 **Commits**
-- (fill in)
+- `392940f`
 
 ## 2026-10-24 — docs: accounting panel on the individual book; every confirmed finding applied through build.py
 
@@ -80,7 +106,7 @@ Running record of what changed in this repository and in the development environ
 - Panel runs still to do: partnership, trust, joint family.
 
 **Commits**
-- (fill in)
+- `392940f`
 
 ## 2026-10-22 — docs: accounting panel on the shop book; every confirmed finding applied through build.py to all five reference books
 

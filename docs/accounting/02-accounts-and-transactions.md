@@ -285,10 +285,10 @@ An asset with no limited useful life stays at cost even in a book that opts into
 Diary: *Bought Gold ₹3,00,000 — Thing owned.*
 
 ### 5.6 A sale of a Thing owned shows a gain or loss against what it stood at
-On sale, the thing leaves the book at its carrying amount (cost, where no depreciation is kept). The difference from the money received is a gain or a loss.
+On sale, the thing leaves the book at its carrying amount (cost, where no depreciation is kept). The difference from the money received, less the costs of selling it, is a gain or a loss: a selling cost such as a dealer's brokerage goes to the same gain or loss account, also when it is paid in a later entry.
 **Source:** AS 10 ¶74, 75, 79 [24]; NCERT Part I ch. 7 §7.9 pp. 249–251 [6].
 **Example.** `Dr Bank A/c ₹15,50,000 · Cr Plot A/c ₹12,00,000 · Cr Profit on Sale of Plot A/c ₹3,50,000`. Loss: `Dr Bank A/c ₹40,000 · Dr Loss on Sale of Scooter A/c ₹10,000 · Cr Scooter A/c ₹50,000`.
-Diary: *Money in ₹15,50,000 — sold the Plot, which stood at ₹12,00,000: Income ₹3,50,000.* / *Sold the Scooter for ₹40,000, which stood at ₹50,000: Expense ₹10,000.*
+Diary: *Money in ₹15,50,000 — sold the Plot, which stood at ₹12,00,000: Income ₹3,50,000.* / *Sold the Scooter for ₹40,000, which stood at ₹50,000: Expense ₹10,000.* Brokerage of ₹31,000 paid on the plot: `Dr Profit on Sale of Plot A/c ₹31,000 · Cr Bank A/c ₹31,000`, so the gain is ₹3,19,000 — *Money out ₹31,000 — brokerage on the plot, a cost of selling it.*
 
 ### 5.7 A Thing owned bought on credit, or with a lender's money, is one entry
 A Thing owned bought on credit is debited at its full cost and the seller's account credited. When a lender pays the seller (a vehicle loan), one entry debits the Thing owned in full, credits the loan with the part the lender paid and credits the bank or cash with the margin the buyer paid; the lender's part does not pass through the book's bank.

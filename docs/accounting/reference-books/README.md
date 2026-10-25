@@ -19,11 +19,11 @@ All five carry the owner's real names (ADR 2026-10-12 §12, extending ADR 2026-1
 | `individual-jasvinder-singh` | Jasvinder Singh | personal book | `JP` | 51 | 28 | 29,16,104 | 5,10,635 | 4,80,273 | 30,362 |
 |  | Jasvinder Technologies | own business book | `JT` | 48 | 17 | 21,62,540 | 14,71,000 | 8,46,660 | 6,24,340 |
 | `joint-family-randhawa` | Randhawa Joint Family | joint family book | `RJ` | 40 | 26 | 1,64,51,260 | 14,29,360 | 6,09,600 | 8,19,760 |
-|  | Amarjeet's Family | household book | `RA` | 32 | 16 | 2,08,910 | 1,46,910 | 1,22,100 | 24,810 |
+|  | Amarjeet's Family | household book | `RA` | 31 | 16 | 2,08,910 | 1,46,910 | 1,22,100 | 24,810 |
 |  | Lakhbeer's Family | household book | `RB` | 29 | 14 | 3,39,140 | 30,640 | 1,64,100 | −1,33,460 |
 |  | Lakhwinder's Family | household book | `RC` | 38 | 15 | 8,95,700 | 7,69,800 | 1,58,600 | 6,11,200 |
 |  | Randhawa Agriculture | family business book | `RG` | 40 | 24 | 90,28,070 | 22,56,100 | 8,09,935 | 14,46,165 |
-|  | Randhawa Real Estate | family business book | `RE` | 29 | 19 | 37,62,000 | 5,89,000 | 56,500 | 5,32,500 |
+|  | Randhawa Real Estate | family business book | `RE` | 29 | 18 | 37,31,000 | 5,58,000 | 25,500 | 5,32,500 |
 |  | Randhawa Brick Field | shared business book | `RK` | 39 | 15 | 39,67,000 | 18,38,000 | 14,88,800 | 3,49,200 |
 | `shop-sukhwinder-sales-co` | Sukhwinder Sales Co. | business book | `S` | 57 | 20 | 36,99,700 | 26,23,800 | 20,15,730 | 6,08,070 |
 | `partnership-bal-fabricators` | Bal Fabricators | partnership business book | `BF` | 53 | 25 | 32,43,000 | 23,25,000 | 15,94,700 | 7,30,300 |
@@ -93,7 +93,7 @@ Still open:
 - `python3 -I build.py` in this folder regenerates every file (`--no-pdf` skips Chrome and the page check; `--chrome PATH`; `--skip-check` skips the checker). Standard library only, integer paise, no clock, no randomness; two runs give byte-identical `.md`, `.html` and `.tech.md` (PDF dates and ids are pinned too).
 - **`build.py` asserts** on every run: every entry sums to zero with at least two lines and no account twice; money in/out touches a money account and no-money entries do not (a Money out may also credit an advance it recovers or the lender's part of a purchase); a transfer joins two own money/deposit accounts; spending from a fund charges the year and moves the same amount out of the fund; the gollak is filled only by a count and emptied only into cash or bank; openings and the trial balance balance; cash, bank and wallet never go negative, a credit card never goes past nil; advances, loans given, retention, things owned and deposits are never over-settled; fixed capital never moves; every year-close entry balances and leaves every head, the drawings and the result account at nil; the position make-up equals the position at both dates; the balance sheet balances; the carry-forward sums to zero; every inter-book pair agrees entry for entry; the entry count is in range; no book prints on more than 14 pages.
 - **`check_md.py`** (no code shared with `build.py`) re-derives every printed figure from the markdown: chart, Day Book, every ledger row (including the year-close rows), the Cash Book, the bank extract, both positions and their make-up, the one-month summary (and that it does not repeat the entries), the chosen-period statement, the ageing, the trial balance, the year's statement, each fund's statement, the appropriation (interest from the printed rate and capital; each share within a paisa of the exact ratio, and posted to the partners' accounts), Receipts & Payments, the year-close entries, the balance sheet and partners' table, the carry-forward after the close, the family summaries, the report heads, the things-owned and no-stock lines, the corrections' notes, the entry counts and the plain-word lint. `build.py` runs it and stops before making PDFs if it fails.
-- Content hash (BLAKE2b-256 over the five book `.md` files) of this generation: `98fe5a6343640949d1b5888b8b2b763a055c51e7f8b4b53b35ac1c8767134435`.
+- Content hash (BLAKE2b-256 over the five book `.md` files) of this generation: `493ee9b84ddfc1f70f079fba5d9c90554b8c3c42ed3adce337afdacfe1a529cc`.
 
 ## 8. For development — `GAPS.md` and `COVERAGE.md`
 

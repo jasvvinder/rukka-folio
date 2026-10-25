@@ -31,7 +31,7 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 30 Sep 2025 | RJ-017 | Money in | SBI Joint Savings A/c | Interest A/c | 2,860 | Savings interest |
 | 03 Oct 2025 | RJ-018 | Money out | Amarjeet's Family A/c | SBI Joint Savings A/c | 45,000 | Household money for six months to Amarjeet's family |
 | 03 Oct 2025 | RJ-019 | Money out | Lakhbeer's Family A/c | SBI Joint Savings A/c | 60,000 | Household money for six months to Lakhbeer's family |
-| 04 Oct 2025 | RJ-020 | Money out | Doodhwala (milk khata) A/c | SBI Joint Savings A/c | 67,200 | Milkman's khata of February–September paid |
+| 04 Oct 2025 | RJ-020 | Money out | Doodhwala (milk khata) A/c | SBI Joint Savings A/c | 67,200 | Milkman's khata paid — March (brought forward) and April–September |
 | 08 Oct 2025 | RJ-021 | Money out | Common Kitchen & Ration A/c | SBI Joint Savings A/c | 1,01,500 | Ration and gas for the common kitchen, October–March (wholesale) |
 | 20 Oct 2025 | RJ-022 | Money out | Randhawa Brick Field A/c | SBI Joint Savings A/c | 2,00,000 | Put into the brick field for the season (the family's share) |
 | 21 Oct 2025 | RJ-023 | Fix / Adjust — no money moved | Randhawa Brick Field A/c | Lakhwinder's Family A/c | 1,00,000 | Lakhwinder's family put ₹1,00,000 straight into the brick field — the family's money in it, put in by his household |
@@ -87,7 +87,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 30 Sep 2025 |  | **Month total — September 2025 · closing balance** | **0** | **62,860** | **0** | **21,000** | **50,000** | **5,94,960** |
 | 03 Oct 2025 | RJ-018 | By Amarjeet's Family A/c<br><em>Household money for six months to Amarjeet's family</em> | — | — | — | 45,000 | 50,000 | 5,49,960 |
 | 03 Oct 2025 | RJ-019 | By Lakhbeer's Family A/c<br><em>Household money for six months to Lakhbeer's family</em> | — | — | — | 60,000 | 50,000 | 4,89,960 |
-| 04 Oct 2025 | RJ-020 | By Doodhwala (milk khata) A/c<br><em>Milkman's khata of February–September paid</em> | — | — | — | 67,200 | 50,000 | 4,22,760 |
+| 04 Oct 2025 | RJ-020 | By Doodhwala (milk khata) A/c<br><em>Milkman's khata paid — March (brought forward) and April–September</em> | — | — | — | 67,200 | 50,000 | 4,22,760 |
 | 08 Oct 2025 | RJ-021 | By Common Kitchen & Ration A/c<br><em>Ration and gas for the common kitchen, October–March (wholesale)</em> | — | — | — | 1,01,500 | 50,000 | 3,21,260 |
 | 20 Oct 2025 | RJ-022 | By Randhawa Brick Field A/c<br><em>Put into the brick field for the season (the family's share)</em> | — | — | — | 2,00,000 | 50,000 | 1,21,260 |
 | 31 Oct 2025 |  | **Month total — October 2025 · closing balance** | **0** | **0** | **0** | **4,73,700** | **50,000** | **1,21,260** |
@@ -144,17 +144,16 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 20 Dec 2025 | RA-021 | Transfer | Cash A/c | PNB Savings A/c | 15,000 | Cash withdrawn (ATM) |
 | 26 Dec 2025 | RA-022 | Paid by the joint family — no money moved | Medical A/c | Randhawa Joint Family A/c | 9,000 | Indu's dental treatment, paid by the joint family |
 | 31 Dec 2025 | RA-023 | Took on credit — no money moved | Household & Groceries A/c | Gill Kiryana Store A/c | 15,600 | Groceries on khata, October–December 2025 |
-| 31 Dec 2025 | RA-024 | Advance settled — no money moved | House Help A/c | Advance – house help A/c | 3,000 | The house help's advance set against her October–December wages |
-| 31 Dec 2025 | RA-025 | Money out | House Help A/c | Cash A/c | 6,000 | House help's wages, October–December, less the advance, cash |
-| 06 Jan 2026 | RA-026 | Money out | Gill Kiryana Store A/c | PNB Savings A/c | 15,600 | Grocer's khata paid (UPI) |
-| 18 Jan 2026 | RA-027 | Money in | Cash A/c | Sidhu family A/c | 5,600 | The Sidhu family paid for the suits, cash |
-| 27 Feb 2026 | RA-028 | Money in | Cash A/c | Stitching Income A/c | 7,200 | Indu's stitching — suits for the season, cash |
-| 08 Mar 2026 | RA-029 | Money out | Clothes & Personal A/c | Cash A/c | 4,800 | Shoes and a shawl, cash |
-| 31 Mar 2026 | RA-030 | Settled at year end — no money moved | Randhawa Joint Family A/c | Received from the Joint Family A/c | 1,17,000 | Our account with the joint family settled for the year — the family bears it |
-| 31 Mar 2026 | RA-031 | Took on credit — no money moved | Household & Groceries A/c | Gill Kiryana Store A/c | 14,200 | Groceries on khata, January–March 2026 |
-| 31 Mar 2026 | RA-032 | Money in | PNB Savings A/c | Interest A/c | 910 | Savings interest |
+| 31 Dec 2025 | RA-024 | Money out | House Help A/c | Advance – house help A/c ₹3,000<br>Cash A/c ₹6,000 | 9,000 | House help's wages, October–December — ₹3,000 of it recovered from her Diwali advance, the rest paid in cash |
+| 06 Jan 2026 | RA-025 | Money out | Gill Kiryana Store A/c | PNB Savings A/c | 15,600 | Grocer's khata paid (UPI) |
+| 18 Jan 2026 | RA-026 | Money in | Cash A/c | Sidhu family A/c | 5,600 | The Sidhu family paid for the suits, cash |
+| 27 Feb 2026 | RA-027 | Money in | Cash A/c | Stitching Income A/c | 7,200 | Indu's stitching — suits for the season, cash |
+| 08 Mar 2026 | RA-028 | Money out | Clothes & Personal A/c | Cash A/c | 4,800 | Shoes and a shawl, cash |
+| 31 Mar 2026 | RA-029 | Settled at year end — no money moved | Randhawa Joint Family A/c | Received from the Joint Family A/c | 1,17,000 | Our account with the joint family settled for the year — the family bears it |
+| 31 Mar 2026 | RA-030 | Took on credit — no money moved | Household & Groceries A/c | Gill Kiryana Store A/c | 14,200 | Groceries on khata, January–March 2026 |
+| 31 Mar 2026 | RA-031 | Money in | PNB Savings A/c | Interest A/c | 910 | Savings interest |
 
-*32 entries: Advance settled 1 · Correction 1 · Gave on credit 1 · Money in 7 · Money out 14 · Paid by the joint family 1 · Settled at year end 1 · Took on credit 4 · Transfer 2.*
+*31 entries: Correction 1 · Gave on credit 1 · Money in 7 · Money out 14 · Paid by the joint family 1 · Settled at year end 1 · Took on credit 4 · Transfer 2.*
 
 ### 2. Cash Book — Cash A/c and PNB Savings A/c
 
@@ -190,15 +189,15 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 30 Nov 2025 |  | **Month total — November 2025 · closing balance** | **0** | **0** | **5,100** | **0** | **5,500** | **98,400** |
 | 10 Dec 2025 | RA-020 | By Phone & Travel A/c<br><em>Mobiles for six months</em> | — | — | — | 4,400 | 5,500 | 94,000 |
 | 20 Dec 2025 | RA-021 | PNB Savings A/c to Cash A/c<br><em>Cash withdrawn (ATM)</em> | 15,000 | — | — | 15,000 | 20,500 | 79,000 |
-| 31 Dec 2025 | RA-025 | By House Help A/c<br><em>House help's wages, October–December, less the advance, cash</em> | — | — | 6,000 | — | 14,500 | 79,000 |
+| 31 Dec 2025 | RA-024 | By House Help A/c<br><em>House help's wages, October–December — ₹3,000 of it recovered from her Diwali advance, the rest paid in cash</em> | — | — | 6,000 | — | 14,500 | 79,000 |
 | 31 Dec 2025 |  | **Month total — December 2025 · closing balance** | **15,000** | **0** | **6,000** | **19,400** | **14,500** | **79,000** |
-| 06 Jan 2026 | RA-026 | By Gill Kiryana Store A/c<br><em>Grocer's khata paid (UPI)</em> | — | — | — | 15,600 | 14,500 | 63,400 |
-| 18 Jan 2026 | RA-027 | To Sidhu family A/c<br><em>The Sidhu family paid for the suits, cash</em> | 5,600 | — | — | — | 20,100 | 63,400 |
+| 06 Jan 2026 | RA-025 | By Gill Kiryana Store A/c<br><em>Grocer's khata paid (UPI)</em> | — | — | — | 15,600 | 14,500 | 63,400 |
+| 18 Jan 2026 | RA-026 | To Sidhu family A/c<br><em>The Sidhu family paid for the suits, cash</em> | 5,600 | — | — | — | 20,100 | 63,400 |
 | 31 Jan 2026 |  | **Month total — January 2026 · closing balance** | **5,600** | **0** | **0** | **15,600** | **20,100** | **63,400** |
-| 27 Feb 2026 | RA-028 | To Stitching Income A/c<br><em>Indu's stitching — suits for the season, cash</em> | 7,200 | — | — | — | 27,300 | 63,400 |
+| 27 Feb 2026 | RA-027 | To Stitching Income A/c<br><em>Indu's stitching — suits for the season, cash</em> | 7,200 | — | — | — | 27,300 | 63,400 |
 | 28 Feb 2026 |  | **Month total — February 2026 · closing balance** | **7,200** | **0** | **0** | **0** | **27,300** | **63,400** |
-| 08 Mar 2026 | RA-029 | By Clothes & Personal A/c<br><em>Shoes and a shawl, cash</em> | — | — | 4,800 | — | 22,500 | 63,400 |
-| 31 Mar 2026 | RA-032 | To Interest A/c<br><em>Savings interest</em> | — | 910 | — | — | 22,500 | 64,310 |
+| 08 Mar 2026 | RA-028 | By Clothes & Personal A/c<br><em>Shoes and a shawl, cash</em> | — | — | 4,800 | — | 22,500 | 63,400 |
+| 31 Mar 2026 | RA-031 | To Interest A/c<br><em>Savings interest</em> | — | 910 | — | — | 22,500 | 64,310 |
 | 31 Mar 2026 |  | **Month total — March 2026 · closing balance** | **0** | **910** | **4,800** | **0** | **22,500** | **64,310** |
 
 *On 31 Mar 2026: Cash A/c ₹22,500 · PNB Savings A/c ₹64,310 — the same as the closing balances in the ledgers of the printed book (its section 2).*
@@ -518,8 +517,8 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 26 Sep 2025 | RE-011 | Money out | Property Tax A/c | Axis Bank Current A/c | 14,200 | Property tax 2025-26 for the shops |
 | 01 Oct 2025 | RE-012 | Gave on credit — no money moved | Kotli Medical Hall A/c ₹36,000<br>Bhullar Hardware A/c ₹30,000 | Rent Income A/c | 66,000 | Rent for October–December 2025 |
 | 07 Oct 2025 | RE-013 | Money in | Axis Bank Current A/c | Kotli Medical Hall A/c | 36,000 | Rent of October–December 2025 received |
-| 18 Nov 2025 | RE-014 | Money in | Axis Bank Current A/c | Plot No. 14, Model Colony A/c ₹12,00,000<br>Profit on Sale of Plot A/c ₹3,50,000 | 15,50,000 | Plot No. 14 sold for ₹15,50,000 — its cost ₹12,00,000 and the profit ₹3,50,000 |
-| 20 Nov 2025 | RE-015 | Money out | Brokerage A/c | Axis Bank Current A/c | 31,000 | Dealer's brokerage on the plot sale (2%) |
+| 18 Nov 2025 | RE-014 | Money in | Axis Bank Current A/c | Plot No. 14, Model Colony A/c ₹12,00,000<br>Profit on Sale of Plot A/c ₹3,50,000 | 15,50,000 | Plot No. 14 sold for ₹15,50,000 — its cost ₹12,00,000, the profit before the cost of selling ₹3,50,000 |
+| 20 Nov 2025 | RE-015 | Money out | Profit on Sale of Plot A/c | Axis Bank Current A/c | 31,000 | Dealer's brokerage on the plot sale (2%) — a cost of selling it, set against the profit on the sale |
 | 10 Dec 2025 | RE-016 | Money out | Drawings A/c – Randhawa Joint Family | Axis Bank Current A/c | 2,50,000 | Part of the plot money sent home to the joint family |
 | 12 Dec 2025 | RE-017 | Money out | Shops at Kotli Chowk A/c | Axis Bank Current A/c | 1,40,000 | Mezzanine floor built over shop 1 — an improvement, added to the shops' cost |
 | 22 Dec 2025 | RE-018 | Money in | Axis Bank Current A/c | Bhullar Hardware A/c | 5,000 | Rent of October–December 2025 received — only ₹5,000 of ₹30,000 |
@@ -562,8 +561,8 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 30 Sep 2025 |  | **Month total — September 2025 · closing balance** | **0** | **30,000** | **0** | **74,200** | **5,200** | **2,02,800** |
 | 07 Oct 2025 | RE-013 | To Kotli Medical Hall A/c<br><em>Rent of October–December 2025 received</em> | — | 36,000 | — | — | 5,200 | 2,38,800 |
 | 31 Oct 2025 |  | **Month total — October 2025 · closing balance** | **0** | **36,000** | **0** | **0** | **5,200** | **2,38,800** |
-| 18 Nov 2025 | RE-014 | To Plot No. 14, Model Colony A/c / Profit on Sale of Plot A/c<br><em>Plot No. 14 sold for ₹15,50,000 — its cost ₹12,00,000 and the profit ₹3,50,000</em> | — | 15,50,000 | — | — | 5,200 | 17,88,800 |
-| 20 Nov 2025 | RE-015 | By Brokerage A/c<br><em>Dealer's brokerage on the plot sale (2%)</em> | — | — | — | 31,000 | 5,200 | 17,57,800 |
+| 18 Nov 2025 | RE-014 | To Plot No. 14, Model Colony A/c / Profit on Sale of Plot A/c<br><em>Plot No. 14 sold for ₹15,50,000 — its cost ₹12,00,000, the profit before the cost of selling ₹3,50,000</em> | — | 15,50,000 | — | — | 5,200 | 17,88,800 |
+| 20 Nov 2025 | RE-015 | By Profit on Sale of Plot A/c<br><em>Dealer's brokerage on the plot sale (2%) — a cost of selling it, set against the profit on the sale</em> | — | — | — | 31,000 | 5,200 | 17,57,800 |
 | 30 Nov 2025 |  | **Month total — November 2025 · closing balance** | **0** | **15,50,000** | **0** | **31,000** | **5,200** | **17,57,800** |
 | 10 Dec 2025 | RE-016 | By Drawings A/c – Randhawa Joint Family<br><em>Part of the plot money sent home to the joint family</em> | — | — | — | 2,50,000 | 5,200 | 15,07,800 |
 | 12 Dec 2025 | RE-017 | By Shops at Kotli Chowk A/c<br><em>Mezzanine floor built over shop 1 — an improvement, added to the shops' cost</em> | — | — | — | 1,40,000 | 5,200 | 13,67,800 |
