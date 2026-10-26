@@ -295,7 +295,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Fabrication Income A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 28 May 2025 | BF-005 | By Verka Dairy Plant A/c<br><em>Verka Dairy Plant — cattle-shed frames</em> | — | 3,86,000 | 3,86,000 | Cr |
 | 28 Jun 2025 | BF-009 | By Sandhu Builders A/c / Retention held by – Sandhu Builders A/c<br><em>Running bill 1 to Sandhu Builders (Sunny Enclave staircases, towers A–B) — ₹3,00,000 billed, 5% (₹15,000) held back</em> | — | 3,00,000 | 6,86,000 | Cr |

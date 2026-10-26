@@ -247,7 +247,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Income from Randhawa Agriculture A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 06 May 2025 | RJ-004 | By SBI Joint Savings A/c<br><em>Wheat money sent home by Randhawa Agriculture</em> | — | 4,00,000 | 4,00,000 | Cr |
 | 25 Nov 2025 | RJ-024 | By SBI Joint Savings A/c<br><em>Paddy money sent home by Randhawa Agriculture</em> | — | 3,50,000 | 7,50,000 | Cr |
@@ -256,7 +256,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Income from Randhawa Real Estate A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 15 Sep 2025 | RJ-015 | By SBI Joint Savings A/c<br><em>Rent surplus sent home by Randhawa Real Estate</em> | — | 60,000 | 60,000 | Cr |
 | 10 Dec 2025 | RJ-027 | By SBI Joint Savings A/c<br><em>Plot money sent home by Randhawa Real Estate</em> | — | 2,50,000 | 3,10,000 | Cr |
@@ -265,7 +265,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Income from Randhawa Brick Field A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 10 Jul 2025 | RJ-007 | By SBI Joint Savings A/c<br><em>Taken from the brick field — the family's income</em> | — | 1,50,000 | 1,50,000 | Cr |
 | 20 Mar 2026 | RJ-036 | By SBI Joint Savings A/c<br><em>Taken from the brick field — the family's income</em> | — | 1,80,000 | 3,30,000 | Cr |
@@ -274,7 +274,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Interest A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 30 Sep 2025 | RJ-017 | By SBI Joint Savings A/c<br><em>Savings interest</em> | — | 2,860 | 2,860 | Cr |
 | 31 Mar 2026 | RJ-040 | By SBI Joint Savings A/c<br><em>Interest on the fixed deposits, paid to savings</em> | — | 36,500 | 39,360 | Cr |
@@ -767,7 +767,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Stitching Income A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 30 May 2025 | RA-003 | By Cash A/c<br><em>Indu's stitching — suits for the season, cash</em> | — | 6,400 | 6,400 | Cr |
 | 30 Oct 2025 | RA-017 | By Cash A/c<br><em>Indu's stitching — suits for the season, cash</em> | — | 9,800 | 16,200 | Cr |
@@ -778,7 +778,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Received from the Joint Family A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 31 Mar 2026 | RA-029 | By Randhawa Joint Family A/c<br><em>Our account with the joint family settled for the year — the family bears it</em> | — | 1,17,000 | 1,17,000 | Cr |
 |  |  | **Total for the year** | **—** | **1,17,000** | **1,17,000** | **Cr** |
@@ -786,7 +786,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Interest A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 31 Mar 2026 | RA-031 | By PNB Savings A/c<br><em>Savings interest</em> | — | 910 | 910 | Cr |
 |  |  | **Total for the year** | **—** | **910** | **910** | **Cr** |
@@ -1212,7 +1212,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Interest A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 31 Mar 2026 | RB-029 | By HDFC Savings A/c<br><em>Savings interest</em> | — | 640 | 640 | Cr |
 |  |  | **Total for the year** | **—** | **640** | **640** | **Cr** |
@@ -1220,7 +1220,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Share of Family Business Income A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 31 Mar 2026 | RB-028 | By Randhawa Joint Family A/c<br><em>The ₹30,000 still due from what we took, settled from our share of the family's business income</em> | — | 30,000 | 30,000 | Cr |
 |  |  | **Total for the year** | **—** | **30,000** | **30,000** | **Cr** |
@@ -1638,7 +1638,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Salary A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 | RC-001 | By SBI Salary A/c<br><em>Salary for March 2025 (after deductions)</em> | — | 62,400 | 62,400 | Cr |
 | 01 May 2025 | RC-004 | By SBI Salary A/c<br><em>Salary for April 2025 (after deductions)</em> | — | 62,400 | 1,24,800 | Cr |
@@ -1657,7 +1657,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Tuition Income A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 31 Jul 2025 | RC-013 | By Cash A/c<br><em>Harjeet's tuition fees, April–July, cash</em> | — | 9,000 | 9,000 | Cr |
 | 28 Feb 2026 | RC-035 | By Cash A/c<br><em>Harjeet's tuition fees, August–February, cash</em> | — | 12,000 | 21,000 | Cr |
@@ -2173,7 +2173,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Wheat Sales A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 28 Apr 2025 | RG-004 | By PNB Savings A/c (farm)<br><em>Wheat sold at MSP — 340 quintals @ ₹2,425, paid into the bank</em> | — | 8,24,500 | 8,24,500 | Cr |
 |  |  | **Total for the year** | **—** | **8,24,500** | **8,24,500** | **Cr** |
@@ -2181,7 +2181,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Paddy Sales A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 30 Oct 2025 | RG-024 | By Bansal & Sons A/c<br><em>Paddy sold through Bansal & Sons — 490 quintals @ ₹2,340 (PR-126)</em> | — | 11,46,600 | 11,46,600 | Cr |
 |  |  | **Total for the year** | **—** | **11,46,600** | **11,46,600** | **Cr** |
@@ -2189,7 +2189,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Milk Sales A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 30 Sep 2025 | RG-021 | By Verka Milk Society A/c<br><em>Milk to Verka Milk Society, April–September (ten-day bills)</em> | — | 1,22,400 | 1,22,400 | Cr |
 | 31 Mar 2026 | RG-040 | By Verka Milk Society A/c<br><em>Milk to Verka Milk Society, October–March (ten-day bills)</em> | — | 1,38,600 | 2,61,000 | Cr |
@@ -2198,7 +2198,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Straw & PM-Kisan Income A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 10 May 2025 | RG-007 | By PNB Savings A/c (farm)<br><em>Wheat straw sold</em> | — | 18,000 | 18,000 | Cr |
 | 02 Aug 2025 | RG-017 | By PNB Savings A/c (farm)<br><em>PM-Kisan instalments, three</em> | — | 6,000 | 24,000 | Cr |
@@ -2584,11 +2584,12 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 | 11 | Capital A/c – Randhawa Joint Family | Own money | The owner's own money in the real estate — the joint family's; named after the owner's book | — | 31,37,000 |
 | 12 | Drawings A/c – Randhawa Joint Family | Drawings | Money the real estate sent home to the joint family; closed to own money at the year end | — | — |
 | 13 | Rent Income A/c | Income | Rent of the two shops | — | — |
-| 14 | Profit on Sale of Plot A/c | Income | Sale price of the plot, less what it cost and the cost of selling it | — | — |
+| 14 | Profit on Sale of Plot A/c | Income | Sale price of the plot less what it cost | — | — |
 | 15 | Deposit forfeited A/c | Income | Part of a tenant's deposit kept when he left without notice | — | — |
 | 16 | Property Tax A/c | Expense | Municipal property tax | — | — |
 | 17 | Repairs A/c | Expense | Repairs to the shops | — | — |
-| 18 | Rent written off A/c | Expense | Rent a tenant will not pay, after it was asked for | — | — |
+| 18 | Brokerage A/c | Expense | Dealer's brokerage on the plot sale | — | — |
+| 19 | Rent written off A/c | Expense | Rent a tenant will not pay, after it was asked for | — | — |
 |  | **Total of opening balances** |  |  | **32,03,000** | **32,03,000** |
 
 Things owned are shown at what they cost; no depreciation is charged.
@@ -2625,8 +2626,8 @@ One account after another: date, entry number, the other account (*To …* on th
 | 18 Sep 2025 | RE-010 | To Bhullar Hardware A/c<br><em>Rent of July–September 2025 received (late)</em> | 30,000 | — | 2,17,000 | Dr |
 | 26 Sep 2025 | RE-011 | By Property Tax A/c<br><em>Property tax 2025-26 for the shops</em> | — | 14,200 | 2,02,800 | Dr |
 | 07 Oct 2025 | RE-013 | To Kotli Medical Hall A/c<br><em>Rent of October–December 2025 received</em> | 36,000 | — | 2,38,800 | Dr |
-| 18 Nov 2025 | RE-014 | To Plot No. 14, Model Colony A/c / Profit on Sale of Plot A/c<br><em>Plot No. 14 sold for ₹15,50,000 — its cost ₹12,00,000, the profit before the cost of selling ₹3,50,000</em> | 15,50,000 | — | 17,88,800 | Dr |
-| 20 Nov 2025 | RE-015 | By Profit on Sale of Plot A/c<br><em>Dealer's brokerage on the plot sale (2%) — a cost of selling it, set against the profit on the sale</em> | — | 31,000 | 17,57,800 | Dr |
+| 18 Nov 2025 | RE-014 | To Plot No. 14, Model Colony A/c / Profit on Sale of Plot A/c<br><em>Plot No. 14 sold for ₹15,50,000 — its cost ₹12,00,000 and the profit ₹3,50,000</em> | 15,50,000 | — | 17,88,800 | Dr |
+| 20 Nov 2025 | RE-015 | By Brokerage A/c<br><em>Dealer's brokerage on the plot sale (2%)</em> | — | 31,000 | 17,57,800 | Dr |
 | 10 Dec 2025 | RE-016 | By Drawings A/c – Randhawa Joint Family<br><em>Part of the plot money sent home to the joint family</em> | — | 2,50,000 | 15,07,800 | Dr |
 | 12 Dec 2025 | RE-017 | By Shops at Kotli Chowk A/c<br><em>Mezzanine floor built over shop 1 — an improvement, added to the shops' cost</em> | — | 1,40,000 | 13,67,800 | Dr |
 | 22 Dec 2025 | RE-018 | To Bhullar Hardware A/c<br><em>Rent of October–December 2025 received — only ₹5,000 of ₹30,000</em> | 5,000 | — | 13,72,800 | Dr |
@@ -2720,7 +2721,7 @@ One account after another: date, entry number, the other account (*To …* on th
 | Date | No. | Particulars | Bought / received (Dr) | Sold / gone (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | 12,00,000 | — | 12,00,000 | Dr |
-| 18 Nov 2025 | RE-014 | By Axis Bank Current A/c<br><em>Plot No. 14 sold for ₹15,50,000 — its cost ₹12,00,000, the profit before the cost of selling ₹3,50,000</em> | — | 12,00,000 | 0 | — |
+| 18 Nov 2025 | RE-014 | By Axis Bank Current A/c<br><em>Plot No. 14 sold for ₹15,50,000 — its cost ₹12,00,000 and the profit ₹3,50,000</em> | — | 12,00,000 | 0 | — |
 | 31 Mar 2026 |  | Closing balance c/d | — | — | — | — |
 |  |  | **Total** | **12,00,000** | **12,00,000** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | — | 0 | — |
@@ -2761,7 +2762,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Rent Income A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 | RE-001 | By Kotli Medical Hall A/c / Bhullar Hardware A/c<br><em>Rent for April–June 2025</em> | — | 66,000 | 66,000 | Cr |
 | 01 Jul 2025 | RE-007 | By Kotli Medical Hall A/c / Bhullar Hardware A/c<br><em>Rent for July–September 2025</em> | — | 66,000 | 1,32,000 | Cr |
@@ -2772,16 +2773,15 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Profit on Sale of Plot A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 18 Nov 2025 | RE-014 | By Axis Bank Current A/c<br><em>Plot No. 14 sold for ₹15,50,000 — its cost ₹12,00,000, the profit before the cost of selling ₹3,50,000</em> | — | 3,50,000 | 3,50,000 | Cr |
-| 20 Nov 2025 | RE-015 | To Axis Bank Current A/c<br><em>Dealer's brokerage on the plot sale (2%) — a cost of selling it, set against the profit on the sale</em> | 31,000 | — | 3,19,000 | Cr |
-|  |  | **Total for the year** | **31,000** | **3,50,000** | **3,19,000** | **Cr** |
-| 31 Mar 2026 | RE-Y1 | To Profit & Loss A/c<br><em>Income heads closed to Profit & Loss</em> | 3,19,000 | — | 0 | — |
+| 18 Nov 2025 | RE-014 | By Axis Bank Current A/c<br><em>Plot No. 14 sold for ₹15,50,000 — its cost ₹12,00,000 and the profit ₹3,50,000</em> | — | 3,50,000 | 3,50,000 | Cr |
+|  |  | **Total for the year** | **—** | **3,50,000** | **3,50,000** | **Cr** |
+| 31 Mar 2026 | RE-Y1 | To Profit & Loss A/c<br><em>Income heads closed to Profit & Loss</em> | 3,50,000 | — | 0 | — |
 
 #### Deposit forfeited A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 31 Dec 2025 | RE-020 | By Deposit held – Bhullar Hardware A/c<br><em>The other ₹5,000 of Bhullar Hardware's deposit kept — he left without the notice the agreement asks for</em> | — | 5,000 | 5,000 | Cr |
 |  |  | **Total for the year** | **—** | **5,000** | **5,000** | **Cr** |
@@ -2805,6 +2805,14 @@ One account after another: date, entry number, the other account (*To …* on th
 | 15 Jan 2026 | RE-024 | To Property Tax A/c<br><em>Entry RE-023 of 09 Jan 2026 (plumbing) was written to Property Tax — moved to Repairs</em> | 6,500 | — | 9,300 | Dr |
 |  |  | **Total for the year** | **9,300** | **—** | **9,300** | **Dr** |
 | 31 Mar 2026 | RE-Y2 | By Profit & Loss A/c<br><em>Expense heads closed to Profit & Loss</em> | — | 9,300 | 0 | — |
+
+#### Brokerage A/c
+
+| Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
+|:---|:---|:---|---:|---:|---:|:---:|
+| 20 Nov 2025 | RE-015 | To Axis Bank Current A/c<br><em>Dealer's brokerage on the plot sale (2%)</em> | 31,000 | — | 31,000 | Dr |
+|  |  | **Total for the year** | **31,000** | **—** | **31,000** | **Dr** |
+| 31 Mar 2026 | RE-Y2 | By Profit & Loss A/c<br><em>Expense heads closed to Profit & Loss</em> | — | 31,000 | 0 | — |
 
 #### Rent written off A/c
 
@@ -2870,8 +2878,8 @@ Every account with a balance on 31 Mar 2026, placed on the side its balance fall
 
 | How it is made up | ₹ |
 |:---|---:|
-| Income so far | 5,58,000 |
-| − Spent so far | 25,500 |
+| Income so far | 5,89,000 |
+| − Spent so far | 56,500 |
 | **= Result so far (profit)** | **5,32,500** |
 | Own money at the start of the year (01 Apr 2025) | 31,37,000 |
 | + Put in so far | 0 |
@@ -2957,14 +2965,15 @@ The closing balance of every account after the last entry of the year (before th
 | Capital A/c – Randhawa Joint Family | — | 31,37,000 |
 | Drawings A/c – Randhawa Joint Family | 3,10,000 | — |
 | Rent Income A/c | — | 2,34,000 |
-| Profit on Sale of Plot A/c | — | 3,19,000 |
+| Profit on Sale of Plot A/c | — | 3,50,000 |
 | Deposit forfeited A/c | — | 5,000 |
 | Property Tax A/c | 14,200 | — |
 | Repairs A/c | 9,300 | — |
+| Brokerage A/c | 31,000 | — |
 | Rent written off A/c | 2,000 | — |
-| **TOTALS** | **37,31,000** | **37,31,000** |
+| **TOTALS** | **37,62,000** | **37,62,000** |
 
-**Checked: Dr ₹37,31,000 = Cr ₹37,31,000. The books balance.**
+**Checked: Dr ₹37,62,000 = Cr ₹37,62,000. The books balance.**
 
 *Accounts with entries in the year but nil on 31 Mar 2026 (not listed above): Kotli Medical Hall A/c; Bhullar Hardware A/c; Deposit held – Bhullar Hardware A/c; Advance – registry clerk A/c; Plot No. 14, Model Colony A/c.*
 
@@ -2980,15 +2989,16 @@ Every income and expense account's **total for the year** — the *Total for the
 |:---|---:|---:|---:|
 | To Property Tax A/c | 3 | 14,200 | — |
 | To Repairs A/c | 2 | 9,300 | — |
+| To Brokerage A/c | 1 | 31,000 | — |
 | To Rent written off A/c | 1 | 2,000 | — |
 | By Rent Income A/c | 4 | — | 2,34,000 |
-| By Profit on Sale of Plot A/c | 2 | — | 3,19,000 |
+| By Profit on Sale of Plot A/c | 1 | — | 3,50,000 |
 | By Deposit forfeited A/c | 1 | — | 5,000 |
-| **Total of the heads for the year** |  | **25,500** | **5,58,000** |
+| **Total of the heads for the year** |  | **56,500** | **5,89,000** |
 | To Net profit — closed to own money (4.3) |  | 5,32,500 | — |
-| **Total** |  | **5,58,000** | **5,58,000** |
+| **Total** |  | **5,89,000** | **5,89,000** |
 
-**FY 2025-26: income ₹5,58,000 · spent ₹25,500 · profit ₹5,32,500.**
+**FY 2025-26: income ₹5,89,000 · spent ₹56,500 · profit ₹5,32,500.**
 
 #### 4.3 Year close — the entries the book makes itself on 31 Mar 2026
 
@@ -2998,8 +3008,8 @@ Nobody types these. When the year is closed the book itself closes every income 
 
 | No. | Date | What the book does | Debit (Dr) | Credit (Cr) | Amount ₹ |
 |:---|:---|:---|:---|:---|---:|
-| RE-Y1 | 31 Mar 2026 | Income heads closed to Profit & Loss | Rent Income A/c ₹2,34,000<br>Profit on Sale of Plot A/c ₹3,19,000<br>Deposit forfeited A/c ₹5,000 | Profit & Loss A/c | 5,58,000 |
-| RE-Y2 | 31 Mar 2026 | Expense heads closed to Profit & Loss | Profit & Loss A/c | Property Tax A/c ₹14,200<br>Repairs A/c ₹9,300<br>Rent written off A/c ₹2,000 | 25,500 |
+| RE-Y1 | 31 Mar 2026 | Income heads closed to Profit & Loss | Rent Income A/c ₹2,34,000<br>Profit on Sale of Plot A/c ₹3,50,000<br>Deposit forfeited A/c ₹5,000 | Profit & Loss A/c | 5,89,000 |
+| RE-Y2 | 31 Mar 2026 | Expense heads closed to Profit & Loss | Profit & Loss A/c | Property Tax A/c ₹14,200<br>Repairs A/c ₹9,300<br>Brokerage A/c ₹31,000<br>Rent written off A/c ₹2,000 | 56,500 |
 | RE-Y3 | 31 Mar 2026 | Net profit added to own money | Profit & Loss A/c | Capital A/c – Randhawa Joint Family | 5,32,500 |
 | RE-Y4 | 31 Mar 2026 | Drawings closed to own money | Capital A/c – Randhawa Joint Family | Drawings A/c – Randhawa Joint Family | 3,10,000 |
 
@@ -3231,7 +3241,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Brick Sales A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 30 Apr 2025 | RK-004 | By Cash A/c<br><em>Bricks sold for cash at the kiln this month</em> | — | 2,96,000 | 2,96,000 | Cr |
 | 20 May 2025 | RK-006 | By Sidhu Builders A/c<br><em>Bricks on khata — trolleys delivered this month</em> | — | 3,12,000 | 6,08,000 | Cr |

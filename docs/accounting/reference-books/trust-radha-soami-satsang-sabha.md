@@ -213,7 +213,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Donations – gollak A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 31 May 2025 | RS-004 | By Gollak Cash A/c<br><em>Gollak counted by Amritpal Singh, witnessed by Ranjeet Singh (note-count sheet 1)</em> | — | 86,450 | 86,450 | Cr |
 | 31 Jul 2025 | RS-014 | By Gollak Cash A/c<br><em>Gollak counted by Amritpal Singh, witnessed by Ranjeet Singh (note-count sheet 2)</em> | — | 74,200 | 1,60,650 | Cr |
@@ -226,7 +226,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Transferred from the Langar Hall Fund A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 14 Oct 2025 | RS-028 | By Langar Hall Fund A/c<br><em>Langar hall — steel and shuttering, paid from the Langar Hall Fund</em> | — | 1,86,000 | 1,86,000 | Cr |
 | 22 Dec 2025 | RS-035 | By Langar Hall Fund A/c<br><em>Langar hall — mason contractor, first bill, paid from the Langar Hall Fund</em> | — | 1,24,000 | 3,10,000 | Cr |
@@ -235,7 +235,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Donation A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 14 Apr 2025 | RS-002 | By SBI Current A/c<br><em>Donation from a family on Baisakhi</em> | — | 51,000 | 51,000 | Cr |
 | 09 Aug 2025 | RS-016 | By SBI Current A/c<br><em>Donation from a sponsor for the monthly satsang</em> | — | 25,000 | 76,000 | Cr |
@@ -247,7 +247,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Dairy Donation A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 12 Jun 2025 | RS-007 | By Cash A/c<br><em>Donation for the dairy (cow feed), cash</em> | — | 4,100 | 4,100 | Cr |
 | 08 Dec 2025 | RS-034 | By SBI Current A/c<br><em>Donation for the dairy</em> | — | 15,000 | 19,100 | Cr |
@@ -256,7 +256,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Bank Interest A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 31 Mar 2026 | RS-053 | By SBI Current A/c<br><em>Interest credited by the bank</em> | — | 6,840 | 6,840 | Cr |
 |  |  | **Total for the year** | **—** | **6,840** | **6,840** | **Cr** |

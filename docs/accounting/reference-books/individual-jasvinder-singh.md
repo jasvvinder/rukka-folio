@@ -279,7 +279,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Income from Jasvinder Technologies A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 | JP-001 | By SBI Savings A/c<br><em>Received from Jasvinder Technologies — money sent home</em> | — | 1,20,000 | 1,20,000 | Cr |
 | 15 Jul 2025 | JP-012 | By SBI Savings A/c<br><em>Received from Jasvinder Technologies — money sent home</em> | — | 1,20,000 | 2,40,000 | Cr |
@@ -290,7 +290,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Interest A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 12 Dec 2025 | JP-031 | By SBI Savings A/c<br><em>Interest on the hand loan paid by Gurpreet Sandhu for seven months</em> | — | 1,875 | 1,875 | Cr |
 | 31 Dec 2025 | JP-039 | By SBI Savings A/c<br><em>Interest on the fixed deposit, paid to savings</em> | — | 14,400 | 16,275 | Cr |
@@ -300,7 +300,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Gifts Received A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 03 Aug 2025 | JP-014 | By SBI Savings A/c<br><em>Birthday gift from an uncle (UPI)</em> | — | 11,000 | 11,000 | Cr |
 |  |  | **Total for the year** | **—** | **11,000** | **11,000** | **Cr** |
@@ -900,7 +900,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Service Income A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 30 Jun 2025 | JT-009 | By Medtech Solutions A/c<br><em>Support retainer, April–June 2025 (₹69,000 a month)</em> | — | 2,07,000 | 2,07,000 | Cr |
 | 31 Jul 2025 | JT-017 | By Kaur Exports A/c<br><em>Kaur Exports — export-order mobile application delivered</em> | — | 1,40,000 | 3,47,000 | Cr |

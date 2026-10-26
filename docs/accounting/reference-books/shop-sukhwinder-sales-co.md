@@ -239,7 +239,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Sales A/c
 
-| Date | No. | Particulars | Returned / closed (Dr) | Income (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 30 Jun 2025 | S-009 | By Cash A/c<br><em>Counter sales in cash, April–June 2025 (from the daily cash memo book)</em> | — | 3,86,000 | 3,86,000 | Cr |
 | 30 Jun 2025 | S-011 | By Guru Nanak Builders A/c<br><em>Goods to Guru Nanak Builders on khata, April–June 2025</em> | — | 2,38,000 | 6,24,000 | Cr |

@@ -263,7 +263,7 @@ Diary: *Bought Furniture ₹12,000 — Thing owned.* / *Spent ₹12,000 on Wages
 ### 5.2 A Thing owned is carried at its cost, including the cost of putting it to use
 Cost is the price plus freight, insurance in transit, installation, registration and commission; for land, stamp duty and registry.
 **Source:** NCERT Part I ch. 7 §7.5.1 pp. 232–233 [6]; AS 10 ¶17(b), 18, 20, 21 [24].
-**Example.** `Dr Flour Mill A/c ₹55,000 · Cr Bank A/c ₹55,000` (₹50,000 price + ₹5,000 carriage and fitting). Plot: `Dr Plot A/c ₹12,00,000 · Cr Bank A/c ₹12,00,000`, then `Dr Plot A/c ₹60,000 · Cr Bank A/c ₹60,000` for stamp duty and registry.
+**Example.** `Dr Flour Mill A/c ₹55,000 · Cr Bank A/c ₹55,000` (₹50,000 price + ₹5,000 carriage and fitting). Plot: `Dr Plot No. 7 A/c ₹9,80,000 · Cr Bank A/c ₹9,80,000`, then `Dr Plot No. 7 A/c ₹68,600 · Cr Bank A/c ₹68,600` for stamp duty and registry; it stands at ₹10,48,600.
 Diary: *Bought a flour mill ₹50,000 and paid ₹5,000 to bring and fit it — it stands at ₹55,000.*
 
 ### 5.3 Repairs are expense; an addition or improvement is added to cost
@@ -285,10 +285,10 @@ An asset with no limited useful life stays at cost even in a book that opts into
 Diary: *Bought Gold ₹3,00,000 — Thing owned.*
 
 ### 5.6 A sale of a Thing owned shows a gain or loss against what it stood at
-On sale, the thing leaves the book at its carrying amount (cost, where no depreciation is kept). The difference from the money received, less the costs of selling it, is a gain or a loss: a selling cost such as a dealer's brokerage goes to the same gain or loss account, also when it is paid in a later entry.
-**Source:** AS 10 ¶74, 75, 79 [24]; NCERT Part I ch. 7 §7.9 pp. 249–251 [6].
-**Example.** `Dr Bank A/c ₹15,50,000 · Cr Plot A/c ₹12,00,000 · Cr Profit on Sale of Plot A/c ₹3,50,000`. Loss: `Dr Bank A/c ₹40,000 · Dr Loss on Sale of Scooter A/c ₹10,000 · Cr Scooter A/c ₹50,000`.
-Diary: *Money in ₹15,50,000 — sold the Plot, which stood at ₹12,00,000: Income ₹3,50,000.* / *Sold the Scooter for ₹40,000, which stood at ₹50,000: Expense ₹10,000.* Brokerage of ₹31,000 paid on the plot: `Dr Profit on Sale of Plot A/c ₹31,000 · Cr Bank A/c ₹31,000`, so the gain is ₹3,19,000 — *Money out ₹31,000 — brokerage on the plot, a cost of selling it.*
+On sale, the thing leaves the book at its carrying amount (cost, where no depreciation is kept). The difference from the money received is a gain or a loss. A cost of selling it, such as a dealer's brokerage, is an expense of its own; it is not set against the gain.
+**Source:** AS 10 ¶74, 75 [24]; NCERT Part I ch. 7 §7.9 pp. 249–251 [6]. AS 10 ¶79 measures the gain on the net disposal proceeds, after the costs of selling; this book shows the gain before them and the cost as an expense, which leaves the year's result unchanged (owner, 26 Oct 2026; a point for the bookkeeper, PLAN-209).
+**Example.** `Dr Bank A/c ₹15,50,000 · Cr Plot No. 14 A/c ₹12,00,000 · Cr Profit on Sale of Plot A/c ₹3,50,000`; the dealer's brokerage paid two days later, `Dr Brokerage A/c ₹31,000 · Cr Bank A/c ₹31,000`. Loss: `Dr Bank A/c ₹40,000 · Dr Loss on Sale of Scooter A/c ₹10,000 · Cr Scooter A/c ₹50,000`.
+Diary: *Money in ₹15,50,000 — sold Plot No. 14, which stood at ₹12,00,000: Income ₹3,50,000.* / *Money out ₹31,000 — dealer's brokerage on selling Plot No. 14: Expense.* / *Sold the Scooter for ₹40,000, which stood at ₹50,000: Expense ₹10,000.*
 
 ### 5.7 A Thing owned bought on credit, or with a lender's money, is one entry
 A Thing owned bought on credit is debited at its full cost and the seller's account credited. When a lender pays the seller (a vehicle loan), one entry debits the Thing owned in full, credits the loan with the part the lender paid and credits the bank or cash with the margin the buyer paid; the lender's part does not pass through the book's bank.

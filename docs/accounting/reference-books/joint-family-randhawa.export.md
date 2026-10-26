@@ -517,8 +517,8 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 26 Sep 2025 | RE-011 | Money out | Property Tax A/c | Axis Bank Current A/c | 14,200 | Property tax 2025-26 for the shops |
 | 01 Oct 2025 | RE-012 | Gave on credit — no money moved | Kotli Medical Hall A/c ₹36,000<br>Bhullar Hardware A/c ₹30,000 | Rent Income A/c | 66,000 | Rent for October–December 2025 |
 | 07 Oct 2025 | RE-013 | Money in | Axis Bank Current A/c | Kotli Medical Hall A/c | 36,000 | Rent of October–December 2025 received |
-| 18 Nov 2025 | RE-014 | Money in | Axis Bank Current A/c | Plot No. 14, Model Colony A/c ₹12,00,000<br>Profit on Sale of Plot A/c ₹3,50,000 | 15,50,000 | Plot No. 14 sold for ₹15,50,000 — its cost ₹12,00,000, the profit before the cost of selling ₹3,50,000 |
-| 20 Nov 2025 | RE-015 | Money out | Profit on Sale of Plot A/c | Axis Bank Current A/c | 31,000 | Dealer's brokerage on the plot sale (2%) — a cost of selling it, set against the profit on the sale |
+| 18 Nov 2025 | RE-014 | Money in | Axis Bank Current A/c | Plot No. 14, Model Colony A/c ₹12,00,000<br>Profit on Sale of Plot A/c ₹3,50,000 | 15,50,000 | Plot No. 14 sold for ₹15,50,000 — its cost ₹12,00,000 and the profit ₹3,50,000 |
+| 20 Nov 2025 | RE-015 | Money out | Brokerage A/c | Axis Bank Current A/c | 31,000 | Dealer's brokerage on the plot sale (2%) |
 | 10 Dec 2025 | RE-016 | Money out | Drawings A/c – Randhawa Joint Family | Axis Bank Current A/c | 2,50,000 | Part of the plot money sent home to the joint family |
 | 12 Dec 2025 | RE-017 | Money out | Shops at Kotli Chowk A/c | Axis Bank Current A/c | 1,40,000 | Mezzanine floor built over shop 1 — an improvement, added to the shops' cost |
 | 22 Dec 2025 | RE-018 | Money in | Axis Bank Current A/c | Bhullar Hardware A/c | 5,000 | Rent of October–December 2025 received — only ₹5,000 of ₹30,000 |
@@ -561,8 +561,8 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 30 Sep 2025 |  | **Month total — September 2025 · closing balance** | **0** | **30,000** | **0** | **74,200** | **5,200** | **2,02,800** |
 | 07 Oct 2025 | RE-013 | To Kotli Medical Hall A/c<br><em>Rent of October–December 2025 received</em> | — | 36,000 | — | — | 5,200 | 2,38,800 |
 | 31 Oct 2025 |  | **Month total — October 2025 · closing balance** | **0** | **36,000** | **0** | **0** | **5,200** | **2,38,800** |
-| 18 Nov 2025 | RE-014 | To Plot No. 14, Model Colony A/c / Profit on Sale of Plot A/c<br><em>Plot No. 14 sold for ₹15,50,000 — its cost ₹12,00,000, the profit before the cost of selling ₹3,50,000</em> | — | 15,50,000 | — | — | 5,200 | 17,88,800 |
-| 20 Nov 2025 | RE-015 | By Profit on Sale of Plot A/c<br><em>Dealer's brokerage on the plot sale (2%) — a cost of selling it, set against the profit on the sale</em> | — | — | — | 31,000 | 5,200 | 17,57,800 |
+| 18 Nov 2025 | RE-014 | To Plot No. 14, Model Colony A/c / Profit on Sale of Plot A/c<br><em>Plot No. 14 sold for ₹15,50,000 — its cost ₹12,00,000 and the profit ₹3,50,000</em> | — | 15,50,000 | — | — | 5,200 | 17,88,800 |
+| 20 Nov 2025 | RE-015 | By Brokerage A/c<br><em>Dealer's brokerage on the plot sale (2%)</em> | — | — | — | 31,000 | 5,200 | 17,57,800 |
 | 30 Nov 2025 |  | **Month total — November 2025 · closing balance** | **0** | **15,50,000** | **0** | **31,000** | **5,200** | **17,57,800** |
 | 10 Dec 2025 | RE-016 | By Drawings A/c – Randhawa Joint Family<br><em>Part of the plot money sent home to the joint family</em> | — | — | — | 2,50,000 | 5,200 | 15,07,800 |
 | 12 Dec 2025 | RE-017 | By Shops at Kotli Chowk A/c<br><em>Mezzanine floor built over shop 1 — an improvement, added to the shops' cost</em> | — | — | — | 1,40,000 | 5,200 | 13,67,800 |

@@ -151,7 +151,7 @@ KIND = {
     "partner":  ("Capital", "Personal", "Cr", ("Taken out (Dr)", "Put in / added (Cr)"), "Partner"),
     "pcapital": ("Capital", "Personal", "Cr", ("Taken out (Dr)", "Put in / added (Cr)"), "Partner's capital"),
     "pcurrent": ("Capital", "Personal", "by sign", ("Taken out (Dr)", "Put in / added (Cr)"), "Partner's current"),
-    "income":   ("Income", "Nominal", "Cr", ("Returned / closed (Dr)", "Income (Cr)"), "Income"),
+    "income":   ("Income", "Nominal", "Cr", ("Taken off / closed (Dr)", "Income (Cr)"), "Income"),
     "expense":  ("Expense", "Nominal", "Dr", ("Spent (Dr)", "Got back / closed (Cr)"), "Expense"),
 }
 MONEY_KINDS = ("cash", "gollak", "bank", "wallet", "card", "cc")
@@ -2526,10 +2526,11 @@ def build_family():
     eF = E.add(Account("Capital A/c – Randhawa Joint Family", "capital", "The owner's own money in the real estate — the joint family's; named after the owner's book"))
     eFd = E.add(Account("Drawings A/c – Randhawa Joint Family", "drawings", "Money the real estate sent home to the joint family; closed to own money at the year end"))
     erent = E.add(Account("Rent Income A/c", "income", "Rent of the two shops"))
-    egain = E.add(Account("Profit on Sale of Plot A/c", "income", "Sale price of the plot, less what it cost and the cost of selling it"))
+    egain = E.add(Account("Profit on Sale of Plot A/c", "income", "Sale price of the plot less what it cost"))
     eforf = E.add(Account("Deposit forfeited A/c", "income", "Part of a tenant's deposit kept when he left without notice"))
     etax = E.add(Account("Property Tax A/c", "expense", "Municipal property tax"))
     erep = E.add(Account("Repairs A/c", "expense", "Repairs to the shops"))
+    ebrok = E.add(Account("Brokerage A/c", "expense", "Dealer's brokerage on the plot sale"))
     ewo = E.add(Account("Rent written off A/c", "expense", "Rent a tenant will not pay, after it was asked for"))
     # Brick field
     kc = K.add(Account("Cash A/c", "cash", "Kiln cash, with the munshi", R(15000)))
@@ -2753,10 +2754,10 @@ def build_family():
         [(edep2, R(5000)), (eforf, -R(5000))])
     E.v(D(2026, 3, 25), "Journal (written off)", "₹2,000 of Kotli Medical Hall's January–March rent written off — he refuses to pay the disputed water charge",
         [(ewo, R(2000)), (et1, -R(2000))])
-    E.v(D(2025, 11, 18), "Receipt", "Plot No. 14 sold for ₹15,50,000 — its cost ₹12,00,000, the profit before the cost of selling ₹3,50,000",
+    E.v(D(2025, 11, 18), "Receipt", "Plot No. 14 sold for ₹15,50,000 — its cost ₹12,00,000 and the profit ₹3,50,000",
         [(eb, R(1550000)), (eplot, -R(1200000)), (egain, -R(350000))], stmt="RTGS CR–PLOT SALE")
-    # 02 §5.6 (AS 10 ¶79): the gain is measured on the money received less the costs of selling — the brokerage goes against the same gain
-    E.pay(D(2025, 11, 20), egain, eb, R(31000), "Dealer's brokerage on the plot sale (2%) — a cost of selling it, set against the profit on the sale", "NEFT DR–PROPERTY DEALER")
+    # 02 §5.6 (owner, 26 Oct 2026): a cost of selling is an expense of its own, not set against the gain
+    E.pay(D(2025, 11, 20), ebrok, eb, R(31000), "Dealer's brokerage on the plot sale (2%)", "NEFT DR–PROPERTY DEALER")
     E.pay(D(2025, 12, 12), eshops, eb, R(140000), "Mezzanine floor built over shop 1 — an improvement, added to the shops' cost", "NEFT DR–BUILDER")
     E.pay(D(2026, 2, 5), eplot2, eb, R(980000), "Plot No. 7, Green Enclave bought — thing owned, at cost", "RTGS DR–PLOT PURCHASE")
     E.pay(D(2026, 2, 9), eadv, eb, R(70000), "Money to the registry clerk for stamp duty and registry", "IMPS DR–REGISTRY CLERK")

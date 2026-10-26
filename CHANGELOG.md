@@ -12,6 +12,41 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-26 — docs: owner's rulings on the plot examples and the cost of selling
+
+**Decided**
+- A cost of selling a thing owned, such as a dealer's brokerage, is an expense of its own, not set against the gain (owner, 26 Oct 2026). This reverses the 25 Oct change to 02 §5.6 (joint-family run, CA-14). It departs from AS 10 ¶79, which measures the gain on net disposal proceeds; the year's result is the same either way, and 02 §5.6's Source line says so for the bookkeeper (PLAN-209).
+- The income-head Dr column stays *Taken off / closed (Dr)* (owner).
+
+**Changed**
+- `02-accounts-and-transactions.md` §5.6: rule sentence as above; the brokerage entry moved to the Example line as `Dr Brokerage A/c ₹31,000 · Cr Bank A/c ₹31,000`, and the Diary line holds only plain words; Source line no longer cites ¶79 as support and records the departure.
+- `02` §5.2 and §5.6: the two plots are named so they cannot be read as one. §5.2 is *Plot No. 7* at the book's figures (₹9,80,000 + ₹68,600 stamp duty and registry = ₹10,48,600, as RE-025/RE-027); §5.6 is *Plot No. 14* (₹12,00,000, sold for ₹15,50,000, as RE-014).
+- `reference-books/build.py`: *Brokerage A/c* (expense) restored in Randhawa Real Estate; RE-015 is `Dr Brokerage A/c · Cr Axis Bank Current A/c ₹31,000`; Profit on Sale of Plot A/c shows ₹3,50,000 and its description and RE-014's note lose "the cost of selling". Real Estate's profit stays ₹5,32,500.
+- `GAPS.md`: the income-head column words no longer cite RE-015 (the Dr column takes a return and the year close).
+- Build: 22,019 checks, 0 problems. Pages unchanged (individual 14 + 11, joint family 9–13, shop 13, partnership 14, trust 14).
+
+**Open**
+- MU-Q2 for the bookkeeper: *brokerage* vs *commission* / *dalali* as the household word (the account is still *Brokerage A/c*).
+
+**Commits**
+- (fill in)
+
+## 2026-10-25 — docs: panel re-check of 02 §5.6 and 04 §2.6 (edited after their panel runs)
+
+**Changed**
+- Re-check by the panel (CA, munim, entity specialist; each finding then put to another member to refute; 5 agents, 0.49 M): 7 findings, 2 confirmed, 5 refuted. AS 10 ¶79 verified on indasaccess.icai.org: the gain or loss is net disposal proceeds less carrying amount, so 02 §5.6's selling-cost clause stands unchanged. Reports: `.claude/lane-reports/acct-docs-recheck-0206-*.json`.
+- `04-year-end-and-reports.md` §2.6 (EN-1): the own-money bullet also names the running account between a joint family and each sub-family. That account sits within own money in both books and carries at its own balance, nil where the family settled it (rule 6.6; 03 §3.2, §3.5). Before, the bullet read as folding it into one own-money figure, against 03 §3.6 and the RJ/RB/RC carry-forwards.
+- `reference-books/build.py` (CA-1/EN-2): the income-head Dr column is *Taken off / closed (Dr)* (was *Returned / closed (Dr)*), because RE-015's brokerage, set against the profit on the plot, is neither a return nor the close. 30 headings across the five books. *Returned / set against / closed* was tried first and pushed the partnership book to 15 pages.
+- `GAPS.md`: column words to match.
+- Build: 22,007 checks, 0 problems; a second run gives the same content hash. Pages: individual 14 + 11, joint family 9–13, shop 13, partnership 14, trust 14.
+
+**Open**
+- Bookkeeper question MU-Q2 → PLAN-209: *brokerage* vs *commission* / *dalali* as the household word. (MU-Q1 was answered by the owner, next entry.)
+- Refuted, not changed: moving the brokerage entry from 02 §5.6's Diary line to its Example line (MU-1), naming the page in the diary words (MU-2), rewording the rule sentence (MU-3), a partnership citation on 04 §2.6's Source line (CA-2).
+
+**Commits**
+- (fill in)
+
 ## 2026-10-25 — docs: accounting panel on the joint-family book; every confirmed finding applied through build.py
 
 **Changed**
@@ -36,7 +71,7 @@ Running record of what changed in this repository and in the development environ
 - Citations `acct-ca` could not fetch (three NCERT chapters, the ICAI Technical Guide PDF) are still not checked. ICAI BoS Intermediate Ch. 15 §6 does not support 03 §3.2's "not a debt" (CA-3 itself was refuted; the source is cited by analogy only).
 
 **Commits**
-- (fill in)
+- `657c06a`
 
 ## 2026-10-25 — docs: accounting panel on the trust book; every confirmed finding applied through build.py
 
