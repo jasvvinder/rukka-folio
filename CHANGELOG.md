@@ -12,6 +12,65 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-27 — docs: owner's rulings on review-pack sections C and D
+
+**Decided**
+- `2026-10-27-month-close-cash-person-and-bank-not-checked.md` — 🔒 02 §8 month close. §1: a cash shortage may go on the page of the person minding the cash (`Dr {person} · Cr Cash`), and the closer chooses every time. §2: a bank account may be marked *Not checked this month*, which warns but never blocks, except in the year's last month, when every bank must match. 02 §8/§8.2 and 07 §8 carry the cross-reference. Tests F1-1027-1…4 and A-1027-1 are still to write (PLAN-211).
+- Section C (C1–C15): the owner accepted the panel's reading of practice on every item (27 Oct 2026). C1 reverses O-15-1 on money taken to be returned. C5 keeps the 2–3 Sep gollak rulings: the gollak is cash (rokad) with its own Cash Book column, not merged into Cash. On C4 the words *You will give* stay (13 §1), with the note *rent paid ahead*.
+- Section D: the items are entries to correct, not rules (owner, 27 Oct 2026). Which head a user picks and what note they write are the user's choice; only the kind of entry is judged. On D3, a toll the driver pays in cash is an ordinary expense.
+
+**Changed**
+- `docs/accounting/01` §3.3–§3.4, `04` §5.3–§5.4, `README.md` (C7): Day Book = *rojnamcha*; *rokad* means cash (owner, 27 Oct 2026: not the Cash Book).
+- `03` §3.2 (C1, C2): money to be returned goes on its own *Udhaar – …* page in both books; a sub-family's words are *Ghar kharch aaya*. `03` §5.9 + `04` §5.4 (C5): the gollak has its own Cash Book column. `03` §6.2 (C4): note *rent paid ahead*.
+- `02` §7.4, `04` §1.1–§1.2 (C11, C12): shortage to the person minding the cash; banks reconciled when the statement is in hand, always at year end; replaces O-05-4's *every month*. `04` §2.2 (C10): worker's own page, no *Wages outstanding*. `04` §6.1 (C8): neondra / vartan is give-and-take, not income. `04` §5.6 (C13): a copy sent to a person reads *Naam / Jama* and *Balance due from / to you*. `05` (C14, C15): *Repairs* chip added; *Commission* → *Commission Received*.
+- `reference-books/build.py` + `check_md.py`:
+  - C1: udhaar pages in the joint family's book and Lakhbeer's book, joined to their pair.
+  - C2 words.
+  - C5: gollak column in the trust's Cash Book.
+  - C7 headings.
+  - C13: sent statements in the shop, partnership and Jasvinder Technologies books.
+  - D1: shop rebate (kasar); partnership lost slips → Wages.
+  - D2: driver's pay cuts the ₹1,800 (new JP-041/042; old JP-041…051 → JP-043…053; *House Help Wages* → *Household Staff Wages*).
+  - D4: term policy.
+  - D5: cumulative FD pays principal + interest at maturity.
+  - D7: Lakhbeer repays ₹30,000 by bank; share-out accounts removed.
+  - D14: half the whole job's retention released at handover.
+  - D3 note: tolls paid in cash.
+  - Build: 22,289 checks, 0 problems, PDFs within 14 pages. Content hash `f975c65e…`.
+- `GAPS.md`, `COVERAGE.md`: renumbered and reworded to match the new entries; RA-030 → RA-029 corrected.
+- `bookkeeper-review-pack.md`: sections C and D now state what was ruled and changed, for the bookkeeper to confirm. Only D13 is still asked.
+
+**Open**
+- D13 (a partner's debit current account shown as an asset?) is still for the bookkeeper: it is a report rule, not an entry.
+- After D1, the COVERAGE row for O-12-3 (part of an advance written off) points to no entry. No book now shows that kind of entry.
+- *Adjustments* (02 §8.2) vs *Cash short / over* (accounting 02 §7.4) for a cash difference: settled at the sign-off (ADR 2026-10-22 §1).
+
+**Commits**
+- (fill in)
+
+## 2026-10-26 — docs: shop book's opening stock explained; bookkeeper review pack
+
+**Changed**
+- Shop reference book (PLAN-209 sub-item): *Goods Bought for Sale* stays at 0 on 1 Apr 2025. The book continues from last year (balances brought forward), and 02 §6.3 says a book that entered no closing-stock figure last year starts with no stock. 01 §4.6 puts goods on the shelf into the opening entry only for a book opened for the first time. The open item had read 01 §4.6 alone, and adding an opening figure would have contradicted 02 §6.3. `build.py`: the shop's §1 sentence now says why no stock is brought back (plain words; the printed book carries no section references), and the tech companion's gaps line cites 02 §6.3.
+- Trust reference book (munim MU-Q2, MU-Q4): the bank is *SBI Savings A/c*, because a current account earns no interest and the book credits ₹6,840 of interest (RS-053). The gollak count of 30 Sep is deposited on 3 Oct, not on 2 Oct, Gandhi Jayanti, when branches are shut (RS-027). `build.py` gains `branch_open` / `next_branch_day` (Sundays, 2nd and 4th Saturdays, national holidays) for gollak deposits, and an assertion that no `CASH DEP` entry in any book falls on a closed day. All five books were scanned and RS-027 was the only one.
+- Build: 22,019 checks, 0 problems. The shop and trust books changed, plus the README content hash (now `bf64cbb2…`). Pages unchanged.
+
+**Decided**
+- The reference books are compact by design (owner, 26 Oct 2026): they show each kind of entry and every report done correctly, not how often an entry recurs. In the app every bank line is imported as its own entry, and the user gives each one its account and an optional note before a preview and submit (07 §11). Entries typed by hand are entered as they happen. This answers nine munim questions on frequency: individual MU-Q1, Q2; joint family MU-Q6, Q8; partnership MU-Q2, Q5; shop MU-Q2, Q4; trust MU-Q3.
+
+**Changed (after the ruling)**
+- `reference-books/build.py` → README *Compact entries*: dropped *"Each entry is one real document or one real bank line"*, which was false: a quarter's wages in one line is neither. The README now states the ruling above. Build: 22,019 checks, 0 problems; the book content hash is unchanged (`bf64cbb2…`).
+- `bookkeeper-review-pack.md`: the compression question removed and stated under *Already decided*; the intro says how import works; sections re-lettered C (rules, C1–C15) and D (entries, D1–D14).
+
+**Added**
+- `docs/accounting/bookkeeper-review-pack.md` (not a spec): the brief for the bookkeeper (PLAN-209). It covers what to read; the basis and choices to confirm (A1–A8: khata basis, bank as a personal account, interest on capital, opt-in closing stock, owner-named Capital/Drawings, partners' drawings, the trust's hall paid from general money, brokerage against AS 10 ¶79); the three citations taken from the research notes (B1–B3); practice questions on the rules and on the books' entries; what is already decided; and a sign-off line. Every cited entry number was re-checked against this build (joint family MU-Q8's RA-031 is now RA-030).
+
+**Open**
+- PLAN-209 also names BoS ch. 4/5/10 page numbers as taken from the notes. No marker for them was found in the Sources lists, so the pack asks for a spot check rather than listing them.
+
+**Commits**
+- (fill in)
+
 ## 2026-10-26 — docs: owner's rulings on the plot examples and the cost of selling
 
 **Decided**

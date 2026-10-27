@@ -42,7 +42,7 @@ thead { display: table-header-group; }
 <p>One-owner shop · counter cash banked · customers and suppliers on khata · a salesman on salary · kept from the bank statement.</p>
 <h3>1. Accounts and opening balances</h3>
 <p><em>Sukhwinder Sales Co. · opening balances on 01 Apr 2025 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00</em></p>
-<p>Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forward from last year. The own money opening is the balancing figure, so the Dr and Cr totals agree. Income and expense accounts start the year at zero.</p>
+<p>Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forward from last year. The own money opening is the balancing figure, so the Dr and Cr totals agree. Last year's book entered no closing-stock figure, so no stock is brought back into Goods Bought for Sale: the goods on the shelf on 01 Apr 2025 were charged to the year they were bought. Income and expense accounts start the year at zero.</p>
 <table><thead><tr><th class="r">#</th><th class="l">Account</th><th class="l">Type</th><th class="l">What it is</th><th class="r">Opening balance (Dr) ₹</th><th class="r">Opening balance (Cr) ₹</th></tr></thead><tbody>
 <tr><td class="r">1</td><td class="l">Cash A/c</td><td class="l">Cash</td><td class="l">Counter cash</td><td class="r">22,000</td><td class="r">—</td></tr>
 <tr><td class="r">2</td><td class="l">PNB Current A/c</td><td class="l">Bank</td><td class="l">Shop's current account</td><td class="r">4,80,000</td><td class="r">—</td></tr>
@@ -63,7 +63,7 @@ thead { display: table-header-group; }
 <tr><td class="r">17</td><td class="l">Electricity &amp; Phone A/c</td><td class="l">Expense</td><td class="l">Shop electricity and phone</td><td class="r">—</td><td class="r">—</td></tr>
 <tr><td class="r">18</td><td class="l">Bank Charges &amp; Sundry A/c</td><td class="l">Expense</td><td class="l">Bank charges, stationery, small items</td><td class="r">—</td><td class="r">—</td></tr>
 <tr><td class="r">19</td><td class="l">Cash short / over A/c</td><td class="l">Expense</td><td class="l">What the counter cash count found short (spent) or over (got back) against the cash book, charged at once</td><td class="r">—</td><td class="r">—</td></tr>
-<tr><td class="r">20</td><td class="l">Written off A/c</td><td class="l">Expense</td><td class="l">A customer's balance known not to come</td><td class="r">—</td><td class="r">—</td></tr>
+<tr><td class="r">20</td><td class="l">Rebate &amp; Kasar Allowed A/c</td><td class="l">Expense</td><td class="l">Rebate allowed to a customer on a disputed bill — taken off what he owes, against sales</td><td class="r">—</td><td class="r">—</td></tr>
 <tr><td class="r"></td><td class="l"><strong>Total of opening balances</strong></td><td class="l"></td><td class="l"></td><td class="r"><strong>7,76,000</strong></td><td class="r"><strong>7,76,000</strong></td></tr>
 </tbody></table>
 <p>Things owned are shown at what they cost; no depreciation is charged.</p>
@@ -154,7 +154,7 @@ thead { display: table-header-group; }
 <tr><td class="l">04 Jul 2025</td><td class="l">S-015</td><td class="l">To Sales A/c<br><em>Pipes and fittings to Dhillon Plumbing Works for the hotel job</em></td><td class="r">86,500</td><td class="r">—</td><td class="r">36,500</td><td class="c">Dr</td></tr>
 <tr><td class="l">11 Dec 2025</td><td class="l">S-036</td><td class="l">To Sales A/c<br><em>Sanitary ware to Dhillon Plumbing Works</em></td><td class="r">42,800</td><td class="r">—</td><td class="r">79,300</td><td class="c">Dr</td></tr>
 <tr><td class="l">09 Feb 2026</td><td class="l">S-047</td><td class="l">By PNB Current A/c<br><em>Dhillon Plumbing Works paid part of the balance</em></td><td class="r">—</td><td class="r">60,000</td><td class="r">19,300</td><td class="c">Dr</td></tr>
-<tr><td class="l">31 Mar 2026</td><td class="l">S-057</td><td class="l">By Written off A/c<br><em>₹2,300 of Dhillon Plumbing Works' balance written off — he disputes the sanitary-ware bill and will not pay it</em></td><td class="r">—</td><td class="r">2,300</td><td class="r">17,000</td><td class="c">Dr</td></tr>
+<tr><td class="l">31 Mar 2026</td><td class="l">S-057</td><td class="l">By Rebate &amp; Kasar Allowed A/c<br><em>Rebate (kasar) of ₹2,300 allowed to Dhillon Plumbing Works on the disputed sanitary-ware bill — he pays the rest</em></td><td class="r">—</td><td class="r">2,300</td><td class="r">17,000</td><td class="c">Dr</td></tr>
 <tr><td class="l">31 Mar 2026</td><td class="l"></td><td class="l">Closing balance c/d</td><td class="r">—</td><td class="r">17,000</td><td class="r">—</td><td class="c">—</td></tr>
 <tr><td class="l"></td><td class="l"></td><td class="l"><strong>Total</strong></td><td class="r"><strong>1,29,300</strong></td><td class="r"><strong>1,29,300</strong></td><td class="r"></td><td class="c"></td></tr>
 <tr><td class="l">01 Apr 2026</td><td class="l"></td><td class="l">Opening balance b/d (FY 2026-27)</td><td class="r">17,000</td><td class="r">—</td><td class="r">17,000</td><td class="c">Dr</td></tr>
@@ -304,9 +304,9 @@ thead { display: table-header-group; }
 <tr><td class="l"></td><td class="l"></td><td class="l"><strong>Total for the year</strong></td><td class="r"><strong>1,150</strong></td><td class="r"><strong>300</strong></td><td class="r"><strong>850</strong></td><td class="c"><strong>Dr</strong></td></tr>
 <tr><td class="l">31 Mar 2026</td><td class="l">S-Y2</td><td class="l">By Profit &amp; Loss A/c<br><em>Expense heads closed to Profit &amp; Loss</em></td><td class="r">—</td><td class="r">850</td><td class="r">0</td><td class="c">—</td></tr>
 </tbody></table>
-<h4>Written off A/c</h4>
+<h4>Rebate &amp; Kasar Allowed A/c</h4>
 <table><thead><tr><th class="l">Date</th><th class="l">No.</th><th class="l">Particulars</th><th class="r">Spent (Dr)</th><th class="r">Got back / closed (Cr)</th><th class="r">Balance ₹</th><th class="c">Side</th></tr></thead><tbody>
-<tr><td class="l">31 Mar 2026</td><td class="l">S-057</td><td class="l">To Dhillon Plumbing Works A/c<br><em>₹2,300 of Dhillon Plumbing Works' balance written off — he disputes the sanitary-ware bill and will not pay it</em></td><td class="r">2,300</td><td class="r">—</td><td class="r">2,300</td><td class="c">Dr</td></tr>
+<tr><td class="l">31 Mar 2026</td><td class="l">S-057</td><td class="l">To Dhillon Plumbing Works A/c<br><em>Rebate (kasar) of ₹2,300 allowed to Dhillon Plumbing Works on the disputed sanitary-ware bill — he pays the rest</em></td><td class="r">2,300</td><td class="r">—</td><td class="r">2,300</td><td class="c">Dr</td></tr>
 <tr><td class="l"></td><td class="l"></td><td class="l"><strong>Total for the year</strong></td><td class="r"><strong>2,300</strong></td><td class="r"><strong>—</strong></td><td class="r"><strong>2,300</strong></td><td class="c"><strong>Dr</strong></td></tr>
 <tr><td class="l">31 Mar 2026</td><td class="l">S-Y2</td><td class="l">By Profit &amp; Loss A/c<br><em>Expense heads closed to Profit &amp; Loss</em></td><td class="r">—</td><td class="r">2,300</td><td class="r">0</td><td class="c">—</td></tr>
 </tbody></table>
@@ -395,16 +395,16 @@ thead { display: table-header-group; }
 <p>No stock is counted. Everything bought for sale is treated as sold or used in the year it was bought.</p>
 <h4>3.4 One account for a chosen period — Dhillon Plumbing Works A/c, 01 Apr 2025 to 31 Mar 2026</h4>
 <p><em>Sukhwinder Sales Co. — Dhillon Plumbing Works A/c · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00</em></p>
-<p>The plumbing contractor's khata for the year — an advance first, then goods that turned the balance round, then the payment. This is the statement the user shares.</p>
-<table><thead><tr><th class="l">Date</th><th class="l">No.</th><th class="l">Particulars</th><th class="r">You will get (Dr)</th><th class="r">You will give (Cr)</th><th class="r">Balance ₹</th><th class="c">Side</th></tr></thead><tbody>
+<p>The plumbing contractor's khata for the year — an advance first, then goods that turned the balance round, then the payment. This is the copy sent to Dhillon Plumbing Works: it is read by them, so its columns are named by side — <em>Naam (Dr)</em> and <em>Jama (Cr)</em> — and its last line says <em>Balance due from you</em> or <em>Balance due to you</em>.</p>
+<table><thead><tr><th class="l">Date</th><th class="l">No.</th><th class="l">Particulars</th><th class="r">Naam (Dr) ₹</th><th class="r">Jama (Cr) ₹</th><th class="r">Balance ₹</th><th class="c">Side</th></tr></thead><tbody>
 <tr><td class="l">01 Apr 2025</td><td class="l"></td><td class="l">Opening balance on 01 Apr 2025</td><td class="r">—</td><td class="r">—</td><td class="r">0</td><td class="c">—</td></tr>
 <tr><td class="l">06 Jun 2025</td><td class="l">S-008</td><td class="l">By PNB Current A/c<br><em>Advance from Dhillon Plumbing Works against a hotel job</em></td><td class="r">—</td><td class="r">50,000</td><td class="r">50,000</td><td class="c">Cr</td></tr>
 <tr><td class="l">04 Jul 2025</td><td class="l">S-015</td><td class="l">To Sales A/c<br><em>Pipes and fittings to Dhillon Plumbing Works for the hotel job</em></td><td class="r">86,500</td><td class="r">—</td><td class="r">36,500</td><td class="c">Dr</td></tr>
 <tr><td class="l">11 Dec 2025</td><td class="l">S-036</td><td class="l">To Sales A/c<br><em>Sanitary ware to Dhillon Plumbing Works</em></td><td class="r">42,800</td><td class="r">—</td><td class="r">79,300</td><td class="c">Dr</td></tr>
 <tr><td class="l">09 Feb 2026</td><td class="l">S-047</td><td class="l">By PNB Current A/c<br><em>Dhillon Plumbing Works paid part of the balance</em></td><td class="r">—</td><td class="r">60,000</td><td class="r">19,300</td><td class="c">Dr</td></tr>
-<tr><td class="l">31 Mar 2026</td><td class="l">S-057</td><td class="l">By Written off A/c<br><em>₹2,300 of Dhillon Plumbing Works' balance written off — he disputes the sanitary-ware bill and will not pay it</em></td><td class="r">—</td><td class="r">2,300</td><td class="r">17,000</td><td class="c">Dr</td></tr>
+<tr><td class="l">31 Mar 2026</td><td class="l">S-057</td><td class="l">By Rebate &amp; Kasar Allowed A/c<br><em>Rebate (kasar) of ₹2,300 allowed to Dhillon Plumbing Works on the disputed sanitary-ware bill — he pays the rest</em></td><td class="r">—</td><td class="r">2,300</td><td class="r">17,000</td><td class="c">Dr</td></tr>
 <tr><td class="l"></td><td class="l"></td><td class="l"><strong>Total for the period</strong></td><td class="r"><strong>1,29,300</strong></td><td class="r"><strong>1,12,300</strong></td><td class="r"></td><td class="c"></td></tr>
-<tr><td class="l">31 Mar 2026</td><td class="l"></td><td class="l"><strong>Closing balance on 31 Mar 2026 — You will get</strong></td><td class="r"></td><td class="r"></td><td class="r"><strong>17,000</strong></td><td class="c"><strong>Dr</strong></td></tr>
+<tr><td class="l">31 Mar 2026</td><td class="l"></td><td class="l"><strong>Closing balance on 31 Mar 2026 — Balance due from you</strong></td><td class="r"></td><td class="r"></td><td class="r"><strong>17,000</strong></td><td class="c"><strong>Dr</strong></td></tr>
 </tbody></table>
 <h4>3.5 You will get / You will give — who owes what, and since when (on 31 Mar 2026)</h4>
 <p><em>Sukhwinder Sales Co. · on 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00</em></p>
@@ -451,7 +451,7 @@ thead { display: table-header-group; }
 <tr><td class="l">Electricity &amp; Phone A/c</td><td class="r">32,000</td><td class="r">—</td></tr>
 <tr><td class="l">Bank Charges &amp; Sundry A/c</td><td class="r">1,180</td><td class="r">—</td></tr>
 <tr><td class="l">Cash short / over A/c</td><td class="r">850</td><td class="r">—</td></tr>
-<tr><td class="l">Written off A/c</td><td class="r">2,300</td><td class="r">—</td></tr>
+<tr><td class="l">Rebate &amp; Kasar Allowed A/c</td><td class="r">2,300</td><td class="r">—</td></tr>
 <tr><td class="l"><strong>TOTALS</strong></td><td class="r"><strong>36,99,700</strong></td><td class="r"><strong>36,99,700</strong></td></tr>
 </tbody></table>
 <p><strong>Checked: Dr ₹36,99,700 = Cr ₹36,99,700. The books balance.</strong></p>
@@ -468,7 +468,7 @@ thead { display: table-header-group; }
 <tr><td class="l">To Electricity &amp; Phone A/c</td><td class="r">2</td><td class="r">32,000</td><td class="r">—</td></tr>
 <tr><td class="l">To Bank Charges &amp; Sundry A/c</td><td class="r">1</td><td class="r">1,180</td><td class="r">—</td></tr>
 <tr><td class="l">To Cash short / over A/c</td><td class="r">2</td><td class="r">850</td><td class="r">—</td></tr>
-<tr><td class="l">To Written off A/c</td><td class="r">1</td><td class="r">2,300</td><td class="r">—</td></tr>
+<tr><td class="l">To Rebate &amp; Kasar Allowed A/c</td><td class="r">1</td><td class="r">2,300</td><td class="r">—</td></tr>
 <tr><td class="l">By Sales A/c</td><td class="r">10</td><td class="r">—</td><td class="r">26,23,800</td></tr>
 <tr><td class="l"><strong>Total of the heads for the year</strong></td><td class="r"></td><td class="r"><strong>20,15,730</strong></td><td class="r"><strong>26,23,800</strong></td></tr>
 <tr><td class="l">To Net profit — closed to own money (4.3)</td><td class="r"></td><td class="r">6,08,070</td><td class="r">—</td></tr>
@@ -481,7 +481,7 @@ thead { display: table-header-group; }
 <p>Nobody types these. When the year is closed the book itself closes every income head and every expense head to <strong>Profit &amp; Loss</strong>, and then the result and the drawings to own money. After them every income head, every expense head, the drawings and Profit &amp; Loss stand at nil, and the ledgers above show each entry on its last row.</p>
 <table><thead><tr><th class="l">No.</th><th class="l">Date</th><th class="l">What the book does</th><th class="l">Debit (Dr)</th><th class="l">Credit (Cr)</th><th class="r">Amount ₹</th></tr></thead><tbody>
 <tr><td class="l">S-Y1</td><td class="l">31 Mar 2026</td><td class="l">Income heads closed to Profit &amp; Loss</td><td class="l">Sales A/c</td><td class="l">Profit &amp; Loss A/c</td><td class="r">26,23,800</td></tr>
-<tr><td class="l">S-Y2</td><td class="l">31 Mar 2026</td><td class="l">Expense heads closed to Profit &amp; Loss</td><td class="l">Profit &amp; Loss A/c</td><td class="l">Goods Bought for Sale A/c ₹15,70,500<br>Freight &amp; Cartage A/c ₹12,900<br>Salary A/c ₹2,16,000<br>Shop Rent A/c ₹1,80,000<br>Electricity &amp; Phone A/c ₹32,000<br>Bank Charges &amp; Sundry A/c ₹1,180<br>Cash short / over A/c ₹850<br>Written off A/c ₹2,300</td><td class="r">20,15,730</td></tr>
+<tr><td class="l">S-Y2</td><td class="l">31 Mar 2026</td><td class="l">Expense heads closed to Profit &amp; Loss</td><td class="l">Profit &amp; Loss A/c</td><td class="l">Goods Bought for Sale A/c ₹15,70,500<br>Freight &amp; Cartage A/c ₹12,900<br>Salary A/c ₹2,16,000<br>Shop Rent A/c ₹1,80,000<br>Electricity &amp; Phone A/c ₹32,000<br>Bank Charges &amp; Sundry A/c ₹1,180<br>Cash short / over A/c ₹850<br>Rebate &amp; Kasar Allowed A/c ₹2,300</td><td class="r">20,15,730</td></tr>
 <tr><td class="l">S-Y3</td><td class="l">31 Mar 2026</td><td class="l">Net profit added to own money</td><td class="l">Profit &amp; Loss A/c</td><td class="l">Capital A/c – Sukhwinder Bal</td><td class="r">6,08,070</td></tr>
 <tr><td class="l">S-Y4</td><td class="l">31 Mar 2026</td><td class="l">Drawings closed to own money</td><td class="l">Capital A/c – Sukhwinder Bal</td><td class="l">Drawings A/c – Sukhwinder Bal</td><td class="r">2,40,000</td></tr>
 </tbody></table>

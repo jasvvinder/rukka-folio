@@ -31,6 +31,7 @@ Rules for the chips:
 | Travel | | |
 | Rent | | |
 | Maintenance | | |
+| Repairs | | |
 | Medicine | | |
 | Doctor & Hospital | | |
 | School Fees | | |
@@ -48,6 +49,8 @@ Rules for the chips:
 | Bank Charges | | |
 | Other Expenses | | |
 
+*Maintenance* is read as a society's or building's monthly charge; *Repairs* (marammat) is its own head for mending things (owner ruling, 27 Oct 2026, bookkeeper review pack C14).
+
 ## Income
 
 | EN | ਪੰਜਾਬੀ | हिन्दी |
@@ -57,10 +60,12 @@ Rules for the chips:
 | Services | | |
 | Rent Received | | |
 | Interest Received | | |
-| Commission | | |
+| Commission Received | | |
 | Donations | | |
 | Gifts Received | | |
 | Other Income | | |
+
+*Commission Received* says it is money earned: a farmer reads plain *Commission* as the arhtiya's charge, an expense (owner ruling, 27 Oct 2026, bookkeeper review pack C15).
 
 ## Cash
 

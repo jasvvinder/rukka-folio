@@ -4,7 +4,7 @@ An export, not part of the printed book: the Day Book and the Cash Book, which c
 
 ## Book: Bal Fabricators — partnership business book
 
-### 1. Day Book — every entry of the year
+### 1. Day Book (rojnamcha) — every entry of the year
 
 *Bal Fabricators · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
@@ -51,7 +51,7 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 29 Nov 2025 | BF-037 | Advance settled — no money moved | Wages A/c ₹16,400<br>Steel & Material A/c ₹7,900 | Advance – Gurmeet Singh (foreman) A/c | 24,300 | Foreman's account of the canopy site — site labour and bolts, against his advance |
 | 09 Dec 2025 | BF-038 | Money out | Machinery & Tools A/c | Punjab & Sind Bank Current A/c | 68,000 | New MIG welding set — thing owned, at cost |
 | 18 Dec 2025 | BF-039 | Money in | Punjab & Sind Bank Current A/c | Verka Dairy Plant A/c | 4,18,500 | Verka Dairy Plant paid for the racks and canopy |
-| 27 Dec 2025 | BF-040 | Gave on credit — no money moved | Sandhu Builders A/c ₹3,04,000<br>Retention held by – Sandhu Builders A/c ₹16,000 | Fabrication Income A/c | 3,20,000 | Running bill 3 to Sandhu Builders (Sunny Enclave staircases, towers A–B) — ₹3,20,000 billed, 5% (₹16,000) held back |
+| 27 Dec 2025 | BF-040 | Gave on credit — no money moved | Sandhu Builders A/c ₹3,04,000<br>Retention held by – Sandhu Builders A/c ₹16,000 | Fabrication Income A/c | 3,20,000 | Running bill 3 (final) to Sandhu Builders (Sunny Enclave staircases, towers A–B) — ₹3,20,000 billed, 5% (₹16,000) held back |
 | 31 Dec 2025 | BF-041 | Took on credit — no money moved | Steel & Material A/c | Jindal Steel Traders A/c | 2,14,000 | Steel from Jindal Steel Traders on khata, October–December 2025 |
 | 31 Dec 2025 | BF-042 | Money out | Wages A/c | Punjab & Sind Bank Current A/c | 1,32,000 | Wages of the welders and helpers, October–December 2025 |
 | 05 Jan 2026 | BF-043 | Money out | Workshop Rent A/c | Punjab & Sind Bank Current A/c | 36,000 | Workshop rent, January–March 2026 |
@@ -59,10 +59,10 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 23 Jan 2026 | BF-045 | Money in | Punjab & Sind Bank Current A/c | Sandhu Builders A/c | 2,54,000 | Sandhu Builders paid running bill 3 less the 5% held back and ₹50,000 of the advance |
 | 02 Feb 2026 | BF-046 | Money out | Current A/c – Harjeet Singh | Punjab & Sind Bank Current A/c | 50,000 | Drawings of Harjeet Singh |
 | 02 Feb 2026 | BF-047 | Money out | Advance – Gurmeet Singh (foreman) A/c | Punjab & Sind Bank Current A/c | 20,000 | Labour money to the foreman for the Sunny Enclave railings |
-| 15 Feb 2026 | BF-048 | Retention released — no money moved | Sandhu Builders A/c | Retention held by – Sandhu Builders A/c | 15,000 | Retention of running bill 1 (₹15,000) released by Sandhu Builders — the work of that bill accepted; moved to his khata |
+| 15 Feb 2026 | BF-048 | Retention released — no money moved | Sandhu Builders A/c | Retention held by – Sandhu Builders A/c | 24,500 | Sunny Enclave staircases completed and handed over — half the job's retention (₹24,500 of ₹49,000) released by Sandhu Builders, the rest after the defect period; moved to his khata |
 | 16 Feb 2026 | BF-049 | Paid by a partner — no money moved | Electricity A/c | Current A/c – Pradeep Bal | 33,800 | Workshop electricity, September–January, paid by Pradeep Bal from his own account |
-| 06 Mar 2026 | BF-050 | Money in | Punjab & Sind Bank Current A/c | Sandhu Builders A/c | 15,000 | Sandhu Builders paid the released retention |
-| 28 Mar 2026 | BF-051 | Advance settled — no money moved | Wages A/c ₹11,800<br>Steel & Material A/c ₹6,200<br>Written off A/c ₹1,000 | Advance – Gurmeet Singh (foreman) A/c | 19,000 | Foreman's slips for the Sunny Enclave railings set against his advance — ₹1,000 of slips lost, written off; ₹1,700 stays with him |
+| 06 Mar 2026 | BF-050 | Money in | Punjab & Sind Bank Current A/c | Sandhu Builders A/c | 24,500 | Sandhu Builders paid the released half of the retention |
+| 28 Mar 2026 | BF-051 | Advance settled — no money moved | Wages A/c ₹12,800<br>Steel & Material A/c ₹6,200 | Advance – Gurmeet Singh (foreman) A/c | 19,000 | Foreman's slips for the Sunny Enclave railings set against his advance — wages include ₹1,000 of labour paid on slips he lost (slip lost); ₹1,700 stays with him |
 | 31 Mar 2026 | BF-052 | Took on credit — no money moved | Steel & Material A/c | Jindal Steel Traders A/c | 1,68,000 | Steel from Jindal Steel Traders on khata, January–March 2026 |
 | 31 Mar 2026 | BF-053 | Money out | Wages A/c | Punjab & Sind Bank Current A/c | 1,24,000 | Wages of the welders and helpers, January–March 2026 |
 
@@ -120,8 +120,8 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 02 Feb 2026 | BF-046 | By Current A/c – Harjeet Singh<br><em>Drawings of Harjeet Singh</em> | — | — | — | 50,000 | 5,800 | 10,15,100 |
 | 02 Feb 2026 | BF-047 | By Advance – Gurmeet Singh (foreman) A/c<br><em>Labour money to the foreman for the Sunny Enclave railings</em> | — | — | — | 20,000 | 5,800 | 9,95,100 |
 | 28 Feb 2026 |  | **Month total — February 2026 · closing balance** | **0** | **0** | **0** | **70,000** | **5,800** | **9,95,100** |
-| 06 Mar 2026 | BF-050 | To Sandhu Builders A/c<br><em>Sandhu Builders paid the released retention</em> | — | 15,000 | — | — | 5,800 | 10,10,100 |
-| 31 Mar 2026 | BF-053 | By Wages A/c<br><em>Wages of the welders and helpers, January–March 2026</em> | — | — | — | 1,24,000 | 5,800 | 8,86,100 |
-| 31 Mar 2026 |  | **Month total — March 2026 · closing balance** | **0** | **15,000** | **0** | **1,24,000** | **5,800** | **8,86,100** |
+| 06 Mar 2026 | BF-050 | To Sandhu Builders A/c<br><em>Sandhu Builders paid the released half of the retention</em> | — | 24,500 | — | — | 5,800 | 10,19,600 |
+| 31 Mar 2026 | BF-053 | By Wages A/c<br><em>Wages of the welders and helpers, January–March 2026</em> | — | — | — | 1,24,000 | 5,800 | 8,95,600 |
+| 31 Mar 2026 |  | **Month total — March 2026 · closing balance** | **0** | **24,500** | **0** | **1,24,000** | **5,800** | **8,95,600** |
 
-*On 31 Mar 2026: Cash A/c ₹5,800 · Punjab & Sind Bank Current A/c ₹8,86,100 — the same as the closing balances in the ledgers of the printed book (its section 2).*
+*On 31 Mar 2026: Cash A/c ₹5,800 · Punjab & Sind Bank Current A/c ₹8,95,600 — the same as the closing balances in the ledgers of the printed book (its section 2).*

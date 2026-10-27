@@ -185,7 +185,7 @@ def parse_book(label, name, lines, export):
     bk.money = [n for n in bk.accounts if bk.type[n] in MONEY]
     # Day Book — from the export, not the printed book
     bk.export = export
-    ok(find(lines, r"^#{2,4} .*(Day Book|Cash Book) — ") is None, "%s: the printed book carries a Day Book or Cash Book" % label)
+    ok(find(lines, r"^#{2,4} .*(Day Book|Cash Book)( \(rojnamcha\))? — ") is None, "%s: the printed book carries a Day Book or Cash Book" % label)
     i = find(export, r"^### 1\. Day Book")
     if not ok(i is not None, "%s: export has no Day Book" % label):
         i = 0
@@ -440,8 +440,9 @@ def check_cash_books(bk):
         return
     i = heads[0]
     names = re.match(r"^### \d+\. Cash Book — (.*)$", lines[i]).group(1).strip().split(" and ")
-    want = [n for n in bk.accounts if bk.type[n] == "Cash"] + [n for n in bk.accounts if bk.type[n] == "Bank"]
-    ok(names == want and want, "%s Cash Book: columns %s, expected cash and each bank %s" % (bk.path, names, want))
+    # 03 §5.9, 04 §5.4 (C5): a gollak has its own column of the Cash Book, between cash and the bank
+    want = [n for t in ("Cash", "Gollak", "Bank") for n in bk.accounts if bk.type[n] == t]
+    ok(names == want and want, "%s Cash Book: columns %s, expected cash, any gollak and each bank %s" % (bk.path, names, want))
     k = len(names)
     tbl = read_tables(lines, i, block(lines, i))[0][1]
     ok(len(tbl[0]) == 3 + 3 * k and all("Money in" in h for h in tbl[0][3:3 + k]) and all("Money out" in h for h in tbl[0][3 + k:3 + 2 * k]),
@@ -621,7 +622,7 @@ def check_positions(bk):
         res = inc - exp
         # a household's book names its account with the joint family in the make-up, in the words of that account's columns (MU-3)
         hh = any(bk.type[n] == "Joint family" for n in bk.accounts)
-        put_w, taken_w = ("+ Received from the joint family so far", "− Put into the joint family, paid back or settled so far") if hh else ("+ Put in so far", "− Taken out so far")
+        put_w, taken_w = ("+ Received from the joint family so far", "− Put into the joint family or settled so far") if hh else ("+ Put in so far", "− Taken out so far")
         ok(vals[0] == ("Income so far", inc) and vals[1] == ("− Spent so far", exp) and vals[2][0].startswith("= Result so far") and vals[2][1] == abs(res)
            and vals[3][1] == start and vals[4][0].startswith(put_w) and vals[4][1] == put and vals[5][0].startswith(taken_w) and vals[5][1] == taken
            and vals[6][0].startswith(("+ " if res >= 0 else "− ") + "Result so far") and vals[6][1] == abs(res),
@@ -691,7 +692,13 @@ def check_custom(bk):
            and clean(r[6]) == side(bal) and "<em>" in r[2], "%s custom %s row %s" % (bk.path, name, vid))
     tot, clo = rows[-2], rows[-1]
     ok(clean(tot[2]) == "Total for the period" and paise(tot[3]) == tdr and paise(tot[4]) == tcr, "%s custom %s: totals of the period's entries only" % (bk.path, name))
+    # 04 §5.6 (C13): a copy sent to the person is named by side, Naam (Dr) / Jama (Cr), and closes Balance due from you / to you
+    sent = clean(read_tables(lines, i, block(lines, i))[0][1][0][3]) == "Naam (Dr) ₹"
+    ok(not sent or bk.type[name] == "Person / shop", "%s custom %s: a sent copy is only for a person" % (bk.path, name))
+    ok(sent == any("This is the copy sent to" in ln for ln in lines[i:i + 6]), "%s custom %s: sent-copy columns and its note disagree" % (bk.path, name))
     word = ("You will get" if bal > 0 else "You will give") if bk.type[name] == "Person / shop" and bal else None
+    if sent and bal:
+        word = "Balance due from you" if bal > 0 else "Balance due to you"
     if bk.type[name] in ("Sub-family", "Joint family") and bal:
         # 04 §6.6: a sub-family's running account reads against / in favour of the household, or of the family in the household's book
         word = (("against the household" if bal > 0 else "in the household's favour") if bk.type[name] == "Sub-family"
@@ -1055,12 +1062,13 @@ def check_family(label, books, lines):
     names = {b.name: b for b in books}
 
     def accts(b, o):
-        return [n for n in b.accounts if n in ("%s A/c" % o.name, "Income from %s A/c" % o.name, "Capital A/c – %s" % o.name, "Drawings A/c – %s" % o.name)]
+        return [n for n in b.accounts if n in ("%s A/c" % o.name, "Udhaar – %s A/c" % o.name, "Income from %s A/c" % o.name, "Capital A/c – %s" % o.name, "Drawings A/c – %s" % o.name)]
     pairs = {}
     for b in books:
         for n in b.accounts:
-            if n.endswith(" A/c") and n[:-4] in names and n[:-4] != b.name:
-                ob = names[n[:-4]]
+            o = n[:-4].replace("Udhaar – ", "", 1) if n.endswith(" A/c") else None    # 03 §3.2 (C1): money to be returned, on its own page
+            if o in names and o != b.name:
+                ob = names[o]
                 if not ok(bool(accts(ob, b)), "%s: %s has %s but %s has no account named after it" % (label, b.name, n, ob.name)):
                     continue
                 key = tuple(sorted([b.name, ob.name]))

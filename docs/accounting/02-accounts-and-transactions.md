@@ -377,11 +377,12 @@ An amount put against the wrong person or head is moved by one entry. No money m
 **Example.** `Dr Rent A/c ₹2,000 · Cr Landlord A/c ₹2,000` — note: "corrects entry no. 17: rent was written against the landlord's name". Posted to Ram instead of Mohan: `Dr Mohan A/c ₹10,000 · Cr Ram A/c ₹10,000`.
 Diary: *Rent of ₹2,000 was written against the landlord's khata; moved to Rent.*
 
-### 7.4 A difference in the cash count goes at once to *Cash short / over*
-The count includes cheques received and not yet banked (1.3); a count of petty cash includes the bills in hand not yet entered (3.7). Whenever the cash counted differs from the cash book, the difference is entered that day to *Cash short / over*: an expense when short, income when over, with a note. If the cause is found later, a correction entry moves it to the right account. If the owner admits taking the money, it is Drawings instead.
-**Source:** none settles it — ruled 20 Oct 2026 (O-11-1): no Indian source treats it; with daily counts a suspense balance would be an unexplained figure nobody clears. The owner's-mixed-book case: ICAI BoS Ch. 9 §4.1 item (3) p. 9.15 [18].
+### 7.4 A difference in the cash count is entered that day: to the person minding the cash, or to *Cash short / over*
+The count includes cheques received and not yet banked (1.3); a count of petty cash includes the bills in hand not yet entered (3.7). Whenever the cash counted differs from the cash book, the difference is entered that day, with a note. A shortage the person minding the galla or cash box must make good goes on that person's own page, to be recovered. A small or unexplained difference goes to *Cash short / over*: an expense when short, income when over. The person counting chooses which. If the cause is found later, a correction entry moves it to the right account. If the owner admits taking the money, it is Drawings instead.
+**Source:** none settles it — ruled 20 Oct 2026 (O-11-1): no Indian source treats it; with daily counts a suspense balance would be an unexplained figure nobody clears. A shortage to the person minding the cash: owner ruling, 27 Oct 2026 (bookkeeper review pack C11; ADR 2026-10-27). The owner's-mixed-book case: ICAI BoS Ch. 9 §4.1 item (3) p. 9.15 [18].
 **Example.** Short ₹300: `Dr Cash Short / Over A/c ₹300 · Cr Cash A/c ₹300`. Found to be a missed bill for conveyance: `Dr Conveyance A/c ₹300 · Cr Cash Short / Over A/c ₹300` — note: "corrects entry no. 52".
 Diary: *Cash in hand counted ₹300 less than the book; written as Cash short.* / *Found it: Spent ₹300 on Conveyance, bill missed.*
+Short ₹2,000 at the shop counter, minded by Gurpreet, who will make it good: `Dr Gurpreet A/c ₹2,000 · Cr Cash A/c ₹2,000`. Diary: *Counter cash ₹2,000 short; Gurpreet was minding the galla and will make it good.*
 
 ### 7.5 No suspense balance; unsorted bank lines wait as *Not yet sorted*
 Entries cannot be one-sided, so no difference arises that needs parking in a suspense account, and a suspense balance is never carried into closing statements. A bank-statement line not yet given an account waits as *Not yet sorted* and must be sorted before the year closes.

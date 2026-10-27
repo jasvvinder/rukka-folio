@@ -26,7 +26,7 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 |---:|:---|:---|:---|---:|---:|
 | 1 | Cash A/c | Cash | The trust's cash box, with the secretary | 22,000 | — |
 | 2 | Gollak Cash A/c | Gollak | The gollak — counted every two months, emptied only into the cash box or the bank | — | — |
-| 3 | SBI Current A/c | Bank | The trust's current account | 4,85,000 | — |
+| 3 | SBI Savings A/c | Bank | The trust's savings account — it earns the bank's interest (a current account earns none) | 4,85,000 | — |
 | 4 | SBI Fixed Deposit (Langar Hall Fund) A/c | Deposit | Fixed deposit made from the langar hall donations — its interest goes to the Langar Hall Fund | 2,00,000 | — |
 | 5 | Advance – Amritpal Singh A/c | Advance | Langar money with the sewadar, accounted for with bills | — | — |
 | 6 | Kotli Cement Store A/c | Person / shop | Building-material store (khata) — cement and bricks for the hall | — | — |
@@ -60,7 +60,7 @@ One account after another: date, entry number, the other account (*To …* on th
 | 01 Apr 2025 |  | Opening balance b/f | 22,000 | — | 22,000 | Dr |
 | 31 May 2025 | RS-005 | To Gollak Cash A/c<br><em>Part of the gollak put in the cash box the same day</em> | 50,000 | — | 72,000 | Dr |
 | 12 Jun 2025 | RS-007 | To Dairy Donation A/c<br><em>Donation for the dairy (cow feed), cash</em> | 4,100 | — | 76,100 | Dr |
-| 27 Jun 2025 | RS-009 | To SBI Current A/c<br><em>Cash withdrawn for wages (cheque, self)</em> | 45,000 | — | 1,21,100 | Dr |
+| 27 Jun 2025 | RS-009 | To SBI Savings A/c<br><em>Cash withdrawn for wages (cheque, self)</em> | 45,000 | — | 1,21,100 | Dr |
 | 30 Jun 2025 | RS-010 | By Manni Labour A/c<br><em>Manni's wages, April–June 2025, cash</em> | — | 27,000 | 94,100 | Dr |
 | 30 Jun 2025 | RS-011 | By Ravinder Labour A/c<br><em>Ravinder's wages, April–June 2025, cash</em> | — | 25,500 | 68,600 | Dr |
 | 06 Sep 2025 | RS-018 | By General Expense A/c<br><em>Fodder for the dairy, cash</em> | — | 2,800 | 65,800 | Dr |
@@ -68,7 +68,7 @@ One account after another: date, entry number, the other account (*To …* on th
 | 30 Sep 2025 | RS-024 | By Manni Labour A/c<br><em>Manni's wages, July–September 2025, cash</em> | — | 27,000 | 88,800 | Dr |
 | 30 Sep 2025 | RS-025 | By Ravinder Labour A/c<br><em>Ravinder's wages, July–September 2025, cash</em> | — | 25,500 | 63,300 | Dr |
 | 04 Nov 2025 | RS-030 | By Labour A/c<br><em>Daily-wage labour for the Gurpurab diwan, cash</em> | — | 18,000 | 45,300 | Dr |
-| 29 Dec 2025 | RS-036 | To SBI Current A/c<br><em>Cash withdrawn for wages (cheque, self)</em> | 45,000 | — | 90,300 | Dr |
+| 29 Dec 2025 | RS-036 | To SBI Savings A/c<br><em>Cash withdrawn for wages (cheque, self)</em> | 45,000 | — | 90,300 | Dr |
 | 31 Dec 2025 | RS-037 | By Manni Labour A/c<br><em>Manni's wages, October–December 2025, cash</em> | — | 27,000 | 63,300 | Dr |
 | 31 Dec 2025 | RS-038 | By Ravinder Labour A/c<br><em>Ravinder's wages, October–December 2025, cash</em> | — | 25,500 | 37,800 | Dr |
 | 31 Jan 2026 | RS-043 | To Gollak Cash A/c<br><em>Part of the gollak put in the cash box the same day</em> | 50,000 | — | 87,800 | Dr |
@@ -85,24 +85,24 @@ One account after another: date, entry number, the other account (*To …* on th
 | 01 Apr 2025 |  | Opening balance b/f | — | — | 0 | — |
 | 31 May 2025 | RS-004 | To Donations – gollak A/c<br><em>Gollak counted by Amritpal Singh, witnessed by Ranjeet Singh (note-count sheet 1)</em> | 86,450 | — | 86,450 | Dr |
 | 31 May 2025 | RS-005 | By Cash A/c<br><em>Part of the gollak put in the cash box the same day</em> | — | 50,000 | 36,450 | Dr |
-| 02 Jun 2025 | RS-006 | By SBI Current A/c<br><em>Rest of the gollak deposited in the bank</em> | — | 36,450 | 0 | — |
+| 02 Jun 2025 | RS-006 | By SBI Savings A/c<br><em>Rest of the gollak deposited in the bank</em> | — | 36,450 | 0 | — |
 | 31 Jul 2025 | RS-014 | To Donations – gollak A/c<br><em>Gollak counted by Amritpal Singh, witnessed by Ranjeet Singh (note-count sheet 2)</em> | 74,200 | — | 74,200 | Dr |
-| 01 Aug 2025 | RS-015 | By SBI Current A/c<br><em>Gollak deposited in the bank</em> | — | 74,200 | 0 | — |
+| 01 Aug 2025 | RS-015 | By SBI Savings A/c<br><em>Gollak deposited in the bank</em> | — | 74,200 | 0 | — |
 | 30 Sep 2025 | RS-022 | To Donations – gollak A/c<br><em>Gollak counted by Amritpal Singh, witnessed by Ranjeet Singh (note-count sheet 3)</em> | 69,850 | — | 69,850 | Dr |
 | 30 Sep 2025 | RS-023 | By Cash A/c<br><em>Part of the gollak put in the cash box the same day</em> | — | 50,000 | 19,850 | Dr |
-| 02 Oct 2025 | RS-027 | By SBI Current A/c<br><em>Rest of the gollak deposited in the bank</em> | — | 19,850 | 0 | — |
+| 03 Oct 2025 | RS-027 | By SBI Savings A/c<br><em>Rest of the gollak deposited in the bank</em> | — | 19,850 | 0 | — |
 | 30 Nov 2025 | RS-032 | To Donations – gollak A/c<br><em>Gollak counted by Amritpal Singh, witnessed by Ranjeet Singh (note-count sheet 4)</em> | 1,12,600 | — | 1,12,600 | Dr |
-| 01 Dec 2025 | RS-033 | By SBI Current A/c<br><em>Gollak deposited in the bank</em> | — | 1,12,600 | 0 | — |
+| 01 Dec 2025 | RS-033 | By SBI Savings A/c<br><em>Gollak deposited in the bank</em> | — | 1,12,600 | 0 | — |
 | 31 Jan 2026 | RS-042 | To Donations – gollak A/c<br><em>Gollak counted by Amritpal Singh, witnessed by Ranjeet Singh (note-count sheet 5)</em> | 81,300 | — | 81,300 | Dr |
 | 31 Jan 2026 | RS-043 | By Cash A/c<br><em>Part of the gollak put in the cash box the same day</em> | — | 50,000 | 31,300 | Dr |
-| 02 Feb 2026 | RS-044 | By SBI Current A/c<br><em>Rest of the gollak deposited in the bank</em> | — | 31,300 | 0 | — |
+| 02 Feb 2026 | RS-044 | By SBI Savings A/c<br><em>Rest of the gollak deposited in the bank</em> | — | 31,300 | 0 | — |
 | 29 Mar 2026 | RS-051 | To Donations – gollak A/c<br><em>Gollak counted by Amritpal Singh, witnessed by Ranjeet Singh (note-count sheet 6)</em> | 95,750 | — | 95,750 | Dr |
-| 30 Mar 2026 | RS-052 | By SBI Current A/c<br><em>Gollak deposited in the bank</em> | — | 95,750 | 0 | — |
+| 30 Mar 2026 | RS-052 | By SBI Savings A/c<br><em>Gollak deposited in the bank</em> | — | 95,750 | 0 | — |
 | 31 Mar 2026 |  | Closing balance c/d | — | — | — | — |
 |  |  | **Total** | **5,20,150** | **5,20,150** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | — | 0 | — |
 
-#### SBI Current A/c
+#### SBI Savings A/c
 
 | Date | No. | Particulars | Money in (Dr) | Money out (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
@@ -119,7 +119,7 @@ One account after another: date, entry number, the other account (*To …* on th
 | 10 Sep 2025 | RS-019 | By Kotli Cement Store A/c<br><em>Kotli Cement Store paid for the cement and bricks</em> | — | 1,48,000 | 4,80,050 | Dr |
 | 15 Sep 2025 | RS-020 | By General Expense A/c<br><em>Electricity, April–August</em> | — | 21,400 | 4,58,650 | Dr |
 | 01 Oct 2025 | RS-026 | By Advance – Amritpal Singh A/c<br><em>Langar advance to Amritpal Singh</em> | — | 90,000 | 3,68,650 | Dr |
-| 02 Oct 2025 | RS-027 | To Gollak Cash A/c<br><em>Rest of the gollak deposited in the bank</em> | 19,850 | — | 3,88,500 | Dr |
+| 03 Oct 2025 | RS-027 | To Gollak Cash A/c<br><em>Rest of the gollak deposited in the bank</em> | 19,850 | — | 3,88,500 | Dr |
 | 14 Oct 2025 | RS-028 | By Construction A/c<br><em>Langar hall — steel and shuttering, paid from the Langar Hall Fund</em> | — | 1,86,000 | 2,02,500 | Dr |
 | 20 Oct 2025 | RS-029 | By Dairy Expense A/c<br><em>Fodder and feed for the dairy</em> | — | 12,800 | 1,89,700 | Dr |
 | 05 Nov 2025 | RS-031 | To Donation A/c<br><em>Donation from sponsors for the Gurpurab diwan</em> | 1,10,000 | — | 2,99,700 | Dr |
@@ -155,11 +155,11 @@ One account after another: date, entry number, the other account (*To …* on th
 | Date | No. | Particulars | Given as advance (Dr) | Settled / returned (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | — | 0 | — |
-| 02 Apr 2025 | RS-001 | To SBI Current A/c<br><em>Langar advance to Amritpal Singh</em> | 60,000 | — | 60,000 | Dr |
+| 02 Apr 2025 | RS-001 | To SBI Savings A/c<br><em>Langar advance to Amritpal Singh</em> | 60,000 | — | 60,000 | Dr |
 | 30 Jun 2025 | RS-012 | By Langar A/c<br><em>Amritpal Singh's langar bills set against his advance</em> | — | 58,650 | 1,350 | Dr |
-| 01 Oct 2025 | RS-026 | To SBI Current A/c<br><em>Langar advance to Amritpal Singh</em> | 90,000 | — | 91,350 | Dr |
+| 01 Oct 2025 | RS-026 | To SBI Savings A/c<br><em>Langar advance to Amritpal Singh</em> | 90,000 | — | 91,350 | Dr |
 | 31 Dec 2025 | RS-039 | By Langar A/c<br><em>Amritpal Singh's langar bills set against his advance</em> | — | 88,400 | 2,950 | Dr |
-| 02 Jan 2026 | RS-040 | To SBI Current A/c<br><em>Langar advance to Amritpal Singh</em> | 60,000 | — | 62,950 | Dr |
+| 02 Jan 2026 | RS-040 | To SBI Savings A/c<br><em>Langar advance to Amritpal Singh</em> | 60,000 | — | 62,950 | Dr |
 | 31 Mar 2026 | RS-056 | By Langar A/c<br><em>Amritpal Singh's langar bills set against his advance</em> | — | 61,850 | 1,100 | Dr |
 | 31 Mar 2026 |  | Closing balance c/d | — | 1,100 | — | — |
 |  |  | **Total** | **2,10,000** | **2,10,000** |  |  |
@@ -171,7 +171,7 @@ One account after another: date, entry number, the other account (*To …* on th
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | — | 0 | — |
 | 18 Jul 2025 | RS-013 | By Construction A/c<br><em>Langar hall — cement and bricks on the store's khata</em> | — | 1,48,000 | 1,48,000 | Cr |
-| 10 Sep 2025 | RS-019 | To SBI Current A/c<br><em>Kotli Cement Store paid for the cement and bricks</em> | 1,48,000 | — | 0 | — |
+| 10 Sep 2025 | RS-019 | To SBI Savings A/c<br><em>Kotli Cement Store paid for the cement and bricks</em> | 1,48,000 | — | 0 | — |
 | 31 Mar 2026 |  | Closing balance c/d | — | — | — | — |
 |  |  | **Total** | **1,48,000** | **1,48,000** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | — | 0 | — |
@@ -191,11 +191,11 @@ One account after another: date, entry number, the other account (*To …* on th
 | Date | No. | Particulars | Spent from it (Dr) | Added to it (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | 2,50,000 | 2,50,000 | Cr |
-| 20 May 2025 | RS-003 | By SBI Current A/c<br><em>Donation from a family, for the langar hall — to the Langar Hall Fund</em> | — | 51,000 | 3,01,000 | Cr |
-| 12 Aug 2025 | RS-017 | By SBI Current A/c<br><em>Donation from an NRI family, for the langar hall — to the Langar Hall Fund</em> | — | 25,000 | 3,26,000 | Cr |
+| 20 May 2025 | RS-003 | By SBI Savings A/c<br><em>Donation from a family, for the langar hall — to the Langar Hall Fund</em> | — | 51,000 | 3,01,000 | Cr |
+| 12 Aug 2025 | RS-017 | By SBI Savings A/c<br><em>Donation from an NRI family, for the langar hall — to the Langar Hall Fund</em> | — | 25,000 | 3,26,000 | Cr |
 | 14 Oct 2025 | RS-028 | To Transferred from the Langar Hall Fund A/c<br><em>Langar hall — steel and shuttering, paid from the Langar Hall Fund</em> | 1,86,000 | — | 1,40,000 | Cr |
 | 22 Dec 2025 | RS-035 | To Transferred from the Langar Hall Fund A/c<br><em>Langar hall — mason contractor, first bill, paid from the Langar Hall Fund</em> | 1,24,000 | — | 16,000 | Cr |
-| 20 Jan 2026 | RS-041 | By SBI Current A/c<br><em>Donation from a family in memory of an elder, for the langar hall — to the Langar Hall Fund</em> | — | 31,000 | 47,000 | Cr |
+| 20 Jan 2026 | RS-041 | By SBI Savings A/c<br><em>Donation from a family in memory of an elder, for the langar hall — to the Langar Hall Fund</em> | — | 31,000 | 47,000 | Cr |
 | 20 Mar 2026 | RS-050 | By SBI Fixed Deposit (Langar Hall Fund) A/c<br><em>Yearly interest added by the bank to the deposit made from the langar hall donations — added to the Langar Hall Fund</em> | — | 14,000 | 61,000 | Cr |
 | 31 Mar 2026 |  | Closing balance c/d | 61,000 | — | — | — |
 |  |  | **Total** | **3,71,000** | **3,71,000** |  |  |
@@ -237,11 +237,11 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 14 Apr 2025 | RS-002 | By SBI Current A/c<br><em>Donation from a family on Baisakhi</em> | — | 51,000 | 51,000 | Cr |
-| 09 Aug 2025 | RS-016 | By SBI Current A/c<br><em>Donation from a sponsor for the monthly satsang</em> | — | 25,000 | 76,000 | Cr |
-| 05 Nov 2025 | RS-031 | By SBI Current A/c<br><em>Donation from sponsors for the Gurpurab diwan</em> | — | 1,10,000 | 1,86,000 | Cr |
+| 14 Apr 2025 | RS-002 | By SBI Savings A/c<br><em>Donation from a family on Baisakhi</em> | — | 51,000 | 51,000 | Cr |
+| 09 Aug 2025 | RS-016 | By SBI Savings A/c<br><em>Donation from a sponsor for the monthly satsang</em> | — | 25,000 | 76,000 | Cr |
+| 05 Nov 2025 | RS-031 | By SBI Savings A/c<br><em>Donation from sponsors for the Gurpurab diwan</em> | — | 1,10,000 | 1,86,000 | Cr |
 | 08 Feb 2026 | RS-045 | By Furniture & Equipment A/c<br><em>A family gave a steel almirah for the office — kept by the trust, entered at ₹1; estimated value ₹18,000</em> | — | 1 | 1,86,001 | Cr |
-| 21 Feb 2026 | RS-048 | By SBI Current A/c<br><em>Donation from an NRI family</em> | — | 31,000 | 2,17,001 | Cr |
+| 21 Feb 2026 | RS-048 | By SBI Savings A/c<br><em>Donation from an NRI family</em> | — | 31,000 | 2,17,001 | Cr |
 |  |  | **Total for the year** | **—** | **2,17,001** | **2,17,001** | **Cr** |
 | 31 Mar 2026 | RS-Y1 | To Income & Expenditure A/c<br><em>Income heads closed to Income & Expenditure</em> | 2,17,001 | — | 0 | — |
 
@@ -250,7 +250,7 @@ One account after another: date, entry number, the other account (*To …* on th
 | Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 12 Jun 2025 | RS-007 | By Cash A/c<br><em>Donation for the dairy (cow feed), cash</em> | — | 4,100 | 4,100 | Cr |
-| 08 Dec 2025 | RS-034 | By SBI Current A/c<br><em>Donation for the dairy</em> | — | 15,000 | 19,100 | Cr |
+| 08 Dec 2025 | RS-034 | By SBI Savings A/c<br><em>Donation for the dairy</em> | — | 15,000 | 19,100 | Cr |
 |  |  | **Total for the year** | **—** | **19,100** | **19,100** | **Cr** |
 | 31 Mar 2026 | RS-Y1 | To Income & Expenditure A/c<br><em>Income heads closed to Income & Expenditure</em> | 19,100 | — | 0 | — |
 
@@ -258,7 +258,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 31 Mar 2026 | RS-053 | By SBI Current A/c<br><em>Interest credited by the bank</em> | — | 6,840 | 6,840 | Cr |
+| 31 Mar 2026 | RS-053 | By SBI Savings A/c<br><em>Interest credited by the bank</em> | — | 6,840 | 6,840 | Cr |
 |  |  | **Total for the year** | **—** | **6,840** | **6,840** | **Cr** |
 | 31 Mar 2026 | RS-Y1 | To Income & Expenditure A/c<br><em>Income heads closed to Income & Expenditure</em> | 6,840 | — | 0 | — |
 
@@ -267,9 +267,9 @@ One account after another: date, entry number, the other account (*To …* on th
 | Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 18 Jul 2025 | RS-013 | To Kotli Cement Store A/c<br><em>Langar hall — cement and bricks on the store's khata</em> | 1,48,000 | — | 1,48,000 | Dr |
-| 14 Oct 2025 | RS-028 | To SBI Current A/c<br><em>Langar hall — steel and shuttering, paid from the Langar Hall Fund</em> | 1,86,000 | — | 3,34,000 | Dr |
-| 22 Dec 2025 | RS-035 | To SBI Current A/c<br><em>Langar hall — mason contractor, first bill, paid from the Langar Hall Fund</em> | 1,24,000 | — | 4,58,000 | Dr |
-| 16 Mar 2026 | RS-049 | To SBI Current A/c<br><em>Langar hall — mason contractor, second bill (from the trust's general money)</em> | 96,000 | — | 5,54,000 | Dr |
+| 14 Oct 2025 | RS-028 | To SBI Savings A/c<br><em>Langar hall — steel and shuttering, paid from the Langar Hall Fund</em> | 1,86,000 | — | 3,34,000 | Dr |
+| 22 Dec 2025 | RS-035 | To SBI Savings A/c<br><em>Langar hall — mason contractor, first bill, paid from the Langar Hall Fund</em> | 1,24,000 | — | 4,58,000 | Dr |
+| 16 Mar 2026 | RS-049 | To SBI Savings A/c<br><em>Langar hall — mason contractor, second bill (from the trust's general money)</em> | 96,000 | — | 5,54,000 | Dr |
 |  |  | **Total for the year** | **5,54,000** | **—** | **5,54,000** | **Dr** |
 | 31 Mar 2026 | RS-Y2 | By Income & Expenditure A/c<br><em>Expense heads closed to Income & Expenditure</em> | — | 5,54,000 | 0 | — |
 
@@ -278,9 +278,9 @@ One account after another: date, entry number, the other account (*To …* on th
 | Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 06 Sep 2025 | RS-018 | To Cash A/c<br><em>Fodder for the dairy, cash</em> | 2,800 | — | 2,800 | Dr |
-| 15 Sep 2025 | RS-020 | To SBI Current A/c<br><em>Electricity, April–August</em> | 21,400 | — | 24,200 | Dr |
+| 15 Sep 2025 | RS-020 | To SBI Savings A/c<br><em>Electricity, April–August</em> | 21,400 | — | 24,200 | Dr |
 | 20 Sep 2025 | RS-021 | By Dairy Expense A/c<br><em>Entry RS-018 of 06 Sep 2025 (fodder) was written to General Expense — moved to Dairy Expense</em> | — | 2,800 | 21,400 | Dr |
-| 14 Feb 2026 | RS-046 | To SBI Current A/c<br><em>Electricity, September–January</em> | 19,800 | — | 41,200 | Dr |
+| 14 Feb 2026 | RS-046 | To SBI Savings A/c<br><em>Electricity, September–January</em> | 19,800 | — | 41,200 | Dr |
 |  |  | **Total for the year** | **44,000** | **2,800** | **41,200** | **Dr** |
 | 31 Mar 2026 | RS-Y2 | By Income & Expenditure A/c<br><em>Expense heads closed to Income & Expenditure</em> | — | 41,200 | 0 | — |
 
@@ -288,10 +288,10 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 20 Jun 2025 | RS-008 | To SBI Current A/c<br><em>Fodder and feed for the dairy</em> | 14,600 | — | 14,600 | Dr |
+| 20 Jun 2025 | RS-008 | To SBI Savings A/c<br><em>Fodder and feed for the dairy</em> | 14,600 | — | 14,600 | Dr |
 | 20 Sep 2025 | RS-021 | To General Expense A/c<br><em>Entry RS-018 of 06 Sep 2025 (fodder) was written to General Expense — moved to Dairy Expense</em> | 2,800 | — | 17,400 | Dr |
-| 20 Oct 2025 | RS-029 | To SBI Current A/c<br><em>Fodder and feed for the dairy</em> | 12,800 | — | 30,200 | Dr |
-| 18 Feb 2026 | RS-047 | To SBI Current A/c<br><em>Fodder and feed for the dairy</em> | 16,200 | — | 46,400 | Dr |
+| 20 Oct 2025 | RS-029 | To SBI Savings A/c<br><em>Fodder and feed for the dairy</em> | 12,800 | — | 30,200 | Dr |
+| 18 Feb 2026 | RS-047 | To SBI Savings A/c<br><em>Fodder and feed for the dairy</em> | 16,200 | — | 46,400 | Dr |
 |  |  | **Total for the year** | **46,400** | **—** | **46,400** | **Dr** |
 | 31 Mar 2026 | RS-Y2 | By Income & Expenditure A/c<br><em>Expense heads closed to Income & Expenditure</em> | — | 46,400 | 0 | — |
 
@@ -349,7 +349,7 @@ Every account with a balance on 30 Sep 2025, placed on the side its balance fall
 |:---|:---|---:|---:|
 | What I have | Cash A/c | 63,300 |  |
 | What I have | Gollak Cash A/c | 19,850 |  |
-| What I have | SBI Current A/c | 4,58,650 |  |
+| What I have | SBI Savings A/c | 4,58,650 |  |
 | What I have | SBI Fixed Deposit (Langar Hall Fund) A/c | 2,00,000 |  |
 | What I have | Advance – Amritpal Singh A/c | 1,350 |  |
 |  | **Total — what I have** | **7,43,150** |  |
@@ -381,7 +381,7 @@ Every account with a balance on 31 Mar 2026, placed on the side its balance fall
 |  | Account | Have / will get ₹ | Will give / funds ₹ |
 |:---|:---|---:|---:|
 | What I have | Cash A/c | 35,300 |  |
-| What I have | SBI Current A/c | 2,62,190 |  |
+| What I have | SBI Savings A/c | 2,62,190 |  |
 | What I have | SBI Fixed Deposit (Langar Hall Fund) A/c | 2,14,000 |  |
 | What I have | Advance – Amritpal Singh A/c | 1,100 |  |
 | What I have | Furniture & Equipment A/c | 1 |  |
@@ -417,7 +417,7 @@ Every account's balance on 01 Oct 2025, what went on its Dr side and its Cr side
 |:---|---:|:---:|---:|---:|---:|:---:|
 | Cash A/c | 63,300 | Dr | — | — | 63,300 | Dr |
 | Gollak Cash A/c | 19,850 | Dr | — | 19,850 | 0 | — |
-| SBI Current A/c | 4,58,650 | Dr | 19,850 | 2,88,800 | 1,89,700 | Dr |
+| SBI Savings A/c | 4,58,650 | Dr | 19,850 | 2,88,800 | 1,89,700 | Dr |
 | SBI Fixed Deposit (Langar Hall Fund) A/c | 2,00,000 | Dr | — | — | 2,00,000 | Dr |
 | Advance – Amritpal Singh A/c | 1,350 | Dr | 90,000 | — | 91,350 | Dr |
 | Langar Hall Fund A/c | 3,26,000 | Cr | 1,86,000 | — | 1,40,000 | Cr |
@@ -449,19 +449,19 @@ The gollak for the year — each count (the donation is recorded when it is coun
 | 01 Apr 2025 |  | Opening balance on 01 Apr 2025 | — | — | 0 | — |
 | 31 May 2025 | RS-004 | To Donations – gollak A/c<br><em>Gollak counted by Amritpal Singh, witnessed by Ranjeet Singh (note-count sheet 1)</em> | 86,450 | — | 86,450 | Dr |
 | 31 May 2025 | RS-005 | By Cash A/c<br><em>Part of the gollak put in the cash box the same day</em> | — | 50,000 | 36,450 | Dr |
-| 02 Jun 2025 | RS-006 | By SBI Current A/c<br><em>Rest of the gollak deposited in the bank</em> | — | 36,450 | 0 | — |
+| 02 Jun 2025 | RS-006 | By SBI Savings A/c<br><em>Rest of the gollak deposited in the bank</em> | — | 36,450 | 0 | — |
 | 31 Jul 2025 | RS-014 | To Donations – gollak A/c<br><em>Gollak counted by Amritpal Singh, witnessed by Ranjeet Singh (note-count sheet 2)</em> | 74,200 | — | 74,200 | Dr |
-| 01 Aug 2025 | RS-015 | By SBI Current A/c<br><em>Gollak deposited in the bank</em> | — | 74,200 | 0 | — |
+| 01 Aug 2025 | RS-015 | By SBI Savings A/c<br><em>Gollak deposited in the bank</em> | — | 74,200 | 0 | — |
 | 30 Sep 2025 | RS-022 | To Donations – gollak A/c<br><em>Gollak counted by Amritpal Singh, witnessed by Ranjeet Singh (note-count sheet 3)</em> | 69,850 | — | 69,850 | Dr |
 | 30 Sep 2025 | RS-023 | By Cash A/c<br><em>Part of the gollak put in the cash box the same day</em> | — | 50,000 | 19,850 | Dr |
-| 02 Oct 2025 | RS-027 | By SBI Current A/c<br><em>Rest of the gollak deposited in the bank</em> | — | 19,850 | 0 | — |
+| 03 Oct 2025 | RS-027 | By SBI Savings A/c<br><em>Rest of the gollak deposited in the bank</em> | — | 19,850 | 0 | — |
 | 30 Nov 2025 | RS-032 | To Donations – gollak A/c<br><em>Gollak counted by Amritpal Singh, witnessed by Ranjeet Singh (note-count sheet 4)</em> | 1,12,600 | — | 1,12,600 | Dr |
-| 01 Dec 2025 | RS-033 | By SBI Current A/c<br><em>Gollak deposited in the bank</em> | — | 1,12,600 | 0 | — |
+| 01 Dec 2025 | RS-033 | By SBI Savings A/c<br><em>Gollak deposited in the bank</em> | — | 1,12,600 | 0 | — |
 | 31 Jan 2026 | RS-042 | To Donations – gollak A/c<br><em>Gollak counted by Amritpal Singh, witnessed by Ranjeet Singh (note-count sheet 5)</em> | 81,300 | — | 81,300 | Dr |
 | 31 Jan 2026 | RS-043 | By Cash A/c<br><em>Part of the gollak put in the cash box the same day</em> | — | 50,000 | 31,300 | Dr |
-| 02 Feb 2026 | RS-044 | By SBI Current A/c<br><em>Rest of the gollak deposited in the bank</em> | — | 31,300 | 0 | — |
+| 02 Feb 2026 | RS-044 | By SBI Savings A/c<br><em>Rest of the gollak deposited in the bank</em> | — | 31,300 | 0 | — |
 | 29 Mar 2026 | RS-051 | To Donations – gollak A/c<br><em>Gollak counted by Amritpal Singh, witnessed by Ranjeet Singh (note-count sheet 6)</em> | 95,750 | — | 95,750 | Dr |
-| 30 Mar 2026 | RS-052 | By SBI Current A/c<br><em>Gollak deposited in the bank</em> | — | 95,750 | 0 | — |
+| 30 Mar 2026 | RS-052 | By SBI Savings A/c<br><em>Gollak deposited in the bank</em> | — | 95,750 | 0 | — |
 |  |  | **Total for the period** | **5,20,150** | **5,20,150** |  |  |
 | 31 Mar 2026 |  | **Closing balance on 31 Mar 2026** |  |  | **0** | **—** |
 
@@ -487,7 +487,7 @@ The closing balance of every account after the last entry of the year (before th
 | Account | Dr balance ₹ | Cr balance ₹ |
 |:---|---:|---:|
 | Cash A/c | 35,300 | — |
-| SBI Current A/c | 2,62,190 | — |
+| SBI Savings A/c | 2,62,190 | — |
 | SBI Fixed Deposit (Langar Hall Fund) A/c | 2,14,000 | — |
 | Advance – Amritpal Singh A/c | 1,100 | — |
 | Furniture & Equipment A/c | 1 | — |
@@ -523,7 +523,7 @@ The cash book and the bank together: opening cash and bank, everything received 
 |:---|---:|:---|---:|
 | To Opening balance — Cash A/c | 22,000 | By Advance – Amritpal Singh A/c | 2,10,000 |
 | To Opening balance — Gollak Cash A/c | 0 | By Kotli Cement Store A/c | 1,48,000 |
-| To Opening balance — SBI Current A/c | 4,85,000 | By Construction A/c | 4,06,000 |
+| To Opening balance — SBI Savings A/c | 4,85,000 | By Construction A/c | 4,06,000 |
 | To Langar Hall Fund A/c | 1,07,000 | By General Expense A/c | 44,000 |
 | To Donations – gollak A/c | 5,20,150 | By Dairy Expense A/c | 43,600 |
 | To Donation A/c | 2,17,000 | By Labour A/c | 18,000 |
@@ -531,7 +531,7 @@ The cash book and the bank together: opening cash and bank, everything received 
 | To Bank Interest A/c | 6,840 | By Ravinder Labour A/c | 1,02,000 |
 |  |  | By Closing balance — Cash A/c | 35,300 |
 |  |  | By Closing balance — Gollak Cash A/c | 0 |
-|  |  | By Closing balance — SBI Current A/c | 2,62,190 |
+|  |  | By Closing balance — SBI Savings A/c | 2,62,190 |
 | **Total** | **13,77,090** | **Total** | **13,77,090** |
 
 #### 4.3 Income & Expenditure Account for FY 2025-26
@@ -573,11 +573,11 @@ A fund holds money given for one purpose. Gifts for it and the interest its depo
 | Date | No. | Particulars | Spent from it (Dr) | Added to it (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | 2,50,000 | 2,50,000 | Cr |
-| 20 May 2025 | RS-003 | By SBI Current A/c<br><em>Donation from a family, for the langar hall — to the Langar Hall Fund</em> | — | 51,000 | 3,01,000 | Cr |
-| 12 Aug 2025 | RS-017 | By SBI Current A/c<br><em>Donation from an NRI family, for the langar hall — to the Langar Hall Fund</em> | — | 25,000 | 3,26,000 | Cr |
+| 20 May 2025 | RS-003 | By SBI Savings A/c<br><em>Donation from a family, for the langar hall — to the Langar Hall Fund</em> | — | 51,000 | 3,01,000 | Cr |
+| 12 Aug 2025 | RS-017 | By SBI Savings A/c<br><em>Donation from an NRI family, for the langar hall — to the Langar Hall Fund</em> | — | 25,000 | 3,26,000 | Cr |
 | 14 Oct 2025 | RS-028 | To Transferred from the Langar Hall Fund A/c<br><em>Langar hall — steel and shuttering, paid from the Langar Hall Fund</em> | 1,86,000 | — | 1,40,000 | Cr |
 | 22 Dec 2025 | RS-035 | To Transferred from the Langar Hall Fund A/c<br><em>Langar hall — mason contractor, first bill, paid from the Langar Hall Fund</em> | 1,24,000 | — | 16,000 | Cr |
-| 20 Jan 2026 | RS-041 | By SBI Current A/c<br><em>Donation from a family in memory of an elder, for the langar hall — to the Langar Hall Fund</em> | — | 31,000 | 47,000 | Cr |
+| 20 Jan 2026 | RS-041 | By SBI Savings A/c<br><em>Donation from a family in memory of an elder, for the langar hall — to the Langar Hall Fund</em> | — | 31,000 | 47,000 | Cr |
 | 20 Mar 2026 | RS-050 | By SBI Fixed Deposit (Langar Hall Fund) A/c<br><em>Yearly interest added by the bank to the deposit made from the langar hall donations — added to the Langar Hall Fund</em> | — | 14,000 | 61,000 | Cr |
 | 31 Mar 2026 |  | Closing balance c/d | 61,000 | — | — | — |
 |  |  | **Total** | **3,71,000** | **3,71,000** |  |  |
@@ -615,7 +615,7 @@ Nobody types these. When the year is closed the book itself closes every income 
 | Particulars | ₹ |
 |:---|---:|
 | Cash A/c | 35,300 |
-| SBI Current A/c | 2,62,190 |
+| SBI Savings A/c | 2,62,190 |
 | SBI Fixed Deposit (Langar Hall Fund) A/c | 2,14,000 |
 | Advance – Amritpal Singh A/c | 1,100 |
 | Furniture & Equipment A/c | 1 |
@@ -638,7 +638,7 @@ Every account that carries a balance takes its balance **after the year close** 
 | Account | Type | Closing 31 Mar 2026, after the close ₹ | Side | Opening b/d 01 Apr 2026 ₹ | Side |
 |:---|:---|---:|:---:|---:|:---:|
 | Cash A/c | Cash | 35,300 | Dr | 35,300 | Dr |
-| SBI Current A/c | Bank | 2,62,190 | Dr | 2,62,190 | Dr |
+| SBI Savings A/c | Bank | 2,62,190 | Dr | 2,62,190 | Dr |
 | SBI Fixed Deposit (Langar Hall Fund) A/c | Deposit | 2,14,000 | Dr | 2,14,000 | Dr |
 | Advance – Amritpal Singh A/c | Advance | 1,100 | Dr | 1,100 | Dr |
 | Furniture & Equipment A/c | Thing owned | 1 | Dr | 1 | Dr |

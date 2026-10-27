@@ -2,7 +2,7 @@
 
 **Status:** Draft, 20 Oct 2026 — for a bookkeeper's review.
 
-This document says how a book is checked at the end of each month, how it is closed at the end of the year, and what every report must contain. It covers the people who keep a rokad (day book), a khata and a ledger by hand: households, joint families, their small businesses (shop, contractor, farm, truck, landlord, partnership) and trusts or committees. It describes bookkeeping practice only; it does not claim that a book kept this way meets the Accounting Standards or any official format. How an entry is posted is in *02 — Accounts and transactions*; what is special about each kind of book is in *03 — Entities*.
+This document says how a book is checked at the end of each month, how it is closed at the end of the year, and what every report must contain. It covers the people who keep a rokad (cash), a rojnamcha (day book), a khata and a ledger by hand: households, joint families, their small businesses (shop, contractor, farm, truck, landlord, partnership) and trusts or committees. It describes bookkeeping practice only; it does not claim that a book kept this way meets the Accounting Standards or any official format. How an entry is posted is in *02 — Accounts and transactions*; what is special about each kind of book is in *03 — Entities*.
 
 Plain words are used first and the true side follows in brackets where it helps, for example *Money in (Dr)*. Every example gives one line in professional terms and one line in diary words. Rupees use Indian grouping.
 
@@ -10,17 +10,17 @@ Plain words are used first and the true side follows in brackets where it helps,
 
 ### 1.1 A month end is a check, not a close
 
-**Rule.** At the end of each month the book is checked, not closed. Three things are done: the cash in hand is counted and compared with the book; every bank account is reconciled with its bank statement (rule 1.2); and the month is locked, so that a mistake found later is put right by a new correcting entry dated today, never by changing the locked month. Nothing is moved to *Own money* at a month end. Statements for any period remain available. Only the year end (section 2) closes the ledger.
+**Rule.** At the end of each month the book is checked, not closed. Three things are done: the cash in hand is counted and compared with the book; each bank account is reconciled with its bank statement, or marked *not checked this month* (rule 1.2); and the month is locked, so that a mistake found later is put right by a new correcting entry dated today, never by changing the locked month. Nothing is moved to *Own money* at a month end. Statements for any period remain available. Only the year end (section 2) closes the ledger.
 
 A trial balance, or any statement, may be taken at any date; the month-end check is the usual moment to take one (rule 3.2).
 
 **Source:** ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 2 Unit 3 §3.1, p. 2.67 (a trial balance may be prepared at month end, quarter end or year end); NCERT Class 11 Accountancy Part I, Ch 2 §2.2.4 (interim statements for spans other than a year). Locking a month and counting cash: none settles it — ruled 20 Oct 2026 (O-19-5): the sources allow interim statements and say nothing on closing the ledger before the year end, so the month end is a recognised check and nothing more.
 
-**Example.** Professional: cash counted on 30 April is ₹4,850 against a book balance of ₹5,000; the shortage is entered as a new entry dated 30 April or the next day: `Dr Cash short / over ₹150 · Cr Cash ₹150`. Plain words: "Counted the cash box: ₹4,850, book says ₹5,000. Wrote the ₹150 difference under *Cash short / over*. April is now locked."
+**Example.** Professional: cash counted on 30 April is ₹4,850 against a book balance of ₹5,000; the shortage is entered as a new entry dated 30 April or the next day: `Dr Cash short / over ₹150 · Cr Cash ₹150`. Plain words: "Counted the cash box: ₹4,850, book says ₹5,000. Wrote the ₹150 difference under *Cash short / over*. April is now locked." A shortage the person minding the cash will make good goes on that person's own page instead (*02 — Accounts and transactions*, 7.4).
 
-### 1.2 Every bank account is reconciled at each month end, by correcting the book first
+### 1.2 A bank account is reconciled when its statement is in hand, and always at the year end, by correcting the book first
 
-**Rule.** At each month end, and always at the year end, every bank account is compared with its bank statement. The two balances usually differ for two reasons only: *timing* (a cheque written but not yet presented; a cheque banked but not yet cleared) and *items the book has not yet recorded* (bank charges, interest, a direct credit from a customer, a payment the bank made on standing instruction, a dishonoured cheque). The method is:
+**Rule.** At a month end each bank account is compared with its bank statement when the statement is in hand; a book whose bank is checked only when the passbook is printed marks the account *not checked this month*. A shop or other business usually checks monthly. At the year end every bank account is compared with its statement, without exception. The two balances usually differ for two reasons only: *timing* (a cheque written but not yet presented; a cheque banked but not yet cleared) and *items the book has not yet recorded* (bank charges, interest, a direct credit from a customer, a payment the bank made on standing instruction, a dishonoured cheque). The method is:
 
 1. Enter in the book every item that is on the statement but missing from the book. This is the "adjust the book first" method.
 2. The book balance is now the *adjusted balance*.
@@ -29,7 +29,7 @@ A trial balance, or any statement, may be taken at any date; the month-end check
 
 The reconciliation is dated and names the bank account. Where the same amount appears twice or is missing, the error may be the book's or the bank's; only the book's errors are corrected in the book.
 
-**Source:** NCERT Class 11 Part I, Ch 5 §5.1, §5.1.1(a)–(g), §5.2, §5.2.1 (causes of difference, direction of each adjustment). ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 3 *Bank Reconciliation Statement*, §2 and §3, p. 3.4 (done at regular intervals, "monthly or quarterly", according to size); §7.2.1, p. 3.25 (adjusting the cash book is optional in the year, but required at the year end so that the balance sheet shows the right bank balance; timing differences stay in the statement; standing-instruction payments are entered when the statement shows them). Every month rather than quarterly: none settles it — ruled 20 Oct 2026 (O-05-4): a statement taken in from the bank makes monthly cheap, and it belongs to the month-end check.
+**Source:** NCERT Class 11 Part I, Ch 5 §5.1, §5.1.1(a)–(g), §5.2, §5.2.1 (causes of difference, direction of each adjustment). ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 3 *Bank Reconciliation Statement*, §2 and §3, p. 3.4 (done at regular intervals, "monthly or quarterly", according to size); §7.2.1, p. 3.25 (adjusting the cash book is optional in the year, but required at the year end so that the balance sheet shows the right bank balance; timing differences stay in the statement; standing-instruction payments are entered when the statement shows them). Every month rather than quarterly: none settles it — ruled 20 Oct 2026 (O-05-4): a statement taken in from the bank makes monthly cheap, and it belongs to the month-end check. A household or farmer checks when the passbook is printed: owner ruling, 27 Oct 2026 (bookkeeper review pack C12; ADR 2026-10-27), which replaces O-05-4 on *every* month.
 
 **Example.** Professional (own figures, on the BoS pattern): book balance ₹40,000; the statement shows bank charges ₹300 and an insurance premium paid on standing instruction ₹1,500 not yet in the book; a cheque for ₹2,000 has not been presented. Correct the book: `Dr Bank charges ₹300 · Dr Insurance ₹1,500 · Cr Bank ₹1,800`; adjusted balance ₹38,200. Then ₹38,200 + cheque not presented ₹2,000 = statement ₹40,200. Plain words: "The bank took ₹300 and paid ₹1,500 insurance for me. I wrote both in my book first. The only difference left is a ₹2,000 cheque the shop has not banked yet."
 
@@ -69,12 +69,14 @@ The closing entries are real entries in the ledger, so every account's page show
 
 | Adjustment | What it does | Entry (professional) | Plain words |
 |---|---|---|---|
-| **Outstanding** (expense of the year not yet paid) | adds to the year's expense; a thing you will give | `Dr Wages ₹500 · Cr Wages outstanding ₹500` | "Still owe the worker ₹500 for this year; count it as this year's wages." |
+| **Outstanding** (expense of the year not yet paid) | adds to the year's expense; a thing you will give | `Dr Electricity ₹2,400 · Cr Expenses outstanding ₹2,400` | "March's electricity, not billed yet; count it as this year's." |
 | **Prepaid** (paid, but for next year) | takes off the year's expense; a thing you will get in service | `Dr Prepaid salary ₹5,000 · Cr Salary ₹5,000` | "Paid ₹5,000 in advance; not this year's cost." |
 | **Accrued** (income earned, not yet received) | adds to the year's income | `Dr Accrued commission ₹1,500 · Cr Commission ₹1,500` | "Earned ₹1,500, not yet paid to me; count it as this year's." |
 | **Received in advance** (income received for next year) | takes off the year's income; a thing you will give | `Dr Subscriptions received ₹3,000 · Cr Subscriptions received in advance ₹3,000` | "A club that keeps no member accounts was paid three months ahead; not this year's income." (A tenant's advance already sits on his own account.) |
 | **Depreciation** (wear on a thing owned) | a rate per thing owned; shows as an expense | see rule 2.3 | |
 | **Closing stock** | a closing-stock *rupee figure* typed by the person | see rule 2.4 | |
+
+Wages a worker has earned and not yet been paid are not an adjustment: they are written on the worker's own page when they fall due, on the khata basis, and stand there as *You will give* at the year end. *Wages outstanding* is an accountant's entry and is not used (owner ruling, 27 Oct 2026, bookkeeper review pack C10).
 
 If the book opts in, the head of every report says so (rule 4.1), and the adjustments appear in the year-end section. The outstanding, prepaid, accrued, in-advance and stock adjustments are reversed on the first day of the next year (rule 2.5). Depreciation is not reversed.
 
@@ -235,11 +237,11 @@ Every report below carries the head of rule 4.1. Amounts are in rupees.
 
 **Example.** Professional: Mohan, opening `Dr ₹2,000`; sale `Dr ₹5,000`; receipt `Cr ₹3,000`; closing `Dr ₹4,000`. Plain words: "Mohan's page: he owed ₹2,000, bought ₹5,000 more, paid ₹3,000, now owes ₹4,000."
 
-### 5.3 Day Book (the rokad)
+### 5.3 Day Book (the rojnamcha)
 
-**Rule.** A single list of every entry in the book, in date order and, within a date, in the order made. Each line: date, entry number, what it was, the accounts it touched and the amount. It runs for any period. It is the book's rokad: on any day it shows everything that was written.
+**Rule.** A single list of every entry in the book, in date order and, within a date, in the order made. Each line: date, entry number, what it was, the accounts it touched and the amount. It runs for any period. It is the book's rojnamcha: on any day it shows everything that was written, cash or not. *Rokad* means cash, not this list.
 
-The textbooks use "day books" for the separate sales, purchases and returns books; this document means the single rokad.
+The textbooks use "day books" for the separate sales, purchases and returns books; this document means the single rojnamcha.
 
 ```
 Day Book — {book} — 1 April 2026 to 30 April 2026
@@ -248,7 +250,7 @@ Date    No.  Entry                         Money in (Dr)    Money out (Cr)
 5 Apr   2    Mohan paid in cash            Cash 3,000       Mohan 3,000
 ```
 
-**Source:** NCERT Class 11 Part I, Ch 3 §3.4 (books of original entry; day books are subsidiary books); ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 2 Unit 1, p. 2.2, and Ch. 9 §4.1, p. 9.14 (the same use of "day books"). Neither source has a single book of everything. A single, date-ordered Day Book: none settles it — ruled 20 Oct 2026 (O-20-7): it is the rokad the people who keep these books already write.
+**Source:** NCERT Class 11 Part I, Ch 3 §3.4 (books of original entry; day books are subsidiary books); ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 2 Unit 1, p. 2.2, and Ch. 9 §4.1, p. 9.14 (the same use of "day books"). Neither source has a single book of everything. A single, date-ordered Day Book: none settles it — ruled 20 Oct 2026 (O-20-7): it is the list the people who keep these books already write. Named *rojnamcha*; *rokad* means cash: owner ruling, 27 Oct 2026 (bookkeeper review pack C7).
 
 **Example.** Professional: `Dr Mohan ₹5,000 · Cr Sales ₹5,000`, then `Dr Cash ₹3,000 · Cr Mohan ₹3,000`. Plain words: "Sold ₹5,000 to Mohan on 2 April; on 5 April he paid ₹3,000. Both on the day's page, in order."
 
@@ -274,7 +276,7 @@ Date    Particulars                              Dr ₹      Cr ₹
 
 ### 5.4 Cash Book (cash and bank)
 
-**Rule.** The Cash Book lists every receipt and every payment of cash and of each bank account, in date order, receipts (*Money in*) on the left and payments (*Money out*) on the right, starting from the opening cash and bank balances and ending with the closing ones. Cash is always on the *Money in (Dr)* side or nil; a bank account that has been overdrawn is shown on the other side. A bank account has its own column. A transfer between cash and bank appears on both sides. Cash taken from the bank for the owner's own use is *Drawings*, not a transfer.
+**Rule.** The Cash Book lists every receipt and every payment of cash and of each bank account, in date order, receipts (*Money in*) on the left and payments (*Money out*) on the right, starting from the opening cash and bank balances and ending with the closing ones. Cash is always on the *Money in (Dr)* side or nil; a bank account that has been overdrawn is shown on the other side. A bank account has its own column, and so does a gollak (*03 — Entities*, 5.9): a count is cash received on the day of counting. A transfer between cash and bank appears on both sides. Cash taken from the bank for the owner's own use is *Drawings*, not a transfer.
 
 No cash-flow statement is made for any book (rule 5.10).
 
@@ -306,6 +308,8 @@ The trial balance of rule 3.1 is a report of every book, at any date.
 
 For a person, the closing line reads *You will get ₹x* or *You will give ₹x*. The opening plus the movements equals the closing; nothing is left out of the period.
 
+A copy **sent to the person** is read by that person, so it does not say *you* for the book's owner. Its columns are named by side, *Naam (Dr)* and *Jama (Cr)*, and its closing line reads *Balance due from you ₹x* when the person owes, or *Balance due to you ₹x* when the book owes the person.
+
 ```
 Mohan — 1 April 2026 to 30 June 2026
 Opening balance                                         2,000 Dr
@@ -316,7 +320,7 @@ Total for the period                 5,000      3,000
 Closing balance — You will get                          4,000 Dr
 ```
 
-**Source:** none settles it — ruled 20 Oct 2026 (O-20-6): no source read prescribes the content of an account extract; the form follows the ledger account (ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 2 Unit 2 §2.2, p. 2.53) and adds the running balance and notes, which are what the readers of these books use.
+**Source:** none settles it — ruled 20 Oct 2026 (O-20-6): no source read prescribes the content of an account extract; the form follows the ledger account (ICAI BoS Foundation Paper 1 Accounting (Aug 2026 ed.), Ch. 2 Unit 2 §2.2, p. 2.53) and adds the running balance and notes, which are what the readers of these books use. The copy sent out: owner ruling, 27 Oct 2026 (bookkeeper review pack C13).
 
 **Example.** Professional: opening `Dr ₹2,000`, sale `Dr ₹5,000`, receipt `Cr ₹3,000`, closing `Dr ₹4,000`. Plain words: "Mohan's page April to June: he owed ₹2,000, bought ₹5,000 more, paid ₹3,000, owes ₹4,000."
 
@@ -392,7 +396,7 @@ Every kind of book gives the reports of section 5. Each adds the following.
 
 ### 6.1 Household: Income & Expenses
 
-**Rule.** The household's year is the report *Income & Expenses*. *Income* includes salary, interest, rent, *Income from {business}* and gifts received. It never includes loans taken, money returned, transfers between the household's own accounts, or a deposit coming back. Expenses are listed by head. The result is called **Saving** (income more than expenses) or **Spent more than came in** (expenses more than income). At year close the result goes to *Own money*.
+**Rule.** The household's year is the report *Income & Expenses*. *Income* includes salary, interest, rent, *Income from {business}* and gifts received outright, such as shagun. Neondra or vartan, given at a wedding to be returned in kind at the giver's own occasion, is not income: it is a give-and-take written on the giver's own page. It never includes loans taken, money returned, transfers between the household's own accounts, or a deposit coming back. Expenses are listed by head. The result is called **Saving** (income more than expenses) or **Spent more than came in** (expenses more than income). At year close the result goes to *Own money*.
 
 ```
 Income & Expenses — {household} — 1 April 2026 to 31 March 2027
@@ -404,7 +408,7 @@ Total income     4,80,000        Other            2,40,000
 Saving                              40,000
 ```
 
-**Source:** NCERT Class 11 Part I, Ch 1 §1.5.10 (profit as revenue less expenses; used here as the test of what is not income). The household's wording and statement: none settles it — ruled 20 Oct 2026 (O-13-5): no source covers a household; this follows the household's own words.
+**Source:** NCERT Class 11 Part I, Ch 1 §1.5.10 (profit as revenue less expenses; used here as the test of what is not income). The household's wording and statement: none settles it — ruled 20 Oct 2026 (O-13-5): no source covers a household; this follows the household's own words. Neondra / vartan as give-and-take, only an outright gift as income: owner ruling, 27 Oct 2026 (bookkeeper review pack C8).
 
 **Example.** Professional: `Dr Income and Expenses ₹40,000 · Cr Own money ₹40,000`. Plain words: "We earned ₹4,80,000 and spent ₹4,40,000; ₹40,000 is saved and added to our own money."
 

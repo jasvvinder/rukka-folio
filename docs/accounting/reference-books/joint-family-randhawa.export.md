@@ -4,7 +4,7 @@ An export, not part of the printed book: the Day Book and the Cash Book, which c
 
 ## Book: Randhawa Joint Family — joint family book
 
-### 1. Day Book — every entry of the year
+### 1. Day Book (rojnamcha) — every entry of the year
 
 *Randhawa Joint Family · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
@@ -21,7 +21,7 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 10 Jul 2025 | RJ-007 | Money in | SBI Joint Savings A/c | Income from Randhawa Brick Field A/c | 1,50,000 | Taken from the brick field — the family's income |
 | 18 Jul 2025 | RJ-008 | Money out | Family Car A/c | SBI Joint Savings A/c | 28,400 | Family car insurance |
 | 06 Aug 2025 | RJ-009 | Money out | Lakhbeer's Family A/c | SBI Joint Savings A/c | 70,000 | Towards Aman's motorcycle |
-| 18 Aug 2025 | RJ-010 | Money out | Lakhbeer's Family A/c | SBI Joint Savings A/c | 50,000 | Lakhbeer took ₹50,000 for a while — he will return it |
+| 18 Aug 2025 | RJ-010 | Money out | Udhaar – Lakhbeer's Family A/c | SBI Joint Savings A/c | 50,000 | Lakhbeer took ₹50,000 for a while — he will return it |
 | 22 Aug 2025 | RJ-011 | Transfer | Cash A/c | SBI Joint Savings A/c | 30,000 | Cash withdrawn for the house (ATM) |
 | 25 Aug 2025 | RJ-012 | Money out | Advance – mason A/c | Cash A/c | 15,000 | Advance to the mason for the roof, cash |
 | 04 Sep 2025 | RJ-013 | Advance settled — no money moved | House Repairs A/c | Advance – mason A/c | 15,000 | The mason's bill for the roof waterproofing set against his advance |
@@ -36,7 +36,7 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 20 Oct 2025 | RJ-022 | Money out | Randhawa Brick Field A/c | SBI Joint Savings A/c | 2,00,000 | Put into the brick field for the season (the family's share) |
 | 21 Oct 2025 | RJ-023 | Fix / Adjust — no money moved | Randhawa Brick Field A/c | Lakhwinder's Family A/c | 1,00,000 | Lakhwinder's family put ₹1,00,000 straight into the brick field — the family's money in it, put in by his household |
 | 25 Nov 2025 | RJ-024 | Money in | SBI Joint Savings A/c | Income from Randhawa Agriculture A/c | 3,50,000 | Paddy money sent home by Randhawa Agriculture |
-| 05 Dec 2025 | RJ-025 | Fix / Adjust — no money moved | Randhawa Brick Field A/c | Lakhbeer's Family A/c | 20,000 | Lakhbeer paid ₹20,000 of the brick field's chimney repair from his own money — the family's money in the brick field, set against what he took |
+| 05 Dec 2025 | RJ-025 | Fix / Adjust — no money moved | Randhawa Brick Field A/c | Udhaar – Lakhbeer's Family A/c | 20,000 | Lakhbeer paid ₹20,000 of the brick field's chimney repair from his own money — the family's money in the brick field, set against what he took |
 | 09 Dec 2025 | RJ-026 | Money out | Elders' Medical A/c | SBI Joint Savings A/c | 24,000 | Eye operation for Bapu ji |
 | 10 Dec 2025 | RJ-027 | Money in | SBI Joint Savings A/c | Income from Randhawa Real Estate A/c | 2,50,000 | Plot money sent home by Randhawa Real Estate |
 | 26 Dec 2025 | RJ-028 | Money out | Amarjeet's Family A/c | Cash A/c | 9,000 | Amarjeet's household — Indu's dental treatment, paid by the family in cash |
@@ -48,12 +48,12 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 21 Jan 2026 | RJ-034 | Money out | Electricity & Water A/c | SBI Joint Savings A/c | 35,000 | Electricity and water, April–December |
 | 12 Feb 2026 | RJ-035 | Money out | Gurdwara & Social A/c | SBI Joint Savings A/c | 51,000 | Shagun at a niece's wedding |
 | 20 Mar 2026 | RJ-036 | Money in | SBI Joint Savings A/c | Income from Randhawa Brick Field A/c | 1,80,000 | Taken from the brick field — the family's income |
-| 31 Mar 2026 | RJ-037 | Settled at year end — no money moved | Business Income Shared Out A/c | Lakhbeer's Family A/c | 30,000 | The ₹30,000 still due from what Lakhbeer took, settled from his share of the family's business income |
+| 24 Mar 2026 | RJ-037 | Money in | SBI Joint Savings A/c | Udhaar – Lakhbeer's Family A/c | 30,000 | Lakhbeer paid back the rest of the ₹50,000 he took |
 | 31 Mar 2026 | RJ-038 | Settled at year end — no money moved | Household Expenses – Amarjeet's family A/c | Amarjeet's Family A/c | 1,17,000 | Amarjeet's family's account settled for the year — the family bears it as Amarjeet's household expenses |
 | 31 Mar 2026 | RJ-039 | Took on credit — no money moved | Common Kitchen & Ration A/c | Doodhwala (milk khata) A/c | 59,400 | Milk for October–March on the milkman's khata |
 | 31 Mar 2026 | RJ-040 | Money in | SBI Joint Savings A/c | Interest A/c | 36,500 | Interest on the fixed deposits, paid to savings |
 
-*40 entries: Advance settled 1 · Correction 1 · Fix / Adjust 2 · Money in 10 · Money out 20 · Settled at year end 2 · Took on credit 2 · Transfer 2.*
+*40 entries: Advance settled 1 · Correction 1 · Fix / Adjust 2 · Money in 11 · Money out 20 · Settled at year end 1 · Took on credit 2 · Transfer 2.*
 
 ### 2. Cash Book — Cash A/c and SBI Joint Savings A/c
 
@@ -77,7 +77,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 18 Jul 2025 | RJ-008 | By Family Car A/c<br><em>Family car insurance</em> | — | — | — | 28,400 | 35,000 | 7,03,100 |
 | 31 Jul 2025 |  | **Month total — July 2025 · closing balance** | **0** | **1,90,000** | **0** | **28,400** | **35,000** | **7,03,100** |
 | 06 Aug 2025 | RJ-009 | By Lakhbeer's Family A/c<br><em>Towards Aman's motorcycle</em> | — | — | — | 70,000 | 35,000 | 6,33,100 |
-| 18 Aug 2025 | RJ-010 | By Lakhbeer's Family A/c<br><em>Lakhbeer took ₹50,000 for a while — he will return it</em> | — | — | — | 50,000 | 35,000 | 5,83,100 |
+| 18 Aug 2025 | RJ-010 | By Udhaar – Lakhbeer's Family A/c<br><em>Lakhbeer took ₹50,000 for a while — he will return it</em> | — | — | — | 50,000 | 35,000 | 5,83,100 |
 | 22 Aug 2025 | RJ-011 | SBI Joint Savings A/c to Cash A/c<br><em>Cash withdrawn for the house (ATM)</em> | 30,000 | — | — | 30,000 | 65,000 | 5,53,100 |
 | 25 Aug 2025 | RJ-012 | By Advance – mason A/c<br><em>Advance to the mason for the roof, cash</em> | — | — | 15,000 | — | 50,000 | 5,53,100 |
 | 31 Aug 2025 |  | **Month total — August 2025 · closing balance** | **30,000** | **0** | **15,000** | **1,50,000** | **50,000** | **5,53,100** |
@@ -106,14 +106,15 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 12 Feb 2026 | RJ-035 | By Gurdwara & Social A/c<br><em>Shagun at a niece's wedding</em> | — | — | — | 51,000 | 34,800 | 3,22,760 |
 | 28 Feb 2026 |  | **Month total — February 2026 · closing balance** | **0** | **0** | **0** | **51,000** | **34,800** | **3,22,760** |
 | 20 Mar 2026 | RJ-036 | To Income from Randhawa Brick Field A/c<br><em>Taken from the brick field — the family's income</em> | — | 1,80,000 | — | — | 34,800 | 5,02,760 |
-| 31 Mar 2026 | RJ-040 | To Interest A/c<br><em>Interest on the fixed deposits, paid to savings</em> | — | 36,500 | — | — | 34,800 | 5,39,260 |
-| 31 Mar 2026 |  | **Month total — March 2026 · closing balance** | **0** | **2,16,500** | **0** | **0** | **34,800** | **5,39,260** |
+| 24 Mar 2026 | RJ-037 | To Udhaar – Lakhbeer's Family A/c<br><em>Lakhbeer paid back the rest of the ₹50,000 he took</em> | — | 30,000 | — | — | 34,800 | 5,32,760 |
+| 31 Mar 2026 | RJ-040 | To Interest A/c<br><em>Interest on the fixed deposits, paid to savings</em> | — | 36,500 | — | — | 34,800 | 5,69,260 |
+| 31 Mar 2026 |  | **Month total — March 2026 · closing balance** | **0** | **2,46,500** | **0** | **0** | **34,800** | **5,69,260** |
 
-*On 31 Mar 2026: Cash A/c ₹34,800 · SBI Joint Savings A/c ₹5,39,260 — the same as the closing balances in the ledgers of the printed book (its section 2).*
+*On 31 Mar 2026: Cash A/c ₹34,800 · SBI Joint Savings A/c ₹5,69,260 — the same as the closing balances in the ledgers of the printed book (its section 2).*
 
 ## Book: Amarjeet's Family — household book
 
-### 1. Day Book — every entry of the year
+### 1. Day Book (rojnamcha) — every entry of the year
 
 *Amarjeet's Family · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
@@ -121,7 +122,7 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 
 | Date | No. | Type | Debit (Dr) | Credit (Cr) | Amount ₹ | What happened |
 |:---|:---|:---|:---|:---|---:|:---|
-| 03 Apr 2025 | RA-001 | Money in | PNB Savings A/c | Randhawa Joint Family A/c | 45,000 | Household money for six months from the joint family |
+| 03 Apr 2025 | RA-001 | Money in | PNB Savings A/c | Randhawa Joint Family A/c | 45,000 | Ghar kharch aaya — household money for six months from the joint family |
 | 06 Apr 2025 | RA-002 | Money out | Gill Kiryana Store A/c | Cash A/c | 4,200 | Grocer's khata of March paid, cash |
 | 30 May 2025 | RA-003 | Money in | Cash A/c | Stitching Income A/c | 6,400 | Indu's stitching — suits for the season, cash |
 | 10 Jun 2025 | RA-004 | Money out | Phone & Travel A/c | PNB Savings A/c | 4,400 | Mobiles for six months |
@@ -133,7 +134,7 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 20 Sep 2025 | RA-010 | Correction — no money moved | Phone & Travel A/c | Gifts & Social A/c | 1,800 | Entry RA-009 of 09 Sep 2025 (bus fares) was written to Gifts & Social — moved to Phone & Travel |
 | 30 Sep 2025 | RA-011 | Took on credit — no money moved | Household & Groceries A/c | Gill Kiryana Store A/c | 13,900 | Groceries on khata, July–September 2025 |
 | 30 Sep 2025 | RA-012 | Money out | House Help A/c | Cash A/c | 9,000 | House help's wages, July–September, cash |
-| 03 Oct 2025 | RA-013 | Money in | PNB Savings A/c | Randhawa Joint Family A/c | 45,000 | Household money for six months from the joint family |
+| 03 Oct 2025 | RA-013 | Money in | PNB Savings A/c | Randhawa Joint Family A/c | 45,000 | Ghar kharch aaya — household money for six months from the joint family |
 | 06 Oct 2025 | RA-014 | Money out | Gill Kiryana Store A/c | PNB Savings A/c | 13,900 | Grocer's khata paid (UPI) |
 | 12 Oct 2025 | RA-015 | Money out | Clothes & Personal A/c | PNB Savings A/c | 12,500 | Clothes for Diwali |
 | 15 Oct 2025 | RA-016 | Money out | Advance – house help A/c | Cash A/c | 3,000 | Advance to the house help for Diwali, cash |
@@ -164,7 +165,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | Date | No. | Particulars | Money in (Dr) — Cash ₹ | Money in (Dr) — PNB Savings A/c ₹ | Money out (Cr) — Cash ₹ | Money out (Cr) — PNB Savings A/c ₹ | Balance — Cash ₹ | Balance — PNB Savings A/c ₹ |
 |:---|:---|:---|---:|---:|---:|---:|---:|---:|
 | 01 Apr 2025 |  | Opening balance b/f | 6,000 | 64,000 | — | — | 6,000 | 64,000 |
-| 03 Apr 2025 | RA-001 | To Randhawa Joint Family A/c<br><em>Household money for six months from the joint family</em> | — | 45,000 | — | — | 6,000 | 1,09,000 |
+| 03 Apr 2025 | RA-001 | To Randhawa Joint Family A/c<br><em>Ghar kharch aaya — household money for six months from the joint family</em> | — | 45,000 | — | — | 6,000 | 1,09,000 |
 | 06 Apr 2025 | RA-002 | By Gill Kiryana Store A/c<br><em>Grocer's khata of March paid, cash</em> | — | — | 4,200 | — | 1,800 | 1,09,000 |
 | 30 Apr 2025 |  | **Month total — April 2025 · closing balance** | **0** | **45,000** | **4,200** | **0** | **1,800** | **1,09,000** |
 | 30 May 2025 | RA-003 | To Stitching Income A/c<br><em>Indu's stitching — suits for the season, cash</em> | 6,400 | — | — | — | 8,200 | 1,09,000 |
@@ -179,7 +180,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 09 Sep 2025 | RA-009 | By Gifts & Social A/c<br><em>Bus fares to Amritsar, cash</em> | — | — | 1,800 | — | 12,800 | 79,800 |
 | 30 Sep 2025 | RA-012 | By House Help A/c<br><em>House help's wages, July–September, cash</em> | — | — | 9,000 | — | 3,800 | 79,800 |
 | 30 Sep 2025 |  | **Month total — September 2025 · closing balance** | **0** | **0** | **10,800** | **0** | **3,800** | **79,800** |
-| 03 Oct 2025 | RA-013 | To Randhawa Joint Family A/c<br><em>Household money for six months from the joint family</em> | — | 45,000 | — | — | 3,800 | 1,24,800 |
+| 03 Oct 2025 | RA-013 | To Randhawa Joint Family A/c<br><em>Ghar kharch aaya — household money for six months from the joint family</em> | — | 45,000 | — | — | 3,800 | 1,24,800 |
 | 06 Oct 2025 | RA-014 | By Gill Kiryana Store A/c<br><em>Grocer's khata paid (UPI)</em> | — | — | — | 13,900 | 3,800 | 1,10,900 |
 | 12 Oct 2025 | RA-015 | By Clothes & Personal A/c<br><em>Clothes for Diwali</em> | — | — | — | 12,500 | 3,800 | 98,400 |
 | 15 Oct 2025 | RA-016 | By Advance – house help A/c<br><em>Advance to the house help for Diwali, cash</em> | — | — | 3,000 | — | 800 | 98,400 |
@@ -204,7 +205,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 
 ## Book: Lakhbeer's Family — household book
 
-### 1. Day Book — every entry of the year
+### 1. Day Book (rojnamcha) — every entry of the year
 
 *Lakhbeer's Family · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
@@ -212,17 +213,17 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 
 | Date | No. | Type | Debit (Dr) | Credit (Cr) | Amount ₹ | What happened |
 |:---|:---|:---|:---|:---|---:|:---|
-| 03 Apr 2025 | RB-001 | Money in | HDFC Savings A/c | Randhawa Joint Family A/c | 60,000 | Household money for six months from the joint family |
+| 03 Apr 2025 | RB-001 | Money in | HDFC Savings A/c | Randhawa Joint Family A/c | 60,000 | Ghar kharch aaya — household money for six months from the joint family |
 | 12 Apr 2025 | RB-002 | Money out | Household & Groceries A/c | HDFC Savings A/c | 13,600 | Groceries and household, April–June 2025 |
 | 14 May 2025 | RB-003 | Took on credit — no money moved | Medical A/c | Bajwa Medical Store A/c | 2,400 | Medicines on khata |
 | 12 Jul 2025 | RB-004 | Money out | Household & Groceries A/c | HDFC Savings A/c | 12,900 | Groceries and household, July–September 2025 |
 | 16 Jul 2025 | RB-005 | Money out | Education A/c | HDFC Savings A/c | 28,500 | College fees, first semester |
 | 06 Aug 2025 | RB-006 | Money in | HDFC Savings A/c | Randhawa Joint Family A/c | 70,000 | From the joint family towards Aman's motorcycle |
 | 08 Aug 2025 | RB-007 | Money out | Motorcycle A/c | HDFC Savings A/c | 98,500 | Motorcycle for Aman — thing owned, at cost |
-| 18 Aug 2025 | RB-008 | Money in | HDFC Savings A/c | Randhawa Joint Family A/c | 50,000 | Took ₹50,000 from the joint family for a while — to be returned |
+| 18 Aug 2025 | RB-008 | Money in | HDFC Savings A/c | Udhaar – Randhawa Joint Family A/c | 50,000 | Took ₹50,000 from the joint family for a while — to be returned |
 | 22 Sep 2025 | RB-009 | Took on credit — no money moved | Medical A/c | Bajwa Medical Store A/c | 3,100 | Medicines on khata |
 | 02 Oct 2025 | RB-010 | Transfer | Cash A/c | HDFC Savings A/c | 25,000 | Cash withdrawn (ATM) |
-| 03 Oct 2025 | RB-011 | Money in | HDFC Savings A/c | Randhawa Joint Family A/c | 60,000 | Household money for six months from the joint family |
+| 03 Oct 2025 | RB-011 | Money in | HDFC Savings A/c | Randhawa Joint Family A/c | 60,000 | Ghar kharch aaya — household money for six months from the joint family |
 | 04 Oct 2025 | RB-012 | Money out | Bajwa Medical Store A/c | Cash A/c | 5,500 | Chemist's khata paid, cash |
 | 08 Oct 2025 | RB-013 | Money out | Advance – painter A/c | Cash A/c | 8,000 | Advance to the painter for the rooms, cash |
 | 12 Oct 2025 | RB-014 | Money out | Household & Groceries A/c | HDFC Savings A/c | 14,100 | Groceries and household, October–December 2025 |
@@ -230,7 +231,7 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 27 Oct 2025 | RB-016 | Advance settled — no money moved | Rooms & Furnishing A/c | Advance – painter A/c | 8,000 | The painter's bill for the rooms set against his advance |
 | 27 Oct 2025 | RB-017 | Money out | Rooms & Furnishing A/c | Cash A/c | 6,500 | Rest of the painter's bill, cash |
 | 20 Nov 2025 | RB-018 | Money out | Rooms & Furnishing A/c | HDFC Savings A/c | 14,800 | Curtains and a bed for the rooms |
-| 05 Dec 2025 | RB-019 | Money out | Randhawa Joint Family A/c | HDFC Savings A/c | 20,000 | Paid the brick field's chimney repair from our money — set against what we took from the family |
+| 05 Dec 2025 | RB-019 | Money out | Udhaar – Randhawa Joint Family A/c | HDFC Savings A/c | 20,000 | Paid the brick field's chimney repair from our money — set against what we took from the family |
 | 15 Dec 2025 | RB-020 | Money out | Household & Groceries A/c | Cash A/c | 2,100 | Mobile recharges, cash |
 | 24 Dec 2025 | RB-021 | Correction — no money moved | Fuel & Phone A/c | Household & Groceries A/c | 2,100 | Entry RB-020 of 15 Dec 2025 (mobiles) was written to Household — moved to Fuel & Phone |
 | 12 Jan 2026 | RB-022 | Money out | Household & Groceries A/c | HDFC Savings A/c | 13,300 | Groceries and household, January–March 2026 |
@@ -239,10 +240,10 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 06 Feb 2026 | RB-025 | Transfer | Cash A/c | HDFC Savings A/c | 10,000 | Cash withdrawn (ATM) |
 | 02 Mar 2026 | RB-026 | Money out | Bajwa Medical Store A/c | Cash A/c | 2,700 | Chemist's khata paid, cash |
 | 18 Mar 2026 | RB-027 | Money out | Fuel & Phone A/c | HDFC Savings A/c | 7,400 | Fuel and mobiles |
-| 31 Mar 2026 | RB-028 | Settled at year end — no money moved | Randhawa Joint Family A/c | Share of Family Business Income A/c | 30,000 | The ₹30,000 still due from what we took, settled from our share of the family's business income |
+| 24 Mar 2026 | RB-028 | Money out | Udhaar – Randhawa Joint Family A/c | HDFC Savings A/c | 30,000 | Paid back the rest of the ₹50,000 we took from the joint family |
 | 31 Mar 2026 | RB-029 | Money in | HDFC Savings A/c | Interest A/c | 640 | Savings interest |
 
-*29 entries: Advance settled 1 · Correction 1 · Money in 5 · Money out 15 · Paid by the joint family 1 · Settled at year end 1 · Took on credit 3 · Transfer 2.*
+*29 entries: Advance settled 1 · Correction 1 · Money in 5 · Money out 16 · Paid by the joint family 1 · Took on credit 3 · Transfer 2.*
 
 ### 2. Cash Book — Cash A/c and HDFC Savings A/c
 
@@ -253,7 +254,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | Date | No. | Particulars | Money in (Dr) — Cash ₹ | Money in (Dr) — HDFC Savings A/c ₹ | Money out (Cr) — Cash ₹ | Money out (Cr) — HDFC Savings A/c ₹ | Balance — Cash ₹ | Balance — HDFC Savings A/c ₹ |
 |:---|:---|:---|---:|---:|---:|---:|---:|---:|
 | 01 Apr 2025 |  | Opening balance b/f | 5,000 | 85,000 | — | — | 5,000 | 85,000 |
-| 03 Apr 2025 | RB-001 | To Randhawa Joint Family A/c<br><em>Household money for six months from the joint family</em> | — | 60,000 | — | — | 5,000 | 1,45,000 |
+| 03 Apr 2025 | RB-001 | To Randhawa Joint Family A/c<br><em>Ghar kharch aaya — household money for six months from the joint family</em> | — | 60,000 | — | — | 5,000 | 1,45,000 |
 | 12 Apr 2025 | RB-002 | By Household & Groceries A/c<br><em>Groceries and household, April–June 2025</em> | — | — | — | 13,600 | 5,000 | 1,31,400 |
 | 30 Apr 2025 |  | **Month total — April 2025 · closing balance** | **0** | **60,000** | **0** | **13,600** | **5,000** | **1,31,400** |
 | 12 Jul 2025 | RB-004 | By Household & Groceries A/c<br><em>Groceries and household, July–September 2025</em> | — | — | — | 12,900 | 5,000 | 1,18,500 |
@@ -261,10 +262,10 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 31 Jul 2025 |  | **Month total — July 2025 · closing balance** | **0** | **0** | **0** | **41,400** | **5,000** | **90,000** |
 | 06 Aug 2025 | RB-006 | To Randhawa Joint Family A/c<br><em>From the joint family towards Aman's motorcycle</em> | — | 70,000 | — | — | 5,000 | 1,60,000 |
 | 08 Aug 2025 | RB-007 | By Motorcycle A/c<br><em>Motorcycle for Aman — thing owned, at cost</em> | — | — | — | 98,500 | 5,000 | 61,500 |
-| 18 Aug 2025 | RB-008 | To Randhawa Joint Family A/c<br><em>Took ₹50,000 from the joint family for a while — to be returned</em> | — | 50,000 | — | — | 5,000 | 1,11,500 |
+| 18 Aug 2025 | RB-008 | To Udhaar – Randhawa Joint Family A/c<br><em>Took ₹50,000 from the joint family for a while — to be returned</em> | — | 50,000 | — | — | 5,000 | 1,11,500 |
 | 31 Aug 2025 |  | **Month total — August 2025 · closing balance** | **0** | **1,20,000** | **0** | **98,500** | **5,000** | **1,11,500** |
 | 02 Oct 2025 | RB-010 | HDFC Savings A/c to Cash A/c<br><em>Cash withdrawn (ATM)</em> | 25,000 | — | — | 25,000 | 30,000 | 86,500 |
-| 03 Oct 2025 | RB-011 | To Randhawa Joint Family A/c<br><em>Household money for six months from the joint family</em> | — | 60,000 | — | — | 30,000 | 1,46,500 |
+| 03 Oct 2025 | RB-011 | To Randhawa Joint Family A/c<br><em>Ghar kharch aaya — household money for six months from the joint family</em> | — | 60,000 | — | — | 30,000 | 1,46,500 |
 | 04 Oct 2025 | RB-012 | By Bajwa Medical Store A/c<br><em>Chemist's khata paid, cash</em> | — | — | 5,500 | — | 24,500 | 1,46,500 |
 | 08 Oct 2025 | RB-013 | By Advance – painter A/c<br><em>Advance to the painter for the rooms, cash</em> | — | — | 8,000 | — | 16,500 | 1,46,500 |
 | 12 Oct 2025 | RB-014 | By Household & Groceries A/c<br><em>Groceries and household, October–December 2025</em> | — | — | — | 14,100 | 16,500 | 1,32,400 |
@@ -273,7 +274,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 31 Oct 2025 |  | **Month total — October 2025 · closing balance** | **25,000** | **60,000** | **26,200** | **39,100** | **3,800** | **1,32,400** |
 | 20 Nov 2025 | RB-018 | By Rooms & Furnishing A/c<br><em>Curtains and a bed for the rooms</em> | — | — | — | 14,800 | 3,800 | 1,17,600 |
 | 30 Nov 2025 |  | **Month total — November 2025 · closing balance** | **0** | **0** | **0** | **14,800** | **3,800** | **1,17,600** |
-| 05 Dec 2025 | RB-019 | By Randhawa Joint Family A/c<br><em>Paid the brick field's chimney repair from our money — set against what we took from the family</em> | — | — | — | 20,000 | 3,800 | 97,600 |
+| 05 Dec 2025 | RB-019 | By Udhaar – Randhawa Joint Family A/c<br><em>Paid the brick field's chimney repair from our money — set against what we took from the family</em> | — | — | — | 20,000 | 3,800 | 97,600 |
 | 15 Dec 2025 | RB-020 | By Household & Groceries A/c<br><em>Mobile recharges, cash</em> | — | — | 2,100 | — | 1,700 | 97,600 |
 | 31 Dec 2025 |  | **Month total — December 2025 · closing balance** | **0** | **0** | **2,100** | **20,000** | **1,700** | **97,600** |
 | 12 Jan 2026 | RB-022 | By Household & Groceries A/c<br><em>Groceries and household, January–March 2026</em> | — | — | — | 13,300 | 1,700 | 84,300 |
@@ -282,14 +283,15 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 28 Feb 2026 |  | **Month total — February 2026 · closing balance** | **10,000** | **0** | **0** | **10,000** | **11,700** | **74,300** |
 | 02 Mar 2026 | RB-026 | By Bajwa Medical Store A/c<br><em>Chemist's khata paid, cash</em> | — | — | 2,700 | — | 9,000 | 74,300 |
 | 18 Mar 2026 | RB-027 | By Fuel & Phone A/c<br><em>Fuel and mobiles</em> | — | — | — | 7,400 | 9,000 | 66,900 |
-| 31 Mar 2026 | RB-029 | To Interest A/c<br><em>Savings interest</em> | — | 640 | — | — | 9,000 | 67,540 |
-| 31 Mar 2026 |  | **Month total — March 2026 · closing balance** | **0** | **640** | **2,700** | **7,400** | **9,000** | **67,540** |
+| 24 Mar 2026 | RB-028 | By Udhaar – Randhawa Joint Family A/c<br><em>Paid back the rest of the ₹50,000 we took from the joint family</em> | — | — | — | 30,000 | 9,000 | 36,900 |
+| 31 Mar 2026 | RB-029 | To Interest A/c<br><em>Savings interest</em> | — | 640 | — | — | 9,000 | 37,540 |
+| 31 Mar 2026 |  | **Month total — March 2026 · closing balance** | **0** | **640** | **2,700** | **37,400** | **9,000** | **37,540** |
 
-*On 31 Mar 2026: Cash A/c ₹9,000 · HDFC Savings A/c ₹67,540 — the same as the closing balances in the ledgers of the printed book (its section 2).*
+*On 31 Mar 2026: Cash A/c ₹9,000 · HDFC Savings A/c ₹37,540 — the same as the closing balances in the ledgers of the printed book (its section 2).*
 
 ## Book: Lakhwinder's Family — household book
 
-### 1. Day Book — every entry of the year
+### 1. Day Book (rojnamcha) — every entry of the year
 
 *Lakhwinder's Family · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
@@ -395,7 +397,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 
 ## Book: Randhawa Agriculture — family business book
 
-### 1. Day Book — every entry of the year
+### 1. Day Book (rojnamcha) — every entry of the year
 
 *Randhawa Agriculture · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
@@ -496,7 +498,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 
 ## Book: Randhawa Real Estate — family business book
 
-### 1. Day Book — every entry of the year
+### 1. Day Book (rojnamcha) — every entry of the year
 
 *Randhawa Real Estate · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
@@ -580,7 +582,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 
 ## Book: Randhawa Brick Field — shared business book
 
-### 1. Day Book — every entry of the year
+### 1. Day Book (rojnamcha) — every entry of the year
 
 *Randhawa Brick Field · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 

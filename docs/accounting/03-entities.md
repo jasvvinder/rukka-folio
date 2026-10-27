@@ -271,13 +271,18 @@ Diary: "The karta took ₹15,000 for his own household's expenses. It goes in hi
 
 ### 3.2 One running account per sub-family; it is not a debt
 
-The family's book holds one running account per sub-family, *{Sub-family} A/c*. On the debit side: household money given, money taken that is to be returned, and bills the family pays for that household. On the credit side: what the household puts in — into the family, straight into a family business, or by paying a family-business bill from its own money. It is not a debt; it sits under Own money, in both books. The sub-family's own book holds the matching account named after the family.
+The family's book holds one running account per sub-family, *{Sub-family} A/c*. On the debit side: household money given and bills the family pays for that household. On the credit side: what the household puts in — into the family, straight into a family business, or by paying a family-business bill from its own money. It is not a debt; it sits under Own money, in both books. The sub-family's own book holds the matching account named after the family. Household money is never asked back.
 
-**Source:** owner ruling, 13 Oct 2026; ICAI BoS Intermediate Paper 1, Ch. 15 §6, pp. 15.41–15.44 (converse running accounts of head office and branch), by analogy. Ruled O-15-1.
+Money a sub-family takes **to be returned** is not household money. It goes on a page of its own in both books, *Udhaar – {Sub-family} A/c* in the family's book and *Udhaar – {family} A/c* in the sub-family's, so that the karta sees what is to come back. What is returned, in money or by paying a family-business bill, is written on that page.
+
+**Source:** owner ruling, 13 Oct 2026; ICAI BoS Intermediate Paper 1, Ch. 15 §6, pp. 15.41–15.44 (converse running accounts of head office and branch), by analogy. Ruled O-15-1. Money to be returned on its own page, and the sub-family's words: owner ruling, 27 Oct 2026 (bookkeeper review pack C1, C2), which replaces O-15-1 on money to be returned.
 
 **Example.**
 Family's book, money given to the household: Dr Rajinder's household A/c ₹10,000 · Cr Cash A/c ₹10,000. Rajinder's household book: Dr Cash A/c ₹10,000 · Cr Family A/c ₹10,000.
-Diary: "The family gave Rajinder's household ₹10,000 for the month. In the family's book Rajinder's account is ₹10,000 against him; in his own book the family's account is ₹10,000 in the family's favour."
+Diary (family's book): "The family gave Rajinder's household ₹10,000 for the month. Rajinder's account is ₹10,000 against him."
+Diary (Rajinder's book): "Ghar kharch aaya — ₹10,000 household money received from the family. The family's account is ₹10,000 in the family's favour; it is not our income."
+Money taken to be returned: Family's book: Dr Udhaar – Rajinder's household A/c ₹25,000 · Cr Cash A/c ₹25,000. Rajinder's book: Dr Cash A/c ₹25,000 · Cr Udhaar – Family A/c ₹25,000.
+Diary: "Rajinder took ₹25,000 for a while, to be returned. It is on its own udhaar page, not with the household money."
 
 ### 3.3 A sub-family's money put into a family business is a credit to its running account
 
@@ -478,7 +483,7 @@ Diary: "Sharma gave the society a cupboard worth about ₹40,000. Entered at ₹
 
 ### 5.9 A donation box (gollak, hundi) is recorded when it is counted
 
-The count records the donation. Debit *Gollak* (the counted cash in the box) and credit *Donations – gollak* (or the fund, if the box is for something to be built, bought or kept, 5.4). Emptying the box into the cash box or bank is a transfer: debit cash or bank, credit *Gollak*. Money not yet counted is not recorded.
+The count records the donation. Debit *Gollak* (the counted cash in the box) and credit *Donations – gollak* (or the fund, if the box is for something to be built, bought or kept, 5.4). Emptying the box into the cash box or bank is a transfer: debit cash or bank, credit *Gollak*. Money not yet counted is not recorded. The gollak is cash (rokad): a count is cash received on the day of counting, and the *Gollak* has its own column in the Cash Book (*04 — Year end and reports*, 5.4) (owner ruling, 27 Oct 2026, bookkeeper review pack C5).
 
 **Source:** none settles it — ruled 20 Oct 2026 (O-17-8): no accounting source read mentions a donation box (a news report on a large trust describes custody only: sealed boxes, two keys, counted by two people, entered after the bank's receipt). The rule follows general donations, ICAI Technical Guide on NPOs, 2023 ed. para 106(a).
 
@@ -530,7 +535,8 @@ When a tenant pays rent ahead, the receipt is credited to his own account, which
 
 **Example.** Verma pays ₹9,000 on 20 March for April–June; April's rent of ₹3,000 is then charged.
 Dr Cash A/c ₹9,000 · Cr Verma (Tenant) A/c ₹9,000. April: Dr Verma (Tenant) A/c ₹3,000 · Cr Rent A/c ₹3,000.
-Diary: "Verma paid ₹9,000 three months ahead. After April's ₹3,000 is charged, he is ₹6,000 ahead with us: You will give ₹6,000."
+Diary: "Verma paid ₹9,000 three months ahead. After April's ₹3,000 is charged, ₹6,000 of his advance is lying with us as jama, to be set against May's and June's rent: You will give ₹6,000 (rent paid ahead)."
+The words *You will give* stay, as on every person's page (13 §1, the two vocabularies); the note *rent paid ahead* says that the landlord gives it as rent, not as a refund (owner ruling, 27 Oct 2026, bookkeeper review pack C4).
 
 ### 6.3 A tenant's security deposit has an account of its own
 

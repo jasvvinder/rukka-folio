@@ -21,7 +21,7 @@ One-owner shop · counter cash banked · customers and suppliers on khata · a s
 
 *Sukhwinder Sales Co. · opening balances on 01 Apr 2025 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forward from last year. The own money opening is the balancing figure, so the Dr and Cr totals agree. Income and expense accounts start the year at zero.
+Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forward from last year. The own money opening is the balancing figure, so the Dr and Cr totals agree. Last year's book entered no closing-stock figure, so no stock is brought back into Goods Bought for Sale: the goods on the shelf on 01 Apr 2025 were charged to the year they were bought. Income and expense accounts start the year at zero.
 
 | # | Account | Type | What it is | Opening balance (Dr) ₹ | Opening balance (Cr) ₹ |
 |---:|:---|:---|:---|---:|---:|
@@ -44,7 +44,7 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 | 17 | Electricity & Phone A/c | Expense | Shop electricity and phone | — | — |
 | 18 | Bank Charges & Sundry A/c | Expense | Bank charges, stationery, small items | — | — |
 | 19 | Cash short / over A/c | Expense | What the counter cash count found short (spent) or over (got back) against the cash book, charged at once | — | — |
-| 20 | Written off A/c | Expense | A customer's balance known not to come | — | — |
+| 20 | Rebate & Kasar Allowed A/c | Expense | Rebate allowed to a customer on a disputed bill — taken off what he owes, against sales | — | — |
 |  | **Total of opening balances** |  |  | **7,76,000** | **7,76,000** |
 
 Things owned are shown at what they cost; no depreciation is charged.
@@ -147,7 +147,7 @@ One account after another: date, entry number, the other account (*To …* on th
 | 04 Jul 2025 | S-015 | To Sales A/c<br><em>Pipes and fittings to Dhillon Plumbing Works for the hotel job</em> | 86,500 | — | 36,500 | Dr |
 | 11 Dec 2025 | S-036 | To Sales A/c<br><em>Sanitary ware to Dhillon Plumbing Works</em> | 42,800 | — | 79,300 | Dr |
 | 09 Feb 2026 | S-047 | By PNB Current A/c<br><em>Dhillon Plumbing Works paid part of the balance</em> | — | 60,000 | 19,300 | Dr |
-| 31 Mar 2026 | S-057 | By Written off A/c<br><em>₹2,300 of Dhillon Plumbing Works' balance written off — he disputes the sanitary-ware bill and will not pay it</em> | — | 2,300 | 17,000 | Dr |
+| 31 Mar 2026 | S-057 | By Rebate & Kasar Allowed A/c<br><em>Rebate (kasar) of ₹2,300 allowed to Dhillon Plumbing Works on the disputed sanitary-ware bill — he pays the rest</em> | — | 2,300 | 17,000 | Dr |
 | 31 Mar 2026 |  | Closing balance c/d | — | 17,000 | — | — |
 |  |  | **Total** | **1,29,300** | **1,29,300** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | 17,000 | — | 17,000 | Dr |
@@ -327,11 +327,11 @@ One account after another: date, entry number, the other account (*To …* on th
 |  |  | **Total for the year** | **1,150** | **300** | **850** | **Dr** |
 | 31 Mar 2026 | S-Y2 | By Profit & Loss A/c<br><em>Expense heads closed to Profit & Loss</em> | — | 850 | 0 | — |
 
-#### Written off A/c
+#### Rebate & Kasar Allowed A/c
 
 | Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 31 Mar 2026 | S-057 | To Dhillon Plumbing Works A/c<br><em>₹2,300 of Dhillon Plumbing Works' balance written off — he disputes the sanitary-ware bill and will not pay it</em> | 2,300 | — | 2,300 | Dr |
+| 31 Mar 2026 | S-057 | To Dhillon Plumbing Works A/c<br><em>Rebate (kasar) of ₹2,300 allowed to Dhillon Plumbing Works on the disputed sanitary-ware bill — he pays the rest</em> | 2,300 | — | 2,300 | Dr |
 |  |  | **Total for the year** | **2,300** | **—** | **2,300** | **Dr** |
 | 31 Mar 2026 | S-Y2 | By Profit & Loss A/c<br><em>Expense heads closed to Profit & Loss</em> | — | 2,300 | 0 | — |
 
@@ -445,18 +445,18 @@ No stock is counted. Everything bought for sale is treated as sold or used in th
 
 *Sukhwinder Sales Co. — Dhillon Plumbing Works A/c · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-The plumbing contractor's khata for the year — an advance first, then goods that turned the balance round, then the payment. This is the statement the user shares.
+The plumbing contractor's khata for the year — an advance first, then goods that turned the balance round, then the payment. This is the copy sent to Dhillon Plumbing Works: it is read by them, so its columns are named by side — *Naam (Dr)* and *Jama (Cr)* — and its last line says *Balance due from you* or *Balance due to you*.
 
-| Date | No. | Particulars | You will get (Dr) | You will give (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Naam (Dr) ₹ | Jama (Cr) ₹ | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance on 01 Apr 2025 | — | — | 0 | — |
 | 06 Jun 2025 | S-008 | By PNB Current A/c<br><em>Advance from Dhillon Plumbing Works against a hotel job</em> | — | 50,000 | 50,000 | Cr |
 | 04 Jul 2025 | S-015 | To Sales A/c<br><em>Pipes and fittings to Dhillon Plumbing Works for the hotel job</em> | 86,500 | — | 36,500 | Dr |
 | 11 Dec 2025 | S-036 | To Sales A/c<br><em>Sanitary ware to Dhillon Plumbing Works</em> | 42,800 | — | 79,300 | Dr |
 | 09 Feb 2026 | S-047 | By PNB Current A/c<br><em>Dhillon Plumbing Works paid part of the balance</em> | — | 60,000 | 19,300 | Dr |
-| 31 Mar 2026 | S-057 | By Written off A/c<br><em>₹2,300 of Dhillon Plumbing Works' balance written off — he disputes the sanitary-ware bill and will not pay it</em> | — | 2,300 | 17,000 | Dr |
+| 31 Mar 2026 | S-057 | By Rebate & Kasar Allowed A/c<br><em>Rebate (kasar) of ₹2,300 allowed to Dhillon Plumbing Works on the disputed sanitary-ware bill — he pays the rest</em> | — | 2,300 | 17,000 | Dr |
 |  |  | **Total for the period** | **1,29,300** | **1,12,300** |  |  |
-| 31 Mar 2026 |  | **Closing balance on 31 Mar 2026 — You will get** |  |  | **17,000** | **Dr** |
+| 31 Mar 2026 |  | **Closing balance on 31 Mar 2026 — Balance due from you** |  |  | **17,000** | **Dr** |
 
 #### 3.5 You will get / You will give — who owes what, and since when (on 31 Mar 2026)
 
@@ -516,7 +516,7 @@ The closing balance of every account after the last entry of the year (before th
 | Electricity & Phone A/c | 32,000 | — |
 | Bank Charges & Sundry A/c | 1,180 | — |
 | Cash short / over A/c | 850 | — |
-| Written off A/c | 2,300 | — |
+| Rebate & Kasar Allowed A/c | 2,300 | — |
 | **TOTALS** | **36,99,700** | **36,99,700** |
 
 **Checked: Dr ₹36,99,700 = Cr ₹36,99,700. The books balance.**
@@ -540,7 +540,7 @@ Every income and expense account's **total for the year** — the *Total for the
 | To Electricity & Phone A/c | 2 | 32,000 | — |
 | To Bank Charges & Sundry A/c | 1 | 1,180 | — |
 | To Cash short / over A/c | 2 | 850 | — |
-| To Written off A/c | 1 | 2,300 | — |
+| To Rebate & Kasar Allowed A/c | 1 | 2,300 | — |
 | By Sales A/c | 10 | — | 26,23,800 |
 | **Total of the heads for the year** |  | **20,15,730** | **26,23,800** |
 | To Net profit — closed to own money (4.3) |  | 6,08,070 | — |
@@ -559,7 +559,7 @@ Nobody types these. When the year is closed the book itself closes every income 
 | No. | Date | What the book does | Debit (Dr) | Credit (Cr) | Amount ₹ |
 |:---|:---|:---|:---|:---|---:|
 | S-Y1 | 31 Mar 2026 | Income heads closed to Profit & Loss | Sales A/c | Profit & Loss A/c | 26,23,800 |
-| S-Y2 | 31 Mar 2026 | Expense heads closed to Profit & Loss | Profit & Loss A/c | Goods Bought for Sale A/c ₹15,70,500<br>Freight & Cartage A/c ₹12,900<br>Salary A/c ₹2,16,000<br>Shop Rent A/c ₹1,80,000<br>Electricity & Phone A/c ₹32,000<br>Bank Charges & Sundry A/c ₹1,180<br>Cash short / over A/c ₹850<br>Written off A/c ₹2,300 | 20,15,730 |
+| S-Y2 | 31 Mar 2026 | Expense heads closed to Profit & Loss | Profit & Loss A/c | Goods Bought for Sale A/c ₹15,70,500<br>Freight & Cartage A/c ₹12,900<br>Salary A/c ₹2,16,000<br>Shop Rent A/c ₹1,80,000<br>Electricity & Phone A/c ₹32,000<br>Bank Charges & Sundry A/c ₹1,180<br>Cash short / over A/c ₹850<br>Rebate & Kasar Allowed A/c ₹2,300 | 20,15,730 |
 | S-Y3 | 31 Mar 2026 | Net profit added to own money | Profit & Loss A/c | Capital A/c – Sukhwinder Bal | 6,08,070 |
 | S-Y4 | 31 Mar 2026 | Drawings closed to own money | Capital A/c – Sukhwinder Bal | Drawings A/c – Sukhwinder Bal | 2,40,000 |
 

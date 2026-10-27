@@ -4,7 +4,7 @@
 
 ## Who keeps these books
 
-Indian households, joint families, their small businesses (a shop, a contractor, a farm, a truck, a landlord's property, a partnership) and trusts or committees. Today they keep a rokad (day book), a khata for every person they deal with, and a ledger, on paper. They are not accountants. Their books are kept for themselves: to know what they have, what they owe and who owes them, and how the year went. Tax, GST, TDS, invoicing, inventory and payroll are not part of these books.
+Indian households, joint families, their small businesses (a shop, a contractor, a farm, a truck, a landlord's property, a partnership) and trusts or committees. Today they keep a rokad (cash), a rojnamcha (day book), a khata for every person they deal with, and a ledger, on paper. They are not accountants. Their books are kept for themselves: to know what they have, what they owe and who owes them, and how the year went. Tax, GST, TDS, invoicing, inventory and payroll are not part of these books.
 
 ## What the books must give them
 

@@ -1,6 +1,6 @@
 # COVERAGE.md — where each ruling and each merged mechanic is shown
 
-Technical, hand-written (ADR 2026-10-20 §2). It maps (A) every ruled row of `docs/archive/reference/accounting-research/OPEN.md` that a book can show, and (B) every mechanic of the five practice books merged into the kept five, to the **book** and the **entry numbers** (the printed ones, `JP-049`) or the **section** of the printed book that shows it. (C) lists the ruled rows these books deliberately do not show, with one line each. `check_md.py` checks that every entry number cited here exists in the regenerated books; the rest was read against the regenerated output.
+Technical, hand-written (ADR 2026-10-20 §2). It maps (A) every ruled row of `docs/archive/reference/accounting-research/OPEN.md` that a book can show, and (B) every mechanic of the five practice books merged into the kept five, to the **book** and the **entry numbers** (the printed ones, `JP-051`) or the **section** of the printed book that shows it. (C) lists the ruled rows these books deliberately do not show, with one line each. `check_md.py` checks that every entry number cited here exists in the regenerated books; the rest was read against the regenerated output.
 
 **Book keys.** `individual` = `individual-jasvinder-singh` (`JP` Jasvinder Singh's personal book, `JT` Jasvinder Technologies) · `family` = `joint-family-randhawa` (`RJ` Randhawa Joint Family, `RA` Amarjeet's Family, `RB` Lakhbeer's Family, `RC` Lakhwinder's Family, `RG` Randhawa Agriculture, `RE` Randhawa Real Estate, `RK` Randhawa Brick Field) · `shop` = `shop-sukhwinder-sales-co` (`S`) · `partnership` = `partnership-bal-fabricators` (`BF`) · `trust` = `trust-radha-soami-satsang-sabha` (`RS`). Year-close entries carry `Y` numbers (`BF-Y4`). **Section** numbers are those of the printed book: 1 accounts · 2 ledgers · 3.1 / 3.2 positions · 3.3 one month · 3.4 chosen period · 3.5 ageing · 3.6 bank statement → entries · 4.1 trial balance · then the year's statement, fund statements, appropriation, year close, balance sheet, carry-forward (numbers differ by book, the heading says which).
 
@@ -12,7 +12,7 @@ Technical, hand-written (ADR 2026-10-20 §2). It maps (A) every ruled row of `do
 | Row | Book | Entries / section | What shows it |
 |---|---|---|---|
 | O-01-1, O-01-2, O-01-3, O-01-4 | all five | the head line under every numbered heading of every book and export | one basis for household, joint family, partnership and every other book: the head carries the book, the date or period, *Kept on money paid and received, and what people owe; no year-end adjustments.*, *Year closed*, *Made on 02 Apr 2026, 10:00* (a pinned string — no clock). No Day Book has an accrued, prepaid or outstanding entry, a depreciation entry or a closing-stock entry. |
-| O-01-6, O-06-7 | shop, family | `S-057`, `RE-029` | no provision for doubtful debts anywhere; a balance stays on the person's account until it is known not to come, then it is written off. |
+| O-01-6, O-06-7 | family | `RE-029` | no provision for doubtful debts anywhere; a balance stays on the person's account until it is known not to come, then it is written off. |
 
 ### 2. Double entry and kinds of account
 | Row | Book | Entries / section | What shows it |
@@ -20,7 +20,7 @@ Technical, hand-written (ADR 2026-10-20 §2). It maps (A) every ruled row of `do
 | O-02-1 | all five | section 1, *Type* column; `RS` *General Fund* | five types; capital is its own type, printed *Own money* (the trust's: *General Fund*). |
 | O-02-2 | all five | each book's `.tech.md` accounts table | a bank is an *Asset* with traditional class *Personal*; it would be a liability by its balance when overdrawn. |
 | O-02-3 | individual, shop, family | `JT-001`, `JT-016`, `JT-032`, `JT-035`, `JT-Y4`; `S-005`, `S-Y4`; `RG-006`, `RG-032`, `RG-Y4`; `RE-009`, `RE-Y4` | a separate *Drawings* account, debited for each withdrawal and closed to own money at the year close; never an expense. |
-| O-02-4 | individual | `JP-007`, `JP-030`, `JP-031`, `JP-049`; section 3.4 | a loan to a friend that carries interest has its own account, *Loan to – Gurpreet Sandhu*, apart from any khata. (The liability side, *Loan from – {person}*, is C.) |
+| O-02-4 | individual | `JP-007`, `JP-030`, `JP-031`, `JP-051`; section 3.4 | a loan to a friend that carries interest has its own account, *Loan to – Gurpreet Sandhu*, apart from any khata. (The liability side, *Loan from – {person}*, is C.) |
 
 ### 3. Books of account
 | Row | Book | Entries / section | What shows it |
@@ -44,7 +44,7 @@ Technical, hand-written (ADR 2026-10-20 §2). It maps (A) every ruled row of `do
 | Row | Book | Entries / section | What shows it |
 |---|---|---|---|
 | O-05-1 | individual, family | `JP-006`, `JP-015`, `JP-028` (spends), `JP-005`, `JP-009`, `JP-017`, `JP-032` (bills by transfer); `RC-005`, `RC-003` | a card is a liability account of its own: a spend credits the card, the bill is a transfer. |
-| O-05-2 | individual | `JP-022` (loaded by transfer), `JP-051` (tolls spent) | the FASTag wallet is a money account of its own, cash-like. |
+| O-05-2 | individual | `JP-022` (loaded by transfer), `JP-053` (tolls spent) | the FASTag wallet is a money account of its own, cash-like. |
 | O-05-4 | individual, shop | section 3.6 of `JP`, `JT`, `S` | one month of bank statement, every line given its account, closing balance equal to the ledger. (Listing the cheques not yet presented is C.) |
 | O-05-5 | individual, shop, family | `JT-001`, `S-005`, `RG-006` | a withdrawal for private or family use is drawings, never a transfer. |
 
@@ -54,8 +54,8 @@ Technical, hand-written (ADR 2026-10-20 §2). It maps (A) every ruled row of `do
 | O-06-1 | individual, shop | `JT-006`, `JT-017`, `JT-021` (Kaur Exports crosses zero once); `S-008`, `S-015`, `S-036` (Dhillon) | one running account per person; the balance changes side and is read as *You will get* or *You will give* (section 3.5). |
 | O-06-2 | partnership | `BF-006`, `BF-015`, `BF-020` | a supplier paid in advance: his account is the Dr side until the goods come, crosses to Cr with his bill, back to nil when the rest is paid. |
 | O-06-3 | partnership, individual, shop | `BF-002`; `JT-006`; `S-008` | a customer's advance is his account on the Cr side until the work is billed. |
-| O-06-4 | partnership | `BF-009`, `BF-025`, `BF-040` (retention held at billing), `BF-048` (released to the khata), `BF-050` (paid) | *Retention held by – Sandhu Builders* is its own asset account beside the khata, released by a transfer when due; ₹34,000 stays at the year end. |
-| O-06-5 | shop, family, individual | `S-057`, `RE-029`, `JP-049` | written off by a plain entry to *Written off* / *Rent written off*; no provision. |
+| O-06-4 | partnership | `BF-009`, `BF-025`, `BF-040` (retention held at billing), `BF-048` (half the whole job's retention released to the khata at completion), `BF-050` (paid) | *Retention held by – Sandhu Builders* is its own asset account beside the khata, released by a transfer — half when the job is completed, the rest after the defect period; ₹24,500 stays at the year end. |
+| O-06-5 | family, individual | `RE-029`, `JP-051` | written off by a plain entry to *Written off* / *Rent written off*; no provision. |
 
 ### 7. Advances and imprest
 | Row | Book | Entries / section | What shows it |
@@ -63,13 +63,13 @@ Technical, hand-written (ADR 2026-10-20 §2). It maps (A) every ruled row of `do
 | O-07-1, O-07-6 | all five | `JP-011`, `JP-033`; `JT-018`; `S-019`; `BF-035`, `BF-047`; `RS-001`, `RS-026`, `RS-040`; `RG-012`, `RG-022`, `RG-037`; `RE-026`; `RJ-012`; `RB-013`; `RC-011`; `RK-001`, `RK-023`, `RK-029` | an advance for spending, to a house help, driver, salesman, foreman, sewadar, farm manager, registry clerk, mason, painter, electrician or moulder, is *Advance – {person}* (an asset), a personal advance (never *imprest*). |
 | O-07-2 | individual, partnership, trust, family | `JP-036`, `BF-037`, `BF-051`, `RS-012`, `RS-039`, `RS-056`, `RG-015`, `RG-026`, `RG-038`, `RE-027` | settled in one entry, Dr each head · Cr the advance, several heads in one entry. |
 | O-07-3 | individual, family | `JP-037`, `RE-028`; top-ups `RG-022`, `RG-037` | the unspent part returned, Dr cash · Cr the advance; a top-up is a fresh hand-out to the same account. |
-| O-07-4, O-12-3 | individual, partnership, trust | left open and carried forward: `BF-051` (₹1,700 with the foreman), `RS-056` (₹1,100 with the sewadar); moved to the person's own account: `JP-036` (₹1,800 → *Balwinder Singh A/c*); written off: `BF-051` (₹1,000 of lost slips) | the three ways to deal with what is left, chosen in the settlement entry; `JP-036` and `BF-051` are one entry with several heads and the remainder. |
+| O-07-4 | individual, partnership, trust | left open and carried forward: `BF-051` (₹1,700 with the foreman), `RS-056` (₹1,100 with the sewadar); moved to the person's own account: `JP-036` (₹1,800 → *Balwinder Singh A/c*), cut from his next pay `JP-041`, `JP-042` | ways to deal with what is left, chosen in the settlement entry; `JP-036` and `BF-051` are one entry with several heads and the remainder (`BF-051`: labour on slips the foreman lost is still wages). |
 | O-07-5 | individual, shop, family | `JP-021`, `JT-026`, `S-028`, `RA-024` | a salary advance is recovered in the salary entry: Dr salary (full) · Cr advance (part) · Cr cash or bank (net). |
 
 ### 8. Loans
 | Row | Book | Entries / section | What shows it |
 |---|---|---|---|
-| O-08-1, O-08-2 | individual | `JP-029`, `JP-040`, `JP-042`, `JP-046` | one bank line, Dr *Car Loan* (principal) · Dr *Interest on Car Loan* · Cr bank, with the lender's figures; the lender's statement governs. (A later difference corrected by an entry is C.) |
+| O-08-1, O-08-2 | individual | `JP-029`, `JP-040`, `JP-044`, `JP-048` | one bank line, Dr *Car Loan* (principal) · Dr *Interest on Car Loan* · Cr bank, with the lender's figures; the lender's statement governs. (A later difference corrected by an entry is C.) |
 | O-08-3 | family | drawn by transfer: `RG-009`, `RG-027`; costs paid from the KCC: `RG-016`; interest charged: `RG-020`, `RG-039`; repaid by transfer: `RG-005`, `RG-031` | the KCC is a loan account used as money. |
 | O-08-5, O-08-7 | individual | `JP-031` | interest on a loan the book gave, recorded when received. |
 | O-08-6 | family | `RJ-010` ↔ `RB-008` | ₹50,000 taken for a while carries no interest entry. |
@@ -78,7 +78,7 @@ Technical, hand-written (ADR 2026-10-20 §2). It maps (A) every ruled row of `do
 | Row | Book | Entries / section | What shows it |
 |---|---|---|---|
 | O-09-1, O-09-2 | all five | sections 3.1, 3.2 and the balance sheet of every book that shows things owned; `RJ` gold and house; `RG` land | *Things owned are shown at what they cost; no depreciation is charged.* printed exactly where things owned are shown; land, gold and jewellery at cost. |
-| O-09-3, O-09-4, O-09-5 | individual, family, trust | `JP-018` (a deposit matured, a transfer); `RJ-032`, `RC-017` (new deposits by transfer); `JP-039`, `RJ-040` (interest paid out to savings); `RS-050` (interest added to the fund's cumulative deposit) | a deposit is its own type, not part of cash and bank; interest recorded when the bank credits it, as the bank does it. |
+| O-09-3, O-09-4, O-09-5 | individual, family, trust | `JP-018` (a cumulative deposit matured: principal back and its interest as income, in one receipt); `RJ-032`, `RC-017` (new deposits by transfer); `JP-039`, `RJ-040` (interest paid out to savings); `RS-050` (interest added to the fund's cumulative deposit) | a deposit is its own type, not part of cash and bank; interest recorded when the bank credits it, as the bank does it. |
 | O-09-6, O-12-4 | individual | `JP-026` | a car bought on a loan the lender paid to the dealer: one entry, Dr *Car* ₹9,00,000 · Cr *Car Loan* ₹8,00,000 · Cr bank ₹1,00,000 (the margin). |
 | O-09-7 | trust | `RS-013`, `RS-028`, `RS-035`, `RS-049` | the langar hall is *Construction*, an expense head, as the trust says in its statements. |
 | O-09-8, O-12-2, O-18-3 | family | `RE-019` (₹25,000 of the deposit set off against unpaid rent), `RE-020` (the other ₹5,000 forfeited to *Deposit forfeited*); `RE` chart: *Deposit held – {tenant}* per tenant; `S` chart: *Deposit paid – Kapoor Properties* | a deposit has its own account on the person's page; set off by an entry that moves no money; forfeited to income; held and paid mirrored. (Return in cash is C.) |
@@ -92,13 +92,13 @@ Technical, hand-written (ADR 2026-10-20 §2). It maps (A) every ruled row of `do
 | Row | Book | Entries / section | What shows it |
 |---|---|---|---|
 | O-11-1 | shop | `S-042` (₹1,150 short, Dr *Cash short / over*), `S-056` (₹300 over, Cr) | a cash count that differs goes at once to *Cash short / over*, no suspense. |
-| O-11-2, O-11-5 | all five | `JP-045`, `JT-028`, `S-023`, `BF-023`, `RS-021`, `RJ-031`, `RA-010`, `RB-021`, `RC-028`, `RG-036`, `RE-024`, `RK-013` | a wrong head is put right by a new *Correction* entry (Dr right head · Cr wrong head, no money), never an edit; its note names the entry it fixes with its number and date (*Entry JP-043 of 20 Feb 2026 …*). |
+| O-11-2, O-11-5 | all five | `JP-047`, `JT-028`, `S-023`, `BF-023`, `RS-021`, `RJ-031`, `RA-010`, `RB-021`, `RC-028`, `RG-036`, `RE-024`, `RK-013` | a wrong head is put right by a new *Correction* entry (Dr right head · Cr wrong head, no money), never an edit; its note names the entry it fixes with its number and date (*Entry JP-045 of 20 Feb 2026 …*). |
 | O-11-3 | all five | no account named suspense in any chart; section 3.6 of `JP`, `JT`, `S` | a bank-statement line is always given an account; nothing waits in suspense at the year end. |
 
 ### 12. Entries that move no money
 | Row | Book | Entries / section | What shows it |
 |---|---|---|---|
-| O-12-1, O-18-5 | individual, shop, family | `JP-049` (a loan to a friend), `S-057` (a customer), `RE-029` (rent) | a balance known not to come back is written off to a head: *Written off* or *Rent written off*. |
+| O-12-1, O-18-5 | individual, family | `JP-051` (a loan to a friend), `RE-029` (rent) | a balance known not to come back is written off to a head: *Written off* or *Rent written off*. |
 | O-12-5, O-14-5 | partnership, family | `BF-008`, `BF-049`; `RK-026` | a partner paying a firm cost from his own pocket: Dr expense · Cr his current account (a loan only if the partners agree, none here). |
 
 ### 13. Sole proprietor and household
@@ -119,10 +119,11 @@ Technical, hand-written (ADR 2026-10-20 §2). It maps (A) every ruled row of `do
 ### 15–16. Joint family and accounts between related books
 | Row | Book | Entries / section | What shows it |
 |---|---|---|---|
-| O-15-1 | family | `RJ-001`, `RJ-002`, `RJ-009`, `RJ-010`, `RJ-018`, `RJ-019`, `RJ-006`, `RJ-030` ↔ `RA-001`, `RB-001`, `RB-006`, `RB-008`, `RC-010`, `RC-031` | one running account per sub-family in the family's book, mirrored in the household's book under its own money; not a debt. |
+| O-15-1 | family | `RJ-001`, `RJ-002`, `RJ-009`, `RJ-018`, `RJ-019`, `RJ-006`, `RJ-030` ↔ `RA-001`, `RB-001`, `RB-006`, `RC-010`, `RC-031` | one running account per sub-family in the family's book, mirrored in the household's book under its own money; not a debt. |
+| C1 (27 Oct) | family | `RJ-010` ↔ `RB-008`, `RJ-025` ↔ `RB-019`, `RJ-037` ↔ `RB-028` | money a sub-family takes to be returned is on its own udhaar page in both books, not on the running account. |
 | O-15-2 | family | `RC-023` · `RK-019` · `RJ-023`; `RB-019` · `RK-026` · `RJ-025` | a household's money into a business, or its payment of a business bill: three books, one transaction; the family's book records it as an entry that moves no money. |
 | O-15-3, O-15-4 | family | `RJ-004`, `RJ-007`, `RJ-015`, `RJ-024`, `RJ-027`, `RJ-036` (*Income from …*) ↔ `RG-006`, `RG-032`, `RK-015`, `RK-033`, `RE-009`, `RE-016` (Drawings); the note under the family summary | money sent home is the family's income; money put in stays at cost; each business's own profit is stated in the summary, not taken into the family's income. |
-| O-15-5, O-16-4 | family | settled by the family bearing it: `RJ-038` ↔ `RA-029`; settled from the share of business income: `RJ-037` ↔ `RB-028` (Dr *Business Income Shared Out*, a share-out of the family's own money like drawings — not a cost, outside the Saving, closed to own money by `RJ-Y4`; in `RB` it is income); carried forward: Lakhwinder's (`RC` carry-forward) | settle or carry forward, as the family decides; carried forward by default. |
+| O-15-5, O-16-4 | family | settled by the family bearing it: `RJ-038` ↔ `RA-029`; carried forward: Lakhwinder's (`RC` carry-forward) | settle or carry forward, as the family decides; carried forward by default. |
 | O-15-6 | family | the introduction of `joint-family-randhawa` | Amarjeet keeps the family's book; his household is a sub-family like the others, with no separate account as karta. |
 | O-16-1 | family, individual | the family summary and the two-books summary at the end of each file; the *Profit kept in the business* line under each owner ↔ business pair (`JP`↔`JT`, `RJ`↔`RG`, `RE`, `RK`) | every pair of related books keeps converse accounts named after the other book. A running-account pair (family ↔ sub-family) agrees balance for balance; an owner ↔ business pair agrees entry by entry (money put in ↔ capital, *Income from {business}* ↔ drawings) but not in balance, and the difference is printed as *profit kept in the business*, or as *taken out beyond the profit* when it is negative (`RK`; 03 §4.1) (the business's own money less the money put in = its profit less what was taken out; `check_md.py` verifies it). A sole proprietor's business names its capital and drawings after the owner, whose personal book is the other book. |
 | O-16-5 | family, individual | *Account between …* after each summary table — one per pair (`RJ`↔`RA`, `RB`, `RC`, `RG`, `RE`, `RK`; `JP`↔`JT`) | both books' accounts side by side: the balance brought forward, every entry with its number in both books and the note, the year-close entries on the pair's accounts (in one book only), and each side's closing balance after the close. A running-account pair ends *Agrees*, in the words of 04 §6.6 (*against the household* / *in the household's favour*; *in the family's favour* / *against the family*); an owner ↔ business pair ends *Entries agree one for one* and the profit-kept line. `build.py` asserts every entry is matched and each closing equals its accounts after the close. |
@@ -168,9 +169,9 @@ The finished outputs of the merged books are in `docs/archive/reference/practice
 | From | To | Mechanic | Entries / section |
 |---|---|---|---|
 | truck | individual | a vehicle bought on a loan, the lender paying the seller (`Dr Thing owned · Cr Loan · Cr Bank` for the margin) | `JP-026` |
-| truck | individual | EMI lines split from the lender's statement (`Dr Loan · Dr Interest on loan · Cr Bank`) | `JP-029`, `JP-040`, `JP-042`, `JP-046` |
-| truck | individual | a driver's advance settled against several heads, the part with no bill moved to his account, the rest returned | `JP-033`, `JP-036`, `JP-037` |
-| truck | individual | a FASTag wallet: loaded by transfer, spent on tolls | `JP-022`, `JP-051` (`JP-036` has the driver's tolls) |
+| truck | individual | EMI lines split from the lender's statement (`Dr Loan · Dr Interest on loan · Cr Bank`) | `JP-029`, `JP-040`, `JP-044`, `JP-048` |
+| truck | individual | a driver's advance settled against several heads, the part with no bill moved to his account and cut from his next pay, the rest returned | `JP-033`, `JP-036`, `JP-037`, `JP-041`, `JP-042` |
+| truck | individual | a FASTag wallet: loaded by transfer, spent on tolls | `JP-022`, `JP-053` (`JP-036` has the driver's tolls) |
 | farmer | family (Agriculture) | KCC as a loan account: drawn, costs paid from it, interest charged, repaid | `RG-009`, `RG-027`, `RG-016`, `RG-020`, `RG-039`, `RG-005`, `RG-031` (already there; verified) |
 | farmer | family (Agriculture) | arhtiya: full sale on khata, his charges taken on credit, the net paid | `RG-024`, `RG-025`, `RG-030`, `RG-034` (already there; verified) |
 | farmer | family (Agriculture) | MSP wheat paid into the bank; straw sold | `RG-004`, `RG-007` (already there) |
@@ -182,10 +183,10 @@ The finished outputs of the merged books are in `docs/archive/reference/practice
 | landlord | family (Real Estate) | a deposit set off against unpaid rent | `RE-019` |
 | landlord | family (Real Estate) | a deposit forfeited to income (*Deposit forfeited*) | `RE-020` |
 | landlord | family (Real Estate) | tenants on khata, rent charged in one entry, deposits per tenant | `RE-001`, `RE-007`, `RE-012`, `RE-021`; chart |
-| contractor | partnership | a contract job for a builder with 5% retention held back, in its own account | `BF-009`, `BF-025`, `BF-040`; released `BF-048`, paid `BF-050` |
+| contractor | partnership | a contract job for a builder with 5% retention held back, in its own account | `BF-009`, `BF-025`, `BF-040`; half the job's retention released at completion `BF-048`, paid `BF-050` |
 | contractor | partnership | a mobilisation advance recovered bill by bill | `BF-002`, `BF-019`, `BF-032`, `BF-045` |
 | contractor | partnership | a supplier paid in advance whose account crosses to the other side and back | `BF-006`, `BF-015`, `BF-020` |
-| contractor | partnership | an advance settled with part written off | `BF-047`, `BF-051` |
+| contractor | partnership | a foreman's advance settled, labour on lost slips still wages | `BF-047`, `BF-051` |
 | committee | trust | a fund for a purpose (*Langar Hall Fund*, the donors' money for the hall) receiving donations given for that purpose | `RS-003`, `RS-017`, `RS-041` |
 | committee | trust | the fund's fixed deposit, its interest credited to the fund | `RS-050`; deposit in section 1 of `RS` |
 | committee | trust | spending from the fund | `RS-028`, `RS-035` |

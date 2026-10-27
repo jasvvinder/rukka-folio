@@ -5,7 +5,7 @@ Three brothers — **Amarjeet**, **Lakhbeer** and **Lakhwinder Randhawa** — ke
 | Who | Role in this example |
 |:---|:---|
 | Amarjeet Randhawa | Eldest brother — keeps the joint family's book and runs the farm; head of his household (with Indu Randhawa) |
-| Lakhbeer Randhawa | Brother — runs the brick field; head of his household (with his son Aman Randhawa); took ₹50,000 from the family in August, to be returned |
+| Lakhbeer Randhawa | Brother — runs the brick field; head of his household (with his son Aman Randhawa); took ₹50,000 from the family in August, to be returned — kept on its own udhaar page |
 | Lakhwinder Randhawa | Brother — a salaried teacher, looks after the real estate; head of his household (with Harjeet and Supreet Randhawa) |
 | Aman Randhawa | Lakhbeer's son — runs the farm day to day; holds the farm-labour advance |
 | Nirmaljeet Gill | Outside partner in the brick field — share 2 of 5 |
@@ -35,21 +35,21 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 | 9 | Randhawa Agriculture A/c | Money in a business | The family's money put into its farm, at what it put in | 64,18,100 | — |
 | 10 | Randhawa Real Estate A/c | Money in a business | The family's money put into its real estate, at what it put in | 31,37,000 | — |
 | 11 | Randhawa Brick Field A/c | Money in a business | The family's money put into the brick field (its 3 of 5 share), at what it put in | 11,64,000 | — |
-| 12 | Doodhwala (milk khata) A/c | Person / shop | Milkman (khata) — milk for the common kitchen, written up each half-year; March 2025's milk brought forward | — | 9,600 |
-| 13 | Advance – mason A/c | Advance | Advance to the mason for the roof, settled against his bill | — | — |
-| 14 | Capital A/c – Randhawa family | Own money | The family's own money | — | 1,47,70,500 |
-| 15 | Income from Randhawa Agriculture A/c | Income | Money the farm sent home — the family's income | — | — |
-| 16 | Income from Randhawa Real Estate A/c | Income | Money the real estate sent home — the family's income | — | — |
-| 17 | Income from Randhawa Brick Field A/c | Income | Money the family took from the brick field — the family's income | — | — |
-| 18 | Interest A/c | Income | Interest on savings and fixed deposits | — | — |
-| 19 | Common Kitchen & Ration A/c | Expense | Atta, dal, ghee, milk and gas for the common kitchen | — | — |
-| 20 | Electricity & Water A/c | Expense | The house's electricity and water | — | — |
-| 21 | Elders' Medical A/c | Expense | Doctor and medicines for the elders | — | — |
-| 22 | Gurdwara & Social A/c | Expense | Gurdwara, weddings, shagun | — | — |
-| 23 | House Repairs A/c | Expense | Repairs to the family house | — | — |
-| 24 | Family Car A/c | Expense | Fuel, service and insurance of the family car | — | — |
-| 25 | Household Expenses – Amarjeet's family A/c | Expense | Amarjeet's household's account for the year, borne by the family when settled | — | — |
-| 26 | Business Income Shared Out A/c | Share-out | A sub-family's share of the family's business income, shared out of the family's own money to settle its account — not a cost | — | — |
+| 12 | Udhaar – Lakhbeer's Family A/c | Loan given | Money Lakhbeer's household took to be returned — on its own page, not with the household money | — | — |
+| 13 | Doodhwala (milk khata) A/c | Person / shop | Milkman (khata) — milk for the common kitchen, written up each half-year; March 2025's milk brought forward | — | 9,600 |
+| 14 | Advance – mason A/c | Advance | Advance to the mason for the roof, settled against his bill | — | — |
+| 15 | Capital A/c – Randhawa family | Own money | The family's own money | — | 1,47,70,500 |
+| 16 | Income from Randhawa Agriculture A/c | Income | Money the farm sent home — the family's income | — | — |
+| 17 | Income from Randhawa Real Estate A/c | Income | Money the real estate sent home — the family's income | — | — |
+| 18 | Income from Randhawa Brick Field A/c | Income | Money the family took from the brick field — the family's income | — | — |
+| 19 | Interest A/c | Income | Interest on savings and fixed deposits | — | — |
+| 20 | Common Kitchen & Ration A/c | Expense | Atta, dal, ghee, milk and gas for the common kitchen | — | — |
+| 21 | Electricity & Water A/c | Expense | The house's electricity and water | — | — |
+| 22 | Elders' Medical A/c | Expense | Doctor and medicines for the elders | — | — |
+| 23 | Gurdwara & Social A/c | Expense | Gurdwara, weddings, shagun | — | — |
+| 24 | House Repairs A/c | Expense | Repairs to the family house | — | — |
+| 25 | Family Car A/c | Expense | Fuel, service and insurance of the family car | — | — |
+| 26 | Household Expenses – Amarjeet's family A/c | Expense | Amarjeet's household's account for the year, borne by the family when settled | — | — |
 |  | **Total of opening balances** |  |  | **1,47,92,100** | **1,47,92,100** |
 
 Things owned are shown at what they cost; no depreciation is charged.
@@ -87,7 +87,7 @@ One account after another: date, entry number, the other account (*To …* on th
 | 10 Jul 2025 | RJ-007 | To Income from Randhawa Brick Field A/c<br><em>Taken from the brick field — the family's income</em> | 1,50,000 | — | 7,31,500 | Dr |
 | 18 Jul 2025 | RJ-008 | By Family Car A/c<br><em>Family car insurance</em> | — | 28,400 | 7,03,100 | Dr |
 | 06 Aug 2025 | RJ-009 | By Lakhbeer's Family A/c<br><em>Towards Aman's motorcycle</em> | — | 70,000 | 6,33,100 | Dr |
-| 18 Aug 2025 | RJ-010 | By Lakhbeer's Family A/c<br><em>Lakhbeer took ₹50,000 for a while — he will return it</em> | — | 50,000 | 5,83,100 | Dr |
+| 18 Aug 2025 | RJ-010 | By Udhaar – Lakhbeer's Family A/c<br><em>Lakhbeer took ₹50,000 for a while — he will return it</em> | — | 50,000 | 5,83,100 | Dr |
 | 22 Aug 2025 | RJ-011 | By Cash A/c<br><em>Cash withdrawn for the house (ATM)</em> | — | 30,000 | 5,53,100 | Dr |
 | 04 Sep 2025 | RJ-014 | By House Repairs A/c<br><em>Rest of the mason's bill for the roof</em> | — | 21,000 | 5,32,100 | Dr |
 | 15 Sep 2025 | RJ-015 | To Income from Randhawa Real Estate A/c<br><em>Rent surplus sent home by Randhawa Real Estate</em> | 60,000 | — | 5,92,100 | Dr |
@@ -106,10 +106,11 @@ One account after another: date, entry number, the other account (*To …* on th
 | 21 Jan 2026 | RJ-034 | By Electricity & Water A/c<br><em>Electricity and water, April–December</em> | — | 35,000 | 3,73,760 | Dr |
 | 12 Feb 2026 | RJ-035 | By Gurdwara & Social A/c<br><em>Shagun at a niece's wedding</em> | — | 51,000 | 3,22,760 | Dr |
 | 20 Mar 2026 | RJ-036 | To Income from Randhawa Brick Field A/c<br><em>Taken from the brick field — the family's income</em> | 1,80,000 | — | 5,02,760 | Dr |
-| 31 Mar 2026 | RJ-040 | To Interest A/c<br><em>Interest on the fixed deposits, paid to savings</em> | 36,500 | — | 5,39,260 | Dr |
-| 31 Mar 2026 |  | Closing balance c/d | — | 5,39,260 | — | — |
-|  |  | **Total** | **19,29,360** | **19,29,360** |  |  |
-| 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | 5,39,260 | — | 5,39,260 | Dr |
+| 24 Mar 2026 | RJ-037 | To Udhaar – Lakhbeer's Family A/c<br><em>Lakhbeer paid back the rest of the ₹50,000 he took</em> | 30,000 | — | 5,32,760 | Dr |
+| 31 Mar 2026 | RJ-040 | To Interest A/c<br><em>Interest on the fixed deposits, paid to savings</em> | 36,500 | — | 5,69,260 | Dr |
+| 31 Mar 2026 |  | Closing balance c/d | — | 5,69,260 | — | — |
+|  |  | **Total** | **19,59,360** | **19,59,360** |  |  |
+| 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | 5,69,260 | — | 5,69,260 | Dr |
 
 #### SBI Fixed Deposit A/c
 
@@ -159,13 +160,10 @@ One account after another: date, entry number, the other account (*To …* on th
 | 01 Apr 2025 |  | Opening balance b/f | — | — | 0 | — |
 | 03 Apr 2025 | RJ-002 | To SBI Joint Savings A/c<br><em>Household money for six months to Lakhbeer's family</em> | 60,000 | — | 60,000 | Dr |
 | 06 Aug 2025 | RJ-009 | To SBI Joint Savings A/c<br><em>Towards Aman's motorcycle</em> | 70,000 | — | 1,30,000 | Dr |
-| 18 Aug 2025 | RJ-010 | To SBI Joint Savings A/c<br><em>Lakhbeer took ₹50,000 for a while — he will return it</em> | 50,000 | — | 1,80,000 | Dr |
-| 03 Oct 2025 | RJ-019 | To SBI Joint Savings A/c<br><em>Household money for six months to Lakhbeer's family</em> | 60,000 | — | 2,40,000 | Dr |
-| 05 Dec 2025 | RJ-025 | By Randhawa Brick Field A/c<br><em>Lakhbeer paid ₹20,000 of the brick field's chimney repair from his own money — the family's money in the brick field, set against what he took</em> | — | 20,000 | 2,20,000 | Dr |
-| 14 Jan 2026 | RJ-033 | To SBI Joint Savings A/c<br><em>Aman's college fees for the second semester, paid by the family for Lakhbeer's household</em> | 28,500 | — | 2,48,500 | Dr |
-| 31 Mar 2026 | RJ-037 | By Business Income Shared Out A/c<br><em>The ₹30,000 still due from what Lakhbeer took, settled from his share of the family's business income</em> | — | 30,000 | 2,18,500 | Dr |
+| 03 Oct 2025 | RJ-019 | To SBI Joint Savings A/c<br><em>Household money for six months to Lakhbeer's family</em> | 60,000 | — | 1,90,000 | Dr |
+| 14 Jan 2026 | RJ-033 | To SBI Joint Savings A/c<br><em>Aman's college fees for the second semester, paid by the family for Lakhbeer's household</em> | 28,500 | — | 2,18,500 | Dr |
 | 31 Mar 2026 |  | Closing balance c/d | — | 2,18,500 | — | — |
-|  |  | **Total** | **2,68,500** | **2,68,500** |  |  |
+|  |  | **Total** | **2,18,500** | **2,18,500** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | 2,18,500 | — | 2,18,500 | Dr |
 
 #### Lakhwinder's Family A/c
@@ -206,10 +204,22 @@ One account after another: date, entry number, the other account (*To …* on th
 | 01 Apr 2025 |  | Opening balance b/f | 11,64,000 | — | 11,64,000 | Dr |
 | 20 Oct 2025 | RJ-022 | To SBI Joint Savings A/c<br><em>Put into the brick field for the season (the family's share)</em> | 2,00,000 | — | 13,64,000 | Dr |
 | 21 Oct 2025 | RJ-023 | To Lakhwinder's Family A/c<br><em>Lakhwinder's family put ₹1,00,000 straight into the brick field — the family's money in it, put in by his household</em> | 1,00,000 | — | 14,64,000 | Dr |
-| 05 Dec 2025 | RJ-025 | To Lakhbeer's Family A/c<br><em>Lakhbeer paid ₹20,000 of the brick field's chimney repair from his own money — the family's money in the brick field, set against what he took</em> | 20,000 | — | 14,84,000 | Dr |
+| 05 Dec 2025 | RJ-025 | To Udhaar – Lakhbeer's Family A/c<br><em>Lakhbeer paid ₹20,000 of the brick field's chimney repair from his own money — the family's money in the brick field, set against what he took</em> | 20,000 | — | 14,84,000 | Dr |
 | 31 Mar 2026 |  | Closing balance c/d | — | 14,84,000 | — | — |
 |  |  | **Total** | **14,84,000** | **14,84,000** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | 14,84,000 | — | 14,84,000 | Dr |
+
+#### Udhaar – Lakhbeer's Family A/c
+
+| Date | No. | Particulars | Lent (Dr) | Paid back / written off (Cr) | Balance ₹ | Side |
+|:---|:---|:---|---:|---:|---:|:---:|
+| 01 Apr 2025 |  | Opening balance b/f | — | — | 0 | — |
+| 18 Aug 2025 | RJ-010 | To SBI Joint Savings A/c<br><em>Lakhbeer took ₹50,000 for a while — he will return it</em> | 50,000 | — | 50,000 | Dr |
+| 05 Dec 2025 | RJ-025 | By Randhawa Brick Field A/c<br><em>Lakhbeer paid ₹20,000 of the brick field's chimney repair from his own money — the family's money in the brick field, set against what he took</em> | — | 20,000 | 30,000 | Dr |
+| 24 Mar 2026 | RJ-037 | By SBI Joint Savings A/c<br><em>Lakhbeer paid back the rest of the ₹50,000 he took</em> | — | 30,000 | 0 | — |
+| 31 Mar 2026 |  | Closing balance c/d | — | — | — | — |
+|  |  | **Total** | **50,000** | **50,000** |  |  |
+| 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | — | 0 | — |
 
 #### Doodhwala (milk khata) A/c
 
@@ -240,10 +250,9 @@ One account after another: date, entry number, the other account (*To …* on th
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | 1,47,70,500 | 1,47,70,500 | Cr |
 | 31 Mar 2026 | RJ-Y3 | By Income & Expenses A/c<br><em>Saving for the year added to own money</em> | — | 8,19,760 | 1,55,90,260 | Cr |
-| 31 Mar 2026 | RJ-Y4 | To Business Income Shared Out A/c<br><em>Business income shared out, closed to own money (not a cost)</em> | 30,000 | — | 1,55,60,260 | Cr |
-| 31 Mar 2026 |  | Closing balance c/d | 1,55,60,260 | — | — | — |
+| 31 Mar 2026 |  | Closing balance c/d | 1,55,90,260 | — | — | — |
 |  |  | **Total** | **1,55,90,260** | **1,55,90,260** |  |  |
-| 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | 1,55,60,260 | 1,55,60,260 | Cr |
+| 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | 1,55,90,260 | 1,55,90,260 | Cr |
 
 #### Income from Randhawa Agriculture A/c
 
@@ -344,17 +353,6 @@ One account after another: date, entry number, the other account (*To …* on th
 |  |  | **Total for the year** | **1,17,000** | **—** | **1,17,000** | **Dr** |
 | 31 Mar 2026 | RJ-Y2 | By Income & Expenses A/c<br><em>Expense heads closed to Income & Expenses</em> | — | 1,17,000 | 0 | — |
 
-#### Business Income Shared Out A/c
-
-| Date | No. | Particulars | Shared out (Dr) | Put back / closed to own money (Cr) | Balance ₹ | Side |
-|:---|:---|:---|---:|---:|---:|:---:|
-| 01 Apr 2025 |  | Opening balance b/f | — | — | 0 | — |
-| 31 Mar 2026 | RJ-037 | To Lakhbeer's Family A/c<br><em>The ₹30,000 still due from what Lakhbeer took, settled from his share of the family's business income</em> | 30,000 | — | 30,000 | Dr |
-| 31 Mar 2026 | RJ-Y4 | By Capital A/c – Randhawa family<br><em>Business income shared out, closed to own money (not a cost)</em> | — | 30,000 | 0 | — |
-| 31 Mar 2026 |  | Closing balance c/d | — | — | — | — |
-|  |  | **Total** | **30,000** | **30,000** |  |  |
-| 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | — | 0 | — |
-
 Things owned are shown at what they cost; no depreciation is charged.
 
 ### 3. Positions and statements during the year
@@ -375,11 +373,12 @@ Every account with a balance on 30 Sep 2025, placed on the side its balance fall
 | What I have | Randhawa Agriculture A/c | 64,98,100 |  |
 | What I have | Randhawa Real Estate A/c | 31,37,000 |  |
 | What I have | Randhawa Brick Field A/c | 11,64,000 |  |
-|  | **Total — what I have** | **1,50,44,060** |  |
+| What I have | Udhaar – Lakhbeer's Family A/c | 50,000 |  |
+|  | **Total — what I have** | **1,50,94,060** |  |
 |  | **Total — what I will get** | **0** |  |
 | What I will give | Doodhwala (milk khata) A/c |  | 67,200 |
 |  | **Total — what I will give** |  | **67,200** |
-|  | **Family's own money = have + will get − will give** | **1,49,76,860** |  |
+|  | **Family's own money = have + will get − will give** | **1,50,26,860** |  |
 
 | How it is made up | ₹ |
 |:---|---:|
@@ -388,9 +387,9 @@ Every account with a balance on 30 Sep 2025, placed on the side its balance fall
 | **= Result so far (saving)** | **3,97,360** |
 | Family's own money at the start of the year (01 Apr 2025) | 1,47,64,500 |
 | + Put in so far (by the sub-families, and their accounts settled) | 40,000 |
-| − Taken out so far (given to the sub-families or spent for them) | 2,25,000 |
+| − Taken out so far (given to the sub-families or spent for them) | 1,75,000 |
 | + Result so far (saving) | 3,97,360 |
-| **= Family's own money now** | **1,49,76,860** |
+| **= Family's own money now** | **1,50,26,860** |
 
 The businesses are shown at the money put into them, not at their worth.
 
@@ -405,18 +404,18 @@ Every account with a balance on 31 Mar 2026, placed on the side its balance fall
 |  | Account | Have / will get ₹ | Will give / funds ₹ |
 |:---|:---|---:|---:|
 | What I have | Cash A/c | 34,800 |  |
-| What I have | SBI Joint Savings A/c | 5,39,260 |  |
+| What I have | SBI Joint Savings A/c | 5,69,260 |  |
 | What I have | SBI Fixed Deposit A/c | 8,00,000 |  |
 | What I have | Family House, Village Kotli A/c | 25,00,000 |  |
 | What I have | Family Gold A/c | 6,00,000 |  |
 | What I have | Randhawa Agriculture A/c | 64,98,100 |  |
 | What I have | Randhawa Real Estate A/c | 31,37,000 |  |
 | What I have | Randhawa Brick Field A/c | 14,84,000 |  |
-|  | **Total — what I have** | **1,55,93,160** |  |
+|  | **Total — what I have** | **1,56,23,160** |  |
 |  | **Total — what I will get** | **0** |  |
 | What I will give | Doodhwala (milk khata) A/c |  | 59,400 |
 |  | **Total — what I will give** |  | **59,400** |
-|  | **Family's own money = have + will get − will give** | **1,55,33,760** |  |
+|  | **Family's own money = have + will get − will give** | **1,55,63,760** |  |
 
 | How it is made up | ₹ |
 |:---|---:|
@@ -424,10 +423,10 @@ Every account with a balance on 31 Mar 2026, placed on the side its balance fall
 | − Spent so far | 6,09,600 |
 | **= Result so far (saving)** | **8,19,760** |
 | Family's own money at the start of the year (01 Apr 2025) | 1,47,64,500 |
-| + Put in so far (by the sub-families, and their accounts settled) | 3,47,000 |
-| − Taken out so far (given to the sub-families or spent for them) | 3,97,500 |
+| + Put in so far (by the sub-families, and their accounts settled) | 2,97,000 |
+| − Taken out so far (given to the sub-families or spent for them) | 3,17,500 |
 | + Result so far (saving) | 8,19,760 |
-| **= Family's own money now** | **1,55,33,760** |
+| **= Family's own money now** | **1,55,63,760** |
 
 The businesses are shown at the money put into them, not at their worth.
 
@@ -447,11 +446,12 @@ Every account's balance on 01 Oct 2025, what went on its Dr side and its Cr side
 | Family House, Village Kotli A/c | 25,00,000 | Dr | — | — | 25,00,000 | Dr |
 | Family Gold A/c | 6,00,000 | Dr | — | — | 6,00,000 | Dr |
 | Amarjeet's Family A/c | 63,000 | Dr | 45,000 | — | 1,08,000 | Dr |
-| Lakhbeer's Family A/c | 1,80,000 | Dr | 60,000 | — | 2,40,000 | Dr |
+| Lakhbeer's Family A/c | 1,30,000 | Dr | 60,000 | — | 1,90,000 | Dr |
 | Lakhwinder's Family A/c | 52,000 | Cr | — | 1,00,000 | 1,52,000 | Cr |
 | Randhawa Agriculture A/c | 64,98,100 | Dr | — | — | 64,98,100 | Dr |
 | Randhawa Real Estate A/c | 31,37,000 | Dr | — | — | 31,37,000 | Dr |
 | Randhawa Brick Field A/c | 11,64,000 | Dr | 3,00,000 | — | 14,64,000 | Dr |
+| Udhaar – Lakhbeer's Family A/c | 50,000 | Dr | — | — | 50,000 | Dr |
 | Doodhwala (milk khata) A/c | 67,200 | Cr | 67,200 | — | 0 | — |
 | Capital A/c – Randhawa family | 1,47,70,500 | Cr | — | — | 1,47,70,500 | Cr |
 | Income from Randhawa Agriculture A/c | 4,00,000 | Cr | — | — | 4,00,000 | Cr |
@@ -506,7 +506,7 @@ The closing balance of every account after the last entry of the year (before th
 | Account | Dr balance ₹ | Cr balance ₹ |
 |:---|---:|---:|
 | Cash A/c | 34,800 | — |
-| SBI Joint Savings A/c | 5,39,260 | — |
+| SBI Joint Savings A/c | 5,69,260 | — |
 | SBI Fixed Deposit A/c | 8,00,000 | — |
 | Family House, Village Kotli A/c | 25,00,000 | — |
 | Family Gold A/c | 6,00,000 | — |
@@ -528,12 +528,11 @@ The closing balance of every account after the last entry of the year (before th
 | House Repairs A/c | 36,000 | — |
 | Family Car A/c | 34,600 | — |
 | Household Expenses – Amarjeet's family A/c | 1,17,000 | — |
-| Business Income Shared Out A/c | 30,000 | — |
 | **TOTALS** | **1,64,51,260** | **1,64,51,260** |
 
 **Checked: Dr ₹1,64,51,260 = Cr ₹1,64,51,260. The books balance.**
 
-*Accounts with entries in the year but nil on 31 Mar 2026 (not listed above): Amarjeet's Family A/c; Advance – mason A/c.*
+*Accounts with entries in the year but nil on 31 Mar 2026 (not listed above): Amarjeet's Family A/c; Udhaar – Lakhbeer's Family A/c; Advance – mason A/c.*
 
 Things owned are shown at what they cost; no depreciation is charged.
 
@@ -566,14 +565,13 @@ Every income and expense account's **total for the year** — the *Total for the
 
 *Randhawa Joint Family · year ended 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-Nobody types these. When the year is closed the book itself closes every income head and every expense head to **Income & Expenses**, and then the result and the business income shared out to own money. After them every income head, every expense head, the business income shared out and Income & Expenses stand at nil, and the ledgers above show each entry on its last row.
+Nobody types these. When the year is closed the book itself closes every income head and every expense head to **Income & Expenses**, and then the result to own money. After them every income head, every expense head and Income & Expenses stand at nil, and the ledgers above show each entry on its last row.
 
 | No. | Date | What the book does | Debit (Dr) | Credit (Cr) | Amount ₹ |
 |:---|:---|:---|:---|:---|---:|
 | RJ-Y1 | 31 Mar 2026 | Income heads closed to Income & Expenses | Income from Randhawa Agriculture A/c ₹7,50,000<br>Income from Randhawa Real Estate A/c ₹3,10,000<br>Income from Randhawa Brick Field A/c ₹3,30,000<br>Interest A/c ₹39,360 | Income & Expenses A/c | 14,29,360 |
 | RJ-Y2 | 31 Mar 2026 | Expense heads closed to Income & Expenses | Income & Expenses A/c | Common Kitchen & Ration A/c ₹3,12,000<br>Electricity & Water A/c ₹35,000<br>Elders' Medical A/c ₹24,000<br>Gurdwara & Social A/c ₹51,000<br>House Repairs A/c ₹36,000<br>Family Car A/c ₹34,600<br>Household Expenses – Amarjeet's family A/c ₹1,17,000 | 6,09,600 |
 | RJ-Y3 | 31 Mar 2026 | Saving for the year added to own money | Income & Expenses A/c | Capital A/c – Randhawa family | 8,19,760 |
-| RJ-Y4 | 31 Mar 2026 | Business income shared out, closed to own money (not a cost) | Capital A/c – Randhawa family | Business Income Shared Out A/c | 30,000 |
 
 #### 4.4 Full position on 31 Mar 2026 (Balance Sheet)
 
@@ -584,28 +582,28 @@ Nobody types these. When the year is closed the book itself closes every income 
 | Particulars | ₹ |
 |:---|---:|
 | Family's own money — at the start, 01 Apr 2025 | 1,47,64,500 |
-| Add: put in during the year (by the sub-families, and their accounts settled) | 3,47,000 |
-| Less: taken out during the year (given to the sub-families or spent for them) | 3,97,500 |
+| Add: put in during the year (by the sub-families, and their accounts settled) | 2,97,000 |
+| Less: taken out during the year (given to the sub-families or spent for them) | 3,17,500 |
 | Add: saving for the year | 8,19,760 |
-| **Family's own money — at the end, 31 Mar 2026** | **1,55,33,760** |
+| **Family's own money — at the end, 31 Mar 2026** | **1,55,63,760** |
 | Doodhwala (milk khata) A/c | 59,400 |
-| **Total** | **1,55,93,160** |
+| **Total** | **1,56,23,160** |
 
 **What I have and will get**
 
 | Particulars | ₹ |
 |:---|---:|
 | Cash A/c | 34,800 |
-| SBI Joint Savings A/c | 5,39,260 |
+| SBI Joint Savings A/c | 5,69,260 |
 | SBI Fixed Deposit A/c | 8,00,000 |
 | Family House, Village Kotli A/c | 25,00,000 |
 | Family Gold A/c | 6,00,000 |
 | Randhawa Agriculture A/c | 64,98,100 |
 | Randhawa Real Estate A/c | 31,37,000 |
 | Randhawa Brick Field A/c | 14,84,000 |
-| **Total** | **1,55,93,160** |
+| **Total** | **1,56,23,160** |
 
-**Both sides ₹1,55,93,160. The books balance.**
+**Both sides ₹1,56,23,160. The books balance.**
 
 The businesses are shown at the money put into them, not at their worth.
 
@@ -620,7 +618,7 @@ Every account that carries a balance takes its balance **after the year close** 
 | Account | Type | Closing 31 Mar 2026, after the close ₹ | Side | Opening b/d 01 Apr 2026 ₹ | Side |
 |:---|:---|---:|:---:|---:|:---:|
 | Cash A/c | Cash | 34,800 | Dr | 34,800 | Dr |
-| SBI Joint Savings A/c | Bank | 5,39,260 | Dr | 5,39,260 | Dr |
+| SBI Joint Savings A/c | Bank | 5,69,260 | Dr | 5,69,260 | Dr |
 | SBI Fixed Deposit A/c | Deposit | 8,00,000 | Dr | 8,00,000 | Dr |
 | Family House, Village Kotli A/c | Thing owned | 25,00,000 | Dr | 25,00,000 | Dr |
 | Family Gold A/c | Thing owned | 6,00,000 | Dr | 6,00,000 | Dr |
@@ -630,8 +628,8 @@ Every account that carries a balance takes its balance **after the year close** 
 | Randhawa Real Estate A/c | Money in a business | 31,37,000 | Dr | 31,37,000 | Dr |
 | Randhawa Brick Field A/c | Money in a business | 14,84,000 | Dr | 14,84,000 | Dr |
 | Doodhwala (milk khata) A/c | Person / shop | 59,400 | Cr | 59,400 | Cr |
-| Capital A/c – Randhawa family | Own money | 1,55,60,260 | Cr | 1,55,60,260 | Cr |
-| **Σ Dr = Σ Cr** |  | **1,58,11,660** | **= 1,58,11,660** | **1,58,11,660** | **= 1,58,11,660** |
+| Capital A/c – Randhawa family | Own money | 1,55,90,260 | Cr | 1,55,90,260 | Cr |
+| **Σ Dr = Σ Cr** |  | **1,58,41,660** | **= 1,58,41,660** | **1,58,41,660** | **= 1,58,41,660** |
 
 Things owned are shown at what they cost; no depreciation is charged.
 
@@ -699,11 +697,11 @@ One account after another: date, entry number, the other account (*To …* on th
 | Date | No. | Particulars | Money in (Dr) | Money out (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | 64,000 | — | 64,000 | Dr |
-| 03 Apr 2025 | RA-001 | To Randhawa Joint Family A/c<br><em>Household money for six months from the joint family</em> | 45,000 | — | 1,09,000 | Dr |
+| 03 Apr 2025 | RA-001 | To Randhawa Joint Family A/c<br><em>Ghar kharch aaya — household money for six months from the joint family</em> | 45,000 | — | 1,09,000 | Dr |
 | 10 Jun 2025 | RA-004 | By Phone & Travel A/c<br><em>Mobiles for six months</em> | — | 4,400 | 1,04,600 | Dr |
 | 05 Jul 2025 | RA-006 | By Gill Kiryana Store A/c<br><em>Grocer's khata paid (UPI)</em> | — | 14,800 | 89,800 | Dr |
 | 04 Aug 2025 | RA-007 | By Cash A/c<br><em>Cash withdrawn (ATM)</em> | — | 10,000 | 79,800 | Dr |
-| 03 Oct 2025 | RA-013 | To Randhawa Joint Family A/c<br><em>Household money for six months from the joint family</em> | 45,000 | — | 1,24,800 | Dr |
+| 03 Oct 2025 | RA-013 | To Randhawa Joint Family A/c<br><em>Ghar kharch aaya — household money for six months from the joint family</em> | 45,000 | — | 1,24,800 | Dr |
 | 06 Oct 2025 | RA-014 | By Gill Kiryana Store A/c<br><em>Grocer's khata paid (UPI)</em> | — | 13,900 | 1,10,900 | Dr |
 | 12 Oct 2025 | RA-015 | By Clothes & Personal A/c<br><em>Clothes for Diwali</em> | — | 12,500 | 98,400 | Dr |
 | 10 Dec 2025 | RA-020 | By Phone & Travel A/c<br><em>Mobiles for six months</em> | — | 4,400 | 94,000 | Dr |
@@ -716,11 +714,11 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Randhawa Joint Family A/c
 
-| Date | No. | Particulars | Put in / paid back (Dr) | Received from the family (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Put in / settled (Dr) | Received from the family (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | 18,000 | 18,000 | Cr |
-| 03 Apr 2025 | RA-001 | By PNB Savings A/c<br><em>Household money for six months from the joint family</em> | — | 45,000 | 63,000 | Cr |
-| 03 Oct 2025 | RA-013 | By PNB Savings A/c<br><em>Household money for six months from the joint family</em> | — | 45,000 | 1,08,000 | Cr |
+| 03 Apr 2025 | RA-001 | By PNB Savings A/c<br><em>Ghar kharch aaya — household money for six months from the joint family</em> | — | 45,000 | 63,000 | Cr |
+| 03 Oct 2025 | RA-013 | By PNB Savings A/c<br><em>Ghar kharch aaya — household money for six months from the joint family</em> | — | 45,000 | 1,08,000 | Cr |
 | 26 Dec 2025 | RA-022 | By Medical A/c<br><em>Indu's dental treatment, paid by the joint family</em> | — | 9,000 | 1,17,000 | Cr |
 | 31 Mar 2026 | RA-029 | To Received from the Joint Family A/c<br><em>Our account with the joint family settled for the year — the family bears it</em> | 1,17,000 | — | 0 | — |
 | 31 Mar 2026 |  | Closing balance c/d | — | — | — | — |
@@ -886,7 +884,7 @@ Every account with a balance on 30 Sep 2025, placed on the side its balance fall
 | **= Result so far (spent more than came in)** | **41,100** |
 | Own money at the start of the year (01 Apr 2025) | 65,800 |
 | + Received from the joint family so far | 45,000 |
-| − Put into the joint family, paid back or settled so far | 0 |
+| − Put into the joint family or settled so far | 0 |
 | − Result so far (spent more than came in) | 41,100 |
 | **= Own money now** | **69,700** |
 
@@ -913,7 +911,7 @@ Every account with a balance on 31 Mar 2026, placed on the side its balance fall
 | **= Result so far (saving)** | **24,810** |
 | Own money at the start of the year (01 Apr 2025) | 65,800 |
 | + Received from the joint family so far | 99,000 |
-| − Put into the joint family, paid back or settled so far | 1,17,000 |
+| − Put into the joint family or settled so far | 1,17,000 |
 | + Result so far (saving) | 24,810 |
 | **= Own money now** | **72,610** |
 
@@ -947,11 +945,11 @@ Every account's balance on 01 Oct 2025, what went on its Dr side and its Cr side
 
 Our account with the joint family for the year — the same entries as the family's account for this household, on the other side, and its settlement. This is the statement the user shares.
 
-| Date | No. | Particulars | Put in / paid back (Dr) | Received from the family (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Put in / settled (Dr) | Received from the family (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance on 01 Apr 2025 | — | — | 18,000 | Cr |
-| 03 Apr 2025 | RA-001 | By PNB Savings A/c<br><em>Household money for six months from the joint family</em> | — | 45,000 | 63,000 | Cr |
-| 03 Oct 2025 | RA-013 | By PNB Savings A/c<br><em>Household money for six months from the joint family</em> | — | 45,000 | 1,08,000 | Cr |
+| 03 Apr 2025 | RA-001 | By PNB Savings A/c<br><em>Ghar kharch aaya — household money for six months from the joint family</em> | — | 45,000 | 63,000 | Cr |
+| 03 Oct 2025 | RA-013 | By PNB Savings A/c<br><em>Ghar kharch aaya — household money for six months from the joint family</em> | — | 45,000 | 1,08,000 | Cr |
 | 26 Dec 2025 | RA-022 | By Medical A/c<br><em>Indu's dental treatment, paid by the joint family</em> | — | 9,000 | 1,17,000 | Cr |
 | 31 Mar 2026 | RA-029 | To Received from the Joint Family A/c<br><em>Our account with the joint family settled for the year — the family bears it</em> | 1,17,000 | — | 0 | — |
 |  |  | **Total for the period** | **1,17,000** | **99,000** |  |  |
@@ -1043,7 +1041,7 @@ Nobody types these. When the year is closed the book itself closes every income 
 |:---|---:|
 | Own money — at the start, 01 Apr 2025 | 65,800 |
 | Add: received from the joint family during the year | 99,000 |
-| Less: put into the joint family, paid back or settled during the year | 1,17,000 |
+| Less: put into the joint family or settled during the year | 1,17,000 |
 | Add: saving for the year | 24,810 |
 | **Own money — at the end, 31 Mar 2026** | **72,610** |
 | Gill Kiryana Store A/c | 14,200 |
@@ -1075,7 +1073,7 @@ Every account that carries a balance takes its balance **after the year close** 
 
 ## Book: Lakhbeer's Family — household book
 
-Lakhbeer and Aman's household · money from the joint family, and ₹50,000 taken to be returned — part paid back through the brick field, the rest from his share · a motorcycle · a chemist's khata · a painter's advance.
+Lakhbeer and Aman's household · money from the joint family, and ₹50,000 taken to be returned on its own udhaar page — part paid back through the brick field, the rest by bank · a motorcycle · a chemist's khata · a painter's advance.
 
 ### 1. Accounts and opening balances
 
@@ -1088,12 +1086,12 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 | 1 | Cash A/c | Cash | Cash at home | 5,000 | — |
 | 2 | HDFC Savings A/c | Bank | The household's bank account | 85,000 | — |
 | 3 | Randhawa Joint Family A/c | Joint family | Our account with the joint family — received from it, less put in; settled or carried forward | — | — |
-| 4 | Bajwa Medical Store A/c | Person / shop | Chemist (khata) | — | — |
-| 5 | Advance – painter A/c | Advance | Advance to the painter for the rooms, settled against his bill | — | — |
-| 6 | Motorcycle A/c | Thing owned | Aman's motorcycle at what it cost (August 2025) | — | — |
-| 7 | Capital A/c – Lakhbeer's family | Own money | The household's own money | — | 90,000 |
-| 8 | Interest A/c | Income | Savings interest | — | — |
-| 9 | Share of Family Business Income A/c | Income | Our share of the family's business income, used to settle what we took | — | — |
+| 4 | Udhaar – Randhawa Joint Family A/c | Loan | Money we took from the joint family to be returned — on its own page, not with the household money | — | — |
+| 5 | Bajwa Medical Store A/c | Person / shop | Chemist (khata) | — | — |
+| 6 | Advance – painter A/c | Advance | Advance to the painter for the rooms, settled against his bill | — | — |
+| 7 | Motorcycle A/c | Thing owned | Aman's motorcycle at what it cost (August 2025) | — | — |
+| 8 | Capital A/c – Lakhbeer's family | Own money | The household's own money | — | 90,000 |
+| 9 | Interest A/c | Income | Savings interest | — | — |
 | 10 | Household & Groceries A/c | Expense | Groceries and household things | — | — |
 | 11 | Education A/c | Expense | College fees and books | — | — |
 | 12 | Medical A/c | Expense | Medicines on the chemist's khata | — | — |
@@ -1129,41 +1127,51 @@ One account after another: date, entry number, the other account (*To …* on th
 | Date | No. | Particulars | Money in (Dr) | Money out (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | 85,000 | — | 85,000 | Dr |
-| 03 Apr 2025 | RB-001 | To Randhawa Joint Family A/c<br><em>Household money for six months from the joint family</em> | 60,000 | — | 1,45,000 | Dr |
+| 03 Apr 2025 | RB-001 | To Randhawa Joint Family A/c<br><em>Ghar kharch aaya — household money for six months from the joint family</em> | 60,000 | — | 1,45,000 | Dr |
 | 12 Apr 2025 | RB-002 | By Household & Groceries A/c<br><em>Groceries and household, April–June 2025</em> | — | 13,600 | 1,31,400 | Dr |
 | 12 Jul 2025 | RB-004 | By Household & Groceries A/c<br><em>Groceries and household, July–September 2025</em> | — | 12,900 | 1,18,500 | Dr |
 | 16 Jul 2025 | RB-005 | By Education A/c<br><em>College fees, first semester</em> | — | 28,500 | 90,000 | Dr |
 | 06 Aug 2025 | RB-006 | To Randhawa Joint Family A/c<br><em>From the joint family towards Aman's motorcycle</em> | 70,000 | — | 1,60,000 | Dr |
 | 08 Aug 2025 | RB-007 | By Motorcycle A/c<br><em>Motorcycle for Aman — thing owned, at cost</em> | — | 98,500 | 61,500 | Dr |
-| 18 Aug 2025 | RB-008 | To Randhawa Joint Family A/c<br><em>Took ₹50,000 from the joint family for a while — to be returned</em> | 50,000 | — | 1,11,500 | Dr |
+| 18 Aug 2025 | RB-008 | To Udhaar – Randhawa Joint Family A/c<br><em>Took ₹50,000 from the joint family for a while — to be returned</em> | 50,000 | — | 1,11,500 | Dr |
 | 02 Oct 2025 | RB-010 | By Cash A/c<br><em>Cash withdrawn (ATM)</em> | — | 25,000 | 86,500 | Dr |
-| 03 Oct 2025 | RB-011 | To Randhawa Joint Family A/c<br><em>Household money for six months from the joint family</em> | 60,000 | — | 1,46,500 | Dr |
+| 03 Oct 2025 | RB-011 | To Randhawa Joint Family A/c<br><em>Ghar kharch aaya — household money for six months from the joint family</em> | 60,000 | — | 1,46,500 | Dr |
 | 12 Oct 2025 | RB-014 | By Household & Groceries A/c<br><em>Groceries and household, October–December 2025</em> | — | 14,100 | 1,32,400 | Dr |
 | 20 Nov 2025 | RB-018 | By Rooms & Furnishing A/c<br><em>Curtains and a bed for the rooms</em> | — | 14,800 | 1,17,600 | Dr |
-| 05 Dec 2025 | RB-019 | By Randhawa Joint Family A/c<br><em>Paid the brick field's chimney repair from our money — set against what we took from the family</em> | — | 20,000 | 97,600 | Dr |
+| 05 Dec 2025 | RB-019 | By Udhaar – Randhawa Joint Family A/c<br><em>Paid the brick field's chimney repair from our money — set against what we took from the family</em> | — | 20,000 | 97,600 | Dr |
 | 12 Jan 2026 | RB-022 | By Household & Groceries A/c<br><em>Groceries and household, January–March 2026</em> | — | 13,300 | 84,300 | Dr |
 | 06 Feb 2026 | RB-025 | By Cash A/c<br><em>Cash withdrawn (ATM)</em> | — | 10,000 | 74,300 | Dr |
 | 18 Mar 2026 | RB-027 | By Fuel & Phone A/c<br><em>Fuel and mobiles</em> | — | 7,400 | 66,900 | Dr |
-| 31 Mar 2026 | RB-029 | To Interest A/c<br><em>Savings interest</em> | 640 | — | 67,540 | Dr |
-| 31 Mar 2026 |  | Closing balance c/d | — | 67,540 | — | — |
+| 24 Mar 2026 | RB-028 | By Udhaar – Randhawa Joint Family A/c<br><em>Paid back the rest of the ₹50,000 we took from the joint family</em> | — | 30,000 | 36,900 | Dr |
+| 31 Mar 2026 | RB-029 | To Interest A/c<br><em>Savings interest</em> | 640 | — | 37,540 | Dr |
+| 31 Mar 2026 |  | Closing balance c/d | — | 37,540 | — | — |
 |  |  | **Total** | **3,25,640** | **3,25,640** |  |  |
-| 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | 67,540 | — | 67,540 | Dr |
+| 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | 37,540 | — | 37,540 | Dr |
 
 #### Randhawa Joint Family A/c
 
-| Date | No. | Particulars | Put in / paid back (Dr) | Received from the family (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Put in / settled (Dr) | Received from the family (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | — | 0 | — |
-| 03 Apr 2025 | RB-001 | By HDFC Savings A/c<br><em>Household money for six months from the joint family</em> | — | 60,000 | 60,000 | Cr |
+| 03 Apr 2025 | RB-001 | By HDFC Savings A/c<br><em>Ghar kharch aaya — household money for six months from the joint family</em> | — | 60,000 | 60,000 | Cr |
 | 06 Aug 2025 | RB-006 | By HDFC Savings A/c<br><em>From the joint family towards Aman's motorcycle</em> | — | 70,000 | 1,30,000 | Cr |
-| 18 Aug 2025 | RB-008 | By HDFC Savings A/c<br><em>Took ₹50,000 from the joint family for a while — to be returned</em> | — | 50,000 | 1,80,000 | Cr |
-| 03 Oct 2025 | RB-011 | By HDFC Savings A/c<br><em>Household money for six months from the joint family</em> | — | 60,000 | 2,40,000 | Cr |
-| 05 Dec 2025 | RB-019 | To HDFC Savings A/c<br><em>Paid the brick field's chimney repair from our money — set against what we took from the family</em> | 20,000 | — | 2,20,000 | Cr |
-| 14 Jan 2026 | RB-023 | By Education A/c<br><em>College fees for the second semester, paid by the joint family</em> | — | 28,500 | 2,48,500 | Cr |
-| 31 Mar 2026 | RB-028 | To Share of Family Business Income A/c<br><em>The ₹30,000 still due from what we took, settled from our share of the family's business income</em> | 30,000 | — | 2,18,500 | Cr |
+| 03 Oct 2025 | RB-011 | By HDFC Savings A/c<br><em>Ghar kharch aaya — household money for six months from the joint family</em> | — | 60,000 | 1,90,000 | Cr |
+| 14 Jan 2026 | RB-023 | By Education A/c<br><em>College fees for the second semester, paid by the joint family</em> | — | 28,500 | 2,18,500 | Cr |
 | 31 Mar 2026 |  | Closing balance c/d | 2,18,500 | — | — | — |
-|  |  | **Total** | **2,68,500** | **2,68,500** |  |  |
+|  |  | **Total** | **2,18,500** | **2,18,500** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | 2,18,500 | 2,18,500 | Cr |
+
+#### Udhaar – Randhawa Joint Family A/c
+
+| Date | No. | Particulars | Paid back (Dr) | Taken (Cr) | Balance ₹ | Side |
+|:---|:---|:---|---:|---:|---:|:---:|
+| 01 Apr 2025 |  | Opening balance b/f | — | — | 0 | — |
+| 18 Aug 2025 | RB-008 | By HDFC Savings A/c<br><em>Took ₹50,000 from the joint family for a while — to be returned</em> | — | 50,000 | 50,000 | Cr |
+| 05 Dec 2025 | RB-019 | To HDFC Savings A/c<br><em>Paid the brick field's chimney repair from our money — set against what we took from the family</em> | 20,000 | — | 30,000 | Cr |
+| 24 Mar 2026 | RB-028 | To HDFC Savings A/c<br><em>Paid back the rest of the ₹50,000 we took from the joint family</em> | 30,000 | — | 0 | — |
+| 31 Mar 2026 |  | Closing balance c/d | — | — | — | — |
+|  |  | **Total** | **50,000** | **50,000** |  |  |
+| 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | — | 0 | — |
 
 #### Bajwa Medical Store A/c
 
@@ -1205,10 +1213,10 @@ One account after another: date, entry number, the other account (*To …* on th
 | Date | No. | Particulars | Taken out (Dr) | Put in / added (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | 90,000 | 90,000 | Cr |
-| 31 Mar 2026 | RB-Y3 | To Income & Expenses A/c<br><em>Spent more than came in — taken from own money</em> | 1,33,460 | — | 43,460 | Dr |
-| 31 Mar 2026 |  | Closing balance c/d | — | 43,460 | — | — |
-|  |  | **Total** | **1,33,460** | **1,33,460** |  |  |
-| 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | 43,460 | — | 43,460 | Dr |
+| 31 Mar 2026 | RB-Y3 | To Income & Expenses A/c<br><em>Spent more than came in — taken from own money</em> | 1,63,460 | — | 73,460 | Dr |
+| 31 Mar 2026 |  | Closing balance c/d | — | 73,460 | — | — |
+|  |  | **Total** | **1,63,460** | **1,63,460** |  |  |
+| 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | 73,460 | — | 73,460 | Dr |
 
 #### Interest A/c
 
@@ -1217,14 +1225,6 @@ One account after another: date, entry number, the other account (*To …* on th
 | 31 Mar 2026 | RB-029 | By HDFC Savings A/c<br><em>Savings interest</em> | — | 640 | 640 | Cr |
 |  |  | **Total for the year** | **—** | **640** | **640** | **Cr** |
 | 31 Mar 2026 | RB-Y1 | To Income & Expenses A/c<br><em>Income heads closed to Income & Expenses</em> | 640 | — | 0 | — |
-
-#### Share of Family Business Income A/c
-
-| Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
-|:---|:---|:---|---:|---:|---:|:---:|
-| 31 Mar 2026 | RB-028 | By Randhawa Joint Family A/c<br><em>The ₹30,000 still due from what we took, settled from our share of the family's business income</em> | — | 30,000 | 30,000 | Cr |
-|  |  | **Total for the year** | **—** | **30,000** | **30,000** | **Cr** |
-| 31 Mar 2026 | RB-Y1 | To Income & Expenses A/c<br><em>Income heads closed to Income & Expenses</em> | 30,000 | — | 0 | — |
 
 #### Household & Groceries A/c
 
@@ -1295,9 +1295,10 @@ Every account with a balance on 30 Sep 2025, placed on the side its balance fall
 | What I have | Motorcycle A/c | 98,500 |  |
 |  | **Total — what I have** | **2,15,000** |  |
 |  | **Total — what I will get** | **0** |  |
+| What I will give | Udhaar – Randhawa Joint Family A/c |  | 50,000 |
 | What I will give | Bajwa Medical Store A/c |  | 5,500 |
-|  | **Total — what I will give** |  | **5,500** |
-|  | **Own money = have + will get − will give** | **2,09,500** |  |
+|  | **Total — what I will give** |  | **55,500** |
+|  | **Own money = have + will get − will give** | **1,59,500** |  |
 
 | How it is made up | ₹ |
 |:---|---:|
@@ -1305,10 +1306,10 @@ Every account with a balance on 30 Sep 2025, placed on the side its balance fall
 | − Spent so far | 60,500 |
 | **= Result so far (spent more than came in)** | **60,500** |
 | Own money at the start of the year (01 Apr 2025) | 90,000 |
-| + Received from the joint family so far | 1,80,000 |
-| − Put into the joint family, paid back or settled so far | 0 |
+| + Received from the joint family so far | 1,30,000 |
+| − Put into the joint family or settled so far | 0 |
 | − Result so far (spent more than came in) | 60,500 |
-| **= Own money now** | **2,09,500** |
+| **= Own money now** | **1,59,500** |
 
 Things owned are shown at what they cost; no depreciation is charged.
 
@@ -1321,23 +1322,23 @@ Every account with a balance on 31 Mar 2026, placed on the side its balance fall
 |  | Account | Have / will get ₹ | Will give / funds ₹ |
 |:---|:---|---:|---:|
 | What I have | Cash A/c | 9,000 |  |
-| What I have | HDFC Savings A/c | 67,540 |  |
+| What I have | HDFC Savings A/c | 37,540 |  |
 | What I have | Motorcycle A/c | 98,500 |  |
-|  | **Total — what I have** | **1,75,040** |  |
+|  | **Total — what I have** | **1,45,040** |  |
 |  | **Total — what I will get** | **0** |  |
 |  | **Total — what I will give** |  | **0** |
-|  | **Own money = have + will get − will give** | **1,75,040** |  |
+|  | **Own money = have + will get − will give** | **1,45,040** |  |
 
 | How it is made up | ₹ |
 |:---|---:|
-| Income so far | 30,640 |
+| Income so far | 640 |
 | − Spent so far | 1,64,100 |
-| **= Result so far (spent more than came in)** | **1,33,460** |
+| **= Result so far (spent more than came in)** | **1,63,460** |
 | Own money at the start of the year (01 Apr 2025) | 90,000 |
-| + Received from the joint family so far | 2,68,500 |
-| − Put into the joint family, paid back or settled so far | 50,000 |
-| − Result so far (spent more than came in) | 1,33,460 |
-| **= Own money now** | **1,75,040** |
+| + Received from the joint family so far | 2,18,500 |
+| − Put into the joint family or settled so far | 0 |
+| − Result so far (spent more than came in) | 1,63,460 |
+| **= Own money now** | **1,45,040** |
 
 Things owned are shown at what they cost; no depreciation is charged.
 
@@ -1351,7 +1352,8 @@ Every account's balance on 01 Oct 2025, what went on its Dr side and its Cr side
 |:---|---:|:---:|---:|---:|---:|:---:|
 | Cash A/c | 5,000 | Dr | 25,000 | 26,200 | 3,800 | Dr |
 | HDFC Savings A/c | 1,11,500 | Dr | 60,000 | 39,100 | 1,32,400 | Dr |
-| Randhawa Joint Family A/c | 1,80,000 | Cr | — | 60,000 | 2,40,000 | Cr |
+| Randhawa Joint Family A/c | 1,30,000 | Cr | — | 60,000 | 1,90,000 | Cr |
+| Udhaar – Randhawa Joint Family A/c | 50,000 | Cr | — | — | 50,000 | Cr |
 | Bajwa Medical Store A/c | 5,500 | Cr | 5,500 | — | 0 | — |
 | Advance – painter A/c | 0 | — | 8,000 | 8,000 | 0 | — |
 | Motorcycle A/c | 98,500 | Dr | — | — | 98,500 | Dr |
@@ -1406,22 +1408,21 @@ The closing balance of every account after the last entry of the year (before th
 | Account | Dr balance ₹ | Cr balance ₹ |
 |:---|---:|---:|
 | Cash A/c | 9,000 | — |
-| HDFC Savings A/c | 67,540 | — |
+| HDFC Savings A/c | 37,540 | — |
 | Randhawa Joint Family A/c | — | 2,18,500 |
 | Motorcycle A/c | 98,500 | — |
 | Capital A/c – Lakhbeer's family | — | 90,000 |
 | Interest A/c | — | 640 |
-| Share of Family Business Income A/c | — | 30,000 |
 | Household & Groceries A/c | 53,900 | — |
 | Education A/c | 57,000 | — |
 | Medical A/c | 8,200 | — |
 | Fuel & Phone A/c | 15,700 | — |
 | Rooms & Furnishing A/c | 29,300 | — |
-| **TOTALS** | **3,39,140** | **3,39,140** |
+| **TOTALS** | **3,09,140** | **3,09,140** |
 
-**Checked: Dr ₹3,39,140 = Cr ₹3,39,140. The books balance.**
+**Checked: Dr ₹3,09,140 = Cr ₹3,09,140. The books balance.**
 
-*Accounts with entries in the year but nil on 31 Mar 2026 (not listed above): Bajwa Medical Store A/c; Advance – painter A/c.*
+*Accounts with entries in the year but nil on 31 Mar 2026 (not listed above): Udhaar – Randhawa Joint Family A/c; Bajwa Medical Store A/c; Advance – painter A/c.*
 
 Things owned are shown at what they cost; no depreciation is charged.
 
@@ -1439,12 +1440,11 @@ Every income and expense account's **total for the year** — the *Total for the
 | To Fuel & Phone A/c | 3 | 15,700 | — |
 | To Rooms & Furnishing A/c | 3 | 29,300 | — |
 | By Interest A/c | 1 | — | 640 |
-| By Share of Family Business Income A/c | 1 | — | 30,000 |
-| **Total of the heads for the year** |  | **1,64,100** | **30,640** |
-| By Spent more than came in — taken from own money (4.3) |  | — | 1,33,460 |
+| **Total of the heads for the year** |  | **1,64,100** | **640** |
+| By Spent more than came in — taken from own money (4.3) |  | — | 1,63,460 |
 | **Total** |  | **1,64,100** | **1,64,100** |
 
-**FY 2025-26: income ₹30,640 · spent ₹1,64,100 · spent more than came in ₹1,33,460.**
+**FY 2025-26: income ₹640 · spent ₹1,64,100 · spent more than came in ₹1,63,460.**
 
 #### 4.3 Year close — the entries the book makes itself on 31 Mar 2026
 
@@ -1454,9 +1454,9 @@ Nobody types these. When the year is closed the book itself closes every income 
 
 | No. | Date | What the book does | Debit (Dr) | Credit (Cr) | Amount ₹ |
 |:---|:---|:---|:---|:---|---:|
-| RB-Y1 | 31 Mar 2026 | Income heads closed to Income & Expenses | Interest A/c ₹640<br>Share of Family Business Income A/c ₹30,000 | Income & Expenses A/c | 30,640 |
+| RB-Y1 | 31 Mar 2026 | Income heads closed to Income & Expenses | Interest A/c | Income & Expenses A/c | 640 |
 | RB-Y2 | 31 Mar 2026 | Expense heads closed to Income & Expenses | Income & Expenses A/c | Household & Groceries A/c ₹53,900<br>Education A/c ₹57,000<br>Medical A/c ₹8,200<br>Fuel & Phone A/c ₹15,700<br>Rooms & Furnishing A/c ₹29,300 | 1,64,100 |
-| RB-Y3 | 31 Mar 2026 | Spent more than came in — taken from own money | Capital A/c – Lakhbeer's family | Income & Expenses A/c | 1,33,460 |
+| RB-Y3 | 31 Mar 2026 | Spent more than came in — taken from own money | Capital A/c – Lakhbeer's family | Income & Expenses A/c | 1,63,460 |
 
 #### 4.4 Full position on 31 Mar 2026 (Balance Sheet)
 
@@ -1467,22 +1467,22 @@ Nobody types these. When the year is closed the book itself closes every income 
 | Particulars | ₹ |
 |:---|---:|
 | Own money — at the start, 01 Apr 2025 | 90,000 |
-| Add: received from the joint family during the year | 2,68,500 |
-| Less: put into the joint family, paid back or settled during the year | 50,000 |
-| Less: spent more than came in for the year | 1,33,460 |
-| **Own money — at the end, 31 Mar 2026** | **1,75,040** |
-| **Total** | **1,75,040** |
+| Add: received from the joint family during the year | 2,18,500 |
+| Less: put into the joint family or settled during the year | 0 |
+| Less: spent more than came in for the year | 1,63,460 |
+| **Own money — at the end, 31 Mar 2026** | **1,45,040** |
+| **Total** | **1,45,040** |
 
 **What I have and will get**
 
 | Particulars | ₹ |
 |:---|---:|
 | Cash A/c | 9,000 |
-| HDFC Savings A/c | 67,540 |
+| HDFC Savings A/c | 37,540 |
 | Motorcycle A/c | 98,500 |
-| **Total** | **1,75,040** |
+| **Total** | **1,45,040** |
 
-**Both sides ₹1,75,040. The books balance.**
+**Both sides ₹1,45,040. The books balance.**
 
 Things owned are shown at what they cost; no depreciation is charged.
 
@@ -1495,10 +1495,10 @@ Every account that carries a balance takes its balance **after the year close** 
 | Account | Type | Closing 31 Mar 2026, after the close ₹ | Side | Opening b/d 01 Apr 2026 ₹ | Side |
 |:---|:---|---:|:---:|---:|:---:|
 | Cash A/c | Cash | 9,000 | Dr | 9,000 | Dr |
-| HDFC Savings A/c | Bank | 67,540 | Dr | 67,540 | Dr |
+| HDFC Savings A/c | Bank | 37,540 | Dr | 37,540 | Dr |
 | Randhawa Joint Family A/c | Joint family | 2,18,500 | Cr | 2,18,500 | Cr |
 | Motorcycle A/c | Thing owned | 98,500 | Dr | 98,500 | Dr |
-| Capital A/c – Lakhbeer's family | Own money | 43,460 | Dr | 43,460 | Dr |
+| Capital A/c – Lakhbeer's family | Own money | 73,460 | Dr | 73,460 | Dr |
 | **Σ Dr = Σ Cr** |  | **2,18,500** | **= 2,18,500** | **2,18,500** | **= 2,18,500** |
 
 Things owned are shown at what they cost; no depreciation is charged.
@@ -1590,7 +1590,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 #### Randhawa Joint Family A/c
 
-| Date | No. | Particulars | Put in / paid back (Dr) | Received from the family (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Put in / settled (Dr) | Received from the family (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | 12,000 | — | 12,000 | Dr |
 | 02 Jul 2025 | RC-010 | To SBI Salary A/c<br><em>Put into the joint family from Lakhwinder's salary</em> | 40,000 | — | 52,000 | Dr |
@@ -1762,7 +1762,7 @@ Every account with a balance on 30 Sep 2025, placed on the side its balance fall
 | **= Result so far (saving)** | **2,88,100** |
 | Own money at the start of the year (01 Apr 2025) | 84,200 |
 | + Received from the joint family so far | 0 |
-| − Put into the joint family, paid back or settled so far | 40,000 |
+| − Put into the joint family or settled so far | 40,000 |
 | + Result so far (saving) | 2,88,100 |
 | **= Own money now** | **3,32,300** |
 
@@ -1791,7 +1791,7 @@ Every account with a balance on 31 Mar 2026, placed on the side its balance fall
 | **= Result so far (saving)** | **6,11,200** |
 | Own money at the start of the year (01 Apr 2025) | 84,200 |
 | + Received from the joint family so far | 0 |
-| − Put into the joint family, paid back or settled so far | 1,80,000 |
+| − Put into the joint family or settled so far | 1,80,000 |
 | + Result so far (saving) | 6,11,200 |
 | **= Own money now** | **5,15,400** |
 
@@ -1923,7 +1923,7 @@ Nobody types these. When the year is closed the book itself closes every income 
 |:---|---:|
 | Own money — at the start, 01 Apr 2025 | 84,200 |
 | Add: received from the joint family during the year | 0 |
-| Less: put into the joint family, paid back or settled during the year | 1,80,000 |
+| Less: put into the joint family or settled during the year | 1,80,000 |
 | Add: saving for the year | 6,11,200 |
 | **Own money — at the end, 31 Mar 2026** | **5,15,400** |
 | SBI Credit Card A/c | 12,600 |
@@ -2920,9 +2920,9 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 *Randhawa Real Estate — Bhullar Hardware A/c · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-The tenant who left — rent charged, paid late and in part, his deposit set off against what he owed and the rest of it kept. This is the statement the user shares.
+The tenant who left — rent charged, paid late and in part, his deposit set off against what he owed and the rest of it kept. This is the copy sent to Bhullar Hardware: it is read by them, so its columns are named by side — *Naam (Dr)* and *Jama (Cr)* — and its last line says *Balance due from you* or *Balance due to you*.
 
-| Date | No. | Particulars | You will get (Dr) | You will give (Cr) | Balance ₹ | Side |
+| Date | No. | Particulars | Naam (Dr) ₹ | Jama (Cr) ₹ | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance on 01 Apr 2025 | — | — | 10,000 | Dr |
 | 01 Apr 2025 | RE-001 | To Rent Income A/c<br><em>Rent for April–June 2025</em> | 30,000 | — | 40,000 | Dr |
@@ -3566,13 +3566,13 @@ Money that moves between two books is written in both, in accounts named after t
 | Book | Its accounts for the other book | Brought forward ₹ | Given (Dr) ₹ | Received (Cr) ₹ | Other book | Its accounts | Brought forward ₹ | Given (Dr) ₹ | Received (Cr) ₹ | Entries | Agree |
 |:---|:---|---:|---:|---:|:---|:---|---:|---:|---:|---:|:---:|
 | Randhawa Joint Family | Amarjeet's Family A/c | 18,000 Dr | 99,000 | 1,17,000 | Amarjeet's Family | Randhawa Joint Family A/c | 18,000 Cr | 1,17,000 | 99,000 | 4 | Yes |
-| Randhawa Joint Family | Lakhbeer's Family A/c | 0 | 2,68,500 | 50,000 | Lakhbeer's Family | Randhawa Joint Family A/c | 0 | 50,000 | 2,68,500 | 7 | Yes |
+| Randhawa Joint Family | Lakhbeer's Family A/c<br>Udhaar – Lakhbeer's Family A/c | 0 | 2,68,500 | 50,000 | Lakhbeer's Family | Randhawa Joint Family A/c<br>Udhaar – Randhawa Joint Family A/c | 0 | 50,000 | 2,68,500 | 7 | Yes |
 | Randhawa Joint Family | Lakhwinder's Family A/c | 12,000 Cr | — | 1,80,000 | Lakhwinder's Family | Randhawa Joint Family A/c | 12,000 Dr | 1,80,000 | — | 3 | Yes |
 | Randhawa Joint Family | Randhawa Agriculture A/c<br>Income from Randhawa Agriculture A/c | 64,18,100 Dr | 80,000 | 7,50,000 | Randhawa Agriculture | Capital A/c – Randhawa Joint Family<br>Drawings A/c – Randhawa Joint Family | 64,18,100 Cr | 7,50,000 | 80,000 | 3 | Yes |
 | Randhawa Joint Family | Randhawa Real Estate A/c<br>Income from Randhawa Real Estate A/c | 31,37,000 Dr | — | 3,10,000 | Randhawa Real Estate | Capital A/c – Randhawa Joint Family<br>Drawings A/c – Randhawa Joint Family | 31,37,000 Cr | 3,10,000 | — | 2 | Yes |
 | Randhawa Joint Family | Randhawa Brick Field A/c<br>Income from Randhawa Brick Field A/c | 11,64,000 Dr | 3,20,000 | 3,30,000 | Randhawa Brick Field | Randhawa Joint Family A/c | 11,64,000 Cr | 3,30,000 | 3,20,000 | 5 | Yes |
 
-How to read it. **Sub-families:** each household's account in the joint book and the joint-family account in the household's book move together; Amarjeet's was settled on 31 Mar 2026 (the family bore it), Lakhbeer's ₹50,000 was returned through the brick field and from his share of the business income, and the rest is carried forward. **Family businesses:** the joint book holds each business at the money the family put in; money a business sends home is the family's income (*Income from …*). Each business works out its own profit in its own book and it is not written in the joint book: Randhawa Agriculture ₹14,46,165, Randhawa Real Estate ₹5,32,500, and the family's 3 of 5 of the brick field's, ₹2,09,520.
+How to read it. **Sub-families:** each household's account in the joint book and the joint-family account in the household's book move together; Amarjeet's was settled on 31 Mar 2026 (the family bore it), Lakhbeer's ₹50,000 (on its own udhaar page) was returned through the brick field and by bank, and the rest is carried forward. **Family businesses:** the joint book holds each business at the money the family put in; money a business sends home is the family's income (*Income from …*). Each business works out its own profit in its own book and it is not written in the joint book: Randhawa Agriculture ₹14,46,165, Randhawa Real Estate ₹5,32,500, and the family's 3 of 5 of the brick field's, ₹2,09,520.
 
 ### Account between Randhawa Joint Family and Amarjeet's Family — 01 Apr 2025 to 31 Mar 2026
 
@@ -3595,7 +3595,7 @@ Randhawa Joint Family: Amarjeet's Family A/c. Amarjeet's Family: Randhawa Joint 
 
 *Randhawa Joint Family · Lakhbeer's Family · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-Randhawa Joint Family: Lakhbeer's Family A/c. Lakhbeer's Family: Randhawa Joint Family A/c. Each entry is shown once, with its number in both books; the note is Randhawa Joint Family's.
+Randhawa Joint Family: Lakhbeer's Family A/c and Udhaar – Lakhbeer's Family A/c. Lakhbeer's Family: Randhawa Joint Family A/c and Udhaar – Randhawa Joint Family A/c. Each entry is shown once, with its number in both books; the note is Randhawa Joint Family's.
 
 | Date | What happened | No. | Randhawa Joint Family (Dr) ₹ | (Cr) ₹ | No. | Lakhbeer's Family (Dr) ₹ | (Cr) ₹ |
 |:---|:---|:---|---:|---:|:---|---:|---:|
@@ -3606,7 +3606,7 @@ Randhawa Joint Family: Lakhbeer's Family A/c. Lakhbeer's Family: Randhawa Joint 
 | 03 Oct 2025 | Household money for six months to Lakhbeer's family | RJ-019 | 60,000 |  | RB-011 |  | 60,000 |
 | 05 Dec 2025 | Lakhbeer paid ₹20,000 of the brick field's chimney repair from his own money — the family's money in the brick field, set against what he took | RJ-025 |  | 20,000 | RB-019 | 20,000 |  |
 | 14 Jan 2026 | Aman's college fees for the second semester, paid by the family for Lakhbeer's household | RJ-033 | 28,500 |  | RB-023 |  | 28,500 |
-| 31 Mar 2026 | The ₹30,000 still due from what Lakhbeer took, settled from his share of the family's business income | RJ-037 |  | 30,000 | RB-028 | 30,000 |  |
+| 24 Mar 2026 | Lakhbeer paid back the rest of the ₹50,000 he took | RJ-037 |  | 30,000 | RB-028 | 30,000 |  |
 | 31 Mar 2026 | **Closing balance, after the year close** |  | **2,18,500** |  |  |  | **2,18,500** |
 
 **Agrees** — ₹2,18,500 against the household in Randhawa Joint Family's book, and ₹2,18,500 in the family's favour in Lakhbeer's Family's book.

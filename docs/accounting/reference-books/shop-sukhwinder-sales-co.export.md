@@ -4,7 +4,7 @@ An export, not part of the printed book: the Day Book and the Cash Book, which c
 
 ## Book: Sukhwinder Sales Co. — business book
 
-### 1. Day Book — every entry of the year
+### 1. Day Book (rojnamcha) — every entry of the year
 
 *Sukhwinder Sales Co. · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
@@ -68,9 +68,9 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 31 Mar 2026 | S-054 | Money out | Salary A/c | PNB Current A/c | 54,000 | Salary of Manpreet Kaur, January–March 2026 |
 | 31 Mar 2026 | S-055 | Money out | Bank Charges & Sundry A/c | PNB Current A/c | 1,180 | Bank charges for the year |
 | 31 Mar 2026 | S-056 | Money in | Cash A/c | Cash short / over A/c | 300 | Counter cash counted ₹300 more than the cash book — got back to Cash short / over |
-| 31 Mar 2026 | S-057 | Written off — no money moved | Written off A/c | Dhillon Plumbing Works A/c | 2,300 | ₹2,300 of Dhillon Plumbing Works' balance written off — he disputes the sanitary-ware bill and will not pay it |
+| 31 Mar 2026 | S-057 | Fix / Adjust — no money moved | Rebate & Kasar Allowed A/c | Dhillon Plumbing Works A/c | 2,300 | Rebate (kasar) of ₹2,300 allowed to Dhillon Plumbing Works on the disputed sanitary-ware bill — he pays the rest |
 
-*57 entries: Correction 1 · Gave on credit 6 · Money in 11 · Money out 27 · Took on credit 6 · Transfer 5 · Written off 1.*
+*57 entries: Correction 1 · Fix / Adjust 1 · Gave on credit 6 · Money in 11 · Money out 27 · Took on credit 6 · Transfer 5.*
 
 ### 2. Cash Book — Cash A/c and PNB Current A/c
 
