@@ -1,15 +1,15 @@
 # Partnership — Bal Fabricators
 
-**Bal Fabricators** is a steel-fabrication and aluminium workshop owned by **Sukhwinder Bal**, **Pradeep Bal** and **Harjeet Singh**, who is from outside the family, sharing profit **2 : 2 : 1**. Each partner has a **fixed capital account** and a **current account**: drawings and costs a partner pays from his own pocket go to his current account; the capitals do not move. Their agreement gives **interest on capital at 6% a year**, then the rest of the profit in the ratio. At the year close the book posts the P&L Appropriation Account and adds each partner's part to his account. The year's big job is a contract for a builder, **Sandhu Builders**: a mobilisation advance, three running bills of which 5% is held back, and the retention money kept in its own account beside the builder's khata — released for the whole job, half when it is completed and handed over, the rest after the defect period. The powder-coating supplier is paid in advance and then sends his bill; the site foreman runs the labour money as an advance and accounts for it.
+**Bal Fabricators** is a steel-fabrication and aluminium workshop owned by **Sukhwinder Bal**, **Pradeep Bal** and **Harjeet Singh**, who is from outside the family, sharing profit **2 : 2 : 1**. Each partner has a **fixed capital account** and a **current account**: drawings and costs a partner pays from his own pocket go to his current account; the capitals do not move. Their agreement gives **interest on capital at 6% a year**, then the rest of the profit in the ratio. At the year close the book posts the P&L Appropriation Account and adds each partner's part to his account. The year's big job is a contract for a builder, **Sandhu Builders**: a mobilisation advance, three running bills of which 5% is held back, and the retention money kept in its own account beside the builder's running account — released for the whole job, half when it is completed and handed over, the rest after the defect period. The powder-coating supplier is paid in advance and then sends his bill; the site foreman runs the labour money as an advance and accounts for it.
 
 | Who | Role in this example |
 |:---|:---|
 | Sukhwinder Bal | Partner — share 2, capital ₹3,00,000 |
 | Pradeep Bal | Partner — share 2, capital ₹3,00,000; pays some workshop costs from his own pocket, as Sukhwinder does once |
 | Harjeet Singh | Partner from outside the family — share 1, capital ₹1,50,000; draws as much as the others, more than his share of the profit |
-| Verka Dairy Plant · Punjab Steel Sheds | Customers on khata |
+| Verka Dairy Plant · Punjab Steel Sheds | Customers on credit |
 | Sandhu Builders | Builder — contract job: mobilisation advance, running bills with 5% held back |
-| Jindal Steel Traders | Steel supplier on khata |
+| Jindal Steel Traders | Steel supplier on credit |
 | Shree Powder Coaters | Powder-coating supplier — paid in advance, then billed |
 | Gurmeet Singh | Site foreman — holds the labour money as an advance, settled against his slips |
 
@@ -17,7 +17,7 @@ Amounts are in ₹; paise are shown only when there are paise. Plain words come 
 
 ## Book: Bal Fabricators — partnership business book
 
-Shared business book · three partners 2 : 2 : 1 · fixed capital and current accounts · interest on capital: 6% a year, as the partners agreed · customers and supplier on khata · a contract job with retention money.
+Shared business book · three partners 2 : 2 : 1 · fixed capital and current accounts · interest on capital: 6% a year, as the partners agreed · customers and supplier on credit · a contract job with retention money.
 
 ### 1. Accounts and opening balances
 
@@ -29,12 +29,12 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 |---:|:---|:---|:---|---:|---:|
 | 1 | Cash A/c | Cash | Workshop cash | 15,000 | — |
 | 2 | Punjab & Sind Bank Current A/c | Bank | Firm's current account | 5,14,000 | — |
-| 3 | Verka Dairy Plant A/c | Person / shop | Customer (khata) — sheds and racks | 48,000 | — |
-| 4 | Punjab Steel Sheds A/c | Person / shop | Customer (khata) — fabrication on job work | — | — |
-| 5 | Sandhu Builders A/c | Person / shop | Builder (khata) — contract job: advance first, then running bills less the 5% held back | — | — |
-| 6 | Retention held by – Sandhu Builders A/c | Retention held | 5% of each bill the builder holds back until the work of that bill is accepted — released to the khata when due | — | — |
-| 7 | Jindal Steel Traders A/c | Person / shop | Supplier (khata) — steel sections and sheets | — | 72,000 |
-| 8 | Shree Powder Coaters A/c | Person / shop | Supplier (khata) — powder coating; paid in advance, then billed | — | — |
+| 3 | Verka Dairy Plant A/c | Person / shop | Customer — sheds and racks | 48,000 | — |
+| 4 | Punjab Steel Sheds A/c | Person / shop | Customer — fabrication on job work | — | — |
+| 5 | Sandhu Builders A/c | Person / shop | Builder — contract job: advance first, then running bills less the 5% held back | — | — |
+| 6 | Retention held by – Sandhu Builders A/c | Retention held | 5% of each bill the builder holds back until the work of that bill is accepted — released to his account when due | — | — |
+| 7 | Jindal Steel Traders A/c | Person / shop | Supplier — steel sections and sheets | — | 72,000 |
+| 8 | Shree Powder Coaters A/c | Person / shop | Supplier — powder coating; paid in advance, then billed | — | — |
 | 9 | Advance – Gurmeet Singh (foreman) A/c | Advance | Money with the foreman for site labour and small purchases, accounted for against his slips | — | — |
 | 10 | Machinery & Tools A/c | Thing owned | Welding sets, cutters, drills at what they cost | 2,65,000 | — |
 | 11 | Capital A/c – Sukhwinder Bal | Partner's capital | Sukhwinder Bal's fixed capital (share 2) | — | 3,00,000 |
@@ -154,7 +154,7 @@ One account after another: date, entry number, the other account (*To …* on th
 | 24 Oct 2025 | BF-032 | By Punjab & Sind Bank Current A/c<br><em>Sandhu Builders paid running bill 2 less the 5% held back and ₹50,000 of the advance</em> | — | 2,92,000 | 50,000 | Cr |
 | 27 Dec 2025 | BF-040 | To Fabrication Income A/c<br><em>Running bill 3 (final) to Sandhu Builders (Sunny Enclave staircases, towers A–B) — ₹3,20,000 billed, 5% (₹16,000) held back</em> | 3,04,000 | — | 2,54,000 | Dr |
 | 23 Jan 2026 | BF-045 | By Punjab & Sind Bank Current A/c<br><em>Sandhu Builders paid running bill 3 less the 5% held back and ₹50,000 of the advance</em> | — | 2,54,000 | 0 | — |
-| 15 Feb 2026 | BF-048 | To Retention held by – Sandhu Builders A/c<br><em>Sunny Enclave staircases completed and handed over — half the job's retention (₹24,500 of ₹49,000) released by Sandhu Builders, the rest after the defect period; moved to his khata</em> | 24,500 | — | 24,500 | Dr |
+| 15 Feb 2026 | BF-048 | To Retention held by – Sandhu Builders A/c<br><em>Sunny Enclave staircases completed and handed over — half the job's retention (₹24,500 of ₹49,000) released by Sandhu Builders, the rest after the defect period; moved to his account</em> | 24,500 | — | 24,500 | Dr |
 | 06 Mar 2026 | BF-050 | By Punjab & Sind Bank Current A/c<br><em>Sandhu Builders paid the released half of the retention</em> | — | 24,500 | 0 | — |
 | 31 Mar 2026 |  | Closing balance c/d | — | — | — | — |
 |  |  | **Total** | **9,55,500** | **9,55,500** |  |  |
@@ -168,7 +168,7 @@ One account after another: date, entry number, the other account (*To …* on th
 | 28 Jun 2025 | BF-009 | To Fabrication Income A/c<br><em>Running bill 1 to Sandhu Builders (Sunny Enclave staircases, towers A–B) — ₹3,00,000 billed, 5% (₹15,000) held back</em> | 15,000 | — | 15,000 | Dr |
 | 27 Sep 2025 | BF-025 | To Fabrication Income A/c<br><em>Running bill 2 to Sandhu Builders (Sunny Enclave staircases, towers A–B) — ₹3,60,000 billed, 5% (₹18,000) held back</em> | 18,000 | — | 33,000 | Dr |
 | 27 Dec 2025 | BF-040 | To Fabrication Income A/c<br><em>Running bill 3 (final) to Sandhu Builders (Sunny Enclave staircases, towers A–B) — ₹3,20,000 billed, 5% (₹16,000) held back</em> | 16,000 | — | 49,000 | Dr |
-| 15 Feb 2026 | BF-048 | By Sandhu Builders A/c<br><em>Sunny Enclave staircases completed and handed over — half the job's retention (₹24,500 of ₹49,000) released by Sandhu Builders, the rest after the defect period; moved to his khata</em> | — | 24,500 | 24,500 | Dr |
+| 15 Feb 2026 | BF-048 | By Sandhu Builders A/c<br><em>Sunny Enclave staircases completed and handed over — half the job's retention (₹24,500 of ₹49,000) released by Sandhu Builders, the rest after the defect period; moved to his account</em> | — | 24,500 | 24,500 | Dr |
 | 31 Mar 2026 |  | Closing balance c/d | — | 24,500 | — | — |
 |  |  | **Total** | **49,000** | **49,000** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | 24,500 | — | 24,500 | Dr |
@@ -179,13 +179,13 @@ One account after another: date, entry number, the other account (*To …* on th
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | 72,000 | 72,000 | Cr |
 | 22 Apr 2025 | BF-004 | To Punjab & Sind Bank Current A/c<br><em>Jindal Steel Traders paid — opening balance</em> | 72,000 | — | 0 | — |
-| 30 Jun 2025 | BF-011 | By Steel & Material A/c<br><em>Steel from Jindal Steel Traders on khata, April–June 2025</em> | — | 1,98,000 | 1,98,000 | Cr |
+| 30 Jun 2025 | BF-011 | By Steel & Material A/c<br><em>Steel from Jindal Steel Traders on credit, April–June 2025</em> | — | 1,98,000 | 1,98,000 | Cr |
 | 21 Jul 2025 | BF-018 | To Punjab & Sind Bank Current A/c<br><em>Jindal Steel Traders paid — steel of April–June 2025</em> | 1,98,000 | — | 0 | — |
-| 30 Sep 2025 | BF-027 | By Steel & Material A/c<br><em>Steel from Jindal Steel Traders on khata, July–September 2025</em> | — | 1,76,000 | 1,76,000 | Cr |
+| 30 Sep 2025 | BF-027 | By Steel & Material A/c<br><em>Steel from Jindal Steel Traders on credit, July–September 2025</em> | — | 1,76,000 | 1,76,000 | Cr |
 | 20 Oct 2025 | BF-031 | To Punjab & Sind Bank Current A/c<br><em>Jindal Steel Traders paid — steel of July–September 2025</em> | 1,76,000 | — | 0 | — |
-| 31 Dec 2025 | BF-041 | By Steel & Material A/c<br><em>Steel from Jindal Steel Traders on khata, October–December 2025</em> | — | 2,14,000 | 2,14,000 | Cr |
+| 31 Dec 2025 | BF-041 | By Steel & Material A/c<br><em>Steel from Jindal Steel Traders on credit, October–December 2025</em> | — | 2,14,000 | 2,14,000 | Cr |
 | 20 Jan 2026 | BF-044 | To Punjab & Sind Bank Current A/c<br><em>Jindal Steel Traders paid — steel of October–December 2025</em> | 2,14,000 | — | 0 | — |
-| 31 Mar 2026 | BF-052 | By Steel & Material A/c<br><em>Steel from Jindal Steel Traders on khata, January–March 2026</em> | — | 1,68,000 | 1,68,000 | Cr |
+| 31 Mar 2026 | BF-052 | By Steel & Material A/c<br><em>Steel from Jindal Steel Traders on credit, January–March 2026</em> | — | 1,68,000 | 1,68,000 | Cr |
 | 31 Mar 2026 |  | Closing balance c/d | 1,68,000 | — | — | — |
 |  |  | **Total** | **8,28,000** | **8,28,000** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | 1,68,000 | 1,68,000 | Cr |
@@ -310,14 +310,14 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 30 Jun 2025 | BF-011 | To Jindal Steel Traders A/c<br><em>Steel from Jindal Steel Traders on khata, April–June 2025</em> | 1,98,000 | — | 1,98,000 | Dr |
+| 30 Jun 2025 | BF-011 | To Jindal Steel Traders A/c<br><em>Steel from Jindal Steel Traders on credit, April–June 2025</em> | 1,98,000 | — | 1,98,000 | Dr |
 | 23 Aug 2025 | BF-022 | To Cash A/c<br><em>Tempo hire for the Verka frames' delivery, cash</em> | 4,200 | — | 2,02,200 | Dr |
 | 02 Sep 2025 | BF-023 | By Transport A/c<br><em>Entry BF-022 of 23 Aug 2025 (tempo hire) was written to Steel & Material — moved to Transport</em> | — | 4,200 | 1,98,000 | Dr |
-| 30 Sep 2025 | BF-027 | To Jindal Steel Traders A/c<br><em>Steel from Jindal Steel Traders on khata, July–September 2025</em> | 1,76,000 | — | 3,74,000 | Dr |
+| 30 Sep 2025 | BF-027 | To Jindal Steel Traders A/c<br><em>Steel from Jindal Steel Traders on credit, July–September 2025</em> | 1,76,000 | — | 3,74,000 | Dr |
 | 29 Nov 2025 | BF-037 | To Advance – Gurmeet Singh (foreman) A/c<br><em>Foreman's account of the canopy site — site labour and bolts, against his advance</em> | 7,900 | — | 3,81,900 | Dr |
-| 31 Dec 2025 | BF-041 | To Jindal Steel Traders A/c<br><em>Steel from Jindal Steel Traders on khata, October–December 2025</em> | 2,14,000 | — | 5,95,900 | Dr |
+| 31 Dec 2025 | BF-041 | To Jindal Steel Traders A/c<br><em>Steel from Jindal Steel Traders on credit, October–December 2025</em> | 2,14,000 | — | 5,95,900 | Dr |
 | 28 Mar 2026 | BF-051 | To Advance – Gurmeet Singh (foreman) A/c<br><em>Foreman's slips for the Sunny Enclave railings set against his advance — wages include ₹1,000 of labour paid on slips he lost (slip lost); ₹1,700 stays with him</em> | 6,200 | — | 6,02,100 | Dr |
-| 31 Mar 2026 | BF-052 | To Jindal Steel Traders A/c<br><em>Steel from Jindal Steel Traders on khata, January–March 2026</em> | 1,68,000 | — | 7,70,100 | Dr |
+| 31 Mar 2026 | BF-052 | To Jindal Steel Traders A/c<br><em>Steel from Jindal Steel Traders on credit, January–March 2026</em> | 1,68,000 | — | 7,70,100 | Dr |
 |  |  | **Total for the year** | **7,74,300** | **4,200** | **7,70,100** | **Dr** |
 | 31 Mar 2026 | BF-Y2 | By Profit & Loss A/c<br><em>Expense heads closed to Profit & Loss</em> | — | 7,70,100 | 0 | — |
 
@@ -483,7 +483,7 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 *Bal Fabricators — Sandhu Builders A/c · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-The builder's khata for the year — the advance, three running bills (the 5% held back is in its own account), payments net of the advance, half the job's retention released at completion. This is the copy sent to Sandhu Builders: it is read by them, so its columns are named by side — *Naam (Dr)* and *Jama (Cr)* — and its last line says *Balance due from you* or *Balance due to you*.
+The builder's account for the year — the advance, three running bills (the 5% held back is in its own account), payments net of the advance, half the job's retention released at completion. This is the copy sent to Sandhu Builders: it is read by them, so its columns are named by side — *Naam (Dr)* and *Jama (Cr)* — and its last line says *Balance due from you* or *Balance due to you*.
 
 | Date | No. | Particulars | Naam (Dr) ₹ | Jama (Cr) ₹ | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
@@ -495,7 +495,7 @@ The builder's khata for the year — the advance, three running bills (the 5% he
 | 24 Oct 2025 | BF-032 | By Punjab & Sind Bank Current A/c<br><em>Sandhu Builders paid running bill 2 less the 5% held back and ₹50,000 of the advance</em> | — | 2,92,000 | 50,000 | Cr |
 | 27 Dec 2025 | BF-040 | To Fabrication Income A/c<br><em>Running bill 3 (final) to Sandhu Builders (Sunny Enclave staircases, towers A–B) — ₹3,20,000 billed, 5% (₹16,000) held back</em> | 3,04,000 | — | 2,54,000 | Dr |
 | 23 Jan 2026 | BF-045 | By Punjab & Sind Bank Current A/c<br><em>Sandhu Builders paid running bill 3 less the 5% held back and ₹50,000 of the advance</em> | — | 2,54,000 | 0 | — |
-| 15 Feb 2026 | BF-048 | To Retention held by – Sandhu Builders A/c<br><em>Sunny Enclave staircases completed and handed over — half the job's retention (₹24,500 of ₹49,000) released by Sandhu Builders, the rest after the defect period; moved to his khata</em> | 24,500 | — | 24,500 | Dr |
+| 15 Feb 2026 | BF-048 | To Retention held by – Sandhu Builders A/c<br><em>Sunny Enclave staircases completed and handed over — half the job's retention (₹24,500 of ₹49,000) released by Sandhu Builders, the rest after the defect period; moved to his account</em> | 24,500 | — | 24,500 | Dr |
 | 06 Mar 2026 | BF-050 | By Punjab & Sind Bank Current A/c<br><em>Sandhu Builders paid the released half of the retention</em> | — | 24,500 | 0 | — |
 |  |  | **Total for the period** | **9,55,500** | **9,55,500** |  |  |
 | 31 Mar 2026 |  | **Closing balance on 31 Mar 2026** |  |  | **0** | **—** |
@@ -621,11 +621,13 @@ Nobody types these. When the year is closed the book itself closes every income 
 
 | Particulars | ₹ |
 |:---|---:|
-| Sukhwinder Bal — capital and current account at the end | 4,62,620 |
-| Pradeep Bal — capital and current account at the end | 4,83,920 |
-| Harjeet Singh — capital and current account at the end | 1,46,060 |
+| Sukhwinder Bal — capital account at the end | 3,00,000 |
+| Sukhwinder Bal — current account at the end | 1,62,620 |
+| Pradeep Bal — capital account at the end | 3,00,000 |
+| Pradeep Bal — current account at the end | 1,83,920 |
+| Harjeet Singh — capital account at the end | 1,50,000 |
 | Jindal Steel Traders A/c | 1,68,000 |
-| **Total** | **12,60,600** |
+| **Total** | **12,64,540** |
 
 **What I have and will get**
 
@@ -636,9 +638,10 @@ Nobody types these. When the year is closed the book itself closes every income 
 | Retention held by – Sandhu Builders A/c | 24,500 |
 | Advance – Gurmeet Singh (foreman) A/c | 1,700 |
 | Machinery & Tools A/c | 3,33,000 |
-| **Total** | **12,60,600** |
+| Current A/c – Harjeet Singh (Dr — Harjeet Singh owes the firm) | 3,940 |
+| **Total** | **12,64,540** |
 
-**Both sides ₹12,60,600. The books balance.**
+**Both sides ₹12,64,540. The books balance.**
 
 Each partner's account after the year's interest and share is shown in the table above. The builder's retention money is in its own account: the half still held, which the firm will get after the defect period.
 

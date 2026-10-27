@@ -8,13 +8,13 @@ An export, not part of the printed book: the Day Book and the Cash Book, which c
 
 *Jasvinder Singh · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank, card or deposit), *Gave on credit* / *Took on credit* (a khata entry with a person or shop — no money moved yet), *Advance settled* (an advance accounted for against the bills), *Paid by a partner* (a partner paid from his own pocket), *Paid by the joint family* (the family paid a household's bill), *Settled at year end* (a sub-family account squared for the year), *Paid from a fund* (one action: the cost is charged to the year and the same amount is transferred from the fund), *Interest added to a deposit* (the bank added it; no money moved), *Written off* (a balance known not to come back, charged to an expense head), *Deposit set off* (a deposit held used against what the same person owes) and *Deposit forfeited* (a deposit kept as income), *Retention released* (money a customer held back, now due), *Correction* (an earlier entry put right — its note names the entry and its date) and *Fix / Adjust* (no money moved). An entry that moves no money in or out of cash, bank, card or wallet is marked *no money moved*. An entry with more than one account on a side shows each account with its amount.
+In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank, card or deposit), *Gave on credit* / *Took on credit* (credit given to or taken from a person or shop — no money moved yet), *Advance settled* (an advance accounted for against the bills), *Paid by a partner* (a partner paid from his own pocket), *Paid by the joint family* (the family paid a household's bill), *Settled at year end* (a sub-family account squared for the year), *Paid from a fund* (one action: the cost is charged to the year and the same amount is transferred from the fund), *Interest added to a deposit* (the bank added it; no money moved), *Written off* (a balance known not to come back, charged to an expense head), *Deposit set off* (a deposit held used against what the same person owes) and *Deposit forfeited* (a deposit kept as income), *Retention released* (money a customer held back, now due), *Correction* (an earlier entry put right — its note names the entry and its date) and *Fix / Adjust* (no money moved). An entry that moves no money in or out of cash, bank, card or wallet is marked *no money moved*. An entry with more than one account on a side shows each account with its amount.
 
 | Date | No. | Type | Debit (Dr) | Credit (Cr) | Amount ₹ | What happened |
 |:---|:---|:---|:---|:---|---:|:---|
 | 01 Apr 2025 | JP-001 | Money in | SBI Savings A/c | Income from Jasvinder Technologies A/c | 1,20,000 | Received from Jasvinder Technologies — money sent home |
 | 02 Apr 2025 | JP-002 | Transfer | Cash A/c | SBI Savings A/c | 45,000 | Cash withdrawn (ATM) |
-| 05 Apr 2025 | JP-003 | Money out | Sharma General Store A/c | Cash A/c | 3,200 | Grocer's khata of March paid, cash |
+| 05 Apr 2025 | JP-003 | Money out | Sharma General Store A/c | Cash A/c | 3,200 | Grocer's account for March paid, cash |
 | 15 Apr 2025 | JP-004 | Money out | School Fees A/c | SBI Savings A/c | 42,000 | School fees, first half-year |
 | 18 Apr 2025 | JP-005 | Transfer | HDFC Credit Card A/c | SBI Savings A/c | 12,400 | Credit-card bill paid from savings |
 | 12 May 2025 | JP-006 | Money out | Car Fuel & Upkeep A/c | HDFC Credit Card A/c | 9,800 | Fuel, April–May, on the credit card |
@@ -31,10 +31,10 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 17 Sep 2025 | JP-017 | Transfer | HDFC Credit Card A/c | SBI Savings A/c | 14,200 | Credit-card bill paid from savings |
 | 20 Sep 2025 | JP-018 | Money in | SBI Savings A/c | SBI Fixed Deposit A/c ₹1,00,000<br>Interest A/c ₹7,186 | 1,07,186 | Cumulative fixed deposit of ₹1,00,000 matured after a year — principal and ₹7,186 interest paid to savings together |
 | 26 Sep 2025 | JP-019 | Transfer | Cash A/c | SBI Savings A/c | 45,000 | Cash withdrawn (ATM) |
-| 30 Sep 2025 | JP-020 | Took on credit — no money moved | Groceries & Household A/c | Sharma General Store A/c | 48,400 | Groceries on khata, April–September |
+| 30 Sep 2025 | JP-020 | Took on credit — no money moved | Groceries & Household A/c | Sharma General Store A/c | 48,400 | Groceries on credit, April–September |
 | 30 Sep 2025 | JP-021 | Money out | Household Staff Wages A/c | Advance – house help A/c ₹6,000<br>Cash A/c ₹24,000 | 30,000 | House help's wages, July–September — ₹6,000 of it recovered from her advance, the rest paid in cash |
 | 03 Oct 2025 | JP-022 | Transfer | FASTag Wallet A/c | SBI Savings A/c | 3,000 | FASTag wallet recharged from savings |
-| 06 Oct 2025 | JP-023 | Money out | Sharma General Store A/c | SBI Savings A/c | 48,400 | Grocer's khata of April–September paid (UPI) |
+| 06 Oct 2025 | JP-023 | Money out | Sharma General Store A/c | SBI Savings A/c | 48,400 | Grocer's account for April–September paid (UPI) |
 | 16 Oct 2025 | JP-024 | Money out | School Fees A/c | SBI Savings A/c | 44,000 | School fees, second half-year |
 | 20 Oct 2025 | JP-025 | Money in | SBI Savings A/c | Income from Jasvinder Technologies A/c | 1,20,000 | Received from Jasvinder Technologies — money sent home |
 | 25 Oct 2025 | JP-026 | Money out | Car – Hyundai Venue A/c | Car Loan – HDFC Bank A/c ₹8,00,000<br>SBI Savings A/c ₹1,00,000 | 9,00,000 | Second car bought for ₹9,00,000: the lender paid the dealer ₹8,00,000 (the loan) and the margin ₹1,00,000 was paid from savings |
@@ -60,7 +60,7 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 02 Mar 2026 | JP-046 | Transfer | Cash A/c | SBI Savings A/c | 30,000 | Cash withdrawn (ATM) |
 | 02 Mar 2026 | JP-047 | Correction — no money moved | Electricity & Phone A/c | Groceries & Household A/c | 5,900 | Entry JP-045 of 20 Feb 2026 (gas) was written to Groceries & Household — moved to Electricity & Phone |
 | 05 Mar 2026 | JP-048 | Money out | Car Loan – HDFC Bank A/c ₹10,718<br>Interest on Car Loan A/c ₹6,083 | SBI Savings A/c | 16,801 | Car loan instalment 4 of 60, split as on the lender's statement |
-| 31 Mar 2026 | JP-049 | Took on credit — no money moved | Groceries & Household A/c | Sharma General Store A/c | 49,500 | Groceries on khata, October–March |
+| 31 Mar 2026 | JP-049 | Took on credit — no money moved | Groceries & Household A/c | Sharma General Store A/c | 49,500 | Groceries on credit, October–March |
 | 31 Mar 2026 | JP-050 | Money out | Household Staff Wages A/c | Cash A/c | 30,000 | House help's wages, January–March, cash |
 | 31 Mar 2026 | JP-051 | Written off — no money moved | Written off A/c | Loan to – Gurpreet Sandhu A/c | 10,000 | The last ₹10,000 of Gurpreet Sandhu's loan written off — he has said he cannot repay it |
 | 31 Mar 2026 | JP-052 | Money in | SBI Savings A/c | Interest A/c | 3,360 | Savings interest |
@@ -79,7 +79,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 01 Apr 2025 |  | Opening balance b/f | 8,000 | 1,85,000 | — | — | 8,000 | 1,85,000 |
 | 01 Apr 2025 | JP-001 | To Income from Jasvinder Technologies A/c<br><em>Received from Jasvinder Technologies — money sent home</em> | — | 1,20,000 | — | — | 8,000 | 3,05,000 |
 | 02 Apr 2025 | JP-002 | SBI Savings A/c to Cash A/c<br><em>Cash withdrawn (ATM)</em> | 45,000 | — | — | 45,000 | 53,000 | 2,60,000 |
-| 05 Apr 2025 | JP-003 | By Sharma General Store A/c<br><em>Grocer's khata of March paid, cash</em> | — | — | 3,200 | — | 49,800 | 2,60,000 |
+| 05 Apr 2025 | JP-003 | By Sharma General Store A/c<br><em>Grocer's account for March paid, cash</em> | — | — | 3,200 | — | 49,800 | 2,60,000 |
 | 15 Apr 2025 | JP-004 | By School Fees A/c<br><em>School fees, first half-year</em> | — | — | — | 42,000 | 49,800 | 2,18,000 |
 | 18 Apr 2025 | JP-005 | By HDFC Credit Card A/c<br><em>Credit-card bill paid from savings</em> | — | — | — | 12,400 | 49,800 | 2,05,600 |
 | 30 Apr 2025 |  | **Month total — April 2025 · closing balance** | **45,000** | **1,20,000** | **3,200** | **99,400** | **49,800** | **2,05,600** |
@@ -102,7 +102,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 30 Sep 2025 | JP-021 | By Household Staff Wages A/c<br><em>House help's wages, July–September — ₹6,000 of it recovered from her advance, the rest paid in cash</em> | — | — | 24,000 | — | 34,800 | 1,96,286 |
 | 30 Sep 2025 |  | **Month total — September 2025 · closing balance** | **45,000** | **1,07,186** | **24,000** | **59,200** | **34,800** | **1,96,286** |
 | 03 Oct 2025 | JP-022 | By FASTag Wallet A/c<br><em>FASTag wallet recharged from savings</em> | — | — | — | 3,000 | 34,800 | 1,93,286 |
-| 06 Oct 2025 | JP-023 | By Sharma General Store A/c<br><em>Grocer's khata of April–September paid (UPI)</em> | — | — | — | 48,400 | 34,800 | 1,44,886 |
+| 06 Oct 2025 | JP-023 | By Sharma General Store A/c<br><em>Grocer's account for April–September paid (UPI)</em> | — | — | — | 48,400 | 34,800 | 1,44,886 |
 | 16 Oct 2025 | JP-024 | By School Fees A/c<br><em>School fees, second half-year</em> | — | — | — | 44,000 | 34,800 | 1,00,886 |
 | 20 Oct 2025 | JP-025 | To Income from Jasvinder Technologies A/c<br><em>Received from Jasvinder Technologies — money sent home</em> | — | 1,20,000 | — | — | 34,800 | 2,20,886 |
 | 25 Oct 2025 | JP-026 | By Car – Hyundai Venue A/c<br><em>Second car bought for ₹9,00,000: the lender paid the dealer ₹8,00,000 (the loan) and the margin ₹1,00,000 was paid from savings</em> | — | — | — | 1,00,000 | 34,800 | 1,20,886 |
@@ -141,7 +141,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 
 *Jasvinder Technologies · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank, card or deposit), *Gave on credit* / *Took on credit* (a khata entry with a person or shop — no money moved yet), *Advance settled* (an advance accounted for against the bills), *Paid by a partner* (a partner paid from his own pocket), *Paid by the joint family* (the family paid a household's bill), *Settled at year end* (a sub-family account squared for the year), *Paid from a fund* (one action: the cost is charged to the year and the same amount is transferred from the fund), *Interest added to a deposit* (the bank added it; no money moved), *Written off* (a balance known not to come back, charged to an expense head), *Deposit set off* (a deposit held used against what the same person owes) and *Deposit forfeited* (a deposit kept as income), *Retention released* (money a customer held back, now due), *Correction* (an earlier entry put right — its note names the entry and its date) and *Fix / Adjust* (no money moved). An entry that moves no money in or out of cash, bank, card or wallet is marked *no money moved*. An entry with more than one account on a side shows each account with its amount.
+In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank, card or deposit), *Gave on credit* / *Took on credit* (credit given to or taken from a person or shop — no money moved yet), *Advance settled* (an advance accounted for against the bills), *Paid by a partner* (a partner paid from his own pocket), *Paid by the joint family* (the family paid a household's bill), *Settled at year end* (a sub-family account squared for the year), *Paid from a fund* (one action: the cost is charged to the year and the same amount is transferred from the fund), *Interest added to a deposit* (the bank added it; no money moved), *Written off* (a balance known not to come back, charged to an expense head), *Deposit set off* (a deposit held used against what the same person owes) and *Deposit forfeited* (a deposit kept as income), *Retention released* (money a customer held back, now due), *Correction* (an earlier entry put right — its note names the entry and its date) and *Fix / Adjust* (no money moved). An entry that moves no money in or out of cash, bank, card or wallet is marked *no money moved*. An entry with more than one account on a side shows each account with its amount.
 
 | Date | No. | Type | Debit (Dr) | Credit (Cr) | Amount ₹ | What happened |
 |:---|:---|:---|:---|:---|---:|:---|

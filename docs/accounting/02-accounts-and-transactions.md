@@ -123,10 +123,10 @@ Money received from a customer before delivery is a liability until the goods go
 Diary: *Money in ₹30,000 from Ramesh ahead (You will give goods).* / *Sold ₹30,000 to Ramesh — balance nil.*
 
 ### 2.4 Money held back by a customer or contractor is Retention held, on its own account
-When a customer or contractor holds back part of what is due until the work is accepted, that amount is *Retention held by – {party}*, an asset on the party's page beside the running account. It is not left in the khata, because the khata would then show money not yet due as overdue. When it falls due, an entry with no money moved (*Retention released*) moves it into the khata; when it is paid, it is money in.
-**Source:** none settles it — ruled 20 Oct 2026 (O-06-4): the owner's 13 Oct 2026 deposit reasoning applies — netting it in the khata makes money not yet due look overdue.
+When a customer or contractor holds back part of what is due until the work is accepted, that amount is *Retention held by – {party}*, an asset on the party's page beside the running account. It is not left in the running account, because the running account would then show money not yet due as overdue. When it falls due, an entry with no money moved (*Retention released*) moves it into the running account; when it is paid, it is money in.
+**Source:** none settles it — ruled 20 Oct 2026 (O-06-4): the owner's 13 Oct 2026 deposit reasoning applies — netting it in the running account makes money not yet due look overdue.
 **Example.** Work billed ₹5,00,000; ₹25,000 held back: `Dr Sharma Builders A/c ₹4,75,000 · Dr Retention held by Sharma Builders A/c ₹25,000 · Cr Contract Income A/c ₹5,00,000`. On release: `Dr Sharma Builders A/c ₹25,000 · Cr Retention held by Sharma Builders A/c ₹25,000`.
-Diary: *Gave on credit ₹4,75,000 to Sharma Builders; ₹25,000 is held back as Retention.* / *Retention released: ₹25,000 moved to Sharma Builders' khata — now due. No money moved.*
+Diary: *Gave on credit ₹4,75,000 to Sharma Builders; ₹25,000 is held back as Retention.* / *Retention released: ₹25,000 moved to Sharma Builders' account — now due. No money moved.*
 
 ### 2.5 What will not come is written off by a plain entry
 A debt known not to come is a loss: *Written off* (an expense head) is debited and the person's account credited. There is no provision first. The same entry serves any balance, not only a trade debt (see 8.2).
@@ -172,7 +172,7 @@ Diary: *Money in ₹500 — Gurdev returned the unspent Advance.*
 When bills do not cover the advance, the settlement entry chooses one of three: (1) it stays open and carried forward, still to be accounted for — the default; (2) it moves to the person's own account as money he owes (`Dr person · Cr Advance`); (3) it is written off to an expense head.
 **Source:** none settles it — ruled 20 Oct 2026 (O-07-4): the three are the outcomes real books show.
 **Example.** Advance ₹5,000, bills ₹4,500, no bills for ₹500. Option 2: `Dr Gurdev A/c ₹500 · Cr Advance – Gurdev A/c ₹500`. Option 3: `Dr Written Off A/c ₹500 · Cr Advance – Gurdev A/c ₹500`.
-Diary: *₹500 has no bill: kept open / moved to Gurdev's khata (You will get ₹500) / Written off.*
+Diary: *₹500 has no bill: kept open / moved to Gurdev's account (You will get ₹500) / Written off.*
 
 ### 3.5 A salary advance is recovered in the salary entry
 When salary is paid, one entry shows the full salary, the part recovered from the advance and the net paid. The advance is an asset until recovered.
@@ -375,7 +375,7 @@ Diary: *Added the missing ₹9,000 to Mohan and to Sales, with a note pointing t
 An amount put against the wrong person or head is moved by one entry. No money moves.
 **Source:** NCERT Part I ch. 6 §6.6.1 pp. 192–194 [5]; Ch. 4 §4.6 item 3 p. 140 [1].
 **Example.** `Dr Rent A/c ₹2,000 · Cr Landlord A/c ₹2,000` — note: "corrects entry no. 17: rent was written against the landlord's name". Posted to Ram instead of Mohan: `Dr Mohan A/c ₹10,000 · Cr Ram A/c ₹10,000`.
-Diary: *Rent of ₹2,000 was written against the landlord's khata; moved to Rent.*
+Diary: *Rent of ₹2,000 was written against the landlord's account; moved to Rent.*
 
 ### 7.4 A difference in the cash count is entered that day: to the person minding the cash, or to *Cash short / over*
 The count includes cheques received and not yet banked (1.3); a count of petty cash includes the bills in hand not yet entered (3.7). Whenever the cash counted differs from the cash book, the difference is entered that day, with a note. A shortage the person minding the galla or cash box must make good goes on that person's own page, to be recovered. A small or unexplained difference goes to *Cash short / over*: an expense when short, income when over. The person counting chooses which. If the cause is found later, a correction entry moves it to the right account. If the owner admits taking the money, it is Drawings instead.

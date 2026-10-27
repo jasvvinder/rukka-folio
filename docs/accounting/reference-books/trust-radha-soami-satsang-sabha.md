@@ -7,7 +7,7 @@ A satsang sabha with a **gollak** counted every two months before the secretary 
 | Ranjeet Singh | Secretary — witness at every gollak count; signs the bank payments |
 | Amritpal Singh | Sewadar — counts the gollak; holds the langar advance and accounts for it |
 | Manni · Ravinder | Labourers paid in cash each quarter — each has his own expense head |
-| Kotli Cement Store | Building-material store — cement and bricks for the hall on khata |
+| Kotli Cement Store | Building-material store — cement and bricks for the hall on credit |
 | Three families and an NRI donor | Gave for the langar hall — the money went to the Langar Hall Fund; one family donated a steel almirah that the trust keeps |
 
 Amounts are in ₹; paise are shown only when there are paise. Plain words come first and the true side follows in small brackets — Money in (Dr), You will give (Cr) — so the side is never lost. Every figure is illustrative.
@@ -29,7 +29,7 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 | 3 | SBI Savings A/c | Bank | The trust's savings account — it earns the bank's interest (a current account earns none) | 4,85,000 | — |
 | 4 | SBI Fixed Deposit (Langar Hall Fund) A/c | Deposit | Fixed deposit made from the langar hall donations — its interest goes to the Langar Hall Fund | 2,00,000 | — |
 | 5 | Advance – Amritpal Singh A/c | Advance | Langar money with the sewadar, accounted for with bills | — | — |
-| 6 | Kotli Cement Store A/c | Person / shop | Building-material store (khata) — cement and bricks for the hall | — | — |
+| 6 | Kotli Cement Store A/c | Person / shop | Building-material store — cement and bricks for the hall | — | — |
 | 7 | Furniture & Equipment A/c | Thing owned | Things given to the trust and kept, at ₹1 each — the estimated value is in the entry's note | — | — |
 | 8 | Langar Hall Fund A/c | Fund | Money given for the langar hall and the interest on its deposit — kept for that purpose only | — | 2,50,000 |
 | 9 | General Fund A/c | Own money | The trust's own money (the year's surplus or deficit is added at the year end) | — | 4,57,000 |
@@ -170,7 +170,7 @@ One account after another: date, entry number, the other account (*To …* on th
 | Date | No. | Particulars | You will get (Dr) | You will give (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | — | 0 | — |
-| 18 Jul 2025 | RS-013 | By Construction A/c<br><em>Langar hall — cement and bricks on the store's khata</em> | — | 1,48,000 | 1,48,000 | Cr |
+| 18 Jul 2025 | RS-013 | By Construction A/c<br><em>Langar hall — cement and bricks on credit from the store</em> | — | 1,48,000 | 1,48,000 | Cr |
 | 10 Sep 2025 | RS-019 | To SBI Savings A/c<br><em>Kotli Cement Store paid for the cement and bricks</em> | 1,48,000 | — | 0 | — |
 | 31 Mar 2026 |  | Closing balance c/d | — | — | — | — |
 |  |  | **Total** | **1,48,000** | **1,48,000** |  |  |
@@ -266,7 +266,7 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 18 Jul 2025 | RS-013 | To Kotli Cement Store A/c<br><em>Langar hall — cement and bricks on the store's khata</em> | 1,48,000 | — | 1,48,000 | Dr |
+| 18 Jul 2025 | RS-013 | To Kotli Cement Store A/c<br><em>Langar hall — cement and bricks on credit from the store</em> | 1,48,000 | — | 1,48,000 | Dr |
 | 14 Oct 2025 | RS-028 | To SBI Savings A/c<br><em>Langar hall — steel and shuttering, paid from the Langar Hall Fund</em> | 1,86,000 | — | 3,34,000 | Dr |
 | 22 Dec 2025 | RS-035 | To SBI Savings A/c<br><em>Langar hall — mason contractor, first bill, paid from the Langar Hall Fund</em> | 1,24,000 | — | 4,58,000 | Dr |
 | 16 Mar 2026 | RS-049 | To SBI Savings A/c<br><em>Langar hall — mason contractor, second bill (from the trust's general money)</em> | 96,000 | — | 5,54,000 | Dr |

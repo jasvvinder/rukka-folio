@@ -895,6 +895,7 @@ def check_closing(bk):
     kinds_seq = [bk.type.get(clean(r[0])) for r in liab if clean(r[0]) in bk.type]
     ok(kinds_seq == sorted(kinds_seq, key=lambda t: 0 if t == "Fund" else 1), "%s balance sheet: a fund must be listed with the own money, before what I will give" % bk.path)
     tl = ta = 0
+    partners_bs = []
     for r in liab:
         p = clean(r[0])
         if p.endswith("at the start, 01 Apr 2025"):
@@ -909,8 +910,14 @@ def check_closing(bk):
             ok(paise(r[1]) == own_close, "%s BS: own money at the end" % bk.path)
             tl += paise(r[1])
         elif " at the end" in p and ap is not None:
-            who = p.split(" — ")[0]
-            ok(paise(r[1]) == partners_total.get(who), "%s BS: partner %s" % (bk.path, who))
+            who, what = p.split(" — ")[0], p.split(" — ")[1]
+            if what == "partner's account at the end":
+                ok(paise(r[1]) == partners_total.get(who), "%s BS: partner %s" % (bk.path, who))
+            else:
+                # 04 §5.8, §6.5 (D13): each of a partner's accounts at its own balance after the close; a current account here is in credit
+                n = {"capital account at the end": "Capital A/c – ", "current account at the end": "Current A/c – "}[what] + who
+                ok(bk.pcb.get(n, 1) <= 0 and paise(r[1]) == -bk.pcb[n], "%s BS: partner %s %s" % (bk.path, who, what))
+                partners_bs.append(n)
             tl += paise(r[1])
         elif p == "Total":
             ok(paise(r[1]) == tl, "%s BS: total of what I will give" % bk.path)
@@ -919,8 +926,14 @@ def check_closing(bk):
             tl += paise(r[1])
     for r in assets:
         p = clean(r[0])
+        m = re.match(r"^(Current A/c – (.+)) \(Dr — (.+) owes the firm\)$", p)
         if p == "Total":
             ok(paise(r[1]) == ta, "%s BS: total of what I have" % bk.path)
+        elif m:
+            # 04 §5.8, §6.5 (D13): a current account on the Dr side after the close is an asset, not netted against capital
+            ok(m.group(2) == m.group(3) and bk.pcb.get(m.group(1), 0) > 0 and paise(r[1]) == bk.pcb[m.group(1)], "%s BS: %s" % (bk.path, p))
+            partners_bs.append(m.group(1))
+            ta += paise(r[1])
         else:
             ok(paise(r[1]) == abs(bk.closing[p]), "%s BS: %s" % (bk.path, p))
             ta += paise(r[1])
@@ -928,6 +941,9 @@ def check_closing(bk):
     for n in bk.accounts:
         if bk.is_bs[n] and bk.type[n] not in EQUITY and bk.closing[n] != 0:
             ok(n in listed, "%s BS: %s missing" % (bk.path, n))
+    if ap is not None and any(n.startswith("Capital A/c – ") for n in bk.accounts):
+        want = [n for n in bk.accounts if n.startswith(("Capital A/c – ", "Current A/c – ")) and bk.pcb[n] != 0]
+        ok(sorted(partners_bs) == sorted(want), "%s BS: every partner's capital and current account once, on its own side %s" % (bk.path, sorted(set(want) ^ set(partners_bs))))
     ok(tl == ta, "%s BS: sides %d / %d" % (bk.path, tl, ta))
     # carry-forward: after the year close; every balance-sheet account at its own balance (a partner's capital and current separately, 04 §2.6)
     i = find(lines, r"^#### 4\.\d Carried into FY 2026-27")

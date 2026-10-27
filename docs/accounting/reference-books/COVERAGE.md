@@ -20,7 +20,7 @@ Technical, hand-written (ADR 2026-10-20 §2). It maps (A) every ruled row of `do
 | O-02-1 | all five | section 1, *Type* column; `RS` *General Fund* | five types; capital is its own type, printed *Own money* (the trust's: *General Fund*). |
 | O-02-2 | all five | each book's `.tech.md` accounts table | a bank is an *Asset* with traditional class *Personal*; it would be a liability by its balance when overdrawn. |
 | O-02-3 | individual, shop, family | `JT-001`, `JT-016`, `JT-032`, `JT-035`, `JT-Y4`; `S-005`, `S-Y4`; `RG-006`, `RG-032`, `RG-Y4`; `RE-009`, `RE-Y4` | a separate *Drawings* account, debited for each withdrawal and closed to own money at the year close; never an expense. |
-| O-02-4 | individual | `JP-007`, `JP-030`, `JP-031`, `JP-051`; section 3.4 | a loan to a friend that carries interest has its own account, *Loan to – Gurpreet Sandhu*, apart from any khata. (The liability side, *Loan from – {person}*, is C.) |
+| O-02-4 | individual | `JP-007`, `JP-030`, `JP-031`, `JP-051`; section 3.4 | a loan to a friend that carries interest has its own account, *Loan to – Gurpreet Sandhu*, apart from any running account. (The liability side, *Loan from – {person}*, is C.) |
 
 ### 3. Books of account
 | Row | Book | Entries / section | What shows it |
@@ -54,7 +54,7 @@ Technical, hand-written (ADR 2026-10-20 §2). It maps (A) every ruled row of `do
 | O-06-1 | individual, shop | `JT-006`, `JT-017`, `JT-021` (Kaur Exports crosses zero once); `S-008`, `S-015`, `S-036` (Dhillon) | one running account per person; the balance changes side and is read as *You will get* or *You will give* (section 3.5). |
 | O-06-2 | partnership | `BF-006`, `BF-015`, `BF-020` | a supplier paid in advance: his account is the Dr side until the goods come, crosses to Cr with his bill, back to nil when the rest is paid. |
 | O-06-3 | partnership, individual, shop | `BF-002`; `JT-006`; `S-008` | a customer's advance is his account on the Cr side until the work is billed. |
-| O-06-4 | partnership | `BF-009`, `BF-025`, `BF-040` (retention held at billing), `BF-048` (half the whole job's retention released to the khata at completion), `BF-050` (paid) | *Retention held by – Sandhu Builders* is its own asset account beside the khata, released by a transfer — half when the job is completed, the rest after the defect period; ₹24,500 stays at the year end. |
+| O-06-4 | partnership | `BF-009`, `BF-025`, `BF-040` (retention held at billing), `BF-048` (half the whole job's retention released to the builder's account at completion), `BF-050` (paid) | *Retention held by – Sandhu Builders* is its own asset account beside the builder's running account, released by a transfer — half when the job is completed, the rest after the defect period; ₹24,500 stays at the year end. |
 | O-06-5 | family, individual | `RE-029`, `JP-051` | written off by a plain entry to *Written off* / *Rent written off*; no provision. |
 
 ### 7. Advances and imprest
@@ -173,16 +173,16 @@ The finished outputs of the merged books are in `docs/archive/reference/practice
 | truck | individual | a driver's advance settled against several heads, the part with no bill moved to his account and cut from his next pay, the rest returned | `JP-033`, `JP-036`, `JP-037`, `JP-041`, `JP-042` |
 | truck | individual | a FASTag wallet: loaded by transfer, spent on tolls | `JP-022`, `JP-053` (`JP-036` has the driver's tolls) |
 | farmer | family (Agriculture) | KCC as a loan account: drawn, costs paid from it, interest charged, repaid | `RG-009`, `RG-027`, `RG-016`, `RG-020`, `RG-039`, `RG-005`, `RG-031` (already there; verified) |
-| farmer | family (Agriculture) | arhtiya: full sale on khata, his charges taken on credit, the net paid | `RG-024`, `RG-025`, `RG-030`, `RG-034` (already there; verified) |
+| farmer | family (Agriculture) | arhtiya: full sale on credit, his charges taken on credit, the net paid | `RG-024`, `RG-025`, `RG-030`, `RG-034` (already there; verified) |
 | farmer | family (Agriculture) | MSP wheat paid into the bank; straw sold | `RG-004`, `RG-007` (already there) |
-| farmer | family (Agriculture) | added: milk to the dairy society on khata, paid later (the opening bill, two half-year bills) | `RG-002`, `RG-021`, `RG-023`, `RG-040` |
+| farmer | family (Agriculture) | added: milk to the dairy society on credit, paid later (the opening bill, two half-year bills) | `RG-002`, `RG-021`, `RG-023`, `RG-040` |
 | farmer | family (Agriculture) | added: PM-Kisan instalments, cattle feed and the vet, four buffaloes at cost | `RG-017`, `RG-019`; buffaloes in section 1 of `RG` |
 | farmer | family (Agriculture) | a worker's advance (Aman's labour money), settled against slips | `RG-012`, `RG-015` and later (already there) |
 | landlord | family (Real Estate) | an improvement added to a building's cost; a repair stays expense | `RE-017`; `RE-006`, `RE-023` → `RE-024` |
 | landlord | family (Real Estate) | rent written off (*Rent written off*) | `RE-029` |
 | landlord | family (Real Estate) | a deposit set off against unpaid rent | `RE-019` |
 | landlord | family (Real Estate) | a deposit forfeited to income (*Deposit forfeited*) | `RE-020` |
-| landlord | family (Real Estate) | tenants on khata, rent charged in one entry, deposits per tenant | `RE-001`, `RE-007`, `RE-012`, `RE-021`; chart |
+| landlord | family (Real Estate) | tenants' accounts, rent charged in one entry, deposits per tenant | `RE-001`, `RE-007`, `RE-012`, `RE-021`; chart |
 | contractor | partnership | a contract job for a builder with 5% retention held back, in its own account | `BF-009`, `BF-025`, `BF-040`; half the job's retention released at completion `BF-048`, paid `BF-050` |
 | contractor | partnership | a mobilisation advance recovered bill by bill | `BF-002`, `BF-019`, `BF-032`, `BF-045` |
 | contractor | partnership | a supplier paid in advance whose account crosses to the other side and back | `BF-006`, `BF-015`, `BF-020` |
@@ -192,7 +192,7 @@ The finished outputs of the merged books are in `docs/archive/reference/practice
 | committee | trust | spending from the fund | `RS-028`, `RS-035` |
 | committee | trust | R&P, I&E, Balance Sheet | sections 4.2, 4.3 and the balance sheet |
 
-Practice-book items that did not need a new home because an existing entry already shows the same thing: freight on khata by quarter, diesel khata, a customer who pays late and in part (`S`, `BF`, `RE`, `RK` khatas); a mela advance with the unspent part returned (`JP-037`, `RE-028`); a sponsor on khata and a tent bill on credit (the ordinary khata entries in `S` and `BF`); subscriptions written when received (the trust's donations, `RS-002`); a fixed deposit by transfer (`RJ-032`). Not carried, because the ADR does not list them and nothing in the rulings needs them: the committee's subscriptions and mela as such, the landlord's caretaker float, a tenant who paid ahead, and the truck's quarterly freight and diesel khata.
+Practice-book items that did not need a new home because an existing entry already shows the same thing: freight on credit by quarter, diesel on credit, a customer who pays late and in part (`S`, `BF`, `RE`, `RK` accounts); a mela advance with the unspent part returned (`JP-037`, `RE-028`); a sponsor on credit and a tent bill on credit (the ordinary credit entries in `S` and `BF`); subscriptions written when received (the trust's donations, `RS-002`); a fixed deposit by transfer (`RJ-032`). Not carried, because the ADR does not list them and nothing in the rulings needs them: the committee's subscriptions and mela as such, the landlord's caretaker float, a tenant who paid ahead, and the truck's quarterly freight and diesel on credit.
 
 ---
 

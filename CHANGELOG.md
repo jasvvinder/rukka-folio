@@ -12,6 +12,63 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-10-28 — docs: Jama, Naam and Udhar stated precisely (accounting 01 §3.9)
+
+**Decided**
+- Udhar the side and udhaar the credit are kept apart (owner, 28 Oct 2026, after an outside check of the 27 Oct reading):
+  - In the Desi Nama books of western India, *Udhar* is the formal name of the debit side (right), against *Jama* (credit, left).
+  - Other sources name the debit side *Naam*. *Naam* (ਨਾਮ / नाम) is the root noun ("name", "account of"); *naame* (ਨਾਮੇ / नामे) is its inflected form ("in the name of", "to the debit of"), the form an entry and the app's Dr column use (owner, 28 Oct 2026).
+  - In everyday speech and in the app, ਉਧਾਰ / उधार means credit given or taken, which can fall on either side.
+  - The app's column names stay ਨਾਮੇ / नामे (Dr) and ਜਮ੍ਹਾਂ / जमा (Cr), as in the glossary 🔒. Nothing in the app changes.
+- This corrects the 27 Oct claim that *Udhar* is never the name of the Dr side: it is, in Desi Nama.
+
+**Changed**
+- `docs/accounting/01` §3.9, rewritten:
+  - Both names of the debit side, each with its tradition.
+  - The everyday-speech caveat on *khata*.
+  - The two uses of udhaar, with a worked customer/supplier example.
+  - Sources gain Wikipedia *Desi Namu* and GSEB Class 11 ch. 8 (both secondary; the bookkeeper confirms at PLAN-209).
+
+**Commits**
+- (fill in)
+
+## 2026-10-27 — docs: khata means account, nothing else
+
+**Decided**
+- *Khata* means an account (a page of the khata bahi) and nothing else (owner, 27 Oct 2026). Credit given or taken is written *on credit*, never *on khata*. This agrees with 02-ledger-rules §1.2 🔒 (*A/C (khata)*) and the glossary (`docs/01-glossary.md:45`, Account = ਖਾਤਾ / खाता). Recorded in accounting `01` §3.9. *Khata basis* (account basis, ADR 2026-10-22 §3) is unchanged.
+
+**Changed**
+- `reference-books/build.py`, all five books regenerated:
+  - *on khata* → *on credit* (narrations, people lists, about lines).
+  - The *(khata)* tag is dropped from 28 account descriptions (*Customer — sheds and racks*).
+  - *Doodhwala (milk khata) A/c* → *Doodhwala A/c*.
+  - A person's page reads *his account* / *the running account*.
+  - The entry-kind line reads *credit with a named party*.
+  - The print lint now refuses *on khata* and *(khata)*.
+  - Build: 22,293 checks, 0 problems; content hash `837b66dd…`.
+- Accounting `02` §2.4, §3.4, §7.3 (running account / account), `bookkeeper-review-pack.md`, `GAPS.md`, `COVERAGE.md`: the same wording.
+- `docs/07-ui-flows.md:141` and `design/DESIGN-PACK.md:178`: *milk on khata* → *milk on credit*. This is wording inside an example only; no behaviour changed.
+
+**Commits**
+- (fill in)
+
+## 2026-10-27 — docs: D13 ruled — a partner's debit current account is an asset
+
+**Decided**
+- Review pack D13 (owner, 27 Oct 2026): a partner's current account that stands on the Dr side after the year close is shown under *What I have* as money the partner owes the firm, not netted against his capital. Source: NCERT Class 12 Part I ch. 1 §1.4(a), p. 5 (from the research notes, `docs/archive/reference/accounting-research/14-partnership.md` §1.9). Not a 🔒 line; no ADR.
+
+**Changed**
+- `docs/accounting/04` §5.8 (*What I have* lists it) and §6.5 (each partner's capital account and each current account in credit under own money at their own balances; a Dr current account under *What I have*; Source line extended).
+- `reference-books/build.py` → `sec_balance_sheet`: the partnership's full position on 31 Mar 2026 lists each partner's capital and current account separately; Harjeet Singh's ₹3,940 Dr moves to *What I have*. Both sides ₹12,64,540 (was ₹12,60,600 netted). The pre-close positions (3.1, 3.2) are unchanged: drawings there are still *taken out so far*.
+- `reference-books/check_md.py`: checks each partner account against its after-close balance, a Dr current account on the assets side, and every partner account listed once. Build: 22,293 checks, 0 problems; PDFs within 14 pages; content hash `0ab9ea3e…`.
+- `bookkeeper-review-pack.md`: D13 moved to the ruled table; nothing in the pack is still asked of the owner.
+
+**Open**
+- PLAN-209: the pack is ready to send to the bookkeeper.
+
+**Commits**
+- (fill in)
+
 ## 2026-10-27 — docs: owner's rulings on review-pack sections C and D
 
 **Decided**
@@ -46,7 +103,7 @@ Running record of what changed in this repository and in the development environ
 - *Adjustments* (02 §8.2) vs *Cash short / over* (accounting 02 §7.4) for a cash difference: settled at the sign-off (ADR 2026-10-22 §1).
 
 **Commits**
-- (fill in)
+- `7d89beb`
 
 ## 2026-10-26 — docs: shop book's opening stock explained; bookkeeper review pack
 
@@ -69,7 +126,7 @@ Running record of what changed in this repository and in the development environ
 - PLAN-209 also names BoS ch. 4/5/10 page numbers as taken from the notes. No marker for them was found in the Sources lists, so the pack asks for a spot check rather than listing them.
 
 **Commits**
-- (fill in)
+- `7d89beb`
 
 ## 2026-10-26 — docs: owner's rulings on the plot examples and the cost of selling
 
@@ -88,7 +145,7 @@ Running record of what changed in this repository and in the development environ
 - MU-Q2 for the bookkeeper: *brokerage* vs *commission* / *dalali* as the household word (the account is still *Brokerage A/c*).
 
 **Commits**
-- (fill in)
+- `b741791`
 
 ## 2026-10-25 — docs: panel re-check of 02 §5.6 and 04 §2.6 (edited after their panel runs)
 
@@ -104,7 +161,7 @@ Running record of what changed in this repository and in the development environ
 - Refuted, not changed: moving the brokerage entry from 02 §5.6's Diary line to its Example line (MU-1), naming the page in the diary words (MU-2), rewording the rule sentence (MU-3), a partnership citation on 04 §2.6's Source line (CA-2).
 
 **Commits**
-- (fill in)
+- `b741791`
 
 ## 2026-10-25 — docs: accounting panel on the joint-family book; every confirmed finding applied through build.py
 

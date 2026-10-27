@@ -8,7 +8,7 @@ An export, not part of the printed book: the Day Book and the Cash Book, which c
 
 *Randhawa Joint Family · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank, card or deposit), *Gave on credit* / *Took on credit* (a khata entry with a person or shop — no money moved yet), *Advance settled* (an advance accounted for against the bills), *Paid by a partner* (a partner paid from his own pocket), *Paid by the joint family* (the family paid a household's bill), *Settled at year end* (a sub-family account squared for the year), *Paid from a fund* (one action: the cost is charged to the year and the same amount is transferred from the fund), *Interest added to a deposit* (the bank added it; no money moved), *Written off* (a balance known not to come back, charged to an expense head), *Deposit set off* (a deposit held used against what the same person owes) and *Deposit forfeited* (a deposit kept as income), *Retention released* (money a customer held back, now due), *Correction* (an earlier entry put right — its note names the entry and its date) and *Fix / Adjust* (no money moved). An entry that moves no money in or out of cash, bank, card or wallet is marked *no money moved*. An entry with more than one account on a side shows each account with its amount.
+In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank, card or deposit), *Gave on credit* / *Took on credit* (credit given to or taken from a person or shop — no money moved yet), *Advance settled* (an advance accounted for against the bills), *Paid by a partner* (a partner paid from his own pocket), *Paid by the joint family* (the family paid a household's bill), *Settled at year end* (a sub-family account squared for the year), *Paid from a fund* (one action: the cost is charged to the year and the same amount is transferred from the fund), *Interest added to a deposit* (the bank added it; no money moved), *Written off* (a balance known not to come back, charged to an expense head), *Deposit set off* (a deposit held used against what the same person owes) and *Deposit forfeited* (a deposit kept as income), *Retention released* (money a customer held back, now due), *Correction* (an earlier entry put right — its note names the entry and its date) and *Fix / Adjust* (no money moved). An entry that moves no money in or out of cash, bank, card or wallet is marked *no money moved*. An entry with more than one account on a side shows each account with its amount.
 
 | Date | No. | Type | Debit (Dr) | Credit (Cr) | Amount ₹ | What happened |
 |:---|:---|:---|:---|:---|---:|:---|
@@ -27,11 +27,11 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 04 Sep 2025 | RJ-013 | Advance settled — no money moved | House Repairs A/c | Advance – mason A/c | 15,000 | The mason's bill for the roof waterproofing set against his advance |
 | 04 Sep 2025 | RJ-014 | Money out | House Repairs A/c | SBI Joint Savings A/c | 21,000 | Rest of the mason's bill for the roof |
 | 15 Sep 2025 | RJ-015 | Money in | SBI Joint Savings A/c | Income from Randhawa Real Estate A/c | 60,000 | Rent surplus sent home by Randhawa Real Estate |
-| 30 Sep 2025 | RJ-016 | Took on credit — no money moved | Common Kitchen & Ration A/c | Doodhwala (milk khata) A/c | 57,600 | Milk for April–September on the milkman's khata |
+| 30 Sep 2025 | RJ-016 | Took on credit — no money moved | Common Kitchen & Ration A/c | Doodhwala A/c | 57,600 | Milk for April–September on credit from the milkman |
 | 30 Sep 2025 | RJ-017 | Money in | SBI Joint Savings A/c | Interest A/c | 2,860 | Savings interest |
 | 03 Oct 2025 | RJ-018 | Money out | Amarjeet's Family A/c | SBI Joint Savings A/c | 45,000 | Household money for six months to Amarjeet's family |
 | 03 Oct 2025 | RJ-019 | Money out | Lakhbeer's Family A/c | SBI Joint Savings A/c | 60,000 | Household money for six months to Lakhbeer's family |
-| 04 Oct 2025 | RJ-020 | Money out | Doodhwala (milk khata) A/c | SBI Joint Savings A/c | 67,200 | Milkman's khata paid — March (brought forward) and April–September |
+| 04 Oct 2025 | RJ-020 | Money out | Doodhwala A/c | SBI Joint Savings A/c | 67,200 | Milkman's account paid — March (brought forward) and April–September |
 | 08 Oct 2025 | RJ-021 | Money out | Common Kitchen & Ration A/c | SBI Joint Savings A/c | 1,01,500 | Ration and gas for the common kitchen, October–March (wholesale) |
 | 20 Oct 2025 | RJ-022 | Money out | Randhawa Brick Field A/c | SBI Joint Savings A/c | 2,00,000 | Put into the brick field for the season (the family's share) |
 | 21 Oct 2025 | RJ-023 | Fix / Adjust — no money moved | Randhawa Brick Field A/c | Lakhwinder's Family A/c | 1,00,000 | Lakhwinder's family put ₹1,00,000 straight into the brick field — the family's money in it, put in by his household |
@@ -50,7 +50,7 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 20 Mar 2026 | RJ-036 | Money in | SBI Joint Savings A/c | Income from Randhawa Brick Field A/c | 1,80,000 | Taken from the brick field — the family's income |
 | 24 Mar 2026 | RJ-037 | Money in | SBI Joint Savings A/c | Udhaar – Lakhbeer's Family A/c | 30,000 | Lakhbeer paid back the rest of the ₹50,000 he took |
 | 31 Mar 2026 | RJ-038 | Settled at year end — no money moved | Household Expenses – Amarjeet's family A/c | Amarjeet's Family A/c | 1,17,000 | Amarjeet's family's account settled for the year — the family bears it as Amarjeet's household expenses |
-| 31 Mar 2026 | RJ-039 | Took on credit — no money moved | Common Kitchen & Ration A/c | Doodhwala (milk khata) A/c | 59,400 | Milk for October–March on the milkman's khata |
+| 31 Mar 2026 | RJ-039 | Took on credit — no money moved | Common Kitchen & Ration A/c | Doodhwala A/c | 59,400 | Milk for October–March on credit from the milkman |
 | 31 Mar 2026 | RJ-040 | Money in | SBI Joint Savings A/c | Interest A/c | 36,500 | Interest on the fixed deposits, paid to savings |
 
 *40 entries: Advance settled 1 · Correction 1 · Fix / Adjust 2 · Money in 11 · Money out 20 · Settled at year end 1 · Took on credit 2 · Transfer 2.*
@@ -87,7 +87,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 30 Sep 2025 |  | **Month total — September 2025 · closing balance** | **0** | **62,860** | **0** | **21,000** | **50,000** | **5,94,960** |
 | 03 Oct 2025 | RJ-018 | By Amarjeet's Family A/c<br><em>Household money for six months to Amarjeet's family</em> | — | — | — | 45,000 | 50,000 | 5,49,960 |
 | 03 Oct 2025 | RJ-019 | By Lakhbeer's Family A/c<br><em>Household money for six months to Lakhbeer's family</em> | — | — | — | 60,000 | 50,000 | 4,89,960 |
-| 04 Oct 2025 | RJ-020 | By Doodhwala (milk khata) A/c<br><em>Milkman's khata paid — March (brought forward) and April–September</em> | — | — | — | 67,200 | 50,000 | 4,22,760 |
+| 04 Oct 2025 | RJ-020 | By Doodhwala A/c<br><em>Milkman's account paid — March (brought forward) and April–September</em> | — | — | — | 67,200 | 50,000 | 4,22,760 |
 | 08 Oct 2025 | RJ-021 | By Common Kitchen & Ration A/c<br><em>Ration and gas for the common kitchen, October–March (wholesale)</em> | — | — | — | 1,01,500 | 50,000 | 3,21,260 |
 | 20 Oct 2025 | RJ-022 | By Randhawa Brick Field A/c<br><em>Put into the brick field for the season (the family's share)</em> | — | — | — | 2,00,000 | 50,000 | 1,21,260 |
 | 31 Oct 2025 |  | **Month total — October 2025 · closing balance** | **0** | **0** | **0** | **4,73,700** | **50,000** | **1,21,260** |
@@ -118,24 +118,24 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 
 *Amarjeet's Family · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank, card or deposit), *Gave on credit* / *Took on credit* (a khata entry with a person or shop — no money moved yet), *Advance settled* (an advance accounted for against the bills), *Paid by a partner* (a partner paid from his own pocket), *Paid by the joint family* (the family paid a household's bill), *Settled at year end* (a sub-family account squared for the year), *Paid from a fund* (one action: the cost is charged to the year and the same amount is transferred from the fund), *Interest added to a deposit* (the bank added it; no money moved), *Written off* (a balance known not to come back, charged to an expense head), *Deposit set off* (a deposit held used against what the same person owes) and *Deposit forfeited* (a deposit kept as income), *Retention released* (money a customer held back, now due), *Correction* (an earlier entry put right — its note names the entry and its date) and *Fix / Adjust* (no money moved). An entry that moves no money in or out of cash, bank, card or wallet is marked *no money moved*. An entry with more than one account on a side shows each account with its amount.
+In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank, card or deposit), *Gave on credit* / *Took on credit* (credit given to or taken from a person or shop — no money moved yet), *Advance settled* (an advance accounted for against the bills), *Paid by a partner* (a partner paid from his own pocket), *Paid by the joint family* (the family paid a household's bill), *Settled at year end* (a sub-family account squared for the year), *Paid from a fund* (one action: the cost is charged to the year and the same amount is transferred from the fund), *Interest added to a deposit* (the bank added it; no money moved), *Written off* (a balance known not to come back, charged to an expense head), *Deposit set off* (a deposit held used against what the same person owes) and *Deposit forfeited* (a deposit kept as income), *Retention released* (money a customer held back, now due), *Correction* (an earlier entry put right — its note names the entry and its date) and *Fix / Adjust* (no money moved). An entry that moves no money in or out of cash, bank, card or wallet is marked *no money moved*. An entry with more than one account on a side shows each account with its amount.
 
 | Date | No. | Type | Debit (Dr) | Credit (Cr) | Amount ₹ | What happened |
 |:---|:---|:---|:---|:---|---:|:---|
 | 03 Apr 2025 | RA-001 | Money in | PNB Savings A/c | Randhawa Joint Family A/c | 45,000 | Ghar kharch aaya — household money for six months from the joint family |
-| 06 Apr 2025 | RA-002 | Money out | Gill Kiryana Store A/c | Cash A/c | 4,200 | Grocer's khata of March paid, cash |
+| 06 Apr 2025 | RA-002 | Money out | Gill Kiryana Store A/c | Cash A/c | 4,200 | Grocer's account for March paid, cash |
 | 30 May 2025 | RA-003 | Money in | Cash A/c | Stitching Income A/c | 6,400 | Indu's stitching — suits for the season, cash |
 | 10 Jun 2025 | RA-004 | Money out | Phone & Travel A/c | PNB Savings A/c | 4,400 | Mobiles for six months |
-| 30 Jun 2025 | RA-005 | Took on credit — no money moved | Household & Groceries A/c | Gill Kiryana Store A/c | 14,800 | Groceries on khata, April–June 2025 |
-| 05 Jul 2025 | RA-006 | Money out | Gill Kiryana Store A/c | PNB Savings A/c | 14,800 | Grocer's khata paid (UPI) |
+| 30 Jun 2025 | RA-005 | Took on credit — no money moved | Household & Groceries A/c | Gill Kiryana Store A/c | 14,800 | Groceries on credit, April–June 2025 |
+| 05 Jul 2025 | RA-006 | Money out | Gill Kiryana Store A/c | PNB Savings A/c | 14,800 | Grocer's account paid (UPI) |
 | 04 Aug 2025 | RA-007 | Transfer | Cash A/c | PNB Savings A/c | 10,000 | Cash withdrawn (ATM) |
 | 19 Aug 2025 | RA-008 | Money out | Medical A/c | Cash A/c | 3,600 | Doctor and medicines, cash |
 | 09 Sep 2025 | RA-009 | Money out | Gifts & Social A/c | Cash A/c | 1,800 | Bus fares to Amritsar, cash |
 | 20 Sep 2025 | RA-010 | Correction — no money moved | Phone & Travel A/c | Gifts & Social A/c | 1,800 | Entry RA-009 of 09 Sep 2025 (bus fares) was written to Gifts & Social — moved to Phone & Travel |
-| 30 Sep 2025 | RA-011 | Took on credit — no money moved | Household & Groceries A/c | Gill Kiryana Store A/c | 13,900 | Groceries on khata, July–September 2025 |
+| 30 Sep 2025 | RA-011 | Took on credit — no money moved | Household & Groceries A/c | Gill Kiryana Store A/c | 13,900 | Groceries on credit, July–September 2025 |
 | 30 Sep 2025 | RA-012 | Money out | House Help A/c | Cash A/c | 9,000 | House help's wages, July–September, cash |
 | 03 Oct 2025 | RA-013 | Money in | PNB Savings A/c | Randhawa Joint Family A/c | 45,000 | Ghar kharch aaya — household money for six months from the joint family |
-| 06 Oct 2025 | RA-014 | Money out | Gill Kiryana Store A/c | PNB Savings A/c | 13,900 | Grocer's khata paid (UPI) |
+| 06 Oct 2025 | RA-014 | Money out | Gill Kiryana Store A/c | PNB Savings A/c | 13,900 | Grocer's account paid (UPI) |
 | 12 Oct 2025 | RA-015 | Money out | Clothes & Personal A/c | PNB Savings A/c | 12,500 | Clothes for Diwali |
 | 15 Oct 2025 | RA-016 | Money out | Advance – house help A/c | Cash A/c | 3,000 | Advance to the house help for Diwali, cash |
 | 30 Oct 2025 | RA-017 | Money in | Cash A/c | Stitching Income A/c | 9,800 | Indu's stitching — suits for the season, cash |
@@ -144,14 +144,14 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 10 Dec 2025 | RA-020 | Money out | Phone & Travel A/c | PNB Savings A/c | 4,400 | Mobiles for six months |
 | 20 Dec 2025 | RA-021 | Transfer | Cash A/c | PNB Savings A/c | 15,000 | Cash withdrawn (ATM) |
 | 26 Dec 2025 | RA-022 | Paid by the joint family — no money moved | Medical A/c | Randhawa Joint Family A/c | 9,000 | Indu's dental treatment, paid by the joint family |
-| 31 Dec 2025 | RA-023 | Took on credit — no money moved | Household & Groceries A/c | Gill Kiryana Store A/c | 15,600 | Groceries on khata, October–December 2025 |
+| 31 Dec 2025 | RA-023 | Took on credit — no money moved | Household & Groceries A/c | Gill Kiryana Store A/c | 15,600 | Groceries on credit, October–December 2025 |
 | 31 Dec 2025 | RA-024 | Money out | House Help A/c | Advance – house help A/c ₹3,000<br>Cash A/c ₹6,000 | 9,000 | House help's wages, October–December — ₹3,000 of it recovered from her Diwali advance, the rest paid in cash |
-| 06 Jan 2026 | RA-025 | Money out | Gill Kiryana Store A/c | PNB Savings A/c | 15,600 | Grocer's khata paid (UPI) |
+| 06 Jan 2026 | RA-025 | Money out | Gill Kiryana Store A/c | PNB Savings A/c | 15,600 | Grocer's account paid (UPI) |
 | 18 Jan 2026 | RA-026 | Money in | Cash A/c | Sidhu family A/c | 5,600 | The Sidhu family paid for the suits, cash |
 | 27 Feb 2026 | RA-027 | Money in | Cash A/c | Stitching Income A/c | 7,200 | Indu's stitching — suits for the season, cash |
 | 08 Mar 2026 | RA-028 | Money out | Clothes & Personal A/c | Cash A/c | 4,800 | Shoes and a shawl, cash |
 | 31 Mar 2026 | RA-029 | Settled at year end — no money moved | Randhawa Joint Family A/c | Received from the Joint Family A/c | 1,17,000 | Our account with the joint family settled for the year — the family bears it |
-| 31 Mar 2026 | RA-030 | Took on credit — no money moved | Household & Groceries A/c | Gill Kiryana Store A/c | 14,200 | Groceries on khata, January–March 2026 |
+| 31 Mar 2026 | RA-030 | Took on credit — no money moved | Household & Groceries A/c | Gill Kiryana Store A/c | 14,200 | Groceries on credit, January–March 2026 |
 | 31 Mar 2026 | RA-031 | Money in | PNB Savings A/c | Interest A/c | 910 | Savings interest |
 
 *31 entries: Correction 1 · Gave on credit 1 · Money in 7 · Money out 14 · Paid by the joint family 1 · Settled at year end 1 · Took on credit 4 · Transfer 2.*
@@ -166,13 +166,13 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 |:---|:---|:---|---:|---:|---:|---:|---:|---:|
 | 01 Apr 2025 |  | Opening balance b/f | 6,000 | 64,000 | — | — | 6,000 | 64,000 |
 | 03 Apr 2025 | RA-001 | To Randhawa Joint Family A/c<br><em>Ghar kharch aaya — household money for six months from the joint family</em> | — | 45,000 | — | — | 6,000 | 1,09,000 |
-| 06 Apr 2025 | RA-002 | By Gill Kiryana Store A/c<br><em>Grocer's khata of March paid, cash</em> | — | — | 4,200 | — | 1,800 | 1,09,000 |
+| 06 Apr 2025 | RA-002 | By Gill Kiryana Store A/c<br><em>Grocer's account for March paid, cash</em> | — | — | 4,200 | — | 1,800 | 1,09,000 |
 | 30 Apr 2025 |  | **Month total — April 2025 · closing balance** | **0** | **45,000** | **4,200** | **0** | **1,800** | **1,09,000** |
 | 30 May 2025 | RA-003 | To Stitching Income A/c<br><em>Indu's stitching — suits for the season, cash</em> | 6,400 | — | — | — | 8,200 | 1,09,000 |
 | 31 May 2025 |  | **Month total — May 2025 · closing balance** | **6,400** | **0** | **0** | **0** | **8,200** | **1,09,000** |
 | 10 Jun 2025 | RA-004 | By Phone & Travel A/c<br><em>Mobiles for six months</em> | — | — | — | 4,400 | 8,200 | 1,04,600 |
 | 30 Jun 2025 |  | **Month total — June 2025 · closing balance** | **0** | **0** | **0** | **4,400** | **8,200** | **1,04,600** |
-| 05 Jul 2025 | RA-006 | By Gill Kiryana Store A/c<br><em>Grocer's khata paid (UPI)</em> | — | — | — | 14,800 | 8,200 | 89,800 |
+| 05 Jul 2025 | RA-006 | By Gill Kiryana Store A/c<br><em>Grocer's account paid (UPI)</em> | — | — | — | 14,800 | 8,200 | 89,800 |
 | 31 Jul 2025 |  | **Month total — July 2025 · closing balance** | **0** | **0** | **0** | **14,800** | **8,200** | **89,800** |
 | 04 Aug 2025 | RA-007 | PNB Savings A/c to Cash A/c<br><em>Cash withdrawn (ATM)</em> | 10,000 | — | — | 10,000 | 18,200 | 79,800 |
 | 19 Aug 2025 | RA-008 | By Medical A/c<br><em>Doctor and medicines, cash</em> | — | — | 3,600 | — | 14,600 | 79,800 |
@@ -181,7 +181,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 30 Sep 2025 | RA-012 | By House Help A/c<br><em>House help's wages, July–September, cash</em> | — | — | 9,000 | — | 3,800 | 79,800 |
 | 30 Sep 2025 |  | **Month total — September 2025 · closing balance** | **0** | **0** | **10,800** | **0** | **3,800** | **79,800** |
 | 03 Oct 2025 | RA-013 | To Randhawa Joint Family A/c<br><em>Ghar kharch aaya — household money for six months from the joint family</em> | — | 45,000 | — | — | 3,800 | 1,24,800 |
-| 06 Oct 2025 | RA-014 | By Gill Kiryana Store A/c<br><em>Grocer's khata paid (UPI)</em> | — | — | — | 13,900 | 3,800 | 1,10,900 |
+| 06 Oct 2025 | RA-014 | By Gill Kiryana Store A/c<br><em>Grocer's account paid (UPI)</em> | — | — | — | 13,900 | 3,800 | 1,10,900 |
 | 12 Oct 2025 | RA-015 | By Clothes & Personal A/c<br><em>Clothes for Diwali</em> | — | — | — | 12,500 | 3,800 | 98,400 |
 | 15 Oct 2025 | RA-016 | By Advance – house help A/c<br><em>Advance to the house help for Diwali, cash</em> | — | — | 3,000 | — | 800 | 98,400 |
 | 30 Oct 2025 | RA-017 | To Stitching Income A/c<br><em>Indu's stitching — suits for the season, cash</em> | 9,800 | — | — | — | 10,600 | 98,400 |
@@ -192,7 +192,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 20 Dec 2025 | RA-021 | PNB Savings A/c to Cash A/c<br><em>Cash withdrawn (ATM)</em> | 15,000 | — | — | 15,000 | 20,500 | 79,000 |
 | 31 Dec 2025 | RA-024 | By House Help A/c<br><em>House help's wages, October–December — ₹3,000 of it recovered from her Diwali advance, the rest paid in cash</em> | — | — | 6,000 | — | 14,500 | 79,000 |
 | 31 Dec 2025 |  | **Month total — December 2025 · closing balance** | **15,000** | **0** | **6,000** | **19,400** | **14,500** | **79,000** |
-| 06 Jan 2026 | RA-025 | By Gill Kiryana Store A/c<br><em>Grocer's khata paid (UPI)</em> | — | — | — | 15,600 | 14,500 | 63,400 |
+| 06 Jan 2026 | RA-025 | By Gill Kiryana Store A/c<br><em>Grocer's account paid (UPI)</em> | — | — | — | 15,600 | 14,500 | 63,400 |
 | 18 Jan 2026 | RA-026 | To Sidhu family A/c<br><em>The Sidhu family paid for the suits, cash</em> | 5,600 | — | — | — | 20,100 | 63,400 |
 | 31 Jan 2026 |  | **Month total — January 2026 · closing balance** | **5,600** | **0** | **0** | **15,600** | **20,100** | **63,400** |
 | 27 Feb 2026 | RA-027 | To Stitching Income A/c<br><em>Indu's stitching — suits for the season, cash</em> | 7,200 | — | — | — | 27,300 | 63,400 |
@@ -209,22 +209,22 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 
 *Lakhbeer's Family · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank, card or deposit), *Gave on credit* / *Took on credit* (a khata entry with a person or shop — no money moved yet), *Advance settled* (an advance accounted for against the bills), *Paid by a partner* (a partner paid from his own pocket), *Paid by the joint family* (the family paid a household's bill), *Settled at year end* (a sub-family account squared for the year), *Paid from a fund* (one action: the cost is charged to the year and the same amount is transferred from the fund), *Interest added to a deposit* (the bank added it; no money moved), *Written off* (a balance known not to come back, charged to an expense head), *Deposit set off* (a deposit held used against what the same person owes) and *Deposit forfeited* (a deposit kept as income), *Retention released* (money a customer held back, now due), *Correction* (an earlier entry put right — its note names the entry and its date) and *Fix / Adjust* (no money moved). An entry that moves no money in or out of cash, bank, card or wallet is marked *no money moved*. An entry with more than one account on a side shows each account with its amount.
+In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank, card or deposit), *Gave on credit* / *Took on credit* (credit given to or taken from a person or shop — no money moved yet), *Advance settled* (an advance accounted for against the bills), *Paid by a partner* (a partner paid from his own pocket), *Paid by the joint family* (the family paid a household's bill), *Settled at year end* (a sub-family account squared for the year), *Paid from a fund* (one action: the cost is charged to the year and the same amount is transferred from the fund), *Interest added to a deposit* (the bank added it; no money moved), *Written off* (a balance known not to come back, charged to an expense head), *Deposit set off* (a deposit held used against what the same person owes) and *Deposit forfeited* (a deposit kept as income), *Retention released* (money a customer held back, now due), *Correction* (an earlier entry put right — its note names the entry and its date) and *Fix / Adjust* (no money moved). An entry that moves no money in or out of cash, bank, card or wallet is marked *no money moved*. An entry with more than one account on a side shows each account with its amount.
 
 | Date | No. | Type | Debit (Dr) | Credit (Cr) | Amount ₹ | What happened |
 |:---|:---|:---|:---|:---|---:|:---|
 | 03 Apr 2025 | RB-001 | Money in | HDFC Savings A/c | Randhawa Joint Family A/c | 60,000 | Ghar kharch aaya — household money for six months from the joint family |
 | 12 Apr 2025 | RB-002 | Money out | Household & Groceries A/c | HDFC Savings A/c | 13,600 | Groceries and household, April–June 2025 |
-| 14 May 2025 | RB-003 | Took on credit — no money moved | Medical A/c | Bajwa Medical Store A/c | 2,400 | Medicines on khata |
+| 14 May 2025 | RB-003 | Took on credit — no money moved | Medical A/c | Bajwa Medical Store A/c | 2,400 | Medicines on credit |
 | 12 Jul 2025 | RB-004 | Money out | Household & Groceries A/c | HDFC Savings A/c | 12,900 | Groceries and household, July–September 2025 |
 | 16 Jul 2025 | RB-005 | Money out | Education A/c | HDFC Savings A/c | 28,500 | College fees, first semester |
 | 06 Aug 2025 | RB-006 | Money in | HDFC Savings A/c | Randhawa Joint Family A/c | 70,000 | From the joint family towards Aman's motorcycle |
 | 08 Aug 2025 | RB-007 | Money out | Motorcycle A/c | HDFC Savings A/c | 98,500 | Motorcycle for Aman — thing owned, at cost |
 | 18 Aug 2025 | RB-008 | Money in | HDFC Savings A/c | Udhaar – Randhawa Joint Family A/c | 50,000 | Took ₹50,000 from the joint family for a while — to be returned |
-| 22 Sep 2025 | RB-009 | Took on credit — no money moved | Medical A/c | Bajwa Medical Store A/c | 3,100 | Medicines on khata |
+| 22 Sep 2025 | RB-009 | Took on credit — no money moved | Medical A/c | Bajwa Medical Store A/c | 3,100 | Medicines on credit |
 | 02 Oct 2025 | RB-010 | Transfer | Cash A/c | HDFC Savings A/c | 25,000 | Cash withdrawn (ATM) |
 | 03 Oct 2025 | RB-011 | Money in | HDFC Savings A/c | Randhawa Joint Family A/c | 60,000 | Ghar kharch aaya — household money for six months from the joint family |
-| 04 Oct 2025 | RB-012 | Money out | Bajwa Medical Store A/c | Cash A/c | 5,500 | Chemist's khata paid, cash |
+| 04 Oct 2025 | RB-012 | Money out | Bajwa Medical Store A/c | Cash A/c | 5,500 | Chemist's account paid, cash |
 | 08 Oct 2025 | RB-013 | Money out | Advance – painter A/c | Cash A/c | 8,000 | Advance to the painter for the rooms, cash |
 | 12 Oct 2025 | RB-014 | Money out | Household & Groceries A/c | HDFC Savings A/c | 14,100 | Groceries and household, October–December 2025 |
 | 22 Oct 2025 | RB-015 | Money out | Fuel & Phone A/c | Cash A/c | 6,200 | Motorcycle fuel, cash |
@@ -236,9 +236,9 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 24 Dec 2025 | RB-021 | Correction — no money moved | Fuel & Phone A/c | Household & Groceries A/c | 2,100 | Entry RB-020 of 15 Dec 2025 (mobiles) was written to Household — moved to Fuel & Phone |
 | 12 Jan 2026 | RB-022 | Money out | Household & Groceries A/c | HDFC Savings A/c | 13,300 | Groceries and household, January–March 2026 |
 | 14 Jan 2026 | RB-023 | Paid by the joint family — no money moved | Education A/c | Randhawa Joint Family A/c | 28,500 | College fees for the second semester, paid by the joint family |
-| 03 Feb 2026 | RB-024 | Took on credit — no money moved | Medical A/c | Bajwa Medical Store A/c | 2,700 | Medicines on khata |
+| 03 Feb 2026 | RB-024 | Took on credit — no money moved | Medical A/c | Bajwa Medical Store A/c | 2,700 | Medicines on credit |
 | 06 Feb 2026 | RB-025 | Transfer | Cash A/c | HDFC Savings A/c | 10,000 | Cash withdrawn (ATM) |
-| 02 Mar 2026 | RB-026 | Money out | Bajwa Medical Store A/c | Cash A/c | 2,700 | Chemist's khata paid, cash |
+| 02 Mar 2026 | RB-026 | Money out | Bajwa Medical Store A/c | Cash A/c | 2,700 | Chemist's account paid, cash |
 | 18 Mar 2026 | RB-027 | Money out | Fuel & Phone A/c | HDFC Savings A/c | 7,400 | Fuel and mobiles |
 | 24 Mar 2026 | RB-028 | Money out | Udhaar – Randhawa Joint Family A/c | HDFC Savings A/c | 30,000 | Paid back the rest of the ₹50,000 we took from the joint family |
 | 31 Mar 2026 | RB-029 | Money in | HDFC Savings A/c | Interest A/c | 640 | Savings interest |
@@ -266,7 +266,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 31 Aug 2025 |  | **Month total — August 2025 · closing balance** | **0** | **1,20,000** | **0** | **98,500** | **5,000** | **1,11,500** |
 | 02 Oct 2025 | RB-010 | HDFC Savings A/c to Cash A/c<br><em>Cash withdrawn (ATM)</em> | 25,000 | — | — | 25,000 | 30,000 | 86,500 |
 | 03 Oct 2025 | RB-011 | To Randhawa Joint Family A/c<br><em>Ghar kharch aaya — household money for six months from the joint family</em> | — | 60,000 | — | — | 30,000 | 1,46,500 |
-| 04 Oct 2025 | RB-012 | By Bajwa Medical Store A/c<br><em>Chemist's khata paid, cash</em> | — | — | 5,500 | — | 24,500 | 1,46,500 |
+| 04 Oct 2025 | RB-012 | By Bajwa Medical Store A/c<br><em>Chemist's account paid, cash</em> | — | — | 5,500 | — | 24,500 | 1,46,500 |
 | 08 Oct 2025 | RB-013 | By Advance – painter A/c<br><em>Advance to the painter for the rooms, cash</em> | — | — | 8,000 | — | 16,500 | 1,46,500 |
 | 12 Oct 2025 | RB-014 | By Household & Groceries A/c<br><em>Groceries and household, October–December 2025</em> | — | — | — | 14,100 | 16,500 | 1,32,400 |
 | 22 Oct 2025 | RB-015 | By Fuel & Phone A/c<br><em>Motorcycle fuel, cash</em> | — | — | 6,200 | — | 10,300 | 1,32,400 |
@@ -281,7 +281,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 31 Jan 2026 |  | **Month total — January 2026 · closing balance** | **0** | **0** | **0** | **13,300** | **1,700** | **84,300** |
 | 06 Feb 2026 | RB-025 | HDFC Savings A/c to Cash A/c<br><em>Cash withdrawn (ATM)</em> | 10,000 | — | — | 10,000 | 11,700 | 74,300 |
 | 28 Feb 2026 |  | **Month total — February 2026 · closing balance** | **10,000** | **0** | **0** | **10,000** | **11,700** | **74,300** |
-| 02 Mar 2026 | RB-026 | By Bajwa Medical Store A/c<br><em>Chemist's khata paid, cash</em> | — | — | 2,700 | — | 9,000 | 74,300 |
+| 02 Mar 2026 | RB-026 | By Bajwa Medical Store A/c<br><em>Chemist's account paid, cash</em> | — | — | 2,700 | — | 9,000 | 74,300 |
 | 18 Mar 2026 | RB-027 | By Fuel & Phone A/c<br><em>Fuel and mobiles</em> | — | — | — | 7,400 | 9,000 | 66,900 |
 | 24 Mar 2026 | RB-028 | By Udhaar – Randhawa Joint Family A/c<br><em>Paid back the rest of the ₹50,000 we took from the joint family</em> | — | — | — | 30,000 | 9,000 | 36,900 |
 | 31 Mar 2026 | RB-029 | To Interest A/c<br><em>Savings interest</em> | — | 640 | — | — | 9,000 | 37,540 |
@@ -295,7 +295,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 
 *Lakhwinder's Family · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank, card or deposit), *Gave on credit* / *Took on credit* (a khata entry with a person or shop — no money moved yet), *Advance settled* (an advance accounted for against the bills), *Paid by a partner* (a partner paid from his own pocket), *Paid by the joint family* (the family paid a household's bill), *Settled at year end* (a sub-family account squared for the year), *Paid from a fund* (one action: the cost is charged to the year and the same amount is transferred from the fund), *Interest added to a deposit* (the bank added it; no money moved), *Written off* (a balance known not to come back, charged to an expense head), *Deposit set off* (a deposit held used against what the same person owes) and *Deposit forfeited* (a deposit kept as income), *Retention released* (money a customer held back, now due), *Correction* (an earlier entry put right — its note names the entry and its date) and *Fix / Adjust* (no money moved). An entry that moves no money in or out of cash, bank, card or wallet is marked *no money moved*. An entry with more than one account on a side shows each account with its amount.
+In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank, card or deposit), *Gave on credit* / *Took on credit* (credit given to or taken from a person or shop — no money moved yet), *Advance settled* (an advance accounted for against the bills), *Paid by a partner* (a partner paid from his own pocket), *Paid by the joint family* (the family paid a household's bill), *Settled at year end* (a sub-family account squared for the year), *Paid from a fund* (one action: the cost is charged to the year and the same amount is transferred from the fund), *Interest added to a deposit* (the bank added it; no money moved), *Written off* (a balance known not to come back, charged to an expense head), *Deposit set off* (a deposit held used against what the same person owes) and *Deposit forfeited* (a deposit kept as income), *Retention released* (money a customer held back, now due), *Correction* (an earlier entry put right — its note names the entry and its date) and *Fix / Adjust* (no money moved). An entry that moves no money in or out of cash, bank, card or wallet is marked *no money moved*. An entry with more than one account on a side shows each account with its amount.
 
 | Date | No. | Type | Debit (Dr) | Credit (Cr) | Amount ₹ | What happened |
 |:---|:---|:---|:---|:---|---:|:---|
@@ -317,9 +317,9 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 01 Sep 2025 | RC-016 | Money in | SBI Salary A/c | Salary A/c | 62,400 | Salary for August 2025 (after deductions) |
 | 05 Sep 2025 | RC-017 | Transfer | Post Office RD A/c | SBI Salary A/c | 30,000 | Six months of the recurring deposit |
 | 08 Sep 2025 | RC-018 | Money out | Household & Groceries A/c | SBI Salary A/c | 18,500 | Groceries and household, June–September |
-| 30 Sep 2025 | RC-019 | Took on credit — no money moved | Household & Groceries A/c | Kotli Dairy A/c | 16,200 | Milk and curd for April–September on the dairy's khata |
+| 30 Sep 2025 | RC-019 | Took on credit — no money moved | Household & Groceries A/c | Kotli Dairy A/c | 16,200 | Milk and curd for April–September on credit from the dairy |
 | 01 Oct 2025 | RC-020 | Money in | SBI Salary A/c | Salary A/c | 62,400 | Salary for September 2025 (after deductions) |
-| 05 Oct 2025 | RC-021 | Money out | Kotli Dairy A/c | SBI Salary A/c | 16,200 | Dairy's khata of April–September paid |
+| 05 Oct 2025 | RC-021 | Money out | Kotli Dairy A/c | SBI Salary A/c | 16,200 | Dairy's account for April–September paid |
 | 18 Oct 2025 | RC-022 | Money out | Clothes & Social A/c | SBI Credit Card A/c | 16,400 | Clothes for Diwali, on the credit card |
 | 21 Oct 2025 | RC-023 | Money out | Randhawa Joint Family A/c | SBI Salary A/c | 1,00,000 | Put into the brick field from Lakhwinder's salary, for the family's share |
 | 01 Nov 2025 | RC-024 | Money in | SBI Salary A/c | Salary A/c | 62,400 | Salary for October 2025 (after deductions) |
@@ -336,7 +336,7 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 28 Feb 2026 | RC-035 | Money in | Cash A/c | Tuition Income A/c | 12,000 | Harjeet's tuition fees, August–February, cash |
 | 01 Mar 2026 | RC-036 | Money in | SBI Salary A/c | Salary A/c | 62,400 | Salary for February 2026 (after deductions) |
 | 05 Mar 2026 | RC-037 | Transfer | Post Office RD A/c | SBI Salary A/c | 30,000 | Six months of the recurring deposit |
-| 31 Mar 2026 | RC-038 | Took on credit — no money moved | Household & Groceries A/c | Kotli Dairy A/c | 17,100 | Milk and curd for October–March on the dairy's khata |
+| 31 Mar 2026 | RC-038 | Took on credit — no money moved | Household & Groceries A/c | Kotli Dairy A/c | 17,100 | Milk and curd for October–March on credit from the dairy |
 
 *38 entries: Advance settled 1 · Correction 1 · Money in 14 · Money out 14 · Took on credit 2 · Transfer 6.*
 
@@ -372,7 +372,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 08 Sep 2025 | RC-018 | By Household & Groceries A/c<br><em>Groceries and household, June–September</em> | — | — | — | 18,500 | 26,000 | 2,56,500 |
 | 30 Sep 2025 |  | **Month total — September 2025 · closing balance** | **0** | **62,400** | **0** | **48,500** | **26,000** | **2,56,500** |
 | 01 Oct 2025 | RC-020 | To Salary A/c<br><em>Salary for September 2025 (after deductions)</em> | — | 62,400 | — | — | 26,000 | 3,18,900 |
-| 05 Oct 2025 | RC-021 | By Kotli Dairy A/c<br><em>Dairy's khata of April–September paid</em> | — | — | — | 16,200 | 26,000 | 3,02,700 |
+| 05 Oct 2025 | RC-021 | By Kotli Dairy A/c<br><em>Dairy's account for April–September paid</em> | — | — | — | 16,200 | 26,000 | 3,02,700 |
 | 21 Oct 2025 | RC-023 | By Randhawa Joint Family A/c<br><em>Put into the brick field from Lakhwinder's salary, for the family's share</em> | — | — | — | 1,00,000 | 26,000 | 2,02,700 |
 | 31 Oct 2025 |  | **Month total — October 2025 · closing balance** | **0** | **62,400** | **0** | **1,16,200** | **26,000** | **2,02,700** |
 | 01 Nov 2025 | RC-024 | To Salary A/c<br><em>Salary for October 2025 (after deductions)</em> | — | 62,400 | — | — | 26,000 | 2,65,100 |
@@ -401,7 +401,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 
 *Randhawa Agriculture · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank, card or deposit), *Gave on credit* / *Took on credit* (a khata entry with a person or shop — no money moved yet), *Advance settled* (an advance accounted for against the bills), *Paid by a partner* (a partner paid from his own pocket), *Paid by the joint family* (the family paid a household's bill), *Settled at year end* (a sub-family account squared for the year), *Paid from a fund* (one action: the cost is charged to the year and the same amount is transferred from the fund), *Interest added to a deposit* (the bank added it; no money moved), *Written off* (a balance known not to come back, charged to an expense head), *Deposit set off* (a deposit held used against what the same person owes) and *Deposit forfeited* (a deposit kept as income), *Retention released* (money a customer held back, now due), *Correction* (an earlier entry put right — its note names the entry and its date) and *Fix / Adjust* (no money moved). An entry that moves no money in or out of cash, bank, card or wallet is marked *no money moved*. An entry with more than one account on a side shows each account with its amount.
+In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank, card or deposit), *Gave on credit* / *Took on credit* (credit given to or taken from a person or shop — no money moved yet), *Advance settled* (an advance accounted for against the bills), *Paid by a partner* (a partner paid from his own pocket), *Paid by the joint family* (the family paid a household's bill), *Settled at year end* (a sub-family account squared for the year), *Paid from a fund* (one action: the cost is charged to the year and the same amount is transferred from the fund), *Interest added to a deposit* (the bank added it; no money moved), *Written off* (a balance known not to come back, charged to an expense head), *Deposit set off* (a deposit held used against what the same person owes) and *Deposit forfeited* (a deposit kept as income), *Retention released* (money a customer held back, now due), *Correction* (an earlier entry put right — its note names the entry and its date) and *Fix / Adjust* (no money moved). An entry that moves no money in or out of cash, bank, card or wallet is marked *no money moved*. An entry with more than one account on a side shows each account with its amount.
 
 | Date | No. | Type | Debit (Dr) | Credit (Cr) | Amount ₹ | What happened |
 |:---|:---|:---|:---|:---|---:|:---|
@@ -412,17 +412,17 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 02 May 2025 | RG-005 | Transfer | KCC – PNB A/c | PNB Savings A/c (farm) | 3,20,000 | KCC paid back from the wheat money |
 | 06 May 2025 | RG-006 | Money out | Drawings A/c – Randhawa Joint Family | PNB Savings A/c (farm) | 4,00,000 | Wheat money sent home to the joint family |
 | 10 May 2025 | RG-007 | Money in | PNB Savings A/c (farm) | Straw & PM-Kisan Income A/c | 18,000 | Wheat straw sold |
-| 20 May 2025 | RG-008 | Money out | Sandhu Fertilisers A/c | PNB Savings A/c (farm) | 26,500 | Sandhu Fertilisers paid — last season's khata |
+| 20 May 2025 | RG-008 | Money out | Sandhu Fertilisers A/c | PNB Savings A/c (farm) | 26,500 | Sandhu Fertilisers paid — last season's account |
 | 04 Jun 2025 | RG-009 | Transfer | PNB Savings A/c (farm) | KCC – PNB A/c | 2,00,000 | Money drawn on the KCC for the paddy season |
 | 05 Jun 2025 | RG-010 | Money out | Theka (Land Lease) A/c | PNB Savings A/c (farm) | 2,40,000 | Theka for 6 acres for the year (₹40,000 an acre) |
 | 06 Jun 2025 | RG-011 | Money out | Seed A/c | PNB Savings A/c (farm) | 34,000 | Paddy nursery seed |
 | 10 Jun 2025 | RG-012 | Money out | Advance – Aman Randhawa A/c | PNB Savings A/c (farm) | 90,000 | Labour money to Aman Randhawa |
 | 20 Jun 2025 | RG-013 | Money in | PNB Savings A/c (farm) | Capital A/c – Randhawa Joint Family | 80,000 | Put in by the joint family for the paddy nursery and theka |
-| 25 Jun 2025 | RG-014 | Took on credit — no money moved | Fertiliser & Sprays A/c | Sandhu Fertilisers A/c | 78,000 | Urea and DAP for paddy on khata |
+| 25 Jun 2025 | RG-014 | Took on credit — no money moved | Fertiliser & Sprays A/c | Sandhu Fertilisers A/c | 78,000 | Urea and DAP for paddy on credit |
 | 15 Jul 2025 | RG-015 | Advance settled — no money moved | Labour A/c | Advance – Aman Randhawa A/c | 88,600 | Aman Randhawa's labour slips set against his advance |
 | 25 Jul 2025 | RG-016 | Money out | Diesel & Repairs A/c | KCC – PNB A/c | 24,600 | Diesel and puddler repairs, paid from the KCC |
 | 02 Aug 2025 | RG-017 | Money in | PNB Savings A/c (farm) | Straw & PM-Kisan Income A/c | 6,000 | PM-Kisan instalments, three |
-| 20 Aug 2025 | RG-018 | Took on credit — no money moved | Fertiliser & Sprays A/c | Sandhu Fertilisers A/c | 36,500 | Sprays for paddy on khata |
+| 20 Aug 2025 | RG-018 | Took on credit — no money moved | Fertiliser & Sprays A/c | Sandhu Fertilisers A/c | 36,500 | Sprays for paddy on credit |
 | 10 Sep 2025 | RG-019 | Money out | Cattle Feed & Vet A/c | PNB Savings A/c (farm) | 34,600 | Cattle feed and fodder, and the vet |
 | 30 Sep 2025 | RG-020 | Money out | Interest on KCC A/c | KCC – PNB A/c | 9,850 | Interest charged by the bank to the KCC (half-year) |
 | 30 Sep 2025 | RG-021 | Gave on credit — no money moved | Verka Milk Society A/c | Milk Sales A/c | 1,22,400 | Milk to Verka Milk Society, April–September (ten-day bills) |
@@ -433,11 +433,11 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 31 Oct 2025 | RG-026 | Advance settled — no money moved | Labour A/c | Advance – Aman Randhawa A/c | 61,400 | Aman Randhawa's labour slips set against his advance |
 | 03 Nov 2025 | RG-027 | Transfer | PNB Savings A/c (farm) | KCC – PNB A/c | 1,50,000 | Money drawn on the KCC for wheat sowing |
 | 06 Nov 2025 | RG-028 | Money out | Seed A/c | PNB Savings A/c (farm) | 46,000 | Wheat seed |
-| 10 Nov 2025 | RG-029 | Took on credit — no money moved | Fertiliser & Sprays A/c | Sandhu Fertilisers A/c | 84,000 | DAP and urea for wheat on khata |
+| 10 Nov 2025 | RG-029 | Took on credit — no money moved | Fertiliser & Sprays A/c | Sandhu Fertilisers A/c | 84,000 | DAP and urea for wheat on credit |
 | 14 Nov 2025 | RG-030 | Money in | PNB Savings A/c (farm) | Bansal & Sons A/c | 9,00,000 | Bansal & Sons paid most of the paddy money |
 | 17 Nov 2025 | RG-031 | Transfer | KCC – PNB A/c | PNB Savings A/c (farm) | 2,00,000 | KCC paid back from the paddy money |
 | 25 Nov 2025 | RG-032 | Money out | Drawings A/c – Randhawa Joint Family | PNB Savings A/c (farm) | 3,50,000 | Paddy money sent home to the joint family |
-| 01 Dec 2025 | RG-033 | Money out | Sandhu Fertilisers A/c | PNB Savings A/c (farm) | 1,14,500 | Sandhu Fertilisers paid — paddy season khata |
+| 01 Dec 2025 | RG-033 | Money out | Sandhu Fertilisers A/c | PNB Savings A/c (farm) | 1,14,500 | Sandhu Fertilisers paid — paddy season's account |
 | 19 Dec 2025 | RG-034 | Money in | PNB Savings A/c (farm) | Bansal & Sons A/c | 2,17,935 | Bansal & Sons paid the rest of the paddy money |
 | 20 Jan 2026 | RG-035 | Money out | Fertiliser & Sprays A/c | PNB Savings A/c (farm) | 9,800 | Tractor tyre repair |
 | 28 Jan 2026 | RG-036 | Correction — no money moved | Diesel & Repairs A/c | Fertiliser & Sprays A/c | 9,800 | Entry RG-035 of 20 Jan 2026 (tractor tyre) was written to Fertiliser & Sprays — moved to Diesel & Repairs |
@@ -465,7 +465,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 02 May 2025 | RG-005 | By KCC – PNB A/c<br><em>KCC paid back from the wheat money</em> | — | — | — | 3,20,000 | 6,000 | 6,11,100 |
 | 06 May 2025 | RG-006 | By Drawings A/c – Randhawa Joint Family<br><em>Wheat money sent home to the joint family</em> | — | — | — | 4,00,000 | 6,000 | 2,11,100 |
 | 10 May 2025 | RG-007 | To Straw & PM-Kisan Income A/c<br><em>Wheat straw sold</em> | — | 18,000 | — | — | 6,000 | 2,29,100 |
-| 20 May 2025 | RG-008 | By Sandhu Fertilisers A/c<br><em>Sandhu Fertilisers paid — last season's khata</em> | — | — | — | 26,500 | 6,000 | 2,02,600 |
+| 20 May 2025 | RG-008 | By Sandhu Fertilisers A/c<br><em>Sandhu Fertilisers paid — last season's account</em> | — | — | — | 26,500 | 6,000 | 2,02,600 |
 | 31 May 2025 |  | **Month total — May 2025 · closing balance** | **0** | **18,000** | **0** | **7,46,500** | **6,000** | **2,02,600** |
 | 04 Jun 2025 | RG-009 | To KCC – PNB A/c<br><em>Money drawn on the KCC for the paddy season</em> | — | 2,00,000 | — | — | 6,000 | 4,02,600 |
 | 05 Jun 2025 | RG-010 | By Theka (Land Lease) A/c<br><em>Theka for 6 acres for the year (₹40,000 an acre)</em> | — | — | — | 2,40,000 | 6,000 | 1,62,600 |
@@ -486,7 +486,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 | 17 Nov 2025 | RG-031 | By KCC – PNB A/c<br><em>KCC paid back from the paddy money</em> | — | — | — | 2,00,000 | 6,000 | 9,56,400 |
 | 25 Nov 2025 | RG-032 | By Drawings A/c – Randhawa Joint Family<br><em>Paddy money sent home to the joint family</em> | — | — | — | 3,50,000 | 6,000 | 6,06,400 |
 | 30 Nov 2025 |  | **Month total — November 2025 · closing balance** | **0** | **10,50,000** | **0** | **5,96,000** | **6,000** | **6,06,400** |
-| 01 Dec 2025 | RG-033 | By Sandhu Fertilisers A/c<br><em>Sandhu Fertilisers paid — paddy season khata</em> | — | — | — | 1,14,500 | 6,000 | 4,91,900 |
+| 01 Dec 2025 | RG-033 | By Sandhu Fertilisers A/c<br><em>Sandhu Fertilisers paid — paddy season's account</em> | — | — | — | 1,14,500 | 6,000 | 4,91,900 |
 | 19 Dec 2025 | RG-034 | To Bansal & Sons A/c<br><em>Bansal & Sons paid the rest of the paddy money</em> | — | 2,17,935 | — | — | 6,000 | 7,09,835 |
 | 31 Dec 2025 |  | **Month total — December 2025 · closing balance** | **0** | **2,17,935** | **0** | **1,14,500** | **6,000** | **7,09,835** |
 | 20 Jan 2026 | RG-035 | By Fertiliser & Sprays A/c<br><em>Tractor tyre repair</em> | — | — | — | 9,800 | 6,000 | 7,00,035 |
@@ -502,7 +502,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 
 *Randhawa Real Estate · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank, card or deposit), *Gave on credit* / *Took on credit* (a khata entry with a person or shop — no money moved yet), *Advance settled* (an advance accounted for against the bills), *Paid by a partner* (a partner paid from his own pocket), *Paid by the joint family* (the family paid a household's bill), *Settled at year end* (a sub-family account squared for the year), *Paid from a fund* (one action: the cost is charged to the year and the same amount is transferred from the fund), *Interest added to a deposit* (the bank added it; no money moved), *Written off* (a balance known not to come back, charged to an expense head), *Deposit set off* (a deposit held used against what the same person owes) and *Deposit forfeited* (a deposit kept as income), *Retention released* (money a customer held back, now due), *Correction* (an earlier entry put right — its note names the entry and its date) and *Fix / Adjust* (no money moved). An entry that moves no money in or out of cash, bank, card or wallet is marked *no money moved*. An entry with more than one account on a side shows each account with its amount.
+In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank, card or deposit), *Gave on credit* / *Took on credit* (credit given to or taken from a person or shop — no money moved yet), *Advance settled* (an advance accounted for against the bills), *Paid by a partner* (a partner paid from his own pocket), *Paid by the joint family* (the family paid a household's bill), *Settled at year end* (a sub-family account squared for the year), *Paid from a fund* (one action: the cost is charged to the year and the same amount is transferred from the fund), *Interest added to a deposit* (the bank added it; no money moved), *Written off* (a balance known not to come back, charged to an expense head), *Deposit set off* (a deposit held used against what the same person owes) and *Deposit forfeited* (a deposit kept as income), *Retention released* (money a customer held back, now due), *Correction* (an earlier entry put right — its note names the entry and its date) and *Fix / Adjust* (no money moved). An entry that moves no money in or out of cash, bank, card or wallet is marked *no money moved*. An entry with more than one account on a side shows each account with its amount.
 
 | Date | No. | Type | Debit (Dr) | Credit (Cr) | Amount ₹ | What happened |
 |:---|:---|:---|:---|:---|---:|:---|
@@ -586,7 +586,7 @@ Every receipt and every payment of cash and of the bank, with the note of each e
 
 *Randhawa Brick Field · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank, card or deposit), *Gave on credit* / *Took on credit* (a khata entry with a person or shop — no money moved yet), *Advance settled* (an advance accounted for against the bills), *Paid by a partner* (a partner paid from his own pocket), *Paid by the joint family* (the family paid a household's bill), *Settled at year end* (a sub-family account squared for the year), *Paid from a fund* (one action: the cost is charged to the year and the same amount is transferred from the fund), *Interest added to a deposit* (the bank added it; no money moved), *Written off* (a balance known not to come back, charged to an expense head), *Deposit set off* (a deposit held used against what the same person owes) and *Deposit forfeited* (a deposit kept as income), *Retention released* (money a customer held back, now due), *Correction* (an earlier entry put right — its note names the entry and its date) and *Fix / Adjust* (no money moved). An entry that moves no money in or out of cash, bank, card or wallet is marked *no money moved*. An entry with more than one account on a side shows each account with its amount.
+In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank, card or deposit), *Gave on credit* / *Took on credit* (credit given to or taken from a person or shop — no money moved yet), *Advance settled* (an advance accounted for against the bills), *Paid by a partner* (a partner paid from his own pocket), *Paid by the joint family* (the family paid a household's bill), *Settled at year end* (a sub-family account squared for the year), *Paid from a fund* (one action: the cost is charged to the year and the same amount is transferred from the fund), *Interest added to a deposit* (the bank added it; no money moved), *Written off* (a balance known not to come back, charged to an expense head), *Deposit set off* (a deposit held used against what the same person owes) and *Deposit forfeited* (a deposit kept as income), *Retention released* (money a customer held back, now due), *Correction* (an earlier entry put right — its note names the entry and its date) and *Fix / Adjust* (no money moved). An entry that moves no money in or out of cash, bank, card or wallet is marked *no money moved*. An entry with more than one account on a side shows each account with its amount.
 
 | Date | No. | Type | Debit (Dr) | Credit (Cr) | Amount ₹ | What happened |
 |:---|:---|:---|:---|:---|---:|:---|
@@ -595,12 +595,12 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 25 Apr 2025 | RK-003 | Money out | Jindal Coal Depot A/c | HDFC Bank Current A/c | 95,000 | Jindal Coal Depot paid — last season's balance |
 | 30 Apr 2025 | RK-004 | Money in | Cash A/c | Brick Sales A/c | 2,96,000 | Bricks sold for cash at the kiln this month |
 | 02 May 2025 | RK-005 | Transfer | HDFC Bank Current A/c | Cash A/c | 2,80,000 | Kiln cash deposited |
-| 20 May 2025 | RK-006 | Gave on credit — no money moved | Sidhu Builders A/c | Brick Sales A/c | 3,12,000 | Bricks on khata — trolleys delivered this month |
+| 20 May 2025 | RK-006 | Gave on credit — no money moved | Sidhu Builders A/c | Brick Sales A/c | 3,12,000 | Bricks on credit — trolleys delivered this month |
 | 28 May 2025 | RK-007 | Money out | Loading & Transport A/c | Cash A/c | 26,000 | Loading and trolley hire, April–May, cash |
 | 31 May 2025 | RK-008 | Money in | Cash A/c | Brick Sales A/c | 3,24,000 | Bricks sold for cash at the kiln this month |
 | 02 Jun 2025 | RK-009 | Transfer | HDFC Bank Current A/c | Cash A/c | 3,10,000 | Kiln cash deposited |
 | 10 Jun 2025 | RK-010 | Money out | Moulding Labour A/c | Cash A/c | 3,400 | Kiln office electricity bill, cash |
-| 25 Jun 2025 | RK-011 | Gave on credit — no money moved | Dhaliwal Contractors A/c | Brick Sales A/c | 2,68,000 | Bricks on khata — trolleys delivered this month |
+| 25 Jun 2025 | RK-011 | Gave on credit — no money moved | Dhaliwal Contractors A/c | Brick Sales A/c | 2,68,000 | Bricks on credit — trolleys delivered this month |
 | 28 Jun 2025 | RK-012 | Advance settled — no money moved | Moulding Labour A/c | Advance – pathera jamadar A/c | 1,48,500 | Bricks moulded, at the agreed rate per thousand, set against the jamadar's advance |
 | 30 Jun 2025 | RK-013 | Correction — no money moved | Repairs & Sundry A/c | Moulding Labour A/c | 3,400 | Entry RK-010 of 10 Jun 2025 (electricity) was written to Moulding Labour — moved to Repairs & Sundry |
 | 04 Jul 2025 | RK-014 | Money in | HDFC Bank Current A/c | Sidhu Builders A/c | 3,12,000 | Sidhu Builders paid for the May bricks |
@@ -614,17 +614,17 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 04 Nov 2025 | RK-022 | Money out | Repairs & Sundry A/c | HDFC Bank Current A/c | 46,000 | Kiln and chimney repairs before firing |
 | 10 Nov 2025 | RK-023 | Money out | Advance – pathera jamadar A/c | HDFC Bank Current A/c | 1,20,000 | Advance to the pathera jamadar for moulding |
 | 12 Nov 2025 | RK-024 | Transfer | Cash A/c | HDFC Bank Current A/c | 20,000 | Cash withdrawn for the kiln (ATM) |
-| 25 Nov 2025 | RK-025 | Took on credit — no money moved | Coal A/c | Jindal Coal Depot A/c | 4,20,000 | Coal from Jindal Coal Depot on khata |
+| 25 Nov 2025 | RK-025 | Took on credit — no money moved | Coal A/c | Jindal Coal Depot A/c | 4,20,000 | Coal from Jindal Coal Depot on credit |
 | 05 Dec 2025 | RK-026 | Paid by a partner — no money moved | Repairs & Sundry A/c | Randhawa Joint Family A/c | 20,000 | Chimney repair paid by Lakhbeer Randhawa from his own money, for the joint family's share |
 | 26 Dec 2025 | RK-027 | Money out | Jindal Coal Depot A/c | HDFC Bank Current A/c | 4,20,000 | Jindal Coal Depot paid — November coal |
 | 31 Dec 2025 | RK-028 | Advance settled — no money moved | Moulding Labour A/c | Advance – pathera jamadar A/c | 1,16,000 | Bricks moulded, at the agreed rate per thousand, set against the jamadar's advance |
 | 05 Jan 2026 | RK-029 | Money out | Advance – pathera jamadar A/c | HDFC Bank Current A/c | 1,40,000 | Advance to the pathera jamadar for moulding |
-| 28 Jan 2026 | RK-030 | Took on credit — no money moved | Coal A/c | Jindal Coal Depot A/c | 3,65,000 | Coal from Jindal Coal Depot on khata |
-| 28 Feb 2026 | RK-031 | Gave on credit — no money moved | Sidhu Builders A/c | Brick Sales A/c | 2,44,000 | Bricks on khata — trolleys delivered this month |
+| 28 Jan 2026 | RK-030 | Took on credit — no money moved | Coal A/c | Jindal Coal Depot A/c | 3,65,000 | Coal from Jindal Coal Depot on credit |
+| 28 Feb 2026 | RK-031 | Gave on credit — no money moved | Sidhu Builders A/c | Brick Sales A/c | 2,44,000 | Bricks on credit — trolleys delivered this month |
 | 16 Mar 2026 | RK-032 | Money in | HDFC Bank Current A/c | Sidhu Builders A/c | 1,60,000 | Sidhu Builders paid part of the February bricks |
 | 20 Mar 2026 | RK-033 | Money out | Randhawa Joint Family A/c | HDFC Bank Current A/c | 1,80,000 | Taken out by the joint family |
 | 22 Mar 2026 | RK-034 | Money out | Nirmaljeet Gill A/c | HDFC Bank Current A/c | 1,20,000 | Taken out by Nirmaljeet Gill (entered on his instruction) |
-| 25 Mar 2026 | RK-035 | Gave on credit — no money moved | Dhaliwal Contractors A/c | Brick Sales A/c | 1,96,000 | Bricks on khata — trolleys delivered this month |
+| 25 Mar 2026 | RK-035 | Gave on credit — no money moved | Dhaliwal Contractors A/c | Brick Sales A/c | 1,96,000 | Bricks on credit — trolleys delivered this month |
 | 28 Mar 2026 | RK-036 | Money out | Loading & Transport A/c | Cash A/c | 21,500 | Loading and trolley hire, February–March, cash |
 | 30 Mar 2026 | RK-037 | Advance settled — no money moved | Moulding Labour A/c | Advance – pathera jamadar A/c | 1,42,400 | Bricks moulded, at the agreed rate per thousand, set against the jamadar's advance |
 | 31 Mar 2026 | RK-038 | Money in | Cash A/c | Brick Sales A/c | 1,98,000 | Bricks sold for cash at the kiln this month |

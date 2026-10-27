@@ -138,7 +138,7 @@ Follows the scenario table in 06 §5 verbatim. Key screens: **Link with old phon
 | Took on credit | **WHAT DID YOU TAKE** — expense category, or chips | **FROM WHOM** — party *(leads the screen)* |
 | Transfer | **FROM** — chips | **TO** — chips |
 
-🔒 The chip row shows the three most-used money accounts plus **+ More** for the full list; it is **absent entirely** when no money account is involved (milk on khata: `Dr Milk Expense · Cr Vardhman Dairy`). **No chip is pre-selected** — the single-screen rule below governs (ADR 2026-09-05f §C).
+🔒 The chip row shows the three most-used money accounts plus **+ More** for the full list; it is **absent entirely** when no money account is involved (milk on credit: `Dr Milk Expense · Cr Vardhman Dairy`). **No chip is pre-selected** — the single-screen rule below governs (ADR 2026-09-05f §C).
 3. **Slot B** (per the table above): **a full screen, not a sheet** — recents and favourites fill it, search at the bottom; **inline create** per 02 §1.2 (*"+ Create 'Langar' A/C"*, class inferred from slot, the one two-chip question only when the slot is ambiguous). ⟦tests: F1-07-55⟧
 4. **Date chip — `Today`** 🔒: tap → calendar; any date in an open period selectable (backdating); **future dates disabled** (tooltip: *"Use a recurring entry for future dates"*); locked dates shown 🔒-greyed — tapping one explains the lock and offers ***Fix an old entry*** (reversal flow, 02 §5). Never a dead error. ⟦tests: F1-07-58⟧
 5. Optional row: note · 📷 bill photo (camera-first, auto-compress) · channel tag (Cash/UPI/Card/Bank ⚠️ finalize taxonomy).

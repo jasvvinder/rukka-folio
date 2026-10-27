@@ -8,7 +8,7 @@ An export, not part of the printed book: the Day Book and the Cash Book, which c
 
 *Sukhwinder Sales Co. · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank, card or deposit), *Gave on credit* / *Took on credit* (a khata entry with a person or shop — no money moved yet), *Advance settled* (an advance accounted for against the bills), *Paid by a partner* (a partner paid from his own pocket), *Paid by the joint family* (the family paid a household's bill), *Settled at year end* (a sub-family account squared for the year), *Paid from a fund* (one action: the cost is charged to the year and the same amount is transferred from the fund), *Interest added to a deposit* (the bank added it; no money moved), *Written off* (a balance known not to come back, charged to an expense head), *Deposit set off* (a deposit held used against what the same person owes) and *Deposit forfeited* (a deposit kept as income), *Retention released* (money a customer held back, now due), *Correction* (an earlier entry put right — its note names the entry and its date) and *Fix / Adjust* (no money moved). An entry that moves no money in or out of cash, bank, card or wallet is marked *no money moved*. An entry with more than one account on a side shows each account with its amount.
+In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank, card or deposit), *Gave on credit* / *Took on credit* (credit given to or taken from a person or shop — no money moved yet), *Advance settled* (an advance accounted for against the bills), *Paid by a partner* (a partner paid from his own pocket), *Paid by the joint family* (the family paid a household's bill), *Settled at year end* (a sub-family account squared for the year), *Paid from a fund* (one action: the cost is charged to the year and the same amount is transferred from the fund), *Interest added to a deposit* (the bank added it; no money moved), *Written off* (a balance known not to come back, charged to an expense head), *Deposit set off* (a deposit held used against what the same person owes) and *Deposit forfeited* (a deposit kept as income), *Retention released* (money a customer held back, now due), *Correction* (an earlier entry put right — its note names the entry and its date) and *Fix / Adjust* (no money moved). An entry that moves no money in or out of cash, bank, card or wallet is marked *no money moved*. An entry with more than one account on a side shows each account with its amount.
 
 | Date | No. | Type | Debit (Dr) | Credit (Cr) | Amount ₹ | What happened |
 |:---|:---|:---|:---|:---|---:|:---|
@@ -18,12 +18,12 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 25 Apr 2025 | S-004 | Money out | Jaquar Sanitary Agency A/c | PNB Current A/c | 46,500 | Jaquar Sanitary Agency paid — opening balance |
 | 10 May 2025 | S-005 | Money out | Drawings A/c – Sukhwinder Bal | PNB Current A/c | 60,000 | Drawings for the household |
 | 16 May 2025 | S-006 | Money out | Freight & Cartage A/c | Cash A/c | 4,600 | Cartage of the Jaquar consignment, cash |
-| 20 May 2025 | S-007 | Took on credit — no money moved | Goods Bought for Sale A/c | Jaquar Sanitary Agency A/c | 1,18,600 | Sanitary ware from Jaquar Sanitary Agency on khata |
+| 20 May 2025 | S-007 | Took on credit — no money moved | Goods Bought for Sale A/c | Jaquar Sanitary Agency A/c | 1,18,600 | Sanitary ware from Jaquar Sanitary Agency on credit |
 | 06 Jun 2025 | S-008 | Money in | PNB Current A/c | Dhillon Plumbing Works A/c | 50,000 | Advance from Dhillon Plumbing Works against a hotel job |
 | 30 Jun 2025 | S-009 | Money in | Cash A/c | Sales A/c | 3,86,000 | Counter sales in cash, April–June 2025 (from the daily cash memo book) |
 | 30 Jun 2025 | S-010 | Transfer | PNB Current A/c | Cash A/c | 3,82,000 | Counter cash deposited in the bank |
-| 30 Jun 2025 | S-011 | Gave on credit — no money moved | Guru Nanak Builders A/c | Sales A/c | 2,38,000 | Goods to Guru Nanak Builders on khata, April–June 2025 |
-| 30 Jun 2025 | S-012 | Took on credit — no money moved | Goods Bought for Sale A/c | Supreme Pipes Ltd A/c | 3,34,000 | Pipes and fittings from Supreme Pipes on khata, April–June 2025 |
+| 30 Jun 2025 | S-011 | Gave on credit — no money moved | Guru Nanak Builders A/c | Sales A/c | 2,38,000 | Goods to Guru Nanak Builders on credit, April–June 2025 |
+| 30 Jun 2025 | S-012 | Took on credit — no money moved | Goods Bought for Sale A/c | Supreme Pipes Ltd A/c | 3,34,000 | Pipes and fittings from Supreme Pipes on credit, April–June 2025 |
 | 30 Jun 2025 | S-013 | Money out | Salary A/c | PNB Current A/c | 54,000 | Salary of Manpreet Kaur, April–June 2025 |
 | 03 Jul 2025 | S-014 | Money out | Shop Rent A/c | PNB Current A/c | 45,000 | Shop rent, July–September 2025 |
 | 04 Jul 2025 | S-015 | Gave on credit — no money moved | Dhillon Plumbing Works A/c | Sales A/c | 86,500 | Pipes and fittings to Dhillon Plumbing Works for the hotel job |
@@ -37,21 +37,21 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 06 Sep 2025 | S-023 | Correction — no money moved | Freight & Cartage A/c | Goods Bought for Sale A/c | 3,200 | Entry S-022 of 30 Aug 2025 (tempo hire) was written to Goods Bought for Sale — moved to Freight & Cartage |
 | 30 Sep 2025 | S-024 | Money in | Cash A/c | Sales A/c | 3,42,500 | Counter sales in cash, July–September 2025 (from the daily cash memo book) |
 | 30 Sep 2025 | S-025 | Transfer | PNB Current A/c | Cash A/c | 3,36,500 | Counter cash deposited in the bank |
-| 30 Sep 2025 | S-026 | Gave on credit — no money moved | Guru Nanak Builders A/c | Sales A/c | 2,14,500 | Goods to Guru Nanak Builders on khata, July–September 2025 |
-| 30 Sep 2025 | S-027 | Took on credit — no money moved | Goods Bought for Sale A/c | Supreme Pipes Ltd A/c | 3,01,500 | Pipes and fittings from Supreme Pipes on khata, July–September 2025 |
+| 30 Sep 2025 | S-026 | Gave on credit — no money moved | Guru Nanak Builders A/c | Sales A/c | 2,14,500 | Goods to Guru Nanak Builders on credit, July–September 2025 |
+| 30 Sep 2025 | S-027 | Took on credit — no money moved | Goods Bought for Sale A/c | Supreme Pipes Ltd A/c | 3,01,500 | Pipes and fittings from Supreme Pipes on credit, July–September 2025 |
 | 30 Sep 2025 | S-028 | Money out | Salary A/c | Advance – Manpreet Kaur A/c ₹10,000<br>PNB Current A/c ₹44,000 | 54,000 | Salary of Manpreet Kaur, July–September 2025 — ₹10,000 of it recovered from her advance, the rest paid |
 | 03 Oct 2025 | S-029 | Money out | Shop Rent A/c | PNB Current A/c | 45,000 | Shop rent, October–December 2025 |
 | 09 Oct 2025 | S-030 | Money out | Supreme Pipes Ltd A/c | PNB Current A/c | 3,01,500 | Supreme Pipes paid — goods of July–September 2025 |
 | 22 Oct 2025 | S-031 | Money in | PNB Current A/c | Guru Nanak Builders A/c | 2,14,500 | Guru Nanak Builders paid for the goods of July–September 2025 (late) |
 | 03 Nov 2025 | S-032 | Transfer | Cash A/c | PNB Current A/c | 15,000 | Cash withdrawn for change and small payments (ATM) |
 | 10 Nov 2025 | S-033 | Money out | Drawings A/c – Sukhwinder Bal | PNB Current A/c | 60,000 | Drawings for the household |
-| 18 Nov 2025 | S-034 | Took on credit — no money moved | Goods Bought for Sale A/c | Jaquar Sanitary Agency A/c | 1,26,400 | Sanitary ware from Jaquar Sanitary Agency on khata |
+| 18 Nov 2025 | S-034 | Took on credit — no money moved | Goods Bought for Sale A/c | Jaquar Sanitary Agency A/c | 1,26,400 | Sanitary ware from Jaquar Sanitary Agency on credit |
 | 26 Nov 2025 | S-035 | Money out | Shop Fittings & Counter A/c | PNB Current A/c | 38,000 | New display rack for sanitary ware — thing owned, at cost |
 | 11 Dec 2025 | S-036 | Gave on credit — no money moved | Dhillon Plumbing Works A/c | Sales A/c | 42,800 | Sanitary ware to Dhillon Plumbing Works |
 | 31 Dec 2025 | S-037 | Money in | Cash A/c | Sales A/c | 4,12,000 | Counter sales in cash, October–December 2025 (from the daily cash memo book) |
 | 31 Dec 2025 | S-038 | Transfer | PNB Current A/c | Cash A/c | 4,06,000 | Counter cash deposited in the bank |
-| 31 Dec 2025 | S-039 | Gave on credit — no money moved | Guru Nanak Builders A/c | Sales A/c | 2,56,000 | Goods to Guru Nanak Builders on khata, October–December 2025 |
-| 31 Dec 2025 | S-040 | Took on credit — no money moved | Goods Bought for Sale A/c | Supreme Pipes Ltd A/c | 3,52,000 | Pipes and fittings from Supreme Pipes on khata, October–December 2025 |
+| 31 Dec 2025 | S-039 | Gave on credit — no money moved | Guru Nanak Builders A/c | Sales A/c | 2,56,000 | Goods to Guru Nanak Builders on credit, October–December 2025 |
+| 31 Dec 2025 | S-040 | Took on credit — no money moved | Goods Bought for Sale A/c | Supreme Pipes Ltd A/c | 3,52,000 | Pipes and fittings from Supreme Pipes on credit, October–December 2025 |
 | 31 Dec 2025 | S-041 | Money out | Salary A/c | PNB Current A/c | 54,000 | Salary of Manpreet Kaur, October–December 2025 |
 | 31 Dec 2025 | S-042 | Money out | Cash short / over A/c | Cash A/c | 1,150 | Counter cash counted ₹1,150 less than the cash book — charged to Cash short / over |
 | 03 Jan 2026 | S-043 | Money out | Shop Rent A/c | PNB Current A/c | 45,000 | Shop rent, January–March 2026 |
@@ -63,8 +63,8 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 19 Feb 2026 | S-049 | Money out | Electricity & Phone A/c | PNB Current A/c | 17,200 | Shop electricity and phone, September–January |
 | 31 Mar 2026 | S-050 | Money in | Cash A/c | Sales A/c | 3,98,500 | Counter sales in cash, January–March 2026 (from the daily cash memo book) |
 | 31 Mar 2026 | S-051 | Transfer | PNB Current A/c | Cash A/c | 3,92,500 | Counter cash deposited in the bank |
-| 31 Mar 2026 | S-052 | Gave on credit — no money moved | Guru Nanak Builders A/c | Sales A/c | 2,47,000 | Goods to Guru Nanak Builders on khata, January–March 2026 |
-| 31 Mar 2026 | S-053 | Took on credit — no money moved | Goods Bought for Sale A/c | Supreme Pipes Ltd A/c | 3,38,000 | Pipes and fittings from Supreme Pipes on khata, January–March 2026 |
+| 31 Mar 2026 | S-052 | Gave on credit — no money moved | Guru Nanak Builders A/c | Sales A/c | 2,47,000 | Goods to Guru Nanak Builders on credit, January–March 2026 |
+| 31 Mar 2026 | S-053 | Took on credit — no money moved | Goods Bought for Sale A/c | Supreme Pipes Ltd A/c | 3,38,000 | Pipes and fittings from Supreme Pipes on credit, January–March 2026 |
 | 31 Mar 2026 | S-054 | Money out | Salary A/c | PNB Current A/c | 54,000 | Salary of Manpreet Kaur, January–March 2026 |
 | 31 Mar 2026 | S-055 | Money out | Bank Charges & Sundry A/c | PNB Current A/c | 1,180 | Bank charges for the year |
 | 31 Mar 2026 | S-056 | Money in | Cash A/c | Cash short / over A/c | 300 | Counter cash counted ₹300 more than the cash book — got back to Cash short / over |

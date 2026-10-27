@@ -10,7 +10,7 @@ The accounting rules are written down in five short documents. **Five reference 
 
 Please check that **the rules and the books shown are right**: right entries, right figures, right words, and how a working bookkeeper would keep them. You are not asked to write a rule for every case. In the app, the user opens their own accounts and chooses which one an entry is from and which one it goes to. The documents give the kinds of account and worked entries, not a rule for every situation.
 
-In the app, every line of a bank statement is imported as its own entry. Before anything is posted, the user answers one question for each line (*where did it come from?* or *where did it go?*) by choosing the account, can add a note of their own, and sees every entry in a preview before submitting (07 §11). Entries with no bank line, such as cash paid or goods on khata, are typed by hand as they happen.
+In the app, every line of a bank statement is imported as its own entry. Before anything is posted, the user answers one question for each line (*where did it come from?* or *where did it go?*) by choosing the account, can add a note of their own, and sees every entry in a preview before submitting (07 §11). Entries with no bank line, such as cash paid or goods on credit, are typed by hand as they happen.
 
 Before this pack, a review panel read every document and every book: a chartered accountant, a munim, a specialist in partnerships, joint families and trusts, and an auditor who re-derived every figure. Every finding was put to another panel member to refute. What survived was fixed. The questions below are the points the panel could not settle from the textbooks, because they depend on practice.
 
@@ -112,22 +112,17 @@ The owner ruled that these are entries to be put right where needed, not rules: 
 | D5 | Individual JP-018, JP-039 | The cumulative FD pays deposit and interest together at maturity (₹1,00,000 + ₹7,186). The other deposit is credited ₹7,200 of yearly interest. |
 | D7 | Joint family RJ-037 ↔ RB-028 | Lakhbeer pays back the last ₹30,000 of his udhaar by bank on 24 Mar 2026. Nothing is shared out to one brother only. |
 | D14 | Partnership BF-040, BF-048, BF-050 | Retention is released for the whole job: half (₹24,500 of ₹49,000) when the staircases are handed over after the final bill, the rest held for the defect period. |
+| D13 | Partnership, partners' table and full position on 31 Mar 2026 | Harjeet Singh's current account ends ₹3,940 Dr after the year close. Each partner's capital account and current account now stand under own money at their own balances, and Harjeet's ₹3,940 Dr is shown under *What I have* as money he owes the firm, not netted against his capital (owner, 27 Oct 2026; 04 §5.8, §6.5; NCERT Class 12 Part I ch. 1 §1.4(a)). |
 | — | D6, D8, D9, D10, D11, D12 | Kept as they are. These are the family's or the user's own choice of account or way (D6, D8, D9, D10, D12), or follow the owner's ruling that money a business sends home is the family's income (D11). |
 
-**Still asked:**
-
-| # | Where | Question | What the panel thinks practice is |
-|---|---|---|---|
-| D13 | Partnership, partners' table and position | Harjeet Singh's current account ends ₹3,940 Dr. The partners' table shows it, but the own-money make-up nets it into "capital and current account ₹1,46,060". Show it on the assets side instead? | Show the debit current account as an asset. |
-
-Answers: ______
+Where practice differs (by number): ______
 
 ## Already decided — for information, not asked
 
-- **The books are compact by design** (owner, 26 Oct 2026). To keep each book to about 50 entries, a recurring item is written once for a quarter or a half-year: a quarter's wages (JP-010, JT-011, BF-012), a half-year's groceries or milk on khata (JP-020, RJ-016), a quarter's counter sales (S-009), electricity for several months (BF-024), bank charges and interest once a year (S-055, RS-053). The note on each says what period it covers. The books show each kind of entry and every report done correctly; they do not show how often an entry recurs, and a month report from them will show months with no wages or groceries. Please judge each entry as a kind of entry, not as a record of how often it happens.
+- **The books are compact by design** (owner, 26 Oct 2026). To keep each book to about 50 entries, a recurring item is written once for a quarter or a half-year: a quarter's wages (JP-010, JT-011, BF-012), a half-year's groceries or milk on credit (JP-020, RJ-016), a quarter's counter sales (S-009), electricity for several months (BF-024), bank charges and interest once a year (S-055, RS-053). The note on each says what period it covers. The books show each kind of entry and every report done correctly; they do not show how often an entry recurs, and a month report from them will show months with no wages or groceries. Please judge each entry as a kind of entry, not as a record of how often it happens.
 - Corrected before this review: the trust's bank is a savings account, since a current account earns no interest (RS-053); the gollak count of 30 Sep is deposited on 3 Oct, not on 2 Oct, a bank holiday (RS-027). The build now refuses a cash deposit on a day the branch is shut.
 - Ruled by the owner: wages are entered in the month paid; the year runs April–March; the head for a debt that will not come back is *Written off*; a household's gollak is its own cash; a dealer's cost of selling is its own expense (A8).
-- Treated as the user's choice of accounts, not rules: an interest-bearing loan from a relative on its own page; an old asset opened at cost or at today's value; members' subscription pages in a committee; a bad debt recovered; the arhtiya's running khata; trip money spent without bills; EMI split; kameti / BC; cheques in hand; KCC renewal; cumulative FD interest; a supplier advance in the who-owes list. The documents show one worked way; the user may open other accounts.
+- Treated as the user's choice of accounts, not rules: an interest-bearing loan from a relative on its own page; an old asset opened at cost or at today's value; members' subscription pages in a committee; a bad debt recovered; the arhtiya's running account; trip money spent without bills; EMI split; kameti / BC; cheques in hand; KCC renewal; cumulative FD interest; a supplier advance in the who-owes list. The documents show one worked way; the user may open other accounts.
 
 ## Sign-off
 

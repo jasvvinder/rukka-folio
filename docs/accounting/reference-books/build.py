@@ -195,7 +195,7 @@ APP_VERB = {
     "Journal (written off)": "write-off to an expense head (O-06-5, O-12-1, O-18-5): Dr Written off · Cr the account — see GAPS A5",
     "Journal (set off)": "deposit held set off against what the same person owes (O-09-8, O-12-2): Dr deposit held · Cr the person — see GAPS A5",
     "Journal (deposit forfeited)": "deposit held kept as income (O-09-8, O-18-3): Dr deposit held · Cr Deposit forfeited — see GAPS A5",
-    "Journal (retention released)": "retention money released by transfer to the party's khata (O-06-4): Dr the person · Cr retention held — see GAPS D2",
+    "Journal (retention released)": "retention money released by transfer to the party's account (O-06-4): Dr the person · Cr retention held — see GAPS D2",
 }
 VTYPES = tuple(PLAIN_VTYPE)
 CONTRA_KINDS = ("cash", "gollak", "bank", "cc")   # 02 §1.3: a contra is cash ↔ bank only
@@ -783,7 +783,7 @@ def daybook_rows(b):
 
 def sec_daybook(b):
     out = ["### 1. Day Book (rojnamcha) — every entry of the year", "", head_line(b.name, "%s to %s" % (fdate(FY_START), fdate(FY_END))), ""]
-    out.append("In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank, card or deposit), *Gave on credit* / *Took on credit* (a khata entry with a person or shop — no money moved yet), "
+    out.append("In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank, card or deposit), *Gave on credit* / *Took on credit* (credit given to or taken from a person or shop — no money moved yet), "
                "*Advance settled* (an advance accounted for against the bills), *Paid by a partner* (a partner paid from his own pocket), *Paid by the joint family* (the family paid a household's bill), "
                "*Settled at year end* (a sub-family account squared for the year), *Paid from a fund* (one action: the cost is charged to the year and the same amount is transferred from the fund), "
                "*Interest added to a deposit* (the bank added it; no money moved), *Written off* (a balance known not to come back, charged to an expense head), "
@@ -1312,6 +1312,7 @@ def sec_balance_sheet(b, result, num):
     pcb = b.post_close_balances()
     assert -sum(pcb[n] for n in b.order if b.accounts[n].is_equity) == own_close, ("post-close own money", b.name)
     eq_rows = []
+    owed_by_partners = 0
     if b.partners:
         out.append("**The partners' accounts at the year end**")
         out.append("")
@@ -1328,11 +1329,22 @@ def sec_balance_sheet(b, result, num):
                 prow.append([p["name"], "Capital" if n == p.get("capital") else "Current" if p.get("capital") else "Partner's account", amt_side(a.opening),
                              fmt(put), fmt(close_cr[0]), fmt(close_cr[1]), fmt(taken), amt_side(-after)])
             after = -b.accounts[p["current"]].closing + i + s
-            eq_rows.append(["%s — %s at the end" % (p["name"], "capital and current account" if p.get("capital") else "partner's account"), fmt(cap + after, show_zero=True)])
+            if not p.get("capital"):
+                eq_rows.append(["%s — partner's account at the end" % p["name"], fmt(after, show_zero=True)])
+                continue
+            # 04 §5.8, §6.5 (owner, 27 Oct 2026, review pack D13): each account at its own balance; a current account
+            # on the Dr side is money the partner owes the firm — under What I have, never netted against his capital
+            eq_rows.append(["%s — capital account at the end" % p["name"], fmt(cap, show_zero=True)])
+            if after >= 0:
+                eq_rows.append(["%s — current account at the end" % p["name"], fmt(after, show_zero=True)])
+            else:
+                asset_rows.append(["%s (Dr — %s owes the firm)" % (p["current"], p["name"]), fmt(-after, show_zero=True)])
+                ta += -after
+                owed_by_partners += -after
         out += table(["Partner", "Account", "Opening ₹", "+ Put in ₹", "+ Interest on capital ₹", "+ Share of profit ₹", "− Drawings ₹", "Closing ₹"],
                      ["l", "l", "r", "r", "r", "r", "r", "r"], prow)
         out.append("")
-        assert sum(int_or(r[1]) for r in eq_rows) == own_close
+        assert sum(int_or(r[1]) for r in eq_rows) - owed_by_partners == own_close
     else:
         label = b.own_word
         eq_rows.append([label + " — at the start, 01 Apr 2025", fmt(start, show_zero=True)])
@@ -1340,7 +1352,7 @@ def sec_balance_sheet(b, result, num):
         eq_rows.append(["Less: %s during the year%s" % (b.taken_word.lower(), b.taken_note), fmt(taken, show_zero=True)])
         eq_rows.append(["%s: %s for the year" % ("Add" if result >= 0 else "Less", result_word(b, result)), fmt(abs(result), show_zero=True)])
         eq_rows.append([bold(label + " — at the end, 31 Mar 2026"), bold(fmt(own_close, show_zero=True))])
-    total_l = tl + own_close
+    total_l = tl + own_close + owed_by_partners
     assert total_l == ta, ("balance sheet", b.name, total_l, ta)
     out.append("**Own money%s, and what I will give**" % (", funds" if fund_rows else ""))
     out.append("")
@@ -1737,7 +1749,8 @@ def to_pdf(chrome, html_path, pdf_path):
 
 FORBIDDEN_IN_PRINT = ["`", "§", "ADR", "⚠", "owner ruling", "build.py", "check_md", "GAPS", "README", "asserted", "equity", "(credit given)", "(credit taken)",
                       "Journal", "Contra", "vector", "money_in", "category_", "Standard type", "Nominal", "non-cash", "Receipt (", "voucher", "Voucher",
-                      "Due to", "Due from", "narration", "accrual", "Vch", "app", "auditor"]
+                      "Due to", "Due from", "narration", "accrual", "Vch", "app", "auditor",
+                      "on khata", "(khata)"]   # khata means an account and nothing else (owner, 27 Oct 2026): credit is *on credit*
 
 
 def lint_plain(md, slug):
@@ -1751,7 +1764,7 @@ def lint_plain(md, slug):
 
 ENTRY_KINDS = [   # (formal voucher type, the kind of entry it is) — in the order the basis line lists them
     ("Receipt", "a bank or cash movement"), ("Payment", "a bank or cash movement"),
-    ("Journal (credit given)", "a khata entry with a named party"), ("Journal (credit taken)", "a khata entry with a named party"),
+    ("Journal (credit given)", "credit with a named party"), ("Journal (credit taken)", "credit with a named party"),
     ("loan", "a loan instalment as the bank paid it"), ("Contra", "a transfer between own accounts"),
     ("Journal (advance settled)", "an advance or its settlement"), ("advance", "an advance or its settlement"),
     ("Journal (paid by partner)", "a partner's own-pocket payment"), ("Journal (paid by family)", "a payment the joint family made for a sub-family"),
@@ -1892,29 +1905,29 @@ def build_individual():
     c = Case("individual-jasvinder-singh", "Individual and own business — Jasvinder Singh and Jasvinder Technologies")
     c.intro = [
         "**Jasvinder Singh** keeps two books. His **personal book** holds the household: a savings account, cash, a credit card, a FASTag wallet, a fixed deposit, two cars (the second bought in October on a car loan "
-        "that the lender paid straight to the dealer), a hand loan to a friend, a driver's advance, a house help's salary advance and a grocer's khata. **Jasvinder Technologies** is his one-owner IT services business: "
-        "clients billed on khata, a hosting supplier on credit, one developer on salary. Money moves between the two books only when he puts money into the business or when the business sends money home for the household — "
+        "that the lender paid straight to the dealer), a hand loan to a friend, a driver's advance, a house help's salary advance and a grocer who gives credit. **Jasvinder Technologies** is his one-owner IT services business: "
+        "clients billed on credit, a hosting supplier on credit, one developer on salary. Money moves between the two books only when he puts money into the business or when the business sends money home for the household — "
         "each time it is written in both books, in accounts named after the other book. What the business sends home is the household's income; the business is held in the personal book at the money put in. Both books are kept from the bank statement.",
     ]
     c.people = [
         ("Jasvinder Singh", "Owner of both books"),
         ("Gurpreet Sandhu", "Friend — borrowed ₹25,000 in May on a small interest, returned ₹15,000 in December; the rest written off in March"),
-        ("Sharma General Store", "Grocer — household khata, settled every six months"),
+        ("Sharma General Store", "Grocer — household groceries on credit, settled every six months"),
         ("Balwinder Singh", "Part-time driver — took ₹15,000 for the family's Vaishno Devi trip in December and accounted for it"),
         ("HDFC Bank", "Car lender — ₹8,00,000 for the second car, paid to the dealer, 60 monthly instalments from 05 Dec 2025"),
-        ("Medtech Solutions · Kaur Exports · Punjab Agro Board", "Clients of the business — billed on khata; Kaur Exports pays in advance once"),
+        ("Medtech Solutions · Kaur Exports · Punjab Agro Board", "Clients of the business — billed on credit; Kaur Exports pays in advance once"),
         ("Cloudnine Hosting", "Hosting supplier — billed quarterly on credit"),
         ("Rohit Verma", "Developer on salary — took a salary advance in August, recovered in his salary"),
     ]
     # ---------------- the business book --------------------------------------------------------
     t = Book("Jasvinder Technologies", "own business book", "JT", "business")
-    t.about = "One-owner business book · IT services · clients on khata · supplier on credit · a developer on salary · the owner's money put in and money sent home, in accounts named after the owner's personal book."
+    t.about = "One-owner business book · IT services · clients on credit · supplier on credit · a developer on salary · the owner's money put in and money sent home, in accounts named after the owner's personal book."
     tc = t.add(Account("Cash A/c", "cash", "Office cash", R(5000)))
     tb = t.add(Account("HDFC Bank Current A/c", "bank", "Business current account", R(320000)))
-    med = t.add(Account("Medtech Solutions A/c", "party", "Client (khata) — monthly support retainer, billed quarterly", R(118000)))
-    kaur = t.add(Account("Kaur Exports A/c", "party", "Client (khata) — website and mobile-application work; paid an advance before the work"))
-    pab = t.add(Account("Punjab Agro Board A/c", "party", "Client (khata) — dashboard project billed in two stages"))
-    cloud = t.add(Account("Cloudnine Hosting A/c", "party", "Supplier (khata) — servers and hosting, billed quarterly", -R(8260)))
+    med = t.add(Account("Medtech Solutions A/c", "party", "Client — monthly support retainer, billed quarterly", R(118000)))
+    kaur = t.add(Account("Kaur Exports A/c", "party", "Client — website and mobile-application work; paid an advance before the work"))
+    pab = t.add(Account("Punjab Agro Board A/c", "party", "Client — dashboard project billed in two stages"))
+    cloud = t.add(Account("Cloudnine Hosting A/c", "party", "Supplier — servers and hosting, billed quarterly", -R(8260)))
     radv = t.add(Account("Advance – Rohit Verma A/c", "advance", "Salary advance to the developer, recovered in his salary"))
     lap = t.add(Account("Laptops & Office Equipment A/c", "fixed", "Laptops, monitors and office equipment at what they cost", R(145000)))
     cap = t.add(Account("Capital A/c – Jasvinder Singh", "capital", "The owner's own money in the business; named after the owner, whose personal book is the other book"))
@@ -1928,7 +1941,7 @@ def build_individual():
     sund = t.add(Account("Office & Sundry A/c", "expense", "Stationery, accountant's fee, bank charges, small items"))
     t.balance_opening_into(cap)
     t.bank_extract = (tb, (2026, 1))
-    t.custom = (kaur, D(2025, 4, 1), D(2026, 3, 31), "One client's khata for the year — an advance before the work (they are owed work), the bill that turned it round, and the payments.")
+    t.custom = (kaur, D(2025, 4, 1), D(2026, 3, 31), "One client's account for the year — an advance before the work (they are owed work), the bill that turned it round, and the payments.")
     q = ["April–June 2025", "July–September 2025", "October–December 2025", "January–March 2026"]
     qe = [D(2025, 6, 30), D(2025, 9, 30), D(2025, 12, 31), D(2026, 3, 31)]
     for k in range(4):
@@ -1969,16 +1982,16 @@ def build_individual():
     t.pay(D(2025, 9, 15), sund, tb, R(9000), "Accountant's fee for the FY 2024-25 books", "UPI DR–CA OFFICE")
     # ---------------- the personal book --------------------------------------------------------
     p = Book("Jasvinder Singh", "personal book", "JP", "household")
-    p.about = "Personal book · savings, cash, credit card, FASTag wallet, fixed deposit, two cars (one on a loan) · grocer's khata, a hand loan to a friend, advances to a driver and the house help · money put into his business, and the business's money sent home as income."
+    p.about = "Personal book · savings, cash, credit card, FASTag wallet, fixed deposit, two cars (one on a loan) · a grocer on credit, a hand loan to a friend, advances to a driver and the house help · money put into his business, and the business's money sent home as income."
     pc = p.add(Account("Cash A/c", "cash", "Cash at home", R(8000)))
     pb = p.add(Account("SBI Savings A/c", "bank", "Savings account — household money", R(185000)))
     tag = p.add(Account("FASTag Wallet A/c", "wallet", "Prepaid toll wallet for the cars — recharged from savings", R(1200)))
     card = p.add(Account("HDFC Credit Card A/c", "card", "Credit card — what is owed on it", -R(12400)))
     fd = p.add(Account("SBI Fixed Deposit A/c", "invest", "Fixed deposits", R(200000)))
     biz = p.add(Account("Jasvinder Technologies A/c", "stake", "Money put into the business, at what was put in; named after the business book"))
-    gur = p.add(Account("Loan to – Gurpreet Sandhu A/c", "loanto", "Hand loan to a friend on a small interest — his own account, apart from any khata"))
-    groc = p.add(Account("Sharma General Store A/c", "party", "Grocer (khata) — what is owed for groceries", -R(3200)))
-    drvp = p.add(Account("Balwinder Singh A/c", "party", "Driver (khata) — what he owes after the trip, to be cut from his pay"))
+    gur = p.add(Account("Loan to – Gurpreet Sandhu A/c", "loanto", "Hand loan to a friend on a small interest — its own account, apart from any running account"))
+    groc = p.add(Account("Sharma General Store A/c", "party", "Grocer — what is owed for groceries", -R(3200)))
+    drvp = p.add(Account("Balwinder Singh A/c", "party", "Driver — what he owes after the trip, to be cut from his pay"))
     hadv = p.add(Account("Advance – house help A/c", "advance", "Salary advance to the house help, recovered in her wages"))
     dadv = p.add(Account("Advance – Balwinder Singh A/c", "advance", "Money with the driver for the trip, accounted for against his bills"))
     car = p.add(Account("Car – Maruti Baleno A/c", "fixed", "The family car at what it cost (2023)", R(640000)))
@@ -2011,9 +2024,9 @@ def build_individual():
     p.pay(D(2025, 6, 16), biz, pb, R(100000), "Put into Jasvinder Technologies for the new laptops", "NEFT DR–JASVINDER TECHNOLOGIES")
     # household
     for d, a, nm in [(D(2025, 9, 30), R(48400), "April–September"), (D(2026, 3, 31), R(49500), "October–March")]:
-        p.took(d, hh, groc, a, "Groceries on khata, %s" % nm)
-    p.pay(D(2025, 4, 5), groc, pc, R(3200), "Grocer's khata of March paid, cash")
-    p.pay(D(2025, 10, 6), groc, pb, R(48400), "Grocer's khata of April–September paid (UPI)", "UPI DR–SHARMA GENERAL STORE")
+        p.took(d, hh, groc, a, "Groceries on credit, %s" % nm)
+    p.pay(D(2025, 4, 5), groc, pc, R(3200), "Grocer's account for March paid, cash")
+    p.pay(D(2025, 10, 6), groc, pb, R(48400), "Grocer's account for April–September paid (UPI)", "UPI DR–SHARMA GENERAL STORE")
     for d, a in [(D(2025, 7, 21), R(15500)), (D(2026, 1, 21), R(14200))]:
         p.pay(d, util, pb, a, "Electricity and phone bills, six months", "BILLPAY DR–PSPCL / AIRTEL")
     p.pay(D(2025, 4, 15), sch, pb, R(42000), "School fees, first half-year", "NEFT DR–SCHOOL FEES")
@@ -2026,7 +2039,7 @@ def build_individual():
         [(help_, R(30000)), (hadv, -R(6000)), (pc, -R(24000))])
     for d, a in [(D(2025, 4, 2), R(45000)), (D(2025, 9, 26), R(45000)), (D(2025, 12, 27), R(30000)), (D(2026, 3, 2), R(30000))]:
         p.move(d, pc, pb, a, "Cash withdrawn (ATM)", "ATM WDL–MOHALI")
-    # a hand loan on interest, apart from any khata (O-02-4); part returned; the rest known not to come back is written off (O-12-1)
+    # a hand loan on interest, apart from any running account (O-02-4); part returned; the rest known not to come back is written off (O-12-1)
     p.pay(D(2025, 5, 18), gur, pb, R(25000), "Hand loan to Gurpreet Sandhu, on a small interest (UPI)", "UPI DR–GURPREET SANDHU")
     p.rec(D(2025, 12, 12), pb, gur, R(15000), "Gurpreet Sandhu returned part of the loan", "UPI CR–GURPREET SANDHU")
     p.rec(D(2025, 12, 12), pb, pint, R(1875), "Interest on the hand loan paid by Gurpreet Sandhu for seven months", "UPI CR–GURPREET SANDHU")
@@ -2060,7 +2073,7 @@ def build_individual():
     p.v(D(2025, 12, 28), "Journal (advance settled)", "Balwinder Singh's trip bills — fuel, tolls he paid in cash, parking — set against his advance; ₹1,800 with no bill moved to his own account",
         [(carx, R(8200)), (toll, R(3500)), (drvp, R(1800)), (dadv, -R(13500))])
     p.rec(D(2025, 12, 28), pc, dadv, R(1500), "Balwinder Singh returned the unspent part of the advance, cash")
-    # his next pay: written on his khata, and paid less the ₹1,800 trip money he owes
+    # his next pay: written on his account, and paid less the ₹1,800 trip money he owes
     p.took(D(2026, 1, 10), help_, drvp, R(9000), "Balwinder Singh's pay for December (part-time driver)")
     p.pay(D(2026, 1, 10), drvp, pc, R(7200), "Balwinder Singh paid his December pay, cash — less the ₹1,800 of trip money cut from it")
     t.finalize()
@@ -2076,7 +2089,7 @@ def build_individual():
     t.gaps = [("Capital / Drawings A/c – Jasvinder Singh", "a sole proprietor's business book keeps Capital and Drawings (O-13-1, O-13-2); both are named after the owner, whose personal book is the other book of the pair (O-13-4; GAPS A11)")]
     p.gaps = [("Jasvinder Technologies A/c · Income from …", "own money in a business held at what was put in; money the business sends home is income (O-13-4, cost method; GAPS A11)"),
               ("HDFC Credit Card A/c", "money subtype card, Cr by sign; card bill paid by transfer"), ("Car – Maruti Baleno A/c", "asset at cost (GAPS A1)"),
-              ("Loan to – Gurpreet Sandhu A/c", "a loan to a person that carries interest: its own account beside the khata, written off to an expense head (O-02-4, O-12-1)")]
+              ("Loan to – Gurpreet Sandhu A/c", "a loan to a person that carries interest: its own account beside the running account, written off to an expense head (O-02-4, O-12-1)")]
     c.books = [p, t]
     c.demonstrates = ["two books linked by accounts named after each other, agreeing entry for entry; the business's money sent home is the household's income (cost method)",
                       "a car bought on a loan the lender paid to the dealer; EMI lines split from the lender's statement", "a driver's advance settled against several heads, the part with no bill moved to his account and cut from his next pay, the rest returned; a FASTag wallet",
@@ -2095,32 +2108,32 @@ Q4E = [D(2025, 6, 30), D(2025, 9, 30), D(2025, 12, 31), D(2026, 3, 31)]
 def build_shop():
     c = Case("shop-sukhwinder-sales-co", "Shop — Sukhwinder Sales Co. (pipes & sanitary)")
     c.intro = [
-        "**Sukhwinder Bal** runs a pipes-and-sanitary shop. Counter sales are in cash and the cash is banked; builders and plumbers buy on khata; the pipe company and the sanitary agency "
-        "supply on khata. One salesman draws a salary and once takes an advance. The book is kept from the bank statement and the counter cash book. "
+        "**Sukhwinder Bal** runs a pipes-and-sanitary shop. Counter sales are in cash and the cash is banked; builders and plumbers buy on credit; the pipe company and the sanitary agency "
+        "supply on credit. One salesman draws a salary and once takes an advance. The book is kept from the bank statement and the counter cash book. "
         "Goods bought for sale are written as spent when bought — no stock is counted.",
     ]
     c.people = [
         ("Sukhwinder Bal", "Proprietor; takes money for the household each quarter"),
         ("Manpreet Kaur", "Salesman — salary each quarter; a salary advance in August"),
-        ("Guru Nanak Builders", "Customer on khata — pays the quarter's goods the next month"),
+        ("Guru Nanak Builders", "Customer on credit — pays the quarter's goods the next month"),
         ("Dhillon Plumbing Works", "Customer who pays in advance, then buys — the account turns round"),
-        ("Supreme Pipes Ltd · Jaquar Sanitary Agency", "Suppliers on khata"),
+        ("Supreme Pipes Ltd · Jaquar Sanitary Agency", "Suppliers on credit"),
         ("Kapoor Properties", "The shop's landlord — rent paid each quarter; holds the shop's ₹90,000 security deposit"),
     ]
     b = Book("Sukhwinder Sales Co.", "business book", "S", "business")
-    b.about = "One-owner shop · counter cash banked · customers and suppliers on khata · a salesman on salary · kept from the bank statement."
+    b.about = "One-owner shop · counter cash banked · customers and suppliers on credit · a salesman on salary · kept from the bank statement."
     cash = b.add(Account("Cash A/c", "cash", "Counter cash", R(22000)))
     bank = b.add(Account("PNB Current A/c", "bank", "Shop's current account", R(480000)))
-    gnb = b.add(Account("Guru Nanak Builders A/c", "party", "Customer (khata) — builder", R(64000)))
-    dpw = b.add(Account("Dhillon Plumbing Works A/c", "party", "Customer (khata) — plumbing contractor"))
-    sup = b.add(Account("Supreme Pipes Ltd A/c", "party", "Supplier (khata) — pipes and fittings", -R(118000)))
-    jaq = b.add(Account("Jaquar Sanitary Agency A/c", "party", "Supplier (khata) — sanitary ware", -R(46500)))
+    gnb = b.add(Account("Guru Nanak Builders A/c", "party", "Customer — builder", R(64000)))
+    dpw = b.add(Account("Dhillon Plumbing Works A/c", "party", "Customer — plumbing contractor"))
+    sup = b.add(Account("Supreme Pipes Ltd A/c", "party", "Supplier — pipes and fittings", -R(118000)))
+    jaq = b.add(Account("Jaquar Sanitary Agency A/c", "party", "Supplier — sanitary ware", -R(46500)))
     adv = b.add(Account("Advance – Manpreet Kaur A/c", "advance", "Salary advance to the salesman"))
     sdep = b.add(Account("Deposit paid – Kapoor Properties A/c", "deppaid", "Security deposit paid to the shop's landlord (six months' rent) — comes back when the shop is vacated", R(90000)))
     fit = b.add(Account("Shop Fittings & Counter A/c", "fixed", "Racks, counter and display at what they cost", R(120000)))
     cap = b.add(Account("Capital A/c – Sukhwinder Bal", "capital", "Owner's own money in the shop"))
     drw = b.add(Account("Drawings A/c – Sukhwinder Bal", "drawings", "Money taken for the household"))
-    sales = b.add(Account("Sales A/c", "income", "Goods sold — counter cash and khata"))
+    sales = b.add(Account("Sales A/c", "income", "Goods sold — for cash at the counter and on credit"))
     pur = b.add(Account("Goods Bought for Sale A/c", "expense", "Pipes, fittings and sanitary ware bought — spent when bought (no stock is counted)"))
     frt = b.add(Account("Freight & Cartage A/c", "expense", "Goods brought to the shop and delivered"))
     sal = b.add(Account("Salary A/c", "expense", "Salesman's salary"))
@@ -2134,15 +2147,15 @@ def build_shop():
     b.chart_note = ("The own money opening is the balancing figure, so the Dr and Cr totals agree. Last year's book entered no closing-stock figure, so no stock "
                     "is brought back into Goods Bought for Sale: the goods on the shelf on 01 Apr 2025 were charged to the year they were bought.")
     b.bank_extract = (bank, (2025, 8))
-    b.custom = (dpw, D(2025, 4, 1), D(2026, 3, 31), "The plumbing contractor's khata for the year — an advance first, then goods that turned the balance round, then the payment.")
+    b.custom = (dpw, D(2025, 4, 1), D(2026, 3, 31), "The plumbing contractor's account for the year — an advance first, then goods that turned the balance round, then the payment.")
     cs = [R(386000), R(342500), R(412000), R(398500)]
     gs = [R(238000), R(214500), R(256000), R(247000)]
     sp = [R(334000), R(301500), R(352000), R(338000)]
     for k in range(4):
         b.rec(Q4E[k], cash, sales, cs[k], "Counter sales in cash, %s (from the daily cash memo book)" % Q4N[k])
         b.move(Q4E[k], bank, cash, cs[k] - R(6000) if k else cs[k] - R(4000), "Counter cash deposited in the bank", "CASH DEP–BRANCH")
-        b.gave(Q4E[k], gnb, sales, gs[k], "Goods to Guru Nanak Builders on khata, %s" % Q4N[k])
-        b.took(Q4E[k], pur, sup, sp[k], "Pipes and fittings from Supreme Pipes on khata, %s" % Q4N[k])
+        b.gave(Q4E[k], gnb, sales, gs[k], "Goods to Guru Nanak Builders on credit, %s" % Q4N[k])
+        b.took(Q4E[k], pur, sup, sp[k], "Pipes and fittings from Supreme Pipes on credit, %s" % Q4N[k])
         b.pay(dt.date(Q4E[k].year, Q4E[k].month - 2, 3), rent, bank, R(45000), "Shop rent, %s" % Q4N[k], "NEFT DR–KAPOOR PROPERTIES")
         if k == 1:
             b.v(Q4E[k], "Payment", "Salary of Manpreet Kaur, %s — ₹10,000 of it recovered from her advance, the rest paid" % Q4N[k],
@@ -2156,8 +2169,8 @@ def build_shop():
     b.pay(D(2025, 4, 8), sup, bank, R(118000), "Supreme Pipes paid — March bill (opening balance)", "RTGS DR–SUPREME PIPES")
     for d, k in [(D(2025, 7, 18), 0), (D(2025, 10, 9), 1), (D(2026, 1, 16), 2)]:
         b.pay(d, sup, bank, sp[k], "Supreme Pipes paid — goods of %s" % Q4N[k], "RTGS DR–SUPREME PIPES")
-    b.took(D(2025, 5, 20), pur, jaq, R(118600), "Sanitary ware from Jaquar Sanitary Agency on khata")
-    b.took(D(2025, 11, 18), pur, jaq, R(126400), "Sanitary ware from Jaquar Sanitary Agency on khata")
+    b.took(D(2025, 5, 20), pur, jaq, R(118600), "Sanitary ware from Jaquar Sanitary Agency on credit")
+    b.took(D(2025, 11, 18), pur, jaq, R(126400), "Sanitary ware from Jaquar Sanitary Agency on credit")
     b.pay(D(2025, 4, 25), jaq, bank, R(46500), "Jaquar Sanitary Agency paid — opening balance", "NEFT DR–JAQUAR SANITARY")
     b.pay(D(2025, 8, 26), jaq, bank, R(118600), "Jaquar Sanitary Agency paid — May bill", "NEFT DR–JAQUAR SANITARY")
     b.rec(D(2025, 6, 6), bank, dpw, R(50000), "Advance from Dhillon Plumbing Works against a hotel job", "UPI CR–DHILLON PLUMBING")
@@ -2178,10 +2191,10 @@ def build_shop():
     b.rec(D(2026, 3, 31), cash, short, R(300), "Counter cash counted ₹300 more than the cash book — got back to Cash short / over")
     b.v(D(2026, 3, 31), "Journal", "Rebate (kasar) of ₹2,300 allowed to Dhillon Plumbing Works on the disputed sanitary-ware bill — he pays the rest", [(kasar, R(2300)), (dpw, -R(2300))])
     b.finalize()
-    b.gaps = [("Deposit paid – Kapoor Properties A/c", "a deposit paid to a named person: its own asset account per person, apart from any khata (owner, 13 Oct 2026; GAPS A2b)"),
+    b.gaps = [("Deposit paid – Kapoor Properties A/c", "a deposit paid to a named person: its own asset account per person, apart from any running account (owner, 13 Oct 2026; GAPS A2b)"),
               ("Goods Bought for Sale A/c", "purchases expensed; no closing stock (owner ruling — no inventory); profit is therefore sales less purchases. Last year entered no closing stock either, so the book opens with none (02 §6.3)")]
     c.books = [b]
-    c.demonstrates = ["counter cash sales banked by transfer", "customers and suppliers on khata; a customer whose advance turns round, and a rebate allowed on his disputed bill", "salary advance recovered from salary",
+    c.demonstrates = ["counter cash sales banked by transfer", "customers and suppliers on credit; a customer whose advance turns round, and a rebate allowed on his disputed bill", "salary advance recovered from salary",
                       "a correction of a wrong head", "purchases expensed — no stock"]
     return c
 
@@ -2192,7 +2205,7 @@ def build_partnership():
         "**Bal Fabricators** is a steel-fabrication and aluminium workshop owned by **Sukhwinder Bal**, **Pradeep Bal** and **Harjeet Singh**, who is from outside the family, sharing profit **2 : 2 : 1**. "
         "Each partner has a **fixed capital account** and a **current account**: drawings and costs a partner pays from his own pocket go to his current account; the capitals do not move. "
         "Their agreement gives **interest on capital at 6% a year**, then the rest of the profit in the ratio. At the year close the book posts the P&L Appropriation Account and adds each partner's part to his account. "
-        "The year's big job is a contract for a builder, **Sandhu Builders**: a mobilisation advance, three running bills of which 5% is held back, and the retention money kept in its own account beside the builder's khata — "
+        "The year's big job is a contract for a builder, **Sandhu Builders**: a mobilisation advance, three running bills of which 5% is held back, and the retention money kept in its own account beside the builder's running account — "
         "released for the whole job, half when it is completed and handed over, the rest after the defect period. "
         "The powder-coating supplier is paid in advance and then sends his bill; the site foreman runs the labour money as an advance and accounts for it.",
     ]
@@ -2200,22 +2213,22 @@ def build_partnership():
         ("Sukhwinder Bal", "Partner — share 2, capital ₹3,00,000"),
         ("Pradeep Bal", "Partner — share 2, capital ₹3,00,000; pays some workshop costs from his own pocket, as Sukhwinder does once"),
         ("Harjeet Singh", "Partner from outside the family — share 1, capital ₹1,50,000; draws as much as the others, more than his share of the profit"),
-        ("Verka Dairy Plant · Punjab Steel Sheds", "Customers on khata"),
+        ("Verka Dairy Plant · Punjab Steel Sheds", "Customers on credit"),
         ("Sandhu Builders", "Builder — contract job: mobilisation advance, running bills with 5% held back"),
-        ("Jindal Steel Traders", "Steel supplier on khata"),
+        ("Jindal Steel Traders", "Steel supplier on credit"),
         ("Shree Powder Coaters", "Powder-coating supplier — paid in advance, then billed"),
         ("Gurmeet Singh", "Site foreman — holds the labour money as an advance, settled against his slips"),
     ]
     b = Book("Bal Fabricators", "partnership business book", "BF", "business")
-    b.about = "Shared business book · three partners 2 : 2 : 1 · fixed capital and current accounts · interest on capital: 6% a year, as the partners agreed · customers and supplier on khata · a contract job with retention money."
+    b.about = "Shared business book · three partners 2 : 2 : 1 · fixed capital and current accounts · interest on capital: 6% a year, as the partners agreed · customers and supplier on credit · a contract job with retention money."
     cash = b.add(Account("Cash A/c", "cash", "Workshop cash", R(15000)))
     bank = b.add(Account("Punjab & Sind Bank Current A/c", "bank", "Firm's current account", R(514000)))
-    verka = b.add(Account("Verka Dairy Plant A/c", "party", "Customer (khata) — sheds and racks", R(48000)))
-    pss = b.add(Account("Punjab Steel Sheds A/c", "party", "Customer (khata) — fabrication on job work"))
-    sandhu = b.add(Account("Sandhu Builders A/c", "party", "Builder (khata) — contract job: advance first, then running bills less the 5% held back"))
-    ret = b.add(Account("Retention held by – Sandhu Builders A/c", "retention", "5% of each bill the builder holds back until the work of that bill is accepted — released to the khata when due"))
-    jin = b.add(Account("Jindal Steel Traders A/c", "party", "Supplier (khata) — steel sections and sheets", -R(72000)))
-    pcw = b.add(Account("Shree Powder Coaters A/c", "party", "Supplier (khata) — powder coating; paid in advance, then billed"))
+    verka = b.add(Account("Verka Dairy Plant A/c", "party", "Customer — sheds and racks", R(48000)))
+    pss = b.add(Account("Punjab Steel Sheds A/c", "party", "Customer — fabrication on job work"))
+    sandhu = b.add(Account("Sandhu Builders A/c", "party", "Builder — contract job: advance first, then running bills less the 5% held back"))
+    ret = b.add(Account("Retention held by – Sandhu Builders A/c", "retention", "5% of each bill the builder holds back until the work of that bill is accepted — released to his account when due"))
+    jin = b.add(Account("Jindal Steel Traders A/c", "party", "Supplier — steel sections and sheets", -R(72000)))
+    pcw = b.add(Account("Shree Powder Coaters A/c", "party", "Supplier — powder coating; paid in advance, then billed"))
     fadv = b.add(Account("Advance – Gurmeet Singh (foreman) A/c", "advance", "Money with the foreman for site labour and small purchases, accounted for against his slips"))
     mach = b.add(Account("Machinery & Tools A/c", "fixed", "Welding sets, cutters, drills at what they cost", R(265000)))
     partners = [("Sukhwinder Bal", R(300000), -R(12000), 2), ("Pradeep Bal", R(300000), -R(8000), 2), ("Harjeet Singh", R(150000), R(0), 1)]
@@ -2238,7 +2251,7 @@ def build_partnership():
     b.partners = [{"name": nm, "capital": "Capital A/c – %s" % nm, "current": cur[nm], "share": sh, "ioc_bp": 600} for nm, _, _, sh in partners]
     b.own_word = "Partners' own money"
     b.chart_note = "Each partner's capital and current account is the figure that partner agreed; cash, bank, the customers, the supplier, the foreman's advance and the machinery are what the firm held. The Dr and Cr totals agree."
-    b.custom = (sandhu, D(2025, 4, 1), D(2026, 3, 31), "The builder's khata for the year — the advance, three running bills (the 5% held back is in its own account), payments net of the advance, half the job's retention released at completion.")
+    b.custom = (sandhu, D(2025, 4, 1), D(2026, 3, 31), "The builder's account for the year — the advance, three running bills (the 5% held back is in its own account), payments net of the advance, half the job's retention released at completion.")
     b.rec(D(2025, 4, 16), bank, verka, R(48000), "Verka Dairy Plant paid the March bill (opening balance)", "NEFT CR–VERKA DAIRY")
     for d, a, what in [(D(2025, 5, 28), R(386000), "cattle-shed frames"), (D(2025, 10, 30), R(418500), "milk-can racks and a canopy")]:
         b.gave(d, verka, inc, a, "Verka Dairy Plant — %s" % what)
@@ -2259,11 +2272,11 @@ def build_partnership():
         a = bills[k][1]
         b.rec(d, bank, sandhu, a - a * 5 // 100 - R(50000), "Sandhu Builders paid running bill %d less the 5%% held back and ₹50,000 of the advance" % (k + 1), "RTGS CR–SANDHU BUILDERS")
     job_ret = sum(a * 5 // 100 for _, a in bills)
-    b.v(D(2026, 2, 15), "Journal (retention released)", "Sunny Enclave staircases completed and handed over — half the job's retention (₹%s of ₹%s) released by Sandhu Builders, the rest after the defect period; moved to his khata"
+    b.v(D(2026, 2, 15), "Journal (retention released)", "Sunny Enclave staircases completed and handed over — half the job's retention (₹%s of ₹%s) released by Sandhu Builders, the rest after the defect period; moved to his account"
         % (fmt(job_ret // 2), fmt(job_ret)), [(sandhu, job_ret // 2), (ret, -(job_ret // 2))])
     b.rec(D(2026, 3, 6), bank, sandhu, job_ret // 2, "Sandhu Builders paid the released half of the retention", "RTGS CR–SANDHU BUILDERS")
     for k, a in enumerate([R(198000), R(176000), R(214000), R(168000)]):
-        b.took(Q4E[k], steel, jin, a, "Steel from Jindal Steel Traders on khata, %s" % Q4N[k])
+        b.took(Q4E[k], steel, jin, a, "Steel from Jindal Steel Traders on credit, %s" % Q4N[k])
     b.pay(D(2025, 4, 22), jin, bank, R(72000), "Jindal Steel Traders paid — opening balance", "RTGS DR–JINDAL STEEL")
     for d, k in [(D(2025, 7, 21), 0), (D(2025, 10, 20), 1), (D(2026, 1, 20), 2)]:
         b.pay(d, jin, bank, [R(198000), R(176000), R(214000)][k], "Jindal Steel Traders paid — steel of %s" % Q4N[k], "RTGS DR–JINDAL STEEL")
@@ -2295,7 +2308,7 @@ def build_partnership():
     b.gaps = [("Current A/c – each partner", "02 §1.2 has one `partner` account per member; practice keeps a fixed capital and a current account (GAPS B2)"),
               ("P&L Appropriation A/c", "interest on capital (as agreed, only out of profit) and the 2:2:1 share posted at the year close to the partners' current accounts (O-14-1, O-14-3; GAPS B1)"),
               ("Paid by a partner", "a partner pays a firm cost from his own pocket — Dr expense · Cr partner's current account"),
-              ("Retention held by – Sandhu Builders A/c", "retention money in its own asset account beside the khata, released by transfer (O-06-4; GAPS D2)")]
+              ("Retention held by – Sandhu Builders A/c", "retention money in its own asset account beside the running account, released by transfer (O-06-4; GAPS D2)")]
     c.books = [b]
     c.demonstrates = ["fixed capital and current accounts for three partners; a posted P&L Appropriation: 6% interest on capital out of profit, then 2 : 2 : 1",
                       "a contract job for a builder: mobilisation advance recovered bill by bill, 5% retention in its own account, half of the whole job's released at completion, the rest held for the defect period", "a supplier paid in advance whose account crosses to the other side and back",
@@ -2320,7 +2333,7 @@ def build_trust():
         ("Ranjeet Singh", "Secretary — witness at every gollak count; signs the bank payments"),
         ("Amritpal Singh", "Sewadar — counts the gollak; holds the langar advance and accounts for it"),
         ("Manni · Ravinder", "Labourers paid in cash each quarter — each has his own expense head"),
-        ("Kotli Cement Store", "Building-material store — cement and bricks for the hall on khata"),
+        ("Kotli Cement Store", "Building-material store — cement and bricks for the hall on credit"),
         ("Three families and an NRI donor", "Gave for the langar hall — the money went to the Langar Hall Fund; one family donated a steel almirah that the trust keeps"),
     ]
     b = Book("Radha Soami Satsang Sabha", "trust book", "RS", "npo")
@@ -2331,7 +2344,7 @@ def build_trust():
     bank = b.add(Account("SBI Savings A/c", "bank", "The trust's savings account — it earns the bank's interest (a current account earns none)", R(485000)))
     lfd = b.add(Account("SBI Fixed Deposit (Langar Hall Fund) A/c", "invest", "Fixed deposit made from the langar hall donations — its interest goes to the Langar Hall Fund", R(200000)))
     adv = b.add(Account("Advance – Amritpal Singh A/c", "advance", "Langar money with the sewadar, accounted for with bills"))
-    cem = b.add(Account("Kotli Cement Store A/c", "party", "Building-material store (khata) — cement and bricks for the hall"))
+    cem = b.add(Account("Kotli Cement Store A/c", "party", "Building-material store — cement and bricks for the hall"))
     furn = b.add(Account("Furniture & Equipment A/c", "fixed", "Things given to the trust and kept, at ₹1 each — the estimated value is in the entry's note"))
     lfund = b.add(Account("Langar Hall Fund A/c", "fund", "Money given for the langar hall and the interest on its deposit — kept for that purpose only", -R(250000)))
     gf = b.add(Account("General Fund A/c", "capital", "The trust's own money (the year's surplus or deficit is added at the year end)"))
@@ -2362,7 +2375,7 @@ def build_trust():
     b.rec(D(2025, 6, 12), cash, ddon, R(4100), "Donation for the dairy (cow feed), cash")
     b.rec(D(2025, 12, 8), bank, ddon, R(15000), "Donation for the dairy", "NEFT CR–DAIRY DONATION")
     b.rec(D(2026, 3, 31), bank, bint, R(6840), "Interest credited by the bank", "INT.CR")
-    b.took(D(2025, 7, 18), cons, cem, R(148000), "Langar hall — cement and bricks on the store's khata")
+    b.took(D(2025, 7, 18), cons, cem, R(148000), "Langar hall — cement and bricks on credit from the store")
     b.pay(D(2025, 9, 10), cem, bank, R(148000), "Kotli Cement Store paid for the cement and bricks", "NEFT DR–KOTLI CEMENT")
     for d, a, who in [(D(2025, 5, 20), R(51000), "a family, for the langar hall"), (D(2025, 8, 12), R(25000), "an NRI family, for the langar hall"), (D(2026, 1, 20), R(31000), "a family in memory of an elder, for the langar hall")]:
         b.rec(d, bank, lfund, a, "Donation from %s — to the Langar Hall Fund" % who, "NEFT CR–HALL DONATION")
@@ -2431,17 +2444,17 @@ def build_family():
     F.put_note = " (by the sub-families, and their accounts settled)"
     F.taken_note = " (given to the sub-families or spent for them)"
     A = Book("Amarjeet's Family", "household book", "RA", "household")
-    A.about = "Amarjeet and Indu's household · money from the joint family · Indu's stitching · a grocer's khata · the account with the family settled at the year end."
+    A.about = "Amarjeet and Indu's household · money from the joint family · Indu's stitching · a grocer on credit · the account with the family settled at the year end."
     Bb = Book("Lakhbeer's Family", "household book", "RB", "household")
-    Bb.about = "Lakhbeer and Aman's household · money from the joint family, and ₹50,000 taken to be returned on its own udhaar page — part paid back through the brick field, the rest by bank · a motorcycle · a chemist's khata · a painter's advance."
+    Bb.about = "Lakhbeer and Aman's household · money from the joint family, and ₹50,000 taken to be returned on its own udhaar page — part paid back through the brick field, the rest by bank · a motorcycle · a chemist on credit · a painter's advance."
     C = Book("Lakhwinder's Family", "household book", "RC", "household")
     C.about = "Lakhwinder, Harjeet and Supreet's household · Lakhwinder's salary · Harjeet's tuition · a credit card · a recurring deposit · money put into the family and into the brick field."
     G = Book("Randhawa Agriculture", "family business book", "RG", "business")
-    G.about = "The family farm · KCC loan account · fertiliser khata · paddy through an arhtiya · Aman's labour advance · land on lease (theka)."
+    G.about = "The family farm · KCC loan account · fertiliser on credit · paddy through an arhtiya · Aman's labour advance · land on lease (theka)."
     E = Book("Randhawa Real Estate", "family business book", "RE", "property")
     E.about = "Two shops let at Kotli Chowk · rent charged quarterly · a plot sold and another bought · tenants' deposits, one set off and forfeited when a tenant left owing · rent written off · an improvement added to the cost."
     K = Book("Randhawa Brick Field", "shared business book", "RK", "business")
-    K.about = "Brick kiln shared 3 : 2 by the joint family and Nirmaljeet Gill · no interest on capital — the profit is shared 3 : 2 · bricks on khata · coal on credit · the pathera's advance."
+    K.about = "Brick kiln shared 3 : 2 by the joint family and Nirmaljeet Gill · no interest on capital — the profit is shared 3 : 2 · bricks on credit · coal on credit · the pathera's advance."
     for bk in (A, Bb, C, F, G, E, K):
         bk.counts["min"], bk.counts["max"] = 25, 40
     # Randhawa Joint Family
@@ -2458,7 +2471,7 @@ def build_family():
     fE = F.add(Account("Randhawa Real Estate A/c", "stake", "The family's money put into its real estate, at what it put in"))
     fK = F.add(Account("Randhawa Brick Field A/c", "stake", "The family's money put into the brick field (its 3 of 5 share), at what it put in"))
     fudB = F.add(Account("Udhaar – Lakhbeer's Family A/c", "loanto", "Money Lakhbeer's household took to be returned — on its own page, not with the household money"))
-    fmilk = F.add(Account("Doodhwala (milk khata) A/c", "party", "Milkman (khata) — milk for the common kitchen, written up each half-year; March 2025's milk brought forward", -R(9600)))
+    fmilk = F.add(Account("Doodhwala A/c", "party", "Milkman — milk for the common kitchen, written up each half-year; March 2025's milk brought forward", -R(9600)))
     fmason = F.add(Account("Advance – mason A/c", "advance", "Advance to the mason for the roof, settled against his bill"))
     fcap = F.add(Account("Capital A/c – Randhawa family", "capital", "The family's own money"))
     fiG = F.add(Account("Income from Randhawa Agriculture A/c", "income", "Money the farm sent home — the family's income"))
@@ -2481,7 +2494,7 @@ def build_family():
                             group="Joint family", cols=("Put in / settled (Dr)", "Received from the family (Cr)")))
         return bc, bb, bl
     ac, ab, aF = household(A, "PNB Savings A/c", R(64000), R(6000), -R(18000))
-    agro = A.add(Account("Gill Kiryana Store A/c", "party", "Grocer (khata)", -R(4200)))
+    agro = A.add(Account("Gill Kiryana Store A/c", "party", "Grocer", -R(4200)))
     acust = A.add(Account("Sidhu family A/c", "party", "Neighbours — suits stitched on credit"))
     acap = A.add(Account("Capital A/c – Amarjeet's family", "capital", "The household's own money"))
     ast = A.add(Account("Stitching Income A/c", "income", "Indu's stitching work"))
@@ -2496,14 +2509,14 @@ def build_family():
     aadv = A.add(Account("Advance – house help A/c", "advance", "Advance to the house help, set against her wages"))
     bc, bb, bF = household(Bb, "HDFC Savings A/c", R(85000), R(5000), 0)
     budF = Bb.add(Account("Udhaar – Randhawa Joint Family A/c", "loan", "Money we took from the joint family to be returned — on its own page, not with the household money"))
-    bchem = Bb.add(Account("Bajwa Medical Store A/c", "party", "Chemist (khata)"))
+    bchem = Bb.add(Account("Bajwa Medical Store A/c", "party", "Chemist"))
     bpaint = Bb.add(Account("Advance – painter A/c", "advance", "Advance to the painter for the rooms, settled against his bill"))
     bbike = Bb.add(Account("Motorcycle A/c", "fixed", "Aman's motorcycle at what it cost (August 2025)"))
     bcap = Bb.add(Account("Capital A/c – Lakhbeer's family", "capital", "The household's own money"))
     bint = Bb.add(Account("Interest A/c", "income", "Savings interest"))
     bhh = Bb.add(Account("Household & Groceries A/c", "expense", "Groceries and household things"))
     bedu = Bb.add(Account("Education A/c", "expense", "College fees and books"))
-    bmed = Bb.add(Account("Medical A/c", "expense", "Medicines on the chemist's khata"))
+    bmed = Bb.add(Account("Medical A/c", "expense", "Medicines bought on credit from the chemist"))
     bfuel = Bb.add(Account("Fuel & Phone A/c", "expense", "Motorcycle fuel and mobiles"))
     bhome = Bb.add(Account("Rooms & Furnishing A/c", "expense", "Painting and furnishing of the rooms"))
     cc_, cb, cF = household(C, "SBI Salary A/c", R(48000), R(7000), R(12000))
@@ -2517,16 +2530,16 @@ def build_family():
     cel = C.add(Account("Electricity & Phone A/c", "expense", "Electricity of their floor, mobiles, internet"))
     cmed = C.add(Account("Medical A/c", "expense", "Doctor and medicines"))
     ccl = C.add(Account("Clothes & Social A/c", "expense", "Clothes, gifts and outings"))
-    cdairy = C.add(Account("Kotli Dairy A/c", "party", "Dairy shop (khata) — milk and curd for their floor"))
+    cdairy = C.add(Account("Kotli Dairy A/c", "party", "Dairy shop — milk and curd for their floor"))
     celad = C.add(Account("Advance – electrician A/c", "advance", "Advance to the electrician for rewiring their floor"))
     # Agriculture
     gc = G.add(Account("Cash A/c", "cash", "Farm cash, with Aman", R(8000)))
     gb = G.add(Account("PNB Savings A/c (farm)", "bank", "The farm's bank account", R(95000)))
     gk = G.add(Account("KCC – PNB A/c", "cc", "Kisan Credit Card loan account — what is owed to the bank (limit ₹5,00,000)", -R(320000)))
-    gfert = G.add(Account("Sandhu Fertilisers A/c", "party", "Fertiliser and spray dealer (khata)", -R(26500)))
-    garh = G.add(Account("Bansal & Sons A/c", "party", "Arhtiya (khata) — paddy sold through him"))
+    gfert = G.add(Account("Sandhu Fertilisers A/c", "party", "Fertiliser and spray dealer", -R(26500)))
+    garh = G.add(Account("Bansal & Sons A/c", "party", "Arhtiya — paddy sold through him"))
     gadv = G.add(Account("Advance – Aman Randhawa A/c", "advance", "Labour money with Aman, accounted for with the labour slips"))
-    gmilkp = G.add(Account("Verka Milk Society A/c", "party", "Dairy society (khata) — milk bills, paid later", R(21600)))
+    gmilkp = G.add(Account("Verka Milk Society A/c", "party", "Dairy society — milk bills, paid later", R(21600)))
     gland = G.add(Account("Farm Land, Village Kotli A/c", "fixed", "18 acres of family land at what it cost", R(5400000)))
     gtrac = G.add(Account("Tractor & Implements A/c", "fixed", "Tractor, combine attachments, implements at cost", R(920000)))
     gbuff = G.add(Account("Buffaloes A/c", "fixed", "Four buffaloes at what they cost", R(320000)))
@@ -2547,8 +2560,8 @@ def build_family():
     # Real Estate
     ec = E.add(Account("Cash A/c", "cash", "Cash, with Lakhwinder", R(3000)))
     eb = E.add(Account("Axis Bank Current A/c", "bank", "The real estate's current account", R(140000)))
-    et1 = E.add(Account("Kotli Medical Hall A/c", "party", "Tenant (khata) — shop 1, ₹12,000 a month"))
-    et2 = E.add(Account("Bhullar Hardware A/c", "party", "Tenant (khata) — shop 2, ₹10,000 a month", R(10000)))
+    et1 = E.add(Account("Kotli Medical Hall A/c", "party", "Tenant — shop 1, ₹12,000 a month"))
+    et2 = E.add(Account("Bhullar Hardware A/c", "party", "Tenant — shop 2, ₹10,000 a month", R(10000)))
     edep1 = E.add(Account("Deposit held – Kotli Medical Hall A/c", "deposit", "Security deposit from the shop 1 tenant — returned when he leaves", -R(36000)))
     edep2 = E.add(Account("Deposit held – Bhullar Hardware A/c", "deposit", "Security deposit from the shop 2 tenant", -R(30000)))
     eadv = E.add(Account("Advance – registry clerk A/c", "advance", "Money with the registry clerk for stamp duty, settled against the registry"))
@@ -2567,9 +2580,9 @@ def build_family():
     # Brick field
     kc = K.add(Account("Cash A/c", "cash", "Kiln cash, with the munshi", R(15000)))
     kb = K.add(Account("HDFC Bank Current A/c", "bank", "The brick field's current account", R(210000)))
-    ks1 = K.add(Account("Sidhu Builders A/c", "party", "Customer (khata) — bricks by the trolley", R(84000)))
-    ks2 = K.add(Account("Dhaliwal Contractors A/c", "party", "Customer (khata)"))
-    kcoal = K.add(Account("Jindal Coal Depot A/c", "party", "Coal supplier (khata)", -R(95000)))
+    ks1 = K.add(Account("Sidhu Builders A/c", "party", "Customer — bricks by the trolley", R(84000)))
+    ks2 = K.add(Account("Dhaliwal Contractors A/c", "party", "Customer"))
+    kcoal = K.add(Account("Jindal Coal Depot A/c", "party", "Coal supplier", -R(95000)))
     kadv = K.add(Account("Advance – pathera jamadar A/c", "advance", "Advance to the moulders' jamadar, settled against bricks moulded"))
     kkiln = K.add(Account("Kiln & Chimney A/c", "fixed", "The kiln, chimney and sheds at what they cost", R(1650000)))
     kF = K.add(Account("Randhawa Joint Family A/c", "partner", "The joint family's partner's account (share 3 of 5); named after its book"))
@@ -2648,9 +2661,9 @@ def build_family():
     F.pay(D(2025, 8, 25), fmason, fc, R(15000), "Advance to the mason for the roof, cash")
     F.v(D(2025, 9, 4), "Journal (advance settled)", "The mason's bill for the roof waterproofing set against his advance", [(frep, R(15000)), (fmason, -R(15000))])
     F.pay(D(2025, 9, 4), frep, fb, R(21000), "Rest of the mason's bill for the roof", "NEFT DR–ROOF REPAIR")
-    F.took(D(2025, 9, 30), fkit, fmilk, R(57600), "Milk for April–September on the milkman's khata")
-    F.took(D(2026, 3, 31), fkit, fmilk, R(59400), "Milk for October–March on the milkman's khata")
-    F.pay(D(2025, 10, 4), fmilk, fb, R(67200), "Milkman's khata paid — March (brought forward) and April–September", "UPI DR–DOODHWALA")
+    F.took(D(2025, 9, 30), fkit, fmilk, R(57600), "Milk for April–September on credit from the milkman")
+    F.took(D(2026, 3, 31), fkit, fmilk, R(59400), "Milk for October–March on credit from the milkman")
+    F.pay(D(2025, 10, 4), fmilk, fb, R(67200), "Milkman's account paid — March (brought forward) and April–September", "UPI DR–DOODHWALA")
     F.pay(D(2025, 7, 18), fcar, fb, R(28400), "Family car insurance", "NETBANKING DR–INSURANCE")
     wrong = F.pay(D(2025, 12, 28), fsoc, fc, R(6200), "Car service, cash")
     F.fix(D(2026, 1, 5), fcar, fsoc, R(6200), "Entry {ref} (car service) was written to Gurdwara & Social — moved to Family Car", "Journal (correction)", ref=wrong)
@@ -2661,10 +2674,10 @@ def build_family():
     F.custom = (fA, D(2025, 4, 1), D(2026, 3, 31), "One sub-family's account for the year — household money, a bill the family paid, and the year-end settlement.")
     # ---------------- Amarjeet's family ----------------------------------------------------------
     for k, a in enumerate([R(14800), R(13900), R(15600), R(14200)]):
-        A.took(qe[k], ahh, agro, a, "Groceries on khata, %s" % q[k])
-    A.pay(D(2025, 4, 6), agro, ac, R(4200), "Grocer's khata of March paid, cash")
+        A.took(qe[k], ahh, agro, a, "Groceries on credit, %s" % q[k])
+    A.pay(D(2025, 4, 6), agro, ac, R(4200), "Grocer's account for March paid, cash")
     for d, a in [(D(2025, 7, 5), R(14800)), (D(2025, 10, 6), R(13900)), (D(2026, 1, 6), R(15600))]:
-        A.pay(d, agro, ab, a, "Grocer's khata paid (UPI)", "UPI DR–GILL KIRYANA")
+        A.pay(d, agro, ab, a, "Grocer's account paid (UPI)", "UPI DR–GILL KIRYANA")
     for d, a in [(D(2025, 5, 30), R(6400)), (D(2025, 10, 30), R(9800)), (D(2026, 2, 27), R(7200))]:
         A.rec(d, ac, ast, a, "Indu's stitching — suits for the season, cash")
     A.gave(D(2025, 11, 12), acust, ast, R(5600), "Four wedding suits stitched for the Sidhu family, on credit")
@@ -2689,8 +2702,8 @@ def build_family():
     # ---------------- Lakhbeer's family ----------------------------------------------------------
     Bb.pay(D(2025, 8, 8), bbike, bb, R(98500), "Motorcycle for Aman — thing owned, at cost", "NEFT DR–HERO MOTORS")
     for d, a in [(D(2025, 5, 14), R(2400)), (D(2025, 9, 22), R(3100)), (D(2026, 2, 3), R(2700))]:
-        Bb.took(d, bmed, bchem, a, "Medicines on khata")
-    Bb.pay(D(2025, 10, 4), bchem, bc, R(5500), "Chemist's khata paid, cash")
+        Bb.took(d, bmed, bchem, a, "Medicines on credit")
+    Bb.pay(D(2025, 10, 4), bchem, bc, R(5500), "Chemist's account paid, cash")
     for k, a in enumerate([R(13600), R(12900), R(14100), R(13300)]):
         Bb.pay(dt.date(qe[k].year, qe[k].month - 2, 12), bhh, bb, a, "Groceries and household, %s" % q[k], "UPI DR–GROCERIES")
     Bb.pay(D(2025, 7, 16), bedu, bb, R(28500), "College fees, first semester", "NEFT DR–COLLEGE")
@@ -2704,9 +2717,9 @@ def build_family():
         Bb.move(d, bc, bb, a, "Cash withdrawn (ATM)", "ATM WDL–KOTLI")
     wrong = Bb.pay(D(2025, 12, 15), bhh, bc, R(2100), "Mobile recharges, cash")
     Bb.fix(D(2025, 12, 24), bfuel, bhh, R(2100), "Entry {ref} (mobiles) was written to Household — moved to Fuel & Phone", "Journal (correction)", ref=wrong)
-    Bb.pay(D(2026, 3, 2), bchem, bc, R(2700), "Chemist's khata paid, cash")
+    Bb.pay(D(2026, 3, 2), bchem, bc, R(2700), "Chemist's account paid, cash")
     Bb.rec(D(2026, 3, 31), bb, bint, R(640), "Savings interest", "INT.CR")
-    Bb.custom = (bchem, D(2025, 4, 1), D(2026, 3, 31), "The chemist's khata for the year — medicines on credit and the payments.")
+    Bb.custom = (bchem, D(2025, 4, 1), D(2026, 3, 31), "The chemist's account for the year — medicines on credit and the payments.")
     # ---------------- Lakhwinder's family --------------------------------------------------------
     for (y, m) in fy_months():
         C.rec(dt.date(y, m, 1), cb, csal, R(62400), "Salary for %s (after deductions)" % month_name(*(((y, m - 1) if m > 1 else (y - 1, 12)))), "SAL CR–DEO JALANDHAR")
@@ -2724,9 +2737,9 @@ def build_family():
     for d in [D(2025, 9, 5), D(2026, 3, 5)]:
         C.move(d, crd, cb, R(30000), "Six months of the recurring deposit", "TRF TO POST OFFICE RD")
     C.move(D(2025, 6, 4), cc_, cb, R(15000), "Cash withdrawn (ATM)", "ATM WDL–JALANDHAR")
-    C.took(D(2025, 9, 30), chh, cdairy, R(16200), "Milk and curd for April–September on the dairy's khata")
-    C.took(D(2026, 3, 31), chh, cdairy, R(17100), "Milk and curd for October–March on the dairy's khata")
-    C.pay(D(2025, 10, 5), cdairy, cb, R(16200), "Dairy's khata of April–September paid", "UPI DR–KOTLI DAIRY")
+    C.took(D(2025, 9, 30), chh, cdairy, R(16200), "Milk and curd for April–September on credit from the dairy")
+    C.took(D(2026, 3, 31), chh, cdairy, R(17100), "Milk and curd for October–March on credit from the dairy")
+    C.pay(D(2025, 10, 5), cdairy, cb, R(16200), "Dairy's account for April–September paid", "UPI DR–KOTLI DAIRY")
     C.pay(D(2025, 7, 12), celad, cc_, R(5000), "Advance to the electrician for rewiring, cash")
     C.v(D(2025, 7, 26), "Journal (advance settled)", "The electrician's bill for rewiring set against his advance", [(cel, R(5000)), (celad, -R(5000))])
     wrong = C.pay(D(2025, 11, 26), chh, cb, R(3500), "Supreet's school trip", "UPI DR–SCHOOL TRIP")
@@ -2737,12 +2750,12 @@ def build_family():
     G.rec(D(2025, 4, 28), gb, gwh, R(824500), "Wheat sold at MSP — 340 quintals @ ₹2,425, paid into the bank", "PFMS CR–WHEAT MSP")
     G.move(D(2025, 5, 2), gk, gb, R(320000), "KCC paid back from the wheat money", "TRF TO KCC")
     G.rec(D(2025, 5, 10), gb, goth, R(18000), "Wheat straw sold", "UPI CR–STRAW")
-    G.pay(D(2025, 5, 20), gfert, gb, R(26500), "Sandhu Fertilisers paid — last season's khata", "UPI DR–SANDHU FERT")
+    G.pay(D(2025, 5, 20), gfert, gb, R(26500), "Sandhu Fertilisers paid — last season's account", "UPI DR–SANDHU FERT")
     G.pay(D(2025, 6, 5), gth, gb, R(240000), "Theka for 6 acres for the year (₹40,000 an acre)", "NEFT DR–THEKA")
     G.move(D(2025, 6, 4), gb, gk, R(200000), "Money drawn on the KCC for the paddy season", "KCC DR–TRF TO SB")
     G.pay(D(2025, 6, 6), gseed, gb, R(34000), "Paddy nursery seed", "UPI DR–SEED STORE")
-    G.took(D(2025, 6, 25), gfx, gfert, R(78000), "Urea and DAP for paddy on khata")
-    G.took(D(2025, 8, 20), gfx, gfert, R(36500), "Sprays for paddy on khata")
+    G.took(D(2025, 6, 25), gfx, gfert, R(78000), "Urea and DAP for paddy on credit")
+    G.took(D(2025, 8, 20), gfx, gfert, R(36500), "Sprays for paddy on credit")
     for d0, d1, give, spent in [(D(2025, 6, 10), D(2025, 7, 15), R(90000), R(88600)), (D(2025, 10, 1), D(2025, 10, 31), R(60000), R(61400)), (D(2026, 3, 25), D(2026, 3, 31), R(20000), R(16500))]:
         G.pay(d0, gadv, gb, give, "Labour money to Aman Randhawa", "IMPS DR–AMAN RANDHAWA")
         G.v(d1, "Journal (advance settled)", "Aman Randhawa's labour slips set against his advance", [(glab, spent), (gadv, -spent)])
@@ -2752,14 +2765,14 @@ def build_family():
     G.rec(D(2025, 11, 14), gb, garh, R(900000), "Bansal & Sons paid most of the paddy money", "RTGS CR–BANSAL & SONS")
     G.rec(D(2025, 12, 19), gb, garh, R(217935), "Bansal & Sons paid the rest of the paddy money", "RTGS CR–BANSAL & SONS")
     G.move(D(2025, 11, 17), gk, gb, R(200000), "KCC paid back from the paddy money", "TRF TO KCC")
-    G.pay(D(2025, 12, 1), gfert, gb, R(114500), "Sandhu Fertilisers paid — paddy season khata", "UPI DR–SANDHU FERT")
+    G.pay(D(2025, 12, 1), gfert, gb, R(114500), "Sandhu Fertilisers paid — paddy season's account", "UPI DR–SANDHU FERT")
     G.move(D(2025, 11, 3), gb, gk, R(150000), "Money drawn on the KCC for wheat sowing", "KCC DR–TRF TO SB")
     G.pay(D(2025, 11, 6), gseed, gb, R(46000), "Wheat seed", "UPI DR–SEED STORE")
-    G.took(D(2025, 11, 10), gfx, gfert, R(84000), "DAP and urea for wheat on khata")
+    G.took(D(2025, 11, 10), gfx, gfert, R(84000), "DAP and urea for wheat on credit")
     for d, a in [(D(2025, 9, 30), R(9850)), (D(2026, 3, 31), R(5420))]:
         G.pay(d, gki, gk, a, "Interest charged by the bank to the KCC (half-year)")
     G.move(D(2025, 4, 7), gc, gb, R(10000), "Cash withdrawn for harvest labour (ATM)", "ATM WDL–KOTLI")
-    # the buffaloes: milk to the dairy society on khata, paid later; feed; PM-Kisan by direct transfer
+    # the buffaloes: milk to the dairy society on credit, paid later; feed; PM-Kisan by direct transfer
     G.rec(D(2025, 4, 7), gb, gmilkp, R(21600), "Verka Milk Society paid the March milk (opening balance)", "NEFT CR–VERKA MILK SOC")
     G.gave(D(2025, 9, 30), gmilkp, gmilk, R(122400), "Milk to Verka Milk Society, April–September (ten-day bills)")
     G.rec(D(2025, 10, 8), gb, gmilkp, R(122400), "Verka Milk Society paid for the milk of April–September", "NEFT CR–VERKA MILK SOC")
@@ -2808,12 +2821,12 @@ def build_family():
     for d, a in [(D(2025, 5, 2), R(280000)), (D(2025, 6, 2), R(310000)), (D(2026, 3, 31), R(185000))]:
         K.move(d, kb, kc, a, "Kiln cash deposited", "CASH DEP–BRANCH")
     for d, who, a in [(D(2025, 5, 20), ks1, R(312000)), (D(2025, 6, 25), ks2, R(268000)), (D(2026, 2, 28), ks1, R(244000)), (D(2026, 3, 25), ks2, R(196000))]:
-        K.gave(d, who, ksale, a, "Bricks on khata — trolleys delivered this month")
+        K.gave(d, who, ksale, a, "Bricks on credit — trolleys delivered this month")
     K.rec(D(2025, 7, 4), kb, ks1, R(312000), "Sidhu Builders paid for the May bricks", "NEFT CR–SIDHU BUILDERS")
     K.rec(D(2025, 9, 12), kb, ks2, R(268000), "Dhaliwal Contractors paid for the June bricks (late)", "NEFT CR–DHALIWAL CONTRACTORS")
     K.rec(D(2026, 3, 16), kb, ks1, R(160000), "Sidhu Builders paid part of the February bricks", "NEFT CR–SIDHU BUILDERS")
     for d, a in [(D(2025, 11, 25), R(420000)), (D(2026, 1, 28), R(365000))]:
-        K.took(d, kcx, kcoal, a, "Coal from Jindal Coal Depot on khata")
+        K.took(d, kcx, kcoal, a, "Coal from Jindal Coal Depot on credit")
     K.pay(D(2025, 4, 25), kcoal, kb, R(95000), "Jindal Coal Depot paid — last season's balance", "RTGS DR–JINDAL COAL")
     K.pay(D(2025, 12, 26), kcoal, kb, R(420000), "Jindal Coal Depot paid — November coal", "RTGS DR–JINDAL COAL")
     for d0, d1, give, spent in [(D(2025, 4, 2), D(2025, 6, 28), R(150000), R(148500)), (D(2025, 11, 10), D(2025, 12, 31), R(120000), R(116000)), (D(2026, 1, 5), D(2026, 3, 30), R(140000), R(142400))]:
@@ -2908,10 +2921,10 @@ def render_readme(cases, mds):
     out.append("- **No tax, GST, TDS, invoicing, stock or payroll** (`docs/00-vision.md`, non-goals). Goods bought for sale are spent when bought or taken on credit; there is no closing stock, and the shop's statement says so. A salary is simply paid.")
     out.append("- **One basis for every book — the khata basis** (O-01-1): money is recorded when it moves; an amount due to or from a named person when it arises; nothing for the passage of time alone. "
                "**Every report head** carries the book, the date or period, the basis in one plain line (*Kept on money paid and received, and what people owe; no year-end adjustments.*), *Year closed* and *Made on* — a fixed, pinned date, so a rerun is byte-identical (O-01-1, O-20-1, O-20-2).")
-    out.append("- **Transaction-driven.** Every entry is a real event: money in or out of cash, bank, card, wallet or KCC; credit given or taken with a named person (khata); a transfer between own accounts or into a deposit; "
+    out.append("- **Transaction-driven.** Every entry is a real event: money in or out of cash, bank, card, wallet or KCC; credit given or taken with a named person; a transfer between own accounts or into a deposit; "
                "an advance and its settlement; a loan instalment as the lender's statement splits it; a partner paying from his own pocket; a correction of a wrong head. "
                "Every book has credit given or taken, receipts, a cash withdrawal, a transfer, an advance and a correction.")
-    out.append("- **One running account per person; its own account for what is not everyday khata.** A deposit held or paid, retention money held back, an advance for spending, and a loan that carries interest each have their own account on the person's page, beside the khata (O-02-4, O-06-4, O-07-1, O-09-8).")
+    out.append("- **One running account per person; its own account for what is not everyday credit.** A deposit held or paid, retention money held back, an advance for spending, and a loan that carries interest each have their own account on the person's page, beside the running account (O-02-4, O-06-4, O-07-1, O-09-8).")
     out.append("- **Advances** are settled in one entry (Dr each head · Cr *Advance – {person}*); the unspent part is returned, left open and carried forward, moved to the person's own account, or written off; a salary advance is recovered in the salary entry (O-07-2…O-07-5, O-12-3). "
                "A balance known not to come back is *Written off* / *Rent written off* (O-06-5, O-12-1, O-18-5); a cash count that differs goes to *Cash short / over* (O-11-1).")
     out.append("- **Things owned stay at cost, no depreciation** (O-09-1, O-09-2): every position that shows them prints *Things owned are shown at what they cost; no depreciation is charged.* A thing bought on a loan the lender pays to the seller is one entry (O-09-6); an improvement is added to a building's cost, a repair is an expense (O-18-4).")
@@ -2972,7 +2985,7 @@ def render_readme(cases, mds):
     out.append("")
     out.append("- ⚠️ **Bookkeeper's review.** Every ruling of 20 Oct 2026 goes to the bookkeeper (research outline, step 5) together with these books; the books follow the rulings as written, and where a ruling and the books seem to differ the ruling is right and the books are to be fixed.")
     out.append("- **Compact entries** (owner, 26 Oct 2026). To keep each book to about 50 entries, a recurring item is written once for a quarter or a half-year — a quarter's wages, "
-               "a half-year's groceries on khata, a quarter's counter sales — and the note says what period it covers. These books show each kind of entry and every report done correctly; "
+               "a half-year's groceries on credit, a quarter's counter sales — and the note says what period it covers. These books show each kind of entry and every report done correctly; "
                "they do not show how often an entry recurs. In the app every bank line is imported as its own entry, and the user gives each one its account and, if they wish, a note "
                "(07 §11); entries typed by hand are entered as they happen.")
     out.append("- ⚠️ **What the app does today contradicts some rulings** (02 §5 amends a posted entry where the rulings correct by a new entry; 02 §7 requires approval for an advance; ADR 2026-09-05e §2 keeps drawings separate where the rulings close them to capital) — taken up once, in the app-requirements pass after the bookkeeper's review (ADR 2026-10-20, Consequences). `GAPS.md` lists them.")

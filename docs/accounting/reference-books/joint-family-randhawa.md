@@ -36,7 +36,7 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 | 10 | Randhawa Real Estate A/c | Money in a business | The family's money put into its real estate, at what it put in | 31,37,000 | — |
 | 11 | Randhawa Brick Field A/c | Money in a business | The family's money put into the brick field (its 3 of 5 share), at what it put in | 11,64,000 | — |
 | 12 | Udhaar – Lakhbeer's Family A/c | Loan given | Money Lakhbeer's household took to be returned — on its own page, not with the household money | — | — |
-| 13 | Doodhwala (milk khata) A/c | Person / shop | Milkman (khata) — milk for the common kitchen, written up each half-year; March 2025's milk brought forward | — | 9,600 |
+| 13 | Doodhwala A/c | Person / shop | Milkman — milk for the common kitchen, written up each half-year; March 2025's milk brought forward | — | 9,600 |
 | 14 | Advance – mason A/c | Advance | Advance to the mason for the roof, settled against his bill | — | — |
 | 15 | Capital A/c – Randhawa family | Own money | The family's own money | — | 1,47,70,500 |
 | 16 | Income from Randhawa Agriculture A/c | Income | Money the farm sent home — the family's income | — | — |
@@ -94,7 +94,7 @@ One account after another: date, entry number, the other account (*To …* on th
 | 30 Sep 2025 | RJ-017 | To Interest A/c<br><em>Savings interest</em> | 2,860 | — | 5,94,960 | Dr |
 | 03 Oct 2025 | RJ-018 | By Amarjeet's Family A/c<br><em>Household money for six months to Amarjeet's family</em> | — | 45,000 | 5,49,960 | Dr |
 | 03 Oct 2025 | RJ-019 | By Lakhbeer's Family A/c<br><em>Household money for six months to Lakhbeer's family</em> | — | 60,000 | 4,89,960 | Dr |
-| 04 Oct 2025 | RJ-020 | By Doodhwala (milk khata) A/c<br><em>Milkman's khata paid — March (brought forward) and April–September</em> | — | 67,200 | 4,22,760 | Dr |
+| 04 Oct 2025 | RJ-020 | By Doodhwala A/c<br><em>Milkman's account paid — March (brought forward) and April–September</em> | — | 67,200 | 4,22,760 | Dr |
 | 08 Oct 2025 | RJ-021 | By Common Kitchen & Ration A/c<br><em>Ration and gas for the common kitchen, October–March (wholesale)</em> | — | 1,01,500 | 3,21,260 | Dr |
 | 20 Oct 2025 | RJ-022 | By Randhawa Brick Field A/c<br><em>Put into the brick field for the season (the family's share)</em> | — | 2,00,000 | 1,21,260 | Dr |
 | 25 Nov 2025 | RJ-024 | To Income from Randhawa Agriculture A/c<br><em>Paddy money sent home by Randhawa Agriculture</em> | 3,50,000 | — | 4,71,260 | Dr |
@@ -221,14 +221,14 @@ One account after another: date, entry number, the other account (*To …* on th
 |  |  | **Total** | **50,000** | **50,000** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | — | 0 | — |
 
-#### Doodhwala (milk khata) A/c
+#### Doodhwala A/c
 
 | Date | No. | Particulars | You will get (Dr) | You will give (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | 9,600 | 9,600 | Cr |
-| 30 Sep 2025 | RJ-016 | By Common Kitchen & Ration A/c<br><em>Milk for April–September on the milkman's khata</em> | — | 57,600 | 67,200 | Cr |
-| 04 Oct 2025 | RJ-020 | To SBI Joint Savings A/c<br><em>Milkman's khata paid — March (brought forward) and April–September</em> | 67,200 | — | 0 | — |
-| 31 Mar 2026 | RJ-039 | By Common Kitchen & Ration A/c<br><em>Milk for October–March on the milkman's khata</em> | — | 59,400 | 59,400 | Cr |
+| 30 Sep 2025 | RJ-016 | By Common Kitchen & Ration A/c<br><em>Milk for April–September on credit from the milkman</em> | — | 57,600 | 67,200 | Cr |
+| 04 Oct 2025 | RJ-020 | To SBI Joint Savings A/c<br><em>Milkman's account paid — March (brought forward) and April–September</em> | 67,200 | — | 0 | — |
+| 31 Mar 2026 | RJ-039 | By Common Kitchen & Ration A/c<br><em>Milk for October–March on credit from the milkman</em> | — | 59,400 | 59,400 | Cr |
 | 31 Mar 2026 |  | Closing balance c/d | 59,400 | — | — | — |
 |  |  | **Total** | **1,26,600** | **1,26,600** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | 59,400 | 59,400 | Cr |
@@ -295,9 +295,9 @@ One account after another: date, entry number, the other account (*To …* on th
 | Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 08 Apr 2025 | RJ-003 | To SBI Joint Savings A/c<br><em>Ration and gas for the common kitchen, April–September (wholesale)</em> | 93,500 | — | 93,500 | Dr |
-| 30 Sep 2025 | RJ-016 | To Doodhwala (milk khata) A/c<br><em>Milk for April–September on the milkman's khata</em> | 57,600 | — | 1,51,100 | Dr |
+| 30 Sep 2025 | RJ-016 | To Doodhwala A/c<br><em>Milk for April–September on credit from the milkman</em> | 57,600 | — | 1,51,100 | Dr |
 | 08 Oct 2025 | RJ-021 | To SBI Joint Savings A/c<br><em>Ration and gas for the common kitchen, October–March (wholesale)</em> | 1,01,500 | — | 2,52,600 | Dr |
-| 31 Mar 2026 | RJ-039 | To Doodhwala (milk khata) A/c<br><em>Milk for October–March on the milkman's khata</em> | 59,400 | — | 3,12,000 | Dr |
+| 31 Mar 2026 | RJ-039 | To Doodhwala A/c<br><em>Milk for October–March on credit from the milkman</em> | 59,400 | — | 3,12,000 | Dr |
 |  |  | **Total for the year** | **3,12,000** | **—** | **3,12,000** | **Dr** |
 | 31 Mar 2026 | RJ-Y2 | By Income & Expenses A/c<br><em>Expense heads closed to Income & Expenses</em> | — | 3,12,000 | 0 | — |
 
@@ -376,7 +376,7 @@ Every account with a balance on 30 Sep 2025, placed on the side its balance fall
 | What I have | Udhaar – Lakhbeer's Family A/c | 50,000 |  |
 |  | **Total — what I have** | **1,50,94,060** |  |
 |  | **Total — what I will get** | **0** |  |
-| What I will give | Doodhwala (milk khata) A/c |  | 67,200 |
+| What I will give | Doodhwala A/c |  | 67,200 |
 |  | **Total — what I will give** |  | **67,200** |
 |  | **Family's own money = have + will get − will give** | **1,50,26,860** |  |
 
@@ -413,7 +413,7 @@ Every account with a balance on 31 Mar 2026, placed on the side its balance fall
 | What I have | Randhawa Brick Field A/c | 14,84,000 |  |
 |  | **Total — what I have** | **1,56,23,160** |  |
 |  | **Total — what I will get** | **0** |  |
-| What I will give | Doodhwala (milk khata) A/c |  | 59,400 |
+| What I will give | Doodhwala A/c |  | 59,400 |
 |  | **Total — what I will give** |  | **59,400** |
 |  | **Family's own money = have + will get − will give** | **1,55,63,760** |  |
 
@@ -452,7 +452,7 @@ Every account's balance on 01 Oct 2025, what went on its Dr side and its Cr side
 | Randhawa Real Estate A/c | 31,37,000 | Dr | — | — | 31,37,000 | Dr |
 | Randhawa Brick Field A/c | 11,64,000 | Dr | 3,00,000 | — | 14,64,000 | Dr |
 | Udhaar – Lakhbeer's Family A/c | 50,000 | Dr | — | — | 50,000 | Dr |
-| Doodhwala (milk khata) A/c | 67,200 | Cr | 67,200 | — | 0 | — |
+| Doodhwala A/c | 67,200 | Cr | 67,200 | — | 0 | — |
 | Capital A/c – Randhawa family | 1,47,70,500 | Cr | — | — | 1,47,70,500 | Cr |
 | Income from Randhawa Agriculture A/c | 4,00,000 | Cr | — | — | 4,00,000 | Cr |
 | Income from Randhawa Real Estate A/c | 60,000 | Cr | — | — | 60,000 | Cr |
@@ -492,7 +492,7 @@ Every person or shop account with a balance, read straight from its own ledger, 
 | Person / shop | Side | Balance ₹ | Up to 30 days ₹ | 31–90 days ₹ | Over 90 days ₹ | Open since |
 |:---|:---|---:|---:|---:|---:|:---|
 | **Total you will get** |  | **0** | **—** | **—** | **—** |  |
-| Doodhwala (milk khata) A/c | You will give (Cr) | 59,400 | 59,400 | — | — | 31 Mar 2026 |
+| Doodhwala A/c | You will give (Cr) | 59,400 | 59,400 | — | — | 31 Mar 2026 |
 | **Total you will give** |  | **59,400** | **59,400** | **—** | **—** |  |
 
 ### 4. Year end — FY 2025-26
@@ -515,7 +515,7 @@ The closing balance of every account after the last entry of the year (before th
 | Randhawa Agriculture A/c | 64,98,100 | — |
 | Randhawa Real Estate A/c | 31,37,000 | — |
 | Randhawa Brick Field A/c | 14,84,000 | — |
-| Doodhwala (milk khata) A/c | — | 59,400 |
+| Doodhwala A/c | — | 59,400 |
 | Capital A/c – Randhawa family | — | 1,47,70,500 |
 | Income from Randhawa Agriculture A/c | — | 7,50,000 |
 | Income from Randhawa Real Estate A/c | — | 3,10,000 |
@@ -586,7 +586,7 @@ Nobody types these. When the year is closed the book itself closes every income 
 | Less: taken out during the year (given to the sub-families or spent for them) | 3,17,500 |
 | Add: saving for the year | 8,19,760 |
 | **Family's own money — at the end, 31 Mar 2026** | **1,55,63,760** |
-| Doodhwala (milk khata) A/c | 59,400 |
+| Doodhwala A/c | 59,400 |
 | **Total** | **1,56,23,160** |
 
 **What I have and will get**
@@ -627,7 +627,7 @@ Every account that carries a balance takes its balance **after the year close** 
 | Randhawa Agriculture A/c | Money in a business | 64,98,100 | Dr | 64,98,100 | Dr |
 | Randhawa Real Estate A/c | Money in a business | 31,37,000 | Dr | 31,37,000 | Dr |
 | Randhawa Brick Field A/c | Money in a business | 14,84,000 | Dr | 14,84,000 | Dr |
-| Doodhwala (milk khata) A/c | Person / shop | 59,400 | Cr | 59,400 | Cr |
+| Doodhwala A/c | Person / shop | 59,400 | Cr | 59,400 | Cr |
 | Capital A/c – Randhawa family | Own money | 1,55,90,260 | Cr | 1,55,90,260 | Cr |
 | **Σ Dr = Σ Cr** |  | **1,58,41,660** | **= 1,58,41,660** | **1,58,41,660** | **= 1,58,41,660** |
 
@@ -635,7 +635,7 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 ## Book: Amarjeet's Family — household book
 
-Amarjeet and Indu's household · money from the joint family · Indu's stitching · a grocer's khata · the account with the family settled at the year end.
+Amarjeet and Indu's household · money from the joint family · Indu's stitching · a grocer on credit · the account with the family settled at the year end.
 
 ### 1. Accounts and opening balances
 
@@ -648,7 +648,7 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 | 1 | Cash A/c | Cash | Cash at home | 6,000 | — |
 | 2 | PNB Savings A/c | Bank | The household's bank account | 64,000 | — |
 | 3 | Randhawa Joint Family A/c | Joint family | Our account with the joint family — received from it, less put in; settled or carried forward | — | 18,000 |
-| 4 | Gill Kiryana Store A/c | Person / shop | Grocer (khata) | — | 4,200 |
+| 4 | Gill Kiryana Store A/c | Person / shop | Grocer | — | 4,200 |
 | 5 | Sidhu family A/c | Person / shop | Neighbours — suits stitched on credit | — | — |
 | 6 | Capital A/c – Amarjeet's family | Own money | The household's own money | — | 47,800 |
 | 7 | Stitching Income A/c | Income | Indu's stitching work | — | — |
@@ -674,7 +674,7 @@ One account after another: date, entry number, the other account (*To …* on th
 | Date | No. | Particulars | Money in (Dr) | Money out (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | 6,000 | — | 6,000 | Dr |
-| 06 Apr 2025 | RA-002 | By Gill Kiryana Store A/c<br><em>Grocer's khata of March paid, cash</em> | — | 4,200 | 1,800 | Dr |
+| 06 Apr 2025 | RA-002 | By Gill Kiryana Store A/c<br><em>Grocer's account for March paid, cash</em> | — | 4,200 | 1,800 | Dr |
 | 30 May 2025 | RA-003 | To Stitching Income A/c<br><em>Indu's stitching — suits for the season, cash</em> | 6,400 | — | 8,200 | Dr |
 | 04 Aug 2025 | RA-007 | To PNB Savings A/c<br><em>Cash withdrawn (ATM)</em> | 10,000 | — | 18,200 | Dr |
 | 19 Aug 2025 | RA-008 | By Medical A/c<br><em>Doctor and medicines, cash</em> | — | 3,600 | 14,600 | Dr |
@@ -699,14 +699,14 @@ One account after another: date, entry number, the other account (*To …* on th
 | 01 Apr 2025 |  | Opening balance b/f | 64,000 | — | 64,000 | Dr |
 | 03 Apr 2025 | RA-001 | To Randhawa Joint Family A/c<br><em>Ghar kharch aaya — household money for six months from the joint family</em> | 45,000 | — | 1,09,000 | Dr |
 | 10 Jun 2025 | RA-004 | By Phone & Travel A/c<br><em>Mobiles for six months</em> | — | 4,400 | 1,04,600 | Dr |
-| 05 Jul 2025 | RA-006 | By Gill Kiryana Store A/c<br><em>Grocer's khata paid (UPI)</em> | — | 14,800 | 89,800 | Dr |
+| 05 Jul 2025 | RA-006 | By Gill Kiryana Store A/c<br><em>Grocer's account paid (UPI)</em> | — | 14,800 | 89,800 | Dr |
 | 04 Aug 2025 | RA-007 | By Cash A/c<br><em>Cash withdrawn (ATM)</em> | — | 10,000 | 79,800 | Dr |
 | 03 Oct 2025 | RA-013 | To Randhawa Joint Family A/c<br><em>Ghar kharch aaya — household money for six months from the joint family</em> | 45,000 | — | 1,24,800 | Dr |
-| 06 Oct 2025 | RA-014 | By Gill Kiryana Store A/c<br><em>Grocer's khata paid (UPI)</em> | — | 13,900 | 1,10,900 | Dr |
+| 06 Oct 2025 | RA-014 | By Gill Kiryana Store A/c<br><em>Grocer's account paid (UPI)</em> | — | 13,900 | 1,10,900 | Dr |
 | 12 Oct 2025 | RA-015 | By Clothes & Personal A/c<br><em>Clothes for Diwali</em> | — | 12,500 | 98,400 | Dr |
 | 10 Dec 2025 | RA-020 | By Phone & Travel A/c<br><em>Mobiles for six months</em> | — | 4,400 | 94,000 | Dr |
 | 20 Dec 2025 | RA-021 | By Cash A/c<br><em>Cash withdrawn (ATM)</em> | — | 15,000 | 79,000 | Dr |
-| 06 Jan 2026 | RA-025 | By Gill Kiryana Store A/c<br><em>Grocer's khata paid (UPI)</em> | — | 15,600 | 63,400 | Dr |
+| 06 Jan 2026 | RA-025 | By Gill Kiryana Store A/c<br><em>Grocer's account paid (UPI)</em> | — | 15,600 | 63,400 | Dr |
 | 31 Mar 2026 | RA-031 | To Interest A/c<br><em>Savings interest</em> | 910 | — | 64,310 | Dr |
 | 31 Mar 2026 |  | Closing balance c/d | — | 64,310 | — | — |
 |  |  | **Total** | **1,54,910** | **1,54,910** |  |  |
@@ -730,14 +730,14 @@ One account after another: date, entry number, the other account (*To …* on th
 | Date | No. | Particulars | You will get (Dr) | You will give (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | 4,200 | 4,200 | Cr |
-| 06 Apr 2025 | RA-002 | To Cash A/c<br><em>Grocer's khata of March paid, cash</em> | 4,200 | — | 0 | — |
-| 30 Jun 2025 | RA-005 | By Household & Groceries A/c<br><em>Groceries on khata, April–June 2025</em> | — | 14,800 | 14,800 | Cr |
-| 05 Jul 2025 | RA-006 | To PNB Savings A/c<br><em>Grocer's khata paid (UPI)</em> | 14,800 | — | 0 | — |
-| 30 Sep 2025 | RA-011 | By Household & Groceries A/c<br><em>Groceries on khata, July–September 2025</em> | — | 13,900 | 13,900 | Cr |
-| 06 Oct 2025 | RA-014 | To PNB Savings A/c<br><em>Grocer's khata paid (UPI)</em> | 13,900 | — | 0 | — |
-| 31 Dec 2025 | RA-023 | By Household & Groceries A/c<br><em>Groceries on khata, October–December 2025</em> | — | 15,600 | 15,600 | Cr |
-| 06 Jan 2026 | RA-025 | To PNB Savings A/c<br><em>Grocer's khata paid (UPI)</em> | 15,600 | — | 0 | — |
-| 31 Mar 2026 | RA-030 | By Household & Groceries A/c<br><em>Groceries on khata, January–March 2026</em> | — | 14,200 | 14,200 | Cr |
+| 06 Apr 2025 | RA-002 | To Cash A/c<br><em>Grocer's account for March paid, cash</em> | 4,200 | — | 0 | — |
+| 30 Jun 2025 | RA-005 | By Household & Groceries A/c<br><em>Groceries on credit, April–June 2025</em> | — | 14,800 | 14,800 | Cr |
+| 05 Jul 2025 | RA-006 | To PNB Savings A/c<br><em>Grocer's account paid (UPI)</em> | 14,800 | — | 0 | — |
+| 30 Sep 2025 | RA-011 | By Household & Groceries A/c<br><em>Groceries on credit, July–September 2025</em> | — | 13,900 | 13,900 | Cr |
+| 06 Oct 2025 | RA-014 | To PNB Savings A/c<br><em>Grocer's account paid (UPI)</em> | 13,900 | — | 0 | — |
+| 31 Dec 2025 | RA-023 | By Household & Groceries A/c<br><em>Groceries on credit, October–December 2025</em> | — | 15,600 | 15,600 | Cr |
+| 06 Jan 2026 | RA-025 | To PNB Savings A/c<br><em>Grocer's account paid (UPI)</em> | 15,600 | — | 0 | — |
+| 31 Mar 2026 | RA-030 | By Household & Groceries A/c<br><em>Groceries on credit, January–March 2026</em> | — | 14,200 | 14,200 | Cr |
 | 31 Mar 2026 |  | Closing balance c/d | 14,200 | — | — | — |
 |  |  | **Total** | **62,700** | **62,700** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | 14,200 | 14,200 | Cr |
@@ -794,10 +794,10 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 30 Jun 2025 | RA-005 | To Gill Kiryana Store A/c<br><em>Groceries on khata, April–June 2025</em> | 14,800 | — | 14,800 | Dr |
-| 30 Sep 2025 | RA-011 | To Gill Kiryana Store A/c<br><em>Groceries on khata, July–September 2025</em> | 13,900 | — | 28,700 | Dr |
-| 31 Dec 2025 | RA-023 | To Gill Kiryana Store A/c<br><em>Groceries on khata, October–December 2025</em> | 15,600 | — | 44,300 | Dr |
-| 31 Mar 2026 | RA-030 | To Gill Kiryana Store A/c<br><em>Groceries on khata, January–March 2026</em> | 14,200 | — | 58,500 | Dr |
+| 30 Jun 2025 | RA-005 | To Gill Kiryana Store A/c<br><em>Groceries on credit, April–June 2025</em> | 14,800 | — | 14,800 | Dr |
+| 30 Sep 2025 | RA-011 | To Gill Kiryana Store A/c<br><em>Groceries on credit, July–September 2025</em> | 13,900 | — | 28,700 | Dr |
+| 31 Dec 2025 | RA-023 | To Gill Kiryana Store A/c<br><em>Groceries on credit, October–December 2025</em> | 15,600 | — | 44,300 | Dr |
+| 31 Mar 2026 | RA-030 | To Gill Kiryana Store A/c<br><em>Groceries on credit, January–March 2026</em> | 14,200 | — | 58,500 | Dr |
 |  |  | **Total for the year** | **58,500** | **—** | **58,500** | **Dr** |
 | 31 Mar 2026 | RA-Y2 | By Income & Expenses A/c<br><em>Expense heads closed to Income & Expenses</em> | — | 58,500 | 0 | — |
 
@@ -1073,7 +1073,7 @@ Every account that carries a balance takes its balance **after the year close** 
 
 ## Book: Lakhbeer's Family — household book
 
-Lakhbeer and Aman's household · money from the joint family, and ₹50,000 taken to be returned on its own udhaar page — part paid back through the brick field, the rest by bank · a motorcycle · a chemist's khata · a painter's advance.
+Lakhbeer and Aman's household · money from the joint family, and ₹50,000 taken to be returned on its own udhaar page — part paid back through the brick field, the rest by bank · a motorcycle · a chemist on credit · a painter's advance.
 
 ### 1. Accounts and opening balances
 
@@ -1087,14 +1087,14 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 | 2 | HDFC Savings A/c | Bank | The household's bank account | 85,000 | — |
 | 3 | Randhawa Joint Family A/c | Joint family | Our account with the joint family — received from it, less put in; settled or carried forward | — | — |
 | 4 | Udhaar – Randhawa Joint Family A/c | Loan | Money we took from the joint family to be returned — on its own page, not with the household money | — | — |
-| 5 | Bajwa Medical Store A/c | Person / shop | Chemist (khata) | — | — |
+| 5 | Bajwa Medical Store A/c | Person / shop | Chemist | — | — |
 | 6 | Advance – painter A/c | Advance | Advance to the painter for the rooms, settled against his bill | — | — |
 | 7 | Motorcycle A/c | Thing owned | Aman's motorcycle at what it cost (August 2025) | — | — |
 | 8 | Capital A/c – Lakhbeer's family | Own money | The household's own money | — | 90,000 |
 | 9 | Interest A/c | Income | Savings interest | — | — |
 | 10 | Household & Groceries A/c | Expense | Groceries and household things | — | — |
 | 11 | Education A/c | Expense | College fees and books | — | — |
-| 12 | Medical A/c | Expense | Medicines on the chemist's khata | — | — |
+| 12 | Medical A/c | Expense | Medicines bought on credit from the chemist | — | — |
 | 13 | Fuel & Phone A/c | Expense | Motorcycle fuel and mobiles | — | — |
 | 14 | Rooms & Furnishing A/c | Expense | Painting and furnishing of the rooms | — | — |
 |  | **Total of opening balances** |  |  | **90,000** | **90,000** |
@@ -1111,13 +1111,13 @@ One account after another: date, entry number, the other account (*To …* on th
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | 5,000 | — | 5,000 | Dr |
 | 02 Oct 2025 | RB-010 | To HDFC Savings A/c<br><em>Cash withdrawn (ATM)</em> | 25,000 | — | 30,000 | Dr |
-| 04 Oct 2025 | RB-012 | By Bajwa Medical Store A/c<br><em>Chemist's khata paid, cash</em> | — | 5,500 | 24,500 | Dr |
+| 04 Oct 2025 | RB-012 | By Bajwa Medical Store A/c<br><em>Chemist's account paid, cash</em> | — | 5,500 | 24,500 | Dr |
 | 08 Oct 2025 | RB-013 | By Advance – painter A/c<br><em>Advance to the painter for the rooms, cash</em> | — | 8,000 | 16,500 | Dr |
 | 22 Oct 2025 | RB-015 | By Fuel & Phone A/c<br><em>Motorcycle fuel, cash</em> | — | 6,200 | 10,300 | Dr |
 | 27 Oct 2025 | RB-017 | By Rooms & Furnishing A/c<br><em>Rest of the painter's bill, cash</em> | — | 6,500 | 3,800 | Dr |
 | 15 Dec 2025 | RB-020 | By Household & Groceries A/c<br><em>Mobile recharges, cash</em> | — | 2,100 | 1,700 | Dr |
 | 06 Feb 2026 | RB-025 | To HDFC Savings A/c<br><em>Cash withdrawn (ATM)</em> | 10,000 | — | 11,700 | Dr |
-| 02 Mar 2026 | RB-026 | By Bajwa Medical Store A/c<br><em>Chemist's khata paid, cash</em> | — | 2,700 | 9,000 | Dr |
+| 02 Mar 2026 | RB-026 | By Bajwa Medical Store A/c<br><em>Chemist's account paid, cash</em> | — | 2,700 | 9,000 | Dr |
 | 31 Mar 2026 |  | Closing balance c/d | — | 9,000 | — | — |
 |  |  | **Total** | **40,000** | **40,000** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | 9,000 | — | 9,000 | Dr |
@@ -1178,11 +1178,11 @@ One account after another: date, entry number, the other account (*To …* on th
 | Date | No. | Particulars | You will get (Dr) | You will give (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | — | 0 | — |
-| 14 May 2025 | RB-003 | By Medical A/c<br><em>Medicines on khata</em> | — | 2,400 | 2,400 | Cr |
-| 22 Sep 2025 | RB-009 | By Medical A/c<br><em>Medicines on khata</em> | — | 3,100 | 5,500 | Cr |
-| 04 Oct 2025 | RB-012 | To Cash A/c<br><em>Chemist's khata paid, cash</em> | 5,500 | — | 0 | — |
-| 03 Feb 2026 | RB-024 | By Medical A/c<br><em>Medicines on khata</em> | — | 2,700 | 2,700 | Cr |
-| 02 Mar 2026 | RB-026 | To Cash A/c<br><em>Chemist's khata paid, cash</em> | 2,700 | — | 0 | — |
+| 14 May 2025 | RB-003 | By Medical A/c<br><em>Medicines on credit</em> | — | 2,400 | 2,400 | Cr |
+| 22 Sep 2025 | RB-009 | By Medical A/c<br><em>Medicines on credit</em> | — | 3,100 | 5,500 | Cr |
+| 04 Oct 2025 | RB-012 | To Cash A/c<br><em>Chemist's account paid, cash</em> | 5,500 | — | 0 | — |
+| 03 Feb 2026 | RB-024 | By Medical A/c<br><em>Medicines on credit</em> | — | 2,700 | 2,700 | Cr |
+| 02 Mar 2026 | RB-026 | To Cash A/c<br><em>Chemist's account paid, cash</em> | 2,700 | — | 0 | — |
 | 31 Mar 2026 |  | Closing balance c/d | — | — | — | — |
 |  |  | **Total** | **8,200** | **8,200** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | — | 0 | — |
@@ -1252,9 +1252,9 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 14 May 2025 | RB-003 | To Bajwa Medical Store A/c<br><em>Medicines on khata</em> | 2,400 | — | 2,400 | Dr |
-| 22 Sep 2025 | RB-009 | To Bajwa Medical Store A/c<br><em>Medicines on khata</em> | 3,100 | — | 5,500 | Dr |
-| 03 Feb 2026 | RB-024 | To Bajwa Medical Store A/c<br><em>Medicines on khata</em> | 2,700 | — | 8,200 | Dr |
+| 14 May 2025 | RB-003 | To Bajwa Medical Store A/c<br><em>Medicines on credit</em> | 2,400 | — | 2,400 | Dr |
+| 22 Sep 2025 | RB-009 | To Bajwa Medical Store A/c<br><em>Medicines on credit</em> | 3,100 | — | 5,500 | Dr |
+| 03 Feb 2026 | RB-024 | To Bajwa Medical Store A/c<br><em>Medicines on credit</em> | 2,700 | — | 8,200 | Dr |
 |  |  | **Total for the year** | **8,200** | **—** | **8,200** | **Dr** |
 | 31 Mar 2026 | RB-Y2 | By Income & Expenses A/c<br><em>Expense heads closed to Income & Expenses</em> | — | 8,200 | 0 | — |
 
@@ -1373,16 +1373,16 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 *Lakhbeer's Family — Bajwa Medical Store A/c · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-The chemist's khata for the year — medicines on credit and the payments. This is the statement the user shares.
+The chemist's account for the year — medicines on credit and the payments. This is the statement the user shares.
 
 | Date | No. | Particulars | You will get (Dr) | You will give (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance on 01 Apr 2025 | — | — | 0 | — |
-| 14 May 2025 | RB-003 | By Medical A/c<br><em>Medicines on khata</em> | — | 2,400 | 2,400 | Cr |
-| 22 Sep 2025 | RB-009 | By Medical A/c<br><em>Medicines on khata</em> | — | 3,100 | 5,500 | Cr |
-| 04 Oct 2025 | RB-012 | To Cash A/c<br><em>Chemist's khata paid, cash</em> | 5,500 | — | 0 | — |
-| 03 Feb 2026 | RB-024 | By Medical A/c<br><em>Medicines on khata</em> | — | 2,700 | 2,700 | Cr |
-| 02 Mar 2026 | RB-026 | To Cash A/c<br><em>Chemist's khata paid, cash</em> | 2,700 | — | 0 | — |
+| 14 May 2025 | RB-003 | By Medical A/c<br><em>Medicines on credit</em> | — | 2,400 | 2,400 | Cr |
+| 22 Sep 2025 | RB-009 | By Medical A/c<br><em>Medicines on credit</em> | — | 3,100 | 5,500 | Cr |
+| 04 Oct 2025 | RB-012 | To Cash A/c<br><em>Chemist's account paid, cash</em> | 5,500 | — | 0 | — |
+| 03 Feb 2026 | RB-024 | By Medical A/c<br><em>Medicines on credit</em> | — | 2,700 | 2,700 | Cr |
+| 02 Mar 2026 | RB-026 | To Cash A/c<br><em>Chemist's account paid, cash</em> | 2,700 | — | 0 | — |
 |  |  | **Total for the period** | **8,200** | **8,200** |  |  |
 | 31 Mar 2026 |  | **Closing balance on 31 Mar 2026** |  |  | **0** | **—** |
 
@@ -1528,7 +1528,7 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 | 11 | Electricity & Phone A/c | Expense | Electricity of their floor, mobiles, internet | — | — |
 | 12 | Medical A/c | Expense | Doctor and medicines | — | — |
 | 13 | Clothes & Social A/c | Expense | Clothes, gifts and outings | — | — |
-| 14 | Kotli Dairy A/c | Person / shop | Dairy shop (khata) — milk and curd for their floor | — | — |
+| 14 | Kotli Dairy A/c | Person / shop | Dairy shop — milk and curd for their floor | — | — |
 | 15 | Advance – electrician A/c | Advance | Advance to the electrician for rewiring their floor | — | — |
 |  | **Total of opening balances** |  |  | **1,03,000** | **1,03,000** |
 
@@ -1572,7 +1572,7 @@ One account after another: date, entry number, the other account (*To …* on th
 | 05 Sep 2025 | RC-017 | By Post Office RD A/c<br><em>Six months of the recurring deposit</em> | — | 30,000 | 2,75,000 | Dr |
 | 08 Sep 2025 | RC-018 | By Household & Groceries A/c<br><em>Groceries and household, June–September</em> | — | 18,500 | 2,56,500 | Dr |
 | 01 Oct 2025 | RC-020 | To Salary A/c<br><em>Salary for September 2025 (after deductions)</em> | 62,400 | — | 3,18,900 | Dr |
-| 05 Oct 2025 | RC-021 | By Kotli Dairy A/c<br><em>Dairy's khata of April–September paid</em> | — | 16,200 | 3,02,700 | Dr |
+| 05 Oct 2025 | RC-021 | By Kotli Dairy A/c<br><em>Dairy's account for April–September paid</em> | — | 16,200 | 3,02,700 | Dr |
 | 21 Oct 2025 | RC-023 | By Randhawa Joint Family A/c<br><em>Put into the brick field from Lakhwinder's salary, for the family's share</em> | — | 1,00,000 | 2,02,700 | Dr |
 | 01 Nov 2025 | RC-024 | To Salary A/c<br><em>Salary for October 2025 (after deductions)</em> | 62,400 | — | 2,65,100 | Dr |
 | 18 Nov 2025 | RC-025 | By SBI Credit Card A/c<br><em>Credit-card bill paid</em> | — | 16,400 | 2,48,700 | Dr |
@@ -1670,11 +1670,11 @@ One account after another: date, entry number, the other account (*To …* on th
 |:---|:---|:---|---:|---:|---:|:---:|
 | 20 May 2025 | RC-005 | To SBI Credit Card A/c<br><em>Groceries, on the credit card</em> | 11,800 | — | 11,800 | Dr |
 | 08 Sep 2025 | RC-018 | To SBI Salary A/c<br><em>Groceries and household, June–September</em> | 18,500 | — | 30,300 | Dr |
-| 30 Sep 2025 | RC-019 | To Kotli Dairy A/c<br><em>Milk and curd for April–September on the dairy's khata</em> | 16,200 | — | 46,500 | Dr |
+| 30 Sep 2025 | RC-019 | To Kotli Dairy A/c<br><em>Milk and curd for April–September on credit from the dairy</em> | 16,200 | — | 46,500 | Dr |
 | 26 Nov 2025 | RC-026 | To SBI Salary A/c<br><em>Supreet's school trip</em> | 3,500 | — | 50,000 | Dr |
 | 02 Dec 2025 | RC-028 | By School Fees A/c<br><em>Entry RC-026 of 26 Nov 2025 (school trip) was written to Household — moved to School Fees</em> | — | 3,500 | 46,500 | Dr |
 | 16 Feb 2026 | RC-034 | To SBI Credit Card A/c<br><em>Groceries, on the credit card</em> | 12,600 | — | 59,100 | Dr |
-| 31 Mar 2026 | RC-038 | To Kotli Dairy A/c<br><em>Milk and curd for October–March on the dairy's khata</em> | 17,100 | — | 76,200 | Dr |
+| 31 Mar 2026 | RC-038 | To Kotli Dairy A/c<br><em>Milk and curd for October–March on credit from the dairy</em> | 17,100 | — | 76,200 | Dr |
 |  |  | **Total for the year** | **79,700** | **3,500** | **76,200** | **Dr** |
 | 31 Mar 2026 | RC-Y2 | By Income & Expenses A/c<br><em>Expense heads closed to Income & Expenses</em> | — | 76,200 | 0 | — |
 
@@ -1718,9 +1718,9 @@ One account after another: date, entry number, the other account (*To …* on th
 | Date | No. | Particulars | You will get (Dr) | You will give (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | — | 0 | — |
-| 30 Sep 2025 | RC-019 | By Household & Groceries A/c<br><em>Milk and curd for April–September on the dairy's khata</em> | — | 16,200 | 16,200 | Cr |
-| 05 Oct 2025 | RC-021 | To SBI Salary A/c<br><em>Dairy's khata of April–September paid</em> | 16,200 | — | 0 | — |
-| 31 Mar 2026 | RC-038 | By Household & Groceries A/c<br><em>Milk and curd for October–March on the dairy's khata</em> | — | 17,100 | 17,100 | Cr |
+| 30 Sep 2025 | RC-019 | By Household & Groceries A/c<br><em>Milk and curd for April–September on credit from the dairy</em> | — | 16,200 | 16,200 | Cr |
+| 05 Oct 2025 | RC-021 | To SBI Salary A/c<br><em>Dairy's account for April–September paid</em> | 16,200 | — | 0 | — |
+| 31 Mar 2026 | RC-038 | By Household & Groceries A/c<br><em>Milk and curd for October–March on credit from the dairy</em> | — | 17,100 | 17,100 | Cr |
 | 31 Mar 2026 |  | Closing balance c/d | 17,100 | — | — | — |
 |  |  | **Total** | **33,300** | **33,300** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | 17,100 | 17,100 | Cr |
@@ -1960,7 +1960,7 @@ Every account that carries a balance takes its balance **after the year close** 
 
 ## Book: Randhawa Agriculture — family business book
 
-The family farm · KCC loan account · fertiliser khata · paddy through an arhtiya · Aman's labour advance · land on lease (theka) · buffaloes and milk to the dairy society.
+The family farm · KCC loan account · fertiliser on credit · paddy through an arhtiya · Aman's labour advance · land on lease (theka) · buffaloes and milk to the dairy society.
 
 ### 1. Accounts and opening balances
 
@@ -1973,10 +1973,10 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 | 1 | Cash A/c | Cash | Farm cash, with Aman | 8,000 | — |
 | 2 | PNB Savings A/c (farm) | Bank | The farm's bank account | 95,000 | — |
 | 3 | KCC – PNB A/c | KCC loan | Kisan Credit Card loan account — what is owed to the bank (limit ₹5,00,000) | — | 3,20,000 |
-| 4 | Sandhu Fertilisers A/c | Person / shop | Fertiliser and spray dealer (khata) | — | 26,500 |
-| 5 | Bansal & Sons A/c | Person / shop | Arhtiya (khata) — paddy sold through him | — | — |
+| 4 | Sandhu Fertilisers A/c | Person / shop | Fertiliser and spray dealer | — | 26,500 |
+| 5 | Bansal & Sons A/c | Person / shop | Arhtiya — paddy sold through him | — | — |
 | 6 | Advance – Aman Randhawa A/c | Advance | Labour money with Aman, accounted for with the labour slips | — | — |
-| 7 | Verka Milk Society A/c | Person / shop | Dairy society (khata) — milk bills, paid later | 21,600 | — |
+| 7 | Verka Milk Society A/c | Person / shop | Dairy society — milk bills, paid later | 21,600 | — |
 | 8 | Farm Land, Village Kotli A/c | Thing owned | 18 acres of family land at what it cost | 54,00,000 | — |
 | 9 | Tractor & Implements A/c | Thing owned | Tractor, combine attachments, implements at cost | 9,20,000 | — |
 | 10 | Buffaloes A/c | Thing owned | Four buffaloes at what they cost | 3,20,000 | — |
@@ -2026,7 +2026,7 @@ One account after another: date, entry number, the other account (*To …* on th
 | 02 May 2025 | RG-005 | By KCC – PNB A/c<br><em>KCC paid back from the wheat money</em> | — | 3,20,000 | 6,11,100 | Dr |
 | 06 May 2025 | RG-006 | By Drawings A/c – Randhawa Joint Family<br><em>Wheat money sent home to the joint family</em> | — | 4,00,000 | 2,11,100 | Dr |
 | 10 May 2025 | RG-007 | To Straw & PM-Kisan Income A/c<br><em>Wheat straw sold</em> | 18,000 | — | 2,29,100 | Dr |
-| 20 May 2025 | RG-008 | By Sandhu Fertilisers A/c<br><em>Sandhu Fertilisers paid — last season's khata</em> | — | 26,500 | 2,02,600 | Dr |
+| 20 May 2025 | RG-008 | By Sandhu Fertilisers A/c<br><em>Sandhu Fertilisers paid — last season's account</em> | — | 26,500 | 2,02,600 | Dr |
 | 04 Jun 2025 | RG-009 | To KCC – PNB A/c<br><em>Money drawn on the KCC for the paddy season</em> | 2,00,000 | — | 4,02,600 | Dr |
 | 05 Jun 2025 | RG-010 | By Theka (Land Lease) A/c<br><em>Theka for 6 acres for the year (₹40,000 an acre)</em> | — | 2,40,000 | 1,62,600 | Dr |
 | 06 Jun 2025 | RG-011 | By Seed A/c<br><em>Paddy nursery seed</em> | — | 34,000 | 1,28,600 | Dr |
@@ -2041,7 +2041,7 @@ One account after another: date, entry number, the other account (*To …* on th
 | 14 Nov 2025 | RG-030 | To Bansal & Sons A/c<br><em>Bansal & Sons paid most of the paddy money</em> | 9,00,000 | — | 11,56,400 | Dr |
 | 17 Nov 2025 | RG-031 | By KCC – PNB A/c<br><em>KCC paid back from the paddy money</em> | — | 2,00,000 | 9,56,400 | Dr |
 | 25 Nov 2025 | RG-032 | By Drawings A/c – Randhawa Joint Family<br><em>Paddy money sent home to the joint family</em> | — | 3,50,000 | 6,06,400 | Dr |
-| 01 Dec 2025 | RG-033 | By Sandhu Fertilisers A/c<br><em>Sandhu Fertilisers paid — paddy season khata</em> | — | 1,14,500 | 4,91,900 | Dr |
+| 01 Dec 2025 | RG-033 | By Sandhu Fertilisers A/c<br><em>Sandhu Fertilisers paid — paddy season's account</em> | — | 1,14,500 | 4,91,900 | Dr |
 | 19 Dec 2025 | RG-034 | To Bansal & Sons A/c<br><em>Bansal & Sons paid the rest of the paddy money</em> | 2,17,935 | — | 7,09,835 | Dr |
 | 20 Jan 2026 | RG-035 | By Fertiliser & Sprays A/c<br><em>Tractor tyre repair</em> | — | 9,800 | 7,00,035 | Dr |
 | 25 Mar 2026 | RG-037 | By Advance – Aman Randhawa A/c<br><em>Labour money to Aman Randhawa</em> | — | 20,000 | 6,80,035 | Dr |
@@ -2070,11 +2070,11 @@ One account after another: date, entry number, the other account (*To …* on th
 | Date | No. | Particulars | You will get (Dr) | You will give (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | 26,500 | 26,500 | Cr |
-| 20 May 2025 | RG-008 | To PNB Savings A/c (farm)<br><em>Sandhu Fertilisers paid — last season's khata</em> | 26,500 | — | 0 | — |
-| 25 Jun 2025 | RG-014 | By Fertiliser & Sprays A/c<br><em>Urea and DAP for paddy on khata</em> | — | 78,000 | 78,000 | Cr |
-| 20 Aug 2025 | RG-018 | By Fertiliser & Sprays A/c<br><em>Sprays for paddy on khata</em> | — | 36,500 | 1,14,500 | Cr |
-| 10 Nov 2025 | RG-029 | By Fertiliser & Sprays A/c<br><em>DAP and urea for wheat on khata</em> | — | 84,000 | 1,98,500 | Cr |
-| 01 Dec 2025 | RG-033 | To PNB Savings A/c (farm)<br><em>Sandhu Fertilisers paid — paddy season khata</em> | 1,14,500 | — | 84,000 | Cr |
+| 20 May 2025 | RG-008 | To PNB Savings A/c (farm)<br><em>Sandhu Fertilisers paid — last season's account</em> | 26,500 | — | 0 | — |
+| 25 Jun 2025 | RG-014 | By Fertiliser & Sprays A/c<br><em>Urea and DAP for paddy on credit</em> | — | 78,000 | 78,000 | Cr |
+| 20 Aug 2025 | RG-018 | By Fertiliser & Sprays A/c<br><em>Sprays for paddy on credit</em> | — | 36,500 | 1,14,500 | Cr |
+| 10 Nov 2025 | RG-029 | By Fertiliser & Sprays A/c<br><em>DAP and urea for wheat on credit</em> | — | 84,000 | 1,98,500 | Cr |
+| 01 Dec 2025 | RG-033 | To PNB Savings A/c (farm)<br><em>Sandhu Fertilisers paid — paddy season's account</em> | 1,14,500 | — | 84,000 | Cr |
 | 31 Mar 2026 |  | Closing balance c/d | 84,000 | — | — | — |
 |  |  | **Total** | **2,25,000** | **2,25,000** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | 84,000 | 84,000 | Cr |
@@ -2218,9 +2218,9 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 25 Jun 2025 | RG-014 | To Sandhu Fertilisers A/c<br><em>Urea and DAP for paddy on khata</em> | 78,000 | — | 78,000 | Dr |
-| 20 Aug 2025 | RG-018 | To Sandhu Fertilisers A/c<br><em>Sprays for paddy on khata</em> | 36,500 | — | 1,14,500 | Dr |
-| 10 Nov 2025 | RG-029 | To Sandhu Fertilisers A/c<br><em>DAP and urea for wheat on khata</em> | 84,000 | — | 1,98,500 | Dr |
+| 25 Jun 2025 | RG-014 | To Sandhu Fertilisers A/c<br><em>Urea and DAP for paddy on credit</em> | 78,000 | — | 78,000 | Dr |
+| 20 Aug 2025 | RG-018 | To Sandhu Fertilisers A/c<br><em>Sprays for paddy on credit</em> | 36,500 | — | 1,14,500 | Dr |
+| 10 Nov 2025 | RG-029 | To Sandhu Fertilisers A/c<br><em>DAP and urea for wheat on credit</em> | 84,000 | — | 1,98,500 | Dr |
 | 20 Jan 2026 | RG-035 | To PNB Savings A/c (farm)<br><em>Tractor tyre repair</em> | 9,800 | — | 2,08,300 | Dr |
 | 28 Jan 2026 | RG-036 | By Diesel & Repairs A/c<br><em>Entry RG-035 of 20 Jan 2026 (tractor tyre) was written to Fertiliser & Sprays — moved to Diesel & Repairs</em> | — | 9,800 | 1,98,500 | Dr |
 |  |  | **Total for the year** | **2,08,300** | **9,800** | **1,98,500** | **Dr** |
@@ -2573,8 +2573,8 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 |---:|:---|:---|:---|---:|---:|
 | 1 | Cash A/c | Cash | Cash, with Lakhwinder | 3,000 | — |
 | 2 | Axis Bank Current A/c | Bank | The real estate's current account | 1,40,000 | — |
-| 3 | Kotli Medical Hall A/c | Person / shop | Tenant (khata) — shop 1, ₹12,000 a month | — | — |
-| 4 | Bhullar Hardware A/c | Person / shop | Tenant (khata) — shop 2, ₹10,000 a month | 10,000 | — |
+| 3 | Kotli Medical Hall A/c | Person / shop | Tenant — shop 1, ₹12,000 a month | — | — |
+| 4 | Bhullar Hardware A/c | Person / shop | Tenant — shop 2, ₹10,000 a month | 10,000 | — |
 | 5 | Deposit held – Kotli Medical Hall A/c | Deposit held | Security deposit from the shop 1 tenant — returned when he leaves | — | 36,000 |
 | 6 | Deposit held – Bhullar Hardware A/c | Deposit held | Security deposit from the shop 2 tenant | — | 30,000 |
 | 7 | Advance – registry clerk A/c | Advance | Money with the registry clerk for stamp duty, settled against the registry | — | — |
@@ -3063,7 +3063,7 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 ## Book: Randhawa Brick Field — shared business book
 
-Brick kiln shared 3 : 2 by the joint family and Nirmaljeet Gill · no interest on capital — the profit is shared 3 : 2 · bricks on khata · coal on credit · the pathera's advance.
+Brick kiln shared 3 : 2 by the joint family and Nirmaljeet Gill · no interest on capital — the profit is shared 3 : 2 · bricks on credit · coal on credit · the pathera's advance.
 
 ### 1. Accounts and opening balances
 
@@ -3075,9 +3075,9 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 |---:|:---|:---|:---|---:|---:|
 | 1 | Cash A/c | Cash | Kiln cash, with the munshi | 15,000 | — |
 | 2 | HDFC Bank Current A/c | Bank | The brick field's current account | 2,10,000 | — |
-| 3 | Sidhu Builders A/c | Person / shop | Customer (khata) — bricks by the trolley | 84,000 | — |
-| 4 | Dhaliwal Contractors A/c | Person / shop | Customer (khata) | — | — |
-| 5 | Jindal Coal Depot A/c | Person / shop | Coal supplier (khata) | — | 95,000 |
+| 3 | Sidhu Builders A/c | Person / shop | Customer — bricks by the trolley | 84,000 | — |
+| 4 | Dhaliwal Contractors A/c | Person / shop | Customer | — | — |
+| 5 | Jindal Coal Depot A/c | Person / shop | Coal supplier | — | 95,000 |
 | 6 | Advance – pathera jamadar A/c | Advance | Advance to the moulders' jamadar, settled against bricks moulded | — | — |
 | 7 | Kiln & Chimney A/c | Thing owned | The kiln, chimney and sheds at what they cost | 16,50,000 | — |
 | 8 | Randhawa Joint Family A/c | Partner | The joint family's partner's account (share 3 of 5); named after its book | — | 11,64,000 |
@@ -3154,9 +3154,9 @@ One account after another: date, entry number, the other account (*To …* on th
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | 84,000 | — | 84,000 | Dr |
 | 18 Apr 2025 | RK-002 | By HDFC Bank Current A/c<br><em>Sidhu Builders paid for March bricks (opening balance)</em> | — | 84,000 | 0 | — |
-| 20 May 2025 | RK-006 | To Brick Sales A/c<br><em>Bricks on khata — trolleys delivered this month</em> | 3,12,000 | — | 3,12,000 | Dr |
+| 20 May 2025 | RK-006 | To Brick Sales A/c<br><em>Bricks on credit — trolleys delivered this month</em> | 3,12,000 | — | 3,12,000 | Dr |
 | 04 Jul 2025 | RK-014 | By HDFC Bank Current A/c<br><em>Sidhu Builders paid for the May bricks</em> | — | 3,12,000 | 0 | — |
-| 28 Feb 2026 | RK-031 | To Brick Sales A/c<br><em>Bricks on khata — trolleys delivered this month</em> | 2,44,000 | — | 2,44,000 | Dr |
+| 28 Feb 2026 | RK-031 | To Brick Sales A/c<br><em>Bricks on credit — trolleys delivered this month</em> | 2,44,000 | — | 2,44,000 | Dr |
 | 16 Mar 2026 | RK-032 | By HDFC Bank Current A/c<br><em>Sidhu Builders paid part of the February bricks</em> | — | 1,60,000 | 84,000 | Dr |
 | 31 Mar 2026 |  | Closing balance c/d | — | 84,000 | — | — |
 |  |  | **Total** | **6,40,000** | **6,40,000** |  |  |
@@ -3167,9 +3167,9 @@ One account after another: date, entry number, the other account (*To …* on th
 | Date | No. | Particulars | You will get (Dr) | You will give (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | — | 0 | — |
-| 25 Jun 2025 | RK-011 | To Brick Sales A/c<br><em>Bricks on khata — trolleys delivered this month</em> | 2,68,000 | — | 2,68,000 | Dr |
+| 25 Jun 2025 | RK-011 | To Brick Sales A/c<br><em>Bricks on credit — trolleys delivered this month</em> | 2,68,000 | — | 2,68,000 | Dr |
 | 12 Sep 2025 | RK-017 | By HDFC Bank Current A/c<br><em>Dhaliwal Contractors paid for the June bricks (late)</em> | — | 2,68,000 | 0 | — |
-| 25 Mar 2026 | RK-035 | To Brick Sales A/c<br><em>Bricks on khata — trolleys delivered this month</em> | 1,96,000 | — | 1,96,000 | Dr |
+| 25 Mar 2026 | RK-035 | To Brick Sales A/c<br><em>Bricks on credit — trolleys delivered this month</em> | 1,96,000 | — | 1,96,000 | Dr |
 | 31 Mar 2026 |  | Closing balance c/d | — | 1,96,000 | — | — |
 |  |  | **Total** | **4,64,000** | **4,64,000** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | 1,96,000 | — | 1,96,000 | Dr |
@@ -3180,9 +3180,9 @@ One account after another: date, entry number, the other account (*To …* on th
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | 95,000 | 95,000 | Cr |
 | 25 Apr 2025 | RK-003 | To HDFC Bank Current A/c<br><em>Jindal Coal Depot paid — last season's balance</em> | 95,000 | — | 0 | — |
-| 25 Nov 2025 | RK-025 | By Coal A/c<br><em>Coal from Jindal Coal Depot on khata</em> | — | 4,20,000 | 4,20,000 | Cr |
+| 25 Nov 2025 | RK-025 | By Coal A/c<br><em>Coal from Jindal Coal Depot on credit</em> | — | 4,20,000 | 4,20,000 | Cr |
 | 26 Dec 2025 | RK-027 | To HDFC Bank Current A/c<br><em>Jindal Coal Depot paid — November coal</em> | 4,20,000 | — | 0 | — |
-| 28 Jan 2026 | RK-030 | By Coal A/c<br><em>Coal from Jindal Coal Depot on khata</em> | — | 3,65,000 | 3,65,000 | Cr |
+| 28 Jan 2026 | RK-030 | By Coal A/c<br><em>Coal from Jindal Coal Depot on credit</em> | — | 3,65,000 | 3,65,000 | Cr |
 | 31 Mar 2026 |  | Closing balance c/d | 3,65,000 | — | — | — |
 |  |  | **Total** | **8,80,000** | **8,80,000** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | 3,65,000 | 3,65,000 | Cr |
@@ -3244,11 +3244,11 @@ One account after another: date, entry number, the other account (*To …* on th
 | Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 30 Apr 2025 | RK-004 | By Cash A/c<br><em>Bricks sold for cash at the kiln this month</em> | — | 2,96,000 | 2,96,000 | Cr |
-| 20 May 2025 | RK-006 | By Sidhu Builders A/c<br><em>Bricks on khata — trolleys delivered this month</em> | — | 3,12,000 | 6,08,000 | Cr |
+| 20 May 2025 | RK-006 | By Sidhu Builders A/c<br><em>Bricks on credit — trolleys delivered this month</em> | — | 3,12,000 | 6,08,000 | Cr |
 | 31 May 2025 | RK-008 | By Cash A/c<br><em>Bricks sold for cash at the kiln this month</em> | — | 3,24,000 | 9,32,000 | Cr |
-| 25 Jun 2025 | RK-011 | By Dhaliwal Contractors A/c<br><em>Bricks on khata — trolleys delivered this month</em> | — | 2,68,000 | 12,00,000 | Cr |
-| 28 Feb 2026 | RK-031 | By Sidhu Builders A/c<br><em>Bricks on khata — trolleys delivered this month</em> | — | 2,44,000 | 14,44,000 | Cr |
-| 25 Mar 2026 | RK-035 | By Dhaliwal Contractors A/c<br><em>Bricks on khata — trolleys delivered this month</em> | — | 1,96,000 | 16,40,000 | Cr |
+| 25 Jun 2025 | RK-011 | By Dhaliwal Contractors A/c<br><em>Bricks on credit — trolleys delivered this month</em> | — | 2,68,000 | 12,00,000 | Cr |
+| 28 Feb 2026 | RK-031 | By Sidhu Builders A/c<br><em>Bricks on credit — trolleys delivered this month</em> | — | 2,44,000 | 14,44,000 | Cr |
+| 25 Mar 2026 | RK-035 | By Dhaliwal Contractors A/c<br><em>Bricks on credit — trolleys delivered this month</em> | — | 1,96,000 | 16,40,000 | Cr |
 | 31 Mar 2026 | RK-038 | By Cash A/c<br><em>Bricks sold for cash at the kiln this month</em> | — | 1,98,000 | 18,38,000 | Cr |
 |  |  | **Total for the year** | **—** | **18,38,000** | **18,38,000** | **Cr** |
 | 31 Mar 2026 | RK-Y1 | To Profit & Loss A/c<br><em>Income heads closed to Profit & Loss</em> | 18,38,000 | — | 0 | — |
@@ -3257,8 +3257,8 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 25 Nov 2025 | RK-025 | To Jindal Coal Depot A/c<br><em>Coal from Jindal Coal Depot on khata</em> | 4,20,000 | — | 4,20,000 | Dr |
-| 28 Jan 2026 | RK-030 | To Jindal Coal Depot A/c<br><em>Coal from Jindal Coal Depot on khata</em> | 3,65,000 | — | 7,85,000 | Dr |
+| 25 Nov 2025 | RK-025 | To Jindal Coal Depot A/c<br><em>Coal from Jindal Coal Depot on credit</em> | 4,20,000 | — | 4,20,000 | Dr |
+| 28 Jan 2026 | RK-030 | To Jindal Coal Depot A/c<br><em>Coal from Jindal Coal Depot on credit</em> | 3,65,000 | — | 7,85,000 | Dr |
 |  |  | **Total for the year** | **7,85,000** | **—** | **7,85,000** | **Dr** |
 | 31 Mar 2026 | RK-Y2 | By Profit & Loss A/c<br><em>Expense heads closed to Profit & Loss</em> | — | 7,85,000 | 0 | — |
 

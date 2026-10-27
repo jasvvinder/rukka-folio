@@ -175,7 +175,7 @@ Design the home screen, top to bottom: top bar with a scope chip (pill, book nam
 | Gave on credit | **WHAT DID YOU GIVE** | **TO WHOM** — the person leads |
 | Took on credit | **WHAT DID YOU TAKE** | **FROM WHOM** — the person leads |
 
-The chip row shows the money accounts plus a **+** chip for the rest. Design one variant with **no chip row at all** — milk taken on khata touches no bank or cash.
+The chip row shows the money accounts plus a **+** chip for the rest. Design one variant with **no chip row at all** — milk taken on credit touches no bank or cash.
 
 ## S2 (variant) — Live preview line
 

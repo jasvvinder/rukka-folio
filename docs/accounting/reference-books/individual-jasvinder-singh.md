@@ -1,15 +1,15 @@
 # Individual and own business — Jasvinder Singh and Jasvinder Technologies
 
-**Jasvinder Singh** keeps two books. His **personal book** holds the household: a savings account, cash, a credit card, a FASTag wallet, a fixed deposit, two cars (the second bought in October on a car loan that the lender paid straight to the dealer), a hand loan to a friend, a driver's advance, a house help's salary advance and a grocer's khata. **Jasvinder Technologies** is his one-owner IT services business: clients billed on khata, a hosting supplier on credit, one developer on salary. Money moves between the two books only when he puts money into the business or when the business sends money home for the household — each time it is written in both books, in accounts named after the other book. What the business sends home is the household's income; the business is held in the personal book at the money put in. Both books are kept from the bank statement.
+**Jasvinder Singh** keeps two books. His **personal book** holds the household: a savings account, cash, a credit card, a FASTag wallet, a fixed deposit, two cars (the second bought in October on a car loan that the lender paid straight to the dealer), a hand loan to a friend, a driver's advance, a house help's salary advance and a grocer who gives credit. **Jasvinder Technologies** is his one-owner IT services business: clients billed on credit, a hosting supplier on credit, one developer on salary. Money moves between the two books only when he puts money into the business or when the business sends money home for the household — each time it is written in both books, in accounts named after the other book. What the business sends home is the household's income; the business is held in the personal book at the money put in. Both books are kept from the bank statement.
 
 | Who | Role in this example |
 |:---|:---|
 | Jasvinder Singh | Owner of both books |
 | Gurpreet Sandhu | Friend — borrowed ₹25,000 in May on a small interest, returned ₹15,000 in December; the rest written off in March |
-| Sharma General Store | Grocer — household khata, settled every six months |
+| Sharma General Store | Grocer — household groceries on credit, settled every six months |
 | Balwinder Singh | Part-time driver — took ₹15,000 for the family's Vaishno Devi trip in December and accounted for it |
 | HDFC Bank | Car lender — ₹8,00,000 for the second car, paid to the dealer, 60 monthly instalments from 05 Dec 2025 |
-| Medtech Solutions · Kaur Exports · Punjab Agro Board | Clients of the business — billed on khata; Kaur Exports pays in advance once |
+| Medtech Solutions · Kaur Exports · Punjab Agro Board | Clients of the business — billed on credit; Kaur Exports pays in advance once |
 | Cloudnine Hosting | Hosting supplier — billed quarterly on credit |
 | Rohit Verma | Developer on salary — took a salary advance in August, recovered in his salary |
 
@@ -17,7 +17,7 @@ Amounts are in ₹; paise are shown only when there are paise. Plain words come 
 
 ## Book: Jasvinder Singh — personal book
 
-Personal book · savings, cash, credit card, FASTag wallet, fixed deposit, two cars (one on a loan) · grocer's khata, a hand loan to a friend, advances to a driver and the house help · money put into his business, and the business's money sent home as income.
+Personal book · savings, cash, credit card, FASTag wallet, fixed deposit, two cars (one on a loan) · a grocer on credit, a hand loan to a friend, advances to a driver and the house help · money put into his business, and the business's money sent home as income.
 
 ### 1. Accounts and opening balances
 
@@ -33,9 +33,9 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 | 4 | HDFC Credit Card A/c | Credit card | Credit card — what is owed on it | — | 12,400 |
 | 5 | SBI Fixed Deposit A/c | Deposit | Fixed deposits | 2,00,000 | — |
 | 6 | Jasvinder Technologies A/c | Money in a business | Money put into the business, at what was put in; named after the business book | 5,79,740 | — |
-| 7 | Loan to – Gurpreet Sandhu A/c | Loan given | Hand loan to a friend on a small interest — his own account, apart from any khata | — | — |
-| 8 | Sharma General Store A/c | Person / shop | Grocer (khata) — what is owed for groceries | — | 3,200 |
-| 9 | Balwinder Singh A/c | Person / shop | Driver (khata) — what he owes after the trip, to be cut from his pay | — | — |
+| 7 | Loan to – Gurpreet Sandhu A/c | Loan given | Hand loan to a friend on a small interest — its own account, apart from any running account | — | — |
+| 8 | Sharma General Store A/c | Person / shop | Grocer — what is owed for groceries | — | 3,200 |
+| 9 | Balwinder Singh A/c | Person / shop | Driver — what he owes after the trip, to be cut from his pay | — | — |
 | 10 | Advance – house help A/c | Advance | Salary advance to the house help, recovered in her wages | — | — |
 | 11 | Advance – Balwinder Singh A/c | Advance | Money with the driver for the trip, accounted for against his bills | — | — |
 | 12 | Car – Maruti Baleno A/c | Thing owned | The family car at what it cost (2023) | 6,40,000 | — |
@@ -71,7 +71,7 @@ One account after another: date, entry number, the other account (*To …* on th
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | 8,000 | — | 8,000 | Dr |
 | 02 Apr 2025 | JP-002 | To SBI Savings A/c<br><em>Cash withdrawn (ATM)</em> | 45,000 | — | 53,000 | Dr |
-| 05 Apr 2025 | JP-003 | By Sharma General Store A/c<br><em>Grocer's khata of March paid, cash</em> | — | 3,200 | 49,800 | Dr |
+| 05 Apr 2025 | JP-003 | By Sharma General Store A/c<br><em>Grocer's account for March paid, cash</em> | — | 3,200 | 49,800 | Dr |
 | 30 Jun 2025 | JP-010 | By Household Staff Wages A/c<br><em>House help's wages, April–June, cash</em> | — | 30,000 | 19,800 | Dr |
 | 08 Jul 2025 | JP-011 | By Advance – house help A/c<br><em>Salary advance to the house help, cash</em> | — | 6,000 | 13,800 | Dr |
 | 26 Sep 2025 | JP-019 | To SBI Savings A/c<br><em>Cash withdrawn (ATM)</em> | 45,000 | — | 58,800 | Dr |
@@ -108,7 +108,7 @@ One account after another: date, entry number, the other account (*To …* on th
 | 20 Sep 2025 | JP-018 | To SBI Fixed Deposit A/c / Interest A/c<br><em>Cumulative fixed deposit of ₹1,00,000 matured after a year — principal and ₹7,186 interest paid to savings together</em> | 1,07,186 | — | 2,41,286 | Dr |
 | 26 Sep 2025 | JP-019 | By Cash A/c<br><em>Cash withdrawn (ATM)</em> | — | 45,000 | 1,96,286 | Dr |
 | 03 Oct 2025 | JP-022 | By FASTag Wallet A/c<br><em>FASTag wallet recharged from savings</em> | — | 3,000 | 1,93,286 | Dr |
-| 06 Oct 2025 | JP-023 | By Sharma General Store A/c<br><em>Grocer's khata of April–September paid (UPI)</em> | — | 48,400 | 1,44,886 | Dr |
+| 06 Oct 2025 | JP-023 | By Sharma General Store A/c<br><em>Grocer's account for April–September paid (UPI)</em> | — | 48,400 | 1,44,886 | Dr |
 | 16 Oct 2025 | JP-024 | By School Fees A/c<br><em>School fees, second half-year</em> | — | 44,000 | 1,00,886 | Dr |
 | 20 Oct 2025 | JP-025 | To Income from Jasvinder Technologies A/c<br><em>Received from Jasvinder Technologies — money sent home</em> | 1,20,000 | — | 2,20,886 | Dr |
 | 25 Oct 2025 | JP-026 | By Car – Hyundai Venue A/c<br><em>Second car bought for ₹9,00,000: the lender paid the dealer ₹8,00,000 (the loan) and the margin ₹1,00,000 was paid from savings</em> | — | 1,00,000 | 1,20,886 | Dr |
@@ -194,10 +194,10 @@ One account after another: date, entry number, the other account (*To …* on th
 | Date | No. | Particulars | You will get (Dr) | You will give (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | 3,200 | 3,200 | Cr |
-| 05 Apr 2025 | JP-003 | To Cash A/c<br><em>Grocer's khata of March paid, cash</em> | 3,200 | — | 0 | — |
-| 30 Sep 2025 | JP-020 | By Groceries & Household A/c<br><em>Groceries on khata, April–September</em> | — | 48,400 | 48,400 | Cr |
-| 06 Oct 2025 | JP-023 | To SBI Savings A/c<br><em>Grocer's khata of April–September paid (UPI)</em> | 48,400 | — | 0 | — |
-| 31 Mar 2026 | JP-049 | By Groceries & Household A/c<br><em>Groceries on khata, October–March</em> | — | 49,500 | 49,500 | Cr |
+| 05 Apr 2025 | JP-003 | To Cash A/c<br><em>Grocer's account for March paid, cash</em> | 3,200 | — | 0 | — |
+| 30 Sep 2025 | JP-020 | By Groceries & Household A/c<br><em>Groceries on credit, April–September</em> | — | 48,400 | 48,400 | Cr |
+| 06 Oct 2025 | JP-023 | To SBI Savings A/c<br><em>Grocer's account for April–September paid (UPI)</em> | 48,400 | — | 0 | — |
+| 31 Mar 2026 | JP-049 | By Groceries & Household A/c<br><em>Groceries on credit, October–March</em> | — | 49,500 | 49,500 | Cr |
 | 31 Mar 2026 |  | Closing balance c/d | 49,500 | — | — | — |
 |  |  | **Total** | **1,01,100** | **1,01,100** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | 49,500 | 49,500 | Cr |
@@ -314,10 +314,10 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 30 Sep 2025 | JP-020 | To Sharma General Store A/c<br><em>Groceries on khata, April–September</em> | 48,400 | — | 48,400 | Dr |
+| 30 Sep 2025 | JP-020 | To Sharma General Store A/c<br><em>Groceries on credit, April–September</em> | 48,400 | — | 48,400 | Dr |
 | 20 Feb 2026 | JP-045 | To SBI Savings A/c<br><em>Gas cylinder booking and pipe repair (UPI)</em> | 5,900 | — | 54,300 | Dr |
 | 02 Mar 2026 | JP-047 | By Electricity & Phone A/c<br><em>Entry JP-045 of 20 Feb 2026 (gas) was written to Groceries & Household — moved to Electricity & Phone</em> | — | 5,900 | 48,400 | Dr |
-| 31 Mar 2026 | JP-049 | To Sharma General Store A/c<br><em>Groceries on khata, October–March</em> | 49,500 | — | 97,900 | Dr |
+| 31 Mar 2026 | JP-049 | To Sharma General Store A/c<br><em>Groceries on credit, October–March</em> | 49,500 | — | 97,900 | Dr |
 |  |  | **Total for the year** | **1,03,800** | **5,900** | **97,900** | **Dr** |
 | 31 Mar 2026 | JP-Y2 | By Income & Expenses A/c<br><em>Expense heads closed to Income & Expenses</em> | — | 97,900 | 0 | — |
 
@@ -701,7 +701,7 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 ## Book: Jasvinder Technologies — own business book
 
-One-owner business book · IT services · clients on khata · supplier on credit · a developer on salary · the owner's money put in and money sent home, in accounts named after the owner's personal book.
+One-owner business book · IT services · clients on credit · supplier on credit · a developer on salary · the owner's money put in and money sent home, in accounts named after the owner's personal book.
 
 ### 1. Accounts and opening balances
 
@@ -713,10 +713,10 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 |---:|:---|:---|:---|---:|---:|
 | 1 | Cash A/c | Cash | Office cash | 5,000 | — |
 | 2 | HDFC Bank Current A/c | Bank | Business current account | 3,20,000 | — |
-| 3 | Medtech Solutions A/c | Person / shop | Client (khata) — monthly support retainer, billed quarterly | 1,18,000 | — |
-| 4 | Kaur Exports A/c | Person / shop | Client (khata) — website and mobile-application work; paid an advance before the work | — | — |
-| 5 | Punjab Agro Board A/c | Person / shop | Client (khata) — dashboard project billed in two stages | — | — |
-| 6 | Cloudnine Hosting A/c | Person / shop | Supplier (khata) — servers and hosting, billed quarterly | — | 8,260 |
+| 3 | Medtech Solutions A/c | Person / shop | Client — monthly support retainer, billed quarterly | 1,18,000 | — |
+| 4 | Kaur Exports A/c | Person / shop | Client — website and mobile-application work; paid an advance before the work | — | — |
+| 5 | Punjab Agro Board A/c | Person / shop | Client — dashboard project billed in two stages | — | — |
+| 6 | Cloudnine Hosting A/c | Person / shop | Supplier — servers and hosting, billed quarterly | — | 8,260 |
 | 7 | Advance – Rohit Verma A/c | Advance | Salary advance to the developer, recovered in his salary | — | — |
 | 8 | Laptops & Office Equipment A/c | Thing owned | Laptops, monitors and office equipment at what they cost | 1,45,000 | — |
 | 9 | Capital A/c – Jasvinder Singh | Own money | The owner's own money in the business; named after the owner, whose personal book is the other book | — | 5,79,740 |
@@ -1078,7 +1078,7 @@ Things owned are shown at what they cost; no depreciation is charged.
 
 *Jasvinder Technologies — Kaur Exports A/c · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-One client's khata for the year — an advance before the work (they are owed work), the bill that turned it round, and the payments. This is the copy sent to Kaur Exports: it is read by them, so its columns are named by side — *Naam (Dr)* and *Jama (Cr)* — and its last line says *Balance due from you* or *Balance due to you*.
+One client's account for the year — an advance before the work (they are owed work), the bill that turned it round, and the payments. This is the copy sent to Kaur Exports: it is read by them, so its columns are named by side — *Naam (Dr)* and *Jama (Cr)* — and its last line says *Balance due from you* or *Balance due to you*.
 
 | Date | No. | Particulars | Naam (Dr) ₹ | Jama (Cr) ₹ | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|

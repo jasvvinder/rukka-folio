@@ -1,21 +1,21 @@
 # Shop — Sukhwinder Sales Co. (pipes & sanitary)
 
-**Sukhwinder Bal** runs a pipes-and-sanitary shop. Counter sales are in cash and the cash is banked; builders and plumbers buy on khata; the pipe company and the sanitary agency supply on khata. One salesman draws a salary and once takes an advance. The book is kept from the bank statement and the counter cash book. Goods bought for sale are written as spent when bought — no stock is counted.
+**Sukhwinder Bal** runs a pipes-and-sanitary shop. Counter sales are in cash and the cash is banked; builders and plumbers buy on credit; the pipe company and the sanitary agency supply on credit. One salesman draws a salary and once takes an advance. The book is kept from the bank statement and the counter cash book. Goods bought for sale are written as spent when bought — no stock is counted.
 
 | Who | Role in this example |
 |:---|:---|
 | Sukhwinder Bal | Proprietor; takes money for the household each quarter |
 | Manpreet Kaur | Salesman — salary each quarter; a salary advance in August |
-| Guru Nanak Builders | Customer on khata — pays the quarter's goods the next month |
+| Guru Nanak Builders | Customer on credit — pays the quarter's goods the next month |
 | Dhillon Plumbing Works | Customer who pays in advance, then buys — the account turns round |
-| Supreme Pipes Ltd · Jaquar Sanitary Agency | Suppliers on khata |
+| Supreme Pipes Ltd · Jaquar Sanitary Agency | Suppliers on credit |
 | Kapoor Properties | The shop's landlord — rent paid each quarter; holds the shop's ₹90,000 security deposit |
 
 Amounts are in ₹; paise are shown only when there are paise. Plain words come first and the true side follows in small brackets — Money in (Dr), You will give (Cr) — so the side is never lost. Every figure is illustrative.
 
 ## Book: Sukhwinder Sales Co. — business book
 
-One-owner shop · counter cash banked · customers and suppliers on khata · a salesman on salary · kept from the bank statement.
+One-owner shop · counter cash banked · customers and suppliers on credit · a salesman on salary · kept from the bank statement.
 
 ### 1. Accounts and opening balances
 
@@ -27,16 +27,16 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 |---:|:---|:---|:---|---:|---:|
 | 1 | Cash A/c | Cash | Counter cash | 22,000 | — |
 | 2 | PNB Current A/c | Bank | Shop's current account | 4,80,000 | — |
-| 3 | Guru Nanak Builders A/c | Person / shop | Customer (khata) — builder | 64,000 | — |
-| 4 | Dhillon Plumbing Works A/c | Person / shop | Customer (khata) — plumbing contractor | — | — |
-| 5 | Supreme Pipes Ltd A/c | Person / shop | Supplier (khata) — pipes and fittings | — | 1,18,000 |
-| 6 | Jaquar Sanitary Agency A/c | Person / shop | Supplier (khata) — sanitary ware | — | 46,500 |
+| 3 | Guru Nanak Builders A/c | Person / shop | Customer — builder | 64,000 | — |
+| 4 | Dhillon Plumbing Works A/c | Person / shop | Customer — plumbing contractor | — | — |
+| 5 | Supreme Pipes Ltd A/c | Person / shop | Supplier — pipes and fittings | — | 1,18,000 |
+| 6 | Jaquar Sanitary Agency A/c | Person / shop | Supplier — sanitary ware | — | 46,500 |
 | 7 | Advance – Manpreet Kaur A/c | Advance | Salary advance to the salesman | — | — |
 | 8 | Deposit paid – Kapoor Properties A/c | Deposit paid | Security deposit paid to the shop's landlord (six months' rent) — comes back when the shop is vacated | 90,000 | — |
 | 9 | Shop Fittings & Counter A/c | Thing owned | Racks, counter and display at what they cost | 1,20,000 | — |
 | 10 | Capital A/c – Sukhwinder Bal | Own money | Owner's own money in the shop | — | 6,11,500 |
 | 11 | Drawings A/c – Sukhwinder Bal | Drawings | Money taken for the household | — | — |
-| 12 | Sales A/c | Income | Goods sold — counter cash and khata | — | — |
+| 12 | Sales A/c | Income | Goods sold — for cash at the counter and on credit | — | — |
 | 13 | Goods Bought for Sale A/c | Expense | Pipes, fittings and sanitary ware bought — spent when bought (no stock is counted) | — | — |
 | 14 | Freight & Cartage A/c | Expense | Goods brought to the shop and delivered | — | — |
 | 15 | Salary A/c | Expense | Salesman's salary | — | — |
@@ -127,13 +127,13 @@ One account after another: date, entry number, the other account (*To …* on th
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | 64,000 | — | 64,000 | Dr |
 | 14 Apr 2025 | S-003 | By PNB Current A/c<br><em>Guru Nanak Builders paid March's goods (opening balance)</em> | — | 64,000 | 0 | — |
-| 30 Jun 2025 | S-011 | To Sales A/c<br><em>Goods to Guru Nanak Builders on khata, April–June 2025</em> | 2,38,000 | — | 2,38,000 | Dr |
+| 30 Jun 2025 | S-011 | To Sales A/c<br><em>Goods to Guru Nanak Builders on credit, April–June 2025</em> | 2,38,000 | — | 2,38,000 | Dr |
 | 15 Jul 2025 | S-016 | By PNB Current A/c<br><em>Guru Nanak Builders paid for the goods of April–June 2025</em> | — | 2,38,000 | 0 | — |
-| 30 Sep 2025 | S-026 | To Sales A/c<br><em>Goods to Guru Nanak Builders on khata, July–September 2025</em> | 2,14,500 | — | 2,14,500 | Dr |
+| 30 Sep 2025 | S-026 | To Sales A/c<br><em>Goods to Guru Nanak Builders on credit, July–September 2025</em> | 2,14,500 | — | 2,14,500 | Dr |
 | 22 Oct 2025 | S-031 | By PNB Current A/c<br><em>Guru Nanak Builders paid for the goods of July–September 2025 (late)</em> | — | 2,14,500 | 0 | — |
-| 31 Dec 2025 | S-039 | To Sales A/c<br><em>Goods to Guru Nanak Builders on khata, October–December 2025</em> | 2,56,000 | — | 2,56,000 | Dr |
+| 31 Dec 2025 | S-039 | To Sales A/c<br><em>Goods to Guru Nanak Builders on credit, October–December 2025</em> | 2,56,000 | — | 2,56,000 | Dr |
 | 14 Jan 2026 | S-044 | By PNB Current A/c<br><em>Guru Nanak Builders paid for the goods of October–December 2025</em> | — | 2,56,000 | 0 | — |
-| 31 Mar 2026 | S-052 | To Sales A/c<br><em>Goods to Guru Nanak Builders on khata, January–March 2026</em> | 2,47,000 | — | 2,47,000 | Dr |
+| 31 Mar 2026 | S-052 | To Sales A/c<br><em>Goods to Guru Nanak Builders on credit, January–March 2026</em> | 2,47,000 | — | 2,47,000 | Dr |
 | 31 Mar 2026 |  | Closing balance c/d | — | 2,47,000 | — | — |
 |  |  | **Total** | **10,19,500** | **10,19,500** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | 2,47,000 | — | 2,47,000 | Dr |
@@ -158,13 +158,13 @@ One account after another: date, entry number, the other account (*To …* on th
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | 1,18,000 | 1,18,000 | Cr |
 | 08 Apr 2025 | S-002 | To PNB Current A/c<br><em>Supreme Pipes paid — March bill (opening balance)</em> | 1,18,000 | — | 0 | — |
-| 30 Jun 2025 | S-012 | By Goods Bought for Sale A/c<br><em>Pipes and fittings from Supreme Pipes on khata, April–June 2025</em> | — | 3,34,000 | 3,34,000 | Cr |
+| 30 Jun 2025 | S-012 | By Goods Bought for Sale A/c<br><em>Pipes and fittings from Supreme Pipes on credit, April–June 2025</em> | — | 3,34,000 | 3,34,000 | Cr |
 | 18 Jul 2025 | S-017 | To PNB Current A/c<br><em>Supreme Pipes paid — goods of April–June 2025</em> | 3,34,000 | — | 0 | — |
-| 30 Sep 2025 | S-027 | By Goods Bought for Sale A/c<br><em>Pipes and fittings from Supreme Pipes on khata, July–September 2025</em> | — | 3,01,500 | 3,01,500 | Cr |
+| 30 Sep 2025 | S-027 | By Goods Bought for Sale A/c<br><em>Pipes and fittings from Supreme Pipes on credit, July–September 2025</em> | — | 3,01,500 | 3,01,500 | Cr |
 | 09 Oct 2025 | S-030 | To PNB Current A/c<br><em>Supreme Pipes paid — goods of July–September 2025</em> | 3,01,500 | — | 0 | — |
-| 31 Dec 2025 | S-040 | By Goods Bought for Sale A/c<br><em>Pipes and fittings from Supreme Pipes on khata, October–December 2025</em> | — | 3,52,000 | 3,52,000 | Cr |
+| 31 Dec 2025 | S-040 | By Goods Bought for Sale A/c<br><em>Pipes and fittings from Supreme Pipes on credit, October–December 2025</em> | — | 3,52,000 | 3,52,000 | Cr |
 | 16 Jan 2026 | S-045 | To PNB Current A/c<br><em>Supreme Pipes paid — goods of October–December 2025</em> | 3,52,000 | — | 0 | — |
-| 31 Mar 2026 | S-053 | By Goods Bought for Sale A/c<br><em>Pipes and fittings from Supreme Pipes on khata, January–March 2026</em> | — | 3,38,000 | 3,38,000 | Cr |
+| 31 Mar 2026 | S-053 | By Goods Bought for Sale A/c<br><em>Pipes and fittings from Supreme Pipes on credit, January–March 2026</em> | — | 3,38,000 | 3,38,000 | Cr |
 | 31 Mar 2026 |  | Closing balance c/d | 3,38,000 | — | — | — |
 |  |  | **Total** | **14,43,500** | **14,43,500** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | 3,38,000 | 3,38,000 | Cr |
@@ -175,9 +175,9 @@ One account after another: date, entry number, the other account (*To …* on th
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | 46,500 | 46,500 | Cr |
 | 25 Apr 2025 | S-004 | To PNB Current A/c<br><em>Jaquar Sanitary Agency paid — opening balance</em> | 46,500 | — | 0 | — |
-| 20 May 2025 | S-007 | By Goods Bought for Sale A/c<br><em>Sanitary ware from Jaquar Sanitary Agency on khata</em> | — | 1,18,600 | 1,18,600 | Cr |
+| 20 May 2025 | S-007 | By Goods Bought for Sale A/c<br><em>Sanitary ware from Jaquar Sanitary Agency on credit</em> | — | 1,18,600 | 1,18,600 | Cr |
 | 26 Aug 2025 | S-021 | To PNB Current A/c<br><em>Jaquar Sanitary Agency paid — May bill</em> | 1,18,600 | — | 0 | — |
-| 18 Nov 2025 | S-034 | By Goods Bought for Sale A/c<br><em>Sanitary ware from Jaquar Sanitary Agency on khata</em> | — | 1,26,400 | 1,26,400 | Cr |
+| 18 Nov 2025 | S-034 | By Goods Bought for Sale A/c<br><em>Sanitary ware from Jaquar Sanitary Agency on credit</em> | — | 1,26,400 | 1,26,400 | Cr |
 | 31 Mar 2026 |  | Closing balance c/d | 1,26,400 | — | — | — |
 |  |  | **Total** | **2,91,500** | **2,91,500** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | 1,26,400 | 1,26,400 | Cr |
@@ -242,15 +242,15 @@ One account after another: date, entry number, the other account (*To …* on th
 | Date | No. | Particulars | Taken off / closed (Dr) | Income (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 30 Jun 2025 | S-009 | By Cash A/c<br><em>Counter sales in cash, April–June 2025 (from the daily cash memo book)</em> | — | 3,86,000 | 3,86,000 | Cr |
-| 30 Jun 2025 | S-011 | By Guru Nanak Builders A/c<br><em>Goods to Guru Nanak Builders on khata, April–June 2025</em> | — | 2,38,000 | 6,24,000 | Cr |
+| 30 Jun 2025 | S-011 | By Guru Nanak Builders A/c<br><em>Goods to Guru Nanak Builders on credit, April–June 2025</em> | — | 2,38,000 | 6,24,000 | Cr |
 | 04 Jul 2025 | S-015 | By Dhillon Plumbing Works A/c<br><em>Pipes and fittings to Dhillon Plumbing Works for the hotel job</em> | — | 86,500 | 7,10,500 | Cr |
 | 30 Sep 2025 | S-024 | By Cash A/c<br><em>Counter sales in cash, July–September 2025 (from the daily cash memo book)</em> | — | 3,42,500 | 10,53,000 | Cr |
-| 30 Sep 2025 | S-026 | By Guru Nanak Builders A/c<br><em>Goods to Guru Nanak Builders on khata, July–September 2025</em> | — | 2,14,500 | 12,67,500 | Cr |
+| 30 Sep 2025 | S-026 | By Guru Nanak Builders A/c<br><em>Goods to Guru Nanak Builders on credit, July–September 2025</em> | — | 2,14,500 | 12,67,500 | Cr |
 | 11 Dec 2025 | S-036 | By Dhillon Plumbing Works A/c<br><em>Sanitary ware to Dhillon Plumbing Works</em> | — | 42,800 | 13,10,300 | Cr |
 | 31 Dec 2025 | S-037 | By Cash A/c<br><em>Counter sales in cash, October–December 2025 (from the daily cash memo book)</em> | — | 4,12,000 | 17,22,300 | Cr |
-| 31 Dec 2025 | S-039 | By Guru Nanak Builders A/c<br><em>Goods to Guru Nanak Builders on khata, October–December 2025</em> | — | 2,56,000 | 19,78,300 | Cr |
+| 31 Dec 2025 | S-039 | By Guru Nanak Builders A/c<br><em>Goods to Guru Nanak Builders on credit, October–December 2025</em> | — | 2,56,000 | 19,78,300 | Cr |
 | 31 Mar 2026 | S-050 | By Cash A/c<br><em>Counter sales in cash, January–March 2026 (from the daily cash memo book)</em> | — | 3,98,500 | 23,76,800 | Cr |
-| 31 Mar 2026 | S-052 | By Guru Nanak Builders A/c<br><em>Goods to Guru Nanak Builders on khata, January–March 2026</em> | — | 2,47,000 | 26,23,800 | Cr |
+| 31 Mar 2026 | S-052 | By Guru Nanak Builders A/c<br><em>Goods to Guru Nanak Builders on credit, January–March 2026</em> | — | 2,47,000 | 26,23,800 | Cr |
 |  |  | **Total for the year** | **—** | **26,23,800** | **26,23,800** | **Cr** |
 | 31 Mar 2026 | S-Y1 | To Profit & Loss A/c<br><em>Income heads closed to Profit & Loss</em> | 26,23,800 | — | 0 | — |
 
@@ -258,14 +258,14 @@ One account after another: date, entry number, the other account (*To …* on th
 
 | Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 20 May 2025 | S-007 | To Jaquar Sanitary Agency A/c<br><em>Sanitary ware from Jaquar Sanitary Agency on khata</em> | 1,18,600 | — | 1,18,600 | Dr |
-| 30 Jun 2025 | S-012 | To Supreme Pipes Ltd A/c<br><em>Pipes and fittings from Supreme Pipes on khata, April–June 2025</em> | 3,34,000 | — | 4,52,600 | Dr |
+| 20 May 2025 | S-007 | To Jaquar Sanitary Agency A/c<br><em>Sanitary ware from Jaquar Sanitary Agency on credit</em> | 1,18,600 | — | 1,18,600 | Dr |
+| 30 Jun 2025 | S-012 | To Supreme Pipes Ltd A/c<br><em>Pipes and fittings from Supreme Pipes on credit, April–June 2025</em> | 3,34,000 | — | 4,52,600 | Dr |
 | 30 Aug 2025 | S-022 | To Cash A/c<br><em>Tempo hire for a delivery to Phagwara, cash</em> | 3,200 | — | 4,55,800 | Dr |
 | 06 Sep 2025 | S-023 | By Freight & Cartage A/c<br><em>Entry S-022 of 30 Aug 2025 (tempo hire) was written to Goods Bought for Sale — moved to Freight & Cartage</em> | — | 3,200 | 4,52,600 | Dr |
-| 30 Sep 2025 | S-027 | To Supreme Pipes Ltd A/c<br><em>Pipes and fittings from Supreme Pipes on khata, July–September 2025</em> | 3,01,500 | — | 7,54,100 | Dr |
-| 18 Nov 2025 | S-034 | To Jaquar Sanitary Agency A/c<br><em>Sanitary ware from Jaquar Sanitary Agency on khata</em> | 1,26,400 | — | 8,80,500 | Dr |
-| 31 Dec 2025 | S-040 | To Supreme Pipes Ltd A/c<br><em>Pipes and fittings from Supreme Pipes on khata, October–December 2025</em> | 3,52,000 | — | 12,32,500 | Dr |
-| 31 Mar 2026 | S-053 | To Supreme Pipes Ltd A/c<br><em>Pipes and fittings from Supreme Pipes on khata, January–March 2026</em> | 3,38,000 | — | 15,70,500 | Dr |
+| 30 Sep 2025 | S-027 | To Supreme Pipes Ltd A/c<br><em>Pipes and fittings from Supreme Pipes on credit, July–September 2025</em> | 3,01,500 | — | 7,54,100 | Dr |
+| 18 Nov 2025 | S-034 | To Jaquar Sanitary Agency A/c<br><em>Sanitary ware from Jaquar Sanitary Agency on credit</em> | 1,26,400 | — | 8,80,500 | Dr |
+| 31 Dec 2025 | S-040 | To Supreme Pipes Ltd A/c<br><em>Pipes and fittings from Supreme Pipes on credit, October–December 2025</em> | 3,52,000 | — | 12,32,500 | Dr |
+| 31 Mar 2026 | S-053 | To Supreme Pipes Ltd A/c<br><em>Pipes and fittings from Supreme Pipes on credit, January–March 2026</em> | 3,38,000 | — | 15,70,500 | Dr |
 |  |  | **Total for the year** | **15,73,700** | **3,200** | **15,70,500** | **Dr** |
 | 31 Mar 2026 | S-Y2 | By Profit & Loss A/c<br><em>Expense heads closed to Profit & Loss</em> | — | 15,70,500 | 0 | — |
 
@@ -445,7 +445,7 @@ No stock is counted. Everything bought for sale is treated as sold or used in th
 
 *Sukhwinder Sales Co. — Dhillon Plumbing Works A/c · 01 Apr 2025 to 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-The plumbing contractor's khata for the year — an advance first, then goods that turned the balance round, then the payment. This is the copy sent to Dhillon Plumbing Works: it is read by them, so its columns are named by side — *Naam (Dr)* and *Jama (Cr)* — and its last line says *Balance due from you* or *Balance due to you*.
+The plumbing contractor's account for the year — an advance first, then goods that turned the balance round, then the payment. This is the copy sent to Dhillon Plumbing Works: it is read by them, so its columns are named by side — *Naam (Dr)* and *Jama (Cr)* — and its last line says *Balance due from you* or *Balance due to you*.
 
 | Date | No. | Particulars | Naam (Dr) ₹ | Jama (Cr) ₹ | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
