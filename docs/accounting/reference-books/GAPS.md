@@ -27,7 +27,7 @@ Developer document (technical by design). The five printed books in this folder 
 - **App needs:** a *Deposit* account reachable by Transfer, under *What I have*, and the non-money interest-credit entry.
 
 ### A4. Money kept for a purpose — the fund for a purpose (trust)
-- **Practice:** donations for the langar hall `RS-003`, `RS-017`, `RS-041` and the deposit's interest `RS-050` are added to *Langar Hall Fund A/c*; the hall is paid from it `RS-028`, `RS-035`. The fund sits with the own money, beside the General Fund (O-02-1), in the positions and the balance sheet, with its own statement (section *Each fund — its year*). Interest on a fund's deposit goes to the fund (O-17-2).
+- **Practice:** donations for the langar hall `RS-003`, `RS-017`, `RS-041` and the deposit's interest `RS-050` are added to *Langar Hall Fund A/c*; the hall is paid from it `RS-028`, `RS-035`, and what is left in it meets the hall bills paid from general money at the year end `RS-057`. The fund sits with the own money, beside the General Fund (O-02-1), in the positions and the balance sheet, with its own statement (section *Each fund — its year*). Interest on a fund's deposit goes to the fund (O-17-2).
 - **02 says:** no fund role in `equity_system` (§1.2 :19); Money in may credit only income or a party.
 - **App needs:** a *fund* class, natural Cr, outside the year's result, shown with the own money, receiving Money in and the deposit's interest, with a statement of its own; spending from it is E2.
 
@@ -126,8 +126,8 @@ Developer document (technical by design). The five printed books in this folder 
 | # | What practice does | 02 / ADR position | What the app needs |
 |---|---|---|---|
 | E1 | **Gollak: the count records the donation** (`RS-004` … `RS-051`: Dr *Gollak* · Cr *Donations – gollak*); **emptying is a transfer** into the cash box or the bank (`RS-005`, `RS-006`, …); money not yet counted is not recorded (O-17-8) | money subtype cash_collection; 02 §8.2 counts — **supported**; the donation-on-count posting is stated differently if 02 §8.2 makes the count a transfer only | confirm the count's posting |
-| E2 | **Spending from a fund is one action, two postings** (`RS-028`, `RS-035`): Dr *Construction* · Cr bank (charged to Income & Expenditure) and Dr the fund · Cr *Transferred from the Langar Hall Fund*; the fund's own result is nil (O-17-1) | no fund (A4); a four-line entry | the fund spend shape (plain words: *paid from the Langar Hall Fund*) |
-| E3 | *Construction* as an expense head (owner, 13 Oct 2026; O-09-7) — so a hall paid from the trust's own money is a deficit (`RS-049`) and the part paid from the fund is offset by the transfer | ADR 2026-10-12 §6's asset class could carry it at cost | none (ruled) |
+| E2 | **Spending from a fund is one action, two postings** (`RS-028`, `RS-035`; the year-end transfer for bills paid from general money is the second posting alone, `RS-057`): Dr *Construction* · Cr bank (charged to Income & Expenditure) and Dr the fund · Cr *Transferred from the Langar Hall Fund*; the fund's own result is nil (O-17-1) | no fund (A4); a four-line entry | the fund spend shape (plain words: *paid from the Langar Hall Fund*) |
+| E3 | *Construction* as an expense head (owner, 13 Oct 2026; O-09-7) — so the part of the hall paid from the fund is offset by the transfer, and only what the fund could not meet falls on the General Fund (`RS-019`, `RS-049`, met in part by `RS-057`) | ADR 2026-10-12 §6's asset class could carry it at cost | none (ruled) |
 | E4 | *Dairy Donation* is income — owner, 13 Oct 2026; general donations are income in Income & Expenditure (O-17-4) | categories — **supported** | none (ruled) |
 | E5 | Manni and Ravinder as expense heads, paid each quarter in cash (`RS-010`, `RS-011`, …) | categories — **supported** | none |
 | E6 | Material for the hall on credit from a store (`RS-013`, `RS-019`) | verbs 3 and 4 — **supported** | none |

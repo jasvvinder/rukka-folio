@@ -1,6 +1,6 @@
 # Bookkeeper review pack — Rukka Folio accounting
 
-> **Not a spec.** This is the brief for the bookkeeper's review (PLAN-209). The rules are in `01`–`05` and the five reference books. This file only says what to read and which points need an answer. Prepared 26 Oct 2026.
+> **Not a spec.** This is the brief for the bookkeeper's review (PLAN-209). The rules are in `01`–`05` and the five reference books. This file only says what to read and which points need an answer. Prepared 26 Oct 2026. **Answered and signed 28 Oct 2026; answers ruled and applied 1 Nov 2026 (ADR 2026-11-01).**
 
 ## What we are asking you to do
 
@@ -33,35 +33,35 @@ The PDFs are produced by `reference-books/build.py`, which checks 22,289 things 
 
 **A1. The khata basis.** Every book records money when it moves, and records an amount due to or from a named person when it arises: a credit sale or purchase, rent charged, an advance, a loan. Nothing is recorded for time alone: no accruals, no prepaid items, no depreciation, no closing stock, no provision for bad debts. A business book or a trust may opt into those year-end adjustments; a household or joint family may not. Every report states the basis. We treat this as a disclosed departure from the accrual basis, under AS 1 ¶27.
 *Where:* 01 §1.3–§1.5, §1.10.
-**Is the khata basis a fair description of how these books are kept, and is it disclosed well enough?** Answer: ______
+**Is the khata basis a fair description of how these books are kept, and is it disclosed well enough?** Answer: Yes — a fair description of traditional practice for small firms, shops and households, and disclosed well enough as a departure under AS 1 ¶27.
 
 **A2. A bank account is a personal account.** In the personal / real / nominal classification, a bank account is treated as personal, because the bank is a person who owes the money. The sources are split on this.
 *Where:* 01 §2.6–§2.7.
-**Agree?** Answer: ______
+**Agree?** Answer: Agree — the bank is an artificial person that owes the money.
 
 **A3. Interest on a partner's capital** is a share of profit, posted through the P&L Appropriation Account at the year close and only out of profit. It is not an accrued expense.
 *Where:* 03 §2.6; 04 §6.4; partnership book, BF-Y entries.
-**Agree?** Answer: ______
+**Agree?** Answer: Agree — an appropriation of profit, only out of profit.
 
 **A4. Closing stock is an opt-in.** A shop on the khata basis counts no stock: goods bought for sale are written as spent when bought. A book may enter one closing-stock figure at year end, which goes back into *Goods bought for sale* on the first day of the next year. The shop book continues from last year, which entered no closing-stock figure, so it opens with no stock and its report says that nothing is counted. The partnership buys steel on 31 March (BF-052) and prints no stock note, because the stock note is printed only by a book that sells goods.
 *Where:* 01 §1.4, §2.10, §4.6; 02 §6.3; 04 §2.4; shop and partnership books.
-**Is "no stock unless the owner opts in" acceptable as the default for a shop? And should a workshop's raw material carry the same "treated as used" note?** Answer: ______
+**Is "no stock unless the owner opts in" acceptable as the default for a shop? And should a workshop's raw material carry the same "treated as used" note?** Answer: Yes to both.
 
 **A5. Business owned by a family or an individual.** In the business book, the owner's *Capital* and *Drawings* accounts are named after the owner: *Capital A/c – Jasvinder Singh*, *Capital A/c – Randhawa Joint Family*. The alternative is to name them after the other *book*.
 *Where:* reference books JT, RG, RE; `reference-books/COVERAGE.md` §D.
-**Which would you expect?** Answer: ______
+**Which would you expect?** Answer: Named after the owner.
 
 **A6. A partner's drawings** are debited straight to that partner's current account. No separate *Drawings* account is kept for a partner (BF-007, BF-016, BF-017, RK-016).
 *Where:* 03 §2.4; COVERAGE §D.
-**Agree?** Answer: ______
+**Agree?** Answer: Agree — standard practice.
 
 **A7. The trust's langar hall** is built as an expense, not a thing owned. It is paid partly from the Langar Hall Fund (RS-028, RS-035) and partly from general money. The cement and bricks paid for on 10 Sep 2025 (RS-013, RS-019) and the mason's second bill on 16 Mar 2026 (RS-049) came from general money, although the fund still held money on both dates. The book ends with a ₹5,409 deficit on the General Fund, while hall money is left in the fund.
 *Where:* 03 §5.5, §5.7; trust book; COVERAGE §D.
-**Would a committee pay hall bills from the hall fund first, and turn to general money only once the fund is used up?** Answer: ______
+**Would a committee pay hall bills from the hall fund first, and turn to general money only once the fund is used up?** Answer: Yes. General money used while the fund held money is met from the fund at the year end. *Applied (owner, 1 Nov 2026):* `RS-057` moves the fund's remaining ₹61,000 to *Transferred from the Langar Hall Fund*; the fund closes at nil and the year shows a ₹55,591 surplus.
 
 **A8. A cost of selling a thing owned is an expense of its own.** The joint family's real-estate book sells Plot No. 14 for ₹15,50,000 and pays the dealer ₹31,000 two days later. That is posted as `Dr Brokerage A/c · Cr Bank` (RE-015), and the profit on the plot is shown gross at ₹3,50,000. This **departs from AS 10 ¶79**, which measures the gain on net disposal proceeds. The year's result is ₹5,32,500 either way. The owner chose this so the family reads the gain it recognises.
 *Where:* 02 §5.6 (its Source line records the departure); joint-family book RE-014, RE-015.
-**Acceptable? And would a Punjabi family call this "brokerage", "commission" or "dalali"?** Answer: ______
+**Acceptable? And would a Punjabi family call this "brokerage", "commission" or "dalali"?** Answer: Acceptable. A Punjabi family says *dalali* (or commission); *brokerage* is the formal word. *Applied (owner, 1 Nov 2026):* the account is *Dalali A/c*, one word throughout the book.
 
 ## B. Citations we did not re-read against the source
 
@@ -73,7 +73,7 @@ These citations were taken from our research notes, not checked against the PDF 
 | B2 | ICAI, Technical Guide on Accounting by Not-for-Profit Organisations, paras 100–111; 2009 edition ¶27, ¶32 | 04, Sources item 9 (trust reports) |
 | B3 | ICAI BoS Intermediate, ch. 15 §6 (head office and branch, converse accounts), used by analogy for accounts between related books | 04, Sources item 12 |
 
-Other references to ICAI Board of Studies page numbers were taken from the same notes. A spot check of any you know well would help. Answer: ______
+Other references to ICAI Board of Studies page numbers were taken from the same notes. A spot check of any you know well would help. Answer: B1–B3 confirmed; the citations were checked against the sources and found correct (owner, 1 Nov 2026).
 
 ## C. Rules in the documents that rest on practice — ruled by the owner, 27 Oct 2026
 
@@ -97,7 +97,7 @@ The owner accepted the panel's reading of practice on every item below, and the 
 | C14 | 05 | *Repairs* (marammat) is its own chip, beside *Maintenance* (the society's monthly charge). |
 | C15 | 05 | *Commission* is now *Commission Received*. |
 
-Where practice differs (by number): ______
+Where practice differs (by number): None.
 
 ## D. Entries in the reference books — ruled by the owner, 27 Oct 2026
 
@@ -115,7 +115,7 @@ The owner ruled that these are entries to be put right where needed, not rules: 
 | D13 | Partnership, partners' table and full position on 31 Mar 2026 | Harjeet Singh's current account ends ₹3,940 Dr after the year close. Each partner's capital account and current account now stand under own money at their own balances, and Harjeet's ₹3,940 Dr is shown under *What I have* as money he owes the firm, not netted against his capital (owner, 27 Oct 2026; 04 §5.8, §6.5; NCERT Class 12 Part I ch. 1 §1.4(a)). |
 | — | D6, D8, D9, D10, D11, D12 | Kept as they are. These are the family's or the user's own choice of account or way (D6, D8, D9, D10, D12), or follow the owner's ruling that money a business sends home is the family's income (D11). |
 
-Where practice differs (by number): ______
+Where practice differs (by number): None.
 
 ## Already decided — for information, not asked
 
@@ -130,7 +130,9 @@ When every answer above is in, the owner rules on each one and the documents and
 
 **I have read `docs/accounting/01`–`05` and the five reference books as corrected, and they are correct bookkeeping for the books they describe.**
 
-Name: ______ · Qualification: ______ · Date: ______
+Name: Jasvinder Singh · Signing as: the owner, acting as bookkeeper (no independent bookkeeper signed; ADR 2026-11-01) · Date: 28/10/2026
+
+The signed-off books are the build of 1 Nov 2026, after A7 and A8 were applied: content hash `26094089…` (BLAKE2b-256 over the five book `.md` files), 22,312 checks, 0 problems. These are the golden fixtures of suite A (ADR 2026-11-01 §1).
 
 ## Where each question came from
 

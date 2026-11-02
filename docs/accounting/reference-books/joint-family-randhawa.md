@@ -2588,7 +2588,7 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 | 15 | Deposit forfeited A/c | Income | Part of a tenant's deposit kept when he left without notice | — | — |
 | 16 | Property Tax A/c | Expense | Municipal property tax | — | — |
 | 17 | Repairs A/c | Expense | Repairs to the shops | — | — |
-| 18 | Brokerage A/c | Expense | Dealer's brokerage on the plot sale | — | — |
+| 18 | Dalali A/c | Expense | Dealer's dalali on the plot sale | — | — |
 | 19 | Rent written off A/c | Expense | Rent a tenant will not pay, after it was asked for | — | — |
 |  | **Total of opening balances** |  |  | **32,03,000** | **32,03,000** |
 
@@ -2627,7 +2627,7 @@ One account after another: date, entry number, the other account (*To …* on th
 | 26 Sep 2025 | RE-011 | By Property Tax A/c<br><em>Property tax 2025-26 for the shops</em> | — | 14,200 | 2,02,800 | Dr |
 | 07 Oct 2025 | RE-013 | To Kotli Medical Hall A/c<br><em>Rent of October–December 2025 received</em> | 36,000 | — | 2,38,800 | Dr |
 | 18 Nov 2025 | RE-014 | To Plot No. 14, Model Colony A/c / Profit on Sale of Plot A/c<br><em>Plot No. 14 sold for ₹15,50,000 — its cost ₹12,00,000 and the profit ₹3,50,000</em> | 15,50,000 | — | 17,88,800 | Dr |
-| 20 Nov 2025 | RE-015 | By Brokerage A/c<br><em>Dealer's brokerage on the plot sale (2%)</em> | — | 31,000 | 17,57,800 | Dr |
+| 20 Nov 2025 | RE-015 | By Dalali A/c<br><em>Dealer's dalali on the plot sale (2%)</em> | — | 31,000 | 17,57,800 | Dr |
 | 10 Dec 2025 | RE-016 | By Drawings A/c – Randhawa Joint Family<br><em>Part of the plot money sent home to the joint family</em> | — | 2,50,000 | 15,07,800 | Dr |
 | 12 Dec 2025 | RE-017 | By Shops at Kotli Chowk A/c<br><em>Mezzanine floor built over shop 1 — an improvement, added to the shops' cost</em> | — | 1,40,000 | 13,67,800 | Dr |
 | 22 Dec 2025 | RE-018 | To Bhullar Hardware A/c<br><em>Rent of October–December 2025 received — only ₹5,000 of ₹30,000</em> | 5,000 | — | 13,72,800 | Dr |
@@ -2806,11 +2806,11 @@ One account after another: date, entry number, the other account (*To …* on th
 |  |  | **Total for the year** | **9,300** | **—** | **9,300** | **Dr** |
 | 31 Mar 2026 | RE-Y2 | By Profit & Loss A/c<br><em>Expense heads closed to Profit & Loss</em> | — | 9,300 | 0 | — |
 
-#### Brokerage A/c
+#### Dalali A/c
 
 | Date | No. | Particulars | Spent (Dr) | Got back / closed (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
-| 20 Nov 2025 | RE-015 | To Axis Bank Current A/c<br><em>Dealer's brokerage on the plot sale (2%)</em> | 31,000 | — | 31,000 | Dr |
+| 20 Nov 2025 | RE-015 | To Axis Bank Current A/c<br><em>Dealer's dalali on the plot sale (2%)</em> | 31,000 | — | 31,000 | Dr |
 |  |  | **Total for the year** | **31,000** | **—** | **31,000** | **Dr** |
 | 31 Mar 2026 | RE-Y2 | By Profit & Loss A/c<br><em>Expense heads closed to Profit & Loss</em> | — | 31,000 | 0 | — |
 
@@ -2969,7 +2969,7 @@ The closing balance of every account after the last entry of the year (before th
 | Deposit forfeited A/c | — | 5,000 |
 | Property Tax A/c | 14,200 | — |
 | Repairs A/c | 9,300 | — |
-| Brokerage A/c | 31,000 | — |
+| Dalali A/c | 31,000 | — |
 | Rent written off A/c | 2,000 | — |
 | **TOTALS** | **37,62,000** | **37,62,000** |
 
@@ -2989,7 +2989,7 @@ Every income and expense account's **total for the year** — the *Total for the
 |:---|---:|---:|---:|
 | To Property Tax A/c | 3 | 14,200 | — |
 | To Repairs A/c | 2 | 9,300 | — |
-| To Brokerage A/c | 1 | 31,000 | — |
+| To Dalali A/c | 1 | 31,000 | — |
 | To Rent written off A/c | 1 | 2,000 | — |
 | By Rent Income A/c | 4 | — | 2,34,000 |
 | By Profit on Sale of Plot A/c | 1 | — | 3,50,000 |
@@ -3009,7 +3009,7 @@ Nobody types these. When the year is closed the book itself closes every income 
 | No. | Date | What the book does | Debit (Dr) | Credit (Cr) | Amount ₹ |
 |:---|:---|:---|:---|:---|---:|
 | RE-Y1 | 31 Mar 2026 | Income heads closed to Profit & Loss | Rent Income A/c ₹2,34,000<br>Profit on Sale of Plot A/c ₹3,50,000<br>Deposit forfeited A/c ₹5,000 | Profit & Loss A/c | 5,89,000 |
-| RE-Y2 | 31 Mar 2026 | Expense heads closed to Profit & Loss | Profit & Loss A/c | Property Tax A/c ₹14,200<br>Repairs A/c ₹9,300<br>Brokerage A/c ₹31,000<br>Rent written off A/c ₹2,000 | 56,500 |
+| RE-Y2 | 31 Mar 2026 | Expense heads closed to Profit & Loss | Profit & Loss A/c | Property Tax A/c ₹14,200<br>Repairs A/c ₹9,300<br>Dalali A/c ₹31,000<br>Rent written off A/c ₹2,000 | 56,500 |
 | RE-Y3 | 31 Mar 2026 | Net profit added to own money | Profit & Loss A/c | Capital A/c – Randhawa Joint Family | 5,32,500 |
 | RE-Y4 | 31 Mar 2026 | Drawings closed to own money | Capital A/c – Randhawa Joint Family | Drawings A/c – Randhawa Joint Family | 3,10,000 |
 

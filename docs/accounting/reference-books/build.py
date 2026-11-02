@@ -182,7 +182,7 @@ PLAIN_VTYPE = {
     "Journal (settled)": "Settled at year end", "Journal": "Fix / Adjust",
     "Payment (from a fund)": "Paid from a fund", "Journal (interest added)": "Interest added to a deposit",
     "Journal (written off)": "Written off", "Journal (set off)": "Deposit set off", "Journal (deposit forfeited)": "Deposit forfeited",
-    "Journal (retention released)": "Retention released",
+    "Journal (retention released)": "Retention released", "Journal (from a fund)": "Moved from a fund",
 }
 APP_VERB = {
     "Receipt": "money_in", "Payment": "money_out", "Contra": "transfer", "Journal (credit given)": "gave_credit",
@@ -196,6 +196,7 @@ APP_VERB = {
     "Journal (set off)": "deposit held set off against what the same person owes (O-09-8, O-12-2): Dr deposit held · Cr the person — see GAPS A5",
     "Journal (deposit forfeited)": "deposit held kept as income (O-09-8, O-18-3): Dr deposit held · Cr Deposit forfeited — see GAPS A5",
     "Journal (retention released)": "retention money released by transfer to the party's account (O-06-4): Dr the person · Cr retention held — see GAPS D2",
+    "Journal (from a fund)": "year-end transfer from a fund for its purpose already paid from general money (bookkeeper A7, 1 Nov 2026): Dr fund · Cr transfer from the fund — see GAPS E2",
 }
 VTYPES = tuple(PLAIN_VTYPE)
 CONTRA_KINDS = ("cash", "gollak", "bank", "cc")   # 02 §1.3: a contra is cash ↔ bank only
@@ -1771,7 +1772,7 @@ ENTRY_KINDS = [   # (formal voucher type, the kind of entry it is) — in the or
     ("Payment (from a fund)", "a payment from a fund"), ("Journal (interest added)", "interest the bank adds to a deposit"),
     ("Journal", None), ("Journal (settled)", "a running account settled at year end"),
     ("Journal (set off)", "a deposit held set off against what is owed"), ("Journal (deposit forfeited)", "a deposit held kept as income"),
-    ("Journal (retention released)", "retention money released"), ("Journal (written off)", "an amount written off"),
+    ("Journal (retention released)", "retention money released"), ("Journal (from a fund)", "a fund's money moved for its purpose at year end"), ("Journal (written off)", "an amount written off"),
     ("Journal (correction)", "a correction"),
 ]
 
@@ -2342,7 +2343,7 @@ def build_trust():
     cash = b.add(Account("Cash A/c", "cash", "The trust's cash box, with the secretary", R(22000)))
     gol = b.add(Account("Gollak Cash A/c", "gollak", "The gollak — counted every two months, emptied only into the cash box or the bank"))
     bank = b.add(Account("SBI Savings A/c", "bank", "The trust's savings account — it earns the bank's interest (a current account earns none)", R(485000)))
-    lfd = b.add(Account("SBI Fixed Deposit (Langar Hall Fund) A/c", "invest", "Fixed deposit made from the langar hall donations — its interest goes to the Langar Hall Fund", R(200000)))
+    lfd = b.add(Account("SBI Fixed Deposit A/c", "invest", "Fixed deposit first made from the langar hall donations — its interest this year went to the Langar Hall Fund", R(200000)))
     adv = b.add(Account("Advance – Amritpal Singh A/c", "advance", "Langar money with the sewadar, accounted for with bills"))
     cem = b.add(Account("Kotli Cement Store A/c", "party", "Building-material store — cement and bricks for the hall"))
     furn = b.add(Account("Furniture & Equipment A/c", "fixed", "Things given to the trust and kept, at ₹1 each — the estimated value is in the entry's note"))
@@ -2399,6 +2400,9 @@ def build_trust():
     b.move(D(2025, 12, 29), cash, bank, R(45000), "Cash withdrawn for wages (cheque, self)", "CHQ WDL–SELF")
     wrong = b.pay(D(2025, 9, 6), genx, cash, R(2800), "Fodder for the dairy, cash")
     b.fix(D(2025, 9, 20), dairy, genx, R(2800), "Entry {ref} (fodder) was written to General Expense — moved to Dairy Expense", "Journal (correction)", ref=wrong)
+    # bookkeeper A7 (owner, 1 Nov 2026): a committee spends the hall fund first — the hall bills paid from general money
+    # (₹1,48,000 on 10 Sep, ₹96,000 on 16 Mar) are met at the year end from what is left in the fund, which closes at nil
+    b.v(D(2026, 3, 31), "Journal (from a fund)", "Hall bills paid from the trust's general money (cement and bricks, mason's second bill) — met from what is left in the Langar Hall Fund", [(lfund, R(61000)), (ltr, -R(61000))])
     b.finalize()
     b.construction = ("Construction A/c", "the langar hall")
     b.journal_word = "a thing given in kind and kept"   # 04 §4.3: the hall's cost to date (construction began this year)
@@ -2575,7 +2579,7 @@ def build_family():
     eforf = E.add(Account("Deposit forfeited A/c", "income", "Part of a tenant's deposit kept when he left without notice"))
     etax = E.add(Account("Property Tax A/c", "expense", "Municipal property tax"))
     erep = E.add(Account("Repairs A/c", "expense", "Repairs to the shops"))
-    ebrok = E.add(Account("Brokerage A/c", "expense", "Dealer's brokerage on the plot sale"))
+    ebrok = E.add(Account("Dalali A/c", "expense", "Dealer's dalali on the plot sale"))
     ewo = E.add(Account("Rent written off A/c", "expense", "Rent a tenant will not pay, after it was asked for"))
     # Brick field
     kc = K.add(Account("Cash A/c", "cash", "Kiln cash, with the munshi", R(15000)))
@@ -2802,7 +2806,7 @@ def build_family():
     E.v(D(2025, 11, 18), "Receipt", "Plot No. 14 sold for ₹15,50,000 — its cost ₹12,00,000 and the profit ₹3,50,000",
         [(eb, R(1550000)), (eplot, -R(1200000)), (egain, -R(350000))], stmt="RTGS CR–PLOT SALE")
     # 02 §5.6 (owner, 26 Oct 2026): a cost of selling is an expense of its own, not set against the gain
-    E.pay(D(2025, 11, 20), ebrok, eb, R(31000), "Dealer's brokerage on the plot sale (2%)", "NEFT DR–PROPERTY DEALER")
+    E.pay(D(2025, 11, 20), ebrok, eb, R(31000), "Dealer's dalali on the plot sale (2%)", "NEFT DR–PROPERTY DEALER")
     E.pay(D(2025, 12, 12), eshops, eb, R(140000), "Mezzanine floor built over shop 1 — an improvement, added to the shops' cost", "NEFT DR–BUILDER")
     E.pay(D(2026, 2, 5), eplot2, eb, R(980000), "Plot No. 7, Green Enclave bought — thing owned, at cost", "RTGS DR–PLOT PURCHASE")
     E.pay(D(2026, 2, 9), eadv, eb, R(70000), "Money to the registry clerk for stamp duty and registry", "IMPS DR–REGISTRY CLERK")

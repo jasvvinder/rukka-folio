@@ -12,6 +12,27 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-11-02 — docs: bookkeeper sign-off (PLAN-209) — answers ruled and applied
+
+**Decided**
+- The owner signed the review pack **as the bookkeeper**; no independent bookkeeper signed. ADR 2026-10-22 §1 is now in force: `docs/accounting/` ranks above 02 on accounting behaviour, and the reference books are suite A's golden fixtures ([ADR 2026-11-01](docs/decisions/2026-11-01-bookkeeper-sign-off.md)).
+- A1–A6 agreed. C1–C15 and D1–D14: no item differs from practice.
+- A7: a committee spends a fund first. Hall bills paid from general money while the fund held money are met from the fund at the year end.
+- A8: the dealer's cost of selling stays an expense of its own, named *Dalali A/c*, one word throughout the book (owner: consistent within a book).
+- B1–B3 and the BoS page references: checked against the sources and found correct (owner).
+
+**Changed**
+- Trust book: new `RS-057` (31 Mar 2026), Dr *Langar Hall Fund* ₹61,000 · Cr *Transferred from the Langar Hall Fund*. The fund closes at nil, the year shows a ₹55,591 surplus (was a ₹5,409 deficit), and the General Fund ends at ₹5,12,591. *SBI Fixed Deposit (Langar Hall Fund) A/c* is renamed *SBI Fixed Deposit A/c*. No other entry is renumbered.
+- Joint family, real estate: *Brokerage A/c* → *Dalali A/c*, with the entry note and description to match. The book no longer uses the word "brokerage".
+- `build.py`: new entry kind `Journal (from a fund)`, printed *Moved from a fund*; `check_md.py` knows it. Rebuilt with PDFs: 22,312 checks, 0 problems, byte-identical over two runs, content hash `26094089…`.
+- `docs/accounting/02` §5.6 (dalali, example and diary), `03` §5.5 (fund first, with the year-end transfer), `04` Sources 7, 9, 12 (the "research notes" markers removed). `COVERAGE.md` O-17-1 and *fund spending*, `GAPS.md` A4, E2, E3 cite `RS-057`.
+- `bookkeeper-review-pack.md`: every answer recorded, the sign-off line says the owner signed as bookkeeper, and the signed-off build is named.
+- `PLAN.md`: 209 ✅; 210 gains the *Adjustments* / *Cash short / over* difference.
+
+**Open**
+- ⚠️ PLAN-210: compare 02 with `docs/accounting/` and fix 02 to agree (known: *Adjustments* vs *Cash short / over*, ADR 2026-10-27 Open). Not started.
+- `A-ref-*` re-land against the reference books at M14.
+
 ## 2026-10-28 — docs: Jama, Naam and Udhar stated precisely (accounting 01 §3.9)
 
 **Decided**

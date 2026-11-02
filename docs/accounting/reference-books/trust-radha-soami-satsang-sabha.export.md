@@ -61,15 +61,16 @@ In date order. Type: *Money in*, *Money out*, *Transfer* (between own cash, bank
 | 18 Feb 2026 | RS-047 | Money out | Dairy Expense A/c | SBI Savings A/c | 16,200 | Fodder and feed for the dairy |
 | 21 Feb 2026 | RS-048 | Money in | SBI Savings A/c | Donation A/c | 31,000 | Donation from an NRI family |
 | 16 Mar 2026 | RS-049 | Money out | Construction A/c | SBI Savings A/c | 96,000 | Langar hall — mason contractor, second bill (from the trust's general money) |
-| 20 Mar 2026 | RS-050 | Interest added to a deposit — no money moved | SBI Fixed Deposit (Langar Hall Fund) A/c | Langar Hall Fund A/c | 14,000 | Yearly interest added by the bank to the deposit made from the langar hall donations — added to the Langar Hall Fund |
+| 20 Mar 2026 | RS-050 | Interest added to a deposit — no money moved | SBI Fixed Deposit A/c | Langar Hall Fund A/c | 14,000 | Yearly interest added by the bank to the deposit made from the langar hall donations — added to the Langar Hall Fund |
 | 29 Mar 2026 | RS-051 | Money in | Gollak Cash A/c | Donations – gollak A/c | 95,750 | Gollak counted by Amritpal Singh, witnessed by Ranjeet Singh (note-count sheet 6) |
 | 30 Mar 2026 | RS-052 | Transfer | SBI Savings A/c | Gollak Cash A/c | 95,750 | Gollak deposited in the bank |
 | 31 Mar 2026 | RS-053 | Money in | SBI Savings A/c | Bank Interest A/c | 6,840 | Interest credited by the bank |
 | 31 Mar 2026 | RS-054 | Money out | Manni Labour A/c | Cash A/c | 27,000 | Manni's wages, January–March 2026, cash |
 | 31 Mar 2026 | RS-055 | Money out | Ravinder Labour A/c | Cash A/c | 25,500 | Ravinder's wages, January–March 2026, cash |
 | 31 Mar 2026 | RS-056 | Advance settled — no money moved | Langar A/c | Advance – Amritpal Singh A/c | 61,850 | Amritpal Singh's langar bills set against his advance |
+| 31 Mar 2026 | RS-057 | Moved from a fund — no money moved | Langar Hall Fund A/c | Transferred from the Langar Hall Fund A/c | 61,000 | Hall bills paid from the trust's general money (cement and bricks, mason's second bill) — met from what is left in the Langar Hall Fund |
 
-*56 entries: Advance settled 3 · Correction 1 · Fix / Adjust 1 · Interest added to a deposit 1 · Money in 16 · Money out 20 · Paid from a fund 2 · Took on credit 1 · Transfer 11.*
+*57 entries: Advance settled 3 · Correction 1 · Fix / Adjust 1 · Interest added to a deposit 1 · Money in 16 · Money out 20 · Moved from a fund 1 · Paid from a fund 2 · Took on credit 1 · Transfer 11.*
 
 ### 2. Cash Book — Cash A/c and Gollak Cash A/c and SBI Savings A/c
 

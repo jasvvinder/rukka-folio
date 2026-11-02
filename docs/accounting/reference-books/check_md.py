@@ -32,7 +32,7 @@ STOCK_LINE = "No stock is counted. Everything bought for sale is treated as sold
 STAKE_LINE = "The business is shown at the money put into it, not at its worth."
 STAKES_LINE = "The businesses are shown at the money put into them, not at their worth."
 VTYPES = {"Money in", "Money out", "Transfer", "Gave on credit", "Took on credit", "Advance settled", "Paid by a partner", "Correction", "Paid by the joint family",
-          "Settled at year end", "Fix / Adjust", "Paid from a fund", "Interest added to a deposit", "Written off", "Deposit set off", "Deposit forfeited", "Retention released"}
+          "Settled at year end", "Fix / Adjust", "Paid from a fund", "Interest added to a deposit", "Written off", "Deposit set off", "Deposit forfeited", "Retention released", "Moved from a fund"}
 YEAR_CLOSE = r"^#### 4\.\d Year close — the entries the book makes itself on 31 Mar 2026$"
 EQUITY = {"Own money", "Drawings", "Share-out", "Partner", "Owner", "Partner's capital", "Partner's current", "Sub-family", "Joint family"}
 MONEY = {"Cash", "Gollak", "Bank", "Wallet", "Credit card", "KCC loan"}

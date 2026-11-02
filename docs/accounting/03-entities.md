@@ -443,7 +443,7 @@ Diary: "Received ₹1,00,000 from Sharma for the community hall."
 
 ### 5.5 Spending from a fund is charged to expenditure, with a matching transfer from the fund
 
-When the trust spends for the purpose of a fund, the spending is charged to Income & Expenditure and the same amount is transferred from the fund to an income head, *Transferred from the {fund} A/c*, which the year close carries to Income & Expenditure. The two postings are entered as one action: "paid from the Hall Fund". Every rupee spent is visible in Income & Expenditure, and the surplus on that fund is nil.
+When the trust spends for the purpose of a fund, the spending is charged to Income & Expenditure and the same amount is transferred from the fund to an income head, *Transferred from the {fund} A/c*, which the year close carries to Income & Expenditure. The two postings are entered as one action: "paid from the Hall Fund". Every rupee spent is visible in Income & Expenditure, and the surplus on that fund is nil. A committee spends a fund first, before its general money: a bill for the fund's purpose paid from general money while the fund still held money is met from the fund at the year end, by the same transfer (Dr the fund · Cr *Transferred from the {fund} A/c*), as far as the fund's balance goes (bookkeeper, A7; owner, 1 Nov 2026). Trust book `RS-057`.
 
 **Source:** ICAI Technical Guide on NPOs, 2023 ed. paras 101, 107, 110 (2009 ed. ¶111, ¶114). ICAI BoS Foundation Paper 1, Ch. 8 §4.1.1, p. 8.11, and "Other concepts" item 5, Illustration 5, debits the fund directly and says the expense is on no account charged to Income & Expenditure; the two ICAI sources differ and the Technical Guide, the higher source, is followed (ruled O-17-1).
 

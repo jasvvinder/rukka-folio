@@ -27,7 +27,7 @@ Every account used in FY 2025-26, with its balance on 01 Apr 2025 brought forwar
 | 1 | Cash A/c | Cash | The trust's cash box, with the secretary | 22,000 | — |
 | 2 | Gollak Cash A/c | Gollak | The gollak — counted every two months, emptied only into the cash box or the bank | — | — |
 | 3 | SBI Savings A/c | Bank | The trust's savings account — it earns the bank's interest (a current account earns none) | 4,85,000 | — |
-| 4 | SBI Fixed Deposit (Langar Hall Fund) A/c | Deposit | Fixed deposit made from the langar hall donations — its interest goes to the Langar Hall Fund | 2,00,000 | — |
+| 4 | SBI Fixed Deposit A/c | Deposit | Fixed deposit first made from the langar hall donations — its interest this year went to the Langar Hall Fund | 2,00,000 | — |
 | 5 | Advance – Amritpal Singh A/c | Advance | Langar money with the sewadar, accounted for with bills | — | — |
 | 6 | Kotli Cement Store A/c | Person / shop | Building-material store — cement and bricks for the hall | — | — |
 | 7 | Furniture & Equipment A/c | Thing owned | Things given to the trust and kept, at ₹1 each — the estimated value is in the entry's note | — | — |
@@ -140,7 +140,7 @@ One account after another: date, entry number, the other account (*To …* on th
 |  |  | **Total** | **12,00,990** | **12,00,990** |  |  |
 | 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | 2,62,190 | — | 2,62,190 | Dr |
 
-#### SBI Fixed Deposit (Langar Hall Fund) A/c
+#### SBI Fixed Deposit A/c
 
 | Date | No. | Particulars | Kept aside / interest added (Dr) | Taken back (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
@@ -196,20 +196,21 @@ One account after another: date, entry number, the other account (*To …* on th
 | 14 Oct 2025 | RS-028 | To Transferred from the Langar Hall Fund A/c<br><em>Langar hall — steel and shuttering, paid from the Langar Hall Fund</em> | 1,86,000 | — | 1,40,000 | Cr |
 | 22 Dec 2025 | RS-035 | To Transferred from the Langar Hall Fund A/c<br><em>Langar hall — mason contractor, first bill, paid from the Langar Hall Fund</em> | 1,24,000 | — | 16,000 | Cr |
 | 20 Jan 2026 | RS-041 | By SBI Savings A/c<br><em>Donation from a family in memory of an elder, for the langar hall — to the Langar Hall Fund</em> | — | 31,000 | 47,000 | Cr |
-| 20 Mar 2026 | RS-050 | By SBI Fixed Deposit (Langar Hall Fund) A/c<br><em>Yearly interest added by the bank to the deposit made from the langar hall donations — added to the Langar Hall Fund</em> | — | 14,000 | 61,000 | Cr |
-| 31 Mar 2026 |  | Closing balance c/d | 61,000 | — | — | — |
+| 20 Mar 2026 | RS-050 | By SBI Fixed Deposit A/c<br><em>Yearly interest added by the bank to the deposit made from the langar hall donations — added to the Langar Hall Fund</em> | — | 14,000 | 61,000 | Cr |
+| 31 Mar 2026 | RS-057 | To Transferred from the Langar Hall Fund A/c<br><em>Hall bills paid from the trust's general money (cement and bricks, mason's second bill) — met from what is left in the Langar Hall Fund</em> | 61,000 | — | 0 | — |
+| 31 Mar 2026 |  | Closing balance c/d | — | — | — | — |
 |  |  | **Total** | **3,71,000** | **3,71,000** |  |  |
-| 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | 61,000 | 61,000 | Cr |
+| 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | — | 0 | — |
 
 #### General Fund A/c
 
 | Date | No. | Particulars | Taken out (Dr) | Put in / added (Cr) | Balance ₹ | Side |
 |:---|:---|:---|---:|---:|---:|:---:|
 | 01 Apr 2025 |  | Opening balance b/f | — | 4,57,000 | 4,57,000 | Cr |
-| 31 Mar 2026 | RS-Y3 | To Income & Expenditure A/c<br><em>Deficit taken from the General Fund</em> | 5,409 | — | 4,51,591 | Cr |
-| 31 Mar 2026 |  | Closing balance c/d | 4,51,591 | — | — | — |
-|  |  | **Total** | **4,57,000** | **4,57,000** |  |  |
-| 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | 4,51,591 | 4,51,591 | Cr |
+| 31 Mar 2026 | RS-Y3 | By Income & Expenditure A/c<br><em>Surplus added to the General Fund</em> | — | 55,591 | 5,12,591 | Cr |
+| 31 Mar 2026 |  | Closing balance c/d | 5,12,591 | — | — | — |
+|  |  | **Total** | **5,12,591** | **5,12,591** |  |  |
+| 01 Apr 2026 |  | Opening balance b/d (FY 2026-27) | — | 5,12,591 | 5,12,591 | Cr |
 
 #### Donations – gollak A/c
 
@@ -230,8 +231,9 @@ One account after another: date, entry number, the other account (*To …* on th
 |:---|:---|:---|---:|---:|---:|:---:|
 | 14 Oct 2025 | RS-028 | By Langar Hall Fund A/c<br><em>Langar hall — steel and shuttering, paid from the Langar Hall Fund</em> | — | 1,86,000 | 1,86,000 | Cr |
 | 22 Dec 2025 | RS-035 | By Langar Hall Fund A/c<br><em>Langar hall — mason contractor, first bill, paid from the Langar Hall Fund</em> | — | 1,24,000 | 3,10,000 | Cr |
-|  |  | **Total for the year** | **—** | **3,10,000** | **3,10,000** | **Cr** |
-| 31 Mar 2026 | RS-Y1 | To Income & Expenditure A/c<br><em>Income heads closed to Income & Expenditure</em> | 3,10,000 | — | 0 | — |
+| 31 Mar 2026 | RS-057 | By Langar Hall Fund A/c<br><em>Hall bills paid from the trust's general money (cement and bricks, mason's second bill) — met from what is left in the Langar Hall Fund</em> | — | 61,000 | 3,71,000 | Cr |
+|  |  | **Total for the year** | **—** | **3,71,000** | **3,71,000** | **Cr** |
+| 31 Mar 2026 | RS-Y1 | To Income & Expenditure A/c<br><em>Income heads closed to Income & Expenditure</em> | 3,71,000 | — | 0 | — |
 
 #### Donation A/c
 
@@ -350,7 +352,7 @@ Every account with a balance on 30 Sep 2025, placed on the side its balance fall
 | What I have | Cash A/c | 63,300 |  |
 | What I have | Gollak Cash A/c | 19,850 |  |
 | What I have | SBI Savings A/c | 4,58,650 |  |
-| What I have | SBI Fixed Deposit (Langar Hall Fund) A/c | 2,00,000 |  |
+| What I have | SBI Fixed Deposit A/c | 2,00,000 |  |
 | What I have | Advance – Amritpal Singh A/c | 1,350 |  |
 |  | **Total — what I have** | **7,43,150** |  |
 |  | **Total — what I will get** | **0** |  |
@@ -376,32 +378,30 @@ The cost of the langar hall, ₹1,48,000 to date, is charged to expenditure and 
 
 *Radha Soami Satsang Sabha · on 31 Mar 2026 · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-Every account with a balance on 31 Mar 2026, placed on the side its balance falls. What I have plus what I will get, less what I will give and less the funds held for a purpose, is the General Fund.
+Every account with a balance on 31 Mar 2026, placed on the side its balance falls. What I have plus what I will get, less what I will give, is the General Fund.
 
 |  | Account | Have / will get ₹ | Will give / funds ₹ |
 |:---|:---|---:|---:|
 | What I have | Cash A/c | 35,300 |  |
 | What I have | SBI Savings A/c | 2,62,190 |  |
-| What I have | SBI Fixed Deposit (Langar Hall Fund) A/c | 2,14,000 |  |
+| What I have | SBI Fixed Deposit A/c | 2,14,000 |  |
 | What I have | Advance – Amritpal Singh A/c | 1,100 |  |
 | What I have | Furniture & Equipment A/c | 1 |  |
 |  | **Total — what I have** | **5,12,591** |  |
 |  | **Total — what I will get** | **0** |  |
 |  | **Total — what I will give** |  | **0** |
-| Funds held for a purpose | Langar Hall Fund A/c |  | 61,000 |
-|  | **Total — funds** |  | **61,000** |
-|  | **General Fund = have + will get − will give − funds** | **4,51,591** |  |
+|  | **General Fund = have + will get − will give** | **5,12,591** |  |
 
 | How it is made up | ₹ |
 |:---|---:|
-| Income so far | 10,73,091 |
+| Income so far | 11,34,091 |
 | − Spent so far | 10,78,500 |
-| **= Result so far (deficit)** | **5,409** |
+| **= Result so far (surplus)** | **55,591** |
 | General Fund at the start of the year (01 Apr 2025) | 4,57,000 |
 | + Put in so far | 0 |
 | − Taken out so far | 0 |
-| − Result so far (deficit) | 5,409 |
-| **= General Fund now** | **4,51,591** |
+| + Result so far (surplus) | 55,591 |
+| **= General Fund now** | **5,12,591** |
 
 The cost of the langar hall, ₹5,54,000 to date, is charged to expenditure and is not shown as a thing owned.
 
@@ -418,7 +418,7 @@ Every account's balance on 01 Oct 2025, what went on its Dr side and its Cr side
 | Cash A/c | 63,300 | Dr | — | — | 63,300 | Dr |
 | Gollak Cash A/c | 19,850 | Dr | — | 19,850 | 0 | — |
 | SBI Savings A/c | 4,58,650 | Dr | 19,850 | 2,88,800 | 1,89,700 | Dr |
-| SBI Fixed Deposit (Langar Hall Fund) A/c | 2,00,000 | Dr | — | — | 2,00,000 | Dr |
+| SBI Fixed Deposit A/c | 2,00,000 | Dr | — | — | 2,00,000 | Dr |
 | Advance – Amritpal Singh A/c | 1,350 | Dr | 90,000 | — | 91,350 | Dr |
 | Langar Hall Fund A/c | 3,26,000 | Cr | 1,86,000 | — | 1,40,000 | Cr |
 | General Fund A/c | 4,57,000 | Cr | — | — | 4,57,000 | Cr |
@@ -488,13 +488,12 @@ The closing balance of every account after the last entry of the year (before th
 |:---|---:|---:|
 | Cash A/c | 35,300 | — |
 | SBI Savings A/c | 2,62,190 | — |
-| SBI Fixed Deposit (Langar Hall Fund) A/c | 2,14,000 | — |
+| SBI Fixed Deposit A/c | 2,14,000 | — |
 | Advance – Amritpal Singh A/c | 1,100 | — |
 | Furniture & Equipment A/c | 1 | — |
-| Langar Hall Fund A/c | — | 61,000 |
 | General Fund A/c | — | 4,57,000 |
 | Donations – gollak A/c | — | 5,20,150 |
-| Transferred from the Langar Hall Fund A/c | — | 3,10,000 |
+| Transferred from the Langar Hall Fund A/c | — | 3,71,000 |
 | Donation A/c | — | 2,17,001 |
 | Dairy Donation A/c | — | 19,100 |
 | Bank Interest A/c | — | 6,840 |
@@ -509,7 +508,7 @@ The closing balance of every account after the last entry of the year (before th
 
 **Checked: Dr ₹15,91,091 = Cr ₹15,91,091. The books balance.**
 
-*Accounts with entries in the year but nil on 31 Mar 2026 (not listed above): Gollak Cash A/c; Kotli Cement Store A/c.*
+*Accounts with entries in the year but nil on 31 Mar 2026 (not listed above): Gollak Cash A/c; Kotli Cement Store A/c; Langar Hall Fund A/c.*
 
 Things owned are shown at what they cost; no depreciation is charged.
 
@@ -550,15 +549,15 @@ Every income and expense account's **total for the year** — the *Total for the
 | To Ravinder Labour A/c | 4 | 1,02,000 | — |
 | To Langar A/c | 3 | 2,08,900 | — |
 | By Donations – gollak A/c | 6 | — | 5,20,150 |
-| By Transferred from the Langar Hall Fund A/c | 2 | — | 3,10,000 |
+| By Transferred from the Langar Hall Fund A/c | 3 | — | 3,71,000 |
 | By Donation A/c | 5 | — | 2,17,001 |
 | By Dairy Donation A/c | 2 | — | 19,100 |
 | By Bank Interest A/c | 1 | — | 6,840 |
-| **Total of the heads for the year** |  | **10,78,500** | **10,73,091** |
-| By Deficit (spent more than income) — taken from the General Fund (4.5) |  | — | 5,409 |
-| **Total** |  | **10,78,500** | **10,78,500** |
+| **Total of the heads for the year** |  | **10,78,500** | **11,34,091** |
+| To Surplus (income more than spent) — closed to the General Fund (4.5) |  | 55,591 | — |
+| **Total** |  | **11,34,091** | **11,34,091** |
 
-**FY 2025-26: income ₹10,73,091 · spent ₹10,78,500 · deficit ₹5,409.**
+**FY 2025-26: income ₹11,34,091 · spent ₹10,78,500 · surplus ₹55,591.**
 
 The cost of the langar hall, ₹5,54,000 to date, is charged to expenditure and is not shown as a thing owned.
 
@@ -578,8 +577,9 @@ A fund holds money given for one purpose. Gifts for it and the interest its depo
 | 14 Oct 2025 | RS-028 | To Transferred from the Langar Hall Fund A/c<br><em>Langar hall — steel and shuttering, paid from the Langar Hall Fund</em> | 1,86,000 | — | 1,40,000 | Cr |
 | 22 Dec 2025 | RS-035 | To Transferred from the Langar Hall Fund A/c<br><em>Langar hall — mason contractor, first bill, paid from the Langar Hall Fund</em> | 1,24,000 | — | 16,000 | Cr |
 | 20 Jan 2026 | RS-041 | By SBI Savings A/c<br><em>Donation from a family in memory of an elder, for the langar hall — to the Langar Hall Fund</em> | — | 31,000 | 47,000 | Cr |
-| 20 Mar 2026 | RS-050 | By SBI Fixed Deposit (Langar Hall Fund) A/c<br><em>Yearly interest added by the bank to the deposit made from the langar hall donations — added to the Langar Hall Fund</em> | — | 14,000 | 61,000 | Cr |
-| 31 Mar 2026 |  | Closing balance c/d | 61,000 | — | — | — |
+| 20 Mar 2026 | RS-050 | By SBI Fixed Deposit A/c<br><em>Yearly interest added by the bank to the deposit made from the langar hall donations — added to the Langar Hall Fund</em> | — | 14,000 | 61,000 | Cr |
+| 31 Mar 2026 | RS-057 | To Transferred from the Langar Hall Fund A/c<br><em>Hall bills paid from the trust's general money (cement and bricks, mason's second bill) — met from what is left in the Langar Hall Fund</em> | 61,000 | — | 0 | — |
+| 31 Mar 2026 |  | Closing balance c/d | — | — | — | — |
 |  |  | **Total** | **3,71,000** | **3,71,000** |  |  |
 
 #### 4.5 Year close — the entries the book makes itself on 31 Mar 2026
@@ -590,24 +590,23 @@ Nobody types these. When the year is closed the book itself closes every income 
 
 | No. | Date | What the book does | Debit (Dr) | Credit (Cr) | Amount ₹ |
 |:---|:---|:---|:---|:---|---:|
-| RS-Y1 | 31 Mar 2026 | Income heads closed to Income & Expenditure | Donations – gollak A/c ₹5,20,150<br>Transferred from the Langar Hall Fund A/c ₹3,10,000<br>Donation A/c ₹2,17,001<br>Dairy Donation A/c ₹19,100<br>Bank Interest A/c ₹6,840 | Income & Expenditure A/c | 10,73,091 |
+| RS-Y1 | 31 Mar 2026 | Income heads closed to Income & Expenditure | Donations – gollak A/c ₹5,20,150<br>Transferred from the Langar Hall Fund A/c ₹3,71,000<br>Donation A/c ₹2,17,001<br>Dairy Donation A/c ₹19,100<br>Bank Interest A/c ₹6,840 | Income & Expenditure A/c | 11,34,091 |
 | RS-Y2 | 31 Mar 2026 | Expense heads closed to Income & Expenditure | Income & Expenditure A/c | Construction A/c ₹5,54,000<br>General Expense A/c ₹41,200<br>Dairy Expense A/c ₹46,400<br>Labour A/c ₹18,000<br>Manni Labour A/c ₹1,08,000<br>Ravinder Labour A/c ₹1,02,000<br>Langar A/c ₹2,08,900 | 10,78,500 |
-| RS-Y3 | 31 Mar 2026 | Deficit taken from the General Fund | General Fund A/c | Income & Expenditure A/c | 5,409 |
+| RS-Y3 | 31 Mar 2026 | Surplus added to the General Fund | Income & Expenditure A/c | General Fund A/c | 55,591 |
 
 #### 4.6 Full position on 31 Mar 2026 (Balance Sheet)
 
 *Radha Soami Satsang Sabha · on 31 Mar 2026, after the year close · Kept on money paid and received, and what people owe; no year-end adjustments. · Year closed · Made on 02 Apr 2026, 10:00*
 
-**Own money, funds, and what I will give**
+**Own money, and what I will give**
 
 | Particulars | ₹ |
 |:---|---:|
 | General Fund — at the start, 01 Apr 2025 | 4,57,000 |
 | Add: put in during the year | 0 |
 | Less: taken out during the year | 0 |
-| Less: deficit for the year | 5,409 |
-| **General Fund — at the end, 31 Mar 2026** | **4,51,591** |
-| Langar Hall Fund A/c | 61,000 |
+| Add: surplus for the year | 55,591 |
+| **General Fund — at the end, 31 Mar 2026** | **5,12,591** |
 | **Total** | **5,12,591** |
 
 **What I have and will get**
@@ -616,7 +615,7 @@ Nobody types these. When the year is closed the book itself closes every income 
 |:---|---:|
 | Cash A/c | 35,300 |
 | SBI Savings A/c | 2,62,190 |
-| SBI Fixed Deposit (Langar Hall Fund) A/c | 2,14,000 |
+| SBI Fixed Deposit A/c | 2,14,000 |
 | Advance – Amritpal Singh A/c | 1,100 |
 | Furniture & Equipment A/c | 1 |
 | **Total** | **5,12,591** |
@@ -639,11 +638,10 @@ Every account that carries a balance takes its balance **after the year close** 
 |:---|:---|---:|:---:|---:|:---:|
 | Cash A/c | Cash | 35,300 | Dr | 35,300 | Dr |
 | SBI Savings A/c | Bank | 2,62,190 | Dr | 2,62,190 | Dr |
-| SBI Fixed Deposit (Langar Hall Fund) A/c | Deposit | 2,14,000 | Dr | 2,14,000 | Dr |
+| SBI Fixed Deposit A/c | Deposit | 2,14,000 | Dr | 2,14,000 | Dr |
 | Advance – Amritpal Singh A/c | Advance | 1,100 | Dr | 1,100 | Dr |
 | Furniture & Equipment A/c | Thing owned | 1 | Dr | 1 | Dr |
-| Langar Hall Fund A/c | Fund | 61,000 | Cr | 61,000 | Cr |
-| General Fund A/c | Own money | 4,51,591 | Cr | 4,51,591 | Cr |
+| General Fund A/c | Own money | 5,12,591 | Cr | 5,12,591 | Cr |
 | **Σ Dr = Σ Cr** |  | **5,12,591** | **= 5,12,591** | **5,12,591** | **= 5,12,591** |
 
 Things owned are shown at what they cost; no depreciation is charged.
