@@ -12,6 +12,27 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-11-07 — docs: ledger books checked against the sources; two fixes to accounting 01
+
+**Decided**
+- The owner confirmed every book stays **full double entry in one ledger**: no single-entry book type, and no separate Debtors and Creditors ledgers. This keeps ruling O-03-5 and `docs/accounting/01` §3.7; no ADR is needed.
+- Checked twice against primary sources (a first pass, then an independent `acct-ca` pass that tried to refute each claim):
+  - The ledger is one book of all accounts: NCERT Cl. 11 ch 3 §3.5 p. 72; ICAI BoS Fnd ch 2 u2 §2.1 p. 2.53.
+  - Splitting it is a convenience for large firms: NIOS 320 L6 pp. 107–108, which lists seven ledgers, not three.
+  - Single entry keeps only personal accounts and the cash book: NCERT ch 2 §2.3 p. 36.
+  - Not confirmed from any primary: control accounts tying split ledgers together, and a set-off entry for a party who is both customer and supplier.
+- The owner's Date · Particulars · Dr · Cr · Balance page is already 04 §5.6 (and §5.2). It is a page layout, not a single-entry feature.
+
+**Changed** (owner-directed, on a signed-off doc; wording and citations only, no change of behaviour)
+- `docs/accounting/01` §3.7: "three forms of incomplete records" now reads "three types of single entry system: pure, simple and quasi", as ICAI ch 9 §2 pp. 9.4–9.5 names them.
+- `docs/accounting/01` §3.2: adds that the ledger is one book of all accounts and that dividing it is a large-firm convenience, not part of double entry; every book here keeps one ledger. Cites NCERT p. 72, ICAI (Aug 2026 ed.) p. 2.53 and NIOS pp. 107–108.
+- `docs/accounting/01` Sources: new 13 (ICAI BoS Aug 2026 ed. ch 2 u2 and ch 9) and 14 (NIOS 320 Lesson 6, with a note on its misprinted summary).
+
+**Open**
+- Which account-type tiles step 1 of New A/C offers: 07 §6 has 8 tiles and seven are built (`s3_1_quick_add_sheet.dart:43-50`), against about 19 kinds in `docs/accounting/02`. This is D2 of `docs/app-requirements-pass.md`.
+
+---
+
 ## 2026-11-02 — docs: bookkeeper sign-off (PLAN-209) — answers ruled and applied
 
 **Decided**
