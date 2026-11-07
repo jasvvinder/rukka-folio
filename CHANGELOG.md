@@ -23,6 +23,9 @@ Running record of what changed in this repository and in the development environ
   - Not confirmed from any primary: control accounts tying split ledgers together, and a set-off entry for a party who is both customer and supplier.
 - The owner's Date · Particulars · Dr · Cr · Balance page is already 04 §5.6 (and §5.2). It is a page layout, not a single-entry feature.
 
+**Added**
+- `docs/app-requirements-pass.md` (written 2 Nov 2026, committed now): the PLAN-210 app-requirements pass after the accounting sign-off. **DRAFT, not normative.** It holds decisions D0–D14 for the owner, from a from → to entry model in place of the six fixed verbs, through the kinds of account, corrections, year close and between-books, to reports, scope and old data. It also holds a requirements register (R-01…, with source, spec, design and build status for each), the edits each doc needs once ruled, and the order of work. Once ruled, it becomes one ADR and moves to `docs/archive/`.
+
 **Changed** (owner-directed, on a signed-off doc; wording and citations only, no change of behaviour)
 - `docs/accounting/01` §3.7: "three forms of incomplete records" now reads "three types of single entry system: pure, simple and quasi", as ICAI ch 9 §2 pp. 9.4–9.5 names them.
 - `docs/accounting/01` §3.2: adds that the ledger is one book of all accounts and that dividing it is a large-firm convenience, not part of double entry; every book here keeps one ledger. Cites NCERT p. 72, ICAI (Aug 2026 ed.) p. 2.53 and NIOS pp. 107–108.
