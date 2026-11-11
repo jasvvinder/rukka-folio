@@ -1,6 +1,6 @@
 # 03 — Entities: who keeps the book
 
-**Status:** Draft, 20 Oct 2026 — for a bookkeeper's review.
+**Status:** Signed off 1 Nov 2026 (ADR 2026-11-01; the owner signed as bookkeeper, no independent bookkeeper signed). Written 20 Oct 2026. Ranks above the numbered specs on accounting behaviour (ADR 2026-10-22 §1).
 
 This document says how each kind of owner keeps a book: a household, a sole proprietor, a partnership, a joint family, two books that deal with each other, a trust or committee, and a landlord. For each it fixes whose money the book holds, where the owner's own money sits, how the year's result reaches that account, and the entries that are particular to that owner. It rests on the khata basis described in *01 — Accounting foundations* (money is recorded when it moves; a due with a named person is recorded when it arises; nothing is recorded for the passage of time alone unless the book opts into year-end adjustments). Accounts, running accounts, deposits and corrections are in *02 — Accounts and transactions*; the year-end steps and the printed reports are in *04 — Year end and reports*. This document describes bookkeeping practice only; it does not claim that a book kept this way meets any Accounting Standard or statutory format.
 

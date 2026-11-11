@@ -1,6 +1,6 @@
 # 04 — Year end and reports
 
-**Status:** Draft, 20 Oct 2026 — for a bookkeeper's review.
+**Status:** Signed off 1 Nov 2026 (ADR 2026-11-01; the owner signed as bookkeeper, no independent bookkeeper signed). Written 20 Oct 2026. Ranks above the numbered specs on accounting behaviour (ADR 2026-10-22 §1).
 
 This document says how a book is checked at the end of each month, how it is closed at the end of the year, and what every report must contain. It covers the people who keep a rokad (cash), a rojnamcha (day book), a khata and a ledger by hand: households, joint families, their small businesses (shop, contractor, farm, truck, landlord, partnership) and trusts or committees. It describes bookkeeping practice only; it does not claim that a book kept this way meets the Accounting Standards or any official format. How an entry is posted is in *02 — Accounts and transactions*; what is special about each kind of book is in *03 — Entities*.
 

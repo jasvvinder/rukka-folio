@@ -1,6 +1,6 @@
 # Accounting — how the books are kept
 
-**Status:** Draft, 20 Oct 2026 — for a bookkeeper's review. This folder is the behavioural reference for the ledger (ADR 2026-10-20). Once a bookkeeper has signed it off, the app's requirements are written from it, once.
+**Status:** Signed off 1 Nov 2026 (ADR 2026-11-01; the owner signed as bookkeeper, no independent bookkeeper signed). Written 20 Oct 2026. This folder is the behavioural reference for the ledger (ADR 2026-10-20). The app's requirements were written from it and ruled on 11 Nov 2026 (ADR 2026-11-11). `05-account-name-presets.md` stays a draft until its Punjabi and Hindi names exist.
 
 ## Who keeps these books
 

@@ -1,6 +1,6 @@
 # 02 — Accounts and transactions
 
-**Status:** Draft, 20 Oct 2026 — for a bookkeeper's review.
+**Status:** Signed off 1 Nov 2026 (ADR 2026-11-01; the owner signed as bookkeeper, no independent bookkeeper signed). Written 20 Oct 2026. Ranks above the numbered specs on accounting behaviour (ADR 2026-10-22 §1).
 
 Every entry moves an amount from one account to another, between accounts the person has opened, each of a kind in the table below; the person decides which accounts an entry uses. This document gives the kinds of account and shows common transactions as worked entries in the books of an Indian household, a joint family, a small business (shop, contractor, farm, truck, landlord, partnership) or a trust or committee: cash and bank, people who owe or are owed, advances, loans, things owned and deposits, goods bought for sale, corrections, and entries that move no money. A case not shown here is entered the same way, from one account to another; it needs no rule of its own. It describes bookkeeping practice for people who keep a rokad, a khata and a ledger; it does not claim that a book kept this way complies with the Accounting Standards or any statutory format. The basis of recording (the *khata basis*), the books themselves, entity-specific rules and the year-end and reports are in the other documents: *01 — Accounting foundations*, *03 — Entities*, *04 — Year end and reports*.
 
