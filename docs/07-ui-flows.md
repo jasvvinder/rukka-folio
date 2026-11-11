@@ -125,6 +125,8 @@ Follows the scenario table in 06 §5 verbatim. Key screens: **Link with old phon
 
 ## 5. Add Entry — the 8-second flow 🔒 ⟦tests: F1-07-17, F1-07-54, F1-07-55, F1-07-58, F1-07-59, F1-07-118, F1-07-119, F1-07-120, F1-07-121⟧
 
+> **ADR 2026-11-11 §1, §3** — the six verbs stay as the quick routes; guided entries are added for the multi-line shapes (loan instalment, advance across several heads, salary with an advance recovered, thing owned sold, fund spend), and any entry may go from one opened account to another. A posted entry is never edited: *Fix this entry* posts a correction naming it; *Cancel this entry* posts a full mirror. ⟦tests: n/a — ruled; the UI slice allocates the tests once the frames exist (ADR 2026-11-11 §13)⟧
+
 **Screen order: amount first.** Full-screen numeric keypad with the amount huge at top; verb shown as a colored header chip (switchable by swipe or tap without losing the amount). **The pill has five positions 🔒 (owner-ruled 3 Sep 2026, ADR 2026-09-03b): Money in · Money out · Gave on credit · Took on credit · Move money** — the transfer (S2.3) is the fifth swipe, not a separate door.
 
 1. **Amount** — keypad supports `+` quick-sum (`120+80+40`); paise via `.`; Next. 🔒 **No amount-in-words on this screen** (31 Aug 2026) — it costs a line on a screen that must not scroll, and belongs on receipts and exports only (01 §1.10).
@@ -197,6 +199,8 @@ Reached from Menu → Books, or immediately after the purpose card "My business"
 
 ## 6. Ledger — the A/C index 🔒 ⟦tests: F1-02-9, F1-02-10, F1-07-42, F1-07-43, F1-07-44, F1-07-60, F1-07-61, F1-07-171⟧
 
+> **ADR 2026-11-11 §2** — the New A/C grid gains the reference books' kinds of account (thing owned, loan taken / given, deposit, fund, own money and Drawings, partner capital and current, sub-family, *Cash short / over*); no Opening Balance, Adjustments, Suspense or Due to/from tile. ⟦tests: n/a — ruled; the UI slice allocates the tests once the frames exist (ADR 2026-11-11 §13)⟧
+
 - A–Z list of every A/C in scope with live balance, colored by sign; sticky alphabet rail; **search is the header** (the fastest path to any khata); filter chips: All · Parties · Categories · Money · System.
 - Row tap → **A/C statement**: professional paper-ledger layout in the traditional three columns — **ਨਾਮੇ | ਜਮ੍ਹਾਂ | ਬਾਕੀ** (नामे | जमा | बाकी / Dr | Cr | Balance), cells colored directionally per the approved option A (design-system §5) — with *Opening balance b/f* carrying its as-on date (the period's first day, e.g. `as on 01 ਅਗਸਤ 2026`) and *Closing balance c/f* carrying the date it is forwarded — the period's last day, or today's date while the period is still open 🔒 (owner rule), dated entries with running balance between them; FY switcher (02 §8.1); export this A/C (**PDF/CSV/XLSX**, ADR 2026-09-12e §2 ⟦tests: F1-07-79⟧) top-right; for parties: WhatsApp-share a statement image (the Khatabook habit — it drives adoption).
 - `+ New A/C` here opens the **quick add sheet** (a bottom sheet — the entry flow's picker is a full screen instead, 07 §5 step 3; same component, two presentations, deliberately) leading into the **deliberate-creation wizard 🔒 (owner-approved)** — step 1 is a grid of illustrated type tiles (Bank · Cash/vault · Credit card or OD · Person you'll pay (creditor) · Person who'll pay you (debtor) · Expense · Income · Capital), step 2 is name + **opening balance**, step 3 optional details. Inline creation during an entry keeps inferring the class from the slot (02 §1.2); the grid is for setup, where the user is choosing on purpose, and rename / merge-duplicates / delete-if-unused under ⋮. ⚠️ merge UX in mockup.
@@ -207,6 +211,9 @@ Reached from Menu → Books, or immediately after the purpose card "My business"
 Drill-downs from Home: party list sorted by balance, ageing chips (`> 30 days` amber, `> 90 days` red — localised per 01 §2.0, never abbreviated in ਪੰਜਾਬੀ/हिन्दी), total header; row → party statement (§6); *Remind on WhatsApp* per party ⚠️ Phase 1?; bulk export.
 
 ## 8. Advances 🔒 ⟦tests: F1-07-22, F1-07-95, F1-07-96, F1-07-97, F1-07-98, F1-07-99⟧
+
+> **ADR 2026-11-11 §4** — an advance can go to any named person; the S5.1 request → approver step appears only when the book's *approve advances* setting is on (off by default). ⟦tests: n/a — ruled; the UI slice allocates the tests once the frames exist (ADR 2026-11-11 §13)⟧
+
 - **My advances** (money I'm holding): per-book cards — purpose, taken date, spent vs remaining bar, `Add spend` (pre-filtered entry) and `Return remaining` buttons.
 - **Given out** (book view): aged list per 02 §7; approver sees `Remind` and `Write off (reason)` actions.
 - Request flow: amount → purpose (required) → from which book → submits to approver; tracked in Inbox both sides.
@@ -217,6 +224,9 @@ Flags group into **one card per author + book + day**: avatar, "Ramesh · Kirana
 - **One by one** — a guided stepper: each entry full-screen (photo, amount, A/Cs, date/time, author, note) with **Approve / Reject (reason required → auto-reversal posts) / Skip (stays flagged)** and a quiet *ask for a better photo* link; every decision advances, progress shown ("3 of 7"). Nothing is approved unseen; rejecting one never blocks the rest.
 
 ## 10. Inter-book transfer 🔒 ⟦tests: F1-07-24, F1-07-100, F1-07-101, F1-07-102, F1-07-103, F1-07-104, F1-07-118, F1-07-119, F1-07-120, F1-07-121, F1-07-122, F1-07-123⟧
+
+> **ADR 2026-11-11 §6** — the accounts are named after the other book; *Due to/from* never appears. ⟦tests: n/a — ruled; the UI slice allocates the tests once the frames exist (ADR 2026-11-11 §13)⟧
+
 One flow: From (book + money A/C) → To (book + money A/C) → amount → save. Creates the pair (02 §6). If the actor lacks rights on one side, that half shows ⏳ and the position lines show **In transit** until both halves post. The **Family Reconciliation** screen (Menu → Reports) lists any non-zero pair with its composing entries — normally a single proud green ✓.
 
 ---
@@ -261,6 +271,8 @@ One flow: From (book + money A/C) → To (book + money A/C) → amount → save.
 
 ## 13. Month close, Late Arrivals, Year close 🔒 ⟦tests: F1-07-27, F1-07-129, F1-07-130, F1-07-131, F1-07-132, F1-07-133, F1-07-134, F1-07-135, F1-07-136, F1-07-137, F1-07-138, F1-07-139, F1-07-180, F1-07-181, F1-07-182, F1-07-183, F1-07-184, F1-07-185, F1-07-186, F1-07-187, F1-07-188, F1-07-189, F1-07-190, F1-07-191, F1-07-192, F1-07-193, F1-07-194, F1-07-195, F1-07-196, F1-07-197, F1-07-198, F1-07-199, F1-07-140, F1-07-141, F1-07-142, F1-07-143, F1-07-144, F1-07-145, F1-07-146, F1-07-147, F1-07-148, F1-07-149, F1-07-220, F1-07-221, F1-07-222, F1-07-223, F1-07-224, F1-07-225, F1-07-226, F1-07-227, F1-07-228, F1-07-229, F1-07-260, F1-07-261, F1-07-262, F1-07-263, F1-07-264⟧
 
+> **ADR 2026-11-11 §5, §7** — month close: a cash difference goes to *Cash short / over* or to the person minding the cash; *Not yet sorted* waits until the year closes. Year close: the book posts and shows the year-close entries and, with several owners, the appropriation (S14.1 becomes this step); a closed year is never reopened. ⟦tests: n/a — ruled; the UI slice allocates the tests once the frames exist (ADR 2026-11-11 §13)⟧
+
 > **ADR 2026-09-27b §2–§3** — S10.5 lists every writing phone as ✓ all in or ⏳ last heard from, with **Nudge**. The lock waits for all ✓, with no override. A phone that will never return is revoked from the ⏳ row, and its consequence is stated first. A late arrival still in the tray blocks exports of its period. ⟦tests: F1-27b-1 @M12, F1-27b-2 @M12, F1-27b-3 @M12, F1-27b-4 @M12, F1-27b-5 @M12⟧
 
 - **Close card** appears on Home from the 1st for each book the user closes: `Close August ▸ 4 steps`.
@@ -278,6 +290,8 @@ One flow: From (book + money A/C) → To (book + money A/C) → amount → save.
 ---
 
 ## 14. Reports & Export 🔒 ⟦tests: F1-07-28, F1-07-79, F1-07-128, F1-07-160, F1-07-161, F1-07-162, F1-07-163, F1-07-164, F1-07-165, F1-07-166, F1-07-167, F1-07-168, F1-07-169, F1-07-172, F1-07-173, F1-07-423, F1-07-424, F1-07-425, F1-07-426, F1-07-427, F1-07-428, F1-07-429, F1-07-430, F1-07-431, F1-07-432, F1-07-433, F1-07-434⟧
+
+> **ADR 2026-11-11 §9** — the S8.1 list becomes the reports of `accounting/04` §4–§6 with the five-line head; the Day Book has three layouts (list, accountant's Dr / To, Cash Book) and a *Journal entries only* filter; print and export get a chooser (all or several, any period, with or without notes). ⟦tests: n/a — ruled; the UI slice allocates the tests once the frames exist (ADR 2026-11-11 §13)⟧
 
 > **ADR 2026-09-12 §1** — S8.2's export sheet offers exactly **PDF, CSV and XLSX**; View report opens in-app. ⟦tests: F1-07-79⟧
 > **ADR 2026-09-12e §1–§2** — XLSX is generated in-house over `archive` + `xml` (no package: the free writers need archive 3.x, sodium needs 4.x), so all three formats work; and View · Download/Share · Export is the same trio on the statement (S4) and the report viewer. ⟦tests: F1-07-79⟧

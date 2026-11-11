@@ -1,6 +1,6 @@
 # App requirements and scope — the pass after the accounting sign-off (PLAN-210)
 
-**Status:** DRAFT for the owner's ruling, 2 Nov 2026. Not normative. Once ruled, it becomes one ADR plus the edits listed in §4 (00, 02, 07, 09, 10, 13), and this file moves to `docs/archive/`.
+**Status:** **Ruled 11 Nov 2026 → ADR 2026-11-11** (`docs/decisions/2026-11-11-app-requirements-after-sign-off.md`). D1, D3 and D0, D2, D5–D14 as recommended; **D4 changed: approval of an advance is a book setting, off by default for every book.** Not normative: the ADR is. This file keeps the requirements register (§3) and the edit list (§4) until the 02, 07, 13 and 09 rewrites land, then moves to `docs/archive/`.
 **Inputs:** the signed-off `docs/accounting/` (ADR 2026-11-01), `docs/02-ledger-rules.md`, the design (07, 13, canvas mirror, `design/match/`), and the code as built. These were read on 2 Nov 2026 by four read-only surveys, and each claim below cites its line.
 **Precedence used:** on accounting behaviour, `docs/accounting/` wins over 02 (ADR 2026-10-22 §1). 02 keeps representation: the class model, verbs, invariants and storage. Canvas frames decide how a screen looks.
 
@@ -215,7 +215,7 @@ Sources are `docs/accounting/` unless a path says otherwise.
 | R-04/05/06 | Credit card, wallet, KCC: card and KCC are liabilities used as money | 02 §1.7, 1.9, 4.5 | money subtypes `od/cc/loan/wallet` | partly | subtypes built | confirm card and KCC as liability money accounts | P |
 | R-07/08 | One running account per person; advances paid or received stand on it | 02 §2.1-2.3 | party class | yes | built | keep | P |
 | R-09 | Deposit held or paid, retention held, and a loan with interest each get their own account on the person's page | 02 §2.4, 4.2, 5.11-5.12 | absent | absent | none | add (D2) | V |
-| R-10 | Advance – {any named person}, no approval | 02 §3.1 | members only, approval 🔒 | S5/S5.1 contradict | member-bound | D4 | P |
+| R-10 | Advance – {any named person}; approval a book setting, off by default (ruled 11 Nov) | 02 §3.1 | members only, approval (🔒 in 02 §7) | S5/S5.1 contradict | member-bound | D4 | P |
 | R-11/12 | Loan taken, loan given | 02 §4.1-4.2 | loan = money subtype | absent | partial | add (D2) | V |
 | R-13 | Thing owned, at cost | 02 §5.1-5.8 | ruled, not applied (02 L:33) | absent | none | add (D2) | V |
 | R-14 | Deposit (FD/RD) as its own type | 02 §5.9 | absent | absent | none | add | V |

@@ -9,7 +9,7 @@
 **The bets (each one is load-bearing):**
 1. **Books, not modes** — individual, family, joint family, business, trust are all the same Book object; the flow never changes, only the count (requirements doc §1).
 2. **Zero-knowledge** — the server can mathematically never read the money. Recovery works through the family itself (guardians), not passwords (04, 06).
-3. **Six verbs, no jargon** — the user can never build a wrong posting (02 §2).
+3. **No jargon** — the everyday entries need no accounting knowledge; every entry is true double entry. The six verbs are the quick routes; any entry moves money from one account the book has opened to another (02 §2; ADR 2026-11-11 §1).
 4. **The 8-second entry** — faster than paper, every day, or nothing else matters (07 §1).
 5. **Self-auditing family** — every device recomputes and verifies every close; trust is arithmetic, not hierarchy (02 §8).
 

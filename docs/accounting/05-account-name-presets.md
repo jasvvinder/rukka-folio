@@ -43,7 +43,7 @@ Rules for the chips:
 | House Help | | |
 | Salary | | |
 | Wages | | |
-| Purchases | | |
+| Goods bought for sale | | |
 | Transport | | |
 | Interest Paid | | |
 | Bank Charges | | |

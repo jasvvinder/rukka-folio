@@ -14,9 +14,15 @@
 ## 1. Objects
 
 ### 1.1 Books 🔒 ⟦tests: A-02-33, A-02-34⟧
+
+> **ADR 2026-11-11 §0, §6** — one book: behaviour follows the accounts a book has opened, never its kind; the type list is labels and settings only (the trust note-count sheet becomes a setting). Books connect through accounts named after the other book; *due-to/due-from* goes. ⟦tests: n/a — ruled; the build slice allocates the tests and skips those it supersedes⟧
+
 A book is an independent, self-balancing ledger. Types: `personal`, `family`, `joint`, `business` (and, per tenant type `organization`, books are the same objects with different display names). Books never nest; they connect only via due-to/due-from pairs (§6). Each book has its own chart of accounts, its own financial year (default 1 April – 31 March), and its own period locks.
 
 ### 1.2 Accounts 🔒 ⟦tests: A-02-26, A-02-18, A-02-19⟧
+
+> **ADR 2026-11-11 §2, §5** — supersedes the class table and the no-closing-entries rule below: the reference books' kinds of account are added (thing owned, loans taken and given, deposit, deposit held/paid, retention, *Advance – {any named person}*, fund, own money and Drawings named after the owner, partner capital and current, sub-family running accounts, *Cash short / over*, *Not yet sorted*, General Fund and Corpus as accounts); no Opening Balance, Adjustments, Suspense or Due to/from; the book posts the year close. Section rewrite pending (PLAN-210). ⟦tests: n/a — ruled; the build slice allocates the tests and skips those it supersedes⟧
+
 Accounts are encrypted content with stable UUIDs. Each has a **class**, which drives behavior and report placement:
 
 | Class | Examples | Report placement |
@@ -70,6 +76,9 @@ Entry {
 ```
 
 ### 1.4 Universal invariants 🔒 ⟦tests: A-02-1, A-02-2, A-02-3, A-02-4, A-02-5, A-02-8, A-02-23, A-02-25, A-09-1, A-05e-8, F1-02-3, F1-02-4⟧
+
+> **ADR 2026-11-11 §1** — rule 7 is superseded: any balanced entry between accounts the book has opened is valid if it passes the rules for each kind of account (money touched, transfer between own money, fund spend, gollak, no account twice, no over-settlement); readers re-check them and quarantine a violation. Rule 4's *amend* goes (§3). ⟦tests: n/a — ruled; the build slice allocates the tests and skips those it supersedes⟧
+
 1. `sum(lines.amount_paise) == 0`, ≥ 2 lines, every line non-zero.
 2. Amounts are **integer paise**. No floats anywhere — client, export, or display math. ⟦tests: F1-13-27⟧
 3. Every `account_id` belongs to the entry's book. Cross-book effects only via §6.
@@ -81,6 +90,8 @@ Entry {
 ---
 
 ## 2. The six verbs and their fixed postings 🔒 ⟦tests: A-02-9, A-02-10, A-02-11, A-02-12, A-02-13, A-02-14, A-02-16, A-02-17, A-02-18, A-02-20, A-02-21, A-05e-8, F1-02-3⟧
+
+> **ADR 2026-11-11 §1** — the six verbs are entry-screen shortcuts, not the only legal postings; verb 6 *Adjustment* and its `equity_system` counter-account go (opening §8, correction §3, cash difference §7, write-off to an expense head §4). The verbs' own postings stay valid. ⟦tests: n/a — ruled; the build slice allocates the tests and skips those it supersedes⟧
 
 The user answers plain questions; the app builds the lines. Party-facing verbs auto-resolve against existing balances (paying ₹500 to a party you owe ₹2,000 simply reduces the payable — the user never chooses debit or credit).
 
@@ -123,6 +134,8 @@ The user answers plain questions; the app builds the lines. Party-facing verbs a
 
 ## 4. Opening balances 🔒 ⟦tests: A-02-17, A-ref-3, F1-02-7⟧
 
+> **ADR 2026-11-11 §8** — supersedes the per-account adjustment against Opening Balance: a book opens with one compound opening entry balanced by own money (or the partners' capitals, which must equal assets less liabilities); things owned, goods on the shelf and sub-family accounts can be opened. ADR 2026-09-09c §4 below is superseded. ⟦tests: n/a — ruled; the build slice allocates the tests and skips those it supersedes⟧
+
 **Every new account asks for its opening balance at creation 🔒 (owner-approved)** — not only during first-run setup. The question is phrased by class, never as Dr/Cr: money accounts ask *"balance today"* (negative allowed → overdraft); party accounts ask *"do they owe you, or do you owe them?"* with the amount (**you will get** / **you will give**); expense/income accounts default to zero for the current FY. Each posts one `adjustment` against Opening Balance (equity).
 
 > **ADR 2026-10-07b** — an account created inside an entry asks for its opening balance afterwards: *Opening balance not set* on its statement (S4) and a marker in the Ledger index (S3), never during the entry; the answer posts the same opening adjustment as S3.1. ⟦tests: F1-1007b-1 @M13, F1-1007b-2 @M13, F1-1007b-3 @M13⟧
@@ -142,6 +155,8 @@ Guided setup per book, re-runnable until first lock: for each money account and 
 
 ## 5. Corrections 🔒 ⟦tests: A-02-42, A-02-43, A-02-44, A-02-45, A-02-46, A-02-47, A-02-50, A-05b-1, A-05b-2, A-05b-3, A-02-57, F1-02-5, F1-02-6⟧
 
+> **ADR 2026-11-11 §3** — the open-period amend goes: a posted entry is never edited. A correction is a new balanced entry dated the day it is made, its note naming the entry it fixes (`accounting/02` §7.1–7.3, §7.6); *Cancel this entry* posts a full mirror. `held` stays for reversals and decisions. ⟦tests: n/a — ruled; the build slice allocates the tests and skips those it supersedes⟧
+
 - **Open period:** an entry may be **amended** — a new envelope, `kind` unchanged, `refs.amends = original`, carrying the complete replacement payload. Views show the latest amendment; history is preserved and inspectable ("edited by Ramesh, 2 changes"). Amend chains are linear (amend the head only). **A reader holding an amendment, reversal or decision whose target has not arrived keeps it `held` — neither projected nor quarantined — until the target lands (ADR 2026-09-05b §4); only when every author's sequence is contiguous and the target is still absent is it quarantined as `target_missing`.** `held` means this and nothing else; the closer's-tray state of a late arrival is `inTray` (ADR 2026-09-05e §10).
 - **Locked period:** amendment is forbidden by rule. The only path: **reversal** — an auto-built mirror entry dated in the open period, `refs.reverses = original`, plus (optionally) the corrected re-entry. One guided flow: *"Fix an old entry"* → app posts both.
 - Reversed and amended-away entries remain visible in history, struck through. `void` status exists only as the derived state of a fully reversed entry.
@@ -149,6 +164,8 @@ Guided setup per book, re-runnable until first lock: for each money account and 
 ---
 
 ## 6. Inter-book movement 🔒 ⟦tests: A-02-78, A-02-79, A-02-80, A-02-82, A-ref-6, A-05e-10, F1-02-19, F1-02-20, F1-02-21, F1-02-22, F1-02-27, F1-02-28, F1-07-119, F1-02-47, F1-02-96⟧
+
+> **ADR 2026-11-11 §6** — each book's account for another is named after that book (no *Due to/from*); a family and sub-family agree by balance, an owner and their business entry by entry with the *profit kept* line; money a business sends home is *Income from {business}* there and Drawings in the business; a family book holds a running account per sub-family and an *Udhaar – {sub-family}* page; three-book entries and year-end settle-or-carry come in. ⟦tests: n/a — ruled; the build slice allocates the tests and skips those it supersedes⟧
 
 Books connect through **paired system accounts** auto-created on first use: in book A, `Due to/from B`; in book B, `Due to/from A` (class `equity_system`, placement by sign).
 
@@ -168,6 +185,8 @@ Family book:     Dr Bank 50,000 · Cr Due to/from Business 50,000
 
 ## 7. Advances — the advance (ਐਡਵਾਂਸ / एडवांस) flow 🔒 ⟦tests: A-02-72, A-02-73, A-02-74, A-02-75, A-02-76, A-02-77, F1-02-13, F1-02-14, F1-02-15, F1-02-16, F1-02-17, F1-02-18⟧
 
+> **ADR 2026-11-11 §4** — an advance can go to any named person, opened like a person's account; **approval is a book setting, off by default** — off, the advance posts on save under post-then-review (§3); on, it waits for an approver as below, and `pending` is used only then. Several heads, return, top-up and recovery in a salary entry come in; a write-off goes to an expense head, not Adjustments. ⟦tests: n/a — ruled; the build slice allocates the tests and skips those it supersedes⟧
+
 - Advances are the deliberate exception to §3's post-then-review: **here the approval itself moves the money** — cash leaves the drawer upon approval, so nothing exists to mismatch. Requesting ₹X posts, on approval: `Dr Advance – {member} · Cr money`. Purpose text required; approval always required regardless of limit.
 - Spending against it: `Dr expense-category · Cr Advance – {member}` (entered by the member, approved per limits, bill photo encouraged).
 - Returning the remainder: `Dr money · Cr Advance – {member}`.
@@ -179,6 +198,8 @@ Family book:     Dr Bank 50,000 · Cr Due to/from Business 50,000
 ---
 
 ## 7.1 Jointly-owned businesses — partner accounts 🔒 (owner-approved, 30 Aug 2026) ⟦tests: A-02-62, E-02-1, E-02-2, E-02-3, E-02-4, E-02-5, E-02-6, E-02-7, E-02-8, E-02-9, E-02-10, F1-02-40⟧
+
+> **ADR 2026-11-11 §5** — the mid-year distribution goes: the year close posts the appropriation for a book with more than one owner's own-money account (interest on capital by months, only if agreed and only out of profit; equal shares when no ratio is agreed; a ratio change divides the year by days; fixed capital with a current account is an option). S14.1 becomes that step; S14 and S14.2 stay as views. ⟦tests: n/a — ruled; the build slice allocates the tests and skips those it supersedes⟧
 
 **Shared ownership is optional 🔒 (owner-approved).** Adding a business asks one question — *"Who owns this business?"* → **Just me** (default) or **Shared with others**. Choosing *Just me* creates a plain business book with a single Capital/Drawings pair and **never mentions partners, ratios or profit distribution anywhere in the app**. Only *Shared with others* asks for the owners and their ratio, and only then do partner accounts, the distribution wizard and the partner-position screen exist. Ownership can be changed later (a structural change: requires every current owner's approval and is recorded as a dated envelope).
 
@@ -269,6 +290,8 @@ Admin power then splits in two:
 
 ## 8. Periods and locking 🔒 ⟦tests: A-02-48, A-02-49, A-02-50, A-02-51, A-02-52, A-05e-1, A-05c-2, F1-07-27, F1-07-131, F1-07-132, F1-07-134, F1-02-48, F1-02-49, F1-02-50, F1-02-51, E-03-47, E-03-48, E-03-49, E-03-50, E-03-51, F1-02-60, F1-02-61, F1-02-62, F1-02-63, F1-02-64, F1-02-65, F1-02-66, F1-02-67⟧
 
+> **ADR 2026-11-11 §7** — a cash difference goes to *Cash short / over* or to the person minding the cash, never Adjustments; *Not yet sorted* (was Suspense) must be cleared before the year closes, not each month. ⟦tests: n/a — ruled; the build slice allocates the tests and skips those it supersedes⟧
+
 - Periods are calendar months within the book's financial year. States: `open` → `locked` (re-openable by book admin, logged).
 - A **lock is itself a signed envelope** with an HLC; so is an unlock (`period_unlock`). **Both are all-time objects in the bootstrap hot set (05 §8, ADR 2026-09-05e §5)** — the validity rule below needs the complete history even for archived years. Deterministic rule every client applies: an entry whose `accounting_date` falls in period P is valid only if its HLC precedes the HLC of P's lock. Violations from a tampered client are quarantined by every honest reader.
 - **Late arrivals** (created offline before the lock, synced after): they are *valid* by the rule above but would silently change closed figures — so they **count in every live balance the moment they land (§3) but leave the certified month untouched**, and land in a **Late Arrivals tray** (`inTray`, ADR 2026-09-05e §3, §10) for the book's closer, who either re-dates them into the open period (default, one tap) or re-opens the month (admin, logged, requires re-close).
@@ -282,6 +305,8 @@ Admin power then splits in two:
 - **Two distinct surfaces 🔒 (conflict resolved 30 Aug 2026):** (a) the **integrity check** is the always-visible books-balanced card on Home (07 §4) — status, total Dr, total Cr, difference — verifying stored state and catching sync or storage corruption; (b) the **Trial Balance report** exists under Reports (07 §14) and in exports, because the accounting reference is built on it and any accountant will ask for one. The earlier rule that a trial balance "never appears as a report" is superseded: it was written before the verification card was approved.
 
 ### 8.1 Financial year close and carry-forward 🔒 ⟦tests: A-02-53, A-02-54, A-02-55, A-05e-2, A-05e-1, A-05c-2, F1-07-163, F1-07-164, F1-07-166, F1-07-190, F1-07-191, F1-07-192, F1-07-193, F1-07-194, F1-07-195, F1-07-196, F1-07-197, F1-07-198, F1-07-199, F1-02-68, F1-02-69, F1-02-70, F1-02-71, F1-02-72, F1-02-73, F1-02-74, F1-02-75, F1-02-76, F1-02-77, F1-02-78, F1-02-79, F1-07-224, F1-07-225, F1-07-432⟧
+
+> **ADR 2026-11-11 §5** — supersedes the vector with one net-result line: the book posts the year-close entries (heads to the result account, result and Drawings to own money, the appropriation where there are several owners), shown and not typed; a closed year is never reopened (`accounting/02` §7.6), so *Reopening* below goes. ⟦tests: n/a — ruled; the build slice allocates the tests and skips those it supersedes⟧
 
 The ledger is continuous, so money, party, and advance balances carry forward across 31 March automatically — no amounts are ever re-posted. The **Year Close ceremony** makes that carry-forward official, verified, and displayable, exactly like *"To Balance b/d"* in a paper khata:
 
@@ -353,6 +378,8 @@ All balances are **derived, never stored authoritatively**: balance(account) = �
 ---
 
 ## 10. Statement import postings 🔒 (Phase 1: file upload) ⟦tests: F1-02-12⟧
+
+> **ADR 2026-11-11 §2, §7** — *Suspense* becomes *Not yet sorted*, cleared before the year closes. ⟦tests: n/a — ruled; the build slice allocates the tests and skips those it supersedes⟧
 
 **The vocabulary rule 🔒 (owner-directed):** users read bank statements, where *credit = money in* and *debit = money out* — the mirror of our ledger, because the bank keeps its own book (your deposit is its liability). **The engine's Dr/Cr logic never changes; the words the user sees do.** Import screens, entry screens and day-book lists speak only **Money in / Money out**; the bank's own credit/debit column is mapped on read and never shown as "Dr/Cr" to the user. Professional surfaces (A/C statements, trial balance, exports) show true ledger Dr/Cr per 01 §1.9. Mixing the two conventions anywhere in one surface is a defect.
 

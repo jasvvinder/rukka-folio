@@ -65,7 +65,7 @@ The closing entries are real entries in the ledger, so every account's page show
 
 ### 2.2 Year-end adjustments are optional, off by default, and the report says which way the book was kept
 
-**Rule.** The book is kept on money paid and received, and on what people owe or are owed when it arises (the khata basis): nothing is recorded for the passage of time alone. At the year end a business book (shop, contractor, farm, truck, a landlord's business book, partnership) or a trust or committee may opt in to adjustments; if it does not, none is made. A household or joint-family book stays on the khata basis, including a household that lets property (*03*, 6). The adjustments are:
+**Rule.** The book is kept on money paid and received, and on what people owe or are owed when it arises (the khata basis): nothing is recorded for the passage of time alone. At the year end a business book (shop, contractor, farm, truck, a landlord's business book, partnership) or a trust or committee may opt in to adjustments; if it does not, none is made. A household or joint-family book stays on the khata basis, including a household that lets property (*03*, 6). In the app the opt-in is a book setting, off by default and offered only when the purpose chosen at setup is not *myself* or *a family*. This rule is that setting's default, not a kind of book the app knows (ADR 2026-11-11 §0, §14 (f)); it is Later scope. The adjustments are:
 
 | Adjustment | What it does | Entry (professional) | Plain words |
 |---|---|---|---|

@@ -12,6 +12,50 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-11-11 — docs: app requirements ruled (PLAN-210, ADR 2026-11-11)
+
+**Decided**
+- `docs/decisions/2026-11-11-app-requirements-after-sign-off.md` — 🔒 the owner ruled D0–D14 of the app-requirements pass:
+  - one book whose behaviour comes from its accounts, never its kind (§0)
+  - any balanced from → to entry, checked by rules for each kind of account; the six verbs become shortcuts (§1)
+  - the kinds of account the reference books use, with no Opening Balance, Adjustments, Suspense or Due to/from (§2)
+  - corrections are new entries naming the entry fixed, and the amend chain goes (§3)
+  - advances to any named person, with **approval as a book setting, off by default** (§4, the one change from the recommendation)
+  - the book posts the year close and the appropriation, and a closed year is never reopened (§5)
+  - accounts between books are named after the other book (§6)
+  - *Cash short / over*, and *Not yet sorted* cleared by year end (§7)
+  - one compound opening entry (§8)
+  - the reports of 04 §4–§6 (§9)
+  - scope: pilot / v1 / later (§10)
+  - no migration (§11)
+  - ten older ADR sections superseded by name, after each was checked (§12)
+  - engine before the re-skin freeze lifts (§13)
+  - fixes to the accounting docs (§14)
+- `00-vision` bet 3 becomes *"No jargon — the everyday entries need no accounting knowledge; every entry is true double entry"* (§1).
+
+**Changed**
+- 02: twelve cross-reference lines (§1.1, §1.2, §1.4, §2, §4, §5, §6, §7, §7.1, §8, §8.1, §10) mark what the ADR supersedes. The section bodies are rewritten next.
+- 07: six cross-reference lines (§5, §6, §8, §10, §13, §14).
+- 10: *Interest on hand loans* leaves the parking lot; it is an ordinary entry.
+- `docs/accounting` (D14):
+  - 01 rule 2 and its Source line now agree with 04 and C10: a wage earned and unpaid stands on the worker's page.
+  - The tech companions say the Day Book list layout leaves out the year-close entries and the journal layout ends with them (`build.py`, rebuilt: 22,318 checks, 0 problems, printed books byte-identical).
+  - GAPS: the banner now cites the rulings, and A11's udhaar pages are loans. Checked against the printed positions: `joint-family-randhawa.md:376` and `:1298`.
+  - GAPS A12 marked as ruled. COVERAGE §D marked as settled.
+  - In 05, the *Purchases* chip becomes *Goods bought for sale*.
+  - 04 rule 2.2 notes that the year-end opt-in is a book setting, not a kind of book.
+- `docs/app-requirements-pass.md` is marked as ruled. It stays until the 02, 07, 13 and 09 rewrites land.
+
+**Open**
+- The 02 section rewrite, the 07/13 screen text (*Due to/from*, *Adjustments*, *Suspense*) and the 09 ids are PLAN-210 step 1. The engine slices are step 2. When each slice lands, it skips the tests listed in the ADR's Consequences; those tests have not yet been read one by one.
+- Where the advance-approval setting lives (S16), and who may switch it. The conservative reading, until a frame decides, is a structural setting (02 §7.2.1).
+- The draft missed one superseded ADR section, 2026-09-05e §6 (verb shapes as invariants). The ADR names it.
+
+**Commits**
+- (owner to fill)
+
+---
+
 ## 2026-11-07 — docs: ledger books checked against the sources; two fixes to accounting 01
 
 **Decided**

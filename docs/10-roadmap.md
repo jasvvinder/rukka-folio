@@ -48,7 +48,7 @@
 | Play Integrity / DeviceCheck enforcement | 06 §2, §11 item 2 | Field populated in v1; measure false-reject rate in pilot | `POST /devices` attestation field exists from M6 |
 | Tally XML export | req-arch §6 — banks, buyers, accountants ask for it | Mapping of 02 classes onto Tally groups | Export layer (M12) is format-pluggable |
 | Recurring entries & due reminders (rent, EMI, household salaries, udhaar follow-ups) | pilot expectation; req-arch Flow 6 step 6 | Reminder content must carry no plaintext amounts in notifications (rule 4) | Entry schema unknown-field round-trip (03 §3.3.4) |
-| Interest on hand loans (sood) | family lending practice | Ruling from 02 owner on whether interest is a verb, a posting rule, or a report-only figure (interest on **partner capital** is settled: appropriation to Profit Distributed, 09 §3.1 normative — ADR 2026-09-05e §12) | Advances model (02) — do not hard-code zero interest |
+| ~~Interest on hand loans (sood)~~ — **left the parking lot (ADR 2026-11-11 §1):** interest on a hand loan is an ordinary from → to entry (`accounting/02` §4.7), no build of its own | | | |
 | Encrypted receipt / bill photo on an entry | pilot expectation | Storage cost → governed by the per-plan attachment-bytes quota (08 §2, ADR 2026-09-05g §3), not a separate tier | Optional attachment reference field on entries, encrypted blob outside the envelope |
 | Time-boxed read-only accountant role | professional surfaces (02 §10) | Role model in 06 §7 must allow expiring grants | Roles table carries an optional expiry |
 | iOS widgets / Siri shortcuts for the 8-second entry | 07 §1 | Widget cannot hold book keys unlocked — design the locked-widget state | Entry sheet reachable by deep link |
