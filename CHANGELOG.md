@@ -12,6 +12,50 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-11-12 — docs: design brief made compare-first; Q1–Q4 ruled (PLAN-210)
+
+**Decided**
+- **No current frame is replaced while drawing** (owner, 12 Nov 2026). Each proposal is drawn on a new *Canvas 18 · Ledger model — proposals* as a pair:
+  - *Now*: a copy of the current frame
+  - *Proposed*: the new frame, with the same S-id
+  - *What changes*: one line for each difference, with its rule
+
+  The owner approves pair by pair. Only an approved pair is finalised: the proposed frame moves to its home canvas, and the old frame moves to `_removed/` and is never deleted. Canvases 1–17 stay as they are, and the app is built against them until then.
+- **Q1–Q4 ruled as recommended** (owner, 12 Nov 2026):
+  - Q1: any owner or admin may switch *Advances need approval* on; switching it off is structural. The setting goes on S13.1 (below), not S9.
+  - Q2: the 10-second Undo posts *Cancel this entry*.
+  - Q3: one *Other kinds of entry ▸* door on S2, and the pill stays at five positions.
+  - Q4: New A/C tiles are ordered by purpose, and none is hidden.
+
+  These go into ADR 2026-11-11 when it is amended after the frames.
+- **Book settings get their own screen** (owner, 12 Nov 2026: *"a setting screen … in which we can include the setting options"*). S13 Settings already exists (13 §3.2, canvas 10 · *Settings*, `s13_settings_screen.dart`). Its *Your books* section now lists each book, and a book opens a new **S13.1 Book settings** screen. S9 gets a *Book settings ▸* row to the same screen. S13.1 holds:
+  - advances need approval
+  - count notes at every cash count
+  - the book's words
+  - fixed or fluctuating capital, and interest on capital
+  - the *Opening balances* link
+
+  This moves the Q1 setting from S9 to S13.1. Who may switch it on or off is unchanged.
+
+**Changed**
+- `design/briefs/2026-11-11-ledger-model-frames.md`:
+  - a new section, *How to draw: keep the old, add the new, compare, then finalise*
+  - every Withdraw / Remove / Rename / Rework is now a proposed pair
+  - Part C is now the *Now* side of each pair
+  - Part D is marked ruled
+  - A8 is rewritten as S13 Settings + S13.1 Book settings + the S9 link, with the owner / read-only / waiting-for-quorum states
+  - *After the frames* has new steps: pull, check the pairs, the owner approves, finalise, then the ADR amendment
+- PLAN-210's *Next* follows the compare-first order.
+
+**Open**
+- `scripts/design_match.py index` reads every `canvas*-screens.json` and `*.dc.html` (`:128`, `:194`), so it would map S-ids to the Canvas 18 proposals. It must learn to skip Canvas 18 before the pull that brings them in.
+- Still open from 11 Nov: stamping the reference books' golden front-matter waits for the owner's word; the ADR's skip list is not read yet.
+
+**Commits**
+- (owner to fill)
+
+---
+
 ## 2026-11-11 (later) — docs: design brief for the new ledger model; accounting marked signed off (PLAN-210)
 
 **Decided**

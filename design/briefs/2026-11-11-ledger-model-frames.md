@@ -1,9 +1,24 @@
 # Design brief — frames for the ledger model of ADR 2026-11-11
 
 **Date:** 11 Nov 2026 · **For:** the Claude Design project (canvas mirror: `design/canvas-mirror/`, last pulled 8 Oct 2026). **From:** PLAN-210, after the owner's ruling (ADR 2026-11-11).
-**Order of work (owner, 11 Nov 2026):** design first → the doc rewrites (02, 07, 13, 09) are written from these frames → development. No engine or UI slice starts until these frames are drawn and pulled.
+**Order of work (owner, 11 Nov 2026; comparison step added 12 Nov 2026):** design first: draw the proposals beside the current frames → the owner compares each pair and approves it → the doc rewrites (02, 07, 13, 09) are written from the approved frames → development. No engine or UI slice starts until the frames are approved and pulled.
 
 **What this brief is.** It lists every frame the ruling needs, new or changed. Each item gives the screen's S-id and name, where it is drawn today (canvas no. · frame caption, from `design/match/canvas-index.json`), the app file that will build it, what the frame must show, and the rule behind it. The frames decide **how** a screen looks. The rules cited here decide **what** it does, and the frames must not change that. Where a frame seems to need a different rule, raise a `⚠️ SPEC:` question; don't draw around it.
+
+**How to draw: keep the old, add the new, compare, then finalise (owner, 12 Nov 2026).**
+- **No existing frame is changed.** While this brief is being drawn, nothing on canvases 1–17 is edited, renamed, moved or deleted. The app is still built and design-matched against those frames until the owner approves each replacement.
+- **Every proposal goes on a new canvas, *Canvas 18 · Ledger model — proposals*, drawn as a pair:**
+  - **Left, *Now*:** a copy of the current frame, unchanged, captioned *Now · c{n} · {its caption}*.
+  - **Right, *Proposed*:** the new frame, captioned *Proposed · {caption}*, with the same S-id as the screen it would replace.
+  - **Under the pair, *What changes*:** one line for each difference, with the rule behind it (ADR §, R-id). Anything not listed must stay the same.
+- **Special cases:**
+  - **A new screen** with no current frame: the left side says *Now: no frame*, plus what the app does today, or *not in the app*.
+  - **One current frame becoming several variants** (for example approval off / on): one *Now* on the left, all the variants on the right.
+  - **A frame the ruling would withdraw:** *Now* on the left, and on the right *Proposed: withdrawn*, with the reason and the pair that takes its place.
+- **The owner reviews pair by pair** and either approves it, asks for changes, or rejects it.
+  - **Only an approved pair is finalised.** The proposed frame moves to its home canvas. The old frame moves to the project's `_removed/{date}-…` folder and is never deleted.
+  - **A rejected pair** leaves the current frame as it is. Its rule question goes back to the owner as a `⚠️ SPEC:`.
+- Every *Withdraw*, *Remove*, *Rename* or *Rework* below is a **proposal**, drawn as a pair. Nothing changes on the current canvases until the owner approves it.
 
 **Sources the designer reads.** All paths are under `docs/`.
 - `decisions/2026-11-11-app-requirements-after-sign-off.md` — the ruling (§0–§14).
@@ -51,7 +66,7 @@
      - **V** — thing owned bought on credit or with a loan, and sold with a gain or loss (`accounting/02` §5.6–5.7; R-36, R-41).
      - **V** — spending from a fund: one action, two postings, *paid from the Hall Fund* (`accounting/03` §5.5; R-51).
   4. **The kind rules show as plain words, never as errors after Save** (ADR §1). For example, a transfer offers only the book's own money and deposit accounts; the gollak empties only into cash or bank. A rule the entry would break is stated on the screen before Save (*"Cash would go below nil — is an entry missing?"* is a warning, not a refusal; R-02).
-- **Rename:** canvas 2 · *No chip row · milk on khata* → *milk on credit* (*on khata* is forbidden, R-134). Its entry, `Dr Milk Expense · Cr Vardhman Dairy`, stays.
+- **Proposed rename (pair):** canvas 2 · *No chip row · milk on khata* → *milk on credit* (*on khata* is forbidden, R-134). Its entry, `Dr Milk Expense · Cr Vardhman Dairy`, stays.
 
 ### A3. The opening entry · P
 - **Where:** S0.6 *Opening balances — one grouped screen* (canvas 1 · *Opening balances · first run*; canvas 11 · *O6a*, *O6c*), S0.6b (canvas 1 · *What the shop has · Capital is computed*, *What the business has · each owner's capital*), S0.6f (canvas 1 · *What the joint fund has*), S0.6i (canvas 1 · *What the trust has · gollak counted*), S9.5 (canvas 4 · *Add a business · name, FY, balances*). App: `app/lib/features/onboarding/screens/s0_6_opening_balances_screen.dart`, `…/s0_6b_business_opening_balances_screen.dart`.
@@ -60,19 +75,19 @@
   - **With several owners,** the partners' figures must equal *what it has less what it owes*. There is no balancing line. Draw the state where they don't agree, and how the screen says by how much (`accounting/03` §2.3).
   - **Openable:** things owned · goods on the shelf (to *Goods bought for sale*) · sub-family running accounts (ADR §8).
   - **Later in the year,** an account created then asks its opening balance afterwards (ADR 2026-10-07b, unchanged). The answer joins the opening entry's date, not a new account.
-- **Withdraw:** canvas 2 · S2.4 *Opening balance correction* as an adjustment against *Opening Balance*. A wrong opening figure is fixed by a correction (A4) against own money.
+- **Proposed withdrawal (pair):** canvas 2 · S2.4 *Opening balance correction* as an adjustment against *Opening Balance*. A wrong opening figure is fixed by a correction (A4) against own money.
 
 ### A4. Corrections, and Cancel · P
 - **Where:** S4.1 *Entry detail* — canvas 2 (*Entry detail · open period*, *Locked period · Fix this entry*, *Reversed*, *Amended · struck-through history*), canvas 11 (*Entry detail*); S2.4 — canvas 2 · *Fix an old entry*. App: `app/lib/features/ledger/screens/s4_1_entry_detail_screen.dart`.
 - **Must show** (ADR §3, `accounting/02` §7.1–7.3, §7.6; R-54):
-  - A posted entry is **never edited**, in any period. **Remove the Edit action.**
+  - A posted entry is **never edited**, in any period. **The proposed frame has no Edit action** (the *Now* side keeps it).
   - ***Fix this entry***: the user says what was wrong (amount, account, or both). The app builds one balanced correcting entry **dated today**, whose note names the entry it fixes by number and date (*"corrects entry no. 41 of 12 Aug"*). The preview shows its lines before Save.
   - **Wrong account, right amount:** one entry moves it (§7.3).
   - **An income or expense of a closed year:** the correction goes to that head's *— earlier year* line (*Rent — earlier year*) (§7.6). Draw this variant.
   - ***Cancel this entry***: posts a full mirror. Both entries stay visible, the first marked *cancelled by entry no. …*.
   - **The fixed entry** shows a link to its correction, and the correction a link back.
-- **Withdraw:** canvas 2 · S4.1 *Amended · struck-through history* (*"edited by …, n changes"*).
-- **Rework:** canvas 2 · S4.1 *Locked period · Fix this entry*. Locked and open periods now take the same correction flow.
+- **Proposed withdrawal (pair):** canvas 2 · S4.1 *Amended · struck-through history* (*"edited by …, n changes"*).
+- **Proposed rework (pair):** canvas 2 · S4.1 *Locked period · Fix this entry*. Locked and open periods now take the same correction flow.
 - **See Q2:** the 10-second Undo after Save.
 
 ### A5. Advances to anyone; approval as a setting · P
@@ -83,7 +98,7 @@
   - **Setting on:** today's request → approver flow (*Sent · waiting for Sunita*). Draw both variants side by side.
   - **The card's actions:** *Add bills* (the guided settle-across-heads entry, A2), *Return the rest*, *Top up*, and the three outcomes of a remainder with no bills (§3.4).
   - **Write-off goes to an expense head**, not *Adjustments* (ADR §4).
-- **The setting itself:** see A8 and Q1.
+- **The setting itself:** on S13.1 Book settings (A8, Q1).
 
 ### A6. Month close: the two answers · P
 - **Where:** S10 *Month close wizard* — canvas 5 (*Close August · step 1*, *Step 3 · the tray*, *Step 4 · what you are signing*), canvas 11/13/14 (*Confirm & lock*); S5.5 *Cash count sheet* — canvas 5 (*Verify mode · a difference*). App: `app/lib/features/close/screens/s10_month_close_screen.dart`, `app/lib/features/cash_count/screens/s5_5_cash_count_screen.dart`.
@@ -104,14 +119,25 @@
   - **Fix in one book only:** the book that missed the item gets the fix (§4.4), and the screen says which book that is.
   - **Year end:** each sub-family account is **carried forward** (preselected) or **settled** (§3.5). This sits in the year-close review (B2), but it is pilot logic, so draw the choice.
 
-### A8. Book settings · P
-- **Where:** S9 *Books & members* — canvas 4 (*Books & members · roles and log*), canvas 13, canvas 14 (*Members & roles · a trust's labels*). App: `app/lib/features/members/screens/s9_members_screen.dart`.
-- **Must show** the book's policies as settings, never as a kind of book (ADR §0):
-  - **Advances need approval** — off by default (ADR §4; Q1).
-  - **Count notes at every cash count** — on by default when the setup purpose is a trust (ADR §0; replaces 02 §8.2's trust-only rule).
-  - **The book's words:** the own-money account's name (*Own money*, *Capital – {name}*, *General Fund*), the result account's name (*Income & Expenses*, *Profit & Loss*, *Income & Expenditure*), and the result word (*Saving*, *Profit*, *Surplus*). They are set at setup from the purpose card, editable here, and never drive logic.
-  - **Shared business only:** capital fixed or fluctuating (`accounting/03` §2.2; fluctuating when nothing is agreed); interest on capital (already on S14, 02 §7.1).
-  - **v1, not drawn now:** year-end adjustments opt-in (ADR §14f, Later scope).
+### A8. Settings: app settings, and a Book settings screen for each book · P
+**Owner, 12 Nov 2026:** the setting options go on a settings screen, not on S9.
+
+- **S13 Settings** (existing): canvas 10 · *Settings*. App: `app/lib/features/settings/screens/s13_settings_screen.dart`. 13 §3.2 lists it today as language, appearance, notifications, auto-lock, *Your books → Opening balances*, and export everything.
+  - **Proposed (pair):** keep the app-wide rows as they are. *Your books* lists every book the user is a member of. Tapping a book opens its **Book settings** (S13.1).
+- **S13.1 Book settings** (new screen; *Now: no frame*). App: `app/lib/features/settings/screens/s13_1_book_settings_screen.dart`. It is one screen per book, two levels below S8 (S8 → S13 → S13.1), which is within the depth rule of 13 §3.2.
+  - It shows the book's policies as settings, never as a kind of book (ADR §0):
+    - **Advances need approval** — off by default (ADR §4). Any owner or admin may switch it on; switching it off is structural (02 §7.2.1 quorum) (Q1).
+    - **Count notes at every cash count** — on by default when the setup purpose is a trust (ADR §0; replaces 02 §8.2's trust-only rule).
+    - **The book's words:** the own-money account's name (*Own money*, *Capital – {name}*, *General Fund*), the result account's name (*Income & Expenses*, *Profit & Loss*, *Income & Expenditure*), and the result word (*Saving*, *Profit*, *Surplus*). They are set at setup from the purpose card, editable here, and never drive logic.
+    - **Shared business only:** capital fixed or fluctuating (`accounting/03` §2.2; fluctuating when nothing is agreed); interest on capital (set on S14 today, 02 §7.1; the pair shows whether it moves here).
+    - **Opening balances ▸**, which moves here from S13's *Your books* row (ADR 2026-09-03b ruling 2, unchanged in what it opens).
+    - **v1, not drawn now:** year-end adjustments opt-in (ADR §14f, Later scope).
+  - **Draw these states:**
+    - an owner or admin, who can change the settings
+    - a member with another role, who sees the same rows read-only, each with one line saying who can change it
+    - a structural change waiting for the owners' quorum, using the existing structural-approval pattern
+- **S9 Books & members** (existing): canvas 4 · *Books & members · roles and log*, canvas 13, canvas 14. App: `app/lib/features/members/screens/s9_members_screen.dart`. S9 keeps members, roles, limits and the log.
+  - **Proposed (pair):** one row, *Book settings ▸*, opening the same S13.1, so the settings can be found from either place.
 
 ### A9. Pilot reports · P
 - **Where:** S8.1 *Reports list* — canvas 15 · *Reports list*; S8.2 — canvas 15 (*Report viewer · Profit and Loss*, *Trial Balance*, *You will get, by age*); Canvas 17 (1a–1i statements, 2a Day Book, 2b Cash Book, 3a Trial Balance, 3d Full position); S8.4 *PDF preview & options* (Canvas 17). App: `app/lib/features/reports/screens/s8_1_reports_list_screen.dart`, `…/s8_2_report_viewer_screen.dart`.
@@ -150,7 +176,7 @@
     - income and expense heads to the result account
     - the result and Drawings to own money
     - with several owners, the result through the appropriation to each owner's account
-  - **The appropriation step replaces S14.1's mid-year distribution:**
+  - **The appropriation step, proposed in place of S14.1's mid-year distribution (pair):**
     - interest on capital only if agreed and only out of profit, worked by months
     - equal shares when no ratio is agreed
     - a ratio change during the year divides the profit by days
@@ -159,7 +185,7 @@
   - **Carry-forward** (§2.6): what carries, what starts again at nothing.
   - **Sub-family accounts:** carried forward or settled (A7).
   - **Owner pairs:** settle or carry (R-50).
-- **Withdraw:**
+- **Proposed withdrawals (pairs):**
   - canvas 5 · S10.4 *Reopened · certificate voided*: a closed year is never reopened (ADR §5, `accounting/02` §7.6)
   - canvas 6 · S14.1 *Distribution · 1 Period* as a mid-year action
 
@@ -169,7 +195,9 @@
 
 ---
 
-## Part C — Existing frames that become wrong
+## Part C — Existing frames the ruling would change
+
+None of these frames is edited now. Each one becomes the *Now* side of a pair on Canvas 18, and stays where it is until the owner approves its pair. Screens in Parts A–B that are not listed here still get a pair if their proposed frame differs from today's in any way.
 
 | Canvas · frame caption | S-id · screen | App path | What is wrong | Rule |
 |---|---|---|---|---|
@@ -194,9 +222,11 @@
 
 ## Part D — Questions the frames settle (with a recommendation)
 
+**Ruled by the owner, 12 Nov 2026: all four as recommended, except that the Q1 setting moves to S13.1 Book settings (A8)** (*"All 4 with your recommendation looks okay"*). Draw these answers. They are written into ADR 2026-11-11 when it is amended (step 5 of *After the frames*).
+
 **Q1. Where the *Advances need approval* setting sits, and who switches it.**
 - The ADR's Open item says *Settings (S16)*. In 13 §3.2, S16 is *My account* (name, photo, phone, language), and S13 is Settings. A book's own policies (members, limits, roles) are on **S9 Books & members**.
-- **Recommendation:** a row on the book's S9 page, beside the review limits and the peer reviewer, off by default.
+- ~~**Recommendation:** a row on the book's S9 page, beside the review limits and the peer reviewer, off by default.~~ **Moved by the owner, 12 Nov 2026:** the setting goes on **S13.1 Book settings**, reached from S13 Settings and from S9 (A8). Who can switch it, below, is ruled as recommended.
   - Switching it **on** is routine: any owner or admin (the ADR says *"an owner or admin can switch it on"*).
   - Switching it **off** again is structural (02 §7.2.1 quorum), because it removes a check other members rely on.
   - The ADR does not say who may switch it off; this half is my recommendation for the owner to rule.
@@ -218,8 +248,11 @@
 
 ## After the frames
 
-1. `/design-pull`, then `python3 scripts/design_match.py index`.
-2. The owner rules Q1–Q4 (or accepts the recommendations) → amend ADR 2026-11-11 (§13 re-sequenced, the Open S16 item closed).
-3. Rewrite 02 (§1.2, §1.4, §2, §4, §5, §6, §7, §7.1, §8, §8.1, §10), 07 (§5, §6, §8, §10, §13, §14, §16) and 13 (§3.2 rows S2.4, S5.1, S8.3, S10.4, S14.1; §5 flows) from the frames; 09 ids per guided entry and per report.
-4. Read the tests listed in the ADR's Consequences one by one before any is skipped.
-5. Development: engine (`core_ledger`, tests first, suite A against the reference books), then UI slices, pilot rows first.
+1. **Pull the proposals:** `/design-pull` brings Canvas 18 into the mirror. Before `python3 scripts/design_match.py index` runs, the index is taught to skip Canvas 18. Today it reads every `canvas*-screens.json` and `*.dc.html` (`scripts/design_match.py:128`, `:194`), so a proposal would take over its S-id before it is approved.
+2. **Check every pair against its rules:** the entries are correct double entry, the *What changes* list matches what is drawn, and no unlisted difference has crept in. Each finding gives its canvas, caption, S-id, screen and app path.
+3. **The owner compares, pair by pair:** approve, ask for changes, or reject. (Q1–Q4 were ruled on 12 Nov 2026, as recommended.)
+4. **Finalise the approved pairs only:** each proposed frame moves to its home canvas, and the old frame moves to `_removed/{date}-…`. Then `/design-pull` and `index` again.
+5. Amend ADR 2026-11-11: re-sequence §13, add the comparison step, record Q1–Q4 as ruled, and add S13.1 Book settings. Q1 closes the Open S16 item. 13 §3.2 then gains the S13.1 row, and S13's *Your books* row changes.
+6. Rewrite 02 (§1.2, §1.4, §2, §4, §5, §6, §7, §7.1, §8, §8.1, §10), 07 (§5, §6, §8, §10, §13, §14, §16) and 13 (§3.2 rows S2.4, S5.1, S8.3, S10.4, S14.1; §5 flows) from the frames; 09 ids per guided entry and per report.
+7. Read the tests listed in the ADR's Consequences one by one before any is skipped.
+8. Development: engine (`core_ledger`, tests first, suite A against the reference books), then UI slices, pilot rows first.
