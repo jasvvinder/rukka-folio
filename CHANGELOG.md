@@ -12,6 +12,20 @@ Running record of what changed in this repository and in the development environ
 
 ---
 
+## 2026-11-13 — design-sync: first pull from the Rukka Folio artifact (PLAN-210)
+
+**Changed**
+- `/design-pull` ran against the artifact for the first time. One file changed since the 8 Oct mirror: `partials/src/onboard.json`, where *O8 · Setup checklist — Home, first run* has tighter spacing on the *"Nothing written today"* line. Design-only, no doc change. `design/match/canvas-index.json` is unchanged, and no design-match record went stale. The mirror's own record is `design/canvas-mirror/CHANGES.md`.
+
+**Open**
+- `Report Page.dc.html`, the Canvas 17 report page, is not in the artifact: the 27 Oct migration did not carry it over. The local mirror still has it. The owner decides whether to put it back.
+- Canvas 18, the ledger-model proposals, is not drawn yet.
+
+**Commits**
+- (owner to fill)
+
+---
+
 ## 2026-11-12 — docs: design brief made compare-first; Q1–Q4 ruled (PLAN-210)
 
 **Decided**
