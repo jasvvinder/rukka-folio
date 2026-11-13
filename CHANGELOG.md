@@ -46,6 +46,12 @@ Running record of what changed in this repository and in the development environ
   - A8 is rewritten as S13 Settings + S13.1 Book settings + the S9 link, with the owner / read-only / waiting-for-quorum states
   - *After the frames* has new steps: pull, check the pairs, the owner approves, finalise, then the ADR amendment
 - PLAN-210's *Next* follows the compare-first order.
+- **The brief is in the design project.** The project is now the artifact *Rukka Folio* (https://claude.ai/artifact/PS6d6AFwvWPF8XMLDs9PsZ). The owner moved it from standalone Claude Design, which closes by 14 Dec 2026. Added in version 9:
+  - `project/PROMPT-ledger-model-proposals.md`: the brief, with a header that says to change nothing on Canvases 0–17, to draw each pair on a new Canvas 18 built from `partials/canvas18-screens.json`, which files to read, and not to use `uploads/worked-examples/` (the archived 30 Aug set)
+  - `project/uploads/ledger-model/`: ADR 2026-11-11, `app-requirements-pass.md` and `accounting/01`–`04`
+
+  No canvas, partial or i18n file was changed.
+- `.claude/commands/design-pull.md` now reads from the artifact (Artifact `read` with `paths`, under `project/`) instead of DesignSync, and names Canvas 18. The index still has to skip Canvas 18 until each pair is approved.
 
 **Open**
 - `scripts/design_match.py index` reads every `canvas*-screens.json` and `*.dc.html` (`:128`, `:194`), so it would map S-ids to the Canvas 18 proposals. It must learn to skip Canvas 18 before the pull that brings them in.

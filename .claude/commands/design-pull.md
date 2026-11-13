@@ -4,10 +4,8 @@ description: Pull the Rukka Folio Claude Design project, diff against design/can
 
 # /design-pull — sync the Claude Design project into the repo
 
-**Project:** "Rukka Folio", DesignSync projectId `65a8ac2d-06c6-40a6-8b07-168198dfe2a2`.
-It is a regular design project (`PROJECT_TYPE_PROJECT`), so it does **not** appear in
-`list_projects` (that lists design-system projects only) — address it by id directly.
-If DesignSync returns an authorization error, ask the owner to run `/design-login` first.
+**Project (since 12 Nov 2026):** the artifact **Rukka Folio**, https://claude.ai/artifact/PS6d6AFwvWPF8XMLDs9PsZ. The owner moved the project there from standalone Claude Design (it was moved on 27 Oct 2026; standalone closes by 14 Dec 2026). Everything that was at the project root is now under **`project/`**, and the page list is `project/compat.json`. Read files with the Artifact tool: `action: "read"`, the url, and `paths` (up to 256 per call). Each file is saved under the scratchpad's `artifact-files/<id>/project/…`. Copy the files from there into the mirror after the diff in step 3, with `project/` removed from the path. There is no 256 KiB cap.
+*Old project:* DesignSync projectId `65a8ac2d-06c6-40a6-8b07-168198dfe2a2` (needs `/design-login`). Use it only if the owner asks.
 
 **Mirror:** `design/canvas-mirror/` — **local-only** snapshot of the project's text-bearing
 sources. It is gitignored (owner's call, 1 Sep 2026): never commit or push it. The change
@@ -35,20 +33,11 @@ and the marketing pages (`Landing Page`, `Coming Soon*`). Those are the website'
 
 ## Procedure
 
-1. `list_files` on the project. Any **new** file matching the mirror set (a new canvas's
+1. List the artifact's files (`action: "list"`, `scope: "files"`, the url) and read `project/compat.json`. Paths below are relative to `project/`. Any **new** file matching the mirror set (a new canvas's
    partials or i18n files, a new report) joins the pull; any file gone from the project is
    deleted from the mirror. Note both in the report.
-2. Fetch every mirror-set file with `get_file` — **in the main session** (subagents do not
-   have DesignSync; the design authorization is session-bound). Then write the fetched
-   bytes to the mirror **via extraction, never by hand-copying**: large results are
-   auto-persisted as JSON envelopes under the session's `tool-results/` directory, and
-   inline results are recorded in the session transcript
-   (`~/.claude/projects/-Users-office-Github-rukka-folio/<session-id>.jsonl`) — a small
-   python script can parse both, write each envelope's `content` to
-   `design/canvas-mirror/<path>` byte-exact, and validate that every `.json` parses
-   (pattern: `mirror_extract.py`, first used 1 Sep 2026).
-   ⚠️ Files whose content exceeds **256 KiB** come back `truncated` and must be skipped —
-   see the known-gaps table in `design/canvas-mirror/README.md`.
+2. Fetch every mirror-set file with the Artifact tool's `read` and `paths`, **in the main session**. Copy each saved file byte-exact from the scratchpad into a temp dir, and check that every `.json` parses. (Before 12 Nov 2026 this step used DesignSync `get_file` and `mirror_extract.py`, with a 256 KiB cap.)
+   **Canvas 18 · Ledger model — proposals** (owner, 12 Nov 2026): pull it into the mirror like any other canvas. But `scripts/design_match.py index` must skip it until each pair is approved, because a proposal would otherwise take over its S-id (brief `design/briefs/2026-11-11-ledger-model-frames.md`, *After the frames*).
 3. Diff before overwriting: compare each fetched file against the on-disk mirror copy
    (write fetched content to a temp dir in the scratchpad, `diff -u` against the mirror,
    then overwrite). Summarize per file: which screens / strings changed, old → new.
@@ -70,7 +59,7 @@ and the marketing pages (`Landing Page`, `Coming Soon*`). Those are the website'
    and the current open items in `TRANSLATION-PENDING.md`.
 
 **Direction note:** this command pulls design → repo only. Pushing repo docs back into the
-project's `uploads/` is a separate, on-request action (`finalize_plan` → `write_files`).
+project's `project/uploads/` is a separate, on-request action: publish to the artifact url with `root` set to a scratchpad folder that holds `project/compat.json` (unchanged) plus the new files, and `file_path` set to that `compat.json`. The project's own files are never rewritten.
 
 ## ⚠️ Pushing rebuilt canvases: exact display names, never short names
 
@@ -99,6 +88,9 @@ path — writing `canvas5.dc.html` creates a *duplicate* canvas in the app (happ
 | 15 | `Canvas 15 - Menu and reports.dc.html` |
 | 16 | `Canvas 16 - Reading by entity.dc.html` |
 | 17 | `Canvas 17 - Reports and statements.dc.html` |
+| 18 | `Canvas 18 - Ledger model proposals.dc.html` (12 Nov 2026; proposals only, see step 2) |
+
+In the artifact (since 12 Nov 2026), each path above sits under `project/`, for example `project/Canvas 2 - Entry.dc.html`.
 
 (plus `Core Patterns.dc.html`, not canvas-numbered). Canvas 7's *title* became "Reading the books" on 3 Sep 2026 when its Menu/report and per-entity rows split off into 15 and 16; its project path keeps the old name until the owner renames it. If unsure, `list_files` first and
 match the existing name; a canvas rename is the owner's call only.
